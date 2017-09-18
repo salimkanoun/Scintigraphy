@@ -14,6 +14,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import java.awt.*;
 import java.util.ArrayList;
+
 import ij.*;
 import ij.gui.*;
 import ij.plugin.ContrastEnhancer;
@@ -29,8 +30,8 @@ public class Condense_Dynamique  implements PlugIn {
 	private Point p=new Point();
 	
 	@Override
-	public void run(String arg) {
-		ouvertureImage();	
+	public void run(String arg) {	
+				 ouvertureImage();	
 	}
 	
 	private void ouvertureImage() {

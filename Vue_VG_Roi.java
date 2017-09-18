@@ -504,19 +504,21 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 		IJ.setTool("hand");
 	}
 
-	// Fenêtre de fermeture du programme
+	// fermeture de fermeture du programme
 	public void end(String dialog) {
-		int optionChoisie = JOptionPane.showConfirmDialog(null, "The program will now shut down", "",
-				JOptionPane.OK_CANCEL_OPTION);
-		if (optionChoisie == JOptionPane.OK_OPTION) {
-			if (dialog == null) {
-				imp.close();
+		if (dialog == null) {
+			int optionChoisie = JOptionPane.showConfirmDialog(null, "The program will now shut down", "",
+					JOptionPane.OK_CANCEL_OPTION);
+			if (optionChoisie == JOptionPane.OK_OPTION) {
+				if (dialog == null) {
+					imp.close();
+					leRoi.close();
+					}
+				}
+			}
+		else if (dialog == "dialog") {
 				leRoi.close();
 			}
-			if (dialog == "dialog") {
-				leRoi.close();
-			}
-		}
 	}
 	//les resultats consistent a deux parties, la premiere est le pourcentage des MGs pour chaque serie, 
 	//la deuxieme est les informations bases(nom du patient, date...) et les autres informations( debut de l'antre, retention a 1h...)

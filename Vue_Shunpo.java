@@ -320,6 +320,7 @@ public class Vue_Shunpo implements PlugIn {
 		
 		f.addWindowListener(new WindowAdapter(){
 			public void windowClosing(WindowEvent we) {
+				f.setAlwaysOnTop(false);
 				end("dialog");
 				f.dispose();
 			}
@@ -397,19 +398,19 @@ public class Vue_Shunpo implements PlugIn {
 	
 	// routine de fermeture du programme
 	protected void end(String dialog) {
-		int optionChoisie = JOptionPane.showConfirmDialog(null, "The program will now shut down", "", JOptionPane.OK_CANCEL_OPTION) ;
-		if (optionChoisie == JOptionPane.OK_OPTION) {
-			if (dialog==null){
-				leRoi.close();
-				win.close();
-				System.gc();
-			}
-			if (dialog=="dialog"){
-				leRoi.close();
-				System.gc();
-			}
-			
+		if (dialog=="dialog" && imageOuverte==false){
+			leRoi.close();
+			System.gc();
 		}
+		if (dialog==null || imageOuverte==true ){
+			int optionChoisie = JOptionPane.showConfirmDialog(null, "The program will now shut down", "", JOptionPane.OK_CANCEL_OPTION) ;
+			if (optionChoisie == JOptionPane.OK_OPTION) {
+			leRoi.close();
+			win.close();
+			System.gc();
+			}
+		}
+		
 	}
 	
 	
