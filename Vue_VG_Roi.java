@@ -510,10 +510,8 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 			int optionChoisie = JOptionPane.showConfirmDialog(null, "The program will now shut down", "",
 					JOptionPane.OK_CANCEL_OPTION);
 			if (optionChoisie == JOptionPane.OK_OPTION) {
-				if (dialog == null) {
 					imp.close();
 					leRoi.close();
-					}
 				}
 			}
 		else if (dialog == "dialog") {

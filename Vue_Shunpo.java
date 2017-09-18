@@ -81,6 +81,8 @@ public class Vue_Shunpo implements PlugIn {
 	private Dimension dimensionPanelPrincipal;
 	
 	private Dimension dimensionPanelResultat;
+	
+	private Frame f;
 	 
 	
 	@Override
@@ -300,7 +302,7 @@ public class Vue_Shunpo implements PlugIn {
 
 	//Ouvre le dialog pour charger une image
 	protected void ouvrirImage(String image) {
-		Frame f = new Frame();
+		f = new Frame();
 		Panel pan = new Panel();
 		pan.setLayout(new GridLayout(2, 1));
 		img_inst.setText("Please open the " + image + " image then confirm.");
@@ -320,7 +322,6 @@ public class Vue_Shunpo implements PlugIn {
 		
 		f.addWindowListener(new WindowAdapter(){
 			public void windowClosing(WindowEvent we) {
-				f.setAlwaysOnTop(false);
 				end("dialog");
 				f.dispose();
 			}
@@ -400,14 +401,26 @@ public class Vue_Shunpo implements PlugIn {
 	protected void end(String dialog) {
 		if (dialog=="dialog" && imageOuverte==false){
 			leRoi.close();
+			f.dispose();
 			System.gc();
 		}
-		if (dialog==null || imageOuverte==true ){
+		
+		if (dialog=="dialog" && imageOuverte==true){
 			int optionChoisie = JOptionPane.showConfirmDialog(null, "The program will now shut down", "", JOptionPane.OK_CANCEL_OPTION) ;
 			if (optionChoisie == JOptionPane.OK_OPTION) {
-			leRoi.close();
-			win.close();
-			System.gc();
+				f.dispose();
+				win.close();
+				leRoi.close();
+				System.gc();
+			}
+			
+		}
+		if (dialog==null){
+			int optionChoisie = JOptionPane.showConfirmDialog(null, "The program will now shut down", "", JOptionPane.OK_CANCEL_OPTION) ;
+			if (optionChoisie == JOptionPane.OK_OPTION) {
+				leRoi.close();
+				win.close();
+				System.gc();
 			}
 		}
 		
