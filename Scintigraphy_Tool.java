@@ -41,11 +41,18 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			//plumonary shunt
 			MenuItem plumonaryShunt = new MenuItem("Pulmonary Shunt");
 			
+			//About et preference
+			MenuItem about = new MenuItem("About");
+			MenuItem preferences=new MenuItem("Preferences");
+			
+			
 			//Ajout des listeners
 			gastricEmptying.addActionListener(this);
 			gastricDynamic.addActionListener(this);
 			gastricCondense.addActionListener(this);
 			plumonaryShunt.addActionListener(this);
+			about.addActionListener(this);
+			preferences.addActionListener(this);
 			
 			gastric.add(gastricEmptying);
 			gastric.add(gastricDynamic);
@@ -55,6 +62,9 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			
 			general.add(gastric);
 			general.add(pulmonary);
+			general.add(preferences);
+			general.add(about);
+			
 			
 			par.add(general);
 		}
@@ -81,6 +91,12 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			    });
 			   condense.start();
 			   
+			}
+			if (cmd=="About") {
+				IJ.run("About");
+			}
+			if (cmd=="Preferences") {
+				IJ.run("Preferences");
 			}
 			
 		}
