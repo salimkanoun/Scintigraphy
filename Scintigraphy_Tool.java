@@ -13,6 +13,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
  */
 
 import ij.IJ;
+import ij.ImagePlus;
 import ij.Menus;
 import ij.gui.Toolbar;
 import ij.plugin.tool.PlugInTool;
@@ -30,13 +31,12 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 		private final int OFFSET = 0;
 		PopupMenu general;
 		
-		
-		
 		@Override
 		public void showPopupMenu(MouseEvent e, Toolbar par) {
 			addPopupMenu(par);
 			general.show(e.getComponent(), e.getX()+OFFSET, e.getY()+OFFSET);
 		}
+		
 		
 
 		void addPopupMenu(Toolbar par) {

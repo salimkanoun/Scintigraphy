@@ -76,7 +76,7 @@ public class Vue_VG_Dynamique  implements PlugIn {
 									//si les images dynamiques sont  ouvert au fenetre principal et il y a des images sont ouverts et il est pas des images au fenetre principal
 									//c'est a dire ce qu'on a ouvert est l'image des oeufs
 									//donc  on ouvert l'image des oeufs au fenetre principal
-									if (WindowManager.getCurrentImage() != null && WindowManager.getCurrentImage() != imp && imageOuverte ) {
+									if (WindowManager.getCurrentImage() != null && WindowManager.getCurrentImage() != imp && imageOuverte &&  WindowManager.getCurrentImage().getStackSize()==1 ) {
 										ImagePlus imp=WindowManager.getCurrentImage();
 										((Frame) b.getParent().getParent()).dispose();
 										ouvertureImageOeuf(imp);

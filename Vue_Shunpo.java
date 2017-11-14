@@ -559,7 +559,6 @@ public class Vue_Shunpo implements PlugIn {
 		 */
 		@Deprecated
 		public static ImagePlus trierImageMultiFrame(ImagePlus imp0) {
-				
 				//On duplique pour faire les modifs dans l'image dupliqu锟絜
 				ImagePlus imp=imp0.duplicate();
 				
@@ -568,7 +567,9 @@ public class Vue_Shunpo implements PlugIn {
 				
 				//On recupere la chaine de vue
 				String tag = DicomTools.getTag(imp, "0011,1012");
-				
+				// TAG 0011, 1012 semble absent de SIEMENS, TROUVER D AUTRE EXAMPLE POUR STATUER
+				//Si pas de tag
+				if (tag==null) tag="no tag";
 				// On recupere la chaine de detecteur
 				String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
 				tagDetecteur=tagDetecteur.substring(1, tagDetecteur.length()-1);
@@ -577,7 +578,6 @@ public class Vue_Shunpo implements PlugIn {
 				
 				///On recupere le 1er separateur de chaque vue dans le champ des orientation
 				int separateur=tag.indexOf("\\");
-				
 				//Si on ne trouve pas le separateur, on met la position du separateur � la fin de la string pour tout traiter
 				if (separateur==-1) separateur=(tag.length());
 				
