@@ -747,7 +747,7 @@ public class Vue_Shunpo implements PlugIn {
 		 * @param imp : ImagePlus a tester
 		 * @return booleen vrai si image anterieure
 		 */
-		public static boolean isAnterieur(ImagePlus imp) {
+		public static Boolean isAnterieur(ImagePlus imp) {
 			Boolean anterieur=null;
 				if (isMultiFrame(imp)) {
 					anterieur=isAnterieurMultiframe(imp);
@@ -755,8 +755,7 @@ public class Vue_Shunpo implements PlugIn {
 				if (!isMultiFrame(imp)) {
 					anterieur=isAnterieurUniqueFrame(imp);
 				}
-				if (anterieur==null) anterieur=false;
-					return anterieur;
+				return anterieur;
 		}
 		
 		/**
@@ -865,15 +864,28 @@ public class Vue_Shunpo implements PlugIn {
 			String tagDetecteur = DicomTools.getTag(imp0, "0054,0020");
 			tagDetecteur=tagDetecteur.substring(1, tagDetecteur.length()-1);
 			String delims = "[ ]+";
-			String[] sequenceDeteceur = tagDetecteur.split(delims);
+			String[] sequenceDetecteur = tagDetecteur.split(delims);
 			boolean sameCamera=true ;
 			
-			String premiereImage=sequenceDeteceur[0];
-			for (int i=1 ; i<sequenceDeteceur.length;i++) {
-				if (!premiereImage.equals(sequenceDeteceur[i])) sameCamera=false;
-				premiereImage=sequenceDeteceur[i];
+			String premiereImage=sequenceDetecteur[0];
+			for (int i=1 ; i<sequenceDetecteur.length;i++) {
+				if (!premiereImage.equals(sequenceDetecteur[i])) sameCamera=false;
+				premiereImage=sequenceDetecteur[i];
 			}
 			return sameCamera;
+		}
+		
+		public static boolean isPremiereImageDetecteur1(ImagePlus imp0) {
+			// On recupere la chaine de detecteur
+			String tagDetecteur = DicomTools.getTag(imp0, "0054,0020");
+			tagDetecteur=tagDetecteur.substring(1, tagDetecteur.length()-1);
+			String delims = "[ ]+";
+			String[] sequenceDeteceur = tagDetecteur.split(delims);
+			boolean detecteur1=false;
+			
+			if (Integer.parseInt(sequenceDeteceur[0])==1) detecteur1 = true;
+			
+			return detecteur1;
 		}
 } 
 // Fin Vue_Shunpo

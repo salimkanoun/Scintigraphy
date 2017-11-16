@@ -159,6 +159,7 @@ public class Vue_VG_Dynamique  implements PlugIn {
 				}
 				//Si multiFrame mais meme camera
 				else if ( Vue_Shunpo.isMultiFrame(brute)  &&  Vue_Shunpo.isSameCameraMultiFrame(brute)) {
+					IJ.log("ici cas 2");
 					projete.add(creationImageProjetee(brute)); 
 					
 				}
@@ -235,14 +236,19 @@ public class Vue_VG_Dynamique  implements PlugIn {
 	
 	private ImagePlus creationImageProjetee(ImagePlus brute) {
 		ImagePlus ImageProjetee=null;
-		if (Vue_Shunpo.isAnterieur(brute)){
+		Boolean anterieur=Vue_Shunpo.isAnterieur(brute);
+		if (anterieur!=null && anterieur){
 			brute.setTitle("Anterior");
 			ImageProjetee=makeImageProjetee(brute, true);
 			}
-		else if (!Vue_Shunpo.isAnterieur(brute)){
+		else if (anterieur!=null && !anterieur){
 			brute.setTitle("Posterior");
 			ImageProjetee=makeImageProjetee(brute, false);
 			}
+		else {
+			if (Vue_Shunpo.isPremiereImageDetecteur1(brute)) ImageProjetee=makeImageProjetee(brute, true) ;
+			else if (!Vue_Shunpo.isPremiereImageDetecteur1(brute)) ImageProjetee=makeImageProjetee(brute, false) ;
+		}
 		return ImageProjetee;
 		
 	}
