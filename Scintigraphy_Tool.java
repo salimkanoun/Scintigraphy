@@ -13,7 +13,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
  */
 
 import ij.IJ;
-import ij.ImagePlus;
 import ij.Menus;
 import ij.gui.Toolbar;
 import ij.plugin.tool.PlugInTool;

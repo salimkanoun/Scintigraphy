@@ -36,6 +36,7 @@ import javax.swing.JOptionPane;
 
 import ij.IJ;
 import ij.ImagePlus;
+import ij.ImageStack;
 import ij.Prefs;
 import ij.WindowManager;
 import ij.gui.ImageCanvas;
@@ -649,15 +650,17 @@ public class Vue_Shunpo implements PlugIn {
 				//Si unique frame on inverse toute image qui contient une image post锟絩ieure
 					for (int i = 1; i <= imp.getImageStackSize(); i++) {
 					imp.setSlice(i);
-					String tag2 = DicomTools.getTag(imp, "0011,1012");
-						if (tag2.contains("POS") || tag2.contains("_F")) {
-							imp.getProcessor().flipHorizontal();
+					String tag = DicomTools.getTag(imp, "0011,1012");
+						if (tag!=null) {
+							if (tag.contains("POS") || tag.contains("_F")) {
+								imp.getProcessor().flipHorizontal();
+							}
+							if (imp.getStackSize()==2 && !tag.contains("POS") && !tag.contains("_F") && !tag.contains("ANT") && !tag.contains("_F") ) {
+								IJ.log("2 image detecte with No Orientation label found, assuming image 2 is posterior. Please notify Salim.kanoun@gmail.com");
+							}
 						}
-						if (imp.getStackSize()==2 && !tag2.contains("POS") && !tag2.contains("_F") && !tag2.contains("ANT") && !tag2.contains("_F") ) {
-							IJ.log("2 image detecte with No Orientation label found, assuming image 2 is posterior. Please notify Salim.kanoun@gmail.com");
-						}
-					}
-					
+						
+					}	
 				return imp;
 			}
 		
@@ -670,21 +673,27 @@ public class Vue_Shunpo implements PlugIn {
 		 * @return boolean vrai si anterieur
 		 */
 		@Deprecated
-		public static boolean isAnterieurUniqueFrame(ImagePlus imp){
+		public static Boolean isAnterieurUniqueFrame(ImagePlus imp){
 				imp.setSlice(1);
 				String tag = DicomTools.getTag(imp, "0011,1012");
 				Boolean anterieur=null;
+				if (tag!=null) {
 					if (tag.contains("ANT") || tag.contains("_E")) {
 						anterieur=true;
 					}
-					if (tag.contains("POS") || tag.contains("_F")) {
+					else if (tag.contains("POS") || tag.contains("_F")) {
 						anterieur=false;
 					}
 					//Si on ne trouve pas de tag le booelan reste null et on notifie l'utilisateur
-					if (!tag.contains("POS") && !tag.contains("_F")&& !tag.contains("ANT") && !tag.contains("_E")) {
+					else if (!tag.contains("POS") && !tag.contains("_F")&& !tag.contains("ANT") && !tag.contains("_E")) {
 						// le Boolean reste � null et on informe l'user
-						IJ.showMessage("No Orientation found");	
+						IJ.showMessage("Orientation not reckognized");	
 					}
+				}
+				else {
+					IJ.showMessage("No Orientation found");	
+				}
+					
 					
 					return anterieur;
 		}
@@ -697,37 +706,37 @@ public class Vue_Shunpo implements PlugIn {
 		 * @return boolean vrai si anterieur
 		 */
 		@Deprecated
-		public static boolean isAnterieurMultiframe(ImagePlus imp0) {
-			
+		public static Boolean isAnterieurMultiframe(ImagePlus imp0) {
 			//On ne traite que l'image 1
 			imp0.setSlice(1);
-			
-			//On recupere la chaine de vue
-			String tag = DicomTools.getTag(imp0, "0011,1012");
-			
-			///On recupere le 1er separateur de chaque vue dans le champ des orientation
-			int separateur=tag.indexOf("\\");
-			
-			//Si on ne trouve pas le separateur, on met la position du separateur � la fin de la string pour tout traiter
-			if (separateur==-1) separateur=(tag.length());
+			String tag= DicomTools.getTag(imp0, "0011,1012");
 			
 			//On set le Boolean a null
-			Boolean anterieur=null;
-			
-			// Si la 1ere image est labelisee anterieure
-			if (tag.substring(0, separateur).contains("ANT") || tag.substring(0, separateur).contains("_E")) {
-				anterieur=true;
+			Boolean anterieur = null;
+			if (tag!=null) {
+				///On recupere le 1er separateur de chaque vue dans le champ des orientation
+				int separateur=tag.indexOf("\\");
+				
+				//Si on ne trouve pas le separateur, on met la position du separateur � la fin de la string pour tout traiter
+				if (separateur==-1) separateur=(tag.length());
+				
+					// Si la 1ere image est labelisee anterieure
+				if (tag.substring(0, separateur).contains("ANT") || tag.substring(0, separateur).contains("_E")) {
+					anterieur=true;
+				}
+				//Si la 1ere image est labellisee posterieure
+				else if (tag.substring(0, separateur).contains("POS") || tag.substring(0, separateur).contains("_F")) {
+					anterieur=false;
+				}
+				
+				//Si on ne trouve pas de tag le booelan reste null et on notifie l'utilisateur
+				else if (!tag.substring(0, separateur).contains("POS") && !tag.substring(0, separateur).contains("_F")&& !tag.substring(0, separateur).contains("ANT") && !tag.substring(0, separateur).contains("_E")) {
+					// le Boolean reste � null et on informe l'user
+					IJ.log("Information not reckognized");	
+				}
 			}
-			
-			//Si la 1ere image est labellisee posterieure
-			if (tag.substring(0, separateur).contains("POS") || tag.substring(0, separateur).contains("_F")) {
-				anterieur=false;
-			}
-			
-			//Si on ne trouve pas de tag le booelan reste null et on notifie l'utilisateur
-			if (!tag.substring(0, separateur).contains("POS") && !tag.substring(0, separateur).contains("_F")&& !tag.substring(0, separateur).contains("ANT") && !tag.substring(0, separateur).contains("_E")) {
-				// le Boolean reste � null et on informe l'user
-				IJ.showMessage("No Orientation found");	
+			else {
+				IJ.log("No localization information");	
 			}
 			
 			return anterieur;	
@@ -746,6 +755,7 @@ public class Vue_Shunpo implements PlugIn {
 				if (!isMultiFrame(imp)) {
 					anterieur=isAnterieurUniqueFrame(imp);
 				}
+				if (anterieur==null) anterieur=false;
 					return anterieur;
 		}
 		
@@ -767,6 +777,103 @@ public class Vue_Shunpo implements PlugIn {
 				}
 			});
 			return retour;
+		}
+		
+		/**
+		 * Permet de spliter les images d'un multiFrame contenant 2 camera, image 0 camera Ant et Image1 Camera Post
+		 * @param imp0
+		 * @return Tableau d'imagePlus avec 2 ImagePlus (camera 1 et 2 )
+		 */
+		public static ImagePlus[] splitCameraMultiFrame(ImagePlus imp) {
+			//On prend le Header
+			String metadata=imp.getInfoProperty();
+			
+			// On recupere la chaine de detecteur
+			String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
+			tagDetecteur=tagDetecteur.substring(1, tagDetecteur.length()-1);
+			String delims = "[ ]+";
+			String[] sequenceDetecteur = tagDetecteur.split(delims);
+			
+			//On cree les ImageStack qui vont recevoir les image de chaque t�te
+			ImageStack camera0=new ImageStack(imp.getWidth(),imp.getHeight());
+			ImageStack camera1=new ImageStack(imp.getWidth(),imp.getHeight());
+			
+			// Determination de l'orientation des camera en regardant la 1ere image
+			String detecteurPremiereImage=sequenceDetecteur[0];
+			Boolean anterieurPremiereImage=Vue_Shunpo.isAnterieurMultiframe(imp);
+
+			
+			//On ajoute les images dans les camera adhoc
+			
+				if(anterieurPremiereImage!= null && anterieurPremiereImage) {
+					for (int i=0; i<sequenceDetecteur.length ; i++) {
+						if (sequenceDetecteur[i]==detecteurPremiereImage) {
+							camera0.addSlice(imp.getImageStack().getProcessor((i+1)));
+							}
+						else {
+							camera1.addSlice(imp.getImageStack().getProcessor((i+1)));
+							camera1.getProcessor(i+1).flipHorizontal();
+							}
+						}
+					}
+				else if(anterieurPremiereImage!= null && !anterieurPremiereImage) {
+					for (int i=0; i<sequenceDetecteur.length ; i++) {
+						if (sequenceDetecteur[i]==detecteurPremiereImage) {
+							camera1.addSlice(imp.getImageStack().getProcessor((i+1)));
+							camera1.getProcessor(i+1).flipHorizontal();
+							}
+						else {
+							camera0.addSlice(imp.getImageStack().getProcessor((i+1)));
+							}			
+						}
+					}
+				else  {
+					IJ.log("assuming image 2 is posterior. Please notify Salim.kanoun@gmail.com");
+						for (int i=0; i<sequenceDetecteur.length ; i++) {
+							if (sequenceDetecteur[i].equals("1")) {
+								camera0.addSlice(imp.getImageStack().getProcessor((i+1)));
+							}
+							else if (sequenceDetecteur[i].equals("2")) {
+								camera1.addSlice(imp.getImageStack().getProcessor((i+1)));
+							}
+						}
+				}
+			
+			ImagePlus cameraAnt=new ImagePlus();
+			ImagePlus cameraPost=new ImagePlus();
+			cameraAnt.setStack(camera0);
+			cameraPost.setStack(camera1);
+			
+			ImagePlus[] cameras=new ImagePlus[2];
+			cameras[0]=cameraAnt;
+			cameras[1]=cameraPost;
+			
+			//On ajoute une copie des headers
+			for (int i=0 ; i<cameras.length ; i++) {
+				cameras[i].setProperty("Info", metadata);
+			}
+			return cameras;
+		}
+		
+		/**
+		 * Test si les images du MutiFrame viennent toutes de la meme camera
+		 * @param imp0
+		 * @return
+		 */
+		public static boolean isSameCameraMultiFrame(ImagePlus imp0) {
+			// On recupere la chaine de detecteur
+			String tagDetecteur = DicomTools.getTag(imp0, "0054,0020");
+			tagDetecteur=tagDetecteur.substring(1, tagDetecteur.length()-1);
+			String delims = "[ ]+";
+			String[] sequenceDeteceur = tagDetecteur.split(delims);
+			boolean sameCamera=true ;
+			
+			String premiereImage=sequenceDeteceur[0];
+			for (int i=1 ; i<sequenceDeteceur.length;i++) {
+				if (!premiereImage.equals(sequenceDeteceur[i])) sameCamera=false;
+				premiereImage=sequenceDeteceur[i];
+			}
+			return sameCamera;
 		}
 } 
 // Fin Vue_Shunpo

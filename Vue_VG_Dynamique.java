@@ -17,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import javax.swing.JButton;
@@ -145,38 +146,41 @@ public class Vue_VG_Dynamique  implements PlugIn {
 	//permet de mettre les images dynamiques au fenetre principal
 	private void ouvertureImage() {
 			String[] imagesOuvertes =WindowManager.getImageTitles();
-			ImagePlus[] projete=new ImagePlus[imagesOuvertes.length];
+			ArrayList<ImagePlus> projete=new ArrayList<ImagePlus>();
 			
 			for (int i=0 ; i<imagesOuvertes.length; i++) {
 				ImagePlus brute=WindowManager.getImage(imagesOuvertes[i]);
-				String metadata=brute.getInfoProperty();
-				if (Vue_Shunpo.isAnterieur(brute)){
-					brute.setTitle("Anterior"+i);
-					}
-				if (!Vue_Shunpo.isAnterieur(brute)){
-					brute.setTitle("Posterior"+i);
-					}
+				//On cree l'imageProjetee et on l'ajoute a la liste
 				
-				//On fait la somme des 10 premieres coupes
-				ZProjector projector=new ZProjector();
-				projector.setImage(brute);
-				projector.setMethod(ij.plugin.ZProjector.SUM_METHOD);
-				projector.setStartSlice(1);
-				projector.setStopSlice(10);
-				projector.doProjection();
-				projete[i]=projector.getProjection();
-				projete[i].setProperty("Info", metadata);
+				//Si unique frame
+				if (!Vue_Shunpo.isMultiFrame(brute)) {
+					projete.add(creationImageProjetee(brute)); 
+					
+				}
+				//Si multiFrame mais meme camera
+				else if ( Vue_Shunpo.isMultiFrame(brute)  &&  Vue_Shunpo.isSameCameraMultiFrame(brute)) {
+					projete.add(creationImageProjetee(brute)); 
+					
+				}
+				// Si multiframe avec plusieurs vues
+				else if( Vue_Shunpo.isMultiFrame(brute) && !Vue_Shunpo.isSameCameraMultiFrame(brute)) {
+					//On recupere les deux ImagePlus de chaque Vue
+					ImagePlus [] deuxCamera=Vue_Shunpo.splitCameraMultiFrame(brute);
+					//On ajoute a part le ant et le post qui ont ete splite
+					deuxCamera[0].setTitle("Anterior");
+					projete.add(makeImageProjetee(deuxCamera[0], true));
+					deuxCamera[1].setTitle("Posterior");
+					projete.add(makeImageProjetee(deuxCamera[1], false));
+					brute.close();
+				};
 				
-				// Si posterieur on flip
-				if(!Vue_Shunpo.isAnterieur(brute)){
-					projete[i].getProcessor().flipHorizontal();
-					}
-				
-				brute.close();
 				
 			}
+			//On met la liste dans un tableau pour utiliser les methodes generiques
+			ImagePlus[] projeteTableau= new ImagePlus[projete.size()];
+			projete.toArray(projeteTableau);
 			//On trie les images par acquisition time
-			ImagePlus[] projeteOrderTemp=Vue_Shunpo.ordonnerSerie(projete);
+			ImagePlus[] projeteOrderTemp=Vue_Shunpo.ordonnerSerie(projeteTableau);
 			//On met l'image Ant apres l'imagePosterieur car sera inverse par la suite
 			ImagePlus[] projeteOrder=new ImagePlus[projeteOrderTemp.length];
 			for (int i=0 ; i<projeteOrderTemp.length;i+=2){
@@ -201,9 +205,8 @@ public class Vue_VG_Dynamique  implements PlugIn {
 			HyperStackConverter convert= new HyperStackConverter();
 			convert.run("hstostack");
 			String serie = DicomTools.getTag(imp, "0008,103E");
-			String titre = this.nomProgramme + " - ";
 			String tag = DicomTools.getTag(imp, "0010,0010");
-			titre = titre + tag + " - " + serie;
+			String titre = this.nomProgramme + " - " + tag + " - " + serie;
 			//On appelle la fonction de Vue_Shunpo pour mettre la lut des preference
 			Vue_Shunpo.setCustomLut(imp);
 			// On cree la fenetre avec la pile d'image
@@ -228,6 +231,41 @@ public class Vue_VG_Dynamique  implements PlugIn {
 				this.instructions.setText("Delimit the Stomache");
 			lesBoutons.get("Precedent").setEnabled(false);
 			windowstack.getImagePlus().setOverlay(this.overlay);
+	}
+	
+	private ImagePlus creationImageProjetee(ImagePlus brute) {
+		ImagePlus ImageProjetee=null;
+		if (Vue_Shunpo.isAnterieur(brute)){
+			brute.setTitle("Anterior");
+			ImageProjetee=makeImageProjetee(brute, true);
+			}
+		else if (!Vue_Shunpo.isAnterieur(brute)){
+			brute.setTitle("Posterior");
+			ImageProjetee=makeImageProjetee(brute, false);
+			}
+		return ImageProjetee;
+		
+	}
+	
+	private ImagePlus makeImageProjetee(ImagePlus brute, boolean anterior) {
+		String metadata=brute.getInfoProperty();
+		//On fait la somme des 10 premieres coupes
+		ZProjector projector=new ZProjector();
+		projector.setImage(brute);
+		projector.setMethod(ij.plugin.ZProjector.SUM_METHOD);
+		projector.setStartSlice(1);
+		projector.setStopSlice(10);
+		projector.doProjection();
+		ImagePlus ImageProjetee=projector.getProjection();
+		ImageProjetee.setProperty("Info", metadata);
+		
+		// Si posterieur on flip
+		if(!anterior){
+			ImageProjetee.getProcessor().flipHorizontal();
+		}
+		
+		brute.close();
+		return ImageProjetee;
 	}
 	
 	//permet de mettre l'image des oeufs au fenetre principal
