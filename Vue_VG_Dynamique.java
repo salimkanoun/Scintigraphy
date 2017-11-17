@@ -64,9 +64,10 @@ public class Vue_VG_Dynamique  implements PlugIn {
 	@Override
 	public void run(String arg) {
 		RoiManager rm = new RoiManager(false);
-		this.leRoi = rm;
-		this.instructions = new Label("");
-		this.img_inst=new Label("");
+		leRoi = rm;
+		instructions = new Label("");
+		instructions.setBackground(Color.LIGHT_GRAY);
+		img_inst=new Label("");
 		initBoutons();
 		IJ.setTool(Toolbar.POLYGON);
 		
@@ -348,7 +349,6 @@ public class Vue_VG_Dynamique  implements PlugIn {
 				lesBoutons.get("Precedent").setEnabled(false);
 				btns_instru.add(lesBoutons.get("Suivant"));
 				instru.add(btns_instru);
-				instru.setBackground(Color.LIGHT_GRAY);
 				gauche.add(instru);
 				panel.add(gauche);
 				add(panel);

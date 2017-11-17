@@ -92,6 +92,7 @@ public class Vue_Shunpo implements PlugIn {
 		RoiManager rm=new RoiManager(false);
 		leRoi=rm;
 		instructions = new Label("");
+		instructions.setBackground(Color.LIGHT_GRAY);
 		img_inst = new Label();
 		labRes = new Label[10] ;
 		for (int i = 0 ; i < 10 ; i++)
@@ -106,13 +107,15 @@ public class Vue_Shunpo implements PlugIn {
 				if (WindowManager.getCurrentImage() != null && WindowManager.getCurrentImage() != imp && imageOuverte == true) {
 					ImagePlus imp=WindowManager.getCurrentImage();
 					ouvertureImageBrain(imp) ;
+					((Frame) b.getParent().getParent()).dispose();
 				}
 				if (WindowManager.getCurrentImage() != null && imageOuverte == false) {
 					imageOuverte = true;
 					ImagePlus imp=WindowManager.getCurrentImage();
 					ouvertureImage(imp) ;
+					((Frame) b.getParent().getParent()).dispose();
 				}
-				((Frame) b.getParent().getParent()).dispose();
+				
 				
 			}
 
@@ -276,7 +279,6 @@ public class Vue_Shunpo implements PlugIn {
 			lesBoutons.get("Precedent").setEnabled(false);
 			btns_instru.add(lesBoutons.get("Suivant"));
 			instru.add(btns_instru);
-			instru.setBackground(Color.LIGHT_GRAY);
 			gauche.add(instru);
 			panel.add(gauche);
 			add(panel);

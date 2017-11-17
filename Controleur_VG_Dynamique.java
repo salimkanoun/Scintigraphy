@@ -548,15 +548,19 @@ public class Controleur_VG_Dynamique implements ActionListener {
 			}
 		}
 
-		if (b == laVue.lesBoutons.get("Draw ROI"))
+		if (b == laVue.lesBoutons.get("Draw ROI")) {
 			laVue.lesBoutons.get("Draw ROI").setBackground(Color.LIGHT_GRAY);
 			laVue.lesBoutons.get("Contrast").setBackground(null);
 			IJ.setTool(Toolbar.POLYGON);
+		}
+			
 		
-		if (b == laVue.lesBoutons.get("Contrast"))
+		if (b == laVue.lesBoutons.get("Contrast")) {
 			laVue.lesBoutons.get("Draw ROI").setBackground(null);
 			laVue.lesBoutons.get("Contrast").setBackground(Color.LIGHT_GRAY);
 			IJ.run("Window Level Tool");
+		}
+			
 		
 		if (b == laVue.lesBoutons.get("Quitter")) {
 			laVue.end();
@@ -568,8 +572,10 @@ public class Controleur_VG_Dynamique implements ActionListener {
 			if (!Modele_VG_Dynamique.logOn) {
 				IJ.log("\\Close");
 				laVue.lesBoutons.get("Show").setLabel("Show MG%");
+				laVue.lesBoutons.get("Show").setBackground(null);
 			} else {
 				laVue.lesBoutons.get("Show").setLabel("Close MG%");
+				laVue.lesBoutons.get("Show").setBackground(Color.LIGHT_GRAY);
 			}
 		}
 
@@ -600,7 +606,7 @@ public class Controleur_VG_Dynamique implements ActionListener {
 			laVue.overlay.add(laVue.leRoi.getRoi(index_Roi));
 		}
 		if (nom.contains("Intestine")){
-			laVue.overlay.add(laVue.leRoi.getRoi(index_Roi-1));
+			//TESTSK//laVue.overlay.add(laVue.leRoi.getRoi(index_Roi-1));
 		}
 
 		index_Roi++;
@@ -643,7 +649,7 @@ public class Controleur_VG_Dynamique implements ActionListener {
 				laVue.leRoi.deselect();
 				laVue.leRoi.select(index_Roi-1);
 				laVue.leRoi.runCommand("Delete");
-				laVue.overlay.add(laVue.leRoi.getRoi(index_Roi-2));
+				//TESTSK//laVue.overlay.add(laVue.leRoi.getRoi(index_Roi-2));
 				//Si on n'est pas dans la 1ere image on remet la ROI intestin precedente  
 				if (index_Roi > 2) {
 					laVue.leRoi.deselect();

@@ -498,6 +498,7 @@ public class Controleur_VG_Roi implements ActionListener {
 		// exporter les resultats en une image
 		ImagePlus ze = Modele_Shunpo.captureFenetre(laVue.res.getImagePlus(), 0, 0);
 		laVue.leRoi.close();
+		//Evite le promt voulez vous sauver les modif en cas d edition de l image
 		laVue.windowstack.close();
 		//On genere la fin du Header DICOM de la capture finale via la methode disponible dans Shunpo
 		tagCaptureFinale += Modele_Shunpo.genererDicomTagsPartie2(ze);
@@ -513,6 +514,7 @@ public class Controleur_VG_Roi implements ActionListener {
 
 		} catch (FileNotFoundException e) {
 		}
+		laVue.res.getImagePlus().changes=false;
 		laVue.res.close();
 
 		// On lance l'utilitaire d'export en Dicom d'Ilan
@@ -548,10 +550,11 @@ public class Controleur_VG_Roi implements ActionListener {
 		Modele_VG_Roi.logOn = !Modele_VG_Roi.logOn;
 		if (!Modele_VG_Roi.logOn) {
 			laVue.lesBoutons.get("Show").setLabel("Show MG%");
+			laVue.lesBoutons.get("Show").setBackground(null);
+			
 			IJ.log("\\Close");
-			
-			
-		} else {
+		} 
+		else {
 			if (index_Image > 1) {
 				for (int i = 1; i < index_Image; i++) {
 					IJ.log("image " + (i) + ": " + " Stomach " + Modele_VG_Roi.estomacPourcent[i] + " Intestine "
@@ -559,8 +562,9 @@ public class Controleur_VG_Roi implements ActionListener {
 							+ " Antre " + Modele_VG_Roi.antrePourcent[i]);
 				}
 			}
-			laVue.lesBoutons.get("Show").setBackground(Color.LIGHT_GRAY);
 			laVue.lesBoutons.get("Show").setLabel("Close MG%");
+			laVue.lesBoutons.get("Show").setBackground(Color.LIGHT_GRAY);
+			
 			
 		}
 	}

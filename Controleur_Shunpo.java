@@ -257,6 +257,7 @@ public class Controleur_Shunpo implements ActionListener {
 				laVue.lesBoutons.get("Capture").setVisible(false);
 				laVue.Csv.setText("Provided By Petctviewer.org");
 				ImagePlus captureFinale =Modele_Shunpo.captureFenetre(WindowManager.getCurrentImage(),0,0);
+				WindowManager.getCurrentWindow().getImagePlus().changes=false;
 				WindowManager.getCurrentWindow().close();
 				//On genere la 2eme partie des tag dicom et on l'ajoute 脿 la 1ere partie dans le property de l'image finale
 				captureFinale.setProperty("Info", tagCapture+=(Modele_Shunpo.genererDicomTagsPartie2(captureFinale)));
@@ -338,15 +339,19 @@ public class Controleur_Shunpo implements ActionListener {
 			
 			}
 		}
-		if (b == laVue.lesBoutons.get("Draw ROI"))
+		if (b == laVue.lesBoutons.get("Draw ROI")) {
 			laVue.lesBoutons.get("Draw ROI").setBackground(Color.LIGHT_GRAY);
 			laVue.lesBoutons.get("Contrast").setBackground(null);
 			IJ.setTool(Toolbar.POLYGON);
+		}
+			
 		
-		if (b == laVue.lesBoutons.get("Contrast")) 
+		if (b == laVue.lesBoutons.get("Contrast")) {
 			laVue.lesBoutons.get("Draw ROI").setBackground(null);
 			laVue.lesBoutons.get("Contrast").setBackground(Color.LIGHT_GRAY);
 			IJ.run("Window Level Tool");
+		}
+			
 			
 		
 		if (b == laVue.lesBoutons.get("Quitter")) {
@@ -360,11 +365,13 @@ public class Controleur_Shunpo implements ActionListener {
 			if (!showLog){
 				showLog=true;
 				laVue.lesBoutons.get("Show Log").setLabel("Hide Log");
+				laVue.lesBoutons.get("Show").setBackground(Color.LIGHT_GRAY);
 			}
 			
 			else{
 				showLog=false;
 				laVue.lesBoutons.get("Show Log").setLabel("Show Log");
+				laVue.lesBoutons.get("Show").setBackground(null);
 			}
 		
 	}

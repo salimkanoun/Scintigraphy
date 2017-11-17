@@ -128,6 +128,7 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 		RoiManager rm = new RoiManager(false);
 		leRoi = rm;
 		instructions = new Label("");
+		instructions.setBackground(Color.LIGHT_GRAY);
 		img_inst = new Label();
 		initBoutons();
 		ouvrirImage("all the acquisitions images of  Stomachs-Intestines");
@@ -283,7 +284,6 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 			lesBoutons.get("Precedent").setEnabled(false);
 			btns_instru.add(lesBoutons.get("Suivant"));
 			instru.add(btns_instru);
-			instru.setBackground(Color.LIGHT_GRAY);
 			gauche.add(instru);
 			panel.add(gauche);
 			add(panel);
