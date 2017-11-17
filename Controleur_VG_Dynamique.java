@@ -13,6 +13,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
  */
 
 import java.awt.Button;
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -548,9 +549,13 @@ public class Controleur_VG_Dynamique implements ActionListener {
 		}
 
 		if (b == laVue.lesBoutons.get("Draw ROI"))
+			laVue.lesBoutons.get("Draw ROI").setBackground(Color.LIGHT_GRAY);
+			laVue.lesBoutons.get("Contrast").setBackground(null);
 			IJ.setTool(Toolbar.POLYGON);
 		
 		if (b == laVue.lesBoutons.get("Contrast"))
+			laVue.lesBoutons.get("Draw ROI").setBackground(null);
+			laVue.lesBoutons.get("Contrast").setBackground(Color.LIGHT_GRAY);
 			IJ.run("Window Level Tool");
 		
 		if (b == laVue.lesBoutons.get("Quitter")) {

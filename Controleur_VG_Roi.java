@@ -18,6 +18,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.text.ParseException;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -526,9 +527,17 @@ public class Controleur_VG_Roi implements ActionListener {
 		laVue.res.close();
 	}
 
-	if(b==laVue.lesBoutons.get("Draw ROI"))IJ.setTool(Toolbar.POLYGON);
+	if(b==laVue.lesBoutons.get("Draw ROI")) {
+		laVue.lesBoutons.get("Draw ROI").setBackground(Color.LIGHT_GRAY);
+		laVue.lesBoutons.get("Contrast").setBackground(null);
+		IJ.setTool(Toolbar.POLYGON);
+	}
 	
-	if(b==laVue.lesBoutons.get("Contrast"))IJ.run("Window Level Tool");
+	if(b==laVue.lesBoutons.get("Contrast")) {
+		laVue.lesBoutons.get("Contrast").setBackground(Color.LIGHT_GRAY);
+		laVue.lesBoutons.get("Draw ROI").setBackground(null);
+		IJ.run("Window Level Tool");
+	}
 	
 	if(b==laVue.lesBoutons.get("Quitter")) {
 		laVue.end(null);
@@ -538,8 +547,10 @@ public class Controleur_VG_Roi implements ActionListener {
 	if(b==laVue.lesBoutons.get("Show")) {
 		Modele_VG_Roi.logOn = !Modele_VG_Roi.logOn;
 		if (!Modele_VG_Roi.logOn) {
-			IJ.log("\\Close");
 			laVue.lesBoutons.get("Show").setLabel("Show MG%");
+			IJ.log("\\Close");
+			
+			
 		} else {
 			if (index_Image > 1) {
 				for (int i = 1; i < index_Image; i++) {
@@ -548,7 +559,9 @@ public class Controleur_VG_Roi implements ActionListener {
 							+ " Antre " + Modele_VG_Roi.antrePourcent[i]);
 				}
 			}
+			laVue.lesBoutons.get("Show").setBackground(Color.LIGHT_GRAY);
 			laVue.lesBoutons.get("Show").setLabel("Close MG%");
+			
 		}
 	}
 
@@ -574,7 +587,7 @@ public class Controleur_VG_Roi implements ActionListener {
 			laVue.overlay.add(laVue.leRoi.getRoi(index_Roi));
 		}
 		if (nom.contains("Intestine")){
-			laVue.overlay.add(laVue.leRoi.getRoi(index_Roi-1));
+			//TESTSK//laVue.overlay.add(laVue.leRoi.getRoi(index_Roi-1));
 		}
 
 		index_Roi++;
@@ -616,7 +629,7 @@ public class Controleur_VG_Roi implements ActionListener {
 				laVue.leRoi.deselect();
 				laVue.leRoi.select(index_Roi-1);
 				laVue.leRoi.runCommand("Delete");
-				laVue.overlay.add(laVue.leRoi.getRoi(index_Roi-2));
+				//TESTSK//laVue.overlay.add(laVue.leRoi.getRoi(index_Roi-2));
 				//Si on n'est pas dans la 1ere image on remet la ROI intestin precedente  
 				if (index_Roi > 2) {
 					laVue.leRoi.deselect();

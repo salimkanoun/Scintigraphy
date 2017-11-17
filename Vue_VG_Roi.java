@@ -160,6 +160,7 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 		lesBoutons.put("Valider", new Button(" Confirm "));
 		lesBoutons.put("Sauvegarder", new Button("Save Results"));
 		lesBoutons.put("Return", new Button("Return to adjust ROIs"));
+		
 	}
 
 	public void setInstructions(String inst) {
@@ -267,6 +268,7 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 			btns_glob.setLayout(new GridLayout(1, 3));
 			btns_glob.add(lesBoutons.get("Quitter"));
 			btns_glob.add(lesBoutons.get("Draw ROI"));
+			lesBoutons.get("Draw ROI").setBackground(Color.LIGHT_GRAY);
 			btns_glob.add(lesBoutons.get("Contrast"));
 			gauche.add(btns_glob);
 

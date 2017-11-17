@@ -159,7 +159,6 @@ public class Vue_VG_Dynamique  implements PlugIn {
 				}
 				//Si multiFrame mais meme camera
 				else if ( Vue_Shunpo.isMultiFrame(brute)  &&  Vue_Shunpo.isSameCameraMultiFrame(brute)) {
-					IJ.log("ici cas 2");
 					projete.add(creationImageProjetee(brute)); 
 					
 				}

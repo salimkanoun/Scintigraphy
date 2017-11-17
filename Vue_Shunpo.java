@@ -141,6 +141,8 @@ public class Vue_Shunpo implements PlugIn {
 		lesBoutons.put("Contraste", new Button(" Contrast "));
 		lesBoutons.put("Valider", new Button(" Confirm "));
 		lesBoutons.put("Capture", new Button(" Capture "));
+		
+		
 	}
 	
 	private void addEcouteurs() {
@@ -568,6 +570,8 @@ public class Vue_Shunpo implements PlugIn {
 				
 				//On recupere la chaine de vue
 				String tag = DicomTools.getTag(imp, "0011,1012");
+				if (DicomTools.getTag(imp, "0011,1030")!=null)		tag+=DicomTools.getTag(imp, "0011,1030");
+				
 				// TAG 0011, 1012 semble absent de SIEMENS, TROUVER D AUTRE EXAMPLE POUR STATUER
 				//Si pas de tag
 				if (tag==null) tag="no tag";
@@ -676,6 +680,8 @@ public class Vue_Shunpo implements PlugIn {
 		public static Boolean isAnterieurUniqueFrame(ImagePlus imp){
 				imp.setSlice(1);
 				String tag = DicomTools.getTag(imp, "0011,1012");
+				//On ajoute un deuxieme tag de localisation a voir dans la pratique ou se situe l'info
+				if (DicomTools.getTag(imp, "0011,1030")!=null)		tag+=DicomTools.getTag(imp, "0011,1030");
 				Boolean anterieur=null;
 				if (tag!=null) {
 					if (tag.contains("ANT") || tag.contains("_E")) {
@@ -702,14 +708,16 @@ public class Vue_Shunpo implements PlugIn {
 		 * Permet de tester si l'image est anterieure pour une MultiFrame, ne teste que la première Image (peut etre generalisee plus tard si besoin)
 		 * Eviter d'utiliser la methode isAnterieur(ImagePlus imp) est generique pour tout type d'image
 		 * 
-		 * @param imp0 : ImagePlus a tester
+		 * @param imp : ImagePlus a tester
 		 * @return boolean vrai si anterieur
 		 */
 		@Deprecated
-		public static Boolean isAnterieurMultiframe(ImagePlus imp0) {
+		public static Boolean isAnterieurMultiframe(ImagePlus imp) {
 			//On ne traite que l'image 1
-			imp0.setSlice(1);
-			String tag= DicomTools.getTag(imp0, "0011,1012");
+			imp.setSlice(1);
+			String tag= DicomTools.getTag(imp, "0011,1012");
+			//On ajoute un deuxieme tag de localisation a voir dans la pratique ou se situe l'info
+			if (DicomTools.getTag(imp, "0011,1030")!=null)		tag+=DicomTools.getTag(imp, "0011,1030");
 			
 			//On set le Boolean a null
 			Boolean anterieur = null;

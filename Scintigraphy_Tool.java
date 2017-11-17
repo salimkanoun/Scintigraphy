@@ -73,6 +73,7 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			
 			pulmonary.add(plumonaryShunt);
 			
+			
 			general.add(gastric);
 			general.add(pulmonary);
 			general.add(preferences);
