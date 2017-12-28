@@ -45,7 +45,6 @@ public class About extends JDialog implements PlugIn {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
 	private JPanel panel;
 	private JPanel PanelBas;
 	private JButton btnOk;

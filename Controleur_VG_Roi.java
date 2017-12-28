@@ -551,8 +551,6 @@ public class Controleur_VG_Roi implements ActionListener {
 		if (!Modele_VG_Roi.logOn) {
 			laVue.lesBoutons.get("Show").setLabel("Show MG%");
 			laVue.lesBoutons.get("Show").setBackground(null);
-			
-			IJ.log("\\Close");
 		} 
 		else {
 			if (index_Image > 1) {

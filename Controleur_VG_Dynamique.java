@@ -570,7 +570,6 @@ public class Controleur_VG_Dynamique implements ActionListener {
 		if (b == laVue.lesBoutons.get("Show")) {
 			Modele_VG_Dynamique.logOn = !Modele_VG_Dynamique.logOn;
 			if (!Modele_VG_Dynamique.logOn) {
-				IJ.log("\\Close");
 				laVue.lesBoutons.get("Show").setLabel("Show MG%");
 				laVue.lesBoutons.get("Show").setBackground(null);
 			} else {

@@ -436,7 +436,7 @@ public class Vue_Shunpo implements PlugIn {
 	 * Applique la LUT definie dans les preference à l'ImagePlus demandee
 	 * @param imp : L'ImagePlus sur laquelle on va appliquer la LUT des preferences
 	 */
-	static void setCustomLut(ImagePlus imp){
+	public static void setCustomLut(ImagePlus imp){
 		String lalut = Prefs.get("lut.preferred", null) ;
 		if (lalut != null) {
 		LUT lut = ij.plugin.LutLoader.openLut(lalut);

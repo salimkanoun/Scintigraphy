@@ -296,7 +296,7 @@ public class Modele_VG_Roi {
 		lineAndShapeRenderer.setSeriesPaint(0, color);
 		lineAndShapeRenderer.setSeriesStroke(0, new BasicStroke(2.0F));
 		plot.setRenderer(lineAndShapeRenderer);
-		lineAndShapeRenderer.setBaseLegendTextFont(new Font("", Font.BOLD, 16));
+		lineAndShapeRenderer.setDefaultLegendTextFont(new Font("", Font.BOLD, 16));
 		// XAxis
 		NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
 		domainAxis.setRange(0.00, 360.00);
@@ -350,7 +350,7 @@ public class Modele_VG_Roi {
 		//on set le renderer dans le plot
 		plot.setRenderer(lineAndShapeRenderer);
 		//On definit les parametre du renderer
-		lineAndShapeRenderer.setBaseLegendTextFont(new Font("", Font.BOLD, 16));
+		lineAndShapeRenderer.setDefaultLegendTextFont(new Font("", Font.BOLD, 16));
 		lineAndShapeRenderer.setSeriesPaint(0, color1);
 		lineAndShapeRenderer.setSeriesPaint(1, color2);
 		lineAndShapeRenderer.setSeriesPaint(2, color3);
