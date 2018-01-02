@@ -423,14 +423,14 @@ public class Modele_Shunpo {
 		return tag;
 	}
 	
-	public static String generateSOPInstanceUID(Date dt0) {
+	private static String generateSOPInstanceUID(Date dt0) {
 		Date dt1 = dt0;
 		if( dt1 == null) dt1 = new Date();
 		SimpleDateFormat df1 = new SimpleDateFormat("2.16.840.1.113664.3.yyyyMMdd.HHmmss", Locale.US);
 		return df1.format(dt1);
 	}
 	
-	public static String generateUID6digits() {
+	private static String generateUID6digits() {
 		Integer rnd = (int)(Math.random()*1000000.);
 		return rnd.toString();
 	}
