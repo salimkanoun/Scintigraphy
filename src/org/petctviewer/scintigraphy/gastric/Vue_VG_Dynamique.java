@@ -63,7 +63,7 @@ public class Vue_VG_Dynamique  implements PlugIn {
 	
 	protected Overlay overlay;
 	
-	private Dimension dimensionPanelPrincipal;
+	//private Dimension dimensionPanelPrincipal;
 
 	
 	@Override
@@ -223,14 +223,13 @@ public class Vue_VG_Dynamique  implements PlugIn {
 			imp.setTitle(titre);
 			windowstack.setTitle(titre);
 			this.overlay=Vue_Shunpo.initOverlay();
+			// On set la dimension de l'image
+			windowstack.getCanvas().setSize(new Dimension(512,512));
+			windowstack.getCanvas().setScaleToFit(true);
+			//On Pack la fenetre pour la mettre a la preferred Size
+			windowstack.pack();
+			windowstack.setSize(windowstack.getPreferredSize());
 			// La fenetre se place au premier plan
-			windowstack.toFront();
-			//On fixe la taille de la fenetre et on redimensionne le cc
-			//Ajoute 30 et 90 pixel
-			windowstack.setSize(512+30, 512+dimensionPanelPrincipal.height+90);
-			windowstack.repaint(); 
-			ImageCanvas ic=windowstack.getCanvas();
-			ic.fitToWindow();
 			windowstack.toFront();
 			this.imageOuverte=true;
 			if (this.instructions.getText().equals(""))
@@ -358,7 +357,6 @@ public class Vue_VG_Dynamique  implements PlugIn {
 				panel.add(gauche);
 				add(panel);
 				pack();
-				dimensionPanelPrincipal=panel.getSize();
 
 				// Permet d'avoir la fenetre au meme endroit que le stack original
 				Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();

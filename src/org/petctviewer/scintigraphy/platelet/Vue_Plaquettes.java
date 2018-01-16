@@ -349,12 +349,6 @@ public class Vue_Plaquettes implements PlugIn {
 		this.win=win;
 		win.setTitle(setTitre(this.imp));
 		this.imp.setTitle(setTitre(this.imp));
-		
-		// SK 
-		// AMELIORATION DE LA DEFINITION DE LA TAILLE DE LA FENETRE A UPDATER DANS AUTRES PROGRAMMES
-		// FAIT POUR SHUNPO
-		//SK
-		
 		//On fixe la taille de l'image a 512*512 et on force le zoom pour atteindre cette dimension
 		win.getCanvas().setSize(new Dimension(512,512));
 		win.getCanvas().setScaleToFit(true);
@@ -384,9 +378,6 @@ public class Vue_Plaquettes implements PlugIn {
 		return titre ;
 	}
 	
-	// SK METHODE POTENTIELLEMENT MEILLEUR ANCIEN PROGRAMME PROBABLEMENT A UPDATER
-	// Fait dans ShunPO
-	
 	protected void UIResultats(ImagePlus screen, JTable tableresults) {
 		//On cree la fenetre resultat avec le panel resultat
 		CustomWindow win = new CustomWindow(screen, tableresults);
@@ -396,6 +387,7 @@ public class Vue_Plaquettes implements PlugIn {
 		win.getCanvas().setMagnification(1.0);
 		win.getCanvas().setScaleToFit(true);
 		win.pack();
+		win.setSize(win.getPreferredSize());
 		
 		//On quitte l'outil ROI pour Hand (evite d'avoir le curseur qui fait des ROI)
 		IJ.setTool("hand");
