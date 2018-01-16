@@ -140,6 +140,7 @@ public class Modele_Plaquettes {
 		// On traite chaque acquisition
 		for (int i=0 ; i<mesures.size(); i++) {
 			//On ajoute le temps de mesure dans les titre de colonne
+			// SK NECESSITE DE TRIER LES COLONNES et CALCULER LE DELTA TEMPS
 			titreColonne[i+1]=dateFormat.format(mapDate[i]);
 			HashMap<String, Double> resultsImage =mesures.get(mapDate[i]).calculateandGetResults();
 			

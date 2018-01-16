@@ -402,5 +402,4 @@ public class Vue_Plaquettes implements PlugIn {
 	}
 	
 	
-} 
-// Fin Vue_Shunpo
+} // fin
