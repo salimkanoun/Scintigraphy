@@ -81,10 +81,6 @@ public class Vue_Shunpo implements PlugIn {
 
 	protected static boolean image2Ouverte;
 	
-	private Dimension dimensionPanelPrincipal;
-	
-	private Dimension dimensionPanelResultat;
-	
 	private Frame f;
 	 
 	
@@ -223,10 +219,9 @@ public class Vue_Shunpo implements PlugIn {
 			panel.add(resultats) ;
 			add(panel);
 			pack();
-			dimensionPanelResultat=panel.getSize();
-
-			// Permet d'avoir la fen锚tre ouverte au m锚me endroit que l'image
-			// s茅lectionn茅e par l'utilisateur
+			
+			// Permet d'avoir la fenetre ouverte au meme endroit que l'image
+			// selectionee par l'utilisateur
 			Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
 			Point loc = getLocation();
 			Dimension size = getSize();
@@ -285,8 +280,6 @@ public class Vue_Shunpo implements PlugIn {
 			panel.add(gauche);
 			add(panel);
 			pack();
-			//On recupere la dimension du panel qu'on vient de creer pour prendre en compte sa taille dans la dimension de la fenetre finale
-			dimensionPanelPrincipal=panel.getSize();
 
 			// Permet d'avoir la fen锚tre ouverte au meme endroit que l'image
 			// selectionnee par l'utilisateur
@@ -357,15 +350,20 @@ public class Vue_Shunpo implements PlugIn {
 		this.win=win;
 		win.setTitle(setTitre(win.getImagePlus()));
 		this.imp.setTitle(setTitre(this.imp));
-		// Salim On fixe la taille on prend taille originale on met un zoom de 2  et  ajoute la hauteur du panel (46) a la fenetre et on ajoute 12 width et 68 (+15 de marge) en height pixel pour les element graphique de imageplus		
-		win.setSize(512+30 , (512 + dimensionPanelPrincipal.height + 90));
-		win.repaint();
-		win.getCanvas().fitToWindow();
+		//  On affiche l'image en 512*512 en forcant le zoom adhoc	
+		win.getCanvas().setSize(new Dimension(512,512));
+		// Adaptation automatique de l'image au resize
+		win.getCanvas().setScaleToFit(true);
+		//On Pack la fenetre pour la mettre a la preferred Size
+		win.pack();
+		win.setSize(win.getPreferredSize());
+		//On met au premier plan au centre de l'ecran
+		win.setLocationRelativeTo(null);
 		win.toFront();
 		//On initialise l'overlay
-		initOverlay();
+		this.overlay=initOverlay();
 		//On ajouter l'overlay Droite/Gauche
-		overlayDG();
+		Vue_Shunpo.setOverlayDG(overlay, win.getImagePlus());
 		//On met sur l'image
 		win.getImagePlus().setOverlay(overlay);
 		if (instructions.getText().equals("")) 
@@ -387,15 +385,14 @@ public class Vue_Shunpo implements PlugIn {
 	protected void UIResultats(ImagePlus screen) {
 		//On cree la fenetre resultat avec le panel resultat
 		res = new CustomWindow(screen);
-		res.pack();
 		//On resize la window pour laisser la place a l'image et au pannel
 		//Ici on ajoute que 70 pixel en hauteur car il n'y a pas l'ascenseur horizontal du stack
-		res.setSize(screen.getWidth()+30,screen.getHeight()+dimensionPanelResultat.height+70);
-		ImageCanvas ic=res.getCanvas();
-		//On cache le zoom indicator pour la capture
-		ic.hideZoomIndicator(true);
-		ic.fitToWindow();
-		ic.setScaleToFit(true);
+		res.setLocationRelativeTo(null);
+		res.getCanvas().setMagnification(1.0);
+		res.getCanvas().setScaleToFit(true);
+		res.getCanvas().hideZoomIndicator(true);
+		res.pack();
+		res.setSize(res.getPreferredSize());
 		//On prend le focus
 		res.toFront();
 		//On implemente le titre de la fenetre
@@ -465,8 +462,8 @@ public class Vue_Shunpo implements PlugIn {
 			win.repaint();
 			win.getImagePlus().killRoi();
 			//On ajouter l'overlay Droite/Gauche
-			initOverlay();
-			overlayDG();
+			this.overlay=initOverlay();
+			Vue_Shunpo.setOverlayDG(overlay, win.getImagePlus());
 			win.getImagePlus().setOverlay(overlay);
 			//Variable pour notifier que l'image 2 est ouverte
 			image2Ouverte=true ;
@@ -495,27 +492,50 @@ public class Vue_Shunpo implements PlugIn {
 		labRes[9].setFont(new Font ("Arial", Font.BOLD, 12));
 	}
 	
-	private void initOverlay() {
-		//On initialise l'overlay il ne peut y avoir qu'un Overlay
-		// pour tout le programme sur lequel on va ajouter/enlever les ROI au fur et 脿 mesure
-		overlay = new Overlay();
-		overlay.drawLabels(true);
-		overlay.drawNames(true);
-	}
+	//SK A FAIRE TENIR COMPTE DE LA RESOLUTION DE L IMAGE POUR DEFINIR LA TAILLE DE LA POLICE
 	
-	protected void overlayDG() {
-		//Creer overlay Droit et gauche
+	/**
+	 * Cree overlay et set la police
+	 * @return
+	 */
+	public static Overlay initOverlay() {
+		//On initialise l'overlay il ne peut y avoir qu'un Overlay
+		// pour tout le programme sur lequel on va ajouter/enlever les ROI au fur et a mesure
+		Overlay overlay = new Overlay();
 		Font font = new Font("Arial",Font.PLAIN, 19) ;
 		overlay.setLabelFont(font);
+		overlay.drawLabels(true);
+		overlay.drawNames(true);
+		return overlay;
+	}
+	
+	/**
+	 * Affiche D et G en overlay sur l'image
+	 * @param overlay
+	 * @param imp
+	 */
+	public static void setOverlayDG(Overlay overlay, ImagePlus imp) {
+		//Position au mileu dans l'axe Y
+		double y=((imp.getHeight())/2);
+		// Cree police
+		Font font = new Font("Arial",Font.PLAIN, 10) ;
+		
+		//Cote droit
+		TextRoi right = new TextRoi(0, y, "R");
+		right.setCurrentFont(font);
+		
+		//Cote gauche
+		String labelLeft="L";
+		double xl = imp.getWidth()-(font.getSize()*labelLeft.length()); // sinon on sort de l'image
+		TextRoi left = new TextRoi(xl, y, labelLeft);
+		left.setCurrentFont(font);
+		
+		// Set de la couleur et de la police des text ROI
+		TextRoi.setColor(Color.WHITE);
+		
 		// Ajout de l'indication de la droite du patient
-		double xr = 10;
-		double y = (win.getImagePlus().getHeight())/2;
-		TextRoi right = new TextRoi(xr, y, "");
-		overlay.add(right, "Right");
-		// Ajout de la gauche du patient 
-		double xl = win.getImagePlus().getWidth() - 20; // -20 sinon on sort de l'image
-		TextRoi left = new TextRoi(xl, y, "");
-		overlay.add(left, "Left");
+		overlay.add(right);
+		overlay.add(left);
 	}
 		
 		//Permet de tester si image unique ou multiframe

@@ -222,7 +222,7 @@ public class Vue_VG_Dynamique  implements PlugIn {
 			//On change les titres
 			imp.setTitle(titre);
 			windowstack.setTitle(titre);
-			initOverlay();
+			this.overlay=Vue_Shunpo.initOverlay();
 			// La fenetre se place au premier plan
 			windowstack.toFront();
 			//On fixe la taille de la fenetre et on redimensionne le cc
@@ -394,26 +394,6 @@ public class Vue_VG_Dynamique  implements PlugIn {
 			}
 		}
 
-		public void addOverlayGD() {
-			// Ajout de l'indication de la droite du patient
-			double xr = 10;
-			double y = imp.getCanvas().getHeight() / 2;
-			TextRoi right = new TextRoi(xr, y, "");
-			overlay.add(right, "Right");
-			// Ajout de la gauche du patient -20 pixel pour pas sortir de l'image
-			double xl = imp.getCanvas().getWidth() - 20; 
-			TextRoi left = new TextRoi(xl, y, "");
-			overlay.add(left, "Left");
-		}
-		
-		//Initialisation de l'Overlay
-		protected void initOverlay() {
-			this.overlay = new Overlay();
-			this.overlay.drawLabels(true);
-			this.overlay.drawNames(true);
-			this.overlay.setLabelFont(new Font("Arial", Font.PLAIN, 18));
-			this.addOverlayGD();
-		}
 
 		// Dialog pour afficher les % de chaque oeuf et les modifier si necessaire
 		public void confirmerOeufPourc() {

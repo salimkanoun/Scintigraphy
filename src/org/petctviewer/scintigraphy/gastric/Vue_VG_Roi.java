@@ -19,7 +19,6 @@ import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Label;
@@ -54,7 +53,6 @@ import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.Overlay;
 import ij.gui.StackWindow;
-import ij.gui.TextRoi;
 import ij.gui.Toolbar;
 import ij.plugin.Concatenator;
 import ij.plugin.HyperStackConverter;
@@ -385,8 +383,8 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 		// On change les titres
 		imp.setTitle(titre);
 		windowstack.setTitle(titre);
-		initOverlay();
-		addOverlayGD();
+		this.overlay=Vue_Shunpo.initOverlay();
+		Vue_Shunpo.setOverlayDG(this.overlay, this.imp);
 		windowstack.getImagePlus().setOverlay(overlay);
 		// On fixe la taille de la fenetre et on redimensionne le cc
 		// Pour la taille de la fenetre on ajoute 30 pixel en largeur et 90 en hauteur pour les bordures de fenetres
@@ -567,7 +565,7 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 		lesBoutons.get("Return").setVisible(false);
 	}
 
-	// Ajout overlayGD
+	/*// Ajout overlayGD
 	protected void addOverlayGD() {
 		// Creer overlay Droit et gauche
 		Font font = new Font("Arial", Font.PLAIN, 19);
@@ -590,6 +588,5 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 		overlay.drawNames(true);
 		overlay.setLabelFont(new Font("Arial", Font.PLAIN, 18));
 		addOverlayGD();
-	}
-
+*/
 } // Fin Vue_Shunpo

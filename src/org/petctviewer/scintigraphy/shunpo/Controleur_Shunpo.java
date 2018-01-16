@@ -141,7 +141,7 @@ public class Controleur_Shunpo implements ActionListener {
 				laVue.win.getImagePlus().setRoi((Roi) laVue.leRoi.getRoi(0));
 				laVue.win.showSlice(1);
 				etat = etat.next() ;
-				laVue.overlayDG();
+				Vue_Shunpo.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
 				//On verifie que la ROI suivante n'est pas deja pr茅sente dans le ROI manager(cas d'un retour) auquel cas on l'affiche
 				if (laVue.leRoi.getRoi((index))!= null) {
 					laVue.leRoi.select(index);
@@ -234,7 +234,7 @@ public class Controleur_Shunpo implements ActionListener {
 				laVue.overlay.clear();
 				laVue.win.getImagePlus().setRoi((Roi) laVue.leRoi.getRoi(10));
 				laVue.win.showSlice(1);
-				laVue.overlayDG();
+				Vue_Shunpo.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
 				laVue.win.getImagePlus().setOverlay(laVue.overlay);
 				laVue.setInstructions(listeInstructions[index]);
 				break;
@@ -302,7 +302,7 @@ public class Controleur_Shunpo implements ActionListener {
 			case BDF:
 				retour();
 				laVue.overlay.clear();
-				laVue.overlayDG();
+				Vue_Shunpo.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
 				break;
 				
 			case PoumonD_Ant:
@@ -325,7 +325,7 @@ public class Controleur_Shunpo implements ActionListener {
 			case Poumon_valide:
 				retour();
 				laVue.overlay.clear();
-				laVue.overlayDG();
+				Vue_Shunpo.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
 				break;
 				
 			case Cerveau_Post:
