@@ -16,7 +16,6 @@ package org.petctviewer.scintigraphy.platelet;
 
 import ij.plugin.filter.Analyzer;
 
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -132,6 +131,7 @@ public class Modele_Plaquettes {
 		//On boule la hashmap pour recuperer les resultats
 		Date[] mapDate=new Date[mesures.size()];
 		mapDate=mesures.keySet().toArray(mapDate);
+		//On trie les donnees par date
 		Arrays.sort(mapDate);
 		
 		String[] titreColonne=new String[mesures.size()+1];
@@ -146,7 +146,6 @@ public class Modele_Plaquettes {
 		// On traite chaque acquisition
 		for (int i=0 ; i<mesures.size(); i++) {
 			//On ajoute le temps de mesure dans les titre de colonne
-			// SK NECESSITE DE TRIER LES COLONNES et CALCULER LE DELTA TEMPS
 			int tempsHeures=(int) Math.round(mesures.get(mapDate[i]).getDelayFromStart());
 			titreColonne[i+1]=String.valueOf(tempsHeures);
 			HashMap<String, Double> resultsImage =mesures.get(mapDate[i]).calculateandGetResults();
