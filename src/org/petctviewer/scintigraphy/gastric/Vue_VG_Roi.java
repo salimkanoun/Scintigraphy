@@ -351,12 +351,12 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 				continue;
 			}
 			// On trie les images
-			imagesOpened[i] = Vue_Shunpo.trierImage(currentimp);
+			imagesOpened[i] = Vue_Shunpo.sortImageAntPost(currentimp);
 			currentimp.close();
 		}
 
 		// trie les images de la serie
-		ImagePlus[] imagesOrdred = Vue_Shunpo.ordonnerSerie(imagesOpened);
+		ImagePlus[] imagesOrdred = Vue_Shunpo.orderImagesByAcquisitionTime(imagesOpened);
 		Concatenator enchainer = new Concatenator();
 
 		// enchaine les images

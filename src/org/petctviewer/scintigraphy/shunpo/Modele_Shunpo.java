@@ -91,7 +91,7 @@ public class Modele_Shunpo {
 		patient = pat;
 		date = DicomTools.getTag(imp, "0008,0020");
 		char[] a = date.toCharArray();
-		date = date.trim();
+		if (date!=null && !date.isEmpty()) date = date.trim();
 		dateForm = "" + a[7] + a[8] + "/" + a[5] + a[6] + "/" + a[1] + a[2] + a[3] + a[4];
 	}
 
@@ -484,27 +484,19 @@ public class Modele_Shunpo {
 		// On recupere le Patient Name de l'ImagePlus
 		String patientName = new String();
 		patientName = DicomTools.getTag(imp, "0010,0010");
-		patientName = patientName.substring(1);
-		// On eleve l'espace de la fin si il existe
-		if (patientName.endsWith(" "))
-		patientName = patientName.substring(0, patientName.length() - 1);
+		if (patientName!=null && !patientName.isEmpty()) patientName = patientName.trim();
 
 				
 		// On recupere le Patient ID de l'ImagePlus
 		String patientID = new String();
 		patientID = DicomTools.getTag(imp, "0010,0020");
-		patientID = patientID.substring(1);
-		// On eleve l'espace de la fin si il existe
-		if (patientID.endsWith(" "))
-			patientID = patientID.substring(0, patientID.length() - 1);
-
+		if (patientID!=null && !patientID.isEmpty()) patientID = patientID.trim();
+		
 		// On recupere la date d'examen
 		String date = new String();
 		date = DicomTools.getTag(imp, "0008,0020");
-		date = date.substring(1);
-		// On enleve l'espace de la fin si il existe
-		if (date.endsWith(" "))
-			date = date.substring(0, date.length() - 1);
+		if (date!=null && !date.isEmpty()) date = date.trim();
+	
 
 		//Realisation du string builder qui sera ecrit en CSV
 		StringBuilder content = new StringBuilder();
@@ -591,18 +583,12 @@ public class Modele_Shunpo {
 		// On recupere le Patient ID de l'ImagePlus
 		String patientID = new String();
 		patientID = DicomTools.getTag(imp, "0010,0020");
-		patientID = patientID.substring(1);
-		// On eleve l'espace de la fin si il existe
-		if (patientID.endsWith(" "))
-			patientID = patientID.substring(0, patientID.length() - 1);
+		if (patientID!=null && !patientID.isEmpty()) patientID = patientID.trim();
 
 		// On recupere la date d'examen
 		String date = new String();
 		date = DicomTools.getTag(imp, "0008,0020");
-		date = date.substring(1);
-		// On enleve l'espace de la fin si il existe
-		if (date.endsWith(" "))
-			date = date.substring(0, date.length() - 1);
+		if (date!=null && !date.isEmpty()) date = date.trim();
 
 		//On recupere le path de sauvegarde
 		String path = Prefs.get("dir.preferred", null);

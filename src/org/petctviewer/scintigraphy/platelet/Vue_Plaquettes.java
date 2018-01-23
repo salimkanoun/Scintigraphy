@@ -30,6 +30,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -58,8 +62,10 @@ public class Vue_Plaquettes implements PlugIn {
 	protected HashMap<String, Button> lesBoutons;
 
 	private Label img_inst = new Label();
+	
+	private Modele_Plaquettes leModele=new Modele_Plaquettes();
 
-	private Controleur_Plaquettes leControleur = new Controleur_Plaquettes(this, new Modele_Plaquettes());
+	private Controleur_Plaquettes leControleur = new Controleur_Plaquettes(this, leModele);
 	
 	protected Overlay overlay ;
 	
@@ -324,18 +330,31 @@ public class Vue_Plaquettes implements PlugIn {
 			if (imp.getStackSize() == 2) {
 				antPost=true;
 			}
-			series[i]=Vue_Shunpo.trierImage(imp);
+			series[i]=Vue_Shunpo.sortImageAntPost(imp);
 			imp.close();
 		}
 		
 		IJ.log(String.valueOf(antPost));
 		
-		ImagePlus[] seriesTriee=Vue_Shunpo.ordonnerSerie(series);
+		ImagePlus[] seriesTriee=Vue_Shunpo.orderImagesByAcquisitionTime(series);
+		
+		//On recupere la date et le jour de la 1ere image
+		String aquisitionDate = DicomTools.getTag(seriesTriee[0], "0008,0022");
+		String aquisitionTime = DicomTools.getTag(seriesTriee[0], "0008,0032");
+		DateFormat dateHeure=new SimpleDateFormat("yyyyMMddHHmmss.SS");
+		try {
+			Date dateHeureDebut = dateHeure.parse(aquisitionDate.trim()+aquisitionTime.trim());
+			leModele.setDateDebutHeure(dateHeureDebut);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		
 		Concatenator enchainer = new Concatenator();
 		// enchaine les images
 		ImagePlus imp = enchainer.concatenate(seriesTriee, false);
 		imp.show();
+
+		
 		HyperStackConverter convert = new HyperStackConverter();
 		convert.run("hstostack");
 		

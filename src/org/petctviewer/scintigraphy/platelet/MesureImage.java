@@ -27,6 +27,7 @@ public class MesureImage {
 	private double[] liverAnt=new double[2];
 	private double[] heartAnt=new double[2];
 	private Boolean antPost=false;
+	private double delayFromStart=0;
 	private HashMap<String, Double> resultats = new HashMap<String,Double>();
 	
 	public MesureImage(Date dateAcquisition) {
@@ -88,6 +89,14 @@ public class MesureImage {
 	
 	public Date getMesureTime() {
 		return mesureTime;
+	}
+	
+	public void setDelayFromStart(double delayHour) {
+		this.delayFromStart=delayHour;
+	}
+	
+	public double getDelayFromStart() {
+		return delayFromStart;
 	}
 	
 	/**

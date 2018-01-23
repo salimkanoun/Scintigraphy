@@ -20,6 +20,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -37,6 +38,7 @@ public class Modele_Plaquettes {
 	// Stockage des objets mesures, chaque image est identifee par sa date d'aqcisition
 	// et l'objet contient toutes les mesusres realisee sur image ant(si presente) et post
 	HashMap<Date, MesureImage> mesures=new HashMap<Date,MesureImage>();
+	private Date dateHeureDebut;
 	
 
 	public Modele_Plaquettes() {
@@ -71,6 +73,9 @@ public class Modele_Plaquettes {
 		//Si premiere fois qu'on traite l'image on cree l'objet et on l'ajoute dans la hashMap
 		if (!mesures.containsKey(dateAcquisition)) {
 			MesureImage mesure=new MesureImage(dateAcquisition);
+			// on calcule le delai par rapport a la premiere image et on enregistre la valeur en heure (utile pour le trie et les courbes ensuite)
+			mesure.setDelayFromStart((double) ((dateAcquisition.getTime()-dateHeureDebut.getTime())/(1000*60*60)));
+			IJ.log(String.valueOf(mesure.getDelayFromStart()));
 			mesures.put(dateAcquisition,mesure);
 		}
 		
@@ -127,21 +132,23 @@ public class Modele_Plaquettes {
 		//On boule la hashmap pour recuperer les resultats
 		Date[] mapDate=new Date[mesures.size()];
 		mapDate=mesures.keySet().toArray(mapDate);
+		Arrays.sort(mapDate);
 		
 		String[] titreColonne=new String[mesures.size()+1];
-		titreColonne[0]="Results";
+		titreColonne[0]="Time (Hours)";
 		
 		String[][] data = null;
 		
 		// pour l'arrondi des resultats
 		DecimalFormat decimalFormat = new DecimalFormat("#.##");
-		DateFormat dateFormat=new SimpleDateFormat("HH:mm");
+		//DateFormat dateFormat=new SimpleDateFormat("HH:mm");
 		
 		// On traite chaque acquisition
 		for (int i=0 ; i<mesures.size(); i++) {
 			//On ajoute le temps de mesure dans les titre de colonne
 			// SK NECESSITE DE TRIER LES COLONNES et CALCULER LE DELTA TEMPS
-			titreColonne[i+1]=dateFormat.format(mapDate[i]);
+			int tempsHeures=(int) Math.round(mesures.get(mapDate[i]).getDelayFromStart());
+			titreColonne[i+1]=String.valueOf(tempsHeures);
 			HashMap<String, Double> resultsImage =mesures.get(mapDate[i]).calculateandGetResults();
 			
 			//On set les data avec sa taille a la premiere boucle
@@ -160,7 +167,8 @@ public class Modele_Plaquettes {
 			
 		}
 		
-		return new JTable(data, titreColonne);
+		JTable table =new JTable(data, titreColonne);
+		return table;
 		
 	}
 	
@@ -178,6 +186,10 @@ public class Modele_Plaquettes {
 		double decayedFraction=Math.pow(Math.E, (indiumLambda*delaySeconds*(-1)));
 		double correctedCount=count/(decayedFraction);
 		return correctedCount;
+	}
+	
+	public void setDateDebutHeure(Date dateDebutHeure) {
+		this.dateHeureDebut=dateDebutHeure;
 	}
 
 

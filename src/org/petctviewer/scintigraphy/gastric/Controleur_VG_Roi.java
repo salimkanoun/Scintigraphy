@@ -102,7 +102,8 @@ public class Controleur_VG_Roi implements ActionListener {
 				laVue.lesBoutons.get("Precedent").setEnabled(true);
 				leModele.initResultat(laVue.imp);
 				
-				String tagNom = DicomTools.getTag(laVue.imp, "0010,0010").substring(1);
+				String tagNom = DicomTools.getTag(laVue.imp, "0010,0010");
+				if (tagNom!=null && !tagNom.isEmpty()) tagNom = tagNom.trim();
 				leModele.setPatient(tagNom, laVue.imp);
 				//On genere la 1ere partie du Header qui servira a la capture finale
 				tagCaptureFinale=Modele_Shunpo.genererDicomTagsPartie1(laVue.imp, laVue.nomProgramme);
