@@ -499,7 +499,7 @@ public class Vue_Shunpo implements PlugIn {
 	/**
 	 * Cree overlay et set la police
 	 * SK : A Optimiser pour tenir compte de la taille initiale de l'Image
-	 * @return
+	 * @return Overlay
 	 */
 	public static Overlay initOverlay() {
 		//On initialise l'overlay il ne peut y avoir qu'un Overlay
@@ -514,8 +514,8 @@ public class Vue_Shunpo implements PlugIn {
 	
 	/**
 	 * Affiche D et G en overlay sur l'image
-	 * @param overlay
-	 * @param imp
+	 * @param overlay : Overlay sur lequel ajouter D/G
+	 * @param imp : ImagePlus sur laquelle est appliquée l'overlay
 	 */
 	public static void setOverlayDG(Overlay overlay, ImagePlus imp) {
 		//Position au mileu dans l'axe Y
@@ -841,7 +841,7 @@ public class Vue_Shunpo implements PlugIn {
 		
 	/**
 	 * Permet de spliter les images d'un multiFrame contenant 2 camera, image 0 camera Ant et Image1 Camera Post
-	 * @param imp0
+	 * @param imp : ImagePlus a traiter
 	 * @return Tableau d'imagePlus avec 2 ImagePlus (camera 1 et 2 )
 	 */
 	public static ImagePlus[] splitCameraMultiFrame(ImagePlus imp) {
@@ -917,12 +917,12 @@ public class Vue_Shunpo implements PlugIn {
 		
 	/**
 	 * Test si les images du MutiFrame viennent toutes de la meme camera
-	 * @param imp0
-	 * @return
+	 * @param imp : ImagePlus à traiter
+	 * @return Boolean
 	 */
-	public static boolean isSameCameraMultiFrame(ImagePlus imp0) {
+	public static boolean isSameCameraMultiFrame(ImagePlus imp) {
 		// On recupere la chaine de detecteur
-		String tagDetecteur = DicomTools.getTag(imp0, "0054,0020");
+		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
 		if (tagDetecteur!=null && !tagDetecteur.isEmpty()) tagDetecteur=tagDetecteur.trim();
 		String delims = "[ ]+";
 		String[] sequenceDetecteur = tagDetecteur.split(delims);
@@ -938,12 +938,12 @@ public class Vue_Shunpo implements PlugIn {
 	
 	/** 
 	 * Test si la premiere image du stack est du detecteur 1
-	 * @param imp0
-	 * @return
+	 * @param imp : ImagePus A traiter
+	 * @return boolean
 	 */
-	public static boolean isPremiereImageDetecteur1(ImagePlus imp0) {
+	public static boolean isPremiereImageDetecteur1(ImagePlus imp) {
 		// On recupere la chaine de detecteur
-		String tagDetecteur = DicomTools.getTag(imp0, "0054,0020");
+		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
 		if (tagDetecteur!=null && !tagDetecteur.isEmpty()) tagDetecteur=tagDetecteur.trim();
 		String delims = "[ ]+";
 		String[] sequenceDeteceur = tagDetecteur.split(delims);

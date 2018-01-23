@@ -228,7 +228,7 @@ public class Controleur_Shunpo implements ActionListener {
 				//Label Ne s'affiche pas probablement un refresh 脿 forcer==> Probleme de draw de l'overlay avant capture // EDT
 				laVue.overlay.add(laVue.leRoi.getRoi(10));
 				//FIN A DEBEUGER SALIM
-				laVue.win.getImagePlus().setOverlay(laVue.overlay);;
+				laVue.win.getImagePlus().setOverlay(laVue.overlay);
 				capture[2]=Modele_Shunpo.captureImage(laVue.win.getImagePlus(),512,512);
 				etat = etat.next() ;
 				laVue.overlay.clear();

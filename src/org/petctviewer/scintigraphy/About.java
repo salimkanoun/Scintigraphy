@@ -66,9 +66,6 @@ public class About extends JDialog implements PlugIn {
 	private JTextPane txtpnProjectLeaders;
 	private JTextPane txtpnGerardVictorPierre;
 
-	/**
-	 * Launch the application.
-	 */
 	public static void main(String[] args) {
 		try {
 			About dialog = new About();
