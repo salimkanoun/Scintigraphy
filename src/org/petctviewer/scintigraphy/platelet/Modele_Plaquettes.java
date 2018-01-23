@@ -16,6 +16,10 @@ package org.petctviewer.scintigraphy.platelet;
 
 import ij.plugin.filter.Analyzer;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,6 +29,16 @@ import java.util.HashMap;
 
 
 import javax.swing.JTable;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -159,16 +173,85 @@ public class Modele_Plaquettes {
 			//on traite touts les resultats d'une acquisition
 			resultsLabel=resultsImage.keySet().toArray(resultsLabel);
 			for (int j=0; j<resultsLabel.length; j++){
+				
 				if (i==0) data[j][0]=resultsLabel[j];
+				
 				//On file les data ligne par ligne pour chaque colonne
-				data[j][i+1]=String.valueOf(decimalFormat.format(resultsImage.get(resultsLabel[j])));
+				double valeur =resultsImage.get(resultsLabel[j]);
+				data[j][i+1]=decimalFormat.format(valeur);
+				
 			}
 			
 		}
 		
 		JTable table =new JTable(data, titreColonne);
+		createDataset(table);
 		return table;
 		
+	}
+	
+	//SK CREATION COLLECTION
+	private XYSeriesCollection createDataset(JTable table) {
+		
+		XYSeriesCollection dataset = new XYSeriesCollection();
+		for (int i=0; i<table.getRowCount(); i++) {
+			//Cree une courbe avec son titre
+			XYSeries courbe = new XYSeries( table.getValueAt(i, 0).toString());
+			//On ajoute les valeurs
+			for (int j = 1; j < table.getColumnCount(); j++) {
+				System.out.println(table.getColumnName(j));
+				System.out.println(table.getValueAt(i, j).toString());
+				//PB des parsing de Double a regler
+				double x=Double.parseDouble(table.getColumnName(j).toString().replaceAll(",", "."));
+				double y=Double.parseDouble(table.getValueAt(i, j).toString().replaceAll(",", "."));
+				//System.out.println(x);
+				//System.out.println(y);
+				courbe.add( x, y);
+			}
+			dataset.addSeries(courbe);
+		}
+		
+		makeGraph(dataset);
+		
+		return dataset;
+	}
+	
+	private void makeGraph(XYSeriesCollection dataset) {
+		JFreeChart xylineChart = ChartFactory.createXYLineChart("Results", "Hours", "Value",
+				dataset, PlotOrientation.VERTICAL, true, true, true);
+
+		XYPlot plot = (XYPlot) xylineChart.getPlot();
+		
+		// Background
+		plot.setBackgroundPaint(Color.WHITE);
+
+		// XYLineAndShapeRenderer
+		// reference:
+		// https://stackoverflow.com/questions/28428991/setting-series-line-style-and-legend-size-in-jfreechart
+		XYLineAndShapeRenderer lineAndShapeRenderer = new XYLineAndShapeRenderer();
+		lineAndShapeRenderer.setSeriesPaint(0, Color.red);
+		lineAndShapeRenderer.setSeriesStroke(0, new BasicStroke(2.0F));
+		plot.setRenderer(lineAndShapeRenderer);
+		lineAndShapeRenderer.setDefaultLegendTextFont(new Font("", Font.BOLD, 16));
+		// XAxis
+		NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
+		domainAxis.setRange(dataset.getSeries(0).getMinX() - 5 , dataset.getSeries(0).getMaxX() + 5);
+		domainAxis.setTickUnit(new NumberTickUnit(24.00));
+		domainAxis.setTickMarkStroke(new BasicStroke(2.5F));
+		domainAxis.setLabelFont(new Font("", Font.BOLD, 16));
+		domainAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
+		// YAxis
+		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+		rangeAxis.setRange(0.00, 100);
+		rangeAxis.setTickUnit(new NumberTickUnit(10.00));
+		rangeAxis.setTickMarkStroke(new BasicStroke(2.5F));
+		rangeAxis.setLabelFont(new Font("", Font.BOLD, 16));
+		rangeAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
+		// Grid
+		plot.setDomainGridlinesVisible(false);
+		BufferedImage buff = xylineChart.createBufferedImage(640, 512);
+		ImagePlus courbe = new ImagePlus("", buff);
+		courbe.show();
 	}
 	
 	/**
