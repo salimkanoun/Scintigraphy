@@ -63,7 +63,7 @@ public class Vue_VG_Dynamique  implements PlugIn {
 	
 	protected Overlay overlay;
 	
-	private Dimension dimensionPanelPrincipal;
+	//private Dimension dimensionPanelPrincipal;
 
 	
 	@Override
@@ -186,7 +186,7 @@ public class Vue_VG_Dynamique  implements PlugIn {
 			ImagePlus[] projeteTableau= new ImagePlus[projete.size()];
 			projete.toArray(projeteTableau);
 			//On trie les images par acquisition time
-			ImagePlus[] projeteOrderTemp=Vue_Shunpo.ordonnerSerie(projeteTableau);
+			ImagePlus[] projeteOrderTemp=Vue_Shunpo.orderImagesByAcquisitionTime(projeteTableau);
 			//On met l'image Ant apres l'imagePosterieur car sera inverse par la suite
 			ImagePlus[] projeteOrder=new ImagePlus[projeteOrderTemp.length];
 			for (int i=0 ; i<projeteOrderTemp.length;i+=2){
@@ -222,15 +222,14 @@ public class Vue_VG_Dynamique  implements PlugIn {
 			//On change les titres
 			imp.setTitle(titre);
 			windowstack.setTitle(titre);
-			initOverlay();
+			this.overlay=Vue_Shunpo.initOverlay();
+			// On set la dimension de l'image
+			windowstack.getCanvas().setSize(new Dimension(512,512));
+			windowstack.getCanvas().setScaleToFit(true);
+			//On Pack la fenetre pour la mettre a la preferred Size
+			windowstack.pack();
+			windowstack.setSize(windowstack.getPreferredSize());
 			// La fenetre se place au premier plan
-			windowstack.toFront();
-			//On fixe la taille de la fenetre et on redimensionne le cc
-			//Ajoute 30 et 90 pixel
-			windowstack.setSize(512+30, 512+dimensionPanelPrincipal.height+90);
-			windowstack.repaint(); 
-			ImageCanvas ic=windowstack.getCanvas();
-			ic.fitToWindow();
 			windowstack.toFront();
 			this.imageOuverte=true;
 			if (this.instructions.getText().equals(""))
@@ -358,7 +357,6 @@ public class Vue_VG_Dynamique  implements PlugIn {
 				panel.add(gauche);
 				add(panel);
 				pack();
-				dimensionPanelPrincipal=panel.getSize();
 
 				// Permet d'avoir la fenetre au meme endroit que le stack original
 				Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
@@ -394,26 +392,6 @@ public class Vue_VG_Dynamique  implements PlugIn {
 			}
 		}
 
-		public void addOverlayGD() {
-			// Ajout de l'indication de la droite du patient
-			double xr = 10;
-			double y = imp.getCanvas().getHeight() / 2;
-			TextRoi right = new TextRoi(xr, y, "");
-			overlay.add(right, "Right");
-			// Ajout de la gauche du patient -20 pixel pour pas sortir de l'image
-			double xl = imp.getCanvas().getWidth() - 20; 
-			TextRoi left = new TextRoi(xl, y, "");
-			overlay.add(left, "Left");
-		}
-		
-		//Initialisation de l'Overlay
-		protected void initOverlay() {
-			this.overlay = new Overlay();
-			this.overlay.drawLabels(true);
-			this.overlay.drawNames(true);
-			this.overlay.setLabelFont(new Font("Arial", Font.PLAIN, 18));
-			this.addOverlayGD();
-		}
 
 		// Dialog pour afficher les % de chaque oeuf et les modifier si necessaire
 		public void confirmerOeufPourc() {

@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.text.ParseException;
 
 import org.petctviewer.scintigraphy.shunpo.Modele_Shunpo;
+import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -101,7 +102,8 @@ public class Controleur_VG_Roi implements ActionListener {
 				laVue.lesBoutons.get("Precedent").setEnabled(true);
 				leModele.initResultat(laVue.imp);
 				
-				String tagNom = DicomTools.getTag(laVue.imp, "0010,0010").substring(1);
+				String tagNom = DicomTools.getTag(laVue.imp, "0010,0010");
+				if (tagNom!=null && !tagNom.isEmpty()) tagNom = tagNom.trim();
 				leModele.setPatient(tagNom, laVue.imp);
 				//On genere la 1ere partie du Header qui servira a la capture finale
 				tagCaptureFinale=Modele_Shunpo.genererDicomTagsPartie1(laVue.imp, laVue.nomProgramme);
@@ -588,7 +590,7 @@ public class Controleur_VG_Roi implements ActionListener {
 		laVue.leRoi.deselect();
 		}
 		laVue.overlay.clear();
-		laVue.addOverlayGD();
+		Vue_Shunpo.setOverlayDG(laVue.overlay, laVue.imp);
 	
 		if (nom.contains("Stomach")){
 			laVue.overlay.add(laVue.leRoi.getRoi(index_Roi));
@@ -607,7 +609,7 @@ public class Controleur_VG_Roi implements ActionListener {
 			laVue.leRoi.select(index_Roi);
 			//On clear l'Overlay
 			laVue.overlay.clear();
-			laVue.addOverlayGD();
+			Vue_Shunpo.setOverlayDG(laVue.overlay, laVue.imp);
 			//On affiche l'overlay de la ROI n-1 si intestin ou n+1 si estomac
 			if (laVue.leRoi.getRoi(index_Roi).getName().contains("Intestine")){
 				laVue.overlay.add(laVue.leRoi.getRoi(index_Roi-1));
@@ -647,8 +649,8 @@ public class Controleur_VG_Roi implements ActionListener {
 				laVue.leRoi.select(index_Roi-1);
 			}
 			index_Roi--;
-			IJ.showMessage(
-					"please adjust the intestine So that there is an intersection between the estomac and the intestine !");
+			IJ.showMessage("please adjust the intestine So that there is an intersection between the estomac and the intestine !");
+			// SK ICI REMETRE LA ROI GASTRIQUE ?
 			estAntreCorrect = false;
 		} else {
 			leModele.calculerCoups("Antre_" + cote, index_Image,laVue.imp);

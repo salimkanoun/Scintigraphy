@@ -19,7 +19,6 @@ import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Label;
@@ -54,7 +53,6 @@ import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.Overlay;
 import ij.gui.StackWindow;
-import ij.gui.TextRoi;
 import ij.gui.Toolbar;
 import ij.plugin.Concatenator;
 import ij.plugin.HyperStackConverter;
@@ -93,9 +91,7 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 
 	protected CustomWindow res;//la fenetre du resultat
 	
-	private Dimension dimensionPanelResultat;
-	
-	private Dimension dimensionPanelPrincipal;
+	//private Dimension dimensionPanelPrincipal;
 
 	protected Overlay overlay;
 
@@ -239,8 +235,7 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 			panel.add(panelNonResultats, BorderLayout.SOUTH);
 			add(panel);
 			pack();
-			dimensionPanelResultat=panel.getSize();
-
+		
 		} // Fin addPanel
 
 	} // Fin CustomWindow
@@ -293,7 +288,6 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 			panel.add(gauche);
 			add(panel);
 			pack();
-			dimensionPanelPrincipal=panel.getSize();
 
 			// Permet d'avoir la fenêtre ouverte au même endroit que l'image
 			// selectionnee par l'utilisateur
@@ -357,12 +351,12 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 				continue;
 			}
 			// On trie les images
-			imagesOpened[i] = Vue_Shunpo.trierImage(currentimp);
+			imagesOpened[i] = Vue_Shunpo.sortImageAntPost(currentimp);
 			currentimp.close();
 		}
 
 		// trie les images de la serie
-		ImagePlus[] imagesOrdred = Vue_Shunpo.ordonnerSerie(imagesOpened);
+		ImagePlus[] imagesOrdred = Vue_Shunpo.orderImagesByAcquisitionTime(imagesOpened);
 		Concatenator enchainer = new Concatenator();
 
 		// enchaine les images
@@ -385,15 +379,17 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 		// On change les titres
 		imp.setTitle(titre);
 		windowstack.setTitle(titre);
-		initOverlay();
-		addOverlayGD();
+		this.overlay=Vue_Shunpo.initOverlay();
+		Vue_Shunpo.setOverlayDG(this.overlay, this.imp);
 		windowstack.getImagePlus().setOverlay(overlay);
-		// On fixe la taille de la fenetre et on redimensionne le cc
-		// Pour la taille de la fenetre on ajoute 30 pixel en largeur et 90 en hauteur pour les bordures de fenetres
-		windowstack.setSize(512 + 30, (512 + dimensionPanelPrincipal.height +90));
-		windowstack.repaint();
-		windowstack.getCanvas().fitToWindow();
-		// La fenêtre se place au premier plan
+		// On set la dimension de l'image
+		windowstack.getCanvas().setSize(new Dimension(512,512));
+		windowstack.getCanvas().setScaleToFit(true);
+		//On Pack la fenetre pour la mettre a la preferred Size
+		windowstack.pack();
+		windowstack.setSize(windowstack.getPreferredSize());
+		//On met au premier plan au centre de l'ecran
+		windowstack.setLocationRelativeTo(null);
 		windowstack.toFront();
 		IJ.setTool(Toolbar.POLYGON);
 		if (!estArgume) {
@@ -497,16 +493,14 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 		ImagePlus screen2=new ImagePlus("Final Capture",ip);
 		// On cree la fenetre resultat avec le panel resultat
 		res = new CustomWindow(screen2);
-		res.setLocation(new Point(20, 20));
-		// On prend le focuse et on rescale le tout
-		ImageCanvas ic = res.getCanvas();
-		ic.hideZoomIndicator(true);
-		ic.setScaleToFit(true);
-		//On resize en laissant la place pour le tableau de resultat en largeur
-		res.setSize(screen2.getWidth()+dimensionPanelResultat.width+30, screen2.getHeight()+60);
-		// On implemente le titre de la fenetre
+		res.setLocationRelativeTo(null);
+		res.getCanvas().setMagnification(1.0);
+		res.getCanvas().setScaleToFit(true);
+		res.getCanvas().hideZoomIndicator(true);
 		res.setTitle(nomProgramme + " - Results");
-		res.setVisible(true);
+		res.pack();
+		res.setSize(res.getPreferredSize());
+		res.toFront();
 		// On ferme l'outil ROI
 		IJ.setTool("hand");
 	}
@@ -567,29 +561,5 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 		lesBoutons.get("Return").setVisible(false);
 	}
 
-	// Ajout overlayGD
-	protected void addOverlayGD() {
-		// Creer overlay Droit et gauche
-		Font font = new Font("Arial", Font.PLAIN, 19);
-		overlay.setLabelFont(font);
-		// Ajout de l'indication de la droite du patient
-		double xr = 10;
-		double y = (windowstack.getImagePlus().getHeight()) / 2;
-		TextRoi right = new TextRoi(xr, y, "");
-		overlay.add(right, "Right");
-		// Ajout de la gauche du patient
-		double xl = windowstack.getImagePlus().getWidth() - 20;
-		TextRoi left = new TextRoi(xl, y, "");
-		overlay.add(left, "Left");
-	}
-
-	// Cree l'overlay et defini la police et la taille
-	protected void initOverlay() {
-		overlay = new Overlay();
-		overlay.drawLabels(true);
-		overlay.drawNames(true);
-		overlay.setLabelFont(new Font("Arial", Font.PLAIN, 18));
-		addOverlayGD();
-	}
-
-} // Fin Vue_Shunpo
+	
+} // Fin

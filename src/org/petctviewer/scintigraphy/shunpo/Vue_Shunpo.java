@@ -29,8 +29,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -80,10 +84,6 @@ public class Vue_Shunpo implements PlugIn {
 	protected ImagePlus imp;
 
 	protected static boolean image2Ouverte;
-	
-	private Dimension dimensionPanelPrincipal;
-	
-	private Dimension dimensionPanelResultat;
 	
 	private Frame f;
 	 
@@ -223,10 +223,9 @@ public class Vue_Shunpo implements PlugIn {
 			panel.add(resultats) ;
 			add(panel);
 			pack();
-			dimensionPanelResultat=panel.getSize();
-
-			// Permet d'avoir la fené”štre ouverte au mé”šme endroit que l'image
-			// sèŒ…lectionnèŒ…e par l'utilisateur
+			
+			// Permet d'avoir la fenetre ouverte au meme endroit que l'image
+			// selectionee par l'utilisateur
 			Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
 			Point loc = getLocation();
 			Dimension size = getSize();
@@ -285,8 +284,6 @@ public class Vue_Shunpo implements PlugIn {
 			panel.add(gauche);
 			add(panel);
 			pack();
-			//On recupere la dimension du panel qu'on vient de creer pour prendre en compte sa taille dans la dimension de la fenetre finale
-			dimensionPanelPrincipal=panel.getSize();
 
 			// Permet d'avoir la fené”štre ouverte au meme endroit que l'image
 			// selectionnee par l'utilisateur
@@ -344,7 +341,7 @@ public class Vue_Shunpo implements PlugIn {
 		int nombreImage=imp.getStackSize();
 		if (nombreImage!=2) IJ.showMessage("Wrong Input, number of image should be 2, please restart");
 		//Tri des image dans une nouvelle imageplus
-		ImagePlus imp2=trierImage(imp);
+		ImagePlus imp2=sortImageAntPost(imp);
 		imp2.show();
 		imp.close();
 		//Suite du programme sur la nouvelle imageplus
@@ -357,15 +354,20 @@ public class Vue_Shunpo implements PlugIn {
 		this.win=win;
 		win.setTitle(setTitre(win.getImagePlus()));
 		this.imp.setTitle(setTitre(this.imp));
-		// Salim On fixe la taille on prend taille originale on met un zoom de 2  et  ajoute la hauteur du panel (46) a la fenetre et on ajoute 12 width et 68 (+15 de marge) en height pixel pour les element graphique de imageplus		
-		win.setSize(512+30 , (512 + dimensionPanelPrincipal.height + 90));
-		win.repaint();
-		win.getCanvas().fitToWindow();
+		//  On affiche l'image en 512*512 en forcant le zoom adhoc	
+		win.getCanvas().setSize(new Dimension(512,512));
+		// Adaptation automatique de l'image au resize
+		win.getCanvas().setScaleToFit(true);
+		//On Pack la fenetre pour la mettre a la preferred Size
+		win.pack();
+		win.setSize(win.getPreferredSize());
+		//On met au premier plan au centre de l'ecran
+		win.setLocationRelativeTo(null);
 		win.toFront();
 		//On initialise l'overlay
-		initOverlay();
+		this.overlay=initOverlay();
 		//On ajouter l'overlay Droite/Gauche
-		overlayDG();
+		Vue_Shunpo.setOverlayDG(overlay, win.getImagePlus());
 		//On met sur l'image
 		win.getImagePlus().setOverlay(overlay);
 		if (instructions.getText().equals("")) 
@@ -387,15 +389,14 @@ public class Vue_Shunpo implements PlugIn {
 	protected void UIResultats(ImagePlus screen) {
 		//On cree la fenetre resultat avec le panel resultat
 		res = new CustomWindow(screen);
-		res.pack();
 		//On resize la window pour laisser la place a l'image et au pannel
 		//Ici on ajoute que 70 pixel en hauteur car il n'y a pas l'ascenseur horizontal du stack
-		res.setSize(screen.getWidth()+30,screen.getHeight()+dimensionPanelResultat.height+70);
-		ImageCanvas ic=res.getCanvas();
-		//On cache le zoom indicator pour la capture
-		ic.hideZoomIndicator(true);
-		ic.fitToWindow();
-		ic.setScaleToFit(true);
+		res.setLocationRelativeTo(null);
+		res.getCanvas().setMagnification(1.0);
+		res.getCanvas().setScaleToFit(true);
+		res.getCanvas().hideZoomIndicator(true);
+		res.pack();
+		res.setSize(res.getPreferredSize());
 		//On prend le focus
 		res.toFront();
 		//On implemente le titre de la fenetre
@@ -451,7 +452,7 @@ public class Vue_Shunpo implements PlugIn {
 			//On reactive le boutton suivant
 			lesBoutons.get("Suivant").setEnabled(true);
 			//On ordonne les images dans une nouvelle imageplus
-			ImagePlus cerveau2=trierImage(imp);
+			ImagePlus cerveau2=sortImageAntPost(imp);
 			//On injecte l'image cerveau dans la fenetre
 			win.setImage(cerveau2);
 			imp.getWindow().close();
@@ -465,8 +466,8 @@ public class Vue_Shunpo implements PlugIn {
 			win.repaint();
 			win.getImagePlus().killRoi();
 			//On ajouter l'overlay Droite/Gauche
-			initOverlay();
-			overlayDG();
+			this.overlay=initOverlay();
+			Vue_Shunpo.setOverlayDG(overlay, win.getImagePlus());
 			win.getImagePlus().setOverlay(overlay);
 			//Variable pour notifier que l'image 2 est ouverte
 			image2Ouverte=true ;
@@ -495,409 +496,491 @@ public class Vue_Shunpo implements PlugIn {
 		labRes[9].setFont(new Font ("Arial", Font.BOLD, 12));
 	}
 	
-	private void initOverlay() {
+	/**
+	 * Cree overlay et set la police
+	 * SK : A Optimiser pour tenir compte de la taille initiale de l'Image
+	 * @return Overlay
+	 */
+	public static Overlay initOverlay() {
 		//On initialise l'overlay il ne peut y avoir qu'un Overlay
-		// pour tout le programme sur lequel on va ajouter/enlever les ROI au fur et è„¿ mesure
-		overlay = new Overlay();
-		overlay.drawLabels(true);
-		overlay.drawNames(true);
-	}
-	
-	protected void overlayDG() {
-		//Creer overlay Droit et gauche
+		// pour tout le programme sur lequel on va ajouter/enlever les ROI au fur et a mesure
+		Overlay overlay = new Overlay();
 		Font font = new Font("Arial",Font.PLAIN, 19) ;
 		overlay.setLabelFont(font);
+		overlay.drawLabels(true);
+		overlay.drawNames(true);
+		return overlay;
+	}
+	
+	/**
+	 * Affiche D et G en overlay sur l'image
+	 * @param overlay : Overlay sur lequel ajouter D/G
+	 * @param imp : ImagePlus sur laquelle est appliquée l'overlay
+	 */
+	public static void setOverlayDG(Overlay overlay, ImagePlus imp) {
+		//Position au mileu dans l'axe Y
+		double y=((imp.getHeight())/2);
+		// Cree police
+		Font font = new Font("Arial",Font.PLAIN, 10) ;
+		
+		//Cote droit
+		TextRoi right = new TextRoi(0, y, "R");
+		right.setCurrentFont(font);
+		
+		//Cote gauche
+		String labelLeft="L";
+		double xl = imp.getWidth()-(font.getSize()*labelLeft.length()); // sinon on sort de l'image
+		TextRoi left = new TextRoi(xl, y, labelLeft);
+		left.setCurrentFont(font);
+		
+		// Set de la couleur et de la police des text ROI
+		TextRoi.setColor(Color.WHITE);
+		
 		// Ajout de l'indication de la droite du patient
-		double xr = 10;
-		double y = (win.getImagePlus().getHeight())/2;
-		TextRoi right = new TextRoi(xr, y, "");
-		overlay.add(right, "Right");
-		// Ajout de la gauche du patient 
-		double xl = win.getImagePlus().getWidth() - 20; // -20 sinon on sort de l'image
-		TextRoi left = new TextRoi(xl, y, "");
-		overlay.add(left, "Left");
+		overlay.add(right);
+		overlay.add(left);
 	}
 		
-		//Permet de tester si image unique ou multiframe
 	/**
 	 * Permet de savoir si l'ImagePlus vient d'une Image MultiFrame (teste l'Image 1)
 	 * @param imp : L'ImagePlus a tester
 	 * @return : vrai si multiframe
 	 */
-		public static boolean isMultiFrame(ImagePlus imp) {
-			//On regarde la coupe 1
+	public static boolean isMultiFrame(ImagePlus imp) {
+		//On regarde la coupe 1
+		imp.setSlice(1);
+		
+		//Regarde si frame unique ou multiple
+		String numFrames = DicomTools.getTag(imp, "0028,0008");
+		if (numFrames!=null && !numFrames.isEmpty()) numFrames=numFrames.trim();
+		
+		//On passe le texte en Int
+		int slices=Integer.parseInt(numFrames);
+		
+		if (slices==1) return false;
+		else return true;
+		
+	}
+	
+	/**
+	 * Permet de trier les image Anterieure et posterieure et retourne les images posterieures pour garder la meme lateralisation (la droite est à gauche de l'image comme une image de face)
+	 * @param imp : ImagePlus a trier 
+	 * @return Retourne l'ImagePlus avec les images posterieures inversees
+	 */
+	public static ImagePlus sortImageAntPost(ImagePlus imp) {
+		ImagePlus imp2=null;
+		if (isMultiFrame(imp)) {
+			imp2=sortAntPostMultiFrame(imp);
+		}
+		if (!isMultiFrame(imp)) {
+			imp2=sortAntPostUniqueFrame(imp);
+		}
+		return imp2;
+	}
+	
+	/**
+	 * Permet de tirer et inverser les images posterieure pour les images multiframe
+	 * A Eviter d'utiliser, préférer la methode sortImageAntPost(ImagePlus imp) qui est générique pour tout type d'image
+	 * @param imp0 : ImagePlus a trier
+	 * @return Retourne l'ImagePlus triee
+	 */
+	@Deprecated
+	public static ImagePlus sortAntPostMultiFrame(ImagePlus imp0) {
+			//On duplique pour faire les modifs dans l'image dupliqué”Ÿçµœ
+			ImagePlus imp=imp0.duplicate();
+			
+			//On prend le Header
+			String metadata=imp.getInfoProperty();
+			
+			//On recupere la chaine de vue
+			String tag = DicomTools.getTag(imp, "0011,1012");
+			if (DicomTools.getTag(imp, "0011,1030")!=null)		tag+=DicomTools.getTag(imp, "0011,1030");
+			
+			// TAG 0011, 1012 semble absent de SIEMENS, TROUVER D AUTRE EXAMPLE POUR STATUER
+			//Si pas de tag
+			if (tag==null) tag="no tag";
+			// On recupere la chaine de detecteur
+			String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
+			if (tagDetecteur!=null && !tagDetecteur.isEmpty()) tagDetecteur=tagDetecteur.trim();
+			String delims = "[ ]+";
+			String[] sequenceDeteceur = tagDetecteur.split(delims);
+			
+			///On recupere le 1er separateur de chaque vue dans le champ des orientation
+			int separateur=tag.indexOf("\\");
+			//Si on ne trouve pas le separateur, on met la position du separateur ï¿½ la fin de la string pour tout traiter
+			if (separateur==-1) separateur=(tag.length());
+			
+			// Si la 1ere image est labelisee anterieure
+			if (tag.substring(0, separateur).contains("ANT") || tag.substring(0, separateur).contains("_E")) {
+				//On recupere le numé”Ÿçµ©o du detecteur
+				int detecteurAnterieur=Integer.parseInt(sequenceDeteceur[0]);
+				// On parcours la sequence de detecteur et on flip é”Ÿï¿½ chaque fois que ce n'est pas le numé”Ÿçµ©o de ce deteceur
+				for (int j=0; j<sequenceDeteceur.length; j++) {
+					int detecteur=Integer.parseInt(sequenceDeteceur[j]);
+						if (detecteur!=detecteurAnterieur) {
+						imp.getStack().getProcessor(j+1).flipHorizontal();
+						}	
+					}
+			}
+			
+			//Si la 1ere image est labelisee posterieurs
+			if (tag.substring(0, separateur).contains("POS") || tag.substring(0, separateur).contains("_F")) {
+				//on ré”Ÿçµšupere le numé”Ÿçµ©o du detecteur posterieur
+				int detecteurPosterieur=Integer.parseInt(sequenceDeteceur[0]);
+				// On parcours la sequence de detecteur et on flip é”Ÿï¿½ chaque fois que ca correspond é”Ÿï¿½ ce deteceur
+				for (int j=0; j<sequenceDeteceur.length; j++) {
+					int detecteur=Integer.parseInt(sequenceDeteceur[j]);
+						if (detecteur==detecteurPosterieur) {
+						imp.getStack().getProcessor(j+1).flipHorizontal();
+						}	
+					}
+			}
+			
+			//Si on ne trouve pas de tag on flip toute detecteur 2 et on notifie l'utilisateur
+			if (!tag.substring(0, separateur).contains("POS") && !tag.substring(0, separateur).contains("_F") &&!tag.substring(0, separateur).contains("ANT") &&!tag.substring(0, separateur).contains("_E")) {
+				IJ.log("No Orientation tag found, assuming detector 2 is posterior. Please Notify Salim.Kanoun@gmail.com");
+				for (int j=0; j<sequenceDeteceur.length; j++) {
+					int detecteur=Integer.parseInt(sequenceDeteceur[j]);
+						if (detecteur==2) {
+						imp.getStack().getProcessor(j+1).flipHorizontal();
+						}	
+				}				
+			}
+			
+			ImagePlus[] pileImage=new ImagePlus[imp.getStackSize()];
+			
+			for (int j=0; j<imp.getStackSize();j++) {
+				pileImage[j]= new ImagePlus();
+				pileImage[j].setProcessor(imp.getStack().getProcessor(j+1));
+				pileImage[j].setProperty("Info", metadata);
+				pileImage[j].setTitle("Image"+j);
+			}
+			
+			Concatenator enchainer = new Concatenator();
+			ImagePlus imp2=enchainer.concatenate(pileImage, false);
+			//ImagePlus imp2 = enchainer.concatenate(impAnt,impPost, false);
+			//On retourne le resultat
+			return imp2;
+			
+		}
+
+	/**
+	 * Permet de trier les image unique frame et inverser l'image posterieure
+	 * A Eviter d'utiliser, préférer la methode sortImageAntPost(ImagePlus imp) qui est générique pour tout type d'image
+	 * @param imp0 : ImagePlus a trier
+	 * @return retourne l'ImagePlus trier
+	 */
+	@Deprecated
+	public static ImagePlus sortAntPostUniqueFrame(ImagePlus imp0) {
+			//On copie dans une nouvelle image qu'on va renvoyer
+			ImagePlus imp=imp0.duplicate();
+			
+			//Si unique frame on inverse toute image qui contient une image posté”Ÿçµ©ieure
+				for (int i = 1; i <= imp.getImageStackSize(); i++) {
+				imp.setSlice(i);
+				String tag = DicomTools.getTag(imp, "0011,1012");
+				if (tag!=null && !tag.isEmpty()) tag=tag.trim();
+				
+				String tagVector=DicomTools.getTag(imp, "0054,0020");
+				if (tagVector!=null && !tagVector.isEmpty()) tagVector=tagVector.trim();
+
+					if (tag!=null) {
+						if (tag.contains("POS") || tag.contains("_F")) {
+							imp.getProcessor().flipHorizontal();
+						}
+						if (imp.getStackSize()==2 && !tag.contains("POS") && !tag.contains("_F") && !tag.contains("ANT") && !tag.contains("_F") ) {
+							IJ.log("2 image detected with No Orientation label found, assuming image 2 is posterior. Please notify Salim.kanoun@gmail.com");
+						}
+					}
+					else {
+						IJ.log("No Orientation found Assuming detector 1 is anterior, please send image sample to Salim.kanoun@gmail.com if wrong");
+						if (imp.getStackSize()==2 && tagVector.equals("2")) {
+							imp.getProcessor().flipHorizontal();
+							
+						}
+					}
+					
+				}	
+			return imp;
+		}
+	
+	/**
+	 * Permet de tester si l'image est anterieure pour une unique frame, ne teste que la première Image (peut etre generalisee plus tard si besoin)
+	 * A Eviter d'utiliser car la methode isAnterieur(ImagePlus imp) est generique pour tout type d'image
+	 * @param imp : ImagePlus a tester
+	 * @return boolean vrai si anterieur
+	 */
+	@Deprecated
+	public static Boolean isAnterieurUniqueFrame(ImagePlus imp){
 			imp.setSlice(1);
 			
-			//Regarde si frame unique ou multiple
-			String numFrames = DicomTools.getTag(imp, "0028,0008").substring(1,DicomTools.getTag(imp, "0028,0008").length());
+			//Recupere le private tag qui peut contenir des informations de localisation (rangueil)
+			String tag = DicomTools.getTag(imp, "0011,1012");
 			
-			//bug du dicom tool, si il y a un espace ï¿½ la fin de la string on l'enleve
-			if (numFrames.endsWith(" ")) numFrames=numFrames.substring(0, numFrames.length()-1);
+			//On repere le num de camera
+			String tagVector=DicomTools.getTag(imp, "0054,0020");
+			if (tagVector!=null && !tagVector.isEmpty()) tagVector=tagVector.trim();
 			
-			//On passe le texte en Int
-			int slices=Integer.parseInt(numFrames);
+			//On ajoute un deuxieme tag de localisation a voir dans la pratique ou se situe l'info
+			if (DicomTools.getTag(imp, "0011,1030")!=null)		tag+=DicomTools.getTag(imp, "0011,1030");
+			Boolean anterieur=null;
 			
-			if (slices==1) return false;
-			else return true;
-			
-		}
-		
-		//Methode globale pour les deux type d'image teste l'image d'input et lance la bonne methode et renvoie l'image triee
-		/**
-		 * Permet de trier les image Anterieure et posterieure et retourne les images posterieures pour garder la meme lateralisation (la droite est à gauche de l'image comme une image de face)
-		 * @param imp : ImagePlus a trier 
-		 * @return Retourne l'ImagePlus avec les images posterieures inversees
-		 */
-		public static ImagePlus trierImage(ImagePlus imp) {
-			ImagePlus imp2=null;
-			if (isMultiFrame(imp)) {
-				imp2=trierImageMultiFrame(imp);
-			}
-			if (!isMultiFrame(imp)) {
-				imp2=trierImageUniqueFrame(imp);
-			}
-			return imp2;
-		}
-		/**
-		 * Permet de tirer et inverser les images posterieure pour les images multiframe
-		 * Eviter d'utiliser la methode trierImage(ImagePlus imp) est générique pour tout type d'image
-		 * @param imp0 : ImagePlus a trier
-		 * @return Retourne l'ImagePlus triee
-		 */
-		@Deprecated
-		public static ImagePlus trierImageMultiFrame(ImagePlus imp0) {
-				//On duplique pour faire les modifs dans l'image dupliqué”Ÿçµœ
-				ImagePlus imp=imp0.duplicate();
+			if (tag!=null || tagVector!=null) {
 				
-				//On prend le Header
-				String metadata=imp.getInfoProperty();
-				
-				//On recupere la chaine de vue
-				String tag = DicomTools.getTag(imp, "0011,1012");
-				if (DicomTools.getTag(imp, "0011,1030")!=null)		tag+=DicomTools.getTag(imp, "0011,1030");
-				
-				// TAG 0011, 1012 semble absent de SIEMENS, TROUVER D AUTRE EXAMPLE POUR STATUER
-				//Si pas de tag
-				if (tag==null) tag="no tag";
-				// On recupere la chaine de detecteur
-				String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
-				tagDetecteur=tagDetecteur.substring(1, tagDetecteur.length()-1);
-				String delims = "[ ]+";
-				String[] sequenceDeteceur = tagDetecteur.split(delims);
-				
-				///On recupere le 1er separateur de chaque vue dans le champ des orientation
-				int separateur=tag.indexOf("\\");
-				//Si on ne trouve pas le separateur, on met la position du separateur ï¿½ la fin de la string pour tout traiter
-				if (separateur==-1) separateur=(tag.length());
-				
-				// Si la 1ere image est labelisee anterieure
-				if (tag.substring(0, separateur).contains("ANT") || tag.substring(0, separateur).contains("_E")) {
-					//On recupere le numé”Ÿçµ©o du detecteur
-					int detecteurAnterieur=Integer.parseInt(sequenceDeteceur[0]);
-					// On parcours la sequence de detecteur et on flip é”Ÿï¿½ chaque fois que ce n'est pas le numé”Ÿçµ©o de ce deteceur
-					for (int j=0; j<sequenceDeteceur.length; j++) {
-						int detecteur=Integer.parseInt(sequenceDeteceur[j]);
-							if (detecteur!=detecteurAnterieur) {
-							imp.getStack().getProcessor(j+1).flipHorizontal();
-							}	
-						}
-				}
-				
-				//Si la 1ere image est labelisee posterieurs
-				if (tag.substring(0, separateur).contains("POS") || tag.substring(0, separateur).contains("_F")) {
-					//on ré”Ÿçµšupere le numé”Ÿçµ©o du detecteur posterieur
-					int detecteurPosterieur=Integer.parseInt(sequenceDeteceur[0]);
-					// On parcours la sequence de detecteur et on flip é”Ÿï¿½ chaque fois que ca correspond é”Ÿï¿½ ce deteceur
-					for (int j=0; j<sequenceDeteceur.length; j++) {
-						int detecteur=Integer.parseInt(sequenceDeteceur[j]);
-							if (detecteur==detecteurPosterieur) {
-							imp.getStack().getProcessor(j+1).flipHorizontal();
-							}	
-						}
-				}
-				
-				//Si on ne trouve pas de tag on flip toute detecteur 2 et on notifie l'utilisateur
-				if (!tag.substring(0, separateur).contains("POS") && !tag.substring(0, separateur).contains("_F") &&!tag.substring(0, separateur).contains("ANT") &&!tag.substring(0, separateur).contains("_E")) {
-					IJ.log("No Orientation tag found, assuming detector 2 is posterior. Please Notify Salim.Kanoun@gmail.com");
-					for (int j=0; j<sequenceDeteceur.length; j++) {
-						int detecteur=Integer.parseInt(sequenceDeteceur[j]);
-							if (detecteur==2) {
-							imp.getStack().getProcessor(j+1).flipHorizontal();
-							}	
-					}				
-				}
-				
-				ImagePlus[] pileImage=new ImagePlus[imp.getStackSize()];
-				
-				for (int j=0; j<imp.getStackSize();j++) {
-					pileImage[j]= new ImagePlus();
-					pileImage[j].setProcessor(imp.getStack().getProcessor(j+1));
-					pileImage[j].setProperty("Info", metadata);
-					pileImage[j].setTitle("Image"+j);
-				}
-				
-				Concatenator enchainer = new Concatenator();
-				ImagePlus imp2=enchainer.concatenate(pileImage, false);
-				//ImagePlus imp2 = enchainer.concatenate(impAnt,impPost, false);
-				//On retourne le resultat
-				return imp2;
-				
-			}
-
-		/**
-		 * Permet de trier les image unique frame et inverser l'image posterieure
-		 * Eviter d'utiliser la methode trierImage(ImagePlus imp) est générique pour tout type d'image
-		 * @param imp0 : ImagePlus a trier
-		 * @return retourne l'ImagePlus trier
-		 */
-		@Deprecated
-		public static ImagePlus trierImageUniqueFrame(ImagePlus imp0) {
-				//On copie dans une nouvelle image qu'on va renvoyer
-				ImagePlus imp=imp0.duplicate();
-				
-				//Si unique frame on inverse toute image qui contient une image posté”Ÿçµ©ieure
-					for (int i = 1; i <= imp.getImageStackSize(); i++) {
-					imp.setSlice(i);
-					String tag = DicomTools.getTag(imp, "0011,1012");
-						if (tag!=null) {
-							if (tag.contains("POS") || tag.contains("_F")) {
-								imp.getProcessor().flipHorizontal();
-							}
-							if (imp.getStackSize()==2 && !tag.contains("POS") && !tag.contains("_F") && !tag.contains("ANT") && !tag.contains("_F") ) {
-								IJ.log("2 image detecte with No Orientation label found, assuming image 2 is posterior. Please notify Salim.kanoun@gmail.com");
-							}
-						}
-						
-					}	
-				return imp;
-			}
-		
-		
-		
-		/**
-		 * Permet de tester si l'image est anterieure pour une unique frame, ne teste que la première Image (peut etre generalisee plus tard si besoin)
-		 * Eviter d'utiliser la methode isAnterieur(ImagePlus imp) est generique pour tout type d'image
-		 * @param imp : ImagePlus a tester
-		 * @return boolean vrai si anterieur
-		 */
-		@Deprecated
-		public static Boolean isAnterieurUniqueFrame(ImagePlus imp){
-				imp.setSlice(1);
-				String tag = DicomTools.getTag(imp, "0011,1012");
-				//On ajoute un deuxieme tag de localisation a voir dans la pratique ou se situe l'info
-				if (DicomTools.getTag(imp, "0011,1030")!=null)		tag+=DicomTools.getTag(imp, "0011,1030");
-				Boolean anterieur=null;
+				// Si on a le private tag on le traite
 				if (tag!=null) {
+					
 					if (tag.contains("ANT") || tag.contains("_E")) {
 						anterieur=true;
 					}
 					else if (tag.contains("POS") || tag.contains("_F")) {
 						anterieur=false;
 					}
-					//Si on ne trouve pas de tag le booelan reste null et on notifie l'utilisateur
-					else if (!tag.contains("POS") && !tag.contains("_F")&& !tag.contains("ANT") && !tag.contains("_E")) {
-						// le Boolean reste ï¿½ null et on informe l'user
-						IJ.showMessage("Orientation not reckognized");	
+					else {
+						IJ.log("Orientation not reckognized");
 					}
 				}
-				else {
-					IJ.showMessage("No Orientation found");	
-				}
-					
-					
-					return anterieur;
-		}
-		
-		/**
-		 * Permet de tester si l'image est anterieure pour une MultiFrame, ne teste que la première Image (peut etre generalisee plus tard si besoin)
-		 * Eviter d'utiliser la methode isAnterieur(ImagePlus imp) est generique pour tout type d'image
-		 * 
-		 * @param imp : ImagePlus a tester
-		 * @return boolean vrai si anterieur
-		 */
-		@Deprecated
-		public static Boolean isAnterieurMultiframe(ImagePlus imp) {
-			//On ne traite que l'image 1
-			imp.setSlice(1);
-			String tag= DicomTools.getTag(imp, "0011,1012");
-			//On ajoute un deuxieme tag de localisation a voir dans la pratique ou se situe l'info
-			if (DicomTools.getTag(imp, "0011,1030")!=null)		tag+=DicomTools.getTag(imp, "0011,1030");
-			
-			//On set le Boolean a null
-			Boolean anterieur = null;
-			if (tag!=null) {
-				///On recupere le 1er separateur de chaque vue dans le champ des orientation
-				int separateur=tag.indexOf("\\");
 				
-				//Si on ne trouve pas le separateur, on met la position du separateur ï¿½ la fin de la string pour tout traiter
-				if (separateur==-1) separateur=(tag.length());
-				
-					// Si la 1ere image est labelisee anterieure
-				if (tag.substring(0, separateur).contains("ANT") || tag.substring(0, separateur).contains("_E")) {
-					anterieur=true;
-				}
-				//Si la 1ere image est labellisee posterieure
-				else if (tag.substring(0, separateur).contains("POS") || tag.substring(0, separateur).contains("_F")) {
-					anterieur=false;
+				//Si pas de private tag on fait avec le numero de la camera
+				else if (tag==null && tagVector!=null) {
+					if(imp.getStackSize()==2) {
+						// SK FAUDRA RECONNAITRE LES IMAGE D/G ET LES DIFFERENCIER
+						if (tagVector.equals("1")) anterieur=true;
+						if (tagVector.equals("2")) anterieur=false;
+						IJ.log("Orientation Not reckgnized, assuming vector 1 is anterior");
+					}
+					// le Boolean reste null et on informe l'user
+					else {
+						IJ.log("Orientation not reckognized");
+					}
 				}
 				
-				//Si on ne trouve pas de tag le booelan reste null et on notifie l'utilisateur
-				else if (!tag.substring(0, separateur).contains("POS") && !tag.substring(0, separateur).contains("_F")&& !tag.substring(0, separateur).contains("ANT") && !tag.substring(0, separateur).contains("_E")) {
-					// le Boolean reste ï¿½ null et on informe l'user
-					IJ.log("Information not reckognized");	
-				}
 			}
+			
+			//Si aucun des deux echec du reperage
 			else {
-				IJ.log("No localization information");	
+				IJ.log("Orientation not reckognized");
 			}
-			
-			return anterieur;	
-		}
-		
-		/**
-		 * Permet de tester si la 1ere image de l'ImagePlus est une image anterieure
-		 * @param imp : ImagePlus a tester
-		 * @return booleen vrai si image anterieure
-		 */
-		public static Boolean isAnterieur(ImagePlus imp) {
-			Boolean anterieur=null;
-				if (isMultiFrame(imp)) {
-					anterieur=isAnterieurMultiframe(imp);
-				}
-				if (!isMultiFrame(imp)) {
-					anterieur=isAnterieurUniqueFrame(imp);
-				}
+				
+				
 				return anterieur;
+	}
+		
+	/**
+	 * Permet de tester si l'image est anterieure pour une MultiFrame, ne teste que la première Image (peut etre generalisee plus tard si besoin)
+	 * A Eviter d'utiliser car la methode isAnterieur(ImagePlus imp) est generique pour tout type d'image
+	 * 
+	 * @param imp : ImagePlus a tester
+	 * @return boolean vrai si anterieur
+	 */
+	@Deprecated
+	public static Boolean isAnterieurMultiframe(ImagePlus imp) {
+		//On ne traite que l'image 1
+		imp.setSlice(1);
+		String tag= DicomTools.getTag(imp, "0011,1012");
+		//On ajoute un deuxieme tag de localisation a voir dans la pratique ou se situe l'info
+		if (DicomTools.getTag(imp, "0011,1030")!=null)		tag+=DicomTools.getTag(imp, "0011,1030");
+		
+		//On set le Boolean a null
+		Boolean anterieur = null;
+		if (tag!=null) {
+			///On recupere le 1er separateur de chaque vue dans le champ des orientation
+			int separateur=tag.indexOf("\\");
+			
+			//Si on ne trouve pas le separateur, on met la position du separateur ï¿½ la fin de la string pour tout traiter
+			if (separateur==-1) separateur=(tag.length());
+			
+				// Si la 1ere image est labelisee anterieure
+			if (tag.substring(0, separateur).contains("ANT") || tag.substring(0, separateur).contains("_E")) {
+				anterieur=true;
+			}
+			//Si la 1ere image est labellisee posterieure
+			else if (tag.substring(0, separateur).contains("POS") || tag.substring(0, separateur).contains("_F")) {
+				anterieur=false;
+			}
+			
+			//Si on ne trouve pas de tag le booelan reste null et on notifie l'utilisateur
+			else if (!tag.substring(0, separateur).contains("POS") && !tag.substring(0, separateur).contains("_F")&& !tag.substring(0, separateur).contains("ANT") && !tag.substring(0, separateur).contains("_E")) {
+				// le Boolean reste ï¿½ null et on informe l'user
+				IJ.log("Information not reckognized");	
+			}
+		}
+		else {
+			IJ.log("No localization information");	
 		}
 		
-		/**
-		 * Premet de trier un tableau d'ImagePlus par leur acquisition time de la plus ancienne à la plus recente
-		 * @param serie : Tableau d'ImagePlus a trier
-		 * @return Tableau d'ImagePlus ordonne par acquisition time
-		 */
-		public static ImagePlus[] ordonnerSerie(ImagePlus[] serie) {
+		return anterieur;	
+	}
+		
+	/**
+	 * Permet de tester si la 1ere image de l'ImagePlus est une image anterieure
+	 * @param imp : ImagePlus a tester
+	 * @return booleen vrai si image anterieure
+	 */
+	public static Boolean isAnterieur(ImagePlus imp) {
+		Boolean anterieur=null;
+			if (isMultiFrame(imp)) {
+				anterieur=isAnterieurMultiframe(imp);
+			}
+			if (!isMultiFrame(imp)) {
+				anterieur=isAnterieurUniqueFrame(imp);
+			}
+			return anterieur;
+	}
+		
+	/**
+	 * Premet de trier un tableau d'ImagePlus par leur acquisition date et time de la plus ancienne à la plus recente
+	 * @param serie : Tableau d'ImagePlus a trier
+	 * @return Tableau d'ImagePlus ordonne par acquisition time
+	 */
+	public static ImagePlus[] orderImagesByAcquisitionTime(ImagePlus[] serie) {
+		
+		ImagePlus[] retour = serie.clone();
+		
+		Arrays.sort(retour, new Comparator<ImagePlus>() {
 
-			ImagePlus[] retour = serie.clone();
-			Arrays.sort(retour, new Comparator<ImagePlus>() {
-
-				@Override
-				public int compare(ImagePlus arg0, ImagePlus arg1) {
-					double tag0 = Double.parseDouble(DicomTools.getTag(arg0, "0008,0032"));
-					double tag1 = Double.parseDouble(DicomTools.getTag(arg1, "0008,0032"));
-					return (int) (tag0 - tag1);
+			@Override
+			public int compare(ImagePlus arg0, ImagePlus arg1) {
+				DateFormat dateHeure=new SimpleDateFormat("yyyyMMddHHmmss.SS");
+				String dateImage0 = DicomTools.getTag(arg0, "0008,0022");
+				String dateImage1 = DicomTools.getTag(arg1, "0008,0022");
+				
+				String heureImage0 = DicomTools.getTag(arg0, "0008,0032");
+				String heureImage1 = DicomTools.getTag(arg1, "0008,0032");
+				
+				String dateInputImage0=dateImage0.trim()+heureImage0.trim();
+				String dateInputImage1=dateImage1.trim()+heureImage1.trim();
+				
+				Date timeImage0 = null;
+				Date timeImage1 = null;
+				try {
+					timeImage0= dateHeure.parse(dateInputImage0);
+					timeImage1 = dateHeure.parse(dateInputImage1);
+				} catch (ParseException e) {
+					e.printStackTrace();
 				}
-			});
-			return retour;
-		}
+				
+				return (int) ((timeImage0.getTime()-timeImage1.getTime())/1000);
+			}
+		});
 		
-		/**
-		 * Permet de spliter les images d'un multiFrame contenant 2 camera, image 0 camera Ant et Image1 Camera Post
-		 * @param imp0
-		 * @return Tableau d'imagePlus avec 2 ImagePlus (camera 1 et 2 )
-		 */
-		public static ImagePlus[] splitCameraMultiFrame(ImagePlus imp) {
-			//On prend le Header
-			String metadata=imp.getInfoProperty();
-			
-			// On recupere la chaine de detecteur
-			String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
-			tagDetecteur=tagDetecteur.substring(1, tagDetecteur.length()-1);
-			String delims = "[ ]+";
-			String[] sequenceDetecteur = tagDetecteur.split(delims);
-			
-			//On cree les ImageStack qui vont recevoir les image de chaque tête
-			ImageStack camera0=new ImageStack(imp.getWidth(),imp.getHeight());
-			ImageStack camera1=new ImageStack(imp.getWidth(),imp.getHeight());
-			
-			// Determination de l'orientation des camera en regardant la 1ere image
-			String detecteurPremiereImage=sequenceDetecteur[0];
-			Boolean anterieurPremiereImage=Vue_Shunpo.isAnterieurMultiframe(imp);
+		return retour;
+	}
+		
+	/**
+	 * Permet de spliter les images d'un multiFrame contenant 2 camera, image 0 camera Ant et Image1 Camera Post
+	 * @param imp : ImagePlus a traiter
+	 * @return Tableau d'imagePlus avec 2 ImagePlus (camera 1 et 2 )
+	 */
+	public static ImagePlus[] splitCameraMultiFrame(ImagePlus imp) {
+		//On prend le Header
+		String metadata=imp.getInfoProperty();
+		
+		// On recupere la chaine de detecteur
+		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
+		if (tagDetecteur!=null && !tagDetecteur.isEmpty()) tagDetecteur = tagDetecteur.trim();
+		String delims = "[ ]+";
+		String[] sequenceDetecteur = tagDetecteur.split(delims);
+		
+		//On cree les ImageStack qui vont recevoir les image de chaque tête
+		ImageStack camera0=new ImageStack(imp.getWidth(),imp.getHeight());
+		ImageStack camera1=new ImageStack(imp.getWidth(),imp.getHeight());
+		
+		// Determination de l'orientation des camera en regardant la 1ere image
+		String detecteurPremiereImage=sequenceDetecteur[0];
+		Boolean anterieurPremiereImage=Vue_Shunpo.isAnterieurMultiframe(imp);
 
-			
-			//On ajoute les images dans les camera adhoc
-			
-				if(anterieurPremiereImage!= null && anterieurPremiereImage) {
-					for (int i=0; i<sequenceDetecteur.length ; i++) {
-						if (sequenceDetecteur[i]==detecteurPremiereImage) {
-							camera0.addSlice(imp.getImageStack().getProcessor((i+1)));
-							}
-						else {
-							camera1.addSlice(imp.getImageStack().getProcessor((i+1)));
-							camera1.getProcessor(i+1).flipHorizontal();
-							}
+		
+		//On ajoute les images dans les camera adhoc
+		
+			if(anterieurPremiereImage!= null && anterieurPremiereImage) {
+				for (int i=0; i<sequenceDetecteur.length ; i++) {
+					if (sequenceDetecteur[i]==detecteurPremiereImage) {
+						camera0.addSlice(imp.getImageStack().getProcessor((i+1)));
+						}
+					else {
+						camera1.addSlice(imp.getImageStack().getProcessor((i+1)));
+						camera1.getProcessor(i+1).flipHorizontal();
 						}
 					}
-				else if(anterieurPremiereImage!= null && !anterieurPremiereImage) {
+				}
+			else if(anterieurPremiereImage!= null && !anterieurPremiereImage) {
+				for (int i=0; i<sequenceDetecteur.length ; i++) {
+					if (sequenceDetecteur[i]==detecteurPremiereImage) {
+						camera1.addSlice(imp.getImageStack().getProcessor((i+1)));
+						camera1.getProcessor(i+1).flipHorizontal();
+						}
+					else {
+						camera0.addSlice(imp.getImageStack().getProcessor((i+1)));
+						}			
+					}
+				}
+			else  {
+				IJ.log("assuming image 2 is posterior. Please notify Salim.kanoun@gmail.com");
 					for (int i=0; i<sequenceDetecteur.length ; i++) {
-						if (sequenceDetecteur[i]==detecteurPremiereImage) {
-							camera1.addSlice(imp.getImageStack().getProcessor((i+1)));
-							camera1.getProcessor(i+1).flipHorizontal();
-							}
-						else {
+						if (sequenceDetecteur[i].equals("1")) {
 							camera0.addSlice(imp.getImageStack().getProcessor((i+1)));
-							}			
+						}
+						else if (sequenceDetecteur[i].equals("2")) {
+							camera1.addSlice(imp.getImageStack().getProcessor((i+1)));
 						}
 					}
-				else  {
-					IJ.log("assuming image 2 is posterior. Please notify Salim.kanoun@gmail.com");
-						for (int i=0; i<sequenceDetecteur.length ; i++) {
-							if (sequenceDetecteur[i].equals("1")) {
-								camera0.addSlice(imp.getImageStack().getProcessor((i+1)));
-							}
-							else if (sequenceDetecteur[i].equals("2")) {
-								camera1.addSlice(imp.getImageStack().getProcessor((i+1)));
-							}
-						}
-				}
-			
-			ImagePlus cameraAnt=new ImagePlus();
-			ImagePlus cameraPost=new ImagePlus();
-			cameraAnt.setStack(camera0);
-			cameraPost.setStack(camera1);
-			
-			ImagePlus[] cameras=new ImagePlus[2];
-			cameras[0]=cameraAnt;
-			cameras[1]=cameraPost;
-			
-			//On ajoute une copie des headers
-			for (int i=0 ; i<cameras.length ; i++) {
-				cameras[i].setProperty("Info", metadata);
 			}
-			return cameras;
-		}
 		
-		/**
-		 * Test si les images du MutiFrame viennent toutes de la meme camera
-		 * @param imp0
-		 * @return
-		 */
-		public static boolean isSameCameraMultiFrame(ImagePlus imp0) {
-			// On recupere la chaine de detecteur
-			String tagDetecteur = DicomTools.getTag(imp0, "0054,0020");
-			tagDetecteur=tagDetecteur.substring(1, tagDetecteur.length()-1);
-			String delims = "[ ]+";
-			String[] sequenceDetecteur = tagDetecteur.split(delims);
-			boolean sameCamera=true ;
-			
-			String premiereImage=sequenceDetecteur[0];
-			for (int i=1 ; i<sequenceDetecteur.length;i++) {
-				if (!premiereImage.equals(sequenceDetecteur[i])) sameCamera=false;
-				premiereImage=sequenceDetecteur[i];
-			}
-			return sameCamera;
-		}
+		ImagePlus cameraAnt=new ImagePlus();
+		ImagePlus cameraPost=new ImagePlus();
+		cameraAnt.setStack(camera0);
+		cameraPost.setStack(camera1);
 		
-		public static boolean isPremiereImageDetecteur1(ImagePlus imp0) {
-			// On recupere la chaine de detecteur
-			String tagDetecteur = DicomTools.getTag(imp0, "0054,0020");
-			tagDetecteur=tagDetecteur.substring(1, tagDetecteur.length()-1);
-			String delims = "[ ]+";
-			String[] sequenceDeteceur = tagDetecteur.split(delims);
-			boolean detecteur1=false;
-			
-			if (Integer.parseInt(sequenceDeteceur[0])==1) detecteur1 = true;
-			
-			return detecteur1;
+		ImagePlus[] cameras=new ImagePlus[2];
+		cameras[0]=cameraAnt;
+		cameras[1]=cameraPost;
+		
+		//On ajoute une copie des headers
+		for (int i=0 ; i<cameras.length ; i++) {
+			cameras[i].setProperty("Info", metadata);
 		}
+		return cameras;
+	}
+		
+	/**
+	 * Test si les images du MutiFrame viennent toutes de la meme camera
+	 * @param imp : ImagePlus à traiter
+	 * @return Boolean
+	 */
+	public static boolean isSameCameraMultiFrame(ImagePlus imp) {
+		// On recupere la chaine de detecteur
+		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
+		if (tagDetecteur!=null && !tagDetecteur.isEmpty()) tagDetecteur=tagDetecteur.trim();
+		String delims = "[ ]+";
+		String[] sequenceDetecteur = tagDetecteur.split(delims);
+		boolean sameCamera=true ;
+		
+		String premiereImage=sequenceDetecteur[0];
+		for (int i=1 ; i<sequenceDetecteur.length;i++) {
+			if (!premiereImage.equals(sequenceDetecteur[i])) sameCamera=false;
+			premiereImage=sequenceDetecteur[i];
+		}
+		return sameCamera;
+	}
+	
+	/** 
+	 * Test si la premiere image du stack est du detecteur 1
+	 * @param imp : ImagePus A traiter
+	 * @return boolean
+	 */
+	public static boolean isPremiereImageDetecteur1(ImagePlus imp) {
+		// On recupere la chaine de detecteur
+		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
+		if (tagDetecteur!=null && !tagDetecteur.isEmpty()) tagDetecteur=tagDetecteur.trim();
+		String delims = "[ ]+";
+		String[] sequenceDeteceur = tagDetecteur.split(delims);
+		boolean detecteur1=false;
+		
+		if (Integer.parseInt(sequenceDeteceur[0])==1) detecteur1 = true;
+		
+		return detecteur1;
+	}
 } 
+
 // Fin Vue_Shunpo
