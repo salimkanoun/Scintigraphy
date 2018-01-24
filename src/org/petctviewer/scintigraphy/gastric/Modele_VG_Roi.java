@@ -89,7 +89,7 @@ public class Modele_VG_Roi {
 	public void setPatient(String pat, ImagePlus imp) {
 		this.patient = pat;
 		this.date = DicomTools.getTag(imp, "0008,0020");
-		this.date = this.date.trim();
+		if (date!=null && !date.isEmpty()) date = date.trim();
 	}
 
 	// Cree un montage a partir de l'ImageStack
