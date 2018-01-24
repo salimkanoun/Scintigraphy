@@ -713,25 +713,53 @@ public class Vue_Shunpo implements PlugIn {
 	@Deprecated
 	public static Boolean isAnterieurUniqueFrame(ImagePlus imp){
 			imp.setSlice(1);
+			
+			//Recupere le private tag qui peut contenir des informations de localisation (rangueil)
 			String tag = DicomTools.getTag(imp, "0011,1012");
+			
+			//On repere le num de camera
+			String tagVector=DicomTools.getTag(imp, "0054,0020");
+			if (tagVector!=null && !tagVector.isEmpty()) tagVector=tagVector.trim();
+			
 			//On ajoute un deuxieme tag de localisation a voir dans la pratique ou se situe l'info
 			if (DicomTools.getTag(imp, "0011,1030")!=null)		tag+=DicomTools.getTag(imp, "0011,1030");
 			Boolean anterieur=null;
-			if (tag!=null) {
-				if (tag.contains("ANT") || tag.contains("_E")) {
-					anterieur=true;
+			
+			if (tag!=null || tagVector!=null) {
+				
+				// Si on a le private tag on le traite
+				if (tag!=null) {
+					
+					if (tag.contains("ANT") || tag.contains("_E")) {
+						anterieur=true;
+					}
+					else if (tag.contains("POS") || tag.contains("_F")) {
+						anterieur=false;
+					}
+					else {
+						IJ.log("Orientation not reckognized");
+					}
 				}
-				else if (tag.contains("POS") || tag.contains("_F")) {
-					anterieur=false;
+				
+				//Si pas de private tag on fait avec le numero de la camera
+				else if (tag==null && tagVector!=null) {
+					if(imp.getStackSize()==2) {
+						// SK FAUDRA RECONNAITRE LES IMAGE D/G ET LES DIFFERENCIER
+						if (tagVector.equals("1")) anterieur=true;
+						if (tagVector.equals("2")) anterieur=false;
+						IJ.log("Orientation Not reckgnized, assuming vector 1 is anterior");
+					}
+					// le Boolean reste null et on informe l'user
+					else {
+						IJ.log("Orientation not reckognized");
+					}
 				}
-				//Si on ne trouve pas de tag le booelan reste null et on notifie l'utilisateur
-				else if (!tag.contains("POS") && !tag.contains("_F")&& !tag.contains("ANT") && !tag.contains("_E")) {
-					// le Boolean reste � null et on informe l'user
-					IJ.showMessage("Orientation not reckognized");	
-				}
+				
 			}
+			
+			//Si aucun des deux echec du reperage
 			else {
-				IJ.showMessage("No Orientation found");	
+				IJ.log("Orientation not reckognized");
 			}
 				
 				

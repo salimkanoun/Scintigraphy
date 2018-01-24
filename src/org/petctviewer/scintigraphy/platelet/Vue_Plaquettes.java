@@ -54,6 +54,7 @@ import ij.gui.Toolbar;
 import ij.plugin.Concatenator;
 import ij.plugin.HyperStackConverter;
 import ij.plugin.PlugIn;
+import ij.plugin.StackReverser;
 import ij.plugin.frame.RoiManager;
 import ij.util.DicomTools;
 
@@ -329,6 +330,11 @@ public class Vue_Plaquettes implements PlugIn {
 			ImagePlus imp=WindowManager.getImage(titresFenetres[i]);
 			if (imp.getStackSize() == 2) {
 				antPost=true;
+				//Si l'image 1 est anterieur on inverse le stack pour avoir d'abord l'image post
+				if (Vue_Shunpo.isAnterieur(imp)) {
+					StackReverser reverser= new StackReverser();
+					reverser.flipStack(imp);
+				}
 			}
 			series[i]=Vue_Shunpo.sortImageAntPost(imp);
 			imp.close();
