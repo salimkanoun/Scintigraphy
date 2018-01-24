@@ -104,48 +104,28 @@ public class MesureImage {
 	 */
 	public HashMap<String, Double> calculateandGetResults(){
 		
-		//resultats.put("Number of Voxel Spleen Post", spleen[0]);
-		//resultats.put("Number of Voxel Liver Post", liver[0]);
-		//resultats.put("Number of Voxel Heart Post", heart[0]);
-		resultats.put("Mean Uptake Spleen Post", spleen[1]);
-		resultats.put("Mean Uptake Liver Post", liver[1]);
-		resultats.put("Mean Uptake Heart Post", heart[1]);
-		
-		resultats.put("Total Count Spleen Post", spleen[0]);
-		resultats.put("Total Count Liver Post", liver[0]);
-		resultats.put("Total Count Heart Post", heart[0]);
+		//resultats.put("Mean Uptake Spleen Post", spleen[1]);
+		//resultats.put("Mean Uptake Liver Post", liver[1]);
+		//resultats.put("Mean Uptake Heart Post", heart[1]);
 		resultats.put("Mean Ratio Spleen / Heart Post", spleen[1]/heart[1]);
 		resultats.put("Mean Ratio Spleen / Liver Post", spleen[1]/liver[1]);
 		resultats.put("Mean Ratio Liver / Heart Post", liver[1]/heart[1]);
-		//resultats.put("Total Count Ratio Spleen / Heart Post", ();
-		//resultats.put("Total Count Ratio Spleen / Liver Post", ();
-		//resultats.put("Total Count Ratio Liver / Heart Post", ();
 		
 		if (antPost){
-			//resultats.put("Number of Voxel Spleen Ant", spleenAnt[0]);
-			//resultats.put("Number of Voxel Liver Ant", liverAnt[0]);
-			//resultats.put("Number of Voxel Heart Ant", heartAnt[0]);
-			resultats.put("Mean Uptake Spleen Ant", spleenAnt[1]);
-			resultats.put("Mean Uptake Liver Ant", liverAnt[1]);
-			resultats.put("Mean Uptake Heart Ant", heartAnt[1]);
+			//resultats.put("Mean Uptake Spleen Ant", spleenAnt[1]);
+			//resultats.put("Mean Uptake Liver Ant", liverAnt[1]);
+			//resultats.put("Mean Uptake Heart Ant", heartAnt[1]);
+			//resultats.put("Mean Ratio Spleen / Heart Ant", spleenAnt[1]/heartAnt[1]);
+			//resultats.put("Mean Ratio Spleen / Liver Ant", spleenAnt[1]/liverAnt[1]);
+			//resultats.put("Mean Ratio Liver / Heart Ant", liverAnt[1]/heartAnt[1]);
 			
-			resultats.put("Total Count Spleen Ant", spleenAnt[0]);
-			resultats.put("Total Count Liver Ant", liverAnt[0]);
-			resultats.put("Total Count Heart Ant", heartAnt[0]);
-			resultats.put("Mean Ratio Spleen / Heart Ant", spleenAnt[1]/heartAnt[1]);
-			resultats.put("Mean Ratio Spleen / Liver Ant", spleenAnt[1]/liverAnt[1]);
-			resultats.put("Mean Ratio Liver / Heart Ant", liverAnt[1]/heartAnt[1]);
-			//resultats.put("Total Count Ratio Spleen / Heart Ant", ();
-			//resultats.put("Total Count Ratio Spleen / Liver Ant", ();
-			//resultats.put("Total Count Ratio Liver / Heart Ant", ();
+			double spleenMG = Math.sqrt(spleenAnt[0]*spleen[0]);
+			double liverMG=Math.sqrt(liverAnt[0]*liver[0]);
+			double heartMG=Math.sqrt(heartAnt[0]*heart[0]);
 			
-			double spleenMG = Math.sqrt(resultats.get("Total Count Spleen Ant")*resultats.get("Total Count Spleen Post"));
-			double liverMG=Math.sqrt(resultats.get("Total Count Liver Ant")*resultats.get("Total Count Liver Post"));
-			double heartMG=Math.sqrt(resultats.get("Total Count Heart Ant")*resultats.get("Total Count Heart Post"));
-			
-			resultats.put("Ratio GM Spleen / Heart", (spleenMG/heartMG));
-			resultats.put("Ratio GM Spleen / Liver", (spleenMG/liverMG));
-			resultats.put("Ratio GM Liver / Heart", (liverMG/heartMG));
+			//resultats.put("Ratio GM Spleen / Heart", (spleenMG/heartMG));
+			//resultats.put("Ratio GM Spleen / Liver", (spleenMG/liverMG));
+			//resultats.put("Ratio GM Liver / Heart", (liverMG/heartMG));
 			
 	
 		}

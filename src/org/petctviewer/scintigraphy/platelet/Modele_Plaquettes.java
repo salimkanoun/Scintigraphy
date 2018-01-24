@@ -242,8 +242,8 @@ public class Modele_Plaquettes {
 		domainAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
 		// YAxis
 		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-		rangeAxis.setRange(0.00, 100);
-		rangeAxis.setTickUnit(new NumberTickUnit(10.00));
+		rangeAxis.setAutoRange(true);
+		rangeAxis.setTickUnit(new NumberTickUnit(1.00));;
 		rangeAxis.setTickMarkStroke(new BasicStroke(2.5F));
 		rangeAxis.setLabelFont(new Font("", Font.BOLD, 16));
 		rangeAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
