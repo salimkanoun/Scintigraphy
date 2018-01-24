@@ -193,8 +193,12 @@ public class Modele_Plaquettes {
 	//SK CREATION COLLECTION
 	private XYSeriesCollection createDataset(JTable table) {
 		
-		XYSeriesCollection dataset = new XYSeriesCollection();
+		XYSeriesCollection datasetPost = new XYSeriesCollection();
+		XYSeriesCollection datasetAnt = new XYSeriesCollection();
+		XYSeriesCollection datasetGM = new XYSeriesCollection();
+		
 		for (int i=0; i<table.getRowCount(); i++) {
+			String name=table.getValueAt(i, 0).toString();
 			//Cree une courbe avec son titre
 			XYSeries courbe = new XYSeries( table.getValueAt(i, 0).toString());
 			//On ajoute les valeurs
@@ -208,16 +212,21 @@ public class Modele_Plaquettes {
 				//System.out.println(y);
 				courbe.add( x, y);
 			}
-			dataset.addSeries(courbe);
+			if (name.contains("Post")) datasetPost.addSeries(courbe);
+			else if (name.contains("Ant")) datasetAnt.addSeries(courbe);
+			else if (name.contains(" GM ")) datasetGM.addSeries(courbe);
 		}
 		
-		makeGraph(dataset);
+		makeGraph(datasetPost, "Result Post");
+		makeGraph(datasetAnt, "Result Ant");
+		makeGraph(datasetGM, "MoyGeo");
 		
-		return dataset;
+		//A changer en table
+		return datasetPost;
 	}
 	
-	private void makeGraph(XYSeriesCollection dataset) {
-		JFreeChart xylineChart = ChartFactory.createXYLineChart("Results", "Hours", "Value",
+	private void makeGraph(XYSeriesCollection dataset, String title) {
+		JFreeChart xylineChart = ChartFactory.createXYLineChart(title, "Hours", "Value",
 				dataset, PlotOrientation.VERTICAL, true, true, true);
 
 		XYPlot plot = (XYPlot) xylineChart.getPlot();

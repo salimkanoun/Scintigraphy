@@ -115,17 +115,17 @@ public class MesureImage {
 			//resultats.put("Mean Uptake Spleen Ant", spleenAnt[1]);
 			//resultats.put("Mean Uptake Liver Ant", liverAnt[1]);
 			//resultats.put("Mean Uptake Heart Ant", heartAnt[1]);
-			//resultats.put("Mean Ratio Spleen / Heart Ant", spleenAnt[1]/heartAnt[1]);
-			//resultats.put("Mean Ratio Spleen / Liver Ant", spleenAnt[1]/liverAnt[1]);
-			//resultats.put("Mean Ratio Liver / Heart Ant", liverAnt[1]/heartAnt[1]);
+			resultats.put("Mean Ratio Spleen / Heart Ant", spleenAnt[1]/heartAnt[1]);
+			resultats.put("Mean Ratio Spleen / Liver Ant", spleenAnt[1]/liverAnt[1]);
+			resultats.put("Mean Ratio Liver / Heart Ant", liverAnt[1]/heartAnt[1]);
 			
 			double spleenMG = Math.sqrt(spleenAnt[0]*spleen[0]);
 			double liverMG=Math.sqrt(liverAnt[0]*liver[0]);
 			double heartMG=Math.sqrt(heartAnt[0]*heart[0]);
 			
-			//resultats.put("Ratio GM Spleen / Heart", (spleenMG/heartMG));
-			//resultats.put("Ratio GM Spleen / Liver", (spleenMG/liverMG));
-			//resultats.put("Ratio GM Liver / Heart", (liverMG/heartMG));
+			resultats.put("Ratio GM Spleen / Heart", (spleenMG/heartMG));
+			resultats.put("Ratio GM Spleen / Liver", (spleenMG/liverMG));
+			resultats.put("Ratio GM Liver / Heart", (liverMG/heartMG));
 			
 	
 		}
