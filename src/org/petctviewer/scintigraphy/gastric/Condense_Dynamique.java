@@ -79,7 +79,7 @@ public class Condense_Dynamique  implements PlugIn {
 		
 			
 			//On trie le tableau par heure d'acquisition
-			ImagePlus[] imagesOuvertesOrdonees=Vue_Shunpo.orderImagesByAcquisitionTime(imagesOuvertesPlus);
+			ImagePlus[] imagesOuvertesOrdonees=Vue_Shunpo.ordonnerSerie(imagesOuvertesPlus);
 			p.setLocation(imagesOuvertesOrdonees[0].getWidth()/2, 0);
 			
 			for (int i=0 ; i<imagesOuvertesOrdonees.length; i++) {
