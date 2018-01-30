@@ -89,17 +89,6 @@ public class Vue_Shunpo implements PlugIn {
 	
 	private Frame f;
 	
-	// Pour demarrer le programme dans l'IDE
-	// A FAIRE SK : INSTANCIER READ FROM CD
-	public static void main (String [] args) {
-		new ImageJ();
-		//Debug.run("Vue_Shunpo", "plugin parameters");
-		
-		Vue_Shunpo vue = new Vue_Shunpo();
-		vue.run("");
-	}
-	
-	
 	@Override
 	public void run(String arg) {
 		// Initialisation des differents attributs
