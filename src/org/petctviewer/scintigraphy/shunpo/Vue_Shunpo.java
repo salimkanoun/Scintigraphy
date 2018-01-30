@@ -37,10 +37,12 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import fiji.Debug;
 
 import javax.swing.JOptionPane;
 
 import ij.IJ;
+import ij.ImageJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.Prefs;
@@ -86,7 +88,17 @@ public class Vue_Shunpo implements PlugIn {
 	protected static boolean image2Ouverte;
 	
 	private Frame f;
-	 
+	
+	// Pour demarrer le programme dans l'IDE
+	// A FAIRE SK : INSTANCIER READ FROM CD
+	public static void main (String [] args) {
+		new ImageJ();
+		//Debug.run("Vue_Shunpo", "plugin parameters");
+		
+		Vue_Shunpo vue = new Vue_Shunpo();
+		vue.run("");
+	}
+	
 	
 	@Override
 	public void run(String arg) {
