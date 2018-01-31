@@ -37,12 +37,10 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
-import fiji.Debug;
 
 import javax.swing.JOptionPane;
 
 import ij.IJ;
-import ij.ImageJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.Prefs;
@@ -551,13 +549,17 @@ public class Vue_Shunpo implements PlugIn {
 		//On regarde la coupe 1
 		imp.setSlice(1);
 		
+		int slices=0;
+		
 		//Regarde si frame unique ou multiple
 		String numFrames = DicomTools.getTag(imp, "0028,0008");
-		if (numFrames!=null && !numFrames.isEmpty()) numFrames=numFrames.trim();
 		
-		//On passe le texte en Int
-		int slices=Integer.parseInt(numFrames);
-		
+		if (numFrames!=null && !numFrames.isEmpty()) {
+			numFrames=numFrames.trim();
+			//On passe le texte en Int
+			slices=Integer.parseInt(numFrames);
+		}
+
 		if (slices==1) return false;
 		else return true;
 		
