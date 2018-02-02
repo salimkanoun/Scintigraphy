@@ -39,6 +39,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.shunpo.Modele_Shunpo;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -185,16 +186,14 @@ public class Modele_Plaquettes {
 		}
 		
 		JTable table =new JTable(data, titreColonne);
-		createDataset(table);
 		return table;
 		
 	}
 	
 	//SK CREATION COLLECTION
-	private XYSeriesCollection createDataset(JTable table) {
+	protected ImagePlus[] createDataset(JTable table) {
 		
 		XYSeriesCollection datasetPost = new XYSeriesCollection();
-		XYSeriesCollection datasetAnt = new XYSeriesCollection();
 		XYSeriesCollection datasetGM = new XYSeriesCollection();
 		
 		for (int i=0; i<table.getRowCount(); i++) {
@@ -213,19 +212,18 @@ public class Modele_Plaquettes {
 				courbe.add( x, y);
 			}
 			if (name.contains("Post")) datasetPost.addSeries(courbe);
-			else if (name.contains("Ant")) datasetAnt.addSeries(courbe);
 			else if (name.contains(" GM ")) datasetGM.addSeries(courbe);
 		}
+		//On cree le tableau d'ImagePlus qui recoit les courbes
+		ImagePlus[] courbes =new ImagePlus[2];
 		
-		makeGraph(datasetPost, "Result Post");
-		makeGraph(datasetAnt, "Result Ant");
-		makeGraph(datasetGM, "MoyGeo");
+		courbes[0]=makeGraph(datasetPost, "Posterior");
+		courbes[1]=makeGraph(datasetGM, "Geometrical Mean");
 		
-		//A changer en table
-		return datasetPost;
+		return courbes;
 	}
 	
-	private void makeGraph(XYSeriesCollection dataset, String title) {
+	private ImagePlus makeGraph(XYSeriesCollection dataset, String title) {
 		JFreeChart xylineChart = ChartFactory.createXYLineChart(title, "Hours", "Value",
 				dataset, PlotOrientation.VERTICAL, true, true, true);
 
@@ -252,15 +250,15 @@ public class Modele_Plaquettes {
 		// YAxis
 		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
 		rangeAxis.setAutoRange(true);
-		rangeAxis.setTickUnit(new NumberTickUnit(1.00));;
+		rangeAxis.setAutoTickUnitSelection(true);
 		rangeAxis.setTickMarkStroke(new BasicStroke(2.5F));
 		rangeAxis.setLabelFont(new Font("", Font.BOLD, 16));
 		rangeAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
 		// Grid
 		plot.setDomainGridlinesVisible(false);
 		BufferedImage buff = xylineChart.createBufferedImage(640, 512);
-		ImagePlus courbe = new ImagePlus("", buff);
-		courbe.show();
+		ImagePlus courbe = new ImagePlus(title, buff);
+		return courbe;
 	}
 	
 	/**

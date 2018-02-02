@@ -16,6 +16,7 @@ package org.petctviewer.scintigraphy.platelet;
 
 import java.awt.Button;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -26,9 +27,13 @@ import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
 
 import ij.IJ;
 import ij.ImagePlus;
+import ij.ImageStack;
 import ij.WindowManager;
 import ij.gui.Roi;
 import ij.gui.Toolbar;
+import ij.plugin.CanvasResizer;
+import ij.plugin.MontageMaker;
+import ij.process.ImageProcessor;
 
 public class Controleur_Plaquettes implements ActionListener {
 	
@@ -228,9 +233,31 @@ public class Controleur_Plaquettes implements ActionListener {
 			}
 				
 			else if (etat.equals("Fin")) {
-				ImagePlus capture =Modele_Shunpo.captureImage(laVue.win.getImagePlus(), 512, 512);
+				ImagePlus capture =Modele_Shunpo.captureImage(laVue.win.getImagePlus(), 512,512);
+				//On resize le canvas pour etre a la meme taille que les courbes
+				ImageProcessor ip=capture.getProcessor();
+				CanvasResizer canvas = new CanvasResizer();
+				ImageProcessor iptemp=canvas.expandImage(ip, 640, 512, (640-512)/2, 0);
+				capture.setProcessor(iptemp);
+				//capture.getCanvas().setSize(new Dimension (640,512));
 				JTable tableResultats=leModele.getResults();
-				laVue.UIResultats(capture, tableResultats);
+				ImagePlus[] courbes=leModele.createDataset(tableResultats);
+				
+				ImageStack stack=new ImageStack(640,512);
+				stack.addSlice(capture.getProcessor());
+				stack.addSlice(courbes[0].getProcessor());
+				stack.addSlice(courbes[1].getProcessor());
+				
+				ImagePlus courbesStackImagePlus=new ImagePlus();
+				courbesStackImagePlus.setStack(stack);
+				courbesStackImagePlus.show();
+				
+				ImagePlus courbesFinale=new ImagePlus();
+				
+				MontageMaker mm = new MontageMaker();
+				courbesFinale = mm.makeMontage2(courbesStackImagePlus, 2, 2, 1, 1, 3, 1, 0, false);
+				
+				laVue.UIResultats(courbesFinale, tableResultats);
 				// SK A AJOUTER LE HEADER ET LA CAPTURE
 				IJ.log("fin");
 			}

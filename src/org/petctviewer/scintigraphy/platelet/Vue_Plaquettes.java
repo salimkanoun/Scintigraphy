@@ -409,7 +409,7 @@ public class Vue_Plaquettes implements PlugIn {
 		//On prend le focus
 		win.setTitle("Platelet Results");
 		win.setLocationRelativeTo(null);
-		win.getCanvas().setMagnification(1.0);
+		win.getCanvas().setMagnification(0.70);
 		win.getCanvas().setScaleToFit(true);
 		win.pack();
 		win.setSize(win.getPreferredSize());
