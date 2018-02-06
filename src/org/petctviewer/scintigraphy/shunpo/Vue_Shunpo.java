@@ -844,7 +844,7 @@ public class Vue_Shunpo implements PlugIn {
 
 			@Override
 			public int compare(ImagePlus arg0, ImagePlus arg1) {
-				DateFormat dateHeure=new SimpleDateFormat("yyyyMMddHHmmss.SS");
+				DateFormat dateHeure=new SimpleDateFormat("yyyyMMddHHmmss");
 				String dateImage0 = DicomTools.getTag(arg0, "0008,0022");
 				String dateImage1 = DicomTools.getTag(arg1, "0008,0022");
 				
@@ -852,7 +852,13 @@ public class Vue_Shunpo implements PlugIn {
 				String heureImage1 = DicomTools.getTag(arg1, "0008,0032");
 				
 				String dateInputImage0=dateImage0.trim()+heureImage0.trim();
+				//On split les millisecondes qui sont après le . car nombre inconstant de millisec
+				int separateurMilliSec=dateInputImage0.indexOf(".");
+				if (separateurMilliSec!= -1) dateInputImage0=dateInputImage0.substring(0,separateurMilliSec);
+				
 				String dateInputImage1=dateImage1.trim()+heureImage1.trim();
+				int separateurMilliSecImage1=dateInputImage1.indexOf(".");
+				if (separateurMilliSecImage1 != -1) dateInputImage1=dateInputImage1.substring(0,separateurMilliSecImage1);
 				
 				Date timeImage0 = null;
 				Date timeImage1 = null;

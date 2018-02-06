@@ -189,7 +189,7 @@ public class Vue_VG_Dynamique  implements PlugIn {
 			ImagePlus[] projeteOrderTemp=Vue_Shunpo.orderImagesByAcquisitionTime(projeteTableau);
 			//On met l'image Ant apres l'imagePosterieur car sera inverse par la suite
 			ImagePlus[] projeteOrder=new ImagePlus[projeteOrderTemp.length];
-			for (int i=0 ; i<projeteOrderTemp.length;i+=2){
+			for (int i=0 ; i<projeteOrderTemp.length; i+=2){
 				if (projeteOrderTemp[i].getTitle().contains("Anterior")){
 					projeteOrder[i]=projeteOrderTemp[i+1];
 					projeteOrder[i+1]=projeteOrderTemp[i];
