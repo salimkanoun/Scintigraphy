@@ -569,6 +569,9 @@ public class Modele_Shunpo {
 			tab[i] = i;
 		Roi.setSelectedIndexes(tab);
 		Roi.runCommand("Save", pathFinal.toString() + File.separator + patientID + "_" + date + ".zip");
+		
+		//On sauve l'image en jpeg
+		IJ.saveAs(imp, "Jpeg", pathFinal.toString() + File.separator + patientID + "_" + date +".jpg");
 
 	}
 }

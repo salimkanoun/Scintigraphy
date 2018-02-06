@@ -515,7 +515,7 @@ public class Controleur_VG_Roi implements ActionListener {
 		ze.show();
 		ze.getWindow().setSize(ze.getWidth() + 15, ze.getHeight() + 50);
 		ze.getCanvas().setScaleToFit(true);
-		// exporter les resultats en CSV et du Roi Manager via la methode de Shunpo
+		// exporter les resultats en CSV, le Roi Manager et la capture via la methode de Shunpo
 		try {
 			Modele_Shunpo.exportAll(resultats, 4, laVue.leRoi, laVue.nomProgramme, ze);
 
