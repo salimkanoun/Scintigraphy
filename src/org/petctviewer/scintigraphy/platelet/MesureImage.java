@@ -127,10 +127,20 @@ public class MesureImage {
 			resultats.put("Ratio GM Spleen / Liver", (spleenMG/liverMG));
 			resultats.put("Ratio GM Liver / Heart", (liverMG/heartMG));
 			
+			double delaySeconds = delayFromStart*3600;
+			double indiumLambda=(Math.log(2)/(2.8*24*3600));
+			double decayedFraction=Math.pow(Math.E, (indiumLambda*delaySeconds*(-1)));
+			double correctedCount=spleen[0]/(decayedFraction);
+			resultats.put("Corrected SpleenPosterior", correctedCount);
+			
 	
 		}
 		
 		return resultats;
+	}
+	
+	public void corrigerDecroissance(Date firstImage){
+		
 	}
 	
 	

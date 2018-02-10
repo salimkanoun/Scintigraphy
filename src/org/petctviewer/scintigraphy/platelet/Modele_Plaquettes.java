@@ -39,7 +39,6 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.shunpo.Modele_Shunpo;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -63,8 +62,11 @@ public class Modele_Plaquettes {
 		String aquisitionDate = DicomTools.getTag(imp, "0008,0022");
 		String aquisitionTime = DicomTools.getTag(imp, "0008,0032");
 		String dateInput=aquisitionDate.trim()+aquisitionTime.trim();
+		//On enleve les milisec qui sont inconstants
+		int separateurPoint=dateInput.indexOf(".");
+		if (separateurPoint!=-1) dateInput=dateInput.substring(0, separateurPoint);
 		
-        SimpleDateFormat parser = new SimpleDateFormat("yyyyMMddHHmmss.SS");
+        SimpleDateFormat parser = new SimpleDateFormat("yyyyMMddHHmmss");
         Date dateAcquisition = null;
 		try {
 			dateAcquisition = parser.parse(dateInput);
@@ -176,9 +178,15 @@ public class Modele_Plaquettes {
 			for (int j=0; j<resultsLabel.length; j++){
 				
 				if (i==0) data[j][0]=resultsLabel[j];
-				
+				double valeur;
 				//On file les data ligne par ligne pour chaque colonne
-				double valeur =resultsImage.get(resultsLabel[j]);
+				if (resultsLabel[j].equals("Corrected SpleenPosterior")){
+					//Si coup corrige on divise par nombre de coups iniitiaux de la 1ere image
+					double[] spleenInit=mesures.get(dateHeureDebut).getSpleenValue();
+					valeur =resultsImage.get(resultsLabel[j])/spleenInit[0];
+				}
+				else valeur =resultsImage.get(resultsLabel[j]);
+				
 				data[j][i+1]=decimalFormat.format(valeur);
 				
 			}
@@ -195,30 +203,37 @@ public class Modele_Plaquettes {
 		
 		XYSeriesCollection datasetPost = new XYSeriesCollection();
 		XYSeriesCollection datasetGM = new XYSeriesCollection();
+		XYSeriesCollection datasetJ0Ratio = new XYSeriesCollection();
 		
 		for (int i=0; i<table.getRowCount(); i++) {
 			String name=table.getValueAt(i, 0).toString();
 			//Cree une courbe avec son titre
-			XYSeries courbe = new XYSeries( table.getValueAt(i, 0).toString());
+			XYSeries courbe = new XYSeries(name);
+			
 			//On ajoute les valeurs
 			for (int j = 1; j < table.getColumnCount(); j++) {
-				System.out.println(table.getColumnName(j));
-				System.out.println(table.getValueAt(i, j).toString());
-				//PB des parsing de Double a regler
 				double x=Double.parseDouble(table.getColumnName(j).toString().replaceAll(",", "."));
 				double y=Double.parseDouble(table.getValueAt(i, j).toString().replaceAll(",", "."));
-				//System.out.println(x);
-				//System.out.println(y);
 				courbe.add( x, y);
 			}
-			if (name.contains("Post")) datasetPost.addSeries(courbe);
-			else if (name.contains(" GM ")) datasetGM.addSeries(courbe);
+			
+			if (name.contains(" Post")) {
+				datasetPost.addSeries(courbe);
+			}
+			else if (name.contains(" GM ")) {
+				datasetGM.addSeries(courbe);
+			}
+			else if (name.contains("Corrected")) {
+				datasetJ0Ratio.addSeries(courbe);
+				
+			}
 		}
 		//On cree le tableau d'ImagePlus qui recoit les courbes
-		ImagePlus[] courbes =new ImagePlus[2];
-		
+		ImagePlus[] courbes =new ImagePlus[3];
+		IJ.log(String.valueOf(datasetJ0Ratio.getSeriesCount()));
 		courbes[0]=makeGraph(datasetPost, "Posterior");
 		courbes[1]=makeGraph(datasetGM, "Geometrical Mean");
+		courbes[2]=makeGraph(datasetJ0Ratio, "J0 Ratio");
 		
 		return courbes;
 	}
@@ -259,22 +274,6 @@ public class Modele_Plaquettes {
 		BufferedImage buff = xylineChart.createBufferedImage(640, 512);
 		ImagePlus courbe = new ImagePlus(title, buff);
 		return courbe;
-	}
-	
-	/**
-	 * Calcul de la correction de decroissance de l'indium
-	 * Retourne le nombre de coups corrig�
-	 * @param count
-	 * @param injectionDate
-	 * @param mesureDate
-	 * @return
-	 */
-	protected double calculer_countCorrected(double count, Date injectionDate, Date mesureDate) {
-		double indiumLambda=(Math.log(2)/(2.8*24*3600));
-		int delaySeconds = (int) (mesureDate.getTime()-injectionDate.getTime())/1000;
-		double decayedFraction=Math.pow(Math.E, (indiumLambda*delaySeconds*(-1)));
-		double correctedCount=count/(decayedFraction);
-		return correctedCount;
 	}
 	
 	public void setDateDebutHeure(Date dateDebutHeure) {

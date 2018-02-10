@@ -347,9 +347,13 @@ public class Vue_Plaquettes implements PlugIn {
 		//On recupere la date et le jour de la 1ere image
 		String aquisitionDate = DicomTools.getTag(seriesTriee[0], "0008,0022");
 		String aquisitionTime = DicomTools.getTag(seriesTriee[0], "0008,0032");
-		DateFormat dateHeure=new SimpleDateFormat("yyyyMMddHHmmss.SS");
+		String aquisitionDateTime=aquisitionDate.trim()+aquisitionTime.trim();
+		int separateurPoint=aquisitionDateTime.indexOf(".");
+		if (separateurPoint!=-1) aquisitionDateTime=aquisitionDateTime.substring(0, separateurPoint);
+		
+		DateFormat dateHeure=new SimpleDateFormat("yyyyMMddHHmmss");
 		try {
-			Date dateHeureDebut = dateHeure.parse(aquisitionDate.trim()+aquisitionTime.trim());
+			Date dateHeureDebut = dateHeure.parse(aquisitionDateTime);
 			leModele.setDateDebutHeure(dateHeureDebut);
 		} catch (ParseException e) {
 			e.printStackTrace();

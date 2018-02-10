@@ -247,15 +247,15 @@ public class Controleur_Plaquettes implements ActionListener {
 				stack.addSlice(capture.getProcessor());
 				stack.addSlice(courbes[0].getProcessor());
 				stack.addSlice(courbes[1].getProcessor());
+				stack.addSlice(courbes[2].getProcessor());
 				
 				ImagePlus courbesStackImagePlus=new ImagePlus();
 				courbesStackImagePlus.setStack(stack);
-				courbesStackImagePlus.show();
 				
 				ImagePlus courbesFinale=new ImagePlus();
 				
 				MontageMaker mm = new MontageMaker();
-				courbesFinale = mm.makeMontage2(courbesStackImagePlus, 2, 2, 1, 1, 3, 1, 0, false);
+				courbesFinale = mm.makeMontage2(courbesStackImagePlus, 2, 2, 1, 1, 4, 1, 0, false);
 				
 				laVue.UIResultats(courbesFinale, tableResultats);
 				// SK A AJOUTER LE HEADER ET LA CAPTURE
