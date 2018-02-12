@@ -23,10 +23,11 @@ import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-
+import java.util.List;
 
 import javax.swing.JTable;
 
@@ -73,9 +74,7 @@ public class Modele_Plaquettes {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-	
-		// BONNE METHODE DE CALCUL AVEC DENSITE A UPDATER DANS LES AUTRES PROGRAMMES
-		// SK
+		// Recupere la somme des coups dans la ROI (integrated Density) et la valeur moyenne de la Roi (mean)
 		Analyzer.setMeasurement(Measurements.INTEGRATED_DENSITY, true);
 		Analyzer.setMeasurement(Measurements.MEAN, true);
 		Analyzer analyser=new Analyzer(imp);
@@ -84,25 +83,24 @@ public class Modele_Plaquettes {
 		double counts=density.getValueAsDouble(ResultsTable.RAW_INTEGRATED_DENSITY, 0);
 		double mean=density.getValueAsDouble(ResultsTable.MEAN, 0);
 		
-	
-		
 		//Si premiere fois qu'on traite l'image on cree l'objet et on l'ajoute dans la hashMap
 		if (!mesures.containsKey(dateAcquisition)) {
 			MesureImage mesure=new MesureImage(dateAcquisition);
 			// on calcule le delai par rapport a la premiere image et on enregistre la valeur en heure (utile pour le trie et les courbes ensuite)
 			mesure.setDelayFromStart((double) ((dateAcquisition.getTime()-dateHeureDebut.getTime())/(1000*60*60)));
-			IJ.log(String.valueOf(mesure.getDelayFromStart()));
 			mesures.put(dateAcquisition,mesure);
 		}
 		
 		// On calcul les valeurs et on l'ajoute dans l'objet adHoc
 		if (mesures.containsKey(dateAcquisition)) {
+			
 			if (roi.equals("Spleen Post")) {
 				double[] spleen=new double[2];
 				spleen[0]=counts;
 				spleen[1]=mean;
 				mesures.get(dateAcquisition).setSpleenValue(spleen);
 			}
+			
 			else if (roi.equals("Liver Post")) {
 				double[] liver=new double[2];
 				liver[0]=counts;
@@ -116,18 +114,20 @@ public class Modele_Plaquettes {
 				heart[1]=mean;
 				mesures.get(dateAcquisition).setHeartValue(heart);;
 			}
+			
 			else if (roi.equals("Spleen Ant")) {
 				double[] spleen=new double[2];
 				spleen[0]=counts;
 				spleen[1]=mean;
 				mesures.get(dateAcquisition).setSpleenAntValue(spleen);
 			}
+			
 			else if (roi.equals("Liver Ant")) {
 				double[] liver=new double[2];
 				liver[0]=counts;
 				liver[1]=mean;
 				mesures.get(dateAcquisition).setliverAntValue(liver);
-				}
+			}
 			
 			else if (roi.equals("Heart Ant")) {
 				double[] heart=new double[2];
@@ -197,10 +197,12 @@ public class Modele_Plaquettes {
 		return table;
 		
 	}
-	
-	//SK CREATION COLLECTION
+	/**
+	 * collecte les valeurs, appelle la methode de creation de courbes et renvoie les courbes dans un tableau d'ImagePlus
+	 * @param table
+	 * @return
+	 */
 	protected ImagePlus[] createDataset(JTable table) {
-		
 		XYSeriesCollection datasetPost = new XYSeriesCollection();
 		XYSeriesCollection datasetGM = new XYSeriesCollection();
 		XYSeriesCollection datasetJ0Ratio = new XYSeriesCollection();
@@ -228,16 +230,27 @@ public class Modele_Plaquettes {
 				
 			}
 		}
+		IJ.log("avant list ImagePlus");
 		//On cree le tableau d'ImagePlus qui recoit les courbes
-		ImagePlus[] courbes =new ImagePlus[3];
-		IJ.log(String.valueOf(datasetJ0Ratio.getSeriesCount()));
-		courbes[0]=makeGraph(datasetPost, "Posterior");
-		courbes[1]=makeGraph(datasetGM, "Geometrical Mean");
-		courbes[2]=makeGraph(datasetJ0Ratio, "J0 Ratio");
+		List<ImagePlus> courbes=new ArrayList<ImagePlus>();
+		if (datasetPost.getSeriesCount()!=0) courbes.add(makeGraph(datasetPost, "Posterior"));
+		if (datasetJ0Ratio.getSeriesCount()!=0) courbes.add(makeGraph(datasetJ0Ratio, "J0 Ratio"));
+		//Si on est en ANT/Post On ajoute la courbe moyenne Geometrique
+		if (datasetGM.getSeriesCount()!=0) courbes.add(makeGraph(datasetGM, "Geometrical Mean"));
 		
-		return courbes;
+		//On passe la liste en tableau
+		ImagePlus[] courbesTableau=new ImagePlus[courbes.size()];
+		courbes.toArray(courbesTableau);
+		IJ.log(String.valueOf(courbesTableau.length));
+		
+		return courbesTableau;
 	}
-	
+	/**
+	 * Cree les courbes en une image de 640*512 à partir d'un dataset de valeur (un ou plusieurs courbes)
+	 * @param dataset
+	 * @param title
+	 * @return
+	 */
 	private ImagePlus makeGraph(XYSeriesCollection dataset, String title) {
 		JFreeChart xylineChart = ChartFactory.createXYLineChart(title, "Hours", "Value",
 				dataset, PlotOrientation.VERTICAL, true, true, true);
@@ -280,9 +293,5 @@ public class Modele_Plaquettes {
 		this.dateHeureDebut=dateDebutHeure;
 	}
 
-
-
-	
-	
 
 }

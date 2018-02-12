@@ -399,27 +399,30 @@ public class Modele_Shunpo {
 				+ "0008,0020 Study Date:" + DicomTools.getTag(imp, "0008,0020") + "\n" 
 				+ "0008,0021 Series Date:" + DicomTools.getTag(imp, "0008,0021") + "\n" 
 				+ "0008,0030 Study Time:" + DicomTools.getTag(imp, "0008,0030") + "\n" 
-				+ "0008,0031 Series Time:" + DicomTools.getTag(imp, "0008,0031") + "\n" 
-				+ "0008,0050 Accession Number:" + DicomTools.getTag(imp, "0008,0050") + "\n" 
-				+ "0008,0060 Modality:" + DicomTools.getTag(imp, "0008,0060") + "\n" 
-				+ "0008,0064 Conversion Type: WSD" + "\n"
-				+ "0008,0070 Manufacturer:" + DicomTools.getTag(imp, "0008,0070") + "\n" 
-				+ "0008,0080 Institution Name:" + DicomTools.getTag(imp, "0008,0080") + "\n" 
-				+ "0008,0090 Referring Physician's Name:" + DicomTools.getTag(imp, "0008,0090") + "\n" 
-				+ "0008,1030 Study Description:" + DicomTools.getTag(imp, "0008,1030") + "\n" 
-				+ "0008,103E Series Description: Capture " + nomProgramme + "\n" 
+				+ "0008,0031 Series Time:" + DicomTools.getTag(imp, "0008,0031") + "\n" ;
+				if (DicomTools.getTag(imp, "0008,0050")!=null) tag+= "0008,0050 Accession Number:" + DicomTools.getTag(imp, "0008,0050") + "\n" ;
+				if (DicomTools.getTag(imp, "0008,0060")!=null) tag+= "0008,0060 Modality:" + DicomTools.getTag(imp, "0008,0060") + "\n" ;
+				tag += "0008,0064 Conversion Type: WSD" + "\n"
+				+ "0008,0070 Manufacturer:" + DicomTools.getTag(imp, "0008,0070") + "\n" ;
+				if (DicomTools.getTag(imp, "0008,0080")!=null) tag+= "0008,0080 Institution Name:" + DicomTools.getTag(imp, "0008,0080") + "\n"; 
+				if (DicomTools.getTag(imp, "0008,0090")!=null) tag+= "0008,0090 Referring Physician's Name:" + DicomTools.getTag(imp, "0008,0090") + "\n" ;
+				if (DicomTools.getTag(imp, "0008,1030")!=null) tag+= "0008,1030 Study Description:" + DicomTools.getTag(imp, "0008,1030") + "\n" ;
+				tag+= "0008,103E Series Description: Capture " + nomProgramme + "\n" 
 				+ "0010,0010 Patient's Name:" + DicomTools.getTag(imp, "0010,0010") + "\n"
-				+ "0010,0020 Patient ID:" + DicomTools.getTag(imp, "0010,0020") + "\n"
-				+ "0010,0030 Patient's Birth Date:" + DicomTools.getTag(imp, "0010,0030") + "\n"
-				+ "0010,0040 Patient's Sex:" + DicomTools.getTag(imp, "0010,0040") + "\n"
-				+ "0020,000D Study Instance UID:" + DicomTools.getTag(imp, "0020,000D") + "\n"
-				+ "0020,000E Series Instance UID:" + DicomTools.getTag(imp, "0020,000E").substring(0, DicomTools.getTag(imp, "0020,000E").length() - 6) + uid + "\n" 
-				+ "0020,0010 Study ID :" + DicomTools.getTag(imp, "0020,0010") + "\n"
-				+ "0020,0011 Series Number: 1337" + "\n" + "0020,0013 Instance Number: 1" + "\n"
+				+ "0010,0020 Patient ID:" + DicomTools.getTag(imp, "0010,0020") + "\n";
+				if (DicomTools.getTag(imp, "0010,0030")!=null) tag += "0010,0030 Patient's Birth Date:" + DicomTools.getTag(imp, "0010,0030") + "\n";
+				if (DicomTools.getTag(imp, "0010,0040")!=null) tag += "0010,0040 Patient's Sex:" + DicomTools.getTag(imp, "0010,0040") + "\n";
+				tag+= "0020,000D Study Instance UID:" + DicomTools.getTag(imp, "0020,000D") + "\n"
+				+ "0020,000E Series Instance UID:" + DicomTools.getTag(imp, "0020,000E").substring(0, DicomTools.getTag(imp, "0020,000E").length() - 6) + uid + "\n"; 
+				if (DicomTools.getTag(imp, "0020,0010")!=null) tag+= "0020,0010 Study ID :" + DicomTools.getTag(imp, "0020,0010") + "\n";
+				tag+= "0020,0011 Series Number: 1337" + "\n" 
+				+ "0020,0013 Instance Number: 1" + "\n"
 				+ "0020,0032 Image Position (Patient):" + DicomTools.getTag(imp, "0020,0032") + "\n"
 				+ "0020,0037 Image Orientation (Patient):" + DicomTools.getTag(imp, "0020,0037") + "\n"
-				+ "0028,0002 Samples per Pixel: 3" + "\n" + "0028,0004 Photometric Interpretation: RGB" + "\n"
-				+ "0028,0006 Planar Configuration: 0" + "\n" + "0028,0008 Number of Frames: 1 \n";
+				+ "0028,0002 Samples per Pixel: 3" + "\n" 
+				+ "0028,0004 Photometric Interpretation: RGB" + "\n"
+				+ "0028,0006 Planar Configuration: 0" + "\n" 
+				+ "0028,0008 Number of Frames: 1 \n";
 		return tag;
 	}
 	

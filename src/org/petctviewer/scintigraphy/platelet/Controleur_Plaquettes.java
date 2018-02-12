@@ -16,7 +16,6 @@ package org.petctviewer.scintigraphy.platelet;
 
 import java.awt.Button;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -239,27 +238,27 @@ public class Controleur_Plaquettes implements ActionListener {
 				CanvasResizer canvas = new CanvasResizer();
 				ImageProcessor iptemp=canvas.expandImage(ip, 640, 512, (640-512)/2, 0);
 				capture.setProcessor(iptemp);
-				//capture.getCanvas().setSize(new Dimension (640,512));
+				IJ.log("avant get results");
 				JTable tableResultats=leModele.getResults();
+				IJ.log("apres get results");
 				ImagePlus[] courbes=leModele.createDataset(tableResultats);
 				
 				ImageStack stack=new ImageStack(640,512);
 				stack.addSlice(capture.getProcessor());
-				stack.addSlice(courbes[0].getProcessor());
-				stack.addSlice(courbes[1].getProcessor());
-				stack.addSlice(courbes[2].getProcessor());
+				for (int i =0 ; i<courbes.length; i++) {
+					stack.addSlice(courbes[i].getProcessor());
+				}
+				IJ.log("Apres add image stack");
 				
 				ImagePlus courbesStackImagePlus=new ImagePlus();
 				courbesStackImagePlus.setStack(stack);
 				
 				ImagePlus courbesFinale=new ImagePlus();
-				
+				IJ.log("Avan Montage");
 				MontageMaker mm = new MontageMaker();
-				courbesFinale = mm.makeMontage2(courbesStackImagePlus, 2, 2, 1, 1, 4, 1, 0, false);
-				
+				courbesFinale = mm.makeMontage2(courbesStackImagePlus, 2, 2, 1, 1, courbesStackImagePlus.getStackSize(), 1, 0, false);
+				IJ.log("apres Montage");
 				laVue.UIResultats(courbesFinale, tableResultats);
-				// SK A AJOUTER LE HEADER ET LA CAPTURE
-				IJ.log("fin");
 			}
 			
 		}
@@ -270,13 +269,14 @@ public class Controleur_Plaquettes implements ActionListener {
 				ImagePlus captureFinale =Modele_Shunpo.captureFenetre(WindowManager.getCurrentImage(),0,0);
 				WindowManager.getCurrentWindow().getImagePlus().changes=false;
 				WindowManager.getCurrentWindow().close();
-				//On genere la 2eme partie des tag dicom et on l'ajoute 脿 la 1ere partie dans le property de l'image finale
+				//On genere la 2eme partie des tag dicom et on l'ajoute a la 1ere partie dans le property de l'image finale
 				captureFinale.setProperty("Info", tagCapture+=(Modele_Shunpo.genererDicomTagsPartie2(captureFinale)));
 				//On affiche et on agrandie la fenetre de la capture finale
 				captureFinale.show();
 				//On met un zoom a 80%
 				captureFinale.getCanvas().setMagnification(0.8);
 				// SK FAIRE GENERATION CSV?
+				
 				//On fait la capture finale
 				captureFinale.getWindow().toFront();
 				//On propose de sauver la capture en DICOM

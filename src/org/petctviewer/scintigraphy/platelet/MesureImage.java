@@ -104,21 +104,17 @@ public class MesureImage {
 	 */
 	public HashMap<String, Double> calculateandGetResults(){
 		
-		//resultats.put("Mean Uptake Spleen Post", spleen[1]);
-		//resultats.put("Mean Uptake Liver Post", liver[1]);
-		//resultats.put("Mean Uptake Heart Post", heart[1]);
 		resultats.put("Mean Ratio Spleen / Heart Post", spleen[1]/heart[1]);
 		resultats.put("Mean Ratio Spleen / Liver Post", spleen[1]/liver[1]);
 		resultats.put("Mean Ratio Liver / Heart Post", liver[1]/heart[1]);
 		
+		double delaySeconds = delayFromStart*3600;
+		double indiumLambda=(Math.log(2)/(2.8*24*3600));
+		double decayedFraction=Math.pow(Math.E, (indiumLambda*delaySeconds*(-1)));
+		double correctedCount=spleen[0]/(decayedFraction);
+		resultats.put("Corrected SpleenPosterior", correctedCount);
+		
 		if (antPost){
-			//resultats.put("Mean Uptake Spleen Ant", spleenAnt[1]);
-			//resultats.put("Mean Uptake Liver Ant", liverAnt[1]);
-			//resultats.put("Mean Uptake Heart Ant", heartAnt[1]);
-			//resultats.put("Mean Ratio Spleen / Heart Ant", spleenAnt[1]/heartAnt[1]);
-			//resultats.put("Mean Ratio Spleen / Liver Ant", spleenAnt[1]/liverAnt[1]);
-			//resultats.put("Mean Ratio Liver / Heart Ant", liverAnt[1]/heartAnt[1]);
-			
 			double spleenMG = Math.sqrt(spleenAnt[0]*spleen[0]);
 			double liverMG=Math.sqrt(liverAnt[0]*liver[0]);
 			double heartMG=Math.sqrt(heartAnt[0]*heart[0]);
@@ -126,14 +122,6 @@ public class MesureImage {
 			resultats.put("Ratio GM Spleen / Heart", (spleenMG/heartMG));
 			resultats.put("Ratio GM Spleen / Liver", (spleenMG/liverMG));
 			resultats.put("Ratio GM Liver / Heart", (liverMG/heartMG));
-			
-			double delaySeconds = delayFromStart*3600;
-			double indiumLambda=(Math.log(2)/(2.8*24*3600));
-			double decayedFraction=Math.pow(Math.E, (indiumLambda*delaySeconds*(-1)));
-			double correctedCount=spleen[0]/(decayedFraction);
-			resultats.put("Corrected SpleenPosterior", correctedCount);
-			
-	
 		}
 		
 		return resultats;
