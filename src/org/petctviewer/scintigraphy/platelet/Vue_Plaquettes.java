@@ -338,13 +338,14 @@ public class Vue_Plaquettes implements PlugIn {
 			}
 			// Si uniquement une image on verifie qu'elle est post et on la flip
 			else if (imp.getStackSize() == 1) {
+				// SK Pas propre necessite de mieux orienter les Image pour Ant/Post
 				imp.getProcessor().flipHorizontal();
 			}
 			series[i]=Vue_Shunpo.sortImageAntPost(imp);
 			imp.close();
 		}
 		
-		IJ.log(String.valueOf(antPost));
+		//IJ.log(String.valueOf(antPost));
 		
 		ImagePlus[] seriesTriee=Vue_Shunpo.orderImagesByAcquisitionTime(series);
 		
