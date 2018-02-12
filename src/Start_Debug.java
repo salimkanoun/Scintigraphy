@@ -1,5 +1,4 @@
 import org.petctviewer.scintigraphy.platelet.Vue_Plaquettes;
-import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
 
 import ij.ImageJ;
 

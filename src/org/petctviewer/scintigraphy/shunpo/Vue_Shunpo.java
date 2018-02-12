@@ -40,6 +40,8 @@ import java.util.Map.Entry;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.lang.StringUtils;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -121,12 +123,6 @@ public class Vue_Shunpo implements PlugIn {
 			}
 
 		});
-		//Methode de d茅marrage automatique mais pas tr猫s int茅r茅ssante
-		//if (WindowManager.getCurrentImage() != null) {
-		//	ImagePlus imp=WindowManager.getCurrentImage();
-		//	imageOuverte = true ;
-		//	ouvertureImage(imp); 
-		//}
 		if (!imageOuverte)
 			ouvrirImage("Lungs - Kidneys");
 	}
@@ -504,7 +500,8 @@ public class Vue_Shunpo implements PlugIn {
 		//On initialise l'overlay il ne peut y avoir qu'un Overlay
 		// pour tout le programme sur lequel on va ajouter/enlever les ROI au fur et a mesure
 		Overlay overlay = new Overlay();
-		Font font = new Font("Arial",Font.PLAIN, 19) ;
+		// SK Probleme de taille des overlay, Question posee sur le forum de ImageJ
+		Font font = new Font("Arial", Font.PLAIN, 19) ;
 		overlay.setLabelFont(font);
 		overlay.drawLabels(true);
 		overlay.drawNames(true);
@@ -520,7 +517,7 @@ public class Vue_Shunpo implements PlugIn {
 		//Position au mileu dans l'axe Y
 		double y=((imp.getHeight())/2);
 		// Cree police
-		Font font = new Font("Arial",Font.PLAIN, 10) ;
+		Font font = new Font("Arial" , Font.PLAIN, 10) ;
 		
 		//Cote droit
 		TextRoi right = new TextRoi(0, y, "R");
@@ -554,7 +551,7 @@ public class Vue_Shunpo implements PlugIn {
 		//Regarde si frame unique ou multiple
 		String numFrames = DicomTools.getTag(imp, "0028,0008");
 		
-		if (numFrames!=null && !numFrames.isEmpty()) {
+		if (!StringUtils.isEmpty(numFrames)) {
 			numFrames=numFrames.trim();
 			//On passe le texte en Int
 			slices=Integer.parseInt(numFrames);
@@ -597,20 +594,23 @@ public class Vue_Shunpo implements PlugIn {
 			
 			//On recupere la chaine de vue
 			String tag = DicomTools.getTag(imp, "0011,1012");
-			if (DicomTools.getTag(imp, "0011,1030")!=null)		tag+=DicomTools.getTag(imp, "0011,1030");
+			if ( !StringUtils.isEmpty(DicomTools.getTag(imp, "0011,1030")) )		tag+=DicomTools.getTag(imp, "0011,1030");
 			
 			// TAG 0011, 1012 semble absent de SIEMENS, TROUVER D AUTRE EXAMPLE POUR STATUER
 			//Si pas de tag
-			if (tag==null) tag="no tag";
+			if (StringUtils.isEmpty(tag)) tag="no tag";
 			// On recupere la chaine de detecteur
+			// SK ZONE A RISQUE SI PAS DE CHAINE DE DETECTEUR A SURVEILLER
 			String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
-			if (tagDetecteur!=null && !tagDetecteur.isEmpty()) tagDetecteur=tagDetecteur.trim();
+			if (StringUtils.isEmpty(tagDetecteur)) {
+				tagDetecteur=tagDetecteur.trim();
+			}
 			String delims = "[ ]+";
 			String[] sequenceDeteceur = tagDetecteur.split(delims);
 			
 			///On recupere le 1er separateur de chaque vue dans le champ des orientation
 			int separateur=tag.indexOf("\\");
-			//Si on ne trouve pas le separateur, on met la position du separateur � la fin de la string pour tout traiter
+			//Si on ne trouve pas le separateur, on met la position du separateur a la fin de la string pour tout traiter
 			if (separateur==-1) separateur=(tag.length());
 			
 			// Si la 1ere image est labelisee anterieure
@@ -682,28 +682,36 @@ public class Vue_Shunpo implements PlugIn {
 				for (int i = 1; i <= imp.getImageStackSize(); i++) {
 				imp.setSlice(i);
 				String tag = DicomTools.getTag(imp, "0011,1012");
-				if (tag!=null && !tag.isEmpty()) tag=tag.trim();
+				//START ANGLE NE PARRAIT PAS FIABLE A VERIFIER
+				//String tagStartAngle = DicomTools.getTag(imp, "0054,00200");
+				// SK STRINGUTILS A GENERALISER DANS LE CODE CAR REGLE LES PROBLEME DES NULL ET EMPTY STRING
+				if (!StringUtils.isEmpty(tag)) tag=tag.trim();
+				//if (!StringUtils.isEmpty(tagStartAngle)) tagStartAngle=tagStartAngle.trim();
 				
 				String tagVector=DicomTools.getTag(imp, "0054,0020");
-				if (tagVector!=null && !tagVector.isEmpty()) tagVector=tagVector.trim();
+				if ( !StringUtils.isEmpty(tagVector)) tagVector=tagVector.trim();
 
-					if (tag!=null) {
-						if (tag.contains("POS") || tag.contains("_F")) {
+					if ( ! StringUtils.isEmpty(tag)) {
+						if (StringUtils.equals(tag, "POS") || StringUtils.equals(tag, "_F")) {
 							imp.getProcessor().flipHorizontal();
 						}
-						if (imp.getStackSize()==2 && !tag.contains("POS") && !tag.contains("_F") && !tag.contains("ANT") && !tag.contains("_F") ) {
-							IJ.log("2 image detected with No Orientation label found, assuming image 2 is posterior. Please notify Salim.kanoun@gmail.com");
+						else {
+							if (imp.getStackSize()==2) {
+								IJ.log("No Orientation found assuming Image 2 is posterior, please send image sample to Salim.kanoun@gmail.com if wrong");
+								imp.getProcessor().flipHorizontal();	
+							}
 						}
 					}
+					
 					else {
-						IJ.log("No Orientation found Assuming detector 1 is anterior, please send image sample to Salim.kanoun@gmail.com if wrong");
-						if (imp.getStackSize()==2 && tagVector.equals("2")) {
-							imp.getProcessor().flipHorizontal();
-							
+						if (imp.getStackSize()==2 && StringUtils.equals(tagVector, "2")) {
+							IJ.log("No Orientation found assuming Image 2 is posterior, please send image sample to Salim.kanoun@gmail.com if wrong");
+							imp.getProcessor().flipHorizontal();	
 						}
 					}
 					
 				}	
+			
 			return imp;
 		}
 	
@@ -722,32 +730,35 @@ public class Vue_Shunpo implements PlugIn {
 			
 			//On repere le num de camera
 			String tagVector=DicomTools.getTag(imp, "0054,0020");
-			if (tagVector!=null && !tagVector.isEmpty()) tagVector=tagVector.trim();
+			if (!StringUtils.isEmpty(tagVector)) tagVector=tagVector.trim();
 			
 			//On ajoute un deuxieme tag de localisation a voir dans la pratique ou se situe l'info
-			if (DicomTools.getTag(imp, "0011,1030")!=null)		tag+=DicomTools.getTag(imp, "0011,1030");
+			if (!StringUtils.isEmpty(DicomTools.getTag(imp, "0011,1030")))		tag+=DicomTools.getTag(imp, "0011,1030");
 			Boolean anterieur=null;
 			
-			if (tag!=null || tagVector!=null) {
+			if (!StringUtils.isEmpty(tagVector) || !StringUtils.isEmpty(tag)) {
 				
 				// Si on a le private tag on le traite
-				if (tag!=null) {
-					
+				if (!StringUtils.isEmpty(tag)) {
+
 					if (tag.contains("ANT") || tag.contains("_E")) {
 						anterieur=true;
 					}
+					
 					else if (tag.contains("POS") || tag.contains("_F")) {
 						anterieur=false;
 					}
+					
 					else {
 						IJ.log("Orientation not reckognized");
 					}
 				}
 				
 				//Si pas de private tag on fait avec le numero de la camera
-				else if (tag==null && tagVector!=null) {
+				else if (!StringUtils.isEmpty(tagVector)) {
+					
 					if(imp.getStackSize()==2) {
-						// SK FAUDRA RECONNAITRE LES IMAGE D/G ET LES DIFFERENCIER
+						// SK FAUDRA RECONNAITRE LES IMAGE D/G ET LES DIFFERENCIER //Utilisation de l'angle ??
 						if (tagVector.equals("1")) anterieur=true;
 						if (tagVector.equals("2")) anterieur=false;
 						IJ.log("Orientation Not reckgnized, assuming vector 1 is anterior");
@@ -766,7 +777,7 @@ public class Vue_Shunpo implements PlugIn {
 			}
 				
 				
-				return anterieur;
+		return anterieur;
 	}
 		
 	/**
@@ -782,11 +793,11 @@ public class Vue_Shunpo implements PlugIn {
 		imp.setSlice(1);
 		String tag= DicomTools.getTag(imp, "0011,1012");
 		//On ajoute un deuxieme tag de localisation a voir dans la pratique ou se situe l'info
-		if (DicomTools.getTag(imp, "0011,1030")!=null)		tag+=DicomTools.getTag(imp, "0011,1030");
+		if (!StringUtils.isEmpty(DicomTools.getTag(imp, "0011,1030")))		tag+=DicomTools.getTag(imp, "0011,1030");
 		
 		//On set le Boolean a null
 		Boolean anterieur = null;
-		if (tag!=null) {
+		if (!StringUtils.isEmpty(tag)) {
 			///On recupere le 1er separateur de chaque vue dans le champ des orientation
 			int separateur=tag.indexOf("\\");
 			
@@ -804,7 +815,7 @@ public class Vue_Shunpo implements PlugIn {
 			
 			//Si on ne trouve pas de tag le booelan reste null et on notifie l'utilisateur
 			else if (!tag.substring(0, separateur).contains("POS") && !tag.substring(0, separateur).contains("_F")&& !tag.substring(0, separateur).contains("ANT") && !tag.substring(0, separateur).contains("_E")) {
-				// le Boolean reste � null et on informe l'user
+				// le Boolean reste null et on informe l'user
 				IJ.log("Information not reckognized");	
 			}
 		}
@@ -887,7 +898,7 @@ public class Vue_Shunpo implements PlugIn {
 		
 		// On recupere la chaine de detecteur
 		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
-		if (tagDetecteur!=null && !tagDetecteur.isEmpty()) tagDetecteur = tagDetecteur.trim();
+		if (!StringUtils.isEmpty(tagDetecteur)) tagDetecteur = tagDetecteur.trim();
 		String delims = "[ ]+";
 		String[] sequenceDetecteur = tagDetecteur.split(delims);
 		
@@ -960,7 +971,7 @@ public class Vue_Shunpo implements PlugIn {
 	public static boolean isSameCameraMultiFrame(ImagePlus imp) {
 		// On recupere la chaine de detecteur
 		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
-		if (tagDetecteur!=null && !tagDetecteur.isEmpty()) tagDetecteur=tagDetecteur.trim();
+		if (!StringUtils.isEmpty(tagDetecteur)) tagDetecteur=tagDetecteur.trim();
 		String delims = "[ ]+";
 		String[] sequenceDetecteur = tagDetecteur.split(delims);
 		boolean sameCamera=true ;
@@ -981,7 +992,7 @@ public class Vue_Shunpo implements PlugIn {
 	public static boolean isPremiereImageDetecteur1(ImagePlus imp) {
 		// On recupere la chaine de detecteur
 		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
-		if (tagDetecteur!=null && !tagDetecteur.isEmpty()) tagDetecteur=tagDetecteur.trim();
+		if (!StringUtils.isEmpty(tagDetecteur)) tagDetecteur=tagDetecteur.trim();
 		String delims = "[ ]+";
 		String[] sequenceDeteceur = tagDetecteur.split(delims);
 		boolean detecteur1=false;

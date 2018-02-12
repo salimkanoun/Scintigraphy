@@ -348,11 +348,12 @@ public class Controleur_Plaquettes implements ActionListener {
 		index++;
 	}
 
-	private void retour() {
+	/*private void retour() {
 		//A GERER
 		//etat = etat.previous() ;
 		//index -- ;
 		//laVue.setInstructions(listeInstructions[index]);
 		//laVue.leRoi.select(index);	
 	}
+	*/
 }

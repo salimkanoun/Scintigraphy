@@ -336,6 +336,10 @@ public class Vue_Plaquettes implements PlugIn {
 					reverser.flipStack(imp);
 				}
 			}
+			// Si uniquement une image on verifie qu'elle est post et on la flip
+			else if (imp.getStackSize() == 1) {
+				imp.getProcessor().flipHorizontal();
+			}
 			series[i]=Vue_Shunpo.sortImageAntPost(imp);
 			imp.close();
 		}
@@ -388,7 +392,7 @@ public class Vue_Plaquettes implements PlugIn {
 		win.setLocationRelativeTo(null);
 		win.toFront();
 		//On initialise l'overlay
-		this.overlay=Vue_Shunpo.initOverlay();
+		overlay=Vue_Shunpo.initOverlay();
 		//On ajouter l'overlay Droite/Gauche
 		Vue_Shunpo.setOverlayDG(this.overlay, win.getImagePlus());
 		//On met sur l'image
