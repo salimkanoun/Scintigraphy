@@ -55,11 +55,12 @@ public class Condense_Dynamique  implements PlugIn {
 			//On ferme les images posterieures et on assigne a chaque image un nom unique car sinon confusion du programme (les images originales on le meme nom)
 			for (int i=0 ; i<imagesOuvertes.length; i++) {
 				ImagePlus brutepost=WindowManager.getImage(imagesOuvertes[i]);
-				if (!Vue_Shunpo.isAnterieur(brutepost)) {
+				Boolean ant=Vue_Shunpo.isAnterieur(brutepost);
+				if (ant !=null && !ant) {
 					 brutepost.close();
 					 continue;
 				}
-				if (Vue_Shunpo.isAnterieur(brutepost)) {
+				if (ant !=null && ant) {
 					 brutepost.setTitle("Image"+i);;
 				}
 			}
@@ -85,8 +86,9 @@ public class Condense_Dynamique  implements PlugIn {
 			for (int i=0 ; i<imagesOuvertesOrdonees.length; i++) {
 				
 				ImagePlus brute=imagesOuvertesOrdonees[i];
+				Boolean ant=Vue_Shunpo.isAnterieur(brute);
 				
-					if (Vue_Shunpo.isAnterieur(brute)){
+					if (ant!=null && ant){
 						brute.setTitle("Anterior"+i);
 						//On cree la somme des 10 premieres images pour la visualisation
 						ZProjector projector=new ZProjector();

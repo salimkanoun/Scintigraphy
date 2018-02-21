@@ -330,8 +330,9 @@ public class Vue_Plaquettes implements PlugIn {
 			ImagePlus imp=WindowManager.getImage(titresFenetres[i]);
 			if (imp.getStackSize() == 2) {
 				antPost=true;
+				Boolean ant =Vue_Shunpo.isAnterieur(imp);
 				//Si l'image 1 est anterieur on inverse le stack pour avoir d'abord l'image post
-				if (Vue_Shunpo.isAnterieur(imp)) {
+				if (ant != null  && ant) {
 					StackReverser reverser= new StackReverser();
 					reverser.flipStack(imp);
 				}

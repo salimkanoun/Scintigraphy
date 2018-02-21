@@ -602,7 +602,7 @@ public class Vue_Shunpo implements PlugIn {
 			// On recupere la chaine de detecteur
 			// SK ZONE A RISQUE SI PAS DE CHAINE DE DETECTEUR A SURVEILLER
 			String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
-			if (StringUtils.isEmpty(tagDetecteur)) {
+			if (!StringUtils.isEmpty(tagDetecteur)) {
 				tagDetecteur=tagDetecteur.trim();
 			}
 			String delims = "[ ]+";
