@@ -638,8 +638,7 @@ public class Controleur_VG_Roi implements ActionListener {
 				laVue.leRoi.deselect();
 				laVue.leRoi.select(index_Roi-1);
 				laVue.leRoi.runCommand("Delete");
-				
-				//TESTSK//
+				//Ajoute l'overlay de la ROI estomac
 				laVue.overlay.add(laVue.leRoi.getRoi(index_Roi-2));
 				//Si on n'est pas dans la 1ere image on remet la ROI intestin precedente  
 				if (index_Roi > 2) {
@@ -652,7 +651,6 @@ public class Controleur_VG_Roi implements ActionListener {
 			}
 			index_Roi--;
 			IJ.showMessage("please adjust the intestine So that there is an intersection between the estomac and the intestine !");
-			// SK ICI REMETRE LA ROI GASTRIQUE ?
 			estAntreCorrect = false;
 		} else {
 			leModele.calculerCoups("Antre_" + cote, index_Image,laVue.imp);
