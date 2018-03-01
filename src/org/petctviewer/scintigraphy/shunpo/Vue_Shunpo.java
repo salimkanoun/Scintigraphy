@@ -431,7 +431,7 @@ public class Vue_Shunpo implements PlugIn {
 	
 	
 	/**
-	 * Applique la LUT definie dans les preference à l'ImagePlus demandee
+	 * Applique la LUT definie dans les preference ï¿½ l'ImagePlus demandee
 	 * @param imp : L'ImagePlus sur laquelle on va appliquer la LUT des preferences
 	 */
 	public static void setCustomLut(ImagePlus imp){
@@ -476,7 +476,7 @@ public class Vue_Shunpo implements PlugIn {
 		for (int i = 0 ; i < resultats.length ; i++) {
 			labRes[i].setText(resultats[i]);}
 		if (Modele_Shunpo.shunt<2) {
-			//Si shunt inférieur à 2% (examen normal) Affiche en vert
+			//Si shunt infï¿½rieur ï¿½ 2% (examen normal) Affiche en vert
 			labRes[7].setForeground(new Color(0,89,0));
 		}
 		if (Modele_Shunpo.shunt<5 && Modele_Shunpo.shunt>2) {
@@ -511,7 +511,7 @@ public class Vue_Shunpo implements PlugIn {
 	/**
 	 * Affiche D et G en overlay sur l'image
 	 * @param overlay : Overlay sur lequel ajouter D/G
-	 * @param imp : ImagePlus sur laquelle est appliquée l'overlay
+	 * @param imp : ImagePlus sur laquelle est appliquï¿½e l'overlay
 	 */
 	public static void setOverlayDG(Overlay overlay, ImagePlus imp) {
 		//Position au mileu dans l'axe Y
@@ -563,7 +563,7 @@ public class Vue_Shunpo implements PlugIn {
 	}
 	
 	/**
-	 * Permet de trier les image Anterieure et posterieure et retourne les images posterieures pour garder la meme lateralisation (la droite est à gauche de l'image comme une image de face)
+	 * Permet de trier les image Anterieure et posterieure et retourne les images posterieures pour garder la meme lateralisation (la droite est ï¿½ gauche de l'image comme une image de face)
 	 * @param imp : ImagePlus a trier 
 	 * @return Retourne l'ImagePlus avec les images posterieures inversees
 	 */
@@ -580,7 +580,7 @@ public class Vue_Shunpo implements PlugIn {
 	
 	/**
 	 * Permet de tirer et inverser les images posterieure pour les images multiframe
-	 * A Eviter d'utiliser, préférer la methode sortImageAntPost(ImagePlus imp) qui est générique pour tout type d'image
+	 * A Eviter d'utiliser, prï¿½fï¿½rer la methode sortImageAntPost(ImagePlus imp) qui est gï¿½nï¿½rique pour tout type d'image
 	 * @param imp0 : ImagePlus a trier
 	 * @return Retourne l'ImagePlus triee
 	 */
@@ -669,7 +669,7 @@ public class Vue_Shunpo implements PlugIn {
 
 	/**
 	 * Permet de trier les image unique frame et inverser l'image posterieure
-	 * A Eviter d'utiliser, préférer la methode sortImageAntPost(ImagePlus imp) qui est générique pour tout type d'image
+	 * A Eviter d'utiliser, prï¿½fï¿½rer la methode sortImageAntPost(ImagePlus imp) qui est gï¿½nï¿½rique pour tout type d'image
 	 * @param imp0 : ImagePlus a trier
 	 * @return retourne l'ImagePlus trier
 	 */
@@ -716,7 +716,7 @@ public class Vue_Shunpo implements PlugIn {
 		}
 	
 	/**
-	 * Permet de tester si l'image est anterieure pour une unique frame, ne teste que la première Image (peut etre generalisee plus tard si besoin)
+	 * Permet de tester si l'image est anterieure pour une unique frame, ne teste que la premiï¿½re Image (peut etre generalisee plus tard si besoin)
 	 * A Eviter d'utiliser car la methode isAnterieur(ImagePlus imp) est generique pour tout type d'image
 	 * @param imp : ImagePlus a tester
 	 * @return boolean vrai si anterieur
@@ -781,7 +781,7 @@ public class Vue_Shunpo implements PlugIn {
 	}
 		
 	/**
-	 * Permet de tester si l'image est anterieure pour une MultiFrame, ne teste que la première Image (peut etre generalisee plus tard si besoin)
+	 * Permet de tester si l'image est anterieure pour une MultiFrame, ne teste que la premiï¿½re Image (peut etre generalisee plus tard si besoin)
 	 * A Eviter d'utiliser car la methode isAnterieur(ImagePlus imp) est generique pour tout type d'image
 	 * 
 	 * @param imp : ImagePlus a tester
@@ -843,7 +843,7 @@ public class Vue_Shunpo implements PlugIn {
 	}
 		
 	/**
-	 * Premet de trier un tableau d'ImagePlus par leur acquisition date et time de la plus ancienne à la plus recente
+	 * Premet de trier un tableau d'ImagePlus par leur acquisition date et time de la plus ancienne ï¿½ la plus recente
 	 * @param serie : Tableau d'ImagePlus a trier
 	 * @return Tableau d'ImagePlus ordonne par acquisition time
 	 */
@@ -863,7 +863,7 @@ public class Vue_Shunpo implements PlugIn {
 				String heureImage1 = DicomTools.getTag(arg1, "0008,0032");
 				
 				String dateInputImage0=dateImage0.trim()+heureImage0.trim();
-				//On split les millisecondes qui sont après le . car nombre inconstant de millisec
+				//On split les millisecondes qui sont aprï¿½s le . car nombre inconstant de millisec
 				int separateurMilliSec=dateInputImage0.indexOf(".");
 				if (separateurMilliSec!= -1) dateInputImage0=dateInputImage0.substring(0,separateurMilliSec);
 				
@@ -902,7 +902,7 @@ public class Vue_Shunpo implements PlugIn {
 		String delims = "[ ]+";
 		String[] sequenceDetecteur = tagDetecteur.split(delims);
 		
-		//On cree les ImageStack qui vont recevoir les image de chaque tête
+		//On cree les ImageStack qui vont recevoir les image de chaque tï¿½te
 		ImageStack camera0=new ImageStack(imp.getWidth(),imp.getHeight());
 		ImageStack camera1=new ImageStack(imp.getWidth(),imp.getHeight());
 		
@@ -920,7 +920,8 @@ public class Vue_Shunpo implements PlugIn {
 						}
 					else {
 						camera1.addSlice(imp.getImageStack().getProcessor((i+1)));
-						camera1.getProcessor(i+1).flipHorizontal();
+						//et on flip cette derniere coupe
+						camera1.getProcessor(camera1.size()).flipHorizontal();
 						}
 					}
 				}
@@ -928,7 +929,7 @@ public class Vue_Shunpo implements PlugIn {
 				for (int i=0; i<sequenceDetecteur.length ; i++) {
 					if (sequenceDetecteur[i]==detecteurPremiereImage) {
 						camera1.addSlice(imp.getImageStack().getProcessor((i+1)));
-						camera1.getProcessor(i+1).flipHorizontal();
+						camera1.getProcessor(camera1.size()).flipHorizontal();
 						}
 					else {
 						camera0.addSlice(imp.getImageStack().getProcessor((i+1)));
@@ -943,6 +944,7 @@ public class Vue_Shunpo implements PlugIn {
 						}
 						else if (sequenceDetecteur[i].equals("2")) {
 							camera1.addSlice(imp.getImageStack().getProcessor((i+1)));
+							camera1.getProcessor(camera1.size()).flipHorizontal();
 						}
 					}
 			}
@@ -965,7 +967,7 @@ public class Vue_Shunpo implements PlugIn {
 		
 	/**
 	 * Test si les images du MutiFrame viennent toutes de la meme camera
-	 * @param imp : ImagePlus à traiter
+	 * @param imp : ImagePlus ï¿½ traiter
 	 * @return Boolean
 	 */
 	public static boolean isSameCameraMultiFrame(ImagePlus imp) {

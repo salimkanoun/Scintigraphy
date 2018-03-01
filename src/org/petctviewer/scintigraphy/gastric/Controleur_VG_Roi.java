@@ -638,7 +638,9 @@ public class Controleur_VG_Roi implements ActionListener {
 				laVue.leRoi.deselect();
 				laVue.leRoi.select(index_Roi-1);
 				laVue.leRoi.runCommand("Delete");
-				//TESTSK//laVue.overlay.add(laVue.leRoi.getRoi(index_Roi-2));
+				
+				//TESTSK//
+				laVue.overlay.add(laVue.leRoi.getRoi(index_Roi-2));
 				//Si on n'est pas dans la 1ere image on remet la ROI intestin precedente  
 				if (index_Roi > 2) {
 					laVue.leRoi.deselect();

@@ -223,6 +223,7 @@ public class Vue_VG_Dynamique  implements PlugIn {
 			imp.setTitle(titre);
 			windowstack.setTitle(titre);
 			this.overlay=Vue_Shunpo.initOverlay();
+			Vue_Shunpo.setOverlayDG(this.overlay, this.imp);
 			// On set la dimension de l'image
 			windowstack.getCanvas().setSize(new Dimension(512,512));
 			windowstack.getCanvas().setScaleToFit(true);

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+		http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>19.2.0</version>
+		<relativePath />
+	</parent>
+  
+  <groupId>Conventional_Scintigraphy</groupId>
+  <artifactId>Conventional_Scintigraphy</artifactId>
+  <version>0.91.1-SNAPSHOT</version>
+  <name>Conventional_Scintigraphy</name>
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.7.0</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <repositories>
+		<repository>
+			<id>imagej.public</id>
+			<url>http://maven.imagej.net/content/groups/public</url>
+		</repository>
+	</repositories>
+	<dependencies>
+
+	<dependency>
+		<groupId>sc.fiji</groupId>
+		<artifactId>IO_</artifactId>
+		<version>3.0.4</version>
+	</dependency>
+	<dependency>
+		<groupId>org.jfree</groupId>
+		<artifactId>jfreechart</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.commons</groupId>
+		<artifactId>commons-lang3</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.directory.studio</groupId>
+		<artifactId>org.apache.commons.lang</artifactId>
+		<version>2.6</version>
+	</dependency>
+	</dependencies>
+</project>

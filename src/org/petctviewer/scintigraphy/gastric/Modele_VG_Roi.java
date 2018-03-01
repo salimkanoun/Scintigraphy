@@ -490,6 +490,8 @@ public class Modele_VG_Roi {
 			double a=parametres[1];
 			double b=parametres[0];
 			valueY=a*valueX+b;
+			//Si valeur negative on met 0;
+			if (valueY<=0) valueY=0;
 		}
 		return (double) (Math.round(valueY * 10) / 10.0);
 	}
