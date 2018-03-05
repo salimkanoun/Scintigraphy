@@ -501,7 +501,7 @@ public class Vue_Shunpo implements PlugIn {
 		// pour tout le programme sur lequel on va ajouter/enlever les ROI au fur et a mesure
 		Overlay overlay = new Overlay();
 		// SK Probleme de taille des overlay, Question posee sur le forum de ImageJ
-		Font font = new Font("Arial", Font.PLAIN, 19) ;
+		Font font = new Font("Arial", Font.PLAIN, 18) ;
 		overlay.setLabelFont(font);
 		overlay.drawLabels(true);
 		overlay.drawNames(true);
@@ -514,19 +514,21 @@ public class Vue_Shunpo implements PlugIn {
 	 * @param imp : ImagePlus sur laquelle est appliqu�e l'overlay
 	 */
 	public static void setOverlayDG(Overlay overlay, ImagePlus imp) {
+		int tailleImage=imp.getHeight();
 		//Position au mileu dans l'axe Y
-		double y=((imp.getHeight())/2);
+		double y=((tailleImage)/2);
+		//Calcul la Taille avec rapport conversion avoir taille stable quelque soit taille Image
+		Double rapportTaille=(double) (tailleImage/256.0)*18;
 		// Cree police
-		Font font = new Font("Arial" , Font.PLAIN, 10) ;
+		Font font = new Font("Arial" , Font.PLAIN, rapportTaille.intValue() ) ;
 		
 		//Cote droit
 		TextRoi right = new TextRoi(0, y, "R");
 		right.setCurrentFont(font);
 		
 		//Cote gauche
-		String labelLeft="L";
-		double xl = imp.getWidth()-(font.getSize()*labelLeft.length()); // sinon on sort de l'image
-		TextRoi left = new TextRoi(xl, y, labelLeft);
+		double xl = imp.getWidth()-(font.getSize()); // sinon on sort de l'image
+		TextRoi left = new TextRoi(xl, y, "L");
 		left.setCurrentFont(font);
 		
 		// Set de la couleur et de la police des text ROI
