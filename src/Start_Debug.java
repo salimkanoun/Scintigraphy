@@ -1,5 +1,4 @@
 import org.petctviewer.scintigraphy.gastric.Vue_VG_Dynamique;
-import org.petctviewer.scintigraphy.platelet.Vue_Plaquettes;
 
 import ij.ImageJ;
 
