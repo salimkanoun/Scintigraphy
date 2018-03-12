@@ -350,9 +350,8 @@ public class Vue_Shunpo implements PlugIn {
 		win.setTitle(setTitre(win.getImagePlus()));
 		this.imp.setTitle(setTitre(this.imp));
 		//On initialise l'overlay
-		this.overlay=initOverlay();
-		//On ajouter l'overlay Droite/Gauche
-		Vue_Shunpo.setOverlayDG(overlay, win.getImagePlus());
+		this.overlay=Vue_Shunpo.initOverlay(imp);
+		Vue_Shunpo.setOverlayDG(overlay, imp);
 		//  On affiche l'image en 512*512 en forcant le zoom adhoc	
 		win.getCanvas().setSize(new Dimension(512,512));
 		// Adaptation automatique de l'image au resize
@@ -363,7 +362,6 @@ public class Vue_Shunpo implements PlugIn {
 		//On met au premier plan au centre de l'ecran
 		win.setLocationRelativeTo(null);
 		win.toFront();
-		
 		//On met sur l'image
 		win.getImagePlus().setOverlay(overlay);
 		if (instructions.getText().equals("")) 
@@ -462,8 +460,8 @@ public class Vue_Shunpo implements PlugIn {
 			win.repaint();
 			win.getImagePlus().killRoi();
 			//On ajouter l'overlay Droite/Gauche
-			this.overlay=initOverlay();
-			Vue_Shunpo.setOverlayDG(overlay, win.getImagePlus());
+			this.overlay=Vue_Shunpo.initOverlay(imp);
+			Vue_Shunpo.setOverlayDG(overlay, imp);
 			win.getImagePlus().setOverlay(overlay);
 			//Variable pour notifier que l'image 2 est ouverte
 			image2Ouverte=true ;
@@ -497,17 +495,21 @@ public class Vue_Shunpo implements PlugIn {
 	 * SK : A Optimiser pour tenir compte de la taille initiale de l'Image
 	 * @return Overlay
 	 */
-	public static Overlay initOverlay() {
+	public static Overlay initOverlay(ImagePlus imp) {
 		//On initialise l'overlay il ne peut y avoir qu'un Overlay
 		// pour tout le programme sur lequel on va ajouter/enlever les ROI au fur et a mesure
 		Overlay overlay = new Overlay();
 		// On defini la police et la propriete des Overlays
-		// SK RESTE A GERER LA TAILLE DE LA POLICE PAR RAPPORT A LA TAILLE INITIALE DE L IMAGE
-		Font font = new Font("Arial", Font.PLAIN, 10) ;
-		overlay.setLabelFont(font, true);
+		int height=imp.getHeight();
+		//On normalise Taille 12 a 256 pour avoir une taille stable pour toute image
+		Float facteurConversion= (float) ((height*1.0)/256) ;
+		Font font = new Font("Arial", Font.PLAIN, Math.round(12*facteurConversion) ) ;
 		overlay.drawLabels(true);
 		overlay.drawNames(true);
+		overlay.setLabelFont(font, true);
+		//Pour rendre overlay non selectionnable
 		overlay.selectable(false);
+		
 		return overlay;
 	}
 	
@@ -527,11 +529,12 @@ public class Vue_Shunpo implements PlugIn {
 		TextRoi right = new TextRoi(0, y, "R");
 		
 		//Cote gauche
-		double xl = imp.getWidth()-(overlay.getLabelFont().getSize()); // sinon on sort de l'image
+		double xl = imp.getWidth()-(overlay.getLabelFont().getSize() ); // sinon on sort de l'image
 		TextRoi left = new TextRoi(xl, y, "L");
 		
-		// Set de la couleur et de la police des text ROI
-		TextRoi.setColor(Color.WHITE);
+		// Set la police des text ROI
+		right.setCurrentFont(overlay.getLabelFont());
+		left.setCurrentFont(overlay.getLabelFont());
 		
 		// Ajout de l'indication de la droite du patient
 		overlay.add(right);

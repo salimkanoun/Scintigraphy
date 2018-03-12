@@ -393,10 +393,9 @@ public class Vue_Plaquettes implements PlugIn {
 		//On met au premier plan au centre de l'ecran
 		win.setLocationRelativeTo(null);
 		win.toFront();
-		//On initialise l'overlay
-		overlay=Vue_Shunpo.initOverlay();
-		//On ajouter l'overlay Droite/Gauche
-		Vue_Shunpo.setOverlayDG(this.overlay, win.getImagePlus());
+		//On initialise l'overlay avec les label DG
+		this.overlay=Vue_Shunpo.initOverlay(imp);
+		Vue_Shunpo.setOverlayDG(overlay, imp);
 		//On met sur l'image
 		win.getImagePlus().setOverlay(overlay);
 		if (instructions.getText().equals("")) 
