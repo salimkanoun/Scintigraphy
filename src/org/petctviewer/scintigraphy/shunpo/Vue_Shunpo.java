@@ -349,6 +349,10 @@ public class Vue_Shunpo implements PlugIn {
 		this.win=win;
 		win.setTitle(setTitre(win.getImagePlus()));
 		this.imp.setTitle(setTitre(this.imp));
+		//On initialise l'overlay
+		this.overlay=initOverlay();
+		//On ajouter l'overlay Droite/Gauche
+		Vue_Shunpo.setOverlayDG(overlay, win.getImagePlus());
 		//  On affiche l'image en 512*512 en forcant le zoom adhoc	
 		win.getCanvas().setSize(new Dimension(512,512));
 		// Adaptation automatique de l'image au resize
@@ -359,10 +363,7 @@ public class Vue_Shunpo implements PlugIn {
 		//On met au premier plan au centre de l'ecran
 		win.setLocationRelativeTo(null);
 		win.toFront();
-		//On initialise l'overlay
-		this.overlay=initOverlay();
-		//On ajouter l'overlay Droite/Gauche
-		Vue_Shunpo.setOverlayDG(overlay, win.getImagePlus());
+		
 		//On met sur l'image
 		win.getImagePlus().setOverlay(overlay);
 		if (instructions.getText().equals("")) 
@@ -500,11 +501,13 @@ public class Vue_Shunpo implements PlugIn {
 		//On initialise l'overlay il ne peut y avoir qu'un Overlay
 		// pour tout le programme sur lequel on va ajouter/enlever les ROI au fur et a mesure
 		Overlay overlay = new Overlay();
-		// SK Probleme de taille des overlay, Question posee sur le forum de ImageJ
-		Font font = new Font("Arial", Font.PLAIN, 18) ;
-		overlay.setLabelFont(font);
+		// On defini la police et la propriete des Overlays
+		// SK RESTE A GERER LA TAILLE DE LA POLICE PAR RAPPORT A LA TAILLE INITIALE DE L IMAGE
+		Font font = new Font("Arial", Font.PLAIN, 10) ;
+		overlay.setLabelFont(font, true);
 		overlay.drawLabels(true);
 		overlay.drawNames(true);
+		overlay.selectable(false);
 		return overlay;
 	}
 	
@@ -514,22 +517,18 @@ public class Vue_Shunpo implements PlugIn {
 	 * @param imp : ImagePlus sur laquelle est appliqu�e l'overlay
 	 */
 	public static void setOverlayDG(Overlay overlay, ImagePlus imp) {
+		//Get taille Image
 		int tailleImage=imp.getHeight();
+		
 		//Position au mileu dans l'axe Y
 		double y=((tailleImage)/2);
-		//Calcul la Taille avec rapport conversion avoir taille stable quelque soit taille Image
-		Double rapportTaille=(double) (tailleImage/256.0)*18;
-		// Cree police
-		Font font = new Font("Arial" , Font.PLAIN, rapportTaille.intValue() ) ;
 		
 		//Cote droit
 		TextRoi right = new TextRoi(0, y, "R");
-		right.setCurrentFont(font);
 		
 		//Cote gauche
-		double xl = imp.getWidth()-(font.getSize()); // sinon on sort de l'image
+		double xl = imp.getWidth()-(overlay.getLabelFont().getSize()); // sinon on sort de l'image
 		TextRoi left = new TextRoi(xl, y, "L");
-		left.setCurrentFont(font);
 		
 		// Set de la couleur et de la police des text ROI
 		TextRoi.setColor(Color.WHITE);
