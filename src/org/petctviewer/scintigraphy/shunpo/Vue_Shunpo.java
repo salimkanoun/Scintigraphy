@@ -32,6 +32,7 @@ import java.awt.event.WindowEvent;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
@@ -584,7 +585,7 @@ public class Vue_Shunpo implements PlugIn {
 	
 	/**
 	 * Permet de tirer et inverser les images posterieure pour les images multiframe
-	 * A Eviter d'utiliser, pr�f�rer la methode sortImageAntPost(ImagePlus imp) qui est g�n�rique pour tout type d'image
+	 * A Eviter d'utiliser, preferer la methode sortImageAntPost(ImagePlus imp) qui est  generique pour tout type d'image
 	 * @param imp0 : ImagePlus a trier
 	 * @return Retourne l'ImagePlus triee
 	 */
@@ -696,8 +697,12 @@ public class Vue_Shunpo implements PlugIn {
 				if ( !StringUtils.isEmpty(tagVector)) tagVector=tagVector.trim();
 
 					if ( ! StringUtils.isEmpty(tag)) {
-						if (StringUtils.equals(tag, "POS") || StringUtils.equals(tag, "_F")) {
+						if (StringUtils.contains(tag, "POS") || StringUtils.contains(tag, "_F")) {
 							imp.getProcessor().flipHorizontal();
+							imp.setTitle("Post"+i);
+						}
+						else if (StringUtils.contains(tag, "ANT") || StringUtils.contains(tag, "_E")) {
+							imp.setTitle("Ant"+i);//On ne fait rien
 						}
 						else {
 							if (imp.getStackSize()==2) {
@@ -851,18 +856,19 @@ public class Vue_Shunpo implements PlugIn {
 	 * @param serie : Tableau d'ImagePlus a trier
 	 * @return Tableau d'ImagePlus ordonne par acquisition time
 	 */
-	public static ImagePlus[] orderImagesByAcquisitionTime(ImagePlus[] serie) {
+	public static ImagePlus[] orderImagesByAcquisitionTime(ArrayList<ImagePlus> serie) {
 		
-		ImagePlus[] retour = serie.clone();
+		ImagePlus[] retour = new ImagePlus[serie.size()];
+		serie.toArray(retour);
 		
 		Arrays.sort(retour, new Comparator<ImagePlus>() {
 
 			@Override
 			public int compare(ImagePlus arg0, ImagePlus arg1) {
+				
 				DateFormat dateHeure=new SimpleDateFormat("yyyyMMddHHmmss");
 				String dateImage0 = DicomTools.getTag(arg0, "0008,0022");
 				String dateImage1 = DicomTools.getTag(arg1, "0008,0022");
-				
 				String heureImage0 = DicomTools.getTag(arg0, "0008,0032");
 				String heureImage1 = DicomTools.getTag(arg1, "0008,0032");
 				
@@ -892,7 +898,7 @@ public class Vue_Shunpo implements PlugIn {
 	}
 		
 	/**
-	 * Permet de spliter les images d'un multiFrame contenant 2 camera, image 0 camera Ant et Image1 Camera Post
+	 * Permet de spliter les images d'un multiFrame contenant 2 camera, image 0 camera Ant et Image1 Camera Post (ne retourne pas l'image post)
 	 * @param imp : ImagePlus a traiter
 	 * @return Tableau d'imagePlus avec 2 ImagePlus (camera 1 et 2 )
 	 */
@@ -919,21 +925,18 @@ public class Vue_Shunpo implements PlugIn {
 		
 			if(anterieurPremiereImage!= null && anterieurPremiereImage) {
 				for (int i=0; i<sequenceDetecteur.length ; i++) {
-					if (sequenceDetecteur[i]==detecteurPremiereImage) {
+					if (sequenceDetecteur[i].equals(detecteurPremiereImage)) {
 						camera0.addSlice(imp.getImageStack().getProcessor((i+1)));
 						}
 					else {
 						camera1.addSlice(imp.getImageStack().getProcessor((i+1)));
-						//et on flip cette derniere coupe
-						camera1.getProcessor(camera1.size()).flipHorizontal();
 						}
 					}
 				}
 			else if(anterieurPremiereImage!= null && !anterieurPremiereImage) {
 				for (int i=0; i<sequenceDetecteur.length ; i++) {
-					if (sequenceDetecteur[i]==detecteurPremiereImage) {
+					if (sequenceDetecteur[i].equals(detecteurPremiereImage)) {
 						camera1.addSlice(imp.getImageStack().getProcessor((i+1)));
-						camera1.getProcessor(camera1.size()).flipHorizontal();
 						}
 					else {
 						camera0.addSlice(imp.getImageStack().getProcessor((i+1)));
@@ -948,7 +951,6 @@ public class Vue_Shunpo implements PlugIn {
 						}
 						else if (sequenceDetecteur[i].equals("2")) {
 							camera1.addSlice(imp.getImageStack().getProcessor((i+1)));
-							camera1.getProcessor(camera1.size()).flipHorizontal();
 						}
 					}
 			}

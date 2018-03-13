@@ -172,7 +172,7 @@ public class Vue_VG_Dynamique  implements PlugIn {
 				else if( Vue_Shunpo.isMultiFrame(brute) && !Vue_Shunpo.isSameCameraMultiFrame(brute)) {
 					//On recupere les deux ImagePlus de chaque Vue
 					ImagePlus [] deuxCamera=Vue_Shunpo.splitCameraMultiFrame(brute);
-					//On ajoute a part le ant et le post qui ont ete splite
+					//On ajoute a part le ant et le post (qu'on flip horizontal) qui ont ete splite
 					deuxCamera[0].setTitle("Anterior");
 					projete.add(makeImageProjetee(deuxCamera[0], true));
 					deuxCamera[1].setTitle("Posterior");
@@ -182,11 +182,9 @@ public class Vue_VG_Dynamique  implements PlugIn {
 				
 				
 			}
-			//On met la liste dans un tableau pour utiliser les methodes generiques
-			ImagePlus[] projeteTableau= new ImagePlus[projete.size()];
-			projete.toArray(projeteTableau);
+			
 			//On trie les images par acquisition time
-			ImagePlus[] projeteOrderTemp=Vue_Shunpo.orderImagesByAcquisitionTime(projeteTableau);
+			ImagePlus[] projeteOrderTemp=Vue_Shunpo.orderImagesByAcquisitionTime(projete);
 			//On met l'image Ant apres l'imagePosterieur car sera inverse par la suite
 			ImagePlus[] projeteOrder=new ImagePlus[projeteOrderTemp.length];
 			for (int i=0 ; i<projeteOrderTemp.length; i+=2){

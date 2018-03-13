@@ -33,6 +33,7 @@ import java.awt.event.WindowEvent;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -320,11 +321,8 @@ public class Vue_Plaquettes implements PlugIn {
 	
 	private void ouvertureImage(String[] titresFenetres) {
 		
-		
-		ImagePlus[] series=new ImagePlus[titresFenetres.length];
-		
-		nombreAcquisitions=series.length;
-		
+		ArrayList<ImagePlus> series = new ArrayList<ImagePlus>();
+	
 		for (int i=0; i<titresFenetres.length ; i++){
 			
 			ImagePlus imp=WindowManager.getImage(titresFenetres[i]);
@@ -342,10 +340,10 @@ public class Vue_Plaquettes implements PlugIn {
 				// SK Pas propre necessite de mieux orienter les Image pour Ant/Post
 				imp.getProcessor().flipHorizontal();
 			}
-			series[i]=Vue_Shunpo.sortImageAntPost(imp);
+			series.add(Vue_Shunpo.sortImageAntPost(imp));
 			imp.close();
 		}
-		
+		nombreAcquisitions=series.size();
 		//IJ.log(String.valueOf(antPost));
 		
 		ImagePlus[] seriesTriee=Vue_Shunpo.orderImagesByAcquisitionTime(series);

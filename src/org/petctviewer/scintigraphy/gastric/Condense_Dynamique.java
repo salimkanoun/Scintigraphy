@@ -50,128 +50,128 @@ public class Condense_Dynamique  implements PlugIn {
 			
 			if (imagesOuvertes!=null) {
 				
-			}
 			
-			//On ferme les images posterieures et on assigne a chaque image un nom unique car sinon confusion du programme (les images originales on le meme nom)
-			for (int i=0 ; i<imagesOuvertes.length; i++) {
-				ImagePlus brutepost=WindowManager.getImage(imagesOuvertes[i]);
-				Boolean ant=Vue_Shunpo.isAnterieur(brutepost);
-				if (ant !=null && !ant) {
-					 brutepost.close();
-					 continue;
+			
+				//On ferme les images posterieures et on assigne a chaque image un nom unique car sinon confusion du programme (les images originales on le meme nom)
+				for (int i=0 ; i<imagesOuvertes.length; i++) {
+					ImagePlus brutepost=WindowManager.getImage(imagesOuvertes[i]);
+					Boolean ant=Vue_Shunpo.isAnterieur(brutepost);
+					if (ant !=null && !ant) {
+						 brutepost.close();
+						 continue;
+					}
+					if (ant !=null && ant) {
+						 brutepost.setTitle("Image"+i);;
+					}
 				}
-				if (ant !=null && ant) {
-					 brutepost.setTitle("Image"+i);;
+				imagesOuvertes=null;
+				//On liste les images restantes
+				imagesOuvertes=WindowManager.getImageTitles();
+				
+				//On sauve le header
+				tag=Modele_Shunpo.genererDicomTagsPartie1(WindowManager.getImage(imagesOuvertes[0]), "Condense");
+				
+				//On met les images ouvertes dans un tableau pour les trier
+				ArrayList<ImagePlus> imagesOuvertesPlus=new ArrayList<ImagePlus>();
+				for (int i=0 ; i<imagesOuvertes.length; i++) {
+					imagesOuvertesPlus.add(WindowManager.getImage(imagesOuvertes[i]));
 				}
-			}
-			imagesOuvertes=null;
-			//On liste les images restantes
-			imagesOuvertes=WindowManager.getImageTitles();
-			
-			//On sauve le header
-			tag=Modele_Shunpo.genererDicomTagsPartie1(WindowManager.getImage(imagesOuvertes[0]), "Condense");
-			
-			//On met les images ouvertes dans un tableau pour les trier
-			ImagePlus[] imagesOuvertesPlus=new ImagePlus[imagesOuvertes.length];
-			for (int i=0 ; i<imagesOuvertes.length; i++) {
-				imagesOuvertesPlus[i]=WindowManager.getImage(imagesOuvertes[i]);
-			}
-			
-		
-			
-			//On trie le tableau par heure d'acquisition
-			ImagePlus[] imagesOuvertesOrdonees=Vue_Shunpo.orderImagesByAcquisitionTime(imagesOuvertesPlus);
-			p.setLocation(imagesOuvertesOrdonees[0].getWidth()/2, 0);
-			
-			for (int i=0 ; i<imagesOuvertesOrdonees.length; i++) {
 				
-				ImagePlus brute=imagesOuvertesOrdonees[i];
-				Boolean ant=Vue_Shunpo.isAnterieur(brute);
+			
 				
-					if (ant!=null && ant){
-						brute.setTitle("Anterior"+i);
-						//On cree la somme des 10 premieres images pour la visualisation
-						ZProjector projector=new ZProjector();
-						projector.setImage(brute);
-						projector.setMethod(ij.plugin.ZProjector.SUM_METHOD);
-						projector.setStartSlice(1);
-						projector.setStopSlice(10);
-						projector.doProjection();
-						ImagePlus projete=projector.getProjection();
-						Rectangle r= new Rectangle();
-						r.setSize(9,brute.getHeight());
-						r.setLocation(p);
-						projete.setRoi(r);
-						//On deplace la fenetre au centre de l'Ã©cran et on l'agrandi
-						projete.show();
-						projete.getWindow().setSize(512,512);
-						//On calcule la dimension du condense
-						dimCondense=new Dimension (9*brute.getStackSize(), brute.getHeight());
-						//On regle l'affichage
-						projete.getCanvas().setScaleToFit(true);
-						ContrastEnhancer contrast= new ContrastEnhancer();
-						contrast.setProcessStack(true);
-						contrast.stretchHistogram(projete, 0.35);
-						projete.getWindow().toFront();
-						//On demande à l'utilisateur de regler la ROI
-						wait=new WaitForUserDialog("Ajust the ROI");
-						wait.show();
-						Roi roiAjustee=projete.getRoi();
-						Rectangle rectangleRoi=roiAjustee.getBounds();
-						//On met en memoire la valeur X de la ROI pour le mettre au meme endroit le tour suivant
-						p.setLocation(rectangleRoi.getX(),0);
-						double largeur=projete.getRoi().getFloatWidth();
-						//On force l'utilisateur à garder la largeur a 9pixel
-						while (largeur!=9){
-							IJ.showMessage("Don't change ROI width");
+				//On trie le tableau par heure d'acquisition
+				ImagePlus[] imagesOuvertesOrdonees=Vue_Shunpo.orderImagesByAcquisitionTime(imagesOuvertesPlus);
+				p.setLocation(imagesOuvertesOrdonees[0].getWidth()/2, 0);
+				
+				for (int i=0 ; i<imagesOuvertesOrdonees.length; i++) {
+					
+					ImagePlus brute=imagesOuvertesOrdonees[i];
+					Boolean ant=Vue_Shunpo.isAnterieur(brute);
+					
+						if (ant!=null && ant){
+							brute.setTitle("Anterior"+i);
+							//On cree la somme des 10 premieres images pour la visualisation
+							ZProjector projector=new ZProjector();
+							projector.setImage(brute);
+							projector.setMethod(ij.plugin.ZProjector.SUM_METHOD);
+							projector.setStartSlice(1);
+							projector.setStopSlice(10);
+							projector.doProjection();
+							ImagePlus projete=projector.getProjection();
+							Rectangle r= new Rectangle();
+							r.setSize(9,brute.getHeight());
+							r.setLocation(p);
 							projete.setRoi(r);
+							//On deplace la fenetre au centre de l'Ã©cran et on l'agrandi
+							projete.show();
+							projete.getWindow().setSize(512,512);
+							//On calcule la dimension du condense
+							dimCondense=new Dimension (9*brute.getStackSize(), brute.getHeight());
+							//On regle l'affichage
+							projete.getCanvas().setScaleToFit(true);
+							ContrastEnhancer contrast= new ContrastEnhancer();
+							contrast.setProcessStack(true);
+							contrast.stretchHistogram(projete, 0.35);
+							projete.getWindow().toFront();
+							//On demande ï¿½ l'utilisateur de regler la ROI
 							wait=new WaitForUserDialog("Ajust the ROI");
 							wait.show();
-							roiAjustee=projete.getRoi();
-							rectangleRoi=roiAjustee.getBounds();
+							Roi roiAjustee=projete.getRoi();
+							Rectangle rectangleRoi=roiAjustee.getBounds();
 							//On met en memoire la valeur X de la ROI pour le mettre au meme endroit le tour suivant
 							p.setLocation(rectangleRoi.getX(),0);
-							largeur=projete.getRoi().getFloatWidth();
-						}
-						//On recupere la Roi et on l'applique dans l'image originale
-						brute.setRoi(roiAjustee); 
-						projete.close();
-						//On genere le condense qu'on met dans l'array
-						ImagePlus condensetemp=condense2(brute,rectangleRoi);
-						condensetemp.setTitle("Ingestion "+(i+1));
-						condenses.add(condensetemp);
-						brute.killRoi();
-						brute.close();
-						
-						}
+							double largeur=projete.getRoi().getFloatWidth();
+							//On force l'utilisateur ï¿½ garder la largeur a 9pixel
+							while (largeur!=9){
+								IJ.showMessage("Don't change ROI width");
+								projete.setRoi(r);
+								wait=new WaitForUserDialog("Ajust the ROI");
+								wait.show();
+								roiAjustee=projete.getRoi();
+								rectangleRoi=roiAjustee.getBounds();
+								//On met en memoire la valeur X de la ROI pour le mettre au meme endroit le tour suivant
+								p.setLocation(rectangleRoi.getX(),0);
+								largeur=projete.getRoi().getFloatWidth();
+							}
+							//On recupere la Roi et on l'applique dans l'image originale
+							brute.setRoi(roiAjustee); 
+							projete.close();
+							//On genere le condense qu'on met dans l'array
+							ImagePlus condensetemp=condense2(brute,rectangleRoi);
+							condensetemp.setTitle("Ingestion "+(i+1));
+							condenses.add(condensetemp);
+							brute.killRoi();
+							brute.close();
+							
+							}
+				}
+				
+				ImagePlus imp2=condenseOutput();
+				//On affiche le rï¿½sultat
+				imp2.show();
+				//On applique la LUT par defaut
+				Vue_Shunpo.setCustomLut(imp2);
+				//On resize l'image
+				Dimension d=new Dimension();
+				d.setSize(imp2.getWidth()*1.75, imp2.getHeight()*1.75);
+				imp2.getWindow().setSize(d);
+				imp2.getCanvas().setScaleToFit(true);
+				IJ.run("Window Level Tool");
+				//On demande d'ajuster le contraste
+				wait=new WaitForUserDialog("Adjust contrast and click OK to Capture");
+				wait.show();
+				//On capture
+				ImagePlus imp3=Modele_Shunpo.captureImage(imp2, 700, 0);
+				imp2.close();
+				//On resize
+				imp3.show();
+				imp3.getCanvas().setScaleToFit(true);
+				//On fait le header DICOM
+				tag+=Modele_Shunpo.genererDicomTagsPartie2(imp2);
+				imp3.setProperty("Info", tag);
+				//On propose de sauver en DICOM
+				IJ.run("myDicom...");
 			}
-			
-			ImagePlus imp2=condenseOutput();
-			//On affiche le résultat
-			imp2.show();
-			//On applique la LUT par defaut
-			Vue_Shunpo.setCustomLut(imp2);
-			//On resize l'image
-			Dimension d=new Dimension();
-			d.setSize(imp2.getWidth()*1.75, imp2.getHeight()*1.75);
-			imp2.getWindow().setSize(d);
-			imp2.getCanvas().setScaleToFit(true);
-			IJ.run("Window Level Tool");
-			//On demande d'ajuster le contraste
-			wait=new WaitForUserDialog("Adjust contrast and click OK to Capture");
-			wait.show();
-			//On capture
-			ImagePlus imp3=Modele_Shunpo.captureImage(imp2, 700, 0);
-			imp2.close();
-			//On resize
-			imp3.show();
-			imp3.getCanvas().setScaleToFit(true);
-			//On fait le header DICOM
-			tag+=Modele_Shunpo.genererDicomTagsPartie2(imp2);
-			imp3.setProperty("Info", tag);
-			//On propose de sauver en DICOM
-			IJ.run("myDicom...");
-			
 			
 	}
 	
@@ -218,7 +218,7 @@ public class Condense_Dynamique  implements PlugIn {
 			//image.show();
 			image.paste();
 			image.killRoi();
-			//On l'ajoute à l'image condensee
+			//On l'ajoute ï¿½ l'image condensee
 			imageCondensee.getStack().setProcessor(image.getProcessor(),i+1);
 			
 		}

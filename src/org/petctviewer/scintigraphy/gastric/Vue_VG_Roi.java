@@ -29,6 +29,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import javax.swing.JButton;
@@ -341,18 +342,21 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 
 		// Recupation de une serie des images
 		String[] imageTitles = WindowManager.getImageTitles();
-		ImagePlus[] imagesOpened = new ImagePlus[imageTitles.length];
+		ArrayList<ImagePlus> imagesOpened = new ArrayList<ImagePlus>();
 		for (int i = 0; i < imageTitles.length; i++) {
 			ImagePlus currentimp = WindowManager.getImage(imageTitles[i]);
 			// On verifie qu'il y a 2 images par stack
 			if (currentimp.getStackSize() != 2) {
-				IJ.log("Error is Image Ant/Post ? if it is Notify Salim.Kanoun@gmail.com");
+				IJ.log("Error Not Image Ant/Post, Discarding, Check your original Images");
 				currentimp.close();
 				continue;
 			}
+			else {
 			// On trie les images
-			imagesOpened[i] = Vue_Shunpo.sortImageAntPost(currentimp);
+			imagesOpened.add(Vue_Shunpo.sortImageAntPost(currentimp)) ;
 			currentimp.close();
+			}
+			
 		}
 
 		// trie les images de la serie
