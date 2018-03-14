@@ -110,7 +110,7 @@ public class CT_Segmentation_GUI extends JFrame {
 		JRadioButton rdbtnSoftTissue = new JRadioButton("Soft Tissue");
 		panel_1.add(rdbtnSoftTissue);
 		
-		JRadioButton rdbtnGrease = new JRadioButton("Grease");
+		JRadioButton rdbtnGrease = new JRadioButton("Fat Tissue");
 		panel_1.add(rdbtnGrease);
 		
 		JRadioButton rdbtnLung = new JRadioButton("Lung");
@@ -120,6 +120,11 @@ public class CT_Segmentation_GUI extends JFrame {
 		panel_1.add(rdbtnOutside);
 		
 		JButton btnGenerateMaskedImage = new JButton("Generate Masked Image");
+		btnGenerateMaskedImage.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				segmentation.makeMaskedImage(0);
+			}
+		});
 		panel.add(btnGenerateMaskedImage);
 	}
 
