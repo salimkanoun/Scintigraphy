@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.tools;
 
+import java.awt.Color;
 import java.io.InputStream;
 import java.util.ArrayList;
 
@@ -37,8 +38,8 @@ public class CT_Segmentation implements PlugIn {
 	
 	public void makeMaskedImage(int label) {
 		//Binarize result to selected wanted tissue
-		String rescaleIntercept = DicomTools.getTag(inputImage, "0028,1052");
-		String rescaleSloap = DicomTools.getTag(inputImage, "0028,1053");
+		String rescaleIntercept = DicomTools.getTag(inputImage, "0028,1052").trim();
+		String rescaleSloap = DicomTools.getTag(inputImage, "0028,1053").trim();
 		System.out.println(rescaleIntercept);
 		System.out.println(rescaleSloap);
 
@@ -48,6 +49,9 @@ public class CT_Segmentation implements PlugIn {
 		}
 		ImageCalculator ic=new ImageCalculator();
 		ImagePlus imp3 = ic.run("Multiply create stack", inputImage, binaryMask);
+		for (int i=1 ; i<=imp3.getImageStackSize() ; i++) {
+			ImageMath.applyMacro(imp3.getImageStack().getProcessor(i), ( "if(v==0) v=(-1000)-("+rescaleIntercept+")/("+rescaleSloap+");" ), false);
+		}
 		imp3.show();
 		//SK Reste à s'occuper du rescale slope et intercept
 		//ValeurFinale du type image*rescaleSloap + Rescale Intercept
@@ -59,36 +63,49 @@ public class CT_Segmentation implements PlugIn {
 			int numberOfSlice=inputImage.getImageStackSize();
 			Double batch10 = numberOfSlice / (double) 10.0;
 			ArrayList <ImagePlus> resultat = new ArrayList<ImagePlus>();
-			
 			@Override
 			protected Void doInBackground() throws Exception {
-				
+				status.setForeground(Color.red);
 				for (int i=0 ; i<=batch10.intValue(); i++) {
 					//Create Substack of 10 Slice to avoir Run out Memory
 					SubstackMaker substackMaker= new SubstackMaker();
 					ImagePlus image = null;
+					
+					//User progress feedback
+					status.setText("Calculating batch "+ (i+1) +" On "+ (batch10.intValue()+1));
+					
 					if (i<batch10.intValue()) {
 						image=substackMaker.makeSubstack(inputImage, ((i*10)+1)+"-"+((i*10)+10));
-					}
-					//if last batch
-					else {
-						if (numberOfSlice - (i*10) != 0) image=substackMaker.makeSubstack(inputImage, ((i*10)+1)+"-"+(numberOfSlice));
+						//Calculate Segmentation
+						ImagePlus resultatTemp = weka.applyClassifier(image);
+						//Put result to Final Stack
+						resultat.add(resultatTemp);
 					}
 					
-					//Calculate Segmentation
-					status.setText("Calculating batch "+((i*10)+1)+"-"+((i*10)+10)+" On "+ numberOfSlice);
-					ImagePlus resultatTemp = weka.applyClassifier(image);
-					//Put result to Final Stack
-					resultat.add(resultatTemp);
-					//Free Memory
+					//if last batch
+					else {
+						if (numberOfSlice - (i*10) != 0) {
+							image=substackMaker.makeSubstack(inputImage, ((i*10)+1)+"-"+(numberOfSlice));
+							//Calculate Segmentation
+							ImagePlus resultatTemp = weka.applyClassifier(image);
+							//Put result to Final Stack
+							resultat.add(resultatTemp);
+						}
+					}
+					
+					//FreeMemory
 					System.gc();
 				}
 				
 				//Merge result to Final Stack
-				Concatenator concatenator =new Concatenator() ;
-				ImagePlus[] resultatTableau=new ImagePlus[resultat.size()];
-				resultat.toArray(resultatTableau);
-				resultatFinal=concatenator.concatenate(resultatTableau, false);
+				if (resultat.size()>1) {
+					Concatenator concatenator =new Concatenator() ;
+					ImagePlus[] resultatTableau=new ImagePlus[resultat.size()];
+					resultat.toArray(resultatTableau);
+					resultatFinal=concatenator.concatenate(resultatTableau, false);
+				}
+				else resultatFinal=resultat.get(0);
+				
 					
 				return null;
 			}
@@ -96,6 +113,8 @@ public class CT_Segmentation implements PlugIn {
 			@Override
 			protected void done(){
 				resultatFinal.show();
+				status.setText("Segmentation done");
+				status.setForeground(Color.green);
 			}
 		};
 		
