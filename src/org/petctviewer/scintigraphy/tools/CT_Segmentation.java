@@ -18,16 +18,17 @@ import trainableSegmentation.WekaSegmentation;
 
 public class CT_Segmentation implements PlugIn {
 
-	WekaSegmentation weka;
-	ImagePlus inputImage;
-	ImagePlus resultatFinal;
+	private WekaSegmentation weka;
+	private ImagePlus inputImage;
+	private ImagePlus resultatFinal;
+	private CT_Segmentation_GUI gui;
 	
 	@Override
 	public void run(String arg0) {
 		weka= new WekaSegmentation(true);
 		InputStream classifier = ClassLoader.getSystemResourceAsStream("classifier5classes3d.model");
 		weka.loadClassifier(classifier);
-		CT_Segmentation_GUI gui= new CT_Segmentation_GUI(this);
+		gui= new CT_Segmentation_GUI(this);
 		gui.pack();
 		gui.setVisible(true);
 	}
@@ -40,8 +41,6 @@ public class CT_Segmentation implements PlugIn {
 		//Binarize result to selected wanted tissue
 		String rescaleIntercept = DicomTools.getTag(inputImage, "0028,1052").trim();
 		String rescaleSloap = DicomTools.getTag(inputImage, "0028,1053").trim();
-		System.out.println(rescaleIntercept);
-		System.out.println(rescaleSloap);
 
 		ImagePlus binaryMask=resultatFinal.duplicate();
 		for (int i=1 ; i<=binaryMask.getImageStackSize() ; i++) {
@@ -115,6 +114,8 @@ public class CT_Segmentation implements PlugIn {
 				resultatFinal.show();
 				status.setText("Segmentation done");
 				status.setForeground(Color.green);
+				//Activate the button to generate the final Image
+				gui.getGenerateMaskButton().setEnabled(true);
 			}
 		};
 		
