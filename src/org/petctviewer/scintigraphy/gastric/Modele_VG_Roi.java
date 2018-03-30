@@ -257,12 +257,14 @@ public class Modele_VG_Roi {
 		int j = (imp.getStackSize() / 2+Vue_VG_Roi.resultatsDynamique.length/4) * 4 + 4;
 		String institutionName = "";
 		if (DicomTools.getTag(imp, "0008,0080") != null) {
-			institutionName = DicomTools.getTag(imp, "0008,0080").substring(1);
+			institutionName = DicomTools.getTag(imp, "0008,0080").trim();
 		}
 		retour[j++] = institutionName;
 		String studyDescription = "";
 		if (DicomTools.getTag(imp, "0008,1030") != null) {
-			studyDescription = DicomTools.getTag(imp, "0008,1030").substring(1);
+			studyDescription = DicomTools.getTag(imp, "0008,1030").trim();
+			//On remplace les virgules car elle cassent la structure du CSV
+			studyDescription = studyDescription.replaceAll(",", "_");
 		}
 		retour[j++] = studyDescription;
 		retour[j++] = "Patient : " + this.patient;
