@@ -14,6 +14,7 @@ public class Start_Debug {
 		vg.run("");
 		//Vue_Plaquettes vue = new Vue_Plaquettes();
 		//vue.run("");
+		
 	}
 	
 }
