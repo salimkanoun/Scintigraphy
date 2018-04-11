@@ -380,8 +380,8 @@ public class Vue_Plaquettes implements PlugIn {
 		this.imp.setTitle(setTitre(this.imp));
 		// On fixe la taille de l'image a 512*512 et on force le zoom pour atteindre
 		// cette dimension
-		win.getCanvas().setSize(new Dimension(512, 512));
-		win.getCanvas().setScaleToFit(true);
+		//win.getCanvas().setSize(new Dimension(512, 512));
+		//win.getCanvas().setScaleToFit(true);
 		// On Pack la fenetre pour la mettre a la preferred Size
 		win.pack();
 		win.setSize(win.getPreferredSize());
