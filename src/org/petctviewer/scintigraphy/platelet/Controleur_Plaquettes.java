@@ -23,6 +23,7 @@ import javax.swing.JTable;
 
 import org.petctviewer.scintigraphy.shunpo.Modele_Shunpo;
 import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
+import org.petctviewer.scintigraphy.view.VueScin;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -119,7 +120,7 @@ public class Controleur_Plaquettes implements ActionListener {
 						//On recommence tout un cycle
 						etat="Spleen Post";
 						laVue.overlay.clear();
-						Vue_Shunpo.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
+						VueScin.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
 						//On ouvre le noveau cycle
 						cycles++;
 						laVue.win.showSlice(laVue.win.getImagePlus().getCurrentSlice() + 1);
@@ -144,7 +145,7 @@ public class Controleur_Plaquettes implements ActionListener {
 					//On fait les etapes Ant 
 					etat="Spleen Ant";
 					laVue.overlay.clear();
-					Vue_Shunpo.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
+					VueScin.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
 					//On note qu'on traitre l'image Ant
 					laVue.win.showSlice(laVue.win.getImagePlus().getCurrentSlice() + 1);
 					
@@ -211,7 +212,7 @@ public class Controleur_Plaquettes implements ActionListener {
 					//On recommence tout un cycle
 					etat="Spleen Post";
 					laVue.overlay.clear();
-					Vue_Shunpo.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
+					VueScin.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
 					laVue.win.showSlice( laVue.win.getImagePlus().getCurrentSlice() + 1);
 					laVue.setInstructions(listeInstructions[0]);
 					if (laVue.leRoi.getRoi((index))!= null) {
@@ -289,6 +290,7 @@ public class Controleur_Plaquettes implements ActionListener {
 			switch(etat) {
 			
 			//SK A FAIRE
+			//TODO
 			
 			}
 		}
@@ -350,6 +352,7 @@ public class Controleur_Plaquettes implements ActionListener {
 
 	/*private void retour() {
 		//A GERER
+		//TODO
 		//etat = etat.previous() ;
 		//index -- ;
 		//laVue.setInstructions(listeInstructions[index]);

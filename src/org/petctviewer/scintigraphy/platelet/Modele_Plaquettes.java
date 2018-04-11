@@ -48,157 +48,166 @@ import ij.measure.ResultsTable;
 import ij.util.DicomTools;
 
 public class Modele_Plaquettes {
-	
-	// Stockage des objets mesures, chaque image est identifee par sa date d'aqcisition
-	// et l'objet contient toutes les mesusres realisee sur image ant(si presente) et post
-	HashMap<Date, MesureImage> mesures=new HashMap<Date,MesureImage>();
-	private Date dateHeureDebut;
-	
 
-	public Modele_Plaquettes() {
-	}
+	// Stockage des objets mesures, chaque image est identifee par sa date
+	// d'aqcisition
+	// et l'objet contient toutes les mesusres realisee sur image ant(si presente)
+	// et post
+	HashMap<Date, MesureImage> mesures = new HashMap<Date, MesureImage>();
+	private Date dateHeureDebut;
 
 	protected void enregisterMesure(String roi, ImagePlus imp) {
-		//Parse de la date et heure d'acquisition
+		// Parse de la date et heure d'acquisition
 		String aquisitionDate = DicomTools.getTag(imp, "0008,0022");
 		String aquisitionTime = DicomTools.getTag(imp, "0008,0032");
-		String dateInput=aquisitionDate.trim()+aquisitionTime.trim();
-		//On enleve les milisec qui sont inconstants
-		int separateurPoint=dateInput.indexOf(".");
-		if (separateurPoint!=-1) dateInput=dateInput.substring(0, separateurPoint);
-		
-        SimpleDateFormat parser = new SimpleDateFormat("yyyyMMddHHmmss");
-        Date dateAcquisition = null;
+		String dateInput = aquisitionDate.trim() + aquisitionTime.trim();
+		// On enleve les milisec qui sont inconstants
+		int separateurPoint = dateInput.indexOf(".");
+		if (separateurPoint != -1)
+			dateInput = dateInput.substring(0, separateurPoint);
+
+		SimpleDateFormat parser = new SimpleDateFormat("yyyyMMddHHmmss");
+		Date dateAcquisition = null;
 		try {
 			dateAcquisition = parser.parse(dateInput);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		// Recupere la somme des coups dans la ROI (integrated Density) et la valeur moyenne de la Roi (mean)
+		// Recupere la somme des coups dans la ROI (integrated Density) et la valeur
+		// moyenne de la Roi (mean)
 		Analyzer.setMeasurement(Measurements.INTEGRATED_DENSITY, true);
 		Analyzer.setMeasurement(Measurements.MEAN, true);
-		Analyzer analyser=new Analyzer(imp);
+		Analyzer analyser = new Analyzer(imp);
 		analyser.measure();
-		ResultsTable density=Analyzer.getResultsTable();
-		double counts=density.getValueAsDouble(ResultsTable.RAW_INTEGRATED_DENSITY, 0);
-		double mean=density.getValueAsDouble(ResultsTable.MEAN, 0);
-		
-		//Si premiere fois qu'on traite l'image on cree l'objet et on l'ajoute dans la hashMap
+		ResultsTable density = Analyzer.getResultsTable();
+		double counts = density.getValueAsDouble(ResultsTable.RAW_INTEGRATED_DENSITY, 0);
+		double mean = density.getValueAsDouble(ResultsTable.MEAN, 0);
+
+		// Si premiere fois qu'on traite l'image on cree l'objet et on l'ajoute dans la
+		// hashMap
 		if (!mesures.containsKey(dateAcquisition)) {
-			MesureImage mesure=new MesureImage(dateAcquisition);
-			// on calcule le delai par rapport a la premiere image et on enregistre la valeur en heure (utile pour le trie et les courbes ensuite)
-			mesure.setDelayFromStart((double) ((dateAcquisition.getTime()-dateHeureDebut.getTime())/(1000*60*60)));
-			mesures.put(dateAcquisition,mesure);
+			MesureImage mesure = new MesureImage(dateAcquisition);
+			// on calcule le delai par rapport a la premiere image et on enregistre la
+			// valeur en heure (utile pour le trie et les courbes ensuite)
+			mesure.setDelayFromStart(
+					(double) ((dateAcquisition.getTime() - dateHeureDebut.getTime()) / (1000 * 60 * 60)));
+			mesures.put(dateAcquisition, mesure);
 		}
-		
-		// On calcul les valeurs et on l'ajoute dans l'objet adHoc
+
+		// On calcule les valeurs et on l'ajoute dans l'objet adHoc
 		if (mesures.containsKey(dateAcquisition)) {
-			
+
 			if (roi.equals("Spleen Post")) {
-				double[] spleen=new double[2];
-				spleen[0]=counts;
-				spleen[1]=mean;
+				double[] spleen = new double[2];
+				spleen[0] = counts;
+				spleen[1] = mean;
 				mesures.get(dateAcquisition).setSpleenValue(spleen);
 			}
-			
+
 			else if (roi.equals("Liver Post")) {
-				double[] liver=new double[2];
-				liver[0]=counts;
-				liver[1]=mean;
-				mesures.get(dateAcquisition).setLiverValue(liver);;
+				double[] liver = new double[2];
+				liver[0] = counts;
+				liver[1] = mean;
+				mesures.get(dateAcquisition).setLiverValue(liver);
+				;
 			}
-			
+
 			else if (roi.equals("Heart Post")) {
-				double[] heart=new double[2];
-				heart[0]=counts;
-				heart[1]=mean;
-				mesures.get(dateAcquisition).setHeartValue(heart);;
+				double[] heart = new double[2];
+				heart[0] = counts;
+				heart[1] = mean;
+				mesures.get(dateAcquisition).setHeartValue(heart);
+				;
 			}
-			
+
 			else if (roi.equals("Spleen Ant")) {
-				double[] spleen=new double[2];
-				spleen[0]=counts;
-				spleen[1]=mean;
+				double[] spleen = new double[2];
+				spleen[0] = counts;
+				spleen[1] = mean;
 				mesures.get(dateAcquisition).setSpleenAntValue(spleen);
 			}
-			
+
 			else if (roi.equals("Liver Ant")) {
-				double[] liver=new double[2];
-				liver[0]=counts;
-				liver[1]=mean;
+				double[] liver = new double[2];
+				liver[0] = counts;
+				liver[1] = mean;
 				mesures.get(dateAcquisition).setliverAntValue(liver);
 			}
-			
+
 			else if (roi.equals("Heart Ant")) {
-				double[] heart=new double[2];
-				heart[0]=counts;
-				heart[1]=mean;
+				double[] heart = new double[2];
+				heart[0] = counts;
+				heart[1] = mean;
 				mesures.get(dateAcquisition).setHeartAntValue(heart);
 			}
-			
+
 		}
-		
+
 		if (Controleur_Plaquettes.showLog) {
 			IJ.log(roi + "counts= " + String.valueOf(counts));
 			IJ.log(roi + "mean= " + String.valueOf(mean));
 		}
 	}
-	
+
 	protected JTable getResults() {
-		//On boule la hashmap pour recuperer les resultats
-		Date[] mapDate=new Date[mesures.size()];
-		mapDate=mesures.keySet().toArray(mapDate);
-		//On trie les donnees par date
+		// On boule la hashmap pour recuperer les resultats
+		Date[] mapDate = new Date[mesures.size()];
+		mapDate = mesures.keySet().toArray(mapDate);
+		// On trie les donnees par date
 		Arrays.sort(mapDate);
-		
-		String[] titreColonne=new String[mesures.size()+1];
-		titreColonne[0]="Time (Hours)";
-		
+
+		String[] titreColonne = new String[mesures.size() + 1];
+		titreColonne[0] = "Time (Hours)";
+
 		String[][] data = null;
-		
+
 		// pour l'arrondi des resultats
 		DecimalFormat decimalFormat = new DecimalFormat("#.##");
-		//DateFormat dateFormat=new SimpleDateFormat("HH:mm");
-		
+		// DateFormat dateFormat=new SimpleDateFormat("HH:mm");
+
 		// On traite chaque acquisition
-		for (int i=0 ; i<mesures.size(); i++) {
-			//On ajoute le temps de mesure dans les titre de colonne
-			int tempsHeures=(int) Math.round(mesures.get(mapDate[i]).getDelayFromStart());
-			titreColonne[i+1]=String.valueOf(tempsHeures);
-			HashMap<String, Double> resultsImage =mesures.get(mapDate[i]).calculateandGetResults();
-			
-			//On set les data avec sa taille a la premiere boucle
-			if (i==0) {
-				data=new String[resultsImage.size()][mesures.size()+1]; 
+		for (int i = 0; i < mesures.size(); i++) {
+			// On ajoute le temps de mesure dans les titre de colonne
+			int tempsHeures = (int) Math.round(mesures.get(mapDate[i]).getDelayFromStart());
+			titreColonne[i + 1] = String.valueOf(tempsHeures);
+			HashMap<String, Double> resultsImage = mesures.get(mapDate[i]).calculateandGetResults();
+
+			// On set les data avec sa taille a la premiere boucle
+			if (i == 0) {
+				data = new String[resultsImage.size()][mesures.size() + 1];
 			}
-			
-			String[] resultsLabel=new String[resultsImage.size()];
-			//on traite touts les resultats d'une acquisition
-			resultsLabel=resultsImage.keySet().toArray(resultsLabel);
-			for (int j=0; j<resultsLabel.length; j++){
-				
-				if (i==0) data[j][0]=resultsLabel[j];
+
+			String[] resultsLabel = new String[resultsImage.size()];
+			// on traite touts les resultats d'une acquisition
+			resultsLabel = resultsImage.keySet().toArray(resultsLabel);
+			for (int j = 0; j < resultsLabel.length; j++) {
+
+				if (i == 0)
+					data[j][0] = resultsLabel[j];
 				double valeur;
-				//On file les data ligne par ligne pour chaque colonne
-				if (resultsLabel[j].equals("Corrected SpleenPosterior")){
-					//Si coup corrige on divise par nombre de coups iniitiaux de la 1ere image
-					double[] spleenInit=mesures.get(dateHeureDebut).getSpleenValue();
-					valeur =resultsImage.get(resultsLabel[j])/spleenInit[0];
-				}
-				else valeur =resultsImage.get(resultsLabel[j]);
-				
-				data[j][i+1]=decimalFormat.format(valeur);
-				
+				// On file les data ligne par ligne pour chaque colonne
+				if (resultsLabel[j].equals("Corrected SpleenPosterior")) {
+					// Si coup corrige on divise par nombre de coups iniitiaux de la 1ere image
+					double[] spleenInit = mesures.get(dateHeureDebut).getSpleenValue();
+					valeur = resultsImage.get(resultsLabel[j]) / spleenInit[0];
+				} else
+					valeur = resultsImage.get(resultsLabel[j]);
+
+				data[j][i + 1] = decimalFormat.format(valeur);
+
 			}
-			
+
 		}
-		
-		JTable table =new JTable(data, titreColonne);
+
+		JTable table = new JTable(data, titreColonne);
 		return table;
-		
+
 	}
+
 	/**
-	 * collecte les valeurs, appelle la methode de creation de courbes et renvoie les courbes dans un tableau d'ImagePlus
+	 * collecte les valeurs, appelle la methode de creation de courbes et renvoie
+	 * les courbes dans un tableau d'ImagePlus
+	 * 
 	 * @param table
 	 * @return
 	 */
@@ -206,57 +215,61 @@ public class Modele_Plaquettes {
 		XYSeriesCollection datasetPost = new XYSeriesCollection();
 		XYSeriesCollection datasetGM = new XYSeriesCollection();
 		XYSeriesCollection datasetJ0Ratio = new XYSeriesCollection();
-		
-		for (int i=0; i<table.getRowCount(); i++) {
-			String name=table.getValueAt(i, 0).toString();
-			//Cree une courbe avec son titre
+
+		for (int i = 0; i < table.getRowCount(); i++) {
+			String name = table.getValueAt(i, 0).toString();
+			// Cree une courbe avec son titre
 			XYSeries courbe = new XYSeries(name);
-			
-			//On ajoute les valeurs
+
+			// On ajoute les valeurs
 			for (int j = 1; j < table.getColumnCount(); j++) {
-				double x=Double.parseDouble(table.getColumnName(j).toString().replaceAll(",", "."));
-				double y=Double.parseDouble(table.getValueAt(i, j).toString().replaceAll(",", "."));
-				courbe.add( x, y);
+				double x = Double.parseDouble(table.getColumnName(j).toString().replaceAll(",", "."));
+				double y = Double.parseDouble(table.getValueAt(i, j).toString().replaceAll(",", "."));
+				courbe.add(x, y);
 			}
-			
+
 			if (name.contains(" Post")) {
 				datasetPost.addSeries(courbe);
-			}
-			else if (name.contains(" GM ")) {
+			} else if (name.contains(" GM ")) {
 				datasetGM.addSeries(courbe);
-			}
-			else if (name.contains("Corrected")) {
+			} else if (name.contains("Corrected")) {
 				datasetJ0Ratio.addSeries(courbe);
-				
+
 			}
 		}
 		IJ.log("avant list ImagePlus");
-		//On cree le tableau d'ImagePlus qui recoit les courbes
-		List<ImagePlus> courbes=new ArrayList<ImagePlus>();
-		if (datasetPost.getSeriesCount()!=0) courbes.add(makeGraph(datasetPost, "Posterior"));
-		if (datasetJ0Ratio.getSeriesCount()!=0) courbes.add(makeGraph(datasetJ0Ratio, "J0 Ratio"));
-		//Si on est en ANT/Post On ajoute la courbe moyenne Geometrique
-		if (datasetGM.getSeriesCount()!=0) courbes.add(makeGraph(datasetGM, "Geometrical Mean"));
-		
-		//On passe la liste en tableau
-		ImagePlus[] courbesTableau=new ImagePlus[courbes.size()];
+		// On cree le tableau d'ImagePlus qui recoit les courbes
+		List<ImagePlus> courbes = new ArrayList<ImagePlus>();
+		if (datasetPost.getSeriesCount() != 0)
+			courbes.add(makeGraph(datasetPost, "Posterior"));
+		if (datasetJ0Ratio.getSeriesCount() != 0)
+			courbes.add(makeGraph(datasetJ0Ratio, "J0 Ratio"));
+		// Si on est en ANT/Post On ajoute la courbe moyenne Geometrique
+		if (datasetGM.getSeriesCount() != 0)
+			courbes.add(makeGraph(datasetGM, "Geometrical Mean"));
+
+		// On passe la liste en tableau
+		ImagePlus[] courbesTableau = new ImagePlus[courbes.size()];
 		courbes.toArray(courbesTableau);
 		IJ.log(String.valueOf(courbesTableau.length));
-		
+
 		return courbesTableau;
 	}
+
 	/**
-	 * Cree les courbes en une image de 640*512 à partir d'un dataset de valeur (un ou plusieurs courbes)
+	 * Cree les courbes en une image de 640*512 à partir d'un dataset de valeur (un
+	 * ou plusieurs courbes)
+	 * 
 	 * @param dataset
 	 * @param title
 	 * @return
 	 */
 	private ImagePlus makeGraph(XYSeriesCollection dataset, String title) {
-		JFreeChart xylineChart = ChartFactory.createXYLineChart(title, "Hours", "Value",
-				dataset, PlotOrientation.VERTICAL, true, true, true);
+		JFreeChart xylineChart = ChartFactory.createXYLineChart(title, "Hours", "Value", dataset,
+				PlotOrientation.VERTICAL, true, true, true);
 
 		XYPlot plot = (XYPlot) xylineChart.getPlot();
-		
+
 		// Background
 		plot.setBackgroundPaint(Color.WHITE);
 
@@ -270,7 +283,7 @@ public class Modele_Plaquettes {
 		lineAndShapeRenderer.setDefaultLegendTextFont(new Font("", Font.BOLD, 16));
 		// XAxis
 		NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
-		domainAxis.setRange(dataset.getSeries(0).getMinX() - 5 , dataset.getSeries(0).getMaxX() + 5);
+		domainAxis.setRange(dataset.getSeries(0).getMinX() - 5, dataset.getSeries(0).getMaxX() + 5);
 		domainAxis.setTickUnit(new NumberTickUnit(24.00));
 		domainAxis.setTickMarkStroke(new BasicStroke(2.5F));
 		domainAxis.setLabelFont(new Font("", Font.BOLD, 16));
@@ -288,10 +301,9 @@ public class Modele_Plaquettes {
 		ImagePlus courbe = new ImagePlus(title, buff);
 		return courbe;
 	}
-	
-	public void setDateDebutHeure(Date dateDebutHeure) {
-		this.dateHeureDebut=dateDebutHeure;
-	}
 
+	public void setDateDebutHeure(Date dateDebutHeure) {
+		this.dateHeureDebut = dateDebutHeure;
+	}
 
 }

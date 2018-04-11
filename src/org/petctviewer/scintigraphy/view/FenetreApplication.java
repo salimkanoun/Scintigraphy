@@ -1,0 +1,138 @@
+package org.petctviewer.scintigraphy.view;
+
+import ij.ImagePlus;
+import ij.gui.ImageCanvas;
+import ij.gui.Overlay;
+import ij.gui.StackWindow;
+import ij.util.DicomTools;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.Label;
+import java.awt.Panel;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
+import javax.swing.JPanel;
+
+public class FenetreApplication
+  extends StackWindow
+{
+  private static final long serialVersionUID = -6280620624574294247L;
+  private Label lbl_instructions;
+  private Button btn_quitter;
+  private Button btn_drawROI;
+  private Button btn_contrast;
+  private Button btn_showlog;
+  private Button btn_precedent;
+  private Button btn_suivant;
+  private Button btn_capture;
+  private VueScin vue;
+  
+  public FenetreApplication(ImagePlus imp, VueScin vue)
+  {
+    super(imp, new ImageCanvas(imp));
+    
+    this.vue = vue;
+    
+    setTitle(generateTitle());
+    this.imp.setTitle(generateTitle());
+    
+    JPanel panel = new JPanel();
+    panel.setLayout(new FlowLayout());
+    
+    Panel gauche = new Panel();
+    gauche.setLayout(new FlowLayout());
+    
+    initButtons();
+    
+    Panel btns_glob = new Panel();
+    btns_glob.setLayout(new GridLayout(1, 3));
+    btns_glob.add(this.btn_quitter);
+    btns_glob.add(this.btn_drawROI);
+    btns_glob.add(this.btn_contrast);
+    gauche.add(btns_glob);
+    
+    Panel instru = new Panel();
+    instru.setLayout(new GridLayout(2, 1));
+    this.lbl_instructions = new Label();
+    this.lbl_instructions.setBackground(Color.LIGHT_GRAY);
+    instru.add(this.lbl_instructions);
+    
+    Panel btns_instru = new Panel();
+    btns_instru.setLayout(new GridLayout(1, 3));
+    btns_instru.add(this.btn_showlog);
+    btns_instru.add(this.btn_precedent);
+    this.btn_precedent.setEnabled(false);
+    btns_instru.add(this.btn_suivant);
+    
+    instru.add(btns_instru);
+    gauche.add(instru);
+    panel.add(gauche);
+    add(panel);
+    
+    pack();
+    
+    Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+    Point loc = getLocation();
+    Dimension size = getSize();
+    if (loc.y + size.height > screen.height) {
+      getCanvas().zoomOut(0, 0);
+    }
+    
+	// image adaptee dim fenetre
+	// win.getCanvas().setScaleToFit(true);
+	// On Pack la fenetre pour la mettre a la preferred Size
+	this.pack();
+	this.setSize(this.getPreferredSize());
+	// On met au premier plan au centre de l'ecran
+	this.setLocationRelativeTo(null);
+	this.toFront();
+	
+	//affiche l'overlay D/G
+	this.setOverlay();
+  }
+  
+  ///affiche l'overlay Droite/Gauche
+  private void setOverlay() {
+		// On initialise l'overlay avec les label DG
+		Overlay overlay = VueScin.initOverlay(this.imp);
+		VueScin.setOverlayDG(overlay, this.imp);
+		// On met sur l'image
+		this.getImagePlus().setOverlay(overlay);
+  }
+  
+  private void initButtons()
+  {
+    this.btn_capture = new Button("Capture");
+    this.btn_contrast = new Button("Contrast");
+    this.btn_drawROI = new Button("Draw ROI");
+    this.btn_precedent = new Button("Previous");
+    this.btn_suivant = new Button("Next");
+    this.btn_contrast = new Button("Contrast");
+    this.btn_showlog = new Button("Show Log");
+    this.btn_quitter = new Button("Quit");
+  }
+  
+  private String generateTitle()
+  {
+    String tagSerie = DicomTools.getTag(this.imp, "0008,103E");
+    String tagNom = DicomTools.getTag(this.imp, "0010,0010");
+    String titre = this.vue.getExamType() + " - ";
+    titre = titre + tagNom + " - " + tagSerie;
+    return titre;
+  }
+  
+  public void windowClosing(WindowEvent we)
+  {
+    close();
+    System.gc();
+  }
+  
+  public void setInstructions(String inst) {
+	 this.lbl_instructions.setText(inst);  
+  }
+  
+}

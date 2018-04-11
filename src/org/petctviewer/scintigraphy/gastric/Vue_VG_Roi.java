@@ -44,6 +44,7 @@ import javax.swing.border.MatteBorder;
 import javax.swing.table.DefaultTableModel;
 
 import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
+import org.petctviewer.scintigraphy.view.VueScin;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -353,14 +354,14 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 			}
 			else {
 			// On trie les images
-			imagesOpened.add(Vue_Shunpo.sortImageAntPost(currentimp)) ;
+			imagesOpened.add(VueScin.sortImageAntPost(currentimp)) ;
 			currentimp.close();
 			}
 			
 		}
 
 		// trie les images de la serie
-		ImagePlus[] imagesOrdred = Vue_Shunpo.orderImagesByAcquisitionTime(imagesOpened);
+		ImagePlus[] imagesOrdred = VueScin.orderImagesByAcquisitionTime(imagesOpened);
 		Concatenator enchainer = new Concatenator();
 
 		// enchaine les images
@@ -374,7 +375,7 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 		String tag = DicomTools.getTag(imp, "0010,0010");
 		titre = titre + tag + " - " + serie;
 		// met la LUT preferee si existe
-		Vue_Shunpo.setCustomLut(imp);
+		VueScin.setCustomLut(imp);
 		// Son cree une fenetre pour la pile d'images
 		windowstack = new CustomStackWindow(imp);
 		// On demande la 1ere image du stack
@@ -383,8 +384,8 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 		// On change les titres
 		imp.setTitle(titre);
 		windowstack.setTitle(titre);
-		this.overlay=Vue_Shunpo.initOverlay(imp);
-		Vue_Shunpo.setOverlayDG(overlay, imp);
+		this.overlay=VueScin.initOverlay(imp);
+		VueScin.setOverlayDG(overlay, imp);
 		windowstack.getImagePlus().setOverlay(overlay);
 		// On set la dimension de l'image
 		windowstack.getCanvas().setSize(new Dimension(512,512));
