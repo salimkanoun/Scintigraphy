@@ -34,24 +34,28 @@ import ij.process.ImageProcessor;
 public class Controleur_Plaquettes implements ActionListener {
 
 	private Vue_Plaquettes laVue;
-
-	private enum Etats {
-		SPLEEN_POST, SPLEEN_ANT, LIVER_POST, LIVER_ANT, HEART_POST, HEART_ANT, FIN
-	}
-
-	private Etats etat;
 	private Modele_Plaquettes leModele;
-	private int index = 0;
+
 	protected static boolean showLog;
 	private String tagCapture;
-	private int cycles = 0;
-	private String[] listeInstructions = { "Delimit the Spleen", "Delimit the liver", "Delimit the heart", "Validate" };
+
+	private int etape;
+	private int cycle;
+	private boolean modeAnt;
+	private boolean fini;	
+	private String[] organes;
+	private int indexRoi;
 
 	// Sert au restart
-	protected Controleur_Plaquettes(Vue_Plaquettes vue, Modele_Plaquettes leModele) {
+	protected Controleur_Plaquettes(Vue_Plaquettes vue, Modele_Plaquettes leModele, String[] organes) {
 		this.laVue = vue;
 		this.leModele = leModele;
-		this.etat = Etats.SPLEEN_POST;
+
+		this.etape = 0;
+		this.indexRoi = 0;
+		this.cycle = 0;
+		this.modeAnt = false;
+		this.organes = organes;
 	}
 
 	@Override
@@ -85,12 +89,7 @@ public class Controleur_Plaquettes implements ActionListener {
 		}
 
 		if (b == laVue.lesBoutons.get("Precedent")) {
-			switch (etat) {
-
-			// SK A FAIRE
-			// TODO
-
-			}
+			//TODO
 		}
 
 		if (b == laVue.lesBoutons.get("Draw ROI")) {
@@ -127,174 +126,122 @@ public class Controleur_Plaquettes implements ActionListener {
 
 	}
 
-	private void clicSuivant() {
-		if (etat == Etats.SPLEEN_POST) {
+	private void clicSuivant() {		
+		//ajout du tag si il n'est pas encore présent
+		if (tagCapture == null) {
 			tagCapture = Modele_Shunpo.genererDicomTagsPartie1(laVue.win.getImagePlus(), "Platelet");
-			this.saveRoi("Spleen Post");
-			this.setInstruction(1);
-			etat = Etats.LIVER_POST;
 		}
 
-		else if (etat == Etats.LIVER_POST) {
-			this.saveRoi("Liver Post");
-			this.setInstruction(2);
-			this.displayRois();
-			etat = Etats.HEART_POST;
+		//création du nom du ROI selon la prise post ou ant
+		String nomRoi = this.organes[this.etape];
+		if(this.modeAnt) {
+			nomRoi += " Ant";
+		}else {
+			nomRoi += " Post";
 		}
+		
+		//sauvegarde du ROI
+		this.saveRoi(nomRoi);
+		
+		//affichage des ROI précédents
+		this.displayRois();
 
-		else if (etat == Etats.HEART_POST) {
-			this.saveRoi("Heart Post");
-
-			// Si on traite une seule vue
-			if (!laVue.antPost) {
-				// Tant qu'on est pas sur la derniÃ¨re image on revient sur spleen
-				if ((cycles + 1) < laVue.nombreAcquisitions) {
-					// On recommence tout un cycle
-					etat = Etats.SPLEEN_POST;
-					cycles++;
-					
-					//on affiche la prochaine image
-					this.nextSlice();
-					this.setInstruction(0);
-					this.displayRois();
-				} else {
-					// Si on est sur la derniere image c'est fini
-					etat = Etats.FIN;
-				}
+		this.etape++;
+		
+		//Changement d'étape et/ou de cycle
+		if(this.etape >= this.organes.length) {
+			this.etape = 0;
+			this.nextSlice();
+			this.modeAnt = this.laVue.antPost && !this.modeAnt;
+			
+			if(!this.modeAnt) {
+				this.cycle++;
 			}
-			// Si imageAntPost on continue de traiter l'imageAnt dans le meme cycle avant de
-			// l'incrementer
-			else {
-				// On fait les etapes Ant				
-				this.nextSlice();
-				this.displayRois();
-				this.setInstruction(0);
-				
-				etat = Etats.SPLEEN_ANT;
+			
+			//si il y a le bon nombre nombre d'image
+			if(laVue.win.getImagePlus().getImageStackSize()  * this.organes.length == this.laVue.roiManager.getRoisAsArray().length) {
+				this.fin();
 			}
-
 		}
+		
+		this.laVue.setInstructions("Delimit the " + this.organes[this.etape]);
+	}
+	
+	private void fin() {
+		ImagePlus capture = Modele_Shunpo.captureImage(laVue.win.getImagePlus(), 512, 512);
+		// On resize le canvas pour etre a la meme taille que les courbes
+		ImageProcessor ip = capture.getProcessor();
+		CanvasResizer canvas = new CanvasResizer();
+		ImageProcessor iptemp = canvas.expandImage(ip, 640, 512, (640 - 512) / 2, 0);
+		capture.setProcessor(iptemp);
+		IJ.log("avant get results");
+		JTable tableResultats = leModele.getResults();
+		IJ.log("apres get results");
+		ImagePlus[] courbes = leModele.createDataset(tableResultats);
 
-		else if (etat == Etats.SPLEEN_ANT) {
-			etat = Etats.LIVER_ANT;
-
-			this.saveRoi("Spleen Ant");
-			this.displayRois();
-			this.setInstruction(1);
+		ImageStack stack = new ImageStack(640, 512);
+		stack.addSlice(capture.getProcessor());
+		for (int i = 0; i < courbes.length; i++) {
+			stack.addSlice(courbes[i].getProcessor());
 		}
+		IJ.log("Apres add image stack");
 
-		else if (etat == Etats.LIVER_ANT) {
-			etat = Etats.HEART_ANT;
+		ImagePlus courbesStackImagePlus = new ImagePlus();
+		courbesStackImagePlus.setStack(stack);
 
-			this.saveRoi("Liver Ant");
-			this.setInstruction(2);
-			this.displayRois();
-		}
-
-		else if (etat == Etats.HEART_ANT) {
-
-			this.saveRoi("Heart Ant");
-
-			if ((cycles + 1) < laVue.nombreAcquisitions) {
-				// On recommence tout un cycle
-				etat = Etats.SPLEEN_POST;
-				cycles++;
-				
-				this.nextSlice();
-				this.setInstruction(0);
-				this.displayRois();
-			} else {
-				// On a Fini
-				etat = Etats.FIN;
-				this.setInstruction(3);
-			}
-
-		}
-
-		else if (etat == Etats.FIN) {
-			ImagePlus capture = Modele_Shunpo.captureImage(laVue.win.getImagePlus(), 512, 512);
-			// On resize le canvas pour etre a la meme taille que les courbes
-			ImageProcessor ip = capture.getProcessor();
-			CanvasResizer canvas = new CanvasResizer();
-			ImageProcessor iptemp = canvas.expandImage(ip, 640, 512, (640 - 512) / 2, 0);
-			capture.setProcessor(iptemp);
-			IJ.log("avant get results");
-			JTable tableResultats = leModele.getResults();
-			IJ.log("apres get results");
-			ImagePlus[] courbes = leModele.createDataset(tableResultats);
-
-			ImageStack stack = new ImageStack(640, 512);
-			stack.addSlice(capture.getProcessor());
-			for (int i = 0; i < courbes.length; i++) {
-				stack.addSlice(courbes[i].getProcessor());
-			}
-			IJ.log("Apres add image stack");
-
-			ImagePlus courbesStackImagePlus = new ImagePlus();
-			courbesStackImagePlus.setStack(stack);
-
-			ImagePlus courbesFinale = new ImagePlus();
-			IJ.log("Avan Montage");
-			MontageMaker mm = new MontageMaker();
-			courbesFinale = mm.makeMontage2(courbesStackImagePlus, 2, 2, 1, 1, courbesStackImagePlus.getStackSize(), 1,
-					0, false);
-			IJ.log("apres Montage");
-			laVue.UIResultats(courbesFinale, tableResultats);
-		}
+		ImagePlus courbesFinale = new ImagePlus();
+		IJ.log("Avan Montage");
+		MontageMaker mm = new MontageMaker();
+		courbesFinale = mm.makeMontage2(courbesStackImagePlus, 2, 2, 1, 1, courbesStackImagePlus.getStackSize(), 1,
+				0, false);
+		IJ.log("apres Montage");
+		laVue.UIResultats(courbesFinale, tableResultats);
 	}
 
 	private void addRoi(String nom) {
 		// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 		// pour eviter les doublons
-		if (laVue.leRoi.getRoi(index) == null) {
-			laVue.leRoi.add(laVue.win.getImagePlus(), laVue.win.getImagePlus().getRoi(), index);
-			laVue.leRoi.rename(index, nom);
+		if (laVue.roiManager.getRoi(indexRoi) == null) {
+			laVue.roiManager.add(laVue.win.getImagePlus(), laVue.win.getImagePlus().getRoi(), indexRoi);
+			laVue.roiManager.rename(indexRoi, nom);
 		}
 		// Si elle existe on fait un update. Si elle a é– ï¿½ perdue dans l'imagePlus on
 		// revient a la ROI sauvegardee et on notifie l'utilisateur
 		else {
 			if (laVue.win.getImagePlus().getRoi() == null) {
 				IJ.showMessage("Roi lost, restoring previous saved ROI");
-				laVue.leRoi.select(index);
+				laVue.roiManager.select(indexRoi);
 			}
-			laVue.leRoi.runCommand("Update");
+			laVue.roiManager.runCommand("Update");
 		}
-		index++;
+		indexRoi++;
 	}
 
 	private void saveRoi(String nomRoi) {
-		addRoi(nomRoi + cycles);
+		addRoi(nomRoi + this.cycle);
 		leModele.enregisterMesure(nomRoi, laVue.win.getImagePlus());
 		// index -1 car add roi incremente l'index de 1
-		laVue.overlay.add(laVue.leRoi.getRoi(index - 1));
+		laVue.overlay.add(laVue.roiManager.getRoi(this.indexRoi - 1));
 		laVue.win.getImagePlus().killRoi();
 	}
 
 	private void displayRois() {
 		// Si la ROI suivante est deja presente on l'affiche
-		if (laVue.leRoi.getRoi((index)) != null) {
-			laVue.leRoi.select(index);
-		}		
+		if (laVue.roiManager.getRoi(this.indexRoi) != null) {
+			laVue.roiManager.select(this.indexRoi);
+			return;
+		}
+		
 		// Si on n'est pas dans le premier cycle on reaffiche les Roi preexistantes
-		else if (cycles > 0) {
-			//TODO modifier 3 en nb zones
-			laVue.win.getImagePlus().setRoi((Roi) laVue.leRoi.getRoi(index - 3).clone());
+		if (this.laVue.roiManager.getRoisAsArray().length >= this.organes.length){
+			laVue.win.getImagePlus().setRoi((Roi) laVue.roiManager.getRoi(this.indexRoi - this.organes.length).clone());
 		}
 	}
-	
+
 	private void nextSlice() {
 		laVue.overlay.clear();
 		VueScin.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
 		laVue.win.showSlice(laVue.win.getImagePlus().getCurrentSlice() + 1);
 	}
 
-	private void setInstruction(int nInstruction) {
-		laVue.setInstructions(listeInstructions[nInstruction]);
-	}
-
-	/*
-	 * private void retour() { //A GERER //TODO //etat = etat.previous() ; //index
-	 * -- ; //laVue.setInstructions(listeInstructions[index]);
-	 * //laVue.leRoi.select(index); }
-	 */
 }

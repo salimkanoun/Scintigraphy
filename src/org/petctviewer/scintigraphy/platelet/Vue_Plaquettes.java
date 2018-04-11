@@ -68,13 +68,13 @@ public class Vue_Plaquettes implements PlugIn {
 
 	private Modele_Plaquettes leModele = new Modele_Plaquettes();
 
-	private Controleur_Plaquettes leControleur = new Controleur_Plaquettes(this, leModele);
+	private Controleur_Plaquettes leControleur;
 
 	protected Overlay overlay;
 
 	protected Label Csv = new Label();
 
-	protected RoiManager leRoi;
+	protected RoiManager roiManager;
 
 	protected Label instructions = new Label();
 
@@ -89,12 +89,17 @@ public class Vue_Plaquettes implements PlugIn {
 
 	// Nombre de series disponibles a l'ouverture
 	protected int nombreAcquisitions;
+	
+	public Vue_Plaquettes() {
+		String[] organes = {"Spleen", "Liver", "Heart"};
+		this.leControleur =  new Controleur_Plaquettes(this, leModele, organes);
+	}
 
 	@Override
 	public void run(String arg) {
 		// Initialisation des differents attributs
 		RoiManager rm = new RoiManager();
-		leRoi = rm;
+		roiManager = rm;
 		instructions.setBackground(Color.LIGHT_GRAY);
 		initBoutons();
 		addEcouteurs();
@@ -277,7 +282,7 @@ public class Vue_Plaquettes implements PlugIn {
 		@Override
 		public void windowClosing(WindowEvent we) {
 			// On ferme le ROI manager en plus de la fenetre
-			leRoi.close();
+			roiManager.close();
 			win.close();
 			System.gc();
 		}
@@ -424,10 +429,9 @@ public class Vue_Plaquettes implements PlugIn {
 
 	// routine de fermeture du programme
 	protected void end(String dialog) {
-		leRoi.close();
+		roiManager.close();
 		win.dispose();
 		System.gc();
-
 	}
 
 } // fin
