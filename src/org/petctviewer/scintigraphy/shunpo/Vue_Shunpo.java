@@ -42,7 +42,7 @@ import java.util.Map.Entry;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.lang.StringUtils;
-import org.petctviewer.scintigraphy.view.VueScin;
+import org.petctviewer.scintigraphy.scin.view.VueScin;
 
 import ij.IJ;
 import ij.ImagePlus;

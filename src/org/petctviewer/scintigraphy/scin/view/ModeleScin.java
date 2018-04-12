@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.view;
+package org.petctviewer.scintigraphy.scin.view;
 
 import ij.IJ;
 import ij.ImagePlus;

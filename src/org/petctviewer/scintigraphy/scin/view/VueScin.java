@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.view;
+package org.petctviewer.scintigraphy.scin.view;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -9,6 +9,7 @@ import ij.gui.Overlay;
 import ij.gui.TextRoi;
 import ij.plugin.Concatenator;
 import ij.plugin.PlugIn;
+import ij.plugin.frame.RoiManager;
 import ij.process.LUT;
 import ij.util.DicomTools;
 
@@ -25,19 +26,30 @@ import java.util.Date;
 import javax.swing.JTable;
 
 import org.apache.commons.lang.StringUtils;
+import org.petctviewer.scintigraphy.scin.controleur.ControleurScin;
 import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
 
 public abstract class VueScin implements PlugIn {
 	private String examType;
+	
 	protected FenetreApplication fen_application;
 	private ModeleScin leModele;
 	private ControleurScin leControleur;
+	
 	private ImagePlus imp;
-	protected Boolean antPost = Boolean.valueOf(false);
+	private Boolean antPost = Boolean.valueOf(false);
 	protected int nombreAcquisitions;
+	
+	private RoiManager roiManager;
+
+	private Overlay overlay;
 
 	public VueScin(String examType) {
 		this.examType = examType;
+	}
+	
+	public void setControleur(ControleurScin ctrl) {
+		this.leControleur = ctrl;
 	}
 
 	public void run(String arg) {
@@ -652,7 +664,7 @@ public abstract class VueScin implements PlugIn {
 		}
 	}
 
-	protected void end() {
+	public void end() {
 		this.fen_application.dispose();
 		System.gc();
 	}
@@ -668,4 +680,21 @@ public abstract class VueScin implements PlugIn {
 	public String getExamType() {
 		return this.examType;
 	}
+
+	public FenetreApplication getFen_application() {
+		return fen_application;
+	}
+
+	public boolean isAntPost() {
+		return antPost;
+	}
+	
+	public RoiManager getRoiManager() {
+		return this.roiManager;
+	}
+	
+	public Overlay getOverlay() {
+		return this.overlay;
+	}
+
 }

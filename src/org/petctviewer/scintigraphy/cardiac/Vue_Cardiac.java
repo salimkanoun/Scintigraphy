@@ -1,9 +1,9 @@
 package org.petctviewer.scintigraphy.cardiac;
 import java.util.ArrayList;
 
+import org.petctviewer.scintigraphy.scin.view.FenetreApplication;
+import org.petctviewer.scintigraphy.scin.view.VueScin;
 import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
-import org.petctviewer.scintigraphy.view.FenetreApplication;
-import org.petctviewer.scintigraphy.view.VueScin;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -16,6 +16,9 @@ public class Vue_Cardiac extends VueScin{
 
 	public Vue_Cardiac() {
 		super("Cardiac");
+		String[] organes = {};
+		Controleur_Cardiac ctrl = new Controleur_Cardiac(this, null, organes);
+		this.setControleur(ctrl);
 	}
 
 	@Override

@@ -19,8 +19,10 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JTable;
+
+import org.petctviewer.scintigraphy.scin.view.VueScin;
 import org.petctviewer.scintigraphy.shunpo.Modele_Shunpo;
-import org.petctviewer.scintigraphy.view.VueScin;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -39,7 +41,6 @@ public class Controleur_Plaquettes implements ActionListener {
 	protected static boolean showLog;
 	private String tagCapture;
 
-	private boolean modeAnt;
 	private String[] organes;
 	private int indexRoi;
 
@@ -49,8 +50,7 @@ public class Controleur_Plaquettes implements ActionListener {
 		this.leModele = leModele;
 
 		this.indexRoi = 0;
-
-		this.modeAnt = false;
+		
 		this.organes = organes;
 	}
 
@@ -122,17 +122,12 @@ public class Controleur_Plaquettes implements ActionListener {
 	}
 
 	private void clicPrecedent() {
+		// sauvegarde du ROI courant
+		this.saveRoi();
+
 		if (this.indexRoi > 0) {
-			this.indexRoi--;
-			this.laVue.roiManager.select(this.indexRoi);
-
-			int nOrganeCourant = indexRoi % this.organes.length;
-			this.laVue.setInstructions("Delimit the " + this.organes[nOrganeCourant]);
-
-			this.clearOverlay();
-
-			this.laVue.roiManager.select(indexRoi);
-			this.laVue.win.getImagePlus().setRoi((Roi) laVue.roiManager.getRoi(this.indexRoi).clone());
+			indexRoi--;
+			this.preparerRoi();
 		}
 	}
 
@@ -142,38 +137,11 @@ public class Controleur_Plaquettes implements ActionListener {
 			tagCapture = Modele_Shunpo.genererDicomTagsPartie1(laVue.win.getImagePlus(), "Platelet");
 		}
 
-		int nOrganeCourant = indexRoi % this.organes.length;
-		this.laVue.setInstructions("Delimit the " + this.organes[(nOrganeCourant + 1) % this.organes.length]);
-
-		// création du nom du ROI selon la prise post ou ant
-		String nomRoi = this.organes[nOrganeCourant];
-		if (this.modeAnt) {
-			nomRoi += " Ant";
-		} else {
-			nomRoi += " Post";
-		}
-
-		// sauvegarde du ROI
-		this.saveRoi(nomRoi);
-
-		// copie de la roi de ce meme organe lors du cycle precedent
-		this.getOrganRoi();
-
-		// Changement d'étape et/ou de cycle
-		if (nOrganeCourant >= this.organes.length - 1) {
-			this.nextSlice();
-
-			// passe en mode ant
-			this.modeAnt = this.laVue.antPost && !this.modeAnt;
-
-			// si il y a le bon nombre nombre d'image
-			if (laVue.win.getImagePlus().getImageStackSize()
-					* this.organes.length == this.laVue.roiManager.getRoisAsArray().length) {
-				this.fin();
-			}
-		}
+		// sauvegarde du ROI actuel
+		this.saveRoi();
 
 		indexRoi++;
+		this.preparerRoi();
 	}
 
 	private void fin() {
@@ -209,46 +177,58 @@ public class Controleur_Plaquettes implements ActionListener {
 		laVue.UIResultats(courbesFinale, tableResultats);
 	}
 
-	private void saveRoi(String nomRoi) {
+	private void saveRoi() {
+		if (this.laVue.win.getImagePlus().getRoi() != null) { // si il y a une roi sur l'image plus
+			int nOrganeCourant = indexRoi % this.organes.length;
 
-		// on enregistre la ROI dans le modele
-		leModele.enregisterMesure(nomRoi, laVue.win.getImagePlus());
-
-		// on ajoute le numero de la slide
-		if (this.laVue.antPost) {
-			nomRoi += this.indexRoi / (this.organes.length * 2);
-		} else {
-			nomRoi += this.indexRoi / this.organes.length;
-		}
-
-		// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
-		// pour eviter les doublons
-		if (laVue.roiManager.getRoi(indexRoi) == null) {
-			laVue.roiManager.add(laVue.win.getImagePlus(), laVue.win.getImagePlus().getRoi(), indexRoi);
-			laVue.roiManager.rename(indexRoi, nomRoi);
-		}
-		// Si elle existe on fait un update. Si elle a perdue dans l'imagePlus on
-		// revient a la ROI sauvegardee et on notifie l'utilisateur
-		else {
-			if (laVue.win.getImagePlus().getRoi() == null) {
-				IJ.showMessage("Roi lost, restoring previous saved ROI");
-				laVue.roiManager.select(indexRoi);
+			// création du nom du ROI selon la prise post ou ant
+			String nomRoi = this.organes[nOrganeCourant];
+			if (this.laVue.antPost && (this.indexRoi / this.organes.length) % 2 == 1) {
+				nomRoi += " Ant";
+			} else {
+				nomRoi += " Post";
 			}
-			laVue.roiManager.runCommand("Update");
-		}
 
-		// affichage de la roi dans l'overlay
-		laVue.overlay.add(laVue.roiManager.getRoi(this.indexRoi));
-		laVue.win.getImagePlus().killRoi();
+			// on enregistre la ROI dans le modele
+			leModele.enregisterMesure(nomRoi, laVue.win.getImagePlus());
+
+			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
+			// pour eviter les doublons
+			if (laVue.roiManager.getRoi(indexRoi) == null) {
+				// on ajoute le numero de la slide au nom
+				if (this.laVue.antPost) {
+					nomRoi += this.indexRoi / (this.organes.length * 2);
+				} else {
+					nomRoi += this.indexRoi / this.organes.length;
+				}
+				
+				laVue.roiManager.add(laVue.win.getImagePlus(), laVue.win.getImagePlus().getRoi(), indexRoi);
+				laVue.roiManager.rename(indexRoi, nomRoi);
+
+			} else { // Si il existe on fait un update
+				this.laVue.roiManager.runCommand("Update");
+				Roi roiMaj = this.laVue.roiManager.getRoi(indexRoi);
+				roiMaj.setPosition(0);
+			}
+
+			// on supprime le roi nouvellement ajoute de la vue
+			laVue.win.getImagePlus().killRoi();
+		}
 	}
 
 	private void getOrganRoi() {
 		if (this.laVue.roiManager.getRoi(indexRoi) != null) {
-			Roi roiOrgane = (Roi) this.laVue.roiManager.getRoi(indexRoi).clone();
-			laVue.win.getImagePlus().setRoi(roiOrgane);
-		} else if (this.laVue.roiManager.getCount() >= this.organes.length) { // Si on n'est pas dans le premier cycle on reaffiche la Roi preexistante pour cet organe
-			Roi roiOrgane = (Roi) laVue.roiManager.getRoi(this.indexRoi - this.organes.length + 1).clone();
-			laVue.win.getImagePlus().setRoi(roiOrgane);
+			Roi roiOrgane = (Roi) this.laVue.roiManager.getRoi(indexRoi);
+			this.laVue.win.getImagePlus().setRoi(roiOrgane);
+			this.laVue.roiManager.select(indexRoi);
+		} else {
+			if (this.laVue.roiManager.getCount() >= this.organes.length) { // Si on n'est pas dans le premier cycle on
+																			// reaffiche la Roi preexistante pour cet
+																			// organe
+				Roi roiOrgane = (Roi) laVue.roiManager.getRoi(this.indexRoi - this.organes.length).clone();
+				laVue.win.getImagePlus().setRoi(roiOrgane);
+				this.laVue.roiManager.select(this.indexRoi);
+			}
 		}
 	}
 
@@ -257,13 +237,52 @@ public class Controleur_Plaquettes implements ActionListener {
 		VueScin.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
 	}
 
-	private void nextSlice() {
-		this.clearOverlay();
-		laVue.win.showSlice(laVue.win.getImagePlus().getCurrentSlice() + 1);
+	private void showSlice() {
+		this.afficherRoisSlice();
+		int nSlice = (this.indexRoi / this.organes.length);
+		laVue.win.showSlice(nSlice + 1);
 	}
 
-	private void previousSlice() {
+	private void afficherRoisSlice() {
 		this.clearOverlay();
-		laVue.win.showSlice(laVue.win.getImagePlus().getCurrentSlice() - 1);
+		int nSlice = (this.indexRoi / this.organes.length);
+		int indexSliceDebut = nSlice * this.organes.length;
+		int indexSliceFin = indexSliceDebut + this.organes.length;
+
+		for (int i = indexSliceDebut; i < indexSliceFin; i++) {
+			if (this.laVue.roiManager.getRoi(i) != null) {
+				if (i != this.indexRoi) {
+					Roi roi = (Roi) this.laVue.roiManager.getRoi(i).clone();
+					this.laVue.overlay.add(roi);
+				}
+			}
+		}
+
+	}
+
+	private void preparerRoi() {
+		int nOrgane = indexRoi % this.organes.length;
+
+		// si il y a le bon nombre nombre d'image on a fini
+		if (this.laVue.roiManager.getCount() >= laVue.win.getImagePlus().getImageStackSize() * this.organes.length) {
+			this.fin();
+		}
+
+		// affichage de la slice courante
+		this.showSlice();
+		this.afficherRoisSlice();
+
+		// copie de la roi de l'organe suivant (selon la valeur existante ou celle du
+		// meme oragne precdent)
+		this.getOrganRoi();
+
+		// affichage des instructions
+		nOrgane = indexRoi % this.organes.length;
+		this.laVue.setInstructions("Delimit the " + this.organes[nOrgane]);
+		
+		//selection du roi si il existe
+		if(this.laVue.roiManager.getRoi(indexRoi) != null) {
+			this.laVue.roiManager.select(indexRoi);
+		}
 	}
 }

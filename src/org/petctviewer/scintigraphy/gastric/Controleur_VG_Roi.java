@@ -22,9 +22,9 @@ import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.text.ParseException;
 
+import org.petctviewer.scintigraphy.scin.view.VueScin;
 import org.petctviewer.scintigraphy.shunpo.Modele_Shunpo;
 import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
-import org.petctviewer.scintigraphy.view.VueScin;
 
 import ij.IJ;
 import ij.ImagePlus;
