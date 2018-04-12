@@ -65,23 +65,14 @@ public class Vue_Plaquettes implements PlugIn {
 	protected HashMap<String, Button> lesBoutons;
 
 	private Label img_inst = new Label();
-
 	private Modele_Plaquettes leModele = new Modele_Plaquettes();
-
 	private Controleur_Plaquettes leControleur;
-
 	protected Overlay overlay;
-
 	protected Label Csv = new Label();
-
 	protected RoiManager roiManager;
-
 	protected Label instructions = new Label();
-
 	protected CustomStackWindow win;
-
 	private ImagePlus imp;
-
 	private Frame f;
 
 	// Si acquisition antPost
@@ -262,7 +253,8 @@ public class Vue_Plaquettes implements PlugIn {
 			btns_instru.setLayout(new GridLayout(1, 3));
 			btns_instru.add(lesBoutons.get("Show Log"));
 			btns_instru.add(lesBoutons.get("Precedent"));
-			lesBoutons.get("Precedent").setEnabled(false);
+			//TODO
+			lesBoutons.get("Precedent").setEnabled(true);
 			btns_instru.add(lesBoutons.get("Suivant"));
 			instru.add(btns_instru);
 			gauche.add(instru);
@@ -399,7 +391,7 @@ public class Vue_Plaquettes implements PlugIn {
 		// On met sur l'image
 		win.getImagePlus().setOverlay(overlay);
 		if (instructions.getText().equals(""))
-			instructions.setText("Delimit the spleen");
+			instructions.setText("Delimit the Spleen");
 		IJ.setTool(Toolbar.POLYGON);
 	}
 

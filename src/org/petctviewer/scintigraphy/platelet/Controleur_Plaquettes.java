@@ -39,10 +39,7 @@ public class Controleur_Plaquettes implements ActionListener {
 	protected static boolean showLog;
 	private String tagCapture;
 
-	private int etape;
-	private int cycle;
 	private boolean modeAnt;
-	private boolean fini;	
 	private String[] organes;
 	private int indexRoi;
 
@@ -51,9 +48,8 @@ public class Controleur_Plaquettes implements ActionListener {
 		this.laVue = vue;
 		this.leModele = leModele;
 
-		this.etape = 0;
 		this.indexRoi = 0;
-		this.cycle = 0;
+
 		this.modeAnt = false;
 		this.organes = organes;
 	}
@@ -64,6 +60,10 @@ public class Controleur_Plaquettes implements ActionListener {
 
 		if (b == laVue.lesBoutons.get("Suivant")) {
 			this.clicSuivant();
+		}
+
+		if (b == laVue.lesBoutons.get("Precedent")) {
+			this.clicPrecedent();
 		}
 
 		if (b == laVue.lesBoutons.get("Capture")) {
@@ -86,10 +86,6 @@ public class Controleur_Plaquettes implements ActionListener {
 			// On propose de sauver la capture en DICOM
 			IJ.run("myDicom...");
 			// fin du programme ici
-		}
-
-		if (b == laVue.lesBoutons.get("Precedent")) {
-			//TODO
 		}
 
 		if (b == laVue.lesBoutons.get("Draw ROI")) {
@@ -123,50 +119,63 @@ public class Controleur_Plaquettes implements ActionListener {
 				laVue.lesBoutons.get("Show Log").setLabel("Show Log");
 				laVue.lesBoutons.get("Show").setBackground(null);
 			}
-
 	}
 
-	private void clicSuivant() {		
-		//ajout du tag si il n'est pas encore présent
+	private void clicPrecedent() {
+		if (this.indexRoi > 0) {
+			this.indexRoi--;
+			this.laVue.roiManager.select(this.indexRoi);
+
+			int nOrganeCourant = indexRoi % this.organes.length;
+			this.laVue.setInstructions("Delimit the " + this.organes[nOrganeCourant]);
+
+			this.clearOverlay();
+
+			this.laVue.roiManager.select(indexRoi);
+			this.laVue.win.getImagePlus().setRoi((Roi) laVue.roiManager.getRoi(this.indexRoi).clone());
+		}
+	}
+
+	private void clicSuivant() {
+		// ajout du tag si il n'est pas encore présent
 		if (tagCapture == null) {
 			tagCapture = Modele_Shunpo.genererDicomTagsPartie1(laVue.win.getImagePlus(), "Platelet");
 		}
 
-		//création du nom du ROI selon la prise post ou ant
-		String nomRoi = this.organes[this.etape];
-		if(this.modeAnt) {
+		int nOrganeCourant = indexRoi % this.organes.length;
+		this.laVue.setInstructions("Delimit the " + this.organes[(nOrganeCourant + 1) % this.organes.length]);
+
+		// création du nom du ROI selon la prise post ou ant
+		String nomRoi = this.organes[nOrganeCourant];
+		if (this.modeAnt) {
 			nomRoi += " Ant";
-		}else {
+		} else {
 			nomRoi += " Post";
 		}
-		
-		//sauvegarde du ROI
-		this.saveRoi(nomRoi);
-		
-		//affichage des ROI précédents
-		this.displayRois();
 
-		this.etape++;
-		
-		//Changement d'étape et/ou de cycle
-		if(this.etape >= this.organes.length) {
-			this.etape = 0;
+		// sauvegarde du ROI
+		this.saveRoi(nomRoi);
+
+		// copie de la roi de ce meme organe lors du cycle precedent
+		this.getOrganRoi();
+
+		// Changement d'étape et/ou de cycle
+		if (nOrganeCourant >= this.organes.length - 1) {
 			this.nextSlice();
+
+			// passe en mode ant
 			this.modeAnt = this.laVue.antPost && !this.modeAnt;
-			
-			if(!this.modeAnt) {
-				this.cycle++;
-			}
-			
-			//si il y a le bon nombre nombre d'image
-			if(laVue.win.getImagePlus().getImageStackSize()  * this.organes.length == this.laVue.roiManager.getRoisAsArray().length) {
+
+			// si il y a le bon nombre nombre d'image
+			if (laVue.win.getImagePlus().getImageStackSize()
+					* this.organes.length == this.laVue.roiManager.getRoisAsArray().length) {
 				this.fin();
 			}
 		}
-		
-		this.laVue.setInstructions("Delimit the " + this.organes[this.etape]);
+
+		indexRoi++;
 	}
-	
+
 	private void fin() {
 		ImagePlus capture = Modele_Shunpo.captureImage(laVue.win.getImagePlus(), 512, 512);
 		// On resize le canvas pour etre a la meme taille que les courbes
@@ -175,7 +184,9 @@ public class Controleur_Plaquettes implements ActionListener {
 		ImageProcessor iptemp = canvas.expandImage(ip, 640, 512, (640 - 512) / 2, 0);
 		capture.setProcessor(iptemp);
 		IJ.log("avant get results");
+
 		JTable tableResultats = leModele.getResults();
+
 		IJ.log("apres get results");
 		ImagePlus[] courbes = leModele.createDataset(tableResultats);
 
@@ -192,20 +203,31 @@ public class Controleur_Plaquettes implements ActionListener {
 		ImagePlus courbesFinale = new ImagePlus();
 		IJ.log("Avan Montage");
 		MontageMaker mm = new MontageMaker();
-		courbesFinale = mm.makeMontage2(courbesStackImagePlus, 2, 2, 1, 1, courbesStackImagePlus.getStackSize(), 1,
-				0, false);
+		courbesFinale = mm.makeMontage2(courbesStackImagePlus, 2, 2, 1, 1, courbesStackImagePlus.getStackSize(), 1, 0,
+				false);
 		IJ.log("apres Montage");
 		laVue.UIResultats(courbesFinale, tableResultats);
 	}
 
-	private void addRoi(String nom) {
+	private void saveRoi(String nomRoi) {
+
+		// on enregistre la ROI dans le modele
+		leModele.enregisterMesure(nomRoi, laVue.win.getImagePlus());
+
+		// on ajoute le numero de la slide
+		if (this.laVue.antPost) {
+			nomRoi += this.indexRoi / (this.organes.length * 2);
+		} else {
+			nomRoi += this.indexRoi / this.organes.length;
+		}
+
 		// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 		// pour eviter les doublons
 		if (laVue.roiManager.getRoi(indexRoi) == null) {
 			laVue.roiManager.add(laVue.win.getImagePlus(), laVue.win.getImagePlus().getRoi(), indexRoi);
-			laVue.roiManager.rename(indexRoi, nom);
+			laVue.roiManager.rename(indexRoi, nomRoi);
 		}
-		// Si elle existe on fait un update. Si elle a é– ï¿½ perdue dans l'imagePlus on
+		// Si elle existe on fait un update. Si elle a perdue dans l'imagePlus on
 		// revient a la ROI sauvegardee et on notifie l'utilisateur
 		else {
 			if (laVue.win.getImagePlus().getRoi() == null) {
@@ -214,34 +236,34 @@ public class Controleur_Plaquettes implements ActionListener {
 			}
 			laVue.roiManager.runCommand("Update");
 		}
-		indexRoi++;
-	}
 
-	private void saveRoi(String nomRoi) {
-		addRoi(nomRoi + this.cycle);
-		leModele.enregisterMesure(nomRoi, laVue.win.getImagePlus());
-		// index -1 car add roi incremente l'index de 1
-		laVue.overlay.add(laVue.roiManager.getRoi(this.indexRoi - 1));
+		// affichage de la roi dans l'overlay
+		laVue.overlay.add(laVue.roiManager.getRoi(this.indexRoi));
 		laVue.win.getImagePlus().killRoi();
 	}
 
-	private void displayRois() {
-		// Si la ROI suivante est deja presente on l'affiche
-		if (laVue.roiManager.getRoi(this.indexRoi) != null) {
-			laVue.roiManager.select(this.indexRoi);
-			return;
+	private void getOrganRoi() {
+		if (this.laVue.roiManager.getRoi(indexRoi) != null) {
+			Roi roiOrgane = (Roi) this.laVue.roiManager.getRoi(indexRoi).clone();
+			laVue.win.getImagePlus().setRoi(roiOrgane);
+		} else if (this.laVue.roiManager.getCount() >= this.organes.length) { // Si on n'est pas dans le premier cycle on reaffiche la Roi preexistante pour cet organe
+			Roi roiOrgane = (Roi) laVue.roiManager.getRoi(this.indexRoi - this.organes.length + 1).clone();
+			laVue.win.getImagePlus().setRoi(roiOrgane);
 		}
-		
-		// Si on n'est pas dans le premier cycle on reaffiche les Roi preexistantes
-		if (this.laVue.roiManager.getRoisAsArray().length >= this.organes.length){
-			laVue.win.getImagePlus().setRoi((Roi) laVue.roiManager.getRoi(this.indexRoi - this.organes.length).clone());
-		}
+	}
+
+	private void clearOverlay() {
+		laVue.overlay.clear();
+		VueScin.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
 	}
 
 	private void nextSlice() {
-		laVue.overlay.clear();
-		VueScin.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
+		this.clearOverlay();
 		laVue.win.showSlice(laVue.win.getImagePlus().getCurrentSlice() + 1);
 	}
 
+	private void previousSlice() {
+		this.clearOverlay();
+		laVue.win.showSlice(laVue.win.getImagePlus().getCurrentSlice() - 1);
+	}
 }
