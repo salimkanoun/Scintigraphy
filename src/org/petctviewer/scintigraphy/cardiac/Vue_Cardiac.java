@@ -3,12 +3,12 @@ import java.util.ArrayList;
 
 import org.petctviewer.scintigraphy.scin.view.FenetreApplication;
 import org.petctviewer.scintigraphy.scin.view.VueScin;
-import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.Toolbar;
+import ij.plugin.Concatenator;
 import ij.plugin.MontageMaker;
 import ij.util.DicomTools;
 
@@ -17,11 +17,15 @@ public class Vue_Cardiac extends VueScin{
 	public Vue_Cardiac() {
 		super("Cardiac");
 	}
+	
+	private ImagePlus creerMontage(ImagePlus imp) {
+		return imp;		
+	}
 
 	@Override
 	protected void ouvertureImage(String[] titresFenetres) {
 
-		ArrayList<ImagePlus> mountedImage = new ArrayList<ImagePlus>();
+		ArrayList<ImagePlus> mountedImages = new ArrayList<ImagePlus>();
 
 		int[] frameDuration = new int[2];
 
@@ -34,7 +38,7 @@ public class Vue_Cardiac extends VueScin{
 				ImagePlus montageImage = mm.makeMontage2(impReversed, 2, 1, 1.0, 1, 2, 1, 0, false);
 				montageImage.setProperty("Info", info);
 				frameDuration[i] = Integer.parseInt(DicomTools.getTag(imp, "0018,1242").trim());
-				mountedImage.add(montageImage);
+				mountedImages.add(montageImage);
 			} else {
 				IJ.log("wrong input, need ant/post image");
 			}
@@ -46,8 +50,11 @@ public class Vue_Cardiac extends VueScin{
 			IJ.log("Warning, frame duration differ by 3 minutes");
 		}
 
-		ImagePlus[] mountedSorted = VueScin.orderImagesByAcquisitionTime(mountedImage);
-		this.setImp(mountedSorted[0]);
+		ImagePlus[] mountedSorted = VueScin.orderImagesByAcquisitionTime(mountedImages);
+		Concatenator enchainer = new Concatenator();
+		ImagePlus impStacked = enchainer.concatenate(mountedSorted, false);
+		this.setImp(impStacked);
+		
 		// Charge la LUT
 		VueScin.setCustomLut(this.getImp());
 
@@ -56,10 +63,7 @@ public class Vue_Cardiac extends VueScin{
 		// fenetre pour la pile d'images;
 		this.fen_application = new FenetreApplication(this.getImp(), this);
 		Controleur_Cardiac ctrl = new Controleur_Cardiac(this, null);
-		fen_application.setControleur(ctrl);
-
-		// on affiche la première instruction
-		this.fen_application.setInstructions(0);
+		this.fen_application.setControleur(ctrl);
 		
 		IJ.setTool(Toolbar.POLYGON);
 	}

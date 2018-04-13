@@ -42,7 +42,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import org.petctviewer.scintigraphy.scin.view.VueScin;
-import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -253,7 +252,6 @@ public class Vue_Plaquettes implements PlugIn {
 			btns_instru.setLayout(new GridLayout(1, 3));
 			btns_instru.add(lesBoutons.get("Show Log"));
 			btns_instru.add(lesBoutons.get("Precedent"));
-			//TODO
 			lesBoutons.get("Precedent").setEnabled(true);
 			btns_instru.add(lesBoutons.get("Suivant"));
 			instru.add(btns_instru);

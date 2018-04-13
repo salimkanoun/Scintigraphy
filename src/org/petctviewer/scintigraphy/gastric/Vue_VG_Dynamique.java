@@ -30,7 +30,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.petctviewer.scintigraphy.scin.view.VueScin;
-import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
 
 import ij.*;
 import ij.gui.*;

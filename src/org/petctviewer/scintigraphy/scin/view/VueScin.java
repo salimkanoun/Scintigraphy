@@ -4,7 +4,6 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.Prefs;
-import ij.gui.ImageCanvas;
 import ij.gui.Overlay;
 import ij.gui.TextRoi;
 import ij.plugin.Concatenator;
@@ -14,7 +13,6 @@ import ij.process.LUT;
 import ij.util.DicomTools;
 
 import java.awt.Font;
-import java.awt.Label;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -26,8 +24,6 @@ import java.util.Date;
 import javax.swing.JTable;
 
 import org.apache.commons.lang.StringUtils;
-import org.petctviewer.scintigraphy.scin.controleur.ControleurScin;
-import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
 
 public abstract class VueScin implements PlugIn {
 	private String examType;
@@ -38,8 +34,6 @@ public abstract class VueScin implements PlugIn {
 	private ImagePlus imp;
 	private Boolean antPost = Boolean.valueOf(false);
 	protected int nombreAcquisitions;
-
-	private Overlay overlay;
 
 	public VueScin(String examType) {
 		this.examType = examType;
@@ -630,13 +624,13 @@ public abstract class VueScin implements PlugIn {
 		// mesure
 		Overlay overlay = new Overlay();
 		// On defini la police et la propriete des Overlays
-		int height = imp.getHeight();
+		int width = imp.getWidth();
 		// On normalise Taille 12 a 256 pour avoir une taille stable pour toute image
-		Float facteurConversion = (float) ((height * 1.0) / 256);
+		Float facteurConversion = (float) ((width * 1.0) / 256);
 		Font font = new Font("Arial", Font.PLAIN, Math.round(12 * facteurConversion));
+		overlay.setLabelFont(font, true);
 		overlay.drawLabels(true);
 		overlay.drawNames(true);
-		overlay.setLabelFont(font, true);
 		// Pour rendre overlay non selectionnable
 		overlay.selectable(false);
 

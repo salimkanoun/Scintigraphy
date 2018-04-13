@@ -29,36 +29,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
 import javax.swing.JOptionPane;
-
-import org.apache.commons.lang.StringUtils;
 import org.petctviewer.scintigraphy.scin.view.VueScin;
 
 import ij.IJ;
 import ij.ImagePlus;
-import ij.ImageStack;
 import ij.Prefs;
 import ij.WindowManager;
 import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.Overlay;
 import ij.gui.StackWindow;
-import ij.gui.TextRoi;
 import ij.gui.Toolbar;
-import ij.plugin.Concatenator;
 import ij.plugin.PlugIn;
 import ij.plugin.frame.RoiManager;
-import ij.process.LUT;
 import ij.util.DicomTools;
 
 public class Vue_Shunpo implements PlugIn {

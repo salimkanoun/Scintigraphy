@@ -6,8 +6,6 @@ import ij.gui.Overlay;
 import ij.gui.StackWindow;
 import ij.plugin.frame.RoiManager;
 import ij.util.DicomTools;
-
-import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -82,6 +80,9 @@ public class FenetreApplication extends StackWindow {
 		panel.add(gauche);
 		add(panel);
 		
+		//this.setControleur(ctrl);
+		//this.setInstructions(0);
+		
 		this.adaptWindow();
 	}
 	
@@ -113,7 +114,6 @@ public class FenetreApplication extends StackWindow {
 		btns_instru.setLayout(new GridLayout(1, 3));
 		btns_instru.add(this.btn_showlog);
 		btns_instru.add(this.btn_precedent);
-		this.btn_precedent.setEnabled(false);
 		btns_instru.add(this.btn_suivant);
 		return btns_instru;
 	}
@@ -124,8 +124,8 @@ public class FenetreApplication extends StackWindow {
 		//mise en place des boutons
 		Panel btns_instru = new Panel();
 		btns_instru.setLayout(new GridLayout(1, 2));
-		btns_instru.add(new Button("New contamination"));
-		btns_instru.add(new Button("Continue"));
+		btns_instru.add(this.btn_newCont);
+		btns_instru.add(this.btn_continue);
 		this.instru.add(btns_instru);
 		
 		this.lbl_instructions.setText("Delimit all contaminations");
@@ -136,6 +136,8 @@ public class FenetreApplication extends StackWindow {
 	public void stopContaminationMode() {
 		this.instru.remove(1);
 		this.instru.add(this.createBtnsInstru());
+		this.adaptWindow();
+		this.setInstructions(0);
 	}
 
 	/// affiche l'overlay Droite/Gauche
@@ -152,10 +154,13 @@ public class FenetreApplication extends StackWindow {
 		this.btn_contrast = new Button("Contrast");
 		this.btn_drawROI = new Button("Draw ROI");
 		this.btn_precedent = new Button("Previous");
+		this.btn_precedent.setEnabled(false);
 		this.btn_suivant = new Button("Next");
 		this.btn_contrast = new Button("Contrast");
 		this.btn_showlog = new Button("Show Log");
 		this.btn_quitter = new Button("Quit");
+		this.btn_continue = new Button("Continue");
+		this.btn_newCont = new Button("New contamnation");
 	}
 	
 	public void setControleur(ControleurScin ctrl) {
@@ -167,6 +172,9 @@ public class FenetreApplication extends StackWindow {
 		this.btn_quitter.addActionListener(ctrl);
 		this.btn_showlog.addActionListener(ctrl);
 		this.btn_suivant.addActionListener(ctrl);
+		this.btn_continue.addActionListener(ctrl);
+		this.btn_newCont.addActionListener(ctrl);
+		this.setInstructions(0);
 	}
 
 	private String generateTitle() {

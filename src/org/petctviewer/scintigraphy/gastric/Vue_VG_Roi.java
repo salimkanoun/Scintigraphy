@@ -44,7 +44,6 @@ import javax.swing.border.MatteBorder;
 import javax.swing.table.DefaultTableModel;
 
 import org.petctviewer.scintigraphy.scin.view.VueScin;
-import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
 
 import ij.IJ;
 import ij.ImagePlus;

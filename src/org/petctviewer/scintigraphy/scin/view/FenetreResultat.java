@@ -15,7 +15,6 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.RowSorter;
 
 public class FenetreResultat
   extends ImageWindow
