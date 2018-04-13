@@ -4,7 +4,10 @@ import ij.ImagePlus;
 import ij.gui.ImageCanvas;
 import ij.gui.Overlay;
 import ij.gui.StackWindow;
+import ij.plugin.frame.RoiManager;
 import ij.util.DicomTools;
+
+import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -17,12 +20,15 @@ import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import javax.swing.JPanel;
 
+import org.petctviewer.scintigraphy.scin.controleur.ControleurScin;
+
 public class FenetreApplication extends StackWindow {
 	private static final long serialVersionUID = -6280620624574294247L;
 	private Label lbl_instructions;
 
 	private VueScin vue;
 
+	///boutons mode normal
 	private Button btn_quitter;
 	private Button btn_drawROI;
 	private Button btn_contrast;
@@ -30,10 +36,19 @@ public class FenetreApplication extends StackWindow {
 	private Button btn_precedent;
 	private Button btn_suivant;
 	private Button btn_capture;
+	
+	//boutons mode decontamination 
+	private Button btn_newCont;
+	private Button btn_continue;
+
+	private RoiManager roiManager;
+	private ControleurScin controleur;
+	private Panel instru;
 
 	public FenetreApplication(ImagePlus imp, VueScin vue) {
 		super(imp, new ImageCanvas(imp));
-
+		
+		this.roiManager = new RoiManager();
 		this.vue = vue;
 
 		setTitle(generateTitle());
@@ -54,24 +69,23 @@ public class FenetreApplication extends StackWindow {
 		btns_glob.add(this.btn_contrast);
 		gauche.add(btns_glob);
 
-		Panel instru = new Panel();
+		this.instru = new Panel();
 		instru.setLayout(new GridLayout(2, 1));
 		this.lbl_instructions = new Label();
 		this.lbl_instructions.setBackground(Color.LIGHT_GRAY);
 		instru.add(this.lbl_instructions);
 
-		Panel btns_instru = new Panel();
-		btns_instru.setLayout(new GridLayout(1, 3));
-		btns_instru.add(this.btn_showlog);
-		btns_instru.add(this.btn_precedent);
-		this.btn_precedent.setEnabled(false);
-		btns_instru.add(this.btn_suivant);
-
+		Panel btns_instru = this.createBtnsInstru();
 		instru.add(btns_instru);
+		
 		gauche.add(instru);
 		panel.add(gauche);
 		add(panel);
-
+		
+		this.adaptWindow();
+	}
+	
+	private void adaptWindow() {
 		pack();
 
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
@@ -93,6 +107,36 @@ public class FenetreApplication extends StackWindow {
 		// affiche l'overlay D/G
 		this.setOverlay();
 	}
+	
+	public Panel createBtnsInstru() {
+		Panel btns_instru = new Panel();
+		btns_instru.setLayout(new GridLayout(1, 3));
+		btns_instru.add(this.btn_showlog);
+		btns_instru.add(this.btn_precedent);
+		this.btn_precedent.setEnabled(false);
+		btns_instru.add(this.btn_suivant);
+		return btns_instru;
+	}
+	
+	public void startContaminationMode() {
+		this.instru.remove(1);
+		
+		//mise en place des boutons
+		Panel btns_instru = new Panel();
+		btns_instru.setLayout(new GridLayout(1, 2));
+		btns_instru.add(new Button("New contamination"));
+		btns_instru.add(new Button("Continue"));
+		this.instru.add(btns_instru);
+		
+		this.lbl_instructions.setText("Delimit all contaminations");
+		
+		this.adaptWindow();
+	}
+	
+	public void stopContaminationMode() {
+		this.instru.remove(1);
+		this.instru.add(this.createBtnsInstru());
+	}
 
 	/// affiche l'overlay Droite/Gauche
 	private void setOverlay() {
@@ -113,6 +157,17 @@ public class FenetreApplication extends StackWindow {
 		this.btn_showlog = new Button("Show Log");
 		this.btn_quitter = new Button("Quit");
 	}
+	
+	public void setControleur(ControleurScin ctrl) {
+		this.controleur = ctrl;
+		this.btn_capture.addActionListener(ctrl);
+		this.btn_contrast.addActionListener(ctrl);
+		this.btn_drawROI.addActionListener(ctrl);
+		this.btn_precedent.addActionListener(ctrl);
+		this.btn_quitter.addActionListener(ctrl);
+		this.btn_showlog.addActionListener(ctrl);
+		this.btn_suivant.addActionListener(ctrl);
+	}
 
 	private String generateTitle() {
 		String tagSerie = DicomTools.getTag(this.imp, "0008,103E");
@@ -127,8 +182,9 @@ public class FenetreApplication extends StackWindow {
 		System.gc();
 	}
 
-	public void setInstructions(String inst) {
-		this.lbl_instructions.setText(inst);
+	public void setInstructions(int i) {
+		String s = "Delimit the " + this.controleur.getOrganes()[i];
+		this.lbl_instructions.setText(s);
 	}
 
 	public Button getBtn_quitter() {
@@ -159,4 +215,20 @@ public class FenetreApplication extends StackWindow {
 		return btn_capture;
 	}
 
+	public RoiManager getRoiManager() {
+		return roiManager;
+	}
+	
+	public Button getBtn_newCont() {
+		return btn_newCont;
+	}
+
+	public Button getBtn_continue() {
+		return btn_continue;
+	}
+	
+	public Overlay getOverlay() {
+		return this.getImagePlus().getOverlay();
+		
+	}
 }

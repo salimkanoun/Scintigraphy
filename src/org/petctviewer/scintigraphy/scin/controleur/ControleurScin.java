@@ -32,9 +32,10 @@ import ij.gui.Roi;
 import ij.gui.Toolbar;
 import ij.plugin.CanvasResizer;
 import ij.plugin.MontageMaker;
+import ij.plugin.frame.RoiManager;
 import ij.process.ImageProcessor;
 
-public class ControleurScin implements ActionListener {
+public abstract class ControleurScin implements ActionListener {
 
 	private VueScin laVue;
 	private ModeleScin leModele;
@@ -51,7 +52,7 @@ public class ControleurScin implements ActionListener {
 		this.leModele = leModele;
 
 		this.indexRoi = 0;
-		
+
 		this.organes = organes;
 	}
 
@@ -69,7 +70,7 @@ public class ControleurScin implements ActionListener {
 
 		if (b == laVue.getFen_application().getBtn_capture()) {
 			laVue.getFen_application().getBtn_capture().setVisible(false);
-			//laVue.csv.setText("Provided By Petctviewer.org");
+			// laVue.csv.setText("Provided By Petctviewer.org");
 			ImagePlus captureFinale = Modele_Shunpo.captureFenetre(WindowManager.getCurrentImage(), 0, 0);
 			WindowManager.getCurrentWindow().getImagePlus().changes = false;
 			WindowManager.getCurrentWindow().close();
@@ -112,19 +113,19 @@ public class ControleurScin implements ActionListener {
 			if (!showLog) {
 				showLog = true;
 				laVue.getFen_application().getBtn_showlog().setLabel("Hide Log");
-				//laVue.lesBoutons.get("Show").setBackground(Color.LIGHT_GRAY);
+				// laVue.lesBoutons.get("Show").setBackground(Color.LIGHT_GRAY);
 			}
 
 			else {
 				showLog = false;
 				laVue.getFen_application().getBtn_showlog().setLabel("Show Log");
-				//laVue.lesBoutons.get("Show").setBackground(null);
+				// laVue.lesBoutons.get("Show").setBackground(null);
 			}
 	}
 
 	private void clicPrecedent() {
 		// sauvegarde du ROI courant
-		this.saveRoi();
+		this.saveCurrentRoi();
 
 		if (this.indexRoi > 0) {
 			indexRoi--;
@@ -135,120 +136,103 @@ public class ControleurScin implements ActionListener {
 	private void clicSuivant() {
 		// ajout du tag si il n'est pas encore présent
 		if (tagCapture == null) {
-			tagCapture = Modele_Shunpo.genererDicomTagsPartie1(laVue.getFen_application().getImagePlus(), laVue.getExamType());
+			tagCapture = Modele_Shunpo.genererDicomTagsPartie1(laVue.getFen_application().getImagePlus(),
+					laVue.getExamType());
 		}
 
 		// sauvegarde du ROI actuel
-		this.saveRoi();
+		this.saveCurrentRoi();
+
+		if (this.isOver()) {
+			fin();
+		}
 
 		indexRoi++;
 		this.preparerRoi();
 	}
 
-	private void fin() {
-		//TODO gere le modele
-		/**
-		ImagePlus capture = Modele_Shunpo.captureImage(laVue.getFen_application().getImagePlus(), 512, 512);
-		// On resize le canvas pour etre a la meme taille que les courbes
-		ImageProcessor ip = capture.getProcessor();
-		CanvasResizer canvas = new CanvasResizer();
-		ImageProcessor iptemp = canvas.expandImage(ip, 640, 512, (640 - 512) / 2, 0);
-		capture.setProcessor(iptemp);
-		IJ.log("avant get results");
+	public abstract boolean isOver();
 
-		JTable tableResultats = leModele.getResults();
+	public abstract void fin();
 
-		IJ.log("apres get results");
-		ImagePlus[] courbes = leModele.createDataset(tableResultats);
+	// renvoie true si la prise est post, false si elle est ant
+	public abstract boolean isPost();
 
-		ImageStack stack = new ImageStack(640, 512);
-		stack.addSlice(capture.getProcessor());
-		for (int i = 0; i < courbes.length; i++) {
-			stack.addSlice(courbes[i].getProcessor());
-		}
-		IJ.log("Apres add image stack");
-
-		ImagePlus courbesStackImagePlus = new ImagePlus();
-		courbesStackImagePlus.setStack(stack);
-
-		ImagePlus courbesFinale = new ImagePlus();
-		IJ.log("Avan Montage");
-		MontageMaker mm = new MontageMaker();
-		courbesFinale = mm.makeMontage2(courbesStackImagePlus, 2, 2, 1, 1, courbesStackImagePlus.getStackSize(), 1, 0,
-				false);
-		IJ.log("apres Montage");
-		laVue.UIResultats(courbesFinale, tableResultats);
-	*/
-	}
-
-	private void saveRoi() {
+	public void saveCurrentRoi() {
 		if (this.laVue.getFen_application().getImagePlus().getRoi() != null) { // si il y a une roi sur l'image plus
 			int nOrganeCourant = indexRoi % this.organes.length;
 
 			// création du nom du ROI selon la prise post ou ant
 			String nomRoi = this.organes[nOrganeCourant];
-			if (this.laVue.isAntPost() && (this.indexRoi / this.organes.length) % 2 == 1) {
-				nomRoi += " Ant";
-			} else {
+			if (this.isPost()) {
 				nomRoi += " Post";
+			} else {
+				nomRoi += " Ant";
 			}
 
 			// on enregistre la ROI dans le modele
-			//TODO
-			//leModele.enregisterMesure(nomRoi, laVue.getFen_application().getImagePlus());
+			// TODO
+			// leModele.enregisterMesure(nomRoi, laVue.getFen_application().getImagePlus());
 
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
 			if (laVue.getRoiManager().getRoi(indexRoi) == null) {
-				
+
 				// on ajoute le numero de la slide au nom
 				if (this.laVue.isAntPost()) {
 					nomRoi += this.indexRoi / (this.organes.length * 2);
 				} else {
 					nomRoi += this.indexRoi / this.organes.length;
 				}
-				
-				laVue.getRoiManager().add(laVue.getFen_application().getImagePlus(), laVue.getFen_application().getImagePlus().getRoi(), indexRoi);
+
+				laVue.getRoiManager().add(laVue.getFen_application().getImagePlus(),
+						laVue.getFen_application().getImagePlus().getRoi(), indexRoi);
 				laVue.getRoiManager().rename(indexRoi, nomRoi);
 
-			} else { // Si il existe on fait un update.
+			} else { // Si il existe on fait un update
 				this.laVue.getRoiManager().select(indexRoi);
 				this.laVue.getRoiManager().runCommand("Update");
-			}
 
-			// on supprime le roi nouvellement ajoute de la vue
-			laVue.getFen_application().getImagePlus().killRoi();
+				// on supprime le roi nouvellement ajoute de la vue
+				laVue.getFen_application().getImagePlus().killRoi();
+			}
 		}
+
 	}
 
-	private void getOrganRoi() {
+	public void afficherInstruction() {
+		// affichage des instructions
+		int nOrgane = indexRoi % this.organes.length;
+		this.getVue().getFen_application().setInstructions(nOrgane);
+	}
+
+	public void getOrganRoi() {
 		if (this.laVue.getRoiManager().getRoi(indexRoi) != null) {
 			Roi roiOrgane = (Roi) this.laVue.getRoiManager().getRoi(indexRoi);
 			this.laVue.getFen_application().getImagePlus().setRoi(roiOrgane);
 			this.laVue.getRoiManager().select(indexRoi);
 		} else {
-			if (this.laVue.getRoiManager().getCount() >= this.organes.length) { // Si on n'est pas dans le premier cycle on
-																			// reaffiche la Roi preexistante pour cet
-																			// organe
+			if (this.laVue.getRoiManager().getCount() >= this.organes.length) { // Si on n'est pas dans le premier cyc
+																				// reaffiche la Roi preexistante pour c
+																				// organe
 				Roi roiOrgane = (Roi) laVue.getRoiManager().getRoi(this.indexRoi - this.organes.length).clone();
-				laVue.getFen_application().getImagePlus().setRoi(roiOrgane);
+				this.selectRoi(roiOrgane);
 				this.laVue.getRoiManager().select(this.indexRoi);
 			}
 		}
 	}
 
-	private void clearOverlay() {
+	public void clearOverlay() {
 		laVue.getOverlay().clear();
 		VueScin.setOverlayDG(laVue.getOverlay(), laVue.getFen_application().getImagePlus());
 	}
 
-	private void showSlice() {
-		this.afficherRoisSlice();
-		int nSlice = (this.indexRoi / this.organes.length);
-		laVue.getFen_application().showSlice(nSlice + 1);
+	public void showSlice(int nSlice) {
+		this.clearOverlay();
+		laVue.getFen_application().showSlice(nSlice);
 	}
 
-	private void afficherRoisSlice() {
+	public void afficherRoisSlice() {
 		this.clearOverlay();
 		int nSlice = (this.indexRoi / this.organes.length);
 		int indexSliceDebut = nSlice * this.organes.length;
@@ -265,24 +249,39 @@ public class ControleurScin implements ActionListener {
 
 	}
 
-	private void preparerRoi() {
-		int nOrgane = indexRoi % this.organes.length;
+	public abstract void preparerRoi();
 
-		// si il y a le bon nombre nombre d'image on a fini
-		if (this.laVue.getRoiManager().getCount() >= laVue.getFen_application().getImagePlus().getImageStackSize() * this.organes.length) {
-			this.fin();
-		}
-
-		// affichage de la slice courante
-		this.showSlice();
-		this.afficherRoisSlice();
-
-		// copie de la roi de l'organe suivant (selon la valeur existante ou celle du
-		// meme oragne precdent)
-		this.getOrganRoi();
-
-		// affichage des instructions
-		nOrgane = indexRoi % this.organes.length;
-		this.laVue.getFen_application().setInstructions("Delimit the " + this.organes[nOrgane]);
+	public String[] getOrganes() {
+		return organes;
 	}
+
+	public void setOrganes(String[] organes) {
+		this.organes = organes;
+	}
+
+	public RoiManager getRoiManager() {
+		return this.laVue.getRoiManager();
+	}
+
+	public int getIndexRoi() {
+		return this.indexRoi;
+	}
+
+	public void selectRoi(Roi roi) {
+		laVue.getFen_application().getImagePlus().setRoi(roi);
+	}
+
+	public Roi getShownRoi() {
+		return laVue.getFen_application().getImagePlus().getRoi();
+	}
+
+	public VueScin getVue() {
+		return this.laVue;
+	}
+
+	public String createNomRoi() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

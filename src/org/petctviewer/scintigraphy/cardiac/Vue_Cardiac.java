@@ -13,12 +13,9 @@ import ij.plugin.MontageMaker;
 import ij.util.DicomTools;
 
 public class Vue_Cardiac extends VueScin{
-
+	
 	public Vue_Cardiac() {
 		super("Cardiac");
-		String[] organes = {};
-		Controleur_Cardiac ctrl = new Controleur_Cardiac(this, null, organes);
-		this.setControleur(ctrl);
 	}
 
 	@Override
@@ -58,10 +55,11 @@ public class Vue_Cardiac extends VueScin{
 		// dans une fenetre c'est une pile d'images (plus d'une image) on cree une
 		// fenetre pour la pile d'images;
 		this.fen_application = new FenetreApplication(this.getImp(), this);
+		Controleur_Cardiac ctrl = new Controleur_Cardiac(this, null);
+		fen_application.setControleur(ctrl);
 
 		// on affiche la première instruction
-		//this.setInstructions(this.leControleur.getListeInstructions()[0]);
-		this.fen_application.setInstructions("Samourai shunpo");
+		this.fen_application.setInstructions(0);
 		
 		IJ.setTool(Toolbar.POLYGON);
 	}

@@ -34,22 +34,15 @@ public abstract class VueScin implements PlugIn {
 	
 	protected FenetreApplication fen_application;
 	private ModeleScin leModele;
-	private ControleurScin leControleur;
 	
 	private ImagePlus imp;
 	private Boolean antPost = Boolean.valueOf(false);
 	protected int nombreAcquisitions;
-	
-	private RoiManager roiManager;
 
 	private Overlay overlay;
 
 	public VueScin(String examType) {
 		this.examType = examType;
-	}
-	
-	public void setControleur(ControleurScin ctrl) {
-		this.leControleur = ctrl;
 	}
 
 	public void run(String arg) {
@@ -689,12 +682,12 @@ public abstract class VueScin implements PlugIn {
 		return antPost;
 	}
 	
-	public RoiManager getRoiManager() {
-		return this.roiManager;
-	}
-	
 	public Overlay getOverlay() {
-		return this.overlay;
+		return this.getFen_application().getOverlay();
+	}
+
+	public RoiManager getRoiManager() {
+		return this.fen_application.getRoiManager();
 	}
 
 }

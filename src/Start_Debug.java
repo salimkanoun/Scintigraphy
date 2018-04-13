@@ -17,7 +17,7 @@ public class Start_Debug {
 		// Vue_VG_Dynamique vg=new Vue_VG_Dynamique();
 		//VueScin vg = new Vue_Cardiac();
 		//vg.run("");
-		 Vue_Plaquettes vue = new Vue_Plaquettes();
+		 VueScin vue = new Vue_Cardiac();
 		 vue.run("");
 
 	}
