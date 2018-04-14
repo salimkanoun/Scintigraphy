@@ -41,13 +41,7 @@ public class Controleur_Cardiac extends ControleurScin {
 	@Override
 	public void preparerRoi() {
 		// on vide l'overlay et affiche la slice courante
-		this.showSlice(getCurrentSlice());
-		this.clearOverlay();		
-
-		// on affiche les roi pour cette slide
-		for(Roi roi : this.getRoisSlice(this.getCurrentSlice())) {
-			this.ajouterRoiOverlay(roi);
-		}
+		this.showSliceWithOverlay(this.getRoiIndexSliceNumber());
 
 		Roi roi = null;
 		if (this.getRoiManager().getRoi(this.getIndexRoi()) != null) { // si la roi existe dans le manager
@@ -62,13 +56,6 @@ public class Controleur_Cardiac extends ControleurScin {
 		// selectionne la roi si elle n'est pas nulle
 		this.selectRoi(roi);
 		this.afficherInstruction();
-
-		// changement de slice si la prise contient une precoce
-		if (this.isPrecoce()) {
-			if (this.getIndexRoi() == 4) {
-				this.showSlice(2);
-			}
-		}
 	}
 
 	@Override
@@ -113,40 +100,40 @@ public class Controleur_Cardiac extends ControleurScin {
 	}
 
 	@Override
-	public int createNumeroRoi() {
-		int numero;
-		// on ajoute le numero de la slide au nom
-		if (this.getVue().isAntPost()) {
-			numero = this.getIndexRoi() / (this.getOrganes().length * 2);
-		} else {
-			numero = this.getIndexRoi() / this.getOrganes().length;
-		}
-		return numero;
-	}
-
-	@Override
 	public Roi[] getRoisSlice(int nSlice) {// un peu sale, peut etre ameliore
 		List<Roi> rois = new ArrayList<Roi>();
 		int indexRoiDebut, indexRoiFin;
 
-		// si il s'agit de la premiere slice, on renvoie les 4 premieres roi (si elles existent)
+		// si il s'agit de la premiere slice, on renvoie les 4 premieres roi (si elles
+		// existent)
 		if (this.getCurrentSlice() == 1) {
 			indexRoiDebut = 0;
 			indexRoiFin = 3;
-		} else { //sinon on renvoie toutes les autres
+		} else { // sinon on renvoie toutes les autres
 			indexRoiDebut = 4;
 			indexRoiFin = this.getRoiManager().getCount();
 		}
 
-		//construction de la liste
+		// construction de la liste
 		for (int i = indexRoiDebut + this.getNbContamination(); i <= indexRoiFin + this.getNbContamination(); i++) {
 			Roi roiIt = (Roi) this.getRoiManager().getRoi(i + this.getNbContamination());
 			if (roiIt != null && this.getIndexRoi() != i) {
 				rois.add(roiIt);
 			}
 		}
-		
+
 		return rois.toArray(new Roi[0]);
+	}
+
+	@Override
+	public int getRoiIndexSliceNumber() {
+		// changement de slice si la prise contient une precoce
+		if (this.isPrecoce()) {
+			if (this.getIndexRoi() >= 4) {
+				return 2;
+			}
+		}
+		return 1;
 	}
 
 }

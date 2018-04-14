@@ -49,7 +49,10 @@ public abstract class ControleurScin implements ActionListener {
 
 		this.indexRoi = 0;
 		this.nbContamination = 0;
+		
+		this.attachListener();
 	}
+	
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
@@ -151,11 +154,8 @@ public abstract class ControleurScin implements ActionListener {
 			this.getVue().getFen_application().getBtn_precedent().setEnabled(false);
 		}
 	}
-
+	
 	private void clicSuivant() {
-		//on active le bouton precedent
-		this.getVue().getFen_application().getBtn_precedent().setEnabled(true);
-		
 		// ajout du tag si il n'est pas encore présent
 		if (tagCapture == null) {
 			tagCapture = Modele_Shunpo.genererDicomTagsPartie1(laVue.getFen_application().getImagePlus(),
@@ -163,14 +163,38 @@ public abstract class ControleurScin implements ActionListener {
 		}
 
 		// sauvegarde du ROI actuel
-		this.saveCurrentRoi(this.createNomRoi());
+		boolean saved = this.saveCurrentRoi(this.createNomRoi());
 
-		if (this.isOver()) {
-			fin();
+		// si la sauvegarde est reussie, on prepare la prochaine roi
+		if(saved) {
+			//on active le bouton precedent
+			this.getVue().getFen_application().getBtn_precedent().setEnabled(true);
+			
+			if (this.isOver()) {
+				fin();
+			}
+
+			indexRoi++;
+			this.preparerRoi();
+		}
+	}
+	
+	public int getSameNameRoiCount() {
+		String[] roiNames = new String[this.getRoiManager().getCount()];
+		for (int i = 0; i < roiNames.length; i++) {
+			roiNames[i] = this.getRoiManager().getRoisAsArray()[i].getName();
+		}
+		
+		String currentRoiName = this.createNomRoi();
+		
+		int count = 0;
+		for (int i = 0; i < roiNames.length; i++) {
+			if(roiNames[i].contains(currentRoiName)) {
+				count++;
+			}
 		}
 
-		indexRoi++;
-		this.preparerRoi();
+		return count;
 	}
 
 	public abstract boolean isOver();
@@ -179,16 +203,21 @@ public abstract class ControleurScin implements ActionListener {
 	
 	public abstract String createNomRoi();
 	
-	public abstract int createNumeroRoi();
-	
 	public abstract void preparerRoi();
 	
 	public abstract Roi[] getRoisSlice(int nSlide);
+	
+	public abstract int getRoiIndexSliceNumber();
 
 	// renvoie true si la prise est post, false si elle est ant
 	public abstract boolean isPost();
 
-	public void saveCurrentRoi(String nomRoi) {
+	/**
+	 * Sauvegarde la roi dans le roi manager
+	 * @param nomRoi : nom de la rooi a sauvegarder
+	 * @return true si la sauvegarde est reussie, false si elle ne l'est pas
+	 */
+	public boolean saveCurrentRoi(String nomRoi) {
 		if (this.laVue.getFen_application().getImagePlus().getRoi() != null) { // si il y a une roi sur l'image plus
 
 			//TODO on enregistre la ROI dans le modele 
@@ -198,7 +227,7 @@ public abstract class ControleurScin implements ActionListener {
 			// pour eviter les doublons
 			if (laVue.getRoiManager().getRoi(indexRoi) == null) {
 
-				nomRoi += this.createNumeroRoi();
+				nomRoi += this.getSameNameRoiCount();
 
 				laVue.getRoiManager().add(laVue.getFen_application().getImagePlus(),
 						laVue.getFen_application().getImagePlus().getRoi(), indexRoi);
@@ -211,6 +240,10 @@ public abstract class ControleurScin implements ActionListener {
 				// on supprime le roi nouvellement ajoute de la vue
 				laVue.getFen_application().getImagePlus().killRoi();
 			}
+			return true;
+		}else {
+			System.out.println("Roi perdue");
+			return false;
 		}
 
 	}
@@ -242,11 +275,21 @@ public abstract class ControleurScin implements ActionListener {
 		VueScin.setOverlayDG(laVue.getOverlay(), laVue.getFen_application().getImagePlus());
 	}
 
-	public void showSlice(int nSlice) {
-		System.out.println("Slice n" + this.getCurrentSlice());
+	public void showSliceWithOverlay(int nSlice) {
 		this.clearOverlay();
 		laVue.getFen_application().showSlice(nSlice);
+		
+		// on affiche les roi pour cette slide
+		for (Roi roi : this.getRoisSlice(this.getCurrentSlice())) {
+			this.ajouterRoiOverlay(roi);
+		}
+		
 		laVue.getFen_application().updateSliceSelector();
+	}
+	
+	private void attachListener() {
+		this.laVue.getFen_application().getImagePlus();
+		ImagePlus.addImageListener(new ControleurImp(this));
 	}
 	
 	public void ajouterRoiOverlay(Roi roi) {
@@ -290,7 +333,7 @@ public abstract class ControleurScin implements ActionListener {
 	}
 	
 	public int getCurrentSlice() {
-		return this.getVue().getImp().getCurrentSlice();	
+		return this.laVue.getImp().getCurrentSlice();
 	}
 
 }
