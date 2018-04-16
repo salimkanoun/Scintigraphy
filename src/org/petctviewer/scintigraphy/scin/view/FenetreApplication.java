@@ -24,8 +24,6 @@ public class FenetreApplication extends StackWindow {
 	private static final long serialVersionUID = -6280620624574294247L;
 	private Label lbl_instructions;
 
-	private VueScin vue;
-
 	///boutons mode normal
 	private Button btn_quitter;
 	private Button btn_drawROI;
@@ -42,12 +40,16 @@ public class FenetreApplication extends StackWindow {
 	private RoiManager roiManager;
 	private ControleurScin controleur;
 	private Panel instru;
+	private String nom;
+	
+	private boolean modeCont;
 
-	public FenetreApplication(ImagePlus imp, VueScin vue) {
+	public FenetreApplication(ImagePlus imp, String nom) {
 		super(imp, new ImageCanvas(imp));
 		
 		this.roiManager = new RoiManager();
-		this.vue = vue;
+		this.nom = nom;
+		this.modeCont = false;
 
 		setTitle(generateTitle());
 		this.imp.setTitle(generateTitle());
@@ -79,9 +81,6 @@ public class FenetreApplication extends StackWindow {
 		gauche.add(instru);
 		panel.add(gauche);
 		add(panel);
-		
-		//this.setControleur(ctrl);
-		//this.setInstructions(0);
 		
 		this.adaptWindow();
 	}
@@ -127,10 +126,11 @@ public class FenetreApplication extends StackWindow {
 		btns_instru.add(this.btn_newCont);
 		btns_instru.add(this.btn_continue);
 		this.instru.add(btns_instru);
-		
-		this.lbl_instructions.setText("Delimit all contaminations");
+		this.modeCont = true;
 		
 		this.adaptWindow();
+
+		this.lbl_instructions.setText("Decontamination mode");
 	}
 	
 	public void stopContaminationMode() {
@@ -138,6 +138,8 @@ public class FenetreApplication extends StackWindow {
 		this.instru.add(this.createBtnsInstru());
 		this.adaptWindow();
 		this.setInstructions(0);
+		this.controleur.showSliceWithOverlay(this.controleur.getCurrentSlice());
+		this.modeCont = false;
 	}
 
 	/// affiche l'overlay Droite/Gauche
@@ -180,7 +182,7 @@ public class FenetreApplication extends StackWindow {
 	private String generateTitle() {
 		String tagSerie = DicomTools.getTag(this.imp, "0008,103E");
 		String tagNom = DicomTools.getTag(this.imp, "0010,0010");
-		String titre = this.vue.getExamType() + " - ";
+		String titre = this.nom + " - ";
 		titre = titre + tagNom + " - " + tagSerie;
 		return titre;
 	}
@@ -190,9 +192,13 @@ public class FenetreApplication extends StackWindow {
 		System.gc();
 	}
 
-	public void setInstructions(int i) {
-		String s = "Delimit the " + this.controleur.getOrganes()[i];
+	public void setInstructions(int nOrgane) {
+		String s = "Delimit the " + this.controleur.getOrganes()[nOrgane];
 		this.lbl_instructions.setText(s);
+	}
+	
+	public void setInstructions(String inst) {
+		this.lbl_instructions.setText(inst);
 	}
 
 	public Button getBtn_quitter() {
@@ -236,7 +242,10 @@ public class FenetreApplication extends StackWindow {
 	}
 	
 	public Overlay getOverlay() {
-		return this.getImagePlus().getOverlay();
-		
+		return this.getImagePlus().getOverlay();	
+	}
+	
+	public boolean isModeCont() {
+		return this.modeCont;
 	}
 }

@@ -9,6 +9,8 @@ public class ControleurImp implements ImageListener {
 	private int lastSlice = 1;
 	private boolean lockUpdate = false;
 	
+	private int nbContamination;
+	
 	public ControleurImp(ControleurScin ctrlScin) {
 		this.ctrlScin = ctrlScin;
 	}
@@ -21,7 +23,6 @@ public class ControleurImp implements ImageListener {
 				this.lastSlice = currentSlice;
 				this.lockUpdate = true;
 				this.ctrlScin.showSliceWithOverlay(currentSlice);
-				this.ctrlScin.getVue().getFen_application().getImagePlus().killRoi();
 				this.lockUpdate = false;
 			}
 		}

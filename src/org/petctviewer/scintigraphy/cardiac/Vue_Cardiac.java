@@ -61,7 +61,7 @@ public class Vue_Cardiac extends VueScin{
 		// Initialisation du Canvas qui permet de mettre la pile d'images
 		// dans une fenetre c'est une pile d'images (plus d'une image) on cree une
 		// fenetre pour la pile d'images;
-		this.fen_application = new FenetreApplication(this.getImp(), this);
+		this.fen_application = new FenetreApplication(this.getImp(), this.getExamType());
 		Controleur_Cardiac ctrl = new Controleur_Cardiac(this, null);
 		this.fen_application.setControleur(ctrl);
 		

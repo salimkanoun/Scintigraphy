@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.cardiac;
 
+import java.awt.Button;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,18 +14,23 @@ import ij.gui.Roi;
 
 public class Controleur_Cardiac extends ControleurScin {
 
-	private static String[] organesPrecoce = { "Right Liver", "Left Liver", "Bladder", "Right Liver", "Left Liver",
-			"Heart" };
-	private static String[] organes = { "Bladder", "Right Liver", "Left Liver", "Heart" };
+	private static String[] organesDeuxPrises = { "Right Liver", "Left Liver", "Bladder", "Right Liver", "Left Liver",
+			"Heart", "Background noise" };
+	private static String[] organesUnePrise = { "Bladder", "Right Liver", "Left Liver", "Heart", "Background noise" };
+
+	private int nbContamination;
+	private int[] contSlice;
 
 	protected Controleur_Cardiac(VueScin vue, ModeleScin leModele) {
 		super(vue, leModele);
 
+		this.contSlice = new int[2];
+
 		String[] org = null;
-		if (this.isPrecoce()) {
-			org = Controleur_Cardiac.organesPrecoce;
+		if (this.isDeuxPrises()) {
+			org = Controleur_Cardiac.organesDeuxPrises;
 		} else {
-			org = Controleur_Cardiac.organes;
+			org = Controleur_Cardiac.organesUnePrise;
 		}
 
 		// double les organes pour prise ant/post
@@ -39,28 +45,8 @@ public class Controleur_Cardiac extends ControleurScin {
 	}
 
 	@Override
-	public void preparerRoi() {
-		// on vide l'overlay et affiche la slice courante
-		this.showSliceWithOverlay(this.getRoiIndexSliceNumber());
-
-		Roi roi = null;
-		if (this.getRoiManager().getRoi(this.getIndexRoi()) != null) { // si la roi existe dans le manager
-			roi = this.getRoiManager().getRoi(getIndexRoi());
-		} else {
-			if (this.isPost()) { // si la prise est post, on decale l'organe precedent
-				roi = (Roi) this.getRoiManager().getRoi(getIndexRoi() - 1).clone();
-				roi.setLocation(roi.getXBase() + (this.getVue().getImp().getWidth() / 2), roi.getYBase());
-			}
-		}
-
-		// selectionne la roi si elle n'est pas nulle
-		this.selectRoi(roi);
-		this.afficherInstruction();
-	}
-
-	@Override
 	public boolean isOver() {
-		return this.getRoiManager().getCount() >= this.getOrganes().length;
+		return this.getRoiManager().getCount() >= this.getOrganes().length + this.sumCont();
 	}
 
 	@Override
@@ -68,13 +54,35 @@ public class Controleur_Cardiac extends ControleurScin {
 		System.out.println("Fin de la prise de roi");
 	}
 
-	private boolean isPrecoce() {
-		return this.getVue().getImp().getNSlices() >= 1;
-	}
-
 	@Override
 	public boolean isPost() {
 		return (this.getIndexRoi() % 2 == 1);
+	}
+
+
+
+	@Override
+	public int getSliceNumberByRoiIndex(int roiIndex) {
+		// changement de slice si la prise contient une precoce
+		if (this.isDeuxPrises()) {
+			if (roiIndex >= 4 + this.contSlice[0]) {
+				return 2;
+			}
+		}
+		return 1;
+	}
+
+	@Override
+	public Roi getOrganRoi() {
+		if (this.isPost()) { // si la prise est post, on decale l'organe precedent
+
+			Roi roi = (Roi) this.getRoiManager().getRoi(getIndexRoi() - 1).clone();
+
+			// on décale d'une demi largeur
+			roi.setLocation(roi.getXBase() + (this.getVue().getImp().getWidth() / 2), roi.getYBase());
+			return roi;
+		}
+		return null;
 	}
 
 	private void traiterContamination() {
@@ -86,54 +94,51 @@ public class Controleur_Cardiac extends ControleurScin {
 		}
 	}
 
-	@Override
-	public String createNomRoi() {
-		// création du nom du ROI selon la prise post ou ant
-		String nomRoi = this.getOrganes()[this.getIndexRoi()];
-		if (this.isPost()) {
-			nomRoi += " Post";
-		} else {
-			nomRoi += " Ant";
-		}
+	private boolean isDeuxPrises() {
+		return this.getVue().getImp().getNSlices() >= 1;
+	}
 
-		return nomRoi;
+	private void clicNewCont() {
+		String name = "Contamination";
+
+		this.saveCurrentRoi(name);
+
+		this.contSlice[this.getCurrentSlice() - 1] += 1;
+
+		this.preparerRoi();
+
+		// on affiche les instructions
+		this.getVue().getFen_application().setInstructions("Delimit a new contamination");
 	}
 
 	@Override
-	public Roi[] getRoisSlice(int nSlice) {// un peu sale, peut etre ameliore
-		List<Roi> rois = new ArrayList<Roi>();
-		int indexRoiDebut, indexRoiFin;
-
-		// si il s'agit de la premiere slice, on renvoie les 4 premieres roi (si elles
-		// existent)
-		if (this.getCurrentSlice() == 1) {
-			indexRoiDebut = 0;
-			indexRoiFin = 3;
-		} else { // sinon on renvoie toutes les autres
-			indexRoiDebut = 4;
-			indexRoiFin = this.getRoiManager().getCount();
+	public void traitementBouton(Button b) {
+		if (b == this.getVue().getFen_application().getBtn_newCont()) {
+			this.clicNewCont();
 		}
 
-		// construction de la liste
-		for (int i = indexRoiDebut + this.getNbContamination(); i <= indexRoiFin + this.getNbContamination(); i++) {
-			Roi roiIt = (Roi) this.getRoiManager().getRoi(i + this.getNbContamination());
-			if (roiIt != null && this.getIndexRoi() != i) {
-				rois.add(roiIt);
-			}
+		else if (b == this.getVue().getFen_application().getBtn_continue()) {
+			this.getVue().getFen_application().stopContaminationMode();
 		}
 
-		return rois.toArray(new Roi[0]);
 	}
 
 	@Override
-	public int getRoiIndexSliceNumber() {
-		// changement de slice si la prise contient une precoce
-		if (this.isPrecoce()) {
-			if (this.getIndexRoi() >= 4) {
-				return 2;
-			}
-		}
-		return 1;
+	public int getIndexRoi() {
+		return this.indexRoi + this.sumCont();
+	}
+
+	@Override
+	public void notifyClick() {
+		if (this.getIndexRoi() == this.contSlice[0] + 4)
+			this.traiterContamination();
+	}
+
+	private int sumCont() {
+		int sum = 0;
+		for (Integer i : this.contSlice)
+			sum += i;
+		return sum;
 	}
 
 }
