@@ -1,5 +1,6 @@
-package org.petctviewer.scintigraphy.scin.modele;
+package org.petctviewer.scintigraphy.scin.view;
 
-public class ModeleScin {
-
+public abstract class ModeleScin
+{
+	
 }
