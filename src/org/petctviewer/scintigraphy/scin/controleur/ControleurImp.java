@@ -9,8 +9,6 @@ public class ControleurImp implements ImageListener {
 	private int lastSlice = 1;
 	private boolean lockUpdate = false;
 	
-	private int nbContamination;
-	
 	public ControleurImp(ControleurScin ctrlScin) {
 		this.ctrlScin = ctrlScin;
 	}
@@ -18,7 +16,7 @@ public class ControleurImp implements ImageListener {
 	@Override
 	public void imageUpdated(ImagePlus imp) {
 		if(!this.lockUpdate) {
-			int currentSlice = this.ctrlScin.getCurrentSlice();
+			int currentSlice = this.ctrlScin.getImp().getCurrentSlice();
 			if(currentSlice != lastSlice) {
 				this.lastSlice = currentSlice;
 				this.lockUpdate = true;
@@ -30,13 +28,11 @@ public class ControleurImp implements ImageListener {
 	
 	@Override
 	public void imageOpened(ImagePlus imp) {
-		// TODO Auto-generated method stub
 		
 	}
 	
 	@Override
 	public void imageClosed(ImagePlus imp) {
-		// TODO Auto-generated method stub
 		
 	}
 }

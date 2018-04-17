@@ -335,7 +335,7 @@ public class Vue_Shunpo implements PlugIn {
 		win.setTitle(setTitre(win.getImagePlus()));
 		this.imp.setTitle(setTitre(this.imp));
 		// On initialise l'overlay
-		this.overlay = VueScin.initOverlay(imp);
+		this.overlay = VueScin.initOverlay(imp, 12);
 		VueScin.setOverlayDG(overlay, imp);
 		// On affiche l'image en 512*512 en forcant le zoom adhoc
 		win.getCanvas().setSize(new Dimension(512, 512));
@@ -436,7 +436,7 @@ public class Vue_Shunpo implements PlugIn {
 		win.repaint();
 		win.getImagePlus().killRoi();
 		// On ajouter l'overlay Droite/Gauche
-		this.overlay = VueScin.initOverlay(imp);
+		this.overlay = VueScin.initOverlay(imp, 12);
 		VueScin.setOverlayDG(overlay, imp);
 		win.getImagePlus().setOverlay(overlay);
 		// Variable pour notifier que l'image 2 est ouverte

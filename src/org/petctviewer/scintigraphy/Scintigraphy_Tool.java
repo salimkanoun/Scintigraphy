@@ -24,8 +24,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 
-	
-	
 public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 	
 	

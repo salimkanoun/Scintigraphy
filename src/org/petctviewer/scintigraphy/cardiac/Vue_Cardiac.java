@@ -18,10 +18,6 @@ public class Vue_Cardiac extends VueScin{
 		super("Cardiac");
 	}
 	
-	private ImagePlus creerMontage(ImagePlus imp) {
-		return imp;		
-	}
-
 	@Override
 	protected void ouvertureImage(String[] titresFenetres) {
 
@@ -47,12 +43,19 @@ public class Vue_Cardiac extends VueScin{
 
 		// si il y a plus de 3 minutes de différence entre les deux prises
 		if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {
-			IJ.log("Warning, frame duration differ by 3 minutes");
+			IJ.log("Warning, frame duration differ by" + (int) Math.abs(frameDuration[0] - frameDuration[1])/3*6000 + "minutes");
 		}
 
 		ImagePlus[] mountedSorted = VueScin.orderImagesByAcquisitionTime(mountedImages);
 		Concatenator enchainer = new Concatenator();
-		ImagePlus impStacked = enchainer.concatenate(mountedSorted, false);
+		
+		ImagePlus impStacked;
+		if(titresFenetres.length == 2) {
+			impStacked = enchainer.concatenate(mountedSorted, false);
+		}else {
+			impStacked = mountedSorted[0];
+		}
+		
 		this.setImp(impStacked);
 		
 		// Charge la LUT
@@ -62,7 +65,7 @@ public class Vue_Cardiac extends VueScin{
 		// dans une fenetre c'est une pile d'images (plus d'une image) on cree une
 		// fenetre pour la pile d'images;
 		this.fen_application = new FenetreApplication(this.getImp(), this.getExamType());
-		Controleur_Cardiac ctrl = new Controleur_Cardiac(this, null);
+		Controleur_Cardiac ctrl = new Controleur_Cardiac(this);
 		this.fen_application.setControleur(ctrl);
 		
 		IJ.setTool(Toolbar.POLYGON);

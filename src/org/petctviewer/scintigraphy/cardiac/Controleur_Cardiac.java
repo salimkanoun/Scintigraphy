@@ -7,31 +7,38 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.scin.controleur.ControleurScin;
-import org.petctviewer.scintigraphy.scin.view.ModeleScin;
+import org.petctviewer.scintigraphy.scin.modele.ModeleScin;
 import org.petctviewer.scintigraphy.scin.view.VueScin;
 
 import ij.gui.Roi;
+import ij.plugin.RoiRotator;
+import ij.plugin.RoiScaler;
 
 public class Controleur_Cardiac extends ControleurScin {
 
-	private static String[] organesDeuxPrises = { "Right Liver", "Left Liver", "Bladder", "Right Liver", "Left Liver",
-			"Heart", "Background noise" };
-	private static String[] organesUnePrise = { "Bladder", "Right Liver", "Left Liver", "Heart", "Background noise" };
+	private static String[] organesDeuxPrises = { "Kidney R", "Kidney L", "Bladder", "Kidney R", "Kidney L",
+			"Heart", "Bkg noise" };
+	private static String[] organesUnePrise = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
 
-	private int nbContamination;
 	private int[] contSlice;
 
-	protected Controleur_Cardiac(VueScin vue, ModeleScin leModele) {
-		super(vue, leModele);
+	protected Controleur_Cardiac(VueScin vue) {
+		super(vue);
 
+		Modele_Cardiac mdl = new Modele_Cardiac();
 		this.contSlice = new int[2];
 
 		String[] org = null;
 		if (this.isDeuxPrises()) {
 			org = Controleur_Cardiac.organesDeuxPrises;
+			mdl.setDeuxPrise(true);
 		} else {
 			org = Controleur_Cardiac.organesUnePrise;
+			mdl.setDeuxPrise(false);
 		}
+
+		mdl.calculerMoyGeomTotale(this.getImp());
+		this.setModele(mdl);
 
 		// double les organes pour prise ant/post
 		List<String> organesAntPost = new ArrayList<String>();
@@ -51,15 +58,14 @@ public class Controleur_Cardiac extends ControleurScin {
 
 	@Override
 	public void fin() {
-		System.out.println("Fin de la prise de roi");
+		Modele_Cardiac mdl = (Modele_Cardiac) this.getModele();
+		mdl.afficherResultats();
 	}
 
 	@Override
 	public boolean isPost() {
 		return (this.getIndexRoi() % 2 == 1);
 	}
-
-
 
 	@Override
 	public int getSliceNumberByRoiIndex(int roiIndex) {
@@ -74,6 +80,17 @@ public class Controleur_Cardiac extends ControleurScin {
 
 	@Override
 	public Roi getOrganRoi() {
+		if(this.indexRoi == this.getOrganes().length + this.sumCont() - 2) {
+			Roi roi = (Roi) this.getRoiManager().getRoi(indexRoi - 2).clone();
+			
+			roi = RoiScaler.scale(roi, -1, 1, true);
+			
+			int quart = (this.getVue().getImp().getWidth() / 4);
+			int newX = (int) (roi.getXBase() - Math.abs(2*(roi.getXBase() - quart)) - roi.getFloatWidth());
+			roi.setLocation(newX, roi.getYBase());
+			return roi;
+		}
+		
 		if (this.isPost()) { // si la prise est post, on decale l'organe precedent
 
 			Roi roi = (Roi) this.getRoiManager().getRoi(getIndexRoi() - 1).clone();
@@ -95,15 +112,15 @@ public class Controleur_Cardiac extends ControleurScin {
 	}
 
 	private boolean isDeuxPrises() {
-		return this.getVue().getImp().getNSlices() >= 1;
+		return this.getVue().getImp().getNSlices() > 1;
 	}
 
 	private void clicNewCont() {
-		String name = "Contamination";
+		String name = this.createNomRoi("Contamination");
 
 		this.saveCurrentRoi(name);
 
-		this.contSlice[this.getCurrentSlice() - 1] += 1;
+		this.contSlice[this.getImp().getCurrentSlice() - 1] += 1;
 
 		this.preparerRoi();
 
@@ -130,8 +147,25 @@ public class Controleur_Cardiac extends ControleurScin {
 
 	@Override
 	public void notifyClick() {
-		if (this.getIndexRoi() == this.contSlice[0] + 4)
-			this.traiterContamination();
+		if (this.isDeuxPrises()) {
+			if (this.getIndexRoi() == this.contSlice[0] + 4)
+				this.traiterContamination();
+		}
+	}
+
+	@Override
+	public String getSameNameRoiCount(String nomRoi) {
+		// si il s'agit d'un contamination, on affiche un numero pour les differencier
+		if (nomRoi.contains("Conta")) {
+			return this.getSameNameRoiCount("") + super.getSameNameRoiCount(nomRoi);
+		}
+
+		// sinon on renvoie Early ou Late
+		if (this.isDeuxPrises() && this.getSliceNumberByRoiIndex(this.getIndexRoi()) == 1) {
+			return "E";
+		} else {
+			return "L";
+		}
 	}
 
 	private int sumCont() {

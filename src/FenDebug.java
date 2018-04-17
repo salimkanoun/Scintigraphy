@@ -11,6 +11,8 @@ import org.petctviewer.scintigraphy.scin.view.VueScin;
 
 public class FenDebug extends JFrame{
 
+	private static final long serialVersionUID = -902779990950720955L;
+
 	public FenDebug() {
 		JPanel p = new JPanel();
 		

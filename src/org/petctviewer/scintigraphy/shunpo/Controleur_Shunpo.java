@@ -21,6 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 
+import org.petctviewer.scintigraphy.scin.modele.ModeleScin;
 import org.petctviewer.scintigraphy.scin.view.VueScin;
 
 import ij.IJ;
@@ -75,7 +76,7 @@ public class Controleur_Shunpo implements ActionListener {
 				laVue.lesBoutons.get("Precedent").setEnabled(true);
 				String tag = DicomTools.getTag(laVue.win.getImagePlus(), "0010,0010");
 				leModele.setPatient(tag,laVue.win.getImagePlus());
-				tagCapture=Modele_Shunpo.genererDicomTagsPartie1(laVue.win.getImagePlus(), nomProgramme);
+				tagCapture=ModeleScin.genererDicomTagsPartie1(laVue.win.getImagePlus(), nomProgramme);
 				//On verifie que la ROI suivante n'est pas deja pr茅sente dans le ROI manager(cas d'un retour) auquel cas on l'affiche
 				if (laVue.leRoi.getRoi((index))!= null) {
 					laVue.leRoi.select(index);
@@ -133,7 +134,7 @@ public class Controleur_Shunpo implements ActionListener {
 				leModele.calculerCoups("BDFP",laVue.win.getImagePlus());
 				laVue.win.getImagePlus().killRoi();
 				//On prend la capture
-				capture[0]=Modele_Shunpo.captureImage(laVue.win.getImagePlus(),512,512);
+				capture[0]=ModeleScin.captureImage(laVue.win.getImagePlus(),512,512);
 				//On efface l'overlay pour repartir 脿 zero
 				laVue.overlay.clear();
 				//On remet le Droit Gauche
@@ -208,7 +209,7 @@ public class Controleur_Shunpo implements ActionListener {
 				//On ne peut plus revenir en arriere
 				laVue.lesBoutons.get("Precedent").setEnabled(false);
 				//On prend la capture
-				capture[1]=Modele_Shunpo.captureImage(laVue.win.getImagePlus(),512,512);
+				capture[1]=ModeleScin.captureImage(laVue.win.getImagePlus(),512,512);
 				//On efface l'overlay pour repartir 脿 zero dans l'overlay
 				laVue.overlay.clear();
 				laVue.win.getImagePlus().killRoi();
@@ -231,7 +232,7 @@ public class Controleur_Shunpo implements ActionListener {
 				laVue.overlay.add(laVue.leRoi.getRoi(10));
 				//FIN A DEBEUGER SALIM
 				laVue.win.getImagePlus().setOverlay(laVue.overlay);
-				capture[2]=Modele_Shunpo.captureImage(laVue.win.getImagePlus(),512,512);
+				capture[2]=ModeleScin.captureImage(laVue.win.getImagePlus(),512,512);
 				etat = etat.next() ;
 				laVue.overlay.clear();
 				laVue.win.getImagePlus().setRoi((Roi) laVue.leRoi.getRoi(10));
@@ -244,13 +245,13 @@ public class Controleur_Shunpo implements ActionListener {
 				addRoi("Brain Ant");
 				leModele.calculerCoups("CA",laVue.win.getImagePlus());
 				laVue.overlay.add(laVue.leRoi.getRoi(12));
-				capture[3]=Modele_Shunpo.captureImage(laVue.win.getImagePlus(),512,512);
+				capture[3]=ModeleScin.captureImage(laVue.win.getImagePlus(),512,512);
 				laVue.win.getImagePlus().deleteRoi();
 				laVue.overlay.clear();
 				String[] resultats = leModele.resultats();
 				laVue.labelsResultats(resultats) ;
 				//On passe les capture en stack
-				ImageStack stackCapture=Modele_Shunpo.captureToStack(capture);
+				ImageStack stackCapture=ModeleScin.captureToStack(capture);
 				//on fait le montage du stack et on g茅n猫re l'interface resultat
 				laVue.UIResultats(leModele.montage(stackCapture, nomProgramme));
 				laVue.win.close();
@@ -260,11 +261,11 @@ public class Controleur_Shunpo implements ActionListener {
 		if (b == laVue.lesBoutons.get("Capture")){
 				laVue.lesBoutons.get("Capture").setVisible(false);
 				laVue.Csv.setText("Provided By Petctviewer.org");
-				ImagePlus captureFinale =Modele_Shunpo.captureFenetre(WindowManager.getCurrentImage(),0,0);
+				ImagePlus captureFinale =ModeleScin.captureFenetre(WindowManager.getCurrentImage(),0,0);
 				WindowManager.getCurrentWindow().getImagePlus().changes=false;
 				WindowManager.getCurrentWindow().close();
 				//On genere la 2eme partie des tag dicom et on l'ajoute 脿 la 1ere partie dans le property de l'image finale
-				captureFinale.setProperty("Info", tagCapture+=(Modele_Shunpo.genererDicomTagsPartie2(captureFinale)));
+				captureFinale.setProperty("Info", tagCapture+=(ModeleScin.genererDicomTagsPartie2(captureFinale)));
 				//On affiche et on agrandie la fenetre de la capture finale
 				captureFinale.show();
 				captureFinale.getCanvas().setScaleToFit(true);
@@ -273,7 +274,7 @@ public class Controleur_Shunpo implements ActionListener {
 				//On sauve les resultats en CSV et ZIP
 				try {
 					String[] resultatscsv= leModele.buildCSVResultats();
-					Modele_Shunpo.exportAll(resultatscsv,2,laVue.leRoi, nomProgramme,captureFinale);
+					ModeleScin.exportAll(resultatscsv,2,laVue.leRoi, nomProgramme,captureFinale);
 					} catch (FileNotFoundException e) {}
 				//On fait la capture finale
 				captureFinale.getWindow().toFront();

@@ -220,7 +220,7 @@ public class Vue_VG_Dynamique  implements PlugIn {
 			//On change les titres
 			imp.setTitle(titre);
 			windowstack.setTitle(titre);
-			this.overlay=VueScin.initOverlay(imp);
+			this.overlay=VueScin.initOverlay(imp, 12);
 			VueScin.setOverlayDG(overlay, imp);
 			// On set la dimension de l'image
 			windowstack.getCanvas().setSize(new Dimension(512,512));

@@ -29,7 +29,6 @@ public abstract class VueScin implements PlugIn {
 	private String examType;
 	
 	protected FenetreApplication fen_application;
-	private ModeleScin leModele;
 	
 	private ImagePlus imp;
 	private Boolean antPost = Boolean.valueOf(false);
@@ -615,10 +614,11 @@ public abstract class VueScin implements PlugIn {
 	/**
 	 * Cree overlay et set la police SK : A Optimiser pour tenir compte de la taille
 	 * initiale de l'Image
+	 * taille standard = 12
 	 * 
 	 * @return Overlay
 	 */
-	public static Overlay initOverlay(ImagePlus imp) {
+	public static Overlay initOverlay(ImagePlus imp, int taille) {
 		// On initialise l'overlay il ne peut y avoir qu'un Overlay
 		// pour tout le programme sur lequel on va ajouter/enlever les ROI au fur et a
 		// mesure
@@ -627,7 +627,7 @@ public abstract class VueScin implements PlugIn {
 		int width = imp.getWidth();
 		// On normalise Taille 12 a 256 pour avoir une taille stable pour toute image
 		Float facteurConversion = (float) ((width * 1.0) / 256);
-		Font font = new Font("Arial", Font.PLAIN, Math.round(12 * facteurConversion));
+		Font font = new Font("Arial", Font.PLAIN, Math.round(taille * facteurConversion));
 		overlay.setLabelFont(font, true);
 		overlay.drawLabels(true);
 		overlay.drawNames(true);

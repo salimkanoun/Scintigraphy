@@ -138,14 +138,14 @@ public class FenetreApplication extends StackWindow {
 		this.instru.add(this.createBtnsInstru());
 		this.adaptWindow();
 		this.setInstructions(0);
-		this.controleur.showSliceWithOverlay(this.controleur.getCurrentSlice());
+		this.controleur.showSliceWithOverlay(this.getImagePlus().getCurrentSlice());
 		this.modeCont = false;
 	}
 
 	/// affiche l'overlay Droite/Gauche
 	private void setOverlay() {
 		// On initialise l'overlay avec les label DG
-		Overlay overlay = VueScin.initOverlay(this.imp);
+		Overlay overlay = VueScin.initOverlay(this.imp, 7);
 		VueScin.setOverlayDG(overlay, this.imp);
 		// On met sur l'image
 		this.getImagePlus().setOverlay(overlay);

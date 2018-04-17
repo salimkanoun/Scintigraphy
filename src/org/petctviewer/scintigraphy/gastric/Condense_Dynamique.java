@@ -17,8 +17,8 @@ package org.petctviewer.scintigraphy.gastric;
 import java.awt.*;
 import java.util.ArrayList;
 
+import org.petctviewer.scintigraphy.scin.modele.ModeleScin;
 import org.petctviewer.scintigraphy.scin.view.VueScin;
-import org.petctviewer.scintigraphy.shunpo.Modele_Shunpo;
 
 import ij.*;
 import ij.gui.*;
@@ -69,7 +69,7 @@ public class Condense_Dynamique implements PlugIn {
 			imagesOuvertes = WindowManager.getImageTitles();
 
 			// On sauve le header
-			tag = Modele_Shunpo.genererDicomTagsPartie1(WindowManager.getImage(imagesOuvertes[0]), "Condense");
+			tag = ModeleScin.genererDicomTagsPartie1(WindowManager.getImage(imagesOuvertes[0]), "Condense");
 
 			// On met les images ouvertes dans un tableau pour les trier
 			ArrayList<ImagePlus> imagesOuvertesPlus = new ArrayList<ImagePlus>();
@@ -161,13 +161,13 @@ public class Condense_Dynamique implements PlugIn {
 			wait = new WaitForUserDialog("Adjust contrast and click OK to Capture");
 			wait.show();
 			// On capture
-			ImagePlus imp3 = Modele_Shunpo.captureImage(imp2, 700, 0);
+			ImagePlus imp3 = ModeleScin.captureImage(imp2, 700, 0);
 			imp2.close();
 			// On resize
 			imp3.show();
 			imp3.getCanvas().setScaleToFit(true);
 			// On fait le header DICOM
-			tag += Modele_Shunpo.genererDicomTagsPartie2(imp2);
+			tag += ModeleScin.genererDicomTagsPartie2(imp2);
 			imp3.setProperty("Info", tag);
 			// On propose de sauver en DICOM
 			IJ.run("myDicom...");

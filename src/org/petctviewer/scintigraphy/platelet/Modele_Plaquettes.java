@@ -40,6 +40,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.scin.modele.ModeleScin;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -56,23 +57,9 @@ public class Modele_Plaquettes {
 	HashMap<Date, MesureImage> mesures = new HashMap<Date, MesureImage>();
 	private Date dateHeureDebut;
 
-	protected void enregisterMesure(String roi, ImagePlus imp) {
-		// Parse de la date et heure d'acquisition
-		String aquisitionDate = DicomTools.getTag(imp, "0008,0022");
-		String aquisitionTime = DicomTools.getTag(imp, "0008,0032");
-		String dateInput = aquisitionDate.trim() + aquisitionTime.trim();
-		// On enleve les milisec qui sont inconstants
-		int separateurPoint = dateInput.indexOf(".");
-		if (separateurPoint != -1)
-			dateInput = dateInput.substring(0, separateurPoint);
-
-		SimpleDateFormat parser = new SimpleDateFormat("yyyyMMddHHmmss");
-		Date dateAcquisition = null;
-		try {
-			dateAcquisition = parser.parse(dateInput);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
+	protected void enregisterMesure(String roi, ImagePlus imp) {		
+		Date dateAcquisition = ModeleScin.getDateAcquisition(imp);
+		
 		// Recupere la somme des coups dans la ROI (integrated Density) et la valeur
 		// moyenne de la Roi (mean)
 		Analyzer.setMeasurement(Measurements.INTEGRATED_DENSITY, true);
@@ -80,6 +67,7 @@ public class Modele_Plaquettes {
 		Analyzer analyser = new Analyzer(imp);
 		analyser.measure();
 		ResultsTable density = Analyzer.getResultsTable();
+		
 		double counts = density.getValueAsDouble(ResultsTable.RAW_INTEGRATED_DENSITY, 0);
 		double mean = density.getValueAsDouble(ResultsTable.MEAN, 0);
 
@@ -211,7 +199,7 @@ public class Modele_Plaquettes {
 	 * @param table
 	 * @return
 	 */
-	protected ImagePlus[] createDataset(JTable table) {
+ 	protected ImagePlus[] createDataset(JTable table) {
 		XYSeriesCollection datasetPost = new XYSeriesCollection();
 		XYSeriesCollection datasetGM = new XYSeriesCollection();
 		XYSeriesCollection datasetJ0Ratio = new XYSeriesCollection();

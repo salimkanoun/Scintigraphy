@@ -384,7 +384,7 @@ public class Vue_Plaquettes implements PlugIn {
 		win.setLocationRelativeTo(null);
 		win.toFront();
 		// On initialise l'overlay avec les label DG
-		this.overlay = VueScin.initOverlay(imp);
+		this.overlay = VueScin.initOverlay(imp, 12);
 		VueScin.setOverlayDG(overlay, imp);
 		// On met sur l'image
 		win.getImagePlus().setOverlay(overlay);

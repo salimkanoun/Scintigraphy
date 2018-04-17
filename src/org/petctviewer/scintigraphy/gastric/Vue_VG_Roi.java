@@ -383,7 +383,7 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 		// On change les titres
 		imp.setTitle(titre);
 		windowstack.setTitle(titre);
-		this.overlay=VueScin.initOverlay(imp);
+		this.overlay=VueScin.initOverlay(imp, 12);
 		VueScin.setOverlayDG(overlay, imp);
 		windowstack.getImagePlus().setOverlay(overlay);
 		// On set la dimension de l'image

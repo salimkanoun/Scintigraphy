@@ -20,8 +20,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JTable;
 
+import org.petctviewer.scintigraphy.scin.modele.ModeleScin;
 import org.petctviewer.scintigraphy.scin.view.VueScin;
-import org.petctviewer.scintigraphy.shunpo.Modele_Shunpo;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -69,12 +69,12 @@ public class Controleur_Plaquettes implements ActionListener {
 		if (b == laVue.lesBoutons.get("Capture")) {
 			laVue.lesBoutons.get("Capture").setVisible(false);
 			laVue.Csv.setText("Provided By Petctviewer.org");
-			ImagePlus captureFinale = Modele_Shunpo.captureFenetre(WindowManager.getCurrentImage(), 0, 0);
+			ImagePlus captureFinale = ModeleScin.captureFenetre(WindowManager.getCurrentImage(), 0, 0);
 			WindowManager.getCurrentWindow().getImagePlus().changes = false;
 			WindowManager.getCurrentWindow().close();
 			// On genere la 2eme partie des tag dicom et on l'ajoute a la 1ere partie dans
 			// le property de l'image finale
-			captureFinale.setProperty("Info", tagCapture += (Modele_Shunpo.genererDicomTagsPartie2(captureFinale)));
+			captureFinale.setProperty("Info", tagCapture += (ModeleScin.genererDicomTagsPartie2(captureFinale)));
 			// On affiche et on agrandie la fenetre de la capture finale
 			captureFinale.show();
 			// On met un zoom a 80%
@@ -134,7 +134,7 @@ public class Controleur_Plaquettes implements ActionListener {
 	private void clicSuivant() {
 		// ajout du tag si il n'est pas encore présent
 		if (tagCapture == null) {
-			tagCapture = Modele_Shunpo.genererDicomTagsPartie1(laVue.win.getImagePlus(), "Platelet");
+			tagCapture = ModeleScin.genererDicomTagsPartie1(laVue.win.getImagePlus(), "Platelet");
 		}
 
 		// sauvegarde du ROI actuel
@@ -145,7 +145,7 @@ public class Controleur_Plaquettes implements ActionListener {
 	}
 
 	private void fin() {
-		ImagePlus capture = Modele_Shunpo.captureImage(laVue.win.getImagePlus(), 512, 512);
+		ImagePlus capture = ModeleScin.captureImage(laVue.win.getImagePlus(), 512, 512);
 		// On resize le canvas pour etre a la meme taille que les courbes
 		ImageProcessor ip = capture.getProcessor();
 		CanvasResizer canvas = new CanvasResizer();

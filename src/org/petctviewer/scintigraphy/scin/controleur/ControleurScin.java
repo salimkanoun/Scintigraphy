@@ -19,14 +19,11 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.petctviewer.scintigraphy.scin.view.ModeleScin;
+import org.petctviewer.scintigraphy.scin.modele.ModeleScin;
 import org.petctviewer.scintigraphy.scin.view.VueScin;
-import org.petctviewer.scintigraphy.shunpo.Modele_Shunpo;
 import ij.IJ;
-import ij.ImageListener;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.Roi;
@@ -45,13 +42,16 @@ public abstract class ControleurScin implements ActionListener {
 	protected int indexRoi;
 
 	// Sert au restart
-	protected ControleurScin(VueScin vue, ModeleScin leModele) {
+	protected ControleurScin(VueScin vue) {
 		this.laVue = vue;
-		this.leModele = leModele;
 
 		this.indexRoi = 0;
 
 		this.attachListener();
+	}
+	
+	public void setModele(ModeleScin modele) {
+		this.leModele = modele;
 	}
 
 	@Override
@@ -69,12 +69,12 @@ public abstract class ControleurScin implements ActionListener {
 		else if (b == laVue.getFen_application().getBtn_capture()) {
 			laVue.getFen_application().getBtn_capture().setVisible(false);
 			// laVue.csv.setText("Provided By Petctviewer.org");
-			ImagePlus captureFinale = Modele_Shunpo.captureFenetre(WindowManager.getCurrentImage(), 0, 0);
+			ImagePlus captureFinale = ModeleScin.captureFenetre(WindowManager.getCurrentImage(), 0, 0);
 			WindowManager.getCurrentWindow().getImagePlus().changes = false;
 			WindowManager.getCurrentWindow().close();
 			// On genere la 2eme partie des tag dicom et on l'ajoute a la 1ere partie dans
 			// le property de l'image finale
-			captureFinale.setProperty("Info", tagCapture += (Modele_Shunpo.genererDicomTagsPartie2(captureFinale)));
+			captureFinale.setProperty("Info", tagCapture += (ModeleScin.genererDicomTagsPartie2(captureFinale)));
 			// On affiche et on agrandie la fenetre de la capture finale
 			captureFinale.show();
 			// On met un zoom a 80%
@@ -152,7 +152,7 @@ public abstract class ControleurScin implements ActionListener {
 
 	private void clicPrecedent() {
 		// sauvegarde du ROI courant
-		this.saveCurrentRoi(this.createNomRoi());
+		this.saveCurrentRoi(this.createNomRoi(this.getOrganes()[this.indexRoi]));
 
 		if (this.indexRoi > 0) {
 			indexRoi--;
@@ -167,12 +167,12 @@ public abstract class ControleurScin implements ActionListener {
 	private void clicSuivant() {
 		// ajout du tag si il n'est pas encore présent
 		if (tagCapture == null) {
-			tagCapture = Modele_Shunpo.genererDicomTagsPartie1(laVue.getFen_application().getImagePlus(),
+			tagCapture = ModeleScin.genererDicomTagsPartie1(laVue.getFen_application().getImagePlus(),
 					laVue.getExamType());
 		}
 
 		// sauvegarde du ROI actuel
-		boolean saved = this.saveCurrentRoi(this.createNomRoi());
+		boolean saved = this.saveCurrentRoi(this.createNomRoi(this.getOrganes()[this.indexRoi]));
 		// si la sauvegarde est reussie
 		if (saved) {
 			// on active le bouton precedent
@@ -195,7 +195,7 @@ public abstract class ControleurScin implements ActionListener {
 	 * 
 	 * @return nombre de roi avec le meme nom
 	 */
-	public int getSameNameRoiCount(String nomRoi) {
+	public String getSameNameRoiCount(String nomRoi) {
 		String[] roiNames = new String[this.getRoiManager().getCount()];
 		for (int i = 0; i < roiNames.length; i++) {
 			roiNames[i] = this.getRoiManager().getRoisAsArray()[i].getName();
@@ -208,7 +208,7 @@ public abstract class ControleurScin implements ActionListener {
 			}
 		}
 
-		return count;
+		return String.valueOf(count);
 	}
 
 	/**
@@ -243,17 +243,15 @@ public abstract class ControleurScin implements ActionListener {
 	public boolean saveCurrentRoi(String nomRoi) {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
 
-			// TODO on enregistre la ROI dans le modele
-			// leModele.enregisterMesure(nomRoi, laVue.getFen_application().getImagePlus());
+			// on enregistre la ROI dans le modele
+			leModele.enregisterMesure(nomRoi, laVue.getFen_application().getImagePlus());
 
+			String nom2 = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
 			if (laVue.getRoiManager().getRoi(this.getIndexRoi()) == null) {
-
-				nomRoi += this.getSameNameRoiCount(nomRoi);
-
 				laVue.getRoiManager().addRoi(laVue.getFen_application().getImagePlus().getRoi());
-				laVue.getRoiManager().rename(this.getIndexRoi(), nomRoi);
+				laVue.getRoiManager().rename(this.getIndexRoi(), nom2);
 
 			} else { // Si il existe on fait un update
 				this.laVue.getRoiManager().select(this.getIndexRoi());
@@ -282,7 +280,7 @@ public abstract class ControleurScin implements ActionListener {
 		laVue.getFen_application().showSlice(nSlice);
 
 		// on affiche les roi pour cette slide
-		for (Roi roi : this.getRoisSlice(this.getCurrentSlice())) {
+		for (Roi roi : this.getRoisSlice(this.getImp().getCurrentSlice())) {
 			// on ajoute les roi dans l'overlay si ce n'est pas la roi courante
 			if (roi != this.getRoiManager().getRoi(getIndexRoi())) {
 				this.ajouterRoiOverlay(roi);
@@ -311,14 +309,19 @@ public abstract class ControleurScin implements ActionListener {
 		return rois.toArray(new Roi[0]);
 	}
 	
-	public String createNomRoi() {
-		// création du nom du ROI selon la prise post ou ant
-		String nomRoi = this.getOrganes()[this.indexRoi];
+	public String createNomRoi(String nomRoi) {
 		if (this.isPost()) {
-			nomRoi += " Post";
+			nomRoi += " P";
 		} else {
-			nomRoi += " Ant";
+			nomRoi += " A";
 		}
+		
+		if(this.getRoiManager().getRoi(this.getIndexRoi()) == null) {
+			nomRoi += this.getSameNameRoiCount(nomRoi);
+		}else {
+			nomRoi = this.getRoiManager().getRoi(this.getIndexRoi()).getName();
+		}
+		
 		return nomRoi;
 	}
 
@@ -364,8 +367,12 @@ public abstract class ControleurScin implements ActionListener {
 		this.organes = organes;
 	}
 
-	public int getCurrentSlice() {
-		return this.laVue.getImp().getCurrentSlice();
+	public ImagePlus getImp() {
+		return this.laVue.getImp();
+	}
+	
+	public ModeleScin getModele() {
+		return this.leModele;
 	}
 
 }
