@@ -1,17 +1,16 @@
 package org.petctviewer.scintigraphy.cardiac;
 
 import java.awt.Button;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.scin.controleur.ControleurScin;
-import org.petctviewer.scintigraphy.scin.modele.ModeleScin;
 import org.petctviewer.scintigraphy.scin.view.VueScin;
 
 import ij.gui.Roi;
-import ij.plugin.RoiRotator;
 import ij.plugin.RoiScaler;
 
 public class Controleur_Cardiac extends ControleurScin {
@@ -112,7 +111,7 @@ public class Controleur_Cardiac extends ControleurScin {
 	}
 
 	private boolean isDeuxPrises() {
-		return this.getVue().getImp().getNSlices() > 1;
+		return this.getVue().getImp().getImageStackSize() > 1;
 	}
 
 	private void clicNewCont() {
@@ -129,7 +128,19 @@ public class Controleur_Cardiac extends ControleurScin {
 	}
 
 	@Override
-	public void traitementBouton(Button b) {
+	public int getIndexRoi() {
+		return this.indexRoi + this.sumCont();
+	}
+
+	@Override
+	public void notifyClick(ActionEvent arg0) {
+		if (this.isDeuxPrises()) {
+			if (this.getIndexRoi() == this.contSlice[0] + 4)
+				this.traiterContamination();
+		}
+		
+		Button b = (Button) arg0.getSource();
+		
 		if (b == this.getVue().getFen_application().getBtn_newCont()) {
 			this.clicNewCont();
 		}
@@ -137,20 +148,7 @@ public class Controleur_Cardiac extends ControleurScin {
 		else if (b == this.getVue().getFen_application().getBtn_continue()) {
 			this.getVue().getFen_application().stopContaminationMode();
 		}
-
-	}
-
-	@Override
-	public int getIndexRoi() {
-		return this.indexRoi + this.sumCont();
-	}
-
-	@Override
-	public void notifyClick() {
-		if (this.isDeuxPrises()) {
-			if (this.getIndexRoi() == this.contSlice[0] + 4)
-				this.traiterContamination();
-		}
+		
 	}
 
 	@Override

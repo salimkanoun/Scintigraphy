@@ -30,6 +30,11 @@ import ij.util.DicomTools;
 
 public abstract class ModeleScin {
 
+	/**
+	 * Enregistrer la mesure de la roi courante de l'image plus dans le format souhaité
+	 * @param nomRoi nom de la roi presente sur l'image plus
+	 * @param imp ImagePlus a traiter
+	 */
 	public abstract void enregisterMesure(String nomRoi, ImagePlus imp);
 
 	/**

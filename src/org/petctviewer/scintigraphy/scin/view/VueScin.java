@@ -24,6 +24,7 @@ import java.util.Date;
 import javax.swing.JTable;
 
 import org.apache.commons.lang.StringUtils;
+import org.petctviewer.scintigraphy.platelet.FenetreResultat;
 
 public abstract class VueScin implements PlugIn {
 	private String examType;
@@ -34,14 +35,22 @@ public abstract class VueScin implements PlugIn {
 	private Boolean antPost = Boolean.valueOf(false);
 	protected int nombreAcquisitions;
 
-	public VueScin(String examType) {
+	protected VueScin(String examType) {
 		this.examType = examType;
 	}
 
+	/**
+	 * Lance la fenêtre de dialogue permettant le lancemet du programme
+	 */
 	public void run(String arg) {
 		new FenetreDialogue(this.examType, this);
 	}
 	
+	//TODO refactoriser en preparer imp et ouvrir fenetre ?
+	/**
+	 *Prepare la fenetre de l'application selon les dicoms ouvertes
+	 *@param titresFenetres liste des fenetres ouvertes
+	 */
 	protected abstract void ouvertureImage(String[] titresFenetres);
 
 	protected void UIResultats(ImagePlus screen, JTable tableresults) {
@@ -651,6 +660,9 @@ public abstract class VueScin implements PlugIn {
 		}
 	}
 
+	/**
+	 * termine le programme
+	 */
 	public void end() {
 		this.fen_application.dispose();
 		System.gc();

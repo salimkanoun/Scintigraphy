@@ -77,8 +77,8 @@ public class Modele_Cardiac extends ModeleScin {
 		
 		//on fait les moyennes geometriques de chaque ROI Early si elles existent
 		if(this.deuxPrises)	{
-			this.fixReinGE = moyGeom(results.get("Left Liver AE"), results.get("Left Liver PE"));
-			this.fixReinDE = moyGeom(results.get("Right Liver AE"), results.get("Right Liver PE"));
+			this.fixReinGE = moyGeom(results.get("Kidney L AE"), results.get("Kidney L PE"));
+			this.fixReinDE = moyGeom(results.get("Kidney R AE"), results.get("Kidney R PE"));
 		}
 
 		//on somme les moyennes geometriques des contaminations

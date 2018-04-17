@@ -20,7 +20,7 @@ public class Vue_Cardiac extends VueScin{
 	
 	@Override
 	protected void ouvertureImage(String[] titresFenetres) {
-
+		
 		ArrayList<ImagePlus> mountedImages = new ArrayList<ImagePlus>();
 
 		int[] frameDuration = new int[2];
@@ -69,6 +69,7 @@ public class Vue_Cardiac extends VueScin{
 		this.fen_application.setControleur(ctrl);
 		
 		IJ.setTool(Toolbar.POLYGON);
+		
 	}
 
 }

@@ -44,6 +44,11 @@ public class FenetreApplication extends StackWindow {
 	
 	private boolean modeCont;
 
+	/**
+	 * Cree et ouvre la fenetre principale de l'application
+	 * @param imp ImagePlus a traiter
+	 * @param nom Nom du type de scintigraphie
+	 */
 	public FenetreApplication(ImagePlus imp, String nom) {
 		super(imp, new ImageCanvas(imp));
 		
@@ -108,7 +113,7 @@ public class FenetreApplication extends StackWindow {
 		this.setOverlay();
 	}
 	
-	public Panel createBtnsInstru() {
+	private Panel createBtnsInstru() {
 		Panel btns_instru = new Panel();
 		btns_instru.setLayout(new GridLayout(1, 3));
 		btns_instru.add(this.btn_showlog);
@@ -117,6 +122,9 @@ public class FenetreApplication extends StackWindow {
 		return btns_instru;
 	}
 	
+	/**
+	 * Lance le mode decontamiation, c'est a dire modifier les boutons de la fenetre
+	 */
 	public void startContaminationMode() {
 		this.instru.remove(1);
 		
@@ -133,6 +141,9 @@ public class FenetreApplication extends StackWindow {
 		this.lbl_instructions.setText("Decontamination mode");
 	}
 	
+	/**
+	 * Remplace les boutons permettant la decontamination par les boutons utilisés pour délimiter les rois
+	 */
 	public void stopContaminationMode() {
 		this.instru.remove(1);
 		this.instru.add(this.createBtnsInstru());

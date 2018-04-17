@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin.view;
+package org.petctviewer.scintigraphy.platelet;
 
 import ij.ImagePlus;
 import ij.Prefs;
@@ -23,7 +23,7 @@ public class FenetreResultat
   private Label lbl_csv;
   private Button btn_capture;
   
-  FenetreResultat(ImagePlus imp, JTable tableResults)
+  public FenetreResultat(ImagePlus imp, JTable tableResults)
   {
     super(imp, new ImageCanvas(imp));
     

@@ -19,6 +19,11 @@ public class FenetreDialogue extends Frame {
 	private Button btn_valider;
 	private VueScin vue;
 
+	/**
+	 * Cree et ouvre ue fenetre de dialogue demandant a l'utilisateur d'ouvrir toutes les dicom a traiter
+	 * @param examType Libellé de l'examen de scintigraphie
+	 * @param vue vue de ce type d'examen, appelle la methode {@link VueScin#ouvertureImage(String[])} a l'appui du bouton valider
+	 */
 	public FenetreDialogue(String examType, VueScin vue) {
 		this.vue = vue;
 

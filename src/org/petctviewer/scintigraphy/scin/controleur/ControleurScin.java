@@ -41,7 +41,6 @@ public abstract class ControleurScin implements ActionListener {
 	private String[] organes;
 	protected int indexRoi;
 
-	// Sert au restart
 	protected ControleurScin(VueScin vue) {
 		this.laVue = vue;
 
@@ -128,15 +127,20 @@ public abstract class ControleurScin implements ActionListener {
 				laVue.getFen_application().getBtn_showlog().setLabel("Show Log");
 				// laVue.lesBoutons.get("Show").setBackground(null);
 			}
-		} else {
-			this.traitementBouton(b);
 		}
-		this.notifyClick();
+		this.notifyClick(arg0);
 	}
 
-	public void notifyClick() {		
+	/**
+	 * Est appelée a la fin de action performed, son corps est vide
+	 * <b> Cette methode existe uniquement pour etre override </b>
+	 */
+	public void notifyClick(ActionEvent arg0) {		
 	}
 
+	/**
+	 Prepare la roi qui se situera a indexRoi
+	 */
 	public void preparerRoi() {
 		// on affiche la slice
 		this.showSliceWithOverlay(this.getSliceNumberByRoiIndex(this.getIndexRoi()));
@@ -224,20 +228,30 @@ public abstract class ControleurScin implements ActionListener {
 	 */
 	public abstract void fin();
 
+	/**
+	 * Renvoie le numero de slice ou doit se trouver la roi d'index roiIndex
+	 * @param roiIndex Index de la roi dont il faut determiner le numero de slice
+	 * @return le numero de slice ou se trouve la roi
+	 */
 	public abstract int getSliceNumberByRoiIndex(int roiIndex);
 
-	// renvoie true si la prise est post, false si elle est ant
+	/**
+	 * Permet de determiner si la roi indexRoi est ant
+	 * @return true si la roi d'index indexRoi est post, false si elle est ant
+	 */
 	public abstract boolean isPost();
 
+	/**
+	 * Renvoie la roi qui sera utilisée dans la methode preparerRoi, appellée lors du clic sur les boutons précédent et suivant
+	 * <br> See also {@link #preparerRoi()}
+	 * @return la roi utilisée dans la methode preparerRoi
+	 */
 	public abstract Roi getOrganRoi();
-
-	public abstract void traitementBouton(Button b);
 
 	/**
 	 * Sauvegarde la roi dans le roi manager
 	 * 
-	 * @param nomRoi
-	 *            : nom de la rooi a sauvegarder
+	 * @param nomRoi nom de la roi a sauvegarder
 	 * @return true si la sauvegarde est reussie, false si elle ne l'est pas
 	 */
 	public boolean saveCurrentRoi(String nomRoi) {
@@ -268,11 +282,19 @@ public abstract class ControleurScin implements ActionListener {
 
 	}	
 
+	/**
+	 * Vide l'overlay et ajoute le lettres G et D
+	 */
 	public void clearOverlay() {
 		laVue.getOverlay().clear();
 		VueScin.setOverlayDG(laVue.getOverlay(), laVue.getFen_application().getImagePlus());
 	}
 
+	/**
+	 * Affiche la slice nSlice et l'overlay correspondant
+	 * selon la methode {@link #getSliceNumberByRoiIndex(int)}
+	 * @param nSlice numero de la slice a afficher
+	 */
 	public void showSliceWithOverlay(int nSlice) {
 		this.clearOverlay();
 		this.getVue().getFen_application().getImagePlus().killRoi();
@@ -292,6 +314,11 @@ public abstract class ControleurScin implements ActionListener {
 		laVue.getFen_application().updateSliceSelector();
 	}
 
+	/**
+	 * Renvoie toutes les rois se trouvant sur une slice selon la methode {@link #getSliceNumberByRoiIndex(int)}
+	 * @param nSlice numero de la slice
+	 * @return Tableau de roi se trouvant sur la slice nSlice
+	 */
 	public Roi[] getRoisSlice(int nSlice) {
 
 		List<Roi> rois = new ArrayList<Roi>();
@@ -309,20 +336,25 @@ public abstract class ControleurScin implements ActionListener {
 		return rois.toArray(new Roi[0]);
 	}
 	
-	public String createNomRoi(String nomRoi) {
+	/**
+	 * Rajoute au nom de l'organe son type de prise (A pour Ant / P pour Post) ainsi qu'un numero pour eviter les doublons
+	 * @param nomOrgane nom de l'organe
+	 * @return nouveau nom
+	 */
+	public String createNomRoi(String nomOrgane) {
 		if (this.isPost()) {
-			nomRoi += " P";
+			nomOrgane += " P";
 		} else {
-			nomRoi += " A";
+			nomOrgane += " A";
 		}
 		
 		if(this.getRoiManager().getRoi(this.getIndexRoi()) == null) {
-			nomRoi += this.getSameNameRoiCount(nomRoi);
+			nomOrgane += this.getSameNameRoiCount(nomOrgane);
 		}else {
-			nomRoi = this.getRoiManager().getRoi(this.getIndexRoi()).getName();
+			nomOrgane = this.getRoiManager().getRoi(this.getIndexRoi()).getName();
 		}
 		
-		return nomRoi;
+		return nomOrgane;
 	}
 
 	private void attachListener() {
@@ -330,6 +362,10 @@ public abstract class ControleurScin implements ActionListener {
 		ImagePlus.addImageListener(new ControleurImp(this));
 	}
 
+	/**
+	 * ajoute une roi sur l'overlay
+	 * @param roi Roi a ajouter sur l'overlay
+	 */
 	public void ajouterRoiOverlay(Roi roi) {
 		this.laVue.getImp().getOverlay().add(roi);
 	}
@@ -342,6 +378,10 @@ public abstract class ControleurScin implements ActionListener {
 		laVue.getFen_application().getImagePlus().setRoi(roi);
 	}
 
+	/**
+	 * Renvoie la roi de l'image plus
+	 * @return roi en cours d'édition de l'image 
+	 */
 	public Roi getSelectedRoi() {
 		Roi roi = laVue.getFen_application().getImagePlus().getRoi();
 		return roi;
