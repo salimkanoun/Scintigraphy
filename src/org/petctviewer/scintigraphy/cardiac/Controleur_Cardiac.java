@@ -11,6 +11,7 @@ import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
+import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.RoiScaler;
@@ -18,11 +19,11 @@ import ij.util.DicomTools;
 
 public class Controleur_Cardiac extends ControleurScin {
 
-	private static String[] organesDeuxPrises = { "Kidney R", "Kidney L", "Bladder", "Kidney R", "Kidney L",
-			"Heart", "Bkg noise" };
-	private static String[] organesUnePrise = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
+	private static String[] organes = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
 
 	private int[] contSlice;
+
+	private boolean modeCont = false;
 
 	protected Controleur_Cardiac(VueScin vue) {
 		super(vue);
@@ -30,21 +31,14 @@ public class Controleur_Cardiac extends ControleurScin {
 		Modele_Cardiac mdl = new Modele_Cardiac(this.getImp());
 		this.contSlice = new int[2];
 
-		String[] org = null;
-		if (this.isDeuxPrises()) {
-			org = Controleur_Cardiac.organesDeuxPrises;
-			mdl.setDeuxPrise(true);
-		} else {
-			org = Controleur_Cardiac.organesUnePrise;
-			mdl.setDeuxPrise(false);
-		}
+		mdl.setDeuxPrise(this.isDeuxPrises());
 
 		mdl.calculerMoyGeomTotale(this.getImp());
 		this.setModele(mdl);
 
 		// double les organes pour prise ant/post
 		List<String> organesAntPost = new ArrayList<String>();
-		for (String s : org) {
+		for (String s : organes) {
 			organesAntPost.add(s);
 			organesAntPost.add(s);
 		}
@@ -61,11 +55,12 @@ public class Controleur_Cardiac extends ControleurScin {
 	@Override
 	public void fin() {
 		Modele_Cardiac mdl = (Modele_Cardiac) this.getModele();
-		mdl.afficherResultats();
+		mdl.calculerResultats();
 		System.out.println(mdl);
-		
-		ImagePlus capture = ModeleScin.captureImage(this.getImp(), this.getImp().getWidth(), this.getImp().getHeight());
-		new FenResultatCardiac(capture.getBufferedImage(), mdl.getResults(), this.getDicomInfo(this.getImp()));
+		this.ajouterRoiOverlay(this.roiManager.getRoi(roiManager.getCount() - 1));
+		new FenResultatCardiac(this.getVue(), mdl.getResults(), this.getDicomInfo(this.getImp()));
+
+		this.getVue().getFen_application().close();
 	}
 
 	@Override
@@ -77,7 +72,7 @@ public class Controleur_Cardiac extends ControleurScin {
 	public int getSliceNumberByRoiIndex(int roiIndex) {
 		// changement de slice si la prise contient une precoce
 		if (this.isDeuxPrises()) {
-			if (roiIndex >= 4 + this.contSlice[0]) {
+			if (this.sumCont() > this.contSlice[0] || this.sumCont() == 0) {
 				return 2;
 			}
 		}
@@ -85,18 +80,32 @@ public class Controleur_Cardiac extends ControleurScin {
 	}
 
 	@Override
+	public Roi[] getRoisSlice(int nSlice) {
+		if (this.isDeuxPrises() && nSlice == 1) {
+			Roi[] rois = new Roi[this.sumCont()];
+			for (int i = 0; i < this.sumCont(); i++) {
+				rois[i] = this.getRoiManager().getRoi(i);
+			}
+			return rois;
+		} else {
+			return super.getRoisSlice(nSlice);
+		}
+	}
+
+	@Override
 	public Roi getOrganRoi() {
-		if(this.indexRoi == this.getOrganes().length + this.sumCont() - 2) {
-			Roi roi = (Roi) this.roiManager.getRoi(indexRoi - 2).clone();
-			
+		// symetrique du coeur
+		if (this.getIndexRoi() == this.getOrganes().length + this.sumCont() - 2) {
+			Roi roi = (Roi) this.roiManager.getRoi(this.getIndexRoi() - 2).clone();
+
 			roi = RoiScaler.scale(roi, -1, 1, true);
-			
+
 			int quart = (this.getVue().getImp().getWidth() / 4);
-			int newX = (int) (roi.getXBase() - Math.abs(2*(roi.getXBase() - quart)) - roi.getFloatWidth());
+			int newX = (int) (roi.getXBase() - Math.abs(2 * (roi.getXBase() - quart)) - roi.getFloatWidth());
 			roi.setLocation(newX, roi.getYBase());
 			return roi;
 		}
-		
+
 		if (this.isPost()) { // si la prise est post, on decale l'organe precedent
 
 			Roi roi = (Roi) this.roiManager.getRoi(getIndexRoi() - 1).clone();
@@ -113,7 +122,13 @@ public class Controleur_Cardiac extends ControleurScin {
 		int reponse = JOptionPane.showConfirmDialog(this.getVue().getFen_application(), "Is there any contamination ?",
 				"Remove contamination", JOptionPane.YES_NO_OPTION);
 		if (reponse == JOptionPane.YES_OPTION) {
-			this.getVue().getFen_application().startContaminationMode();
+			((FenApplication_Cardiac) this.getVue().getFen_application()).startContaminationMode();
+			this.modeCont = true;
+		}else {
+			if(this.getVue().getImp().getCurrentSlice() == 1) {
+				this.showSliceWithOverlay(2);
+				this.traiterContamination();
+			}
 		}
 	}
 
@@ -124,14 +139,17 @@ public class Controleur_Cardiac extends ControleurScin {
 	private void clicNewCont() {
 		String name = this.createNomRoi("Contamination");
 
-		this.saveCurrentRoi(name);
+		//sauvegarde du roi courant
+		boolean saved = this.saveCurrentRoi(name);
 
-		this.contSlice[this.getImp().getCurrentSlice() - 1] += 1;
+		if(saved) {
+			this.contSlice[this.getImp().getCurrentSlice() - 1] += 1;
 
-		this.preparerRoi();
+			this.preparerRoi();
 
-		// on affiche les instructions
-		this.getVue().getFen_application().setInstructions("Delimit a new contamination");
+			// on affiche les instructions
+			this.getVue().getFen_application().setInstructions("Delimit a new contamination");
+		}
 	}
 
 	@Override
@@ -141,21 +159,25 @@ public class Controleur_Cardiac extends ControleurScin {
 
 	@Override
 	public void notifyClick(ActionEvent arg0) {
-		if (this.isDeuxPrises()) {
-			if (this.getIndexRoi() == this.contSlice[0] + 4)
-				this.traiterContamination();
-		}
-		
 		Button b = (Button) arg0.getSource();
-		
-		if (b == this.getVue().getFen_application().getBtn_newCont()) {
+
+		if (b == ((FenApplication_Cardiac) this.getVue().getFen_application()).getBtn_newCont()) {
 			this.clicNewCont();
 		}
 
-		else if (b == this.getVue().getFen_application().getBtn_continue()) {
-			this.getVue().getFen_application().stopContaminationMode();
+		else if (b == ((FenApplication_Cardiac) this.getVue().getFen_application()).getBtn_continue()) {
+			if(!this.isPost()) {
+				((FenApplication_Cardiac) this.getVue().getFen_application()).stopContaminationMode();
+				this.modeCont = false;
+				if ((this.getImp().getCurrentSlice() == 1 && this.isDeuxPrises())) {
+					this.showSliceWithOverlay(2);
+					this.traiterContamination();
+				}
+			}else {
+				IJ.log("Please delimit the Post contamination zone");
+			}
 		}
-		
+
 	}
 
 	@Override

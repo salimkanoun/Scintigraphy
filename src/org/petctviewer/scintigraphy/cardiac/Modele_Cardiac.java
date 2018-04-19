@@ -23,8 +23,6 @@ public class Modele_Cardiac extends ModeleScin {
 	/** Valeurs mesurées **/
 	// valeurs de la prise late
 	private Double fixCoeurL, fixReinGL, fixReinDL, fixVessieL, fixBkgNoise;
-	// valeurs de la prise early
-	private Double fixReinGE, fixReinDE;
 	// valeurs des contamination
 	private Double sumContE = 0.0, sumContL = 0.0;
 	// valeurs totales
@@ -53,11 +51,7 @@ public class Modele_Cardiac extends ModeleScin {
 		System.out.println(nomRoi + " : " + counts);
 	}
 
-	public void afficherResultats() {
-		this.calculerResultats();
-	}
-
-	private void calculerResultats() {
+	public void calculerResultats() {
 		// on fait les moyennes geometriques de chaque ROI Late
 
 		this.fixBkgNoise = moyGeom(data.get("Bkg noise AL"), data.get("Bkg noise PL"));
@@ -65,12 +59,6 @@ public class Modele_Cardiac extends ModeleScin {
 		this.fixReinGL = moyGeom(data.get("Kidney L AL"), data.get("Kidney L PL"));
 		this.fixReinDL = moyGeom(data.get("Kidney R AL"), data.get("Kidney R PL"));
 		this.fixVessieL = moyGeom(data.get("Bladder AL"), data.get("Bladder PL"));
-
-		// on fait les moyennes geometriques de chaque ROI Early si elles existent
-		if (this.deuxPrises) {
-			this.fixReinGE = moyGeom(data.get("Kidney L AE"), data.get("Kidney L PE"));
-			this.fixReinDE = moyGeom(data.get("Kidney R AE"), data.get("Kidney R PE"));
-		}
 
 		// on somme les moyennes geometriques des contaminations
 		List<Double> contAntPost = new ArrayList<Double>();
@@ -210,5 +198,15 @@ public class Modele_Cardiac extends ModeleScin {
 		BigDecimal bd = new BigDecimal(value);
 		bd = bd.setScale(places, RoundingMode.HALF_UP);
 		return bd.doubleValue();
+	}
+
+	@Override
+	public String[] getResultsAsArray() {
+		List<String> res = new ArrayList<String>();
+		for(String k : resultats.keySet()) {
+			res.add(k);
+			res.add(resultats.get(k));
+		}
+		return res.toArray(new String[0]);
 	}
 }

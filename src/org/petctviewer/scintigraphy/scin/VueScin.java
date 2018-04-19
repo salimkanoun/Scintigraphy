@@ -670,4 +670,8 @@ public abstract class VueScin implements PlugIn {
 	public Overlay getOverlay() {
 		return this.getFen_application().getOverlay();
 	}
+
+	public ImagePlus getImagePlus() {
+		return this.imp;
+	}
 }

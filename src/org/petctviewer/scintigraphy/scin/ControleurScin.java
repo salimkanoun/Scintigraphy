@@ -49,38 +49,39 @@ public abstract class ControleurScin implements ActionListener {
 	protected ControleurScin(VueScin vue) {
 		this.laVue = vue;
 		this.roiManager = new RoiManager();
-		
+
 		this.indexRoi = 0;
 
 		this.attachListener();
 	}
-	
+
 	public void setModele(ModeleScin modele) {
 		this.leModele = modele;
 	}
-	
+
 	/**
 	 * keys : id nom date
+	 * 
 	 * @param imp
 	 * @return
 	 */
-	public HashMap<String, String> getDicomInfo(ImagePlus imp){
+	public HashMap<String, String> getDicomInfo(ImagePlus imp) {
 		HashMap<String, String> hm = new HashMap<String, String>();
 		String nom = DicomTools.getTag(imp, "0010,0010").trim();
 		hm.put("nom", nom.replace("^", " "));
-		
+
 		hm.put("id", DicomTools.getTag(imp, "0010,0020").trim());
-		
+
 		String dateStr = DicomTools.getTag(imp, "0008,0022").trim();
-		Date result = null;		
+		Date result = null;
 		try {
 			result = new SimpleDateFormat("yyyymmdd").parse(dateStr);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		
+
 		String r = new SimpleDateFormat("MMM dd yyyy", Locale.ENGLISH).format(result);
-		
+
 		hm.put("date", r);
 		return hm;
 	}
@@ -97,29 +98,30 @@ public abstract class ControleurScin implements ActionListener {
 			this.clicPrecedent();
 		}
 
-		else if (b == laVue.getFen_application().getBtn_capture()) {
-			laVue.getFen_application().getBtn_capture().setVisible(false);
-			// laVue.csv.setText("Provided By Petctviewer.org");
-			ImagePlus captureFinale = ModeleScin.captureFenetre(WindowManager.getCurrentImage(), 0, 0);
-			WindowManager.getCurrentWindow().getImagePlus().changes = false;
-			WindowManager.getCurrentWindow().close();
-			// On genere la 2eme partie des tag dicom et on l'ajoute a la 1ere partie dans
-			// le property de l'image finale
-			captureFinale.setProperty("Info", tagCapture += (ModeleScin.genererDicomTagsPartie2(captureFinale)));
-			// On affiche et on agrandie la fenetre de la capture finale
-			captureFinale.show();
-			// On met un zoom a 80%
-			captureFinale.getCanvas().setMagnification(0.8);
-			// SK FAIRE GENERATION CSV?
+		/**
+		 * else if (b == laVue.getFen_application().getBtn_capture()) {
+		 * laVue.getFen_application().getBtn_capture().setVisible(false); //TODO
+		 * laVue.csv.setText("Provided By Petctviewer.org"); ImagePlus captureFinale =
+		 * ModeleScin.captureFenetre(WindowManager.getCurrentImage(), 0, 0);
+		 * WindowManager.getCurrentWindow().getImagePlus().changes = false;
+		 * WindowManager.getCurrentWindow().close(); // On genere la 2eme partie des tag
+		 * dicom et on l'ajoute a la 1ere partie dans // le property de l'image finale
+		 * captureFinale.setProperty("Info", tagCapture +=
+		 * (ModeleScin.genererDicomTagsPartie2(captureFinale))); // On affiche et on
+		 * agrandie la fenetre de la capture finale captureFinale.show(); // On met un
+		 * zoom a 80% captureFinale.getCanvas().setMagnification(0.8); // generation du
+		 * c
+		 * 
+		 * // On fait la capture finale captureFinale.getWindow().toFront(); // On
+		 * propose de sauver la capture en DICOM IJ.run("myDicom..."); // fin du
+		 * programme ici
+		 *
+		 * }
+		 */
 
-			// On fait la capture finale
-			captureFinale.getWindow().toFront();
-			// On propose de sauver la capture en DICOM
-			IJ.run("myDicom...");
-			// fin du programme ici
-		}
+		else if (b == laVue.getFen_application().getBtn_drawROI())
 
-		else if (b == laVue.getFen_application().getBtn_drawROI()) {
+		{
 			Button btn = laVue.getFen_application().getBtn_drawROI();
 			if (btn.getBackground() != Color.LIGHT_GRAY) {
 				btn.setBackground(Color.LIGHT_GRAY);
@@ -160,18 +162,19 @@ public abstract class ControleurScin implements ActionListener {
 				// laVue.lesBoutons.get("Show").setBackground(null);
 			}
 		}
+
 		this.notifyClick(arg0);
 	}
 
 	/**
-	 * Est appelée a la fin de action performed, son corps est vide
-	 * <b> Cette methode existe uniquement pour etre override </b>
+	 * Est appelée a la fin de action performed, son corps est vide <b> Cette
+	 * methode existe uniquement pour etre override </b>
 	 */
-	public void notifyClick(ActionEvent arg0) {		
+	public void notifyClick(ActionEvent arg0) {
 	}
 
 	/**
-	 Prepare la roi qui se situera a indexRoi
+	 * Prepare la roi qui se situera a indexRoi
 	 */
 	public void preparerRoi() {
 		// on affiche la slice
@@ -188,16 +191,18 @@ public abstract class ControleurScin implements ActionListener {
 
 	private void clicPrecedent() {
 		// sauvegarde du ROI courant
-		this.saveCurrentRoi(this.createNomRoi(this.getOrganes()[this.indexRoi]));
-
-		if (this.indexRoi > 0) {
-			indexRoi--;
-		} else {
-			// si c'est le dernier roi, on desactive le bouton
-			this.getVue().getFen_application().getBtn_precedent().setEnabled(false);
-		}
-
-		this.preparerRoi();
+		boolean saved = this.saveCurrentRoi(this.createNomRoi(this.getOrganes()[this.indexRoi]));
+		// si la sauvegarde est reussie
+		if(saved) {
+			if (this.indexRoi > 0) {
+				indexRoi--;
+			} else {
+				// si c'est le dernier roi, on desactive le bouton
+				this.getVue().getFen_application().getBtn_precedent().setEnabled(false);
+			}
+			
+			this.preparerRoi();
+		}		
 	}
 
 	private void clicSuivant() {
@@ -217,17 +222,18 @@ public abstract class ControleurScin implements ActionListener {
 			// on avtive la fin si c'est necessaire
 			if (this.isOver()) {
 				fin();
+			}else {
+				// on prepare la roi suivante
+				indexRoi++;
+				this.preparerRoi();
 			}
-
-			// on prepare la roi suivante
-			indexRoi++;
-			this.preparerRoi();
 		}
 	}
 
 	/**
 	 * Renvoie le nombre de roi avec le meme nom dans le Roi Manager
-	 * @param nomRoi 
+	 * 
+	 * @param nomRoi
 	 * 
 	 * @return nombre de roi avec le meme nom
 	 */
@@ -262,20 +268,25 @@ public abstract class ControleurScin implements ActionListener {
 
 	/**
 	 * Renvoie le numero de slice ou doit se trouver la roi d'index roiIndex
-	 * @param roiIndex Index de la roi dont il faut determiner le numero de slice
+	 * 
+	 * @param roiIndex
+	 *            Index de la roi dont il faut determiner le numero de slice
 	 * @return le numero de slice ou se trouve la roi
 	 */
 	public abstract int getSliceNumberByRoiIndex(int roiIndex);
 
 	/**
 	 * Permet de determiner si la roi indexRoi est ant
+	 * 
 	 * @return true si la roi d'index indexRoi est post, false si elle est ant
 	 */
 	public abstract boolean isPost();
 
 	/**
-	 * Renvoie la roi qui sera utilisée dans la methode preparerRoi, appellée lors du clic sur les boutons précédent et suivant
-	 * <br> See also {@link #preparerRoi()}
+	 * Renvoie la roi qui sera utilisée dans la methode preparerRoi, appellée lors
+	 * du clic sur les boutons précédent et suivant <br>
+	 * See also {@link #preparerRoi()}
+	 * 
 	 * @return la roi utilisée dans la methode preparerRoi
 	 */
 	public abstract Roi getOrganRoi();
@@ -283,7 +294,8 @@ public abstract class ControleurScin implements ActionListener {
 	/**
 	 * Sauvegarde la roi dans le roi manager
 	 * 
-	 * @param nomRoi nom de la roi a sauvegarder
+	 * @param nomRoi
+	 *            nom de la roi a sauvegarder
 	 * @return true si la sauvegarde est reussie, false si elle ne l'est pas
 	 */
 	public boolean saveCurrentRoi(String nomRoi) {
@@ -312,7 +324,7 @@ public abstract class ControleurScin implements ActionListener {
 			return false;
 		}
 
-	}	
+	}
 
 	/**
 	 * Vide l'overlay et ajoute le lettres G et D
@@ -323,9 +335,11 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 	/**
-	 * Affiche la slice nSlice et l'overlay correspondant
-	 * selon la methode {@link #getSliceNumberByRoiIndex(int)}
-	 * @param nSlice numero de la slice a afficher
+	 * Affiche la slice nSlice et l'overlay correspondant selon la methode
+	 * {@link #getSliceNumberByRoiIndex(int)}
+	 * 
+	 * @param nSlice
+	 *            numero de la slice a afficher
 	 */
 	public void showSliceWithOverlay(int nSlice) {
 		this.clearOverlay();
@@ -347,8 +361,11 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 	/**
-	 * Renvoie toutes les rois se trouvant sur une slice selon la methode {@link #getSliceNumberByRoiIndex(int)}
-	 * @param nSlice numero de la slice
+	 * Renvoie toutes les rois se trouvant sur une slice selon la methode
+	 * {@link #getSliceNumberByRoiIndex(int)}
+	 * 
+	 * @param nSlice
+	 *            numero de la slice
 	 * @return Tableau de roi se trouvant sur la slice nSlice
 	 */
 	public Roi[] getRoisSlice(int nSlice) {
@@ -367,10 +384,13 @@ public abstract class ControleurScin implements ActionListener {
 
 		return rois.toArray(new Roi[0]);
 	}
-	
+
 	/**
-	 * Rajoute au nom de l'organe son type de prise (A pour Ant / P pour Post) ainsi qu'un numero pour eviter les doublons
-	 * @param nomOrgane nom de l'organe
+	 * Rajoute au nom de l'organe son type de prise (A pour Ant / P pour Post) ainsi
+	 * qu'un numero pour eviter les doublons
+	 * 
+	 * @param nomOrgane
+	 *            nom de l'organe
 	 * @return nouveau nom
 	 */
 	public String createNomRoi(String nomOrgane) {
@@ -379,37 +399,39 @@ public abstract class ControleurScin implements ActionListener {
 		} else {
 			nomOrgane += " A";
 		}
-		
-		if(this.roiManager.getRoi(this.getIndexRoi()) == null) {
+
+		if (this.roiManager.getRoi(this.getIndexRoi()) == null) {
 			nomOrgane += this.getSameNameRoiCount(nomOrgane);
-		}else {
+		} else {
 			nomOrgane = this.roiManager.getRoi(this.getIndexRoi()).getName();
 		}
-		
+
 		return nomOrgane;
 	}
 
 	private void attachListener() {
-		this.laVue.getFen_application().getImagePlus();
+		this.laVue.getImagePlus();
 		ImagePlus.addImageListener(new ControleurImp(this));
 	}
 
 	/**
 	 * ajoute une roi sur l'overlay
-	 * @param roi Roi a ajouter sur l'overlay
+	 * 
+	 * @param roi
+	 *            Roi a ajouter sur l'overlay
 	 */
 	public void ajouterRoiOverlay(Roi roi) {
 		this.laVue.getImp().getOverlay().add(roi);
 	}
 
-
 	public void setRoi(Roi roi) {
-		laVue.getFen_application().getImagePlus().setRoi(roi);
+		laVue.getImagePlus().setRoi(roi);
 	}
 
 	/**
 	 * Renvoie la roi de l'image plus
-	 * @return roi en cours d'édition de l'image 
+	 * 
+	 * @return roi en cours d'édition de l'image
 	 */
 	public Roi getSelectedRoi() {
 		Roi roi = laVue.getFen_application().getImagePlus().getRoi();
@@ -439,9 +461,13 @@ public abstract class ControleurScin implements ActionListener {
 	public ImagePlus getImp() {
 		return this.laVue.getImp();
 	}
-	
+
 	public ModeleScin getModele() {
 		return this.leModele;
+	}
+
+	public RoiManager getRoiManager() {
+		return roiManager;
 	}
 
 }

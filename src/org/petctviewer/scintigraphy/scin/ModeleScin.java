@@ -11,8 +11,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import ij.IJ;
@@ -291,7 +293,7 @@ public abstract class ModeleScin {
 	 * @param nombreColonne
 	 *            : Nombre de colonne avant de passer à la seconde ligne (si 4
 	 *            colonne mettre 4)
-	 * @param Roi
+	 * @param roiManager
 	 *            : le ROI manager utilise dans le programme
 	 * @param nomProgramme
 	 *            : le nom du programme (sera utilise comme sous repertoire)
@@ -302,7 +304,7 @@ public abstract class ModeleScin {
 	 * @throws FileNotFoundException
 	 *             : en cas d'erreur d'ecriture
 	 */
-	public static void exportAll(String[] resultats, int nombreColonne, RoiManager Roi, String nomProgramme,
+	public static void exportAll(String[] resultats, int nombreColonne, RoiManager roiManager, String nomProgramme,
 			ImagePlus imp) throws FileNotFoundException {
 
 		// On recupere le Patient Name de l'ImagePlus
@@ -385,12 +387,12 @@ public abstract class ModeleScin {
 			}
 
 			// On ecrit le ZIP contenant la sauvegarde des ROIs
-			Roi[] rois2 = Roi.getRoisAsArray();
+			Roi[] rois2 = roiManager.getRoisAsArray();
 			int[] tab = new int[rois2.length];
 			for (int i = 0; i < rois2.length; i++)
 				tab[i] = i;
-			Roi.setSelectedIndexes(tab);
-			Roi.runCommand("Save", pathFinal.toString() + File.separator + patientID + "_" + date + ".zip");
+			roiManager.setSelectedIndexes(tab);
+			roiManager.runCommand("Save", pathFinal.toString() + File.separator + patientID + "_" + date + ".zip");
 
 			// On sauve l'image en jpeg
 			IJ.saveAs(imp, "Jpeg", pathFinal.toString() + File.separator + patientID + "_" + date + ".jpg");
@@ -466,5 +468,7 @@ public abstract class ModeleScin {
 		// countsCorrected=counts/decayedFraction
 		return decayedFraction;
 	}
+
+	public abstract String[] getResultsAsArray();
 
 }
