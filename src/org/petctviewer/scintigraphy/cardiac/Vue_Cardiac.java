@@ -1,8 +1,8 @@
 package org.petctviewer.scintigraphy.cardiac;
 import java.util.ArrayList;
 
-import org.petctviewer.scintigraphy.scin.view.FenetreApplication;
-import org.petctviewer.scintigraphy.scin.view.VueScin;
+import org.petctviewer.scintigraphy.scin.FenetreApplication;
+import org.petctviewer.scintigraphy.scin.VueScin;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -41,17 +41,18 @@ public class Vue_Cardiac extends VueScin{
 			imp.close();
 		}
 
-		// si il y a plus de 3 minutes de différence entre les deux prises
-		if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {
-			IJ.log("Warning, frame duration differ by" + (int) Math.abs(frameDuration[0] - frameDuration[1])/3*6000 + "minutes");
-		}
-
 		ImagePlus[] mountedSorted = VueScin.orderImagesByAcquisitionTime(mountedImages);
 		Concatenator enchainer = new Concatenator();
 		
 		ImagePlus impStacked;
+		//si la prise est early/late
 		if(titresFenetres.length == 2) {
 			impStacked = enchainer.concatenate(mountedSorted, false);
+			// si il y a plus de 3 minutes de différence entre les deux prises
+			if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {
+				IJ.log("Warning, frame duration differ by " + (int) Math.abs(frameDuration[0] - frameDuration[1]) / (1000 * 60) + " minutes");
+			}
+
 		}else {
 			impStacked = mountedSorted[0];
 		}

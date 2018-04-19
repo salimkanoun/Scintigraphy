@@ -41,7 +41,7 @@ import java.util.Map.Entry;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import org.petctviewer.scintigraphy.scin.view.VueScin;
+import org.petctviewer.scintigraphy.scin.VueScin;
 
 import ij.IJ;
 import ij.ImagePlus;

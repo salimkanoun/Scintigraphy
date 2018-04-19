@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin.controleur;
+package org.petctviewer.scintigraphy.scin;
 
 /*
 Copyright (C) 2017 KANOUN Salim
@@ -18,22 +18,27 @@ import java.awt.Button;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
-import org.petctviewer.scintigraphy.scin.modele.ModeleScin;
-import org.petctviewer.scintigraphy.scin.view.VueScin;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.Roi;
 import ij.gui.Toolbar;
 import ij.plugin.frame.RoiManager;
+import ij.util.DicomTools;
 
 public abstract class ControleurScin implements ActionListener {
 
 	private VueScin laVue;
 	private ModeleScin leModele;
+	private RoiManager roiManager;
 
 	protected static boolean showLog;
 	private String tagCapture;
@@ -51,6 +56,33 @@ public abstract class ControleurScin implements ActionListener {
 	
 	public void setModele(ModeleScin modele) {
 		this.leModele = modele;
+		this.roiManager = new RoiManager();
+	}
+	
+	/**
+	 * keys : id nom date
+	 * @param imp
+	 * @return
+	 */
+	public HashMap<String, String> getDicomInfo(ImagePlus imp){
+		HashMap<String, String> hm = new HashMap<String, String>();
+		String nom = DicomTools.getTag(imp, "0010,0010").trim();
+		hm.put("nom", nom.replace("^", " "));
+		
+		hm.put("id", DicomTools.getTag(imp, "0010,0020").trim());
+		
+		String dateStr = DicomTools.getTag(imp, "0008,0022").trim();
+		Date result = null;		
+		try {
+			result = new SimpleDateFormat("yyyymmdd").parse(dateStr);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+		String r = new SimpleDateFormat("MMM dd yyyy", Locale.ENGLISH).format(result);
+		
+		hm.put("date", r);
+		return hm;
 	}
 
 	@Override
@@ -109,7 +141,8 @@ public abstract class ControleurScin implements ActionListener {
 		}
 
 		else if (b == laVue.getFen_application().getBtn_quitter()) {
-			laVue.end();
+			laVue.fen_application.close();
+			getRoiManager().close();
 			return;
 		}
 
@@ -263,13 +296,13 @@ public abstract class ControleurScin implements ActionListener {
 			String nom2 = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
-			if (laVue.getRoiManager().getRoi(this.getIndexRoi()) == null) {
-				laVue.getRoiManager().addRoi(laVue.getFen_application().getImagePlus().getRoi());
-				laVue.getRoiManager().rename(this.getIndexRoi(), nom2);
+			if (getRoiManager().getRoi(this.getIndexRoi()) == null) {
+				getRoiManager().addRoi(laVue.getFen_application().getImagePlus().getRoi());
+				getRoiManager().rename(this.getIndexRoi(), nom2);
 
 			} else { // Si il existe on fait un update
-				this.laVue.getRoiManager().select(this.getIndexRoi());
-				this.laVue.getRoiManager().runCommand("Update");
+				this.getRoiManager().select(this.getIndexRoi());
+				this.getRoiManager().runCommand("Update");
 
 				// on supprime le roi nouvellement ajoute de la vue
 				laVue.getFen_application().getImagePlus().killRoi();
@@ -371,7 +404,7 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 	public RoiManager getRoiManager() {
-		return this.laVue.getRoiManager();
+		return this.getRoiManager();
 	}
 
 	public void setRoi(Roi roi) {

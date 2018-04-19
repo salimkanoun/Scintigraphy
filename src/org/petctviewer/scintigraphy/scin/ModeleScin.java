@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin.modele;
+package org.petctviewer.scintigraphy.scin;
 
 import java.awt.AWTException;
 import java.awt.Point;
@@ -14,8 +14,6 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
-
-import org.petctviewer.scintigraphy.scin.controleur.ControleurScin;
 
 import ij.IJ;
 import ij.ImagePlus;

@@ -7,11 +7,14 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import org.petctviewer.scintigraphy.scin.controleur.ControleurScin;
-import org.petctviewer.scintigraphy.scin.view.VueScin;
+import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.VueScin;
 
+import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.RoiScaler;
+import ij.util.DicomTools;
 
 public class Controleur_Cardiac extends ControleurScin {
 
@@ -24,7 +27,7 @@ public class Controleur_Cardiac extends ControleurScin {
 	protected Controleur_Cardiac(VueScin vue) {
 		super(vue);
 
-		Modele_Cardiac mdl = new Modele_Cardiac();
+		Modele_Cardiac mdl = new Modele_Cardiac(this.getImp());
 		this.contSlice = new int[2];
 
 		String[] org = null;
@@ -59,6 +62,10 @@ public class Controleur_Cardiac extends ControleurScin {
 	public void fin() {
 		Modele_Cardiac mdl = (Modele_Cardiac) this.getModele();
 		mdl.afficherResultats();
+		System.out.println(mdl);
+		
+		ImagePlus capture = ModeleScin.captureImage(this.getImp(), this.getImp().getWidth(), this.getImp().getHeight());
+		new FenResultatCardiac(capture.getBufferedImage(), mdl.getResults(), this.getDicomInfo(this.getImp()));
 	}
 
 	@Override

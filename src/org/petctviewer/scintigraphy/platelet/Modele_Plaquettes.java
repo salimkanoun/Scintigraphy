@@ -38,7 +38,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.scin.modele.ModeleScin;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 
 import ij.IJ;
 import ij.ImagePlus;

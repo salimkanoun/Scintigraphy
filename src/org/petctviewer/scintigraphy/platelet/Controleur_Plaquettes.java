@@ -20,8 +20,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JTable;
 
-import org.petctviewer.scintigraphy.scin.modele.ModeleScin;
-import org.petctviewer.scintigraphy.scin.view.VueScin;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.VueScin;
 
 import ij.IJ;
 import ij.ImagePlus;

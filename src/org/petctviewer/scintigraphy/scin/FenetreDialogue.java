@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin.view;
+package org.petctviewer.scintigraphy.scin;
 
 import ij.WindowManager;
 import java.awt.Button;

@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin.view;
+package org.petctviewer.scintigraphy.scin;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -52,19 +52,6 @@ public abstract class VueScin implements PlugIn {
 	 *@param titresFenetres liste des fenetres ouvertes
 	 */
 	protected abstract void ouvertureImage(String[] titresFenetres);
-
-	protected void UIResultats(ImagePlus screen, JTable tableresults) {
-		FenetreResultat win = new FenetreResultat(screen, tableresults);
-
-		win.setTitle("Cardiac Results");
-		win.setLocationRelativeTo(null);
-		win.getCanvas().setMagnification(0.7D);
-		win.getCanvas().setScaleToFit(true);
-		win.pack();
-		win.setSize(win.getPreferredSize());
-
-		IJ.setTool("hand");
-	}
 
 	/**
 	 * Affiche D et G en overlay sur l'image
@@ -659,15 +646,7 @@ public abstract class VueScin implements PlugIn {
 			imp.setLut(lut);
 		}
 	}
-
-	/**
-	 * termine le programme
-	 */
-	public void end() {
-		this.fen_application.dispose();
-		System.gc();
-	}
-
+	
 	public ImagePlus getImp() {
 		return this.imp;
 	}
@@ -691,9 +670,4 @@ public abstract class VueScin implements PlugIn {
 	public Overlay getOverlay() {
 		return this.getFen_application().getOverlay();
 	}
-
-	public RoiManager getRoiManager() {
-		return this.fen_application.getRoiManager();
-	}
-
 }

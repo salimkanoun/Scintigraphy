@@ -33,7 +33,8 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import javax.swing.JOptionPane;
-import org.petctviewer.scintigraphy.scin.view.VueScin;
+
+import org.petctviewer.scintigraphy.scin.VueScin;
 
 import ij.IJ;
 import ij.ImagePlus;

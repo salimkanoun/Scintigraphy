@@ -43,7 +43,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.table.DefaultTableModel;
 
-import org.petctviewer.scintigraphy.scin.view.VueScin;
+import org.petctviewer.scintigraphy.scin.VueScin;
 
 import ij.IJ;
 import ij.ImagePlus;

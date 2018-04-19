@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin.view;
+package org.petctviewer.scintigraphy.scin;
 
 import ij.ImagePlus;
 import ij.gui.ImageCanvas;
@@ -18,8 +18,6 @@ import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.scin.controleur.ControleurScin;
-
 public class FenetreApplication extends StackWindow {
 	private static final long serialVersionUID = -6280620624574294247L;
 	private Label lbl_instructions;
@@ -37,7 +35,6 @@ public class FenetreApplication extends StackWindow {
 	private Button btn_newCont;
 	private Button btn_continue;
 
-	private RoiManager roiManager;
 	private ControleurScin controleur;
 	private Panel instru;
 	private String nom;
@@ -52,7 +49,6 @@ public class FenetreApplication extends StackWindow {
 	public FenetreApplication(ImagePlus imp, String nom) {
 		super(imp, new ImageCanvas(imp));
 		
-		this.roiManager = new RoiManager();
 		this.nom = nom;
 		this.modeCont = false;
 
@@ -189,6 +185,13 @@ public class FenetreApplication extends StackWindow {
 		this.btn_newCont.addActionListener(ctrl);
 		this.setInstructions(0);
 	}
+	
+	@Override
+	public boolean close() {
+		super.close();
+		this.controleur.getRoiManager().close();
+		return true;		
+	}
 
 	private String generateTitle() {
 		String tagSerie = DicomTools.getTag(this.imp, "0008,103E");
@@ -238,10 +241,6 @@ public class FenetreApplication extends StackWindow {
 
 	public Button getBtn_capture() {
 		return btn_capture;
-	}
-
-	public RoiManager getRoiManager() {
-		return roiManager;
 	}
 	
 	public Button getBtn_newCont() {

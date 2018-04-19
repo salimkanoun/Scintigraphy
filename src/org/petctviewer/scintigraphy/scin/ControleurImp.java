@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin.controleur;
+package org.petctviewer.scintigraphy.scin;
 
 import ij.ImageListener;
 import ij.ImagePlus;
