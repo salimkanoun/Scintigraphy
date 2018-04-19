@@ -55,7 +55,7 @@ public class Controleur_Cardiac extends ControleurScin {
 
 	@Override
 	public boolean isOver() {
-		return this.getRoiManager().getCount() >= this.getOrganes().length + this.sumCont();
+		return this.roiManager.getCount() >= this.getOrganes().length + this.sumCont();
 	}
 
 	@Override
@@ -87,7 +87,7 @@ public class Controleur_Cardiac extends ControleurScin {
 	@Override
 	public Roi getOrganRoi() {
 		if(this.indexRoi == this.getOrganes().length + this.sumCont() - 2) {
-			Roi roi = (Roi) this.getRoiManager().getRoi(indexRoi - 2).clone();
+			Roi roi = (Roi) this.roiManager.getRoi(indexRoi - 2).clone();
 			
 			roi = RoiScaler.scale(roi, -1, 1, true);
 			
@@ -99,7 +99,7 @@ public class Controleur_Cardiac extends ControleurScin {
 		
 		if (this.isPost()) { // si la prise est post, on decale l'organe precedent
 
-			Roi roi = (Roi) this.getRoiManager().getRoi(getIndexRoi() - 1).clone();
+			Roi roi = (Roi) this.roiManager.getRoi(getIndexRoi() - 1).clone();
 
 			// on décale d'une demi largeur
 			roi.setLocation(roi.getXBase() + (this.getVue().getImp().getWidth() / 2), roi.getYBase());

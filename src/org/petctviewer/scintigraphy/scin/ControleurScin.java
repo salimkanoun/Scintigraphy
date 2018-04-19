@@ -38,7 +38,7 @@ public abstract class ControleurScin implements ActionListener {
 
 	private VueScin laVue;
 	private ModeleScin leModele;
-	private RoiManager roiManager;
+	protected RoiManager roiManager;
 
 	protected static boolean showLog;
 	private String tagCapture;
@@ -48,7 +48,8 @@ public abstract class ControleurScin implements ActionListener {
 
 	protected ControleurScin(VueScin vue) {
 		this.laVue = vue;
-
+		this.roiManager = new RoiManager();
+		
 		this.indexRoi = 0;
 
 		this.attachListener();
@@ -56,7 +57,6 @@ public abstract class ControleurScin implements ActionListener {
 	
 	public void setModele(ModeleScin modele) {
 		this.leModele = modele;
-		this.roiManager = new RoiManager();
 	}
 	
 	/**
@@ -142,7 +142,6 @@ public abstract class ControleurScin implements ActionListener {
 
 		else if (b == laVue.getFen_application().getBtn_quitter()) {
 			laVue.fen_application.close();
-			getRoiManager().close();
 			return;
 		}
 
@@ -233,9 +232,9 @@ public abstract class ControleurScin implements ActionListener {
 	 * @return nombre de roi avec le meme nom
 	 */
 	public String getSameNameRoiCount(String nomRoi) {
-		String[] roiNames = new String[this.getRoiManager().getCount()];
+		String[] roiNames = new String[this.roiManager.getCount()];
 		for (int i = 0; i < roiNames.length; i++) {
-			roiNames[i] = this.getRoiManager().getRoisAsArray()[i].getName();
+			roiNames[i] = this.roiManager.getRoisAsArray()[i].getName();
 		}
 
 		int count = 0;
@@ -296,13 +295,13 @@ public abstract class ControleurScin implements ActionListener {
 			String nom2 = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
-			if (getRoiManager().getRoi(this.getIndexRoi()) == null) {
-				getRoiManager().addRoi(laVue.getFen_application().getImagePlus().getRoi());
-				getRoiManager().rename(this.getIndexRoi(), nom2);
+			if (this.roiManager.getRoi(this.getIndexRoi()) == null) {
+				this.roiManager.addRoi(laVue.getFen_application().getImagePlus().getRoi());
+				this.roiManager.rename(this.getIndexRoi(), nom2);
 
 			} else { // Si il existe on fait un update
-				this.getRoiManager().select(this.getIndexRoi());
-				this.getRoiManager().runCommand("Update");
+				this.roiManager.select(this.getIndexRoi());
+				this.roiManager.runCommand("Update");
 
 				// on supprime le roi nouvellement ajoute de la vue
 				laVue.getFen_application().getImagePlus().killRoi();
@@ -337,7 +336,7 @@ public abstract class ControleurScin implements ActionListener {
 		// on affiche les roi pour cette slide
 		for (Roi roi : this.getRoisSlice(this.getImp().getCurrentSlice())) {
 			// on ajoute les roi dans l'overlay si ce n'est pas la roi courante
-			if (roi != this.getRoiManager().getRoi(getIndexRoi())) {
+			if (roi != this.roiManager.getRoi(getIndexRoi())) {
 				this.ajouterRoiOverlay(roi);
 			} else { // sinon on la selectionne
 				this.setRoi(roi);
@@ -356,9 +355,9 @@ public abstract class ControleurScin implements ActionListener {
 
 		List<Roi> rois = new ArrayList<Roi>();
 
-		for (int i = 0; i < this.getRoiManager().getCount(); i++) {
+		for (int i = 0; i < this.roiManager.getCount(); i++) {
 			if (this.getSliceNumberByRoiIndex(i) == nSlice) {
-				Roi roiIt = (Roi) this.getRoiManager().getRoi(i);
+				Roi roiIt = (Roi) this.roiManager.getRoi(i);
 				if (roiIt != null) {
 					rois.add(roiIt);
 				}
@@ -381,10 +380,10 @@ public abstract class ControleurScin implements ActionListener {
 			nomOrgane += " A";
 		}
 		
-		if(this.getRoiManager().getRoi(this.getIndexRoi()) == null) {
+		if(this.roiManager.getRoi(this.getIndexRoi()) == null) {
 			nomOrgane += this.getSameNameRoiCount(nomOrgane);
 		}else {
-			nomOrgane = this.getRoiManager().getRoi(this.getIndexRoi()).getName();
+			nomOrgane = this.roiManager.getRoi(this.getIndexRoi()).getName();
 		}
 		
 		return nomOrgane;
@@ -403,9 +402,6 @@ public abstract class ControleurScin implements ActionListener {
 		this.laVue.getImp().getOverlay().add(roi);
 	}
 
-	public RoiManager getRoiManager() {
-		return this.getRoiManager();
-	}
 
 	public void setRoi(Roi roi) {
 		laVue.getFen_application().getImagePlus().setRoi(roi);

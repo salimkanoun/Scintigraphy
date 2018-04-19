@@ -189,7 +189,7 @@ public class FenetreApplication extends StackWindow {
 	@Override
 	public boolean close() {
 		super.close();
-		this.controleur.getRoiManager().close();
+		this.controleur.roiManager.close();
 		return true;		
 	}
 
