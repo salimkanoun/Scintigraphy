@@ -16,15 +16,12 @@ import java.awt.Toolkit;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-public class FenetreResultat
-  extends ImageWindow
-{
+public class FenetreResultat extends ImageWindow {
   private static final long serialVersionUID = -9097595151860174657L;
   private Label lbl_csv;
   private Button btn_capture;
   
-  public FenetreResultat(ImagePlus imp, JTable tableResults)
-  {
+  public FenetreResultat(ImagePlus imp, JTable tableResults) {
     super(imp, new ImageCanvas(imp));
     
     setLayout(new FlowLayout());

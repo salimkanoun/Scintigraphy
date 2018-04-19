@@ -45,7 +45,7 @@ import ij.ImagePlus;
 import ij.measure.Measurements;
 import ij.measure.ResultsTable;
 
-public class Modele_Plaquettes {
+public class Modele_Plaquettes extends ModeleScin {
 
 	// Stockage des objets mesures, chaque image est identifee par sa date
 	// d'aqcisition
@@ -54,7 +54,10 @@ public class Modele_Plaquettes {
 	HashMap<Date, MesureImage> mesures = new HashMap<Date, MesureImage>();
 	private Date dateHeureDebut;
 
-	protected void enregisterMesure(String roi, ImagePlus imp) {		
+	public Modele_Plaquettes(Date dateHeureDebut) {
+		this.dateHeureDebut=dateHeureDebut;
+	}
+	public void enregisterMesure(String roi, ImagePlus imp) {		
 		Date dateAcquisition = ModeleScin.getDateAcquisition(imp);
 		
 		// Recupere la somme des coups dans la ROI (integrated Density) et la valeur
@@ -285,10 +288,6 @@ public class Modele_Plaquettes {
 		BufferedImage buff = xylineChart.createBufferedImage(640, 512);
 		ImagePlus courbe = new ImagePlus(title, buff);
 		return courbe;
-	}
-
-	public void setDateDebutHeure(Date dateDebutHeure) {
-		this.dateHeureDebut = dateDebutHeure;
 	}
 
 }
