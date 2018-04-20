@@ -45,7 +45,7 @@ import ij.ImagePlus;
 import ij.measure.Measurements;
 import ij.measure.ResultsTable;
 
-public class Modele_Plaquettes {
+public class Modele_Plaquettes extends ModeleScin {
 
 	// Stockage des objets mesures, chaque image est identifee par sa date
 	// d'aqcisition
@@ -54,7 +54,10 @@ public class Modele_Plaquettes {
 	HashMap<Date, MesureImage> mesures = new HashMap<Date, MesureImage>();
 	private Date dateHeureDebut;
 
-	protected void enregisterMesure(String roi, ImagePlus imp) {		
+	public Modele_Plaquettes(Date dateHeureDebut) {
+		this.dateHeureDebut=dateHeureDebut;
+	}
+	public void enregisterMesure(String roi, ImagePlus imp) {
 		Date dateAcquisition = ModeleScin.getDateAcquisition(imp);
 		
 		// Recupere la somme des coups dans la ROI (integrated Density) et la valeur
@@ -82,14 +85,14 @@ public class Modele_Plaquettes {
 		// On calcule les valeurs et on l'ajoute dans l'objet adHoc
 		if (mesures.containsKey(dateAcquisition)) {
 
-			if (roi.equals("Spleen Post")) {
+			if (roi.contains("Spleen P")) {
 				double[] spleen = new double[2];
 				spleen[0] = counts;
 				spleen[1] = mean;
 				mesures.get(dateAcquisition).setSpleenValue(spleen);
 			}
 
-			else if (roi.equals("Liver Post")) {
+			else if (roi.contains("Liver P")) {
 				double[] liver = new double[2];
 				liver[0] = counts;
 				liver[1] = mean;
@@ -97,7 +100,7 @@ public class Modele_Plaquettes {
 				;
 			}
 
-			else if (roi.equals("Heart Post")) {
+			else if (roi.contains("Heart P")) {
 				double[] heart = new double[2];
 				heart[0] = counts;
 				heart[1] = mean;
@@ -105,21 +108,21 @@ public class Modele_Plaquettes {
 				;
 			}
 
-			else if (roi.equals("Spleen Ant")) {
+			else if (roi.contains("Spleen A")) {
 				double[] spleen = new double[2];
 				spleen[0] = counts;
 				spleen[1] = mean;
 				mesures.get(dateAcquisition).setSpleenAntValue(spleen);
 			}
 
-			else if (roi.equals("Liver Ant")) {
+			else if (roi.contains("Liver A")) {
 				double[] liver = new double[2];
 				liver[0] = counts;
 				liver[1] = mean;
 				mesures.get(dateAcquisition).setliverAntValue(liver);
 			}
 
-			else if (roi.equals("Heart Ant")) {
+			else if (roi.contains("Heart A")) {
 				double[] heart = new double[2];
 				heart[0] = counts;
 				heart[1] = mean;
@@ -285,10 +288,6 @@ public class Modele_Plaquettes {
 		BufferedImage buff = xylineChart.createBufferedImage(640, 512);
 		ImagePlus courbe = new ImagePlus(title, buff);
 		return courbe;
-	}
-
-	public void setDateDebutHeure(Date dateDebutHeure) {
-		this.dateHeureDebut = dateDebutHeure;
 	}
 
 }

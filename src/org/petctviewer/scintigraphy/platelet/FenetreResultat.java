@@ -13,18 +13,17 @@ import java.awt.Label;
 import java.awt.Panel;
 import java.awt.Point;
 import java.awt.Toolkit;
+
+import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-public class FenetreResultat
-  extends ImageWindow
-{
+public class FenetreResultat extends ImageWindow {
   private static final long serialVersionUID = -9097595151860174657L;
   private Label lbl_csv;
   private Button btn_capture;
   
-  public FenetreResultat(ImagePlus imp, JTable tableResults)
-  {
+  public FenetreResultat(ImagePlus imp, JTable tableResults) {
     super(imp, new ImageCanvas(imp));
     
     setLayout(new FlowLayout());
@@ -39,6 +38,8 @@ public class FenetreResultat
     Panel buttonPanel = new Panel();
     buttonPanel.setLayout(new FlowLayout());
     
+    
+    this.lbl_csv = new Label();
     String path = Prefs.get("dir.preferred", null);
     if (path == null)
     {
