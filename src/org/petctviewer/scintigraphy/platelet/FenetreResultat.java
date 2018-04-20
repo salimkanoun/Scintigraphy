@@ -1,34 +1,39 @@
 package org.petctviewer.scintigraphy.platelet;
 
+import ij.IJ;
 import ij.ImagePlus;
 import ij.Prefs;
-import ij.gui.ImageCanvas;
-import ij.gui.ImageWindow;
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Label;
 import java.awt.Panel;
-import java.awt.Point;
-import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-public class FenetreResultat extends ImageWindow {
+public class FenetreResultat extends JFrame {
   private static final long serialVersionUID = -9097595151860174657L;
   private Label lbl_csv;
-  private Button btn_capture;
+  private JButton btn_capture = new JButton();
   
   public FenetreResultat(ImagePlus imp, JTable tableResults) {
-    super(imp, new ImageCanvas(imp));
     
-    setLayout(new FlowLayout());
-    
+ 
     setLayout(new BorderLayout());
+    JPanel panelImage=new JPanel();
+    this.add(panelImage, BorderLayout.WEST);
+    JLabel label = new JLabel(new ImageIcon(imp.getBufferedImage()));
+    panelImage.add(label);
+    
     JScrollPane scrollPane = new JScrollPane(tableResults);
     tableResults.setAutoResizeMode(4);
     tableResults.setAutoCreateRowSorter(true);
@@ -51,18 +56,23 @@ public class FenetreResultat extends ImageWindow {
       this.lbl_csv.setText("CSV Save OK");
     }
     buttonPanel.add(this.lbl_csv);
+    btn_capture.addActionListener(new ActionListener() {
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			IJ.log("Capture");
+			
+		}
+    	
+    });
     buttonPanel.add(this.btn_capture);
     
-    add(scrollPane, "Center");
-    add(buttonPanel, "South");
+    add(scrollPane, BorderLayout.EAST);
+    add(buttonPanel, BorderLayout.SOUTH);
     
     pack();
-    
-    Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-    Point loc = getLocation();
-    Dimension size = getSize();
-    if (loc.y + size.height > screen.height) {
-      getCanvas().zoomOut(0, 0);
-    }
+
   }
+  
+  
 }
