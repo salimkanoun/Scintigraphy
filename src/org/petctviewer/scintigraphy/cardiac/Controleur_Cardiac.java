@@ -127,7 +127,7 @@ public class Controleur_Cardiac extends ControleurScin {
 			((FenApplication_Cardiac) this.getVue().getFen_application()).startContaminationMode();
 			this.modeCont = true;
 		} else {
-			if (this.getVue().getImp().getCurrentSlice() == 1) {
+			if (this.getVue().getImp().getCurrentSlice() == 1 && this.isDeuxPrises()) {
 				this.showSliceWithOverlay(2);
 				this.traiterContamination();
 			}
@@ -139,7 +139,7 @@ public class Controleur_Cardiac extends ControleurScin {
 	}
 
 	private void clicNewCont() {
-		String name = this.createNomRoi("Contamination");
+		String name = this.createNomRoi("Cont");
 
 		// sauvegarde du roi courant
 		boolean saved = this.saveCurrentRoi(name);
@@ -185,8 +185,8 @@ public class Controleur_Cardiac extends ControleurScin {
 	@Override
 	public String getSameNameRoiCount(String nomRoi) {
 		// si il s'agit d'un contamination, on affiche un numero pour les differencier
-		if (nomRoi.contains("Conta")) {
-			return this.getSameNameRoiCount("") + super.getSameNameRoiCount(nomRoi);
+		if (nomRoi.contains("Cont")) {
+			return  super.getSameNameRoiCount(nomRoi);
 		}
 
 		// sinon on renvoie L pour Late

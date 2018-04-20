@@ -15,14 +15,7 @@ import ij.ImagePlus;
 
 public class FenetreResultatScin extends JFrame{
 	
-	protected VueScin vue;
-
-	public FenetreResultatScin(VueScin vue) throws HeadlessException {
-		super();
-		this.vue = vue;
-	}
-
-	public void setCaptureButton(JButton btn_capture, JLabel lbl_credits, Container c) {
+	public static void setCaptureButton(JButton btn_capture, JLabel lbl_credits, VueScin vue, JFrame jf) {
 
 		btn_capture.addActionListener(new ActionListener() {
 
@@ -31,8 +24,9 @@ public class FenetreResultatScin extends JFrame{
 				JButton b = (JButton) (e.getSource());
 				b.setVisible(false);
 				lbl_credits.setVisible(true);
-
-				FenetreResultatScin.this.pack();
+				
+				jf.pack();
+				Container c = jf.getContentPane();
 
 				// Capture, nouvelle methode a utiliser sur le reste des programmes
 				BufferedImage capture = new BufferedImage(c.getWidth(), c.getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -42,6 +36,8 @@ public class FenetreResultatScin extends JFrame{
 				imp.setProperty("Info", ModeleScin.genererDicomTagsPartie1(vue.getImp(), vue.getExamType())
 						+ ModeleScin.genererDicomTagsPartie2(vue.getImp()));
 
+				imp.show();
+				
 				String[] arrayRes = vue.getFen_application().getControleur().getModele().getResultsAsArray();
 
 				try {
@@ -50,6 +46,10 @@ public class FenetreResultatScin extends JFrame{
 				} catch (FileNotFoundException e1) {
 					e1.printStackTrace();
 				}
+
+				jf.dispose();
+				
+				vue.getFen_application().getControleur().getRoiManager().close();
 			}
 		});
 	}

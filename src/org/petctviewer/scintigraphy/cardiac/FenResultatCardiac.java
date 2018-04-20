@@ -36,8 +36,9 @@ import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 
 import ij.ImagePlus;
+import ij.gui.ImageWindow;
 
-public class FenResultatCardiac extends FenetreResultatScin {
+public class FenResultatCardiac extends JFrame {
 
 	private static final long serialVersionUID = -5261203439330504164L;
 
@@ -48,9 +49,7 @@ public class FenResultatCardiac extends FenetreResultatScin {
 	private JButton btn_capture;
 
 	public FenResultatCardiac(VueScin vueScin, HashMap<String, String> resultats, HashMap<String, String> infoPatient) {
-		super(vueScin);
 		this.resultats = resultats;
-		this.vue = vueScin;
 		
 		this.capture = ModeleScin
 				.captureImage(vueScin.getImp(), vueScin.getImp().getWidth(), vueScin.getImp().getHeight())
@@ -125,7 +124,8 @@ public class FenResultatCardiac extends FenetreResultatScin {
 		JLabel credits = new JLabel("Provided by petctviewer.org");
 		credits.setVisible(false);
 		side.add(credits);
-		this.setCaptureButton(btn_capture, credits, this.getContentPane());
+		
+		FenetreResultatScin.setCaptureButton(btn_capture, credits, vueScin, this);
 
 		JLabel img = new JLabel();
 		Image dimg = capture.getScaledInstance((int) (capture.getWidth() * 0.8), (int) (capture.getHeight() * 0.8),
@@ -137,12 +137,9 @@ public class FenResultatCardiac extends FenetreResultatScin {
 
 		this.pack();
 		this.setVisible(true);
-		this.setResizable(false);
 		this.setSize(this.getPreferredSize());
 		this.setLocationRelativeTo(null);
 	}
-
-
 
 	private String[] getTabRes(String key) {
 		String v = "";

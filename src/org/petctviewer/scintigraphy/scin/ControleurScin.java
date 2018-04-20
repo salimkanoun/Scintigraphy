@@ -177,7 +177,7 @@ public abstract class ControleurScin implements ActionListener {
 	 */
 	public void preparerRoi() {
 		// on affiche la slice
-		this.showSliceWithOverlay(this.getSliceNumberByRoiIndex(this.getIndexRoi()));
+		this.showSliceWithOverlay(this.getSliceNumberByRoiIndex(this.indexRoi));
 
 		// on charge la roi de l'organe identique precedent
 
@@ -186,12 +186,12 @@ public abstract class ControleurScin implements ActionListener {
 		}
 
 		// on affiche les prochaines instructions
-		this.laVue.getFen_application().setInstructions(getIndexRoi() % this.getOrganes().length);
+		this.laVue.getFen_application().setInstructions(this.indexRoi % this.getOrganes().length);
 	}
 
 	private void clicPrecedent() {
 		// sauvegarde du ROI courant
-		this.saveCurrentRoi(this.createNomRoi(this.getNomOrgane(getIndexRoi())));
+		this.saveCurrentRoi(this.createNomRoi(this.getNomOrgane(indexRoi)));
 
 		if (this.indexRoi > 0) {
 			indexRoi--;
@@ -205,7 +205,7 @@ public abstract class ControleurScin implements ActionListener {
 
 	private void clicSuivant() {
 		// sauvegarde du ROI actuel
-		boolean saved = this.saveCurrentRoi(this.createNomRoi(this.getNomOrgane(getIndexRoi())));
+		boolean saved = this.saveCurrentRoi(this.createNomRoi(this.getNomOrgane(indexRoi)));
 		// si la sauvegarde est reussie
 		if (saved) {
 			// on active le bouton precedent
