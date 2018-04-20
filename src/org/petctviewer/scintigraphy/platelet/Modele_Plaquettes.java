@@ -289,5 +289,11 @@ public class Modele_Plaquettes extends ModeleScin {
 		ImagePlus courbe = new ImagePlus(title, buff);
 		return courbe;
 	}
+	
+	@Override
+	public String[] getResultsAsArray() {
+		//TODO
+		return null;
+	}
 
 }

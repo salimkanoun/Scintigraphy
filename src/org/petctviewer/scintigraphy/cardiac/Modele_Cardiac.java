@@ -169,12 +169,12 @@ public class Modele_Cardiac extends ModeleScin {
 
 	public HashMap<String, String> getResults() {
 		if (this.deuxPrises) {
-			this.resultats.put("Full body early (5mn)", "" + round(this.totEarly, 2));
+			this.resultats.put("WB early (5mn)", "" + round(this.totEarly, 2));
 			this.resultats.put("Cardiac retention %", "" + round(this.retCardiaque * 100, 2));
-			this.resultats.put("Full body retention %", "" + round(this.retCe * 100, 2));
+			this.resultats.put("WB retention %", "" + round(this.retCe * 100, 2));
 		}
 
-		this.resultats.put("Full body late (3h)", "" + round(this.totLate, 2));
+		this.resultats.put("WB late (3h)", "" + round(this.totLate, 2));
 
 		this.resultats.put("Bladder", "" + round(this.fixVessieL, 2));
 		this.resultats.put("Heart", "" + round(this.fixCoeurL, 2));

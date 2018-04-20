@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -23,37 +22,33 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
 import javax.swing.RowSorter.SortKey;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.SortOrder;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
+import org.petctviewer.scintigraphy.scin.FenetreResultatScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
 import java.awt.image.BufferedImage;
 
 import java.io.FileNotFoundException;
-import java.lang.reflect.InvocationTargetException;
 
 import ij.ImagePlus;
-import ij.plugin.Zoom;
 
-public class FenResultatCardiac extends JFrame {
+public class FenResultatCardiac extends FenetreResultatScin {
 
 	private static final long serialVersionUID = -5261203439330504164L;
 
 	HashMap<String, String> resultats;
 	Box side;
 	BufferedImage capture;
-	VueScin vue;
 
 	private JButton btn_capture;
 
 	public FenResultatCardiac(VueScin vueScin, HashMap<String, String> resultats, HashMap<String, String> infoPatient) {
+		super(vueScin);
 		this.resultats = resultats;
 		this.vue = vueScin;
 		
@@ -147,37 +142,7 @@ public class FenResultatCardiac extends JFrame {
 		this.setLocationRelativeTo(null);
 	}
 
-	private void setCaptureButton(JButton btn_capture, JLabel lbl_credits, Container c) {
 
-		btn_capture.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JButton b = (JButton) (e.getSource());
-				b.setVisible(false);
-				lbl_credits.setVisible(true);
-
-				FenResultatCardiac.this.pack();
-
-				// Capture, nouvelle methode a utiliser sur le reste des programmes
-				BufferedImage capture = new BufferedImage(c.getWidth(), c.getHeight(), BufferedImage.TYPE_INT_ARGB);
-				c.paint(capture.getGraphics());
-				ImagePlus imp = new ImagePlus("capture", capture);
-				
-				imp.setProperty("Info", ModeleScin.genererDicomTagsPartie1(vue.getImp(), vue.getExamType())
-						+ ModeleScin.genererDicomTagsPartie2(vue.getImp()));
-
-				String[] arrayRes = vue.getFen_application().getControleur().getModele().getResultsAsArray();
-
-				try {
-					ModeleScin.exportAll(arrayRes, 2, vue.getFen_application().getControleur().getRoiManager(),
-							vue.getExamType(), imp);
-				} catch (FileNotFoundException e1) {
-					e1.printStackTrace();
-				}
-			}
-		});
-	}
 
 	private String[] getTabRes(String key) {
 		String v = "";

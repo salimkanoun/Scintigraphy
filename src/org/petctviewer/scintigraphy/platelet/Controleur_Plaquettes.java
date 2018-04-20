@@ -49,7 +49,7 @@ public class Controleur_Plaquettes extends ControleurScin {
 	}
 
 	public void fin() {
-		ImagePlus capture = ModeleScin.captureImage(getImp(), 512, 512);
+		ImagePlus capture = ModeleScin.captureImage(this.getVue().getImp(), 512, 512);
 		// On resize le canvas pour etre a la meme taille que les courbes
 		ImageProcessor ip = capture.getProcessor();
 		CanvasResizer canvas = new CanvasResizer();
