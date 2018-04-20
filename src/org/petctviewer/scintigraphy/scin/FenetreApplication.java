@@ -18,6 +18,8 @@ import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import javax.swing.JPanel;
 
+import org.petctviewer.scintigraphy.cardiac.Controleur_Cardiac;
+
 public class FenetreApplication extends StackWindow {
 	private static final long serialVersionUID = -6280620624574294247L;
 	private Label lbl_instructions;
@@ -29,17 +31,11 @@ public class FenetreApplication extends StackWindow {
 	private Button btn_showlog;
 	private Button btn_precedent;
 	private Button btn_suivant;
-	private Button btn_capture;
-	
-	//boutons mode decontamination 
-	private Button btn_newCont;
-	private Button btn_continue;
 
 	private ControleurScin controleur;
-	private Panel instru;
+
+	protected Panel instru;
 	private String nom;
-	
-	private boolean modeCont;
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
@@ -50,8 +46,6 @@ public class FenetreApplication extends StackWindow {
 		super(imp, new ImageCanvas(imp));
 		
 		this.nom = nom;
-		this.modeCont = false;
-
 		setTitle(generateTitle());
 		this.imp.setTitle(generateTitle());
 
@@ -86,7 +80,7 @@ public class FenetreApplication extends StackWindow {
 		this.adaptWindow();
 	}
 	
-	private void adaptWindow() {
+	protected void adaptWindow() {
 		pack();
 
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
@@ -109,44 +103,13 @@ public class FenetreApplication extends StackWindow {
 		this.setOverlay();
 	}
 	
-	private Panel createBtnsInstru() {
+	protected Panel createBtnsInstru() {
 		Panel btns_instru = new Panel();
 		btns_instru.setLayout(new GridLayout(1, 3));
 		btns_instru.add(this.btn_showlog);
 		btns_instru.add(this.btn_precedent);
 		btns_instru.add(this.btn_suivant);
 		return btns_instru;
-	}
-	
-	/**
-	 * Lance le mode decontamiation, c'est a dire modifier les boutons de la fenetre
-	 */
-	public void startContaminationMode() {
-		this.instru.remove(1);
-		
-		//mise en place des boutons
-		Panel btns_instru = new Panel();
-		btns_instru.setLayout(new GridLayout(1, 2));
-		btns_instru.add(this.btn_newCont);
-		btns_instru.add(this.btn_continue);
-		this.instru.add(btns_instru);
-		this.modeCont = true;
-		
-		this.adaptWindow();
-
-		this.lbl_instructions.setText("Decontamination mode");
-	}
-	
-	/**
-	 * Remplace les boutons permettant la decontamination par les boutons utilisés pour délimiter les rois
-	 */
-	public void stopContaminationMode() {
-		this.instru.remove(1);
-		this.instru.add(this.createBtnsInstru());
-		this.adaptWindow();
-		this.setInstructions(0);
-		this.controleur.showSliceWithOverlay(this.getImagePlus().getCurrentSlice());
-		this.modeCont = false;
 	}
 
 	/// affiche l'overlay Droite/Gauche
@@ -159,37 +122,28 @@ public class FenetreApplication extends StackWindow {
 	}
 
 	private void initButtons() {
-		this.btn_capture = new Button("Capture");
 		this.btn_contrast = new Button("Contrast");
 		this.btn_drawROI = new Button("Draw ROI");
 		this.btn_precedent = new Button("Previous");
 		this.btn_precedent.setEnabled(false);
 		this.btn_suivant = new Button("Next");
-		this.btn_contrast = new Button("Contrast");
 		this.btn_showlog = new Button("Show Log");
 		this.btn_quitter = new Button("Quit");
-		this.btn_continue = new Button("Continue");
-		this.btn_newCont = new Button("New contamnation");
 	}
 	
 	public void setControleur(ControleurScin ctrl) {
 		this.controleur = ctrl;
-		this.btn_capture.addActionListener(ctrl);
 		this.btn_contrast.addActionListener(ctrl);
 		this.btn_drawROI.addActionListener(ctrl);
 		this.btn_precedent.addActionListener(ctrl);
 		this.btn_quitter.addActionListener(ctrl);
 		this.btn_showlog.addActionListener(ctrl);
 		this.btn_suivant.addActionListener(ctrl);
-		this.btn_continue.addActionListener(ctrl);
-		this.btn_newCont.addActionListener(ctrl);
-		this.setInstructions(0);
 	}
 	
 	@Override
 	public boolean close() {
 		super.close();
-		this.controleur.roiManager.close();
 		return true;		
 	}
 
@@ -238,24 +192,12 @@ public class FenetreApplication extends StackWindow {
 	public Button getBtn_suivant() {
 		return btn_suivant;
 	}
-
-	public Button getBtn_capture() {
-		return btn_capture;
-	}
-	
-	public Button getBtn_newCont() {
-		return btn_newCont;
-	}
-
-	public Button getBtn_continue() {
-		return btn_continue;
-	}
 	
 	public Overlay getOverlay() {
 		return this.getImagePlus().getOverlay();	
 	}
 	
-	public boolean isModeCont() {
-		return this.modeCont;
+	public ControleurScin getControleur() {
+		return controleur;
 	}
 }
