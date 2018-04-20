@@ -1,4 +1,3 @@
-import org.petctviewer.scintigraphy.cardiac.FenResultatCardiac;
 
 import ij.ImageJ;
 

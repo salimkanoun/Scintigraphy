@@ -43,9 +43,9 @@ public class Controleur_Plaquettes extends ControleurScin {
 		this.setModele(leModele);
 		antPost = vue.antPost;
 		if (vue.antPost)
-			this.setOrganes(organes);
-		else
 			this.setOrganes(organesAntPost);
+		else
+			this.setOrganes(organes);
 	}
 
 	public void fin() {
@@ -55,11 +55,9 @@ public class Controleur_Plaquettes extends ControleurScin {
 		CanvasResizer canvas = new CanvasResizer();
 		ImageProcessor iptemp = canvas.expandImage(ip, 640, 512, (640 - 512) / 2, 0);
 		capture.setProcessor(iptemp);
-		IJ.log("avant get results");
 
 		JTable tableResultats = leModele.getResults();
 
-		IJ.log("apres get results");
 		ImagePlus[] courbes = leModele.createDataset(tableResultats);
 
 		ImageStack stack = new ImageStack(640, 512);
@@ -67,17 +65,16 @@ public class Controleur_Plaquettes extends ControleurScin {
 		for (int i = 0; i < courbes.length; i++) {
 			stack.addSlice(courbes[i].getProcessor());
 		}
-		IJ.log("Apres add image stack");
 
 		ImagePlus courbesStackImagePlus = new ImagePlus();
 		courbesStackImagePlus.setStack(stack);
 
 		ImagePlus courbesFinale = new ImagePlus();
-		IJ.log("Avan Montage");
+		
 		MontageMaker mm = new MontageMaker();
 		courbesFinale = mm.makeMontage2(courbesStackImagePlus, 2, 2, 1, 1, courbesStackImagePlus.getStackSize(), 1, 0,
 				false);
-		IJ.log("apres Montage");
+		// SK A Reprendre 
 		FenetreResultat results = new FenetreResultat(courbesFinale, tableResultats);
 		results.setVisible(true);
 		// laVue.UIResultats(courbesFinale, tableResultats);
