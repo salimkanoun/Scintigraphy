@@ -26,8 +26,8 @@ public class FenApplication_Cardiac extends FenetreApplication {
 		super(imp, nom);
 		this.modeCont = false;
 
-		this.btn_continue = new Button("Continue");
-		this.btn_newCont = new Button("New contamnation");
+		this.btn_continue = new Button("End");
+		this.btn_newCont = new Button("Save");
 		this.setInstructions("Delimit the Bladder");
 	}
 	

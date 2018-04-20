@@ -28,6 +28,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.SortOrder;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
 import org.petctviewer.scintigraphy.scin.ModeleScin;
@@ -36,8 +37,10 @@ import org.petctviewer.scintigraphy.scin.VueScin;
 import java.awt.image.BufferedImage;
 
 import java.io.FileNotFoundException;
+import java.lang.reflect.InvocationTargetException;
 
 import ij.ImagePlus;
+import ij.plugin.Zoom;
 
 public class FenResultatCardiac extends JFrame {
 
@@ -53,6 +56,7 @@ public class FenResultatCardiac extends JFrame {
 	public FenResultatCardiac(VueScin vueScin, HashMap<String, String> resultats, HashMap<String, String> infoPatient) {
 		this.resultats = resultats;
 		this.vue = vueScin;
+		
 		this.capture = ModeleScin
 				.captureImage(vueScin.getImp(), vueScin.getImp().getWidth(), vueScin.getImp().getHeight())
 				.getBufferedImage();
@@ -112,10 +116,9 @@ public class FenResultatCardiac extends JFrame {
 		// desactive l'edition
 		tabRes.setDefaultEditor(Object.class, null);
 		tabRes.setFocusable(false);
-		tabRes.setRowSelectionAllowed(false);		
+		tabRes.setRowSelectionAllowed(false);
 		side.add(tabRes);
 
-		
 		side.add(Box.createVerticalStrut(400));
 
 		side.add(Box.createVerticalGlue());
@@ -130,7 +133,8 @@ public class FenResultatCardiac extends JFrame {
 		this.setCaptureButton(btn_capture, credits, this.getContentPane());
 
 		JLabel img = new JLabel();
-		Image dimg = capture.getScaledInstance((int) (capture.getWidth()*0.8), (int) (capture.getHeight()*0.8), Image.SCALE_SMOOTH);
+		Image dimg = capture.getScaledInstance((int) (capture.getWidth() * 0.8), (int) (capture.getHeight() * 0.8),
+				Image.SCALE_SMOOTH);
 		img.setIcon(new ImageIcon(dimg));
 
 		this.add(img, BorderLayout.WEST);
@@ -152,14 +156,14 @@ public class FenResultatCardiac extends JFrame {
 				JButton b = (JButton) (e.getSource());
 				b.setVisible(false);
 				lbl_credits.setVisible(true);
-				
+
 				FenResultatCardiac.this.pack();
 
 				// Capture, nouvelle methode a utiliser sur le reste des programmes
 				BufferedImage capture = new BufferedImage(c.getWidth(), c.getHeight(), BufferedImage.TYPE_INT_ARGB);
 				c.paint(capture.getGraphics());
 				ImagePlus imp = new ImagePlus("capture", capture);
-
+				
 				imp.setProperty("Info", ModeleScin.genererDicomTagsPartie1(vue.getImp(), vue.getExamType())
 						+ ModeleScin.genererDicomTagsPartie2(vue.getImp()));
 
@@ -180,7 +184,7 @@ public class FenResultatCardiac extends JFrame {
 		if (this.resultats.containsKey(key)) {
 			v = this.resultats.get(key);
 		}
-		return new String[] {" " + key, v };
+		return new String[] { " " + key, v };
 	}
 
 	private JLabel getLabelRed(String key) {

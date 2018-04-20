@@ -69,7 +69,6 @@ public class FenetreApplication extends StackWindow {
 		this.lbl_instructions = new Label();
 		this.lbl_instructions.setBackground(Color.LIGHT_GRAY);
 		instru.add(this.lbl_instructions);
-		System.out.println("Inst created");
 
 		Panel btns_instru = this.createBtnsInstru();
 		instru.add(btns_instru);

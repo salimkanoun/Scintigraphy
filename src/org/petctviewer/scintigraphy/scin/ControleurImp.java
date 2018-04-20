@@ -16,7 +16,7 @@ public class ControleurImp implements ImageListener {
 	@Override
 	public void imageUpdated(ImagePlus imp) {
 		if(!this.lockUpdate) {
-			int currentSlice = this.ctrlScin.getImp().getCurrentSlice();
+			int currentSlice = this.ctrlScin.getVue().getImp().getCurrentSlice();
 			if(currentSlice != lastSlice) {
 				this.lastSlice = currentSlice;
 				this.lockUpdate = true;

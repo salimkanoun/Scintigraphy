@@ -41,7 +41,6 @@ public abstract class ControleurScin implements ActionListener {
 	protected RoiManager roiManager;
 
 	protected static boolean showLog;
-	private String tagCapture;
 
 	private String[] organes;
 	protected int indexRoi;
@@ -181,8 +180,9 @@ public abstract class ControleurScin implements ActionListener {
 		this.showSliceWithOverlay(this.getSliceNumberByRoiIndex(this.getIndexRoi()));
 
 		// on charge la roi de l'organe identique precedent
-		if (this.getOrganRoi() != null) {
-			this.setRoi(this.getOrganRoi());
+		Roi roi = this.getOrganRoi();
+		if (roi != null) {
+			this.setRoi(roi);
 		}
 
 		// on affiche les prochaines instructions
@@ -191,27 +191,18 @@ public abstract class ControleurScin implements ActionListener {
 
 	private void clicPrecedent() {
 		// sauvegarde du ROI courant
-		boolean saved = this.saveCurrentRoi(this.createNomRoi(this.getOrganes()[this.indexRoi]));
-		// si la sauvegarde est reussie
-		if(saved) {
-			if (this.indexRoi > 0) {
-				indexRoi--;
-			} else {
-				// si c'est le dernier roi, on desactive le bouton
-				this.getVue().getFen_application().getBtn_precedent().setEnabled(false);
-			}
-			
-			this.preparerRoi();
-		}		
+		this.saveCurrentRoi(this.createNomRoi(this.getOrganes()[this.indexRoi]));
+		if (this.indexRoi > 0) {
+			indexRoi--;
+		} else {
+			// si c'est le dernier roi, on desactive le bouton
+			this.getVue().getFen_application().getBtn_precedent().setEnabled(false);
+		}
+
+		this.preparerRoi();
 	}
 
 	private void clicSuivant() {
-		// ajout du tag si il n'est pas encore présent
-		if (tagCapture == null) {
-			tagCapture = ModeleScin.genererDicomTagsPartie1(laVue.getFen_application().getImagePlus(),
-					laVue.getExamType());
-		}
-
 		// sauvegarde du ROI actuel
 		boolean saved = this.saveCurrentRoi(this.createNomRoi(this.getOrganes()[this.indexRoi]));
 		// si la sauvegarde est reussie
@@ -222,7 +213,7 @@ public abstract class ControleurScin implements ActionListener {
 			// on avtive la fin si c'est necessaire
 			if (this.isOver()) {
 				fin();
-			}else {
+			} else {
 				// on prepare la roi suivante
 				indexRoi++;
 				this.preparerRoi();
@@ -304,7 +295,11 @@ public abstract class ControleurScin implements ActionListener {
 			// on enregistre la ROI dans le modele
 			leModele.enregisterMesure(nomRoi, laVue.getFen_application().getImagePlus());
 
-			String nom2 = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
+			String nom2 = nomRoi;
+			if (nomRoi.split(" ").length > 1) {
+				nom2 = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
+			}
+
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
 			if (this.roiManager.getRoi(this.getIndexRoi()) == null) {
@@ -348,7 +343,7 @@ public abstract class ControleurScin implements ActionListener {
 		laVue.getFen_application().showSlice(nSlice);
 
 		// on affiche les roi pour cette slide
-		for (Roi roi : this.getRoisSlice(this.getImp().getCurrentSlice())) {
+		for (Roi roi : this.getRoisSlice(this.getVue().getImp().getCurrentSlice())) {
 			// on ajoute les roi dans l'overlay si ce n'est pas la roi courante
 			if (roi != this.roiManager.getRoi(getIndexRoi())) {
 				this.ajouterRoiOverlay(roi);
@@ -410,7 +405,6 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 	private void attachListener() {
-		this.laVue.getImagePlus();
 		ImagePlus.addImageListener(new ControleurImp(this));
 	}
 
@@ -425,7 +419,7 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 	public void setRoi(Roi roi) {
-		laVue.getImagePlus().setRoi(roi);
+		laVue.getImp().setRoi(roi);
 	}
 
 	/**
@@ -456,10 +450,6 @@ public abstract class ControleurScin implements ActionListener {
 
 	public void setOrganes(String[] organes) {
 		this.organes = organes;
-	}
-
-	public ImagePlus getImp() {
-		return this.laVue.getImp();
 	}
 
 	public ModeleScin getModele() {
