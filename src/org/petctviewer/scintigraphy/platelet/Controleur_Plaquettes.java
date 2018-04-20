@@ -31,22 +31,22 @@ public class Controleur_Plaquettes extends ControleurScin {
 
 	protected static boolean showLog;
 	private Modele_Plaquettes leModele;
-	private String[] organes = {"Spleen", "Liver", "Heart"};
-	private String[] organesAntPost = {"Spleen Post", "Liver Post", "Heart Post", "Spleen Ant", "Liver Ant", "Heart Ant"};
+	private String[] organes = { "Spleen", "Liver", "Heart" };
+	private String[] organesAntPost = { "Spleen Post", "Liver Post", "Heart Post", "Spleen Ant", "Liver Ant",
+			"Heart Ant" };
 	private boolean antPost;
-	private int indexRoi;
 
 	// Sert au restart
 	protected Controleur_Plaquettes(Vue_Plaquettes vue) {
 		super(vue);
-		leModele=new Modele_Plaquettes(vue.getDateDebut());
+		leModele = new Modele_Plaquettes(vue.getDateDebut());
 		this.setModele(leModele);
-		this.indexRoi = 0;
-		antPost=vue.antPost;
-		if (vue.antPost) this.setOrganes(organes); else this.setOrganes(organesAntPost);
-		
+		antPost = vue.antPost;
+		if (vue.antPost)
+			this.setOrganes(organes);
+		else
+			this.setOrganes(organesAntPost);
 	}
-
 
 	public void fin() {
 		ImagePlus capture = ModeleScin.captureImage(getImp(), 512, 512);
@@ -78,69 +78,34 @@ public class Controleur_Plaquettes extends ControleurScin {
 		courbesFinale = mm.makeMontage2(courbesStackImagePlus, 2, 2, 1, 1, courbesStackImagePlus.getStackSize(), 1, 0,
 				false);
 		IJ.log("apres Montage");
-		FenetreResultat results=new FenetreResultat(courbesFinale, tableResultats);
+		FenetreResultat results = new FenetreResultat(courbesFinale, tableResultats);
 		results.setVisible(true);
-		//laVue.UIResultats(courbesFinale, tableResultats);
+		// laVue.UIResultats(courbesFinale, tableResultats);
 	}
-
-	public Roi getOrganRoi() {
-		Roi roiOrgane =null;
-		if (roiManager.getRoi(indexRoi) != null) {
-			roiOrgane = (Roi) roiManager.getRoi(indexRoi);
-			getImp().setRoi(roiOrgane);
-			roiManager.select(indexRoi);
-		} else {
-			if (roiManager.getCount() >= this.organes.length) { // Si on n'est pas dans le premier cycle on
-																			// reaffiche la Roi preexistante pour cet
-																			// organe
-				roiOrgane = (Roi) roiManager.getRoi(this.indexRoi - this.organes.length).clone();
-				getImp().setRoi(roiOrgane);
-				roiManager.select(this.indexRoi);
-			}
-		}
-		return roiOrgane;
-	}
-
-	
-	private void showSlice() {
-		this.afficherRoisSlice();
-		int nSlice = (this.indexRoi / this.organes.length);
-		this.getVue().getFen_application().showSlice(nSlice + 1);
-	}
-
-	private void afficherRoisSlice() {
-		this.clearOverlay();
-		int nSlice = (this.indexRoi / this.organes.length);
-		int indexSliceDebut = nSlice * this.organes.length;
-		int indexSliceFin = indexSliceDebut + this.organes.length;
-
-		for (int i = indexSliceDebut; i < indexSliceFin; i++) {
-			if (roiManager.getRoi(i) != null) {
-				if (i != this.indexRoi) {
-					Roi roi = (Roi) roiManager.getRoi(i).clone();
-					this.getVue().getImp().getOverlay().add(roi);
-				}
-			}
-		}
-
-	}
-
 
 	@Override
 	public boolean isOver() {
-		// TODO Auto-generated method stub
-		return false;
+		return this.roiManager.getCount() >= this.getVue().getImp().getStackSize() * this.getOrganes().length;
 	}
 
 	@Override
 	public int getSliceNumberByRoiIndex(int roiIndex) {
-		// TODO Auto-generated method stub
-		return 0;
+		return (roiIndex / this.getOrganes().length) + 1;
 	}
 
 	@Override
 	public boolean isPost() {
-		if (antPost) return (this.getIndexRoi() % 2 == 1);
-		else return true;
+		if (antPost)
+			return (this.getSliceNumberByRoiIndex(this.getIndexRoi()) % 2 == 1);
+		else
+			return true;
+	}
+
+	public Roi getOrganRoi() {
+		if (roiManager.getRoi(getIndexRoi()) == null)
+			if (this.getVue().getImp().getCurrentSlice() > 1) {
+				return roiManager.getRoi(this.getIndexRoi() - this.organes.length);
+			}
+		return null;
 	}
 }

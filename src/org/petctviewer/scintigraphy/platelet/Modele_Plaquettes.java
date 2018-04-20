@@ -57,7 +57,7 @@ public class Modele_Plaquettes extends ModeleScin {
 	public Modele_Plaquettes(Date dateHeureDebut) {
 		this.dateHeureDebut=dateHeureDebut;
 	}
-	public void enregisterMesure(String roi, ImagePlus imp) {		
+	public void enregisterMesure(String roi, ImagePlus imp) {
 		Date dateAcquisition = ModeleScin.getDateAcquisition(imp);
 		
 		// Recupere la somme des coups dans la ROI (integrated Density) et la valeur
@@ -85,14 +85,14 @@ public class Modele_Plaquettes extends ModeleScin {
 		// On calcule les valeurs et on l'ajoute dans l'objet adHoc
 		if (mesures.containsKey(dateAcquisition)) {
 
-			if (roi.equals("Spleen Post")) {
+			if (roi.contains("Spleen P")) {
 				double[] spleen = new double[2];
 				spleen[0] = counts;
 				spleen[1] = mean;
 				mesures.get(dateAcquisition).setSpleenValue(spleen);
 			}
 
-			else if (roi.equals("Liver Post")) {
+			else if (roi.contains("Liver P")) {
 				double[] liver = new double[2];
 				liver[0] = counts;
 				liver[1] = mean;
@@ -100,7 +100,7 @@ public class Modele_Plaquettes extends ModeleScin {
 				;
 			}
 
-			else if (roi.equals("Heart Post")) {
+			else if (roi.contains("Heart P")) {
 				double[] heart = new double[2];
 				heart[0] = counts;
 				heart[1] = mean;
@@ -108,21 +108,21 @@ public class Modele_Plaquettes extends ModeleScin {
 				;
 			}
 
-			else if (roi.equals("Spleen Ant")) {
+			else if (roi.contains("Spleen A")) {
 				double[] spleen = new double[2];
 				spleen[0] = counts;
 				spleen[1] = mean;
 				mesures.get(dateAcquisition).setSpleenAntValue(spleen);
 			}
 
-			else if (roi.equals("Liver Ant")) {
+			else if (roi.contains("Liver A")) {
 				double[] liver = new double[2];
 				liver[0] = counts;
 				liver[1] = mean;
 				mesures.get(dateAcquisition).setliverAntValue(liver);
 			}
 
-			else if (roi.equals("Heart Ant")) {
+			else if (roi.contains("Heart A")) {
 				double[] heart = new double[2];
 				heart[0] = counts;
 				heart[1] = mean;

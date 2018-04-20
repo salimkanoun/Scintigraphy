@@ -13,6 +13,8 @@ import java.awt.Label;
 import java.awt.Panel;
 import java.awt.Point;
 import java.awt.Toolkit;
+
+import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
@@ -36,6 +38,8 @@ public class FenetreResultat extends ImageWindow {
     Panel buttonPanel = new Panel();
     buttonPanel.setLayout(new FlowLayout());
     
+    
+    this.lbl_csv = new Label();
     String path = Prefs.get("dir.preferred", null);
     if (path == null)
     {

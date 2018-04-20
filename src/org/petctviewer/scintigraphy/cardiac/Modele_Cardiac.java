@@ -1,17 +1,14 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import java.awt.Rectangle;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 
 import ij.ImagePlus;
-import ij.gui.ImageCanvas;
 import ij.measure.Measurements;
 import ij.measure.ResultsTable;
 import ij.plugin.filter.Analyzer;
