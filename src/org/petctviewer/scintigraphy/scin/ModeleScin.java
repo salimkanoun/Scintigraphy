@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -118,8 +119,6 @@ public abstract class ModeleScin {
 	public static ImagePlus captureImage(ImagePlus imp, int largeur, int hauteur) {
 		// Cette methode capture la partie image seule d'une fenetre
 		ImageWindow win = imp.getWindow();
-		win.toFront();
-		IJ.wait(500);
 		Point loc = win.getLocation();
 		ImageCanvas ic = win.getCanvas();
 		Rectangle bounds = ic.getBounds();
@@ -507,5 +506,7 @@ public abstract class ModeleScin {
 	public abstract String[] getResultsAsArray();
 
 	public abstract void calculerResultats();
+
+	public abstract HashMap<String, String> getResultsHashMap();
 
 }

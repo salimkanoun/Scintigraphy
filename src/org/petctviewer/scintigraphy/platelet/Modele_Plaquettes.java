@@ -298,5 +298,10 @@ public class Modele_Plaquettes extends ModeleScin {
 	@Override
 	public void calculerResultats() {		
 	}
+	
+	@Override
+	public HashMap<String, String> getResultsHashMap() {
+		return null;
+	}
 
 }

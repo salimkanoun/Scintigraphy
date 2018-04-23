@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
 import ij.IJ;
@@ -46,14 +47,14 @@ public class Controleur_Cardiac extends ControleurScin {
 
 	@Override
 	public void fin() {
-		Modele_Cardiac mdl = (Modele_Cardiac) this.getModele();
+		ModeleScin mdl = this.getModele();
 		mdl.calculerResultats();
 		System.out.println(mdl);
 		
 		//on ajoute la derniere Roi a l'overlay
 		this.getVue().getImp().killRoi();
 		this.getVue().getImp().getOverlay().add(this.roiManager.getRoi(roiManager.getCount() - 1));
-		new FenResultatCardiac(this.getVue(), mdl.getResults(), this.getDicomInfo(this.getVue().getImp()));
+		new FenResultat_Cardiac(this.getVue(), mdl.getResultsHashMap(), this.getDicomInfo(this.getVue().getImp()));
 
 		this.getVue().getFen_application().dispose();
 	}

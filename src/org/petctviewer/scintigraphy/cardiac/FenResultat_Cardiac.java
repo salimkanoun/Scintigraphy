@@ -25,52 +25,28 @@ import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableModel;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
 import java.awt.image.BufferedImage;
 
-public class FenResultatCardiac extends JFrame {
+public class FenResultat_Cardiac extends FenResultatSidePanel {
 
 	private static final long serialVersionUID = -5261203439330504164L;
 
 	private HashMap<String, String> resultats;
-	private Box side;
-	private BufferedImage capture;
 
-	private JButton btn_capture;
-
-	public FenResultatCardiac(VueScin vueScin, HashMap<String, String> resultats, HashMap<String, String> infoPatient) {
+	public FenResultat_Cardiac(VueScin vueScin, HashMap<String, String> resultats, HashMap<String, String> infoPatient) {
+		super("DPD Quant", vueScin, infoPatient);
 		this.resultats = resultats;
+		this.finishBuildingWindow(0.8);
+	}
+
+	@Override
+	public Component[] getSidePanelContent() {
+		Component[] panels = new Component[2];
 		
-		this.capture = ModeleScin
-				.captureImage(vueScin.getImp(), vueScin.getImp().getWidth(), vueScin.getImp().getHeight())
-				.getBufferedImage();
-
-		this.setLayout(new BorderLayout());
-
-		side = Box.createVerticalBox();
-		side.setBorder(new EmptyBorder(0, 10, 0, 10));
-
-		// ajout du titre de la fenetre
-		JPanel flow = new JPanel();
-		JLabel titreFen = new JLabel("<html><h1>DPDQuant</h1><html>");
-		titreFen.setHorizontalAlignment(JLabel.CENTER);
-		flow.add(titreFen);
-		side.add(flow);
-
-		// ajout des informations du patient
-		JPanel patientInfo = new JPanel(new GridLayout(3, 2, 10, 10));
-		patientInfo.add(new JLabel("Patient name: "));
-		patientInfo.add(new JLabel(infoPatient.get("nom")));
-		patientInfo.add(new JLabel("Patient id: "));
-		patientInfo.add(new JLabel(infoPatient.get("id")));
-		patientInfo.add(new JLabel("Aquisition date: "));
-		patientInfo.add(new JLabel(infoPatient.get("date")));
-		JPanel flow1 = new JPanel(new FlowLayout());
-		flow1.add(patientInfo);
-		side.add(flow1);
-
 		JPanel resultRouge = new JPanel(new GridLayout(3, 1, 10, 10));
 		String key = "Ratio H/WB (for a 1000)";
 		resultRouge.add(getLabelRed(key));
@@ -82,7 +58,7 @@ public class FenResultatCardiac extends JFrame {
 			resultRouge.add(getLabelRed(key));
 		JPanel flow2 = new JPanel(new FlowLayout());
 		flow2.add(resultRouge);
-		side.add(flow2);
+		panels[0] = flow2;
 
 		/// ajout de la table avec les resultats des rois
 		DefaultTableModel modelRes = new DefaultTableModel();
@@ -103,36 +79,11 @@ public class FenResultatCardiac extends JFrame {
 		tabRes.setDefaultEditor(Object.class, null);
 		tabRes.setFocusable(false);
 		tabRes.setRowSelectionAllowed(false);
-		side.add(tabRes);
-
-		side.add(Box.createVerticalStrut(400));
-
-		side.add(Box.createVerticalGlue());
-
-		this.btn_capture = new JButton("Capture");
-		btn_capture.setAlignmentX(Component.CENTER_ALIGNMENT);
-		side.add(btn_capture);
-
-		JLabel credits = new JLabel("Provided by petctviewer.org");
-		credits.setVisible(false);
-		side.add(credits);
+		panels[1] = tabRes;
 		
-		ControleurScin.setCaptureButton(btn_capture, credits, vueScin, this);
-
-		JLabel img = new JLabel();
-		Image dimg = capture.getScaledInstance((int) (capture.getWidth() * 0.8), (int) (capture.getHeight() * 0.8),
-				Image.SCALE_SMOOTH);
-		img.setIcon(new ImageIcon(dimg));
-
-		this.add(img, BorderLayout.WEST);
-		this.add(side, BorderLayout.EAST);
-
-		this.pack();
-		this.setVisible(true);
-		this.setSize(this.getPreferredSize());
-		this.setLocationRelativeTo(null);
+		return panels;
 	}
-
+	
 	private String[] getTabRes(String key) {
 		String v = "";
 		if (this.resultats.containsKey(key)) {
@@ -140,7 +91,7 @@ public class FenResultatCardiac extends JFrame {
 		}
 		return new String[] { " " + key, v };
 	}
-
+	
 	private JLabel getLabelRed(String key) {
 		JLabel lbl_hwb = new JLabel(key + " : " + resultats.remove(key));
 		lbl_hwb.setForeground(Color.RED);

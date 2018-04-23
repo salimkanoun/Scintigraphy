@@ -405,8 +405,12 @@ public abstract class ControleurScin implements ActionListener {
 					e1.printStackTrace();
 				}
 				
-				IJ.run("myDicom...");
-
+				try {
+					IJ.run("myDicom...");
+				}catch(Exception e1){
+					e1.printStackTrace();
+				}
+				
 				jf.dispose();
 				System.gc();
 				vue.getFen_application().getControleur().getRoiManager().close();
