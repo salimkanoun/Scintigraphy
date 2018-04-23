@@ -49,8 +49,10 @@ public class Controleur_Cardiac extends ControleurScin {
 		Modele_Cardiac mdl = (Modele_Cardiac) this.getModele();
 		mdl.calculerResultats();
 		System.out.println(mdl);
-		this.getVue().getImp().setRoi(this.roiManager.getRoi(roiManager.getCount() - 1));
-
+		
+		//on ajoute la derniere Roi a l'overlay
+		this.getVue().getImp().killRoi();
+		this.getVue().getImp().getOverlay().add(this.roiManager.getRoi(roiManager.getCount() - 1));
 		new FenResultatCardiac(this.getVue(), mdl.getResults(), this.getDicomInfo(this.getVue().getImp()));
 
 		this.getVue().getFen_application().dispose();
@@ -130,14 +132,13 @@ public class Controleur_Cardiac extends ControleurScin {
 
 	private void clicEndCont() {
 		if (!this.isPost()) {
-			this.finContSlice1 = true;
-			((FenApplication_Cardiac) this.getVue().getFen_application()).stopContaminationMode();
-			
+			this.finContSlice1 = true;			
 			//on set la slice 
 			if ((this.getVue().getImp().getCurrentSlice() == 1 && this.isDeuxPrises())) {
 				this.setSlice(2);
 				this.traiterContamination();
 			} else { // on a traité toutes les contaminations
+				((FenApplication_Cardiac) this.getVue().getFen_application()).stopContaminationMode();
 				String[] conts = new String[this.indexRoi];
 				for (int i = 0; i < conts.length; i++) {
 					conts[i] = "Contamination";

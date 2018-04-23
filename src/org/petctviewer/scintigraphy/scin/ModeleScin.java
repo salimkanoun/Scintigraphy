@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,6 +26,9 @@ import ij.Prefs;
 import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.Roi;
+import ij.measure.Measurements;
+import ij.measure.ResultsTable;
+import ij.plugin.filter.Analyzer;
 import ij.plugin.frame.RoiManager;
 import ij.process.ImageProcessor;
 import ij.util.DicomTools;
@@ -32,6 +37,34 @@ public abstract class ModeleScin {
 	
 	protected ImagePlus imp;
 
+	public static double moyGeom(Double a, Double b) {
+		return Math.sqrt(a * b);
+	}
+	
+	public static double round(double value, int places) {
+		if (places < 0)
+			throw new IllegalArgumentException();
+
+		BigDecimal bd = new BigDecimal(value);
+		bd = bd.setScale(places, RoundingMode.HALF_UP);
+		return bd.doubleValue();
+	}
+
+	
+	/**
+	 * Renvoie le nombre de coups sur la rooi presente dans l'image plus
+	 * @param imp
+	 * @return
+	 */
+	public Double getCounts(ImagePlus imp) {
+		Analyzer.setMeasurement(Measurements.INTEGRATED_DENSITY, true);
+		Analyzer.setMeasurement(Measurements.MEAN, true);
+		Analyzer analyser = new Analyzer(imp);
+		analyser.measure();
+		ResultsTable density = Analyzer.getResultsTable();
+		return density.getValueAsDouble(ResultsTable.RAW_INTEGRATED_DENSITY, 0);
+	}
+	
 	/**
 	 * Enregistrer la mesure de la roi courante de l'image plus dans le format souhaité
 	 * @param nomRoi nom de la roi presente sur l'image plus
@@ -472,5 +505,7 @@ public abstract class ModeleScin {
 	}
 
 	public abstract String[] getResultsAsArray();
+
+	public abstract void calculerResultats();
 
 }

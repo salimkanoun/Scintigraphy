@@ -367,12 +367,8 @@ public abstract class ControleurScin implements ActionListener {
 		} else {
 			nomOrgane += " A";
 		}
-
-		if (this.roiManager.getRoi(indexRoi) == null) {
-			nomOrgane += this.getSameNameRoiCount(nomOrgane);
-		} else {
-			nomOrgane = this.roiManager.getRoi(indexRoi).getName();
-		}
+		
+		nomOrgane += this.getSameNameRoiCount(nomOrgane);
 
 		return nomOrgane;
 	}

@@ -125,21 +125,8 @@ public class Modele_Cardiac extends ModeleScin {
 		this.imp.setSlice(1);
 	}
 
-	private double moyGeom(Double a, Double b) {
-		return Math.sqrt(a * b);
-	}
-
 	public void setDeuxPrise(Boolean b) {
 		this.deuxPrises = b;
-	}
-
-	private Double getCounts(ImagePlus imp) {
-		Analyzer.setMeasurement(Measurements.INTEGRATED_DENSITY, true);
-		Analyzer.setMeasurement(Measurements.MEAN, true);
-		Analyzer analyser = new Analyzer(imp);
-		analyser.measure();
-		ResultsTable density = Analyzer.getResultsTable();
-		return density.getValueAsDouble(ResultsTable.RAW_INTEGRATED_DENSITY, 0);
 	}
 
 	@Override
@@ -185,15 +172,6 @@ public class Modele_Cardiac extends ModeleScin {
 		this.resultats.put("Ratio H/WB (for a 1000)", "" + round(this.hwb * 1000, 2));
 
 		return this.resultats;
-	}
-
-	private double round(double value, int places) {
-		if (places < 0)
-			throw new IllegalArgumentException();
-
-		BigDecimal bd = new BigDecimal(value);
-		bd = bd.setScale(places, RoundingMode.HALF_UP);
-		return bd.doubleValue();
 	}
 
 	@Override

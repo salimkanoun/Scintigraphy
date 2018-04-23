@@ -29,6 +29,9 @@ public class Controleur_Hepatic extends ControleurScin {
 			this.saveCurrentRoi(this.getNomOrgane(indexRoi), indexRoi);
 		}
 		
+		this.getModele().calculerResultats();
+		System.out.println(this.getModele());
+		
 		System.out.println("Fin du programme");
 	}
 

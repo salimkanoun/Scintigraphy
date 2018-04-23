@@ -295,5 +295,8 @@ public class Modele_Plaquettes extends ModeleScin {
 		//TODO
 		return null;
 	}
+	@Override
+	public void calculerResultats() {		
+	}
 
 }
