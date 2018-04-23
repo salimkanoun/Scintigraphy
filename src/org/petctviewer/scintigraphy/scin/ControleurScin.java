@@ -16,8 +16,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import java.awt.Button;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.FileNotFoundException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,6 +28,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -287,13 +294,6 @@ public abstract class ControleurScin implements ActionListener {
 	public abstract int getSliceNumberByRoiIndex(int roiIndex);
 
 	/**
-	 * Permet de determiner si la roi indexRoi est post ou ant
-	 * 
-	 * @return true si la roi d'index indexRoi est post, false si elle est ant
-	 */
-	public abstract boolean isPost();
-
-	/**
 	 * Renvoie la roi qui sera utilisée dans la methode preparerRoi, appellée lors
 	 * du clic sur les boutons précédent et suivant <br>
 	 * See also {@link #preparerRoi()}
@@ -314,17 +314,16 @@ public abstract class ControleurScin implements ActionListener {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
 
 			// on enregistre la ROI dans le modele
-			leModele.enregisterMesure(this.addTag(nomRoi), laVue.getFen_application().getImagePlus());
+			leModele.enregisterMesure(this.addTag(nomRoi), laVue.getImp());
 
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
 			if (this.roiManager.getRoi(indexRoi) == null) {
-				this.roiManager.addRoi(laVue.getFen_application().getImagePlus().getRoi());
+				this.roiManager.addRoi(laVue.getImp().getRoi());
 				this.roiManager.getRoi(indexRoi).setPosition(this.getSliceNumberByRoiIndex(indexRoi));
 				this.roiManager.rename(indexRoi, nomRoi);
 
 			} else { // Si il existe on fait un update
-				System.out.println("Update ROI");
 				this.roiManager.select(indexRoi);
 				this.roiManager.runCommand("Update");
 
@@ -348,6 +347,13 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 	/**
+	 * Permet de determiner si la roi indexRoi est post ou ant
+	 * 
+	 * @return true si la roi d'index indexRoi est post, false si elle est ant
+	 */
+	public abstract boolean isPost();
+
+	/**
 	 * Rajoute au nom de l'organe son type de prise (A pour Ant / P pour Post) ainsi
 	 * qu'un numero pour eviter les doublons
 	 * 
@@ -369,6 +375,47 @@ public abstract class ControleurScin implements ActionListener {
 		}
 
 		return nomOrgane;
+	}
+	
+	public static void setCaptureButton(JButton btn_capture, JLabel lbl_credits, VueScin vue, JFrame jf) {
+
+		btn_capture.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JButton b = (JButton) (e.getSource());
+				b.setVisible(false);
+				lbl_credits.setVisible(true);
+				
+				jf.pack();
+				Container c = jf.getContentPane();
+
+				// Capture, nouvelle methode a utiliser sur le reste des programmes
+				BufferedImage capture = new BufferedImage(c.getWidth(), c.getHeight(), BufferedImage.TYPE_INT_ARGB);
+				c.paint(capture.getGraphics());
+				ImagePlus imp = new ImagePlus("capture", capture);
+				
+				imp.setProperty("Info", ModeleScin.genererDicomTagsPartie1(vue.getImp(), vue.getExamType())
+						+ ModeleScin.genererDicomTagsPartie2(vue.getImp()));
+
+				imp.show();
+				
+				String[] arrayRes = vue.getFen_application().getControleur().getModele().getResultsAsArray();
+
+				try {
+					ModeleScin.exportAll(arrayRes, 2, vue.getFen_application().getControleur().getRoiManager(),
+							vue.getExamType(), imp);
+				} catch (FileNotFoundException e1) {
+					e1.printStackTrace();
+				}
+				
+				IJ.run("myDicom...");
+
+				jf.dispose();
+				System.gc();
+				vue.getFen_application().getControleur().getRoiManager().close();
+			}
+		});
 	}
 
 	private void attachListener() {

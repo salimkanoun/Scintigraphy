@@ -29,7 +29,7 @@ import org.petctviewer.scintigraphy.platelet.FenetreResultat;
 public abstract class VueScin implements PlugIn {
 	private String examType;
 	
-	protected FenetreApplication fen_application;
+	protected FenApplication fen_application;
 	
 	private ImagePlus imp;
 	private Boolean antPost = Boolean.valueOf(false);
@@ -43,7 +43,7 @@ public abstract class VueScin implements PlugIn {
 	 * Lance la fenêtre de dialogue permettant le lancemet du programme
 	 */
 	public void run(String arg) {
-		new FenetreDialogue(this.examType, this);
+		new FenDialogue(this.examType, this);
 	}
 	
 	//TODO refactoriser en preparer imp et ouvrir fenetre ?
@@ -659,7 +659,7 @@ public abstract class VueScin implements PlugIn {
 		return this.examType;
 	}
 
-	public FenetreApplication getFen_application() {
+	public FenApplication getFen_application() {
 		return fen_application;
 	}
 

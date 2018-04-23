@@ -31,12 +31,11 @@ public class Modele_Cardiac extends ModeleScin {
 	private Double hwb, retCardiaque, retCe;
 
 	private Boolean deuxPrises;
-	private ImagePlus imp2;
 
 	private HashMap<String, String> resultats;
 
 	public Modele_Cardiac(ImagePlus imp) {
-		this.imp2 = imp;
+		this.imp = imp;
 		this.resultats = new HashMap<String, String>();
 		this.data = new HashMap<String, Double>();
 	}
@@ -87,10 +86,10 @@ public class Modele_Cardiac extends ModeleScin {
 
 		// calcul des retentions
 		if (this.deuxPrises) {
-			imp2.setSlice(1);
-			long timeEarly = ModeleScin.getDateAcquisition(imp2).getTime();
-			imp2.setSlice(2);
-			long timeLate = ModeleScin.getDateAcquisition(imp2).getTime();
+			this.imp.setSlice(1);
+			long timeEarly = ModeleScin.getDateAcquisition(this.imp).getTime();
+			this.imp.setSlice(2);
+			long timeLate = ModeleScin.getDateAcquisition(this.imp).getTime();
 
 			int delaySeconds = (int) (timeEarly - timeLate) / 1000;
 			Double facDecroissance = this.getDecayFraction(delaySeconds, (int) (6.02 * 3600));
@@ -103,27 +102,27 @@ public class Modele_Cardiac extends ModeleScin {
 	}
 
 	private Double getGlobalCountAvg() {
-		imp2.setRoi(0, 0, imp2.getWidth() / 2, imp2.getHeight());
-		Double countAnt = this.getCounts(imp2);
+		this.imp.setRoi(0, 0, this.imp.getWidth() / 2, this.imp.getHeight());
+		Double countAnt = this.getCounts(this.imp);
 
-		imp2.setRoi(imp2.getWidth() / 2, 0, imp2.getWidth() / 2, imp2.getHeight());
-		Double countPost = this.getCounts(imp2);
+		this.imp.setRoi(this.imp.getWidth() / 2, 0, this.imp.getWidth() / 2, this.imp.getHeight());
+		Double countPost = this.getCounts(this.imp);
 
 		return moyGeom(countAnt, countPost);
 	}
 
-	public void calculerMoyGeomTotale(ImagePlus imp) {
-		imp2.setSlice(1);
+	public void calculerMoyGeomTotale() {
+		this.imp.setSlice(1);
 		if (this.deuxPrises) {
 			this.totEarly = getGlobalCountAvg();
-			imp2.setSlice(2);
+			this.imp.setSlice(2);
 			this.totLate = getGlobalCountAvg();
 		} else {
 			this.totLate = getGlobalCountAvg();
 		}
 
-		imp2.killRoi();
-		imp2.setSlice(1);
+		this.imp.killRoi();
+		this.imp.setSlice(1);
 	}
 
 	private double moyGeom(Double a, Double b) {

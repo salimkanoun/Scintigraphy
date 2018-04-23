@@ -27,16 +27,11 @@ import javax.swing.border.LineBorder;
 import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableModel;
 
-import org.petctviewer.scintigraphy.scin.FenetreResultatScin;
+import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
 import java.awt.image.BufferedImage;
-
-import java.io.FileNotFoundException;
-
-import ij.ImagePlus;
-import ij.gui.ImageWindow;
 
 public class FenResultatCardiac extends JFrame {
 
@@ -125,7 +120,7 @@ public class FenResultatCardiac extends JFrame {
 		credits.setVisible(false);
 		side.add(credits);
 		
-		FenetreResultatScin.setCaptureButton(btn_capture, credits, vueScin, this);
+		ControleurScin.setCaptureButton(btn_capture, credits, vueScin, this);
 
 		JLabel img = new JLabel();
 		Image dimg = capture.getScaledInstance((int) (capture.getWidth() * 0.8), (int) (capture.getHeight() * 0.8),

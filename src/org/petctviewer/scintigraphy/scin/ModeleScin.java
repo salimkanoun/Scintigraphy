@@ -29,6 +29,8 @@ import ij.process.ImageProcessor;
 import ij.util.DicomTools;
 
 public abstract class ModeleScin {
+	
+	protected ImagePlus imp;
 
 	/**
 	 * Enregistrer la mesure de la roi courante de l'image plus dans le format souhaité

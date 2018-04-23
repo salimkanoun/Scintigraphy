@@ -13,7 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class FenetreDialogue extends Frame {
+public class FenDialogue extends Frame {
 	private static final long serialVersionUID = 7249861393425869097L;
 	private Label lbl_message;
 	private Button btn_valider;
@@ -24,7 +24,7 @@ public class FenetreDialogue extends Frame {
 	 * @param examType Libellé de l'examen de scintigraphie
 	 * @param vue vue de ce type d'examen, appelle la methode {@link VueScin#ouvertureImage(String[])} a l'appui du bouton valider
 	 */
-	public FenetreDialogue(String examType, VueScin vue) {
+	public FenDialogue(String examType, VueScin vue) {
 		this.vue = vue;
 
 		Panel pan = new Panel();
@@ -50,7 +50,7 @@ public class FenetreDialogue extends Frame {
 		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
 				System.gc();
-				FenetreDialogue.this.dispose();
+				FenDialogue.this.dispose();
 			}
 		});
 	}
@@ -60,9 +60,9 @@ public class FenetreDialogue extends Frame {
 		this.btn_valider.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (WindowManager.getCurrentImage() != null) {
-					FenetreDialogue.this.dispose();
+					FenDialogue.this.dispose();
 					String[] titresFenetres = WindowManager.getImageTitles();
-					FenetreDialogue.this.vue.ouvertureImage(titresFenetres);
+					FenDialogue.this.vue.ouvertureImage(titresFenetres);
 				} else {
 					System.out.println("Pas de dicom ouverte");
 				}

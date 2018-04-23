@@ -25,7 +25,7 @@ public class Controleur_Cardiac extends ControleurScin {
 
 		mdl.setDeuxPrise(this.isDeuxPrises());
 
-		mdl.calculerMoyGeomTotale(this.getVue().getImp());
+		mdl.calculerMoyGeomTotale();
 		this.setModele(mdl);
 
 		// double les organes pour prise ant/post

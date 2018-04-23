@@ -18,7 +18,7 @@ package org.petctviewer.scintigraphy.platelet;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.petctviewer.scintigraphy.scin.FenetreApplication;
+import org.petctviewer.scintigraphy.scin.FenApplication;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
@@ -93,7 +93,7 @@ public class Vue_Plaquettes extends VueScin {
 		// dans une fenetre c'est une pile d'images (plus d'une image) on cree une
 		// fenetre pour la pile d'images;
 		
-		this.fen_application = new FenetreApplication(this.getImp(), this.getExamType());
+		this.fen_application = new FenApplication(this.getImp(), this.getExamType());
 		Controleur_Plaquettes ctrl = new Controleur_Plaquettes(this);
 		this.fen_application.setControleur(ctrl);
 		this.fen_application.getImagePlus().getCanvas().setScaleToFit(true);

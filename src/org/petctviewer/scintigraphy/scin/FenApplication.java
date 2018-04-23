@@ -20,7 +20,7 @@ import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.cardiac.Controleur_Cardiac;
 
-public class FenetreApplication extends StackWindow {
+public class FenApplication extends StackWindow {
 	private static final long serialVersionUID = -6280620624574294247L;
 	private Label lbl_instructions;
 
@@ -42,7 +42,7 @@ public class FenetreApplication extends StackWindow {
 	 * @param imp ImagePlus a traiter
 	 * @param nom Nom du type de scintigraphie
 	 */
-	public FenetreApplication(ImagePlus imp, String nom) {
+	public FenApplication(ImagePlus imp, String nom) {
 		super(imp, new ImageCanvas(imp));
 		
 		this.nom = nom;
@@ -133,6 +133,10 @@ public class FenetreApplication extends StackWindow {
 	
 	public void setControleur(ControleurScin ctrl) {
 		this.controleur = ctrl;
+		
+		//on affiche la premiere instruction
+		this.setInstructions(0);
+		
 		this.btn_contrast.addActionListener(ctrl);
 		this.btn_drawROI.addActionListener(ctrl);
 		this.btn_precedent.addActionListener(ctrl);

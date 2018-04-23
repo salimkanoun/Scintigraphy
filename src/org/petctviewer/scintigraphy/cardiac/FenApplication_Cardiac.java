@@ -6,11 +6,11 @@ import java.awt.Panel;
 import java.awt.event.ActionListener;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.FenetreApplication;
+import org.petctviewer.scintigraphy.scin.FenApplication;
 
 import ij.ImagePlus;
 
-public class FenApplication_Cardiac extends FenetreApplication {
+public class FenApplication_Cardiac extends FenApplication {
 	
 	/**
 	 * 
@@ -69,6 +69,7 @@ public class FenApplication_Cardiac extends FenetreApplication {
 		super.setControleur(ctrl);
 		this.btn_continue.addActionListener(ctrl);
 		this.btn_newCont.addActionListener(ctrl);
+		this.setInstructions("Delimit a new contamination");
 	}
 	
 	public boolean isModeCont() {
