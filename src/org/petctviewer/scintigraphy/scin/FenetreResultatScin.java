@@ -11,9 +11,10 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import ij.IJ;
 import ij.ImagePlus;
 
-public class FenetreResultatScin extends JFrame{
+public class FenetreResultatScin{
 	
 	public static void setCaptureButton(JButton btn_capture, JLabel lbl_credits, VueScin vue, JFrame jf) {
 
@@ -46,9 +47,11 @@ public class FenetreResultatScin extends JFrame{
 				} catch (FileNotFoundException e1) {
 					e1.printStackTrace();
 				}
+				
+				IJ.run("myDicom...");
 
 				jf.dispose();
-				
+				System.gc();
 				vue.getFen_application().getControleur().getRoiManager().close();
 			}
 		});

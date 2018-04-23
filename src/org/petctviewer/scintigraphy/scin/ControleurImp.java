@@ -20,7 +20,7 @@ public class ControleurImp implements ImageListener {
 			if(currentSlice != lastSlice) {
 				this.lastSlice = currentSlice;
 				this.lockUpdate = true;
-				this.ctrlScin.showSliceWithOverlay(currentSlice);
+				this.ctrlScin.setSlice(currentSlice);
 				this.lockUpdate = false;
 			}
 		}

@@ -51,17 +51,17 @@ public class Modele_Cardiac extends ModeleScin {
 	public void calculerResultats() {
 		// on fait les moyennes geometriques de chaque ROI Late
 
-		this.fixBkgNoise = moyGeom(data.get("Bkg noise AL"), data.get("Bkg noise PL"));
-		this.fixCoeurL = moyGeom(data.get("Heart AL"), data.get("Heart PL"));
-		this.fixReinGL = moyGeom(data.get("Kidney L AL"), data.get("Kidney L PL"));
-		this.fixReinDL = moyGeom(data.get("Kidney R AL"), data.get("Kidney R PL"));
-		this.fixVessieL = moyGeom(data.get("Bladder AL"), data.get("Bladder PL"));
+		this.fixBkgNoise = moyGeom(data.get("Bkg noise A0"), data.get("Bkg noise P0"));
+		this.fixCoeurL = moyGeom(data.get("Heart A0"), data.get("Heart P0"));
+		this.fixReinGL = moyGeom(data.get("Kidney L A0"), data.get("Kidney L P0"));
+		this.fixReinDL = moyGeom(data.get("Kidney R A0"), data.get("Kidney R P0"));
+		this.fixVessieL = moyGeom(data.get("Bladder A0"), data.get("Bladder P0"));
 
 		// on somme les moyennes geometriques des contaminations
 		List<Double> contAntPost = new ArrayList<Double>();
 		boolean early = true;
 		for (String s : this.data.keySet()) {
-			if (s.contains("Contamination")) {
+			if (s.contains("Cont")) {
 				contAntPost.add(this.data.get(s));
 				if (contAntPost.size() == 2) {
 					Double moyCont = moyGeom(contAntPost.get(0), contAntPost.get(1));

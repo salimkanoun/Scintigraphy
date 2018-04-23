@@ -27,7 +27,7 @@ public class FenApplication_Cardiac extends FenetreApplication {
 		this.modeCont = false;
 
 		this.btn_continue = new Button("End");
-		this.btn_newCont = new Button("Save");
+		this.btn_newCont = new Button("Next");
 		this.setInstructions("Delimit the Bladder");
 	}
 	
@@ -58,7 +58,8 @@ public class FenApplication_Cardiac extends FenetreApplication {
 		this.instru.add(this.createBtnsInstru());
 		this.adaptWindow();
 		this.setInstructions(0);
-		this.getControleur().showSliceWithOverlay(this.getImagePlus().getCurrentSlice());
+		ControleurScin ctrl = this.getControleur();
+		ctrl.setSlice(ctrl.getSliceNumberByRoiIndex(ctrl.getIndexRoi()));
 		this.modeCont = false;
 	}
 

@@ -42,9 +42,9 @@ public class FenResultatCardiac extends JFrame {
 
 	private static final long serialVersionUID = -5261203439330504164L;
 
-	HashMap<String, String> resultats;
-	Box side;
-	BufferedImage capture;
+	private HashMap<String, String> resultats;
+	private Box side;
+	private BufferedImage capture;
 
 	private JButton btn_capture;
 
