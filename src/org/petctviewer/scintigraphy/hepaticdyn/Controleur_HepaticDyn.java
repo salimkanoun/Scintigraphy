@@ -30,7 +30,7 @@ public class Controleur_HepaticDyn extends ControleurScin {
 		Vue_HepaticDyn vue = (Vue_HepaticDyn) this.getVue();
 		
 		ImagePlus imp = vue.getImp();
-		BufferedImage capture = ModeleScin.captureImage(imp, 256, 256).getBufferedImage();
+		BufferedImage capture = ModeleScin.captureImage(imp, 400, 400).getBufferedImage();
 		
 		//on copie les roi sur toutes les slices
 		vue.setImp(vue.getImpAnt());
@@ -43,8 +43,9 @@ public class Controleur_HepaticDyn extends ControleurScin {
 			}
 		}
 		
+		this.getModele().calculerResultats();
 		new FenResultat_HeptaticDyn(vue, capture);
-		
+		this.getVue().getFen_application().dispose();
 	}
 
 	@Override

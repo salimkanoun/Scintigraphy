@@ -42,10 +42,7 @@ public class Controleur_Hepatic extends ControleurScin {
 		ImagePlus imp = this.getVue().getImp();
 		
 		BufferedImage capture = ModeleScin.captureImage(imp, 256, 256).getBufferedImage();
-		
-		// on ajoute la derniere Roi a l'overlay
 		new FenResultat_Hepatic(this.getVue(), capture);
-
 		this.getVue().getFen_application().dispose();
 	}
 

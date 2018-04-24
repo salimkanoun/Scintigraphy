@@ -9,6 +9,7 @@ import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.Toolbar;
 import ij.plugin.ZProjector;
+import ij.util.DicomTools;
 
 public class Vue_HepaticDyn extends VueScin {
 
@@ -28,8 +29,8 @@ public class Vue_HepaticDyn extends VueScin {
 			ImagePlus imp = WindowManager.getImage(titresFenetres[0]);
 			if (VueScin.isMultiFrame(imp)) { // si l'image est multiframe
 				ImagePlus[] imps = VueScin.splitCameraMultiFrame(imp);
-				this.impAnt = imps[0];
-				this.impPost = imps[1];;
+				this.impAnt = (ImagePlus) imps[0].clone();
+				this.impPost = (ImagePlus) imps[1].clone();
 			} else if (VueScin.isAnterieur(imp)) {
 				this.impAnt = imp;
 			} else {
@@ -40,15 +41,18 @@ public class Vue_HepaticDyn extends VueScin {
 			for (String s : titresFenetres) { //pour chaque fenetre
 				ImagePlus imp = WindowManager.getImage(s);
 				if (VueScin.isAnterieur(imp)) { //si la vue est ant, on choisi cette image
-					this.impAnt = imp;
+					this.impAnt = (ImagePlus) imp.clone();
 				}else {
-					this.impPost = imp;
+					this.impPost = (ImagePlus) imp.clone();
 				}
 			}
 		}
 		
 		this.impProjetee = getZProjection(this.impAnt);
 		this.impProjetee.setProperty("Info", this.impAnt.getInfoProperty());
+		
+		System.out.println(DicomTools.getTag(impProjetee, "0054,0032"));
+		
 		this.setImp(this.impProjetee);
 		VueScin.setCustomLut(this.getImp());
 		this.fen_application = new FenApplication(this.getImp(), this.getExamType());

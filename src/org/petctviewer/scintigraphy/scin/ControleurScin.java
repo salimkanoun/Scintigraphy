@@ -362,7 +362,7 @@ public abstract class ControleurScin implements ActionListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JButton b = (JButton) (e.getSource());
-				b.setVisible(false);
+				b.getParent().remove(b);
 				lbl_credits.setVisible(true);
 				
 				jf.pack();
