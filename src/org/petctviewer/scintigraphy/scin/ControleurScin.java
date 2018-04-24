@@ -65,33 +65,6 @@ public abstract class ControleurScin implements ActionListener {
 		this.leModele = modele;
 	}
 
-	/**
-	 * keys : id nom date
-	 * 
-	 * @param imp
-	 * @return
-	 */
-	public HashMap<String, String> getDicomInfo(ImagePlus imp) {
-		HashMap<String, String> hm = new HashMap<String, String>();
-		String nom = DicomTools.getTag(imp, "0010,0010").trim();
-		hm.put("nom", nom.replace("^", " "));
-
-		hm.put("id", DicomTools.getTag(imp, "0010,0020").trim());
-
-		String dateStr = DicomTools.getTag(imp, "0008,0022").trim();
-		Date result = null;
-		try {
-			result = new SimpleDateFormat("yyyymmdd").parse(dateStr);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-
-		String r = new SimpleDateFormat("MMM dd yyyy", Locale.ENGLISH).format(result);
-
-		hm.put("date", r);
-		return hm;
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		Button b = (Button) arg0.getSource();
@@ -194,7 +167,12 @@ public abstract class ControleurScin implements ActionListener {
 		}
 
 		// on affiche les prochaines instructions
-		this.laVue.getFen_application().setInstructions(this.indexRoi % this.getOrganes().length);
+		this.setInstructions(this.indexRoi % this.getOrganes().length);
+		
+	}
+	
+	public void setInstructions(int nOrgane) {
+		this.laVue.getFen_application().setInstructions(nOrgane);
 	}
 
 	public void setSlice(int indexSlice) {
@@ -256,6 +234,7 @@ public abstract class ControleurScin implements ActionListener {
 	 * @return nombre de roi avec le meme nom
 	 */
 	public String getSameNameRoiCount(String nomRoi) {
+		//on construit le tableau de roi
 		String[] roiNames = new String[this.roiManager.getCount()];
 		for (int i = 0; i < roiNames.length; i++) {
 			roiNames[i] = this.roiManager.getRoisAsArray()[i].getName();
@@ -330,6 +309,7 @@ public abstract class ControleurScin implements ActionListener {
 				// on supprime le roi nouvellement ajoute de la vue
 				laVue.getFen_application().getImagePlus().killRoi();
 			}
+			
 			return true;
 		} else {
 			System.out.println("Roi perdue");
@@ -362,13 +342,15 @@ public abstract class ControleurScin implements ActionListener {
 	 * @return nouveau nom
 	 */
 	public String addTag(String nomOrgane) {
+		String count = this.getSameNameRoiCount(nomOrgane);
+		
 		if (this.isPost()) {
 			nomOrgane += " P";
 		} else {
 			nomOrgane += " A";
 		}
 		
-		nomOrgane += this.getSameNameRoiCount(nomOrgane);
+		nomOrgane += count;
 
 		return nomOrgane;
 	}
@@ -391,16 +373,22 @@ public abstract class ControleurScin implements ActionListener {
 				c.paint(capture.getGraphics());
 				ImagePlus imp = new ImagePlus("capture", capture);
 				
+				jf.dispose();
+				
 				imp.setProperty("Info", ModeleScin.genererDicomTagsPartie1(vue.getImp(), vue.getExamType())
 						+ ModeleScin.genererDicomTagsPartie2(vue.getImp()));
 
 				imp.show();
-				
+				IJ.setTool("hand");
+			
 				String[] arrayRes = vue.getFen_application().getControleur().getModele().getResultsAsArray();
 
 				try {
 					ModeleScin.exportAll(arrayRes, 2, vue.getFen_application().getControleur().getRoiManager(),
 							vue.getExamType(), imp);
+
+					vue.getFen_application().getControleur().getRoiManager().close();
+					imp.killRoi();
 				} catch (FileNotFoundException e1) {
 					e1.printStackTrace();
 				}
@@ -411,9 +399,8 @@ public abstract class ControleurScin implements ActionListener {
 					e1.printStackTrace();
 				}
 				
-				jf.dispose();
+				
 				System.gc();
-				vue.getFen_application().getControleur().getRoiManager().close();
 			}
 		});
 	}

@@ -1,9 +1,11 @@
 package org.petctviewer.scintigraphy.hepatic;
 
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 import org.petctviewer.scintigraphy.cardiac.FenResultat_Cardiac;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
 import ij.ImagePlus;
@@ -37,10 +39,12 @@ public class Controleur_Hepatic extends ControleurScin {
 		this.getModele().calculerResultats();
 		System.out.println(this.getModele());
 		
-		HashMap<String, String> info = this.getDicomInfo(this.getVue().getImp());
+		ImagePlus imp = this.getVue().getImp();
+		
+		BufferedImage capture = ModeleScin.captureImage(imp, 256, 256).getBufferedImage();
 		
 		// on ajoute la derniere Roi a l'overlay
-		new FenResultat_Hepatic(this.getVue(), this.getModele().getResultsHashMap(), info);
+		new FenResultat_Hepatic(this.getVue(), capture);
 
 		this.getVue().getFen_application().dispose();
 	}

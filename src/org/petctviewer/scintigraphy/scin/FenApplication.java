@@ -91,7 +91,7 @@ public class FenApplication extends StackWindow {
 		}
 
 		// image adaptee dim fenetre
-		// win.getCanvas().setScaleToFit(true);
+		//getCanvas().setScaleToFit(true);
 		// On Pack la fenetre pour la mettre a la preferred Size
 		this.pack();
 		this.setSize(this.getPreferredSize());
@@ -146,9 +146,11 @@ public class FenApplication extends StackWindow {
 	}
 	
 	@Override
-	public boolean close() {
-		super.close();
-		return true;		
+	public boolean close() {		
+		if(this.controleur != null) {
+			this.controleur.roiManager.close();
+		}
+		return super.close();
 	}
 
 	private String generateTitle() {

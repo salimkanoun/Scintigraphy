@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.cardiac;
 
 import java.awt.Button;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
 import ij.IJ;
+import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.RoiScaler;
 
@@ -50,12 +52,11 @@ public class Controleur_Cardiac extends ControleurScin {
 		ModeleScin mdl = this.getModele();
 		mdl.calculerResultats();
 		System.out.println(mdl);
-		
-		//on ajoute la derniere Roi a l'overlay
-		this.getVue().getImp().killRoi();
-		this.getVue().getImp().getOverlay().add(this.roiManager.getRoi(roiManager.getCount() - 1));
-		new FenResultat_Cardiac(this.getVue(), mdl.getResultsHashMap(), this.getDicomInfo(this.getVue().getImp()));
 
+		ImagePlus imp = this.getVue().getImp();
+
+		BufferedImage capture = ModeleScin.captureImage(imp, 410, 820).getBufferedImage();
+		new FenResultat_Cardiac(this.getVue(), capture);
 		this.getVue().getFen_application().dispose();
 	}
 
@@ -94,9 +95,9 @@ public class Controleur_Cardiac extends ControleurScin {
 			// on décale d'une demi largeur
 			roi.setLocation(roi.getXBase() + (this.getVue().getImp().getWidth() / 2), roi.getYBase());
 			return roi;
-		} else { //sinon on ne renvoie rien
+		} else { // sinon on ne renvoie rien
 			return null;
-		}		
+		}
 	}
 
 	private void traiterContamination() {
@@ -133,8 +134,8 @@ public class Controleur_Cardiac extends ControleurScin {
 
 	private void clicEndCont() {
 		if (!this.isPost()) {
-			this.finContSlice1 = true;			
-			//on set la slice 
+			this.finContSlice1 = true;
+			// on set la slice
 			if ((this.getVue().getImp().getCurrentSlice() == 1 && this.isDeuxPrises())) {
 				this.setSlice(2);
 				this.traiterContamination();
@@ -144,22 +145,31 @@ public class Controleur_Cardiac extends ControleurScin {
 				for (int i = 0; i < conts.length; i++) {
 					conts[i] = "Contamination";
 				}
-				//on ajoute de nouvelles cases dans le tableau organes pour ne pas modifier l'indexRoi
+				// on ajoute de nouvelles cases dans le tableau organes pour ne pas modifier
+				// l'indexRoi
 				this.setOrganes((String[]) ArrayUtils.addAll(conts, this.getOrganes()));
 			}
 		} else {
 			IJ.log("Please delimit the Post contamination zone");
 		}
 	}
-	
+
 	@Override
 	public void notifyClic(ActionEvent arg0) {
 		Button b = (Button) arg0.getSource();
 		if (b == ((FenApplication_Cardiac) this.getVue().getFen_application()).getBtn_newCont()) {
 			this.clicNewCont();
-		}
-		else if (b == ((FenApplication_Cardiac) this.getVue().getFen_application()).getBtn_continue()) {
+		} else if (b == ((FenApplication_Cardiac) this.getVue().getFen_application()).getBtn_continue()) {
 			this.clicEndCont();
+		}
+	}
+
+	@Override
+	public void setInstructions(int nOrgane) {
+		if (this.isPost()) {
+			this.getVue().getFen_application().setInstructions("Adjust the " + this.getNomOrgane(nOrgane));
+		} else {
+			this.getVue().getFen_application().setInstructions(nOrgane);
 		}
 	}
 

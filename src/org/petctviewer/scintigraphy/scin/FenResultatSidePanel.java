@@ -32,10 +32,10 @@ public class FenResultatSidePanel extends JFrame {
 	private JButton btn_capture;
 	private VueScin vue;
 
-	public FenResultatSidePanel(String nomFen, VueScin vueScin, HashMap<String, String> infoPatient) {
+	public FenResultatSidePanel(String nomFen, VueScin vueScin, BufferedImage capture) {
 
 		this.vue = vueScin;
-		this.capture = this.getCapture(vueScin.getImp());
+		this.capture = capture;
 
 		this.setLayout(new BorderLayout());
 
@@ -50,6 +50,8 @@ public class FenResultatSidePanel extends JFrame {
 		this.side.add(flow);
 
 		// ajout des informations du patient
+		
+		HashMap<String, String> infoPatient = ModeleScin.getDicomInfo(vueScin.getImp());
 		JPanel patientInfo = new JPanel(new GridLayout(3, 2, 10, 10));
 		patientInfo.add(new JLabel("Patient name: "));
 		patientInfo.add(new JLabel(infoPatient.get("nom")));
@@ -60,14 +62,6 @@ public class FenResultatSidePanel extends JFrame {
 		JPanel flow1 = new JPanel(new FlowLayout());
 		flow1.add(patientInfo);
 		side.add(flow1);
-	}
-
-	private BufferedImage getCapture(ImagePlus imp) {
-		if(imp.getWindow() != null) {
-			return ModeleScin.captureImage(imp, imp.getWidth(), imp.getHeight()).getBufferedImage();
-		}else {
-			return imp.getBufferedImage();
-		}
 	}
 	
 	public void finishBuildingWindow(Double imgMultiplier) {

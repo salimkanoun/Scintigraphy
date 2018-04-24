@@ -37,9 +37,9 @@ public class FenResultat_Hepatic extends FenResultatSidePanel {
 
 	private HashMap<String, String> resultats;
 
-	public FenResultat_Hepatic(VueScin vueScin, HashMap<String, String> resultats, HashMap<String, String> infoPatient) {
-		super("Bilary Scintigraphy", vueScin, infoPatient);
-		this.resultats = resultats;
+	public FenResultat_Hepatic(VueScin vueScin, BufferedImage capture) {
+		super("Bilary Scintigraphy", vueScin, capture);
+		this.resultats = vueScin.getFen_application().getControleur().getModele().getResultsHashMap();
 		this.finishBuildingWindow(1.5);
 	}
 
@@ -54,7 +54,10 @@ public class FenResultat_Hepatic extends FenResultatSidePanel {
 			panel.add(getLabel(k));
 		}
 		
-		c[0] = panel;
+		JPanel flow = new JPanel();
+		flow.add(panel);
+		
+		c[0] = flow;
 		return c;
 	}
 	

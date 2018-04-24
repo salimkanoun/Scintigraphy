@@ -50,6 +50,33 @@ public abstract class ModeleScin {
 		bd = bd.setScale(places, RoundingMode.HALF_UP);
 		return bd.doubleValue();
 	}
+	
+	/**
+	 * keys : id nom date
+	 * 
+	 * @param imp
+	 * @return
+	 */
+	public static HashMap<String, String> getDicomInfo(ImagePlus imp) {
+		HashMap<String, String> hm = new HashMap<String, String>();
+		String nom = DicomTools.getTag(imp, "0010,0010").trim();
+		hm.put("nom", nom.replace("^", " "));
+
+		hm.put("id", DicomTools.getTag(imp, "0010,0020").trim());
+
+		String dateStr = DicomTools.getTag(imp, "0008,0022").trim();
+		Date result = null;
+		try {
+			result = new SimpleDateFormat("yyyymmdd").parse(dateStr);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		String r = new SimpleDateFormat("MMM dd yyyy", Locale.ENGLISH).format(result);
+
+		hm.put("date", r);
+		return hm;
+	}
 
 	
 	/**

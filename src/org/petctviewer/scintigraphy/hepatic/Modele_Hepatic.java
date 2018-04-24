@@ -53,7 +53,7 @@ public class Modele_Hepatic extends ModeleScin {
 
 	@Override
 	public String[] getResultsAsArray() {
-		return null;
+		return new String[] {""};
 	}
 
 }

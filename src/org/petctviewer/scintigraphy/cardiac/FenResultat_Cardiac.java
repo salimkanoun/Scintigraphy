@@ -37,9 +37,9 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 
 	private HashMap<String, String> resultats;
 
-	public FenResultat_Cardiac(VueScin vueScin, HashMap<String, String> resultats, HashMap<String, String> infoPatient) {
-		super("DPD Quant", vueScin, infoPatient);
-		this.resultats = resultats;
+	public FenResultat_Cardiac(VueScin vueScin, BufferedImage capture) {
+		super("DPD Quant", vueScin, capture);
+		this.resultats = vueScin.getFen_application().getControleur().getModele().getResultsHashMap();
 		this.finishBuildingWindow(0.8);
 	}
 
@@ -48,7 +48,7 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 		Component[] panels = new Component[2];
 		
 		JPanel resultRouge = new JPanel(new GridLayout(3, 1, 10, 10));
-		String key = "Ratio H/WB (for a 1000)";
+		String key = "Ratio H/WB (per 1000)";
 		resultRouge.add(getLabelRed(key));
 		key = "Cardiac retention %";
 		if (this.resultats.containsKey(key))
