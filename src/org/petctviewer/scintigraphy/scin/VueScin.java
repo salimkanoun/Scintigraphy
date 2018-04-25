@@ -13,6 +13,7 @@ import ij.process.LUT;
 import ij.util.DicomTools;
 
 import java.awt.Font;
+import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -22,6 +23,7 @@ import java.util.Comparator;
 import java.util.Date;
 
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.StringUtils;
 import org.petctviewer.scintigraphy.platelet.FenetreResultat;
@@ -40,10 +42,11 @@ public abstract class VueScin implements PlugIn {
 	}
 
 	/**
-	 * Lance la fenêtre de dialogue permettant le lancemet du programme
+	 * Lance la fenï¿½tre de dialogue permettant le lancemet du programme
 	 */
 	public void run(String arg) {
-		new FenDialogue(this.examType, this);
+				new FenDialogue(VueScin.this.examType, VueScin.this);
+			
 	}
 	
 	//TODO refactoriser en preparer imp et ouvrir fenetre ?
@@ -666,8 +669,5 @@ public abstract class VueScin implements PlugIn {
 	public boolean isAntPost() {
 		return antPost;
 	}
-	
-	public Overlay getOverlay() {
-		return this.getFen_application().getOverlay();
-	}
+
 }

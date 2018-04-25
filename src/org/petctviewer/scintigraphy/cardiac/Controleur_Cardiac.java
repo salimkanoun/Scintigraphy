@@ -51,13 +51,11 @@ public class Controleur_Cardiac extends ControleurScin {
 	public void fin() {
 		ModeleScin mdl = this.getModele();
 		mdl.calculerResultats();
-		System.out.println(mdl);
 
-		ImagePlus imp = this.getVue().getImp();
+		VueScin vue = this.getVue();
+		BufferedImage capture = ModeleScin.captureImage(vue.getImp(), 410, 820).getBufferedImage();
+		new FenResultat_Cardiac(vue, capture);
 
-		BufferedImage capture = ModeleScin.captureImage(imp, 410, 820).getBufferedImage();
-		new FenResultat_Cardiac(this.getVue(), capture);
-		this.getVue().getFen_application().dispose();
 	}
 
 	@Override
@@ -92,7 +90,7 @@ public class Controleur_Cardiac extends ControleurScin {
 
 		if (this.isPost()) { // si la prise est post, on decale l'organe precedent
 			Roi roi = (Roi) this.roiManager.getRoi(getIndexRoi() - 1).clone();
-			// on décale d'une demi largeur
+			// on dï¿½cale d'une demi largeur
 			roi.setLocation(roi.getXBase() + (this.getVue().getImp().getWidth() / 2), roi.getYBase());
 			return roi;
 		} else { // sinon on ne renvoie rien
@@ -110,7 +108,11 @@ public class Controleur_Cardiac extends ControleurScin {
 
 	private void clicNewCont() {
 		// sauvegarde du roi courant
-		boolean saved = this.saveCurrentRoi("Cont", indexRoi);
+		String nom = "ContE";
+		if (this.finContSlice1) {
+			nom = "ContL";
+		}
+		boolean saved = this.saveCurrentRoi(nom, indexRoi);
 
 		if (saved) {
 			this.indexRoi++;
@@ -139,7 +141,7 @@ public class Controleur_Cardiac extends ControleurScin {
 			if ((this.getVue().getImp().getCurrentSlice() == 1 && this.isDeuxPrises())) {
 				this.setSlice(2);
 				this.traiterContamination();
-			} else { // on a traité toutes les contaminations
+			} else { // on a traitï¿½ toutes les contaminations
 				((FenApplication_Cardiac) this.getVue().getFen_application()).stopContaminationMode();
 				String[] conts = new String[this.indexRoi];
 				for (int i = 0; i < conts.length; i++) {

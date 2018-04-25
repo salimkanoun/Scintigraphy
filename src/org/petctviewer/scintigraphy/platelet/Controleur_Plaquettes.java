@@ -32,8 +32,7 @@ public class Controleur_Plaquettes extends ControleurScin {
 	protected static boolean showLog;
 	private Modele_Plaquettes leModele;
 	private String[] organes = { "Spleen", "Liver", "Heart" };
-	private String[] organesAntPost = { "Spleen Post", "Liver Post", "Heart Post", "Spleen Ant", "Liver Ant",
-			"Heart Ant" };
+	private String[] organesAntPost = { "Spleen Post", "Liver Post", "Heart Post", "Spleen Ant", "Liver Ant", "Heart Ant" };
 	private boolean antPost;
 
 	// Sert au restart
@@ -42,13 +41,32 @@ public class Controleur_Plaquettes extends ControleurScin {
 		leModele = new Modele_Plaquettes(vue.getDateDebut());
 		this.setModele(leModele);
 		antPost = vue.antPost;
-		if (vue.antPost)
+		
+		if (vue.antPost) {
 			this.setOrganes(organesAntPost);
-		else
+		} else {
 			this.setOrganes(organes);
+		}
 	}
 
 	public void fin() {
+		
+		
+		Thread captureThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+				    Thread.sleep(200);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+				
+			}
+		});
+		captureThread.start();
+		
+		
 		ImagePlus capture = ModeleScin.captureImage(this.getVue().getImp(), 512, 512);
 		// On resize le canvas pour etre a la meme taille que les courbes
 		ImageProcessor ip = capture.getProcessor();
@@ -70,11 +88,11 @@ public class Controleur_Plaquettes extends ControleurScin {
 		courbesStackImagePlus.setStack(stack);
 
 		ImagePlus courbesFinale = new ImagePlus();
-		
+
 		MontageMaker mm = new MontageMaker();
 		courbesFinale = mm.makeMontage2(courbesStackImagePlus, 2, 2, 1, 1, courbesStackImagePlus.getStackSize(), 1, 0,
 				false);
-		// SK A Reprendre 
+		// SK A Reprendre
 		FenetreResultat results = new FenetreResultat(courbesFinale, tableResultats);
 		results.setVisible(true);
 		// laVue.UIResultats(courbesFinale, tableResultats);
@@ -82,12 +100,12 @@ public class Controleur_Plaquettes extends ControleurScin {
 
 	@Override
 	public boolean isOver() {
-		return this.roiManager.getCount() >= this.getVue().getImp().getStackSize() * this.getOrganes().length;
+		return this.roiManager.getCount() >= this.getVue().getImp().getStackSize() * 3;
 	}
 
 	@Override
 	public int getSliceNumberByRoiIndex(int roiIndex) {
-		return (roiIndex / this.getOrganes().length) + 1;
+		return (roiIndex / 3) + 1;
 	}
 
 	@Override
@@ -101,7 +119,7 @@ public class Controleur_Plaquettes extends ControleurScin {
 	public Roi getOrganRoi() {
 		if (roiManager.getRoi(getIndexRoi()) == null)
 			if (this.getVue().getImp().getCurrentSlice() > 1) {
-				return roiManager.getRoi(this.getIndexRoi() - this.organes.length);
+				return roiManager.getRoi(this.getIndexRoi() - 3);
 			}
 		return null;
 	}

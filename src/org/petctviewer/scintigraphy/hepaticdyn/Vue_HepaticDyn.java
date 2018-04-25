@@ -1,6 +1,10 @@
 package org.petctviewer.scintigraphy.hepaticdyn;
 
-import org.petctviewer.scintigraphy.hepatic.Controleur_Hepatic;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.IntStream;
+
 import org.petctviewer.scintigraphy.scin.FenApplication;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
@@ -14,7 +18,9 @@ import ij.util.DicomTools;
 public class Vue_HepaticDyn extends VueScin {
 
 	private ImagePlus impProjetee, impAnt, impPost;
-	
+
+	public int[] frameDurations;
+
 	public Vue_HepaticDyn() {
 		super("Hepatic Dyn");
 	}
@@ -36,23 +42,23 @@ public class Vue_HepaticDyn extends VueScin {
 			} else {
 				IJ.log("Please open the Ant view");
 			}
-			
+
 		} else { // si il y a deux fenetres d'ouvertes
-			for (String s : titresFenetres) { //pour chaque fenetre
+			for (String s : titresFenetres) { // pour chaque fenetre
 				ImagePlus imp = WindowManager.getImage(s);
-				if (VueScin.isAnterieur(imp)) { //si la vue est ant, on choisi cette image
+				if (VueScin.isAnterieur(imp)) { // si la vue est ant, on choisi cette image
 					this.impAnt = (ImagePlus) imp.clone();
-				}else {
+				} else {
 					this.impPost = (ImagePlus) imp.clone();
 				}
 			}
 		}
-		
-		this.impProjetee = getZProjection(this.impAnt);
+
+		this.impProjetee = ZProjector.run(this.impAnt, "sum");;
 		this.impProjetee.setProperty("Info", this.impAnt.getInfoProperty());
-		
-		System.out.println(DicomTools.getTag(impProjetee, "0054,0032"));
-		
+
+		buildFrameDurations(this.impAnt);		
+
 		this.setImp(this.impProjetee);
 		VueScin.setCustomLut(this.getImp());
 		this.fen_application = new FenApplication(this.getImp(), this.getExamType());
@@ -60,8 +66,40 @@ public class Vue_HepaticDyn extends VueScin {
 		IJ.setTool(Toolbar.RECT_ROI);
 	}
 
-	private ImagePlus getZProjection(ImagePlus imp) {
-		return ZProjector.run(imp, "max");
+	private void buildFrameDurations(ImagePlus imp) {
+		this.frameDurations = new int[imp.getStackSize()];
+		
+		int nbPhase = Integer.parseInt(DicomTools.getTag(imp, "0054,0031").trim());
+		if (nbPhase == 1) {
+			int duration = Integer.parseInt(DicomTools.getTag(imp, "0018,1242").trim());
+			for (int i = 0; i < this.frameDurations.length; i++) {
+				this.frameDurations[i] = duration;
+			}
+		} else {
+			String[] phasesStr = DicomTools.getTag(imp, "0054,0030").trim().split(" ");
+			int[] phases = new int[phasesStr.length];
+			Integer[] durations = this.getDurations(imp);
+			for(int i = 0; i < phases.length; i++) {
+				phases[i] = Integer.parseInt(phasesStr[i]);
+			}
+			
+			for(int i = 0; i < this.frameDurations.length; i++) {
+				this.frameDurations[i] = durations[phases[i] - 1];
+			}
+		}
+	}
+
+	private Integer[] getDurations(ImagePlus imp) {
+		List<Integer> duration = new ArrayList<Integer>();
+		String info = imp.getInfoProperty();
+		String[] split = info.split("\n");
+		for(String s : split) {
+			if(s.startsWith("0018,1242")) {
+				String[] mots = s.split(" ");
+				duration.add(Integer.parseInt(mots[mots.length - 1]));
+			}
+		}
+		return duration.toArray(new Integer[0]);
 	}
 
 	public ImagePlus getImpAnt() {

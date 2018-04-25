@@ -64,7 +64,7 @@ public class FenResultatSidePanel extends JFrame {
 		side.add(flow1);
 	}
 	
-	public void finishBuildingWindow(Double imgMultiplier) {
+	public void finishBuildingWindow() {
 		side.add(Box.createVerticalGlue());
 		
 		for(Component c : this.getSidePanelContent()) {
@@ -84,11 +84,7 @@ public class FenResultatSidePanel extends JFrame {
 		ControleurScin.setCaptureButton(btn_capture, credits, this.vue, this);
 
 		JLabel img = new JLabel();
-		System.out.println(capture.getWidth() * imgMultiplier);
-		System.out.println(capture.getHeight() * imgMultiplier);
-		Image dimg = capture.getScaledInstance((int) (capture.getWidth() * imgMultiplier), (int) (capture.getHeight() * imgMultiplier),
-				Image.SCALE_SMOOTH);
-		img.setIcon(new ImageIcon(dimg));
+		img.setIcon(new ImageIcon(capture));
 
 		this.add(img, BorderLayout.WEST);
 		this.add(side, BorderLayout.EAST);

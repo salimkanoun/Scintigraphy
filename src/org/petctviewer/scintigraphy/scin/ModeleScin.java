@@ -94,7 +94,7 @@ public abstract class ModeleScin {
 	}
 	
 	/**
-	 * Enregistrer la mesure de la roi courante de l'image plus dans le format souhaité
+	 * Enregistrer la mesure de la roi courante de l'image plus dans le format souhaitï¿½
 	 * @param nomRoi nom de la roi presente sur l'image plus
 	 * @param imp ImagePlus a traiter
 	 */
@@ -105,7 +105,7 @@ public abstract class ModeleScin {
 	 * 
 	 * @param tableauImagePlus
 	 *            : Tableau contenant les ImagePlus a mettre dans le stack (toutes
-	 *            les images doivent avoir la même taille)
+	 *            les images doivent avoir la mï¿½me taille)
 	 * @return Renvoie le stack d'image produit
 	 */
 	public static ImageStack captureToStack(ImagePlus[] tableauImagePlus) {
@@ -130,7 +130,7 @@ public abstract class ModeleScin {
 	}
 
 	/**
-	 * Capture secondaire de l'image sans l'interface et la redimmensionner à la
+	 * Capture secondaire de l'image sans l'interface et la redimmensionner ï¿½ la
 	 * taille voulue
 	 * 
 	 * @param imp
@@ -186,13 +186,13 @@ public abstract class ModeleScin {
 	 * finale
 	 * 
 	 * @param imp
-	 *            : l'ImagePlus de la fenetre à capturer
+	 *            : l'ImagePlus de la fenetre ï¿½ capturer
 	 * @param largeur
 	 *            : largeur de l'image finale si largeur et hauteur =0 pas de resize
 	 *            on a la meme resolution que l'ecran
 	 * @param hauteur
 	 *            : hauteur de l'image finale si hauteur =0 on ne resize que la
-	 *            largeur en gardant le même ratio
+	 *            largeur en gardant le mï¿½me ratio
 	 * @return Resultat de la capture dans une ImagePlus
 	 */
 	public static ImagePlus captureFenetre(ImagePlus imp, int largeur, int hauteur) {
@@ -274,7 +274,7 @@ public abstract class ModeleScin {
 	 * @param nomProgramme
 	 *            : nom du programme qui l'utilise si par exemple "pulmonary shunt"
 	 *            la capture sera appelee "Capture Pulmonary Shunt"
-	 * @return retourne la première partie du header en string auquelle on ajoutera
+	 * @return retourne la premiï¿½re partie du header en string auquelle on ajoutera
 	 *         la 2eme partie via la deuxieme methode
 	 */
 	public static String genererDicomTagsPartie1(ImagePlus imp, String nomProgramme) {
@@ -324,14 +324,14 @@ public abstract class ModeleScin {
 	}
 
 	/**
-	 * Permet d'obtenir la 2ème partie du header qu'il faudra ajouter à la 1ere
+	 * Permet d'obtenir la 2ï¿½me partie du header qu'il faudra ajouter ï¿½ la 1ere
 	 * partie
 	 * 
 	 * @param CaptureFinale
-	 *            : L'ImagePlus de la capture secondaire (permet de récuperer le
+	 *            : L'ImagePlus de la capture secondaire (permet de rï¿½cuperer le
 	 *            nombre de ligne et de colonne qui doit apparait dans le header
 	 *            DICOM)
-	 * @return retourne la 2eme partie du tag qu'il faut ajouter à la 1ere partie
+	 * @return retourne la 2eme partie du tag qu'il faut ajouter ï¿½ la 1ere partie
 	 *         (tag1+=tag2)
 	 */
 	public static String genererDicomTagsPartie2(ImagePlus CaptureFinale) {
@@ -352,7 +352,7 @@ public abstract class ModeleScin {
 	 *            : Tableau contenant les resultats a exporter (doit contenir les
 	 *            titres de colonnes)
 	 * @param nombreColonne
-	 *            : Nombre de colonne avant de passer à la seconde ligne (si 4
+	 *            : Nombre de colonne avant de passer ï¿½ la seconde ligne (si 4
 	 *            colonne mettre 4)
 	 * @param roiManager
 	 *            : le ROI manager utilise dans le programme
@@ -464,7 +464,7 @@ public abstract class ModeleScin {
 	/**
 	 * Permet d'exporter le ROI manager uniquement dans un zip contenant les ROI
 	 * (dans le cadre d'un logiciel ne generant pas de resultat utile a sauver qui
-	 * seront traités par un autre logiciel par exemple)
+	 * seront traitï¿½s par un autre logiciel par exemple)
 	 * 
 	 * @param Roi
 	 *            : Le ROI manager utilise dans le programme
@@ -524,7 +524,7 @@ public abstract class ModeleScin {
 	public double getDecayFraction(int delaySeconds, int halLifeSeconds) {
 		double tcLambdaSeconds = (Math.log(2) / (halLifeSeconds));
 		double decayedFraction = Math.pow(Math.E, (tcLambdaSeconds * delaySeconds * (-1)));
-		// Decayed fraction est la fraction de la radioactivité qui a disparu
+		// Decayed fraction est la fraction de la radioactivitï¿½ qui a disparu
 		// Pour avoir les coups corrige de la decroissance
 		// countsCorrected=counts/decayedFraction
 		return decayedFraction;

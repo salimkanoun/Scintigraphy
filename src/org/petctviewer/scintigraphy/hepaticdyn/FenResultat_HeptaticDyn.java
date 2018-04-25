@@ -2,6 +2,8 @@ package org.petctviewer.scintigraphy.hepaticdyn;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
@@ -35,7 +37,6 @@ public class FenResultat_HeptaticDyn extends JFrame {
 		JPanel grille = new JPanel(new GridLayout(2, 1));
 		
 		JPanel grilleTop = new JPanel(new GridLayout(1,2));
-		System.out.println(capture.getHeight());
 		JLabel cpt = new JLabel();
 		cpt.setIcon(new ImageIcon(capture));
 		grilleTop.add(cpt);
@@ -46,7 +47,7 @@ public class FenResultat_HeptaticDyn extends JFrame {
 		for (int i = 0; i < 16; i++) {
 			int start = (nSlice / 16) * i;
 			int stop = start + (nSlice / 16);
-			ImagePlus tinyImp = ZProjector.run(vue.getImpAnt(), "max", start, stop);
+			ImagePlus tinyImp = ZProjector.run(vue.getImpAnt(), "sum", start, stop);
 			ImageProcessor impc = tinyImp.getProcessor().resize(capture.getWidth() / 4);
 			ImagePlus projectionImp = new ImagePlus("", impc);
 
@@ -59,9 +60,6 @@ public class FenResultat_HeptaticDyn extends JFrame {
 		grille.add(grilleTop);
 
 		JPanel grilleBottom = new JPanel(new BorderLayout());
-		JPanel flow3 = new JPanel();
-		flow3.add(modele.getChartPanel());
-		grilleBottom.add(flow3, BorderLayout.WEST);
 		
 		// bouton capture et label credits
 		JButton btn_capture = new JButton("Capture");
@@ -97,10 +95,17 @@ public class FenResultat_HeptaticDyn extends JFrame {
 		grilleBottom.add(flow2, BorderLayout.EAST);
 		grille.add(grilleBottom);
 		
-		this.add(btnlbl, BorderLayout.SOUTH);
 		this.add(grille, BorderLayout.CENTER);
+		this.add(btnlbl, BorderLayout.SOUTH);
+		
+		this.pack();
+		
+		Component chart = modele.getChartPanel();
+		chart.setPreferredSize(new Dimension((capture.getWidth()*2) - flow2.getWidth(), capture.getHeight()));
+		grilleBottom.add(chart, BorderLayout.WEST);
 
 		this.pack();
+		
 		this.setVisible(true);
 		this.setLocationRelativeTo(null);
 	}

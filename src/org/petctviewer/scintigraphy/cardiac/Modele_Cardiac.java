@@ -17,7 +17,7 @@ public class Modele_Cardiac extends ModeleScin {
 
 	private HashMap<String, Double> data;
 
-	/** Valeurs mesurées **/
+	/** Valeurs mesurï¿½es **/
 	// valeurs de la prise late
 	private Double fixCoeurL, fixReinGL, fixReinDL, fixVessieL, fixBkgNoise;
 	// valeurs des contamination
@@ -25,7 +25,7 @@ public class Modele_Cardiac extends ModeleScin {
 	// valeurs totales
 	private Double totEarly, totLate;
 
-	/** Valeurs calculées **/
+	/** Valeurs calculï¿½es **/
 	// valeurs finales
 	private Double finalEarly, finalLate;
 	private Double hwb, retCardiaque, retCe;
@@ -35,7 +35,7 @@ public class Modele_Cardiac extends ModeleScin {
 	private HashMap<String, String> resultats;
 
 	public Modele_Cardiac(ImagePlus imp) {
-		this.imp = imp;
+		this.imp = (ImagePlus) imp.clone();
 		this.resultats = new HashMap<String, String>();
 		this.data = new HashMap<String, Double>();
 	}
@@ -44,7 +44,7 @@ public class Modele_Cardiac extends ModeleScin {
 	public void enregisterMesure(String nomRoi, ImagePlus imp) {
 		Double counts = this.getCounts(imp);
 		data.put(nomRoi, counts);
-		System.out.println(nomRoi + " : " + counts);
+		System.out.println(nomRoi);
 	}
 
 	public void calculerResultats() {
@@ -58,21 +58,18 @@ public class Modele_Cardiac extends ModeleScin {
 
 		// on somme les moyennes geometriques des contaminations
 		List<Double> contAntPost = new ArrayList<Double>();
-		boolean early = true;
 		for (String s : this.data.keySet()) {
-			if (s.contains("Cont")) {
+			if (s.startsWith("Cont")) {
 				contAntPost.add(this.data.get(s));
 				if (contAntPost.size() == 2) {
 					Double moyCont = moyGeom(contAntPost.get(0), contAntPost.get(1));
-					if (this.deuxPrises && early) {
+					if (s.startsWith("ContE")) {
 						this.sumContE += moyCont;
 					} else {
 						this.sumContL += moyCont;
 					}
 					contAntPost.clear();
 				}
-			} else {
-				early = false;
 			}
 		}
 
@@ -170,7 +167,7 @@ public class Modele_Cardiac extends ModeleScin {
 		this.resultats.put("Left Kidney", "" + round(this.fixReinGL, 2));
 		this.resultats.put("Contaminations", "" + round(sumContL, 2));
 
-		this.resultats.put("Ratio H/WB (for a 1000)", "" + round(this.hwb * 1000, 2));
+		this.resultats.put("Ratio H/WB (per 1000)", "" + round(this.hwb * 1000, 2));
 
 		return this.resultats;
 	}

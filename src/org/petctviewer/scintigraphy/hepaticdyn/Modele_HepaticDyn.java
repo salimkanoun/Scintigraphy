@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -35,19 +36,20 @@ public class Modele_HepaticDyn extends ModeleScin {
 	private int tDemiFoieD, tDemiFoieG, maxFoieD, maxFoieG, tDemiVasc;
 
 	private Double finPicD, finPicG, pctVasc;
+	
+	private Vue_HepaticDyn vue;
 
-	public Modele_HepaticDyn(ImagePlus imp) {
-		this.imp = imp;
+	public Modele_HepaticDyn(Vue_HepaticDyn vue) {
+		this.imp = (ImagePlus) vue.getImp().clone();
 		this.vasc = new ArrayList<Double>();
 		this.foieD = new ArrayList<Double>();
 		this.foieG = new ArrayList<Double>();
+		this.vue = vue;
 	}
 
 	@Override
 	public void enregisterMesure(String nomRoi, ImagePlus imp) {
 		Double counts = this.getCounts(imp);
-
-		System.out.println(nomRoi + " : " + counts);
 
 		if (nomRoi.contains("Blood pool")) {
 			vasc.add(counts);
@@ -56,6 +58,8 @@ public class Modele_HepaticDyn extends ModeleScin {
 		} else if (nomRoi.contains("Liver L")) {
 			foieG.add(counts);
 		}
+
+		System.out.println(nomRoi + " : " + counts);
 	}
 
 	@Override
@@ -88,7 +92,6 @@ public class Modele_HepaticDyn extends ModeleScin {
 	private Double getY(XYSeries series, double x) {
 		List<XYDataItem> items = series.getItems();
 		for (int i = 1; i < items.size(); i++) {
-			System.out.println(items.get(i - 1).getX().doubleValue() + " <= " + x + " <=" + items.get(i).getX().doubleValue());
 			if (items.get(i - 1).getX().doubleValue() <= x && x <= items.get(i).getX().doubleValue()) {
 				Double y = (items.get(i).getY().doubleValue() + items.get(i - 1).getY().doubleValue()) / 2;
 				return y;
@@ -127,7 +130,7 @@ public class Modele_HepaticDyn extends ModeleScin {
 	}
 
 	private void createGraph() {
-		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "counts", createDataset(),
+		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "counts/sec", createDataset(),
 				PlotOrientation.VERTICAL, true, true, true);
 		this.chartPanel = new ChartPanel(xylineChart);
 		final XYPlot plot = xylineChart.getXYPlot();
@@ -143,16 +146,19 @@ public class Modele_HepaticDyn extends ModeleScin {
 	}
 
 	private XYDataset createDataset() {
-		Double dureePrise = Integer.parseInt(DicomTools.getTag(this.imp, "0018,1242").trim()) / 6000.0;
-
 		this.bloodPool = new XYSeries("Blood Pool");
 		this.liverR = new XYSeries("Right Liver");
 		this.liverL = new XYSeries("Left Liver");
-
+		
+		System.out.println(vasc.size());
+		
+		Double dureePriseOld = 0.0;
 		for (int i = 0; i < this.vasc.size(); i++) {
-			bloodPool.add(dureePrise * i, vasc.get(i));
-			liverR.add(dureePrise * i, foieD.get(i));
-			liverL.add(dureePrise * i, foieG.get(i));
+			Double dureePrise = vue.frameDurations[i] / 60000.0;
+			bloodPool.add(dureePriseOld + dureePrise, vasc.get(i) / (dureePrise * 60));
+			liverR.add(dureePriseOld + dureePrise, foieD.get(i) / (dureePrise * 60));
+			liverL.add(dureePriseOld + dureePrise, foieG.get(i) / (dureePrise * 60));
+			dureePriseOld += dureePrise;
 		}
 
 		final XYSeriesCollection dataset = new XYSeriesCollection();

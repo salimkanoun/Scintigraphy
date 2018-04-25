@@ -52,6 +52,8 @@ public abstract class ControleurScin implements ActionListener {
 	private String[] organes;
 	protected int indexRoi;
 
+	private List<String> nomRois = new ArrayList<String>();
+
 	protected ControleurScin(VueScin vue) {
 		this.laVue = vue;
 		this.roiManager = new RoiManager();
@@ -76,27 +78,6 @@ public abstract class ControleurScin implements ActionListener {
 		else if (b == laVue.getFen_application().getBtn_precedent()) {
 			this.clicPrecedent();
 		}
-
-		/**
-		 * else if (b == laVue.getFen_application().getBtn_capture()) {
-		 * laVue.getFen_application().getBtn_capture().setVisible(false); //TODO
-		 * laVue.csv.setText("Provided By Petctviewer.org"); ImagePlus captureFinale =
-		 * ModeleScin.captureFenetre(WindowManager.getCurrentImage(), 0, 0);
-		 * WindowManager.getCurrentWindow().getImagePlus().changes = false;
-		 * WindowManager.getCurrentWindow().close(); // On genere la 2eme partie des tag
-		 * dicom et on l'ajoute a la 1ere partie dans // le property de l'image finale
-		 * captureFinale.setProperty("Info", tagCapture +=
-		 * (ModeleScin.genererDicomTagsPartie2(captureFinale))); // On affiche et on
-		 * agrandie la fenetre de la capture finale captureFinale.show(); // On met un
-		 * zoom a 80% captureFinale.getCanvas().setMagnification(0.8); // generation du
-		 * c
-		 * 
-		 * // On fait la capture finale captureFinale.getWindow().toFront(); // On
-		 * propose de sauver la capture en DICOM IJ.run("myDicom..."); // fin du
-		 * programme ici
-		 *
-		 * }
-		 */
 
 		else if (b == laVue.getFen_application().getBtn_drawROI())
 
@@ -168,9 +149,9 @@ public abstract class ControleurScin implements ActionListener {
 
 		// on affiche les prochaines instructions
 		this.setInstructions(this.indexRoi % this.getOrganes().length);
-		
+
 	}
-	
+
 	public void setInstructions(int nOrgane) {
 		this.laVue.getFen_application().setInstructions(nOrgane);
 	}
@@ -178,13 +159,13 @@ public abstract class ControleurScin implements ActionListener {
 	public void setSlice(int indexSlice) {
 		this.clearOverlay();
 		this.getVue().getFen_application().getImagePlus().killRoi();
-		
+
 		this.laVue.getImp().setSlice(indexSlice);
-		
+
 		for (int i = 0; i < this.roiManager.getCount(); i++) {
 			Roi roi = this.roiManager.getRoi(i);
 			if (roi.getZPosition() == indexSlice) {
-				if(i != indexRoi) {
+				if (i != indexRoi || this.isOver()) { // si c'est la roi courante on la set dans l'imp
 					this.laVue.getImp().getOverlay().add(roi);
 				} else {
 					this.laVue.getImp().setRoi(roi);
@@ -210,6 +191,7 @@ public abstract class ControleurScin implements ActionListener {
 	private void clicSuivant() {
 		// sauvegarde du ROI actuel
 		boolean saved = this.saveCurrentRoi(this.getNomOrgane(indexRoi), indexRoi);
+		
 		// si la sauvegarde est reussie
 		if (saved) {
 			// on active le bouton precedent
@@ -217,7 +199,21 @@ public abstract class ControleurScin implements ActionListener {
 
 			// on avtive la fin si c'est necessaire
 			if (this.isOver()) {
-				fin();
+				this.setSlice(this.getVue().getImp().getCurrentSlice());
+				
+				Thread captureThread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+						    Thread.sleep(200);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						fin();
+					}
+				});
+				captureThread.start();
+				
 			} else {
 				// on prepare la roi suivante
 				indexRoi++;
@@ -234,15 +230,9 @@ public abstract class ControleurScin implements ActionListener {
 	 * @return nombre de roi avec le meme nom
 	 */
 	public String getSameNameRoiCount(String nomRoi) {
-		//on construit le tableau de roi
-		String[] roiNames = new String[this.roiManager.getCount()];
-		for (int i = 0; i < roiNames.length; i++) {
-			roiNames[i] = this.roiManager.getRoisAsArray()[i].getName();
-		}
-
 		int count = 0;
-		for (int i = 0; i < roiNames.length; i++) {
-			if (roiNames[i].contains(nomRoi)) {
+		for (int i = 0; i < this.nomRois.size(); i++) {
+			if (nomRois.get(i).contains(nomRoi)) {
 				count++;
 			}
 		}
@@ -299,17 +289,15 @@ public abstract class ControleurScin implements ActionListener {
 			// pour eviter les doublons
 			if (this.roiManager.getRoi(indexRoi) == null) {
 				this.roiManager.addRoi(laVue.getImp().getRoi());
-				this.roiManager.getRoi(indexRoi).setPosition(this.getSliceNumberByRoiIndex(indexRoi));
-				this.roiManager.rename(indexRoi, nomRoi);
-
-			} else { // Si il existe on fait un update
-				this.roiManager.select(indexRoi);
-				this.roiManager.runCommand("Update");
-
+			} else { // Si il existe on l'ecrase
+				this.roiManager.setRoi(laVue.getImp().getRoi(), indexRoi);
 				// on supprime le roi nouvellement ajoute de la vue
 				laVue.getFen_application().getImagePlus().killRoi();
 			}
 			
+			this.roiManager.getRoi(indexRoi).setPosition(this.getSliceNumberByRoiIndex(indexRoi));
+			this.roiManager.rename(indexRoi, nomRoi);
+
 			return true;
 		} else {
 			System.out.println("Roi perdue");
@@ -322,8 +310,8 @@ public abstract class ControleurScin implements ActionListener {
 	 * Vide l'overlay et ajoute le lettres G et D
 	 */
 	public void clearOverlay() {
-		laVue.getOverlay().clear();
-		VueScin.setOverlayDG(laVue.getOverlay(), laVue.getFen_application().getImagePlus());
+		laVue.getImp().getOverlay().clear();
+		VueScin.setOverlayDG(laVue.getImp().getOverlay(), laVue.getFen_application().getImagePlus());
 	}
 
 	/**
@@ -342,19 +330,25 @@ public abstract class ControleurScin implements ActionListener {
 	 * @return nouveau nom
 	 */
 	public String addTag(String nomOrgane) {
-		String count = this.getSameNameRoiCount(nomOrgane);
+		if(this.nomRois.size() >= this.indexRoi + 1) {
+			return this.nomRois.get(this.indexRoi);
+		}
 		
 		if (this.isPost()) {
 			nomOrgane += " P";
 		} else {
 			nomOrgane += " A";
 		}
-		
+
+		String count = this.getSameNameRoiCount(nomOrgane);
+
 		nomOrgane += count;
 
+		// on ajoute le nom de la roi a la liste
+		this.nomRois.add(nomOrgane);
 		return nomOrgane;
 	}
-	
+
 	public static void setCaptureButton(JButton btn_capture, JLabel lbl_credits, VueScin vue, JFrame jf) {
 
 		btn_capture.addActionListener(new ActionListener() {
@@ -364,7 +358,7 @@ public abstract class ControleurScin implements ActionListener {
 				JButton b = (JButton) (e.getSource());
 				b.getParent().remove(b);
 				lbl_credits.setVisible(true);
-				
+
 				jf.pack();
 				Container c = jf.getContentPane();
 
@@ -372,15 +366,15 @@ public abstract class ControleurScin implements ActionListener {
 				BufferedImage capture = new BufferedImage(c.getWidth(), c.getHeight(), BufferedImage.TYPE_INT_ARGB);
 				c.paint(capture.getGraphics());
 				ImagePlus imp = new ImagePlus("capture", capture);
-				
+
 				jf.dispose();
-				
+
 				imp.setProperty("Info", ModeleScin.genererDicomTagsPartie1(vue.getImp(), vue.getExamType())
 						+ ModeleScin.genererDicomTagsPartie2(vue.getImp()));
 
 				imp.show();
 				IJ.setTool("hand");
-			
+
 				String[] arrayRes = vue.getFen_application().getControleur().getModele().getResultsAsArray();
 
 				try {
@@ -392,14 +386,13 @@ public abstract class ControleurScin implements ActionListener {
 				} catch (FileNotFoundException e1) {
 					e1.printStackTrace();
 				}
-				
+
 				try {
 					IJ.run("myDicom...");
-				}catch(Exception e1){
+				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
-				
-				
+
 				System.gc();
 			}
 		});
@@ -408,7 +401,7 @@ public abstract class ControleurScin implements ActionListener {
 	private void attachListener() {
 		ImagePlus.addImageListener(new ControleurImp(this));
 	}
-	
+
 	/**
 	 * Renvoie la roi de l'image plus
 	 * 

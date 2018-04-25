@@ -1,7 +1,11 @@
 package org.petctviewer.scintigraphy.hepatic;
 
 import java.awt.image.BufferedImage;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
+
+import javax.swing.SwingUtilities;
 
 import org.petctviewer.scintigraphy.cardiac.FenResultat_Cardiac;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
@@ -24,7 +28,7 @@ public class Controleur_Hepatic extends ControleurScin {
 
 	@Override
 	public boolean isOver() {
-		return this.getOrganes().length == this.roiManager.getCount();
+		return this.roiManager.getCount() >= 2;
 	}
 
 	@Override
@@ -35,20 +39,30 @@ public class Controleur_Hepatic extends ControleurScin {
 			this.preparerRoi();
 			this.saveCurrentRoi(this.getNomOrgane(indexRoi), indexRoi);
 		}
-
-		this.getModele().calculerResultats();
-		System.out.println(this.getModele());
 		
+		this.getModele().calculerResultats();		
 		ImagePlus imp = this.getVue().getImp();
 		
-		BufferedImage capture = ModeleScin.captureImage(imp, 256, 256).getBufferedImage();
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {			
+				@Override
+				public void run() {
+					Controleur_Hepatic.this.setSlice(1);
+				}
+			});
+		} catch (InvocationTargetException | InterruptedException e) {
+			e.printStackTrace();
+		}
+			
+		BufferedImage capture = ModeleScin.captureImage(imp, 400, 400).getBufferedImage();
+		
 		new FenResultat_Hepatic(this.getVue(), capture);
-		this.getVue().getFen_application().dispose();
+		//this.getVue().getFen_application().dispose();
 	}
 
 	@Override
 	public int getSliceNumberByRoiIndex(int roiIndex) {
-		if (isPost()) {
+		if (this.getIndexRoi() > 1) {
 			return 2;
 		} else {
 			return 1;

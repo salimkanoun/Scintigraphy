@@ -13,14 +13,14 @@ public class Modele_Hepatic extends ModeleScin {
 	private Double MGFoie, MGIntes, MGTot;
 
 	public Modele_Hepatic(ImagePlus imp) {
-		this.imp = imp;
+		this.imp = (ImagePlus) imp.clone();;
 	}
 
 	@Override
 	public void enregisterMesure(String nomRoi, ImagePlus imp) {
+		System.out.println(nomRoi);
 		Double counts = this.getCounts(imp);
 		data.put(nomRoi, counts);
-		System.out.println(nomRoi + " : " + counts);
 	}
 	
 	@Override
