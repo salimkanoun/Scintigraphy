@@ -51,10 +51,10 @@ public class FenResultatSidePanel extends JFrame {
 
 		// ajout des informations du patient
 		
-		HashMap<String, String> infoPatient = ModeleScin.getDicomInfo(vueScin.getImp());
+		HashMap<String, String> infoPatient = ModeleScin.getPatientInfo(vueScin.getImp());
 		JPanel patientInfo = new JPanel(new GridLayout(3, 2, 10, 10));
 		patientInfo.add(new JLabel("Patient name: "));
-		patientInfo.add(new JLabel(infoPatient.get("nom")));
+		patientInfo.add(new JLabel(infoPatient.get("name")));
 		patientInfo.add(new JLabel("Patient id: "));
 		patientInfo.add(new JLabel(infoPatient.get("id")));
 		patientInfo.add(new JLabel("Aquisition date: "));

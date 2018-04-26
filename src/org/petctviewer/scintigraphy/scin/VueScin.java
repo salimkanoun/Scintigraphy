@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 
+import javax.swing.JDialog;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 
@@ -30,9 +31,9 @@ import org.petctviewer.scintigraphy.platelet.FenetreResultat;
 
 public abstract class VueScin implements PlugIn {
 	private String examType;
-	
+
 	protected FenApplication fen_application;
-	
+
 	private ImagePlus imp;
 	private Boolean antPost = Boolean.valueOf(false);
 	protected int nombreAcquisitions;
@@ -45,14 +46,18 @@ public abstract class VueScin implements PlugIn {
 	 * Lance la fen�tre de dialogue permettant le lancemet du programme
 	 */
 	public void run(String arg) {
-				new FenDialogue(VueScin.this.examType, VueScin.this);
-			
+		FenSelectionDicom selection=new FenSelectionDicom(this.getExamType());
+		selection.setModal(true);
+		selection.setVisible(true);
+		ouvertureImage(selection.getSelectedWindowsTitles());		
 	}
-	
-	//TODO refactoriser en preparer imp et ouvrir fenetre ?
+
+	// TODO refactoriser en preparer imp et ouvrir fenetre ?
 	/**
-	 *Prepare la fenetre de l'application selon les dicoms ouvertes
-	 *@param titresFenetres liste des fenetres ouvertes
+	 * Prepare la fenetre de l'application selon les dicoms ouvertes
+	 * 
+	 * @param titresFenetres
+	 *            liste des fenetres ouvertes
 	 */
 	protected abstract void ouvertureImage(String[] titresFenetres);
 
@@ -239,8 +244,8 @@ public abstract class VueScin implements PlugIn {
 
 	/**
 	 * Permet de trier les image unique frame et inverser l'image posterieure A
-	 * Eviter d'utiliser, pr�f�rer la methode sortImageAntPost(ImagePlus imp)
-	 * qui est g�n�rique pour tout type d'image
+	 * Eviter d'utiliser, pr�f�rer la methode sortImageAntPost(ImagePlus imp) qui
+	 * est g�n�rique pour tout type d'image
 	 * 
 	 * @param imp0
 	 *            : ImagePlus a trier
@@ -612,8 +617,7 @@ public abstract class VueScin implements PlugIn {
 
 	/**
 	 * Cree overlay et set la police SK : A Optimiser pour tenir compte de la taille
-	 * initiale de l'Image
-	 * taille standard = 12
+	 * initiale de l'Image taille standard = 12
 	 * 
 	 * @return Overlay
 	 */
@@ -649,7 +653,7 @@ public abstract class VueScin implements PlugIn {
 			imp.setLut(lut);
 		}
 	}
-	
+
 	public ImagePlus getImp() {
 		return this.imp;
 	}

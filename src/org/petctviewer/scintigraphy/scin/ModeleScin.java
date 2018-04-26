@@ -57,10 +57,10 @@ public abstract class ModeleScin {
 	 * @param imp
 	 * @return
 	 */
-	public static HashMap<String, String> getDicomInfo(ImagePlus imp) {
+	public static HashMap<String, String> getPatientInfo(ImagePlus imp) {
 		HashMap<String, String> hm = new HashMap<String, String>();
 		String nom = DicomTools.getTag(imp, "0010,0010").trim();
-		hm.put("nom", nom.replace("^", " "));
+		hm.put("name", nom.replace("^", " "));
 
 		hm.put("id", DicomTools.getTag(imp, "0010,0020").trim());
 

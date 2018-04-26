@@ -21,7 +21,7 @@ public class FenDialogue extends Frame {
 
 	/**
 	 * Cree et ouvre ue fenetre de dialogue demandant a l'utilisateur d'ouvrir toutes les dicom a traiter
-	 * @param examType Libellé de l'examen de scintigraphie
+	 * @param examType Libellï¿½ de l'examen de scintigraphie
 	 * @param vue vue de ce type d'examen, appelle la methode {@link VueScin#ouvertureImage(String[])} a l'appui du bouton valider
 	 */
 	public FenDialogue(String examType, VueScin vue) {
@@ -62,7 +62,8 @@ public class FenDialogue extends Frame {
 				if (WindowManager.getCurrentImage() != null) {
 					FenDialogue.this.dispose();
 					String[] titresFenetres = WindowManager.getImageTitles();
-					FenDialogue.this.vue.ouvertureImage(titresFenetres);
+					//new FenSelectionDicom();
+					//FenDialogue.this.vue.ouvertureImage(titresFenetres);
 				} else {
 					System.out.println("Pas de dicom ouverte");
 				}

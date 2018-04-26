@@ -81,8 +81,8 @@ public class FenResultat_HepaticDyn extends JFrame {
 		
 		res.add(Box.createVerticalStrut(10));
 		
-		HashMap<String, String> infoPatient = ModeleScin.getDicomInfo(vue.getImp());
-		res.add(new JLabel("Patient name: " + infoPatient.get("nom")));
+		HashMap<String, String> infoPatient = ModeleScin.getPatientInfo(vue.getImp());
+		res.add(new JLabel("Patient name: " + infoPatient.get("name")));
 		res.add(new JLabel("Patient id: " + infoPatient.get("id")));
 		res.add(new JLabel("Aquisition date: " + infoPatient.get("date")));
 		
