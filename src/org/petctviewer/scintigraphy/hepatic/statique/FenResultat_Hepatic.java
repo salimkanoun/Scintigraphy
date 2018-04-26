@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.hepatic;
+package org.petctviewer.scintigraphy.hepatic.statique;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -38,7 +38,7 @@ public class FenResultat_Hepatic extends FenResultatSidePanel {
 	private HashMap<String, String> resultats;
 
 	public FenResultat_Hepatic(VueScin vueScin, BufferedImage capture) {
-		super("Bilary Scintigraphy", vueScin, capture);
+		super(vueScin.getExamType(), vueScin, capture);
 		this.resultats = vueScin.getFen_application().getControleur().getModele().getResultsHashMap();
 		this.finishBuildingWindow();
 	}

@@ -398,6 +398,7 @@ public abstract class ControleurScin implements ActionListener {
 							vue.getExamType(), imp);
 
 					vue.getFen_application().getControleur().getRoiManager().close();
+					
 					imp.killRoi();
 				} catch (Exception e1) {
 					e1.printStackTrace();

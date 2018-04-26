@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.hepaticdyn;
+package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +22,7 @@ public class Vue_HepaticDyn extends VueScin {
 	public int[] frameDurations;
 
 	public Vue_HepaticDyn() {
-		super("Hepatic Dyn");
+		super("Biliary scintigraphy");
 	}
 
 	@Override

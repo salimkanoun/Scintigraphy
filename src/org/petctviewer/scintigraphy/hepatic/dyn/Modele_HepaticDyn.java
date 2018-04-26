@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.hepaticdyn;
+package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -58,8 +58,6 @@ public class Modele_HepaticDyn extends ModeleScin {
 		} else if (nomRoi.contains("Liver L")) {
 			foieG.add(counts);
 		}
-
-		System.out.println(nomRoi + " : " + counts);
 	}
 
 	@Override
@@ -145,8 +143,6 @@ public class Modele_HepaticDyn extends ModeleScin {
 		this.liverR = new XYSeries("Right Liver");
 		this.liverL = new XYSeries("Left Liver");
 		
-		System.out.println(vasc.size());
-		
 		Double dureePriseOld = 0.0;
 		for (int i = 0; i < this.vasc.size(); i++) {
 			Double dureePrise = vue.frameDurations[i] / 60000.0;
@@ -186,7 +182,43 @@ public class Modele_HepaticDyn extends ModeleScin {
 
 	@Override
 	public String toString() {
-		return this.vasc.toString() + this.foieD.toString() + this.foieG.toString();
+		String s = "";
+		s += "Time (mn),";
+		for(int i = 0; i < this.bloodPool.getItemCount(); i++) {
+			s += round(this.bloodPool.getX(i).doubleValue(), 2) + ",";
+		}
+		s += "\n";
+		
+		s += "Blood Pool (counts/sec),";
+		for(int i = 0; i < this.bloodPool.getItemCount(); i++) {
+			s += round(this.bloodPool.getY(i).doubleValue(), 2) + ",";
+		}
+		s += "\n";
+		
+		s += "Right Liver (counts/sec),";
+		for(int i = 0; i < this.liverR.getItemCount(); i++) {
+			s += round(this.liverR.getY(i).doubleValue(), 2) + ",";
+		}
+		s += "\n";
+		
+		s += "Left Liver (counts/sec),";
+		for(int i = 0; i < this.liverL.getItemCount(); i++) {
+			s += round(this.liverL.getY(i).doubleValue(), 2) + ",";
+		}
+		s += "\n";
+		
+		s += "T1/2 Right Liver," + this.tDemiFoieD + "mn" + "\n";
+		s += "Maximum Right Liver," + this.maxFoieD + "mn" + "\n";
+		s += "END/MAX Ratio Right," + (int) (finPicD * 100) + "%" + "\n";
+		
+		s += "T1/2 Left Liver," + this.tDemiFoieG + "mn" + "\n";
+		s += "Maximum Left Liver," + this.maxFoieG + "mn" + "\n";
+		s += "END/MAX Ratio Left," + (int) (finPicG * 100) + "%" + "\n";
+		
+		s += "Blood pool ratio 20mn/5mn," + (int) (pctVasc * 100) + "%" + "\n";
+		s += "T1/2 Blood pool," + this.tDemiVasc + "mn" + "\n";
+		
+		return s;
 	}
 
 }

@@ -1,11 +1,11 @@
-package org.petctviewer.scintigraphy.hepaticdyn;
+package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.SwingUtilities;
 
-import org.petctviewer.scintigraphy.hepatic.Modele_Hepatic;
+import org.petctviewer.scintigraphy.hepatic.statique.Modele_Hepatic;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
@@ -33,7 +33,7 @@ public class Controleur_HepaticDyn extends ControleurScin {
 		Vue_HepaticDyn vue = (Vue_HepaticDyn) this.getVue();
 		
 		ImagePlus imp = vue.getImp();
-		BufferedImage capture = ModeleScin.captureImage(imp, 400, 400).getBufferedImage();
+		BufferedImage capture = ModeleScin.captureImage(imp, 300, 300).getBufferedImage();
 		
 		//on copie les roi sur toutes les slices
 		for (int i = 1; i < vue.getImpAnt().getStackSize(); i++) {
@@ -46,8 +46,8 @@ public class Controleur_HepaticDyn extends ControleurScin {
 		}
 		
 		this.getModele().calculerResultats();
-		new FenResultat_HeptaticDyn(vue, capture);
-		//this.getVue().getFen_application().dispose();
+		new FenResultat_HepaticDyn(vue, capture);
+		this.getVue().getFen_application().dispose();
 	}
 
 	@Override

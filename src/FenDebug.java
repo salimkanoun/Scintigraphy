@@ -7,8 +7,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.cardiac.Vue_Cardiac;
-import org.petctviewer.scintigraphy.hepatic.Vue_Hepatic;
-import org.petctviewer.scintigraphy.hepaticdyn.Vue_HepaticDyn;
+import org.petctviewer.scintigraphy.hepatic.dyn.Vue_HepaticDyn;
+import org.petctviewer.scintigraphy.hepatic.statique.Vue_Hepatic;
 import org.petctviewer.scintigraphy.platelet.Vue_Plaquettes;
 import org.petctviewer.scintigraphy.scin.VueScin;
 

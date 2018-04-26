@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.hepatic;
+package org.petctviewer.scintigraphy.hepatic.statique;
 
 import java.util.HashMap;
 
@@ -18,7 +18,6 @@ public class Modele_Hepatic extends ModeleScin {
 
 	@Override
 	public void enregisterMesure(String nomRoi, ImagePlus imp) {
-		System.out.println(nomRoi);
 		Double counts = this.getCounts(imp);
 		data.put(nomRoi, counts);
 	}
@@ -27,9 +26,9 @@ public class Modele_Hepatic extends ModeleScin {
 	public HashMap<String, String> getResultsHashMap() {
 		HashMap<String, String> resultats = new HashMap<String, String>();
 		
-		resultats.put("MG Liver", ModeleScin.round(this.MGFoie, 2) + " (" + ModeleScin.round((this.MGFoie / this.MGTot*100), 2) + "%)");
-		resultats.put("MG Intestine", "" + round(this.MGIntes, 2));
-		resultats.put("MG Total", "" + round(this.MGTot, 2));
+		resultats.put("GM Liver", ModeleScin.round(this.MGFoie, 2) + " (" + ModeleScin.round((this.MGFoie / this.MGTot*100), 2) + "%)");
+		resultats.put("GM Intestine", "" + round(this.MGIntes, 2));
+		resultats.put("GM Total", "" + round(this.MGTot, 2));
 		
 		return resultats;
 	}
@@ -44,10 +43,9 @@ public class Modele_Hepatic extends ModeleScin {
 	@Override
 	public String toString() {
 		String s = "";
-		s += "\nMG Foie : " + ModeleScin.round(this.MGFoie, 2) + " (" + ModeleScin.round((this.MGFoie / this.MGTot*100), 2) + "%)";
-		s += "\nMG Intestin : " + ModeleScin.round(this.MGIntes, 2);
-		s += "\nMG Total : " + ModeleScin.round(this.MGTot, 2);
-		
+		s += "GM Liver," + ModeleScin.round(this.MGFoie, 2) + " (" + ModeleScin.round((this.MGFoie / this.MGTot*100), 2) + "%) \n";
+		s += "GM Intestine," + ModeleScin.round(this.MGIntes, 2) + "\n";
+		s += "GM Total," + ModeleScin.round(this.MGTot, 2) + "\n";		
 		return s;
 	}
 

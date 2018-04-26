@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.hepatic;
+package org.petctviewer.scintigraphy.hepatic.statique;
 
 import org.petctviewer.scintigraphy.scin.FenApplication;
 import org.petctviewer.scintigraphy.scin.VueScin;

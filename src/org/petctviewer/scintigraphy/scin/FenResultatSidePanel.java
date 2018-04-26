@@ -90,6 +90,7 @@ public class FenResultatSidePanel extends JFrame {
 		this.add(side, BorderLayout.EAST);
 
 		this.pack();
+		this.setResizable(false);
 		this.setVisible(true);
 		this.setSize(this.getPreferredSize());
 		this.setLocationRelativeTo(null);

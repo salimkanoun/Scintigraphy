@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.hepaticdyn;
+package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -8,26 +8,29 @@ import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
+import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 
 import ij.ImagePlus;
 import ij.plugin.ZProjector;
 import ij.process.ImageProcessor;
 
-public class FenResultat_HeptaticDyn extends JFrame {
+public class FenResultat_HepaticDyn extends JFrame {
 
 	private static final long serialVersionUID = 1094251580157650693L;
 	
 	private HashMap<String, String> resultats;
 
-	public FenResultat_HeptaticDyn(Vue_HepaticDyn vue, BufferedImage capture) {
+	public FenResultat_HepaticDyn(Vue_HepaticDyn vue, BufferedImage capture) {
 		Modele_HepaticDyn modele = (Modele_HepaticDyn) vue.getFen_application().getControleur().getModele();
 		this.resultats = modele.getResultsHashMap();
 		
@@ -73,39 +76,54 @@ public class FenResultat_HeptaticDyn extends JFrame {
 		btnlbl.add(lbl_credits);
 
 		// texte de resultat
-		JPanel res = new JPanel(new GridLayout(10, 1, 10, 10));
+		Box res = Box.createVerticalBox();
+		res.setBorder(new EmptyBorder(0, 10, 0, 10));
+		
+		res.add(Box.createVerticalStrut(10));
+		
+		HashMap<String, String> infoPatient = ModeleScin.getDicomInfo(vue.getImp());
+		res.add(new JLabel("Patient name: " + infoPatient.get("nom")));
+		res.add(new JLabel("Patient id: " + infoPatient.get("id")));
+		res.add(new JLabel("Aquisition date: " + infoPatient.get("date")));
+		
+		res.add(Box.createVerticalStrut(30));
+		
 		res.add(getLabel("T1/2 Righ Liver", Color.BLUE));
 		res.add(getLabel("Maximum Right Liver", Color.BLUE));
-		res.add(getLabel("END/MAX Ratio Right", Color.BLUE));
+		res.add(getLabel("end/max Ratio Right", Color.BLUE));
 		
-		res.add(new JLabel(""));
+		res.add(Box.createVerticalStrut(20));
 		
 		Color c = new Color(47, 122, 30);
 		res.add(getLabel("T1/2 Left Liver", c));
 		res.add(getLabel("Maximum Left Liver", c));
-		res.add(getLabel("END/MAX Ratio Left", c));
+		res.add(getLabel("end/max Ratio Left", c));
 		
-		res.add(new JLabel(""));
+		res.add(Box.createVerticalStrut(20));
 		
 		res.add(getLabel("Blood pool ratio 20mn/5mn", Color.RED));
 		res.add(getLabel("T1/2 Blood pool", Color.RED));
 		
-		JPanel flow2 = new JPanel();
-		flow2.add(res);
-		grilleBottom.add(flow2, BorderLayout.EAST);
+		res.add(Box.createVerticalGlue());
+
+		grilleBottom.add(res, BorderLayout.EAST);
 		grille.add(grilleBottom);
 		
+		JPanel titre = new JPanel();
+		titre.add(new JLabel("<html><h1> " + vue.getExamType() + " </h1><html>"));
+		this.add(titre, BorderLayout.NORTH);
 		this.add(grille, BorderLayout.CENTER);
 		this.add(btnlbl, BorderLayout.SOUTH);
 		
 		this.pack();
 		
 		Component chart = modele.getChartPanel();
-		chart.setPreferredSize(new Dimension((capture.getWidth()*2) - flow2.getWidth(), capture.getHeight()));
+		chart.setPreferredSize(new Dimension((capture.getWidth()*2) - res.getWidth(), capture.getHeight()));
 		grilleBottom.add(chart, BorderLayout.WEST);
 
 		this.pack();
 		
+		this.setResizable(false);
 		this.setVisible(true);
 		this.setLocationRelativeTo(null);
 	}

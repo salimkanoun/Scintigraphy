@@ -44,7 +44,6 @@ public class Modele_Cardiac extends ModeleScin {
 	public void enregisterMesure(String nomRoi, ImagePlus imp) {
 		Double counts = this.getCounts(imp);
 		data.put(nomRoi, counts);
-		System.out.println(nomRoi);
 	}
 
 	public void calculerResultats() {

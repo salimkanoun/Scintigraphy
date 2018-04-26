@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.hepatic;
+package org.petctviewer.scintigraphy.hepatic.statique;
 
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
@@ -24,6 +24,7 @@ public class Controleur_Hepatic extends ControleurScin {
 		super(vue);
 		this.setOrganes(organes);
 		this.setModele(new Modele_Hepatic(vue.getImp()));
+		this.setSlice(1);
 	}
 
 	@Override
@@ -33,31 +34,33 @@ public class Controleur_Hepatic extends ControleurScin {
 
 	@Override
 	public void fin() {
+		this.setSlice(2);
+		VueScin vue = this.getVue();
 		// Copie des rois sur la deuxieme slice
 		for (int i = 0; i < 2; i++) {
 			this.indexRoi++;
-			this.preparerRoi(indexRoi-1);
-			this.saveCurrentRoi(this.getNomOrgane(indexRoi), indexRoi);
+			vue.getImp().setRoi(getOrganRoi(indexRoi));
+			this.getModele().enregisterMesure(this.addTag(this.getNomOrgane(indexRoi)), vue.getImp());
 		}
 		
-		this.getModele().calculerResultats();		
-		ImagePlus imp = this.getVue().getImp();
+		this.getModele().calculerResultats();
 		
-		try {
-			SwingUtilities.invokeAndWait(new Runnable() {			
-				@Override
-				public void run() {
-					Controleur_Hepatic.this.setSlice(1);
+		this.setSlice(1);
+		
+		Thread captureThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+				    Thread.sleep(200);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
-			});
-		} catch (InvocationTargetException | InterruptedException e) {
-			e.printStackTrace();
-		}
-			
-		BufferedImage capture = ModeleScin.captureImage(imp, 400, 400).getBufferedImage();
-		
-		new FenResultat_Hepatic(this.getVue(), capture);
-		//this.getVue().getFen_application().dispose();
+				BufferedImage capture = ModeleScin.captureImage(getVue().getImp(), 400, 400).getBufferedImage();
+				new FenResultat_Hepatic(getVue(), capture);
+				getVue().getFen_application().dispose();
+			}
+		});
+		captureThread.start();
 	}
 
 	@Override
