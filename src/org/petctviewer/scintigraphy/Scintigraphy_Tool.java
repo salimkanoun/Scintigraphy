@@ -44,6 +44,8 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			//On cree les menus par organes
 			PopupMenu gastric = new PopupMenu("Gastric");
 			PopupMenu pulmonary = new PopupMenu("Pulmonary");
+			PopupMenu hepatic = new PopupMenu("Hepatic");
+			PopupMenu cardiac = new PopupMenu("Cardiac");
 			
 			if (Menus.getFontSize()!=0) general.setFont(Menus.getFont());
 			
@@ -53,6 +55,12 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			
 			//plumonary shunt
 			MenuItem plumonaryShunt = new MenuItem("Pulmonary Shunt");
+			
+			//Cardiac
+			MenuItem dpdQuant = new MenuItem("DPD Quant");
+			
+			//Hepatic
+			MenuItem biliaryScintigraphy = new MenuItem("Biliary Scintigraphy");
 			
 			//About et preference
 			MenuItem about = new MenuItem("About");
@@ -64,6 +72,8 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			gastricDynamic.addActionListener(this);
 			gastricCondense.addActionListener(this);
 			plumonaryShunt.addActionListener(this);
+			dpdQuant.addActionListener(this);
+			biliaryScintigraphy.addActionListener(this);
 			about.addActionListener(this);
 			preferences.addActionListener(this);
 			
@@ -73,11 +83,17 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			
 			pulmonary.add(plumonaryShunt);
 			
+			cardiac.add(dpdQuant);
+			hepatic.add(biliaryScintigraphy);
 			
+			
+			general.add(cardiac);
 			general.add(gastric);
+			general.add(hepatic);
 			general.add(pulmonary);
 			general.add(preferences);
 			general.add(about);
+			
 			
 			
 			par.add(general);
@@ -86,6 +102,12 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String cmd = e.getActionCommand();
+			if (cmd=="DPD Quant") {
+				IJ.run("DPD Quant");
+			}
+			if (cmd=="Biliary Scintigraphy") {
+				IJ.run("Biliary Scintigraphy");
+			}
 			if (cmd=="Gastric Emptying") {
 				IJ.run("Gastric Emptying software");
 			}

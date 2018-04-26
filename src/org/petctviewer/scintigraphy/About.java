@@ -171,6 +171,8 @@ public class About extends JDialog implements PlugIn {
 					new Object[][] {
 						{"Pulmonary Shunt", "Gerard Victor", "Mathis Mohand", "CHU Toulouse"},
 						{"Gastric Emptying", "Gerard Victor", "Ping Xie", "CHU Toulouse"},
+						{"DPD Quant", "Gerard Victor", "Ruben Gres", "CHU Toulouse"},
+						{"Biliary Scintigraphy", "Gerard Victor", "Ruben Gres", "CHU Toulouse"},
 					},
 					new String[] {
 						"Software", "Creator", "Developper", "Institution"
@@ -231,16 +233,16 @@ public class About extends JDialog implements PlugIn {
 	}
 	
 	private Image scale(Image source, int width, int height) { 
-	    /* On crée une nouvelle image aux bonnes dimensions. */ 
+	    /* On crï¿½e une nouvelle image aux bonnes dimensions. */ 
 	    BufferedImage buf = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB); 
 	  
-	    /* On dessine sur le Graphics de l'image bufferisée. */ 
+	    /* On dessine sur le Graphics de l'image bufferisï¿½e. */ 
 	    Graphics2D g = buf.createGraphics(); 
 	    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR); 
 	    g.drawImage(source, 0, 0, width, height, null); 
 	    g.dispose(); 
 	  
-	    /* On retourne l'image bufferisée, qui est une image. */ 
+	    /* On retourne l'image bufferisï¿½e, qui est une image. */ 
 	    return buf; 
 	}
 	
