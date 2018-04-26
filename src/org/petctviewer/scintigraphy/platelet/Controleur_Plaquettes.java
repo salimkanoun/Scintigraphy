@@ -116,11 +116,13 @@ public class Controleur_Plaquettes extends ControleurScin {
 			return true;
 	}
 
-	public Roi getOrganRoi() {
+	@Override
+	public Roi getOrganRoi(int lastRoi) {
 		if (roiManager.getRoi(getIndexRoi()) == null)
 			if (this.getVue().getImp().getCurrentSlice() > 1) {
 				return roiManager.getRoi(this.getIndexRoi() - 3);
 			}
 		return null;
 	}
+
 }

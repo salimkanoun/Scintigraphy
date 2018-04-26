@@ -22,7 +22,7 @@ import org.petctviewer.scintigraphy.cardiac.Controleur_Cardiac;
 
 public class FenApplication extends StackWindow {
 	private static final long serialVersionUID = -6280620624574294247L;
-	private Label lbl_instructions;
+	protected Label lbl_instructions;
 
 	///boutons mode normal
 	private Button btn_quitter;
@@ -135,7 +135,8 @@ public class FenApplication extends StackWindow {
 		this.controleur = ctrl;
 		
 		//on affiche la premiere instruction
-		this.setInstructions(0);
+		String s = "Delimit the " + this.controleur.getOrganes()[0];
+		this.lbl_instructions.setText(s);
 		
 		this.btn_contrast.addActionListener(ctrl);
 		this.btn_drawROI.addActionListener(ctrl);
@@ -166,11 +167,6 @@ public class FenApplication extends StackWindow {
 		System.gc();
 	}
 
-	public void setInstructions(int nOrgane) {
-		String s = "Delimit the " + this.controleur.getOrganes()[nOrgane];
-		this.lbl_instructions.setText(s);
-	}
-	
 	public void setInstructions(String inst) {
 		this.lbl_instructions.setText(inst);
 	}

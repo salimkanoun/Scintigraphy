@@ -65,7 +65,7 @@ public class FenResultat_HeptaticDyn extends JFrame {
 		JButton btn_capture = new JButton("Capture");
 		JLabel lbl_credits = new JLabel("Provided by petctviewer.org");
 		lbl_credits.setVisible(false);
-		ControleurScin.setCaptureButton(btn_capture, lbl_credits, vue, this);
+		vue.getFen_application().getControleur().setCaptureButton(btn_capture, lbl_credits, this);
 		JPanel btnlbl = new JPanel(new GridLayout(2, 1));
 		JPanel flow = new JPanel();
 		flow.add(btn_capture);

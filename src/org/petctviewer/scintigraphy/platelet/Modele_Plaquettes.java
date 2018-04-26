@@ -245,7 +245,7 @@ public class Modele_Plaquettes extends ModeleScin {
 	}
 
 	/**
-	 * Cree les courbes en une image de 640*512 à partir d'un dataset de valeur (un
+	 * Cree les courbes en une image de 640*512 ï¿½ partir d'un dataset de valeur (un
 	 * ou plusieurs courbes)
 	 * 
 	 * @param dataset
@@ -291,13 +291,7 @@ public class Modele_Plaquettes extends ModeleScin {
 	}
 	
 	@Override
-	public String[] getResultsAsArray() {
-		//TODO
-		return null;
-	}
-	@Override
-	public void calculerResultats() {		
-	}
+	public void calculerResultats() {}
 	
 	@Override
 	public HashMap<String, String> getResultsHashMap() {

@@ -51,9 +51,4 @@ public class Modele_Hepatic extends ModeleScin {
 		return s;
 	}
 
-	@Override
-	public String[] getResultsAsArray() {
-		return new String[] {""};
-	}
-
 }

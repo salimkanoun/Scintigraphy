@@ -51,13 +51,16 @@ public class FenApplication_Cardiac extends FenApplication {
 	}
 	
 	/**
-	 * Remplace les boutons permettant la decontamination par les boutons utilisés pour délimiter les rois
+	 * Remplace les boutons permettant la decontamination par les boutons utilisï¿½s pour dï¿½limiter les rois
 	 */
 	public void stopContaminationMode() {
 		this.instru.remove(1);
 		this.instru.add(this.createBtnsInstru());
 		this.adaptWindow();
-		this.setInstructions(0);
+		
+		String s = "Delimit the " + this.getControleur().getOrganes()[0];
+		this.lbl_instructions.setText(s);
+		
 		ControleurScin ctrl = this.getControleur();
 		ctrl.setSlice(ctrl.getSliceNumberByRoiIndex(ctrl.getIndexRoi()));
 		this.modeCont = false;

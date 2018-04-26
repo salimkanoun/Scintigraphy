@@ -39,7 +39,7 @@ public class Controleur_HepaticDyn extends ControleurScin {
 		for (int i = 1; i < vue.getImpAnt().getStackSize(); i++) {
 			vue.getImpAnt().setSlice(i);
 			for (int j = 0; j < this.getOrganes().length; j++) {
-				vue.getImpAnt().setRoi(getOrganRoi());
+				vue.getImpAnt().setRoi(getOrganRoi(indexRoi));
 				this.getModele().enregisterMesure(this.addTag(this.getNomOrgane(indexRoi)), vue.getImpAnt());
 				indexRoi++;
 			}
@@ -56,7 +56,7 @@ public class Controleur_HepaticDyn extends ControleurScin {
 	}
 
 	@Override
-	public Roi getOrganRoi() {
+	public Roi getOrganRoi(int lastRoi) {
 		return this.roiManager.getRoi(indexRoi%3);
 	}
 

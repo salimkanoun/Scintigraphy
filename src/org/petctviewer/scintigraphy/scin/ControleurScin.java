@@ -136,25 +136,32 @@ public abstract class ControleurScin implements ActionListener {
 	/**
 	 * Prepare la roi qui se situera a indexRoi
 	 */
-	public void preparerRoi() {
+	public void preparerRoi(int lastRoi) {
 		// on affiche la slice
 		int indexSlice = this.getSliceNumberByRoiIndex(this.indexRoi);
 		this.setSlice(indexSlice);
 
 		// on charge la roi de l'organe identique precedent
-
-		if (this.getOrganRoi() != null) {
-			this.laVue.getImp().setRoi((Roi) this.getOrganRoi().clone());
+		int nOrgane = this.indexRoi % this.getOrganes().length;
+		Roi organRoi = this.getOrganRoi(lastRoi);
+		if (organRoi != null) {
+			this.laVue.getImp().setRoi((Roi) organRoi.clone());
+			this.setInstructionsAdjust(nOrgane);
+		}else {
+			// on affiche les prochaines instructions
+			this.setInstructionsDelimit(nOrgane);
 		}
 
-		// on affiche les prochaines instructions
-		this.setInstructions(this.indexRoi % this.getOrganes().length);
-
 	}
 
-	public void setInstructions(int nOrgane) {
-		this.laVue.getFen_application().setInstructions(nOrgane);
+	public void setInstructionsDelimit(int nOrgane) {
+		this.laVue.getFen_application().setInstructions("Delimit the " + this.getNomOrgane(nOrgane));
 	}
+	
+	public void setInstructionsAdjust(int nOrgane) {
+		this.laVue.getFen_application().setInstructions("Adjust the " + this.getNomOrgane(nOrgane));
+	}
+
 
 	public void setSlice(int indexSlice) {
 		this.clearOverlay();
@@ -185,7 +192,7 @@ public abstract class ControleurScin implements ActionListener {
 			this.getVue().getFen_application().getBtn_precedent().setEnabled(false);
 		}
 
-		this.preparerRoi();
+		this.preparerRoi(indexRoi+1);
 	}
 
 	private void clicSuivant() {
@@ -217,7 +224,7 @@ public abstract class ControleurScin implements ActionListener {
 			} else {
 				// on prepare la roi suivante
 				indexRoi++;
-				this.preparerRoi();
+				this.preparerRoi(indexRoi-1);
 			}
 		}
 	}
@@ -266,11 +273,12 @@ public abstract class ControleurScin implements ActionListener {
 	 * Renvoie la roi qui sera utilisée dans la methode preparerRoi, appellée lors
 	 * du clic sur les boutons précédent et suivant <br>
 	 * See also {@link #preparerRoi()}
+	 * @param lastRoi 
 	 * 
 	 * @return la roi utilisée dans la methode preparerRoi, null si il n'y en a pas
 	 * 
 	 */
-	public abstract Roi getOrganRoi();
+	public abstract Roi getOrganRoi(int lastRoi);
 
 	/**
 	 * Sauvegarde la roi dans le roi manager
@@ -349,7 +357,7 @@ public abstract class ControleurScin implements ActionListener {
 		return nomOrgane;
 	}
 
-	public static void setCaptureButton(JButton btn_capture, JLabel lbl_credits, VueScin vue, JFrame jf) {
+	public void setCaptureButton(JButton btn_capture, JLabel lbl_credits, JFrame jf) {
 
 		btn_capture.addActionListener(new ActionListener() {
 
@@ -360,6 +368,13 @@ public abstract class ControleurScin implements ActionListener {
 				lbl_credits.setVisible(true);
 
 				jf.pack();
+				
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e2) {
+					e2.printStackTrace();
+				}
+			
 				Container c = jf.getContentPane();
 
 				// Capture, nouvelle methode a utiliser sur le reste des programmes
@@ -369,21 +384,22 @@ public abstract class ControleurScin implements ActionListener {
 
 				jf.dispose();
 
+				VueScin vue = ControleurScin.this.laVue;
 				imp.setProperty("Info", ModeleScin.genererDicomTagsPartie1(vue.getImp(), vue.getExamType())
 						+ ModeleScin.genererDicomTagsPartie2(vue.getImp()));
 
 				imp.show();
 				IJ.setTool("hand");
 
-				String[] arrayRes = vue.getFen_application().getControleur().getModele().getResultsAsArray();
+				String resultats = vue.getFen_application().getControleur().getModele().toString();
 
 				try {
-					ModeleScin.exportAll(arrayRes, 2, vue.getFen_application().getControleur().getRoiManager(),
+					ModeleScin.exportAll(resultats, vue.getFen_application().getControleur().getRoiManager(),
 							vue.getExamType(), imp);
 
 					vue.getFen_application().getControleur().getRoiManager().close();
 					imp.killRoi();
-				} catch (FileNotFoundException e1) {
+				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
 

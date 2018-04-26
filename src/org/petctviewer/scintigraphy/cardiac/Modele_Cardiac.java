@@ -129,23 +129,20 @@ public class Modele_Cardiac extends ModeleScin {
 	@Override
 	public String toString() {
 		String s = "";
-
-		s += "\nFixation Vessie: " + this.fixVessieL;
-		s += "\nFixation fixReinG: " + this.fixReinGL;
-		s += "\nFixation fixReinD: " + this.fixReinDL;
-		s += "\nFixation fixCoeur: " + this.fixCoeurL;
-		s += "\nFixation totale tardif: " + this.totLate;
-		s += "\nFixation finale tardif: " + this.finalLate;
-		s += "\nRatio H/WB: " + this.hwb;
-
-		if (this.deuxPrises) {
-			s += "\nFixation fixReinG precoce: " + this.fixReinGL;
-			s += "\nFixation fixReinD precoce: " + this.fixReinDL;
-			s += "\nFixation totale precoce: " + this.totEarly;
-			s += "\nFixation finale precoce: " + this.finalEarly;
-			s += "\nRetention cardiaque: " + this.retCardiaque;
-			s += "\nRetention corps entier: " + this.retCe;
-		}
+		
+		s += "Heart," + round(this.fixCoeurL,2) + "\n";
+		s += "Left Kidney," + round(this.fixReinGL,2) + "\n";
+		s += "Right Kidney," + round(this.fixReinDL, 2) + "\n";
+		if(this.deuxPrises)
+			s += "WB early (5mn)," + round(this.totEarly,2) + "\n";
+		s += "WB late (3h)," + round(this.totLate,2) + "\n";
+		s += "Bladder," + round(this.fixVessieL,2) + "\n";
+		s += "Bkg noise," + round(this.fixBkgNoise,2) + "\n";
+		if(this.deuxPrises)
+			s += "WB retention %," + round(this.fixBkgNoise * 100,2) + "\n";
+		s += "Ratio H/WB (per 1000)," + round(this.hwb * 1000, 2) + "\n";
+		if(this.deuxPrises)
+			s += "Cardiac retention %," + round(this.retCardiaque * 100, 2) + "\n";
 
 		return s;
 	}
@@ -165,20 +162,10 @@ public class Modele_Cardiac extends ModeleScin {
 		this.resultats.put("Bkg noise", "" + round(this.fixBkgNoise, 2));
 		this.resultats.put("Right Kidney", "" + round(this.fixReinDL, 2));
 		this.resultats.put("Left Kidney", "" + round(this.fixReinGL, 2));
-		this.resultats.put("Contaminations", "" + round(sumContL, 2));
 
 		this.resultats.put("Ratio H/WB (per 1000)", "" + round(this.hwb * 1000, 2));
 
 		return this.resultats;
 	}
 
-	@Override
-	public String[] getResultsAsArray() {
-		List<String> res = new ArrayList<String>();
-		for(String k : resultats.keySet()) {
-			res.add(k);
-			res.add(resultats.get(k));
-		}
-		return res.toArray(new String[0]);
-	}
 }

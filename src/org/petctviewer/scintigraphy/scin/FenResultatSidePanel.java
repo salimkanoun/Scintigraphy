@@ -81,7 +81,7 @@ public class FenResultatSidePanel extends JFrame {
 		credits.setVisible(false);
 		side.add(credits);
 
-		ControleurScin.setCaptureButton(btn_capture, credits, this.vue, this);
+		this.vue.fen_application.getControleur().setCaptureButton(btn_capture, credits, this);
 
 		JLabel img = new JLabel();
 		img.setIcon(new ImageIcon(capture));

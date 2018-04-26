@@ -80,7 +80,7 @@ public abstract class ModeleScin {
 
 	
 	/**
-	 * Renvoie le nombre de coups sur la rooi presente dans l'image plus
+	 * Renvoie le nombre de coups sur la roi presente dans l'image plus
 	 * @param imp
 	 * @return
 	 */
@@ -340,7 +340,132 @@ public abstract class ModeleScin {
 				+ "\n" + "0028,0102 High Bit: 7" + "\n" + "0028,0103 Pixel Representation: 0 \n";
 		return tag;
 	}
+	
+	//[0] : nom, [1] : id, [2] : date
+	private static String[] getInfoPatient(ImagePlus imp) {
+		String[] infoPatient = new String[3];
+		
+		// On recupere le Patient Name de l'ImagePlus
+		String patientName = new String();
+		patientName = DicomTools.getTag(imp, "0010,0010");
+		if (patientName != null && !patientName.isEmpty())
+			patientName = patientName.trim();
 
+		// On recupere le Patient ID de l'ImagePlus
+		String patientID = new String();
+		patientID = DicomTools.getTag(imp, "0010,0020");
+		if (patientID != null && !patientID.isEmpty())
+			patientID = patientID.trim();
+
+		// On recupere la date d'examen
+		String date = new String();
+		date = DicomTools.getTag(imp, "0008,0020");
+		if (date != null && !date.isEmpty())
+			date = date.trim();
+		
+		infoPatient[0] = patientName;
+		infoPatient[1] = patientID;
+		infoPatient[2] = date;
+		
+		return infoPatient;
+	}
+
+	private static StringBuilder initCSVHorizontal(String[] infoPatient) {
+		// Realisation du string builder qui sera ecrit en CSV
+		StringBuilder content = new StringBuilder();
+		// Ajout titre colonne
+		content.append("Patient's Name");
+		content.append(',');
+		content.append("Patient's ID");
+		content.append(',');
+		content.append("Study Date");
+		content.append('\n');
+		// Ajouts des valeurs
+		content.append(infoPatient[0]);
+		content.append(',');
+		content.append(infoPatient[1]);
+		content.append(',');
+		content.append(infoPatient[2]);
+		
+		return content;
+	}
+	
+	private static StringBuilder initCSVVertical(String[] infoPatient) {
+		// Realisation du string builder qui sera ecrit en CSV
+		StringBuilder content = new StringBuilder();
+		// Ajout titre colonne
+		content.append("Patient's Name");
+		content.append(',');
+		content.append(infoPatient[0]);
+		content.append('\n');
+		
+		content.append("Patient's ID");
+		content.append(',');
+		content.append(infoPatient[1]);
+		content.append('\n');
+		
+		content.append("Study Date");
+		content.append(',');
+		content.append(infoPatient[2]);
+		content.append('\n');
+		
+		return content;
+	}
+	
+	private static void saveFiles(ImagePlus imp, RoiManager roiManager, StringBuilder csv, String nomProgramme, String[] infoPatient) {
+
+		StringBuilder content = csv;
+		
+		// On recupere le path de sauvegarde
+		String path = Prefs.get("dir.preferred", null);
+		Boolean testEcriture = false;
+
+		// On verifie que le path est writable si il existe
+		if (path != null) {
+			File testPath = new File(path);
+			testEcriture = testPath.canWrite();
+		}
+
+		if (path != null && testEcriture == false) {
+			// Si pas de repertoire defini on notifie l'utilisateur
+			IJ.showMessage("CSV Path not writable, CSV/ZIP export has failed");
+		}
+		if (path != null && testEcriture == true) {
+			// On construit le sous repertoire avecle nom du programme et l'ID du
+			// Patient
+			String pathFinal = path + File.separator + nomProgramme + File.separator + infoPatient[1];
+			File subDirectory = new File(pathFinal);
+			subDirectory.mkdirs();
+
+			String nomFichier = infoPatient[1] + "_" + infoPatient[2];
+			
+			File f = new File(subDirectory + File.separator + nomFichier + ".csv");
+
+			// On ecrit les CSV
+			PrintWriter pw = null;
+			try {
+				pw = new PrintWriter(f);
+				pw.write(content.toString());
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				pw.close();
+			}
+
+			// On ecrit le ZIP contenant la sauvegarde des ROIs
+			Roi[] rois2 = roiManager.getRoisAsArray();
+			int[] tab = new int[rois2.length];
+			for (int i = 0; i < rois2.length; i++)
+				tab[i] = i;
+			roiManager.setSelectedIndexes(tab);
+			roiManager.runCommand("Save", pathFinal.toString() + File.separator + nomFichier + ".zip");
+
+			// On sauve l'image en jpeg
+			IJ.saveAs(imp, "Jpeg", pathFinal.toString() + File.separator + nomFichier + ".jpg");
+
+		}
+	}
+	
 	// Permet la sauvegarde finale a partir du string builder contenant le
 	// tableau de resultat, ROI manager, nom programme et imageplus finale pour
 	// recuperer ID et date examen
@@ -368,42 +493,11 @@ public abstract class ModeleScin {
 	public static void exportAll(String[] resultats, int nombreColonne, RoiManager roiManager, String nomProgramme,
 			ImagePlus imp) throws FileNotFoundException {
 
-		// On recupere le Patient Name de l'ImagePlus
-		String patientName = new String();
-		patientName = DicomTools.getTag(imp, "0010,0010");
-		if (patientName != null && !patientName.isEmpty())
-			patientName = patientName.trim();
-
-		// On recupere le Patient ID de l'ImagePlus
-		String patientID = new String();
-		patientID = DicomTools.getTag(imp, "0010,0020");
-		if (patientID != null && !patientID.isEmpty())
-			patientID = patientID.trim();
-
-		// On recupere la date d'examen
-		String date = new String();
-		date = DicomTools.getTag(imp, "0008,0020");
-		if (date != null && !date.isEmpty())
-			date = date.trim();
-
-		// Realisation du string builder qui sera ecrit en CSV
-		StringBuilder content = new StringBuilder();
-		// Ajout titre colonne
-		content.append("Patient's Name");
-		content.append(',');
-		content.append("Patient's ID");
-		content.append(',');
-		content.append("Study Date");
-		content.append('\n');
-		// Ajouts des valeurs
-		content.append(patientName);
-		content.append(',');
-		content.append(patientID);
-		content.append(',');
-		content.append(date);
+		String[] infoPatient = ModeleScin.getInfoPatient(imp);
+		StringBuilder content = ModeleScin.initCSVHorizontal(infoPatient);
+		
 		for (int i = 0; i < resultats.length; i++) {
-			// Si multiple de n (nombre de valeur par ligne) on fait retour à la
-			// ligne sinon on met une virgule
+			// Si multiple de n (nombre de valeur par ligne) on fait retour à la ligne sinon on met une virgule
 			if (i % nombreColonne == 0) {
 				content.append('\n');
 			} else {
@@ -412,53 +506,36 @@ public abstract class ModeleScin {
 			content.append(resultats[i]);
 		}
 		content.append('\n');
+		
+		saveFiles(imp, roiManager, content, nomProgramme, infoPatient);
+	}
+	
+	/**
+	 * Permet de realiser l'export du fichier CSV et des ROI contenues dans l'export
+	 * Manager vers le repertoire d'export defini dans les options
+	 * 
+	 * @param resultats
+	 *            : Resultats a exporter (utiliser le format csv)
+	 * @param roiManager
+	 *            : le ROI manager utilise dans le programme
+	 * @param nomProgramme
+	 *            : le nom du programme (sera utilise comme sous repertoire)
+	 * @param imp
+	 *            : l'ImagePlus d'une image originale ou de la capture secondaire
+	 *            auquel on a ajoute le header, permet de recuperer le nom, l'ID et
+	 *            la date d'examen
+	 * @throws FileNotFoundException
+	 *             : en cas d'erreur d'ecriture
+	 */
+	public static void exportAll(String resultats, RoiManager roiManager, String nomProgramme,
+			ImagePlus imp) throws FileNotFoundException {
 
-		// On recupere le path de sauvegarde
-		String path = Prefs.get("dir.preferred", null);
-		Boolean testEcriture = false;
-
-		// On verifie que le path est writable si il existe
-		if (path != null) {
-			File testPath = new File(path);
-			testEcriture = testPath.canWrite();
-		}
-
-		if (path != null && testEcriture == false) {
-			// Si pas de repertoire defini on notifie l'utilisateur
-			IJ.showMessage("CSV Path not writable, CSV/ZIP export has failed");
-		}
-		if (path != null && testEcriture == true) {
-			// On construit le sous repertoire avecle nom du programme et l'ID du
-			// Patient
-			String pathFinal = path + File.separator + nomProgramme + File.separator + patientID;
-			File subDirectory = new File(pathFinal);
-			subDirectory.mkdirs();
-
-			File f = new File(subDirectory + File.separator + patientID + "_" + date + ".csv");
-
-			// On ecrit les CSV
-			PrintWriter pw = null;
-			try {
-				pw = new PrintWriter(f);
-				pw.write(content.toString());
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				pw.close();
-			}
-
-			// On ecrit le ZIP contenant la sauvegarde des ROIs
-			Roi[] rois2 = roiManager.getRoisAsArray();
-			int[] tab = new int[rois2.length];
-			for (int i = 0; i < rois2.length; i++)
-				tab[i] = i;
-			roiManager.setSelectedIndexes(tab);
-			roiManager.runCommand("Save", pathFinal.toString() + File.separator + patientID + "_" + date + ".zip");
-
-			// On sauve l'image en jpeg
-			IJ.saveAs(imp, "Jpeg", pathFinal.toString() + File.separator + patientID + "_" + date + ".jpg");
-
-		}
+		String[] infoPatient = ModeleScin.getInfoPatient(imp);
+		StringBuilder content = initCSVVertical(infoPatient);
+		
+		content.append(resultats);
+		
+		saveFiles(imp, roiManager, content, nomProgramme, infoPatient);
 	}
 
 	/**
@@ -529,8 +606,6 @@ public abstract class ModeleScin {
 		// countsCorrected=counts/decayedFraction
 		return decayedFraction;
 	}
-
-	public abstract String[] getResultsAsArray();
 
 	public abstract void calculerResultats();
 

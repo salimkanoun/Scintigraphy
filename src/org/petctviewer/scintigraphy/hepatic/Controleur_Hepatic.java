@@ -36,7 +36,7 @@ public class Controleur_Hepatic extends ControleurScin {
 		// Copie des rois sur la deuxieme slice
 		for (int i = 0; i < 2; i++) {
 			this.indexRoi++;
-			this.preparerRoi();
+			this.preparerRoi(indexRoi-1);
 			this.saveCurrentRoi(this.getNomOrgane(indexRoi), indexRoi);
 		}
 		
@@ -75,7 +75,7 @@ public class Controleur_Hepatic extends ControleurScin {
 	}
 
 	@Override
-	public Roi getOrganRoi() {
+	public Roi getOrganRoi(int lastRoi) {
 		if (this.isPost()) {
 			return this.roiManager.getRoi(this.getIndexRoi() - 2);
 		}

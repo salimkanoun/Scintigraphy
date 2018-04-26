@@ -63,11 +63,6 @@ public class Modele_HepaticDyn extends ModeleScin {
 	}
 
 	@Override
-	public String[] getResultsAsArray() {
-		return new String[] { "" };
-	}
-
-	@Override
 	public void calculerResultats() {
 		// on supprime les premieres valeurs venant de la projection
 		this.vasc.remove(0);

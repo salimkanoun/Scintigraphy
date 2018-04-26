@@ -75,7 +75,7 @@ public class Controleur_Cardiac extends ControleurScin {
 	}
 
 	@Override
-	public Roi getOrganRoi() {
+	public Roi getOrganRoi(int lastRoi) {
 		// symetrique du coeur
 		if (this.getIndexRoi() == this.getOrganes().length - 2) {
 			Roi roi = (Roi) this.roiManager.getRoi(this.getIndexRoi() - 2).clone();
@@ -88,7 +88,7 @@ public class Controleur_Cardiac extends ControleurScin {
 			return roi;
 		}
 
-		if (this.isPost()) { // si la prise est post, on decale l'organe precedent
+		if (this.isPost() && lastRoi < indexRoi) { // si la prise est post et que , on decale l'organe precedent
 			Roi roi = (Roi) this.roiManager.getRoi(getIndexRoi() - 1).clone();
 			// on d�cale d'une demi largeur
 			roi.setLocation(roi.getXBase() + (this.getVue().getImp().getWidth() / 2), roi.getYBase());
@@ -116,7 +116,7 @@ public class Controleur_Cardiac extends ControleurScin {
 
 		if (saved) {
 			this.indexRoi++;
-			this.preparerRoi();
+			this.preparerRoi(indexRoi-1);
 
 			// on affiche les instructions
 			if (!this.isPost()) {
@@ -163,15 +163,6 @@ public class Controleur_Cardiac extends ControleurScin {
 			this.clicNewCont();
 		} else if (b == ((FenApplication_Cardiac) this.getVue().getFen_application()).getBtn_continue()) {
 			this.clicEndCont();
-		}
-	}
-
-	@Override
-	public void setInstructions(int nOrgane) {
-		if (this.isPost()) {
-			this.getVue().getFen_application().setInstructions("Adjust the " + this.getNomOrgane(nOrgane));
-		} else {
-			this.getVue().getFen_application().setInstructions(nOrgane);
 		}
 	}
 
