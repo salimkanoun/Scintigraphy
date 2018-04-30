@@ -16,6 +16,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
@@ -31,12 +32,14 @@ public class Modele_HepaticDyn extends ModeleScin {
 	private ChartPanel chartPanel;
 
 	private XYSeries bloodPool, liverR, liverL;
+	private XYDataset dataset;
 
 	// resultats calcules
-	private int tDemiFoieD, tDemiFoieG, maxFoieD, maxFoieG, tDemiVasc;
+	private int tDemiFoieDFit, tDemiFoieGFit, tDemiVascFit, tDemiFoieDObs, tDemiFoieGObs, tDemiVascObs;
+	private int maxFoieD, maxFoieG;
 
 	private Double finPicD, finPicG, pctVasc;
-	
+
 	private Vue_HepaticDyn vue;
 
 	public Modele_HepaticDyn(Vue_HepaticDyn vue) {
@@ -69,42 +72,62 @@ public class Modele_HepaticDyn extends ModeleScin {
 
 		// on cree le graphique
 		createGraph();
-		
+
 		this.maxFoieD = this.getMax(this.liverR).intValue();
-		this.tDemiFoieD = this.getTDemi(liverR, maxFoieD);
+		this.tDemiFoieDFit = this.getTDemiFit(liverR, (maxFoieD + 2)*1.0);
+		this.tDemiFoieDObs = this.getTDemiObs(liverR, (maxFoieD + 2)*1.0);
 		this.finPicD = this.liverR.getY(liverR.getItemCount() - 1).doubleValue() / liverR.getMaxY();
 
 		this.maxFoieG = this.getMax(this.liverL).intValue();
-		this.tDemiFoieG = this.getTDemi(liverL, maxFoieG);
+		this.tDemiFoieGFit = this.getTDemiFit(liverL, (maxFoieG + 2)*1.0);
+		this.tDemiFoieGObs = this.getTDemiObs(liverL, (maxFoieG + 2)*1.0);
 		this.finPicG = this.liverL.getY(liverL.getItemCount() - 1).doubleValue() / liverL.getMaxY();
 
 		this.pctVasc = this.getY(bloodPool, 20.0) / this.getY(bloodPool, 5.0);
+		this.tDemiVascFit = this.getTDemiFit(bloodPool, 20.0);
+		this.tDemiVascObs = this.getTDemiObs(bloodPool, 20.0);
 
 	}
 
 	private Double getY(XYSeries series, double x) {
-		List<XYDataItem> items = series.getItems();
-		for (int i = 1; i < items.size(); i++) {
-			if (items.get(i - 1).getX().doubleValue() <= x && x <= items.get(i).getX().doubleValue()) {
-				Double y = (items.get(i).getY().doubleValue() + items.get(i - 1).getY().doubleValue()) / 2;
+		for (int i = 1; i < series.getItemCount(); i++) {
+			if ((series.getX(i-1).doubleValue() <= x && x <= series.getX(i).doubleValue())
+					|| (series.getX(i-1).doubleValue() >= x && x >= series.getX(i).doubleValue())) {
+				Double y = (series.getY(i-1).doubleValue() + series.getY(i).doubleValue()) / 2;
 				return y;
 			}
 		}
 		return 0.0;
 	}
 
-	private int getTDemi(XYSeries series, int max) {
-		int demi = max / 2;
-		List<XYDataItem> items = series.getItems();
-		for (int i = 1; i < items.size(); i++) {
-			if (items.get(i - 1).getY().intValue() <= demi && items.get(i).getY().intValue() >= demi) {
-				if (items.get(i).getX().intValue() > this.maxFoieD) {
-					int x = (items.get(i).getX().intValue() + items.get(i - 1).getX().intValue()) / 2;
-					return x;
-				}
+	private int getTDemiObs(XYSeries series, Double startX) {
+		int yDemi = (int) (getY(series, startX) / 2);
+		for(int i = 1; i < series.getItemCount(); i++) {
+			if(series.getY(i-1).doubleValue() >= yDemi && series.getY(i).doubleValue() <= yDemi) {
+					int x = (series.getX(i-1).intValue() + series.getX(i).intValue()) / 2;
+					if(x >= startX)
+						return x;
 			}
 		}
 		return 0;
+	}
+
+	private int getTDemiFit(XYSeries series, Double startX) {
+		XYSeries linear = new XYSeries("linear");
+		for(int i = 0; i < series.getItemCount(); i++) {
+			XYDataItem item = series.getDataItem(i);
+			if(item.getX().doubleValue() >= startX) {
+				linear.add(item.getX().doubleValue(), Math.log(item.getY().doubleValue()));
+			}			
+		}
+		
+		final XYSeriesCollection dataset = new XYSeriesCollection();
+		dataset.addSeries(linear);
+		
+		double[] results = Regression.getOLSRegression(dataset, 0);
+		
+		int tdemi = (int) (Math.log(2.0) / results[1]) * -1;
+		return tdemi;		
 	}
 
 	private Number getMax(XYSeries series) {
@@ -123,7 +146,8 @@ public class Modele_HepaticDyn extends ModeleScin {
 	}
 
 	private void createGraph() {
-		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "counts/sec", createDataset(),
+		this.dataset = createDataset();
+		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "counts/sec", this.dataset,
 				PlotOrientation.VERTICAL, true, true, true);
 		this.chartPanel = new ChartPanel(xylineChart);
 		final XYPlot plot = xylineChart.getXYPlot();
@@ -142,10 +166,10 @@ public class Modele_HepaticDyn extends ModeleScin {
 		this.bloodPool = new XYSeries("Blood Pool");
 		this.liverR = new XYSeries("Right Liver");
 		this.liverL = new XYSeries("Left Liver");
-		
+
 		Double dureePriseOld = 0.0;
 		for (int i = 0; i < this.vasc.size(); i++) {
-			Double dureePrise = vue.frameDurations[i] / 60000.0;
+			Double dureePrise = vue.getFrameDurations()[i] / 60000.0;
 			bloodPool.add(dureePriseOld + dureePrise, vasc.get(i) / (dureePrise * 60));
 			liverR.add(dureePriseOld + dureePrise, foieD.get(i) / (dureePrise * 60));
 			liverL.add(dureePriseOld + dureePrise, foieG.get(i) / (dureePrise * 60));
@@ -164,18 +188,21 @@ public class Modele_HepaticDyn extends ModeleScin {
 		HashMap<String, String> hm = new HashMap<String, String>();
 
 		// foie droit
-		hm.put("T1/2 Righ Liver", tDemiFoieD + "mn");
+		hm.put("T1/2 Righ Liver", tDemiFoieDObs + "mn");
+		hm.put("T1/2 Righ Liver *", tDemiFoieDFit + "mn");
 		hm.put("Maximum Right Liver", maxFoieD + "mn");
-		hm.put("END/MAX Ratio Right", (int) (finPicD * 100) + "%");
+		hm.put("end/max Ratio Right", (int) (finPicD * 100) + "%");
 
 		// foie gauche
-		hm.put("T1/2 Left Liver", tDemiFoieG + "mn");
+		hm.put("T1/2 Left Liver", tDemiFoieGObs + "mn");
+		hm.put("T1/2 Left Liver *", tDemiFoieGFit + "mn");
 		hm.put("Maximum Left Liver", maxFoieG + "mn");
-		hm.put("END/MAX Ratio Left", (int) (finPicG * 100) + "%");
+		hm.put("end/max Ratio Left", (int) (finPicG * 100) + "%");
 
 		// vasculaire
 		hm.put("Blood pool ratio 20mn/5mn", (int) (pctVasc * 100) + "%");
-		hm.put("T1/2 Blood pool", tDemiVasc + "mn");
+		hm.put("T1/2 Blood pool", tDemiVascObs + "mn");
+		hm.put("T1/2 Blood pool *", tDemiVascFit + "mn");
 
 		return hm;
 	}
@@ -184,40 +211,43 @@ public class Modele_HepaticDyn extends ModeleScin {
 	public String toString() {
 		String s = "";
 		s += "Time (mn),";
-		for(int i = 0; i < this.bloodPool.getItemCount(); i++) {
+		for (int i = 0; i < this.bloodPool.getItemCount(); i++) {
 			s += round(this.bloodPool.getX(i).doubleValue(), 2) + ",";
 		}
 		s += "\n";
-		
+
 		s += "Blood Pool (counts/sec),";
-		for(int i = 0; i < this.bloodPool.getItemCount(); i++) {
+		for (int i = 0; i < this.bloodPool.getItemCount(); i++) {
 			s += round(this.bloodPool.getY(i).doubleValue(), 2) + ",";
 		}
 		s += "\n";
-		
+
 		s += "Right Liver (counts/sec),";
-		for(int i = 0; i < this.liverR.getItemCount(); i++) {
+		for (int i = 0; i < this.liverR.getItemCount(); i++) {
 			s += round(this.liverR.getY(i).doubleValue(), 2) + ",";
 		}
 		s += "\n";
-		
+
 		s += "Left Liver (counts/sec),";
-		for(int i = 0; i < this.liverL.getItemCount(); i++) {
+		for (int i = 0; i < this.liverL.getItemCount(); i++) {
 			s += round(this.liverL.getY(i).doubleValue(), 2) + ",";
 		}
 		s += "\n";
-		
-		s += "T1/2 Right Liver," + this.tDemiFoieD + "mn" + "\n";
+
+		s += "T1/2 Right Liver Obs," + this.tDemiFoieDObs + "mn" + "\n";
+		s += "T1/2 Right Liver Fit," + this.tDemiFoieDFit + "mn" + "\n";
 		s += "Maximum Right Liver," + this.maxFoieD + "mn" + "\n";
 		s += "END/MAX Ratio Right," + (int) (finPicD * 100) + "%" + "\n";
-		
-		s += "T1/2 Left Liver," + this.tDemiFoieG + "mn" + "\n";
+
+		s += "T1/2 Left Liver Obs," + this.tDemiFoieGObs + "mn" + "\n";
+		s += "T1/2 Left Liver Fit," + this.tDemiFoieGFit + "mn" + "\n";
 		s += "Maximum Left Liver," + this.maxFoieG + "mn" + "\n";
 		s += "END/MAX Ratio Left," + (int) (finPicG * 100) + "%" + "\n";
-		
+
 		s += "Blood pool ratio 20mn/5mn," + (int) (pctVasc * 100) + "%" + "\n";
-		s += "T1/2 Blood pool," + this.tDemiVasc + "mn" + "\n";
-		
+		s += "T1/2 Blood pool Obs," + this.tDemiVascObs + "mn" + "\n";
+		s += "T1/2 Blood pool Fit," + this.tDemiVascFit + "mn" + "\n";
+
 		return s;
 	}
 

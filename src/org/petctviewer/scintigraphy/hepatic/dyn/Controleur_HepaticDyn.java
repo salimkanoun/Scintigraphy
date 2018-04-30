@@ -36,7 +36,7 @@ public class Controleur_HepaticDyn extends ControleurScin {
 		BufferedImage capture = ModeleScin.captureImage(imp, 300, 300).getBufferedImage();
 		
 		//on copie les roi sur toutes les slices
-		for (int i = 1; i < vue.getImpAnt().getStackSize(); i++) {
+		for (int i = 1; i <= vue.getImpAnt().getStackSize(); i++) {
 			vue.getImpAnt().setSlice(i);
 			for (int j = 0; j < this.getOrganes().length; j++) {
 				vue.getImpAnt().setRoi(getOrganRoi(indexRoi));

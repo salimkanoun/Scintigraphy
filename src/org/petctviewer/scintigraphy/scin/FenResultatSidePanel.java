@@ -41,6 +41,12 @@ public class FenResultatSidePanel extends JFrame {
 
 		this.side = Box.createVerticalBox();
 		this.side.setBorder(new EmptyBorder(0, 10, 0, 10));
+		
+		//ajout de la capture
+		JLabel img = new JLabel();
+		img.setIcon(new ImageIcon(capture));
+
+		this.add(img, BorderLayout.WEST);
 
 		// ajout du titre de la fenetre
 		JPanel flow = new JPanel();
@@ -82,11 +88,7 @@ public class FenResultatSidePanel extends JFrame {
 		side.add(credits);
 
 		this.vue.fen_application.getControleur().setCaptureButton(btn_capture, credits, this);
-
-		JLabel img = new JLabel();
-		img.setIcon(new ImageIcon(capture));
-
-		this.add(img, BorderLayout.WEST);
+		
 		this.add(side, BorderLayout.EAST);
 
 		this.pack();

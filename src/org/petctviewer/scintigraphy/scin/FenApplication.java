@@ -10,6 +10,7 @@ import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Panel;
@@ -17,12 +18,13 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import org.petctviewer.scintigraphy.cardiac.Controleur_Cardiac;
 
 public class FenApplication extends StackWindow {
 	private static final long serialVersionUID = -6280620624574294247L;
-	protected Label lbl_instructions;
+	private JTextField field_instructions;
 
 	///boutons mode normal
 	private Button btn_quitter;
@@ -34,7 +36,7 @@ public class FenApplication extends StackWindow {
 
 	private ControleurScin controleur;
 
-	protected Panel instru;
+	private Panel instru;
 	private String nom;
 
 	/**
@@ -64,16 +66,17 @@ public class FenApplication extends StackWindow {
 		btns_glob.add(this.btn_contrast);
 		gauche.add(btns_glob);
 
-		this.instru = new Panel();
+		instru = new Panel();
 		instru.setLayout(new GridLayout(2, 1));
-		this.lbl_instructions = new Label();
-		this.lbl_instructions.setBackground(Color.LIGHT_GRAY);
-		instru.add(this.lbl_instructions);
+		this.field_instructions = new JTextField();
+		this.field_instructions.setEditable(false);
+		this.field_instructions.setBackground(Color.LIGHT_GRAY);
+		instru.add(this.getField_instructions());
 
 		Panel btns_instru = this.createBtnsInstru();
 		instru.add(btns_instru);
 		
-		gauche.add(instru);
+		gauche.add(getInstru());
 		panel.add(gauche);
 		add(panel);
 		
@@ -82,6 +85,7 @@ public class FenApplication extends StackWindow {
 	
 	protected void adaptWindow() {
 		pack();
+		this.setExtendedState(Frame.MAXIMIZED_BOTH);
 
 		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
 		Point loc = getLocation();
@@ -135,8 +139,7 @@ public class FenApplication extends StackWindow {
 		this.controleur = ctrl;
 		
 		//on affiche la premiere instruction
-		String s = "Delimit the " + this.controleur.getOrganes()[0];
-		this.lbl_instructions.setText(s);
+		ctrl.setInstructionsDelimit(0);
 		
 		this.btn_contrast.addActionListener(ctrl);
 		this.btn_drawROI.addActionListener(ctrl);
@@ -168,7 +171,7 @@ public class FenApplication extends StackWindow {
 	}
 
 	public void setInstructions(String inst) {
-		this.lbl_instructions.setText(inst);
+		this.getField_instructions().setText(inst);
 	}
 
 	public Button getBtn_quitter() {
@@ -201,5 +204,24 @@ public class FenApplication extends StackWindow {
 	
 	public ControleurScin getControleur() {
 		return controleur;
+	}
+
+	public Panel getInstru() {
+		return instru;
+	}
+
+	public void setInstru(Panel instru) {
+		this.instru = instru;
+	}
+
+	public JTextField getField_instructions() {
+		return field_instructions;
+	}
+	
+	@Override
+	public void setImage(ImagePlus imp2) {
+		super.setImage(imp2);
+		this.setExtendedState(Frame.MAXIMIZED_BOTH);
+		this.toFront();
 	}
 }

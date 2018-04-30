@@ -34,6 +34,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import ij.IJ;
+import ij.ImageListener;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.Roi;
@@ -53,14 +54,13 @@ public abstract class ControleurScin implements ActionListener {
 	protected int indexRoi;
 
 	private List<String> nomRois = new ArrayList<String>();
+	private ImageListener ctrlImg;
 
 	protected ControleurScin(VueScin vue) {
 		this.laVue = vue;
 		this.roiManager = new RoiManager();
-
+		this.addImpListener();
 		this.indexRoi = 0;
-
-		this.attachListener();
 	}
 
 	public void setModele(ModeleScin modele) {
@@ -127,7 +127,7 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 	/**
-	 * Est appelée a la fin de action performed, son corps est vide <b> Cette
+	 * Est appelee a la fin de action performed, son corps est vide <b> Cette
 	 * methode existe uniquement pour etre override </b>
 	 */
 	public void notifyClic(ActionEvent arg0) {
@@ -337,11 +337,7 @@ public abstract class ControleurScin implements ActionListener {
 	 *            nom de l'organe
 	 * @return nouveau nom
 	 */
-	public String addTag(String nomOrgane) {
-		if(this.nomRois.size() >= this.indexRoi + 1) {
-			return this.nomRois.get(this.indexRoi);
-		}
-		
+	public String addTag(String nomOrgane) {		
 		if (this.isPost()) {
 			nomOrgane += " P";
 		} else {
@@ -415,10 +411,6 @@ public abstract class ControleurScin implements ActionListener {
 		});
 	}
 
-	private void attachListener() {
-		ImagePlus.addImageListener(new ControleurImp(this));
-	}
-
 	/**
 	 * Renvoie la roi de l'image plus
 	 * 
@@ -460,5 +452,13 @@ public abstract class ControleurScin implements ActionListener {
 	public RoiManager getRoiManager() {
 		return roiManager;
 	}
-
+	
+	public void removeImpListener() {
+		ImagePlus.removeImageListener(this.ctrlImg);
+	}
+	
+	private void addImpListener() {
+		this.ctrlImg = new ControleurImp(this);
+		ImagePlus.addImageListener(this.ctrlImg);
+	}
 }

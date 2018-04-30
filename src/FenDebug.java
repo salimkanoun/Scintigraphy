@@ -7,6 +7,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.cardiac.Vue_Cardiac;
+import org.petctviewer.scintigraphy.dynamic.Vue_Dynamic;
+import org.petctviewer.scintigraphy.dynamic.Vue_GeneralDyn;
 import org.petctviewer.scintigraphy.hepatic.dyn.Vue_HepaticDyn;
 import org.petctviewer.scintigraphy.hepatic.statique.Vue_Hepatic;
 import org.petctviewer.scintigraphy.platelet.Vue_Plaquettes;
@@ -59,10 +61,21 @@ public class FenDebug extends JFrame{
 			}
 		});
 		
+		JButton btn_dyn = new JButton("Scintigraphy Dyn");
+		btn_dyn.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FenDebug.this.dispose();
+				VueScin vue = new Vue_GeneralDyn();
+				vue.run("");
+			}
+		});
+		
 		p.add(btn_cardiac);
 		p.add(btn_plaquettes);
 		p.add(btn_hepatic);
 		p.add(btn_hepaticdyn);
+		p.add(btn_dyn);
 		this.add(p);
 		
 		this.pack();

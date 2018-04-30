@@ -36,8 +36,6 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			general.show(e.getComponent(), e.getX()+OFFSET, e.getY()+OFFSET);
 		}
 		
-		
-
 		void addPopupMenu(Toolbar par) {
 			//On cree le popup menu general
 			general = new PopupMenu();

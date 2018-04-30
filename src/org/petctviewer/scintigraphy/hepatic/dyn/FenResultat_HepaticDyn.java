@@ -77,7 +77,7 @@ public class FenResultat_HepaticDyn extends JFrame {
 
 		// texte de resultat
 		Box res = Box.createVerticalBox();
-		res.setBorder(new EmptyBorder(0, 10, 0, 10));
+		res.setBorder(new EmptyBorder(0, 15, 0, 15));
 		
 		res.add(Box.createVerticalStrut(10));
 		
@@ -86,23 +86,30 @@ public class FenResultat_HepaticDyn extends JFrame {
 		res.add(new JLabel("Patient id: " + infoPatient.get("id")));
 		res.add(new JLabel("Aquisition date: " + infoPatient.get("date")));
 		
-		res.add(Box.createVerticalStrut(30));
+		res.add(Box.createVerticalStrut(15));
 		
 		res.add(getLabel("T1/2 Righ Liver", Color.BLUE));
+		res.add(getLabel("T1/2 Righ Liver *", Color.BLUE));
 		res.add(getLabel("Maximum Right Liver", Color.BLUE));
 		res.add(getLabel("end/max Ratio Right", Color.BLUE));
 		
-		res.add(Box.createVerticalStrut(20));
+		res.add(Box.createVerticalStrut(10));
 		
 		Color c = new Color(47, 122, 30);
 		res.add(getLabel("T1/2 Left Liver", c));
+		res.add(getLabel("T1/2 Left Liver *", c));
 		res.add(getLabel("Maximum Left Liver", c));
 		res.add(getLabel("end/max Ratio Left", c));
 		
-		res.add(Box.createVerticalStrut(20));
+		res.add(Box.createVerticalStrut(10));
 		
 		res.add(getLabel("Blood pool ratio 20mn/5mn", Color.RED));
 		res.add(getLabel("T1/2 Blood pool", Color.RED));
+		res.add(getLabel("T1/2 Blood pool *", Color.RED));
+		
+		res.add(Box.createVerticalStrut(10));
+		
+		res.add(new JLabel("* fitted values"));
 		
 		res.add(Box.createVerticalGlue());
 

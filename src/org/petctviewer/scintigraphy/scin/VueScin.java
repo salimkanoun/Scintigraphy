@@ -665,6 +665,10 @@ public abstract class VueScin implements PlugIn {
 	public String getExamType() {
 		return this.examType;
 	}
+	
+	public void setExamType(String examType) {
+		this.examType = examType;
+	}
 
 	public FenApplication getFen_application() {
 		return fen_application;
