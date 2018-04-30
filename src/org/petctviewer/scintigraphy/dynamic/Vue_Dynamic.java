@@ -106,6 +106,10 @@ public abstract class Vue_Dynamic extends VueScin {
 	public ImagePlus getImpPost() {
 		return impPost;
 	}
+	
+	public ImagePlus getImpProjetee() {
+		return impProjetee;
+	}
 
 	public int[] getFrameDurations() {
 		return frameDurations;

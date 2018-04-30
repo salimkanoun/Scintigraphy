@@ -43,39 +43,22 @@ public class Modele_GeneralDyn extends ModeleScin {
 		this.data.get(name).add(this.getCounts(imp));
 	}
 
-	public List<ChartPanel> getChartPanels() {
+	public List<XYSeries> getSeries() {
 		for (String k : this.data.keySet()) {
 			while (this.data.get(k).size() > vue.getFrameDurations().length) {
 				this.data.get(k).remove(0);
 			}
 		}
 
-		List<ChartPanel> listChart = new ArrayList<ChartPanel>();
+		List<XYSeries> listSeries = new ArrayList<XYSeries>();
 		for (String k : this.data.keySet()) {
 			List<Double> data = this.data.get(k);
-			listChart.add(this.createGraph(data, k));
+			listSeries.add(createSerie(data, k));
 		}
-		return listChart;
+		return listSeries;
 	}
 
-	private ChartPanel createGraph(List<Double> l, String nom) {
-		XYDataset dataset = createDataset(l, nom);
-		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "counts/sec", dataset,
-				PlotOrientation.VERTICAL, true, true, true);
-
-		ChartPanel chartPanel = new ChartPanel(xylineChart);
-
-		final XYPlot plot = xylineChart.getXYPlot();
-
-		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-		renderer.setSeriesPaint(0, Color.RED);
-		renderer.setSeriesShapesVisible(0, false);
-		plot.setRenderer(renderer);
-
-		return chartPanel;
-	}
-
-	private XYDataset createDataset(List<Double> l, String nom) {
+	private XYSeries createSerie(List<Double> l, String nom) {
 		XYSeries points = new XYSeries(nom);
 
 		Double dureePriseOld = 0.0;
@@ -85,9 +68,7 @@ public class Modele_GeneralDyn extends ModeleScin {
 			dureePriseOld += dureePrise;
 		}
 
-		final XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries(points);
-		return dataset;
+		return points;
 	}
 
 	@Override

@@ -2,20 +2,13 @@ package org.petctviewer.scintigraphy.dynamic;
 
 import java.awt.Button;
 import java.awt.Frame;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
-import javax.swing.JFrame;
-
-import org.petctviewer.scintigraphy.hepatic.dyn.FenResultat_HepaticDyn;
-import org.petctviewer.scintigraphy.hepatic.dyn.Vue_HepaticDyn;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.VueScin;
-
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.ZProjector;
@@ -25,8 +18,6 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	public static int MAXROI = 5;
 	private int nbOrganes = 0;
 	private boolean over;
-	
-	private boolean okCaptureA = true, okCaptureP = true;
 
 	protected Controleur_GeneralDyn(Vue_GeneralDyn vue) {
 		super(vue);
@@ -74,16 +65,26 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		ImagePlus imp = vue.getImp();
 		BufferedImage capture;
 		
+		boolean postExists = false;
+		
+		String[] roiNames = new String[this.nbOrganes];
+		for(int i = 0; i < this.roiManager.getCount(); i++) {
+			roiNames[i] = this.roiManager.getRoi(i).getName();
+		}
+		
+		FenGroup_GeneralDyn fenGroup = new FenGroup_GeneralDyn(roiNames);
+		fenGroup.setModal(true);
+		fenGroup.setVisible(true);
+		String[][] asso = fenGroup.getAssociation();
+		
 		if(vue.getImpAnt() != null) {
-			okCaptureA = false;
 			capture = ModeleScin.captureImage(imp, 300, 300).getBufferedImage();
 			Modele_GeneralDyn modele = saveValues(vue.getImpAnt());
-			new FenResultat_GeneralDyn(vue, capture, modele);
-			okCaptureA = true;
+			new FenResultat_GeneralDyn(vue, capture, modele, asso, "Ant");
 		}
 		
 		if(vue.getImpPost() != null) {
-			okCaptureP = false;
+			postExists = true;
 			ImagePlus imp2 = ZProjector.run(vue.getImpPost(), "sum");
 			imp2.setOverlay(imp.getOverlay());
 			
@@ -103,16 +104,28 @@ public class Controleur_GeneralDyn extends ControleurScin {
 					BufferedImage c = ModeleScin.captureImage(imp, 300, 300).getBufferedImage();
 					
 					Modele_GeneralDyn modele = saveValues(vue.getImpPost());
-					new FenResultat_GeneralDyn(vue, c, modele);
-					Controleur_GeneralDyn.this.getVue().getFen_application().dispose();
+					new FenResultat_GeneralDyn(vue, c, modele, asso, "Post");
+					
+					Controleur_GeneralDyn.this.finishDrawingResultWindow();
 				}
 			});
 			th.start();			
 		}
 		
-		if(okCaptureA && okCaptureP) {
-			this.getVue().getFen_application().dispose();			
+		if(!postExists) {
+			this.finishDrawingResultWindow();
 		}
+		
+	}
+	
+	private void finishDrawingResultWindow() {
+		Vue_Dynamic vue = (Vue_Dynamic) this.getVue();
+		this.indexRoi = this.nbOrganes;
+		this.over = false;
+		this.addImpListener();
+		vue.getFen_application().setImage(vue.getImpProjetee());
+		vue.setImp(vue.getImpProjetee());
+		vue.getFen_application().setExtendedState(Frame.MAXIMIZED_BOTH);
 	}
 	
 	private Modele_GeneralDyn saveValues(ImagePlus imp) {
@@ -148,7 +161,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		if(this.over) {
 			return true;
 		}
-		return this.roiManager.getCount() >= MAXROI;
+		return false;
 	}
 
 	@Override

@@ -457,8 +457,12 @@ public abstract class ControleurScin implements ActionListener {
 		ImagePlus.removeImageListener(this.ctrlImg);
 	}
 	
-	private void addImpListener() {
+	public void addImpListener() {
 		this.ctrlImg = new ControleurImp(this);
 		ImagePlus.addImageListener(this.ctrlImg);
+	}
+	
+	public List<String> getNomRois(){
+		return this.nomRois;
 	}
 }

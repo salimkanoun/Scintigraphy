@@ -1,0 +1,161 @@
+package org.petctviewer.scintigraphy.dynamic;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+
+public class FenGroup_GeneralDyn extends JDialog {
+
+	private List<ChartGroup> cgs;
+	private JList<String> listDroite;
+	private String[] roiNames;
+
+	public FenGroup_GeneralDyn(String[] roiNames) {
+		cgs = new ArrayList<ChartGroup>();
+		this.roiNames = roiNames;
+
+		this.setTitle("Select how you want to display the results");
+		this.setLayout(new BorderLayout());
+
+		listDroite = new JList<String>(roiNames);
+		JPanel listContainer = new JPanel(new GridLayout(1, 1));
+		listContainer.setBorder(BorderFactory.createTitledBorder("Rois"));
+		listContainer.setPreferredSize(new Dimension(200, 100));
+		listContainer.add(listDroite);
+
+		this.add(listContainer, BorderLayout.WEST);
+
+		JPanel gridGauche = new JPanel(new GridLayout(5, 1));
+
+		for (int i = 0; i < 5; i++) {
+			ChartGroup cg = new ChartGroup(i);
+			cgs.add(cg);
+
+			JPanel list_btn = new JPanel();
+
+			JPanel listContainerDroite = new JPanel(new GridLayout(1, 1));
+			listContainerDroite.setBorder(BorderFactory.createTitledBorder("Chart " + (i + 1)));
+			listContainerDroite.setPreferredSize(new Dimension(200, 100));
+			listContainerDroite.add(cg.list);
+
+			list_btn.add(listContainerDroite);
+
+			JPanel btns = new JPanel(new GridLayout(2, 1, 0, 10));
+			btns.add(cg.btn_plus);
+			btns.add(cg.btn_moins);
+
+			list_btn.add(btns);
+
+			gridGauche.add(list_btn);
+		}
+
+		this.add(gridGauche, BorderLayout.EAST);
+
+		JButton valider = new JButton("Validate");
+		valider.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FenGroup_GeneralDyn.this.dispose();
+			}
+		});
+		JPanel wrapValider = new JPanel();
+		wrapValider.add(valider);
+		this.add(wrapValider, BorderLayout.SOUTH);
+
+		this.setLocationRelativeTo(null);
+		this.setResizable(false);
+		this.pack();
+	}
+
+	private class ChartGroup {
+		private JButton btn_plus, btn_moins;
+		private JList<String> list;
+		private DefaultListModel<String> model;
+
+		public ChartGroup(int id) {
+			this.btn_plus = new JButton("+");
+			this.btn_moins = new JButton("-");
+			model = new DefaultListModel<String>();
+			this.list = new JList<String>(model);
+
+			CtrlChartGroup ctrl = new CtrlChartGroup(id);
+			this.btn_moins.addActionListener(ctrl);
+			this.btn_plus.addActionListener(ctrl);
+		}
+	}
+
+	private class CtrlChartGroup implements ActionListener {
+
+		private int id;
+
+		public CtrlChartGroup(int id) {
+			this.id = id;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			JButton b = (JButton) arg0.getSource();
+			ChartGroup cg = FenGroup_GeneralDyn.this.cgs.get(id);
+
+			switch (b.getText()) {
+			case "+":
+				String s = FenGroup_GeneralDyn.this.listDroite.getSelectedValue();
+				cg.model.addElement(s);
+				break;
+			case "-":
+				cg.model.removeElementAt(cg.list.getSelectedIndex());
+				break;
+			}
+		}
+	}
+
+	public String[][] getAssociation() {
+		String[][] association;
+
+		boolean vide = true;
+		for (ChartGroup cg : this.cgs) {
+			if (cg.model.size() > 0) {
+				vide = false;
+				break;
+			}
+		}
+
+		if (vide) {
+			association = new String[5][1];
+			for (int i = 0; i < 5; i++) {
+				if (i < this.roiNames.length) {
+					association[i] = new String[] { this.roiNames[i] };
+				}else {
+					association[i] = new String[] {};
+				}
+			}
+		} else {
+			association = new String[5][];
+			for (int i = 0; i < cgs.size(); i++) {
+				ChartGroup cg = this.cgs.get(i);
+				String[] chartRois = new String[cg.model.size()];
+				for (int j = 0; j < cg.model.size(); j++) {
+					chartRois[j] = cg.model.getElementAt(j);
+				}
+				association[i] = chartRois;
+			}
+		}
+
+		return association;
+	}
+
+}
