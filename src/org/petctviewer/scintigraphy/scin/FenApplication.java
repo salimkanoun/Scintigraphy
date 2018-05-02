@@ -98,7 +98,6 @@ public class FenApplication extends StackWindow {
 		//getCanvas().setScaleToFit(true);
 		// On Pack la fenetre pour la mettre a la preferred Size
 		this.pack();
-		this.setSize(this.getPreferredSize());
 		// On met au premier plan au centre de l'ecran
 		this.setLocationRelativeTo(null);
 		this.toFront();
@@ -165,6 +164,7 @@ public class FenApplication extends StackWindow {
 		return titre;
 	}
 
+	@Override
 	public void windowClosing(WindowEvent we) {
 		close();
 		System.gc();

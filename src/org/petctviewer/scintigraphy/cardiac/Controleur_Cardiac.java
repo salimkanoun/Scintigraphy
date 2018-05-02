@@ -19,6 +19,7 @@ import ij.plugin.RoiScaler;
 public class Controleur_Cardiac extends ControleurScin {
 
 	private boolean finContSlice1;
+	private boolean finContSlice2;
 	private static String[] organes = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
 
 	protected Controleur_Cardiac(VueScin vue) {
@@ -56,6 +57,14 @@ public class Controleur_Cardiac extends ControleurScin {
 		BufferedImage capture = ModeleScin.captureImage(vue.getImp(), 410, 820).getBufferedImage();
 		new FenResultat_Cardiac(vue, capture);
 
+	}
+	
+	@Override
+	public String getSameNameRoiCount(String nomRoi) {
+		if(!this.finContSlice1 || !this.finContSlice2) {
+			return super.getSameNameRoiCount(nomRoi);
+		}
+		return "";
 	}
 
 	@Override
@@ -135,13 +144,14 @@ public class Controleur_Cardiac extends ControleurScin {
 	}
 
 	private void clicEndCont() {
-		if (!this.isPost()) {
-			this.finContSlice1 = true;
+		if (!this.isPost()) {			
 			// on set la slice
 			if ((this.getVue().getImp().getCurrentSlice() == 1 && this.isDeuxPrises())) {
+				this.finContSlice1 = true;
 				this.setSlice(2);
 				this.traiterContamination();
 			} else { // on a trait� toutes les contaminations
+				this.finContSlice2 = true;
 				((FenApplication_Cardiac) this.getVue().getFen_application()).stopContaminationMode();
 				String[] conts = new String[this.indexRoi];
 				for (int i = 0; i < conts.length; i++) {

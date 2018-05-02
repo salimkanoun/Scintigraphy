@@ -32,9 +32,13 @@ public class FenSelectionDicom extends JDialog {
 	String[] selectedWindowsTitles;
 	JButton btn_select, btn_selectAll;
 
-	public FenSelectionDicom(String title) {
+	/**
+	 * Permet de selectionner les dicom utilisees par le plugin
+	 * @param examType : type d'examen
+	 */
+	public FenSelectionDicom(String examType) {
 		this.titresDicoms = WindowManager.getImageTitles();
-		this.setTitle("Select the dicoms for the " + title + " exam");
+		this.setTitle("Select the dicoms for the " + examType + " exam");
 
 		String[] columnNames = { "Patient", "Study", "Date", "Series", "Dimensions", "Stack Size" };
 		String[][] tableData = getTableData();

@@ -52,8 +52,8 @@ public abstract class ModeleScin {
 	}
 	
 	/**
-	 * keys : id nom date
-	 * 
+	 * renvoie une hasmap contenant les informations du patient selon le tag info de l'imp
+	 * keys : id name date
 	 * @param imp
 	 * @return
 	 */
@@ -101,8 +101,7 @@ public abstract class ModeleScin {
 	public abstract void enregisterMesure(String nomRoi, ImagePlus imp);
 
 	/**
-	 * Permet de creer un stack a partir d'un tableau d'ImagePlus
-	 * 
+	 * Permet de creer un stack a partir d'un tableau d'ImagePlus	 * 
 	 * @param tableauImagePlus
 	 *            : Tableau contenant les ImagePlus a mettre dans le stack (toutes
 	 *            les images doivent avoir la m�me taille)
@@ -628,6 +627,12 @@ public abstract class ModeleScin {
 		}
 	}
 
+	/**
+	 * calcule la decay fraction (countsCorrected=counts/decayedFraction)
+	 * @param delaySeconds
+	 * @param halLifeSeconds
+	 * @return
+	 */
 	public double getDecayFraction(int delaySeconds, int halLifeSeconds) {
 		double tcLambdaSeconds = (Math.log(2) / (halLifeSeconds));
 		double decayedFraction = Math.pow(Math.E, (tcLambdaSeconds * delaySeconds * (-1)));

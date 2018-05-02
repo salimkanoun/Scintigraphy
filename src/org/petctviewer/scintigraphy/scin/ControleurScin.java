@@ -154,14 +154,33 @@ public abstract class ControleurScin implements ActionListener {
 
 	}
 
+	/**
+	 * Affiche les instructions de delimitation d'un organe ("Delimit the ...")
+	 * 
+	 * @param nOrgane
+	 *            : numero de l'organe a delimiter
+	 */
 	public void setInstructionsDelimit(int nOrgane) {
 		this.laVue.getFen_application().setInstructions("Delimit the " + this.getNomOrgane(nOrgane));
 	}
 
+	/**
+	 * Affiche les instructions d'ajustement d'un organe ("Adjust the ...")
+	 * 
+	 * @param nOrgane
+	 *            : numero de l'organe a ajuster
+	 */
 	public void setInstructionsAdjust(int nOrgane) {
 		this.laVue.getFen_application().setInstructions("Adjust the " + this.getNomOrgane(nOrgane));
 	}
 
+	/**
+	 * Affiche une slice et son Overlay, si la roi indexRoi se trouve sur cette
+	 * slice, elle n'est pas affichee dans l'overlay mais chargee dans l'imp
+	 * 
+	 * @param indexSlice
+	 *            : numero de la slice a afficher
+	 */
 	public void setSlice(int indexSlice) {
 		this.clearOverlay();
 		this.getVue().getFen_application().getImagePlus().killRoi();
@@ -180,6 +199,9 @@ public abstract class ControleurScin implements ActionListener {
 		}
 	}
 
+	/**
+	 * est appelle lors du clic sur le bouton "Previous"
+	 */
 	public void clicPrecedent() {
 		// sauvegarde du ROI courant
 		this.saveCurrentRoi(this.getNomOrgane(indexRoi), indexRoi);
@@ -194,6 +216,9 @@ public abstract class ControleurScin implements ActionListener {
 		this.preparerRoi(indexRoi + 1);
 	}
 
+	/**
+	 * est appelle lors du clic sur le bouton "Next"
+	 */
 	public void clicSuivant() {
 		// sauvegarde du ROI actuel
 		boolean saved = this.saveCurrentRoi(this.getNomOrgane(indexRoi), indexRoi);
@@ -229,9 +254,10 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 	/**
-	 * Renvoie le nombre de roi avec le meme nom dans le Roi Manager
+	 * Renvoie le nombre de roi avec le meme nom ayant deja ete enregistrees
 	 * 
 	 * @param nomRoi
+	 *            : nom de la roi
 	 * 
 	 * @return nombre de roi avec le meme nom
 	 */
@@ -254,7 +280,7 @@ public abstract class ControleurScin implements ActionListener {
 	public abstract boolean isOver();
 
 	/**
-	 * est execute quand la prise est finie <br>
+	 * est execute quand la prise est finie, doit ouvrir la fenetre de resultat <br>
 	 * See also {@link #isOver()}
 	 */
 	public abstract void fin();
@@ -263,7 +289,7 @@ public abstract class ControleurScin implements ActionListener {
 	 * Renvoie le numero de slice ou doit se trouver la roi d'index roiIndex
 	 * 
 	 * @param roiIndex
-	 *            Index de la roi dont il faut determiner le numero de slice
+	 *            : Index de la roi dont il faut determiner le numero de slice
 	 * @return le numero de slice ou se trouve la roi
 	 */
 	public abstract int getSliceNumberByRoiIndex(int roiIndex);
@@ -281,10 +307,10 @@ public abstract class ControleurScin implements ActionListener {
 	public abstract Roi getOrganRoi(int lastRoi);
 
 	/**
-	 * Sauvegarde la roi dans le roi manager
+	 * Sauvegarde la roi dans le roi manager et dans le modele
 	 * 
 	 * @param nomRoi
-	 *            nom de la roi a sauvegarder
+	 *           : nom de la roi a sauvegarder
 	 * @return true si la sauvegarde est reussie, false si elle ne l'est pas
 	 */
 	public boolean saveCurrentRoi(String nomRoi, int indexRoi) {
@@ -353,14 +379,23 @@ public abstract class ControleurScin implements ActionListener {
 		return nomOrgane;
 	}
 
-	public void setCaptureButton(JButton btn_capture, JLabel lbl_credits, JFrame jf, ModeleScin modele, String additionalInfo) {
+	/**
+	 * Prepare le bouton capture de la fenetre resultat
+	 * @param btn_capture
+	 * @param lbl_credits
+	 * @param jf
+	 * @param modele
+	 * @param additionalInfo
+	 */
+	public void setCaptureButton(JButton btn_capture, JLabel lbl_credits, JFrame jf, ModeleScin modele,
+			String additionalInfo) {
 
 		VueScin vue = ControleurScin.this.laVue;
 		String examType = ControleurScin.this.laVue.getExamType();
 
 		String info = ModeleScin.genererDicomTagsPartie1(vue.getImp(), vue.getExamType())
 				+ ModeleScin.genererDicomTagsPartie2(vue.getImp());
-		
+
 		btn_capture.addActionListener(new ActionListener() {
 
 			@Override
@@ -410,6 +445,7 @@ public abstract class ControleurScin implements ActionListener {
 					e1.printStackTrace();
 				}
 
+				vue.fen_application.windowClosing(null);
 				System.gc();
 			}
 		});

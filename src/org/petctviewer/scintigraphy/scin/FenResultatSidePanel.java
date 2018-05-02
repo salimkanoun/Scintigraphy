@@ -35,6 +35,13 @@ public class FenResultatSidePanel extends JFrame {
 	
 	private ModeleScin modele;
 
+	/**
+	 * Fenetre d'affichage de resultat presentant les informations du patient et le bouton capture dans un side panel sur la droite
+	 * @param nomFen : Nom de la fenetre
+	 * @param vueScin : Vue correspondante
+	 * @param capture : capture de l'imp a afficher
+	 * @param additionalInfo : informations supplementaires a ajouter au nom de fichier lors de la sauvegarde
+	 */
 	public FenResultatSidePanel(String nomFen, VueScin vueScin, BufferedImage capture, String additionalInfo) {
 
 		this.vue = vueScin;
@@ -74,6 +81,9 @@ public class FenResultatSidePanel extends JFrame {
 		side.add(flow1);
 	}
 	
+	/**
+	 * Fini de construire la fenetre en incluant tous les components de la methode {@link #getSidePanelContent()}
+	 */
 	public void finishBuildingWindow() {
 		side.add(Box.createVerticalGlue());
 		
@@ -102,6 +112,10 @@ public class FenResultatSidePanel extends JFrame {
 		this.setLocationRelativeTo(null);
 	}
 
+	/**
+	 * A Overrider, renvoie les components a afficher dans le side panel
+	 * @return
+	 */
 	public Component[] getSidePanelContent() {
 		return new Component[] {new JLabel()};
 	}

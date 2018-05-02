@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import javax.swing.Box;
@@ -43,22 +44,9 @@ public class FenResultat_HepaticDyn extends JFrame {
 		JLabel cpt = new JLabel();
 		cpt.setIcon(new ImageIcon(capture));
 		grilleTop.add(cpt);
-
+		
 		// montage pour une vision globale
-		JPanel northEast = new JPanel(new GridLayout(4, 4));
-		int nSlice = vue.getImpAnt().getStackSize();
-		for (int i = 0; i < 16; i++) {
-			int start = (nSlice / 16) * i;
-			int stop = start + (nSlice / 16);
-			ImagePlus tinyImp = ZProjector.run(vue.getImpAnt(), "sum", start, stop);
-			ImageProcessor impc = tinyImp.getProcessor().resize(capture.getWidth() / 4);
-			ImagePlus projectionImp = new ImagePlus("", impc);
-
-			BufferedImage projection = projectionImp.getBufferedImage();
-			JLabel proj = new JLabel();
-			proj.setIcon(new ImageIcon(projection));
-			northEast.add(proj);
-		}
+		JPanel northEast = creerMontage(vue.getFrameDurations(), vue.getImpAnt(), capture.getWidth() / 4);
 		grilleTop.add(northEast);
 		grille.add(grilleTop);
 
@@ -135,6 +123,44 @@ public class FenResultat_HepaticDyn extends JFrame {
 		this.setLocationRelativeTo(null);
 	}
 	
+	private JPanel creerMontage(int[] frameDuration, ImagePlus imp, int size) {
+		JPanel northEast = new JPanel(new GridLayout(4, 4));
+		int nSlice = frameDuration.length;
+		
+		int[] summed = new int[frameDuration.length];
+		summed[0] = frameDuration[0];
+		for(int i = 1; i < nSlice; i++) {
+			summed[i] = summed[i - 1] + frameDuration[i];
+		}
+		
+		int[] sliceIndex = new int[17];
+		int pas = summed[nSlice - 1] / 16;
+		for(int i = 0; i < 17; i++) {
+			for(int j = 0; j < summed.length; j++) {
+				if(i*pas <= summed[j] || j == summed.length - 1) {
+					sliceIndex[i] = j;
+					break;
+				}
+			}
+		}
+		
+		System.out.println(Arrays.toString(sliceIndex));
+		
+		for (int i = 1; i < sliceIndex.length; i++) {
+			int start = sliceIndex[i - 1];
+			int stop = sliceIndex[i];
+			ImagePlus tinyImp = ZProjector.run(imp, "sum", start, stop);
+			ImageProcessor impc = tinyImp.getProcessor().resize(size);
+			ImagePlus projectionImp = new ImagePlus("", impc);
+
+			BufferedImage projection = projectionImp.getBufferedImage();
+			JLabel proj = new JLabel();
+			proj.setIcon(new ImageIcon(projection));
+			northEast.add(proj);
+		}
+		return northEast;
+	}
+
 	private JLabel getLabel(String key, Color c) {
 		JLabel lbl_hwb = new JLabel(key + " : " + this.resultats.remove(key));
 		lbl_hwb.setForeground(c);

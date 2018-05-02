@@ -44,16 +44,17 @@ public class Modele_Cardiac extends ModeleScin {
 	public void enregisterMesure(String nomRoi, ImagePlus imp) {
 		Double counts = this.getCounts(imp);
 		data.put(nomRoi, counts);
+		System.out.println(nomRoi + " : " + counts);
 	}
 
 	public void calculerResultats() {
 		// on fait les moyennes geometriques de chaque ROI Late
 
-		this.fixBkgNoise = moyGeom(data.get("Bkg noise A0"), data.get("Bkg noise P0"));
-		this.fixCoeurL = moyGeom(data.get("Heart A0"), data.get("Heart P0"));
-		this.fixReinGL = moyGeom(data.get("Kidney L A0"), data.get("Kidney L P0"));
-		this.fixReinDL = moyGeom(data.get("Kidney R A0"), data.get("Kidney R P0"));
-		this.fixVessieL = moyGeom(data.get("Bladder A0"), data.get("Bladder P0"));
+		this.fixBkgNoise = moyGeom(data.get("Bkg noise A"), data.get("Bkg noise P"));
+		this.fixCoeurL = moyGeom(data.get("Heart A"), data.get("Heart P"));
+		this.fixReinGL = moyGeom(data.get("Kidney L A"), data.get("Kidney L P"));
+		this.fixReinDL = moyGeom(data.get("Kidney R A"), data.get("Kidney R P"));
+		this.fixVessieL = moyGeom(data.get("Bladder A"), data.get("Bladder P"));
 
 		// on somme les moyennes geometriques des contaminations
 		List<Double> contAntPost = new ArrayList<Double>();
