@@ -6,6 +6,8 @@ import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Panel;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -25,8 +27,7 @@ public class FenApplication_GeneralDyn extends FenApplication{
 
 	public FenApplication_GeneralDyn(ImagePlus imp, String nom) {
 		super(imp, nom);
-		this.getField_instructions().setEditable(true);
-		
+		this.getField_instructions().setEditable(true);		
 		this.btn_finish = new Button("Finish");
 		
 		this.getInstru().removeAll();

@@ -147,7 +147,7 @@ public abstract class ControleurScin implements ActionListener {
 		if (organRoi != null) {
 			this.laVue.getImp().setRoi((Roi) organRoi.clone());
 			this.setInstructionsAdjust(nOrgane);
-		}else {
+		} else {
 			// on affiche les prochaines instructions
 			this.setInstructionsDelimit(nOrgane);
 		}
@@ -157,11 +157,10 @@ public abstract class ControleurScin implements ActionListener {
 	public void setInstructionsDelimit(int nOrgane) {
 		this.laVue.getFen_application().setInstructions("Delimit the " + this.getNomOrgane(nOrgane));
 	}
-	
+
 	public void setInstructionsAdjust(int nOrgane) {
 		this.laVue.getFen_application().setInstructions("Adjust the " + this.getNomOrgane(nOrgane));
 	}
-
 
 	public void setSlice(int indexSlice) {
 		this.clearOverlay();
@@ -181,7 +180,7 @@ public abstract class ControleurScin implements ActionListener {
 		}
 	}
 
-	private void clicPrecedent() {
+	public void clicPrecedent() {
 		// sauvegarde du ROI courant
 		this.saveCurrentRoi(this.getNomOrgane(indexRoi), indexRoi);
 
@@ -192,13 +191,13 @@ public abstract class ControleurScin implements ActionListener {
 			this.getVue().getFen_application().getBtn_precedent().setEnabled(false);
 		}
 
-		this.preparerRoi(indexRoi+1);
+		this.preparerRoi(indexRoi + 1);
 	}
 
-	private void clicSuivant() {
+	public void clicSuivant() {
 		// sauvegarde du ROI actuel
 		boolean saved = this.saveCurrentRoi(this.getNomOrgane(indexRoi), indexRoi);
-		
+
 		// si la sauvegarde est reussie
 		if (saved) {
 			// on active le bouton precedent
@@ -207,12 +206,12 @@ public abstract class ControleurScin implements ActionListener {
 			// on avtive la fin si c'est necessaire
 			if (this.isOver()) {
 				this.setSlice(this.getVue().getImp().getCurrentSlice());
-				
+
 				Thread captureThread = new Thread(new Runnable() {
 					@Override
 					public void run() {
 						try {
-						    Thread.sleep(200);
+							Thread.sleep(200);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
@@ -220,11 +219,11 @@ public abstract class ControleurScin implements ActionListener {
 					}
 				});
 				captureThread.start();
-				
+
 			} else {
 				// on prepare la roi suivante
 				indexRoi++;
-				this.preparerRoi(indexRoi-1);
+				this.preparerRoi(indexRoi - 1);
 			}
 		}
 	}
@@ -273,7 +272,8 @@ public abstract class ControleurScin implements ActionListener {
 	 * Renvoie la roi qui sera utilisée dans la methode preparerRoi, appellée lors
 	 * du clic sur les boutons précédent et suivant <br>
 	 * See also {@link #preparerRoi()}
-	 * @param lastRoi 
+	 * 
+	 * @param lastRoi
 	 * 
 	 * @return la roi utilisée dans la methode preparerRoi, null si il n'y en a pas
 	 * 
@@ -302,7 +302,7 @@ public abstract class ControleurScin implements ActionListener {
 				// on supprime le roi nouvellement ajoute de la vue
 				laVue.getFen_application().getImagePlus().killRoi();
 			}
-			
+
 			this.roiManager.getRoi(indexRoi).setPosition(this.getSliceNumberByRoiIndex(indexRoi));
 			this.roiManager.rename(indexRoi, nomRoi);
 
@@ -337,7 +337,7 @@ public abstract class ControleurScin implements ActionListener {
 	 *            nom de l'organe
 	 * @return nouveau nom
 	 */
-	public String addTag(String nomOrgane) {		
+	public String addTag(String nomOrgane) {
 		if (this.isPost()) {
 			nomOrgane += " P";
 		} else {
@@ -353,8 +353,14 @@ public abstract class ControleurScin implements ActionListener {
 		return nomOrgane;
 	}
 
-	public void setCaptureButton(JButton btn_capture, JLabel lbl_credits, JFrame jf) {
+	public void setCaptureButton(JButton btn_capture, JLabel lbl_credits, JFrame jf, ModeleScin modele, String additionalInfo) {
 
+		VueScin vue = ControleurScin.this.laVue;
+		String examType = ControleurScin.this.laVue.getExamType();
+
+		String info = ModeleScin.genererDicomTagsPartie1(vue.getImp(), vue.getExamType())
+				+ ModeleScin.genererDicomTagsPartie2(vue.getImp());
+		
 		btn_capture.addActionListener(new ActionListener() {
 
 			@Override
@@ -364,13 +370,13 @@ public abstract class ControleurScin implements ActionListener {
 				lbl_credits.setVisible(true);
 
 				jf.pack();
-				
+
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e2) {
 					e2.printStackTrace();
 				}
-			
+
 				Container c = jf.getContentPane();
 
 				// Capture, nouvelle methode a utiliser sur le reste des programmes
@@ -380,21 +386,19 @@ public abstract class ControleurScin implements ActionListener {
 
 				jf.dispose();
 
-				VueScin vue = ControleurScin.this.laVue;
-				imp.setProperty("Info", ModeleScin.genererDicomTagsPartie1(vue.getImp(), vue.getExamType())
-						+ ModeleScin.genererDicomTagsPartie2(vue.getImp()));
+				imp.setProperty("Info", info);
 
 				imp.show();
 				IJ.setTool("hand");
 
-				String resultats = vue.getFen_application().getControleur().getModele().toString();
+				String resultats = modele.toString();
 
 				try {
-					ModeleScin.exportAll(resultats, vue.getFen_application().getControleur().getRoiManager(),
-							vue.getExamType(), imp);
+					ModeleScin.exportAll(resultats, vue.getFen_application().getControleur().getRoiManager(), examType,
+							imp, additionalInfo);
 
 					vue.getFen_application().getControleur().getRoiManager().close();
-					
+
 					imp.killRoi();
 				} catch (Exception e1) {
 					e1.printStackTrace();
@@ -452,17 +456,17 @@ public abstract class ControleurScin implements ActionListener {
 	public RoiManager getRoiManager() {
 		return roiManager;
 	}
-	
+
 	public void removeImpListener() {
 		ImagePlus.removeImageListener(this.ctrlImg);
 	}
-	
+
 	public void addImpListener() {
 		this.ctrlImg = new ControleurImp(this);
 		ImagePlus.addImageListener(this.ctrlImg);
 	}
-	
-	public List<String> getNomRois(){
+
+	public List<String> getNomRois() {
 		return this.nomRois;
 	}
 }

@@ -65,7 +65,7 @@ public class FenGroup_GeneralDyn extends JDialog {
 
 		this.add(gridGauche, BorderLayout.EAST);
 
-		JButton valider = new JButton("Validate");
+		JButton valider = new JButton("Ok");
 		valider.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

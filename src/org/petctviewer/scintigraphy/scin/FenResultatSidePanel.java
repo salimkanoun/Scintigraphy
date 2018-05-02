@@ -27,15 +27,19 @@ public class FenResultatSidePanel extends JFrame {
 	 */
 	private static final long serialVersionUID = -5212479342782678916L;
 
-	private BufferedImage capture;
 	protected Box side;
 	private JButton btn_capture;
 	private VueScin vue;
+	
+	private String additionalInfo;
+	
+	private ModeleScin modele;
 
-	public FenResultatSidePanel(String nomFen, VueScin vueScin, BufferedImage capture) {
+	public FenResultatSidePanel(String nomFen, VueScin vueScin, BufferedImage capture, String additionalInfo) {
 
 		this.vue = vueScin;
-		this.capture = capture;
+		this.modele = vueScin.getFen_application().getControleur().getModele();
+		this.additionalInfo = additionalInfo;
 
 		this.setLayout(new BorderLayout());
 
@@ -87,7 +91,7 @@ public class FenResultatSidePanel extends JFrame {
 		credits.setVisible(false);
 		side.add(credits);
 
-		this.vue.fen_application.getControleur().setCaptureButton(btn_capture, credits, this);
+		this.vue.fen_application.getControleur().setCaptureButton(btn_capture, credits, this, this.modele, this.additionalInfo);
 		
 		this.add(side, BorderLayout.EAST);
 
@@ -100,6 +104,10 @@ public class FenResultatSidePanel extends JFrame {
 
 	public Component[] getSidePanelContent() {
 		return new Component[] {new JLabel()};
+	}
+
+	public void setModele(ModeleScin modele) {
+		this.modele = modele;
 	}
 
 }

@@ -412,7 +412,7 @@ public abstract class ModeleScin {
 		return content;
 	}
 	
-	private static void saveFiles(ImagePlus imp, RoiManager roiManager, StringBuilder csv, String nomProgramme, String[] infoPatient) {
+	private static void saveFiles(ImagePlus imp, RoiManager roiManager, StringBuilder csv, String nomProgramme, String[] infoPatient, String additionalInfo) {
 
 		StringBuilder content = csv;
 		
@@ -437,7 +437,7 @@ public abstract class ModeleScin {
 			File subDirectory = new File(pathFinal);
 			subDirectory.mkdirs();
 
-			String nomFichier = infoPatient[1] + "_" + infoPatient[2];
+			String nomFichier = infoPatient[1] + "_" + infoPatient[2] + additionalInfo;
 			
 			File f = new File(subDirectory + File.separator + nomFichier + ".csv");
 
@@ -507,7 +507,7 @@ public abstract class ModeleScin {
 		}
 		content.append('\n');
 		
-		saveFiles(imp, roiManager, content, nomProgramme, infoPatient);
+		saveFiles(imp, roiManager, content, nomProgramme, infoPatient, "");
 	}
 	
 	/**
@@ -535,7 +535,37 @@ public abstract class ModeleScin {
 		
 		content.append(resultats);
 		
-		saveFiles(imp, roiManager, content, nomProgramme, infoPatient);
+		saveFiles(imp, roiManager, content, nomProgramme, infoPatient, "");
+	}
+	
+	/**
+	 * Permet de realiser l'export du fichier CSV et des ROI contenues dans l'export
+	 * Manager vers le repertoire d'export defini dans les options
+	 * 
+	 * @param resultats
+	 *            : Resultats a exporter (utiliser le format csv)
+	 * @param roiManager
+	 *            : le ROI manager utilise dans le programme
+	 * @param nomProgramme
+	 *            : le nom du programme (sera utilise comme sous repertoire)
+	 * @param imp
+	 *            : l'ImagePlus d'une image originale ou de la capture secondaire
+	 *            auquel on a ajoute le header, permet de recuperer le nom, l'ID et
+	 *            la date d'examen
+	 * @param additionalInfo
+	 *            :String qui sera rajoutée à la fin du nom du fichier
+	 * @throws FileNotFoundException
+	 *             : en cas d'erreur d'ecriture
+	 */
+	public static void exportAll(String resultats, RoiManager roiManager, String nomProgramme,
+			ImagePlus imp, String additionalInfo) throws FileNotFoundException {
+
+		String[] infoPatient = ModeleScin.getInfoPatient(imp);
+		StringBuilder content = initCSVVertical(infoPatient);
+		
+		content.append(resultats);
+		
+		saveFiles(imp, roiManager, content, nomProgramme, infoPatient, additionalInfo);
 	}
 
 	/**

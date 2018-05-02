@@ -44,12 +44,6 @@ public class Modele_GeneralDyn extends ModeleScin {
 	}
 
 	public List<XYSeries> getSeries() {
-		for (String k : this.data.keySet()) {
-			while (this.data.get(k).size() > vue.getFrameDurations().length) {
-				this.data.get(k).remove(0);
-			}
-		}
-
 		List<XYSeries> listSeries = new ArrayList<XYSeries>();
 		for (String k : this.data.keySet()) {
 			List<Double> data = this.data.get(k);
@@ -78,6 +72,19 @@ public class Modele_GeneralDyn extends ModeleScin {
 	@Override
 	public HashMap<String, String> getResultsHashMap() {
 		return null;
+	}
+
+	@Override
+	public String toString() {
+		String s = "\n";
+		for (String k : data.keySet()) {
+			s += k;
+			for (Double d : data.get(k)) {
+				s += "," + d;
+			}
+			s += "\n";
+		}
+		return s;
 	}
 
 }

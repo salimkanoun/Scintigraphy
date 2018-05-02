@@ -28,7 +28,9 @@ public class FenResultat_GeneralDyn extends FenResultatSidePanel {
 	private static final long serialVersionUID = -6949646596222162929L;
 
 	public FenResultat_GeneralDyn(VueScin vueScin, BufferedImage capture, Modele_GeneralDyn modele, String[][] asso, String antOrPost) {
-		super("Dynamic Quant\n" + antOrPost, vueScin, capture);
+		super("Dynamic Quant\n" + antOrPost, vueScin, capture, "_" + antOrPost);
+		
+		this.setModele(modele);
 
 		int cols = (modele.getNbRoi() + 1) / 2;
 		JPanel grid = new JPanel(new GridLayout(2, cols));
