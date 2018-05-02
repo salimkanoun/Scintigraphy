@@ -44,7 +44,7 @@ public class Controleur_Cardiac extends ControleurScin {
 
 	@Override
 	public boolean isOver() {
-		return this.roiManager.getCount() >= this.getOrganes().length;
+		return this.getIndexRoi() + 1 >= this.getOrganes().length;
 	}
 
 	@Override
@@ -145,7 +145,7 @@ public class Controleur_Cardiac extends ControleurScin {
 				((FenApplication_Cardiac) this.getVue().getFen_application()).stopContaminationMode();
 				String[] conts = new String[this.indexRoi];
 				for (int i = 0; i < conts.length; i++) {
-					conts[i] = "Contamination";
+					conts[i] = "Cont";
 				}
 				// on ajoute de nouvelles cases dans le tableau organes pour ne pas modifier
 				// l'indexRoi

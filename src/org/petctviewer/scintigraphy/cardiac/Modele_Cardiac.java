@@ -139,7 +139,7 @@ public class Modele_Cardiac extends ModeleScin {
 		s += "Bkg noise," + round(this.fixBkgNoise,2) + "\n";
 		if(this.deuxPrises)
 			s += "WB retention %," + round(this.fixBkgNoise * 100,2) + "\n";
-		s += "Ratio H/WB (per 1000)," + round(this.hwb * 1000, 2) + "\n";
+		s += "Ratio H/WB %," + round(this.hwb, 2) + "\n";
 		if(this.deuxPrises)
 			s += "Cardiac retention %," + round(this.retCardiaque * 100, 2) + "\n";
 
@@ -162,7 +162,7 @@ public class Modele_Cardiac extends ModeleScin {
 		this.resultats.put("Right Kidney", "" + round(this.fixReinDL, 2));
 		this.resultats.put("Left Kidney", "" + round(this.fixReinGL, 2));
 
-		this.resultats.put("Ratio H/WB (per 1000)", "" + round(this.hwb * 1000, 2));
+		this.resultats.put("Ratio H/WB %", "" + round(this.hwb * 100, 2));
 
 		return this.resultats;
 	}

@@ -45,17 +45,34 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 
 	@Override
 	public Component[] getSidePanelContent() {
-		Component[] panels = new Component[2];
+		Component[] panels = new Component[3];
 		
 		JPanel resultRouge = new JPanel(new GridLayout(3, 1, 10, 10));
-		String key = "Ratio H/WB (per 1000)";
-		resultRouge.add(getLabelRed(key));
+		
+		String key = "Ratio H/WB %";
+		JLabel lbl_hwb = new JLabel(key + " : " + this.resultats.get(key));
+		if(Double.parseDouble(this.resultats.get(key)) > 7.5) {
+			lbl_hwb.setForeground(Color.RED);
+		}else {
+			lbl_hwb.setForeground(new Color(128, 51, 0));
+		}
+		this.resultats.remove(key);		
+		resultRouge.add(lbl_hwb);
+		
 		key = "Cardiac retention %";
-		if (this.resultats.containsKey(key))
-			resultRouge.add(getLabelRed(key));
-		key = "Full body retention %";
-		if (this.resultats.containsKey(key))
-			resultRouge.add(getLabelRed(key));
+		if (this.resultats.containsKey(key)) {
+			JLabel lbl = new JLabel(key + " : " + resultats.remove(key));
+			lbl.setForeground(new Color(128, 51, 0));
+			resultRouge.add(lbl);
+		}			
+		
+		key = "WB retention %";
+		if (this.resultats.containsKey(key)) {
+			JLabel lbl = new JLabel(key + " : " + resultats.remove(key));
+			lbl.setForeground(new Color(128, 51, 0));
+			resultRouge.add(lbl);
+		}
+		
 		JPanel flow2 = new JPanel(new FlowLayout());
 		flow2.add(resultRouge);
 		panels[0] = flow2;
@@ -79,7 +96,11 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 		tabRes.setDefaultEditor(Object.class, null);
 		tabRes.setFocusable(false);
 		tabRes.setRowSelectionAllowed(false);
-		panels[1] = tabRes;
+		panels[2] = tabRes;
+		
+		JPanel flowRef = new JPanel();
+		flowRef.add( new JLabel("Rapezzi et al. JACC 2011"));
+		panels[1] = flowRef;
 		
 		return panels;
 	}
@@ -90,12 +111,6 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 			v = this.resultats.get(key);
 		}
 		return new String[] { " " + key, v };
-	}
-	
-	private JLabel getLabelRed(String key) {
-		JLabel lbl_hwb = new JLabel(key + " : " + resultats.remove(key));
-		lbl_hwb.setForeground(Color.RED);
-		return lbl_hwb;
 	}
 
 }
