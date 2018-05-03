@@ -14,6 +14,7 @@ import java.awt.Frame;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.Label;
 import java.awt.Panel;
 import java.awt.Point;
@@ -82,28 +83,32 @@ public class FenApplication extends StackWindow {
 		gauche.add(getInstru());
 		panel.add(gauche);
 		add(panel);
-		
 		this.adaptWindow(512);
 	}
 	
 	protected void adaptWindow(int width) {
-		
 		int w = this.getImagePlus().getWidth();
 		int h = this.getImagePlus().getHeight();
-		Double ratio = width / (w*1.0);
-	
-		this.getCanvas().setSize(width,(int) (h*ratio));		
-		this.getCanvas().setScaleToFit(true);
+		Double ratioImagePlus  =  w*1.0 / h*1.0;
 		
-		System.out.println(width + ", " + (int) (h*ratio));
-		System.out.println("canvas " + this.getCanvas().getWidth() + ", " + this.getCanvas().getHeight());
-
+		//Pack pour recuperer dimension du panel
+		pack();
+		
+		if(this.panel.getWidth()<width) {
+			this.getCanvas().setSize(width, (int) (width/ratioImagePlus) );
+		}
+		else {
+			Insets inset=this.getInsets();
+			int largeurInset=inset.left+inset.right+10;
+			this.getCanvas().setSize(this.panel.getWidth()+largeurInset,  (int) ((this.panel.getWidth()+largeurInset)/ratioImagePlus));
+		}
+		
 		// On Pack la fenetre pour la mettre a la preferred Size
-		this.pack();
-		System.out.println("prefered size " + getPreferredSize().toString());
-		//this.setPreferredSize(new Dimension(width, this.getCanvas().getHeight() + this.panel));
-		this.setSize(getPreferredSize());
-		this.setLocationRelativeTo(null);
+		pack();
+		//On fait en sort que le canvas s'ajuste a la window
+		this.getCanvas().fitToWindow();
+		//On repack
+		pack();
 		
 		// On met au premier plan au centre de l'ecran
 		this.setLocationRelativeTo(null);
