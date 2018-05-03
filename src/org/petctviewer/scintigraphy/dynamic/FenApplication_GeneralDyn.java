@@ -42,7 +42,7 @@ public class FenApplication_GeneralDyn extends FenApplication{
 		btns_instru.add(this.getBtn_suivant());
 		this.getInstru().add(btns_instru);
 		
-		this.adaptWindow();
+		this.adaptWindow(512);
 	}
 
 	public Button getBtn_finish() {

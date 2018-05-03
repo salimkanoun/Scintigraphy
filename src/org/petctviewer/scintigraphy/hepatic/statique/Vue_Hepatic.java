@@ -19,7 +19,7 @@ public class Vue_Hepatic extends VueScin {
 	@Override
 	protected void ouvertureImage(String[] titresFenetres) {
 		if(titresFenetres.length > 1) {
-			IJ.log("There must be only one dicom opened");
+			IJ.log("There must be exactly one dicom opened");
 		}
 		
 		ImagePlus imp = WindowManager.getImage(titresFenetres[0]);

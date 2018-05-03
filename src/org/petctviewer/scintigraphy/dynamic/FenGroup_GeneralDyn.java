@@ -75,8 +75,7 @@ public class FenGroup_GeneralDyn extends JDialog {
 		JPanel wrapValider = new JPanel();
 		wrapValider.add(valider);
 		this.add(wrapValider, BorderLayout.SOUTH);
-
-		this.setLocationRelativeTo(null);
+		
 		this.setResizable(false);
 		this.pack();
 	}

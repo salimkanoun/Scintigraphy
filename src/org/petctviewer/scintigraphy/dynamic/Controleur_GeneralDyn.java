@@ -95,6 +95,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 
 		FenGroup_GeneralDyn fenGroup = new FenGroup_GeneralDyn(roiNames);
 		fenGroup.setModal(true);
+		fenGroup.setLocationRelativeTo(this.getVue().getFen_application());
 		fenGroup.setVisible(true);
 		String[][] asso = fenGroup.getAssociation();
 

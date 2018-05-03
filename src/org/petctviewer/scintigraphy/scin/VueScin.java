@@ -4,6 +4,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.Prefs;
+import ij.WindowManager;
 import ij.gui.Overlay;
 import ij.gui.TextRoi;
 import ij.plugin.Concatenator;
@@ -50,6 +51,42 @@ public abstract class VueScin implements PlugIn {
 		selection.setModal(true);
 		selection.setVisible(true);
 		ouvertureImage(selection.getSelectedWindowsTitles());		
+	}
+	
+	/**
+	 * Permet de renvoyer une tableau d'image plus selon les dicoms ouvertes, il peut y avoir une ou deux ouverte
+	 * @param titresFenetres titres des fenetres ouvertes utilisées
+	 * @return les imps, [0] correspond a l'ant, [1] a la post
+	 */
+	public ImagePlus[] splitAntPost(String[] titresFenetres){
+		if (titresFenetres.length > 2) {
+			throw new IllegalArgumentException("Too much dicoms opened");
+		}
+		
+		ImagePlus[] imps = new ImagePlus[2];
+		
+		if (titresFenetres.length == 1) { // si il y a qu'un fenetre d'ouverte
+			ImagePlus imp = WindowManager.getImage(titresFenetres[0]);
+			if (VueScin.isMultiFrame(imp)) { // si l'image est multiframe
+				return imps = VueScin.splitCameraMultiFrame(imp);
+			} else if (VueScin.isAnterieur(imp)) {
+				imps[0] = imp;
+			} else {
+				imps[1] = imp;
+			}
+
+		} else { // si il y a deux fenetres d'ouvertes
+			for (String s : titresFenetres) { // pour chaque fenetre
+				ImagePlus imp = WindowManager.getImage(s);
+				if (VueScin.isAnterieur(imp)) { // si la vue est ant, on choisi cette image
+					imps[0] = (ImagePlus) imp.clone();
+				} else {
+					imps[1] = (ImagePlus) imp.clone();
+				}
+			}
+		}
+		
+		return imps;
 	}
 
 	// TODO refactoriser en preparer imp et ouvrir fenetre ?
@@ -124,7 +161,7 @@ public abstract class VueScin implements PlugIn {
 
 	/**
 	 * Permet de trier les image Anterieure et posterieure et retourne les images
-	 * posterieures pour garder la meme lateralisation (la droite est � gauche de
+	 * posterieures pour garder la meme lateralisation (la droite est a gauche de
 	 * l'image comme une image de face)
 	 * 
 	 * @param imp

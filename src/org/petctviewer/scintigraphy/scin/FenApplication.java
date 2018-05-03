@@ -11,6 +11,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Panel;
@@ -37,6 +39,7 @@ public class FenApplication extends StackWindow {
 	private ControleurScin controleur;
 
 	private Panel instru;
+	private Panel panel;
 	private String nom;
 
 	/**
@@ -51,7 +54,7 @@ public class FenApplication extends StackWindow {
 		setTitle(generateTitle());
 		this.imp.setTitle(generateTitle());
 
-		JPanel panel = new JPanel();
+		panel = new Panel();
 		panel.setLayout(new FlowLayout());
 
 		Panel gauche = new Panel();
@@ -80,24 +83,28 @@ public class FenApplication extends StackWindow {
 		panel.add(gauche);
 		add(panel);
 		
-		this.adaptWindow();
+		this.adaptWindow(512);
 	}
 	
-	protected void adaptWindow() {
-		pack();
-		this.setExtendedState(Frame.MAXIMIZED_BOTH);
+	protected void adaptWindow(int width) {
+		
+		int w = this.getImagePlus().getWidth();
+		int h = this.getImagePlus().getHeight();
+		Double ratio = width / (w*1.0);
+	
+		this.getCanvas().setSize(width,(int) (h*ratio));		
+		this.getCanvas().setScaleToFit(true);
+		
+		System.out.println(width + ", " + (int) (h*ratio));
+		System.out.println("canvas " + this.getCanvas().getWidth() + ", " + this.getCanvas().getHeight());
 
-		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-		Point loc = getLocation();
-		Dimension size = getSize();
-		if (loc.y + size.height > screen.height) {
-			getCanvas().zoomOut(0, 0);
-		}
-
-		// image adaptee dim fenetre
-		//getCanvas().setScaleToFit(true);
 		// On Pack la fenetre pour la mettre a la preferred Size
 		this.pack();
+		System.out.println("prefered size " + getPreferredSize().toString());
+		//this.setPreferredSize(new Dimension(width, this.getCanvas().getHeight() + this.panel));
+		this.setSize(getPreferredSize());
+		this.setLocationRelativeTo(null);
+		
 		// On met au premier plan au centre de l'ecran
 		this.setLocationRelativeTo(null);
 		this.toFront();

@@ -25,28 +25,9 @@ public abstract class Vue_Dynamic extends VueScin {
 			IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 		}
 
-		if (titresFenetres.length == 1) { // si il y a qu'un fenetre d'ouverte
-			ImagePlus imp = WindowManager.getImage(titresFenetres[0]);
-			if (VueScin.isMultiFrame(imp)) { // si l'image est multiframe
-				ImagePlus[] imps = VueScin.splitCameraMultiFrame(imp);
-				this.impAnt = (ImagePlus) imps[0].clone();
-				this.impPost = (ImagePlus) imps[1].clone();
-			} else if (VueScin.isAnterieur(imp)) {
-				this.impAnt = imp;
-			} else {
-				IJ.log("Please open the Ant view");
-			}
-
-		} else { // si il y a deux fenetres d'ouvertes
-			for (String s : titresFenetres) { // pour chaque fenetre
-				ImagePlus imp = WindowManager.getImage(s);
-				if (VueScin.isAnterieur(imp)) { // si la vue est ant, on choisi cette image
-					this.impAnt = (ImagePlus) imp.clone();
-				} else {
-					this.impPost = (ImagePlus) imp.clone();
-				}
-			}
-		}
+		ImagePlus[] imps = this.splitAntPost(titresFenetres);
+		this.impAnt = imps[0];
+		this.impPost = imps[1];
 		
 		for(int i = 1; i <= this.impPost.getStackSize(); i++) {
 			this.impPost.getStack().getProcessor(i).flipHorizontal();
@@ -58,7 +39,11 @@ public abstract class Vue_Dynamic extends VueScin {
 		this.frameDurations = buildFrameDurations(this.impAnt);		
 
 		this.setImp(this.impProjetee);
-		VueScin.setCustomLut(this.getImp());		
+		VueScin.setCustomLut(this.getImp());
+		
+		for(String s : titresFenetres) {
+			WindowManager.getImage(s).close();
+		}
 	}
 
 	private int[] buildFrameDurations(ImagePlus imp) {
