@@ -30,6 +30,7 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 		private final int OFFSET = 0;
 		PopupMenu general;
 		
+		
 		@Override
 		public void showPopupMenu(MouseEvent e, Toolbar par) {
 			addPopupMenu(par);
@@ -145,6 +146,7 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 		public String getToolName() {
 			return "Scintigraphy Access, Right click to show menu";
 		}
+		
 		
 	}
 
