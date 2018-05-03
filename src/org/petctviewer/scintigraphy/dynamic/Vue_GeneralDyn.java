@@ -5,6 +5,10 @@ import ij.gui.Toolbar;
 
 public class Vue_GeneralDyn extends Vue_Dynamic{
 
+	public Vue_GeneralDyn() {
+		super("Dynamic scintigraphy");
+	}
+
 	@Override
 	protected void ouvertureImage(String[] titresFenetres) {
 		super.ouvertureImage(titresFenetres);

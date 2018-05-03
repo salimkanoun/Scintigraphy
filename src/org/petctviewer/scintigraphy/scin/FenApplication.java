@@ -19,9 +19,21 @@ import java.awt.Panel;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.cardiac.Controleur_Cardiac;
 
 public class FenApplication extends StackWindow {
@@ -86,24 +98,24 @@ public class FenApplication extends StackWindow {
 		this.adaptWindow(512);
 	}
 	
-	protected void adaptWindow(int width) {
+	public void adaptWindow(int width) {
 		
 		int w = this.getImagePlus().getWidth();
 		int h = this.getImagePlus().getHeight();
 		Double ratio = width / (w*1.0);
 	
-		this.getCanvas().setSize(width,(int) (h*ratio));		
-		this.getCanvas().setScaleToFit(true);
+		this.getCanvas().setSize(width,(int) (h*ratio));
+
+		//this.getCanvas().setScaleToFit(true);
 		
 		System.out.println(width + ", " + (int) (h*ratio));
 		System.out.println("canvas " + this.getCanvas().getWidth() + ", " + this.getCanvas().getHeight());
 
 		// On Pack la fenetre pour la mettre a la preferred Size
-		this.pack();
 		System.out.println("prefered size " + getPreferredSize().toString());
-		//this.setPreferredSize(new Dimension(width, this.getCanvas().getHeight() + this.panel));
-		this.setSize(getPreferredSize());
-		this.setLocationRelativeTo(null);
+		
+		//this.setSize(getPreferredSize());		
+		this.pack();
 		
 		// On met au premier plan au centre de l'ecran
 		this.setLocationRelativeTo(null);
@@ -231,4 +243,5 @@ public class FenApplication extends StackWindow {
 		this.setExtendedState(Frame.MAXIMIZED_BOTH);
 		this.toFront();
 	}
+	
 }

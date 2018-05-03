@@ -20,6 +20,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -35,13 +44,13 @@ import ij.process.ImageProcessor;
 import ij.util.DicomTools;
 
 public abstract class ModeleScin {
-	
+
 	protected ImagePlus imp;
 
 	public static double moyGeom(Double a, Double b) {
 		return Math.sqrt(a * b);
 	}
-	
+
 	public static double round(double value, int places) {
 		if (places < 0)
 			throw new IllegalArgumentException();
@@ -51,36 +60,82 @@ public abstract class ModeleScin {
 		return bd.doubleValue();
 	}
 	
+	public static ChartPanel[] associateSeries(String[][] asso, List<XYSeries> series) {
+		ArrayList<ChartPanel> cPanels = new ArrayList<ChartPanel>();
+		for (String[] i : asso) {
+			if (i.length > 0) {
+				XYSeriesCollection dataset = new XYSeriesCollection();
+
+				for (String j : i) {
+					for (int k = 0; k < series.size(); k++) {
+						if (series.get(k).getKey().equals(j)) {
+							dataset.addSeries(series.get(k));
+						}
+					}
+				}
+
+				JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "counts/sec", dataset,
+						PlotOrientation.VERTICAL, true, true, true);
+
+				final XYPlot plot = xylineChart.getXYPlot();
+
+				XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+				for (int c = 0; c < dataset.getSeriesCount(); c++) {
+					renderer.setSeriesShapesVisible(c, false);
+				}
+				plot.setRenderer(renderer);
+
+				ChartPanel c = new ChartPanel(xylineChart);
+				cPanels.add(c);
+			}
+		}
+		
+		return cPanels.toArray(new ChartPanel[0]);
+	}
+
 	/**
-	 * renvoie une hasmap contenant les informations du patient selon le tag info de l'imp
-	 * keys : id name date
+	 * renvoie une hasmap contenant les informations du patient selon le tag info de
+	 * l'imp keys : id name date
+	 * 
 	 * @param imp
 	 * @return
 	 */
 	public static HashMap<String, String> getPatientInfo(ImagePlus imp) {
 		HashMap<String, String> hm = new HashMap<String, String>();
-		String nom = DicomTools.getTag(imp, "0010,0010").trim();
-		hm.put("name", nom.replace("^", " "));
+		
+		if(DicomTools.getTag(imp, "0010,0010") != null) {
+			String nom = DicomTools.getTag(imp, "0010,0010").trim();
+			hm.put("name", nom.replace("^", " "));
+		}else {
+			hm.put("name", "");
+		}		
 
-		hm.put("id", DicomTools.getTag(imp, "0010,0020").trim());
-
-		String dateStr = DicomTools.getTag(imp, "0008,0022").trim();
-		Date result = null;
-		try {
-			result = new SimpleDateFormat("yyyymmdd").parse(dateStr);
-		} catch (ParseException e) {
-			e.printStackTrace();
+		if(DicomTools.getTag(imp, "0010,0020") != null) {
+			hm.put("id", DicomTools.getTag(imp, "0010,0020").trim());
+		}else {
+			hm.put("id", "");
 		}
 
-		String r = new SimpleDateFormat("MMM dd yyyy", Locale.ENGLISH).format(result);
-
-		hm.put("date", r);
+		if (DicomTools.getTag(imp, "0008,0022") != null) {
+			String dateStr = DicomTools.getTag(imp, "0008,0022").trim();
+			Date result = null;
+			try {
+				result = new SimpleDateFormat("yyyymmdd").parse(dateStr);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			String r = new SimpleDateFormat("MMM dd yyyy", Locale.ENGLISH).format(result);
+			hm.put("date", r);
+			
+		} else {
+			hm.put("date", "");
+		}
 		return hm;
 	}
 
-	
 	/**
 	 * Renvoie le nombre de coups sur la roi presente dans l'image plus
+	 * 
 	 * @param imp
 	 * @return
 	 */
@@ -92,16 +147,21 @@ public abstract class ModeleScin {
 		ResultsTable density = Analyzer.getResultsTable();
 		return density.getValueAsDouble(ResultsTable.RAW_INTEGRATED_DENSITY, 0);
 	}
-	
+
 	/**
-	 * Enregistrer la mesure de la roi courante de l'image plus dans le format souhait�
-	 * @param nomRoi nom de la roi presente sur l'image plus
-	 * @param imp ImagePlus a traiter
+	 * Enregistrer la mesure de la roi courante de l'image plus dans le format
+	 * souhait�
+	 * 
+	 * @param nomRoi
+	 *            nom de la roi presente sur l'image plus
+	 * @param imp
+	 *            ImagePlus a traiter
 	 */
 	public abstract void enregisterMesure(String nomRoi, ImagePlus imp);
 
 	/**
-	 * Permet de creer un stack a partir d'un tableau d'ImagePlus	 * 
+	 * Permet de creer un stack a partir d'un tableau d'ImagePlus *
+	 * 
 	 * @param tableauImagePlus
 	 *            : Tableau contenant les ImagePlus a mettre dans le stack (toutes
 	 *            les images doivent avoir la m�me taille)
@@ -244,7 +304,7 @@ public abstract class ModeleScin {
 		Integer rnd = (int) (Math.random() * 1000000.);
 		return rnd.toString();
 	}
-	
+
 	public static Date getDateAcquisition(ImagePlus imp) {// Parse de la date et heure d'acquisition
 		String aquisitionDate = DicomTools.getTag(imp, "0008,0022");
 		String aquisitionTime = DicomTools.getTag(imp, "0008,0032");
@@ -339,11 +399,11 @@ public abstract class ModeleScin {
 				+ "\n" + "0028,0102 High Bit: 7" + "\n" + "0028,0103 Pixel Representation: 0 \n";
 		return tag;
 	}
-	
-	//[0] : nom, [1] : id, [2] : date
+
+	// [0] : nom, [1] : id, [2] : date
 	private static String[] getInfoPatient(ImagePlus imp) {
 		String[] infoPatient = new String[3];
-		
+
 		// On recupere le Patient Name de l'ImagePlus
 		String patientName = new String();
 		patientName = DicomTools.getTag(imp, "0010,0010");
@@ -361,11 +421,11 @@ public abstract class ModeleScin {
 		date = DicomTools.getTag(imp, "0008,0020");
 		if (date != null && !date.isEmpty())
 			date = date.trim();
-		
+
 		infoPatient[0] = patientName;
 		infoPatient[1] = patientID;
 		infoPatient[2] = date;
-		
+
 		return infoPatient;
 	}
 
@@ -385,10 +445,10 @@ public abstract class ModeleScin {
 		content.append(infoPatient[1]);
 		content.append(',');
 		content.append(infoPatient[2]);
-		
+
 		return content;
 	}
-	
+
 	private static StringBuilder initCSVVertical(String[] infoPatient) {
 		// Realisation du string builder qui sera ecrit en CSV
 		StringBuilder content = new StringBuilder();
@@ -397,24 +457,25 @@ public abstract class ModeleScin {
 		content.append(',');
 		content.append(infoPatient[0]);
 		content.append('\n');
-		
+
 		content.append("Patient's ID");
 		content.append(',');
 		content.append(infoPatient[1]);
 		content.append('\n');
-		
+
 		content.append("Study Date");
 		content.append(',');
 		content.append(infoPatient[2]);
 		content.append('\n');
-		
+
 		return content;
 	}
-	
-	private static void saveFiles(ImagePlus imp, RoiManager roiManager, StringBuilder csv, String nomProgramme, String[] infoPatient, String additionalInfo) {
+
+	private static void saveFiles(ImagePlus imp, RoiManager roiManager, StringBuilder csv, String nomProgramme,
+			String[] infoPatient, String additionalInfo) {
 
 		StringBuilder content = csv;
-		
+
 		// On recupere le path de sauvegarde
 		String path = Prefs.get("dir.preferred", null);
 		Boolean testEcriture = false;
@@ -437,7 +498,7 @@ public abstract class ModeleScin {
 			subDirectory.mkdirs();
 
 			String nomFichier = infoPatient[1] + "_" + infoPatient[2] + additionalInfo;
-			
+
 			File f = new File(subDirectory + File.separator + nomFichier + ".csv");
 
 			// On ecrit les CSV
@@ -464,7 +525,7 @@ public abstract class ModeleScin {
 
 		}
 	}
-	
+
 	// Permet la sauvegarde finale a partir du string builder contenant le
 	// tableau de resultat, ROI manager, nom programme et imageplus finale pour
 	// recuperer ID et date examen
@@ -494,9 +555,10 @@ public abstract class ModeleScin {
 
 		String[] infoPatient = ModeleScin.getInfoPatient(imp);
 		StringBuilder content = ModeleScin.initCSVHorizontal(infoPatient);
-		
+
 		for (int i = 0; i < resultats.length; i++) {
-			// Si multiple de n (nombre de valeur par ligne) on fait retour à la ligne sinon on met une virgule
+			// Si multiple de n (nombre de valeur par ligne) on fait retour à la ligne sinon
+			// on met une virgule
 			if (i % nombreColonne == 0) {
 				content.append('\n');
 			} else {
@@ -505,10 +567,10 @@ public abstract class ModeleScin {
 			content.append(resultats[i]);
 		}
 		content.append('\n');
-		
+
 		saveFiles(imp, roiManager, content, nomProgramme, infoPatient, "");
 	}
-	
+
 	/**
 	 * Permet de realiser l'export du fichier CSV et des ROI contenues dans l'export
 	 * Manager vers le repertoire d'export defini dans les options
@@ -526,17 +588,17 @@ public abstract class ModeleScin {
 	 * @throws FileNotFoundException
 	 *             : en cas d'erreur d'ecriture
 	 */
-	public static void exportAll(String resultats, RoiManager roiManager, String nomProgramme,
-			ImagePlus imp) throws FileNotFoundException {
+	public static void exportAll(String resultats, RoiManager roiManager, String nomProgramme, ImagePlus imp)
+			throws FileNotFoundException {
 
 		String[] infoPatient = ModeleScin.getInfoPatient(imp);
 		StringBuilder content = initCSVVertical(infoPatient);
-		
+
 		content.append(resultats);
-		
+
 		saveFiles(imp, roiManager, content, nomProgramme, infoPatient, "");
 	}
-	
+
 	/**
 	 * Permet de realiser l'export du fichier CSV et des ROI contenues dans l'export
 	 * Manager vers le repertoire d'export defini dans les options
@@ -556,14 +618,14 @@ public abstract class ModeleScin {
 	 * @throws FileNotFoundException
 	 *             : en cas d'erreur d'ecriture
 	 */
-	public static void exportAll(String resultats, RoiManager roiManager, String nomProgramme,
-			ImagePlus imp, String additionalInfo) throws FileNotFoundException {
+	public static void exportAll(String resultats, RoiManager roiManager, String nomProgramme, ImagePlus imp,
+			String additionalInfo) throws FileNotFoundException {
 
 		String[] infoPatient = ModeleScin.getInfoPatient(imp);
 		StringBuilder content = initCSVVertical(infoPatient);
-		
+
 		content.append(resultats);
-		
+
 		saveFiles(imp, roiManager, content, nomProgramme, infoPatient, additionalInfo);
 	}
 
@@ -629,6 +691,7 @@ public abstract class ModeleScin {
 
 	/**
 	 * calcule la decay fraction (countsCorrected=counts/decayedFraction)
+	 * 
 	 * @param delaySeconds
 	 * @param halLifeSeconds
 	 * @return

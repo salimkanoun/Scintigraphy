@@ -17,14 +17,14 @@ import ij.plugin.ZProjector;
 
 public class Controleur_GeneralDyn extends ControleurScin {
 
-	public static int MAXROI = 5;
+	public static int MAXROI = 100;
 	private int nbOrganes = 0;
 	private boolean over;
 
 	protected Controleur_GeneralDyn(Vue_GeneralDyn vue) {
 		super(vue);
 		this.setOrganes(new String[MAXROI]);
-		this.setModele(new Modele_GeneralDyn(vue));
+		this.setModele(new Modele_GeneralDyn(vue.getFrameDurations()));
 		this.over = false;
 
 		this.getVue().getFen_application().getField_instructions().addKeyListener(new KeyListener() {
@@ -49,10 +49,10 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	@Override
 	public void setInstructionsDelimit(int indexRoi) {
 		String s;
-		if (this.roiManager.getCount() > indexRoi) {
-			s = this.roiManager.getRoi(indexRoi).getName();
+		if (this.roiManager.getCount() > this.indexRoi) {
+			s = this.roiManager.getRoi(this.indexRoi).getName();
 		} else {
-			s = "roi" + indexRoi;
+			s = "roi" + this.indexRoi;
 		}
 		this.getVue().getFen_application().getField_instructions().setText(s);
 	}
@@ -101,7 +101,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 
 		if (vue.getImpAnt() != null) {
 			capture = ModeleScin.captureImage(imp, 300, 300).getBufferedImage();
-			Modele_GeneralDyn modele = saveValues(vue.getImpAnt());
+			Modele_Dynamic modele = saveValues(vue.getImpAnt());
 			new FenResultat_GeneralDyn(vue, capture, modele, asso, "Ant");
 		}
 
@@ -128,7 +128,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 
 					BufferedImage c = ModeleScin.captureImage(imp, 300, 300).getBufferedImage();
 
-					Modele_GeneralDyn modele = saveValues(vue.getImpPost());
+					Modele_Dynamic modele = saveValues(vue.getImpPost());
 					new FenResultat_GeneralDyn(vue, c, modele, asso, "Post");
 
 					Controleur_GeneralDyn.this.finishDrawingResultWindow();
@@ -150,12 +150,12 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		this.addImpListener();
 		vue.getFen_application().setImage(vue.getImpProjetee());
 		vue.setImp(vue.getImpProjetee());
-		vue.getFen_application().setExtendedState(Frame.MAXIMIZED_BOTH);
+		vue.getFen_application().adaptWindow(1);
 	}
 
-	private Modele_GeneralDyn saveValues(ImagePlus imp) {
+	private Modele_Dynamic saveValues(ImagePlus imp) {
 		Vue_GeneralDyn vue = (Vue_GeneralDyn) this.getVue();
-		Modele_GeneralDyn modele = new Modele_GeneralDyn(vue);
+		Modele_Dynamic modele = new Modele_GeneralDyn(vue.getFrameDurations());
 
 		this.getVue().setImp(imp);
 		indexRoi = 0;

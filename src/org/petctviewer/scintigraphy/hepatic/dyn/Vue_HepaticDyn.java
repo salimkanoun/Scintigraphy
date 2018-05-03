@@ -8,8 +8,7 @@ import ij.gui.Toolbar;
 public class Vue_HepaticDyn extends Vue_Dynamic {
 
 	public Vue_HepaticDyn() {
-		super();
-		this.setExamType("Biliary scintigraphy");
+		super("Biliary scintigraphy");
 	}
 	
 	@Override

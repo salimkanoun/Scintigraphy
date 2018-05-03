@@ -1,27 +1,28 @@
 package org.petctviewer.scintigraphy.liver;
 
 import java.util.HashMap;
+import org.petctviewer.scintigraphy.dynamic.Modele_Dynamic;
 
-import org.petctviewer.scintigraphy.scin.ModeleScin;
+public class Modele_Liver extends Modele_Dynamic {
 
-import ij.ImagePlus;
-
-public class Modele_Liver extends ModeleScin {
-
-	@Override
-	public void enregisterMesure(String nomRoi, ImagePlus imp) {
-
+	public Modele_Liver(int[] frameDuration) {
+		super(frameDuration);
 	}
 
 	@Override
 	public void calculerResultats() {
-
+		
 	}
 
 	@Override
 	public HashMap<String, String> getResultsHashMap() {
-		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public String toString() {
+		String s = super.toString();
+		return s;
 	}
 
 }

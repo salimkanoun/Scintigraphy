@@ -18,14 +18,14 @@ import org.petctviewer.scintigraphy.scin.ModeleScin;
 
 import ij.ImagePlus;
 
-public class Modele_GeneralDyn extends ModeleScin {
+public abstract class Modele_Dynamic extends ModeleScin {
 
 	private HashMap<String, List<Double>> data;
-	private Vue_GeneralDyn vue;
+	private int[] frameDuration;
 
-	public Modele_GeneralDyn(Vue_GeneralDyn vue) {
+	public Modele_Dynamic(int[] frameDuration) {
 		this.data = new HashMap<String, List<Double>>();
-		this.vue = vue;
+		this.frameDuration = frameDuration;
 	}
 
 	public int getNbRoi() {
@@ -57,21 +57,12 @@ public class Modele_GeneralDyn extends ModeleScin {
 
 		Double dureePriseOld = 0.0;
 		for (int i = 0; i < l.size(); i++) {
-			Double dureePrise = vue.getFrameDurations()[i] / 60000.0;
+			Double dureePrise = frameDuration[i] / 60000.0;
 			points.add(dureePriseOld + dureePrise, l.get(i) / (dureePrise * 60));
 			dureePriseOld += dureePrise;
 		}
 
 		return points;
-	}
-
-	@Override
-	public void calculerResultats() {
-	}
-
-	@Override
-	public HashMap<String, String> getResultsHashMap() {
-		return null;
 	}
 
 	@Override
@@ -85,6 +76,18 @@ public class Modele_GeneralDyn extends ModeleScin {
 			s += "\n";
 		}
 		return s;
+	}
+
+	public HashMap<String, List<Double>> getData() {
+		return data;
+	}
+	
+	public List<Double> getData(String key) {
+		return data.get(key);
+	}
+
+	public int[] getFrameDuration() {
+		return frameDuration;
 	}
 
 }

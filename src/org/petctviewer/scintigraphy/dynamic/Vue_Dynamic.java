@@ -11,12 +11,12 @@ import ij.util.DicomTools;
 
 public abstract class Vue_Dynamic extends VueScin {
 
-	private ImagePlus impProjetee, impAnt, impPost;
+	protected ImagePlus impProjetee, impAnt, impPost;
 
 	private int[] frameDurations;
 
-	public Vue_Dynamic() {
-		super("Dynamic scintigraphy");
+	public Vue_Dynamic(String title) {
+		super(title);
 	}
 
 	@Override
@@ -33,8 +33,7 @@ public abstract class Vue_Dynamic extends VueScin {
 			this.impPost.getStack().getProcessor(i).flipHorizontal();
 		}
 
-		this.impProjetee = ZProjector.run(this.impAnt, "sum");
-		this.impProjetee.setProperty("Info", this.impAnt.getInfoProperty());
+		this.impProjetee = projeter(this.impAnt);
 
 		this.frameDurations = buildFrameDurations(this.impAnt);		
 
@@ -44,6 +43,12 @@ public abstract class Vue_Dynamic extends VueScin {
 		for(String s : titresFenetres) {
 			WindowManager.getImage(s).close();
 		}
+	}
+	
+	public ImagePlus projeter(ImagePlus imp) {
+		ImagePlus pj = ZProjector.run(imp, "sum");
+		pj.setProperty("Info", this.impAnt.getInfoProperty());
+		return pj;
 	}
 
 	private int[] buildFrameDurations(ImagePlus imp) {
@@ -97,6 +102,9 @@ public abstract class Vue_Dynamic extends VueScin {
 	}
 
 	public int[] getFrameDurations() {
+		if(this.frameDurations == null) {
+			this.frameDurations = buildFrameDurations(impAnt);
+		}
 		return frameDurations;
 	}
 
