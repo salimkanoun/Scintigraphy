@@ -1,8 +1,11 @@
 package org.petctviewer.scintigraphy.dynamic;
 
 import java.util.HashMap;
+import java.util.List;
 
-public class Modele_GeneralDyn extends Modele_Dynamic {
+import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
+
+public class Modele_GeneralDyn extends ModeleScinDyn {
 
 	public Modele_GeneralDyn(int[] frameDuration) {
 		super(frameDuration);
@@ -10,6 +13,10 @@ public class Modele_GeneralDyn extends Modele_Dynamic {
 
 	@Override
 	public void calculerResultats() {
+		for (String k : this.getData().keySet()) {
+			List<Double> data = this.getData().get(k);
+			this.getData().put(k, this.adjustValues(data));
+		}
 	}
 
 	@Override

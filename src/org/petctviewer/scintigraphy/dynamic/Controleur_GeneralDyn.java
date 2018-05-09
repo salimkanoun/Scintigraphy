@@ -11,6 +11,9 @@ import java.util.Arrays;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.VueScinDyn;
+
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.ZProjector;
@@ -80,7 +83,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	public void fin() {
 		this.over = true;
 		this.nbOrganes = this.roiManager.getCount();
-		Vue_Dynamic vue = (Vue_Dynamic) this.getVue();
+		VueScinDyn vue = (VueScinDyn) this.getVue();
 		this.removeImpListener();
 
 		ImagePlus imp = vue.getImp();
@@ -101,7 +104,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 
 		if (vue.getImpAnt() != null) {
 			capture = ModeleScin.captureImage(imp, 300, 300).getBufferedImage();
-			Modele_Dynamic modele = saveValues(vue.getImpAnt());
+			ModeleScinDyn modele = saveValues(vue.getImpAnt());
 			new FenResultat_GeneralDyn(vue, capture, modele, asso, "Ant");
 		}
 
@@ -114,7 +117,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 
 			vue.setImp(imp2);
 			vue.getFen_application().setImage(imp2);
-			vue.getFen_application().setExtendedState(Frame.MAXIMIZED_BOTH);
+			vue.getFen_application().adaptWindow(256);
 			vue.getFen_application().toFront();
 
 			Thread th = new Thread(new Runnable() {
@@ -128,7 +131,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 
 					BufferedImage c = ModeleScin.captureImage(imp, 300, 300).getBufferedImage();
 
-					Modele_Dynamic modele = saveValues(vue.getImpPost());
+					ModeleScinDyn modele = saveValues(vue.getImpPost());
 					new FenResultat_GeneralDyn(vue, c, modele, asso, "Post");
 
 					Controleur_GeneralDyn.this.finishDrawingResultWindow();
@@ -144,18 +147,18 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	}
 
 	private void finishDrawingResultWindow() {
-		Vue_Dynamic vue = (Vue_Dynamic) this.getVue();
+		VueScinDyn vue = (VueScinDyn) this.getVue();
 		this.indexRoi = this.nbOrganes;
 		this.over = false;
 		this.addImpListener();
 		vue.getFen_application().setImage(vue.getImpProjetee());
 		vue.setImp(vue.getImpProjetee());
-		vue.getFen_application().adaptWindow(1);
+		vue.getFen_application().adaptWindow(256);
 	}
 
-	private Modele_Dynamic saveValues(ImagePlus imp) {
+	private ModeleScinDyn saveValues(ImagePlus imp) {
 		Vue_GeneralDyn vue = (Vue_GeneralDyn) this.getVue();
-		Modele_Dynamic modele = new Modele_GeneralDyn(vue.getFrameDurations());
+		ModeleScinDyn modele = new Modele_GeneralDyn(vue.getFrameDurations());
 
 		this.getVue().setImp(imp);
 		indexRoi = 0;
@@ -165,11 +168,12 @@ public class Controleur_GeneralDyn extends ControleurScin {
 			for (int j = 0; j < nbOrganes; j++) {
 				imp.setRoi(getOrganRoi(indexRoi));
 				String nom = this.getNomOrgane(indexRoi);
-				modele.enregisterMesure(this.addTag(nom), imp);
+				modele.enregistrerMesure(this.addTag(nom), imp);
 				indexRoi++;
 			}
 		}
-
+		modele.calculerResultats();
+		
 		return modele;
 	}
 

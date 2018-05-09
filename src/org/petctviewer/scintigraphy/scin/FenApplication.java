@@ -245,8 +245,6 @@ public class FenApplication extends StackWindow {
 	@Override
 	public void setImage(ImagePlus imp2) {
 		super.setImage(imp2);
-		this.setExtendedState(Frame.MAXIMIZED_BOTH);
-		this.toFront();
 	}
 	
 }

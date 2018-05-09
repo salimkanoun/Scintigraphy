@@ -40,7 +40,7 @@ public class Controleur_HepaticDyn extends ControleurScin {
 			vue.getImpAnt().setSlice(i);
 			for (int j = 0; j < this.getOrganes().length; j++) {
 				vue.getImpAnt().setRoi(getOrganRoi(indexRoi));
-				this.getModele().enregisterMesure(this.addTag(this.getNomOrgane(indexRoi)), vue.getImpAnt());
+				this.getModele().enregistrerMesure(this.addTag(this.getNomOrgane(indexRoi)), vue.getImpAnt());
 				indexRoi++;
 			}
 		}

@@ -27,6 +27,7 @@ public class Controleur_Cardiac extends ControleurScin {
 
 		Modele_Cardiac mdl = new Modele_Cardiac(this.getVue().getImp());
 
+		//on declare si il y a deux prises
 		mdl.setDeuxPrise(this.isDeuxPrises());
 
 		mdl.calculerMoyGeomTotale();
@@ -40,7 +41,8 @@ public class Controleur_Cardiac extends ControleurScin {
 		}
 		this.setOrganes(organesAntPost.toArray(new String[0]));
 
-		traiterContamination();
+		//on lance le mode decontamination
+		((FenApplication_Cardiac) this.getVue().getFen_application()).startContaminationMode();
 	}
 
 	@Override
@@ -50,6 +52,9 @@ public class Controleur_Cardiac extends ControleurScin {
 
 	@Override
 	public void fin() {
+		//suppression du controleur de l'imp
+		this.removeImpListener();
+		
 		ModeleScin mdl = this.getModele();
 		mdl.calculerResultats();
 
@@ -61,6 +66,7 @@ public class Controleur_Cardiac extends ControleurScin {
 	
 	@Override
 	public String getSameNameRoiCount(String nomRoi) {
+		//on renvoie le nombre de roi identiques uniquement si toutes les contaminations ont ete prises
 		if(!this.finContSlice1 || !this.finContSlice2) {
 			return super.getSameNameRoiCount(nomRoi);
 		}
@@ -89,6 +95,7 @@ public class Controleur_Cardiac extends ControleurScin {
 		if (this.getIndexRoi() == this.getOrganes().length - 2) {
 			Roi roi = (Roi) this.roiManager.getRoi(this.getIndexRoi() - 2).clone();
 
+			//on fait le symetrique de la roi
 			roi = RoiScaler.scale(roi, -1, 1, true);
 
 			int quart = (this.getVue().getImp().getWidth() / 4);
@@ -105,10 +112,6 @@ public class Controleur_Cardiac extends ControleurScin {
 		} else { // sinon on ne renvoie rien
 			return null;
 		}
-	}
-
-	private void traiterContamination() {
-		((FenApplication_Cardiac) this.getVue().getFen_application()).startContaminationMode();
 	}
 
 	private boolean isDeuxPrises() {
@@ -147,9 +150,11 @@ public class Controleur_Cardiac extends ControleurScin {
 		if (!this.isPost()) {			
 			// on set la slice
 			if ((this.getVue().getImp().getCurrentSlice() == 1 && this.isDeuxPrises())) {
+				//on relance le mode decontamination, cette fois ci pour la deuxieme slice
 				this.finContSlice1 = true;
-				this.setSlice(2);
-				this.traiterContamination();
+				this.setSlice(2);				
+				((FenApplication_Cardiac) this.getVue().getFen_application()).startContaminationMode();
+				
 			} else { // on a trait� toutes les contaminations
 				this.finContSlice2 = true;
 				((FenApplication_Cardiac) this.getVue().getFen_application()).stopContaminationMode();
@@ -168,6 +173,7 @@ public class Controleur_Cardiac extends ControleurScin {
 
 	@Override
 	public void notifyClic(ActionEvent arg0) {
+		//permet d'appeller les methodes correspondant au clic des deux nouveaux boutons
 		Button b = (Button) arg0.getSource();
 		if (b == ((FenApplication_Cardiac) this.getVue().getFen_application()).getBtn_newCont()) {
 			this.clicNewCont();

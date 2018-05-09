@@ -1,18 +1,18 @@
-package org.petctviewer.scintigraphy.liver;
+package org.petctviewer.scintigraphy.renal;
 
-import org.petctviewer.scintigraphy.dynamic.Vue_Dynamic;
 import org.petctviewer.scintigraphy.hepatic.statique.Controleur_Hepatic;
 import org.petctviewer.scintigraphy.scin.FenApplication;
 import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.VueScinDyn;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Toolbar;
 
-public class Vue_Liver extends Vue_Dynamic {
+public class Vue_Renal extends VueScinDyn {
 
-	public Vue_Liver() {
-		super("Liver");
+	public Vue_Renal() {
+		super("Renal Scintigraphy");
 	}
 
 	@Override
@@ -21,7 +21,8 @@ public class Vue_Liver extends Vue_Dynamic {
 		this.impProjetee = this.projeter(this.impPost);
 		
 		this.fen_application = new FenApplication(this.getImp(), this.getExamType());
-		this.fen_application.setControleur(new Controleur_Liver(this));		
+		this.fen_application.setControleur(new Controleur_Renal(this));
+		
 		IJ.setTool(Toolbar.POLYGON);
 	}
 

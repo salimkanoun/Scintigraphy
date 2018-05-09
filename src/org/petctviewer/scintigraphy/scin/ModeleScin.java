@@ -26,6 +26,9 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.general.DatasetUtils;
+import org.jfree.data.xy.XYDataItem;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -132,6 +135,39 @@ public abstract class ModeleScin {
 		}
 		return hm;
 	}
+	
+	public static Double getY(XYSeries series, double x) {
+		XYSeriesCollection data = new XYSeriesCollection(series);
+		return DatasetUtils.findYValue(data, 0, x);
+	}
+	
+	public static Double getMaxY(XYSeries series) {
+		Number maxY = series.getMaxY();
+		List<XYDataItem> items = series.getItems();
+		for (XYDataItem i : items) {
+			if (maxY.equals(i.getY())) {
+				return i.getX().doubleValue();
+			}
+		}
+		return null;
+	}
+	
+	public static Double getMaxY(XYDataset ds, int series) {
+		Double maxY = 0.0;
+		for(int i = 0; i < ds.getItemCount(series); i++) {
+			if(ds.getY(series, i).doubleValue() > maxY) {
+				maxY = ds.getYValue(series, i);
+			}
+		}
+		
+		for (int i = 0; i < ds.getItemCount(series); i++) {
+			if (maxY.equals(ds.getY(series, i))) {
+				return ds.getXValue(series, i);
+			}
+		}
+		
+		return 0.0;
+	}
 
 	/**
 	 * Renvoie le nombre de coups sur la roi presente dans l'image plus
@@ -139,13 +175,18 @@ public abstract class ModeleScin {
 	 * @param imp
 	 * @return
 	 */
-	public Double getCounts(ImagePlus imp) {
+	public static Double getCounts(ImagePlus imp) {
 		Analyzer.setMeasurement(Measurements.INTEGRATED_DENSITY, true);
 		Analyzer.setMeasurement(Measurements.MEAN, true);
 		Analyzer analyser = new Analyzer(imp);
 		analyser.measure();
 		ResultsTable density = Analyzer.getResultsTable();
 		return density.getValueAsDouble(ResultsTable.RAW_INTEGRATED_DENSITY, 0);
+	}
+	
+	public static Double getAvgCounts(ImagePlus imp) {
+		int area = imp.getStatistics().pixelCount;
+		return getCounts(imp) / area;
 	}
 
 	/**
@@ -157,7 +198,7 @@ public abstract class ModeleScin {
 	 * @param imp
 	 *            ImagePlus a traiter
 	 */
-	public abstract void enregisterMesure(String nomRoi, ImagePlus imp);
+	public abstract void enregistrerMesure(String nomRoi, ImagePlus imp);
 
 	/**
 	 * Permet de creer un stack a partir d'un tableau d'ImagePlus *
@@ -707,6 +748,6 @@ public abstract class ModeleScin {
 
 	public abstract void calculerResultats();
 
-	public abstract HashMap<String, String> getResultsHashMap();
+	public HashMap<String, String> getResultsHashMap(){return null;};
 
 }

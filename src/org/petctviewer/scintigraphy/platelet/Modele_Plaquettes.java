@@ -57,7 +57,7 @@ public class Modele_Plaquettes extends ModeleScin {
 	public Modele_Plaquettes(Date dateHeureDebut) {
 		this.dateHeureDebut=dateHeureDebut;
 	}
-	public void enregisterMesure(String roi, ImagePlus imp) {
+	public void enregistrerMesure(String roi, ImagePlus imp) {
 		Date dateAcquisition = ModeleScin.getDateAcquisition(imp);
 		
 		// Recupere la somme des coups dans la ROI (integrated Density) et la valeur

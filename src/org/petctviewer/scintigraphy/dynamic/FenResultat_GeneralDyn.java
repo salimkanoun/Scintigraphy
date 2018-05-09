@@ -23,13 +23,14 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.FenApplication;
 import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
 public class FenResultat_GeneralDyn extends FenResultatSidePanel {
 
 	private static final long serialVersionUID = -6949646596222162929L;
 
-	public FenResultat_GeneralDyn(VueScin vueScin, BufferedImage capture, Modele_Dynamic modele, String[][] asso,
+	public FenResultat_GeneralDyn(VueScin vueScin, BufferedImage capture, ModeleScinDyn modele, String[][] asso,
 			String antOrPost) {
 		super("Dynamic Quant\n" + antOrPost, vueScin, capture, "_" + antOrPost);
 

@@ -50,7 +50,9 @@ public abstract class VueScin implements PlugIn {
 		FenSelectionDicom selection=new FenSelectionDicom(this.getExamType());
 		selection.setModal(true);
 		selection.setVisible(true);
-		ouvertureImage(selection.getSelectedWindowsTitles());		
+		if(selection.getSelectedWindowsTitles().length > 0) {
+			ouvertureImage(selection.getSelectedWindowsTitles());
+		}
 	}
 	
 	/**

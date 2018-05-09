@@ -65,7 +65,6 @@ public class FenApplication_Cardiac extends FenApplication {
 		ctrl.setSlice(ctrl.getSliceNumberByRoiIndex(ctrl.getIndexRoi()));
 		this.modeCont = false;
 	}
-
 	
 	@Override
 	public void setControleur(ControleurScin ctrl) {

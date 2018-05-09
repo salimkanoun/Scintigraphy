@@ -41,10 +41,9 @@ public class Modele_Cardiac extends ModeleScin {
 	}
 
 	@Override
-	public void enregisterMesure(String nomRoi, ImagePlus imp) {
-		Double counts = this.getCounts(imp);
+	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
+		Double counts = ModeleScin.getCounts(imp);
 		data.put(nomRoi, counts);
-		System.out.println(nomRoi + " : " + counts);
 	}
 
 	public void calculerResultats() {
@@ -78,6 +77,7 @@ public class Modele_Cardiac extends ModeleScin {
 			this.finalEarly = this.totEarly - this.sumContE;
 		}
 
+		//calcul heart/whole body
 		this.hwb = (this.fixCoeurL)
 				/ (this.totLate - (this.fixReinDL + this.fixReinGL + this.fixVessieL + this.sumContL));
 
@@ -98,6 +98,7 @@ public class Modele_Cardiac extends ModeleScin {
 
 	}
 
+	//renvoie la moyenne geometrique de la vue ant et post de la slice courante
 	private Double getGlobalCountAvg() {
 		this.imp.setRoi(0, 0, this.imp.getWidth() / 2, this.imp.getHeight());
 		Double countAnt = this.getCounts(this.imp);

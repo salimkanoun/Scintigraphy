@@ -7,13 +7,13 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.cardiac.Vue_Cardiac;
-import org.petctviewer.scintigraphy.dynamic.Vue_Dynamic;
 import org.petctviewer.scintigraphy.dynamic.Vue_GeneralDyn;
 import org.petctviewer.scintigraphy.hepatic.dyn.Vue_HepaticDyn;
 import org.petctviewer.scintigraphy.hepatic.statique.Vue_Hepatic;
-import org.petctviewer.scintigraphy.liver.Vue_Liver;
 import org.petctviewer.scintigraphy.platelet.Vue_Plaquettes;
+import org.petctviewer.scintigraphy.renal.Vue_Renal;
 import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.VueScinDyn;
 
 public class FenDebug extends JFrame{
 
@@ -72,12 +72,12 @@ public class FenDebug extends JFrame{
 			}
 		});
 		
-		JButton btn_liver = new JButton("Liver");
+		JButton btn_liver = new JButton("Renal");
 		btn_liver.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				FenDebug.this.dispose();
-				VueScin vue = new Vue_Liver();
+				VueScin vue = new Vue_Renal();
 				vue.run("");
 			}
 		});

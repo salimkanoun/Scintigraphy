@@ -40,7 +40,7 @@ public class Controleur_Hepatic extends ControleurScin {
 		for (int i = 0; i < 2; i++) {
 			this.indexRoi++;
 			vue.getImp().setRoi(getOrganRoi(indexRoi));
-			this.getModele().enregisterMesure(this.addTag(this.getNomOrgane(indexRoi)), vue.getImp());
+			this.getModele().enregistrerMesure(this.addTag(this.getNomOrgane(indexRoi)), vue.getImp());
 		}
 		
 		this.getModele().calculerResultats();

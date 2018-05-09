@@ -317,7 +317,7 @@ public abstract class ControleurScin implements ActionListener {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
 
 			// on enregistre la ROI dans le modele
-			leModele.enregisterMesure(this.addTag(nomRoi), laVue.getImp());
+			leModele.enregistrerMesure(this.addTag(nomRoi), laVue.getImp());
 
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
@@ -334,7 +334,13 @@ public abstract class ControleurScin implements ActionListener {
 
 			return true;
 		} else {
-			System.out.println("Roi perdue");
+			if(this.getOrganRoi(indexRoi) == null) {
+				System.out.println("Roi perdue");
+			}else {
+				System.out.println("Roi perdue, restoration roi organe");
+				this.getVue().getImp().setRoi(this.getOrganRoi(indexRoi));
+			}
+			
 			return false;
 		}
 

@@ -24,6 +24,10 @@ public class FenGroup_GeneralDyn extends JDialog {
 	private JList<String> listDroite;
 	private String[] roiNames;
 
+	/**
+	 * Cette fenetre permet de choisir comment organiser ses courbes dans les differents graphiques, elle genere un tableau de String d'association
+	 * @param roiNames nom des courbes a placer dans les graphiques
+	 */
 	public FenGroup_GeneralDyn(String[] roiNames) {
 		cgs = new ArrayList<ChartGroup>();
 		this.roiNames = roiNames;
@@ -122,6 +126,11 @@ public class FenGroup_GeneralDyn extends JDialog {
 		}
 	}
 
+	/**
+	 * Renvoie un tableau de tableau de string correspondant a l'association choisie par l'utilisateur.
+	 * Si il n'y a eu aucune association de faite, les 5 premieres courbes se repartiront dans l'ordre dans les graphes
+	 * @return String[][] de la forme {{courbe1, courbe2}, {courbe3}, {courbe1, courbe2}}
+	 */
 	public String[][] getAssociation() {
 		String[][] association;
 

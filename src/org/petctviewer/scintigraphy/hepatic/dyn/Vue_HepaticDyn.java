@@ -1,11 +1,12 @@
 package org.petctviewer.scintigraphy.hepatic.dyn;
 
-import org.petctviewer.scintigraphy.dynamic.Vue_Dynamic;
 import org.petctviewer.scintigraphy.scin.FenApplication;
+import org.petctviewer.scintigraphy.scin.VueScinDyn;
+
 import ij.IJ;
 import ij.gui.Toolbar;
 
-public class Vue_HepaticDyn extends Vue_Dynamic {
+public class Vue_HepaticDyn extends VueScinDyn {
 
 	public Vue_HepaticDyn() {
 		super("Biliary scintigraphy");

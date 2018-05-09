@@ -1,21 +1,21 @@
-package org.petctviewer.scintigraphy.dynamic;
+package org.petctviewer.scintigraphy.scin;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.petctviewer.scintigraphy.scin.VueScin;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.plugin.ZProjector;
 import ij.util.DicomTools;
 
-public abstract class Vue_Dynamic extends VueScin {
+public abstract class VueScinDyn extends VueScin {
 
 	protected ImagePlus impProjetee, impAnt, impPost;
 
 	private int[] frameDurations;
 
-	public Vue_Dynamic(String title) {
+	public VueScinDyn(String title) {
 		super(title);
 	}
 

@@ -59,6 +59,7 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 		this.resultats.remove(key);		
 		resultRouge.add(lbl_hwb);
 		
+		//on ajoute le pourcentage de retention cardiaque si il existe
 		key = "Cardiac retention %";
 		if (this.resultats.containsKey(key)) {
 			JLabel lbl = new JLabel(key + " : " + resultats.remove(key));
@@ -66,6 +67,7 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 			resultRouge.add(lbl);
 		}			
 		
+		//idem pour la retention du corps entier
 		key = "WB retention %";
 		if (this.resultats.containsKey(key)) {
 			JLabel lbl = new JLabel(key + " : " + resultats.remove(key));
@@ -73,11 +75,12 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 			resultRouge.add(lbl);
 		}
 		
+		//on utilise un flow layout pour centrer le panel
 		JPanel flow2 = new JPanel(new FlowLayout());
 		flow2.add(resultRouge);
 		panels[0] = flow2;
 
-		/// ajout de la table avec les resultats des rois
+		// ajout de la table avec les resultats des rois
 		DefaultTableModel modelRes = new DefaultTableModel();
 		JTable tabRes = new JTable(modelRes);
 		modelRes.addColumn("Organ");
@@ -85,15 +88,22 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 		for (String k : this.resultats.keySet()) {
 			modelRes.addRow(this.getTabRes(k));
 		}
+		
+		//tri des valeurs
 		tabRes.setAutoCreateRowSorter(true);
 		DefaultRowSorter<?, ?> sorter = ((DefaultRowSorter<?, ?>) tabRes.getRowSorter());
 		ArrayList<SortKey> list = new ArrayList<SortKey>();
 		list.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
 		sorter.setSortKeys(list);
 		sorter.sort();
+		
+		//ajout d'une bordure
 		tabRes.setBorder(LineBorder.createBlackLineBorder());
+		
 		// desactive l'edition
 		tabRes.setDefaultEditor(Object.class, null);
+		
+		//on empeche l'edition
 		tabRes.setFocusable(false);
 		tabRes.setRowSelectionAllowed(false);
 		panels[2] = tabRes;

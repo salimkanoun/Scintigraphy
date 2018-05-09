@@ -17,7 +17,7 @@ public class Modele_Hepatic extends ModeleScin {
 	}
 
 	@Override
-	public void enregisterMesure(String nomRoi, ImagePlus imp) {
+	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 		Double counts = this.getCounts(imp);
 		data.put(nomRoi, counts);
 	}

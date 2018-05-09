@@ -4,13 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.HashMap;
-
 import javax.swing.Box;
-import javax.swing.DefaultRowSorter;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,13 +14,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import ij.ImagePlus;
+public abstract class FenResultatSidePanel extends JFrame {
 
-public class FenResultatSidePanel extends JFrame {
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -5212479342782678916L;
 
 	protected Box side;
@@ -116,9 +107,7 @@ public class FenResultatSidePanel extends JFrame {
 	 * A Overrider, renvoie les components a afficher dans le side panel
 	 * @return
 	 */
-	public Component[] getSidePanelContent() {
-		return new Component[] {new JLabel()};
-	}
+	public abstract Component[] getSidePanelContent();
 
 	public void setModele(ModeleScin modele) {
 		this.modele = modele;

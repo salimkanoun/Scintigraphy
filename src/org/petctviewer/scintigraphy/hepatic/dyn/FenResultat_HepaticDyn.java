@@ -4,7 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.LayoutManager;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -57,11 +59,10 @@ public class FenResultat_HepaticDyn extends JFrame {
 		JLabel lbl_credits = new JLabel("Provided by petctviewer.org");
 		lbl_credits.setVisible(false);
 		vue.getFen_application().getControleur().setCaptureButton(btn_capture, lbl_credits, this, modele, "");
-		JPanel btnlbl = new JPanel(new GridLayout(2, 1));
-		JPanel flow = new JPanel();
+		
+		JPanel flow = new JPanel(new FlowLayout(FlowLayout.RIGHT));		
+		flow.add(lbl_credits);
 		flow.add(btn_capture);
-		btnlbl.add(flow);
-		btnlbl.add(lbl_credits);
 
 		// texte de resultat
 		Box res = Box.createVerticalBox();
@@ -108,7 +109,7 @@ public class FenResultat_HepaticDyn extends JFrame {
 		titre.add(new JLabel("<html><h1> " + vue.getExamType() + " </h1><html>"));
 		this.add(titre, BorderLayout.NORTH);
 		this.add(grille, BorderLayout.CENTER);
-		this.add(btnlbl, BorderLayout.SOUTH);
+		this.add(flow, BorderLayout.SOUTH);
 		
 		this.pack();
 		
@@ -143,8 +144,6 @@ public class FenResultat_HepaticDyn extends JFrame {
 				}
 			}
 		}
-		
-		System.out.println(Arrays.toString(sliceIndex));
 		
 		for (int i = 1; i < sliceIndex.length; i++) {
 			int start = sliceIndex[i - 1];

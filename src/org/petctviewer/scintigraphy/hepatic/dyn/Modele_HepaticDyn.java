@@ -22,6 +22,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 
 import ij.ImagePlus;
 import ij.util.DicomTools;
@@ -36,7 +37,8 @@ public class Modele_HepaticDyn extends ModeleScin {
 
 	// resultats calcules
 	private int tDemiFoieDFit, tDemiFoieGFit, tDemiVascFit, tDemiFoieDObs, tDemiFoieGObs, tDemiVascObs;
-	private int maxFoieD, maxFoieG;
+	private Double maxFoieD;
+	private Double maxFoieG;
 
 	private Double finPicD, finPicG, pctVasc;
 
@@ -51,8 +53,8 @@ public class Modele_HepaticDyn extends ModeleScin {
 	}
 
 	@Override
-	public void enregisterMesure(String nomRoi, ImagePlus imp) {
-		Double counts = this.getCounts(imp);
+	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
+		Double counts = ModeleScin.getCounts(imp);
 
 		if (nomRoi.contains("Blood pool")) {
 			vasc.add(counts);
@@ -73,43 +75,20 @@ public class Modele_HepaticDyn extends ModeleScin {
 		// on cree le graphique
 		createGraph();
 
-		this.maxFoieD = this.getMax(this.liverR).intValue();
+		this.maxFoieD = ModeleScin.getMaxY(this.liverR);
 		this.tDemiFoieDFit = this.getTDemiFit(liverR, (maxFoieD + 2)*1.0);
-		this.tDemiFoieDObs = this.getTDemiObs(liverR, (maxFoieD + 2)*1.0);
+		this.tDemiFoieDObs = ModeleScinDyn.getTDemiObs(liverR, (maxFoieD + 2)*1.0).intValue();
 		this.finPicD = this.liverR.getY(liverR.getItemCount() - 1).doubleValue() / liverR.getMaxY();
 
-		this.maxFoieG = this.getMax(this.liverL).intValue();
-		this.tDemiFoieGFit = this.getTDemiFit(liverL, (maxFoieG + 2)*1.0);
-		this.tDemiFoieGObs = this.getTDemiObs(liverL, (maxFoieG + 2)*1.0);
+		this.maxFoieG = ModeleScin.getMaxY(this.liverL);
+		this.tDemiFoieGFit = this.getTDemiFit(liverL, maxFoieG + 2);
+		this.tDemiFoieGObs = ModeleScinDyn.getTDemiObs(liverL, maxFoieG + 2).intValue();
 		this.finPicG = this.liverL.getY(liverL.getItemCount() - 1).doubleValue() / liverL.getMaxY();
 
-		this.pctVasc = this.getY(bloodPool, 20.0) / this.getY(bloodPool, 5.0);
+		this.pctVasc = ModeleScin.getY(bloodPool, 20.0) / ModeleScin.getY(bloodPool, 5.0);
 		this.tDemiVascFit = this.getTDemiFit(bloodPool, 20.0);
-		this.tDemiVascObs = this.getTDemiObs(bloodPool, 20.0);
+		this.tDemiVascObs = ModeleScinDyn.getTDemiObs(bloodPool, 20.0).intValue();
 
-	}
-
-	private Double getY(XYSeries series, double x) {
-		for (int i = 1; i < series.getItemCount(); i++) {
-			if ((series.getX(i-1).doubleValue() <= x && x <= series.getX(i).doubleValue())
-					|| (series.getX(i-1).doubleValue() >= x && x >= series.getX(i).doubleValue())) {
-				Double y = (series.getY(i-1).doubleValue() + series.getY(i).doubleValue()) / 2;
-				return y;
-			}
-		}
-		return 0.0;
-	}
-
-	private int getTDemiObs(XYSeries series, Double startX) {
-		int yDemi = (int) (getY(series, startX) / 2);
-		for(int i = 1; i < series.getItemCount(); i++) {
-			if(series.getY(i-1).doubleValue() >= yDemi && series.getY(i).doubleValue() <= yDemi) {
-					int x = (series.getX(i-1).intValue() + series.getX(i).intValue()) / 2;
-					if(x >= startX)
-						return x;
-			}
-		}
-		return 0;
 	}
 
 	private int getTDemiFit(XYSeries series, Double startX) {
@@ -128,17 +107,6 @@ public class Modele_HepaticDyn extends ModeleScin {
 		
 		int tdemi = (int) (Math.log(2.0) / results[1]) * -1;
 		return tdemi;		
-	}
-
-	private Number getMax(XYSeries series) {
-		Number maxY = series.getMaxY();
-		List<XYDataItem> items = series.getItems();
-		for (XYDataItem i : items) {
-			if (maxY.equals(i.getY())) {
-				return i.getX();
-			}
-		}
-		return null;
 	}
 
 	public ChartPanel getChartPanel() {
@@ -190,13 +158,13 @@ public class Modele_HepaticDyn extends ModeleScin {
 		// foie droit
 		hm.put("T1/2 Righ Liver", tDemiFoieDObs + "mn");
 		hm.put("T1/2 Righ Liver *", tDemiFoieDFit + "mn");
-		hm.put("Maximum Right Liver", maxFoieD + "mn");
+		hm.put("Maximum Right Liver", round(maxFoieD, 1) + "mn");
 		hm.put("end/max Ratio Right", (int) (finPicD * 100) + "%");
 
 		// foie gauche
 		hm.put("T1/2 Left Liver", tDemiFoieGObs + "mn");
 		hm.put("T1/2 Left Liver *", tDemiFoieGFit + "mn");
-		hm.put("Maximum Left Liver", maxFoieG + "mn");
+		hm.put("Maximum Left Liver", round(maxFoieG, 1) + "mn");
 		hm.put("end/max Ratio Left", (int) (finPicG * 100) + "%");
 
 		// vasculaire
