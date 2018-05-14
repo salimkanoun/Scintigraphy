@@ -4,38 +4,15 @@ import ij.ImagePlus;
 import ij.gui.ImageCanvas;
 import ij.gui.Overlay;
 import ij.gui.StackWindow;
-import ij.plugin.frame.RoiManager;
 import ij.util.DicomTools;
 import java.awt.Button;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.Insets;
-import java.awt.Label;
 import java.awt.Panel;
-import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
-
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.cardiac.Controleur_Cardiac;
 
 public class FenApplication extends StackWindow {
 	private static final long serialVersionUID = -6280620624574294247L;

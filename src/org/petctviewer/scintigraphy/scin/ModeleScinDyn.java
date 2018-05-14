@@ -1,20 +1,11 @@
 package org.petctviewer.scintigraphy.scin;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 
 import ij.ImagePlus;
 
@@ -43,7 +34,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 			if (this.data.get(name) == null) {
 				this.data.put(name, new ArrayList<Double>());
 			}
-			this.data.get(name).add(this.getCounts(imp));
+			this.data.get(name).add(ModeleScin.getCounts(imp));
 		}
 	}
 

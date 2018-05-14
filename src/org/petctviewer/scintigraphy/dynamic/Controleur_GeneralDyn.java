@@ -1,19 +1,14 @@
 package org.petctviewer.scintigraphy.dynamic;
 
 import java.awt.Button;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
-
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
-
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.ZProjector;

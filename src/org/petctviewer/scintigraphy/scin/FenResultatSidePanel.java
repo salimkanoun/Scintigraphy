@@ -46,7 +46,10 @@ public abstract class FenResultatSidePanel extends JFrame {
 		
 		//ajout de la capture
 		JLabel img = new JLabel();
-		img.setIcon(new ImageIcon(capture));
+		
+		if(capture != null) {
+			img.setIcon(new ImageIcon(capture));
+		}
 
 		this.add(img, BorderLayout.WEST);
 
@@ -78,8 +81,10 @@ public abstract class FenResultatSidePanel extends JFrame {
 	public void finishBuildingWindow() {
 		side.add(Box.createVerticalGlue());
 		
-		for(Component c : this.getSidePanelContent()) {
-			side.add(c);
+		if(this.getSidePanelContent() != null) {
+			for(Component c : this.getSidePanelContent()) {
+				side.add(c);
+			}
 		}
 
 		side.add(Box.createVerticalGlue());

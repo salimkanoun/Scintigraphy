@@ -13,7 +13,6 @@ import org.petctviewer.scintigraphy.hepatic.statique.Vue_Hepatic;
 import org.petctviewer.scintigraphy.platelet.Vue_Plaquettes;
 import org.petctviewer.scintigraphy.renal.Vue_Renal;
 import org.petctviewer.scintigraphy.scin.VueScin;
-import org.petctviewer.scintigraphy.scin.VueScinDyn;
 
 public class FenDebug extends JFrame{
 

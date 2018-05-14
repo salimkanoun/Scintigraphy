@@ -1,17 +1,10 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-
 import ij.ImagePlus;
-import ij.measure.Measurements;
-import ij.measure.ResultsTable;
-import ij.plugin.filter.Analyzer;
 
 public class Modele_Cardiac extends ModeleScin {
 
@@ -27,7 +20,7 @@ public class Modele_Cardiac extends ModeleScin {
 
 	/** Valeurs calcul�es **/
 	// valeurs finales
-	private Double finalEarly, finalLate;
+	private Double finalEarly;
 	private Double hwb, retCardiaque, retCe;
 
 	private Boolean deuxPrises;
@@ -72,7 +65,6 @@ public class Modele_Cardiac extends ModeleScin {
 			}
 		}
 
-		this.finalLate = this.totLate - this.sumContL;
 		if (this.deuxPrises) {
 			this.finalEarly = this.totEarly - this.sumContE;
 		}
@@ -101,10 +93,10 @@ public class Modele_Cardiac extends ModeleScin {
 	//renvoie la moyenne geometrique de la vue ant et post de la slice courante
 	private Double getGlobalCountAvg() {
 		this.imp.setRoi(0, 0, this.imp.getWidth() / 2, this.imp.getHeight());
-		Double countAnt = this.getCounts(this.imp);
+		Double countAnt = ModeleScin.getCounts(this.imp);
 
 		this.imp.setRoi(this.imp.getWidth() / 2, 0, this.imp.getWidth() / 2, this.imp.getHeight());
-		Double countPost = this.getCounts(this.imp);
+		Double countPost = ModeleScin.getCounts(this.imp);
 
 		return moyGeom(countAnt, countPost);
 	}

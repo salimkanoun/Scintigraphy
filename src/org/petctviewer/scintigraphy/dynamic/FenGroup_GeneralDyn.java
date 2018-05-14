@@ -3,23 +3,22 @@ package org.petctviewer.scintigraphy.dynamic;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JTable;
 
 public class FenGroup_GeneralDyn extends JDialog {
 
+	private static final long serialVersionUID = 145239677437316066L;
+	
 	private List<ChartGroup> cgs;
 	private JList<String> listDroite;
 	private String[] roiNames;

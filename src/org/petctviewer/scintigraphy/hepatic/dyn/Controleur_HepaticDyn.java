@@ -1,15 +1,8 @@
 package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.awt.image.BufferedImage;
-import java.lang.reflect.InvocationTargetException;
-
-import javax.swing.SwingUtilities;
-
-import org.petctviewer.scintigraphy.hepatic.statique.Modele_Hepatic;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.VueScin;
-
 import ij.ImagePlus;
 import ij.gui.Roi;
 

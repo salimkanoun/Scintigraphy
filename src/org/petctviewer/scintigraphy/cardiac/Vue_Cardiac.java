@@ -1,9 +1,7 @@
 package org.petctviewer.scintigraphy.cardiac;
+
 import java.util.ArrayList;
-
-import org.petctviewer.scintigraphy.scin.FenApplication;
 import org.petctviewer.scintigraphy.scin.VueScin;
-
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
@@ -48,7 +46,7 @@ public class Vue_Cardiac extends VueScin{
 		//si la prise est early/late
 		if(titresFenetres.length == 2) {
 			impStacked = enchainer.concatenate(mountedSorted, false);
-			// si il y a plus de 3 minutes de différence entre les deux prises
+			// si il y a plus de 3 minutes de diffï¿½rence entre les deux prises
 			if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {
 				IJ.log("Warning, frame duration differ by " + (int) Math.abs(frameDuration[0] - frameDuration[1]) / (1000 * 60) + " minutes");
 			}

@@ -1,12 +1,8 @@
 package org.petctviewer.scintigraphy.renal;
 
-import org.petctviewer.scintigraphy.hepatic.statique.Controleur_Hepatic;
 import org.petctviewer.scintigraphy.scin.FenApplication;
-import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
-
 import ij.IJ;
-import ij.ImagePlus;
 import ij.gui.Toolbar;
 
 public class Vue_Renal extends VueScinDyn {

@@ -3,16 +3,11 @@ package org.petctviewer.scintigraphy.renal;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
 import java.util.List;
-
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
-import org.petctviewer.scintigraphy.dynamic.FenResultat_GeneralDyn;
-import org.petctviewer.scintigraphy.dynamic.Vue_GeneralDyn;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
 
 import ij.ImagePlus;
@@ -20,7 +15,7 @@ import ij.gui.Roi;
 
 public class Controleur_Renal extends ControleurScin {
 
-	public static String[] ORGANES = { "Kidney R", "Bkg R", "Kidney L", "Bkg L", "Blood Pool", "Bladder" };
+	public static String[] ORGANES = { "R. Kidney", "R. bkg", "L. Kidney", "L. bkg", "Blood Pool", "Bladder" };
 
 	private int maxIndexRoi = 0;
 
@@ -88,6 +83,9 @@ public class Controleur_Renal extends ControleurScin {
 		modele.fitVasculaire();
 
 		new FenResultat_Renal(vue, capture, adjuster.getChartPanelWithOverlay());
+		if(true) { //TODO condition d'ajout
+			new FenOptionalCharts(vue);
+		}
 	}
 
 	@Override

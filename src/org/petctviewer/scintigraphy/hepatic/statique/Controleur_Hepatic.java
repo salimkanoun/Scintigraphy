@@ -1,20 +1,10 @@
 package org.petctviewer.scintigraphy.hepatic.statique;
 
 import java.awt.image.BufferedImage;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.concurrent.CountDownLatch;
-
-import javax.swing.SwingUtilities;
-
-import org.petctviewer.scintigraphy.cardiac.FenResultat_Cardiac;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
-
-import ij.ImagePlus;
 import ij.gui.Roi;
-import ij.plugin.MontageMaker;
 
 public class Controleur_Hepatic extends ControleurScin {
 

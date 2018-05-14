@@ -1,11 +1,8 @@
 package org.petctviewer.scintigraphy.hepatic.statique;
 
 import java.util.HashMap;
-
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-
 import ij.ImagePlus;
-import ij.gui.Roi;
 
 public class Modele_Hepatic extends ModeleScin {
 
@@ -18,7 +15,7 @@ public class Modele_Hepatic extends ModeleScin {
 
 	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
-		Double counts = this.getCounts(imp);
+		Double counts = ModeleScin.getCounts(imp);
 		data.put(nomRoi, counts);
 	}
 	

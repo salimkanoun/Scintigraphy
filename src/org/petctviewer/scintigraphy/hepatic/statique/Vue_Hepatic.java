@@ -2,13 +2,10 @@ package org.petctviewer.scintigraphy.hepatic.statique;
 
 import org.petctviewer.scintigraphy.scin.FenApplication;
 import org.petctviewer.scintigraphy.scin.VueScin;
-
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.Toolbar;
-import ij.plugin.MontageMaker;
-import ij.util.DicomTools;
 
 public class Vue_Hepatic extends VueScin {
 

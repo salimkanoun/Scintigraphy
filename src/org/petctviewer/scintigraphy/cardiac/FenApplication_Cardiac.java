@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.cardiac;
 import java.awt.Button;
 import java.awt.GridLayout;
 import java.awt.Panel;
-import java.awt.event.ActionListener;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.FenApplication;

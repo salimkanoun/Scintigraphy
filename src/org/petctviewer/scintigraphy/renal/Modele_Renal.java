@@ -9,7 +9,6 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.VueScinDyn;
 
 import ij.ImagePlus;
 
@@ -245,8 +244,25 @@ public class Modele_Renal extends ModeleScinDyn {
 			s += "\n ROE " + min + "min Left Kidney , " + this.getPercentage(min, lk, "L");
 			s += "\n ROE " + min + "min Right Kidney , " + this.getPercentage(min, rk, "R");
 		}
-
+		
+		String[][] tableData = this.getTableData();
+		s += "\n";
+		
+		//on ajoute les valeurs du tableau
+		for(int i = 1; i < 3; i++) {
+			String lr = " Left";
+			if(i == 2) {
+				lr = " Right";
+			}
+			
+			for(int j = 0; j < 4; j++) {
+				s += "\n " + tableData[j][0] + lr;
+				s += "," + tableData[j][i];
+			}
+		}
+		
 		return s;
+		
 	}
 
 	public String[][] getTableData() {

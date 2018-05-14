@@ -9,12 +9,9 @@ import ij.gui.Overlay;
 import ij.gui.TextRoi;
 import ij.plugin.Concatenator;
 import ij.plugin.PlugIn;
-import ij.plugin.frame.RoiManager;
 import ij.process.LUT;
 import ij.util.DicomTools;
-
 import java.awt.Font;
-import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -22,13 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
-
-import javax.swing.JDialog;
-import javax.swing.JTable;
-import javax.swing.SwingUtilities;
-
 import org.apache.commons.lang.StringUtils;
-import org.petctviewer.scintigraphy.platelet.FenetreResultat;
 
 public abstract class VueScin implements PlugIn {
 	private String examType;

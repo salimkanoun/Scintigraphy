@@ -20,27 +20,17 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.FileNotFoundException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-
 import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
-import ij.WindowManager;
 import ij.gui.Roi;
 import ij.gui.Toolbar;
 import ij.plugin.frame.RoiManager;
-import ij.util.DicomTools;
 
 public abstract class ControleurScin implements ActionListener {
 

@@ -12,7 +12,6 @@ import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
 import ij.IJ;
-import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.RoiScaler;
 

@@ -1,32 +1,11 @@
 package org.petctviewer.scintigraphy.hepatic.statique;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.Image;
-import java.util.ArrayList;
 import java.util.HashMap;
-
-import javax.swing.Box;
-import javax.swing.DefaultRowSorter;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.RowSorter;
-import javax.swing.RowSorter.SortKey;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.SortOrder;
-import javax.swing.table.DefaultTableModel;
-
-import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
 import java.awt.image.BufferedImage;
