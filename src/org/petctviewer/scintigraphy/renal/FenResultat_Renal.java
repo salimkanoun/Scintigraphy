@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.renal;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -47,8 +48,11 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 
 		// recuperation des chart panel avec association
 		String[][] asso = { { "Blood Pool" }, { "Bladder" }, { "Final KR", "Final KL" },
-				{ "Blood pool fitted", "Final KR", "Output KR" }, { "Blood pool fitted", "Final KL", "Output KL" } };
+				{ "Blood pool fitted R", "Final KR", "Output KR" }, { "Blood pool fitted L", "Final KL", "Output KL" } };
+		
 		ChartPanel[] cPanels = ModeleScin.associateSeries(asso, series);
+		
+		//new Test(cPanels[1]);
 		
 		cPanels[2] = chartPanel;
 
@@ -56,6 +60,7 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 		for (int i = 0; i < cPanels.length; i++) {
 			ChartPanel c = cPanels[i];
 			c.setPreferredSize(new Dimension(capture.getWidth() + 1 / 3 * capture.getWidth(), capture.getHeight()));
+			c.getChart().getPlot().setBackgroundPaint(null);
 			grid.add(c);
 		}
 		
@@ -94,14 +99,14 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 		
 		res.add(new JLabel("Renal output efficiency Right Kidney :"));
 		for (int min : mins) {
-			res.add(new JLabel("   - ROE " + min + " min : " + modele.getPercentage(min, serieRK) + "%"));
+			res.add(new JLabel("   - ROE " + min + " min : " + modele.getPercentage(min, serieRK, "R") + "%"));
 		}
 
 		res.add(Box.createVerticalStrut(20));
 
 		res.add(new JLabel("Renal output efficiency Left Kidney :"));
 		for (int min : mins) {
-			res.add(new JLabel("   - ROE " + min + " min : " + modele.getPercentage(min, serieLK) + "%"));
+			res.add(new JLabel("   - ROE " + min + " min : " + modele.getPercentage(min, serieLK, "L") + "%"));
 		}
 		
 		res.add(Box.createVerticalStrut(50));

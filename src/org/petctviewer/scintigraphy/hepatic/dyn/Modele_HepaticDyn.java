@@ -75,12 +75,12 @@ public class Modele_HepaticDyn extends ModeleScin {
 		// on cree le graphique
 		createGraph();
 
-		this.maxFoieD = ModeleScin.getMaxY(this.liverR);
+		this.maxFoieD = ModeleScinDyn.getMaxY(this.liverR);
 		this.tDemiFoieDFit = this.getTDemiFit(liverR, (maxFoieD + 2)*1.0);
 		this.tDemiFoieDObs = ModeleScinDyn.getTDemiObs(liverR, (maxFoieD + 2)*1.0).intValue();
 		this.finPicD = this.liverR.getY(liverR.getItemCount() - 1).doubleValue() / liverR.getMaxY();
 
-		this.maxFoieG = ModeleScin.getMaxY(this.liverL);
+		this.maxFoieG = ModeleScinDyn.getMaxY(this.liverL);
 		this.tDemiFoieGFit = this.getTDemiFit(liverL, maxFoieG + 2);
 		this.tDemiFoieGObs = ModeleScinDyn.getTDemiObs(liverL, maxFoieG + 2).intValue();
 		this.finPicG = this.liverL.getY(liverL.getItemCount() - 1).doubleValue() / liverL.getMaxY();

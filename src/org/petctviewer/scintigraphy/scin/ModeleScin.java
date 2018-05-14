@@ -65,12 +65,12 @@ public abstract class ModeleScin {
 	
 	public static ChartPanel[] associateSeries(String[][] asso, List<XYSeries> series) {
 		ArrayList<ChartPanel> cPanels = new ArrayList<ChartPanel>();
-		for (String[] i : asso) {
+		for (String[] i : asso) { //pour chaque association
 			if (i.length > 0) {
 				XYSeriesCollection dataset = new XYSeriesCollection();
 
-				for (String j : i) {
-					for (int k = 0; k < series.size(); k++) {
+				for (String j : i) { //pour chaque cle
+					for (int k = 0; k < series.size(); k++) {						
 						if (series.get(k).getKey().equals(j)) {
 							dataset.addSeries(series.get(k));
 						}
@@ -141,33 +141,12 @@ public abstract class ModeleScin {
 		return DatasetUtils.findYValue(data, 0, x);
 	}
 	
-	public static Double getMaxY(XYSeries series) {
-		Number maxY = series.getMaxY();
-		List<XYDataItem> items = series.getItems();
-		for (XYDataItem i : items) {
-			if (maxY.equals(i.getY())) {
-				return i.getX().doubleValue();
-			}
-		}
-		return null;
-	}
-	
-	public static Double getMaxY(XYDataset ds, int series) {
-		Double maxY = 0.0;
-		for(int i = 0; i < ds.getItemCount(series); i++) {
-			if(ds.getY(series, i).doubleValue() > maxY) {
-				maxY = ds.getYValue(series, i);
-			}
-		}
-		
-		for (int i = 0; i < ds.getItemCount(series); i++) {
-			if (maxY.equals(ds.getY(series, i))) {
-				return ds.getXValue(series, i);
-			}
-		}
-		
-		return 0.0;
-	}
+	public static Double getY(List<Double> fittedVasc, Double x) {
+		XYSeries s = ModeleScinDyn.createSerie(fittedVasc, "");
+		XYSeriesCollection data = new XYSeriesCollection(s);
+		return DatasetUtils.findYValue(data, 0, x);
+	};
+
 
 	/**
 	 * Renvoie le nombre de coups sur la roi presente dans l'image plus
@@ -748,6 +727,6 @@ public abstract class ModeleScin {
 
 	public abstract void calculerResultats();
 
-	public HashMap<String, String> getResultsHashMap(){return null;};
+	public HashMap<String, String> getResultsHashMap(){return null;}
 
 }

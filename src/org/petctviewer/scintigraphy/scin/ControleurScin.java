@@ -335,9 +335,9 @@ public abstract class ControleurScin implements ActionListener {
 			return true;
 		} else {
 			if(this.getOrganRoi(indexRoi) == null) {
-				System.out.println("Roi perdue");
+				System.out.println("Roi lost");
 			}else {
-				System.out.println("Roi perdue, restoration roi organe");
+				System.out.println("Roi lost, restoring organ roi");
 				this.getVue().getImp().setRoi(this.getOrganRoi(indexRoi));
 			}
 			

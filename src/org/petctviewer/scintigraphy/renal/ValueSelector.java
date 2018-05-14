@@ -42,7 +42,7 @@ public class ValueSelector extends CrosshairOverlay implements ChartMouseListene
 		this.crossX.setLabelGenerator(new CrosshairLabelGenerator() {
 			@Override
 			public String generateLabel(Crosshair crosshair) {
-				if(nom.equals("") || nom == null) {
+				if(nom.equals(" ") || nom == null) {
 					//cause une exception lors du premier affichage
 					crossX.setLabelVisible(false);
 				}

@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.dynamic.FenResultat_GeneralDyn;
 import org.petctviewer.scintigraphy.dynamic.Vue_GeneralDyn;
@@ -71,16 +72,20 @@ public class Controleur_Renal extends ControleurScin {
 		}
 
 		modele.calculerResultats();
-
+		
 		List<XYSeries> series = modele.getSeries();
-		String[][] asso = new String[][] { { "Final KR", "Final KL" } };
-
-		FenSetValues adjuster;
-		adjuster = new FenSetValues(ModeleScin.associateSeries(asso, series)[0]);
+		String[][] asso = new String[][] { { "Final KR", "Final KL" } };		
+		
+		ChartPanel[] cp = ModeleScin.associateSeries(asso, series);
+		
+		FenSetValues adjuster = new FenSetValues(cp[0]);
 		adjuster.setModal(true);
 		adjuster.setVisible(true);
 		
 		modele.setAdjustedValues(adjuster.getXValues());
+		
+		//on fait le fit vasculaire avec les donnees collectees
+		modele.fitVasculaire();
 
 		new FenResultat_Renal(vue, capture, adjuster.getChartPanelWithOverlay());
 	}

@@ -25,6 +25,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 
 public class FenSetValues extends JDialog {
 
@@ -51,18 +52,15 @@ public class FenSetValues extends JDialog {
 
 		// ajout des selecteurs dans le listener
 		this.selectorListener = new SelectorListener(chart);
-		selectorListener.add(
-				new ValueSelector("TMax L", ModeleScin.getMaxY(plot.getDataset(), 1), 1, RectangleAnchor.TOP_LEFT), 1);
-		selectorListener.add(
-				new ValueSelector("TMax R", ModeleScin.getMaxY(plot.getDataset(), 0), 0, RectangleAnchor.BOTTOM_LEFT),
-				0);
+		selectorListener.add(new ValueSelector("TMax L", ModeleScinDyn.getMaxY(plot.getDataset(), 1), 1, RectangleAnchor.TOP_LEFT), 1);
+		selectorListener.add(new ValueSelector("TMax R", ModeleScinDyn.getMaxY(plot.getDataset(), 0), 0, RectangleAnchor.BOTTOM_LEFT), 0);
 		
 		selectorListener.add(new ValueSelector("Ret OG R", 20, 0, RectangleAnchor.BOTTOM_LEFT), 2);
 		selectorListener.add(new ValueSelector("Ret OG L", 20, 1, RectangleAnchor.TOP_LEFT), 3);
 		
-		ValueSelector start = new ValueSelector("", 1, -1, RectangleAnchor.TOP_LEFT); // debut de l'intervalle
+		ValueSelector start = new ValueSelector(" ", 1, -1, RectangleAnchor.TOP_LEFT); // debut de l'intervalle
 		selectorListener.add(start, 4);
-		ValueSelector end = new ValueSelector("", 3, -1, RectangleAnchor.BOTTOM_RIGHT); // fin de l'intervalle
+		ValueSelector end = new ValueSelector(" ", 3, -1, RectangleAnchor.BOTTOM_RIGHT); // fin de l'intervalle
 		selectorListener.add(end, 5);
 
 		// on rempli l'intervalle entre start et end
@@ -110,6 +108,7 @@ public class FenSetValues extends JDialog {
 
 	public static void main(String[] args) {
 		ChartPanel c = new ChartPanel(createChart(createDataset()));
+		c.getChart().getPlot().setBackgroundPaint(null);
 		FenSetValues f = new FenSetValues(c);
 		f.setModal(true);
 		f.setVisible(true);
@@ -121,7 +120,7 @@ public class FenSetValues extends JDialog {
 
 		XYPlot plot = this.chart.getChart().getXYPlot();
 		plot.clearDomainMarkers();
-		final Color c = new Color(225, 244, 80, 63);
+		final Color c = new Color(225, 244, 50, 120);
 		final Marker bst = new IntervalMarker(debut, fin, c, new BasicStroke(2.0f), null, null, 1.0f);
 
 		bst.setLabelAnchor(RectangleAnchor.TOP_RIGHT);

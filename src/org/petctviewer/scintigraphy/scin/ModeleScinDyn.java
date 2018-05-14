@@ -11,6 +11,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -20,13 +21,13 @@ import ij.ImagePlus;
 public abstract class ModeleScinDyn extends ModeleScin {
 
 	private HashMap<String, List<Double>> data;
-	private int[] frameDuration;
+	public static int[] FRAMEDURATION;
 
 	private boolean lock = false;
 
 	public ModeleScinDyn(int[] frameDuration) {
 		this.data = new HashMap<String, List<Double>>();
-		this.frameDuration = frameDuration;
+		ModeleScinDyn.FRAMEDURATION = frameDuration;
 	}
 
 	public int getNbRoi() {
@@ -55,14 +56,14 @@ public abstract class ModeleScinDyn extends ModeleScin {
 		}
 		return listSeries;
 	}
-	
+
 	public static Double getTDemiObs(XYSeries series, Double startX) {
 		int yDemi = (int) (getY(series, startX) / 2);
-		for(int i = 1; i < series.getItemCount(); i++) {
-			if(series.getY(i-1).doubleValue() >= yDemi && series.getY(i).doubleValue() <= yDemi) {
-					Double x = (series.getX(i-1).doubleValue() + series.getX(i).doubleValue()) / 2;
-					if(x >= startX)
-						return x;
+		for (int i = 1; i < series.getItemCount(); i++) {
+			if (series.getY(i - 1).doubleValue() >= yDemi && series.getY(i).doubleValue() <= yDemi) {
+				Double x = (series.getX(i - 1).doubleValue() + series.getX(i).doubleValue()) / 2;
+				if (x >= startX)
+					return x;
 			}
 		}
 		return 0.0;
@@ -70,27 +71,64 @@ public abstract class ModeleScinDyn extends ModeleScin {
 
 	/**
 	 * renvoie une serie avec les ordonnees en coups / sec
-	 * @param l liste de points 
-	 * @param nom nom de la serie
+	 * 
+	 * @param l
+	 *            liste de points
+	 * @param nom
+	 *            nom de la serie
 	 * @return la serie
 	 */
-	public XYSeries createSerie(List<Double> l, String nom) {
-		XYSeries points = new XYSeries(nom);
+	public static XYSeries createSerie(List<Double> l, String nom) {
+		if(l.size() != FRAMEDURATION.length) {
+			throw new IllegalArgumentException("List size does not match duration time");
+		}
+		
+		XYSeries points = new XYSeries(nom, true);
 
 		Double dureePriseOld = 0.0;
 		for (int i = 0; i < l.size(); i++) {
-			//en secondes
-			Double dureePrise = frameDuration[i] / 60000.0;
+			// en secondes
+			Double dureePrise = FRAMEDURATION[i] / 60000.0;
 			points.add(dureePriseOld + dureePrise, l.get(i));
 			dureePriseOld += dureePrise;
 		}
 
 		return points;
 	}
-	
+
+	public static Double getMaxY(XYSeries series) {
+		Number maxY = series.getMaxY();
+		List<XYDataItem> items = series.getItems();
+		for (XYDataItem i : items) {
+			if (maxY.equals(i.getY())) {
+				return i.getX().doubleValue();
+			}
+		}
+		return null;
+	}
+
+	public static double getMaxY(XYDataset ds, int series) {
+		Double maxY = 0.0;
+		for (int i = 0; i < ds.getItemCount(series); i++) {
+			if (ds.getY(series, i).doubleValue() > maxY) {
+				maxY = ds.getYValue(series, i);
+			}
+		}
+
+		for (int i = 0; i < ds.getItemCount(series); i++) {
+			if (maxY.equals(ds.getY(series, i))) {
+				return ds.getXValue(series, i);
+			}
+		}
+
+		return 0.0;
+	}
+
 	/**
 	 * renvoie la liste des ordonnees de la serie passee en parametre
-	 * @param la serie
+	 * 
+	 * @param la
+	 *            serie
 	 * @return liste des ordonnees
 	 */
 	public List<Double> seriesToList(XYSeries s) {
@@ -100,16 +138,16 @@ public abstract class ModeleScinDyn extends ModeleScin {
 		}
 		return l;
 	}
-	
-	public List<Double> adjustValues(List<Double> values){
+
+	public List<Double> adjustValues(List<Double> values) {
 		List<Double> valuesAdjusted = new ArrayList<Double>();
-		
+
 		for (int i = 0; i < values.size(); i++) {
-			Double dureePrise = frameDuration[i] / 60000.0;
+			Double dureePrise = FRAMEDURATION[i] / 60000.0;
 			valuesAdjusted.add(values.get(i) / (dureePrise * 60));
 		}
-		
-		return valuesAdjusted;		
+
+		return valuesAdjusted;
 	}
 
 	@Override
@@ -134,7 +172,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	}
 
 	public int[] getFrameDuration() {
-		return frameDuration;
+		return FRAMEDURATION;
 	}
 
 	public void lock() {
