@@ -17,8 +17,13 @@ public class Controleur_Renal extends ControleurScin {
 
 	public static String[] ORGANES = { "R. Kidney", "R. bkg", "L. Kidney", "L. bkg", "Blood Pool", "Bladder" };
 
+	//plus grande valeur que index roi ait prise
 	private int maxIndexRoi = 0;
 
+	/**
+	 * Controle l'execution du programme renal
+	 * @param vue la vue
+	 */
 	protected Controleur_Renal(VueScinDyn vue) {
 		super(vue);
 		this.setOrganes(ORGANES);
@@ -40,7 +45,7 @@ public class Controleur_Renal extends ControleurScin {
 		// on supprime le listener de l'image plus
 		this.removeImpListener();
 
-		// on recupere la vue et le modele et l'imp
+		// on recupere la vue, le modele et l'imp
 		VueScinDyn vue = (VueScinDyn) this.getVue();
 		Modele_Renal modele = (Modele_Renal) vue.getFen_application().getControleur().getModele();
 		ImagePlus imp = vue.getImpAnt();
@@ -51,8 +56,8 @@ public class Controleur_Renal extends ControleurScin {
 		// capture de l'imageplus ainsi que de l'overlay
 		BufferedImage capture = ModeleScin.captureImage(this.getVue().getImp(), 300, 300).getBufferedImage();
 
+		//on ajoute l'imp a la vue
 		this.getVue().setImp(imp);
-		imp = this.getVue().getImp();
 
 		// on enregistre la mesure pour chaque slice
 		indexRoi = 0;
@@ -66,23 +71,28 @@ public class Controleur_Renal extends ControleurScin {
 			}
 		}
 
+		//on calcule les resultats
 		modele.calculerResultats();
 		
+		//on recupere les chartPanels avec l'association
 		List<XYSeries> series = modele.getSeries();
 		String[][] asso = new String[][] { { "Final KR", "Final KL" } };		
-		
 		ChartPanel[] cp = ModeleScin.associateSeries(asso, series);
 		
+		//on ouvre la fenetre pour ajuster les valeurs
 		FenSetValues adjuster = new FenSetValues(cp[0]);
 		adjuster.setModal(true);
 		adjuster.setVisible(true);
 		
+		//on passe les valeurs ajustees au modele
 		modele.setAdjustedValues(adjuster.getXValues());
 		
 		//on fait le fit vasculaire avec les donnees collectees
 		modele.fitVasculaire();
 
+		//on affiche la fenetre de resultats principale
 		new FenResultat_Renal(vue, capture, adjuster.getChartPanelWithOverlay());
+		
 		if(true) { //TODO condition d'ajout
 			new FenOptionalCharts(vue);
 		}
@@ -104,11 +114,12 @@ public class Controleur_Renal extends ControleurScin {
 			// on renvoie la roi de l'organe uniquement si on a fini de tracer les roi
 			return this.roiManager.getRoi(this.indexRoi % Controleur_Renal.ORGANES.length);
 		} else {
-			// roi de bruit de fond
+			// roi de bruit de fond rein droit
 			if (this.indexRoi == 1) {
 				return this.createBkgRoi(indexRoi, new int[] { -1, 1 });
 			}
 
+			//roi de bruit de fond rein gauche
 			if (this.indexRoi == 3) {
 				return this.createBkgRoi(indexRoi, new int[] { 1, 1 });
 			}
@@ -117,6 +128,7 @@ public class Controleur_Renal extends ControleurScin {
 		return null;
 	}
 
+	//cree la roi de bruit de fond
 	private Roi createBkgRoi(int indexRoi, int[] direction) {
 		ImagePlus imp = this.getVue().getImp();
 
@@ -125,13 +137,14 @@ public class Controleur_Renal extends ControleurScin {
 		// on recupere ses bounds
 		Rectangle bounds = liver.getBounds();
 
+		// la taille de la roi bdf correpond a 1/4 de roi organe
 		int[] size = { (bounds.width / 4) * direction[0], (bounds.height / 4) * direction[1] };
 
 		Roi liverShifted = (Roi) liver.clone();
 		liverShifted.setLocation(liver.getXBase() + size[0], liver.getYBase() + size[1]);
 		this.roiManager.addRoi(liverShifted);
 
-		// renvoi une section de la roi
+		// renvoie une section de la roi
 		this.roiManager.setSelectedIndexes(new int[] { indexRoi - 1, this.roiManager.getCount() - 1 });
 		this.roiManager.runCommand(imp, "XOR");
 		this.roiManager.runCommand(imp, "Split");
@@ -143,7 +156,6 @@ public class Controleur_Renal extends ControleurScin {
 
 		// permet de diviser la roi
 		Rectangle splitter;
-
 		if (w > 0) {
 			splitter = new Rectangle(x, y, w, h);
 		} else {
@@ -160,13 +172,11 @@ public class Controleur_Renal extends ControleurScin {
 		Roi bkg = (Roi) this.getVue().getImp().getRoi().clone();
 		int[] offset = new int[] { size[0] / 4, size[1] / 4 };
 
-		// si on doit deplacer la roi bdf de moins d'un pixel, on la deplace d'un pixel
+		// si le deplacement de la bdf est de moins d'un pixel, on la deplace d'un pixel
 		for (int i = 0; i < 2; i++) {
 			if (offset[i] == 0)
 				offset[i] = direction[i];
 		}
-
-		// on deplace la roi pour ne pas qu'elle soit collee
 		bkg.setLocation(bkg.getXBase() + offset[0], bkg.getYBase() + offset[1]);
 
 		// on supprime les rois de construction

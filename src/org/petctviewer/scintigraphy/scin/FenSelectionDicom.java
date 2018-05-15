@@ -32,36 +32,44 @@ public class FenSelectionDicom extends JDialog {
 	 */
 	public FenSelectionDicom(String examType) {
 		this.titresDicoms = WindowManager.getImageTitles();
+		
+		//on ajoute le titre a la fenetre
 		this.setTitle("Select the dicoms for the " + examType + " exam");
 
+		//creation du tableeau
 		String[] columnNames = { "Patient", "Study", "Date", "Series", "Dimensions", "Stack Size" };
 		String[][] tableData = getTableData();
 
 		table = new JTable(tableData, columnNames);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
 		table.setFocusable(false);
 		table.setDefaultEditor(Object.class, null);
 		
+		//listener personalise pour selectionner plusieurs dicoms sans utiliser ctrl
 		table.addMouseListener(new MouseAdapter() {
 			
 			private boolean[] rowSelection= new boolean[titresDicoms.length];
 			
 			@Override
 			public void mousePressed(MouseEvent event) {
+				//on passe la selection en mode unique
 				table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			}
 			
 			@Override
 			public void mouseReleased(MouseEvent event) {
 				table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+				
 				JTable tab = (JTable) event.getSource();		
 				int row = tab.rowAtPoint(event.getPoint());
 
+				//on selectionne on deselectionne la ligne dans le tableau de selection
 				rowSelection[row] = !rowSelection[row];
 				
+				//on vide la selection du tableau
 				tab.clearSelection();
 				
+				//on selectionne les lignes de la JTable selon le tableau de booleens
 				for(int i = 0; i < rowSelection.length; i++) {
 					if(rowSelection[i]) {
 						tab.addRowSelectionInterval(i, i);
@@ -99,6 +107,7 @@ public class FenSelectionDicom extends JDialog {
 		this.pack();
 	}
 
+	//renvoie les informations a afficher dans le tableau
 	private String[][] getTableData() {
 		String[][] data = new String[this.titresDicoms.length][6];
 		for (int i = 0; i < this.titresDicoms.length; i++) {
@@ -115,22 +124,29 @@ public class FenSelectionDicom extends JDialog {
 		return data;
 	}
 
+	//controleur prive pour les boutons "select" et "select all"
 	private class controleurDialog implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			JButton b = (JButton) e.getSource();
 			
 			if(b == FenSelectionDicom.this.btn_select) {
+				//recuperation des lignes selectionnees
 				int[] rows = table.getSelectedRows();
+				
+				//construction du tableau de nm de dicoms selectionnees
 				String[] titresFenSelected = new String[rows.length];
 				for (int i = 0; i < rows.length; i++) {
 					titresFenSelected[i] = titresDicoms[rows[i]];
 				}
+				
 				FenSelectionDicom.this.selectedWindowsTitles = titresFenSelected;
 			}else if(b == FenSelectionDicom.this.btn_selectAll){
+				//on selectionne toutes les fenetres
 				FenSelectionDicom.this.selectedWindowsTitles = FenSelectionDicom.this.titresDicoms;
 			}
 
+			//on ferme la fenetre de selection
 			FenSelectionDicom.this.dispose();
 		}
 	}
@@ -139,6 +155,7 @@ public class FenSelectionDicom extends JDialog {
 		return this.selectedWindowsTitles;
 	}
 
+	//si le string est null, on renvoie un string vide
 	private String replaceNull(String s) {
 		if (s == null) {
 			return "";

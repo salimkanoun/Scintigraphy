@@ -30,6 +30,12 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 	private Modele_Renal modele;
 	private BasicStroke stroke = new BasicStroke(5.0F);
 
+	/**
+	 * affiche les resultats de l'examen renal
+	 * @param vueScin la vue
+	 * @param capture capture du rein projetee
+	 * @param chartPanel chartpanel avec l'overlay d'ajustation
+	 */
 	public FenResultat_Renal(VueScin vueScin, BufferedImage capture, ChartPanel chartPanel) {
 		super("Renal scintigraphy", vueScin, capture, "");
 		JPanel grid = new JPanel(new GridLayout(2, 1));
@@ -73,6 +79,7 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 		// creation du panel du bas
 		JPanel panel_bottom = new JPanel();
 		
+		//graphique rein droit
 		ChartPanel c = cPanels[0];
 		c.setPreferredSize(new Dimension(3 * w / 2, h));
 		this.renameSeries(c, "Blood pool fitted R", "Blood Pool");
@@ -81,6 +88,7 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 		c.getChart().getXYPlot().getRenderer().setDefaultStroke(stroke);
 		c.getChart().setTitle("Right Kidney");
 
+		//graphique rein gauche
 		ChartPanel c1 = cPanels[1];
 		c1.setPreferredSize(new Dimension(3 * w / 2, h));
 		this.renameSeries(c1, "Output KL", "Output");
@@ -103,6 +111,7 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 		this.finishBuildingWindow();
 	}
 
+	//renomme la serie
 	private void renameSeries(ChartPanel chartPanel, String oldKey, String newKey) {
 		XYSeriesCollection dataset = ((XYSeriesCollection) chartPanel.getChart().getXYPlot().getDataset());
 		try {
@@ -118,8 +127,7 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 		// minutes a observer pour la capacite d'excretion
 		int[] mins = new int[] { 20, 22, 30 };
 
-		// panel des calculs du rein droit
-
+		//on recupere les series
 		XYSeries serieRK = modele.getSerie("Output KR");
 		XYSeries serieLK = modele.getSerie("Output KL");
 
@@ -128,6 +136,7 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 
 		res.add(Box.createVerticalStrut(50));
 
+		//affichage des roe pour le rein droit
 		res.add(new JLabel("Renal Output Efficiency R. kidney :"));
 		for (int min : mins) {
 			res.add(new JLabel("   - ROE " + min + " min : " + modele.getPercentage(min, serieRK, "R") + "%"));
@@ -135,6 +144,7 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 
 		res.add(Box.createVerticalStrut(20));
 
+		//affichage des roe pour le rein gauche
 		res.add(new JLabel("Renal Output Efficiency L. kidney :"));
 		for (int min : mins) {
 			res.add(new JLabel("   - ROE " + min + " min : " + modele.getPercentage(min, serieLK, "L") + "%"));
@@ -142,23 +152,25 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 
 		res.add(Box.createVerticalStrut(50));
 
+		//creation du tableau
 		String[] columnNames = { "Parameter", "Left", "Right" };
 		String[][] tableData = modele.getTableData();
-
 		JScrollPane scrollPane = new JScrollPane();
-
 		JTable table = new JTable(tableData, columnNames);
+		
+		//on desactive l'edition
 		table.setDefaultEditor(Object.class, null);
 		table.setFocusable(false);
 
 		scrollPane.setViewportView(table);
 
+		//on change la taille des colonnes
 		TableColumnModel columnModel = table.getColumnModel();
-
 		columnModel.getColumn(0).setPreferredWidth(120);
 		columnModel.getColumn(1).setPreferredWidth(30);
 		columnModel.getColumn(2).setPreferredWidth(30);
 
+		//on redimentionne le tableau afin d'avoir un border
 		// TODO valeur en dur
 		scrollPane.setPreferredSize(new Dimension(this.side.getWidth(), 87));
 

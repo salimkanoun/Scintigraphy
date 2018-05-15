@@ -9,6 +9,10 @@ public class ControleurImp implements ImageListener {
 	private int lastSlice = 1;
 	private boolean lockUpdate = false;
 	
+	/**
+	 * met a jour l'overlay de l'imp si elle est modifiee
+	 * @param ctrlScin
+	 */
 	public ControleurImp(ControleurScin ctrlScin) {
 		this.ctrlScin = ctrlScin;
 	}

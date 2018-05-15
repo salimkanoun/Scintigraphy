@@ -47,38 +47,61 @@ public abstract class ModeleScin {
 
 	protected ImagePlus imp;
 
+	/**
+	 * renvoie la moyenne geometrique
+	 * @param a chiffre a
+	 * @param b chiffre b
+	 * @return moyenne geometrique
+	 */
 	public static double moyGeom(Double a, Double b) {
 		return Math.sqrt(a * b);
 	}
 
+	/**
+	 * arrondi la valeur
+	 * @param value valeur a arrondir
+	 * @param places nb de chiffre apres la virgule
+	 * @return valeur arrondie
+	 */
 	public static double round(double value, int places) {
 		if (places < 0)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("place doit etre superieur ou egal a zero");
 
 		BigDecimal bd = new BigDecimal(value);
 		bd = bd.setScale(places, RoundingMode.HALF_UP);
 		return bd.doubleValue();
 	}
 	
+	/**
+	 * renvoie des chartPanels avec les series associees
+	 * @param asso association des series selon leur cle ( ex : {{"S1", "S2"}, {"S1", "S3"}} )
+	 * @param series liste des series
+	 * @return chartPanels avec association
+	 */
 	public static ChartPanel[] associateSeries(String[][] asso, List<XYSeries> series) {
 		ArrayList<ChartPanel> cPanels = new ArrayList<ChartPanel>();
-		for (String[] i : asso) { //pour chaque association
+		
+		//pour chaque association
+		for (String[] i : asso) {
 			if (i.length > 0) {
 				XYSeriesCollection dataset = new XYSeriesCollection();
 
-				for (String j : i) { //pour chaque cle
-					for (int k = 0; k < series.size(); k++) {						
+				for (String j : i) { //pour chaque cle de l'association
+					for (int k = 0; k < series.size(); k++) { //pour chaque element de la serie
+						//si la cle correspond, on l'ajout au dataset
 						if (series.get(k).getKey().equals(j)) {
 							dataset.addSeries(series.get(k));
 						}
 					}
 				}
 
+				//on cree un jfreehart avec lle datasert precedemment construit
 				JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "counts/sec", dataset,
 						PlotOrientation.VERTICAL, true, true, true);
 
 				final XYPlot plot = xylineChart.getXYPlot();
 
+				//on masque les marqueurs des points
 				XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 				for (int c = 0; c < dataset.getSeriesCount(); c++) {
 					renderer.setSeriesShapesVisible(c, false);
@@ -86,6 +109,8 @@ public abstract class ModeleScin {
 				plot.setRenderer(renderer);
 
 				ChartPanel c = new ChartPanel(xylineChart);
+				
+				//on desactive le fond
 				c.getChart().getPlot().setBackgroundPaint(null);
 				cPanels.add(c);
 			}
@@ -104,6 +129,7 @@ public abstract class ModeleScin {
 	public static HashMap<String, String> getPatientInfo(ImagePlus imp) {
 		HashMap<String, String> hm = new HashMap<String, String>();
 		
+		//ajout du nom, si il n'existe pas on ajoute une string vide
 		if(DicomTools.getTag(imp, "0010,0010") != null) {
 			String nom = DicomTools.getTag(imp, "0010,0010").trim();
 			hm.put("name", nom.replace("^", " "));
@@ -111,12 +137,14 @@ public abstract class ModeleScin {
 			hm.put("name", "");
 		}		
 
+		//ajout de l'id, si il n'existe pas on ajoute une string vide
 		if(DicomTools.getTag(imp, "0010,0020") != null) {
 			hm.put("id", DicomTools.getTag(imp, "0010,0020").trim());
 		}else {
 			hm.put("id", "");
 		}
 
+		//ajout de la date nom, si il n'existe pas on ajoute une string vide
 		if (DicomTools.getTag(imp, "0008,0022") != null) {
 			String dateStr = DicomTools.getTag(imp, "0008,0022").trim();
 			Date result = null;
@@ -134,13 +162,25 @@ public abstract class ModeleScin {
 		return hm;
 	}
 	
+	/**
+	 * renvoie l'image de la serie en x
+	 * @param series serie a traite
+	 * @param x abscisse
+	 * @return ordonnee
+	 */
 	public static Double getY(XYSeries series, double x) {
 		XYSeriesCollection data = new XYSeriesCollection(series);
 		return DatasetUtils.findYValue(data, 0, x);
 	}
 	
-	public static Double getY(List<Double> fittedVasc, Double x) {
-		XYSeries s = ModeleScinDyn.createSerie(fittedVasc, "");
+	/**
+	 * renvoie l'image de la serie en x
+	 * @param abscisses de la serie 
+	 * @param x abscisse
+	 * @return ordonnee
+	 */
+	public static Double getY(List<Double> points, Double x) {
+		XYSeries s = ModeleScinDyn.createSerie(points, "");
 		XYSeriesCollection data = new XYSeriesCollection(s);
 		return DatasetUtils.findYValue(data, 0, x);
 	};
@@ -149,8 +189,8 @@ public abstract class ModeleScin {
 	/**
 	 * Renvoie le nombre de coups sur la roi presente dans l'image plus
 	 * 
-	 * @param imp
-	 * @return
+	 * @param imp l'imp
+	 * @return nombre de coups
 	 */
 	public static Double getCounts(ImagePlus imp) {
 		Analyzer.setMeasurement(Measurements.INTEGRATED_DENSITY, true);
@@ -161,6 +201,11 @@ public abstract class ModeleScin {
 		return density.getValueAsDouble(ResultsTable.RAW_INTEGRATED_DENSITY, 0);
 	}
 	
+	/**
+	 * renvoie le nombre de coups moyens de la roi presente sur l'imp
+	 * @param imp l'imp
+	 * @return nombre moyen de coups
+	 */
 	public static Double getAvgCounts(ImagePlus imp) {
 		int area = imp.getStatistics().pixelCount;
 		return getCounts(imp) / area;

@@ -16,9 +16,10 @@ import javax.swing.JTextField;
 
 public class FenApplication extends StackWindow {
 	private static final long serialVersionUID = -6280620624574294247L;
+	
 	private JTextField field_instructions;
 
-	///boutons mode normal
+	///boutons
 	private Button btn_quitter;
 	private Button btn_drawROI;
 	private Button btn_contrast;
@@ -50,8 +51,10 @@ public class FenApplication extends StackWindow {
 		Panel gauche = new Panel();
 		gauche.setLayout(new FlowLayout());
 
+		//construit tous les boutons
 		initButtons();
 
+		//panel contenant les boutons
 		Panel btns_glob = new Panel();
 		btns_glob.setLayout(new GridLayout(1, 3));
 		btns_glob.add(this.btn_quitter);
@@ -59,6 +62,7 @@ public class FenApplication extends StackWindow {
 		btns_glob.add(this.btn_contrast);
 		gauche.add(btns_glob);
 
+		//Creation du panel instructions
 		instru = new Panel();
 		instru.setLayout(new GridLayout(2, 1));
 		this.field_instructions = new JTextField();
@@ -75,6 +79,10 @@ public class FenApplication extends StackWindow {
 		this.adaptWindow(512);
 	}
 	
+	/**
+	 * adapte la fenetre a l'ecran
+	 * @param width
+	 */
 	public void adaptWindow(int width) {
 		int w = this.getImagePlus().getWidth();
 		int h = this.getImagePlus().getHeight();
@@ -107,6 +115,10 @@ public class FenApplication extends StackWindow {
 		this.setOverlay();
 	}
 	
+	//TODO
+	/**
+	 * @return
+	 */
 	protected Panel createBtnsInstru() {
 		Panel btns_instru = new Panel();
 		btns_instru.setLayout(new GridLayout(1, 3));
@@ -116,7 +128,7 @@ public class FenApplication extends StackWindow {
 		return btns_instru;
 	}
 
-	/// affiche l'overlay Droite/Gauche
+	// affiche l'overlay Droite/Gauche
 	private void setOverlay() {
 		// On initialise l'overlay avec les label DG
 		Overlay overlay = VueScin.initOverlay(this.imp, 7);
@@ -125,6 +137,7 @@ public class FenApplication extends StackWindow {
 		this.getImagePlus().setOverlay(overlay);
 	}
 
+	//construit tous les boutons
 	private void initButtons() {
 		this.btn_contrast = new Button("Contrast");
 		this.btn_drawROI = new Button("Draw ROI");
@@ -141,6 +154,7 @@ public class FenApplication extends StackWindow {
 		//on affiche la premiere instruction
 		ctrl.setInstructionsDelimit(0);
 		
+		//on ajoute le controleur a tous les boutons
 		this.btn_contrast.addActionListener(ctrl);
 		this.btn_drawROI.addActionListener(ctrl);
 		this.btn_precedent.addActionListener(ctrl);
@@ -157,6 +171,7 @@ public class FenApplication extends StackWindow {
 		return super.close();
 	}
 
+	//genere le titre de la fenetre
 	private String generateTitle() {
 		String tagSerie = DicomTools.getTag(this.imp, "0008,103E");
 		String tagNom = DicomTools.getTag(this.imp, "0010,0010");
@@ -171,6 +186,7 @@ public class FenApplication extends StackWindow {
 		System.gc();
 	}
 
+	//affiche les instructions dans le text field
 	public void setInstructions(String inst) {
 		this.getField_instructions().setText(inst);
 	}

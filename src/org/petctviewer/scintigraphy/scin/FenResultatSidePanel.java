@@ -61,7 +61,6 @@ public abstract class FenResultatSidePanel extends JFrame {
 		this.side.add(flow);
 
 		// ajout des informations du patient
-		
 		HashMap<String, String> infoPatient = ModeleScin.getPatientInfo(vueScin.getImp());
 		JPanel patientInfo = new JPanel(new GridLayout(3, 2, 10, 10));
 		patientInfo.add(new JLabel("Patient name: "));
@@ -81,6 +80,7 @@ public abstract class FenResultatSidePanel extends JFrame {
 	public void finishBuildingWindow() {
 		side.add(Box.createVerticalGlue());
 		
+		//on ajoute tous les components de la methode getSidePanelContent
 		if(this.getSidePanelContent() != null) {
 			for(Component c : this.getSidePanelContent()) {
 				side.add(c);
@@ -89,19 +89,24 @@ public abstract class FenResultatSidePanel extends JFrame {
 
 		side.add(Box.createVerticalGlue());
 
+		//bouton capture
 		this.btn_capture = new JButton("Capture");
 		this.btn_capture.setAlignmentX(Component.CENTER_ALIGNMENT);
 		this.side.add(btn_capture);
 
+		//label de credits
 		JLabel credits = new JLabel("Provided by petctviewer.org");
 		credits.setVisible(false);
 		side.add(credits);
 
+		//on ajoute le listener pour la capture
 		this.vue.fen_application.getControleur().setCaptureButton(btn_capture, credits, this, this.modele, this.additionalInfo);
 		
+		//on ajoute le sie panel a droite de la fenetre
 		this.add(side, BorderLayout.EAST);
 
 		this.pack();
+		
 		this.setResizable(false);
 		this.setVisible(true);
 		this.setSize(this.getPreferredSize());
@@ -109,8 +114,8 @@ public abstract class FenResultatSidePanel extends JFrame {
 	}
 
 	/**
-	 * A Overrider, renvoie les components a afficher dans le side panel
-	 * @return
+	 * Renvoie les components a afficher dans le side panel
+	 * @return les components
 	 */
 	public abstract Component[] getSidePanelContent();
 

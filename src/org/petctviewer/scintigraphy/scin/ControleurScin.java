@@ -46,6 +46,9 @@ public abstract class ControleurScin implements ActionListener {
 	private List<String> nomRois = new ArrayList<String>();
 	private ImageListener ctrlImg;
 
+	/**
+	 * classe abstraite permettant de controler les programmes de scintigraphie
+	 */
 	protected ControleurScin(VueScin vue) {
 		this.laVue = vue;
 		this.roiManager = new RoiManager();
@@ -59,8 +62,10 @@ public abstract class ControleurScin implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
+		//recuperation du bouton clique
 		Button b = (Button) arg0.getSource();
 
+		//on execute des action selon quel bouton a ete clique
 		if (b == laVue.getFen_application().getBtn_suivant()) {
 			this.clicSuivant();
 		}
@@ -73,22 +78,33 @@ public abstract class ControleurScin implements ActionListener {
 
 		{
 			Button btn = laVue.getFen_application().getBtn_drawROI();
+			
+			//on change la couleur du bouton
 			if (btn.getBackground() != Color.LIGHT_GRAY) {
 				btn.setBackground(Color.LIGHT_GRAY);
 			} else {
 				btn.setBackground(null);
 			}
+			
+			//on deselectionne le bouton contraste
 			laVue.getFen_application().getBtn_contrast().setBackground(null);
+			
 			IJ.setTool(Toolbar.POLYGON);
 		}
 
 		else if (b == laVue.getFen_application().getBtn_contrast()) {
 			Button btn = laVue.getFen_application().getBtn_contrast();
+			
+			//on change la couleur du bouton
 			if (btn.getBackground() != Color.LIGHT_GRAY) {
 				btn.setBackground(Color.LIGHT_GRAY);
 			} else {
 				btn.setBackground(null);
 			}
+			
+			//on deselectionne le bouton draw roi
+			laVue.getFen_application().getBtn_drawROI().setBackground(null);
+			
 			IJ.run("Window Level Tool");
 		}
 
@@ -113,6 +129,7 @@ public abstract class ControleurScin implements ActionListener {
 			}
 		}
 
+		//on apelle la methode notify clic pour recuperer le clic dans les classes heritees
 		this.notifyClic(arg0);
 	}
 
@@ -172,15 +189,20 @@ public abstract class ControleurScin implements ActionListener {
 	 *            : numero de la slice a afficher
 	 */
 	public void setSlice(int indexSlice) {
+		//vide l'overlay et tue la roi
 		this.clearOverlay();
 		this.getVue().getFen_application().getImagePlus().killRoi();
 
+		//change la slice courante
 		this.laVue.getImp().setSlice(indexSlice);
 
+		//ajout des roi dans l'overlay
 		for (int i = 0; i < this.roiManager.getCount(); i++) {
 			Roi roi = this.roiManager.getRoi(i);
 			if (roi.getZPosition() == indexSlice) {
-				if (i != indexRoi || this.isOver()) { // si c'est la roi courante on la set dans l'imp
+				
+				// si c'est la roi courante on la set dans l'imp
+				if (i != indexRoi || this.isOver()) {
 					this.laVue.getImp().getOverlay().add(roi);
 				} else {
 					this.laVue.getImp().setRoi(roi);
@@ -196,6 +218,7 @@ public abstract class ControleurScin implements ActionListener {
 		// sauvegarde du ROI courant
 		this.saveCurrentRoi(this.getNomOrgane(indexRoi), indexRoi);
 
+		//on decrement indexRoi
 		if (this.indexRoi > 0) {
 			indexRoi--;
 		} else {
@@ -218,10 +241,11 @@ public abstract class ControleurScin implements ActionListener {
 			// on active le bouton precedent
 			this.getVue().getFen_application().getBtn_precedent().setEnabled(true);
 
-			// on avtive la fin si c'est necessaire
+			// on active la fin si c'est necessaire
 			if (this.isOver()) {
 				this.setSlice(this.getVue().getImp().getCurrentSlice());
 
+				//thread de capture
 				Thread captureThread = new Thread(new Runnable() {
 					@Override
 					public void run() {
@@ -246,8 +270,7 @@ public abstract class ControleurScin implements ActionListener {
 	/**
 	 * Renvoie le nombre de roi avec le meme nom ayant deja ete enregistrees
 	 * 
-	 * @param nomRoi
-	 *            : nom de la roi
+	 * @param nomRoi : nom de la roi
 	 * 
 	 * @return nombre de roi avec le meme nom
 	 */
@@ -319,14 +342,19 @@ public abstract class ControleurScin implements ActionListener {
 				laVue.getFen_application().getImagePlus().killRoi();
 			}
 
+			//precise la postion en z
 			this.roiManager.getRoi(indexRoi).setPosition(this.getSliceNumberByRoiIndex(indexRoi));
+			
+			//changement de nom
 			this.roiManager.rename(indexRoi, nomRoi);
 
 			return true;
+			
 		} else {
 			if(this.getOrganRoi(indexRoi) == null) {
 				System.out.println("Roi lost");
 			}else {
+				//restore la roi organe si c'est possible
 				System.out.println("Roi lost, restoring organ roi");
 				this.getVue().getImp().setRoi(this.getOrganRoi(indexRoi));
 			}
@@ -360,14 +388,16 @@ public abstract class ControleurScin implements ActionListener {
 	 * @return nouveau nom
 	 */
 	public String addTag(String nomOrgane) {
+		
+		//on ajoute au nom P ou A pour Post ou Ant
 		if (this.isPost()) {
 			nomOrgane += " P";
 		} else {
 			nomOrgane += " A";
 		}
 
+		//on ajoute un numero pour l'identifier
 		String count = this.getSameNameRoiCount(nomOrgane);
-
 		nomOrgane += count;
 
 		// on ajoute le nom de la roi a la liste
@@ -377,11 +407,11 @@ public abstract class ControleurScin implements ActionListener {
 
 	/**
 	 * Prepare le bouton capture de la fenetre resultat
-	 * @param btn_capture
-	 * @param lbl_credits
-	 * @param jf
-	 * @param modele
-	 * @param additionalInfo
+	 * @param btn_capture le bouton capture, masque lors de la capture
+	 * @param lbl_credits le label de credits, affiche lors de la capture
+	 * @param jf la jframe
+	 * @param modele le modele
+	 * @param additionalInfo string a ajouter a la fin du nom de la capture si besoin
 	 */
 	public void setCaptureButton(JButton btn_capture, JLabel lbl_credits, JFrame jf, ModeleScin modele,
 			String additionalInfo) {
@@ -389,13 +419,16 @@ public abstract class ControleurScin implements ActionListener {
 		VueScin vue = ControleurScin.this.laVue;
 		String examType = ControleurScin.this.laVue.getExamType();
 
+		//generation du tag info
 		String info = ModeleScin.genererDicomTagsPartie1(vue.getImp(), vue.getExamType())
 				+ ModeleScin.genererDicomTagsPartie2(vue.getImp());
 
+		//on ajoute le listener sur le bouton capture
 		btn_capture.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				//on suprrime le bouton et on affiche le label
 				JButton b = (JButton) (e.getSource());
 				b.getParent().remove(b);
 				lbl_credits.setVisible(true);
@@ -417,11 +450,15 @@ public abstract class ControleurScin implements ActionListener {
 
 				jf.dispose();
 
+				//on passe a la capture les infos de la dicom
 				imp.setProperty("Info", info);
-
+				//on affiche la capture
 				imp.show();
+				
+				//on change l'outil
 				IJ.setTool("hand");
 
+				//generation du csv
 				String resultats = modele.toString();
 
 				try {
@@ -435,6 +472,7 @@ public abstract class ControleurScin implements ActionListener {
 					e1.printStackTrace();
 				}
 
+				//Execution du plugin myDicom
 				try {
 					IJ.run("myDicom...");
 				} catch (Exception e1) {
@@ -449,7 +487,6 @@ public abstract class ControleurScin implements ActionListener {
 
 	/**
 	 * Renvoie la roi de l'image plus
-	 * 
 	 * @return roi en cours d'édition de l'image
 	 */
 	public Roi getSelectedRoi() {

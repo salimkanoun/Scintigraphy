@@ -17,6 +17,12 @@ public class Modele_Renal extends ModeleScinDyn {
 	private HashMap<String, Integer> organArea;
 	private Double[] adjusted;
 
+	/**
+	 * recupere les valeurs et calcule les resultats de l'examen renal
+	 * 
+	 * @param frameDuration
+	 *            duree de chaque frame en ms
+	 */
 	public Modele_Renal(int[] frameDuration) {
 		super(frameDuration);
 		this.organArea = new HashMap<String, Integer>();
@@ -26,7 +32,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 		super.enregistrerMesure(nomRoi, imp);
 
-		// aire de la roi ex pixel
+		// aire de la roi en pixel
 		int area = imp.getStatistics().pixelCount;
 		String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
 
@@ -61,8 +67,8 @@ public class Modele_Renal extends ModeleScinDyn {
 		int aireBkgG = this.organArea.get(orgs[3]);
 
 		// on calcule le coup moyen de la roi, on l'ajuste avec le bdf et on l'applique
-		// sur toute la roi pour chaque rein
-		// afin d'ajuster la valeur brute
+		// sur toute la roi pour chaque rein afin d'ajuster la valeur brute pour les
+		// deux reins
 		for (int i = 0; i < this.getData(orgs[0]).size(); i++) {
 			Double countRG = this.getData(orgs[2]).get(i);
 			Double countBgG = this.getData(orgs[3]).get(i);
@@ -75,90 +81,95 @@ public class Modele_Renal extends ModeleScinDyn {
 			RDCorrige.add(adjustedValueD);
 		}
 
-		// on calcule l'aire entre chaque paire de points successif
-		List<Double> vascIntegree = new ArrayList<Double>();
+		// on calcule l'integrale de la courbe vasculaire
 		XYSeries serieVasc = ModeleScinDyn.createSerie(vasc, "");
-		
-		vascIntegree = this.getIntegral(serieVasc, serieVasc.getMinX(), serieVasc.getMaxX());
+		List<Double> vascIntegree = this.getIntegral(serieVasc, serieVasc.getMinX(), serieVasc.getMaxX());
 
 		// ajout des valeurs dans les donnees
 		this.getData().put("Final KL", RGCorrige);
 		this.getData().put("Final KR", RDCorrige);
-		this.getData().put("BPI", vascIntegree); //Blood Pool integrated
+		this.getData().put("BPI", vascIntegree); // BPI == Blood Pool Integrated
 	}
 
+	/**
+	 * Calcule la courbe fitte selon un polynome du 3eme degre pour la courbe de
+	 * chaque rein. Ajuste ensuite a l'echelle des valeurs de sortie
+	 */
 	public void fitVasculaire() {
 		// on recupere la liste des donnees vasculaires
 		List<Double> bpi = this.getData("BPI");
-		
+
 		// recuperation des donnees des reins
 		List<Double> RGCorrige = this.getData().get("Final KL");
 		List<Double> RDCorrige = this.getData().get("Final KR");
-		
-		//calcul des courbes fitees
+
+		// calcul des courbes fitees
 		List<Double> vascFitG = this.fitVasc(bpi, RGCorrige);
 		List<Double> vascFitD = this.fitVasc(bpi, RDCorrige);
-		
+
 		// on calcule le valeurs de la courbe sortie pour chaque rein
 		List<Double> sortieIntRG = new ArrayList<Double>();
 		List<Double> sortieIntRD = new ArrayList<Double>();
 		for (int i = 0; i < RGCorrige.size(); i++) {
-			//on ajoute uniquement si la valeur est positive
+			// on ajoute uniquement si la valeur est positive
 			Double outputXG = vascFitG.get(i) - RGCorrige.get(i);
-			if(outputXG <= 0) {
+			if (outputXG <= 0) {
 				outputXG = 0.0;
 			}
-			
+
 			Double outputXD = vascFitD.get(i) - RDCorrige.get(i);
-			if(outputXD <= 0) {
+			if (outputXD <= 0) {
 				outputXD = 0.0;
 			}
-			
+
 			sortieIntRD.add(outputXD);
 			sortieIntRG.add(outputXG);
-		}		
+		}
 
-		///on ajoute les nouvelles courbes dans les donnees
+		/// on ajoute les nouvelles courbes dans les donnees
 		this.getData().put("Output KL", sortieIntRG);
 		this.getData().put("Output KR", sortieIntRD);
 		this.getData().put("Blood pool fitted L", vascFitG);
 		this.getData().put("Blood pool fitted R", vascFitD);
 	}
-	
+
+	// recupere les valeurs situees entre startX et endX
 	private XYSeries cropSeries(XYSeries series, Double startX, Double endX) {
 		XYSeries cropped = new XYSeries(series.getKey() + " cropped");
 		for (int i = 0; i < series.getItemCount(); i++) {
 			if (series.getX(i).doubleValue() >= startX && series.getX(i).doubleValue() <= endX) {
-				cropped.add(series.getX(i), series.getY(i));;
+				cropped.add(series.getX(i), series.getY(i));
+				;
 			}
 		}
 		return cropped;
 	}
 
+	// fit la courbe selon un polynome de degre 3 et la modifie pour qu'elle soit au
+	// plus pres de la courbe du rein
 	private List<Double> fitVasc(List<Double> vasc, List<Double> kidney) {
 
 		XYSeries bpi = ModeleScinDyn.createSerie(vasc, "");
-		
 		XYSeriesCollection datasetVasc = new XYSeriesCollection();
 		datasetVasc.addSeries(bpi);
-		
-		//on fait un fit ploynomial de degre 3
-	 	double[] reg = Regression.getPolynomialRegression(datasetVasc, 0, 3);
-	 	
-	 	XYSeries seriesVasc = new XYSeries("Vasc");
-	 	for(int i = 0; i < bpi.getItemCount(); i++) {
-	 		double x = bpi.getX(i).doubleValue();
-	 		seriesVasc.add(x, reg[0] + reg[1] * x + reg[2] * x * x + reg[3] * Math.pow(x, 3)); 
+
+		// on fait un fit ploynomial de degre 3
+		double[] reg = Regression.getPolynomialRegression(datasetVasc, 0, 3);
+
+		// on calcule les points de la courbe fitee
+		XYSeries seriesVasc = new XYSeries("Vasc");
+		for (int i = 0; i < bpi.getItemCount(); i++) {
+			double x = bpi.getX(i).doubleValue();
+			seriesVasc.add(x, reg[0] + reg[1] * x + reg[2] * x * x + reg[3] * Math.pow(x, 3));
 		}
-		
-		// on recupere les points compris dans l'intervalle defini
+
 		XYSeries seriesKid = ModeleScinDyn.createSerie(kidney, "Kidney");
-	
-		//l'intervalle est defini par l'utilisateur
+
+		// l'intervalle est defini par l'utilisateur
 		Double startX = Math.min(this.adjusted[4], this.adjusted[5]);
 		Double endX = Math.max(this.adjusted[4], this.adjusted[5]);
 
-		//on recupere les points compris dans l'intervalle
+		// on recupere les points compris dans l'intervalle
 		XYSeries croppedKidney = this.cropSeries(seriesKid, startX, endX);
 		XYSeries croppedVasc = this.cropSeries(seriesVasc, startX, endX);
 
@@ -170,26 +181,37 @@ public class Modele_Renal extends ModeleScinDyn {
 		double[] courbeVasc = Regression.getOLSRegression(dataset, 0);
 		double[] courbeKidney = Regression.getOLSRegression(dataset, 1);
 
-		// on calcule le rapport de pente
-		Double rapportPente = courbeKidney[1] / courbeVasc[1];		
+		// calcul du rapport de pente sur l'intervalle defini par l'utilisateur
+		Double rapportPente = courbeKidney[1] / courbeVasc[1];
 
 		List<Double> fittedVasc = new ArrayList<Double>();
 		for (Double d : vasc) {
 			fittedVasc.add(d * rapportPente);
 		}
-		
-		//decalage pour que les courbes soient au meme niveau
-		Double milieu = (endX + startX ) / 2;
-		Double offset = ModeleScin.getY(kidney,  milieu) - ModeleScin.getY(fittedVasc,  milieu);
 
-		//on ajoute le decalage sur tous les points
+		// decalage pour que les courbes soient au meme niveau
+		Double milieu = (endX + startX) / 2;
+		Double offset = ModeleScin.getY(kidney, milieu) - ModeleScin.getY(fittedVasc, milieu);
+
+		// on ajoute le decalage sur tous les points
 		for (int i = 0; i < fittedVasc.size(); i++) {
 			fittedVasc.set(i, fittedVasc.get(i) + offset);
 		}
-		
+
 		return fittedVasc;
 	}
 
+	/**
+	 * renvoie le roe en pourcent
+	 * 
+	 * @param min
+	 *            minute a laquelle on veut comparer
+	 * @param output
+	 *            sortie du rein
+	 * @param lr
+	 *            "L" ou "R"
+	 * @return le pourcentage
+	 */
 	public int getPercentage(int min, XYSeries output, String lr) {
 		XYSeries serieBPF = this.getSerie("Blood pool fitted " + lr);
 		int perct = (int) (ModeleScin.getY(output, min).doubleValue() / ModeleScin.getY(serieBPF, min).doubleValue()
@@ -197,19 +219,27 @@ public class Modele_Renal extends ModeleScinDyn {
 		return perct;
 	}
 
+	/**
+	 * renvoie une serie selon sa cle
+	 * 
+	 * @param key
+	 *            la cle
+	 * @return la serie
+	 */
 	public XYSeries getSerie(String key) {
 		List<Double> data = this.getData().get(key);
 		return ModeleScinDyn.createSerie(data, key);
 	}
 
+	// renvoie l'aire sous la courbe entre les points startX et endX
 	private List<Double> getIntegral(XYSeries series, Double startX, Double endX) {
 
 		List<Double> integrale = new ArrayList<Double>();
 
-		//on recupere les points de l'intervalle voulu
+		// on recupere les points de l'intervalle voulu
 		XYSeries croppedSeries = this.cropSeries(series, startX, endX);
 
-		//on calcule les aires sous la courbe entre chaque paire de points
+		// on calcule les aires sous la courbe entre chaque paire de points
 		Double airePt1 = croppedSeries.getX(0).doubleValue() * croppedSeries.getY(0).doubleValue() / 2;
 		integrale.add(airePt1);
 		for (int i = 0; i < croppedSeries.getItemCount() - 1; i++) {
@@ -244,27 +274,32 @@ public class Modele_Renal extends ModeleScinDyn {
 			s += "\n ROE " + min + "min Left Kidney , " + this.getPercentage(min, lk, "L");
 			s += "\n ROE " + min + "min Right Kidney , " + this.getPercentage(min, rk, "R");
 		}
-		
+
 		String[][] tableData = this.getTableData();
 		s += "\n";
-		
-		//on ajoute les valeurs du tableau
-		for(int i = 1; i < 3; i++) {
+
+		// on ajoute les valeurs du tableau
+		for (int i = 1; i < 3; i++) {
 			String lr = " Left";
-			if(i == 2) {
+			if (i == 2) {
 				lr = " Right";
 			}
-			
-			for(int j = 0; j < 4; j++) {
+
+			for (int j = 0; j < 4; j++) {
 				s += "\n " + tableData[j][0] + lr;
 				s += "," + tableData[j][i];
 			}
 		}
-		
+
 		return s;
-		
+
 	}
 
+	/**
+	 * renvoie les valeurs du tableau a afficher dans le side panel
+	 * 
+	 * @return valeurs du tableau
+	 */
 	public String[][] getTableData() {
 		String[][] s = new String[4][3];
 		s[0][0] = "Separated function (%)";
@@ -285,11 +320,12 @@ public class Modele_Renal extends ModeleScinDyn {
 		Double intRD = listRD.get(listRD.size() - 1);
 
 		// Left kidney
-		s[0][1] = "" + ModeleScin.round((intRG / (intRG + intRD)) * 100, 1); //fonction separee
-		s[1][1] = "" + ModeleScin.round(ModeleScin.getY(lk, lk.getMaxX()) / ModeleScin.getY(lk, this.adjusted[3]), 3); //retention renale
-		s[2][1] = "" + ModeleScin.round(this.adjusted[1], 2); //TMax
+		s[0][1] = "" + ModeleScin.round((intRG / (intRG + intRD)) * 100, 1); // fonction separee
+		s[1][1] = "" + ModeleScin.round(ModeleScin.getY(lk, lk.getMaxX()) / ModeleScin.getY(lk, this.adjusted[3]), 3); // retention
+																														// renale
+		s[2][1] = "" + ModeleScin.round(this.adjusted[1], 2); // TMax
 
-		Double tdemiL = ModeleScin.round(ModeleScinDyn.getTDemiObs(lk, this.adjusted[1]), 2); //T1/2
+		Double tdemiL = ModeleScin.round(ModeleScinDyn.getTDemiObs(lk, this.adjusted[1]), 2); // T1/2
 		if (tdemiL != 0) {
 			s[3][1] = "" + tdemiL;
 		} else {

@@ -11,10 +11,8 @@ import java.awt.event.MouseMotionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.plot.IntervalMarker;
 import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.XYPlot;
@@ -63,12 +61,8 @@ public class FenSetValues extends JDialog {
 
 		// ajout des selecteurs dans le listener
 		this.selectorListener = new SelectorListener(chart);
-		selectorListener.add(
-				new ValueSelector("TMax L", ModeleScinDyn.getMaxY(plot.getDataset(), 1), 1, RectangleAnchor.TOP_LEFT),
-				1);
-		selectorListener.add(new ValueSelector("TMax R", ModeleScinDyn.getMaxY(plot.getDataset(), 0), 0,
-				RectangleAnchor.BOTTOM_LEFT), 0);
-
+		selectorListener.add(new ValueSelector("TMax R", ModeleScinDyn.getMaxY(plot.getDataset(), 0), 0, RectangleAnchor.BOTTOM_LEFT), 0);
+		selectorListener.add(new ValueSelector("TMax L", ModeleScinDyn.getMaxY(plot.getDataset(), 1), 1, RectangleAnchor.TOP_LEFT), 1);
 		selectorListener.add(new ValueSelector("Ret OG R", 20, 0, RectangleAnchor.BOTTOM_LEFT), 2);
 		selectorListener.add(new ValueSelector("Ret OG L", 20, 1, RectangleAnchor.TOP_LEFT), 3);
 
@@ -76,23 +70,30 @@ public class FenSetValues extends JDialog {
 		selectorListener.add(start, 4);
 		ValueSelector end = new ValueSelector(" ", 3, -1, RectangleAnchor.BOTTOM_RIGHT); // fin de l'intervalle
 		selectorListener.add(end, 5);
+		ValueSelector middle = new ValueSelector("<->", 2, -1, RectangleAnchor.CENTER);
+		selectorListener.add(middle, 6);
 
 		// on rempli l'intervalle entre start et end
 		this.fillInterval(start.getXValue(), end.getXValue());
 		// listener permettant de redraw l'intervalle quand on bouge les bornes
 		chart.addMouseMotionListener(new MouseMotionListener() {
+			private double d;
+
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				FenSetValues.this.fillInterval(start.getXValue(), end.getXValue());
+				if(middle.isXLocked()) { //si le selecteur du milieu n'est pas selectionne, on le recentre
+					middle.setXValue((start.getXValue() + end.getXValue())/2);
+					this.d = Math.abs(start.getXValue() - middle.getXValue());
+				}else { //sinon on bouge les deux autres selecteurs
+					start.setXValue(middle.getXValue() - d);
+					end.setXValue(middle.getXValue() + d);
+				}
+				
 			}
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				//TODO drag mouse
-//				JFreeChart jfc = chart.getChart(); 
-//				ChartMouseEvent event = new ChartMouseEvent(jfc, e, chart.getEntityForPoint(e.getX(), e.getY()));
-//				selectorListener.chartMouseClicked(event);
-//				selectorListener.chartMouseMoved(event);
 			}
 		});
 
