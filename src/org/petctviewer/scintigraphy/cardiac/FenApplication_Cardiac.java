@@ -78,11 +78,11 @@ public class FenApplication_Cardiac extends FenApplication {
 	}
 	
 	public Button getBtn_newCont() {
-		return btn_newCont;
+		return this.btn_newCont;
 	}
 
 	public Button getBtn_continue() {
-		return btn_continue;
+		return this.btn_continue;
 	}
 
 }

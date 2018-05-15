@@ -29,8 +29,8 @@ public class Controleur_Hepatic extends ControleurScin {
 		// Copie des rois sur la deuxieme slice
 		for (int i = 0; i < 2; i++) {
 			this.indexRoi++;
-			vue.getImp().setRoi(getOrganRoi(indexRoi));
-			this.getModele().enregistrerMesure(this.addTag(this.getNomOrgane(indexRoi)), vue.getImp());
+			vue.getImp().setRoi(getOrganRoi(this.indexRoi));
+			this.getModele().enregistrerMesure(this.addTag(this.getNomOrgane(this.indexRoi)), vue.getImp());
 		}
 		
 		this.getModele().calculerResultats();
@@ -57,9 +57,8 @@ public class Controleur_Hepatic extends ControleurScin {
 	public int getSliceNumberByRoiIndex(int roiIndex) {
 		if (this.getIndexRoi() > 1) {
 			return 2;
-		} else {
-			return 1;
 		}
+		return 1;
 	}
 
 	@Override

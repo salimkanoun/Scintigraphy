@@ -29,27 +29,28 @@ public class Modele_Cardiac extends ModeleScin {
 
 	public Modele_Cardiac(ImagePlus imp) {
 		this.imp = (ImagePlus) imp.clone();
-		this.resultats = new HashMap<String, String>();
-		this.data = new HashMap<String, Double>();
+		this.resultats = new HashMap<>();
+		this.data = new HashMap<>();
 	}
 
 	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
-		Double counts = ModeleScin.getCounts(imp);
-		data.put(nomRoi, counts);
+		Double counts = ModeleScin.getCounts(imp);		
+		this.data.put(nomRoi, counts);
 	}
 
+	@Override
 	public void calculerResultats() {
 		// on fait les moyennes geometriques de chaque ROI Late
 
-		this.fixBkgNoise = moyGeom(data.get("Bkg noise A"), data.get("Bkg noise P"));
-		this.fixCoeurL = moyGeom(data.get("Heart A"), data.get("Heart P"));
-		this.fixReinGL = moyGeom(data.get("Kidney L A"), data.get("Kidney L P"));
-		this.fixReinDL = moyGeom(data.get("Kidney R A"), data.get("Kidney R P"));
-		this.fixVessieL = moyGeom(data.get("Bladder A"), data.get("Bladder P"));
+		this.fixBkgNoise = moyGeom(this.data.get("Bkg noise A"), this.data.get("Bkg noise P"));
+		this.fixCoeurL = moyGeom(this.data.get("Heart A"), this.data.get("Heart P"));
+		this.fixReinGL = moyGeom(this.data.get("Kidney L A"), this.data.get("Kidney L P"));
+		this.fixReinDL = moyGeom(this.data.get("Kidney R A"), this.data.get("Kidney R P"));
+		this.fixVessieL = moyGeom(this.data.get("Bladder A"), this.data.get("Bladder P"));
 
 		// on somme les moyennes geometriques des contaminations
-		List<Double> contAntPost = new ArrayList<Double>();
+		List<Double> contAntPost = new ArrayList<>();
 		for (String s : this.data.keySet()) {
 			if (s.startsWith("Cont")) {
 				contAntPost.add(this.data.get(s));
@@ -155,7 +156,7 @@ public class Modele_Cardiac extends ModeleScin {
 		this.resultats.put("Bkg noise", "" + round(this.fixBkgNoise, 2));
 		this.resultats.put("Right Kidney", "" + round(this.fixReinDL, 2));
 		this.resultats.put("Left Kidney", "" + round(this.fixReinGL, 2));
-
+		
 		this.resultats.put("Ratio H/WB %", "" + round(this.hwb * 100, 2));
 
 		return this.resultats;

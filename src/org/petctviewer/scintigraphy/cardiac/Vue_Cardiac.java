@@ -19,7 +19,7 @@ public class Vue_Cardiac extends VueScin{
 	@Override
 	protected void ouvertureImage(String[] titresFenetres) {
 		
-		ArrayList<ImagePlus> mountedImages = new ArrayList<ImagePlus>();
+		ArrayList<ImagePlus> mountedImages = new ArrayList<>();
 
 		int[] frameDuration = new int[2];
 
@@ -48,7 +48,7 @@ public class Vue_Cardiac extends VueScin{
 			impStacked = enchainer.concatenate(mountedSorted, false);
 			// si il y a plus de 3 minutes de diff�rence entre les deux prises
 			if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {
-				IJ.log("Warning, frame duration differ by " + (int) Math.abs(frameDuration[0] - frameDuration[1]) / (1000 * 60) + " minutes");
+				IJ.log("Warning, frame duration differ by " + Math.abs(frameDuration[0] - frameDuration[1]) / (1000 * 60) + " minutes");
 			}
 		}else {
 			impStacked = mountedSorted[0];

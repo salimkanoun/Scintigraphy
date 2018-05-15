@@ -40,38 +40,38 @@ public class FenSelectionDicom extends JDialog {
 		String[] columnNames = { "Patient", "Study", "Date", "Series", "Dimensions", "Stack Size" };
 		String[][] tableData = getTableData();
 
-		table = new JTable(tableData, columnNames);
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table.setFocusable(false);
-		table.setDefaultEditor(Object.class, null);
+		this.table = new JTable(tableData, columnNames);
+		this.table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		this.table.setFocusable(false);
+		this.table.setDefaultEditor(Object.class, null);
 		
 		//listener personalise pour selectionner plusieurs dicoms sans utiliser ctrl
-		table.addMouseListener(new MouseAdapter() {
+		this.table.addMouseListener(new MouseAdapter() {
 			
-			private boolean[] rowSelection= new boolean[titresDicoms.length];
+			private boolean[] rowSelection= new boolean[FenSelectionDicom.this.titresDicoms.length];
 			
 			@Override
 			public void mousePressed(MouseEvent event) {
 				//on passe la selection en mode unique
-				table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+				FenSelectionDicom.this.table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			}
 			
 			@Override
 			public void mouseReleased(MouseEvent event) {
-				table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+				FenSelectionDicom.this.table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 				
 				JTable tab = (JTable) event.getSource();		
 				int row = tab.rowAtPoint(event.getPoint());
 
 				//on selectionne on deselectionne la ligne dans le tableau de selection
-				rowSelection[row] = !rowSelection[row];
+				this.rowSelection[row] = !this.rowSelection[row];
 				
 				//on vide la selection du tableau
 				tab.clearSelection();
 				
 				//on selectionne les lignes de la JTable selon le tableau de booleens
-				for(int i = 0; i < rowSelection.length; i++) {
-					if(rowSelection[i]) {
+				for(int i = 0; i < this.rowSelection.length; i++) {
+					if(this.rowSelection[i]) {
 						tab.addRowSelectionInterval(i, i);
 					}
 				}
@@ -82,22 +82,22 @@ public class FenSelectionDicom extends JDialog {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 
-		JScrollPane tablePane = new JScrollPane(table);
+		JScrollPane tablePane = new JScrollPane(this.table);
 		
 		JPanel jp = new JPanel();
 		
 		controleurDialog ctrl = new controleurDialog();
 		
-		btn_select = new JButton("Select");
-		btn_select.addActionListener(ctrl);
+		this.btn_select = new JButton("Select");
+		this.btn_select.addActionListener(ctrl);
 		
-		btn_selectAll = new JButton("Select All");
-		btn_selectAll.addActionListener(ctrl);
+		this.btn_selectAll = new JButton("Select All");
+		this.btn_selectAll.addActionListener(ctrl);
 
 		panel.add(tablePane, BorderLayout.CENTER);
 		
-		jp.add(btn_select);
-		jp.add(btn_selectAll);
+		jp.add(this.btn_select);
+		jp.add(this.btn_selectAll);
 		
 		panel.add(jp, BorderLayout.SOUTH);
 		
@@ -111,7 +111,7 @@ public class FenSelectionDicom extends JDialog {
 	private String[][] getTableData() {
 		String[][] data = new String[this.titresDicoms.length][6];
 		for (int i = 0; i < this.titresDicoms.length; i++) {
-			ImagePlus imp = WindowManager.getImage(titresDicoms[i]);
+			ImagePlus imp = WindowManager.getImage(this.titresDicoms[i]);
 			HashMap<String, String> hm = ModeleScin.getPatientInfo(imp);
 
 			data[i][0] = replaceNull(hm.get("name"));
@@ -132,12 +132,12 @@ public class FenSelectionDicom extends JDialog {
 			
 			if(b == FenSelectionDicom.this.btn_select) {
 				//recuperation des lignes selectionnees
-				int[] rows = table.getSelectedRows();
+				int[] rows = FenSelectionDicom.this.table.getSelectedRows();
 				
 				//construction du tableau de nm de dicoms selectionnees
 				String[] titresFenSelected = new String[rows.length];
 				for (int i = 0; i < rows.length; i++) {
-					titresFenSelected[i] = titresDicoms[rows[i]];
+					titresFenSelected[i] = FenSelectionDicom.this.titresDicoms[rows[i]];
 				}
 				
 				FenSelectionDicom.this.selectedWindowsTitles = titresFenSelected;
@@ -156,7 +156,7 @@ public class FenSelectionDicom extends JDialog {
 	}
 
 	//si le string est null, on renvoie un string vide
-	private String replaceNull(String s) {
+	private static String replaceNull(String s) {
 		if (s == null) {
 			return "";
 		}

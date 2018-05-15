@@ -28,17 +28,17 @@ public class FenGroup_GeneralDyn extends JDialog {
 	 * @param roiNames nom des courbes a placer dans les graphiques
 	 */
 	public FenGroup_GeneralDyn(String[] roiNames) {
-		cgs = new ArrayList<ChartGroup>();
+		this.cgs = new ArrayList<>();
 		this.roiNames = roiNames;
 
 		this.setTitle("Select how you want to display the results");
 		this.setLayout(new BorderLayout());
 
-		listDroite = new JList<String>(roiNames);
+		this.listDroite = new JList<>(roiNames);
 		JPanel listContainer = new JPanel(new GridLayout(1, 1));
 		listContainer.setBorder(BorderFactory.createTitledBorder("Rois"));
 		listContainer.setPreferredSize(new Dimension(200, 100));
-		listContainer.add(listDroite);
+		listContainer.add(this.listDroite);
 
 		this.add(listContainer, BorderLayout.WEST);
 
@@ -46,7 +46,7 @@ public class FenGroup_GeneralDyn extends JDialog {
 
 		for (int i = 0; i < 5; i++) {
 			ChartGroup cg = new ChartGroup(i);
-			cgs.add(cg);
+			this.cgs.add(cg);
 
 			JPanel list_btn = new JPanel();
 
@@ -91,8 +91,8 @@ public class FenGroup_GeneralDyn extends JDialog {
 		public ChartGroup(int id) {
 			this.btn_plus = new JButton("+");
 			this.btn_moins = new JButton("-");
-			model = new DefaultListModel<String>();
-			this.list = new JList<String>(model);
+			this.model = new DefaultListModel<>();
+			this.list = new JList<>(this.model);
 
 			CtrlChartGroup ctrl = new CtrlChartGroup(id);
 			this.btn_moins.addActionListener(ctrl);
@@ -111,7 +111,7 @@ public class FenGroup_GeneralDyn extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			JButton b = (JButton) arg0.getSource();
-			ChartGroup cg = FenGroup_GeneralDyn.this.cgs.get(id);
+			ChartGroup cg = FenGroup_GeneralDyn.this.cgs.get(this.id);
 
 			switch (b.getText()) {
 			case "+":
@@ -120,6 +120,8 @@ public class FenGroup_GeneralDyn extends JDialog {
 				break;
 			case "-":
 				cg.model.removeElementAt(cg.list.getSelectedIndex());
+				break;
+			default:
 				break;
 			}
 		}
@@ -152,7 +154,7 @@ public class FenGroup_GeneralDyn extends JDialog {
 			}
 		} else {
 			association = new String[5][];
-			for (int i = 0; i < cgs.size(); i++) {
+			for (int i = 0; i < this.cgs.size(); i++) {
 				ChartGroup cg = this.cgs.get(i);
 				String[] chartRois = new String[cg.model.size()];
 				for (int j = 0; j < cg.model.size(); j++) {

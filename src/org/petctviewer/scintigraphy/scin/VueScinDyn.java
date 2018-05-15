@@ -51,7 +51,7 @@ public abstract class VueScinDyn extends VueScin {
 		return pj;
 	}
 
-	private int[] buildFrameDurations(ImagePlus imp) {
+	private static int[] buildFrameDurations(ImagePlus imp) {
 		int[] frameDurations = new int[imp.getStackSize()];
 		
 		int nbPhase = Integer.parseInt(DicomTools.getTag(imp, "0054,0031").trim());
@@ -63,7 +63,7 @@ public abstract class VueScinDyn extends VueScin {
 		} else {
 			String[] phasesStr = DicomTools.getTag(imp, "0054,0030").trim().split(" ");
 			int[] phases = new int[phasesStr.length];
-			Integer[] durations = this.getDurations(imp);
+			Integer[] durations = VueScinDyn.getDurations(imp);
 			for(int i = 0; i < phases.length; i++) {
 				phases[i] = Integer.parseInt(phasesStr[i]);
 			}
@@ -76,8 +76,8 @@ public abstract class VueScinDyn extends VueScin {
 		return frameDurations;
 	}
 
-	private Integer[] getDurations(ImagePlus imp) {
-		List<Integer> duration = new ArrayList<Integer>();
+	private static Integer[] getDurations(ImagePlus imp) {
+		List<Integer> duration = new ArrayList<>();
 		String info = imp.getInfoProperty();
 		String[] split = info.split("\n");
 		for(String s : split) {
@@ -90,22 +90,22 @@ public abstract class VueScinDyn extends VueScin {
 	}
 
 	public ImagePlus getImpAnt() {
-		return impAnt;
+		return this.impAnt;
 	}
 
 	public ImagePlus getImpPost() {
-		return impPost;
+		return this.impPost;
 	}
 	
 	public ImagePlus getImpProjetee() {
-		return impProjetee;
+		return this.impProjetee;
 	}
 
 	public int[] getFrameDurations() {
 		if(this.frameDurations == null) {
-			this.frameDurations = buildFrameDurations(impAnt);
+			this.frameDurations = buildFrameDurations(this.impAnt);
 		}
-		return frameDurations;
+		return this.frameDurations;
 	}
 
 }

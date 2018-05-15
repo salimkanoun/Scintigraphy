@@ -51,15 +51,17 @@ public class Modele_Plaquettes extends ModeleScin {
 	// d'aqcisition
 	// et l'objet contient toutes les mesusres realisee sur image ant(si presente)
 	// et post
-	HashMap<Date, MesureImage> mesures = new HashMap<Date, MesureImage>();
+	HashMap<Date, MesureImage> mesures = new HashMap<>();
 	private Date dateHeureDebut;
 
 	public Modele_Plaquettes(Date dateHeureDebut) {
-		this.dateHeureDebut=dateHeureDebut;
+		this.dateHeureDebut = dateHeureDebut;
 	}
+
+	@Override
 	public void enregistrerMesure(String roi, ImagePlus imp) {
 		Date dateAcquisition = ModeleScin.getDateAcquisition(imp);
-		
+
 		// Recupere la somme des coups dans la ROI (integrated Density) et la valeur
 		// moyenne de la Roi (mean)
 		Analyzer.setMeasurement(Measurements.INTEGRATED_DENSITY, true);
@@ -67,66 +69,63 @@ public class Modele_Plaquettes extends ModeleScin {
 		Analyzer analyser = new Analyzer(imp);
 		analyser.measure();
 		ResultsTable density = Analyzer.getResultsTable();
-		
+
 		double counts = density.getValueAsDouble(ResultsTable.RAW_INTEGRATED_DENSITY, 0);
 		double mean = density.getValueAsDouble(ResultsTable.MEAN, 0);
 
 		// Si premiere fois qu'on traite l'image on cree l'objet et on l'ajoute dans la
 		// hashMap
-		if (!mesures.containsKey(dateAcquisition)) {
+		if (!this.mesures.containsKey(dateAcquisition)) {
 			MesureImage mesure = new MesureImage(dateAcquisition);
 			// on calcule le delai par rapport a la premiere image et on enregistre la
 			// valeur en heure (utile pour le trie et les courbes ensuite)
-			mesure.setDelayFromStart(
-					(double) ((dateAcquisition.getTime() - dateHeureDebut.getTime()) / (1000 * 60 * 60)));
-			mesures.put(dateAcquisition, mesure);
+			mesure.setDelayFromStart((dateAcquisition.getTime() - this.dateHeureDebut.getTime()) / (1000 * 60 * 60));
+			this.mesures.put(dateAcquisition, mesure);
 		}
 
 		// On calcule les valeurs et on l'ajoute dans l'objet adHoc
-		if (mesures.containsKey(dateAcquisition)) {
+		if (this.mesures.containsKey(dateAcquisition)) {
 
 			if (roi.contains("Spleen P")) {
 				double[] spleen = new double[2];
 				spleen[0] = counts;
 				spleen[1] = mean;
-				mesures.get(dateAcquisition).setSpleenValue(spleen);
+				this.mesures.get(dateAcquisition).setSpleenValue(spleen);
 			}
 
 			else if (roi.contains("Liver P")) {
 				double[] liver = new double[2];
 				liver[0] = counts;
 				liver[1] = mean;
-				mesures.get(dateAcquisition).setLiverValue(liver);
-				;
+				this.mesures.get(dateAcquisition).setLiverValue(liver);
 			}
 
 			else if (roi.contains("Heart P")) {
 				double[] heart = new double[2];
 				heart[0] = counts;
 				heart[1] = mean;
-				mesures.get(dateAcquisition).setHeartValue(heart);
-				;
+				this.mesures.get(dateAcquisition).setHeartValue(heart);
 			}
 
 			else if (roi.contains("Spleen A")) {
 				double[] spleen = new double[2];
 				spleen[0] = counts;
 				spleen[1] = mean;
-				mesures.get(dateAcquisition).setSpleenAntValue(spleen);
+				this.mesures.get(dateAcquisition).setSpleenAntValue(spleen);
 			}
 
 			else if (roi.contains("Liver A")) {
 				double[] liver = new double[2];
 				liver[0] = counts;
 				liver[1] = mean;
-				mesures.get(dateAcquisition).setliverAntValue(liver);
+				this.mesures.get(dateAcquisition).setliverAntValue(liver);
 			}
 
 			else if (roi.contains("Heart A")) {
 				double[] heart = new double[2];
 				heart[0] = counts;
 				heart[1] = mean;
-				mesures.get(dateAcquisition).setHeartAntValue(heart);
+				this.mesures.get(dateAcquisition).setHeartAntValue(heart);
 			}
 
 		}
@@ -137,14 +136,15 @@ public class Modele_Plaquettes extends ModeleScin {
 		}
 	}
 
+	@SuppressWarnings("null")
 	protected JTable getResults() {
 		// On boule la hashmap pour recuperer les resultats
-		Date[] mapDate = new Date[mesures.size()];
-		mapDate = mesures.keySet().toArray(mapDate);
+		Date[] mapDate = new Date[this.mesures.size()];
+		mapDate = this.mesures.keySet().toArray(mapDate);
 		// On trie les donnees par date
 		Arrays.sort(mapDate);
 
-		String[] titreColonne = new String[mesures.size() + 1];
+		String[] titreColonne = new String[this.mesures.size() + 1];
 		titreColonne[0] = "Time (Hours)";
 
 		String[][] data = null;
@@ -154,15 +154,15 @@ public class Modele_Plaquettes extends ModeleScin {
 		// DateFormat dateFormat=new SimpleDateFormat("HH:mm");
 
 		// On traite chaque acquisition
-		for (int i = 0; i < mesures.size(); i++) {
+		for (int i = 0; i < this.mesures.size(); i++) {
 			// On ajoute le temps de mesure dans les titre de colonne
-			int tempsHeures = (int) Math.round(mesures.get(mapDate[i]).getDelayFromStart());
+			int tempsHeures = (int) Math.round(this.mesures.get(mapDate[i]).getDelayFromStart());
 			titreColonne[i + 1] = String.valueOf(tempsHeures);
-			HashMap<String, Double> resultsImage = mesures.get(mapDate[i]).calculateandGetResults();
+			HashMap<String, Double> resultsImage = this.mesures.get(mapDate[i]).calculateandGetResults();
 
 			// On set les data avec sa taille a la premiere boucle
 			if (i == 0) {
-				data = new String[resultsImage.size()][mesures.size() + 1];
+				data = new String[resultsImage.size()][this.mesures.size() + 1];
 			}
 
 			String[] resultsLabel = new String[resultsImage.size()];
@@ -176,7 +176,7 @@ public class Modele_Plaquettes extends ModeleScin {
 				// On file les data ligne par ligne pour chaque colonne
 				if (resultsLabel[j].equals("Corrected SpleenPosterior")) {
 					// Si coup corrige on divise par nombre de coups iniitiaux de la 1ere image
-					double[] spleenInit = mesures.get(dateHeureDebut).getSpleenValue();
+					double[] spleenInit = this.mesures.get(this.dateHeureDebut).getSpleenValue();
 					valeur = resultsImage.get(resultsLabel[j]) / spleenInit[0];
 				} else
 					valeur = resultsImage.get(resultsLabel[j]);
@@ -199,7 +199,7 @@ public class Modele_Plaquettes extends ModeleScin {
 	 * @param table
 	 * @return
 	 */
- 	protected ImagePlus[] createDataset(JTable table) {
+	protected ImagePlus[] createDataset(JTable table) {
 		XYSeriesCollection datasetPost = new XYSeriesCollection();
 		XYSeriesCollection datasetGM = new XYSeriesCollection();
 		XYSeriesCollection datasetJ0Ratio = new XYSeriesCollection();
@@ -227,7 +227,7 @@ public class Modele_Plaquettes extends ModeleScin {
 		}
 		IJ.log("avant list ImagePlus");
 		// On cree le tableau d'ImagePlus qui recoit les courbes
-		List<ImagePlus> courbes = new ArrayList<ImagePlus>();
+		List<ImagePlus> courbes = new ArrayList<>();
 		if (datasetPost.getSeriesCount() != 0)
 			courbes.add(makeGraph(datasetPost, "Posterior"));
 		if (datasetJ0Ratio.getSeriesCount() != 0)
@@ -252,7 +252,7 @@ public class Modele_Plaquettes extends ModeleScin {
 	 * @param title
 	 * @return
 	 */
-	private ImagePlus makeGraph(XYSeriesCollection dataset, String title) {
+	private static ImagePlus makeGraph(XYSeriesCollection dataset, String title) {
 		JFreeChart xylineChart = ChartFactory.createXYLineChart(title, "Hours", "Value", dataset,
 				PlotOrientation.VERTICAL, true, true, true);
 
@@ -289,18 +289,20 @@ public class Modele_Plaquettes extends ModeleScin {
 		ImagePlus courbe = new ImagePlus(title, buff);
 		return courbe;
 	}
-	
+
 	@Override
-	public void calculerResultats() {}
-	
+	public void calculerResultats() {
+		//todo TODO
+	}
+
 	@Override
 	public HashMap<String, String> getResultsHashMap() {
 		return null;
 	}
-	
+
 	@Override
 	public String toString() {
-		return "";		
+		return "";
 	}
 
 }

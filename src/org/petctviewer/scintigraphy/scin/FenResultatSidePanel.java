@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 public abstract class FenResultatSidePanel extends JFrame {
@@ -56,7 +57,7 @@ public abstract class FenResultatSidePanel extends JFrame {
 		// ajout du titre de la fenetre
 		JPanel flow = new JPanel();
 		JLabel titreFen = new JLabel("<html><h1>" + nomFen + "</h1><html>");
-		titreFen.setHorizontalAlignment(JLabel.CENTER);
+		titreFen.setHorizontalAlignment(SwingConstants.CENTER);
 		flow.add(titreFen);
 		this.side.add(flow);
 
@@ -71,39 +72,40 @@ public abstract class FenResultatSidePanel extends JFrame {
 		patientInfo.add(new JLabel(infoPatient.get("date")));
 		JPanel flow1 = new JPanel(new FlowLayout());
 		flow1.add(patientInfo);
-		side.add(flow1);
+		this.side.add(flow1);
 	}
 	
 	/**
 	 * Fini de construire la fenetre en incluant tous les components de la methode {@link #getSidePanelContent()}
 	 */
 	public void finishBuildingWindow() {
-		side.add(Box.createVerticalGlue());
+		this.side.add(Box.createVerticalGlue());
 		
 		//on ajoute tous les components de la methode getSidePanelContent
-		if(this.getSidePanelContent() != null) {
-			for(Component c : this.getSidePanelContent()) {
-				side.add(c);
+		Component[] comp = this.getSidePanelContent();
+		if(comp != null) {
+			for(Component c : comp) {
+				this.side.add(c);
 			}
 		}
 
-		side.add(Box.createVerticalGlue());
+		this.side.add(Box.createVerticalGlue());
 
 		//bouton capture
 		this.btn_capture = new JButton("Capture");
 		this.btn_capture.setAlignmentX(Component.CENTER_ALIGNMENT);
-		this.side.add(btn_capture);
+		this.side.add(this.btn_capture);
 
 		//label de credits
 		JLabel credits = new JLabel("Provided by petctviewer.org");
 		credits.setVisible(false);
-		side.add(credits);
+		this.side.add(credits);
 
 		//on ajoute le listener pour la capture
-		this.vue.fen_application.getControleur().setCaptureButton(btn_capture, credits, this, this.modele, this.additionalInfo);
+		this.vue.fen_application.getControleur().setCaptureButton(this.btn_capture, credits, this, this.modele, this.additionalInfo);
 		
 		//on ajoute le sie panel a droite de la fenetre
-		this.add(side, BorderLayout.EAST);
+		this.add(this.side, BorderLayout.EAST);
 
 		this.pack();
 		

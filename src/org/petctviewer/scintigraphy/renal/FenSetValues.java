@@ -61,17 +61,17 @@ public class FenSetValues extends JDialog {
 
 		// ajout des selecteurs dans le listener
 		this.selectorListener = new SelectorListener(chart);
-		selectorListener.add(new ValueSelector("TMax R", ModeleScinDyn.getMaxY(plot.getDataset(), 0), 0, RectangleAnchor.BOTTOM_LEFT), 0);
-		selectorListener.add(new ValueSelector("TMax L", ModeleScinDyn.getMaxY(plot.getDataset(), 1), 1, RectangleAnchor.TOP_LEFT), 1);
-		selectorListener.add(new ValueSelector("Ret OG R", 20, 0, RectangleAnchor.BOTTOM_LEFT), 2);
-		selectorListener.add(new ValueSelector("Ret OG L", 20, 1, RectangleAnchor.TOP_LEFT), 3);
+		this.selectorListener.add(new ValueSelector("TMax R", ModeleScinDyn.getMaxY(plot.getDataset(), 0), 0, RectangleAnchor.BOTTOM_LEFT), 0);
+		this.selectorListener.add(new ValueSelector("TMax L", ModeleScinDyn.getMaxY(plot.getDataset(), 1), 1, RectangleAnchor.TOP_LEFT), 1);
+		this.selectorListener.add(new ValueSelector("Ret OG R", 20, 0, RectangleAnchor.BOTTOM_LEFT), 2);
+		this.selectorListener.add(new ValueSelector("Ret OG L", 20, 1, RectangleAnchor.TOP_LEFT), 3);
 
 		ValueSelector start = new ValueSelector(" ", 1, -1, RectangleAnchor.TOP_LEFT); // debut de l'intervalle
-		selectorListener.add(start, 4);
+		this.selectorListener.add(start, 4);
 		ValueSelector end = new ValueSelector(" ", 3, -1, RectangleAnchor.BOTTOM_RIGHT); // fin de l'intervalle
-		selectorListener.add(end, 5);
+		this.selectorListener.add(end, 5);
 		ValueSelector middle = new ValueSelector("<->", 2, -1, RectangleAnchor.CENTER);
-		selectorListener.add(middle, 6);
+		this.selectorListener.add(middle, 6);
 
 		// on rempli l'intervalle entre start et end
 		this.fillInterval(start.getXValue(), end.getXValue());
@@ -86,19 +86,20 @@ public class FenSetValues extends JDialog {
 					middle.setXValue((start.getXValue() + end.getXValue())/2);
 					this.d = Math.abs(start.getXValue() - middle.getXValue());
 				}else { //sinon on bouge les deux autres selecteurs
-					start.setXValue(middle.getXValue() - d);
-					end.setXValue(middle.getXValue() + d);
+					start.setXValue(middle.getXValue() - this.d);
+					end.setXValue(middle.getXValue() + this.d);
 				}
 				
 			}
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
+				//inutile pour ce programme
 			}
 		});
 
 		// on ajoute le listener sur le chart
-		chart.addChartMouseListener(selectorListener);
+		chart.addChartMouseListener(this.selectorListener);
 
 		this.pack();
 
@@ -158,9 +159,10 @@ public class FenSetValues extends JDialog {
 		// supprimer les marqueurs de retention d'origine
 		this.selectorListener.remove(2);
 		this.selectorListener.remove(3);
+		this.selectorListener.remove(6);
 
 		// on supprime le listener du chartPanel
-		this.chart.removeChartMouseListener(selectorListener);
+		this.chart.removeChartMouseListener(this.selectorListener);
 
 		return this.chart;
 	}

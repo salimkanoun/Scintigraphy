@@ -54,7 +54,7 @@ public class FenetreResultat extends JFrame {
       this.lbl_csv.setText("CSV Save OK");
     }
     buttonPanel.add(this.lbl_csv);
-    btn_capture.addActionListener(new ActionListener() {
+    this.btn_capture.addActionListener(new ActionListener() {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {

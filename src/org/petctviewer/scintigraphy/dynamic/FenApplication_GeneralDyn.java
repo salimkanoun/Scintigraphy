@@ -36,7 +36,7 @@ public class FenApplication_GeneralDyn extends FenApplication {
 	}
 
 	public Button getBtn_finish() {
-		return btn_finish;
+		return this.btn_finish;
 	}
 
 	@Override

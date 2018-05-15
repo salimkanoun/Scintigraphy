@@ -36,19 +36,19 @@ public class Controleur_Plaquettes extends ControleurScin {
 	// Sert au restart
 	protected Controleur_Plaquettes(Vue_Plaquettes vue) {
 		super(vue);
-		leModele = new Modele_Plaquettes(vue.getDateDebut());
-		this.setModele(leModele);
-		antPost = vue.antPost;
+		this.leModele = new Modele_Plaquettes(vue.getDateDebut());
+		this.setModele(this.leModele);
+		this.antPost = vue.antPost;
 		
 		if (vue.antPost) {
-			this.setOrganes(organesAntPost);
+			this.setOrganes(this.organesAntPost);
 		} else {
-			this.setOrganes(organes);
+			this.setOrganes(this.organes);
 		}
 	}
 
-	public void fin() {
-		
+	@Override
+	public void fin() {	
 		
 		Thread captureThread = new Thread(new Runnable() {
 			@Override
@@ -72,9 +72,9 @@ public class Controleur_Plaquettes extends ControleurScin {
 		ImageProcessor iptemp = canvas.expandImage(ip, 640, 512, (640 - 512) / 2, 0);
 		capture.setProcessor(iptemp);
 
-		JTable tableResultats = leModele.getResults();
+		JTable tableResultats = this.leModele.getResults();
 
-		ImagePlus[] courbes = leModele.createDataset(tableResultats);
+		ImagePlus[] courbes = this.leModele.createDataset(tableResultats);
 
 		ImageStack stack = new ImageStack(640, 512);
 		stack.addSlice(capture.getProcessor());
@@ -108,17 +108,18 @@ public class Controleur_Plaquettes extends ControleurScin {
 
 	@Override
 	public boolean isPost() {
-		if (antPost)
+		if (this.antPost) {
 			return (this.getSliceNumberByRoiIndex(this.getIndexRoi()) % 2 == 1);
-		else
-			return true;
+		}
+		
+		return true;
 	}
 
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
-		if (roiManager.getRoi(getIndexRoi()) == null)
+		if (this.roiManager.getRoi(getIndexRoi()) == null)
 			if (this.getVue().getImp().getCurrentSlice() > 1) {
-				return roiManager.getRoi(this.getIndexRoi() - 3);
+				return this.roiManager.getRoi(this.getIndexRoi() - 3);
 			}
 		return null;
 	}

@@ -29,10 +29,12 @@ public class Controleur_GeneralDyn extends ControleurScin {
 
 			@Override
 			public void keyTyped(KeyEvent arg0) {
+				//non utilise
 			}
 
 			@Override
 			public void keyReleased(KeyEvent arg0) {
+				//non utilise
 			}
 
 			@Override
@@ -69,7 +71,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
 		if (this.isOver()) {
-			return this.roiManager.getRoi(this.indexRoi % nbOrganes);
+			return this.roiManager.getRoi(this.indexRoi % this.nbOrganes);
 		}
 		return null;
 	}
@@ -156,15 +158,15 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		ModeleScinDyn modele = new Modele_GeneralDyn(vue.getFrameDurations());
 
 		this.getVue().setImp(imp);
-		indexRoi = 0;
+		this.indexRoi = 0;
 		// on copie les roi sur toutes les slices
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
-			for (int j = 0; j < nbOrganes; j++) {
-				imp.setRoi(getOrganRoi(indexRoi));
-				String nom = this.getNomOrgane(indexRoi);
+			for (int j = 0; j < this.nbOrganes; j++) {
+				imp.setRoi(getOrganRoi(this.indexRoi));
+				String nom = this.getNomOrgane(this.indexRoi);
 				modele.enregistrerMesure(this.addTag(nom), imp);
-				indexRoi++;
+				this.indexRoi++;
 			}
 		}
 		modele.calculerResultats();

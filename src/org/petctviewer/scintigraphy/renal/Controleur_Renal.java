@@ -37,7 +37,7 @@ public class Controleur_Renal extends ControleurScin {
 
 	@Override
 	public boolean isOver() {
-		return maxIndexRoi == ORGANES.length - 1;
+		return this.maxIndexRoi == ORGANES.length - 1;
 	}
 
 	@Override
@@ -60,14 +60,14 @@ public class Controleur_Renal extends ControleurScin {
 		this.getVue().setImp(imp);
 
 		// on enregistre la mesure pour chaque slice
-		indexRoi = 0;
+		this.indexRoi = 0;
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
 			for (int j = 0; j < ORGANES.length; j++) {
-				imp.setRoi(getOrganRoi(indexRoi));
-				String nom = this.getNomOrgane(indexRoi);
+				imp.setRoi(getOrganRoi(this.indexRoi));
+				String nom = this.getNomOrgane(this.indexRoi);
 				modele.enregistrerMesure(this.addTag(nom), imp);
-				indexRoi++;
+				this.indexRoi++;
 			}
 		}
 
@@ -105,7 +105,7 @@ public class Controleur_Renal extends ControleurScin {
 
 	@Override
 	public void notifyClic(ActionEvent arg0) {
-		this.maxIndexRoi = Math.max(maxIndexRoi, indexRoi);
+		this.maxIndexRoi = Math.max(this.maxIndexRoi, this.indexRoi);
 	}
 
 	@Override
@@ -113,16 +113,16 @@ public class Controleur_Renal extends ControleurScin {
 		if (this.isOver()) {
 			// on renvoie la roi de l'organe uniquement si on a fini de tracer les roi
 			return this.roiManager.getRoi(this.indexRoi % Controleur_Renal.ORGANES.length);
-		} else {
-			// roi de bruit de fond rein droit
-			if (this.indexRoi == 1) {
-				return this.createBkgRoi(indexRoi, new int[] { -1, 1 });
-			}
+		}
+		
+		// roi de bruit de fond rein droit
+		if (this.indexRoi == 1) {
+			return this.createBkgRoi(this.indexRoi, new int[] { -1, 1 });
+		}
 
-			//roi de bruit de fond rein gauche
-			if (this.indexRoi == 3) {
-				return this.createBkgRoi(indexRoi, new int[] { 1, 1 });
-			}
+		//roi de bruit de fond rein gauche
+		if (this.indexRoi == 3) {
+			return this.createBkgRoi(this.indexRoi, new int[] { 1, 1 });
 		}
 
 		return null;

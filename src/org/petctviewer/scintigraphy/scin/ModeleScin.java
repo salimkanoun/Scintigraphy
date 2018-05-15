@@ -79,7 +79,7 @@ public abstract class ModeleScin {
 	 * @return chartPanels avec association
 	 */
 	public static ChartPanel[] associateSeries(String[][] asso, List<XYSeries> series) {
-		ArrayList<ChartPanel> cPanels = new ArrayList<ChartPanel>();
+		ArrayList<ChartPanel> cPanels = new ArrayList<>();
 		
 		//pour chaque association
 		for (String[] i : asso) {
@@ -127,7 +127,7 @@ public abstract class ModeleScin {
 	 * @return
 	 */
 	public static HashMap<String, String> getPatientInfo(ImagePlus imp) {
-		HashMap<String, String> hm = new HashMap<String, String>();
+		HashMap<String, String> hm = new HashMap<>();
 		
 		//ajout du nom, si il n'existe pas on ajoute une string vide
 		if(DicomTools.getTag(imp, "0010,0010") != null) {
@@ -183,7 +183,7 @@ public abstract class ModeleScin {
 		XYSeries s = ModeleScinDyn.createSerie(points, "");
 		XYSeriesCollection data = new XYSeriesCollection(s);
 		return DatasetUtils.findYValue(data, 0, x);
-	};
+	}
 
 
 	/**
@@ -277,12 +277,15 @@ public abstract class ModeleScin {
 		// efface le zoom indicateur : carre bleu en haut a gauche quand zoom inf a 1
 		boolean wasHidden = ic.hideZoomIndicator(true);
 		ic.repaint();
+		
 		try {
 			Rectangle r = new Rectangle(loc.x, loc.y, bounds.width, bounds.height);
 			buff = new Robot().createScreenCapture(r);
 
 		} catch (AWTException e) {
+			e.printStackTrace();
 		}
+		
 		ic.hideZoomIndicator(wasHidden);
 		// On resize la capture aux dimensions choisies pour rentrer dans le
 		// stack
@@ -330,11 +333,14 @@ public abstract class ModeleScin {
 		boolean wasHidden = ic.hideZoomIndicator(true);
 		IJ.wait(500);
 		BufferedImage buff = null;
+		
 		try {
 			Rectangle rec = new Rectangle(loc.x, loc.y, bounds.width, bounds.height);
 			buff = new Robot().createScreenCapture(rec);
 		} catch (AWTException e) {
+			e.printStackTrace();
 		}
+		
 		ic.hideZoomIndicator(wasHidden);
 		// On ferme le ROI manage et fenetre resultat
 		ImagePlus imp2 = new ImagePlus("Results Capture", buff);
@@ -534,6 +540,7 @@ public abstract class ModeleScin {
 		return content;
 	}
 
+	@SuppressWarnings("null")
 	private static void saveFiles(ImagePlus imp, RoiManager roiManager, StringBuilder csv, String nomProgramme,
 			String[] infoPatient, String additionalInfo) {
 
@@ -569,10 +576,9 @@ public abstract class ModeleScin {
 			try {
 				pw = new PrintWriter(f);
 				pw.write(content.toString());
+				pw.close();
 			} catch (IOException e) {
 				e.printStackTrace();
-			} finally {
-				pw.close();
 			}
 
 			// On ecrit le ZIP contenant la sauvegarde des ROIs

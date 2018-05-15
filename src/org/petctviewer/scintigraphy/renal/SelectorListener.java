@@ -32,7 +32,7 @@ public class SelectorListener implements ChartMouseListener {
 		public SelectorListener(ChartPanel chartPanel) {
 			this.chartPanel = chartPanel;
 			this.plot = chartPanel.getChart().getXYPlot();
-			this.listenersPriority = new ArrayList<ValueSelector>();
+			this.listenersPriority = new ArrayList<>();
 			this.listeners = new ValueSelector[SELECTOR_CAPACITY];
 		}
 
@@ -49,7 +49,7 @@ public class SelectorListener implements ChartMouseListener {
 			
 			//on recupere le selecteur clique
 			int xMouse = (int) event.getTrigger().getPoint().getX();
-			Rectangle2D plotArea = chartPanel.getScreenDataArea();
+			Rectangle2D plotArea = this.chartPanel.getScreenDataArea();
 			ValueSelector v = this.getSelector(xMouse, plotArea);
 			
 			//si il y a un selecteur sous la souris
@@ -71,7 +71,7 @@ public class SelectorListener implements ChartMouseListener {
 			//pour chaque selecteur en respectant l'ordre de priorite
 			for(ValueSelector v : this.listenersPriority) {
 				//on converti l'abscisse du selecteur sur le tableau en abscisse sur la fenetre
-				int xJava2D = (int) this.plot.getDomainAxis().valueToJava2D(v.getXValue(), plotArea, plot.getDomainAxisEdge());
+				int xJava2D = (int) this.plot.getDomainAxis().valueToJava2D(v.getXValue(), plotArea, this.plot.getDomainAxisEdge());
 				//si il y a un selecteur la ou on a clique, on le renvoie
 				if (xJava2D > xMouse - marge && xJava2D < xMouse + marge) {
 					return v;
@@ -86,11 +86,11 @@ public class SelectorListener implements ChartMouseListener {
 			
 			//on recupere le selecteur sous la souris
 			int xMouse = (int) event.getTrigger().getPoint().getX();
-			Rectangle2D plotArea = chartPanel.getScreenDataArea();
+			Rectangle2D plotArea = this.chartPanel.getScreenDataArea();
 			ValueSelector v = this.getSelector(xMouse, plotArea);
 			
 			//si la souris est sur un selecteur ou qu'un selecteur est selectionne
-			if(v != null || current != null) {
+			if(v != null || this.current != null) {
 				//on change le curseur en main
 				c.setCursor(new Cursor(Cursor.HAND_CURSOR));
 			}else {
@@ -99,7 +99,7 @@ public class SelectorListener implements ChartMouseListener {
 			}
 			
 			//si un selecteur est selectionne, on appelle la methode chartMouseMoved
-			if(current != null) {
+			if(this.current != null) {
 				this.current.chartMouseMoved(event);
 			}
 		}
@@ -147,7 +147,7 @@ public class SelectorListener implements ChartMouseListener {
 		 * @return liste de selecteurs
 		 */
 		public List<ValueSelector> getListeners(){
-			return listenersPriority;
+			return this.listenersPriority;
 		}
 		
 		/**
@@ -155,8 +155,8 @@ public class SelectorListener implements ChartMouseListener {
 		 * @return [0] => TMaxD <br> [1] => TMaxG <br> [2] => Retetion origin D <br> [3] => Retetion origin G <br> [4] => Borne intervalle 1 <br> [5] => Borne intervalle 2
 		 */
 		public Double[] getXValues() {
-			Double[] values = new Double[SelectorListener.SELECTOR_CAPACITY];
-			for(int i = 0; i < this.listeners.length ; i++) {
+			Double[] values = new Double[6];
+			for(int i = 0; i < values.length ; i++) {
 				values[i] = this.listeners[i].getXValue();
 			}
 			return values;			

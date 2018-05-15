@@ -43,15 +43,16 @@ public class Vue_Plaquettes extends VueScin {
 		super("Platelet");
 	}
 
+	@Override
 	protected void ouvertureImage(String[] titresFenetres) {
 
-		ArrayList<ImagePlus> series = new ArrayList<ImagePlus>();
+		ArrayList<ImagePlus> series = new ArrayList<>();
 
 		for (int i = 0; i < titresFenetres.length; i++) {
 
 			ImagePlus imp = WindowManager.getImage(titresFenetres[i]);
 			if (imp.getStackSize() == 2) {
-				antPost = true;
+				this.antPost = true;
 				Boolean ant = VueScin.isAnterieur(imp);
 				// Si l'image 1 est anterieur on inverse le stack pour avoir d'abord l'image
 				// post
@@ -68,13 +69,13 @@ public class Vue_Plaquettes extends VueScin {
 			series.add(VueScin.sortImageAntPost(imp));
 			imp.close();
 		}
-		nombreAcquisitions = series.size();
+		this.nombreAcquisitions = series.size();
 		// IJ.log(String.valueOf(antPost));
 
 		ImagePlus[] seriesTriee = VueScin.orderImagesByAcquisitionTime(series);
 
 		// On recupere la date et le jour de la 1ere image
-		dateHeureDebut=ModeleScin.getDateAcquisition(seriesTriee[0]);
+		this.dateHeureDebut=ModeleScin.getDateAcquisition(seriesTriee[0]);
 
 		Concatenator enchainer = new Concatenator();
 		// enchaine les images
@@ -104,7 +105,7 @@ public class Vue_Plaquettes extends VueScin {
 	}
 
 	public Date getDateDebut() {
-		return dateHeureDebut;
+		return this.dateHeureDebut;
 	}
 
 } // fin

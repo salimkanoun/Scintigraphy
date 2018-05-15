@@ -33,7 +33,7 @@ public class Controleur_Cardiac extends ControleurScin {
 		this.setModele(mdl);
 
 		// double les organes pour prise ant/post
-		List<String> organesAntPost = new ArrayList<String>();
+		List<String> organesAntPost = new ArrayList<>();
 		for (String s : organes) {
 			organesAntPost.add(s);
 			organesAntPost.add(s);
@@ -57,7 +57,7 @@ public class Controleur_Cardiac extends ControleurScin {
 		ModeleScin mdl = this.getModele();
 		mdl.calculerResultats();
 
-		VueScin vue = this.getVue();
+		Vue_Cardiac vue = (Vue_Cardiac) this.getVue();
 		BufferedImage capture = ModeleScin.captureImage(vue.getImp(), 410, 820).getBufferedImage();
 		new FenResultat_Cardiac(vue, capture);
 
@@ -81,7 +81,7 @@ public class Controleur_Cardiac extends ControleurScin {
 	public int getSliceNumberByRoiIndex(int roiIndex) {
 		// changement de slice si la prise contient une precoce
 		if (this.isDeuxPrises()) {
-			if (finContSlice1) {
+			if (this.finContSlice1) {
 				return 2;
 			}
 		}
@@ -103,14 +103,14 @@ public class Controleur_Cardiac extends ControleurScin {
 			return roi;
 		}
 
-		if (this.isPost() && lastRoi < indexRoi) { // si la prise est post et que , on decale l'organe precedent
+		if (this.isPost() && lastRoi < this.indexRoi) { // si la prise est post et que , on decale l'organe precedent
 			Roi roi = (Roi) this.roiManager.getRoi(getIndexRoi() - 1).clone();
 			// on d�cale d'une demi largeur
 			roi.setLocation(roi.getXBase() + (this.getVue().getImp().getWidth() / 2), roi.getYBase());
 			return roi;
-		} else { // sinon on ne renvoie rien
-			return null;
 		}
+		
+		return null;
 	}
 
 	private boolean isDeuxPrises() {
@@ -123,11 +123,12 @@ public class Controleur_Cardiac extends ControleurScin {
 		if (this.finContSlice1) {
 			nom = "ContL";
 		}
-		boolean saved = this.saveCurrentRoi(nom, indexRoi);
+		
+		boolean saved = this.saveCurrentRoi(nom, this.indexRoi);
 
 		if (saved) {
 			this.indexRoi++;
-			this.preparerRoi(indexRoi-1);
+			this.preparerRoi(this.indexRoi-1);
 
 			// on affiche les instructions
 			if (!this.isPost()) {

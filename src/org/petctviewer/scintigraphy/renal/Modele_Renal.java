@@ -25,7 +25,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	 */
 	public Modele_Renal(int[] frameDuration) {
 		super(frameDuration);
-		this.organArea = new HashMap<String, Integer>();
+		this.organArea = new HashMap<>();
 	}
 
 	@Override
@@ -51,14 +51,14 @@ public class Modele_Renal extends ModeleScinDyn {
 		// on ajuste toutes les valeurs pour les mettre en coup / sec
 		for (String k : this.getData().keySet()) {
 			List<Double> data = this.getData().get(k);
-			this.getData().put(k, this.adjustValues(data));
+			this.getData().put(k, ModeleScinDyn.adjustValues(data));
 		}
 
 		// on recupere la liste des donnees vasculaires
 		List<Double> vasc = this.getData(orgs[4]);
 
-		List<Double> RGCorrige = new ArrayList<Double>();
-		List<Double> RDCorrige = new ArrayList<Double>();
+		List<Double> RGCorrige = new ArrayList<>();
+		List<Double> RDCorrige = new ArrayList<>();
 
 		// on recupere l'aire des rois bruit de fond et rein
 		int aireRD = this.organArea.get(orgs[0]);
@@ -83,7 +83,7 @@ public class Modele_Renal extends ModeleScinDyn {
 
 		// on calcule l'integrale de la courbe vasculaire
 		XYSeries serieVasc = ModeleScinDyn.createSerie(vasc, "");
-		List<Double> vascIntegree = this.getIntegral(serieVasc, serieVasc.getMinX(), serieVasc.getMaxX());
+		List<Double> vascIntegree = Modele_Renal.getIntegral(serieVasc, serieVasc.getMinX(), serieVasc.getMaxX());
 
 		// ajout des valeurs dans les donnees
 		this.getData().put("Final KL", RGCorrige);
@@ -108,8 +108,8 @@ public class Modele_Renal extends ModeleScinDyn {
 		List<Double> vascFitD = this.fitVasc(bpi, RDCorrige);
 
 		// on calcule le valeurs de la courbe sortie pour chaque rein
-		List<Double> sortieIntRG = new ArrayList<Double>();
-		List<Double> sortieIntRD = new ArrayList<Double>();
+		List<Double> sortieIntRG = new ArrayList<>();
+		List<Double> sortieIntRD = new ArrayList<>();
 		for (int i = 0; i < RGCorrige.size(); i++) {
 			// on ajoute uniquement si la valeur est positive
 			Double outputXG = vascFitG.get(i) - RGCorrige.get(i);
@@ -134,12 +134,11 @@ public class Modele_Renal extends ModeleScinDyn {
 	}
 
 	// recupere les valeurs situees entre startX et endX
-	private XYSeries cropSeries(XYSeries series, Double startX, Double endX) {
+	private static XYSeries cropSeries(XYSeries series, Double startX, Double endX) {
 		XYSeries cropped = new XYSeries(series.getKey() + " cropped");
 		for (int i = 0; i < series.getItemCount(); i++) {
 			if (series.getX(i).doubleValue() >= startX && series.getX(i).doubleValue() <= endX) {
 				cropped.add(series.getX(i), series.getY(i));
-				;
 			}
 		}
 		return cropped;
@@ -170,8 +169,8 @@ public class Modele_Renal extends ModeleScinDyn {
 		Double endX = Math.max(this.adjusted[4], this.adjusted[5]);
 
 		// on recupere les points compris dans l'intervalle
-		XYSeries croppedKidney = this.cropSeries(seriesKid, startX, endX);
-		XYSeries croppedVasc = this.cropSeries(seriesVasc, startX, endX);
+		XYSeries croppedKidney = Modele_Renal.cropSeries(seriesKid, startX, endX);
+		XYSeries croppedVasc = Modele_Renal.cropSeries(seriesVasc, startX, endX);
 
 		// on ajoute les series dans une collection afin d'utiliser le fit de jfreechart
 		XYSeriesCollection dataset = new XYSeriesCollection();
@@ -184,7 +183,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		// calcul du rapport de pente sur l'intervalle defini par l'utilisateur
 		Double rapportPente = courbeKidney[1] / courbeVasc[1];
 
-		List<Double> fittedVasc = new ArrayList<Double>();
+		List<Double> fittedVasc = new ArrayList<>();
 		for (Double d : vasc) {
 			fittedVasc.add(d * rapportPente);
 		}
@@ -232,12 +231,12 @@ public class Modele_Renal extends ModeleScinDyn {
 	}
 
 	// renvoie l'aire sous la courbe entre les points startX et endX
-	private List<Double> getIntegral(XYSeries series, Double startX, Double endX) {
+	private static List<Double> getIntegral(XYSeries series, Double startX, Double endX) {
 
-		List<Double> integrale = new ArrayList<Double>();
+		List<Double> integrale = new ArrayList<>();
 
 		// on recupere les points de l'intervalle voulu
-		XYSeries croppedSeries = this.cropSeries(series, startX, endX);
+		XYSeries croppedSeries = Modele_Renal.cropSeries(series, startX, endX);
 
 		// on calcule les aires sous la courbe entre chaque paire de points
 		Double airePt1 = croppedSeries.getX(0).doubleValue() * croppedSeries.getY(0).doubleValue() / 2;
@@ -249,7 +248,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		}
 
 		// on en deduit l'integrale
-		List<Double> integraleSum = new ArrayList<Double>();
+		List<Double> integraleSum = new ArrayList<>();
 		integraleSum.add(integrale.get(0));
 		for (int i = 1; i < integrale.size(); i++) {
 			integraleSum.add(integraleSum.get(i - 1) + integrale.get(i));
@@ -313,8 +312,8 @@ public class Modele_Renal extends ModeleScinDyn {
 		XYSeries lk = this.getSerie("Final KL");
 		XYSeries rk = this.getSerie("Final KR");
 
-		List<Double> listRG = this.getIntegral(lk, debut, fin);
-		List<Double> listRD = this.getIntegral(rk, debut, fin);
+		List<Double> listRG = Modele_Renal.getIntegral(lk, debut, fin);
+		List<Double> listRD = Modele_Renal.getIntegral(rk, debut, fin);
 
 		Double intRG = listRG.get(listRG.size() - 1);
 		Double intRD = listRD.get(listRD.size() - 1);

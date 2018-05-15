@@ -38,9 +38,9 @@ public class Modele_HepaticDyn extends ModeleScin {
 
 	public Modele_HepaticDyn(Vue_HepaticDyn vue) {
 		this.imp = (ImagePlus) vue.getImp().clone();
-		this.vasc = new ArrayList<Double>();
-		this.foieD = new ArrayList<Double>();
-		this.foieG = new ArrayList<Double>();
+		this.vasc = new ArrayList<>();
+		this.foieD = new ArrayList<>();
+		this.foieG = new ArrayList<>();
 		this.vue = vue;
 	}
 
@@ -49,11 +49,11 @@ public class Modele_HepaticDyn extends ModeleScin {
 		Double counts = ModeleScin.getCounts(imp);
 
 		if (nomRoi.contains("Blood pool")) {
-			vasc.add(counts);
+			this.vasc.add(counts);
 		} else if (nomRoi.contains("Liver R")) {
-			foieD.add(counts);
+			this.foieD.add(counts);
 		} else if (nomRoi.contains("Liver L")) {
-			foieG.add(counts);
+			this.foieG.add(counts);
 		}
 	}
 
@@ -67,23 +67,23 @@ public class Modele_HepaticDyn extends ModeleScin {
 		// on cree le graphique
 		createGraph();
 
-		this.maxFoieD = ModeleScinDyn.getMaxY(this.liverR);
-		this.tDemiFoieDFit = this.getTDemiFit(liverR, (maxFoieD + 2)*1.0);
-		this.tDemiFoieDObs = ModeleScinDyn.getTDemiObs(liverR, (maxFoieD + 2)*1.0).intValue();
-		this.finPicD = this.liverR.getY(liverR.getItemCount() - 1).doubleValue() / liverR.getMaxY();
+		this.maxFoieD = ModeleScinDyn.getAbsMaxY(this.liverR);
+		this.tDemiFoieDFit = Modele_HepaticDyn.getTDemiFit(this.liverR, (this.maxFoieD + 2)*1.0);
+		this.tDemiFoieDObs = ModeleScinDyn.getTDemiObs(this.liverR, (this.maxFoieD + 2)*1.0).intValue();
+		this.finPicD = this.liverR.getY(this.liverR.getItemCount() - 1).doubleValue() / this.liverR.getMaxY();
 
-		this.maxFoieG = ModeleScinDyn.getMaxY(this.liverL);
-		this.tDemiFoieGFit = this.getTDemiFit(liverL, maxFoieG + 2);
-		this.tDemiFoieGObs = ModeleScinDyn.getTDemiObs(liverL, maxFoieG + 2).intValue();
-		this.finPicG = this.liverL.getY(liverL.getItemCount() - 1).doubleValue() / liverL.getMaxY();
+		this.maxFoieG = ModeleScinDyn.getAbsMaxY(this.liverL);
+		this.tDemiFoieGFit = Modele_HepaticDyn.getTDemiFit(this.liverL, this.maxFoieG + 2);
+		this.tDemiFoieGObs = ModeleScinDyn.getTDemiObs(this.liverL, this.maxFoieG + 2).intValue();
+		this.finPicG = this.liverL.getY(this.liverL.getItemCount() - 1).doubleValue() / this.liverL.getMaxY();
 
-		this.pctVasc = ModeleScin.getY(bloodPool, 20.0) / ModeleScin.getY(bloodPool, 5.0);
-		this.tDemiVascFit = this.getTDemiFit(bloodPool, 20.0);
-		this.tDemiVascObs = ModeleScinDyn.getTDemiObs(bloodPool, 20.0).intValue();
+		this.pctVasc = ModeleScin.getY(this.bloodPool, 20.0) / ModeleScin.getY(this.bloodPool, 5.0);
+		this.tDemiVascFit = Modele_HepaticDyn.getTDemiFit(this.bloodPool, 20.0);
+		this.tDemiVascObs = ModeleScinDyn.getTDemiObs(this.bloodPool, 20.0).intValue();
 
 	}
 
-	private int getTDemiFit(XYSeries series, Double startX) {
+	private static int getTDemiFit(XYSeries series, Double startX) {
 		XYSeries linear = new XYSeries("linear");
 		for(int i = 0; i < series.getItemCount(); i++) {
 			XYDataItem item = series.getDataItem(i);
@@ -102,7 +102,7 @@ public class Modele_HepaticDyn extends ModeleScin {
 	}
 
 	public ChartPanel getChartPanel() {
-		return chartPanel;
+		return this.chartPanel;
 	}
 
 	private void createGraph() {
@@ -129,40 +129,40 @@ public class Modele_HepaticDyn extends ModeleScin {
 
 		Double dureePriseOld = 0.0;
 		for (int i = 0; i < this.vasc.size(); i++) {
-			Double dureePrise = vue.getFrameDurations()[i] / 60000.0;
-			bloodPool.add(dureePriseOld + dureePrise, vasc.get(i) / (dureePrise * 60));
-			liverR.add(dureePriseOld + dureePrise, foieD.get(i) / (dureePrise * 60));
-			liverL.add(dureePriseOld + dureePrise, foieG.get(i) / (dureePrise * 60));
+			Double dureePrise = this.vue.getFrameDurations()[i] / 60000.0;
+			this.bloodPool.add(dureePriseOld + dureePrise, this.vasc.get(i) / (dureePrise * 60));
+			this.liverR.add(dureePriseOld + dureePrise, this.foieD.get(i) / (dureePrise * 60));
+			this.liverL.add(dureePriseOld + dureePrise, this.foieG.get(i) / (dureePrise * 60));
 			dureePriseOld += dureePrise;
 		}
 
 		final XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries(bloodPool);
-		dataset.addSeries(liverL);
-		dataset.addSeries(liverR);
+		dataset.addSeries(this.bloodPool);
+		dataset.addSeries(this.liverL);
+		dataset.addSeries(this.liverR);
 		return dataset;
 	}
 
 	@Override
 	public HashMap<String, String> getResultsHashMap() {
-		HashMap<String, String> hm = new HashMap<String, String>();
+		HashMap<String, String> hm = new HashMap<>();
 
 		// foie droit
-		hm.put("T1/2 Righ Liver", tDemiFoieDObs + "mn");
-		hm.put("T1/2 Righ Liver *", tDemiFoieDFit + "mn");
-		hm.put("Maximum Right Liver", round(maxFoieD, 1) + "mn");
-		hm.put("end/max Ratio Right", (int) (finPicD * 100) + "%");
+		hm.put("T1/2 Righ Liver", this.tDemiFoieDObs + "mn");
+		hm.put("T1/2 Righ Liver *", this.tDemiFoieDFit + "mn");
+		hm.put("Maximum Right Liver", round(this.maxFoieD, 1) + "mn");
+		hm.put("end/max Ratio Right", (int) (this.finPicD * 100) + "%");
 
 		// foie gauche
-		hm.put("T1/2 Left Liver", tDemiFoieGObs + "mn");
-		hm.put("T1/2 Left Liver *", tDemiFoieGFit + "mn");
-		hm.put("Maximum Left Liver", round(maxFoieG, 1) + "mn");
-		hm.put("end/max Ratio Left", (int) (finPicG * 100) + "%");
+		hm.put("T1/2 Left Liver", this.tDemiFoieGObs + "mn");
+		hm.put("T1/2 Left Liver *", this.tDemiFoieGFit + "mn");
+		hm.put("Maximum Left Liver", round(this.maxFoieG, 1) + "mn");
+		hm.put("end/max Ratio Left", (int) (this.finPicG * 100) + "%");
 
 		// vasculaire
-		hm.put("Blood pool ratio 20mn/5mn", (int) (pctVasc * 100) + "%");
-		hm.put("T1/2 Blood pool", tDemiVascObs + "mn");
-		hm.put("T1/2 Blood pool *", tDemiVascFit + "mn");
+		hm.put("Blood pool ratio 20mn/5mn", (int) (this.pctVasc * 100) + "%");
+		hm.put("T1/2 Blood pool", this.tDemiVascObs + "mn");
+		hm.put("T1/2 Blood pool *", this.tDemiVascFit + "mn");
 
 		return hm;
 	}
@@ -197,14 +197,14 @@ public class Modele_HepaticDyn extends ModeleScin {
 		s += "T1/2 Right Liver Obs," + this.tDemiFoieDObs + "mn" + "\n";
 		s += "T1/2 Right Liver Fit," + this.tDemiFoieDFit + "mn" + "\n";
 		s += "Maximum Right Liver," + this.maxFoieD + "mn" + "\n";
-		s += "END/MAX Ratio Right," + (int) (finPicD * 100) + "%" + "\n";
+		s += "END/MAX Ratio Right," + (int) (this.finPicD * 100) + "%" + "\n";
 
 		s += "T1/2 Left Liver Obs," + this.tDemiFoieGObs + "mn" + "\n";
 		s += "T1/2 Left Liver Fit," + this.tDemiFoieGFit + "mn" + "\n";
 		s += "Maximum Left Liver," + this.maxFoieG + "mn" + "\n";
-		s += "END/MAX Ratio Left," + (int) (finPicG * 100) + "%" + "\n";
+		s += "END/MAX Ratio Left," + (int) (this.finPicG * 100) + "%" + "\n";
 
-		s += "Blood pool ratio 20mn/5mn," + (int) (pctVasc * 100) + "%" + "\n";
+		s += "Blood pool ratio 20mn/5mn," + (int) (this.pctVasc * 100) + "%" + "\n";
 		s += "T1/2 Blood pool Obs," + this.tDemiVascObs + "mn" + "\n";
 		s += "T1/2 Blood pool Fit," + this.tDemiVascFit + "mn" + "\n";
 

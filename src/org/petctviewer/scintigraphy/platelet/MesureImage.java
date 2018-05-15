@@ -28,7 +28,7 @@ public class MesureImage {
 	private double[] heartAnt=new double[2];
 	private Boolean antPost=false;
 	private double delayFromStart=0;
-	private HashMap<String, Double> resultats = new HashMap<String,Double>();
+	private HashMap<String, Double> resultats = new HashMap<>();
 	
 	public MesureImage(Date dateAcquisition) {
 		this.mesureTime=dateAcquisition;
@@ -47,7 +47,7 @@ public class MesureImage {
 	}
 	
 	public void setSpleenAntValue(double[] spleenAnt) {
-		antPost=true;
+		this.antPost=true;
 		this.spleenAnt=spleenAnt;
 	}
 	
@@ -60,35 +60,35 @@ public class MesureImage {
 	}
 	
 	public double[] getSpleenValue() {
-		return spleen;
+		return this.spleen;
 	}
 	
 	public double[] getLiverValue() {
-		return liver;
+		return this.liver;
 	}
 	
 	public double[] getHeartValue() {
-		return heart;
+		return this.heart;
 	}
 	
 	public double[] getSpleenAntValue() {
-		return spleenAnt;
+		return this.spleenAnt;
 	}
 	
 	public double[] getLiverAntValue() {
-		return liverAnt;
+		return this.liverAnt;
 	}
 	
 	public double[] getHeartAntValue() {
-		return heartAnt;
+		return this.heartAnt;
 	}
 	
 	public boolean isAntPost(){
-		return antPost;
+		return this.antPost;
 	}
 	
 	public Date getMesureTime() {
-		return mesureTime;
+		return this.mesureTime;
 	}
 	
 	public void setDelayFromStart(double delayHour) {
@@ -96,7 +96,7 @@ public class MesureImage {
 	}
 	
 	public double getDelayFromStart() {
-		return delayFromStart;
+		return this.delayFromStart;
 	}
 	
 	/**
@@ -104,31 +104,34 @@ public class MesureImage {
 	 */
 	public HashMap<String, Double> calculateandGetResults(){
 		
-		resultats.put("Mean Ratio Spleen / Heart Post", spleen[1]/heart[1]);
-		resultats.put("Mean Ratio Spleen / Liver Post", spleen[1]/liver[1]);
-		resultats.put("Mean Ratio Liver / Heart Post", liver[1]/heart[1]);
+		this.resultats.put("Mean Ratio Spleen / Heart Post", this.spleen[1]/this.heart[1]);
+		this.resultats.put("Mean Ratio Spleen / Liver Post", this.spleen[1]/this.liver[1]);
+		this.resultats.put("Mean Ratio Liver / Heart Post", this.liver[1]/this.heart[1]);
 		
-		double delaySeconds = delayFromStart*3600;
+		double delaySeconds = this.delayFromStart*3600;
 		double indiumLambda=(Math.log(2)/(2.8*24*3600));
 		double decayedFraction=Math.pow(Math.E, (indiumLambda*delaySeconds*(-1)));
-		double correctedCount=spleen[0]/(decayedFraction);
-		resultats.put("Corrected SpleenPosterior", correctedCount);
+		double correctedCount=this.spleen[0]/(decayedFraction);
+		this.resultats.put("Corrected SpleenPosterior", correctedCount);
 		
-		if (antPost){
-			double spleenMG = Math.sqrt(spleenAnt[0]*spleen[0]);
-			double liverMG=Math.sqrt(liverAnt[0]*liver[0]);
-			double heartMG=Math.sqrt(heartAnt[0]*heart[0]);
+		if (this.antPost){
+			double spleenMG = Math.sqrt(this.spleenAnt[0]*this.spleen[0]);
+			double liverMG=Math.sqrt(this.liverAnt[0]*this.liver[0]);
+			double heartMG=Math.sqrt(this.heartAnt[0]*this.heart[0]);
 			
-			resultats.put("Ratio GM Spleen / Heart", (spleenMG/heartMG));
-			resultats.put("Ratio GM Spleen / Liver", (spleenMG/liverMG));
-			resultats.put("Ratio GM Liver / Heart", (liverMG/heartMG));
+			this.resultats.put("Ratio GM Spleen / Heart", (spleenMG/heartMG));
+			this.resultats.put("Ratio GM Spleen / Liver", (spleenMG/liverMG));
+			this.resultats.put("Ratio GM Liver / Heart", (liverMG/heartMG));
 		}
 		
-		return resultats;
+		return this.resultats;
 	}
 	
+	/**
+	 * @param firstImage  
+	 */
 	public void corrigerDecroissance(Date firstImage){
-		
+		//vide
 	}
 	
 	

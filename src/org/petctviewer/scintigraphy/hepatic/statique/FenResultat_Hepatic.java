@@ -41,7 +41,7 @@ public class FenResultat_Hepatic extends FenResultatSidePanel {
 	}
 	
 	private JLabel getLabel(String key) {
-		JLabel lbl_hwb = new JLabel(key + " : " + resultats.get(key));
+		JLabel lbl_hwb = new JLabel(key + " : " + this.resultats.get(key));
 		return lbl_hwb;
 	}
 

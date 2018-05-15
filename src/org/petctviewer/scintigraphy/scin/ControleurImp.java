@@ -21,7 +21,7 @@ public class ControleurImp implements ImageListener {
 	public void imageUpdated(ImagePlus imp) {
 		if(!this.lockUpdate) {
 			int currentSlice = this.ctrlScin.getVue().getImp().getCurrentSlice();
-			if(currentSlice != lastSlice) {
+			if(currentSlice != this.lastSlice) {
 				this.lastSlice = currentSlice;
 				this.lockUpdate = true;
 				this.ctrlScin.setSlice(currentSlice);
@@ -32,11 +32,11 @@ public class ControleurImp implements ImageListener {
 	
 	@Override
 	public void imageOpened(ImagePlus imp) {
-		
+		//inutile
 	}
 	
 	@Override
 	public void imageClosed(ImagePlus imp) {
-		
+		//inutile
 	}
 }

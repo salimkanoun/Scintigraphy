@@ -37,6 +37,7 @@ public abstract class VueScin implements PlugIn {
 	/**
 	 * Lance la fen�tre de dialogue permettant le lancemet du programme
 	 */
+	@Override
 	public void run(String arg) {
 		FenSelectionDicom selection=new FenSelectionDicom(this.getExamType());
 		selection.setModal(true);
@@ -133,7 +134,7 @@ public abstract class VueScin implements PlugIn {
 	public static boolean isMultiFrame(ImagePlus imp) {
 		// On regarde la coupe 1
 		imp.setSlice(1);
-
+		
 		int slices = 0;
 
 		// Regarde si frame unique ou multiple
@@ -145,10 +146,11 @@ public abstract class VueScin implements PlugIn {
 			slices = Integer.parseInt(numFrames);
 		}
 
-		if (slices == 1)
+		if (slices == 1) {
 			return false;
-		else
-			return true;
+		}
+		
+		return true;
 
 	}
 
@@ -515,11 +517,11 @@ public abstract class VueScin implements PlugIn {
 				try {
 					timeImage0 = dateHeure.parse(dateInputImage0);
 					timeImage1 = dateHeure.parse(dateInputImage1);
+					return (int) ((timeImage0.getTime() - timeImage1.getTime()) / 1000);
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
-
-				return (int) ((timeImage0.getTime() - timeImage1.getTime()) / 1000);
+				return 0;
 			}
 		});
 
@@ -701,11 +703,11 @@ public abstract class VueScin implements PlugIn {
 	}
 
 	public FenApplication getFen_application() {
-		return fen_application;
+		return this.fen_application;
 	}
 
 	public boolean isAntPost() {
-		return antPost;
+		return this.antPost;
 	}
 
 }

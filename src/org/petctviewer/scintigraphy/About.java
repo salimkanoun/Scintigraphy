@@ -40,6 +40,7 @@ import java.awt.Graphics2D;
 
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.JTextPane;
 
 public class About extends JDialog implements PlugIn {
@@ -69,7 +70,7 @@ public class About extends JDialog implements PlugIn {
 	public static void main(String[] args) {
 		try {
 			About dialog = new About();
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 			dialog.setSize(800,500);
 		} catch (Exception e) {
@@ -81,7 +82,7 @@ public class About extends JDialog implements PlugIn {
 	 * Create the dialog.
 	 */
 	public About() {
-		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setAlwaysOnTop(true);
 		setBounds(100, 100, 545, 402);
 		getContentPane().setLayout(new GridLayout(3, 1, 0, 0));
@@ -161,8 +162,6 @@ public class About extends JDialog implements PlugIn {
 			}
 		}
 		{
-		}
-		{
 			scrollPane_1 = new JScrollPane();
 			getContentPane().add(scrollPane_1);
 			{
@@ -186,8 +185,6 @@ public class About extends JDialog implements PlugIn {
 			getContentPane().add(PanelBas);
 			PanelBas.setLayout(new GridLayout(3, 1, 0, 0));
 			{
-			}
-			{
 				panel_2 = new JPanel();
 				PanelBas.add(panel_2);
 				panel_2.setLayout(new GridLayout(0, 2, 0, 0));
@@ -206,6 +203,7 @@ public class About extends JDialog implements PlugIn {
 			}
 			btnOk = new JButton("OK");
 			btnOk.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					dispose();
 				}
@@ -249,7 +247,7 @@ public class About extends JDialog implements PlugIn {
 	@Override
 	public void run(String arg0) {
 		About dialog = new About();
-		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		dialog.setVisible(true);
 		dialog.setResizable(false);
 		dialog.setSize(800,500);

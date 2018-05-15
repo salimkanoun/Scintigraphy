@@ -45,8 +45,8 @@ public class FenApplication extends StackWindow {
 		setTitle(generateTitle());
 		this.imp.setTitle(generateTitle());
 
-		panel = new Panel();
-		panel.setLayout(new FlowLayout());
+		this.panel = new Panel();
+		this.panel.setLayout(new FlowLayout());
 
 		Panel gauche = new Panel();
 		gauche.setLayout(new FlowLayout());
@@ -63,19 +63,19 @@ public class FenApplication extends StackWindow {
 		gauche.add(btns_glob);
 
 		//Creation du panel instructions
-		instru = new Panel();
-		instru.setLayout(new GridLayout(2, 1));
+		this.instru = new Panel();
+		this.instru.setLayout(new GridLayout(2, 1));
 		this.field_instructions = new JTextField();
 		this.field_instructions.setEditable(false);
 		this.field_instructions.setBackground(Color.LIGHT_GRAY);
-		instru.add(this.getField_instructions());
+		this.instru.add(this.getField_instructions());
 
 		Panel btns_instru = this.createBtnsInstru();
-		instru.add(btns_instru);
+		this.instru.add(btns_instru);
 		
 		gauche.add(getInstru());
-		panel.add(gauche);
-		add(panel);
+		this.panel.add(gauche);
+		add(this.panel);
 		this.adaptWindow(512);
 	}
 	
@@ -192,27 +192,27 @@ public class FenApplication extends StackWindow {
 	}
 
 	public Button getBtn_quitter() {
-		return btn_quitter;
+		return this.btn_quitter;
 	}
 
 	public Button getBtn_drawROI() {
-		return btn_drawROI;
+		return this.btn_drawROI;
 	}
 
 	public Button getBtn_contrast() {
-		return btn_contrast;
+		return this.btn_contrast;
 	}
 
 	public Button getBtn_showlog() {
-		return btn_showlog;
+		return this.btn_showlog;
 	}
 
 	public Button getBtn_precedent() {
-		return btn_precedent;
+		return this.btn_precedent;
 	}
 
 	public Button getBtn_suivant() {
-		return btn_suivant;
+		return this.btn_suivant;
 	}
 	
 	public Overlay getOverlay() {
@@ -220,11 +220,11 @@ public class FenApplication extends StackWindow {
 	}
 	
 	public ControleurScin getControleur() {
-		return controleur;
+		return this.controleur;
 	}
 
 	public Panel getInstru() {
-		return instru;
+		return this.instru;
 	}
 
 	public void setInstru(Panel instru) {
@@ -232,7 +232,7 @@ public class FenApplication extends StackWindow {
 	}
 
 	public JTextField getField_instructions() {
-		return field_instructions;
+		return this.field_instructions;
 	}
 	
 	@Override

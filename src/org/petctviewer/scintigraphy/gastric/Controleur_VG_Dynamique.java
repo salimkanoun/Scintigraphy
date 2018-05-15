@@ -392,7 +392,7 @@ public class Controleur_VG_Dynamique implements ActionListener {
 					laVue.setInstructions(listeInstructions[index_Instru]);
 				} else if (reponse == 1) {
 					// si on reponds "No", on passe a l'etat CORRIGER, et on tenir compte que tous
-					// les oeufs ont la m¨ºme taille pour corriger les resultats
+					// les oeufs ont la mï¿½ï¿½me taille pour corriger les resultats
 					etat = etat.next();
 					index_Instru++;
 					etat = etat.next();

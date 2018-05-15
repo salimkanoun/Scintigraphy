@@ -28,7 +28,7 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 
 	public FenResultat_Cardiac(VueScin vueScin, BufferedImage capture) {
 		super("DPD Quant", vueScin, capture, "");
-		this.resultats = vueScin.getFen_application().getControleur().getModele().getResultsHashMap();
+		this.resultats = ((Modele_Cardiac) vueScin.getFen_application().getControleur().getModele()).getResultsHashMap();
 		this.finishBuildingWindow();
 	}
 
@@ -40,6 +40,7 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 		
 		String key = "Ratio H/WB %";
 		JLabel lbl_hwb = new JLabel(key + " : " + this.resultats.get(key));
+		
 		if(Double.parseDouble(this.resultats.get(key)) > 7.5) {
 			lbl_hwb.setForeground(Color.RED);
 		}else {
@@ -51,7 +52,7 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 		//on ajoute le pourcentage de retention cardiaque si il existe
 		key = "Cardiac retention %";
 		if (this.resultats.containsKey(key)) {
-			JLabel lbl = new JLabel(key + " : " + resultats.remove(key));
+			JLabel lbl = new JLabel(key + " : " + this.resultats.remove(key));
 			lbl.setForeground(new Color(128, 51, 0));
 			resultRouge.add(lbl);
 		}			
@@ -59,7 +60,7 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 		//idem pour la retention du corps entier
 		key = "WB retention %";
 		if (this.resultats.containsKey(key)) {
-			JLabel lbl = new JLabel(key + " : " + resultats.remove(key));
+			JLabel lbl = new JLabel(key + " : " + this.resultats.remove(key));
 			lbl.setForeground(new Color(128, 51, 0));
 			resultRouge.add(lbl);
 		}
@@ -81,7 +82,7 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 		//tri des valeurs
 		tabRes.setAutoCreateRowSorter(true);
 		DefaultRowSorter<?, ?> sorter = ((DefaultRowSorter<?, ?>) tabRes.getRowSorter());
-		ArrayList<SortKey> list = new ArrayList<SortKey>();
+		ArrayList<SortKey> list = new ArrayList<>();
 		list.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
 		sorter.setSortKeys(list);
 		sorter.sort();

@@ -6,22 +6,22 @@ import ij.ImagePlus;
 
 public class Modele_Hepatic extends ModeleScin {
 
-	private HashMap<String, Double> data = new HashMap<String, Double>();
+	private HashMap<String, Double> data = new HashMap<>();
 	private Double MGFoie, MGIntes, MGTot;
 
 	public Modele_Hepatic(ImagePlus imp) {
-		this.imp = (ImagePlus) imp.clone();;
+		this.imp = (ImagePlus) imp.clone();
 	}
 
 	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 		Double counts = ModeleScin.getCounts(imp);
-		data.put(nomRoi, counts);
+		this.data.put(nomRoi, counts);
 	}
 	
 	@Override
 	public HashMap<String, String> getResultsHashMap() {
-		HashMap<String, String> resultats = new HashMap<String, String>();
+		HashMap<String, String> resultats = new HashMap<>();
 		
 		resultats.put("GM Liver", ModeleScin.round(this.MGFoie, 2) + " (" + ModeleScin.round((this.MGFoie / this.MGTot*100), 2) + "%)");
 		resultats.put("GM Intestine", "" + round(this.MGIntes, 2));

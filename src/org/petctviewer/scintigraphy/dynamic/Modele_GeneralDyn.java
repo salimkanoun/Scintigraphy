@@ -15,7 +15,7 @@ public class Modele_GeneralDyn extends ModeleScinDyn {
 	public void calculerResultats() {
 		for (String k : this.getData().keySet()) {
 			List<Double> data = this.getData().get(k);
-			this.getData().put(k, this.adjustValues(data));
+			this.getData().put(k, ModeleScinDyn.adjustValues(data));
 		}
 	}
 

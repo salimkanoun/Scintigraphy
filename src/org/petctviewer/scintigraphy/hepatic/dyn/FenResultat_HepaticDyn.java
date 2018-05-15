@@ -41,7 +41,8 @@ public class FenResultat_HepaticDyn extends JFrame {
 		grilleTop.add(cpt);
 		
 		// montage pour une vision globale
-		JPanel northEast = creerMontage(vue.getFrameDurations(), vue.getImpAnt(), capture.getWidth() / 4);
+		JPanel northEast = FenResultat_HepaticDyn.creerMontage(vue.getFrameDurations(), vue.getImpAnt(), capture.getWidth() / 4);
+		
 		grilleTop.add(northEast);
 		grille.add(grilleTop);
 
@@ -117,7 +118,7 @@ public class FenResultat_HepaticDyn extends JFrame {
 		this.setLocationRelativeTo(null);
 	}
 	
-	private JPanel creerMontage(int[] frameDuration, ImagePlus imp, int size) {
+	private static JPanel creerMontage(int[] frameDuration, ImagePlus imp, int size) {
 		JPanel northEast = new JPanel(new GridLayout(4, 4));
 		int nSlice = frameDuration.length;
 		

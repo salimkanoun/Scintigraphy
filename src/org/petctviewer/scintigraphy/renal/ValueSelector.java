@@ -50,7 +50,7 @@ public class ValueSelector extends CrosshairOverlay implements ChartMouseListene
 			@Override
 			public String generateLabel(Crosshair crosshair) {
 				if(nom.equals(" ") || nom == null) {
-					crossX.setLabelVisible(false);
+					ValueSelector.this.crossX.setLabelVisible(false);
 				}
 				return nom;
 			}
@@ -63,8 +63,8 @@ public class ValueSelector extends CrosshairOverlay implements ChartMouseListene
 		this.crossY.setLabelVisible(true);
 
 		//on ajoute les selecteurs horizontaux et verticaux
-		this.addDomainCrosshair(crossX);
-		this.addRangeCrosshair(crossY);
+		this.addDomainCrosshair(this.crossX);
+		this.addRangeCrosshair(this.crossY);
 	}
 
 	@Override
@@ -85,12 +85,12 @@ public class ValueSelector extends CrosshairOverlay implements ChartMouseListene
 			ValueAxis xAxis = plot.getDomainAxis();
 			
 			//on calcule la nouvelle valeur du selecteur vertical
-			double x = xAxis.java2DToValue(event.getTrigger().getX(), chartPanel.getScreenDataArea(),
+			double x = xAxis.java2DToValue(event.getTrigger().getX(), this.chartPanel.getScreenDataArea(),
 					org.jfree.chart.ui.RectangleEdge.BOTTOM);
 			double y = Double.NaN;
 			
 			//si on se situe sur une serie
-			if(series != -1) {
+			if(this.series != -1) {
 				//on renvoie le y correspondant
 				y = DatasetUtils.findYValue(plot.getDataset(), this.series, x);
 			}			
@@ -122,7 +122,7 @@ public class ValueSelector extends CrosshairOverlay implements ChartMouseListene
 	}
 	
 	public boolean isXLocked() {
-		return xLocked;
+		return this.xLocked;
 		
 	}
 }
