@@ -134,7 +134,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	}
 
 	// recupere les valeurs situees entre startX et endX
-	private static XYSeries cropSeries(XYSeries series, Double startX, Double endX) {
+	public static XYSeries cropSeries(XYSeries series, Double startX, Double endX) {
 		XYSeries cropped = new XYSeries(series.getKey() + " cropped");
 		for (int i = 0; i < series.getItemCount(); i++) {
 			if (series.getX(i).doubleValue() >= startX && series.getX(i).doubleValue() <= endX) {
@@ -274,7 +274,8 @@ public class Modele_Renal extends ModeleScinDyn {
 			s += "\n ROE " + min + "min Right Kidney , " + this.getPercentage(min, rk, "R");
 		}
 
-		String[][] tableData = this.getTableData();
+		//TODO modifier ça
+		String[][] tableData = new String[][] {{""}};
 		s += "\n";
 
 		// on ajoute les valeurs du tableau
@@ -293,57 +294,68 @@ public class Modele_Renal extends ModeleScinDyn {
 		return s;
 
 	}
-
+	
 	/**
-	 * renvoie les valeurs du tableau a afficher dans le side panel
-	 * 
-	 * @return valeurs du tableau
+	 * renvoie le temps a tmax et t1/2
+	 * @return res[0][x] : tMax, res[1][x] : t1/2, res[x][0] : rein gauche, res[x][1] : rein droit
 	 */
-	public String[][] getTableData() {
-		String[][] s = new String[4][3];
-		s[0][0] = "Separated function (%)";
-		s[1][0] = "Renal retention";
-		s[2][0] = "Max duration (min)";
-		s[3][0] = "1/2 max duration (min)";
-
-		Double debut = Math.min(this.adjusted[4], this.adjusted[5]);
-		Double fin = Math.max(this.adjusted[4], this.adjusted[5]);
-
+	public Double[][] getTiming() {
+		Double[][] res = new Double[2][2];
 		XYSeries lk = this.getSerie("Final KL");
 		XYSeries rk = this.getSerie("Final KR");
+		
+		res[0][0] = ModeleScin.round(this.adjusted[1], 2);
+		res[0][1] = ModeleScin.round(this.adjusted[0], 2);
+		
+		res[1][0] = ModeleScin.round(ModeleScinDyn.getTDemiObs(lk, this.adjusted[1]), 1);
+		res[1][1] = ModeleScin.round(ModeleScinDyn.getTDemiObs(rk, this.adjusted[0]), 1);
+		
+		return res;
+	}
+	
+	/**
+	 * calcule la retention renale
+	 * @return res[0] : rein gauche, res[1] : rein droit
+	 */
+	public Double[] getRetention(){
+		Double[] res = new Double[2];
+		XYSeries lk = this.getSerie("Final KL");
+		XYSeries rk = this.getSerie("Final KR");
+		
+		res[0] = ModeleScin.round((ModeleScin.getY(lk, lk.getMaxX()) / ModeleScin.getY(lk, this.adjusted[3]) * 100), 1);
+		res[1] = ModeleScin.round((ModeleScin.getY(rk, rk.getMaxX()) / ModeleScin.getY(rk, this.adjusted[2]))*100, 1);
+		
+		return res;		
+	}
 
-		List<Double> listRG = Modele_Renal.getIntegral(lk, debut, fin);
-		List<Double> listRD = Modele_Renal.getIntegral(rk, debut, fin);
+	/**
+	 * calcule le nora selon le temps d'injection du lasilix
+	 * @return res[0] : temps, res[1] : rein gauche, res[2] : rein droit
+	 */
+	public Double[][] getNoRA() {		
+		XYSeries lk = this.getSerie("Final KL");
+		XYSeries rk = this.getSerie("Final KR");
+		
+		Double maxL = lk.getMaxY();
+		Double maxR = rk.getMaxY();
+		
+		Double[][] res = new Double[3][3];
+		
+		res[0][0] = ModeleScin.round(this.adjusted[7] - 1,0);
+		res[0][1] = ModeleScin.round(this.adjusted[7] + 2,0);
+		res[0][2] = ModeleScin.round(lk.getMaxX(), 0);
 
-		Double intRG = listRG.get(listRG.size() - 1);
-		Double intRD = listRD.get(listRD.size() - 1);
+		// calcul nora rein gauche
+		res[1][0] = ModeleScin.round(getY(lk, res[0][0]) * 100 / maxL, 1);
+		res[1][1] = ModeleScin.round(getY(lk, res[0][1]) * 100 / maxL, 1);
+		res[1][2] = ModeleScin.round(getY(lk, res[0][2]) * 100 / maxL, 1);
 
-		// Left kidney
-		s[0][1] = "" + ModeleScin.round((intRG / (intRG + intRD)) * 100, 1); // fonction separee
-		s[1][1] = "" + ModeleScin.round(ModeleScin.getY(lk, lk.getMaxX()) / ModeleScin.getY(lk, this.adjusted[3]), 3); // retention
-																														// renale
-		s[2][1] = "" + ModeleScin.round(this.adjusted[1], 2); // TMax
+		// calcul nora rein droit
+		res[2][0] = ModeleScin.round(getY(lk, res[0][0]) * 100 / maxR, 1);
+		res[2][1] = ModeleScin.round(getY(lk, res[0][1]) * 100 / maxR, 1);
+		res[2][2] = ModeleScin.round(getY(lk, res[0][2]) * 100 / maxR, 1);
 
-		Double tdemiL = ModeleScin.round(ModeleScinDyn.getTDemiObs(lk, this.adjusted[1]), 2); // T1/2
-		if (tdemiL != 0) {
-			s[3][1] = "" + tdemiL;
-		} else {
-			s[3][1] = "N/A";
-		}
-
-		// Right kidney
-		s[0][2] = "" + ModeleScin.round((intRD / (intRG + intRD)) * 100, 1);
-		s[1][2] = "" + ModeleScin.round((ModeleScin.getY(rk, rk.getMaxX()) / ModeleScin.getY(rk, this.adjusted[2])), 3);
-		s[2][2] = "" + ModeleScin.round(this.adjusted[0], 2);
-
-		Double tdemiR = ModeleScin.round(ModeleScinDyn.getTDemiObs(rk, this.adjusted[0]), 2);
-		if (tdemiR != 0) {
-			s[3][2] = "" + tdemiR;
-		} else {
-			s[3][2] = "N/A";
-		}
-
-		return s;
+		return res;
 	}
 
 	public void setAdjustedValues(Double[] xValues) {
@@ -352,6 +364,32 @@ public class Modele_Renal extends ModeleScinDyn {
 
 	public Double[] getAdjustedValues() {
 		return this.adjusted;
+	}
+
+	/**
+	 * renvoie la fonction separee
+	 * @return res[0] : rein gauche, res[1] : rein droit
+	 */
+	public Double[] getSeparatedFunction() {
+		Double[] res = new Double[2];
+		XYSeries lk = this.getSerie("Final KL");
+		XYSeries rk = this.getSerie("Final KR");
+
+		Double debut = Math.min(this.adjusted[4], this.adjusted[5]);
+		Double fin = Math.max(this.adjusted[4], this.adjusted[5]);
+		
+		List<Double> listRG = Modele_Renal.getIntegral(lk, debut, fin);
+		List<Double> listRD = Modele_Renal.getIntegral(rk, debut, fin);
+		Double intRG = listRG.get(listRG.size() - 1);
+		Double intRD = listRD.get(listRD.size() - 1);
+
+		// Left kidney
+		res[0] = ModeleScin.round((intRG / (intRG + intRD)) * 100, 1);
+
+		// Right kidney
+		res[1] = ModeleScin.round((intRD / (intRG + intRD)) * 100, 1);
+
+		return res;
 	}
 
 }

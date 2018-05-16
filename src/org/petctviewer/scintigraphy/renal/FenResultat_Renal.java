@@ -5,9 +5,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -16,10 +14,9 @@ import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
-import javax.swing.table.TableColumnModel;
+
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
@@ -59,8 +56,8 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 		this.series = this.modele.getSeries();
 
 		// recuperation des chart panel avec association
-		String[][] asso = { { "Blood pool fitted R", "Final KR", "Output KR" },
-				{ "Blood pool fitted L", "Final KL", "Output KL" } };
+		String[][] asso = { { "Blood pool fitted L", "Final KL", "Output KL" },
+				{ "Blood pool fitted R", "Final KR", "Output KR" } };
 
 		ChartPanel[] cPanels = ModeleScin.associateSeries(asso, this.series);
 
@@ -86,7 +83,7 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 		JPanel panel_bottom = new JPanel();
 
 		// graphique rein droit
-		ChartPanel c = cPanels[0];
+		ChartPanel c = cPanels[1];
 		c.setPreferredSize(new Dimension(3 * w / 2, h));
 		FenResultat_Renal.renameSeries(c, "Blood pool fitted R", "Blood Pool");
 		FenResultat_Renal.renameSeries(c, "Final KR", "Right Kidney");
@@ -95,7 +92,7 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 		c.getChart().setTitle("Right Kidney");
 
 		// graphique rein gauche
-		ChartPanel c1 = cPanels[1];
+		ChartPanel c1 = cPanels[0];
 		c1.setPreferredSize(new Dimension(3 * w / 2, h));
 		FenResultat_Renal.renameSeries(c1, "Output KL", "Output");
 		FenResultat_Renal.renameSeries(c1, "Blood pool fitted L", "Blood Pool");
@@ -131,73 +128,207 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 	public Component[] getSidePanelContent() {
 		JPanel flow_wrap = new JPanel();
 
+		// creation du panel d'affichage des pourcentage
+		Box res = Box.createVerticalBox();
+
+		res.add(this.getPanelSep());
+
+		// espace entre les tableaux
+		res.add(Box.createVerticalStrut(25));
+
+		res.add(this.getPanelRet());
+
+		// espace entre les tableaux
+		res.add(Box.createVerticalStrut(25));
+
+		res.add(this.getPanelTiming());
+
+		// espace entre les tableaux
+		res.add(Box.createVerticalStrut(25));
+
+		res.add(this.getPanelNoRa());
+
+		// espace entre les tableaux
+		res.add(Box.createVerticalStrut(25));
+
+		res.add(this.getPanelROE());
+
+		res.add(Box.createVerticalStrut(50));
+
+		flow_wrap.add(res);
+
+		return new Component[] { flow_wrap };
+	}
+
+	private Component getPanelROE() {
+		JLabel lbl_L = new JLabel("L");
+		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
+		JLabel lbl_R = new JLabel("R");
+		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		// minutes a observer pour la capacite d'excretion
+		int[] mins = new int[] { 20, 22, 30 };
+
 		// on recupere les series
 		XYSeries serieRK = this.modele.getSerie("Output KR");
 		XYSeries serieLK = this.modele.getSerie("Output KL");
 
-		// creation du panel d'affichage des pourcentage
-		Box res = Box.createVerticalBox();
+		// panel roe
+		JPanel pnl_roe = new JPanel(new GridLayout(4, 3, 0, 3));
+		pnl_roe.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-		res.add(Box.createVerticalStrut(50));
+		pnl_roe.add(new JLabel(" ROE "));
+		pnl_roe.add(lbl_L);
+		pnl_roe.add(lbl_R);
+		for (int i = 0; i < 3; i++) {
+			// aligne a droite
+			JLabel lbl_min = new JLabel(mins[i] + "  min");
+			pnl_roe.add(lbl_min);
 
-		// minutes a observer pour la capacite d'excretion
-		int[] mins = new int[] { 20, 22, 30 };
+			JLabel lbl_g = new JLabel(modele.getPercentage(mins[i], serieLK, "L") + " %");
+			lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
+			pnl_roe.add(lbl_g);
+			
+			JLabel lbl_d = new JLabel(modele.getPercentage(mins[i], serieRK, "R") + " %");
+			lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
+			pnl_roe.add(lbl_d);
 
-		// affichage des roe pour le rein droit
-		res.add(new JLabel("Renal Output Efficiency :"));
-		
-		// creation du tableau
-		String[] columnNamesROE = { "ROE", "Left", "Right" };
-		String[][] tableDataROE = new String[3][3];
-		
-		for(int i = 0; i < 3; i++) {
-				tableDataROE[i][0] = "" + mins[i] + " min";
-				tableDataROE[i][1] = "" + modele.getPercentage(mins[i], serieLK, "L") + " %";
-				tableDataROE[i][2] = "" + modele.getPercentage(mins[i], serieRK, "R") + " %";
 		}
-		
-		JTable tableROE = new JTable(tableDataROE, columnNamesROE);
 
-		// on desactive l'edition
-		tableROE.setDefaultEditor(Object.class, null);
-		tableROE.setFocusable(false);
+		return pnl_roe;
+	}
 
-		JPanel tableau = new JPanel(new BorderLayout());
+	private Component getPanelNoRa() {
+		JLabel lbl_L = new JLabel("L");
+		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
+		JLabel lbl_R = new JLabel("R");
+		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
 		
-		tableau.add(tableROE.getTableHeader(), BorderLayout.NORTH);
-		tableau.add(tableROE, BorderLayout.CENTER);
+		// panel nora
+		Double[][] nora = modele.getNoRA();
+		JPanel pnl_nora = new JPanel(new GridLayout(4, 3, 0, 3));
+		pnl_nora.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 		
-		TableColumnModel columnModelROE = tableROE.getColumnModel();
-		columnModelROE.getColumn(0).setPreferredWidth(64);
-		columnModelROE.getColumn(1).setPreferredWidth(18);
-		columnModelROE.getColumn(2).setPreferredWidth(18);
-		tableau.setPreferredSize(new Dimension(100, 70));
-		tableau.setBorder(BorderFactory.createLineBorder(Color.black));
-		
-		res.add(tableau);
-		
-		res.add(Box.createVerticalStrut(50));
-		
-		// creation du tableau
-		String[] columnNames = { "Parameter", "Left", "Right" };
-		String[][] tableData = this.modele.getTableData();
-		JTable table = new JTable(tableData, columnNames);
+		pnl_nora.add(new JLabel(" NORA "));
+		pnl_nora.add(lbl_L);
+		pnl_nora.add(lbl_R);
+		for (int i = 0; i < 3; i++) {
+			// aligne a droite
+			pnl_nora.add(new JLabel(nora[0][i] + "  min"));
+			
+			JLabel lbl_g = new JLabel(nora[1][i] + " %");
+			lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
+			pnl_nora.add(lbl_g);
+			
+			JLabel lbl_d = new JLabel(nora[2][i] + " %");
+			lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
+			pnl_nora.add(lbl_d);
+		}
+		return pnl_nora;
+	}
 
-		// on desactive l'edition
-		table.setDefaultEditor(Object.class, null);
-		table.setFocusable(false);
-
-		//TODO TABLEAUX
+	private Component getPanelTiming() {
+		JLabel lbl_L = new JLabel("L");
+		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
+		JLabel lbl_R = new JLabel("R");
+		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
 		
-		// on change la taille des colonnes
-		TableColumnModel columnModel = table.getColumnModel();
-		columnModel.getColumn(0).setPreferredWidth(120);
-		columnModel.getColumn(1).setPreferredWidth(30);
-		columnModel.getColumn(2).setPreferredWidth(30);
+		// panel de timing
+		Double[][] timing = modele.getTiming();
+		JPanel pnl_timing = new JPanel(new GridLayout(3, 3, 0, 3));
+		pnl_timing.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-		flow_wrap.add(res);
+		pnl_timing.add(new JLabel(" Timing "));
+		pnl_timing.add(lbl_L);
+		pnl_timing.add(lbl_R);
+		JLabel lbl_tmax = new JLabel("TMax (min)");
+		pnl_timing.add(lbl_tmax);
+		
+		JLabel lbl_gMax = new JLabel("" + timing[0][0]);
+		lbl_gMax.setHorizontalAlignment(SwingConstants.CENTER);
+		pnl_timing.add(lbl_gMax);
+		
+		JLabel lbl_dMax = new JLabel("" + timing[0][1]);
+		lbl_dMax.setHorizontalAlignment(SwingConstants.CENTER);
+		pnl_timing.add(lbl_dMax);
+		
+		JLabel lbl_tdemi = new JLabel("T1/2 (min)");
+		pnl_timing.add(lbl_tdemi);
+		
+		String s = "" + timing[1][0];
+		if (timing[1][0] == -1)
+			s = "N/A";
+		
+		JLabel lbl_g = new JLabel(s);
+		lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
+		pnl_timing.add(lbl_g);
+		
+		s = "" + timing[1][1];
+		if (timing[1][1] == -1)
+			s = "N/A";
+		
+		JLabel lbl_d = new JLabel(s);
+		lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
+		pnl_timing.add(lbl_d);
+		
+		pnl_timing.add(lbl_d);
 
-		return new Component[] { flow_wrap, Box.createVerticalStrut(100) };
+		return pnl_timing;
+	}
+
+	private Component getPanelRet() {
+		JLabel lbl_L = new JLabel("L");
+		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
+		JLabel lbl_R = new JLabel("R");
+		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
+
+		// panel de retention
+		Double[] ret = modele.getRetention();
+		JPanel pnl_ret = new JPanel(new GridLayout(2, 3));
+		pnl_ret.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+		
+		pnl_ret.add(new JLabel(" Renal ret. "));
+		pnl_ret.add(lbl_L);
+		pnl_ret.add(lbl_R);
+		
+		pnl_ret.add(new JLabel(""));
+
+		JLabel lbl_g = new JLabel(ret[0] + " %");
+		lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
+		pnl_ret.add(lbl_g);
+
+		JLabel lbl_d = new JLabel(ret[1] + " %");
+		lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
+		pnl_ret.add(lbl_d);
+
+		return pnl_ret;
+	}
+
+	private Component getPanelSep() {
+		JLabel lbl_L = new JLabel("L");
+		lbl_L.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+		JLabel lbl_R = new JLabel("R");
+		lbl_R.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+		// panel de fonction separee
+		Double[] sep = modele.getSeparatedFunction();
+		JPanel pnl_sep = new JPanel(new GridLayout(2, 3));
+		pnl_sep.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+		
+		pnl_sep.add(new JLabel(" Separated fun. "));
+		pnl_sep.add(lbl_L);
+		pnl_sep.add(lbl_R);
+		
+		pnl_sep.add(new JLabel(""));
+		JLabel lbl_d = new JLabel(sep[0] + " %");
+		lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
+		pnl_sep.add(lbl_d);
+
+		JLabel lbl_g = new JLabel(sep[1] + " %");
+		lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
+		pnl_sep.add(lbl_g);
+
+		return pnl_sep;
 	}
 
 }

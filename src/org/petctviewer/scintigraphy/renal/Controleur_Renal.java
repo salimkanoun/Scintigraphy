@@ -15,7 +15,7 @@ import ij.gui.Roi;
 
 public class Controleur_Renal extends ControleurScin {
 
-	public static String[] ORGANES = { "R. Kidney", "R. bkg", "L. Kidney", "L. bkg", "Blood Pool", "Bladder" };
+	public static String[] ORGANES = { "R. Kidney", "R. bkg", "L. Kidney", "L. bkg", "Blood Pool", "Bladder", "R. Ureter", "L. Ureter" };
 
 	//plus grande valeur que index roi ait prise
 	private int maxIndexRoi = 0;
@@ -76,7 +76,7 @@ public class Controleur_Renal extends ControleurScin {
 		
 		//on recupere les chartPanels avec l'association
 		List<XYSeries> series = modele.getSeries();
-		String[][] asso = new String[][] { { "Final KR", "Final KL" } };		
+		String[][] asso = new String[][] { { "Final KL", "Final KR" } };		
 		ChartPanel[] cp = ModeleScin.associateSeries(asso, series);
 		
 		//on ouvre la fenetre pour ajuster les valeurs
@@ -134,6 +134,7 @@ public class Controleur_Renal extends ControleurScin {
 
 		// on clone la roi du rein
 		Roi liver = (Roi) this.roiManager.getRoi(indexRoi - 1).clone();
+		
 		// on recupere ses bounds
 		Rectangle bounds = liver.getBounds();
 
@@ -170,13 +171,15 @@ public class Controleur_Renal extends ControleurScin {
 		this.roiManager.runCommand(imp, "AND");
 
 		Roi bkg = (Roi) this.getVue().getImp().getRoi().clone();
-		int[] offset = new int[] { size[0] / 4, size[1] / 4 };
-
-		// si le deplacement de la bdf est de moins d'un pixel, on la deplace d'un pixel
-		for (int i = 0; i < 2; i++) {
-			if (offset[i] == 0)
-				offset[i] = direction[i];
+		
+		//on decale de 1 ou deux pixel selon la taille de l'ima
+		int[] offset;
+		if(imp.getWidth() > 128) {
+			offset = new int[]{2, 2};
+		}else {
+			offset = new int[]{1, 1};
 		}
+
 		bkg.setLocation(bkg.getXBase() + offset[0], bkg.getYBase() + offset[1]);
 
 		// on supprime les rois de construction

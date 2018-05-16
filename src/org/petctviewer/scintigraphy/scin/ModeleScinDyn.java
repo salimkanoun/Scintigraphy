@@ -78,7 +78,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 					return x;
 			}
 		}
-		return 0.0;
+		return -1.0;
 	}
 
 	/**
@@ -133,7 +133,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	 * @param series numero de la serie
 	 * @return valeur de l'abscisse
 	 */
-	public static double getMaxY(XYDataset ds, int series) {
+	public static double getAbsMaxY(XYDataset ds, int series) {
 		Double maxY = 0.0;
 		for (int i = 0; i < ds.getItemCount(series); i++) {
 			if (ds.getY(series, i).doubleValue() > maxY) {

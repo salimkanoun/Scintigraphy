@@ -61,17 +61,20 @@ public class FenSetValues extends JDialog {
 
 		// ajout des selecteurs dans le listener
 		this.selectorListener = new SelectorListener(chart);
-		this.selectorListener.add(new ValueSelector("TMax R", ModeleScinDyn.getMaxY(plot.getDataset(), 0), 0, RectangleAnchor.BOTTOM_LEFT), 0);
-		this.selectorListener.add(new ValueSelector("TMax L", ModeleScinDyn.getMaxY(plot.getDataset(), 1), 1, RectangleAnchor.TOP_LEFT), 1);
-		this.selectorListener.add(new ValueSelector("Ret OG R", 20, 0, RectangleAnchor.BOTTOM_LEFT), 2);
-		this.selectorListener.add(new ValueSelector("Ret OG L", 20, 1, RectangleAnchor.TOP_LEFT), 3);
-
+		this.selectorListener.add(new ValueSelector("TMax R", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 0), 0, RectangleAnchor.BOTTOM_LEFT), 0);
+		this.selectorListener.add(new ValueSelector("TMax L", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 1), 1, RectangleAnchor.TOP_LEFT), 1);
+		
+		//this.selectorListener.add(new ValueSelector("Ret OG R", 20, 0, RectangleAnchor.BOTTOM_LEFT), 2);
+		//this.selectorListener.add(new ValueSelector("Ret OG L", 20, 1, RectangleAnchor.TOP_LEFT), 3);
+		
 		ValueSelector start = new ValueSelector(" ", 1, -1, RectangleAnchor.TOP_LEFT); // debut de l'intervalle
 		this.selectorListener.add(start, 4);
-		ValueSelector end = new ValueSelector(" ", 3, -1, RectangleAnchor.BOTTOM_RIGHT); // fin de l'intervalle
+		ValueSelector end = new ValueSelector(" ", 2, -1, RectangleAnchor.BOTTOM_RIGHT); // fin de l'intervalle
 		this.selectorListener.add(end, 5);
 		ValueSelector middle = new ValueSelector("<->", 2, -1, RectangleAnchor.CENTER);
 		this.selectorListener.add(middle, 6);
+		
+		this.selectorListener.add(new ValueSelector("Lasilix", 20, -1, RectangleAnchor.BOTTOM_LEFT), 7);
 
 		// on rempli l'intervalle entre start et end
 		this.fillInterval(start.getXValue(), end.getXValue());
