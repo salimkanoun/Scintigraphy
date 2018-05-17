@@ -19,7 +19,6 @@ import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Panel;
@@ -27,7 +26,6 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,6 +41,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.table.DefaultTableModel;
 
+import org.petctviewer.scintigraphy.scin.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
 import ij.IJ;
@@ -69,8 +68,6 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 	public HashMap<String, Button> lesBoutons;// touts les buttons de l'interface
 
 	protected boolean imageOuverte = false;// signifie si les images sont ouverts
-
-	private Label img_inst;
 
 	protected RoiManager leRoi;
 
@@ -131,23 +128,8 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 		leRoi = rm;
 		instructions = new Label("");
 		instructions.setBackground(Color.LIGHT_GRAY);
-		img_inst = new Label();
 		initBoutons();
-		ouvrirImage("all the acquisitions images of  Stomachs-Intestines");
-
-		lesBoutons.get("Valider").addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				Button b = (Button) arg0.getSource();
-				if (WindowManager.getCurrentImage() != null) {
-					imageOuverte = true;
-					((Frame) b.getParent().getParent()).dispose();
-					ouvertureImage();
-				}
-			}
-
-		});
+		ouvertureImage();
 
 	}
 
@@ -313,98 +295,83 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 
 	} // Fin CustomStackWindow
 
-	protected void ouvrirImage(String image) {
-		Frame f = new Frame();
-		Panel pan = new Panel();
-		pan.setLayout(new GridLayout(2, 1));
-		img_inst.setText("Please open  " + image + "  then confirm.");
-		pan.add(img_inst, CENTER_ALIGNMENT);
-		pan.add(lesBoutons.get("Valider"));
-		f.add(pan);
-		f.setLocationRelativeTo(null);
-		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		f.setSize(200, 300);
-		f.setLocation(dim.width / 2 - f.getSize().width / 2, dim.height / 2 - f.getSize().height / 2);
-		f.setVisible(true);
-		f.setResizable(false);
-		f.setAlwaysOnTop(true);
-		f.toFront();
-		f.pack();
-		f.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) {
-				end("dialog");
-				f.dispose();
-			}
-		});
-	}
 
 	private void ouvertureImage() {
+		
+		FenSelectionDicom selection=new FenSelectionDicom("Gastric Emptying");
+		selection.setModal(true);
+		selection.setVisible(true);
+		String[] imageTitles=selection.getSelectedWindowsTitles();
 
-		// Recupation de une serie des images
-		String[] imageTitles = WindowManager.getImageTitles();
-		ArrayList<ImagePlus> imagesOpened = new ArrayList<ImagePlus>();
-		for (int i = 0; i < imageTitles.length; i++) {
-			ImagePlus currentimp = WindowManager.getImage(imageTitles[i]);
-			// On verifie qu'il y a 2 images par stack
-			if (currentimp.getStackSize() != 2) {
-				IJ.log("Error Not Image Ant/Post, Discarding, Check your original Images");
+		// Si serie selectionnees on les traites
+		if (imageTitles !=null) {
+			ArrayList<ImagePlus> imagesOpened = new ArrayList<ImagePlus>();
+			for (int i = 0; i < imageTitles.length; i++) {
+				ImagePlus currentimp = WindowManager.getImage(imageTitles[i]);
+				// On verifie qu'il y a 2 images par stack
+				if (currentimp.getStackSize() != 2) {
+					IJ.log("Error Not Image Ant/Post, Discarding, Check your original Images");
+					currentimp.close();
+					continue;
+				}
+				else {
+				// On trie les images
+				imagesOpened.add(VueScin.sortImageAntPost(currentimp)) ;
 				currentimp.close();
-				continue;
+				}
+				
 			}
-			else {
-			// On trie les images
-			imagesOpened.add(VueScin.sortImageAntPost(currentimp)) ;
-			currentimp.close();
+	
+			// trie les images de la serie
+			ImagePlus[] imagesOrdred = VueScin.orderImagesByAcquisitionTime(imagesOpened);
+			Concatenator enchainer = new Concatenator();
+	
+			// enchaine les images
+			ImagePlus imp = enchainer.concatenate(imagesOrdred, false);
+			imp.show();
+			HyperStackConverter convert = new HyperStackConverter();
+			convert.run("hstostack");
+	
+			String serie = DicomTools.getTag(imp, "0008,103E");
+			String titre = nomProgramme + " - ";
+			String tag = DicomTools.getTag(imp, "0010,0010");
+			titre = titre + tag + " - " + serie;
+			// met la LUT preferee si existe
+			VueScin.setCustomLut(imp);
+			// Son cree une fenetre pour la pile d'images
+			windowstack = new CustomStackWindow(imp);
+			// On demande la 1ere image du stack
+			windowstack.showSlice(1);
+			this.imp = imp;
+			// On change les titres
+			imp.setTitle(titre);
+			windowstack.setTitle(titre);
+			this.overlay=VueScin.initOverlay(imp, 12);
+			VueScin.setOverlayDG(overlay, imp);
+			windowstack.getImagePlus().setOverlay(overlay);
+			// On set la dimension de l'image
+			windowstack.getCanvas().setSize(new Dimension(512,512));
+			windowstack.getCanvas().setScaleToFit(true);
+			//On Pack la fenetre pour la mettre a la preferred Size
+			windowstack.pack();
+			windowstack.setSize(windowstack.getPreferredSize());
+			//On met au premier plan au centre de l'ecran
+			windowstack.setLocationRelativeTo(null);
+			windowstack.toFront();
+			IJ.setTool(Toolbar.POLYGON);
+			if (!estArgume) {
+				String acquisitionTimeAP1 = DicomTools.getTag(windowstack.getImagePlus(), "0008,0032");
+				lesBoutons.get("Suivant").setEnabled(false);
+				// saisie le temps de commence
+				saisiTempsCommence(acquisitionTimeAP1);
 			}
-			
+	
+			if (instructions.getText().equals(""))
+				instructions.setText("Delimit the Stomache");
 		}
-
-		// trie les images de la serie
-		ImagePlus[] imagesOrdred = VueScin.orderImagesByAcquisitionTime(imagesOpened);
-		Concatenator enchainer = new Concatenator();
-
-		// enchaine les images
-		ImagePlus imp = enchainer.concatenate(imagesOrdred, false);
-		imp.show();
-		HyperStackConverter convert = new HyperStackConverter();
-		convert.run("hstostack");
-
-		String serie = DicomTools.getTag(imp, "0008,103E");
-		String titre = nomProgramme + " - ";
-		String tag = DicomTools.getTag(imp, "0010,0010");
-		titre = titre + tag + " - " + serie;
-		// met la LUT preferee si existe
-		VueScin.setCustomLut(imp);
-		// Son cree une fenetre pour la pile d'images
-		windowstack = new CustomStackWindow(imp);
-		// On demande la 1ere image du stack
-		windowstack.showSlice(1);
-		this.imp = imp;
-		// On change les titres
-		imp.setTitle(titre);
-		windowstack.setTitle(titre);
-		this.overlay=VueScin.initOverlay(imp, 12);
-		VueScin.setOverlayDG(overlay, imp);
-		windowstack.getImagePlus().setOverlay(overlay);
-		// On set la dimension de l'image
-		windowstack.getCanvas().setSize(new Dimension(512,512));
-		windowstack.getCanvas().setScaleToFit(true);
-		//On Pack la fenetre pour la mettre a la preferred Size
-		windowstack.pack();
-		windowstack.setSize(windowstack.getPreferredSize());
-		//On met au premier plan au centre de l'ecran
-		windowstack.setLocationRelativeTo(null);
-		windowstack.toFront();
-		IJ.setTool(Toolbar.POLYGON);
-		if (!estArgume) {
-			String acquisitionTimeAP1 = DicomTools.getTag(windowstack.getImagePlus(), "0008,0032");
-			lesBoutons.get("Suivant").setEnabled(false);
-			// saisie le temps de commence
-			saisiTempsCommence(acquisitionTimeAP1);
+		else {
+			end("dialog");
 		}
-
-		if (instructions.getText().equals(""))
-			instructions.setText("Delimit the Stomache");
 	}
 
 	// permet de saisir le temps de commence

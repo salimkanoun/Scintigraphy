@@ -29,6 +29,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.petctviewer.scintigraphy.scin.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
 import ij.*;
@@ -89,18 +90,15 @@ public class Vue_VG_Dynamique  implements PlugIn {
 										ouvertureImageOeuf(imp);
 										lesBoutons.get("Suivant").setEnabled(true);
 									}
-									//si les images dynamiques sont pas ouvert au fenetre principal et il y a des images sont ouverts
-									//donc  on ouvert les images dynamiques  au fenetre principal
-									if (WindowManager.getCurrentImage() != null && !imageOuverte ) {
-										imageOuverte = true;
-										((Frame) b.getParent().getParent()).dispose();
-										ouvertureImage();
-									}
+									
 							};
 			});
 						
-		if (!this.imageOuverte)
-		ouvrirImage("all the acquisitions images of  Stomachs-Intestines");	
+		if (!this.imageOuverte) {
+			ouvertureImage();
+			imageOuverte = true;
+		}
+		
 	}
 	
 	private void initBoutons() {
@@ -151,90 +149,102 @@ public class Vue_VG_Dynamique  implements PlugIn {
 	
 	//permet de mettre les images dynamiques au fenetre principal
 	private void ouvertureImage() {
-			String[] imagesOuvertes =WindowManager.getImageTitles();
-			ArrayList<ImagePlus> projete=new ArrayList<ImagePlus>();
+			FenSelectionDicom selection=new FenSelectionDicom("Gastric Emptying");
+			selection.setModal(true);
+			selection.setVisible(true);
+			String[] imagesOuvertes=selection.getSelectedWindowsTitles();
 			
-			for (int i=0 ; i<imagesOuvertes.length; i++) {
-				ImagePlus brute=WindowManager.getImage(imagesOuvertes[i]);
-				//On cree l'imageProjetee et on l'ajoute a la liste
+			if( imagesOuvertes !=null){
 				
-				//Si unique frame
-				if (!VueScin.isMultiFrame(brute)) {
-					projete.add(creationImageProjetee(brute)); 
+				ArrayList<ImagePlus> projete=new ArrayList<ImagePlus>();
+				
+				for (int i=0 ; i<imagesOuvertes.length; i++) {
+					ImagePlus brute=WindowManager.getImage(imagesOuvertes[i]);
+					//On cree l'imageProjetee et on l'ajoute a la liste
+					
+					//Si unique frame
+					if (!VueScin.isMultiFrame(brute)) {
+						projete.add(creationImageProjetee(brute)); 
+						
+					}
+					//Si multiFrame mais meme camera
+					else if ( VueScin.isMultiFrame(brute)  &&  VueScin.isSameCameraMultiFrame(brute)) {
+						projete.add(creationImageProjetee(brute)); 
+						
+					}
+					// Si multiframe avec plusieurs vues
+					else if( VueScin.isMultiFrame(brute) && !VueScin.isSameCameraMultiFrame(brute)) {
+						//On recupere les deux ImagePlus de chaque Vue
+						ImagePlus [] deuxCamera=VueScin.splitCameraMultiFrame(brute);
+						//On ajoute a part le ant et le post (qu'on flip horizontal) qui ont ete splite
+						deuxCamera[0].setTitle("Anterior");
+						projete.add(makeImageProjetee(deuxCamera[0], true));
+						deuxCamera[1].setTitle("Posterior");
+						projete.add(makeImageProjetee(deuxCamera[1], false));
+						brute.close();
+					};
+					
 					
 				}
-				//Si multiFrame mais meme camera
-				else if ( VueScin.isMultiFrame(brute)  &&  VueScin.isSameCameraMultiFrame(brute)) {
-					projete.add(creationImageProjetee(brute)); 
-					
-				}
-				// Si multiframe avec plusieurs vues
-				else if( VueScin.isMultiFrame(brute) && !VueScin.isSameCameraMultiFrame(brute)) {
-					//On recupere les deux ImagePlus de chaque Vue
-					ImagePlus [] deuxCamera=VueScin.splitCameraMultiFrame(brute);
-					//On ajoute a part le ant et le post (qu'on flip horizontal) qui ont ete splite
-					deuxCamera[0].setTitle("Anterior");
-					projete.add(makeImageProjetee(deuxCamera[0], true));
-					deuxCamera[1].setTitle("Posterior");
-					projete.add(makeImageProjetee(deuxCamera[1], false));
-					brute.close();
-				};
 				
+				//On trie les images par acquisition time
+				ImagePlus[] projeteOrderTemp=VueScin.orderImagesByAcquisitionTime(projete);
+				//On met l'image Ant apres l'imagePosterieur car sera inverse par la suite
+				ImagePlus[] projeteOrder=new ImagePlus[projeteOrderTemp.length];
+				for (int i=0 ; i<projeteOrderTemp.length; i+=2){
+					if (projeteOrderTemp[i].getTitle().contains("Anterior")){
+						projeteOrder[i]=projeteOrderTemp[i+1];
+						projeteOrder[i+1]=projeteOrderTemp[i];
+					}
+					else {
+						projeteOrder[i]=projeteOrderTemp[i];
+						projeteOrder[i+1]=projeteOrderTemp[i+1];
+					}
+				}
+				//On cree le stack a partir du tableau d'ImagePlus
+				Concatenator enchainer = new Concatenator();
+				ImagePlus imp = enchainer.concatenate(projeteOrder, false);
+				//On inverse le stack pour avoir l'image la plus tardive en 1er
+				StackReverser reverser=new StackReverser();
+				reverser.flipStack(imp);
+				//On affiche
+				imp.show();
+				
+				HyperStackConverter convert= new HyperStackConverter();
+				convert.run("hstostack");
+				String serie = DicomTools.getTag(imp, "0008,103E");
+				String tag = DicomTools.getTag(imp, "0010,0010");
+				String titre = this.nomProgramme + " - " + tag + " - " + serie;
+				//On appelle la fonction de Vue_Shunpo pour mettre la lut des preference
+				VueScin.setCustomLut(imp);
+				// On cree la fenetre avec la pile d'image
+				windowstack = new CustomStackWindow(imp);
+				windowstack.showSlice(1); //=> equivalent au setslice mais moins de bug
+				this.imp=imp;
+				//On change les titres
+				imp.setTitle(titre);
+				windowstack.setTitle(titre);
+				this.overlay=VueScin.initOverlay(imp, 12);
+				VueScin.setOverlayDG(overlay, imp);
+				// On set la dimension de l'image
+				windowstack.getCanvas().setSize(new Dimension(512,512));
+				windowstack.getCanvas().setScaleToFit(true);
+				//On Pack la fenetre pour la mettre a la preferred Size
+				windowstack.pack();
+				windowstack.setSize(windowstack.getPreferredSize());
+				// La fenetre se place au premier plan
+				windowstack.toFront();
+				this.imageOuverte=true;
+				if (this.instructions.getText().equals(""))
+					this.instructions.setText("Delimit the Stomache");
+				lesBoutons.get("Precedent").setEnabled(false);
+				windowstack.getImagePlus().setOverlay(this.overlay);
 				
 			}
-			
-			//On trie les images par acquisition time
-			ImagePlus[] projeteOrderTemp=VueScin.orderImagesByAcquisitionTime(projete);
-			//On met l'image Ant apres l'imagePosterieur car sera inverse par la suite
-			ImagePlus[] projeteOrder=new ImagePlus[projeteOrderTemp.length];
-			for (int i=0 ; i<projeteOrderTemp.length; i+=2){
-				if (projeteOrderTemp[i].getTitle().contains("Anterior")){
-					projeteOrder[i]=projeteOrderTemp[i+1];
-					projeteOrder[i+1]=projeteOrderTemp[i];
-				}
-				else {
-					projeteOrder[i]=projeteOrderTemp[i];
-					projeteOrder[i+1]=projeteOrderTemp[i+1];
-				}
+			else {
+				leRoi.close();
 			}
-			//On cree le stack a partir du tableau d'ImagePlus
-			Concatenator enchainer = new Concatenator();
-			ImagePlus imp = enchainer.concatenate(projeteOrder, false);
-			//On inverse le stack pour avoir l'image la plus tardive en 1er
-			StackReverser reverser=new StackReverser();
-			reverser.flipStack(imp);
-			//On affiche
-			imp.show();
 			
-			HyperStackConverter convert= new HyperStackConverter();
-			convert.run("hstostack");
-			String serie = DicomTools.getTag(imp, "0008,103E");
-			String tag = DicomTools.getTag(imp, "0010,0010");
-			String titre = this.nomProgramme + " - " + tag + " - " + serie;
-			//On appelle la fonction de Vue_Shunpo pour mettre la lut des preference
-			VueScin.setCustomLut(imp);
-			// On cree la fenetre avec la pile d'image
-			windowstack = new CustomStackWindow(imp);
-			windowstack.showSlice(1); //=> equivalent au setslice mais moins de bug
-			this.imp=imp;
-			//On change les titres
-			imp.setTitle(titre);
-			windowstack.setTitle(titre);
-			this.overlay=VueScin.initOverlay(imp, 12);
-			VueScin.setOverlayDG(overlay, imp);
-			// On set la dimension de l'image
-			windowstack.getCanvas().setSize(new Dimension(512,512));
-			windowstack.getCanvas().setScaleToFit(true);
-			//On Pack la fenetre pour la mettre a la preferred Size
-			windowstack.pack();
-			windowstack.setSize(windowstack.getPreferredSize());
-			// La fenetre se place au premier plan
-			windowstack.toFront();
-			this.imageOuverte=true;
-			if (this.instructions.getText().equals(""))
-				this.instructions.setText("Delimit the Stomache");
-			lesBoutons.get("Precedent").setEnabled(false);
-			windowstack.getImagePlus().setOverlay(this.overlay);
 	}
 	
 	private ImagePlus creationImageProjetee(ImagePlus brute) {
@@ -390,6 +400,8 @@ public class Vue_VG_Dynamique  implements PlugIn {
 				leRoi.close();
 			}
 		}
+		
+	
 
 
 		// Dialog pour afficher les % de chaque oeuf et les modifier si necessaire

@@ -17,6 +17,7 @@ package org.petctviewer.scintigraphy.gastric;
 import java.awt.*;
 import java.util.ArrayList;
 
+import org.petctviewer.scintigraphy.scin.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
@@ -42,12 +43,16 @@ public class Condense_Dynamique implements PlugIn {
 	private void ouvertureImage() {
 
 		IJ.setTool("Rectangle");
+		
+		FenSelectionDicom selection=new FenSelectionDicom("Gastric Condense");
+		selection.setModal(true);
+		selection.setVisible(true);
+		String[] imagesOuvertes=selection.getSelectedWindowsTitles();
 
-		WaitForUserDialog wait = new WaitForUserDialog("Please Open Images");
-		wait.show();
+		WaitForUserDialog wait;
+		//wait.show();
 		// On liste les images ouvertes
-		String[] imagesOuvertes = WindowManager.getImageTitles();
-
+		
 		if (imagesOuvertes != null) {
 
 			// On ferme les images posterieures et on assigne a chaque image un nom unique

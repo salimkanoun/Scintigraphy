@@ -113,8 +113,11 @@ public class Vue_Shunpo implements PlugIn {
 			}
 
 		});
-		if (!imageOuverte)
+		if (!imageOuverte) {
 			ouvrirImage("Lungs - Kidneys");
+			
+		}
+			
 	}
 
 	private void initBoutons() {
