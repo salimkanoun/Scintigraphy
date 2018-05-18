@@ -132,7 +132,7 @@ public class FenApplication extends StackWindow {
 	private void setOverlay() {
 		// On initialise l'overlay avec les label DG
 		Overlay overlay = VueScin.initOverlay(this.imp, 7);
-		VueScin.setOverlayDG(overlay, this.imp);
+		VueScin.setOverlayDG(overlay, imp);
 		// On met sur l'image
 		this.getImagePlus().setOverlay(overlay);
 	}

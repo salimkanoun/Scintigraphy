@@ -93,7 +93,7 @@ public abstract class VueScin implements PlugIn {
 	protected abstract void ouvertureImage(String[] titresFenetres);
 
 	/**
-	 * Affiche D et G en overlay sur l'image
+	 * Affiche D et G en overlay sur l'image, R a gauche et L a droite
 	 * 
 	 * @param overlay
 	 *            : Overlay sur lequel ajouter D/G
@@ -101,6 +101,8 @@ public abstract class VueScin implements PlugIn {
 	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
 	 */
 	public static void setOverlayDG(Overlay overlay, ImagePlus imp) {
+		overlay.clear();
+		
 		// Get taille Image
 		int tailleImage = imp.getHeight();
 
@@ -113,6 +115,39 @@ public abstract class VueScin implements PlugIn {
 		// Cote gauche
 		double xl = imp.getWidth() - (overlay.getLabelFont().getSize()); // sinon on sort de l'image
 		TextRoi left = new TextRoi(xl, y, "L");
+
+		// Set la police des text ROI
+		right.setCurrentFont(overlay.getLabelFont());
+		left.setCurrentFont(overlay.getLabelFont());
+
+		// Ajout de l'indication de la droite du patient
+		overlay.add(right);
+		overlay.add(left);
+	}
+	
+	/**
+	 * Affiche D et G en overlay sur l'image, L a gauche et R a droite
+	 * 
+	 * @param overlay
+	 *            : Overlay sur lequel ajouter D/G
+	 * @param imp
+	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
+	 */
+	public static void setOverlayGD(Overlay overlay, ImagePlus imp) {
+		overlay.clear();
+		
+		// Get taille Image
+		int tailleImage = imp.getHeight();
+
+		// Position au mileu dans l'axe Y
+		double y = ((tailleImage) / 2);
+
+		// Cote droit
+		TextRoi right = new TextRoi(0, y, "L");
+
+		// Cote gauche
+		double xl = imp.getWidth() - (overlay.getLabelFont().getSize()); // sinon on sort de l'image
+		TextRoi left = new TextRoi(xl, y, "R");
 
 		// Set la police des text ROI
 		right.setCurrentFont(overlay.getLabelFont());

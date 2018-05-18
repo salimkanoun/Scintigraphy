@@ -1,11 +1,14 @@
-package org.petctviewer.scintigraphy.renal;
+package org.petctviewer.scintigraphy.renal.gui;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -21,17 +24,22 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
-public class FenResultat_Renal extends FenResultatSidePanel {
+import ij.ImagePlus;
+import ij.plugin.ZProjector;
+import ij.process.ImageProcessor;
+
+public class TabPrincipal extends FenResultatSidePanel {
 
 	private static final long serialVersionUID = 5670592335800832792L;
 
-	private List<XYSeries> series;
 	private Modele_Renal modele;
-	private BasicStroke stroke = new BasicStroke(5.0F);
 
 	/**
 	 * affiche les resultats de l'examen renal
@@ -43,86 +51,82 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 	 * @param chartPanel
 	 *            chartpanel avec l'overlay d'ajustation
 	 */
-	public FenResultat_Renal(VueScin vueScin, BufferedImage capture, ChartPanel chartPanel) {
+	public TabPrincipal(VueScin vueScin, BufferedImage capture, ChartPanel chartPanel) {
 		super("Renal scintigraphy", vueScin, capture, "");
+		
+		Double[] adjusted = ((Modele_Renal) vueScin.getFen_application().getControleur().getModele()).getAdjustedValues();
+		double debut = Math.min(adjusted[4], adjusted[5]);
+		double fin = Math.max(adjusted[4], adjusted[5]);
+		
+		int slice1 = ModeleScinDyn.getSliceIndexByTime(debut * 60 * 1000);
+		int slice2 = ModeleScinDyn.getSliceIndexByTime(fin * 60 * 1000);
+		
+		ImagePlus proj = ZProjector.run(vueScin.getImp(), "sum", slice1, slice2);
+		proj.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
+
+		BufferedImage imgProj = proj.getBufferedImage();
+		
+		imgProj = resize(imgProj, capture.getWidth(), capture.getHeight());
+		
+		this.modele = (Modele_Renal) vueScin.getFen_application().getControleur().getModele();
+		
 		JPanel grid = new JPanel(new GridLayout(2, 1));
 
 		// on affiche la capture
 		JLabel lbl_capture = new JLabel();
 		lbl_capture.setIcon(new ImageIcon(capture));
-
-		// on recupere le modele et les series
-		this.modele = (Modele_Renal) vueScin.getFen_application().getControleur().getModele();
-		this.series = this.modele.getSeries();
-
-		// recuperation des chart panel avec association
-		String[][] asso = { { "Blood pool fitted L", "Final KL", "Output KL" },
-				{ "Blood pool fitted R", "Final KR", "Output KR" } };
-
-		ChartPanel[] cPanels = ModeleScin.associateSeries(asso, this.series);
-
+		lbl_capture.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		JLabel lbl_proj = new JLabel();
+		
+		int width = imgProj.getWidth();
+		int height = imgProj.getHeight();
+		
+		lbl_proj.setIcon(new ImageIcon(imgProj));
+		lbl_proj.setHorizontalAlignment(SwingConstants.CENTER);
+		
 		// largeur et hauteur des graphiques
-		int w = capture.getWidth();
-		int h = capture.getHeight();
+		int w = capture.getWidth() * 3;
+		int h = capture.getHeight() * 2;
 
 		// creation du panel du haut
-		JPanel panel_top = new JPanel();
+		JPanel panel_top = new JPanel(new GridLayout(1, 2));
 
-		// ajout de la capture
+		// ajout de la capture et du montage
 		panel_top.add(lbl_capture);
-
-		// on grossit les traits
-		XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) chartPanel.getChart().getXYPlot().getRenderer();
-		renderer.setDefaultStroke(this.stroke);
-
-		// redimension et ajout
-		chartPanel.setPreferredSize(new Dimension(w * 2, h));
-		panel_top.add(chartPanel);
+		panel_top.add(lbl_proj);
 
 		// creation du panel du bas
-		JPanel panel_bottom = new JPanel();
-
-		// graphique rein droit
-		ChartPanel c = cPanels[1];
-		c.setPreferredSize(new Dimension(3 * w / 2, h));
-		FenResultat_Renal.renameSeries(c, "Blood pool fitted R", "Blood Pool");
-		FenResultat_Renal.renameSeries(c, "Final KR", "Right Kidney");
-		FenResultat_Renal.renameSeries(c, "Output KR", "Output");
-		c.getChart().getXYPlot().getRenderer().setDefaultStroke(this.stroke);
-		c.getChart().setTitle("Right Kidney");
-
-		// graphique rein gauche
-		ChartPanel c1 = cPanels[0];
-		c1.setPreferredSize(new Dimension(3 * w / 2, h));
-		FenResultat_Renal.renameSeries(c1, "Output KL", "Output");
-		FenResultat_Renal.renameSeries(c1, "Blood pool fitted L", "Blood Pool");
-		FenResultat_Renal.renameSeries(c1, "Final KL", "Left Kidney");
-		c1.getChart().getXYPlot().getRenderer().setDefaultStroke(this.stroke);
-		c1.getChart().setTitle("Left Kidney");
-
-		// ajout des chart panels dans le panel du ba
-		panel_bottom.add(c);
-		panel_bottom.add(c1);
-
+		chartPanel.setPreferredSize(new Dimension(w, h/2));
+		chartPanel.getChart().setTitle("Nephrogram");
+		
+		Box box = Box.createVerticalBox();
+		box.add(Box.createVerticalGlue());
+		box.add(panel_top);
+		box.add(Box.createVerticalGlue());
+		
 		// on ajoute les panels a la grille principale
-		grid.add(panel_top);
-		grid.add(panel_bottom);
+		grid.add(box);
+		grid.add(chartPanel);
 
 		// ajout de la grille a la fenetre
-		this.add(grid, BorderLayout.WEST);
+		this.add(new JPanel(), BorderLayout.WEST);
+		this.add(grid, BorderLayout.CENTER);
 
 		this.finishBuildingWindow();
+		this.setVisible(false);
 	}
+	
+	public static BufferedImage resize(BufferedImage img, int newW, int newH) { 
+	    BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
+	    Graphics2D g = dimg.createGraphics();
+	    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+			    RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+	    g.drawImage(img, 0, 0, newW, newH, 0, 0, img.getWidth(), img.getHeight(), null);
+	    g.dispose();
 
-	// renomme la serie
-	private static void renameSeries(ChartPanel chartPanel, String oldKey, String newKey) {
-		XYSeriesCollection dataset = ((XYSeriesCollection) chartPanel.getChart().getXYPlot().getDataset());
-		try {
-			dataset.getSeries(oldKey).setKey(newKey);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	    return dimg;
+	}  
 
 	@Override
 	public Component[] getSidePanelContent() {
@@ -132,12 +136,7 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 		Box res = Box.createVerticalBox();
 
 		res.add(this.getPanelSep());
-
-		// espace entre les tableaux
-		res.add(Box.createVerticalStrut(25));
-
-		res.add(this.getPanelRet());
-
+		
 		// espace entre les tableaux
 		res.add(Box.createVerticalStrut(25));
 
@@ -159,7 +158,7 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 
 		return new Component[] { flow_wrap };
 	}
-
+	
 	private Component getPanelROE() {
 		JLabel lbl_L = new JLabel("L");
 		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
@@ -241,6 +240,7 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 		pnl_timing.add(new JLabel(" Timing "));
 		pnl_timing.add(lbl_L);
 		pnl_timing.add(lbl_R);
+		
 		JLabel lbl_tmax = new JLabel("TMax (min)");
 		pnl_timing.add(lbl_tmax);
 		
@@ -287,7 +287,7 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 		JPanel pnl_ret = new JPanel(new GridLayout(2, 3));
 		pnl_ret.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 		
-		pnl_ret.add(new JLabel(" Renal ret. "));
+		pnl_ret.add(new JLabel("Renal retention"));
 		pnl_ret.add(lbl_L);
 		pnl_ret.add(lbl_R);
 		
@@ -315,7 +315,7 @@ public class FenResultat_Renal extends FenResultatSidePanel {
 		JPanel pnl_sep = new JPanel(new GridLayout(2, 3));
 		pnl_sep.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 		
-		pnl_sep.add(new JLabel(" Separated fun. "));
+		pnl_sep.add(new JLabel("Relative function"));
 		pnl_sep.add(lbl_L);
 		pnl_sep.add(lbl_R);
 		

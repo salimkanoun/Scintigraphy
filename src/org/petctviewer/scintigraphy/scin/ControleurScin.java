@@ -201,7 +201,8 @@ public abstract class ControleurScin implements ActionListener {
 		//ajout des roi dans l'overlay
 		for (int i = 0; i < this.roiManager.getCount(); i++) {
 			Roi roi = this.roiManager.getRoi(i);
-			if (roi.getZPosition() == indexSlice) {
+			///si la roi se trouve sur la sllice courante ou sur toutes les slices
+			if (roi.getZPosition() == indexSlice || roi.getZPosition() == 0) {
 				
 				// si c'est la roi courante on la set dans l'imp
 				if (i != this.indexRoi || this.isOver()) {

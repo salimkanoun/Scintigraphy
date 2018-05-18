@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -49,7 +48,7 @@ public class RenalSettings extends JFrame implements ActionListener {
 		ckb_bld = new JCheckBox("Bladder");
 		box.add(ckb_bld);
 
-		 ckb_ctl = new JCheckBox("Cortical");
+		ckb_ctl = new JCheckBox("Cortical");
 		box.add(ckb_ctl);
 
 		ckb_utr = new JCheckBox("Ureter");
@@ -66,16 +65,16 @@ public class RenalSettings extends JFrame implements ActionListener {
 		this.add(pnl_btns, BorderLayout.SOUTH);
 
 		this.enableCheckBoxes();
-		
+
 		this.setLocationRelativeTo(null);
 		this.pack();
 		this.setResizable(false);
 		this.setVisible(true);
 	}
-	
+
 	private void enableCheckBoxes() {
-		boolean[] b = RenalSettings.getSettings(Prefs.get("renal.preferred", "Bladder: true Cortical: true Ureter: true"));
-		
+		boolean[] b = RenalSettings.getSettings();
+
 		this.ckb_bld.setSelected(b[0]);
 		this.ckb_ctl.setSelected(b[1]);
 		this.ckb_utr.setSelected(b[2]);
@@ -92,27 +91,31 @@ public class RenalSettings extends JFrame implements ActionListener {
 			settings += "Cortical: " + this.ckb_ctl.isSelected();
 			settings += " ";
 			settings += "Ureter: " + this.ckb_utr.isSelected();
-			
+
 			Prefs.set("renal.preferred", settings);
 			Prefs.savePreferences();
 		}
-		
+
 		RenalSettings.this.dispose();
 	}
 
-	public static boolean[] getSettings(String settingsString) {
-		 boolean[] ret = new boolean[3];
-		
+	/**
+	 * Renvoie un tableau de booleen correspondant aux organes selectionnes
+	 * @return tab[0] : Bladder <br> tab[1] : Cortical <br> tab[2] : Ureter
+	 */
+	public static boolean[] getSettings() {
+		String settingsString = Prefs.get("renal.preferred", "Bladder: true Cortical: true Ureter: true");
+
+		boolean[] ret = new boolean[3];
+
 		String[] splitted = settingsString.split(" ");
 		int cpt = 0;
-		for(int i = 1; i < splitted.length; i+= 2) {
-				ret[cpt] = splitted[i].equals(String.valueOf(true));
-				cpt++;
+		for (int i = 1; i < splitted.length; i += 2) {
+			ret[cpt] = splitted[i].equals(String.valueOf(true));
+			cpt++;
 		}
-		
-		System.out.println(Arrays.toString(ret));
-		
+
 		return ret;
 	}
-	
+
 }

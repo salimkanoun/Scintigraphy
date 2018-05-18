@@ -178,6 +178,25 @@ public abstract class ModeleScinDyn extends ModeleScin {
 
 		return valuesAdjusted;
 	}
+	
+	/**
+	 * Renvoie le numero de la slice correspondant au temps passe en parametre (en ms)
+	 * @param debut
+	 * @return numero de la slice
+	 */
+	public static int getSliceIndexByTime(double debut) {
+		
+		int summed = 0;
+		for (int i = 0; i < FRAMEDURATION.length; i++) {
+			if(debut <= summed) {
+				return i;
+			}
+			summed += FRAMEDURATION[i];
+		}
+		
+		return 0;
+
+	}
 
 	@Override
 	public String toString() {
@@ -212,4 +231,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 		this.lock = false;
 	}
 
+	public boolean isLocked() {
+		return this.lock;
+	}
 }

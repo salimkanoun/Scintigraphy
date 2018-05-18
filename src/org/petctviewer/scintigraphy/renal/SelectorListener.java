@@ -185,8 +185,6 @@ public class SelectorListener implements ChartMouseListener {
 		// TODO refactor, temporary code
 		values[3] = values[1];
 		values[2] = values[0];
-		
-		System.out.println(Arrays.toString(values));
 
 		return values;
 	}

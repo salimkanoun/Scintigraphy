@@ -1,0 +1,51 @@
+package org.petctviewer.scintigraphy.renal.gui;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.util.List;
+
+import javax.swing.JPanel;
+
+import org.jfree.chart.ChartPanel;
+import org.jfree.data.xy.XYSeries;
+import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.VueScin;
+
+public class TabCort extends FenResultatSidePanel {
+
+	public TabCort(VueScin vue, int w, int h) {
+		super("Renal scintigraphy", vue, null, "");
+		
+		ModeleScinDyn modele = (ModeleScinDyn) vue.getFen_application().getControleur().getModele();
+		
+		List<XYSeries> listSeries = modele.getSeries();
+		// recuperation des chart panel avec association
+		String[][] asso = { { "L. Cortical", "R. Cortical" }, { "L. Pelvis", "R. Pelvis" } };
+		ChartPanel[] cPanels = ModeleScin.associateSeries(asso, listSeries);
+		
+		cPanels[0].getChart().setTitle("Renal cortical");
+		cPanels[1].getChart().setTitle("Renal pelvis");
+		
+		JPanel grid = new JPanel(new GridLayout(2,1));
+		cPanels[0].setPreferredSize(new Dimension(w, h/2));
+		grid.add(cPanels[0]);
+		
+		cPanels[1].setPreferredSize(new Dimension(w, h/2));
+		grid.add(cPanels[1]);
+
+		this.add(new JPanel(), BorderLayout.WEST);
+		this.add(grid, BorderLayout.CENTER);
+		
+		this.finishBuildingWindow();
+	}
+
+	@Override
+	public Component[] getSidePanelContent() {
+		return null;
+	}
+
+}

@@ -61,8 +61,8 @@ public class FenSetValues extends JDialog {
 
 		// ajout des selecteurs dans le listener
 		this.selectorListener = new SelectorListener(chart);
-		this.selectorListener.add(new ValueSelector("TMax R", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 0), 0, RectangleAnchor.BOTTOM_LEFT), 0);
-		this.selectorListener.add(new ValueSelector("TMax L", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 1), 1, RectangleAnchor.TOP_LEFT), 1);
+		this.selectorListener.add(new ValueSelector("TMax L", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 0), 0, RectangleAnchor.BOTTOM_LEFT), 1);
+		this.selectorListener.add(new ValueSelector("TMax R", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 1), 1, RectangleAnchor.TOP_LEFT), 0);
 		
 		//this.selectorListener.add(new ValueSelector("Ret OG R", 20, 0, RectangleAnchor.BOTTOM_LEFT), 2);
 		//this.selectorListener.add(new ValueSelector("Ret OG L", 20, 1, RectangleAnchor.TOP_LEFT), 3);
@@ -154,6 +154,17 @@ public class FenSetValues extends JDialog {
 		plot.addDomainMarker(bst);
 	}
 
+	/**
+	 * Renvoie les valeurs en x des selecteurs
+	 * 
+	 * @return [0] => TMaxD <br>
+	 *         [1] => TMaxG <br>
+	 *         [2] => Retetion origin D <br>
+	 *         [3] => Retetion origin G <br>
+	 *         [4] => Borne intervalle 1 <br>
+	 *         [5] => Borne intervalle 2 <br>
+	 *         [6] => Lasilix
+	 */
 	public Double[] getXValues() {
 		return this.selectorListener.getXValues();
 	}

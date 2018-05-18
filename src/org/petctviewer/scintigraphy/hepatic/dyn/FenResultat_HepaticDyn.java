@@ -15,8 +15,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import ij.ImagePlus;
+import ij.gui.ImageCanvas;
 import ij.plugin.ZProjector;
 import ij.process.ImageProcessor;
 
@@ -41,7 +44,10 @@ public class FenResultat_HepaticDyn extends JFrame {
 		grilleTop.add(cpt);
 		
 		// montage pour une vision globale
-		JPanel northEast = FenResultat_HepaticDyn.creerMontage(vue.getFrameDurations(), vue.getImpAnt(), capture.getWidth() / 4);
+		ImagePlus imp = FenResultatSidePanel.creerMontage(vue.getFrameDurations(), vue.getImpAnt(), capture.getWidth() / 4, 4, 4);
+		
+		JPanel northEast = new JPanel();
+		northEast.add(new ImageCanvas(imp));
 		
 		grilleTop.add(northEast);
 		grille.add(grilleTop);
@@ -116,42 +122,6 @@ public class FenResultat_HepaticDyn extends JFrame {
 		this.setResizable(false);
 		this.setVisible(true);
 		this.setLocationRelativeTo(null);
-	}
-	
-	private static JPanel creerMontage(int[] frameDuration, ImagePlus imp, int size) {
-		JPanel northEast = new JPanel(new GridLayout(4, 4));
-		int nSlice = frameDuration.length;
-		
-		int[] summed = new int[frameDuration.length];
-		summed[0] = frameDuration[0];
-		for(int i = 1; i < nSlice; i++) {
-			summed[i] = summed[i - 1] + frameDuration[i];
-		}
-		
-		int[] sliceIndex = new int[17];
-		int pas = summed[nSlice - 1] / 16;
-		for(int i = 0; i < 17; i++) {
-			for(int j = 0; j < summed.length; j++) {
-				if(i*pas <= summed[j] || j == summed.length - 1) {
-					sliceIndex[i] = j;
-					break;
-				}
-			}
-		}
-		
-		for (int i = 1; i < sliceIndex.length; i++) {
-			int start = sliceIndex[i - 1];
-			int stop = sliceIndex[i];
-			ImagePlus tinyImp = ZProjector.run(imp, "sum", start, stop);
-			ImageProcessor impc = tinyImp.getProcessor().resize(size);
-			ImagePlus projectionImp = new ImagePlus("", impc);
-
-			BufferedImage projection = projectionImp.getBufferedImage();
-			JLabel proj = new JLabel();
-			proj.setIcon(new ImageIcon(projection));
-			northEast.add(proj);
-		}
-		return northEast;
 	}
 
 	private JLabel getLabel(String key, Color c) {

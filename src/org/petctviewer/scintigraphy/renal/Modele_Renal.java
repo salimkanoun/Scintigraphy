@@ -7,6 +7,7 @@ import java.util.List;
 import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.RenalSettings;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 
@@ -32,22 +33,28 @@ public class Modele_Renal extends ModeleScinDyn {
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 		super.enregistrerMesure(nomRoi, imp);
 
-		// aire de la roi en pixel
-		int area = imp.getStatistics().pixelCount;
-		String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
+		if(!this.isLocked()) {
+			// aire de la roi en pixel
+			int area = imp.getStatistics().pixelCount;
+			String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
 
-		// si on n'a pas deja enregistre son aire, on l'ajout a la hashmap
-		if (this.organArea.get(name) == null) {
-			this.organArea.put(name, area);
+			// si on n'a pas deja enregistre son aire, on l'ajout a la hashmap
+			if (this.organArea.get(name) == null) {
+				this.organArea.put(name, area);
+			}
 		}
+
 	}
 
 	@Override
 	public void calculerResultats() {
-
-		// on recupere le tableau avec les noms des organes
-		String[] orgs = Controleur_Renal.ORGANES;
-
+		
+		if(RenalSettings.getSettings()[1]) {
+			List<List<Double>> bassinets = this.calculBassinets();
+			this.getData().put("L. Pelvis", bassinets.get(0));
+			this.getData().put("R. Pelvis", bassinets.get(1));
+		}
+		
 		// on ajuste toutes les valeurs pour les mettre en coup / sec
 		for (String k : this.getData().keySet()) {
 			List<Double> data = this.getData().get(k);
@@ -55,28 +62,33 @@ public class Modele_Renal extends ModeleScinDyn {
 		}
 
 		// on recupere la liste des donnees vasculaires
-		List<Double> vasc = this.getData(orgs[4]);
+		List<Double> vasc = this.getData("Blood Pool");
 
 		List<Double> RGCorrige = new ArrayList<>();
 		List<Double> RDCorrige = new ArrayList<>();
 
 		// on recupere l'aire des rois bruit de fond et rein
-		int aireRD = this.organArea.get(orgs[0]);
-		int aireRG = this.organArea.get(orgs[2]);
-		int aireBkgD = this.organArea.get(orgs[1]);
-		int aireBkgG = this.organArea.get(orgs[3]);
+		int aireRD = this.organArea.get("R. Kidney");
+		int aireRG = this.organArea.get("L. Kidney");
+		int aireBkgD = this.organArea.get("R. bkg");
+		int aireBkgG = this.organArea.get("L. bkg");
 
 		// on calcule le coup moyen de la roi, on l'ajuste avec le bdf et on l'applique
 		// sur toute la roi pour chaque rein afin d'ajuster la valeur brute pour les
 		// deux reins
-		for (int i = 0; i < this.getData(orgs[0]).size(); i++) {
-			Double countRG = this.getData(orgs[2]).get(i);
-			Double countBgG = this.getData(orgs[3]).get(i);
+		List<Double> rk = this.getData("R. Kidney");
+		List<Double> lk = this.getData("L. Kidney");
+		List<Double> rbkg = this.getData("R. bkg");
+		List<Double> lbkg = this.getData("L. bkg");
+		for (int i = 0; i < this.getData("R. Kidney").size(); i++) {
+			Double countRG = lk.get(i); //TODO noms de organes en statique
+			Double countBgG = lbkg.get(i);
+			Double countRD = rk.get(i);
+			Double countBgD = rbkg.get(i);
+			
 			Double adjustedValueG = ((countRG / aireRG) - (countBgG / aireBkgG)) * aireRG;
 			RGCorrige.add(adjustedValueG);
 
-			Double countRD = this.getData(orgs[0]).get(i);
-			Double countBgD = this.getData(orgs[1]).get(i);
 			Double adjustedValueD = ((countRD / aireRD) - (countBgD / aireBkgD)) * aireRD;
 			RDCorrige.add(adjustedValueD);
 		}
@@ -89,6 +101,30 @@ public class Modele_Renal extends ModeleScinDyn {
 		this.getData().put("Final KL", RGCorrige);
 		this.getData().put("Final KR", RDCorrige);
 		this.getData().put("BPI", vascIntegree); // BPI == Blood Pool Integrated
+	}
+	
+	/**
+	 * calcule et renvoie les valeurs de courbes des bassinets
+	 * @return bassinet gauche, bassinet Droit
+	 */
+	private List<List<Double>> calculBassinets() {
+		List<Double> bassinetsG = new ArrayList<>();
+		List<Double> bassinetsD = new ArrayList<>();
+		List<Double> reinG = this.getData("L. Kidney");
+		List<Double> cortG = this.getData("L. Cortical");
+		List<Double> reinD = this.getData("R. Kidney");
+		List<Double> cortD = this.getData("R. Cortical");
+		
+		for(int i = 0; i < this.getData("Blood Pool").size(); i++) {
+			bassinetsG.add(reinG.get(i) - cortG.get(i));
+			bassinetsD.add(reinD.get(i) - cortD.get(i));
+		}
+		
+		List<List<Double>> l = new ArrayList<>();
+		l.add(bassinetsG);
+		l.add(bassinetsD);
+		
+		return l;
 	}
 
 	/**
@@ -274,7 +310,7 @@ public class Modele_Renal extends ModeleScinDyn {
 			s += "\n ROE " + min + "min Right Kidney , " + this.getPercentage(min, rk, "R");
 		}
 
-		//TODO modifier ça
+		//TODO modifier ça (voir methodes modele renal)
 		String[][] tableData = new String[][] {{""}};
 		s += "\n";
 
@@ -341,6 +377,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		
 		Double[][] res = new Double[3][3];
 		
+		//adjusted[7] => lasilix
 		res[0][0] = ModeleScin.round(this.adjusted[7] - 1,0);
 		res[0][1] = ModeleScin.round(this.adjusted[7] + 2,0);
 		res[0][2] = ModeleScin.round(lk.getMaxX(), 0);
@@ -351,17 +388,38 @@ public class Modele_Renal extends ModeleScinDyn {
 		res[1][2] = ModeleScin.round(getY(lk, res[0][2]) * 100 / maxL, 1);
 
 		// calcul nora rein droit
-		res[2][0] = ModeleScin.round(getY(lk, res[0][0]) * 100 / maxR, 1);
-		res[2][1] = ModeleScin.round(getY(lk, res[0][1]) * 100 / maxR, 1);
-		res[2][2] = ModeleScin.round(getY(lk, res[0][2]) * 100 / maxR, 1);
+		res[2][0] = ModeleScin.round(getY(rk, res[0][0]) * 100 / maxR, 1);
+		res[2][1] = ModeleScin.round(getY(rk, res[0][1]) * 100 / maxR, 1);
+		res[2][2] = ModeleScin.round(getY(rk, res[0][2]) * 100 / maxR, 1);
 
 		return res;
 	}
 
+	
+	/**
+	 * [0] => TMaxD <br>
+	 * [1] => TMaxG <br>
+	 * [2] => Retetion origin D <br>
+	 * [3] => Retetion origin G <br>
+	 * [4] => Borne intervalle 1 <br>
+	 * [5] => Borne intervalle 2 <br>
+	 * [6] => Lasilix
+	 */
 	public void setAdjustedValues(Double[] xValues) {
 		this.adjusted = xValues;
 	}
 
+	/**
+	 * Renvoie les valeurs en x des selecteurs
+	 * 
+	 * @return [0] => TMaxD <br>
+	 *         [1] => TMaxG <br>
+	 *         [2] => Retetion origin D <br>
+	 *         [3] => Retetion origin G <br>
+	 *         [4] => Borne intervalle 1 <br>
+	 *         [5] => Borne intervalle 2 <br>
+	 *         [6] => Lasilix
+	 */
 	public Double[] getAdjustedValues() {
 		return this.adjusted;
 	}
