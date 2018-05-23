@@ -25,9 +25,8 @@ public class Vue_Renal extends VueScinDyn {
 		
 		ImagePlus impProjetee = this.projeter(this.impPost);
 		
-		if(this.impAnt != null) {
-			System.out.println("Heya");
-			
+		//ajout de la prise ant si elle existe
+		if(this.impAnt != null) {			
 			for(int i = 1; i <= this.impAnt.getStackSize(); i++) {
 				this.impAnt.getStack().getProcessor(i).flipHorizontal();
 			}

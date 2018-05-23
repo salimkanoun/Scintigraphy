@@ -196,7 +196,9 @@ public class FenSetValues extends JDialog implements ActionListener {
 			if(dialogResult != JOptionPane.YES_OPTION){
 			  this.dispose();
 			}
-		}
+		}else {
+			this.dispose();
+		}		
 	}
 
 	//returns true if passed
