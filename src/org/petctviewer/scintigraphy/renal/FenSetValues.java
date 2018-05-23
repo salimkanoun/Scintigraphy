@@ -10,6 +10,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -22,9 +25,10 @@ import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 
-public class FenSetValues extends JDialog {
+public class FenSetValues extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = -2425748481776555583L;
 
@@ -35,45 +39,47 @@ public class FenSetValues extends JDialog {
 		this.chart = chart;
 
 		XYSeriesCollection dataset = ((XYSeriesCollection) chart.getChart().getXYPlot().getDataset());
-		//on renomme
+		// on renomme
 		try {
 			dataset.getSeries("Final KL").setKey("Left Kidney");
 			dataset.getSeries("Final KR").setKey("Right Kidney");
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
-		
+
 		this.setLayout(new BorderLayout());
 
 		this.setTitle("Adjusting values");
 		this.add(chart, BorderLayout.CENTER);
 		JButton btn_ok = new JButton("Ok");
-		btn_ok.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				FenSetValues.this.dispose();
-			}
-		});
-		this.add(btn_ok, BorderLayout.SOUTH);
+		btn_ok.addActionListener(this);
+
+		JPanel wrap = new JPanel();
+		wrap.add(btn_ok);
+		this.add(wrap, BorderLayout.SOUTH);
 
 		// on recupere le plot
 		XYPlot plot = chart.getChart().getXYPlot();
 
 		// ajout des selecteurs dans le listener
 		this.selectorListener = new SelectorListener(chart);
-		this.selectorListener.add(new ValueSelector("TMax L", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 0), 0, RectangleAnchor.BOTTOM_LEFT), 1);
-		this.selectorListener.add(new ValueSelector("TMax R", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 1), 1, RectangleAnchor.TOP_LEFT), 0);
-		
-		//this.selectorListener.add(new ValueSelector("Ret OG R", 20, 0, RectangleAnchor.BOTTOM_LEFT), 2);
-		//this.selectorListener.add(new ValueSelector("Ret OG L", 20, 1, RectangleAnchor.TOP_LEFT), 3);
-		
+		this.selectorListener.add(new ValueSelector("TMax L", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 0), 0,
+				RectangleAnchor.BOTTOM_LEFT), 1);
+		this.selectorListener.add(new ValueSelector("TMax R", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 1), 1,
+				RectangleAnchor.TOP_LEFT), 0);
+
+		// this.selectorListener.add(new ValueSelector("Ret OG R", 20, 0,
+		// RectangleAnchor.BOTTOM_LEFT), 2);
+		// this.selectorListener.add(new ValueSelector("Ret OG L", 20, 1,
+		// RectangleAnchor.TOP_LEFT), 3);
+
 		ValueSelector start = new ValueSelector(" ", 1, -1, RectangleAnchor.TOP_LEFT); // debut de l'intervalle
 		this.selectorListener.add(start, 4);
 		ValueSelector end = new ValueSelector(" ", 2, -1, RectangleAnchor.BOTTOM_RIGHT); // fin de l'intervalle
 		this.selectorListener.add(end, 5);
 		ValueSelector middle = new ValueSelector("<->", 2, -1, RectangleAnchor.CENTER);
 		this.selectorListener.add(middle, 6);
-		
+
 		this.selectorListener.add(new ValueSelector("Lasilix", 20, -1, RectangleAnchor.BOTTOM_LEFT), 7);
 
 		// on rempli l'intervalle entre start et end
@@ -85,19 +91,19 @@ public class FenSetValues extends JDialog {
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				FenSetValues.this.fillInterval(start.getXValue(), end.getXValue());
-				if(middle.isXLocked()) { //si le selecteur du milieu n'est pas selectionne, on le recentre
-					middle.setXValue((start.getXValue() + end.getXValue())/2);
+				if (middle.isXLocked()) { // si le selecteur du milieu n'est pas selectionne, on le recentre
+					middle.setXValue((start.getXValue() + end.getXValue()) / 2);
 					this.d = Math.abs(start.getXValue() - middle.getXValue());
-				}else { //sinon on bouge les deux autres selecteurs
+				} else { // sinon on bouge les deux autres selecteurs
 					start.setXValue(middle.getXValue() - this.d);
 					end.setXValue(middle.getXValue() + this.d);
 				}
-				
+
 			}
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				//inutile pour ce programme
+				// inutile pour ce programme
 			}
 		});
 
@@ -179,6 +185,41 @@ public class FenSetValues extends JDialog {
 		this.chart.removeChartMouseListener(this.selectorListener);
 
 		return this.chart;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		boolean checkOffset = this.checkOffset();
+		if (!checkOffset) {
+			String message = "Inconsistent differencial function during interval integration. \n Would you like to redefine the interval ?";
+			int dialogResult = JOptionPane.showConfirmDialog(this, message, "WARNING", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			if(dialogResult != JOptionPane.YES_OPTION){
+			  this.dispose();
+			}
+		}
+	}
+
+	//returns true if passed
+	private boolean checkOffset() {
+		XYDataset data = chart.getChart().getXYPlot().getDataset();
+
+		Double[] values = this.getXValues();
+
+		Double debut = Math.min(values[4], values[5]);
+		Double fin = Math.max(values[4], values[5]);
+
+		XYDataset dataCropped = Modele_Renal.cropDataset(data, debut, fin);
+
+		for (int i = 1; i < dataCropped.getItemCount(0); i++) {
+			Double N1 = (dataCropped.getYValue(0, i) / dataCropped.getYValue(1, i));
+			Double N = (dataCropped.getYValue(0, i-1) / dataCropped.getYValue(1, i-1));
+			Double ecart = Math.abs(1 - N1/N);
+			if(ecart > 0.05) {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 
 }

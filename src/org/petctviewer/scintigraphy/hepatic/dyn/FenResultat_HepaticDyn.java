@@ -20,8 +20,6 @@ import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import ij.ImagePlus;
 import ij.gui.ImageCanvas;
-import ij.plugin.ZProjector;
-import ij.process.ImageProcessor;
 
 public class FenResultat_HepaticDyn extends JFrame {
 

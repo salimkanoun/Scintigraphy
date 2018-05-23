@@ -3,7 +3,9 @@ package org.petctviewer.scintigraphy.scin;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import javax.swing.Box;
@@ -16,8 +18,6 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import ij.ImagePlus;
-import ij.gui.ImageCanvas;
-import ij.gui.ImageWindow;
 import ij.plugin.Concatenator;
 import ij.plugin.MontageMaker;
 import ij.plugin.ZProjector;
@@ -94,7 +94,7 @@ public abstract class FenResultatSidePanel extends JFrame {
 	 * Fini de construire la fenetre en incluant tous les components de la methode
 	 * {@link #getSidePanelContent()}
 	 */
-	public void finishBuildingWindow() {
+	public void finishBuildingWindow(boolean capture) {
 		this.side.add(Box.createVerticalGlue());
 
 		// on ajoute tous les components de la methode getSidePanelContent
@@ -107,20 +107,22 @@ public abstract class FenResultatSidePanel extends JFrame {
 
 		this.side.add(Box.createVerticalGlue());
 
-		// bouton capture
-		this.btn_capture = new JButton("Capture");
-		this.btn_capture.setAlignmentX(Component.CENTER_ALIGNMENT);
-		this.side.add(this.btn_capture);
+		if (capture) {
+			// bouton capture
+			this.btn_capture = new JButton("Capture");
+			this.btn_capture.setAlignmentX(Component.CENTER_ALIGNMENT);
+			this.side.add(this.btn_capture);
 
-		// label de credits
-		JLabel credits = new JLabel("Provided by petctviewer.org");
-		credits.setVisible(false);
-		this.side.add(credits);
+			// label de credits
+			JLabel credits = new JLabel("Provided by petctviewer.org");
+			credits.setVisible(false);
+			this.side.add(credits);
 
-		// on ajoute le listener pour la capture
-		this.vue.fen_application.getControleur().setCaptureButton(this.btn_capture, credits, this, this.modele,
-				this.additionalInfo);
-
+			// on ajoute le listener pour la capture
+			this.vue.fen_application.getControleur().setCaptureButton(this.btn_capture, credits, this, this.modele,
+					this.additionalInfo);
+		}
+		
 		// on ajoute le sie panel a droite de la fenetre
 		this.add(this.side, BorderLayout.EAST);
 
@@ -175,11 +177,11 @@ public abstract class FenResultatSidePanel extends JFrame {
 			int start = sliceIndex[i - 1];
 			int stop = sliceIndex[i];
 			ImagePlus tinyImp = ZProjector.run(imp, "sum", start, stop);
-			
+
 			ImageProcessor impc = tinyImp.getProcessor();
 			impc.setInterpolationMethod(ImageProcessor.BICUBIC);
 			impc = impc.resize(size);
-			
+
 			ImagePlus projectionImp = new ImagePlus("", impc);
 
 			impList[i - 1] = projectionImp;
@@ -191,6 +193,20 @@ public abstract class FenResultatSidePanel extends JFrame {
 		MontageMaker mm = new MontageMaker();
 
 		return mm.makeMontage2(impStacked, columns, rows, 1.0, 1, impList.length, 1, 0, false);
+	}
+
+	public Component getSide() {
+		return this.side;
+	}
+
+	public static BufferedImage resizeImage(BufferedImage img, int newW, int newH) {
+		BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = dimg.createGraphics();
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+		g.drawImage(img, 0, 0, newW, newH, 0, 0, img.getWidth(), img.getHeight(), null);
+		g.dispose();
+
+		return dimg;
 	}
 
 }

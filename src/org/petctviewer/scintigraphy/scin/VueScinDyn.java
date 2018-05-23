@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.scin;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import ij.IJ;
@@ -11,7 +12,7 @@ import ij.util.DicomTools;
 
 public abstract class VueScinDyn extends VueScin {
 
-	protected ImagePlus impProjetee, impAnt, impPost;
+	protected ImagePlus impAnt, impPost;
 
 	private int[] frameDurations;
 
@@ -26,19 +27,26 @@ public abstract class VueScinDyn extends VueScin {
 		}
 
 		ImagePlus[] imps = this.splitAntPost(titresFenetres);
-		this.impAnt = imps[0];
-		this.impPost = imps[1];
+		
+		if(imps[0] != null) {
+			this.impAnt = imps[0].duplicate();
+		}
+		
+		if(imps[1] != null) {
+			this.impPost = imps[1].duplicate();
+		}
 		
 		for(int i = 1; i <= this.impPost.getStackSize(); i++) {
 			this.impPost.getStack().getProcessor(i).flipHorizontal();
 		}
 
-		this.impProjetee = projeter(this.impAnt);
-
-		this.frameDurations = buildFrameDurations(this.impAnt);		
-
-		this.setImp(this.impProjetee);
-		VueScin.setCustomLut(this.getImp());
+		ImagePlus impProjetee = projeter(this.impPost);
+		
+		this.frameDurations = buildFrameDurations(this.impPost);
+		
+		this.setImp(impProjetee);
+		
+		VueScin.setCustomLut(this.getImp());		
 		
 		for(String s : titresFenetres) {
 			WindowManager.getImage(s).close();
@@ -47,7 +55,7 @@ public abstract class VueScinDyn extends VueScin {
 	
 	public ImagePlus projeter(ImagePlus imp) {
 		ImagePlus pj = ZProjector.run(imp, "sum");
-		pj.setProperty("Info", this.impAnt.getInfoProperty());
+		pj.setProperty("Info", this.impPost.getInfoProperty());
 		return pj;
 	}
 
@@ -96,14 +104,10 @@ public abstract class VueScinDyn extends VueScin {
 	public ImagePlus getImpPost() {
 		return this.impPost;
 	}
-	
-	public ImagePlus getImpProjetee() {
-		return this.impProjetee;
-	}
 
 	public int[] getFrameDurations() {
 		if(this.frameDurations == null) {
-			this.frameDurations = buildFrameDurations(this.impAnt);
+			this.frameDurations = buildFrameDurations(this.impPost);
 		}
 		return this.frameDurations;
 	}

@@ -11,6 +11,8 @@ import ij.plugin.Concatenator;
 import ij.plugin.PlugIn;
 import ij.process.LUT;
 import ij.util.DicomTools;
+
+import java.awt.Color;
 import java.awt.Font;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -39,30 +41,44 @@ public abstract class VueScin implements PlugIn {
 	 */
 	@Override
 	public void run(String arg) {
-		FenSelectionDicom selection=new FenSelectionDicom(this.getExamType());
+		FenSelectionDicom selection = new FenSelectionDicom(this.getExamType());
 		selection.setModal(true);
 		selection.setVisible(true);
-		if(selection.getSelectedWindowsTitles().length > 0) {
+		if (selection.getSelectedWindowsTitles().length > 0) {
 			ouvertureImage(selection.getSelectedWindowsTitles());
 		}
 	}
-	
+
 	/**
-	 * Permet de renvoyer une tableau d'image plus selon les dicoms ouvertes, il peut y avoir une ou deux ouverte
-	 * @param titresFenetres titres des fenetres ouvertes utilisées
+	 * Permet de renvoyer une tableau d'image plus selon les dicoms ouvertes, il
+	 * peut y avoir une ou deux ouverte
+	 * 
+	 * @param titresFenetres
+	 *            titres des fenetres ouvertes utilisées
 	 * @return les imps, [0] correspond a l'ant, [1] a la post
 	 */
-	public ImagePlus[] splitAntPost(String[] titresFenetres){
+	public ImagePlus[] splitAntPost(String[] titresFenetres) {
 		if (titresFenetres.length > 2) {
 			throw new IllegalArgumentException("Too much dicoms opened");
 		}
-		
+
 		ImagePlus[] imps = new ImagePlus[2];
-		
+
 		if (titresFenetres.length == 1) { // si il y a qu'un fenetre d'ouverte
 			ImagePlus imp = WindowManager.getImage(titresFenetres[0]);
+
 			if (VueScin.isMultiFrame(imp)) { // si l'image est multiframe
-				return imps = VueScin.splitCameraMultiFrame(imp);
+				
+				if (!VueScin.isSameCameraMultiFrame(imp)) {
+					return VueScin.splitCameraMultiFrame(imp);
+				}
+				
+				if (VueScin.isAnterieur(imp)) {
+					imps[0] = imp;
+				} else {
+					imps[1] = imp;
+				}
+				
 			} else if (VueScin.isAnterieur(imp)) {
 				imps[0] = imp;
 			} else {
@@ -79,7 +95,7 @@ public abstract class VueScin implements PlugIn {
 				}
 			}
 		}
-		
+
 		return imps;
 	}
 
@@ -102,7 +118,7 @@ public abstract class VueScin implements PlugIn {
 	 */
 	public static void setOverlayDG(Overlay overlay, ImagePlus imp) {
 		overlay.clear();
-		
+
 		// Get taille Image
 		int tailleImage = imp.getHeight();
 
@@ -124,7 +140,44 @@ public abstract class VueScin implements PlugIn {
 		overlay.add(right);
 		overlay.add(left);
 	}
-	
+
+	/**
+	 * Affiche D et G en overlay sur l'image, R a gauche et L a droite
+	 * 
+	 * @param overlay
+	 *            : Overlay sur lequel ajouter D/G
+	 * @param imp
+	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
+	 * @param color
+	 *            : Couleur de l'overlay
+	 */
+	public static void setOverlayDG(Overlay overlay, ImagePlus imp, Color color) {
+		overlay.clear();
+
+		// Get taille Image
+		int tailleImage = imp.getHeight();
+
+		// Position au mileu dans l'axe Y
+		double y = ((tailleImage) / 2);
+
+		// Cote droit
+		TextRoi right = new TextRoi(0, y, "R");
+		right.setStrokeColor(color);
+
+		// Cote gauche
+		double xl = imp.getWidth() - (overlay.getLabelFont().getSize()); // sinon on sort de l'image
+		TextRoi left = new TextRoi(xl, y, "L");
+		left.setStrokeColor(color);
+
+		// Set la police des text ROI
+		right.setCurrentFont(overlay.getLabelFont());
+		left.setCurrentFont(overlay.getLabelFont());
+
+		// Ajout de l'indication de la droite du patient
+		overlay.add(right);
+		overlay.add(left);
+	}
+
 	/**
 	 * Affiche D et G en overlay sur l'image, L a gauche et R a droite
 	 * 
@@ -135,7 +188,7 @@ public abstract class VueScin implements PlugIn {
 	 */
 	public static void setOverlayGD(Overlay overlay, ImagePlus imp) {
 		overlay.clear();
-		
+
 		// Get taille Image
 		int tailleImage = imp.getHeight();
 
@@ -159,6 +212,43 @@ public abstract class VueScin implements PlugIn {
 	}
 
 	/**
+	 * Affiche D et G en overlay sur l'image, L a gauche et R a droite
+	 * 
+	 * @param overlay
+	 *            : Overlay sur lequel ajouter D/G
+	 * @param imp
+	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
+	 * @param color
+	 *            : Couleur de l'overlay
+	 */
+	public static void setOverlayGD(Overlay overlay, ImagePlus imp, Color color) {
+		overlay.clear();
+
+		// Get taille Image
+		int tailleImage = imp.getHeight();
+
+		// Position au mileu dans l'axe Y
+		double y = ((tailleImage) / 2);
+
+		// Cote droit
+		TextRoi right = new TextRoi(0, y, "L");
+		right.setStrokeColor(color);
+
+		// Cote gauche
+		double xl = imp.getWidth() - (overlay.getLabelFont().getSize()); // sinon on sort de l'image
+		TextRoi left = new TextRoi(xl, y, "R");
+		left.setStrokeColor(color);
+
+		// Set la police des text ROI
+		right.setCurrentFont(overlay.getLabelFont());
+		left.setCurrentFont(overlay.getLabelFont());
+
+		// Ajout de l'indication de la droite du patient
+		overlay.add(right);
+		overlay.add(left);
+	}
+
+	/**
 	 * Permet de savoir si l'ImagePlus vient d'une Image MultiFrame (teste l'Image
 	 * 1)
 	 * 
@@ -169,7 +259,7 @@ public abstract class VueScin implements PlugIn {
 	public static boolean isMultiFrame(ImagePlus imp) {
 		// On regarde la coupe 1
 		imp.setSlice(1);
-		
+
 		int slices = 0;
 
 		// Regarde si frame unique ou multiple
@@ -184,7 +274,7 @@ public abstract class VueScin implements PlugIn {
 		if (slices == 1) {
 			return false;
 		}
-		
+
 		return true;
 
 	}
@@ -732,7 +822,7 @@ public abstract class VueScin implements PlugIn {
 	public String getExamType() {
 		return this.examType;
 	}
-	
+
 	public void setExamType(String examType) {
 		this.examType = examType;
 	}

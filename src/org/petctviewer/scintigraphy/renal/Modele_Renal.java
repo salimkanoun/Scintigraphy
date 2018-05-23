@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.jfree.data.statistics.Regression;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.RenalSettings;
@@ -81,7 +82,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		List<Double> rbkg = this.getData("R. bkg");
 		List<Double> lbkg = this.getData("L. bkg");
 		for (int i = 0; i < this.getData("R. Kidney").size(); i++) {
-			Double countRG = lk.get(i); //TODO noms de organes en statique
+			Double countRG = lk.get(i);
 			Double countBgG = lbkg.get(i);
 			Double countRD = rk.get(i);
 			Double countBgD = rbkg.get(i);
@@ -178,6 +179,21 @@ public class Modele_Renal extends ModeleScinDyn {
 			}
 		}
 		return cropped;
+	}
+	
+	// recupere les valeurs situees entre startX et endX
+	public static XYDataset cropDataset(XYDataset data, Double startX, Double endX) {
+		XYSeriesCollection dataset = new XYSeriesCollection();
+		
+		for (int i = 0; i < data.getSeriesCount(); i++) {
+			XYSeries series = new XYSeries("" + i);
+			for(int j = 0; j < data.getItemCount(0); j++) {
+				series.add(data.getX(i, j), data.getY(i, j));
+			}
+			dataset.addSeries(cropSeries(series, startX, endX));
+		}
+		
+		return dataset;
 	}
 
 	// fit la courbe selon un polynome de degre 3 et la modifie pour qu'elle soit au
@@ -311,7 +327,6 @@ public class Modele_Renal extends ModeleScinDyn {
 		}
 
 		//TODO modifier ça (voir methodes modele renal)
-		String[][] tableData = new String[][] {{""}};
 		s += "\n";
 
 		// on ajoute les valeurs du tableau
@@ -320,11 +335,8 @@ public class Modele_Renal extends ModeleScinDyn {
 			if (i == 2) {
 				lr = " Right";
 			}
-
-			for (int j = 0; j < 4; j++) {
-				s += "\n " + tableData[j][0] + lr;
-				s += "," + tableData[j][i];
-			}
+			
+			//TODO
 		}
 
 		return s;
@@ -380,17 +392,17 @@ public class Modele_Renal extends ModeleScinDyn {
 		//adjusted[7] => lasilix
 		res[0][0] = ModeleScin.round(this.adjusted[7] - 1,0);
 		res[0][1] = ModeleScin.round(this.adjusted[7] + 2,0);
-		res[0][2] = ModeleScin.round(lk.getMaxX(), 0);
+		res[0][2] = round(lk.getMaxX(), 0);
 
 		// calcul nora rein gauche
 		res[1][0] = ModeleScin.round(getY(lk, res[0][0]) * 100 / maxL, 1);
 		res[1][1] = ModeleScin.round(getY(lk, res[0][1]) * 100 / maxL, 1);
-		res[1][2] = ModeleScin.round(getY(lk, res[0][2]) * 100 / maxL, 1);
+		res[1][2] = ModeleScin.round(getY(lk, lk.getMaxX()) * 100 / maxL, 1);
 
 		// calcul nora rein droit
 		res[2][0] = ModeleScin.round(getY(rk, res[0][0]) * 100 / maxR, 1);
 		res[2][1] = ModeleScin.round(getY(rk, res[0][1]) * 100 / maxR, 1);
-		res[2][2] = ModeleScin.round(getY(rk, res[0][2]) * 100 / maxR, 1);
+		res[2][2] = ModeleScin.round(getY(rk, rk.getMaxX()) * 100 / maxR, 1);
 
 		return res;
 	}

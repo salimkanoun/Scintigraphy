@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.renal;
 
 import java.awt.Color;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -69,7 +68,7 @@ public class Controleur_Renal extends ControleurScin {
 		// on bloque le modele pour ne pas enregistrer les valeurs de la projection
 		modele.lock();
 
-		VueScin.setOverlayGD(this.getVue().getImp().getOverlay(), this.getVue().getImp());
+		VueScin.setOverlayGD(this.getVue().getImp().getOverlay(), this.getVue().getImp(), Color.YELLOW);
 		
 		this.setModele(modele);
 	}
@@ -152,7 +151,7 @@ public class Controleur_Renal extends ControleurScin {
 
 	@Override
 	public int getSliceNumberByRoiIndex(int roiIndex) {
-		return 1;
+		return 0;
 	}
 
 	@Override
@@ -172,17 +171,15 @@ public class Controleur_Renal extends ControleurScin {
 
 		String org = this.getNomOrgane(indexRoi - 1);
 
-		if ((!cort && org.equals("R. Kidney")) || (cort && org.equals("R. Cortical"))) {
-			return this.createBkgRoi(this.indexRoi, new int[] { -1, 1 });
-		} else if ((!cort && org.equals("L. Kidney")) || (cort && org.equals("L. Cortical"))) {
-			return this.createBkgRoi(this.indexRoi, new int[] { 1, 1 });
+		if ((!cort && org.contains("Kidney")) || (cort && org.contains("Cortical"))) {
+			return this.createBkgRoi(this.indexRoi);
 		}
 
 		return null;
 	}
 
 	// cree la roi de bruit de fond
-	private Roi createBkgRoi(int indexRoi, int[] direction) {
+	private Roi createBkgRoi(int indexRoi) {
 		ImagePlus imp = this.getVue().getImp();
 
 		int indexLiver;
@@ -196,18 +193,16 @@ public class Controleur_Renal extends ControleurScin {
 
 		// largeur a prendre autour du rein
 		int largeurBkg = 1;
-		if (this.getVue().getImp().getDimensions()[0] > 128) {
+		if (this.getVue().getImp().getDimensions()[0] >= 128) {
 			largeurBkg = 2;
 		}
 
-		Roi liver = (Roi) this.roiManager.getRoi(indexLiver).clone();
-
 		this.roiManager.select(indexLiver);
-		IJ.run(imp, "Enlarge...", "enlarge=" + largeurBkg);
+		IJ.run(imp, "Enlarge...", "enlarge=" + largeurBkg + " pixel");
 		this.roiManager.addRoi(imp.getRoi());
 
 		this.roiManager.select(this.roiManager.getCount() - 1);
-		IJ.run(imp, "Enlarge...", "enlarge=" + largeurBkg);
+		IJ.run(imp, "Enlarge...", "enlarge=" + largeurBkg + " pixel");
 		this.roiManager.addRoi(imp.getRoi());
 
 		this.roiManager
@@ -228,7 +223,7 @@ public class Controleur_Renal extends ControleurScin {
 	@Override
 	public void clearOverlay() {
 		this.getVue().getImp().getOverlay().clear();
-		VueScin.setOverlayGD(this.getVue().getImp().getOverlay(), this.getVue().getFen_application().getImagePlus());
+		VueScin.setOverlayGD(this.getVue().getImp().getOverlay(), this.getVue().getFen_application().getImagePlus(), Color.YELLOW);
 	}
 
 	@Override

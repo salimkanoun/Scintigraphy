@@ -3,40 +3,37 @@ package org.petctviewer.scintigraphy.renal.gui;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
-import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.RenalSettings;
-import org.petctviewer.scintigraphy.renal.Modele_Renal;
-import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
 
 public class FenResultats_Renal {
 
-	private Container principal, secondaire, kidneys, timedImage, tabCort;
+	private Container principal, zoomed, kidneys, timedImage, tabCort, tabUreter, tabOther, tabPost;
 
 	public FenResultats_Renal(VueScinDyn vue, BufferedImage capture, ChartPanel chartPanel) {
 		this.principal = new TabPrincipal(vue, capture, chartPanel).getContentPane();
-		
+
 		int w = this.principal.getWidth();
 		int h = this.principal.getHeight();
 
-		this.secondaire = new TabOptionalCharts(vue, w, h).getContentPane();
+		this.zoomed = new TabZoomed(vue).getContentPane();
 		this.kidneys = new TabROE(vue, w, h).getContentPane();
 		this.timedImage = new TabTimedImage(vue, principal.getHeight() / 4, 4, 5).getContentPane();
 		this.tabCort = new TabCort(vue, w, h).getContentPane();
+		this.tabUreter = new TabUreter(vue).getContentPane();
+		this.tabOther = new TabOther(vue).getContentPane();
+		this.tabPost = new TabPostMict(vue, w, h).getContentPane();
 
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				createAndShowGUI();
 			}
@@ -56,12 +53,20 @@ public class FenResultats_Renal {
 		tabbedPane.addTab("Timed image", this.timedImage);
 		tabbedPane.addTab("ROE", this.kidneys);
 
-		//si les corticales sont activees
+		// si les corticales sont activees
 		if (RenalSettings.getSettings()[1]) {
 			tabbedPane.addTab("Corticals/Pelvis", this.tabCort);
 		}
+
+		// si les ureteres sont activees
+		if (RenalSettings.getSettings()[2]) {
+			tabbedPane.addTab("Ureters", this.tabUreter);
+		}
+
+		tabbedPane.addTab("Zoomed", this.zoomed);
+		tabbedPane.addTab("Other", this.tabOther);
 		
-		tabbedPane.addTab("Other", this.secondaire);
+		tabbedPane.addTab("Post-micturition", this.tabPost);
 
 		frame.getContentPane().add(tabbedPane);
 
@@ -69,7 +74,7 @@ public class FenResultats_Renal {
 		frame.setPreferredSize(new Dimension(1000, 800));
 		frame.pack();
 		frame.setVisible(true);
-		frame.setResizable(false);
+		frame.setResizable(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 

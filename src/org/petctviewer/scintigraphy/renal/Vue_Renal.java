@@ -4,6 +4,8 @@ import org.petctviewer.scintigraphy.scin.FenApplication;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
 import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
 import ij.gui.Toolbar;
 
 public class Vue_Renal extends VueScinDyn {
@@ -16,13 +18,26 @@ public class Vue_Renal extends VueScinDyn {
 	protected void ouvertureImage(String[] titresFenetres) {
 		super.ouvertureImage(titresFenetres);
 		
-		//on inverse l'image pur garder l'orientation gauche / droite
+		//on inverse l'image pour garder l'orientation gauche / droite
 		for(int i = 1; i <= this.impPost.getStackSize(); i++) {
 			this.impPost.getStack().getProcessor(i).flipHorizontal();
 		}
 		
-		this.impProjetee = this.projeter(this.impPost);
-		this.impAnt = null;
+		ImagePlus impProjetee = this.projeter(this.impPost);
+		
+		if(this.impAnt != null) {
+			System.out.println("Heya");
+			
+			for(int i = 1; i <= this.impAnt.getStackSize(); i++) {
+				this.impAnt.getStack().getProcessor(i).flipHorizontal();
+			}
+			
+			ImagePlus impProjAnt = this.projeter(impAnt);
+			ImageStack s = impProjetee.getStack();
+			s.addSlice(impProjAnt.getProcessor());
+			impProjetee.setStack(s);
+			impProjetee.show();
+		}
 		
 		VueScin.setCustomLut(impProjetee);
 		

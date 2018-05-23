@@ -38,7 +38,7 @@ public class FenResultat_GeneralDyn extends FenResultatSidePanel {
 		}
 
 		this.add(grid, BorderLayout.WEST);
-		this.finishBuildingWindow();
+		this.finishBuildingWindow(true);
 		this.setVisible(true);
 	}
 

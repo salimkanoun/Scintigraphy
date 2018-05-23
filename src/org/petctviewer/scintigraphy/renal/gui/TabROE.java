@@ -6,7 +6,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.image.BufferedImage;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -24,6 +23,8 @@ import org.petctviewer.scintigraphy.scin.VueScin;
 
 public class TabROE extends FenResultatSidePanel {
 
+	private static final long serialVersionUID = -8303889633428224794L;
+	
 	private VueScin vue;
 
 	public TabROE(VueScin vue, int w, int h) {
@@ -71,7 +72,7 @@ public class TabROE extends FenResultatSidePanel {
 		this.add(new JPanel(), BorderLayout.WEST);
 		this.add(p, BorderLayout.CENTER);
 
-		this.finishBuildingWindow();
+		this.finishBuildingWindow(true);
 	}
 
 	private Component getPanelROE() {

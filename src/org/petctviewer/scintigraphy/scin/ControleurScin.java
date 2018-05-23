@@ -45,6 +45,7 @@ public abstract class ControleurScin implements ActionListener {
 
 	private List<String> nomRois = new ArrayList<>();
 	private ImageListener ctrlImg;
+	private Color STROKECOLOR = Color.RED;
 
 	/**
 	 * classe abstraite permettant de controler les programmes de scintigraphie
@@ -54,6 +55,7 @@ public abstract class ControleurScin implements ActionListener {
 		this.roiManager = new RoiManager();
 		this.addImpListener();
 		this.indexRoi = 0;
+		Roi.setColor(this.STROKECOLOR);
 	}
 
 	public void setModele(ModeleScin modele) {
@@ -145,7 +147,7 @@ public abstract class ControleurScin implements ActionListener {
 	/**
 	 * Prepare la roi qui se situera a indexRoi
 	 */
-	public void preparerRoi(int lastRoi) {
+	public void preparerRoi(int lastRoi) {		
 		// on affiche la slice
 		int indexSlice = this.getSliceNumberByRoiIndex(this.indexRoi);
 		this.setSlice(indexSlice);
@@ -155,12 +157,12 @@ public abstract class ControleurScin implements ActionListener {
 		Roi organRoi = this.getOrganRoi(lastRoi);
 		if (organRoi != null) {
 			this.laVue.getImp().setRoi((Roi) organRoi.clone());
+			this.laVue.getImp().getRoi().setStrokeColor(this.STROKECOLOR);
 			this.setInstructionsAdjust(nOrgane);
 		} else {
 			// on affiche les prochaines instructions
 			this.setInstructionsDelimit(nOrgane);
 		}
-
 	}
 
 	/**
@@ -209,6 +211,7 @@ public abstract class ControleurScin implements ActionListener {
 					this.laVue.getImp().getOverlay().add(roi);
 				} else {
 					this.laVue.getImp().setRoi(roi);
+					this.laVue.getImp().getRoi().setStrokeColor(this.STROKECOLOR);
 				}
 			}
 		}
@@ -217,7 +220,7 @@ public abstract class ControleurScin implements ActionListener {
 	/**
 	 * est appelle lors du clic sur le bouton "Previous"
 	 */
-	public void clicPrecedent() {
+	public void clicPrecedent() {		
 		// sauvegarde du ROI courant
 		this.saveCurrentRoi(this.getNomOrgane(this.indexRoi), this.indexRoi);
 
@@ -331,6 +334,9 @@ public abstract class ControleurScin implements ActionListener {
 	 */
 	public boolean saveCurrentRoi(String nomRoi, int indexRoi) {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
+			
+			//on change la couleur pour l'overlay
+			this.getVue().getImp().getRoi().setStrokeColor(Color.YELLOW);
 
 			// on enregistre la ROI dans le modele
 			this.leModele.enregistrerMesure(this.addTag(nomRoi), this.laVue.getImp());
@@ -355,10 +361,10 @@ public abstract class ControleurScin implements ActionListener {
 		}
 		
 		if(this.getOrganRoi(indexRoi) == null) {
-			System.out.println("Roi lost");
+			System.err.println("Roi lost");
 		}else {
 			//restore la roi organe si c'est possible
-			System.out.println("Roi lost, restoring organ roi");
+			System.err.println("Roi lost, restoring organ roi");
 			this.getVue().getImp().setRoi(this.getOrganRoi(indexRoi));
 		}
 		
@@ -371,7 +377,7 @@ public abstract class ControleurScin implements ActionListener {
 	 */
 	public void clearOverlay() {
 		this.laVue.getImp().getOverlay().clear();
-		VueScin.setOverlayDG(this.laVue.getImp().getOverlay(), this.laVue.getFen_application().getImagePlus());
+		VueScin.setOverlayDG(this.laVue.getImp().getOverlay(), this.laVue.getFen_application().getImagePlus(), Color.YELLOW);
 	}
 
 	/**

@@ -2,17 +2,14 @@ package org.petctviewer.scintigraphy.renal.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.List;
 
-import javax.swing.Box;
 import javax.swing.JPanel;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.RenalSettings;
@@ -21,11 +18,11 @@ import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
-public class TabOptionalCharts extends FenResultatSidePanel {
+public class TabZoomed extends FenResultatSidePanel {
 
 	private static final long serialVersionUID = -2647720655737610538L;
 
-	public TabOptionalCharts(VueScin vue, int w, int h) {
+	public TabZoomed(VueScin vue) {
 		super("Renal scintigraphy", vue, null, "");
 		JPanel grid = new JPanel(new GridLayout(2, 1));
 
@@ -48,38 +45,11 @@ public class TabOptionalCharts extends FenResultatSidePanel {
 		ChartPanel cp = new ChartPanel(chart);
 		cp.getChart().getPlot().setBackgroundPaint(null);
 		
-		JPanel top = new JPanel(new GridLayout(1,1));
-		JPanel bottom = new JPanel(new GridLayout(1,1));
-		
-		top.add(cp);
+		chart.setTitle("First minute of nephrogram");
 
-		// on recupere les series
-		List<XYSeries> listSeries = modele.getSeries();
-		// recuperation des chart panel avec association
-		String[][] asso = {{"L. Ureter" , "R. Ureter"}, { "Bladder" }, { "Blood Pool" } };
+		this.add(cp, BorderLayout.CENTER);
 
-		ChartPanel[] cPanels = ModeleScin.associateSeries(asso, listSeries);
-		
-		if(RenalSettings.getSettings()[0]) {
-			top.setLayout(new GridLayout(1, 2));
-			top.add(cPanels[1]);
-		}
-		
-		bottom.add(cPanels[2]);
-		
-		if(RenalSettings.getSettings()[2]) {
-			bottom.setLayout(new GridLayout(1, 2));
-			bottom.add(cPanels[0]);
-		}
-		
-		this.add(new JPanel(), BorderLayout.WEST);
-		
-		grid.add(bottom);
-		grid.add(top);
-		
-		this.add(grid, BorderLayout.CENTER);
-
-		this.finishBuildingWindow();
+		this.finishBuildingWindow(true);
 		this.setVisible(false);
 	}
 

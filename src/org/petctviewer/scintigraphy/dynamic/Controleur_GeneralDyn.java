@@ -18,6 +18,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	public static int MAXROI = 100;
 	private int nbOrganes = 0;
 	private boolean over;
+	private ImagePlus impProjetee;
 
 	protected Controleur_GeneralDyn(Vue_GeneralDyn vue) {
 		super(vue);
@@ -78,6 +79,8 @@ public class Controleur_GeneralDyn extends ControleurScin {
 
 	@Override
 	public void fin() {
+		//on sauvegarde l'imp projetee pour la reafficher par la suite
+		this.impProjetee = this.getVue().getImp().duplicate();
 		this.over = true;
 		this.nbOrganes = this.roiManager.getCount();
 		VueScinDyn vue = (VueScinDyn) this.getVue();
@@ -148,8 +151,10 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		this.indexRoi = this.nbOrganes;
 		this.over = false;
 		this.addImpListener();
-		vue.getFen_application().setImage(vue.getImpProjetee());
-		vue.setImp(vue.getImpProjetee());
+		
+		vue.getFen_application().setImage(this.impProjetee);
+		vue.setImp(this.impProjetee);
+		
 		vue.getFen_application().adaptWindow(256);
 	}
 

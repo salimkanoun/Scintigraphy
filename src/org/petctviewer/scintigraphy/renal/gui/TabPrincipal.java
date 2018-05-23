@@ -1,16 +1,13 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -18,16 +15,10 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
-
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
-import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
@@ -66,7 +57,7 @@ public class TabPrincipal extends FenResultatSidePanel {
 
 		BufferedImage imgProj = proj.getBufferedImage();
 		
-		imgProj = resize(imgProj, capture.getWidth(), capture.getHeight());
+		imgProj = resizeImage(imgProj, capture.getWidth(), capture.getHeight());
 		
 		this.modele = (Modele_Renal) vueScin.getFen_application().getControleur().getModele();
 		
@@ -78,10 +69,7 @@ public class TabPrincipal extends FenResultatSidePanel {
 		lbl_capture.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		JLabel lbl_proj = new JLabel();
-		
-		int width = imgProj.getWidth();
-		int height = imgProj.getHeight();
-		
+
 		lbl_proj.setIcon(new ImageIcon(imgProj));
 		lbl_proj.setHorizontalAlignment(SwingConstants.CENTER);
 		
@@ -113,20 +101,9 @@ public class TabPrincipal extends FenResultatSidePanel {
 		this.add(new JPanel(), BorderLayout.WEST);
 		this.add(grid, BorderLayout.CENTER);
 
-		this.finishBuildingWindow();
+		this.finishBuildingWindow(true);
 		this.setVisible(false);
 	}
-	
-	public static BufferedImage resize(BufferedImage img, int newW, int newH) { 
-	    BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
-	    Graphics2D g = dimg.createGraphics();
-	    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-			    RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-	    g.drawImage(img, 0, 0, newW, newH, 0, 0, img.getWidth(), img.getHeight(), null);
-	    g.dispose();
-
-	    return dimg;
-	}  
 
 	@Override
 	public Component[] getSidePanelContent() {

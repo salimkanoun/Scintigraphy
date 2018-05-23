@@ -17,6 +17,8 @@ import org.petctviewer.scintigraphy.scin.VueScin;
 
 public class TabCort extends FenResultatSidePanel {
 
+	private static final long serialVersionUID = -2324369375150642778L;
+
 	public TabCort(VueScin vue, int w, int h) {
 		super("Renal scintigraphy", vue, null, "");
 		
@@ -40,7 +42,7 @@ public class TabCort extends FenResultatSidePanel {
 		this.add(new JPanel(), BorderLayout.WEST);
 		this.add(grid, BorderLayout.CENTER);
 		
-		this.finishBuildingWindow();
+		this.finishBuildingWindow(true);
 	}
 
 	@Override

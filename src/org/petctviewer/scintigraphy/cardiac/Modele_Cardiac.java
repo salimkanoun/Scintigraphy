@@ -36,6 +36,7 @@ public class Modele_Cardiac extends ModeleScin {
 	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 		Double counts = ModeleScin.getCounts(imp);		
+		System.out.println(nomRoi);
 		this.data.put(nomRoi, counts);
 	}
 
