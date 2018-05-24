@@ -25,6 +25,7 @@ import org.petctviewer.scintigraphy.scin.VueScin;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
+import ij.gui.Overlay;
 import ij.gui.Toolbar;
 import ij.plugin.Concatenator;
 import ij.plugin.HyperStackConverter;
@@ -94,13 +95,18 @@ public class Vue_Plaquettes extends VueScin {
 		// dans une fenetre c'est une pile d'images (plus d'une image) on cree une
 		// fenetre pour la pile d'images;
 		
-		this.fen_application = new FenApplication(this.getImp(), this.getExamType());
+		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));
+		
+		Overlay overlay = VueScin.initOverlay(this.getImp());
+		VueScin.setOverlayDG(overlay, getImp());
+		this.getImp().setOverlay(overlay);
+		
 		Controleur_Plaquettes ctrl = new Controleur_Plaquettes(this);
-		this.fen_application.setControleur(ctrl);
-		this.fen_application.getImagePlus().getCanvas().setScaleToFit(true);
-		this.fen_application.getImagePlus().getCanvas().setSize(512,512);
-		this.fen_application.pack();
-		this.fen_application.setSize(this.fen_application.getPreferredSize());
+		this.getFenApplication().setControleur(ctrl);
+		this.getFenApplication().getImagePlus().getCanvas().setScaleToFit(true);
+		this.getFenApplication().getImagePlus().getCanvas().setSize(512,512);
+		this.getFenApplication().pack();
+		this.getFenApplication().setSize(this.getFenApplication().getPreferredSize());
 		IJ.setTool(Toolbar.POLYGON);
 	}
 

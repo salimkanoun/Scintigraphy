@@ -28,8 +28,8 @@ public class Vue_Hepatic extends VueScin {
 		this.setImp(impSorted);
 		
 		VueScin.setCustomLut(this.getImp());		
-		this.fen_application = new FenApplication(this.getImp(), this.getExamType());
-		this.fen_application.setControleur(new Controleur_Hepatic(this));		
+		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));
+		this.getFenApplication().setControleur(new Controleur_Hepatic(this));		
 		IJ.setTool(Toolbar.POLYGON);
 	}
 

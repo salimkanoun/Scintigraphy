@@ -28,7 +28,7 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 
 	public FenResultat_Cardiac(VueScin vueScin, BufferedImage capture) {
 		super("DPD Quant", vueScin, capture, "");
-		this.resultats = ((Modele_Cardiac) vueScin.getFen_application().getControleur().getModele()).getResultsHashMap();
+		this.resultats = ((Modele_Cardiac) vueScin.getFenApplication().getControleur().getModele()).getResultsHashMap();
 		this.finishBuildingWindow(true);
 		this.setVisible(true);
 	}

@@ -26,7 +26,12 @@ public abstract class VueScinDyn extends VueScin {
 			IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 		}
 
-		ImagePlus[] imps = this.splitAntPost(titresFenetres);
+		ImagePlus[] images = new ImagePlus[titresFenetres.length];
+		for(int i = 0; i < titresFenetres.length; i++) {
+			images[i] = WindowManager.getImage(titresFenetres[i]);
+		}
+		
+		ImagePlus[] imps = VueScin.splitAntPost(images);
 		
 		if(imps[0] != null) {
 			this.impAnt = imps[0].duplicate();
@@ -53,9 +58,15 @@ public abstract class VueScinDyn extends VueScin {
 		}
 	}
 	
-	public ImagePlus projeter(ImagePlus imp) {
+	public static ImagePlus projeter(ImagePlus imp) {
 		ImagePlus pj = ZProjector.run(imp, "sum");
-		pj.setProperty("Info", this.impPost.getInfoProperty());
+		pj.setProperty("Info", imp.getInfoProperty());
+		return pj;
+	}
+	
+	public static ImagePlus projeter(ImagePlus imp, int startSlice, int stopSlice) {
+		ImagePlus pj = ZProjector.run(imp, "sum", startSlice ,stopSlice);
+		pj.setProperty("Info", imp.getInfoProperty());
 		return pj;
 	}
 

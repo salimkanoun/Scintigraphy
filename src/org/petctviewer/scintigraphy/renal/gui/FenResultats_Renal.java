@@ -17,20 +17,17 @@ import org.petctviewer.scintigraphy.scin.VueScinDyn;
 public class FenResultats_Renal {
 
 	private Container principal, zoomed, kidneys, timedImage, tabCort, tabUreter, tabOther, tabPost;
+	private final int width = 1000, height = 800;
 
 	public FenResultats_Renal(VueScinDyn vue, BufferedImage capture, ChartPanel chartPanel) {
-		this.principal = new TabPrincipal(vue, capture, chartPanel).getContentPane();
-
-		int w = this.principal.getWidth();
-		int h = this.principal.getHeight();
-
-		this.zoomed = new TabZoomed(vue).getContentPane();
-		this.kidneys = new TabROE(vue, w, h).getContentPane();
-		this.timedImage = new TabTimedImage(vue, principal.getHeight() / 4, 4, 5).getContentPane();
-		this.tabCort = new TabCort(vue, w, h).getContentPane();
-		this.tabUreter = new TabUreter(vue).getContentPane();
-		this.tabOther = new TabOther(vue).getContentPane();
-		this.tabPost = new TabPostMict(vue, w, h).getContentPane();
+		this.principal = new TabPrincipal(vue, capture, chartPanel, width, height).getContentPane();
+		this.zoomed = new TabZoomed(vue, width, height).getContentPane();
+		this.kidneys = new TabROE(vue, width, height).getContentPane();
+		this.timedImage = new TabTimedImage(vue, 4, 5, width, height).getContentPane();
+		this.tabCort = new TabCort(vue, width, height).getContentPane();
+		this.tabUreter = new TabUreter(vue, width, height).getContentPane();
+		this.tabOther = new TabOther(vue, width, height).getContentPane();
+		this.tabPost = new TabPostMict(vue, width, height).getContentPane();
 
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -71,7 +68,7 @@ public class FenResultats_Renal {
 		frame.getContentPane().add(tabbedPane);
 
 		// Display the window
-		frame.setPreferredSize(new Dimension(1000, 800));
+		frame.setPreferredSize(new Dimension(width, height));
 		frame.pack();
 		frame.setVisible(true);
 		frame.setResizable(true);

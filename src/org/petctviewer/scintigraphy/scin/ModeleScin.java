@@ -172,19 +172,6 @@ public abstract class ModeleScin {
 		XYSeriesCollection data = new XYSeriesCollection(series);
 		return DatasetUtils.findYValue(data, 0, x);
 	}
-	
-	/**
-	 * renvoie l'image de la serie en x
-	 * @param abscisses de la serie 
-	 * @param x abscisse
-	 * @return ordonnee
-	 */
-	public static Double getY(List<Double> points, Double x) {
-		XYSeries s = ModeleScinDyn.createSerie(points, "");
-		XYSeriesCollection data = new XYSeriesCollection(s);
-		return DatasetUtils.findYValue(data, 0, x);
-	}
-
 
 	/**
 	 * Renvoie le nombre de coups sur la roi presente dans l'image plus

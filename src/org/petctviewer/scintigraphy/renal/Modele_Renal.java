@@ -59,7 +59,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		// on ajuste toutes les valeurs pour les mettre en coup / sec
 		for (String k : this.getData().keySet()) {
 			List<Double> data = this.getData().get(k);
-			this.getData().put(k, ModeleScinDyn.adjustValues(data));
+			this.getData().put(k, this.adjustValues(data));
 		}
 
 		// on recupere la liste des donnees vasculaires
@@ -95,7 +95,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		}
 
 		// on calcule l'integrale de la courbe vasculaire
-		XYSeries serieVasc = ModeleScinDyn.createSerie(vasc, "");
+		XYSeries serieVasc = this.createSerie(vasc, "");
 		List<Double> vascIntegree = Modele_Renal.getIntegral(serieVasc, serieVasc.getMinX(), serieVasc.getMaxX());
 
 		// ajout des valeurs dans les donnees
@@ -200,7 +200,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	// plus pres de la courbe du rein
 	private List<Double> fitVasc(List<Double> vasc, List<Double> kidney) {
 
-		XYSeries bpi = ModeleScinDyn.createSerie(vasc, "");
+		XYSeries bpi = this.createSerie(vasc, "");
 		XYSeriesCollection datasetVasc = new XYSeriesCollection();
 		datasetVasc.addSeries(bpi);
 
@@ -214,7 +214,7 @@ public class Modele_Renal extends ModeleScinDyn {
 			seriesVasc.add(x, reg[0] + reg[1] * x + reg[2] * x * x + reg[3] * Math.pow(x, 3));
 		}
 
-		XYSeries seriesKid = ModeleScinDyn.createSerie(kidney, "Kidney");
+		XYSeries seriesKid = this.createSerie(kidney, "Kidney");
 
 		// l'intervalle est defini par l'utilisateur
 		Double startX = Math.min(this.adjusted[4], this.adjusted[5]);
@@ -242,7 +242,7 @@ public class Modele_Renal extends ModeleScinDyn {
 
 		// decalage pour que les courbes soient au meme niveau
 		Double milieu = (endX + startX) / 2;
-		Double offset = ModeleScin.getY(kidney, milieu) - ModeleScin.getY(fittedVasc, milieu);
+		Double offset = this.getY(kidney, milieu) - this.getY(fittedVasc, milieu);
 
 		// on ajoute le decalage sur tous les points
 		for (int i = 0; i < fittedVasc.size(); i++) {
@@ -279,7 +279,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	 */
 	public XYSeries getSerie(String key) {
 		List<Double> data = this.getData().get(key);
-		return ModeleScinDyn.createSerie(data, key);
+		return this.createSerie(data, key);
 	}
 
 	// renvoie l'aire sous la courbe entre les points startX et endX

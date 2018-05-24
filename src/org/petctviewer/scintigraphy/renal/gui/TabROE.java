@@ -33,7 +33,7 @@ public class TabROE extends FenResultatSidePanel {
 		this.vue = vue;
 
 		// on recupere le modele et les series
-		Modele_Renal modele = (Modele_Renal) vue.getFen_application().getControleur().getModele();
+		Modele_Renal modele = (Modele_Renal) vue.getFenApplication().getControleur().getModele();
 		List<XYSeries> series = modele.getSeries();
 
 		// recuperation des chart panel avec association
@@ -72,11 +72,13 @@ public class TabROE extends FenResultatSidePanel {
 		this.add(new JPanel(), BorderLayout.WEST);
 		this.add(p, BorderLayout.CENTER);
 
+		this.setPreferredSize(new Dimension(w, h));
+		
 		this.finishBuildingWindow(true);
 	}
 
 	private Component getPanelROE() {
-		Modele_Renal modele = (Modele_Renal) vue.getFen_application().getControleur().getModele();
+		Modele_Renal modele = (Modele_Renal) vue.getFenApplication().getControleur().getModele();
 
 		JLabel lbl_L = new JLabel("L");
 		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);

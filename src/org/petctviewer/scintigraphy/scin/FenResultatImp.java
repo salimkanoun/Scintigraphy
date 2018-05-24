@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.Box;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -22,21 +23,25 @@ public abstract class FenResultatImp extends FenResultatSidePanel implements Cha
 
 	private ImagePlus imp;
 	private ImageIcon icon;
-	private JLabel lbl;
+	private JLabel lbl_icon;
+	private VueScin vue;
+	private JLabel sliderLabel;
+	private JSlider slider;
 	
-	public FenResultatImp(String nomFen, VueScin vueScin, BufferedImage capture, String additionalInfo) {
-		super(nomFen, vueScin, capture, additionalInfo);
+	public FenResultatImp(String nomFen, VueScin vue, BufferedImage capture, String additionalInfo) {
+		super(nomFen, vue, capture, additionalInfo);
+		this.vue = vue;
 	}
 
 	@Override
 	public void finishBuildingWindow(boolean capture) {
 		if(this.imp != null) {
 			JPanel flow = new JPanel();
-			this.lbl = new JLabel();
+			this.lbl_icon = new JLabel();
 			BufferedImage img = this.imp.getBufferedImage();
 			this.icon = new ImageIcon(img);
-			lbl.setIcon(icon);
-			flow.add(lbl);
+			lbl_icon.setIcon(icon);
+			flow.add(lbl_icon);
 			
 			Box vertical = Box.createVerticalBox();
 			vertical.add(Box.createVerticalGlue());
@@ -47,6 +52,7 @@ public abstract class FenResultatImp extends FenResultatSidePanel implements Cha
 		}
 		
 		this.add(new JPanel(), BorderLayout.WEST);
+		
 		super.finishBuildingWindow(capture);
 	}
 	
@@ -70,10 +76,10 @@ public abstract class FenResultatImp extends FenResultatSidePanel implements Cha
 			
 			Box boxSlider = Box.createVerticalBox();
 			
-			JLabel sliderLabel = new JLabel("Contrast", SwingConstants.CENTER);
+			this.sliderLabel = new JLabel("Contrast", SwingConstants.CENTER);
 	        sliderLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 			
-			JSlider slider = new JSlider(SwingConstants.HORIZONTAL, min, max, 4);
+			this.slider = new JSlider(SwingConstants.HORIZONTAL, min, max, 4);
 			this.setContrast(slider.getValue());
 			
 			boxSlider.add(sliderLabel);
@@ -97,13 +103,22 @@ public abstract class FenResultatImp extends FenResultatSidePanel implements Cha
 				
 				@Override
 				public void run() {
-					lbl.setIcon(icon);
-					lbl.repaint();
+					lbl_icon.setIcon(icon);
+					lbl_icon.repaint();
 				}
 			});
 		} catch (@SuppressWarnings("unused") Exception e1) {
 			//vide
 		}
+	}
+	
+	@Override
+	public void setCaptureButton(JButton btn_capture, JLabel lbl_credits) {
+		// on ajoute le listener pour la capture
+		Component[] show = new Component[] {lbl_credits};
+		Component[] hide = new Component[] {btn_capture, this.slider, this.sliderLabel};
+		
+		this.vue.setCaptureButton(btn_capture, show, hide, this, this.vue.getFenApplication().getControleur().getModele(), "");
 	}
 
 }

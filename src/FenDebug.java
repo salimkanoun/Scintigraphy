@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,6 +10,7 @@ import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.PrefsWindow;
 import org.petctviewer.scintigraphy.cardiac.Vue_Cardiac;
+import org.petctviewer.scintigraphy.dmsa.Vue_Dmsa;
 import org.petctviewer.scintigraphy.dynamic.Vue_GeneralDyn;
 import org.petctviewer.scintigraphy.hepatic.dyn.Vue_HepaticDyn;
 import org.petctviewer.scintigraphy.hepatic.statique.Vue_Hepatic;
@@ -36,7 +38,7 @@ public class FenDebug extends JFrame{
 		
 		pnl_pref.add(btn_pref);
 		
-		JPanel p = new JPanel(new GridLayout(3,3));
+		JPanel p = new JPanel(new GridLayout(4,3));
 		
 		JButton btn_cardiac = new JButton("Cardiac");
 		btn_cardiac.addActionListener(new ActionListener() {			
@@ -97,6 +99,16 @@ public class FenDebug extends JFrame{
 				vue.run("");
 			}
 		});
+	
+		JButton btn_dmsa = new JButton("DMSA");
+		btn_dmsa.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				VueScin vue = new Vue_Dmsa();
+				vue.run("");
+			}
+		});
 		
 		p.add(btn_cardiac);
 		p.add(btn_plaquettes);
@@ -104,6 +116,7 @@ public class FenDebug extends JFrame{
 		p.add(btn_hepaticdyn);
 		p.add(btn_dyn);
 		p.add(btn_liver);
+		p.add(btn_dmsa);
 		
 		this.add(p, BorderLayout.CENTER);
 		this.add(pnl_pref, BorderLayout.NORTH);

@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.renal.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.List;
 
@@ -17,11 +18,11 @@ import org.petctviewer.scintigraphy.scin.VueScin;
 
 public class TabOther extends FenResultatSidePanel{
 
-	public TabOther(VueScin vue) {
-		super("Renal Scintigraphy", vue, null, "");
+	public TabOther(VueScin vue, int w, int h) {
+		super("Renal scintigraphy", vue, null, "");
 		
 		String[][] asso = new String[][] {{"Blood Pool"} , {"Bladder"}};
-		List<XYSeries> series = ((Modele_Renal) vue.getFen_application().getControleur().getModele()).getSeries();
+		List<XYSeries> series = ((Modele_Renal) vue.getFenApplication().getControleur().getModele()).getSeries();
 		ChartPanel[] cPanels = ModeleScin.associateSeries(asso, series);
 		
 		JPanel center = new JPanel(new GridLayout(1,1));
@@ -34,6 +35,8 @@ public class TabOther extends FenResultatSidePanel{
 		
 		this.add(center, BorderLayout.CENTER);
 		this.add(new JPanel(), BorderLayout.WEST);
+		
+		this.setPreferredSize(new Dimension(w, h));
 		
 		this.finishBuildingWindow(true);		
 	}

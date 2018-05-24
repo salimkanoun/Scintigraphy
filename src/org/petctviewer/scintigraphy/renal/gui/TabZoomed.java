@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.renal.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.List;
 
@@ -22,11 +23,10 @@ public class TabZoomed extends FenResultatSidePanel {
 
 	private static final long serialVersionUID = -2647720655737610538L;
 
-	public TabZoomed(VueScin vue) {
+	public TabZoomed(VueScin vue, int w, int h) {
 		super("Renal scintigraphy", vue, null, "");
-		JPanel grid = new JPanel(new GridLayout(2, 1));
-
-		Modele_Renal modele = ((Modele_Renal) vue.getFen_application().getControleur().getModele());
+		
+		Modele_Renal modele = ((Modele_Renal) vue.getFenApplication().getControleur().getModele());
 
 		XYSeries finalKL = modele.getSerie("Final KL");
 		XYSeries finalKR = modele.getSerie("Final KR");
@@ -48,6 +48,8 @@ public class TabZoomed extends FenResultatSidePanel {
 		chart.setTitle("First minute of nephrogram");
 
 		this.add(cp, BorderLayout.CENTER);
+		
+		this.setPreferredSize(new Dimension(w, h));
 
 		this.finishBuildingWindow(true);
 		this.setVisible(false);

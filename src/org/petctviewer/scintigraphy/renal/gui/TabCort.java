@@ -22,7 +22,7 @@ public class TabCort extends FenResultatSidePanel {
 	public TabCort(VueScin vue, int w, int h) {
 		super("Renal scintigraphy", vue, null, "");
 		
-		ModeleScinDyn modele = (ModeleScinDyn) vue.getFen_application().getControleur().getModele();
+		ModeleScinDyn modele = (ModeleScinDyn) vue.getFenApplication().getControleur().getModele();
 		
 		List<XYSeries> listSeries = modele.getSeries();
 		// recuperation des chart panel avec association
@@ -41,6 +41,8 @@ public class TabCort extends FenResultatSidePanel {
 
 		this.add(new JPanel(), BorderLayout.WEST);
 		this.add(grid, BorderLayout.CENTER);
+		
+		this.setPreferredSize(new Dimension(w, h));
 		
 		this.finishBuildingWindow(true);
 	}

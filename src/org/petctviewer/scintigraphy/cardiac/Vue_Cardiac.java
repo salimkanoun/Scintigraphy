@@ -1,10 +1,12 @@
 package org.petctviewer.scintigraphy.cardiac;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
+import ij.gui.Overlay;
 import ij.gui.Toolbar;
 import ij.plugin.Concatenator;
 import ij.plugin.MontageMaker;
@@ -54,17 +56,23 @@ public class Vue_Cardiac extends VueScin{
 			impStacked = mountedSorted[0];
 		}
 		
+		Overlay ov = VueScin.initOverlay(impStacked, 7);
+		VueScin.setOverlayDG(ov, impStacked, Color.YELLOW);
+		
 		this.setImp(impStacked);
 		
 		// Charge la LUT
 		VueScin.setCustomLut(this.getImp());
-
+		
 		// Initialisation du Canvas qui permet de mettre la pile d'images
 		// dans une fenetre c'est une pile d'images (plus d'une image) on cree une
 		// fenetre pour la pile d'images;
-		this.fen_application = new FenApplication_Cardiac(this.getImp(), this.getExamType());
+		this.setFenApplication(new FenApplication_Cardiac(this.getImp(), this.getExamType()));
+		
+		this.getImp().setOverlay(ov);
+		
 		Controleur_Cardiac ctrl = new Controleur_Cardiac(this);
-		this.fen_application.setControleur(ctrl);
+		this.getFenApplication().setControleur(ctrl);
 		
 		IJ.setTool(Toolbar.POLYGON);
 		

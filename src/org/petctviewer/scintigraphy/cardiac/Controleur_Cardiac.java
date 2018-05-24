@@ -41,7 +41,7 @@ public class Controleur_Cardiac extends ControleurScin {
 		this.setOrganes(organesAntPost.toArray(new String[0]));
 
 		// on lance le mode decontamination
-		((FenApplication_Cardiac) this.getVue().getFen_application()).startContaminationMode();
+		((FenApplication_Cardiac) this.getVue().getFenApplication()).startContaminationMode();
 	}
 
 	@Override
@@ -151,13 +151,13 @@ public class Controleur_Cardiac extends ControleurScin {
 
 			// on affiche les instructions
 			if (this.getIndexRoi() % 2 == 0) {
-				this.getVue().getFen_application().setInstructions("Delimit a new contamination");
-				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getVue().getFen_application();
+				this.getVue().getFenApplication().setInstructions("Delimit a new contamination");
+				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getVue().getFenApplication();
 				fac.getBtn_continue().setEnabled(true);
 				fac.getBtn_newCont().setLabel("Next");
 			} else {
-				this.getVue().getFen_application().setInstructions("Adjust contamination zone");
-				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getVue().getFen_application();
+				this.getVue().getFenApplication().setInstructions("Adjust contamination zone");
+				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getVue().getFenApplication();
 				fac.getBtn_continue().setEnabled(false);
 				fac.getBtn_newCont().setLabel("Save");
 			}
@@ -171,11 +171,11 @@ public class Controleur_Cardiac extends ControleurScin {
 			// on relance le mode decontamination, cette fois ci pour la deuxieme slice
 			this.finContSlice1 = true;
 			this.setSlice(2);
-			((FenApplication_Cardiac) this.getVue().getFen_application()).startContaminationMode();
+			((FenApplication_Cardiac) this.getVue().getFenApplication()).startContaminationMode();
 
 		} else { // on a trait� toutes les contaminations
 			this.finContSlice2 = true;
-			((FenApplication_Cardiac) this.getVue().getFen_application()).stopContaminationMode();
+			((FenApplication_Cardiac) this.getVue().getFenApplication()).stopContaminationMode();
 			String[] conts = new String[this.indexRoi];
 			for (int i = 0; i < conts.length; i++) {
 				conts[i] = "Cont";
@@ -209,9 +209,9 @@ public class Controleur_Cardiac extends ControleurScin {
 		// permet d'appeller les methodes correspondant au clic des deux nouveaux
 		// boutons
 		Button b = (Button) arg0.getSource();
-		if (b == ((FenApplication_Cardiac) this.getVue().getFen_application()).getBtn_newCont()) {
+		if (b == ((FenApplication_Cardiac) this.getVue().getFenApplication()).getBtn_newCont()) {
 			this.clicNewCont();
-		} else if (b == ((FenApplication_Cardiac) this.getVue().getFen_application()).getBtn_continue()) {
+		} else if (b == ((FenApplication_Cardiac) this.getVue().getFenApplication()).getBtn_continue()) {
 			this.clicEndCont();
 		}
 	}

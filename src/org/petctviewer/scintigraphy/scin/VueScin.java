@@ -13,7 +13,17 @@ import ij.process.LUT;
 import ij.util.DicomTools;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -21,12 +31,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
+
 import org.apache.commons.lang.StringUtils;
 
 public abstract class VueScin implements PlugIn {
 	private String examType;
 
-	protected FenApplication fen_application;
+	private FenApplication fen_application;
 
 	private ImagePlus imp;
 	private Boolean antPost = Boolean.valueOf(false);
@@ -45,7 +61,11 @@ public abstract class VueScin implements PlugIn {
 		selection.setModal(true);
 		selection.setVisible(true);
 		if (selection.getSelectedWindowsTitles().length > 0) {
-			ouvertureImage(selection.getSelectedWindowsTitles());
+			try {
+				ouvertureImage(selection.getSelectedWindowsTitles());
+			} catch (Exception e) {
+				System.err.println("The selected dicoms are not useable for this exam");
+			}
 		}
 	}
 
@@ -57,28 +77,28 @@ public abstract class VueScin implements PlugIn {
 	 *            titres des fenetres ouvertes utilisées
 	 * @return les imps, [0] correspond a l'ant, [1] a la post
 	 */
-	public ImagePlus[] splitAntPost(String[] titresFenetres) {
-		if (titresFenetres.length > 2) {
-			throw new IllegalArgumentException("Too much dicoms opened");
+	public static ImagePlus[] splitAntPost(ImagePlus[] imagePlus) {
+		if (imagePlus.length > 2) {
+			throw new IllegalArgumentException("Too much imp");
 		}
 
 		ImagePlus[] imps = new ImagePlus[2];
 
-		if (titresFenetres.length == 1) { // si il y a qu'un fenetre d'ouverte
-			ImagePlus imp = WindowManager.getImage(titresFenetres[0]);
+		if (imagePlus.length == 1) { // si il y a qu'un fenetre d'ouverte
+			ImagePlus imp = imagePlus[0];
 
 			if (VueScin.isMultiFrame(imp)) { // si l'image est multiframe
-				
+
 				if (!VueScin.isSameCameraMultiFrame(imp)) {
 					return VueScin.splitCameraMultiFrame(imp);
 				}
-				
+
 				if (VueScin.isAnterieur(imp)) {
 					imps[0] = imp;
 				} else {
 					imps[1] = imp;
 				}
-				
+
 			} else if (VueScin.isAnterieur(imp)) {
 				imps[0] = imp;
 			} else {
@@ -86,8 +106,7 @@ public abstract class VueScin implements PlugIn {
 			}
 
 		} else { // si il y a deux fenetres d'ouvertes
-			for (String s : titresFenetres) { // pour chaque fenetre
-				ImagePlus imp = WindowManager.getImage(s);
+			for (ImagePlus imp : imagePlus) { // pour chaque fenetre
 				if (VueScin.isAnterieur(imp)) { // si la vue est ant, on choisi cette image
 					imps[0] = (ImagePlus) imp.clone();
 				} else {
@@ -109,76 +128,6 @@ public abstract class VueScin implements PlugIn {
 	protected abstract void ouvertureImage(String[] titresFenetres);
 
 	/**
-	 * Affiche D et G en overlay sur l'image, R a gauche et L a droite
-	 * 
-	 * @param overlay
-	 *            : Overlay sur lequel ajouter D/G
-	 * @param imp
-	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
-	 */
-	public static void setOverlayDG(Overlay overlay, ImagePlus imp) {
-		overlay.clear();
-
-		// Get taille Image
-		int tailleImage = imp.getHeight();
-
-		// Position au mileu dans l'axe Y
-		double y = ((tailleImage) / 2);
-
-		// Cote droit
-		TextRoi right = new TextRoi(0, y, "R");
-
-		// Cote gauche
-		double xl = imp.getWidth() - (overlay.getLabelFont().getSize()); // sinon on sort de l'image
-		TextRoi left = new TextRoi(xl, y, "L");
-
-		// Set la police des text ROI
-		right.setCurrentFont(overlay.getLabelFont());
-		left.setCurrentFont(overlay.getLabelFont());
-
-		// Ajout de l'indication de la droite du patient
-		overlay.add(right);
-		overlay.add(left);
-	}
-
-	/**
-	 * Affiche D et G en overlay sur l'image, R a gauche et L a droite
-	 * 
-	 * @param overlay
-	 *            : Overlay sur lequel ajouter D/G
-	 * @param imp
-	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
-	 * @param color
-	 *            : Couleur de l'overlay
-	 */
-	public static void setOverlayDG(Overlay overlay, ImagePlus imp, Color color) {
-		overlay.clear();
-
-		// Get taille Image
-		int tailleImage = imp.getHeight();
-
-		// Position au mileu dans l'axe Y
-		double y = ((tailleImage) / 2);
-
-		// Cote droit
-		TextRoi right = new TextRoi(0, y, "R");
-		right.setStrokeColor(color);
-
-		// Cote gauche
-		double xl = imp.getWidth() - (overlay.getLabelFont().getSize()); // sinon on sort de l'image
-		TextRoi left = new TextRoi(xl, y, "L");
-		left.setStrokeColor(color);
-
-		// Set la police des text ROI
-		right.setCurrentFont(overlay.getLabelFont());
-		left.setCurrentFont(overlay.getLabelFont());
-
-		// Ajout de l'indication de la droite du patient
-		overlay.add(right);
-		overlay.add(left);
-	}
-
-	/**
 	 * Affiche D et G en overlay sur l'image, L a gauche et R a droite
 	 * 
 	 * @param overlay
@@ -187,28 +136,7 @@ public abstract class VueScin implements PlugIn {
 	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
 	 */
 	public static void setOverlayGD(Overlay overlay, ImagePlus imp) {
-		overlay.clear();
-
-		// Get taille Image
-		int tailleImage = imp.getHeight();
-
-		// Position au mileu dans l'axe Y
-		double y = ((tailleImage) / 2);
-
-		// Cote droit
-		TextRoi right = new TextRoi(0, y, "L");
-
-		// Cote gauche
-		double xl = imp.getWidth() - (overlay.getLabelFont().getSize()); // sinon on sort de l'image
-		TextRoi left = new TextRoi(xl, y, "R");
-
-		// Set la police des text ROI
-		right.setCurrentFont(overlay.getLabelFont());
-		left.setCurrentFont(overlay.getLabelFont());
-
-		// Ajout de l'indication de la droite du patient
-		overlay.add(right);
-		overlay.add(left);
+		setOverlaySides(overlay, imp, null, "L", "R", 0);
 	}
 
 	/**
@@ -222,8 +150,61 @@ public abstract class VueScin implements PlugIn {
 	 *            : Couleur de l'overlay
 	 */
 	public static void setOverlayGD(Overlay overlay, ImagePlus imp, Color color) {
-		overlay.clear();
+		setOverlaySides(overlay, imp, color, "L", "R", 0);
+	}
 
+	/**
+	 * Affiche D et G en overlay sur l'image, R a gauche et L a droite
+	 * 
+	 * @param overlay
+	 *            : Overlay sur lequel ajouter D/G
+	 * @param imp
+	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
+	 */
+	public static void setOverlayDG(Overlay overlay, ImagePlus imp) {
+		setOverlaySides(overlay, imp, null, "R", "L", 0);
+	}
+
+	/**
+	 * Affiche D et G en overlay sur l'image, R a gauche et L a droite
+	 * 
+	 * @param overlay
+	 *            : Overlay sur lequel ajouter D/G
+	 * @param imp
+	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
+	 * @param color
+	 *            : Couleur de l'overlay
+	 */
+	public static void setOverlayDG(Overlay overlay, ImagePlus imp, Color color) {
+		setOverlaySides(overlay, imp, color, "R", "L", 0);
+	}
+
+	public static void setOverlayTitle(String title, Overlay overlay, ImagePlus imp, Color color, int slice) {
+		int w = imp.getWidth();
+		int h = imp.getHeight();
+
+		AffineTransform affinetransform = new AffineTransform();
+		FontRenderContext frc = new FontRenderContext(affinetransform, true, true);
+
+		Rectangle2D bounds = overlay.getLabelFont().getStringBounds(title, frc);
+		double textHeight = bounds.getHeight();
+		double textWidth = bounds.getWidth();
+
+		double x = (w / 2) - (textWidth / 2);
+		TextRoi top = new TextRoi(x, 0, title);
+		top.setPosition(slice);
+		if (color != null) {
+			top.setStrokeColor(color);
+		}
+
+		// Set la police des text ROI
+		top.setCurrentFont(overlay.getLabelFont());
+
+		overlay.add(top);
+	}
+
+	public static void setOverlaySides(Overlay overlay, ImagePlus imp, Color color, String textL, String textR,
+			int slice) {
 		// Get taille Image
 		int tailleImage = imp.getHeight();
 
@@ -231,13 +212,18 @@ public abstract class VueScin implements PlugIn {
 		double y = ((tailleImage) / 2);
 
 		// Cote droit
-		TextRoi right = new TextRoi(0, y, "L");
-		right.setStrokeColor(color);
+		TextRoi right = new TextRoi(0, y, textL);
+		right.setPosition(slice);
 
 		// Cote gauche
 		double xl = imp.getWidth() - (overlay.getLabelFont().getSize()); // sinon on sort de l'image
-		TextRoi left = new TextRoi(xl, y, "R");
-		left.setStrokeColor(color);
+		TextRoi left = new TextRoi(xl, y, textR);
+		left.setPosition(slice);
+
+		if (color != null) {
+			right.setStrokeColor(color);
+			left.setStrokeColor(color);
+		}
 
 		// Set la police des text ROI
 		right.setCurrentFont(overlay.getLabelFont());
@@ -773,12 +759,17 @@ public abstract class VueScin implements PlugIn {
 	}
 
 	/**
-	 * Cree overlay et set la police SK : A Optimiser pour tenir compte de la taille
-	 * initiale de l'Image taille standard = 12
+	 * Cree overlay et set la police initiale de l'Image
 	 * 
 	 * @return Overlay
 	 */
 	public static Overlay initOverlay(ImagePlus imp, int taille) {
+		int taille2;
+		if (taille != -1) {
+			taille2 = taille;
+		} else {
+			taille2 = 12;
+		}
 		// On initialise l'overlay il ne peut y avoir qu'un Overlay
 		// pour tout le programme sur lequel on va ajouter/enlever les ROI au fur et a
 		// mesure
@@ -787,7 +778,7 @@ public abstract class VueScin implements PlugIn {
 		int width = imp.getWidth();
 		// On normalise Taille 12 a 256 pour avoir une taille stable pour toute image
 		Float facteurConversion = (float) ((width * 1.0) / 256);
-		Font font = new Font("Arial", Font.PLAIN, Math.round(taille * facteurConversion));
+		Font font = new Font("Arial", Font.PLAIN, Math.round(taille2 * facteurConversion));
 		overlay.setLabelFont(font, true);
 		overlay.drawLabels(true);
 		overlay.drawNames(true);
@@ -795,6 +786,15 @@ public abstract class VueScin implements PlugIn {
 		overlay.selectable(false);
 
 		return overlay;
+	}
+
+	/**
+	 * Cree overlay et set la police a la taille standard (12) initial de l'Image
+	 * 
+	 * @return Overlay
+	 */
+	public static Overlay initOverlay(ImagePlus imp) {
+		return initOverlay(imp, -1);
 	}
 
 	/**
@@ -811,12 +811,147 @@ public abstract class VueScin implements PlugIn {
 		}
 	}
 
+	public static Overlay duplicateOverlay(Overlay overlay) {
+		Overlay overlay2 = overlay.create();
+
+		for (int i = 0; overlay.get(i) != null; i++) {
+			overlay2.add(overlay.get(i));
+		}
+
+		overlay2.selectable(overlay.isSelectable());
+		overlay2.setLabelColor(overlay.getLabelColor());
+		overlay2.setLabelFont(overlay.getLabelFont(), overlay.scalableLabels());
+		overlay2.setIsCalibrationBar(overlay.isCalibrationBar());
+		return overlay2;
+	}
+
+	public void setCaptureButton(JButton btn_capture, JLabel lbl_credits, JFrame jf, ModeleScin modele,
+			String additionalInfo) {
+		setCaptureButton(btn_capture, new Component[] { lbl_credits }, new Component[] { btn_capture }, jf, modele,
+				additionalInfo);
+	}
+	
+	public static ImagePlus[] openImps(String[] titresFenetres) {
+		ImagePlus[] imps = new ImagePlus[titresFenetres.length];
+		for(int i = 0; i < titresFenetres.length; i++) {
+			ImagePlus imp = WindowManager.getImage(titresFenetres[i]);
+			imps[i] = imp;
+		}
+		return imps;
+	}
+	
+	public static void closeImps(String[] titresFenetres) {
+		for(int i = 0; i < titresFenetres.length; i++) {
+			WindowManager.getImage(titresFenetres[i]).close();
+		}
+	}
+
+	/**
+	 * Prepare le bouton capture de la fenetre resultat
+	 * 
+	 * @param btn_capture
+	 *            le bouton capture, masque lors de la capture
+	 * @param show
+	 *            le label de credits, affiche lors de la capture
+	 * @param jf
+	 *            la jframe
+	 * @param modele
+	 *            le modele
+	 * @param additionalInfo
+	 *            string a ajouter a la fin du nom de la capture si besoin
+	 */
+	public void setCaptureButton(JButton btn_capture, Component[] show, Component[] hide, JFrame jf, ModeleScin modele,
+			String additionalInfo) {
+
+		String examType = this.getExamType();
+
+		// generation du tag info
+		String info = ModeleScin.genererDicomTagsPartie1(this.getImp(), this.getExamType())
+				+ ModeleScin.genererDicomTagsPartie2(this.getImp());
+
+		// on ajoute le listener sur le bouton capture
+		btn_capture.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// on suprrime le bouton et on affiche le label
+				JButton b = (JButton) (e.getSource());
+
+				for (Component comp : hide) {
+					comp.setVisible(false);
+				}
+
+				for (Component comp : show) {
+					comp.setVisible(true);
+				}
+				
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						Container c = jf.getContentPane();
+
+						// Capture, nouvelle methode a utiliser sur le reste des programmes
+						BufferedImage capture = new BufferedImage(c.getWidth(), c.getHeight(), BufferedImage.TYPE_INT_ARGB);
+						c.paint(capture.getGraphics());
+						ImagePlus imp = new ImagePlus("capture", capture);
+
+						for (Component comp : hide) {
+							comp.setVisible(true);
+						}
+
+						for (Component comp : show) {
+							comp.setVisible(false);
+						}
+
+						jf.dispose();
+
+						// on passe a la capture les infos de la dicom
+						imp.setProperty("Info", info);
+						// on affiche la capture
+						imp.show();
+
+						// on change l'outil
+						IJ.setTool("hand");
+
+						// generation du csv
+						String resultats = modele.toString();
+
+						try {
+							ModeleScin.exportAll(resultats, getFenApplication().getControleur().getRoiManager(), examType,
+									imp, additionalInfo);
+
+							getFenApplication().getControleur().getRoiManager().close();
+
+							imp.killRoi();
+						} catch (Exception e1) {
+							e1.printStackTrace();
+						}
+
+						// Execution du plugin myDicom
+						try {
+							IJ.run("myDicom...");
+						} catch (Exception e1) {
+							e1.printStackTrace();
+						}
+
+						VueScin.this.fen_application.windowClosing(null);
+						System.gc();
+					}
+				});
+				
+				
+			}
+		});
+	}
+
 	public ImagePlus getImp() {
 		return this.imp;
 	}
 
 	public void setImp(ImagePlus imp) {
-		this.imp = imp;
+		this.imp = imp.duplicate();
 	}
 
 	public String getExamType() {
@@ -827,8 +962,12 @@ public abstract class VueScin implements PlugIn {
 		this.examType = examType;
 	}
 
-	public FenApplication getFen_application() {
+	public FenApplication getFenApplication() {
 		return this.fen_application;
+	}
+	
+	public void setFenApplication(FenApplication fen_application) {
+		this.fen_application = fen_application;
 	}
 
 	public boolean isAntPost() {

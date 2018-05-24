@@ -110,9 +110,6 @@ public class FenApplication extends StackWindow {
 		// On met au premier plan au centre de l'ecran
 		this.setLocationRelativeTo(null);
 		this.toFront();
-
-		// affiche l'overlay D/G
-		this.setOverlay();
 	}
 	
 	//TODO
@@ -128,14 +125,14 @@ public class FenApplication extends StackWindow {
 		return btns_instru;
 	}
 
-	// affiche l'overlay Droite/Gauche
-	private void setOverlay() {
-		// On initialise l'overlay avec les label DG
-		Overlay overlay = VueScin.initOverlay(this.imp, 7);
-		VueScin.setOverlayDG(overlay, imp);
-		// On met sur l'image
-		this.getImagePlus().setOverlay(overlay);
-	}
+//	// affiche l'overlay Droite/Gauche
+//	private void setOverlay() {
+//		// On initialise l'overlay avec les label DG
+//		Overlay overlay = VueScin.initOverlay(this.imp, 7);
+//		VueScin.setOverlayDG(overlay, imp);
+//		// On met sur l'image
+//		this.getImagePlus().setOverlay(overlay);
+//	}
 
 	//construit tous les boutons
 	private void initButtons() {

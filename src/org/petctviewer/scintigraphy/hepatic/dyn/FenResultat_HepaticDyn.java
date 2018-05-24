@@ -28,7 +28,7 @@ public class FenResultat_HepaticDyn extends JFrame {
 	private HashMap<String, String> resultats;
 
 	public FenResultat_HepaticDyn(Vue_HepaticDyn vue, BufferedImage capture) {
-		Modele_HepaticDyn modele = (Modele_HepaticDyn) vue.getFen_application().getControleur().getModele();
+		Modele_HepaticDyn modele = (Modele_HepaticDyn) vue.getFenApplication().getControleur().getModele();
 		this.resultats = modele.getResultsHashMap();
 		
 		this.setLayout(new BorderLayout());
@@ -56,7 +56,7 @@ public class FenResultat_HepaticDyn extends JFrame {
 		JButton btn_capture = new JButton("Capture");
 		JLabel lbl_credits = new JLabel("Provided by petctviewer.org");
 		lbl_credits.setVisible(false);
-		vue.getFen_application().getControleur().setCaptureButton(btn_capture, lbl_credits, this, modele, "");
+		vue.setCaptureButton(btn_capture, lbl_credits, this, modele, "");
 		
 		JPanel flow = new JPanel(new FlowLayout(FlowLayout.RIGHT));		
 		flow.add(lbl_credits);

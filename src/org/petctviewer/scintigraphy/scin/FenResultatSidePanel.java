@@ -28,7 +28,6 @@ public abstract class FenResultatSidePanel extends JFrame {
 	private static final long serialVersionUID = -5212479342782678916L;
 
 	protected Box side;
-	private JButton btn_capture;
 	private VueScin vue;
 
 	private String additionalInfo;
@@ -49,10 +48,10 @@ public abstract class FenResultatSidePanel extends JFrame {
 	 *            : informations supplementaires a ajouter au nom de fichier lors de
 	 *            la sauvegarde
 	 */
-	public FenResultatSidePanel(String nomFen, VueScin vueScin, BufferedImage capture, String additionalInfo) {
+	public FenResultatSidePanel(String nomFen, VueScin vue, BufferedImage capture, String additionalInfo) {
 
-		this.vue = vueScin;
-		this.modele = vueScin.getFen_application().getControleur().getModele();
+		this.vue = vue;
+		this.modele = vue.getFenApplication().getControleur().getModele();
 		this.additionalInfo = additionalInfo;
 
 		this.setLayout(new BorderLayout());
@@ -77,7 +76,7 @@ public abstract class FenResultatSidePanel extends JFrame {
 		this.side.add(flow);
 
 		// ajout des informations du patient
-		HashMap<String, String> infoPatient = ModeleScin.getPatientInfo(vueScin.getImp());
+		HashMap<String, String> infoPatient = ModeleScin.getPatientInfo(vue.getImp());
 		JPanel patientInfo = new JPanel(new GridLayout(3, 2, 10, 10));
 		patientInfo.add(new JLabel("Patient name: "));
 		patientInfo.add(new JLabel(infoPatient.get("name")));
@@ -109,18 +108,16 @@ public abstract class FenResultatSidePanel extends JFrame {
 
 		if (capture) {
 			// bouton capture
-			this.btn_capture = new JButton("Capture");
-			this.btn_capture.setAlignmentX(Component.CENTER_ALIGNMENT);
-			this.side.add(this.btn_capture);
+			JButton btn_capture = new JButton("Capture");
+			btn_capture.setAlignmentX(Component.CENTER_ALIGNMENT);
+			this.side.add(btn_capture);
 
 			// label de credits
-			JLabel credits = new JLabel("Provided by petctviewer.org");
-			credits.setVisible(false);
-			this.side.add(credits);
-
-			// on ajoute le listener pour la capture
-			this.vue.fen_application.getControleur().setCaptureButton(this.btn_capture, credits, this, this.modele,
-					this.additionalInfo);
+			JLabel lbl_credits = new JLabel("Provided by petctviewer.org");
+			lbl_credits.setVisible(false);
+			this.side.add(lbl_credits);
+			
+			this.setCaptureButton(btn_capture, lbl_credits);
 		}
 		
 		// on ajoute le sie panel a droite de la fenetre
@@ -207,6 +204,16 @@ public abstract class FenResultatSidePanel extends JFrame {
 		g.dispose();
 
 		return dimg;
+	}
+	
+	public void setCaptureButton(JButton btn_capture, JLabel lbl_credits) {
+		// on ajoute le listener pour la capture
+		this.vue.setCaptureButton(btn_capture, lbl_credits, this, this.modele,
+				this.additionalInfo);
+	}
+	
+	public VueScin getVue() {
+		return this.vue;
 	}
 
 }

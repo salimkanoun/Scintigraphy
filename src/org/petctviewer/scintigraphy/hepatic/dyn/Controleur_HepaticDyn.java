@@ -40,7 +40,7 @@ public class Controleur_HepaticDyn extends ControleurScin {
 		
 		this.getModele().calculerResultats();
 		new FenResultat_HepaticDyn(vue, capture);
-		this.getVue().getFen_application().dispose();
+		this.getVue().getFenApplication().dispose();
 	}
 
 	@Override

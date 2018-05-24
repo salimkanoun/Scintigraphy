@@ -16,6 +16,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import java.awt.Button;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,9 +26,14 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+
+import org.petctviewer.scintigraphy.hepatic.dyn.FenResultat_HepaticDyn;
+import org.petctviewer.scintigraphy.hepatic.dyn.Modele_HepaticDyn;
+
 import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
+import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.gui.Toolbar;
 import ij.plugin.frame.RoiManager;
@@ -47,12 +53,22 @@ public abstract class ControleurScin implements ActionListener {
 	private ImageListener ctrlImg;
 	private Color STROKECOLOR = Color.RED;
 
+	private Overlay overlay;
+
 	/**
 	 * classe abstraite permettant de controler les programmes de scintigraphie
 	 */
 	protected ControleurScin(VueScin vue) {
 		this.laVue = vue;
+
+		if (vue.getImp().getOverlay() == null) {
+			vue.getImp().setOverlay(VueScin.initOverlay(vue.getImp()));
+		}
+
+		this.overlay = VueScin.duplicateOverlay(vue.getImp().getOverlay());
+
 		this.roiManager = new RoiManager();
+
 		this.addImpListener();
 		this.indexRoi = 0;
 		Roi.setColor(this.STROKECOLOR);
@@ -64,90 +80,93 @@ public abstract class ControleurScin implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		//recuperation du bouton clique
+		// recuperation du bouton clique
 		Button b = (Button) arg0.getSource();
 
-		//on execute des action selon quel bouton a ete clique
-		if (b == this.laVue.getFen_application().getBtn_suivant()) {
+		// on execute des action selon quel bouton a ete clique
+		if (b == this.laVue.getFenApplication().getBtn_suivant()) {
 			this.clicSuivant();
 		}
 
-		else if (b == this.laVue.getFen_application().getBtn_precedent()) {
+		else if (b == this.laVue.getFenApplication().getBtn_precedent()) {
 			this.clicPrecedent();
 		}
 
-		else if (b == this.laVue.getFen_application().getBtn_drawROI())
+		else if (b == this.laVue.getFenApplication().getBtn_drawROI())
 
 		{
-			Button btn = this.laVue.getFen_application().getBtn_drawROI();
-			
-			//on change la couleur du bouton
+			Button btn = this.laVue.getFenApplication().getBtn_drawROI();
+
+			// on change la couleur du bouton
 			if (btn.getBackground() != Color.LIGHT_GRAY) {
 				btn.setBackground(Color.LIGHT_GRAY);
 			} else {
 				btn.setBackground(null);
 			}
-			
-			//on deselectionne le bouton contraste
-			this.laVue.getFen_application().getBtn_contrast().setBackground(null);
-			
+
+			// on deselectionne le bouton contraste
+			this.laVue.getFenApplication().getBtn_contrast().setBackground(null);
+
 			IJ.setTool(Toolbar.POLYGON);
 		}
 
-		else if (b == this.laVue.getFen_application().getBtn_contrast()) {
-			Button btn = this.laVue.getFen_application().getBtn_contrast();
-			
-			//on change la couleur du bouton
+		else if (b == this.laVue.getFenApplication().getBtn_contrast()) {
+			Button btn = this.laVue.getFenApplication().getBtn_contrast();
+
+			// on change la couleur du bouton
 			if (btn.getBackground() != Color.LIGHT_GRAY) {
 				btn.setBackground(Color.LIGHT_GRAY);
 			} else {
 				btn.setBackground(null);
 			}
-			
-			//on deselectionne le bouton draw roi
-			this.laVue.getFen_application().getBtn_drawROI().setBackground(null);
-			
+
+			// on deselectionne le bouton draw roi
+			this.laVue.getFenApplication().getBtn_drawROI().setBackground(null);
+
 			IJ.run("Window Level Tool");
 		}
 
-		else if (b == this.laVue.getFen_application().getBtn_quitter()) {
-			this.laVue.fen_application.close();
+		else if (b == this.laVue.getFenApplication().getBtn_quitter()) {
+			this.laVue.getFenApplication().close();
 			return;
 		}
 
-		else if (b == this.laVue.getFen_application().getBtn_showlog()) {
+		else if (b == this.laVue.getFenApplication().getBtn_showlog()) {
 
 			// Regarder methode de Ping pour changer le libelle des bouttons
 			if (!showLog) {
 				showLog = true;
-				this.laVue.getFen_application().getBtn_showlog().setLabel("Hide Log");
+				this.laVue.getFenApplication().getBtn_showlog().setLabel("Hide Log");
 				// laVue.lesBoutons.get("Show").setBackground(Color.LIGHT_GRAY);
 			}
 
 			else {
 				showLog = false;
-				this.laVue.getFen_application().getBtn_showlog().setLabel("Show Log");
+				this.laVue.getFenApplication().getBtn_showlog().setLabel("Show Log");
 				// laVue.lesBoutons.get("Show").setBackground(null);
 			}
 		}
 
-		//on apelle la methode notify clic pour recuperer le clic dans les classes heritees
+		// on apelle la methode notify clic pour recuperer le clic dans les classes
+		// heritees
 		this.notifyClic(arg0);
 	}
 
 	/**
-	 * Est appelee a la fin de action performed, son corps est vide </br><b> Cette
-	 * methode existe uniquement pour etre override </b>
-	 * @param arg0 ActionEvent
+	 * Est appelee a la fin de action performed, son corps est vide </br>
+	 * <b> Cette methode existe uniquement pour etre override </b>
+	 * 
+	 * @param arg0
+	 *            ActionEvent
 	 */
 	public void notifyClic(ActionEvent arg0) {
-		//A overrider si besoin
+		// A overrider si besoin
 	}
 
 	/**
 	 * Prepare la roi qui se situera a indexRoi
 	 */
-	public void preparerRoi(int lastRoi) {		
+	public void preparerRoi(int lastRoi) {
 		// on affiche la slice
 		int indexSlice = this.getSliceNumberByRoiIndex(this.indexRoi);
 		this.setSlice(indexSlice);
@@ -172,7 +191,7 @@ public abstract class ControleurScin implements ActionListener {
 	 *            : numero de l'organe a delimiter
 	 */
 	public void setInstructionsDelimit(int nOrgane) {
-		this.laVue.getFen_application().setInstructions("Delimit the " + this.getNomOrgane(nOrgane));
+		this.laVue.getFenApplication().setInstructions("Delimit the " + this.getNomOrgane(nOrgane));
 	}
 
 	/**
@@ -182,7 +201,7 @@ public abstract class ControleurScin implements ActionListener {
 	 *            : numero de l'organe a ajuster
 	 */
 	public void setInstructionsAdjust(int nOrgane) {
-		this.laVue.getFen_application().setInstructions("Adjust the " + this.getNomOrgane(nOrgane));
+		this.laVue.getFenApplication().setInstructions("Adjust the " + this.getNomOrgane(nOrgane));
 	}
 
 	/**
@@ -193,25 +212,27 @@ public abstract class ControleurScin implements ActionListener {
 	 *            : numero de la slice a afficher
 	 */
 	public void setSlice(int indexSlice) {
-		//vide l'overlay et tue la roi
-		this.clearOverlay();
-		this.getVue().getFen_application().getImagePlus().killRoi();
-
-		//change la slice courante
+		// ecrase l'overlay et tue la roi
+		ImagePlus imp = this.getVue().getImp();
+		
+		imp.getOverlay().clear();
+		imp.setOverlay(VueScin.duplicateOverlay(this.overlay));
+		imp.killRoi();
+		
+		// change la slice courante
 		this.laVue.getImp().setSlice(indexSlice);
 
-		//ajout des roi dans l'overlay
+		// ajout des roi dans l'overlay
 		for (int i = 0; i < this.roiManager.getCount(); i++) {
 			Roi roi = this.roiManager.getRoi(i);
-			///si la roi se trouve sur la sllice courante ou sur toutes les slices
+			// si la roi se trouve sur la slice courante ou sur toutes les slices
 			if (roi.getZPosition() == indexSlice || roi.getZPosition() == 0) {
-				
 				// si c'est la roi courante on la set dans l'imp
 				if (i != this.indexRoi || this.isOver()) {
-					this.laVue.getImp().getOverlay().add(roi);
+					imp.getOverlay().add(roi);
 				} else {
-					this.laVue.getImp().setRoi(roi);
-					this.laVue.getImp().getRoi().setStrokeColor(this.STROKECOLOR);
+					imp.setRoi(roi);
+					imp.getRoi().setStrokeColor(this.STROKECOLOR);
 				}
 			}
 		}
@@ -220,16 +241,16 @@ public abstract class ControleurScin implements ActionListener {
 	/**
 	 * est appelle lors du clic sur le bouton "Previous"
 	 */
-	public void clicPrecedent() {		
+	public void clicPrecedent() {
 		// sauvegarde du ROI courant
 		this.saveCurrentRoi(this.getNomOrgane(this.indexRoi), this.indexRoi);
 
-		//on decrement indexRoi
+		// on decrement indexRoi
 		if (this.indexRoi > 0) {
 			this.indexRoi--;
 		} else {
 			// si c'est le dernier roi, on desactive le bouton
-			this.getVue().getFen_application().getBtn_precedent().setEnabled(false);
+			this.getVue().getFenApplication().getBtn_precedent().setEnabled(false);
 		}
 
 		this.preparerRoi(this.indexRoi + 1);
@@ -245,13 +266,13 @@ public abstract class ControleurScin implements ActionListener {
 		// si la sauvegarde est reussie
 		if (saved) {
 			// on active le bouton precedent
-			this.getVue().getFen_application().getBtn_precedent().setEnabled(true);
+			this.getVue().getFenApplication().getBtn_precedent().setEnabled(true);
 
 			// on active la fin si c'est necessaire
 			if (this.isOver()) {
 				this.setSlice(this.getVue().getImp().getCurrentSlice());
 
-				//thread de capture
+				// thread de capture
 				Thread captureThread = new Thread(new Runnable() {
 					@Override
 					public void run() {
@@ -276,7 +297,8 @@ public abstract class ControleurScin implements ActionListener {
 	/**
 	 * Renvoie le nombre de roi avec le meme nom ayant deja ete enregistrees
 	 * 
-	 * @param nomRoi : nom de la roi
+	 * @param nomRoi
+	 *            : nom de la roi
 	 * 
 	 * @return nombre de roi avec le meme nom
 	 */
@@ -329,13 +351,13 @@ public abstract class ControleurScin implements ActionListener {
 	 * Sauvegarde la roi dans le roi manager et dans le modele
 	 * 
 	 * @param nomRoi
-	 *           : nom de la roi a sauvegarder
+	 *            : nom de la roi a sauvegarder
 	 * @return true si la sauvegarde est reussie, false si elle ne l'est pas
 	 */
 	public boolean saveCurrentRoi(String nomRoi, int indexRoi) {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
-			
-			//on change la couleur pour l'overlay
+
+			// on change la couleur pour l'overlay
 			this.getVue().getImp().getRoi().setStrokeColor(Color.YELLOW);
 
 			// on enregistre la ROI dans le modele
@@ -348,36 +370,28 @@ public abstract class ControleurScin implements ActionListener {
 			} else { // Si il existe on l'ecrase
 				this.roiManager.setRoi(this.laVue.getImp().getRoi(), indexRoi);
 				// on supprime le roi nouvellement ajoute de la vue
-				this.laVue.getFen_application().getImagePlus().killRoi();
+				this.laVue.getFenApplication().getImagePlus().killRoi();
 			}
 
-			//precise la postion en z
+			// precise la postion en z
 			this.roiManager.getRoi(indexRoi).setPosition(this.getSliceNumberByRoiIndex(indexRoi));
-			
-			//changement de nom
+
+			// changement de nom
 			this.roiManager.rename(indexRoi, nomRoi);
 
 			return true;
 		}
-		
-		if(this.getOrganRoi(indexRoi) == null) {
+
+		if (this.getOrganRoi(indexRoi) == null) {
 			System.err.println("Roi lost");
-		}else {
-			//restore la roi organe si c'est possible
+		} else {
+			// restore la roi organe si c'est possible
 			System.err.println("Roi lost, restoring organ roi");
 			this.getVue().getImp().setRoi(this.getOrganRoi(indexRoi));
 		}
-		
+
 		return false;
 
-	}
-
-	/**
-	 * Vide l'overlay et ajoute le lettres G et D
-	 */
-	public void clearOverlay() {
-		this.laVue.getImp().getOverlay().clear();
-		VueScin.setOverlayDG(this.laVue.getImp().getOverlay(), this.laVue.getFen_application().getImagePlus(), Color.YELLOW);
 	}
 
 	/**
@@ -396,112 +410,32 @@ public abstract class ControleurScin implements ActionListener {
 	 * @return nouveau nom
 	 */
 	public String addTag(String nomOrgane) {
-		
 		String nom = nomOrgane;
-		
-		//on ajoute au nom P ou A pour Post ou Ant
+
+		// on ajoute au nom P ou A pour Post ou Ant
 		if (this.isPost()) {
 			nom += " P";
 		} else {
 			nom += " A";
 		}
-
-		//on ajoute un numero pour l'identifier
-		String count = this.getSameNameRoiCount(nomOrgane);
+		
+		// on ajoute un numero pour l'identifier
+		String count = this.getSameNameRoiCount(nom);
 		nom += count;
 
 		// on ajoute le nom de la roi a la liste
 		this.nomRois.add(nom);
-		
+
 		return nom;
 	}
 
 	/**
-	 * Prepare le bouton capture de la fenetre resultat
-	 * @param btn_capture le bouton capture, masque lors de la capture
-	 * @param lbl_credits le label de credits, affiche lors de la capture
-	 * @param jf la jframe
-	 * @param modele le modele
-	 * @param additionalInfo string a ajouter a la fin du nom de la capture si besoin
-	 */
-	public void setCaptureButton(JButton btn_capture, JLabel lbl_credits, JFrame jf, ModeleScin modele,
-			String additionalInfo) {
-
-		VueScin vue = ControleurScin.this.laVue;
-		String examType = ControleurScin.this.laVue.getExamType();
-
-		//generation du tag info
-		String info = ModeleScin.genererDicomTagsPartie1(vue.getImp(), vue.getExamType())
-				+ ModeleScin.genererDicomTagsPartie2(vue.getImp());
-
-		//on ajoute le listener sur le bouton capture
-		btn_capture.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				//on suprrime le bouton et on affiche le label
-				JButton b = (JButton) (e.getSource());
-				b.getParent().remove(b);
-				lbl_credits.setVisible(true);
-
-				jf.pack();
-
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e2) {
-					e2.printStackTrace();
-				}
-
-				Container c = jf.getContentPane();
-
-				// Capture, nouvelle methode a utiliser sur le reste des programmes
-				BufferedImage capture = new BufferedImage(c.getWidth(), c.getHeight(), BufferedImage.TYPE_INT_ARGB);
-				c.paint(capture.getGraphics());
-				ImagePlus imp = new ImagePlus("capture", capture);
-
-				jf.dispose();
-
-				//on passe a la capture les infos de la dicom
-				imp.setProperty("Info", info);
-				//on affiche la capture
-				imp.show();
-				
-				//on change l'outil
-				IJ.setTool("hand");
-
-				//generation du csv
-				String resultats = modele.toString();
-
-				try {
-					ModeleScin.exportAll(resultats, vue.getFen_application().getControleur().getRoiManager(), examType,
-							imp, additionalInfo);
-
-					vue.getFen_application().getControleur().getRoiManager().close();
-
-					imp.killRoi();
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-
-				//Execution du plugin myDicom
-				try {
-					IJ.run("myDicom...");
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-
-				vue.fen_application.windowClosing(null);
-				System.gc();
-			}
-		});
-	}
-
-	/**
 	 * Renvoie la roi de l'image plus
+	 * 
 	 * @return roi en cours d'édition de l'image
 	 */
 	public Roi getSelectedRoi() {
-		Roi roi = this.laVue.getFen_application().getImagePlus().getRoi();
+		Roi roi = this.laVue.getFenApplication().getImagePlus().getRoi();
 		return roi;
 	}
 

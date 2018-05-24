@@ -68,8 +68,6 @@ public class Controleur_Renal extends ControleurScin {
 		// on bloque le modele pour ne pas enregistrer les valeurs de la projection
 		modele.lock();
 
-		VueScin.setOverlayGD(this.getVue().getImp().getOverlay(), this.getVue().getImp(), Color.YELLOW);
-		
 		this.setModele(modele);
 	}
 
@@ -77,6 +75,7 @@ public class Controleur_Renal extends ControleurScin {
 	public void setSlice(int indexSlice) {
 		super.setSlice(indexSlice);
 
+		//refactoriser pour eviter les copier colles
 		this.hideLabel("R. bkg", Color.GRAY);
 		this.hideLabel("L. bkg", Color.GRAY);
 		this.hideLabel("R. Cortical", Color.YELLOW);
@@ -99,7 +98,7 @@ public class Controleur_Renal extends ControleurScin {
 
 		// on recupere la vue, le modele et l'imp
 		VueScinDyn vue = (VueScinDyn) this.getVue();
-		Modele_Renal modele = (Modele_Renal) vue.getFen_application().getControleur().getModele();
+		Modele_Renal modele = (Modele_Renal) vue.getFenApplication().getControleur().getModele();
 		
 		//on passe l'image post dans la vue
 		ImagePlus imp = vue.getImpPost();
@@ -218,12 +217,6 @@ public class Controleur_Renal extends ControleurScin {
 		}
 
 		return bkg;
-	}
-
-	@Override
-	public void clearOverlay() {
-		this.getVue().getImp().getOverlay().clear();
-		VueScin.setOverlayGD(this.getVue().getImp().getOverlay(), this.getVue().getFen_application().getImagePlus(), Color.YELLOW);
 	}
 
 	@Override

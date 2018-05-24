@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.renal.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -21,29 +22,31 @@ import ij.ImagePlus;
 import ij.WindowManager;
 import ij.process.ImageProcessor;
 
-public class TabPostMict extends FenResultatImp implements ActionListener{
+public class TabPostMict extends FenResultatImp implements ActionListener {
 
 	private static final long serialVersionUID = 8125367912250906052L;
 
 	private int width, height;
-	
-	public TabPostMict(VueScin vueScin, int widthTab, int heightTab) {
-		super("Renal Scintigraphy", vueScin, null, "");
-		
+
+	public TabPostMict(VueScin vueScin, int w, int h) {
+		super("Renal scintigraphy", vueScin, null, "");
+
 		this.pack();
-		this.width = (int) (widthTab - this.getSide().getSize().getWidth());
-		this.height = heightTab;
-		
+		this.width = (int) (w - this.getSide().getSize().getWidth());
+		this.height = h;
+
 		JButton btn_addImp = new JButton("Choose post-micturition dicom");
 		btn_addImp.addActionListener(this);
-		
+
 		Box box = Box.createHorizontalBox();
 		box.add(Box.createHorizontalGlue());
 		box.add(btn_addImp);
 		box.add(Box.createHorizontalGlue());
-		
+
 		this.add(box, BorderLayout.CENTER);
-		
+
+		this.setPreferredSize(new Dimension(w, h));
+
 		this.finishBuildingWindow(false);
 	}
 
@@ -52,25 +55,35 @@ public class TabPostMict extends FenResultatImp implements ActionListener{
 		FenSelectionDicom fs = new FenSelectionDicom("post-micturition");
 		fs.setModal(true);
 		fs.setVisible(true);
-		
+
 		String[] nomFens = fs.getSelectedWindowsTitles();
-		
-		if(nomFens != null) {
-			if(nomFens.length > 1) {
-				//on previent l'utilisateur
-				JOptionPane.showConfirmDialog(this, "WARNING too many dicom selected", "Please select only one dicom", JOptionPane.WARNING_MESSAGE, JOptionPane.OK_OPTION);
-			}else {
-				ImagePlus imp = WindowManager.getImage(nomFens[0]).duplicate();
-				this.setImp(imp);
-				
-				ImageProcessor impc = imp.getProcessor();
-				
+
+		if (nomFens != null) {
+			if (nomFens.length > 2) {
+				// on previent l'utilisateur
+				JOptionPane.showConfirmDialog(this, "WARNING too many dicom selected", "Please select only one dicom",
+						JOptionPane.WARNING_MESSAGE, JOptionPane.OK_OPTION);
+			} else {
+
+				ImagePlus[] images = new ImagePlus[nomFens.length];
+				for (int i = 0; i < nomFens.length; i++) {
+					images[i] = WindowManager.getImage(nomFens[i]);
+				}
+				ImagePlus post = VueScin.splitAntPost(images)[1];
+
+				this.setImp(post);
+
+				ImageProcessor impc = post.getProcessor();
+
 				int h = this.height;
-				int w = (int) (impc.getWidth() * (this.height/(impc.getHeight() * 1.0)));
+				int w = (int) (impc.getWidth() * (this.height / (impc.getHeight() * 1.0)));
 				impc.setInterpolationMethod(ImageProcessor.BICUBIC);
-				imp.setProcessor(impc.resize(w, h));
+				post.setProcessor(impc.resize(w, h));
+
+				for (ImagePlus imp : images) {
+					imp.close();
+				}
 				
-				imp.close();
 				JButton b = (JButton) arg0.getSource();
 				b.setVisible(false);
 				this.finishBuildingWindow(true);

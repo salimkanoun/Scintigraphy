@@ -21,6 +21,7 @@ import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.VueScinDyn;
 
 import ij.ImagePlus;
 import ij.plugin.ZProjector;
@@ -42,24 +43,24 @@ public class TabPrincipal extends FenResultatSidePanel {
 	 * @param chartPanel
 	 *            chartpanel avec l'overlay d'ajustation
 	 */
-	public TabPrincipal(VueScin vueScin, BufferedImage capture, ChartPanel chartPanel) {
-		super("Renal scintigraphy", vueScin, capture, "");
+	public TabPrincipal(VueScinDyn vue, BufferedImage capture, ChartPanel chartPanel, int w, int h) {
+		super("Renal scintigraphy", vue, capture, "");
 		
-		Double[] adjusted = ((Modele_Renal) vueScin.getFen_application().getControleur().getModele()).getAdjustedValues();
+		Double[] adjusted = ((Modele_Renal) vue.getFenApplication().getControleur().getModele()).getAdjustedValues();
 		double debut = Math.min(adjusted[4], adjusted[5]);
 		double fin = Math.max(adjusted[4], adjusted[5]);
+				
+		int slice1 = ModeleScinDyn.getSliceIndexByTime(debut * 60 * 1000, vue.getFrameDurations());
+		int slice2 = ModeleScinDyn.getSliceIndexByTime(fin * 60 * 1000, vue.getFrameDurations());
 		
-		int slice1 = ModeleScinDyn.getSliceIndexByTime(debut * 60 * 1000);
-		int slice2 = ModeleScinDyn.getSliceIndexByTime(fin * 60 * 1000);
-		
-		ImagePlus proj = ZProjector.run(vueScin.getImp(), "sum", slice1, slice2);
+		ImagePlus proj = ZProjector.run(vue.getImp(), "sum", slice1, slice2);
 		proj.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
 
 		BufferedImage imgProj = proj.getBufferedImage();
 		
 		imgProj = resizeImage(imgProj, capture.getWidth(), capture.getHeight());
 		
-		this.modele = (Modele_Renal) vueScin.getFen_application().getControleur().getModele();
+		this.modele = (Modele_Renal) vue.getFenApplication().getControleur().getModele();
 		
 		JPanel grid = new JPanel(new GridLayout(2, 1));
 
@@ -72,10 +73,6 @@ public class TabPrincipal extends FenResultatSidePanel {
 
 		lbl_proj.setIcon(new ImageIcon(imgProj));
 		lbl_proj.setHorizontalAlignment(SwingConstants.CENTER);
-		
-		// largeur et hauteur des graphiques
-		int w = capture.getWidth() * 3;
-		int h = capture.getHeight() * 2;
 
 		// creation du panel du haut
 		JPanel panel_top = new JPanel(new GridLayout(1, 2));
@@ -100,6 +97,8 @@ public class TabPrincipal extends FenResultatSidePanel {
 		// ajout de la grille a la fenetre
 		this.add(new JPanel(), BorderLayout.WEST);
 		this.add(grid, BorderLayout.CENTER);
+		
+		this.setPreferredSize(new Dimension(w, h));
 
 		this.finishBuildingWindow(true);
 		this.setVisible(false);

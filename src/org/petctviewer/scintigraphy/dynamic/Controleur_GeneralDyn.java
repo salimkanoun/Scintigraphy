@@ -26,7 +26,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		this.setModele(new Modele_GeneralDyn(vue.getFrameDurations()));
 		this.over = false;
 
-		this.getVue().getFen_application().getField_instructions().addKeyListener(new KeyListener() {
+		this.getVue().getFenApplication().getField_instructions().addKeyListener(new KeyListener() {
 
 			@Override
 			public void keyTyped(KeyEvent arg0) {
@@ -55,13 +55,13 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		} else {
 			s = "roi" + this.indexRoi;
 		}
-		this.getVue().getFen_application().getField_instructions().setText(s);
+		this.getVue().getFenApplication().getField_instructions().setText(s);
 	}
 
 	@Override
 	public void notifyClic(ActionEvent arg0) {
 		Button b = (Button) arg0.getSource();
-		FenApplication_GeneralDyn fen = (FenApplication_GeneralDyn) this.getVue().getFen_application();
+		FenApplication_GeneralDyn fen = (FenApplication_GeneralDyn) this.getVue().getFenApplication();
 
 		if (b == fen.getBtn_finish()) {
 			this.clicSuivant();
@@ -98,7 +98,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 
 		FenGroup_GeneralDyn fenGroup = new FenGroup_GeneralDyn(roiNames);
 		fenGroup.setModal(true);
-		fenGroup.setLocationRelativeTo(this.getVue().getFen_application());
+		fenGroup.setLocationRelativeTo(this.getVue().getFenApplication());
 		fenGroup.setVisible(true);
 		String[][] asso = fenGroup.getAssociation();
 
@@ -116,9 +116,9 @@ public class Controleur_GeneralDyn extends ControleurScin {
 			imp2.setProperty("Info", this.getVue().getImp().getInfoProperty());
 
 			vue.setImp(imp2);
-			vue.getFen_application().setImage(imp2);
-			vue.getFen_application().adaptWindow(256);
-			vue.getFen_application().toFront();
+			vue.getFenApplication().setImage(imp2);
+			vue.getFenApplication().adaptWindow(256);
+			vue.getFenApplication().toFront();
 
 			Thread th = new Thread(new Runnable() {
 				@Override
@@ -152,10 +152,10 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		this.over = false;
 		this.addImpListener();
 		
-		vue.getFen_application().setImage(this.impProjetee);
+		vue.getFenApplication().setImage(this.impProjetee);
 		vue.setImp(this.impProjetee);
 		
-		vue.getFen_application().adaptWindow(256);
+		vue.getFenApplication().adaptWindow(256);
 	}
 
 	private ModeleScinDyn saveValues(ImagePlus imp) {
@@ -182,7 +182,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	@Override
 	public String getNomOrgane(int index) {
 		if (!isOver()) {
-			return this.getVue().getFen_application().getField_instructions().getText();
+			return this.getVue().getFenApplication().getField_instructions().getText();
 		}
 		return this.roiManager.getRoi(index % this.nbOrganes).getName();
 	}

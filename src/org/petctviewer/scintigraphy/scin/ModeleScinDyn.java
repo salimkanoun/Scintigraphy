@@ -3,16 +3,19 @@ package org.petctviewer.scintigraphy.scin;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.jfree.data.general.DatasetUtils;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import ij.ImagePlus;
 
 public abstract class ModeleScinDyn extends ModeleScin {
 
 	private HashMap<String, List<Double>> data;
-	public static int[] FRAMEDURATION;
+	private int[] frameduration;
 
 	private boolean lock = false;
 
@@ -22,7 +25,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	 */
 	public ModeleScinDyn(int[] frameDuration) {
 		this.data = new HashMap<>();
-		ModeleScinDyn.FRAMEDURATION = frameDuration;
+		this.frameduration = frameDuration;
 	}
 
 	public int getNbRoi() {
@@ -90,8 +93,8 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	 *            nom de la serie
 	 * @return la serie
 	 */
-	public static XYSeries createSerie(List<Double> l, String nom) {
-		if(l.size() != FRAMEDURATION.length) {
+	public XYSeries createSerie(List<Double> l, String nom) {
+		if(l.size() != frameduration.length) {
 			throw new IllegalArgumentException("List size does not match duration time");
 		}
 		
@@ -100,7 +103,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 		Double dureePriseOld = 0.0;
 		for (int i = 0; i < l.size(); i++) {
 			// en secondes
-			Double dureePrise = FRAMEDURATION[i] / 60000.0;
+			Double dureePrise = frameduration[i] / 60000.0;
 			points.add(dureePriseOld + dureePrise, l.get(i));
 			dureePriseOld += dureePrise;
 		}
@@ -126,6 +129,19 @@ public abstract class ModeleScinDyn extends ModeleScin {
 		}
 		return null;
 	}
+	
+	/**
+	 * renvoie l'image de la serie en x
+	 * @param abscisses de la serie 
+	 * @param x abscisse
+	 * @return ordonnee
+	 */
+	public Double getY(List<Double> points, Double x) {
+		XYSeries s = this.createSerie(points, "");
+		XYSeriesCollection data = new XYSeriesCollection(s);
+		return DatasetUtils.findYValue(data, 0, x);
+	}
+
 
 	/**
 	 * renvoie la valeur de 'abscisse correspondant a l'ordonnee maximale de la serie
@@ -168,11 +184,11 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	 * @param values
 	 * @return
 	 */
-	public static List<Double> adjustValues(List<Double> values) {
+	public List<Double> adjustValues(List<Double> values) {
 		List<Double> valuesAdjusted = new ArrayList<>();
 
 		for (int i = 0; i < values.size(); i++) {
-			Double dureePrise = FRAMEDURATION[i] / 60000.0;
+			Double dureePrise = frameduration[i] / 60000.0;
 			valuesAdjusted.add(values.get(i) / (dureePrise * 60));
 		}
 
@@ -184,14 +200,14 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	 * @param debut
 	 * @return numero de la slice
 	 */
-	public static int getSliceIndexByTime(double debut) {
+	public static int getSliceIndexByTime(double time, int[] frameduration) {
 		
 		int summed = 0;
-		for (int i = 0; i < FRAMEDURATION.length; i++) {
-			if(debut <= summed) {
+		for (int i = 0; i < frameduration.length; i++) {
+			if(time <= summed) {
 				return i;
 			}
-			summed += FRAMEDURATION[i];
+			summed += frameduration[i];
 		}
 		
 		return 0;
@@ -217,10 +233,6 @@ public abstract class ModeleScinDyn extends ModeleScin {
 
 	public List<Double> getData(String key) {
 		return this.data.get(key);
-	}
-
-	public int[] getFrameDuration() {
-		return FRAMEDURATION;
 	}
 
 	public void lock() {

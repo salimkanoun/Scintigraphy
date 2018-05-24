@@ -18,7 +18,7 @@ public class FenResultat_Hepatic extends FenResultatSidePanel {
 
 	public FenResultat_Hepatic(VueScin vueScin, BufferedImage capture) {
 		super(vueScin.getExamType(), vueScin, capture, "");
-		this.resultats = vueScin.getFen_application().getControleur().getModele().getResultsHashMap();
+		this.resultats = vueScin.getFenApplication().getControleur().getModele().getResultsHashMap();
 		this.finishBuildingWindow(true);
 		this.setVisible(true);
 	}

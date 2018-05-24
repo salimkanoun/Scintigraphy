@@ -47,7 +47,7 @@ public class Controleur_Hepatic extends ControleurScin {
 				}
 				BufferedImage capture = ModeleScin.captureImage(getVue().getImp(), 400, 400).getBufferedImage();
 				new FenResultat_Hepatic(getVue(), capture);
-				getVue().getFen_application().dispose();
+				getVue().getFenApplication().dispose();
 			}
 		});
 		captureThread.start();
