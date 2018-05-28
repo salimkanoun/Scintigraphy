@@ -2,9 +2,9 @@ package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.awt.Color;
 
-import org.petctviewer.scintigraphy.scin.FenApplication;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.IJ;
 import ij.gui.Overlay;

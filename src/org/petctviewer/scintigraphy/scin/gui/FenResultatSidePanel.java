@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin;
+package org.petctviewer.scintigraphy.scin.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -16,6 +16,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+
+import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.VueScin;
 
 import ij.ImagePlus;
 import ij.plugin.Concatenator;

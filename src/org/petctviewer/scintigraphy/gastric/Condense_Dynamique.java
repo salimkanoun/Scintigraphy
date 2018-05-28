@@ -17,9 +17,9 @@ package org.petctviewer.scintigraphy.gastric;
 import java.awt.*;
 import java.util.ArrayList;
 
-import org.petctviewer.scintigraphy.scin.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 
 import ij.*;
 import ij.gui.*;

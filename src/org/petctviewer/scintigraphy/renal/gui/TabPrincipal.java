@@ -18,10 +18,10 @@ import javax.swing.SwingConstants;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
-import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
+import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 import ij.ImagePlus;
 import ij.plugin.ZProjector;
@@ -45,30 +45,30 @@ public class TabPrincipal extends FenResultatSidePanel {
 	 */
 	public TabPrincipal(VueScinDyn vue, BufferedImage capture, ChartPanel chartPanel, int w, int h) {
 		super("Renal scintigraphy", vue, capture, "");
-		
+
 		Double[] adjusted = ((Modele_Renal) vue.getFenApplication().getControleur().getModele()).getAdjustedValues();
 		double debut = Math.min(adjusted[4], adjusted[5]);
 		double fin = Math.max(adjusted[4], adjusted[5]);
-				
+
 		int slice1 = ModeleScinDyn.getSliceIndexByTime(debut * 60 * 1000, vue.getFrameDurations());
 		int slice2 = ModeleScinDyn.getSliceIndexByTime(fin * 60 * 1000, vue.getFrameDurations());
-		
+
 		ImagePlus proj = ZProjector.run(vue.getImp(), "sum", slice1, slice2);
 		proj.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
 
 		BufferedImage imgProj = proj.getBufferedImage();
-		
+
 		imgProj = resizeImage(imgProj, capture.getWidth(), capture.getHeight());
-		
+
 		this.modele = (Modele_Renal) vue.getFenApplication().getControleur().getModele();
-		
+
 		JPanel grid = new JPanel(new GridLayout(2, 1));
 
 		// on affiche la capture
 		JLabel lbl_capture = new JLabel();
 		lbl_capture.setIcon(new ImageIcon(capture));
 		lbl_capture.setHorizontalAlignment(SwingConstants.CENTER);
-		
+
 		JLabel lbl_proj = new JLabel();
 
 		lbl_proj.setIcon(new ImageIcon(imgProj));
@@ -82,14 +82,14 @@ public class TabPrincipal extends FenResultatSidePanel {
 		panel_top.add(lbl_proj);
 
 		// creation du panel du bas
-		chartPanel.setPreferredSize(new Dimension(w, h/2));
+		chartPanel.setPreferredSize(new Dimension(w, h / 2));
 		chartPanel.getChart().setTitle("Nephrogram");
-		
+
 		Box box = Box.createVerticalBox();
 		box.add(Box.createVerticalGlue());
 		box.add(panel_top);
 		box.add(Box.createVerticalGlue());
-		
+
 		// on ajoute les panels a la grille principale
 		grid.add(box);
 		grid.add(chartPanel);
@@ -97,7 +97,7 @@ public class TabPrincipal extends FenResultatSidePanel {
 		// ajout de la grille a la fenetre
 		this.add(new JPanel(), BorderLayout.WEST);
 		this.add(grid, BorderLayout.CENTER);
-		
+
 		this.setPreferredSize(new Dimension(w, h));
 
 		this.finishBuildingWindow(true);
@@ -106,13 +106,17 @@ public class TabPrincipal extends FenResultatSidePanel {
 
 	@Override
 	public Component[] getSidePanelContent() {
+		boolean[] kidneys = this.modele.getKidneys();
+
 		JPanel flow_wrap = new JPanel();
 
 		// creation du panel d'affichage des pourcentage
 		Box res = Box.createVerticalBox();
 
-		res.add(this.getPanelSep());
-		
+		if (kidneys[0] && kidneys[1]) {
+			res.add(this.getPanelSep());
+		}
+
 		// espace entre les tableaux
 		res.add(Box.createVerticalStrut(25));
 
@@ -134,19 +138,15 @@ public class TabPrincipal extends FenResultatSidePanel {
 
 		return new Component[] { flow_wrap };
 	}
-	
+
 	private Component getPanelROE() {
 		JLabel lbl_L = new JLabel("L");
 		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
 		JLabel lbl_R = new JLabel("R");
 		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
-		
+
 		// minutes a observer pour la capacite d'excretion
 		int[] mins = new int[] { 20, 22, 30 };
-
-		// on recupere les series
-		XYSeries serieRK = this.modele.getSerie("Output KR");
-		XYSeries serieLK = this.modele.getSerie("Output KL");
 
 		// panel roe
 		JPanel pnl_roe = new JPanel(new GridLayout(4, 3, 0, 3));
@@ -155,16 +155,43 @@ public class TabPrincipal extends FenResultatSidePanel {
 		pnl_roe.add(new JLabel(" ROE "));
 		pnl_roe.add(lbl_L);
 		pnl_roe.add(lbl_R);
+
+		boolean[] kidneys = new boolean[] { true, true };
+		XYSeries serieRK = null, serieLK = null;
+
+		// on recupere les series
+		try {
+			serieLK = this.modele.getSerie("Output KL");
+		} catch (NullPointerException e) {
+			kidneys[0] = false;
+		}
+
+		try {
+			serieRK = this.modele.getSerie("Output KR");
+		} catch (NullPointerException e) {
+			kidneys[1] = false;
+		}
+
 		for (int i = 0; i < 3; i++) {
 			// aligne a droite
 			JLabel lbl_min = new JLabel(mins[i] + "  min");
 			pnl_roe.add(lbl_min);
 
-			JLabel lbl_g = new JLabel(modele.getPercentage(mins[i], serieLK, "L") + " %");
+			JLabel lbl_g = null;
+			if (kidneys[0]) {
+				lbl_g = new JLabel(modele.getPercentage(mins[i], serieLK, "L") + " %");
+			} else {
+				lbl_g = new JLabel("N/A");
+			}
 			lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
 			pnl_roe.add(lbl_g);
-			
-			JLabel lbl_d = new JLabel(modele.getPercentage(mins[i], serieRK, "R") + " %");
+
+			JLabel lbl_d = null;
+			if (kidneys[1]) {
+				lbl_d = new JLabel(modele.getPercentage(mins[i], serieRK, "R") + " %");
+			} else {
+				lbl_d = new JLabel("N/A");
+			}
 			lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
 			pnl_roe.add(lbl_d);
 
@@ -178,26 +205,34 @@ public class TabPrincipal extends FenResultatSidePanel {
 		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
 		JLabel lbl_R = new JLabel("R");
 		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
-		
+
 		// panel nora
 		Double[][] nora = modele.getNoRA();
 		JPanel pnl_nora = new JPanel(new GridLayout(4, 3, 0, 3));
 		pnl_nora.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-		
+
 		pnl_nora.add(new JLabel(" NORA "));
 		pnl_nora.add(lbl_L);
 		pnl_nora.add(lbl_R);
 		for (int i = 0; i < 3; i++) {
 			// aligne a droite
 			pnl_nora.add(new JLabel(nora[0][i] + "  min"));
-			
-			JLabel lbl_g = new JLabel(nora[1][i] + " %");
-			lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
-			pnl_nora.add(lbl_g);
-			
-			JLabel lbl_d = new JLabel(nora[2][i] + " %");
-			lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
-			pnl_nora.add(lbl_d);
+
+			if (nora[1][i] != Double.NaN) {
+				JLabel lbl_g = new JLabel(nora[1][i] + " %");
+				lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
+				pnl_nora.add(lbl_g);
+			} else {
+				pnl_nora.add(new JLabel("" + Double.NaN));
+			}
+
+			if (nora[2][i] != Double.NaN) {
+				JLabel lbl_d = new JLabel(nora[2][i] + " %");
+				lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
+				pnl_nora.add(lbl_d);
+			} else {
+				pnl_nora.add(new JLabel("" + Double.NaN));
+			}
 		}
 		return pnl_nora;
 	}
@@ -207,7 +242,7 @@ public class TabPrincipal extends FenResultatSidePanel {
 		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
 		JLabel lbl_R = new JLabel("R");
 		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
-		
+
 		// panel de timing
 		Double[][] timing = modele.getTiming();
 		JPanel pnl_timing = new JPanel(new GridLayout(3, 3, 0, 3));
@@ -216,37 +251,37 @@ public class TabPrincipal extends FenResultatSidePanel {
 		pnl_timing.add(new JLabel(" Timing "));
 		pnl_timing.add(lbl_L);
 		pnl_timing.add(lbl_R);
-		
+
 		JLabel lbl_tmax = new JLabel("TMax (min)");
 		pnl_timing.add(lbl_tmax);
-		
+
 		JLabel lbl_gMax = new JLabel("" + timing[0][0]);
 		lbl_gMax.setHorizontalAlignment(SwingConstants.CENTER);
 		pnl_timing.add(lbl_gMax);
-		
+
 		JLabel lbl_dMax = new JLabel("" + timing[0][1]);
 		lbl_dMax.setHorizontalAlignment(SwingConstants.CENTER);
 		pnl_timing.add(lbl_dMax);
-		
+
 		JLabel lbl_tdemi = new JLabel("T1/2 (min)");
 		pnl_timing.add(lbl_tdemi);
-		
+
 		String s = "" + timing[1][0];
 		if (timing[1][0] == -1)
 			s = "N/A";
-		
+
 		JLabel lbl_g = new JLabel(s);
 		lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
 		pnl_timing.add(lbl_g);
-		
+
 		s = "" + timing[1][1];
 		if (timing[1][1] == -1)
 			s = "N/A";
-		
+
 		JLabel lbl_d = new JLabel(s);
 		lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
 		pnl_timing.add(lbl_d);
-		
+
 		pnl_timing.add(lbl_d);
 
 		return pnl_timing;
@@ -262,11 +297,11 @@ public class TabPrincipal extends FenResultatSidePanel {
 		Double[] ret = modele.getRetention();
 		JPanel pnl_ret = new JPanel(new GridLayout(2, 3));
 		pnl_ret.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-		
+
 		pnl_ret.add(new JLabel("Renal retention"));
 		pnl_ret.add(lbl_L);
 		pnl_ret.add(lbl_R);
-		
+
 		pnl_ret.add(new JLabel(""));
 
 		JLabel lbl_g = new JLabel(ret[0] + " %");
@@ -290,11 +325,11 @@ public class TabPrincipal extends FenResultatSidePanel {
 		Double[] sep = modele.getSeparatedFunction();
 		JPanel pnl_sep = new JPanel(new GridLayout(2, 3));
 		pnl_sep.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-		
+
 		pnl_sep.add(new JLabel("Relative function"));
 		pnl_sep.add(lbl_L);
 		pnl_sep.add(lbl_R);
-		
+
 		pnl_sep.add(new JLabel(""));
 		JLabel lbl_d = new JLabel(sep[0] + " %");
 		lbl_d.setHorizontalAlignment(SwingConstants.CENTER);

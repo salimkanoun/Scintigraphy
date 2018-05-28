@@ -435,8 +435,7 @@ public abstract class ControleurScin implements ActionListener {
 	 * @return roi en cours d'édition de l'image
 	 */
 	public Roi getSelectedRoi() {
-		Roi roi = this.laVue.getFenApplication().getImagePlus().getRoi();
-		return roi;
+		return this.laVue.getFenApplication().getImagePlus().getRoi();
 	}
 
 	public VueScin getVue() {

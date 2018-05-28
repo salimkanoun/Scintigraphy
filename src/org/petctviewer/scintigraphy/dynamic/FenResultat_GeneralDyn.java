@@ -9,10 +9,10 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
-import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 public class FenResultat_GeneralDyn extends FenResultatSidePanel {
 

@@ -15,8 +15,9 @@ import javax.swing.RowSorter.SortKey;
 import javax.swing.border.LineBorder;
 import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableModel;
-import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
+
 import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 import java.awt.image.BufferedImage;
 

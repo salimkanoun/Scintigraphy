@@ -246,4 +246,9 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	public boolean isLocked() {
 		return this.lock;
 	}
+	
+	public int[] getFrameduration() {
+		return frameduration;
+	}
+
 }

@@ -1,9 +1,10 @@
-package org.petctviewer.scintigraphy.scin;
+package org.petctviewer.scintigraphy.scin.gui;
 
 import ij.ImagePlus;
 import ij.gui.ImageCanvas;
 import ij.gui.Overlay;
 import ij.gui.StackWindow;
+import ij.plugin.frame.RoiManager;
 import ij.util.DicomTools;
 import java.awt.Button;
 import java.awt.Color;
@@ -13,6 +14,8 @@ import java.awt.Insets;
 import java.awt.Panel;
 import java.awt.event.WindowEvent;
 import javax.swing.JTextField;
+
+import org.petctviewer.scintigraphy.scin.ControleurScin;
 
 public class FenApplication extends StackWindow {
 	private static final long serialVersionUID = -6280620624574294247L;
@@ -32,6 +35,12 @@ public class FenApplication extends StackWindow {
 	private Panel instru;
 	private Panel panel;
 	private String nom;
+
+	private Panel btns_glob;
+
+	public Panel getBtns_glob() {
+		return btns_glob;
+	}
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
@@ -55,7 +64,7 @@ public class FenApplication extends StackWindow {
 		initButtons();
 
 		//panel contenant les boutons
-		Panel btns_glob = new Panel();
+		btns_glob = new Panel();
 		btns_glob.setLayout(new GridLayout(1, 3));
 		btns_glob.add(this.btn_quitter);
 		btns_glob.add(this.btn_drawROI);
@@ -76,9 +85,13 @@ public class FenApplication extends StackWindow {
 		gauche.add(getInstru());
 		this.panel.add(gauche);
 		add(this.panel);
-		this.adaptWindow(512);
+		this.adaptWindow();
 	}
 	
+	public void adaptWindow() {
+		this.adaptWindow(512);
+	}
+
 	/**
 	 * adapte la fenetre a l'ecran
 	 * @param width
@@ -91,7 +104,7 @@ public class FenApplication extends StackWindow {
 		//Pack pour recuperer dimension du panel
 		pack();
 		
-		if(this.panel.getWidth()<width) {
+		if(this.panel.getWidth()<=width) {
 			this.getCanvas().setSize(width, (int) (width/ratioImagePlus) );
 		}
 		else {
@@ -163,7 +176,7 @@ public class FenApplication extends StackWindow {
 	@Override
 	public boolean close() {		
 		if(this.controleur != null) {
-			this.controleur.roiManager.close();
+			this.controleur.getRoiManager().close();
 		}
 		return super.close();
 	}
@@ -230,11 +243,6 @@ public class FenApplication extends StackWindow {
 
 	public JTextField getField_instructions() {
 		return this.field_instructions;
-	}
-	
-	@Override
-	public void setImage(ImagePlus imp2) {
-		super.setImage(imp2);
 	}
 	
 }

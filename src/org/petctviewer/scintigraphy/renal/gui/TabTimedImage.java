@@ -16,11 +16,11 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.petctviewer.scintigraphy.scin.FenResultatImp;
-import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
+import org.petctviewer.scintigraphy.scin.gui.FenResultatImp;
+import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 import ij.ImagePlus;
 import ij.plugin.ContrastEnhancer;

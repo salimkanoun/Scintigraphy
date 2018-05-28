@@ -12,9 +12,9 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.RenalSettings;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
-import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 public class TabOther extends FenResultatSidePanel{
 

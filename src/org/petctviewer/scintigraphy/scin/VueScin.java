@@ -38,6 +38,8 @@ import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.StringUtils;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 
 public abstract class VueScin implements PlugIn {
 	private String examType;
@@ -60,11 +62,13 @@ public abstract class VueScin implements PlugIn {
 		FenSelectionDicom selection = new FenSelectionDicom(this.getExamType());
 		selection.setModal(true);
 		selection.setVisible(true);
-		if (selection.getSelectedWindowsTitles().length > 0) {
-			try {
-				ouvertureImage(selection.getSelectedWindowsTitles());
-			} catch (Exception e) {
-				System.err.println("The selected dicoms are not useable for this exam");
+		if (selection.getSelectedWindowsTitles() != null) {
+			if (selection.getSelectedWindowsTitles().length > 0) {
+				try {
+					ouvertureImage(selection.getSelectedWindowsTitles());
+				} catch (Exception e) {
+					System.err.println("The selected dicoms are not usable for this exam");
+				}
 			}
 		}
 	}
@@ -812,16 +816,18 @@ public abstract class VueScin implements PlugIn {
 	}
 
 	public static Overlay duplicateOverlay(Overlay overlay) {
-		Overlay overlay2 = overlay.create();
+		Overlay overlay2 = overlay.duplicate();
 
-		for (int i = 0; overlay.get(i) != null; i++) {
-			overlay2.add(overlay.get(i));
-		}
-
-		overlay2.selectable(overlay.isSelectable());
+		overlay2.drawLabels(overlay.getDrawLabels());
+		overlay2.drawNames(overlay.getDrawNames());
+		overlay2.drawBackgrounds(overlay.getDrawBackgrounds());
 		overlay2.setLabelColor(overlay.getLabelColor());
 		overlay2.setLabelFont(overlay.getLabelFont(), overlay.scalableLabels());
+
+		// theses properties are not set by the original duplicate method
 		overlay2.setIsCalibrationBar(overlay.isCalibrationBar());
+		overlay2.selectable(overlay.isSelectable());
+
 		return overlay2;
 	}
 
@@ -830,18 +836,18 @@ public abstract class VueScin implements PlugIn {
 		setCaptureButton(btn_capture, new Component[] { lbl_credits }, new Component[] { btn_capture }, jf, modele,
 				additionalInfo);
 	}
-	
+
 	public static ImagePlus[] openImps(String[] titresFenetres) {
 		ImagePlus[] imps = new ImagePlus[titresFenetres.length];
-		for(int i = 0; i < titresFenetres.length; i++) {
+		for (int i = 0; i < titresFenetres.length; i++) {
 			ImagePlus imp = WindowManager.getImage(titresFenetres[i]);
 			imps[i] = imp;
 		}
 		return imps;
 	}
-	
+
 	public static void closeImps(String[] titresFenetres) {
-		for(int i = 0; i < titresFenetres.length; i++) {
+		for (int i = 0; i < titresFenetres.length; i++) {
 			WindowManager.getImage(titresFenetres[i]).close();
 		}
 	}
@@ -884,16 +890,17 @@ public abstract class VueScin implements PlugIn {
 				for (Component comp : show) {
 					comp.setVisible(true);
 				}
-				
+
 				SwingUtilities.invokeLater(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub
 						Container c = jf.getContentPane();
 
 						// Capture, nouvelle methode a utiliser sur le reste des programmes
-						BufferedImage capture = new BufferedImage(c.getWidth(), c.getHeight(), BufferedImage.TYPE_INT_ARGB);
+						BufferedImage capture = new BufferedImage(c.getWidth(), c.getHeight(),
+								BufferedImage.TYPE_INT_ARGB);
 						c.paint(capture.getGraphics());
 						ImagePlus imp = new ImagePlus("capture", capture);
 
@@ -919,8 +926,8 @@ public abstract class VueScin implements PlugIn {
 						String resultats = modele.toString();
 
 						try {
-							ModeleScin.exportAll(resultats, getFenApplication().getControleur().getRoiManager(), examType,
-									imp, additionalInfo);
+							ModeleScin.exportAll(resultats, getFenApplication().getControleur().getRoiManager(),
+									examType, imp, additionalInfo);
 
 							getFenApplication().getControleur().getRoiManager().close();
 
@@ -940,8 +947,7 @@ public abstract class VueScin implements PlugIn {
 						System.gc();
 					}
 				});
-				
-				
+
 			}
 		});
 	}
@@ -951,7 +957,7 @@ public abstract class VueScin implements PlugIn {
 	}
 
 	public void setImp(ImagePlus imp) {
-		this.imp = imp.duplicate();
+		this.imp = imp;
 	}
 
 	public String getExamType() {
@@ -965,7 +971,7 @@ public abstract class VueScin implements PlugIn {
 	public FenApplication getFenApplication() {
 		return this.fen_application;
 	}
-	
+
 	public void setFenApplication(FenApplication fen_application) {
 		this.fen_application = fen_application;
 	}

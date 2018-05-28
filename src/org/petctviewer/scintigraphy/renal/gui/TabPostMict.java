@@ -14,9 +14,10 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import org.petctviewer.scintigraphy.scin.FenResultatImp;
-import org.petctviewer.scintigraphy.scin.FenSelectionDicom;
+
 import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.gui.FenResultatImp;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 
 import ij.ImagePlus;
 import ij.WindowManager;

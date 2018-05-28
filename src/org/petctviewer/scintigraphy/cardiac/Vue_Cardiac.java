@@ -59,7 +59,7 @@ public class Vue_Cardiac extends VueScin{
 		Overlay ov = VueScin.initOverlay(impStacked, 7);
 		VueScin.setOverlayDG(ov, impStacked, Color.YELLOW);
 		
-		this.setImp(impStacked);
+		this.setImp(impStacked.duplicate());
 		
 		// Charge la LUT
 		VueScin.setCustomLut(this.getImp());

@@ -18,9 +18,9 @@ package org.petctviewer.scintigraphy.platelet;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.petctviewer.scintigraphy.scin.FenApplication;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -86,7 +86,7 @@ public class Vue_Plaquettes extends VueScin {
 		HyperStackConverter convert = new HyperStackConverter();
 		convert.run("hstostack");
 		
-		this.setImp(imp);
+		this.setImp(imp.duplicate());
 		
 		// Charge la LUT
 		VueScin.setCustomLut(this.getImp());

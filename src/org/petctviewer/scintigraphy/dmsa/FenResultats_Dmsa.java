@@ -7,10 +7,10 @@ import java.awt.image.BufferedImage;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
+import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 public class FenResultats_Dmsa extends FenResultatSidePanel{
 

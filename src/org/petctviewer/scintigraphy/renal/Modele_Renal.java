@@ -18,6 +18,7 @@ public class Modele_Renal extends ModeleScinDyn {
 
 	private HashMap<String, Integer> organArea;
 	private Double[] adjusted;
+	private boolean[] kidneys;
 
 	/**
 	 * recupere les valeurs et calcule les resultats de l'examen renal
@@ -25,16 +26,25 @@ public class Modele_Renal extends ModeleScinDyn {
 	 * @param frameDuration
 	 *            duree de chaque frame en ms
 	 */
-	public Modele_Renal(int[] frameDuration) {
+	public Modele_Renal(int[] frameDuration, boolean[] kidneys) {
 		super(frameDuration);
+		this.kidneys = kidneys;
 		this.organArea = new HashMap<>();
+	}
+
+	public void setKidneys(boolean[] kidneys) {
+		this.kidneys = kidneys;
+	}
+	
+	public boolean[] getKidneys() {
+		return this.kidneys;
 	}
 
 	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 		super.enregistrerMesure(nomRoi, imp);
 
-		if(!this.isLocked()) {
+		if (!this.isLocked()) {
 			// aire de la roi en pixel
 			int area = imp.getStatistics().pixelCount;
 			String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
@@ -49,13 +59,18 @@ public class Modele_Renal extends ModeleScinDyn {
 
 	@Override
 	public void calculerResultats() {
-		
-		if(RenalSettings.getSettings()[1]) {
+
+		if (RenalSettings.getSettings()[1]) {
 			List<List<Double>> bassinets = this.calculBassinets();
-			this.getData().put("L. Pelvis", bassinets.get(0));
-			this.getData().put("R. Pelvis", bassinets.get(1));
+			if (this.kidneys[0]) {
+				this.getData().put("L. Pelvis", bassinets.get(0));
+			}
+
+			if (this.kidneys[1]) {
+				this.getData().put("R. Pelvis", bassinets.get(1));
+			}
 		}
-		
+
 		// on ajuste toutes les valeurs pour les mettre en coup / sec
 		for (String k : this.getData().keySet()) {
 			List<Double> data = this.getData().get(k);
@@ -65,66 +80,78 @@ public class Modele_Renal extends ModeleScinDyn {
 		// on recupere la liste des donnees vasculaires
 		List<Double> vasc = this.getData("Blood Pool");
 
-		List<Double> RGCorrige = new ArrayList<>();
-		List<Double> RDCorrige = new ArrayList<>();
+		if (kidneys[0]) {
+			List<Double> RGCorrige = new ArrayList<>();
+			// on recupere l'aire des rois bruit de fond et rein
+			int aireRG = this.organArea.get("L. Kidney");
+			int aireBkgG = this.organArea.get("L. bkg");
+			List<Double> lk = this.getData("L. Kidney");
+			List<Double> lbkg = this.getData("L. bkg");
+			// on calcule le coup moyen de la roi, on l'ajuste avec le bdf et on l'applique
+			// sur toute la roi pour chaque rein afin d'ajuster la valeur brute pour les
+			// deux reins
+			for (int i = 0; i < this.getFrameduration().length; i++) {
+				Double countRG = lk.get(i);
+				Double countBgG = lbkg.get(i);
+				Double adjustedValueG = ((countRG / aireRG) - (countBgG / aireBkgG)) * aireRG;
+				RGCorrige.add(adjustedValueG);
+			}
 
-		// on recupere l'aire des rois bruit de fond et rein
-		int aireRD = this.organArea.get("R. Kidney");
-		int aireRG = this.organArea.get("L. Kidney");
-		int aireBkgD = this.organArea.get("R. bkg");
-		int aireBkgG = this.organArea.get("L. bkg");
+			this.getData().put("Final KL", RGCorrige);
+		}
 
-		// on calcule le coup moyen de la roi, on l'ajuste avec le bdf et on l'applique
-		// sur toute la roi pour chaque rein afin d'ajuster la valeur brute pour les
-		// deux reins
-		List<Double> rk = this.getData("R. Kidney");
-		List<Double> lk = this.getData("L. Kidney");
-		List<Double> rbkg = this.getData("R. bkg");
-		List<Double> lbkg = this.getData("L. bkg");
-		for (int i = 0; i < this.getData("R. Kidney").size(); i++) {
-			Double countRG = lk.get(i);
-			Double countBgG = lbkg.get(i);
-			Double countRD = rk.get(i);
-			Double countBgD = rbkg.get(i);
-			
-			Double adjustedValueG = ((countRG / aireRG) - (countBgG / aireBkgG)) * aireRG;
-			RGCorrige.add(adjustedValueG);
+		if (kidneys[1]) {
+			List<Double> RDCorrige = new ArrayList<>();
+			// on recupere l'aire des rois bruit de fond et rein
+			int aireRD = this.organArea.get("R. Kidney");
+			int aireBkgD = this.organArea.get("R. bkg");
+			List<Double> rk = this.getData("R. Kidney");
+			List<Double> rbkg = this.getData("R. bkg");
+			for (int i = 0; i < this.getFrameduration().length; i++) {
+				Double countRD = rk.get(i);
+				Double countBgD = rbkg.get(i);
+				Double adjustedValueD = ((countRD / aireRD) - (countBgD / aireBkgD)) * aireRD;
+				RDCorrige.add(adjustedValueD);
+			}
 
-			Double adjustedValueD = ((countRD / aireRD) - (countBgD / aireBkgD)) * aireRD;
-			RDCorrige.add(adjustedValueD);
+			this.getData().put("Final KR", RDCorrige);
 		}
 
 		// on calcule l'integrale de la courbe vasculaire
 		XYSeries serieVasc = this.createSerie(vasc, "");
 		List<Double> vascIntegree = Modele_Renal.getIntegral(serieVasc, serieVasc.getMinX(), serieVasc.getMaxX());
-
-		// ajout des valeurs dans les donnees
-		this.getData().put("Final KL", RGCorrige);
-		this.getData().put("Final KR", RDCorrige);
 		this.getData().put("BPI", vascIntegree); // BPI == Blood Pool Integrated
 	}
-	
+
 	/**
 	 * calcule et renvoie les valeurs de courbes des bassinets
+	 * 
 	 * @return bassinet gauche, bassinet Droit
 	 */
 	private List<List<Double>> calculBassinets() {
-		List<Double> bassinetsG = new ArrayList<>();
-		List<Double> bassinetsD = new ArrayList<>();
-		List<Double> reinG = this.getData("L. Kidney");
-		List<Double> cortG = this.getData("L. Cortical");
-		List<Double> reinD = this.getData("R. Kidney");
-		List<Double> cortD = this.getData("R. Cortical");
-		
-		for(int i = 0; i < this.getData("Blood Pool").size(); i++) {
-			bassinetsG.add(reinG.get(i) - cortG.get(i));
-			bassinetsD.add(reinD.get(i) - cortD.get(i));
-		}
-		
+
 		List<List<Double>> l = new ArrayList<>();
-		l.add(bassinetsG);
-		l.add(bassinetsD);
-		
+
+		if (kidneys[0]) {
+			List<Double> bassinetsG = new ArrayList<>();
+			List<Double> reinG = this.getData("L. Kidney");
+			List<Double> cortG = this.getData("L. Cortical");
+			for (int i = 0; i < this.getData("Blood Pool").size(); i++) {
+				bassinetsG.add(reinG.get(i) - cortG.get(i));
+			}
+			l.add(0, bassinetsG);
+		}
+
+		if (kidneys[1]) {
+			List<Double> bassinetsD = new ArrayList<>();
+			List<Double> reinD = this.getData("R. Kidney");
+			List<Double> cortD = this.getData("R. Cortical");
+			for (int i = 0; i < this.getData("Blood Pool").size(); i++) {
+				bassinetsD.add(reinD.get(i) - cortD.get(i));
+			}
+			l.add(1, bassinetsD);
+		}
+
 		return l;
 	}
 
@@ -136,38 +163,40 @@ public class Modele_Renal extends ModeleScinDyn {
 		// on recupere la liste des donnees vasculaires
 		List<Double> bpi = this.getData("BPI");
 
-		// recuperation des donnees des reins
-		List<Double> RGCorrige = this.getData().get("Final KL");
-		List<Double> RDCorrige = this.getData().get("Final KR");
-
-		// calcul des courbes fitees
-		List<Double> vascFitG = this.fitVasc(bpi, RGCorrige);
-		List<Double> vascFitD = this.fitVasc(bpi, RDCorrige);
-
-		// on calcule le valeurs de la courbe sortie pour chaque rein
-		List<Double> sortieIntRG = new ArrayList<>();
-		List<Double> sortieIntRD = new ArrayList<>();
-		for (int i = 0; i < RGCorrige.size(); i++) {
-			// on ajoute uniquement si la valeur est positive
-			Double outputXG = vascFitG.get(i) - RGCorrige.get(i);
-			if (outputXG <= 0) {
-				outputXG = 0.0;
+		if(this.kidneys[0]) {
+			// recuperation des donnees des reins
+			List<Double> RGCorrige = this.getData().get("Final KL");
+			// calcul des courbes fitees
+			List<Double> vascFitG = this.fitVasc(bpi, RGCorrige);
+			// on calcule le valeurs de la courbe sortie pour chaque rein
+			List<Double> sortieIntRG = new ArrayList<>();
+			for (int i = 0; i < RGCorrige.size(); i++) {
+				// on ajoute uniquement si la valeur est positive
+				Double outputXG = vascFitG.get(i) - RGCorrige.get(i);
+				if (outputXG <= 0) {
+					outputXG = 0.0;
+				}
+				sortieIntRG.add(outputXG);
 			}
-
-			Double outputXD = vascFitD.get(i) - RDCorrige.get(i);
-			if (outputXD <= 0) {
-				outputXD = 0.0;
-			}
-
-			sortieIntRD.add(outputXD);
-			sortieIntRG.add(outputXG);
+			/// on ajoute les nouvelles courbes dans les donnees
+			this.getData().put("Output KL", sortieIntRG);
+			this.getData().put("Blood pool fitted L", vascFitG);
 		}
-
-		/// on ajoute les nouvelles courbes dans les donnees
-		this.getData().put("Output KL", sortieIntRG);
-		this.getData().put("Output KR", sortieIntRD);
-		this.getData().put("Blood pool fitted L", vascFitG);
-		this.getData().put("Blood pool fitted R", vascFitD);
+		
+		if(this.kidneys[1]) {
+			List<Double> RDCorrige = this.getData().get("Final KR");
+			List<Double> vascFitD = this.fitVasc(bpi, RDCorrige);
+			List<Double> sortieIntRD = new ArrayList<>();
+			for (int i = 0; i < RDCorrige.size(); i++) {
+				Double outputXD = vascFitD.get(i) - RDCorrige.get(i);
+				if (outputXD <= 0) {
+					outputXD = 0.0;
+				}
+				sortieIntRD.add(outputXD);
+			}
+			this.getData().put("Output KR", sortieIntRD);
+			this.getData().put("Blood pool fitted R", vascFitD);
+		}
 	}
 
 	// recupere les valeurs situees entre startX et endX
@@ -180,19 +209,19 @@ public class Modele_Renal extends ModeleScinDyn {
 		}
 		return cropped;
 	}
-	
+
 	// recupere les valeurs situees entre startX et endX
 	public static XYDataset cropDataset(XYDataset data, Double startX, Double endX) {
 		XYSeriesCollection dataset = new XYSeriesCollection();
-		
+
 		for (int i = 0; i < data.getSeriesCount(); i++) {
 			XYSeries series = new XYSeries("" + i);
-			for(int j = 0; j < data.getItemCount(0); j++) {
+			for (int j = 0; j < data.getItemCount(0); j++) {
 				series.add(data.getX(i, j), data.getY(i, j));
 			}
 			dataset.addSeries(cropSeries(series, startX, endX));
 		}
-		
+
 		return dataset;
 	}
 
@@ -326,7 +355,7 @@ public class Modele_Renal extends ModeleScinDyn {
 			s += "\n ROE " + min + "min Right Kidney , " + this.getPercentage(min, rk, "R");
 		}
 
-		//TODO modifier ça (voir methodes modele renal)
+		// TODO modifier ça (voir methodes modele renal)
 		s += "\n";
 
 		// on ajoute les valeurs du tableau
@@ -335,79 +364,112 @@ public class Modele_Renal extends ModeleScinDyn {
 			if (i == 2) {
 				lr = " Right";
 			}
-			
-			//TODO
+
+			// TODO
 		}
 
 		return s;
 
 	}
-	
+
 	/**
 	 * renvoie le temps a tmax et t1/2
-	 * @return res[0][x] : tMax, res[1][x] : t1/2, res[x][0] : rein gauche, res[x][1] : rein droit
+	 * 
+	 * @return res[0][x] : tMax, res[1][x] : t1/2, res[x][0] : rein gauche,
+	 *         res[x][1] : rein droit
 	 */
 	public Double[][] getTiming() {
 		Double[][] res = new Double[2][2];
-		XYSeries lk = this.getSerie("Final KL");
-		XYSeries rk = this.getSerie("Final KR");
 		
-		res[0][0] = ModeleScin.round(this.adjusted[1], 2);
-		res[0][1] = ModeleScin.round(this.adjusted[0], 2);
+		if(this.kidneys[0]) {
+			XYSeries lk = this.getSerie("Final KL");
+			res[1][0] = ModeleScin.round(ModeleScinDyn.getTDemiObs(lk, this.adjusted[1]), 1);
+			res[0][0] = ModeleScin.round(this.adjusted[1], 2);
+		}else {
+			res[0][0] = Double.NaN;
+			res[1][0] = Double.NaN;
+		}
 		
-		res[1][0] = ModeleScin.round(ModeleScinDyn.getTDemiObs(lk, this.adjusted[1]), 1);
-		res[1][1] = ModeleScin.round(ModeleScinDyn.getTDemiObs(rk, this.adjusted[0]), 1);
-		
+		if(this.kidneys[1]) {
+			XYSeries rk = this.getSerie("Final KR");
+			res[1][1] = ModeleScin.round(ModeleScinDyn.getTDemiObs(rk, this.adjusted[0]), 1);
+			res[0][1] = ModeleScin.round(this.adjusted[0], 2);
+		}else {
+			res[0][1] = Double.NaN;
+			res[1][1] = Double.NaN;
+		}
+
+
 		return res;
 	}
-	
+
 	/**
 	 * calcule la retention renale
+	 * 
 	 * @return res[0] : rein gauche, res[1] : rein droit
 	 */
-	public Double[] getRetention(){
+	public Double[] getRetention() {
 		Double[] res = new Double[2];
-		XYSeries lk = this.getSerie("Final KL");
-		XYSeries rk = this.getSerie("Final KR");
 		
-		res[0] = ModeleScin.round((ModeleScin.getY(lk, lk.getMaxX()) / ModeleScin.getY(lk, this.adjusted[3]) * 100), 1);
-		res[1] = ModeleScin.round((ModeleScin.getY(rk, rk.getMaxX()) / ModeleScin.getY(rk, this.adjusted[2]))*100, 1);
-		
-		return res;		
+		if(this.kidneys[0]) {
+			XYSeries lk = this.getSerie("Final KL");
+			res[0] = ModeleScin.round((ModeleScin.getY(lk, lk.getMaxX()) / ModeleScin.getY(lk, this.adjusted[3]) * 100), 1);
+		}else {
+			res[0] = Double.NaN;
+		}
+
+		if(this.kidneys[1]) {
+			XYSeries rk = this.getSerie("Final KR");
+			res[1] = ModeleScin.round((ModeleScin.getY(rk, rk.getMaxX()) / ModeleScin.getY(rk, this.adjusted[2])) * 100, 1);	
+		}else {
+			res[1] = Double.NaN;
+		}
+
+		return res;
 	}
 
 	/**
 	 * calcule le nora selon le temps d'injection du lasilix
+	 * 
 	 * @return res[0] : temps, res[1] : rein gauche, res[2] : rein droit
 	 */
-	public Double[][] getNoRA() {		
-		XYSeries lk = this.getSerie("Final KL");
-		XYSeries rk = this.getSerie("Final KR");
-		
-		Double maxL = lk.getMaxY();
-		Double maxR = rk.getMaxY();
-		
+	public Double[][] getNoRA() {
 		Double[][] res = new Double[3][3];
 		
-		//adjusted[7] => lasilix
-		res[0][0] = ModeleScin.round(this.adjusted[7] - 1,0);
-		res[0][1] = ModeleScin.round(this.adjusted[7] + 2,0);
-		res[0][2] = round(lk.getMaxX(), 0);
-
-		// calcul nora rein gauche
-		res[1][0] = ModeleScin.round(getY(lk, res[0][0]) * 100 / maxL, 1);
-		res[1][1] = ModeleScin.round(getY(lk, res[0][1]) * 100 / maxL, 1);
-		res[1][2] = ModeleScin.round(getY(lk, lk.getMaxX()) * 100 / maxL, 1);
-
-		// calcul nora rein droit
-		res[2][0] = ModeleScin.round(getY(rk, res[0][0]) * 100 / maxR, 1);
-		res[2][1] = ModeleScin.round(getY(rk, res[0][1]) * 100 / maxR, 1);
-		res[2][2] = ModeleScin.round(getY(rk, rk.getMaxX()) * 100 / maxR, 1);
+		// adjusted[7] => lasilix
+		res[0][0] = ModeleScin.round(this.adjusted[7] - 1, 0);
+		res[0][1] = ModeleScin.round(this.adjusted[7] + 2, 0);
+		res[0][2] = round(this.getSerie("Blood Pool").getMaxX(), 0);
+		
+		if(this.kidneys[0]) {
+			XYSeries lk = this.getSerie("Final KL");
+			Double maxL = lk.getMaxY();
+			// calcul nora rein gauche
+			res[1][0] = ModeleScin.round(getY(lk, res[0][0]) * 100 / maxL, 1);
+			res[1][1] = ModeleScin.round(getY(lk, res[0][1]) * 100 / maxL, 1);
+			res[1][2] = ModeleScin.round(getY(lk, lk.getMaxX()) * 100 / maxL, 1);
+		}else {
+			res[1][0] = Double.NaN;
+			res[1][1] = Double.NaN;
+			res[1][2] = Double.NaN;
+		}
+		
+		if(this.kidneys[1]) {
+			XYSeries rk = this.getSerie("Final KR");
+			Double maxR = rk.getMaxY();
+			// calcul nora rein droit
+			res[2][0] = ModeleScin.round(getY(rk, res[0][0]) * 100 / maxR, 1);
+			res[2][1] = ModeleScin.round(getY(rk, res[0][1]) * 100 / maxR, 1);
+			res[2][2] = ModeleScin.round(getY(rk, rk.getMaxX()) * 100 / maxR, 1);
+		}else {
+			res[2][0] = Double.NaN;
+			res[2][1] = Double.NaN;
+			res[2][2] = Double.NaN;
+		}
 
 		return res;
 	}
 
-	
 	/**
 	 * [0] => TMaxD <br>
 	 * [1] => TMaxG <br>
@@ -438,16 +500,18 @@ public class Modele_Renal extends ModeleScinDyn {
 
 	/**
 	 * renvoie la fonction separee
+	 * 
 	 * @return res[0] : rein gauche, res[1] : rein droit
 	 */
 	public Double[] getSeparatedFunction() {
 		Double[] res = new Double[2];
+		
 		XYSeries lk = this.getSerie("Final KL");
 		XYSeries rk = this.getSerie("Final KR");
 
 		Double debut = Math.min(this.adjusted[4], this.adjusted[5]);
 		Double fin = Math.max(this.adjusted[4], this.adjusted[5]);
-		
+
 		List<Double> listRG = Modele_Renal.getIntegral(lk, debut, fin);
 		List<Double> listRD = Modele_Renal.getIntegral(rk, debut, fin);
 		Double intRG = listRG.get(listRG.size() - 1);

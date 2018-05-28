@@ -5,7 +5,7 @@ import java.awt.GridLayout;
 import java.awt.Panel;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.ImagePlus;
 
@@ -45,8 +45,6 @@ public class FenApplication_Cardiac extends FenApplication {
 		this.modeCont = true;
 		
 		this.adaptWindow(256);
-
-		this.setInstructions("Delimit a new contamination");
 	}
 	
 	/**

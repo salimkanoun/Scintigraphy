@@ -26,8 +26,9 @@ public class Controleur_Renal extends ControleurScin {
 
 	// plus grande valeur que index roi ait prise
 	private int maxIndexRoi = 0;
-
 	private int nbOrganes;
+
+	private boolean[] kidneys = new boolean[2];
 
 	/**
 	 * Controle l'execution du programme renal
@@ -38,32 +39,10 @@ public class Controleur_Renal extends ControleurScin {
 	protected Controleur_Renal(VueScinDyn vue) {
 		super(vue);
 
-		nbOrganes = ORGANES.length;
+		this.setOrganes(ORGANES);
+		this.nbOrganes = ORGANES.length;
 
-		// on rajoute les organes selon les preferences
-		boolean[] settings = RenalSettings.getSettings();
-		ArrayList<String> organes = new ArrayList<>(Arrays.asList(Controleur_Renal.ORGANES));
-
-		if (settings[0]) {
-			organes.add("Bladder");
-			nbOrganes++;
-		}
-
-		if (settings[1]) {
-			organes.add(1, "L. Cortical");
-			organes.add(4, "R. Cortical");
-			nbOrganes += 2;
-		}
-
-		if (settings[2]) {
-			organes.add("R. Ureter");
-			organes.add("L. Ureter");
-			nbOrganes += 2;
-		}
-
-		this.setOrganes(organes.toArray(new String[0]));
-
-		Modele_Renal modele = new Modele_Renal(vue.getFrameDurations());
+		Modele_Renal modele = new Modele_Renal(vue.getFrameDurations(), kidneys);
 
 		// on bloque le modele pour ne pas enregistrer les valeurs de la projection
 		modele.lock();
@@ -133,7 +112,7 @@ public class Controleur_Renal extends ControleurScin {
 		ChartPanel[] cp = ModeleScin.associateSeries(asso, series);
 
 		// on ouvre la fenetre pour ajuster les valeurs
-		FenSetValues adjuster = new FenSetValues(cp[0]);
+		FenSetValues adjuster = new FenSetValues(cp[0], this.kidneys);
 		adjuster.setModal(true);
 		adjuster.setVisible(true);
 
@@ -146,6 +125,61 @@ public class Controleur_Renal extends ControleurScin {
 		// on affiche la fenetre de resultats principale
 		new FenResultats_Renal(vue, capture, adjuster.getChartPanelWithOverlay());
 
+	}
+	
+	public void setKidneys(boolean[] kidneys) {
+		this.kidneys = kidneys;
+		((Modele_Renal) this.getModele()).setKidneys(kidneys);
+		this.adjustOrgans();
+	}
+	
+	public boolean[] getKidneys() {
+		return this.kidneys;
+	}
+	
+	private void adjustOrgans() {
+
+		nbOrganes = ORGANES.length;
+		// on rajoute les organes selon les preferences
+		boolean[] settings = RenalSettings.getSettings();
+		ArrayList<String> organes = new ArrayList<>(Arrays.asList(Controleur_Renal.ORGANES));
+
+		if(!kidneys[0]) {
+			organes.remove("L. Kidney");
+			organes.remove("L. bkg");
+		}
+		
+		if(!kidneys[1]) {
+			organes.remove("R. Kidney");
+			organes.remove("R. bkg");
+		}
+		
+		if (settings[0]) {
+			organes.add("Bladder");
+		}
+
+		if (settings[1]) {
+			if(kidneys[0]) {
+				organes.add(organes.indexOf("L. Kidney") + 1, "L. Cortical");
+			}
+			
+			if(kidneys[1]) {
+				organes.add(organes.indexOf("R. Kidney") + 1, "R. Cortical");
+			}
+		}
+
+		if (settings[2]) {
+			if(kidneys[0]) {
+				organes.add("L. Ureter");
+			}
+			
+			if(kidneys[1]) {
+				organes.add("R. Ureter");	
+			}
+		}
+		
+		this.nbOrganes = organes.size();
+		this.setOrganes(organes.toArray(new String[0]));
 	}
 
 	@Override

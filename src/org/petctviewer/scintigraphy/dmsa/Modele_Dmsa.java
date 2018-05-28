@@ -14,7 +14,6 @@ public class Modele_Dmsa extends ModeleScin {
 	
 	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
-		System.out.println(nomRoi);
 		data.put(nomRoi, ModeleScin.getCounts(imp));
 		
 		int area = imp.getStatistics().pixelCount;

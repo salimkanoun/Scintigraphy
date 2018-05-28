@@ -34,15 +34,22 @@ public class FenSetValues extends JDialog implements ActionListener {
 
 	private ChartPanel chart;
 	private SelectorListener selectorListener;
+	private boolean[] kidneys;
 
-	public FenSetValues(ChartPanel chart) {
+	public FenSetValues(ChartPanel chart, boolean[] kidneys) {
 		this.chart = chart;
-
+		this.kidneys = kidneys;
+		
 		XYSeriesCollection dataset = ((XYSeriesCollection) chart.getChart().getXYPlot().getDataset());
 		// on renomme
 		try {
-			dataset.getSeries("Final KL").setKey("Left Kidney");
-			dataset.getSeries("Final KR").setKey("Right Kidney");
+			if(kidneys[0]) {
+				dataset.getSeries("Final KL").setKey("Left Kidney");
+			}
+			
+			if(kidneys[1]) {
+				dataset.getSeries("Final KR").setKey("Right Kidney");
+			}
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -63,16 +70,17 @@ public class FenSetValues extends JDialog implements ActionListener {
 
 		// ajout des selecteurs dans le listener
 		this.selectorListener = new SelectorListener(chart);
-		this.selectorListener.add(new ValueSelector("TMax L", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 0), 0,
-				RectangleAnchor.BOTTOM_LEFT), 1);
-		this.selectorListener.add(new ValueSelector("TMax R", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 1), 1,
-				RectangleAnchor.TOP_LEFT), 0);
-
-		// this.selectorListener.add(new ValueSelector("Ret OG R", 20, 0,
-		// RectangleAnchor.BOTTOM_LEFT), 2);
-		// this.selectorListener.add(new ValueSelector("Ret OG L", 20, 1,
-		// RectangleAnchor.TOP_LEFT), 3);
-
+		
+		if(kidneys[0]) {
+			this.selectorListener.add(new ValueSelector("TMax L", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 0), 0,
+					RectangleAnchor.BOTTOM_LEFT), 1);
+		}
+		
+		if(kidneys[1]) {
+			this.selectorListener.add(new ValueSelector("TMax R", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 1), 1,
+					RectangleAnchor.TOP_LEFT), 0);			
+		}
+		
 		ValueSelector start = new ValueSelector(" ", 1, -1, RectangleAnchor.TOP_LEFT); // debut de l'intervalle
 		this.selectorListener.add(start, 4);
 		ValueSelector end = new ValueSelector(" ", 2, -1, RectangleAnchor.BOTTOM_RIGHT); // fin de l'intervalle
@@ -139,7 +147,7 @@ public class FenSetValues extends JDialog implements ActionListener {
 	public static void main(String[] args) {
 		ChartPanel c = new ChartPanel(createChart(createDataset()));
 		c.getChart().getPlot().setBackgroundPaint(null);
-		FenSetValues f = new FenSetValues(c);
+		FenSetValues f = new FenSetValues(c, new boolean[] {true, true});
 		f.setModal(true);
 		f.setVisible(true);
 	}
@@ -189,7 +197,12 @@ public class FenSetValues extends JDialog implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		boolean checkOffset = this.checkOffset();
+		boolean checkOffset = true;
+		
+		if(this.kidneys[0] && this.kidneys[1]) {
+			checkOffset = this.checkOffset();
+		}
+		
 		if (!checkOffset) {
 			String message = "Inconsistent differencial function during interval integration. \n Would you like to redefine the interval ?";
 			int dialogResult = JOptionPane.showConfirmDialog(this, message, "WARNING", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);

@@ -1,7 +1,8 @@
 package org.petctviewer.scintigraphy.hepatic.statique;
 
-import org.petctviewer.scintigraphy.scin.FenApplication;
 import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
@@ -25,7 +26,7 @@ public class Vue_Hepatic extends VueScin {
 		impSorted.setProperty("Info", info);
 		imp.close();
 		
-		this.setImp(impSorted);
+		this.setImp(impSorted.duplicate());
 		
 		VueScin.setCustomLut(this.getImp());		
 		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));

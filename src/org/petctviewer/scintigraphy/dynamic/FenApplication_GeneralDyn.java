@@ -5,7 +5,7 @@ import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Panel;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.ImagePlus;
 

@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin;
+package org.petctviewer.scintigraphy.scin.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -15,6 +15,8 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
+
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 
 import ij.ImagePlus;
 import ij.WindowManager;

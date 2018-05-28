@@ -12,7 +12,7 @@ import ij.util.DicomTools;
 
 public abstract class VueScinDyn extends VueScin {
 
-	protected ImagePlus impAnt, impPost;
+	protected ImagePlus impAnt, impPost, impProjetee;
 
 	private int[] frameDurations;
 
@@ -45,11 +45,11 @@ public abstract class VueScinDyn extends VueScin {
 			this.impPost.getStack().getProcessor(i).flipHorizontal();
 		}
 
-		ImagePlus impProjetee = projeter(this.impPost);
+		impProjetee = projeter(this.impPost);
 		
 		this.frameDurations = buildFrameDurations(this.impPost);
 		
-		this.setImp(impProjetee);
+		this.setImp(impProjetee.duplicate());
 		
 		VueScin.setCustomLut(this.getImp());		
 		
@@ -59,13 +59,13 @@ public abstract class VueScinDyn extends VueScin {
 	}
 	
 	public static ImagePlus projeter(ImagePlus imp) {
-		ImagePlus pj = ZProjector.run(imp, "sum");
+		ImagePlus pj = ZProjector.run(imp, "avg");
 		pj.setProperty("Info", imp.getInfoProperty());
 		return pj;
 	}
 	
 	public static ImagePlus projeter(ImagePlus imp, int startSlice, int stopSlice) {
-		ImagePlus pj = ZProjector.run(imp, "sum", startSlice ,stopSlice);
+		ImagePlus pj = ZProjector.run(imp, "avg", startSlice ,stopSlice);
 		pj.setProperty("Info", imp.getInfoProperty());
 		return pj;
 	}

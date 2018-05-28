@@ -10,10 +10,10 @@ import javax.swing.JPanel;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
-import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 public class TabCort extends FenResultatSidePanel {
 

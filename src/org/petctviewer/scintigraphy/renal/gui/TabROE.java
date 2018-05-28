@@ -15,16 +15,17 @@ import javax.swing.SwingConstants;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ui.RectangleEdge;
+import org.jfree.data.UnknownKeyException;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
-import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 public class TabROE extends FenResultatSidePanel {
 
 	private static final long serialVersionUID = -8303889633428224794L;
-	
+
 	private VueScin vue;
 
 	public TabROE(VueScin vue, int w, int h) {
@@ -43,37 +44,39 @@ public class TabROE extends FenResultatSidePanel {
 		ChartPanel[] cPanels = ModeleScin.associateSeries(asso, series);
 
 		BasicStroke stroke = new BasicStroke(5.0F);
-
-		// graphique rein droit
-		ChartPanel c = cPanels[1];
-		FenResultats_Renal.renameSeries(c, "Blood pool fitted R", "Blood Pool");
-		FenResultats_Renal.renameSeries(c, "Final KR", "Right Kidney");
-		FenResultats_Renal.renameSeries(c, "Output KR", "Output");
-		c.getChart().getXYPlot().getRenderer().setDefaultStroke(stroke);
-		c.getChart().setTitle("Right Kidney");
-		c.getChart().getLegend().setPosition(RectangleEdge.LEFT);
-		c.setPreferredSize(new Dimension(w, h / 2));
-
-		// graphique rein gauche
-		ChartPanel c1 = cPanels[0];
-		FenResultats_Renal.renameSeries(c1, "Output KL", "Output");
-		FenResultats_Renal.renameSeries(c1, "Blood pool fitted L", "Blood Pool");
-		FenResultats_Renal.renameSeries(c1, "Final KL", "Left Kidney");
-		c1.getChart().getXYPlot().getRenderer().setDefaultStroke(stroke);
-		c1.getChart().setTitle("Left Kidney");
-		c1.getChart().getLegend().setPosition(RectangleEdge.LEFT);
-		c1.setPreferredSize(new Dimension(w, h / 2));
-
 		JPanel p = new JPanel(new GridLayout(2, 1));
 
-		p.add(c);
-		p.add(c1);
+		if(modele.getKidneys()[1]) {
+			// graphique rein droit
+			ChartPanel c = cPanels[1];
+			FenResultats_Renal.renameSeries(c, "Blood pool fitted R", "Blood Pool");
+			FenResultats_Renal.renameSeries(c, "Final KR", "Right Kidney");
+			FenResultats_Renal.renameSeries(c, "Output KR", "Output");
+			c.getChart().getXYPlot().getRenderer().setDefaultStroke(stroke);
+			c.getChart().setTitle("Right Kidney");
+			c.getChart().getLegend().setPosition(RectangleEdge.LEFT);
+			c.setPreferredSize(new Dimension(w, h / 2));
+			p.add(c);
+		}
+	
+		if(modele.getKidneys()[0]) {
+			// graphique rein gauche
+			ChartPanel c1 = cPanels[0];
+			FenResultats_Renal.renameSeries(c1, "Output KL", "Output");
+			FenResultats_Renal.renameSeries(c1, "Blood pool fitted L", "Blood Pool");
+			FenResultats_Renal.renameSeries(c1, "Final KL", "Left Kidney");
+			c1.getChart().getXYPlot().getRenderer().setDefaultStroke(stroke);
+			c1.getChart().setTitle("Left Kidney");
+			c1.getChart().getLegend().setPosition(RectangleEdge.LEFT);
+			c1.setPreferredSize(new Dimension(w, h / 2));
+			p.add(c1);
+		}
 
 		this.add(new JPanel(), BorderLayout.WEST);
 		this.add(p, BorderLayout.CENTER);
 
 		this.setPreferredSize(new Dimension(w, h));
-		
+
 		this.finishBuildingWindow(true);
 	}
 
@@ -85,15 +88,9 @@ public class TabROE extends FenResultatSidePanel {
 		JLabel lbl_R = new JLabel("R");
 		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
 
-		// on recupere les series
-		XYSeries serieRK = modele.getSerie("Output KR");
-		XYSeries serieLK = modele.getSerie("Output KL");
-
-		// minutes a observer pour la capacite d'excretion
-		double maxX = serieLK.getMaxX();
-		int[] mins = new int[10];		
-		for(int i = 0; i < mins.length; i++) {
-			mins[i] = (int) ((maxX / (mins.length * 1.0)) * i+1);
+		int[] mins = new int[10];
+		for (int i = 0; i < mins.length; i++) {
+			mins[i] = (int) ((modele.getSerie("Blood Pool").getMaxX() / (mins.length * 1.0)) * i + 1);
 		}
 
 		// panel roe
@@ -103,18 +100,39 @@ public class TabROE extends FenResultatSidePanel {
 		pnl_roe.add(new JLabel(" ROE "));
 		pnl_roe.add(lbl_L);
 		pnl_roe.add(lbl_R);
+
+		XYSeries serieLK = null;
+		// on recupere les series
+		if (modele.getKidneys()[0]) {
+			serieLK = modele.getSerie("Output KL");
+			// minutes a observer pour la capacite d'excretion
+		}
+
+		XYSeries serieRK = null;
+		if (modele.getKidneys()[1]) {
+			serieRK = modele.getSerie("Output KR");
+		}
+
 		for (int i = 0; i < mins.length; i++) {
 			// aligne a droite
 			JLabel lbl_min = new JLabel(mins[i] + "  min");
 			pnl_roe.add(lbl_min);
 
-			JLabel lbl_g = new JLabel(modele.getPercentage(mins[i], serieLK, "L") + " %");
-			lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
-			pnl_roe.add(lbl_g);
+			if (modele.getKidneys()[0]) {
+				JLabel lbl_g = new JLabel(modele.getPercentage(mins[i], serieLK, "L") + " %");
+				lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
+				pnl_roe.add(lbl_g);
+			} else {
+				pnl_roe.add(new JLabel("N/A"));
+			}
 
-			JLabel lbl_d = new JLabel(modele.getPercentage(mins[i], serieRK, "R") + " %");
-			lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
-			pnl_roe.add(lbl_d);
+			if (modele.getKidneys()[1]) {
+				JLabel lbl_d = new JLabel(modele.getPercentage(mins[i], serieRK, "R") + " %");
+				lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
+				pnl_roe.add(lbl_d);
+			} else {
+				pnl_roe.add(new JLabel("N/A"));
+			}
 
 		}
 
@@ -124,7 +142,7 @@ public class TabROE extends FenResultatSidePanel {
 	@Override
 	public Component[] getSidePanelContent() {
 		// TODO Auto-generated method stub
-		return new Component[] {getPanelROE()};
+		return new Component[] { getPanelROE() };
 	}
 
 }

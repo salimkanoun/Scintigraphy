@@ -8,9 +8,9 @@ import java.util.List;
 
 import org.petctviewer.scintigraphy.RenalSettings;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 import ij.IJ;
 import ij.ImagePlus;

@@ -16,8 +16,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import org.petctviewer.scintigraphy.scin.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
+
 import ij.ImagePlus;
 import ij.gui.ImageCanvas;
 

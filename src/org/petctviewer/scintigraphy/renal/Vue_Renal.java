@@ -2,16 +2,19 @@ package org.petctviewer.scintigraphy.renal;
 
 import java.awt.Color;
 
-import org.petctviewer.scintigraphy.scin.FenApplication;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationDyn;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Overlay;
 import ij.gui.Toolbar;
+import ij.plugin.ZProjector;
 
 public class Vue_Renal extends VueScinDyn {
 
@@ -37,6 +40,11 @@ public class Vue_Renal extends VueScinDyn {
 		ImagePlus impPostFirstMin = projeter(this.impPost, 0, fin);
 		s.addSlice(impPostFirstMin.getProcessor());
 		
+		//MIP
+		ImagePlus pj = ZProjector.run(this.impPost, "max", 0, this.impPost.getNSlices());
+		pj.show();
+		s.addSlice(pj.getProcessor());
+		
 		// ajout de la prise ant si elle existe
 		if (this.impAnt != null) {
 			for (int i = 1; i <= this.impAnt.getStackSize(); i++) {
@@ -51,16 +59,17 @@ public class Vue_Renal extends VueScinDyn {
 
 		VueScin.setCustomLut(impProjetee);
 
-		this.setImp(impProjetee);
+		this.setImp(impProjetee.duplicate());
 		this.getImp().setOverlay(ov);
 		
-		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));
+		this.setFenApplication(new FenApplicationDyn(this.getImp(), this.getExamType(), this));
 
 		VueScin.setOverlayGD(ov, impProjetee, Color.yellow);
-		VueScin.setOverlayTitle("2 first min of Post", ov, impProjetee, Color.YELLOW, 2);
 		VueScin.setOverlayTitle("Post", ov, impProjetee, Color.yellow, 1);
+		VueScin.setOverlayTitle("2 first min of Post", ov, impProjetee, Color.YELLOW, 2);
+		VueScin.setOverlayTitle("MIP", ov, impProjetee, Color.YELLOW, 3);
 		if (this.impAnt != null) {
-			VueScin.setOverlayTitle("Ant", ov, impProjetee, Color.yellow, 3);
+			VueScin.setOverlayTitle("Ant", ov, impProjetee, Color.yellow, 4);
 		}
 
 		this.getImp().setOverlay(ov);
