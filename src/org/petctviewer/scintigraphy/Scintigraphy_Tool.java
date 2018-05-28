@@ -45,6 +45,8 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			PopupMenu pulmonary = new PopupMenu("Pulmonary");
 			PopupMenu hepatic = new PopupMenu("Hepatic");
 			PopupMenu cardiac = new PopupMenu("Cardiac");
+			PopupMenu renal = new PopupMenu("Renal");
+			PopupMenu generic = new PopupMenu("Generic");
 			
 			if (Menus.getFontSize()!=0) general.setFont(Menus.getFont());
 			
@@ -61,9 +63,18 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			//Hepatic
 			MenuItem biliaryScintigraphy = new MenuItem("Biliary Scintigraphy");
 			
+			//Renal
+			MenuItem renogram = new MenuItem("Renogram");
+			MenuItem dmsa = new MenuItem("DMSA");
+			
 			//About et preference
 			MenuItem about = new MenuItem("About");
 			MenuItem preferences=new MenuItem("Preferences");
+			
+			//generic
+			MenuItem dynquant = new MenuItem("Dynamic Quantification");
+			
+			
 			
 			
 			//Ajout des listeners
@@ -73,8 +84,11 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			plumonaryShunt.addActionListener(this);
 			dpdQuant.addActionListener(this);
 			biliaryScintigraphy.addActionListener(this);
+			renogram.addActionListener(this);
+			dmsa.addActionListener(this);
 			about.addActionListener(this);
 			preferences.addActionListener(this);
+			dynquant.addActionListener(this);
 			
 			gastric.add(gastricEmptying);
 			gastric.add(gastricDynamic);
@@ -85,11 +99,18 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			cardiac.add(dpdQuant);
 			hepatic.add(biliaryScintigraphy);
 			
+			renal.add(renogram);
+			renal.add(dmsa);
 			
+			generic.add(dynquant);
+			
+			
+			general.add(generic);
 			general.add(cardiac);
 			general.add(gastric);
 			general.add(hepatic);
 			general.add(pulmonary);
+			general.add(renal);
 			general.add(preferences);
 			general.add(about);
 			
@@ -115,6 +136,15 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			}
 			if (cmd=="Pulmonary Shunt") {
 				IJ.run("Pulmonary Shunt");
+			}
+			if (cmd=="Dynamic Quantification") {
+				IJ.run("Dynamic Quantification");
+			}
+			if (cmd=="Renogram") {
+				IJ.run("Renogram");
+			}
+			if (cmd=="DMSA") {
+				IJ.run("DMSA");
 			}
 			if (cmd=="Gastric Condense") {
 				Thread condense=new Thread (new Runnable() 
