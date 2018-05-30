@@ -18,7 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import org.petctviewer.scintigraphy.renal.gui.BackgroundPanel;
+import org.petctviewer.scintigraphy.renal.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
@@ -65,10 +65,10 @@ public abstract class FenResultatSidePanel extends JFrame {
 		this.side.setBorder(new EmptyBorder(0, 10, 0, 10));
 
 		// ajout de la capture
-		BackgroundPanel img = null;
+		DynamicImage img = null;
 
 		if (capture != null) {
-			img = new BackgroundPanel(capture);
+			img = new DynamicImage(capture);
 			this.add(img, BorderLayout.WEST);
 		}else {
 			this.add(new JPanel(), BorderLayout.WEST);

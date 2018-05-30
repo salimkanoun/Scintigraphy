@@ -13,7 +13,7 @@ import javax.swing.*;
  *  Also, any component added directly to this panel will be made
  *  non-opaque so that the custom painting can show through.
  */
-public class BackgroundPanel extends JPanel {
+public class DynamicImage extends JPanel {
 	public static final int SCALED = 0, SCALED_KEEPRATIO = 3, TILED = 1, ACTUAL = 2; //affichage
 	
 	private Object interpolation = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
@@ -29,7 +29,7 @@ public class BackgroundPanel extends JPanel {
 	/*
 	 * Set image as the background with the SCALED style
 	 */
-	public BackgroundPanel(Image image) {
+	public DynamicImage(Image image) {
 		this(image, SCALED_KEEPRATIO);
 	}
 	
@@ -40,7 +40,7 @@ public class BackgroundPanel extends JPanel {
 	/*
 	 * Set image as the background with the specified style
 	 */
-	public BackgroundPanel(Image image, int style) {
+	public DynamicImage(Image image, int style) {
 		setImage(image);
 		setStyle(style);
 		setLayout(new BorderLayout());
@@ -49,7 +49,7 @@ public class BackgroundPanel extends JPanel {
 	/*
 	 * Set image as the backround with the specified style and alignment
 	 */
-	public BackgroundPanel(Image image, int style, float alignmentX, float alignmentY) {
+	public DynamicImage(Image image, int style, float alignmentX, float alignmentY) {
 		setImage(image);
 		setStyle(style);
 		setImageAlignmentX(alignmentX);
@@ -60,7 +60,7 @@ public class BackgroundPanel extends JPanel {
 	/*
 	 * Use the Paint interface to paint a background
 	 */
-	public BackgroundPanel(Paint painter) {
+	public DynamicImage(Paint painter) {
 		setPaint(painter);
 		setLayout(new BorderLayout());
 	}

@@ -18,7 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import org.petctviewer.scintigraphy.renal.gui.BackgroundPanel;
+import org.petctviewer.scintigraphy.renal.gui.DynamicImage;
 
 public class FenetreResultat extends JFrame {
   private static final long serialVersionUID = -9097595151860174657L;
@@ -31,7 +31,7 @@ public class FenetreResultat extends JFrame {
     setLayout(new BorderLayout());
     JPanel panelImage=new JPanel();
     this.add(panelImage, BorderLayout.WEST);
-    panelImage.add(new BackgroundPanel(imp.getBufferedImage()));
+    panelImage.add(new DynamicImage(imp.getBufferedImage()));
     
     JScrollPane scrollPane = new JScrollPane(tableResults);
     tableResults.setAutoResizeMode(4);

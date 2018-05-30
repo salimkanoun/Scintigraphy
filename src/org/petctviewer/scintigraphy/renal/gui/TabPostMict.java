@@ -25,6 +25,7 @@ import org.petctviewer.scintigraphy.scin.basic.VueScin_Basic;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatImp;
 
 import ij.ImageJ;
+import ij.ImagePlus;
 import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.util.DicomTools;
@@ -65,24 +66,41 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 	public void actionPerformed(ActionEvent arg0) {
 		String[] organes = new String[] { "L. Kidney", "L. bkg", "R. Kidney", "R. bkg" };
 		this.vue = new VueScin_Basic(organes, this);
+		ImagePlus imp = this.vue.getImp();
+		
+		ImagePlus impPost = null;
+		if(imp.getStackSize() >= 2) {
+			impPost = new ImagePlus(imp.getTitle(), imp.getStack().getProcessor(2));
+		}else {
+			impPost = imp;
+		}
+		
+		for(int i = 0; i < imp.getStackSize(); i++) {
+			impPost.getProcessor().flipHorizontal();	
+		}
 	}
 
 	@Override
 	public void fin() {
 		HashMap<String, Double> data = this.vue.getData();
-		
+
 		this.setImp(vue.getImp());
-		
+
 		System.out.println(data);
-		
-		//TODO moy geom si ant post
+
+		// TODO moy geom si ant post
 		Double rg = data.get("L. Kidney P0") - data.get("L. bkg P0");
 		Double rd = data.get("R. Kidney P0") - data.get("R. bkg P0");
 		int duration = Integer.parseInt(DicomTools.getTag(this.getImagePlus(), "0018,1242").trim());
-		this.grid = (JPanel) this.getPanelNoRa(rg, rd, duration);
-		
+
+		// on calcule les valeurs en coups/sec
+		rg /= (duration / 1000);
+		rd /= (duration / 1000);
+
+		this.grid = (JPanel) this.getPanelNoRa(rg, rd);
+
 		SwingUtilities.invokeLater(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				btn_addImp.setVisible(false);
@@ -90,7 +108,6 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 			}
 		});
 	}
-	
 
 	@Override
 	public Component[] getSidePanelContent() {
@@ -98,12 +115,16 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 			Component[] compSuper = super.getSidePanelContent();
 			Component[] comp = new Component[compSuper.length + 1];
 
-			comp[0] = this.grid;
-			
-			if(compSuper != null) {
-				comp[1] = compSuper[0];	
+			JPanel flow = new JPanel();
+			flow.add(Box.createVerticalGlue());
+			flow.add(this.grid);
+			flow.add(Box.createVerticalGlue());
+			comp[0] = flow;
+
+			if (compSuper != null) {
+				comp[1] = compSuper[0];
 			}
-			
+
 			return comp;
 		}
 		return null;
@@ -131,30 +152,31 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 		}
 	}
 
-	private Component getPanelNoRa(Double rg, Double rd, int duration) {
-		JLabel lbl_L = new JLabel("L");
-		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
-		JLabel lbl_R = new JLabel("R");
-		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
-
+	private Component getPanelNoRa(Double rg, Double rd) {
 		Modele_Renal modele = (Modele_Renal) this.getVue().getFenApplication().getControleur().getModele();
-		Double[][] nora = modele.getNoRAPM(rg, rd, duration);
+		Double[][] nora = modele.getNoRAPM(rg, rd);
 		// panel nora
 		JPanel pnl_nora = new JPanel(new GridLayout(3, 3, 0, 3));
+
 		pnl_nora.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
+		JLabel[] lbls = new JLabel[] {
+			new JLabel("L"),
+			new JLabel("R"),
+			new JLabel("Max"),
+			new JLabel("" + nora[0][0] + " %"),
+			new JLabel("" + nora[0][1] + " %"),
+			new JLabel("" + ModeleScin.round(modele.getAdjustedValues()[6] - 1, 1) + " min"),
+			new JLabel("" + nora[1][0] + " %"),
+			new JLabel("" + nora[1][1] + " %"),
+		};
+		
 		pnl_nora.add(new JLabel(" NORA Post-Mict"));
-		pnl_nora.add(lbl_L);
-		pnl_nora.add(lbl_R);
-
-		pnl_nora.add(new JLabel("Max"));
-		pnl_nora.add(new JLabel("" + nora[0][0] + " %"));
-		pnl_nora.add(new JLabel("" + nora[0][1] + " %"));
-
-		pnl_nora.add(new JLabel("" + ModeleScin.round(modele.getAdjustedValues()[6], 1) + " min"));
-		pnl_nora.add(new JLabel("" + nora[1][0] + " %"));
-		pnl_nora.add(new JLabel("" + nora[1][1] + " %"));
-
+		for(JLabel l : lbls) {
+			l.setHorizontalAlignment(JLabel.CENTER);
+			pnl_nora.add(l);
+		}
+		
 		return pnl_nora;
 	}
 

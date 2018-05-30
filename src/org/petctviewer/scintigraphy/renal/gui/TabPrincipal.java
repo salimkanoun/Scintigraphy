@@ -65,9 +65,9 @@ public class TabPrincipal extends FenResultatSidePanel {
 		JPanel grid = new JPanel(new GridLayout(2, 1));
 
 		// on affiche la capture
-		BackgroundPanel lbl_capture = new BackgroundPanel(capture);
+		DynamicImage lbl_capture = new DynamicImage(capture);
 
-		BackgroundPanel lbl_proj = new BackgroundPanel(proj.getImage());
+		DynamicImage lbl_proj = new DynamicImage(proj.getImage());
 
 		// creation du panel du haut
 		JPanel panel_top = new JPanel(new GridLayout(1, 2));

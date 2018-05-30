@@ -16,7 +16,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.petctviewer.scintigraphy.renal.gui.BackgroundPanel;
+import org.petctviewer.scintigraphy.renal.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
 import ij.ImagePlus;
@@ -26,7 +26,7 @@ public abstract class FenResultatImp extends FenResultatSidePanel implements Cha
 
 	private ImagePlus imp;
 	private ImageIcon icon;
-	private BackgroundPanel lbl_icon;
+	private DynamicImage lbl_icon;
 	private VueScin vue;
 	private JLabel sliderLabel;
 	private JSlider slider;
@@ -40,7 +40,7 @@ public abstract class FenResultatImp extends FenResultatSidePanel implements Cha
 	public void finishBuildingWindow(boolean capture) {
 		if(this.imp != null) {
 			BufferedImage img = this.imp.getBufferedImage();
-			this.lbl_icon = new BackgroundPanel(img);
+			this.lbl_icon = new DynamicImage(img);
 			this.add(lbl_icon, BorderLayout.CENTER);
 		}
 

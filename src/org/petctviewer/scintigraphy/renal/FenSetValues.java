@@ -86,9 +86,9 @@ public class FenSetValues extends JDialog implements ActionListener {
 		ValueSelector end = new ValueSelector(" ", 2, -1, RectangleAnchor.BOTTOM_RIGHT); // fin de l'intervalle
 		this.selectorListener.add(end, 5);
 		ValueSelector middle = new ValueSelector("<->", 2, -1, RectangleAnchor.CENTER);
-		this.selectorListener.add(middle, 6);
+		this.selectorListener.add(middle, 7);
 
-		this.selectorListener.add(new ValueSelector("Lasilix", 20, -1, RectangleAnchor.BOTTOM_LEFT), 7);
+		this.selectorListener.add(new ValueSelector("Lasilix", 20, -1, RectangleAnchor.BOTTOM_LEFT), 6);
 
 		// on rempli l'intervalle entre start et end
 		this.fillInterval(start.getXValue(), end.getXValue());
@@ -178,6 +178,7 @@ public class FenSetValues extends JDialog implements ActionListener {
 	 *         [4] => Borne intervalle 1 <br>
 	 *         [5] => Borne intervalle 2 <br>
 	 *         [6] => Lasilix
+	 *         [7] => Borne Milieu
 	 */
 	public Double[] getXValues() {
 		return this.selectorListener.getXValues();
@@ -187,7 +188,7 @@ public class FenSetValues extends JDialog implements ActionListener {
 		// supprimer les marqueurs de retention d'origine
 		this.selectorListener.remove(2);
 		this.selectorListener.remove(3);
-		this.selectorListener.remove(6);
+		this.selectorListener.remove(7);
 
 		// on supprime le listener du chartPanel
 		this.chart.removeChartMouseListener(this.selectorListener);

@@ -58,9 +58,28 @@ public class Modele_Renal extends ModeleScinDyn {
 		}
 
 	}
+	
+	private void normalizeBP() {
+		List<Double> bp = getData("Blood Pool");
+		Integer aireBP = this.organArea.get("Blood Pool");
+		Integer aireLk = this.organArea.get("L. Kidney");
+		Integer aireRk = this.organArea.get("R. Kidney");
+		
+		List<Double> bpl = new ArrayList<>();
+		List<Double> bpr = new ArrayList<>();
+		for(Double d : bp) {
+			bpl.add((d/aireBP) * aireLk);
+			bpr.add((d/aireBP) * aireRk);
+		}
+		
+		this.getData().put("BP norm L", bpl);
+		this.getData().put("BP norm R", bpr);
+	}
 
 	@Override
 	public void calculerResultats() {
+		
+		normalizeBP();
 
 		if (RenalSettings.getSettings()[1]) {
 			List<List<Double>> bassinets = this.calculBassinets();
@@ -435,26 +454,25 @@ public class Modele_Renal extends ModeleScinDyn {
 
 	/**
 	 * 
-	 * @param rg
-	 * @param rd
+	 * @param rg coups du rein gauche en coups/sec
+	 * @param rd coups du rein droit en coups/sec
 	 * @return res[0] : rein gauche, res[1] : rein droit, res[x][0] : max, res[x][1] : lasilix - 1
 	 */
-	public Double[][] getNoRAPM(Double rg, Double rd, int duration) {
+	public Double[][] getNoRAPM(Double rg, Double rd) {
 		
 		Double[][] res = new Double[2][2];
 		Double xLasilixM1 = this.getAdjustedValues()[6] - 1;
 		Double xMaxL = this.getAdjustedValues()[1];
 		Double xMaxR = this.getAdjustedValues()[0];
 		
-		System.out.println("avant div : (duration: " + duration + ")");
-		System.out.println("G: " + rg + ", D: " + rd);
-		System.out.println("G: " + (rg / duration) + ", D: " + (rd/ duration));
+		System.out.println("Lasilix L : " + xLasilixM1 + " , " + ModeleScin.getY(getSerie("Final KL"), xLasilixM1));
+		System.out.println("Lasilix R : " + xLasilixM1 + " , " + ModeleScin.getY(getSerie("Final KR"), xLasilixM1));
 		
-		res[0][0] = ModeleScin.round((100 * (rg / duration)/ModeleScinDyn.getY(this.getSerie("Final KL"), xMaxL)), 2);
-		res[0][1] = ModeleScin.round((100 * (rg / duration)/ModeleScinDyn.getY(this.getSerie("Final KL"), xLasilixM1)), 2);
+		res[0][0] = ModeleScin.round((100 * rg/ModeleScinDyn.getY(this.getSerie("Final KL"), xMaxL)), 2);
+		res[0][1] = ModeleScin.round((100 * rg/ModeleScinDyn.getY(this.getSerie("Final KL"), xLasilixM1)), 2);
 		
-		res[1][0] = ModeleScin.round((100 * (rd/ duration)/ModeleScinDyn.getY(this.getSerie("Final KR"), xMaxR)), 2);
-		res[1][1] = ModeleScin.round((100 * (rd/ duration)/ModeleScinDyn.getY(this.getSerie("Final KR"), xLasilixM1)), 2);
+		res[1][0] = ModeleScin.round((100 * rd/ModeleScinDyn.getY(this.getSerie("Final KR"), xMaxR)), 2);
+		res[1][1] = ModeleScin.round((100 * rd/ModeleScinDyn.getY(this.getSerie("Final KR"), xLasilixM1)), 2);
 		
 		return res;
 	}
@@ -467,9 +485,9 @@ public class Modele_Renal extends ModeleScinDyn {
 	public Double[][] getNoRA() {
 		Double[][] res = new Double[3][3];
 		
-		// adjusted[7] => lasilix
-		res[0][0] = ModeleScin.round(this.adjusted[7] - 1, 0);
-		res[0][1] = ModeleScin.round(this.adjusted[7] + 2, 0);
+		// adjusted[6] => lasilix
+		res[0][0] = ModeleScin.round(this.getAdjustedValues()[6] - 1, 0);
+		res[0][1] = ModeleScin.round(this.getAdjustedValues()[6] + 2, 0);
 		res[0][2] = round(this.getSerie("Blood Pool").getMaxX(), 0);
 		
 		if(this.kidneys[0]) {

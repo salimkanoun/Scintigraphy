@@ -72,6 +72,7 @@ public abstract class VueScin implements PlugIn {
 					ouvertureImage(selection.getSelectedWindowsTitles());
 				} catch (Exception e) {
 					System.err.println("The selected dicoms are not usable for this exam");
+					e.printStackTrace(System.out);
 				}
 			}
 		}
@@ -80,12 +81,9 @@ public abstract class VueScin implements PlugIn {
 	/**
 	 * Permet de renvoyer une tableau d'image plus selon les dicoms ouvertes, il
 	 * peut y avoir une ou deux ouverte
-	 * 
-	 * @param titresFenetres
-	 *            titres des fenetres ouvertes utilisées
 	 * @return les imps, [0] correspond a l'ant, [1] a la post
 	 */
-	public static ImagePlus[] splitAntPost(ImagePlus[] imagePlus) {
+	public static ImagePlus[] sortAntPost(ImagePlus[] imagePlus) {
 		if (imagePlus.length > 2) {
 			throw new IllegalArgumentException("Too much imp");
 		}
@@ -113,7 +111,7 @@ public abstract class VueScin implements PlugIn {
 				imps[1] = imp;
 			}
 
-		} else { // si il y a deux fenetres d'ouvertes
+		} else { // si il y a deux images dans le tableau
 			for (ImagePlus imp : imagePlus) { // pour chaque fenetre
 				if (VueScin.isAnterieur(imp)) { // si la vue est ant, on choisi cette image
 					imps[0] = (ImagePlus) imp.clone();
@@ -1010,6 +1008,10 @@ public abstract class VueScin implements PlugIn {
 			roi.setName(newName);
 			roi.setStrokeColor(c);
 		}
+	}
+	
+	public static ImagePlus[] splitAntPost(ImagePlus imp) {
+		return null;
 	}
 
 	public ImagePlus getImp() {

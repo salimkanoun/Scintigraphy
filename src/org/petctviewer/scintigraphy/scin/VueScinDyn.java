@@ -31,7 +31,7 @@ public abstract class VueScinDyn extends VueScin {
 			images[i] = WindowManager.getImage(titresFenetres[i]);
 		}
 		
-		ImagePlus[] imps = VueScin.splitAntPost(images);
+		ImagePlus[] imps = VueScin.sortAntPost(images);
 		
 		if(imps[0] != null) {
 			this.impAnt = imps[0].duplicate();
