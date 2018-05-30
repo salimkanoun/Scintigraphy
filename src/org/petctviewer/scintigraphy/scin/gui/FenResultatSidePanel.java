@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import java.util.HashMap;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -17,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import org.petctviewer.scintigraphy.renal.gui.BackgroundPanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
@@ -63,13 +65,14 @@ public abstract class FenResultatSidePanel extends JFrame {
 		this.side.setBorder(new EmptyBorder(0, 10, 0, 10));
 
 		// ajout de la capture
-		JLabel img = new JLabel();
+		BackgroundPanel img = null;
 
 		if (capture != null) {
-			img.setIcon(new ImageIcon(capture));
+			img = new BackgroundPanel(capture);
+			this.add(img, BorderLayout.WEST);
+		}else {
+			this.add(new JPanel(), BorderLayout.WEST);
 		}
-
-		this.add(img, BorderLayout.WEST);
 
 		// ajout du titre de la fenetre
 		JPanel flow = new JPanel();
@@ -101,9 +104,12 @@ public abstract class FenResultatSidePanel extends JFrame {
 
 		// on ajoute tous les components de la methode getSidePanelContent
 		Component[] comp = this.getSidePanelContent();
+
 		if (comp != null) {
 			for (Component c : comp) {
-				this.side.add(c);
+				if (c != null) {
+					this.side.add(c);
+				}
 			}
 		}
 
@@ -119,10 +125,10 @@ public abstract class FenResultatSidePanel extends JFrame {
 			JLabel lbl_credits = new JLabel("Provided by petctviewer.org");
 			lbl_credits.setVisible(false);
 			this.side.add(lbl_credits);
-			
+
 			this.setCaptureButton(btn_capture, lbl_credits);
 		}
-		
+
 		// on ajoute le sie panel a droite de la fenetre
 		this.add(this.side, BorderLayout.EAST);
 
@@ -208,13 +214,12 @@ public abstract class FenResultatSidePanel extends JFrame {
 
 		return dimg;
 	}
-	
+
 	public void setCaptureButton(JButton btn_capture, JLabel lbl_credits) {
 		// on ajoute le listener pour la capture
-		this.vue.setCaptureButton(btn_capture, lbl_credits, this, this.modele,
-				this.additionalInfo);
+		this.vue.setCaptureButton(btn_capture, lbl_credits, this, this.modele, this.additionalInfo);
 	}
-	
+
 	public VueScin getVue() {
 		return this.vue;
 	}

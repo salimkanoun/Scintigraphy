@@ -16,6 +16,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.petctviewer.scintigraphy.renal.gui.BackgroundPanel;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
 import ij.ImagePlus;
@@ -25,7 +26,7 @@ public abstract class FenResultatImp extends FenResultatSidePanel implements Cha
 
 	private ImagePlus imp;
 	private ImageIcon icon;
-	private JLabel lbl_icon;
+	private BackgroundPanel lbl_icon;
 	private VueScin vue;
 	private JLabel sliderLabel;
 	private JSlider slider;
@@ -38,24 +39,14 @@ public abstract class FenResultatImp extends FenResultatSidePanel implements Cha
 	@Override
 	public void finishBuildingWindow(boolean capture) {
 		if(this.imp != null) {
-			JPanel flow = new JPanel();
-			this.lbl_icon = new JLabel();
 			BufferedImage img = this.imp.getBufferedImage();
-			this.icon = new ImageIcon(img);
-			lbl_icon.setIcon(icon);
-			flow.add(lbl_icon);
-			
-			Box vertical = Box.createVerticalBox();
-			vertical.add(Box.createVerticalGlue());
-			vertical.add(flow);
-			vertical.add(Box.createVerticalGlue());			
-
-			this.add(vertical, BorderLayout.CENTER);
+			this.lbl_icon = new BackgroundPanel(img);
+			this.add(lbl_icon, BorderLayout.CENTER);
 		}
+
+		super.finishBuildingWindow(capture);
 		
 		this.add(new JPanel(), BorderLayout.WEST);
-		
-		super.finishBuildingWindow(capture);
 	}
 	
 	public void setImp(ImagePlus imp) {
@@ -98,20 +89,24 @@ public abstract class FenResultatImp extends FenResultatSidePanel implements Cha
 		ContrastEnhancer ce = new ContrastEnhancer();
 		ce.stretchHistogram(this.imp,contrast);
 		
-		this.icon.setImage(this.imp.getBufferedImage());
+		//this.icon.setImage(this.imp.getBufferedImage());
 		
 		try {
 			SwingUtilities.invokeLater(new Runnable() {
 				
 				@Override
 				public void run() {
-					lbl_icon.setIcon(icon);
+					lbl_icon.setImage(imp.getBufferedImage());
 					lbl_icon.repaint();
 				}
 			});
 		} catch (@SuppressWarnings("unused") Exception e1) {
 			//vide
 		}
+	}
+	
+	public ImagePlus getImagePlus() {
+		return this.imp;
 	}
 	
 	@Override

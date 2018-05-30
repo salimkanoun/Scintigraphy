@@ -48,7 +48,7 @@ public class RenalSettings extends JFrame implements ActionListener {
 		ckb_bld = new JCheckBox("Bladder");
 		box.add(ckb_bld);
 
-		ckb_ctl = new JCheckBox("Cortical");
+		ckb_ctl = new JCheckBox("Pelvis");
 		box.add(ckb_ctl);
 
 		ckb_utr = new JCheckBox("Ureter");
@@ -88,7 +88,7 @@ public class RenalSettings extends JFrame implements ActionListener {
 			String settings = "";
 			settings += "Bladder: " + this.ckb_bld.isSelected();
 			settings += " ";
-			settings += "Cortical: " + this.ckb_ctl.isSelected();
+			settings += "Pelvis: " + this.ckb_ctl.isSelected();
 			settings += " ";
 			settings += "Ureter: " + this.ckb_utr.isSelected();
 
@@ -101,10 +101,10 @@ public class RenalSettings extends JFrame implements ActionListener {
 
 	/**
 	 * Renvoie un tableau de booleen correspondant aux organes selectionnes
-	 * @return tab[0] : Bladder <br> tab[1] : Cortical <br> tab[2] : Ureter
+	 * @return tab[0] : Bladder <br> tab[1] : Pelvis <br> tab[2] : Ureter
 	 */
 	public static boolean[] getSettings() {
-		String settingsString = Prefs.get("renal.preferred", "Bladder: true Cortical: true Ureter: true");
+		String settingsString = Prefs.get("renal.preferred", "Bladder: true Pelvis: true Ureter: true");
 
 		boolean[] ret = new boolean[3];
 

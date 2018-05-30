@@ -469,6 +469,10 @@ public abstract class ControleurScin implements ActionListener {
 	public RoiManager getRoiManager() {
 		return this.roiManager;
 	}
+	
+	public void setRoiManager(RoiManager rm) {
+		this.roiManager = rm;;
+	}
 
 	public void removeImpListener() {
 		ImagePlus.removeImageListener(this.ctrlImg);

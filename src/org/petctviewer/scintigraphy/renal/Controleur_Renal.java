@@ -42,7 +42,7 @@ public class Controleur_Renal extends ControleurScin {
 		this.setOrganes(ORGANES);
 		this.nbOrganes = ORGANES.length;
 
-		Modele_Renal modele = new Modele_Renal(vue.getFrameDurations(), kidneys);
+		Modele_Renal modele = new Modele_Renal(vue.getFrameDurations(), kidneys, vue.getImpPost());
 
 		// on bloque le modele pour ne pas enregistrer les valeurs de la projection
 		modele.lock();
@@ -57,8 +57,8 @@ public class Controleur_Renal extends ControleurScin {
 		//refactoriser pour eviter les copier colles
 		this.hideLabel("R. bkg", Color.GRAY);
 		this.hideLabel("L. bkg", Color.GRAY);
-		this.hideLabel("R. Cortical", Color.YELLOW);
-		this.hideLabel("L. Cortical", Color.YELLOW);
+		this.hideLabel("R. Pelvis", Color.YELLOW);
+		this.hideLabel("L. Pelvis", Color.YELLOW);
 	}
 
 	private void hideLabel(String name, Color c) {
@@ -160,11 +160,11 @@ public class Controleur_Renal extends ControleurScin {
 
 		if (settings[1]) {
 			if(kidneys[0]) {
-				organes.add(organes.indexOf("L. Kidney") + 1, "L. Cortical");
+				organes.add(organes.indexOf("L. Kidney") + 1, "L. Pelvis");
 			}
 			
 			if(kidneys[1]) {
-				organes.add(organes.indexOf("R. Kidney") + 1, "R. Cortical");
+				organes.add(organes.indexOf("R. Kidney") + 1, "R. Pelvis");
 			}
 		}
 
@@ -204,7 +204,7 @@ public class Controleur_Renal extends ControleurScin {
 
 		String org = this.getNomOrgane(indexRoi - 1);
 
-		if ((!cort && org.contains("Kidney")) || (cort && org.contains("Cortical"))) {
+		if ((!cort && org.contains("Kidney")) || (cort && org.contains("Pelvis"))) {
 			return this.createBkgRoi(this.indexRoi);
 		}
 
@@ -218,7 +218,7 @@ public class Controleur_Renal extends ControleurScin {
 		int indexLiver;
 		// on clone la roi du rein
 		if (RenalSettings.getSettings()[1]) {
-			// si on trace des corticales, il faut decaler de deux
+			// si on trace des pelvis, il faut decaler de deux
 			indexLiver = indexRoi - 2;
 		} else {
 			indexLiver = indexRoi - 1;

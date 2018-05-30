@@ -9,6 +9,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
+import org.petctviewer.scintigraphy.renal.gui.BackgroundPanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
@@ -27,9 +28,7 @@ public class FenResultat_GeneralDyn extends FenResultatSidePanel {
 		int cols = (modele.getNbRoi() + 1) / 2;
 		JPanel grid = new JPanel(new GridLayout(2, cols));
 
-		JLabel lbl_capture = new JLabel();
-		lbl_capture.setIcon(new ImageIcon(capture));
-		grid.add(lbl_capture);
+		grid.add(new BackgroundPanel(capture));
 
 		ChartPanel[] cPanels = ModeleScin.associateSeries(asso, modele.getSeries());
 		for (ChartPanel c : cPanels) {

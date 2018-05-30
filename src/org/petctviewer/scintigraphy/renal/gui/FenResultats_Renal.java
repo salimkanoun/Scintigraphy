@@ -50,7 +50,7 @@ public class FenResultats_Renal {
 		tabbedPane.addTab("Timed image", this.timedImage);
 		tabbedPane.addTab("ROE", this.kidneys);
 
-		// si les corticales sont activees
+		// si les pelvis sont activees
 		if (RenalSettings.getSettings()[1]) {
 			tabbedPane.addTab("Corticals/Pelvis", this.tabCort);
 		}
@@ -72,7 +72,7 @@ public class FenResultats_Renal {
 		frame.pack();
 		frame.setVisible(true);
 		frame.setResizable(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
 
 	// renomme la serie

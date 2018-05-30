@@ -13,6 +13,7 @@ import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 
 import ij.ImagePlus;
+import ij.util.DicomTools;
 
 public class Modele_Renal extends ModeleScinDyn {
 
@@ -26,8 +27,9 @@ public class Modele_Renal extends ModeleScinDyn {
 	 * @param frameDuration
 	 *            duree de chaque frame en ms
 	 */
-	public Modele_Renal(int[] frameDuration, boolean[] kidneys) {
+	public Modele_Renal(int[] frameDuration, boolean[] kidneys, ImagePlus imp) {
 		super(frameDuration);
+		this.imp = imp;
 		this.kidneys = kidneys;
 		this.organArea = new HashMap<>();
 	}
@@ -63,11 +65,11 @@ public class Modele_Renal extends ModeleScinDyn {
 		if (RenalSettings.getSettings()[1]) {
 			List<List<Double>> bassinets = this.calculBassinets();
 			if (this.kidneys[0]) {
-				this.getData().put("L. Pelvis", bassinets.get(0));
+				this.getData().put("L. Cortical", bassinets.get(0));
 			}
 
 			if (this.kidneys[1]) {
-				this.getData().put("R. Pelvis", bassinets.get(1));
+				this.getData().put("R. Cortical", bassinets.get(1));
 			}
 		}
 
@@ -135,9 +137,9 @@ public class Modele_Renal extends ModeleScinDyn {
 		if (kidneys[0]) {
 			List<Double> bassinetsG = new ArrayList<>();
 			List<Double> reinG = this.getData("L. Kidney");
-			List<Double> cortG = this.getData("L. Cortical");
+			List<Double> pelvG = this.getData("L. Pelvis");
 			for (int i = 0; i < this.getData("Blood Pool").size(); i++) {
-				bassinetsG.add(reinG.get(i) - cortG.get(i));
+				bassinetsG.add(reinG.get(i) - pelvG.get(i));
 			}
 			l.add(0, bassinetsG);
 		}
@@ -145,9 +147,9 @@ public class Modele_Renal extends ModeleScinDyn {
 		if (kidneys[1]) {
 			List<Double> bassinetsD = new ArrayList<>();
 			List<Double> reinD = this.getData("R. Kidney");
-			List<Double> cortD = this.getData("R. Cortical");
+			List<Double> pelvD = this.getData("R. Pelvis");
 			for (int i = 0; i < this.getData("Blood Pool").size(); i++) {
-				bassinetsD.add(reinD.get(i) - cortD.get(i));
+				bassinetsD.add(reinD.get(i) - pelvD.get(i));
 			}
 			l.add(1, bassinetsD);
 		}
@@ -308,6 +310,9 @@ public class Modele_Renal extends ModeleScinDyn {
 	 */
 	public XYSeries getSerie(String key) {
 		List<Double> data = this.getData().get(key);
+		if(data == null) {
+			throw new IllegalArgumentException("No series with key " + key);
+		}
 		return this.createSerie(data, key);
 	}
 
@@ -428,6 +433,32 @@ public class Modele_Renal extends ModeleScinDyn {
 		return res;
 	}
 
+	/**
+	 * 
+	 * @param rg
+	 * @param rd
+	 * @return res[0] : rein gauche, res[1] : rein droit, res[x][0] : max, res[x][1] : lasilix - 1
+	 */
+	public Double[][] getNoRAPM(Double rg, Double rd, int duration) {
+		
+		Double[][] res = new Double[2][2];
+		Double xLasilixM1 = this.getAdjustedValues()[6] - 1;
+		Double xMaxL = this.getAdjustedValues()[1];
+		Double xMaxR = this.getAdjustedValues()[0];
+		
+		System.out.println("avant div : (duration: " + duration + ")");
+		System.out.println("G: " + rg + ", D: " + rd);
+		System.out.println("G: " + (rg / duration) + ", D: " + (rd/ duration));
+		
+		res[0][0] = ModeleScin.round((100 * (rg / duration)/ModeleScinDyn.getY(this.getSerie("Final KL"), xMaxL)), 2);
+		res[0][1] = ModeleScin.round((100 * (rg / duration)/ModeleScinDyn.getY(this.getSerie("Final KL"), xLasilixM1)), 2);
+		
+		res[1][0] = ModeleScin.round((100 * (rd/ duration)/ModeleScinDyn.getY(this.getSerie("Final KR"), xMaxR)), 2);
+		res[1][1] = ModeleScin.round((100 * (rd/ duration)/ModeleScinDyn.getY(this.getSerie("Final KR"), xLasilixM1)), 2);
+		
+		return res;
+	}
+	
 	/**
 	 * calcule le nora selon le temps d'injection du lasilix
 	 * 

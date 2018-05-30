@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -104,6 +105,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 
 	}
 	
+	//TODO move that in it's own window
 	private class Fen_NbRein extends JDialog implements ActionListener{
 		private boolean[] kidneys = new boolean[2];
 		private JButton btn_l, btn_r, btn_lr;

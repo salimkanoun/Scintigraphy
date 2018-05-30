@@ -42,7 +42,6 @@ public class Vue_Renal extends VueScinDyn {
 		
 		//MIP
 		ImagePlus pj = ZProjector.run(this.impPost, "max", 0, this.impPost.getNSlices());
-		pj.show();
 		s.addSlice(pj.getProcessor());
 		
 		// ajout de la prise ant si elle existe

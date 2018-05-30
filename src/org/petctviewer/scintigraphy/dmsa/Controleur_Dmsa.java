@@ -3,17 +3,9 @@ package org.petctviewer.scintigraphy.dmsa;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.petctviewer.scintigraphy.RenalSettings;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
-import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
-
-import ij.IJ;
-import ij.ImagePlus;
 import ij.gui.Overlay;
 import ij.gui.Roi;
 
@@ -40,50 +32,6 @@ public class Controleur_Dmsa extends ControleurScin {
 		
 		Modele_Dmsa modele = new Modele_Dmsa();
 		this.setModele(modele);
-	}
-	
-	// cree la roi de bruit de fond
-	private Roi createBkgRoi(int indexRoi) {
-		ImagePlus imp = this.getVue().getImp();
-
-		int indexLiver;
-		// on clone la roi du rein
-		if (RenalSettings.getSettings()[1]) {
-			// si on trace des corticales, il faut decaler de deux
-			indexLiver = indexRoi - 2;
-		} else {
-			indexLiver = indexRoi - 1;
-		}
-
-		// largeur a prendre autour du rein
-		int largeurBkg = 1;
-		if (this.getVue().getImp().getDimensions()[0] >= 128) {
-			largeurBkg = 2;
-		}
-		
-		//TODO refactor pour eviter le copier colle
-
-		this.roiManager.select(indexLiver);
-		IJ.run(imp, "Enlarge...", "enlarge=" + largeurBkg + " pixel");
-		this.roiManager.addRoi(imp.getRoi());
-
-		this.roiManager.select(this.roiManager.getCount() - 1);
-		IJ.run(imp, "Enlarge...", "enlarge=" + largeurBkg + " pixel");
-		this.roiManager.addRoi(imp.getRoi());
-
-		this.roiManager
-				.setSelectedIndexes(new int[] { this.roiManager.getCount() - 2, this.roiManager.getCount() - 1 });
-		this.roiManager.runCommand(imp, "XOR");
-
-		Roi bkg = imp.getRoi();
-
-		// on supprime les rois de construction
-		while (this.roiManager.getCount() - 1 > this.maxIndexRoi ) {
-			this.roiManager.select(this.roiManager.getCount() - 1);
-			this.roiManager.runCommand(imp, "Delete");
-		}
-		
-		return bkg;
 	}
 
 	@Override
@@ -117,15 +65,14 @@ public class Controleur_Dmsa extends ControleurScin {
 		return 2;
 	}
 	
-	//TODO REFACTORISER
 	@Override
 	public void setSlice(int indexSlice) {
 		super.setSlice(indexSlice);
-		this.hideLabel("R. bkg", Color.GRAY);
-		this.hideLabel("L. bkg", Color.GRAY);
+		this.hideAndColorLabel("R. bkg", Color.GRAY);
+		this.hideAndColorLabel("L. bkg", Color.GRAY);
 	}
 
-	private void hideLabel(String name, Color c) {
+	private void hideAndColorLabel(String name, Color c) {
 		Overlay ov = this.getVue().getImp().getOverlay();
 		Roi roi = ov.get(ov.getIndex(name));
 		if (roi != null) {
@@ -142,7 +89,7 @@ public class Controleur_Dmsa extends ControleurScin {
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
 		if(this.indexRoi == 1 | this.indexRoi == 3) {
-			return this.createBkgRoi(indexRoi);
+			return VueScin.createBkgRoi(this.roiManager.getRoi(indexRoi - 1), this.getVue().getImp(), VueScin.KIDNEY);
 		}
 		return null;
 	}

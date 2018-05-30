@@ -65,14 +65,9 @@ public class TabPrincipal extends FenResultatSidePanel {
 		JPanel grid = new JPanel(new GridLayout(2, 1));
 
 		// on affiche la capture
-		JLabel lbl_capture = new JLabel();
-		lbl_capture.setIcon(new ImageIcon(capture));
-		lbl_capture.setHorizontalAlignment(SwingConstants.CENTER);
+		BackgroundPanel lbl_capture = new BackgroundPanel(capture);
 
-		JLabel lbl_proj = new JLabel();
-
-		lbl_proj.setIcon(new ImageIcon(imgProj));
-		lbl_proj.setHorizontalAlignment(SwingConstants.CENTER);
+		BackgroundPanel lbl_proj = new BackgroundPanel(proj.getImage());
 
 		// creation du panel du haut
 		JPanel panel_top = new JPanel(new GridLayout(1, 2));

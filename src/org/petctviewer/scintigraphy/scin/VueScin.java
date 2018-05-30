@@ -6,9 +6,11 @@ import ij.ImageStack;
 import ij.Prefs;
 import ij.WindowManager;
 import ij.gui.Overlay;
+import ij.gui.Roi;
 import ij.gui.TextRoi;
 import ij.plugin.Concatenator;
 import ij.plugin.PlugIn;
+import ij.plugin.frame.RoiManager;
 import ij.process.LUT;
 import ij.util.DicomTools;
 
@@ -42,6 +44,8 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 
 public abstract class VueScin implements PlugIn {
+	public static final int HEART = 0, INFLAT = 1, KIDNEY = 2;
+
 	private String examType;
 
 	private FenApplication fen_application;
@@ -950,6 +954,62 @@ public abstract class VueScin implements PlugIn {
 
 			}
 		});
+	}
+	
+	// cree la roi de bruit de fond
+	public static Roi createBkgRoi(Roi roi, ImagePlus imp, int organ) {
+		Roi bkg = null;
+		RoiManager rm = new RoiManager(true);
+		rm.setVisible(true);
+
+		switch (organ) {
+		case VueScin.KIDNEY:
+			// largeur a prendre autour du rein
+			int largeurBkg = 1;
+			if (imp.getDimensions()[0] >= 128) {
+				largeurBkg = 2;
+			}
+
+			rm.addRoi(roi);
+
+			rm.select(rm.getCount() - 1);
+			IJ.run(imp, "Enlarge...", "enlarge=" + largeurBkg + " pixel");
+			rm.addRoi(imp.getRoi());
+
+			rm.select(rm.getCount() - 1);
+			IJ.run(imp, "Enlarge...", "enlarge=" + largeurBkg + " pixel");
+			rm.addRoi(imp.getRoi());
+
+			rm.setSelectedIndexes(new int[] { rm.getCount() - 2, rm.getCount() - 1 });
+			rm.runCommand(imp, "XOR");
+
+			bkg = imp.getRoi();
+			break;
+
+		case VueScin.HEART:
+			// TODO
+			break;
+
+		case VueScin.INFLAT:
+			// TODO
+			break;
+		default:
+			bkg = roi;
+			break;
+		}
+
+		rm.dispose();
+
+		bkg.setStrokeColor(Color.GRAY);
+		return bkg;
+	}
+
+	public static void editLabelOverlay(Overlay ov, String oldName, String newName, Color c) {
+		Roi roi = ov.get(ov.getIndex(oldName));
+		if (roi != null) {
+			roi.setName(newName);
+			roi.setStrokeColor(c);
+		}
 	}
 
 	public ImagePlus getImp() {
