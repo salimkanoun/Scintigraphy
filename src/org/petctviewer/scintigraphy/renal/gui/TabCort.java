@@ -27,7 +27,7 @@ public class TabCort extends FenResultatSidePanel {
 		List<XYSeries> listSeries = modele.getSeries();
 		// recuperation des chart panel avec association
 		String[][] asso = { { "L. Cortical", "L. Pelvis" }, {"R. Cortical" , "R. Pelvis" } };
-		ChartPanel[] cPanels = ModeleScin.associateSeries(asso, listSeries);
+		ChartPanel[] cPanels = ModeleScinDyn.associateSeries(asso, listSeries);
 		
 		cPanels[0].getChart().setTitle("Left kidney");
 		cPanels[1].getChart().setTitle("Right kidney");

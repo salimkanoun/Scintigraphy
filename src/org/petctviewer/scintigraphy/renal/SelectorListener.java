@@ -1,29 +1,35 @@
 package org.petctviewer.scintigraphy.renal;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.plot.IntervalMarker;
+import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.ui.RectangleAnchor;
+import org.jfree.chart.ui.RectangleInsets;
+import org.jfree.chart.ui.TextAnchor;
 
 public class SelectorListener implements ChartMouseListener {
-
 	// ordre de priorite des selecteurs
 	private List<ValueSelector> listenersPriority;
 
-	// nombre max de selecteurs
-	private static int SELECTOR_CAPACITY = 100;
-
 	private ChartPanel chartPanel;
-	private XYPlot plot;
 	private ValueSelector current;
-	private ValueSelector[] listeners;
+	private HashMap<Comparable, ValueSelector> listeners;
+
+	private List<Area> areas;
 
 	/**
 	 * permet de gerer plusieurs selecteurs sur le meme chartPanel en conservant
@@ -33,9 +39,9 @@ public class SelectorListener implements ChartMouseListener {
 	 */
 	public SelectorListener(ChartPanel chartPanel) {
 		this.chartPanel = chartPanel;
-		this.plot = chartPanel.getChart().getXYPlot();
 		this.listenersPriority = new ArrayList<>();
-		this.listeners = new ValueSelector[SELECTOR_CAPACITY];
+		this.listeners = new HashMap<Comparable, ValueSelector>();
+		this.areas = new ArrayList<Area>();
 	}
 
 	@Override
@@ -67,15 +73,20 @@ public class SelectorListener implements ChartMouseListener {
 		}
 	}
 
+	public ValueSelector getSelector(Comparable key) {
+		return this.listeners.get(key);
+	}
+
 	private ValueSelector getSelector(int xMouse, Rectangle2D plotArea) {
 		// marge a gauche et a droite du selecteur permettant le clic
 		int marge = 5;
 
+		XYPlot plot = this.chartPanel.getChart().getXYPlot();
+
 		// pour chaque selecteur en respectant l'ordre de priorite
 		for (ValueSelector v : this.listenersPriority) {
 			// on converti l'abscisse du selecteur sur le tableau en abscisse sur la fenetre
-			int xJava2D = (int) this.plot.getDomainAxis().valueToJava2D(v.getXValue(), plotArea,
-					this.plot.getDomainAxisEdge());
+			int xJava2D = (int) plot.getDomainAxis().valueToJava2D(v.getXValue(), plotArea, plot.getDomainAxisEdge());
 			// si il y a un selecteur la ou on a clique, on le renvoie
 			if (xJava2D > xMouse - marge && xJava2D < xMouse + marge) {
 				return v;
@@ -87,6 +98,8 @@ public class SelectorListener implements ChartMouseListener {
 	@Override
 	public void chartMouseMoved(ChartMouseEvent event) {
 		Component c = (Component) event.getTrigger().getSource();
+
+		updateAreas();
 
 		// on recupere le selecteur sous la souris
 		int xMouse = (int) event.getTrigger().getPoint().getX();
@@ -108,6 +121,14 @@ public class SelectorListener implements ChartMouseListener {
 		}
 	}
 
+	public void updateAreas() {
+		XYPlot plot = this.chartPanel.getChart().getXYPlot();
+		plot.clearDomainMarkers();
+		for (Area area : this.areas) {
+			area.update();
+		}
+	}
+
 	/**
 	 * ajoute un selecteur a un index donne
 	 * 
@@ -116,15 +137,16 @@ public class SelectorListener implements ChartMouseListener {
 	 * @param index
 	 *            index du selecteur
 	 */
-	public void add(ValueSelector v, int index) {
+	public void add(ValueSelector v, Comparable key) {
 		// on passe le chartpanel au selecteur
 		v.setChartPanel(this.chartPanel);
+		v.setKey(key);
 
 		// on ajoute le selecteur a la liste utilisee pour conserver l'ordre en Z
 		this.listenersPriority.add(v);
 
 		// on ajoute la valeur au bon emplacement dans la liste
-		this.listeners[index] = v;
+		this.listeners.put(key, v);
 
 		// on ajoute la couleur selon la courbe
 		Color c = null;
@@ -147,10 +169,45 @@ public class SelectorListener implements ChartMouseListener {
 	 * @param index
 	 *            index du selecteur
 	 */
-	public void remove(int index) {
-		if(this.listeners[index] != null) {
-			this.chartPanel.removeOverlay(this.listeners[index]);
+	public void remove(Comparable key) {
+		// si il n'y a pas de selecteur avec cette cle
+		if (!this.listeners.keySet().contains(key)) {
+			return;
 		}
+
+		ValueSelector v = this.listeners.get(key);
+		this.chartPanel.removeOverlay(v);
+		this.listeners.remove(v.getKey());
+		this.listenersPriority.remove(v);
+
+		List<Area> areasToRemove = new ArrayList<>();
+		for (Area area : this.areas) {
+			ValueSelector debut = area.start;
+			ValueSelector fin = area.end;
+			if (v == debut || v == fin) {
+				this.remove(area.middle.getKey());
+				areasToRemove.add(area);
+			}
+		}
+
+		for (Area area : areasToRemove) {
+			this.areas.remove(area);
+		}
+		
+		XYPlot plot = SelectorListener.this.chartPanel.getChart().getXYPlot();
+		plot.clearDomainAxes();
+		
+		for (Area area : this.areas) {
+			area.fillInterval();
+		}
+	}
+
+	public void addArea(Comparable startKey, Comparable endKey, Color color) {
+		ValueSelector start = this.listeners.get(startKey);
+		ValueSelector end = this.listeners.get(endKey);
+		Area area = new Area(start, end, color);
+		area.update();
+		this.areas.add(area);
 	}
 
 	/**
@@ -162,30 +219,67 @@ public class SelectorListener implements ChartMouseListener {
 		return this.listenersPriority;
 	}
 
-	/**
-	 * Renvoie les valeurs en x des selecteurs
-	 * 
-	 * @return [0] => TMaxD <br>
-	 *         [1] => TMaxG <br>
-	 *         [2] => Retetion origin D <br>
-	 *         [3] => Retetion origin G <br>
-	 *         [4] => Borne intervalle 1 <br>
-	 *         [5] => Borne intervalle 2 <br>
-	 *         [6] => Lasilix
-	 */
-	public Double[] getXValues() {
-		Double[] values = new Double[8];
-		for (int i = 0; i < values.length; i++) {
-			if (this.listeners[i] != null) {
-				values[i] = this.listeners[i].getXValue();
-			}
+	public HashMap<Comparable, Double> getValues() {
+		HashMap<Comparable, Double> hm = new HashMap<>();
+
+		for (Comparable k : this.listeners.keySet()) {
+			hm.put(k, this.listeners.get(k).getXValue());
 		}
 
-		// TODO refactor, temporary code
-		values[3] = values[1];
-		values[2] = values[0];
-
-		return values;
+		return hm;
 	}
 
+	public ChartPanel getChartPanel() {
+		return this.chartPanel;
+	}
+
+	private class Area {
+		private ValueSelector start, end, middle;
+		private Color color;
+		private double boundsDistToCenter;
+
+		public Area(ValueSelector start, ValueSelector end, Color color) {
+			this.color = color;
+			this.start = start;
+			this.end = end;
+
+			if (color == null) {
+				this.color = new Color(225, 244, 50, 120);
+			} else {
+				this.color = color;
+			}
+
+			middle = new ValueSelector("<>", 2, -1, RectangleAnchor.CENTER);
+			Random rng = new Random();
+			int key = rng.nextInt();
+			SelectorListener.this.add(middle, key);
+		}
+
+		public void update() {
+			if (middle.isXLocked()) { // si le selecteur du milieu n'est pas selectionne, on le recentre
+				middle.setXValue((start.getXValue() + end.getXValue()) / 2);
+				this.boundsDistToCenter = Math.abs(start.getXValue() - middle.getXValue());
+			} else { // sinon on bouge les deux autres selecteurs
+				start.setXValue(middle.getXValue() - this.boundsDistToCenter);
+				end.setXValue(middle.getXValue() + this.boundsDistToCenter);
+			}
+			fillInterval();
+		}
+
+		private void fillInterval() {
+			Double start = this.start.getXValue();
+			Double end = this.end.getXValue();
+			double debut = Math.min(start, end);
+			double fin = Math.max(start, end);
+
+			XYPlot plot = SelectorListener.this.chartPanel.getChart().getXYPlot();
+			Marker bst = new IntervalMarker(debut, fin, this.color, new BasicStroke(2.0f), null, null, 1.0f);
+
+			bst.setLabelAnchor(RectangleAnchor.TOP_RIGHT);
+			bst.setLabelOffset(new RectangleInsets(15, 0, 0, 5));
+			bst.setLabelFont(new Font("SansSerif", 0, 12));
+			bst.setLabelTextAnchor(TextAnchor.BASELINE_RIGHT);
+			plot.addDomainMarker(bst);
+		}
+	}
 }

@@ -9,10 +9,10 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
-import org.petctviewer.scintigraphy.renal.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 public class FenResultat_GeneralDyn extends FenResultatSidePanel {
@@ -30,7 +30,7 @@ public class FenResultat_GeneralDyn extends FenResultatSidePanel {
 
 		grid.add(new DynamicImage(capture));
 
-		ChartPanel[] cPanels = ModeleScin.associateSeries(asso, modele.getSeries());
+		ChartPanel[] cPanels = ModeleScinDyn.associateSeries(asso, modele.getSeries());
 		for (ChartPanel c : cPanels) {
 			c.setPreferredSize(new Dimension(capture.getWidth() + 1 / 3 * capture.getWidth(), capture.getHeight()));
 			grid.add(c);

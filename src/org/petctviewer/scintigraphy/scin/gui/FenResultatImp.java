@@ -16,7 +16,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.petctviewer.scintigraphy.renal.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
 import ij.ImagePlus;

@@ -9,8 +9,11 @@ import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.gui.TextRoi;
 import ij.plugin.Concatenator;
+import ij.plugin.MontageMaker;
 import ij.plugin.PlugIn;
+import ij.plugin.ZProjector;
 import ij.plugin.frame.RoiManager;
+import ij.process.ImageProcessor;
 import ij.process.LUT;
 import ij.util.DicomTools;
 
@@ -72,7 +75,7 @@ public abstract class VueScin implements PlugIn {
 					ouvertureImage(selection.getSelectedWindowsTitles());
 				} catch (Exception e) {
 					System.err.println("The selected dicoms are not usable for this exam");
-					e.printStackTrace(System.out);
+					e.printStackTrace();
 				}
 			}
 		}
@@ -1008,6 +1011,57 @@ public abstract class VueScin implements PlugIn {
 			roi.setName(newName);
 			roi.setStrokeColor(c);
 		}
+	}
+	
+	/**
+	 * Renvoie un montage
+	 * 
+	 * @param frameDuration
+	 * @param imp
+	 * @param size
+	 * @return
+	 */
+	public static ImagePlus creerMontage(int[] frameDuration, ImagePlus imp, int size, int rows, int columns) {
+		int nSlice = frameDuration.length;
+
+		int[] summed = new int[frameDuration.length];
+		summed[0] = frameDuration[0];
+		for (int i = 1; i < nSlice; i++) {
+			summed[i] = summed[i - 1] + frameDuration[i];
+		}
+
+		int[] sliceIndex = new int[(rows * columns) + 1];
+		int pas = summed[nSlice - 1] / (rows * columns);
+		for (int i = 0; i < (rows * columns) + 1; i++) {
+			for (int j = 0; j < summed.length; j++) {
+				if (i * pas <= summed[j] || j == summed.length - 1) {
+					sliceIndex[i] = j;
+					break;
+				}
+			}
+		}
+
+		ImagePlus[] impList = new ImagePlus[rows * columns];
+		for (int i = 1; i < sliceIndex.length; i++) {
+			int start = sliceIndex[i - 1];
+			int stop = sliceIndex[i];
+			ImagePlus tinyImp = ZProjector.run(imp, "sum", start, stop);
+
+			ImageProcessor impc = tinyImp.getProcessor();
+			impc.setInterpolationMethod(ImageProcessor.BICUBIC);
+			impc = impc.resize(size);
+
+			ImagePlus projectionImp = new ImagePlus("", impc);
+
+			impList[i - 1] = projectionImp;
+		}
+
+		Concatenator enchainer = new Concatenator();
+		ImagePlus impStacked = enchainer.concatenate(impList, false);
+
+		MontageMaker mm = new MontageMaker();
+
+		return mm.makeMontage2(impStacked, columns, rows, 1.0, 1, impList.length, 1, 0, false);
 	}
 	
 	public static ImagePlus[] splitAntPost(ImagePlus imp) {

@@ -18,7 +18,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import org.petctviewer.scintigraphy.renal.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
@@ -148,57 +147,6 @@ public abstract class FenResultatSidePanel extends JFrame {
 
 	public void setModele(ModeleScin modele) {
 		this.modele = modele;
-	}
-
-	/**
-	 * Renvoie un montage
-	 * 
-	 * @param frameDuration
-	 * @param imp
-	 * @param size
-	 * @return
-	 */
-	public static ImagePlus creerMontage(int[] frameDuration, ImagePlus imp, int size, int rows, int columns) {
-		int nSlice = frameDuration.length;
-
-		int[] summed = new int[frameDuration.length];
-		summed[0] = frameDuration[0];
-		for (int i = 1; i < nSlice; i++) {
-			summed[i] = summed[i - 1] + frameDuration[i];
-		}
-
-		int[] sliceIndex = new int[(rows * columns) + 1];
-		int pas = summed[nSlice - 1] / (rows * columns);
-		for (int i = 0; i < (rows * columns) + 1; i++) {
-			for (int j = 0; j < summed.length; j++) {
-				if (i * pas <= summed[j] || j == summed.length - 1) {
-					sliceIndex[i] = j;
-					break;
-				}
-			}
-		}
-
-		ImagePlus[] impList = new ImagePlus[rows * columns];
-		for (int i = 1; i < sliceIndex.length; i++) {
-			int start = sliceIndex[i - 1];
-			int stop = sliceIndex[i];
-			ImagePlus tinyImp = ZProjector.run(imp, "sum", start, stop);
-
-			ImageProcessor impc = tinyImp.getProcessor();
-			impc.setInterpolationMethod(ImageProcessor.BICUBIC);
-			impc = impc.resize(size);
-
-			ImagePlus projectionImp = new ImagePlus("", impc);
-
-			impList[i - 1] = projectionImp;
-		}
-
-		Concatenator enchainer = new Concatenator();
-		ImagePlus impStacked = enchainer.concatenate(impList, false);
-
-		MontageMaker mm = new MontageMaker();
-
-		return mm.makeMontage2(impStacked, columns, rows, 1.0, 1, impList.length, 1, 0, false);
 	}
 
 	public Component getSide() {

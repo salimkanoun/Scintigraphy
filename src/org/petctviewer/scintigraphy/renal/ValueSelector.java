@@ -3,6 +3,9 @@ package org.petctviewer.scintigraphy.renal;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Paint;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
@@ -14,7 +17,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.general.DatasetUtils;
 
-public class ValueSelector extends CrosshairOverlay implements ChartMouseListener {
+public class ValueSelector extends CrosshairOverlay implements ChartMouseListener{
 
 	private static final long serialVersionUID = 6794595703667698248L;
 	private Crosshair crossX, crossY;
@@ -26,6 +29,7 @@ public class ValueSelector extends CrosshairOverlay implements ChartMouseListene
 	private int series;
 
 	private ChartPanel chartPanel;
+	private Comparable key;
 
 	/**
 	 * Permet de creer un selecteur deplacable sur un courbe
@@ -43,24 +47,28 @@ public class ValueSelector extends CrosshairOverlay implements ChartMouseListene
 		
 		//on place le label a l'endroit demande
 		this.crossX.setLabelOutlineVisible(false);
-		this.crossX.setLabelAnchor(anchor);
+		
+		if(anchor != null) {
+			this.crossX.setLabelAnchor(anchor);
+		}else {
+			this.crossX.setLabelAnchor(RectangleAnchor.BOTTOM);
+		}
 		
 		//on rend le label invisible si le nom est null ou si c'est un espace
 		this.crossX.setLabelGenerator(new CrosshairLabelGenerator() {
 			@Override
 			public String generateLabel(Crosshair crosshair) {
-				if(nom.equals(" ") || nom == null) {
+				if(nom.equals(" ") || nom == null || nom.equals("")) {
 					ValueSelector.this.crossX.setLabelVisible(false);
 				}
 				return nom;
 			}
 		});
 
-		this.crossX.setLabelVisible(true);
-
 		//le selecteur vertical n'est pour l'instant pas affiche
 		this.crossY = new Crosshair(Double.NaN, Color.GRAY, new BasicStroke(0f));
 		this.crossY.setLabelVisible(true);
+		this.crossX.setLabelVisible(true);
 
 		//on ajoute les selecteurs horizontaux et verticaux
 		this.addDomainCrosshair(this.crossX);
@@ -78,10 +86,10 @@ public class ValueSelector extends CrosshairOverlay implements ChartMouseListene
 
 	@Override
 	public void chartMouseMoved(ChartMouseEvent event) {
-		XYPlot plot = (XYPlot) event.getChart().getPlot();		
+		XYPlot plot = (XYPlot) event.getChart().getPlot();
 		
 		//si le selecteur vertical n'est pas bloque
-		if (!this.xLocked) {			
+		if (!this.xLocked) {
 			ValueAxis xAxis = plot.getDomainAxis();
 			
 			//on calcule la nouvelle valeur du selecteur vertical
@@ -100,7 +108,7 @@ public class ValueSelector extends CrosshairOverlay implements ChartMouseListene
 			this.crossY.setValue(y);
 		}
 	}
-	
+
 	public double getXValue() {
 		return this.crossX.getValue();
 	}
@@ -125,4 +133,13 @@ public class ValueSelector extends CrosshairOverlay implements ChartMouseListene
 		return this.xLocked;
 		
 	}
+
+	public Comparable getKey() {
+		return this.key;
+	}
+	
+	public void setKey(Comparable key) {
+		this.key = key;
+	}
+
 }

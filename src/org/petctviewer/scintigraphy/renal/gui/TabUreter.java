@@ -12,6 +12,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
@@ -22,7 +23,7 @@ public class TabUreter extends FenResultatSidePanel {
 		super("Renal scintigraphy", vue, null, "");
 		String[][] asso = new String[][] {{"L. Ureter" , "R. Ureter"}};
 		List<XYSeries> series = ((Modele_Renal) vue.getFenApplication().getControleur().getModele()).getSeries();
-		ChartPanel[] cPanels = ModeleScin.associateSeries(asso, series);
+		ChartPanel[] cPanels = ModeleScinDyn.associateSeries(asso, series);
 		
 		cPanels[0].getChart().setTitle("Ureters");
 		this.add(cPanels[0], BorderLayout.CENTER);

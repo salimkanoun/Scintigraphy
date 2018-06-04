@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.renal.gui;
+package org.petctviewer.scintigraphy.scin.gui;
 
 import java.awt.*;
 import java.awt.image.*;

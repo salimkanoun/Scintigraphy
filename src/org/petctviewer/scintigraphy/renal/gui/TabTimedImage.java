@@ -35,7 +35,7 @@ public class TabTimedImage extends FenResultatImp{
 		
 		this.finishBuildingWindow(false);
 	
-		ImagePlus montage = FenResultatSidePanel.creerMontage(vue.getFrameDurations(), vue.getImp(), h/(columns+1), rows, columns);
+		ImagePlus montage = VueScin.creerMontage(vue.getFrameDurations(), vue.getImp(), h/(columns+1), rows, columns);
 		montage.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
 		
 		this.setImp(montage);

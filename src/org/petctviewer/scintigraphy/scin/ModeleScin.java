@@ -73,53 +73,6 @@ public abstract class ModeleScin {
 	}
 	
 	/**
-	 * renvoie des chartPanels avec les series associees
-	 * @param asso association des series selon leur cle ( ex : {{"S1", "S2"}, {"S1", "S3"}} )
-	 * @param series liste des series
-	 * @return chartPanels avec association
-	 */
-	public static ChartPanel[] associateSeries(String[][] asso, List<XYSeries> series) {
-		ArrayList<ChartPanel> cPanels = new ArrayList<>();
-		
-		//pour chaque association
-		for (String[] i : asso) {
-			if (i.length > 0) {
-				XYSeriesCollection dataset = new XYSeriesCollection();
-
-				for (String j : i) { //pour chaque cle de l'association
-					for (int k = 0; k < series.size(); k++) { //pour chaque element de la serie
-						//si la cle correspond, on l'ajout au dataset
-						if (series.get(k).getKey().equals(j)) {
-							dataset.addSeries(series.get(k));
-						}
-					}
-				}
-
-				//on cree un jfreehart avec lle datasert precedemment construit
-				JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "counts/sec", dataset,
-						PlotOrientation.VERTICAL, true, true, true);
-
-				final XYPlot plot = xylineChart.getXYPlot();
-
-				//on masque les marqueurs des points
-				XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-				for (int c = 0; c < dataset.getSeriesCount(); c++) {
-					renderer.setSeriesShapesVisible(c, false);
-				}
-				plot.setRenderer(renderer);
-
-				ChartPanel c = new ChartPanel(xylineChart);
-				
-				//on desactive le fond
-				c.getChart().getPlot().setBackgroundPaint(null);
-				cPanels.add(c);
-			}
-		}
-		
-		return cPanels.toArray(new ChartPanel[0]);
-	}
-
-	/**
 	 * renvoie une hasmap contenant les informations du patient selon le tag info de
 	 * l'imp keys : id name date
 	 * 
@@ -162,17 +115,6 @@ public abstract class ModeleScin {
 		return hm;
 	}
 	
-	/**
-	 * renvoie l'image de la serie en x
-	 * @param series serie a traite
-	 * @param x abscisse
-	 * @return ordonnee
-	 */
-	public static Double getY(XYSeries series, double x) {
-		XYSeriesCollection data = new XYSeriesCollection(series);
-		return DatasetUtils.findYValue(data, 0, x);
-	}
-
 	/**
 	 * Renvoie le nombre de coups sur la roi presente dans l'image plus
 	 * 

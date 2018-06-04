@@ -66,17 +66,19 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 	public void actionPerformed(ActionEvent arg0) {
 		String[] organes = new String[] { "L. Kidney", "L. bkg", "R. Kidney", "R. bkg" };
 		this.vue = new VueScin_Basic(organes, this);
-		ImagePlus imp = this.vue.getImp();
-		
-		ImagePlus impPost = null;
-		if(imp.getStackSize() >= 2) {
-			impPost = new ImagePlus(imp.getTitle(), imp.getStack().getProcessor(2));
-		}else {
-			impPost = imp;
-		}
-		
-		for(int i = 0; i < imp.getStackSize(); i++) {
-			impPost.getProcessor().flipHorizontal();	
+		if(this.vue.getImp() != null) {
+			ImagePlus imp = this.vue.getImp();
+			
+			ImagePlus impPost = null;
+			if(imp.getStackSize() >= 2) {
+				impPost = new ImagePlus(imp.getTitle(), imp.getStack().getProcessor(2));
+			}else {
+				impPost = imp;
+			}
+			
+			for(int i = 0; i < imp.getStackSize(); i++) {
+				impPost.getProcessor().flipHorizontal();	
+			}
 		}
 	}
 
@@ -85,8 +87,6 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 		HashMap<String, Double> data = this.vue.getData();
 
 		this.setImp(vue.getImp());
-
-		System.out.println(data);
 
 		// TODO moy geom si ant post
 		Double rg = data.get("L. Kidney P0") - data.get("L. bkg P0");
@@ -166,7 +166,7 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 			new JLabel("Max"),
 			new JLabel("" + nora[0][0] + " %"),
 			new JLabel("" + nora[0][1] + " %"),
-			new JLabel("" + ModeleScin.round(modele.getAdjustedValues()[6] - 1, 1) + " min"),
+			new JLabel("" + ModeleScin.round(modele.getAdjustedValues().get("lasilix") - 1, 1) + " min"),
 			new JLabel("" + nora[1][0] + " %"),
 			new JLabel("" + nora[1][1] + " %"),
 		};

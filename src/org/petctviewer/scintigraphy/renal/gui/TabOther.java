@@ -13,6 +13,7 @@ import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.RenalSettings;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
@@ -23,12 +24,12 @@ public class TabOther extends FenResultatSidePanel{
 		
 		String[][] asso = new String[][] {{"Blood Pool"} , {"Bladder"}};
 		List<XYSeries> series = ((Modele_Renal) vue.getFenApplication().getControleur().getModele()).getSeries();
-		ChartPanel[] cPanels = ModeleScin.associateSeries(asso, series);
+		ChartPanel[] cPanels = ModeleScinDyn.associateSeries(asso, series);
 		
 		JPanel center = new JPanel(new GridLayout(1,1));
 		center.add(cPanels[0]);
 		
-		if(RenalSettings.getSettings()[0]) {
+		if(RenalSettings.getOrganSettings()[0]) {
 			center.setLayout(new GridLayout(2,1));
 			center.add(cPanels[1]);
 		}

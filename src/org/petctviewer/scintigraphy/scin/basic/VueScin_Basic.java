@@ -33,12 +33,9 @@ public class VueScin_Basic extends VueScin {
 		ImagePlus imp = WindowManager.getImage(titresFenetres[0]);
 		String info = imp.getInfoProperty();
 		
-		System.out.println(Arrays.toString(VueScin.sortAntPost(new ImagePlus[] {imp})));
 		ImagePlus impSorted = VueScin.sortImageAntPost(imp);
 		impSorted.setProperty("Info", info);
 		imp.close();
-		
-		impSorted.show();
 
 		this.setImp(impSorted.duplicate());
 

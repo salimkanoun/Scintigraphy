@@ -86,6 +86,7 @@ public class PrefsWindow extends JPanel implements PlugIn, ActionListener {
  
         //Display the window.
         this.frame.pack();
+        this.frame.setLocationRelativeTo(null);
         this.frame.setSize(frame.getPreferredSize());
         this.frame.setVisible(true);
         

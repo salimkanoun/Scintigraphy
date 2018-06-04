@@ -19,6 +19,7 @@ import org.jfree.data.UnknownKeyException;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
@@ -41,7 +42,7 @@ public class TabROE extends FenResultatSidePanel {
 		String[][] asso = { { "Blood pool fitted L", "Final KL", "Output KL" },
 				{ "Blood pool fitted R", "Final KR", "Output KR" } };
 
-		ChartPanel[] cPanels = ModeleScin.associateSeries(asso, series);
+		ChartPanel[] cPanels = ModeleScinDyn.associateSeries(asso, series);
 
 		BasicStroke stroke = new BasicStroke(5.0F);
 		JPanel p = new JPanel(new GridLayout(2, 1));

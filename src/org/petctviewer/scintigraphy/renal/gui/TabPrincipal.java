@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -21,6 +22,7 @@ import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
+import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 import ij.ImagePlus;
@@ -46,9 +48,12 @@ public class TabPrincipal extends FenResultatSidePanel {
 	public TabPrincipal(VueScinDyn vue, BufferedImage capture, ChartPanel chartPanel, int w, int h) {
 		super("Renal scintigraphy", vue, capture, "");
 
-		Double[] adjusted = ((Modele_Renal) vue.getFenApplication().getControleur().getModele()).getAdjustedValues();
-		double debut = Math.min(adjusted[4], adjusted[5]);
-		double fin = Math.max(adjusted[4], adjusted[5]);
+		HashMap<Comparable, Double> adjusted = ((Modele_Renal) vue.getFenApplication().getControleur().getModele()).getAdjustedValues();
+		// l'intervalle est defini par l'utilisateur
+		Double x1 = adjusted.get("start");
+		Double x2 = adjusted.get("end");
+		Double debut = Math.min(x1, x2);
+		Double fin = Math.max(x1, x2);
 
 		int slice1 = ModeleScinDyn.getSliceIndexByTime(debut * 60 * 1000, vue.getFrameDurations());
 		int slice2 = ModeleScinDyn.getSliceIndexByTime(fin * 60 * 1000, vue.getFrameDurations());
@@ -280,34 +285,6 @@ public class TabPrincipal extends FenResultatSidePanel {
 		pnl_timing.add(lbl_d);
 
 		return pnl_timing;
-	}
-
-	private Component getPanelRet() {
-		JLabel lbl_L = new JLabel("L");
-		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
-		JLabel lbl_R = new JLabel("R");
-		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
-
-		// panel de retention
-		Double[] ret = modele.getRetention();
-		JPanel pnl_ret = new JPanel(new GridLayout(2, 3));
-		pnl_ret.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-
-		pnl_ret.add(new JLabel("Renal retention"));
-		pnl_ret.add(lbl_L);
-		pnl_ret.add(lbl_R);
-
-		pnl_ret.add(new JLabel(""));
-
-		JLabel lbl_g = new JLabel(ret[0] + " %");
-		lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
-		pnl_ret.add(lbl_g);
-
-		JLabel lbl_d = new JLabel(ret[1] + " %");
-		lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
-		pnl_ret.add(lbl_d);
-
-		return pnl_ret;
 	}
 
 	private Component getPanelSep() {

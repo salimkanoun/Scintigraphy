@@ -18,7 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import org.petctviewer.scintigraphy.renal.gui.DynamicImage;
+import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 
 public class FenetreResultat extends JFrame {
   private static final long serialVersionUID = -9097595151860174657L;

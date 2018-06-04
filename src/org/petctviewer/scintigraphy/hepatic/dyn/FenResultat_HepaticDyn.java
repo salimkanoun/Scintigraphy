@@ -16,8 +16,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import org.petctviewer.scintigraphy.renal.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 import ij.ImagePlus;
@@ -42,7 +43,7 @@ public class FenResultat_HepaticDyn extends JFrame {
 		grilleTop.add(new DynamicImage(capture));
 		
 		// montage pour une vision globalezz
-		ImagePlus imp = FenResultatSidePanel.creerMontage(vue.getFrameDurations(), vue.getImpAnt(), capture.getWidth() / 4, 4, 4);
+		ImagePlus imp = VueScin.creerMontage(vue.getFrameDurations(), vue.getImpAnt(), capture.getWidth() / 4, 4, 4);
 		
 		JPanel northEast = new JPanel();
 		northEast.add(new ImageCanvas(imp));

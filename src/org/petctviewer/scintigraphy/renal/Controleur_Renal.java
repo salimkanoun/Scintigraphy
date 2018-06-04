@@ -1,17 +1,32 @@
 package org.petctviewer.scintigraphy.renal;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.ui.RectangleAnchor;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.RenalSettings;
+import org.petctviewer.scintigraphy.renal.gui.FenNeph;
 import org.petctviewer.scintigraphy.renal.gui.FenResultats_Renal;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
 
@@ -54,7 +69,7 @@ public class Controleur_Renal extends ControleurScin {
 	public void setSlice(int indexSlice) {
 		super.setSlice(indexSlice);
 
-		//refactoriser pour eviter les copier colles
+		// refactoriser pour eviter les copier colles
 		this.hideLabel("R. bkg", Color.GRAY);
 		this.hideLabel("L. bkg", Color.GRAY);
 		this.hideLabel("R. Pelvis", Color.YELLOW);
@@ -78,8 +93,8 @@ public class Controleur_Renal extends ControleurScin {
 		// on recupere la vue, le modele et l'imp
 		VueScinDyn vue = (VueScinDyn) this.getVue();
 		Modele_Renal modele = (Modele_Renal) vue.getFenApplication().getControleur().getModele();
-		
-		//on passe l'image post dans la vue
+
+		// on passe l'image post dans la vue
 		ImagePlus imp = vue.getImpPost();
 
 		// on debloque le modele
@@ -109,75 +124,74 @@ public class Controleur_Renal extends ControleurScin {
 		// on recupere les chartPanels avec l'association
 		List<XYSeries> series = modele.getSeries();
 		String[][] asso = new String[][] { { "Final KL", "Final KR" } };
-		ChartPanel[] cp = ModeleScin.associateSeries(asso, series);
+		ChartPanel[] cp = ModeleScinDyn.associateSeries(asso, series);
 
-		// on ouvre la fenetre pour ajuster les valeurs
-		FenSetValues adjuster = new FenSetValues(cp[0], this.kidneys);
-		adjuster.setModal(true);
-		adjuster.setVisible(true);
-
+		FenNeph fan = new FenNeph(cp[0], this.getVue().getFenApplication(), modele);
+		fan.setModal(true);
+		fan.setVisible(true);
+		
 		// on passe les valeurs ajustees au modele
-		modele.setAdjustedValues(adjuster.getXValues());
+		modele.setAdjustedValues(fan.getSelectorListener().getValues());
 
 		// on fait le fit vasculaire avec les donnees collectees
 		modele.fitVasculaire();
 
 		// on affiche la fenetre de resultats principale
-		new FenResultats_Renal(vue, capture, adjuster.getChartPanelWithOverlay());
+		new FenResultats_Renal(vue, capture, fan.getSelectorListener().getChartPanel());
 
 	}
-	
+
 	public void setKidneys(boolean[] kidneys) {
 		this.kidneys = kidneys;
 		((Modele_Renal) this.getModele()).setKidneys(kidneys);
 		this.adjustOrgans();
 	}
-	
+
 	public boolean[] getKidneys() {
 		return this.kidneys;
 	}
-	
+
 	private void adjustOrgans() {
 
 		nbOrganes = ORGANES.length;
 		// on rajoute les organes selon les preferences
-		boolean[] settings = RenalSettings.getSettings();
+		boolean[] settings = RenalSettings.getOrganSettings();
 		ArrayList<String> organes = new ArrayList<>(Arrays.asList(Controleur_Renal.ORGANES));
 
-		if(!kidneys[0]) {
+		if (!kidneys[0]) {
 			organes.remove("L. Kidney");
 			organes.remove("L. bkg");
 		}
-		
-		if(!kidneys[1]) {
+
+		if (!kidneys[1]) {
 			organes.remove("R. Kidney");
 			organes.remove("R. bkg");
 		}
-		
+
 		if (settings[0]) {
 			organes.add("Bladder");
 		}
 
 		if (settings[1]) {
-			if(kidneys[0]) {
+			if (kidneys[0]) {
 				organes.add(organes.indexOf("L. Kidney") + 1, "L. Pelvis");
 			}
-			
-			if(kidneys[1]) {
+
+			if (kidneys[1]) {
 				organes.add(organes.indexOf("R. Kidney") + 1, "R. Pelvis");
 			}
 		}
 
 		if (settings[2]) {
-			if(kidneys[0]) {
+			if (kidneys[0]) {
 				organes.add("L. Ureter");
 			}
-			
-			if(kidneys[1]) {
-				organes.add("R. Ureter");	
+
+			if (kidneys[1]) {
+				organes.add("R. Ureter");
 			}
 		}
-		
+
 		this.nbOrganes = organes.size();
 		this.setOrganes(organes.toArray(new String[0]));
 	}
@@ -200,7 +214,7 @@ public class Controleur_Renal extends ControleurScin {
 		}
 
 		// roi de bruit de fond
-		boolean cort = RenalSettings.getSettings()[1];
+		boolean cort = RenalSettings.getOrganSettings()[1];
 
 		String org = this.getNomOrgane(indexRoi - 1);
 
@@ -217,7 +231,7 @@ public class Controleur_Renal extends ControleurScin {
 
 		int indexLiver;
 		// on clone la roi du rein
-		if (RenalSettings.getSettings()[1]) {
+		if (RenalSettings.getOrganSettings()[1]) {
 			// si on trace des pelvis, il faut decaler de deux
 			indexLiver = indexRoi - 2;
 		} else {

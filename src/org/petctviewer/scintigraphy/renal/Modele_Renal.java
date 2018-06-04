@@ -18,7 +18,7 @@ import ij.util.DicomTools;
 public class Modele_Renal extends ModeleScinDyn {
 
 	private HashMap<String, Integer> organArea;
-	private Double[] adjusted;
+	private HashMap<Comparable, Double> adjustedValues;
 	private boolean[] kidneys;
 
 	/**
@@ -81,7 +81,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		
 		normalizeBP();
 
-		if (RenalSettings.getSettings()[1]) {
+		if (RenalSettings.getOrganSettings()[1]) {
 			List<List<Double>> bassinets = this.calculBassinets();
 			if (this.kidneys[0]) {
 				this.getData().put("L. Cortical", bassinets.get(0));
@@ -267,8 +267,10 @@ public class Modele_Renal extends ModeleScinDyn {
 		XYSeries seriesKid = this.createSerie(kidney, "Kidney");
 
 		// l'intervalle est defini par l'utilisateur
-		Double startX = Math.min(this.adjusted[4], this.adjusted[5]);
-		Double endX = Math.max(this.adjusted[4], this.adjusted[5]);
+		Double x1 = this.adjustedValues.get("start");
+		Double x2 = this.adjustedValues.get("end");
+		Double startX = Math.min(x1, x2);
+		Double endX = Math.max(x1, x2);
 
 		// on recupere les points compris dans l'intervalle
 		XYSeries croppedKidney = Modele_Renal.cropSeries(seriesKid, startX, endX);
@@ -281,7 +283,7 @@ public class Modele_Renal extends ModeleScinDyn {
 
 		double[] courbeVasc = Regression.getOLSRegression(dataset, 0);
 		double[] courbeKidney = Regression.getOLSRegression(dataset, 1);
-
+		
 		// calcul du rapport de pente sur l'intervalle defini par l'utilisateur
 		Double rapportPente = courbeKidney[1] / courbeVasc[1];
 
@@ -315,7 +317,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	 */
 	public int getPercentage(int min, XYSeries output, String lr) {
 		XYSeries serieBPF = this.getSerie("Blood pool fitted " + lr);
-		int perct = (int) (ModeleScin.getY(output, min).doubleValue() / ModeleScin.getY(serieBPF, min).doubleValue()
+		int perct = (int) (ModeleScinDyn.getY(output, min).doubleValue() / ModeleScinDyn.getY(serieBPF, min).doubleValue()
 				* 100);
 		return perct;
 	}
@@ -379,7 +381,7 @@ public class Modele_Renal extends ModeleScinDyn {
 			s += "\n ROE " + min + "min Right Kidney , " + this.getPercentage(min, rk, "R");
 		}
 
-		// TODO modifier Ã§a (voir methodes modele renal)
+		// TODO modifier ça (voir methodes modele renal)
 		s += "\n";
 
 		// on ajoute les valeurs du tableau
@@ -406,48 +408,25 @@ public class Modele_Renal extends ModeleScinDyn {
 		Double[][] res = new Double[2][2];
 		
 		if(this.kidneys[0]) {
+			Double xMaxG = this.adjustedValues.get("tmax L");
 			XYSeries lk = this.getSerie("Final KL");
-			res[1][0] = ModeleScin.round(ModeleScinDyn.getTDemiObs(lk, this.adjusted[1]), 1);
-			res[0][0] = ModeleScin.round(this.adjusted[1], 2);
+			res[1][0] = ModeleScin.round(ModeleScinDyn.getTDemiObs(lk, xMaxG), 1);
+			res[0][0] = ModeleScin.round(xMaxG, 2);
 		}else {
 			res[0][0] = Double.NaN;
 			res[1][0] = Double.NaN;
 		}
 		
 		if(this.kidneys[1]) {
+			Double xMaxD = this.adjustedValues.get("tmax R");
 			XYSeries rk = this.getSerie("Final KR");
-			res[1][1] = ModeleScin.round(ModeleScinDyn.getTDemiObs(rk, this.adjusted[0]), 1);
-			res[0][1] = ModeleScin.round(this.adjusted[0], 2);
+			res[1][1] = ModeleScin.round(ModeleScinDyn.getTDemiObs(rk, xMaxD), 1);
+			res[0][1] = ModeleScin.round(xMaxD, 2);
 		}else {
 			res[0][1] = Double.NaN;
 			res[1][1] = Double.NaN;
 		}
 
-
-		return res;
-	}
-
-	/**
-	 * calcule la retention renale
-	 * 
-	 * @return res[0] : rein gauche, res[1] : rein droit
-	 */
-	public Double[] getRetention() {
-		Double[] res = new Double[2];
-		
-		if(this.kidneys[0]) {
-			XYSeries lk = this.getSerie("Final KL");
-			res[0] = ModeleScin.round((ModeleScin.getY(lk, lk.getMaxX()) / ModeleScin.getY(lk, this.adjusted[3]) * 100), 1);
-		}else {
-			res[0] = Double.NaN;
-		}
-
-		if(this.kidneys[1]) {
-			XYSeries rk = this.getSerie("Final KR");
-			res[1] = ModeleScin.round((ModeleScin.getY(rk, rk.getMaxX()) / ModeleScin.getY(rk, this.adjusted[2])) * 100, 1);	
-		}else {
-			res[1] = Double.NaN;
-		}
 
 		return res;
 	}
@@ -461,12 +440,12 @@ public class Modele_Renal extends ModeleScinDyn {
 	public Double[][] getNoRAPM(Double rg, Double rd) {
 		
 		Double[][] res = new Double[2][2];
-		Double xLasilixM1 = this.getAdjustedValues()[6] - 1;
-		Double xMaxL = this.getAdjustedValues()[1];
-		Double xMaxR = this.getAdjustedValues()[0];
+		Double xLasilixM1 = this.adjustedValues.get("lasilix") - 1;
+		Double xMaxL = this.adjustedValues.get("tmax L");
+		Double xMaxR = this.adjustedValues.get("tmax R");
 		
-		System.out.println("Lasilix L : " + xLasilixM1 + " , " + ModeleScin.getY(getSerie("Final KL"), xLasilixM1));
-		System.out.println("Lasilix R : " + xLasilixM1 + " , " + ModeleScin.getY(getSerie("Final KR"), xLasilixM1));
+		System.out.println("Lasilix L : " + xLasilixM1 + " , " + ModeleScinDyn.getY(getSerie("Final KL"), 19));
+		System.out.println("Lasilix R : " + xLasilixM1 + " , " + ModeleScinDyn.getY(getSerie("Final KR"), 19));
 		
 		res[0][0] = ModeleScin.round((100 * rg/ModeleScinDyn.getY(this.getSerie("Final KL"), xMaxL)), 2);
 		res[0][1] = ModeleScin.round((100 * rg/ModeleScinDyn.getY(this.getSerie("Final KL"), xLasilixM1)), 2);
@@ -486,8 +465,9 @@ public class Modele_Renal extends ModeleScinDyn {
 		Double[][] res = new Double[3][3];
 		
 		// adjusted[6] => lasilix
-		res[0][0] = ModeleScin.round(this.getAdjustedValues()[6] - 1, 0);
-		res[0][1] = ModeleScin.round(this.getAdjustedValues()[6] + 2, 0);
+		Double xLasilix = this.adjustedValues.get("lasilix");
+		res[0][0] = ModeleScin.round(xLasilix - 1, 0);
+		res[0][1] = ModeleScin.round(xLasilix + 2, 0);
 		res[0][2] = round(this.getSerie("Blood Pool").getMaxX(), 0);
 		
 		if(this.kidneys[0]) {
@@ -519,32 +499,12 @@ public class Modele_Renal extends ModeleScinDyn {
 		return res;
 	}
 
-	/**
-	 * [0] => TMaxD <br>
-	 * [1] => TMaxG <br>
-	 * [2] => Retetion origin D <br>
-	 * [3] => Retetion origin G <br>
-	 * [4] => Borne intervalle 1 <br>
-	 * [5] => Borne intervalle 2 <br>
-	 * [6] => Lasilix
-	 */
-	public void setAdjustedValues(Double[] xValues) {
-		this.adjusted = xValues;
+	public void setAdjustedValues(HashMap<Comparable, Double> hashMap) {
+		this.adjustedValues = hashMap;
 	}
 
-	/**
-	 * Renvoie les valeurs en x des selecteurs
-	 * 
-	 * @return [0] => TMaxD <br>
-	 *         [1] => TMaxG <br>
-	 *         [2] => Retetion origin D <br>
-	 *         [3] => Retetion origin G <br>
-	 *         [4] => Borne intervalle 1 <br>
-	 *         [5] => Borne intervalle 2 <br>
-	 *         [6] => Lasilix
-	 */
-	public Double[] getAdjustedValues() {
-		return this.adjusted;
+	public HashMap<Comparable, Double> getAdjustedValues(){
+		return this.adjustedValues;
 	}
 
 	/**
@@ -555,11 +515,15 @@ public class Modele_Renal extends ModeleScinDyn {
 	public Double[] getSeparatedFunction() {
 		Double[] res = new Double[2];
 		
+		//points de la courbe renale ajustee
 		XYSeries lk = this.getSerie("Final KL");
 		XYSeries rk = this.getSerie("Final KR");
 
-		Double debut = Math.min(this.adjusted[4], this.adjusted[5]);
-		Double fin = Math.max(this.adjusted[4], this.adjusted[5]);
+		//bornes de l'intervalle
+		Double x1 = this.adjustedValues.get("start");
+		Double x2 = this.adjustedValues.get("end");
+		Double debut = Math.min(x1, x2);
+		Double fin = Math.max(x1, x2);
 
 		List<Double> listRG = Modele_Renal.getIntegral(lk, debut, fin);
 		List<Double> listRD = Modele_Renal.getIntegral(rk, debut, fin);

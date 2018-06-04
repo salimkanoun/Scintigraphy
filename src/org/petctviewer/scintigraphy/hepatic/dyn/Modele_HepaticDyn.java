@@ -77,7 +77,7 @@ public class Modele_HepaticDyn extends ModeleScin {
 		this.tDemiFoieGObs = ModeleScinDyn.getTDemiObs(this.liverL, this.maxFoieG + 2).intValue();
 		this.finPicG = this.liverL.getY(this.liverL.getItemCount() - 1).doubleValue() / this.liverL.getMaxY();
 
-		this.pctVasc = ModeleScin.getY(this.bloodPool, 20.0) / ModeleScin.getY(this.bloodPool, 5.0);
+		this.pctVasc = ModeleScinDyn.getY(this.bloodPool, 20.0) / ModeleScinDyn.getY(this.bloodPool, 5.0);
 		this.tDemiVascFit = Modele_HepaticDyn.getTDemiFit(this.bloodPool, 20.0);
 		this.tDemiVascObs = ModeleScinDyn.getTDemiObs(this.bloodPool, 20.0).intValue();
 
