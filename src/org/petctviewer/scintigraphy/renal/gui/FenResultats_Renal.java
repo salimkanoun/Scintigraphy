@@ -61,12 +61,12 @@ public class FenResultats_Renal {
 		tabbedPane.addTab("ROE", this.kidneys);
 
 		// si les pelvis sont activees
-		if (Prefs.getBoolean("renal.pelvis.preferred", true)) {
+		if (Prefs.get("renal.pelvis.preferred", true)) {
 			tabbedPane.addTab("Corticals/Pelvis", this.tabCort);
 		}
 
 		// si les ureteres sont activees
-		if (Prefs.getBoolean("renal.ureter.preferred", true)) {
+		if (Prefs.get("renal.ureter.preferred", true)) {
 			tabbedPane.addTab("Ureters", this.tabUreter);
 		}
 

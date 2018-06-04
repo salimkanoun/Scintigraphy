@@ -98,15 +98,15 @@ public class RenalSettings extends JFrame implements ActionListener {
 
 	private void autoFillSettings() {
 		
-		System.out.println(Prefs.getBoolean("renal.bladder.preferred", true));
+		System.out.println(Prefs.get("renal.bladder.preferred", 3));
+	
+		this.ckb_bld.setSelected(Prefs.get("renal.bladder.preferred", true));
+		this.ckb_plv.setSelected(Prefs.get("renal.pelvis.preferred", true));
+		this.ckb_utr.setSelected(Prefs.get("renal.ureter.preferred", true));
 		
-		this.ckb_bld.setSelected(Prefs.getBoolean("renal.bladder.preferred", true));
-		this.ckb_plv.setSelected(Prefs.getBoolean("renal.pelvis.preferred", true));
-		this.ckb_utr.setSelected(Prefs.getBoolean("renal.ureter.preferred", true));
+		this.txt_lasilix.setText("" + Prefs.get("renal.lasilix.preferred", 20.0));
 		
-		this.txt_lasilix.setText("" + Prefs.getDouble("renal.lasilix.preferred", 20.0));
-		
-		this.comboDate.setSelectedItem(Prefs.getString("dateformat.preferred", "MM/dd/yyyy"));
+		this.comboDate.setSelectedItem(Prefs.get("dateformat.preferred", "MM/dd/yyyy"));
 	}
 
 	@Override
@@ -115,13 +115,19 @@ public class RenalSettings extends JFrame implements ActionListener {
 
 		if (b == RenalSettings.this.btn_ok) {
 			Prefs.set("renal.bladder.preferred", this.ckb_bld.isSelected());
-			Prefs.set("renal.pelvis.preferred", this.ckb_plv.isSelected());
-			Prefs.set("renal.ureter.preferred", this.ckb_utr.isSelected());
-			Prefs.set("renal.lasilix.preferred", Double.parseDouble(this.txt_lasilix.getText()));
-			Prefs.set("dateformat.preferred", (String) this.comboDate.getSelectedItem());
 			Prefs.savePreferences();
 			
-			System.out.println("saved");
+			Prefs.set("renal.pelvis.preferred", this.ckb_plv.isSelected());
+			Prefs.savePreferences();
+			
+			Prefs.set("renal.ureter.preferred", this.ckb_utr.isSelected());
+			Prefs.savePreferences();
+			
+			Prefs.set("renal.lasilix.preferred", Double.parseDouble(this.txt_lasilix.getText()));
+			Prefs.savePreferences();
+			
+			Prefs.set("dateformat.preferred", (String) this.comboDate.getSelectedItem());
+			Prefs.savePreferences();
 		}
 
 		RenalSettings.this.dispose();

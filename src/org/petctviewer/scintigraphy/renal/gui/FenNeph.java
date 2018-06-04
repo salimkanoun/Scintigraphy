@@ -67,7 +67,7 @@ public class FenNeph extends JDialog implements ActionListener {
 				RectangleAnchor.TOP_LEFT);
 		ValueSelector start = new ValueSelector(" ", 1, -1, RectangleAnchor.TOP_LEFT);
 		ValueSelector end = new ValueSelector(" ", 3, -1, RectangleAnchor.BOTTOM_RIGHT);
-		ValueSelector lasilix = new ValueSelector("Lasilix", Prefs.getDouble("renal.lasilix.preferred", 20.0), -1, RectangleAnchor.BOTTOM_LEFT);
+		ValueSelector lasilix = new ValueSelector("Lasilix", Prefs.get("renal.lasilix.preferred", 20.0), -1, RectangleAnchor.BOTTOM_LEFT);
 
 		// ajout des selecteurs dans le listener
 		SelectorListener selectorListener = new SelectorListener(chart);

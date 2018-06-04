@@ -107,7 +107,7 @@ public abstract class ModeleScin {
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
-			String r = new SimpleDateFormat(Prefs.getString("dateformat.preferred", "MM/dd/yyyy")).format(result);
+			String r = new SimpleDateFormat(Prefs.get("dateformat.preferred", "MM/dd/yyyy")).format(result);
 			hm.put("date", r);
 			
 		} else {

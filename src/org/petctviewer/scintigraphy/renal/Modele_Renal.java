@@ -82,7 +82,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		
 		normalizeBP();
 
-		if (Prefs.getBoolean("renal.pelvis.preferred", true)) {
+		if (Prefs.get("renal.pelvis.preferred", true)) {
 			List<List<Double>> bassinets = this.calculBassinets();
 			if (this.kidneys[0]) {
 				this.getData().put("L. Cortical", bassinets.get(0));

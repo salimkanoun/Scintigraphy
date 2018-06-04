@@ -155,11 +155,11 @@ public class Controleur_Renal extends ControleurScin {
 			organes.remove("R. bkg");
 		}
 
-		if (Prefs.getBoolean("renal.bladder.preferred", true)) {
+		if (Prefs.get("renal.bladder.preferred", true)) {
 			organes.add("Bladder");
 		}
 
-		if (Prefs.getBoolean("renal.pelvis.preferred", true)) {
+		if (Prefs.get("renal.pelvis.preferred", true)) {
 			if (kidneys[0]) {
 				organes.add(organes.indexOf("L. Kidney") + 1, "L. Pelvis");
 			}
@@ -169,7 +169,7 @@ public class Controleur_Renal extends ControleurScin {
 			}
 		}
 
-		if (Prefs.getBoolean("renal.ureter.preferred", true)) {
+		if (Prefs.get("renal.ureter.preferred", true)) {
 			if (kidneys[0]) {
 				organes.add("L. Ureter");
 			}
@@ -203,7 +203,7 @@ public class Controleur_Renal extends ControleurScin {
 		String org = this.getNomOrgane(indexRoi - 1);
 
 		// roi de bruit de fond
-		boolean pelvis = Prefs.getBoolean("renal.pelvis.preferred", true);
+		boolean pelvis = Prefs.get("renal.pelvis.preferred", true);
 		if ((!pelvis && org.contains("Kidney")) || (pelvis && org.contains("Pelvis"))) {
 			return this.createBkgRoi(this.indexRoi);
 		}
@@ -217,7 +217,7 @@ public class Controleur_Renal extends ControleurScin {
 
 		int indexLiver;
 		// on clone la roi du rein
-		if (Prefs.getBoolean("renal.pelvis.preferred", true)) {
+		if (Prefs.get("renal.pelvis.preferred", true)) {
 			// si on trace des pelvis, il faut decaler de deux
 			indexLiver = indexRoi - 2;
 		} else {

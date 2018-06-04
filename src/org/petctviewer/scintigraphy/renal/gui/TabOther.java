@@ -32,7 +32,7 @@ public class TabOther extends FenResultatSidePanel{
 		center.add(cPanels[0]);
 		
 		//si la vessie est activee
-		if(Prefs.getBoolean("renal.bladder.preferred", true)) {
+		if(Prefs.get("renal.bladder.preferred", true)) {
 			center.setLayout(new GridLayout(2,1));
 			center.add(cPanels[1]);
 		}
