@@ -13,6 +13,7 @@ import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 
 import ij.ImagePlus;
+import ij.Prefs;
 
 public class Modele_Renal extends ModeleScinDyn {
 
@@ -81,7 +82,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		
 		normalizeBP();
 
-		if (RenalSettings.getOrganSettings()[1]) {
+		if (Prefs.getBoolean("renal.pelvis.preferred", true)) {
 			List<List<Double>> bassinets = this.calculBassinets();
 			if (this.kidneys[0]) {
 				this.getData().put("L. Cortical", bassinets.get(0));

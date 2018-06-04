@@ -10,12 +10,12 @@ import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.PrefsWindow;
 import org.petctviewer.scintigraphy.cardiac.Vue_Cardiac;
-import org.petctviewer.scintigraphy.dmsa.Vue_Dmsa;
 import org.petctviewer.scintigraphy.dynamic.Vue_GeneralDyn;
 import org.petctviewer.scintigraphy.hepatic.dyn.Vue_HepaticDyn;
 import org.petctviewer.scintigraphy.hepatic.statique.Vue_Hepatic;
 import org.petctviewer.scintigraphy.platelet.Vue_Plaquettes;
 import org.petctviewer.scintigraphy.renal.Vue_Renal;
+import org.petctviewer.scintigraphy.renal.dmsa.Vue_Dmsa;
 import org.petctviewer.scintigraphy.scin.VueScin;
 
 public class FenDebug extends JFrame{

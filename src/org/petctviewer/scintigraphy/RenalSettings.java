@@ -21,16 +21,12 @@ import ij.Prefs;
 
 public class RenalSettings extends JFrame implements ActionListener {
 
-	private static String DEFAULT_SETTINGS = "Bladder:true\nPelvis:true\nUreter:true\nLasilix:19.0\nDateFormat:MMM dd yyyy";
-	
 	private JButton btn_ok, btn_cancel;
-	private JCheckBox ckb_bld, ckb_ctl, ckb_utr;
+	private JCheckBox ckb_bld, ckb_plv, ckb_utr;
 	private JTextField txt_lasilix;
 	private JComboBox comboDate;
 
-	public RenalSettings(Component parentComponent) {
-		this.checkSettingsFormat();
-		
+	public RenalSettings(Component parentComponent) {		
 		this.btn_ok = new JButton("Save");
 		this.btn_ok.addActionListener(this);
 
@@ -58,8 +54,8 @@ public class RenalSettings extends JFrame implements ActionListener {
 		boxLeft.add(ckb_bp);
 		ckb_bld = new JCheckBox("Bladder");
 		boxLeft.add(ckb_bld);
-		ckb_ctl = new JCheckBox("Pelvis");
-		boxLeft.add(ckb_ctl);
+		ckb_plv = new JCheckBox("Pelvis");
+		boxLeft.add(ckb_plv);
 		ckb_utr = new JCheckBox("Ureter");
 		boxLeft.add(ckb_utr);
 		
@@ -100,26 +96,17 @@ public class RenalSettings extends JFrame implements ActionListener {
 		this.setVisible(true);
 	}
 
-	private void checkSettingsFormat() {
-		int n1 = Prefs.get("renal.preferred", DEFAULT_SETTINGS).split("\n").length;
-		int n2 = DEFAULT_SETTINGS.split("\n").length;
-		if(n1 != n2) {
-			Prefs.set("renal.preferred", DEFAULT_SETTINGS);
-			Prefs.savePreferences();
-		}
-		
-	}
-
 	private void autoFillSettings() {
-		boolean[] b = RenalSettings.getOrganSettings();
-
-		this.ckb_bld.setSelected(b[0]);
-		this.ckb_ctl.setSelected(b[1]);
-		this.ckb_utr.setSelected(b[2]);
 		
-		this.txt_lasilix.setText("" + RenalSettings.getLasilixTime());
+		System.out.println(Prefs.getBoolean("renal.bladder.preferred", true));
 		
-		this.comboDate.setSelectedItem(this.getDateFormat());
+		this.ckb_bld.setSelected(Prefs.getBoolean("renal.bladder.preferred", true));
+		this.ckb_plv.setSelected(Prefs.getBoolean("renal.pelvis.preferred", true));
+		this.ckb_utr.setSelected(Prefs.getBoolean("renal.ureter.preferred", true));
+		
+		this.txt_lasilix.setText("" + Prefs.getDouble("renal.lasilix.preferred", 20.0));
+		
+		this.comboDate.setSelectedItem(Prefs.getString("dateformat.preferred", "MM/dd/yyyy"));
 	}
 
 	@Override
@@ -127,52 +114,16 @@ public class RenalSettings extends JFrame implements ActionListener {
 		JButton b = (JButton) e.getSource();
 
 		if (b == RenalSettings.this.btn_ok) {
-			String settings = "";
-			settings += "Bladder:" + this.ckb_bld.isSelected();
-			settings += "\n";
-			settings += "Pelvis:" + this.ckb_ctl.isSelected();
-			settings += "\n";
-			settings += "Ureter:" + this.ckb_utr.isSelected();
-			settings += "\n";
-			settings += "Lasilix:" + Double.parseDouble(this.txt_lasilix.getText());
-			settings += "\n";
-			settings += "DateFormat:" + this.comboDate.getSelectedItem();
-
-			Prefs.set("renal.preferred", settings);
+			Prefs.set("renal.bladder.preferred", this.ckb_bld.isSelected());
+			Prefs.set("renal.pelvis.preferred", this.ckb_plv.isSelected());
+			Prefs.set("renal.ureter.preferred", this.ckb_utr.isSelected());
+			Prefs.set("renal.lasilix.preferred", Double.parseDouble(this.txt_lasilix.getText()));
+			Prefs.set("dateformat.preferred", (String) this.comboDate.getSelectedItem());
 			Prefs.savePreferences();
+			
+			System.out.println("saved");
 		}
 
 		RenalSettings.this.dispose();
 	}
-
-	/**
-	 * Renvoie un tableau de booleen correspondant aux organes selectionnes
-	 * @return tab[0] : Bladder <br> tab[1] : Pelvis <br> tab[2] : Ureter
-	 */
-	public static boolean[] getOrganSettings() {
-		String settingsString = Prefs.get("renal.preferred", DEFAULT_SETTINGS);
-		boolean[] ret = new boolean[3];
-
-		String[] splitted = settingsString.split("\n");
-		int cpt = 0;
-		for (int i = 0; i < 3; i ++) {
-			String bool = splitted[i].split(":")[1];
-			ret[cpt] = Boolean.parseBoolean(bool);
-			cpt++;
-		}
-
-		return ret;
-	}
-	
-	public static Double getLasilixTime() {
-		String settingsString = Prefs.get("renal.preferred", DEFAULT_SETTINGS);
-		String[] splitted = settingsString.split("\n");
-		return Double.valueOf(splitted[3].split(":")[1]);
-	}
-
-	public static String getDateFormat() {
-		String settingsString = Prefs.get("renal.preferred", DEFAULT_SETTINGS);
-		return settingsString.split("\n")[4].split(":")[1];
-	}
-	
 }

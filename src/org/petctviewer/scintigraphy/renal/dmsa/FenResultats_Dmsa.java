@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.dmsa;
+package org.petctviewer.scintigraphy.renal.dmsa;
 
 import java.awt.Color;
 import java.awt.Component;

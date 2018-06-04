@@ -25,6 +25,8 @@ import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
 
+import ij.Prefs;
+
 public class FenResultats_Renal {
 
 	private Container principal, zoomed, kidneys, timedImage, tabCort, tabUreter, tabOther, tabPost;
@@ -59,12 +61,12 @@ public class FenResultats_Renal {
 		tabbedPane.addTab("ROE", this.kidneys);
 
 		// si les pelvis sont activees
-		if (RenalSettings.getOrganSettings()[1]) {
+		if (Prefs.getBoolean("renal.pelvis.preferred", true)) {
 			tabbedPane.addTab("Corticals/Pelvis", this.tabCort);
 		}
 
 		// si les ureteres sont activees
-		if (RenalSettings.getOrganSettings()[2]) {
+		if (Prefs.getBoolean("renal.ureter.preferred", true)) {
 			tabbedPane.addTab("Ureters", this.tabUreter);
 		}
 

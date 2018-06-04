@@ -17,6 +17,8 @@ import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
+import ij.Prefs;
+
 public class TabOther extends FenResultatSidePanel{
 
 	public TabOther(VueScin vue, int w, int h) {
@@ -29,7 +31,8 @@ public class TabOther extends FenResultatSidePanel{
 		JPanel center = new JPanel(new GridLayout(1,1));
 		center.add(cPanels[0]);
 		
-		if(RenalSettings.getOrganSettings()[0]) {
+		//si la vessie est activee
+		if(Prefs.getBoolean("renal.bladder.preferred", true)) {
 			center.setLayout(new GridLayout(2,1));
 			center.add(cPanels[1]);
 		}

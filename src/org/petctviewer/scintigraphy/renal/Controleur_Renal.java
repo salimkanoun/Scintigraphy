@@ -19,6 +19,7 @@ import org.petctviewer.scintigraphy.scin.VueScinDyn;
 
 import ij.IJ;
 import ij.ImagePlus;
+import ij.Prefs;
 import ij.gui.Overlay;
 import ij.gui.Roi;
 
@@ -116,7 +117,7 @@ public class Controleur_Renal extends ControleurScin {
 		FenNeph fan = new FenNeph(cp[0], this.getVue().getFenApplication(), modele);
 		fan.setModal(true);
 		fan.setVisible(true);
-		
+
 		// on passe les valeurs ajustees au modele
 		modele.setAdjustedValues(fan.getSelectorListener().getValues());
 
@@ -142,7 +143,6 @@ public class Controleur_Renal extends ControleurScin {
 
 		nbOrganes = ORGANES.length;
 		// on rajoute les organes selon les preferences
-		boolean[] settings = RenalSettings.getOrganSettings();
 		ArrayList<String> organes = new ArrayList<>(Arrays.asList(Controleur_Renal.ORGANES));
 
 		if (!kidneys[0]) {
@@ -155,11 +155,11 @@ public class Controleur_Renal extends ControleurScin {
 			organes.remove("R. bkg");
 		}
 
-		if (settings[0]) {
+		if (Prefs.getBoolean("renal.bladder.preferred", true)) {
 			organes.add("Bladder");
 		}
 
-		if (settings[1]) {
+		if (Prefs.getBoolean("renal.pelvis.preferred", true)) {
 			if (kidneys[0]) {
 				organes.add(organes.indexOf("L. Kidney") + 1, "L. Pelvis");
 			}
@@ -169,7 +169,7 @@ public class Controleur_Renal extends ControleurScin {
 			}
 		}
 
-		if (settings[2]) {
+		if (Prefs.getBoolean("renal.ureter.preferred", true)) {
 			if (kidneys[0]) {
 				organes.add("L. Ureter");
 			}
@@ -200,12 +200,11 @@ public class Controleur_Renal extends ControleurScin {
 			return this.roiManager.getRoi(this.indexRoi % this.getOrganes().length);
 		}
 
-		// roi de bruit de fond
-		boolean cort = RenalSettings.getOrganSettings()[1];
-
 		String org = this.getNomOrgane(indexRoi - 1);
 
-		if ((!cort && org.contains("Kidney")) || (cort && org.contains("Pelvis"))) {
+		// roi de bruit de fond
+		boolean pelvis = Prefs.getBoolean("renal.pelvis.preferred", true);
+		if ((!pelvis && org.contains("Kidney")) || (pelvis && org.contains("Pelvis"))) {
 			return this.createBkgRoi(this.indexRoi);
 		}
 
@@ -218,7 +217,7 @@ public class Controleur_Renal extends ControleurScin {
 
 		int indexLiver;
 		// on clone la roi du rein
-		if (RenalSettings.getOrganSettings()[1]) {
+		if (Prefs.getBoolean("renal.pelvis.preferred", true)) {
 			// si on trace des pelvis, il faut decaler de deux
 			indexLiver = indexRoi - 2;
 		} else {
