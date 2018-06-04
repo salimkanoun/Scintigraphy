@@ -40,14 +40,17 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 	private Box pnl_equations;
 	private JLabel lbl_eqR, lbl_eqL;
 	private SelectorListener selectorlistener;
+	private Modele_Renal modele;
 
 	private int lastIndex;
 	private double debutG, debutD, finG, finD;
 	private ValueSelector debut, fin;
 	private XYSeries lkPatlak, rkPatlak;
 	private JComboBox combo;
+	private double[] regG, regD;
 
 	public FenPatlak(Modele_Renal modele, Component parentComponent) {
+		this.modele = modele;
 		ChartPanel patlak = this.getPatlakChart(modele);
 		patlak.addChartMouseListener(this);
 		XYPlot plot = patlak.getChart().getXYPlot();
@@ -140,7 +143,7 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		XYSeries lkPatlak = new XYSeries("Left Kidney");
 		XYSeries rkPatlak = new XYSeries("Right Kidney");
 
-		Double minutesMax = 3.0;
+		Double minutesMax = 4.0;
 
 		for (Double t = 0.0; t < minutesMax; t += 2 / 60.0) {
 			Double x = ModeleScinDyn.getY(bpi, t) / ModeleScinDyn.getY(bp, t);
@@ -183,6 +186,8 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		//on calcule la regression
 		double[] regG = Regression.getOLSRegression(data, 0);
 		double[] regD = Regression.getOLSRegression(data, 1);
+		this.regG = regG;
+		this.regD = regD;
 		
 		this.lbl_eqL.setText("L. Kidney : " + ModeleScin.round(regG[1], 2) + "x + " + ModeleScin.round(regG[0], 2));
 		this.lbl_eqR.setText("R. Kidney : " + ModeleScin.round(regD[1], 2) + "x + " + ModeleScin.round(regD[0], 2));
@@ -224,11 +229,21 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 
 		this.selectorlistener.updateAreas();
 	}
+	
+	public Double[][] getFit(){
+		return null;
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
 		if (o == this.btn_ok) {
+			double[] patlakRatio = new double[2];
+			
+			patlakRatio[0] = ModeleScin.round(100 * regG[1] / (this.regG[1] + this.regD[1]), 1);
+			patlakRatio[1] = ModeleScin.round(100 * regD[1] / (this.regG[1] + this.regD[1]), 1);
+			
+			this.modele.setPatlakPente(patlakRatio);
 			this.dispose();
 		} else {
 			this.comboUpdated(e);

@@ -113,7 +113,6 @@ public abstract class ModeleScinDyn extends ModeleScin {
 
 		XYSeries points = new XYSeries(nom, true);
 
-		List<Double> xCummules = new ArrayList<>();
 		Double dureePriseOld = 0.0;
 		for (int i = 0; i < l.size(); i++) {
 			Double dureePrise = frameduration[i] / (60 * 1000.0); //axes x en minutes

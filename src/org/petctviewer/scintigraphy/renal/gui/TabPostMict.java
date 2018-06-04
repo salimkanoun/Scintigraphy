@@ -171,7 +171,7 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 			new JLabel("" + nora[1][1] + " %"),
 		};
 		
-		pnl_nora.add(new JLabel(" NORA Post-Mict"));
+		pnl_nora.add(new JLabel("NORA Post-Mict"));
 		for(JLabel l : lbls) {
 			l.setHorizontalAlignment(JLabel.CENTER);
 			pnl_nora.add(l);

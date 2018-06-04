@@ -88,8 +88,6 @@ public class FenNeph extends JDialog implements ActionListener {
 	}
 
 	private void clicPatlak() {
-		modele.calculerResultats();
-		modele.setAdjustedValues(this.jsv.getSelectorListener().getValues());
 		FenPatlak fpt = new FenPatlak(modele, this);
 		fpt.setModal(true);
 		fpt.setVisible(true);

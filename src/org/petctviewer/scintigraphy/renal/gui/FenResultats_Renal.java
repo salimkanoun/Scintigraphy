@@ -68,7 +68,7 @@ public class FenResultats_Renal {
 			tabbedPane.addTab("Ureters", this.tabUreter);
 		}
 
-		tabbedPane.addTab("Zoomed", this.zoomed);
+		tabbedPane.addTab("Vascular phase", this.zoomed);
 		tabbedPane.addTab("Other", this.tabOther);
 
 		tabbedPane.addTab("Post-micturition", this.tabPost);

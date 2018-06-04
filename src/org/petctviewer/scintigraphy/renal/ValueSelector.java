@@ -3,8 +3,6 @@ package org.petctviewer.scintigraphy.renal;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Paint;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;

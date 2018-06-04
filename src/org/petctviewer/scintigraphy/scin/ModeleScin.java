@@ -28,6 +28,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.general.DatasetUtils;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.RenalSettings;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -106,7 +107,7 @@ public abstract class ModeleScin {
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
-			String r = new SimpleDateFormat("MMM dd yyyy", Locale.ENGLISH).format(result);
+			String r = new SimpleDateFormat(RenalSettings.getDateFormat()).format(result);
 			hm.put("date", r);
 			
 		} else {

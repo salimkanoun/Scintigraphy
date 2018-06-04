@@ -124,7 +124,7 @@ public class PrefsWindow extends JPanel implements PlugIn, ActionListener {
 		}
 		
 		else if (arg0.getSource() == this.btn_stRenal) {
-			new RenalSettings();
+			new RenalSettings(this.frame);
 		}
 		
 		this.fc = new JFileChooser() ;

@@ -11,9 +11,6 @@ import ij.ImagePlus;
 
 public class FenApplication_Cardiac extends FenApplication {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -8986173550839545500L;
 
 	//boutons mode decontamination 

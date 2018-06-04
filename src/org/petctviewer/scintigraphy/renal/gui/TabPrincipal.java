@@ -302,7 +302,7 @@ public class TabPrincipal extends FenResultatSidePanel {
 		pnl_sep.add(lbl_L);
 		pnl_sep.add(lbl_R);
 
-		pnl_sep.add(new JLabel(""));
+		pnl_sep.add(new JLabel("integral"));
 		JLabel lbl_d = new JLabel(sep[0] + " %");
 		lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
 		pnl_sep.add(lbl_d);
@@ -310,7 +310,21 @@ public class TabPrincipal extends FenResultatSidePanel {
 		JLabel lbl_g = new JLabel(sep[1] + " %");
 		lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
 		pnl_sep.add(lbl_g);
+		
+		if(modele.getPatlakPente() != null) {
+			double[] patlak = modele.getPatlakPente();
+			pnl_sep.setLayout(new GridLayout(3, 3));
+			
+			pnl_sep.add(new JLabel("patlak"));
+			JLabel lbl_pd = new JLabel(patlak[0] + " %");
+			lbl_pd.setHorizontalAlignment(SwingConstants.CENTER);
+			pnl_sep.add(lbl_pd);
 
+			JLabel lbl_pg = new JLabel(patlak[1] + " %");
+			lbl_pg.setHorizontalAlignment(SwingConstants.CENTER);
+			pnl_sep.add(lbl_pg);
+		}
+		
 		return pnl_sep;
 	}
 

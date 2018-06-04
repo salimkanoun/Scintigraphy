@@ -13,13 +13,13 @@ import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 
 import ij.ImagePlus;
-import ij.util.DicomTools;
 
 public class Modele_Renal extends ModeleScinDyn {
 
 	private HashMap<String, Integer> organArea;
 	private HashMap<Comparable, Double> adjustedValues;
 	private boolean[] kidneys;
+	private double[] patlakPente;
 
 	/**
 	 * recupere les valeurs et calcule les resultats de l'examen renal
@@ -391,7 +391,6 @@ public class Modele_Renal extends ModeleScinDyn {
 				lr = " Right";
 			}
 
-			// TODO
 		}
 
 		return s;
@@ -439,13 +438,12 @@ public class Modele_Renal extends ModeleScinDyn {
 	 */
 	public Double[][] getNoRAPM(Double rg, Double rd) {
 		
+		//tableau de retour avec les resultats
 		Double[][] res = new Double[2][2];
+		
 		Double xLasilixM1 = this.adjustedValues.get("lasilix") - 1;
 		Double xMaxL = this.adjustedValues.get("tmax L");
 		Double xMaxR = this.adjustedValues.get("tmax R");
-		
-		System.out.println("Lasilix L : " + xLasilixM1 + " , " + ModeleScinDyn.getY(getSerie("Final KL"), 19));
-		System.out.println("Lasilix R : " + xLasilixM1 + " , " + ModeleScinDyn.getY(getSerie("Final KR"), 19));
 		
 		res[0][0] = ModeleScin.round((100 * rg/ModeleScinDyn.getY(this.getSerie("Final KL"), xMaxL)), 2);
 		res[0][1] = ModeleScin.round((100 * rg/ModeleScinDyn.getY(this.getSerie("Final KL"), xLasilixM1)), 2);
@@ -537,6 +535,14 @@ public class Modele_Renal extends ModeleScinDyn {
 		res[1] = ModeleScin.round((intRD / (intRG + intRD)) * 100, 1);
 
 		return res;
+	}
+
+	public double[] getPatlakPente() {
+		return this.patlakPente;
+	}
+	
+	public void setPatlakPente(double[] patlakRatio) {
+		this.patlakPente = patlakRatio;
 	}
 
 }
