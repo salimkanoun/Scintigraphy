@@ -18,7 +18,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
+import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.renal.Vue_Renal;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
@@ -45,8 +47,10 @@ public class TabPrincipal extends FenResultatSidePanel {
 	 * @param chartPanel
 	 *            chartpanel avec l'overlay d'ajustation
 	 */
-	public TabPrincipal(VueScinDyn vue, BufferedImage capture, ChartPanel chartPanel, int w, int h) {
+	public TabPrincipal(Vue_Renal vue, BufferedImage capture, int w, int h) {
 		super("Renal scintigraphy", vue, capture, "");
+		
+		JValueSetter chartNephrogram = vue.getNephrogramChart();
 
 		HashMap<Comparable, Double> adjusted = ((Modele_Renal) vue.getFenApplication().getControleur().getModele()).getAdjustedValues();
 		// l'intervalle est defini par l'utilisateur
@@ -69,9 +73,8 @@ public class TabPrincipal extends FenResultatSidePanel {
 
 		JPanel grid = new JPanel(new GridLayout(2, 1));
 
-		// on affiche la capture
+		// on affiche les capture
 		DynamicImage lbl_capture = new DynamicImage(capture);
-
 		DynamicImage lbl_proj = new DynamicImage(proj.getImage());
 
 		// creation du panel du haut
@@ -82,17 +85,11 @@ public class TabPrincipal extends FenResultatSidePanel {
 		panel_top.add(lbl_proj);
 
 		// creation du panel du bas
-		chartPanel.setPreferredSize(new Dimension(w, h / 2));
-		chartPanel.getChart().setTitle("Nephrogram");
-
-		Box box = Box.createVerticalBox();
-		box.add(Box.createVerticalGlue());
-		box.add(panel_top);
-		box.add(Box.createVerticalGlue());
+		chartNephrogram.setPreferredSize(new Dimension(w, h / 2));
 
 		// on ajoute les panels a la grille principale
-		grid.add(box);
-		grid.add(chartPanel);
+		grid.add(panel_top);
+		grid.add(chartNephrogram);
 
 		// ajout de la grille a la fenetre
 		this.add(new JPanel(), BorderLayout.WEST);

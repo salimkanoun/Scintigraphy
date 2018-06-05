@@ -16,11 +16,9 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.RenalSettings;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
-import org.petctviewer.scintigraphy.renal.SelectorListener;
-import org.petctviewer.scintigraphy.renal.ValueSelector;
+import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 
 import ij.Prefs;
@@ -28,14 +26,14 @@ import ij.Prefs;
 public class FenNeph extends JDialog implements ActionListener {
 
 	private JButton btn_patlak, btn_ok;
-	private JValueSetter jsv;
+	private JValueSetter jvaluesetter;
 	private Modele_Renal modele;
+	private JValueSetter patlakChart;
 
 	public FenNeph(ChartPanel cp, Component parentComponent, Modele_Renal modele) {
 		super();
 		this.modele = modele;
-		this.jsv = prepareValueSetter(cp);
-
+		
 		// creation du panel du bas
 		this.btn_patlak = new JButton("Patlak");
 		this.btn_patlak.addActionListener(this);
@@ -49,7 +47,11 @@ public class FenNeph extends JDialog implements ActionListener {
 		this.setLayout(new BorderLayout());
 
 		this.setTitle("Please adjust the nephrogram values");
-		this.add(jsv, BorderLayout.CENTER);
+
+		//creation du jvaluesetter
+		this.jvaluesetter = prepareValueSetter(cp);
+		this.add(jvaluesetter, BorderLayout.CENTER);
+		
 		this.add(bottomPanel, BorderLayout.SOUTH);
 
 		this.pack();
@@ -61,44 +63,41 @@ public class FenNeph extends JDialog implements ActionListener {
 		chart.getChart().getPlot().setBackgroundPaint(null);
 
 		// on cree toutes les valueSelector que l'on va utiliser
-		ValueSelector tmaxl = new ValueSelector("TMax L", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 0), 0,
+		Selector tmaxl = new Selector("TMax L", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 0), 0,
 				RectangleAnchor.BOTTOM_LEFT);
-		ValueSelector tmaxr = new ValueSelector("TMax R", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 1), 1,
+		Selector tmaxr = new Selector("TMax R", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 1), 1,
 				RectangleAnchor.TOP_LEFT);
-		ValueSelector start = new ValueSelector(" ", 1, -1, RectangleAnchor.TOP_LEFT);
-		ValueSelector end = new ValueSelector(" ", 3, -1, RectangleAnchor.BOTTOM_RIGHT);
-		ValueSelector lasilix = new ValueSelector("Lasilix", Prefs.get("renal.lasilix.preferred", 20.0), -1, RectangleAnchor.BOTTOM_LEFT);
+		Selector start = new Selector(" ", 1, -1, RectangleAnchor.TOP_LEFT);
+		Selector end = new Selector(" ", 3, -1, RectangleAnchor.BOTTOM_RIGHT);
+		Selector lasilix = new Selector("Lasilix", Prefs.get("renal.lasilix.preferred", 20.0), -1, RectangleAnchor.BOTTOM_LEFT);
 
 		// ajout des selecteurs dans le listener
-		SelectorListener selectorListener = new SelectorListener(chart);
-		selectorListener.add(tmaxl, "tmax L");
-		selectorListener.add(tmaxr, "tmax R");
-		selectorListener.add(start, "start");
-		selectorListener.add(end, "end");
-		selectorListener.add(lasilix, "lasilix");
-		selectorListener.addArea("start", "end", null);
+		JValueSetter jvs = new JValueSetter(chart.getChart());
+		jvs.addSelector(tmaxl, "tmax L");
+		jvs.addSelector(tmaxr, "tmax R");
+		jvs.addSelector(start, "start");
+		jvs.addSelector(end, "end");
+		jvs.addSelector(lasilix, "lasilix");
+		jvs.addArea("start", "end", "integral", null);
 
+		// renomme les series du chart pour que l'interface soit plus comprehensible
 		XYSeriesCollection dataset = ((XYSeriesCollection) chart.getChart().getXYPlot().getDataset());
-
-		// on renomme les series du chart
 		dataset.getSeries("Final KL").setKey("Left Kidney");
 		dataset.getSeries("Final KR").setKey("Right Kidney");
 
-		JValueSetter jsv = new JValueSetter(selectorListener);
-
-		return jsv;
+		return jvs;
 	}
 
 	private void clicPatlak() {
 		FenPatlak fpt = new FenPatlak(modele, this);
 		fpt.setModal(true);
 		fpt.setVisible(true);
+		
+		this.patlakChart = fpt.getValueSetter();
 	}
 
 	private void clickOk() {
-		boolean checkOffset = checkOffset(this.jsv.getSelectorListener());
-
-		checkOffset = this.checkOffset(this.jsv.getSelectorListener());
+		boolean checkOffset = checkOffset(this.jvaluesetter);
 
 		if (!checkOffset) {
 			String message = "Inconsistent differencial function during interval integration. \n Would you like to redefine the interval ?";
@@ -113,8 +112,8 @@ public class FenNeph extends JDialog implements ActionListener {
 	}
 
 	// returns true if passed
-	private boolean checkOffset(SelectorListener sl) {
-		XYDataset data = sl.getChartPanel().getChart().getXYPlot().getDataset();
+	private boolean checkOffset(JValueSetter sl) {
+		XYDataset data = sl.getChart().getXYPlot().getDataset();
 
 		HashMap<Comparable, Double> values = sl.getValues();
 
@@ -151,8 +150,12 @@ public class FenNeph extends JDialog implements ActionListener {
 		}
 	}
 	
-	public SelectorListener getSelectorListener(){
-		return this.jsv.getSelectorListener();
+	public JValueSetter getValueSetter(){
+		return this.jvaluesetter;
+	}
+	
+	public JValueSetter getPatlakChart() {
+		return this.patlakChart;
 	}
 
 }

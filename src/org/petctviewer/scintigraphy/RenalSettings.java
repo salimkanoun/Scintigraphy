@@ -24,7 +24,6 @@ public class RenalSettings extends JFrame implements ActionListener {
 	private JButton btn_ok, btn_cancel;
 	private JCheckBox ckb_bld, ckb_plv, ckb_utr;
 	private JTextField txt_lasilix;
-	private JComboBox comboDate;
 
 	public RenalSettings(Component parentComponent) {		
 		this.btn_ok = new JButton("Save");
@@ -70,13 +69,6 @@ public class RenalSettings extends JFrame implements ActionListener {
 		
 		boxRight.add(pnl_lasilix);
 		
-		JPanel pnl_formatDate = new JPanel();
-		pnl_formatDate.add(new JLabel("Date format :"));
-		this.comboDate = new JComboBox(new String[] { "MM/dd/yyyy", "dd/MM/yyyy" });
-		pnl_formatDate.add(comboDate);
-		
-		boxRight.add(pnl_formatDate);
-
 		JPanel pnl_btns = new JPanel();
 		pnl_btns.add(this.btn_ok);
 		pnl_btns.add(this.btn_cancel);
@@ -97,16 +89,11 @@ public class RenalSettings extends JFrame implements ActionListener {
 	}
 
 	private void autoFillSettings() {
-		
-		System.out.println(Prefs.get("renal.bladder.preferred", 3));
-	
 		this.ckb_bld.setSelected(Prefs.get("renal.bladder.preferred", true));
 		this.ckb_plv.setSelected(Prefs.get("renal.pelvis.preferred", true));
 		this.ckb_utr.setSelected(Prefs.get("renal.ureter.preferred", true));
 		
 		this.txt_lasilix.setText("" + Prefs.get("renal.lasilix.preferred", 20.0));
-		
-		this.comboDate.setSelectedItem(Prefs.get("dateformat.preferred", "MM/dd/yyyy"));
 	}
 
 	@Override
@@ -115,18 +102,9 @@ public class RenalSettings extends JFrame implements ActionListener {
 
 		if (b == RenalSettings.this.btn_ok) {
 			Prefs.set("renal.bladder.preferred", this.ckb_bld.isSelected());
-			Prefs.savePreferences();
-			
 			Prefs.set("renal.pelvis.preferred", this.ckb_plv.isSelected());
-			Prefs.savePreferences();
-			
 			Prefs.set("renal.ureter.preferred", this.ckb_utr.isSelected());
-			Prefs.savePreferences();
-			
 			Prefs.set("renal.lasilix.preferred", Double.parseDouble(this.txt_lasilix.getText()));
-			Prefs.savePreferences();
-			
-			Prefs.set("dateformat.preferred", (String) this.comboDate.getSelectedItem());
 			Prefs.savePreferences();
 		}
 

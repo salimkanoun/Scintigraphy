@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.renal;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Paint;
+import java.awt.geom.Rectangle2D;
 
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -13,9 +14,10 @@ import org.jfree.chart.panel.CrosshairOverlay;
 import org.jfree.chart.plot.Crosshair;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
+import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.general.DatasetUtils;
 
-public class ValueSelector extends CrosshairOverlay implements ChartMouseListener{
+public class Selector extends CrosshairOverlay implements ChartMouseListener{
 
 	private static final long serialVersionUID = 6794595703667698248L;
 	private Crosshair crossX, crossY;
@@ -26,8 +28,8 @@ public class ValueSelector extends CrosshairOverlay implements ChartMouseListene
 	//serie sur laquelle se situe le selecteur
 	private int series;
 
-	private ChartPanel chartPanel;
 	private Comparable key;
+	private JValueSetter jValueSetter;
 
 	/**
 	 * Permet de creer un selecteur deplacable sur un courbe
@@ -36,7 +38,7 @@ public class ValueSelector extends CrosshairOverlay implements ChartMouseListene
 	 * @param series series observee (-1 si aucune)
 	 * @param anchor position du label
 	 */
-	public ValueSelector(String nom, double startX, int series, RectangleAnchor anchor) {
+	public Selector(String nom, double startX, int series, RectangleAnchor anchor) {
 		this.series = series;
 		this.xLocked = true;
 		
@@ -57,7 +59,7 @@ public class ValueSelector extends CrosshairOverlay implements ChartMouseListene
 			@Override
 			public String generateLabel(Crosshair crosshair) {
 				if(nom.equals(" ") || nom == null || nom.equals("")) {
-					ValueSelector.this.crossX.setLabelVisible(false);
+					Selector.this.crossX.setLabelVisible(false);
 				}
 				return nom;
 			}
@@ -91,15 +93,14 @@ public class ValueSelector extends CrosshairOverlay implements ChartMouseListene
 			ValueAxis xAxis = plot.getDomainAxis();
 			
 			//on calcule la nouvelle valeur du selecteur vertical
-			double x = xAxis.java2DToValue(event.getTrigger().getX(), this.chartPanel.getScreenDataArea(),
-					org.jfree.chart.ui.RectangleEdge.BOTTOM);
+			double x = xAxis.java2DToValue(event.getTrigger().getX(), this.jValueSetter.getScreenDataArea(), RectangleEdge.BOTTOM);
 			double y = Double.NaN;
 			
 			//si on se situe sur une serie
 			if(this.series != -1) {
 				//on renvoie le y correspondant
 				y = DatasetUtils.findYValue(plot.getDataset(), this.series, x);
-			}			
+			}	
 
 			//on met a jour les valeurs
 			this.crossX.setValue(x);
@@ -113,10 +114,6 @@ public class ValueSelector extends CrosshairOverlay implements ChartMouseListene
 	
 	public void setXValue(double x) {
 		this.crossX.setValue(x);
-	}
-
-	public void setChartPanel(ChartPanel chartPanel) {
-		this.chartPanel = chartPanel;
 	}
 
 	public void setPaint(Paint seriesPaint) {
@@ -138,6 +135,10 @@ public class ValueSelector extends CrosshairOverlay implements ChartMouseListene
 	
 	public void setKey(Comparable key) {
 		this.key = key;
+	}
+	
+	public void setJValueSetter(JValueSetter jValueSetter) {
+		this.jValueSetter = jValueSetter;
 	}
 
 }

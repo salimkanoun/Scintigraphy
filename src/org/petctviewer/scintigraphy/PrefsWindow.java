@@ -20,6 +20,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -38,6 +39,7 @@ public class PrefsWindow extends JPanel implements PlugIn, ActionListener {
 	private JLabel lut, dir ;
 	private JButton btn_choixLut, btn_dir, btn_displut, btn_stRenal ;
 	private JFileChooser fc ;
+	private JComboBox comboDate;
 	
 	@Override
 	public void run(String arg0) {
@@ -58,7 +60,7 @@ public class PrefsWindow extends JPanel implements PlugIn, ActionListener {
 		this.btn_dir.addActionListener(this);
 		this.fc = new JFileChooser() ;
 		JPanel pan = new JPanel();
-		pan.setLayout(new GridLayout(3,1));
+		pan.setLayout(new GridLayout(4,1));
 		
 		JPanel pan_lut = new JPanel();
 		pan_lut.add(this.lut);
@@ -70,6 +72,14 @@ public class PrefsWindow extends JPanel implements PlugIn, ActionListener {
 		pan_dir.add(this.dir);
 		pan_dir.add(this.btn_dir);
 		pan.add(pan_dir);
+		
+		JPanel pnl_formatDate = new JPanel();
+		pnl_formatDate.add(new JLabel("Date format :"));
+		this.comboDate = new JComboBox(new String[] { "MM/dd/yyyy", "dd/MM/yyyy" });
+		this.comboDate.setSelectedItem(Prefs.get("dateformat.preferred", "MM/dd/yyyy"));
+		this.comboDate.addActionListener(this);
+		pnl_formatDate.add(comboDate);
+		pan.add(pnl_formatDate);
 		
 		JPanel flow_btns = new JPanel();
 		this.btn_stRenal = new JButton("Renal Settings");
@@ -125,6 +135,10 @@ public class PrefsWindow extends JPanel implements PlugIn, ActionListener {
 		
 		else if (arg0.getSource() == this.btn_stRenal) {
 			new RenalSettings(this.frame);
+		}
+		
+		else if (arg0.getSource() == this.comboDate) {
+			Prefs.set("dateformat.preferred", (String) this.comboDate.getSelectedItem());
 		}
 		
 		this.fc = new JFileChooser() ;

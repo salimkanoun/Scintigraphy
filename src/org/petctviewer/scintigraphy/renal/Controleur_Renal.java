@@ -79,7 +79,7 @@ public class Controleur_Renal extends ControleurScin {
 		this.removeImpListener();
 
 		// on recupere la vue, le modele et l'imp
-		VueScinDyn vue = (VueScinDyn) this.getVue();
+		Vue_Renal vue = (Vue_Renal) this.getVue();
 		Modele_Renal modele = (Modele_Renal) vue.getFenApplication().getControleur().getModele();
 
 		// on passe l'image post dans la vue
@@ -117,16 +117,21 @@ public class Controleur_Renal extends ControleurScin {
 		FenNeph fan = new FenNeph(cp[0], this.getVue().getFenApplication(), modele);
 		fan.setModal(true);
 		fan.setVisible(true);
+		
+		((Vue_Renal) this.getVue()).setNephrogramChart(fan.getValueSetter());
+		((Vue_Renal) this.getVue()).setPatlakChart(fan.getPatlakChart());
+		
+		System.out.println(fan.getValueSetter());
 
 		// on passe les valeurs ajustees au modele
-		modele.setAdjustedValues(fan.getSelectorListener().getValues());
+		modele.setAdjustedValues(fan.getValueSetter().getValues());
 
 		// on fait le fit vasculaire avec les donnees collectees
 		modele.fitVasculaire();
 
 		// on affiche la fenetre de resultats principale
-		new FenResultats_Renal(vue, capture, fan.getSelectorListener().getChartPanel());
-
+		vue.setNephrogramChart(fan.getValueSetter());
+		new FenResultats_Renal(vue, capture);
 	}
 
 	public void setKidneys(boolean[] kidneys) {

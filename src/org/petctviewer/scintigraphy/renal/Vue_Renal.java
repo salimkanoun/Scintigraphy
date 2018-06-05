@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.renal;
 
 import java.awt.Color;
 
+import org.jfree.chart.ChartPanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
@@ -18,6 +19,8 @@ import ij.plugin.ZProjector;
 
 public class Vue_Renal extends VueScinDyn {
 
+	JValueSetter nephrogramChart, patlakChart;
+
 	public Vue_Renal() {
 		super("Renal scintigraphy");
 	}
@@ -33,17 +36,14 @@ public class Vue_Renal extends VueScinDyn {
 
 		ImagePlus impProjetee = projeter(this.impPost);
 		ImageStack s = impProjetee.getStack();
-
 		Overlay ov = VueScin.initOverlay(impProjetee, 12);
-		
 		int fin = ModeleScinDyn.getSliceIndexByTime(2 * 60 * 1000, this.getFrameDurations());
 		ImagePlus impPostFirstMin = projeter(this.impPost, 0, fin);
 		s.addSlice(impPostFirstMin.getProcessor());
-		
-		//MIP
+		// MIP
 		ImagePlus pj = ZProjector.run(this.impPost, "max", 0, this.impPost.getNSlices());
 		s.addSlice(pj.getProcessor());
-		
+
 		// ajout de la prise ant si elle existe
 		if (this.impAnt != null) {
 			for (int i = 1; i <= this.impAnt.getStackSize(); i++) {
@@ -53,14 +53,11 @@ public class Vue_Renal extends VueScinDyn {
 			ImagePlus impProjAnt = projeter(impAnt);
 			s.addSlice(impProjAnt.getProcessor());
 		}
-		
+
 		impProjetee.setStack(s);
-
 		VueScin.setCustomLut(impProjetee);
-
 		this.setImp(impProjetee.duplicate());
 		this.getImp().setOverlay(ov);
-		
 		this.setFenApplication(new FenApplicationDyn(this.getImp(), this.getExamType(), this));
 
 		VueScin.setOverlayGD(ov, impProjetee, Color.yellow);
@@ -75,6 +72,22 @@ public class Vue_Renal extends VueScinDyn {
 		this.getFenApplication().setControleur(new Controleur_Renal(this));
 
 		IJ.setTool(Toolbar.POLYGON);
+	}
+
+	public JValueSetter getNephrogramChart() {
+		return nephrogramChart;
+	}
+
+	public void setNephrogramChart(JValueSetter nephrogramChart) {
+		this.nephrogramChart = nephrogramChart;
+	}
+
+	public JValueSetter getPatlakChart() {
+		return patlakChart;
+	}
+
+	public void setPatlakChart(JValueSetter patlakChart) {
+		this.patlakChart = patlakChart;
 	}
 
 }

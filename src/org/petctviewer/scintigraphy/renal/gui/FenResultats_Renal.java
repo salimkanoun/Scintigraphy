@@ -4,36 +4,24 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.Plot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.statistics.Regression;
-import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.RenalSettings;
-import org.petctviewer.scintigraphy.renal.Modele_Renal;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.VueScin;
-import org.petctviewer.scintigraphy.scin.VueScinDyn;
+import org.petctviewer.scintigraphy.renal.Vue_Renal;
 
 import ij.Prefs;
 
 public class FenResultats_Renal {
 
-	private Container principal, zoomed, kidneys, timedImage, tabCort, tabUreter, tabOther, tabPost;
+	private Container principal, zoomed, kidneys, timedImage, tabCort, tabUreter, tabOther, tabPost, tabPatlak;
 	private final int width = 1000, height = 800;
 
-	public FenResultats_Renal(VueScinDyn vue, BufferedImage capture, ChartPanel chartPanel) {
-		this.principal = new TabPrincipal(vue, capture, chartPanel, width, height).getContentPane();
+	public FenResultats_Renal(Vue_Renal vue, BufferedImage capture) {
+		this.principal = new TabPrincipal(vue, capture, width, height).getContentPane();
 		this.zoomed = new TabZoomed(vue, width, height).getContentPane();
 		this.kidneys = new TabROE(vue, width, height).getContentPane();
 		this.timedImage = new TabTimedImage(vue, 4, 5, width, height).getContentPane();
@@ -41,10 +29,12 @@ public class FenResultats_Renal {
 		this.tabUreter = new TabUreter(vue, width, height).getContentPane();
 		this.tabOther = new TabOther(vue, width, height).getContentPane();
 		this.tabPost = new TabPostMict(vue, width, height).getContentPane();
+		if (vue.getPatlakChart() != null) {
+			this.tabPatlak = new TabPatlak(vue, width, height).getContentPane();
+		}
 
 		createAndShowGUI();
 	}
-
 
 	private void createAndShowGUI() {
 
@@ -74,7 +64,11 @@ public class FenResultats_Renal {
 		tabbedPane.addTab("Other", this.tabOther);
 
 		tabbedPane.addTab("Post-micturition", this.tabPost);
-
+		
+		if (this.tabPatlak != null) {
+			tabbedPane.addTab("Patlak", this.tabPatlak);
+		}
+		
 		frame.getContentPane().add(tabbedPane);
 
 		// Display the window
