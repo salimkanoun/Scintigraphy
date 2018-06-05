@@ -39,20 +39,19 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 	private JButton btn_ok;
 	private Box pnl_equations;
 	private JLabel lbl_eqR, lbl_eqL;
+	private int lastIndex;
+	private JComboBox combo;
+	
 	private JValueSetter valueSetter;
 	private Modele_Renal modele;
-
-	private int lastIndex;
 	private double debutG, debutD, finG, finD;
 	private Selector debut, fin;
 	private XYSeries lkPatlak, rkPatlak;
-	private JComboBox combo;
 	private double[] regG, regD;
-	private JFreeChart patlakChart;
 	
 	public FenPatlak(Modele_Renal modele, Component parentComponent) {
 		this.modele = modele;
-		this.patlakChart = this.getPatlakChart(modele);
+		JFreeChart patlakChart = this.createPatlakChart(modele);
 		XYPlot plot = patlakChart.getXYPlot();
 		plot.setBackgroundPaint(null);
 
@@ -133,7 +132,7 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		return sl;
 	}
 
-	private JFreeChart getPatlakChart(Modele_Renal modele) {
+	private JFreeChart createPatlakChart(Modele_Renal modele) {
 		XYSeries bpl = modele.getSerie("BP norm L");
 		XYSeries bpr = modele.getSerie("BP norm R");
 		XYSeries lk = modele.getSerie("Final KL");
@@ -196,6 +195,7 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 			this.regD = regD;
 		}
 
+		// mise a jour des equations de droite
 		this.lbl_eqL.setText("L. Kidney : " + ModeleScin.round(regG[1], 2) + "x + " + ModeleScin.round(regG[0], 2));
 		this.lbl_eqR.setText("R. Kidney : " + ModeleScin.round(regD[1], 2) + "x + " + ModeleScin.round(regD[0], 2));
 
@@ -236,6 +236,8 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 	}
 
 	public JValueSetter getValueSetter() {
+		this.valueSetter.removeSelector("start");
+		this.valueSetter.updateAreas();
 		return this.valueSetter;
 	}
 

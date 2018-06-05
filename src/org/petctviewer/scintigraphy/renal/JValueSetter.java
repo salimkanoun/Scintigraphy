@@ -206,7 +206,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 	 * @param index
 	 *            index du selecteur
 	 */
-	public void remove(Comparable key) {
+	public void removeSelector(Comparable key) {
 		Selector v = this.getSelector(key);
 		
 		// si il n'y a pas de selecteur avec cette cle
@@ -239,7 +239,6 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 
 		// supprime les aires
 		for (Comparable k : areasToRemove) {
-			System.out.println("Removed area");
 			this.areas.remove(k);
 		}
 	}

@@ -25,15 +25,8 @@ public class TabPatlak extends FenResultatSidePanel {
 	public TabPatlak(Vue_Renal vue, int w, int h) {
 		super("Renal scintigraphy", vue, null, "");
 
-		JFreeChart chart = null;
-		try {
-			chart = (JFreeChart) vue.getPatlakChart().getChart().clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-		ChartPanel cp = new ChartPanel(chart);
-		
-		this.add(cp, BorderLayout.CENTER);
+		this.pack();
+		this.add(vue.getPatlakChart(), BorderLayout.CENTER);
 		this.setPreferredSize(new Dimension(w, h));
 		this.finishBuildingWindow(true);
 	}
