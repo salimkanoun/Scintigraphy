@@ -15,6 +15,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 package org.petctviewer.scintigraphy.platelet;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -45,7 +46,7 @@ public class Vue_Plaquettes extends VueScin {
 	}
 
 	@Override
-	protected void ouvertureImage(String[] titresFenetres) {
+	protected ImagePlus preparerImp(String[] titresFenetres) {
 
 		ArrayList<ImagePlus> series = new ArrayList<>();
 
@@ -86,19 +87,18 @@ public class Vue_Plaquettes extends VueScin {
 		HyperStackConverter convert = new HyperStackConverter();
 		convert.run("hstostack");
 		
-		this.setImp(imp.duplicate());
-		
-		// Charge la LUT
-		VueScin.setCustomLut(this.getImp());
+		return imp.duplicate();
+	}
 
+	@Override
+	public void lancerProgramme() {
 		// Initialisation du Canvas qui permet de mettre la pile d'images
 		// dans une fenetre c'est une pile d'images (plus d'une image) on cree une
 		// fenetre pour la pile d'images;
-		
 		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));
 		
 		Overlay overlay = VueScin.initOverlay(this.getImp());
-		VueScin.setOverlayDG(overlay, getImp());
+		VueScin.setOverlayDG(overlay, getImp(), Color.YELLOW);
 		this.getImp().setOverlay(overlay);
 		
 		Controleur_Plaquettes ctrl = new Controleur_Plaquettes(this);
@@ -107,9 +107,8 @@ public class Vue_Plaquettes extends VueScin {
 		this.getFenApplication().getImagePlus().getCanvas().setSize(512,512);
 		this.getFenApplication().pack();
 		this.getFenApplication().setSize(this.getFenApplication().getPreferredSize());
-		IJ.setTool(Toolbar.POLYGON);
 	}
-
+	
 	public Date getDateDebut() {
 		return this.dateHeureDebut;
 	}

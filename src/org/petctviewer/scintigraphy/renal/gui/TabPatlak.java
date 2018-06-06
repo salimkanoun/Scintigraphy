@@ -32,7 +32,7 @@ public class TabPatlak extends FenResultatSidePanel {
 	}
 
 	@Override
-	public Component[] getSidePanelContent() {
+	public Component getSidePanelContent() {
 		Modele_Renal modele = (Modele_Renal) this.getVue().getFenApplication().getControleur().getModele();
 
 		JPanel pnl_sep = new JPanel(new GridLayout(2, 3));
@@ -60,7 +60,7 @@ public class TabPatlak extends FenResultatSidePanel {
 		JPanel flow = new JPanel();
 		flow.add(pnl_sep);
 		
-		return new Component[] {flow};
+		return flow;
 	}
 
 }

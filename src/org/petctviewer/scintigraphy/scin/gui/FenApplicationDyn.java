@@ -47,6 +47,10 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 		btn_start.addActionListener(this);
 		btns_instru.add(btn_start);
 		this.getInstru().add(btns_instru);
+		
+		this.getBtn_drawROI().setEnabled(false);
+		
+		this.setDefaultSize();
 	}
 
 	@Override
@@ -57,6 +61,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		//clic sur le bouton dynamique
 		if (e.getSource() == btn_dyn) {
 			Overlay ov = VueScin.duplicateOverlay(this.getImagePlus().getOverlay());
 			ImagePlus imp;
@@ -79,17 +84,21 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 			this.vue.setImp(imp);
 
 			this.updateSliceSelector();
+			
+			this.setAnimate(false);
 
+			//on inverse la couleur de fond du bouton
 			this.dyn = !this.dyn;
 			if(this.dyn) {
 				this.btn_dyn.setBackground(Color.LIGHT_GRAY);
 			}else {
 				this.btn_dyn.setBackground(null);
 			}
-
-			this.adaptWindow(this.getSize().width);
-		}else {
-		
+			
+			resizeCanvas();
+			
+		} else {
+			//TODO move elsewhere
 			Fen_NbRein fen = new Fen_NbRein();
 			fen.setModal(true);
 			fen.setVisible(true);
@@ -97,10 +106,12 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 			fen.setLocationRelativeTo(this);
 			((Controleur_Renal) this.getControleur()).setKidneys(fen.getKidneys());
 			
+			this.getBtn_contrast().setEnabled(true);
+			
 			this.getInstru().remove(1);
 			this.getInstru().add(this.createBtnsInstru());
 			this.getControleur().setInstructionsDelimit(0);
-			this.adaptWindow();
+			resizeCanvas();
 		}
 
 	}

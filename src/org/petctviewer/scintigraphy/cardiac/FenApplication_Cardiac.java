@@ -25,6 +25,10 @@ public class FenApplication_Cardiac extends FenApplication {
 		this.btn_continue = new Button("End");
 		this.btn_newCont = new Button("Next");
 		this.setInstructions("Delimit the Bladder");
+		
+		this.setPreferredCanvasSize(400);
+		
+		this.setLocationRelativeTo(null);
 	}
 	
 	/**
@@ -41,7 +45,7 @@ public class FenApplication_Cardiac extends FenApplication {
 		this.getInstru().add(btns_instru);
 		this.modeCont = true;
 		
-		this.adaptWindow(256);
+		this.resizeCanvas();
 	}
 	
 	/**
@@ -50,7 +54,6 @@ public class FenApplication_Cardiac extends FenApplication {
 	public void stopContaminationMode() {
 		this.getInstru().remove(1);
 		this.getInstru().add(this.createBtnsInstru());
-		this.adaptWindow(256);
 		
 		String s = "Delimit the " + this.getControleur().getOrganes()[0];
 		this.getField_instructions().setText(s);
@@ -58,6 +61,8 @@ public class FenApplication_Cardiac extends FenApplication {
 		ControleurScin ctrl = this.getControleur();
 		ctrl.setSlice(ctrl.getSliceNumberByRoiIndex(ctrl.getIndexRoi()));
 		this.modeCont = false;
+		
+		this.resizeCanvas();
 	}
 	
 	@Override

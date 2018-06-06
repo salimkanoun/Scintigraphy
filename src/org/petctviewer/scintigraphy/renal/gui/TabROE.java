@@ -141,9 +141,8 @@ public class TabROE extends FenResultatSidePanel {
 	}
 
 	@Override
-	public Component[] getSidePanelContent() {
-		// TODO Auto-generated method stub
-		return new Component[] { getPanelROE() };
+	public Component getSidePanelContent() {
+		return getPanelROE();
 	}
 
 }

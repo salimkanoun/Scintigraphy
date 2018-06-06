@@ -48,7 +48,7 @@ public class TabCort extends FenResultatSidePanel {
 	}
 
 	@Override
-	public Component[] getSidePanelContent() {
+	public Component getSidePanelContent() {
 		return null;
 	}
 

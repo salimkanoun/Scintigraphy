@@ -15,23 +15,23 @@ public class Vue_Hepatic extends VueScin {
 	}
 
 	@Override
-	protected void ouvertureImage(String[] titresFenetres) {
-		if(titresFenetres.length > 1) {
+	protected ImagePlus preparerImp(String[] titresFenetres) {
+		if (titresFenetres.length > 1) {
 			IJ.log("There must be exactly one dicom opened");
 		}
-		
+
 		ImagePlus imp = WindowManager.getImage(titresFenetres[0]);
 		String info = imp.getInfoProperty();
 		ImagePlus impSorted = VueScin.sortImageAntPost(imp);
 		impSorted.setProperty("Info", info);
-		imp.close();
-		
-		this.setImp(impSorted.duplicate());
-		
-		VueScin.setCustomLut(this.getImp());		
+
+		return impSorted.duplicate();
+	}
+
+	@Override
+	public void lancerProgramme() {
 		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));
-		this.getFenApplication().setControleur(new Controleur_Hepatic(this));		
-		IJ.setTool(Toolbar.POLYGON);
+		this.getFenApplication().setControleur(new Controleur_Hepatic(this));
 	}
 
 }

@@ -56,7 +56,7 @@ public abstract class ControleurScin implements ActionListener {
 	private Overlay overlay;
 
 	/**
-	 * classe abstraite permettant de controler les programmes de scintigraphie
+	 * Classe abstraite permettant de controler les programmes de scintigraphie
 	 */
 	protected ControleurScin(VueScin vue) {
 		this.laVue = vue;

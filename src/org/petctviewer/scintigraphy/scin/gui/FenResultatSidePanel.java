@@ -69,7 +69,7 @@ public abstract class FenResultatSidePanel extends JFrame {
 		if (capture != null) {
 			img = new DynamicImage(capture);
 			this.add(img, BorderLayout.WEST);
-		}else {
+		} else {
 			this.add(new JPanel(), BorderLayout.WEST);
 		}
 
@@ -102,14 +102,10 @@ public abstract class FenResultatSidePanel extends JFrame {
 		this.side.add(Box.createVerticalGlue());
 
 		// on ajoute tous les components de la methode getSidePanelContent
-		Component[] comp = this.getSidePanelContent();
+		Component comp = this.getSidePanelContent();
 
 		if (comp != null) {
-			for (Component c : comp) {
-				if (c != null) {
-					this.side.add(c);
-				}
-			}
+			this.side.add(comp);
 		}
 
 		this.side.add(Box.createVerticalGlue());
@@ -143,7 +139,7 @@ public abstract class FenResultatSidePanel extends JFrame {
 	 * 
 	 * @return les components
 	 */
-	public abstract Component[] getSidePanelContent();
+	public abstract Component getSidePanelContent();
 
 	public void setModele(ModeleScin modele) {
 		this.modele = modele;

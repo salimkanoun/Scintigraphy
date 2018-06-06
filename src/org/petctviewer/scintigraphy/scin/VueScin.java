@@ -47,10 +47,12 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 
 public abstract class VueScin implements PlugIn {
+	// organes
 	public static final int HEART = 0, INFLAT = 1, KIDNEY = 2;
+	// outils de tracer de roi
+	public static final int MAINLIBRE = 0, RECTANGLE = 1, OVALE = 2, POLYGONE = 3;
 
 	private String examType;
-
 	private FenApplication fen_application;
 
 	private ImagePlus imp;
@@ -62,7 +64,8 @@ public abstract class VueScin implements PlugIn {
 	}
 
 	/**
-	 * Lance la fen�tre de dialogue permettant le lancemet du programme
+	 * Lance la fen�tre de dialogue permettant le lancemet du programme. </br>
+	 * passer "standby" en parametre pour ne pas executer l'application directement
 	 */
 	@Override
 	public void run(String arg) {
@@ -72,7 +75,22 @@ public abstract class VueScin implements PlugIn {
 		if (selection.getSelectedWindowsTitles() != null) {
 			if (selection.getSelectedWindowsTitles().length > 0) {
 				try {
-					ouvertureImage(selection.getSelectedWindowsTitles());
+
+					this.imp = preparerImp(selection.getSelectedWindowsTitles());
+					// on set la lut des preferences
+					VueScin.setCustomLut(imp);
+					// on ferme toutes les fenetres choisies
+					for (String s : selection.getSelectedWindowsTitles()) {
+						ImagePlus impOuverte = WindowManager.getImage(s);
+						if (impOuverte != null) {
+							impOuverte.close();
+						}
+					}
+
+					if (!arg.equals("standby")) {
+						this.lancerProgramme();
+					}
+
 				} catch (Exception e) {
 					System.err.println("The selected dicoms are not usable for this exam");
 					e.printStackTrace();
@@ -84,6 +102,7 @@ public abstract class VueScin implements PlugIn {
 	/**
 	 * Permet de renvoyer une tableau d'image plus selon les dicoms ouvertes, il
 	 * peut y avoir une ou deux ouverte
+	 * 
 	 * @return les imps, [0] correspond a l'ant, [1] a la post
 	 */
 	public static ImagePlus[] sortAntPost(ImagePlus[] imagePlus) {
@@ -129,12 +148,18 @@ public abstract class VueScin implements PlugIn {
 
 	// TODO refactoriser en preparer imp et ouvrir fenetre ?
 	/**
-	 * Prepare la fenetre de l'application selon les dicoms ouvertes
+	 * Prepare l'image plus selon les fenetres de dicoms ouvertes
 	 * 
 	 * @param titresFenetres
 	 *            liste des fenetres ouvertes
+	 * @return
 	 */
-	protected abstract void ouvertureImage(String[] titresFenetres);
+	protected abstract ImagePlus preparerImp(String[] titresFenetres);
+
+	/**
+	 * lance le programme
+	 */
+	public abstract void lancerProgramme();
 
 	/**
 	 * Affiche D et G en overlay sur l'image, L a gauche et R a droite
@@ -396,8 +421,8 @@ public abstract class VueScin implements PlugIn {
 
 	/**
 	 * Permet de trier les image unique frame et inverser l'image posterieure A
-	 * Eviter d'utiliser, pr�f�rer la methode sortImageAntPost(ImagePlus imp) qui
-	 * est g�n�rique pour tout type d'image
+	 * Eviter d'utiliser, pr�f�rer la methode sortImageAntPost(ImagePlus imp)
+	 * qui est g�n�rique pour tout type d'image
 	 * 
 	 * @param imp0
 	 *            : ImagePlus a trier
@@ -956,7 +981,7 @@ public abstract class VueScin implements PlugIn {
 			}
 		});
 	}
-	
+
 	// cree la roi de bruit de fond
 	public static Roi createBkgRoi(Roi roi, ImagePlus imp, int organ) {
 		Roi bkg = null;
@@ -1012,7 +1037,7 @@ public abstract class VueScin implements PlugIn {
 			roi.setStrokeColor(c);
 		}
 	}
-	
+
 	/**
 	 * Renvoie un montage
 	 * 
@@ -1063,7 +1088,7 @@ public abstract class VueScin implements PlugIn {
 
 		return mm.makeMontage2(impStacked, columns, rows, 1.0, 1, impList.length, 1, 0, false);
 	}
-	
+
 	public static ImagePlus[] splitAntPost(ImagePlus imp) {
 		return null;
 	}

@@ -6,6 +6,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import javax.swing.Box;
 import javax.swing.DefaultRowSorter;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -35,8 +37,8 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 	}
 
 	@Override
-	public Component[] getSidePanelContent() {
-		Component[] panels = new Component[3];
+	public Component getSidePanelContent() {
+		Box returnBox = Box.createVerticalBox();
 		
 		JPanel resultRouge = new JPanel(new GridLayout(3, 1, 10, 10));
 		
@@ -70,7 +72,7 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 		//on utilise un flow layout pour centrer le panel
 		JPanel flow2 = new JPanel(new FlowLayout());
 		flow2.add(resultRouge);
-		panels[0] = flow2;
+		returnBox.add(flow2);
 
 		// ajout de la table avec les resultats des rois
 		DefaultTableModel modelRes = new DefaultTableModel();
@@ -98,13 +100,13 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 		//on empeche l'edition
 		tabRes.setFocusable(false);
 		tabRes.setRowSelectionAllowed(false);
-		panels[2] = tabRes;
+		returnBox.add(tabRes);
 		
 		JPanel flowRef = new JPanel();
 		flowRef.add( new JLabel("Rapezzi et al. JACC 2011"));
-		panels[1] = flowRef;
+		returnBox.add(flowRef);
 		
-		return panels;
+		return returnBox;
 	}
 	
 	private String[] getTabRes(String key) {

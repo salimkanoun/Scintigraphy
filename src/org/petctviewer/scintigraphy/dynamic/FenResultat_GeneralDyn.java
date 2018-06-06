@@ -42,8 +42,8 @@ public class FenResultat_GeneralDyn extends FenResultatSidePanel {
 	}
 
 	@Override
-	public Component[] getSidePanelContent() {
-		return new Component[] { new JLabel() };
+	public Component getSidePanelContent() {
+		return null;
 	}
 
 }

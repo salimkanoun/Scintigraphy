@@ -25,9 +25,7 @@ public class FenResultat_Hepatic extends FenResultatSidePanel {
 	}
 
 	@Override
-	public Component[] getSidePanelContent() {
-		Component[] c = new Component[1];
-		
+	public Component getSidePanelContent() {
 		JPanel panel = new JPanel(new GridLayout(4, 1, 10, 10));
 		
 		panel.add(new JLabel(""));
@@ -37,9 +35,8 @@ public class FenResultat_Hepatic extends FenResultatSidePanel {
 		
 		JPanel flow = new JPanel();
 		flow.add(panel);
-		
-		c[0] = flow;
-		return c;
+	
+		return flow;
 	}
 	
 	private JLabel getLabel(String key) {

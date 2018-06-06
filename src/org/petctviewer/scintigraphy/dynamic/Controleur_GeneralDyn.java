@@ -117,7 +117,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 
 			vue.setImp(imp2);
 			vue.getFenApplication().setImage(imp2);
-			vue.getFenApplication().adaptWindow(256);
+			vue.getFenApplication().resizeCanvas();
 			vue.getFenApplication().toFront();
 
 			Thread th = new Thread(new Runnable() {
@@ -155,7 +155,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		vue.getFenApplication().setImage(this.impProjetee);
 		vue.setImp(this.impProjetee);
 		
-		vue.getFenApplication().adaptWindow(256);
+		vue.getFenApplication().resizeCanvas();
 	}
 
 	private ModeleScinDyn saveValues(ImagePlus imp) {

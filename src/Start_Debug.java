@@ -1,7 +1,7 @@
 
 import org.petctviewer.scintigraphy.renal.gui.TabPostMict;
 import org.petctviewer.scintigraphy.scin.VueScin;
-import org.petctviewer.scintigraphy.scin.basic.VueScin_Basic;
+import org.petctviewer.scintigraphy.scin.basic.Vue_Basic;
 
 import ij.ImageJ;
 

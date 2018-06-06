@@ -7,6 +7,7 @@ import java.util.List;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
+import ij.gui.Overlay;
 import ij.plugin.ZProjector;
 import ij.util.DicomTools;
 
@@ -21,7 +22,7 @@ public abstract class VueScinDyn extends VueScin {
 	}
 
 	@Override
-	protected void ouvertureImage(String[] titresFenetres) {
+	protected ImagePlus preparerImp(String[] titresFenetres) {
 		if (titresFenetres.length > 2) {
 			IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 		}
@@ -32,11 +33,9 @@ public abstract class VueScinDyn extends VueScin {
 		}
 		
 		ImagePlus[] imps = VueScin.sortAntPost(images);
-		
 		if(imps[0] != null) {
 			this.impAnt = imps[0].duplicate();
 		}
-		
 		if(imps[1] != null) {
 			this.impPost = imps[1].duplicate();
 		}
@@ -44,18 +43,10 @@ public abstract class VueScinDyn extends VueScin {
 		for(int i = 1; i <= this.impPost.getStackSize(); i++) {
 			this.impPost.getStack().getProcessor(i).flipHorizontal();
 		}
-
 		impProjetee = projeter(this.impPost);
-		
 		this.frameDurations = buildFrameDurations(this.impPost);
 		
-		this.setImp(impProjetee.duplicate());
-		
-		VueScin.setCustomLut(this.getImp());		
-		
-		for(String s : titresFenetres) {
-			WindowManager.getImage(s).close();
-		}
+		return impProjetee.duplicate();
 	}
 	
 	public static ImagePlus projeter(ImagePlus imp) {

@@ -117,11 +117,9 @@ public class Controleur_Renal extends ControleurScin {
 		FenNeph fan = new FenNeph(cp[0], this.getVue().getFenApplication(), modele);
 		fan.setModal(true);
 		fan.setVisible(true);
-		
+
 		((Vue_Renal) this.getVue()).setNephrogramChart(fan.getValueSetter());
 		((Vue_Renal) this.getVue()).setPatlakChart(fan.getPatlakChart());
-		
-		System.out.println(fan.getValueSetter());
 
 		// on passe les valeurs ajustees au modele
 		modele.setAdjustedValues(fan.getValueSetter().getValues());
@@ -200,17 +198,19 @@ public class Controleur_Renal extends ControleurScin {
 
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
-		if (this.isOver()) {
-			// on renvoie la roi de l'organe uniquement si on a fini de tracer les roi
-			return this.roiManager.getRoi(this.indexRoi % this.getOrganes().length);
-		}
+		if (indexRoi > 0) {
+			if (this.isOver()) {
+				// on renvoie la roi de l'organe uniquement si on a fini de tracer les roi
+				return this.roiManager.getRoi(this.indexRoi % this.getOrganes().length);
+			}
 
-		String org = this.getNomOrgane(indexRoi - 1);
+			String org = this.getNomOrgane(indexRoi - 1);
 
-		// roi de bruit de fond
-		boolean pelvis = Prefs.get("renal.pelvis.preferred", true);
-		if ((!pelvis && org.contains("Kidney")) || (pelvis && org.contains("Pelvis"))) {
-			return this.createBkgRoi(this.indexRoi);
+			// roi de bruit de fond
+			boolean pelvis = Prefs.get("renal.pelvis.preferred", true);
+			if ((!pelvis && org.contains("Kidney")) || (pelvis && org.contains("Pelvis"))) {
+				return this.createBkgRoi(this.indexRoi);
+			}
 		}
 
 		return null;

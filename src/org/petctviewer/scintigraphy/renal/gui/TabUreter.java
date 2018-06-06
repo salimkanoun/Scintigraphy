@@ -36,8 +36,7 @@ public class TabUreter extends FenResultatSidePanel {
 	}
 
 	@Override
-	public Component[] getSidePanelContent() {
-		// TODO Auto-generated method stub
+	public Component getSidePanelContent() {
 		return null;
 	}
 

@@ -102,7 +102,7 @@ public class TabPrincipal extends FenResultatSidePanel {
 	}
 
 	@Override
-	public Component[] getSidePanelContent() {
+	public Component getSidePanelContent() {
 		boolean[] kidneys = this.modele.getKidneys();
 
 		JPanel flow_wrap = new JPanel();
@@ -133,7 +133,7 @@ public class TabPrincipal extends FenResultatSidePanel {
 
 		flow_wrap.add(res);
 
-		return new Component[] { flow_wrap };
+		return flow_wrap;
 	}
 
 	private Component getPanelROE() {

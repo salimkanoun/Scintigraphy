@@ -18,28 +18,27 @@ public class Vue_Dmsa extends VueScin {
 	}
 
 	@Override
-	protected void ouvertureImage(String[] titresFenetres) {
+	protected ImagePlus preparerImp(String[] titresFenetres) {
 		ImagePlus imp = WindowManager.getImage(titresFenetres[0]);
 
 		if(imp.getStackSize() == 2) {
 			imp.getStack().getProcessor(1).flipHorizontal();
 		}
 
-		this.setImp(imp.duplicate());
+		//TODO test bon format dicom
+		
+		return imp.duplicate();
+	}
 
-		VueScin.setCustomLut(this.getImp());
+	@Override
+	public void lancerProgramme() {
+		Overlay overlay = VueScin.initOverlay(this.getImp());
+		VueScin.setOverlayDG(overlay, this.getImp(), Color.yellow);
+		
 		FenApplication fen = new FenApplication(this.getImp(), this.getExamType());
 		this.setFenApplication(fen);
-
-		Overlay overlay = VueScin.initOverlay(imp);
-		VueScin.setOverlayDG(overlay, imp, Color.yellow);
 		this.getImp().setOverlay(overlay);
-
 		fen.setControleur(new Controleur_Dmsa(this));
-		IJ.setTool(Toolbar.POLYGON);
-
-		imp.close();
-
 	}
 
 }

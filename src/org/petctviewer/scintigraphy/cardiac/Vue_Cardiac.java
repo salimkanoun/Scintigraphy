@@ -12,15 +12,15 @@ import ij.plugin.Concatenator;
 import ij.plugin.MontageMaker;
 import ij.util.DicomTools;
 
-public class Vue_Cardiac extends VueScin{
-	
+public class Vue_Cardiac extends VueScin {
+
 	public Vue_Cardiac() {
 		super("Cardiac");
 	}
-	
+
 	@Override
-	protected void ouvertureImage(String[] titresFenetres) {
-		
+	protected ImagePlus preparerImp(String[] titresFenetres) {
+
 		ArrayList<ImagePlus> mountedImages = new ArrayList<>();
 
 		int[] frameDuration = new int[2];
@@ -43,39 +43,33 @@ public class Vue_Cardiac extends VueScin{
 
 		ImagePlus[] mountedSorted = VueScin.orderImagesByAcquisitionTime(mountedImages);
 		Concatenator enchainer = new Concatenator();
-		
+
 		ImagePlus impStacked;
-		//si la prise est early/late
-		if(titresFenetres.length == 2) {
+		// si la prise est early/late
+		if (titresFenetres.length == 2) {
 			impStacked = enchainer.concatenate(mountedSorted, false);
 			// si il y a plus de 3 minutes de diff�rence entre les deux prises
 			if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {
-				IJ.log("Warning, frame duration differ by " + Math.abs(frameDuration[0] - frameDuration[1]) / (1000 * 60) + " minutes");
+				IJ.log("Warning, frame duration differ by "
+						+ Math.abs(frameDuration[0] - frameDuration[1]) / (1000 * 60) + " minutes");
 			}
-		}else {
+		} else {
 			impStacked = mountedSorted[0];
 		}
+
+		return impStacked.duplicate();
+	}
+
+	@Override
+	public void lancerProgramme() {
+		Overlay overlay = VueScin.initOverlay(this.getImp(), 7);
+		VueScin.setOverlayDG(overlay, this.getImp(), Color.YELLOW);
 		
-		Overlay ov = VueScin.initOverlay(impStacked, 7);
-		VueScin.setOverlayDG(ov, impStacked, Color.YELLOW);
-		
-		this.setImp(impStacked.duplicate());
-		
-		// Charge la LUT
-		VueScin.setCustomLut(this.getImp());
-		
-		// Initialisation du Canvas qui permet de mettre la pile d'images
-		// dans une fenetre c'est une pile d'images (plus d'une image) on cree une
-		// fenetre pour la pile d'images;
+		// fenetre de l'application
 		this.setFenApplication(new FenApplication_Cardiac(this.getImp(), this.getExamType()));
-		
-		this.getImp().setOverlay(ov);
-		
+		this.getImp().setOverlay(overlay);
 		Controleur_Cardiac ctrl = new Controleur_Cardiac(this);
 		this.getFenApplication().setControleur(ctrl);
-		
-		IJ.setTool(Toolbar.POLYGON);
-		
 	}
 
 }

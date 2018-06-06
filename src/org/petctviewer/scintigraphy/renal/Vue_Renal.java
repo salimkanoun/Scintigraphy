@@ -26,8 +26,8 @@ public class Vue_Renal extends VueScinDyn {
 	}
 
 	@Override
-	protected void ouvertureImage(String[] titresFenetres) {
-		super.ouvertureImage(titresFenetres);
+	protected ImagePlus preparerImp(String[] titresFenetres) {
+		super.preparerImp(titresFenetres);
 
 		// on inverse l'image pour garder l'orientation gauche / droite
 		for (int i = 1; i <= this.impPost.getStackSize(); i++) {
@@ -35,43 +35,45 @@ public class Vue_Renal extends VueScinDyn {
 		}
 
 		ImagePlus impProjetee = projeter(this.impPost);
-		ImageStack s = impProjetee.getStack();
-		Overlay ov = VueScin.initOverlay(impProjetee, 12);
+		ImageStack stack = impProjetee.getStack();
+		
+		//deux premieres minutes
 		int fin = ModeleScinDyn.getSliceIndexByTime(2 * 60 * 1000, this.getFrameDurations());
 		ImagePlus impPostFirstMin = projeter(this.impPost, 0, fin);
-		s.addSlice(impPostFirstMin.getProcessor());
+		stack.addSlice(impPostFirstMin.getProcessor());
 		// MIP
 		ImagePlus pj = ZProjector.run(this.impPost, "max", 0, this.impPost.getNSlices());
-		s.addSlice(pj.getProcessor());
+		stack.addSlice(pj.getProcessor());
 
 		// ajout de la prise ant si elle existe
 		if (this.impAnt != null) {
 			for (int i = 1; i <= this.impAnt.getStackSize(); i++) {
 				this.impAnt.getStack().getProcessor(i).flipHorizontal();
 			}
-
 			ImagePlus impProjAnt = projeter(impAnt);
-			s.addSlice(impProjAnt.getProcessor());
+			stack.addSlice(impProjAnt.getProcessor());
 		}
 
-		impProjetee.setStack(s);
-		VueScin.setCustomLut(impProjetee);
-		this.setImp(impProjetee.duplicate());
-		this.getImp().setOverlay(ov);
-		this.setFenApplication(new FenApplicationDyn(this.getImp(), this.getExamType(), this));
+		//ajout du stack a l'imp
+		impProjetee.setStack(stack);
+		return impProjetee.duplicate();
+	}
+	
 
-		VueScin.setOverlayGD(ov, impProjetee, Color.yellow);
-		VueScin.setOverlayTitle("Post", ov, impProjetee, Color.yellow, 1);
-		VueScin.setOverlayTitle("2 first min of Post", ov, impProjetee, Color.YELLOW, 2);
-		VueScin.setOverlayTitle("MIP", ov, impProjetee, Color.YELLOW, 3);
+	@Override
+	public void lancerProgramme() {
+		Overlay overlay = VueScin.initOverlay(impProjetee, 12);
+		VueScin.setOverlayGD(overlay, impProjetee, Color.yellow);
+		VueScin.setOverlayTitle("Post",overlay, impProjetee, Color.yellow, 1);
+		VueScin.setOverlayTitle("2 first min of Post", overlay, impProjetee, Color.YELLOW, 2);
+		VueScin.setOverlayTitle("MIP", overlay, impProjetee, Color.YELLOW, 3);
 		if (this.impAnt != null) {
-			VueScin.setOverlayTitle("Ant", ov, impProjetee, Color.yellow, 4);
+			VueScin.setOverlayTitle("Ant", overlay, impProjetee, Color.yellow, 4);
 		}
 
-		this.getImp().setOverlay(ov);
+		this.setFenApplication(new FenApplicationDyn(this.getImp(), this.getExamType(), this));
+		this.getImp().setOverlay(overlay);
 		this.getFenApplication().setControleur(new Controleur_Renal(this));
-
-		IJ.setTool(Toolbar.POLYGON);
 	}
 
 	public JValueSetter getNephrogramChart() {
@@ -89,5 +91,4 @@ public class Vue_Renal extends VueScinDyn {
 	public void setPatlakChart(JValueSetter patlakChart) {
 		this.patlakChart = patlakChart;
 	}
-
 }

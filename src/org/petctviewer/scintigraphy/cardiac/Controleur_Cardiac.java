@@ -112,21 +112,26 @@ public class Controleur_Cardiac extends ControleurScin {
 			return roi;
 		}
 
-		Roi last = (Roi) this.roiManager.getRoi(getIndexRoi() - 1).clone();
+		//recupere la roi de l'organe symetrique
+		Roi lastOrgan = (Roi) this.roiManager.getRoi(getIndexRoi() - 1);
+		if(lastOrgan == null) { //si elle n'existe pas, on renvoie null
+			return null;
+		}
+		lastOrgan = (Roi) lastOrgan.clone();
 
 		// si la derniere roi etait post ou ant
-		boolean OrganPost = last.getXBase() > this.getVue().getImp().getWidth() / 2;
+		boolean OrganPost = lastOrgan.getXBase() > this.getVue().getImp().getWidth() / 2;
 
 		// si on doit faire le symetrique et que l'on a appuye sur next
 		if (this.getIndexRoi() % 2 == 1 && lastRoi < this.indexRoi) {
 
 			if (OrganPost) { // si la prise est ant, on decale l'organe precedent vers la droite
-				last.setLocation(last.getXBase() - (this.getVue().getImp().getWidth() / 2), last.getYBase());
+				lastOrgan.setLocation(lastOrgan.getXBase() - (this.getVue().getImp().getWidth() / 2), lastOrgan.getYBase());
 			} else { // sinon vers la gauche
-				last.setLocation(last.getXBase() + (this.getVue().getImp().getWidth() / 2), last.getYBase());
+				lastOrgan.setLocation(lastOrgan.getXBase() + (this.getVue().getImp().getWidth() / 2), lastOrgan.getYBase());
 			}
 
-			return last;
+			return lastOrgan;
 		}
 
 		return null;

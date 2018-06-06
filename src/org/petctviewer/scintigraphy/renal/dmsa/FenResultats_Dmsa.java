@@ -24,7 +24,7 @@ public class FenResultats_Dmsa extends FenResultatSidePanel{
 	}
 
 	@Override
-	public Component[] getSidePanelContent() {
+	public Component getSidePanelContent() {
 		Modele_Dmsa modele = (Modele_Dmsa) this.getVue().getFenApplication().getControleur().getModele();
 		Double pctL = modele.getPct()[0] * 100;
 		Double pctR = modele.getPct()[1] * 100;
@@ -58,7 +58,7 @@ public class FenResultats_Dmsa extends FenResultatSidePanel{
 		grid.add(lbl_dmsaR);
 		
 		flow.add(grid);
-		return new Component[] {flow};
+		return flow;
 	}
 
 }

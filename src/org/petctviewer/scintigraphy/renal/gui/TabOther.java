@@ -46,7 +46,7 @@ public class TabOther extends FenResultatSidePanel{
 	}
 
 	@Override
-	public Component[] getSidePanelContent() {
+	public Component getSidePanelContent() {
 		return null;
 	}
 	
