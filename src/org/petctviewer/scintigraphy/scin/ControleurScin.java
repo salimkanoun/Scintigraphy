@@ -16,19 +16,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import java.awt.Button;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 
-import org.petctviewer.scintigraphy.hepatic.dyn.FenResultat_HepaticDyn;
-import org.petctviewer.scintigraphy.hepatic.dyn.Modele_HepaticDyn;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.IJ;
 import ij.ImageListener;
@@ -82,20 +75,21 @@ public abstract class ControleurScin implements ActionListener {
 	public void actionPerformed(ActionEvent arg0) {
 		// recuperation du bouton clique
 		Button b = (Button) arg0.getSource();
+		FenApplication fen = this.laVue.getFenApplication();
 
 		// on execute des action selon quel bouton a ete clique
-		if (b == this.laVue.getFenApplication().getBtn_suivant()) {
+		if (b == fen.getBtn_suivant()) {
 			this.clicSuivant();
 		}
 
-		else if (b == this.laVue.getFenApplication().getBtn_precedent()) {
+		else if (b == fen.getBtn_precedent()) {
 			this.clicPrecedent();
 		}
 
-		else if (b == this.laVue.getFenApplication().getBtn_drawROI())
+		else if (b == fen.getBtn_drawROI())
 
 		{
-			Button btn = this.laVue.getFenApplication().getBtn_drawROI();
+			Button btn = fen.getBtn_drawROI();
 
 			// on change la couleur du bouton
 			if (btn.getBackground() != Color.LIGHT_GRAY) {
@@ -105,12 +99,12 @@ public abstract class ControleurScin implements ActionListener {
 			}
 
 			// on deselectionne le bouton contraste
-			this.laVue.getFenApplication().getBtn_contrast().setBackground(null);
+			fen.getBtn_contrast().setBackground(null);
 
 			IJ.setTool(Toolbar.POLYGON);
 		}
 
-		else if (b == this.laVue.getFenApplication().getBtn_contrast()) {
+		else if (b == fen.getBtn_contrast()) {
 			Button btn = this.laVue.getFenApplication().getBtn_contrast();
 
 			// on change la couleur du bouton
@@ -121,13 +115,13 @@ public abstract class ControleurScin implements ActionListener {
 			}
 
 			// on deselectionne le bouton draw roi
-			this.laVue.getFenApplication().getBtn_drawROI().setBackground(null);
+			fen.getBtn_drawROI().setBackground(null);
 
 			IJ.run("Window Level Tool");
 		}
 
 		else if (b == this.laVue.getFenApplication().getBtn_quitter()) {
-			this.laVue.getFenApplication().close();
+			fen.close();
 			return;
 		}
 
@@ -138,9 +132,7 @@ public abstract class ControleurScin implements ActionListener {
 				showLog = true;
 				this.laVue.getFenApplication().getBtn_showlog().setLabel("Hide Log");
 				// laVue.lesBoutons.get("Show").setBackground(Color.LIGHT_GRAY);
-			}
-
-			else {
+			} else {
 				showLog = false;
 				this.laVue.getFenApplication().getBtn_showlog().setLabel("Show Log");
 				// laVue.lesBoutons.get("Show").setBackground(null);
@@ -214,11 +206,11 @@ public abstract class ControleurScin implements ActionListener {
 	public void setSlice(int indexSlice) {
 		// ecrase l'overlay et tue la roi
 		ImagePlus imp = this.getVue().getImp();
-		
+
 		imp.getOverlay().clear();
 		imp.setOverlay(VueScin.duplicateOverlay(this.overlay));
 		imp.killRoi();
-		
+
 		// change la slice courante
 		this.laVue.getImp().setSlice(indexSlice);
 
@@ -271,8 +263,9 @@ public abstract class ControleurScin implements ActionListener {
 			// on active la fin si c'est necessaire
 			if (this.isOver()) {
 				this.setSlice(this.getVue().getImp().getCurrentSlice());
-				
-				// thread de capture, permet de laisser le temps de charger l'image plus dans le thread principal
+
+				// thread de capture, permet de laisser le temps de charger l'image plus dans le
+				// thread principal
 				Thread captureThread = new Thread(new Runnable() {
 					@Override
 					public void run() {
@@ -418,7 +411,7 @@ public abstract class ControleurScin implements ActionListener {
 		} else {
 			nom += " A";
 		}
-		
+
 		// on ajoute un numero pour l'identifier
 		String count = this.getSameNameRoiCount(nom);
 		nom += count;
@@ -469,9 +462,10 @@ public abstract class ControleurScin implements ActionListener {
 	public RoiManager getRoiManager() {
 		return this.roiManager;
 	}
-	
+
 	public void setRoiManager(RoiManager rm) {
-		this.roiManager = rm;;
+		this.roiManager = rm;
+		;
 	}
 
 	public void removeImpListener() {

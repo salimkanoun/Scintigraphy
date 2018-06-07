@@ -114,21 +114,12 @@ public class TabPrincipal extends FenResultatSidePanel {
 			res.add(this.getPanelSep());
 		}
 
-		// espace entre les tableaux
 		res.add(Box.createVerticalStrut(25));
-
 		res.add(this.getPanelTiming());
-
-		// espace entre les tableaux
 		res.add(Box.createVerticalStrut(25));
-
 		res.add(this.getPanelNoRa());
-
-		// espace entre les tableaux
 		res.add(Box.createVerticalStrut(25));
-
 		res.add(this.getPanelROE());
-
 		res.add(Box.createVerticalStrut(50));
 
 		flow_wrap.add(res);
@@ -204,20 +195,22 @@ public class TabPrincipal extends FenResultatSidePanel {
 			// aligne a droite
 			pnl_nora.add(new JLabel(nora[0][i] + "  min"));
 
-			if (nora[1][i] != Double.NaN) {
+			if (nora[1][i] != null) {
 				JLabel lbl_g = new JLabel(nora[1][i] + " %");
 				lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
 				pnl_nora.add(lbl_g);
 			} else {
-				pnl_nora.add(new JLabel("" + Double.NaN));
+				JLabel lbl_na = new JLabel("N/A");
+				lbl_na.setHorizontalAlignment(SwingConstants.CENTER);
+				pnl_nora.add(lbl_na);
 			}
 
-			if (nora[2][i] != Double.NaN) {
+			if (nora[2][i] != null) {
 				JLabel lbl_d = new JLabel(nora[2][i] + " %");
 				lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
 				pnl_nora.add(lbl_d);
 			} else {
-				pnl_nora.add(new JLabel("" + Double.NaN));
+				pnl_nora.add(new JLabel("N/A"));
 			}
 		}
 		return pnl_nora;

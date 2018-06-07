@@ -423,14 +423,10 @@ public class Modele_Renal extends ModeleScinDyn {
 		Double[][] res = new Double[2][2];
 
 		Double xLasilixM1 = this.adjustedValues.get("lasilix") - 1;
-
-		System.out.println("rein gauche : " + rg + ", rein droit : " + rd);
-
+		
 		// si il y a un rein gauche
 		if (this.kidneys[0]) {
 			Double xMaxL = this.adjustedValues.get("tmax L");
-
-			
 			res[0][0] = ModeleScin.round((100 * rg / ModeleScinDyn.getY(this.getSerie("Final KL"), xMaxL)), 2);
 			res[0][1] = ModeleScin.round((100 * rg / ModeleScinDyn.getY(this.getSerie("Final KL"), xLasilixM1)), 2);
 
@@ -456,37 +452,29 @@ public class Modele_Renal extends ModeleScinDyn {
 
 		// adjusted[6] => lasilix
 		Double xLasilix = this.adjustedValues.get("lasilix");
-		res[0][0] = ModeleScin.round(xLasilix - 1, 0);
-		res[0][1] = ModeleScin.round(xLasilix + 2, 0);
-		res[0][2] = round(this.getSerie("Blood Pool").getMaxX(), 0);
+		res[0][0] = ModeleScin.round(xLasilix - 1, 1);
+		res[0][1] = ModeleScin.round(xLasilix + 2, 1);
+		res[0][2] = round(this.getSerie("Blood Pool").getMaxX(), 1);
 
-		if (this.kidneys[0]) {
-			XYSeries lk = this.getSerie("Final KL");
-			Double maxL = lk.getMaxY();
+		for (String lr : this.kidneysLR) {
+			XYSeries kidney = this.getSerie("Final K" + lr);
+			Double max = kidney.getMaxY();
+			
+			//change l'index sur lequel ecrire le resultat dans le tableau
+			int index = 1;
+			if(lr == "R")
+				index = 2;
+
 			// calcul nora rein gauche
-			res[1][0] = ModeleScin.round(getY(lk, res[0][0]) * 100 / maxL, 1);
-			res[1][1] = ModeleScin.round(getY(lk, res[0][1]) * 100 / maxL, 1);
-			res[1][2] = ModeleScin.round(getY(lk, lk.getMaxX()) * 100 / maxL, 1);
-		} else {
-			res[1][0] = Double.NaN;
-			res[1][1] = Double.NaN;
-			res[1][2] = Double.NaN;
-		}
-
-		if (this.kidneys[1]) {
-			XYSeries rk = this.getSerie("Final KR");
-			Double maxR = rk.getMaxY();
-			// calcul nora rein droit
-			res[2][0] = ModeleScin.round(getY(rk, res[0][0]) * 100 / maxR, 1);
-			res[2][1] = ModeleScin.round(getY(rk, res[0][1]) * 100 / maxR, 1);
-			res[2][2] = ModeleScin.round(getY(rk, rk.getMaxX()) * 100 / maxR, 1);
-		} else {
-			res[2][0] = Double.NaN;
-			res[2][1] = Double.NaN;
-			res[2][2] = Double.NaN;
+			for (int i = 0; i < 3; i++) {
+				if (this.getAdjustedValues().get("tmax " + lr) < res[0][i]) {
+					res[index][i] = ModeleScin.round(getY(kidney, res[0][i]) * 100 / max, 1);
+				}
+			}
 		}
 
 		return res;
+
 	}
 
 	public void setAdjustedValues(HashMap<Comparable, Double> hashMap) {
