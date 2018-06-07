@@ -76,7 +76,9 @@ public class Controleur_Shunpo implements ActionListener {
 				this.laVue.lesBoutons.get("Precedent").setEnabled(true);
 				String tag = DicomTools.getTag(this.laVue.win.getImagePlus(), "0010,0010");
 				this.leModele.setPatient(tag,this.laVue.win.getImagePlus());
+				
 				this.tagCapture=ModeleScin.genererDicomTagsPartie1(this.laVue.win.getImagePlus(), this.nomProgramme);
+				
 				//On verifie que la ROI suivante n'est pas deja pr茅sente dans le ROI manager(cas d'un retour) auquel cas on l'affiche
 				if (this.laVue.leRoi.getRoi((this.index))!= null) {
 					this.laVue.leRoi.select(this.index);

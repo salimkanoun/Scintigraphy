@@ -20,7 +20,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 public class TabUreter extends FenResultatSidePanel {
 
 	public TabUreter(VueScin vue, int w, int h) {
-		super("Renal scintigraphy", vue, null, "");
+		super("Renal scintigraphy", vue, null, "ureter");
 		String[][] asso = new String[][] {{"L. Ureter" , "R. Ureter"}};
 		List<XYSeries> series = ((Modele_Renal) vue.getFenApplication().getControleur().getModele()).getSeries();
 		ChartPanel[] cPanels = ModeleScinDyn.associateSeries(asso, series);

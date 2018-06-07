@@ -46,7 +46,7 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 	private JPanel pnl_nora, pnl_bladder;
 
 	public TabPostMict(VueScin vue, int w, int h) {
-		super("Renal scintigraphy", vue, null, "");
+		super("Renal scintigraphy", vue, null, "postmict");
 		this.bladder = Prefs.get("renal.bladder.preferred", true);
 
 		this.pack();
@@ -181,7 +181,12 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 
 		this.btn_quantify = new JButton("Quantify");
 		this.btn_quantify.addActionListener(this);
-		return this.btn_quantify;
+		this.btn_quantify.setVisible(false);
+		
+		JPanel flow = new JPanel();
+		flow.add(btn_quantify);
+		
+		return flow;
 	}
 
 	@Override
@@ -212,9 +217,9 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 
 		// elements du tableau
 		JLabel[] lbls = new JLabel[] { new JLabel("L"), new JLabel("R"), new JLabel("Max"),
-				new JLabel("" + naIfNull(nora[0][0]) + " %"), new JLabel("" + naIfNull(nora[0][1]) + " %"),
+				new JLabel("" + naIfNull(nora[0][0]) + " %"), new JLabel("" + naIfNull(nora[1][0]) + " %"),
 				new JLabel("" + ModeleScin.round(modele.getAdjustedValues().get("lasilix") - 1, 1) + " min"),
-				new JLabel("" + naIfNull(nora[1][0]) + " %"), new JLabel("" + naIfNull(nora[1][1]) + " %"), };
+				new JLabel("" + naIfNull(nora[0][1]) + " %"), new JLabel("" + naIfNull(nora[1][1]) + " %"), };
 
 		// panel nora
 		JPanel pnl_nora = new JPanel(new GridLayout(3, 3, 0, 3));

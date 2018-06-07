@@ -19,6 +19,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -47,11 +49,15 @@ import ij.util.DicomTools;
 public abstract class ModeleScin {
 
 	protected ImagePlus imp;
+	private Integer uid;
 
 	/**
 	 * renvoie la moyenne geometrique
-	 * @param a chiffre a
-	 * @param b chiffre b
+	 * 
+	 * @param a
+	 *            chiffre a
+	 * @param b
+	 *            chiffre b
 	 * @return moyenne geometrique
 	 */
 	public static double moyGeom(Double a, Double b) {
@@ -60,8 +66,11 @@ public abstract class ModeleScin {
 
 	/**
 	 * arrondi la valeur
-	 * @param value valeur a arrondir
-	 * @param places nb de chiffre apres la virgule
+	 * 
+	 * @param value
+	 *            valeur a arrondir
+	 * @param places
+	 *            nb de chiffre apres la virgule
 	 * @return valeur arrondie
 	 */
 	public static double round(double value, int places) {
@@ -72,7 +81,7 @@ public abstract class ModeleScin {
 		bd = bd.setScale(places, RoundingMode.HALF_UP);
 		return bd.doubleValue();
 	}
-	
+
 	/**
 	 * renvoie une hasmap contenant les informations du patient selon le tag info de
 	 * l'imp keys : id name date
@@ -82,23 +91,23 @@ public abstract class ModeleScin {
 	 */
 	public static HashMap<String, String> getPatientInfo(ImagePlus imp) {
 		HashMap<String, String> hm = new HashMap<>();
-		
-		//ajout du nom, si il n'existe pas on ajoute une string vide
-		if(DicomTools.getTag(imp, "0010,0010") != null) {
+
+		// ajout du nom, si il n'existe pas on ajoute une string vide
+		if (DicomTools.getTag(imp, "0010,0010") != null) {
 			String nom = DicomTools.getTag(imp, "0010,0010").trim();
 			hm.put("name", nom.replace("^", " "));
-		}else {
+		} else {
 			hm.put("name", "");
-		}		
+		}
 
-		//ajout de l'id, si il n'existe pas on ajoute une string vide
-		if(DicomTools.getTag(imp, "0010,0020") != null) {
+		// ajout de l'id, si il n'existe pas on ajoute une string vide
+		if (DicomTools.getTag(imp, "0010,0020") != null) {
 			hm.put("id", DicomTools.getTag(imp, "0010,0020").trim());
-		}else {
+		} else {
 			hm.put("id", "");
 		}
 
-		//ajout de la date nom, si il n'existe pas on ajoute une string vide
+		// ajout de la date nom, si il n'existe pas on ajoute une string vide
 		if (DicomTools.getTag(imp, "0008,0022") != null) {
 			String dateStr = DicomTools.getTag(imp, "0008,0022").trim();
 			Date result = null;
@@ -109,17 +118,18 @@ public abstract class ModeleScin {
 			}
 			String r = new SimpleDateFormat(Prefs.get("dateformat.preferred", "MM/dd/yyyy")).format(result);
 			hm.put("date", r);
-			
+
 		} else {
 			hm.put("date", "");
 		}
 		return hm;
 	}
-	
+
 	/**
 	 * Renvoie le nombre de coups sur la roi presente dans l'image plus
 	 * 
-	 * @param imp l'imp
+	 * @param imp
+	 *            l'imp
 	 * @return nombre de coups
 	 */
 	public static Double getCounts(ImagePlus imp) {
@@ -130,10 +140,12 @@ public abstract class ModeleScin {
 		ResultsTable density = Analyzer.getResultsTable();
 		return density.getValueAsDouble(ResultsTable.RAW_INTEGRATED_DENSITY, 0);
 	}
-	
+
 	/**
 	 * renvoie le nombre de coups moyens de la roi presente sur l'imp
-	 * @param imp l'imp
+	 * 
+	 * @param imp
+	 *            l'imp
 	 * @return nombre moyen de coups
 	 */
 	public static Double getAvgCounts(ImagePlus imp) {
@@ -207,7 +219,7 @@ public abstract class ModeleScin {
 		// efface le zoom indicateur : carre bleu en haut a gauche quand zoom inf a 1
 		boolean wasHidden = ic.hideZoomIndicator(true);
 		ic.repaint();
-		
+
 		try {
 			Rectangle r = new Rectangle(loc.x, loc.y, bounds.width, bounds.height);
 			buff = new Robot().createScreenCapture(r);
@@ -215,7 +227,7 @@ public abstract class ModeleScin {
 		} catch (AWTException e) {
 			e.printStackTrace();
 		}
-		
+
 		ic.hideZoomIndicator(wasHidden);
 		// On resize la capture aux dimensions choisies pour rentrer dans le
 		// stack
@@ -263,14 +275,14 @@ public abstract class ModeleScin {
 		boolean wasHidden = ic.hideZoomIndicator(true);
 		IJ.wait(500);
 		BufferedImage buff = null;
-		
+
 		try {
 			Rectangle rec = new Rectangle(loc.x, loc.y, bounds.width, bounds.height);
 			buff = new Robot().createScreenCapture(rec);
 		} catch (AWTException e) {
 			e.printStackTrace();
 		}
-		
+
 		ic.hideZoomIndicator(wasHidden);
 		// On ferme le ROI manage et fenetre resultat
 		ImagePlus imp2 = new ImagePlus("Results Capture", buff);
@@ -299,9 +311,11 @@ public abstract class ModeleScin {
 		return df1.format(dt1);
 	}
 
-	private static String generateUID6digits() {
-		Integer rnd = (int) (Math.random() * 1000000.);
-		return rnd.toString();
+	private String generateUID6digits() {
+		if (this.uid == null) {
+			this.uid = (int) (Math.random() * 1000000.);
+		}
+		return this.uid.toString();
 	}
 
 	public static Date getDateAcquisition(ImagePlus imp) {// Parse de la date et heure d'acquisition
@@ -324,7 +338,8 @@ public abstract class ModeleScin {
 	}
 
 	/**
-	 * Permet de generer la 1ere partie du Header qui servira a la capture finale
+	 * Permet de generer la 1ere partie du Header qui servira a la capture finale,
+	 * l'iud est genere aleatoirement a chauqe appel de la fonction
 	 * 
 	 * @param imp
 	 *            : imageplus originale (pour recuperer des elements du Header tels
@@ -332,12 +347,46 @@ public abstract class ModeleScin {
 	 * @param nomProgramme
 	 *            : nom du programme qui l'utilise si par exemple "pulmonary shunt"
 	 *            la capture sera appelee "Capture Pulmonary Shunt"
-	 * @return retourne la premi�re partie du header en string auquelle on ajoutera
-	 *         la 2eme partie via la deuxieme methode
+	 * @return retourne la premi�re partie du header en string auquelle on
+	 *         ajoutera la 2eme partie via la deuxieme methode
 	 */
 	public static String genererDicomTagsPartie1(ImagePlus imp, String nomProgramme) {
-		String sopID = generateSOPInstanceUID(new Date());
+		Random random = new Random();
+		String uid = Integer.toString(random.nextInt(1000000));
+		
+		return genererDicomTagsPartie1(imp, nomProgramme, uid);
+	}
+
+	/**
+	 * Permet de generer la 1ere partie du Header qui servira a la capture finale,
+	 * l'iud est genere aleatoirement au premier appel de la fonction et reste le meme
+	 * pour tout le modele
+	 * 
+	 * @param imp
+	 *            : imageplus originale (pour recuperer des elements du Header tels
+	 *            que le nom du patient...)
+	 * @param nomProgramme
+	 *            : nom du programme qui l'utilise si par exemple "pulmonary shunt"
+	 *            la capture sera appelee "Capture Pulmonary Shunt"
+	 * @return retourne la premi�re partie du header en string auquelle on
+	 *         ajoutera la 2eme partie via la deuxieme methode
+	 */
+	public String genererDicomTagsPartie1SameUID(ImagePlus imp, String nomProgramme) {
 		String uid = generateUID6digits();
+		return genererDicomTagsPartie1(imp, nomProgramme, uid);
+	}
+
+	/**prepare la premiere partie des tags du header du dicom avec l'iud passe en parametre <br>
+	 * <br>
+	 * See also :
+	 * <br>{@link ModeleScin#genererDicomTagsPartie1(ImagePlus, String)} <br> {@link ModeleScin#genererDicomTagsPartie1SameUID(ImagePlus, String)}
+	 * @param imp
+	 * @param nomProgramme
+	 * @param uid
+	 * @return
+	 */
+	public static String genererDicomTagsPartie1(ImagePlus imp, String nomProgramme, String uid) {
+		String sopID = generateSOPInstanceUID(new Date());
 		String tag = "0002,0002 Media Storage SOP Class UID: " + "1.2.840.10008.5.1.4.1.1.7" + "\n"
 				+ "0002,0003 Media Storage SOP Inst UID: " + sopID + "\n" + "0002,0010 Transfer Syntax UID: "
 				+ "1.2.840.10008.1.2.1" + "\n" + "0002,0013 Implementation Version Name: jpeg" + "\n"
@@ -556,7 +605,8 @@ public abstract class ModeleScin {
 		StringBuilder content = ModeleScin.initCSVHorizontal(infoPatient);
 
 		for (int i = 0; i < resultats.length; i++) {
-			// Si multiple de n (nombre de valeur par ligne) on fait retour à la ligne sinon
+			// Si multiple de n (nombre de valeur par ligne) on fait retour à la ligne
+			// sinon
 			// on met une virgule
 			if (i % nombreColonne == 0) {
 				content.append('\n');
@@ -706,6 +756,8 @@ public abstract class ModeleScin {
 
 	public abstract void calculerResultats();
 
-	public HashMap<String, String> getResultsHashMap(){return null;}
+	public HashMap<String, String> getResultsHashMap() {
+		return null;
+	}
 
 }

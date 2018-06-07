@@ -153,21 +153,8 @@ public class TabPrincipal extends FenResultatSidePanel {
 		pnl_roe.add(lbl_L);
 		pnl_roe.add(lbl_R);
 
-		boolean[] kidneys = new boolean[] { true, true };
+		boolean[] kidneys = this.modele.getKidneys();
 		XYSeries serieRK = null, serieLK = null;
-
-		// on recupere les series
-		try {
-			serieLK = this.modele.getSerie("Output KL");
-		} catch (NullPointerException e) {
-			kidneys[0] = false;
-		}
-
-		try {
-			serieRK = this.modele.getSerie("Output KR");
-		} catch (NullPointerException e) {
-			kidneys[1] = false;
-		}
 
 		for (int i = 0; i < 3; i++) {
 			// aligne a droite
@@ -176,6 +163,7 @@ public class TabPrincipal extends FenResultatSidePanel {
 
 			JLabel lbl_g = null;
 			if (kidneys[0]) {
+				serieLK = this.modele.getSerie("Output KL");
 				lbl_g = new JLabel(modele.getPercentage(mins[i], serieLK, "L") + " %");
 			} else {
 				lbl_g = new JLabel("N/A");
@@ -185,6 +173,7 @@ public class TabPrincipal extends FenResultatSidePanel {
 
 			JLabel lbl_d = null;
 			if (kidneys[1]) {
+				serieRK = this.modele.getSerie("Output KR");
 				lbl_d = new JLabel(modele.getPercentage(mins[i], serieRK, "R") + " %");
 			} else {
 				lbl_d = new JLabel("N/A");

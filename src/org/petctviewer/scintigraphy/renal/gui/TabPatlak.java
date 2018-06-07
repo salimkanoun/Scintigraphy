@@ -23,7 +23,7 @@ public class TabPatlak extends FenResultatSidePanel {
 	private JValueSetter patlak;
 
 	public TabPatlak(Vue_Renal vue, int w, int h) {
-		super("Renal scintigraphy", vue, null, "");
+		super("Renal scintigraphy", vue, null, "patlak");
 
 		this.pack();
 		this.add(vue.getPatlakChart(), BorderLayout.CENTER);

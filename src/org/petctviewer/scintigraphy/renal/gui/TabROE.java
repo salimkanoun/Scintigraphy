@@ -30,7 +30,7 @@ public class TabROE extends FenResultatSidePanel {
 	private VueScin vue;
 
 	public TabROE(VueScin vue, int w, int h) {
-		super("Renal scintigraphy", vue, null, "");
+		super("Renal scintigraphy", vue, null, "roe");
 
 		this.vue = vue;
 

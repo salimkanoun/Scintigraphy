@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.swing.JFrame;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.RenalSettings;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 
@@ -21,6 +25,8 @@ public class Modele_Renal extends ModeleScinDyn {
 	private HashMap<Comparable, Double> adjustedValues;
 	private boolean[] kidneys;
 	private double[] patlakPente;
+	private boolean lock;
+	private ArrayList<String> kidneysLR;
 
 	/**
 	 * recupere les valeurs et calcule les resultats de l'examen renal
@@ -35,6 +41,15 @@ public class Modele_Renal extends ModeleScinDyn {
 		this.organArea = new HashMap<>();
 	}
 
+	public static void graph(XYDataset data) {
+		JFreeChart chart = ChartFactory.createXYLineChart("", "x", "y", data);
+
+		JFrame frame = new JFrame();
+		frame.add(new ChartPanel(chart));
+		frame.pack();
+		frame.setVisible(true);
+	}
+
 	public void setKidneys(boolean[] kidneys) {
 		this.kidneys = kidneys;
 	}
@@ -45,52 +60,35 @@ public class Modele_Renal extends ModeleScinDyn {
 
 	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
-		super.enregistrerMesure(nomRoi, imp);
-
 		if (!this.isLocked()) {
-			// aire de la roi en pixel
-			int area = imp.getStatistics().pixelCount;
-			String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
+			super.enregistrerMesure(nomRoi, imp);
 
+			// nom de l'organe sans le tag
+			String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
 			// si on n'a pas deja enregistre son aire, on l'ajout a la hashmap
 			if (this.organArea.get(name) == null) {
+				int area = imp.getStatistics().pixelCount;
 				this.organArea.put(name, area);
 			}
 		}
 
 	}
 
-	private void normalizeBP() {
-		List<Double> bp = getData("Blood Pool");
-		Integer aireBP = this.organArea.get("Blood Pool");
-		Integer aireLk = this.organArea.get("L. Kidney");
-		Integer aireRk = this.organArea.get("R. Kidney");
-
-		List<Double> bpl = new ArrayList<>();
-		List<Double> bpr = new ArrayList<>();
-		for (Double d : bp) {
-			bpl.add((d / aireBP) * aireLk);
-			bpr.add((d / aireBP) * aireRk);
-		}
-
-		this.getData().put("BP norm L", bpl);
-		this.getData().put("BP norm R", bpr);
-	}
-
 	@Override
 	public void calculerResultats() {
 
+		// construction du tableau representant chaque rein
+		this.kidneysLR = new ArrayList<>();
+		if (kidneys[0])
+			kidneysLR.add("L");
+		if (kidneys[1])
+			kidneysLR.add("R");
+
 		normalizeBP();
 
+		// on calcule les corticales si elle sont demandees
 		if (Prefs.get("renal.pelvis.preferred", true)) {
-			List<List<Double>> bassinets = this.calculBassinets();
-			if (this.kidneys[0]) {
-				this.getData().put("L. Cortical", bassinets.get(0));
-			}
-
-			if (this.kidneys[1]) {
-				this.getData().put("R. Cortical", bassinets.get(1));
-			}
+			this.calculCortical();
 		}
 
 		// on ajuste toutes les valeurs pour les mettre en coup / sec
@@ -99,82 +97,76 @@ public class Modele_Renal extends ModeleScinDyn {
 			this.getData().put(k, this.adjustValues(data));
 		}
 
+		// on soustrait le bruit de fond
+		this.substractBkg();
+
+		// ***INTEGRALE DE LA COURBE VASCULAIRE***
 		// on recupere la liste des donnees vasculaires
 		List<Double> vasc = this.getData("Blood Pool");
-
-		if (kidneys[0]) {
-			List<Double> RGCorrige = new ArrayList<>();
-			// on recupere l'aire des rois bruit de fond et rein
-			int aireRG = this.organArea.get("L. Kidney");
-			int aireBkgG = this.organArea.get("L. bkg");
-			List<Double> lk = this.getData("L. Kidney");
-			List<Double> lbkg = this.getData("L. bkg");
-			// on calcule le coup moyen de la roi, on l'ajuste avec le bdf et on l'applique
-			// sur toute la roi pour chaque rein afin d'ajuster la valeur brute pour les
-			// deux reins
-			for (int i = 0; i < this.getFrameduration().length; i++) {
-				Double countRG = lk.get(i);
-				Double countBgG = lbkg.get(i);
-				Double adjustedValueG = ((countRG / aireRG) - (countBgG / aireBkgG)) * aireRG;
-				RGCorrige.add(adjustedValueG);
-			}
-
-			this.getData().put("Final KL", RGCorrige);
-		}
-
-		if (kidneys[1]) {
-			List<Double> RDCorrige = new ArrayList<>();
-			// on recupere l'aire des rois bruit de fond et rein
-			int aireRD = this.organArea.get("R. Kidney");
-			int aireBkgD = this.organArea.get("R. bkg");
-			List<Double> rk = this.getData("R. Kidney");
-			List<Double> rbkg = this.getData("R. bkg");
-			for (int i = 0; i < this.getFrameduration().length; i++) {
-				Double countRD = rk.get(i);
-				Double countBgD = rbkg.get(i);
-				Double adjustedValueD = ((countRD / aireRD) - (countBgD / aireBkgD)) * aireRD;
-				RDCorrige.add(adjustedValueD);
-			}
-
-			this.getData().put("Final KR", RDCorrige);
-		}
-
-		// on calcule l'integrale de la courbe vasculaire
 		XYSeries serieVasc = this.createSerie(vasc, "");
 		List<Double> vascIntegree = Modele_Renal.getIntegral(serieVasc, serieVasc.getMinX(), serieVasc.getMaxX());
 		this.getData().put("BPI", vascIntegree); // BPI == Blood Pool Integrated
 	}
 
+	private void substractBkg() {
+		// ***VALEURS AJUSTEES AVEC LE BRUIT DE FOND POUR CHAQUE REIN***
+		for (String lr : kidneysLR) { // pour chaque rein
+			List<Double> RGCorrige = new ArrayList<>();
+			// on recupere l'aire des rois bruit de fond et rein
+			int aireRein = this.organArea.get(lr + ". Kidney");
+			int aireBkg = this.organArea.get(lr + ". bkg");
+			List<Double> lk = this.getData(lr + ". Kidney");
+			List<Double> lbkg = this.getData(lr + ". bkg");
+
+			// on calcule le coup moyen de la roi, on l'ajuste avec le bdf et on l'applique
+			// sur toute la roi pour chaque rein afin d'ajuster la valeur brute pour les
+			// deux reins
+			for (int i = 0; i < this.getFrameduration().length; i++) {
+				Double countRein = lk.get(i);
+				Double countBkg = lbkg.get(i);
+
+				Double moyRein = countRein / aireRein;
+				Double moyBkg = countBkg / aireBkg;
+				Double adjustedValueG = (moyRein - moyBkg) * aireRein;
+				RGCorrige.add(adjustedValueG);
+			}
+
+			// on ajoute les nouveles valeurs aux donnees
+			this.getData().put("Final K" + lr, RGCorrige);
+		}
+
+	}
+
+	// normalise la vasculaire pour le rein gauche et droit pour le patlak
+	private void normalizeBP() {
+		List<Double> bp = getData("Blood Pool");
+		Integer aireBP = this.organArea.get("Blood Pool");
+
+		// pour chaque rein on ajoute la valeur normalisee de la vasculaire
+		for (String lr : this.kidneysLR) {
+			List<Double> bpNorm = new ArrayList<>();
+			Integer aire = this.organArea.get(lr + ". Kidney");
+			for (Double d : bp) {
+				bpNorm.add((d / aireBP) * aire);
+			}
+			this.getData().put("BP norm " + lr, bpNorm);
+		}
+	}
+
 	/**
 	 * calcule et renvoie les valeurs de courbes des bassinets
-	 * 
-	 * @return bassinet gauche, bassinet Droit
 	 */
-	private List<List<Double>> calculBassinets() {
+	private void calculCortical() {
+		for (String lr : this.kidneysLR) { // on calcule la valeur de la corticale pour chaque rein
+			List<Double> cortical = new ArrayList<>(); // coups de la corticale
 
-		List<List<Double>> l = new ArrayList<>();
-
-		if (kidneys[0]) {
-			List<Double> bassinetsG = new ArrayList<>();
-			List<Double> reinG = this.getData("L. Kidney");
-			List<Double> pelvG = this.getData("L. Pelvis");
+			List<Double> rein = this.getData(lr + ". Kidney");
+			List<Double> bassinet = this.getData(lr + ". Pelvis");
 			for (int i = 0; i < this.getData("Blood Pool").size(); i++) {
-				bassinetsG.add(reinG.get(i) - pelvG.get(i));
+				cortical.add(rein.get(i) - bassinet.get(i));
 			}
-			l.add(0, bassinetsG);
+			this.getData().put(lr + ". Cortical", cortical);
 		}
-
-		if (kidneys[1]) {
-			List<Double> bassinetsD = new ArrayList<>();
-			List<Double> reinD = this.getData("R. Kidney");
-			List<Double> pelvD = this.getData("R. Pelvis");
-			for (int i = 0; i < this.getData("Blood Pool").size(); i++) {
-				bassinetsD.add(reinD.get(i) - pelvD.get(i));
-			}
-			l.add(1, bassinetsD);
-		}
-
-		return l;
 	}
 
 	/**
@@ -185,39 +177,27 @@ public class Modele_Renal extends ModeleScinDyn {
 		// on recupere la liste des donnees vasculaires
 		List<Double> bpi = this.getData("BPI");
 
-		if (this.kidneys[0]) {
+		for (String lr : this.kidneysLR) {
 			// recuperation des donnees des reins
-			List<Double> RGCorrige = this.getData().get("Final KL");
+			List<Double> corrige = this.getData().get("Final K" + lr);
 			// calcul des courbes fitees
-			List<Double> vascFitG = this.fitVasc(bpi, RGCorrige);
-			// on calcule le valeurs de la courbe sortie pour chaque rein
-			List<Double> sortieIntRG = new ArrayList<>();
-			for (int i = 0; i < RGCorrige.size(); i++) {
-				// on ajoute uniquement si la valeur est positive
-				Double outputXG = vascFitG.get(i) - RGCorrige.get(i);
-				if (outputXG <= 0) {
-					outputXG = 0.0;
-				}
-				sortieIntRG.add(outputXG);
-			}
-			/// on ajoute les nouvelles courbes dans les donnees
-			this.getData().put("Output KL", sortieIntRG);
-			this.getData().put("Blood pool fitted L", vascFitG);
-		}
+			List<Double> vascFit = this.fitVasc(bpi, corrige);
 
-		if (this.kidneys[1]) {
-			List<Double> RDCorrige = this.getData().get("Final KR");
-			List<Double> vascFitD = this.fitVasc(bpi, RDCorrige);
-			List<Double> sortieIntRD = new ArrayList<>();
-			for (int i = 0; i < RDCorrige.size(); i++) {
-				Double outputXD = vascFitD.get(i) - RDCorrige.get(i);
-				if (outputXD <= 0) {
-					outputXD = 0.0;
+			// on calcule le valeurs de la courbe sortie
+			List<Double> sortieInt = new ArrayList<>();
+			for (int i = 0; i < corrige.size(); i++) {
+				// on ajoute uniquement si la valeur est positive
+				Double output = vascFit.get(i) - corrige.get(i);
+				if (output <= 0) {
+					output = 0.0;
 				}
-				sortieIntRD.add(outputXD);
+				/// on ajoute la valeur calculee dans la liste de sortie renale
+				sortieInt.add(output);
 			}
-			this.getData().put("Output KR", sortieIntRD);
-			this.getData().put("Blood pool fitted R", vascFitD);
+
+			/// on ajoute les nouvelles courbes dans les donnees
+			this.getData().put("Output K" + lr, sortieInt);
+			this.getData().put("Blood pool fitted " + lr, vascFit);
 		}
 	}
 
@@ -391,7 +371,6 @@ public class Modele_Renal extends ModeleScinDyn {
 			if (i == 2) {
 				lr = " Right";
 			}
-
 		}
 
 		return s;
@@ -440,24 +419,30 @@ public class Modele_Renal extends ModeleScinDyn {
 	 *         : lasilix - 1
 	 */
 	public Double[][] getNoRAPM(Double rg, Double rd) {
-
 		// tableau de retour avec les resultats
 		Double[][] res = new Double[2][2];
 
 		Double xLasilixM1 = this.adjustedValues.get("lasilix") - 1;
 
+		System.out.println("rein gauche : " + rg + ", rein droit : " + rd);
+
+		// si il y a un rein gauche
 		if (this.kidneys[0]) {
 			Double xMaxL = this.adjustedValues.get("tmax L");
+
+			
 			res[0][0] = ModeleScin.round((100 * rg / ModeleScinDyn.getY(this.getSerie("Final KL"), xMaxL)), 2);
 			res[0][1] = ModeleScin.round((100 * rg / ModeleScinDyn.getY(this.getSerie("Final KL"), xLasilixM1)), 2);
+
 		}
 
+		// si il y a un rein droit
 		if (this.kidneys[1]) {
 			Double xMaxR = this.adjustedValues.get("tmax R");
 			res[1][0] = ModeleScin.round((100 * rd / ModeleScinDyn.getY(this.getSerie("Final KR"), xMaxR)), 2);
 			res[1][1] = ModeleScin.round((100 * rd / ModeleScinDyn.getY(this.getSerie("Final KR"), xLasilixM1)), 2);
 		}
-		
+
 		return res;
 	}
 
@@ -555,6 +540,18 @@ public class Modele_Renal extends ModeleScinDyn {
 	public double getNoRABladder(Double bld) {
 		XYSeries bldSeries = this.getSerie("Bladder");
 		return 100 * bld / ModeleScinDyn.getY(bldSeries, bldSeries.getMaxX());
+	}
+
+	public void lock() {
+		this.lock = true;
+	}
+
+	public void unlock() {
+		this.lock = false;
+	}
+
+	public boolean isLocked() {
+		return this.lock;
 	}
 
 }

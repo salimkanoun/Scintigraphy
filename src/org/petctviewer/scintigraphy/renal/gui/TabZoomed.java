@@ -24,26 +24,26 @@ public class TabZoomed extends FenResultatSidePanel {
 	private static final long serialVersionUID = -2647720655737610538L;
 
 	public TabZoomed(VueScin vue, int w, int h) {
-		super("Renal scintigraphy", vue, null, "");
+		super("Renal scintigraphy", vue, null, "bloodpool");
 
 		Modele_Renal modele = ((Modele_Renal) vue.getFenApplication().getControleur().getModele());
 
 		XYSeriesCollection dataset = new XYSeriesCollection();
 
-		try {
+		boolean[] kidneys = ((Modele_Renal) vue.getFenApplication().getControleur().getModele()).getKidneys();
+		
+		if(kidneys[0]) {
 			XYSeries finalKL = modele.getSerie("Final KL");
 			XYSeries finalKLCropped = Modele_Renal.cropSeries(finalKL, 0.0, 1.0);
 			finalKLCropped.setKey("Left Kidney");
 			dataset.addSeries(finalKLCropped);
-		} catch (NullPointerException e) {
 		}
 
-		try {
+		if(kidneys[1]) {
 			XYSeries finalKR = modele.getSerie("Final KR");
 			XYSeries finalKRCropped = Modele_Renal.cropSeries(finalKR, 0.0, 1.0);
 			finalKRCropped.setKey("Right Kidney");
 			dataset.addSeries(finalKRCropped);
-		} catch (NullPointerException e) {
 		}
 
 		JFreeChart chart = ChartFactory.createXYLineChart("", "min", "count/sec", dataset);

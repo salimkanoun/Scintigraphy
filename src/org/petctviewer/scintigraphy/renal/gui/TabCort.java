@@ -20,7 +20,7 @@ public class TabCort extends FenResultatSidePanel {
 	private static final long serialVersionUID = -2324369375150642778L;
 
 	public TabCort(VueScin vue, int w, int h) {
-		super("Renal scintigraphy", vue, null, "");
+		super("Renal scintigraphy", vue, null, "cort");
 		
 		ModeleScinDyn modele = (ModeleScinDyn) vue.getFenApplication().getControleur().getModele();
 		

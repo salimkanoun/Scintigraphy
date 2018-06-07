@@ -63,7 +63,7 @@ public class FenResultats_Renal {
 		tabbedPane.addTab("Vascular phase", this.zoomed);
 		tabbedPane.addTab("Other", this.tabOther);
 
-		tabbedPane.addTab("Post-micturition", this.tabPost);
+		tabbedPane.addTab("Post-mictional", this.tabPost);
 		
 		if (this.tabPatlak != null) {
 			tabbedPane.addTab("Patlak", this.tabPatlak);

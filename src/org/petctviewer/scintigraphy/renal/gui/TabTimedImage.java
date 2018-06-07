@@ -31,7 +31,7 @@ public class TabTimedImage extends FenResultatImp{
 	private static final long serialVersionUID = 8125367912250906052L;
 
 	public TabTimedImage(VueScinDyn vue, int rows, int columns, int w, int h) {
-		super("Renal scintigraphy", vue, null, "");
+		super("Renal scintigraphy", vue, null, "timed");
 		
 		this.finishBuildingWindow(false);
 	

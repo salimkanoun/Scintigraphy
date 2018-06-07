@@ -24,8 +24,6 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	private HashMap<String, List<Double>> data;
 	private int[] frameduration;
 
-	private boolean lock = false;
-
 	/**
 	 * Enregistre et calcule les resultats d'une scintiigraphie dynamique
 	 * 
@@ -44,17 +42,15 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 		// si le modele n'est pas bloque
-		if (!this.lock) {
-			String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
+		String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
 
-			// on cree la liste si elle n'existe pas
-			if (this.data.get(name) == null) {
-				this.data.put(name, new ArrayList<Double>());
-			}
-
-			// on y ajoute le nombre de coups
-			this.data.get(name).add(ModeleScin.getCounts(imp));
+		// on cree la liste si elle n'existe pas
+		if (this.data.get(name) == null) {
+			this.data.put(name, new ArrayList<Double>());
 		}
+
+		// on y ajoute le nombre de coups
+		this.data.get(name).add(ModeleScin.getCounts(imp));
 	}
 
 	/**
@@ -115,12 +111,12 @@ public abstract class ModeleScinDyn extends ModeleScin {
 
 		Double dureePriseOld = 0.0;
 		for (int i = 0; i < l.size(); i++) {
-			Double dureePrise = frameduration[i] / (60 * 1000.0); //axes x en minutes
-			
-			Double x = (dureePriseOld + dureePrise) - (dureePrise/2);
+			Double dureePrise = frameduration[i] / (60 * 1000.0); // axes x en minutes
+
+			Double x = (dureePriseOld + dureePrise) - (dureePrise / 2);
 			Double y = l.get(i);
 			points.add(x, y);
-			
+
 			dureePriseOld += dureePrise;
 		}
 
@@ -381,18 +377,6 @@ public abstract class ModeleScinDyn extends ModeleScin {
 
 	public List<Double> getData(String key) {
 		return this.data.get(key);
-	}
-
-	public void lock() {
-		this.lock = true;
-	}
-
-	public void unlock() {
-		this.lock = false;
-	}
-
-	public boolean isLocked() {
-		return this.lock;
 	}
 
 	public int[] getFrameduration() {

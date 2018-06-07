@@ -22,7 +22,7 @@ import ij.Prefs;
 public class TabOther extends FenResultatSidePanel{
 
 	public TabOther(VueScin vue, int w, int h) {
-		super("Renal scintigraphy", vue, null, "");
+		super("Renal scintigraphy", vue, null, "other");
 		
 		String[][] asso = new String[][] {{"Blood Pool"} , {"Bladder"}};
 		List<XYSeries> series = ((Modele_Renal) vue.getFenApplication().getControleur().getModele()).getSeries();

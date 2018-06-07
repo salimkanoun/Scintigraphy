@@ -33,7 +33,7 @@ public class FenNeph extends JDialog implements ActionListener {
 	public FenNeph(ChartPanel cp, Component parentComponent, Modele_Renal modele) {
 		super();
 		this.modele = modele;
-		
+
 		// creation du panel du bas
 		this.btn_patlak = new JButton("Patlak");
 		this.btn_patlak.addActionListener(this);
@@ -48,33 +48,48 @@ public class FenNeph extends JDialog implements ActionListener {
 
 		this.setTitle("Please adjust the nephrogram values");
 
-		//creation du jvaluesetter
+		// creation du jvaluesetter
 		this.jvaluesetter = prepareValueSetter(cp);
 		this.add(jvaluesetter, BorderLayout.CENTER);
-		
+
 		this.add(bottomPanel, BorderLayout.SOUTH);
 
 		this.pack();
 		this.setLocationRelativeTo(parentComponent);
 	}
 
+	/// prepare la fenetre de selection des abscisses
 	private JValueSetter prepareValueSetter(ChartPanel chart) {
 		XYPlot plot = chart.getChart().getXYPlot();
 		chart.getChart().getPlot().setBackgroundPaint(null);
+		JValueSetter jvs = new JValueSetter(chart.getChart());
 
-		// on cree toutes les valueSelector que l'on va utiliser
-		Selector tmaxl = new Selector("TMax L", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 0), 0,
-				RectangleAnchor.BOTTOM_LEFT);
-		Selector tmaxr = new Selector("TMax R", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 1), 1,
-				RectangleAnchor.TOP_LEFT);
+		// si il y a un rein gauche
+		if (modele.getKidneys()[0]) {
+			// on cree toutes les valueSelector que l'on va utiliser
+			Selector tmaxl = new Selector("TMax L", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 0), 0,
+					RectangleAnchor.BOTTOM_LEFT);
+			jvs.addSelector(tmaxl, "tmax L");
+		}
+
+		// si il y a un rein droit
+		if (modele.getKidneys()[1]) {
+			//si il y a le rein, gauche, l'index du rein droit est 1
+			int index = 0;
+			if(modele.getKidneys()[0]) {
+				index = 1;
+			}
+			
+			Selector tmaxr = new Selector("TMax R", ModeleScinDyn.getAbsMaxY(plot.getDataset(), index), 1,
+					RectangleAnchor.TOP_LEFT);
+			jvs.addSelector(tmaxr, "tmax R");
+		}
+
 		Selector start = new Selector(" ", 1, -1, RectangleAnchor.TOP_LEFT);
 		Selector end = new Selector(" ", 3, -1, RectangleAnchor.BOTTOM_RIGHT);
-		Selector lasilix = new Selector("Lasilix", Prefs.get("renal.lasilix.preferred", 20.0), -1, RectangleAnchor.BOTTOM_LEFT);
+		Selector lasilix = new Selector("Lasilix", Prefs.get("renal.lasilix.preferred", 20.0), -1,
+				RectangleAnchor.BOTTOM_LEFT);
 
-		// ajout des selecteurs dans le listener
-		JValueSetter jvs = new JValueSetter(chart.getChart());
-		jvs.addSelector(tmaxl, "tmax L");
-		jvs.addSelector(tmaxr, "tmax R");
 		jvs.addSelector(start, "start");
 		jvs.addSelector(end, "end");
 		jvs.addSelector(lasilix, "lasilix");
@@ -82,8 +97,11 @@ public class FenNeph extends JDialog implements ActionListener {
 
 		// renomme les series du chart pour que l'interface soit plus comprehensible
 		XYSeriesCollection dataset = ((XYSeriesCollection) chart.getChart().getXYPlot().getDataset());
-		dataset.getSeries("Final KL").setKey("Left Kidney");
-		dataset.getSeries("Final KR").setKey("Right Kidney");
+		if (modele.getKidneys()[0])
+			dataset.getSeries("Final KL").setKey("Left Kidney");
+
+		if (modele.getKidneys()[1])
+			dataset.getSeries("Final KR").setKey("Right Kidney");
 
 		return jvs;
 	}
@@ -92,13 +110,17 @@ public class FenNeph extends JDialog implements ActionListener {
 		FenPatlak fpt = new FenPatlak(modele, this);
 		fpt.setModal(true);
 		fpt.setVisible(true);
-		
+
 		this.patlakChart = fpt.getValueSetter();
 	}
 
 	private void clickOk() {
+		if(!(this.modele.getKidneys()[0] && this.modele.getKidneys()[1])) {
+			this.dispose();
+			return;
+		}
+		
 		boolean checkOffset = checkOffset(this.jvaluesetter);
-
 		if (!checkOffset) {
 			String message = "Inconsistent differencial function during interval integration. \n Would you like to redefine the interval ?";
 			int dialogResult = JOptionPane.showConfirmDialog(this, message, "WARNING", JOptionPane.YES_NO_OPTION,
@@ -145,15 +167,15 @@ public class FenNeph extends JDialog implements ActionListener {
 		JButton b = (JButton) arg0.getSource();
 		if (b == this.btn_ok) {
 			this.clickOk();
-		}else {
+		} else {
 			this.clicPatlak();
 		}
 	}
-	
-	public JValueSetter getValueSetter(){
+
+	public JValueSetter getValueSetter() {
 		return this.jvaluesetter;
 	}
-	
+
 	public JValueSetter getPatlakChart() {
 		return this.patlakChart;
 	}

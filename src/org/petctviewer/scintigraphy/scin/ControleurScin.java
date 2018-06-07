@@ -271,8 +271,8 @@ public abstract class ControleurScin implements ActionListener {
 			// on active la fin si c'est necessaire
 			if (this.isOver()) {
 				this.setSlice(this.getVue().getImp().getCurrentSlice());
-
-				// thread de capture
+				
+				// thread de capture, permet de laisser le temps de charger l'image plus dans le thread principal
 				Thread captureThread = new Thread(new Runnable() {
 					@Override
 					public void run() {

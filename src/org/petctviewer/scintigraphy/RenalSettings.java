@@ -8,19 +8,20 @@ import java.awt.event.ActionListener;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-
-import org.petctviewer.scintigraphy.renal.JValueSetter;
 
 import ij.Prefs;
 
 public class RenalSettings extends JFrame implements ActionListener {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4940052155300552623L;
+	
 	private JButton btn_ok, btn_cancel;
 	private JCheckBox ckb_bld, ckb_plv, ckb_utr;
 	private JTextField txt_lasilix;

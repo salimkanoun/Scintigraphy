@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
-import org.petctviewer.scintigraphy.RenalSettings;
 import org.petctviewer.scintigraphy.renal.gui.FenNeph;
 import org.petctviewer.scintigraphy.renal.gui.FenResultats_Renal;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
@@ -36,8 +35,7 @@ public class Controleur_Renal extends ControleurScin {
 	/**
 	 * Controle l'execution du programme renal
 	 * 
-	 * @param vue
-	 *            la vue
+	 * @param vue la vue
 	 */
 	protected Controleur_Renal(VueScinDyn vue) {
 		super(vue);
@@ -99,7 +97,7 @@ public class Controleur_Renal extends ControleurScin {
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
 			for (int j = 0; j < this.getOrganes().length; j++) {
-				imp.setRoi(getOrganRoi(this.indexRoi));
+				imp.setRoi(roiManager.getRoi(this.indexRoi % this.getOrganes().length));
 				String nom = this.getNomOrgane(this.indexRoi);
 				modele.enregistrerMesure(this.addTag(nom), imp);
 				this.indexRoi++;
@@ -113,7 +111,7 @@ public class Controleur_Renal extends ControleurScin {
 		List<XYSeries> series = modele.getSeries();
 		String[][] asso = new String[][] { { "Final KL", "Final KR" } };
 		ChartPanel[] cp = ModeleScinDyn.associateSeries(asso, series);
-
+		
 		FenNeph fan = new FenNeph(cp[0], this.getVue().getFenApplication(), modele);
 		fan.setModal(true);
 		fan.setVisible(true);
@@ -198,12 +196,7 @@ public class Controleur_Renal extends ControleurScin {
 
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
-		if (indexRoi > 0) {
-			if (this.isOver()) {
-				// on renvoie la roi de l'organe uniquement si on a fini de tracer les roi
-				return this.roiManager.getRoi(this.indexRoi % this.getOrganes().length);
-			}
-
+		if (indexRoi > 0 && lastRoi < this.indexRoi) {
 			String org = this.getNomOrgane(indexRoi - 1);
 
 			// roi de bruit de fond

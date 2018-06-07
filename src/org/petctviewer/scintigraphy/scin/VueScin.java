@@ -861,6 +861,14 @@ public abstract class VueScin implements PlugIn {
 		return overlay2;
 	}
 
+	/**
+	 * permet de preparer le bouton de capture de la frame.
+	 * @param btn_capture
+	 * @param lbl_credits
+	 * @param jf
+	 * @param modele
+	 * @param additionalInfo
+	 */
 	public void setCaptureButton(JButton btn_capture, JLabel lbl_credits, JFrame jf, ModeleScin modele,
 			String additionalInfo) {
 		setCaptureButton(btn_capture, new Component[] { lbl_credits }, new Component[] { btn_capture }, jf, modele,
@@ -902,7 +910,7 @@ public abstract class VueScin implements PlugIn {
 		String examType = this.getExamType();
 
 		// generation du tag info
-		String info = ModeleScin.genererDicomTagsPartie1(this.getImp(), this.getExamType())
+		String info = modele.genererDicomTagsPartie1SameUID(this.getImp(), this.getExamType())
 				+ ModeleScin.genererDicomTagsPartie2(this.getImp());
 
 		// on ajoute le listener sur le bouton capture
@@ -910,9 +918,7 @@ public abstract class VueScin implements PlugIn {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// on suprrime le bouton et on affiche le label
-				JButton b = (JButton) (e.getSource());
-
+	
 				for (Component comp : hide) {
 					comp.setVisible(false);
 				}
@@ -925,7 +931,9 @@ public abstract class VueScin implements PlugIn {
 
 					@Override
 					public void run() {
-						// TODO Auto-generated method stub
+						jf.pack();
+						
+						//on recupere le panel principal
 						Container c = jf.getContentPane();
 
 						// Capture, nouvelle methode a utiliser sur le reste des programmes
@@ -942,6 +950,7 @@ public abstract class VueScin implements PlugIn {
 							comp.setVisible(false);
 						}
 
+						//on ferme la fenetre
 						jf.dispose();
 
 						// on passe a la capture les infos de la dicom
@@ -1039,7 +1048,7 @@ public abstract class VueScin implements PlugIn {
 	}
 
 	/**
-	 * Renvoie un montage
+	 * Renvoie un montage avec un pas regulier
 	 * 
 	 * @param frameDuration
 	 * @param imp
@@ -1049,12 +1058,14 @@ public abstract class VueScin implements PlugIn {
 	public static ImagePlus creerMontage(int[] frameDuration, ImagePlus imp, int size, int rows, int columns) {
 		int nSlice = frameDuration.length;
 
+		//temps somme
 		int[] summed = new int[frameDuration.length];
 		summed[0] = frameDuration[0];
 		for (int i = 1; i < nSlice; i++) {
 			summed[i] = summed[i - 1] + frameDuration[i];
 		}
 
+		//tableau correspondant au numero des coupes bornes
 		int[] sliceIndex = new int[(rows * columns) + 1];
 		int pas = summed[nSlice - 1] / (rows * columns);
 		for (int i = 0; i < (rows * columns) + 1; i++) {
@@ -1066,6 +1077,7 @@ public abstract class VueScin implements PlugIn {
 			}
 		}
 
+		//liste des projections
 		ImagePlus[] impList = new ImagePlus[rows * columns];
 		for (int i = 1; i < sliceIndex.length; i++) {
 			int start = sliceIndex[i - 1];
@@ -1081,16 +1093,12 @@ public abstract class VueScin implements PlugIn {
 			impList[i - 1] = projectionImp;
 		}
 
+		//fait le montage
 		Concatenator enchainer = new Concatenator();
 		ImagePlus impStacked = enchainer.concatenate(impList, false);
-
 		MontageMaker mm = new MontageMaker();
 
 		return mm.makeMontage2(impStacked, columns, rows, 1.0, 1, impList.length, 1, 0, false);
-	}
-
-	public static ImagePlus[] splitAntPost(ImagePlus imp) {
-		return null;
 	}
 
 	public ImagePlus getImp() {
