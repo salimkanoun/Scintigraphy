@@ -39,7 +39,6 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 
 	private static final long serialVersionUID = 8125367912250906052L;
 	private Vue_Basic vueBasic;
-	private int height;
 	private JButton btn_addImp, btn_quantify;
 	private boolean bladder;
 
@@ -50,7 +49,6 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 		this.bladder = Prefs.get("renal.bladder.preferred", true);
 
 		this.pack();
-		this.height = h;
 
 		this.pnl_bladder = new JPanel();
 		this.pnl_nora = new JPanel();
@@ -72,6 +70,7 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getSource() == this.btn_addImp) {
+			
 			Modele_Renal modele = (Modele_Renal) this.getVue().getFenApplication().getControleur().getModele();
 
 			// ajout des organes a delimiter selon le nombre de rein du patient
@@ -93,8 +92,11 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 			this.vueBasic = new Vue_Basic(organes.toArray(new String[] {}), this);
 			this.vueBasic.run("standby");
 
-			// changemment de l'orientation de la prise post
+			// si l'utilisateur a choisi une image
 			if (this.vueBasic.getImp() != null) {
+				this.btn_addImp.setVisible(false);
+				this.btn_quantify.setVisible(true);
+				
 				ImagePlus imp = this.vueBasic.getImp();
 				ImagePlus impPost = null;
 				if (imp.getStackSize() >= 2) { // si il y a deux slices on sellectionne la deuxieme
@@ -108,10 +110,12 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 				}
 
 				this.setImp(this.vueBasic.getImp());
-
-				btn_addImp.setVisible(false);
+				
 				// rafraichit la fenetre pour afficher l'imp
 				finishBuildingWindow(false);
+			}else {
+				//sinon on supprime la fenetre
+				this.vueBasic = null;
 			}
 		} else {
 			this.btn_quantify.setVisible(false);
@@ -150,19 +154,9 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 			bld /= (duration / 1000);
 			this.pnl_bladder.add(new JLabel("Bladder : " + ModeleScinDyn.round(modele.getNoRABladder(bld), 2) + " %"));
 		}
-
-		try {
-			SwingUtilities.invokeAndWait(new Runnable() {
-				@Override
-				public void run() {
-					finishBuildingWindow(true);
-					pack();
-				}
-			});
-		} catch (InvocationTargetException | InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
+		finishBuildingWindow(true);
+		pack();
 	}
 
 	@Override
@@ -217,9 +211,9 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 
 		// elements du tableau
 		JLabel[] lbls = new JLabel[] { new JLabel("L"), new JLabel("R"), new JLabel("Max"),
-				new JLabel("" + naIfNull(nora[0][0]) + " %"), new JLabel("" + naIfNull(nora[1][0]) + " %"),
+				new JLabel("" + naIfNull(nora[0][0])), new JLabel("" + naIfNull(nora[1][0])),
 				new JLabel("" + ModeleScin.round(modele.getAdjustedValues().get("lasilix") - 1, 1) + " min"),
-				new JLabel("" + naIfNull(nora[0][1]) + " %"), new JLabel("" + naIfNull(nora[1][1]) + " %"), };
+				new JLabel("" + naIfNull(nora[0][1])), new JLabel("" + naIfNull(nora[1][1])), };
 
 		// panel nora
 		JPanel pnl_nora = new JPanel(new GridLayout(3, 3, 0, 3));
@@ -238,6 +232,6 @@ public class TabPostMict extends FenResultatImp implements ActionListener, Custo
 		if (d == null) {
 			return "N/A";
 		}
-		return "" + d;
+		return d + " %";
 	}
 }

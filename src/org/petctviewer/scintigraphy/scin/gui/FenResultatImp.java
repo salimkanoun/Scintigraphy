@@ -90,8 +90,6 @@ public abstract class FenResultatImp extends FenResultatSidePanel implements Cha
 		ContrastEnhancer ce = new ContrastEnhancer();
 		ce.stretchHistogram(this.imp, contrast);
 
-		// this.icon.setImage(this.imp.getBufferedImage());
-
 		try {
 			SwingUtilities.invokeLater(new Runnable() {
 

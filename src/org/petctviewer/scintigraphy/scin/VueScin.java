@@ -1096,9 +1096,17 @@ public abstract class VueScin implements PlugIn {
 		//fait le montage
 		Concatenator enchainer = new Concatenator();
 		ImagePlus impStacked = enchainer.concatenate(impList, false);
+		
+		//on ajoute un label avec le temps en min
+		for(int i = 1; i <= impStacked.getStackSize(); i++) {
+			int msPassed = summed[sliceIndex[i-1]];
+			String min = "" + msPassed / 10000 + "s";
+			impStacked.getStack().setSliceLabel(min, i);
+		}
+		
 		MontageMaker mm = new MontageMaker();
 
-		return mm.makeMontage2(impStacked, columns, rows, 1.0, 1, impList.length, 1, 0, false);
+		return mm.makeMontage2(impStacked, columns, rows, 1.0, 1, impList.length, 1, 0, true);
 	}
 
 	public ImagePlus getImp() {
