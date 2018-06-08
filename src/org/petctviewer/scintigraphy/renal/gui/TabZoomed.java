@@ -19,7 +19,7 @@ import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
-public class TabZoomed extends FenResultatSidePanel {
+class TabZoomed extends FenResultatSidePanel {
 
 	private static final long serialVersionUID = -2647720655737610538L;
 

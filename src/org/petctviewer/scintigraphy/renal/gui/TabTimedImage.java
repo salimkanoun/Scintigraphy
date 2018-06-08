@@ -26,7 +26,7 @@ import ij.ImagePlus;
 import ij.plugin.ContrastEnhancer;
 import ij.process.ImageProcessor;
 
-public class TabTimedImage extends FenResultatImp{
+class TabTimedImage extends FenResultatImp{
 
 	private static final long serialVersionUID = 8125367912250906052L;
 

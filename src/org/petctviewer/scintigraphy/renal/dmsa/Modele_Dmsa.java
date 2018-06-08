@@ -54,18 +54,12 @@ public class Modele_Dmsa extends ModeleScin {
 			data.put("L. Kidney GM", lkGM);
 			data.put("R. Kidney GM", rkGM);
 			
-			this.pct[0] =  lkGM / (lkGM + rkGM);
-			this.pct[1] =  rkGM / (lkGM + rkGM);
+			this.pct[0] =  Math.max(lkGM / (lkGM + rkGM), 0);
+			this.pct[1] =  Math.max(rkGM / (lkGM + rkGM), 0);
 		} else { //sinon on calcule avec les valeurs brutes
-			this.pct[0] = lkP / (lkP + rkP);
-			this.pct[1] = rkP / (lkP + rkP);
+			this.pct[0] = Math.max(lkP / (lkP + rkP), 0);
+			this.pct[1] = Math.max(rkP / (lkP + rkP), 0);
 		}
-
-		// si un des pourcentage est negatif, on le met a zero
-		if (this.pct[0] < 0)
-			this.pct[0] = 0.0;
-		if (this.pct[1] < 0)
-			this.pct[1] = 0.0;
 	}
 	
 	@Override

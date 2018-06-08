@@ -141,7 +141,6 @@ public class Modele_Cardiac extends ModeleScin {
 		return s;
 	}
 
-	@Override
 	public HashMap<String, String> getResultsHashMap() {
 		if (this.deuxPrises) {
 			this.resultats.put("WB early (5mn)", "" + round(this.totEarly, 2));

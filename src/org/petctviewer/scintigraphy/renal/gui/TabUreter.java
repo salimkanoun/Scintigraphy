@@ -17,7 +17,7 @@ import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
-public class TabUreter extends FenResultatSidePanel {
+class TabUreter extends FenResultatSidePanel {
 
 	public TabUreter(VueScin vue, int w, int h) {
 		super("Renal scintigraphy", vue, null, "ureter");

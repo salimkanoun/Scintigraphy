@@ -12,6 +12,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.hepatic.dyn.gui.FenResultat_HepaticDyn;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;

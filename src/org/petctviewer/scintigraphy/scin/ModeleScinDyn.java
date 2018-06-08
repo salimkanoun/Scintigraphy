@@ -138,7 +138,40 @@ public abstract class ModeleScinDyn extends ModeleScin {
 
 		return points;
 	}
+	
+	public static ChartPanel associateSeries(String[] asso, List<XYSeries> series) {
+			XYSeriesCollection dataset = new XYSeriesCollection();
 
+			for (String j : asso) { // pour chaque cle de l'association
+				for (int k = 0; k < series.size(); k++) { // pour chaque element de la serie
+					// si la cle correspond, on l'ajout au dataset
+					if (series.get(k).getKey().equals(j)) {
+						dataset.addSeries(series.get(k));
+					}
+				}
+			}
+
+			// on cree un jfreehart avec lle datasert precedemment construit
+			JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "counts/sec", dataset,
+					PlotOrientation.VERTICAL, true, true, true);
+
+			final XYPlot plot = xylineChart.getXYPlot();
+
+			// on masque les marqueurs des points
+			XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+			for (int c = 0; c < dataset.getSeriesCount(); c++) {
+				renderer.setSeriesShapesVisible(c, false);
+			}
+			plot.setRenderer(renderer);
+
+			ChartPanel c = new ChartPanel(xylineChart);
+
+			// on desactive le fond
+			c.getChart().getPlot().setBackgroundPaint(null);
+			return c;
+	}
+
+	//TODO renvoyer un seul chartpanel, passer un tableau de string a une dimension
 	/**
 	 * renvoie des chartPanels avec les series associees
 	 * 
@@ -155,35 +188,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 		// pour chaque association
 		for (String[] i : asso) {
 			if (i.length > 0) {
-				XYSeriesCollection dataset = new XYSeriesCollection();
-
-				for (String j : i) { // pour chaque cle de l'association
-					for (int k = 0; k < series.size(); k++) { // pour chaque element de la serie
-						// si la cle correspond, on l'ajout au dataset
-						if (series.get(k).getKey().equals(j)) {
-							dataset.addSeries(series.get(k));
-						}
-					}
-				}
-
-				// on cree un jfreehart avec lle datasert precedemment construit
-				JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "counts/sec", dataset,
-						PlotOrientation.VERTICAL, true, true, true);
-
-				final XYPlot plot = xylineChart.getXYPlot();
-
-				// on masque les marqueurs des points
-				XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-				for (int c = 0; c < dataset.getSeriesCount(); c++) {
-					renderer.setSeriesShapesVisible(c, false);
-				}
-				plot.setRenderer(renderer);
-
-				ChartPanel c = new ChartPanel(xylineChart);
-
-				// on desactive le fond
-				c.getChart().getPlot().setBackgroundPaint(null);
-				cPanels.add(c);
+				cPanels.add(ModeleScinDyn.associateSeries(i, series));
 			}
 		}
 

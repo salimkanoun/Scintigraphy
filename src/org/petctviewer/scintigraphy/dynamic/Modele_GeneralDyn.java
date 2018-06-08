@@ -19,9 +19,4 @@ public class Modele_GeneralDyn extends ModeleScinDyn {
 		}
 	}
 
-	@Override
-	public HashMap<String, String> getResultsHashMap() {
-		return null;
-	}
-
 }

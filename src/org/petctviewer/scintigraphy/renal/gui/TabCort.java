@@ -15,7 +15,7 @@ import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
-public class TabCort extends FenResultatSidePanel {
+class TabCort extends FenResultatSidePanel {
 
 	private static final long serialVersionUID = -2324369375150642778L;
 

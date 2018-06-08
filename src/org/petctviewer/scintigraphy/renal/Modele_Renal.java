@@ -186,10 +186,7 @@ public class Modele_Renal extends ModeleScinDyn {
 			List<Double> sortieInt = new ArrayList<>();
 			for (int i = 0; i < corrige.size(); i++) {
 				// on ajoute uniquement si la valeur est positive
-				Double output = vascFit.get(i) - corrige.get(i);
-				if (output <= 0) {
-					output = 0.0;
-				}
+				Double output = Math.max(vascFit.get(i) - corrige.get(i),0);
 				/// on ajoute la valeur calculee dans la liste de sortie renale
 				sortieInt.add(output);
 			}

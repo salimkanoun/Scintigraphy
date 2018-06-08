@@ -18,7 +18,7 @@ import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.Vue_Renal;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
-public class TabPatlak extends FenResultatSidePanel {
+class TabPatlak extends FenResultatSidePanel {
 
 	private JValueSetter patlak;
 

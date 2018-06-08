@@ -761,8 +761,4 @@ public abstract class ModeleScin {
 
 	public abstract void calculerResultats();
 
-	public HashMap<String, String> getResultsHashMap() {
-		return null;
-	}
-
 }

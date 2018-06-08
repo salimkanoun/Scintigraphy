@@ -35,7 +35,6 @@ public class Modele_HepaticDyn extends ModeleScinDyn {
 	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 		super.enregistrerMesure(nomRoi, imp);
-		System.out.println(nomRoi + " " + ModeleScin.getCounts(imp));
 	}
 
 	@Override
@@ -86,7 +85,6 @@ public class Modele_HepaticDyn extends ModeleScinDyn {
 		return dataset;
 	}
 
-	@Override
 	public HashMap<String, String> getResultsHashMap() {
 		HashMap<String, String> hm = new HashMap<>();
 

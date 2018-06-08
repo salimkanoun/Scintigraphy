@@ -19,7 +19,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 import ij.Prefs;
 
-public class TabOther extends FenResultatSidePanel{
+class TabOther extends FenResultatSidePanel{
 
 	public TabOther(VueScin vue, int w, int h) {
 		super("Renal scintigraphy", vue, null, "other");

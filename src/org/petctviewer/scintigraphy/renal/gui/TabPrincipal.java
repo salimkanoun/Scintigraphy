@@ -31,7 +31,7 @@ import ij.ImagePlus;
 import ij.plugin.ZProjector;
 import ij.process.ImageProcessor;
 
-public class TabPrincipal extends FenResultatSidePanel {
+class TabPrincipal extends FenResultatSidePanel {
 
 	private static final long serialVersionUID = 5670592335800832792L;
 

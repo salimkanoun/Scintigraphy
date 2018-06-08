@@ -33,15 +33,13 @@ public class FenResultats_Renal {
 			this.tabPatlak = new TabPatlak(vue, width, height).getContentPane();
 		}
 
-		createAndShowGUI();
+		showGUI();
 	}
 
-	private void createAndShowGUI() {
+	private void showGUI() {
 
 		// Create and set up the window.
-		final JFrame frame = new JFrame("Results Renal Exam");
-
-		// set grid layout for the frame
+		JFrame frame = new JFrame("Results Renal Exam");
 		frame.getContentPane().setLayout(new GridLayout(1, 1));
 
 		JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);

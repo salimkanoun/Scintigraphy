@@ -1,8 +1,3 @@
-
-import org.petctviewer.scintigraphy.renal.gui.TabPostMict;
-import org.petctviewer.scintigraphy.scin.VueScin;
-import org.petctviewer.scintigraphy.scin.basic.Vue_Basic;
-
 import ij.ImageJ;
 
 public class Start_Debug {

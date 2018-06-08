@@ -35,7 +35,7 @@ import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.util.DicomTools;
 
-public class TabPostMict extends FenResultatImp implements ActionListener, CustomControleur {
+class TabPostMict extends FenResultatImp implements ActionListener, CustomControleur {
 
 	private static final long serialVersionUID = 8125367912250906052L;
 	private Vue_Basic vueBasic;

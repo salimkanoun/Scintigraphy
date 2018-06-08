@@ -19,7 +19,6 @@ public class Modele_Hepatic extends ModeleScin {
 		this.data.put(nomRoi, counts);
 	}
 	
-	@Override
 	public HashMap<String, String> getResultsHashMap() {
 		HashMap<String, String> resultats = new HashMap<>();
 		
