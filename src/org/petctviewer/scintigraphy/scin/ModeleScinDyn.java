@@ -119,8 +119,6 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	 * @return la serie
 	 */
 	public XYSeries createSerie(List<Double> l, String nom) {
-		System.out.println(l.size() + " " + frameduration.length);
-		
 		if (l.size() != frameduration.length) {
 			throw new IllegalArgumentException("List size does not match duration time");
 		}

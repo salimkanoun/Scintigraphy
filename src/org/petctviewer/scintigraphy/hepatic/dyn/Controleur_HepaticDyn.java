@@ -81,10 +81,8 @@ public class Controleur_HepaticDyn extends ControleurScin {
 		frame.pack();
 		frame.setVisible(true);
 		
-		System.out.println("AUFAFUG");
 		//remove finish
 		
-		System.out.println(capture);
 		new FenResultat_HepaticDyn(vue, capture);
 		this.getVue().getFenApplication().dispose();
 	}
