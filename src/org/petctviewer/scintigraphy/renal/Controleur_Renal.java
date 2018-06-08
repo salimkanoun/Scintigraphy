@@ -14,6 +14,7 @@ import org.petctviewer.scintigraphy.renal.gui.FenResultats_Renal;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
 
 import ij.IJ;
@@ -25,9 +26,6 @@ import ij.gui.Roi;
 public class Controleur_Renal extends ControleurScin {
 
 	public static String[] ORGANES = { "L. Kidney", "L. bkg", "R. Kidney", "R. bkg", "Blood Pool" };
-
-	// plus grande valeur que index roi ait prise
-	private int maxIndexRoi = 0;
 	private int nbOrganes;
 
 	private boolean[] kidneys = new boolean[2];
@@ -188,12 +186,7 @@ public class Controleur_Renal extends ControleurScin {
 	public int getSliceNumberByRoiIndex(int roiIndex) {
 		return 0;
 	}
-
-	@Override
-	public void notifyClic(ActionEvent arg0) {
-		this.maxIndexRoi = Math.max(this.maxIndexRoi, this.indexRoi);
-	}
-
+	
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
 		if (indexRoi > 0 && lastRoi < this.indexRoi) {
@@ -201,54 +194,16 @@ public class Controleur_Renal extends ControleurScin {
 
 			// roi de bruit de fond
 			boolean pelvis = Prefs.get("renal.pelvis.preferred", true);
-			if ((!pelvis && org.contains("Kidney")) || (pelvis && org.contains("Pelvis"))) {
-				return this.createBkgRoi(this.indexRoi);
+			if (!pelvis && org.contains("Kidney")) {
+				Roi roi = roiManager.getRoi(indexRoi - 1);
+				return VueScin.createBkgRoi(roi, getVue().getImp(), VueScin.KIDNEY);
+			}else if(pelvis && org.contains("Pelvis")) {
+				Roi roi = roiManager.getRoi(indexRoi - 2);
+				return VueScin.createBkgRoi(roi, getVue().getImp(), VueScin.KIDNEY);
 			}
 		}
 
 		return null;
-	}
-
-	// cree la roi de bruit de fond
-	private Roi createBkgRoi(int indexRoi) {
-		ImagePlus imp = this.getVue().getImp();
-
-		int indexLiver;
-		// on clone la roi du rein
-		if (Prefs.get("renal.pelvis.preferred", true)) {
-			// si on trace des pelvis, il faut decaler de deux
-			indexLiver = indexRoi - 2;
-		} else {
-			indexLiver = indexRoi - 1;
-		}
-
-		// largeur a prendre autour du rein
-		int largeurBkg = 1;
-		if (this.getVue().getImp().getDimensions()[0] >= 128) {
-			largeurBkg = 2;
-		}
-
-		this.roiManager.select(indexLiver);
-		IJ.run(imp, "Enlarge...", "enlarge=" + largeurBkg + " pixel");
-		this.roiManager.addRoi(imp.getRoi());
-
-		this.roiManager.select(this.roiManager.getCount() - 1);
-		IJ.run(imp, "Enlarge...", "enlarge=" + largeurBkg + " pixel");
-		this.roiManager.addRoi(imp.getRoi());
-
-		this.roiManager
-				.setSelectedIndexes(new int[] { this.roiManager.getCount() - 2, this.roiManager.getCount() - 1 });
-		this.roiManager.runCommand(imp, "XOR");
-
-		Roi bkg = imp.getRoi();
-
-		// on supprime les rois de construction
-		while (this.roiManager.getCount() - 1 > this.maxIndexRoi) {
-			this.roiManager.select(this.roiManager.getCount() - 1);
-			this.roiManager.runCommand(imp, "Delete");
-		}
-
-		return bkg;
 	}
 
 	@Override
@@ -258,7 +213,7 @@ public class Controleur_Renal extends ControleurScin {
 
 	@Override
 	public boolean isOver() {
-		return this.maxIndexRoi == this.nbOrganes - 1;
+		return this.indexRoi >= this.getOrganes().length - 1;
 	}
 
 }

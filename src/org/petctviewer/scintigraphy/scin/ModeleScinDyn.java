@@ -106,7 +106,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 					return x;
 			}
 		}
-		return Double.NaN;
+		return -1.0;
 	}
 
 	/**

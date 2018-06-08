@@ -2,14 +2,11 @@ package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import javax.swing.Box;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -19,12 +16,10 @@ import javax.swing.border.EmptyBorder;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
-import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 import ij.ImagePlus;
-import ij.gui.ImageCanvas;
 
-public class FenResultat_HepaticDyn extends JFrame {
+public class FenResultat_HepaticDyn {
 
 	private static final long serialVersionUID = 1094251580157650693L;
 

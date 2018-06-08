@@ -74,8 +74,13 @@ public abstract class ModeleScin {
 	 * @return valeur arrondie
 	 */
 	public static double round(double value, int places) {
-		if (places < 0)
+		if (places < 0) {
 			throw new IllegalArgumentException("place doit etre superieur ou egal a zero");
+		}
+		
+		if(value == Double.NaN || value == Double.NEGATIVE_INFINITY || value == Double.POSITIVE_INFINITY) {
+			return value;
+		}
 
 		BigDecimal bd = new BigDecimal(value);
 		bd = bd.setScale(places, RoundingMode.HALF_UP);

@@ -246,7 +246,7 @@ public class TabPrincipal extends FenResultatSidePanel {
 		pnl_timing.add(lbl_tdemi);
 
 		String s = "" + timing[1][0];
-		if (timing[1][0] == -1)
+		if (timing[1][0] == Double.NaN)
 			s = "N/A";
 
 		JLabel lbl_g = new JLabel(s);
@@ -254,7 +254,7 @@ public class TabPrincipal extends FenResultatSidePanel {
 		pnl_timing.add(lbl_g);
 
 		s = "" + timing[1][1];
-		if (timing[1][1] == -1)
+		if (timing[1][1] == Double.NaN)
 			s = "N/A";
 
 		JLabel lbl_d = new JLabel(s);

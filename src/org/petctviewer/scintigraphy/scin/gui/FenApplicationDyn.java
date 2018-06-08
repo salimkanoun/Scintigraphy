@@ -19,8 +19,10 @@ import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
 
+import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Overlay;
+import ij.gui.Toolbar;
 import ij.plugin.Animator;
 
 public class FenApplicationDyn extends FenApplication implements ActionListener {
@@ -38,7 +40,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 		btn_dyn = new Button("Dynamic");
 		btn_dyn.addActionListener(this);
 		this.getBtns_glob().add(btn_dyn);
-		
+
 		this.getInstru().remove(1);
 		// mise en place des boutons
 		Panel btns_instru = new Panel();
@@ -47,9 +49,9 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 		btn_start.addActionListener(this);
 		btns_instru.add(btn_start);
 		this.getInstru().add(btns_instru);
-		
+
 		this.getBtn_drawROI().setEnabled(false);
-		
+
 		this.setDefaultSize();
 	}
 
@@ -61,7 +63,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		//clic sur le bouton dynamique
+		// clic sur le bouton dynamique
 		if (e.getSource() == btn_dyn) {
 			Overlay ov = VueScin.duplicateOverlay(this.getImagePlus().getOverlay());
 			ImagePlus imp;
@@ -84,55 +86,56 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 			this.vue.setImp(imp);
 
 			this.updateSliceSelector();
-			
+
 			this.setAnimate(false);
 
-			//on inverse la couleur de fond du bouton
+			// on inverse la couleur de fond du bouton
 			this.dyn = !this.dyn;
-			if(this.dyn) {
+			if (this.dyn) {
 				this.btn_dyn.setBackground(Color.LIGHT_GRAY);
-			}else {
+			} else {
 				this.btn_dyn.setBackground(null);
 			}
-			
+
 			resizeCanvas();
-			
+
 		} else {
-			//TODO move elsewhere
+			// TODO move elsewhere
 			Fen_NbRein fen = new Fen_NbRein();
 			fen.setModal(true);
 			fen.setVisible(true);
 			fen.setAlwaysOnTop(true);
 			fen.setLocationRelativeTo(this);
 			((Controleur_Renal) this.getControleur()).setKidneys(fen.getKidneys());
-			
+
 			this.getBtn_contrast().setEnabled(true);
-			
+
 			this.getInstru().remove(1);
 			this.getInstru().add(this.createBtnsInstru());
 			this.getControleur().setInstructionsDelimit(0);
-			
+
 			this.getBtn_drawROI().setEnabled(true);
-			
+			IJ.setTool(Toolbar.POLYGON);
+
 			resizeCanvas();
 		}
 
 	}
-	
-	//TODO move that in it's own window
-	private class Fen_NbRein extends JDialog implements ActionListener{
+
+	// TODO move that in it's own window
+	private class Fen_NbRein extends JDialog implements ActionListener {
 		private boolean[] kidneys = new boolean[2];
 		private JButton btn_l, btn_r, btn_lr;
-		
+
 		public Fen_NbRein() {
-			this.setLayout(new GridLayout(2,1));
-			
+			this.setLayout(new GridLayout(2, 1));
+
 			this.setTitle("Number of kidneys");
-			
+
 			JPanel flow = new JPanel();
 			flow.add(this.add(new JLabel("What kidneys does the patient have ?")));
 			this.add(flow);
-			
+
 			JPanel radio = new JPanel();
 			this.btn_l = new JButton("Left kidney");
 			this.btn_l.addActionListener(this);
@@ -144,32 +147,32 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 			this.btn_lr.addActionListener(this);
 			radio.add(btn_lr);
 			this.add(radio);
-			
+
 			this.setLocationRelativeTo(null);
-			
+
 			this.pack();
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			JButton b = (JButton) arg0.getSource();
-			if(b == this.btn_l) {
+			if (b == this.btn_l) {
 				this.kidneys[0] = true;
-			}else if(b == this.btn_r){
+			} else if (b == this.btn_r) {
 				this.kidneys[1] = true;
-			}else if(b == this.btn_lr){
+			} else if (b == this.btn_lr) {
 				this.kidneys[0] = true;
 				this.kidneys[1] = true;
 			}
-			
+
 			this.dispose();
 		}
-		
+
 		public boolean[] getKidneys() {
-			if(this.kidneys == null) {
-				return new boolean[] {true, true};
+			if (this.kidneys == null) {
+				return new boolean[] { true, true };
 			}
-			
+
 			return this.kidneys;
 		}
 	}

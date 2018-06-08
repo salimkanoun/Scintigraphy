@@ -1044,7 +1044,7 @@ public abstract class VueScin implements PlugIn {
 		return bkg;
 	}
 
-	public static Roi createBkgInfLat(Roi roi, ImagePlus imp, int xOffset, RoiManager rm) {
+	private static Roi createBkgInfLat(Roi roi, ImagePlus imp, int xOffset, RoiManager rm) {
 		// on recupere ses bounds
 		Rectangle bounds = roi.getBounds();
 
