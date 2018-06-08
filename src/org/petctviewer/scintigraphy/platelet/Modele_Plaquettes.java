@@ -292,7 +292,7 @@ public class Modele_Plaquettes extends ModeleScin {
 
 	@Override
 	public void calculerResultats() {
-		//todo TODO
+		//todo TODO calculer resultats plaquettes
 	}
 
 	@Override

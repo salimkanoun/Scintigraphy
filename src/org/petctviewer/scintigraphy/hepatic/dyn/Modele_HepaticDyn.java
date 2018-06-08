@@ -19,67 +19,44 @@ import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import ij.ImagePlus;
 
-public class Modele_HepaticDyn extends ModeleScin {
+public class Modele_HepaticDyn extends ModeleScinDyn {
 
-	private List<Double> vasc, foieD, foieG;
 	private ChartPanel chartPanel;
 
-	private XYSeries bloodPool, liverR, liverL;
-	private XYDataset dataset;
-
 	// resultats calcules
-	private int tDemiFoieDFit, tDemiFoieGFit, tDemiVascFit, tDemiFoieDObs, tDemiFoieGObs, tDemiVascObs;
-	private Double maxFoieD;
-	private Double maxFoieG;
-
-	private Double finPicD, finPicG, pctVasc;
-
-	private Vue_HepaticDyn vue;
+	private Double tDemiFoieDFit, tDemiFoieGFit, tDemiVascFit, tDemiFoieDObs, tDemiFoieGObs, tDemiVascObs;
+	private Double maxFoieD, maxFoieG, finPicD, finPicG, pctVasc;
 
 	public Modele_HepaticDyn(Vue_HepaticDyn vue) {
+		super(vue.getFrameDurations());
 		this.imp = (ImagePlus) vue.getImp().clone();
-		this.vasc = new ArrayList<>();
-		this.foieD = new ArrayList<>();
-		this.foieG = new ArrayList<>();
-		this.vue = vue;
 	}
 
 	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
-		Double counts = ModeleScin.getCounts(imp);
-
-		if (nomRoi.contains("Blood pool")) {
-			this.vasc.add(counts);
-		} else if (nomRoi.contains("Liver R")) {
-			this.foieD.add(counts);
-		} else if (nomRoi.contains("Liver L")) {
-			this.foieG.add(counts);
-		}
+		super.enregistrerMesure(nomRoi, imp);
+		System.out.println(nomRoi + " " + ModeleScin.getCounts(imp));
 	}
 
 	@Override
 	public void calculerResultats() {
-		// on supprime les premieres valeurs venant de la projection
-		this.vasc.remove(0);
-		this.foieD.remove(0);
-		this.foieG.remove(0);
+		XYSeries liverL = this.getSerie("L. Liver");
+		XYSeries liverR = this.getSerie("R. Liver");
+		XYSeries bloodPool = this.getSerie("Blood pool");
 
-		// on cree le graphique
-		createGraph();
+		this.maxFoieD = ModeleScinDyn.getAbsMaxY(liverR);
+		//this.tDemiFoieDFit = Modele_HepaticDyn.getTDemiFit(liverR, (this.maxFoieD + 2)*1.0);
+		this.tDemiFoieDObs = ModeleScinDyn.getTDemiObs(liverR, this.maxFoieD + 2);
+		this.finPicD = liverR.getY(liverR.getItemCount() - 1).doubleValue() / liverR.getMaxY();
 
-		this.maxFoieD = ModeleScinDyn.getAbsMaxY(this.liverR);
-		this.tDemiFoieDFit = Modele_HepaticDyn.getTDemiFit(this.liverR, (this.maxFoieD + 2)*1.0);
-		this.tDemiFoieDObs = ModeleScinDyn.getTDemiObs(this.liverR, (this.maxFoieD + 2)*1.0).intValue();
-		this.finPicD = this.liverR.getY(this.liverR.getItemCount() - 1).doubleValue() / this.liverR.getMaxY();
+		this.maxFoieG = ModeleScinDyn.getAbsMaxY(liverL);
+		//this.tDemiFoieGFit = Modele_HepaticDyn.getTDemiFit(liverL, this.maxFoieG + 2);
+		this.tDemiFoieGObs = ModeleScinDyn.getTDemiObs(liverL, this.maxFoieG + 2);
+		this.finPicG = liverL.getY(liverL.getItemCount() - 1).doubleValue() / liverL.getMaxY();
 
-		this.maxFoieG = ModeleScinDyn.getAbsMaxY(this.liverL);
-		this.tDemiFoieGFit = Modele_HepaticDyn.getTDemiFit(this.liverL, this.maxFoieG + 2);
-		this.tDemiFoieGObs = ModeleScinDyn.getTDemiObs(this.liverL, this.maxFoieG + 2).intValue();
-		this.finPicG = this.liverL.getY(this.liverL.getItemCount() - 1).doubleValue() / this.liverL.getMaxY();
-
-		this.pctVasc = ModeleScinDyn.getY(this.bloodPool, 20.0) / ModeleScinDyn.getY(this.bloodPool, 5.0);
-		this.tDemiVascFit = Modele_HepaticDyn.getTDemiFit(this.bloodPool, 20.0);
-		this.tDemiVascObs = ModeleScinDyn.getTDemiObs(this.bloodPool, 20.0).intValue();
+		this.pctVasc = ModeleScinDyn.getY(bloodPool, 20.0) / ModeleScinDyn.getY(bloodPool, 5.0);
+		//this.tDemiVascFit = Modele_HepaticDyn.getTDemiFit(bloodPool, 20.0);
+		this.tDemiVascObs = ModeleScinDyn.getTDemiObs(bloodPool, 20.0);
 
 	}
 
@@ -100,46 +77,12 @@ public class Modele_HepaticDyn extends ModeleScin {
 		int tdemi = (int) (Math.log(2.0) / results[1]) * -1;
 		return tdemi;		
 	}
-
-	public ChartPanel getChartPanel() {
-		return this.chartPanel;
-	}
-
-	private void createGraph() {
-		this.dataset = createDataset();
-		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "counts/sec", this.dataset,
-				PlotOrientation.VERTICAL, true, true, true);
-		this.chartPanel = new ChartPanel(xylineChart);
-		final XYPlot plot = xylineChart.getXYPlot();
-
-		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-		renderer.setSeriesPaint(0, Color.RED);
-		renderer.setSeriesPaint(1, Color.GREEN);
-		renderer.setSeriesPaint(2, Color.BLUE);
-		renderer.setSeriesShapesVisible(0, false);
-		renderer.setSeriesShapesVisible(1, false);
-		renderer.setSeriesShapesVisible(2, false);
-		plot.setRenderer(renderer);
-	}
-
+	
 	private XYDataset createDataset() {
-		this.bloodPool = new XYSeries("Blood Pool");
-		this.liverR = new XYSeries("Right Liver");
-		this.liverL = new XYSeries("Left Liver");
-
-		Double dureePriseOld = 0.0;
-		for (int i = 0; i < this.vasc.size(); i++) {
-			Double dureePrise = this.vue.getFrameDurations()[i] / 60000.0;
-			this.bloodPool.add(dureePriseOld + dureePrise, this.vasc.get(i) / (dureePrise * 60));
-			this.liverR.add(dureePriseOld + dureePrise, this.foieD.get(i) / (dureePrise * 60));
-			this.liverL.add(dureePriseOld + dureePrise, this.foieG.get(i) / (dureePrise * 60));
-			dureePriseOld += dureePrise;
-		}
-
 		final XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries(this.bloodPool);
-		dataset.addSeries(this.liverL);
-		dataset.addSeries(this.liverR);
+		dataset.addSeries(this.getSerie("Blood pool"));
+		dataset.addSeries(this.getSerie("L. Liver"));
+		dataset.addSeries(this.getSerie("R. Liver"));
 		return dataset;
 	}
 
@@ -169,28 +112,32 @@ public class Modele_HepaticDyn extends ModeleScin {
 
 	@Override
 	public String toString() {
+		XYSeries liverL = this.getSerie("L. Liver");
+		XYSeries liverR = this.getSerie("R. Liver");
+		XYSeries bloodPool = this.getSerie("Blood pool");
+		
 		String s = "";
 		s += "Time (mn),";
-		for (int i = 0; i < this.bloodPool.getItemCount(); i++) {
-			s += round(this.bloodPool.getX(i).doubleValue(), 2) + ",";
+		for (int i = 0; i < bloodPool.getItemCount(); i++) {
+			s += round(bloodPool.getX(i).doubleValue(), 2) + ",";
 		}
 		s += "\n";
 
 		s += "Blood Pool (counts/sec),";
-		for (int i = 0; i < this.bloodPool.getItemCount(); i++) {
-			s += round(this.bloodPool.getY(i).doubleValue(), 2) + ",";
+		for (int i = 0; i < bloodPool.getItemCount(); i++) {
+			s += round(bloodPool.getY(i).doubleValue(), 2) + ",";
 		}
 		s += "\n";
 
 		s += "Right Liver (counts/sec),";
-		for (int i = 0; i < this.liverR.getItemCount(); i++) {
-			s += round(this.liverR.getY(i).doubleValue(), 2) + ",";
+		for (int i = 0; i < liverR.getItemCount(); i++) {
+			s += round(liverR.getY(i).doubleValue(), 2) + ",";
 		}
 		s += "\n";
 
 		s += "Left Liver (counts/sec),";
-		for (int i = 0; i < this.liverL.getItemCount(); i++) {
-			s += round(this.liverL.getY(i).doubleValue(), 2) + ",";
+		for (int i = 0; i < liverL.getItemCount(); i++) {
+			s += round(liverL.getY(i).doubleValue(), 2) + ",";
 		}
 		s += "\n";
 

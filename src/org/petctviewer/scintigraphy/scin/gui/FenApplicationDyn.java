@@ -111,6 +111,9 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 			this.getInstru().remove(1);
 			this.getInstru().add(this.createBtnsInstru());
 			this.getControleur().setInstructionsDelimit(0);
+			
+			this.getBtn_drawROI().setEnabled(true);
+			
 			resizeCanvas();
 		}
 

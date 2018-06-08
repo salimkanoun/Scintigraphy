@@ -23,6 +23,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 
 	private HashMap<String, List<Double>> data;
 	private int[] frameduration;
+	private boolean locked;
 
 	/**
 	 * Enregistre et calcule les resultats d'une scintiigraphie dynamique
@@ -42,15 +43,30 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 		// si le modele n'est pas bloque
-		String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
-
-		// on cree la liste si elle n'existe pas
-		if (this.data.get(name) == null) {
-			this.data.put(name, new ArrayList<Double>());
+		if (!this.isLocked()) {
+			String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
+			// on cree la liste si elle n'existe pas
+			if (this.data.get(name) == null) {
+				this.data.put(name, new ArrayList<Double>());
+			}
+			// on y ajoute le nombre de coups
+			this.data.get(name).add(ModeleScin.getCounts(imp));
 		}
+	}
 
-		// on y ajoute le nombre de coups
-		this.data.get(name).add(ModeleScin.getCounts(imp));
+	/**
+	 * renvoie une serie selon sa cle
+	 * 
+	 * @param key
+	 *            la cle
+	 * @return la serie
+	 */
+	public XYSeries getSerie(String key) {
+		List<Double> data = this.getData().get(key);
+		if (data == null) {
+			throw new IllegalArgumentException("No series with key " + key);
+		}
+		return this.createSerie(data, key);
 	}
 
 	/**
@@ -90,7 +106,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 					return x;
 			}
 		}
-		return -1.0;
+		return Double.NaN;
 	}
 
 	/**
@@ -103,6 +119,8 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	 * @return la serie
 	 */
 	public XYSeries createSerie(List<Double> l, String nom) {
+		System.out.println(l.size() + " " + frameduration.length);
+		
 		if (l.size() != frameduration.length) {
 			throw new IllegalArgumentException("List size does not match duration time");
 		}
@@ -381,6 +399,14 @@ public abstract class ModeleScinDyn extends ModeleScin {
 
 	public int[] getFrameduration() {
 		return frameduration;
+	}
+
+	public boolean isLocked() {
+		return locked;
+	}
+
+	public void setLocked(boolean locked) {
+		this.locked = locked;
 	}
 
 }

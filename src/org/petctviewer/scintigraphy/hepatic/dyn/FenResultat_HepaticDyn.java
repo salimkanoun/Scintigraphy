@@ -66,9 +66,6 @@ public class FenResultat_HepaticDyn extends JFrame {
 		pnl_bas.add(res, BorderLayout.EAST);
 		
 		//panel avec le graphique
-		Component chart = modele.getChartPanel();
-		chart.setPreferredSize(new Dimension((capture.getWidth() * 2) - res.getWidth(), capture.getHeight()));
-		pnl_bas.add(chart, BorderLayout.CENTER);
 		center.add(pnl_bas);
 
 		JPanel titre = new JPanel();

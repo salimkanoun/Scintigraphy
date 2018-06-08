@@ -46,7 +46,7 @@ public class Controleur_Renal extends ControleurScin {
 		Modele_Renal modele = new Modele_Renal(vue.getFrameDurations(), kidneys, vue.getImpPost());
 
 		// on bloque le modele pour ne pas enregistrer les valeurs de la projection
-		modele.lock();
+		modele.setLocked(true);
 
 		this.setModele(modele);
 	}
@@ -84,7 +84,7 @@ public class Controleur_Renal extends ControleurScin {
 		ImagePlus imp = vue.getImpPost();
 
 		// on debloque le modele
-		modele.unlock();
+		modele.setLocked(false);
 
 		// capture de l'imageplus ainsi que de l'overlay
 		BufferedImage capture = ModeleScin.captureImage(this.getVue().getImp(), 300, 300).getBufferedImage();

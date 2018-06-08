@@ -61,7 +61,7 @@ public abstract class VueScinDyn extends VueScin {
 		return pj;
 	}
 
-	private static int[] buildFrameDurations(ImagePlus imp) {
+	public static int[] buildFrameDurations(ImagePlus imp) {
 		int[] frameDurations = new int[imp.getStackSize()];
 		
 		int nbPhase = Integer.parseInt(DicomTools.getTag(imp, "0054,0031").trim());

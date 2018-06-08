@@ -25,7 +25,6 @@ public class Modele_Renal extends ModeleScinDyn {
 	private HashMap<Comparable, Double> adjustedValues;
 	private boolean[] kidneys;
 	private double[] patlakPente;
-	private boolean lock;
 	private ArrayList<String> kidneysLR;
 
 	/**
@@ -303,21 +302,6 @@ public class Modele_Renal extends ModeleScinDyn {
 		return perct;
 	}
 
-	/**
-	 * renvoie une serie selon sa cle
-	 * 
-	 * @param key
-	 *            la cle
-	 * @return la serie
-	 */
-	public XYSeries getSerie(String key) {
-		List<Double> data = this.getData().get(key);
-		if (data == null) {
-			throw new IllegalArgumentException("No series with key " + key);
-		}
-		return this.createSerie(data, key);
-	}
-
 	// renvoie l'aire sous la courbe entre les points startX et endX
 	private static List<Double> getIntegral(XYSeries series, Double startX, Double endX) {
 
@@ -529,17 +513,4 @@ public class Modele_Renal extends ModeleScinDyn {
 		XYSeries bldSeries = this.getSerie("Bladder");
 		return 100 * bld / ModeleScinDyn.getY(bldSeries, bldSeries.getMaxX());
 	}
-
-	public void lock() {
-		this.lock = true;
-	}
-
-	public void unlock() {
-		this.lock = false;
-	}
-
-	public boolean isLocked() {
-		return this.lock;
-	}
-
 }

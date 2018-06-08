@@ -48,10 +48,10 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 
 public abstract class VueScin implements PlugIn {
 	// organes
-	public static final int HEART = 0, INFLAT = 1, KIDNEY = 2;
+	public static final int HEART = 0, INFLAT = 1, KIDNEY = 2, INFLATGAUCHE = 3, INFLATDROIT = 4;
 	// outils de tracer de roi
 	public static final int MAINLIBRE = 0, RECTANGLE = 1, OVALE = 2, POLYGONE = 3;
-
+	
 	private String examType;
 	private FenApplication fen_application;
 
@@ -146,7 +146,6 @@ public abstract class VueScin implements PlugIn {
 		return imps;
 	}
 
-	// TODO refactoriser en preparer imp et ouvrir fenetre ?
 	/**
 	 * Prepare l'image plus selon les fenetres de dicoms ouvertes
 	 * 
@@ -863,6 +862,7 @@ public abstract class VueScin implements PlugIn {
 
 	/**
 	 * permet de preparer le bouton de capture de la frame.
+	 * 
 	 * @param btn_capture
 	 * @param lbl_credits
 	 * @param jf
@@ -918,7 +918,7 @@ public abstract class VueScin implements PlugIn {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-	
+
 				for (Component comp : hide) {
 					comp.setVisible(false);
 				}
@@ -932,8 +932,8 @@ public abstract class VueScin implements PlugIn {
 					@Override
 					public void run() {
 						jf.pack();
-						
-						//on recupere le panel principal
+
+						// on recupere le panel principal
 						Container c = jf.getContentPane();
 
 						// Capture, nouvelle methode a utiliser sur le reste des programmes
@@ -950,7 +950,7 @@ public abstract class VueScin implements PlugIn {
 							comp.setVisible(false);
 						}
 
-						//on ferme la fenetre
+						// on ferme la fenetre
 						jf.dispose();
 
 						// on passe a la capture les infos de la dicom
@@ -1025,9 +1025,14 @@ public abstract class VueScin implements PlugIn {
 			// TODO
 			break;
 
-		case VueScin.INFLAT:
-			// TODO
+		case VueScin.INFLATGAUCHE:
+			bkg = createBkgInfLat(roi, imp, -1, rm);
 			break;
+
+		case VueScin.INFLATDROIT:
+			bkg = createBkgInfLat(roi, imp, 1, rm);
+			break;
+			
 		default:
 			bkg = roi;
 			break;
@@ -1036,6 +1041,53 @@ public abstract class VueScin implements PlugIn {
 		rm.dispose();
 
 		bkg.setStrokeColor(Color.GRAY);
+		return bkg;
+	}
+
+	public static Roi createBkgInfLat(Roi roi, ImagePlus imp, int xOffset, RoiManager rm) {
+		// on recupere ses bounds
+		Rectangle bounds = roi.getBounds();
+
+		Roi liver = (Roi) roi.clone();
+		rm.addRoi(liver);
+
+		int[] size = { (bounds.width / 4) * xOffset, (bounds.height / 4) * 1 };
+
+		Roi liverShift = (Roi) roi.clone();
+		liverShift.setLocation(liverShift.getXBase() + size[0], liverShift.getYBase() + size[1]);
+		rm.addRoi(liverShift);
+
+		// renvoi une section de la roi
+		rm.setSelectedIndexes(new int[] { 0, 1 });
+		rm.runCommand(imp, "XOR");
+		rm.runCommand(imp, "Split");
+
+		int x = bounds.x + bounds.width / 2;
+		int y = bounds.y + bounds.height / 2;
+		int w = size[0] * imp.getWidth();
+		int h = size[1] * imp.getHeight();
+
+		// permet de diviser la roi
+		Rectangle splitter;
+
+		if (w > 0) {
+			splitter = new Rectangle(x, y, w, h);
+		} else {
+			splitter = new Rectangle(x + w, y, -w, h);
+		}
+
+		Roi rect = new Roi(splitter);
+		rm.addRoi(rect);
+
+		rm.setSelectedIndexes(new int[] { rm.getCount() - 1, rm.getCount() - 2 });
+		rm.runCommand(imp, "AND");
+
+		Roi bkg = (Roi) imp.getRoi().clone();
+		int[] offset = new int[] { size[0] / 4, size[1] / 4 };
+
+		// on deplace la roi pour ne pas qu'elle soit collee
+		bkg.setLocation(bkg.getXBase() + xOffset, bkg.getYBase() + 1);
+
 		return bkg;
 	}
 
@@ -1058,14 +1110,14 @@ public abstract class VueScin implements PlugIn {
 	public static ImagePlus creerMontage(int[] frameDuration, ImagePlus imp, int size, int rows, int columns) {
 		int nSlice = frameDuration.length;
 
-		//temps somme
+		// temps somme
 		int[] summed = new int[frameDuration.length];
 		summed[0] = frameDuration[0];
 		for (int i = 1; i < nSlice; i++) {
 			summed[i] = summed[i - 1] + frameDuration[i];
 		}
 
-		//tableau correspondant au numero des coupes bornes
+		// tableau correspondant au numero des coupes bornes
 		int[] sliceIndex = new int[(rows * columns) + 1];
 		int pas = summed[nSlice - 1] / (rows * columns);
 		for (int i = 0; i < (rows * columns) + 1; i++) {
@@ -1077,7 +1129,7 @@ public abstract class VueScin implements PlugIn {
 			}
 		}
 
-		//liste des projections
+		// liste des projections
 		ImagePlus[] impList = new ImagePlus[rows * columns];
 		for (int i = 1; i < sliceIndex.length; i++) {
 			int start = sliceIndex[i - 1];
@@ -1093,17 +1145,17 @@ public abstract class VueScin implements PlugIn {
 			impList[i - 1] = projectionImp;
 		}
 
-		//fait le montage
+		// fait le montage
 		Concatenator enchainer = new Concatenator();
 		ImagePlus impStacked = enchainer.concatenate(impList, false);
-		
-		//on ajoute un label avec le temps en min
-		for(int i = 1; i <= impStacked.getStackSize(); i++) {
-			int msPassed = summed[sliceIndex[i-1]];
+
+		// on ajoute un label avec le temps en min
+		for (int i = 1; i <= impStacked.getStackSize(); i++) {
+			int msPassed = summed[sliceIndex[i - 1]];
 			String min = "" + msPassed / 10000 + "s";
 			impStacked.getStack().setSliceLabel(min, i);
 		}
-		
+
 		MontageMaker mm = new MontageMaker();
 
 		return mm.makeMontage2(impStacked, columns, rows, 1.0, 1, impList.length, 1, 0, true);
