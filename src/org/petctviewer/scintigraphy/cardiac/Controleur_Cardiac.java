@@ -6,6 +6,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
@@ -58,8 +60,14 @@ public class Controleur_Cardiac extends ControleurScin {
 		mdl.calculerResultats();
 
 		Vue_Cardiac vue = (Vue_Cardiac) this.getVue();
-		BufferedImage capture = ModeleScin.captureImage(vue.getImp(), 410, 820).getBufferedImage();
-		new FenResultat_Cardiac(vue, capture);
+		vue.getFenApplication().resizeCanvas();
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				BufferedImage capture = ModeleScin.captureImage(vue.getImp(), 410, 820).getBufferedImage();	
+				new FenResultat_Cardiac(vue, capture);
+			}
+		});
 
 	}
 

@@ -46,13 +46,13 @@ public class Vue_Plaquettes extends VueScin {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(String[] titresFenetres) {
+	protected ImagePlus preparerImp(ImagePlus[] images) {
 
 		ArrayList<ImagePlus> series = new ArrayList<>();
 
-		for (int i = 0; i < titresFenetres.length; i++) {
+		for (int i = 0; i < images.length; i++) {
 
-			ImagePlus imp = WindowManager.getImage(titresFenetres[i]);
+			ImagePlus imp = images[i];
 			if (imp.getStackSize() == 2) {
 				this.antPost = true;
 				Boolean ant = VueScin.isAnterieur(imp);

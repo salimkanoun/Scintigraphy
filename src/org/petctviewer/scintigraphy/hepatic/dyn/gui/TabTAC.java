@@ -33,13 +33,13 @@ class TabTAC extends FenResultatSidePanel {
 		setterDuodenom.addSelector(new Selector("start", 10, -1, RectangleAnchor.BOTTOM_RIGHT), "start");
 		pnl_center.add(setterDuodenom);
 		
+		ChartPanel chartCBD = ModeleScinDyn.associateSeries(new String[] {"CBD"}, series);
+		pnl_center.add(chartCBD);
+
 		ChartPanel chartHilium = ModeleScinDyn.associateSeries(new String[] {"Hilium"}, series);
 		JValueSetter setterHilium = new JValueSetter(chartHilium.getChart());
 		setterHilium.addSelector(new Selector("start", 10, -1, RectangleAnchor.BOTTOM_RIGHT), "start");
 		pnl_center.add(setterHilium);
-		
-		ChartPanel chartCBD = ModeleScinDyn.associateSeries(new String[] {"CBD"}, series);
-		pnl_center.add(chartCBD);
 		
 		this.add(pnl_center, BorderLayout.CENTER);
 		

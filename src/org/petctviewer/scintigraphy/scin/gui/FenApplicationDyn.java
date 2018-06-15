@@ -22,6 +22,7 @@ import org.petctviewer.scintigraphy.scin.VueScinDyn;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Overlay;
+import ij.gui.ScrollbarWithLabel;
 import ij.gui.Toolbar;
 import ij.plugin.Animator;
 
@@ -77,6 +78,15 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 			} else {
 				imp = this.impProj;
 			}
+			
+			//si l'imp est null, on utilise l'image ant ou post
+			if(imp == null) {
+				if(vue.getImpPost() != null) {
+					imp = vue.getImpPost();
+				}else if(vue.getImpAnt() != null) {
+					imp = vue.getImpAnt();
+				}
+			}
 
 			imp.setOverlay(ov);
 			VueScin.setCustomLut(imp);
@@ -84,7 +94,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 			this.revalidate();
 			this.setImage(imp);
 			this.vue.setImp(imp);
-
+			
 			this.updateSliceSelector();
 
 			this.setAnimate(false);

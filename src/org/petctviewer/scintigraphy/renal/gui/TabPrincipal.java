@@ -3,13 +3,15 @@ package org.petctviewer.scintigraphy.renal.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
-
+import javax.crypto.CipherInputStream;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -21,6 +23,7 @@ import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.Vue_Renal;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.VueScin;
 import org.petctviewer.scintigraphy.scin.VueScinDyn;
@@ -49,10 +52,11 @@ class TabPrincipal extends FenResultatSidePanel {
 	 */
 	public TabPrincipal(Vue_Renal vue, BufferedImage capture, int w, int h) {
 		super("Renal scintigraphy", vue, capture, "");
-		
+
 		JValueSetter chartNephrogram = vue.getNephrogramChart();
 
-		HashMap<Comparable, Double> adjusted = ((Modele_Renal) vue.getFenApplication().getControleur().getModele()).getAdjustedValues();
+		HashMap<Comparable, Double> adjusted = ((Modele_Renal) vue.getFenApplication().getControleur().getModele())
+				.getAdjustedValues();
 		// l'intervalle est defini par l'utilisateur
 		Double x1 = adjusted.get("start");
 		Double x2 = adjusted.get("end");
@@ -73,16 +77,12 @@ class TabPrincipal extends FenResultatSidePanel {
 
 		JPanel grid = new JPanel(new GridLayout(2, 1));
 
-		// on affiche les capture
-		DynamicImage lbl_capture = new DynamicImage(capture);
-		DynamicImage lbl_proj = new DynamicImage(proj.getImage());
-
 		// creation du panel du haut
 		JPanel panel_top = new JPanel(new GridLayout(1, 2));
 
 		// ajout de la capture et du montage
-		panel_top.add(lbl_capture);
-		panel_top.add(lbl_proj);
+		panel_top.add(new DynamicImage(capture));
+		panel_top.add(new DynamicImage(proj.getImage()));
 
 		// creation du panel du bas
 		chartNephrogram.setPreferredSize(new Dimension(w, h / 2));
@@ -122,6 +122,8 @@ class TabPrincipal extends FenResultatSidePanel {
 		res.add(this.getPanelROE());
 		res.add(Box.createVerticalStrut(50));
 
+		this.setFontAllJLabels(res, new Font("Calibri", Font.BOLD, 16));
+
 		flow_wrap.add(res);
 
 		return flow_wrap;
@@ -133,8 +135,11 @@ class TabPrincipal extends FenResultatSidePanel {
 		JLabel lbl_R = new JLabel("R");
 		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
 
+		Double xLasilix = modele.getAdjustedValues().get("lasilix");
 		// minutes a observer pour la capacite d'excretion
-		int[] mins = new int[] { 20, 22, 30 };
+		Double[] mins = new Double[] { ModeleScin.round(xLasilix - 1, 1),
+				ModeleScin.round(xLasilix + 2, 1),
+				ModeleScin.round(modele.getSerie("Blood Pool").getMaxX(), 1)};
 
 		// panel roe
 		JPanel pnl_roe = new JPanel(new GridLayout(4, 3, 0, 3));
@@ -195,23 +200,18 @@ class TabPrincipal extends FenResultatSidePanel {
 			// aligne a droite
 			pnl_nora.add(new JLabel(nora[0][i] + "  min"));
 
-			if (nora[1][i] != null) {
-				JLabel lbl_g = new JLabel(nora[1][i] + " %");
-				lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
-				pnl_nora.add(lbl_g);
-			} else {
-				JLabel lbl_na = new JLabel("N/A");
-				lbl_na.setHorizontalAlignment(SwingConstants.CENTER);
-				pnl_nora.add(lbl_na);
+			for (int j = 1; j <= 2; j++) {
+				if (nora[j][i] != null) {
+					JLabel lbl_g = new JLabel(nora[j][i] + " %");
+					lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
+					pnl_nora.add(lbl_g);
+				} else {
+					JLabel lbl_na = new JLabel("N/A");
+					lbl_na.setHorizontalAlignment(SwingConstants.CENTER);
+					pnl_nora.add(lbl_na);
+				}
 			}
 
-			if (nora[2][i] != null) {
-				JLabel lbl_d = new JLabel(nora[2][i] + " %");
-				lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
-				pnl_nora.add(lbl_d);
-			} else {
-				pnl_nora.add(new JLabel("N/A"));
-			}
 		}
 		return pnl_nora;
 	}
@@ -246,7 +246,7 @@ class TabPrincipal extends FenResultatSidePanel {
 		pnl_timing.add(lbl_tdemi);
 
 		String s = "" + timing[1][0];
-		if (timing[1][0] == Double.NaN)
+		if (timing[1][0].equals(Double.NaN))
 			s = "N/A";
 
 		JLabel lbl_g = new JLabel(s);
@@ -254,7 +254,7 @@ class TabPrincipal extends FenResultatSidePanel {
 		pnl_timing.add(lbl_g);
 
 		s = "" + timing[1][1];
-		if (timing[1][1] == Double.NaN)
+		if (timing[1][1].equals(Double.NaN))
 			s = "N/A";
 
 		JLabel lbl_d = new JLabel(s);
@@ -289,11 +289,11 @@ class TabPrincipal extends FenResultatSidePanel {
 		JLabel lbl_g = new JLabel(sep[1] + " %");
 		lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
 		pnl_sep.add(lbl_g);
-		
-		if(modele.getPatlakPente() != null) {
+
+		if (modele.getPatlakPente() != null) {
 			double[] patlak = modele.getPatlakPente();
 			pnl_sep.setLayout(new GridLayout(3, 3));
-			
+
 			pnl_sep.add(new JLabel("patlak"));
 			JLabel lbl_pd = new JLabel(patlak[0] + " %");
 			lbl_pd.setHorizontalAlignment(SwingConstants.CENTER);
@@ -303,7 +303,7 @@ class TabPrincipal extends FenResultatSidePanel {
 			lbl_pg.setHorizontalAlignment(SwingConstants.CENTER);
 			pnl_sep.add(lbl_pg);
 		}
-		
+
 		return pnl_sep;
 	}
 

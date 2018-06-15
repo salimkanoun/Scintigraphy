@@ -51,7 +51,7 @@ public abstract class VueScin implements PlugIn {
 	public static final int HEART = 0, INFLAT = 1, KIDNEY = 2, INFLATGAUCHE = 3, INFLATDROIT = 4;
 	// outils de tracer de roi
 	public static final int MAINLIBRE = 0, RECTANGLE = 1, OVALE = 2, POLYGONE = 3;
-	
+
 	private String examType;
 	private FenApplication fen_application;
 
@@ -69,32 +69,18 @@ public abstract class VueScin implements PlugIn {
 	 */
 	@Override
 	public void run(String arg) {
-		FenSelectionDicom selection = new FenSelectionDicom(this.getExamType());
-		selection.setModal(true);
-		selection.setVisible(true);
-		if (selection.getSelectedWindowsTitles() != null) {
-			if (selection.getSelectedWindowsTitles().length > 0) {
-				try {
+		FenSelectionDicom fen = new FenSelectionDicom(this.getExamType(), this);
+		fen.setVisible(true);
+	}
 
-					this.imp = preparerImp(selection.getSelectedWindowsTitles());
-					// on set la lut des preferences
-					VueScin.setCustomLut(imp);
-					// on ferme toutes les fenetres choisies
-					for (String s : selection.getSelectedWindowsTitles()) {
-						ImagePlus impOuverte = WindowManager.getImage(s);
-						if (impOuverte != null) {
-							impOuverte.close();
-						}
-					}
+	public void startExam(ImagePlus[] images) {
+		if (images != null) {
+			if (images.length > 0) {
+				this.imp = preparerImp(images);
+				// on set la lut des preferences
+				VueScin.setCustomLut(imp);
 
-					if (!arg.equals("standby")) {
-						this.lancerProgramme();
-					}
-
-				} catch (Exception e) {
-					System.err.println("The selected dicoms are not usable for this exam");
-					e.printStackTrace();
-				}
+				this.lancerProgramme();
 			}
 		}
 	}
@@ -153,7 +139,7 @@ public abstract class VueScin implements PlugIn {
 	 *            liste des fenetres ouvertes
 	 * @return
 	 */
-	protected abstract ImagePlus preparerImp(String[] titresFenetres);
+	protected abstract ImagePlus preparerImp(ImagePlus[] images);
 
 	/**
 	 * lance le programme
@@ -1032,7 +1018,7 @@ public abstract class VueScin implements PlugIn {
 		case VueScin.INFLATDROIT:
 			bkg = createBkgInfLat(roi, imp, 1, rm);
 			break;
-			
+
 		default:
 			bkg = roi;
 			break;

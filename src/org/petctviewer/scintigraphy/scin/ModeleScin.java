@@ -73,12 +73,12 @@ public abstract class ModeleScin {
 	 *            nb de chiffre apres la virgule
 	 * @return valeur arrondie
 	 */
-	public static double round(double value, int places) {
+	public static double round(Double value, int places) {
 		if (places < 0) {
 			throw new IllegalArgumentException("place doit etre superieur ou egal a zero");
 		}
 		
-		if(value == Double.NaN || value == Double.NEGATIVE_INFINITY || value == Double.POSITIVE_INFINITY) {
+		if(value.equals(Double.NaN) || value .equals(Double.NEGATIVE_INFINITY) || value.equals(Double.POSITIVE_INFINITY)) {
 			return value;
 		}
 

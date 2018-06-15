@@ -5,7 +5,9 @@ import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Panel;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.VueScinDyn;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationDyn;
 
 import ij.ImagePlus;
 
@@ -15,7 +17,7 @@ public class FenApplication_GeneralDyn extends FenApplication {
 
 	private Button btn_finish;
 
-	public FenApplication_GeneralDyn(ImagePlus imp, String nom) {
+	public FenApplication_GeneralDyn(ImagePlus imp, String nom, VueScinDyn vue) {
 		super(imp, nom);
 		this.getField_instructions().setEditable(true);
 		this.btn_finish = new Button("Finish");

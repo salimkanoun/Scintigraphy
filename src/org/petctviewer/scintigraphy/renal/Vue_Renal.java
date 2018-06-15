@@ -26,8 +26,8 @@ public class Vue_Renal extends VueScinDyn {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(String[] titresFenetres) {
-		super.preparerImp(titresFenetres);
+	protected ImagePlus preparerImp(ImagePlus[] images) {
+		super.preparerImp(images);
 
 		// on inverse l'image pour garder l'orientation gauche / droite
 		for (int i = 1; i <= this.impPost.getStackSize(); i++) {

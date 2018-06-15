@@ -2,7 +2,9 @@ package org.petctviewer.scintigraphy.scin.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.RenderingHints;
@@ -53,7 +55,6 @@ public abstract class FenResultatSidePanel extends JFrame {
 	 *            la sauvegarde
 	 */
 	public FenResultatSidePanel(String nomFen, VueScin vue, BufferedImage capture, String additionalInfo) {
-
 		this.vue = vue;
 		this.modele = vue.getFenApplication().getControleur().getModele();
 		this.additionalInfo = additionalInfo;
@@ -89,9 +90,23 @@ public abstract class FenResultatSidePanel extends JFrame {
 		patientInfo.add(new JLabel(infoPatient.get("id")));
 		patientInfo.add(new JLabel("Aquisition date: "));
 		patientInfo.add(new JLabel(infoPatient.get("date")));
+		
+		this.setFontAllJLabels(patientInfo, new Font("Calibri", Font.BOLD, 16));
+		
 		JPanel flow1 = new JPanel(new FlowLayout());
 		flow1.add(patientInfo);
 		this.side.add(flow1);
+	}
+	
+	protected void setFontAllJLabels(Container container, Font font) {
+		if(container instanceof JLabel)
+			container.setFont(font);
+		
+		for (Component c : container.getComponents()) {
+			if(c instanceof Container) {
+				this.setFontAllJLabels((Container) c, font);
+			}
+		}
 	}
 
 	/**
@@ -124,13 +139,12 @@ public abstract class FenResultatSidePanel extends JFrame {
 			this.setCaptureButton(btn_capture, lbl_credits);
 		}
 
-		// on ajoute le sie panel a droite de la fenetre
+		// on ajoute le side panel a droite de la fenetre
 		this.add(this.side, BorderLayout.EAST);
 
 		this.pack();
 
-		this.setResizable(false);
-		this.setSize(this.getPreferredSize());
+		this.setResizable(true);
 		this.setLocationRelativeTo(null);
 	}
 

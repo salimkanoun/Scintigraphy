@@ -197,7 +197,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 
 	@Override
 	public int getSliceNumberByRoiIndex(int roiIndex) {
-		return 1;
+		return 0;
 	}
 
 	@Override

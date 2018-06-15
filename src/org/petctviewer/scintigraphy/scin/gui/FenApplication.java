@@ -123,11 +123,16 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	public void resizeCanvas() {
 		ImagePlus imp = this.getImagePlus();
 		
+		// on enleve puis remet l'image afin qu'elle reprenne ses dimension originales
+		this.setImage(null);
+		this.setImage(imp);
+		
 		this.getCanvas().setBounds(0,0,canvasW,canvasH);
 		this.getCanvas().setSize(canvasW, canvasH);
 		
+		// on calcule le facteur de magnification
 		double magnification = canvasW / (1.0 * imp.getWidth());
-		
+
 		this.getCanvas().setMagnification(magnification);
 		// pour que le pack prenne en compte les dimensions du panel
 		this.panel.setPreferredSize(panel.getPreferredSize());

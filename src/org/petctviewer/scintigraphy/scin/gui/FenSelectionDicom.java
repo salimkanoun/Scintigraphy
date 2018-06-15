@@ -5,31 +5,47 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
+import java.awt.event.WindowListener;
+import java.util.Arrays;
 import java.util.HashMap;
+
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.VueScin;
 
+import ij.ImageListener;
 import ij.ImagePlus;
 import ij.WindowManager;
+import ij.plugin.EventListener;
 import ij.util.DicomTools;
 
-public class FenSelectionDicom extends JDialog {
+public class FenSelectionDicom extends JFrame implements ActionListener, ImageListener {
 
 	private static final long serialVersionUID = 6706629497515318270L;
 
-	JTable table;
-	String[] titresDicoms;
-	String[] selectedWindowsTitles;
-	JButton btn_select, btn_selectAll;
+	private String[] titresDicoms;
+	private String[] selectedWindowsTitles;
+	private JButton btn_select, btn_selectAll;
+	private VueScin vue;
+	private DefaultTableModel dataModel;
+	private JTable table;
 
 	/**
 	 * Permet de selectionner les dicom utilisees par le plugin
@@ -37,38 +53,38 @@ public class FenSelectionDicom extends JDialog {
 	 * @param examType
 	 *            : type d'examen
 	 */
-	public FenSelectionDicom(String examType) {
-		this.titresDicoms = WindowManager.getImageTitles();
+	public FenSelectionDicom(String examType, VueScin vue) {
+		this.vue = vue;
+		this.titresDicoms = WindowManager.getImageTitles().clone();
+		ImagePlus.addImageListener(this);
 
 		// on ajoute le titre a la fenetre
 		this.setTitle("Select Series");
 
-		// creation du tableeau
+		// creation du tableau
 		String[] columnNames = { "Patient", "Study", "Date", "Series", "Dimensions", "Stack Size" };
-		String[][] tableData = getTableData();
-
-		this.table = new JTable(tableData, columnNames);
+		this.dataModel = new DefaultTableModel(this.getTableData(), columnNames);
+		table = new JTable();
+		table.setModel(this.dataModel);
 		resizeColumnWidth(table);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-		this.table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		this.table.setFocusable(false);
-		this.table.setDefaultEditor(Object.class, null);
+		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		table.setFocusable(false);
+		table.setDefaultEditor(Object.class, null);
 
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BorderLayout());
 
-		JScrollPane tablePane = new JScrollPane(this.table);
+		JScrollPane tablePane = new JScrollPane(table);
 
 		JPanel jp = new JPanel();
 
-		controleurDialog ctrl = new controleurDialog();
-
 		this.btn_select = new JButton("Select");
-		this.btn_select.addActionListener(ctrl);
+		this.btn_select.addActionListener(this);
 
 		this.btn_selectAll = new JButton("Select All");
-		this.btn_selectAll.addActionListener(ctrl);
+		this.btn_selectAll.addActionListener(this);
 
 		panel.add(tablePane, BorderLayout.CENTER);
 
@@ -114,35 +130,6 @@ public class FenSelectionDicom extends JDialog {
 		return data;
 	}
 
-	// controleur prive pour les boutons "select" et "select all"
-	private class controleurDialog implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			JButton b = (JButton) e.getSource();
-
-			if (b == FenSelectionDicom.this.btn_select) {
-				// recuperation des lignes selectionnees
-				int[] rows = FenSelectionDicom.this.table.getSelectedRows();
-
-				// construction du tableau de nm de dicoms selectionnees
-				String[] titresFenSelected = new String[rows.length];
-				for (int i = 0; i < rows.length; i++) {
-					titresFenSelected[i] = FenSelectionDicom.this.titresDicoms[rows[i]];
-				}
-
-				FenSelectionDicom.this.selectedWindowsTitles = titresFenSelected;
-			} else if (b == FenSelectionDicom.this.btn_selectAll) {
-				// on selectionne toutes les fenetres
-				FenSelectionDicom.this.selectedWindowsTitles = FenSelectionDicom.this.titresDicoms;
-			}
-
-			// on ferme la fenetre de selection
-			if (FenSelectionDicom.this.selectedWindowsTitles.length >= 1) {
-				FenSelectionDicom.this.dispose();
-			}
-		}
-	}
-
 	public String[] getSelectedWindowsTitles() {
 		return this.selectedWindowsTitles;
 	}
@@ -168,6 +155,85 @@ public class FenSelectionDicom extends JDialog {
 				width = 300;
 			columnModel.getColumn(column).setPreferredWidth(width);
 		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		JButton b = (JButton) e.getSource();
+
+		if (b == this.btn_select) {
+			// recuperation des lignes selectionnees
+			int[] rows = this.table.getSelectedRows();
+
+			// construction du tableau de nm de dicoms selectionnees
+			String[] titresFenSelected = new String[rows.length];
+			for (int i = 0; i < rows.length; i++) {
+				titresFenSelected[i] = this.titresDicoms[rows[i]];
+			}
+
+			this.selectedWindowsTitles = titresFenSelected;
+		} else if (b == this.btn_selectAll) {
+			// on selectionne toutes les fenetres
+			this.selectedWindowsTitles = this.titresDicoms;
+		}
+
+		// on ferme la fenetre de selection
+		if (this.selectedWindowsTitles.length >= 1) {
+			this.startExam();
+		}
+	}
+
+	public void startExam() {
+		ImagePlus[] images = new ImagePlus[this.selectedWindowsTitles.length];
+		for (int i = 0; i < selectedWindowsTitles.length; i++) {
+			images[i] = WindowManager.getImage(selectedWindowsTitles[i]);
+		}
+
+		try {
+			this.vue.startExam(images);
+
+			// on ferme toutes les fenetres choisies
+			for (String s : selectedWindowsTitles) {
+				ImagePlus impOuverte = WindowManager.getImage(s);
+				if (impOuverte != null) {
+					impOuverte.close();
+				}
+			}
+
+			ImagePlus.removeImageListener(this);
+			this.dispose();
+		} catch (Exception e) {
+			System.err.println("The selected DICOM are not fit for this exam");
+		}
+	}
+	
+	private void updateTable() {
+		String[] nouveauxTitres = WindowManager.getImageTitles();
+
+		// si la liste n'est pas la même
+		if (!Arrays.deepEquals(nouveauxTitres, this.titresDicoms)) {
+			this.titresDicoms = nouveauxTitres;
+			this.dataModel.setRowCount(0);
+			for (String[] s : this.getTableData()) {
+				this.dataModel.addRow(s);
+			}
+		}
+	}
+
+	@Override
+	public void imageOpened(ImagePlus imp) {
+		this.updateTable();
+	}
+
+	@Override
+	public void imageClosed(ImagePlus imp) {
+		this.updateTable();
+	}
+
+	@Override
+	public void imageUpdated(ImagePlus imp) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

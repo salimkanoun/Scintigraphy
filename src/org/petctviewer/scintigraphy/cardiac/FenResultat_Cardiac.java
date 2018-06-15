@@ -34,6 +34,8 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 		this.resultats = ((Modele_Cardiac) vueScin.getFenApplication().getControleur().getModele()).getResultsHashMap();
 		this.finishBuildingWindow(true);
 		this.setVisible(true);
+		
+		this.setResizable(true);
 	}
 
 	@Override

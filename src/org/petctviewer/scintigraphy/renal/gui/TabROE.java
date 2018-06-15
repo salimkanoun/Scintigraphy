@@ -47,7 +47,7 @@ class TabROE extends FenResultatSidePanel {
 		BasicStroke stroke = new BasicStroke(5.0F);
 		JPanel p = new JPanel(new GridLayout(2, 1));
 
-		if(modele.getKidneys()[1]) {
+		if (modele.getKidneys()[1]) {
 			// graphique rein droit
 			ChartPanel c = cPanels[1];
 			FenResultats_Renal.renameSeries(c, "Blood pool fitted R", "Blood Pool");
@@ -59,8 +59,8 @@ class TabROE extends FenResultatSidePanel {
 			c.setPreferredSize(new Dimension(w, h / 2));
 			p.add(c);
 		}
-	
-		if(modele.getKidneys()[0]) {
+
+		if (modele.getKidneys()[0]) {
 			// graphique rein gauche
 			ChartPanel c1 = cPanels[0];
 			FenResultats_Renal.renameSeries(c1, "Output KL", "Output");
@@ -89,9 +89,9 @@ class TabROE extends FenResultatSidePanel {
 		JLabel lbl_R = new JLabel("R");
 		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
 
-		int[] mins = new int[10];
+		Double[] mins = new Double[10];
 		for (int i = 0; i < mins.length; i++) {
-			mins[i] = (int) ((modele.getSerie("Blood Pool").getMaxX() / (mins.length * 1.0)) * i + 1);
+			mins[i] = ModeleScin.round((modele.getSerie("Blood Pool").getMaxX() / (mins.length * 1.0)) * i + 1, 1);
 		}
 
 		// panel roe

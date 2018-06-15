@@ -13,13 +13,8 @@ public class Vue_GeneralDyn extends VueScinDyn{
 	}
 
 	@Override
-	protected ImagePlus preparerImp(String[] titresFenetres) {
-		return super.preparerImp(titresFenetres);
-	}
-
-	@Override
 	public void lancerProgramme() {
-		this.setFenApplication(new FenApplication_GeneralDyn(this.getImp(), this.getExamType()));
+		this.setFenApplication(new FenApplication_GeneralDyn(this.getImp(), this.getExamType(), this));
 		this.getFenApplication().setControleur(new Controleur_GeneralDyn(this));
 	}
 	

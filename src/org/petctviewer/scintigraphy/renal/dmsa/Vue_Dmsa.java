@@ -18,8 +18,8 @@ public class Vue_Dmsa extends VueScin {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(String[] titresFenetres) {
-		ImagePlus imp = WindowManager.getImage(titresFenetres[0]);
+	protected ImagePlus preparerImp(ImagePlus[] images) {
+		ImagePlus imp = images[0];
 
 		if(imp.getStackSize() == 2) {
 			imp.getStack().getProcessor(1).flipHorizontal();

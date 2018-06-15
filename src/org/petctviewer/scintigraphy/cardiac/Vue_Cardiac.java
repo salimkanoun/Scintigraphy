@@ -19,14 +19,14 @@ public class Vue_Cardiac extends VueScin {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(String[] titresFenetres) {
+	protected ImagePlus preparerImp(ImagePlus[] images) {
 
 		ArrayList<ImagePlus> mountedImages = new ArrayList<>();
 
 		int[] frameDuration = new int[2];
 
-		for (int i = 0; i < titresFenetres.length; i++) {
-			ImagePlus imp = WindowManager.getImage(titresFenetres[i]);
+		for (int i = 0; i < images.length; i++) {
+			ImagePlus imp = images[i];
 			if (imp.getStackSize() == 2) {
 				String info = imp.getInfoProperty();
 				ImagePlus impReversed = VueScin.sortImageAntPost(imp);
@@ -46,7 +46,7 @@ public class Vue_Cardiac extends VueScin {
 
 		ImagePlus impStacked;
 		// si la prise est early/late
-		if (titresFenetres.length == 2) {
+		if (images.length == 2) {
 			impStacked = enchainer.concatenate(mountedSorted, false);
 			// si il y a plus de 3 minutes de diff�rence entre les deux prises
 			if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {

@@ -238,7 +238,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		XYSeries seriesVasc = new XYSeries("Vasc");
 		for (int i = 0; i < bpi.getItemCount(); i++) {
 			double x = bpi.getX(i).doubleValue();
-			seriesVasc.add(x, reg[0] + reg[1] * x + reg[2] * x * x + reg[3] * Math.pow(x, 3));
+			seriesVasc.add(x, reg[0] + reg[1] * x + reg[2] * Math.pow(x, 2) + reg[3] * Math.pow(x, 3));
 		}
 
 		XYSeries seriesKid = this.createSerie(kidney, "Kidney");
@@ -264,8 +264,14 @@ public class Modele_Renal extends ModeleScinDyn {
 		// calcul du rapport de pente sur l'intervalle defini par l'utilisateur
 		Double rapportPente = courbeKidney[1] / courbeVasc[1];
 
+//		List<Double> fittedVasc = new ArrayList<>();
+//		for (Double d : vasc) {
+//			fittedVasc.add(d * rapportPente);
+//		}
+		
 		List<Double> fittedVasc = new ArrayList<>();
-		for (Double d : vasc) {
+		for (int i = 0; i < seriesVasc.getItemCount(); i++) {
+			Double d = seriesVasc.getY(i).doubleValue();
 			fittedVasc.add(d * rapportPente);
 		}
 
@@ -292,7 +298,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	 *            "L" ou "R"
 	 * @return le pourcentage
 	 */
-	public int getPercentage(int min, XYSeries output, String lr) {
+	public int getPercentage(Double min, XYSeries output, String lr) {
 		XYSeries serieBPF = this.getSerie("Blood pool fitted " + lr);
 		int perct = (int) (ModeleScinDyn.getY(output, min).doubleValue()
 				/ ModeleScinDyn.getY(serieBPF, min).doubleValue() * 100);
@@ -330,29 +336,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	public String toString() {
 		String s = super.toString();
 
-		// points d'interet
-		int[] mins = new int[] { 20, 22, 30 };
-
-		// recuperation des series output gauche et droite
-		XYSeries lk = this.getSerie("Output KL");
-		XYSeries rk = this.getSerie("Output KR");
-
-		// ajout des resultats au csv
-		for (int min : mins) {
-			s += "\n ROE " + min + "min Left Kidney , " + this.getPercentage(min, lk, "L");
-			s += "\n ROE " + min + "min Right Kidney , " + this.getPercentage(min, rk, "R");
-		}
-
-		// TODO modifier ça (voir methodes modele renal)
-		s += "\n";
-
-		// on ajoute les valeurs du tableau
-		for (int i = 1; i < 3; i++) {
-			String lr = " Left";
-			if (i == 2) {
-				lr = " Right";
-			}
-		}
+		//TODO
 
 		return s;
 

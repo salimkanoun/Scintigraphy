@@ -88,9 +88,10 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 				organes.add("Bladder");
 			}
 
+			//TODO refactor
 			// creation de la vue sans lancement de l'application
 			this.vueBasic = new Vue_Basic(organes.toArray(new String[] {}), this);
-			this.vueBasic.run("standby");
+			this.vueBasic.run("");
 
 			// si l'utilisateur a choisi une image
 			if (this.vueBasic.getImp() != null) {

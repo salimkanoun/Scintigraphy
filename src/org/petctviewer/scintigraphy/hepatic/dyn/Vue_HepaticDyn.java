@@ -16,12 +16,6 @@ public class Vue_HepaticDyn extends VueScinDyn {
 	public Vue_HepaticDyn() {
 		super("Biliary scintigraphy");
 	}
-	
-	@Override
-	public ImagePlus preparerImp(String[] titresFenetres) {
-		ImagePlus imp = super.preparerImp(titresFenetres);
-		return imp;
-	}
 
 	@Override
 	public void lancerProgramme() {

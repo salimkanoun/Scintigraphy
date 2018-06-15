@@ -25,12 +25,12 @@ public class Vue_Basic extends VueScin {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(String[] titresFenetres) {
-		if (titresFenetres.length > 1) {
+	protected ImagePlus preparerImp(ImagePlus[] images) {
+		if (images.length > 1) {
 			IJ.log("There must be exactly one dicom opened");
 		}
 
-		ImagePlus imp = WindowManager.getImage(titresFenetres[0]);
+		ImagePlus imp = images[0];
 		String info = imp.getInfoProperty();
 		
 		ImagePlus impSorted = VueScin.sortImageAntPost(imp);

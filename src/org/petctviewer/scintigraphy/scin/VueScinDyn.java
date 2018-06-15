@@ -22,14 +22,9 @@ public abstract class VueScinDyn extends VueScin {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(String[] titresFenetres) {
-		if (titresFenetres.length > 2) {
+	protected ImagePlus preparerImp(ImagePlus[] images) {
+		if (images.length > 2) {
 			IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
-		}
-
-		ImagePlus[] images = new ImagePlus[titresFenetres.length];
-		for(int i = 0; i < titresFenetres.length; i++) {
-			images[i] = WindowManager.getImage(titresFenetres[i]);
 		}
 		
 		ImagePlus[] imps = VueScin.sortAntPost(images);
