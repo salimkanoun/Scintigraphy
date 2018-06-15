@@ -12,6 +12,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+
+//SK CONDENSE A REVOIR
 package org.petctviewer.scintigraphy.gastric;
 
 import java.awt.*;
@@ -37,17 +39,13 @@ public class Condense_Dynamique implements PlugIn {
 
 	@Override
 	public void run(String arg) {
-		ouvertureImage();
+		FenSelectionDicom selection=new fenetreSelection(this);
+		selection.setVisible(true);
 	}
 
-	private void ouvertureImage() {
+	protected void ouvertureImage(ImagePlus[] imagesOuvertes) {
 
 		IJ.setTool("Rectangle");
-		
-		FenSelectionDicom selection=new FenSelectionDicom("Gastric Condense");
-		selection.setModal(true);
-		selection.setVisible(true);
-		String[] imagesOuvertes=selection.getSelectedWindowsTitles();
 
 		WaitForUserDialog wait;
 		//wait.show();
@@ -58,7 +56,7 @@ public class Condense_Dynamique implements PlugIn {
 			// On ferme les images posterieures et on assigne a chaque image un nom unique
 			// car sinon confusion du programme (les images originales on le meme nom)
 			for (int i = 0; i < imagesOuvertes.length; i++) {
-				ImagePlus brutepost = WindowManager.getImage(imagesOuvertes[i]);
+				ImagePlus brutepost = imagesOuvertes[i];
 				Boolean ant = VueScin.isAnterieur(brutepost);
 				if (ant != null && !ant) {
 					brutepost.close();
