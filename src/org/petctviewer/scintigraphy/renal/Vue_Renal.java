@@ -65,7 +65,7 @@ public class Vue_Renal extends VueScinDyn {
 		Overlay overlay = VueScin.initOverlay(impProjetee, 12);
 		VueScin.setOverlayGD(overlay, impProjetee, Color.yellow);
 		VueScin.setOverlayTitle("Post",overlay, impProjetee, Color.yellow, 1);
-		VueScin.setOverlayTitle("2 first min of Post", overlay, impProjetee, Color.YELLOW, 2);
+		VueScin.setOverlayTitle("2 first min posterior", overlay, impProjetee, Color.YELLOW, 2);
 		VueScin.setOverlayTitle("MIP", overlay, impProjetee, Color.YELLOW, 3);
 		if (this.impAnt != null) {
 			VueScin.setOverlayTitle("Ant", overlay, impProjetee, Color.yellow, 4);

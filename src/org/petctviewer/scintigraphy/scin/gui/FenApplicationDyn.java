@@ -143,7 +143,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 			this.setTitle("Number of kidneys");
 
 			JPanel flow = new JPanel();
-			flow.add(this.add(new JLabel("What kidneys does the patient have ?")));
+			flow.add(this.add(new JLabel("How many kidneys has the patient ?")));
 			this.add(flow);
 
 			JPanel radio = new JPanel();

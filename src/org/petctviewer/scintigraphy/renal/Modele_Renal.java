@@ -383,7 +383,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	 * @return res[0] : rein gauche, res[1] : rein droit, res[x][0] : max, res[x][1]
 	 *         : lasilix - 1
 	 */
-	public Double[][] getNoRAPM(Double rg, Double rd) {
+	public Double[][] getExcrPM(Double rg, Double rd) {
 		// tableau de retour avec les resultats
 		Double[][] res = new Double[2][2];
 
@@ -408,11 +408,11 @@ public class Modele_Renal extends ModeleScinDyn {
 	}
 
 	/**
-	 * calcule le nora selon le temps d'injection du lasilix
+	 * calcule le Excr selon le temps d'injection du lasilix
 	 * 
 	 * @return res[0] : temps, res[1] : rein gauche, res[2] : rein droit
 	 */
-	public Double[][] getNoRA() {
+	public Double[][] getExcr() {
 		Double[][] res = new Double[3][3];
 
 		// adjusted[6] => lasilix
@@ -430,7 +430,7 @@ public class Modele_Renal extends ModeleScinDyn {
 			if(lr == "R")
 				index = 2;
 
-			// calcul nora rein gauche
+			// calcul Excr rein gauche
 			for (int i = 0; i < 3; i++) {
 				if (this.getAdjustedValues().get("tmax " + lr) < res[0][i]) {
 					res[index][i] = ModeleScin.round(getY(kidney, res[0][i]) * 100 / max, 1);
@@ -490,7 +490,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		this.patlakPente = patlakRatio;
 	}
 
-	public double getNoRABladder(Double bld) {
+	public double getExcrBladder(Double bld) {
 		XYSeries bldSeries = this.getSerie("Bladder");
 		return 100 * bld / ModeleScinDyn.getY(bldSeries, bldSeries.getMaxX());
 	}

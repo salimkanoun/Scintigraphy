@@ -80,8 +80,8 @@ public class Modele_Dmsa extends ModeleScin {
 		
 		s += "\n";
 		
-		s += "Nora Left Kidney," + this.pct[0] + "\n";
-		s += "Nora Right Kidney," + this.pct[1] + "\n";
+		s += "Excretion ratio Left Kidney," + this.pct[0] + "\n";
+		s += "Excretion ratio Right Kidney," + this.pct[1] + "\n";
 		
 		return s;
 	}

@@ -42,7 +42,7 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 	private JButton btn_addImp, btn_quantify;
 	private boolean bladder;
 
-	private JPanel pnl_nora, pnl_bladder;
+	private JPanel pnl_excr, pnl_bladder;
 
 	public TabPostMict(VueScin vue, int w, int h) {
 		super("Renal scintigraphy", vue, null, "postmict");
@@ -51,7 +51,7 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 		this.pack();
 
 		this.pnl_bladder = new JPanel();
-		this.pnl_nora = new JPanel();
+		this.pnl_excr = new JPanel();
 
 		btn_addImp = new JButton("Choose post-micturition dicom");
 		btn_addImp.addActionListener(this);
@@ -146,14 +146,14 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 			rd /= (duration / 1000);
 		}
 
-		// creation du panel nora rein gauche et droit
-		this.pnl_nora = (JPanel) this.getPanelNoRa(rg, rd);
+		// creation du panel excr rein gauche et droit
+		this.pnl_excr = (JPanel) this.getPanelExcr(rg, rd);
 
 		// ajout de la vessie dans la liste d'organes si elle est selectionnee
 		if (bladder) {
 			Double bld = data.get("Bladder P0");
 			bld /= (duration / 1000);
-			this.pnl_bladder.add(new JLabel("Bladder : " + ModeleScinDyn.round(modele.getNoRABladder(bld), 2) + " %"));
+			this.pnl_bladder.add(new JLabel("Bladder : " + ModeleScinDyn.round(modele.getExcrBladder(bld), 2) + " %"));
 		}
 		
 		finishBuildingWindow(true);
@@ -165,7 +165,7 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 		if (this.getImagePlus() != null) {
 			Box box = Box.createVerticalBox();
 			JPanel flow = new JPanel();
-			flow.add(this.pnl_nora);
+			flow.add(this.pnl_excr);
 
 			box.add(flow);
 			box.add(this.pnl_bladder);
@@ -206,27 +206,27 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 		}
 	}
 
-	private Component getPanelNoRa(Double rg, Double rd) {
+	private Component getPanelExcr(Double rg, Double rd) {
 		Modele_Renal modele = (Modele_Renal) this.getVue().getFenApplication().getControleur().getModele();
-		Double[][] nora = modele.getNoRAPM(rg, rd);
+		Double[][] excr = modele.getExcrPM(rg, rd);
 
 		// elements du tableau
 		JLabel[] lbls = new JLabel[] { new JLabel("L"), new JLabel("R"), new JLabel("Max"),
-				new JLabel("" + naIfNull(nora[0][0])), new JLabel("" + naIfNull(nora[1][0])),
+				new JLabel("" + naIfNull(excr[0][0])), new JLabel("" + naIfNull(excr[1][0])),
 				new JLabel("" + ModeleScin.round(modele.getAdjustedValues().get("lasilix") - 1, 1) + " min"),
-				new JLabel("" + naIfNull(nora[0][1])), new JLabel("" + naIfNull(nora[1][1])), };
+				new JLabel("" + naIfNull(excr[0][1])), new JLabel("" + naIfNull(excr[1][1])), };
 
-		// panel nora
-		JPanel pnl_nora = new JPanel(new GridLayout(3, 3, 0, 3));
-		pnl_nora.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-		pnl_nora.add(new JLabel("NORA Post-Mict"));
+		// panel excr
+		JPanel pnl_excr = new JPanel(new GridLayout(3, 3, 0, 3));
+		pnl_excr.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+		pnl_excr.add(new JLabel("Excretion ratio Post-Mict"));
 		// on centre les contenu du tableau
 		for (JLabel l : lbls) {
 			l.setHorizontalAlignment(JLabel.CENTER);
-			pnl_nora.add(l);
+			pnl_excr.add(l);
 		}
 
-		return pnl_nora;
+		return pnl_excr;
 	}
 
 	private String naIfNull(Double d) {

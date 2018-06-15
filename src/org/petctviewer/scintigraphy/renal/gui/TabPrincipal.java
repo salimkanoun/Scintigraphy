@@ -117,7 +117,7 @@ class TabPrincipal extends FenResultatSidePanel {
 		res.add(Box.createVerticalStrut(25));
 		res.add(this.getPanelTiming());
 		res.add(Box.createVerticalStrut(25));
-		res.add(this.getPanelNoRa());
+		res.add(this.getPanelExcr());
 		res.add(Box.createVerticalStrut(25));
 		res.add(this.getPanelROE());
 		res.add(Box.createVerticalStrut(50));
@@ -182,38 +182,38 @@ class TabPrincipal extends FenResultatSidePanel {
 		return pnl_roe;
 	}
 
-	private Component getPanelNoRa() {
+	private Component getPanelExcr() {
 		JLabel lbl_L = new JLabel("L");
 		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
 		JLabel lbl_R = new JLabel("R");
 		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
 
-		// panel nora
-		Double[][] nora = modele.getNoRA();
-		JPanel pnl_nora = new JPanel(new GridLayout(4, 3, 0, 3));
-		pnl_nora.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+		// panel Excr
+		Double[][] Excr = modele.getExcr();
+		JPanel pnl_Excr = new JPanel(new GridLayout(4, 3, 0, 3));
+		pnl_Excr.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-		pnl_nora.add(new JLabel(" NORA "));
-		pnl_nora.add(lbl_L);
-		pnl_nora.add(lbl_R);
+		pnl_Excr.add(new JLabel(" Excr "));
+		pnl_Excr.add(lbl_L);
+		pnl_Excr.add(lbl_R);
 		for (int i = 0; i < 3; i++) {
 			// aligne a droite
-			pnl_nora.add(new JLabel(nora[0][i] + "  min"));
+			pnl_Excr.add(new JLabel(Excr[0][i] + "  min"));
 
 			for (int j = 1; j <= 2; j++) {
-				if (nora[j][i] != null) {
-					JLabel lbl_g = new JLabel(nora[j][i] + " %");
+				if (Excr[j][i] != null) {
+					JLabel lbl_g = new JLabel(Excr[j][i] + " %");
 					lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
-					pnl_nora.add(lbl_g);
+					pnl_Excr.add(lbl_g);
 				} else {
 					JLabel lbl_na = new JLabel("N/A");
 					lbl_na.setHorizontalAlignment(SwingConstants.CENTER);
-					pnl_nora.add(lbl_na);
+					pnl_Excr.add(lbl_na);
 				}
 			}
 
 		}
-		return pnl_nora;
+		return pnl_Excr;
 	}
 
 	private Component getPanelTiming() {
