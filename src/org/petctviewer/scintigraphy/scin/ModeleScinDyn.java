@@ -382,6 +382,17 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	@Override
 	public String toString() {
 		String s = "\n";
+		
+		s += "time (s)";
+		Double sum = 0.0;
+		for(int i = 0; i < this.getFrameduration().length; i++) {
+			sum += this.getFrameduration()[i] / 1000;
+			s += "," + sum;
+		}
+		
+		s += "\n";
+		
+		
 		for (String k : this.data.keySet()) {
 			s += k;
 			for (Double d : this.data.get(k)) {

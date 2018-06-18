@@ -11,7 +11,7 @@ import javax.swing.SwingConstants;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.renal.Vue_Renal;
+import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 
 import ij.Prefs;
 
@@ -20,7 +20,7 @@ public class FenResultats_Renal {
 	private Container principal, zoomed, kidneys, timedImage, tabCort, tabUreter, tabOther, tabPost, tabPatlak;
 	private final int width = 1000, height = 800;
 
-	public FenResultats_Renal(Vue_Renal vue, BufferedImage capture) {
+	public FenResultats_Renal(RenalScintigraphy vue, BufferedImage capture) {
 		this.principal = new TabPrincipal(vue, capture, width, height).getContentPane();
 		this.zoomed = new TabZoomed(vue, width, height).getContentPane();
 		this.kidneys = new TabROE(vue, width, height).getContentPane();

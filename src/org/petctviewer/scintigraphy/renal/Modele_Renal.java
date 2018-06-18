@@ -240,6 +240,8 @@ public class Modele_Renal extends ModeleScinDyn {
 			double x = bpi.getX(i).doubleValue();
 			seriesVasc.add(x, reg[0] + reg[1] * x + reg[2] * Math.pow(x, 2) + reg[3] * Math.pow(x, 3));
 		}
+		
+		this.getData().put("Blood pool fitted", seriesToList(seriesVasc));
 
 		XYSeries seriesKid = this.createSerie(kidney, "Kidney");
 

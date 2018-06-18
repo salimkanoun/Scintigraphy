@@ -6,7 +6,7 @@ import java.util.HashMap;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 import java.awt.image.BufferedImage;
@@ -17,7 +17,7 @@ public class FenResultat_Hepatic extends FenResultatSidePanel {
 
 	private HashMap<String, String> resultats;
 
-	public FenResultat_Hepatic(VueScin vueScin, BufferedImage capture) {
+	public FenResultat_Hepatic(Scintigraphy vueScin, BufferedImage capture) {
 		super(vueScin.getExamType(), vueScin, capture, "");
 		this.resultats = ((Modele_Hepatic) vueScin.getFenApplication().getControleur().getModele()).getResultsHashMap();
 		this.finishBuildingWindow(true);

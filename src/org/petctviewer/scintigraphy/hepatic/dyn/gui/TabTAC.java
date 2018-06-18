@@ -16,14 +16,14 @@ import org.petctviewer.scintigraphy.hepatic.dyn.Modele_HepaticDyn;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 class TabTAC extends FenResultatSidePanel {
 
-	public TabTAC(VueScin vue, int width, int height) {
+	public TabTAC(Scintigraphy vue, int width, int height) {
 		super("Biliary scintigraphy", vue, null, "");
-		Modele_HepaticDyn modele = (Modele_HepaticDyn) this.getVue().getFenApplication().getControleur().getModele();
+		Modele_HepaticDyn modele = (Modele_HepaticDyn) this.getScin().getFenApplication().getControleur().getModele();
 		
 		JPanel pnl_center = new JPanel(new GridLayout(2,2));
 		

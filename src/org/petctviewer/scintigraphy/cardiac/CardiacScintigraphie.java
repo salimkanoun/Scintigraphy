@@ -2,7 +2,7 @@ package org.petctviewer.scintigraphy.cardiac;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
@@ -12,9 +12,9 @@ import ij.plugin.Concatenator;
 import ij.plugin.MontageMaker;
 import ij.util.DicomTools;
 
-public class Vue_Cardiac extends VueScin {
+public class CardiacScintigraphie extends Scintigraphy {
 
-	public Vue_Cardiac() {
+	public CardiacScintigraphie() {
 		super("Cardiac");
 	}
 
@@ -29,7 +29,7 @@ public class Vue_Cardiac extends VueScin {
 			ImagePlus imp = images[i];
 			if (imp.getStackSize() == 2) {
 				String info = imp.getInfoProperty();
-				ImagePlus impReversed = VueScin.sortImageAntPost(imp);
+				ImagePlus impReversed = Scintigraphy.sortImageAntPost(imp);
 				MontageMaker mm = new MontageMaker();
 				ImagePlus montageImage = mm.makeMontage2(impReversed, 2, 1, 1.0, 1, 2, 1, 0, false);
 				montageImage.setProperty("Info", info);
@@ -41,7 +41,7 @@ public class Vue_Cardiac extends VueScin {
 			imp.close();
 		}
 
-		ImagePlus[] mountedSorted = VueScin.orderImagesByAcquisitionTime(mountedImages);
+		ImagePlus[] mountedSorted = Scintigraphy.orderImagesByAcquisitionTime(mountedImages);
 		Concatenator enchainer = new Concatenator();
 
 		ImagePlus impStacked;
@@ -62,8 +62,8 @@ public class Vue_Cardiac extends VueScin {
 
 	@Override
 	public void lancerProgramme() {
-		Overlay overlay = VueScin.initOverlay(this.getImp(), 7);
-		VueScin.setOverlayDG(overlay, this.getImp(), Color.YELLOW);
+		Overlay overlay = Scintigraphy.initOverlay(this.getImp(), 7);
+		Scintigraphy.setOverlayDG(overlay, this.getImp(), Color.YELLOW);
 		
 		// fenetre de l'application
 		this.setFenApplication(new FenApplication_Cardiac(this.getImp(), this.getExamType()));

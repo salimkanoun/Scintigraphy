@@ -28,7 +28,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.ImageListener;
 import ij.ImagePlus;
@@ -43,7 +43,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	private String[] titresDicoms;
 	private String[] selectedWindowsTitles;
 	private JButton btn_select, btn_selectAll;
-	private VueScin vue;
+	private Scintigraphy vue;
 	private DefaultTableModel dataModel;
 	private JTable table;
 
@@ -53,7 +53,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 * @param examType
 	 *            : type d'examen
 	 */
-	public FenSelectionDicom(String examType, VueScin vue) {
+	public FenSelectionDicom(String examType, Scintigraphy vue) {
 		this.vue = vue;
 		this.titresDicoms = WindowManager.getImageTitles().clone();
 		ImagePlus.addImageListener(this);

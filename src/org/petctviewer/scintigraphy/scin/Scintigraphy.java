@@ -46,7 +46,7 @@ import org.apache.commons.lang.StringUtils;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 
-public abstract class VueScin implements PlugIn {
+public abstract class Scintigraphy implements PlugIn {
 	// organes
 	public static final int HEART = 0, INFLAT = 1, KIDNEY = 2, INFLATGAUCHE = 3, INFLATDROIT = 4;
 	// outils de tracer de roi
@@ -59,7 +59,7 @@ public abstract class VueScin implements PlugIn {
 	private Boolean antPost = Boolean.valueOf(false);
 	protected int nombreAcquisitions;
 
-	protected VueScin(String examType) {
+	protected Scintigraphy(String examType) {
 		this.examType = examType;
 	}
 
@@ -78,7 +78,7 @@ public abstract class VueScin implements PlugIn {
 			if (images.length > 0) {
 				this.imp = preparerImp(images);
 				// on set la lut des preferences
-				VueScin.setCustomLut(imp);
+				Scintigraphy.setCustomLut(imp);
 
 				this.lancerProgramme();
 			}
@@ -101,19 +101,19 @@ public abstract class VueScin implements PlugIn {
 		if (imagePlus.length == 1) { // si il y a qu'un fenetre d'ouverte
 			ImagePlus imp = imagePlus[0];
 
-			if (VueScin.isMultiFrame(imp)) { // si l'image est multiframe
+			if (Scintigraphy.isMultiFrame(imp)) { // si l'image est multiframe
 
-				if (!VueScin.isSameCameraMultiFrame(imp)) {
-					return VueScin.splitCameraMultiFrame(imp);
+				if (!Scintigraphy.isSameCameraMultiFrame(imp)) {
+					return Scintigraphy.splitCameraMultiFrame(imp);
 				}
 
-				if (VueScin.isAnterieur(imp)) {
+				if (Scintigraphy.isAnterieur(imp)) {
 					imps[0] = imp;
 				} else {
 					imps[1] = imp;
 				}
 
-			} else if (VueScin.isAnterieur(imp)) {
+			} else if (Scintigraphy.isAnterieur(imp)) {
 				imps[0] = imp;
 			} else {
 				imps[1] = imp;
@@ -121,7 +121,7 @@ public abstract class VueScin implements PlugIn {
 
 		} else { // si il y a deux images dans le tableau
 			for (ImagePlus imp : imagePlus) { // pour chaque fenetre
-				if (VueScin.isAnterieur(imp)) { // si la vue est ant, on choisi cette image
+				if (Scintigraphy.isAnterieur(imp)) { // si la vue est ant, on choisi cette image
 					imps[0] = (ImagePlus) imp.clone();
 				} else {
 					imps[1] = (ImagePlus) imp.clone();
@@ -968,7 +968,7 @@ public abstract class VueScin implements PlugIn {
 							e1.printStackTrace();
 						}
 
-						VueScin.this.fen_application.windowClosing(null);
+						Scintigraphy.this.fen_application.windowClosing(null);
 						System.gc();
 					}
 				});
@@ -984,7 +984,7 @@ public abstract class VueScin implements PlugIn {
 		rm.setVisible(true);
 
 		switch (organ) {
-		case VueScin.KIDNEY:
+		case Scintigraphy.KIDNEY:
 			// largeur a prendre autour du rein
 			int largeurBkg = 1;
 			if (imp.getDimensions()[0] >= 128) {
@@ -1007,15 +1007,15 @@ public abstract class VueScin implements PlugIn {
 			bkg = imp.getRoi();
 			break;
 
-		case VueScin.HEART:
+		case Scintigraphy.HEART:
 			// TODO
 			break;
 
-		case VueScin.INFLATGAUCHE:
+		case Scintigraphy.INFLATGAUCHE:
 			bkg = createBkgInfLat(roi, imp, -1, rm);
 			break;
 
-		case VueScin.INFLATDROIT:
+		case Scintigraphy.INFLATDROIT:
 			bkg = createBkgInfLat(roi, imp, 1, rm);
 			break;
 

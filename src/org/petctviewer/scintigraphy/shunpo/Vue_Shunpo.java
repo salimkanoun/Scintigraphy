@@ -34,7 +34,7 @@ import java.util.Map.Entry;
 
 import javax.swing.JOptionPane;
 
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -321,13 +321,13 @@ public class Vue_Shunpo implements PlugIn {
 		if (nombreImage != 2)
 			IJ.showMessage("Wrong Input, number of image should be 2, please restart");
 		// Tri des image dans une nouvelle imageplus
-		ImagePlus imp2 = VueScin.sortImageAntPost(imp);
+		ImagePlus imp2 = Scintigraphy.sortImageAntPost(imp);
 		imp2.show();
 		imp.close();
 		// Suite du programme sur la nouvelle imageplus
 		this.imp = imp2;
 		// Charge la LUT
-		VueScin.setCustomLut(this.imp);
+		Scintigraphy.setCustomLut(this.imp);
 		// Initialisation du Canvas qui permet de mettre la pile d'images
 		// dans une fenetre c'est une pile d'images (plus d'une image) on cree une
 		// fenetre pour la pile d'images;
@@ -336,8 +336,8 @@ public class Vue_Shunpo implements PlugIn {
 		win.setTitle(setTitre(win.getImagePlus()));
 		this.imp.setTitle(setTitre(this.imp));
 		// On initialise l'overlay
-		this.overlay = VueScin.initOverlay(imp, 12);
-		VueScin.setOverlayDG(overlay, imp);
+		this.overlay = Scintigraphy.initOverlay(imp, 12);
+		Scintigraphy.setOverlayDG(overlay, imp);
 		// On affiche l'image en 512*512 en forcant le zoom adhoc
 		win.getCanvas().setSize(new Dimension(512, 512));
 		// Adaptation automatique de l'image au resize
@@ -423,12 +423,12 @@ public class Vue_Shunpo implements PlugIn {
 		// On reactive le boutton suivant
 		lesBoutons.get("Suivant").setEnabled(true);
 		// On ordonne les images dans une nouvelle imageplus
-		ImagePlus cerveau2 = VueScin.sortImageAntPost(imp);
+		ImagePlus cerveau2 = Scintigraphy.sortImageAntPost(imp);
 		// On injecte l'image cerveau dans la fenetre
 		win.setImage(cerveau2);
 		imp.getWindow().close();
 		// On applique la LUT des preference si presente
-		VueScin.setCustomLut(cerveau2);
+		Scintigraphy.setCustomLut(cerveau2);
 		// On set le Titre
 		cerveau2.setTitle(setTitre(cerveau2));
 		win.setTitle(setTitre(cerveau2));
@@ -437,8 +437,8 @@ public class Vue_Shunpo implements PlugIn {
 		win.repaint();
 		win.getImagePlus().killRoi();
 		// On ajouter l'overlay Droite/Gauche
-		this.overlay = VueScin.initOverlay(imp, 12);
-		VueScin.setOverlayDG(overlay, imp);
+		this.overlay = Scintigraphy.initOverlay(imp, 12);
+		Scintigraphy.setOverlayDG(overlay, imp);
 		win.getImagePlus().setOverlay(overlay);
 		// Variable pour notifier que l'image 2 est ouverte
 		image2Ouverte = true;

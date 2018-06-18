@@ -24,7 +24,7 @@ public class Controleur_HepaticDyn extends ControleurScin {
 
 	public static String[] organes = { "R. Liver", "L. Liver", "Hilium", "CBD", "Duodenom", "Blood pool" };
 
-	protected Controleur_HepaticDyn(Vue_HepaticDyn vue) {
+	protected Controleur_HepaticDyn(HepaticDynamicScintigraphy vue) {
 		super(vue);
 		this.setOrganes(organes);
 		Modele_HepaticDyn modele = new Modele_HepaticDyn(vue);
@@ -40,7 +40,7 @@ public class Controleur_HepaticDyn extends ControleurScin {
 
 	@Override
 	public void fin() {
-		Vue_HepaticDyn vue = (Vue_HepaticDyn) this.getVue();
+		HepaticDynamicScintigraphy vue = (HepaticDynamicScintigraphy) this.getScin();
 		
 		ImagePlus imp = vue.getImp();
 		BufferedImage capture = ModeleScin.captureImage(imp, 300, 300).getBufferedImage();
@@ -85,7 +85,7 @@ public class Controleur_HepaticDyn extends ControleurScin {
 		//remove finish
 		
 		new FenResultat_HepaticDyn(vue, capture);
-		this.getVue().getFenApplication().dispose();
+		this.getScin().getFenApplication().dispose();
 	}
 
 	@Override

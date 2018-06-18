@@ -11,13 +11,13 @@ import ij.gui.Overlay;
 import ij.plugin.ZProjector;
 import ij.util.DicomTools;
 
-public abstract class VueScinDyn extends VueScin {
+public abstract class DynamicScintigraphy extends Scintigraphy {
 
 	protected ImagePlus impAnt, impPost, impProjetee;
 
 	private int[] frameDurations;
 
-	public VueScinDyn(String title) {
+	public DynamicScintigraphy(String title) {
 		super(title);
 	}
 
@@ -27,7 +27,7 @@ public abstract class VueScinDyn extends VueScin {
 			IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 		}
 		
-		ImagePlus[] imps = VueScin.sortAntPost(images);
+		ImagePlus[] imps = Scintigraphy.sortAntPost(images);
 		if(imps[0] != null) {
 			this.impAnt = imps[0].duplicate();
 		}
@@ -68,7 +68,7 @@ public abstract class VueScinDyn extends VueScin {
 		} else {
 			String[] phasesStr = DicomTools.getTag(imp, "0054,0030").trim().split(" ");
 			int[] phases = new int[phasesStr.length];
-			Integer[] durations = VueScinDyn.getDurations(imp);
+			Integer[] durations = DynamicScintigraphy.getDurations(imp);
 			for(int i = 0; i < phases.length; i++) {
 				phases[i] = Integer.parseInt(phasesStr[i]);
 			}

@@ -16,14 +16,14 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.RenalSettings;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 class TabZoomed extends FenResultatSidePanel {
 
 	private static final long serialVersionUID = -2647720655737610538L;
 
-	public TabZoomed(VueScin vue, int w, int h) {
+	public TabZoomed(Scintigraphy vue, int w, int h) {
 		super("Renal scintigraphy", vue, null, "bloodpool");
 
 		Modele_Renal modele = ((Modele_Renal) vue.getFenApplication().getControleur().getModele());

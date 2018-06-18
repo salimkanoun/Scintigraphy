@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.VueScinDyn;
+import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.ZProjector;
@@ -20,13 +20,13 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	private boolean over;
 	private ImagePlus impProjetee;
 
-	protected Controleur_GeneralDyn(Vue_GeneralDyn vue) {
+	protected Controleur_GeneralDyn(GeneralDynamicScintigraphy vue) {
 		super(vue);
 		this.setOrganes(new String[MAXROI]);
 		this.setModele(new Modele_GeneralDyn(vue.getFrameDurations()));
 		this.over = false;
 
-		this.getVue().getFenApplication().getField_instructions().addKeyListener(new KeyListener() {
+		this.getScin().getFenApplication().getField_instructions().addKeyListener(new KeyListener() {
 
 			@Override
 			public void keyTyped(KeyEvent arg0) {
@@ -55,13 +55,13 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		} else {
 			s = "roi" + this.indexRoi;
 		}
-		this.getVue().getFenApplication().getField_instructions().setText(s);
+		this.getScin().getFenApplication().getField_instructions().setText(s);
 	}
 
 	@Override
 	public void notifyClic(ActionEvent arg0) {
 		Button b = (Button) arg0.getSource();
-		FenApplication_GeneralDyn fen = (FenApplication_GeneralDyn) this.getVue().getFenApplication();
+		FenApplication_GeneralDyn fen = (FenApplication_GeneralDyn) this.getScin().getFenApplication();
 
 		if (b == fen.getBtn_finish()) {
 			this.clicSuivant();
@@ -80,10 +80,10 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	@Override
 	public void fin() {
 		//on sauvegarde l'imp projetee pour la reafficher par la suite
-		this.impProjetee = this.getVue().getImp().duplicate();
+		this.impProjetee = this.getScin().getImp().duplicate();
 		this.over = true;
 		this.nbOrganes = this.roiManager.getCount();
-		VueScinDyn vue = (VueScinDyn) this.getVue();
+		DynamicScintigraphy vue = (DynamicScintigraphy) this.getScin();
 		this.removeImpListener();
 
 		ImagePlus imp = vue.getImp();
@@ -98,7 +98,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 
 		FenGroup_GeneralDyn fenGroup = new FenGroup_GeneralDyn(roiNames);
 		fenGroup.setModal(true);
-		fenGroup.setLocationRelativeTo(this.getVue().getFenApplication());
+		fenGroup.setLocationRelativeTo(this.getScin().getFenApplication());
 		fenGroup.setVisible(true);
 		String[][] asso = fenGroup.getAssociation();
 
@@ -113,7 +113,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 			ImagePlus imp2 = ZProjector.run(vue.getImpPost(), "sum");
 			imp2.setOverlay(imp.getOverlay());
 			
-			imp2.setProperty("Info", this.getVue().getImp().getInfoProperty());
+			imp2.setProperty("Info", this.getScin().getImp().getInfoProperty());
 
 			vue.setImp(imp2);
 			vue.getFenApplication().setImage(imp2);
@@ -147,7 +147,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	}
 
 	private void finishDrawingResultWindow() {
-		VueScinDyn vue = (VueScinDyn) this.getVue();
+		DynamicScintigraphy vue = (DynamicScintigraphy) this.getScin();
 		this.indexRoi = this.nbOrganes;
 		this.over = false;
 		this.addImpListener();
@@ -159,10 +159,10 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	}
 
 	private ModeleScinDyn saveValues(ImagePlus imp) {
-		Vue_GeneralDyn vue = (Vue_GeneralDyn) this.getVue();
+		GeneralDynamicScintigraphy vue = (GeneralDynamicScintigraphy) this.getScin();
 		ModeleScinDyn modele = new Modele_GeneralDyn(vue.getFrameDurations());
 
-		this.getVue().setImp(imp);
+		this.getScin().setImp(imp);
 		this.indexRoi = 0;
 		// on copie les roi sur toutes les slices
 		for (int i = 1; i <= imp.getStackSize(); i++) {
@@ -182,7 +182,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	@Override
 	public String getNomOrgane(int index) {
 		if (!isOver()) {
-			return this.getVue().getFenApplication().getField_instructions().getText();
+			return this.getScin().getFenApplication().getField_instructions().getText();
 		}
 		return this.roiManager.getRoi(index % this.nbOrganes).getName();
 	}
@@ -202,8 +202,8 @@ public class Controleur_GeneralDyn extends ControleurScin {
 
 	@Override
 	public boolean isPost() {
-		ImagePlus impPost = ((Vue_GeneralDyn) this.getVue()).getImpPost();
-		return this.getVue().getImp().equals(impPost);
+		ImagePlus impPost = ((GeneralDynamicScintigraphy) this.getScin()).getImpPost();
+		return this.getScin().getImp().equals(impPost);
 	}
 
 }

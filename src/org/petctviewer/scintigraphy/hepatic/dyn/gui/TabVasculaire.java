@@ -9,15 +9,15 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.hepatic.dyn.Modele_HepaticDyn;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 public class TabVasculaire extends FenResultatSidePanel {
 
-	public TabVasculaire(VueScin vue, int width, int height) {
+	public TabVasculaire(Scintigraphy vue, int width, int height) {
 		super("Biliary Scintigraphy", vue, null, "");
 		
-		Modele_HepaticDyn modele = (Modele_HepaticDyn) this.getVue().getFenApplication().getControleur().getModele();
+		Modele_HepaticDyn modele = (Modele_HepaticDyn) this.getScin().getFenApplication().getControleur().getModele();
 		List<XYSeries> series = modele.getSeries();
 		
 		ChartPanel chartVasculaire = ModeleScinDyn.associateSeries(new String[] {"Blood pool"}, series);

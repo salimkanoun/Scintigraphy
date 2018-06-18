@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.gui.Overlay;
 import ij.gui.Roi;
@@ -14,7 +14,7 @@ public class Controleur_Basic extends ControleurScin{
 
 	private CustomControleur ctrl;
 
-	protected Controleur_Basic(VueScin vue, String[] organes) {
+	protected Controleur_Basic(Scintigraphy vue, String[] organes) {
 		super(vue);
 		this.setOrganes(organes);
 		this.setModele(new Modele_Basic());
@@ -29,7 +29,7 @@ public class Controleur_Basic extends ControleurScin{
 	@Override
 	public void fin() {
 		ctrl.fin();
-		this.getVue().getFenApplication().dispose();
+		this.getScin().getFenApplication().dispose();
 	}
 
 	@Override

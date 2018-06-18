@@ -19,8 +19,8 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.hepatic.dyn.Modele_HepaticDyn;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.VueScin;
-import org.petctviewer.scintigraphy.scin.VueScinDyn;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
@@ -30,14 +30,14 @@ class TabPrincipal extends FenResultatSidePanel{
 
 	private HashMap<String, String> resultats;
 
-	public TabPrincipal(VueScinDyn vue, BufferedImage capture, int width, int height) {
+	public TabPrincipal(DynamicScintigraphy vue, BufferedImage capture, int width, int height) {
 		super("Biliary scintiraphy", vue, null, "");
 
 		Modele_HepaticDyn modele = (Modele_HepaticDyn) vue.getFenApplication().getControleur().getModele();
 		this.resultats = modele.getResultsHashMap();
 		
 		//montage sur l'ensemble des images
-		ImagePlus imp = VueScin.creerMontage(vue.getFrameDurations(), vue.getImpAnt(), capture.getWidth() / 4, 4, 4);
+		ImagePlus imp = Scintigraphy.creerMontage(vue.getFrameDurations(), vue.getImpAnt(), capture.getWidth() / 4, 4, 4);
 		BufferedImage montage = imp.getBufferedImage();
 		
 		//panel qui sera plae au centre de la fenetre

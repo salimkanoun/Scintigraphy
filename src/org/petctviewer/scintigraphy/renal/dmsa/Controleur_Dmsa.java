@@ -5,7 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import ij.gui.Overlay;
 import ij.gui.Roi;
 
@@ -17,7 +17,7 @@ public class Controleur_Dmsa extends ControleurScin {
 	private boolean antPost;
 	private boolean over;
 	
-	protected Controleur_Dmsa(VueScin vue) {
+	protected Controleur_Dmsa(Scintigraphy vue) {
 		super(vue);
 		
 		this.antPost = vue.getImp().getNSlices() == 2;
@@ -43,21 +43,21 @@ public class Controleur_Dmsa extends ControleurScin {
 	public void fin() {
 		this.over = true;
 		
-		BufferedImage capture = ModeleScin.captureImage(getVue().getImp(), 400, 400).getBufferedImage();
+		BufferedImage capture = ModeleScin.captureImage(getScin().getImp(), 400, 400).getBufferedImage();
 		
 		if(this.antPost) {
 			this.setSlice(1);
 			for(Roi roi : this.roiManager.getRoisAsArray()) {
 				this.indexRoi++;
-				this.getVue().getImp().setRoi(roi);
+				this.getScin().getImp().setRoi(roi);
 				String nom = this.getNomOrgane(indexRoi);
-				this.getModele().enregistrerMesure(this.addTag(nom), this.getVue().getImp());
+				this.getModele().enregistrerMesure(this.addTag(nom), this.getScin().getImp());
 			}
 		}
 		
 		this.getModele().calculerResultats();
 		
-		new FenResultats_Dmsa(this.getVue(), capture);
+		new FenResultats_Dmsa(this.getScin(), capture);
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class Controleur_Dmsa extends ControleurScin {
 	}
 
 	private void hideAndColorLabel(String name, Color c) {
-		Overlay ov = this.getVue().getImp().getOverlay();
+		Overlay ov = this.getScin().getImp().getOverlay();
 		Roi roi = ov.get(ov.getIndex(name));
 		if (roi != null) {
 			roi.setName("");
@@ -89,7 +89,7 @@ public class Controleur_Dmsa extends ControleurScin {
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
 		if(this.indexRoi == 1 | this.indexRoi == 3) {
-			return VueScin.createBkgRoi(this.roiManager.getRoi(indexRoi - 1), this.getVue().getImp(), VueScin.KIDNEY);
+			return Scintigraphy.createBkgRoi(this.roiManager.getRoi(indexRoi - 1), this.getScin().getImp(), Scintigraphy.KIDNEY);
 		}
 		return null;
 	}
@@ -97,7 +97,7 @@ public class Controleur_Dmsa extends ControleurScin {
 	@Override
 	public boolean isPost() {
 		if(this.over) {
-			return this.getVue().getImp().getCurrentSlice() == 2;
+			return this.getScin().getImp().getCurrentSlice() == 2;
 		}
 		return true;
 	}

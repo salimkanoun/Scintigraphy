@@ -6,33 +6,38 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.UnknownKeyException;
 import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
-class TabROE extends FenResultatSidePanel {
+class TabROE extends FenResultatSidePanel implements ActionListener{
 
 	private static final long serialVersionUID = -8303889633428224794L;
 
-	private VueScin vue;
-
-	public TabROE(VueScin vue, int w, int h) {
+	public TabROE(Scintigraphy vue, int w, int h) {
 		super("Renal scintigraphy", vue, null, "roe");
-
-		this.vue = vue;
 
 		// on recupere le modele et les series
 		Modele_Renal modele = (Modele_Renal) vue.getFenApplication().getControleur().getModele();
@@ -82,7 +87,7 @@ class TabROE extends FenResultatSidePanel {
 	}
 
 	private Component getPanelROE() {
-		Modele_Renal modele = (Modele_Renal) vue.getFenApplication().getControleur().getModele();
+		Modele_Renal modele = (Modele_Renal) getScin().getFenApplication().getControleur().getModele();
 
 		JLabel lbl_L = new JLabel("L");
 		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
@@ -142,7 +147,24 @@ class TabROE extends FenResultatSidePanel {
 
 	@Override
 	public Component getSidePanelContent() {
-		return getPanelROE();
+		Box box = Box.createVerticalBox();
+		box.add(getPanelROE());
+		box.add(Box.createVerticalStrut(30));
+		JButton btn_bpi = new JButton("Check fit");
+		btn_bpi.addActionListener(this);
+		JPanel pnl_bpi = new JPanel();
+		pnl_bpi.add(btn_bpi);
+		box.add(pnl_bpi);
+		return box;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Modele_Renal modele = (Modele_Renal) this.getScin().getFenApplication().getControleur().getModele();
+		JFrame frameBPI = new JFrame();
+		frameBPI.add(ModeleScinDyn.associateSeries(new String[] {"BPI", "Blood pool fitted"}, modele.getSeries()));
+		frameBPI.pack();
+		frameBPI.setVisible(true);
 	}
 
 }

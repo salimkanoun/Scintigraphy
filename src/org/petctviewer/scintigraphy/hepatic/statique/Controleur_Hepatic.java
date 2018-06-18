@@ -3,14 +3,14 @@ package org.petctviewer.scintigraphy.hepatic.statique;
 import java.awt.image.BufferedImage;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import ij.gui.Roi;
 
 public class Controleur_Hepatic extends ControleurScin {
 
 	public static String[] organes = { "Liver", "Intestine" };
 
-	protected Controleur_Hepatic(VueScin vue) {
+	protected Controleur_Hepatic(Scintigraphy vue) {
 		super(vue);
 		this.setOrganes(organes);
 		this.setModele(new Modele_Hepatic(vue.getImp()));
@@ -25,7 +25,7 @@ public class Controleur_Hepatic extends ControleurScin {
 	@Override
 	public void fin() {
 		this.setSlice(2);
-		VueScin vue = this.getVue();
+		Scintigraphy vue = this.getScin();
 		// Copie des rois sur la deuxieme slice
 		for (int i = 0; i < 2; i++) {
 			this.indexRoi++;
@@ -45,9 +45,9 @@ public class Controleur_Hepatic extends ControleurScin {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				BufferedImage capture = ModeleScin.captureImage(getVue().getImp(), 400, 400).getBufferedImage();
-				new FenResultat_Hepatic(getVue(), capture);
-				getVue().getFenApplication().dispose();
+				BufferedImage capture = ModeleScin.captureImage(getScin().getImp(), 400, 400).getBufferedImage();
+				new FenResultat_Hepatic(getScin(), capture);
+				getScin().getFenApplication().dispose();
 			}
 		});
 		captureThread.start();

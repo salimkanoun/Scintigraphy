@@ -5,8 +5,8 @@ import java.awt.Color;
 import org.jfree.chart.ChartPanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.VueScin;
-import org.petctviewer.scintigraphy.scin.VueScinDyn;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationDyn;
 
@@ -17,11 +17,11 @@ import ij.gui.Overlay;
 import ij.gui.Toolbar;
 import ij.plugin.ZProjector;
 
-public class Vue_Renal extends VueScinDyn {
+public class RenalScintigraphy extends DynamicScintigraphy {
 
 	JValueSetter nephrogramChart, patlakChart;
 
-	public Vue_Renal() {
+	public RenalScintigraphy() {
 		super("Renal scintigraphy");
 	}
 
@@ -62,13 +62,13 @@ public class Vue_Renal extends VueScinDyn {
 
 	@Override
 	public void lancerProgramme() {
-		Overlay overlay = VueScin.initOverlay(impProjetee, 12);
-		VueScin.setOverlayGD(overlay, impProjetee, Color.yellow);
-		VueScin.setOverlayTitle("Post",overlay, impProjetee, Color.yellow, 1);
-		VueScin.setOverlayTitle("2 first min posterior", overlay, impProjetee, Color.YELLOW, 2);
-		VueScin.setOverlayTitle("MIP", overlay, impProjetee, Color.YELLOW, 3);
+		Overlay overlay = Scintigraphy.initOverlay(impProjetee, 12);
+		Scintigraphy.setOverlayGD(overlay, impProjetee, Color.yellow);
+		Scintigraphy.setOverlayTitle("Post",overlay, impProjetee, Color.yellow, 1);
+		Scintigraphy.setOverlayTitle("2 first min posterior", overlay, impProjetee, Color.YELLOW, 2);
+		Scintigraphy.setOverlayTitle("MIP", overlay, impProjetee, Color.YELLOW, 3);
 		if (this.impAnt != null) {
-			VueScin.setOverlayTitle("Ant", overlay, impProjetee, Color.yellow, 4);
+			Scintigraphy.setOverlayTitle("Ant", overlay, impProjetee, Color.yellow, 4);
 		}
 
 		this.setFenApplication(new FenApplicationDyn(this.getImp(), this.getExamType(), this));

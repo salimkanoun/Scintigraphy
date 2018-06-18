@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.IJ;
@@ -32,7 +32,7 @@ import ij.plugin.Concatenator;
 import ij.plugin.HyperStackConverter;
 import ij.plugin.StackReverser;
 
-public class Vue_Plaquettes extends VueScin {
+public class Vue_Plaquettes extends Scintigraphy {
 	
 	// Si acquisition antPost
 	protected Boolean antPost = false;
@@ -55,7 +55,7 @@ public class Vue_Plaquettes extends VueScin {
 			ImagePlus imp = images[i];
 			if (imp.getStackSize() == 2) {
 				this.antPost = true;
-				Boolean ant = VueScin.isAnterieur(imp);
+				Boolean ant = Scintigraphy.isAnterieur(imp);
 				// Si l'image 1 est anterieur on inverse le stack pour avoir d'abord l'image
 				// post
 				if (ant != null && ant) {
@@ -68,13 +68,13 @@ public class Vue_Plaquettes extends VueScin {
 				// SK Pas propre necessite de mieux orienter les Image pour Ant/Post
 				imp.getProcessor().flipHorizontal();
 			}
-			series.add(VueScin.sortImageAntPost(imp));
+			series.add(Scintigraphy.sortImageAntPost(imp));
 			imp.close();
 		}
 		this.nombreAcquisitions = series.size();
 		// IJ.log(String.valueOf(antPost));
 
-		ImagePlus[] seriesTriee = VueScin.orderImagesByAcquisitionTime(series);
+		ImagePlus[] seriesTriee = Scintigraphy.orderImagesByAcquisitionTime(series);
 
 		// On recupere la date et le jour de la 1ere image
 		this.dateHeureDebut=ModeleScin.getDateAcquisition(seriesTriee[0]);
@@ -97,8 +97,8 @@ public class Vue_Plaquettes extends VueScin {
 		// fenetre pour la pile d'images;
 		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));
 		
-		Overlay overlay = VueScin.initOverlay(this.getImp());
-		VueScin.setOverlayDG(overlay, getImp(), Color.YELLOW);
+		Overlay overlay = Scintigraphy.initOverlay(this.getImp());
+		Scintigraphy.setOverlayDG(overlay, getImp(), Color.YELLOW);
 		this.getImp().setOverlay(overlay);
 		
 		Controleur_Plaquettes ctrl = new Controleur_Plaquettes(this);

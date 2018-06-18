@@ -18,7 +18,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableModel;
 
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 import java.awt.image.BufferedImage;
@@ -29,7 +29,7 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 
 	private HashMap<String, String> resultats;
 
-	public FenResultat_Cardiac(VueScin vueScin, BufferedImage capture) {
+	public FenResultat_Cardiac(Scintigraphy vueScin, BufferedImage capture) {
 		super("DPD Quant", vueScin, capture, "");
 		this.resultats = ((Modele_Cardiac) vueScin.getFenApplication().getControleur().getModele()).getResultsHashMap();
 		this.finishBuildingWindow(true);

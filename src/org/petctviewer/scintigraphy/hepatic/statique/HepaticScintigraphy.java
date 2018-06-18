@@ -1,6 +1,6 @@
 package org.petctviewer.scintigraphy.hepatic.statique;
 
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.IJ;
@@ -8,9 +8,9 @@ import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.Toolbar;
 
-public class Vue_Hepatic extends VueScin {
+public class HepaticScintigraphy extends Scintigraphy {
 
-	public Vue_Hepatic() {
+	public HepaticScintigraphy() {
 		super("Hepatic retention");
 	}
 
@@ -22,7 +22,7 @@ public class Vue_Hepatic extends VueScin {
 
 		ImagePlus imp = images[0];
 		String info = imp.getInfoProperty();
-		ImagePlus impSorted = VueScin.sortImageAntPost(imp);
+		ImagePlus impSorted = Scintigraphy.sortImageAntPost(imp);
 		impSorted.setProperty("Info", info);
 
 		return impSorted.duplicate();

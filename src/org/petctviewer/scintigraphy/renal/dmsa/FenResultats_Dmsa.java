@@ -10,14 +10,14 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 public class FenResultats_Dmsa extends FenResultatSidePanel{
 	
 	private static final long serialVersionUID = 8836086131939302449L;
 
-	public FenResultats_Dmsa(VueScin vue, BufferedImage capture) {
+	public FenResultats_Dmsa(Scintigraphy vue, BufferedImage capture) {
 		super("DMSA", vue, capture, "");
 		this.finishBuildingWindow(true);
 		this.setVisible(true);
@@ -25,7 +25,7 @@ public class FenResultats_Dmsa extends FenResultatSidePanel{
 
 	@Override
 	public Component getSidePanelContent() {
-		Modele_Dmsa modele = (Modele_Dmsa) this.getVue().getFenApplication().getControleur().getModele();
+		Modele_Dmsa modele = (Modele_Dmsa) this.getScin().getFenApplication().getControleur().getModele();
 		Double pctL = modele.getPct()[0] * 100;
 		Double pctR = modele.getPct()[1] * 100;
 		JPanel flow = new JPanel();

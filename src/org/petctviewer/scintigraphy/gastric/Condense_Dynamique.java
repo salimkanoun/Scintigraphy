@@ -18,7 +18,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 
 import ij.*;
@@ -59,7 +59,7 @@ public class Condense_Dynamique implements PlugIn {
 			// car sinon confusion du programme (les images originales on le meme nom)
 			for (int i = 0; i < imagesOuvertes.length; i++) {
 				ImagePlus brutepost = WindowManager.getImage(imagesOuvertes[i]);
-				Boolean ant = VueScin.isAnterieur(brutepost);
+				Boolean ant = Scintigraphy.isAnterieur(brutepost);
 				if (ant != null && !ant) {
 					brutepost.close();
 					continue;
@@ -83,13 +83,13 @@ public class Condense_Dynamique implements PlugIn {
 			}
 
 			// On trie le tableau par heure d'acquisition
-			ImagePlus[] imagesOuvertesOrdonees = VueScin.orderImagesByAcquisitionTime(imagesOuvertesPlus);
+			ImagePlus[] imagesOuvertesOrdonees = Scintigraphy.orderImagesByAcquisitionTime(imagesOuvertesPlus);
 			p.setLocation(imagesOuvertesOrdonees[0].getWidth() / 2, 0);
 
 			for (int i = 0; i < imagesOuvertesOrdonees.length; i++) {
 
 				ImagePlus brute = imagesOuvertesOrdonees[i];
-				Boolean ant = VueScin.isAnterieur(brute);
+				Boolean ant = Scintigraphy.isAnterieur(brute);
 
 				if (ant != null && ant) {
 					brute.setTitle("Anterior" + i);
@@ -155,7 +155,7 @@ public class Condense_Dynamique implements PlugIn {
 			// On affiche le r�sultat
 			imp2.show();
 			// On applique la LUT par defaut
-			VueScin.setCustomLut(imp2);
+			Scintigraphy.setCustomLut(imp2);
 			// On resize l'image
 			Dimension d = new Dimension();
 			d.setSize(imp2.getWidth() * 1.75, imp2.getHeight() * 1.75);

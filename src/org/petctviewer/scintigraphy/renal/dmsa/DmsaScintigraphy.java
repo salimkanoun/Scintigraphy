@@ -2,7 +2,7 @@ package org.petctviewer.scintigraphy.renal.dmsa;
 
 import java.awt.Color;
 
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.IJ;
@@ -11,9 +11,9 @@ import ij.WindowManager;
 import ij.gui.Overlay;
 import ij.gui.Toolbar;
 
-public class Vue_Dmsa extends VueScin {
+public class DmsaScintigraphy extends Scintigraphy {
 
-	public Vue_Dmsa() {
+	public DmsaScintigraphy() {
 		super("dmsa");
 	}
 
@@ -32,8 +32,8 @@ public class Vue_Dmsa extends VueScin {
 
 	@Override
 	public void lancerProgramme() {
-		Overlay overlay = VueScin.initOverlay(this.getImp());
-		VueScin.setOverlayDG(overlay, this.getImp(), Color.yellow);
+		Overlay overlay = Scintigraphy.initOverlay(this.getImp());
+		Scintigraphy.setOverlayDG(overlay, this.getImp(), Color.yellow);
 		
 		FenApplication fen = new FenApplication(this.getImp(), this.getExamType());
 		this.setFenApplication(fen);

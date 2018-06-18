@@ -17,9 +17,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import org.petctviewer.scintigraphy.hepatic.dyn.Vue_HepaticDyn;
+import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 
 import ij.ImagePlus;
@@ -31,7 +31,7 @@ public class FenResultat_HepaticDyn {
 	private Container principal, vasculaire, third;
 	private final int width = 1000, height = 800;
 
-	public FenResultat_HepaticDyn(Vue_HepaticDyn vue, BufferedImage capture) {
+	public FenResultat_HepaticDyn(HepaticDynamicScintigraphy vue, BufferedImage capture) {
 		this.principal = new TabPrincipal(vue, capture, width, height).getContentPane();
 		this.third = new TabTAC(vue, width, height).getContentPane();
 		this.vasculaire = new TabVasculaire(vue, width, height).getContentPane();

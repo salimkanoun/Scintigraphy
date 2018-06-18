@@ -16,8 +16,8 @@ import javax.swing.JRadioButton;
 
 import org.petctviewer.scintigraphy.renal.Controleur_Renal;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.VueScin;
-import org.petctviewer.scintigraphy.scin.VueScinDyn;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -28,13 +28,13 @@ import ij.plugin.Animator;
 
 public class FenApplicationDyn extends FenApplication implements ActionListener {
 
-	private VueScinDyn vue;
+	private DynamicScintigraphy vue;
 	private boolean dyn;
 	private ImagePlus impProj;
 	private Button btn_dyn, btn_start;
 	private Panel instru;
 
-	public FenApplicationDyn(ImagePlus imp, String nom, VueScinDyn vue) {
+	public FenApplicationDyn(ImagePlus imp, String nom, DynamicScintigraphy vue) {
 		super(imp, nom);
 		this.vue = vue;
 		this.impProj = imp.duplicate();
@@ -66,7 +66,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 	public void actionPerformed(ActionEvent e) {
 		// clic sur le bouton dynamique
 		if (e.getSource() == btn_dyn) {
-			Overlay ov = VueScin.duplicateOverlay(this.getImagePlus().getOverlay());
+			Overlay ov = Scintigraphy.duplicateOverlay(this.getImagePlus().getOverlay());
 			ImagePlus imp;
 
 			if (!this.dyn) {
@@ -89,7 +89,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 			}
 
 			imp.setOverlay(ov);
-			VueScin.setCustomLut(imp);
+			Scintigraphy.setCustomLut(imp);
 
 			this.revalidate();
 			this.setImage(imp);

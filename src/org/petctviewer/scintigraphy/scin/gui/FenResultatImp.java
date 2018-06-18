@@ -16,7 +16,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.ImagePlus;
 import ij.plugin.ContrastEnhancer;
@@ -26,12 +26,12 @@ public abstract class FenResultatImp extends FenResultatSidePanel implements Cha
 	private ImagePlus imp;
 	private DynamicImage dynamicImp;
 
-	private VueScin vue;
+	private Scintigraphy vue;
 	private JLabel sliderLabel;
 	private JSlider slider;
 	private Box boxSlider;
 
-	public FenResultatImp(String nomFen, VueScin vue, BufferedImage capture, String additionalInfo) {
+	public FenResultatImp(String nomFen, Scintigraphy vue, BufferedImage capture, String additionalInfo) {
 		super(nomFen, vue, capture, additionalInfo);
 		this.vue = vue;
 

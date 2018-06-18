@@ -9,14 +9,14 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.PrefsWindow;
-import org.petctviewer.scintigraphy.cardiac.Vue_Cardiac;
-import org.petctviewer.scintigraphy.dynamic.Vue_GeneralDyn;
-import org.petctviewer.scintigraphy.hepatic.dyn.Vue_HepaticDyn;
-import org.petctviewer.scintigraphy.hepatic.statique.Vue_Hepatic;
+import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphie;
+import org.petctviewer.scintigraphy.dynamic.GeneralDynamicScintigraphy;
+import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
+import org.petctviewer.scintigraphy.hepatic.statique.HepaticScintigraphy;
 import org.petctviewer.scintigraphy.platelet.Vue_Plaquettes;
-import org.petctviewer.scintigraphy.renal.Vue_Renal;
-import org.petctviewer.scintigraphy.renal.dmsa.Vue_Dmsa;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
+import org.petctviewer.scintigraphy.renal.dmsa.DmsaScintigraphy;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 public class FenDebug extends JFrame{
 
@@ -45,7 +45,7 @@ public class FenDebug extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				VueScin vue = new Vue_Cardiac();
+				Scintigraphy vue = new CardiacScintigraphie();
 				vue.run("");
 			}
 		});
@@ -55,7 +55,7 @@ public class FenDebug extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				VueScin vue = new Vue_Plaquettes();
+				Scintigraphy vue = new Vue_Plaquettes();
 				vue.run("");
 			}
 		});
@@ -65,7 +65,7 @@ public class FenDebug extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				VueScin vue = new Vue_Hepatic();
+				Scintigraphy vue = new HepaticScintigraphy();
 				vue.run("");
 			}
 		});
@@ -75,7 +75,7 @@ public class FenDebug extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				VueScin vue = new Vue_HepaticDyn();
+				Scintigraphy vue = new HepaticDynamicScintigraphy();
 				vue.run("");
 			}
 		});
@@ -85,7 +85,7 @@ public class FenDebug extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				VueScin vue = new Vue_GeneralDyn();
+				Scintigraphy vue = new GeneralDynamicScintigraphy();
 				vue.run("");
 			}
 		});
@@ -95,7 +95,7 @@ public class FenDebug extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				VueScin vue = new Vue_Renal();
+				Scintigraphy vue = new RenalScintigraphy();
 				vue.run("");
 			}
 		});
@@ -105,7 +105,7 @@ public class FenDebug extends JFrame{
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				VueScin vue = new Vue_Dmsa();
+				Scintigraphy vue = new DmsaScintigraphy();
 				vue.run("");
 			}
 		});

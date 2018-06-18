@@ -1,14 +1,14 @@
 package org.petctviewer.scintigraphy.dynamic;
 
-import org.petctviewer.scintigraphy.scin.VueScinDyn;
+import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Toolbar;
 
-public class Vue_GeneralDyn extends VueScinDyn{
+public class GeneralDynamicScintigraphy extends DynamicScintigraphy{
 
-	public Vue_GeneralDyn() {
+	public GeneralDynamicScintigraphy() {
 		super("Dynamic scintigraphy");
 	}
 

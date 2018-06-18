@@ -14,14 +14,14 @@ import org.petctviewer.scintigraphy.RenalSettings;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 import ij.Prefs;
 
 class TabOther extends FenResultatSidePanel{
 
-	public TabOther(VueScin vue, int w, int h) {
+	public TabOther(Scintigraphy vue, int w, int h) {
 		super("Renal scintigraphy", vue, null, "other");
 		
 		String[][] asso = new String[][] {{"Blood Pool"} , {"Bladder"}};

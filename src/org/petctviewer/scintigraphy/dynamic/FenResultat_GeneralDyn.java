@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
@@ -19,7 +19,7 @@ public class FenResultat_GeneralDyn extends FenResultatSidePanel {
 
 	private static final long serialVersionUID = -6949646596222162929L;
 
-	public FenResultat_GeneralDyn(VueScin vueScin, BufferedImage capture, ModeleScinDyn modele, String[][] asso,
+	public FenResultat_GeneralDyn(Scintigraphy vueScin, BufferedImage capture, ModeleScinDyn modele, String[][] asso,
 			String antOrPost) {
 		super("Dynamic Quant\n" + antOrPost, vueScin, capture, "_" + antOrPost);
 

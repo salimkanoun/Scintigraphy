@@ -13,13 +13,13 @@ import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.VueScin;
-import org.petctviewer.scintigraphy.scin.VueScinDyn;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 class TabUreter extends FenResultatSidePanel {
 
-	public TabUreter(VueScin vue, int w, int h) {
+	public TabUreter(Scintigraphy vue, int w, int h) {
 		super("Renal scintigraphy", vue, null, "ureter");
 		String[][] asso = new String[][] {{"L. Ureter" , "R. Ureter"}};
 		List<XYSeries> series = ((Modele_Renal) vue.getFenApplication().getControleur().getModele()).getSeries();

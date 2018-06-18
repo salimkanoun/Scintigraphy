@@ -15,14 +15,14 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
-import org.petctviewer.scintigraphy.renal.Vue_Renal;
+import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 class TabPatlak extends FenResultatSidePanel {
 
 	private JValueSetter patlak;
 
-	public TabPatlak(Vue_Renal vue, int w, int h) {
+	public TabPatlak(RenalScintigraphy vue, int w, int h) {
 		super("Renal scintigraphy", vue, null, "patlak");
 
 		this.pack();
@@ -33,7 +33,7 @@ class TabPatlak extends FenResultatSidePanel {
 
 	@Override
 	public Component getSidePanelContent() {
-		Modele_Renal modele = (Modele_Renal) this.getVue().getFenApplication().getControleur().getModele();
+		Modele_Renal modele = (Modele_Renal) this.getScin().getFenApplication().getControleur().getModele();
 
 		JPanel pnl_sep = new JPanel(new GridLayout(2, 3));
 		pnl_sep.add(new JLabel("Relative function"));

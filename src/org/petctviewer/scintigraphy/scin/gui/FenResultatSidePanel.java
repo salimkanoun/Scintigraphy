@@ -21,7 +21,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.ImagePlus;
 import ij.plugin.Concatenator;
@@ -34,10 +34,8 @@ public abstract class FenResultatSidePanel extends JFrame {
 	private static final long serialVersionUID = -5212479342782678916L;
 
 	protected Box side;
-	private VueScin vue;
-
+	private Scintigraphy scin;
 	private String additionalInfo;
-
 	private ModeleScin modele;
 
 	/**
@@ -54,9 +52,9 @@ public abstract class FenResultatSidePanel extends JFrame {
 	 *            : informations supplementaires a ajouter au nom de fichier lors de
 	 *            la sauvegarde
 	 */
-	public FenResultatSidePanel(String nomFen, VueScin vue, BufferedImage capture, String additionalInfo) {
-		this.vue = vue;
-		this.modele = vue.getFenApplication().getControleur().getModele();
+	public FenResultatSidePanel(String nomFen, Scintigraphy scin, BufferedImage capture, String additionalInfo) {
+		this.scin = scin;
+		this.modele = scin.getFenApplication().getControleur().getModele();
 		this.additionalInfo = additionalInfo;
 
 		this.setLayout(new BorderLayout());
@@ -82,7 +80,7 @@ public abstract class FenResultatSidePanel extends JFrame {
 		this.side.add(flow);
 
 		// ajout des informations du patient
-		HashMap<String, String> infoPatient = ModeleScin.getPatientInfo(vue.getImp());
+		HashMap<String, String> infoPatient = ModeleScin.getPatientInfo(scin.getImp());
 		JPanel patientInfo = new JPanel(new GridLayout(3, 2, 10, 10));
 		patientInfo.add(new JLabel("Patient name: "));
 		patientInfo.add(new JLabel(infoPatient.get("name")));
@@ -175,11 +173,11 @@ public abstract class FenResultatSidePanel extends JFrame {
 
 	public void setCaptureButton(JButton btn_capture, JLabel lbl_credits) {
 		// on ajoute le listener pour la capture
-		this.vue.setCaptureButton(btn_capture, lbl_credits, this, this.modele, this.additionalInfo);
+		this.scin.setCaptureButton(btn_capture, lbl_credits, this, this.modele, this.additionalInfo);
 	}
 
-	public VueScin getVue() {
-		return this.vue;
+	public Scintigraphy getScin() {
+		return this.scin;
 	}
 
 }

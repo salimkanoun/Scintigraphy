@@ -12,14 +12,14 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.VueScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 class TabCort extends FenResultatSidePanel {
 
 	private static final long serialVersionUID = -2324369375150642778L;
 
-	public TabCort(VueScin vue, int w, int h) {
+	public TabCort(Scintigraphy vue, int w, int h) {
 		super("Renal scintigraphy", vue, null, "cort");
 		
 		ModeleScinDyn modele = (ModeleScinDyn) vue.getFenApplication().getControleur().getModele();

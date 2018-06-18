@@ -17,8 +17,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.VueScin;
-import org.petctviewer.scintigraphy.scin.VueScinDyn;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatImp;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
@@ -30,12 +30,12 @@ class TabTimedImage extends FenResultatImp{
 
 	private static final long serialVersionUID = 8125367912250906052L;
 
-	public TabTimedImage(VueScinDyn vue, int rows, int columns, int w, int h) {
+	public TabTimedImage(DynamicScintigraphy vue, int rows, int columns, int w, int h) {
 		super("Renal scintigraphy", vue, null, "timed");
 		
 		this.finishBuildingWindow(false);
 	
-		ImagePlus montage = VueScin.creerMontage(vue.getFrameDurations(), vue.getImp(), h/(columns+1), rows, columns);
+		ImagePlus montage = Scintigraphy.creerMontage(vue.getFrameDurations(), vue.getImp(), h/(columns+1), rows, columns);
 		montage.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
 		
 		this.setImp(montage);

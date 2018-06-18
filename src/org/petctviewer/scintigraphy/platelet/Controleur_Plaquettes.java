@@ -65,7 +65,7 @@ public class Controleur_Plaquettes extends ControleurScin {
 		captureThread.start();
 		
 		
-		ImagePlus capture = ModeleScin.captureImage(this.getVue().getImp(), 512, 512);
+		ImagePlus capture = ModeleScin.captureImage(this.getScin().getImp(), 512, 512);
 		// On resize le canvas pour etre a la meme taille que les courbes
 		ImageProcessor ip = capture.getProcessor();
 		CanvasResizer canvas = new CanvasResizer();
@@ -98,7 +98,7 @@ public class Controleur_Plaquettes extends ControleurScin {
 
 	@Override
 	public boolean isOver() {
-		return this.roiManager.getCount() >= this.getVue().getImp().getStackSize() * 3;
+		return this.roiManager.getCount() >= this.getScin().getImp().getStackSize() * 3;
 	}
 
 	@Override
@@ -118,7 +118,7 @@ public class Controleur_Plaquettes extends ControleurScin {
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
 		if (this.roiManager.getRoi(getIndexRoi()) == null)
-			if (this.getVue().getImp().getCurrentSlice() > 1) {
+			if (this.getScin().getImp().getCurrentSlice() > 1) {
 				return this.roiManager.getRoi(this.getIndexRoi() - 3);
 			}
 		return null;

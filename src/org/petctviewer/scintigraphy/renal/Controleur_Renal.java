@@ -14,8 +14,8 @@ import org.petctviewer.scintigraphy.renal.gui.FenResultats_Renal;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.VueScin;
-import org.petctviewer.scintigraphy.scin.VueScinDyn;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -35,7 +35,7 @@ public class Controleur_Renal extends ControleurScin {
 	 * 
 	 * @param vue la vue
 	 */
-	protected Controleur_Renal(VueScinDyn vue) {
+	protected Controleur_Renal(DynamicScintigraphy vue) {
 		super(vue);
 
 		this.setOrganes(ORGANES);
@@ -61,7 +61,7 @@ public class Controleur_Renal extends ControleurScin {
 	}
 
 	private void hideLabel(String name, Color c) {
-		Overlay ov = this.getVue().getImp().getOverlay();
+		Overlay ov = this.getScin().getImp().getOverlay();
 		Roi roi = ov.get(ov.getIndex(name));
 		if (roi != null) {
 			roi.setName("");
@@ -75,7 +75,7 @@ public class Controleur_Renal extends ControleurScin {
 		this.removeImpListener();
 
 		// on recupere la vue, le modele et l'imp
-		Vue_Renal vue = (Vue_Renal) this.getVue();
+		RenalScintigraphy vue = (RenalScintigraphy) this.getScin();
 		Modele_Renal modele = (Modele_Renal) vue.getFenApplication().getControleur().getModele();
 
 		// on passe l'image post dans la vue
@@ -85,10 +85,10 @@ public class Controleur_Renal extends ControleurScin {
 		modele.setLocked(false);
 
 		// capture de l'imageplus ainsi que de l'overlay
-		BufferedImage capture = ModeleScin.captureImage(this.getVue().getImp(), 300, 300).getBufferedImage();
+		BufferedImage capture = ModeleScin.captureImage(this.getScin().getImp(), 300, 300).getBufferedImage();
 
 		// on ajoute l'imp a la vue
-		this.getVue().setImp(imp);
+		this.getScin().setImp(imp);
 
 		// on enregistre la mesure pour chaque slice
 		this.indexRoi = 0;
@@ -110,12 +110,12 @@ public class Controleur_Renal extends ControleurScin {
 		String[][] asso = new String[][] { { "Final KL", "Final KR" } };
 		ChartPanel[] cp = ModeleScinDyn.associateSeries(asso, series);
 		
-		FenNeph fan = new FenNeph(cp[0], this.getVue().getFenApplication(), modele);
+		FenNeph fan = new FenNeph(cp[0], this.getScin().getFenApplication(), modele);
 		fan.setModal(true);
 		fan.setVisible(true);
 
-		((Vue_Renal) this.getVue()).setNephrogramChart(fan.getValueSetter());
-		((Vue_Renal) this.getVue()).setPatlakChart(fan.getPatlakChart());
+		((RenalScintigraphy) this.getScin()).setNephrogramChart(fan.getValueSetter());
+		((RenalScintigraphy) this.getScin()).setPatlakChart(fan.getPatlakChart());
 
 		// on passe les valeurs ajustees au modele
 		modele.setAdjustedValues(fan.getValueSetter().getValues());
@@ -196,10 +196,10 @@ public class Controleur_Renal extends ControleurScin {
 			boolean pelvis = Prefs.get("renal.pelvis.preferred", true);
 			if (!pelvis && org.contains("Kidney")) {
 				Roi roi = roiManager.getRoi(indexRoi - 1);
-				return VueScin.createBkgRoi(roi, getVue().getImp(), VueScin.KIDNEY);
+				return Scintigraphy.createBkgRoi(roi, getScin().getImp(), Scintigraphy.KIDNEY);
 			}else if(pelvis && org.contains("Pelvis")) {
 				Roi roi = roiManager.getRoi(indexRoi - 2);
-				return VueScin.createBkgRoi(roi, getVue().getImp(), VueScin.KIDNEY);
+				return Scintigraphy.createBkgRoi(roi, getScin().getImp(), Scintigraphy.KIDNEY);
 			}
 		}
 

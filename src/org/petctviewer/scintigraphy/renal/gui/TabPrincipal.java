@@ -22,11 +22,11 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
-import org.petctviewer.scintigraphy.renal.Vue_Renal;
+import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.VueScin;
-import org.petctviewer.scintigraphy.scin.VueScinDyn;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
@@ -50,7 +50,7 @@ class TabPrincipal extends FenResultatSidePanel {
 	 * @param chartPanel
 	 *            chartpanel avec l'overlay d'ajustation
 	 */
-	public TabPrincipal(Vue_Renal vue, BufferedImage capture, int w, int h) {
+	public TabPrincipal(RenalScintigraphy vue, BufferedImage capture, int w, int h) {
 		super("Renal scintigraphy", vue, capture, "");
 
 		JValueSetter chartNephrogram = vue.getNephrogramChart();
@@ -193,7 +193,7 @@ class TabPrincipal extends FenResultatSidePanel {
 		JPanel pnl_Excr = new JPanel(new GridLayout(4, 3, 0, 3));
 		pnl_Excr.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-		pnl_Excr.add(new JLabel(" Excr "));
+		pnl_Excr.add(new JLabel(" Excretion ratio"));
 		pnl_Excr.add(lbl_L);
 		pnl_Excr.add(lbl_R);
 		for (int i = 0; i < 3; i++) {
