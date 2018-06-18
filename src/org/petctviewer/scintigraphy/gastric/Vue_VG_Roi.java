@@ -129,7 +129,9 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 		instructions = new Label("");
 		instructions.setBackground(Color.LIGHT_GRAY);
 		initBoutons();
-		ouvertureImage();
+		FenSelectionDicom selection=new fenetreSelection(this);
+		selection.setVisible(true);
+
 
 	}
 
@@ -296,18 +298,13 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 	} // Fin CustomStackWindow
 
 
-	private void ouvertureImage() {
-		
-		FenSelectionDicom selection=new FenSelectionDicom("Gastric Emptying");
-		selection.setModal(true);
-		selection.setVisible(true);
-		String[] imageTitles=selection.getSelectedWindowsTitles();
+	protected void ouvertureImage(ImagePlus[] imageTitles) {
 
 		// Si serie selectionnees on les traites
 		if (imageTitles !=null) {
 			ArrayList<ImagePlus> imagesOpened = new ArrayList<ImagePlus>();
 			for (int i = 0; i < imageTitles.length; i++) {
-				ImagePlus currentimp = WindowManager.getImage(imageTitles[i]);
+				ImagePlus currentimp = imageTitles[i];
 				// On verifie qu'il y a 2 images par stack
 				if (currentimp.getStackSize() != 2) {
 					IJ.log("Error Not Image Ant/Post, Discarding, Check your original Images");

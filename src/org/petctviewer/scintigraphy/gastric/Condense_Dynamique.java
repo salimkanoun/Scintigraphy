@@ -1,3 +1,4 @@
+
 /**
 Copyright (C) 2017 PING Xie and KANOUN Salim
 This program is free software; you can redistribute it and/or modify
@@ -12,6 +13,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+
+//SK CONDENSE A REVOIR
 package org.petctviewer.scintigraphy.gastric;
 
 import java.awt.*;
@@ -37,17 +40,13 @@ public class Condense_Dynamique implements PlugIn {
 
 	@Override
 	public void run(String arg) {
-		ouvertureImage();
+		FenSelectionDicom selection=new fenetreSelection(this);
+		selection.setVisible(true);
 	}
 
-	private void ouvertureImage() {
+	protected void ouvertureImage(ImagePlus[] imagesOuvertes) {
 
 		IJ.setTool("Rectangle");
-		
-		FenSelectionDicom selection=new FenSelectionDicom("Gastric Condense");
-		selection.setModal(true);
-		selection.setVisible(true);
-		String[] imagesOuvertes=selection.getSelectedWindowsTitles();
 
 		WaitForUserDialog wait;
 		//wait.show();
@@ -58,7 +57,7 @@ public class Condense_Dynamique implements PlugIn {
 			// On ferme les images posterieures et on assigne a chaque image un nom unique
 			// car sinon confusion du programme (les images originales on le meme nom)
 			for (int i = 0; i < imagesOuvertes.length; i++) {
-				ImagePlus brutepost = WindowManager.getImage(imagesOuvertes[i]);
+				ImagePlus brutepost = imagesOuvertes[i];
 				Boolean ant = Scintigraphy.isAnterieur(brutepost);
 				if (ant != null && !ant) {
 					brutepost.close();
@@ -69,7 +68,7 @@ public class Condense_Dynamique implements PlugIn {
 					;
 				}
 			}
-			imagesOuvertes = null;
+			
 			// On liste les images restantes
 			imagesOuvertes = WindowManager.getImageTitles();
 
@@ -105,7 +104,7 @@ public class Condense_Dynamique implements PlugIn {
 					r.setSize(9, brute.getHeight());
 					r.setLocation(p);
 					projete.setRoi(r);
-					// On deplace la fenetre au centre de l'Ã©cran et on l'agrandi
+					// On deplace la fenetre au centre de l'écran et on l'agrandi
 					projete.show();
 					projete.getWindow().setSize(512, 512);
 					// On calcule la dimension du condense
@@ -116,7 +115,7 @@ public class Condense_Dynamique implements PlugIn {
 					contrast.setProcessStack(true);
 					contrast.stretchHistogram(projete, 0.35);
 					projete.getWindow().toFront();
-					// On demande ï¿½ l'utilisateur de regler la ROI
+					// On demande a l'utilisateur de regler la ROI
 					wait = new WaitForUserDialog("Ajust the ROI");
 					wait.show();
 					Roi roiAjustee = projete.getRoi();
@@ -125,7 +124,7 @@ public class Condense_Dynamique implements PlugIn {
 					// tour suivant
 					p.setLocation(rectangleRoi.getX(), 0);
 					double largeur = projete.getRoi().getFloatWidth();
-					// On force l'utilisateur ï¿½ garder la largeur a 9pixel
+					// On force l'utilisateur a garder la largeur a 9pixel
 					while (largeur != 9) {
 						IJ.showMessage("Don't change ROI width");
 						projete.setRoi(r);
@@ -152,7 +151,7 @@ public class Condense_Dynamique implements PlugIn {
 			}
 
 			ImagePlus imp2 = condenseOutput();
-			// On affiche le rï¿½sultat
+			// On affiche le resultat
 			imp2.show();
 			// On applique la LUT par defaut
 			Scintigraphy.setCustomLut(imp2);
@@ -226,7 +225,7 @@ public class Condense_Dynamique implements PlugIn {
 			// image.show();
 			image.paste();
 			image.killRoi();
-			// On l'ajoute ï¿½ l'image condensee
+			// On l'ajoute a l'image condensee
 			imageCondensee.getStack().setProcessor(image.getProcessor(), i + 1);
 
 		}

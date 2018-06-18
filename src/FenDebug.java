@@ -13,6 +13,7 @@ import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphie;
 import org.petctviewer.scintigraphy.dynamic.GeneralDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.statique.HepaticScintigraphy;
+import org.petctviewer.scintigraphy.gastric.Vue_VG_Dynamique;
 import org.petctviewer.scintigraphy.platelet.Vue_Plaquettes;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.renal.dmsa.DmsaScintigraphy;
@@ -110,6 +111,16 @@ public class FenDebug extends JFrame{
 			}
 		});
 		
+		JButton btn_vgDyn = new JButton("Gastric Dyn");
+		btn_vgDyn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Vue_VG_Dynamique vue = new Vue_VG_Dynamique();
+				vue.run("");
+			}
+		});
+		
 		p.add(btn_cardiac);
 		p.add(btn_plaquettes);
 		p.add(btn_hepatic);
@@ -117,6 +128,7 @@ public class FenDebug extends JFrame{
 		p.add(btn_dyn);
 		p.add(btn_liver);
 		p.add(btn_dmsa);
+		p.add(btn_vgDyn);
 		
 		this.add(p, BorderLayout.CENTER);
 		this.add(pnl_pref, BorderLayout.NORTH);

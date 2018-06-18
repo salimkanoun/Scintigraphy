@@ -95,8 +95,9 @@ public class Vue_VG_Dynamique  implements PlugIn {
 			});
 						
 		if (!this.imageOuverte) {
-			ouvertureImage();
-			imageOuverte = true;
+			FenSelectionDicom selection=new fenetreSelection(this);
+			selection.setVisible(true);
+			
 		}
 		
 	}
@@ -148,18 +149,15 @@ public class Vue_VG_Dynamique  implements PlugIn {
 	}
 	
 	//permet de mettre les images dynamiques au fenetre principal
-	private void ouvertureImage() {
-			FenSelectionDicom selection=new FenSelectionDicom("Gastric Emptying");
-			selection.setModal(true);
-			selection.setVisible(true);
-			String[] imagesOuvertes=selection.getSelectedWindowsTitles();
-			
+	protected void ouvertureImage(ImagePlus[] imagesOuvertes) {
+			System.out.println(imagesOuvertes.length);
+		imageOuverte = true;
 			if( imagesOuvertes !=null){
 				
 				ArrayList<ImagePlus> projete=new ArrayList<ImagePlus>();
 				
 				for (int i=0 ; i<imagesOuvertes.length; i++) {
-					ImagePlus brute=WindowManager.getImage(imagesOuvertes[i]);
+					ImagePlus brute=imagesOuvertes[i];
 					//On cree l'imageProjetee et on l'ajoute a la liste
 					
 					//Si unique frame

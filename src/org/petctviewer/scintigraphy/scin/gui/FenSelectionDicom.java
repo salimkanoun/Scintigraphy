@@ -5,17 +5,9 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
-import java.awt.event.WindowListener;
-import java.util.Arrays;
 import java.util.HashMap;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -25,7 +17,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -33,19 +24,17 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import ij.ImageListener;
 import ij.ImagePlus;
 import ij.WindowManager;
-import ij.plugin.EventListener;
 import ij.util.DicomTools;
 
 public class FenSelectionDicom extends JFrame implements ActionListener, ImageListener {
 
 	private static final long serialVersionUID = 6706629497515318270L;
-
-	private String[] titresDicoms;
-	private String[] selectedWindowsTitles;
+	
 	private JButton btn_select, btn_selectAll;
 	private Scintigraphy vue;
 	private DefaultTableModel dataModel;
-	private JTable table;
+	protected JTable table;
+	protected int[] id;
 
 	/**
 	 * Permet de selectionner les dicom utilisees par le plugin
@@ -55,7 +44,6 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 */
 	public FenSelectionDicom(String examType, Scintigraphy vue) {
 		this.vue = vue;
-		this.titresDicoms = WindowManager.getImageTitles().clone();
 		ImagePlus.addImageListener(this);
 
 		// on ajoute le titre a la fenetre
@@ -103,9 +91,12 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 	// renvoie les informations a afficher dans le tableau
 	private String[][] getTableData() {
-		String[][] data = new String[this.titresDicoms.length][6];
-		for (int i = 0; i < this.titresDicoms.length; i++) {
-			ImagePlus imp = WindowManager.getImage(this.titresDicoms[i]);
+		id=WindowManager.getIDList();
+		String[][] data = new String[WindowManager.getImageCount()][6];
+		for (int i = 0; i < id.length; i++) {
+			
+			ImagePlus imp = WindowManager.getImage(id[i]);
+
 			HashMap<String, String> hm = ModeleScin.getPatientInfo(imp);
 
 			data[i][0] = replaceNull(hm.get("name"));
@@ -130,9 +121,6 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		return data;
 	}
 
-	public String[] getSelectedWindowsTitles() {
-		return this.selectedWindowsTitles;
-	}
 
 	// si le string est null, on renvoie un string vide
 	private static String replaceNull(String s) {
@@ -161,45 +149,30 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	public void actionPerformed(ActionEvent e) {
 		JButton b = (JButton) e.getSource();
 
-		if (b == this.btn_select) {
-			// recuperation des lignes selectionnees
-			int[] rows = this.table.getSelectedRows();
-
-			// construction du tableau de nm de dicoms selectionnees
-			String[] titresFenSelected = new String[rows.length];
-			for (int i = 0; i < rows.length; i++) {
-				titresFenSelected[i] = this.titresDicoms[rows[i]];
-			}
-
-			this.selectedWindowsTitles = titresFenSelected;
-		} else if (b == this.btn_selectAll) {
+		if (b == this.btn_selectAll) {
 			// on selectionne toutes les fenetres
-			this.selectedWindowsTitles = this.titresDicoms;
+			table.selectAll();
 		}
 
-		// on ferme la fenetre de selection
-		if (this.selectedWindowsTitles.length >= 1) {
-			this.startExam();
-		}
+		this.startExam();
+	
 	}
 
 	public void startExam() {
-		ImagePlus[] images = new ImagePlus[this.selectedWindowsTitles.length];
-		for (int i = 0; i < selectedWindowsTitles.length; i++) {
-			images[i] = WindowManager.getImage(selectedWindowsTitles[i]);
+		
+		int[] rows = this.table.getSelectedRows();
+		ImagePlus[] images = new ImagePlus[rows.length];
+		
+		for (int i = 0; i < rows.length; i++) {
+			images[i] = WindowManager.getImage(id[rows[i]+1]);
+			//ATTENTION NE PAS FAIRE DE HIDE OU DE CLOSE CAR DECLANCHE LE LISTENER
+			//IMAGE PLUS DOIVENT ETRE DUPLIQUEE ET FERMEE DANS LES PROGRAMMES LANCES
+			//images[i].hide();
 		}
-
+		
+	
 		try {
 			this.vue.startExam(images);
-
-			// on ferme toutes les fenetres choisies
-			for (String s : selectedWindowsTitles) {
-				ImagePlus impOuverte = WindowManager.getImage(s);
-				if (impOuverte != null) {
-					impOuverte.close();
-				}
-			}
-
 			ImagePlus.removeImageListener(this);
 			this.dispose();
 		} catch (Exception e) {
@@ -208,16 +181,12 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	}
 	
 	private void updateTable() {
-		String[] nouveauxTitres = WindowManager.getImageTitles();
-
-		// si la liste n'est pas la même
-		if (!Arrays.deepEquals(nouveauxTitres, this.titresDicoms)) {
-			this.titresDicoms = nouveauxTitres;
-			this.dataModel.setRowCount(0);
-			for (String[] s : this.getTableData()) {
-				this.dataModel.addRow(s);
-			}
+		
+		this.dataModel.setRowCount(0);
+		for (String[] s : this.getTableData()) {
+			this.dataModel.addRow(s);
 		}
+		
 	}
 
 	@Override
