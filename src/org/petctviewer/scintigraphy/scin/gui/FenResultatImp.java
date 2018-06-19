@@ -60,6 +60,7 @@ public abstract class FenResultatImp extends FenResultatSidePanel implements Cha
 
 	public void setImp(ImagePlus imp) {
 		this.imp = imp;
+		this.finishBuildingWindow(false);
 	}
 
 	@Override

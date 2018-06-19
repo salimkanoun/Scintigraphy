@@ -30,7 +30,7 @@ import ij.util.DicomTools;
 public class FenSelectionDicom extends JFrame implements ActionListener, ImageListener {
 
 	private static final long serialVersionUID = 6706629497515318270L;
-	
+
 	private JButton btn_select, btn_selectAll;
 	private Scintigraphy vue;
 	private DefaultTableModel dataModel;
@@ -42,9 +42,11 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 * 
 	 * @param examType
 	 *            : type d'examen
+	 * @param scin
+	 *            : scintigraphie a demarrer quand les dicoms sont selectionnes
 	 */
-	public FenSelectionDicom(String examType, Scintigraphy vue) {
-		this.vue = vue;
+	public FenSelectionDicom(String examType, Scintigraphy scin) {
+		this.vue = scin;
 		ImagePlus.addImageListener(this);
 
 		// on ajoute le titre a la fenetre
@@ -92,36 +94,41 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 	// renvoie les informations a afficher dans le tableau
 	private String[][] getTableData() {
-		id=WindowManager.getIDList();
 		String[][] data = new String[WindowManager.getImageCount()][6];
-		for (int i = 0; i < id.length; i++) {
-			
-			ImagePlus imp = WindowManager.getImage(id[i]);
 
-			HashMap<String, String> hm = ModeleScin.getPatientInfo(imp);
+		if (WindowManager.getImageCount() > 0) {
 
-			data[i][0] = replaceNull(hm.get("name"));
+			id = WindowManager.getIDList();
+			for (int i = 0; i < id.length; i++) {
+				ImagePlus imp = WindowManager.getImage(id[i]);
 
-			if (DicomTools.getTag(imp, "0008,1030") != null) {
-				data[i][1] = replaceNull(DicomTools.getTag(imp, "0008,1030").trim());
-			} else {
-				data[i][1] = "N/A";
+				HashMap<String, String> hm = ModeleScin.getPatientInfo(imp);
+
+				data[i][0] = replaceNull(hm.get("name"));
+
+				if (DicomTools.getTag(imp, "0008,1030") != null) {
+					data[i][1] = replaceNull(DicomTools.getTag(imp, "0008,1030").trim());
+				} else {
+					data[i][1] = "N/A";
+				}
+
+				data[i][2] = replaceNull(hm.get("date"));
+
+				if (DicomTools.getTag(imp, "0008,103E") != null) {
+					data[i][3] = replaceNull(DicomTools.getTag(imp, "0008,103E").trim());
+				} else {
+					data[i][3] = "N/A";
+				}
+
+				data[i][4] = imp.getDimensions()[0] + "x" + imp.getDimensions()[1];
+				data[i][5] = "" + imp.getStack().getSize();
 			}
-
-			data[i][2] = replaceNull(hm.get("date"));
-
-			if (DicomTools.getTag(imp, "0008,103E") != null) {
-				data[i][3] = replaceNull(DicomTools.getTag(imp, "0008,103E").trim());
-			} else {
-				data[i][3] = "N/A";
-			}
-
-			data[i][4] = imp.getDimensions()[0] + "x" + imp.getDimensions()[1];
-			data[i][5] = "" + imp.getStack().getSize();
+		} else {
+			data = new String[0][6];
 		}
+
 		return data;
 	}
-
 
 	// si le string est null, on renvoie un string vide
 	private static String replaceNull(String s) {
@@ -156,39 +163,38 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		}
 
 		this.startExam();
-	
+
 	}
 
 	public void startExam() {
-		
+
 		int[] rows = this.table.getSelectedRows();
 		ImagePlus[] images = new ImagePlus[rows.length];
-		
+
 		for (int i = 0; i < rows.length; i++) {
-			System.out.println(Arrays.toString(rows));
 			images[i] = WindowManager.getImage(id[rows[i]]);
-			//ATTENTION NE PAS FAIRE DE HIDE OU DE CLOSE CAR DECLANCHE LE LISTENER
-			//IMAGE PLUS DOIVENT ETRE DUPLIQUEE ET FERMEE DANS LES PROGRAMMES LANCES
-			//images[i].hide();
+			// ATTENTION NE PAS FAIRE DE HIDE OU DE CLOSE CAR DECLANCHE LE LISTENER
+			// IMAGE PLUS DOIVENT ETRE DUPLIQUEE ET FERMEE DANS LES PROGRAMMES LANCES
+			// images[i].hide();
 		}
-		
-	
+
 		try {
 			this.vue.startExam(images);
 			ImagePlus.removeImageListener(this);
 			this.dispose();
 		} catch (Exception e) {
 			System.err.println("The selected DICOM are not fit for this exam");
+			e.printStackTrace();
 		}
 	}
-	
+
 	private void updateTable() {
-		
+
 		this.dataModel.setRowCount(0);
 		for (String[] s : this.getTableData()) {
 			this.dataModel.addRow(s);
 		}
-		
+
 	}
 
 	@Override
@@ -204,7 +210,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	@Override
 	public void imageUpdated(ImagePlus imp) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

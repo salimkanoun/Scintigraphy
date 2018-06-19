@@ -126,7 +126,7 @@ class TabPrincipal extends FenResultatSidePanel {
 		res.add(this.getPanelNora());
 		res.add(Box.createVerticalStrut(25));
 
-		this.setFontAllJLabels(res, new Font("Calibri", Font.BOLD, 16));
+		this.setFontAllJLabels(res, new Font("Calibri", Font.BOLD, 13));
 
 		flow_wrap.add(res);
 

@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -29,11 +30,13 @@ class TabOther extends FenResultatSidePanel{
 		ChartPanel[] cPanels = ModeleScinDyn.associateSeries(asso, series);
 		
 		JPanel center = new JPanel(new GridLayout(1,1));
+		cPanels[0].getChart().getXYPlot().getRenderer().setSeriesPaint(0, Color.GREEN);
 		center.add(cPanels[0]);
 		
 		//si la vessie est activee
 		if(Prefs.get("renal.bladder.preferred", true)) {
 			center.setLayout(new GridLayout(2,1));
+			cPanels[1].getChart().getXYPlot().getRenderer().setSeriesPaint(0, Color.PINK);
 			center.add(cPanels[1]);
 		}
 		

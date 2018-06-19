@@ -21,6 +21,7 @@ import javax.swing.SwingConstants;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.UnknownKeyException;
 import org.jfree.data.xy.XYSeries;
@@ -58,7 +59,14 @@ class TabROE extends FenResultatSidePanel implements ActionListener{
 			FenResultats_Renal.renameSeries(c, "Blood pool fitted R", "Blood Pool");
 			FenResultats_Renal.renameSeries(c, "Final KR", "Right Kidney");
 			FenResultats_Renal.renameSeries(c, "Output KR", "Output");
-			c.getChart().getXYPlot().getRenderer().setDefaultStroke(stroke);
+			
+
+			XYItemRenderer ren = c.getChart().getXYPlot().getRenderer();
+			ren.setDefaultStroke(stroke);
+			ren.setSeriesPaint(0, Color.GREEN);
+			ren.setSeriesPaint(1, Color.BLUE);
+			ren.setSeriesPaint(2, Color.MAGENTA);
+			
 			c.getChart().setTitle("Right Kidney");
 			c.getChart().getLegend().setPosition(RectangleEdge.LEFT);
 			c.setPreferredSize(new Dimension(w, h / 2));
@@ -68,10 +76,18 @@ class TabROE extends FenResultatSidePanel implements ActionListener{
 		if (modele.getKidneys()[0]) {
 			// graphique rein gauche
 			ChartPanel c1 = cPanels[0];
+			
+			XYItemRenderer ren = c1.getChart().getXYPlot().getRenderer();
+
+			ren.setDefaultStroke(stroke);
+			ren.setSeriesPaint(0, Color.GREEN);
+			ren.setSeriesPaint(1, Color.RED);
+			ren.setSeriesPaint(2, Color.MAGENTA);
+			
 			FenResultats_Renal.renameSeries(c1, "Output KL", "Output");
 			FenResultats_Renal.renameSeries(c1, "Blood pool fitted L", "Blood Pool");
 			FenResultats_Renal.renameSeries(c1, "Final KL", "Left Kidney");
-			c1.getChart().getXYPlot().getRenderer().setDefaultStroke(stroke);
+			
 			c1.getChart().setTitle("Left Kidney");
 			c1.getChart().getLegend().setPosition(RectangleEdge.LEFT);
 			c1.setPreferredSize(new Dimension(w, h / 2));

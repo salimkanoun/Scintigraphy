@@ -7,7 +7,6 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,8 +16,6 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
@@ -27,8 +24,8 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.basic.CustomControleur;
 import org.petctviewer.scintigraphy.scin.basic.BasicScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatImp;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 
-import ij.ImageJ;
 import ij.ImagePlus;
 import ij.Prefs;
 import ij.gui.Overlay;
@@ -70,58 +67,56 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getSource() == this.btn_addImp) {
-			
-			Modele_Renal modele = (Modele_Renal) this.getScin().getFenApplication().getControleur().getModele();
-
-			// ajout des organes a delimiter selon le nombre de rein du patient
-			List<String> organes = new ArrayList<String>();
-			if (modele.getKidneys()[0]) {
-				organes.add("L. Kidney");
-				organes.add("L. bkg");
-			}
-			if (modele.getKidneys()[1]) {
-				organes.add("R. Kidney");
-				organes.add("R. bkg");
-			}
-			// si la vessie est selectionnee on l'ajoute a la liste
-			if (this.bladder) {
-				organes.add("Bladder");
-			}
-
-			//TODO refactor
-			// creation de la vue sans lancement de l'application
-			this.vueBasic = new BasicScintigraphy(organes.toArray(new String[] {}), this);
-			this.vueBasic.run("");
-
-			// si l'utilisateur a choisi une image
-			if (this.vueBasic.getImp() != null) {
-				this.btn_addImp.setVisible(false);
-				this.btn_quantify.setVisible(true);
+			//Assez sale
+			FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", new Scintigraphy("") {
+				@Override
+				protected ImagePlus preparerImp(ImagePlus[] images) {
+					if(images.length > 1) {
+						return null;
+					}
 				
-				ImagePlus imp = this.vueBasic.getImp();
-				ImagePlus impPost = null;
-				if (imp.getStackSize() >= 2) { // si il y a deux slices on sellectionne la deuxieme
-					impPost = new ImagePlus(imp.getTitle(), imp.getStack().getProcessor(2));
-				} else { // si il n'y en a qu'une, on la selectionne
-					impPost = imp;
+					btn_addImp.setVisible(false);
+					btn_quantify.setVisible(true);
+					
+					TabPostMict.this.setImp(images[0]);
+					
+					// rafraichit la fenetre pour afficher l'imp
+					finishBuildingWindow(false);
+					
+					return images[0];
 				}
-				// on retourne l'image plus selectionnee
-				for (int i = 0; i < imp.getStackSize(); i++) {
-					impPost.getProcessor().flipHorizontal();
-				}
-
-				this.setImp(this.vueBasic.getImp());
 				
-				// rafraichit la fenetre pour afficher l'imp
-				finishBuildingWindow(false);
-			}else {
-				//sinon on supprime la fenetre
-				this.vueBasic = null;
-			}
+				@Override
+				public void lancerProgramme() {
+				}
+			});
+			fen.setVisible(true);
 		} else {
 			this.btn_quantify.setVisible(false);
-			this.vueBasic.lancerProgramme();
+			this.vueBasic = new BasicScintigraphy(createOrgans(), this);
+			this.vueBasic.startExam(new ImagePlus[] {this.getImagePlus()});
 		}
+	}
+
+	private String[] createOrgans() {
+		Modele_Renal modele = (Modele_Renal) this.getScin().getFenApplication().getControleur().getModele();
+		
+		// ajout des organes a delimiter selon le nombre de rein du patient
+		List<String> organes = new ArrayList<String>();
+		if (modele.getKidneys()[0]) {
+			organes.add("L. Kidney");
+			organes.add("L. bkg");
+		}
+		if (modele.getKidneys()[1]) {
+			organes.add("R. Kidney");
+			organes.add("R. bkg");
+		}
+		// si la vessie est selectionnee on l'ajoute a la liste
+		if (this.bladder) {
+			organes.add("Bladder");
+		}
+		
+		return organes.toArray(new String[0]);
 	}
 
 	@Override
@@ -130,8 +125,6 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 
 		HashMap<String, Double> data = this.vueBasic.getData();
 		this.setImp(vueBasic.getImp());
-
-		// TODO moy geom si ant post
 
 		Double rg = null, rd = null;
 		int duration = Integer.parseInt(DicomTools.getTag(this.getImagePlus(), "0018,1242").trim());
@@ -155,7 +148,7 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 			bld /= (duration / 1000);
 			this.pnl_bladder.add(new JLabel("Bladder : " + ModeleScinDyn.round(modele.getExcrBladder(bld), 2) + " %"));
 		}
-		
+
 		finishBuildingWindow(true);
 		pack();
 	}
@@ -177,10 +170,10 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 		this.btn_quantify = new JButton("Quantify");
 		this.btn_quantify.addActionListener(this);
 		this.btn_quantify.setVisible(false);
-		
+
 		JPanel flow = new JPanel();
 		flow.add(btn_quantify);
-		
+
 		return flow;
 	}
 
@@ -188,7 +181,8 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 	public Roi getOrganRoi(Roi roi) {
 		int index = this.vueBasic.getFenApplication().getControleur().getIndexRoi();
 		if (index == 1 || index == 3) {
-			return Scintigraphy.createBkgRoi(roi, this.vueBasic.getFenApplication().getImagePlus(), Scintigraphy.KIDNEY);
+			return Scintigraphy.createBkgRoi(roi, this.vueBasic.getFenApplication().getImagePlus(),
+					Scintigraphy.KIDNEY);
 		}
 		return null;
 	}

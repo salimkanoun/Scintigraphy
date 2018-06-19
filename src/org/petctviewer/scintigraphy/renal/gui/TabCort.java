@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -31,6 +32,11 @@ class TabCort extends FenResultatSidePanel {
 		
 		cPanels[0].getChart().setTitle("Left kidney");
 		cPanels[1].getChart().setTitle("Right kidney");
+		//on change la couleur des courbes
+		cPanels[0].getChart().getXYPlot().getRenderer().setSeriesPaint(0, Color.RED);
+		cPanels[0].getChart().getXYPlot().getRenderer().setSeriesPaint(1, Color.RED);
+		cPanels[1].getChart().getXYPlot().getRenderer().setSeriesPaint(0, Color.BLUE);
+		cPanels[1].getChart().getXYPlot().getRenderer().setSeriesPaint(1, Color.BLUE);
 		
 		JPanel grid = new JPanel(new GridLayout(2,1));
 		cPanels[0].setPreferredSize(new Dimension(w, h/2));
