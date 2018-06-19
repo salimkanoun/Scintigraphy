@@ -19,10 +19,10 @@ class TabCort extends FenResultatSidePanel {
 
 	private static final long serialVersionUID = -2324369375150642778L;
 
-	public TabCort(Scintigraphy vue, int w, int h) {
-		super("Renal scintigraphy", vue, null, "cort");
+	public TabCort(Scintigraphy scin, int w, int h) {
+		super("Renal scintigraphy", scin, null, "cort");
 		
-		ModeleScinDyn modele = (ModeleScinDyn) vue.getFenApplication().getControleur().getModele();
+		ModeleScinDyn modele = (ModeleScinDyn) scin.getFenApplication().getControleur().getModele();
 		
 		List<XYSeries> listSeries = modele.getSeries();
 		// recuperation des chart panel avec association

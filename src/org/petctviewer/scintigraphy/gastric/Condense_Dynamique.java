@@ -40,7 +40,7 @@ public class Condense_Dynamique implements PlugIn {
 
 	@Override
 	public void run(String arg) {
-		FenSelectionDicom selection=new fenetreSelection(this);
+		FenSelectionDicom selection=new FenetreSelection(this);
 		selection.setVisible(true);
 	}
 

@@ -5,7 +5,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import ij.ImagePlus;
 import ij.WindowManager;
 
-public class fenetreSelection extends FenSelectionDicom {
+public class FenetreSelection extends FenSelectionDicom {
 	
 	Vue_VG_Roi vue;
 	Vue_VG_Dynamique vue2;
@@ -15,17 +15,17 @@ public class fenetreSelection extends FenSelectionDicom {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public fenetreSelection(Vue_VG_Roi vue) {
+	public FenetreSelection(Vue_VG_Roi vue) {
 		super("", null); 
 		this.vue=vue;
 	}
 	
-	public fenetreSelection(Vue_VG_Dynamique vue) {
+	public FenetreSelection(Vue_VG_Dynamique vue) {
 		super("", null); 
 		this.vue2=vue;
 	}
 	
-	public fenetreSelection(Condense_Dynamique vue) {
+	public FenetreSelection(Condense_Dynamique vue) {
 		super("", null); 
 		this.vue3=vue;
 	}

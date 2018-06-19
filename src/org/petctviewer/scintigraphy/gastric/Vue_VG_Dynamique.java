@@ -95,7 +95,7 @@ public class Vue_VG_Dynamique  implements PlugIn {
 			});
 						
 		if (!this.imageOuverte) {
-			FenSelectionDicom selection=new fenetreSelection(this);
+			FenSelectionDicom selection=new FenetreSelection(this);
 			selection.setVisible(true);
 			
 		}
@@ -150,7 +150,6 @@ public class Vue_VG_Dynamique  implements PlugIn {
 	
 	//permet de mettre les images dynamiques au fenetre principal
 	protected void ouvertureImage(ImagePlus[] imagesOuvertes) {
-			System.out.println(imagesOuvertes.length);
 		imageOuverte = true;
 			if( imagesOuvertes !=null){
 				

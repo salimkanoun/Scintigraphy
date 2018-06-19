@@ -9,7 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.PrefsWindow;
-import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphie;
+import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
 import org.petctviewer.scintigraphy.dynamic.GeneralDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.statique.HepaticScintigraphy;
@@ -18,6 +18,7 @@ import org.petctviewer.scintigraphy.platelet.Vue_Plaquettes;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.renal.dmsa.DmsaScintigraphy;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.statics.StaticScintigraphy;
 
 public class FenDebug extends JFrame{
 
@@ -39,14 +40,14 @@ public class FenDebug extends JFrame{
 		
 		pnl_pref.add(btn_pref);
 		
-		JPanel p = new JPanel(new GridLayout(4,3));
+		JPanel p = new JPanel(new GridLayout(5,3));
 		
 		JButton btn_cardiac = new JButton("Cardiac");
 		btn_cardiac.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				Scintigraphy vue = new CardiacScintigraphie();
+				Scintigraphy vue = new CardiacScintigraphy();
 				vue.run("");
 			}
 		});
@@ -121,6 +122,15 @@ public class FenDebug extends JFrame{
 			}
 		});
 		
+		JButton btn_genStatic = new JButton("Static gen");
+		btn_genStatic.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Scintigraphy scin = new StaticScintigraphy();
+				scin.run("");
+			}
+		});
+		
 		p.add(btn_cardiac);
 		p.add(btn_plaquettes);
 		p.add(btn_hepatic);
@@ -129,6 +139,7 @@ public class FenDebug extends JFrame{
 		p.add(btn_liver);
 		p.add(btn_dmsa);
 		p.add(btn_vgDyn);
+		p.add(btn_genStatic);
 		
 		this.add(p, BorderLayout.CENTER);
 		this.add(pnl_pref, BorderLayout.NORTH);

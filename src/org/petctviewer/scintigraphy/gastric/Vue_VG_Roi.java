@@ -129,7 +129,7 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 		instructions = new Label("");
 		instructions.setBackground(Color.LIGHT_GRAY);
 		initBoutons();
-		FenSelectionDicom selection=new fenetreSelection(this);
+		FenSelectionDicom selection=new FenetreSelection(this);
 		selection.setVisible(true);
 
 

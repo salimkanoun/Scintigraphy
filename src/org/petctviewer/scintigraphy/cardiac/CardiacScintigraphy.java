@@ -12,9 +12,9 @@ import ij.plugin.Concatenator;
 import ij.plugin.MontageMaker;
 import ij.util.DicomTools;
 
-public class CardiacScintigraphie extends Scintigraphy {
+public class CardiacScintigraphy extends Scintigraphy {
 
-	public CardiacScintigraphie() {
+	public CardiacScintigraphy() {
 		super("Cardiac");
 	}
 

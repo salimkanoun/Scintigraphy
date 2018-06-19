@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import javax.swing.JButton;
@@ -164,7 +165,8 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		ImagePlus[] images = new ImagePlus[rows.length];
 		
 		for (int i = 0; i < rows.length; i++) {
-			images[i] = WindowManager.getImage(id[rows[i]+1]);
+			System.out.println(Arrays.toString(rows));
+			images[i] = WindowManager.getImage(id[rows[i]]);
 			//ATTENTION NE PAS FAIRE DE HIDE OU DE CLOSE CAR DECLANCHE LE LISTENER
 			//IMAGE PLUS DOIVENT ETRE DUPLIQUEE ET FERMEE DANS LES PROGRAMMES LANCES
 			//images[i].hide();

@@ -50,6 +50,7 @@ public abstract class ControleurScin implements ActionListener {
 
 	/**
 	 * Classe abstraite permettant de controler les programmes de scintigraphie
+	 * declarer le modele ainsi que la liste d'organes
 	 */
 	protected ControleurScin(Scintigraphy vue) {
 		this.scin = vue;

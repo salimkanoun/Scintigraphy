@@ -59,7 +59,7 @@ public class Controleur_Cardiac extends ControleurScin {
 		ModeleScin mdl = this.getModele();
 		mdl.calculerResultats();
 
-		CardiacScintigraphie vue = (CardiacScintigraphie) this.getScin();
+		CardiacScintigraphy vue = (CardiacScintigraphy) this.getScin();
 		vue.getFenApplication().resizeCanvas();
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
