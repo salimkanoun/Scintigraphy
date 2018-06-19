@@ -114,13 +114,17 @@ class TabPrincipal extends FenResultatSidePanel {
 			res.add(this.getPanelSep());
 		}
 
-		res.add(Box.createVerticalStrut(25));
+		res.add(Box.createVerticalStrut(10));
+		res.add(this.getPanelSize());
+		res.add(Box.createVerticalStrut(10));
 		res.add(this.getPanelTiming());
-		res.add(Box.createVerticalStrut(25));
+		res.add(Box.createVerticalStrut(10));
 		res.add(this.getPanelExcr());
-		res.add(Box.createVerticalStrut(25));
+		res.add(Box.createVerticalStrut(10));
 		res.add(this.getPanelROE());
-		res.add(Box.createVerticalStrut(50));
+		res.add(Box.createVerticalStrut(10));
+		res.add(this.getPanelNora());
+		res.add(Box.createVerticalStrut(25));
 
 		this.setFontAllJLabels(res, new Font("Calibri", Font.BOLD, 16));
 
@@ -129,6 +133,33 @@ class TabPrincipal extends FenResultatSidePanel {
 		return flow_wrap;
 	}
 
+	private Component getPanelSize() {
+		JLabel lbl_L = new JLabel("L");
+		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
+		JLabel lbl_R = new JLabel("R");
+		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		Double[] size = modele.getSize();
+		
+		JPanel pnl_size = new JPanel(new GridLayout(2, 3, 0, 3));
+		pnl_size.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+		
+		pnl_size.add(new JLabel(" Kidney Size"));
+		pnl_size.add(lbl_L);
+		pnl_size.add(lbl_R);
+		
+		pnl_size.add(new JLabel(""));
+		JLabel lbl_heightL = new JLabel(size[0] + " cm");
+		lbl_heightL.setHorizontalAlignment(JLabel.CENTER);
+		pnl_size.add(lbl_heightL);
+		
+		JLabel lbl_heightR = new JLabel(size[1] + " cm");
+		lbl_heightR.setHorizontalAlignment(JLabel.CENTER);
+		pnl_size.add(lbl_heightR);
+		
+		return pnl_size;
+	}
+	
 	private Component getPanelROE() {
 		JLabel lbl_L = new JLabel("L");
 		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
@@ -137,9 +168,8 @@ class TabPrincipal extends FenResultatSidePanel {
 
 		Double xLasilix = modele.getAdjustedValues().get("lasilix");
 		// minutes a observer pour la capacite d'excretion
-		Double[] mins = new Double[] { ModeleScin.round(xLasilix - 1, 1),
-				ModeleScin.round(xLasilix + 2, 1),
-				ModeleScin.round(modele.getSerie("Blood Pool").getMaxX(), 1)};
+		Double[] mins = new Double[] { ModeleScin.round(xLasilix - 1, 1), ModeleScin.round(xLasilix + 2, 1),
+				ModeleScin.round(modele.getSerie("Blood Pool").getMaxX(), 1) };
 
 		// panel roe
 		JPanel pnl_roe = new JPanel(new GridLayout(4, 3, 0, 3));
@@ -180,6 +210,40 @@ class TabPrincipal extends FenResultatSidePanel {
 		}
 
 		return pnl_roe;
+	}
+
+	private Component getPanelNora() {
+		JLabel lbl_L = new JLabel("L");
+		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
+		JLabel lbl_R = new JLabel("R");
+		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
+
+		// panel Nora
+		Double[][] nora = modele.getNora();
+		JPanel pnl_nora = new JPanel(new GridLayout(4, 3, 0, 3));
+		pnl_nora.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+		
+		pnl_nora.add(new JLabel(" NORA"));
+		pnl_nora.add(lbl_L);
+		pnl_nora.add(lbl_R);
+		for (int i = 0; i < 3; i++) {
+			// aligne a droite
+			pnl_nora.add(new JLabel(nora[0][i] + "  min"));
+
+			for (int j = 1; j <= 2; j++) {
+				if (nora[j][i] != null) {
+					JLabel lbl_g = new JLabel(nora[j][i] + " %");
+					lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
+					pnl_nora.add(lbl_g);
+				} else {
+					JLabel lbl_na = new JLabel("N/A");
+					lbl_na.setHorizontalAlignment(SwingConstants.CENTER);
+					pnl_nora.add(lbl_na);
+				}
+			}
+
+		}
+		return pnl_nora;
 	}
 
 	private Component getPanelExcr() {

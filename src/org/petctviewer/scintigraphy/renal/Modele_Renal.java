@@ -18,10 +18,12 @@ import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 
 import ij.ImagePlus;
 import ij.Prefs;
+import ij.gui.Roi;
+import ij.util.DicomTools;
 
 public class Modele_Renal extends ModeleScinDyn {
 
-	private HashMap<String, Integer> organArea;
+	private HashMap<String, Roi> organRois;
 	private HashMap<Comparable, Double> adjustedValues;
 	private boolean[] kidneys;
 	private double[] patlakPente;
@@ -37,7 +39,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		super(frameDuration);
 		this.imp = imp;
 		this.kidneys = kidneys;
-		this.organArea = new HashMap<>();
+		this.organRois = new HashMap<>();
 	}
 
 	public static void graph(XYDataset data) {
@@ -65,9 +67,8 @@ public class Modele_Renal extends ModeleScinDyn {
 			// nom de l'organe sans le tag
 			String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
 			// si on n'a pas deja enregistre son aire, on l'ajout a la hashmap
-			if (this.organArea.get(name) == null) {
-				int area = imp.getStatistics().pixelCount;
-				this.organArea.put(name, area);
+			if (this.organRois.get(name) == null) {
+				this.organRois.put(name, imp.getRoi());
 			}
 		}
 
@@ -112,8 +113,8 @@ public class Modele_Renal extends ModeleScinDyn {
 		for (String lr : kidneysLR) { // pour chaque rein
 			List<Double> RGCorrige = new ArrayList<>();
 			// on recupere l'aire des rois bruit de fond et rein
-			int aireRein = this.organArea.get(lr + ". Kidney");
-			int aireBkg = this.organArea.get(lr + ". bkg");
+			int aireRein = this.organRois.get(lr + ". Kidney").getStatistics().pixelCount;
+			int aireBkg = this.organRois.get(lr + ". bkg").getStatistics().pixelCount;
 			List<Double> lk = this.getData(lr + ". Kidney");
 			List<Double> lbkg = this.getData(lr + ". bkg");
 
@@ -139,12 +140,12 @@ public class Modele_Renal extends ModeleScinDyn {
 	// normalise la vasculaire pour le rein gauche et droit pour le patlak
 	private void normalizeBP() {
 		List<Double> bp = getData("Blood Pool");
-		Integer aireBP = this.organArea.get("Blood Pool");
+		Integer aireBP = this.organRois.get("Blood Pool").getStatistics().pixelCount;
 
 		// pour chaque rein on ajoute la valeur normalisee de la vasculaire
 		for (String lr : this.kidneysLR) {
 			List<Double> bpNorm = new ArrayList<>();
-			Integer aire = this.organArea.get(lr + ". Kidney");
+			Integer aire = this.organRois.get(lr + ". Kidney").getStatistics().pixelCount;
 			for (Double d : bp) {
 				bpNorm.add((d / aireBP) * aire);
 			}
@@ -186,7 +187,7 @@ public class Modele_Renal extends ModeleScinDyn {
 			List<Double> sortieInt = new ArrayList<>();
 			for (int i = 0; i < corrige.size(); i++) {
 				// on ajoute uniquement si la valeur est positive
-				Double output = Math.max(vascFit.get(i) - corrige.get(i),0);
+				Double output = Math.max(vascFit.get(i) - corrige.get(i), 0);
 				/// on ajoute la valeur calculee dans la liste de sortie renale
 				sortieInt.add(output);
 			}
@@ -240,7 +241,7 @@ public class Modele_Renal extends ModeleScinDyn {
 			double x = bpi.getX(i).doubleValue();
 			seriesVasc.add(x, reg[0] + reg[1] * x + reg[2] * Math.pow(x, 2) + reg[3] * Math.pow(x, 3));
 		}
-		
+
 		this.getData().put("Blood pool fitted", seriesToList(seriesVasc));
 
 		XYSeries seriesKid = this.createSerie(kidney, "Kidney");
@@ -266,11 +267,11 @@ public class Modele_Renal extends ModeleScinDyn {
 		// calcul du rapport de pente sur l'intervalle defini par l'utilisateur
 		Double rapportPente = courbeKidney[1] / courbeVasc[1];
 
-//		List<Double> fittedVasc = new ArrayList<>();
-//		for (Double d : vasc) {
-//			fittedVasc.add(d * rapportPente);
-//		}
-		
+		// List<Double> fittedVasc = new ArrayList<>();
+		// for (Double d : vasc) {
+		// fittedVasc.add(d * rapportPente);
+		// }
+
 		List<Double> fittedVasc = new ArrayList<>();
 		for (int i = 0; i < seriesVasc.getItemCount(); i++) {
 			Double d = seriesVasc.getY(i).doubleValue();
@@ -338,7 +339,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	public String toString() {
 		String s = super.toString();
 
-		//TODO
+		// TODO
 
 		return s;
 
@@ -390,7 +391,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		Double[][] res = new Double[2][2];
 
 		Double xLasilixM1 = this.adjustedValues.get("lasilix") - 1;
-		
+
 		// si il y a un rein gauche
 		if (this.kidneys[0]) {
 			Double xMaxL = this.adjustedValues.get("tmax L");
@@ -426,10 +427,10 @@ public class Modele_Renal extends ModeleScinDyn {
 		for (String lr : this.kidneysLR) {
 			XYSeries kidney = this.getSerie("Final K" + lr);
 			Double max = kidney.getMaxY();
-			
-			//change l'index sur lequel ecrire le resultat dans le tableau
+
+			// change l'index sur lequel ecrire le resultat dans le tableau
 			int index = 1;
-			if(lr == "R")
+			if (lr == "R")
 				index = 2;
 
 			// calcul Excr rein gauche
@@ -441,7 +442,32 @@ public class Modele_Renal extends ModeleScinDyn {
 		}
 
 		return res;
+	}
 
+	public Double[][] getNora() {
+		Double[][] res = new Double[3][3];
+
+		// adjusted[6] => lasilix
+		Double xLasilix = this.adjustedValues.get("lasilix");
+		res[0][0] = ModeleScin.round(xLasilix - 1, 1);
+		res[0][1] = ModeleScin.round(xLasilix + 2, 1);
+		res[0][2] = round(this.getSerie("Blood Pool").getMaxX(), 1);
+
+		for (String lr : this.kidneysLR) {
+			XYSeries kidney = this.getSerie("Final K" + lr);
+
+			// change l'index sur lequel ecrire le resultat dans le tableau
+			int index = 1;
+			if (lr == "R")
+				index = 2;
+
+			// calcul nora rein gauche
+			for (int i = 0; i < 3; i++) {
+				res[index][i] = ModeleScin.round(getY(kidney, res[0][i]) * 100 / getY(kidney, 2.0), 1);
+			}
+		}
+
+		return res;
 	}
 
 	public void setAdjustedValues(HashMap<Comparable, Double> hashMap) {
@@ -496,4 +522,25 @@ public class Modele_Renal extends ModeleScinDyn {
 		XYSeries bldSeries = this.getSerie("Bladder");
 		return 100 * bld / ModeleScinDyn.getY(bldSeries, bldSeries.getMaxX());
 	}
+
+	/**
+	 * Renvoie la hauteur des reins en cm, index 0 : rein gauche, 1 : rein droit
+	 * @return 
+	 */
+	public Double[] getSize() {
+		int heightLK = this.organRois.get("L. Kidney").getBounds().height;
+		int heightRK = this.organRois.get("R. Kidney").getBounds().height;
+		
+		//récupère la hauteur d'un pixel en mm
+		String pixelHeightString = DicomTools.getTag(imp, "0028,0030").trim().split("\\\\")[1];
+		Double pixelHeight = Double.parseDouble(pixelHeightString);
+		Double[] kidneyHeight = new Double[2];
+		
+		//convvertion des pixel en mm
+		kidneyHeight[0] = round(heightLK * pixelHeight / 10, 2);
+		kidneyHeight[1] = round(heightRK * pixelHeight / 10, 2);
+				
+		return kidneyHeight;
+	}
+
 }

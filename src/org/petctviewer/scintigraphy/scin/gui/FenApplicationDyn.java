@@ -158,7 +158,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 			radio.add(btn_lr);
 			this.add(radio);
 
-			this.setLocationRelativeTo(null);
+			this.setLocationRelativeTo(FenApplicationDyn.this);
 
 			this.pack();
 		}
