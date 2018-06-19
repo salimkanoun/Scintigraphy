@@ -23,13 +23,13 @@ public class StaticScintigraphy extends Scintigraphy {
 		}
 		
 		ImagePlus imp = images[0];
-		
+		imp.getStack().getProcessor(2).flipHorizontal();
 		return imp;
 	}
 
 	@Override
 	public void lancerProgramme() {
-		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));
+		this.setFenApplication(new FenApplication_ScinStatic(this.getImp(), this.getExamType()));
 		ControleurScinStatic ctrl = new ControleurScinStatic(this);
 		this.getFenApplication().setControleur(ctrl);
 	}

@@ -106,13 +106,12 @@ public abstract class ControleurScin implements ActionListener {
 		}
 
 		else if (b == fen.getBtn_contrast()) {
-			Button btn = this.scin.getFenApplication().getBtn_contrast();
 
 			// on change la couleur du bouton
-			if (btn.getBackground() != Color.LIGHT_GRAY) {
-				btn.setBackground(Color.LIGHT_GRAY);
+			if (b.getBackground() != Color.LIGHT_GRAY) {
+				b.setBackground(Color.LIGHT_GRAY);
 			} else {
-				btn.setBackground(null);
+				b.setBackground(null);
 			}
 
 			// on deselectionne le bouton draw roi

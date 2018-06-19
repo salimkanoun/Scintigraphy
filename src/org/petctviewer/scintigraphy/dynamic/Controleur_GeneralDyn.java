@@ -81,7 +81,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	public void fin() {
 		//on sauvegarde l'imp projetee pour la reafficher par la suite
 		this.impProjetee = this.getScin().getImp().duplicate();
-		this.over = true;
+		this.over = true; 
 		this.nbOrganes = this.roiManager.getCount();
 		DynamicScintigraphy vue = (DynamicScintigraphy) this.getScin();
 		this.removeImpListener();
