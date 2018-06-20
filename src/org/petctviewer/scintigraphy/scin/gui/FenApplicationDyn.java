@@ -66,7 +66,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 	public void actionPerformed(ActionEvent e) {
 		// clic sur le bouton dynamique
 		if (e.getSource() == btn_dyn) {
-			Overlay ov =this.getImagePlus().getOverlay().duplicate();
+			Overlay ov = Scintigraphy.duplicateOverlay(this.getImagePlus().getOverlay());
 			ImagePlus imp;
 
 			if (!this.dyn) {

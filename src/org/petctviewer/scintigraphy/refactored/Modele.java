@@ -3,6 +3,8 @@ package org.petctviewer.scintigraphy.refactored;
 import java.awt.Color;
 import java.util.HashMap;
 
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
+
 import ij.ImageListener;
 import ij.ImagePlus;
 import ij.plugin.frame.RoiManager;
@@ -33,7 +35,7 @@ public class Modele {
 
 		// si l'overlay n'est pas nul, on le sauvegarde
 		if (imp.getOverlay() != null) {
-			this.overlay = imp.getOverlay().duplicate();
+			this.overlay = Scintigraphy.duplicateOverlay(imp.getOverlay());
 		}
 
 		// lance le RoiManager en instance seule (pas en singleton)
@@ -80,7 +82,7 @@ public class Modele {
 
 	public void setSlice(int indexSlice) {
 		imp.getOverlay().clear();
-		imp.setOverlay(this.overlay.duplicate());
+		imp.setOverlay(Scintigraphy.duplicateOverlay(this.overlay));
 		imp.killRoi();
 
 		// change la slice courante
