@@ -1,4 +1,11 @@
 /target/
 /bin/
 
+# mac
 *.DS_Store
+
+.settings/
+.classpath
+/jars/
+.project
+
