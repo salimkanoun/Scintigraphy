@@ -59,7 +59,7 @@ public abstract class ControleurScin implements ActionListener {
 			vue.getImp().setOverlay(Scintigraphy.initOverlay(vue.getImp()));
 		}
 
-		this.overlay = Scintigraphy.duplicateOverlay(vue.getImp().getOverlay());
+		this.overlay = vue.getImp().getOverlay().duplicate();
 
 		this.roiManager = new RoiManager();
 
@@ -208,7 +208,7 @@ public abstract class ControleurScin implements ActionListener {
 		ImagePlus imp = this.getScin().getImp();
 
 		imp.getOverlay().clear();
-		imp.setOverlay(Scintigraphy.duplicateOverlay(this.overlay));
+		imp.setOverlay(this.overlay.duplicate());
 		imp.killRoi();
 
 		// change la slice courante

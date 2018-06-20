@@ -67,9 +67,7 @@ public abstract class FenResultatSidePanel extends JFrame {
 
 		if (capture != null) {
 			img = new DynamicImage(capture);
-			this.add(img, BorderLayout.WEST);
-		} else {
-			this.add(new JPanel(), BorderLayout.WEST);
+			this.add(img, BorderLayout.CENTER);
 		}
 
 		// ajout du titre de la fenetre

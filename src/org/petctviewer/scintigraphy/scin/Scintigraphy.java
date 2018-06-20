@@ -829,23 +829,7 @@ public abstract class Scintigraphy implements PlugIn {
 			imp.setLut(lut);
 		}
 	}
-
-	public static Overlay duplicateOverlay(Overlay overlay) {
-		Overlay overlay2 = overlay.duplicate();
-
-		overlay2.drawLabels(overlay.getDrawLabels());
-		overlay2.drawNames(overlay.getDrawNames());
-		overlay2.drawBackgrounds(overlay.getDrawBackgrounds());
-		overlay2.setLabelColor(overlay.getLabelColor());
-		overlay2.setLabelFont(overlay.getLabelFont(), overlay.scalableLabels());
-
-		// theses properties are not set by the original duplicate method
-		overlay2.setIsCalibrationBar(overlay.isCalibrationBar());
-		overlay2.selectable(overlay.isSelectable());
-
-		return overlay2;
-	}
-
+	
 	/**
 	 * permet de preparer le bouton de capture de la frame.
 	 * 
