@@ -18,6 +18,5 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="src/Read_CD.jar"/>
 	<classpathentry kind="lib" path="src/Pet_Ct_Viewer.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ruben/Desktop/stage oncopole/Fiji.app/plugins/Tools/Window_Level_Tool.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -25,12 +25,7 @@ public class Controleur implements ActionListener{
 				
 				break;
 			case "Next":
-				boolean saved = modele.saveCurrentRoi();
-				if(saved) {
-					if(modele.getIndexRoi() == modele.getOrganes().length) {
-						modele.setSlice(indexSlice);
-					}
-				}
+				
 				break;
 			default:
 				System.out.println("Bouton non pris en compte");
