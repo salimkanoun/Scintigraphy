@@ -37,7 +37,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	 */
 	public Modele_Renal(int[] frameDuration, boolean[] kidneys, ImagePlus imp) {
 		super(frameDuration);
-		this.imp = imp;
+		this.setImp(imp);
 		this.kidneys = kidneys;
 		this.organRois = new HashMap<>();
 	}
@@ -599,9 +599,9 @@ public class Modele_Renal extends ModeleScinDyn {
 	public Double[] getSize() {
 		int heightLK = this.organRois.get("L. Kidney").getBounds().height;
 		int heightRK = this.organRois.get("R. Kidney").getBounds().height;
-
-		// r�cup�re la hauteur d'un pixel en mm
-		String pixelHeightString = DicomTools.getTag(imp, "0028,0030").trim().split("\\\\")[1];
+		
+		//r�cup�re la hauteur d'un pixel en mm
+		String pixelHeightString = DicomTools.getTag(this.getImp(), "0028,0030").trim().split("\\\\")[1];
 		Double pixelHeight = Double.parseDouble(pixelHeightString);
 		Double[] kidneyHeight = new Double[2];
 

@@ -154,6 +154,10 @@ public abstract class FenResultatSidePanel extends JFrame {
 	public void setModele(ModeleScin modele) {
 		this.modele = modele;
 	}
+	
+	public ModeleScin getModele() {
+		return this.modele;
+	}
 
 	public Component getSide() {
 		return this.side;

@@ -44,6 +44,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 		// si le modele n'est pas bloque
 		if (!this.isLocked()) {
+			//recupere la phrase sans le dernier mot (tag)
 			String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
 			// on cree la liste si elle n'existe pas
 			if (this.data.get(name) == null) {

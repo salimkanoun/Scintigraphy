@@ -48,9 +48,17 @@ import ij.util.DicomTools;
 
 public abstract class ModeleScin {
 
-	protected ImagePlus imp;
+	private ImagePlus imp;
 	private Integer uid;
 
+	public ImagePlus getImp() {
+		return imp;
+	}
+
+	public void setImp(ImagePlus imp) {
+		this.imp = imp;
+	}
+	
 	/**
 	 * renvoie la moyenne geometrique
 	 * 
