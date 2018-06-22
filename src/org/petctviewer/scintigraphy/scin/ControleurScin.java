@@ -33,7 +33,7 @@ import ij.plugin.frame.RoiManager;
 
 public abstract class ControleurScin implements ActionListener {
 
-	private Scintigraphy scin;
+	private Scintigraphy scin;//vue
 	private ModeleScin leModele;
 	protected RoiManager roiManager;
 
@@ -70,6 +70,18 @@ public abstract class ControleurScin implements ActionListener {
 
 	public void setModele(ModeleScin modele) {
 		this.leModele = modele;
+	}
+	
+	public ModeleScin getLeModele() {
+		return leModele;
+	}
+
+	public void setScin(Scintigraphy scin) {
+		this.scin = scin;
+	}
+	
+	public Scintigraphy getScintigraphy() {
+		return scin;
 	}
 
 	@Override

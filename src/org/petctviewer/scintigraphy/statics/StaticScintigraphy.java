@@ -18,12 +18,15 @@ public class StaticScintigraphy extends Scintigraphy {
 
 	@Override
 	protected ImagePlus preparerImp(ImagePlus[] images) {
+		
 		if(images.length > 1 || images.length <= 0) {
 			throw new IllegalArgumentException("Exam needs exactly one image");
 		}
 		
 		ImagePlus imp = images[0];
-		imp.getStack().getProcessor(2).flipHorizontal();
+		if(imp.getSlice() == 2)
+			imp.getStack().getProcessor(2).flipHorizontal();
+		
 		return imp;
 	}
 
