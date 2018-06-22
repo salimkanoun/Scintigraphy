@@ -19,4 +19,19 @@ public class Modele_GeneralDyn extends ModeleScinDyn {
 		}
 	}
 
+	@Override
+	public String toString() {
+		String s = "\n";
+
+		for (String k : this.getData().keySet()) {
+			s += k;
+			for (Double d : this.getData().get(k)) {
+				s += "," + d;
+			}
+			s += "\n";
+		}
+		
+		return s;
+	}
+
 }

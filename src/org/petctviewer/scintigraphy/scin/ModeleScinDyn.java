@@ -390,16 +390,6 @@ public abstract class ModeleScinDyn extends ModeleScin {
 			s += "," + sum;
 		}
 		
-		s += "\n";
-		
-		
-		for (String k : this.data.keySet()) {
-			s += k;
-			for (Double d : this.data.get(k)) {
-				s += "," + d;
-			}
-			s += "\n";
-		}
 		return s;
 	}
 

@@ -33,7 +33,7 @@ public abstract class FenResultatSidePanel extends JFrame {
 
 	private static final long serialVersionUID = -5212479342782678916L;
 
-	protected Box side;
+	private Box side;
 	private Scintigraphy scin;
 	private String additionalInfo;
 	private ModeleScin modele;
@@ -94,13 +94,13 @@ public abstract class FenResultatSidePanel extends JFrame {
 		this.side.add(flow1);
 	}
 	
-	protected void setFontAllJLabels(Container container, Font font) {
+	public static void setFontAllJLabels(Container container, Font font) {
 		if(container instanceof JLabel)
 			container.setFont(font);
 		
 		for (Component c : container.getComponents()) {
 			if(c instanceof Container) {
-				this.setFontAllJLabels((Container) c, font);
+				setFontAllJLabels((Container) c, font);
 			}
 		}
 	}
@@ -157,16 +157,6 @@ public abstract class FenResultatSidePanel extends JFrame {
 
 	public Component getSide() {
 		return this.side;
-	}
-
-	public static BufferedImage resizeImage(BufferedImage img, int newW, int newH) {
-		BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = dimg.createGraphics();
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-		g.drawImage(img, 0, 0, newW, newH, 0, 0, img.getWidth(), img.getHeight(), null);
-		g.dispose();
-
-		return dimg;
 	}
 
 	public void setCaptureButton(JButton btn_capture, JLabel lbl_credits) {

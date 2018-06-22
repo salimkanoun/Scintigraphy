@@ -30,18 +30,12 @@ class TabTimedImage extends FenResultatImp{
 
 	private static final long serialVersionUID = 8125367912250906052L;
 
-	public TabTimedImage(DynamicScintigraphy vue, int rows, int columns, int w, int h) {
+	public TabTimedImage(DynamicScintigraphy vue, int rows, int columns) {
 		super("Renal scintigraphy", vue, null, "timed");
-		
-		this.finishBuildingWindow(false);
 	
-		ImagePlus montage = Scintigraphy.creerMontage(vue.getFrameDurations(), vue.getImp(), h/(columns+1), rows, columns);
+		ImagePlus montage = Scintigraphy.creerMontage(vue.getFrameDurations(), vue.getImp(), 200, rows, columns);
 		montage.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
 		
 		this.setImp(montage);
-		
-		this.setPreferredSize(new Dimension(w, h));
-		
-		this.finishBuildingWindow(true);
 	}
 }

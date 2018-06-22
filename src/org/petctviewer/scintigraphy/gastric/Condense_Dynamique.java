@@ -68,22 +68,27 @@ public class Condense_Dynamique implements PlugIn {
 					;
 				}
 			}
-			
-			// On liste les images restantes
-			imagesOuvertes = WindowManager.getImageTitles();
-
-			// On sauve le header
-			tag = ModeleScin.genererDicomTagsPartie1(WindowManager.getImage(imagesOuvertes[0]), "Condense");
-
-			// On met les images ouvertes dans un tableau pour les trier
+		
 			ArrayList<ImagePlus> imagesOuvertesPlus = new ArrayList<ImagePlus>();
-			for (int i = 0; i < imagesOuvertes.length; i++) {
-				imagesOuvertesPlus.add(WindowManager.getImage(imagesOuvertes[i]));
-			}
-
 			// On trie le tableau par heure d'acquisition
 			ImagePlus[] imagesOuvertesOrdonees = Scintigraphy.orderImagesByAcquisitionTime(imagesOuvertesPlus);
-			p.setLocation(imagesOuvertesOrdonees[0].getWidth() / 2, 0);
+			
+			//TODO
+//			
+//			// On liste les images restantes
+//			imagesOuvertes = WindowManager.getImageTitles();
+//
+//			// On sauve le header
+//			tag = ModeleScin.genererDicomTagsPartie1(WindowManager.getImage(imagesOuvertes[0]), "Condense");
+//
+//			// On met les images ouvertes dans un tableau pour les trier
+//			for (int i = 0; i < imagesOuvertes.length; i++) {
+//				imagesOuvertesPlus.add(WindowManager.getImage(imagesOuvertes[i]));
+//			}
+//
+//			// On trie le tableau par heure d'acquisition
+//			ImagePlus[] imagesOuvertesOrdonees = Scintigraphy.orderImagesByAcquisitionTime(imagesOuvertesPlus);
+//			p.setLocation(imagesOuvertesOrdonees[0].getWidth() / 2, 0);
 
 			for (int i = 0; i < imagesOuvertesOrdonees.length; i++) {
 
@@ -104,7 +109,7 @@ public class Condense_Dynamique implements PlugIn {
 					r.setSize(9, brute.getHeight());
 					r.setLocation(p);
 					projete.setRoi(r);
-					// On deplace la fenetre au centre de l'écran et on l'agrandi
+					// On deplace la fenetre au centre de l'ï¿½cran et on l'agrandi
 					projete.show();
 					projete.getWindow().setSize(512, 512);
 					// On calcule la dimension du condense

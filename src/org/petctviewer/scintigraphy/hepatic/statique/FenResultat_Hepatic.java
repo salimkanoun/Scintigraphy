@@ -1,30 +1,42 @@
 package org.petctviewer.scintigraphy.hepatic.statique;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.util.HashMap;
+
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 import java.awt.image.BufferedImage;
 
-public class FenResultat_Hepatic extends FenResultatSidePanel {
+public class FenResultat_Hepatic extends JFrame {
 
 	private static final long serialVersionUID = -5261203439330504164L;
 
 	private HashMap<String, String> resultats;
 
-	public FenResultat_Hepatic(Scintigraphy vueScin, BufferedImage capture) {
-		super(vueScin.getExamType(), vueScin, capture, "");
-		this.resultats = ((Modele_Hepatic) vueScin.getFenApplication().getControleur().getModele()).getResultsHashMap();
-		this.finishBuildingWindow(true);
+	public FenResultat_Hepatic(Scintigraphy scin, BufferedImage capture) {
+		this.setLayout(new BorderLayout());
+		this.resultats = ((Modele_Hepatic) scin.getFenApplication().getControleur().getModele()).getResultsHashMap();
+		
+		SidePanel side = new SidePanel(this.getSidePanelContent(), scin.getExamType(), scin.getImp());
+		side.addCaptureBtn(scin, "");
+		
+		this.add(side, BorderLayout.EAST);
+		this.add(new DynamicImage(capture), BorderLayout.CENTER);
+		
+		this.pack();
+		this.setMinimumSize(side.getSize());
 		this.setVisible(true);
 	}
 
-	@Override
 	public Component getSidePanelContent() {
 		JPanel panel = new JPanel(new GridLayout(4, 1, 10, 10));
 		

@@ -1,10 +1,8 @@
 package org.petctviewer.scintigraphy.hepatic.dyn.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.image.BufferedImage;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -17,13 +15,16 @@ import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
-class TabTAC extends FenResultatSidePanel {
+class TabTAC extends JPanel {
 
-	public TabTAC(Scintigraphy vue, int width, int height) {
-		super("Biliary scintigraphy", vue, null, "");
-		Modele_HepaticDyn modele = (Modele_HepaticDyn) this.getScin().getFenApplication().getControleur().getModele();
+	public TabTAC(Scintigraphy scin, int width, int height) {
+		this.setLayout(new BorderLayout());
+		SidePanel side = new SidePanel(null, "Biliary scintigraphy", scin.getImp());
+		side.addCaptureBtn(scin, "");
+		
+		Modele_HepaticDyn modele = (Modele_HepaticDyn) scin.getFenApplication().getControleur().getModele();
 		
 		JPanel pnl_center = new JPanel(new GridLayout(2,2));
 		
@@ -42,14 +43,10 @@ class TabTAC extends FenResultatSidePanel {
 		pnl_center.add(setterHilium);
 		
 		this.add(pnl_center, BorderLayout.CENTER);
+		this.add(side, BorderLayout.EAST);
 		
-		this.finishBuildingWindow(true);
 		this.setPreferredSize(new Dimension(width, height));
-	}
-
-	@Override
-	public Component getSidePanelContent() {
-		return null;
+		this.setMinimumSize(side.getSize());
 	}
 
 }

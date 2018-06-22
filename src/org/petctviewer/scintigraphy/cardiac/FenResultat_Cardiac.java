@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.cardiac;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 
 import javax.swing.Box;
 import javax.swing.DefaultRowSorter;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -19,54 +21,60 @@ import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableModel;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 import java.awt.image.BufferedImage;
 
-public class FenResultat_Cardiac extends FenResultatSidePanel {
+public class FenResultat_Cardiac extends JFrame {
 
 	private static final long serialVersionUID = -5261203439330504164L;
 
-	private HashMap<String, String> resultats;
-
-	public FenResultat_Cardiac(Scintigraphy vueScin, BufferedImage capture) {
-		super("DPD Quant", vueScin, capture, "");
-		this.resultats = ((Modele_Cardiac) vueScin.getFenApplication().getControleur().getModele()).getResultsHashMap();
-		this.finishBuildingWindow(true);
-		this.setVisible(true);
+	public FenResultat_Cardiac(Scintigraphy scin, BufferedImage capture) {
+		this.setLayout(new BorderLayout());
+		//super("DPD Quant", vueScin, capture, "");
+		HashMap<String, String> resultats = ((Modele_Cardiac) scin.getFenApplication().getControleur().getModele()).getResultsHashMap();
+		SidePanel side = new SidePanel(getSidePanelContent(resultats), "DPD Quant", scin.getImp());
+		side.addCaptureBtn(scin, "");
 		
-		this.setResizable(true);
+		this.add(new DynamicImage(capture), BorderLayout.CENTER);
+		this.add(side, BorderLayout.EAST);
+		
+		this.setTitle("DPD Quant results");
+		this.pack();
+		this.setMinimumSize(side.getSize());
+		this.setVisible(true);
 	}
 
-	@Override
-	public Component getSidePanelContent() {
+	public Component getSidePanelContent(HashMap<String, String> resultats) {
 		Box returnBox = Box.createVerticalBox();
 		
 		JPanel resultRouge = new JPanel(new GridLayout(3, 1, 10, 10));
 		
 		String key = "Ratio H/WB %";
-		JLabel lbl_hwb = new JLabel(key + " : " + this.resultats.get(key));
+		JLabel lbl_hwb = new JLabel(key + " : " + resultats.get(key));
 		
-		if(Double.parseDouble(this.resultats.get(key)) > 7.5) {
+		if(Double.parseDouble(resultats.get(key)) > 7.5) {
 			lbl_hwb.setForeground(Color.RED);
 		}else {
 			lbl_hwb.setForeground(new Color(128, 51, 0));
 		}
-		this.resultats.remove(key);		
+		resultats.remove(key);		
 		resultRouge.add(lbl_hwb);
 		
 		//on ajoute le pourcentage de retention cardiaque si il existe
 		key = "Cardiac retention %";
-		if (this.resultats.containsKey(key)) {
-			JLabel lbl = new JLabel(key + " : " + this.resultats.remove(key));
+		if (resultats.containsKey(key)) {
+			JLabel lbl = new JLabel(key + " : " + resultats.remove(key));
 			lbl.setForeground(new Color(128, 51, 0));
 			resultRouge.add(lbl);
 		}			
 		
 		//idem pour la retention du corps entier
 		key = "WB retention %";
-		if (this.resultats.containsKey(key)) {
-			JLabel lbl = new JLabel(key + " : " + this.resultats.remove(key));
+		if (resultats.containsKey(key)) {
+			JLabel lbl = new JLabel(key + " : " + resultats.remove(key));
 			lbl.setForeground(new Color(128, 51, 0));
 			resultRouge.add(lbl);
 		}
@@ -81,8 +89,8 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 		JTable tabRes = new JTable(modelRes);
 		modelRes.addColumn("Organ");
 		modelRes.addColumn("Count avg");
-		for (String k : this.resultats.keySet()) {
-			modelRes.addRow(this.getTabRes(k));
+		for (String k : resultats.keySet()) {
+			modelRes.addRow(this.getTabRes(k, resultats));
 		}
 		
 		//tri des valeurs
@@ -111,10 +119,10 @@ public class FenResultat_Cardiac extends FenResultatSidePanel {
 		return returnBox;
 	}
 	
-	private String[] getTabRes(String key) {
+	private String[] getTabRes(String key, HashMap<String, String> resultats) {
 		String v = "";
-		if (this.resultats.containsKey(key)) {
-			v = this.resultats.get(key);
+		if (resultats.containsKey(key)) {
+			v = resultats.get(key);
 		}
 		return new String[] { " " + key, v };
 	}

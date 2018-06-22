@@ -34,7 +34,7 @@ public class FenResultat_HepaticDyn {
 	public FenResultat_HepaticDyn(HepaticDynamicScintigraphy vue, BufferedImage capture) {
 		this.principal = new TabPrincipal(vue, capture, width, height).getContentPane();
 		this.third = new TabTAC(vue, width, height).getContentPane();
-		this.vasculaire = new TabVasculaire(vue, width, height).getContentPane();
+		this.vasculaire = new TabVasculaire(vue, width, height);
 		showGUI();
 	}
 

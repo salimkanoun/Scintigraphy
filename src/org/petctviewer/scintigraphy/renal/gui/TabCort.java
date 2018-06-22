@@ -15,14 +15,14 @@ import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
-class TabCort extends FenResultatSidePanel {
+class TabCort extends JPanel {
 
 	private static final long serialVersionUID = -2324369375150642778L;
 
-	public TabCort(Scintigraphy scin, int w, int h) {
-		super("Renal scintigraphy", scin, null, "cort");
-		
+	public TabCort(Scintigraphy scin) {
+		super(new BorderLayout());
 		ModeleScinDyn modele = (ModeleScinDyn) scin.getFenApplication().getControleur().getModele();
 		
 		List<XYSeries> listSeries = modele.getSeries();
@@ -39,23 +39,14 @@ class TabCort extends FenResultatSidePanel {
 		cPanels[1].getChart().getXYPlot().getRenderer().setSeriesPaint(1, Color.BLUE);
 		
 		JPanel grid = new JPanel(new GridLayout(2,1));
-		cPanels[0].setPreferredSize(new Dimension(w, h/2));
 		grid.add(cPanels[0]);
 		
-		cPanels[1].setPreferredSize(new Dimension(w, h/2));
 		grid.add(cPanels[1]);
 
-		this.add(new JPanel(), BorderLayout.WEST);
+		SidePanel side = new SidePanel(null, "Renal scintigraphy", scin.getImp());
+		
+		this.add(side, BorderLayout.EAST);
 		this.add(grid, BorderLayout.CENTER);
-		
-		this.setPreferredSize(new Dimension(w, h));
-		
-		this.finishBuildingWindow(true);
-	}
-
-	@Override
-	public Component getSidePanelContent() {
-		return null;
 	}
 
 }

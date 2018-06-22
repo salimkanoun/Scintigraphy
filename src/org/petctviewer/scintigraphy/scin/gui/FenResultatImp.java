@@ -21,7 +21,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import ij.ImagePlus;
 import ij.plugin.ContrastEnhancer;
 
-public abstract class FenResultatImp extends FenResultatSidePanel implements ChangeListener {
+public abstract class FenResultatImp extends JPanel implements ChangeListener {
 
 	private ImagePlus imp;
 	private DynamicImage dynamicImp;
@@ -31,51 +31,47 @@ public abstract class FenResultatImp extends FenResultatSidePanel implements Cha
 	private JSlider slider;
 	private Box boxSlider;
 
+	private SidePanel side;
+	String additionalInfo, nomFen;
+
 	public FenResultatImp(String nomFen, Scintigraphy vue, BufferedImage capture, String additionalInfo) {
-		super(nomFen, vue, capture, additionalInfo);
-		this.vue = vue;
+		super(new BorderLayout());
+		this.setVue(vue);
+		this.additionalInfo = additionalInfo;
+		this.nomFen = nomFen;
 
 		this.sliderLabel = new JLabel("Contrast", SwingConstants.CENTER);
 		sliderLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		this.slider = initSlider();
 
+		SidePanel side = new SidePanel(null, nomFen, vue.getImp());
+		this.add(side, BorderLayout.EAST);
+	}
+
+	public void finishBuildingWindow() {
+		this.slider = initSlider();
 		this.boxSlider = Box.createVerticalBox();
 		boxSlider.add(this.sliderLabel);
 		boxSlider.add(this.slider);
-	}
 
-	@Override
-	public void finishBuildingWindow(boolean capture) {
-		if (this.imp != null) {
-			BufferedImage img = this.imp.getBufferedImage();
-			if (this.dynamicImp == null) {
-				this.dynamicImp = new DynamicImage(img);
-				this.setContrast(this.slider.getValue());
-				this.add(dynamicImp, BorderLayout.CENTER);
-			}
+		BufferedImage img = this.imp.getBufferedImage();
+		if (this.dynamicImp == null) {
+			this.dynamicImp = new DynamicImage(img);
+			this.setContrast(this.slider.getValue());
+			this.add(dynamicImp, BorderLayout.CENTER);
 		}
 
-		super.finishBuildingWindow(capture);
-	}
+		this.setContrast(slider.getValue());
 
-	public void setImp(ImagePlus imp) {
-		this.imp = imp;
-		this.finishBuildingWindow(false);
+		SidePanel side = new SidePanel(boxSlider, nomFen, getVue().getImp());
+		side.addCaptureBtn(getVue(), this.additionalInfo, new Component[] { this.slider });
+
+		this.add(side, BorderLayout.EAST);
 	}
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		JSlider slider = (JSlider) e.getSource();
 		this.setContrast(slider.getValue());
-	}
-
-	@Override
-	public Component getSidePanelContent() {
-		if (this.imp != null) {
-			this.setContrast(slider.getValue());
-			return boxSlider;
-		}
-		return null;
 	}
 
 	private JSlider initSlider() {
@@ -117,14 +113,16 @@ public abstract class FenResultatImp extends FenResultatSidePanel implements Cha
 		return this.slider;
 	}
 
-	@Override
-	public void setCaptureButton(JButton btn_capture, JLabel lbl_credits) {
-		// on ajoute le listener pour la capture
-		Component[] show = new Component[] { lbl_credits };
-		Component[] hide = new Component[] { btn_capture, this.slider, this.sliderLabel };
-
-		this.vue.setCaptureButton(btn_capture, show, hide, this,
-				this.vue.getFenApplication().getControleur().getModele(), "");
+	public void setImp(ImagePlus imp) {
+		this.imp = imp;
+		this.finishBuildingWindow();
 	}
 
+	public Scintigraphy getVue() {
+		return vue;
+	}
+
+	public void setVue(Scintigraphy vue) {
+		this.vue = vue;
+	}
 }

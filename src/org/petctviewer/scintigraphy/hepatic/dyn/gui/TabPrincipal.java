@@ -23,21 +23,25 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 import ij.ImagePlus;
 
-class TabPrincipal extends FenResultatSidePanel{
+class TabPrincipal extends JPanel{
 
 	private HashMap<String, String> resultats;
 
-	public TabPrincipal(DynamicScintigraphy vue, BufferedImage capture, int width, int height) {
-		super("Biliary scintiraphy", vue, null, "");
-
-		Modele_HepaticDyn modele = (Modele_HepaticDyn) vue.getFenApplication().getControleur().getModele();
+	public TabPrincipal(DynamicScintigraphy scin, BufferedImage capture, int width, int height) {
+		super(new BorderLayout());
+		
+		Modele_HepaticDyn modele = (Modele_HepaticDyn) scin.getFenApplication().getControleur().getModele();
 		this.resultats = modele.getResultsHashMap();
 		
+		SidePanel side = new SidePanel(this.getSidePanelContent(), "Biliary scintiraphy", scin.getImp());
+		side.addCaptureBtn(scin, "");
+		
 		//montage sur l'ensemble des images
-		ImagePlus imp = Scintigraphy.creerMontage(vue.getFrameDurations(), vue.getImpAnt(), capture.getWidth() / 4, 4, 4);
+		ImagePlus imp = Scintigraphy.creerMontage(scin.getFrameDurations(), scin.getImpAnt(), capture.getWidth() / 4, 4, 4);
 		BufferedImage montage = imp.getBufferedImage();
 		
 		//panel qui sera plae au centre de la fenetre
@@ -54,12 +58,11 @@ class TabPrincipal extends FenResultatSidePanel{
 		center.add(cp);
 		
 		this.add(center, BorderLayout.CENTER);
+		this.add(side, BorderLayout.EAST);
 		
-		this.finishBuildingWindow(true);
 		this.setPreferredSize(new Dimension(width, height));
 	}
 	
-	@Override
 	public Component getSidePanelContent() {
 		JPanel flow = new JPanel();
 		flow.add(getBoxResultats());

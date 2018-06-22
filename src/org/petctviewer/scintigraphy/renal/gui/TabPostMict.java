@@ -25,6 +25,7 @@ import org.petctviewer.scintigraphy.scin.basic.CustomControleur;
 import org.petctviewer.scintigraphy.scin.basic.BasicScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatImp;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 import ij.ImagePlus;
 import ij.Prefs;
@@ -41,11 +42,9 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 
 	private JPanel pnl_excr, pnl_bladder;
 
-	public TabPostMict(Scintigraphy vue, int w, int h) {
+	public TabPostMict(Scintigraphy vue) {
 		super("Renal scintigraphy", vue, null, "postmict");
 		this.bladder = Prefs.get("renal.bladder.preferred", true);
-
-		this.pack();
 
 		this.pnl_bladder = new JPanel();
 		this.pnl_excr = new JPanel();
@@ -58,34 +57,30 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 		box.add(btn_addImp);
 		box.add(Box.createHorizontalGlue());
 
+		Component comp = this.getSidePanelContent();
+		SidePanel side = new SidePanel(comp, "Renal Scintigraphy", vue.getImp());
 		this.add(box, BorderLayout.CENTER);
-
-		this.setPreferredSize(new Dimension(w, h));
-		finishBuildingWindow(false);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getSource() == this.btn_addImp) {
-			//Assez sale
+			// Assez sale
 			FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", new Scintigraphy("") {
 				@Override
 				protected ImagePlus preparerImp(ImagePlus[] images) {
-					if(images.length > 1) {
+					if (images.length > 1) {
 						return null;
 					}
-				
+
 					btn_addImp.setVisible(false);
 					btn_quantify.setVisible(true);
-					
+
 					TabPostMict.this.setImp(images[0]);
-					
-					// rafraichit la fenetre pour afficher l'imp
-					finishBuildingWindow(false);
-					
+
 					return images[0];
 				}
-				
+
 				@Override
 				public void lancerProgramme() {
 				}
@@ -94,13 +89,13 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 		} else {
 			this.btn_quantify.setVisible(false);
 			this.vueBasic = new BasicScintigraphy(createOrgans(), this);
-			this.vueBasic.startExam(new ImagePlus[] {this.getImagePlus()});
+			this.vueBasic.startExam(new ImagePlus[] { this.getImagePlus() });
 		}
 	}
 
 	private String[] createOrgans() {
-		Modele_Renal modele = (Modele_Renal) this.getScin().getFenApplication().getControleur().getModele();
-		
+		Modele_Renal modele = (Modele_Renal) getVue().getFenApplication().getControleur().getModele();
+
 		// ajout des organes a delimiter selon le nombre de rein du patient
 		List<String> organes = new ArrayList<String>();
 		if (modele.getKidneys()[0]) {
@@ -115,13 +110,13 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 		if (this.bladder) {
 			organes.add("Bladder");
 		}
-		
+
 		return organes.toArray(new String[0]);
 	}
 
 	@Override
 	public void fin() {
-		Modele_Renal modele = (Modele_Renal) this.getScin().getFenApplication().getControleur().getModele();
+		Modele_Renal modele = (Modele_Renal) getVue().getFenApplication().getControleur().getModele();
 
 		HashMap<String, Double> data = this.vueBasic.getData();
 		this.setImp(vueBasic.getImp());
@@ -149,11 +144,13 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 			this.pnl_bladder.add(new JLabel("Bladder : " + ModeleScinDyn.round(modele.getExcrBladder(bld), 2) + " %"));
 		}
 
-		finishBuildingWindow(true);
-		pack();
+		Component comp = this.getSidePanelContent();
+		SidePanel side = new SidePanel(comp, "Renal Scintigraphy", this.getImagePlus());
+		side.addCaptureBtn(vueBasic, "_PostMict", new Component[] { this.getSlider() });
+		this.add(side, new JPanel());
+		this.add(side, BorderLayout.EAST);
 	}
 
-	@Override
 	public Component getSidePanelContent() {
 		if (this.getImagePlus() != null) {
 			Box box = Box.createVerticalBox();
@@ -201,7 +198,7 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 	}
 
 	private Component getPanelExcr(Double rg, Double rd) {
-		Modele_Renal modele = (Modele_Renal) this.getScin().getFenApplication().getControleur().getModele();
+		Modele_Renal modele = (Modele_Renal) this.getVue().getFenApplication().getControleur().getModele();
 		Double[][] excr = modele.getExcrPM(rg, rd);
 
 		// elements du tableau

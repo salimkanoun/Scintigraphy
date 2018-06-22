@@ -23,6 +23,7 @@ import java.awt.Container;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.font.FontRenderContext;
@@ -406,8 +407,8 @@ public abstract class Scintigraphy implements PlugIn {
 
 	/**
 	 * Permet de trier les image unique frame et inverser l'image posterieure A
-	 * Eviter d'utiliser, pr�f�rer la methode sortImageAntPost(ImagePlus imp)
-	 * qui est g�n�rique pour tout type d'image
+	 * Eviter d'utiliser, pr�f�rer la methode sortImageAntPost(ImagePlus imp) qui
+	 * est g�n�rique pour tout type d'image
 	 * 
 	 * @param imp0
 	 *            : ImagePlus a trier
@@ -829,19 +830,19 @@ public abstract class Scintigraphy implements PlugIn {
 			imp.setLut(lut);
 		}
 	}
-	
+
 	/**
 	 * permet de preparer le bouton de capture de la frame.
 	 * 
 	 * @param btn_capture
 	 * @param lbl_credits
-	 * @param jf
+	 * @param cont
 	 * @param modele
 	 * @param additionalInfo
 	 */
-	public void setCaptureButton(JButton btn_capture, JLabel lbl_credits, JFrame jf, ModeleScin modele,
+	public void setCaptureButton(JButton btn_capture, Component lbl_credits, Container cont, ModeleScin modele,
 			String additionalInfo) {
-		setCaptureButton(btn_capture, new Component[] { lbl_credits }, new Component[] { btn_capture }, jf, modele,
+		setCaptureButton(btn_capture, new Component[] { lbl_credits }, new Component[] { btn_capture }, cont, modele,
 				additionalInfo);
 	}
 
@@ -860,6 +861,19 @@ public abstract class Scintigraphy implements PlugIn {
 		}
 	}
 
+	// dayum that recursion
+	private static Container getRootContainer(Container cont) {
+		if (cont.getParent() instanceof Window) {
+			return cont;
+		}
+
+		return getRootContainer(cont.getParent());
+	}
+
+	private static Container getRootContainer(Component comp) {
+		return getRootContainer(comp.getParent());
+	}
+	
 	/**
 	 * Prepare le bouton capture de la fenetre resultat
 	 * 
@@ -867,15 +881,15 @@ public abstract class Scintigraphy implements PlugIn {
 	 *            le bouton capture, masque lors de la capture
 	 * @param show
 	 *            le label de credits, affiche lors de la capture
-	 * @param jf
+	 * @param cont
 	 *            la jframe
 	 * @param modele
 	 *            le modele
 	 * @param additionalInfo
 	 *            string a ajouter a la fin du nom de la capture si besoin
 	 */
-	public void setCaptureButton(JButton btn_capture, Component[] show, Component[] hide, JFrame jf, ModeleScin modele,
-			String additionalInfo) {
+	public void setCaptureButton(JButton btn_capture, Component[] show, Component[] hide, Component cont,
+			ModeleScin modele, String additionalInfo) {
 
 		String examType = this.getExamType();
 
@@ -901,15 +915,12 @@ public abstract class Scintigraphy implements PlugIn {
 
 					@Override
 					public void run() {
-						jf.pack();
-
-						// on recupere le panel principal
-						Container c = jf.getContentPane();
+						Container root = getRootContainer(cont);
 
 						// Capture, nouvelle methode a utiliser sur le reste des programmes
-						BufferedImage capture = new BufferedImage(c.getWidth(), c.getHeight(),
+						BufferedImage capture = new BufferedImage(root.getWidth(), root.getHeight(),
 								BufferedImage.TYPE_INT_ARGB);
-						c.paint(capture.getGraphics());
+						root.paint(capture.getGraphics());
 						ImagePlus imp = new ImagePlus("capture", capture);
 
 						for (Component comp : hide) {
@@ -920,8 +931,9 @@ public abstract class Scintigraphy implements PlugIn {
 							comp.setVisible(false);
 						}
 
-						// on ferme la fenetre
-						jf.dispose();
+						//TODO garder cette partie ?
+						//if (root instanceof Window) // on ferme la fenetre
+						//	((Window) root).dispose();
 
 						// on passe a la capture les infos de la dicom
 						imp.setProperty("Info", info);
@@ -1159,20 +1171,20 @@ public abstract class Scintigraphy implements PlugIn {
 		return this.antPost;
 	}
 
-	public static Overlay duplicateOverlay(Overlay overlay) { 
-	    Overlay overlay2 = overlay.duplicate(); 
-	 
-	    overlay2.drawLabels(overlay.getDrawLabels()); 
-	    overlay2.drawNames(overlay.getDrawNames()); 
-	    overlay2.drawBackgrounds(overlay.getDrawBackgrounds()); 
-	    overlay2.setLabelColor(overlay.getLabelColor()); 
-	    overlay2.setLabelFont(overlay.getLabelFont(), overlay.scalableLabels()); 
-	 
-	    // theses properties are not set by the original duplicate method 
-	    overlay2.setIsCalibrationBar(overlay.isCalibrationBar()); 
-	    overlay2.selectable(overlay.isSelectable()); 
-	 
-	    return overlay2; 
-	  } 
+	public static Overlay duplicateOverlay(Overlay overlay) {
+		Overlay overlay2 = overlay.duplicate();
+
+		overlay2.drawLabels(overlay.getDrawLabels());
+		overlay2.drawNames(overlay.getDrawNames());
+		overlay2.drawBackgrounds(overlay.getDrawBackgrounds());
+		overlay2.setLabelColor(overlay.getLabelColor());
+		overlay2.setLabelFont(overlay.getLabelFont(), overlay.scalableLabels());
+
+		// theses properties are not set by the original duplicate method
+		overlay2.setIsCalibrationBar(overlay.isCalibrationBar());
+		overlay2.selectable(overlay.isSelectable());
+
+		return overlay2;
+	}
 
 }

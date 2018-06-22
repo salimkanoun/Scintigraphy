@@ -301,7 +301,8 @@ public class Modele_Renal extends ModeleScinDyn {
 	 *            "L" ou "R"
 	 * @return le pourcentage
 	 */
-	public int getPercentage(Double min, XYSeries output, String lr) {
+	public int getROE(Double min, String lr) {
+		XYSeries output = this.getSerie("Output K" + lr);
 		XYSeries serieBPF = this.getSerie("Blood pool fitted " + lr);
 		int perct = (int) (ModeleScinDyn.getY(output, min).doubleValue()
 				/ ModeleScinDyn.getY(serieBPF, min).doubleValue() * 100);
@@ -337,12 +338,76 @@ public class Modele_Renal extends ModeleScinDyn {
 
 	@Override
 	public String toString() {
+		Double[][] nora = this.getNora();
+		Double[][] excr = this.getExcr();
+		Double[] sep = this.getSeparatedFunction();
+		double[] patlak = this.getPatlakPente();
+		Double[][] timing = this.getTiming();
+
 		String s = super.toString();
+		
+		s += "\n";
+		
+		s += getDataString("Final KL", "Corrected Left Kidney");
+		s += getDataString("Final KR", "Corrected Right Kidney");
+		s += getDataString("Blood Pool", "Blood Pool");
 
-		// TODO
+		s += "\n";
+		s += ",time, left kidney, right kidney \n";
+		for (int i = 0; i < nora.length; i++) {
+			s += "NORA ," + nora[0][i] + "," + nora[1][i] + "," + nora[2][i] + "\n";
+		}
 
+		for (int i = 0; i < nora.length; i++) {
+			s += "Excretion ratio," + excr[0][i] + "," + excr[1][i] + "," + excr[2][i] + "\n";
+		}
+
+		s += "Separated function integral , ," + sep[0] + "," + sep[1] + "\n";
+		
+		if(patlak != null) {
+			s += "Separated function patlak , ," + patlak[0] + "," + patlak[1] + "\n";
+		}
+		
+		s += "Timing tmax , ," + timing[0][0] + "," + timing[0][1] + "\n";
+		s += "Timing t1/2 , ," + timing[1][0] + "," + timing[1][1] + "\n";
+		
+		s += "\n";
+		
+		s += getROEString();
+		
 		return s;
 
+	}
+	
+	private String getDataString(Comparable key, String name) {
+		List<Double> values = this.getData().get(key);
+		for(Double d : values) {
+			name += "," + d;
+		}
+		name += "\n";
+		return name;
+	}
+
+	private String getROEString() {
+		String s = "Time ROE (min)";
+		Double[] mins = new Double[10];
+		for (int i = 0; i < mins.length; i++) {
+			mins[i] = ModeleScin.round((getSerie("Blood Pool").getMaxX() / (mins.length * 1.0)) * i + 1, 1);
+			s += ", " + mins[i];
+		}
+		s += "\n";
+
+		// on recupere les series
+		for (String lr : this.kidneysLR) {
+			XYSeries serieK = getSerie("Output K" + lr);
+			s += lr + ". kidney";
+			for (int i = 0; i < mins.length; i++) {
+				s += "," + this.getROE(mins[i], lr);
+			}
+			s += "\n";
+		}
+		
+		return s;
 	}
 
 	/**
@@ -444,6 +509,9 @@ public class Modele_Renal extends ModeleScinDyn {
 		return res;
 	}
 
+	/*
+	 * 
+	 */
 	public Double[][] getNora() {
 		Double[][] res = new Double[3][3];
 
@@ -525,22 +593,27 @@ public class Modele_Renal extends ModeleScinDyn {
 
 	/**
 	 * Renvoie la hauteur des reins en cm, index 0 : rein gauche, 1 : rein droit
-	 * @return 
+	 * 
+	 * @return
 	 */
 	public Double[] getSize() {
 		int heightLK = this.organRois.get("L. Kidney").getBounds().height;
 		int heightRK = this.organRois.get("R. Kidney").getBounds().height;
-		
-		//récupère la hauteur d'un pixel en mm
+
+		// rï¿½cupï¿½re la hauteur d'un pixel en mm
 		String pixelHeightString = DicomTools.getTag(imp, "0028,0030").trim().split("\\\\")[1];
 		Double pixelHeight = Double.parseDouble(pixelHeightString);
 		Double[] kidneyHeight = new Double[2];
-		
-		//convvertion des pixel en mm
+
+		// convvertion des pixel en mm
 		kidneyHeight[0] = round(heightLK * pixelHeight / 10, 2);
 		kidneyHeight[1] = round(heightRK * pixelHeight / 10, 2);
-				
+
 		return kidneyHeight;
+	}
+
+	public ArrayList<String> getKidneysLR() {
+		return kidneysLR;
 	}
 
 }

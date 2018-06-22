@@ -21,16 +21,16 @@ public class FenResultats_Renal {
 	private final int width = 1000, height = 800;
 
 	public FenResultats_Renal(RenalScintigraphy vue, BufferedImage capture) {
-		this.principal = new TabPrincipal(vue, capture, width, height).getContentPane();
-		this.zoomed = new TabZoomed(vue, width, height).getContentPane();
-		this.kidneys = new TabROE(vue, width, height).getContentPane();
-		this.timedImage = new TabTimedImage(vue, 4, 5, width, height).getContentPane();
-		this.tabCort = new TabCort(vue, width, height).getContentPane();
-		this.tabUreter = new TabUreter(vue, width, height).getContentPane();
-		this.tabOther = new TabOther(vue, width, height).getContentPane();
-		this.tabPost = new TabPostMict(vue, width, height).getContentPane();
+		this.principal = new TabPrincipal(vue, capture);
+		this.zoomed = new TabZoomed(vue);
+		this.kidneys = new TabROE(vue);
+		this.timedImage = new TabTimedImage(vue, 4, 5);
+		this.tabCort = new TabCort(vue);
+		this.tabUreter = new TabUreter(vue);
+		this.tabOther = new TabOther(vue);
+		this.tabPost = new TabPostMict(vue);
 		if (vue.getPatlakChart() != null) {
-			this.tabPatlak = new TabPatlak(vue, width, height).getContentPane();
+			this.tabPatlak = new TabPatlak(vue);
 		}
 
 		showGUI();

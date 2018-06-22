@@ -17,24 +17,22 @@ import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
-class TabPatlak extends FenResultatSidePanel {
+class TabPatlak extends JPanel {
+	
+	public TabPatlak(RenalScintigraphy scin) {
+		super(new BorderLayout());
+		
+		Modele_Renal modele = (Modele_Renal) scin.getFenApplication().getControleur().getModele();
+		SidePanel side = new SidePanel(this.getSidePanelContent(modele), "Renal Scintigraphy", scin.getImp());
+		side.addCaptureBtn(scin, "_patlak");
 
-	private JValueSetter patlak;
-
-	public TabPatlak(RenalScintigraphy vue, int w, int h) {
-		super("Renal scintigraphy", vue, null, "patlak");
-
-		this.pack();
-		this.add(vue.getPatlakChart(), BorderLayout.CENTER);
-		this.setPreferredSize(new Dimension(w, h));
-		this.finishBuildingWindow(true);
+		this.add(scin.getPatlakChart(), BorderLayout.CENTER);
+		this.add(side, BorderLayout.EAST);
 	}
 
-	@Override
-	public Component getSidePanelContent() {
-		Modele_Renal modele = (Modele_Renal) this.getScin().getFenApplication().getControleur().getModele();
-
+	public Component getSidePanelContent(Modele_Renal modele) {
 		JPanel pnl_sep = new JPanel(new GridLayout(2, 3));
 		pnl_sep.add(new JLabel("Relative function"));
 		

@@ -1,9 +1,7 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.image.BufferedImage;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -11,33 +9,25 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
-class TabUreter extends FenResultatSidePanel {
+class TabUreter extends JPanel {
 
-	public TabUreter(Scintigraphy vue, int w, int h) {
-		super("Renal scintigraphy", vue, null, "ureter");
+	public TabUreter(Scintigraphy scin) {
+		super(new BorderLayout());
+		
+		SidePanel side = new SidePanel(null, "Renal scintigraphy", scin.getImp());
+		side.addCaptureBtn(scin, "ureter");
+		
 		String[][] asso = new String[][] {{"L. Ureter" , "R. Ureter"}};
-		List<XYSeries> series = ((Modele_Renal) vue.getFenApplication().getControleur().getModele()).getSeries();
+		List<XYSeries> series = ((Modele_Renal) scin.getFenApplication().getControleur().getModele()).getSeries();
 		ChartPanel[] cPanels = ModeleScinDyn.associateSeries(asso, series);
 		
 		cPanels[0].getChart().setTitle("Ureters");
+		
+		this.add(side, BorderLayout.EAST);
 		this.add(cPanels[0], BorderLayout.CENTER);
-		
-		this.add(new JPanel(), BorderLayout.WEST);
-		
-		this.setPreferredSize(new Dimension(w, h));
-		
-		finishBuildingWindow(true);
 	}
-
-	@Override
-	public Component getSidePanelContent() {
-		return null;
-	}
-
 }

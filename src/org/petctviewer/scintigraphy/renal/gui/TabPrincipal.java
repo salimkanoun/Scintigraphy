@@ -29,12 +29,13 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 import ij.ImagePlus;
 import ij.plugin.ZProjector;
 import ij.process.ImageProcessor;
 
-class TabPrincipal extends FenResultatSidePanel {
+class TabPrincipal extends JPanel {
 
 	private static final long serialVersionUID = 5670592335800832792L;
 
@@ -50,9 +51,8 @@ class TabPrincipal extends FenResultatSidePanel {
 	 * @param chartPanel
 	 *            chartpanel avec l'overlay d'ajustation
 	 */
-	public TabPrincipal(RenalScintigraphy vue, BufferedImage capture, int w, int h) {
-		super("Renal scintigraphy", vue, capture, "");
-
+	public TabPrincipal(RenalScintigraphy vue, BufferedImage capture) {
+		super(new BorderLayout());
 		JValueSetter chartNephrogram = vue.getNephrogramChart();
 
 		HashMap<Comparable, Double> adjusted = ((Modele_Renal) vue.getFenApplication().getControleur().getModele())
@@ -68,11 +68,6 @@ class TabPrincipal extends FenResultatSidePanel {
 
 		ImagePlus proj = ZProjector.run(vue.getImp(), "sum", slice1, slice2);
 		proj.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
-
-		BufferedImage imgProj = proj.getBufferedImage();
-
-		imgProj = resizeImage(imgProj, capture.getWidth(), capture.getHeight());
-
 		this.modele = (Modele_Renal) vue.getFenApplication().getControleur().getModele();
 
 		JPanel grid = new JPanel(new GridLayout(2, 1));
@@ -84,24 +79,18 @@ class TabPrincipal extends FenResultatSidePanel {
 		panel_top.add(new DynamicImage(capture));
 		panel_top.add(new DynamicImage(proj.getImage()));
 
-		// creation du panel du bas
-		chartNephrogram.setPreferredSize(new Dimension(w, h / 2));
-
 		// on ajoute les panels a la grille principale
 		grid.add(panel_top);
 		grid.add(chartNephrogram);
 
 		// ajout de la grille a la fenetre
-		this.add(new JPanel(), BorderLayout.WEST);
+		SidePanel side = new SidePanel(getSidePanelContent(), "Renal scintigraphy", vue.getImp());
+		side.addCaptureBtn(vue, "");
+		
+		this.add(side, BorderLayout.EAST);
 		this.add(grid, BorderLayout.CENTER);
-
-		this.setPreferredSize(new Dimension(w, h));
-
-		this.finishBuildingWindow(true);
-		this.setVisible(false);
 	}
 
-	@Override
 	public Component getSidePanelContent() {
 		boolean[] kidneys = this.modele.getKidneys();
 
@@ -126,7 +115,7 @@ class TabPrincipal extends FenResultatSidePanel {
 		res.add(this.getPanelNora());
 		res.add(Box.createVerticalStrut(25));
 
-		this.setFontAllJLabels(res, new Font("Calibri", Font.BOLD, 13));
+		FenResultatSidePanel.setFontAllJLabels(res, new Font("Calibri", Font.BOLD, 13));
 
 		flow_wrap.add(res);
 
@@ -180,7 +169,6 @@ class TabPrincipal extends FenResultatSidePanel {
 		pnl_roe.add(lbl_R);
 
 		boolean[] kidneys = this.modele.getKidneys();
-		XYSeries serieRK = null, serieLK = null;
 
 		for (int i = 0; i < 3; i++) {
 			// aligne a droite
@@ -189,8 +177,7 @@ class TabPrincipal extends FenResultatSidePanel {
 
 			JLabel lbl_g = null;
 			if (kidneys[0]) {
-				serieLK = this.modele.getSerie("Output KL");
-				lbl_g = new JLabel(modele.getPercentage(mins[i], serieLK, "L") + " %");
+				lbl_g = new JLabel(modele.getROE(mins[i], "L") + " %");
 			} else {
 				lbl_g = new JLabel("N/A");
 			}
@@ -199,8 +186,7 @@ class TabPrincipal extends FenResultatSidePanel {
 
 			JLabel lbl_d = null;
 			if (kidneys[1]) {
-				serieRK = this.modele.getSerie("Output KR");
-				lbl_d = new JLabel(modele.getPercentage(mins[i], serieRK, "R") + " %");
+				lbl_d = new JLabel(modele.getROE(mins[i], "R") + " %");
 			} else {
 				lbl_d = new JLabel("N/A");
 			}

@@ -32,16 +32,19 @@ import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
-class TabROE extends FenResultatSidePanel implements ActionListener{
+class TabROE extends JPanel implements ActionListener{
 
 	private static final long serialVersionUID = -8303889633428224794L;
-
-	public TabROE(Scintigraphy vue, int w, int h) {
-		super("Renal scintigraphy", vue, null, "roe");
+	Modele_Renal modele;
+	
+	public TabROE(Scintigraphy scin) {
+		super(new BorderLayout());
+		modele = (Modele_Renal) scin.getFenApplication().getControleur().getModele();
 
 		// on recupere le modele et les series
-		Modele_Renal modele = (Modele_Renal) vue.getFenApplication().getControleur().getModele();
+		Modele_Renal modele = (Modele_Renal) scin.getFenApplication().getControleur().getModele();
 		List<XYSeries> series = modele.getSeries();
 
 		// recuperation des chart panel avec association
@@ -69,7 +72,6 @@ class TabROE extends FenResultatSidePanel implements ActionListener{
 			
 			c.getChart().setTitle("Right Kidney");
 			c.getChart().getLegend().setPosition(RectangleEdge.LEFT);
-			c.setPreferredSize(new Dimension(w, h / 2));
 			p.add(c);
 		}
 
@@ -90,21 +92,17 @@ class TabROE extends FenResultatSidePanel implements ActionListener{
 			
 			c1.getChart().setTitle("Left Kidney");
 			c1.getChart().getLegend().setPosition(RectangleEdge.LEFT);
-			c1.setPreferredSize(new Dimension(w, h / 2));
 			p.add(c1);
 		}
-
-		this.add(new JPanel(), BorderLayout.WEST);
+		
+		SidePanel side = new SidePanel(this.getSidePanelContent(), "Renal Scintigraphy", scin.getImp());
+		side.addCaptureBtn(scin, "_roe");
+		
+		this.add(side, BorderLayout.EAST);
 		this.add(p, BorderLayout.CENTER);
-
-		this.setPreferredSize(new Dimension(w, h));
-
-		this.finishBuildingWindow(true);
 	}
 
 	private Component getPanelROE() {
-		Modele_Renal modele = (Modele_Renal) getScin().getFenApplication().getControleur().getModele();
-
 		JLabel lbl_L = new JLabel("L");
 		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
 		JLabel lbl_R = new JLabel("R");
@@ -123,25 +121,13 @@ class TabROE extends FenResultatSidePanel implements ActionListener{
 		pnl_roe.add(lbl_L);
 		pnl_roe.add(lbl_R);
 
-		XYSeries serieLK = null;
-		// on recupere les series
-		if (modele.getKidneys()[0]) {
-			serieLK = modele.getSerie("Output KL");
-			// minutes a observer pour la capacite d'excretion
-		}
-
-		XYSeries serieRK = null;
-		if (modele.getKidneys()[1]) {
-			serieRK = modele.getSerie("Output KR");
-		}
-
 		for (int i = 0; i < mins.length; i++) {
 			// aligne a droite
 			JLabel lbl_min = new JLabel(mins[i] + "  min");
 			pnl_roe.add(lbl_min);
 
 			if (modele.getKidneys()[0]) {
-				JLabel lbl_g = new JLabel(modele.getPercentage(mins[i], serieLK, "L") + " %");
+				JLabel lbl_g = new JLabel(modele.getROE(mins[i], "L") + " %");
 				lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
 				pnl_roe.add(lbl_g);
 			} else {
@@ -149,7 +135,7 @@ class TabROE extends FenResultatSidePanel implements ActionListener{
 			}
 
 			if (modele.getKidneys()[1]) {
-				JLabel lbl_d = new JLabel(modele.getPercentage(mins[i], serieRK, "R") + " %");
+				JLabel lbl_d = new JLabel(modele.getROE(mins[i], "R") + " %");
 				lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
 				pnl_roe.add(lbl_d);
 			} else {
@@ -161,7 +147,6 @@ class TabROE extends FenResultatSidePanel implements ActionListener{
 		return pnl_roe;
 	}
 
-	@Override
 	public Component getSidePanelContent() {
 		Box box = Box.createVerticalBox();
 		box.add(getPanelROE());
@@ -176,7 +161,6 @@ class TabROE extends FenResultatSidePanel implements ActionListener{
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		Modele_Renal modele = (Modele_Renal) this.getScin().getFenApplication().getControleur().getModele();
 		JFrame frameBPI = new JFrame();
 		frameBPI.add(ModeleScinDyn.associateSeries(new String[] {"BPI", "Blood pool fitted"}, modele.getSeries()));
 		frameBPI.pack();
