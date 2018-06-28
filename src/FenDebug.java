@@ -9,7 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.PrefsWindow;
-import org.petctviewer.scintigraphy.CSV.CSVComparator;
+import org.petctviewer.scintigraphy.CSV.FollowUp;
 import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
 import org.petctviewer.scintigraphy.dynamic.GeneralDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
@@ -132,11 +132,11 @@ public class FenDebug extends JFrame{
 			}
 		});
 		
-		JButton btn_CVSComparator = new JButton("CVSComparator");
-		btn_CVSComparator.addActionListener(new ActionListener() {
+		JButton btn_FollowUp = new JButton("Follow-up");
+		btn_FollowUp.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				CSVComparator cvsComparator = new CSVComparator();
+				FollowUp cvsComparator = new FollowUp();
 				cvsComparator.run("");
 			}
 		});
@@ -150,7 +150,7 @@ public class FenDebug extends JFrame{
 		p.add(btn_dmsa);
 		p.add(btn_vgDyn);
 		p.add(btn_genStatic);
-		p.add(btn_CVSComparator);
+		p.add(btn_FollowUp);
 		
 		this.add(p, BorderLayout.CENTER);
 		this.add(pnl_pref, BorderLayout.NORTH);

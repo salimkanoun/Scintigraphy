@@ -48,7 +48,7 @@ import ij.util.DicomTools;
 
 public abstract class ModeleScin {
 
-	private ImagePlus imp;
+	protected  ImagePlus imp;
 	private Integer uid;
 
 	public ImagePlus getImp() {
@@ -125,7 +125,7 @@ public abstract class ModeleScin {
 			String dateStr = DicomTools.getTag(imp, "0008,0022").trim();
 			Date result = null;
 			try {
-				result = new SimpleDateFormat("yyyymmdd").parse(dateStr);
+				result = new SimpleDateFormat("yyyyMMdd").parse(dateStr);
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}

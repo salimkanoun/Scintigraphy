@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.dynamic;
+  package org.petctviewer.scintigraphy.dynamic;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
