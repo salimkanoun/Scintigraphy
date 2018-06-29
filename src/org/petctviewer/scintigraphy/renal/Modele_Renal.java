@@ -357,6 +357,8 @@ public class Modele_Renal extends ModeleScinDyn {
 		s += getDataString("Blood Pool", "Blood Pool");
 
 		s += "\n";
+		s+=getROEString();
+		s+="\n";
 		s += ",time, left kidney, right kidney \n";
 		for (int i = 0; i < nora.length; i++) {
 			s += "NORA ," + nora[0][i] + "," + nora[1][i] + "," + nora[2][i] + "\n";
@@ -377,11 +379,17 @@ public class Modele_Renal extends ModeleScinDyn {
 		
 		s += "\n";
 		
-		s += getROEString2();
-		
-		s += getROEString();
 		
 		
+		// ROE
+		Double xLasilix = this.adjustedValues.get("lasilix");
+		Double[] time = {ModeleScin.round(xLasilix - 1, 1),
+				ModeleScin.round(xLasilix + 2, 1), 
+				round(this.getSerie("Blood Pool").getMaxX(), 1)};
+		s += "Time ROE (min), "+ time[0]+","+this.getROE(time[0], "L")+","+this.getROE(time[0], "R")+"\n"
+			+"Time ROE (min), "+ time[1]+","+this.getROE(time[1], "L")+","+this.getROE(time[1], "R")+"\n"
+			+"Time ROE (min), "+ time[2]+","+this.getROE(time[2], "L")+","+this.getROE(time[2], "R")+"\n";
+	
 		return s;
 
 	}
@@ -396,7 +404,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	}
 
 	private String getROEString() {
-		String s = "Time ROE (min)";
+		String s = "Time ROE";
 		Double[] mins = new Double[10];
 		for (int i = 0; i < mins.length; i++) {
 			mins[i] = ModeleScin.round((getSerie("Blood Pool").getMaxX() / (mins.length * 1.0)) * i + 1, 1);
@@ -417,25 +425,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		return s;
 	}
 	
-	/*
-	 * avoir le string de roe pour les temps 19,22,29 min uniquement et sous le meme format que les autres données du csv
-	 */
-	private String getROEString2() {
-		Double[] mins = new Double[10];
-		for (int i = 0; i < mins.length; i++) {
-			mins[i] = ModeleScin.round((getSerie("Blood Pool").getMaxX() / (mins.length * 1.0)) * i + 1, 1);
-		}
-		
-		String res = "Time ROE (min),"+ mins[6]+","+this.getROE(mins[6], "L")+","+this.getROE(mins[6], "R")+"\n"
-					+ "Time ROE (min),"+ mins[7]+","+this.getROE(mins[7], "L")+","+this.getROE(mins[7], "R")+"\n"
-					+"Time ROE (min),"+ mins[9]+","+this.getROE(mins[9], "L")+","+this.getROE(mins[9], "R")+"\n\n";
-				
-		
-		return res;
-		
-		//6,7,9
-		
-	}
+
 
 	/**
 	 * renvoie le temps a tmax et t1/2

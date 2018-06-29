@@ -1,6 +1,9 @@
 package org.petctviewer.scintigraphy.CSV;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +13,7 @@ import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 
 public class TabDetails extends JPanel{
 	
@@ -17,14 +21,15 @@ public class TabDetails extends JPanel{
 	
 	//contient les tableaux de chaque patient
 	private ArrayList<HashMap<String, Double[][]>> tableaux;
+	private String[] dateExamen;
 	
 	public TabDetails(ArrayList<String> chemins) {
 		Controleur_FollowUp_TabDetails controleurTabDetails = new Controleur_FollowUp_TabDetails(this,chemins);
 
 		
 
-		this.setLayout(new GridLayout(1,tableaux.size()));
-		
+		this.setLayout(new FlowLayout());
+		Box allResultats = Box.createHorizontalBox();
 		
 		
 		for(int i=0; i<tableaux.size(); i++) {
@@ -32,20 +37,43 @@ public class TabDetails extends JPanel{
 			//ArrayList<String> cleTableaux = new ArrayList<>(tableaux.get(clePatient.get(i)).keySet());			
 			
 			
-			JPanel resultats = new JPanel(new GridLayout(6, 1));
+			Box resultats =  Box.createVerticalBox();
 			
+		
+			JLabel date = new JLabel(dateExamen[i]);
+	        date.setAlignmentX(CENTER_ALIGNMENT);
 			
-			resultats.add(setNoraTab(tableaux.get(i).get("nora")));
-			resultats.add(setExcretionRatioTab(tableaux.get(i).get("excretion")));
+			date.setFont(new Font("Helvetica", Font.PLAIN, 18));
+			resultats.add(date);
+			resultats.add(Box.createRigidArea(new Dimension(0, 30)));// add space
+
+			resultats.add(setIntegralTab(tableaux.get(i).get("integral")));
+			resultats.add(Box.createRigidArea(new Dimension(0, 30)));
+
 			resultats.add(setTimingTab(tableaux.get(i).get("timing")));
+			resultats.add(Box.createRigidArea(new Dimension(0, 30)));
 			
-			this.add(resultats);
+			resultats.add(setExcretionRatioTab(tableaux.get(i).get("excretion")));
+			resultats.add(Box.createRigidArea(new Dimension(0, 30)));
+
+			resultats.add(setRoeTab(tableaux.get(i).get("roe")));
+			resultats.add(Box.createRigidArea(new Dimension(0, 30)));
+
+			resultats.add(setNoraTab(tableaux.get(i).get("nora")));
+			
+			//pour que tableau ne soit pas etalé sur toute la fenetre
+			JPanel jp = new JPanel(new FlowLayout());
+			jp.add(resultats);
+			
+			allResultats.add(jp);
+	
 		}
+		this.add(allResultats);
 		
 	}
 	
 	private Box setNoraTab(Double[][] nora) {
-		JPanel noraTabPanel = new JPanel(new GridLayout(4,3));
+		JPanel noraTabPanel = new JPanel(new GridLayout(4,3,10,5));
 		noraTabPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 		
 		JLabel timeLabel = new JLabel("T");
@@ -77,15 +105,22 @@ public class TabDetails extends JPanel{
 			}
 		}
 		
+		//pour que tableau ne soit pas etalé sur toute la fenetre
+		JPanel jp = new JPanel(new FlowLayout());
+		jp.add(noraTabPanel);
+		
 		Box noraBox = Box.createVerticalBox();
-		noraBox.add(new JLabel(" NORA"));
-		noraBox.add(noraTabPanel);
+		JLabel title = new JLabel("NORA");
+        title.setAlignmentX(CENTER_ALIGNMENT);
+		noraBox.add(title);
+		noraBox.add(jp);
 
 		return noraBox;
 	}
+	
 
 	private Box setExcretionRatioTab(Double[][] excr) {
-		JPanel excrTabPanel = new JPanel(new GridLayout(4, 3));
+		JPanel excrTabPanel = new JPanel(new GridLayout(4, 3,10,5));
 		excrTabPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 		
 		JLabel timeLabel = new JLabel("T");
@@ -117,15 +152,21 @@ public class TabDetails extends JPanel{
 			}
 		}		
 		
+		//pour que tableau ne soit pas etalé sur toute la fenetre
+		JPanel jp = new JPanel(new FlowLayout());
+		jp.add(excrTabPanel);
+		
 		Box excrBox = Box.createVerticalBox();
-		excrBox.add(new JLabel(" Excretion ratio"));
-		excrBox.add(excrTabPanel);
+		JLabel title = new JLabel("Excretion ratio");
+        title.setAlignmentX(CENTER_ALIGNMENT);
+		excrBox.add(title);
+		excrBox.add(jp);
 		
 		return excrBox;
 	}
 	
 	private Box setTimingTab(Double[][] timing) {
-		JPanel timingTabPanel = new JPanel(new GridLayout(3, 3));
+		JPanel timingTabPanel = new JPanel(new GridLayout(3, 3,0,5));
 		timingTabPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 		
 		JLabel timeLabel = new JLabel("T");
@@ -162,14 +203,118 @@ public class TabDetails extends JPanel{
 			}
 		}		
 		
+		//pour que tableau ne soit pas etalé sur toute la fenetre
+		JPanel jp = new JPanel(new FlowLayout());
+		jp.add(timingTabPanel);
+		
 		Box timingBox = Box.createVerticalBox();
-		timingBox.add(new JLabel(" Timing"));
-		timingBox.add(timingTabPanel);
+		JLabel title = new JLabel("Timing");
+        title.setAlignmentX(CENTER_ALIGNMENT);
+		timingBox.add(title);
+		timingBox.add(jp);
 		
 		return timingBox;
+	}
+	
+	private Box setRoeTab(Double[][] roe) {
+		JPanel roeTabPanel = new JPanel(new GridLayout(4, 3,10,5));
+		roeTabPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+		
+		JLabel timeLabel = new JLabel("T");
+		timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		roeTabPanel.add(timeLabel);
+		
+		JLabel leftLabel = new JLabel("L");
+		leftLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		roeTabPanel.add(leftLabel);
+		
+		JLabel rightLabel = new JLabel("R");
+		rightLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		roeTabPanel.add(rightLabel);
+		
+
+		for (int i = 0; i < roe.length; i++) {
+
+			roeTabPanel.add(new JLabel(roe[i][0] + "  min"));
+
+			for (int j = 1; j < roe[i].length; j++) {
+				if (roe[i][j] != null) {
+					JLabel lbl_g = new JLabel(roe[i][j] + " %");
+					lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
+					roeTabPanel.add(lbl_g);
+				} else {
+					JLabel lbl_na = new JLabel("N/A");
+					lbl_na.setHorizontalAlignment(SwingConstants.CENTER);
+					roeTabPanel.add(lbl_na);
+				}
+			}
+		}		
+		
+		//pour que tableau ne soit pas etalé sur toute la fenetre
+		JPanel jp = new JPanel(new FlowLayout());
+		jp.add(roeTabPanel);
+		
+		Box roeBox = Box.createVerticalBox();
+		JLabel title = new JLabel("ROE");
+        title.setAlignmentX(CENTER_ALIGNMENT);
+		roeBox.add(title);
+		roeBox.add(jp);
+		
+		return roeBox;
+	}
+	
+	private Box setIntegralTab(Double[][] integral) {
+		JPanel integralTabPanel = new JPanel(new GridLayout(2, 3,10,5));
+		integralTabPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+		
+		JLabel timeLabel = new JLabel("T");
+		timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		integralTabPanel.add(timeLabel);
+		
+		JLabel leftLabel = new JLabel("L");
+		leftLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		integralTabPanel.add(leftLabel);
+		
+		JLabel rightLabel = new JLabel("R");
+		rightLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		integralTabPanel.add(rightLabel);
+		
+
+		int i =0;
+
+		integralTabPanel.add(new JLabel(" "));
+
+		for (int j = 0; j < integral[i].length; j++) {
+			if (integral[i][j] != null) {
+				JLabel lbl_g = new JLabel(integral[i][j] + " %");
+				lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
+				integralTabPanel.add(lbl_g);
+			} else {
+				JLabel lbl_na = new JLabel("N/A");
+				lbl_na.setHorizontalAlignment(SwingConstants.CENTER);
+				integralTabPanel.add(lbl_na);
+			}
+		}
+			
+		//pour que tableau ne soit pas etalé sur toute la fenetre
+		JPanel jp = new JPanel(new FlowLayout());
+		jp.add(integralTabPanel);
+				
+		Box integralBox = Box.createVerticalBox();
+		JLabel title = new JLabel("Relative function integral");
+        title.setAlignmentX(CENTER_ALIGNMENT);
+		integralBox.add(title);
+		integralBox.add(jp);
+		
+		return integralBox;
 	}
 	
 	public void setTableaux(ArrayList<HashMap<String, Double[][]>> tableaux) {
 		this.tableaux = tableaux;
 	}
+
+	public void setDateExamen(String[] dateExamen) {
+		this.dateExamen = dateExamen;
+	}
+
 }

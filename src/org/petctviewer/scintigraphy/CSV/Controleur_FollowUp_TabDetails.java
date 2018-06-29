@@ -8,6 +8,7 @@ public class Controleur_FollowUp_TabDetails {
 
 		Modele_FollowUp_TabDetails modele = new Modele_FollowUp_TabDetails(chemins);
 		tab.setTableaux(modele.getTableaux());
+		tab.setDateExamen(modele.getDateExamen());
 	}
 	
 }

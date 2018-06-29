@@ -55,7 +55,7 @@ public abstract class Modele_FollowUp {
 	//to read excretion ratio
 	protected Double[][] readExcretionRatio(int indiceExamen) {
 		Double[][] excr = new Double[3][3];
-		int ligneDansCsv = 13;
+		int ligneDansCsv = rechercheLineContains(indiceExamen, "Excretion ratio");
 		int colonneDansCsv = 1;
 		for(int i = 0; i< 3; i++) {
 			for(int j = 0; j<3; j++) {
@@ -68,6 +68,15 @@ public abstract class Modele_FollowUp {
 		return excr;
 	}
 	
+	//search a line where first apparition of word "mot"
+	protected int rechercheLineContains(int indiceExamen, String mot) {
+		for(int i =0; i< allLines.get(indiceExamen).size(); i++) {
+			if(allLines.get(indiceExamen).get(i).contains(mot)) {
+				return i;
+			}
+		}
+		return 0;
+	}
 	
 	/************ Private Methods ***********/
 	//to print CSV content in console
