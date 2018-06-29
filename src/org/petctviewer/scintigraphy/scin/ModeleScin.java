@@ -48,7 +48,7 @@ import ij.util.DicomTools;
 
 public abstract class ModeleScin {
 
-	protected  ImagePlus imp;
+	private  ImagePlus imp;
 	private Integer uid;
 
 	public ImagePlus getImp() {
