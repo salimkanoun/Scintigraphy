@@ -29,7 +29,7 @@ public class Modele_HepaticDyn extends ModeleScinDyn {
 
 	public Modele_HepaticDyn(HepaticDynamicScintigraphy vue) {
 		super(vue.getFrameDurations());
-		this.imp = (ImagePlus) vue.getImp().clone();
+		this.setImp( (ImagePlus) vue.getImp().clone());
 	}
 
 	@Override

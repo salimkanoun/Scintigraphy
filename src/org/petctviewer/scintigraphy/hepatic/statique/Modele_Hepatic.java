@@ -10,7 +10,7 @@ public class Modele_Hepatic extends ModeleScin {
 	private Double MGFoie, MGIntes, MGTot;
 
 	public Modele_Hepatic(ImagePlus imp) {
-		this.imp = (ImagePlus) imp.clone();
+		this.setImp( (ImagePlus) imp.clone());
 	}
 
 	@Override
