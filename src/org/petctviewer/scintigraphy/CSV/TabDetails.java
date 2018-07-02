@@ -264,12 +264,10 @@ public class TabDetails extends JPanel{
 	}
 	
 	private Box setIntegralTab(Double[][] integral) {
-		JPanel integralTabPanel = new JPanel(new GridLayout(2, 3,10,5));
+		JPanel integralTabPanel = new JPanel(new GridLayout(2, 2,10,5));
 		integralTabPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 		
-		JLabel timeLabel = new JLabel("T");
-		timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		integralTabPanel.add(timeLabel);
+		
 		
 		JLabel leftLabel = new JLabel("L");
 		leftLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -279,10 +277,7 @@ public class TabDetails extends JPanel{
 		rightLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		integralTabPanel.add(rightLabel);
 		
-
 		int i =0;
-
-		integralTabPanel.add(new JLabel(" "));
 
 		for (int j = 0; j < integral[i].length; j++) {
 			if (integral[i][j] != null) {
