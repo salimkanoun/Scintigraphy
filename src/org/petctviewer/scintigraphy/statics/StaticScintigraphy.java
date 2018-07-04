@@ -30,7 +30,13 @@ public class StaticScintigraphy extends Scintigraphy {
 
 	@Override
 	public void lancerProgramme() {
+		
+		Overlay overlay = Scintigraphy.initOverlay(this.getImp(),12);
+		Scintigraphy.setOverlayDG(overlay, this.getImp(),Color.white);
+		
 		this.setFenApplication(new FenApplication_ScinStatic(this.getImp(), this.getExamType()));
+		this.getImp().setOverlay(overlay);
+
 		ControleurScinStatic ctrl = new ControleurScinStatic(this);
 		this.getFenApplication().setControleur(ctrl);
 	}
