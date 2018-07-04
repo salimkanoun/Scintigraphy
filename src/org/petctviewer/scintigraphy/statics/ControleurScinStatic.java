@@ -3,13 +3,17 @@ package org.petctviewer.scintigraphy.statics;
 import java.awt.Button;
 import java.awt.event.ActionEvent;
 
+import javax.swing.SwingUtilities;
+
 import org.petctviewer.scintigraphy.dynamic.FenApplication_GeneralDyn;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.ImagePlus;
+import ij.ImageStack;
 import ij.gui.Roi;
+import ij.plugin.MontageMaker;
 import ij.plugin.frame.RoiManager;
 
 public class ControleurScinStatic extends ControleurScin{
@@ -22,7 +26,6 @@ public class ControleurScinStatic extends ControleurScin{
 		
 		this.setModele(new ModeleScinStatic());
 		this.setOrganes(new String[MAXROI] );
-		
 	}
 
 	@Override
@@ -39,6 +42,7 @@ public class ControleurScinStatic extends ControleurScin{
 	@Override
 	public void notifyClic(ActionEvent arg0) {
 		Button b = (Button) arg0.getSource();
+		
 		FenApplication_ScinStatic fen = (FenApplication_ScinStatic) this.getScin().getFenApplication();
 
 		if (b == fen.getBtn_finish()) {
@@ -62,27 +66,34 @@ public class ControleurScinStatic extends ControleurScin{
 
 	@Override
 	public void fin() {
-		System.out.println("finish test");
 		ImagePlus imp = this.getScin().getImp();
 		
-		for(int j =1; j<3;j++) {
-			imp.setSlice(j);
-			
-			for(int i =0; i< this.roiManager.getCount(); i++) {
-				System.out.println(this.roiManager.getRoi(i).getName());
-				Roi roi = this.roiManager.getRoi(i);
-				imp.setRoi(roi);
-				this.getModele().enregistrerMesure(this.addTag(roi.getName()), imp);
-			}
+		//pour la ant
+		imp.setSlice(1);
+		
+		for(int i =0; i< this.roiManager.getCount(); i++) {
+			Roi roi = this.roiManager.getRoi(i);
+			imp.setRoi(roi);
+			((ModeleScinStatic)this.getModele()).enregistrerMesureAnt(this.addTag(roi.getName()), imp);
 		}
 		
-		this.getModele().calculerResultats();
-		//ouverture de la fenetre de resultat
-		FenResultat_ScinStatic fen = new FenResultat_ScinStatic( this.getScin(), 
-						ModeleScinStatic.captureImage(this.getScin().getImp(), 300, 300).getBufferedImage(), "test",  (ModeleScinStatic) this.getModele() );
-		System.out.println("nb slice" + imp.getSlice());
-		//ajout du tableau 
-		fen.addDonneeTab(((ModeleScinStatic)this.getModele()).calculerTableau(imp.getSlice()), imp.getSlice());	
+		//pour la post
+		imp.setSlice(2);
+		
+		for(int i =0; i< this.roiManager.getCount(); i++) {
+			Roi roi = this.roiManager.getRoi(i);
+			imp.setRoi(roi);
+			((ModeleScinStatic)this.getModele()).enregistrerMesurePost(this.addTag(roi.getName()), imp);
+		}
+		
+		
+		Thread t = new DoubleImageThread("test",this.getScin(),(ModeleScinStatic)this.getModele());
+		t.start();
+		
+System.out.println(SwingUtilities.isEventDispatchThread()	);
+		
+	
+
 	}
 
 	@Override

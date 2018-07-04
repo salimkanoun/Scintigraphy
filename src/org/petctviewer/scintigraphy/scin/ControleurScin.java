@@ -34,7 +34,7 @@ import ij.plugin.frame.RoiManager;
 public abstract class ControleurScin implements ActionListener {
 
 	private Scintigraphy scin;//vue
-	private ModeleScin leModele;
+	private ModeleScin modele;
 	protected RoiManager roiManager;
 
 	protected static boolean showLog;
@@ -68,28 +68,13 @@ public abstract class ControleurScin implements ActionListener {
 		Roi.setColor(this.STROKECOLOR);
 	}
 
-	public void setModele(ModeleScin modele) {
-		this.leModele = modele;
-	}
-	
-	public ModeleScin getLeModele() {
-		return leModele;
-	}
-
-	public void setScin(Scintigraphy scin) {
-		this.scin = scin;
-	}
-	
-	public Scintigraphy getScintigraphy() {
-		return scin;
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		// recuperation du bouton clique
 		Button b = (Button) arg0.getSource();
 		FenApplication fen = this.scin.getFenApplication();
 
+	
 		// on execute des action selon quel bouton a ete clique
 		if (b == fen.getBtn_suivant()) {
 			this.clicSuivant();
@@ -217,7 +202,7 @@ public abstract class ControleurScin implements ActionListener {
 	 */
 	public void setSlice(int indexSlice) {
 		// ecrase l'overlay et tue la roi
-		ImagePlus imp = this.getScin().getImp();
+		ImagePlus imp = this.scin.getImp();
 
 		imp.getOverlay().clear();
 		imp.setOverlay(Scintigraphy.duplicateOverlay(overlay));
@@ -254,7 +239,7 @@ public abstract class ControleurScin implements ActionListener {
 			this.indexRoi--;
 		} else {
 			// si c'est le dernier roi, on desactive le bouton
-			this.getScin().getFenApplication().getBtn_precedent().setEnabled(false);
+			this.scin.getFenApplication().getBtn_precedent().setEnabled(false);
 		}
 
 		this.preparerRoi(this.indexRoi + 1);
@@ -270,11 +255,11 @@ public abstract class ControleurScin implements ActionListener {
 		// si la sauvegarde est reussie
 		if (saved) {
 			// on active le bouton precedent
-			this.getScin().getFenApplication().getBtn_precedent().setEnabled(true);
+			this.scin.getFenApplication().getBtn_precedent().setEnabled(true);
 
 			// on active la fin si c'est necessaire
 			if (this.isOver()) {
-				this.setSlice(this.getScin().getImp().getCurrentSlice());
+				this.setSlice(this.scin.getImp().getCurrentSlice());
 
 				// thread de capture, permet de laisser le temps de charger l'image plus dans le
 				// thread principal
@@ -342,7 +327,7 @@ public abstract class ControleurScin implements ActionListener {
 
 	/**
 	 * Renvoie la roi qui sera utilisée dans la methode preparerRoi, appellée lors
-	 * du clic sur les boutons précédent et suivant <br>
+	 * du clic sur les boutons <précédent et suivant <br>
 	 * See also {@link #preparerRoi()}
 	 * 
 	 * @param lastRoi
@@ -361,12 +346,14 @@ public abstract class ControleurScin implements ActionListener {
 	 */
 	public boolean saveCurrentRoi(String nomRoi, int indexRoi) {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
-
+ 
 			// on change la couleur pour l'overlay
-			this.getScin().getImp().getRoi().setStrokeColor(Color.YELLOW);
+			this.scin.getImp().getRoi().setStrokeColor(Color.YELLOW);
 
 			// on enregistre la ROI dans le modele
-			this.leModele.enregistrerMesure(this.addTag(nomRoi), this.scin.getImp());
+			this.modele.enregistrerMesure(
+					this.addTag(nomRoi), 
+					this.scin.getImp());
 
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
@@ -392,7 +379,7 @@ public abstract class ControleurScin implements ActionListener {
 		} else {
 			// restore la roi organe si c'est possible
 			System.err.println("Roi lost, restoring organ roi");
-			this.getScin().getImp().setRoi(this.getOrganRoi(indexRoi));
+			this.scin.getImp().setRoi(this.getOrganRoi(indexRoi));
 		}
 
 		return false;
@@ -443,6 +430,11 @@ public abstract class ControleurScin implements ActionListener {
 		return this.scin.getFenApplication().getImagePlus().getRoi();
 	}
 
+
+	public void setScin(Scintigraphy scin) {
+		this.scin = scin;
+	}
+	
 	public Scintigraphy getScin() {
 		return this.scin;
 	}
@@ -464,7 +456,11 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 	public ModeleScin getModele() {
-		return this.leModele;
+		return this.modele;
+	}
+	
+	public void setModele(ModeleScin modele) {
+		this.modele = modele;
 	}
 
 	public String getNomOrgane(int index) {
@@ -477,7 +473,6 @@ public abstract class ControleurScin implements ActionListener {
 
 	public void setRoiManager(RoiManager rm) {
 		this.roiManager = rm;
-		;
 	}
 
 	public void removeImpListener() {

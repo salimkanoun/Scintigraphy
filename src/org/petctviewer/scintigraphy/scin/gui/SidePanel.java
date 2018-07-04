@@ -36,6 +36,7 @@ public class SidePanel extends Box {
 		if (sidePanelContent != null) {
 			this.add(sidePanelContent);
 		}
+		
 	}
 
 	public void addCaptureBtn(Scintigraphy scin, String additionalInfo, Component[] hide) {

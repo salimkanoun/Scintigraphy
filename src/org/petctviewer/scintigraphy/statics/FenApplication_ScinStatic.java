@@ -6,6 +6,7 @@ import java.awt.Label;
 import java.awt.Panel;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.ImagePlus;
@@ -15,7 +16,8 @@ public class FenApplication_ScinStatic extends FenApplication{
 	private Button btn_finish;
 	
 	public FenApplication_ScinStatic(ImagePlus imp, String nom) {
-		super(imp, nom);
+		// Scintigraphy.sortImageAntPost(imp)
+		super(imp, nom);//pour inverser la post
 		this.getField_instructions().setEditable(true);
 		this.btn_finish = new Button("Finish");
 		
@@ -33,7 +35,7 @@ public class FenApplication_ScinStatic extends FenApplication{
 
 		this.setDefaultSize();
 	}
-
+ 
 	public Button getBtn_finish() {
 		return this.btn_finish;
 	}

@@ -24,9 +24,7 @@ public class StaticScintigraphy extends Scintigraphy {
 		}
 		
 		ImagePlus imp = images[0];
-		if(imp.getSlice() == 2)
-			imp.getStack().getProcessor(2).flipHorizontal();
-		
+		imp = Scintigraphy.sortImageAntPost(imp);//inverse la 2 eme slice
 		return imp;
 	}
 

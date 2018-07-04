@@ -57,7 +57,6 @@ public abstract class Scintigraphy implements PlugIn {
 	private FenApplication fen_application;
 
 	private ImagePlus imp;
-	private Boolean antPost = Boolean.valueOf(false);
 	protected int nombreAcquisitions;
 
 	protected Scintigraphy(String examType) {
@@ -1165,10 +1164,6 @@ public abstract class Scintigraphy implements PlugIn {
 
 	public void setFenApplication(FenApplication fen_application) {
 		this.fen_application = fen_application;
-	}
-
-	public boolean isAntPost() {
-		return this.antPost;
 	}
 
 	public static Overlay duplicateOverlay(Overlay overlay) {
