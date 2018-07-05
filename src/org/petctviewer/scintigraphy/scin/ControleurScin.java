@@ -174,7 +174,7 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 	/**
-	 * Affiche les instructions de delimitation d'un organe ("Delimit the ...")
+	 * Affiche les instructions de delimitation d'un organe (" ...")
 	 * 
 	 * @param nOrgane
 	 *            : numero de l'organe a delimiter

@@ -16,8 +16,7 @@ public class FenApplication_ScinStatic extends FenApplication{
 	private Button btn_finish;
 	
 	public FenApplication_ScinStatic(ImagePlus imp, String nom) {
-		// Scintigraphy.sortImageAntPost(imp)
-		super(imp, nom);//pour inverser la post
+		super(imp, nom);
 		this.getField_instructions().setEditable(true);
 		this.btn_finish = new Button("Finish");
 		

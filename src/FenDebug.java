@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.PrefsWindow;
 import org.petctviewer.scintigraphy.CSV.FollowUp;
+import org.petctviewer.scintigraphy.calibration.Calibration;
 import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
 import org.petctviewer.scintigraphy.dynamic.GeneralDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
@@ -141,6 +142,15 @@ public class FenDebug extends JFrame{
 			}
 		});
 		
+		JButton btn_Calibration = new JButton("Calibration");
+		btn_Calibration.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Calibration calibration = new Calibration();
+				calibration.run("");
+			}
+		});
+		
 		p.add(btn_cardiac);
 		p.add(btn_plaquettes);
 		p.add(btn_hepatic);
@@ -151,6 +161,7 @@ public class FenDebug extends JFrame{
 		p.add(btn_vgDyn);
 		p.add(btn_genStatic);
 		p.add(btn_FollowUp);
+		p.add(btn_Calibration);
 		
 		this.add(p, BorderLayout.CENTER);
 		this.add(pnl_pref, BorderLayout.NORTH);
