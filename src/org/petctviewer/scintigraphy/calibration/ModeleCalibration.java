@@ -1,8 +1,11 @@
 package org.petctviewer.scintigraphy.calibration;
 
+import java.util.ArrayList;
+
 public class ModeleCalibration {
 
-	public ModeleCalibration() {
-		// TODO Auto-generated constructor stub
+	public ModeleCalibration(ArrayList<String[]> examList) {
+		
+		
 	}
 }

@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.dynamic;
+ package org.petctviewer.scintigraphy.dynamic;
 
 import java.util.HashMap;
 import java.util.List;

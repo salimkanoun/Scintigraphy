@@ -46,7 +46,7 @@ public class FenCalibrationFileChoice extends JFrame{
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//new
+				new FenResultatsCalibration(examList);		
 			}
 		});
 		
