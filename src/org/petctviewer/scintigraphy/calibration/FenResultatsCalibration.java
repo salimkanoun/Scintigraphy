@@ -114,6 +114,7 @@ XYSeries m = new XYSeries("k");
 			}
 			
 		    JTableCheckBox jtcb = new JTableCheckBox(acquiTitle,sphereTitle);
+		   // jtcb.addListener
 		    east.add(jtcb);
 		    
 		    //ShapeUtils.
