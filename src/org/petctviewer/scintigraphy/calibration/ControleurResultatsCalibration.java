@@ -7,16 +7,18 @@ import javax.swing.JCheckBox;
 
 public class ControleurResultatsCalibration implements ItemListener {
 	
-	FenResultatsCalibration fen;
+	private FenResultatsCalibration fen;
+	private ModeleResultatsCalibration modele;
 	
-	public ControleurResultatsCalibration(FenResultatsCalibration fen) {
+	public ControleurResultatsCalibration(FenResultatsCalibration fen, Doublet[][] data) {
 		this.fen = fen;
+		this.modele = new ModeleResultatsCalibration(data);
 	}
 
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		JCheckBox selected = (JCheckBox)e.getSource();
 		System.out.println("name : "+ selected.getName()+" ?? :"+selected.isSelected());
-		this.fen.v(Integer.parseInt(selected.getName().split("\\|")[0]), Integer.parseInt(selected.getName().split("\\|")[1]), selected.isSelected());		
+		this.fen.actualiserDatasetFromCheckbox(Integer.parseInt(selected.getName().split("\\|")[0]), Integer.parseInt(selected.getName().split("\\|")[1]), selected.isSelected());		
 	}
 }

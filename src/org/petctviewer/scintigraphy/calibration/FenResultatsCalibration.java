@@ -68,7 +68,7 @@ public class FenResultatsCalibration extends JFrame{
 	private JLabel bLabel;
 
 	public FenResultatsCalibration(Doublet[][] data) {
-		 crc = new ControleurResultatsCalibration(this);
+		 crc = new ControleurResultatsCalibration(this,data);
 		
 		this.setLayout(new BorderLayout());
 	
@@ -137,7 +137,8 @@ public class FenResultatsCalibration extends JFrame{
 	    this.pack();
 	}
 	 
-	 public void v(int a, int b, boolean visiblity) {
+	//actualise les data depuis la tableau de checkbox
+	 public void actualiserDatasetFromCheckbox(int a, int b, boolean visiblity) {
 		 if(visiblity) {
 			 this.dataCurrent[a][b].setA( (Double)this.dataInitial[a][b].getA() );
 			 this.dataCurrent[a][b].setB( (Double)this.dataInitial[a][b].getB() );
@@ -168,26 +169,6 @@ public class FenResultatsCalibration extends JFrame{
 					m[i][j] = new Doublet(data[i][j].getA(),data[i][j].getB()*data[i][j].getA());
 			 }
 		 }
-
-		 /*
-		 XYSeries serie = new XYSeries("dd");
-//soit on met toutess les series dans une seule serie 
-
-		 // soit on met tous les points dans un double tab avec [0] x et [1] y
-		 //preparation du double[][]
-		 double[][] d = new double[m.length*m[0].length][2];
-		 int cpt =0;
-		 for(int i = 0; i<m.length; i++) {
-			 for(int j=0; j< m[i].length; j++) {
-					//System.out.println(i+"|"+j + "a :"+m[i][j].getA()+" b : "+m[i][j].getB() );
-					serie.add(m[i][j].getA(),m[i][j].getB());
-					 d[cpt][0] = m[i][j].getA();
-					 d[cpt][1] = m[i][j].getB();
-					 cpt++;
-				
-			 }
-		 }
-	*/	
 		 
   		XYSeries serikke = new XYSeries("ff ");
 	  	for(int i=0;i<m.length;i++) {
@@ -212,12 +193,9 @@ public class FenResultatsCalibration extends JFrame{
 			 //feat.add(i,resultRegression[1]*i+resultRegression[0]);
 		 }
 		 
-		setCoef(resultRegression[0], resultRegression[1]);
-		 
+		 setCoef(resultRegression[0], resultRegression[1]); 
 		 return feat;
 	 }
-
-	 
 
 	 private void setCoef(Double a, Double b) {
 		 DecimalFormat df = new DecimalFormat("#.###");
@@ -228,5 +206,7 @@ public class FenResultatsCalibration extends JFrame{
 		 aLabel.setText("a = "+df.format(a));
 		 bLabel.setText("b = "+df.format(b));
 	 }
-
+//swing worker
+	//vue anone otrhanc tools
+	 
 }
