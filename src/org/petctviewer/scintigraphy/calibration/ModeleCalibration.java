@@ -37,7 +37,7 @@ public class ModeleCalibration {
 		rm = new RoiManager();
 		paramResult = new ArrayList<>();
 		
-		//for each exam
+		/*for each exam*/
 		for(int k =0; k <examList.size(); k++) {
 			String floatPath = examList.get(k)[0];
 			String maskPath = examList.get(k)[1];
@@ -48,7 +48,7 @@ public class ModeleCalibration {
 			
 			ArrayList<HashMap<String,Double>> paramResultUnExam = new ArrayList<>();
 			
-			// for each sphere (first sphere at v=1)(background at v=7)
+			/*for each sphere (first sphere at v=1)(background at v=7)*/
 			for(int i =1; i<= NB_SPHERE; i++) {
 				
 				HashMap<String, Double> paramResultUnExamElements = new HashMap<>();
