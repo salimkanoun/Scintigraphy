@@ -18,7 +18,6 @@ import javax.swing.JTable;
 import javax.swing.border.Border;
 
 public class JTableCheckBox extends JPanel {
-//implements ItemSelectable{
 
 	private JPanel tab;
 	
@@ -30,21 +29,24 @@ public class JTableCheckBox extends JPanel {
 	
 	private Component[][] tableauEntier ;
 	
-	public JTableCheckBox(String[] titleRows, String[] titleCols) {
+	public JTableCheckBox(String[] titleRows, String[] titleCols, ItemListener listener) {
 			
 		
 		// checkbox à l'interieur du tableau
 		checkboxInterior = new JCheckBox[titleRows.length][titleCols.length];
 		for(int i =0; i< titleRows.length; i++) {
 			for(int j =0; j< titleCols.length; j++) {
-				checkboxInterior[i][j] = new JCheckBox("", false);
+				JCheckBox ch = new JCheckBox("", true);
+				ch.setName(i+"|"+j);
+				ch.addItemListener(listener);
+				checkboxInterior[i][j] = ch;
 			}
 		}
 		
 		//check box en tete des lignes et colonnes
 		checkboxHeadCols = new JCheckBox[titleCols.length];
 		for(int i=0; i< checkboxHeadCols.length; i++) {
-			JCheckBox ch = new JCheckBox("", false);
+			JCheckBox ch = new JCheckBox("", true);
 			ch.setName(i+"");
 			ch.addItemListener(new ItemListener() {
 				
@@ -63,7 +65,7 @@ public class JTableCheckBox extends JPanel {
 			
 		checkboxHeadRows = new JCheckBox[titleRows.length];
 		for(int i=0; i< checkboxHeadRows.length; i++) {
-			JCheckBox ch =  new JCheckBox("", false);
+			JCheckBox ch =  new JCheckBox("", true);
 			ch.setName(i+"");
 			ch.addItemListener(new ItemListener() {
 				@Override
@@ -157,6 +159,7 @@ public class JTableCheckBox extends JPanel {
 			checkboxInterior[i][ligne].setSelected(state);
 		}
 	}
+
 
 	
 	

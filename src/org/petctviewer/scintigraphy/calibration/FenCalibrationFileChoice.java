@@ -17,8 +17,6 @@ import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FenCalibrationFileChoice extends JFrame{
-	//Puglin => Macros => Record
-
 	//manque securité
 	
 	// list of couple of image path and mask path
@@ -35,14 +33,7 @@ public class FenCalibrationFileChoice extends JFrame{
 		
 		this.setTitle("Image selection");
 		this.setLayout(new BorderLayout());
-		
-		String[] m =  {"chemin1","chemin2"};
-		//this.examList.add(m);
 
-		//pour evite de la faire a la main a chaque fois
-	//	String[] test = {"/Users/diego/Desktop/rep2/src_rec_apr_24_2018_float.nii",
-	//			"/Users/diego/Desktop/rep2/src_rec_apr_24_2018_mask.nii"};
-		
 		String[] test = {"/Users/diego/Desktop/fantomes/Acqusition1/src_rec_apr_24_2018_float.nii",
 		"/Users/diego/Desktop/fantomes/Acqusition1/src_rec_apr_24_2018_mask.nii"};
 		this.examList.add(test);
@@ -53,26 +44,24 @@ public class FenCalibrationFileChoice extends JFrame{
 
 		String[] test2 = {"/Users/diego/Desktop/fantomes/Acquisition3/src_rec_apr_24_2018_float.nii",
 		"/Users/diego/Desktop/fantomes/Acquisition3/src_rec_apr_24_2018_mask.nii"};
-		//this.examList.add(test2);
+		this.examList.add(test2);
 
 		String[] test3 = {"/Users/diego/Desktop/fantomes/Acquisition4/src_rec_apr_24_2018_float.nii",
 		"/Users/diego/Desktop/fantomes/Acquisition4/src_rec_apr_24_2018_mask.nii"};
-		//this.examList.add(test3);
+		this.examList.add(test3);
 
 		String[] test4 = {"/Users/diego/Desktop/fantomes/Acquisition5/src_rec_apr_24_2018_float.nii",
 		"/Users/diego/Desktop/fantomes/Acquisition5/src_rec_apr_24_2018_mask.nii"};
-		//this.examList.add(test4);
+		this.examList.add(test4);
 
-	
 		fen = createFileTab();
 		this.add(fen, BorderLayout.CENTER);
 		
 		JButton lancer = new JButton("Run analysis");
 		lancer.addActionListener(new ActionListener() {
-			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				FenResultatsCalibration fen = new FenResultatsCalibration(examList);		
+				FenChargementCalibration fen =  new FenChargementCalibration(examList);
 				fen.setVisible(true);
 			}
 		});
@@ -104,7 +93,6 @@ public class FenCalibrationFileChoice extends JFrame{
 	
 	
 	private JButton addImageChooserButton() {
-		
 		JButton addImageFileButton = new JButton("Add image file");
 		addImageFileButton.addActionListener(new ActionListener() {
 			@Override
