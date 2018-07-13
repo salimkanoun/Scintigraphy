@@ -13,10 +13,12 @@ public class ModeleResultatsCalibration {
 	private  Doublet[][] dataInitial=null;
 	private  Doublet[][] dataCurrent=null;
 	
+	private Double a = null;
+	private Double b = null;
+	
 	public ModeleResultatsCalibration(Doublet[][] data) {
 		//chargement des data
-		this.dataInitial = new Doublet[data.length][data[0].length];
-	    Doublet[][] d = new Doublet[data.length][data[0].length];
+		this.dataInitial = new Doublet[data.length][data[0].length];		
 		for(int i =0; i<data.length; i++) {
 			for(int j =0; j<data[i].length; j++) {
 				this.dataInitial[i][j] = new Doublet(data[i][j].getA(),data[i][j].getB());
@@ -25,31 +27,34 @@ public class ModeleResultatsCalibration {
 	  	this.dataCurrent = data.clone();
 	}
 	
-
 	//actualise les data depuis la tableau de checkbox
-	 public void actualiserDatasetFromCheckbox(int a, int b, boolean visiblity, JFreeChart graph) {
+	 public void actualiserDatasetFromCheckbox(int x, int y, boolean visiblity) {
 		 if(visiblity) {
-			 this.dataCurrent[a][b].setA( (Double)this.dataInitial[a][b].getA() );
-			 this.dataCurrent[a][b].setB( (Double)this.dataInitial[a][b].getB() );
+			 this.dataCurrent[x][y].setA( (Double)this.dataInitial[x][y].getA() );
+			 this.dataCurrent[x][y].setB( (Double)this.dataInitial[x][y].getB() );
 		 }else {
-			 this.dataCurrent[a][b]=new Doublet(Double.NaN, Double.NaN);
+			 this.dataCurrent[x][y]=new Doublet(Double.NaN, Double.NaN);
 		 }
-		 graph.getXYPlot().setDataset(buildColletionFromDoublet(dataCurrent));
+		 //graph.getXYPlot().setDataset(buildColletionFromDoublet(dataCurrent));
 	 }
-	
-	 
-	 private XYSeriesCollection buildColletionFromDoublet(Doublet[][] data) {
+
+	 public XYSeriesCollection buildCollection() {
+		 Double maxX = 0.0D;
 			XYSeriesCollection collection = new XYSeriesCollection();
-		  	for(int i=0;i<data.length;i++) {
+		  	for(int i=0;i<this.dataCurrent.length;i++) {
 		  		XYSeries serie = new XYSeries("Acqui "+(i+1));
-		  		for(int j=0; j<data[i].length;j++) {
-		  			serie.add(data[i][j].getA(), data[i][j].getB());	
+		  		for(int j=0; j<this.dataCurrent[i].length;j++) {
+		  			serie.add(this.dataCurrent[i][j].getA(), this.dataCurrent[i][j].getB());
+				  	//avoir le x le plus grand
+		  			if(this.dataCurrent[i][j].getA()>=maxX) {
+		  				maxX = this.dataCurrent[i][j].getA();
+		  			}
 		  		}
 		  		collection.addSeries(serie);	
 		  	}
 		  	
-		  	Doublet feat = feat(data);
-		  	collection.addSeries(featSeries(feat.getA(), feat.getB(), max));
+		  	Doublet feat = featCalcul(this.dataCurrent);
+		  	collection.addSeries(featSeries(feat.getA(), feat.getB(), maxX.intValue()));
 		  	return collection;
 	 }
 	 
@@ -57,7 +62,7 @@ public class ModeleResultatsCalibration {
 	  * @param data
 	  * @return un doublet avec a et b, les paramètres recherches
 	  */
-	 private Doublet feat (Doublet[][] data) {
+	 private Doublet featCalcul (Doublet[][] data) {
 		 //calcul de a+b*x
 		 Doublet[][] m = new Doublet[data.length][data[0].length];
 		 for(int i =0; i<data.length; i++) {
@@ -79,6 +84,8 @@ public class ModeleResultatsCalibration {
 		 double[] resultRegression = Regression.getOLSRegression(new XYSeriesCollection(serikke),0);
 		 System.out.println("a : "+resultRegression[0]);
 		 System.out.println("b : "+resultRegression[1]);
+		 this.a = resultRegression[0];
+		 this.b = resultRegression[1];
 		return new Doublet(resultRegression[0],resultRegression[1]);
 	 }
 	 
@@ -94,5 +101,11 @@ public class ModeleResultatsCalibration {
 		 return feat;
 	 }
 
+	public Double geta() {
+		return this.a;
+	}
 	
+	public Double getb() {
+		return this.b;
+	}
 }
