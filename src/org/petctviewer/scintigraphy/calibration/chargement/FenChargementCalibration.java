@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.calibration;
+package org.petctviewer.scintigraphy.calibration.chargement;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -16,7 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class FenCalibrationFileChoice extends JFrame{
+public class FenChargementCalibration extends JFrame{
 	//manque securité
 	
 	// list of couple of image path and mask path
@@ -25,9 +25,10 @@ public class FenCalibrationFileChoice extends JFrame{
 	private ArrayList<String[]>  examList ;
 	
 	private String path;
-	
+	private ControleurChargementCalibration ccc;
+
 	JPanel fen;
-	public FenCalibrationFileChoice() {
+	public FenChargementCalibration() {
 		
 		this.examList = new ArrayList<String[]>();
 		
@@ -58,13 +59,8 @@ public class FenCalibrationFileChoice extends JFrame{
 		this.add(fen, BorderLayout.CENTER);
 		
 		JButton lancer = new JButton("Run analysis");
-		lancer.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				FenChargementCalibration fen =  new FenChargementCalibration(examList);
-				fen.setVisible(true);
-			}
-		});
+		ccc = new ControleurChargementCalibration(examList, this);
+		lancer.addActionListener(ccc);
 		
 		this.add(lancer, BorderLayout.SOUTH);
 		this.pack();

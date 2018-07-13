@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.calibration;
+package org.petctviewer.scintigraphy.calibration.resultats;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

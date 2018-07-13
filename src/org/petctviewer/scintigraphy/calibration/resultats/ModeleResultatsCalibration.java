@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.calibration;
+package org.petctviewer.scintigraphy.calibration.resultats;
 
 import java.awt.Font;
 import java.text.DecimalFormat;
@@ -53,8 +53,8 @@ public class ModeleResultatsCalibration {
 		  		collection.addSeries(serie);	
 		  	}
 		  	
-		  	Doublet feat = featCalcul(this.dataCurrent);
-		  	collection.addSeries(featSeries(feat.getA(), feat.getB(), maxX.intValue()));
+		  	Doublet fit = fitCalcul(this.dataCurrent);
+		  	collection.addSeries(featSeries(fit.getA(), fit.getB(), maxX.intValue()));
 		  	return collection;
 	 }
 	 
@@ -62,7 +62,7 @@ public class ModeleResultatsCalibration {
 	  * @param data
 	  * @return un doublet avec a et b, les paramètres recherches
 	  */
-	 private Doublet featCalcul (Doublet[][] data) {
+	 private Doublet fitCalcul (Doublet[][] data) {
 		 //calcul de a+b*x
 		 Doublet[][] m = new Doublet[data.length][data[0].length];
 		 for(int i =0; i<data.length; i++) {

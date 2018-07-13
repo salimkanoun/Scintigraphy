@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.calibration;
+package org.petctviewer.scintigraphy.calibration.resultats;
 
 public class Doublet {
 		private Double a;

@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.calibration;
+package org.petctviewer.scintigraphy.calibration.chargement;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,6 +8,7 @@ import java.util.HashMap;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.calibration.resultats.Doublet;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -19,7 +20,7 @@ import loci.formats.FormatException;
 import loci.plugins.BF;
 import loci.plugins.in.ImporterOptions;
 
-public class ModeleCalibration {
+public class ModeleChargementCalibration {
 
 	private RoiManager rm;
 	
@@ -33,7 +34,7 @@ public class ModeleCalibration {
 
 	private Doublet[][] resultData;
 	
-	public ModeleCalibration(ArrayList<String[]> examList) {
+	public ModeleChargementCalibration(ArrayList<String[]> examList) {
 		rm = new RoiManager();
 		paramResult = new ArrayList<>();
 		
