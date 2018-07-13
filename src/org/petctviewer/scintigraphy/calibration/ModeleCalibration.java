@@ -25,8 +25,8 @@ public class ModeleCalibration {
 	
 	private static final int NB_SPHERE = 7;
 	
-	private static final Double VOLUME_FANTOME_REF[] = {0.0D,26521.84878D,11494.04032D,5575.279763D,2572.440785D,1150.34651D,523.5987756D};
 	// en 0 la sphere la plus grande
+	private static final Double VOLUME_FANTOME_REF[] = {0.0D,26521.84878D,11494.04032D,5575.279763D,2572.440785D,1150.34651D,523.5987756D};
 	
 	//list des analyse / Liste des rois / map du SUV, TS et BG(calculé une seule fois)
 	private ArrayList<ArrayList<HashMap<String,Double>>> paramResult;
@@ -37,7 +37,7 @@ public class ModeleCalibration {
 		rm = new RoiManager();
 		paramResult = new ArrayList<>();
 		
-		//for each exam
+		/*for each exam*/
 		for(int k =0; k <examList.size(); k++) {
 			String floatPath = examList.get(k)[0];
 			String maskPath = examList.get(k)[1];
@@ -48,7 +48,7 @@ public class ModeleCalibration {
 			
 			ArrayList<HashMap<String,Double>> paramResultUnExam = new ArrayList<>();
 			
-			// for each sphere (first sphere at v=1)(background at v=7)
+			/*for each sphere (first sphere at v=1)(background at v=7)*/
 			for(int i =1; i<= NB_SPHERE; i++) {
 				
 				HashMap<String, Double> paramResultUnExamElements = new HashMap<>();
@@ -84,7 +84,6 @@ public class ModeleCalibration {
 				// selection de la plus grand roi
 				impMaskDuplicated.setSlice(listSliceAire.indexOf(Collections.max(listSliceAire)));
 				IJ.run(impMaskDuplicated ,"Create Selection", "");
-	
 				
 				//sauvegarde roi 
 				rm.addRoi(impMaskDuplicated.getRoi());
@@ -124,17 +123,8 @@ public class ModeleCalibration {
 				rm.reset();
 				System.out.println("********FIN n°"+i);
 				
-				
-				
 				StackStatistics ss = new StackStatistics(im);
 				
-				/*
-				IJ.log("\t\tindice : "+i);
-				IJ.log("mean");
-				IJ.log(ss.mean+"");
-				IJ.log("pixekCount");
-				IJ.log(ss.pixelCount+"");
-	*/
 				// pour seuil
 				Double suvMax = ss.max;
 				if(i==7) {
@@ -151,14 +141,6 @@ public class ModeleCalibration {
 				ss = new StackStatistics(im70);
 				Double mean70 = ss.mean;
 				
-			/*	
-				IJ.log("mean 70");
-				IJ.log(mean70+"");
-				
-				IJ.log("pixekCount2");
-				IJ.log(ss.pixelCount+"");
-				IJ.log("");
-			*/
 				//Calcul du volume
 				Double volume = 
 						im.getLocalCalibration().pixelDepth*
@@ -166,13 +148,11 @@ public class ModeleCalibration {
 						im.getLocalCalibration().pixelWidth*
 						Math.pow(10,-12);
 				
-				//recherche plus petite difference entre la taille souhaitée et la taille relevé
+				//recherche plus petite difference entre la taille souhaitée et la taille relevée
 				HashMap<Double,Double> listeSeuil = new HashMap<>();
 				for(Double j=0.0D; j<suvMax; j+=0.1D) {
 					IJ.run(im,"Macro...", "code=[if(v<"+j+") v=NaN] stack");
 					ss = new StackStatistics(im);
-					//IJ.log( "diffrencer"+(ss.pixelCount*volume -(VOLUME_FANTOME_REF[i]/1000)) +" seuil "+ j);
-					//Double[] coupleseuildiff = {Math.abs(ss.pixelCount*volume -18.5D),j};
 					listeSeuil.put(Math.abs(ss.pixelCount*volume -(VOLUME_FANTOME_REF[i]/1000)),j);
 				}
 				
@@ -186,16 +166,12 @@ public class ModeleCalibration {
 			paramResult.add(paramResultUnExam);
 		}
 		
-		
 		//this.serieCollection = new XYSeriesCollection();
 		resultData = new Doublet[examList.size()][NB_SPHERE-1];
-		
-	
 		
 		//test de la list de list de map
 		// oblige de le faire apres car le background est releve en dernier
 		for(int  i =0; i< paramResult.size(); i++) {
-			//XYSeries serie = new XYSeries("Aqcui "+i);
 			System.out.println("***************exam(i) = "+i );
 			 Double BG = paramResult.get(i).get(paramResult.get(i).size()-1).get("BG");
 			 System.out.println("BG :"+BG);
@@ -213,19 +189,11 @@ public class ModeleCalibration {
 					 System.out.println(" X :"+((SUV-BG)/BG));
 					 System.out.println(" Y :"+(TS/(SUV-BG)));
 	
-					//serie.add(((SUV-BG)/BG), (TS/(SUV-BG)));
 					 resultData[i][j] = new Doublet((SUV-BG)/BG, TS/(SUV-BG));
 					System.out.println();
 				}
 			}					
-			//this.serieCollection.addSeries(serie);
-		}
-		
-		
-		//print valeur en dur 
-		
-		
-
+		}		
 	}
 	
 	private ImagePlus openImagePlus(String path) {

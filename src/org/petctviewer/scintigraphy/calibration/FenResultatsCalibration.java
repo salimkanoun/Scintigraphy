@@ -5,6 +5,9 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Shape;
+import java.awt.Stroke;
+import java.awt.geom.Ellipse2D;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -25,7 +28,9 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.XYShapeRenderer;
 import org.jfree.chart.util.ShapeUtils;
+import org.jfree.data.function.LineFunction2D;
 import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeries;
@@ -58,9 +63,6 @@ public class FenResultatsCalibration extends JFrame{
 	
 	private JPanel east ;
 	private ControleurResultatsCalibration crc;
-	
-	private  Doublet[][] dataInitial=null;
-	private  Doublet[][] dataCurrent=null;
 
 	private JFreeChart graph;
 	 
@@ -68,64 +70,13 @@ public class FenResultatsCalibration extends JFrame{
 	private JLabel bLabel;
 
 	public FenResultatsCalibration(Doublet[][] data) {
-		 crc = new ControleurResultatsCalibration(this);
-		
 		this.setLayout(new BorderLayout());
-	
-		//chargement des data
-		this.dataInitial = new Doublet[data.length][data[0].length];
-	    Doublet[][] d = new Doublet[data.length][data[0].length];
-		for(int i =0; i<data.length; i++) {
-			for(int j =0; j<data[i].length; j++) {
-				this.dataInitial[i][j] = new Doublet(data[i][j].getA(),data[i][j].getB());
-			}
-		}
-	  	this.dataCurrent = data.clone();
-		
-	  	// east panel
-	  	east = new JPanel();
-	    east.setLayout(new BoxLayout(east, BoxLayout.Y_AXIS));
-
-		String[] acquiTitle = new String[this.dataCurrent .length];
-		for(int i=0;i<data.length; i++) {
-			acquiTitle[i] = "Acqui "+(i+1);
-		}
-		
-		String[] sphereTitle = new String[this.dataCurrent[0].length];// le nombre de points dans la premiere serie
-		for(int i =0; i< data[0].length;i++) {
-			sphereTitle[i] = "Sphere "+(i+1);
-		}
-		
-	    JTableCheckBox jtcb = new JTableCheckBox(acquiTitle,sphereTitle,crc);
-	    east.add(jtcb);
-	    
-	    JPanel coefGrid = new JPanel();
-	    coefGrid.setLayout(new GridLayout(2,1));
-	     aLabel = new JLabel("a = ");
-	     bLabel = new JLabel("b = ");
-
-	    coefGrid.add(aLabel);
-	    coefGrid.add(bLabel);
-	   
-	    JPanel coef = new JPanel();
-	    coef.setLayout(new FlowLayout());
-	    coef.add(coefGrid);
-	    
-	    this.east.add(coef);
-	    this.add(east,BorderLayout.EAST);
-		
 		
 		//graph center 
 	  	graph = ChartFactory.createScatterPlot(
 	        "Schaefer calibration", 
-	        "X = (mSUV70 - BG) / BG ", "Y = TS / (mSUV70 - BG)", buildColletionFromDoublet(this.dataCurrent));
-	  
-		XYLineAndShapeRenderer xylineandshaperenderer = new XYLineAndShapeRenderer(true, false);
-		xylineandshaperenderer.setSeriesPaint(0, Color.YELLOW);
-		this.graph.getXYPlot().setRenderer(buildColletionFromDoublet(this.dataCurrent).getSeriesCount(), xylineandshaperenderer);
-		
-		System.out.println(buildColletionFromDoublet(this.dataCurrent).getSeriesCount());
-		
+	        "X = (mSUV70 - BG) / BG ", "Y = TS / (mSUV70 - BG)", null);
+	  	
 	    //Changes background color
 	    XYPlot plot = (XYPlot)graph.getPlot();
 	    plot.setBackgroundPaint(new Color(255,228,196));
@@ -133,100 +84,69 @@ public class FenResultatsCalibration extends JFrame{
 	    
 	    ChartPanel chartPanel = new ChartPanel(graph);
 	    this.add(chartPanel,BorderLayout.CENTER);
+	    
+
+	  	// east panel
+		 //coeff a et b
+		 JPanel coefGrid = new JPanel();
+		 coefGrid.setLayout(new GridLayout(2,1));
+		aLabel = new JLabel("a = ");
+		bLabel = new JLabel("b = ");
+	    coefGrid.add(aLabel);
+	    coefGrid.add(bLabel);
+	    JPanel coef = new JPanel();
+	    coef.setLayout(new FlowLayout());
+	    coef.add(coefGrid);
 	
+	    //graph
+		String[] acquiTitle = new String[data.length];
+		for(int i=0;i<data.length; i++) {
+			acquiTitle[i] = "Acqui "+(i+1);
+		}
+		String[] sphereTitle = new String[data[0].length];// le nombre de points dans la premiere serie
+		for(int i =0; i< data[0].length;i++) {
+		sphereTitle[i] = "Sphere "+(i+1);
+		}
+		crc = new ControleurResultatsCalibration(this,data);
+	    JTableCheckBox jtcb = new JTableCheckBox(acquiTitle,sphereTitle,crc);
+	    
+	    east = new JPanel();
+	    east.setLayout(new BoxLayout(east, BoxLayout.Y_AXIS));
+	    this.east.add(jtcb);
+	    this.east.add(coef);
+	    this.add(east,BorderLayout.EAST);
+
 	    this.pack();
 	}
 	 
-	 public void v(int a, int b, boolean visiblity) {
-		 if(visiblity) {
-			 this.dataCurrent[a][b].setA( (Double)this.dataInitial[a][b].getA() );
-			 this.dataCurrent[a][b].setB( (Double)this.dataInitial[a][b].getB() );
-		 }else {
-			 this.dataCurrent[a][b]=new Doublet(Double.NaN, Double.NaN);
-		 }
-		 this.graph.getXYPlot().setDataset(buildColletionFromDoublet(dataCurrent));
-	 }
-
-	 private XYSeriesCollection buildColletionFromDoublet(Doublet[][] data) {
-			XYSeriesCollection collection = new XYSeriesCollection();
-		  	for(int i=0;i<data.length;i++) {
-		  		XYSeries serie = new XYSeries("Acqui "+(i+1));
-		  		for(int j=0; j<data[i].length;j++) {
-		  			serie.add(data[i][j].getA(), data[i][j].getB());	
-		  		}
-		  		collection.addSeries(serie);	
-		  	}
-		  	collection.addSeries(this.feat(data));
-		  	return collection;
-	 }
-	 
-	 private XYSeries feat (Doublet[][] data) {
-		 //calcul de a+b*x
-		 Doublet[][] m = new Doublet[data.length][data[0].length];
-		 for(int i =0; i<data.length; i++) {
-			 for(int j =0; j<data[i].length; j++) {
-					m[i][j] = new Doublet(data[i][j].getA(),data[i][j].getB()*data[i][j].getA());
-			 }
-		 }
-
-		 /*
-		 XYSeries serie = new XYSeries("dd");
-//soit on met toutess les series dans une seule serie 
-
-		 // soit on met tous les points dans un double tab avec [0] x et [1] y
-		 //preparation du double[][]
-		 double[][] d = new double[m.length*m[0].length][2];
-		 int cpt =0;
-		 for(int i = 0; i<m.length; i++) {
-			 for(int j=0; j< m[i].length; j++) {
-					//System.out.println(i+"|"+j + "a :"+m[i][j].getA()+" b : "+m[i][j].getB() );
-					serie.add(m[i][j].getA(),m[i][j].getB());
-					 d[cpt][0] = m[i][j].getA();
-					 d[cpt][1] = m[i][j].getB();
-					 cpt++;
-				
-			 }
-		 }
-	*/	
-		 
-  		XYSeries serikke = new XYSeries("ff ");
-	  	for(int i=0;i<m.length;i++) {
-	  		for(int j=0; j<m[i].length;j++) {
-				if( !m[i][j].getA().equals(Double.NaN) && !m[i][j].getB().equals(Double.NaN) ) {
-					serikke.add(m[i][j].getA(), m[i][j].getB());
-				}
-	  		}
-  		}
-	  	
-		 //feat
-		 double[] resultRegression = Regression.getOLSRegression(new XYSeriesCollection(serikke),0);
-		 
-		 System.out.println("a : "+resultRegression[0]);
-		 System.out.println("b : "+resultRegression[1]);
-
-		 //tracage du feat
-		 XYSeries feat = new XYSeries("feat");
-		 for(double i=0.1D; i< serikke.getItemCount();i+=0.1D) {
-				 feat.add(i,((resultRegression[0]/i)+resultRegression[1]) );
-			 //feat.add(i,((0.7D/i)+0.4D) );
-			 //feat.add(i,resultRegression[1]*i+resultRegression[0]);
-		 }
-		 
-		setCoef(resultRegression[0], resultRegression[1]);
-		 
-		 return feat;
-	 }
-
-	 
-
-	 private void setCoef(Double a, Double b) {
+	 public void setCoef(Double a, Double b) {
 		 DecimalFormat df = new DecimalFormat("#.###");
 		   
 		 aLabel.setFont(new Font("", Font.PLAIN, 20));
 		 bLabel.setFont(new Font("", Font.PLAIN, 20));
-
-		 aLabel.setText("a = "+df.format(a));
-		 bLabel.setText("b = "+df.format(b));
+		 
+		 aLabel.setText("a = "+df.format((Double)a));
+		 bLabel.setText("b = "+df.format((Double)b));
 	 }
 
+	public JFreeChart getGraph() {
+		return this.graph;
+	}
+	
+	public void setGraph(XYSeriesCollection data) {
+		graph.getXYPlot().setDataset(data);
+
+		 XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) graph.getXYPlot().getRenderer();
+		 
+		 renderer.setSeriesPaint(data.getSeriesCount()-1, new Color(246,0,0));
+		 renderer.setSeriesLinesVisible(data.getSeriesCount()-1, true);
+		 renderer.setSeriesShapesVisible(data.getSeriesCount()-1, false);
+	      
+	     this.graph.getXYPlot().setRenderer(renderer);
+	}
+	 
+	 
+//swing worker
+	//vue anone otrhanc tools
+	 
 }
