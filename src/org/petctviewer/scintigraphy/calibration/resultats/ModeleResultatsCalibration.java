@@ -2,11 +2,17 @@ package org.petctviewer.scintigraphy.calibration.resultats;
 
 import java.awt.Font;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+
+import ij.IJ;
+import ij.ImagePlus;
+import ij.process.StackStatistics;
 
 public class ModeleResultatsCalibration {
 
@@ -16,15 +22,25 @@ public class ModeleResultatsCalibration {
 	private Double a = null;
 	private Double b = null;
 	
-	public ModeleResultatsCalibration(Doublet[][] data) {
+	private ArrayList<ArrayList<HashMap<String, Object>>> donneesCharge;
+	
+	public ModeleResultatsCalibration(ArrayList<ArrayList<HashMap<String, Object>>> arrayList) {
+		this.donneesCharge = arrayList;
+		
 		//chargement des data
-		this.dataInitial = new Doublet[data.length][data[0].length];		
-		for(int i =0; i<data.length; i++) {
-			for(int j =0; j<data[i].length; j++) {
-				this.dataInitial[i][j] = new Doublet(data[i][j].getA(),data[i][j].getB());
+		this.dataInitial = new Doublet[arrayList.size()][arrayList.get(0).size()];		
+		for(int i =0; i<arrayList.size(); i++) {
+			for(int j =0; j<arrayList.get(i).size(); j++) {
+				this.dataInitial[i][j] = new Doublet((Double)arrayList.get(i).get(j).get("x"), (Double)arrayList.get(i).get(j).get("y"));
 			}
 		}
-	  	this.dataCurrent = data.clone();
+		
+		this.dataCurrent = new Doublet[arrayList.size()][arrayList.get(0).size()];		
+		for(int i =0; i<arrayList.size(); i++) {
+			for(int j =0; j<arrayList.get(i).size(); j++) {
+				this.dataCurrent[i][j] = new Doublet((Double)arrayList.get(i).get(j).get("x"), (Double)arrayList.get(i).get(j).get("y"));
+			}
+		}
 	}
 	
 	//actualise les data depuis la tableau de checkbox
@@ -84,8 +100,10 @@ public class ModeleResultatsCalibration {
 		 double[] resultRegression = Regression.getOLSRegression(new XYSeriesCollection(serikke),0);
 		 System.out.println("a : "+resultRegression[0]);
 		 System.out.println("b : "+resultRegression[1]);
-		 this.a = resultRegression[0];
-		 this.b = resultRegression[1];
+		 this.a = resultRegression[1];
+		 this.b = resultRegression[0] - resultRegression[1];
+		 
+		 
 		return new Doublet(resultRegression[0],resultRegression[1]);
 	 }
 	 
@@ -108,4 +126,50 @@ public class ModeleResultatsCalibration {
 	public Double getb() {
 		return this.b;
 	}
+	
+	public void runCalculDetails() {
+		
+		
+		for(int i =0; i<this.donneesCharge.size() ;i++) {
+			for(int j=0; j<this.donneesCharge.get(i).size() ;j++) {
+
+				//titre de la ligne
+				Double suvMax = (Double)this.donneesCharge.get(i).get(j).get("SUVmax");
+				
+				
+				Double suv70 = (Double)this.donneesCharge.get(i).get(j).get("MEAN70");
+				Double bg = (Double)this.donneesCharge.get(i).get(j).get("BG");
+				
+				//System.out.println("i:"+i+"j;"+j+" bg ="+bg);
+				Double TS = this.a 
+						* suv70 
+						+this.b
+						* bg;
+			//	System.out.println("a : "+this.a + " b : "+this.b+ "BG : "+bg+" TS ;"+TS);
+				ImagePlus im = ((ImagePlus)this.donneesCharge.get(i).get(j).get("image")).duplicate();
+				StackStatistics ss = new StackStatistics(im);
+
+			//	System.out.println("pixel count :"+ss.pixelCount);
+				
+				IJ.run(im	,"Macro...", "code=[if(v<"+TS+") v=NaN] stack");
+				//im.show();
+				//IJ.showMessage("afiche");
+				ss = new StackStatistics(im);
+				
+				//mesuré
+				Double volumeCalculated = ss.pixelCount * (Double)this.donneesCharge.get(i).get(j).get("VolumeVoxel");
+			//	System.out.println(" pixel count :"+ss.pixelCount);
+			//	System.out.println(" volume voxel :"+(Double)this.donneesCharge.get(i).get(j).get("VolumeVoxel"));
+				
+				
+				this.donneesCharge.get(i).get(j).put("VolumeCalculated", volumeCalculated);
+			}
+		}
+	}
+	
+	public ArrayList<ArrayList<HashMap<String, Object>>> getDataDetails(){
+		return this.donneesCharge;
+	}
+
+
 }

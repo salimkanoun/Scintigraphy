@@ -37,7 +37,7 @@ public class FenChargementCalibration extends JFrame{
 
 		String[] test = {"/Users/diego/Desktop/fantomes/Acqusition1/src_rec_apr_24_2018_float.nii",
 		"/Users/diego/Desktop/fantomes/Acqusition1/src_rec_apr_24_2018_mask.nii"};
-		this.examList.add(test);
+		//this.examList.add(test);
 
 		String[] test1 = {"/Users/diego/Desktop/fantomes/Acquisition2/src_rec_apr_24_2018_float.nii",
 		"/Users/diego/Desktop/fantomes/Acquisition2/src_rec_apr_24_2018_mask.nii"};
@@ -59,7 +59,7 @@ public class FenChargementCalibration extends JFrame{
 		this.add(fen, BorderLayout.CENTER);
 		
 		JButton lancer = new JButton("Run analysis");
-		ccc = new ControleurChargementCalibration(examList, this);
+		ccc = new ControleurChargementCalibration(this);
 		lancer.addActionListener(ccc);
 		
 		this.add(lancer, BorderLayout.SOUTH);
@@ -262,6 +262,11 @@ public class FenChargementCalibration extends JFrame{
 		JPanel fenCorrectSize = new JPanel(new FlowLayout());
 		fenCorrectSize.add(examSelectedPanel);
 		return fenCorrectSize;
+	}
+	
+	
+	public ArrayList<String[]> getExamList(){
+		return this.examList;
 	}
 	
 }

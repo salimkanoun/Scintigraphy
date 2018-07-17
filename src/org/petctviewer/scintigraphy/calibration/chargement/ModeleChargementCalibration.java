@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -27,17 +30,19 @@ public class ModeleChargementCalibration {
 	private static final int NB_SPHERE = 7;
 	
 	// en 0 la sphere la plus grande
-	private static final Double VOLUME_FANTOME_REF[] = {0.0D,26521.84878D,11494.04032D,5575.279763D,2572.440785D,1150.34651D,523.5987756D};
+	public static final Double VOLUME_FANTOME_REF[] = {0.0D,26521.84878D,11494.04032D,5575.279763D,2572.440785D,1150.34651D,523.5987756D};
 	
 	//list des analyse / Liste des rois / map du SUV, TS et BG(calculé une seule fois)
-	private ArrayList<ArrayList<HashMap<String,Double>>> paramResult;
+	private ArrayList<ArrayList<HashMap<String,Object>>> paramResult;
+
+	private ArrayList<ArrayList<HashMap<String,Object>>> paramResult2;
 
 	private Doublet[][] resultData;
 	
 	public ModeleChargementCalibration(ArrayList<String[]> examList) {
 		rm = new RoiManager();
 		paramResult = new ArrayList<>();
-		
+
 		/*for each exam*/
 		for(int k =0; k <examList.size(); k++) {
 			String floatPath = examList.get(k)[0];
@@ -47,12 +52,12 @@ public class ModeleChargementCalibration {
 			ImagePlus impFloatPropre = openImagePlus(floatPath);
 			System.out.println("numero acquisition "+k);
 			
-			ArrayList<HashMap<String,Double>> paramResultUnExam = new ArrayList<>();
+			ArrayList<HashMap<String,Object>> paramResultUnExam = new ArrayList<>();
 			
 			/*for each sphere (first sphere at v=1)(background at v=7)*/
 			for(int i =1; i<= NB_SPHERE; i++) {
 				
-				HashMap<String, Double> paramResultUnExamElements = new HashMap<>();
+				HashMap<String, Object> paramResultUnExamElements = new HashMap<>();
 				
 				System.out.println("********DEBUT n°"+i);
 				/*********sur mask*******/
@@ -118,7 +123,10 @@ public class ModeleChargementCalibration {
 				
 				//pour enlever les valeurs 0 et mettre nan pour mean
 				IJ.run(im,"Macro...", "code=[if(v==0) v=NaN] stack");
-	
+	/****/			paramResultUnExamElements.put("image", im.duplicate());
+
+				
+				
 			//	im.show();
 				//fin
 				rm.reset();
@@ -128,8 +136,14 @@ public class ModeleChargementCalibration {
 				
 				// pour seuil
 				Double suvMax = ss.max;
+				paramResultUnExamElements.put("SUVmax", ss.max);
+				//paramResultUnExam.add(paramResultUnExamElements);//
+
+				
+				
+				
 				if(i==7) {
-					paramResultUnExamElements.put("BG", ss.mean);/// background
+					paramResultUnExamElements.put("BG", ss.mean);// background
 					paramResultUnExam.add(paramResultUnExamElements);
 
 					continue;
@@ -141,13 +155,16 @@ public class ModeleChargementCalibration {
 				
 				ss = new StackStatistics(im70);
 				Double mean70 = ss.mean;
-				
+				paramResultUnExamElements.put("MEAN70", mean70);
 				//Calcul du volume
 				Double volume = 
 						im.getLocalCalibration().pixelDepth*
 						im.getLocalCalibration().pixelHeight*
 						im.getLocalCalibration().pixelWidth*
 						Math.pow(10,-12);
+				// mettre le volume dans la hash map
+				paramResultUnExamElements.put("VolumeVoxel", volume);
+
 				
 				//recherche plus petite difference entre la taille souhaitée et la taille relevée
 				HashMap<Double,Double> listeSeuil = new HashMap<>();
@@ -167,34 +184,59 @@ public class ModeleChargementCalibration {
 			paramResult.add(paramResultUnExam);
 		}
 		
-		//this.serieCollection = new XYSeriesCollection();
-		resultData = new Doublet[examList.size()][NB_SPHERE-1];
+
+		paramResult2 = new ArrayList<>();
+
 		
 		//test de la list de list de map
 		// oblige de le faire apres car le background est releve en dernier
+	
 		for(int  i =0; i< paramResult.size(); i++) {
 			System.out.println("***************exam(i) = "+i );
-			 Double BG = paramResult.get(i).get(paramResult.get(i).size()-1).get("BG");
+			ArrayList<HashMap<String,Object>> paramResultUnExam2 = new ArrayList<>();
+
+			 Double BG = (Double) paramResult.get(i).get(paramResult.get(i).size()-1).get("BG");
+	
 			 System.out.println("BG :"+BG);
 			for(int j=0; j < paramResult.get(i).size(); j++) {
+				HashMap<String, Object> paramResultUnExamElements2 = new HashMap<>();
+
 				if(j!=6) {
 					 System.out.println("roi(j) = "+j);
 					 System.out.println(" TS :"+paramResult.get(i).get(j).get("TS"));
 					 System.out.println(" SUV :"+paramResult.get(i).get(j).get("SUV"));
+					 System.out.println(" SUVmax :"+paramResult.get(i).get(j).get("SUVmax"));
+
 					 System.out.println(" BG :"+paramResult.get(i).get(j).get("BG"));
 					 
-					 Double TS = paramResult.get(i).get(j).get("TS");	 
-					 Double SUV = paramResult.get(i).get(j).get("SUV");
-	
+					 Double TS = (Double) paramResult.get(i).get(j).get("TS");	 
+					 Double SUV = (Double) paramResult.get(i).get(j).get("SUV");
 					 
 					 System.out.println(" X :"+((SUV-BG)/BG));
 					 System.out.println(" Y :"+(TS/(SUV-BG)));
+					 
+					 paramResultUnExamElements2.put("TS",paramResult.get(i).get(j).get("TS"));
+					 paramResultUnExamElements2.put("SUV",paramResult.get(i).get(j).get("SUV"));
+					 paramResultUnExamElements2.put("SUVmax",paramResult.get(i).get(j).get("SUVmax"));
+					 paramResultUnExamElements2.put("BG",BG);
+					 paramResultUnExamElements2.put("MEAN70",paramResult.get(i).get(j).get("MEAN70"));
+					 paramResultUnExamElements2.put("image",paramResult.get(i).get(j).get("image"));
+					 paramResultUnExamElements2.put("VolumeVoxel",paramResult.get(i).get(j).get("VolumeVoxel"));
+					 paramResultUnExamElements2.put("TrueSphereVolume",VOLUME_FANTOME_REF[j+1] );
+
+					 
+					 paramResultUnExamElements2.put("x",((SUV-BG)/BG));
+					 paramResultUnExamElements2.put("y",(TS/(SUV-BG)));
+
 	
-					 resultData[i][j] = new Doublet((SUV-BG)/BG, TS/(SUV-BG));
+					// resultData[i][j] = new Doublet((SUV-BG)/BG, TS/(SUV-BG));//
 					System.out.println();
+					paramResultUnExam2.add(paramResultUnExamElements2);
 				}
-			}					
-		}		
+			}
+			paramResult2.add(paramResultUnExam2);
+		}	
+		System.out.println("a1= "+ paramResult2.get(0).get(0).get("x"));
 	}
 	
 	private ImagePlus openImagePlus(String path) {
@@ -222,7 +264,10 @@ public class ModeleChargementCalibration {
 	public Doublet[][] getDonnees() {
 		return this.resultData;
 	}
-	
+	 
+	public  ArrayList<ArrayList<HashMap<String, Object>>> getDonnees2() {
+		return this.paramResult2;
+	}
 	//to debug
 	public static Doublet[][] setDonnees(){
 		Doublet[][] d = new Doublet[5][6];
@@ -259,4 +304,63 @@ public class ModeleChargementCalibration {
 		return d;
 	}
 	
+	
+	
+	/**
+	 public static void updateBouton(){
+		    SwingWorker sw = new SwingWorker<Integer, String>(){
+		    	
+		    	
+		      protected Integer doInBackground() throws Exception {
+		        int i;
+		        for(i = 0; i < 5; i++){
+		          try {
+		            //On change la propriété d'état
+		            setProgress(i);
+		            //On publie un résultat intermédiaire 
+		            publish("Tour de boucle N° " + (i+1));
+		            Thread.sleep(1000);
+		          } catch (InterruptedException e) {
+		            e.printStackTrace();
+		          }               
+		        }
+		        return i;
+		      }
+
+		      public void done(){
+		        if(SwingUtilities.isEventDispatchThread())
+		          System.out.println("Dans l'EDT ! ");
+		        try {
+		          //On utilise la méthode get() pour récupérer le résultat
+		          //de la méthode doInBackground()
+		          bouton.setText("Traitement terminé au bout de "+get()+" fois !");
+		        } catch (InterruptedException e) {
+		          e.printStackTrace();
+		        } catch (ExecutionException e) {
+		          e.printStackTrace();
+		        }
+		      }   
+		      //La méthode gérant les résultats intermédiaires
+		      public void process(List<String> list){
+		        for(String str : list)
+		          System.out.println(str);
+		      }
+		    };
+		    //On écoute le changement de valeur pour la propriété
+		    sw.addPropertyChangeListener(new PropertyChangeListener(){
+		      //Méthode de l'interface
+		      public void propertyChange(PropertyChangeEvent event) {
+		        //On vérifie tout de même le nom de la propriété
+		        if("progress".equals(event.getPropertyName())){
+		          if(SwingUtilities.isEventDispatchThread())
+		            System.out.println("Dans le listener donc dans l'EDT ! ");
+		          //On récupère sa nouvelle valeur
+		          bouton.setText("Pause " + (Integer) event.getNewValue());
+		        }            
+		      }         
+		    });
+		    //On lance le SwingWorker
+		    sw.execute();
+		  }
+*/	
 }
