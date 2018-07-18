@@ -9,6 +9,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -168,7 +169,7 @@ public class ModeleResultatsCalibration {
 	}
 	
 	public ArrayList<ArrayList<HashMap<String, Object>>> getDataDetails(){
-		return this.donneesCharge;
+		return null;
 	}
 
 

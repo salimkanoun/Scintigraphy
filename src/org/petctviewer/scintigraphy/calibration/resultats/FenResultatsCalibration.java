@@ -161,50 +161,59 @@ public class FenResultatsCalibration extends JFrame{
 	}
 	 
 	public void setTableDetails( ArrayList<ArrayList<HashMap<String, Object>>> data) {
-
-		DecimalFormat df = new DecimalFormat("#.##");
-		DecimalFormat df2 = new DecimalFormat("#");
-
 		this.tabDetails.removeAll();
 		this.tabDetails.revalidate();
 		
 		this.tabDetails.setLayout(new GridLayout(2, 3,15,5));
-		
-	    String[] title = {"Acqui ", "SUVmax","True Volume (ml)","Measured Volume (ml)","Diff (ml)","Diff (%)"};
-		//each roi
+				
+	    //each roi
 		for(int i = 0 ;i< data.get(0).size(); i++) {
 			//each exam
-		    ArrayList<Double> moyenneDiffPourcent = new ArrayList<>(); 
+		
+			//pour la moyenne des difference de pourcentage
+			ArrayList<Double> moyenneDifferencePourcentageList = new ArrayList<>(); 
 
-			Double[][] table = new Double[data.size()][6];
+			//tableau final qui sera affiche
+			Double[][] tableauFinal = new Double[data.size()][6];
+			
+			//each exam
 			for(int j = 0; j < data.size(); j++){
-				table[j][0] = 	ModeleScin.round((double)(j+1), 0);
-
-				table[j][1] = ModeleScin.round(((Double)data.get(j).get(i).get("SUVmax")),2);
-				table[j][2] = ModeleScin.round((Double)data.get(j).get(i).get("TrueSphereVolume")/1000,2);
-				table[j][3] = ModeleScin.round((Double)data.get(j).get(i).get("VolumeCalculated"),2);
-				table[j][4] = ModeleScin.round((Double)data.get(j).get(i).get("VolumeCalculated") - ((Double)data.get(j).get(i).get("TrueSphereVolume")/1000),2);
-				table[j][5] = ModeleScin.round( (
-								table[j][4]		 / 
+				
+				//numero d'acquisition
+				tableauFinal[j][0] = (double)(j+1);
+				tableauFinal[j][1] = ModeleScin.round(((Double)data.get(j).get(i).get("SUVmax")),2);
+				tableauFinal[j][2] = ModeleScin.round((Double)data.get(j).get(i).get("TrueSphereVolume")/1000,2);
+				tableauFinal[j][3] = ModeleScin.round((Double)data.get(j).get(i).get("VolumeCalculated"),2);
+				//difference en ml
+				tableauFinal[j][4] = ModeleScin.round((Double)data.get(j).get(i).get("VolumeCalculated") - ((Double)data.get(j).get(i).get("TrueSphereVolume")/1000),2);
+				//difference en pourcentage
+				tableauFinal[j][5] = ModeleScin.round( (
+								tableauFinal[j][4]		 / 
 								((Double)data.get(j).get(i).get("TrueSphereVolume")/1000) ) *100,2);
-				moyenneDiffPourcent.add(Math.abs(table[j][5]));
-				//table[j][6] = df.format((Double)data.get(j).get(i).get("x"));
+				
+				//ajout dans la liste pour le moyenne
+				moyenneDifferencePourcentageList.add(Math.abs(tableauFinal[j][5]));
 			}
-			JTable jtable = new JTable(table,title);
+			
+		    String[] title = {"Acqui ", "SUVmax","True Volume (ml)","Measured Volume (ml)","Diff (ml)","Diff (%)"};
+
+			JTable jtable = new JTable(tableauFinal,title);
 			jtable.setBorder(BorderFactory.createLineBorder(Color.black,1));
-			JPanel flow = new JPanel(new FlowLayout());
-			flow.add(jtable);
+			
 			JPanel tab = new JPanel(new BorderLayout());
 			tab.add(jtable.getTableHeader(), BorderLayout.NORTH);
 			tab.add(jtable, BorderLayout.CENTER);
-			System.out.println("taille :" +moyenneDiffPourcent.size());
-		System.out.println("moy : "+mean(moyenneDiffPourcent.toArray(new Double[moyenneDiffPourcent.size()] )   ));
-			tab.add(new JLabel(  ModeleScin.round(mean(moyenneDiffPourcent.toArray(new Double[moyenneDiffPourcent.size()] )   ),2)+  "") , BorderLayout.SOUTH);
-		
+			//affichage de la moyenne
+			tab.add(new JLabel(  ModeleScin.round(mean(moyenneDifferencePourcentageList.toArray(new Double[moyenneDifferencePourcentageList.size()] )   ),2)+  "") , BorderLayout.SOUTH);
+			
+
+			
+			//panel final avec titre, entete du tableau, contenu du tableau, moyenne de difference de pourcentage
 			JPanel tabEtTitre = new JPanel();
 			tabEtTitre.setLayout(new BoxLayout(tabEtTitre, BoxLayout.Y_AXIS));
 			tabEtTitre.add(new JLabel("Sphere"+(i+1)));
 			tabEtTitre.add(tab);
+			
 			this.tabDetails.add(tabEtTitre);
 		}
 		this.tabDetails.revalidate();

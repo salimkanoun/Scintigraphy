@@ -45,15 +45,15 @@ public class FenChargementCalibration extends JFrame{
 
 		String[] test2 = {"/Users/diego/Desktop/fantomes/Acquisition3/src_rec_apr_24_2018_float.nii",
 		"/Users/diego/Desktop/fantomes/Acquisition3/src_rec_apr_24_2018_mask.nii"};
-		this.examList.add(test2);
+		//this.examList.add(test2);
 
 		String[] test3 = {"/Users/diego/Desktop/fantomes/Acquisition4/src_rec_apr_24_2018_float.nii",
 		"/Users/diego/Desktop/fantomes/Acquisition4/src_rec_apr_24_2018_mask.nii"};
-		this.examList.add(test3);
+		//this.examList.add(test3);
 
 		String[] test4 = {"/Users/diego/Desktop/fantomes/Acquisition5/src_rec_apr_24_2018_float.nii",
 		"/Users/diego/Desktop/fantomes/Acquisition5/src_rec_apr_24_2018_mask.nii"};
-		this.examList.add(test4);
+		//this.examList.add(test4);
 
 		fen = createFileTab();
 		this.add(fen, BorderLayout.CENTER);
