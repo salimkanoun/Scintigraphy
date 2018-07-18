@@ -1,9 +1,17 @@
 package org.petctviewer.scintigraphy.calibration.resultats;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTable;
 
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.statistics.Regression;
@@ -24,6 +32,8 @@ public class ModeleResultatsCalibration {
 	private Double b = null;
 	
 	private ArrayList<ArrayList<HashMap<String, Object>>> donneesCharge;
+	
+	private ArrayList<Double[][]> listTableauFinal;
 	
 	public ModeleResultatsCalibration(ArrayList<ArrayList<HashMap<String, Object>>> arrayList) {
 		this.donneesCharge = arrayList;
@@ -52,27 +62,29 @@ public class ModeleResultatsCalibration {
 		 }else {
 			 this.dataCurrent[x][y]=new Doublet(Double.NaN, Double.NaN);
 		 }
-		 //graph.getXYPlot().setDataset(buildColletionFromDoublet(dataCurrent));
 	 }
 
 	 public XYSeriesCollection buildCollection() {
 		 Double maxX = 0.0D;
-			XYSeriesCollection collection = new XYSeriesCollection();
-		  	for(int i=0;i<this.dataCurrent.length;i++) {
-		  		XYSeries serie = new XYSeries("Acqui "+(i+1));
-		  		for(int j=0; j<this.dataCurrent[i].length;j++) {
-		  			serie.add(this.dataCurrent[i][j].getA(), this.dataCurrent[i][j].getB());
-				  	//avoir le x le plus grand
-		  			if(this.dataCurrent[i][j].getA()>=maxX) {
-		  				maxX = this.dataCurrent[i][j].getA();
-		  			}
-		  		}
-		  		collection.addSeries(serie);	
-		  	}
-		  	
-		  	Doublet fit = fitCalcul(this.dataCurrent);
-		  	collection.addSeries(featSeries(fit.getA(), fit.getB(), maxX.intValue()));
-		  	return collection;
+		XYSeriesCollection collection = new XYSeriesCollection();
+		//each acqui
+	  	for(int i=0;i<this.dataCurrent.length;i++) {
+	  		XYSeries serie = new XYSeries("Acqui "+(i+1));
+	  		//each roi
+	  		for(int j=0; j<this.dataCurrent[i].length;j++) {
+	  			//on met x et y
+	  			serie.add(this.dataCurrent[i][j].getA(), this.dataCurrent[i][j].getB());
+			  	//avoir le x le plus grand
+	  			if(this.dataCurrent[i][j].getA()>=maxX) {
+	  				maxX = this.dataCurrent[i][j].getA();
+	  			}
+	  		}
+	  		collection.addSeries(serie);	
+	  	}
+	  	
+	  	Doublet fit = fitCalcul(this.dataCurrent);
+	  	collection.addSeries(featSeries(fit.getA(), fit.getB(), maxX.intValue()));
+	  	return collection;
 	 }
 	 
 	 /**
@@ -88,6 +100,7 @@ public class ModeleResultatsCalibration {
 			 }
 		 }
 		 
+		 //passage dans un xyseries
   		XYSeries serikke = new XYSeries("ff ");
 	  	for(int i=0;i<m.length;i++) {
 	  		for(int j=0; j<m[i].length;j++) {
@@ -96,28 +109,41 @@ public class ModeleResultatsCalibration {
 				}
 	  		}
   		}
-	  	
-		 //feat
-		 double[] resultRegression = Regression.getOLSRegression(new XYSeriesCollection(serikke),0);
-		 System.out.println("a : "+resultRegression[0]);
-		 System.out.println("b : "+resultRegression[1]);
-		 this.a = resultRegression[1];
-		 this.b = resultRegression[0] - resultRegression[1];
+	  ;
+		 //feat calcul
+	  	 double[] resultRegression = new double[2];
+	  	try {
+			  resultRegression = Regression.getOLSRegression(new XYSeriesCollection(serikke),0);
+			// System.out.println("a : "+resultRegression[0]);
+			 //System.out.println("b : "+resultRegression[1]);
+			 this.a = resultRegression[1];
+			 this.b = resultRegression[0] - resultRegression[1];
+		} catch (IllegalArgumentException e) {
+			resultRegression[0] = Double.NaN;
+			resultRegression[1] = Double.NaN;
+			this.a = Double.NaN;
+			this.b = Double.NaN;
+		}
 		 
+		 
+		
 		 
 		return new Doublet(resultRegression[0],resultRegression[1]);
 	 }
 	 
 	 //tracage du feat
 	 private XYSeries featSeries(Double a, Double b, int max) {
-		 //tracage du feat
-		 XYSeries feat = new XYSeries("feat");
-		 for(double i=0.1D; i< max ;i+=0.1D) {//commencé a 0.2D ? to xmax +3
-				 feat.add(i,(a/i)+b);
-			 //feat.add(i,((0.7D/i)+0.4D) );
-			 //feat.add(i,resultRegression[1]*i+resultRegression[0]);
+		 if( a.equals(null) && b.equals(null)) {
+			 return new XYSeries("");
+		 }else {
+			//tracage du feat
+			 XYSeries feat = new XYSeries("feat");
+			 for(double i=0.1D; i< max ;i+=0.1D) {
+					 feat.add(i,(a/i)+b);
+			 }
+			 return feat;
 		 }
-		 return feat;
+		 
 	 }
 
 	public Double geta() {
@@ -129,48 +155,82 @@ public class ModeleResultatsCalibration {
 	}
 	
 	public void runCalculDetails() {
-		
-		
 		for(int i =0; i<this.donneesCharge.size() ;i++) {
 			for(int j=0; j<this.donneesCharge.get(i).size() ;j++) {
-
-				//titre de la ligne
 				Double suvMax = (Double)this.donneesCharge.get(i).get(j).get("SUVmax");
-				
-				
 				Double suv70 = (Double)this.donneesCharge.get(i).get(j).get("MEAN70");
 				Double bg = (Double)this.donneesCharge.get(i).get(j).get("BG");
 				
-				//System.out.println("i:"+i+"j;"+j+" bg ="+bg);
-				Double TS = this.a 
-						* suv70 
-						+this.b
-						* bg;
-			//	System.out.println("a : "+this.a + " b : "+this.b+ "BG : "+bg+" TS ;"+TS);
+//System.out.println("i:"+i+"j;"+j+" bg ="+bg);
+				Double TS = this.a * suv70 +this.b* bg;
+//System.out.println("a : "+this.a + " b : "+this.b+ "BG : "+bg+" TS ;"+TS);
 				ImagePlus im = ((ImagePlus)this.donneesCharge.get(i).get(j).get("image")).duplicate();
 				StackStatistics ss = new StackStatistics(im);
 
-			//	System.out.println("pixel count :"+ss.pixelCount);
-				
+//System.out.println("pixel count :"+ss.pixelCount);
+	
 				IJ.run(im	,"Macro...", "code=[if(v<"+TS+") v=NaN] stack");
-				//im.show();
-				//IJ.showMessage("afiche");
+//im.show();
 				ss = new StackStatistics(im);
-				
 				//mesuré
 				Double volumeCalculated = ss.pixelCount * (Double)this.donneesCharge.get(i).get(j).get("VolumeVoxel");
-			//	System.out.println(" pixel count :"+ss.pixelCount);
-			//	System.out.println(" volume voxel :"+(Double)this.donneesCharge.get(i).get(j).get("VolumeVoxel"));
-				
+//	System.out.println(" pixel count :"+ss.pixelCount);
+//	System.out.println(" volume voxel :"+(Double)this.donneesCharge.get(i).get(j).get("VolumeVoxel"));
 				
 				this.donneesCharge.get(i).get(j).put("VolumeCalculated", volumeCalculated);
 			}
 		}
 	}
 	
-	public ArrayList<ArrayList<HashMap<String, Object>>> getDataDetails(){
-		return null;
+	public ArrayList<Double[][]> getDataDetails(){
+		listTableauFinal = new ArrayList<>();
+				
+	    //each roi
+		for(int i = 0 ;i< this.donneesCharge.get(0).size(); i++) {
+			//tableau final qui sera affiche
+			Double[][] tableauFinal = new Double[this.donneesCharge.size()][6];
+			
+			//each exam
+			for(int j = 0; j < this.donneesCharge.size(); j++) {
+				//numero d'acquisition
+				tableauFinal[j][0] = (double)(j+1);
+				tableauFinal[j][1] = ModeleScin.round(((Double)this.donneesCharge.get(j).get(i).get("SUVmax")),2);
+				tableauFinal[j][2] = ModeleScin.round((Double)this.donneesCharge.get(j).get(i).get("TrueSphereVolume")/1000,2);
+				tableauFinal[j][3] = ModeleScin.round((Double)this.donneesCharge.get(j).get(i).get("VolumeCalculated"),2);
+				//difference en ml
+				tableauFinal[j][4] = ModeleScin.round((Double)this.donneesCharge.get(j).get(i).get("VolumeCalculated") - ((Double)this.donneesCharge.get(j).get(i).get("TrueSphereVolume")/1000),2);
+				//difference en pourcentage
+				tableauFinal[j][5] = ModeleScin.round( (
+								tableauFinal[j][4]		 / 
+								((Double)this.donneesCharge.get(j).get(i).get("TrueSphereVolume")/1000) ) *100,2);
+			}
+			listTableauFinal.add(tableauFinal);
+		}
+		return listTableauFinal;
+	}
+	
+	public ArrayList<Double> getMoyenneDifferenceDetails() {
+		ArrayList<Double> listMoyenneDifferencePourcentage = new ArrayList<>();
+	   //each roi
+		for(int i = 0 ;i< this.listTableauFinal.size(); i++) {
+			//pour la moyenne des difference de pourcentage
+			ArrayList<Double> listDifferencePourcentage = new ArrayList<>();
+			//each variable
+			for(int j = 0; j < this.listTableauFinal.get(i).length ; j++){
+				listDifferencePourcentage.add(Math.abs(this.listTableauFinal.get(i)[j][5]));
+			}
+			listMoyenneDifferencePourcentage.add(ModeleScin.round(mean(listDifferencePourcentage.toArray(new Double[listDifferencePourcentage.size()] )),2));
+		}
+		return listMoyenneDifferencePourcentage;
 	}
 
+	public static double mean(Double[] m) {
+	    Double sum = 0.0D;
+	    for (int i = 0; i < m.length; i++) {
+	        sum += m[i];
+	       // System.out.println("i:"+i+" m : "+m[i]);
+	    }
+	    return sum / m.length;
+	}
 
 }

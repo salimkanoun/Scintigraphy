@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.calibration.resultats;
 
+import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -8,6 +9,12 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -16,6 +23,7 @@ import java.util.HashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -23,6 +31,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 import org.jfree.chart.ChartFactory;
@@ -35,6 +44,11 @@ import org.petctviewer.scintigraphy.scin.ModeleScin;
 
 import com.itextpdf.text.List;
 
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.gui.ImageCanvas;
+
 public class FenResultatsCalibration extends JFrame{
 	
 	private JPanel east ;
@@ -45,14 +59,10 @@ public class FenResultatsCalibration extends JFrame{
 	private JLabel aLabel;
 	private JLabel bLabel;
 	
-	
-	
-	JPanel tabDetails;
+	private JPanel tabDetails;
 
 	public FenResultatsCalibration(ArrayList<ArrayList<HashMap<String, Object>>> arrayList) {
-		
-
-		
+			
 		/**tab1 **/
 		JPanel tabGraphics = new JPanel();
 		tabGraphics.setLayout(new BorderLayout());
@@ -71,7 +81,6 @@ public class FenResultatsCalibration extends JFrame{
 	    ChartPanel chartPanel = new ChartPanel(graph);
 	    tabGraphics.add(chartPanel,BorderLayout.CENTER);
 	    
-
 	  	// east panel
 		 //coeff a et b
 		 JPanel coefGrid = new JPanel();
@@ -101,8 +110,14 @@ public class FenResultatsCalibration extends JFrame{
 	    east.setLayout(new BoxLayout(east, BoxLayout.Y_AXIS));
 	    this.east.add(jtcb);
 	    this.east.add(coef);
+	    
+	    JFrame frame = this;
+	    
+	    JButton capture = new JButton("Capture");
+	  
+	    east.add(capture);
 	    tabGraphics.add(east,BorderLayout.EAST);
-		
+
 	    
 	    /**tab2**/
 	    //tab details
@@ -114,7 +129,6 @@ public class FenResultatsCalibration extends JFrame{
 	    
 	    tabDetails.add(new JScrollPane(table));
 	   
-	    
 		/**fenetre**/
 		this.setTitle("Résultats Calibration");
 		this.setLayout(new BorderLayout());		
@@ -127,21 +141,75 @@ public class FenResultatsCalibration extends JFrame{
 		this.add(tabbedPane);
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	    this.pack();
-		System.out.println("fen test");
+	    
+	    
+	    
+	    
+	    capture.addActionListener(new ActionListener() {	
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Point loc = frame.getLocation();
+				Rectangle bounds = frame.getBounds();
+				BufferedImage buff = null;
+				try {
+					Rectangle rec = new Rectangle(loc.x, loc.y, bounds.width, bounds.height);
+					buff = new Robot().createScreenCapture(rec);
+				} catch (AWTException e1) {
+					e1.printStackTrace();
+				}			
+				
+				ImagePlus[] im = new ImagePlus[2];
+				im[0] = new  ImagePlus("Capture Calibration",buff);
+				
+				tabbedPane.setSelectedIndex(1);						
 
+				Thread t = new Thread(new Runnable() {
+				@Override
+					public void run() {
+						try {
+							
+							try {
+								Thread.sleep(100);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							Rectangle rec = new Rectangle(loc.x, loc.y, bounds.width, bounds.height);
+							BufferedImage buff = new Robot().createScreenCapture(rec);
+							
+							im[1] = new  ImagePlus("Capture Calibration",buff);
+							
+							tabbedPane.setSelectedIndex(0);
+							ImagePlus imageplus = new ImagePlus( );
+							imageplus.setStack(ModeleScin.captureToStack(im));
+							imageplus.show();
+						} catch (AWTException e1) {
+							e1.printStackTrace();
+						}							
+					}
+				});
+				t.start();
+		
+			}
+		});
+		//System.out.println("fen test");
 	}
 	 
-
-	
-	
 	 public void setCoef(Double a, Double b) {
-		 DecimalFormat df = new DecimalFormat("#.###");
-		   
-		 aLabel.setFont(new Font("", Font.PLAIN, 20));
-		 bLabel.setFont(new Font("", Font.PLAIN, 20));
+		 if(a.equals(Double.NaN) && b.equals(Double.NaN)) {
+			 aLabel.setText("a = N/A");
+			 bLabel.setText("b = N/A");
+		 }else {
+			 DecimalFormat df = new DecimalFormat("#.###");
+			   
+			 aLabel.setFont(new Font("", Font.PLAIN, 20));
+			 bLabel.setFont(new Font("", Font.PLAIN, 20));
+			 
+			 aLabel.setText("a = "+df.format((Double)a));
+			 bLabel.setText("b = "+df.format((Double)b));
+		 }
 		 
-		 aLabel.setText("a = "+df.format((Double)a));
-		 bLabel.setText("b = "+df.format((Double)b));
+		
 	 }
 
 	public JFreeChart getGraph() {
@@ -160,76 +228,35 @@ public class FenResultatsCalibration extends JFrame{
 	     this.graph.getXYPlot().setRenderer(renderer);
 	}
 	 
-	public void setTableDetails( ArrayList<ArrayList<HashMap<String, Object>>> data) {
+	public void setTableDetails( ArrayList<Double[][]> listeTableauFinal, ArrayList<Double> listMoyenneDifferencePourcentage) {
 		this.tabDetails.removeAll();
 		this.tabDetails.revalidate();
 		
 		this.tabDetails.setLayout(new GridLayout(2, 3,15,5));
-				
-	    //each roi
-		for(int i = 0 ;i< data.get(0).size(); i++) {
-			//each exam
 		
-			//pour la moyenne des difference de pourcentage
-			ArrayList<Double> moyenneDifferencePourcentageList = new ArrayList<>(); 
+		String[] title = {"Acqui ", "SUVmax","True Volume (ml)","Measured Volume (ml)","Diff (ml)","Diff (%)"};
+	
+		for(int i=0; i< listeTableauFinal.size(); i++) {
 
-			//tableau final qui sera affiche
-			Double[][] tableauFinal = new Double[data.size()][6];
-			
-			//each exam
-			for(int j = 0; j < data.size(); j++){
-				
-				//numero d'acquisition
-				tableauFinal[j][0] = (double)(j+1);
-				tableauFinal[j][1] = ModeleScin.round(((Double)data.get(j).get(i).get("SUVmax")),2);
-				tableauFinal[j][2] = ModeleScin.round((Double)data.get(j).get(i).get("TrueSphereVolume")/1000,2);
-				tableauFinal[j][3] = ModeleScin.round((Double)data.get(j).get(i).get("VolumeCalculated"),2);
-				//difference en ml
-				tableauFinal[j][4] = ModeleScin.round((Double)data.get(j).get(i).get("VolumeCalculated") - ((Double)data.get(j).get(i).get("TrueSphereVolume")/1000),2);
-				//difference en pourcentage
-				tableauFinal[j][5] = ModeleScin.round( (
-								tableauFinal[j][4]		 / 
-								((Double)data.get(j).get(i).get("TrueSphereVolume")/1000) ) *100,2);
-				
-				//ajout dans la liste pour le moyenne
-				moyenneDifferencePourcentageList.add(Math.abs(tableauFinal[j][5]));
-			}
-			
-		    String[] title = {"Acqui ", "SUVmax","True Volume (ml)","Measured Volume (ml)","Diff (ml)","Diff (%)"};
-
-			JTable jtable = new JTable(tableauFinal,title);
+			JTable jtable = new JTable(listeTableauFinal.get(i),title);
 			jtable.setBorder(BorderFactory.createLineBorder(Color.black,1));
 			
 			JPanel tab = new JPanel(new BorderLayout());
 			tab.add(jtable.getTableHeader(), BorderLayout.NORTH);
 			tab.add(jtable, BorderLayout.CENTER);
-			//affichage de la moyenne
-			tab.add(new JLabel(  ModeleScin.round(mean(moyenneDifferencePourcentageList.toArray(new Double[moyenneDifferencePourcentageList.size()] )   ),2)+  "") , BorderLayout.SOUTH);
 			
-
+			//affichage de la moyenne: dernier tableau de la liste
+			tab.add(new JLabel("Mean Absolute Difference (%) = "+ listMoyenneDifferencePourcentage.get(i) +  "") , BorderLayout.SOUTH);
 			
 			//panel final avec titre, entete du tableau, contenu du tableau, moyenne de difference de pourcentage
 			JPanel tabEtTitre = new JPanel();
 			tabEtTitre.setLayout(new BoxLayout(tabEtTitre, BoxLayout.Y_AXIS));
-			tabEtTitre.add(new JLabel("Sphere"+(i+1)));
+			tabEtTitre.add(new JLabel("Sphere "+(i+1)));
 			tabEtTitre.add(tab);
 			
 			this.tabDetails.add(tabEtTitre);
 		}
 		this.tabDetails.revalidate();
-	}
-	
-	
-	 
-	public static double mean(Double[] m) {
-	    Double sum = 0.0D;
-	    for (int i = 0; i < m.length; i++) {
-	        sum += m[i];
-	        System.out.println("i:"+i+" m : "+m[i]);
-	    }
-	    return sum / m.length;
-	}
-//swing worker
-	//vue anone otrhanc tools
-	 
+	}	 
+
 }

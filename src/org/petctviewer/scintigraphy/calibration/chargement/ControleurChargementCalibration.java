@@ -7,6 +7,7 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 
 import javax.swing.JCheckBox;
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
@@ -14,28 +15,32 @@ import org.petctviewer.scintigraphy.calibration.resultats.FenResultatsCalibratio
 
 public class ControleurChargementCalibration implements ActionListener{
 
-	ModeleChargementCalibration modele ;
-	FenChargementCalibration fenCharg ;
+	private ModeleChargementCalibration modele ;
+	private FenChargementCalibration fenCharg ;
 	
 	public ControleurChargementCalibration( FenChargementCalibration fenChargementCalibration) {
 		this.fenCharg = fenChargementCalibration;
 	}
 
-	//calcul temrine
+	//quand le calcul termine
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		//fen.lancerRes(this.modele.getDonnees());
-		//fenCharg.lancerRes(ModeleChargementCalibration.setDonnees());
+	public void actionPerformed(ActionEvent e) {		
+		this.modele = new ModeleChargementCalibration(fenCharg);	
+		
+		Thread t = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				modele.runCalcul();			
+				FenResultatsCalibration fen = new FenResultatsCalibration(modele.getDonnees2());
+				fen.setVisible(true);
+			}
+		});
+		t.start();
 		
 		
-		
-		 modele = new ModeleChargementCalibration(this.fenCharg.getExamList());
-		 FenResultatsCalibration fen = new FenResultatsCalibration(this.modele.getDonnees2());
-		 fen.setVisible(true);
-		//FenResultatsCalibration fen = new FenResultatsCalibration(ModeleChargementCalibration.setDonnees());
-		//fen.setVisible(true);
+	}
 	
-	} 
 
 	
 	

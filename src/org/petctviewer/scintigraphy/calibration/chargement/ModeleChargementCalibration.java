@@ -1,10 +1,13 @@
 package org.petctviewer.scintigraphy.calibration.chargement;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
@@ -39,27 +42,45 @@ public class ModeleChargementCalibration {
 
 	private Doublet[][] resultData;
 	
-	public ModeleChargementCalibration(ArrayList<String[]> examList) {
-		rm = new RoiManager();
+	private FenChargementCalibration fenCharg;
+	
+	public ModeleChargementCalibration(FenChargementCalibration fenCharg) {
+		this.fenCharg = fenCharg;
+	}
+	
+	public void runCalcul() {
+		ArrayList<String[]> examList = fenCharg.getExamList();
+
+		rm = new RoiManager(false);
 		paramResult = new ArrayList<>();
+		
 
 		/*for each exam*/
 		for(int k =0; k <examList.size(); k++) {
+			
+			fenCharg.setExamText("Exam "+(k+1)+"/"+examList.size());
+
+	
+		
 			String floatPath = examList.get(k)[0];
 			String maskPath = examList.get(k)[1];
-			
-			ImagePlus impMaskPropre =openImagePlus(maskPath);
+
+			ImagePlus impMaskPropre = openImagePlus(maskPath);
 			ImagePlus impFloatPropre = openImagePlus(floatPath);
-			System.out.println("numero acquisition "+k);
+			//System.out.println("numero acquisition "+k);
+
 			
 			ArrayList<HashMap<String,Object>> paramResultUnExam = new ArrayList<>();
 			
 			/*for each sphere (first sphere at v=1)(background at v=7)*/
+
 			for(int i =1; i<= NB_SPHERE; i++) {
-				
+				fenCharg.setSphereText("Sphere "+i+"/"+NB_SPHERE);
+
 				HashMap<String, Object> paramResultUnExamElements = new HashMap<>();
 				
-				System.out.println("********DEBUT n°"+i);
+			//	System.out.println("********DEBUT n°"+i);
+				
 				/*********sur mask*******/
 	
 				//dublication
@@ -87,7 +108,7 @@ public class ModeleChargementCalibration {
 					}
 				}
 				
-				// selection de la plus grand roi
+				// selection de la plus grande roi
 				impMaskDuplicated.setSlice(listSliceAire.indexOf(Collections.max(listSliceAire)));
 				IJ.run(impMaskDuplicated ,"Create Selection", "");
 				
@@ -123,29 +144,22 @@ public class ModeleChargementCalibration {
 				
 				//pour enlever les valeurs 0 et mettre nan pour mean
 				IJ.run(im,"Macro...", "code=[if(v==0) v=NaN] stack");
-	/****/			paramResultUnExamElements.put("image", im.duplicate());
-
+    			paramResultUnExamElements.put("image", im.duplicate());
 				
-				
-			//	im.show();
+    			//im.show();
 				//fin
 				rm.reset();
-				System.out.println("********FIN n°"+i);
+				//System.out.println("********FIN n°"+i);
 				
 				StackStatistics ss = new StackStatistics(im);
 				
 				// pour seuil
 				Double suvMax = ss.max;
 				paramResultUnExamElements.put("SUVmax", ss.max);
-				//paramResultUnExam.add(paramResultUnExamElements);//
-
-				
-				
 				
 				if(i==7) {
 					paramResultUnExamElements.put("BG", ss.mean);// background
 					paramResultUnExam.add(paramResultUnExamElements);
-
 					continue;
 				}
 				
@@ -174,7 +188,7 @@ public class ModeleChargementCalibration {
 					listeSeuil.put(Math.abs(ss.pixelCount*volume -(VOLUME_FANTOME_REF[i]/1000)),j);
 				}
 				
-				IJ.log(listeSeuil.get(Collections.min(listeSeuil.keySet()))+"");
+				//IJ.log(listeSeuil.get(Collections.min(listeSeuil.keySet()))+"");
 				paramResultUnExamElements.put("TS", listeSeuil.get(Collections.min(listeSeuil.keySet())));
 				paramResultUnExamElements.put("SUV", mean70);
 
@@ -192,28 +206,28 @@ public class ModeleChargementCalibration {
 		// oblige de le faire apres car le background est releve en dernier
 	
 		for(int  i =0; i< paramResult.size(); i++) {
-			System.out.println("***************exam(i) = "+i );
+			//System.out.println("***************exam(i) = "+i );
 			ArrayList<HashMap<String,Object>> paramResultUnExam2 = new ArrayList<>();
 
 			 Double BG = (Double) paramResult.get(i).get(paramResult.get(i).size()-1).get("BG");
 	
-			 System.out.println("BG :"+BG);
+			// System.out.println("BG :"+BG);
 			for(int j=0; j < paramResult.get(i).size(); j++) {
 				HashMap<String, Object> paramResultUnExamElements2 = new HashMap<>();
 
 				if(j!=6) {
-					 System.out.println("roi(j) = "+j);
+/*					 System.out.println("roi(j) = "+j);
 					 System.out.println(" TS :"+paramResult.get(i).get(j).get("TS"));
 					 System.out.println(" SUV :"+paramResult.get(i).get(j).get("SUV"));
 					 System.out.println(" SUVmax :"+paramResult.get(i).get(j).get("SUVmax"));
 
 					 System.out.println(" BG :"+paramResult.get(i).get(j).get("BG"));
-					 
+*/					 
 					 Double TS = (Double) paramResult.get(i).get(j).get("TS");	 
 					 Double SUV = (Double) paramResult.get(i).get(j).get("SUV");
 					 
-					 System.out.println(" X :"+((SUV-BG)/BG));
-					 System.out.println(" Y :"+(TS/(SUV-BG)));
+//					 System.out.println(" X :"+((SUV-BG)/BG));
+//				 System.out.println(" Y :"+(TS/(SUV-BG)));
 					 
 					 paramResultUnExamElements2.put("TS",paramResult.get(i).get(j).get("TS"));
 					 paramResultUnExamElements2.put("SUV",paramResult.get(i).get(j).get("SUV"));
@@ -228,16 +242,19 @@ public class ModeleChargementCalibration {
 					 paramResultUnExamElements2.put("x",((SUV-BG)/BG));
 					 paramResultUnExamElements2.put("y",(TS/(SUV-BG)));
 
-	
-					// resultData[i][j] = new Doublet((SUV-BG)/BG, TS/(SUV-BG));//
-					System.out.println();
+//					System.out.println();
 					paramResultUnExam2.add(paramResultUnExamElements2);
 				}
 			}
 			paramResult2.add(paramResultUnExam2);
 		}	
-		System.out.println("a1= "+ paramResult2.get(0).get(0).get("x"));
+//		System.out.println("a1= "+ paramResult2.get(0).get(0).get("x"));
+		
+		//fermeture du roi manager
+		rm.close();
+		
 	}
+	
 	
 	private ImagePlus openImagePlus(String path) {
 		ImporterOptions m;
@@ -268,41 +285,7 @@ public class ModeleChargementCalibration {
 	public  ArrayList<ArrayList<HashMap<String, Object>>> getDonnees2() {
 		return this.paramResult2;
 	}
-	//to debug
-	public static Doublet[][] setDonnees(){
-		Doublet[][] d = new Doublet[5][6];
-		d[0][0] = new Doublet(1063.3218358660768D, 0.44588858911374424D);
-		d[0][1] = new Doublet(1067.5094504468002D, 0.3435332856457216D);
-		d[0][2] = new Doublet(1075.6134848903816D, 0.29710920566867444D);
-		d[0][3] = new Doublet(1085.4444906104673D, 0.3354437445920691D);
-		d[0][4] = new Doublet(1144.5596754600492D, 0.35473641529112776D);
-		d[0][5] = new Doublet(1300.609884418601D, 0.30411820110510795D);
-		d[1][0] = new Doublet(14.421943348191165D, 0.4418919476045528D);
-		d[1][1] = new Doublet(14.495709820355993D, 0.36148443059528607D);
-		d[1][2] = new Doublet(14.954254789497297D, 0.3219893447923146D);
-		d[1][3] = new Doublet(15.360010154478156D, 0.3227036671631728D);
-		d[1][4] = new Doublet(15.89198067399009D, 0.32081290633860965D);
-		d[1][5] = new Doublet(9.583768488319942D, 0.4433148708424135D);
-		d[2][0] = new Doublet(5.8514917802345074D, 0.49435974657758197D);
-		d[2][1] = new Doublet(5.983372882994303D, 0.42974527357662806D);
-		d[2][2] = new Doublet(6.540263144717796D, 0.39315332726177543D);
-		d[2][3] = new Doublet(5.8792817416813925D, 0.4191307258995072D);
-		d[2][4] = new Doublet(5.498713317645333D, 0.44813895211650334D);
-		d[2][5] = new Doublet(1.7609865956269029D, 1.216801906621926D);
-		d[3][0] = new Doublet(3.6034874711797307D, 0.5812458860014016D);
-		d[3][1] = new Doublet(3.663831775040131D, 0.5145053476348772D);
-		d[3][2] = new Doublet(3.6224222603814282D, 0.49147650376663377D);
-		d[3][3] = new Doublet(3.0897049253509867D, 0.5762153573602007D);
-		d[3][4] = new Doublet(2.418959217577922D, 0.7359923287509254D);
-		d[3][5] = new Doublet(0.2191369847740241D, 6.690603090247335D);
-		d[4][0] = new Doublet(2.226015813509347D, 0.695322515892987D);
-		d[4][1] = new Doublet(2.218766228629182D, 0.6510881150234067D);
-		d[4][2] = new Doublet(2.30630754761493D, 0.6263745366352871D);
-		d[4][3] = new Doublet(2.02730970060167D, 0.6616777528793599D);
-		d[4][4] = new Doublet(0.872927442318167D, 1.536697853744085D);
-		d[4][5] = new Doublet(0.018021787846651975D, 68.70789642125047D);
-		return d;
-	}
+	
 	
 	
 	
