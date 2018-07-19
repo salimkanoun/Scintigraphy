@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.CSV;
+package org.petctviewer.scintigraphy.renal.followup;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
