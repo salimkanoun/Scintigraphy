@@ -17,16 +17,18 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import ij.Prefs;
 
-public abstract class Modele_FollowUp {
+public class Modele_FollowUp {
 	
 	private ArrayList<ArrayList<String>> allLines ;
-
+	private HashMap<String, HashMap<String, Double[][ ]>>allExamens;
 	
 	public Modele_FollowUp(ArrayList<String> chemins)  {
 		
 		allLines = readAllCsvContent(chemins);
 	
-		HashMap<String, HashMap<String, Double[][ ]>>tableaux = new HashMap();		
+		//Tous les tableaux du patient avec cle = date de l'examen
+		allExamens = new HashMap();
+		// for each examen
 		for(int i =0; i< allLines.size(); i++) {
 			//map contenant tout les tableaux pour un seul examen
 			HashMap<String, Double[][]> unExamen = new HashMap<>();
@@ -35,7 +37,7 @@ public abstract class Modele_FollowUp {
 			unExamen.put("timing",readTiming(i));
 			unExamen.put("roe", readROE(i));
 			unExamen.put("integral",readIntegral(i));
-			tableaux.put(getDateExamen(i), unExamen);
+			allExamens.put(getDateExamen(i), unExamen);
 		}
 	}
 	
@@ -70,24 +72,8 @@ public abstract class Modele_FollowUp {
 		return allLines;
 	}
 	
-	//to read excretion ratio
-	protected Double[][] readExcretionRatio(int indiceExamen) {
-		Double[][] excr = new Double[3][3];
-		int ligneDansCsv = rechercheLineContains(indiceExamen, "Excretion ratio");
-		int colonneDansCsv = 1;
-		for(int i = 0; i< 3; i++) {
-			for(int j = 0; j<3; j++) {
-				if(!allLines.get(indiceExamen).get(i+ligneDansCsv).split(",")[j+colonneDansCsv].equals("null"))
-					excr[i][j] = Double.parseDouble(allLines.get(indiceExamen).get(i+ligneDansCsv).split(",")[j+colonneDansCsv]);
-				else
-					excr[i][j] = null;
-			}	
-		}
-		return excr;
-	}
-	
 	//search a line where first apparition of word "mot"
-	protected int rechercheLineContains(int indiceExamen, String mot) {
+	private int rechercheLineContains(int indiceExamen, String mot) {
 		for(int i =0; i< allLines.get(indiceExamen).size(); i++) {
 			if(allLines.get(indiceExamen).get(i).contains(mot)) {
 				return i;
@@ -95,8 +81,7 @@ public abstract class Modele_FollowUp {
 		}
 		return 0;
 	}
-	
-	
+		
 	/************ Public Methods tab main ***********/
 
 	public XYSeriesCollection getLeftKidneyCollection() {
@@ -105,9 +90,12 @@ public abstract class Modele_FollowUp {
 		for(int i = 0; i<allLines.size(); i++) {
 			//je recupere le temps (abcsisse) et rein gauche (ordonnee)			
 			XYSeries leftKidneySerie = new XYSeries(getDateExamen(i));
+			int ligne_LeftKidnet_DansCsv = rechercheLineContains(i, "Corrected Left Kidney");
+			int ligne_Time_DansCsv = rechercheLineContains(i, "time (s)");
+
 			//for each cols (j) in line 4 (time) and 5 (left kidney) 
-			for(int j =1; j < this.allLines.get(i).get(4).split(",").length; j++) {
-				leftKidneySerie.add(Double.parseDouble(this.allLines.get(i).get(4).split(",")[j]),Double.parseDouble( this.allLines.get(i).get(5).split(",")[j]));
+			for(int j =1; j < this.allLines.get(i).get(ligne_Time_DansCsv).split(",").length; j++) {
+				leftKidneySerie.add(Double.parseDouble(this.allLines.get(i).get(ligne_Time_DansCsv).split(",")[j]),Double.parseDouble( this.allLines.get(i).get(ligne_LeftKidnet_DansCsv).split(",")[j]));
 			}	
 			leftKidneyCollection.addSeries(leftKidneySerie);
 		}
@@ -120,8 +108,11 @@ public abstract class Modele_FollowUp {
 		for(int i = 0; i<allLines.size(); i++) {
 			//je recupere le temps (abcsisse) et  rein droite  (ordonnee)
 			XYSeries rightKidneySerie = new XYSeries(getDateExamen(i));
-			for(int j = 1; j<this.allLines.get(i).get(4).split(",").length;j++) {
-				rightKidneySerie.add(Double.parseDouble(this.allLines.get(i).get(4).split(",")[j]),Double.parseDouble(this.allLines.get(i).get(6).split(",")[j]));
+			int ligne_RightKidnet_DansCsv = rechercheLineContains(i, "Corrected Right Kidney");
+			int ligne_Time_DansCsv = rechercheLineContains(i, "time (s)");
+
+			for(int j = 1; j<this.allLines.get(i).get(ligne_Time_DansCsv).split(",").length;j++) {
+				rightKidneySerie.add(Double.parseDouble(this.allLines.get(i).get(ligne_Time_DansCsv).split(",")[j]),Double.parseDouble(this.allLines.get(i).get(ligne_RightKidnet_DansCsv).split(",")[j]));
 			}	
 			rightKidneyCollection.addSeries(rightKidneySerie);
 		}
@@ -135,13 +126,43 @@ public abstract class Modele_FollowUp {
 	public String getIDPatient() {
 		return this.allLines.get(0).get(1).split(",")[1];
 	}
-	
-	public HashMap<String, Double[][]> getExcretionsRatios() {
-		return this.excretionsRatios;
+
+	public HashMap<String, HashMap<String, Double[][ ]>> getAllExamens(){
+		return this.allExamens;
 	}
-
+	
+	private String getDateExamen(int indiceExamen) {
+		int ligne_Date_DansCsv = rechercheLineContains(indiceExamen, "Study Date");
+		String datePatient = allLines.get(indiceExamen).get(ligne_Date_DansCsv).split(",")[1];	
+		Date result = null;
+		try {
+			result = new SimpleDateFormat("yyyyMMdd").parse(datePatient);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		datePatient = new SimpleDateFormat(Prefs.get("dateformat.preferred", "MM/dd/yyyy")).format(result);
+		
+		return datePatient;
+	}
+	
 	/************ Public Methods tab details ***********/
-
+	
+	//to read excretion ratio
+	private Double[][] readExcretionRatio(int indiceExamen) {
+		Double[][] excr = new Double[3][3];
+		int ligneDansCsv = rechercheLineContains(indiceExamen, "Excretion ratio");
+		int colonneDansCsv = 1;
+		for(int i = 0; i< 3; i++) {
+			for(int j = 0; j<3; j++) {
+				if(!allLines.get(indiceExamen).get(i+ligneDansCsv).split(",")[j+colonneDansCsv].equals("null"))
+					excr[i][j] = Double.parseDouble(allLines.get(indiceExamen).get(i+ligneDansCsv).split(",")[j+colonneDansCsv]);
+				else
+					excr[i][j] = null;
+			}	
+		}
+		return excr;
+	}
+		
 	private Double[][] readNora(int indiceExamen){
 		Double[][] nora = new Double[3][3];
 		int ligneDansCsv = rechercheLineContains(indiceExamen, "NORA");
@@ -200,26 +221,8 @@ public abstract class Modele_FollowUp {
 		return roe;
 	}
 	
-	private String getDateExamen(int indiceExamen){
-		String datePatient = allLines.get(indiceExamen).get(2).split(",")[1];	
-		Date result = null;
-		try {
-			result = new SimpleDateFormat("yyyyMMdd").parse(datePatient);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		datePatient = new SimpleDateFormat(Prefs.get("dateformat.preferred", "MM/dd/yyyy")).format(result);
-		
-		return datePatient;
-	}
-
-	public ArrayList<HashMap<String, Double[][]>> getTableaux(){	
-		return this.tableaux;
-	}
-
 	
-	
-	/************ Private Methods ***********/
+	/************ Private Methods to debug ***********/
 	//to print CSV content in console
  	private static void printCSVContent(String chemin) throws IOException {
 		File file = new File(chemin);
@@ -235,7 +238,6 @@ public abstract class Modele_FollowUp {
 		br.close();
 		fr.close();
 	}
-
 	
 	// à supprimer
 	private static void printDoubleTab2Dim(Double[][] d) {

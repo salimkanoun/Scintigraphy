@@ -44,6 +44,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
 import ij.ImagePlus;
 import ij.Prefs;
+import java.awt.Component;
 
 public class FenApplication_FollowUp extends JFrame{
 
@@ -53,18 +54,17 @@ public class FenApplication_FollowUp extends JFrame{
 	
 	private String nomPatient;
 	private String idPatient;
-	
-	private HashMap<String, Double[][]> excretionsRatios;
-	
+		
 	/*tab details variable*/
 	//contient les tableaux de chaque patient
-	private ArrayList<HashMap<String, Double[][]>> tableaux;
-	private String[] dateExamen;
+	private HashMap<String, HashMap<String, Double[][]>> allExamens;
 	
 	public FenApplication_FollowUp(ArrayList<String> chemins) throws IOException {
 		
+		Controleur_FollowUp cf = new Controleur_FollowUp(this, chemins);
+		
 		this.setTitle("CVS");
-		this.setLayout(new BorderLayout());
+		getContentPane().setLayout(new BorderLayout());
 		this.setSize(700,500);
 		
 		/**Tab Main**/
@@ -86,14 +86,6 @@ public class FenApplication_FollowUp extends JFrame{
 	    tabMain.add(charts);
 	    
 		
-	    //informations patient panel : put on flow 
-	    JPanel patientInfo = new JPanel(new GridLayout(2, 2, 10, 10));
-	    patientInfo.add(new JLabel("Patient name: "));
-		patientInfo.add(new JLabel(nomPatient));
-		patientInfo.add(new JLabel("Patient id: "));
-		patientInfo.add(new JLabel(idPatient));
-		JPanel flowPatient = new JPanel();
-		flowPatient.add(patientInfo);
 		
 		//title : put to flow
 		JLabel titre = new JLabel("<html><h1> Follow-up </h1><html>");
@@ -104,127 +96,82 @@ public class FenApplication_FollowUp extends JFrame{
 		//side with all informations
 		Box sideBox = Box.createVerticalBox();
 		sideBox.add(flowTitre);
-		sideBox.add(flowPatient);
+		sideBox.add(patientInfoPanel());
 		
 		// cle : date
-		ArrayList<String> cleExcretions = new ArrayList<>(this.excretionsRatios.keySet());
+		ArrayList<String> cleAllExamens = new ArrayList<>(this.allExamens.keySet());
 		
 		//tabs with excretion ratio
-		for(int i =0; i< cleExcretions.size(); i++) {
-
-			JPanel excrTabPanel = new JPanel(new GridLayout(4, 3));
-			excrTabPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-			
-			JLabel timeLabel = new JLabel("T");
-			timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			excrTabPanel.add(timeLabel);
-			
-			JLabel leftLabel = new JLabel("L");
-			leftLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			excrTabPanel.add(leftLabel);
-			
-			JLabel rightLabel = new JLabel("R");
-			rightLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			excrTabPanel.add(rightLabel);
-			
-			Double[][] excr = excretionsRatios.get(cleExcretions.get(i));
-			for (int j = 0; j < excr.length; j++) {
-
-				excrTabPanel.add(new JLabel(excr[j][0] + "  min"));
-
-				for (int k = 1; k < excr[j].length; k++) {
-					if (excr[j][k] != null) {
-						JLabel lbl_g = new JLabel(excr[j][k] + " %");
-						lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
-						excrTabPanel.add(lbl_g);
-					} else {
-						JLabel lbl_na = new JLabel("N/A");
-						lbl_na.setHorizontalAlignment(SwingConstants.CENTER);
-						excrTabPanel.add(lbl_na);
-					}
-				}
-			}
-			
-			Box excrBox = Box.createVerticalBox();
-			excrBox.add(new JLabel("Aquisition date: "+cleExcretions.get(i)));
-			excrBox.add(new JLabel(" Excretion ratio"));
-			excrBox.add(excrTabPanel);
-			
-			sideBox.add(excrBox);
+		Box excretionTabFlow = Box.createVerticalBox();
+		//for each date
+		for(int i =0; i< cleAllExamens.size(); i++) {
+			excretionTabFlow.add(setExcretionRatioTab(allExamens.get(cleAllExamens.get(i)).get("excretion")));
 		}
-		
-		JButton captureButton = new JButton("Capture");
-		captureButton.addActionListener(new ActionListener() {	
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				captureButton.setVisible(false);
-				
-				Container root =  Scintigraphy.getRootContainer(captureButton);
-				System.out.println(root.toString());
-				
-				// Capture, nouvelle methode a utiliser sur le reste des programmes
-				BufferedImage capture = new BufferedImage(root.getWidth(), root.getHeight(),
-						BufferedImage.TYPE_INT_ARGB);
-				root.paint(capture.getGraphics());
-				ImagePlus imp = new ImagePlus("capture", capture);
-				imp.show();
-				
-				captureButton.setVisible(true);
-			}
-		});		
-		
-		sideBox.add(captureButton);
+		sideBox.add(excretionTabFlow);
+	
+		sideBox.add(setCaptureButton());
 		
 		tabMain.add(sideBox,BorderLayout.EAST);
 		
 		
 		//** Tab details **/
-		
 		JPanel tabDetails = new JPanel();
-		tabDetails.setLayout(new FlowLayout());
+		tabDetails.setLayout(new BorderLayout());
 		
 		Box allResultats = Box.createHorizontalBox();
-		for(int i=0; i<tableaux.size(); i++) {
+		//for each date 
+		for(int i=0; i<cleAllExamens.size(); i++) {
 			
 			Box resultats =  Box.createVerticalBox();
-			JLabel date = new JLabel(dateExamen[i]);
+			JLabel date = new JLabel(cleAllExamens.get(i));
 	        date.setAlignmentX(CENTER_ALIGNMENT);
 			
 			date.setFont(new Font("Helvetica", Font.PLAIN, 18));
 			resultats.add(date);
 			resultats.add(Box.createRigidArea(new Dimension(0, 30)));// add space
 
-			resultats.add(setIntegralTab(tableaux.get(i).get("integral")));
+			resultats.add(setIntegralTab(allExamens.get(cleAllExamens.get(i)).get("integral")));
 			resultats.add(Box.createRigidArea(new Dimension(0, 30)));
 
-			resultats.add(setTimingTab(tableaux.get(i).get("timing")));
+			resultats.add(setTimingTab(allExamens.get(cleAllExamens.get(i)).get("timing")));
 			resultats.add(Box.createRigidArea(new Dimension(0, 30)));
 			
-			resultats.add(setExcretionRatioTab(tableaux.get(i).get("excretion")));
+			resultats.add(setExcretionRatioTab(allExamens.get(cleAllExamens.get(i)).get("excretion")));
 			resultats.add(Box.createRigidArea(new Dimension(0, 30)));
 
-			resultats.add(setRoeTab(tableaux.get(i).get("roe")));
+			resultats.add(setRoeTab(allExamens.get(cleAllExamens.get(i)).get("roe")));
 			resultats.add(Box.createRigidArea(new Dimension(0, 30)));
 
-			resultats.add(setNoraTab(tableaux.get(i).get("nora")));
+			resultats.add(setNoraTab(allExamens.get(cleAllExamens.get(i)).get("nora")));
 			
 			//pour que tableau ne soit pas etalé sur toute la fenetre
 			JPanel jp = new JPanel(new FlowLayout());
 			jp.add(resultats);
 			
 			allResultats.add(jp);
-	
 		}
-		tabDetails.add(allResultats);
 		
+		JPanel captureButtonFlow = new JPanel(new FlowLayout());
+		captureButtonFlow.add(setCaptureButton());
 		
+		JPanel patientInfoFlow = new JPanel(new FlowLayout());
+		patientInfoFlow.add(patientInfoPanel());
+		
+		JPanel allResultatsFlow = new JPanel(new FlowLayout());
+		allResultatsFlow.add(allResultats);
+
+		
+		tabDetails.add(patientInfoFlow, BorderLayout.WEST);
+		tabDetails.add(allResultatsFlow, BorderLayout.CENTER);
+		tabDetails.add(captureButtonFlow, BorderLayout.EAST);
+
 		
 		
 		JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
 		tabbedPane.addTab("Main", tabMain);
 		tabbedPane.addTab("Details", tabDetails);
 	   
-		this.add(tabbedPane);
+		getContentPane().add(tabbedPane);
 		this.pack();
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -247,13 +194,7 @@ public class FenApplication_FollowUp extends JFrame{
 	public void setIdPatient(String id) {
 		this.idPatient = id;
 	}
-	
-	public void setExcretionsRatios(HashMap<String, Double[][]> e) {
-		this.excretionsRatios = e;
-	}
-	
-	
-	
+		
 	/** Tab details methods**/
 	private Box setNoraTab(Double[][] nora) {
 		JPanel noraTabPanel = new JPanel(new GridLayout(4,3,10,5));
@@ -486,15 +427,41 @@ public class FenApplication_FollowUp extends JFrame{
 		return integralBox;
 	}
 	
-	public void setTableaux(ArrayList<HashMap<String, Double[][]>> tableaux) {
-		this.tableaux = tableaux;
+	public void setAllExamens(HashMap<String,HashMap<String, Double[][]>> allExamens) {
+		this.allExamens = allExamens;
 	}
 
-	public void setDateExamen(String[] dateExamen) {
-		this.dateExamen = dateExamen;
+	private JButton setCaptureButton() {
+		JButton captureButton = new JButton("Capture");
+		captureButton.addActionListener(new ActionListener() {	
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				captureButton.setVisible(false);
+				
+				Container root =  Scintigraphy.getRootContainer(captureButton);
+				
+				// Capture, nouvelle methode a utiliser sur le reste des programmes
+				BufferedImage capture = new BufferedImage(root.getWidth(), root.getHeight(),BufferedImage.TYPE_INT_ARGB);
+				root.paint(capture.getGraphics());
+				ImagePlus imp = new ImagePlus("capture", capture);
+				imp.show();
+			
+				captureButton.setVisible(true);
+			}
+		});		
+		return captureButton;
 	}
 
-
-	
+	private JPanel patientInfoPanel() {
+	    //informations patient panel : put on flow 
+	    JPanel patientInfo = new JPanel(new GridLayout(2, 2, 10, 10));
+	    patientInfo.add(new JLabel("Patient name: "));
+		patientInfo.add(new JLabel(nomPatient));
+		patientInfo.add(new JLabel("Patient id: "));
+		patientInfo.add(new JLabel(idPatient));
+		JPanel flowInfoPatient = new JPanel();
+		flowInfoPatient.add(patientInfo);
+		return flowInfoPatient;
+	}
 }
 
