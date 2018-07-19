@@ -1,45 +1,192 @@
-package org.petctviewer.scintigraphy.CSV;
+package org.petctviewer.scintigraphy.renal.followup;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 
-public class TabDetails extends JPanel{
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
+
+import ij.ImagePlus;
+import ij.Prefs;
+
+public class FenApplication_FollowUp extends JFrame{
+
+	/*tab main variable*/
+	private JFreeChart leftKidneyGraph ;
+	private JFreeChart rightKidneyGraph ;
 	
+	private String nomPatient;
+	private String idPatient;
 	
+	private HashMap<String, Double[][]> excretionsRatios;
 	
+	/*tab details variable*/
 	//contient les tableaux de chaque patient
 	private ArrayList<HashMap<String, Double[][]>> tableaux;
 	private String[] dateExamen;
 	
-	public TabDetails(ArrayList<String> chemins) {
-		Controleur_FollowUp_TabDetails controleurTabDetails = new Controleur_FollowUp_TabDetails(this,chemins);
+	public FenApplication_FollowUp(ArrayList<String> chemins) throws IOException {
+		
+		this.setTitle("CVS");
+		this.setLayout(new BorderLayout());
+		this.setSize(700,500);
+		
+		/**Tab Main**/
+		JPanel tabMain = new JPanel();
+		tabMain.setLayout(new BorderLayout());
 
 		
+		 //Changes background color
+	    XYPlot plot = (XYPlot)this.leftKidneyGraph.getPlot();
+	    plot.setBackgroundPaint(new Color(255,228,196));
+	    plot = (XYPlot)this.rightKidneyGraph.getPlot();
+	    plot.setBackgroundPaint(new Color(255,228,196));
+	    
+	    //graphics panel
+		JPanel charts = new JPanel();
+		charts.setLayout(new GridLayout(2,1));
+	    charts.add(new ChartPanel(this.leftKidneyGraph),BorderLayout.CENTER);
+	    charts.add(new ChartPanel(this.rightKidneyGraph),BorderLayout.CENTER);	
+	    tabMain.add(charts);
+	    
+		
+	    //informations patient panel : put on flow 
+	    JPanel patientInfo = new JPanel(new GridLayout(2, 2, 10, 10));
+	    patientInfo.add(new JLabel("Patient name: "));
+		patientInfo.add(new JLabel(nomPatient));
+		patientInfo.add(new JLabel("Patient id: "));
+		patientInfo.add(new JLabel(idPatient));
+		JPanel flowPatient = new JPanel();
+		flowPatient.add(patientInfo);
+		
+		//title : put to flow
+		JLabel titre = new JLabel("<html><h1> Follow-up </h1><html>");
+		titre.setHorizontalAlignment(SwingConstants.CENTER);
+		JPanel flowTitre = new JPanel();
+		flowTitre.add(titre);
+				
+		//side with all informations
+		Box sideBox = Box.createVerticalBox();
+		sideBox.add(flowTitre);
+		sideBox.add(flowPatient);
+		
+		// cle : date
+		ArrayList<String> cleExcretions = new ArrayList<>(this.excretionsRatios.keySet());
+		
+		//tabs with excretion ratio
+		for(int i =0; i< cleExcretions.size(); i++) {
 
-		this.setLayout(new FlowLayout());
+			JPanel excrTabPanel = new JPanel(new GridLayout(4, 3));
+			excrTabPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+			
+			JLabel timeLabel = new JLabel("T");
+			timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			excrTabPanel.add(timeLabel);
+			
+			JLabel leftLabel = new JLabel("L");
+			leftLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			excrTabPanel.add(leftLabel);
+			
+			JLabel rightLabel = new JLabel("R");
+			rightLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			excrTabPanel.add(rightLabel);
+			
+			Double[][] excr = excretionsRatios.get(cleExcretions.get(i));
+			for (int j = 0; j < excr.length; j++) {
+
+				excrTabPanel.add(new JLabel(excr[j][0] + "  min"));
+
+				for (int k = 1; k < excr[j].length; k++) {
+					if (excr[j][k] != null) {
+						JLabel lbl_g = new JLabel(excr[j][k] + " %");
+						lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
+						excrTabPanel.add(lbl_g);
+					} else {
+						JLabel lbl_na = new JLabel("N/A");
+						lbl_na.setHorizontalAlignment(SwingConstants.CENTER);
+						excrTabPanel.add(lbl_na);
+					}
+				}
+			}
+			
+			Box excrBox = Box.createVerticalBox();
+			excrBox.add(new JLabel("Aquisition date: "+cleExcretions.get(i)));
+			excrBox.add(new JLabel(" Excretion ratio"));
+			excrBox.add(excrTabPanel);
+			
+			sideBox.add(excrBox);
+		}
+		
+		JButton captureButton = new JButton("Capture");
+		captureButton.addActionListener(new ActionListener() {	
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				captureButton.setVisible(false);
+				
+				Container root =  Scintigraphy.getRootContainer(captureButton);
+				System.out.println(root.toString());
+				
+				// Capture, nouvelle methode a utiliser sur le reste des programmes
+				BufferedImage capture = new BufferedImage(root.getWidth(), root.getHeight(),
+						BufferedImage.TYPE_INT_ARGB);
+				root.paint(capture.getGraphics());
+				ImagePlus imp = new ImagePlus("capture", capture);
+				imp.show();
+				
+				captureButton.setVisible(true);
+			}
+		});		
+		
+		sideBox.add(captureButton);
+		
+		tabMain.add(sideBox,BorderLayout.EAST);
+		
+		
+		//** Tab details **/
+		
+		JPanel tabDetails = new JPanel();
+		tabDetails.setLayout(new FlowLayout());
+		
 		Box allResultats = Box.createHorizontalBox();
-		
-		
 		for(int i=0; i<tableaux.size(); i++) {
 			
-			//ArrayList<String> cleTableaux = new ArrayList<>(tableaux.get(clePatient.get(i)).keySet());			
-			
-			
 			Box resultats =  Box.createVerticalBox();
-			
-		
 			JLabel date = new JLabel(dateExamen[i]);
 	        date.setAlignmentX(CENTER_ALIGNMENT);
 			
@@ -68,10 +215,46 @@ public class TabDetails extends JPanel{
 			allResultats.add(jp);
 	
 		}
-		this.add(allResultats);
+		tabDetails.add(allResultats);
 		
+		
+		
+		
+		JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
+		tabbedPane.addTab("Main", tabMain);
+		tabbedPane.addTab("Details", tabDetails);
+	   
+		this.add(tabbedPane);
+		this.pack();
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
 	}
 	
+	/**Tab main methods*/
+	
+	public void createLeftKidneyGraph(XYSeriesCollection collection) {
+		this.leftKidneyGraph = ChartFactory.createXYLineChart("Left Kidney","time (s)"," ",collection);	
+	}
+	
+	public void createRightKidneyGraph(XYSeriesCollection collection) {	
+		this.rightKidneyGraph = ChartFactory.createXYLineChart("Right Kidney","time (s)"," ",collection);
+	}
+
+	public void setPatientName(String name) {
+		this.nomPatient = name;
+	}
+	
+	public void setIdPatient(String id) {
+		this.idPatient = id;
+	}
+	
+	public void setExcretionsRatios(HashMap<String, Double[][]> e) {
+		this.excretionsRatios = e;
+	}
+	
+	
+	
+	/** Tab details methods**/
 	private Box setNoraTab(Double[][] nora) {
 		JPanel noraTabPanel = new JPanel(new GridLayout(4,3,10,5));
 		noraTabPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
@@ -118,7 +301,6 @@ public class TabDetails extends JPanel{
 		return noraBox;
 	}
 	
-
 	private Box setExcretionRatioTab(Double[][] excr) {
 		JPanel excrTabPanel = new JPanel(new GridLayout(4, 3,10,5));
 		excrTabPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
@@ -312,4 +494,7 @@ public class TabDetails extends JPanel{
 		this.dateExamen = dateExamen;
 	}
 
+
+	
 }
+

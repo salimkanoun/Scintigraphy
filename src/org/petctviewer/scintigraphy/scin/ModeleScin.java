@@ -401,15 +401,17 @@ public abstract class ModeleScin {
 	public static String genererDicomTagsPartie1(ImagePlus imp, String nomProgramme, String uid) {
 		String sopID = generateSOPInstanceUID(new Date());
 		String tag = "0002,0002 Media Storage SOP Class UID: " + "1.2.840.10008.5.1.4.1.1.7" + "\n"
-				+ "0002,0003 Media Storage SOP Inst UID: " + sopID + "\n" + "0002,0010 Transfer Syntax UID: "
+				+ "0002,0003 Media Storage SOP Inst UID: " + sopID + "\n" 
+				+ "0002,0010 Transfer Syntax UID: "
 				+ "1.2.840.10008.1.2.1" + "\n" + "0002,0013 Implementation Version Name: jpeg" + "\n"
-				+ "0002,0016 Source Application Entity Title: " + "\n" + "0008,0008 Image Type: DERIVED\\SECONDARY "
+				+ "0002,0016 Source Application Entity Title: " + "\n" 
+				+ "0008,0008 Image Type: DERIVED\\SECONDARY "
 				+ "\n" + "0008,0016 SOP Class UID: " + "1.2.840.10008.5.1.4.1.1.7" + "\n"
-				+ "0008,0018 SOP Instance UID: " + sopID + "\n" + "0008,0020 Study Date:"
-				+ DicomTools.getTag(imp, "0008,0020") + "\n" + "0008,0021 Series Date:"
-				+ DicomTools.getTag(imp, "0008,0021") + "\n" + "0008,0030 Study Time:"
-				+ DicomTools.getTag(imp, "0008,0030") + "\n" + "0008,0031 Series Time:"
-				+ DicomTools.getTag(imp, "0008,0031") + "\n";
+				+ "0008,0018 SOP Instance UID: " + sopID + "\n" 
+				+ "0008,0020 Study Date:"+ DicomTools.getTag(imp, "0008,0020") + "\n" 
+				+ "0008,0021 Series Date:"+ DicomTools.getTag(imp, "0008,0021") + "\n" 
+				+ "0008,0030 Study Time:"+ DicomTools.getTag(imp, "0008,0030") + "\n" 
+				+ "0008,0031 Series Time:"+ DicomTools.getTag(imp, "0008,0031") + "\n";
 		if (DicomTools.getTag(imp, "0008,0050") != null)
 			tag += "0008,0050 Accession Number:" + DicomTools.getTag(imp, "0008,0050") + "\n";
 		if (DicomTools.getTag(imp, "0008,0060") != null)
