@@ -412,7 +412,6 @@ public abstract class ModeleScin {
 		tags.put("0020,0037", DicomTools.getTag(imp, "0020,0037") );
 		String partie1=getTagPartie1(tags, nomProgramme, uid);
 		return partie1;
-		
 	}
 
 	/**prepare la premiere partie des tags du header du dicom avec l'iud passe en parametre <br>

@@ -15,6 +15,9 @@ import java.util.List;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import com.drew.lang.StringUtil;
+
+import ch.systemsx.cisd.hdf5.StringUtils;
 import ij.Prefs;
 
 public class Modele_FollowUp {
@@ -38,6 +41,8 @@ public class Modele_FollowUp {
 			unExamen.put("roe", readROE(i));
 			unExamen.put("integral",readIntegral(i));
 			allExamens.put(getDateExamen(i), unExamen);
+			
+			readTags(i);
 		}
 	}
 	
@@ -92,11 +97,16 @@ public class Modele_FollowUp {
 			XYSeries leftKidneySerie = new XYSeries(getDateExamen(i));
 			int ligne_LeftKidnet_DansCsv = rechercheLineContains(i, "Corrected Left Kidney");
 			int ligne_Time_DansCsv = rechercheLineContains(i, "time (s)");
-
-			//for each cols (j) in line 4 (time) and 5 (left kidney) 
-			for(int j =1; j < this.allLines.get(i).get(ligne_Time_DansCsv).split(",").length; j++) {
-				leftKidneySerie.add(Double.parseDouble(this.allLines.get(i).get(ligne_Time_DansCsv).split(",")[j]),Double.parseDouble( this.allLines.get(i).get(ligne_LeftKidnet_DansCsv).split(",")[j]));
-			}	
+			
+			// si la case est vide on met des nan
+			if(this.allLines.get(i).get(ligne_LeftKidnet_DansCsv).split(",").length <=1) {
+				leftKidneySerie.add(Double.NaN, Double.NaN);
+			}else {
+				//for each cols (j) in line 4 (time) and 5 (left kidney) 
+				for(int j =1; j < this.allLines.get(i).get(ligne_Time_DansCsv).split(",").length; j++) {
+					leftKidneySerie.add(Double.parseDouble(this.allLines.get(i).get(ligne_Time_DansCsv).split(",")[j]),Double.parseDouble( this.allLines.get(i).get(ligne_LeftKidnet_DansCsv).split(",")[j]));
+				}	
+			}
 			leftKidneyCollection.addSeries(leftKidneySerie);
 		}
 		return leftKidneyCollection;
@@ -110,10 +120,15 @@ public class Modele_FollowUp {
 			XYSeries rightKidneySerie = new XYSeries(getDateExamen(i));
 			int ligne_RightKidnet_DansCsv = rechercheLineContains(i, "Corrected Right Kidney");
 			int ligne_Time_DansCsv = rechercheLineContains(i, "time (s)");
-
-			for(int j = 1; j<this.allLines.get(i).get(ligne_Time_DansCsv).split(",").length;j++) {
-				rightKidneySerie.add(Double.parseDouble(this.allLines.get(i).get(ligne_Time_DansCsv).split(",")[j]),Double.parseDouble(this.allLines.get(i).get(ligne_RightKidnet_DansCsv).split(",")[j]));
-			}	
+	
+			// si la case est vide on met des nan
+			if(this.allLines.get(i).get(ligne_RightKidnet_DansCsv).split(",").length <=1) {
+				rightKidneySerie.add(Double.NaN, Double.NaN);
+			}else {
+				for(int j = 1; j<this.allLines.get(i).get(ligne_Time_DansCsv).split(",").length;j++) {
+					rightKidneySerie.add(Double.parseDouble(this.allLines.get(i).get(ligne_Time_DansCsv).split(",")[j]),Double.parseDouble(this.allLines.get(i).get(ligne_RightKidnet_DansCsv).split(",")[j]));
+				}	
+			}
 			rightKidneyCollection.addSeries(rightKidneySerie);
 		}
 		return rightKidneyCollection;
@@ -221,6 +236,16 @@ public class Modele_FollowUp {
 		return roe;
 	}
 	
+	private String readTags(int indiceExamen) {
+		int ligneDansCsv = rechercheLineContains(indiceExamen, "tags");
+		String tag = this.allLines.get(indiceExamen).get(ligneDansCsv);
+		
+		String json=tag.substring(5, tag.length());
+	
+		System.out.println( "exam="+indiceExamen);
+		System.out.println(json);
+		return tag;
+	}
 	
 	/************ Private Methods to debug ***********/
 	//to print CSV content in console
