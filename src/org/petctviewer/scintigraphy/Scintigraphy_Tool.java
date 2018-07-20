@@ -66,6 +66,7 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			//Renal
 			MenuItem renogram = new MenuItem("Renogram");
 			MenuItem dmsa = new MenuItem("DMSA");
+			MenuItem renogramFollowUp = new MenuItem("Renogram Follow-Up");
 			
 			//About et preference
 			MenuItem about = new MenuItem("About");
@@ -73,6 +74,7 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			
 			//generic
 			MenuItem dynquant = new MenuItem("Dynamic Quantification");
+			MenuItem statquant = new MenuItem("Static Quantification");
 			
 			
 			
@@ -86,9 +88,11 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			biliaryScintigraphy.addActionListener(this);
 			renogram.addActionListener(this);
 			dmsa.addActionListener(this);
+			renogramFollowUp.addActionListener(this);
 			about.addActionListener(this);
 			preferences.addActionListener(this);
 			dynquant.addActionListener(this);
+			statquant.addActionListener(this);
 			
 			gastric.add(gastricEmptying);
 			gastric.add(gastricDynamic);
@@ -101,8 +105,10 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			
 			renal.add(renogram);
 			renal.add(dmsa);
+			renal.add(renogramFollowUp);
 			
 			generic.add(dynquant);
+			generic.add(statquant);
 			
 			
 			general.add(generic);
@@ -140,11 +146,17 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			if (cmd=="Dynamic Quantification") {
 				IJ.run("Dynamic Quantification");
 			}
+			if (cmd=="Static Quantification") {
+				IJ.run("Static Quantification");
+			}
 			if (cmd=="Renogram") {
 				IJ.run("Renogram");
 			}
 			if (cmd=="DMSA") {
 				IJ.run("DMSA");
+			}
+			if (cmd=="Renogram Follow-Up") {
+				IJ.run("Renogram Follow-Up");
 			}
 			if (cmd=="Gastric Condense") {
 				Thread condense=new Thread (new Runnable() 
