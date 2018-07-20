@@ -5,16 +5,11 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.SwingUtilities;
 
-import org.petctviewer.scintigraphy.dynamic.FenApplication_GeneralDyn;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.ImagePlus;
-import ij.ImageStack;
 import ij.gui.Roi;
-import ij.plugin.MontageMaker;
-import ij.plugin.frame.RoiManager;
 
 public class ControleurScinStatic extends ControleurScin{
 

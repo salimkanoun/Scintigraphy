@@ -10,8 +10,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.jfree.data.xy.XYSeriesCollection;
-
 public class ControleurResultatsCalibration implements ItemListener,ChangeListener {
 	
 	private FenResultatsCalibration fen;

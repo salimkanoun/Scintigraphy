@@ -1,12 +1,8 @@
 package org.petctviewer.scintigraphy.calibration.resultats;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.ItemSelectable;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
@@ -14,9 +10,12 @@ import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.Border;
 
 public class JTableCheckBox extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private JPanel tab;
 	
@@ -159,8 +158,4 @@ public class JTableCheckBox extends JPanel {
 		}
 	}
 
-
-	
-	
-	
 }

@@ -6,13 +6,16 @@ import java.awt.Label;
 import java.awt.Panel;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.ImagePlus;
 
 public class FenApplication_ScinStatic extends FenApplication{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Button btn_finish;
 	
 	public FenApplication_ScinStatic(ImagePlus imp, String nom) {

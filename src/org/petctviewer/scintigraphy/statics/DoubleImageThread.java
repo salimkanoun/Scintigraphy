@@ -2,7 +2,6 @@ package org.petctviewer.scintigraphy.statics;
 
 import javax.swing.SwingUtilities;
 
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.ImagePlus;

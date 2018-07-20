@@ -1,20 +1,10 @@
 package org.petctviewer.scintigraphy.statics;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.ImagePlus;
-import ij.measure.Measurements;
-import ij.measure.ResultsTable;
-import ij.plugin.filter.Analyzer;
-import ij.process.ImageStatistics;
-import ij.util.DicomTools;
 
 public class ModeleScinStatic  extends ModeleScin{
 	

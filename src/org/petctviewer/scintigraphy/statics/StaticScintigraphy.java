@@ -2,10 +2,7 @@ package org.petctviewer.scintigraphy.statics;
 
 import java.awt.Color;
 
-import org.petctviewer.scintigraphy.cardiac.Controleur_Cardiac;
-import org.petctviewer.scintigraphy.cardiac.FenApplication_Cardiac;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.ImagePlus;
 import ij.gui.Overlay;

@@ -13,24 +13,13 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.general.DatasetUtils;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.RenalSettings;
+
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -324,7 +313,7 @@ public abstract class ModeleScin {
 		return df1.format(dt1);
 	}
 
-	private String generateUID6digits() {
+	public  String generateUID6digits() {
 		if (this.uid == null) {
 			this.uid = (int) (Math.random() * 1000000.);
 		}
@@ -388,6 +377,31 @@ public abstract class ModeleScin {
 		String uid = generateUID6digits();
 		return genererDicomTagsPartie1(imp, nomProgramme, uid);
 	}
+	
+	public static String genererDicomTagsPartie1(ImagePlus imp, String nomProgramme, String uid) {
+		HashMap tags=new HashMap();
+		tags.put("0008,0020", DicomTools.getTag(imp, "0008,0020") );
+		tags.put("0008,0021", DicomTools.getTag(imp, "0008,0021") );
+		tags.put("0008,0030", DicomTools.getTag(imp, "0008,0030") );
+		tags.put("0008,0031", DicomTools.getTag(imp, "0008,0031") );
+		tags.put("0008,0050", DicomTools.getTag(imp, "0008,0050") );
+		tags.put("0008,0060", DicomTools.getTag(imp, "0008,0060") );
+		tags.put("0008,0070", DicomTools.getTag(imp, "0008,0070") );
+		tags.put("0008,0080", DicomTools.getTag(imp, "0008,0080") );
+		tags.put("0008,0090", DicomTools.getTag(imp, "0008,0090") );
+		tags.put("0008,1030", DicomTools.getTag(imp, "0008,1030") );
+		tags.put("0010,0010", DicomTools.getTag(imp, "0010,0010") );
+		tags.put("0010,0020", DicomTools.getTag(imp, "0010,0020") );
+		tags.put("0010,0030", DicomTools.getTag(imp, "0010,0030") );
+		tags.put("0010,0040", DicomTools.getTag(imp, "0010,0040") );
+		tags.put("0020,000D", DicomTools.getTag(imp, "0020,000D") );
+		tags.put("0020,000E", DicomTools.getTag(imp, "0020,000E") );
+		tags.put("0020,0010", DicomTools.getTag(imp, "0020,0010") );
+		tags.put("0020,0032" ,DicomTools.getTag(imp, "0020,0032") );
+		tags.put("0020,0037", DicomTools.getTag(imp, "0020,0037") );
+		String partie1=getTagPartie1(tags, nomProgramme, uid);
+		return partie1;
+	}
 
 	/**prepare la premiere partie des tags du header du dicom avec l'iud passe en parametre <br>
 	 * <br>
@@ -398,46 +412,48 @@ public abstract class ModeleScin {
 	 * @param uid
 	 * @return
 	 */
-	public static String genererDicomTagsPartie1(ImagePlus imp, String nomProgramme, String uid) {
+	public static String getTagPartie1(HashMap tags, String nomProgramme, String uid) {
 		String sopID = generateSOPInstanceUID(new Date());
 		String tag = "0002,0002 Media Storage SOP Class UID: " + "1.2.840.10008.5.1.4.1.1.7" + "\n"
-				+ "0002,0003 Media Storage SOP Inst UID: " + sopID + "\n" + "0002,0010 Transfer Syntax UID: "
+				+ "0002,0003 Media Storage SOP Inst UID: " + sopID + "\n" 
+				+ "0002,0010 Transfer Syntax UID: "
 				+ "1.2.840.10008.1.2.1" + "\n" + "0002,0013 Implementation Version Name: jpeg" + "\n"
-				+ "0002,0016 Source Application Entity Title: " + "\n" + "0008,0008 Image Type: DERIVED\\SECONDARY "
+				+ "0002,0016 Source Application Entity Title: " + "\n" 
+				+ "0008,0008 Image Type: DERIVED\\SECONDARY "
 				+ "\n" + "0008,0016 SOP Class UID: " + "1.2.840.10008.5.1.4.1.1.7" + "\n"
 				+ "0008,0018 SOP Instance UID: " + sopID + "\n" + "0008,0020 Study Date:"
-				+ DicomTools.getTag(imp, "0008,0020") + "\n" + "0008,0021 Series Date:"
-				+ DicomTools.getTag(imp, "0008,0021") + "\n" + "0008,0030 Study Time:"
-				+ DicomTools.getTag(imp, "0008,0030") + "\n" + "0008,0031 Series Time:"
-				+ DicomTools.getTag(imp, "0008,0031") + "\n";
-		if (DicomTools.getTag(imp, "0008,0050") != null)
-			tag += "0008,0050 Accession Number:" + DicomTools.getTag(imp, "0008,0050") + "\n";
-		if (DicomTools.getTag(imp, "0008,0060") != null)
-			tag += "0008,0060 Modality:" + DicomTools.getTag(imp, "0008,0060") + "\n";
-		tag += "0008,0064 Conversion Type: WSD" + "\n" + "0008,0070 Manufacturer:" + DicomTools.getTag(imp, "0008,0070")
+				+ tags.get("0008,0020") + "\n" + "0008,0021 Series Date:"
+				+ tags.get("0008,0021") + "\n" + "0008,0030 Study Time:"
+				+ tags.get("0008,0030") + "\n" + "0008,0031 Series Time:"
+				+ tags.get("0008,0031") + "\n";
+		if (tags.get("0008,0050") != null)
+			tag += "0008,0050 Accession Number:" + tags.get("0008,0050") + "\n";
+		if (tags.get("0008,0060") != null)
+			tag += "0008,0060 Modality:" + tags.get("0008,0060") + "\n";
+		tag += "0008,0064 Conversion Type: WSD" + "\n" + "0008,0070 Manufacturer:" + tags.get("0008,0070")
 				+ "\n";
-		if (DicomTools.getTag(imp, "0008,0080") != null)
-			tag += "0008,0080 Institution Name:" + DicomTools.getTag(imp, "0008,0080") + "\n";
-		if (DicomTools.getTag(imp, "0008,0090") != null)
-			tag += "0008,0090 Referring Physician's Name:" + DicomTools.getTag(imp, "0008,0090") + "\n";
-		if (DicomTools.getTag(imp, "0008,1030") != null)
-			tag += "0008,1030 Study Description:" + DicomTools.getTag(imp, "0008,1030") + "\n";
+		if (tags.get("0008,0080") != null)
+			tag += "0008,0080 Institution Name:" + tags.get("0008,0080") + "\n";
+		if (tags.get("0008,0090") != null)
+			tag += "0008,0090 Referring Physician's Name:" + tags.get("0008,0090") + "\n";
+		if (tags.get("0008,1030") != null)
+			tag += "0008,1030 Study Description:" + tags.get("0008,1030") + "\n";
 		tag += "0008,103E Series Description: Capture " + nomProgramme + "\n" + "0010,0010 Patient's Name:"
-				+ DicomTools.getTag(imp, "0010,0010") + "\n" + "0010,0020 Patient ID:"
-				+ DicomTools.getTag(imp, "0010,0020") + "\n";
-		if (DicomTools.getTag(imp, "0010,0030") != null)
-			tag += "0010,0030 Patient's Birth Date:" + DicomTools.getTag(imp, "0010,0030") + "\n";
-		if (DicomTools.getTag(imp, "0010,0040") != null)
-			tag += "0010,0040 Patient's Sex:" + DicomTools.getTag(imp, "0010,0040") + "\n";
-		tag += "0020,000D Study Instance UID:" + DicomTools.getTag(imp, "0020,000D") + "\n"
+				+ tags.get("0010,0010") + "\n" + "0010,0020 Patient ID:"
+				+ tags.get("0010,0020") + "\n";
+		if (tags.get("0010,0030") != null)
+			tag += "0010,0030 Patient's Birth Date:" + tags.get("0010,0030") + "\n";
+		if (tags.get("0010,0040") != null)
+			tag += "0010,0040 Patient's Sex:" + tags.get("0010,0040") + "\n";
+		tag += "0020,000D Study Instance UID:" + tags.get("0020,000D") + "\n"
 				+ "0020,000E Series Instance UID:"
-				+ DicomTools.getTag(imp, "0020,000E").substring(0, DicomTools.getTag(imp, "0020,000E").length() - 6)
+				+ ((String) tags.get("0020,000E")).substring(0, ((String) tags.get("0020,000E")).length() - 6)
 				+ uid + "\n";
-		if (DicomTools.getTag(imp, "0020,0010") != null)
-			tag += "0020,0010 Study ID :" + DicomTools.getTag(imp, "0020,0010") + "\n";
+		if (tags.get("0020,0010") != null)
+			tag += "0020,0010 Study ID :" + tags.get("0020,0010") + "\n";
 		tag += "0020,0011 Series Number: 1337" + "\n" + "0020,0013 Instance Number: 1" + "\n"
-				+ "0020,0032 Image Position (Patient):" + DicomTools.getTag(imp, "0020,0032") + "\n"
-				+ "0020,0037 Image Orientation (Patient):" + DicomTools.getTag(imp, "0020,0037") + "\n"
+				+ "0020,0032 Image Position (Patient):" + tags.get("0020,0032") + "\n"
+				+ "0020,0037 Image Orientation (Patient):" + tags.get("0020,0037") + "\n"
 				+ "0028,0002 Samples per Pixel: 3" + "\n" + "0028,0004 Photometric Interpretation: RGB" + "\n"
 				+ "0028,0006 Planar Configuration: 0" + "\n" + "0028,0008 Number of Frames: 1 \n";
 		return tag;

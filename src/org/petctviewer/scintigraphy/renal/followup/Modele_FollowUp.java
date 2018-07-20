@@ -2,7 +2,6 @@ package org.petctviewer.scintigraphy.renal.followup;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
@@ -10,20 +9,20 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 
-import com.drew.lang.StringUtil;
-
-import ch.systemsx.cisd.hdf5.StringUtils;
 import ij.Prefs;
 
 public class Modele_FollowUp {
 	
 	private ArrayList<ArrayList<String>> allLines ;
-	private HashMap<String, HashMap<String, Double[][ ]>>allExamens;
+	
+	private HashMap<String, HashMap<String,Object>>allExamens;
 	
 	public Modele_FollowUp(ArrayList<String> chemins)  {
 		
@@ -34,15 +33,15 @@ public class Modele_FollowUp {
 		// for each examen
 		for(int i =0; i< allLines.size(); i++) {
 			//map contenant tout les tableaux pour un seul examen
-			HashMap<String, Double[][]> unExamen = new HashMap<>();
+			HashMap<String, Object> unExamen = new HashMap<>();
 			unExamen.put("nora", readNora(i));
 			unExamen.put("excretion",readExcretionRatio(i));
 			unExamen.put("timing",readTiming(i));
 			unExamen.put("roe", readROE(i));
 			unExamen.put("integral",readIntegral(i));
+			unExamen.put("tags",readTags(i));
+
 			allExamens.put(getDateExamen(i), unExamen);
-			
-			readTags(i);
 		}
 	}
 	
@@ -142,7 +141,7 @@ public class Modele_FollowUp {
 		return this.allLines.get(0).get(1).split(",")[1];
 	}
 
-	public HashMap<String, HashMap<String, Double[][ ]>> getAllExamens(){
+	public HashMap<String, HashMap<String, Object>> getAllExamens(){
 		return this.allExamens;
 	}
 	
@@ -242,14 +241,24 @@ public class Modele_FollowUp {
 		
 		String json=tag.substring(5, tag.length());
 	
-		System.out.println( "exam="+indiceExamen);
-		System.out.println(json);
-		return tag;
+		//System.out.println( "exam="+indiceExamen);
+		//System.out.println(json);
+		JSONParser jsonParser = new JSONParser();
+		JSONObject tags = null;
+		try {
+			tags = (JSONObject) jsonParser.parse(json);
+		} catch (org.json.simple.parser.ParseException e) {
+			e.printStackTrace();
+		}
+		String partie=ModeleScin.getTagPartie1(tags, "Renal Follow-Up", String.valueOf(Math.random() * 1000000D));
+		//System.out.println(partie);
+		return partie;
 	}
 	
 	/************ Private Methods to debug ***********/
 	//to print CSV content in console
- 	private static void printCSVContent(String chemin) throws IOException {
+ 	@SuppressWarnings("unused")
+	private static void printCSVContent(String chemin) throws IOException {
 		File file = new File(chemin);
 		FileReader fr = new FileReader(file);
 		BufferedReader br = new BufferedReader(fr);
@@ -264,7 +273,7 @@ public class Modele_FollowUp {
 		fr.close();
 	}
 	
-	// à supprimer
+	@SuppressWarnings("unused")
 	private static void printDoubleTab2Dim(Double[][] d) {
 		for(int i=0;i<d.length;i++) {
 			for(int j=0;j<d[i].length;j++) {

@@ -15,6 +15,10 @@ import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 public class FenResultat_ScinStatic extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private SidePanel side;
 	private Scintigraphy scin;
 	
