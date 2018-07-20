@@ -776,6 +776,20 @@ public abstract class Scintigraphy implements PlugIn {
 
 		return detecteur1;
 	}
+	
+	/**
+	 * return frame Duration as this tag is stored in sequence tag that are ignored by dicomTools (if multiple the first one is sent)
+	 * @param imp
+	 * @return
+	 */
+	public static String getFrameDuration(ImagePlus imp) {
+		String property=imp.getInfoProperty();
+		int index1 = property.indexOf("0018,1242");
+		int index2 = property.indexOf(":", index1);
+		int index3 = property.indexOf("\n", index2);
+		String tag00181242 = property.substring(index2+1, index3).trim();
+		return tag00181242;
+	}
 
 	/**
 	 * Cree overlay et set la police initiale de l'Image

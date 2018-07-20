@@ -7,8 +7,6 @@ import java.awt.Panel;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
-import org.petctviewer.scintigraphy.scin.gui.FenApplicationDyn;
-
 import ij.ImagePlus;
 
 public class FenApplication_GeneralDyn extends FenApplication {

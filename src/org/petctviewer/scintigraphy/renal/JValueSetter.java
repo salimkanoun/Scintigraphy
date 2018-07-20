@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -216,7 +215,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 
 		this.removeOverlay(v);
 		this.selectors.remove(v);
-		// si le selecteur fait partie d'une aire, l'aire est supprimée
+		// si le selecteur fait partie d'une aire, l'aire est supprimï¿½e
 		List<Comparable> areasToRemove = new ArrayList<>();
 		for (Comparable k : this.areas.keySet()) {
 			Area area = this.areas.get(k);

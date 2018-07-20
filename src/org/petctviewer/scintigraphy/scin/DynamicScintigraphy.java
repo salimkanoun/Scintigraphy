@@ -13,7 +13,7 @@ import ij.util.DicomTools;
 
 public abstract class DynamicScintigraphy extends Scintigraphy {
 
-	protected ImagePlus impAnt, impPost, impProjetee;
+	protected ImagePlus impAnt, impPost, impProjetee, impProjeteeAnt;
 
 	private int[] frameDurations;
 
@@ -31,16 +31,23 @@ public abstract class DynamicScintigraphy extends Scintigraphy {
 		if(imps[0] != null) {
 			this.impAnt = imps[0].duplicate();
 		}
+		
 		if(imps[1] != null) {
 			this.impPost = imps[1].duplicate();
+			for(int i = 1; i <= this.impPost.getStackSize(); i++) {
+				this.impPost.getStack().getProcessor(i).flipHorizontal();
+			}
 		}
 		
-		for(int i = 1; i <= this.impPost.getStackSize(); i++) {
-			this.impPost.getStack().getProcessor(i).flipHorizontal();
+		if( this.impAnt !=null ) {
+			impProjeteeAnt = projeter(this.impAnt);
+			this.frameDurations = buildFrameDurations(this.impAnt);
 		}
-		impProjetee = projeter(this.impPost);
-		this.frameDurations = buildFrameDurations(this.impPost);
-		
+		if ( this.impPost !=null ) {
+			impProjetee = projeter(this.impPost);
+			this.frameDurations = buildFrameDurations(this.impPost);
+		}
+
 		return impProjetee.duplicate();
 	}
 	
@@ -59,6 +66,7 @@ public abstract class DynamicScintigraphy extends Scintigraphy {
 	public static int[] buildFrameDurations(ImagePlus imp) {
 		int[] frameDurations = new int[imp.getStackSize()];
 		int nbPhase;
+		System.out.println(DicomTools.getTag(imp, "0054,0031"));
 		if(DicomTools.getTag(imp, "0054,0031") != null) {
 			nbPhase = Integer.parseInt(DicomTools.getTag(imp, "0054,0031").trim());
 		}
@@ -66,7 +74,7 @@ public abstract class DynamicScintigraphy extends Scintigraphy {
 		
 		
 		if (nbPhase == 1) {
-			int duration = Integer.parseInt(DicomTools.getTag(imp, "0018,1242").trim());
+			int duration = Integer.parseInt(Scintigraphy.getFrameDuration(imp));
 			for (int i = 0; i < frameDurations.length; i++) {
 				frameDurations[i] = duration;
 			}

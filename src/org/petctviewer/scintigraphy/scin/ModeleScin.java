@@ -782,6 +782,8 @@ public abstract class ModeleScin {
 		// countsCorrected=counts/decayedFraction
 		return decayedFraction;
 	}
+	
+	
 
 	public abstract void calculerResultats();
 

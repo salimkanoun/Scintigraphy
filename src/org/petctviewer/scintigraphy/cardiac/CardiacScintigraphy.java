@@ -2,12 +2,12 @@ package org.petctviewer.scintigraphy.cardiac;
 
 import java.awt.Color;
 import java.util.ArrayList;
+
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+
 import ij.IJ;
 import ij.ImagePlus;
-import ij.WindowManager;
 import ij.gui.Overlay;
-import ij.gui.Toolbar;
 import ij.plugin.Concatenator;
 import ij.plugin.MontageMaker;
 import ij.util.DicomTools;
