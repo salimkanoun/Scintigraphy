@@ -1,21 +1,16 @@
 package org.petctviewer.scintigraphy.statics;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.ScrollPaneLayout;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
-import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 public class FenResultat_ScinStatic extends JFrame {
@@ -32,6 +27,7 @@ public class FenResultat_ScinStatic extends JFrame {
 		this.add(side, BorderLayout.EAST);
 		
 		this.pack();
+		this.setLocationRelativeTo(scin.getImp().getWindow());
 		this.setVisible(true);
 	}
 
