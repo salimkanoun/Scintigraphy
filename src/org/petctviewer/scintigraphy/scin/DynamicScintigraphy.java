@@ -58,8 +58,13 @@ public abstract class DynamicScintigraphy extends Scintigraphy {
 
 	public static int[] buildFrameDurations(ImagePlus imp) {
 		int[] frameDurations = new int[imp.getStackSize()];
+		int nbPhase;
+		if(DicomTools.getTag(imp, "0054,0031") != null) {
+			nbPhase = Integer.parseInt(DicomTools.getTag(imp, "0054,0031").trim());
+		}
+		else nbPhase=1;
 		
-		int nbPhase = Integer.parseInt(DicomTools.getTag(imp, "0054,0031").trim());
+		
 		if (nbPhase == 1) {
 			int duration = Integer.parseInt(DicomTools.getTag(imp, "0018,1242").trim());
 			for (int i = 0; i < frameDurations.length; i++) {

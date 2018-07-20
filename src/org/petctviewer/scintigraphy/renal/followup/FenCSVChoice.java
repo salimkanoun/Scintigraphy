@@ -32,12 +32,13 @@ public class FenCSVChoice extends JFrame {
 
 		this.chemins = new ArrayList<>();
 		
-		this.setTitle("CSV Choice");
+		this.setTitle("Renal Follow-Up");
 		this.setLayout(new BorderLayout());
-		this.setSize(400, 400);		
+		this.setSize(400, 400);
+		this.setLocationRelativeTo(null);
 		this.setResizable(false);
 		
-		JButton ajout = new JButton("Add file");
+		JButton ajout = new JButton("Add CSV file");
 		ajout.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
