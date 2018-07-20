@@ -53,12 +53,13 @@ public class Csv_Collector implements PlugIn{
 	private int nombreSucces, nombreTotal;
 	
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		Csv_Collector start=new Csv_Collector();
 		start.gui();
     
 	}
 	
+	@Override
 	public  void run (String string) {
 		Csv_Collector start=new Csv_Collector();
 		start.gui();
@@ -249,6 +250,7 @@ private void gui() {
 	JButton btnLoadDirectory = new JButton("Load Directory");
 	Button_Panel.add(btnLoadDirectory);
 	btnLoadDirectory.addActionListener(new ActionListener() {
+		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			JFileChooser fc=new JFileChooser();
 			fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);

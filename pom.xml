@@ -6,15 +6,27 @@
 <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 </properties>
   		
 <modelVersion>4.0.0</modelVersion>
+<parent>
+	<groupId>org.scijava</groupId>
+	<artifactId>pom-scijava</artifactId>
+	<version>19.2.0</version>
+	<relativePath />
+</parent>
   <repositories>
     <repository>
       <id>java.net</id>
       <url>http://dev.loci.wisc.edu/maven2/releases/</url>
     </repository>
+    <repository>
+		<id>imagej.public</id>
+		<url>http://maven.imagej.net/content/groups/public</url>
+	</repository>
  </repositories>
+
 
   
   <groupId>Conventional_Scintigraphy</groupId>
@@ -25,38 +37,53 @@
     <sourceDirectory>src</sourceDirectory>
   </build>
 	<dependencies>
-	<dependency>
-		<groupId>org.jfree</groupId>
-		<artifactId>jfreechart</artifactId>
-		<version>1.5.0</version>
-	</dependency>
-	<dependency>
-		<groupId>org.apache.commons</groupId>
-		<artifactId>commons-lang3</artifactId>
-		<version>3.7</version>
-	</dependency>
-	<dependency>
-		<groupId>org.apache.directory.studio</groupId>
-		<artifactId>org.apache.commons.lang</artifactId>
-		<version>2.6</version>
-	</dependency>
-	<dependency>
-		<groupId>org.apache.commons</groupId>
-		<artifactId>commons-csv</artifactId>
-		<version>1.5</version>
-	</dependency>
-	<dependency>
-		<groupId>com.googlecode.json-simple</groupId>
-		<artifactId>json-simple</artifactId>
-		<version>1.1</version>
-	</dependency>
-	
-	<dependency>
-		<groupId>net.imagej</groupId>
-		<artifactId>ij</artifactId>
-		<version>1.51w</version>
-	</dependency>
-	
+		<dependency>
+			<groupId>org.jfree</groupId>
+			<artifactId>jfreechart</artifactId>
+			<version>1.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.directory.studio</groupId>
+			<artifactId>org.apache.commons.lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>1.5</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>1.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>ij</artifactId>
+			<version>1.52d</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-math3</artifactId>
+		    <version>3.6.1</version>
+		</dependency>
+		<dependency>
+			<groupId>sc.fiji</groupId>
+			<artifactId>IO_</artifactId>
+		</dependency>	
+		<dependency>
+		    <groupId>ome</groupId>
+		    <artifactId>bioformats_package</artifactId>
+		    <version>5.9.0</version>
+		    <type>pom</type>
+		</dependency>	
 	</dependencies>
 	
 </project>

@@ -414,11 +414,11 @@ public class Modele_VG_Roi {
 	}
 	
 	//Pour faire un fit lineaire et extrapoler les valeurs non existante
-	private double[] getParametreCourbeFlit(){
+	private double[] getParametreCourbeFit(){
 		XYSeriesCollection dataset=createDatasetTrois(Modele_VG_Roi.temps,
 				Modele_VG_Roi.estomacPourcent,  "Stomach", Modele_VG_Roi.fundusPourcent, 
 				"Fundus", Modele_VG_Roi.antrePourcent,  "Antrum");
-		//Retourne les valurs a et b de la fonction fit y=ax+b
+		//Retourne les valeurs a et b de la fonction fit y=ax+b
 		double[] parametreCourbe=Regression.getOLSRegression(dataset, 0 );
 		return parametreCourbe;
 	}
@@ -464,7 +464,7 @@ public class Modele_VG_Roi {
 		}
 		if(trouve==false){
 			//Si les valeurs n'existent pas on realise le fit
-			double[] parametres=this.getParametreCourbeFlit();
+			double[] parametres=this.getParametreCourbeFit();
 			double a=parametres[1];
 			double b=parametres[0];
 			valueX=(valueY-b)/a;
@@ -488,7 +488,7 @@ public class Modele_VG_Roi {
 		}
 		if(trouve==false){
 			//Si les valeurs n'existent pas on realise le fit
-			double[] parametres=this.getParametreCourbeFlit();
+			double[] parametres=this.getParametreCourbeFit();
 			double a=parametres[1];
 			double b=parametres[0];
 			valueY=a*valueX+b;

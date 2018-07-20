@@ -24,13 +24,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 
-	
-	
 public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 	
 	
 		private final int OFFSET = 0;
 		PopupMenu general;
+		
 		
 		@Override
 		public void showPopupMenu(MouseEvent e, Toolbar par) {
@@ -38,14 +37,16 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			general.show(e.getComponent(), e.getX()+OFFSET, e.getY()+OFFSET);
 		}
 		
-		
-
 		void addPopupMenu(Toolbar par) {
 			//On cree le popup menu general
 			general = new PopupMenu();
 			//On cree les menus par organes
 			PopupMenu gastric = new PopupMenu("Gastric");
 			PopupMenu pulmonary = new PopupMenu("Pulmonary");
+			PopupMenu hepatic = new PopupMenu("Hepatic");
+			PopupMenu cardiac = new PopupMenu("Cardiac");
+			PopupMenu renal = new PopupMenu("Renal");
+			PopupMenu generic = new PopupMenu("Generic");
 			
 			if (Menus.getFontSize()!=0) general.setFont(Menus.getFont());
 			
@@ -56,9 +57,26 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			//plumonary shunt
 			MenuItem plumonaryShunt = new MenuItem("Pulmonary Shunt");
 			
+			//Cardiac
+			MenuItem dpdQuant = new MenuItem("DPD Quant");
+			
+			//Hepatic
+			MenuItem biliaryScintigraphy = new MenuItem("Biliary Scintigraphy");
+			
+			//Renal
+			MenuItem renogram = new MenuItem("Renogram");
+			MenuItem dmsa = new MenuItem("DMSA");
+			MenuItem renogramFollowUp = new MenuItem("Renogram Follow-Up");
+			
 			//About et preference
 			MenuItem about = new MenuItem("About");
 			MenuItem preferences=new MenuItem("Preferences");
+			
+			//generic
+			MenuItem dynquant = new MenuItem("Dynamic Quantification");
+			MenuItem statquant = new MenuItem("Static Quantification");
+			
+			
 			
 			
 			//Ajout des listeners
@@ -66,8 +84,15 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			gastricDynamic.addActionListener(this);
 			gastricCondense.addActionListener(this);
 			plumonaryShunt.addActionListener(this);
+			dpdQuant.addActionListener(this);
+			biliaryScintigraphy.addActionListener(this);
+			renogram.addActionListener(this);
+			dmsa.addActionListener(this);
+			renogramFollowUp.addActionListener(this);
 			about.addActionListener(this);
 			preferences.addActionListener(this);
+			dynquant.addActionListener(this);
+			statquant.addActionListener(this);
 			
 			gastric.add(gastricEmptying);
 			gastric.add(gastricDynamic);
@@ -75,11 +100,26 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			
 			pulmonary.add(plumonaryShunt);
 			
+			cardiac.add(dpdQuant);
+			hepatic.add(biliaryScintigraphy);
 			
+			renal.add(renogram);
+			renal.add(dmsa);
+			renal.add(renogramFollowUp);
+			
+			generic.add(dynquant);
+			generic.add(statquant);
+			
+			
+			general.add(generic);
+			general.add(cardiac);
 			general.add(gastric);
+			general.add(hepatic);
 			general.add(pulmonary);
+			general.add(renal);
 			general.add(preferences);
 			general.add(about);
+			
 			
 			
 			par.add(general);
@@ -88,6 +128,12 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String cmd = e.getActionCommand();
+			if (cmd=="DPD Quant") {
+				IJ.run("DPD Quant");
+			}
+			if (cmd=="Biliary Scintigraphy") {
+				IJ.run("Biliary Scintigraphy");
+			}
 			if (cmd=="Gastric Emptying") {
 				IJ.run("Gastric Emptying software");
 			}
@@ -96,6 +142,21 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			}
 			if (cmd=="Pulmonary Shunt") {
 				IJ.run("Pulmonary Shunt");
+			}
+			if (cmd=="Dynamic Quantification") {
+				IJ.run("Dynamic Quantification");
+			}
+			if (cmd=="Static Quantification") {
+				IJ.run("Static Quantification");
+			}
+			if (cmd=="Renogram") {
+				IJ.run("Renogram");
+			}
+			if (cmd=="DMSA") {
+				IJ.run("DMSA");
+			}
+			if (cmd=="Renogram Follow-Up") {
+				IJ.run("Renogram Follow-Up");
 			}
 			if (cmd=="Gastric Condense") {
 				Thread condense=new Thread (new Runnable() 
@@ -127,6 +188,7 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 		public String getToolName() {
 			return "Scintigraphy Access, Right click to show menu";
 		}
+		
 		
 	}
 

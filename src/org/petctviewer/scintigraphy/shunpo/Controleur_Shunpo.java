@@ -21,6 +21,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 
+import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -61,208 +64,210 @@ public class Controleur_Shunpo implements ActionListener {
 	public void actionPerformed(ActionEvent arg0) {
 		Button b = (Button) arg0.getSource() ;
 		
-		if (b == laVue.lesBoutons.get("Suivant")) {
+		if (b == this.laVue.lesBoutons.get("Suivant")) {
 			//IJ.log("Suivant, Etat"+etat.toString());
-			switch(etat) {
+			switch(this.etat) {
 			case PoumonD_Post:
 				addRoi("Right Lung Post");
-				leModele.calculerCoups("PDP",laVue.win.getImagePlus());
-				laVue.win.getImagePlus().killRoi();;
-				laVue.setInstructions(listeInstructions[index]);
-				etat = etat.next() ;
-				laVue.lesBoutons.get("Precedent").setEnabled(true);
-				String tag = DicomTools.getTag(laVue.win.getImagePlus(), "0010,0010");
-				leModele.setPatient(tag,laVue.win.getImagePlus());
-				tagCapture=Modele_Shunpo.genererDicomTagsPartie1(laVue.win.getImagePlus(), nomProgramme);
+				this.leModele.calculerCoups("PDP",this.laVue.win.getImagePlus());
+				this.laVue.win.getImagePlus().killRoi();;
+				this.laVue.setInstructions(this.listeInstructions[this.index]);
+				this.etat = this.etat.next() ;
+				this.laVue.lesBoutons.get("Precedent").setEnabled(true);
+				String tag = DicomTools.getTag(this.laVue.win.getImagePlus(), "0010,0010");
+				this.leModele.setPatient(tag,this.laVue.win.getImagePlus());
+				
+				this.tagCapture = ModeleScin.genererDicomTagsPartie1(this.laVue.win.getImagePlus(), this.nomProgramme);
+				
 				//On verifie que la ROI suivante n'est pas deja pr茅sente dans le ROI manager(cas d'un retour) auquel cas on l'affiche
-				if (laVue.leRoi.getRoi((index))!= null) {
-					laVue.leRoi.select(index);
+				if (this.laVue.leRoi.getRoi((this.index))!= null) {
+					this.laVue.leRoi.select(this.index);
 				};
 				break;
 			case PoumonG_Post:
 				addRoi("Left Lung Post");
-				leModele.calculerCoups("PGP",laVue.win.getImagePlus());
-				laVue.win.getImagePlus().killRoi();
-				laVue.setInstructions(listeInstructions[index]);
-				etat = etat.next() ;
+				this.leModele.calculerCoups("PGP",this.laVue.win.getImagePlus());
+				this.laVue.win.getImagePlus().killRoi();
+				this.laVue.setInstructions(this.listeInstructions[this.index]);
+				this.etat = this.etat.next() ;
 				//On verifie que la ROI suivante n'est pas deja pr茅sente dans le ROI manager(cas d'un retour) auquel cas on l'affiche
-				if (laVue.leRoi.getRoi((index))!= null) {
-					laVue.leRoi.select(index);
+				if (this.laVue.leRoi.getRoi((this.index))!= null) {
+					this.laVue.leRoi.select(this.index);
 				};
 				break;
 			case ReinD_Post:
 				addRoi("Right Kidney");
-				leModele.calculerCoups("RDP",laVue.win.getImagePlus());
-				laVue.win.getImagePlus().killRoi();;
-				laVue.setInstructions(listeInstructions[index]);
-				etat = etat.next() ;
+				this.leModele.calculerCoups("RDP",this.laVue.win.getImagePlus());
+				this.laVue.win.getImagePlus().killRoi();;
+				this.laVue.setInstructions(this.listeInstructions[this.index]);
+				this.etat = this.etat.next() ;
 				//On verifie que la ROI suivante n'est pas deja pr茅sente dans le ROI manager(cas d'un retour) auquel cas on l'affiche
-				if (laVue.leRoi.getRoi((index))!= null) {
-					laVue.leRoi.select(index);
+				if (this.laVue.leRoi.getRoi((this.index))!= null) {
+					this.laVue.leRoi.select(this.index);
 				};
 				break;
 			case ReinG_Post:
 				addRoi("Left Kidney");
-				leModele.calculerCoups("RGP",laVue.win.getImagePlus());
-				laVue.win.getImagePlus().killRoi();;
-				laVue.setInstructions(listeInstructions[index]);
-				etat = etat.next() ;
+				this.leModele.calculerCoups("RGP",this.laVue.win.getImagePlus());
+				this.laVue.win.getImagePlus().killRoi();;
+				this.laVue.setInstructions(this.listeInstructions[this.index]);
+				this.etat = this.etat.next() ;
 				//Methode gen猫re la ROI BDF
 				genererBDF();
 				//On affiche toutes les ROI dessin茅es, l'overlay est deja en set et le DG impl茅mente pour cette 1ere fois
-				laVue.overlay.add(laVue.leRoi.getRoi(0));
-				laVue.overlay.add(laVue.leRoi.getRoi(1));
-				laVue.overlay.add(laVue.leRoi.getRoi(2));
-				laVue.overlay.add(laVue.leRoi.getRoi(3));
-				laVue.overlay.add(laVue.leRoi.getRoi(4));
+				this.laVue.overlay.add(this.laVue.leRoi.getRoi(0));
+				this.laVue.overlay.add(this.laVue.leRoi.getRoi(1));
+				this.laVue.overlay.add(this.laVue.leRoi.getRoi(2));
+				this.laVue.overlay.add(this.laVue.leRoi.getRoi(3));
+				this.laVue.overlay.add(this.laVue.leRoi.getRoi(4));
 				//On verifie que la ROI suivante n'est pas deja pr茅sente dans le ROI manager(cas d'un retour) auquel cas on l'affiche
-				if (laVue.leRoi.getRoi((index))!= null) {
-					laVue.leRoi.select(index);
+				if (this.laVue.leRoi.getRoi((this.index))!= null) {
+					this.laVue.leRoi.select(this.index);
 				};
 				
 				break;
 			case BDF :
-				if (laVue.win.getImagePlus().getRoi()==null){
+				if (this.laVue.win.getImagePlus().getRoi()==null){
 					genererBDF();
 					IJ.showMessage("Regenerating missing background");
 					//Voir comment 脿 fait ping pour revenir dans la boucle
 				}
 				addRoi("Background");
-				leModele.calculerCoups("BDFP",laVue.win.getImagePlus());
-				laVue.win.getImagePlus().killRoi();
+				this.leModele.calculerCoups("BDFP",this.laVue.win.getImagePlus());
+				this.laVue.win.getImagePlus().killRoi();
 				//On prend la capture
-				capture[0]=Modele_Shunpo.captureImage(laVue.win.getImagePlus(),512,512);
+				this.capture[0]=ModeleScin.captureImage(this.laVue.win.getImagePlus(),512,512);
 				//On efface l'overlay pour repartir 脿 zero
-				laVue.overlay.clear();
+				this.laVue.overlay.clear();
 				//On remet le Droit Gauche
-				laVue.setInstructions(listeInstructions[index]);
-				laVue.win.getImagePlus().deleteRoi();
+				this.laVue.setInstructions(this.listeInstructions[this.index]);
+				this.laVue.win.getImagePlus().deleteRoi();
 				//On copie la ROI 0 qui correpondait au poumon en posterieur
-				laVue.win.getImagePlus().setRoi((Roi) laVue.leRoi.getRoi(0));
-				laVue.win.showSlice(1);
-				etat = etat.next() ;
-				Vue_Shunpo.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
+				this.laVue.win.getImagePlus().setRoi((Roi) this.laVue.leRoi.getRoi(0));
+				this.laVue.win.showSlice(1);
+				this.etat = this.etat.next() ;
+				Scintigraphy.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
 				//On verifie que la ROI suivante n'est pas deja pr茅sente dans le ROI manager(cas d'un retour) auquel cas on l'affiche
-				if (laVue.leRoi.getRoi((index))!= null) {
-					laVue.leRoi.select(index);
+				if (this.laVue.leRoi.getRoi((this.index))!= null) {
+					this.laVue.leRoi.select(this.index);
 				};
 				break;
 			case PoumonD_Ant:
 				addRoi("Right Lung Ant");
-				leModele.calculerCoups("PDA",laVue.win.getImagePlus());
-				laVue.win.getImagePlus().deleteRoi();
+				this.leModele.calculerCoups("PDA",this.laVue.win.getImagePlus());
+				this.laVue.win.getImagePlus().deleteRoi();
 				// On copie la ROI 1 qui correspondait au poumon en posterieur
-				laVue.win.getImagePlus().setRoi((Roi) laVue.leRoi.getRoi(1).clone());
-				etat = etat.next();
-				laVue.setInstructions(listeInstructions[index]);
+				this.laVue.win.getImagePlus().setRoi((Roi) this.laVue.leRoi.getRoi(1).clone());
+				this.etat = this.etat.next();
+				this.laVue.setInstructions(this.listeInstructions[this.index]);
 				//On verifie que la ROI suivante n'est pas deja pr茅sente dans le ROI manager(cas d'un retour) auquel cas on l'affiche
-				if (laVue.leRoi.getRoi((index))!= null) {
-					laVue.leRoi.select(index);
+				if (this.laVue.leRoi.getRoi((this.index))!= null) {
+					this.laVue.leRoi.select(this.index);
 				};
 				break;
 			case PoumonG_Ant:
 				addRoi("Left Lung Ant");
-				leModele.calculerCoups("PGA",laVue.win.getImagePlus());
-				laVue.win.getImagePlus().killRoi();
-				laVue.setInstructions(listeInstructions[index]);
-				etat = etat.next() ;
-				laVue.win.getImagePlus().setRoi((Roi) laVue.leRoi.getRoi(2).clone());
+				this.leModele.calculerCoups("PGA",this.laVue.win.getImagePlus());
+				this.laVue.win.getImagePlus().killRoi();
+				this.laVue.setInstructions(this.listeInstructions[this.index]);
+				this.etat = this.etat.next() ;
+				this.laVue.win.getImagePlus().setRoi((Roi) this.laVue.leRoi.getRoi(2).clone());
 				//On verifie que la ROI suivante n'est pas deja pr茅sente dans le ROI manager(cas d'un retour) auquel cas on l'affiche
-				if (laVue.leRoi.getRoi((index))!= null) {
-					laVue.leRoi.select(index);
+				if (this.laVue.leRoi.getRoi((this.index))!= null) {
+					this.laVue.leRoi.select(this.index);
 					};
 				break;
 			case ReinD_Ant:
 				addRoi("Right Kidney Ant");
-				leModele.calculerCoups("RDA",laVue.win.getImagePlus());
-				laVue.win.getImagePlus().killRoi();
-				laVue.setInstructions(listeInstructions[index]);
-				etat = etat.next() ;
-				laVue.win.getImagePlus().setRoi((Roi) laVue.leRoi.getRoi(3).clone());
-				laVue.setInstructions(listeInstructions[index]);
-				if (laVue.leRoi.getRoi((index))!= null) {
-					laVue.leRoi.select(index);
+				this.leModele.calculerCoups("RDA",this.laVue.win.getImagePlus());
+				this.laVue.win.getImagePlus().killRoi();
+				this.laVue.setInstructions(this.listeInstructions[this.index]);
+				this.etat = this.etat.next() ;
+				this.laVue.win.getImagePlus().setRoi((Roi) this.laVue.leRoi.getRoi(3).clone());
+				this.laVue.setInstructions(this.listeInstructions[this.index]);
+				if (this.laVue.leRoi.getRoi((this.index))!= null) {
+					this.laVue.leRoi.select(this.index);
 					};
 				break;
 			case ReinG_Ant:
 				addRoi("Left Kidney Ant");
-				leModele.calculerCoups("RGA",laVue.win.getImagePlus());
-				laVue.win.getImagePlus().killRoi();
-				laVue.setInstructions(listeInstructions[index]);
-				etat = etat.next() ;
-				laVue.win.getImagePlus().setRoi((Roi) laVue.leRoi.getRoi(4).clone());
+				this.leModele.calculerCoups("RGA",this.laVue.win.getImagePlus());
+				this.laVue.win.getImagePlus().killRoi();
+				this.laVue.setInstructions(this.listeInstructions[this.index]);
+				this.etat = this.etat.next() ;
+				this.laVue.win.getImagePlus().setRoi((Roi) this.laVue.leRoi.getRoi(4).clone());
 				//Ajouter les Overlay ici
-				laVue.overlay.add(laVue.leRoi.getRoi(5));
-				laVue.overlay.add(laVue.leRoi.getRoi(6));
-				laVue.overlay.add(laVue.leRoi.getRoi(7));
-				laVue.overlay.add(laVue.leRoi.getRoi(8));
-				if (laVue.leRoi.getRoi((index))!= null) {
-					laVue.leRoi.select(index);
+				this.laVue.overlay.add(this.laVue.leRoi.getRoi(5));
+				this.laVue.overlay.add(this.laVue.leRoi.getRoi(6));
+				this.laVue.overlay.add(this.laVue.leRoi.getRoi(7));
+				this.laVue.overlay.add(this.laVue.leRoi.getRoi(8));
+				if (this.laVue.leRoi.getRoi((this.index))!= null) {
+					this.laVue.leRoi.select(this.index);
 					};
 				break;
 			case Poumon_valide:
 				addRoi("Background Ant");
-				leModele.calculerCoups("BDFA",laVue.win.getImagePlus());
+				this.leModele.calculerCoups("BDFA",this.laVue.win.getImagePlus());
 				//On ne peut plus revenir en arriere
-				laVue.lesBoutons.get("Precedent").setEnabled(false);
+				this.laVue.lesBoutons.get("Precedent").setEnabled(false);
 				//On prend la capture
-				capture[1]=Modele_Shunpo.captureImage(laVue.win.getImagePlus(),512,512);
+				this.capture[1]=ModeleScin.captureImage(this.laVue.win.getImagePlus(),512,512);
 				//On efface l'overlay pour repartir 脿 zero dans l'overlay
-				laVue.overlay.clear();
-				laVue.win.getImagePlus().killRoi();
-				etat = etat.next() ;
+				this.laVue.overlay.clear();
+				this.laVue.win.getImagePlus().killRoi();
+				this.etat = this.etat.next() ;
 				//On demande d'ouvrir l'image Cerveau , attention source de bug, interface doit 锚tre 脿 l'arret pour laisser l'utilisateur ouvrir l'image et inserer l'imageplus dans la fenetre courante
-				laVue.ouvrirImage("Brain");
+				this.laVue.ouvrirImage("Brain");
 				break;
 			case Cerveau_Post:
-				laVue.win.showSlice(2);
-				etat = etat.next() ;
-				laVue.setInstructions(listeInstructions[index]);
-				laVue.lesBoutons.get("Precedent").setEnabled(false);
+				this.laVue.win.showSlice(2);
+				this.etat = this.etat.next() ;
+				this.laVue.setInstructions(this.listeInstructions[this.index]);
+				this.laVue.lesBoutons.get("Precedent").setEnabled(false);
 				IJ.setTool(Toolbar.POLYGON);
 				break;
 			case Cerveau_Ant:
-				laVue.lesBoutons.get("Precedent").setEnabled(true);
+				this.laVue.lesBoutons.get("Precedent").setEnabled(true);
 				addRoi("Brain Post");
-				leModele.calculerCoups("CP",laVue.win.getImagePlus());
+				this.leModele.calculerCoups("CP",this.laVue.win.getImagePlus());
 				//Label Ne s'affiche pas probablement un refresh 脿 forcer==> Probleme de draw de l'overlay avant capture // EDT
-				laVue.overlay.add(laVue.leRoi.getRoi(10));
+				this.laVue.overlay.add(this.laVue.leRoi.getRoi(10));
 				//FIN A DEBEUGER SALIM
-				laVue.win.getImagePlus().setOverlay(laVue.overlay);
-				capture[2]=Modele_Shunpo.captureImage(laVue.win.getImagePlus(),512,512);
-				etat = etat.next() ;
-				laVue.overlay.clear();
-				laVue.win.getImagePlus().setRoi((Roi) laVue.leRoi.getRoi(10));
-				laVue.win.showSlice(1);
-				Vue_Shunpo.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
-				laVue.win.getImagePlus().setOverlay(laVue.overlay);
-				laVue.setInstructions(listeInstructions[index]);
+				this.laVue.win.getImagePlus().setOverlay(this.laVue.overlay);
+				this.capture[2]=ModeleScin.captureImage(this.laVue.win.getImagePlus(),512,512);
+				this.etat = this.etat.next() ;
+				this.laVue.overlay.clear();
+				this.laVue.win.getImagePlus().setRoi((Roi) this.laVue.leRoi.getRoi(10));
+				this.laVue.win.showSlice(1);
+				Scintigraphy.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
+				this.laVue.win.getImagePlus().setOverlay(this.laVue.overlay);
+				this.laVue.setInstructions(this.listeInstructions[this.index]);
 				break;
 			case Fin:
 				addRoi("Brain Ant");
-				leModele.calculerCoups("CA",laVue.win.getImagePlus());
-				laVue.overlay.add(laVue.leRoi.getRoi(12));
-				capture[3]=Modele_Shunpo.captureImage(laVue.win.getImagePlus(),512,512);
-				laVue.win.getImagePlus().deleteRoi();
-				laVue.overlay.clear();
-				String[] resultats = leModele.resultats();
-				laVue.labelsResultats(resultats) ;
+				this.leModele.calculerCoups("CA",this.laVue.win.getImagePlus());
+				this.laVue.overlay.add(this.laVue.leRoi.getRoi(12));
+				this.capture[3]=ModeleScin.captureImage(this.laVue.win.getImagePlus(),512,512);
+				this.laVue.win.getImagePlus().deleteRoi();
+				this.laVue.overlay.clear();
+				String[] resultats = this.leModele.resultats();
+				this.laVue.labelsResultats(resultats) ;
 				//On passe les capture en stack
-				ImageStack stackCapture=Modele_Shunpo.captureToStack(capture);
+				ImageStack stackCapture=ModeleScin.captureToStack(this.capture);
 				//on fait le montage du stack et on g茅n猫re l'interface resultat
-				laVue.UIResultats(leModele.montage(stackCapture, nomProgramme));
-				laVue.win.close();
-				laVue.leRoi.close();
+				this.laVue.UIResultats(this.leModele.montage(stackCapture, this.nomProgramme));
+				this.laVue.win.close();
+				this.laVue.leRoi.close();
 			}
 		}
-		if (b == laVue.lesBoutons.get("Capture")){
-				laVue.lesBoutons.get("Capture").setVisible(false);
-				laVue.Csv.setText("Provided By Petctviewer.org");
-				ImagePlus captureFinale =Modele_Shunpo.captureFenetre(WindowManager.getCurrentImage(),0,0);
+		if (b == this.laVue.lesBoutons.get("Capture")){
+				this.laVue.lesBoutons.get("Capture").setVisible(false);
+				this.laVue.Csv.setText("Provided By Petctviewer.org");
+				ImagePlus captureFinale =ModeleScin.captureFenetre(WindowManager.getCurrentImage(),0,0);
 				WindowManager.getCurrentWindow().getImagePlus().changes=false;
 				WindowManager.getCurrentWindow().close();
 				//On genere la 2eme partie des tag dicom et on l'ajoute 脿 la 1ere partie dans le property de l'image finale
-				captureFinale.setProperty("Info", tagCapture+=(Modele_Shunpo.genererDicomTagsPartie2(captureFinale)));
+				captureFinale.setProperty("Info", this.tagCapture+=(ModeleScin.genererDicomTagsPartie2(captureFinale)));
 				//On affiche et on agrandie la fenetre de la capture finale
 				captureFinale.show();
 				captureFinale.getCanvas().setScaleToFit(true);
@@ -270,8 +275,8 @@ public class Controleur_Shunpo implements ActionListener {
 				captureFinale.getCanvas().setMagnification(0.8);
 				//On sauve les resultats en CSV et ZIP
 				try {
-					String[] resultatscsv= leModele.buildCSVResultats();
-					Modele_Shunpo.exportAll(resultatscsv,2,laVue.leRoi, nomProgramme,captureFinale);
+					String[] resultatscsv= this.leModele.buildCSVResultats();
+					ModeleScin.exportAll(resultatscsv,2,this.laVue.leRoi, this.nomProgramme,captureFinale);
 					} catch (FileNotFoundException e) {}
 				//On fait la capture finale
 				captureFinale.getWindow().toFront();
@@ -281,8 +286,8 @@ public class Controleur_Shunpo implements ActionListener {
 					
 		}
 
-		if (b == laVue.lesBoutons.get("Precedent")) {
-			switch(etat) {
+		if (b == this.laVue.lesBoutons.get("Precedent")) {
+			switch(this.etat) {
 			
 			case PoumonD_Post:
 				break;
@@ -301,13 +306,13 @@ public class Controleur_Shunpo implements ActionListener {
 				
 			case BDF:
 				retour();
-				laVue.overlay.clear();
-				Vue_Shunpo.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
+				this.laVue.overlay.clear();
+				Scintigraphy.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
 				break;
 				
 			case PoumonD_Ant:
 				retour();
-				laVue.win.showSlice(2);
+				this.laVue.win.showSlice(2);
 				break;
 				
 			case PoumonG_Ant:
@@ -324,8 +329,8 @@ public class Controleur_Shunpo implements ActionListener {
 				
 			case Poumon_valide:
 				retour();
-				laVue.overlay.clear();
-				Vue_Shunpo.setOverlayDG(laVue.overlay, laVue.win.getImagePlus());
+				this.laVue.overlay.clear();
+				Scintigraphy.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
 				break;
 				
 			case Cerveau_Post:
@@ -336,78 +341,78 @@ public class Controleur_Shunpo implements ActionListener {
 				
 			case Fin:
 				retour();
-				laVue.win.showSlice(1);
+				this.laVue.win.showSlice(1);
 				break;
 			
 			}
 		}
-		if (b == laVue.lesBoutons.get("Draw ROI")) {
-			laVue.lesBoutons.get("Draw ROI").setBackground(Color.LIGHT_GRAY);
-			laVue.lesBoutons.get("Contrast").setBackground(null);
+		if (b == this.laVue.lesBoutons.get("Draw ROI")) {
+			this.laVue.lesBoutons.get("Draw ROI").setBackground(Color.LIGHT_GRAY);
+			this.laVue.lesBoutons.get("Contrast").setBackground(null);
 			IJ.setTool(Toolbar.POLYGON);
 		}
 			
 		
-		if (b == laVue.lesBoutons.get("Contrast")) {
-			laVue.lesBoutons.get("Draw ROI").setBackground(null);
-			laVue.lesBoutons.get("Contrast").setBackground(Color.LIGHT_GRAY);
+		if (b == this.laVue.lesBoutons.get("Contrast")) {
+			this.laVue.lesBoutons.get("Draw ROI").setBackground(null);
+			this.laVue.lesBoutons.get("Contrast").setBackground(Color.LIGHT_GRAY);
 			IJ.run("Window Level Tool");
 		}
 			
 			
 		
-		if (b == laVue.lesBoutons.get("Quitter")) {
-			laVue.end("") ;
+		if (b == this.laVue.lesBoutons.get("Quitter")) {
+			this.laVue.end("") ;
 			return;
 			}
 		
-		if (b == laVue.lesBoutons.get("Show Log"))
+		if (b == this.laVue.lesBoutons.get("Show Log"))
 			
 			//Regarder methode de Ping pour changer le libelle des bouttons
 			if (!showLog){
 				showLog=true;
-				laVue.lesBoutons.get("Show Log").setLabel("Hide Log");
-				laVue.lesBoutons.get("Show").setBackground(Color.LIGHT_GRAY);
+				this.laVue.lesBoutons.get("Show Log").setLabel("Hide Log");
+				this.laVue.lesBoutons.get("Show").setBackground(Color.LIGHT_GRAY);
 			}
 			
 			else{
 				showLog=false;
-				laVue.lesBoutons.get("Show Log").setLabel("Show Log");
-				laVue.lesBoutons.get("Show").setBackground(null);
+				this.laVue.lesBoutons.get("Show Log").setLabel("Show Log");
+				this.laVue.lesBoutons.get("Show").setBackground(null);
 			}
 		
 	}
 	
 	private void genererBDF() {
-		Roi[] rois = laVue.leRoi.getRoisAsArray() ;
+		Roi[] rois = this.laVue.leRoi.getRoisAsArray() ;
 		Rectangle r = new Rectangle(15, 30);
 		int x = (int) ((rois[2].getBounds().getLocation().x + rois[3].getBounds().getLocation().x + rois[3].getBounds().getWidth() ) / 2) ;
 		int y = (rois[2].getBounds().getLocation().y + rois[3].getBounds().getLocation().y ) / 2 ;
 		r.setLocation(x, y);
-		laVue.win.getImagePlus().setRoi(r);
+		this.laVue.win.getImagePlus().setRoi(r);
 	}
 
 	private void addRoi(String nom){
 		// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter pour eviter les doublons
-		if (laVue.leRoi.getRoi(index)==null){
-		laVue.leRoi.add(laVue.win.getImagePlus(), laVue.win.getImagePlus().getRoi(), index);
-		laVue.leRoi.rename(index, nom);
+		if (this.laVue.leRoi.getRoi(this.index)==null){
+		this.laVue.leRoi.add(this.laVue.win.getImagePlus(), this.laVue.win.getImagePlus().getRoi(), this.index);
+		this.laVue.leRoi.rename(this.index, nom);
 		}
 		// Si elle existe on fait un update. Si elle a 閠� perdue dans l'imagePlus on revient a la ROI sauvegardee et on notifie l'utilisateur
 		else {
-			if (laVue.win.getImagePlus().getRoi()==null){
+			if (this.laVue.win.getImagePlus().getRoi()==null){
 				IJ.showMessage("Roi lost, restoring previous saved ROI");
-				laVue.leRoi.select(index);
+				this.laVue.leRoi.select(this.index);
 			}
-			laVue.leRoi.runCommand("Update");
+			this.laVue.leRoi.runCommand("Update");
 		}
-		index++;
+		this.index++;
 	}
 
 	private void retour() {
-		etat = etat.previous() ;
-		index -- ;
-		laVue.setInstructions(listeInstructions[index]);
-		laVue.leRoi.select(index);	
+		this.etat = this.etat.previous() ;
+		this.index -- ;
+		this.laVue.setInstructions(this.listeInstructions[this.index]);
+		this.laVue.leRoi.select(this.index);	
 	}
 }

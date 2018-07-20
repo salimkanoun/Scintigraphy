@@ -40,7 +40,10 @@ import java.awt.Graphics2D;
 
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.JTextPane;
+import java.awt.FlowLayout;
+import java.awt.BorderLayout;
 
 public class About extends JDialog implements PlugIn {
 	/**
@@ -69,7 +72,7 @@ public class About extends JDialog implements PlugIn {
 	public static void main(String[] args) {
 		try {
 			About dialog = new About();
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 			dialog.setSize(800,500);
 		} catch (Exception e) {
@@ -81,17 +84,17 @@ public class About extends JDialog implements PlugIn {
 	 * Create the dialog.
 	 */
 	public About() {
-		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setAlwaysOnTop(true);
 		setBounds(100, 100, 545, 402);
-		getContentPane().setLayout(new GridLayout(3, 1, 0, 0));
+		getContentPane().setLayout(new BorderLayout(0, 0));
 		{
 			panel = new JPanel();
-			getContentPane().add(panel);
-			panel.setLayout(new GridLayout(2, 1, 0, 0));
+			getContentPane().add(panel, BorderLayout.NORTH);
+			panel.setLayout(new BorderLayout(0, 0));
 			{
 				About = new JPanel();
-				panel.add(About);
+				panel.add(About, BorderLayout.NORTH);
 				About.setLayout(new GridLayout(0, 1, 0, 0));
 				{
 					txtAbout = new JTextField();
@@ -107,7 +110,6 @@ public class About extends JDialog implements PlugIn {
 			{
 				Logo = new JPanel();
 				panel.add(Logo);
-				Logo.setLayout(new GridLayout(1, 0, 0, 0));
 				{
 					CHUToulouse = new JPanel();
 					BufferedImage myPicture;
@@ -119,6 +121,7 @@ public class About extends JDialog implements PlugIn {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
+					Logo.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 					
 					Logo.add(CHUToulouse);
 				}
@@ -161,30 +164,36 @@ public class About extends JDialog implements PlugIn {
 			}
 		}
 		{
-		}
-		{
 			scrollPane_1 = new JScrollPane();
-			getContentPane().add(scrollPane_1);
+			getContentPane().add(scrollPane_1, BorderLayout.CENTER);
 			{
 				table = new JTable();
 				table.setModel(new DefaultTableModel(
 					new Object[][] {
 						{"Pulmonary Shunt", "Gerard Victor", "Mathis Mohand", "CHU Toulouse"},
 						{"Gastric Emptying", "Gerard Victor", "Ping Xie", "CHU Toulouse"},
+						{"DPD Quant", "Gerard Victor", "Ruben Gres", "CHU Toulouse"},
+						{"Biliary Scintigraphy", "Gerard Victor", "Ruben Gres", "CHU Toulouse"},
+						{"Renogram", "Gerard Victor, Salim Kanoun, Pierre Pascal", "Ruben Gres", "CHU Toulouse"},
+						{"DMSA", "Gerard Victor", "Ruben Gres", "CHU Toulouse"},
+						{"Renogram Follow Up", "Alina Berriolo", "Diego Romero", "CHU Toulouse"},
+						{"Dynamic Quantification", "Salim Kanoun", "Ruben Gres", "CHU Toulouse"},
+						{"Static Quantifiication", "Salim Kanoun", "Diego Romero", "CHU Toulouse"},
+						{"Schaefer Calibration", "Salim Kanoun", "Diego Romero", "CHU Toulouse"},
 					},
 					new String[] {
 						"Software", "Creator", "Developper", "Institution"
 					}
 				));
+				table.getColumnModel().getColumn(0).setPreferredWidth(148);
+				table.getColumnModel().getColumn(2).setPreferredWidth(136);
 				scrollPane_1.setViewportView(table);
 			}
 		}
 		{
 			PanelBas = new JPanel();
-			getContentPane().add(PanelBas);
+			getContentPane().add(PanelBas, BorderLayout.SOUTH);
 			PanelBas.setLayout(new GridLayout(3, 1, 0, 0));
-			{
-			}
 			{
 				panel_2 = new JPanel();
 				PanelBas.add(panel_2);
@@ -204,6 +213,7 @@ public class About extends JDialog implements PlugIn {
 			}
 			btnOk = new JButton("OK");
 			btnOk.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					dispose();
 				}
@@ -216,7 +226,7 @@ public class About extends JDialog implements PlugIn {
 					txtpnGerardVictorPierre = new JTextPane();
 					txtpnGerardVictorPierre.setBackground(Color.LIGHT_GRAY);
 					panel_1.add(txtpnGerardVictorPierre);
-					txtpnGerardVictorPierre.setText("Gerard Victor, Pierre Pascal, Olivier Morel\r\nSalim Kanoun, Ilan Tal");
+					txtpnGerardVictorPierre.setText("Salim Kanoun, Gerard Victor, Pierre Pascal,\r\nAlina Berriolo-Riedinger, Olivier Morel, Ilan Tal");
 				}
 				{
 					txtpnGeneralPublicLicence = new JTextPane();
@@ -231,23 +241,23 @@ public class About extends JDialog implements PlugIn {
 	}
 	
 	private Image scale(Image source, int width, int height) { 
-	    /* On crée une nouvelle image aux bonnes dimensions. */ 
+	    /* On crï¿½e une nouvelle image aux bonnes dimensions. */ 
 	    BufferedImage buf = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB); 
 	  
-	    /* On dessine sur le Graphics de l'image bufferisée. */ 
+	    /* On dessine sur le Graphics de l'image bufferisï¿½e. */ 
 	    Graphics2D g = buf.createGraphics(); 
 	    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR); 
 	    g.drawImage(source, 0, 0, width, height, null); 
 	    g.dispose(); 
 	  
-	    /* On retourne l'image bufferisée, qui est une image. */ 
+	    /* On retourne l'image bufferisï¿½e, qui est une image. */ 
 	    return buf; 
 	}
 	
 	@Override
 	public void run(String arg0) {
 		About dialog = new About();
-		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		dialog.setVisible(true);
 		dialog.setResizable(false);
 		dialog.setSize(800,500);

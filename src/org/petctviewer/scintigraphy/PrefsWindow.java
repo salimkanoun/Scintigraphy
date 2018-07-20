@@ -20,6 +20,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -36,8 +37,9 @@ public class PrefsWindow extends JPanel implements PlugIn, ActionListener {
 	private static final long serialVersionUID = 1148288454969248518L;
 	private JFrame frame ;
 	private JLabel lut, dir ;
-	private JButton btn_choixLut, btn_dir, btn_displut ;
+	private JButton btn_choixLut, btn_dir, btn_displut, btn_stRenal ;
 	private JFileChooser fc ;
+	private JComboBox comboDate;
 	
 	@Override
 	public void run(String arg0) {
@@ -58,7 +60,7 @@ public class PrefsWindow extends JPanel implements PlugIn, ActionListener {
 		this.btn_dir.addActionListener(this);
 		this.fc = new JFileChooser() ;
 		JPanel pan = new JPanel();
-		pan.setLayout(new GridLayout(2,1));
+		pan.setLayout(new GridLayout(4,1));
 		
 		JPanel pan_lut = new JPanel();
 		pan_lut.add(this.lut);
@@ -70,7 +72,23 @@ public class PrefsWindow extends JPanel implements PlugIn, ActionListener {
 		pan_dir.add(this.dir);
 		pan_dir.add(this.btn_dir);
 		pan.add(pan_dir);
+		
+		JPanel pnl_formatDate = new JPanel();
+		pnl_formatDate.add(new JLabel("Date format :"));
+		this.comboDate = new JComboBox(new String[] { "MM/dd/yyyy", "dd/MM/yyyy" });
+		this.comboDate.setSelectedItem(Prefs.get("dateformat.preferred", "MM/dd/yyyy"));
+		this.comboDate.addActionListener(this);
+		pnl_formatDate.add(comboDate);
+		pan.add(pnl_formatDate);
+		
+		JPanel flow_btns = new JPanel();
+		this.btn_stRenal = new JButton("Renal Settings");
+		this.btn_stRenal.addActionListener(this);
+		flow_btns.add(this.btn_stRenal);
+		pan.add(flow_btns);
+		
 		this.add(pan);
+		
 		 //Create and set up the window.
         this.frame.setSize(this.frame.getPreferredSize());
         //Add content to the window.
@@ -78,6 +96,7 @@ public class PrefsWindow extends JPanel implements PlugIn, ActionListener {
  
         //Display the window.
         this.frame.pack();
+        this.frame.setLocationRelativeTo(null);
         this.frame.setSize(frame.getPreferredSize());
         this.frame.setVisible(true);
         
@@ -97,7 +116,7 @@ public class PrefsWindow extends JPanel implements PlugIn, ActionListener {
 			}
 		}
 		
-		if (arg0.getSource() == this.btn_dir) {
+		else if (arg0.getSource() == this.btn_dir) {
 			this.fc.setDialogTitle("Export directory");
 			this.fc.setCurrentDirectory(this.fc.getFileSystemView().getDefaultDirectory());
 			this.fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -110,7 +129,17 @@ public class PrefsWindow extends JPanel implements PlugIn, ActionListener {
 			}
 		}
 		
-		if (arg0.getSource() == this.btn_displut) IJ.run("Display LUTs");
+		else if (arg0.getSource() == this.btn_displut) {
+			IJ.run("Display LUTs");
+		}
+		
+		else if (arg0.getSource() == this.btn_stRenal) {
+			new RenalSettings(this.frame);
+		}
+		
+		else if (arg0.getSource() == this.comboDate) {
+			Prefs.set("dateformat.preferred", (String) this.comboDate.getSelectedItem());
+		}
 		
 		this.fc = new JFileChooser() ;
 	}
