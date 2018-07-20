@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.CSV;
+package org.petctviewer.scintigraphy.renal.followup;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -32,13 +32,12 @@ public class FenCSVChoice extends JFrame {
 
 		this.chemins = new ArrayList<>();
 		
-		this.setTitle("Renogram Follow-up");
+		this.setTitle("CSV Choice");
 		this.setLayout(new BorderLayout());
-		this.setLocationRelativeTo(null);
 		this.setSize(400, 400);		
 		this.setResizable(false);
 		
-		JButton ajout = new JButton("Select CSV");
+		JButton ajout = new JButton("Add file");
 		ajout.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -861,7 +861,7 @@ public abstract class Scintigraphy implements PlugIn {
 	}
 
 	// dayum that recursion
-	private static Container getRootContainer(Container cont) {
+	public static Container getRootContainer(Container cont) {
 		if (cont.getParent() instanceof Window) {
 			return cont;
 		}
