@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.calibration;
 
 import javax.swing.UIManager;
 
+import org.petctviewer.scintigraphy.calibration.chargement.FenChargementCalibration;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.ImagePlus;
@@ -23,7 +24,7 @@ public class Calibration implements PlugIn{
 		            e.printStackTrace();
 		 }
 		*/
-		FenCalibrationFileChoice fen = new FenCalibrationFileChoice();
+		FenChargementCalibration fen = new FenChargementCalibration();
 		fen.setVisible(true);
 	}
 }

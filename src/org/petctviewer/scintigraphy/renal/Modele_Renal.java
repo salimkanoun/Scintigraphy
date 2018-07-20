@@ -13,7 +13,6 @@ import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.json.simple.JSONObject;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 
@@ -303,15 +302,10 @@ public class Modele_Renal extends ModeleScinDyn {
 	 * @return le pourcentage
 	 */
 	public int getROE(Double min, String lr) {
-		int perct =0;
-		try {
-			XYSeries output = this.getSerie("Output K" + lr);
-			XYSeries serieBPF = this.getSerie("Blood pool fitted " + lr);
-			 perct = (int) (ModeleScinDyn.getY(output, min).doubleValue()
-					/ ModeleScinDyn.getY(serieBPF, min).doubleValue() * 100);
-		} catch (IllegalArgumentException e) {
-		}
-		
+		XYSeries output = this.getSerie("Output K" + lr);
+		XYSeries serieBPF = this.getSerie("Blood pool fitted " + lr);
+		int perct = (int) (ModeleScinDyn.getY(output, min).doubleValue()
+				/ ModeleScinDyn.getY(serieBPF, min).doubleValue() * 100);
 		return perct;
 	}
 
@@ -396,42 +390,14 @@ public class Modele_Renal extends ModeleScinDyn {
 			+"Time ROE (min), "+ time[1]+","+this.getROE(time[1], "L")+","+this.getROE(time[1], "R")+"\n"
 			+"Time ROE (min), "+ time[2]+","+this.getROE(time[2], "L")+","+this.getROE(time[2], "R")+"\n";
 	
-		ImagePlus imp = this.getImp();
-		HashMap<String, String> mapTags = new HashMap<>();
-		mapTags.put("0008,0020", DicomTools.getTag(imp, "0008,0020") );
-		mapTags.put("0008,0021", DicomTools.getTag(imp, "0008,0021") );
-		mapTags.put("0008,0030", DicomTools.getTag(imp, "0008,0030") );
-		mapTags.put("0008,0031", DicomTools.getTag(imp, "0008,0031") );
-		mapTags.put("0008,0050", DicomTools.getTag(imp, "0008,0050") );
-		mapTags.put("0008,0060", DicomTools.getTag(imp, "0008,0060") );
-		mapTags.put("0008,0070", DicomTools.getTag(imp, "0008,0070") );
-		mapTags.put("0008,0080", DicomTools.getTag(imp, "0008,0080") );
-		mapTags.put("0008,0090", DicomTools.getTag(imp, "0008,0090") );
-		mapTags.put("0008,1030", DicomTools.getTag(imp, "0008,1030") );
-		mapTags.put("0010,0010", DicomTools.getTag(imp, "0010,0010") );
-		mapTags.put("0010,0020", DicomTools.getTag(imp, "0010,0020") );
-		mapTags.put("0010,0030", DicomTools.getTag(imp, "0010,0030") );
-		mapTags.put("0010,0040", DicomTools.getTag(imp, "0010,0040") );
-		mapTags.put("0020,000D", DicomTools.getTag(imp, "0020,000D") );
-		mapTags.put("0020,000E", DicomTools.getTag(imp, "0020,000E") );
-		mapTags.put("0020,0010", DicomTools.getTag(imp, "0020,0010") );
-		mapTags.put("0020,0032" ,DicomTools.getTag(imp, "0020,0032") );
-		mapTags.put("0020,0037", DicomTools.getTag(imp, "0020,0037") );
-		
-		
-		String tags = JSONObject.toJSONString(mapTags);
-		
-		s+= "\n"+ "tags,"+tags;
 		return s;
 
 	}
 	
 	private String getDataString(Comparable key, String name) {
-		if(this.getData().containsKey(key)) {
-			List<Double> values = this.getData().get(key);
-			for(Double d : values) {
-				name += "," + d;
-			}
+		List<Double> values = this.getData().get(key);
+		for(Double d : values) {
+			name += "," + d;
 		}
 		name += "\n";
 		return name;
@@ -605,34 +571,27 @@ public class Modele_Renal extends ModeleScinDyn {
 	public Double[] getSeparatedFunction() {
 		Double[] res = new Double[2];
 
-		boolean[] kidneys = this.getKidneys();
-		if (kidneys[0] && kidneys[1]) {
-			
-			// points de la courbe renale ajustee
-			XYSeries lk = this.getSerie("Final KL");
-			XYSeries rk = this.getSerie("Final KR");
-	
-			// bornes de l'intervalle
-			Double x1 = this.adjustedValues.get("start");
-			Double x2 = this.adjustedValues.get("end");
-			Double debut = Math.min(x1, x2);
-			Double fin = Math.max(x1, x2);
-	
-			List<Double> listRG = Modele_Renal.getIntegral(lk, debut, fin);
-			List<Double> listRD = Modele_Renal.getIntegral(rk, debut, fin);
-			Double intRG = listRG.get(listRG.size() - 1);
-			Double intRD = listRD.get(listRD.size() - 1);
-	
-			// Left kidney
-			res[0] = ModeleScin.round((intRG / (intRG + intRD)) * 100, 1);
-	
-			// Right kidney
-			res[1] = ModeleScin.round((intRD / (intRG + intRD)) * 100, 1);
-		}else {
-			if (kidneys[0]) {res[0] = 100D; res[1] =0D;}
-			else if(kidneys[1]){res[0] = 0D; res[1] =100D;}
-			
-		}
+		// points de la courbe renale ajustee
+		XYSeries lk = this.getSerie("Final KL");
+		XYSeries rk = this.getSerie("Final KR");
+
+		// bornes de l'intervalle
+		Double x1 = this.adjustedValues.get("start");
+		Double x2 = this.adjustedValues.get("end");
+		Double debut = Math.min(x1, x2);
+		Double fin = Math.max(x1, x2);
+
+		List<Double> listRG = Modele_Renal.getIntegral(lk, debut, fin);
+		List<Double> listRD = Modele_Renal.getIntegral(rk, debut, fin);
+		Double intRG = listRG.get(listRG.size() - 1);
+		Double intRD = listRD.get(listRD.size() - 1);
+
+		// Left kidney
+		res[0] = ModeleScin.round((intRG / (intRG + intRD)) * 100, 1);
+
+		// Right kidney
+		res[1] = ModeleScin.round((intRD / (intRG + intRD)) * 100, 1);
+
 		return res;
 	}
 
@@ -655,14 +614,9 @@ public class Modele_Renal extends ModeleScinDyn {
 	 * @return
 	 */
 	public Double[] getSize() {
-		int heightLK=0;
-		if (this.organRois.containsKey("L. Kidney")) {
-			 heightLK = this.organRois.get("L. Kidney").getBounds().height;
-		}
-		int heightRK =0;
-		if (this.organRois.containsKey("R. Kidney")) {
-			 heightRK = this.organRois.get("R. Kidney").getBounds().height;
-		}
+		int heightLK = this.organRois.get("L. Kidney").getBounds().height;
+		int heightRK = this.organRois.get("R. Kidney").getBounds().height;
+		
 		//r�cup�re la hauteur d'un pixel en mm
 		String pixelHeightString = DicomTools.getTag(this.getImp(), "0028,0030").trim().split("\\\\")[1];
 		Double pixelHeight = Double.parseDouble(pixelHeightString);
