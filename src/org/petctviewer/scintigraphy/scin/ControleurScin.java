@@ -61,7 +61,8 @@ public abstract class ControleurScin implements ActionListener {
 
 		this.overlay = Scintigraphy.duplicateOverlay(vue.getImp().getOverlay());
 
-		this.roiManager = new RoiManager();
+		//SK BOOLEAN FALSE POUR MASKER A METTRE TRUE POUR DEVELOPPEMENT
+		this.roiManager = new RoiManager(false);
 
 		this.addImpListener();
 		this.indexRoi = 0;

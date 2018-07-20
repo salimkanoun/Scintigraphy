@@ -41,6 +41,7 @@ public abstract class DynamicScintigraphy extends Scintigraphy {
 		
 		if( this.impAnt !=null ) {
 			impProjeteeAnt = projeter(this.impAnt);
+			impProjetee=impProjeteeAnt;
 			this.frameDurations = buildFrameDurations(this.impAnt);
 		}
 		if ( this.impPost !=null ) {
