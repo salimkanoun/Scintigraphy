@@ -26,7 +26,7 @@ public abstract class DynamicScintigraphy extends Scintigraphy {
 		if (images.length > 2) {
 			IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 		}
-)
+		
 		ImagePlus[] imps = Scintigraphy.sortAntPost(images);
 		if(imps[0] != null) {
 			this.impAnt = imps[0].duplicate();
@@ -66,7 +66,6 @@ public abstract class DynamicScintigraphy extends Scintigraphy {
 		
 		
 		if (nbPhase == 1) {
-			System.out.println(DicomTools.getTag(imp, "0018,1242").trim());
 			int duration = Integer.parseInt(DicomTools.getTag(imp, "0018,1242").trim());
 			for (int i = 0; i < frameDurations.length; i++) {
 				frameDurations[i] = duration;
