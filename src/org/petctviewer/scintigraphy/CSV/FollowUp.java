@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.renal.followup;
+package org.petctviewer.scintigraphy.CSV;
 
 import java.io.IOException;
 

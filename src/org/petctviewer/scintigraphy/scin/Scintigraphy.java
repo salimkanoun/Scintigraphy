@@ -869,7 +869,7 @@ public abstract class Scintigraphy implements PlugIn {
 		return getRootContainer(cont.getParent());
 	}
 
-	public static Container getRootContainer(Component comp) {
+	private static Container getRootContainer(Component comp) {
 		return getRootContainer(comp.getParent());
 	}
 	
