@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.gastric;
 
+import org.petctviewer.scintigraphy.esophageus.Condense_Dynamique;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 
 import ij.ImagePlus;

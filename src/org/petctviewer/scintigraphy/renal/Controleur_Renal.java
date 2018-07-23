@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.renal;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,12 +11,11 @@ import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.gui.FenNeph;
 import org.petctviewer.scintigraphy.renal.gui.FenResultats_Renal;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.Prefs;
 import ij.gui.Overlay;

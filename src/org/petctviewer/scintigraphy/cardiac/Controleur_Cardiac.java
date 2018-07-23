@@ -164,12 +164,12 @@ public class Controleur_Cardiac extends ControleurScin {
 
 			// on affiche les instructions
 			if (this.getIndexRoi() % 2 == 0) {
-				this.getScin().getFenApplication().setInstructions("Delimit a new contamination");
+				this.getScin().getFenApplication().getTextfield_instructions().setText("Delimit a new contamination");
 				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getScin().getFenApplication();
 				fac.getBtn_continue().setEnabled(true);
 				fac.getBtn_newCont().setLabel("Next");
 			} else {
-				this.getScin().getFenApplication().setInstructions("Adjust contamination zone");
+				this.getScin().getFenApplication().getTextfield_instructions().setText("Adjust contamination zone");
 				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getScin().getFenApplication();
 				fac.getBtn_continue().setEnabled(false);
 				fac.getBtn_newCont().setLabel("Save");

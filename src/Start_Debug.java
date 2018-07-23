@@ -1,5 +1,4 @@
 import ij.ImageJ;
-import net.imagej.app.ImageJApp;
 
 public class Start_Debug {
 

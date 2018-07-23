@@ -2,7 +2,6 @@ package org.petctviewer.scintigraphy.scin.basic;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -10,7 +9,6 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.IJ;
 import ij.ImagePlus;
-import ij.WindowManager;
 import ij.gui.Overlay;
 
 public class BasicScintigraphy extends Scintigraphy {

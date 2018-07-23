@@ -31,7 +31,7 @@ public class ControleurScinStatic extends ControleurScin{
 		} else {
 			s = "roi n" + this.indexRoi;
 		}
-		this.getScin().getFenApplication().getField_instructions().setText(s);
+		this.getScin().getFenApplication().getTextfield_instructions().setText(s);
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class ControleurScinStatic extends ControleurScin{
 	@Override
 	public String getNomOrgane(int index) {
 		if (!isOver()) {
-			return this.getScin().getFenApplication().getField_instructions().getText();
+			return this.getScin().getFenApplication().getTextfield_instructions().getText();
 		}
 		return this.roiManager.getRoi(index % this.nbOrganes).getName();
 	}

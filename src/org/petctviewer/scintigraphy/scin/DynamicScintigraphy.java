@@ -1,13 +1,10 @@
 package org.petctviewer.scintigraphy.scin;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import ij.IJ;
 import ij.ImagePlus;
-import ij.WindowManager;
-import ij.gui.Overlay;
 import ij.plugin.ZProjector;
 import ij.util.DicomTools;
 

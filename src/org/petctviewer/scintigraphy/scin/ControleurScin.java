@@ -37,7 +37,6 @@ public abstract class ControleurScin implements ActionListener {
 	private ModeleScin modele;
 	protected RoiManager roiManager;
 
-	protected static boolean showLog;
 
 	private String[] organes;
 	protected int indexRoi;
@@ -123,19 +122,7 @@ public abstract class ControleurScin implements ActionListener {
 			return;
 		}
 
-		else if (b == this.scin.getFenApplication().getBtn_showlog()) {
-
-			// Regarder methode de Ping pour changer le libelle des bouttons
-			if (!showLog) {
-				showLog = true;
-				this.scin.getFenApplication().getBtn_showlog().setLabel("Hide Log");
-				// laVue.lesBoutons.get("Show").setBackground(Color.LIGHT_GRAY);
-			} else {
-				showLog = false;
-				this.scin.getFenApplication().getBtn_showlog().setLabel("Show Log");
-				// laVue.lesBoutons.get("Show").setBackground(null);
-			}
-		}
+		
 
 		// on apelle la methode notify clic pour recuperer le clic dans les classes
 		// heritees
@@ -181,7 +168,7 @@ public abstract class ControleurScin implements ActionListener {
 	 *            : numero de l'organe a delimiter
 	 */
 	public void setInstructionsDelimit(int nOrgane) {
-		this.scin.getFenApplication().setInstructions("Delimit the " + this.getNomOrgane(nOrgane));
+		this.scin.getFenApplication().getTextfield_instructions().setText("Delimit the " + this.getNomOrgane(nOrgane));
 	}
 
 	/**
@@ -191,7 +178,7 @@ public abstract class ControleurScin implements ActionListener {
 	 *            : numero de l'organe a ajuster
 	 */
 	public void setInstructionsAdjust(int nOrgane) {
-		this.scin.getFenApplication().setInstructions("Adjust the " + this.getNomOrgane(nOrgane));
+		this.scin.getFenApplication().getTextfield_instructions().setText("Adjust the " + this.getNomOrgane(nOrgane));
 	}
 
 	/**

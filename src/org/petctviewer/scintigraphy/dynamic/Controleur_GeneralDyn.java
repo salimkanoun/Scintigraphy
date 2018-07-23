@@ -26,7 +26,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		this.setModele(new Modele_GeneralDyn(vue.getFrameDurations()));
 		this.over = false;
 
-		this.getScin().getFenApplication().getField_instructions().addKeyListener(new KeyListener() {
+		this.getScin().getFenApplication().getTextfield_instructions().addKeyListener(new KeyListener() {
 
 			@Override
 			public void keyTyped(KeyEvent arg0) {
@@ -55,7 +55,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		} else {
 			s = "roi" + this.indexRoi;
 		}
-		this.getScin().getFenApplication().getField_instructions().setText(s);
+		this.getScin().getFenApplication().getTextfield_instructions().setText(s);
 	}
 
 	@Override
@@ -182,17 +182,14 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	@Override
 	public String getNomOrgane(int index) {
 		if (!isOver()) {
-			return this.getScin().getFenApplication().getField_instructions().getText();
+			return this.getScin().getFenApplication().getTextfield_instructions().getText();
 		}
 		return this.roiManager.getRoi(index % this.nbOrganes).getName();
 	}
 
 	@Override
 	public boolean isOver() {
-		if (this.over) {
-			return true;
-		}
-		return false;
+		return this.over;
 	}
 
 	@Override

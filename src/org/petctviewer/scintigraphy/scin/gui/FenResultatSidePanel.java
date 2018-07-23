@@ -5,14 +5,11 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
 import java.util.HashMap;
+
 import javax.swing.Box;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -22,12 +19,6 @@ import javax.swing.border.EmptyBorder;
 
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-
-import ij.ImagePlus;
-import ij.plugin.Concatenator;
-import ij.plugin.MontageMaker;
-import ij.plugin.ZProjector;
-import ij.process.ImageProcessor;
 
 public abstract class FenResultatSidePanel extends JFrame {
 

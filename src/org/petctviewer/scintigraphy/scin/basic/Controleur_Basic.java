@@ -1,12 +1,10 @@
 package org.petctviewer.scintigraphy.scin.basic;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
-import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.plugin.frame.RoiManager;
 

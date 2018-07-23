@@ -2,8 +2,6 @@ package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JFrame;

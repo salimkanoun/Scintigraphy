@@ -48,7 +48,6 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.Macro;
 import ij.Prefs;
-import ij.WindowManager;
 import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.Overlay;

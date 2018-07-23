@@ -15,11 +15,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 
 //SK CONDENSE A REVOIR
-package org.petctviewer.scintigraphy.gastric;
+package org.petctviewer.scintigraphy.esophageus;
 
 import java.awt.*;
 import java.util.ArrayList;
 
+import org.petctviewer.scintigraphy.gastric.FenetreSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
@@ -44,7 +45,7 @@ public class Condense_Dynamique implements PlugIn {
 		selection.setVisible(true);
 	}
 
-	protected void ouvertureImage(ImagePlus[] imagesOuvertes) {
+	public void ouvertureImage(ImagePlus[] imagesOuvertes) {
 
 		IJ.setTool("Rectangle");
 

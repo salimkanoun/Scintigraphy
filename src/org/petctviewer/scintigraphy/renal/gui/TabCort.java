@@ -2,8 +2,6 @@ package org.petctviewer.scintigraphy.renal.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.List;
 
@@ -11,10 +9,8 @@ import javax.swing.JPanel;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 class TabCort extends JPanel {

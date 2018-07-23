@@ -14,7 +14,6 @@ import javax.swing.SwingConstants;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
-import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 public class FenResultats_Dmsa extends JFrame{

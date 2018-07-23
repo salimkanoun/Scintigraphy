@@ -1,8 +1,20 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.*;
-import java.awt.image.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Paint;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 
 /*
  *  Support custom painting on a panel in the form of

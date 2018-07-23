@@ -9,8 +9,6 @@ import java.awt.Panel;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
-import javax.swing.JLabel;
-
 import ij.ImagePlus;
 import ij.gui.ImageCanvas;
 import ij.gui.StackWindow;

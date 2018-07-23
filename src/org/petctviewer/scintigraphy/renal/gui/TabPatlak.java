@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.renal.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 
 import javax.swing.BorderFactory;
@@ -11,12 +10,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 class TabPatlak extends JPanel {

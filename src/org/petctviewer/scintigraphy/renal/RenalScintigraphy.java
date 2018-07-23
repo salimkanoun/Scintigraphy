@@ -2,19 +2,14 @@ package org.petctviewer.scintigraphy.renal;
 
 import java.awt.Color;
 
-import org.jfree.chart.ChartPanel;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationDyn;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Overlay;
-import ij.gui.Toolbar;
 import ij.plugin.ZProjector;
 
 public class RenalScintigraphy extends DynamicScintigraphy {

@@ -17,20 +17,20 @@ public class FenApplication_GeneralDyn extends FenApplication {
 
 	public FenApplication_GeneralDyn(ImagePlus imp, String nom, DynamicScintigraphy vue) {
 		super(imp, nom);
-		this.getField_instructions().setEditable(true);
+		this.getTextfield_instructions().setEditable(true);
 		this.btn_finish = new Button("Finish");
 
-		this.getInstru().removeAll();
+		this.getPanelInstructionsTextBtn().removeAll();
 		Panel instru = new Panel(new GridLayout(1, 2));
 		instru.add(new Label("Roi name :"));
-		instru.add(this.getField_instructions());
-		this.getInstru().add(instru);
+		instru.add(this.getTextfield_instructions());
+		this.getPanelInstructionsTextBtn().add(instru);
 
 		Panel btns_instru = new Panel(new GridLayout(1, 3));
 		btns_instru.add(this.btn_finish);
 		btns_instru.add(this.getBtn_precedent());
 		btns_instru.add(this.getBtn_suivant());
-		this.getInstru().add(btns_instru);
+		this.getPanelInstructionsTextBtn().add(btns_instru);
 
 		this.setDefaultSize();
 	}

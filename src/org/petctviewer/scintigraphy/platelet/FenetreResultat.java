@@ -1,8 +1,5 @@
 package org.petctviewer.scintigraphy.platelet;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.Prefs;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -10,15 +7,18 @@ import java.awt.Label;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.ImageIcon;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
+
+import ij.IJ;
+import ij.ImagePlus;
+import ij.Prefs;
 
 public class FenetreResultat extends JFrame {
   private static final long serialVersionUID = -9097595151860174657L;

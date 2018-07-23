@@ -1,11 +1,9 @@
 package org.petctviewer.scintigraphy.hepatic.dyn.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.util.List;
 
-import javax.swing.Box;
 import javax.swing.JPanel;
 
 import org.jfree.chart.ChartPanel;
@@ -13,7 +11,6 @@ import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.hepatic.dyn.Modele_HepaticDyn;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 public class TabVasculaire extends JPanel {

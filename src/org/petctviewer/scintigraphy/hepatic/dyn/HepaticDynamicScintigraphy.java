@@ -2,14 +2,11 @@ package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.awt.Color;
 
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
-import ij.IJ;
-import ij.ImagePlus;
 import ij.gui.Overlay;
-import ij.gui.Toolbar;
 
 public class HepaticDynamicScintigraphy extends DynamicScintigraphy {
 

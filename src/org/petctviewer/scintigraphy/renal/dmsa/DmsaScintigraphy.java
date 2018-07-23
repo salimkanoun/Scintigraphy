@@ -5,11 +5,8 @@ import java.awt.Color;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
-import ij.IJ;
 import ij.ImagePlus;
-import ij.WindowManager;
 import ij.gui.Overlay;
-import ij.gui.Toolbar;
 
 public class DmsaScintigraphy extends Scintigraphy {
 

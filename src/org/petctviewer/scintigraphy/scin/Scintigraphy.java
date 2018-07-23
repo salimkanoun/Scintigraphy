@@ -1,27 +1,9 @@
 package org.petctviewer.scintigraphy.scin;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.Prefs;
-import ij.WindowManager;
-import ij.gui.Overlay;
-import ij.gui.Roi;
-import ij.gui.TextRoi;
-import ij.plugin.Concatenator;
-import ij.plugin.MontageMaker;
-import ij.plugin.PlugIn;
-import ij.plugin.ZProjector;
-import ij.plugin.frame.RoiManager;
-import ij.process.ImageProcessor;
-import ij.process.LUT;
-import ij.util.DicomTools;
-
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -39,13 +21,28 @@ import java.util.Comparator;
 import java.util.Date;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.StringUtils;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
+
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.Prefs;
+import ij.WindowManager;
+import ij.gui.Overlay;
+import ij.gui.Roi;
+import ij.gui.TextRoi;
+import ij.plugin.Concatenator;
+import ij.plugin.MontageMaker;
+import ij.plugin.PlugIn;
+import ij.plugin.ZProjector;
+import ij.plugin.frame.RoiManager;
+import ij.process.ImageProcessor;
+import ij.process.LUT;
+import ij.util.DicomTools;
 
 public abstract class Scintigraphy implements PlugIn {
 	// organes
