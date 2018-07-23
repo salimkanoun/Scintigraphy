@@ -19,6 +19,11 @@ import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 class TabTAC extends JPanel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public TabTAC(Scintigraphy scin, int width, int height) {
 		this.setLayout(new BorderLayout());
 		SidePanel side = new SidePanel(null, "Biliary scintigraphy", scin.getImp());

@@ -26,6 +26,11 @@ import javax.swing.JViewport;
  *  non-opaque so that the custom painting can show through.
  */
 public class DynamicImage extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public static final int SCALED = 0, SCALED_KEEPRATIO = 3, TILED = 1, ACTUAL = 2; //affichage
 	
 	private Object interpolation = RenderingHints.VALUE_INTERPOLATION_BILINEAR;

@@ -34,6 +34,10 @@ import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 
 public class FenPatlak extends JDialog implements ActionListener, ChartMouseListener {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JButton btn_ok;
 	private Box pnl_equations;
 	private JLabel lbl_eqR, lbl_eqL;

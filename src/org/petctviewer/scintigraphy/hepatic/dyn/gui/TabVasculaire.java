@@ -15,6 +15,11 @@ import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 public class TabVasculaire extends JPanel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public TabVasculaire(Scintigraphy scin, int width, int height) {
 		super(new BorderLayout());
 		

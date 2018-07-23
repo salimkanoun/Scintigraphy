@@ -20,6 +20,10 @@ import ij.plugin.ContrastEnhancer;
 
 public abstract class FenResultatImp extends JPanel implements ChangeListener {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private ImagePlus imp;
 	private DynamicImage dynamicImp;
 

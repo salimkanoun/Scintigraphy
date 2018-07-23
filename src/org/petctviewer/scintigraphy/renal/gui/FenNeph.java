@@ -25,6 +25,10 @@ import ij.Prefs;
 
 public class FenNeph extends JDialog implements ActionListener {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JButton btn_patlak, btn_ok;
 	private JValueSetter jvaluesetter;
 	private Modele_Renal modele;

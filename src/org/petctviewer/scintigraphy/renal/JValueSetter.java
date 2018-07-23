@@ -29,6 +29,10 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 public class JValueSetter extends ChartPanel implements ChartMouseListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	// ordre de priorite des selecteurs
 	private List<Selector> selectors;
 	private Selector current;

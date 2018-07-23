@@ -24,6 +24,10 @@ import ij.gui.Toolbar;
 
 public class FenApplicationDyn extends FenApplication implements ActionListener {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private DynamicScintigraphy vue;
 	private boolean dyn;
 	private ImagePlus impProj;
@@ -130,6 +134,10 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 
 	// TODO move that in it's own window
 	private class Fen_NbRein extends JDialog implements ActionListener {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		private boolean[] kidneys = new boolean[2];
 		private JButton btn_l, btn_r, btn_lr;
 

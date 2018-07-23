@@ -14,6 +14,11 @@ import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 class TabUreter extends JPanel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public TabUreter(Scintigraphy scin) {
 		super(new BorderLayout());
 		

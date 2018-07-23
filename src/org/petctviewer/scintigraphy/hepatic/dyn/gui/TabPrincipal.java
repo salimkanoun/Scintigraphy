@@ -27,6 +27,10 @@ import ij.ImagePlus;
 
 class TabPrincipal extends JPanel{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private HashMap<String, String> resultats;
 
 	public TabPrincipal(DynamicScintigraphy scin, BufferedImage capture, int width, int height) {

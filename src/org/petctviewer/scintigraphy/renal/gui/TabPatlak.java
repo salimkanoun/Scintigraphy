@@ -16,6 +16,11 @@ import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 class TabPatlak extends JPanel {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public TabPatlak(RenalScintigraphy scin) {
 		super(new BorderLayout());
 		

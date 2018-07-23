@@ -18,6 +18,11 @@ import ij.Prefs;
 
 class TabOther extends JPanel{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public TabOther(Scintigraphy scin) {
 		super(new BorderLayout());
 		SidePanel side = new SidePanel(null, "Renal scintigraphy", scin.getImp());
