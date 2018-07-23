@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.renal;
+ package org.petctviewer.scintigraphy.renal;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +42,9 @@ public class Modele_Renal extends ModeleScinDyn {
 		this.kidneys = kidneys;
 		this.organRois = new HashMap<>();
 	}
-
+	
+	
+	/********** Public Static **********/
 	public static void graph(XYDataset data) {
 		JFreeChart chart = ChartFactory.createXYLineChart("", "x", "y", data);
 
@@ -50,153 +52,6 @@ public class Modele_Renal extends ModeleScinDyn {
 		frame.add(new ChartPanel(chart));
 		frame.pack();
 		frame.setVisible(true);
-	}
-
-	public void setKidneys(boolean[] kidneys) {
-		this.kidneys = kidneys;
-	}
-
-	public boolean[] getKidneys() {
-		return this.kidneys;
-	}
-
-	@Override
-	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
-		if (!this.isLocked()) {
-			super.enregistrerMesure(nomRoi, imp);
-
-			// nom de l'organe sans le tag
-			String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
-			// si on n'a pas deja enregistre son aire, on l'ajout a la hashmap
-			if (this.organRois.get(name) == null) {
-				this.organRois.put(name, imp.getRoi());
-			}
-		}
-
-	}
-
-	@Override
-	public void calculerResultats() {
-
-		// construction du tableau representant chaque rein
-		this.kidneysLR = new ArrayList<>();
-		if (kidneys[0])
-			kidneysLR.add("L");
-		if (kidneys[1])
-			kidneysLR.add("R");
-
-		normalizeBP();
-
-		// on calcule les corticales si elle sont demandees
-		if (Prefs.get("renal.pelvis.preferred", true)) {
-			this.calculCortical();
-		}
-
-		// on ajuste toutes les valeurs pour les mettre en coup / sec
-		for (String k : this.getData().keySet()) {
-			List<Double> data = this.getData().get(k);
-			this.getData().put(k, this.adjustValues(data));
-		}
-
-		// on soustrait le bruit de fond
-		this.substractBkg();
-
-		// ***INTEGRALE DE LA COURBE VASCULAIRE***
-		// on recupere la liste des donnees vasculaires
-		List<Double> vasc = this.getData("Blood Pool");
-		XYSeries serieVasc = this.createSerie(vasc, "");
-		List<Double> vascIntegree = Modele_Renal.getIntegral(serieVasc, serieVasc.getMinX(), serieVasc.getMaxX());
-		this.getData().put("BPI", vascIntegree); // BPI == Blood Pool Integrated
-	}
-
-	private void substractBkg() {
-		// ***VALEURS AJUSTEES AVEC LE BRUIT DE FOND POUR CHAQUE REIN***
-		for (String lr : kidneysLR) { // pour chaque rein
-			List<Double> RGCorrige = new ArrayList<>();
-			// on recupere l'aire des rois bruit de fond et rein
-			int aireRein = this.organRois.get(lr + ". Kidney").getStatistics().pixelCount;
-			int aireBkg = this.organRois.get(lr + ". bkg").getStatistics().pixelCount;
-			List<Double> lk = this.getData(lr + ". Kidney");
-			List<Double> lbkg = this.getData(lr + ". bkg");
-
-			// on calcule le coup moyen de la roi, on l'ajuste avec le bdf et on l'applique
-			// sur toute la roi pour chaque rein afin d'ajuster la valeur brute pour les
-			// deux reins
-			for (int i = 0; i < this.getFrameduration().length; i++) {
-				Double countRein = lk.get(i);
-				Double countBkg = lbkg.get(i);
-
-				Double moyRein = countRein / aireRein;
-				Double moyBkg = countBkg / aireBkg;
-				Double adjustedValueG = (moyRein - moyBkg) * aireRein;
-				RGCorrige.add(adjustedValueG);
-			}
-
-			// on ajoute les nouveles valeurs aux donnees
-			this.getData().put("Final K" + lr, RGCorrige);
-		}
-
-	}
-
-	// normalise la vasculaire pour le rein gauche et droit pour le patlak
-	private void normalizeBP() {
-		List<Double> bp = getData("Blood Pool");
-		Integer aireBP = this.organRois.get("Blood Pool").getStatistics().pixelCount;
-
-		// pour chaque rein on ajoute la valeur normalisee de la vasculaire
-		for (String lr : this.kidneysLR) {
-			List<Double> bpNorm = new ArrayList<>();
-			Integer aire = this.organRois.get(lr + ". Kidney").getStatistics().pixelCount;
-			for (Double d : bp) {
-				bpNorm.add((d / aireBP) * aire);
-			}
-			this.getData().put("BP norm " + lr, bpNorm);
-		}
-	}
-
-	/**
-	 * calcule et renvoie les valeurs de courbes des bassinets
-	 */
-	private void calculCortical() {
-		for (String lr : this.kidneysLR) { // on calcule la valeur de la corticale pour chaque rein
-			List<Double> cortical = new ArrayList<>(); // coups de la corticale
-
-			List<Double> rein = this.getData(lr + ". Kidney");
-			List<Double> bassinet = this.getData(lr + ". Pelvis");
-			for (int i = 0; i < this.getData("Blood Pool").size(); i++) {
-				cortical.add(rein.get(i) - bassinet.get(i));
-			}
-			this.getData().put(lr + ". Cortical", cortical);
-		}
-	}
-
-	/**
-	 * Calcule la courbe fitte selon un polynome du 3eme degre pour la courbe de
-	 * chaque rein. Ajuste ensuite a l'echelle des valeurs de sortie
-	 */
-	public void fitVasculaire() {
-		// on recupere la liste des donnees vasculaires
-		List<Double> bpi = this.getData("BPI");
-
-		for (String lr : this.kidneysLR) {
-			// recuperation des donnees des reins
-			List<Double> corrige = this.getData().get("Final K" + lr);
-			// calcul des courbes fitees
-			List<Double> vascFit = this.fitVasc(bpi, corrige);
-
-			// on calcule le valeurs de la courbe sortie
-			List<Double> sortieInt = new ArrayList<>();
-			for (int i = 0; i < corrige.size(); i++) {
-				// on ajoute uniquement si la valeur est positive
-				Double output = Math.max(vascFit.get(i) - corrige.get(i), 0);
-				/// on ajoute la valeur calculee dans la liste de sortie renale
-				sortieInt.add(output);
-			}
-
-			/// on ajoute les nouvelles courbes dans les donnees
-			this.getData().put("Output K" + lr, sortieInt);
-			this.getData().put("Blood pool fitted " + lr, vascFit);
-		}
 	}
 
 	// recupere les valeurs situees entre startX et endX
@@ -225,96 +80,8 @@ public class Modele_Renal extends ModeleScinDyn {
 		return dataset;
 	}
 
-	// fit la courbe selon un polynome de degre 3 et la modifie pour qu'elle soit au
-	// plus pres de la courbe du rein
-	private List<Double> fitVasc(List<Double> vasc, List<Double> kidney) {
-
-		XYSeries bpi = this.createSerie(vasc, "");
-		XYSeriesCollection datasetVasc = new XYSeriesCollection();
-		datasetVasc.addSeries(bpi);
-
-		// on fait un fit ploynomial de degre 3
-		double[] reg = Regression.getPolynomialRegression(datasetVasc, 0, 3);
-
-		// on calcule les points de la courbe fitee
-		XYSeries seriesVasc = new XYSeries("Vasc");
-		for (int i = 0; i < bpi.getItemCount(); i++) {
-			double x = bpi.getX(i).doubleValue();
-			seriesVasc.add(x, reg[0] + reg[1] * x + reg[2] * Math.pow(x, 2) + reg[3] * Math.pow(x, 3));
-		}
-
-		this.getData().put("Blood pool fitted", seriesToList(seriesVasc));
-
-		XYSeries seriesKid = this.createSerie(kidney, "Kidney");
-
-		// l'intervalle est defini par l'utilisateur
-		Double x1 = this.adjustedValues.get("start");
-		Double x2 = this.adjustedValues.get("end");
-		Double startX = Math.min(x1, x2);
-		Double endX = Math.max(x1, x2);
-
-		// on recupere les points compris dans l'intervalle
-		XYSeries croppedKidney = Modele_Renal.cropSeries(seriesKid, startX, endX);
-		XYSeries croppedVasc = Modele_Renal.cropSeries(seriesVasc, startX, endX);
-
-		// on ajoute les series dans une collection afin d'utiliser le fit de jfreechart
-		XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries(croppedVasc);
-		dataset.addSeries(croppedKidney);
-
-		double[] courbeVasc = Regression.getOLSRegression(dataset, 0);
-		double[] courbeKidney = Regression.getOLSRegression(dataset, 1);
-
-		// calcul du rapport de pente sur l'intervalle defini par l'utilisateur
-		Double rapportPente = courbeKidney[1] / courbeVasc[1];
-
-		// List<Double> fittedVasc = new ArrayList<>();
-		// for (Double d : vasc) {
-		// fittedVasc.add(d * rapportPente);
-		// }
-
-		List<Double> fittedVasc = new ArrayList<>();
-		for (int i = 0; i < seriesVasc.getItemCount(); i++) {
-			Double d = seriesVasc.getY(i).doubleValue();
-			fittedVasc.add(d * rapportPente);
-		}
-
-		// decalage pour que les courbes soient au meme niveau
-		Double milieu = (endX + startX) / 2;
-		Double offset = this.getY(kidney, milieu) - this.getY(fittedVasc, milieu);
-
-		// on ajoute le decalage sur tous les points
-		for (int i = 0; i < fittedVasc.size(); i++) {
-			fittedVasc.set(i, fittedVasc.get(i) + offset);
-		}
-
-		return fittedVasc;
-	}
-
-	/**
-	 * renvoie le roe en pourcent
-	 * 
-	 * @param min
-	 *            minute a laquelle on veut comparer
-	 * @param output
-	 *            sortie du rein
-	 * @param lr
-	 *            "L" ou "R"
-	 * @return le pourcentage
-	 */
-	public int getROE(Double min, String lr) {
-		int perct =0;
-		try {
-			XYSeries output = this.getSerie("Output K" + lr);
-			XYSeries serieBPF = this.getSerie("Blood pool fitted " + lr);
-			 perct = (int) (ModeleScinDyn.getY(output, min).doubleValue()
-					/ ModeleScinDyn.getY(serieBPF, min).doubleValue() * 100);
-		} catch (IllegalArgumentException e) {
-		}
-		
-		return perct;
-	}
-
+	
+	/********** Private Static **********/
 	// renvoie l'aire sous la courbe entre les points startX et endX
 	private static List<Double> getIntegral(XYSeries series, Double startX, Double endX) {
 
@@ -342,124 +109,49 @@ public class Modele_Renal extends ModeleScinDyn {
 		return integraleSum;
 	}
 
-	/* Contenu qui sera present lors de l'exprotation du CSV
-	 * (non-Javadoc)
-	 * @see org.petctviewer.scintigraphy.scin.ModeleScinDyn#toString()
+
+	/********* Public Setter *********/
+	public void setKidneys(boolean[] kidneys) {
+		this.kidneys = kidneys;
+	}
+
+	public void setAdjustedValues(HashMap<Comparable, Double> hashMap) {
+		this.adjustedValues = hashMap;
+	}
+
+	public void setPatlakPente(double[] patlakRatio) {
+		this.patlakPente = patlakRatio;
+	}
+	
+	
+	/******* Public Getter **********/
+	public boolean[] getKidneys() {
+		return this.kidneys;
+	}
+
+	/**
+	 * renvoie le roe en pourcent
+	 * 
+	 * @param min
+	 *            minute a laquelle on veut comparer
+	 * @param output
+	 *            sortie du rein
+	 * @param lr
+	 *            "L" ou "R"
+	 * @return le pourcentage
 	 */
-	@Override
-	public String toString() {
-		Double[][] nora = this.getNora();
-		Double[][] excr = this.getExcr();
-		Double[] sep = this.getSeparatedFunction();
-		double[] patlak = this.getPatlakPente();
-		Double[][] timing = this.getTiming();
-
-		String s = super.toString();
-		
-		s += "\n";
-		
-		s += getDataString("Final KL", "Corrected Left Kidney");
-		s += getDataString("Final KR", "Corrected Right Kidney");
-		s += getDataString("Blood Pool", "Blood Pool");
-
-		s += "\n";
-		s+=getROEString();
-		s+="\n";
-		s += ",time, left kidney, right kidney \n";
-		for (int i = 0; i < nora.length; i++) {
-			s += "NORA ," + nora[0][i] + "," + nora[1][i] + "," + nora[2][i] + "\n";
-		}
-
-		for (int i = 0; i < nora.length; i++) {
-			s += "Excretion ratio," + excr[0][i] + "," + excr[1][i] + "," + excr[2][i] + "\n";
-		}
-
-		s += "Separated function integral , ," + sep[0] + "," + sep[1] + "\n";
-		
-		if(patlak != null) {
-			s += "Separated function patlak , ," + patlak[0] + "," + patlak[1] + "\n";
+	public int getROE(Double min, String lr) {
+		int perct =0;
+		try {
+			XYSeries output = this.getSerie("Output K" + lr);
+			XYSeries serieBPF = this.getSerie("Blood pool fitted " + lr);
+			 perct = (int) (ModeleScinDyn.getY(output, min).doubleValue()
+					/ ModeleScinDyn.getY(serieBPF, min).doubleValue() * 100);
+		} catch (IllegalArgumentException e) {
 		}
 		
-		s += "Timing tmax , ," + timing[0][0] + "," + timing[0][1] + "\n";
-		s += "Timing t1/2 , ," + timing[1][0] + "," + timing[1][1] + "\n";
-		
-		s += "\n";
-		
-		
-		
-		// ROE
-		Double xLasilix = this.adjustedValues.get("lasilix");
-		Double[] time = {ModeleScin.round(xLasilix - 1, 1),
-				ModeleScin.round(xLasilix + 2, 1), 
-				round(this.getSerie("Blood Pool").getMaxX(), 1)};
-		s += "Time ROE (min), "+ time[0]+","+this.getROE(time[0], "L")+","+this.getROE(time[0], "R")+"\n"
-			+"Time ROE (min), "+ time[1]+","+this.getROE(time[1], "L")+","+this.getROE(time[1], "R")+"\n"
-			+"Time ROE (min), "+ time[2]+","+this.getROE(time[2], "L")+","+this.getROE(time[2], "R")+"\n";
-	
-		ImagePlus imp = this.getImp();
-		HashMap<String, String> mapTags = new HashMap<>();
-		mapTags.put("0008,0020", DicomTools.getTag(imp, "0008,0020") );
-		mapTags.put("0008,0021", DicomTools.getTag(imp, "0008,0021") );
-		mapTags.put("0008,0030", DicomTools.getTag(imp, "0008,0030") );
-		mapTags.put("0008,0031", DicomTools.getTag(imp, "0008,0031") );
-		mapTags.put("0008,0050", DicomTools.getTag(imp, "0008,0050") );
-		mapTags.put("0008,0060", DicomTools.getTag(imp, "0008,0060") );
-		mapTags.put("0008,0070", DicomTools.getTag(imp, "0008,0070") );
-		mapTags.put("0008,0080", DicomTools.getTag(imp, "0008,0080") );
-		mapTags.put("0008,0090", DicomTools.getTag(imp, "0008,0090") );
-		mapTags.put("0008,1030", DicomTools.getTag(imp, "0008,1030") );
-		mapTags.put("0010,0010", DicomTools.getTag(imp, "0010,0010") );
-		mapTags.put("0010,0020", DicomTools.getTag(imp, "0010,0020") );
-		mapTags.put("0010,0030", DicomTools.getTag(imp, "0010,0030") );
-		mapTags.put("0010,0040", DicomTools.getTag(imp, "0010,0040") );
-		mapTags.put("0020,000D", DicomTools.getTag(imp, "0020,000D") );
-		mapTags.put("0020,000E", DicomTools.getTag(imp, "0020,000E") );
-		mapTags.put("0020,0010", DicomTools.getTag(imp, "0020,0010") );
-		mapTags.put("0020,0032" ,DicomTools.getTag(imp, "0020,0032") );
-		mapTags.put("0020,0037", DicomTools.getTag(imp, "0020,0037") );
-		
-		
-		String tags = JSONObject.toJSONString(mapTags);
-		
-		s+= "\n"+ "tags,"+tags;
-		return s;
-
+		return perct;
 	}
-	
-	private String getDataString(Comparable key, String name) {
-		if(this.getData().containsKey(key)) {
-			List<Double> values = this.getData().get(key);
-			for(Double d : values) {
-				name += "," + d;
-			}
-		}
-		name += "\n";
-		return name;
-	}
-
-	private String getROEString() {
-		String s = "Time ROE";
-		Double[] mins = new Double[10];
-		for (int i = 0; i < mins.length; i++) {
-			mins[i] = ModeleScin.round((getSerie("Blood Pool").getMaxX() / (mins.length * 1.0)) * i + 1, 1);
-			s += ", " + mins[i];
-		}
-		s += "\n";
-
-		// on recupere les series
-		for (String lr : this.kidneysLR) {
-			XYSeries serieK = getSerie("Output K" + lr);
-			s += lr + ". kidney";
-			for (int i = 0; i < mins.length; i++) {
-				s += "," + this.getROE(mins[i], lr);
-			}
-			s += "\n";
-		}
-		
-		return s;
-	}
-	
-
 
 	/**
 	 * renvoie le temps a tmax et t1/2
@@ -560,9 +252,6 @@ public class Modele_Renal extends ModeleScinDyn {
 		return res;
 	}
 
-	/*
-	 * 
-	 */
 	public Double[][] getNora() {
 		Double[][] res = new Double[3][3];
 
@@ -587,10 +276,6 @@ public class Modele_Renal extends ModeleScinDyn {
 		}
 
 		return res;
-	}
-
-	public void setAdjustedValues(HashMap<Comparable, Double> hashMap) {
-		this.adjustedValues = hashMap;
 	}
 
 	public HashMap<Comparable, Double> getAdjustedValues() {
@@ -640,10 +325,6 @@ public class Modele_Renal extends ModeleScinDyn {
 		return this.patlakPente;
 	}
 
-	public void setPatlakPente(double[] patlakRatio) {
-		this.patlakPente = patlakRatio;
-	}
-
 	public double getExcrBladder(Double bld) {
 		XYSeries bldSeries = this.getSerie("Bladder");
 		return 100 * bld / ModeleScinDyn.getY(bldSeries, bldSeries.getMaxX());
@@ -679,4 +360,335 @@ public class Modele_Renal extends ModeleScinDyn {
 		return kidneysLR;
 	}
 
+	
+	/******* Private Getter *********/
+	private String getDataString(Comparable key, String name) {
+		if(this.getData().containsKey(key)) {
+			List<Double> values = this.getData().get(key);
+			for(Double d : values) {
+				name += "," + d;
+			}
+		}
+		name += "\n";
+		return name;
+	}
+
+	private String getROEString() {
+		String s = "Time ROE";
+		Double[] mins = new Double[10];
+		for (int i = 0; i < mins.length; i++) {
+			mins[i] = ModeleScin.round((getSerie("Blood Pool").getMaxX() / (mins.length * 1.0)) * i + 1, 1);
+			s += ", " + mins[i];
+		}
+		s += "\n";
+
+		// on recupere les series
+		for (String lr : this.kidneysLR) {
+			XYSeries serieK = getSerie("Output K" + lr);
+			s += lr + ". kidney";
+			for (int i = 0; i < mins.length; i++) {
+				s += "," + this.getROE(mins[i], lr);
+			}
+			s += "\n";
+		}
+		
+		return s;
+	}
+	
+	
+	/********** Public *********/
+	@Override
+	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
+		if (!this.isLocked()) {
+			super.enregistrerMesure(nomRoi, imp);
+
+			// nom de l'organe sans le tag
+			String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
+			// si on n'a pas deja enregistre son aire, on l'ajout a la hashmap
+			if (this.organRois.get(name) == null) {
+				this.organRois.put(name, imp.getRoi());
+			}
+		}
+
+	}
+
+	@Override
+	public void calculerResultats() {
+
+		// construction du tableau representant chaque rein
+		this.kidneysLR = new ArrayList<>();
+		if (kidneys[0])
+			kidneysLR.add("L");
+		if (kidneys[1])
+			kidneysLR.add("R");
+
+		normalizeBP();
+
+		// on calcule les corticales si elle sont demandees
+		if (Prefs.get("renal.pelvis.preferred", true)) {
+			this.calculCortical();
+		}
+
+		// on ajuste toutes les valeurs pour les mettre en coup / sec
+		for (String k : this.getData().keySet()) {
+			List<Double> data = this.getData().get(k);
+			this.getData().put(k, this.adjustValues(data));
+		}
+
+		// on soustrait le bruit de fond
+		this.substractBkg();
+
+		// ***INTEGRALE DE LA COURBE VASCULAIRE***
+		// on recupere la liste des donnees vasculaires
+		List<Double> vasc = this.getData("Blood Pool");
+		XYSeries serieVasc = this.createSerie(vasc, "");
+		List<Double> vascIntegree = Modele_Renal.getIntegral(serieVasc, serieVasc.getMinX(), serieVasc.getMaxX());
+		this.getData().put("BPI", vascIntegree); // BPI == Blood Pool Integrated
+	}
+
+	/**
+	 * Calcule la courbe fitte selon un polynome du 3eme degre pour la courbe de
+	 * chaque rein. Ajuste ensuite a l'echelle des valeurs de sortie
+	 */
+	public void fitVasculaire() {
+		// on recupere la liste des donnees vasculaires
+		List<Double> bpi = this.getData("BPI");
+
+		for (String lr : this.kidneysLR) {
+			// recuperation des donnees des reins
+			List<Double> corrige = this.getData().get("Final K" + lr);
+			// calcul des courbes fitees
+			List<Double> vascFit = this.fitVasc(bpi, corrige);
+
+			// on calcule le valeurs de la courbe sortie
+			List<Double> sortieInt = new ArrayList<>();
+			for (int i = 0; i < corrige.size(); i++) {
+				// on ajoute uniquement si la valeur est positive
+				Double output = Math.max(vascFit.get(i) - corrige.get(i), 0);
+				/// on ajoute la valeur calculee dans la liste de sortie renale
+				sortieInt.add(output);
+			}
+
+			/// on ajoute les nouvelles courbes dans les donnees
+			this.getData().put("Output K" + lr, sortieInt);
+			this.getData().put("Blood pool fitted " + lr, vascFit);
+		}
+	}
+
+	/* Contenu qui sera present lors de l'exprotation du CSV
+	 * (non-Javadoc)
+	 * @see org.petctviewer.scintigraphy.scin.ModeleScinDyn#toString()
+	 */
+	@Override
+	public String toString() {
+		Double[][] nora = this.getNora();
+		Double[][] excr = this.getExcr();
+		Double[] sep = this.getSeparatedFunction();
+		double[] patlak = this.getPatlakPente();
+		Double[][] timing = this.getTiming();
+
+		String s = super.toString();
+		
+		s += "\n";
+		
+		s += getDataString("Final KL", "Corrected Left Kidney");
+		s += getDataString("Final KR", "Corrected Right Kidney");
+		s += getDataString("Blood Pool", "Blood Pool");
+
+		s += "\n";
+		s+=getROEString();
+		s+="\n";
+		s += ",time, left kidney, right kidney \n";
+		for (int i = 0; i < nora.length; i++) {
+			s += "NORA ," + nora[0][i] + "," + nora[1][i] + "," + nora[2][i] + "\n";
+		}
+
+		for (int i = 0; i < nora.length; i++) {
+			s += "Excretion ratio," + excr[0][i] + "," + excr[1][i] + "," + excr[2][i] + "\n";
+		}
+
+		s += "Separated function integral , ," + sep[0] + "," + sep[1] + "\n";
+		
+		if(patlak != null) {
+			s += "Separated function patlak , ," + patlak[0] + "," + patlak[1] + "\n";
+		}
+		
+		s += "Timing tmax , ," + timing[0][0] + "," + timing[0][1] + "\n";
+		s += "Timing t1/2 , ," + timing[1][0] + "," + timing[1][1] + "\n";
+		
+		s += "\n";
+		
+		
+		
+		// ROE
+		Double xLasilix = this.adjustedValues.get("lasilix");
+		Double[] time = {ModeleScin.round(xLasilix - 1, 1),
+				ModeleScin.round(xLasilix + 2, 1), 
+				round(this.getSerie("Blood Pool").getMaxX(), 1)};
+		s += "Time ROE (min), "+ time[0]+","+this.getROE(time[0], "L")+","+this.getROE(time[0], "R")+"\n"
+			+"Time ROE (min), "+ time[1]+","+this.getROE(time[1], "L")+","+this.getROE(time[1], "R")+"\n"
+			+"Time ROE (min), "+ time[2]+","+this.getROE(time[2], "L")+","+this.getROE(time[2], "R")+"\n";
+	
+		ImagePlus imp = this.getImp();
+		HashMap<String, String> mapTags = new HashMap<>();
+		mapTags.put("0008,0020", DicomTools.getTag(imp, "0008,0020") );
+		mapTags.put("0008,0021", DicomTools.getTag(imp, "0008,0021") );
+		mapTags.put("0008,0030", DicomTools.getTag(imp, "0008,0030") );
+		mapTags.put("0008,0031", DicomTools.getTag(imp, "0008,0031") );
+		mapTags.put("0008,0050", DicomTools.getTag(imp, "0008,0050") );
+		mapTags.put("0008,0060", DicomTools.getTag(imp, "0008,0060") );
+		mapTags.put("0008,0070", DicomTools.getTag(imp, "0008,0070") );
+		mapTags.put("0008,0080", DicomTools.getTag(imp, "0008,0080") );
+		mapTags.put("0008,0090", DicomTools.getTag(imp, "0008,0090") );
+		mapTags.put("0008,1030", DicomTools.getTag(imp, "0008,1030") );
+		mapTags.put("0010,0010", DicomTools.getTag(imp, "0010,0010") );
+		mapTags.put("0010,0020", DicomTools.getTag(imp, "0010,0020") );
+		mapTags.put("0010,0030", DicomTools.getTag(imp, "0010,0030") );
+		mapTags.put("0010,0040", DicomTools.getTag(imp, "0010,0040") );
+		mapTags.put("0020,000D", DicomTools.getTag(imp, "0020,000D") );
+		mapTags.put("0020,000E", DicomTools.getTag(imp, "0020,000E") );
+		mapTags.put("0020,0010", DicomTools.getTag(imp, "0020,0010") );
+		mapTags.put("0020,0032" ,DicomTools.getTag(imp, "0020,0032") );
+		mapTags.put("0020,0037", DicomTools.getTag(imp, "0020,0037") );
+		
+		
+		String tags = JSONObject.toJSONString(mapTags);
+		
+		s+= "\n"+ "tags,"+tags;
+		return s;
+
+	}
+	
+	
+	/********** Private *********/
+	// fit la courbe selon un polynome de degre 3 et la modifie pour qu'elle soit au
+	// plus pres de la courbe du rein
+	private List<Double> fitVasc(List<Double> vasc, List<Double> kidney) {
+
+		XYSeries bpi = this.createSerie(vasc, "");
+		XYSeriesCollection datasetVasc = new XYSeriesCollection();
+		datasetVasc.addSeries(bpi);
+
+		// on fait un fit ploynomial de degre 3
+		double[] reg = Regression.getPolynomialRegression(datasetVasc, 0, 3);
+
+		// on calcule les points de la courbe fitee
+		XYSeries seriesVasc = new XYSeries("Vasc");
+		for (int i = 0; i < bpi.getItemCount(); i++) {
+			double x = bpi.getX(i).doubleValue();
+			seriesVasc.add(x, reg[0] + reg[1] * x + reg[2] * Math.pow(x, 2) + reg[3] * Math.pow(x, 3));
+		}
+
+		this.getData().put("Blood pool fitted", seriesToList(seriesVasc));
+
+		XYSeries seriesKid = this.createSerie(kidney, "Kidney");
+
+		// l'intervalle est defini par l'utilisateur
+		Double x1 = this.adjustedValues.get("start");
+		Double x2 = this.adjustedValues.get("end");
+		Double startX = Math.min(x1, x2);
+		Double endX = Math.max(x1, x2);
+
+		// on recupere les points compris dans l'intervalle
+		XYSeries croppedKidney = Modele_Renal.cropSeries(seriesKid, startX, endX);
+		XYSeries croppedVasc = Modele_Renal.cropSeries(seriesVasc, startX, endX);
+
+		// on ajoute les series dans une collection afin d'utiliser le fit de jfreechart
+		XYSeriesCollection dataset = new XYSeriesCollection();
+		dataset.addSeries(croppedVasc);
+		dataset.addSeries(croppedKidney);
+
+		double[] courbeVasc = Regression.getOLSRegression(dataset, 0);
+		double[] courbeKidney = Regression.getOLSRegression(dataset, 1);
+
+		// calcul du rapport de pente sur l'intervalle defini par l'utilisateur
+		Double rapportPente = courbeKidney[1] / courbeVasc[1];
+
+		// List<Double> fittedVasc = new ArrayList<>();
+		// for (Double d : vasc) {
+		// fittedVasc.add(d * rapportPente);
+		// }
+
+		List<Double> fittedVasc = new ArrayList<>();
+		for (int i = 0; i < seriesVasc.getItemCount(); i++) {
+			Double d = seriesVasc.getY(i).doubleValue();
+			fittedVasc.add(d * rapportPente);
+		}
+
+		// decalage pour que les courbes soient au meme niveau
+		Double milieu = (endX + startX) / 2;
+		Double offset = this.getY(kidney, milieu) - this.getY(fittedVasc, milieu);
+
+		// on ajoute le decalage sur tous les points
+		for (int i = 0; i < fittedVasc.size(); i++) {
+			fittedVasc.set(i, fittedVasc.get(i) + offset);
+		}
+
+		return fittedVasc;
+	}
+
+	private void substractBkg() {
+		// ***VALEURS AJUSTEES AVEC LE BRUIT DE FOND POUR CHAQUE REIN***
+		for (String lr : kidneysLR) { // pour chaque rein
+			List<Double> RGCorrige = new ArrayList<>();
+			// on recupere l'aire des rois bruit de fond et rein
+			int aireRein = this.organRois.get(lr + ". Kidney").getStatistics().pixelCount;
+			int aireBkg = this.organRois.get(lr + ". bkg").getStatistics().pixelCount;
+			List<Double> lk = this.getData(lr + ". Kidney");
+			List<Double> lbkg = this.getData(lr + ". bkg");
+
+			// on calcule le coup moyen de la roi, on l'ajuste avec le bdf et on l'applique
+			// sur toute la roi pour chaque rein afin d'ajuster la valeur brute pour les
+			// deux reins
+			for (int i = 0; i < this.getFrameduration().length; i++) {
+				Double countRein = lk.get(i);
+				Double countBkg = lbkg.get(i);
+
+				Double moyRein = countRein / aireRein;
+				Double moyBkg = countBkg / aireBkg;
+				Double adjustedValueG = (moyRein - moyBkg) * aireRein;
+				RGCorrige.add(adjustedValueG);
+			}
+
+			// on ajoute les nouveles valeurs aux donnees
+			this.getData().put("Final K" + lr, RGCorrige);
+		}
+
+	}
+
+	// normalise la vasculaire pour le rein gauche et droit pour le patlak
+	private void normalizeBP() {
+		List<Double> bp = getData("Blood Pool");
+		Integer aireBP = this.organRois.get("Blood Pool").getStatistics().pixelCount;
+
+		// pour chaque rein on ajoute la valeur normalisee de la vasculaire
+		for (String lr : this.kidneysLR) {
+			List<Double> bpNorm = new ArrayList<>();
+			Integer aire = this.organRois.get(lr + ". Kidney").getStatistics().pixelCount;
+			for (Double d : bp) {
+				bpNorm.add((d / aireBP) * aire);
+			}
+			this.getData().put("BP norm " + lr, bpNorm);
+		}
+	}
+
+	/**
+	 * calcule et renvoie les valeurs de courbes des bassinets
+	 */
+	private void calculCortical() {
+		for (String lr : this.kidneysLR) { // on calcule la valeur de la corticale pour chaque rein
+			List<Double> cortical = new ArrayList<>(); // coups de la corticale
+
+			List<Double> rein = this.getData(lr + ". Kidney");
+			List<Double> bassinet = this.getData(lr + ". Pelvis");
+			for (int i = 0; i < this.getData("Blood Pool").size(); i++) {
+				cortical.add(rein.get(i) - bassinet.get(i));
+			}
+			this.getData().put(lr + ". Cortical", cortical);
+		}
+	}
+
+
+
+	
 }

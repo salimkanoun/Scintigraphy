@@ -22,8 +22,10 @@ import ij.util.DicomTools;
 public class FenApplication extends StackWindow implements ComponentListener {
 	private static final long serialVersionUID = -6280620624574294247L;
 
-	//Panel 
+	//Panel d'instruction avec le textfield et boutons precedent et suivant
 	private Panel panel_Instructions_Text_Btn;
+	
+	//Panel avec boutons quit, draw roi, contrast
 	private Panel panel_btns_Quit_Draw_Contrast;
 	
 	private JTextField textfield_instructions;
@@ -133,8 +135,8 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		return super.close();
 	}
 
+	
 	/************Private Method *********/
-
 	protected Panel createPanelInstructionsBtns() {
 		Panel btns_instru = new Panel();
 		btns_instru.setLayout(new GridLayout(1, 3));
@@ -143,10 +145,8 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		return btns_instru;
 	}
 
-	// construit tous les boutons
 
-
-	/******* Getter ******/
+	/*************** Getter ******/
 	public Button getBtn_quitter() {
 		return this.btn_quitter;
 	}
@@ -187,7 +187,8 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		return panel_btns_Quit_Draw_Contrast;
 	}
 
-	/****** Setter *****/
+	
+	/************* Setter *************/
 	public void setControleur(ControleurScin ctrl) {
 		this.controleur = ctrl;
 
@@ -236,8 +237,8 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	// this.getImagePlus().setOverlay(overlay);
 	// }
 	
+	
 	/************Component***********/
-
 	@Override
 	public void windowClosing(WindowEvent we) {
 		close();
@@ -250,7 +251,6 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		this.canvasW = this.getCanvas().getWidth();
 	}
 
-	
 	@Override
 	public void componentMoved(ComponentEvent e) {
 	}

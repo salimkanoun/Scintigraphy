@@ -33,7 +33,7 @@ import ij.plugin.frame.RoiManager;
 
 public abstract class ControleurScin implements ActionListener {
 
-	private Scintigraphy scin;//vue
+	private Scintigraphy vue;
 	private ModeleScin modele;
 	protected RoiManager roiManager;
 
@@ -43,7 +43,8 @@ public abstract class ControleurScin implements ActionListener {
 
 	private List<String> nomRois = new ArrayList<>();
 	private ImageListener ctrlImg;
-	private Color STROKECOLOR = Color.RED;
+	
+	private Color STROKECOLOR = Color.RED;//couleur de la roi
 
 	private Overlay overlay;
 
@@ -52,19 +53,22 @@ public abstract class ControleurScin implements ActionListener {
 	 * declarer le modele ainsi que la liste d'organes
 	 */
 	protected ControleurScin(Scintigraphy vue) {
-		this.scin = vue;
+		this.vue = vue;
 
 		if (vue.getImp().getOverlay() == null) {
 			vue.getImp().setOverlay(Scintigraphy.initOverlay(vue.getImp()));
 		}
-
 		this.overlay = Scintigraphy.duplicateOverlay(vue.getImp().getOverlay());
 
-		//SK BOOLEAN FALSE POUR MASKER A METTRE TRUE POUR DEVELOPPEMENT
+		//SK BOOLEAN FALSE POUR MASQUER, A METTRE TRUE POUR DEVELOPPEMENT
 		this.roiManager = new RoiManager(false);
 
-		this.addImpListener();
+		//this.addImageListener
+		this.ctrlImg = new ControleurImp(this);
+		ImagePlus.addImageListener(this.ctrlImg);
+		
 		this.indexRoi = 0;
+		
 		Roi.setColor(this.STROKECOLOR);
 	}
 
@@ -72,9 +76,8 @@ public abstract class ControleurScin implements ActionListener {
 	public void actionPerformed(ActionEvent arg0) {
 		// recuperation du bouton clique
 		Button b = (Button) arg0.getSource();
-		FenApplication fen = this.scin.getFenApplication();
+		FenApplication fen = this.vue.getFenApplication();
 
-	
 		// on execute des action selon quel bouton a ete clique
 		if (b == fen.getBtn_suivant()) {
 			this.clicSuivant();
@@ -117,7 +120,7 @@ public abstract class ControleurScin implements ActionListener {
 			IJ.run("Window Level Tool");
 		}
 
-		else if (b == this.scin.getFenApplication().getBtn_quitter()) {
+		else if (b == this.vue.getFenApplication().getBtn_quitter()) {
 			fen.close();
 			return;
 		}
@@ -152,66 +155,12 @@ public abstract class ControleurScin implements ActionListener {
 		int nOrgane = this.indexRoi % this.getOrganes().length;
 		Roi organRoi = this.getOrganRoi(lastRoi);
 		if (organRoi != null) {
-			this.scin.getImp().setRoi((Roi) organRoi.clone());
-			this.scin.getImp().getRoi().setStrokeColor(this.STROKECOLOR);
+			this.vue.getImp().setRoi((Roi) organRoi.clone());
+			this.vue.getImp().getRoi().setStrokeColor(this.STROKECOLOR);
 			this.setInstructionsAdjust(nOrgane);
 		} else {
 			// on affiche les prochaines instructions
 			this.setInstructionsDelimit(nOrgane);
-		}
-	}
-
-	/**
-	 * Affiche les instructions de delimitation d'un organe (" ...")
-	 * 
-	 * @param nOrgane
-	 *            : numero de l'organe a delimiter
-	 */
-	public void setInstructionsDelimit(int nOrgane) {
-		this.scin.getFenApplication().getTextfield_instructions().setText("Delimit the " + this.getNomOrgane(nOrgane));
-	}
-
-	/**
-	 * Affiche les instructions d'ajustement d'un organe ("Adjust the ...")
-	 * 
-	 * @param nOrgane
-	 *            : numero de l'organe a ajuster
-	 */
-	public void setInstructionsAdjust(int nOrgane) {
-		this.scin.getFenApplication().getTextfield_instructions().setText("Adjust the " + this.getNomOrgane(nOrgane));
-	}
-
-	/**
-	 * Affiche une slice et son Overlay, si la roi indexRoi se trouve sur cette
-	 * slice, elle n'est pas affichee dans l'overlay mais chargee dans l'imp
-	 * 
-	 * @param indexSlice
-	 *            : numero de la slice a afficher
-	 */
-	public void setSlice(int indexSlice) {
-		// ecrase l'overlay et tue la roi
-		ImagePlus imp = this.scin.getImp();
-
-		imp.getOverlay().clear();
-		imp.setOverlay(Scintigraphy.duplicateOverlay(overlay));
-		imp.killRoi();
-
-		// change la slice courante
-		this.scin.getImp().setSlice(indexSlice);
-
-		// ajout des roi dans l'overlay
-		for (int i = 0; i < this.roiManager.getCount(); i++) {
-			Roi roi = this.roiManager.getRoi(i);
-			// si la roi se trouve sur la slice courante ou sur toutes les slices
-			if (roi.getZPosition() == indexSlice || roi.getZPosition() == 0) {
-				// si c'est la roi courante on la set dans l'imp
-				if (i != this.indexRoi || this.isOver()) {
-					imp.getOverlay().add(roi);
-				} else {
-					imp.setRoi(roi);
-					imp.getRoi().setStrokeColor(this.STROKECOLOR);
-				}
-			}
 		}
 	}
 
@@ -227,7 +176,7 @@ public abstract class ControleurScin implements ActionListener {
 			this.indexRoi--;
 		} else {
 			// si c'est le dernier roi, on desactive le bouton
-			this.scin.getFenApplication().getBtn_precedent().setEnabled(false);
+			this.vue.getFenApplication().getBtn_precedent().setEnabled(false);
 		}
 
 		this.preparerRoi(this.indexRoi + 1);
@@ -243,11 +192,11 @@ public abstract class ControleurScin implements ActionListener {
 		// si la sauvegarde est reussie
 		if (saved) {
 			// on active le bouton precedent
-			this.scin.getFenApplication().getBtn_precedent().setEnabled(true);
+			this.vue.getFenApplication().getBtn_precedent().setEnabled(true);
 
 			// on active la fin si c'est necessaire
 			if (this.isOver()) {
-				this.setSlice(this.scin.getImp().getCurrentSlice());
+				this.setSlice(this.vue.getImp().getCurrentSlice());
 
 				// thread de capture, permet de laisser le temps de charger l'image plus dans le
 				// thread principal
@@ -271,60 +220,7 @@ public abstract class ControleurScin implements ActionListener {
 			}
 		}
 	}
-
-	/**
-	 * Renvoie le nombre de roi avec le meme nom ayant deja ete enregistrees
-	 * 
-	 * @param nomRoi
-	 *            : nom de la roi
-	 * 
-	 * @return nombre de roi avec le meme nom
-	 */
-	public String getSameNameRoiCount(String nomRoi) {
-		int count = 0;
-		for (int i = 0; i < this.nomRois.size(); i++) {
-			if (this.nomRois.get(i).contains(nomRoi)) {
-				count++;
-			}
-		}
-
-		return String.valueOf(count);
-	}
-
-	/**
-	 * permet de savoir si toutes les rois necessaires ont ete enregistrees
-	 * 
-	 * @return true si le bon nombre de roi est enregistre
-	 */
-	public abstract boolean isOver();
-
-	/**
-	 * est execute quand la prise est finie, doit ouvrir la fenetre de resultat <br>
-	 * See also {@link #isOver()}
-	 */
-	public abstract void fin();
-
-	/**
-	 * Renvoie le numero de slice ou doit se trouver la roi d'index roiIndex
-	 * 
-	 * @param roiIndex
-	 *            : Index de la roi dont il faut determiner le numero de slice
-	 * @return le numero de slice ou se trouve la roi
-	 */
-	public abstract int getSliceNumberByRoiIndex(int roiIndex);
-
-	/**
-	 * Renvoie la roi qui sera utilisée dans la methode preparerRoi, appellée lors
-	 * du clic sur les boutons <précédent et suivant <br>
-	 * See also {@link #preparerRoi()}
-	 * 
-	 * @param lastRoi
-	 * 
-	 * @return la roi utilisée dans la methode preparerRoi, null si il n'y en a pas
-	 * 
-	 */
-	public abstract Roi getOrganRoi(int lastRoi);
-
+	
 	/**
 	 * Sauvegarde la roi dans le roi manager et dans le modele
 	 * 
@@ -336,21 +232,21 @@ public abstract class ControleurScin implements ActionListener {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
  
 			// on change la couleur pour l'overlay
-			this.scin.getImp().getRoi().setStrokeColor(Color.YELLOW);
+			this.vue.getImp().getRoi().setStrokeColor(Color.YELLOW);
 
 			// on enregistre la ROI dans le modele
 			this.modele.enregistrerMesure(
 					this.addTag(nomRoi), 
-					this.scin.getImp());
+					this.vue.getImp());
 
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
 			if (this.roiManager.getRoi(indexRoi) == null) {
-				this.roiManager.addRoi(this.scin.getImp().getRoi());
+				this.roiManager.addRoi(this.vue.getImp().getRoi());
 			} else { // Si il existe on l'ecrase
-				this.roiManager.setRoi(this.scin.getImp().getRoi(), indexRoi);
+				this.roiManager.setRoi(this.vue.getImp().getRoi(), indexRoi);
 				// on supprime le roi nouvellement ajoute de la vue
-				this.scin.getFenApplication().getImagePlus().killRoi();
+				this.vue.getFenApplication().getImagePlus().killRoi();
 			}
 
 			// precise la postion en z
@@ -367,19 +263,12 @@ public abstract class ControleurScin implements ActionListener {
 		} else {
 			// restore la roi organe si c'est possible
 			System.err.println("Roi lost, restoring organ roi");
-			this.scin.getImp().setRoi(this.getOrganRoi(indexRoi));
+			this.vue.getImp().setRoi(this.getOrganRoi(indexRoi));
 		}
 
 		return false;
 
 	}
-
-	/**
-	 * Permet de determiner si la roi indexRoi est post ou ant
-	 * 
-	 * @return true si la roi d'index indexRoi est post, false si elle est ant
-	 */
-	public abstract boolean isPost();
 
 	/**
 	 * Rajoute au nom de l'organe son type de prise (A pour Ant / P pour Post) ainsi
@@ -409,60 +298,6 @@ public abstract class ControleurScin implements ActionListener {
 		return nom;
 	}
 
-	/**
-	 * Renvoie la roi de l'image plus
-	 * 
-	 * @return roi en cours d'édition de l'image
-	 */
-	public Roi getSelectedRoi() {
-		return this.scin.getFenApplication().getImagePlus().getRoi();
-	}
-
-
-	public void setScin(Scintigraphy scin) {
-		this.scin = scin;
-	}
-	
-	public Scintigraphy getScin() {
-		return this.scin;
-	}
-
-	public int getIndexRoi() {
-		return this.indexRoi;
-	}
-
-	public void setIndexRoi(int indexRoi) {
-		this.indexRoi = indexRoi;
-	}
-
-	public String[] getOrganes() {
-		return this.organes;
-	}
-
-	public void setOrganes(String[] organes) {
-		this.organes = organes;
-	}
-
-	public ModeleScin getModele() {
-		return this.modele;
-	}
-	
-	public void setModele(ModeleScin modele) {
-		this.modele = modele;
-	}
-
-	public String getNomOrgane(int index) {
-		return this.getOrganes()[index % this.getOrganes().length];
-	}
-
-	public RoiManager getRoiManager() {
-		return this.roiManager;
-	}
-
-	public void setRoiManager(RoiManager rm) {
-		this.roiManager = rm;
-	}
-
 	public void removeImpListener() {
 		ImagePlus.removeImageListener(this.ctrlImg);
 	}
@@ -471,8 +306,186 @@ public abstract class ControleurScin implements ActionListener {
 		this.ctrlImg = new ControleurImp(this);
 		ImagePlus.addImageListener(this.ctrlImg);
 	}
+	
+	/********Abstract*****/
+	
+	/**
+	 * permet de savoir si toutes les rois necessaires ont ete enregistrees
+	 * 
+	 * @return true si le bon nombre de roi est enregistre
+	 */
+	public abstract boolean isOver();
+
+	/**
+	 * est execute quand la prise est finie, doit ouvrir la fenetre de resultat <br>
+	 * See also {@link #isOver()}
+	 */
+	public abstract void fin();
+
+	/**
+	 * Permet de determiner si la roi indexRoi est post ou ant
+	 * 
+	 * @return true si la roi d'index indexRoi est post, false si elle est ant
+	 */
+	public abstract boolean isPost();
+
+	
+	/*********** Getter *******/
+	
+	/**
+	 * Renvoie la roi de l'image plus
+	 * 
+	 * @return roi en cours d'édition de l'image
+	 */
+	public Roi getSelectedRoi() {
+		return this.vue.getFenApplication().getImagePlus().getRoi();
+	}
+
+	public Scintigraphy getScin() {
+		return this.vue;
+	}
+
+	public int getIndexRoi() {
+		return this.indexRoi;
+	}
+
+	public String[] getOrganes() {
+		return this.organes;
+	}
+
+	public ModeleScin getModele() {
+		return this.modele;
+	}
+	
+	public String getNomOrgane(int index) {
+		return this.getOrganes()[index % this.getOrganes().length];
+	}
 
 	public List<String> getNomRois() {
 		return this.nomRois;
 	}
+
+	public RoiManager getRoiManager() {
+		return this.roiManager;
+	}
+
+	/**
+	 * Renvoie le numero de slice ou doit se trouver la roi d'index roiIndex
+	 * 
+	 * @param roiIndex
+	 *            : Index de la roi dont il faut determiner le numero de slice
+	 * @return le numero de slice ou se trouve la roi
+	 */
+	public abstract int getSliceNumberByRoiIndex(int roiIndex);
+
+	/**
+	 * Renvoie la roi qui sera utilisée dans la methode preparerRoi, appellée lors
+	 * du clic sur les boutons <précédent et suivant <br>
+	 * See also {@link #preparerRoi()}
+	 * 
+	 * @param lastRoi
+	 * 
+	 * @return la roi utilisée dans la methode preparerRoi, null si il n'y en a pas
+	 * 
+	 */
+	public abstract Roi getOrganRoi(int lastRoi);
+
+	/**
+	 * Renvoie le nombre de roi avec le meme nom ayant deja ete enregistrees
+	 * 
+	 * @param nomRoi
+	 *            : nom de la roi
+	 * 
+	 * @return nombre de roi avec le meme nom
+	 */
+	public String getSameNameRoiCount(String nomRoi) {
+		int count = 0;
+		for (int i = 0; i < this.nomRois.size(); i++) {
+			if (this.nomRois.get(i).contains(nomRoi)) {
+				count++;
+			}
+		}
+
+		return String.valueOf(count);
+	}
+
+	
+	/********** Setter **********/
+
+	public void setScin(Scintigraphy scin) {
+		this.vue = scin;
+	}
+	
+	
+	public void setIndexRoi(int indexRoi) {
+		this.indexRoi = indexRoi;
+	}
+
+	public void setOrganes(String[] organes) {
+		this.organes = organes;
+	}
+
+
+	public void setModele(ModeleScin modele) {
+		this.modele = modele;
+	}
+
+	public void setRoiManager(RoiManager rm) {
+		this.roiManager = rm;
+	}
+
+	/**
+	 * Affiche les instructions de delimitation d'un organe (" ...")
+	 * 
+	 * @param nOrgane
+	 *            : numero de l'organe a delimiter
+	 */
+	public void setInstructionsDelimit(int nOrgane) {
+		this.vue.getFenApplication().getTextfield_instructions().setText("Delimit the " + this.getNomOrgane(nOrgane));
+	}
+
+	/**
+	 * Affiche les instructions d'ajustement d'un organe ("Adjust the ...")
+	 * 
+	 * @param nOrgane
+	 *            : numero de l'organe a ajuster
+	 */
+	public void setInstructionsAdjust(int nOrgane) {
+		this.vue.getFenApplication().getTextfield_instructions().setText("Adjust the " + this.getNomOrgane(nOrgane));
+	}
+
+	/**
+	 * Affiche une slice et son Overlay, si la roi indexRoi se trouve sur cette
+	 * slice, elle n'est pas affichee dans l'overlay mais chargee dans l'imp
+	 * 
+	 * @param indexSlice
+	 *            : numero de la slice a afficher
+	 */
+	public void setSlice(int indexSlice) {
+		// ecrase l'overlay et tue la roi
+		ImagePlus imp = this.vue.getImp();
+
+		imp.getOverlay().clear();
+		imp.setOverlay(Scintigraphy.duplicateOverlay(overlay));
+		imp.killRoi();
+
+		// change la slice courante
+		this.vue.getImp().setSlice(indexSlice);
+
+		// ajout des roi dans l'overlay
+		for (int i = 0; i < this.roiManager.getCount(); i++) {
+			Roi roi = this.roiManager.getRoi(i);
+			// si la roi se trouve sur la slice courante ou sur toutes les slices
+			if (roi.getZPosition() == indexSlice || roi.getZPosition() == 0) {
+				// si c'est la roi courante on la set dans l'imp
+				if (i != this.indexRoi || this.isOver()) {
+					imp.getOverlay().add(roi);
+				} else {
+					imp.setRoi(roi);
+					imp.getRoi().setStrokeColor(this.STROKECOLOR);
+				}
+			}
+		}
+	}
+
 }

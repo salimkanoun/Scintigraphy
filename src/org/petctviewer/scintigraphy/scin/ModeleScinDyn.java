@@ -24,7 +24,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	private HashMap<String, List<Double>> data;
 	private int[] frameduration;
 	private boolean locked;
-
+	
 	/**
 	 * Enregistre et calcule les resultats d'une scintiigraphie dynamique
 	 * 
@@ -36,10 +36,8 @@ public abstract class ModeleScinDyn extends ModeleScin {
 		this.frameduration = frameDuration;
 	}
 
-	public int getNbRoi() {
-		return this.data.size();
-	}
-
+	
+	/**************** Public *******************/
 	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 		// si le modele n'est pas bloque
@@ -54,62 +52,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 			this.data.get(name).add(ModeleScin.getCounts(imp));
 		}
 	}
-
-	/**
-	 * renvoie une serie selon sa cle
-	 * 
-	 * @param key
-	 *            la cle
-	 * @return la serie
-	 */
-	public XYSeries getSerie(String key) {
-		List<Double> data = this.getData().get(key);
-		if (data == null) {
-			throw new IllegalArgumentException("No series with key " + key);
-		}
-		return this.createSerie(data, key);
-	}
-
-	/**
-	 * renvoie la liste des series
-	 * 
-	 * @return lliste des series
-	 */
-	public List<XYSeries> getSeries() {
-		List<XYSeries> listSeries = new ArrayList<>();
-
-		for (String k : this.data.keySet()) {
-			List<Double> data = this.data.get(k);
-			listSeries.add(createSerie(data, k));
-		}
-
-		return listSeries;
-	}
-
-	/**
-	 * Renvoie la valeur de T1/2 observee
-	 * 
-	 * @param series
-	 *            serie a traiter
-	 * @param startX
-	 *            depart en x
-	 * @return abscisse du point T1/2
-	 */
-	public static Double getTDemiObs(XYSeries series, Double startX) {
-
-		// ordonnee du point Tmax
-		int yDemi = (int) (getY(series, startX) / 2);
-
-		for (int i = 1; i < series.getItemCount(); i++) {
-			if (series.getY(i - 1).doubleValue() >= yDemi && series.getY(i).doubleValue() <= yDemi) {
-				Double x = (series.getX(i - 1).doubleValue() + series.getX(i).doubleValue()) / 2;
-				if (x >= startX)
-					return x;
-			}
-		}
-		return Double.NaN;
-	}
-
+	
 	/**
 	 * renvoie une serie avec les ordonnees en coups / sec
 	 * 
@@ -140,37 +83,90 @@ public abstract class ModeleScinDyn extends ModeleScin {
 		return points;
 	}
 	
-	public static ChartPanel associateSeries(String[] asso, List<XYSeries> series) {
-			XYSeriesCollection dataset = new XYSeriesCollection();
+	/**
+	 * renvoie la liste des ordonnees de la serie passee en parametre
+	 * 
+	 * @param la
+	 *            serie
+	 * @return liste des ordonnees
+	 */
+	public List<Double> seriesToList(XYSeries s) {
+		ArrayList<Double> l = new ArrayList<>();
+		for (int i = 0; i < s.getItemCount(); i++) {
+			l.add(s.getY(i).doubleValue());
+		}
+		return l;
+	}
 
-			for (String j : asso) { // pour chaque cle de l'association
-				for (int k = 0; k < series.size(); k++) { // pour chaque element de la serie
-					// si la cle correspond, on l'ajout au dataset
-					if (series.get(k).getKey().equals(j)) {
-						dataset.addSeries(series.get(k));
-					}
+	/**
+	 * ajuste les valeurs en coups/sec
+	 * 
+	 * @param values
+	 * @return
+	 */
+	public List<Double> adjustValues(List<Double> values) {
+		List<Double> valuesAdjusted = new ArrayList<>();
+
+		for (int i = 0; i < values.size(); i++) {
+			// calcul de la prise en secondes
+			Double dureePrise = frameduration[i] / 1000.0;
+			valuesAdjusted.add(values.get(i) / (dureePrise));
+		}
+
+		return valuesAdjusted;
+	}
+
+	public boolean isLocked() {
+		return locked;
+	}
+	
+	@Override
+	public String toString() {
+		String s = "\n";
+		
+		s += "time (s)";
+		Double sum = 0.0;
+		for(int i = 0; i < this.getFrameduration().length; i++) {
+			sum += this.getFrameduration()[i] / 1000;
+			s += "," + sum;
+		}
+		
+		return s;
+	}
+
+
+	/************* Public Static *********/
+	public static ChartPanel associateSeries(String[] asso, List<XYSeries> series) {
+		XYSeriesCollection dataset = new XYSeriesCollection();
+
+		for (String j : asso) { // pour chaque cle de l'association
+			for (int k = 0; k < series.size(); k++) { // pour chaque element de la serie
+				// si la cle correspond, on l'ajout au dataset
+				if (series.get(k).getKey().equals(j)) {
+					dataset.addSeries(series.get(k));
 				}
 			}
+		}
 
-			// on cree un jfreehart avec lle datasert precedemment construit
-			JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "counts/sec", dataset,
-					PlotOrientation.VERTICAL, true, true, true);
+		// on cree un jfreehart avec lle datasert precedemment construit
+		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "counts/sec", dataset,
+				PlotOrientation.VERTICAL, true, true, true);
 
-			final XYPlot plot = xylineChart.getXYPlot();
+		final XYPlot plot = xylineChart.getXYPlot();
 
-			// on masque les marqueurs des points
-			XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-			for (int c = 0; c < dataset.getSeriesCount(); c++) {
-				renderer.setSeriesShapesVisible(c, false);
-			}
-			plot.setRenderer(renderer);
+		// on masque les marqueurs des points
+		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+		for (int c = 0; c < dataset.getSeriesCount(); c++) {
+			renderer.setSeriesShapesVisible(c, false);
+		}
+		plot.setRenderer(renderer);
 
-			ChartPanel c = new ChartPanel(xylineChart);
+		ChartPanel c = new ChartPanel(xylineChart);
 
-			// on desactive le fond
-			c.getChart().getPlot().setBackgroundPaint(null);
-			return c;
-	}
+		// on desactive le fond
+		c.getChart().getPlot().setBackgroundPaint(null);
+		return c;
+}
 
 	//TODO renvoyer un seul chartpanel, passer un tableau de string a une dimension
 	/**
@@ -185,15 +181,67 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	 */
 	public static ChartPanel[] associateSeries(String[][] asso, List<XYSeries> series) {
 		ArrayList<ChartPanel> cPanels = new ArrayList<>();
-
+	
 		// pour chaque association
 		for (String[] i : asso) {
 			if (i.length > 0) {
 				cPanels.add(ModeleScinDyn.associateSeries(i, series));
 			}
 		}
-
+	
 		return cPanels.toArray(new ChartPanel[0]);
+	}
+
+	// recupere les valeurs situees entre startX et endX
+	public static XYSeries cropSeries(XYSeries series, Double startX, Double endX) {
+		XYSeries cropped = new XYSeries(series.getKey() + " cropped");
+		for (int i = 0; i < series.getItemCount(); i++) {
+			if (series.getX(i).doubleValue() >= startX && series.getX(i).doubleValue() <= endX) {
+				cropped.add(series.getX(i), series.getY(i));
+			}
+		}
+		return cropped;
+	}
+
+	// recupere les valeurs situees entre startX et endX
+	public static XYDataset cropDataset(XYDataset data, Double startX, Double endX) {
+		XYSeriesCollection dataset = new XYSeriesCollection();
+
+		for (int i = 0; i < data.getSeriesCount(); i++) {
+			XYSeries series = new XYSeries("" + i);
+			for (int j = 0; j < data.getItemCount(0); j++) {
+				series.add(data.getX(i, j), data.getY(i, j));
+			}
+			dataset.addSeries(cropSeries(series, startX, endX));
+		}
+
+		return dataset;
+	}
+
+	
+	/************* Public Static Getter ********/
+	/**
+	 * Renvoie la valeur de T1/2 observee
+	 * 
+	 * @param series
+	 *            serie a traiter
+	 * @param startX
+	 *            depart en x
+	 * @return abscisse du point T1/2
+	 */
+	public static Double getTDemiObs(XYSeries series, Double startX) {
+
+		// ordonnee du point Tmax
+		int yDemi = (int) (getY(series, startX) / 2);
+
+		for (int i = 1; i < series.getItemCount(); i++) {
+			if (series.getY(i - 1).doubleValue() >= yDemi && series.getY(i).doubleValue() <= yDemi) {
+				Double x = (series.getX(i - 1).doubleValue() + series.getX(i).doubleValue()) / 2;
+				if (x >= startX)
+					return x;
+			}
+		}
+		return Double.NaN;
 	}
 
 	/**
@@ -233,21 +281,6 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	}
 
 	/**
-	 * renvoie l'image de la serie en x
-	 * 
-	 * @param abscisses
-	 *            de la serie
-	 * @param x
-	 *            abscisse
-	 * @return ordonnee
-	 */
-	public Double getY(List<Double> points, Double x) {
-		XYSeries s = this.createSerie(points, "");
-		XYSeriesCollection data = new XYSeriesCollection(s);
-		return DatasetUtils.findYValue(data, 0, x);
-	}
-
-	/**
 	 * renvoie la valeur de 'abscisse correspondant a l'ordonnee maximale de la
 	 * serie
 	 * 
@@ -275,39 +308,6 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	}
 
 	/**
-	 * renvoie la liste des ordonnees de la serie passee en parametre
-	 * 
-	 * @param la
-	 *            serie
-	 * @return liste des ordonnees
-	 */
-	public List<Double> seriesToList(XYSeries s) {
-		ArrayList<Double> l = new ArrayList<>();
-		for (int i = 0; i < s.getItemCount(); i++) {
-			l.add(s.getY(i).doubleValue());
-		}
-		return l;
-	}
-
-	/**
-	 * ajuste les valeurs en coups/sec
-	 * 
-	 * @param values
-	 * @return
-	 */
-	public List<Double> adjustValues(List<Double> values) {
-		List<Double> valuesAdjusted = new ArrayList<>();
-
-		for (int i = 0; i < values.size(); i++) {
-			// calcul de la prise en secondes
-			Double dureePrise = frameduration[i] / 1000.0;
-			valuesAdjusted.add(values.get(i) / (dureePrise));
-		}
-
-		return valuesAdjusted;
-	}
-
-	/**
 	 * Renvoie le numero de la slice correspondant au temps passe en parametre (en
 	 * ms)
 	 * 
@@ -325,32 +325,6 @@ public abstract class ModeleScinDyn extends ModeleScin {
 		}
 
 		return 0;
-	}
-
-	// recupere les valeurs situees entre startX et endX
-	public static XYSeries cropSeries(XYSeries series, Double startX, Double endX) {
-		XYSeries cropped = new XYSeries(series.getKey() + " cropped");
-		for (int i = 0; i < series.getItemCount(); i++) {
-			if (series.getX(i).doubleValue() >= startX && series.getX(i).doubleValue() <= endX) {
-				cropped.add(series.getX(i), series.getY(i));
-			}
-		}
-		return cropped;
-	}
-
-	// recupere les valeurs situees entre startX et endX
-	public static XYDataset cropDataset(XYDataset data, Double startX, Double endX) {
-		XYSeriesCollection dataset = new XYSeriesCollection();
-
-		for (int i = 0; i < data.getSeriesCount(); i++) {
-			XYSeries series = new XYSeries("" + i);
-			for (int j = 0; j < data.getItemCount(0); j++) {
-				series.add(data.getX(i, j), data.getY(i, j));
-			}
-			dataset.addSeries(cropSeries(series, startX, endX));
-		}
-
-		return dataset;
 	}
 
 	// renvoie l'aire sous la courbe entre les points startX et endX
@@ -379,19 +353,57 @@ public abstract class ModeleScinDyn extends ModeleScin {
 
 		return integraleSum;
 	}
+	
+	
+	/************* Getter *************/
+	public int getNbRoi() {
+		return this.data.size();
+	}
 
-	@Override
-	public String toString() {
-		String s = "\n";
-		
-		s += "time (s)";
-		Double sum = 0.0;
-		for(int i = 0; i < this.getFrameduration().length; i++) {
-			sum += this.getFrameduration()[i] / 1000;
-			s += "," + sum;
+	/**
+	 * renvoie une serie selon sa cle
+	 * 
+	 * @param key
+	 *            la cle
+	 * @return la serie
+	 */
+	public XYSeries getSerie(String key) {
+		List<Double> data = this.getData().get(key);
+		if (data == null) {
+			throw new IllegalArgumentException("No series with key " + key);
 		}
-		
-		return s;
+		return this.createSerie(data, key);
+	}
+
+	/**
+	 * renvoie la liste des series
+	 * 
+	 * @return lliste des series
+	 */
+	public List<XYSeries> getSeries() {
+		List<XYSeries> listSeries = new ArrayList<>();
+
+		for (String k : this.data.keySet()) {
+			List<Double> data = this.data.get(k);
+			listSeries.add(createSerie(data, k));
+		}
+
+		return listSeries;
+	}
+
+	/**
+	 * renvoie l'image de la serie en x
+	 * 
+	 * @param abscisses
+	 *            de la serie
+	 * @param x
+	 *            abscisse
+	 * @return ordonnee
+	 */
+	public Double getY(List<Double> points, Double x) {
+		XYSeries s = this.createSerie(points, "");
+		XYSeriesCollection data = new XYSeriesCollection(s);
+		return DatasetUtils.findYValue(data, 0, x);
 	}
 
 	public HashMap<String, List<Double>> getData() {
@@ -405,13 +417,12 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	public int[] getFrameduration() {
 		return frameduration;
 	}
-
-	public boolean isLocked() {
-		return locked;
-	}
-
+	
+	
+	/************** Setter *************/	
 	public void setLocked(boolean locked) {
 		this.locked = locked;
 	}
+
 
 }

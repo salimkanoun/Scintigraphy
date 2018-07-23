@@ -40,50 +40,35 @@ public abstract class ModeleScin {
 	private  ImagePlus imp;
 	private Integer uid;
 
-	public ImagePlus getImp() {
-		return imp;
+	/********** Public Static Getter ********/
+	/**
+	 * Renvoie le nombre de coups sur la roi presente dans l'image plus
+	 * 
+	 * @param imp
+	 *            l'imp
+	 * @return nombre de coups
+	 */
+	public static Double getCounts(ImagePlus imp) {
+		Analyzer.setMeasurement(Measurements.INTEGRATED_DENSITY, true);
+		Analyzer.setMeasurement(Measurements.MEAN, true);
+		Analyzer analyser = new Analyzer(imp);
+		analyser.measure();
+		ResultsTable density = Analyzer.getResultsTable();
+		return density.getValueAsDouble(ResultsTable.RAW_INTEGRATED_DENSITY, 0);
 	}
 
-	public void setImp(ImagePlus imp) {
-		this.imp = imp;
+	/**
+	 * renvoie le nombre de coups moyens de la roi presente sur l'imp
+	 * 
+	 * @param imp
+	 *            l'imp
+	 * @return nombre moyen de coups
+	 */
+	public static Double getAvgCounts(ImagePlus imp) {
+		int area = imp.getStatistics().pixelCount;
+		return getCounts(imp) / area;
 	}
 	
-	/**
-	 * renvoie la moyenne geometrique
-	 * 
-	 * @param a
-	 *            chiffre a
-	 * @param b
-	 *            chiffre b
-	 * @return moyenne geometrique
-	 */
-	public static double moyGeom(Double a, Double b) {
-		return Math.sqrt(a * b);
-	}
-
-	/**
-	 * arrondi la valeur
-	 * 
-	 * @param value
-	 *            valeur a arrondir
-	 * @param places
-	 *            nb de chiffre apres la virgule
-	 * @return valeur arrondie
-	 */
-	public static double round(Double value, int places) {
-		if (places < 0) {
-			throw new IllegalArgumentException("place doit etre superieur ou egal a zero");
-		}
-		
-		if(value.equals(Double.NaN) || value .equals(Double.NEGATIVE_INFINITY) || value.equals(Double.POSITIVE_INFINITY)) {
-			return value;
-		}
-
-		BigDecimal bd = new BigDecimal(value);
-		bd = bd.setScale(places, RoundingMode.HALF_UP);
-		return bd.doubleValue();
-	}
-
 	/**
 	 * renvoie une hasmap contenant les informations du patient selon le tag info de
 	 * l'imp keys : id name date
@@ -127,45 +112,120 @@ public abstract class ModeleScin {
 		return hm;
 	}
 
-	/**
-	 * Renvoie le nombre de coups sur la roi presente dans l'image plus
-	 * 
+	// Parse de la date et heure d'acquisition
+	public static Date getDateAcquisition(ImagePlus imp) {
+		String aquisitionDate = DicomTools.getTag(imp, "0008,0022");
+		String aquisitionTime = DicomTools.getTag(imp, "0008,0032");
+		String dateInput = aquisitionDate.trim() + aquisitionTime.trim();
+		// On enleve les milisec qui sont inconstantes
+		int separateurPoint = dateInput.indexOf(".");
+		if (separateurPoint != -1)
+			dateInput = dateInput.substring(0, separateurPoint);
+
+		SimpleDateFormat parser = new SimpleDateFormat("yyyyMMddHHmmss");
+		Date dateAcquisition = null;
+		try {
+			dateAcquisition = parser.parse(dateInput);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return dateAcquisition;
+	}
+
+	/**prepare la premiere partie des tags du header du dicom avec l'iud passe en parametre <br>
+	 * <br>
+	 * See also :
+	 * <br>{@link ModeleScin#genererDicomTagsPartie1(ImagePlus, String)} <br> {@link ModeleScin#genererDicomTagsPartie1SameUID(ImagePlus, String)}
 	 * @param imp
-	 *            l'imp
-	 * @return nombre de coups
+	 * @param nomProgramme
+	 * @param uid
+	 * @return
 	 */
-	public static Double getCounts(ImagePlus imp) {
-		Analyzer.setMeasurement(Measurements.INTEGRATED_DENSITY, true);
-		Analyzer.setMeasurement(Measurements.MEAN, true);
-		Analyzer analyser = new Analyzer(imp);
-		analyser.measure();
-		ResultsTable density = Analyzer.getResultsTable();
-		return density.getValueAsDouble(ResultsTable.RAW_INTEGRATED_DENSITY, 0);
+	public static String getTagPartie1(HashMap tags, String nomProgramme, String uid) {
+		String sopID = generateSOPInstanceUID(new Date());
+		String tag = "0002,0002 Media Storage SOP Class UID: " + "1.2.840.10008.5.1.4.1.1.7" + "\n"
+				+ "0002,0003 Media Storage SOP Inst UID: " + sopID + "\n" 
+				+ "0002,0010 Transfer Syntax UID: "
+				+ "1.2.840.10008.1.2.1" + "\n" + "0002,0013 Implementation Version Name: jpeg" + "\n"
+				+ "0002,0016 Source Application Entity Title: " + "\n" 
+				+ "0008,0008 Image Type: DERIVED\\SECONDARY "
+				+ "\n" + "0008,0016 SOP Class UID: " + "1.2.840.10008.5.1.4.1.1.7" + "\n"
+				+ "0008,0018 SOP Instance UID: " + sopID + "\n" + "0008,0020 Study Date:"
+				+ tags.get("0008,0020") + "\n" + "0008,0021 Series Date:"
+				+ tags.get("0008,0021") + "\n" + "0008,0030 Study Time:"
+				+ tags.get("0008,0030") + "\n" + "0008,0031 Series Time:"
+				+ tags.get("0008,0031") + "\n";
+		if (tags.get("0008,0050") != null)
+			tag += "0008,0050 Accession Number:" + tags.get("0008,0050") + "\n";
+		if (tags.get("0008,0060") != null)
+			tag += "0008,0060 Modality:" + tags.get("0008,0060") + "\n";
+		tag += "0008,0064 Conversion Type: WSD" + "\n" + "0008,0070 Manufacturer:" + tags.get("0008,0070")
+				+ "\n";
+		if (tags.get("0008,0080") != null)
+			tag += "0008,0080 Institution Name:" + tags.get("0008,0080") + "\n";
+		if (tags.get("0008,0090") != null)
+			tag += "0008,0090 Referring Physician's Name:" + tags.get("0008,0090") + "\n";
+		if (tags.get("0008,1030") != null)
+			tag += "0008,1030 Study Description:" + tags.get("0008,1030") + "\n";
+		tag += "0008,103E Series Description: Capture " + nomProgramme + "\n" + "0010,0010 Patient's Name:"
+				+ tags.get("0010,0010") + "\n" + "0010,0020 Patient ID:"
+				+ tags.get("0010,0020") + "\n";
+		if (tags.get("0010,0030") != null)
+			tag += "0010,0030 Patient's Birth Date:" + tags.get("0010,0030") + "\n";
+		if (tags.get("0010,0040") != null)
+			tag += "0010,0040 Patient's Sex:" + tags.get("0010,0040") + "\n";
+		tag += "0020,000D Study Instance UID:" + tags.get("0020,000D") + "\n"
+				+ "0020,000E Series Instance UID:"
+				+ ((String) tags.get("0020,000E")).substring(0, ((String) tags.get("0020,000E")).length() - 6)
+				+ uid + "\n";
+		if (tags.get("0020,0010") != null)
+			tag += "0020,0010 Study ID :" + tags.get("0020,0010") + "\n";
+		tag += "0020,0011 Series Number: 1337" + "\n" + "0020,0013 Instance Number: 1" + "\n"
+				+ "0020,0032 Image Position (Patient):" + tags.get("0020,0032") + "\n"
+				+ "0020,0037 Image Orientation (Patient):" + tags.get("0020,0037") + "\n"
+				+ "0028,0002 Samples per Pixel: 3" + "\n" + "0028,0004 Photometric Interpretation: RGB" + "\n"
+				+ "0028,0006 Planar Configuration: 0" + "\n" + "0028,0008 Number of Frames: 1 \n";
+		return tag;
+	}
+
+	
+	/********** Public Static  ********/
+	/**
+	 * renvoie la moyenne geometrique
+	 * 
+	 * @param a
+	 *            chiffre a
+	 * @param b
+	 *            chiffre b
+	 * @return moyenne geometrique
+	 */
+	public static double moyGeom(Double a, Double b) {
+		return Math.sqrt(a * b);
 	}
 
 	/**
-	 * renvoie le nombre de coups moyens de la roi presente sur l'imp
+	 * arrondi la valeur
 	 * 
-	 * @param imp
-	 *            l'imp
-	 * @return nombre moyen de coups
+	 * @param value
+	 *            valeur a arrondir
+	 * @param places
+	 *            nb de chiffre apres la virgule
+	 * @return valeur arrondie
 	 */
-	public static Double getAvgCounts(ImagePlus imp) {
-		int area = imp.getStatistics().pixelCount;
-		return getCounts(imp) / area;
+	public static double round(Double value, int places) {
+		if (places < 0) {
+			throw new IllegalArgumentException("place doit etre superieur ou egal a zero");
+		}
+		
+		if(value.equals(Double.NaN) || value .equals(Double.NEGATIVE_INFINITY) || value.equals(Double.POSITIVE_INFINITY)) {
+			return value;
+		}
+
+		BigDecimal bd = new BigDecimal(value);
+		bd = bd.setScale(places, RoundingMode.HALF_UP);
+		return bd.doubleValue();
 	}
-
-	/**
-	 * Enregistrer la mesure de la roi courante de l'image plus dans le format
-	 * souhait�
-	 * 
-	 * @param nomRoi
-	 *            nom de la roi presente sur l'image plus
-	 * @param imp
-	 *            ImagePlus a traiter
-	 */
-	public abstract void enregistrerMesure(String nomRoi, ImagePlus imp);
-
+	
 	/**
 	 * Permet de creer un stack a partir d'un tableau d'ImagePlus *
 	 * 
@@ -305,40 +365,6 @@ public abstract class ModeleScin {
 		return imp2;
 	}
 
-	private static String generateSOPInstanceUID(Date dt0) {
-		Date dt1 = dt0;
-		if (dt1 == null)
-			dt1 = new Date();
-		SimpleDateFormat df1 = new SimpleDateFormat("2.16.840.1.113664.3.yyyyMMdd.HHmmss", Locale.US);
-		return df1.format(dt1);
-	}
-
-	public  String generateUID6digits() {
-		if (this.uid == null) {
-			this.uid = (int) (Math.random() * 1000000.);
-		}
-		return this.uid.toString();
-	}
-
-	public static Date getDateAcquisition(ImagePlus imp) {// Parse de la date et heure d'acquisition
-		String aquisitionDate = DicomTools.getTag(imp, "0008,0022");
-		String aquisitionTime = DicomTools.getTag(imp, "0008,0032");
-		String dateInput = aquisitionDate.trim() + aquisitionTime.trim();
-		// On enleve les milisec qui sont inconstantes
-		int separateurPoint = dateInput.indexOf(".");
-		if (separateurPoint != -1)
-			dateInput = dateInput.substring(0, separateurPoint);
-
-		SimpleDateFormat parser = new SimpleDateFormat("yyyyMMddHHmmss");
-		Date dateAcquisition = null;
-		try {
-			dateAcquisition = parser.parse(dateInput);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		return dateAcquisition;
-	}
-
 	/**
 	 * Permet de generer la 1ere partie du Header qui servira a la capture finale,
 	 * l'iud est genere aleatoirement a chauqe appel de la fonction
@@ -359,25 +385,6 @@ public abstract class ModeleScin {
 		return genererDicomTagsPartie1(imp, nomProgramme, uid);
 	}
 
-	/**
-	 * Permet de generer la 1ere partie du Header qui servira a la capture finale,
-	 * l'iud est genere aleatoirement au premier appel de la fonction et reste le meme
-	 * pour tout le modele
-	 * 
-	 * @param imp
-	 *            : imageplus originale (pour recuperer des elements du Header tels
-	 *            que le nom du patient...)
-	 * @param nomProgramme
-	 *            : nom du programme qui l'utilise si par exemple "pulmonary shunt"
-	 *            la capture sera appelee "Capture Pulmonary Shunt"
-	 * @return retourne la premi�re partie du header en string auquelle on
-	 *         ajoutera la 2eme partie via la deuxieme methode
-	 */
-	public String genererDicomTagsPartie1SameUID(ImagePlus imp, String nomProgramme) {
-		String uid = generateUID6digits();
-		return genererDicomTagsPartie1(imp, nomProgramme, uid);
-	}
-	
 	public static String genererDicomTagsPartie1(ImagePlus imp, String nomProgramme, String uid) {
 		HashMap tags=new HashMap();
 		tags.put("0008,0020", DicomTools.getTag(imp, "0008,0020") );
@@ -403,62 +410,6 @@ public abstract class ModeleScin {
 		return partie1;
 	}
 
-	/**prepare la premiere partie des tags du header du dicom avec l'iud passe en parametre <br>
-	 * <br>
-	 * See also :
-	 * <br>{@link ModeleScin#genererDicomTagsPartie1(ImagePlus, String)} <br> {@link ModeleScin#genererDicomTagsPartie1SameUID(ImagePlus, String)}
-	 * @param imp
-	 * @param nomProgramme
-	 * @param uid
-	 * @return
-	 */
-	public static String getTagPartie1(HashMap tags, String nomProgramme, String uid) {
-		String sopID = generateSOPInstanceUID(new Date());
-		String tag = "0002,0002 Media Storage SOP Class UID: " + "1.2.840.10008.5.1.4.1.1.7" + "\n"
-				+ "0002,0003 Media Storage SOP Inst UID: " + sopID + "\n" 
-				+ "0002,0010 Transfer Syntax UID: "
-				+ "1.2.840.10008.1.2.1" + "\n" + "0002,0013 Implementation Version Name: jpeg" + "\n"
-				+ "0002,0016 Source Application Entity Title: " + "\n" 
-				+ "0008,0008 Image Type: DERIVED\\SECONDARY "
-				+ "\n" + "0008,0016 SOP Class UID: " + "1.2.840.10008.5.1.4.1.1.7" + "\n"
-				+ "0008,0018 SOP Instance UID: " + sopID + "\n" + "0008,0020 Study Date:"
-				+ tags.get("0008,0020") + "\n" + "0008,0021 Series Date:"
-				+ tags.get("0008,0021") + "\n" + "0008,0030 Study Time:"
-				+ tags.get("0008,0030") + "\n" + "0008,0031 Series Time:"
-				+ tags.get("0008,0031") + "\n";
-		if (tags.get("0008,0050") != null)
-			tag += "0008,0050 Accession Number:" + tags.get("0008,0050") + "\n";
-		if (tags.get("0008,0060") != null)
-			tag += "0008,0060 Modality:" + tags.get("0008,0060") + "\n";
-		tag += "0008,0064 Conversion Type: WSD" + "\n" + "0008,0070 Manufacturer:" + tags.get("0008,0070")
-				+ "\n";
-		if (tags.get("0008,0080") != null)
-			tag += "0008,0080 Institution Name:" + tags.get("0008,0080") + "\n";
-		if (tags.get("0008,0090") != null)
-			tag += "0008,0090 Referring Physician's Name:" + tags.get("0008,0090") + "\n";
-		if (tags.get("0008,1030") != null)
-			tag += "0008,1030 Study Description:" + tags.get("0008,1030") + "\n";
-		tag += "0008,103E Series Description: Capture " + nomProgramme + "\n" + "0010,0010 Patient's Name:"
-				+ tags.get("0010,0010") + "\n" + "0010,0020 Patient ID:"
-				+ tags.get("0010,0020") + "\n";
-		if (tags.get("0010,0030") != null)
-			tag += "0010,0030 Patient's Birth Date:" + tags.get("0010,0030") + "\n";
-		if (tags.get("0010,0040") != null)
-			tag += "0010,0040 Patient's Sex:" + tags.get("0010,0040") + "\n";
-		tag += "0020,000D Study Instance UID:" + tags.get("0020,000D") + "\n"
-				+ "0020,000E Series Instance UID:"
-				+ ((String) tags.get("0020,000E")).substring(0, ((String) tags.get("0020,000E")).length() - 6)
-				+ uid + "\n";
-		if (tags.get("0020,0010") != null)
-			tag += "0020,0010 Study ID :" + tags.get("0020,0010") + "\n";
-		tag += "0020,0011 Series Number: 1337" + "\n" + "0020,0013 Instance Number: 1" + "\n"
-				+ "0020,0032 Image Position (Patient):" + tags.get("0020,0032") + "\n"
-				+ "0020,0037 Image Orientation (Patient):" + tags.get("0020,0037") + "\n"
-				+ "0028,0002 Samples per Pixel: 3" + "\n" + "0028,0004 Photometric Interpretation: RGB" + "\n"
-				+ "0028,0006 Planar Configuration: 0" + "\n" + "0028,0008 Number of Frames: 1 \n";
-		return tag;
-	}
-
 	/**
 	 * Permet d'obtenir la 2�me partie du header qu'il faudra ajouter � la 1ere
 	 * partie
@@ -475,132 +426,6 @@ public abstract class ModeleScin {
 				+ CaptureFinale.getWidth() + "\n" + "0028,0100 Bits Allocated: 8" + "\n" + "0028,0101 Bits Stored: 8"
 				+ "\n" + "0028,0102 High Bit: 7" + "\n" + "0028,0103 Pixel Representation: 0 \n";
 		return tag;
-	}
-
-	// [0] : nom, [1] : id, [2] : date
-	private static String[] getInfoPatient(ImagePlus imp) {
-		String[] infoPatient = new String[3];
-
-		// On recupere le Patient Name de l'ImagePlus
-		String patientName = new String();
-		patientName = DicomTools.getTag(imp, "0010,0010");
-		if (patientName != null && !patientName.isEmpty())
-			patientName = patientName.trim();
-
-		// On recupere le Patient ID de l'ImagePlus
-		String patientID = new String();
-		patientID = DicomTools.getTag(imp, "0010,0020");
-		if (patientID != null && !patientID.isEmpty())
-			patientID = patientID.trim();
-
-		// On recupere la date d'examen
-		String date = new String();
-		date = DicomTools.getTag(imp, "0008,0020");
-		if (date != null && !date.isEmpty())
-			date = date.trim();
-
-		infoPatient[0] = patientName;
-		infoPatient[1] = patientID;
-		infoPatient[2] = date;
-
-		return infoPatient;
-	}
-
-	private static StringBuilder initCSVHorizontal(String[] infoPatient) {
-		// Realisation du string builder qui sera ecrit en CSV
-		StringBuilder content = new StringBuilder();
-		// Ajout titre colonne
-		content.append("Patient's Name");
-		content.append(',');
-		content.append("Patient's ID");
-		content.append(',');
-		content.append("Study Date");
-		content.append('\n');
-		// Ajouts des valeurs
-		content.append(infoPatient[0]);
-		content.append(',');
-		content.append(infoPatient[1]);
-		content.append(',');
-		content.append(infoPatient[2]);
-
-		return content;
-	}
-
-	private static StringBuilder initCSVVertical(String[] infoPatient) {
-		// Realisation du string builder qui sera ecrit en CSV
-		StringBuilder content = new StringBuilder();
-		// Ajout titre colonne
-		content.append("Patient's Name");
-		content.append(',');
-		content.append(infoPatient[0]);
-		content.append('\n');
-
-		content.append("Patient's ID");
-		content.append(',');
-		content.append(infoPatient[1]);
-		content.append('\n');
-
-		content.append("Study Date");
-		content.append(',');
-		content.append(infoPatient[2]);
-		content.append('\n');
-
-		return content;
-	}
-
-	@SuppressWarnings("null")
-	private static void saveFiles(ImagePlus imp, RoiManager roiManager, StringBuilder csv, String nomProgramme,
-			String[] infoPatient, String additionalInfo) {
-
-		StringBuilder content = csv;
-
-		// On recupere le path de sauvegarde
-		String path = Prefs.get("dir.preferred", null);
-		Boolean testEcriture = false;
-
-		// On verifie que le path est writable si il existe
-		if (path != null) {
-			File testPath = new File(path);
-			testEcriture = testPath.canWrite();
-		}
-
-		if (path != null && testEcriture == false) {
-			// Si pas de repertoire defini on notifie l'utilisateur
-			IJ.showMessage("CSV Path not writable, CSV/ZIP export has failed");
-		}
-		if (path != null && testEcriture == true) {
-			// On construit le sous repertoire avecle nom du programme et l'ID du
-			// Patient
-			String pathFinal = path + File.separator + nomProgramme + File.separator + infoPatient[1];
-			File subDirectory = new File(pathFinal);
-			subDirectory.mkdirs();
-
-			String nomFichier = infoPatient[1] + "_" + infoPatient[2] + additionalInfo;
-
-			File f = new File(subDirectory + File.separator + nomFichier + ".csv");
-
-			// On ecrit les CSV
-			PrintWriter pw = null;
-			try {
-				pw = new PrintWriter(f);
-				pw.write(content.toString());
-				pw.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			// On ecrit le ZIP contenant la sauvegarde des ROIs
-			Roi[] rois2 = roiManager.getRoisAsArray();
-			int[] tab = new int[rois2.length];
-			for (int i = 0; i < rois2.length; i++)
-				tab[i] = i;
-			roiManager.setSelectedIndexes(tab);
-			roiManager.runCommand("Save", pathFinal.toString() + File.separator + nomFichier + ".zip");
-
-			// On sauve l'image en jpeg
-			IJ.saveAs(imp, "Jpeg", pathFinal.toString() + File.separator + nomFichier + ".jpg");
-
-		}
 	}
 
 	// Permet la sauvegarde finale a partir du string builder contenant le
@@ -767,6 +592,165 @@ public abstract class ModeleScin {
 		}
 	}
 
+	
+	/********** Private static *********/
+	private static String generateSOPInstanceUID(Date dt0) {
+		Date dt1 = dt0;
+		if (dt1 == null)
+			dt1 = new Date();
+		SimpleDateFormat df1 = new SimpleDateFormat("2.16.840.1.113664.3.yyyyMMdd.HHmmss", Locale.US);
+		return df1.format(dt1);
+	}
+
+	private static StringBuilder initCSVHorizontal(String[] infoPatient) {
+		// Realisation du string builder qui sera ecrit en CSV
+		StringBuilder content = new StringBuilder();
+		// Ajout titre colonne
+		content.append("Patient's Name");
+		content.append(',');
+		content.append("Patient's ID");
+		content.append(',');
+		content.append("Study Date");
+		content.append('\n');
+		// Ajouts des valeurs
+		content.append(infoPatient[0]);
+		content.append(',');
+		content.append(infoPatient[1]);
+		content.append(',');
+		content.append(infoPatient[2]);
+
+		return content;
+	}
+
+	private static StringBuilder initCSVVertical(String[] infoPatient) {
+		// Realisation du string builder qui sera ecrit en CSV
+		StringBuilder content = new StringBuilder();
+		// Ajout titre colonne
+		content.append("Patient's Name");
+		content.append(',');
+		content.append(infoPatient[0]);
+		content.append('\n');
+
+		content.append("Patient's ID");
+		content.append(',');
+		content.append(infoPatient[1]);
+		content.append('\n');
+
+		content.append("Study Date");
+		content.append(',');
+		content.append(infoPatient[2]);
+		content.append('\n');
+
+		return content;
+	}
+
+	@SuppressWarnings("null")
+	private static void saveFiles(ImagePlus imp, RoiManager roiManager, StringBuilder csv, String nomProgramme,
+			String[] infoPatient, String additionalInfo) {
+
+		StringBuilder content = csv;
+
+		// On recupere le path de sauvegarde
+		String path = Prefs.get("dir.preferred", null);
+		Boolean testEcriture = false;
+
+		// On verifie que le path est writable si il existe
+		if (path != null) {
+			File testPath = new File(path);
+			testEcriture = testPath.canWrite();
+		}
+
+		if (path != null && testEcriture == false) {
+			// Si pas de repertoire defini on notifie l'utilisateur
+			IJ.showMessage("CSV Path not writable, CSV/ZIP export has failed");
+		}
+		if (path != null && testEcriture == true) {
+			// On construit le sous repertoire avecle nom du programme et l'ID du
+			// Patient
+			String pathFinal = path + File.separator + nomProgramme + File.separator + infoPatient[1];
+			File subDirectory = new File(pathFinal);
+			subDirectory.mkdirs();
+
+			String nomFichier = infoPatient[1] + "_" + infoPatient[2] + additionalInfo;
+
+			File f = new File(subDirectory + File.separator + nomFichier + ".csv");
+
+			// On ecrit les CSV
+			PrintWriter pw = null;
+			try {
+				pw = new PrintWriter(f);
+				pw.write(content.toString());
+				pw.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			// On ecrit le ZIP contenant la sauvegarde des ROIs
+			Roi[] rois2 = roiManager.getRoisAsArray();
+			int[] tab = new int[rois2.length];
+			for (int i = 0; i < rois2.length; i++)
+				tab[i] = i;
+			roiManager.setSelectedIndexes(tab);
+			roiManager.runCommand("Save", pathFinal.toString() + File.separator + nomFichier + ".zip");
+
+			// On sauve l'image en jpeg
+			IJ.saveAs(imp, "Jpeg", pathFinal.toString() + File.separator + nomFichier + ".jpg");
+
+		}
+	}
+
+	
+	/********** Private static Getter*********/
+	// [0] : nom, [1] : id, [2] : date
+		private static String[] getInfoPatient(ImagePlus imp) {
+			String[] infoPatient = new String[3];
+
+			// On recupere le Patient Name de l'ImagePlus
+			String patientName = new String();
+			patientName = DicomTools.getTag(imp, "0010,0010");
+			if (patientName != null && !patientName.isEmpty())
+				patientName = patientName.trim();
+
+			// On recupere le Patient ID de l'ImagePlus
+			String patientID = new String();
+			patientID = DicomTools.getTag(imp, "0010,0020");
+			if (patientID != null && !patientID.isEmpty())
+				patientID = patientID.trim();
+
+			// On recupere la date d'examen
+			String date = new String();
+			date = DicomTools.getTag(imp, "0008,0020");
+			if (date != null && !date.isEmpty())
+				date = date.trim();
+
+			infoPatient[0] = patientName;
+			infoPatient[1] = patientID;
+			infoPatient[2] = date;
+
+			return infoPatient;
+		}
+	
+		
+	/*********** Public Abstract *********/
+	/**
+	 * Enregistrer la mesure de la roi courante de l'image plus dans le format
+	 * souhait�
+	 * 
+	 * @param nomRoi
+	 *            nom de la roi presente sur l'image plus
+	 * @param imp
+	 *            ImagePlus a traiter
+	 */
+	public abstract void enregistrerMesure(String nomRoi, ImagePlus imp);
+
+	public abstract void calculerResultats();
+	
+	
+	/********** Public Getter*******************/
+	public ImagePlus getImp() {
+		return imp;
+	}
+
 	/**
 	 * calcule la decay fraction (countsCorrected=counts/decayedFraction)
 	 * 
@@ -784,7 +768,39 @@ public abstract class ModeleScin {
 	}
 	
 	
-
-	public abstract void calculerResultats();
-
+	/********** Public Setter*******************/
+	public void setImp(ImagePlus imp) {
+		this.imp = imp;
+	}
+	
+	
+	/********** Public *******************/
+	public  String generateUID6digits() {
+		if (this.uid == null) {
+			this.uid = (int) (Math.random() * 1000000.);
+		}
+		return this.uid.toString();
+	}
+	
+	/**
+	 * Permet de generer la 1ere partie du Header qui servira a la capture finale,
+	 * l'iud est genere aleatoirement au premier appel de la fonction et reste le meme
+	 * pour tout le modele
+	 * 
+	 * @param imp
+	 *            : imageplus originale (pour recuperer des elements du Header tels
+	 *            que le nom du patient...)
+	 * @param nomProgramme
+	 *            : nom du programme qui l'utilise si par exemple "pulmonary shunt"
+	 *            la capture sera appelee "Capture Pulmonary Shunt"
+	 * @return retourne la premi�re partie du header en string auquelle on
+	 *         ajoutera la 2eme partie via la deuxieme methode
+	 */
+	public String genererDicomTagsPartie1SameUID(ImagePlus imp, String nomProgramme) {
+		String uid = generateUID6digits();
+		return genererDicomTagsPartie1(imp, nomProgramme, uid);
+	}
+	
+	
+	
 }
