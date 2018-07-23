@@ -6,6 +6,11 @@ import ij.ImagePlus;
 
 public class FenApplication_EsophagealTransit extends FenApplication{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public FenApplication_EsophagealTransit(ImagePlus imp) {
 		super(imp,"Eso");
 	}

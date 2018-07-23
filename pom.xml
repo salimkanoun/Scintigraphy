@@ -14,7 +14,6 @@
 	<groupId>org.scijava</groupId>
 	<artifactId>pom-scijava</artifactId>
 	<version>19.2.0</version>
-	<relativePath />
 </parent>
   <repositories>
     <repository>
