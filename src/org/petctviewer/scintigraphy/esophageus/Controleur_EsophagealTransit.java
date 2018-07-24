@@ -10,9 +10,12 @@ public class Controleur_EsophagealTransit  extends ControleurScin {
  
 	
 
-	protected Controleur_EsophagealTransit(DynamicScintigraphy vue) {
-		super(vue);
- 	}
+	protected Controleur_EsophagealTransit(EsophagealTransit esoPlugin) {
+		super(esoPlugin);
+		
+		Modele_EsophagealTransit modele = new Modele_EsophagealTransit(esoPlugin.getFrameDurations());
+		this.setModele(modele);
+	}
 
 	@Override
 	public boolean isOver() {
