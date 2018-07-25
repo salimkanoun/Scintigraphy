@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.renal.Controleur_Renal;
+import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -28,13 +29,13 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private DynamicScintigraphy vue;
+	private RenalScintigraphy vue;
 	private boolean dyn;
 	private ImagePlus impProj;
 	private Button btn_dyn, btn_start;
 	private Panel instru;
 
-	public FenApplicationDyn(ImagePlus imp, String nom, DynamicScintigraphy vue) {
+	public FenApplicationDyn(ImagePlus imp, String nom, RenalScintigraphy vue) {
 		super(imp, nom);
 		this.vue = vue;
 		this.impProj = imp.duplicate();

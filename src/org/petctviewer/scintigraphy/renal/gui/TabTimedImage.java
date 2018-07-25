@@ -1,17 +1,18 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
+import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenResultatImp;
+import org.petctviewer.scintigraphy.scin.gui.PanelResultatImp;
 
 import ij.ImagePlus;
 import ij.process.ImageProcessor;
 
-class TabTimedImage extends FenResultatImp{
+class TabTimedImage extends PanelResultatImp{
 
 	private static final long serialVersionUID = 8125367912250906052L;
 
-	public TabTimedImage(DynamicScintigraphy vue, int rows, int columns) {
+	public TabTimedImage(RenalScintigraphy vue, int rows, int columns) {
 		super("Renal scintigraphy", vue, null, "timed");
 	
 		ImagePlus montage = Scintigraphy.creerMontage(vue.getFrameDurations(), vue.getImp(), 200, rows, columns);

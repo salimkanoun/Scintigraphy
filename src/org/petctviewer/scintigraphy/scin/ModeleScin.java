@@ -236,7 +236,7 @@ public abstract class ModeleScin {
 	 */
 	public static ImageStack captureToStack(ImagePlus[] tableauImagePlus) {
 		// On verifie que toutes les images ont la meme taille
-		int[][] dimensionCapture = new int[4][2];
+		int[][] dimensionCapture = new int[tableauImagePlus.length][2];
 		for (int i = 0; i < tableauImagePlus.length; i++) {
 
 			dimensionCapture[i] = tableauImagePlus[i].getDimensions();

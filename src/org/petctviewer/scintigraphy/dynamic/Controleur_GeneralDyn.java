@@ -83,7 +83,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		this.impProjetee = this.getScin().getImp().duplicate();
 		this.over = true; 
 		this.nbOrganes = this.roiManager.getCount();
-		DynamicScintigraphy vue = (DynamicScintigraphy) this.getScin();
+		GeneralDynamicScintigraphy vue = (GeneralDynamicScintigraphy) this.getScin();
 		this.removeImpListener();
 
 		ImagePlus imp = vue.getImp();
@@ -147,7 +147,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	}
 
 	private void finishDrawingResultWindow() {
-		DynamicScintigraphy vue = (DynamicScintigraphy) this.getScin();
+		GeneralDynamicScintigraphy vue = (GeneralDynamicScintigraphy) this.getScin();
 		this.indexRoi = this.nbOrganes;
 		this.over = false;
 		this.addImpListener();

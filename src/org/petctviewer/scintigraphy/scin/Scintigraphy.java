@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
@@ -646,52 +647,39 @@ public abstract class Scintigraphy implements PlugIn {
 	
 	/********************* Public Static Sort ****************************************/
 	/**
-	  * Permet de renvoyer une tableau d'image plus selon les dicoms ouvertes, il
+	  * Permet de renvoyer un tableau d'image plus selon les dicoms ouvertes, il
 	 * peut y avoir une ou deux ouverte
 	 * 
 	 * @return les imps, [0] correspond a l'ant, [1] a la post
 	 */
-	public static ImagePlus[] sortAntPost(ImagePlus[] imagePlus) {
-		if (imagePlus.length > 2) {
-			throw new IllegalArgumentException("Too much imp");
-		}
-
-		ImagePlus[] imps = new ImagePlus[2];
-
-		if (imagePlus.length == 1) { // si il y a qu'un fenetre d'ouverte
-			ImagePlus imp = imagePlus[0];
-
-			if (Scintigraphy.isMultiFrame(imp)) { // si l'image est multiframe
-
-				if (!Scintigraphy.isSameCameraMultiFrame(imp)) {
-					return Scintigraphy.splitCameraMultiFrame(imp);
-				}
-
-				if (Scintigraphy.isAnterieur(imp)) {
-					imps[0] = imp;
-				} else {
-					imps[1] = imp;
-				}
-
-			} else if (Scintigraphy.isAnterieur(imp)) {
-				imps[0] = imp;
+	public static ImagePlus[] sortAntPost(ImagePlus imagePlus) {
+		ImagePlus[] sortedImagePlus = new ImagePlus[2];
+		
+		// si l'image est multiframe  et  ce nest pas la meme camera 
+		if (Scintigraphy.isMultiFrame(imagePlus) && !Scintigraphy.isSameCameraMultiFrame(imagePlus)) { 
+				sortedImagePlus[0] = Scintigraphy.splitCameraMultiFrame(imagePlus)[0];
+				sortedImagePlus[1] = Scintigraphy.splitCameraMultiFrame(imagePlus)[1];
+				return sortedImagePlus;
+		} else {
+			if (Scintigraphy.isAnterieur(imagePlus)) {
+				sortedImagePlus[0] = imagePlus;
 			} else {
-				imps[1] = imp;
-			}
-
-		} else { // si il y a deux images dans le tableau
-			for (ImagePlus imp : imagePlus) { // pour chaque fenetre
-				if (Scintigraphy.isAnterieur(imp)) { // si la vue est ant, on choisi cette image
-					imps[0] = (ImagePlus) imp.clone();
-				} else {
-					imps[1] = (ImagePlus) imp.clone();
-				}
+				sortedImagePlus[1] = imagePlus;
 			}
 		}
-
-		return imps;
+		return sortedImagePlus;
 	}
 
+	
+	public static ImagePlus[][] sortAntPost(ImagePlus[] imagePlus) {
+		ImagePlus[][] imps = new ImagePlus[imagePlus.length][2];
+		for (int i =0; i< imagePlus.length; i++) { // pour chaque fenetre
+				imps[i] = Scintigraphy.sortAntPost(imagePlus[i]);
+		}
+		return imps;
+	}
+	
+	
 	/**
 	 * Permet de trier les image Anterieure et posterieure et retourne les images
 	 * posterieures pour garder la meme lateralisation (la droite est a gauche de

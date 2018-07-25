@@ -18,7 +18,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import ij.ImagePlus;
 import ij.plugin.ContrastEnhancer;
 
-public abstract class FenResultatImp extends JPanel implements ChangeListener {
+public abstract class PanelResultatImp extends JPanel implements ChangeListener {
 
 	/**
 	 * 
@@ -30,12 +30,12 @@ public abstract class FenResultatImp extends JPanel implements ChangeListener {
 	private Scintigraphy vue;
 	private JLabel sliderLabel;
 	private JSlider slider;
-	private Box boxSlider;
+	protected Box boxSlider;
 
-	private SidePanel side;
+	protected SidePanel sidePanel;
 	String additionalInfo, nomFen;
 
-	public FenResultatImp(String nomFen, Scintigraphy vue, BufferedImage capture, String additionalInfo) {
+	public PanelResultatImp(String nomFen, Scintigraphy vue, BufferedImage capture, String additionalInfo) {
 		super(new BorderLayout());
 		this.setVue(vue);
 		this.additionalInfo = additionalInfo;
@@ -44,12 +44,16 @@ public abstract class FenResultatImp extends JPanel implements ChangeListener {
 		this.sliderLabel = new JLabel("Contrast", SwingConstants.CENTER);
 		sliderLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-		SidePanel side = new SidePanel(null, nomFen, vue.getImp());
-		this.add(side, BorderLayout.EAST);
+		 sidePanel = new SidePanel(null, nomFen, vue.getImp());
+		this.add(sidePanel, BorderLayout.EAST);
 	}
 
 	public void finishBuildingWindow() {
-		this.slider = initSlider();
+		int min = 0;
+		int max = 20;
+		this.slider = new JSlider(SwingConstants.HORIZONTAL, min, max, 4);
+		slider.addChangeListener(this);
+		
 		this.boxSlider = Box.createVerticalBox();
 		boxSlider.add(this.sliderLabel);
 		boxSlider.add(this.slider);
@@ -63,10 +67,10 @@ public abstract class FenResultatImp extends JPanel implements ChangeListener {
 
 		this.setContrast(slider.getValue());
 
-		SidePanel side = new SidePanel(boxSlider, nomFen, getVue().getImp());
-		side.addCaptureBtn(getVue(), this.additionalInfo, new Component[] { this.slider });
+		 //sidePanel = new SidePanel(boxSlider, nomFen, getVue().getImp());
+		sidePanel.addCaptureBtn(getVue(), this.additionalInfo, new Component[] { this.slider });
 
-		this.add(side, BorderLayout.EAST);
+		this.add(sidePanel, BorderLayout.EAST);
 	}
 
 	@Override
@@ -75,13 +79,33 @@ public abstract class FenResultatImp extends JPanel implements ChangeListener {
 		this.setContrast(slider.getValue());
 	}
 
-	private JSlider initSlider() {
-		int min = 0;
-		int max = 20;
-		JSlider slider = new JSlider(SwingConstants.HORIZONTAL, min, max, 4);
-		slider.addChangeListener(this);
+ 
+	
 
-		return slider;
+	public ImagePlus getImagePlus() {
+		return this.imp;
+	}
+
+	public Box getBoxSlider() {
+		return this.boxSlider;
+	}
+
+	public JSlider getSlider() {
+		return this.slider;
+	}
+
+	public Scintigraphy getVue() {
+		return vue;
+	}
+	
+	
+	
+	
+	
+	
+	public void setImp(ImagePlus imp) {
+		this.imp = imp;
+		this.finishBuildingWindow();
 	}
 
 	private void setContrast(int contrast) {
@@ -100,27 +124,6 @@ public abstract class FenResultatImp extends JPanel implements ChangeListener {
 		} catch (@SuppressWarnings("unused") Exception e1) {
 			// vide
 		}
-	}
-
-	public ImagePlus getImagePlus() {
-		return this.imp;
-	}
-
-	public Box getBoxSlider() {
-		return this.boxSlider;
-	}
-
-	public JSlider getSlider() {
-		return this.slider;
-	}
-
-	public void setImp(ImagePlus imp) {
-		this.imp = imp;
-		this.finishBuildingWindow();
-	}
-
-	public Scintigraphy getVue() {
-		return vue;
 	}
 
 	public void setVue(Scintigraphy vue) {
