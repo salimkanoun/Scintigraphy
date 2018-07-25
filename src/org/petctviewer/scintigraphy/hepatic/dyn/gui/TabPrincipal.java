@@ -16,6 +16,7 @@ import javax.swing.border.EmptyBorder;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
+import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.dyn.Modele_HepaticDyn;
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
@@ -33,7 +34,7 @@ class TabPrincipal extends JPanel{
 	private static final long serialVersionUID = 1L;
 	private HashMap<String, String> resultats;
 
-	public TabPrincipal(DynamicScintigraphy scin, BufferedImage capture, int width, int height) {
+	public TabPrincipal(HepaticDynamicScintigraphy scin, BufferedImage capture, int width, int height) {
 		super(new BorderLayout());
 		
 		Modele_HepaticDyn modele = (Modele_HepaticDyn) scin.getFenApplication().getControleur().getModele();

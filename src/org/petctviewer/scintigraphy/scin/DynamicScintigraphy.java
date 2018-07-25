@@ -9,11 +9,6 @@ import ij.plugin.ZProjector;
 import ij.util.DicomTools;
 
 public class DynamicScintigraphy {
-
-	protected ImagePlus impAnt, impPost, impProjetee, impProjeteeAnt;
-
-	protected int[] frameDurations;
-
 	
 	/**
 	 * Make projection of stacck

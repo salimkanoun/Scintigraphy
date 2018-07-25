@@ -31,15 +31,15 @@ public class Controleur_Renal extends ControleurScin {
 	/**
 	 * Controle l'execution du programme renal
 	 * 
-	 * @param dynaScinti la vue
+	 * @param renalScinti la vue
 	 */
-	protected Controleur_Renal(DynamicScintigraphy dynaScinti) {
-		super(dynaScinti);
+	protected Controleur_Renal(RenalScintigraphy renalScinti) {
+		super(renalScinti);
 
 		this.setOrganes(ORGANES);
 		this.nbOrganes = ORGANES.length;
 
-		Modele_Renal modele = new Modele_Renal(dynaScinti.getFrameDurations(), kidneys, dynaScinti.getImpPost());
+		Modele_Renal modele = new Modele_Renal(renalScinti.getFrameDurations(), kidneys, renalScinti.getImpPost());
 
 		// on bloque le modele pour ne pas enregistrer les valeurs de la projection
 		modele.setLocked(true);

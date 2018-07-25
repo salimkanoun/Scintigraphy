@@ -10,8 +10,12 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Overlay;
 
-public class HepaticDynamicScintigraphy extends DynamicScintigraphy {
+public class HepaticDynamicScintigraphy extends Scintigraphy {
 
+	private ImagePlus impAnt, impPost, impProjetee, impProjeteeAnt;
+	private int[] frameDurations;
+
+	
 	public HepaticDynamicScintigraphy() {
 		super("Biliary scintigraphy");
 	}
@@ -47,16 +51,29 @@ public class HepaticDynamicScintigraphy extends DynamicScintigraphy {
 	    }
 	    
 	    if( this.impAnt !=null ) {
-	      impProjeteeAnt = projeter(this.impAnt,0,impAnt.getStackSize(),"avg");
+	      impProjeteeAnt = DynamicScintigraphy.projeter(this.impAnt,0,impAnt.getStackSize(),"avg");
 	      impProjetee=impProjeteeAnt;
-	      this.frameDurations = buildFrameDurations(this.impAnt);
+	      this.frameDurations = DynamicScintigraphy.buildFrameDurations(this.impAnt);
 	    }
 	    if ( this.impPost !=null ) {
-	      impProjetee = projeter(this.impPost,0,impPost.getStackSize(),"avg");
-	      this.frameDurations = buildFrameDurations(this.impPost);
+	      impProjetee = DynamicScintigraphy.projeter(this.impPost,0,impPost.getStackSize(),"avg");
+	      this.frameDurations = DynamicScintigraphy.buildFrameDurations(this.impPost);
 	    }
 	 
 	    return impProjetee.duplicate();
 	  }
 
+	public ImagePlus getImpAnt() {
+		return impAnt;
+	}
+
+	public ImagePlus getImpPost() {
+		return impPost;
+	}
+
+	public int[] getFrameDurations() {
+		return frameDurations;
+	}
+
+	  
 }

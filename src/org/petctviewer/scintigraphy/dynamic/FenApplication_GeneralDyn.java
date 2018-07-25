@@ -6,6 +6,7 @@ import java.awt.Label;
 import java.awt.Panel;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import ij.ImagePlus;
 
@@ -15,7 +16,7 @@ public class FenApplication_GeneralDyn extends FenApplication {
 
 	private Button btn_finish;
 
-	public FenApplication_GeneralDyn(ImagePlus imp, String nom, DynamicScintigraphy vue) {
+	public FenApplication_GeneralDyn(ImagePlus imp, String nom, Scintigraphy vue) {
 		super(imp, nom);
 		this.getTextfield_instructions().setEditable(true);
 		this.btn_finish = new Button("Finish");

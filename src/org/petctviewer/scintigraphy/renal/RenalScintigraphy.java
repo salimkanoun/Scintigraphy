@@ -13,7 +13,11 @@ import ij.ImageStack;
 import ij.gui.Overlay;
 import ij.plugin.ZProjector;
 
-public class RenalScintigraphy extends DynamicScintigraphy {
+public class RenalScintigraphy extends Scintigraphy {
+
+	private ImagePlus impAnt, impPost, impProjetee, impProjeteeAnt;
+	private int[] frameDurations;
+
 
 	JValueSetter nephrogramChart, patlakChart;
 
@@ -40,13 +44,13 @@ public class RenalScintigraphy extends DynamicScintigraphy {
 		}
 		
 		if( this.impAnt !=null ) {
-			impProjeteeAnt = projeter(this.impAnt,0,impAnt.getStackSize(),"avg");
+			impProjeteeAnt = DynamicScintigraphy.projeter(this.impAnt,0,impAnt.getStackSize(),"avg");
 			impProjetee=impProjeteeAnt;
-			this.frameDurations = buildFrameDurations(this.impAnt);
+			this.frameDurations = DynamicScintigraphy.buildFrameDurations(this.impAnt);
 		}
 		if ( this.impPost !=null ) {
-			impProjetee = projeter(this.impPost,0,impPost.getStackSize(),"avg");
-			this.frameDurations = buildFrameDurations(this.impPost);
+			impProjetee = DynamicScintigraphy.projeter(this.impPost,0,impPost.getStackSize(),"avg");
+			this.frameDurations = DynamicScintigraphy.buildFrameDurations(this.impPost);
 		}
 		
 		// on inverse l'image pour garder l'orientation gauche / droite
@@ -54,12 +58,12 @@ public class RenalScintigraphy extends DynamicScintigraphy {
 			this.impPost.getStack().getProcessor(i).flipHorizontal();
 		}
 
-		ImagePlus impProjetee = projeter(this.impPost,0,impPost.getStackSize(),"avg");
+		ImagePlus impProjetee = DynamicScintigraphy.projeter(this.impPost,0,impPost.getStackSize(),"avg");
 		ImageStack stack = impProjetee.getStack();
 		
 		//deux premieres minutes
-		int fin = ModeleScinDyn.getSliceIndexByTime(2 * 60 * 1000, this.getFrameDurations());
-		ImagePlus impPostFirstMin = projeter(this.impPost, 0, fin,"avg");
+		int fin = ModeleScinDyn.getSliceIndexByTime(2 * 60 * 1000, frameDurations);
+		ImagePlus impPostFirstMin = DynamicScintigraphy.projeter(this.impPost, 0, fin,"avg");
 		stack.addSlice(impPostFirstMin.getProcessor());
 		// MIP
 		ImagePlus pj = ZProjector.run(this.impPost, "max", 0, this.impPost.getNSlices());
@@ -70,7 +74,7 @@ public class RenalScintigraphy extends DynamicScintigraphy {
 			for (int i = 1; i <= this.impAnt.getStackSize(); i++) {
 				this.impAnt.getStack().getProcessor(i).flipHorizontal();
 			}
-			ImagePlus impProjAnt = projeter(impAnt,0,impAnt.getStackSize(),"avg");
+			ImagePlus impProjAnt = DynamicScintigraphy.projeter(impAnt,0,impAnt.getStackSize(),"avg");
 			stack.addSlice(impProjAnt.getProcessor());
 		}
 
@@ -111,4 +115,19 @@ public class RenalScintigraphy extends DynamicScintigraphy {
 	public void setPatlakChart(JValueSetter patlakChart) {
 		this.patlakChart = patlakChart;
 	}
+
+
+	public int[] getFrameDurations() {
+		return frameDurations;
+	}
+	
+	public ImagePlus getImpAnt() {
+		return impAnt;
+	}
+
+	public ImagePlus getImpPost() {
+		return impPost;
+	}
+
+
 }

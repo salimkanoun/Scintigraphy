@@ -13,6 +13,10 @@ import ij.ImageStack;
 
 public class EsophagealTransit extends Scintigraphy {
 
+	private ImagePlus impAnt, impPost, impProjetee, impProjeteeAnt;
+	private int[] frameDurations;
+
+	
 	public EsophagealTransit() {
 		super("Eso");
 	}
@@ -21,7 +25,7 @@ public class EsophagealTransit extends Scintigraphy {
 	@Override
 	public void lancerProgramme() {
 		
-		FenApplication_EsophagealTransit fen = new FenApplication_EsophagealTransit(this.getImpAnt());
+		FenApplication_EsophagealTransit fen = new FenApplication_EsophagealTransit(impAnt);
 		this.setFenApplication(fen);
 		
 		Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(this);
@@ -47,7 +51,7 @@ public class EsophagealTransit extends Scintigraphy {
 						) {
 						
 						
-						imagesAnt.add(DynamicScintigraphy.projeter(images[i],"max"));
+						imagesAnt.add(DynamicScintigraphy.projeter(images[i],0,impAnt.getStackSize(),"max"));
 						System.out.println("i:"+i+" is ant  j : "+imagesAnt.size());
 					}
 				}
@@ -58,6 +62,12 @@ public class EsophagealTransit extends Scintigraphy {
 		
 		return imTest;
 		
+	}
+
+
+	
+	public int[] getFrameDurations() {
+		return frameDurations;
 	}
 
 	
