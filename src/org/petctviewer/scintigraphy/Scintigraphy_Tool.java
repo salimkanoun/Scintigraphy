@@ -134,8 +134,11 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			if (cmd=="DPD Quant") {
 				IJ.run("DPD Quant");
 			}
-			if (cmd=="Biliary Scintigraphy") {
-				IJ.run("Biliary Scintigraphy");
+			if (cmd=="Biliary Scintigraphy Dynamic") {
+				IJ.run("Biliary Scintigraphy Dynamic");
+			}
+			if (cmd=="Biliary Scintigraphy Static") {
+				IJ.run("Biliary Scintigraphy Static");
 			}
 			if (cmd=="Gastric Emptying") {
 				IJ.run("Gastric Emptying software");

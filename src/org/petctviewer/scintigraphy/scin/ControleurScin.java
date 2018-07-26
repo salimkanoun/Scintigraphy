@@ -21,6 +21,8 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.IJ;
@@ -259,10 +261,12 @@ public abstract class ControleurScin implements ActionListener {
 		}
 
 		if (this.getOrganRoi(indexRoi) == null) {
-			System.err.println("Roi lost");
+			JOptionPane.showMessageDialog(vue.getFenApplication(), "Roi Lost", "Warning",
+				        JOptionPane.WARNING_MESSAGE);
 		} else {
 			// restore la roi organe si c'est possible
-			System.err.println("Roi lost, restoring organ roi");
+			JOptionPane.showMessageDialog(vue.getFenApplication(), "Roi Lost, previous Roi restaured", "Warning",
+			        JOptionPane.WARNING_MESSAGE);
 			this.vue.getImp().setRoi(this.getOrganRoi(indexRoi));
 		}
 

@@ -42,6 +42,7 @@ public class FenResultat_Cardiac extends JFrame {
 		this.setTitle("DPD Quant results");
 		this.pack();
 		this.setMinimumSize(side.getSize());
+		this.setLocationRelativeTo(scin.getFenApplication());
 		this.setVisible(true);
 	}
 
