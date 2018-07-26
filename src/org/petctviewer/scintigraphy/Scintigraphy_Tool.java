@@ -61,7 +61,8 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			MenuItem dpdQuant = new MenuItem("DPD Quant");
 			
 			//Hepatic
-			MenuItem biliaryScintigraphy = new MenuItem("Biliary Scintigraphy");
+			MenuItem biliaryScintigraphyDynamic = new MenuItem("Biliary Scintigraphy Dynamic");
+			MenuItem biliaryScintigraphyStatic = new MenuItem("Biliary Scintigraphy Static");
 			
 			//Renal
 			MenuItem renogram = new MenuItem("Renogram");
@@ -85,7 +86,8 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			gastricCondense.addActionListener(this);
 			plumonaryShunt.addActionListener(this);
 			dpdQuant.addActionListener(this);
-			biliaryScintigraphy.addActionListener(this);
+			biliaryScintigraphyDynamic.addActionListener(this);
+			biliaryScintigraphyStatic.addActionListener(this);
 			renogram.addActionListener(this);
 			dmsa.addActionListener(this);
 			renogramFollowUp.addActionListener(this);
@@ -101,7 +103,8 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			pulmonary.add(plumonaryShunt);
 			
 			cardiac.add(dpdQuant);
-			hepatic.add(biliaryScintigraphy);
+			hepatic.add(biliaryScintigraphyDynamic);
+			hepatic.add(biliaryScintigraphyStatic);
 			
 			renal.add(renogram);
 			renal.add(dmsa);
