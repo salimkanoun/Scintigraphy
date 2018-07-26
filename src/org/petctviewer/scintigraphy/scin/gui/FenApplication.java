@@ -116,8 +116,8 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		this.getCanvas().setSize(canvasW, canvasH);
 		
 		// on calcule le facteur de magnification
-		double magnification = canvasW / (1.0 * imp.getWidth());
-
+		double magnification =( canvasW / (1.0 * imp.getWidth()) );
+		
 		this.getCanvas().setMagnification(magnification);
 		// pour que le pack prenne en compte les dimensions du panel
 		this.panel.setPreferredSize(panel.getPreferredSize());
@@ -222,8 +222,15 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		int h = this.getImagePlus().getHeight();
 		Double ratioImagePlus = w * 1.0 / h * 1.0;
 
-		canvasW = width;
-		canvasH = (int) (width / ratioImagePlus);
+		if (ratioImagePlus<1) {
+			canvasW = (int) (width * ratioImagePlus);
+			canvasH = (int) (width);
+			
+		}else {
+			canvasW = width;
+			canvasH = (int) (width / ratioImagePlus);
+		}
+	
 
 		resizeCanvas();
 	}

@@ -1,7 +1,5 @@
 package org.petctviewer.scintigraphy.statics;
 
-import javax.swing.SwingUtilities;
-
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.ImagePlus;
@@ -20,20 +18,18 @@ public class DoubleImageThread extends Thread{
 	}
 	
 	public void run() {
-		
+		double ratioCapture = this.scin.getFenApplication().getImagePlus().getWidth()*1.0 / this.scin.getFenApplication().getImagePlus().getHeight()*1.0;
 		ImagePlus impRes = new ImagePlus();
-		ImageStack capture = new ImageStack(300,300);
+		ImageStack capture = new ImageStack(200, (int) (200/ratioCapture));
+		System.out.println((int) (300/ratioCapture));
 		
-		capture.addSlice( ModeleScinStatic.captureImage(this.scin.getImp(), 300, 300).getProcessor());
+		capture.addSlice( ModeleScinStatic.captureImage(this.scin.getImp(), 200, (int) (200/ratioCapture) ).getProcessor());
 		capture.setSliceLabel("ant", 1);
 		this.scin.getImp().setSlice(2);
 
-		capture.addSlice( ModeleScinStatic.captureImage(this.scin.getImp(), 300, 300).getProcessor());
+		capture.addSlice( ModeleScinStatic.captureImage(this.scin.getImp(), 200, (int) (200/ratioCapture) ).getProcessor());
 		capture.setSliceLabel("post", 2);
 		
-
-		System.out.println(SwingUtilities.isEventDispatchThread()	);
-
 		impRes.setStack(capture);
 
 		

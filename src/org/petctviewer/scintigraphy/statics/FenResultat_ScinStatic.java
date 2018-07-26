@@ -29,7 +29,6 @@ public class FenResultat_ScinStatic extends JFrame {
 	
 		this.add(new DynamicImage(capture),	 BorderLayout.CENTER);
 		this.add(side, BorderLayout.EAST);
-		this.setLocationRelativeTo(scin.getImp().getWindow());
 		this.pack();
 		this.setLocationRelativeTo(scin.getImp().getWindow());
 		this.setVisible(true);

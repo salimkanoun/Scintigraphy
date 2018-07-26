@@ -3,8 +3,6 @@ package org.petctviewer.scintigraphy.statics;
 import java.awt.Button;
 import java.awt.event.ActionEvent;
 
-import javax.swing.SwingUtilities;
-
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
@@ -84,8 +82,6 @@ public class ControleurScinStatic extends ControleurScin{
 		
 		Thread t = new DoubleImageThread("test",this.getScin(),(ModeleScinStatic)this.getModele());
 		t.start();
-		
-System.out.println(SwingUtilities.isEventDispatchThread()	);
 		
 	
 
