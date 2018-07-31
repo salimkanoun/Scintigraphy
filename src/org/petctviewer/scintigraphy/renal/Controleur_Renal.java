@@ -47,6 +47,8 @@ public class Controleur_Renal extends ControleurScin {
 		this.setModele(modele);
 	}
 
+	
+	/************ Setter ***********/
 	@Override
 	public void setSlice(int indexSlice) {
 		super.setSlice(indexSlice);
@@ -57,14 +59,99 @@ public class Controleur_Renal extends ControleurScin {
 		this.hideLabel("R. Pelvis", Color.YELLOW);
 		this.hideLabel("L. Pelvis", Color.YELLOW);
 	}
+	
+	public void setKidneys(boolean[] kidneys) {
+		this.kidneys = kidneys;
+		((Modele_Renal) this.getModele()).setKidneys(kidneys);
+		this.adjustOrgans();
+	}
 
-	private void hideLabel(String name, Color c) {
-		Overlay ov = this.getScin().getImp().getOverlay();
-		Roi roi = ov.get(ov.getIndex(name));
-		if (roi != null) {
-			roi.setName("");
-			roi.setStrokeColor(c);
+	
+	/************ Getter ***********/	
+	public boolean[] getKidneys() {
+		return this.kidneys;
+	}
+
+	@Override
+	public int getSliceNumberByRoiIndex(int roiIndex) {
+		return 0;
+	}
+	
+	@Override
+	public Roi getOrganRoi(int lastRoi) {
+		if (indexRoi > 0 && lastRoi < this.indexRoi) {
+			String org = this.getNomOrgane(indexRoi - 1);
+
+			// roi de bruit de fond
+			boolean pelvis = Prefs.get("renal.pelvis.preferred", true);
+			if (!pelvis && org.contains("Kidney")) {
+				Roi roi = roiManager.getRoi(indexRoi - 1);
+				return Scintigraphy.createBkgRoi(roi, getScin().getImp(), Scintigraphy.KIDNEY);
+			}else if(pelvis && org.contains("Pelvis")) {
+				Roi roi = roiManager.getRoi(indexRoi - 2);
+				return Scintigraphy.createBkgRoi(roi, getScin().getImp(), Scintigraphy.KIDNEY);
+			}
 		}
+
+		return null;
+	}
+
+	
+	/************ iS ***********/
+	@Override
+	public boolean isPost() {
+		return true;
+	}
+
+	@Override
+	public boolean isOver() {
+		return this.indexRoi >= this.getOrganes().length - 1;
+	}
+
+	
+	/************ Methods ***********/
+	private void adjustOrgans() {
+
+		nbOrganes = ORGANES.length;
+		// on rajoute les organes selon les preferences
+		ArrayList<String> organes = new ArrayList<>(Arrays.asList(Controleur_Renal.ORGANES));
+
+		if (!kidneys[0]) {
+			organes.remove("L. Kidney");
+			organes.remove("L. bkg");
+		}
+
+		if (!kidneys[1]) {
+			organes.remove("R. Kidney");
+			organes.remove("R. bkg");
+		}
+
+		if (Prefs.get("renal.bladder.preferred", true)) {
+			organes.add("Bladder");
+		}
+
+		if (Prefs.get("renal.pelvis.preferred", true)) {
+			if (kidneys[0]) {
+				organes.add(organes.indexOf("L. Kidney") + 1, "L. Pelvis");
+			}
+
+			if (kidneys[1]) {
+				organes.add(organes.indexOf("R. Kidney") + 1, "R. Pelvis");
+			}
+		}
+
+		if (Prefs.get("renal.ureter.preferred", true)) {
+			if (kidneys[0]) {
+				organes.add("L. Ureter");
+			}
+
+			if (kidneys[1]) {
+				organes.add("R. Ureter");
+			}
+		}
+
+		this.nbOrganes = organes.size();
+		this.setOrganes(organes.toArray(new String[0]));
 	}
 
 	@Override
@@ -126,92 +213,15 @@ public class Controleur_Renal extends ControleurScin {
 		new FenResultats_Renal(vue, capture);
 	}
 
-	public void setKidneys(boolean[] kidneys) {
-		this.kidneys = kidneys;
-		((Modele_Renal) this.getModele()).setKidneys(kidneys);
-		this.adjustOrgans();
+	private void hideLabel(String name, Color c) {
+		Overlay ov = this.getScin().getImp().getOverlay();
+		Roi roi = ov.get(ov.getIndex(name));
+		if (roi != null) {
+			roi.setName("");
+			roi.setStrokeColor(c);
+		}
 	}
 
-	public boolean[] getKidneys() {
-		return this.kidneys;
-	}
-
-	private void adjustOrgans() {
-
-		nbOrganes = ORGANES.length;
-		// on rajoute les organes selon les preferences
-		ArrayList<String> organes = new ArrayList<>(Arrays.asList(Controleur_Renal.ORGANES));
-
-		if (!kidneys[0]) {
-			organes.remove("L. Kidney");
-			organes.remove("L. bkg");
-		}
-
-		if (!kidneys[1]) {
-			organes.remove("R. Kidney");
-			organes.remove("R. bkg");
-		}
-
-		if (Prefs.get("renal.bladder.preferred", true)) {
-			organes.add("Bladder");
-		}
-
-		if (Prefs.get("renal.pelvis.preferred", true)) {
-			if (kidneys[0]) {
-				organes.add(organes.indexOf("L. Kidney") + 1, "L. Pelvis");
-			}
-
-			if (kidneys[1]) {
-				organes.add(organes.indexOf("R. Kidney") + 1, "R. Pelvis");
-			}
-		}
-
-		if (Prefs.get("renal.ureter.preferred", true)) {
-			if (kidneys[0]) {
-				organes.add("L. Ureter");
-			}
-
-			if (kidneys[1]) {
-				organes.add("R. Ureter");
-			}
-		}
-
-		this.nbOrganes = organes.size();
-		this.setOrganes(organes.toArray(new String[0]));
-	}
-
-	@Override
-	public int getSliceNumberByRoiIndex(int roiIndex) {
-		return 0;
-	}
 	
-	@Override
-	public Roi getOrganRoi(int lastRoi) {
-		if (indexRoi > 0 && lastRoi < this.indexRoi) {
-			String org = this.getNomOrgane(indexRoi - 1);
-
-			// roi de bruit de fond
-			boolean pelvis = Prefs.get("renal.pelvis.preferred", true);
-			if (!pelvis && org.contains("Kidney")) {
-				Roi roi = roiManager.getRoi(indexRoi - 1);
-				return Scintigraphy.createBkgRoi(roi, getScin().getImp(), Scintigraphy.KIDNEY);
-			}else if(pelvis && org.contains("Pelvis")) {
-				Roi roi = roiManager.getRoi(indexRoi - 2);
-				return Scintigraphy.createBkgRoi(roi, getScin().getImp(), Scintigraphy.KIDNEY);
-			}
-		}
-
-		return null;
-	}
-
-	@Override
-	public boolean isPost() {
-		return true;
-	}
-
-	@Override
-	public boolean isOver() {
-		return this.indexRoi >= this.getOrganes().length - 1;
-	}
-
+	
 }

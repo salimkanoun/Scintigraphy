@@ -331,10 +331,10 @@ public abstract class Scintigraphy implements PlugIn {
 	 * 
 	 * @return Overlay
 	 */
-	public static Overlay initOverlay(ImagePlus imp, int taille) {
+	public static Overlay initOverlay(ImagePlus imp, int taillePolice) {
 		int taille2;
-		if (taille != -1) {
-			taille2 = taille;
+		if (taillePolice != -1) {
+			taille2 = taillePolice;
 		} else {
 			taille2 = 12;
 		}
@@ -652,7 +652,7 @@ public abstract class Scintigraphy implements PlugIn {
 	 * 
 	 * @return les imps, [0] correspond a l'ant, [1] a la post
 	 */
-	public static ImagePlus[] sortAntPost(ImagePlus imagePlus) {
+	public static ImagePlus[] sortDynamicAntPost(ImagePlus imagePlus) {
 		ImagePlus[] sortedImagePlus = new ImagePlus[2];
 		
 		// si l'image est multiframe  et  ce nest pas la meme camera 
@@ -671,10 +671,10 @@ public abstract class Scintigraphy implements PlugIn {
 	}
 
 	
-	public static ImagePlus[][] sortAntPost(ImagePlus[] imagePlus) {
+	public static ImagePlus[][] sortDynamicAntPost(ImagePlus[] imagePlus) {
 		ImagePlus[][] imps = new ImagePlus[imagePlus.length][2];
 		for (int i =0; i< imagePlus.length; i++) { // pour chaque fenetre
-				imps[i] = Scintigraphy.sortAntPost(imagePlus[i]);
+				imps[i] = Scintigraphy.sortDynamicAntPost(imagePlus[i]);
 		}
 		return imps;
 	}
@@ -690,14 +690,7 @@ public abstract class Scintigraphy implements PlugIn {
 	 * @return Retourne l'ImagePlus avec les images posterieures inversees
 	 */
 	public static ImagePlus sortImageAntPost(ImagePlus imp) {
-		ImagePlus imp2 = null;
-		if (isMultiFrame(imp)) {
-			imp2 = sortAntPostMultiFrame(imp);
-		}
-		if (!isMultiFrame(imp)) {
-			imp2 = sortAntPostUniqueFrame(imp);
-		}
-		return imp2;
+		return isMultiFrame(imp) ? sortAntPostMultiFrame(imp) : sortAntPostUniqueFrame(imp);
 	}
 
 	/**

@@ -26,7 +26,7 @@ public class GeneralDynamicScintigraphy extends Scintigraphy{
 			IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 		}
 		
-		ImagePlus[] imps = Scintigraphy.sortAntPost(images[0]);
+		ImagePlus[] imps = Scintigraphy.sortDynamicAntPost(images[0]);
 		if(imps[0] != null) {
 			this.impAnt = imps[0].duplicate();
 		}

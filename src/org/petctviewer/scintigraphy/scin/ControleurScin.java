@@ -35,7 +35,7 @@ import ij.plugin.frame.RoiManager;
 
 public abstract class ControleurScin implements ActionListener {
 
-	private Scintigraphy vue;
+	private Scintigraphy scin;
 	private ModeleScin modele;
 	protected RoiManager roiManager;
 
@@ -46,7 +46,7 @@ public abstract class ControleurScin implements ActionListener {
 	private List<String> nomRois = new ArrayList<>();
 	private ImageListener ctrlImg;
 	
-	private Color STROKECOLOR = Color.RED;//couleur de la roi
+	protected Color STROKECOLOR = Color.RED;//couleur de la roi
 
 	private Overlay overlay;
 
@@ -54,13 +54,13 @@ public abstract class ControleurScin implements ActionListener {
 	 * Classe abstraite permettant de controler les programmes de scintigraphie
 	 * declarer le modele ainsi que la liste d'organes
 	 */
-	protected ControleurScin(Scintigraphy vue) {
-		this.vue = vue;
+	protected ControleurScin(Scintigraphy scin) {
+		this.scin = scin;
 
-		if (vue.getImp().getOverlay() == null) {
-			vue.getImp().setOverlay(Scintigraphy.initOverlay(vue.getImp()));
+		if (scin.getImp().getOverlay() == null) {
+			scin.getImp().setOverlay(Scintigraphy.initOverlay(scin.getImp()));
 		}
-		this.overlay = Scintigraphy.duplicateOverlay(vue.getImp().getOverlay());
+		this.overlay = Scintigraphy.duplicateOverlay(scin.getImp().getOverlay());
 
 		//SK BOOLEAN FALSE POUR MASQUER, A METTRE TRUE POUR DEVELOPPEMENT
 		this.roiManager = new RoiManager(false);
@@ -78,22 +78,18 @@ public abstract class ControleurScin implements ActionListener {
 	public void actionPerformed(ActionEvent arg0) {
 		// recuperation du bouton clique
 		Button b = (Button) arg0.getSource();
-		FenApplication fen = this.vue.getFenApplication();
+		FenApplication fen = this.scin.getFenApplication();
 
 		// on execute des action selon quel bouton a ete clique
 		if (b == fen.getBtn_suivant()) {
 			this.clicSuivant();
-		}
-
-		else if (b == fen.getBtn_precedent()) {
+			
+		}else if (b == fen.getBtn_precedent()) {
 			this.clicPrecedent();
-		}
-
-		else if (b == fen.getBtn_drawROI())
-
-		{
+			
+		}else if (b == fen.getBtn_drawROI()){
 			Button btn = fen.getBtn_drawROI();
-
+			
 			// on change la couleur du bouton
 			if (btn.getBackground() != Color.LIGHT_GRAY) {
 				btn.setBackground(Color.LIGHT_GRAY);
@@ -105,10 +101,8 @@ public abstract class ControleurScin implements ActionListener {
 			fen.getBtn_contrast().setBackground(null);
 
 			IJ.setTool(Toolbar.POLYGON);
-		}
-
-		else if (b == fen.getBtn_contrast()) {
-
+			
+		}else if (b == fen.getBtn_contrast()) {
 			// on change la couleur du bouton
 			if (b.getBackground() != Color.LIGHT_GRAY) {
 				b.setBackground(Color.LIGHT_GRAY);
@@ -120,14 +114,12 @@ public abstract class ControleurScin implements ActionListener {
 			fen.getBtn_drawROI().setBackground(null);
 
 			IJ.run("Window Level Tool");
-		}
-
-		else if (b == this.vue.getFenApplication().getBtn_quitter()) {
+			
+		}else if (b == fen.getBtn_quitter()) {
+			//this.scin.getFenApplication().getBtn_quitter()
 			fen.close();
 			return;
 		}
-
-		
 
 		// on apelle la methode notify clic pour recuperer le clic dans les classes
 		// heritees
@@ -157,8 +149,8 @@ public abstract class ControleurScin implements ActionListener {
 		int nOrgane = this.indexRoi % this.getOrganes().length;
 		Roi organRoi = this.getOrganRoi(lastRoi);
 		if (organRoi != null) {
-			this.vue.getImp().setRoi((Roi) organRoi.clone());
-			this.vue.getImp().getRoi().setStrokeColor(this.STROKECOLOR);
+			this.scin.getImp().setRoi((Roi) organRoi.clone());
+			this.scin.getImp().getRoi().setStrokeColor(this.STROKECOLOR);
 			this.setInstructionsAdjust(nOrgane);
 		} else {
 			// on affiche les prochaines instructions
@@ -178,7 +170,7 @@ public abstract class ControleurScin implements ActionListener {
 			this.indexRoi--;
 		} else {
 			// si c'est le dernier roi, on desactive le bouton
-			this.vue.getFenApplication().getBtn_precedent().setEnabled(false);
+			this.scin.getFenApplication().getBtn_precedent().setEnabled(false);
 		}
 
 		this.preparerRoi(this.indexRoi + 1);
@@ -194,11 +186,11 @@ public abstract class ControleurScin implements ActionListener {
 		// si la sauvegarde est reussie
 		if (saved) {
 			// on active le bouton precedent
-			this.vue.getFenApplication().getBtn_precedent().setEnabled(true);
+			this.scin.getFenApplication().getBtn_precedent().setEnabled(true);
 
 			// on active la fin si c'est necessaire
 			if (this.isOver()) {
-				this.setSlice(this.vue.getImp().getCurrentSlice());
+				this.setSlice(this.scin.getImp().getCurrentSlice());
 
 				// thread de capture, permet de laisser le temps de charger l'image plus dans le
 				// thread principal
@@ -234,21 +226,21 @@ public abstract class ControleurScin implements ActionListener {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
  
 			// on change la couleur pour l'overlay
-			this.vue.getImp().getRoi().setStrokeColor(Color.YELLOW);
+			this.scin.getImp().getRoi().setStrokeColor(Color.YELLOW);
 
 			// on enregistre la ROI dans le modele
 			this.modele.enregistrerMesure(
 					this.addTag(nomRoi), 
-					this.vue.getImp());
+					this.scin.getImp());
 
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
 			if (this.roiManager.getRoi(indexRoi) == null) {
-				this.roiManager.addRoi(this.vue.getImp().getRoi());
+				this.roiManager.addRoi(this.scin.getImp().getRoi());
 			} else { // Si il existe on l'ecrase
-				this.roiManager.setRoi(this.vue.getImp().getRoi(), indexRoi);
+				this.roiManager.setRoi(this.scin.getImp().getRoi(), indexRoi);
 				// on supprime le roi nouvellement ajoute de la vue
-				this.vue.getFenApplication().getImagePlus().killRoi();
+				this.scin.getFenApplication().getImagePlus().killRoi();
 			}
 
 			// precise la postion en z
@@ -261,13 +253,13 @@ public abstract class ControleurScin implements ActionListener {
 		}
 
 		if (this.getOrganRoi(indexRoi) == null) {
-			JOptionPane.showMessageDialog(vue.getFenApplication(), "Roi Lost", "Warning",
+			JOptionPane.showMessageDialog(scin.getFenApplication(), "Roi Lost", "Warning",
 				        JOptionPane.WARNING_MESSAGE);
 		} else {
 			// restore la roi organe si c'est possible
-			JOptionPane.showMessageDialog(vue.getFenApplication(), "Roi Lost, previous Roi restaured", "Warning",
+			JOptionPane.showMessageDialog(scin.getFenApplication(), "Roi Lost, previous Roi restaured", "Warning",
 			        JOptionPane.WARNING_MESSAGE);
-			this.vue.getImp().setRoi(this.getOrganRoi(indexRoi));
+			this.scin.getImp().setRoi(this.getOrganRoi(indexRoi));
 		}
 
 		return false;
@@ -342,11 +334,11 @@ public abstract class ControleurScin implements ActionListener {
 	 * @return roi en cours d'édition de l'image
 	 */
 	public Roi getSelectedRoi() {
-		return this.vue.getFenApplication().getImagePlus().getRoi();
+		return this.scin.getFenApplication().getImagePlus().getRoi();
 	}
 
 	public Scintigraphy getScin() {
-		return this.vue;
+		return this.scin;
 	}
 
 	public int getIndexRoi() {
@@ -417,7 +409,7 @@ public abstract class ControleurScin implements ActionListener {
 	/********** Setter **********/
 
 	public void setScin(Scintigraphy scin) {
-		this.vue = scin;
+		this.scin = scin;
 	}
 	
 	
@@ -445,7 +437,7 @@ public abstract class ControleurScin implements ActionListener {
 	 *            : numero de l'organe a delimiter
 	 */
 	public void setInstructionsDelimit(int nOrgane) {
-		this.vue.getFenApplication().getTextfield_instructions().setText("Delimit the " + this.getNomOrgane(nOrgane));
+		this.scin.getFenApplication().getTextfield_instructions().setText("Delimit the " + this.getNomOrgane(nOrgane));
 	}
 
 	/**
@@ -455,7 +447,7 @@ public abstract class ControleurScin implements ActionListener {
 	 *            : numero de l'organe a ajuster
 	 */
 	public void setInstructionsAdjust(int nOrgane) {
-		this.vue.getFenApplication().getTextfield_instructions().setText("Adjust the " + this.getNomOrgane(nOrgane));
+		this.scin.getFenApplication().getTextfield_instructions().setText("Adjust the " + this.getNomOrgane(nOrgane));
 	}
 
 	/**
@@ -467,14 +459,14 @@ public abstract class ControleurScin implements ActionListener {
 	 */
 	public void setSlice(int indexSlice) {
 		// ecrase l'overlay et tue la roi
-		ImagePlus imp = this.vue.getImp();
+		ImagePlus imp = this.scin.getImp();
 
 		imp.getOverlay().clear();
 		imp.setOverlay(Scintigraphy.duplicateOverlay(overlay));
 		imp.killRoi();
 
 		// change la slice courante
-		this.vue.getImp().setSlice(indexSlice);
+		this.scin.getImp().setSlice(indexSlice);
 
 		// ajout des roi dans l'overlay
 		for (int i = 0; i < this.roiManager.getCount(); i++) {

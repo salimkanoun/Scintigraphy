@@ -26,13 +26,13 @@ public class Controleur_Cardiac extends ControleurScin {
 	protected Controleur_Cardiac(Scintigraphy vue) {
 		super(vue);
 
-		Modele_Cardiac mdl = new Modele_Cardiac(this.getScin().getImp());
+		Modele_Cardiac modele = new Modele_Cardiac(this.getScin().getImp());
 
 		// on declare si il y a deux prises
-		mdl.setDeuxPrise(this.isDeuxPrises());
+		modele.setDeuxPrise(this.isDeuxPrises());
 
-		mdl.calculerMoyGeomTotale();
-		this.setModele(mdl);
+		modele.calculerMoyGeomTotale();
+		this.setModele(modele);
 
 		// double les organes pour prise ant/post
 		List<String> organesAntPost = new ArrayList<>();
