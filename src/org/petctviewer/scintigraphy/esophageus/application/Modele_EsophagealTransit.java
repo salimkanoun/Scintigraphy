@@ -124,20 +124,20 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 
 				sauvegardeImagesSelectDicom[i].deleteRoi();
 				sauvegardeImagesSelectDicom[i].setRoi(premiereRoi);
-				roiEntier.add(ModeleScin.getAvgCounts(sauvegardeImagesSelectDicom[i])/temps.get(j-1));
+				roiEntier.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[i])/temps.get(j-1));
 				
 				//for each roi (ici 3)
 				sauvegardeImagesSelectDicom[i].deleteRoi();
 				sauvegardeImagesSelectDicom[i].setRoi(unTier);
-				unTierList.add(ModeleScin.getAvgCounts(sauvegardeImagesSelectDicom[i])/temps.get(j-1));
+				unTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[i])/temps.get(j-1));
 				
 				sauvegardeImagesSelectDicom[i].deleteRoi();
 				sauvegardeImagesSelectDicom[i].setRoi(deuxTier);
-				deuxTierList.add(ModeleScin.getAvgCounts(sauvegardeImagesSelectDicom[i])/temps.get(j-1));
+				deuxTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[i])/temps.get(j-1));
 				
 				sauvegardeImagesSelectDicom[i].deleteRoi();
 				sauvegardeImagesSelectDicom[i].setRoi(troisTier);
-				troisTierList.add(ModeleScin.getAvgCounts(sauvegardeImagesSelectDicom[i])/temps.get(j-1));
+				troisTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[i])/temps.get(j-1));
 			}
 			
 			//on met tous dans une map pour faciliter le tranfert
