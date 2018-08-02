@@ -9,6 +9,7 @@ import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationDyn;
 
+import ij.IJ;
 import ij.ImagePlus;
 
 public class FenApplication_EsophagealTransit extends FenApplication{
@@ -25,8 +26,8 @@ public class FenApplication_EsophagealTransit extends FenApplication{
 		this.esoScinPlugin = esoScinPlugin;
 		
 		
-		this.getBtn_drawROI().setEnabled(false);
-
+		IJ.setTool("Rectangle");
+		
 		this.setDefaultSize();
 
 	}
