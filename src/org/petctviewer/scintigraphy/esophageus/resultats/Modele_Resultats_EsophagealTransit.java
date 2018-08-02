@@ -10,50 +10,39 @@ import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 
 public class Modele_Resultats_EsophagealTransit {
 
-	private XYSeries [][] datasetInitial;
-	private XYSeries [][] datasetCurrent;
+	private XYSeries [][] datasetMain;
+	private XYSeries [][] datasetTransitTime;
 
 	public Modele_Resultats_EsophagealTransit(ArrayList<HashMap<String, ArrayList<Double>>> arrayList) {
-
-	
-	
-
-				
+			
 		// x examen et 4 coubres
-		datasetInitial = new XYSeries[arrayList.size()][4];
+		datasetMain = new XYSeries[arrayList.size()][4];
 		
 		// pour chaque acquisition
 		for(int i =0; i < arrayList.size(); i++) {
-			datasetInitial[i][0] = this.listToXYSeries(arrayList.get(i).get("entier"), arrayList.get(i).get("temps"), "entier "+i);
-			datasetInitial[i][1] = this.listToXYSeries(arrayList.get(i).get("unTier"), arrayList.get(i).get("temps"), "un tier "+i);
-			datasetInitial[i][2] = this.listToXYSeries(arrayList.get(i).get("deuxTier"), arrayList.get(i).get("temps"), "deux tier "+i);
-			datasetInitial[i][3] = this.listToXYSeries(arrayList.get(i).get("troisTier"), arrayList.get(i).get("temps"), "trois tier "+i);
+			datasetMain[i][0] = this.listToXYSeries(arrayList.get(i).get("entier"), arrayList.get(i).get("temps"), "entier "+i);
+			datasetMain[i][1] = this.listToXYSeries(arrayList.get(i).get("unTier"), arrayList.get(i).get("temps"), "un tier "+i);
+			datasetMain[i][2] = this.listToXYSeries(arrayList.get(i).get("deuxTier"), arrayList.get(i).get("temps"), "deux tier "+i);
+			datasetMain[i][3] = this.listToXYSeries(arrayList.get(i).get("troisTier"), arrayList.get(i).get("temps"), "trois tier "+i);
 		}
 		
-		datasetCurrent = new XYSeries[arrayList.size()][4];
-
+		// x examen et 4 coubres
+		datasetTransitTime = new XYSeries[arrayList.size()][1];
 		
 		// pour chaque acquisition
 		for(int i =0; i < arrayList.size(); i++) {
-			datasetCurrent[i][0] = this.listToXYSeries(arrayList.get(i).get("entier"), arrayList.get(i).get("temps"), "entier "+i);
-			datasetCurrent[i][1] = this.listToXYSeries(arrayList.get(i).get("unTier"), arrayList.get(i).get("temps"), "un tier "+i);
-			datasetCurrent[i][2] = this.listToXYSeries(arrayList.get(i).get("deuxTier"), arrayList.get(i).get("temps"), "deux tier "+i);
-			datasetCurrent[i][3] = this.listToXYSeries(arrayList.get(i).get("troisTier"), arrayList.get(i).get("temps"), "trois tier "+i);
+			datasetTransitTime[i][0] = this.listToXYSeries(arrayList.get(i).get("entier"), arrayList.get(i).get("temps"), "entier "+i);
 		}
 	}
 	
-	public XYSeries[][] getDataSet() {
-		return this.datasetCurrent;
+	public XYSeries[][] getDataSetMain() {
+		return this.datasetMain;
 	}
 	
-	 public void actualiserDatasetFromCheckbox(int x, int y, boolean visibility) {
-		 System.out.println("x:"+x+" y:"+y+" v: "+visibility);
-		 if(visibility) {
-			 datasetCurrent[x][y] = datasetInitial[x][y];
-		 }else {
-			 datasetCurrent[x][y] = new XYSeries(x+"|"+y);
-		 }
-	 }
+	public XYSeries[][] getDataSetTransitTime(){
+		return this.datasetTransitTime;
+	}
+	
 	
 	private void printList(List<Double> list, String name) {
 		System.out.println(name);
@@ -63,8 +52,8 @@ public class Modele_Resultats_EsophagealTransit {
 	}
 	
 	private XYSeries listToXYSeries(List<Double> data, List<Double> time, String title) {
-		System.out.println("data size: "+data.size());
-		System.out.println("temps size: "+time.size());
+		//System.out.println("data size: "+data.size());
+		//System.out.println("temps size: "+time.size());
 
 		if(data.size() != time.size()) {
 			System.err.println("erreur : nombre de data !=  du nombre de temps");

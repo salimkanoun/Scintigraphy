@@ -35,13 +35,13 @@ public class JTableCheckBox extends JPanel {
 		for(int i =0; i< titleRows.length; i++) {
 			for(int j =0; j< titleCols.length; j++) {
 				JCheckBox ch = new JCheckBox("", true);
-				ch.setName(i+"|"+j);
+				ch.setName(i+"|"+j);// qui sera splité dans le controleur pour recuprer la position du bouton
 				ch.addItemListener(listener);
 				checkboxInterior[i][j] = ch;
 			}
 		}
 		
-		//check box en tete des lignes et colonnes
+		//check box en tete des colonnes
 		checkboxHeadCols = new JCheckBox[titleCols.length];
 		for(int i=0; i< checkboxHeadCols.length; i++) {
 			JCheckBox ch = new JCheckBox("", true);
@@ -61,6 +61,7 @@ public class JTableCheckBox extends JPanel {
 			checkboxHeadCols[i] = ch;
 		}
 			
+		//check box en tete des lignes 
 		checkboxHeadRows = new JCheckBox[titleRows.length];
 		for(int i=0; i< checkboxHeadRows.length; i++) {
 			JCheckBox ch =  new JCheckBox("", true);
@@ -78,7 +79,7 @@ public class JTableCheckBox extends JPanel {
 								System.out.println("lalalall : "+j);
 							}
 						}*/
-					}else{
+					}else{ 
 						setStateCheckboxHeadRows(Integer.parseInt(selected.getName()), false);
 					}
 				}
@@ -88,7 +89,7 @@ public class JTableCheckBox extends JPanel {
 				
 				
 	
-		//le tableau contenant tout
+		//le tableau contenant tout (head col, head row , title row, title col, tableau interieur)
 		tableauEntier = new Component[titleRows.length+2][titleCols.length+2];
 		tableauEntier[0][0] = new JLabel("");
 		tableauEntier[0][1] = new JLabel("");
@@ -96,14 +97,15 @@ public class JTableCheckBox extends JPanel {
 		tableauEntier[1][1] = new JLabel("");
 
 		// ajout de tout dans le tableau entier à la bonne place
+		//chekbox entete des ligne
 		for(int i =0 ;i< checkboxHeadRows.length; i++) {
 			tableauEntier[i+2][0] = checkboxHeadRows[i]; 
 		}
-		
+		//checkbox entete des colonnes
 		for(int i =0 ;i< checkboxHeadCols.length; i++) {
 			tableauEntier[0][i+2] = checkboxHeadCols[i]; 
 		}
-		
+		//titre des lignes
 		for(int i=0; i< titleRows.length; i++) {
 			JLabel m = new JLabel(titleRows[i]);
 			m.setBorder(BorderFactory.createLineBorder(Color.black,1));
@@ -111,7 +113,7 @@ public class JTableCheckBox extends JPanel {
 			m.setOpaque(true);
 			tableauEntier[i+2][1] = m;
 		}
-		
+		//titre des colonnes
 		for(int i=0; i< titleCols.length; i++) {
 			JLabel m = new JLabel(titleCols[i]);
 			m.setBorder(BorderFactory.createLineBorder(Color.black,1));
@@ -119,7 +121,7 @@ public class JTableCheckBox extends JPanel {
 			m.setOpaque(true);
 			tableauEntier[1][i+2] = m;
 		}
-		
+		//checkbox l'interieur du tableau
 		for(int i =2; i< titleRows.length+2; i++) {
 			for(int j =2; j< titleCols.length+2; j++) {
 				tableauEntier[i][j] = checkboxInterior[i-2][j-2];
@@ -127,7 +129,7 @@ public class JTableCheckBox extends JPanel {
 		}
 		
 		
-		// add finale
+		// add finale 
 		tab = new JPanel(new GridLayout(tableauEntier.length,tableauEntier[0].length));
 		tab.setBackground(Color.white);
 		tab.setOpaque(true);

@@ -284,7 +284,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 			this.end = end;
 
 			if (color == null) {
-				this.color = new Color(225, 244, 50, 120);
+				this.color = new Color(225, 244, 50, 120);//jaune
 			} else {
 				this.color = color;
 			}
