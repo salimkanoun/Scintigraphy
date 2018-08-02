@@ -53,6 +53,8 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			MenuItem gastricEmptying = new MenuItem("Gastric Emptying");
 			MenuItem gastricDynamic = new MenuItem("Gastric Dyamique");
 			MenuItem gastricCondense = new MenuItem("Gastric Condense");
+			MenuItem esophagealTransit = new MenuItem("Esophageal Transit");
+			
 			
 			//plumonary shunt
 			MenuItem plumonaryShunt = new MenuItem("Pulmonary Shunt");
@@ -84,6 +86,7 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			gastricEmptying.addActionListener(this);
 			gastricDynamic.addActionListener(this);
 			gastricCondense.addActionListener(this);
+			esophagealTransit.addActionListener(this);
 			plumonaryShunt.addActionListener(this);
 			dpdQuant.addActionListener(this);
 			biliaryScintigraphyDynamic.addActionListener(this);
@@ -99,6 +102,7 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			gastric.add(gastricEmptying);
 			gastric.add(gastricDynamic);
 			gastric.add(gastricCondense);
+			gastric.add(esophagealTransit);
 			
 			pulmonary.add(plumonaryShunt);
 			
@@ -145,6 +149,9 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			}
 			if (cmd=="Gastric Dyamique") {
 				IJ.run("Gastric Emptying Dynamic");
+			}
+			if (cmd=="Esophageal Transit") {
+				IJ.run("Esophageal Transit");
 			}
 			if (cmd=="Pulmonary Shunt") {
 				IJ.run("Pulmonary Shunt");
