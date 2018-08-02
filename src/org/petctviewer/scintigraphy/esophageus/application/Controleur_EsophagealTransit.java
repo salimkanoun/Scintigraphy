@@ -10,6 +10,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
+import ij.gui.Toolbar;
 
 public class Controleur_EsophagealTransit  extends ControleurScin {
  
@@ -27,7 +28,7 @@ public class Controleur_EsophagealTransit  extends ControleurScin {
 		
 		//modele.setLocked(true);
 		this.setModele(modele);
-		
+		this.tools = Toolbar.RECTANGLE;
 	}
 
 	@Override
@@ -81,6 +82,6 @@ public class Controleur_EsophagealTransit  extends ControleurScin {
 
 	}
 
-
+	
 	
 }

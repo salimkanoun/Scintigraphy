@@ -49,6 +49,8 @@ public abstract class ControleurScin implements ActionListener {
 	protected Color STROKECOLOR = Color.RED;//couleur de la roi
 
 	private Overlay overlay;
+	
+	protected int tools = Toolbar.POLYGON;
 
 	/**
 	 * Classe abstraite permettant de controler les programmes de scintigraphie
@@ -100,7 +102,7 @@ public abstract class ControleurScin implements ActionListener {
 			// on deselectionne le bouton contraste
 			fen.getBtn_contrast().setBackground(null);
 
-			IJ.setTool(Toolbar.POLYGON);
+			IJ.setTool(tools);
 			
 		}else if (b == fen.getBtn_contrast()) {
 			// on change la couleur du bouton
