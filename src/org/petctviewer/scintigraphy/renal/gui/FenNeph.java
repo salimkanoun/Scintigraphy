@@ -71,7 +71,7 @@ public class FenNeph extends JDialog implements ActionListener {
 		// si il y a un rein gauche
 		if (modele.getKidneys()[0]) {
 			// on cree toutes les valueSelector que l'on va utiliser
-			Selector tmaxl = new Selector("TMax L", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 0), 0,
+			Selector tmaxl = new Selector("TMax L", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 0), 0, 
 					RectangleAnchor.BOTTOM_LEFT);
 			jvs.addSelector(tmaxl, "tmax L");
 		}

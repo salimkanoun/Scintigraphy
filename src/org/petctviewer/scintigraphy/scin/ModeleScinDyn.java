@@ -11,6 +11,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.general.DatasetUtils;
+import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
@@ -244,6 +245,65 @@ public abstract class ModeleScinDyn extends ModeleScin {
 		return Double.NaN;
 	}
 
+	
+	/*
+	 * return the linearaly interpolated Y for a given X value 
+	 */
+	public static Double getInterpolatedY (XYSeries serie, Double pointXRecherche ) {
+		
+		for(int i =0; i< serie.getItemCount(); i++) {
+			//si on a deja le point
+			if(serie.getX(i) == pointXRecherche) {
+				return (Double)serie.getY(i);
+			}
+			
+			//si on a pas le point on fait un feat entre le point juste avant de dépacer et celui apres
+			if((Double)serie.getX(i) > pointXRecherche) {
+				double[][] m = new double[2][2];
+				
+				m[0][0] = (Double)serie.getX(i-1);
+				m[0][1] = (Double)serie.getY(i-1);
+				m[1][0] = (Double)serie.getX(i);
+				m[1][1] = (Double)serie.getY(i);
+				
+				double fit []  = Regression.getOLSRegression(m);
+				
+				return (fit[0]+fit[1]*pointXRecherche);
+			}
+		}
+		
+		return Double.NaN;
+	}
+	
+	/*
+	 * return the linearaly interpolated X for a given Y value 
+	 */
+	public static Double getInterpolatedX (XYSeries serie, Double pointYRecherche ) {
+		
+		for(int i =0; i< serie.getItemCount(); i++) {
+			//si on a deja le point
+			if(serie.getY(i) == pointYRecherche) {
+				return (Double)serie.getX(i);
+			}
+			
+			//si on a pas le point on fait un feat entre le point juste avant de dépacer et celui apres
+			if((Double)serie.getY(i) > pointYRecherche) {
+				double[][] m = new double[2][2];
+				
+				m[0][0] = (Double)serie.getX(i-1);
+				m[0][1] = (Double)serie.getY(i-1);
+				m[1][0] = (Double)serie.getX(i);
+				m[1][1] = (Double)serie.getY(i);
+				
+				double fit []  = Regression.getOLSRegression(m);
+				
+				return (fit[0]+fit[1]*pointYRecherche);
+			}
+		}
+		
+		return Double.NaN;
+	}
+	
 	/**
 	 * renvoie l'image de la serie en x
 	 * 
@@ -291,20 +351,10 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	 * @return valeur de l'abscisse
 	 */
 	public static double getAbsMaxY(XYDataset ds, int series) {
-		Double maxY = 0.0;
-		for (int i = 0; i < ds.getItemCount(series); i++) {
-			if (ds.getY(series, i).doubleValue() > maxY) {
-				maxY = ds.getYValue(series, i);
-			}
-		}
-
-		for (int i = 0; i < ds.getItemCount(series); i++) {
-			if (maxY.equals(ds.getY(series, i))) {
-				return ds.getXValue(series, i);
-			}
-		}
-
-		return 0.0;
+		//on recupere la serie demandée dans un XYCollection (casté depuis un XYDataset)
+		return ModeleScinDyn.getAbsMaxY( 
+				((XYSeriesCollection)ds).getSeries(series) 
+				);
 	}
 
 	/**

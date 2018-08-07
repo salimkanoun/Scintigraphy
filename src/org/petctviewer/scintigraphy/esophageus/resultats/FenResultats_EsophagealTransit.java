@@ -32,6 +32,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
+import org.jfree.data.general.DatasetUtils;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -39,6 +40,7 @@ import org.petctviewer.scintigraphy.calibration.resultats.JTableCheckBox;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 public class FenResultats_EsophagealTransit extends JFrame implements  ChartMouseListener,ActionListener,ChangeListener{
@@ -49,7 +51,7 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 	private String [] titleRows;
 	private String [] titleCols = {"Entier","un Tier","deux Tier", "trois Tier"};
 	
-	private JPanel tabMain,tabTransitTime;
+	private JPanel tabMain,tabTransitTime, tabRetention;
 	private Selector startSelec, endSelec ;
 	private	JLabel surfaceLabel;
 	
@@ -62,6 +64,7 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 	 private static int numSeriesSelctors= 0;
 	 JLabel [] n;
 	 JValueSetter valueSetter;
+	 
 	/*
 	 * un partie main avec graph main et un jtablecheckbox main
 	 * un partie transit time avec hraph , jvalue stter, checkbox (1 collonnne pour les acqui entier) et un couple de controleur par acqui
@@ -140,16 +143,8 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 			 selectors[i][1] = 2;
 		}
 		
-		 
-		
-		
-		
-		
-		
 	    this.tabTransitTime.add(valueSetter,BorderLayout.CENTER);
 
-	    
-	    
 	    
 	    JPanel selection = new JPanel();
 		selection.setLayout(new GridLayout(arrayList.size(), 1));
@@ -190,12 +185,35 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 			    
 		this.tabTransitTime.add(flow, BorderLayout.EAST);
 		
+		/***********tab retention ************/
+		this.tabRetention = new JPanel();
+		
+		// afficher un graph ?
+		// utilisation que de la coubre entiere
+		// un panel par acqui pour afficher le resultat
+		
+		//serie de la premire acquisition
+		XYSeries serie1 = modele.getDataSetTransitTime()[0][0];
+		
+		System.out.println("max Y: "+ serie1.getMaxY());
+		double ymax = serie1.getMaxY();
+		double x = ModeleScinDyn.getAbsMaxY(serie1);
+		
+		System.out.println("x : " +x);
+		System.out.println("interpolate du max de Y en acqui 0 entier : " +ModeleScinDyn.getInterpolatedY(serie1, x+10));
+		
+		double ycalc = ModeleScinDyn.getInterpolatedY(serie1, x+10);
+		
+		double fractionDecrease = 1-((ymax - ycalc)/100);
+		System.out.println("pourcentage" + fractionDecrease);
+		
 		/****************/
 		
 		
 		JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
 		tabbedPane.addTab("Main", this.tabMain);	
-		tabbedPane.addTab("Transit Time", this.tabTransitTime);	   
+		tabbedPane.addTab("Transit Time", this.tabTransitTime);	 
+		tabbedPane.addTab("Retention", this.tabRetention);
 
 		this.add(tabbedPane);
 		
@@ -260,14 +278,11 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 		return Math.abs(this.startSelec.getXValue() - this.endSelec.getXValue());
 	}
 
-
-
-	
 	public void setLabelValue(double value) {
 		this.surfaceLabel.setText("Difference :"+	ModeleScin.round(value, 2));
 	}
+	
 	//radio button
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		for(int  i =0; i< this.jb.length; i++) {
@@ -320,8 +335,8 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 	     //x+4  4: car on a 4 colonnes
 		 renderer.setSeriesVisible(x,  visibility);
 	}
+	
 	//method appelé lors d'un appui sur une checkbox
-
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		JCheckBox selected = (JCheckBox)e.getSource();
