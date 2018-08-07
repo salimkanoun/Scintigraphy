@@ -21,6 +21,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
@@ -39,7 +41,7 @@ import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
-public class FenResultats_EsophagealTransit extends JFrame implements ItemListener, ChartMouseListener,ActionListener{
+public class FenResultats_EsophagealTransit extends JFrame implements  ChartMouseListener,ActionListener,ChangeListener{
 
 	private JFreeChart graphMain;
 	private JFreeChart graphTransitTime;
@@ -237,7 +239,7 @@ public class FenResultats_EsophagealTransit extends JFrame implements ItemListen
 		for(int i =0; i< dataset.length; i++) {
 		//	titleRows[i] = "Acqui "+i;
 			for(int j =0; j<dataset[i].length; j++) {
-				System.out.println("i: "+i+" j: "+j);
+				//System.out.println("i: "+i+" j: "+j);
 				m.addSeries(dataset[i][j]);
 			}
 		}
@@ -246,11 +248,7 @@ public class FenResultats_EsophagealTransit extends JFrame implements ItemListen
 	    //plot.setBackgroundPaint(new Color(255,228,196));
 	    plott.setBackgroundPaint(new Color(255,255,255)); 
 	
-		this.
-		graphTransitTime.
-		getXYPlot().
-		setDataset(
-				m);
+		this.graphTransitTime.getXYPlot().setDataset(m);
 				
 	}
 	
@@ -268,19 +266,28 @@ public class FenResultats_EsophagealTransit extends JFrame implements ItemListen
 	public void setLabelValue(double value) {
 		this.surfaceLabel.setText("Difference :"+	ModeleScin.round(value, 2));
 	}
+	//radio button
 
-	//method appelé lors d'un appui sur une checkbox
 	@Override
-	public void itemStateChanged(ItemEvent e) {
-		JCheckBox selected = (JCheckBox)e.getSource();
+	public void actionPerformed(ActionEvent e) {
+		for(int  i =0; i< this.jb.length; i++) {
+			if(e.getSource() instanceof JRadioButton) {
+				if(((JRadioButton)e.getSource()).equals(jb[i]) ) {
+					//System.out.println("jb i : "+i);
+					this.setVisibilitySeriesTransitTime(i, true);
+					numSeriesSelctors = i;
+					this.startSelec.setXValue(selectors[i][0]);
+					this.endSelec.setXValue(selectors[i][1]);
+					this.valueSetter.updateAreas();
+					
+	
+				}else {
+					this.setVisibilitySeriesTransitTime(i, false);
+				}
+			}
+		}
 		
-		this.setVisibilitySeriesMain(	
-				Integer.parseInt(selected.getName().split("\\|")[0]), 
- 				Integer.parseInt(selected.getName().split("\\|")[1]),
- 				selected.isSelected());
-
 	}
-
 	
 	/*
 	 * au clic sur un selecteur(non-Javadoc)
@@ -313,26 +320,17 @@ public class FenResultats_EsophagealTransit extends JFrame implements ItemListen
 	     //x+4  4: car on a 4 colonnes
 		 renderer.setSeriesVisible(x,  visibility);
 	}
-	
-	//radio button
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		
-		for(int  i =0; i< this.jb.length; i++) {
-			if(((JRadioButton)e.getSource()).equals(jb[i]) ) {
-				System.out.println("jb i : "+i);
-				this.setVisibilitySeriesTransitTime(i, true);
-				numSeriesSelctors = i;
-				this.startSelec.setXValue(selectors[i][0]);
-				this.endSelec.setXValue(selectors[i][1]);
-				this.valueSetter.updateAreas();
-				
+	//method appelé lors d'un appui sur une checkbox
 
-			}else {
-				this.setVisibilitySeriesTransitTime(i, false);
-			}
-		}
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		JCheckBox selected = (JCheckBox)e.getSource();
 		
-		
+		this.setVisibilitySeriesMain(	
+				Integer.parseInt(selected.getName().split("\\|")[0]), 
+ 				Integer.parseInt(selected.getName().split("\\|")[1]),
+ 				selected.isSelected());
 	}
+
+	
 }

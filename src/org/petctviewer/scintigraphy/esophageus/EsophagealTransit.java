@@ -73,7 +73,7 @@ public class EsophagealTransit extends Scintigraphy {
 				//null == pas d'image ant et/ou une image post et != une image post en [0]
 				if(Scintigraphy.sortDynamicAntPost(imagesSelectDicom[i])[0] != null) {
 					imagesAnt.add(DynamicScintigraphy.projeter(Scintigraphy.sortDynamicAntPost(imagesSelectDicom[i])[0]/*la ant*/,0,imagesSelectDicom[i].getStackSize(),"max"));
-					System.out.println("i:"+i+" is ant  j : "+imagesAnt.size());
+					//System.out.println("i:"+i+" is ant  j : "+imagesAnt.size());
 				}
 			}
 			//renvoi un stack trié des projection des images 

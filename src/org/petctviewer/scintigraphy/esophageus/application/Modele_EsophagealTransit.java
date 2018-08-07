@@ -62,7 +62,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	//vas ordorner les imageplus pour les envoyer au model fenettre resultats pour les calculs
 	@Override
 	public void calculerResultats() {
-		System.out.println("Calcul des resultats");
+	//	System.out.println("Calcul des resultats");
 		
 		/*
 		//affichage des images plus avec leurs roi TEST OK
@@ -90,7 +90,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 			for(int j =0; j< tempsInt.length; j++) {
 				memtemps += (double)tempsInt[i];
 				temps.add(memtemps/1000.0);
-				System.out.println(tempsInt[i]);
+		//		System.out.println(tempsInt[i]);
 			}
 			map4rois.put("temps",temps);
 			
@@ -108,9 +108,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 			Roi unTier 	  = new Roi	(pointOrigine.getX(), pointOrigine.getY(), 										 largeurRef, tierHauteurRoiRef);
 			Roi deuxTier  = new Roi	(pointOrigine.getX(), pointOrigine.getY()+tierHauteurRoiRef+1, 					 largeurRef, tierHauteurRoiRef);
 			Roi troisTier = new Roi	(pointOrigine.getX(), pointOrigine.getY()+tierHauteurRoiRef+tierHauteurRoiRef+2, largeurRef, tierHauteurRoiRef);
-			
-			
-			
+
 			
 			//toutes les listes contenant les mean pour chaque imp
 			ArrayList<Double> roiEntier = new ArrayList<>();
@@ -145,9 +143,6 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 			map4rois.put("unTier", unTierList);			
 			map4rois.put("deuxTier", deuxTierList);
 			map4rois.put("troisTier", troisTierList);
-			
-			
-			
 			
 			//un le calcul fini pour une image plus on rajoute la map a la liste qui sera envoyé au modele du resultat
 			examenMean.add(map4rois);

@@ -33,16 +33,16 @@ public class Controleur_EsophagealTransit  extends ControleurScin {
 
 	@Override
 	public boolean isOver() {
-		System.out.println("ISOVER ?  indexroi ="+indexRoi+" et stacksize ="+this.esoPlugin.getImp().getStackSize());
+		//System.out.println("ISOVER ?  indexroi ="+indexRoi+" et stacksize ="+this.esoPlugin.getImp().getStackSize());
 		if((this.indexRoi+1)>=this.esoPlugin.getImp().getStackSize()) {
-			System.out.println("ISOVER !!");
+		//	System.out.println("ISOVER !!");
 		}
 		return (this.indexRoi+1)>=this.esoPlugin.getImp().getStackSize();
 	}
 
 	@Override
 	public void fin() {
-		System.out.println("fin");
+	//	System.out.println("fin");
 		((Modele_EsophagealTransit) this.getModele()).setRoiManager(this.roiManager);
 		
 		
@@ -77,7 +77,7 @@ public class Controleur_EsophagealTransit  extends ControleurScin {
 		int indexSlice = this.getSliceNumberByRoiIndex(this.indexRoi);
 		this.setSlice(indexSlice);
 		
-		System.out.println("ici");
+	//	System.out.println("ici");
 		
 
 	}
