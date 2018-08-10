@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.esophageus.resultats;
 
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,14 +8,15 @@ import java.util.List;
 
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.esophageus.Condense_Dynamique;
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 
+import ij.IJ;
 import ij.ImagePlus;
+import ij.plugin.ZProjector;
 
 public class Modele_Resultats_EsophagealTransit {
 
@@ -146,14 +148,13 @@ public class Modele_Resultats_EsophagealTransit {
 	
 	public DynamicImage calculCondense(int indiceAcquisition) {
 		 System.out.println(  "w"+		 ((Rectangle)dicomRoi.get(indiceAcquisition)[1]).getWidth()   );
-		Condense_Dynamique cond = new Condense_Dynamique();
-		
-		
-		
+
 		Scintigraphy.setCustomLut((ImagePlus)dicomRoi.get(indiceAcquisition)[0]);
-		 return new DynamicImage((cond.condense3(
+		ImagePlus condense=buildCondense(
 				 (ImagePlus)dicomRoi.get(indiceAcquisition)[0],// la dicom imp
-				 (Rectangle)dicomRoi.get(indiceAcquisition)[1])).getBufferedImage());// la roi
+				 (Rectangle)dicomRoi.get(indiceAcquisition)[1]);
+		//condense.show();
+		 return new DynamicImage(condense.getBufferedImage());// la roi
 		
 	}
 	
@@ -164,5 +165,53 @@ public class Modele_Resultats_EsophagealTransit {
 		ImagePlus res = m.crop();
 		
 		return new DynamicImage(res.getBufferedImage());
+	}
+	
+	private ImagePlus buildCondense(ImagePlus imp, Rectangle roi) {
+		
+		int coupes = imp.getStack().getSize();
+		Dimension dimCondense = new Dimension((int)roi.getWidth()*coupes, (int)roi.getHeight());
+
+		ImagePlus imageCondensee = IJ.createImage("Image", "16-bit black", dimCondense.width, dimCondense.height,coupes);
+		// imp.hide();
+		for (int i = 0; i < coupes; i++) {
+			imp.setSlice(i + 1);
+			Rectangle imageShift = new Rectangle();
+			imageShift.setBounds(
+					(int) Math.round(roi.getX()), 
+					(int) Math.round(roi.getY()),
+					(int) Math.round(imp.getWidth() - roi.getX()), 
+					(int)roi.getHeight());
+		
+			imp.setRoi(imageShift);
+			// On copie cette zone
+			imp.copy();
+			// on cree une nouvelle imagePlus de la taille finale
+			ImagePlus image = IJ.createImage("Image", "16-bit black", dimCondense.width, dimCondense.height, 1);
+			// On met un nouveau rectangle qu'on shift de 9 pixel et on colle dans cette
+			// image
+			Rectangle recDestination = new Rectangle();
+			recDestination.setBounds(i * (int)roi.getWidth(), imageShift.y, imageShift.width, imageShift.height);
+			// recDestination.setLocation(i*9, 0);
+			image.setRoi(recDestination);
+			// image.show();
+			image.paste();
+			image.killRoi();
+			// On l'ajoute a l'image condensee
+			imageCondensee.getStack().setProcessor(image.getProcessor(), i + 1);
+
+		}
+		// On fait la somme du stack pour avoir l'image finale
+		ZProjector projector = new ZProjector();
+		projector.setImage(imageCondensee);
+		projector.setMethod(ij.plugin.ZProjector.SUM_METHOD);
+		projector.setStartSlice(1);
+		projector.setStopSlice(coupes);
+		projector.doProjection();
+		ImagePlus projete = projector.getProjection();
+		Scintigraphy.setCustomLut(projete);
+		return projete;
+		
+		
 	}
 }

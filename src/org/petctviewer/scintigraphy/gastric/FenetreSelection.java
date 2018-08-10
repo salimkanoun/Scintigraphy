@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.gastric;
 
-import org.petctviewer.scintigraphy.esophageus.Condense_Dynamique;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 
 import ij.ImagePlus;
@@ -10,7 +9,6 @@ public class FenetreSelection extends FenSelectionDicom {
 	
 	Vue_VG_Roi vue;
 	Vue_VG_Dynamique vue2;
-	Condense_Dynamique vue3;
 	/**
 	 * 
 	 */
@@ -24,11 +22,6 @@ public class FenetreSelection extends FenSelectionDicom {
 	public FenetreSelection(Vue_VG_Dynamique vue) {
 		super("", null); 
 		this.vue2=vue;
-	}
-	
-	public FenetreSelection(Condense_Dynamique vue) {
-		super("", null); 
-		this.vue3=vue;
 	}
 
 	
@@ -52,7 +45,6 @@ public class FenetreSelection extends FenSelectionDicom {
 		
 			if (vue!=null) vue.ouvertureImage(images);
 			if (vue2!=null) vue2.ouvertureImage(images);
-			if (vue3!=null) vue3.ouvertureImage(images);
 
 			this.dispose();
 		
