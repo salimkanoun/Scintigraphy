@@ -246,5 +246,63 @@ public class Condense_Dynamique implements PlugIn {
 
 		return projete;
 	}
+	
+	public  ImagePlus condense3(ImagePlus imp, Rectangle roi) {
+		
+		int coupes = imp.getStack().getSize();
+		dimCondense = new Dimension((int)roi.getWidth()*coupes, (int)roi.getHeight());
+
+		ImagePlus imageCondensee = IJ.createImage("Image", "16-bit black", dimCondense.width, dimCondense.height,coupes);
+		// imp.hide();
+		for (int i = 0; i < coupes; i++) {
+			imp.setSlice(i + 1);
+			Rectangle imageShift = new Rectangle();
+			imageShift.setBounds(
+					(int) Math.round(roi.getX()), 
+					(int) Math.round(roi.getY()),
+					(int) Math.round(imp.getWidth() - roi.getX()), 
+					(int)roi.getHeight());
+		
+			imp.setRoi(imageShift);
+			// On copie cette zone
+			imp.copy();
+			// on cree une nouvelle imagePlus de la taille finale
+			ImagePlus image = IJ.createImage("Image", "16-bit black", dimCondense.width, dimCondense.height, 1);
+			// On met un nouveau rectangle qu'on shift de 9 pixel et on colle dans cette
+			// image
+			Rectangle recDestination = new Rectangle();
+			recDestination.setBounds(i * (int)roi.getWidth(), imageShift.y, imageShift.width, imageShift.height);
+			// recDestination.setLocation(i*9, 0);
+			image.setRoi(recDestination);
+			// image.show();
+			image.paste();
+			image.killRoi();
+			// On l'ajoute a l'image condensee
+			imageCondensee.getStack().setProcessor(image.getProcessor(), i + 1);
+
+		}
+		// On fait la somme du stack pour avoir l'image finale
+		ZProjector projector = new ZProjector();
+		projector.setImage(imageCondensee);
+		projector.setMethod(ij.plugin.ZProjector.SUM_METHOD);
+		projector.setStartSlice(1);
+		projector.setStopSlice(coupes);
+		projector.doProjection();
+		ImagePlus projete = projector.getProjection();
+//projete.show();
+		return projete;
+		
+		
+		//Pour chaque aqcuisition
+			//Recuperer la roi totale (position, largeur , hauteur)
+		//creer l'image plus finale (qui sera retournée a la fin, on ne la creer qu'une seule fois) avec les param largeur=largeurRoi*NbSlice, hauteur=hauteurRoi
+		// pour chaque image du stack
+			//copie de la roi set
+			// setroi dans imp finale à la slice n * largeur roi
+			//paste
+		
+		//imp finale ???
+		
+	}
 
 }

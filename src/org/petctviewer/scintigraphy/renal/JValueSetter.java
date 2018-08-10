@@ -98,7 +98,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 		Selector v = this.getSelector(xMouse, plotArea);
 
 		// si il y a un selecteur sous la souris
-		if (v != null) {
+		if (v != null && this.current == null) {
 			// on active son clic et on le selectionne
 			v.chartMouseClicked(event);
 			this.current = v;
@@ -149,14 +149,14 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 		Selector v = this.getSelector(xMouse, plotArea);
 
 		// si la souris est sur un selecteur ou qu'un selecteur est selectionne
-		if (v != null || this.current != null) {
+		if (v != null || this.current != null   ) {
 			// on change le curseur en main
 			c.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		} else {
 			// sinon on laisse le curseur par defaut
 			c.setCursor(null);
 		}
-
+		
 		// si un selecteur est selectionne, on appelle la methode chartMouseMoved
 		if (this.current != null) {
 			this.current.chartMouseMoved(event);

@@ -211,4 +211,26 @@ public class JTableCheckBox extends JPanel {
 		}
 	}
 
+	public void setTable(boolean[][] table) {
+		for(int i =0; i<checkboxInterior.length; i++) {
+			for(int j =0; j<checkboxInterior[i].length; j++) {
+				if(table[i][j]) {
+					checkboxInterior[i][j].setSelected(true);
+				}else {
+					checkboxInterior[i][j].setSelected(false);
+				}
+			}
+		}
+	}
+
+	public void setFirstColumn() {
+		for(int i =0; i< checkboxInterior.length; i++){
+			for(int j =0; j< checkboxInterior[i].length; j++) {
+				if(j==0)
+					checkboxInterior[i][j].setSelected(true);
+				else
+					checkboxInterior[i][j].setSelected(false);
+			}
+		}
+	}
 }

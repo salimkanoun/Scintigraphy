@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.petctviewer.scintigraphy.esophageus.Condense_Dynamique;
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
@@ -35,6 +36,8 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	// list->map->list : list des mean(double) pour tous le stack
 	private ArrayList<HashMap<String, ArrayList<Double>>> examenMean;
  
+	//pour le condensé dynamique
+	ArrayList<Object[]> dicomRoi;
 	
 	
 	public Modele_EsophagealTransit(int[] frameDuration , ImagePlus [] sauvegardeImagesSelectDicom) {
@@ -146,10 +149,25 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 			
 			//un le calcul fini pour une image plus on rajoute la map a la liste qui sera envoyé au modele du resultat
 			examenMean.add(map4rois);
-		}		
+		
+		}	
+	
+		
+		//condense
+		dicomRoi = new ArrayList<>();
+		for(int i =0; i< sauvegardeImagesSelectDicom.length; i++) {
+			Object [] content = {sauvegardeImagesSelectDicom[i], this.roimanager.getRoi(i).getBounds()};
+			dicomRoi.add(content);	
+		}
 	}
 
 	public ArrayList<HashMap<String, ArrayList<Double>>> getExamenMean(){
 		return this.examenMean;
 	}
+
+	public ArrayList<Object[]> getDicomRoi() {
+		return this.dicomRoi;
+	}
+		
+	
 }

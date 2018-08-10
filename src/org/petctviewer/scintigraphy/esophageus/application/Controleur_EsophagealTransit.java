@@ -48,7 +48,7 @@ public class Controleur_EsophagealTransit  extends ControleurScin {
 		
 		this.getModele().calculerResultats();
 		
-		FenResultats_EsophagealTransit fen = new FenResultats_EsophagealTransit(((Modele_EsophagealTransit)this.getModele()).getExamenMean());
+		FenResultats_EsophagealTransit fen = new FenResultats_EsophagealTransit(((Modele_EsophagealTransit)this.getModele()).getExamenMean(), ((Modele_EsophagealTransit)this.getModele()).getDicomRoi());
 		fen.setVisible(true);
 	}
 

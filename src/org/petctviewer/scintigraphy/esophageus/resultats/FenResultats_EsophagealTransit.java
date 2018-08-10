@@ -4,13 +4,16 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
@@ -18,6 +21,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
@@ -31,110 +35,148 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
+import org.jfree.chart.util.ShapeUtils;
 import org.jfree.data.general.DatasetUtils;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.calibration.resultats.JTableCheckBox;
+import org.petctviewer.scintigraphy.esophageus.Condense_Dynamique;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
+import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
+import org.scijava.util.ArrayUtils;
+
+import ij.ImagePlus;
 
 public class FenResultats_EsophagealTransit extends JFrame implements  ChartMouseListener,ActionListener,ChangeListener{
 
 	private JFreeChart graphMain;
 	private JFreeChart graphTransitTime;
-
+	private JFreeChart graphRetention;
+	
 	private String [] titleRows;
-	private String [] titleCols = {"Entier","un Tier","deux Tier", "trois Tier"};
+	private String [] titleCols = {"Full","Upper","Middle", "Lower"};
 	
 	private JPanel tabMain,tabTransitTime, tabRetention;
-	private Selector startSelec, endSelec ;
+	private Selector startSelector, endSelector ;
 	private	JLabel surfaceLabel;
 	
 	private Modele_Resultats_EsophagealTransit 		modele ;
 
-	 JRadioButton[] jb;
+	 JRadioButton[] radioButtonTransitTime;
 	 
 	 double[][] selectors;
 	 
 	 private static int numSeriesSelctors= 0;
-	 JLabel [] n;
-	 JValueSetter valueSetter;
+	 JLabel [] labelsMesureTempsSelectorTransit;
+	 JValueSetter valueSetterTransit;
+	 
+	 
+	 /* Retention */
+	 private JRadioButton [] radioButtonRetention;
+	 
+	 /*Condensé*/
+	 //Spinners
+	 private JSpinner spinnerRight;
+	 private JSpinner spinnerLeft;
+	 JPanel tabCondenseDynamique;
+	 JPanel imageCondensePanel;
+	 
+	 int rightRognageValue[];
+	 int leftRognageValue[];
+	 JPanel imageProjeterEtRoiPanel;
+	 
+	 JRadioButton [] radioButtonCondense;
+	 
+	 private static int numAcquisitionCondense = 0;
 	 
 	/*
 	 * un partie main avec graph main et un jtablecheckbox main
 	 * un partie transit time avec hraph , jvalue stter, checkbox (1 collonnne pour les acqui entier) et un couple de controleur par acqui
 	 */
-	public FenResultats_EsophagealTransit(ArrayList<HashMap<String, ArrayList<Double>>> arrayList) {
+	public FenResultats_EsophagealTransit(ArrayList<HashMap<String, ArrayList<Double>>> arrayList, ArrayList<Object[]> dicomRoi) {
 		
-		
-		modele = new Modele_Resultats_EsophagealTransit(arrayList);
-		
+		modele = new Modele_Resultats_EsophagealTransit(arrayList,dicomRoi);
 		this.setLayout(new BorderLayout());
 		
-		/*********** tab main ************/
+		/********************************************************** tab main ************/
 		tabMain = new JPanel();
 		this.tabMain.setLayout(new BorderLayout());
 		
-		//graph center 
-	  	 graphMain = ChartFactory.createXYLineChart( "Esophageal Transit", "s", "Count/s", null);
+		//graph  
+	  	graphMain = ChartFactory.createXYLineChart( "Esophageal Transit", "s", "Count/s", null);
 	  	 
-	    //Changes background color
-	    XYPlot plot = (XYPlot)graphMain.getPlot();
-	    //plot.setBackgroundPaint(new Color(255,228,196));
-	    plot.setBackgroundPaint(new Color(255,255,255)); 
+	  	XYLineAndShapeRenderer rendererMain = new XYLineAndShapeRenderer();
+ 	  	rendererMain.setDefaultShapesVisible(true);
+ 	  	for(int i =0; i< arrayList.size(); i++) {
+ 	 	  	rendererMain.setSeriesShape(i, ShapeUtils.createDiagonalCross(3, 1));
+ 	 	  	System.out.println('i'+i);
+ 	  	}
+ 		graphMain.getXYPlot().setDomainGridlinePaint(Color.black);
+ 	  	graphMain.getXYPlot().setRangeGridlinePaint(Color.black);
+ 	  	graphMain.getXYPlot().setRenderer(rendererMain);
+ 	  
+	    //Changes background color et grid color
+	    this.graphMain.getXYPlot().setBackgroundPaint(new Color(255,255,255)); 	    
+		
+		 
 	    
 	    ChartPanel chartPanel = new ChartPanel(graphMain);	    
 	    this.tabMain.add(chartPanel,BorderLayout.CENTER);
 	    
 	    this.setMainGraphDataset(this.modele.getDataSetMain());
 	    
+	    // table de checkbox	
+	    JTableCheckBox tableCheckboxMain = new JTableCheckBox(titleRows, titleCols, this);
 	    
-			
+	    tableCheckboxMain.setFirstColumn();
 		
-	    JTableCheckBox d = new JTableCheckBox(titleRows, titleCols, this);
+		JPanel sideMain = new JPanel();
+		sideMain.setLayout(new BoxLayout(sideMain, BoxLayout.Y_AXIS));
+	    sideMain.add(tableCheckboxMain);
 		
-		JPanel east = new JPanel();
-		east.setLayout(new BoxLayout(east, BoxLayout.Y_AXIS));
-	    east.add(d);
-		
-		this.tabMain.add(east, BorderLayout.EAST);
+		this.tabMain.add(sideMain, BorderLayout.EAST);
 
 
-		
-		/********** tab transit time **********/
+		/******************************************************** tab transit time **********/
 	    
 		tabTransitTime = new JPanel();
 		tabTransitTime.setLayout(new BorderLayout());
 		
-		//graph center 
+		//graph  
 		graphTransitTime = ChartFactory.createXYLineChart( "Transit Time", "s", "Count/s", null);
-	       
-	    ChartPanel chartPanelt = new ChartPanel(graphTransitTime);	    
-	    this.tabTransitTime.add(chartPanelt,BorderLayout.CENTER);
+		 //Changes background color et grid color
+	    this.graphTransitTime.getXYPlot().setBackgroundPaint(new Color(255,255,255)); 	    
+		this.graphTransitTime.getXYPlot().setRangeGridlinePaint(Color.black);
+		this.graphTransitTime.getXYPlot().setDomainGridlinePaint(Color.black);
 		
-	    
+	    ChartPanel chartTransitPanel = new ChartPanel(graphTransitTime);	    
+	    this.tabTransitTime.add(chartTransitPanel,BorderLayout.CENTER);
+		
 		this.setTransitTimeDataset(modele.getDataSetTransitTime());
 
+		// rend toutes les coubres visible
 		for(int i =0 ;i<arrayList.size(); i++) {
-				this.setVisibilitySeriesTransitTime(i, false);				
+				this.setVisibilitySeriesGraph(this.graphTransitTime,i, false);				
 		}
 	    
-		 valueSetter = new JValueSetter(graphTransitTime);
-		valueSetter.addChartMouseListener(this);
+		//graph avec les selecteur
+		valueSetterTransit = new JValueSetter(graphTransitTime);
+		valueSetterTransit.addChartMouseListener(this);
 		
-		startSelec = new Selector("start", 0, -1, RectangleAnchor.TOP_LEFT);
-		valueSetter.addSelector(startSelec, "start");
-		endSelec = new Selector("end", 1, -1, RectangleAnchor.TOP_LEFT);
-		valueSetter.addSelector(endSelec, "end");
-		valueSetter.addArea("start", "end", "area", null);
-		
-		
-		
+		startSelector = new Selector("start", 0, -1, RectangleAnchor.TOP_LEFT);
+		valueSetterTransit.addSelector(startSelector, "start");
+		endSelector = new Selector("end", 1, -1, RectangleAnchor.TOP_LEFT);
+		valueSetterTransit.addSelector(endSelector, "end");
+		valueSetterTransit.addArea("start", "end", "area", null);
+
 		// liste contenant les couples de valeurs des selecteurs
 		selectors = new double[arrayList.size()][2];
 		for(int i = 0 ; i< selectors.length; i++) {
@@ -143,80 +185,231 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 			 selectors[i][1] = 2;
 		}
 		
-	    this.tabTransitTime.add(valueSetter,BorderLayout.CENTER);
+	    this.tabTransitTime.add(valueSetterTransit,BorderLayout.CENTER);
 
-	    
-	    JPanel selection = new JPanel();
-		selection.setLayout(new GridLayout(arrayList.size(), 1));
+	    //Panel de selection des acquisitions (side panel)
+	    JPanel selectionAcquiTransitPanel = new JPanel();
+		selectionAcquiTransitPanel.setLayout(new GridLayout(arrayList.size(), 1));
 
-	    surfaceLabel = new JLabel("diff");
-		
-	    //selection.add(surfaceLabel);
-	    
-	    
-	    ButtonGroup bg = new ButtonGroup();
-	    
-	     n = new JLabel[arrayList.size()];
-	     jb = new JRadioButton[arrayList.size()];
+	    ButtonGroup buttonGroupTransit = new ButtonGroup(); 
+	    labelsMesureTempsSelectorTransit = new JLabel[arrayList.size()];
+	    radioButtonTransitTime = new JRadioButton[arrayList.size()];
 	    
 	     
 	    for(int i =0; i< arrayList.size(); i++) {
+		    //un selecteur pour tous les acqui
 	    	JPanel un = new JPanel();
 	    	un.setLayout(new FlowLayout());
 
-	    	jb[i] = new JRadioButton("Acquisition "+i);
-	    	jb[i].addActionListener(this);
-			bg.add(jb[i]);
-	    	un.add(jb[i]);
+	    	radioButtonTransitTime[i] = new JRadioButton("Acquisition "+(i+1));
+	    	radioButtonTransitTime[i].addChangeListener(new ChangeListener() {
+				
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					
+					for(int  i =0; i< FenResultats_EsophagealTransit.this.radioButtonTransitTime.length; i++) {
+						if(((JRadioButton)e.getSource()).equals(radioButtonTransitTime[i]) ) {
+							//System.out.println("jb i : "+i);
+							FenResultats_EsophagealTransit.this.setVisibilitySeriesGraph(FenResultats_EsophagealTransit.this.graphTransitTime,i, true);
+							numSeriesSelctors = i;
+							FenResultats_EsophagealTransit.this.startSelector.setXValue(selectors[i][0]);
+							FenResultats_EsophagealTransit.this.endSelector.setXValue(selectors[i][1]);
+							FenResultats_EsophagealTransit.this.valueSetterTransit.updateAreas();
+							
+			
+						}else {
+							FenResultats_EsophagealTransit.this.setVisibilitySeriesGraph(FenResultats_EsophagealTransit.this.graphTransitTime,i, false);
+						}
+					}					
+				}
+			});
+			buttonGroupTransit.add(radioButtonTransitTime[i]);
+	    	un.add(radioButtonTransitTime[i]);
 	    	
-	    	n[i] = new JLabel("mesure = ?");
-	    	un.add(n[i]);
+	    	labelsMesureTempsSelectorTransit[i] = new JLabel("measure = ?");
+	    	un.add(labelsMesureTempsSelectorTransit[i]);
 	    	
-	    	
-	    	selection.add(un);
-	    
+	    	selectionAcquiTransitPanel.add(un);
 	    }
 	  
-	    
-	    //un selecteur pour tous les acqui
-	    //
-		JPanel flow = new JPanel(new FlowLayout());
-		flow.add(selection);			    
+	    //pour quil soit regroupe
+		JPanel selectionAcquiTransitPanelFlow = new JPanel(new FlowLayout());
+		selectionAcquiTransitPanelFlow.add(selectionAcquiTransitPanel);			    
 			    
-		this.tabTransitTime.add(flow, BorderLayout.EAST);
+		this.tabTransitTime.add(selectionAcquiTransitPanelFlow, BorderLayout.EAST);
 		
-		/***********tab retention ************/
+		/*******************************************************************tab retention ************/
 		this.tabRetention = new JPanel();
+		this.tabRetention.setLayout(new BorderLayout());
 		
-		// afficher un graph ?
-		// utilisation que de la coubre entiere
-		// un panel par acqui pour afficher le resultat
 		
-		//serie de la premire acquisition
-		XYSeries serie1 = modele.getDataSetTransitTime()[0][0];
+		//graph center 
+		 graphRetention = ChartFactory.createXYLineChart( "Retention", "s", "Count/s", null);
+		 XYLineAndShapeRenderer rendererTransit = new XYLineAndShapeRenderer();
+		 rendererTransit.setSeriesShapesVisible(0, true);
+		 graphRetention.getXYPlot().setRenderer(rendererTransit);
+		 
+		 this.graphRetention.getXYPlot().setBackgroundPaint(new Color(255,255,255)); 	    
+		 this.graphRetention.getXYPlot().setRangeGridlinePaint(Color.black);
+		 this.graphRetention.getXYPlot().setDomainGridlinePaint(Color.black);
+	
+	 
+		 
+		 ChartPanel chartRetentionPanel = new ChartPanel(graphRetention);	    
+	    this.tabRetention.add(chartRetentionPanel,BorderLayout.CENTER);
 		
-		System.out.println("max Y: "+ serie1.getMaxY());
-		double ymax = serie1.getMaxY();
-		double x = ModeleScinDyn.getAbsMaxY(serie1);
+		graphRetention.getXYPlot().setDataset(this.modele.retention2());
+
+
+		JPanel radioButtonRetentionPanel = new JPanel();
+		radioButtonRetentionPanel.setLayout(new GridLayout(arrayList.size(), 1));
 		
-		System.out.println("x : " +x);
-		System.out.println("interpolate du max de Y en acqui 0 entier : " +ModeleScinDyn.getInterpolatedY(serie1, x+10));
+	    ButtonGroup buttonGroupRetention = new ButtonGroup();    
+	     radioButtonRetention = new JRadioButton[arrayList.size()];
+	    for(int i =0; i< arrayList.size(); i++) {
+	    	radioButtonRetention[i] = new JRadioButton("Acquisition "+(i+1));
+	    	radioButtonRetention[i].addChangeListener(new ChangeListener() {
+				
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					
+					for(int i =0; i<FenResultats_EsophagealTransit.this.radioButtonRetention.length; i++) {
+						if(((JRadioButton)e.getSource()).equals(radioButtonRetention[i])) {
+							FenResultats_EsophagealTransit.this.setVisibilitySeriesGraph(FenResultats_EsophagealTransit.this.graphRetention, i, true);
+						}else {
+							FenResultats_EsophagealTransit.this.setVisibilitySeriesGraph(FenResultats_EsophagealTransit.this.graphRetention, i, false);
+						}
+					}						
+				}
+			});
+	    	buttonGroupRetention.add(radioButtonRetention[i]);
+	    	radioButtonRetentionPanel.add( radioButtonRetention[i]);
+	    }
+	    
+	    JPanel radioButtonRetentionPanelFlow = new JPanel();
+		radioButtonRetentionPanelFlow.setLayout(new FlowLayout());
+		radioButtonRetentionPanelFlow.add(radioButtonRetentionPanel);
+	    
+		Box sideRetentionPanel = Box.createVerticalBox();
+	    sideRetentionPanel.add(radioButtonRetentionPanelFlow);
+	    
+	    
+	    JPanel retentionResultPanel  = new JPanel();
+	    retentionResultPanel.setLayout(new GridLayout(arrayList.size()+1,1));
+	   
+	    retentionResultPanel.add(new JLabel("Decrease 10s after peak"));
+		double[] retention10s = this.modele.retention();
+		for(int i =0 ; i< retention10s.length; i++) {
+			retentionResultPanel.add(new JLabel("Acquisition "+i+" : "+(retention10s[i]*100) +"%"));
+		}
+	    
 		
-		double ycalc = ModeleScinDyn.getInterpolatedY(serie1, x+10);
+		JPanel retentionResultPanelFlow = new JPanel();
+		retentionResultPanelFlow.setLayout(new FlowLayout());
+		retentionResultPanelFlow.add(retentionResultPanel);
 		
-		double fractionDecrease = 1-((ymax - ycalc)/100);
-		System.out.println("pourcentage" + fractionDecrease);
+		sideRetentionPanel.add(retentionResultPanelFlow);
+	    
+	    
+		this.tabRetention.add(sideRetentionPanel, BorderLayout.EAST);
 		
+				
+		/******************************************************** Tab condanse dynamique**/
+		
+		 this.rightRognageValue = new int[arrayList.size()];
+		 this.leftRognageValue = new int[arrayList.size()];
+		 
+		 tabCondenseDynamique = new JPanel();
+		 tabCondenseDynamique.setLayout(new BorderLayout());
+		
+		 imageCondensePanel = new JPanel();
+		 imageCondensePanel.setLayout( new BorderLayout());
+		 imageCondensePanel.add(this.modele.calculCondense(numAcquisitionCondense));
+
+		 tabCondenseDynamique.add(imageCondensePanel);
+		
+		
+
+		JPanel spinnerPanel = new JPanel();
+		spinnerPanel.add(new JLabel("Left side"));
+		spinnerLeft = new JSpinner();
+		spinnerLeft.addChangeListener(this);
+		spinnerPanel.add(spinnerLeft);
+		spinnerPanel.add(new JLabel("Right side"));
+		spinnerRight = new JSpinner();
+		spinnerRight.addChangeListener(this);
+		spinnerPanel.add(spinnerRight);
+		
+		
+		imageProjeterEtRoiPanel = new JPanel();
+		imageProjeterEtRoiPanel.setLayout(new BorderLayout());
+		imageProjeterEtRoiPanel.add(this.modele.getImagePlusAndRoi(numAcquisitionCondense));
+		
+		JPanel imagePlusRognagePanel = new JPanel();
+		imagePlusRognagePanel.setLayout(new BorderLayout());
+		imagePlusRognagePanel.add(spinnerPanel, BorderLayout.NORTH);
+		imagePlusRognagePanel.add(imageProjeterEtRoiPanel, BorderLayout.CENTER);
+
+		JPanel radioButtonCondensePanel = new JPanel();
+		radioButtonCondensePanel.setLayout(new GridLayout(arrayList.size(), 1));
+		
+	    ButtonGroup buttonGroupCondense = new ButtonGroup();    
+	    radioButtonCondense = new JRadioButton[arrayList.size()];
+	    for(int i =0; i< arrayList.size(); i++) {
+	    	radioButtonCondense[i] = new JRadioButton("Acquisition "+(i+1));
+	    	radioButtonCondense[i].addChangeListener(new ChangeListener() {
+				
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					for(int i =0; i<FenResultats_EsophagealTransit.this.radioButtonCondense.length; i++) {
+						if(((JRadioButton)e.getSource()).equals(radioButtonCondense[i])) {
+							numAcquisitionCondense = i;
+							spinnerLeft.setValue(leftRognageValue[numAcquisitionCondense]);
+							spinnerRight.setValue(rightRognageValue[numAcquisitionCondense]);
+							
+							imageProjeterEtRoiPanel.removeAll();
+							imageProjeterEtRoiPanel.add(FenResultats_EsophagealTransit.this.modele.getImagePlusAndRoi(numAcquisitionCondense));
+							imageProjeterEtRoiPanel.revalidate();
+
+							imageCondensePanel.removeAll();
+							imageCondensePanel.add(FenResultats_EsophagealTransit.this.modele.calculCondense(numAcquisitionCondense));
+							imageCondensePanel.revalidate();
+							
+						}
+					}
+					
+				}
+			});
+	    	buttonGroupCondense.add(radioButtonCondense[i]);
+	    	radioButtonCondensePanel.add( radioButtonCondense[i]);
+	    }
+	   
+	    
+	    JPanel radioButtonCondensePanelFlow = new JPanel();
+		radioButtonCondensePanelFlow.setLayout(new FlowLayout());
+		radioButtonCondensePanelFlow.add(radioButtonCondensePanel);
+	    
+		JPanel  sideCondensePanel = new JPanel();
+		sideCondensePanel.setLayout(new BorderLayout());
+		sideCondensePanel.add(radioButtonCondensePanelFlow, BorderLayout.NORTH);
+		sideCondensePanel.add(imagePlusRognagePanel, BorderLayout.CENTER);
+		
+		tabCondenseDynamique.add(sideCondensePanel, BorderLayout.EAST);
 		/****************/
 		
 		
 		JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
-		tabbedPane.addTab("Main", this.tabMain);	
+		tabbedPane.addTab("Curves", this.tabMain);	
 		tabbedPane.addTab("Transit Time", this.tabTransitTime);	 
 		tabbedPane.addTab("Retention", this.tabRetention);
+		tabbedPane.addTab("Condensed Dynamic images", tabCondenseDynamique);
 
 		this.add(tabbedPane);
 		
+		radioButtonTransitTime[0].setSelected(true);
+		radioButtonRetention[0].setSelected(true);
+		radioButtonCondense[0].setSelected(true);
+
 		this.pack();
 	}
 	
@@ -236,7 +429,7 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 		titleRows = new String [dataset.length];
 		
 		for(int i =0; i< dataset.length; i++) {
-			titleRows[i] = "Acqui "+i;
+			titleRows[i] = "Acqui "+(i+1);
 			for(int j =0; j<dataset[i].length; j++) {
 				//System.out.println("i: "+i+" j: "+j);
 				d.addSeries(dataset[i][j]);
@@ -244,10 +437,10 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 		}
 		
 		this.graphMain.getXYPlot().setDataset(d);
+	
 		//this.graph.getXYPlot().getRenderer().setSeriesPaint(0, Color.BLUE);	
 	}
-	
-
+	 
 	/***************** transit time ************/
 	
 	public void setTransitTimeDataset(XYSeries[][] dataset) {
@@ -270,37 +463,17 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 				
 	}
 	
-	
 	/*
 	 * retourne la difference de value sur X entre les deux selecteur
 	 */
 	public double getDelta() {
-		return Math.abs(this.startSelec.getXValue() - this.endSelec.getXValue());
+		return Math.abs(this.startSelector.getXValue() - this.endSelector.getXValue());
 	}
 
-	public void setLabelValue(double value) {
-		this.surfaceLabel.setText("Difference :"+	ModeleScin.round(value, 2));
-	}
-	
+	/********************* Listener ************************/
 	//radio button
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		for(int  i =0; i< this.jb.length; i++) {
-			if(e.getSource() instanceof JRadioButton) {
-				if(((JRadioButton)e.getSource()).equals(jb[i]) ) {
-					//System.out.println("jb i : "+i);
-					this.setVisibilitySeriesTransitTime(i, true);
-					numSeriesSelctors = i;
-					this.startSelec.setXValue(selectors[i][0]);
-					this.endSelec.setXValue(selectors[i][1]);
-					this.valueSetter.updateAreas();
-					
-	
-				}else {
-					this.setVisibilitySeriesTransitTime(i, false);
-				}
-			}
-		}
 		
 	}
 	
@@ -310,14 +483,12 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 	@Override
 	public void chartMouseClicked(ChartMouseEvent event) {
 		//System.out.println("clik"+this.fen.getDelta());
-		this.setLabelValue(this.getDelta());
-		this.selectors[numSeriesSelctors][0] = this.startSelec.getXValue();
-		this.selectors[numSeriesSelctors][1] = this.endSelec.getXValue();
+		this.selectors[numSeriesSelctors][0] = this.startSelector.getXValue();
+		this.selectors[numSeriesSelctors][1] = this.endSelector.getXValue();
 		
-		this.n[numSeriesSelctors].setText(ModeleScin.round(this.getDelta(), 2)+" sec");
+		this.labelsMesureTempsSelectorTransit[numSeriesSelctors].setText(ModeleScin.round(this.getDelta(), 2)+" sec");
 
 	}
-	
 	
 	/*
 	 * actualise la valuer a chaque mouvement de la souris sur le graphe meme si on a pas selectionné un selecteur(non-Javadoc)
@@ -325,27 +496,62 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 	 */
 	@Override
 	public void chartMouseMoved(ChartMouseEvent event) {
-		//System.out.println("mov"+this.fen.getDelta());		
 	}
 
-	
-	
-	private void setVisibilitySeriesTransitTime(int x, boolean visibility) {
-		 XYItemRenderer renderer = this.graphTransitTime.getXYPlot().getRenderer();
-	     //x+4  4: car on a 4 colonnes
-		 renderer.setSeriesVisible(x,  visibility);
-	}
-	
-	//method appelé lors d'un appui sur une checkbox
+	/*method appelé :
+	 * - lors d'un appui sur une checkbox
+	* - lors d'un changement de valeur des spinner 
+	*/
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		JCheckBox selected = (JCheckBox)e.getSource();
 		
-		this.setVisibilitySeriesMain(	
-				Integer.parseInt(selected.getName().split("\\|")[0]), 
- 				Integer.parseInt(selected.getName().split("\\|")[1]),
- 				selected.isSelected());
+		System.out.println("statechange");
+		if(e.getSource() instanceof JCheckBox) {
+			JCheckBox selected = (JCheckBox)e.getSource();
+			
+			this.setVisibilitySeriesMain(	
+					Integer.parseInt(selected.getName().split("\\|")[0]), 
+	 				Integer.parseInt(selected.getName().split("\\|")[1]),
+	 				selected.isSelected());
+		}else if( e.getSource() instanceof JSpinner) {
+			JSpinner spinner = (JSpinner)e.getSource();
+			if(spinner.equals(spinnerRight)) {
+
+				//System.out.println("pinner right "+((int)spinner.getValue()- this.rightRognageValue));
+				
+				this.modele.rognerDicomCondenseRight((int)spinner.getValue()- this.rightRognageValue[numAcquisitionCondense],numAcquisitionCondense);
+				this.rightRognageValue[numAcquisitionCondense] = (int)spinner.getValue();
+				 imageCondensePanel.removeAll();
+				 imageCondensePanel.add(this.modele.calculCondense(numAcquisitionCondense));
+				 imageCondensePanel.revalidate();
+				 
+				 imageProjeterEtRoiPanel.removeAll();
+				 imageProjeterEtRoiPanel.add(this.modele.getImagePlusAndRoi(numAcquisitionCondense));
+				 imageProjeterEtRoiPanel.revalidate();
+
+			}else if(spinner.equals(spinnerLeft)) {
+				//System.out.println("pinner left "+spinner.getValue());
+				this.modele.rognerDicomCondenseLeft((int)spinner.getValue()- this.leftRognageValue[numAcquisitionCondense],numAcquisitionCondense);
+				this.leftRognageValue[numAcquisitionCondense] = (int)spinner.getValue();
+				 imageCondensePanel.removeAll();
+				 imageCondensePanel.add(this.modele.calculCondense(numAcquisitionCondense));
+				 imageCondensePanel.revalidate();
+				 
+				 imageProjeterEtRoiPanel.removeAll();
+				 imageProjeterEtRoiPanel.add(this.modele.getImagePlusAndRoi(numAcquisitionCondense));
+				 imageProjeterEtRoiPanel.revalidate();
+			}
+		}
+		
 	}
 
+	
+	
+	/******* Tools *******/
+	private void setVisibilitySeriesGraph(JFreeChart graph, int numSerie, boolean visibility) {
+		System.out.println("visibility nummserie:" + numSerie + " Visi : "+visibility +" title "+ graph.getTitle());
+		 XYItemRenderer renderer = graph.getXYPlot().getRenderer();
+		 renderer.setSeriesVisible(numSerie,  visibility);
+	}
 	
 }
