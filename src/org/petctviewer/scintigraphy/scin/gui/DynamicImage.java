@@ -91,6 +91,13 @@ public class DynamicImage extends JPanel {
 	}
 
 	/*
+	 * Get Image of this panel to refresh
+	 */
+	public Image getImage() {
+		return this.image;
+	}
+	
+	/*
 	 * Set the style used to paint the background image
 	 */
 	public void setStyle(int style) {
