@@ -11,9 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import javax.swing.JFrame;
-
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
@@ -24,8 +21,6 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.chart.ui.TextAnchor;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 
 public class JValueSetter extends ChartPanel implements ChartMouseListener {
 	
@@ -44,35 +39,6 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 		
 		this.selectors = new ArrayList<>();
 		this.areas = new HashMap<Comparable, Area>();
-	}
-	
-	public static final void main(String[] args) {
-		JFrame frame = new JFrame("");
-		
-		JValueSetter jvs = new JValueSetter(createChart());
-		jvs.addSelector(new Selector("OK", 2, 0, RectangleAnchor.BOTTOM), "A");
-		frame.add(jvs);
-		
-		frame.pack();
-		frame.setVisible(true);
-	}
-	
-	private static JFreeChart createChart() {
-		XYSeries series = new XYSeries("S1");
-		for (int x = 0; x < 30; x++) {
-			series.add(x, 5 + Math.random() * 3);
-		}
-		XYSeriesCollection dataset = new XYSeriesCollection(series);
-
-		XYSeries series2 = new XYSeries("S2");
-		for (int x = 0; x < 30; x++) {
-			series2.add(x, 3 + Math.random() * 3);
-		}
-
-		dataset.addSeries(series2);
-		
-		JFreeChart chart = ChartFactory.createXYLineChart("Adjust the values", "X", "Y", dataset);
-		return chart;
 	}
 
 	/**

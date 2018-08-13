@@ -185,10 +185,12 @@ public class Modele_Resultats_EsophagealTransit {
 	}
 	
 	public void calculCond(int indiceAcquisition) {
-		Scintigraphy.setCustomLut((ImagePlus)dicomRoi.get(indiceAcquisition)[0]);
-		condense[indiceAcquisition]=buildCondense(
+		//Scintigraphy.setCustomLut((ImagePlus)dicomRoi.get(indiceAcquisition)[0]);
+		ImagePlus condese= buildCondense(
 				 (ImagePlus)dicomRoi.get(indiceAcquisition)[0],// la dicom imp
 				 (Rectangle)dicomRoi.get(indiceAcquisition)[1]);
+		condese.show();
+		condense[indiceAcquisition]=condese;
 	}
 	
 	
@@ -217,9 +219,9 @@ public class Modele_Resultats_EsophagealTransit {
 	private ImagePlus buildCondense(ImagePlus imp, Rectangle roi) {
 		
 		int coupes = imp.getStack().getSize();
-		Dimension dimCondense = new Dimension((int)roi.getWidth()*coupes, (int)roi.getHeight());
+		Dimension dimCondense = new Dimension((int)roi.getWidth()*coupes, imp.getHeight());
 
-		ImagePlus imageCondensee = IJ.createImage("Image", "16-bit black", dimCondense.width, dimCondense.height,coupes);
+		ImagePlus imageCondensee = IJ.createImage("Image", "16-bit black", dimCondense.width, imp.getHeight() , coupes);
 		// imp.hide();
 		for (int i = 0; i < coupes; i++) {
 			imp.setSlice(i + 1);
@@ -228,17 +230,17 @@ public class Modele_Resultats_EsophagealTransit {
 					(int) Math.round(roi.getX()), 
 					(int) Math.round(roi.getY()),
 					(int) Math.round(imp.getWidth() - roi.getX()), 
-					(int)roi.getHeight());
+					(int) imp.getHeight() );
 		
 			imp.setRoi(imageShift);
 			// On copie cette zone
 			imp.copy();
 			// on cree une nouvelle imagePlus de la taille finale
-			ImagePlus image = IJ.createImage("Image", "16-bit black", dimCondense.width, dimCondense.height, 1);
+			ImagePlus image = IJ.createImage("Image", "16-bit black", dimCondense.width, imp.getHeight(), 1);
 			// On met un nouveau rectangle qu'on shift de 9 pixel et on colle dans cette
 			// image
 			Rectangle recDestination = new Rectangle();
-			recDestination.setBounds(i * (int)roi.getWidth(), imageShift.y, imageShift.width, imageShift.height);
+			recDestination.setBounds(i * (int)roi.getWidth(), imageShift.y, imageShift.width, imp.getHeight());
 			// recDestination.setLocation(i*9, 0);
 			image.setRoi(recDestination);
 			// image.show();
