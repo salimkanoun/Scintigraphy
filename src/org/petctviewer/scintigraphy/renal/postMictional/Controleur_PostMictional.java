@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin.basic;
+package org.petctviewer.scintigraphy.renal.postMictional;
 
 import java.awt.event.ActionEvent;
 
@@ -8,14 +8,14 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import ij.gui.Roi;
 import ij.plugin.frame.RoiManager;
 
-public class Controleur_Basic extends ControleurScin{
+public class Controleur_PostMictional extends ControleurScin{
 
 	private CustomControleur ctrl;
 
-	protected Controleur_Basic(Scintigraphy vue, String[] organes) {
+	protected Controleur_PostMictional(Scintigraphy vue, String[] organes) {
 		super(vue);
 		this.setOrganes(organes);
-		this.setModele(new Modele_Basic());
+		this.setModele(new Modele_PostMictional());
 		this.setRoiManager(new RoiManager(false));
 	}
 

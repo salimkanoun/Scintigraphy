@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin.basic;
+package org.petctviewer.scintigraphy.renal.postMictional;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -11,12 +11,12 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Overlay;
 
-public class BasicScintigraphy extends Scintigraphy {
+public class PostMictional extends Scintigraphy {
 
 	private String[] organes;
 	private CustomControleur cusCtrl;
 
-	public BasicScintigraphy(String[] organes, CustomControleur cusCtrl) {
+	public PostMictional(String[] organes, CustomControleur cusCtrl) {
 		super("Scintigraphy");
 		this.organes = organes;
 		this.cusCtrl = cusCtrl;
@@ -46,14 +46,14 @@ public class BasicScintigraphy extends Scintigraphy {
 		fen.setVisible(true);
 		this.setFenApplication(fen);
 		this.getImp().setOverlay(ov);
-		Controleur_Basic ctrl = new Controleur_Basic(this, this.organes);
+		Controleur_PostMictional ctrl = new Controleur_PostMictional(this, this.organes);
 		ctrl.setCustomControleur(this.cusCtrl);
 		this.getFenApplication().setControleur(ctrl);
 	}
 
 	
 	public HashMap<String, Double> getData() {
-		return ((Modele_Basic) this.getFenApplication().getControleur().getModele()).getData();
+		return ((Modele_PostMictional) this.getFenApplication().getControleur().getModele()).getData();
 	}
 	
 	public BufferedImage getCapture() {

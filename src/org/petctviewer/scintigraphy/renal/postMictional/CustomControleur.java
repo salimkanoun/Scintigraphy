@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin.basic;
+package org.petctviewer.scintigraphy.renal.postMictional;
 
 import java.awt.event.ActionEvent;
 

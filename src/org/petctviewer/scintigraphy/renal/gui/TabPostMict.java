@@ -17,11 +17,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
+import org.petctviewer.scintigraphy.renal.postMictional.CustomControleur;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.basic.BasicScintigraphy;
-import org.petctviewer.scintigraphy.scin.basic.CustomControleur;
 import org.petctviewer.scintigraphy.scin.gui.PanelResultatImp;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
@@ -35,7 +35,7 @@ import ij.util.DicomTools;
 class TabPostMict extends PanelResultatImp implements ActionListener, CustomControleur {
 
 	private static final long serialVersionUID = 8125367912250906052L;
-	private BasicScintigraphy vueBasic;
+	private PostMictional vueBasic;
 	private JButton btn_addImp, btn_quantify;
 	private boolean bladder;
 
@@ -110,7 +110,7 @@ class TabPostMict extends PanelResultatImp implements ActionListener, CustomCont
 			
 		} else if(arg0.getSource().equals(this.btn_quantify)){
 			
-			this.vueBasic = new BasicScintigraphy(createOrgans(), this);
+			this.vueBasic = new PostMictional(createOrgans(), this);
 			this.vueBasic.startExam(new ImagePlus[] { this.getImagePlus() });
 			
 			
