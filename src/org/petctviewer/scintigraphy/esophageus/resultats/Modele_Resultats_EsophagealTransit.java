@@ -24,6 +24,11 @@ public class Modele_Resultats_EsophagealTransit {
 	private XYSeries [][] datasetTransitTime;
 	
 	private ArrayList<Object[]> dicomRoi;
+	
+	
+	private ImagePlus[] condense;
+	private ImagePlus[] imageplusAndRoi;
+
 
 	public Modele_Resultats_EsophagealTransit(ArrayList<HashMap<String, ArrayList<Double>>> arrayList, ArrayList<Object[]> dicomRoi) {
 			
@@ -47,6 +52,11 @@ public class Modele_Resultats_EsophagealTransit {
 		}
 		
 		this.dicomRoi=dicomRoi;
+		
+		
+		condense = new ImagePlus[arrayList.size()];
+		imageplusAndRoi = new ImagePlus[arrayList.size()];
+
 	}
 	
 	public XYSeries[][] getDataSetMain() {
@@ -125,6 +135,21 @@ public class Modele_Resultats_EsophagealTransit {
 		return serie;
 	}
 
+	
+	
+	
+
+	
+	public ImagePlus getCondense(int indiceAcquisition) {
+		return condense[indiceAcquisition];		
+	}
+	
+	public ImagePlus getImagePlusAndRoi(int indiceAcquisition) {
+		return imageplusAndRoi[indiceAcquisition];
+	}
+	
+	
+	
 	public void rognerDicomCondenseRight(int pixelDroite, int indiceAcquisition) {
 		Rectangle ancienRectangle = (Rectangle)dicomRoi.get(indiceAcquisition)[1];
 		Rectangle nouveauRectangle =  (Rectangle)dicomRoi.get(indiceAcquisition)[1];
@@ -146,26 +171,29 @@ public class Modele_Resultats_EsophagealTransit {
 
 	}
 	
-	public DynamicImage calculCondense(int indiceAcquisition) {
-		 System.out.println(  "w"+		 ((Rectangle)dicomRoi.get(indiceAcquisition)[1]).getWidth()   );
-
-		Scintigraphy.setCustomLut((ImagePlus)dicomRoi.get(indiceAcquisition)[0]);
-		ImagePlus condense=buildCondense(
-				 (ImagePlus)dicomRoi.get(indiceAcquisition)[0],// la dicom imp
-				 (Rectangle)dicomRoi.get(indiceAcquisition)[1]);
-		//condense.show();
-		 return new DynamicImage(condense.getBufferedImage());// la roi
-		
+	
+	
+	
+	
+	
+	
+	public void calculImagePlusAndRoi(int indiceAcquisition) {
+		ImagePlus impProjete = DynamicScintigraphy.projeter((ImagePlus)dicomRoi.get(indiceAcquisition)[0], 0, ((ImagePlus)dicomRoi.get(indiceAcquisition)[0]).getStackSize(), "max");
+		Scintigraphy.setCustomLut(impProjete);
+		impProjete.setRoi((Rectangle)dicomRoi.get(indiceAcquisition)[1]);
+		imageplusAndRoi[indiceAcquisition] = impProjete.crop();
 	}
 	
-	public DynamicImage getImagePlusAndRoi(int indiceAcquisition) {
-		ImagePlus m = DynamicScintigraphy.projeter((ImagePlus)dicomRoi.get(indiceAcquisition)[0], 0, ((ImagePlus)dicomRoi.get(indiceAcquisition)[0]).getStackSize(), "max");
-		Scintigraphy.setCustomLut(m);
-		m.setRoi((Rectangle)dicomRoi.get(indiceAcquisition)[1]);
-		ImagePlus res = m.crop();
-		
-		return new DynamicImage(res.getBufferedImage());
+	public void calculCond(int indiceAcquisition) {
+		Scintigraphy.setCustomLut((ImagePlus)dicomRoi.get(indiceAcquisition)[0]);
+		condense[indiceAcquisition]=buildCondense(
+				 (ImagePlus)dicomRoi.get(indiceAcquisition)[0],// la dicom imp
+				 (Rectangle)dicomRoi.get(indiceAcquisition)[1]);
 	}
+	
+	
+	//contrast : 
+	
 	
 	private ImagePlus buildCondense(ImagePlus imp, Rectangle roi) {
 		

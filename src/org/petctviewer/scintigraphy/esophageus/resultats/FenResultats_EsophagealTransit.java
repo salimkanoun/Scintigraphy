@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -17,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
@@ -39,6 +41,10 @@ import org.petctviewer.scintigraphy.calibration.resultats.JTableCheckBox;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
+
+import ij.ImagePlus;
+import ij.plugin.ContrastEnhancer;
 
 public class FenResultats_EsophagealTransit extends JFrame implements  ChartMouseListener,ActionListener,ChangeListener{
 
@@ -72,11 +78,11 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 	 private JSpinner spinnerRight;
 	 private JSpinner spinnerLeft;
 	 JPanel tabCondenseDynamique;
-	 JPanel imageCondensePanel;
+	 DynamicImage imageCondensePanel;
 	 
 	 int rightRognageValue[];
 	 int leftRognageValue[];
-	 JPanel imageProjeterEtRoiPanel;
+	 DynamicImage imageProjeterEtRoiPanel;
 	 
 	 JRadioButton [] radioButtonCondense;
 	 
@@ -306,10 +312,10 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 		 
 		 tabCondenseDynamique = new JPanel();
 		 tabCondenseDynamique.setLayout(new BorderLayout());
-		
-		 imageCondensePanel = new JPanel();
+		 
+		 this.modele.calculCond(numAcquisitionCondense);
+		 imageCondensePanel = new DynamicImage(this.modele.getCondense(numAcquisitionCondense).getBufferedImage());
 		 imageCondensePanel.setLayout( new BorderLayout());
-		 imageCondensePanel.add(this.modele.calculCondense(numAcquisitionCondense));
 
 		 tabCondenseDynamique.add(imageCondensePanel);
 		
@@ -326,9 +332,8 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 		spinnerPanel.add(spinnerRight);
 		
 		
-		imageProjeterEtRoiPanel = new JPanel();
+		imageProjeterEtRoiPanel = new DynamicImage(this.modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
 		imageProjeterEtRoiPanel.setLayout(new BorderLayout());
-		imageProjeterEtRoiPanel.add(this.modele.getImagePlusAndRoi(numAcquisitionCondense));
 		
 		JPanel imagePlusRognagePanel = new JPanel();
 		imagePlusRognagePanel.setLayout(new BorderLayout());
@@ -353,11 +358,12 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 							spinnerRight.setValue(rightRognageValue[numAcquisitionCondense]);
 							
 							imageProjeterEtRoiPanel.removeAll();
-							imageProjeterEtRoiPanel.add(FenResultats_EsophagealTransit.this.modele.getImagePlusAndRoi(numAcquisitionCondense));
+							imageProjeterEtRoiPanel.add(new DynamicImage(FenResultats_EsophagealTransit.this.modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage()));
 							imageProjeterEtRoiPanel.revalidate();
 
 							imageCondensePanel.removeAll();
-							imageCondensePanel.add(FenResultats_EsophagealTransit.this.modele.calculCondense(numAcquisitionCondense));
+							FenResultats_EsophagealTransit.this.modele.calculCond(numAcquisitionCondense);
+							imageCondensePanel.add(new DynamicImage(FenResultats_EsophagealTransit.this.modele.getCondense(numAcquisitionCondense).getBufferedImage()));
 							imageCondensePanel.revalidate();
 							
 						}
@@ -373,11 +379,20 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 	    JPanel radioButtonCondensePanelFlow = new JPanel();
 		radioButtonCondensePanelFlow.setLayout(new FlowLayout());
 		radioButtonCondensePanelFlow.add(radioButtonCondensePanel);
+		
+		
+		//slider de contraste
+		JSlider contrastSlider = new JSlider(SwingConstants.HORIZONTAL,0,20,4);
+		JLabel contrastLabel = new JLabel("Contrast");
+		
+		contrastSlider.addChangeListener(this);
+		
 	    
 		JPanel  sideCondensePanel = new JPanel();
 		sideCondensePanel.setLayout(new BorderLayout());
 		sideCondensePanel.add(radioButtonCondensePanelFlow, BorderLayout.NORTH);
 		sideCondensePanel.add(imagePlusRognagePanel, BorderLayout.CENTER);
+		sideCondensePanel.add(contrastSlider,BorderLayout.SOUTH);
 		
 		tabCondenseDynamique.add(sideCondensePanel, BorderLayout.EAST);
 		/****************/
@@ -507,11 +522,12 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 				this.modele.rognerDicomCondenseRight((int)spinner.getValue()- this.rightRognageValue[numAcquisitionCondense],numAcquisitionCondense);
 				this.rightRognageValue[numAcquisitionCondense] = (int)spinner.getValue();
 				 imageCondensePanel.removeAll();
-				 imageCondensePanel.add(this.modele.calculCondense(numAcquisitionCondense));
+				 this.modele.calculCond(numAcquisitionCondense);
+				 imageCondensePanel.add(new DynamicImage(this.modele.getCondense(numAcquisitionCondense).getBufferedImage()));
 				 imageCondensePanel.revalidate();
 				 
 				 imageProjeterEtRoiPanel.removeAll();
-				 imageProjeterEtRoiPanel.add(this.modele.getImagePlusAndRoi(numAcquisitionCondense));
+				 imageProjeterEtRoiPanel.add(new DynamicImage(this.modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage()));
 				 imageProjeterEtRoiPanel.revalidate();
 
 			}else if(spinner.equals(spinnerLeft)) {
@@ -519,13 +535,34 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 				this.modele.rognerDicomCondenseLeft((int)spinner.getValue()- this.leftRognageValue[numAcquisitionCondense],numAcquisitionCondense);
 				this.leftRognageValue[numAcquisitionCondense] = (int)spinner.getValue();
 				 imageCondensePanel.removeAll();
-				 imageCondensePanel.add(this.modele.calculCondense(numAcquisitionCondense));
+				 
+				 imageCondensePanel.add(new DynamicImage(this.modele.getCondense(numAcquisitionCondense).getBufferedImage()));
 				 imageCondensePanel.revalidate();
 				 
 				 imageProjeterEtRoiPanel.removeAll();
-				 imageProjeterEtRoiPanel.add(this.modele.getImagePlusAndRoi(numAcquisitionCondense));
+				 imageProjeterEtRoiPanel.add(new DynamicImage(this.modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage()));
 				 imageProjeterEtRoiPanel.revalidate();
 			}
+		}else if(e.getSource() instanceof JSlider) {
+			System.out.println("slider :"+((JSlider)e.getSource()).getValue());
+
+			//changement de contraste
+			ContrastEnhancer ce = new ContrastEnhancer();
+			ImagePlus imageProjeterEtRoi = this.modele.getCondense(numAcquisitionCondense);
+			//imageProjeterEtRoi.show();
+			ce.stretchHistogram(imageProjeterEtRoi, ((JSlider)e.getSource()).getValue());
+			
+			//imageProjeterEtRoi.show();
+
+			 imageProjeterEtRoiPanel.removeAll();
+			 imageProjeterEtRoiPanel.setImage(imageProjeterEtRoi.getBufferedImage());
+			 imageProjeterEtRoiPanel.revalidate();
+			
+			ImagePlus imageCondense = new ImagePlus("",imageCondensePanel.getImage());
+			ce.stretchHistogram(imageCondense, ((JSlider)e.getSource()).getValue());
+			
+			imageCondensePanel.setImage(imageCondense.getBufferedImage());
+			imageCondensePanel.revalidate();
 		}
 		
 	}
