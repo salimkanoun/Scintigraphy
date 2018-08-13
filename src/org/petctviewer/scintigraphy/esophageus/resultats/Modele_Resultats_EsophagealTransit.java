@@ -192,6 +192,25 @@ public class Modele_Resultats_EsophagealTransit {
 	}
 	
 	
+	public void calculAllImagePlusAndRoi() {
+		for(int i =0; i<imageplusAndRoi.length; i++) {
+			ImagePlus impProjete = DynamicScintigraphy.projeter((ImagePlus)dicomRoi.get(i)[0], 0, ((ImagePlus)dicomRoi.get(i)[0]).getStackSize(), "max");
+			Scintigraphy.setCustomLut(impProjete);
+			impProjete.setRoi((Rectangle)dicomRoi.get(i)[1]);
+			imageplusAndRoi[i] = impProjete.crop();
+		}
+	}
+
+	public void calculAllCondense() {
+		for(int i=0; i<condense.length; i++) {
+			Scintigraphy.setCustomLut((ImagePlus)dicomRoi.get(i)[0]);
+			condense[i]=buildCondense(
+				 (ImagePlus)dicomRoi.get(i)[0],// la dicom imp
+				 (Rectangle)dicomRoi.get(i)[1]);
+		}
+		
+	}
+	
 	//contrast : 
 	
 	
