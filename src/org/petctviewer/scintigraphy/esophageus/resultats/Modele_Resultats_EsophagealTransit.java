@@ -209,15 +209,12 @@ public class Modele_Resultats_EsophagealTransit {
 
 	public void calculAllCondense() {
 		for(int i=0; i<condense.length; i++) {
-			Scintigraphy.setCustomLut((ImagePlus)dicomRoi.get(i)[0]);
 			condense[i]=buildCondense(
 				 (ImagePlus)dicomRoi.get(i)[0],// la dicom imp
 				 (Rectangle)dicomRoi.get(i)[1]);
 		}
 		
 	}
-	
-	//contrast : 
 	
 	
 	private ImagePlus buildCondense(ImagePlus imp, Rectangle roi) {
@@ -263,6 +260,7 @@ public class Modele_Resultats_EsophagealTransit {
 		projector.doProjection();
 		ImagePlus projete = projector.getProjection();
 		Scintigraphy.setCustomLut(projete);
+	   
 		return projete;
 		
 		
