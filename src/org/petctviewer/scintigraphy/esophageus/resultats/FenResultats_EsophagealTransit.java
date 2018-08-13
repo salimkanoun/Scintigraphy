@@ -9,6 +9,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -16,6 +18,8 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -23,20 +27,28 @@ import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.DefaultFormatter;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.labels.StandardXYToolTipGenerator;
+import org.jfree.chart.labels.XYToolTipGenerator;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.util.ShapeUtils;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.calibration.resultats.JTableCheckBox;
@@ -110,10 +122,11 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
  	  	rendererMain.setDefaultShapesVisible(true);
  	  	for(int i =0; i< arrayList.size(); i++) {
  	 	  	rendererMain.setSeriesShape(i, ShapeUtils.createDiagonalCross(3, 1));
- 	 	  	System.out.println('i'+i);
+ 	 	  	//System.out.println('i'+i);
  	  	}
  		graphMain.getXYPlot().setDomainGridlinePaint(Color.black);
  	  	graphMain.getXYPlot().setRangeGridlinePaint(Color.black);
+ 	  	rendererMain.setDefaultToolTipGenerator(new StandardXYToolTipGenerator());
  	  	graphMain.getXYPlot().setRenderer(rendererMain);
  	  
 	    //Changes background color et grid color
@@ -238,6 +251,7 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 		 graphRetention = ChartFactory.createXYLineChart( "Retention", "s", "Count/s", null);
 		 XYLineAndShapeRenderer rendererTransit = new XYLineAndShapeRenderer();
 		 rendererTransit.setSeriesShapesVisible(0, true);
+		 rendererTransit.setDefaultToolTipGenerator(new StandardXYToolTipGenerator());
 		 graphRetention.getXYPlot().setRenderer(rendererTransit);
 		 
 		 this.graphRetention.getXYPlot().setBackgroundPaint(new Color(255,255,255)); 	    
@@ -265,6 +279,7 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 					for(int i =0; i<FenResultats_EsophagealTransit.this.radioButtonRetention.length; i++) {
 						if(((JRadioButton)e.getSource()).equals(radioButtonRetention[i])) {
 							FenResultats_EsophagealTransit.this.setVisibilitySeriesGraph(FenResultats_EsophagealTransit.this.graphRetention, i, true);
+
 						}else {
 							FenResultats_EsophagealTransit.this.setVisibilitySeriesGraph(FenResultats_EsophagealTransit.this.graphRetention, i, false);
 						}
@@ -289,7 +304,7 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 	    retentionResultPanel.add(new JLabel("Decrease 10s after peak"));
 		double[] retention10s = this.modele.retention();
 		for(int i =0 ; i< retention10s.length; i++) {
-			retentionResultPanel.add(new JLabel("Acquisition "+i+" : "+(retention10s[i]*100) +"%"));
+			retentionResultPanel.add(new JLabel("Acquisition "+(i+1)+" : "+(retention10s[i]*100) +"%"));
 		}
 	    
 		
@@ -317,11 +332,11 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 
 		 tabCondenseDynamique.add(imageCondensePanel);
 		
-		
+	
 
 		JPanel spinnerPanel = new JPanel();
 		spinnerPanel.add(new JLabel("Left side"));
-		spinnerLeft = new JSpinner();
+		spinnerLeft = new JSpinner();    
 		spinnerLeft.addChangeListener(this);
 		spinnerPanel.add(spinnerLeft);
 		spinnerPanel.add(new JLabel("Right side"));
@@ -352,10 +367,13 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 						if(((JRadioButton)e.getSource()).equals(radioButtonCondense[i])) {
 							numAcquisitionCondense = i;
 						
+							spinnerLeft.removeChangeListener(FenResultats_EsophagealTransit.this);
+							
+							
 							spinnerLeft.setValue(leftRognageValue[numAcquisitionCondense]);
 							spinnerRight.setValue(rightRognageValue[numAcquisitionCondense]);
 							
-							
+							spinnerLeft.addChangeListener(FenResultats_EsophagealTransit.this);
 							
 							//imageProjeterEtRoiPanel.removeAll();
 							imageProjeterEtRoiPanel.setImage(FenResultats_EsophagealTransit.this.modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
@@ -469,35 +487,7 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 	/********************* Listener ************************/
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if( e.getSource() instanceof JSpinner) {
-			JSpinner spinner = (JSpinner)e.getSource();
-			if(spinner.equals(spinnerRight)) {
-
-				//System.out.println("pinner right "+((int)spinner.getValue()- this.rightRognageValue));
-				
-				this.modele.rognerDicomCondenseRight((int)spinner.getValue()- this.rightRognageValue[numAcquisitionCondense],numAcquisitionCondense);
-				this.rightRognageValue[numAcquisitionCondense] = (int)spinner.getValue();
-				
-				 this.modele.calculCond(numAcquisitionCondense);
-				 imageCondensePanel.setImage(this.modele.getCondense(numAcquisitionCondense).getBufferedImage());
-
-				 
-				 this.modele.calculImagePlusAndRoi(numAcquisitionCondense);
-				 imageProjeterEtRoiPanel.setImage(this.modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
-
-			}else if(spinner.equals(spinnerLeft)) {
-				//System.out.println("pinner left "+spinner.getValue());
-				
-				this.modele.rognerDicomCondenseLeft((int)spinner.getValue()- this.leftRognageValue[numAcquisitionCondense],numAcquisitionCondense);
-				this.leftRognageValue[numAcquisitionCondense] = (int)spinner.getValue();
-				 
-				this.modele.calculCond(numAcquisitionCondense);
-				 imageCondensePanel.setImage(this.modele.getCondense(numAcquisitionCondense).getBufferedImage());
-
-				 this.modele.calculImagePlusAndRoi(numAcquisitionCondense);
-				 imageProjeterEtRoiPanel.setImage(this.modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
-			}
-		}
+		
 	}
 	
 	/*
@@ -547,6 +537,36 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 
 			ce.stretchHistogram(this.modele.getCondense(numAcquisitionCondense), ((JSlider)e.getSource()).getValue());
 			imageCondensePanel.setImage(this.modele.getCondense(numAcquisitionCondense).getBufferedImage());
+		}else 	if( e.getSource() instanceof JSpinner) {
+			JSpinner spinner = (JSpinner)e.getSource();
+			if(spinner.equals(spinnerRight)) {
+
+				//System.out.println("pinner right "+((int)spinner.getValue()- this.rightRognageValue));
+				
+				this.modele.rognerDicomCondenseRight((int)spinner.getValue()- this.rightRognageValue[numAcquisitionCondense],numAcquisitionCondense);
+				this.rightRognageValue[numAcquisitionCondense] = (int)spinner.getValue();
+				
+				 this.modele.calculCond(numAcquisitionCondense);
+				 imageCondensePanel.setImage(this.modele.getCondense(numAcquisitionCondense).getBufferedImage());
+
+				 
+				 this.modele.calculImagePlusAndRoi(numAcquisitionCondense);
+				 imageProjeterEtRoiPanel.setImage(this.modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
+
+			}else if(spinner.equals(spinnerLeft)) {
+				//System.out.println("pinner left "+spinner.getValue());
+				
+				this.modele.rognerDicomCondenseLeft((int)spinner.getValue()- this.leftRognageValue[numAcquisitionCondense],numAcquisitionCondense);
+				this.leftRognageValue[numAcquisitionCondense] = (int)spinner.getValue();
+				 
+				this.modele.calculCond(numAcquisitionCondense);
+				 imageCondensePanel.setImage(this.modele.getCondense(numAcquisitionCondense).getBufferedImage());
+
+				 this.modele.calculImagePlusAndRoi(numAcquisitionCondense);
+				 imageProjeterEtRoiPanel.setImage(this.modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
+			}
+			
+		
 		}
 		
 	}
@@ -555,9 +575,11 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 	
 	/******* Tools *******/
 	private void setVisibilitySeriesGraph(JFreeChart graph, int numSerie, boolean visibility) {
-		System.out.println("visibility nummserie:" + numSerie + " Visi : "+visibility +" title "+ graph.getTitle());
+	//	System.out.println("visibility nummserie:" + numSerie + " Visi : "+visibility +" title "+ graph.getTitle());
 		 XYItemRenderer renderer = graph.getXYPlot().getRenderer();
 		 renderer.setSeriesVisible(numSerie,  visibility);
+		 renderer.setSeriesPaint(numSerie, Color.red);
+
 	}
 	
 }

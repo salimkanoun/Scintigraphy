@@ -180,7 +180,9 @@ public class Modele_Resultats_EsophagealTransit {
 	public void calculImagePlusAndRoi(int indiceAcquisition) {
 		ImagePlus impProjete = DynamicScintigraphy.projeter((ImagePlus)dicomRoi.get(indiceAcquisition)[0], 0, ((ImagePlus)dicomRoi.get(indiceAcquisition)[0]).getStackSize(), "max");
 		Scintigraphy.setCustomLut(impProjete);
-		impProjete.setRoi((Rectangle)dicomRoi.get(indiceAcquisition)[1]);
+		Rectangle rectRoi = (Rectangle)dicomRoi.get(indiceAcquisition)[1];
+		rectRoi.setSize((int)((Rectangle)dicomRoi.get(indiceAcquisition)[1]).getWidth(), ((ImagePlus)dicomRoi.get(indiceAcquisition)[0]).getHeight());
+		impProjete.setRoi(rectRoi);
 		imageplusAndRoi[indiceAcquisition] = impProjete.crop();
 	}
 	
@@ -189,7 +191,6 @@ public class Modele_Resultats_EsophagealTransit {
 		ImagePlus condese= buildCondense(
 				 (ImagePlus)dicomRoi.get(indiceAcquisition)[0],// la dicom imp
 				 (Rectangle)dicomRoi.get(indiceAcquisition)[1]);
-		condese.show();
 		condense[indiceAcquisition]=condese;
 	}
 	
@@ -198,9 +199,12 @@ public class Modele_Resultats_EsophagealTransit {
 		for(int i =0; i<imageplusAndRoi.length; i++) {
 			ImagePlus impProjete = DynamicScintigraphy.projeter((ImagePlus)dicomRoi.get(i)[0], 0, ((ImagePlus)dicomRoi.get(i)[0]).getStackSize(), "max");
 			Scintigraphy.setCustomLut(impProjete);
-			impProjete.setRoi((Rectangle)dicomRoi.get(i)[1]);
+			Rectangle rectRoi = (Rectangle)dicomRoi.get(i)[1];
+			rectRoi.setSize((int)((Rectangle)dicomRoi.get(i)[1]).getWidth(), ((ImagePlus)dicomRoi.get(i)[0]).getHeight());
+			impProjete.setRoi(rectRoi);
 			imageplusAndRoi[i] = impProjete.crop();
 		}
+	
 	}
 
 	public void calculAllCondense() {
