@@ -2,7 +2,6 @@ package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.util.HashMap;
 
-import org.jfree.chart.ChartPanel;
 import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
@@ -14,8 +13,7 @@ import ij.ImagePlus;
 
 public class Modele_HepaticDyn extends ModeleScinDyn {
 
-	private ChartPanel chartPanel;
-
+	
 	// resultats calcules
 	private Double tDemiFoieDFit, tDemiFoieGFit, tDemiVascFit, tDemiFoieDObs, tDemiFoieGObs, tDemiVascObs;
 	private Double maxFoieD, maxFoieG, finPicD, finPicG, pctVasc;

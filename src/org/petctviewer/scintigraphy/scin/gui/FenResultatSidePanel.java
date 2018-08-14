@@ -78,7 +78,7 @@ public abstract class FenResultatSidePanel extends JFrame {
 		patientInfo.add(new JLabel("Aquisition date: "));
 		patientInfo.add(new JLabel(infoPatient.get("date")));
 		
-		this.setFontAllJLabels(patientInfo, new Font("Calibri", Font.BOLD, 16));
+		FenResultatSidePanel.setFontAllJLabels(patientInfo, new Font("Calibri", Font.BOLD, 16));
 		
 		JPanel flow1 = new JPanel(new FlowLayout());
 		flow1.add(patientInfo);

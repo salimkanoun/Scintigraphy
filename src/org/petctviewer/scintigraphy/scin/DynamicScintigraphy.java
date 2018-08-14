@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.scin;
 import java.util.ArrayList;
 import java.util.List;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.plugin.ZProjector;
 import ij.util.DicomTools;

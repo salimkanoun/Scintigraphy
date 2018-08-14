@@ -42,7 +42,7 @@ class TabPostMict extends PanelResultatImp implements ActionListener, CustomCont
 	private JPanel panel_excr, panel_bladder;
 
 	public TabPostMict(Scintigraphy vue) {
-		super("Renal scintigraphy", vue, null, "postmict");
+		super("Renal scintigraphy", vue, "postmict");
 		this.bladder = Prefs.get("renal.bladder.preferred", true);
 
 		

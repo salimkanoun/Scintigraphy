@@ -20,9 +20,6 @@ import ij.plugin.ContrastEnhancer;
 
 public abstract class PanelResultatImp extends JPanel implements ChangeListener {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private ImagePlus imp;
 	private DynamicImage dynamicImp;
@@ -35,7 +32,7 @@ public abstract class PanelResultatImp extends JPanel implements ChangeListener 
 	protected SidePanel sidePanel;
 	String additionalInfo, nomFen;
 
-	public PanelResultatImp(String nomFen, Scintigraphy vue, BufferedImage capture, String additionalInfo) {
+	public PanelResultatImp(String nomFen, Scintigraphy vue, String additionalInfo) {
 		super(new BorderLayout());
 		this.setVue(vue);
 		this.additionalInfo = additionalInfo;
@@ -67,7 +64,6 @@ public abstract class PanelResultatImp extends JPanel implements ChangeListener 
 
 		this.setContrast(slider.getValue());
 
-		 //sidePanel = new SidePanel(boxSlider, nomFen, getVue().getImp());
 		sidePanel.addCaptureBtn(getVue(), this.additionalInfo, new Component[] { this.slider });
 
 		this.add(sidePanel, BorderLayout.EAST);
@@ -78,10 +74,7 @@ public abstract class PanelResultatImp extends JPanel implements ChangeListener 
 		JSlider slider = (JSlider) e.getSource();
 		this.setContrast(slider.getValue());
 	}
-
- 
 	
-
 	public ImagePlus getImagePlus() {
 		return this.imp;
 	}
@@ -97,12 +90,7 @@ public abstract class PanelResultatImp extends JPanel implements ChangeListener 
 	public Scintigraphy getVue() {
 		return vue;
 	}
-	
-	
-	
-	
-	
-	
+
 	public void setImp(ImagePlus imp) {
 		this.imp = imp;
 		this.finishBuildingWindow();
