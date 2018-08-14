@@ -20,6 +20,7 @@ import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import ij.ImagePlus;
 import ij.Prefs;
 import ij.gui.Roi;
+import ij.measure.Calibration;
 import ij.util.DicomTools;
 
 public class Modele_Renal extends ModeleScinDyn {
@@ -345,6 +346,10 @@ public class Modele_Renal extends ModeleScinDyn {
 			 heightRK = this.organRois.get("R. Kidney").getBounds().height;
 		}
 		//r�cup�re la hauteur d'un pixel en mm
+		//Calibration calibration=this.getImp().getLocalCalibration();
+		//calibration.setUnit("mm");
+		//Double pixelHeight=calibration.pixelHeight;
+		///System.out.println(pixelHeight);
 		String pixelHeightString = DicomTools.getTag(this.getImp(), "0028,0030").trim().split("\\\\")[1];
 		Double pixelHeight = Double.parseDouble(pixelHeightString);
 		Double[] kidneyHeight = new Double[2];
