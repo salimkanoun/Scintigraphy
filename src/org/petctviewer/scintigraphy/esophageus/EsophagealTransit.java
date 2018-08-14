@@ -14,13 +14,15 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Overlay;
+import loci.poi.util.SystemOutLogger;
 
 public class EsophagealTransit extends Scintigraphy {
 
 	private ImagePlus impAnt, impPost, impProjetee, impProjeteeAnt;
 	private int[] frameDurations;
 	
-	private ImagePlus[] sauvegardeImagesSelectDicom;
+	// [ant:0 | post:1][numero de acquisition]
+	private ImagePlus[][] sauvegardeImagesSelectDicom;
 	
 	public EsophagealTransit() {
 		super("Eso");
@@ -47,24 +49,44 @@ public class EsophagealTransit extends Scintigraphy {
 	protected ImagePlus preparerImp(ImagePlus[] imagesSelectDicom) {
 		//entrée : tableau de toutes les images passées envoyé par la selecteur de dicom
 
+		sauvegardeImagesSelectDicom = new  ImagePlus[2][imagesSelectDicom.length];
+
 		//sauvegarde des images pour le modele
 		// oblige de faire duplicate sinon probleme 
 		
 		// trier les images par date et que avec les ant
 		//on creer une liste avec toutes les images plus 
-		ArrayList<ImagePlus> imagePourTrie = new ArrayList<>();
+		ArrayList<ImagePlus> imagePourTrieAnt = new ArrayList<>();
+		
+		// la meme chose pour la ant
+		ArrayList<ImagePlus> imagePourTriePost = new ArrayList<>();
+
+		//poour chaque acquisition
 		for(int i =0; i< imagesSelectDicom.length; i++){
 			//on ne sauvegarde que la ant
 			//null == pas d'image ant et/ou une image post et != une image post en [0]
 			if(Scintigraphy.sortDynamicAntPost(imagesSelectDicom[i])[0] != null) {
-				imagePourTrie.add(Scintigraphy.sortDynamicAntPost(imagesSelectDicom[i])[0].duplicate());
+				imagePourTrieAnt.add(Scintigraphy.sortDynamicAntPost(imagesSelectDicom[i])[0].duplicate());
+			}
+			// [1] : c'est la post
+			// si null : pas dimage post 
+			if(Scintigraphy.sortDynamicAntPost(imagesSelectDicom[i])[1] != null) {
+				//trie + inversement de la post
+				imagePourTriePost.add(Scintigraphy.flipStackHorizontal(Scintigraphy.sortDynamicAntPost(imagesSelectDicom[i])[1].duplicate()));
 			}
 		}
+		
 		//on appelle la fonction de trie 
-		sauvegardeImagesSelectDicom = Scintigraphy.orderImagesByAcquisitionTime(imagePourTrie);
-		
-		
-		
+		// on met les imageplus (ANT) dans cette fonction pour les trier, ensuite on stock le tout dans le tableau en [0]
+		sauvegardeImagesSelectDicom[0] = Scintigraphy.orderImagesByAcquisitionTime(imagePourTrieAnt);
+		//Pareil pour la post
+		sauvegardeImagesSelectDicom[1] = Scintigraphy.orderImagesByAcquisitionTime(imagePourTriePost);
+	
+		//test de verification de la taille des stack
+		if(sauvegardeImagesSelectDicom[0].length != sauvegardeImagesSelectDicom[1].length) {
+			System.err.println("(EsophagealTransit) Le nombre de slice ant est différent du nombre de slice post -> seules les ant seront pris en comptes");
+			sauvegardeImagesSelectDicom[1] = new ImagePlus[0];
+		}
 		
 		ImagePlus imTest = null;
 		if(imagesSelectDicom != null && imagesSelectDicom.length>0) {

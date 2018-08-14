@@ -19,7 +19,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	private RoiManager roimanager;
 	
 	// sauvegarde des imageplus de depart avec tous leur stack chacun : pour pouvoir faire les calculs de mean dans le temps//trié 
-	private ImagePlus [] sauvegardeImagesSelectDicom;
+	private ImagePlus [][] sauvegardeImagesSelectDicom;
 	
 	
 	
@@ -33,7 +33,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	ArrayList<Object[]> dicomRoi;
 	
 	
-	public Modele_EsophagealTransit(int[] frameDuration , ImagePlus [] sauvegardeImagesSelectDicom) {
+	public Modele_EsophagealTransit(int[] frameDuration , ImagePlus [][] sauvegardeImagesSelectDicom) {
 		super(frameDuration);
 		this.sauvegardeImagesSelectDicom = sauvegardeImagesSelectDicom;
 		
@@ -69,18 +69,18 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 		*/
 		
 		// pour etre sur quon a le meme nombre de roi que d'image plus
-		if(sauvegardeImagesSelectDicom.length != this.roimanager.getCount()) {
+		if(sauvegardeImagesSelectDicom[0].length != this.roimanager.getCount()) {
 			System.err.println("nombre d'imageplus different du nombre de roi");
 		}
 		
 		examenMean = new ArrayList<>();
-		//for each imageplus (ant) and roi qui lui correspond
-		for(int i =0; i< sauvegardeImagesSelectDicom.length; i++) {
+		//for each imageplus (ant) and roi qui lui correspond     each acqui
+		for(int i =0; i< sauvegardeImagesSelectDicom[0].length; i++) {
 			
 			
 			HashMap<String, ArrayList<Double>> map4rois = new HashMap<>();
 			// on stock les temps d'acquisition
-			int[] tempsInt =   (DynamicScintigraphy.buildFrameDurations(sauvegardeImagesSelectDicom[i]));
+			int[] tempsInt =   (DynamicScintigraphy.buildFrameDurations(sauvegardeImagesSelectDicom[0][i]));// on prends la ant
 			ArrayList<Double> temps = new ArrayList<>();
 			Double memtemps = 0.0;
 			for(int j =0; j< tempsInt.length; j++) {
@@ -111,28 +111,75 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 			ArrayList<Double> unTierList = new ArrayList<>();
 			ArrayList<Double> deuxTierList = new ArrayList<>();
 			ArrayList<Double> troisTierList = new ArrayList<>();
+						
+			//si on a pas de post on utlise que les post
+			if(sauvegardeImagesSelectDicom[1].length==0) {
+				//pour chaque slice de l'image plus
+				for(int j =1; j<= sauvegardeImagesSelectDicom[0][i].getStackSize(); j++) {
+					sauvegardeImagesSelectDicom[0][i].setSlice(j);
 
-			//pour chaque slice de l'image plus
-			for(int j =1; j<= sauvegardeImagesSelectDicom[i].getStackSize(); j++) {
-				sauvegardeImagesSelectDicom[i].setSlice(j);
+					sauvegardeImagesSelectDicom[0][i].deleteRoi();
+					sauvegardeImagesSelectDicom[0][i].setRoi(premiereRoi);
+					roiEntier.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i])/temps.get(j-1));
+					
+					//for each roi (ici 3)
+					sauvegardeImagesSelectDicom[0][i].deleteRoi();
+					sauvegardeImagesSelectDicom[0][i].setRoi(unTier);
+					unTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i])/temps.get(j-1));
+					
+					sauvegardeImagesSelectDicom[0][i].deleteRoi();
+					sauvegardeImagesSelectDicom[0][i].setRoi(deuxTier);
+					deuxTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i])/temps.get(j-1));
+					
+					sauvegardeImagesSelectDicom[0][i].deleteRoi();
+					sauvegardeImagesSelectDicom[0][i].setRoi(troisTier);
+					troisTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i])/temps.get(j-1));
+				}
+			}else {
+				//pour chaque slice de l'image plus
+				for(int j =1; j<= sauvegardeImagesSelectDicom[0][i].getStackSize(); j++) {
+					sauvegardeImagesSelectDicom[0][i].setSlice(j);
+					sauvegardeImagesSelectDicom[1][i].setSlice(j);
 
-				sauvegardeImagesSelectDicom[i].deleteRoi();
-				sauvegardeImagesSelectDicom[i].setRoi(premiereRoi);
-				roiEntier.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[i])/temps.get(j-1));
+
+					sauvegardeImagesSelectDicom[0][i].deleteRoi();
+					sauvegardeImagesSelectDicom[0][i].setRoi(premiereRoi);
+					sauvegardeImagesSelectDicom[1][i].deleteRoi();
+					sauvegardeImagesSelectDicom[1][i].setRoi(premiereRoi);
+					roiEntier.add(ModeleScin.moyGeom(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i]),
+													 ModeleScin.getCounts(sauvegardeImagesSelectDicom[1][i]))
+								/temps.get(j-1));
+					// moygeom( cout(ant), cout(post)) /temps
+					
+					//for each roi (ici 3)
+					sauvegardeImagesSelectDicom[0][i].deleteRoi();
+					sauvegardeImagesSelectDicom[0][i].setRoi(unTier);
+					sauvegardeImagesSelectDicom[1][i].deleteRoi();
+					sauvegardeImagesSelectDicom[1][i].setRoi(unTier);
+					unTierList.add(ModeleScin.moyGeom(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i]),
+							 						ModeleScin.getCounts(sauvegardeImagesSelectDicom[1][i]))
+								/temps.get(j-1));
+					
+					sauvegardeImagesSelectDicom[0][i].deleteRoi();
+					sauvegardeImagesSelectDicom[0][i].setRoi(deuxTier);
+					sauvegardeImagesSelectDicom[1][i].deleteRoi();
+					sauvegardeImagesSelectDicom[1][i].setRoi(deuxTier);
+					deuxTierList.add(ModeleScin.moyGeom(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i]),
+	 												  ModeleScin.getCounts(sauvegardeImagesSelectDicom[1][i]))
+							 	  /temps.get(j-1));
+					
+					sauvegardeImagesSelectDicom[0][i].deleteRoi();
+					sauvegardeImagesSelectDicom[0][i].setRoi(troisTier);
+					sauvegardeImagesSelectDicom[1][i].deleteRoi();
+					sauvegardeImagesSelectDicom[1][i].setRoi(troisTier);
+					troisTierList.add(ModeleScin.moyGeom(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i]),
+														ModeleScin.getCounts(sauvegardeImagesSelectDicom[1][i]))
+									/temps.get(j-1));
+				}
 				
-				//for each roi (ici 3)
-				sauvegardeImagesSelectDicom[i].deleteRoi();
-				sauvegardeImagesSelectDicom[i].setRoi(unTier);
-				unTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[i])/temps.get(j-1));
-				
-				sauvegardeImagesSelectDicom[i].deleteRoi();
-				sauvegardeImagesSelectDicom[i].setRoi(deuxTier);
-				deuxTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[i])/temps.get(j-1));
-				
-				sauvegardeImagesSelectDicom[i].deleteRoi();
-				sauvegardeImagesSelectDicom[i].setRoi(troisTier);
-				troisTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[i])/temps.get(j-1));
 			}
+			
+			
 			
 			//on met tous dans une map pour faciliter le tranfert
 			map4rois.put("entier", roiEntier);
@@ -148,8 +195,8 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 		
 		//condense
 		dicomRoi = new ArrayList<>();
-		for(int i =0; i< sauvegardeImagesSelectDicom.length; i++) {
-			Object [] content = {sauvegardeImagesSelectDicom[i], this.roimanager.getRoi(i).getBounds()};
+		for(int i =0; i< sauvegardeImagesSelectDicom[0].length; i++) {
+			Object [] content = {sauvegardeImagesSelectDicom[0][i], this.roimanager.getRoi(i).getBounds()};
 			dicomRoi.add(content);	
 		}
 	}

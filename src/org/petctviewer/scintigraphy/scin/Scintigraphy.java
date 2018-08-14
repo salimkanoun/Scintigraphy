@@ -43,6 +43,7 @@ import ij.plugin.ZProjector;
 import ij.plugin.frame.RoiManager;
 import ij.process.ImageProcessor;
 import ij.process.LUT;
+import ij.process.StackProcessor;
 import ij.util.DicomTools;
 
 public abstract class Scintigraphy implements PlugIn {
@@ -418,6 +419,16 @@ public abstract class Scintigraphy implements PlugIn {
 		return bkg;
 	}
 
+	/*
+	 *inverse le stack de l'image plus passée en paramètre 
+	 *(imp : donner l'implus ne contenant que la post)
+	 */
+	public static ImagePlus flipStackHorizontal(ImagePlus imp) {
+		StackProcessor sp = new StackProcessor(imp.getImageStack());
+		sp.flipHorizontal();
+		return imp;
+	}
+	
 	
 	/********************* Public Static Is ****************************************/
 	/** 

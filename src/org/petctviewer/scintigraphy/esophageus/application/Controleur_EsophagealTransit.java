@@ -18,7 +18,7 @@ public class Controleur_EsophagealTransit  extends ControleurScin {
 	private int nbOrganes;
 	EsophagealTransit esoPlugin;
 	
-	public Controleur_EsophagealTransit(EsophagealTransit esoPlugin, ImagePlus [] sauvegardeImagesSelectDicom) {
+	public Controleur_EsophagealTransit(EsophagealTransit esoPlugin, ImagePlus [][] sauvegardeImagesSelectDicom) {
 		super(esoPlugin);
 		this.esoPlugin = esoPlugin;
 		this.setOrganes(ORGANES);
