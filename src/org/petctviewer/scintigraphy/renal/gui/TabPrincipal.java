@@ -46,6 +46,7 @@ class TabPrincipal extends JPanel {
 	public TabPrincipal(RenalScintigraphy vue, BufferedImage capture) {
 		super(new BorderLayout());
 		JValueSetter chartNephrogram = vue.getNephrogramChart();
+		
 
 		HashMap<Comparable, Double> adjusted = ((Modele_Renal) vue.getFenApplication().getControleur().getModele())
 				.getAdjustedValues();
@@ -81,6 +82,9 @@ class TabPrincipal extends JPanel {
 		
 		this.add(side, BorderLayout.EAST);
 		this.add(grid, BorderLayout.CENTER);
+		chartNephrogram.removeChartMouseListener(chartNephrogram);
+		
+		
 	}
 
 	public Component getSidePanelContent() {

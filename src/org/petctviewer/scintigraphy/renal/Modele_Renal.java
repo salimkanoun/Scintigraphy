@@ -384,7 +384,6 @@ public class Modele_Renal extends ModeleScinDyn {
 
 		// on recupere les series
 		for (String lr : this.kidneysLR) {
-			XYSeries serieK = getSerie("Output K" + lr);
 			s += lr + ". kidney";
 			for (int i = 0; i < mins.length; i++) {
 				s += "," + this.getROE(mins[i], lr);

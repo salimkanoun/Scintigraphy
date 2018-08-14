@@ -11,7 +11,6 @@ import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.gui.FenNeph;
 import org.petctviewer.scintigraphy.renal.gui.FenResultats_Renal;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -24,7 +23,6 @@ import ij.gui.Roi;
 public class Controleur_Renal extends ControleurScin {
 
 	public static String[] ORGANES = { "L. Kidney", "L. bkg", "R. Kidney", "R. bkg", "Blood Pool" };
-	private int nbOrganes;
 
 	private boolean[] kidneys = new boolean[2];
 
@@ -37,7 +35,6 @@ public class Controleur_Renal extends ControleurScin {
 		super(renalScinti);
 
 		this.setOrganes(ORGANES);
-		this.nbOrganes = ORGANES.length;
 
 		Modele_Renal modele = new Modele_Renal(renalScinti.getFrameDurations(), kidneys, renalScinti.getImpPost());
 
@@ -111,8 +108,7 @@ public class Controleur_Renal extends ControleurScin {
 	
 	/************ Methods ***********/
 	private void adjustOrgans() {
-
-		nbOrganes = ORGANES.length;
+		
 		// on rajoute les organes selon les preferences
 		ArrayList<String> organes = new ArrayList<>(Arrays.asList(Controleur_Renal.ORGANES));
 
@@ -150,7 +146,6 @@ public class Controleur_Renal extends ControleurScin {
 			}
 		}
 
-		this.nbOrganes = organes.size();
 		this.setOrganes(organes.toArray(new String[0]));
 	}
 
