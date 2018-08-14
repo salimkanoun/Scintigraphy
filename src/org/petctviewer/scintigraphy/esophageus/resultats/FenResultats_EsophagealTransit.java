@@ -263,7 +263,7 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 		 ChartPanel chartRetentionPanel = new ChartPanel(graphRetention);	    
 	    this.tabRetention.add(chartRetentionPanel,BorderLayout.CENTER);
 		
-		graphRetention.getXYPlot().setDataset(this.modele.retention2());
+		graphRetention.getXYPlot().setDataset(this.modele.retentionForGraph());
 
 
 		JPanel radioButtonRetentionPanel = new JPanel();
@@ -302,9 +302,9 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 	    retentionResultPanel.setLayout(new GridLayout(arrayList.size()+1,1));
 	   
 	    retentionResultPanel.add(new JLabel("Decrease 10s after peak"));
-		double[] retention10s = this.modele.retention();
+		double[] retention10s = this.modele.retentionPoucentage();
 		for(int i =0 ; i< retention10s.length; i++) {
-			retentionResultPanel.add(new JLabel("Acquisition "+(i+1)+" : "+(retention10s[i]*100) +"%"));
+			retentionResultPanel.add(new JLabel("Acquisition "+(i+1)+" : "+(retention10s[i]) +"%"));
 		}
 	    
 		
