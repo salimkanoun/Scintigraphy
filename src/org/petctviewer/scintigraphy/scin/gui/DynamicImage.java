@@ -16,6 +16,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
+
+import ij.ImagePlus;
+
 /*
  *  Support custom painting on a panel in the form of
  *

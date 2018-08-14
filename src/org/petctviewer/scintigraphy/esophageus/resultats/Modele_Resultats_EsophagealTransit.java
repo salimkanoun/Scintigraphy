@@ -229,7 +229,7 @@ public class Modele_Resultats_EsophagealTransit {
 			Rectangle imageShift = new Rectangle();
 			imageShift.setBounds(
 					(int) Math.round(roi.getX()), 
-					(int) Math.round(roi.getY()),
+					0,
 					(int) Math.round(imp.getWidth() - roi.getX()), 
 					(int) imp.getHeight() );
 		
