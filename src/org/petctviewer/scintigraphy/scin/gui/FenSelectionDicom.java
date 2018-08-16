@@ -161,7 +161,10 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			table.selectAll();
 		}
 
-		this.startExam();
+		if(table.getSelectedRowCount() != 0 ) {
+			this.startExam();
+		}
+		
 
 	}
 

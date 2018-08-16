@@ -152,6 +152,7 @@ public class TabRentention extends JPanel{
 		  
 		JButton captureButton = new JButton("Capture");
 		JLabel lblCredit = new JLabel("Provided by petctviewer.org");
+		lblCredit.setVisible(false);
 		
 		sidePanel.add(captureButton);
 		sidePanel.add(lblCredit);

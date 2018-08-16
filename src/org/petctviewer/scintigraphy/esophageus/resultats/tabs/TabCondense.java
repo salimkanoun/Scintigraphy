@@ -162,6 +162,7 @@ public class TabCondense extends JPanel implements ChangeListener{
 		contrastCapture.add(contrastSlider);	
 		JButton captureButton = new JButton("Capture");
 		JLabel lblCredit = new JLabel("Provided by petctviewer.org");
+		lblCredit.setVisible(false);
 		contrastCapture.add(captureButton);
 		contrastCapture.add(lblCredit);
 		
