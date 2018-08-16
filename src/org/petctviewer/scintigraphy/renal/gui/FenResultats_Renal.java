@@ -33,10 +33,10 @@ public class FenResultats_Renal {
 			this.tabPatlak = new TabPatlak(vue);
 		}
 
-		showGUI();
+		showGUI(vue);
 	}
 
-	private void showGUI() {
+	private void showGUI(RenalScintigraphy vue) {
 
 		// Create and set up the window.
 		JFrame frame = new JFrame("Results Renal Exam");
@@ -74,6 +74,7 @@ public class FenResultats_Renal {
 		frame.pack();
 		frame.setVisible(true);
 		frame.setResizable(true);
+		frame.setLocationRelativeTo(vue.getImp().getWindow());
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
 

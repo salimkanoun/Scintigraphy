@@ -1,32 +1,17 @@
 package org.petctviewer.scintigraphy.hepatic.dyn.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import javax.swing.Box;
-import javax.swing.JButton;
+
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
 
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
-
-import ij.ImagePlus;
 
 public class FenResultat_HepaticDyn {
-
-	private static final long serialVersionUID = 1094251580157650693L;
 
 	private Container principal, vasculaire, third;
 	private final int width = 1000, height = 800;

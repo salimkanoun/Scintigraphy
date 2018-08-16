@@ -6,50 +6,49 @@ import java.awt.GridLayout;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 
 import org.petctviewer.scintigraphy.renal.Controleur_Renal;
+import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Overlay;
-import ij.gui.ScrollbarWithLabel;
 import ij.gui.Toolbar;
-import ij.plugin.Animator;
 
 public class FenApplicationDyn extends FenApplication implements ActionListener {
 
-	private DynamicScintigraphy vue;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private RenalScintigraphy vue;
 	private boolean dyn;
 	private ImagePlus impProj;
 	private Button btn_dyn, btn_start;
-	private Panel instru;
 
-	public FenApplicationDyn(ImagePlus imp, String nom, DynamicScintigraphy vue) {
+	public FenApplicationDyn(ImagePlus imp, String nom, RenalScintigraphy vue) {
 		super(imp, nom);
 		this.vue = vue;
 		this.impProj = imp.duplicate();
 		btn_dyn = new Button("Dynamic");
 		btn_dyn.addActionListener(this);
-		this.getBtns_glob().add(btn_dyn);
+		this.getPanel_Quit_Draw_Contrast_btns().add(btn_dyn);
 
-		this.getInstru().remove(1);
+		this.getPanelInstructionsTextBtn().remove(1);
 		// mise en place des boutons
 		Panel btns_instru = new Panel();
 		btns_instru.setLayout(new GridLayout(1, 2));
 		btn_start = new Button("Start");
 		btn_start.addActionListener(this);
 		btns_instru.add(btn_start);
-		this.getInstru().add(btns_instru);
+		this.getPanelInstructionsTextBtn().add(btns_instru);
 
 		this.getBtn_drawROI().setEnabled(false);
 
@@ -59,7 +58,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 	@Override
 	public void setControleur(ControleurScin ctrl) {
 		super.setControleur(ctrl);
-		this.setInstructions("Click to start the exam");
+		this.getTextfield_instructions().setText("Click to start the exam");
 	}
 
 	@Override
@@ -120,8 +119,8 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 
 			this.getBtn_contrast().setEnabled(true);
 
-			this.getInstru().remove(1);
-			this.getInstru().add(this.createBtnsInstru());
+			this.getPanelInstructionsTextBtn().remove(1);
+			this.getPanelInstructionsTextBtn().add(this.createPanelInstructionsBtns());
 			this.getControleur().setInstructionsDelimit(0);
 
 			this.getBtn_drawROI().setEnabled(true);
@@ -134,6 +133,10 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 
 	// TODO move that in it's own window
 	private class Fen_NbRein extends JDialog implements ActionListener {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		private boolean[] kidneys = new boolean[2];
 		private JButton btn_l, btn_r, btn_lr;
 

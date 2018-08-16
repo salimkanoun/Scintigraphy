@@ -23,11 +23,8 @@ import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
-import ij.IJ;
 import ij.ImagePlus;
-import ij.WindowManager;
 import ij.gui.Overlay;
-import ij.gui.Toolbar;
 import ij.plugin.Concatenator;
 import ij.plugin.HyperStackConverter;
 import ij.plugin.StackReverser;

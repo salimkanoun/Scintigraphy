@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.renal.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,12 +17,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
+import org.petctviewer.scintigraphy.renal.postMictional.CustomControleur;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.basic.CustomControleur;
-import org.petctviewer.scintigraphy.scin.basic.BasicScintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenResultatImp;
+import org.petctviewer.scintigraphy.scin.gui.PanelResultatImp;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
@@ -33,38 +32,61 @@ import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.util.DicomTools;
 
-class TabPostMict extends FenResultatImp implements ActionListener, CustomControleur {
+class TabPostMict extends PanelResultatImp implements ActionListener, CustomControleur {
 
 	private static final long serialVersionUID = 8125367912250906052L;
-	private BasicScintigraphy vueBasic;
+	private PostMictional vueBasic;
 	private JButton btn_addImp, btn_quantify;
 	private boolean bladder;
 
-	private JPanel pnl_excr, pnl_bladder;
+	private JPanel panel_excr, panel_bladder;
 
 	public TabPostMict(Scintigraphy vue) {
-		super("Renal scintigraphy", vue, null, "postmict");
+		super("Renal scintigraphy", vue, "postmict");
 		this.bladder = Prefs.get("renal.bladder.preferred", true);
 
-		this.pnl_bladder = new JPanel();
-		this.pnl_excr = new JPanel();
-
-		btn_addImp = new JButton("Choose post-mictional dicom");
-		btn_addImp.addActionListener(this);
+		
 
 		Box box = Box.createHorizontalBox();
 		box.add(Box.createHorizontalGlue());
+		
+		btn_addImp = new JButton("Choose post-mictional dicom");
+		btn_addImp.addActionListener(this);
 		box.add(btn_addImp);
 		box.add(Box.createHorizontalGlue());
-
-		Component comp = this.getSidePanelContent();
-		SidePanel side = new SidePanel(comp, "Renal Scintigraphy", vue.getImp());
 		this.add(box, BorderLayout.CENTER);
+
+		
+		
+		Box side = Box.createVerticalBox();
+		JPanel flow = new JPanel();
+		
+		this.panel_excr = new JPanel();
+		flow.add(this.panel_excr);
+		side.add(flow);
+		
+		this.panel_bladder = new JPanel();
+		side.add(this.panel_bladder);
+
+		this.btn_quantify = new JButton("Quantify");
+		this.btn_quantify.addActionListener(this);
+		this.btn_quantify.setVisible(false);
+		side.add(btn_quantify);
+		
+		sidePanel = new SidePanel(side, "Renal Scintigraphy1", vue.getImp());
+
+		this.add(sidePanel, BorderLayout.EAST);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getSource() == this.btn_addImp) {
+			
+			System.out.println("clic bouton : clic  bouton add imp");
+
+			//FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", scin)
+			
+			
 			// Assez sale
 			FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", new Scintigraphy("") {
 				@Override
@@ -72,12 +94,11 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 					if (images.length > 1) {
 						return null;
 					}
-
+					
+					TabPostMict.this.setImp(images[0]);
 					btn_addImp.setVisible(false);
 					btn_quantify.setVisible(true);
-
-					TabPostMict.this.setImp(images[0]);
-
+					sidePanel.add(boxSlider);
 					return images[0];
 				}
 
@@ -86,10 +107,18 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 				}
 			});
 			fen.setVisible(true);
-		} else {
-			this.btn_quantify.setVisible(false);
-			this.vueBasic = new BasicScintigraphy(createOrgans(), this);
+			
+		} else if(arg0.getSource().equals(this.btn_quantify)){
+			
+			this.vueBasic = new PostMictional(createOrgans(), this);
 			this.vueBasic.startExam(new ImagePlus[] { this.getImagePlus() });
+			
+			
+			
+			
+			
+		}else {
+			System.out.println("erreur !!!!!");
 		}
 	}
 
@@ -114,8 +143,8 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 		return organes.toArray(new String[0]);
 	}
 
-	@Override
 	public void fin() {
+		System.out.println("method fin");
 		Modele_Renal modele = (Modele_Renal) getVue().getFenApplication().getControleur().getModele();
 
 		HashMap<String, Double> data = this.vueBasic.getData();
@@ -135,44 +164,28 @@ class TabPostMict extends FenResultatImp implements ActionListener, CustomContro
 		}
 
 		// creation du panel excr rein gauche et droit
-		this.pnl_excr = (JPanel) this.getPanelExcr(rg, rd);
+		this.panel_excr = (JPanel) this.getPanelExcr(rg, rd);
 
 		// ajout de la vessie dans la liste d'organes si elle est selectionnee
 		if (bladder) {
 			Double bld = data.get("Bladder P0");
 			bld /= (duration / 1000);
-			this.pnl_bladder.add(new JLabel("Bladder : " + ModeleScinDyn.round(modele.getExcrBladder(bld), 2) + " %"));
+			this.panel_bladder.add(new JLabel("Bladder : " + ModeleScinDyn.round(modele.getExcrBladder(bld), 2) + " %"));
 		}
 
-		Component comp = this.getSidePanelContent();
-		SidePanel side = new SidePanel(comp, "Renal Scintigraphy", this.getImagePlus());
-		side.addCaptureBtn(vueBasic, "_PostMict", new Component[] { this.getSlider() });
-		this.add(side, new JPanel());
-		this.add(side, BorderLayout.EAST);
-	}
-
-	public Component getSidePanelContent() {
-		if (this.getImagePlus() != null) {
-			Box box = Box.createVerticalBox();
-			JPanel flow = new JPanel();
-			flow.add(this.pnl_excr);
-
-			box.add(flow);
-			box.add(this.pnl_bladder);
-			box.add(this.getBoxSlider());
-
-			return box;
-		}
-
-		this.btn_quantify = new JButton("Quantify");
-		this.btn_quantify.addActionListener(this);
-		this.btn_quantify.setVisible(false);
-
+		this.remove(this.sidePanel);
+		
 		JPanel flow = new JPanel();
-		flow.add(btn_quantify);
+		flow.add(panel_excr);
 
-		return flow;
+		sidePanel = new SidePanel(flow, "Renal Scintigraphy2", this.getImagePlus());
+		sidePanel.addCaptureBtn(vueBasic, "_PostMict", new Component[] { this.getSlider() });
+		this.add(sidePanel,BorderLayout.EAST);
+		this.repaint();
+		
 	}
+
+	
 
 	@Override
 	public Roi getOrganRoi(Roi roi) {

@@ -1,27 +1,9 @@
 package org.petctviewer.scintigraphy.scin;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.Prefs;
-import ij.WindowManager;
-import ij.gui.Overlay;
-import ij.gui.Roi;
-import ij.gui.TextRoi;
-import ij.plugin.Concatenator;
-import ij.plugin.MontageMaker;
-import ij.plugin.PlugIn;
-import ij.plugin.ZProjector;
-import ij.plugin.frame.RoiManager;
-import ij.process.ImageProcessor;
-import ij.process.LUT;
-import ij.util.DicomTools;
-
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -39,13 +21,29 @@ import java.util.Comparator;
 import java.util.Date;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.StringUtils;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
+
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.Prefs;
+import ij.WindowManager;
+import ij.gui.Overlay;
+import ij.gui.Roi;
+import ij.gui.TextRoi;
+import ij.plugin.Concatenator;
+import ij.plugin.MontageMaker;
+import ij.plugin.PlugIn;
+import ij.plugin.ZProjector;
+import ij.plugin.frame.RoiManager;
+import ij.process.ImageProcessor;
+import ij.process.LUT;
+import ij.process.StackProcessor;
+import ij.util.DicomTools;
 
 public abstract class Scintigraphy implements PlugIn {
 	// organes
@@ -63,6 +61,7 @@ public abstract class Scintigraphy implements PlugIn {
 		this.examType = examType;
 	}
 
+	/*************************** Public ************************/
 	/**
 	 * Lance la fen�tre de dialogue permettant le lancemet du programme. </br>
 	 * passer "standby" en parametre pour ne pas executer l'application directement
@@ -86,171 +85,542 @@ public abstract class Scintigraphy implements PlugIn {
 	}
 
 	/**
-	 * Permet de renvoyer une tableau d'image plus selon les dicoms ouvertes, il
-	 * peut y avoir une ou deux ouverte
+	 * permet de preparer le bouton de capture de la frame.
 	 * 
-	 * @return les imps, [0] correspond a l'ant, [1] a la post
+	 * @param btn_capture
+	 * @param lbl_credits
+	 * @param cont
+	 * @param modele
+	 * @param additionalInfo
 	 */
-	public static ImagePlus[] sortAntPost(ImagePlus[] imagePlus) {
-		if (imagePlus.length > 2) {
-			throw new IllegalArgumentException("Too much imp");
+	public void setCaptureButton(JButton btn_capture, Component lbl_credits, Container cont, ModeleScin modele,
+			String additionalInfo) {
+		setCaptureButton(btn_capture, new Component[] { lbl_credits }, new Component[] { btn_capture }, cont, modele,
+				additionalInfo);
+	}
+
+	
+	/********************* Public Static ****************************************/
+	/**
+	 * Premet de trier un tableau d'ImagePlus par leur acquisition date et time de
+	 * la plus ancienne � la plus recente
+	 * 
+	 * @param serie
+	 *            : Tableau d'ImagePlus a trier
+	 * @return Tableau d'ImagePlus ordonne par acquisition time
+	 */
+	public static ImagePlus[] orderImagesByAcquisitionTime(ArrayList<ImagePlus> serie) {
+
+		ImagePlus[] retour = new ImagePlus[serie.size()];
+		serie.toArray(retour);
+
+		Arrays.sort(retour, new Comparator<ImagePlus>() {
+
+			@Override
+			public int compare(ImagePlus arg0, ImagePlus arg1) {
+
+				DateFormat dateHeure = new SimpleDateFormat("yyyyMMddHHmmss");
+				String dateImage0 = DicomTools.getTag(arg0, "0008,0022");
+				String dateImage1 = DicomTools.getTag(arg1, "0008,0022");
+				String heureImage0 = DicomTools.getTag(arg0, "0008,0032");
+				String heureImage1 = DicomTools.getTag(arg1, "0008,0032");
+
+				String dateInputImage0 = dateImage0.trim() + heureImage0.trim();
+				// On split les millisecondes qui sont apr�s le . car nombre inconstant de
+				// millisec
+				int separateurMilliSec = dateInputImage0.indexOf(".");
+				if (separateurMilliSec != -1)
+					dateInputImage0 = dateInputImage0.substring(0, separateurMilliSec);
+
+				String dateInputImage1 = dateImage1.trim() + heureImage1.trim();
+				int separateurMilliSecImage1 = dateInputImage1.indexOf(".");
+				if (separateurMilliSecImage1 != -1)
+					dateInputImage1 = dateInputImage1.substring(0, separateurMilliSecImage1);
+
+				Date timeImage0 = null;
+				Date timeImage1 = null;
+				try {
+					timeImage0 = dateHeure.parse(dateInputImage0);
+					timeImage1 = dateHeure.parse(dateInputImage1);
+					return (int) ((timeImage0.getTime() - timeImage1.getTime()) / 1000);
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+				return 0;
+			}
+		});
+
+		return retour;
+	}
+
+	/**
+	 * Permet de spliter les images d'un multiFrame contenant 2 camera, image 0
+	 * camera Ant et Image1 Camera Post (ne retourne pas l'image post)
+	 * 
+	 * @param imp
+	 *            : ImagePlus a traiter
+	 * @return Tableau d'imagePlus avec 2 ImagePlus (camera 1 et 2 )
+	 */
+	public static ImagePlus[] splitCameraMultiFrame(ImagePlus imp) {
+		// On prend le Header
+		String metadata = imp.getInfoProperty();
+
+		// On recupere la chaine de detecteur
+		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
+		if (!StringUtils.isEmpty(tagDetecteur))
+			tagDetecteur = tagDetecteur.trim();
+		String delims = "[ ]+";
+		String[] sequenceDetecteur = tagDetecteur.split(delims);
+
+		// On cree les ImageStack qui vont recevoir les image de chaque t�te
+		ImageStack camera0 = new ImageStack(imp.getWidth(), imp.getHeight());
+		ImageStack camera1 = new ImageStack(imp.getWidth(), imp.getHeight());
+
+		// Determination de l'orientation des camera en regardant la 1ere image
+		String detecteurPremiereImage = sequenceDetecteur[0];
+		Boolean anterieurPremiereImage = isAnterieurMultiframe(imp);
+
+		// On ajoute les images dans les camera adhoc
+
+		if (anterieurPremiereImage != null && anterieurPremiereImage) {
+			for (int i = 0; i < sequenceDetecteur.length; i++) {
+				if (sequenceDetecteur[i].equals(detecteurPremiereImage)) {
+					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
+				} else {
+					camera1.addSlice(imp.getImageStack().getProcessor((i + 1)));
+				}
+			}
+		} else if (anterieurPremiereImage != null && !anterieurPremiereImage) {
+			for (int i = 0; i < sequenceDetecteur.length; i++) {
+				if (sequenceDetecteur[i].equals(detecteurPremiereImage)) {
+					camera1.addSlice(imp.getImageStack().getProcessor((i + 1)));
+				} else {
+					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
+				}
+			}
+		} else {
+			IJ.log("assuming image 2 is posterior. Please notify Salim.kanoun@gmail.com");
+			for (int i = 0; i < sequenceDetecteur.length; i++) {
+				if (sequenceDetecteur[i].equals("1")) {
+					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
+				} else if (sequenceDetecteur[i].equals("2")) {
+					camera1.addSlice(imp.getImageStack().getProcessor((i + 1)));
+				}
+			}
 		}
 
-		ImagePlus[] imps = new ImagePlus[2];
+		ImagePlus cameraAnt = new ImagePlus();
+		ImagePlus cameraPost = new ImagePlus();
+		cameraAnt.setStack(camera0);
+		cameraPost.setStack(camera1);
 
-		if (imagePlus.length == 1) { // si il y a qu'un fenetre d'ouverte
-			ImagePlus imp = imagePlus[0];
+		ImagePlus[] cameras = new ImagePlus[2];
+		cameras[0] = cameraAnt;
+		cameras[1] = cameraPost;
 
-			if (Scintigraphy.isMultiFrame(imp)) { // si l'image est multiframe
-
-				if (!Scintigraphy.isSameCameraMultiFrame(imp)) {
-					return Scintigraphy.splitCameraMultiFrame(imp);
-				}
-
-				if (Scintigraphy.isAnterieur(imp)) {
-					imps[0] = imp;
-				} else {
-					imps[1] = imp;
-				}
-
-			} else if (Scintigraphy.isAnterieur(imp)) {
-				imps[0] = imp;
-			} else {
-				imps[1] = imp;
-			}
-
-		} else { // si il y a deux images dans le tableau
-			for (ImagePlus imp : imagePlus) { // pour chaque fenetre
-				if (Scintigraphy.isAnterieur(imp)) { // si la vue est ant, on choisi cette image
-					imps[0] = (ImagePlus) imp.clone();
-				} else {
-					imps[1] = (ImagePlus) imp.clone();
-				}
-			}
+		// On ajoute une copie des headers
+		for (int i = 0; i < cameras.length; i++) {
+			cameras[i].setProperty("Info", metadata);
 		}
-
+		return cameras;
+	}
+	
+	public static ImagePlus[] openImps(String[] titresFenetres) {
+		ImagePlus[] imps = new ImagePlus[titresFenetres.length];
+		for (int i = 0; i < titresFenetres.length; i++) {
+			ImagePlus imp = WindowManager.getImage(titresFenetres[i]);
+			imps[i] = imp;
+		}
 		return imps;
 	}
 
+	public static void closeImps(String[] titresFenetres) {
+		for (int i = 0; i < titresFenetres.length; i++) {
+			WindowManager.getImage(titresFenetres[i]).close();
+		}
+	}
+
+	public static void editLabelOverlay(Overlay ov, String oldName, String newName, Color c) {
+		Roi roi = ov.get(ov.getIndex(oldName));
+		if (roi != null) {
+			roi.setName(newName);
+			roi.setStrokeColor(c);
+		}
+	}
+
 	/**
-	 * Prepare l'image plus selon les fenetres de dicoms ouvertes
+	 * Renvoie un montage avec un pas regulier
 	 * 
-	 * @param titresFenetres
-	 *            liste des fenetres ouvertes
+	 * @param frameDuration
+	 * @param imp
+	 * @param size
 	 * @return
 	 */
-	protected abstract ImagePlus preparerImp(ImagePlus[] images);
+	public static ImagePlus creerMontage(int[] frameDuration, ImagePlus imp, int size, int rows, int columns) {
+		int nSlice = frameDuration.length;
 
-	/**
-	 * lance le programme
-	 */
-	public abstract void lancerProgramme();
-
-	/**
-	 * Affiche D et G en overlay sur l'image, L a gauche et R a droite
-	 * 
-	 * @param overlay
-	 *            : Overlay sur lequel ajouter D/G
-	 * @param imp
-	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
-	 */
-	public static void setOverlayGD(Overlay overlay, ImagePlus imp) {
-		setOverlaySides(overlay, imp, null, "L", "R", 0);
-	}
-
-	/**
-	 * Affiche D et G en overlay sur l'image, L a gauche et R a droite
-	 * 
-	 * @param overlay
-	 *            : Overlay sur lequel ajouter D/G
-	 * @param imp
-	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
-	 * @param color
-	 *            : Couleur de l'overlay
-	 */
-	public static void setOverlayGD(Overlay overlay, ImagePlus imp, Color color) {
-		setOverlaySides(overlay, imp, color, "L", "R", 0);
-	}
-
-	/**
-	 * Affiche D et G en overlay sur l'image, R a gauche et L a droite
-	 * 
-	 * @param overlay
-	 *            : Overlay sur lequel ajouter D/G
-	 * @param imp
-	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
-	 */
-	public static void setOverlayDG(Overlay overlay, ImagePlus imp) {
-		setOverlaySides(overlay, imp, null, "R", "L", 0);
-	}
-
-	/**
-	 * Affiche D et G en overlay sur l'image, R a gauche et L a droite
-	 * 
-	 * @param overlay
-	 *            : Overlay sur lequel ajouter D/G
-	 * @param imp
-	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
-	 * @param color
-	 *            : Couleur de l'overlay
-	 */
-	public static void setOverlayDG(Overlay overlay, ImagePlus imp, Color color) {
-		setOverlaySides(overlay, imp, color, "R", "L", 0);
-	}
-
-	public static void setOverlayTitle(String title, Overlay overlay, ImagePlus imp, Color color, int slice) {
-		int w = imp.getWidth();
-		int h = imp.getHeight();
-
-		AffineTransform affinetransform = new AffineTransform();
-		FontRenderContext frc = new FontRenderContext(affinetransform, true, true);
-
-		Rectangle2D bounds = overlay.getLabelFont().getStringBounds(title, frc);
-		double textHeight = bounds.getHeight();
-		double textWidth = bounds.getWidth();
-
-		double x = (w / 2) - (textWidth / 2);
-		TextRoi top = new TextRoi(x, 0, title);
-		top.setPosition(slice);
-		if (color != null) {
-			top.setStrokeColor(color);
+		// temps somme
+		int[] summed = new int[frameDuration.length];
+		summed[0] = frameDuration[0];
+		for (int i = 1; i < nSlice; i++) {
+			summed[i] = summed[i - 1] + frameDuration[i];
 		}
 
-		// Set la police des text ROI
-		top.setCurrentFont(overlay.getLabelFont());
-
-		overlay.add(top);
-	}
-
-	public static void setOverlaySides(Overlay overlay, ImagePlus imp, Color color, String textL, String textR,
-			int slice) {
-		// Get taille Image
-		int tailleImage = imp.getHeight();
-
-		// Position au mileu dans l'axe Y
-		double y = ((tailleImage) / 2);
-
-		// Cote droit
-		TextRoi right = new TextRoi(0, y, textL);
-		right.setPosition(slice);
-
-		// Cote gauche
-		double xl = imp.getWidth() - (overlay.getLabelFont().getSize()); // sinon on sort de l'image
-		TextRoi left = new TextRoi(xl, y, textR);
-		left.setPosition(slice);
-
-		if (color != null) {
-			right.setStrokeColor(color);
-			left.setStrokeColor(color);
+		// tableau correspondant au numero des coupes bornes
+		int[] sliceIndex = new int[(rows * columns) + 1];
+		int pas = summed[nSlice - 1] / (rows * columns);
+		for (int i = 0; i < (rows * columns) + 1; i++) {
+			for (int j = 0; j < summed.length; j++) {
+				if (i * pas <= summed[j] || j == summed.length - 1) {
+					sliceIndex[i] = j;
+					break;
+				}
+			}
 		}
 
-		// Set la police des text ROI
-		right.setCurrentFont(overlay.getLabelFont());
-		left.setCurrentFont(overlay.getLabelFont());
+		// liste des projections
+		ImagePlus[] impList = new ImagePlus[rows * columns];
+		for (int i = 1; i < sliceIndex.length; i++) {
+			int start = sliceIndex[i - 1];
+			int stop = sliceIndex[i];
+			ImagePlus tinyImp = ZProjector.run(imp, "sum", start, stop);
 
-		// Ajout de l'indication de la droite du patient
-		overlay.add(right);
-		overlay.add(left);
+			ImageProcessor impc = tinyImp.getProcessor();
+			impc.setInterpolationMethod(ImageProcessor.BICUBIC);
+			impc = impc.resize(size);
+
+			ImagePlus projectionImp = new ImagePlus("", impc);
+
+			impList[i - 1] = projectionImp;
+		}
+
+		// fait le montage
+		Concatenator enchainer = new Concatenator();
+		ImagePlus impStacked = enchainer.concatenate(impList, false);
+
+		// on ajoute un label avec le temps en min
+		for (int i = 1; i <= impStacked.getStackSize(); i++) {
+			int msPassed = summed[sliceIndex[i - 1]];
+			String min = "" + msPassed / 10000 + "s";
+			impStacked.getStack().setSliceLabel(min, i);
+		}
+
+		MontageMaker mm = new MontageMaker();
+
+		return mm.makeMontage2(impStacked, columns, rows, 1.0, 1, impList.length, 1, 0, true);
+	}
+
+	public static Overlay duplicateOverlay(Overlay overlay) {
+		Overlay overlay2 = overlay.duplicate();
+
+		overlay2.drawLabels(overlay.getDrawLabels());
+		overlay2.drawNames(overlay.getDrawNames());
+		overlay2.drawBackgrounds(overlay.getDrawBackgrounds());
+		overlay2.setLabelColor(overlay.getLabelColor());
+		overlay2.setLabelFont(overlay.getLabelFont(), overlay.scalableLabels());
+
+		// theses properties are not set by the original duplicate method
+		overlay2.setIsCalibrationBar(overlay.isCalibrationBar());
+		overlay2.selectable(overlay.isSelectable());
+
+		return overlay2;
+	}
+
+	/**
+	 * Cree overlay et set la police initiale de l'Image
+	 * 
+	 * @return Overlay
+	 */
+	public static Overlay initOverlay(ImagePlus imp, int taillePolice) {
+		int taille2;
+		if (taillePolice != -1) {
+			taille2 = taillePolice;
+		} else {
+			taille2 = 12;
+		}
+		// On initialise l'overlay il ne peut y avoir qu'un Overlay
+		// pour tout le programme sur lequel on va ajouter/enlever les ROI au fur et a
+		// mesure
+		Overlay overlay = new Overlay();
+		// On defini la police et la propriete des Overlays
+		int width = imp.getWidth();
+		// On normalise Taille 12 a 256 pour avoir une taille stable pour toute image
+		Float facteurConversion = (float) ((width * 1.0) / 256);
+		Font font = new Font("Arial", Font.PLAIN, Math.round(taille2 * facteurConversion));
+		overlay.setLabelFont(font, true);
+		overlay.drawLabels(true);
+		overlay.drawNames(true);
+		// Pour rendre overlay non selectionnable
+		overlay.selectable(false);
+
+		return overlay;
+	}
+
+	/**
+	 * Cree overlay et set la police a la taille standard (12) initial de l'Image
+	 * 
+	 * @return Overlay
+	 */
+	public static Overlay initOverlay(ImagePlus imp) {
+		return initOverlay(imp, -1);
+	}
+
+	// cree la roi de bruit de fond
+	public static Roi createBkgRoi(Roi roi, ImagePlus imp, int organ) {
+		Roi bkg = null;
+		RoiManager rm = new RoiManager(true);
+		rm.setVisible(true);
+
+		switch (organ) {
+		case Scintigraphy.KIDNEY:
+			// largeur a prendre autour du rein
+			int largeurBkg = 1;
+			if (imp.getDimensions()[0] >= 128) {
+				largeurBkg = 2;
+			}
+
+			rm.addRoi(roi);
+
+			rm.select(rm.getCount() - 1);
+			IJ.run(imp, "Enlarge...", "enlarge=" + largeurBkg + " pixel");
+			rm.addRoi(imp.getRoi());
+
+			rm.select(rm.getCount() - 1);
+			IJ.run(imp, "Enlarge...", "enlarge=" + largeurBkg + " pixel");
+			rm.addRoi(imp.getRoi());
+
+			rm.setSelectedIndexes(new int[] { rm.getCount() - 2, rm.getCount() - 1 });
+			rm.runCommand(imp, "XOR");
+
+			bkg = imp.getRoi();
+			break;
+
+		case Scintigraphy.HEART:
+			// TODO
+			break;
+
+		case Scintigraphy.INFLATGAUCHE:
+			bkg = createBkgInfLat(roi, imp, -1, rm);
+			break;
+
+		case Scintigraphy.INFLATDROIT:
+			bkg = createBkgInfLat(roi, imp, 1, rm);
+			break;
+
+		default:
+			bkg = roi;
+			break;
+		}
+
+		rm.dispose();
+
+		bkg.setStrokeColor(Color.GRAY);
+		return bkg;
+	}
+
+	/*
+	 *inverse le stack de l'image plus passée en paramètre 
+	 *(imp : donner l'implus ne contenant que la post)
+	 */
+	public static ImagePlus flipStackHorizontal(ImagePlus imp) {
+		StackProcessor sp = new StackProcessor(imp.getImageStack());
+		sp.flipHorizontal();
+		return imp;
+	}
+	
+	
+	/********************* Public Static Is ****************************************/
+	/** 
+	 *  Test si les images du MutiFrame viennent toutes de la meme camera
+	 * 
+	 * @param imp
+	 *            : ImagePlus � traiter
+	 * @return Boolean
+	 */
+	public static boolean isSameCameraMultiFrame(ImagePlus imp) {
+		// On recupere la chaine de detecteur
+		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
+		if (!StringUtils.isEmpty(tagDetecteur))
+			tagDetecteur = tagDetecteur.trim();
+		String delims = "[ ]+";
+		String[] sequenceDetecteur = tagDetecteur.split(delims);
+		boolean sameCamera = true;
+
+		String premiereImage = sequenceDetecteur[0];
+		for (int i = 1; i < sequenceDetecteur.length; i++) {
+			if (!premiereImage.equals(sequenceDetecteur[i]))
+				sameCamera = false;
+			premiereImage = sequenceDetecteur[i];
+		}
+		return sameCamera;
+	}
+
+	/**
+	 * Test si la premiere image du stack est du detecteur 1
+	 * 
+	 * @param imp
+	 *            : ImagePus A traiter
+	 * @return boolean
+	 */
+	public static boolean isPremiereImageDetecteur1(ImagePlus imp) {
+		// On recupere la chaine de detecteur
+		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
+		if (!StringUtils.isEmpty(tagDetecteur))
+			tagDetecteur = tagDetecteur.trim();
+		String delims = "[ ]+";
+		String[] sequenceDeteceur = tagDetecteur.split(delims);
+		boolean detecteur1 = false;
+
+		if (Integer.parseInt(sequenceDeteceur[0]) == 1)
+			detecteur1 = true;
+
+		return detecteur1;
+	}
+
+	/**
+	 * Permet de tester si l'image est anterieure pour une unique frame, ne teste
+	 * que la premi�re Image (peut etre generalisee plus tard si besoin) A Eviter
+	 * d'utiliser car la methode isAnterieur(ImagePlus imp) est generique pour tout
+	 * type d'image
+	 * 
+	 * @param imp
+	 *            : ImagePlus a tester
+	 * @return boolean vrai si anterieur
+	 */
+	@Deprecated
+	public static Boolean isAnterieurUniqueFrame(ImagePlus imp) {
+		imp.setSlice(1);
+
+		// Recupere le private tag qui peut contenir des informations de localisation
+		// (rangueil)
+		String tag = DicomTools.getTag(imp, "0011,1012");
+
+		// On repere le num de camera
+		String tagVector = DicomTools.getTag(imp, "0054,0020");
+		if (!StringUtils.isEmpty(tagVector))
+			tagVector = tagVector.trim();
+
+		// On ajoute un deuxieme tag de localisation a voir dans la pratique ou se situe
+		// l'info
+		if (!StringUtils.isEmpty(DicomTools.getTag(imp, "0011,1030")))
+			tag += DicomTools.getTag(imp, "0011,1030");
+		Boolean anterieur = null;
+
+		if (!StringUtils.isEmpty(tagVector) || !StringUtils.isEmpty(tag)) {
+
+			// Si on a le private tag on le traite
+			if (!StringUtils.isEmpty(tag)) {
+
+				if (tag.contains("ANT") || tag.contains("_E")) {
+					anterieur = true;
+				}
+
+				else if (tag.contains("POS") || tag.contains("_F")) {
+					anterieur = false;
+				}
+
+				else {
+					IJ.log("Orientation not reckognized");
+				}
+			}
+
+			// Si pas de private tag on fait avec le numero de la camera
+			else if (!StringUtils.isEmpty(tagVector)) {
+
+				if (imp.getStackSize() == 2) {
+					// SK FAUDRA RECONNAITRE LES IMAGE D/G ET LES DIFFERENCIER //Utilisation de
+					// l'angle ??
+					if (tagVector.equals("1"))
+						anterieur = true;
+					if (tagVector.equals("2"))
+						anterieur = false;
+					IJ.log("Orientation Not reckgnized, assuming vector 1 is anterior");
+				}
+				// le Boolean reste null et on informe l'user
+				else {
+					IJ.log("Orientation not reckognized");
+				}
+			}
+
+		}
+
+		// Si aucun des deux echec du reperage
+		else {
+			IJ.log("Orientation not reckognized");
+		}
+
+		return anterieur;
+	}
+
+	/**
+	 * Permet de tester si l'image est anterieure pour une MultiFrame, ne teste que
+	 * la premi�re Image (peut etre generalisee plus tard si besoin) A Eviter
+	 * d'utiliser car la methode isAnterieur(ImagePlus imp) est generique pour tout
+	 * type d'image
+	 * 
+	 * @param imp
+	 *            : ImagePlus a tester
+	 * @return boolean vrai si anterieur
+	 */
+	@Deprecated
+	public static Boolean isAnterieurMultiframe(ImagePlus imp) {
+		// On ne traite que l'image 1
+		imp.setSlice(1);
+		String tag = DicomTools.getTag(imp, "0011,1012");
+		// On ajoute un deuxieme tag de localisation a voir dans la pratique ou se situe
+		// l'info
+		if (!StringUtils.isEmpty(DicomTools.getTag(imp, "0011,1030")))
+			tag += DicomTools.getTag(imp, "0011,1030");
+
+		// On set le Boolean a null
+		Boolean anterieur = null;
+		if (!StringUtils.isEmpty(tag)) {
+			/// On recupere le 1er separateur de chaque vue dans le champ des orientation
+			int separateur = tag.indexOf("\\");
+
+			// Si on ne trouve pas le separateur, on met la position du separateur � la
+			// fin de la string pour tout traiter
+			if (separateur == -1)
+				separateur = (tag.length());
+
+			// Si la 1ere image est labelisee anterieure
+			if (tag.substring(0, separateur).contains("ANT") || tag.substring(0, separateur).contains("_E")) {
+				anterieur = true;
+			}
+			// Si la 1ere image est labellisee posterieure
+			else if (tag.substring(0, separateur).contains("POS") || tag.substring(0, separateur).contains("_F")) {
+				anterieur = false;
+			}
+
+			// Si on ne trouve pas de tag le booelan reste null et on notifie l'utilisateur
+			else if (!tag.substring(0, separateur).contains("POS") && !tag.substring(0, separateur).contains("_F")
+					&& !tag.substring(0, separateur).contains("ANT") && !tag.substring(0, separateur).contains("_E")) {
+				// le Boolean reste null et on informe l'user
+				IJ.log("Information not reckognized");
+			}
+		} else {
+			IJ.log("No localization information");
+		}
+
+		return anterieur;
+	}
+
+	/**
+	 * Permet de tester si la 1ere image de l'ImagePlus est une image anterieure
+	 * 
+	 * @param imp
+	 *            : ImagePlus a tester
+	 * @return booleen vrai si image anterieure
+	 */
+	public static Boolean isAnterieur(ImagePlus imp) {
+		Boolean anterieur = null;
+		if (isMultiFrame(imp)) {
+			anterieur = isAnterieurMultiframe(imp);
+		}
+		if (!isMultiFrame(imp)) {
+			anterieur = isAnterieurUniqueFrame(imp);
+		}
+		return anterieur;
 	}
 
 	/**
@@ -284,6 +654,42 @@ public abstract class Scintigraphy implements PlugIn {
 
 	}
 
+	
+	/********************* Public Static Sort ****************************************/
+	/**
+	  * Permet de renvoyer un tableau d'image plus selon les dicoms ouvertes, il
+	 * peut y avoir une ou deux ouverte
+	 * 
+	 * @return les imps, [0] correspond a l'ant, [1] a la post
+	 */
+	public static ImagePlus[] sortDynamicAntPost(ImagePlus imagePlus) {
+		ImagePlus[] sortedImagePlus = new ImagePlus[2];
+		
+		// si l'image est multiframe  et  ce nest pas la meme camera 
+		if (Scintigraphy.isMultiFrame(imagePlus) && !Scintigraphy.isSameCameraMultiFrame(imagePlus)) { 
+				sortedImagePlus[0] = Scintigraphy.splitCameraMultiFrame(imagePlus)[0];
+				sortedImagePlus[1] = Scintigraphy.splitCameraMultiFrame(imagePlus)[1];
+				return sortedImagePlus;
+		} else {
+			if (Scintigraphy.isAnterieur(imagePlus)) {
+				sortedImagePlus[0] = imagePlus;
+			} else {
+				sortedImagePlus[1] = imagePlus;
+			}
+		}
+		return sortedImagePlus;
+	}
+
+	
+	public static ImagePlus[][] sortDynamicAntPost(ImagePlus[] imagePlus) {
+		ImagePlus[][] imps = new ImagePlus[imagePlus.length][2];
+		for (int i =0; i< imagePlus.length; i++) { // pour chaque fenetre
+				imps[i] = Scintigraphy.sortDynamicAntPost(imagePlus[i]);
+		}
+		return imps;
+	}
+	
+	
 	/**
 	 * Permet de trier les image Anterieure et posterieure et retourne les images
 	 * posterieures pour garder la meme lateralisation (la droite est a gauche de
@@ -294,14 +700,7 @@ public abstract class Scintigraphy implements PlugIn {
 	 * @return Retourne l'ImagePlus avec les images posterieures inversees
 	 */
 	public static ImagePlus sortImageAntPost(ImagePlus imp) {
-		ImagePlus imp2 = null;
-		if (isMultiFrame(imp)) {
-			imp2 = sortAntPostMultiFrame(imp);
-		}
-		if (!isMultiFrame(imp)) {
-			imp2 = sortAntPostUniqueFrame(imp);
-		}
-		return imp2;
+		return isMultiFrame(imp) ? sortAntPostMultiFrame(imp) : sortAntPostUniqueFrame(imp);
 	}
 
 	/**
@@ -460,360 +859,162 @@ public abstract class Scintigraphy implements PlugIn {
 		return imp;
 	}
 
-	/**
-	 * Permet de tester si l'image est anterieure pour une unique frame, ne teste
-	 * que la premi�re Image (peut etre generalisee plus tard si besoin) A Eviter
-	 * d'utiliser car la methode isAnterieur(ImagePlus imp) est generique pour tout
-	 * type d'image
-	 * 
-	 * @param imp
-	 *            : ImagePlus a tester
-	 * @return boolean vrai si anterieur
-	 */
-	@Deprecated
-	public static Boolean isAnterieurUniqueFrame(ImagePlus imp) {
-		imp.setSlice(1);
+	
+	/***************************** Private Static ************************/
+	private static Roi createBkgInfLat(Roi roi, ImagePlus imp, int xOffset, RoiManager rm) {
+		// on recupere ses bounds
+		Rectangle bounds = roi.getBounds();
 
-		// Recupere le private tag qui peut contenir des informations de localisation
-		// (rangueil)
-		String tag = DicomTools.getTag(imp, "0011,1012");
+		Roi liver = (Roi) roi.clone();
+		rm.addRoi(liver);
 
-		// On repere le num de camera
-		String tagVector = DicomTools.getTag(imp, "0054,0020");
-		if (!StringUtils.isEmpty(tagVector))
-			tagVector = tagVector.trim();
+		int[] size = { (bounds.width / 4) * xOffset, (bounds.height / 4) * 1 };
 
-		// On ajoute un deuxieme tag de localisation a voir dans la pratique ou se situe
-		// l'info
-		if (!StringUtils.isEmpty(DicomTools.getTag(imp, "0011,1030")))
-			tag += DicomTools.getTag(imp, "0011,1030");
-		Boolean anterieur = null;
+		Roi liverShift = (Roi) roi.clone();
+		liverShift.setLocation(liverShift.getXBase() + size[0], liverShift.getYBase() + size[1]);
+		rm.addRoi(liverShift);
 
-		if (!StringUtils.isEmpty(tagVector) || !StringUtils.isEmpty(tag)) {
+		// renvoi une section de la roi
+		rm.setSelectedIndexes(new int[] { 0, 1 });
+		rm.runCommand(imp, "XOR");
+		rm.runCommand(imp, "Split");
 
-			// Si on a le private tag on le traite
-			if (!StringUtils.isEmpty(tag)) {
+		int x = bounds.x + bounds.width / 2;
+		int y = bounds.y + bounds.height / 2;
+		int w = size[0] * imp.getWidth();
+		int h = size[1] * imp.getHeight();
 
-				if (tag.contains("ANT") || tag.contains("_E")) {
-					anterieur = true;
-				}
+		// permet de diviser la roi
+		Rectangle splitter;
 
-				else if (tag.contains("POS") || tag.contains("_F")) {
-					anterieur = false;
-				}
-
-				else {
-					IJ.log("Orientation not reckognized");
-				}
-			}
-
-			// Si pas de private tag on fait avec le numero de la camera
-			else if (!StringUtils.isEmpty(tagVector)) {
-
-				if (imp.getStackSize() == 2) {
-					// SK FAUDRA RECONNAITRE LES IMAGE D/G ET LES DIFFERENCIER //Utilisation de
-					// l'angle ??
-					if (tagVector.equals("1"))
-						anterieur = true;
-					if (tagVector.equals("2"))
-						anterieur = false;
-					IJ.log("Orientation Not reckgnized, assuming vector 1 is anterior");
-				}
-				// le Boolean reste null et on informe l'user
-				else {
-					IJ.log("Orientation not reckognized");
-				}
-			}
-
-		}
-
-		// Si aucun des deux echec du reperage
-		else {
-			IJ.log("Orientation not reckognized");
-		}
-
-		return anterieur;
-	}
-
-	/**
-	 * Permet de tester si l'image est anterieure pour une MultiFrame, ne teste que
-	 * la premi�re Image (peut etre generalisee plus tard si besoin) A Eviter
-	 * d'utiliser car la methode isAnterieur(ImagePlus imp) est generique pour tout
-	 * type d'image
-	 * 
-	 * @param imp
-	 *            : ImagePlus a tester
-	 * @return boolean vrai si anterieur
-	 */
-	@Deprecated
-	public static Boolean isAnterieurMultiframe(ImagePlus imp) {
-		// On ne traite que l'image 1
-		imp.setSlice(1);
-		String tag = DicomTools.getTag(imp, "0011,1012");
-		// On ajoute un deuxieme tag de localisation a voir dans la pratique ou se situe
-		// l'info
-		if (!StringUtils.isEmpty(DicomTools.getTag(imp, "0011,1030")))
-			tag += DicomTools.getTag(imp, "0011,1030");
-
-		// On set le Boolean a null
-		Boolean anterieur = null;
-		if (!StringUtils.isEmpty(tag)) {
-			/// On recupere le 1er separateur de chaque vue dans le champ des orientation
-			int separateur = tag.indexOf("\\");
-
-			// Si on ne trouve pas le separateur, on met la position du separateur � la
-			// fin de la string pour tout traiter
-			if (separateur == -1)
-				separateur = (tag.length());
-
-			// Si la 1ere image est labelisee anterieure
-			if (tag.substring(0, separateur).contains("ANT") || tag.substring(0, separateur).contains("_E")) {
-				anterieur = true;
-			}
-			// Si la 1ere image est labellisee posterieure
-			else if (tag.substring(0, separateur).contains("POS") || tag.substring(0, separateur).contains("_F")) {
-				anterieur = false;
-			}
-
-			// Si on ne trouve pas de tag le booelan reste null et on notifie l'utilisateur
-			else if (!tag.substring(0, separateur).contains("POS") && !tag.substring(0, separateur).contains("_F")
-					&& !tag.substring(0, separateur).contains("ANT") && !tag.substring(0, separateur).contains("_E")) {
-				// le Boolean reste null et on informe l'user
-				IJ.log("Information not reckognized");
-			}
+		if (w > 0) {
+			splitter = new Rectangle(x, y, w, h);
 		} else {
-			IJ.log("No localization information");
+			splitter = new Rectangle(x + w, y, -w, h);
 		}
 
-		return anterieur;
+		Roi rect = new Roi(splitter);
+		rm.addRoi(rect);
+
+		rm.setSelectedIndexes(new int[] { rm.getCount() - 1, rm.getCount() - 2 });
+		rm.runCommand(imp, "AND");
+
+		Roi bkg = (Roi) imp.getRoi().clone();
+		int[] offset = new int[] { size[0] / 4, size[1] / 4 };
+
+		// on deplace la roi pour ne pas qu'elle soit collee
+		bkg.setLocation(bkg.getXBase() + xOffset, bkg.getYBase() + 1);
+
+		return bkg;
 	}
 
-	/**
-	 * Permet de tester si la 1ere image de l'ImagePlus est une image anterieure
+	
+	/**************** Public Static Setter ***************************/
+	/** 
+	 * Affiche D et G en overlay sur l'image, L a gauche et R a droite
 	 * 
+	 * @param overlay
+	 *            : Overlay sur lequel ajouter D/G
 	 * @param imp
-	 *            : ImagePlus a tester
-	 * @return booleen vrai si image anterieure
+	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
 	 */
-	public static Boolean isAnterieur(ImagePlus imp) {
-		Boolean anterieur = null;
-		if (isMultiFrame(imp)) {
-			anterieur = isAnterieurMultiframe(imp);
-		}
-		if (!isMultiFrame(imp)) {
-			anterieur = isAnterieurUniqueFrame(imp);
-		}
-		return anterieur;
+	public static void setOverlayGD(Overlay overlay, ImagePlus imp) {
+		setOverlaySides(overlay, imp, null, "L", "R", 0);
 	}
 
 	/**
-	 * Premet de trier un tableau d'ImagePlus par leur acquisition date et time de
-	 * la plus ancienne � la plus recente
+	 * Affiche D et G en overlay sur l'image, L a gauche et R a droite
 	 * 
-	 * @param serie
-	 *            : Tableau d'ImagePlus a trier
-	 * @return Tableau d'ImagePlus ordonne par acquisition time
-	 */
-	public static ImagePlus[] orderImagesByAcquisitionTime(ArrayList<ImagePlus> serie) {
-
-		ImagePlus[] retour = new ImagePlus[serie.size()];
-		serie.toArray(retour);
-
-		Arrays.sort(retour, new Comparator<ImagePlus>() {
-
-			@Override
-			public int compare(ImagePlus arg0, ImagePlus arg1) {
-
-				DateFormat dateHeure = new SimpleDateFormat("yyyyMMddHHmmss");
-				String dateImage0 = DicomTools.getTag(arg0, "0008,0022");
-				String dateImage1 = DicomTools.getTag(arg1, "0008,0022");
-				String heureImage0 = DicomTools.getTag(arg0, "0008,0032");
-				String heureImage1 = DicomTools.getTag(arg1, "0008,0032");
-
-				String dateInputImage0 = dateImage0.trim() + heureImage0.trim();
-				// On split les millisecondes qui sont apr�s le . car nombre inconstant de
-				// millisec
-				int separateurMilliSec = dateInputImage0.indexOf(".");
-				if (separateurMilliSec != -1)
-					dateInputImage0 = dateInputImage0.substring(0, separateurMilliSec);
-
-				String dateInputImage1 = dateImage1.trim() + heureImage1.trim();
-				int separateurMilliSecImage1 = dateInputImage1.indexOf(".");
-				if (separateurMilliSecImage1 != -1)
-					dateInputImage1 = dateInputImage1.substring(0, separateurMilliSecImage1);
-
-				Date timeImage0 = null;
-				Date timeImage1 = null;
-				try {
-					timeImage0 = dateHeure.parse(dateInputImage0);
-					timeImage1 = dateHeure.parse(dateInputImage1);
-					return (int) ((timeImage0.getTime() - timeImage1.getTime()) / 1000);
-				} catch (ParseException e) {
-					e.printStackTrace();
-				}
-				return 0;
-			}
-		});
-
-		return retour;
-	}
-
-	/**
-	 * Permet de spliter les images d'un multiFrame contenant 2 camera, image 0
-	 * camera Ant et Image1 Camera Post (ne retourne pas l'image post)
-	 * 
+	 * @param overlay
+	 *            : Overlay sur lequel ajouter D/G
 	 * @param imp
-	 *            : ImagePlus a traiter
-	 * @return Tableau d'imagePlus avec 2 ImagePlus (camera 1 et 2 )
+	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
+	 * @param color
+	 *            : Couleur de l'overlay
 	 */
-	public static ImagePlus[] splitCameraMultiFrame(ImagePlus imp) {
-		// On prend le Header
-		String metadata = imp.getInfoProperty();
-
-		// On recupere la chaine de detecteur
-		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
-		if (!StringUtils.isEmpty(tagDetecteur))
-			tagDetecteur = tagDetecteur.trim();
-		String delims = "[ ]+";
-		String[] sequenceDetecteur = tagDetecteur.split(delims);
-
-		// On cree les ImageStack qui vont recevoir les image de chaque t�te
-		ImageStack camera0 = new ImageStack(imp.getWidth(), imp.getHeight());
-		ImageStack camera1 = new ImageStack(imp.getWidth(), imp.getHeight());
-
-		// Determination de l'orientation des camera en regardant la 1ere image
-		String detecteurPremiereImage = sequenceDetecteur[0];
-		Boolean anterieurPremiereImage = isAnterieurMultiframe(imp);
-
-		// On ajoute les images dans les camera adhoc
-
-		if (anterieurPremiereImage != null && anterieurPremiereImage) {
-			for (int i = 0; i < sequenceDetecteur.length; i++) {
-				if (sequenceDetecteur[i].equals(detecteurPremiereImage)) {
-					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
-				} else {
-					camera1.addSlice(imp.getImageStack().getProcessor((i + 1)));
-				}
-			}
-		} else if (anterieurPremiereImage != null && !anterieurPremiereImage) {
-			for (int i = 0; i < sequenceDetecteur.length; i++) {
-				if (sequenceDetecteur[i].equals(detecteurPremiereImage)) {
-					camera1.addSlice(imp.getImageStack().getProcessor((i + 1)));
-				} else {
-					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
-				}
-			}
-		} else {
-			IJ.log("assuming image 2 is posterior. Please notify Salim.kanoun@gmail.com");
-			for (int i = 0; i < sequenceDetecteur.length; i++) {
-				if (sequenceDetecteur[i].equals("1")) {
-					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
-				} else if (sequenceDetecteur[i].equals("2")) {
-					camera1.addSlice(imp.getImageStack().getProcessor((i + 1)));
-				}
-			}
-		}
-
-		ImagePlus cameraAnt = new ImagePlus();
-		ImagePlus cameraPost = new ImagePlus();
-		cameraAnt.setStack(camera0);
-		cameraPost.setStack(camera1);
-
-		ImagePlus[] cameras = new ImagePlus[2];
-		cameras[0] = cameraAnt;
-		cameras[1] = cameraPost;
-
-		// On ajoute une copie des headers
-		for (int i = 0; i < cameras.length; i++) {
-			cameras[i].setProperty("Info", metadata);
-		}
-		return cameras;
+	public static void setOverlayGD(Overlay overlay, ImagePlus imp, Color color) {
+		setOverlaySides(overlay, imp, color, "L", "R", 0);
 	}
 
 	/**
-	 * Test si les images du MutiFrame viennent toutes de la meme camera
+	 * Affiche D et G en overlay sur l'image, R a gauche et L a droite
 	 * 
+	 * @param overlay
+	 *            : Overlay sur lequel ajouter D/G
 	 * @param imp
-	 *            : ImagePlus � traiter
-	 * @return Boolean
+	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
 	 */
-	public static boolean isSameCameraMultiFrame(ImagePlus imp) {
-		// On recupere la chaine de detecteur
-		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
-		if (!StringUtils.isEmpty(tagDetecteur))
-			tagDetecteur = tagDetecteur.trim();
-		String delims = "[ ]+";
-		String[] sequenceDetecteur = tagDetecteur.split(delims);
-		boolean sameCamera = true;
-
-		String premiereImage = sequenceDetecteur[0];
-		for (int i = 1; i < sequenceDetecteur.length; i++) {
-			if (!premiereImage.equals(sequenceDetecteur[i]))
-				sameCamera = false;
-			premiereImage = sequenceDetecteur[i];
-		}
-		return sameCamera;
+	public static void setOverlayDG(Overlay overlay, ImagePlus imp) {
+		setOverlaySides(overlay, imp, null, "R", "L", 0);
 	}
 
 	/**
-	 * Test si la premiere image du stack est du detecteur 1
+	 * Affiche D et G en overlay sur l'image, R a gauche et L a droite
 	 * 
+	 * @param overlay
+	 *            : Overlay sur lequel ajouter D/G
 	 * @param imp
-	 *            : ImagePus A traiter
-	 * @return boolean
+	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
+	 * @param color
+	 *            : Couleur de l'overlay
 	 */
-	public static boolean isPremiereImageDetecteur1(ImagePlus imp) {
-		// On recupere la chaine de detecteur
-		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
-		if (!StringUtils.isEmpty(tagDetecteur))
-			tagDetecteur = tagDetecteur.trim();
-		String delims = "[ ]+";
-		String[] sequenceDeteceur = tagDetecteur.split(delims);
-		boolean detecteur1 = false;
-
-		if (Integer.parseInt(sequenceDeteceur[0]) == 1)
-			detecteur1 = true;
-
-		return detecteur1;
+	public static void setOverlayDG(Overlay overlay, ImagePlus imp, Color color) {
+		setOverlaySides(overlay, imp, color, "R", "L", 0);
 	}
 
-	/**
-	 * Cree overlay et set la police initiale de l'Image
-	 * 
-	 * @return Overlay
-	 */
-	public static Overlay initOverlay(ImagePlus imp, int taille) {
-		int taille2;
-		if (taille != -1) {
-			taille2 = taille;
-		} else {
-			taille2 = 12;
+	public static void setOverlayTitle(String title, Overlay overlay, ImagePlus imp, Color color, int slice) {
+		int w = imp.getWidth();
+		int h = imp.getHeight();
+
+		AffineTransform affinetransform = new AffineTransform();
+		FontRenderContext frc = new FontRenderContext(affinetransform, true, true);
+
+		Rectangle2D bounds = overlay.getLabelFont().getStringBounds(title, frc);
+		double textHeight = bounds.getHeight();
+		double textWidth = bounds.getWidth();
+
+		double x = (w / 2) - (textWidth / 2);
+		TextRoi top = new TextRoi(x, 0, title);
+		top.setPosition(slice);
+		if (color != null) {
+			top.setStrokeColor(color);
 		}
-		// On initialise l'overlay il ne peut y avoir qu'un Overlay
-		// pour tout le programme sur lequel on va ajouter/enlever les ROI au fur et a
-		// mesure
-		Overlay overlay = new Overlay();
-		// On defini la police et la propriete des Overlays
-		int width = imp.getWidth();
-		// On normalise Taille 12 a 256 pour avoir une taille stable pour toute image
-		Float facteurConversion = (float) ((width * 1.0) / 256);
-		Font font = new Font("Arial", Font.PLAIN, Math.round(taille2 * facteurConversion));
-		overlay.setLabelFont(font, true);
-		overlay.drawLabels(true);
-		overlay.drawNames(true);
-		// Pour rendre overlay non selectionnable
-		overlay.selectable(false);
 
-		return overlay;
+		// Set la police des text ROI
+		top.setCurrentFont(overlay.getLabelFont());
+
+		overlay.add(top);
 	}
 
-	/**
-	 * Cree overlay et set la police a la taille standard (12) initial de l'Image
-	 * 
-	 * @return Overlay
-	 */
-	public static Overlay initOverlay(ImagePlus imp) {
-		return initOverlay(imp, -1);
+	public static void setOverlaySides(Overlay overlay, ImagePlus imp, Color color, String textL, String textR,
+			int slice) {
+		// Get taille Image
+		int tailleImage = imp.getHeight();
+
+		// Position au mileu dans l'axe Y
+		double y = ((tailleImage) / 2);
+
+		// Cote droit
+		TextRoi right = new TextRoi(0, y, textL);
+		right.setPosition(slice);
+
+		// Cote gauche
+		double xl = imp.getWidth() - (overlay.getLabelFont().getSize()); // sinon on sort de l'image
+		TextRoi left = new TextRoi(xl, y, textR);
+		left.setPosition(slice);
+
+		if (color != null) {
+			right.setStrokeColor(color);
+			left.setStrokeColor(color);
+		}
+
+		// Set la police des text ROI
+		right.setCurrentFont(overlay.getLabelFont());
+		left.setCurrentFont(overlay.getLabelFont());
+
+		// Ajout de l'indication de la droite du patient
+		overlay.add(right);
+		overlay.add(left);
 	}
 
 	/**
@@ -830,34 +1031,20 @@ public abstract class Scintigraphy implements PlugIn {
 		}
 	}
 
+	
+	/**************** Public Static Getter ***************************/
 	/**
-	 * permet de preparer le bouton de capture de la frame.
-	 * 
-	 * @param btn_capture
-	 * @param lbl_credits
-	 * @param cont
-	 * @param modele
-	 * @param additionalInfo
+	 * return frame Duration as this tag is stored in sequence tag that are ignored by dicomTools (if multiple the first one is sent)
+	 * @param imp
+	 * @return
 	 */
-	public void setCaptureButton(JButton btn_capture, Component lbl_credits, Container cont, ModeleScin modele,
-			String additionalInfo) {
-		setCaptureButton(btn_capture, new Component[] { lbl_credits }, new Component[] { btn_capture }, cont, modele,
-				additionalInfo);
-	}
-
-	public static ImagePlus[] openImps(String[] titresFenetres) {
-		ImagePlus[] imps = new ImagePlus[titresFenetres.length];
-		for (int i = 0; i < titresFenetres.length; i++) {
-			ImagePlus imp = WindowManager.getImage(titresFenetres[i]);
-			imps[i] = imp;
-		}
-		return imps;
-	}
-
-	public static void closeImps(String[] titresFenetres) {
-		for (int i = 0; i < titresFenetres.length; i++) {
-			WindowManager.getImage(titresFenetres[i]).close();
-		}
+	public static String getFrameDuration(ImagePlus imp) {
+		String property=imp.getInfoProperty();
+		int index1 = property.indexOf("0018,1242");
+		int index2 = property.indexOf(":", index1);
+		int index3 = property.indexOf("\n", index2);
+		String tag00181242 = property.substring(index2+1, index3).trim();
+		return tag00181242;
 	}
 
 	// dayum that recursion
@@ -869,8 +1056,16 @@ public abstract class Scintigraphy implements PlugIn {
 		return getRootContainer(cont.getParent());
 	}
 
+	
+	/**************** Private Static Getter ***************************/
 	private static Container getRootContainer(Component comp) {
 		return getRootContainer(comp.getParent());
+	}
+	
+	
+	/*********************** Setter ******************/
+	public void setImp(ImagePlus imp) {
+		this.imp = imp;
 	}
 	
 	/**
@@ -972,214 +1167,51 @@ public abstract class Scintigraphy implements PlugIn {
 		});
 	}
 
-	// cree la roi de bruit de fond
-	public static Roi createBkgRoi(Roi roi, ImagePlus imp, int organ) {
-		Roi bkg = null;
-		RoiManager rm = new RoiManager(true);
-		rm.setVisible(true);
-
-		switch (organ) {
-		case Scintigraphy.KIDNEY:
-			// largeur a prendre autour du rein
-			int largeurBkg = 1;
-			if (imp.getDimensions()[0] >= 128) {
-				largeurBkg = 2;
-			}
-
-			rm.addRoi(roi);
-
-			rm.select(rm.getCount() - 1);
-			IJ.run(imp, "Enlarge...", "enlarge=" + largeurBkg + " pixel");
-			rm.addRoi(imp.getRoi());
-
-			rm.select(rm.getCount() - 1);
-			IJ.run(imp, "Enlarge...", "enlarge=" + largeurBkg + " pixel");
-			rm.addRoi(imp.getRoi());
-
-			rm.setSelectedIndexes(new int[] { rm.getCount() - 2, rm.getCount() - 1 });
-			rm.runCommand(imp, "XOR");
-
-			bkg = imp.getRoi();
-			break;
-
-		case Scintigraphy.HEART:
-			// TODO
-			break;
-
-		case Scintigraphy.INFLATGAUCHE:
-			bkg = createBkgInfLat(roi, imp, -1, rm);
-			break;
-
-		case Scintigraphy.INFLATDROIT:
-			bkg = createBkgInfLat(roi, imp, 1, rm);
-			break;
-
-		default:
-			bkg = roi;
-			break;
-		}
-
-		rm.dispose();
-
-		bkg.setStrokeColor(Color.GRAY);
-		return bkg;
+	public void setExamType(String examType) {
+		this.examType = examType;
 	}
-
-	private static Roi createBkgInfLat(Roi roi, ImagePlus imp, int xOffset, RoiManager rm) {
-		// on recupere ses bounds
-		Rectangle bounds = roi.getBounds();
-
-		Roi liver = (Roi) roi.clone();
-		rm.addRoi(liver);
-
-		int[] size = { (bounds.width / 4) * xOffset, (bounds.height / 4) * 1 };
-
-		Roi liverShift = (Roi) roi.clone();
-		liverShift.setLocation(liverShift.getXBase() + size[0], liverShift.getYBase() + size[1]);
-		rm.addRoi(liverShift);
-
-		// renvoi une section de la roi
-		rm.setSelectedIndexes(new int[] { 0, 1 });
-		rm.runCommand(imp, "XOR");
-		rm.runCommand(imp, "Split");
-
-		int x = bounds.x + bounds.width / 2;
-		int y = bounds.y + bounds.height / 2;
-		int w = size[0] * imp.getWidth();
-		int h = size[1] * imp.getHeight();
-
-		// permet de diviser la roi
-		Rectangle splitter;
-
-		if (w > 0) {
-			splitter = new Rectangle(x, y, w, h);
-		} else {
-			splitter = new Rectangle(x + w, y, -w, h);
-		}
-
-		Roi rect = new Roi(splitter);
-		rm.addRoi(rect);
-
-		rm.setSelectedIndexes(new int[] { rm.getCount() - 1, rm.getCount() - 2 });
-		rm.runCommand(imp, "AND");
-
-		Roi bkg = (Roi) imp.getRoi().clone();
-		int[] offset = new int[] { size[0] / 4, size[1] / 4 };
-
-		// on deplace la roi pour ne pas qu'elle soit collee
-		bkg.setLocation(bkg.getXBase() + xOffset, bkg.getYBase() + 1);
-
-		return bkg;
+	
+	public void setFenApplication(FenApplication fen_application) {
+		this.fen_application = fen_application;
 	}
-
-	public static void editLabelOverlay(Overlay ov, String oldName, String newName, Color c) {
-		Roi roi = ov.get(ov.getIndex(oldName));
-		if (roi != null) {
-			roi.setName(newName);
-			roi.setStrokeColor(c);
-		}
-	}
-
-	/**
-	 * Renvoie un montage avec un pas regulier
-	 * 
-	 * @param frameDuration
-	 * @param imp
-	 * @param size
-	 * @return
-	 */
-	public static ImagePlus creerMontage(int[] frameDuration, ImagePlus imp, int size, int rows, int columns) {
-		int nSlice = frameDuration.length;
-
-		// temps somme
-		int[] summed = new int[frameDuration.length];
-		summed[0] = frameDuration[0];
-		for (int i = 1; i < nSlice; i++) {
-			summed[i] = summed[i - 1] + frameDuration[i];
-		}
-
-		// tableau correspondant au numero des coupes bornes
-		int[] sliceIndex = new int[(rows * columns) + 1];
-		int pas = summed[nSlice - 1] / (rows * columns);
-		for (int i = 0; i < (rows * columns) + 1; i++) {
-			for (int j = 0; j < summed.length; j++) {
-				if (i * pas <= summed[j] || j == summed.length - 1) {
-					sliceIndex[i] = j;
-					break;
-				}
-			}
-		}
-
-		// liste des projections
-		ImagePlus[] impList = new ImagePlus[rows * columns];
-		for (int i = 1; i < sliceIndex.length; i++) {
-			int start = sliceIndex[i - 1];
-			int stop = sliceIndex[i];
-			ImagePlus tinyImp = ZProjector.run(imp, "sum", start, stop);
-
-			ImageProcessor impc = tinyImp.getProcessor();
-			impc.setInterpolationMethod(ImageProcessor.BICUBIC);
-			impc = impc.resize(size);
-
-			ImagePlus projectionImp = new ImagePlus("", impc);
-
-			impList[i - 1] = projectionImp;
-		}
-
-		// fait le montage
-		Concatenator enchainer = new Concatenator();
-		ImagePlus impStacked = enchainer.concatenate(impList, false);
-
-		// on ajoute un label avec le temps en min
-		for (int i = 1; i <= impStacked.getStackSize(); i++) {
-			int msPassed = summed[sliceIndex[i - 1]];
-			String min = "" + msPassed / 10000 + "s";
-			impStacked.getStack().setSliceLabel(min, i);
-		}
-
-		MontageMaker mm = new MontageMaker();
-
-		return mm.makeMontage2(impStacked, columns, rows, 1.0, 1, impList.length, 1, 0, true);
-	}
-
+	
+	
+	/********************** Getter **************************/
 	public ImagePlus getImp() {
 		return this.imp;
-	}
-
-	public void setImp(ImagePlus imp) {
-		this.imp = imp;
 	}
 
 	public String getExamType() {
 		return this.examType;
 	}
 
-	public void setExamType(String examType) {
-		this.examType = examType;
-	}
-
 	public FenApplication getFenApplication() {
 		return this.fen_application;
 	}
+	
+	
+	/*************************** Abstract ************************/
+	/**
+	 * Prepare l'image plus selon les fenetres de dicoms ouvertes
+	 * 
+	 * @param titresFenetres
+	 *            liste des fenetres ouvertes
+	 * @return
+	 */
+	protected abstract ImagePlus preparerImp(ImagePlus[] images);
 
-	public void setFenApplication(FenApplication fen_application) {
-		this.fen_application = fen_application;
-	}
+	/**
+	 * lance le programme
+	 */
+	public abstract void lancerProgramme();
+	
+	
+	
 
-	public static Overlay duplicateOverlay(Overlay overlay) {
-		Overlay overlay2 = overlay.duplicate();
 
-		overlay2.drawLabels(overlay.getDrawLabels());
-		overlay2.drawNames(overlay.getDrawNames());
-		overlay2.drawBackgrounds(overlay.getDrawBackgrounds());
-		overlay2.setLabelColor(overlay.getLabelColor());
-		overlay2.setLabelFont(overlay.getLabelFont(), overlay.scalableLabels());
+	
 
-		// theses properties are not set by the original duplicate method
-		overlay2.setIsCalibrationBar(overlay.isCalibrationBar());
-		overlay2.selectable(overlay.isSelectable());
+	
 
-		return overlay2;
-	}
-
+	
 }

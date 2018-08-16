@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.hepatic.dyn.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
@@ -17,21 +16,25 @@ import javax.swing.border.EmptyBorder;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
+import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.dyn.Modele_HepaticDyn;
+import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
-import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 import ij.ImagePlus;
 
 class TabPrincipal extends JPanel{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private HashMap<String, String> resultats;
 
-	public TabPrincipal(DynamicScintigraphy scin, BufferedImage capture, int width, int height) {
+	public TabPrincipal(HepaticDynamicScintigraphy scin, BufferedImage capture, int width, int height) {
 		super(new BorderLayout());
 		
 		Modele_HepaticDyn modele = (Modele_HepaticDyn) scin.getFenApplication().getControleur().getModele();

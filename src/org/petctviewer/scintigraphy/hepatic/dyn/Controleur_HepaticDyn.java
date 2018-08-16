@@ -2,8 +2,6 @@ package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -83,7 +81,6 @@ public class Controleur_HepaticDyn extends ControleurScin {
 		frame.setVisible(true);
 		
 		//remove finish
-		
 		new FenResultat_HepaticDyn(vue, capture);
 		this.getScin().getFenApplication().dispose();
 	}
@@ -95,7 +92,7 @@ public class Controleur_HepaticDyn extends ControleurScin {
 
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
-		return this.roiManager.getRoi(this.indexRoi % this.organes.length);
+		return this.roiManager.getRoi(this.indexRoi % Controleur_HepaticDyn.organes.length);
 	}
 
 	@Override

@@ -10,23 +10,16 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -37,17 +30,20 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 
+import ij.IJ;
 import ij.ImagePlus;
-import ij.Prefs;
-import java.awt.Component;
+
 
 public class FenApplication_FollowUp extends JFrame{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/*tab main variable*/
 	private JFreeChart leftKidneyGraph ;
 	private JFreeChart rightKidneyGraph ;
@@ -57,11 +53,11 @@ public class FenApplication_FollowUp extends JFrame{
 		
 	/*tab details variable*/
 	//contient les tableaux de chaque patient
-	private HashMap<String, HashMap<String, Double[][]>> allExamens;
+	private HashMap<String, HashMap<String,Object>> allExamens;
 	
 	public FenApplication_FollowUp(ArrayList<String> chemins) throws IOException {
 		
-		Controleur_FollowUp cf = new Controleur_FollowUp(this, chemins);
+		new Controleur_FollowUp(this, chemins);
 		
 		this.setTitle("CVS");
 		getContentPane().setLayout(new BorderLayout());
@@ -105,7 +101,7 @@ public class FenApplication_FollowUp extends JFrame{
 		Box excretionTabFlow = Box.createVerticalBox();
 		//for each date
 		for(int i =0; i< cleAllExamens.size(); i++) {
-			excretionTabFlow.add(setExcretionRatioTab(allExamens.get(cleAllExamens.get(i)).get("excretion")));
+			excretionTabFlow.add(setExcretionRatioTab((Double[][])allExamens.get(cleAllExamens.get(i)).get("excretion")));
 		}
 		sideBox.add(excretionTabFlow);
 	
@@ -130,19 +126,19 @@ public class FenApplication_FollowUp extends JFrame{
 			resultats.add(date);
 			resultats.add(Box.createRigidArea(new Dimension(0, 30)));// add space
 
-			resultats.add(setIntegralTab(allExamens.get(cleAllExamens.get(i)).get("integral")));
+			resultats.add(setIntegralTab((Double[][])allExamens.get(cleAllExamens.get(i)).get("integral")));
 			resultats.add(Box.createRigidArea(new Dimension(0, 30)));
 
-			resultats.add(setTimingTab(allExamens.get(cleAllExamens.get(i)).get("timing")));
+			resultats.add(setTimingTab((Double[][])allExamens.get(cleAllExamens.get(i)).get("timing")));
 			resultats.add(Box.createRigidArea(new Dimension(0, 30)));
 			
-			resultats.add(setExcretionRatioTab(allExamens.get(cleAllExamens.get(i)).get("excretion")));
+			resultats.add(setExcretionRatioTab((Double[][])allExamens.get(cleAllExamens.get(i)).get("excretion")));
 			resultats.add(Box.createRigidArea(new Dimension(0, 30)));
 
-			resultats.add(setRoeTab(allExamens.get(cleAllExamens.get(i)).get("roe")));
+			resultats.add(setRoeTab((Double[][])allExamens.get(cleAllExamens.get(i)).get("roe")));
 			resultats.add(Box.createRigidArea(new Dimension(0, 30)));
 
-			resultats.add(setNoraTab(allExamens.get(cleAllExamens.get(i)).get("nora")));
+			resultats.add(setNoraTab((Double[][])allExamens.get(cleAllExamens.get(i)).get("nora")));
 			
 			//pour que tableau ne soit pas etalé sur toute la fenetre
 			JPanel jp = new JPanel(new FlowLayout());
@@ -427,7 +423,7 @@ public class FenApplication_FollowUp extends JFrame{
 		return integralBox;
 	}
 	
-	public void setAllExamens(HashMap<String,HashMap<String, Double[][]>> allExamens) {
+	public void setAllExamens(HashMap<String,HashMap<String, Object>> allExamens) {
 		this.allExamens = allExamens;
 	}
 
@@ -437,14 +433,18 @@ public class FenApplication_FollowUp extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				captureButton.setVisible(false);
-				
+				String partie1 = (String)allExamens.get(Collections.max(allExamens.keySet())).get("tags");
 				Container root =  Scintigraphy.getRootContainer(captureButton);
-				
 				// Capture, nouvelle methode a utiliser sur le reste des programmes
 				BufferedImage capture = new BufferedImage(root.getWidth(), root.getHeight(),BufferedImage.TYPE_INT_ARGB);
 				root.paint(capture.getGraphics());
 				ImagePlus imp = new ImagePlus("capture", capture);
+				String partie2=ModeleScin.genererDicomTagsPartie2(imp);
+				imp.setProperty("Info", partie1+partie2);
 				imp.show();
+				imp.getWindow().toFront();
+				//On propose de sauver la capture en DICOM
+				IJ.run("myDicom...");
 			
 				captureButton.setVisible(true);
 			}

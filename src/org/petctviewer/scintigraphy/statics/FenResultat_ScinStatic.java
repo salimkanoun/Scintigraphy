@@ -15,6 +15,10 @@ import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 public class FenResultat_ScinStatic extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private SidePanel side;
 	private Scintigraphy scin;
 	
@@ -25,7 +29,6 @@ public class FenResultat_ScinStatic extends JFrame {
 	
 		this.add(new DynamicImage(capture),	 BorderLayout.CENTER);
 		this.add(side, BorderLayout.EAST);
-		
 		this.pack();
 		this.setLocationRelativeTo(scin.getImp().getWindow());
 		this.setVisible(true);

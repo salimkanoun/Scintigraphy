@@ -1,17 +1,14 @@
 package org.petctviewer.scintigraphy.renal.followup;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Optional;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -23,21 +20,25 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FenCSVChoice extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private ArrayList<String> chemins;
 	private JPanel affichageChemin;
-	private String idPatient;
 	private static int NBMAXCSV = 3;
 			
 	public FenCSVChoice() {
 
 		this.chemins = new ArrayList<>();
 		
-		this.setTitle("CSV Choice");
+		this.setTitle("Renal Follow-Up");
 		this.setLayout(new BorderLayout());
-		this.setSize(400, 400);		
+		this.setSize(400, 400);
+		this.setLocationRelativeTo(null);
 		this.setResizable(false);
 		
-		JButton ajout = new JButton("Add file");
+		JButton ajout = new JButton("Add CSV file");
 		ajout.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -122,6 +123,9 @@ public class FenCSVChoice extends JFrame {
 			
 			//lecture ligne 2 : id
 			res = br.readLine().split(",")[1]; 
+			
+			br.close();
+			fr.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} 

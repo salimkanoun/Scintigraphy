@@ -34,7 +34,7 @@ public class FenResultat_GeneralDyn extends JFrame {
 
 		this.add(grid, BorderLayout.CENTER);
 		this.add(side, BorderLayout.EAST);
-		
+		this.setLocationRelativeTo(scin.getImp().getWindow());
 		this.pack();
 		this.setMinimumSize(side.getSize());
 		this.setVisible(true);

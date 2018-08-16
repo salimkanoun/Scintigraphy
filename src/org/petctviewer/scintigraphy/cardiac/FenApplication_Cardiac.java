@@ -24,7 +24,7 @@ public class FenApplication_Cardiac extends FenApplication {
 
 		this.btn_continue = new Button("End");
 		this.btn_newCont = new Button("Next");
-		this.setInstructions("Delimit the Bladder");
+		this.getTextfield_instructions().setText("Delimit the Bladder");
 		
 		this.setPreferredCanvasSize(400);
 		
@@ -35,14 +35,14 @@ public class FenApplication_Cardiac extends FenApplication {
 	 * Lance le mode decontamiation, c'est a dire modifier les boutons de la fenetre
 	 */
 	public void startContaminationMode() {
-		this.getInstru().remove(1);
+		this.getPanelInstructionsTextBtn().remove(1);
 		
 		//mise en place des boutons
 		Panel btns_instru = new Panel();
 		btns_instru.setLayout(new GridLayout(1, 2));
 		btns_instru.add(this.btn_newCont);
 		btns_instru.add(this.btn_continue);
-		this.getInstru().add(btns_instru);
+		this.getPanelInstructionsTextBtn().add(btns_instru);
 		this.modeCont = true;
 		
 		this.resizeCanvas();
@@ -52,11 +52,11 @@ public class FenApplication_Cardiac extends FenApplication {
 	 * Remplace les boutons permettant la decontamination par les boutons utilis�s pour d�limiter les rois
 	 */
 	public void stopContaminationMode() {
-		this.getInstru().remove(1);
-		this.getInstru().add(this.createBtnsInstru());
+		this.getPanelInstructionsTextBtn().remove(1);
+		this.getPanelInstructionsTextBtn().add(this.createPanelInstructionsBtns());
 		
 		String s = "Delimit the " + this.getControleur().getOrganes()[0];
-		this.getField_instructions().setText(s);
+		this.getTextfield_instructions().setText(s);
 		
 		ControleurScin ctrl = this.getControleur();
 		ctrl.setSlice(ctrl.getSliceNumberByRoiIndex(ctrl.getIndexRoi()));
@@ -70,7 +70,7 @@ public class FenApplication_Cardiac extends FenApplication {
 		super.setControleur(ctrl);
 		this.btn_continue.addActionListener(ctrl);
 		this.btn_newCont.addActionListener(ctrl);
-		this.setInstructions("Delimit a new contamination");
+		this.getTextfield_instructions().setText("Delimit a new contamination");
 	}
 	
 	public boolean isModeCont() {

@@ -52,7 +52,8 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			
 			MenuItem gastricEmptying = new MenuItem("Gastric Emptying");
 			MenuItem gastricDynamic = new MenuItem("Gastric Dyamique");
-			MenuItem gastricCondense = new MenuItem("Gastric Condense");
+			MenuItem esophagealTransit = new MenuItem("Esophageal Transit");
+			
 			
 			//plumonary shunt
 			MenuItem plumonaryShunt = new MenuItem("Pulmonary Shunt");
@@ -61,7 +62,8 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			MenuItem dpdQuant = new MenuItem("DPD Quant");
 			
 			//Hepatic
-			MenuItem biliaryScintigraphy = new MenuItem("Biliary Scintigraphy");
+			MenuItem biliaryScintigraphyDynamic = new MenuItem("Biliary Scintigraphy Dynamic");
+			MenuItem biliaryScintigraphyStatic = new MenuItem("Biliary Scintigraphy Static");
 			
 			//Renal
 			MenuItem renogram = new MenuItem("Renogram");
@@ -82,10 +84,11 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			//Ajout des listeners
 			gastricEmptying.addActionListener(this);
 			gastricDynamic.addActionListener(this);
-			gastricCondense.addActionListener(this);
+			esophagealTransit.addActionListener(this);
 			plumonaryShunt.addActionListener(this);
 			dpdQuant.addActionListener(this);
-			biliaryScintigraphy.addActionListener(this);
+			biliaryScintigraphyDynamic.addActionListener(this);
+			biliaryScintigraphyStatic.addActionListener(this);
 			renogram.addActionListener(this);
 			dmsa.addActionListener(this);
 			renogramFollowUp.addActionListener(this);
@@ -96,12 +99,13 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			
 			gastric.add(gastricEmptying);
 			gastric.add(gastricDynamic);
-			gastric.add(gastricCondense);
+			gastric.add(esophagealTransit);
 			
 			pulmonary.add(plumonaryShunt);
 			
 			cardiac.add(dpdQuant);
-			hepatic.add(biliaryScintigraphy);
+			hepatic.add(biliaryScintigraphyDynamic);
+			hepatic.add(biliaryScintigraphyStatic);
 			
 			renal.add(renogram);
 			renal.add(dmsa);
@@ -131,14 +135,20 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			if (cmd=="DPD Quant") {
 				IJ.run("DPD Quant");
 			}
-			if (cmd=="Biliary Scintigraphy") {
-				IJ.run("Biliary Scintigraphy");
+			if (cmd=="Biliary Scintigraphy Dynamic") {
+				IJ.run("Biliary Scintigraphy Dynamic");
+			}
+			if (cmd=="Biliary Scintigraphy Static") {
+				IJ.run("Biliary Scintigraphy Static");
 			}
 			if (cmd=="Gastric Emptying") {
 				IJ.run("Gastric Emptying software");
 			}
 			if (cmd=="Gastric Dyamique") {
 				IJ.run("Gastric Emptying Dynamic");
+			}
+			if (cmd=="Esophageal Transit") {
+				IJ.run("Esophageal Transit");
 			}
 			if (cmd=="Pulmonary Shunt") {
 				IJ.run("Pulmonary Shunt");

@@ -5,8 +5,6 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.IJ;
 import ij.ImagePlus;
-import ij.WindowManager;
-import ij.gui.Toolbar;
 
 public class HepaticScintigraphy extends Scintigraphy {
 

@@ -1,19 +1,8 @@
 package org.petctviewer.scintigraphy.calibration.resultats;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-
-import org.jfree.chart.JFreeChart;
 import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -157,7 +146,7 @@ public class ModeleResultatsCalibration {
 	public void runCalculDetails() {
 		for(int i =0; i<this.donneesCharge.size() ;i++) {
 			for(int j=0; j<this.donneesCharge.get(i).size() ;j++) {
-				Double suvMax = (Double)this.donneesCharge.get(i).get(j).get("SUVmax");
+				//Double suvMax = (Double)this.donneesCharge.get(i).get(j).get("SUVmax");
 				Double suv70 = (Double)this.donneesCharge.get(i).get(j).get("MEAN70");
 				Double bg = (Double)this.donneesCharge.get(i).get(j).get("BG");
 				

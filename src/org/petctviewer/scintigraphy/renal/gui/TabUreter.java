@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -14,6 +13,11 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 class TabUreter extends JPanel {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public TabUreter(Scintigraphy scin) {
 		super(new BorderLayout());

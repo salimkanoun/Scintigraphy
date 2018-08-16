@@ -5,16 +5,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import javax.swing.JFrame;
-
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
@@ -25,11 +21,13 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.chart.ui.TextAnchor;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 
 public class JValueSetter extends ChartPanel implements ChartMouseListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	// ordre de priorite des selecteurs
 	private List<Selector> selectors;
 	private Selector current;
@@ -41,35 +39,10 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 		
 		this.selectors = new ArrayList<>();
 		this.areas = new HashMap<Comparable, Area>();
-	}
-	
-	public static final void main(String[] args) {
-		JFrame frame = new JFrame("");
 		
-		JValueSetter jvs = new JValueSetter(createChart());
-		jvs.addSelector(new Selector("OK", 2, 0, RectangleAnchor.BOTTOM), "A");
-		frame.add(jvs);
-		
-		frame.pack();
-		frame.setVisible(true);
-	}
-	
-	private static JFreeChart createChart() {
-		XYSeries series = new XYSeries("S1");
-		for (int x = 0; x < 30; x++) {
-			series.add(x, 5 + Math.random() * 3);
-		}
-		XYSeriesCollection dataset = new XYSeriesCollection(series);
-
-		XYSeries series2 = new XYSeries("S2");
-		for (int x = 0; x < 30; x++) {
-			series2.add(x, 3 + Math.random() * 3);
-		}
-
-		dataset.addSeries(series2);
-		
-		JFreeChart chart = ChartFactory.createXYLineChart("Adjust the values", "X", "Y", dataset);
-		return chart;
+		//desactive le zoom
+		this.setDomainZoomable(false);
+		this.setRangeZoomable(false);
 	}
 
 	/**
@@ -95,7 +68,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 		Selector v = this.getSelector(xMouse, plotArea);
 
 		// si il y a un selecteur sous la souris
-		if (v != null) {
+		if (v != null && this.current == null) {
 			// on active son clic et on le selectionne
 			v.chartMouseClicked(event);
 			this.current = v;
@@ -146,14 +119,14 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 		Selector v = this.getSelector(xMouse, plotArea);
 
 		// si la souris est sur un selecteur ou qu'un selecteur est selectionne
-		if (v != null || this.current != null) {
+		if (v != null || this.current != null   ) {
 			// on change le curseur en main
 			c.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		} else {
 			// sinon on laisse le curseur par defaut
 			c.setCursor(null);
 		}
-
+		
 		// si un selecteur est selectionne, on appelle la methode chartMouseMoved
 		if (this.current != null) {
 			this.current.chartMouseMoved(event);
@@ -216,7 +189,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 
 		this.removeOverlay(v);
 		this.selectors.remove(v);
-		// si le selecteur fait partie d'une aire, l'aire est supprimée
+		// si le selecteur fait partie d'une aire, l'aire est supprimï¿½e
 		List<Comparable> areasToRemove = new ArrayList<>();
 		for (Comparable k : this.areas.keySet()) {
 			Area area = this.areas.get(k);
@@ -281,7 +254,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 			this.end = end;
 
 			if (color == null) {
-				this.color = new Color(225, 244, 50, 120);
+				this.color = new Color(225, 244, 50, 120);//jaune
 			} else {
 				this.color = color;
 			}

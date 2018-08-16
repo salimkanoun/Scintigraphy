@@ -3,30 +3,22 @@ package org.petctviewer.scintigraphy.renal.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
-import javax.crypto.CipherInputStream;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import org.jfree.chart.ChartPanel;
-import org.jfree.data.xy.XYSeries;
+
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
@@ -54,6 +46,7 @@ class TabPrincipal extends JPanel {
 	public TabPrincipal(RenalScintigraphy vue, BufferedImage capture) {
 		super(new BorderLayout());
 		JValueSetter chartNephrogram = vue.getNephrogramChart();
+		
 
 		HashMap<Comparable, Double> adjusted = ((Modele_Renal) vue.getFenApplication().getControleur().getModele())
 				.getAdjustedValues();
@@ -89,6 +82,9 @@ class TabPrincipal extends JPanel {
 		
 		this.add(side, BorderLayout.EAST);
 		this.add(grid, BorderLayout.CENTER);
+		chartNephrogram.removeChartMouseListener(chartNephrogram);
+		
+		
 	}
 
 	public Component getSidePanelContent() {

@@ -5,10 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
+
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
+
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.ZProjector;
@@ -26,7 +27,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		this.setModele(new Modele_GeneralDyn(vue.getFrameDurations()));
 		this.over = false;
 
-		this.getScin().getFenApplication().getField_instructions().addKeyListener(new KeyListener() {
+		this.getScin().getFenApplication().getTextfield_instructions().addKeyListener(new KeyListener() {
 
 			@Override
 			public void keyTyped(KeyEvent arg0) {
@@ -55,7 +56,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		} else {
 			s = "roi" + this.indexRoi;
 		}
-		this.getScin().getFenApplication().getField_instructions().setText(s);
+		this.getScin().getFenApplication().getTextfield_instructions().setText(s);
 	}
 
 	@Override
@@ -83,7 +84,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		this.impProjetee = this.getScin().getImp().duplicate();
 		this.over = true; 
 		this.nbOrganes = this.roiManager.getCount();
-		DynamicScintigraphy vue = (DynamicScintigraphy) this.getScin();
+		GeneralDynamicScintigraphy vue = (GeneralDynamicScintigraphy) this.getScin();
 		this.removeImpListener();
 
 		ImagePlus imp = vue.getImp();
@@ -147,7 +148,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	}
 
 	private void finishDrawingResultWindow() {
-		DynamicScintigraphy vue = (DynamicScintigraphy) this.getScin();
+		GeneralDynamicScintigraphy vue = (GeneralDynamicScintigraphy) this.getScin();
 		this.indexRoi = this.nbOrganes;
 		this.over = false;
 		this.addImpListener();
@@ -182,17 +183,14 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	@Override
 	public String getNomOrgane(int index) {
 		if (!isOver()) {
-			return this.getScin().getFenApplication().getField_instructions().getText();
+			return this.getScin().getFenApplication().getTextfield_instructions().getText();
 		}
 		return this.roiManager.getRoi(index % this.nbOrganes).getName();
 	}
 
 	@Override
 	public boolean isOver() {
-		if (this.over) {
-			return true;
-		}
-		return false;
+		return this.over;
 	}
 
 	@Override

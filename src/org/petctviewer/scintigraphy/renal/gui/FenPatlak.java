@@ -18,7 +18,6 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
-import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYLineAnnotation;
 import org.jfree.chart.plot.PlotOrientation;
@@ -30,12 +29,15 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.Selector;
-import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 
 public class FenPatlak extends JDialog implements ActionListener, ChartMouseListener {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JButton btn_ok;
 	private Box pnl_equations;
 	private JLabel lbl_eqR, lbl_eqL;
@@ -202,8 +204,8 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		// on trace les droites sur le graphique
 		XYPlot plot = this.valueSetter.getChart().getXYPlot();
 		plot.clearAnnotations();
-		Stroke stroke = new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1.0f,
-				new float[] { 6.0f, 6.0f }, 0.0f);
+		Stroke stroke = new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1.0f,new float[] { 6.0f, 6.0f }, 0.0f);
+		
 		XYLineAnnotation rgFit = new XYLineAnnotation(0, regG[0], 100, 100 * regG[1] + regG[0], stroke, Color.red);
 		plot.addAnnotation(rgFit);
 
@@ -211,6 +213,9 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		plot.addAnnotation(rdFit);
 	}
 
+	/*
+	 * Methode pour les listener des selector
+	 */
 	private void comboUpdated(ActionEvent e) {
 		JComboBox cb = (JComboBox) e.getSource();
 		int indexCombo = cb.getSelectedIndex();

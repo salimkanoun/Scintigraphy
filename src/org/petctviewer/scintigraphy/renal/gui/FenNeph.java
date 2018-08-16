@@ -25,6 +25,10 @@ import ij.Prefs;
 
 public class FenNeph extends JDialog implements ActionListener {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JButton btn_patlak, btn_ok;
 	private JValueSetter jvaluesetter;
 	private Modele_Renal modele;
@@ -67,7 +71,7 @@ public class FenNeph extends JDialog implements ActionListener {
 		// si il y a un rein gauche
 		if (modele.getKidneys()[0]) {
 			// on cree toutes les valueSelector que l'on va utiliser
-			Selector tmaxl = new Selector("TMax L", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 0), 0,
+			Selector tmaxl = new Selector("TMax L", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 0), 0, 
 					RectangleAnchor.BOTTOM_LEFT);
 			jvs.addSelector(tmaxl, "tmax L");
 		}

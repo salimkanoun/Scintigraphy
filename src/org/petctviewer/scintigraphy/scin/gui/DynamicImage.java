@@ -1,8 +1,24 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.*;
-import java.awt.image.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Paint;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JViewport;
+
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
+
+import ij.ImagePlus;
 
 /*
  *  Support custom painting on a panel in the form of
@@ -14,6 +30,11 @@ import javax.swing.*;
  *  non-opaque so that the custom painting can show through.
  */
 public class DynamicImage extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public static final int SCALED = 0, SCALED_KEEPRATIO = 3, TILED = 1, ACTUAL = 2; //affichage
 	
 	private Object interpolation = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
@@ -73,6 +94,13 @@ public class DynamicImage extends JPanel {
 		repaint();
 	}
 
+	/*
+	 * Get Image of this panel to refresh
+	 */
+	public Image getImage() {
+		return this.image;
+	}
+	
 	/*
 	 * Set the style used to paint the background image
 	 */
