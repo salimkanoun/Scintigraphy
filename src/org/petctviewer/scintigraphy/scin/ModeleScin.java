@@ -406,6 +406,7 @@ public abstract class ModeleScin {
 		tags.put("0020,0010", DicomTools.getTag(imp, "0020,0010") );
 		tags.put("0020,0032" ,DicomTools.getTag(imp, "0020,0032") );
 		tags.put("0020,0037", DicomTools.getTag(imp, "0020,0037") );
+		System.out.println(tags.get("0020,000E"));
 		String partie1=getTagPartie1(tags, nomProgramme, uid);
 		return partie1;
 	}

@@ -38,7 +38,7 @@ public class EsophagealTransit extends Scintigraphy {
 		this.setFenApplication(fen);
 		this.getImp().setOverlay(overlay);
 		
-		Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(this, sauvegardeImagesSelectDicom);
+		Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(this, sauvegardeImagesSelectDicom, this);
 		this.getFenApplication().setControleur(cet);
 		this.getFenApplication().setVisible(true);
 	}
@@ -102,6 +102,7 @@ public class EsophagealTransit extends Scintigraphy {
 			//orderby ... renvoi un tableau d'imp trie par ordre chrono, avec en paramètre la liste des imp Ant
 			//captureTo.. renvoi un stack avec sur chaque slice une imp du tableau passé en param ( un image trié, projeté et ant)
 			imTest = new ImagePlus("test",ModeleScin.captureToStack(Scintigraphy.orderImagesByAcquisitionTime(imagesAnt)));
+			imTest.setProperty("Info", sauvegardeImagesSelectDicom[0][0].getInfoProperty());
 		}
 		return imTest;
 	}

@@ -9,6 +9,7 @@ import java.awt.event.ItemListener;
 
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -21,6 +22,7 @@ import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
+import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.FenResultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
@@ -40,7 +42,7 @@ public class TabRentention extends JPanel{
 	  
 	private Modele_Resultats_EsophagealTransit modele;
 	 
-	public TabRentention(int nbAcquisition, Modele_Resultats_EsophagealTransit modele) {
+	public TabRentention(int nbAcquisition, Modele_Resultats_EsophagealTransit modele, Modele_EsophagealTransit modeleApp) {
 
 		this.modele = modele;
 		
@@ -147,8 +149,17 @@ public class TabRentention extends JPanel{
 		
 		sidePanel.add(retentionResultPanelFlow);
 	    
-	    
+		  
+		JButton captureButton = new JButton("Capture");
+		JLabel lblCredit = new JLabel("Provided by petctviewer.org");
+		
+		sidePanel.add(captureButton);
+		sidePanel.add(lblCredit);
+				
 		this.add(sidePanel, BorderLayout.EAST);
+		
+		modeleApp.esoPlugIn.setCaptureButton(captureButton, lblCredit , this, modeleApp, "");
+
 		
 		radioButtonRetention[0].setSelected(true);
 

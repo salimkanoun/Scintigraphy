@@ -9,6 +9,7 @@ import java.awt.event.ItemListener;
 
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -22,6 +23,7 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.FenResultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
@@ -44,7 +46,7 @@ public class TabTransitTime extends JPanel{
 	 
 	private static int numSeriesSelectors = 0;
 
-	public TabTransitTime(int nbAcquisition, Modele_Resultats_EsophagealTransit modele) {
+	public TabTransitTime(int nbAcquisition, Modele_Resultats_EsophagealTransit modele , Modele_EsophagealTransit modeleApp) {
 		this.setLayout(new BorderLayout());
 
 		
@@ -193,7 +195,12 @@ public class TabTransitTime extends JPanel{
 			sidePanel.add(resultPanelFlow);
 		    
 		    
-		    
+			  
+			JButton captureButton = new JButton("Capture");
+			JLabel lblCredit = new JLabel("Provided by petctviewer.org");
+			
+			sidePanel.add(captureButton);
+			sidePanel.add(lblCredit);
 		    
 		    
 		    			    
@@ -203,7 +210,8 @@ public class TabTransitTime extends JPanel{
 		
 		
 		
-		
+			modeleApp.esoPlugIn.setCaptureButton(captureButton, lblCredit , this, modeleApp, "");
+
 		
 		radioButtonTransitTime[0].setSelected(true);
 	}

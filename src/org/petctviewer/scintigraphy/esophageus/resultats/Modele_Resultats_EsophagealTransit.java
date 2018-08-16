@@ -321,4 +321,8 @@ public class Modele_Resultats_EsophagealTransit {
 				
 	}
 	
+	// pour le bouton capture
+	public ImagePlus getFirstImp() {
+		return (ImagePlus)this.dicomRoi.get(0)[0];
+	}
 }

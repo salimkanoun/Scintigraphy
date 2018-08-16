@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.petctviewer.scintigraphy.esophageus.EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
@@ -32,12 +33,15 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	//pour le condensé dynamique
 	ArrayList<Object[]> dicomRoi;
 	
+	public EsophagealTransit esoPlugIn;
 	
-	public Modele_EsophagealTransit(int[] frameDuration , ImagePlus [][] sauvegardeImagesSelectDicom) {
+	public Modele_EsophagealTransit(int[] frameDuration , ImagePlus [][] sauvegardeImagesSelectDicom, EsophagealTransit esoPlugIn) {
 		super(frameDuration);
 		this.sauvegardeImagesSelectDicom = sauvegardeImagesSelectDicom;
 		
 		examenMean = new ArrayList<>();
+		
+		this.esoPlugIn = esoPlugIn;
 	}
 
 	

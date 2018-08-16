@@ -7,6 +7,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -16,6 +17,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 
@@ -43,7 +45,7 @@ public class TabCondense extends JPanel implements ChangeListener{
 	 
 	 private Modele_Resultats_EsophagealTransit modele;
 	 
-	public TabCondense(int nbAcquisition , Modele_Resultats_EsophagealTransit modele) {
+	public TabCondense(int nbAcquisition , Modele_Resultats_EsophagealTransit modele, Modele_EsophagealTransit modeleApp) {
 		this.modele = modele;
 		
 		this.setLayout(new BorderLayout());
@@ -150,14 +152,25 @@ public class TabCondense extends JPanel implements ChangeListener{
 		});
 		
 	    
-		JPanel  sideCondensePanel = new JPanel();
-		sideCondensePanel.setLayout(new BorderLayout());
-		sideCondensePanel.add(radioButtonCondensePanelFlow, BorderLayout.NORTH);
-		sideCondensePanel.add(imagePlusRognagePanel, BorderLayout.CENTER);
-		sideCondensePanel.add(contrastSlider,BorderLayout.SOUTH);
+		JPanel  sidePanel = new JPanel();
+		sidePanel.setLayout(new BorderLayout());
+		sidePanel.add(radioButtonCondensePanelFlow, BorderLayout.NORTH);
+		sidePanel.add(imagePlusRognagePanel, BorderLayout.CENTER);
 		
-		this.add(sideCondensePanel, BorderLayout.EAST);
+		JPanel contrastCapture = new JPanel();
+		contrastCapture.setLayout(new GridLayout(3, 1));
+		contrastCapture.add(contrastSlider);	
+		JButton captureButton = new JButton("Capture");
+		JLabel lblCredit = new JLabel("Provided by petctviewer.org");
+		contrastCapture.add(captureButton);
+		contrastCapture.add(lblCredit);
+		
+		sidePanel.add(contrastCapture,BorderLayout.SOUTH);
+		
+		this.add(sidePanel, BorderLayout.EAST);
 		 
+		modeleApp.esoPlugIn.setCaptureButton(captureButton, lblCredit , this, modeleApp, "");
+
 		
 		radioButtonCondense[0].setSelected(true);
 

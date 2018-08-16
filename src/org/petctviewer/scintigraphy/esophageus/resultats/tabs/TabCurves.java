@@ -2,10 +2,15 @@ package org.petctviewer.scintigraphy.esophageus.resultats.tabs;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -25,12 +30,16 @@ import org.petctviewer.scintigraphy.calibration.resultats.JTableCheckBox;
 import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
+
+import ij.IJ;
+import ij.ImagePlus;
 
 public class TabCurves extends JPanel{
 	
 	private JFreeChart graphMain;
 	
-	public TabCurves(int nbAcquisition, Modele_Resultats_EsophagealTransit modele) {
+	public TabCurves(int nbAcquisition, Modele_Resultats_EsophagealTransit modele, Modele_EsophagealTransit modeleApp) {
 		
 		this.setLayout(new BorderLayout());
 		
@@ -119,7 +128,18 @@ public class TabCurves extends JPanel{
 		   
 		sidePanel.add(longueurEsophageResultPanelFlow);
 	    
+		JButton captureButton = new JButton("Capture");
+		JLabel lblCredit = new JLabel("Provided by petctviewer.org");
+		
+		sidePanel.add(captureButton);
+		sidePanel.add(lblCredit);
+		
 		this.add(sidePanel, BorderLayout.EAST);
+		
+
+		
+		modeleApp.esoPlugIn.setCaptureButton(captureButton, lblCredit , this, modeleApp, "");
+
 	}
 	
 	public void setVisibilitySeriesMain(int x, int y, boolean visibility) {

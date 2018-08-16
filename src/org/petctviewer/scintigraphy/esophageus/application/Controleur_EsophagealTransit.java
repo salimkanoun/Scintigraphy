@@ -17,14 +17,14 @@ public class Controleur_EsophagealTransit  extends ControleurScin {
 	public static String[] ORGANES = {"Esophage"};
 	private int nbOrganes;
 	EsophagealTransit esoPlugin;
-	
-	public Controleur_EsophagealTransit(EsophagealTransit esoPlugin, ImagePlus [][] sauvegardeImagesSelectDicom) {
+	Modele_EsophagealTransit modele ;
+	public Controleur_EsophagealTransit(EsophagealTransit esoPlugin, ImagePlus [][] sauvegardeImagesSelectDicom, EsophagealTransit esoPlugIn) {
 		super(esoPlugin);
 		this.esoPlugin = esoPlugin;
 		this.setOrganes(ORGANES);
 		this.nbOrganes = ORGANES.length;
 		
-		Modele_EsophagealTransit modele = new Modele_EsophagealTransit(esoPlugin.getFrameDurations(), sauvegardeImagesSelectDicom);
+		 modele = new Modele_EsophagealTransit(esoPlugin.getFrameDurations(), sauvegardeImagesSelectDicom,  esoPlugIn);
 		
 		//modele.setLocked(true);
 		this.setModele(modele);
@@ -48,7 +48,7 @@ public class Controleur_EsophagealTransit  extends ControleurScin {
 		
 		this.getModele().calculerResultats();
 		
-		FenResultats_EsophagealTransit fen = new FenResultats_EsophagealTransit(((Modele_EsophagealTransit)this.getModele()).getExamenMean(), ((Modele_EsophagealTransit)this.getModele()).getDicomRoi());
+		FenResultats_EsophagealTransit fen = new FenResultats_EsophagealTransit(((Modele_EsophagealTransit)this.getModele()).getExamenMean(), ((Modele_EsophagealTransit)this.getModele()).getDicomRoi(), modele);
 		fen.setVisible(true);
 	}
 

@@ -434,7 +434,6 @@ public class FenApplication_FollowUp extends JFrame{
 			public void actionPerformed(ActionEvent e) {
 				captureButton.setVisible(false);
 				String partie1 = (String)allExamens.get(Collections.max(allExamens.keySet())).get("tags");
-				
 				Container root =  Scintigraphy.getRootContainer(captureButton);
 				// Capture, nouvelle methode a utiliser sur le reste des programmes
 				BufferedImage capture = new BufferedImage(root.getWidth(), root.getHeight(),BufferedImage.TYPE_INT_ARGB);
