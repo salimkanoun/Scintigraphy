@@ -68,7 +68,7 @@ public class Modele_Resultats_EsophagealTransit {
 		return this.datasetTransitTime;
 	}
 	
-	public double[] retentionPoucentage() {	
+	public double[] retentionAllPoucentage() {	
 		double[] res = new double[datasetTransitTime.length];
 		//for each acqui
 		for(int i =0 ; i < datasetTransitTime.length; i++) {
@@ -89,6 +89,44 @@ public class Modele_Resultats_EsophagealTransit {
 		}
 		return res;
 	}
+	
+	public double[] retentionAllX() {	
+		double[] res = new double[datasetTransitTime.length];
+		//for each acqui
+		for(int i =0 ; i < datasetTransitTime.length; i++) {
+			XYSeries serie = datasetTransitTime[i][0];
+			
+			double x = ModeleScinDyn.getAbsMaxY(serie);
+			;
+			res[i] = x;
+		}
+		return res;
+	}
+
+	
+	public double retentionPoucentage(double xForYMax, int numeroSerie) {
+		
+		if(xForYMax<1) {
+			return Double.NaN;
+		}
+		
+		XYSeries serie = datasetTransitTime[numeroSerie][0];
+		
+		
+		//recherche du x le plus proche
+		double ymax = ModeleScinDyn.getInterpolatedY(serie, xForYMax);
+
+		double ycalc = ModeleScinDyn.getInterpolatedY(serie, xForYMax+10);
+		double fractionDecrease = (ycalc/ymax)*100;
+		
+		xForYMax = ModeleScin.round(xForYMax, 2);
+		ycalc = ModeleScin.round(ycalc, 2);
+		fractionDecrease = ModeleScin.round(fractionDecrease, 2);
+		
+		return fractionDecrease;
+	}
+	
+	
 	
 	public XYSeriesCollection retentionForGraph() {
 		XYSeriesCollection collection = new XYSeriesCollection();

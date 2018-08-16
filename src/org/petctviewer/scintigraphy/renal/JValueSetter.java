@@ -39,6 +39,10 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 		
 		this.selectors = new ArrayList<>();
 		this.areas = new HashMap<Comparable, Area>();
+		
+		//desactive le zoom
+		this.setDomainZoomable(false);
+		this.setRangeZoomable(false);
 	}
 
 	/**
