@@ -16,6 +16,7 @@ import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 
 import ij.IJ;
 import ij.ImagePlus;
+import ij.measure.Calibration;
 import ij.plugin.ZProjector;
 
 public class Modele_Resultats_EsophagealTransit {
@@ -138,7 +139,7 @@ public class Modele_Resultats_EsophagealTransit {
 
 	
 	
-	
+	/*Condensé*/
 
 	
 	public ImagePlus getCondense(int indiceAcquisition) {
@@ -266,4 +267,20 @@ public class Modele_Resultats_EsophagealTransit {
 		
 		
 	}
+
+	/*Calcul longueur oesophage*/
+	public double[] calculLongeurEsophage() {
+		double [] res= new double[datasetTransitTime.length];
+		//for each acqui
+		for(int i =0; i< datasetTransitTime.length; i++) {
+			double hauteurRoi = ((Rectangle)dicomRoi.get(i)[1]).getHeight();
+			Calibration calibration = ((ImagePlus)dicomRoi.get(i)[0]).getLocalCalibration();
+			calibration.setUnit("mm");// on met l'unité en mm
+			double hauteurPixel = calibration.pixelHeight;
+			res[i] = (hauteurPixel*hauteurRoi)/10;// pour l'avoir en centimetres
+		}
+		return res;
+				
+	}
+	
 }

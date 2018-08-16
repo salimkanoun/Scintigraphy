@@ -111,6 +111,8 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 		modele = new Modele_Resultats_EsophagealTransit(arrayList,dicomRoi);
 		this.setLayout(new BorderLayout());
 		
+		
+
 		/********************************************************** tab main ************/
 		tabMain = new JPanel();
 		this.tabMain.setLayout(new BorderLayout());
@@ -141,13 +143,28 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 	    
 	    // table de checkbox	
 	    JTableCheckBox tableCheckboxMain = new JTableCheckBox(titleRows, titleCols, this);
-	    
 	    tableCheckboxMain.setFirstColumn();
 		
+	    JPanel longeurEsophageResultPanel  = new JPanel();
+	    longeurEsophageResultPanel.setLayout(new GridLayout(arrayList.size()+1,1));
+	   
+	    longeurEsophageResultPanel.add(new JLabel("Esophageal height"));
+		double[] longueurEsophage = this.modele.calculLongeurEsophage();
+		for(int i =0 ; i< longueurEsophage.length; i++) {
+			longeurEsophageResultPanel.add(new JLabel("Acquisition "+(i+1)+" : "+(ModeleScin.round(longueurEsophage[i],2)) +" cm"));
+		}
+	    
+		
+		JPanel longueurEsophageResultPanelFlow = new JPanel();
+		longueurEsophageResultPanelFlow.setLayout(new FlowLayout());
+		longueurEsophageResultPanelFlow.add(longeurEsophageResultPanel);
+		    
 		JPanel sideMain = new JPanel();
 		sideMain.setLayout(new BoxLayout(sideMain, BoxLayout.Y_AXIS));
 	    sideMain.add(tableCheckboxMain);
-		
+		sideMain.add(longueurEsophageResultPanelFlow);
+	    
+	    
 		this.tabMain.add(sideMain, BorderLayout.EAST);
 
 
@@ -423,7 +440,6 @@ public class FenResultats_EsophagealTransit extends JFrame implements  ChartMous
 		radioButtonTransitTime[0].setSelected(true);
 		radioButtonRetention[0].setSelected(true);
 		radioButtonCondense[0].setSelected(true);
-
 		this.pack();
 	}
 	
