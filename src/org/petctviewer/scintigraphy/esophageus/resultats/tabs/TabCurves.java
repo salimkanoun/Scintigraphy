@@ -139,7 +139,7 @@ public class TabCurves extends JPanel{
 		
 
 		
-		modeleApp.esoPlugIn.setCaptureButton(captureButton, lblCredit , this, modeleApp, "");
+		modeleApp.esoPlugIn.setCaptureButton(captureButton, lblCredit , this, modele, "Curves");
 
 	}
 	

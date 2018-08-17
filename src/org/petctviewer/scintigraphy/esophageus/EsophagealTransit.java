@@ -20,7 +20,7 @@ public class EsophagealTransit extends Scintigraphy {
 	private ImagePlus[][] sauvegardeImagesSelectDicom;
 	
 	public EsophagealTransit() {
-		super("Eso");
+		super("Esophageal Transit");
 	}
 
 

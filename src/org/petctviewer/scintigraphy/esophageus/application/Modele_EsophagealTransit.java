@@ -212,6 +212,5 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	public ArrayList<Object[]> getDicomRoi() {
 		return this.dicomRoi;
 	}
-		
 	
 }

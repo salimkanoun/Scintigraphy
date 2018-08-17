@@ -82,7 +82,10 @@ public class TabRentention extends JPanel{
 				tab.selectorRetentionValue[numAcquisitionRetention] = tab.selectorRentention.getXValue();
 				
 				double retention = tab.modele.retentionPoucentage(tab.selectorRentention.getXValue(), numAcquisitionRetention);
-				retention10sLabel[numAcquisitionRetention].setText(	"Acquisition "+(numAcquisitionRetention+1)+" : "+retention +"%");	
+				retention10sLabel[numAcquisitionRetention].setText(	"Acquisition "+(numAcquisitionRetention+1)+" : "+retention +"%");
+				
+				//on l'envoi au modele pour le csv
+				tab.modele.setRetentionDecrease(numAcquisitionRetention, retention);
 			}
 		});
 	    
@@ -158,8 +161,7 @@ public class TabRentention extends JPanel{
 		sidePanel.add(lblCredit);
 				
 		this.add(sidePanel, BorderLayout.EAST);
-		
-		modeleApp.esoPlugIn.setCaptureButton(captureButton, lblCredit , this, modeleApp, "");
+		modeleApp.esoPlugIn.setCaptureButton(captureButton, lblCredit , this, modele, "Retention");
 
 		
 		radioButtonRetention[0].setSelected(true);
