@@ -65,7 +65,7 @@ public abstract class ControleurScin implements ActionListener {
 		this.overlay = Scintigraphy.duplicateOverlay(scin.getImp().getOverlay());
 
 		//SK BOOLEAN FALSE POUR MASQUER, A METTRE TRUE POUR DEVELOPPEMENT
-		this.roiManager = new RoiManager(false);
+		this.roiManager = new RoiManager();
 
 		//this.addImageListener
 		this.ctrlImg = new ControleurImp(this);
@@ -164,6 +164,8 @@ public abstract class ControleurScin implements ActionListener {
 	 * est appelle lors du clic sur le bouton "Previous"
 	 */
 	public void clicPrecedent() {
+		//Si boutton suivant desactive car on est arrive a la fin du programme, on le reactive quand on a clicke sur precedent
+		if( !scin.getFenApplication().getBtn_suivant().isEnabled() ) scin.getFenApplication().getBtn_suivant().setEnabled(true);
 		// sauvegarde du ROI courant
 		this.saveCurrentRoi(this.getNomOrgane(this.indexRoi), this.indexRoi);
 
@@ -193,7 +195,7 @@ public abstract class ControleurScin implements ActionListener {
 			// on active la fin si c'est necessaire
 			if (this.isOver()) {
 				this.setSlice(this.scin.getImp().getCurrentSlice());
-
+				scin.getFenApplication().getBtn_suivant().setEnabled(false);
 				// thread de capture, permet de laisser le temps de charger l'image plus dans le
 				// thread principal
 				Thread captureThread = new Thread(new Runnable() {
@@ -246,7 +248,9 @@ public abstract class ControleurScin implements ActionListener {
 			}
 
 			// precise la postion en z
-			this.roiManager.getRoi(indexRoi).setPosition(this.getSliceNumberByRoiIndex(indexRoi));
+			this.roiManager.
+			getRoi(indexRoi).
+			setPosition(this.getSliceNumberByRoiIndex(indexRoi));
 
 			// changement de nom
 			this.roiManager.rename(indexRoi, nomRoi);
