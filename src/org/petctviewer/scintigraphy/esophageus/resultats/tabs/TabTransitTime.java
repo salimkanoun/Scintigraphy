@@ -45,8 +45,11 @@ public class TabTransitTime extends JPanel{
 	private JRadioButton[] radioButtonTransitTime;
 	 
 	private static int numSeriesSelectors = 0;
+	
+	private Modele_Resultats_EsophagealTransit modele;
 
 	public TabTransitTime(int nbAcquisition, Modele_Resultats_EsophagealTransit modele , Modele_EsophagealTransit modeleApp) {
+		this.modele = modele;
 		this.setLayout(new BorderLayout());
 
 		
@@ -102,6 +105,8 @@ public class TabTransitTime extends JPanel{
 				double delta = Math.abs(tab.startSelector.getXValue() - tab.endSelector.getXValue());
 				tab.labelsMesureTempsSelectorTransit[numSeriesSelectors].setText("Acquisition "+(numSeriesSelectors+1)+" : "+ModeleScin.round(delta, 2)+" sec");
 				
+				//on l'envoi au modele pour le csv
+				tab.modele.setTimeMeasure(numSeriesSelectors, delta);
 			}
 		});
 		
@@ -211,7 +216,7 @@ public class TabTransitTime extends JPanel{
 		
 		
 		
-			modeleApp.esoPlugIn.setCaptureButton(captureButton, lblCredit , this, modeleApp, "");
+			modeleApp.esoPlugIn.setCaptureButton(captureButton, lblCredit , this, modele, "TransitTimes");
 
 		
 		radioButtonTransitTime[0].setSelected(true);

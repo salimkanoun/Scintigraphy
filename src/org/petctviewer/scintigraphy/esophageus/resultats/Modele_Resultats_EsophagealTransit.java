@@ -19,7 +19,7 @@ import ij.ImagePlus;
 import ij.measure.Calibration;
 import ij.plugin.ZProjector;
 
-public class Modele_Resultats_EsophagealTransit {
+public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 
 	private XYSeries [][] datasetMain;
 	private XYSeries [][] datasetTransitTime;
@@ -29,9 +29,24 @@ public class Modele_Resultats_EsophagealTransit {
 	
 	private ImagePlus[] condense;
 	private ImagePlus[] imageplusAndRoi;
+	
+	//pour le csv
+	private ArrayList<HashMap<String, ArrayList<Double>>> arrayList;
+	private double[] longueurEsophage;
+	private double[] tempsMesureTransitTime;
+	private double[] retentionDecrease;
 
 
 	public Modele_Resultats_EsophagealTransit(ArrayList<HashMap<String, ArrayList<Double>>> arrayList, ArrayList<Object[]> dicomRoi) {
+		super();
+		
+		//pr csv
+		longueurEsophage = new double[arrayList.size()];
+		tempsMesureTransitTime = new double[arrayList.size()];
+		retentionDecrease = new double[arrayList.size()];
+			
+		this.arrayList = arrayList;
+			
 			
 		// x examen et 4 coubres
 		datasetMain = new XYSeries[arrayList.size()][4];
@@ -317,6 +332,7 @@ public class Modele_Resultats_EsophagealTransit {
 			double hauteurPixel = calibration.pixelHeight;
 			res[i] = (hauteurPixel*hauteurRoi)/10;// pour l'avoir en centimetres
 		}
+		this.longueurEsophage = res;
 		return res;
 				
 	}
@@ -325,4 +341,100 @@ public class Modele_Resultats_EsophagealTransit {
 	public ImagePlus getFirstImp() {
 		return (ImagePlus)this.dicomRoi.get(0)[0];
 	}
+
+	
+	//pour le csv
+	public void setTimeMeasure(int numAcquisition, double temps) {
+		tempsMesureTransitTime[numAcquisition]=temps;
+	}
+	
+	//pour le csv 
+	public void setRetentionDecrease(int numAcquisition, double decrease) {
+		retentionDecrease[numAcquisition] = decrease;
+	}
+	
+	public String toString() {
+		String res ="\n";
+		
+		//for each acqui
+		for(int i =0; i< arrayList.size(); i++) {
+			res += "Acquisition n"+i;
+			res+="\n";
+			
+			// le temps
+			String time = "Time,";
+			for(int j=0; j< arrayList.get(i).get("temps").size(); j++) {
+				time+=arrayList.get(i).get("temps").get(j)+",";
+			}
+			time+="\n";
+			
+			String unTier = "Upper,";
+			for(int j=0; j< arrayList.get(i).get("unTier").size(); j++) {
+				unTier+=arrayList.get(i).get("unTier").get(j)+",";
+			}
+			unTier+="\n";
+			
+			String deuxTier = "Middle,";
+			for(int j=0; j< arrayList.get(i).get("deuxTier").size(); j++) {
+				deuxTier+=arrayList.get(i).get("deuxTier").get(j)+",";
+			}
+			deuxTier+="\n";
+			
+			String troisTier = "Lower,";
+			for(int j=0; j< arrayList.get(i).get("troisTier").size(); j++) {
+				troisTier+=arrayList.get(i).get("troisTier").get(j)+",";
+			}
+			troisTier+="\n";
+			
+			res+= time + unTier + deuxTier + troisTier;
+		
+			res+="\n";
+		}
+		res+="\n";
+		
+		//organisation en colonne
+		// tete de colonne (numero acquisition)
+		res+="Acquisition,";
+		for(int i =0; i< arrayList.size();i++) {
+			res+="Acqui "+i+",";
+		}
+		res+="\n";
+		
+		//longueur esophage
+		res+="Esophage Height,";
+		for(int i =0; i<longueurEsophage.length; i++) {
+			res+=longueurEsophage[i]+",";
+		}
+		res+="\n";
+		
+		//mesure de temps
+		res+="Transit Time,";
+		for(int i =0; i<tempsMesureTransitTime.length; i++) {
+			res+=tempsMesureTransitTime[i]+",";
+		}
+		res+="\n";
+		
+		//rentention decrease
+		res+="Retention 10s peak,";
+		for(int i =0; i< retentionDecrease.length; i++) {
+			res+=retentionDecrease[i]+",";
+		}
+		res+="\n";
+		
+		return res;
+	}
+
+	@Override
+	public void calculerResultats() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 }

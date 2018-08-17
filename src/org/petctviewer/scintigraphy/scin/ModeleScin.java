@@ -645,6 +645,10 @@ public abstract class ModeleScin {
 		return content;
 	}
 
+	/*
+	 * @param additionalInfo
+	 *            :String qui sera rajoutée à la fin du nom du fichier
+	 */
 	@SuppressWarnings("null")
 	private static void saveFiles(ImagePlus imp, RoiManager roiManager, StringBuilder csv, String nomProgramme,
 			String[] infoPatient, String additionalInfo) {

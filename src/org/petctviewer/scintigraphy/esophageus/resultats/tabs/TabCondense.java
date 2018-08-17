@@ -170,7 +170,7 @@ public class TabCondense extends JPanel implements ChangeListener{
 		
 		this.add(sidePanel, BorderLayout.EAST);
 		 
-		modeleApp.esoPlugIn.setCaptureButton(captureButton, lblCredit , this, modeleApp, "");
+		modeleApp.esoPlugIn.setCaptureButton(captureButton, lblCredit , this, modele, "Condense");
 
 		
 		radioButtonCondense[0].setSelected(true);
