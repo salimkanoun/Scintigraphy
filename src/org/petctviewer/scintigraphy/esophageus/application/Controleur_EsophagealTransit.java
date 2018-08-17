@@ -14,14 +14,11 @@ public class Controleur_EsophagealTransit  extends ControleurScin {
 	EsophagealTransit esoPlugin;
 	Modele_EsophagealTransit modele ;
 	
-	public Controleur_EsophagealTransit(EsophagealTransit esoPlugin, ImagePlus [][] sauvegardeImagesSelectDicom, EsophagealTransit esoPlugIn) {
+	public Controleur_EsophagealTransit(EsophagealTransit esoPlugin, ImagePlus [][] sauvegardeImagesSelectDicom) {
 		super(esoPlugin);
 		this.esoPlugin = esoPlugin;
 		this.setOrganes(ORGANES);
-		
-		 modele = new Modele_EsophagealTransit(esoPlugin.getFrameDurations(), sauvegardeImagesSelectDicom,  esoPlugIn);
-		
-		//modele.setLocked(true);
+		modele = new Modele_EsophagealTransit(sauvegardeImagesSelectDicom,  esoPlugin);
 		this.setModele(modele);
 		this.tools = Toolbar.RECTANGLE;
 	}
@@ -41,7 +38,6 @@ public class Controleur_EsophagealTransit  extends ControleurScin {
 
 	@Override
 	public int getSliceNumberByRoiIndex(int roiIndex) {
-		System.out.println("getslice"+roiIndex);
 		return (roiIndex+1);
 	}
 

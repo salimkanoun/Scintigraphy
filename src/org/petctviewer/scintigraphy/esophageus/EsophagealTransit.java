@@ -1,27 +1,22 @@
 package org.petctviewer.scintigraphy.esophageus;
 
 import java.awt.Color;
-import java.beans.ConstructorProperties;
 import java.util.ArrayList;
 
 import org.petctviewer.scintigraphy.esophageus.application.Controleur_EsophagealTransit;
-import org.petctviewer.scintigraphy.esophageus.application.FenApplication_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.IJ;
 import ij.ImagePlus;
-import ij.ImageStack;
 import ij.gui.Overlay;
-import loci.poi.util.SystemOutLogger;
 
 public class EsophagealTransit extends Scintigraphy {
 
-	private ImagePlus impAnt, impPost, impProjetee, impProjeteeAnt;
 	private int[] frameDurations;
 	
-	// [ant:0 | post:1][numero de acquisition]
 	private ImagePlus[][] sauvegardeImagesSelectDicom;
 	
 	public EsophagealTransit() {
@@ -34,13 +29,16 @@ public class EsophagealTransit extends Scintigraphy {
 		Overlay overlay = Scintigraphy.initOverlay(this.getImp(), 12);
 		Scintigraphy.setOverlayDG(overlay, this.getImp(), Color.yellow);
 		
-		FenApplication_EsophagealTransit fen = new FenApplication_EsophagealTransit(this.getImp(),this);
+		FenApplication fen = new FenApplication(this.getImp(), "Oesophageus");
+		
 		this.setFenApplication(fen);
 		this.getImp().setOverlay(overlay);
 		
-		Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(this, sauvegardeImagesSelectDicom, this);
+		Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(this, sauvegardeImagesSelectDicom);
 		this.getFenApplication().setControleur(cet);
 		this.getFenApplication().setVisible(true);
+		
+		IJ.setTool("Rectangle");
 	}
 
 	
@@ -88,7 +86,7 @@ public class EsophagealTransit extends Scintigraphy {
 			sauvegardeImagesSelectDicom[1] = new ImagePlus[0];
 		}
 		
-		ImagePlus imTest = null;
+		ImagePlus finalImagePlus = null;
 		if(imagesSelectDicom != null && imagesSelectDicom.length>0) {
 			ArrayList<ImagePlus> imagesAnt = new ArrayList<>();
 			for(int i =0; i< imagesSelectDicom.length; i++) {
@@ -101,10 +99,10 @@ public class EsophagealTransit extends Scintigraphy {
 			//renvoi un stack trié des projection des images 
 			//orderby ... renvoi un tableau d'imp trie par ordre chrono, avec en paramètre la liste des imp Ant
 			//captureTo.. renvoi un stack avec sur chaque slice une imp du tableau passé en param ( un image trié, projeté et ant)
-			imTest = new ImagePlus("test",ModeleScin.captureToStack(Scintigraphy.orderImagesByAcquisitionTime(imagesAnt)));
-			imTest.setProperty("Info", sauvegardeImagesSelectDicom[0][0].getInfoProperty());
+			finalImagePlus = new ImagePlus("test",ModeleScin.captureToStack(Scintigraphy.orderImagesByAcquisitionTime(imagesAnt)));
+			finalImagePlus.setProperty("Info", sauvegardeImagesSelectDicom[0][0].getInfoProperty());
 		}
-		return imTest;
+		return finalImagePlus;
 	}
 
 
