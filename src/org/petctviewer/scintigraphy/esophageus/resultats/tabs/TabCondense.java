@@ -131,7 +131,7 @@ public class TabCondense extends JPanel implements ChangeListener{
 		
 		
 		//slider de contraste
-		 contrastSlider = new JSlider(SwingConstants.HORIZONTAL,0,20,4);
+		contrastSlider = new JSlider(SwingConstants.HORIZONTAL,0,20,4);
 		JLabel contrastLabel = new JLabel("Contrast");
 		
 		contrastSlider.addChangeListener(new ChangeListener() {
@@ -139,8 +139,6 @@ public class TabCondense extends JPanel implements ChangeListener{
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				if(e.getSource() instanceof JSlider) {
-					System.out.println("slider :"+((JSlider)e.getSource()).getValue());
-
 					//changement de contraste
 					ContrastEnhancer ce = new ContrastEnhancer();
 							
@@ -161,16 +159,19 @@ public class TabCondense extends JPanel implements ChangeListener{
 		sidePanel.add(radioButtonCondensePanelFlow, BorderLayout.NORTH);
 		sidePanel.add(imagePlusRognagePanel, BorderLayout.CENTER);
 		
+		//Prepare panel contrast avec label et slider contrast
+		JPanel contrastPanel = new JPanel();
+		contrastPanel.add(contrastLabel);	
+		contrastPanel.add(contrastSlider);	
+		
 		JPanel contrastCapture = new JPanel();
-		contrastCapture.setLayout(new GridLayout(3, 1));
-		contrastCapture.add(contrastLabel);	
-		contrastCapture.add(contrastSlider);	
+		contrastCapture.setLayout(new GridLayout(4, 1));
+		contrastCapture.add(contrastPanel);
 		JButton captureButton = new JButton("Capture");
-		JLabel lblCredit = new JLabel("Provided by petctviewer.org");
-		lblCredit.setVisible(false);
+		captureButton.setHorizontalAlignment(SwingConstants.CENTER);
 		contrastCapture.add(captureButton);
-		contrastCapture.add(lblCredit);
-		JButton tempsFenButton = new JButton("Time");
+		JButton tempsFenButton = new JButton("Get Time");
+		tempsFenButton.setHorizontalAlignment(SwingConstants.CENTER);
 		tempsFenButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -187,6 +188,9 @@ public class TabCondense extends JPanel implements ChangeListener{
 			}
 		});
 		contrastCapture.add(tempsFenButton);
+		JLabel lblCredit = new JLabel("Provided by petctviewer.org");
+		lblCredit.setVisible(false);
+		contrastCapture.add(lblCredit);
 		
 		
 		sidePanel.add(contrastCapture,BorderLayout.SOUTH);
@@ -220,7 +224,6 @@ public class TabCondense extends JPanel implements ChangeListener{
 					 imageProjeterEtRoiPanel.setImage(this.modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
 
 				}else if(spinner.equals(spinnerLeft)) {
-					//System.out.println("pinner left "+spinner.getValue());
 					
 					this.modele.rognerDicomCondenseLeft((int)spinner.getValue()- this.leftRognageValue[numAcquisitionCondense],numAcquisitionCondense);
 					this.leftRognageValue[numAcquisitionCondense] = (int)spinner.getValue();

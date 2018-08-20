@@ -182,8 +182,6 @@ public class JTableCheckBox extends JPanel {
 		
 		// add finale 
 		tab = new JPanel(new GridLayout(tableauEntier.length,tableauEntier[0].length));
-		tab.setBackground(Color.white);
-		tab.setOpaque(true);
 
 		tab.setBorder(BorderFactory.createLineBorder(Color.black,1));
 		
