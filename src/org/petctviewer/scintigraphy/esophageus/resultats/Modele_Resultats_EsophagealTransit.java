@@ -24,6 +24,7 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 	private XYSeries [][] datasetMain;
 	private XYSeries [][] datasetTransitTime;
 	
+	//0: imageplus, 1: la roi
 	private ArrayList<Object[]> dicomRoi;
 	
 	
@@ -342,6 +343,16 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 		return (ImagePlus)this.dicomRoi.get(0)[0];
 	}
 
+	public double[] getTime(int numAcquisition){
+		arrayList.get(numAcquisition).get("temps");
+		double[] res = new double[arrayList.get(numAcquisition).get("temps").size()];
+		for(int i =0; i< res.length; i++) {
+			res[i] = arrayList.get(numAcquisition).get("temps").get(i);
+		}
+		return res;
+	}
+	
+	
 	
 	//pour le csv
 	public void setTimeMeasure(int numAcquisition, double temps) {

@@ -3,11 +3,14 @@ package org.petctviewer.scintigraphy.esophageus.resultats.tabs;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -165,6 +168,24 @@ public class TabCondense extends JPanel implements ChangeListener{
 		lblCredit.setVisible(false);
 		contrastCapture.add(captureButton);
 		contrastCapture.add(lblCredit);
+		JButton tempsFenButton = new JButton("Time");
+		tempsFenButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				double [] temps = TabCondense.this.modele.getTime(numAcquisitionCondense);
+				JFrame timeFen = new JFrame();
+				timeFen.setLayout(new GridLayout(temps.length, 1));
+				for(int i =0; i< temps.length; i++) {
+					timeFen.add(new JLabel(temps[i]+""));
+				}
+				timeFen.pack();
+				timeFen.setVisible(true);
+				
+			}
+		});
+		contrastCapture.add(tempsFenButton);
+		
 		
 		sidePanel.add(contrastCapture,BorderLayout.SOUTH);
 		
