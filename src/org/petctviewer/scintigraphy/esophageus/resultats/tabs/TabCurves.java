@@ -2,12 +2,8 @@ package org.petctviewer.scintigraphy.esophageus.resultats.tabs;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -23,18 +19,14 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.chart.util.ShapeUtils;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.calibration.resultats.JTableCheckBox;
 import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
-import ij.IJ;
-import ij.ImagePlus;
-
+@SuppressWarnings("serial")
 public class TabCurves extends JPanel{
 	
 	private JFreeChart graphMain;
@@ -136,10 +128,10 @@ public class TabCurves extends JPanel{
 		sidePanel.add(lblCredit);
 		
 		this.add(sidePanel, BorderLayout.EAST);
-		
 
-		
 		modeleApp.esoPlugIn.setCaptureButton(captureButton, lblCredit , this, modele, "Curves");
+		
+		
 
 	}
 	

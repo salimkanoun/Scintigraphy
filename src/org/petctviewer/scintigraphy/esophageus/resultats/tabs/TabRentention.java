@@ -23,11 +23,11 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTransit;
-import org.petctviewer.scintigraphy.esophageus.resultats.FenResultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 
+@SuppressWarnings("serial")
 public class TabRentention extends JPanel{
 
 	private JFreeChart graphRetention;

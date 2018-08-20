@@ -5,6 +5,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.IJ;
 import ij.ImagePlus;
+import ij.gui.Toolbar;
 
 public class GeneralDynamicScintigraphy extends Scintigraphy{
 
@@ -19,6 +20,7 @@ public class GeneralDynamicScintigraphy extends Scintigraphy{
 	public void lancerProgramme() {
 		this.setFenApplication(new FenApplication_GeneralDyn(this.getImp(), this.getExamType(), this));
 		this.getFenApplication().setControleur(new Controleur_GeneralDyn(this));
+		IJ.setTool(Toolbar.POLYGON);
 	}
 	
 	protected ImagePlus preparerImp(ImagePlus[] images) {

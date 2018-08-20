@@ -26,6 +26,7 @@ import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 
 import ij.plugin.ContrastEnhancer;
 
+@SuppressWarnings("serial")
 public class TabCondense extends JPanel implements ChangeListener{
 	 
 	//Spinners
@@ -162,6 +163,7 @@ public class TabCondense extends JPanel implements ChangeListener{
 		
 		JPanel contrastCapture = new JPanel();
 		contrastCapture.setLayout(new GridLayout(3, 1));
+		contrastCapture.add(contrastLabel);	
 		contrastCapture.add(contrastSlider);	
 		JButton captureButton = new JButton("Capture");
 		JLabel lblCredit = new JLabel("Provided by petctviewer.org");

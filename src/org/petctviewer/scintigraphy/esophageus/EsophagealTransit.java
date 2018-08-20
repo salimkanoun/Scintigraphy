@@ -12,6 +12,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Overlay;
+import ij.gui.Toolbar;
 
 public class EsophagealTransit extends Scintigraphy {
 
@@ -38,7 +39,7 @@ public class EsophagealTransit extends Scintigraphy {
 		this.getFenApplication().setControleur(cet);
 		this.getFenApplication().setVisible(true);
 		
-		IJ.setTool("Rectangle");
+		IJ.setTool(Toolbar.RECTANGLE);
 	}
 
 	

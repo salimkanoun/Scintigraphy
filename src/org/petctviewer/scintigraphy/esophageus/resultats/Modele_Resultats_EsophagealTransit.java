@@ -12,7 +12,6 @@ import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -169,12 +168,13 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 		return collection;
 	}
 	
+	/*
 	private void printList(List<Double> list, String name) {
 		System.out.println(name);
 		for(int i =0; i< list.size(); i++) {
 			System.out.println(list.get(i));
 		}
-	}
+	}*/
 	
 	private XYSeries listToXYSeries(List<Double> data, List<Double> time, String title) {
 		//System.out.println("data size: "+data.size());

@@ -21,10 +21,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	
 	// sauvegarde des imageplus de depart avec tous leur stack chacun : pour pouvoir faire les calculs de mean dans le temps//trié 
 	private ImagePlus [][] sauvegardeImagesSelectDicom;
-	
-	
-	
-	
+
 	// list : liste des examen
 	// list->map : map des 4 roi ( entier, premier tier, deuxieme tier et troisieme tier)
 	// list->map->list : list des mean(double) pour tous le stack
@@ -44,10 +41,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 		this.esoPlugIn = esoPlugIn;
 	}
 
-	
-	private static int numroi = 0;
-	
-	//sert a rien
+	//sert a rien car calculs tous geres a la fin du programme en parcourant le ROI manager
 	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 	}

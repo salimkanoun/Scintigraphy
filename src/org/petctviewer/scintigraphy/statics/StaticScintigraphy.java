@@ -4,8 +4,10 @@ import java.awt.Color;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
+import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Overlay;
+import ij.gui.Toolbar;
 
 public class StaticScintigraphy extends Scintigraphy {
 
@@ -36,6 +38,7 @@ public class StaticScintigraphy extends Scintigraphy {
 
 		ControleurScinStatic ctrl = new ControleurScinStatic(this);
 		this.getFenApplication().setControleur(ctrl);
+		IJ.setTool(Toolbar.POLYGON);
 	}
 
 }
