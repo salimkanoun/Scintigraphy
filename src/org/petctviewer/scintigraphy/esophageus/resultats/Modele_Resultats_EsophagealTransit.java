@@ -197,6 +197,7 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 
 	
 	public ImagePlus getCondense(int indiceAcquisition) {
+		
 		return condense[indiceAcquisition];		
 	}
 	
@@ -308,15 +309,8 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 
 		}
 		// On fait la somme du stack pour avoir l'image finale
-		ZProjector projector = new ZProjector();
-		projector.setImage(imageCondensee);
-		projector.setMethod(ij.plugin.ZProjector.SUM_METHOD);
-		projector.setStartSlice(1);
-		projector.setStopSlice(coupes);
-		projector.doProjection();
-		ImagePlus projete = projector.getProjection();
+		ImagePlus projete= DynamicScintigraphy.projeter(imageCondensee, 1, coupes, "sum");
 		Scintigraphy.setCustomLut(projete);
-	   
 		return projete;
 		
 		

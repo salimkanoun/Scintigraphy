@@ -25,6 +25,7 @@ import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_Esopha
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
+import ij.ImagePlus;
 import ij.plugin.ContrastEnhancer;
 import ij.plugin.frame.ContrastAdjuster;
 import ij.process.ImageStatistics;
@@ -247,12 +248,18 @@ public class TabCondense extends JPanel implements ChangeListener{
 				System.out.println("contrast sloder max :"+contrastSlider.getModel().getMaximum());
 				System.out.println("contrast value :"+contrastValue[numAcquisitionCondense]);
 				
-				 this.modele.calculCond(numAcquisitionCondense);
+				 
+				 this.modele.calculImagePlusAndRoi(numAcquisitionCondense);
 				 modele.getImagePlusAndRoi(numAcquisitionCondense).getProcessor().setMinAndMax(0, (contrastSlider.getModel().getMaximum() - contrastValue[numAcquisitionCondense])+1);
 				 imageProjeterEtRoiPanel.setImage(modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
 
-				 this.modele.calculImagePlusAndRoi(numAcquisitionCondense);
+				 this.modele.calculCond(numAcquisitionCondense);
 				 modele.getCondense(numAcquisitionCondense).getProcessor().setMinAndMax(0, (contrastSlider.getModel().getMaximum() - contrastValue[numAcquisitionCondense])+1);
+				 //SK PROBLEME APPLICAION DE LA LUT A VOIR
+				 //MARCHE SI LANCE IJ DEBUG MAIS PAS SOUS FIJI
+				 //FAIRE MINIMAL DEBUG SAMPLE
+				//ImagePlus temp=modele.getCondense(numAcquisitionCondense);
+				 //temp.draw();
 				 imageCondensePanel.setImage(modele.getCondense(numAcquisitionCondense).getBufferedImage());
 			
 			}
