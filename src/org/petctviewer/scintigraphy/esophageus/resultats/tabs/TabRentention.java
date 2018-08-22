@@ -26,6 +26,7 @@ import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTran
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 @SuppressWarnings("serial")
 public class TabRentention extends JPanel{
@@ -131,6 +132,9 @@ public class TabRentention extends JPanel{
 		radioButtonRetentionPanelFlow.add(radioButtonRetentionPanel);
 	    
 		Box sidePanel = Box.createVerticalBox();
+		SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getExamType(), modeleApp.esoPlugIn.getImp());
+		sidePanel.add(sidePanelScin);
+		
 	    sidePanel.add(radioButtonRetentionPanelFlow);
 	    
 	    

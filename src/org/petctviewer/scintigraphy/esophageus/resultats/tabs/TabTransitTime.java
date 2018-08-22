@@ -28,6 +28,7 @@ import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_Esopha
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 
 @SuppressWarnings("serial")
@@ -176,6 +177,9 @@ public class TabTransitTime extends JPanel{
 			selectionAcquiTransitPanelFlow.add(selectionAcquiTransitPanel);
 			
 			Box sidePanel = Box.createVerticalBox();
+			SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getExamType(), modeleApp.esoPlugIn.getImp());
+			sidePanel.add(sidePanelScin);
+			
 		    sidePanel.add(selectionAcquiTransitPanelFlow);
 		    
 		    

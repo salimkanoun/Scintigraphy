@@ -23,6 +23,7 @@ import javax.swing.event.ChangeListener;
 import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 import ij.plugin.ContrastEnhancer;
 import ij.plugin.frame.ContrastAdjuster;
@@ -66,11 +67,21 @@ public class TabCondense extends JPanel implements ChangeListener{
 		}
 		
 		
+		
 		modele.calculAllCondense();
+		
+		JPanel titleAndCondensePanel = new JPanel();
+		titleAndCondensePanel.setLayout(new BorderLayout());
+		
 		
 		imageCondensePanel = new DynamicImage(modele.getCondense(numAcquisitionCondense).getBufferedImage());
 		imageCondensePanel.setLayout( new BorderLayout());
-		this.add(imageCondensePanel, BorderLayout.CENTER);
+		titleAndCondensePanel.add(imageCondensePanel, BorderLayout.CENTER);
+		
+		SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getExamType(), modeleApp.esoPlugIn.getImp());
+		titleAndCondensePanel.add(sidePanelScin,BorderLayout.NORTH);
+		
+		this.add(titleAndCondensePanel, BorderLayout.CENTER);
 		
 		JPanel spinnerPanel = new JPanel();
 		spinnerPanel.add(new JLabel("Left side"));
