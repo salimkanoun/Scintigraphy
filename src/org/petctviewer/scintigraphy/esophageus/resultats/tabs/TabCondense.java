@@ -25,6 +25,7 @@ import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_Esopha
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 
 import ij.plugin.ContrastEnhancer;
+import ij.plugin.frame.ContrastAdjuster;
 import ij.process.ImageStatistics;
 
 @SuppressWarnings("serial")
@@ -47,12 +48,14 @@ public class TabCondense extends JPanel implements ChangeListener{
 	 
 	 private static int numAcquisitionCondense = 0;
 	
-	 
+	private static ContrastEnhancer ce ;
+
 	 private Modele_Resultats_EsophagealTransit modele;
 	 
 	public TabCondense(int nbAcquisition , Modele_Resultats_EsophagealTransit modele, Modele_EsophagealTransit modeleApp) {
 		this.modele = modele;
 		
+		ce = new ContrastEnhancer();
 		this.setLayout(new BorderLayout());
 
 		this.rightRognageValue = new int[nbAcquisition];
@@ -115,10 +118,8 @@ public class TabCondense extends JPanel implements ChangeListener{
 							imageProjeterEtRoiPanel.setImage(modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
 							imageCondensePanel.setImage(modele.getCondense(numAcquisitionCondense).getBufferedImage());
 							
-							ImageStatistics stat=modele.getCondense(numAcquisitionCondense).getStatistics();
 							
-							contrastSlider.getModel().setMaximum((int) Math.round(stat.max));
-							contrastSlider.setValue(contrastValue[i]);
+							contrastSlider.setValue(contrastValue[numAcquisitionCondense]);
 						}
 					}
 				}
@@ -143,15 +144,22 @@ public class TabCondense extends JPanel implements ChangeListener{
 			public void stateChanged(ChangeEvent e) {
 				if(e.getSource() instanceof JSlider) {
 					//changement de contraste
-					ContrastEnhancer ce = new ContrastEnhancer();
-							
-					ce.stretchHistogram(modele.getImagePlusAndRoi(numAcquisitionCondense), ((JSlider)e.getSource()).getValue());
+					ImageStatistics stat=modele.getImagePlusAndRoi(numAcquisitionCondense).getStatistics();
+					
+					int max = (int) Math.round(stat.max);
+					contrastSlider.getModel().setMaximum(max);
+					
+					 modele.getImagePlusAndRoi(numAcquisitionCondense).getProcessor().setMinAndMax(0,(max- ((JSlider)e.getSource()).getValue())+1);
 					imageProjeterEtRoiPanel.setImage(modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
 
-					ce.stretchHistogram(modele.getCondense(numAcquisitionCondense), ((JSlider)e.getSource()).getValue());
+					 modele.getCondense(numAcquisitionCondense).getProcessor().setMinAndMax(0, (max -((JSlider)e.getSource()).getValue())+1);
 					imageCondensePanel.setImage(modele.getCondense(numAcquisitionCondense).getBufferedImage());
 					
 					contrastValue[numAcquisitionCondense] = ((JSlider)e.getSource()).getValue();
+					
+					System.out.println("contrast sloder max :"+contrastSlider.getModel().getMaximum());
+					System.out.println("contrast value :"+contrastValue[numAcquisitionCondense]);
+					
 				}
 			}
 		});
@@ -217,26 +225,24 @@ public class TabCondense extends JPanel implements ChangeListener{
 
 					this.modele.rognerDicomCondenseRight((int)spinner.getValue()- this.rightRognageValue[numAcquisitionCondense],numAcquisitionCondense);
 					this.rightRognageValue[numAcquisitionCondense] = (int)spinner.getValue();
-					
-					 this.modele.calculCond(numAcquisitionCondense);
-					 imageCondensePanel.setImage(this.modele.getCondense(numAcquisitionCondense).getBufferedImage());
-
-					 
-					 this.modele.calculImagePlusAndRoi(numAcquisitionCondense);
-					 imageProjeterEtRoiPanel.setImage(this.modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
 
 				}else if(spinner.equals(spinnerLeft)) {
 					
 					this.modele.rognerDicomCondenseLeft((int)spinner.getValue()- this.leftRognageValue[numAcquisitionCondense],numAcquisitionCondense);
 					this.leftRognageValue[numAcquisitionCondense] = (int)spinner.getValue();
-					 
-					this.modele.calculCond(numAcquisitionCondense);
-					 imageCondensePanel.setImage(this.modele.getCondense(numAcquisitionCondense).getBufferedImage());
-
-					 this.modele.calculImagePlusAndRoi(numAcquisitionCondense);
-					 imageProjeterEtRoiPanel.setImage(this.modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
+					
 				}
 				
+				System.out.println("contrast sloder max :"+contrastSlider.getModel().getMaximum());
+				System.out.println("contrast value :"+contrastValue[numAcquisitionCondense]);
+				
+				 this.modele.calculCond(numAcquisitionCondense);
+				 modele.getImagePlusAndRoi(numAcquisitionCondense).getProcessor().setMinAndMax(0, (contrastSlider.getModel().getMaximum() - contrastValue[numAcquisitionCondense])+1);
+				 imageProjeterEtRoiPanel.setImage(modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
+
+				 this.modele.calculImagePlusAndRoi(numAcquisitionCondense);
+				 modele.getCondense(numAcquisitionCondense).getProcessor().setMinAndMax(0, (contrastSlider.getModel().getMaximum() - contrastValue[numAcquisitionCondense])+1);
+				 imageCondensePanel.setImage(modele.getCondense(numAcquisitionCondense).getBufferedImage());
 			
 			}
 	}

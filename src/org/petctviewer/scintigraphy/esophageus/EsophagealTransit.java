@@ -90,15 +90,6 @@ public class EsophagealTransit extends Scintigraphy {
 			sauvegardeImagesSelectDicom[1] = new ImagePlus[0];
 		}
 		
-		//int[] tempsInt =   (DynamicScintigraphy.buildFrameDurations(sauvegardeImagesSelectDicom[0][0]));// on prends la ant
-
-		/*
-		for(int i =0; i< tempsInt.length; i++) {
-			System.out.println(tempsInt[i]);
-		}*/
-		
-		
-		
 		ImagePlus finalImagePlus = null;
 		if(imagesSelectDicom != null && imagesSelectDicom.length>0) {
 			ArrayList<ImagePlus> imagesAnt = new ArrayList<>();
@@ -109,15 +100,14 @@ public class EsophagealTransit extends Scintigraphy {
 				ImagePlus impAntProjete = DynamicScintigraphy.projeter(impAnt,0,impAnt.getStackSize(),"max");
 				impAntProjete.setProperty("Info", impAnt.getInfoProperty());
 				imagesAnt.add(impAntProjete);
-				//impAntProjete.show();
-				//System.out.println("i:"+i+" is ant  j : "+imagesAnt.size());
 				
 			}
 			//renvoi un stack trié des projection des images 
 			//orderby ... renvoi un tableau d'imp trie par ordre chrono, avec en paramètre la liste des imp Ant
 			//captureTo.. renvoi un stack avec sur chaque slice une imp du tableau passé en param ( un image trié, projeté et ant)
 			//ImagePlus[] tabProj = Scintigraphy.orderImagesByAcquisitionTime(imagesAnt);
-			finalImagePlus = new ImagePlus("test",ModeleScin.captureToStack(Scintigraphy.orderImagesByAcquisitionTime(imagesAnt)));
+			finalImagePlus = new ImagePlus("EsoStack",ModeleScin.captureToStack(Scintigraphy.orderImagesByAcquisitionTime(imagesAnt)));
+			//SK VOIR METHODE POUR GARDER LES METADATA ORIGINALE DANS LE STACK GENEREs
 			finalImagePlus.setProperty("Info", sauvegardeImagesSelectDicom[0][0].getInfoProperty());
 			
 		
