@@ -24,11 +24,13 @@ public class Modele_Cardiac extends ModeleScin {
 	private Double hwb, retCardiaque, retCe;
 
 	private Boolean deuxPrises;
+	
+	private ImagePlus imp;
 
 	private HashMap<String, String> resultats;
 
 	public Modele_Cardiac(ImagePlus imp) {
-		this.setImp( (ImagePlus) imp.clone());
+		this.imp= (ImagePlus) imp.duplicate();
 		this.resultats = new HashMap<>();
 		this.data = new HashMap<>();
 	}
@@ -76,13 +78,13 @@ public class Modele_Cardiac extends ModeleScin {
 
 		// calcul des retentions
 		if (this.deuxPrises) {
-			this.getImp().setSlice(1);
-			long timeEarly = ModeleScin.getDateAcquisition(this.getImp()).getTime();
-			this.getImp().setSlice(2);
-			long timeLate = ModeleScin.getDateAcquisition(this.getImp()).getTime();
+			imp.setSlice(1);
+			long timeEarly = ModeleScin.getDateAcquisition(imp).getTime();
+			imp.setSlice(2);
+			long timeLate = ModeleScin.getDateAcquisition(imp).getTime();
 
 			int delaySeconds = (int) (timeEarly - timeLate) / 1000;
-			Double facDecroissance = this.getDecayFraction(delaySeconds, (int) (6.02 * 3600));
+			Double facDecroissance = ModeleScin.getDecayFraction(delaySeconds, (int) (6.02 * 3600));
 
 			this.retCardiaque = (this.fixCoeurL * facDecroissance) / this.finalEarly;
 			this.retCe = ((this.totLate - (this.fixReinDL + this.fixVessieL + this.sumContL)) * facDecroissance)
@@ -93,7 +95,6 @@ public class Modele_Cardiac extends ModeleScin {
 
 	//renvoie la moyenne geometrique de la vue ant et post de la slice courante
 	private Double getGlobalCountAvg() {
-		ImagePlus imp = getImp();
 		imp.setRoi(0, 0, imp.getWidth() / 2, imp.getHeight());
 		Double countAnt = ModeleScin.getCounts(imp);
 
@@ -104,17 +105,17 @@ public class Modele_Cardiac extends ModeleScin {
 	}
 
 	public void calculerMoyGeomTotale() {
-		this.getImp().setSlice(1);
+		imp.setSlice(1);
 		if (this.deuxPrises) {
 			this.totEarly = getGlobalCountAvg();
-			this.getImp().setSlice(2);
+			imp.setSlice(2);
 			this.totLate = getGlobalCountAvg();
 		} else {
 			this.totLate = getGlobalCountAvg();
 		}
 
-		this.getImp().killRoi();
-		this.getImp().setSlice(1);
+		imp.killRoi();
+		imp.setSlice(1);
 	}
 
 	public void setDeuxPrise(Boolean b) {

@@ -17,10 +17,12 @@ public class Modele_HepaticDyn extends ModeleScinDyn {
 	// resultats calcules
 	private Double tDemiFoieDFit, tDemiFoieGFit, tDemiVascFit, tDemiFoieDObs, tDemiFoieGObs, tDemiVascObs;
 	private Double maxFoieD, maxFoieG, finPicD, finPicG, pctVasc;
+	private ImagePlus imp;
 
 	public Modele_HepaticDyn(HepaticDynamicScintigraphy vue) {
 		super(vue.getFrameDurations());
-		this.setImp( (ImagePlus) vue.getImp().clone());
+		
+		this.imp=vue.getImp().duplicate();
 	}
 
 	@Override

@@ -29,6 +29,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	private boolean[] kidneys;
 	private double[] patlakPente;
 	private ArrayList<String> kidneysLR;
+	private ImagePlus imp;
 
 	/**
 	 * recupere les valeurs et calcule les resultats de l'examen renal
@@ -38,7 +39,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	 */
 	public Modele_Renal(int[] frameDuration, boolean[] kidneys, ImagePlus imp) {
 		super(frameDuration);
-		this.setImp(imp);
+		this.imp=imp;
 		this.kidneys = kidneys;
 		this.organRois = new HashMap<>();
 	}
@@ -349,7 +350,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		//calibration.setUnit("mm");
 		//Double pixelHeight=calibration.pixelHeight;
 		///System.out.println(pixelHeight);
-		String pixelHeightString = DicomTools.getTag(this.getImp(), "0028,0030").trim().split("\\\\")[1];
+		String pixelHeightString = DicomTools.getTag(imp, "0028,0030").trim().split("\\\\")[1];
 		Double pixelHeight = Double.parseDouble(pixelHeightString);
 		Double[] kidneyHeight = new Double[2];
 
@@ -532,7 +533,6 @@ public class Modele_Renal extends ModeleScinDyn {
 			+"Time ROE (min), "+ time[1]+","+this.getROE(time[1], "L")+","+this.getROE(time[1], "R")+"\n"
 			+"Time ROE (min), "+ time[2]+","+this.getROE(time[2], "L")+","+this.getROE(time[2], "R")+"\n";
 	
-		ImagePlus imp = this.getImp();
 		HashMap<String, String> mapTags = new HashMap<>();
 		mapTags.put("0008,0020", DicomTools.getTag(imp, "0008,0020") );
 		mapTags.put("0008,0021", DicomTools.getTag(imp, "0008,0021") );

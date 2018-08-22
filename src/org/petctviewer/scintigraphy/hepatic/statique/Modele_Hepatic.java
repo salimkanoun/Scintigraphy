@@ -8,9 +8,10 @@ public class Modele_Hepatic extends ModeleScin {
 
 	private HashMap<String, Double> data = new HashMap<>();
 	private Double MGFoie, MGIntes, MGTot;
+	private ImagePlus imp;
 
 	public Modele_Hepatic(ImagePlus imp) {
-		this.setImp( (ImagePlus) imp.clone());
+		this.imp=imp.duplicate();
 	}
 
 	@Override

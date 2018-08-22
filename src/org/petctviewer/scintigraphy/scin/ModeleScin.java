@@ -37,7 +37,6 @@ import ij.util.DicomTools;
 
 public abstract class ModeleScin {
 
-	private  ImagePlus imp;
 	private Integer uid;
 
 	/********** Public Static Getter ********/
@@ -708,7 +707,7 @@ public abstract class ModeleScin {
 	
 	/********** Private static Getter*********/
 	// [0] : nom, [1] : id, [2] : date
-		private static String[] getInfoPatient(ImagePlus imp) {
+	private static String[] getInfoPatient(ImagePlus imp) {
 			String[] infoPatient = new String[3];
 
 			// On recupere le Patient Name de l'ImagePlus
@@ -750,12 +749,6 @@ public abstract class ModeleScin {
 	public abstract void enregistrerMesure(String nomRoi, ImagePlus imp);
 
 	public abstract void calculerResultats();
-	
-	
-	/********** Public Getter*******************/
-	public ImagePlus getImp() {
-		return imp;
-	}
 
 	/**
 	 * calcule la decay fraction (countsCorrected=counts/decayedFraction)
@@ -764,7 +757,7 @@ public abstract class ModeleScin {
 	 * @param halLifeSeconds
 	 * @return
 	 */
-	public double getDecayFraction(int delaySeconds, int halLifeSeconds) {
+	public static double getDecayFraction(int delaySeconds, int halLifeSeconds) {
 		double tcLambdaSeconds = (Math.log(2) / (halLifeSeconds));
 		double decayedFraction = Math.pow(Math.E, (tcLambdaSeconds * delaySeconds * (-1)));
 		// Decayed fraction est la fraction de la radioactivit� qui a disparu
@@ -774,14 +767,9 @@ public abstract class ModeleScin {
 	}
 	
 	
-	/********** Public Setter*******************/
-	public void setImp(ImagePlus imp) {
-		this.imp = imp;
-	}
-	
 	
 	/********** Public *******************/
-	public  String generateUID6digits() {
+	private String generateUID6digits() {
 		if (this.uid == null) {
 			this.uid = (int) (Math.random() * 1000000.);
 		}
