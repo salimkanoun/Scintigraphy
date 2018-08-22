@@ -258,7 +258,7 @@ public class TabCondense extends JPanel implements ChangeListener{
 				 //SK PROBLEME APPLICAION DE LA LUT A VOIR
 				 //MARCHE SI LANCE IJ DEBUG MAIS PAS SOUS FIJI
 				 //FAIRE MINIMAL DEBUG SAMPLE
-				//ImagePlus temp=modele.getCondense(numAcquisitionCondense);
+				 //ImagePlus temp=modele.getCondense(numAcquisitionCondense);
 				 //temp.draw();
 				 imageCondensePanel.setImage(modele.getCondense(numAcquisitionCondense).getBufferedImage());
 			
