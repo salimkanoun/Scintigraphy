@@ -40,7 +40,6 @@ public class Controleur_EsophagealTransit  extends ControleurScin {
 
 	@Override
 	public int getSliceNumberByRoiIndex(int roiIndex) {
-		System.out.println("SliceCalled"+roiIndex);
 		return (roiIndex+1);
 	}
 

@@ -179,11 +179,12 @@ public class TabCondense extends JPanel implements ChangeListener{
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				double [] temps = TabCondense.this.modele.getTime(numAcquisitionCondense);
+				int [] temps = TabCondense.this.modele.getTime(numAcquisitionCondense);
 				JFrame timeFen = new JFrame();
-				timeFen.setLayout(new GridLayout(temps.length, 1));
+				timeFen.setLayout(new GridLayout(temps.length, 2));
 				for(int i =0; i< temps.length; i++) {
-					timeFen.add(new JLabel(temps[i]+""));
+					timeFen.add(new JLabel("Image :"+i));
+					timeFen.add(new JLabel("Time :"+temps[i]+""));
 				}
 				timeFen.pack();
 				timeFen.setVisible(true);

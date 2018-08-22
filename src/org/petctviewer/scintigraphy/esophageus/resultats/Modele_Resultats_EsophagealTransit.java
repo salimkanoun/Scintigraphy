@@ -343,13 +343,8 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 		return (ImagePlus)this.dicomRoi.get(0)[0];
 	}
 
-	public double[] getTime(int numAcquisition){
-		arrayList.get(numAcquisition).get("temps");
-		double[] res = new double[arrayList.get(numAcquisition).get("temps").size()];
-		for(int i =0; i< res.length; i++) {
-			res[i] = arrayList.get(numAcquisition).get("temps").get(i);
-		}
-		return res;
+	public int[] getTime(int numAcquisition){
+		return 		DynamicScintigraphy.buildFrameDurations((ImagePlus)dicomRoi.get(numAcquisition)[0]);
 	}
 	
 	

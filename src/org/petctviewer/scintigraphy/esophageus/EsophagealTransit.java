@@ -18,6 +18,7 @@ public class EsophagealTransit extends Scintigraphy {
 
 	private int[] frameDurations;
 	
+	//[0: ant | 1: post][numAcquisition]
 	private ImagePlus[][] sauvegardeImagesSelectDicom;
 	
 	public EsophagealTransit() {
@@ -73,6 +74,8 @@ public class EsophagealTransit extends Scintigraphy {
 				//trie + inversement de la post
 				imagePourTriePost.add(Scintigraphy.flipStackHorizontal(Scintigraphy.sortDynamicAntPost(imagesSelectDicom[i])[1].duplicate()));
 			}
+			imagesSelectDicom[i].close();
+
 		}
 		
 		//on appelle la fonction de trie 
@@ -87,21 +90,37 @@ public class EsophagealTransit extends Scintigraphy {
 			sauvegardeImagesSelectDicom[1] = new ImagePlus[0];
 		}
 		
+		//int[] tempsInt =   (DynamicScintigraphy.buildFrameDurations(sauvegardeImagesSelectDicom[0][0]));// on prends la ant
+
+		/*
+		for(int i =0; i< tempsInt.length; i++) {
+			System.out.println(tempsInt[i]);
+		}*/
+		
+		
+		
 		ImagePlus finalImagePlus = null;
 		if(imagesSelectDicom != null && imagesSelectDicom.length>0) {
 			ArrayList<ImagePlus> imagesAnt = new ArrayList<>();
-			for(int i =0; i< imagesSelectDicom.length; i++) {
+			for(int i =0; i< imagePourTrieAnt.size(); i++) {
 				//null == pas d'image ant et/ou une image post et != une image post en [0]
-				if(Scintigraphy.sortDynamicAntPost(imagesSelectDicom[i])[0] != null) {
-					imagesAnt.add(DynamicScintigraphy.projeter(Scintigraphy.sortDynamicAntPost(imagesSelectDicom[i])[0]/*la ant*/,0,imagesSelectDicom[i].getStackSize(),"max"));
-					//System.out.println("i:"+i+" is ant  j : "+imagesAnt.size());
-				}
+				
+				ImagePlus impAnt = imagePourTrieAnt.get(i);
+				ImagePlus impAntProjete = DynamicScintigraphy.projeter(impAnt,0,impAnt.getStackSize(),"max");
+				impAntProjete.setProperty("Info", impAnt.getInfoProperty());
+				imagesAnt.add(impAntProjete);
+				//impAntProjete.show();
+				//System.out.println("i:"+i+" is ant  j : "+imagesAnt.size());
+				
 			}
 			//renvoi un stack trié des projection des images 
 			//orderby ... renvoi un tableau d'imp trie par ordre chrono, avec en paramètre la liste des imp Ant
 			//captureTo.. renvoi un stack avec sur chaque slice une imp du tableau passé en param ( un image trié, projeté et ant)
+			//ImagePlus[] tabProj = Scintigraphy.orderImagesByAcquisitionTime(imagesAnt);
 			finalImagePlus = new ImagePlus("test",ModeleScin.captureToStack(Scintigraphy.orderImagesByAcquisitionTime(imagesAnt)));
 			finalImagePlus.setProperty("Info", sauvegardeImagesSelectDicom[0][0].getInfoProperty());
+			
+		
 		}
 		return finalImagePlus;
 	}

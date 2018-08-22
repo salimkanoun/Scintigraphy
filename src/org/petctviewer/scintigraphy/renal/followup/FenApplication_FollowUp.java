@@ -24,12 +24,20 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.Renderer;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.XYSplineRenderer;
+import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -40,6 +48,8 @@ import ij.ImagePlus;
 
 public class FenApplication_FollowUp extends JFrame{
 
+	private static Color[] color = {Color.RED, Color.BLUE, Color.GREEN};
+	
 	/**
 	 * 
 	 */
@@ -54,6 +64,12 @@ public class FenApplication_FollowUp extends JFrame{
 	/*tab details variable*/
 	//contient les tableaux de chaque patient
 	private HashMap<String, HashMap<String,Object>> allExamens;
+
+	// true : normalized axis
+	// false : standard axis
+	private boolean axisType;
+
+	private JButton graphButton;
 	
 	public FenApplication_FollowUp(ArrayList<String> chemins) throws IOException {
 		
@@ -105,6 +121,31 @@ public class FenApplication_FollowUp extends JFrame{
 		}
 		sideBox.add(excretionTabFlow);
 	
+		
+		
+		
+		this.axisType = false;
+		 graphButton = new JButton("standard axis");
+		graphButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FenApplication_FollowUp fen = FenApplication_FollowUp.this;
+				if(fen.axisType == false) {
+					FenApplication_FollowUp.this.graphButton.setText("normalized axis");
+					FenApplication_FollowUp.this.setNormalizedAxis(leftKidneyGraph);
+					FenApplication_FollowUp.this.setNormalizedAxis(rightKidneyGraph);
+					fen.axisType = true;
+				}else {
+					FenApplication_FollowUp.this.graphButton.setText("standard axis");
+					FenApplication_FollowUp.this.setStandardAxis(leftKidneyGraph);
+					FenApplication_FollowUp.this.setStandardAxis(rightKidneyGraph);
+					fen.axisType = false;
+				}
+				
+			}
+		});
+		sideBox.add(graphButton);
 		sideBox.add(setCaptureButton());
 		
 		tabMain.add(sideBox,BorderLayout.EAST);
@@ -149,7 +190,7 @@ public class FenApplication_FollowUp extends JFrame{
 		
 		JPanel captureButtonFlow = new JPanel(new FlowLayout());
 		captureButtonFlow.add(setCaptureButton());
-		
+
 		JPanel patientInfoFlow = new JPanel(new FlowLayout());
 		patientInfoFlow.add(patientInfoPanel());
 		
@@ -177,7 +218,79 @@ public class FenApplication_FollowUp extends JFrame{
 	
 	public void createLeftKidneyGraph(XYSeriesCollection collection) {
 		this.leftKidneyGraph = ChartFactory.createXYLineChart("Left Kidney","time (s)"," ",collection);	
+		XYPlot plot = leftKidneyGraph.getXYPlot();
+		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(true,false);
+		plot.setRenderer(renderer);
+
+		for(int i =0;i<collection.getSeriesCount(); i++) {
+		    plot.getRendererForDataset(plot.getDataset(0)).setSeriesPaint(i, color[i]);
+		}
 	}
+	
+	public void setNormalizedAxis(JFreeChart graph) {
+		XYPlot plot = graph.getXYPlot();
+		XYSeriesCollection collection = (XYSeriesCollection) plot.getDataset();
+		
+		
+		// toutes les series sont dans un dataset 
+		//donc onva creer un dataset par serie
+		for(int i =0; i< collection.getSeriesCount(); i++) {
+			plot.setDataset(i,null);
+
+			plot.setDataset(i, new XYSeriesCollection( collection.getSeries(i)));
+
+			
+			XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(true,false);
+			plot.setRenderer(i,renderer);
+			
+			plot.getRendererForDataset(plot.getDataset(i)).setSeriesPaint(0, color[i]);
+			
+		
+			plot.setRangeAxis(i, new NumberAxis(collection.getSeriesKey(i)+""));
+		}
+
+	    plot.setDomainAxis(new NumberAxis("X Axis"));
+	    
+	  //Map the data to the appropriate axis
+	    plot.mapDatasetToRangeAxis(0, 0);
+	    plot.mapDatasetToRangeAxis(1, 1);
+	    plot.mapDatasetToRangeAxis(2, 2);
+
+	}
+	
+	public void setStandardAxis(JFreeChart graph) {
+		XYPlot plot = graph.getXYPlot();
+		XYSeriesCollection collectionMemoire [] = new XYSeriesCollection[plot.getDatasetCount()];
+		
+		//on memorise les dataset
+		for(int i=0; i< collectionMemoire.length; i++) {
+			collectionMemoire[i] = (XYSeriesCollection)plot.getDataset(i);
+			// on enleve les dataset d'avant
+			plot.setDataset(i,null);
+		}
+
+		XYSeriesCollection collectionRes = new XYSeriesCollection();
+
+		// on remet toutes les series dans un dataset
+		for(int i =0; i<plot.getDatasetCount(); i++ ) {
+			collectionRes.addSeries(collectionMemoire[i].getSeries(0));
+			plot.getRenderer().setSeriesPaint(i, color[i]);
+
+		}
+		
+		plot.setDataset(collectionRes);
+
+		
+		NumberAxis xAxis = new NumberAxis("");
+        xAxis.setAutoRangeIncludesZero(false);
+       
+		plot.setRangeAxis(1, null);
+		plot.setRangeAxis(2, null);
+		
+
+		
+	}
+	
 	
 	public void createRightKidneyGraph(XYSeriesCollection collection) {	
 		this.rightKidneyGraph = ChartFactory.createXYLineChart("Right Kidney","time (s)"," ",collection);
@@ -432,21 +545,27 @@ public class FenApplication_FollowUp extends JFrame{
 		captureButton.addActionListener(new ActionListener() {	
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				captureButton.setVisible(false);
+				
 				String partie1 = (String)allExamens.get(Collections.max(allExamens.keySet())).get("tags");
 				Container root =  Scintigraphy.getRootContainer(captureButton);
+				
+				captureButton.setVisible(false);
+			
 				// Capture, nouvelle methode a utiliser sur le reste des programmes
 				BufferedImage capture = new BufferedImage(root.getWidth(), root.getHeight(),BufferedImage.TYPE_INT_ARGB);
-				root.paint(capture.getGraphics());
+				root.paint(capture.getGraphics());	
 				ImagePlus imp = new ImagePlus("capture", capture);
 				String partie2=ModeleScin.genererDicomTagsPartie2(imp);
 				imp.setProperty("Info", partie1+partie2);
 				imp.show();
 				imp.getWindow().toFront();
+				
+				captureButton.setVisible(true);
+				
 				//On propose de sauver la capture en DICOM
 				IJ.run("myDicom...");
-			
-				captureButton.setVisible(true);
+				
+				
 			}
 		});		
 		return captureButton;

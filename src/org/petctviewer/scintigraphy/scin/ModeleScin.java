@@ -54,6 +54,7 @@ public abstract class ModeleScin {
 		Analyzer analyser = new Analyzer(imp);
 		analyser.measure();
 		ResultsTable density = Analyzer.getResultsTable();
+		System.out.println("cout: "+density.getValueAsDouble(ResultsTable.RAW_INTEGRATED_DENSITY, 0));
 		return density.getValueAsDouble(ResultsTable.RAW_INTEGRATED_DENSITY, 0);
 	}
 
