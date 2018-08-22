@@ -20,7 +20,6 @@ import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import ij.ImagePlus;
 import ij.Prefs;
 import ij.gui.Roi;
-import ij.measure.Calibration;
 import ij.util.DicomTools;
 
 public class Modele_Renal extends ModeleScinDyn {

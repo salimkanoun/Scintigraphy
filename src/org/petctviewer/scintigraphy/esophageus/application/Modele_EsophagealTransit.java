@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.esophageus.EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
@@ -21,10 +22,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	
 	// sauvegarde des imageplus de depart avec tous leur stack chacun : pour pouvoir faire les calculs de mean dans le temps//trié 
 	private ImagePlus [][] sauvegardeImagesSelectDicom;
-	
-	
-	
-	
+
 	// list : liste des examen
 	// list->map : map des 4 roi ( entier, premier tier, deuxieme tier et troisieme tier)
 	// list->map->list : list des mean(double) pour tous le stack
@@ -44,10 +42,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 		this.esoPlugIn = esoPlugIn;
 	}
 
-	
-	private static int numroi = 0;
-	
-	//sert a rien
+	//sert a rien car calculs tous geres a la fin du programme en parcourant le ROI manager
 	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 	}
@@ -85,12 +80,18 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 			HashMap<String, ArrayList<Double>> map4rois = new HashMap<>();
 			// on stock les temps d'acquisition
 			int[] tempsInt =   (DynamicScintigraphy.buildFrameDurations(sauvegardeImagesSelectDicom[0][i]));// on prends la ant
+			
+			double [] tempsSeconde = new double[tempsInt.length];
+			for(int j =0;j<tempsInt.length; j++) {
+				tempsSeconde[j] = tempsInt[j]/1000.0D;
+			}
+			
+			
 			ArrayList<Double> temps = new ArrayList<>();
 			Double memtemps = 0.0;
-			for(int j =0; j< tempsInt.length; j++) {
-				memtemps += (double)tempsInt[i];
-				temps.add(memtemps/1000.0);
-		//		System.out.println(tempsInt[i]);
+			for(int j =0; j< tempsSeconde.length; j++) {
+				memtemps += tempsSeconde[i];
+				temps.add(memtemps);
 			}
 			map4rois.put("temps",temps);
 			
@@ -116,7 +117,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 			ArrayList<Double> deuxTierList = new ArrayList<>();
 			ArrayList<Double> troisTierList = new ArrayList<>();
 						
-			//si on a pas de post on utlise que les post
+			//si on a pas de post on utlise que les ant
 			if(sauvegardeImagesSelectDicom[1].length==0) {
 				//pour chaque slice de l'image plus
 				for(int j =1; j<= sauvegardeImagesSelectDicom[0][i].getStackSize(); j++) {
@@ -124,20 +125,21 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 
 					sauvegardeImagesSelectDicom[0][i].deleteRoi();
 					sauvegardeImagesSelectDicom[0][i].setRoi(premiereRoi);
-					roiEntier.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i])/temps.get(j-1));
+					roiEntier.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i])/tempsSeconde[j-1]);
 					
 					//for each roi (ici 3)
 					sauvegardeImagesSelectDicom[0][i].deleteRoi();
 					sauvegardeImagesSelectDicom[0][i].setRoi(unTier);
-					unTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i])/temps.get(j-1));
+					unTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i])/tempsSeconde[j-1]);
 					
 					sauvegardeImagesSelectDicom[0][i].deleteRoi();
 					sauvegardeImagesSelectDicom[0][i].setRoi(deuxTier);
-					deuxTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i])/temps.get(j-1));
+					deuxTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i])/tempsSeconde[j-1]);
 					
 					sauvegardeImagesSelectDicom[0][i].deleteRoi();
 					sauvegardeImagesSelectDicom[0][i].setRoi(troisTier);
-					troisTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i])/temps.get(j-1));
+					troisTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i])/tempsSeconde[j-1]);
+					System.out.println("temps: "+tempsSeconde[j-1]);
 				}
 			}else {
 				//pour chaque slice de l'image plus
@@ -152,7 +154,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 					sauvegardeImagesSelectDicom[1][i].setRoi(premiereRoi);
 					roiEntier.add(ModeleScin.moyGeom(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i]),
 													 ModeleScin.getCounts(sauvegardeImagesSelectDicom[1][i]))
-								/temps.get(j-1));
+								/tempsSeconde[j-1]);
 					// moygeom( cout(ant), cout(post)) /temps
 					
 					//for each roi (ici 3)
@@ -162,7 +164,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 					sauvegardeImagesSelectDicom[1][i].setRoi(unTier);
 					unTierList.add(ModeleScin.moyGeom(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i]),
 							 						ModeleScin.getCounts(sauvegardeImagesSelectDicom[1][i]))
-								/temps.get(j-1));
+								/tempsSeconde[j-1]);
 					
 					sauvegardeImagesSelectDicom[0][i].deleteRoi();
 					sauvegardeImagesSelectDicom[0][i].setRoi(deuxTier);
@@ -170,7 +172,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 					sauvegardeImagesSelectDicom[1][i].setRoi(deuxTier);
 					deuxTierList.add(ModeleScin.moyGeom(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i]),
 	 												  ModeleScin.getCounts(sauvegardeImagesSelectDicom[1][i]))
-							 	  /temps.get(j-1));
+							 	  /tempsSeconde[j-1]);
 					
 					sauvegardeImagesSelectDicom[0][i].deleteRoi();
 					sauvegardeImagesSelectDicom[0][i].setRoi(troisTier);
@@ -178,9 +180,11 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 					sauvegardeImagesSelectDicom[1][i].setRoi(troisTier);
 					troisTierList.add(ModeleScin.moyGeom(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i]),
 														ModeleScin.getCounts(sauvegardeImagesSelectDicom[1][i]))
-									/temps.get(j-1));
+									/tempsSeconde[j-1]);
+					System.out.println("temps: "+tempsSeconde[j-1]);
+
 				}
-				
+
 			}
 			
 			

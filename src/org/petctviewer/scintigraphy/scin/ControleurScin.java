@@ -164,20 +164,23 @@ public abstract class ControleurScin implements ActionListener {
 	 * est appelle lors du clic sur le bouton "Previous"
 	 */
 	public void clicPrecedent() {
-		//Si boutton suivant desactive car on est arrive a la fin du programme, on le reactive quand on a clicke sur precedent
+		//Si boutton suivant desactive car on est arrive a la fin du programme, on le reactive quand on a clique sur precedent
 		if( !scin.getFenApplication().getBtn_suivant().isEnabled() ) scin.getFenApplication().getBtn_suivant().setEnabled(true);
 		// sauvegarde du ROI courant
-		this.saveCurrentRoi(this.getNomOrgane(this.indexRoi), this.indexRoi);
+		System.out.println("clickPrecedent"+ this.indexRoi);
 
 		// on decrement indexRoi
 		if (this.indexRoi > 0) {
 			this.indexRoi--;
-		} else {
-			// si c'est le dernier roi, on desactive le bouton
-			this.scin.getFenApplication().getBtn_precedent().setEnabled(false);
-		}
+			if(indexRoi==0) {
+				// si on est arrive au dernier roi, on desactive le bouton
+				this.scin.getFenApplication().getBtn_precedent().setEnabled(false);
+			}
+		} 
+		//On affiche la ROI et la slice n-1
+		this.preparerRoi(this.indexRoi);
 
-		this.preparerRoi(this.indexRoi + 1);
+		//this.saveCurrentRoi(this.getNomOrgane(this.indexRoi), this.indexRoi);
 	}
 
 	/**
@@ -231,7 +234,6 @@ public abstract class ControleurScin implements ActionListener {
 			System.out.println("Save Roi Index : "+indexRoi);
 			// on change la couleur pour l'overlay
 			this.scin.getImp().getRoi().setStrokeColor(Color.YELLOW);
-			System.out.println(addTag(nomRoi));
 			// on enregistre la ROI dans le modele
 			this.modele.enregistrerMesure(
 					this.addTag(nomRoi), 
@@ -247,13 +249,6 @@ public abstract class ControleurScin implements ActionListener {
 				// on supprime le roi nouvellement ajoute de la vue
 				this.scin.getFenApplication().getImagePlus().killRoi();
 			}
-			
-			System.out.println(""+indexRoi);
-			System.out.println(this.getSliceNumberByRoiIndex(indexRoi));
-			
-			System.out.println(this.roiManager.
-					getRoi(indexRoi));
-			
 
 			// precise la postion en z
 			this.roiManager.
@@ -481,6 +476,7 @@ public abstract class ControleurScin implements ActionListener {
 		imp.killRoi();
 
 		// change la slice courante
+		System.out.println("Ici SetSlice"+indexSlice);
 		this.scin.getImp().setSlice(indexSlice);
 
 		// ajout des roi dans l'overlay

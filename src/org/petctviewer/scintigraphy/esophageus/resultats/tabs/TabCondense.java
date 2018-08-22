@@ -3,11 +3,14 @@ package org.petctviewer.scintigraphy.esophageus.resultats.tabs;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -20,9 +23,14 @@ import javax.swing.event.ChangeListener;
 import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
+import ij.ImagePlus;
 import ij.plugin.ContrastEnhancer;
+import ij.plugin.frame.ContrastAdjuster;
+import ij.process.ImageStatistics;
 
+@SuppressWarnings("serial")
 public class TabCondense extends JPanel implements ChangeListener{
 	 
 	//Spinners
@@ -42,12 +50,14 @@ public class TabCondense extends JPanel implements ChangeListener{
 	 
 	 private static int numAcquisitionCondense = 0;
 	
-	 
+	private static ContrastEnhancer ce ;
+
 	 private Modele_Resultats_EsophagealTransit modele;
 	 
 	public TabCondense(int nbAcquisition , Modele_Resultats_EsophagealTransit modele, Modele_EsophagealTransit modeleApp) {
 		this.modele = modele;
 		
+		ce = new ContrastEnhancer();
 		this.setLayout(new BorderLayout());
 
 		this.rightRognageValue = new int[nbAcquisition];
@@ -58,11 +68,21 @@ public class TabCondense extends JPanel implements ChangeListener{
 		}
 		
 		
+		
 		modele.calculAllCondense();
+		
+		JPanel titleAndCondensePanel = new JPanel();
+		titleAndCondensePanel.setLayout(new BorderLayout());
+		
 		
 		imageCondensePanel = new DynamicImage(modele.getCondense(numAcquisitionCondense).getBufferedImage());
 		imageCondensePanel.setLayout( new BorderLayout());
-		this.add(imageCondensePanel, BorderLayout.CENTER);
+		titleAndCondensePanel.add(imageCondensePanel, BorderLayout.CENTER);
+		
+		SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getExamType(), modeleApp.esoPlugIn.getImp());
+		titleAndCondensePanel.add(sidePanelScin,BorderLayout.NORTH);
+		
+		this.add(titleAndCondensePanel, BorderLayout.CENTER);
 		
 		JPanel spinnerPanel = new JPanel();
 		spinnerPanel.add(new JLabel("Left side"));
@@ -111,7 +131,7 @@ public class TabCondense extends JPanel implements ChangeListener{
 							imageCondensePanel.setImage(modele.getCondense(numAcquisitionCondense).getBufferedImage());
 							
 							
-							contrastSlider.setValue(contrastValue[i]);
+							contrastSlider.setValue(contrastValue[numAcquisitionCondense]);
 						}
 					}
 				}
@@ -127,7 +147,7 @@ public class TabCondense extends JPanel implements ChangeListener{
 		
 		
 		//slider de contraste
-		 contrastSlider = new JSlider(SwingConstants.HORIZONTAL,0,20,4);
+		contrastSlider = new JSlider(SwingConstants.HORIZONTAL,0,20,4);
 		JLabel contrastLabel = new JLabel("Contrast");
 		
 		contrastSlider.addChangeListener(new ChangeListener() {
@@ -135,18 +155,23 @@ public class TabCondense extends JPanel implements ChangeListener{
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				if(e.getSource() instanceof JSlider) {
-					System.out.println("slider :"+((JSlider)e.getSource()).getValue());
-
 					//changement de contraste
-					ContrastEnhancer ce = new ContrastEnhancer();
-							
-					ce.stretchHistogram(modele.getImagePlusAndRoi(numAcquisitionCondense), ((JSlider)e.getSource()).getValue());
+					ImageStatistics stat=modele.getImagePlusAndRoi(numAcquisitionCondense).getStatistics();
+					
+					int max = (int) Math.round(stat.max);
+					contrastSlider.getModel().setMaximum(max);
+					
+					 modele.getImagePlusAndRoi(numAcquisitionCondense).getProcessor().setMinAndMax(0,(max- ((JSlider)e.getSource()).getValue())+1);
 					imageProjeterEtRoiPanel.setImage(modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
 
-					ce.stretchHistogram(modele.getCondense(numAcquisitionCondense), ((JSlider)e.getSource()).getValue());
+					 modele.getCondense(numAcquisitionCondense).getProcessor().setMinAndMax(0, (max -((JSlider)e.getSource()).getValue())+1);
 					imageCondensePanel.setImage(modele.getCondense(numAcquisitionCondense).getBufferedImage());
 					
 					contrastValue[numAcquisitionCondense] = ((JSlider)e.getSource()).getValue();
+					
+					System.out.println("contrast sloder max :"+contrastSlider.getModel().getMaximum());
+					System.out.println("contrast value :"+contrastValue[numAcquisitionCondense]);
+					
 				}
 			}
 		});
@@ -157,14 +182,40 @@ public class TabCondense extends JPanel implements ChangeListener{
 		sidePanel.add(radioButtonCondensePanelFlow, BorderLayout.NORTH);
 		sidePanel.add(imagePlusRognagePanel, BorderLayout.CENTER);
 		
+		//Prepare panel contrast avec label et slider contrast
+		JPanel contrastPanel = new JPanel();
+		contrastPanel.add(contrastLabel);	
+		contrastPanel.add(contrastSlider);	
+		
 		JPanel contrastCapture = new JPanel();
-		contrastCapture.setLayout(new GridLayout(3, 1));
-		contrastCapture.add(contrastSlider);	
+		contrastCapture.setLayout(new GridLayout(4, 1));
+		contrastCapture.add(contrastPanel);
 		JButton captureButton = new JButton("Capture");
+		captureButton.setHorizontalAlignment(SwingConstants.CENTER);
+		contrastCapture.add(captureButton);
+		JButton tempsFenButton = new JButton("Get Time");
+		tempsFenButton.setHorizontalAlignment(SwingConstants.CENTER);
+		tempsFenButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int [] temps = TabCondense.this.modele.getTime(numAcquisitionCondense);
+				JFrame timeFen = new JFrame();
+				timeFen.setLayout(new GridLayout(temps.length, 2));
+				for(int i =0; i< temps.length; i++) {
+					timeFen.add(new JLabel("Image :"+i));
+					timeFen.add(new JLabel("Time :"+temps[i]+""));
+				}
+				timeFen.pack();
+				timeFen.setVisible(true);
+				
+			}
+		});
+		contrastCapture.add(tempsFenButton);
 		JLabel lblCredit = new JLabel("Provided by petctviewer.org");
 		lblCredit.setVisible(false);
-		contrastCapture.add(captureButton);
 		contrastCapture.add(lblCredit);
+		
 		
 		sidePanel.add(contrastCapture,BorderLayout.SOUTH);
 		
@@ -184,31 +235,32 @@ public class TabCondense extends JPanel implements ChangeListener{
 				JSpinner spinner = (JSpinner)e.getSource();
 				if(spinner.equals(spinnerRight)) {
 
-					//System.out.println("pinner right "+((int)spinner.getValue()- this.rightRognageValue));
-					
 					this.modele.rognerDicomCondenseRight((int)spinner.getValue()- this.rightRognageValue[numAcquisitionCondense],numAcquisitionCondense);
 					this.rightRognageValue[numAcquisitionCondense] = (int)spinner.getValue();
-					
-					 this.modele.calculCond(numAcquisitionCondense);
-					 imageCondensePanel.setImage(this.modele.getCondense(numAcquisitionCondense).getBufferedImage());
-
-					 
-					 this.modele.calculImagePlusAndRoi(numAcquisitionCondense);
-					 imageProjeterEtRoiPanel.setImage(this.modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
 
 				}else if(spinner.equals(spinnerLeft)) {
-					//System.out.println("pinner left "+spinner.getValue());
 					
 					this.modele.rognerDicomCondenseLeft((int)spinner.getValue()- this.leftRognageValue[numAcquisitionCondense],numAcquisitionCondense);
 					this.leftRognageValue[numAcquisitionCondense] = (int)spinner.getValue();
-					 
-					this.modele.calculCond(numAcquisitionCondense);
-					 imageCondensePanel.setImage(this.modele.getCondense(numAcquisitionCondense).getBufferedImage());
-
-					 this.modele.calculImagePlusAndRoi(numAcquisitionCondense);
-					 imageProjeterEtRoiPanel.setImage(this.modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
+					
 				}
 				
+				System.out.println("contrast sloder max :"+contrastSlider.getModel().getMaximum());
+				System.out.println("contrast value :"+contrastValue[numAcquisitionCondense]);
+				
+				 
+				 this.modele.calculImagePlusAndRoi(numAcquisitionCondense);
+				 modele.getImagePlusAndRoi(numAcquisitionCondense).getProcessor().setMinAndMax(0, (contrastSlider.getModel().getMaximum() - contrastValue[numAcquisitionCondense])+1);
+				 imageProjeterEtRoiPanel.setImage(modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
+
+				 this.modele.calculCond(numAcquisitionCondense);
+				 modele.getCondense(numAcquisitionCondense).getProcessor().setMinAndMax(0, (contrastSlider.getModel().getMaximum() - contrastValue[numAcquisitionCondense])+1);
+				 //SK PROBLEME APPLICAION DE LA LUT A VOIR
+				 //MARCHE SI LANCE IJ DEBUG MAIS PAS SOUS FIJI
+				 //FAIRE MINIMAL DEBUG SAMPLE
+				 //ImagePlus temp=modele.getCondense(numAcquisitionCondense);
+				 //temp.draw();
+				 imageCondensePanel.setImage(modele.getCondense(numAcquisitionCondense).getBufferedImage());
 			
 			}
 	}

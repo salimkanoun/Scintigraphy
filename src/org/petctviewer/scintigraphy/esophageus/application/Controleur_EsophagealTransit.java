@@ -33,6 +33,8 @@ public class Controleur_EsophagealTransit  extends ControleurScin {
 		((Modele_EsophagealTransit) this.getModele()).setRoiManager(this.roiManager);
 		this.getModele().calculerResultats();
 		FenResultats_EsophagealTransit fen = new FenResultats_EsophagealTransit(((Modele_EsophagealTransit)this.getModele()).getExamenMean(), ((Modele_EsophagealTransit)this.getModele()).getDicomRoi(), modele);
+		fen.pack();
+		fen.setLocationRelativeTo(null);
 		fen.setVisible(true);
 	}
 

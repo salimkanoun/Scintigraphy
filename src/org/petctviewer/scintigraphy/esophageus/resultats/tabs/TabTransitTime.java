@@ -24,12 +24,14 @@ import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTransit;
-import org.petctviewer.scintigraphy.esophageus.resultats.FenResultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
+
+@SuppressWarnings("serial")
 public class TabTransitTime extends JPanel{
 
 	private JFreeChart graphTransitTime;
@@ -175,6 +177,9 @@ public class TabTransitTime extends JPanel{
 			selectionAcquiTransitPanelFlow.add(selectionAcquiTransitPanel);
 			
 			Box sidePanel = Box.createVerticalBox();
+			SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getExamType(), modeleApp.esoPlugIn.getImp());
+			sidePanel.add(sidePanelScin);
+			
 		    sidePanel.add(selectionAcquiTransitPanelFlow);
 		    
 		    

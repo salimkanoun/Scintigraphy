@@ -12,7 +12,6 @@ import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -24,6 +23,7 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 	private XYSeries [][] datasetMain;
 	private XYSeries [][] datasetTransitTime;
 	
+	//0: imageplus, 1: la roi
 	private ArrayList<Object[]> dicomRoi;
 	
 	
@@ -168,12 +168,13 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 		return collection;
 	}
 	
+	/*
 	private void printList(List<Double> list, String name) {
 		System.out.println(name);
 		for(int i =0; i< list.size(); i++) {
 			System.out.println(list.get(i));
 		}
-	}
+	}*/
 	
 	private XYSeries listToXYSeries(List<Double> data, List<Double> time, String title) {
 		//System.out.println("data size: "+data.size());
@@ -196,6 +197,7 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 
 	
 	public ImagePlus getCondense(int indiceAcquisition) {
+		
 		return condense[indiceAcquisition];		
 	}
 	
@@ -307,15 +309,8 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 
 		}
 		// On fait la somme du stack pour avoir l'image finale
-		ZProjector projector = new ZProjector();
-		projector.setImage(imageCondensee);
-		projector.setMethod(ij.plugin.ZProjector.SUM_METHOD);
-		projector.setStartSlice(1);
-		projector.setStopSlice(coupes);
-		projector.doProjection();
-		ImagePlus projete = projector.getProjection();
+		ImagePlus projete= DynamicScintigraphy.projeter(imageCondensee, 1, coupes, "sum");
 		Scintigraphy.setCustomLut(projete);
-	   
 		return projete;
 		
 		
@@ -342,6 +337,11 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 		return (ImagePlus)this.dicomRoi.get(0)[0];
 	}
 
+	public int[] getTime(int numAcquisition){
+		return 		DynamicScintigraphy.buildFrameDurations((ImagePlus)dicomRoi.get(numAcquisition)[0]);
+	}
+	
+	
 	
 	//pour le csv
 	public void setTimeMeasure(int numAcquisition, double temps) {

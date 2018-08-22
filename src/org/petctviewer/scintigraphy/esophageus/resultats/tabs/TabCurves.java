@@ -2,12 +2,8 @@ package org.petctviewer.scintigraphy.esophageus.resultats.tabs;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -23,7 +19,6 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.chart.util.ShapeUtils;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.calibration.resultats.JTableCheckBox;
@@ -31,10 +26,9 @@ import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTran
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
-import ij.IJ;
-import ij.ImagePlus;
-
+@SuppressWarnings("serial")
 public class TabCurves extends JPanel{
 	
 	private JFreeChart graphMain;
@@ -49,12 +43,7 @@ public class TabCurves extends JPanel{
 	  	XYLineAndShapeRenderer rendererMain = new XYLineAndShapeRenderer();
  	  	rendererMain.setDefaultShapesVisible(true);
  	  
- 	  	/*
- 	  	for(int i =0; i< nbAcquisition; i++) {
- 	 	  	rendererMain.setSeriesShape(i, ShapeUtils.createDiagonalCross(3, 1));
- 	 	  	//System.out.println('i'+i);
- 	  	}
- 	  	*/
+ 	
  	  	
  	  	//met la grille en noir
  		graphMain.getXYPlot().setDomainGridlinePaint(Color.black);
@@ -111,8 +100,11 @@ public class TabCurves extends JPanel{
 		
 	    JPanel sidePanel = new JPanel();
 		sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
+		
+		SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getExamType(), modeleApp.esoPlugIn.getImp());
+		sidePanel.add(sidePanelScin);
+		
 	    sidePanel.add(tableCheckbox);
-
 	    
 	    JPanel longeurEsophageResultPanel  = new JPanel();
 	    longeurEsophageResultPanel.setLayout(new GridLayout(nbAcquisition+1,1));
@@ -136,10 +128,10 @@ public class TabCurves extends JPanel{
 		sidePanel.add(lblCredit);
 		
 		this.add(sidePanel, BorderLayout.EAST);
-		
 
-		
 		modeleApp.esoPlugIn.setCaptureButton(captureButton, lblCredit , this, modele, "Curves");
+		
+		
 
 	}
 	
