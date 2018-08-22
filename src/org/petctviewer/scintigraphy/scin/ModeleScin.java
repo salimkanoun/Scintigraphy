@@ -385,7 +385,7 @@ public abstract class ModeleScin {
 		return genererDicomTagsPartie1(imp, nomProgramme, uid);
 	}
 
-	public static String genererDicomTagsPartie1(ImagePlus imp, String nomProgramme, String uid) {
+	private static String genererDicomTagsPartie1(ImagePlus imp, String nomProgramme, String uid) {
 		HashMap tags=new HashMap();
 		tags.put("0008,0020", DicomTools.getTag(imp, "0008,0020") );
 		tags.put("0008,0021", DicomTools.getTag(imp, "0008,0021") );
@@ -406,7 +406,6 @@ public abstract class ModeleScin {
 		tags.put("0020,0010", DicomTools.getTag(imp, "0020,0010") );
 		tags.put("0020,0032" ,DicomTools.getTag(imp, "0020,0032") );
 		tags.put("0020,0037", DicomTools.getTag(imp, "0020,0037") );
-		System.out.println(tags.get("0020,000E"));
 		String partie1=getTagPartie1(tags, nomProgramme, uid);
 		return partie1;
 	}
