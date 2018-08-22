@@ -234,7 +234,7 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 	
 	
 	public void calculImagePlusAndRoi(int indiceAcquisition) {
-		ImagePlus impProjete = DynamicScintigraphy.projeter((ImagePlus)dicomRoi.get(indiceAcquisition)[0], 0, ((ImagePlus)dicomRoi.get(indiceAcquisition)[0]).getStackSize(), "max");
+		ImagePlus impProjete = DynamicScintigraphy.projeter((ImagePlus)dicomRoi.get(indiceAcquisition)[0], 0, ((ImagePlus)dicomRoi.get(indiceAcquisition)[0]).getStackSize(), "avg");
 		Scintigraphy.setCustomLut(impProjete);
 		Rectangle rectRoi = (Rectangle)dicomRoi.get(indiceAcquisition)[1];
 		rectRoi.setSize((int)((Rectangle)dicomRoi.get(indiceAcquisition)[1]).getWidth(), ((ImagePlus)dicomRoi.get(indiceAcquisition)[0]).getHeight());

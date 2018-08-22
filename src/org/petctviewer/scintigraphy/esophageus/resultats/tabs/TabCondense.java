@@ -25,6 +25,7 @@ import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_Esopha
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 
 import ij.plugin.ContrastEnhancer;
+import ij.process.ImageStatistics;
 
 @SuppressWarnings("serial")
 public class TabCondense extends JPanel implements ChangeListener{
@@ -114,7 +115,9 @@ public class TabCondense extends JPanel implements ChangeListener{
 							imageProjeterEtRoiPanel.setImage(modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
 							imageCondensePanel.setImage(modele.getCondense(numAcquisitionCondense).getBufferedImage());
 							
+							ImageStatistics stat=modele.getCondense(numAcquisitionCondense).getStatistics();
 							
+							contrastSlider.getModel().setMaximum((int) Math.round(stat.max));
 							contrastSlider.setValue(contrastValue[i]);
 						}
 					}
@@ -211,8 +214,6 @@ public class TabCondense extends JPanel implements ChangeListener{
 				JSpinner spinner = (JSpinner)e.getSource();
 				if(spinner.equals(spinnerRight)) {
 
-					//System.out.println("pinner right "+((int)spinner.getValue()- this.rightRognageValue));
-					
 					this.modele.rognerDicomCondenseRight((int)spinner.getValue()- this.rightRognageValue[numAcquisitionCondense],numAcquisitionCondense);
 					this.rightRognageValue[numAcquisitionCondense] = (int)spinner.getValue();
 					
