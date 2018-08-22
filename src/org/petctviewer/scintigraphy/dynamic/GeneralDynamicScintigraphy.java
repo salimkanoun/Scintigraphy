@@ -50,7 +50,7 @@ public class GeneralDynamicScintigraphy extends Scintigraphy{
 			this.frameDurations = DynamicScintigraphy.buildFrameDurations(this.impPost);
 		}
 
-		return impProjeteeAnt.duplicate();
+		return impProjetee.duplicate();
 	}
 
 

@@ -35,8 +35,8 @@ import ij.plugin.frame.RoiManager;
 
 public abstract class ControleurScin implements ActionListener {
 
-	private Scintigraphy scin;
-	private ModeleScin modele;
+	protected Scintigraphy scin;
+	protected ModeleScin modele;
 	protected RoiManager roiManager;
 
 

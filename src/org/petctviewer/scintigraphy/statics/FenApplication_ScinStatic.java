@@ -32,6 +32,7 @@ public class FenApplication_ScinStatic extends FenApplication{
 		Panel btns_instru = new Panel(new GridLayout(1, 3));
 		btns_instru.add(this.btn_finish);
 		btns_instru.add(this.getBtn_precedent());
+		this.getBtn_suivant().setLabel("Validate/New Roi");
 		btns_instru.add(this.getBtn_suivant());
 		this.getPanelInstructionsTextBtn().add(btns_instru);
 
