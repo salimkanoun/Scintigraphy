@@ -10,7 +10,6 @@ import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JTextField;
-import javax.swing.UIManager;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 

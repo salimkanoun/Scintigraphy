@@ -79,7 +79,7 @@ public class RenalScintigraphy extends Scintigraphy {
 
 		//ajout du stack a l'imp
 		impProjetee.setStack(stack);
-		return impProjetee.duplicate();
+		return impProjetee;
 	}
 	
 
