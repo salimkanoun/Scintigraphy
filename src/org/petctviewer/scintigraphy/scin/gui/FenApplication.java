@@ -105,15 +105,6 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		this.setDefaultSize();
 		this.addComponentListener(this);
 	}
-	
-	public void rebuildPanelPrincipal() {
-		panelPrincipal.removeAll();
-		panelPrincipal.add(panel_btns_Quit_Draw_Contrast);
-		panelPrincipal.add(this.panel_Instructions_Text_Btn);
-		panelPrincipal.revalidate();
-		global.revalidate();
-		
-	}
 
 	public void resizeCanvas() {
 		ImagePlus imp = this.getImagePlus();

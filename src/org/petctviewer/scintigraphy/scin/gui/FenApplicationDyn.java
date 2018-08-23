@@ -53,8 +53,6 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 
 		this.getBtn_drawROI().setEnabled(false);
 		
-		this.rebuildPanelPrincipal();
-		
 		this.setDefaultSize();
 	}
 
