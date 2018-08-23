@@ -36,7 +36,7 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 	public FenApplication_Renal(ImagePlus imp, String nom, RenalScintigraphy vue) {
 		super(imp, nom);
 		this.vue = vue;
-		this.impProj = imp;
+		this.impProj = imp.duplicate();
 		
 		//Ajout du boutton dynamic au panel de gauche
 		btn_dyn = new Button("Dynamic");
