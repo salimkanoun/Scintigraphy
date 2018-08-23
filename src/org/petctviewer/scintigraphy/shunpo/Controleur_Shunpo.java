@@ -21,7 +21,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.StaticMethod;
 
 import ij.IJ;
@@ -146,7 +145,7 @@ public class Controleur_Shunpo implements ActionListener {
 				this.laVue.win.getImagePlus().setRoi((Roi) this.laVue.leRoi.getRoi(0));
 				this.laVue.win.showSlice(1);
 				this.etat = this.etat.next() ;
-				Scintigraphy.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
+				StaticMethod.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
 				//On verifie que la ROI suivante n'est pas deja pr茅sente dans le ROI manager(cas d'un retour) auquel cas on l'affiche
 				if (this.laVue.leRoi.getRoi((this.index))!= null) {
 					this.laVue.leRoi.select(this.index);
@@ -239,7 +238,7 @@ public class Controleur_Shunpo implements ActionListener {
 				this.laVue.overlay.clear();
 				this.laVue.win.getImagePlus().setRoi((Roi) this.laVue.leRoi.getRoi(10));
 				this.laVue.win.showSlice(1);
-				Scintigraphy.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
+				StaticMethod.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
 				this.laVue.win.getImagePlus().setOverlay(this.laVue.overlay);
 				this.laVue.setInstructions(this.listeInstructions[this.index]);
 				break;
@@ -307,7 +306,7 @@ public class Controleur_Shunpo implements ActionListener {
 			case BDF:
 				retour();
 				this.laVue.overlay.clear();
-				Scintigraphy.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
+				StaticMethod.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
 				break;
 				
 			case PoumonD_Ant:
@@ -330,7 +329,7 @@ public class Controleur_Shunpo implements ActionListener {
 			case Poumon_valide:
 				retour();
 				this.laVue.overlay.clear();
-				Scintigraphy.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
+				StaticMethod.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
 				break;
 				
 			case Cerveau_Post:

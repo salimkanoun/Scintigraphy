@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.renal.dmsa;
 import java.awt.Color;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.ImagePlus;
@@ -29,8 +30,8 @@ public class DmsaScintigraphy extends Scintigraphy {
 
 	@Override
 	public void lancerProgramme() {
-		Overlay overlay = Scintigraphy.initOverlay(this.getImp());
-		Scintigraphy.setOverlayDG(overlay, this.getImp(), Color.yellow);
+		Overlay overlay = StaticMethod.initOverlay(this.getImp());
+		StaticMethod.setOverlayDG(overlay, this.getImp(), Color.yellow);
 		
 		FenApplication fen = new FenApplication(this.getImp(), this.getExamType());
 		this.setFenApplication(fen);

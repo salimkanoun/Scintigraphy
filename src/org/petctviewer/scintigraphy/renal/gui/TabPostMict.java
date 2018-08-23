@@ -21,7 +21,7 @@ import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
 import org.petctviewer.scintigraphy.renal.postMictional.CustomControleur;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.StaticMethod;
-import org.petctviewer.scintigraphy.scin.gui.PanelResultatImp;
+import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
@@ -31,7 +31,7 @@ import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.util.DicomTools;
 
-class TabPostMict extends PanelResultatImp implements ActionListener, CustomControleur {
+class TabPostMict extends PanelImpContrastSlider implements ActionListener, CustomControleur {
 
 	private static final long serialVersionUID = 8125367912250906052L;
 	private PostMictional vueBasic;
@@ -182,7 +182,7 @@ class TabPostMict extends PanelResultatImp implements ActionListener, CustomCont
 	public Roi getOrganRoi(Roi roi) {
 		int index = this.vueBasic.getFenApplication().getControleur().getIndexRoi();
 		if (index == 1 || index == 3) {
-			return Scintigraphy.createBkgRoi(roi, this.vueBasic.getFenApplication().getImagePlus(),
+			return StaticMethod.createBkgRoi(roi, this.vueBasic.getFenApplication().getImagePlus(),
 					Scintigraphy.KIDNEY);
 		}
 		return null;
@@ -193,11 +193,11 @@ class TabPostMict extends PanelResultatImp implements ActionListener, CustomCont
 		Overlay ov = this.vueBasic.getImp().getOverlay();
 
 		if (ov.getIndex("L. bkg") != -1) {
-			Scintigraphy.editLabelOverlay(ov, "L. bkg", "", Color.GRAY);
+			StaticMethod.editLabelOverlay(ov, "L. bkg", "", Color.GRAY);
 		}
 
 		if (ov.getIndex("R. bkg") != -1) {
-			Scintigraphy.editLabelOverlay(ov, "R. bkg", "", Color.GRAY);
+			StaticMethod.editLabelOverlay(ov, "R. bkg", "", Color.GRAY);
 		}
 	}
 

@@ -5,6 +5,7 @@ import java.awt.Color;
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -30,7 +31,7 @@ public class RenalScintigraphy extends Scintigraphy {
 			IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 		}
 		
-		ImagePlus[] imps = Scintigraphy.sortDynamicAntPost(images[0]);
+		ImagePlus[] imps = StaticMethod.sortDynamicAntPost(images[0]);
 		if(imps[0] != null) {
 			this.impAnt = imps[0].duplicate();
 		}
@@ -85,13 +86,13 @@ public class RenalScintigraphy extends Scintigraphy {
 
 	@Override
 	public void lancerProgramme() {
-		Overlay overlay = Scintigraphy.initOverlay(impProjetee, 12);
-		Scintigraphy.setOverlayGD(overlay, impProjetee, Color.yellow);
-		Scintigraphy.setOverlayTitle("Post",overlay, impProjetee, Color.yellow, 1);
-		Scintigraphy.setOverlayTitle("2 first min posterior", overlay, impProjetee, Color.YELLOW, 2);
-		Scintigraphy.setOverlayTitle("MIP", overlay, impProjetee, Color.YELLOW, 3);
+		Overlay overlay = StaticMethod.initOverlay(impProjetee, 12);
+		StaticMethod.setOverlayGD(overlay, impProjetee, Color.yellow);
+		StaticMethod.setOverlayTitle("Post",overlay, impProjetee, Color.yellow, 1);
+		StaticMethod.setOverlayTitle("2 first min posterior", overlay, impProjetee, Color.YELLOW, 2);
+		StaticMethod.setOverlayTitle("MIP", overlay, impProjetee, Color.YELLOW, 3);
 		if (this.impAnt != null) {
-			Scintigraphy.setOverlayTitle("Ant", overlay, impProjetee, Color.yellow, 4);
+			StaticMethod.setOverlayTitle("Ant", overlay, impProjetee, Color.yellow, 4);
 		}
 
 		this.setFenApplication(new FenApplication_Renal(this.getImp(), this.getExamType(), this));

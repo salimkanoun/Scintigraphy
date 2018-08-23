@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.hepatic.statique;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.IJ;
@@ -20,7 +21,7 @@ public class HepaticScintigraphy extends Scintigraphy {
 
 		ImagePlus imp = images[0];
 		String info = imp.getInfoProperty();
-		ImagePlus impSorted = Scintigraphy.sortImageAntPost(imp);
+		ImagePlus impSorted = StaticMethod.sortImageAntPost(imp);
 		impSorted.setProperty("Info", info);
 
 		return impSorted.duplicate();

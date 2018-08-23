@@ -17,8 +17,13 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.ImagePlus;
 import ij.plugin.ContrastEnhancer;
-
-public abstract class PanelResultatImp extends JPanel implements ChangeListener {
+/**
+ * affichage imaage plus avec reglage contraste 
+ * SK algo contraste à revoir
+ * @author diego
+ *
+ */
+public abstract class PanelImpContrastSlider extends JPanel implements ChangeListener {
 
 	private static final long serialVersionUID = 1L;
 	private ImagePlus imp;
@@ -32,7 +37,7 @@ public abstract class PanelResultatImp extends JPanel implements ChangeListener 
 	protected SidePanel sidePanel;
 	String additionalInfo, nomFen;
 
-	public PanelResultatImp(String nomFen, Scintigraphy vue, String additionalInfo) {
+	public PanelImpContrastSlider(String nomFen, Scintigraphy vue, String additionalInfo) {
 		super(new BorderLayout());
 		this.setVue(vue);
 		this.additionalInfo = additionalInfo;
@@ -46,9 +51,8 @@ public abstract class PanelResultatImp extends JPanel implements ChangeListener 
 	}
 
 	public void finishBuildingWindow() {
-		int min = 0;
 		int max = 20;
-		this.slider = new JSlider(SwingConstants.HORIZONTAL, min, max, 4);
+		this.slider = new JSlider(SwingConstants.HORIZONTAL, 0, (int) imp.getStatistics().max, 4);
 		slider.addChangeListener(this);
 		
 		this.boxSlider = Box.createVerticalBox();
@@ -70,7 +74,7 @@ public abstract class PanelResultatImp extends JPanel implements ChangeListener 
 	}
 
 	@Override
-	public void stateChanged(ChangeEvent e) {
+	public void stateChanged(ChangeEvent e) {	
 		JSlider slider = (JSlider) e.getSource();
 		this.setContrast(slider.getValue());
 	}
@@ -96,10 +100,9 @@ public abstract class PanelResultatImp extends JPanel implements ChangeListener 
 		this.finishBuildingWindow();
 	}
 
-	private void setContrast(int contrast) {
-		ContrastEnhancer ce = new ContrastEnhancer();
-		ce.stretchHistogram(this.imp, contrast);
-
+	private void setContrast(int sliderValue) {
+		imp.getProcessor().setMinAndMax(0, (slider.getModel().getMaximum() - sliderValue)+1);
+		
 		try {
 			SwingUtilities.invokeLater(new Runnable() {
 

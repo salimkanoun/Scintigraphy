@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.IJ;
@@ -31,7 +32,7 @@ public class PostMictional extends Scintigraphy {
 		ImagePlus imp = images[0];
 		String info = imp.getInfoProperty();
 		
-		ImagePlus impSorted = Scintigraphy.sortImageAntPost(imp);
+		ImagePlus impSorted = StaticMethod.sortImageAntPost(imp);
 		impSorted.setProperty("Info", info);
 		
 		return impSorted.duplicate();
@@ -39,8 +40,8 @@ public class PostMictional extends Scintigraphy {
 	
 	@Override
 	public void lancerProgramme() {
-		Overlay ov = Scintigraphy.initOverlay(this.getImp());
-		Scintigraphy.setOverlayGD(ov, this.getImp(), Color.YELLOW);
+		Overlay ov = StaticMethod.initOverlay(this.getImp());
+		StaticMethod.setOverlayGD(ov, this.getImp(), Color.YELLOW);
 		
 		FenApplication fen = new FenApplication(this.getImp(), this.getExamType());
 		fen.setVisible(true);

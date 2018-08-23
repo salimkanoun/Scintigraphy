@@ -18,7 +18,12 @@ import ij.gui.ImageCanvas;
 import ij.gui.Overlay;
 import ij.gui.StackWindow;
 import ij.util.DicomTools;
-
+/**
+ * Interface graphique principale de quantification dans imageJ
+ * 
+ * @author diego
+ *
+ */
 public class FenApplication extends StackWindow implements ComponentListener {
 	private static final long serialVersionUID = -6280620624574294247L;
 
@@ -40,12 +45,8 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	private ControleurScin controleur;
 	
 	private Panel panelPrincipal, panelContainer;
-	
-	
-		
 
 	private String nom;
-
 
 	private int canvasW, canvasH;
 

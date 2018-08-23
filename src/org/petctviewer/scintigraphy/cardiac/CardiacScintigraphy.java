@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -29,7 +30,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 			ImagePlus imp = images[i];
 			if (imp.getStackSize() == 2) {
 				String info = imp.getInfoProperty();
-				ImagePlus impReversed = Scintigraphy.sortImageAntPost(imp);
+				ImagePlus impReversed = StaticMethod.sortImageAntPost(imp);
 				MontageMaker mm = new MontageMaker();
 				ImagePlus montageImage = mm.makeMontage2(impReversed, 2, 1, 1.0, 1, 2, 1, 0, false);
 				montageImage.setProperty("Info", info);
@@ -41,7 +42,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 			imp.close();
 		}
 
-		ImagePlus[] mountedSorted = Scintigraphy.orderImagesByAcquisitionTime(mountedImages);
+		ImagePlus[] mountedSorted = StaticMethod.orderImagesByAcquisitionTime(mountedImages);
 		Concatenator enchainer = new Concatenator();
 
 		ImagePlus impStacked;
@@ -62,8 +63,8 @@ public class CardiacScintigraphy extends Scintigraphy {
 
 	@Override
 	public void lancerProgramme() {
-		Overlay overlay = Scintigraphy.initOverlay(this.getImp(), 7);
-		Scintigraphy.setOverlayDG(overlay, this.getImp(), Color.YELLOW);
+		Overlay overlay = StaticMethod.initOverlay(this.getImp(), 7);
+		StaticMethod.setOverlayDG(overlay, this.getImp(), Color.YELLOW);
 		
 		// fenetre de l'application
 		this.setFenApplication(new FenApplication_Cardiac(this.getImp(), this.getExamType()));

@@ -39,7 +39,6 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.StaticMethod;
 
 import ij.IJ;
@@ -547,7 +546,7 @@ public class FenApplication_FollowUp extends JFrame{
 			public void actionPerformed(ActionEvent e) {
 				
 				String partie1 = (String)allExamens.get(Collections.max(allExamens.keySet())).get("tags");
-				Container root =  Scintigraphy.getRootContainer(captureButton);
+				Container root =  StaticMethod.getRootContainer(captureButton);
 				
 				captureButton.setVisible(false);
 			

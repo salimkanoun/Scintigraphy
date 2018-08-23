@@ -29,7 +29,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 
 import ij.*;
@@ -160,19 +160,19 @@ public class Vue_VG_Dynamique  implements PlugIn {
 					//On cree l'imageProjetee et on l'ajoute a la liste
 					
 					//Si unique frame
-					if (!Scintigraphy.isMultiFrame(brute)) {
+					if (!StaticMethod.isMultiFrame(brute)) {
 						projete.add(creationImageProjetee(brute)); 
 						
 					}
 					//Si multiFrame mais meme camera
-					else if ( Scintigraphy.isMultiFrame(brute)  &&  Scintigraphy.isSameCameraMultiFrame(brute)) {
+					else if ( StaticMethod.isMultiFrame(brute)  &&  StaticMethod.isSameCameraMultiFrame(brute)) {
 						projete.add(creationImageProjetee(brute)); 
 						
 					}
 					// Si multiframe avec plusieurs vues
-					else if( Scintigraphy.isMultiFrame(brute) && !Scintigraphy.isSameCameraMultiFrame(brute)) {
+					else if( StaticMethod.isMultiFrame(brute) && !StaticMethod.isSameCameraMultiFrame(brute)) {
 						//On recupere les deux ImagePlus de chaque Vue
-						ImagePlus [] deuxCamera=Scintigraphy.splitCameraMultiFrame(brute);
+						ImagePlus [] deuxCamera=StaticMethod.splitCameraMultiFrame(brute);
 						//On ajoute a part le ant et le post (qu'on flip horizontal) qui ont ete splite
 						deuxCamera[0].setTitle("Anterior");
 						projete.add(makeImageProjetee(deuxCamera[0], true));
@@ -185,7 +185,7 @@ public class Vue_VG_Dynamique  implements PlugIn {
 				}
 				
 				//On trie les images par acquisition time
-				ImagePlus[] projeteOrderTemp=Scintigraphy.orderImagesByAcquisitionTime(projete);
+				ImagePlus[] projeteOrderTemp=StaticMethod.orderImagesByAcquisitionTime(projete);
 				//On met l'image Ant apres l'imagePosterieur car sera inverse par la suite
 				ImagePlus[] projeteOrder=new ImagePlus[projeteOrderTemp.length];
 				for (int i=0 ; i<projeteOrderTemp.length; i+=2){
@@ -213,7 +213,7 @@ public class Vue_VG_Dynamique  implements PlugIn {
 				String tag = DicomTools.getTag(imp, "0010,0010");
 				String titre = this.nomProgramme + " - " + tag + " - " + serie;
 				//On appelle la fonction de Vue_Shunpo pour mettre la lut des preference
-				Scintigraphy.setCustomLut(imp);
+				StaticMethod.setCustomLut(imp);
 				// On cree la fenetre avec la pile d'image
 				windowstack = new CustomStackWindow(imp);
 				windowstack.showSlice(1); //=> equivalent au setslice mais moins de bug
@@ -221,8 +221,8 @@ public class Vue_VG_Dynamique  implements PlugIn {
 				//On change les titres
 				imp.setTitle(titre);
 				windowstack.setTitle(titre);
-				this.overlay=Scintigraphy.initOverlay(imp, 12);
-				Scintigraphy.setOverlayDG(overlay, imp);
+				this.overlay=StaticMethod.initOverlay(imp, 12);
+				StaticMethod.setOverlayDG(overlay, imp);
 				// On set la dimension de l'image
 				windowstack.getCanvas().setSize(new Dimension(512,512));
 				windowstack.getCanvas().setScaleToFit(true);
@@ -246,7 +246,7 @@ public class Vue_VG_Dynamique  implements PlugIn {
 	
 	private ImagePlus creationImageProjetee(ImagePlus brute) {
 		ImagePlus ImageProjetee=null;
-		Boolean anterieur=Scintigraphy.isAnterieur(brute);
+		Boolean anterieur=StaticMethod.isAnterieur(brute);
 		if (anterieur!=null && anterieur){
 			brute.setTitle("Anterior");
 			ImageProjetee=makeImageProjetee(brute, true);
@@ -256,8 +256,8 @@ public class Vue_VG_Dynamique  implements PlugIn {
 			ImageProjetee=makeImageProjetee(brute, false);
 			}
 		else {
-			if (Scintigraphy.isPremiereImageDetecteur1(brute)) ImageProjetee=makeImageProjetee(brute, true) ;
-			else if (!Scintigraphy.isPremiereImageDetecteur1(brute)) ImageProjetee=makeImageProjetee(brute, false) ;
+			if (StaticMethod.isPremiereImageDetecteur1(brute)) ImageProjetee=makeImageProjetee(brute, true) ;
+			else if (!StaticMethod.isPremiereImageDetecteur1(brute)) ImageProjetee=makeImageProjetee(brute, false) ;
 		}
 		return ImageProjetee;
 		

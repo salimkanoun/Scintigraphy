@@ -75,14 +75,14 @@ public class FenApplication_EsophagealTransit extends Scintigraphy {
 		for(int i =0; i< imagesSelectDicom.length; i++){
 			//on ne sauvegarde que la ant
 			//null == pas d'image ant et/ou une image post et != une image post en [0]
-			if(Scintigraphy.sortDynamicAntPost(imagesSelectDicom[i])[0] != null) {
-				imagePourTrieAnt.add(Scintigraphy.sortDynamicAntPost(imagesSelectDicom[i])[0].duplicate());
+			if(StaticMethod.sortDynamicAntPost(imagesSelectDicom[i])[0] != null) {
+				imagePourTrieAnt.add(StaticMethod.sortDynamicAntPost(imagesSelectDicom[i])[0].duplicate());
 			}
 			// [1] : c'est la post
 			// si null : pas dimage post 
-			if(Scintigraphy.sortDynamicAntPost(imagesSelectDicom[i])[1] != null) {
+			if(StaticMethod.sortDynamicAntPost(imagesSelectDicom[i])[1] != null) {
 				//trie + inversement de la post
-				imagePourTriePost.add(Scintigraphy.flipStackHorizontal(Scintigraphy.sortDynamicAntPost(imagesSelectDicom[i])[1].duplicate()));
+				imagePourTriePost.add(StaticMethod.flipStackHorizontal(StaticMethod.sortDynamicAntPost(imagesSelectDicom[i])[1].duplicate()));
 			}
 			imagesSelectDicom[i].close();
 
@@ -90,9 +90,9 @@ public class FenApplication_EsophagealTransit extends Scintigraphy {
 		
 		//on appelle la fonction de trie 
 		// on met les imageplus (ANT) dans cette fonction pour les trier, ensuite on stock le tout dans le tableau en [0]
-		sauvegardeImagesSelectDicom[0] = Scintigraphy.orderImagesByAcquisitionTime(imagePourTrieAnt);
+		sauvegardeImagesSelectDicom[0] = StaticMethod.orderImagesByAcquisitionTime(imagePourTrieAnt);
 		//Pareil pour la post
-		sauvegardeImagesSelectDicom[1] = Scintigraphy.orderImagesByAcquisitionTime(imagePourTriePost);
+		sauvegardeImagesSelectDicom[1] = StaticMethod.orderImagesByAcquisitionTime(imagePourTriePost);
 	
 		//test de verification de la taille des stack
 		if(sauvegardeImagesSelectDicom[0].length != sauvegardeImagesSelectDicom[1].length) {
@@ -122,7 +122,7 @@ public class FenApplication_EsophagealTransit extends Scintigraphy {
 			//orderby ... renvoi un tableau d'imp trie par ordre chrono, avec en paramètre la liste des imp Ant
 			//captureTo.. renvoi un stack avec sur chaque slice une imp du tableau passé en param ( un image trié, projeté et ant)
 			//ImagePlus[] tabProj = Scintigraphy.orderImagesByAcquisitionTime(imagesAnt);
-			impProjeteAllAcqui = new ImagePlus("EsoStack",StaticMethod.captureToStack(Scintigraphy.orderImagesByAcquisitionTime(imagesAnt)));
+			impProjeteAllAcqui = new ImagePlus("EsoStack",StaticMethod.captureToStack(StaticMethod.orderImagesByAcquisitionTime(imagesAnt)));
 			//SK VOIR METHODE POUR GARDER LES METADATA ORIGINALE DANS LE STACK GENEREs
 			impProjeteAllAcqui.setProperty("Info", sauvegardeImagesSelectDicom[0][0].getInfoProperty());
 		}
@@ -138,8 +138,8 @@ public class FenApplication_EsophagealTransit extends Scintigraphy {
 	@Override
 	public void lancerProgramme() {
 		// phase 1
-		Overlay overlay = Scintigraphy.initOverlay(this.getImp(), 12);
-		Scintigraphy.setOverlayDG(overlay, this.getImp(), Color.yellow);
+		Overlay overlay = StaticMethod.initOverlay(this.getImp(), 12);
+		StaticMethod.setOverlayDG(overlay, this.getImp(), Color.yellow);
 		
 		FenApplication fen = new FenApplication(this.getImp(), "Oesophageus");
 		fen.getPanel_btns_gauche().remove(fen.getBtn_drawROI());

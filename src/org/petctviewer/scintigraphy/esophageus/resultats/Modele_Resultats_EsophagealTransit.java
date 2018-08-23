@@ -11,7 +11,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.StaticMethod;
 
 import ij.IJ;
@@ -234,7 +233,7 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 	
 	public void calculImagePlusAndRoi(int indiceAcquisition) {
 		ImagePlus impProjete = DynamicScintigraphy.projeter((ImagePlus)dicomRoi.get(indiceAcquisition)[0], 0, ((ImagePlus)dicomRoi.get(indiceAcquisition)[0]).getStackSize(), "max");
-		Scintigraphy.setCustomLut(impProjete);
+		StaticMethod.setCustomLut(impProjete);
 		Rectangle rectRoi = (Rectangle)dicomRoi.get(indiceAcquisition)[1];
 		rectRoi.setSize((int)((Rectangle)dicomRoi.get(indiceAcquisition)[1]).getWidth(), ((ImagePlus)dicomRoi.get(indiceAcquisition)[0]).getHeight());
 		impProjete.setRoi(rectRoi);
@@ -253,7 +252,7 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 	public void calculAllImagePlusAndRoi() {
 		for(int i =0; i<imageplusAndRoi.length; i++) {
 			ImagePlus impProjete = DynamicScintigraphy.projeter((ImagePlus)dicomRoi.get(i)[0], 0, ((ImagePlus)dicomRoi.get(i)[0]).getStackSize(), "max");
-			Scintigraphy.setCustomLut(impProjete);
+			StaticMethod.setCustomLut(impProjete);
 			Rectangle rectRoi = (Rectangle)dicomRoi.get(i)[1];
 			rectRoi.setSize((int)((Rectangle)dicomRoi.get(i)[1]).getWidth(), ((ImagePlus)dicomRoi.get(i)[0]).getHeight());
 			impProjete.setRoi(rectRoi);
@@ -308,7 +307,7 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 		}
 		// On fait la somme du stack pour avoir l'image finale
 		ImagePlus projete= DynamicScintigraphy.projeter(imageCondensee, 1, coupes, "sum");
-		Scintigraphy.setCustomLut(projete);
+		StaticMethod.setCustomLut(projete);
 		return projete;
 		
 		

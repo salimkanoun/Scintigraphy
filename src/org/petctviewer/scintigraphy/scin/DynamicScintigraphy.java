@@ -34,7 +34,7 @@ public class DynamicScintigraphy {
 		
 		
 		if (nbPhase == 1) {
-			int duration = Integer.parseInt(Scintigraphy.getFrameDuration(imp));
+			int duration = Integer.parseInt(StaticMethod.getFrameDuration(imp));
 			for (int i = 0; i < frameDurations.length; i++) {
 				frameDurations[i] = duration;
 			}

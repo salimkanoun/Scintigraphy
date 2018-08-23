@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.IJ;
@@ -22,8 +23,8 @@ public class HepaticDynamicScintigraphy extends Scintigraphy {
 
 	@Override
 	public void lancerProgramme() {
-		Overlay overlay = Scintigraphy.initOverlay(this.getImp(), 12);
-		Scintigraphy.setOverlayDG(overlay, this.getImp(), Color.YELLOW);
+		Overlay overlay = StaticMethod.initOverlay(this.getImp(), 12);
+		StaticMethod.setOverlayDG(overlay, this.getImp(), Color.YELLOW);
 		
 		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));
 		this.getImp().setOverlay(overlay);
@@ -38,7 +39,7 @@ public class HepaticDynamicScintigraphy extends Scintigraphy {
 	      IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 	    }
 	    
-	    ImagePlus[] imps = Scintigraphy.sortDynamicAntPost(images[0]);
+	    ImagePlus[] imps = StaticMethod.sortDynamicAntPost(images[0]);
 	    if(imps[0] != null) {
 	      this.impAnt = imps[0].duplicate();
 	    }

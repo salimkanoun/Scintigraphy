@@ -90,7 +90,7 @@ public class Controleur_Dmsa extends ControleurScin {
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
 		if(this.indexRoi == 1 | this.indexRoi == 3) {
-			return Scintigraphy.createBkgRoi(this.roiManager.getRoi(indexRoi - 1), this.getScin().getImp(), Scintigraphy.KIDNEY);
+			return StaticMethod.createBkgRoi(this.roiManager.getRoi(indexRoi - 1), this.getScin().getImp(), Scintigraphy.KIDNEY);
 		}
 		return null;
 	}

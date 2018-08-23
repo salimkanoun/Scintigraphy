@@ -20,7 +20,6 @@ import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
-import org.petctviewer.scintigraphy.scin.gui.FenResultatSidePanel;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 import ij.ImagePlus;
@@ -111,7 +110,7 @@ class TabPrincipal extends JPanel {
 		res.add(this.getPanelNora());
 		res.add(Box.createVerticalStrut(25));
 
-		FenResultatSidePanel.setFontAllJLabels(res, new Font("Calibri", Font.BOLD, 13));
+		SidePanel.setFontAllJLabels(res, new Font("Calibri", Font.BOLD, 13));
 
 		flow_wrap.add(res);
 

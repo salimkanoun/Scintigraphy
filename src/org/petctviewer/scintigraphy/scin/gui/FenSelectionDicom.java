@@ -25,7 +25,12 @@ import ij.ImageListener;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.util.DicomTools;
-
+/**
+ * fenetre de selection des images natives
+ * 
+ * @author diego
+ *
+ */
 public class FenSelectionDicom extends JFrame implements ActionListener, ImageListener {
 
 	private static final long serialVersionUID = 6706629497515318270L;

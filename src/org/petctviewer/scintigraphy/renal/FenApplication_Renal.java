@@ -14,7 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.IJ;
@@ -76,7 +76,7 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 	public void actionPerformed(ActionEvent e) {
 		// clic sur le bouton dynamique
 		if (e.getSource() == btn_dyn) {
-			Overlay ov = Scintigraphy.duplicateOverlay(this.getImagePlus().getOverlay());
+			Overlay ov = StaticMethod.duplicateOverlay(this.getImagePlus().getOverlay());
 			ImagePlus imp;
 
 			if (!this.dyn) {
@@ -99,7 +99,7 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 			}
 
 			imp.setOverlay(ov);
-			Scintigraphy.setCustomLut(imp);
+			StaticMethod.setCustomLut(imp);
 
 			this.revalidate();
 			this.setImage(imp);

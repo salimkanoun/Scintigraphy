@@ -52,7 +52,7 @@ public class Vue_Plaquettes extends Scintigraphy {
 			ImagePlus imp = images[i];
 			if (imp.getStackSize() == 2) {
 				this.antPost = true;
-				Boolean ant = Scintigraphy.isAnterieur(imp);
+				Boolean ant = StaticMethod.isAnterieur(imp);
 				// Si l'image 1 est anterieur on inverse le stack pour avoir d'abord l'image
 				// post
 				if (ant != null && ant) {
@@ -65,13 +65,13 @@ public class Vue_Plaquettes extends Scintigraphy {
 				// SK Pas propre necessite de mieux orienter les Image pour Ant/Post
 				imp.getProcessor().flipHorizontal();
 			}
-			series.add(Scintigraphy.sortImageAntPost(imp));
+			series.add(StaticMethod.sortImageAntPost(imp));
 			imp.close();
 		}
 		this.nombreAcquisitions = series.size();
 		// IJ.log(String.valueOf(antPost));
 
-		ImagePlus[] seriesTriee = Scintigraphy.orderImagesByAcquisitionTime(series);
+		ImagePlus[] seriesTriee = StaticMethod.orderImagesByAcquisitionTime(series);
 
 		// On recupere la date et le jour de la 1ere image
 		this.dateHeureDebut=StaticMethod.getDateAcquisition(seriesTriee[0]);
@@ -94,8 +94,8 @@ public class Vue_Plaquettes extends Scintigraphy {
 		// fenetre pour la pile d'images;
 		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));
 		
-		Overlay overlay = Scintigraphy.initOverlay(this.getImp());
-		Scintigraphy.setOverlayDG(overlay, getImp(), Color.YELLOW);
+		Overlay overlay = StaticMethod.initOverlay(this.getImp());
+		StaticMethod.setOverlayDG(overlay, getImp(), Color.YELLOW);
 		this.getImp().setOverlay(overlay);
 		
 		Controleur_Plaquettes ctrl = new Controleur_Plaquettes(this);

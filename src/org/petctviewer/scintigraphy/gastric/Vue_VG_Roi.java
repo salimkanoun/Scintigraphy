@@ -41,7 +41,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.table.DefaultTableModel;
 
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 
 import ij.IJ;
@@ -312,14 +312,14 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 				}
 				else {
 				// On trie les images
-				imagesOpened.add(Scintigraphy.sortImageAntPost(currentimp)) ;
+				imagesOpened.add(StaticMethod.sortImageAntPost(currentimp)) ;
 				currentimp.close();
 				}
 				
 			}
 	
 			// trie les images de la serie
-			ImagePlus[] imagesOrdred = Scintigraphy.orderImagesByAcquisitionTime(imagesOpened);
+			ImagePlus[] imagesOrdred = StaticMethod.orderImagesByAcquisitionTime(imagesOpened);
 			Concatenator enchainer = new Concatenator();
 	
 			// enchaine les images
@@ -333,7 +333,7 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 			String tag = DicomTools.getTag(imp, "0010,0010");
 			titre = titre + tag + " - " + serie;
 			// met la LUT preferee si existe
-			Scintigraphy.setCustomLut(imp);
+			StaticMethod.setCustomLut(imp);
 			// Son cree une fenetre pour la pile d'images
 			windowstack = new CustomStackWindow(imp);
 			// On demande la 1ere image du stack
@@ -342,8 +342,8 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 			// On change les titres
 			imp.setTitle(titre);
 			windowstack.setTitle(titre);
-			this.overlay=Scintigraphy.initOverlay(imp, 12);
-			Scintigraphy.setOverlayDG(overlay, imp);
+			this.overlay=StaticMethod.initOverlay(imp, 12);
+			StaticMethod.setOverlayDG(overlay, imp);
 			windowstack.getImagePlus().setOverlay(overlay);
 			// On set la dimension de l'image
 			windowstack.getCanvas().setSize(new Dimension(512,512));

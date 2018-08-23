@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -20,7 +21,12 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.StaticMethod;
 
 import ij.ImagePlus;
-
+/**
+ * creer une box avec titre du programme et son identification patient
+ * 
+ * @author diego
+ *
+ */
 public class SidePanel extends Box {
 
 	private static final long serialVersionUID = 6151539441728624822L;
@@ -90,7 +96,7 @@ public class SidePanel extends Box {
 		patientInfo.add(new JLabel("Aquisition date: "));
 		patientInfo.add(new JLabel(infoPatient.get("date")));
 
-		FenResultatSidePanel.setFontAllJLabels(patientInfo, new Font("Calibri", Font.BOLD, 16));
+		SidePanel.setFontAllJLabels(patientInfo, new Font("Calibri", Font.BOLD, 16));
 
 		JPanel flow1 = new JPanel(new FlowLayout());
 		flow1.add(patientInfo);
@@ -103,6 +109,18 @@ public class SidePanel extends Box {
 
 	public Component getSidePanelContent() {
 		return this.sidePanelContent;
+	}
+
+	
+	public static void setFontAllJLabels(Container container, Font font) {
+		if(container instanceof JLabel)
+			container.setFont(font);
+		
+		for (Component c : container.getComponents()) {
+			if(c instanceof Container) {
+				setFontAllJLabels((Container) c, font);
+			}
+		}
 	}
 
 }

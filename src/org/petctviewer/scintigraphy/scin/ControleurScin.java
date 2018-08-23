@@ -60,9 +60,9 @@ public abstract class ControleurScin implements ActionListener {
 		this.scin = scin;
 
 		if (scin.getImp().getOverlay() == null) {
-			scin.getImp().setOverlay(Scintigraphy.initOverlay(scin.getImp()));
+			scin.getImp().setOverlay(StaticMethod.initOverlay(scin.getImp()));
 		}
-		this.overlay = Scintigraphy.duplicateOverlay(scin.getImp().getOverlay());
+		this.overlay = StaticMethod.duplicateOverlay(scin.getImp().getOverlay());
 
 		//SK BOOLEAN FALSE POUR MASQUER, A METTRE TRUE POUR DEVELOPPEMENT
 		this.roiManager = new RoiManager();
@@ -470,7 +470,7 @@ public abstract class ControleurScin implements ActionListener {
 		ImagePlus imp = this.scin.getImp();
 
 		imp.getOverlay().clear();
-		imp.setOverlay(Scintigraphy.duplicateOverlay(overlay));
+		imp.setOverlay(StaticMethod.duplicateOverlay(overlay));
 		imp.killRoi();
 
 		// change la slice courante
