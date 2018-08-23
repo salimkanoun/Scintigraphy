@@ -11,7 +11,6 @@ import org.petctviewer.scintigraphy.PrefsWindow;
 import org.petctviewer.scintigraphy.calibration.Calibration;
 import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
 import org.petctviewer.scintigraphy.dynamic.GeneralDynamicScintigraphy;
-import org.petctviewer.scintigraphy.esophageus.EsophagealTransit_FenDynamique;
 import org.petctviewer.scintigraphy.esophageus.application.FenApplication_EsophagealTransit;
 import org.petctviewer.scintigraphy.gastric.Vue_VG_Dynamique;
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
