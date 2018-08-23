@@ -83,10 +83,10 @@ public class Controleur_Renal extends ControleurScin {
 			boolean pelvis = Prefs.get("renal.pelvis.preferred", true);
 			if (!pelvis && org.contains("Kidney")) {
 				Roi roi = roiManager.getRoi(indexRoi - 1);
-				return StaticMethod.createBkgRoi(roi, getScin().getImp(), Scintigraphy.KIDNEY);
+				return StaticMethod.createBkgRoi(roi, getScin().getImp(), StaticMethod.KIDNEY);
 			}else if(pelvis && org.contains("Pelvis")) {
 				Roi roi = roiManager.getRoi(indexRoi - 2);
-				return StaticMethod.createBkgRoi(roi, getScin().getImp(), Scintigraphy.KIDNEY);
+				return StaticMethod.createBkgRoi(roi, getScin().getImp(),StaticMethod.KIDNEY);
 			}
 		}
 

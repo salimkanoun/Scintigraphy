@@ -183,7 +183,7 @@ class TabPostMict extends PanelImpContrastSlider implements ActionListener, Cust
 		int index = this.vueBasic.getFenApplication().getControleur().getIndexRoi();
 		if (index == 1 || index == 3) {
 			return StaticMethod.createBkgRoi(roi, this.vueBasic.getFenApplication().getImagePlus(),
-					Scintigraphy.KIDNEY);
+					StaticMethod.KIDNEY);
 		}
 		return null;
 	}

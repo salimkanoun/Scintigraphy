@@ -16,7 +16,6 @@ import javax.swing.event.ChangeListener;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.ImagePlus;
-import ij.plugin.ContrastEnhancer;
 /**
  * affichage imaage plus avec reglage contraste 
  * SK algo contraste à revoir
@@ -51,7 +50,6 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 	}
 
 	public void finishBuildingWindow() {
-		int max = 20;
 		this.slider = new JSlider(SwingConstants.HORIZONTAL, 0, (int) imp.getStatistics().max, 4);
 		slider.addChangeListener(this);
 		
@@ -67,6 +65,8 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 		}
 
 		this.setContrast(slider.getValue());
+		
+		sidePanel.add(boxSlider);
 
 		sidePanel.addCaptureBtn(getVue(), this.additionalInfo, new Component[] { this.slider });
 

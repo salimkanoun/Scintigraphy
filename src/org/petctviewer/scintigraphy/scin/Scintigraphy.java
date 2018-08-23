@@ -17,11 +17,7 @@ import ij.ImagePlus;
 import ij.plugin.PlugIn;
 
 public abstract class Scintigraphy implements PlugIn {
-	// organes
-	public static final int HEART = 0, INFLAT = 1, KIDNEY = 2, INFLATGAUCHE = 3, INFLATDROIT = 4;
-	// outils de tracer de roi
-	public static final int MAINLIBRE = 0, RECTANGLE = 1, OVALE = 2, POLYGONE = 3;
-
+	
 	private String examType;
 	private FenApplication fen_application;
 

@@ -1047,6 +1047,8 @@ public class StaticMethod {
 	}
 
 
+	public static final int HEART = 0, INFLAT = 1, KIDNEY = 2, INFLATGAUCHE = 3, INFLATDROIT = 4;
+	
 	// cree la roi de bruit de fond
 	public static Roi createBkgRoi(Roi roi, ImagePlus imp, int organ) {
 		Roi bkg = null;
@@ -1054,7 +1056,7 @@ public class StaticMethod {
 		rm.setVisible(true);
 	
 		switch (organ) {
-		case Scintigraphy.KIDNEY:
+		case StaticMethod.KIDNEY:
 			// largeur a prendre autour du rein
 			int largeurBkg = 1;
 			if (imp.getDimensions()[0] >= 128) {
@@ -1077,15 +1079,15 @@ public class StaticMethod {
 			bkg = imp.getRoi();
 			break;
 	
-		case Scintigraphy.HEART:
+		case StaticMethod.HEART:
 			// TODO
 			break;
 	
-		case Scintigraphy.INFLATGAUCHE:
+		case StaticMethod.INFLATGAUCHE:
 			bkg = StaticMethod.createBkgInfLat(roi, imp, -1, rm);
 			break;
 	
-		case Scintigraphy.INFLATDROIT:
+		case StaticMethod.INFLATDROIT:
 			bkg = StaticMethod.createBkgInfLat(roi, imp, 1, rm);
 			break;
 	
