@@ -71,8 +71,6 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		this.panelPrincipal = new Panel(new FlowLayout());
 		this.panelPrincipal.setLayout(new FlowLayout());
 
-		panelPrincipal.setLayout(new FlowLayout());
-
 		// construit tous les boutons
 		this.btn_contrast = new Button("Contrast");
 		this.btn_drawROI = new Button("Draw ROI");
@@ -105,6 +103,15 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 		this.setDefaultSize();
 		this.addComponentListener(this);
+	}
+	
+	public void rebuildPanelPrincipal() {
+		panelPrincipal.removeAll();
+		this.panelPrincipal.setLayout(new FlowLayout());
+		panelPrincipal.add(panel_btns_Quit_Draw_Contrast);
+		panelPrincipal.add(this.panel_Instructions_Text_Btn);
+		panelPrincipal.revalidate();
+		
 	}
 
 	public void resizeCanvas() {

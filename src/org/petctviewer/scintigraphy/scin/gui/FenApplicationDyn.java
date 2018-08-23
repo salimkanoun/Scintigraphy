@@ -37,6 +37,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 		super(imp, nom);
 		this.vue = vue;
 		this.impProj = imp.duplicate();
+		
 		btn_dyn = new Button("Dynamic");
 		btn_dyn.addActionListener(this);
 		this.getPanel_Quit_Draw_Contrast_btns().add(btn_dyn);
@@ -51,7 +52,9 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 		this.getPanelInstructionsTextBtn().add(btns_instru);
 
 		this.getBtn_drawROI().setEnabled(false);
-
+		
+		this.rebuildPanelPrincipal();
+		
 		this.setDefaultSize();
 	}
 
