@@ -582,7 +582,7 @@ public class Modele_Renal extends ModeleScinDyn {
 			seriesVasc.add(x, reg[0] + reg[1] * x + reg[2] * Math.pow(x, 2) + reg[3] * Math.pow(x, 3));
 		}
 
-		this.getData().put("Blood pool fitted", seriesToList(seriesVasc));
+		this.getData().put("Blood pool fitted", ModeleScinDyn.seriesToList(seriesVasc));
 
 		XYSeries seriesKid = this.createSerie(kidney, "Kidney");
 

@@ -67,8 +67,8 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		this.panel = new Panel(new FlowLayout());
 		this.panel.setLayout(new FlowLayout());
 
-		Panel gauche = new Panel();
-		gauche.setLayout(new FlowLayout());
+		Panel panelButtons = new Panel();
+		panelButtons.setLayout(new FlowLayout());
 
 		// construit tous les boutons
 		this.btn_contrast = new Button("Contrast");
@@ -84,7 +84,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		panel_btns_Quit_Draw_Contrast.add(this.btn_quitter);
 		panel_btns_Quit_Draw_Contrast.add(this.btn_drawROI);
 		panel_btns_Quit_Draw_Contrast.add(this.btn_contrast);
-		gauche.add(panel_btns_Quit_Draw_Contrast);
+		panelButtons.add(panel_btns_Quit_Draw_Contrast);
 
 		// Creation du panel instructions
 		this.panel_Instructions_Text_Btn = new Panel();
@@ -96,9 +96,10 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 		Panel panel_Instructions_btns = this.createPanelInstructionsBtns();
 		this.panel_Instructions_Text_Btn.add(panel_Instructions_btns);
-		gauche.add(this.panel_Instructions_Text_Btn);
+		panelButtons.add(this.panel_Instructions_Text_Btn);
 		
-		this.panel.add(gauche);
+		this.panel.add(panelButtons);
+
 		add(this.panel);
 
 		this.setDefaultSize();
@@ -120,10 +121,13 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		
 		this.getCanvas().setMagnification(magnification);
 		// pour que le pack prenne en compte les dimensions du panel
-		this.panel.setPreferredSize(panel.getPreferredSize());
+		panel.revalidate();
+		this.revalidate();
+		//this.panel.setPreferredSize(panel.getPreferredSize());
 		this.pack();
 		
-		this.panel.setPreferredSize(null);
+		//SK PAS SUR QUE CA SERVE A VOIR
+		//this.panel.setPreferredSize(null);
 	}
 	
 	//Close la fenetre
@@ -234,6 +238,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 		resizeCanvas();
 	}
+	
 
 	// // affiche l'overlay Droite/Gauche
 	// private void setOverlay() {

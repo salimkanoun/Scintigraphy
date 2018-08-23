@@ -91,7 +91,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	 *            serie
 	 * @return liste des ordonnees
 	 */
-	public List<Double> seriesToList(XYSeries s) {
+	public static List<Double> seriesToList(XYSeries s) {
 		ArrayList<Double> l = new ArrayList<>();
 		for (int i = 0; i < s.getItemCount(); i++) {
 			l.add(s.getY(i).doubleValue());
