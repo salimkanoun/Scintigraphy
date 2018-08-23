@@ -38,7 +38,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 	private ControleurScin controleur;
 	
-	private Panel panelPrincipal;
+	private Panel panelPrincipal, global;
 	
 	
 		
@@ -67,9 +67,8 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		setTitle(titre);//frame title
 		this.imp.setTitle(titre);//imp title
 
-		
+		global=new Panel();
 		this.panelPrincipal = new Panel(new FlowLayout());
-		this.panelPrincipal.setLayout(new FlowLayout());
 
 		// construit tous les boutons
 		this.btn_contrast = new Button("Contrast");
@@ -99,7 +98,9 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		this.panel_Instructions_Text_Btn.add(panel_Instructions_btns);
 		panelPrincipal.add(this.panel_Instructions_Text_Btn);
 		
-		add(this.panelPrincipal);
+		
+		global.add(this.panelPrincipal);
+		this.add(global);
 
 		this.setDefaultSize();
 		this.addComponentListener(this);
@@ -107,10 +108,10 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	
 	public void rebuildPanelPrincipal() {
 		panelPrincipal.removeAll();
-		this.panelPrincipal.setLayout(new FlowLayout());
 		panelPrincipal.add(panel_btns_Quit_Draw_Contrast);
 		panelPrincipal.add(this.panel_Instructions_Text_Btn);
 		panelPrincipal.revalidate();
+		global.revalidate();
 		
 	}
 
