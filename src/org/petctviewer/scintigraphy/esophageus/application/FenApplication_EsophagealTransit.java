@@ -142,8 +142,8 @@ public class FenApplication_EsophagealTransit extends Scintigraphy {
 		Scintigraphy.setOverlayDG(overlay, this.getImp(), Color.yellow);
 		
 		FenApplication fen = new FenApplication(this.getImp(), "Oesophageus");
-		fen.getPanel_Quit_Draw_Contrast_btns().remove(fen.getBtn_drawROI());
-		fen.getPanelInstructionsTextBtn().removeAll();
+		fen.getPanel_btns_gauche().remove(fen.getBtn_drawROI());
+		fen.getPanel_Instructions_btns_droite().removeAll();
 		
 		
 		
@@ -180,11 +180,11 @@ public class FenApplication_EsophagealTransit extends Scintigraphy {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// passage a la phase 2
-				fen.getPanel_Quit_Draw_Contrast_btns().add(fen.getBtn_drawROI());
+				fen.getPanel_btns_gauche().add(fen.getBtn_drawROI());
 				fen.getPanelPrincipal().remove(startQuantificationButton);
 				fen.getPanelPrincipal().remove(radioButtonPanelFlow);
-				fen.getPanelInstructionsTextBtn().add(fen.getTextfield_instructions());
-				fen.getPanelInstructionsTextBtn().add(fen.createPanelInstructionsBtns());
+				fen.getPanel_Instructions_btns_droite().add(fen.getTextfield_instructions());
+				fen.getPanel_Instructions_btns_droite().add(fen.createPanelInstructionsBtns());
 				
 				fen.revalidate();
 				

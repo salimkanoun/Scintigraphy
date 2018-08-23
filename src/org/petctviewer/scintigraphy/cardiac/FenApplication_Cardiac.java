@@ -35,14 +35,14 @@ public class FenApplication_Cardiac extends FenApplication {
 	 * Lance le mode decontamiation, c'est a dire modifier les boutons de la fenetre
 	 */
 	public void startContaminationMode() {
-		this.getPanelInstructionsTextBtn().remove(1);
+		this.getPanel_Instructions_btns_droite().remove(1);
 		
 		//mise en place des boutons
 		Panel btns_instru = new Panel();
 		btns_instru.setLayout(new GridLayout(1, 2));
 		btns_instru.add(this.btn_newCont);
 		btns_instru.add(this.btn_continue);
-		this.getPanelInstructionsTextBtn().add(btns_instru);
+		this.getPanel_Instructions_btns_droite().add(btns_instru);
 		this.modeCont = true;
 		
 		this.resizeCanvas();
@@ -52,8 +52,8 @@ public class FenApplication_Cardiac extends FenApplication {
 	 * Remplace les boutons permettant la decontamination par les boutons utilis�s pour d�limiter les rois
 	 */
 	public void stopContaminationMode() {
-		this.getPanelInstructionsTextBtn().remove(1);
-		this.getPanelInstructionsTextBtn().add(this.createPanelInstructionsBtns());
+		this.getPanel_Instructions_btns_droite().remove(1);
+		this.getPanel_Instructions_btns_droite().add(this.createPanelInstructionsBtns());
 		
 		String s = "Delimit the " + this.getControleur().getOrganes()[0];
 		this.getTextfield_instructions().setText(s);

@@ -24,10 +24,11 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	private static final long serialVersionUID = -6280620624574294247L;
 
 	//Panel d'instruction avec le textfield et boutons precedent et suivant
-	protected Panel panel_Instructions_Text_Btn;
+	protected Panel panel_Instructions_btns_droite;
 	
 	//Panel avec boutons quit, draw roi, contrast
-	private Panel panel_btns_Quit_Draw_Contrast;
+	private Panel panel_btns_gauche;
+	private Panel panel_btns_droite;
 	
 	private JTextField textfield_instructions;
 
@@ -39,7 +40,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 	private ControleurScin controleur;
 	
-	private Panel panelPrincipal, global;
+	private Panel panelPrincipal, panelContainer;
 	
 	
 		
@@ -74,7 +75,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		setTitle(titre);//frame title
 		this.imp.setTitle(titre);//imp title
 
-		global=new Panel();
+		panelContainer=new Panel();
 		this.panelPrincipal = new Panel(new FlowLayout());
 
 		// construit tous les boutons
@@ -86,28 +87,28 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		this.btn_quitter = new Button("Quit");
 		
 		// panel contenant les boutons
-		panel_btns_Quit_Draw_Contrast = new Panel();
-		panel_btns_Quit_Draw_Contrast.setLayout(new GridLayout(1, 3));
-		panel_btns_Quit_Draw_Contrast.add(this.btn_quitter);
-		panel_btns_Quit_Draw_Contrast.add(this.btn_drawROI);
-		panel_btns_Quit_Draw_Contrast.add(this.btn_contrast);
-		panelPrincipal.add(panel_btns_Quit_Draw_Contrast);
+		panel_btns_gauche = new Panel();
+		panel_btns_gauche.setLayout(new GridLayout(1, 3));
+		panel_btns_gauche.add(this.btn_quitter);
+		panel_btns_gauche.add(this.btn_drawROI);
+		panel_btns_gauche.add(this.btn_contrast);
+		panelPrincipal.add(panel_btns_gauche);
 
 		// Creation du panel instructions
-		this.panel_Instructions_Text_Btn = new Panel();
-		this.panel_Instructions_Text_Btn.setLayout(new GridLayout(2, 1));
+		this.panel_Instructions_btns_droite = new Panel();
+		this.panel_Instructions_btns_droite.setLayout(new GridLayout(2, 1));
 		this.textfield_instructions = new JTextField();
 		this.textfield_instructions.setEditable(false);
 		this.textfield_instructions.setBackground(Color.LIGHT_GRAY);
-		this.panel_Instructions_Text_Btn.add(this.getTextfield_instructions());
+		this.panel_Instructions_btns_droite.add(textfield_instructions);
 
-		Panel panel_Instructions_btns = this.createPanelInstructionsBtns();
-		this.panel_Instructions_Text_Btn.add(panel_Instructions_btns);
-		panelPrincipal.add(this.panel_Instructions_Text_Btn);
+		panel_btns_droite = this.createPanelInstructionsBtns();
+		this.panel_Instructions_btns_droite.add(panel_btns_droite);
+		panelPrincipal.add(this.panel_Instructions_btns_droite);
 		
 		
-		global.add(this.panelPrincipal);
-		this.add(global);
+		panelContainer.add(this.panelPrincipal);
+		this.add(panelContainer);
 
 		this.setDefaultSize();
 		this.addComponentListener(this);
@@ -131,7 +132,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		// pour que le pack prenne en compte les dimensions du panel
 		//System.out.println(panelPrincipal.getPreferredSize());
 		//this.panelPrincipal.setPreferredSize(panelPrincipal.getPreferredSize());
-		global.revalidate();
+		panelContainer.revalidate();
 		this.revalidate();
 		System.out.println(panelPrincipal.getSize());
 
@@ -190,16 +191,16 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		return this.controleur;
 	}
 
-	public Panel getPanelInstructionsTextBtn() {
-		return this.panel_Instructions_Text_Btn;
+	public Panel getPanel_Instructions_btns_droite() {
+		return this.panel_Instructions_btns_droite;
 	}
 	
 	public JTextField getTextfield_instructions() {
 		return this.textfield_instructions;
 	}
 
-	public Panel getPanel_Quit_Draw_Contrast_btns() {
-		return panel_btns_Quit_Draw_Contrast;
+	public Panel getPanel_btns_gauche() {
+		return panel_btns_gauche;
 	}
 
 	public Panel getPanelPrincipal() {
@@ -221,8 +222,12 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		this.btn_suivant.addActionListener(ctrl);
 	}
 
-	public void setInstructionsTextBtn(Panel instru) {
-		this.panel_Instructions_Text_Btn = instru;
+	public void setpanel_Instructions_btns_droite(Panel instru) {
+		this.panel_Instructions_btns_droite = instru;
+	}
+	
+	public Panel getPanel_bttns_droit() {
+		return panel_btns_droite;
 	}
 
 	public void setDefaultSize() {
