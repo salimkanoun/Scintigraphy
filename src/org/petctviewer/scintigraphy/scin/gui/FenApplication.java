@@ -23,7 +23,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	private static final long serialVersionUID = -6280620624574294247L;
 
 	//Panel d'instruction avec le textfield et boutons precedent et suivant
-	private Panel panel_Instructions_Text_Btn;
+	protected Panel panel_Instructions_Text_Btn;
 	
 	//Panel avec boutons quit, draw roi, contrast
 	private Panel panel_btns_Quit_Draw_Contrast;
@@ -38,7 +38,11 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 	private ControleurScin controleur;
 	
-	private Panel panel;
+	private Panel panelPrincipal;
+	
+	
+		
+
 	private String nom;
 
 
@@ -64,11 +68,10 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		this.imp.setTitle(titre);//imp title
 
 		
-		this.panel = new Panel(new FlowLayout());
-		this.panel.setLayout(new FlowLayout());
+		this.panelPrincipal = new Panel(new FlowLayout());
+		this.panelPrincipal.setLayout(new FlowLayout());
 
-		Panel panelButtons = new Panel();
-		panelButtons.setLayout(new FlowLayout());
+		panelPrincipal.setLayout(new FlowLayout());
 
 		// construit tous les boutons
 		this.btn_contrast = new Button("Contrast");
@@ -84,7 +87,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		panel_btns_Quit_Draw_Contrast.add(this.btn_quitter);
 		panel_btns_Quit_Draw_Contrast.add(this.btn_drawROI);
 		panel_btns_Quit_Draw_Contrast.add(this.btn_contrast);
-		panelButtons.add(panel_btns_Quit_Draw_Contrast);
+		panelPrincipal.add(panel_btns_Quit_Draw_Contrast);
 
 		// Creation du panel instructions
 		this.panel_Instructions_Text_Btn = new Panel();
@@ -96,11 +99,9 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 		Panel panel_Instructions_btns = this.createPanelInstructionsBtns();
 		this.panel_Instructions_Text_Btn.add(panel_Instructions_btns);
-		panelButtons.add(this.panel_Instructions_Text_Btn);
+		panelPrincipal.add(this.panel_Instructions_Text_Btn);
 		
-		this.panel.add(panelButtons);
-
-		add(this.panel);
+		add(this.panelPrincipal);
 
 		this.setDefaultSize();
 		this.addComponentListener(this);
@@ -121,13 +122,11 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		
 		this.getCanvas().setMagnification(magnification);
 		// pour que le pack prenne en compte les dimensions du panel
-		panel.revalidate();
-		this.revalidate();
-		//this.panel.setPreferredSize(panel.getPreferredSize());
+		System.out.println(panelPrincipal.getPreferredSize());
+		this.panelPrincipal.setPreferredSize(panelPrincipal.getPreferredSize());
 		this.pack();
 		
-		//SK PAS SUR QUE CA SERVE A VOIR
-		//this.panel.setPreferredSize(null);
+		this.panelPrincipal.setPreferredSize(null);
 	}
 	
 	//Close la fenetre
@@ -141,7 +140,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 	
 	/************Private Method *********/
-	protected Panel createPanelInstructionsBtns() {
+	public Panel createPanelInstructionsBtns() {
 		Panel btns_instru = new Panel();
 		btns_instru.setLayout(new GridLayout(1, 3));
 		btns_instru.add(this.btn_precedent);
@@ -191,7 +190,10 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		return panel_btns_Quit_Draw_Contrast;
 	}
 
-	
+	public Panel getPanelPrincipal() {
+		return panelPrincipal;
+	}
+
 	/************* Setter *************/
 	public void setControleur(ControleurScin ctrl) {
 		this.controleur = ctrl;
@@ -215,6 +217,12 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		this.setPreferredCanvasSize(512);
 	}
 
+	public void setImp(ImagePlus imp) {
+		this.setImage(imp);
+		this.imp = imp;
+		this.revalidate();
+		this.resizeCanvas();
+	}
 	/**
 	 * redimension de la canvas selon la largeur voulue et aux dimensions de
 	 * l'imageplus affichee
@@ -238,7 +246,6 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 		resizeCanvas();
 	}
-	
 
 	// // affiche l'overlay Droite/Gauche
 	// private void setOverlay() {

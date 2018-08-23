@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.petctviewer.scintigraphy.esophageus.EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
@@ -31,9 +30,9 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	//pour le condensé dynamique
 	ArrayList<Object[]> dicomRoi;
 	
-	public EsophagealTransit esoPlugIn;
+	public FenApplication_EsophagealTransit esoPlugIn;
 	
-	public Modele_EsophagealTransit( ImagePlus [][] sauvegardeImagesSelectDicom, EsophagealTransit esoPlugIn) {
+	public Modele_EsophagealTransit( ImagePlus [][] sauvegardeImagesSelectDicom, FenApplication_EsophagealTransit esoPlugIn) {
 		super(esoPlugIn.getFrameDurations());
 		this.sauvegardeImagesSelectDicom = sauvegardeImagesSelectDicom;
 		
