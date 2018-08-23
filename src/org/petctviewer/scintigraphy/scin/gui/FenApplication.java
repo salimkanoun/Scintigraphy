@@ -135,9 +135,9 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		global.revalidate();
 		this.revalidate();
 		//this.panel.setPreferredSize(panel.getPreferredSize());
+	
 		this.pack();
-		
-		this.panelPrincipal.setPreferredSize(null);
+		this.setSize(this.getPreferredSize());
 	}
 	
 	//Close la fenetre
