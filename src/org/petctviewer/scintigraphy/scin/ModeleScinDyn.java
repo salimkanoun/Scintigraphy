@@ -50,7 +50,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 				this.data.put(name, new ArrayList<Double>());
 			}
 			// on y ajoute le nombre de coups
-			this.data.get(name).add(ModeleScin.getCounts(imp));
+			this.data.get(name).add(StaticMethod.getCounts(imp));
 		}
 	}
 	

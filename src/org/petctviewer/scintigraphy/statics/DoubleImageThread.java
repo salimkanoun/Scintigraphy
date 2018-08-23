@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.statics;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -23,11 +24,11 @@ public class DoubleImageThread extends Thread{
 		ImageStack capture = new ImageStack(200, (int) (200/ratioCapture));
 		System.out.println((int) (300/ratioCapture));
 		
-		capture.addSlice( ModeleScinStatic.captureImage(this.scin.getImp(), 200, (int) (200/ratioCapture) ).getProcessor());
+		capture.addSlice( StaticMethod.captureImage(this.scin.getImp(), 200, (int) (200/ratioCapture) ).getProcessor());
 		capture.setSliceLabel("ant", 1);
 		this.scin.getImp().setSlice(2);
 
-		capture.addSlice( ModeleScinStatic.captureImage(this.scin.getImp(), 200, (int) (200/ratioCapture) ).getProcessor());
+		capture.addSlice( StaticMethod.captureImage(this.scin.getImp(), 200, (int) (200/ratioCapture) ).getProcessor());
 		capture.setSliceLabel("post", 2);
 		
 		impRes.setStack(capture);

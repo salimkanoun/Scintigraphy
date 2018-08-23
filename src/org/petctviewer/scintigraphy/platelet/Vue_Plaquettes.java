@@ -19,8 +19,8 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.ImagePlus;
@@ -74,7 +74,7 @@ public class Vue_Plaquettes extends Scintigraphy {
 		ImagePlus[] seriesTriee = Scintigraphy.orderImagesByAcquisitionTime(series);
 
 		// On recupere la date et le jour de la 1ere image
-		this.dateHeureDebut=ModeleScin.getDateAcquisition(seriesTriee[0]);
+		this.dateHeureDebut=StaticMethod.getDateAcquisition(seriesTriee[0]);
 
 		Concatenator enchainer = new Concatenator();
 		// enchaine les images

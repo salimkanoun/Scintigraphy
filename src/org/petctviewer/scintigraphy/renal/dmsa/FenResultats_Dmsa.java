@@ -11,8 +11,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
@@ -37,8 +37,8 @@ public class FenResultats_Dmsa extends JFrame{
 		Double pctR = modele.getPct()[1] * 100;
 		JPanel flow = new JPanel();
 
-		JLabel lbl_dmsaL = new JLabel("" + ModeleScin.round(pctL, 1) + "%");
-		JLabel lbl_dmsaR = new JLabel("" + ModeleScin.round(pctR, 1) + "%");
+		JLabel lbl_dmsaL = new JLabel("" + StaticMethod.round(pctL, 1) + "%");
+		JLabel lbl_dmsaR = new JLabel("" + StaticMethod.round(pctR, 1) + "%");
 		
 		if(pctL > 55 | pctL < 45) {
 			lbl_dmsaL.setForeground(Color.RED);

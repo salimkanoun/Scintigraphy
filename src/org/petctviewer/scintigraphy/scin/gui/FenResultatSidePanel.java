@@ -19,6 +19,7 @@ import javax.swing.border.EmptyBorder;
 
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 
 public abstract class FenResultatSidePanel extends JFrame {
 
@@ -69,7 +70,7 @@ public abstract class FenResultatSidePanel extends JFrame {
 		this.side.add(flow);
 
 		// ajout des informations du patient
-		HashMap<String, String> infoPatient = ModeleScin.getPatientInfo(scin.getImp());
+		HashMap<String, String> infoPatient = StaticMethod.getPatientInfo(scin.getImp());
 		JPanel patientInfo = new JPanel(new GridLayout(3, 2, 10, 10));
 		patientInfo.add(new JLabel("Patient name: "));
 		patientInfo.add(new JLabel(infoPatient.get("name")));

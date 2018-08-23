@@ -8,8 +8,8 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -106,7 +106,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		String[][] asso = fenGroup.getAssociation();
 
 		if (vue.getImpAnt() != null) {
-			capture = ModeleScin.captureImage(imp, 300, 300).getBufferedImage();
+			capture = StaticMethod.captureImage(imp, 300, 300).getBufferedImage();
 			ModeleScinDyn modele = saveValues(vue.getImpAnt());
 			new FenResultat_GeneralDyn(vue, capture, modele, asso, "Ant");
 		}
@@ -132,7 +132,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 						e.printStackTrace();
 					}
 
-					BufferedImage c = ModeleScin.captureImage(imp, 300, 300).getBufferedImage();
+					BufferedImage c = StaticMethod.captureImage(imp, 300, 300).getBufferedImage();
 
 					ModeleScinDyn modele = saveValues(vue.getImpPost());
 					new FenResultat_GeneralDyn(vue, c, modele, asso, "Post");
@@ -209,7 +209,6 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	@Override
 	public boolean saveCurrentRoi(String nomRoi, int indexRoi) {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
-			System.out.println("Save Roi Index : "+indexRoi);
 			// on change la couleur pour l'overlay
 			this.scin.getImp().getRoi().setStrokeColor(Color.YELLOW);
 			// on enregistre la ROI dans le modele

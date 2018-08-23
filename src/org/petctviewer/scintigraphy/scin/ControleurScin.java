@@ -167,7 +167,6 @@ public abstract class ControleurScin implements ActionListener {
 		//Si boutton suivant desactive car on est arrive a la fin du programme, on le reactive quand on a clique sur precedent
 		if( !scin.getFenApplication().getBtn_suivant().isEnabled() ) scin.getFenApplication().getBtn_suivant().setEnabled(true);
 		// sauvegarde du ROI courant
-		System.out.println("clickPrecedent"+ this.indexRoi);
 
 		// on decrement indexRoi
 		if (this.indexRoi > 0) {
@@ -231,7 +230,6 @@ public abstract class ControleurScin implements ActionListener {
 	 */
 	public boolean saveCurrentRoi(String nomRoi, int indexRoi) {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
-			System.out.println("Save Roi Index : "+indexRoi);
 			// on change la couleur pour l'overlay
 			this.scin.getImp().getRoi().setStrokeColor(Color.YELLOW);
 			// on enregistre la ROI dans le modele
@@ -476,7 +474,6 @@ public abstract class ControleurScin implements ActionListener {
 		imp.killRoi();
 
 		// change la slice courante
-		System.out.println("Ici SetSlice"+indexSlice);
 		this.scin.getImp().setSlice(indexSlice);
 
 		// ajout des roi dans l'overlay

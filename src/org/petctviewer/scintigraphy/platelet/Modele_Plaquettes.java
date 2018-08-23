@@ -39,6 +39,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -60,7 +61,7 @@ public class Modele_Plaquettes extends ModeleScin {
 
 	@Override
 	public void enregistrerMesure(String roi, ImagePlus imp) {
-		Date dateAcquisition = ModeleScin.getDateAcquisition(imp);
+		Date dateAcquisition = StaticMethod.getDateAcquisition(imp);
 
 		// Recupere la somme des coups dans la ROI (integrated Density) et la valeur
 		// moyenne de la Roi (mean)

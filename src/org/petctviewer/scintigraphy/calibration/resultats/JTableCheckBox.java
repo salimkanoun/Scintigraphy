@@ -43,7 +43,6 @@ public class JTableCheckBox extends JPanel {
 				ch.addItemListener(new ItemListener() {
 					@Override
 					public void itemStateChanged(ItemEvent e) {
-						//System.out.println("Action listener "+((JCheckBox)e.getSource()).getName());
 
 						int posX = Integer.parseInt(((JCheckBox)e.getSource()).getName().split("\\|")[0]);
 						int posY = Integer.parseInt(((JCheckBox)e.getSource()).getName().split("\\|")[1]);
@@ -63,7 +62,6 @@ public class JTableCheckBox extends JPanel {
 						}else {
 							JTableCheckBox.this.checkboxHeadRows[posX].setSelected(false);
 						}
-						//System.out.println("   testLigne :"+testLigne);
 						
 						
 						
@@ -81,7 +79,6 @@ public class JTableCheckBox extends JPanel {
 						}else {
 							JTableCheckBox.this.checkboxHeadCols[posY].setSelected(false);
 						}
-						//System.out.println("   testColonne :"+testColonne);
 						
 					}
 				});
@@ -127,7 +124,6 @@ public class JTableCheckBox extends JPanel {
 						for(int j =0; j< checkboxHeadRows.length;j++) {
 							if(checkboxHeadRows[j].equals(e.getSource())) {
 								setStateCheckboxHeadRows(j,true);
-								System.out.println("lalalall : "+j);
 							}
 						}*/
 					}else{ 

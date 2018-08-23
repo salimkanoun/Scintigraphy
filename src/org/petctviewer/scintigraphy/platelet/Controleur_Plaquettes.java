@@ -17,7 +17,8 @@ package org.petctviewer.scintigraphy.platelet;
 import javax.swing.JTable;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
+
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
@@ -65,7 +66,7 @@ public class Controleur_Plaquettes extends ControleurScin {
 		captureThread.start();
 		
 		
-		ImagePlus capture = ModeleScin.captureImage(this.getScin().getImp(), 512, 512);
+		ImagePlus capture = StaticMethod.captureImage(this.getScin().getImp(), 512, 512);
 		// On resize le canvas pour etre a la meme taille que les courbes
 		ImageProcessor ip = capture.getProcessor();
 		CanvasResizer canvas = new CanvasResizer();

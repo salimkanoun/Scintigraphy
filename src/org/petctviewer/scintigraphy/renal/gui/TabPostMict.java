@@ -19,9 +19,8 @@ import javax.swing.JPanel;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
 import org.petctviewer.scintigraphy.renal.postMictional.CustomControleur;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.PanelResultatImp;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
@@ -81,12 +80,7 @@ class TabPostMict extends PanelResultatImp implements ActionListener, CustomCont
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getSource() == this.btn_addImp) {
-			
-			System.out.println("clic bouton : clic  bouton add imp");
-
-			//FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", scin)
-			
-			
+						
 			// Assez sale
 			FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", new Scintigraphy("") {
 				@Override
@@ -117,8 +111,6 @@ class TabPostMict extends PanelResultatImp implements ActionListener, CustomCont
 			
 			
 			
-		}else {
-			System.out.println("erreur !!!!!");
 		}
 	}
 
@@ -144,7 +136,6 @@ class TabPostMict extends PanelResultatImp implements ActionListener, CustomCont
 	}
 
 	public void fin() {
-		System.out.println("method fin");
 		Modele_Renal modele = (Modele_Renal) getVue().getFenApplication().getControleur().getModele();
 
 		HashMap<String, Double> data = this.vueBasic.getData();
@@ -170,7 +161,7 @@ class TabPostMict extends PanelResultatImp implements ActionListener, CustomCont
 		if (bladder) {
 			Double bld = data.get("Bladder P0");
 			bld /= (duration / 1000);
-			this.panel_bladder.add(new JLabel("Bladder : " + ModeleScinDyn.round(modele.getExcrBladder(bld), 2) + " %"));
+			this.panel_bladder.add(new JLabel("Bladder : " + StaticMethod.round(modele.getExcrBladder(bld), 2) + " %"));
 		}
 
 		this.remove(this.sidePanel);
@@ -217,7 +208,7 @@ class TabPostMict extends PanelResultatImp implements ActionListener, CustomCont
 		// elements du tableau
 		JLabel[] lbls = new JLabel[] { new JLabel("L"), new JLabel("R"), new JLabel("Max"),
 				new JLabel("" + naIfNull(excr[0][0])), new JLabel("" + naIfNull(excr[1][0])),
-				new JLabel("" + ModeleScin.round(modele.getAdjustedValues().get("lasilix") - 1, 1) + " min"),
+				new JLabel("" + StaticMethod.round(modele.getAdjustedValues().get("lasilix") - 1, 1) + " min"),
 				new JLabel("" + naIfNull(excr[0][1])), new JLabel("" + naIfNull(excr[1][1])), };
 
 		// panel excr

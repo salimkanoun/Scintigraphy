@@ -2,8 +2,9 @@ package org.petctviewer.scintigraphy.hepatic.statique;
 
 import java.awt.image.BufferedImage;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
+
 import ij.gui.Roi;
 
 public class Controleur_Hepatic extends ControleurScin {
@@ -45,7 +46,7 @@ public class Controleur_Hepatic extends ControleurScin {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				BufferedImage capture = ModeleScin.captureImage(getScin().getImp(), 400, 400).getBufferedImage();
+				BufferedImage capture = StaticMethod.captureImage(getScin().getImp(), 400, 400).getBufferedImage();
 				new FenResultat_Hepatic(getScin(), capture);
 				getScin().getFenApplication().dispose();
 			}

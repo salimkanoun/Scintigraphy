@@ -24,8 +24,8 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.calibration.resultats.JTableCheckBox;
 import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 @SuppressWarnings("serial")
@@ -71,7 +71,6 @@ public class TabCurves extends JPanel{
 		for(int i =0; i< datasetModele.length; i++) {
 			titleRows[i] = "Acqui "+(i+1);
 			for(int j =0; j<datasetModele[i].length; j++) {
-				//System.out.println("i: "+i+" j: "+j);
 				dataset.addSeries(datasetModele[i][j]);
 			}
 		}
@@ -111,7 +110,7 @@ public class TabCurves extends JPanel{
 	    longeurEsophageResultPanel.add(new JLabel("Esophageal height"));
 		double[] longueurEsophage = modele.calculLongeurEsophage();
 		for(int i =0 ; i< longueurEsophage.length; i++) {
-			longeurEsophageResultPanel.add(new JLabel("Acquisition "+(i+1)+" : "+(ModeleScin.round(longueurEsophage[i],2)) +" cm"));
+			longeurEsophageResultPanel.add(new JLabel("Acquisition "+(i+1)+" : "+(StaticMethod.round(longueurEsophage[i],2)) +" cm"));
 		}
 	  
 		JPanel longueurEsophageResultPanelFlow = new JPanel();

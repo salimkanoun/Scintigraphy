@@ -39,8 +39,8 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -555,7 +555,7 @@ public class FenApplication_FollowUp extends JFrame{
 				BufferedImage capture = new BufferedImage(root.getWidth(), root.getHeight(),BufferedImage.TYPE_INT_ARGB);
 				root.paint(capture.getGraphics());	
 				ImagePlus imp = new ImagePlus("capture", capture);
-				String partie2=ModeleScin.genererDicomTagsPartie2(imp);
+				String partie2=StaticMethod.genererDicomTagsPartie2(imp);
 				imp.setProperty("Info", partie1+partie2);
 				imp.show();
 				imp.getWindow().toFront();

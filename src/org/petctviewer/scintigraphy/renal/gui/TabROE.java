@@ -22,9 +22,9 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 class TabROE extends JPanel implements ActionListener{
@@ -103,7 +103,7 @@ class TabROE extends JPanel implements ActionListener{
 
 		Double[] mins = new Double[10];
 		for (int i = 0; i < mins.length; i++) {
-			mins[i] = ModeleScin.round((modele.getSerie("Blood Pool").getMaxX() / (mins.length * 1.0)) * i + 1, 1);
+			mins[i] = StaticMethod.round((modele.getSerie("Blood Pool").getMaxX() / (mins.length * 1.0)) * i + 1, 1);
 		}
 
 		// panel roe

@@ -5,7 +5,6 @@ import java.awt.Color;
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenApplicationDyn;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -95,7 +94,7 @@ public class RenalScintigraphy extends Scintigraphy {
 			Scintigraphy.setOverlayTitle("Ant", overlay, impProjetee, Color.yellow, 4);
 		}
 
-		this.setFenApplication(new FenApplicationDyn(this.getImp(), this.getExamType(), this));
+		this.setFenApplication(new FenApplication_Renal(this.getImp(), this.getExamType(), this));
 		this.getImp().setOverlay(overlay);
 		this.getFenApplication().setControleur(new Controleur_Renal(this));
 	}

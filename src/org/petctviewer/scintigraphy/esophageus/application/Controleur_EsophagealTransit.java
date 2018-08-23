@@ -44,8 +44,6 @@ public class Controleur_EsophagealTransit  extends ControleurScin {
 
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
-		System.out.println("lastRoi called"+lastRoi);
-		System.out.println("Roi Manager Lenght"+roiManager.getRoisAsArray().length);
 		
 		if (indexRoi > 0 && lastRoi < this.indexRoi) {
 			return roiManager.getRoi(lastRoi);

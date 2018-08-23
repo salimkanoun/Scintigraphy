@@ -16,8 +16,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.IJ;
@@ -122,7 +122,7 @@ public class FenApplication_EsophagealTransit extends Scintigraphy {
 			//orderby ... renvoi un tableau d'imp trie par ordre chrono, avec en paramètre la liste des imp Ant
 			//captureTo.. renvoi un stack avec sur chaque slice une imp du tableau passé en param ( un image trié, projeté et ant)
 			//ImagePlus[] tabProj = Scintigraphy.orderImagesByAcquisitionTime(imagesAnt);
-			impProjeteAllAcqui = new ImagePlus("EsoStack",ModeleScin.captureToStack(Scintigraphy.orderImagesByAcquisitionTime(imagesAnt)));
+			impProjeteAllAcqui = new ImagePlus("EsoStack",StaticMethod.captureToStack(Scintigraphy.orderImagesByAcquisitionTime(imagesAnt)));
 			//SK VOIR METHODE POUR GARDER LES METADATA ORIGINALE DANS LE STACK GENEREs
 			impProjeteAllAcqui.setProperty("Info", sauvegardeImagesSelectDicom[0][0].getInfoProperty());
 		}
@@ -158,7 +158,6 @@ public class FenApplication_EsophagealTransit extends Scintigraphy {
 	    	radioButton[i].addItemListener(new ItemListener() {
 				@Override
 				public void itemStateChanged(ItemEvent e) {
-					System.out.println("numacqui"+num);
 					fen.setImp(sauvegardeImagesSelectDicom[0][num]);
 				}
 			});

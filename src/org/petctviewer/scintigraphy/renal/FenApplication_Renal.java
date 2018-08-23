@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin.gui;
+package org.petctviewer.scintigraphy.renal;
 
 import java.awt.Button;
 import java.awt.Color;
@@ -12,17 +12,16 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.renal.Controleur_Renal;
-import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Overlay;
 import ij.gui.Toolbar;
 
-public class FenApplicationDyn extends FenApplication implements ActionListener {
+public class FenApplication_Renal extends FenApplication implements ActionListener {
 
 	/**
 	 * 
@@ -33,7 +32,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 	private ImagePlus impProj;
 	private Button btn_dyn, btn_start;
 
-	public FenApplicationDyn(ImagePlus imp, String nom, RenalScintigraphy vue) {
+	public FenApplication_Renal(ImagePlus imp, String nom, RenalScintigraphy vue) {
 		super(imp, nom);
 		this.vue = vue;
 		this.impProj = imp.duplicate();
@@ -44,13 +43,14 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 
 		this.getPanelInstructionsTextBtn().remove(1);
 		// mise en place des boutons
-		Panel btns_instru = new Panel();
-		btns_instru.setLayout(new GridLayout(1, 2));
+		
+//		Panel btns_instru = new Panel();
+//		btns_instru.setLayout(new GridLayout(1, 2));
 		btn_start = new Button("Start");
 		btn_start.addActionListener(this);
-		btns_instru.add(btn_start);
-		this.getPanelInstructionsTextBtn().add(btns_instru);
-
+//		btns_instru.add(btn_start);
+//		this.getPanelInstructionsTextBtn().add(btns_instru);
+		this.getPanelInstructionsTextBtn().add(btn_start);
 		this.getBtn_drawROI().setEnabled(false);
 		
 		this.setDefaultSize();
@@ -162,7 +162,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 			radio.add(btn_lr);
 			this.add(radio);
 
-			this.setLocationRelativeTo(FenApplicationDyn.this);
+			this.setLocationRelativeTo(FenApplication_Renal.this);
 
 			this.pack();
 		}

@@ -12,6 +12,7 @@ import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -94,12 +95,11 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 			double ycalc = ModeleScinDyn.getInterpolatedY(serie, x+10);
 			double fractionDecrease = (ycalc/ymax)*100;
 			
-			ymax = ModeleScin.round(ymax, 2);
-			x = ModeleScin.round(x, 2);
-			ycalc = ModeleScin.round(ycalc, 2);
-			fractionDecrease = ModeleScin.round(fractionDecrease, 2);
+			ymax = StaticMethod.round(ymax, 2);
+			x = StaticMethod.round(x, 2);
+			ycalc = StaticMethod.round(ycalc, 2);
+			fractionDecrease = StaticMethod.round(fractionDecrease, 2);
 			
-			System.out.println("i:"+i+" ymax: "+ ymax+" x:"+x+"  interpol: "+ycalc+" %:"+fractionDecrease);
 			res[i] = fractionDecrease;
 		}
 		return res;
@@ -134,9 +134,9 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 		double ycalc = ModeleScinDyn.getInterpolatedY(serie, xForYMax+10);
 		double fractionDecrease = (ycalc/ymax)*100;
 		
-		xForYMax = ModeleScin.round(xForYMax, 2);
-		ycalc = ModeleScin.round(ycalc, 2);
-		fractionDecrease = ModeleScin.round(fractionDecrease, 2);
+		xForYMax = StaticMethod.round(xForYMax, 2);
+		ycalc = StaticMethod.round(ycalc, 2);
+		fractionDecrease = StaticMethod.round(fractionDecrease, 2);
 		
 		return fractionDecrease;
 	}
@@ -177,8 +177,6 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 	}*/
 	
 	private XYSeries listToXYSeries(List<Double> data, List<Double> time, String title) {
-		//System.out.println("data size: "+data.size());
-		//System.out.println("temps size: "+time.size());
 
 		if(data.size() != time.size()) {
 			System.err.println("erreur : nombre de data !=  du nombre de temps");

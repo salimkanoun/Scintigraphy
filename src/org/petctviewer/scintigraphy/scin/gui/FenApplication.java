@@ -10,6 +10,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 
@@ -58,7 +59,13 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	 */
 	public FenApplication(ImagePlus imp, String nom) {
 		super(imp, new ImageCanvas(imp));
-
+/*
+		try {
+		    UIManager.setLookAndFeel( UIManager.getCrossPlatformLookAndFeelClassName() );
+		 } catch (Exception e) {
+		            e.printStackTrace();
+		 }
+*/	 
 		this.nom = nom;
 		
 		String tagSerie = DicomTools.getTag(this.imp, "0008,103E");
@@ -104,6 +111,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 		this.setDefaultSize();
 		this.addComponentListener(this);
+		
 	}
 
 	public void resizeCanvas() {
@@ -125,6 +133,8 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		//this.panelPrincipal.setPreferredSize(panelPrincipal.getPreferredSize());
 		global.revalidate();
 		this.revalidate();
+		System.out.println(panelPrincipal.getSize());
+
 		//this.panel.setPreferredSize(panel.getPreferredSize());
 	
 		this.pack();

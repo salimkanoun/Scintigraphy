@@ -22,8 +22,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
 
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -455,7 +455,7 @@ public class Controleur_VG_Dynamique implements ActionListener {
 				index_Instru++;
 				laVue.setInstructions(listeInstructions[index_Instru]);
 				laVue.lesBoutons.get("Suivant").setEnabled(false);
-				ModeleScin.exportRoiManager(laVue.leRoi, laVue.nomProgramme, laVue.windowstack.getImagePlus());
+				StaticMethod.exportRoiManager(laVue.leRoi, laVue.nomProgramme, laVue.windowstack.getImagePlus());
 				laVue.windowstack.close();
 				laVue.leRoi.close();
 				IJ.runMacro("run(\"Gastric Emptying software\"," + "\"" + resultat + "\"" + ");");

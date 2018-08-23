@@ -107,7 +107,6 @@ public class ControleurScinStatic extends ControleurScin{
 	@Override
 	public boolean saveCurrentRoi(String nomRoi, int indexRoi) {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
-			System.out.println("Save Roi Index : "+indexRoi);
 			// on change la couleur pour l'overlay
 			this.scin.getImp().getRoi().setStrokeColor(Color.YELLOW);
 			// on enregistre la ROI dans le modele

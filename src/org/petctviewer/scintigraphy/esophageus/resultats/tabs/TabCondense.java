@@ -168,10 +168,6 @@ public class TabCondense extends JPanel implements ChangeListener{
 					imageCondensePanel.setImage(modele.getCondense(numAcquisitionCondense).getBufferedImage());
 					
 					contrastValue[numAcquisitionCondense] = ((JSlider)e.getSource()).getValue();
-					
-					System.out.println("contrast sloder max :"+contrastSlider.getModel().getMaximum());
-					System.out.println("contrast value :"+contrastValue[numAcquisitionCondense]);
-					
 				}
 			}
 		});
@@ -244,10 +240,6 @@ public class TabCondense extends JPanel implements ChangeListener{
 					this.leftRognageValue[numAcquisitionCondense] = (int)spinner.getValue();
 					
 				}
-				
-				System.out.println("contrast sloder max :"+contrastSlider.getModel().getMaximum());
-				System.out.println("contrast value :"+contrastValue[numAcquisitionCondense]);
-				
 				 
 				 this.modele.calculImagePlusAndRoi(numAcquisitionCondense);
 				 modele.getImagePlusAndRoi(numAcquisitionCondense).getProcessor().setMinAndMax(0, (contrastSlider.getModel().getMaximum() - contrastValue[numAcquisitionCondense])+1);

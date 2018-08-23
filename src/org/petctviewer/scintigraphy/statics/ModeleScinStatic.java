@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.statics;
 import java.util.HashMap;
 
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
 
 import ij.ImagePlus;
 
@@ -27,9 +28,9 @@ public class ModeleScinStatic  extends ModeleScin{
 			nomRoi = nomRoi.substring(0,nomRoi.lastIndexOf(" "));
 			// si la roi n'existe pas, on la crée 
 			if(this.roisAnt.get(nomRoi)==null) {
-				Object[] o = { 	ModeleScin.round(ModeleScin.getCounts(imp),3),
-						ModeleScin.round(imp.getRoi().getStatistics().mean,3),
-						ModeleScin.round(imp.getRoi().getStatistics().stdDev,3)};
+				Object[] o = { 	StaticMethod.round(StaticMethod.getCounts(imp),3),
+						StaticMethod.round(imp.getRoi().getStatistics().mean,3),
+						StaticMethod.round(imp.getRoi().getStatistics().stdDev,3)};
 				this.roisAnt.put(nomRoi,o);
 			}
 			
@@ -40,9 +41,9 @@ public class ModeleScinStatic  extends ModeleScin{
 		nomRoi = nomRoi.substring(0,nomRoi.lastIndexOf(" "));
 		// si la roi n'existe pas, on la crée 
 		if(this.roisPost.get(nomRoi)==null) {
-			Object[] o = { 	ModeleScin.round(ModeleScin.getCounts(imp),3),
-							ModeleScin.round(imp.getRoi().getStatistics().mean,3),
-							ModeleScin.round(imp.getRoi().getStatistics().stdDev,3)};
+			Object[] o = { 	StaticMethod.round(StaticMethod.getCounts(imp),3),
+							StaticMethod.round(imp.getRoi().getStatistics().mean,3),
+							StaticMethod.round(imp.getRoi().getStatistics().stdDev,3)};
 			this.roisPost.put(nomRoi,o);
 		}
 		
@@ -90,7 +91,7 @@ public class ModeleScinStatic  extends ModeleScin{
 		int i =0;
 		for(String s: this.roisPost.keySet()) {
 			res[i][0] = s;
-			res[i][1] = ModeleScin.round(ModeleScin.moyGeom((Double)this.roisAnt.get(s)[0],(Double)this.roisPost.get(s)[0] ),3);
+			res[i][1] = StaticMethod.round(StaticMethod.moyGeom((Double)this.roisAnt.get(s)[0],(Double)this.roisPost.get(s)[0] ),3);
 			i++;
 		}
 		return res;
@@ -102,7 +103,7 @@ public class ModeleScinStatic  extends ModeleScin{
 				for(String s: this.roisAnt.keySet()) {
 					res+= s+", "+roisAnt.get(s)[0]+","+roisAnt.get(s)[1]+","+roisAnt.get(s)[2]+","
 							+roisPost.get(s)[0]+","+roisPost.get(s)[1]+","+roisPost.get(s)[2]+","
-							+ModeleScin.round(ModeleScin.moyGeom((Double)this.roisAnt.get(s)[0],(Double)this.roisPost.get(s)[0] ),3)
+							+StaticMethod.round(StaticMethod.moyGeom((Double)this.roisAnt.get(s)[0],(Double)this.roisPost.get(s)[0] ),3)
 							+"\n";
 				}
 				//round 

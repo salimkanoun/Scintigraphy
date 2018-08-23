@@ -1089,7 +1089,7 @@ public abstract class Scintigraphy implements PlugIn {
 
 		// generation du tag info
 		String info = modele.genererDicomTagsPartie1SameUID(this.getImp(), this.getExamType())
-				+ ModeleScin.genererDicomTagsPartie2(this.getImp());
+				+ StaticMethod.genererDicomTagsPartie2(this.getImp());
 
 		// on ajoute le listener sur le bouton capture
 		btn_capture.addActionListener(new ActionListener() {
@@ -1141,7 +1141,7 @@ public abstract class Scintigraphy implements PlugIn {
 						String resultats = modele.toString();
 
 						try {
-							ModeleScin.exportAll(resultats, getFenApplication().getControleur().getRoiManager(),
+							StaticMethod.exportAll(resultats, getFenApplication().getControleur().getRoiManager(),
 									examType, imp, additionalInfo);
 
 							getFenApplication().getControleur().getRoiManager().close();

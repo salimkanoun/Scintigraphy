@@ -4,8 +4,9 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.StaticMethod;
+
 import ij.gui.Overlay;
 import ij.gui.Roi;
 
@@ -43,7 +44,7 @@ public class Controleur_Dmsa extends ControleurScin {
 	public void fin() {
 		this.over = true;
 		
-		BufferedImage capture = ModeleScin.captureImage(getScin().getImp(), 400, 400).getBufferedImage();
+		BufferedImage capture = StaticMethod.captureImage(getScin().getImp(), 400, 400).getBufferedImage();
 		
 		if(this.antPost) {
 			this.setSlice(1);
