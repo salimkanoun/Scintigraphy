@@ -65,8 +65,8 @@ public abstract class ControleurScin implements ActionListener {
 		}
 		this.overlay = Library_Gui.duplicateOverlay(scin.getImp().getOverlay());
 
-		//SK BOOLEAN FALSE POUR MASQUER, A METTRE TRUE POUR DEVELOPPEMENT
-		this.roiManager = new RoiManager(false);
+		//SK BOOLEAN FALSE POUR MASQUER, ne rien mettre POUR DEVELOPPEMENT
+		this.roiManager = new RoiManager();
 
 		//this.addImageListener
 		this.ctrlImg = new ControleurImp(this);
@@ -242,6 +242,7 @@ public abstract class ControleurScin implements ActionListener {
 			// pour eviter les doublons
 			if (this.roiManager.getRoi(indexRoi) == null) {
 				//On utilise le macro car probleme d'ajout ROI identique sinon // pas toucher
+				//SK VOIR AVEC IMAGEJ PEUT PAS AJOUTER SI ROI MANAGER INVISIBLE
 				IJ.runMacro("roiManager(\"Add\");");
 			} else { // Si il existe on l'ecrase
 				this.roiManager.setRoi(this.scin.getImp().getRoi(), indexRoi);
@@ -251,8 +252,7 @@ public abstract class ControleurScin implements ActionListener {
 
 			// precise la postion en z
 			this.roiManager.
-			getRoi(indexRoi).
-			setPosition(this.getSliceNumberByRoiIndex(indexRoi));
+			getRoi(indexRoi).setPosition(this.getSliceNumberByRoiIndex(indexRoi));
 
 			// changement de nom
 			this.roiManager.rename(indexRoi, nomRoi);
