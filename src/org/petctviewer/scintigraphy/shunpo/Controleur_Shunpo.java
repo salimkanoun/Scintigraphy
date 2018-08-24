@@ -21,8 +21,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 
-import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -77,7 +77,7 @@ public class Controleur_Shunpo implements ActionListener {
 				String tag = DicomTools.getTag(this.laVue.win.getImagePlus(), "0010,0010");
 				this.leModele.setPatient(tag,this.laVue.win.getImagePlus());
 				
-				this.tagCapture = ModeleScin.genererDicomTagsPartie1(this.laVue.win.getImagePlus(), this.nomProgramme);
+				this.tagCapture = Library_Capture_CSV.genererDicomTagsPartie1(this.laVue.win.getImagePlus(), this.nomProgramme);
 				
 				//On verifie que la ROI suivante n'est pas deja pr茅sente dans le ROI manager(cas d'un retour) auquel cas on l'affiche
 				if (this.laVue.leRoi.getRoi((this.index))!= null) {
@@ -136,7 +136,7 @@ public class Controleur_Shunpo implements ActionListener {
 				this.leModele.calculerCoups("BDFP",this.laVue.win.getImagePlus());
 				this.laVue.win.getImagePlus().killRoi();
 				//On prend la capture
-				this.capture[0]=ModeleScin.captureImage(this.laVue.win.getImagePlus(),512,512);
+				this.capture[0]=Library_Capture_CSV.captureImage(this.laVue.win.getImagePlus(),512,512);
 				//On efface l'overlay pour repartir 脿 zero
 				this.laVue.overlay.clear();
 				//On remet le Droit Gauche
@@ -146,7 +146,7 @@ public class Controleur_Shunpo implements ActionListener {
 				this.laVue.win.getImagePlus().setRoi((Roi) this.laVue.leRoi.getRoi(0));
 				this.laVue.win.showSlice(1);
 				this.etat = this.etat.next() ;
-				Scintigraphy.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
+				Library_Gui.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
 				//On verifie que la ROI suivante n'est pas deja pr茅sente dans le ROI manager(cas d'un retour) auquel cas on l'affiche
 				if (this.laVue.leRoi.getRoi((this.index))!= null) {
 					this.laVue.leRoi.select(this.index);
@@ -211,7 +211,7 @@ public class Controleur_Shunpo implements ActionListener {
 				//On ne peut plus revenir en arriere
 				this.laVue.lesBoutons.get("Precedent").setEnabled(false);
 				//On prend la capture
-				this.capture[1]=ModeleScin.captureImage(this.laVue.win.getImagePlus(),512,512);
+				this.capture[1]=Library_Capture_CSV.captureImage(this.laVue.win.getImagePlus(),512,512);
 				//On efface l'overlay pour repartir 脿 zero dans l'overlay
 				this.laVue.overlay.clear();
 				this.laVue.win.getImagePlus().killRoi();
@@ -234,12 +234,12 @@ public class Controleur_Shunpo implements ActionListener {
 				this.laVue.overlay.add(this.laVue.leRoi.getRoi(10));
 				//FIN A DEBEUGER SALIM
 				this.laVue.win.getImagePlus().setOverlay(this.laVue.overlay);
-				this.capture[2]=ModeleScin.captureImage(this.laVue.win.getImagePlus(),512,512);
+				this.capture[2]=Library_Capture_CSV.captureImage(this.laVue.win.getImagePlus(),512,512);
 				this.etat = this.etat.next() ;
 				this.laVue.overlay.clear();
 				this.laVue.win.getImagePlus().setRoi((Roi) this.laVue.leRoi.getRoi(10));
 				this.laVue.win.showSlice(1);
-				Scintigraphy.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
+				Library_Gui.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
 				this.laVue.win.getImagePlus().setOverlay(this.laVue.overlay);
 				this.laVue.setInstructions(this.listeInstructions[this.index]);
 				break;
@@ -247,13 +247,13 @@ public class Controleur_Shunpo implements ActionListener {
 				addRoi("Brain Ant");
 				this.leModele.calculerCoups("CA",this.laVue.win.getImagePlus());
 				this.laVue.overlay.add(this.laVue.leRoi.getRoi(12));
-				this.capture[3]=ModeleScin.captureImage(this.laVue.win.getImagePlus(),512,512);
+				this.capture[3]=Library_Capture_CSV.captureImage(this.laVue.win.getImagePlus(),512,512);
 				this.laVue.win.getImagePlus().deleteRoi();
 				this.laVue.overlay.clear();
 				String[] resultats = this.leModele.resultats();
 				this.laVue.labelsResultats(resultats) ;
 				//On passe les capture en stack
-				ImageStack stackCapture=ModeleScin.captureToStack(this.capture);
+				ImageStack stackCapture=Library_Capture_CSV.captureToStack(this.capture);
 				//on fait le montage du stack et on g茅n猫re l'interface resultat
 				this.laVue.UIResultats(this.leModele.montage(stackCapture, this.nomProgramme));
 				this.laVue.win.close();
@@ -263,11 +263,11 @@ public class Controleur_Shunpo implements ActionListener {
 		if (b == this.laVue.lesBoutons.get("Capture")){
 				this.laVue.lesBoutons.get("Capture").setVisible(false);
 				this.laVue.Csv.setText("Provided By Petctviewer.org");
-				ImagePlus captureFinale =ModeleScin.captureFenetre(WindowManager.getCurrentImage(),0,0);
+				ImagePlus captureFinale =Library_Capture_CSV.captureFenetre(WindowManager.getCurrentImage(),0,0);
 				WindowManager.getCurrentWindow().getImagePlus().changes=false;
 				WindowManager.getCurrentWindow().close();
 				//On genere la 2eme partie des tag dicom et on l'ajoute 脿 la 1ere partie dans le property de l'image finale
-				captureFinale.setProperty("Info", this.tagCapture+=(ModeleScin.genererDicomTagsPartie2(captureFinale)));
+				captureFinale.setProperty("Info", this.tagCapture+=(Library_Capture_CSV.genererDicomTagsPartie2(captureFinale)));
 				//On affiche et on agrandie la fenetre de la capture finale
 				captureFinale.show();
 				captureFinale.getCanvas().setScaleToFit(true);
@@ -276,7 +276,7 @@ public class Controleur_Shunpo implements ActionListener {
 				//On sauve les resultats en CSV et ZIP
 				try {
 					String[] resultatscsv= this.leModele.buildCSVResultats();
-					ModeleScin.exportAll(resultatscsv,2,this.laVue.leRoi, this.nomProgramme,captureFinale);
+					Library_Capture_CSV.exportAll(resultatscsv,2,this.laVue.leRoi, this.nomProgramme,captureFinale);
 					} catch (FileNotFoundException e) {}
 				//On fait la capture finale
 				captureFinale.getWindow().toFront();
@@ -307,7 +307,7 @@ public class Controleur_Shunpo implements ActionListener {
 			case BDF:
 				retour();
 				this.laVue.overlay.clear();
-				Scintigraphy.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
+				Library_Gui.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
 				break;
 				
 			case PoumonD_Ant:
@@ -330,7 +330,7 @@ public class Controleur_Shunpo implements ActionListener {
 			case Poumon_valide:
 				retour();
 				this.laVue.overlay.clear();
-				Scintigraphy.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
+				Library_Gui.setOverlayDG(this.laVue.overlay, this.laVue.win.getImagePlus());
 				break;
 				
 			case Cerveau_Post:

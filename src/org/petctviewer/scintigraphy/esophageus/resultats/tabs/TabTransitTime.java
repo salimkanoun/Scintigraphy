@@ -27,8 +27,8 @@ import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTran
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 
 @SuppressWarnings("serial")
@@ -99,13 +99,12 @@ public class TabTransitTime extends JPanel{
 			 */
 			@Override
 			public void chartMouseClicked(ChartMouseEvent event) {
-				//System.out.println("clik"+this.fen.getDelta());
 				TabTransitTime tab = TabTransitTime.this;
 				tab.selectorsTransitValue[numSeriesSelectors][0] = tab.startSelector.getXValue();
 				tab.selectorsTransitValue[numSeriesSelectors][1] = tab.endSelector.getXValue();
 				
 				double delta = Math.abs(tab.startSelector.getXValue() - tab.endSelector.getXValue());
-				tab.labelsMesureTempsSelectorTransit[numSeriesSelectors].setText("Acquisition "+(numSeriesSelectors+1)+" : "+ModeleScin.round(delta, 2)+" sec");
+				tab.labelsMesureTempsSelectorTransit[numSeriesSelectors].setText("Acquisition "+(numSeriesSelectors+1)+" : "+Library_Quantif.round(delta, 2)+" sec");
 				
 				//on l'envoi au modele pour le csv
 				tab.modele.setTimeMeasure(numSeriesSelectors, delta);
@@ -150,7 +149,6 @@ public class TabTransitTime extends JPanel{
 					
 					for(int  i =0; i< tab.radioButtonTransitTime.length; i++) {
 						if(((JRadioButton)e.getSource()).equals(radioButtonTransitTime[i]) ) {
-							//System.out.println("jb i : "+i);
 							tab.setVisibilitySeriesGraph(tab.graphTransitTime,i, true);
 							numSeriesSelectors = i;
 							tab.startSelector.setXValue(selectorsTransitValue[i][0]);
@@ -229,7 +227,6 @@ public class TabTransitTime extends JPanel{
 
 
 	private void setVisibilitySeriesGraph(JFreeChart graph, int numSerie, boolean visibility) {
-		//	System.out.println("visibility nummserie:" + numSerie + " Visi : "+visibility +" title "+ graph.getTitle());
 			 XYItemRenderer renderer = graph.getXYPlot().getRenderer();
 			 renderer.setSeriesVisible(numSerie,  visibility);
 			 renderer.setSeriesPaint(numSerie, Color.red);

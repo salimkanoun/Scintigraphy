@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.ImagePlus;
 import ij.gui.Overlay;
@@ -29,8 +30,8 @@ public class DmsaScintigraphy extends Scintigraphy {
 
 	@Override
 	public void lancerProgramme() {
-		Overlay overlay = Scintigraphy.initOverlay(this.getImp());
-		Scintigraphy.setOverlayDG(overlay, this.getImp(), Color.yellow);
+		Overlay overlay = Library_Gui.initOverlay(this.getImp());
+		Library_Gui.setOverlayDG(overlay, this.getImp(), Color.yellow);
 		
 		FenApplication fen = new FenApplication(this.getImp(), this.getExamType());
 		this.setFenApplication(fen);

@@ -27,7 +27,6 @@ public class ControleurResultatsCalibration implements ChangeListener {
 		//checkbox change
 		if(e.getSource() instanceof JCheckBox) {
 			JCheckBox selected = (JCheckBox)e.getSource();
-			//System.out.println("name : "+ selected.getName()+" ?? :"+selected.isSelected());
 			this.modele.actualiserDatasetFromCheckbox(Integer.parseInt(selected.getName().split("\\|")[0]), Integer.parseInt(selected.getName().split("\\|")[1]), selected.isSelected());		
 		
 			this.fen.setGraph(this.modele.buildCollection());
@@ -37,13 +36,11 @@ public class ControleurResultatsCalibration implements ChangeListener {
 			
 			
 			//tab detail click event
-
 			if(e.getSource() instanceof JTabbedPane){
 				if(((JTabbedPane)e.getSource()).getSelectedIndex()==1) {
 					
 					this.modele.runCalculDetails();
 					this.fen.setTableDetails(this.modele.getDataDetails(), this.modele.getMoyenneDifferenceDetails());
-					//System.out.println("Changement d'inglet"+((JTabbedPane)e.getSource()).getSelectedIndex());
 				}
 		}
 		

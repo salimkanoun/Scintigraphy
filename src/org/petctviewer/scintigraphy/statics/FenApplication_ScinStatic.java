@@ -23,17 +23,18 @@ public class FenApplication_ScinStatic extends FenApplication{
 		this.getTextfield_instructions().setEditable(true);
 		this.btn_finish = new Button("Finish");
 		
-		this.getPanelInstructionsTextBtn().removeAll();
+		this.getPanel_Instructions_btns_droite().removeAll();
 		Panel instru = new Panel(new GridLayout(1, 2));
 		instru.add(new Label("Roi name :"));
 		instru.add(this.getTextfield_instructions());
-		this.getPanelInstructionsTextBtn().add(instru);
+		this.getPanel_Instructions_btns_droite().add(instru);
 
 		Panel btns_instru = new Panel(new GridLayout(1, 3));
 		btns_instru.add(this.btn_finish);
 		btns_instru.add(this.getBtn_precedent());
+		this.getBtn_suivant().setLabel("Validate/New Roi");
 		btns_instru.add(this.getBtn_suivant());
-		this.getPanelInstructionsTextBtn().add(btns_instru);
+		this.getPanel_Instructions_btns_droite().add(btns_instru);
 
 		this.setDefaultSize();
 	}

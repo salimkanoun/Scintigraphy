@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin.gui;
+package org.petctviewer.scintigraphy.renal;
 
 import java.awt.Button;
 import java.awt.Color;
@@ -12,17 +12,16 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.renal.Controleur_Renal;
-import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Overlay;
 import ij.gui.Toolbar;
 
-public class FenApplicationDyn extends FenApplication implements ActionListener {
+public class FenApplication_Renal extends FenApplication implements ActionListener {
 
 	/**
 	 * 
@@ -33,26 +32,37 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 	private ImagePlus impProj;
 	private Button btn_dyn, btn_start;
 
-	public FenApplicationDyn(ImagePlus imp, String nom, RenalScintigraphy vue) {
+	public FenApplication_Renal(ImagePlus imp, String nom, RenalScintigraphy vue) {
+	
+		
 		super(imp, nom);
-		this.vue = vue;
-		this.impProj = imp.duplicate();
+		
+		
+		//Ajout du boutton dynamic au panel de gauche
 		btn_dyn = new Button("Dynamic");
 		btn_dyn.addActionListener(this);
-		this.getPanel_Quit_Draw_Contrast_btns().add(btn_dyn);
-
-		this.getPanelInstructionsTextBtn().remove(1);
-		// mise en place des boutons
+		this.getPanel_btns_gauche().add(btn_dyn);
+		
+		// mise en place des boutons de droites
+		Panel btnsDroits=this.getPanel_bttns_droit();
+		btnsDroits.removeAll();
+		
 		Panel btns_instru = new Panel();
-		btns_instru.setLayout(new GridLayout(1, 2));
+		btns_instru.setLayout(new GridLayout(1, 3));
 		btn_start = new Button("Start");
 		btn_start.addActionListener(this);
 		btns_instru.add(btn_start);
-		this.getPanelInstructionsTextBtn().add(btns_instru);
-
+		
+		btnsDroits.add(btns_instru);
+	
 		this.getBtn_drawROI().setEnabled(false);
-
+		
 		this.setDefaultSize();
+		
+		this.vue = vue;
+		this.impProj = imp.duplicate();
+		
+	
 	}
 
 	@Override
@@ -65,7 +75,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 	public void actionPerformed(ActionEvent e) {
 		// clic sur le bouton dynamique
 		if (e.getSource() == btn_dyn) {
-			Overlay ov = Scintigraphy.duplicateOverlay(this.getImagePlus().getOverlay());
+			Overlay ov = Library_Gui.duplicateOverlay(this.getImagePlus().getOverlay());
 			ImagePlus imp;
 
 			if (!this.dyn) {
@@ -88,7 +98,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 			}
 
 			imp.setOverlay(ov);
-			Scintigraphy.setCustomLut(imp);
+			Library_Gui.setCustomLut(imp);
 
 			this.revalidate();
 			this.setImage(imp);
@@ -108,6 +118,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 
 			resizeCanvas();
 
+		//Mode debut du programme apres visualisation.
 		} else {
 			// TODO move elsewhere
 			Fen_NbRein fen = new Fen_NbRein();
@@ -119,8 +130,8 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 
 			this.getBtn_contrast().setEnabled(true);
 
-			this.getPanelInstructionsTextBtn().remove(1);
-			this.getPanelInstructionsTextBtn().add(this.createPanelInstructionsBtns());
+			this.getPanel_bttns_droit().removeAll();
+			this.getPanel_bttns_droit().add(this.createPanelInstructionsBtns());
 			this.getControleur().setInstructionsDelimit(0);
 
 			this.getBtn_drawROI().setEnabled(true);
@@ -161,7 +172,7 @@ public class FenApplicationDyn extends FenApplication implements ActionListener 
 			radio.add(btn_lr);
 			this.add(radio);
 
-			this.setLocationRelativeTo(FenApplicationDyn.this);
+			this.setLocationRelativeTo(FenApplication_Renal.this);
 
 			this.pack();
 		}

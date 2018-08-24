@@ -18,14 +18,19 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImageListener;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.util.DicomTools;
-
+/**
+ * fenetre de selection des images natives
+ * 
+ * @author diego
+ *
+ */
 public class FenSelectionDicom extends JFrame implements ActionListener, ImageListener {
 
 	private static final long serialVersionUID = 6706629497515318270L;
@@ -101,7 +106,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			for (int i = 0; i < id.length; i++) {
 				ImagePlus imp = WindowManager.getImage(id[i]);
 
-				HashMap<String, String> hm = ModeleScin.getPatientInfo(imp);
+				HashMap<String, String> hm = Library_Capture_CSV.getPatientInfo(imp);
 
 				data[i][0] = replaceNull(hm.get("name"));
 

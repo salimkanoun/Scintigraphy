@@ -4,11 +4,9 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.petctviewer.scintigraphy.esophageus.EsophagealTransit;
-import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
@@ -31,9 +29,9 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	//pour le condensé dynamique
 	ArrayList<Object[]> dicomRoi;
 	
-	public EsophagealTransit esoPlugIn;
+	public FenApplication_EsophagealTransit esoPlugIn;
 	
-	public Modele_EsophagealTransit( ImagePlus [][] sauvegardeImagesSelectDicom, EsophagealTransit esoPlugIn) {
+	public Modele_EsophagealTransit( ImagePlus [][] sauvegardeImagesSelectDicom, FenApplication_EsophagealTransit esoPlugIn) {
 		super(esoPlugIn.getFrameDurations());
 		this.sauvegardeImagesSelectDicom = sauvegardeImagesSelectDicom;
 		
@@ -57,7 +55,6 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	//vas ordorner les imageplus pour les envoyer au model fenettre resultats pour les calculs
 	@Override
 	public void calculerResultats() {
-	//	System.out.println("Calcul des resultats");
 		
 		/*
 		//affichage des images plus avec leurs roi TEST OK
@@ -79,7 +76,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 			
 			HashMap<String, ArrayList<Double>> map4rois = new HashMap<>();
 			// on stock les temps d'acquisition
-			int[] tempsInt =   (DynamicScintigraphy.buildFrameDurations(sauvegardeImagesSelectDicom[0][i]));// on prends la ant
+			int[] tempsInt =   (Library_Dicom.buildFrameDurations(sauvegardeImagesSelectDicom[0][i]));// on prends la ant
 			
 			double [] tempsSeconde = new double[tempsInt.length];
 			for(int j =0;j<tempsInt.length; j++) {
@@ -125,21 +122,20 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 
 					sauvegardeImagesSelectDicom[0][i].deleteRoi();
 					sauvegardeImagesSelectDicom[0][i].setRoi(premiereRoi);
-					roiEntier.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i])/tempsSeconde[j-1]);
+					roiEntier.add(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i])/tempsSeconde[j-1]);
 					
 					//for each roi (ici 3)
 					sauvegardeImagesSelectDicom[0][i].deleteRoi();
 					sauvegardeImagesSelectDicom[0][i].setRoi(unTier);
-					unTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i])/tempsSeconde[j-1]);
+					unTierList.add(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i])/tempsSeconde[j-1]);
 					
 					sauvegardeImagesSelectDicom[0][i].deleteRoi();
 					sauvegardeImagesSelectDicom[0][i].setRoi(deuxTier);
-					deuxTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i])/tempsSeconde[j-1]);
+					deuxTierList.add(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i])/tempsSeconde[j-1]);
 					
 					sauvegardeImagesSelectDicom[0][i].deleteRoi();
 					sauvegardeImagesSelectDicom[0][i].setRoi(troisTier);
-					troisTierList.add(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i])/tempsSeconde[j-1]);
-					System.out.println("temps: "+tempsSeconde[j-1]);
+					troisTierList.add(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i])/tempsSeconde[j-1]);
 				}
 			}else {
 				//pour chaque slice de l'image plus
@@ -152,8 +148,8 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 					sauvegardeImagesSelectDicom[0][i].setRoi(premiereRoi);
 					sauvegardeImagesSelectDicom[1][i].deleteRoi();
 					sauvegardeImagesSelectDicom[1][i].setRoi(premiereRoi);
-					roiEntier.add(ModeleScin.moyGeom(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i]),
-													 ModeleScin.getCounts(sauvegardeImagesSelectDicom[1][i]))
+					roiEntier.add(Library_Quantif.moyGeom(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i]),
+													 Library_Quantif.getCounts(sauvegardeImagesSelectDicom[1][i]))
 								/tempsSeconde[j-1]);
 					// moygeom( cout(ant), cout(post)) /temps
 					
@@ -162,27 +158,25 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 					sauvegardeImagesSelectDicom[0][i].setRoi(unTier);
 					sauvegardeImagesSelectDicom[1][i].deleteRoi();
 					sauvegardeImagesSelectDicom[1][i].setRoi(unTier);
-					unTierList.add(ModeleScin.moyGeom(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i]),
-							 						ModeleScin.getCounts(sauvegardeImagesSelectDicom[1][i]))
+					unTierList.add(Library_Quantif.moyGeom(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i]),
+							 						Library_Quantif.getCounts(sauvegardeImagesSelectDicom[1][i]))
 								/tempsSeconde[j-1]);
 					
 					sauvegardeImagesSelectDicom[0][i].deleteRoi();
 					sauvegardeImagesSelectDicom[0][i].setRoi(deuxTier);
 					sauvegardeImagesSelectDicom[1][i].deleteRoi();
 					sauvegardeImagesSelectDicom[1][i].setRoi(deuxTier);
-					deuxTierList.add(ModeleScin.moyGeom(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i]),
-	 												  ModeleScin.getCounts(sauvegardeImagesSelectDicom[1][i]))
+					deuxTierList.add(Library_Quantif.moyGeom(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i]),
+	 												  Library_Quantif.getCounts(sauvegardeImagesSelectDicom[1][i]))
 							 	  /tempsSeconde[j-1]);
 					
 					sauvegardeImagesSelectDicom[0][i].deleteRoi();
 					sauvegardeImagesSelectDicom[0][i].setRoi(troisTier);
 					sauvegardeImagesSelectDicom[1][i].deleteRoi();
 					sauvegardeImagesSelectDicom[1][i].setRoi(troisTier);
-					troisTierList.add(ModeleScin.moyGeom(ModeleScin.getCounts(sauvegardeImagesSelectDicom[0][i]),
-														ModeleScin.getCounts(sauvegardeImagesSelectDicom[1][i]))
+					troisTierList.add(Library_Quantif.moyGeom(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i]),
+														Library_Quantif.getCounts(sauvegardeImagesSelectDicom[1][i]))
 									/tempsSeconde[j-1]);
-					System.out.println("temps: "+tempsSeconde[j-1]);
-
 				}
 
 			}

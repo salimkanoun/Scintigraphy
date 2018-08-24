@@ -29,8 +29,8 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.Selector;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 public class FenPatlak extends JDialog implements ActionListener, ChartMouseListener {
 
@@ -198,8 +198,8 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		}
 
 		// mise a jour des equations de droite
-		this.lbl_eqL.setText("L. Kidney : " + ModeleScin.round(regG[1], 2) + "x + " + ModeleScin.round(regG[0], 2));
-		this.lbl_eqR.setText("R. Kidney : " + ModeleScin.round(regD[1], 2) + "x + " + ModeleScin.round(regD[0], 2));
+		this.lbl_eqL.setText("L. Kidney : " + Library_Quantif.round(regG[1], 2) + "x + " + Library_Quantif.round(regG[0], 2));
+		this.lbl_eqR.setText("R. Kidney : " + Library_Quantif.round(regD[1], 2) + "x + " + Library_Quantif.round(regD[0], 2));
 
 		// on trace les droites sur le graphique
 		XYPlot plot = this.valueSetter.getChart().getXYPlot();
@@ -252,8 +252,8 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		if (o == this.btn_ok) {
 			double[] patlakRatio = new double[2];
 
-			patlakRatio[0] = ModeleScin.round(100 * regG[1] / (this.regG[1] + this.regD[1]), 1);
-			patlakRatio[1] = ModeleScin.round(100 * regD[1] / (this.regG[1] + this.regD[1]), 1);
+			patlakRatio[0] = Library_Quantif.round(100 * regG[1] / (this.regG[1] + this.regD[1]), 1);
+			patlakRatio[1] = Library_Quantif.round(100 * regD[1] / (this.regG[1] + this.regD[1]), 1);
 
 			this.modele.setPatlakPente(patlakRatio);
 			this.dispose();

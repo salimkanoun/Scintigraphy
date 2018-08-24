@@ -14,7 +14,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.Prefs;
 
@@ -250,7 +250,7 @@ public class Modele_FollowUp {
 		} catch (org.json.simple.parser.ParseException e) {
 			e.printStackTrace();
 		}
-		String partie=ModeleScin.getTagPartie1(tags, "Renal Follow-Up", String.valueOf(Math.random() * 1000000D));
+		String partie=Library_Capture_CSV.getTagPartie1(tags, "Renal Follow-Up", String.valueOf(Math.random() * 1000000D));
 		//System.out.println(partie);
 		return partie;
 	}

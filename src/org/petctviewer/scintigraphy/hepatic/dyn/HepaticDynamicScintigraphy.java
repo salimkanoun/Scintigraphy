@@ -2,9 +2,10 @@ package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.awt.Color;
 
-import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -22,8 +23,8 @@ public class HepaticDynamicScintigraphy extends Scintigraphy {
 
 	@Override
 	public void lancerProgramme() {
-		Overlay overlay = Scintigraphy.initOverlay(this.getImp(), 12);
-		Scintigraphy.setOverlayDG(overlay, this.getImp(), Color.YELLOW);
+		Overlay overlay = Library_Gui.initOverlay(this.getImp(), 12);
+		Library_Gui.setOverlayDG(overlay, this.getImp(), Color.YELLOW);
 		
 		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));
 		this.getImp().setOverlay(overlay);
@@ -38,7 +39,7 @@ public class HepaticDynamicScintigraphy extends Scintigraphy {
 	      IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 	    }
 	    
-	    ImagePlus[] imps = Scintigraphy.sortDynamicAntPost(images[0]);
+	    ImagePlus[] imps = Library_Dicom.sortDynamicAntPost(images[0]);
 	    if(imps[0] != null) {
 	      this.impAnt = imps[0].duplicate();
 	    }
@@ -51,13 +52,13 @@ public class HepaticDynamicScintigraphy extends Scintigraphy {
 	    }
 	    
 	    if( this.impAnt !=null ) {
-	      impProjeteeAnt = DynamicScintigraphy.projeter(this.impAnt,0,impAnt.getStackSize(),"avg");
+	      impProjeteeAnt = Library_Dicom.projeter(this.impAnt,0,impAnt.getStackSize(),"avg");
 	      impProjetee=impProjeteeAnt;
-	      this.frameDurations = DynamicScintigraphy.buildFrameDurations(this.impAnt);
+	      this.frameDurations = Library_Dicom.buildFrameDurations(this.impAnt);
 	    }
 	    if ( this.impPost !=null ) {
-	      impProjetee = DynamicScintigraphy.projeter(this.impPost,0,impPost.getStackSize(),"avg");
-	      this.frameDurations = DynamicScintigraphy.buildFrameDurations(this.impPost);
+	      impProjetee = Library_Dicom.projeter(this.impPost,0,impPost.getStackSize(),"avg");
+	      this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost);
 	    }
 	 
 	    return impProjetee.duplicate();

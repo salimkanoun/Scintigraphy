@@ -2,10 +2,10 @@ package org.petctviewer.scintigraphy.renal;
 
 import java.awt.Color;
 
-import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenApplicationDyn;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -31,7 +31,7 @@ public class RenalScintigraphy extends Scintigraphy {
 			IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 		}
 		
-		ImagePlus[] imps = Scintigraphy.sortDynamicAntPost(images[0]);
+		ImagePlus[] imps = Library_Dicom.sortDynamicAntPost(images[0]);
 		if(imps[0] != null) {
 			this.impAnt = imps[0].duplicate();
 		}
@@ -44,13 +44,13 @@ public class RenalScintigraphy extends Scintigraphy {
 		}
 		
 		if( this.impAnt !=null ) {
-			impProjeteeAnt = DynamicScintigraphy.projeter(this.impAnt,0,impAnt.getStackSize(),"avg");
+			impProjeteeAnt = Library_Dicom.projeter(this.impAnt,0,impAnt.getStackSize(),"avg");
 			impProjetee=impProjeteeAnt;
-			this.frameDurations = DynamicScintigraphy.buildFrameDurations(this.impAnt);
+			this.frameDurations = Library_Dicom.buildFrameDurations(this.impAnt);
 		}
 		if ( this.impPost !=null ) {
-			impProjetee = DynamicScintigraphy.projeter(this.impPost,0,impPost.getStackSize(),"avg");
-			this.frameDurations = DynamicScintigraphy.buildFrameDurations(this.impPost);
+			impProjetee = Library_Dicom.projeter(this.impPost,0,impPost.getStackSize(),"avg");
+			this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost);
 		}
 		
 		// on inverse l'image pour garder l'orientation gauche / droite
@@ -58,12 +58,12 @@ public class RenalScintigraphy extends Scintigraphy {
 			this.impPost.getStack().getProcessor(i).flipHorizontal();
 		}
 
-		ImagePlus impProjetee = DynamicScintigraphy.projeter(this.impPost,0,impPost.getStackSize(),"avg");
+		ImagePlus impProjetee = Library_Dicom.projeter(this.impPost,0,impPost.getStackSize(),"avg");
 		ImageStack stack = impProjetee.getStack();
 		
 		//deux premieres minutes
 		int fin = ModeleScinDyn.getSliceIndexByTime(2 * 60 * 1000, frameDurations);
-		ImagePlus impPostFirstMin = DynamicScintigraphy.projeter(this.impPost, 0, fin,"avg");
+		ImagePlus impPostFirstMin = Library_Dicom.projeter(this.impPost, 0, fin,"avg");
 		stack.addSlice(impPostFirstMin.getProcessor());
 		// MIP
 		ImagePlus pj = ZProjector.run(this.impPost, "max", 0, this.impPost.getNSlices());
@@ -74,28 +74,28 @@ public class RenalScintigraphy extends Scintigraphy {
 			for (int i = 1; i <= this.impAnt.getStackSize(); i++) {
 				this.impAnt.getStack().getProcessor(i).flipHorizontal();
 			}
-			ImagePlus impProjAnt = DynamicScintigraphy.projeter(impAnt,0,impAnt.getStackSize(),"avg");
+			ImagePlus impProjAnt = Library_Dicom.projeter(impAnt,0,impAnt.getStackSize(),"avg");
 			stack.addSlice(impProjAnt.getProcessor());
 		}
 
 		//ajout du stack a l'imp
 		impProjetee.setStack(stack);
-		return impProjetee.duplicate();
+		return impProjetee;
 	}
 	
 
 	@Override
 	public void lancerProgramme() {
-		Overlay overlay = Scintigraphy.initOverlay(impProjetee, 12);
-		Scintigraphy.setOverlayGD(overlay, impProjetee, Color.yellow);
-		Scintigraphy.setOverlayTitle("Post",overlay, impProjetee, Color.yellow, 1);
-		Scintigraphy.setOverlayTitle("2 first min posterior", overlay, impProjetee, Color.YELLOW, 2);
-		Scintigraphy.setOverlayTitle("MIP", overlay, impProjetee, Color.YELLOW, 3);
+		Overlay overlay = Library_Gui.initOverlay(impProjetee, 12);
+		Library_Gui.setOverlayGD(overlay, impProjetee, Color.yellow);
+		Library_Gui.setOverlayTitle("Post",overlay, impProjetee, Color.yellow, 1);
+		Library_Gui.setOverlayTitle("2 first min posterior", overlay, impProjetee, Color.YELLOW, 2);
+		Library_Gui.setOverlayTitle("MIP", overlay, impProjetee, Color.YELLOW, 3);
 		if (this.impAnt != null) {
-			Scintigraphy.setOverlayTitle("Ant", overlay, impProjetee, Color.yellow, 4);
+			Library_Gui.setOverlayTitle("Ant", overlay, impProjetee, Color.yellow, 4);
 		}
 
-		this.setFenApplication(new FenApplicationDyn(this.getImp(), this.getExamType(), this));
+		this.setFenApplication(new FenApplication_Renal(this.getImp(), this.getExamType(), this));
 		this.getImp().setOverlay(overlay);
 		this.getFenApplication().setControleur(new Controleur_Renal(this));
 	}

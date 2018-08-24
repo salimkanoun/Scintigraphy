@@ -17,6 +17,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
 
@@ -50,7 +51,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 				this.data.put(name, new ArrayList<Double>());
 			}
 			// on y ajoute le nombre de coups
-			this.data.get(name).add(ModeleScin.getCounts(imp));
+			this.data.get(name).add(Library_Quantif.getCounts(imp));
 		}
 	}
 	
@@ -91,7 +92,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	 *            serie
 	 * @return liste des ordonnees
 	 */
-	public List<Double> seriesToList(XYSeries s) {
+	public static List<Double> seriesToList(XYSeries s) {
 		ArrayList<Double> l = new ArrayList<>();
 		for (int i = 0; i < s.getItemCount(); i++) {
 			l.add(s.getY(i).doubleValue());

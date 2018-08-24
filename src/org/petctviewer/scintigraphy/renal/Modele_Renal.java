@@ -14,8 +14,8 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.json.simple.JSONObject;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
 import ij.Prefs;
@@ -29,6 +29,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	private boolean[] kidneys;
 	private double[] patlakPente;
 	private ArrayList<String> kidneysLR;
+	private ImagePlus imp;
 
 	/**
 	 * recupere les valeurs et calcule les resultats de l'examen renal
@@ -38,7 +39,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	 */
 	public Modele_Renal(int[] frameDuration, boolean[] kidneys, ImagePlus imp) {
 		super(frameDuration);
-		this.setImp(imp);
+		this.imp=imp;
 		this.kidneys = kidneys;
 		this.organRois = new HashMap<>();
 	}
@@ -165,8 +166,8 @@ public class Modele_Renal extends ModeleScinDyn {
 		if (this.kidneys[0]) {
 			Double xMaxG = this.adjustedValues.get("tmax L");
 			XYSeries lk = this.getSerie("Final KL");
-			res[1][0] = ModeleScin.round(ModeleScinDyn.getTDemiObs(lk, xMaxG), 1);
-			res[0][0] = ModeleScin.round(xMaxG, 2);
+			res[1][0] = Library_Quantif.round(ModeleScinDyn.getTDemiObs(lk, xMaxG), 1);
+			res[0][0] = Library_Quantif.round(xMaxG, 2);
 		} else {
 			res[0][0] = Double.NaN;
 			res[1][0] = Double.NaN;
@@ -175,8 +176,8 @@ public class Modele_Renal extends ModeleScinDyn {
 		if (this.kidneys[1]) {
 			Double xMaxD = this.adjustedValues.get("tmax R");
 			XYSeries rk = this.getSerie("Final KR");
-			res[1][1] = ModeleScin.round(ModeleScinDyn.getTDemiObs(rk, xMaxD), 1);
-			res[0][1] = ModeleScin.round(xMaxD, 2);
+			res[1][1] = Library_Quantif.round(ModeleScinDyn.getTDemiObs(rk, xMaxD), 1);
+			res[0][1] = Library_Quantif.round(xMaxD, 2);
 		} else {
 			res[0][1] = Double.NaN;
 			res[1][1] = Double.NaN;
@@ -203,16 +204,16 @@ public class Modele_Renal extends ModeleScinDyn {
 		// si il y a un rein gauche
 		if (this.kidneys[0]) {
 			Double xMaxL = this.adjustedValues.get("tmax L");
-			res[0][0] = ModeleScin.round((100 * rg / ModeleScinDyn.getY(this.getSerie("Final KL"), xMaxL)), 2);
-			res[0][1] = ModeleScin.round((100 * rg / ModeleScinDyn.getY(this.getSerie("Final KL"), xLasilixM1)), 2);
+			res[0][0] = Library_Quantif.round((100 * rg / ModeleScinDyn.getY(this.getSerie("Final KL"), xMaxL)), 2);
+			res[0][1] = Library_Quantif.round((100 * rg / ModeleScinDyn.getY(this.getSerie("Final KL"), xLasilixM1)), 2);
 
 		}
 
 		// si il y a un rein droit
 		if (this.kidneys[1]) {
 			Double xMaxR = this.adjustedValues.get("tmax R");
-			res[1][0] = ModeleScin.round((100 * rd / ModeleScinDyn.getY(this.getSerie("Final KR"), xMaxR)), 2);
-			res[1][1] = ModeleScin.round((100 * rd / ModeleScinDyn.getY(this.getSerie("Final KR"), xLasilixM1)), 2);
+			res[1][0] = Library_Quantif.round((100 * rd / ModeleScinDyn.getY(this.getSerie("Final KR"), xMaxR)), 2);
+			res[1][1] = Library_Quantif.round((100 * rd / ModeleScinDyn.getY(this.getSerie("Final KR"), xLasilixM1)), 2);
 		}
 
 		return res;
@@ -228,9 +229,9 @@ public class Modele_Renal extends ModeleScinDyn {
 
 		// adjusted[6] => lasilix
 		Double xLasilix = this.adjustedValues.get("lasilix");
-		res[0][0] = ModeleScin.round(xLasilix - 1, 1);
-		res[0][1] = ModeleScin.round(xLasilix + 2, 1);
-		res[0][2] = round(this.getSerie("Blood Pool").getMaxX(), 1);
+		res[0][0] = Library_Quantif.round(xLasilix - 1, 1);
+		res[0][1] = Library_Quantif.round(xLasilix + 2, 1);
+		res[0][2] = Library_Quantif.round(this.getSerie("Blood Pool").getMaxX(), 1);
 
 		for (String lr : this.kidneysLR) {
 			XYSeries kidney = this.getSerie("Final K" + lr);
@@ -244,7 +245,7 @@ public class Modele_Renal extends ModeleScinDyn {
 			// calcul Excr rein gauche
 			for (int i = 0; i < 3; i++) {
 				if (this.getAdjustedValues().get("tmax " + lr) < res[0][i]) {
-					res[index][i] = ModeleScin.round(getY(kidney, res[0][i]) * 100 / max, 1);
+					res[index][i] = Library_Quantif.round(getY(kidney, res[0][i]) * 100 / max, 1);
 				}
 			}
 		}
@@ -257,9 +258,9 @@ public class Modele_Renal extends ModeleScinDyn {
 
 		// adjusted[6] => lasilix
 		Double xLasilix = this.adjustedValues.get("lasilix");
-		res[0][0] = ModeleScin.round(xLasilix - 1, 1);
-		res[0][1] = ModeleScin.round(xLasilix + 2, 1);
-		res[0][2] = round(this.getSerie("Blood Pool").getMaxX(), 1);
+		res[0][0] = Library_Quantif.round(xLasilix - 1, 1);
+		res[0][1] = Library_Quantif.round(xLasilix + 2, 1);
+		res[0][2] = Library_Quantif.round(this.getSerie("Blood Pool").getMaxX(), 1);
 
 		for (String lr : this.kidneysLR) {
 			XYSeries kidney = this.getSerie("Final K" + lr);
@@ -271,7 +272,7 @@ public class Modele_Renal extends ModeleScinDyn {
 
 			// calcul nora rein gauche
 			for (int i = 0; i < 3; i++) {
-				res[index][i] = ModeleScin.round(getY(kidney, res[0][i]) * 100 / getY(kidney, 2.0), 1);
+				res[index][i] = Library_Quantif.round(getY(kidney, res[0][i]) * 100 / getY(kidney, 2.0), 1);
 			}
 		}
 
@@ -309,10 +310,10 @@ public class Modele_Renal extends ModeleScinDyn {
 			Double intRD = listRD.get(listRD.size() - 1);
 	
 			// Left kidney
-			res[0] = ModeleScin.round((intRG / (intRG + intRD)) * 100, 1);
+			res[0] = Library_Quantif.round((intRG / (intRG + intRD)) * 100, 1);
 	
 			// Right kidney
-			res[1] = ModeleScin.round((intRD / (intRG + intRD)) * 100, 1);
+			res[1] = Library_Quantif.round((intRD / (intRG + intRD)) * 100, 1);
 		}else {
 			if (kidneys[0]) {res[0] = 100D; res[1] =0D;}
 			else if(kidneys[1]){res[0] = 0D; res[1] =100D;}
@@ -349,13 +350,13 @@ public class Modele_Renal extends ModeleScinDyn {
 		//calibration.setUnit("mm");
 		//Double pixelHeight=calibration.pixelHeight;
 		///System.out.println(pixelHeight);
-		String pixelHeightString = DicomTools.getTag(this.getImp(), "0028,0030").trim().split("\\\\")[1];
+		String pixelHeightString = DicomTools.getTag(imp, "0028,0030").trim().split("\\\\")[1];
 		Double pixelHeight = Double.parseDouble(pixelHeightString);
 		Double[] kidneyHeight = new Double[2];
 
 		// convvertion des pixel en mm
-		kidneyHeight[0] = round(heightLK * pixelHeight / 10, 2);
-		kidneyHeight[1] = round(heightRK * pixelHeight / 10, 2);
+		kidneyHeight[0] = Library_Quantif.round(heightLK * pixelHeight / 10, 2);
+		kidneyHeight[1] = Library_Quantif.round(heightRK * pixelHeight / 10, 2);
 
 		return kidneyHeight;
 	}
@@ -381,7 +382,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		String s = "Time ROE";
 		Double[] mins = new Double[10];
 		for (int i = 0; i < mins.length; i++) {
-			mins[i] = ModeleScin.round((getSerie("Blood Pool").getMaxX() / (mins.length * 1.0)) * i + 1, 1);
+			mins[i] = Library_Quantif.round((getSerie("Blood Pool").getMaxX() / (mins.length * 1.0)) * i + 1, 1);
 			s += ", " + mins[i];
 		}
 		s += "\n";
@@ -525,14 +526,13 @@ public class Modele_Renal extends ModeleScinDyn {
 		
 		// ROE
 		Double xLasilix = this.adjustedValues.get("lasilix");
-		Double[] time = {ModeleScin.round(xLasilix - 1, 1),
-				ModeleScin.round(xLasilix + 2, 1), 
-				round(this.getSerie("Blood Pool").getMaxX(), 1)};
+		Double[] time = {Library_Quantif.round(xLasilix - 1, 1),
+				Library_Quantif.round(xLasilix + 2, 1), 
+				Library_Quantif.round(this.getSerie("Blood Pool").getMaxX(), 1)};
 		s += "Time ROE (min), "+ time[0]+","+this.getROE(time[0], "L")+","+this.getROE(time[0], "R")+"\n"
 			+"Time ROE (min), "+ time[1]+","+this.getROE(time[1], "L")+","+this.getROE(time[1], "R")+"\n"
 			+"Time ROE (min), "+ time[2]+","+this.getROE(time[2], "L")+","+this.getROE(time[2], "R")+"\n";
 	
-		ImagePlus imp = this.getImp();
 		HashMap<String, String> mapTags = new HashMap<>();
 		mapTags.put("0008,0020", DicomTools.getTag(imp, "0008,0020") );
 		mapTags.put("0008,0021", DicomTools.getTag(imp, "0008,0021") );
@@ -582,7 +582,7 @@ public class Modele_Renal extends ModeleScinDyn {
 			seriesVasc.add(x, reg[0] + reg[1] * x + reg[2] * Math.pow(x, 2) + reg[3] * Math.pow(x, 3));
 		}
 
-		this.getData().put("Blood pool fitted", seriesToList(seriesVasc));
+		this.getData().put("Blood pool fitted", ModeleScinDyn.seriesToList(seriesVasc));
 
 		XYSeries seriesKid = this.createSerie(kidney, "Kidney");
 

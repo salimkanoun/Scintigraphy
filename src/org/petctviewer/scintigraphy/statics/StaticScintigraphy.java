@@ -3,6 +3,8 @@ package org.petctviewer.scintigraphy.statics;
 import java.awt.Color;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -23,15 +25,15 @@ public class StaticScintigraphy extends Scintigraphy {
 		}
 		
 		ImagePlus imp = images[0];
-		imp = Scintigraphy.sortImageAntPost(imp);//inverse la 2 eme slice
+		imp = Library_Dicom.sortImageAntPost(imp);//inverse la 2 eme slice
 		return imp;
 	}
 
 	@Override
 	public void lancerProgramme() {
 		
-		Overlay overlay = Scintigraphy.initOverlay(this.getImp(),12);
-		Scintigraphy.setOverlayDG(overlay, this.getImp(),Color.white);
+		Overlay overlay = Library_Gui.initOverlay(this.getImp(),12);
+		Library_Gui.setOverlayDG(overlay, this.getImp(),Color.white);
 		
 		this.setFenApplication(new FenApplication_ScinStatic(this.getImp(), this.getExamType()));
 		this.getImp().setOverlay(overlay);

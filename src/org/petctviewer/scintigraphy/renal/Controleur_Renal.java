@@ -11,9 +11,9 @@ import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.gui.FenNeph;
 import org.petctviewer.scintigraphy.renal.gui.FenResultats_Renal;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 
 import ij.ImagePlus;
 import ij.Prefs;
@@ -83,10 +83,10 @@ public class Controleur_Renal extends ControleurScin {
 			boolean pelvis = Prefs.get("renal.pelvis.preferred", true);
 			if (!pelvis && org.contains("Kidney")) {
 				Roi roi = roiManager.getRoi(indexRoi - 1);
-				return Scintigraphy.createBkgRoi(roi, getScin().getImp(), Scintigraphy.KIDNEY);
+				return Library_Roi.createBkgRoi(roi, getScin().getImp(), Library_Roi.KIDNEY);
 			}else if(pelvis && org.contains("Pelvis")) {
 				Roi roi = roiManager.getRoi(indexRoi - 2);
-				return Scintigraphy.createBkgRoi(roi, getScin().getImp(), Scintigraphy.KIDNEY);
+				return Library_Roi.createBkgRoi(roi, getScin().getImp(),Library_Roi.KIDNEY);
 			}
 		}
 
@@ -165,7 +165,7 @@ public class Controleur_Renal extends ControleurScin {
 		modele.setLocked(false);
 
 		// capture de l'imageplus ainsi que de l'overlay
-		BufferedImage capture = ModeleScin.captureImage(this.getScin().getImp(), 300, 300).getBufferedImage();
+		BufferedImage capture = Library_Capture_CSV.captureImage(this.getScin().getImp(), 300, 300).getBufferedImage();
 
 		// on ajoute l'imp a la vue
 		this.getScin().setImp(imp);

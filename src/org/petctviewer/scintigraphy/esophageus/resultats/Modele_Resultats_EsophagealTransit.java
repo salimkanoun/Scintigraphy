@@ -8,15 +8,15 @@ import java.util.List;
 
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.measure.Calibration;
-import ij.plugin.ZProjector;
 
 public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 
@@ -94,12 +94,11 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 			double ycalc = ModeleScinDyn.getInterpolatedY(serie, x+10);
 			double fractionDecrease = (ycalc/ymax)*100;
 			
-			ymax = ModeleScin.round(ymax, 2);
-			x = ModeleScin.round(x, 2);
-			ycalc = ModeleScin.round(ycalc, 2);
-			fractionDecrease = ModeleScin.round(fractionDecrease, 2);
+			ymax = Library_Quantif.round(ymax, 2);
+			x = Library_Quantif.round(x, 2);
+			ycalc = Library_Quantif.round(ycalc, 2);
+			fractionDecrease = Library_Quantif.round(fractionDecrease, 2);
 			
-			System.out.println("i:"+i+" ymax: "+ ymax+" x:"+x+"  interpol: "+ycalc+" %:"+fractionDecrease);
 			res[i] = fractionDecrease;
 		}
 		return res;
@@ -134,9 +133,9 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 		double ycalc = ModeleScinDyn.getInterpolatedY(serie, xForYMax+10);
 		double fractionDecrease = (ycalc/ymax)*100;
 		
-		xForYMax = ModeleScin.round(xForYMax, 2);
-		ycalc = ModeleScin.round(ycalc, 2);
-		fractionDecrease = ModeleScin.round(fractionDecrease, 2);
+		xForYMax = Library_Quantif.round(xForYMax, 2);
+		ycalc = Library_Quantif.round(ycalc, 2);
+		fractionDecrease = Library_Quantif.round(fractionDecrease, 2);
 		
 		return fractionDecrease;
 	}
@@ -177,8 +176,6 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 	}*/
 	
 	private XYSeries listToXYSeries(List<Double> data, List<Double> time, String title) {
-		//System.out.println("data size: "+data.size());
-		//System.out.println("temps size: "+time.size());
 
 		if(data.size() != time.size()) {
 			System.err.println("erreur : nombre de data !=  du nombre de temps");
@@ -235,8 +232,8 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 	
 	
 	public void calculImagePlusAndRoi(int indiceAcquisition) {
-		ImagePlus impProjete = DynamicScintigraphy.projeter((ImagePlus)dicomRoi.get(indiceAcquisition)[0], 0, ((ImagePlus)dicomRoi.get(indiceAcquisition)[0]).getStackSize(), "max");
-		Scintigraphy.setCustomLut(impProjete);
+		ImagePlus impProjete = Library_Dicom.projeter((ImagePlus)dicomRoi.get(indiceAcquisition)[0], 0, ((ImagePlus)dicomRoi.get(indiceAcquisition)[0]).getStackSize(), "max");
+		Library_Gui.setCustomLut(impProjete);
 		Rectangle rectRoi = (Rectangle)dicomRoi.get(indiceAcquisition)[1];
 		rectRoi.setSize((int)((Rectangle)dicomRoi.get(indiceAcquisition)[1]).getWidth(), ((ImagePlus)dicomRoi.get(indiceAcquisition)[0]).getHeight());
 		impProjete.setRoi(rectRoi);
@@ -254,8 +251,8 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 	
 	public void calculAllImagePlusAndRoi() {
 		for(int i =0; i<imageplusAndRoi.length; i++) {
-			ImagePlus impProjete = DynamicScintigraphy.projeter((ImagePlus)dicomRoi.get(i)[0], 0, ((ImagePlus)dicomRoi.get(i)[0]).getStackSize(), "max");
-			Scintigraphy.setCustomLut(impProjete);
+			ImagePlus impProjete = Library_Dicom.projeter((ImagePlus)dicomRoi.get(i)[0], 0, ((ImagePlus)dicomRoi.get(i)[0]).getStackSize(), "max");
+			Library_Gui.setCustomLut(impProjete);
 			Rectangle rectRoi = (Rectangle)dicomRoi.get(i)[1];
 			rectRoi.setSize((int)((Rectangle)dicomRoi.get(i)[1]).getWidth(), ((ImagePlus)dicomRoi.get(i)[0]).getHeight());
 			impProjete.setRoi(rectRoi);
@@ -309,8 +306,8 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 
 		}
 		// On fait la somme du stack pour avoir l'image finale
-		ImagePlus projete= DynamicScintigraphy.projeter(imageCondensee, 1, coupes, "sum");
-		Scintigraphy.setCustomLut(projete);
+		ImagePlus projete= Library_Dicom.projeter(imageCondensee, 1, coupes, "sum");
+		Library_Gui.setCustomLut(projete);
 		return projete;
 		
 		
@@ -338,7 +335,7 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 	}
 
 	public int[] getTime(int numAcquisition){
-		return 		DynamicScintigraphy.buildFrameDurations((ImagePlus)dicomRoi.get(numAcquisition)[0]);
+		return 		Library_Dicom.buildFrameDurations((ImagePlus)dicomRoi.get(numAcquisition)[0]);
 	}
 	
 	

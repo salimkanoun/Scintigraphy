@@ -24,6 +24,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
 import ij.ImageListener;
@@ -35,8 +36,8 @@ import ij.plugin.frame.RoiManager;
 
 public abstract class ControleurScin implements ActionListener {
 
-	private Scintigraphy scin;
-	private ModeleScin modele;
+	protected Scintigraphy scin;
+	protected ModeleScin modele;
 	protected RoiManager roiManager;
 
 
@@ -60,11 +61,11 @@ public abstract class ControleurScin implements ActionListener {
 		this.scin = scin;
 
 		if (scin.getImp().getOverlay() == null) {
-			scin.getImp().setOverlay(Scintigraphy.initOverlay(scin.getImp()));
+			scin.getImp().setOverlay(Library_Gui.initOverlay(scin.getImp()));
 		}
-		this.overlay = Scintigraphy.duplicateOverlay(scin.getImp().getOverlay());
+		this.overlay = Library_Gui.duplicateOverlay(scin.getImp().getOverlay());
 
-		//SK BOOLEAN FALSE POUR MASQUER, A METTRE TRUE POUR DEVELOPPEMENT
+		//SK BOOLEAN FALSE POUR MASQUER, ne rien mettre POUR DEVELOPPEMENT
 		this.roiManager = new RoiManager();
 
 		//this.addImageListener
@@ -167,7 +168,6 @@ public abstract class ControleurScin implements ActionListener {
 		//Si boutton suivant desactive car on est arrive a la fin du programme, on le reactive quand on a clique sur precedent
 		if( !scin.getFenApplication().getBtn_suivant().isEnabled() ) scin.getFenApplication().getBtn_suivant().setEnabled(true);
 		// sauvegarde du ROI courant
-		System.out.println("clickPrecedent"+ this.indexRoi);
 
 		// on decrement indexRoi
 		if (this.indexRoi > 0) {
@@ -231,7 +231,6 @@ public abstract class ControleurScin implements ActionListener {
 	 */
 	public boolean saveCurrentRoi(String nomRoi, int indexRoi) {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
-			System.out.println("Save Roi Index : "+indexRoi);
 			// on change la couleur pour l'overlay
 			this.scin.getImp().getRoi().setStrokeColor(Color.YELLOW);
 			// on enregistre la ROI dans le modele
@@ -243,6 +242,7 @@ public abstract class ControleurScin implements ActionListener {
 			// pour eviter les doublons
 			if (this.roiManager.getRoi(indexRoi) == null) {
 				//On utilise le macro car probleme d'ajout ROI identique sinon // pas toucher
+				//SK VOIR AVEC IMAGEJ PEUT PAS AJOUTER SI ROI MANAGER INVISIBLE
 				IJ.runMacro("roiManager(\"Add\");");
 			} else { // Si il existe on l'ecrase
 				this.roiManager.setRoi(this.scin.getImp().getRoi(), indexRoi);
@@ -252,8 +252,7 @@ public abstract class ControleurScin implements ActionListener {
 
 			// precise la postion en z
 			this.roiManager.
-			getRoi(indexRoi).
-			setPosition(this.getSliceNumberByRoiIndex(indexRoi));
+			getRoi(indexRoi).setPosition(this.getSliceNumberByRoiIndex(indexRoi));
 
 			// changement de nom
 			this.roiManager.rename(indexRoi, nomRoi);
@@ -472,11 +471,10 @@ public abstract class ControleurScin implements ActionListener {
 		ImagePlus imp = this.scin.getImp();
 
 		imp.getOverlay().clear();
-		imp.setOverlay(Scintigraphy.duplicateOverlay(overlay));
+		imp.setOverlay(Library_Gui.duplicateOverlay(overlay));
 		imp.killRoi();
 
 		// change la slice courante
-		System.out.println("Ici SetSlice"+indexSlice);
 		this.scin.getImp().setSlice(indexSlice);
 
 		// ajout des roi dans l'overlay

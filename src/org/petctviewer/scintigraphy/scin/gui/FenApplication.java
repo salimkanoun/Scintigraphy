@@ -18,15 +18,21 @@ import ij.gui.ImageCanvas;
 import ij.gui.Overlay;
 import ij.gui.StackWindow;
 import ij.util.DicomTools;
-
+/**
+ * Interface graphique principale de quantification dans imageJ
+ * 
+ * @author diego
+ *
+ */
 public class FenApplication extends StackWindow implements ComponentListener {
 	private static final long serialVersionUID = -6280620624574294247L;
 
 	//Panel d'instruction avec le textfield et boutons precedent et suivant
-	private Panel panel_Instructions_Text_Btn;
+	protected Panel panel_Instructions_btns_droite;
 	
 	//Panel avec boutons quit, draw roi, contrast
-	private Panel panel_btns_Quit_Draw_Contrast;
+	private Panel panel_btns_gauche;
+	private Panel panel_btns_droite;
 	
 	private JTextField textfield_instructions;
 
@@ -38,9 +44,9 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 	private ControleurScin controleur;
 	
-	private Panel panel;
-	private String nom;
+	private Panel panelPrincipal, panelContainer;
 
+	private String nom;
 
 	private int canvasW, canvasH;
 
@@ -54,7 +60,13 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	 */
 	public FenApplication(ImagePlus imp, String nom) {
 		super(imp, new ImageCanvas(imp));
-
+/*
+		try {
+		    UIManager.setLookAndFeel( UIManager.getCrossPlatformLookAndFeelClassName() );
+		 } catch (Exception e) {
+		            e.printStackTrace();
+		 }
+*/	 
 		this.nom = nom;
 		
 		String tagSerie = DicomTools.getTag(this.imp, "0008,103E");
@@ -63,12 +75,8 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		setTitle(titre);//frame title
 		this.imp.setTitle(titre);//imp title
 
-		
-		this.panel = new Panel(new FlowLayout());
-		this.panel.setLayout(new FlowLayout());
-
-		Panel gauche = new Panel();
-		gauche.setLayout(new FlowLayout());
+		panelContainer=new Panel();
+		this.panelPrincipal = new Panel(new FlowLayout());
 
 		// construit tous les boutons
 		this.btn_contrast = new Button("Contrast");
@@ -79,30 +87,32 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		this.btn_quitter = new Button("Quit");
 		
 		// panel contenant les boutons
-		panel_btns_Quit_Draw_Contrast = new Panel();
-		panel_btns_Quit_Draw_Contrast.setLayout(new GridLayout(1, 3));
-		panel_btns_Quit_Draw_Contrast.add(this.btn_quitter);
-		panel_btns_Quit_Draw_Contrast.add(this.btn_drawROI);
-		panel_btns_Quit_Draw_Contrast.add(this.btn_contrast);
-		gauche.add(panel_btns_Quit_Draw_Contrast);
+		panel_btns_gauche = new Panel();
+		panel_btns_gauche.setLayout(new GridLayout(1, 3));
+		panel_btns_gauche.add(this.btn_quitter);
+		panel_btns_gauche.add(this.btn_drawROI);
+		panel_btns_gauche.add(this.btn_contrast);
+		panelPrincipal.add(panel_btns_gauche);
 
 		// Creation du panel instructions
-		this.panel_Instructions_Text_Btn = new Panel();
-		this.panel_Instructions_Text_Btn.setLayout(new GridLayout(2, 1));
+		this.panel_Instructions_btns_droite = new Panel();
+		this.panel_Instructions_btns_droite.setLayout(new GridLayout(2, 1));
 		this.textfield_instructions = new JTextField();
 		this.textfield_instructions.setEditable(false);
 		this.textfield_instructions.setBackground(Color.LIGHT_GRAY);
-		this.panel_Instructions_Text_Btn.add(this.getTextfield_instructions());
+		this.panel_Instructions_btns_droite.add(textfield_instructions);
 
-		Panel panel_Instructions_btns = this.createPanelInstructionsBtns();
-		this.panel_Instructions_Text_Btn.add(panel_Instructions_btns);
-		gauche.add(this.panel_Instructions_Text_Btn);
+		panel_btns_droite = this.createPanelInstructionsBtns();
+		this.panel_Instructions_btns_droite.add(panel_btns_droite);
+		panelPrincipal.add(this.panel_Instructions_btns_droite);
 		
-		this.panel.add(gauche);
-		add(this.panel);
+		
+		panelContainer.add(this.panelPrincipal);
+		this.add(panelContainer);
 
 		this.setDefaultSize();
 		this.addComponentListener(this);
+		
 	}
 
 	public void resizeCanvas() {
@@ -120,10 +130,16 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		
 		this.getCanvas().setMagnification(magnification);
 		// pour que le pack prenne en compte les dimensions du panel
-		this.panel.setPreferredSize(panel.getPreferredSize());
+		//System.out.println(panelPrincipal.getPreferredSize());
+		//this.panelPrincipal.setPreferredSize(panelPrincipal.getPreferredSize());
+		panelContainer.revalidate();
+		this.revalidate();
+		System.out.println(panelPrincipal.getSize());
+
+		//this.panel.setPreferredSize(panel.getPreferredSize());
+	
 		this.pack();
-		
-		this.panel.setPreferredSize(null);
+		this.setSize(this.getPreferredSize());
 	}
 	
 	//Close la fenetre
@@ -137,7 +153,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 	
 	/************Private Method *********/
-	protected Panel createPanelInstructionsBtns() {
+	public Panel createPanelInstructionsBtns() {
 		Panel btns_instru = new Panel();
 		btns_instru.setLayout(new GridLayout(1, 3));
 		btns_instru.add(this.btn_precedent);
@@ -175,19 +191,22 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		return this.controleur;
 	}
 
-	public Panel getPanelInstructionsTextBtn() {
-		return this.panel_Instructions_Text_Btn;
+	public Panel getPanel_Instructions_btns_droite() {
+		return this.panel_Instructions_btns_droite;
 	}
 	
 	public JTextField getTextfield_instructions() {
 		return this.textfield_instructions;
 	}
 
-	public Panel getPanel_Quit_Draw_Contrast_btns() {
-		return panel_btns_Quit_Draw_Contrast;
+	public Panel getPanel_btns_gauche() {
+		return panel_btns_gauche;
 	}
 
-	
+	public Panel getPanelPrincipal() {
+		return panelPrincipal;
+	}
+
 	/************* Setter *************/
 	public void setControleur(ControleurScin ctrl) {
 		this.controleur = ctrl;
@@ -203,14 +222,24 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		this.btn_suivant.addActionListener(ctrl);
 	}
 
-	public void setInstructionsTextBtn(Panel instru) {
-		this.panel_Instructions_Text_Btn = instru;
+	public void setpanel_Instructions_btns_droite(Panel instru) {
+		this.panel_Instructions_btns_droite = instru;
+	}
+	
+	public Panel getPanel_bttns_droit() {
+		return panel_btns_droite;
 	}
 
 	public void setDefaultSize() {
 		this.setPreferredCanvasSize(512);
 	}
 
+	public void setImp(ImagePlus imp) {
+		this.setImage(imp);
+		this.imp = imp;
+		this.revalidate();
+		this.resizeCanvas();
+	}
 	/**
 	 * redimension de la canvas selon la largeur voulue et aux dimensions de
 	 * l'imageplus affichee

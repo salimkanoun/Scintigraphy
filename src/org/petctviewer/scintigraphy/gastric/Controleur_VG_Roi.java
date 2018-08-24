@@ -22,8 +22,8 @@ import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.text.ParseException;
 
-import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -106,7 +106,7 @@ public class Controleur_VG_Roi implements ActionListener {
 				if (tagNom!=null && !tagNom.isEmpty()) tagNom = tagNom.trim();
 				leModele.setPatient(tagNom, laVue.imp);
 				//On genere la 1ere partie du Header qui servira a la capture finale
-				tagCaptureFinale=ModeleScin.genererDicomTagsPartie1(laVue.imp, laVue.nomProgramme);
+				tagCaptureFinale=Library_Capture_CSV.genererDicomTagsPartie1(laVue.imp, laVue.nomProgramme);
 				// on regarde si la ROI suivante est deja dans le ROI manager, si oui on l'affiche 
 				if (laVue.leRoi.getRoi(index_Roi)!=null){
 					laVue.leRoi.deselect();
@@ -208,7 +208,7 @@ public class Controleur_VG_Roi implements ActionListener {
 					break;
 				}
 				//On appelle la methode de SunPo pour capture l'image (sans l'interface)
-				ImagePlus captureTemp=ModeleScin.captureImage(laVue.imp, 512, 512);
+				ImagePlus captureTemp=Library_Capture_CSV.captureImage(laVue.imp, 512, 512);
 				//On met dans un canvas de meme taille que les courbes et on stock dans le tableau d'imagePlus capture
 				ImageProcessor ip=captureTemp.getProcessor();
 				CanvasResizer canvas = new CanvasResizer();
@@ -408,7 +408,7 @@ public class Controleur_VG_Roi implements ActionListener {
 				capture[3]=leModele.createCourbeUn("% meal in the interval", Color.RED, "Gastrointestinal flow",
 						Modele_VG_Roi.tempsInter, Modele_VG_Roi.estoInter, 50.0);
 				//On cree le stack a partir du tableau d'ImagePlus en utilisant la methode de Modele_Shunpo
-				ImageStack stackCapture=ModeleScin.captureToStack(capture);
+				ImageStack stackCapture=Library_Capture_CSV.captureToStack(capture);
 				laVue.UIResultats(leModele.montage(stackCapture,laVue.nomProgramme));
 				laVue.lesBoutons.get("Suivant").setEnabled(false);
 				etat = etat.next();
@@ -503,12 +503,12 @@ public class Controleur_VG_Roi implements ActionListener {
 			resultatsExporte[i] = resultats[i];
 		}
 		// exporter les resultats en une image
-		ImagePlus ze = ModeleScin.captureFenetre(laVue.res.getImagePlus(), 0, 0);
+		ImagePlus ze = Library_Capture_CSV.captureFenetre(laVue.res.getImagePlus(), 0, 0);
 		laVue.leRoi.close();
 		//Evite le promt voulez vous sauver les modif en cas d edition de l image
 		laVue.windowstack.close();
 		//On genere la fin du Header DICOM de la capture finale via la methode disponible dans Shunpo
-		tagCaptureFinale += ModeleScin.genererDicomTagsPartie2(ze);
+		tagCaptureFinale += Library_Capture_CSV.genererDicomTagsPartie2(ze);
 		// On applique le Header a l'ImagePlus
 		ze.setProperty("Info", tagCaptureFinale);
 		// On affiche et on redimensionne
@@ -517,7 +517,7 @@ public class Controleur_VG_Roi implements ActionListener {
 		ze.getCanvas().setScaleToFit(true);
 		// exporter les resultats en CSV, le Roi Manager et la capture via la methode de Shunpo
 		try {
-			ModeleScin.exportAll(resultats, 4, laVue.leRoi, laVue.nomProgramme, ze);
+			Library_Capture_CSV.exportAll(resultats, 4, laVue.leRoi, laVue.nomProgramme, ze);
 
 		} catch (FileNotFoundException e) {
 		}
@@ -590,7 +590,7 @@ public class Controleur_VG_Roi implements ActionListener {
 		laVue.leRoi.deselect();
 		}
 		laVue.overlay.clear();
-		Scintigraphy.setOverlayDG(laVue.overlay, laVue.imp);
+		Library_Gui.setOverlayDG(laVue.overlay, laVue.imp);
 	
 		if (nom.contains("Stomach")){
 			laVue.overlay.add(laVue.leRoi.getRoi(index_Roi));
@@ -609,7 +609,7 @@ public class Controleur_VG_Roi implements ActionListener {
 			laVue.leRoi.select(index_Roi);
 			//On clear l'Overlay
 			laVue.overlay.clear();
-			Scintigraphy.setOverlayDG(laVue.overlay, laVue.imp);
+			Library_Gui.setOverlayDG(laVue.overlay, laVue.imp);
 			//On affiche l'overlay de la ROI n-1 si intestin ou n+1 si estomac
 			if (laVue.leRoi.getRoi(index_Roi).getName().contains("Intestine")){
 				laVue.overlay.add(laVue.leRoi.getRoi(index_Roi-1));

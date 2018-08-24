@@ -174,7 +174,6 @@ public class TabRentention extends JPanel{
 	}
 	
 	private void setVisibilitySeriesGraph(JFreeChart graph, int numSerie, boolean visibility) {
-		//	System.out.println("visibility nummserie:" + numSerie + " Visi : "+visibility +" title "+ graph.getTitle());
 			 XYItemRenderer renderer = graph.getXYPlot().getRenderer();
 			 renderer.setSeriesVisible(numSerie,  visibility);
 			 renderer.setSeriesPaint(numSerie, Color.red);

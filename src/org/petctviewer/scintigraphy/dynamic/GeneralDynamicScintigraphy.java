@@ -1,7 +1,7 @@
 package org.petctviewer.scintigraphy.dynamic;
 
-import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -28,7 +28,7 @@ public class GeneralDynamicScintigraphy extends Scintigraphy{
 			IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 		}
 		
-		ImagePlus[] imps = Scintigraphy.sortDynamicAntPost(images[0]);
+		ImagePlus[] imps = Library_Dicom.sortDynamicAntPost(images[0]);
 		if(imps[0] != null) {
 			this.impAnt = imps[0].duplicate();
 		}
@@ -41,16 +41,16 @@ public class GeneralDynamicScintigraphy extends Scintigraphy{
 		}
 		
 		if( this.impAnt !=null ) {
-			impProjeteeAnt = DynamicScintigraphy.projeter(this.impAnt,0,impAnt.getStackSize(),"avg");
+			impProjeteeAnt = Library_Dicom.projeter(this.impAnt,0,impAnt.getStackSize(),"avg");
 			impProjetee=impProjeteeAnt;
-			this.frameDurations = DynamicScintigraphy.buildFrameDurations(this.impAnt);
+			this.frameDurations = Library_Dicom.buildFrameDurations(this.impAnt);
 		}
 		if ( this.impPost !=null ) {
-			impProjetee = DynamicScintigraphy.projeter(this.impPost,0,impPost.getStackSize(),"avg");
-			this.frameDurations = DynamicScintigraphy.buildFrameDurations(this.impPost);
+			impProjetee = Library_Dicom.projeter(this.impPost,0,impPost.getStackSize(),"avg");
+			this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost);
 		}
 
-		return impProjeteeAnt.duplicate();
+		return impProjetee.duplicate();
 	}
 
 

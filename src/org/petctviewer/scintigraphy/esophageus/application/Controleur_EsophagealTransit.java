@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.esophageus.application;
 
-import org.petctviewer.scintigraphy.esophageus.EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.FenResultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 
@@ -11,10 +10,10 @@ import ij.gui.Toolbar;
 public class Controleur_EsophagealTransit  extends ControleurScin {
  
 	public static String[] ORGANES = {"Esophage"};
-	EsophagealTransit esoPlugin;
+	FenApplication_EsophagealTransit esoPlugin;
 	Modele_EsophagealTransit modele ;
 	
-	public Controleur_EsophagealTransit(EsophagealTransit esoPlugin, ImagePlus [][] sauvegardeImagesSelectDicom) {
+	public Controleur_EsophagealTransit(FenApplication_EsophagealTransit esoPlugin, ImagePlus [][] sauvegardeImagesSelectDicom) {
 		super(esoPlugin);
 		this.esoPlugin = esoPlugin;
 		this.setOrganes(ORGANES);
@@ -45,8 +44,6 @@ public class Controleur_EsophagealTransit  extends ControleurScin {
 
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
-		System.out.println("lastRoi called"+lastRoi);
-		System.out.println("Roi Manager Lenght"+roiManager.getRoisAsArray().length);
 		
 		if (indexRoi > 0 && lastRoi < this.indexRoi) {
 			return roiManager.getRoi(lastRoi);

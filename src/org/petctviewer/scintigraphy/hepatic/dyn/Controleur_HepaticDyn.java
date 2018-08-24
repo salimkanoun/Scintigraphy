@@ -12,8 +12,8 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.hepatic.dyn.gui.FenResultat_HepaticDyn;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
@@ -41,7 +41,7 @@ public class Controleur_HepaticDyn extends ControleurScin {
 		HepaticDynamicScintigraphy vue = (HepaticDynamicScintigraphy) this.getScin();
 		
 		ImagePlus imp = vue.getImp();
-		BufferedImage capture = ModeleScin.captureImage(imp, 300, 300).getBufferedImage();
+		BufferedImage capture = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
 	
 		ModeleScinDyn modele = (ModeleScinDyn) this.getModele();
 		modele.setLocked(false);

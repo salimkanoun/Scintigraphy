@@ -22,8 +22,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
 
-import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -385,7 +385,7 @@ public class Controleur_VG_Dynamique implements ActionListener {
 					// compter les oeufs
 					laVue.ouvrirImage("Oeufs");
 					laVue.overlay.clear();
-					Scintigraphy.setOverlayDG(laVue.overlay, laVue.imp);
+					Library_Gui.setOverlayDG(laVue.overlay, laVue.imp);
 					laVue.lesBoutons.get("Precedent").setEnabled(false);
 					etat = etat.next();
 					index_Instru++;
@@ -455,7 +455,7 @@ public class Controleur_VG_Dynamique implements ActionListener {
 				index_Instru++;
 				laVue.setInstructions(listeInstructions[index_Instru]);
 				laVue.lesBoutons.get("Suivant").setEnabled(false);
-				ModeleScin.exportRoiManager(laVue.leRoi, laVue.nomProgramme, laVue.windowstack.getImagePlus());
+				Library_Capture_CSV.exportRoiManager(laVue.leRoi, laVue.nomProgramme, laVue.windowstack.getImagePlus());
 				laVue.windowstack.close();
 				laVue.leRoi.close();
 				IJ.runMacro("run(\"Gastric Emptying software\"," + "\"" + resultat + "\"" + ");");
@@ -615,7 +615,7 @@ public class Controleur_VG_Dynamique implements ActionListener {
 		if (index_Oeuf == 1) {
 			// on update l'Overlay
 			laVue.overlay.clear();
-			Scintigraphy.setOverlayDG(laVue.overlay, laVue.imp);
+			Library_Gui.setOverlayDG(laVue.overlay, laVue.imp);
 		}
 
 		if (nom.contains("Stomach")) {
@@ -637,7 +637,7 @@ public class Controleur_VG_Dynamique implements ActionListener {
 		laVue.leRoi.select(index_Roi);
 		// On clear l'Overlay
 		laVue.overlay.clear();
-		Scintigraphy.setOverlayDG(laVue.overlay, laVue.imp);
+		Library_Gui.setOverlayDG(laVue.overlay, laVue.imp);
 		// On affiche l'overlay de la ROI n-1 si intestin ou n+1 si estomac
 		if (laVue.leRoi.getRoi(index_Roi).getName().contains("Intestine")) {
 			laVue.overlay.add(laVue.leRoi.getRoi(index_Roi - 1));

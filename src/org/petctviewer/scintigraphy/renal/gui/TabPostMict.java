@@ -19,12 +19,13 @@ import javax.swing.JPanel;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
 import org.petctviewer.scintigraphy.renal.postMictional.CustomControleur;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.PanelResultatImp;
+import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 
 import ij.ImagePlus;
 import ij.Prefs;
@@ -32,7 +33,7 @@ import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.util.DicomTools;
 
-class TabPostMict extends PanelResultatImp implements ActionListener, CustomControleur {
+class TabPostMict extends PanelImpContrastSlider implements ActionListener, CustomControleur {
 
 	private static final long serialVersionUID = 8125367912250906052L;
 	private PostMictional vueBasic;
@@ -81,12 +82,7 @@ class TabPostMict extends PanelResultatImp implements ActionListener, CustomCont
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getSource() == this.btn_addImp) {
-			
-			System.out.println("clic bouton : clic  bouton add imp");
-
-			//FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", scin)
-			
-			
+						
 			// Assez sale
 			FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", new Scintigraphy("") {
 				@Override
@@ -117,8 +113,6 @@ class TabPostMict extends PanelResultatImp implements ActionListener, CustomCont
 			
 			
 			
-		}else {
-			System.out.println("erreur !!!!!");
 		}
 	}
 
@@ -144,7 +138,6 @@ class TabPostMict extends PanelResultatImp implements ActionListener, CustomCont
 	}
 
 	public void fin() {
-		System.out.println("method fin");
 		Modele_Renal modele = (Modele_Renal) getVue().getFenApplication().getControleur().getModele();
 
 		HashMap<String, Double> data = this.vueBasic.getData();
@@ -170,7 +163,7 @@ class TabPostMict extends PanelResultatImp implements ActionListener, CustomCont
 		if (bladder) {
 			Double bld = data.get("Bladder P0");
 			bld /= (duration / 1000);
-			this.panel_bladder.add(new JLabel("Bladder : " + ModeleScinDyn.round(modele.getExcrBladder(bld), 2) + " %"));
+			this.panel_bladder.add(new JLabel("Bladder : " + Library_Quantif.round(modele.getExcrBladder(bld), 2) + " %"));
 		}
 
 		this.remove(this.sidePanel);
@@ -191,8 +184,8 @@ class TabPostMict extends PanelResultatImp implements ActionListener, CustomCont
 	public Roi getOrganRoi(Roi roi) {
 		int index = this.vueBasic.getFenApplication().getControleur().getIndexRoi();
 		if (index == 1 || index == 3) {
-			return Scintigraphy.createBkgRoi(roi, this.vueBasic.getFenApplication().getImagePlus(),
-					Scintigraphy.KIDNEY);
+			return Library_Roi.createBkgRoi(roi, this.vueBasic.getFenApplication().getImagePlus(),
+					Library_Roi.KIDNEY);
 		}
 		return null;
 	}
@@ -202,11 +195,11 @@ class TabPostMict extends PanelResultatImp implements ActionListener, CustomCont
 		Overlay ov = this.vueBasic.getImp().getOverlay();
 
 		if (ov.getIndex("L. bkg") != -1) {
-			Scintigraphy.editLabelOverlay(ov, "L. bkg", "", Color.GRAY);
+			Library_Gui.editLabelOverlay(ov, "L. bkg", "", Color.GRAY);
 		}
 
 		if (ov.getIndex("R. bkg") != -1) {
-			Scintigraphy.editLabelOverlay(ov, "R. bkg", "", Color.GRAY);
+			Library_Gui.editLabelOverlay(ov, "R. bkg", "", Color.GRAY);
 		}
 	}
 
@@ -217,7 +210,7 @@ class TabPostMict extends PanelResultatImp implements ActionListener, CustomCont
 		// elements du tableau
 		JLabel[] lbls = new JLabel[] { new JLabel("L"), new JLabel("R"), new JLabel("Max"),
 				new JLabel("" + naIfNull(excr[0][0])), new JLabel("" + naIfNull(excr[1][0])),
-				new JLabel("" + ModeleScin.round(modele.getAdjustedValues().get("lasilix") - 1, 1) + " min"),
+				new JLabel("" + Library_Quantif.round(modele.getAdjustedValues().get("lasilix") - 1, 1) + " min"),
 				new JLabel("" + naIfNull(excr[0][1])), new JLabel("" + naIfNull(excr[1][1])), };
 
 		// panel excr

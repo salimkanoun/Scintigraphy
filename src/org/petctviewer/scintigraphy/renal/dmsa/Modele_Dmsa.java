@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.renal.dmsa;
 import java.util.HashMap;
 
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
 
@@ -14,7 +15,7 @@ public class Modele_Dmsa extends ModeleScin {
 
 	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
-		data.put(nomRoi, ModeleScin.getCounts(imp));
+		data.put(nomRoi, Library_Quantif.getCounts(imp));
 
 		int area = imp.getStatistics().pixelCount;
 		String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
@@ -47,8 +48,8 @@ public class Modele_Dmsa extends ModeleScin {
 			data.put("R. Kidney Ant adjusted", rkA);
 			
 			//calcul des moyennes geometriques
-			Double lkGM = ModeleScin.moyGeom(lkP, lkA);
-			Double rkGM = ModeleScin.moyGeom(rkP, rkA);
+			Double lkGM = Library_Quantif.moyGeom(lkP, lkA);
+			Double rkGM = Library_Quantif.moyGeom(rkP, rkA);
 			
 			//ajout des donnes dans la hashmap des aires
 			data.put("L. Kidney GM", lkGM);

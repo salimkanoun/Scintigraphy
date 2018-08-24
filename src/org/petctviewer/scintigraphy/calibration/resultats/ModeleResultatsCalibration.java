@@ -6,7 +6,7 @@ import java.util.HashMap;
 import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -103,8 +103,7 @@ public class ModeleResultatsCalibration {
 	  	 double[] resultRegression = new double[2];
 	  	try {
 			  resultRegression = Regression.getOLSRegression(new XYSeriesCollection(serikke),0);
-			// System.out.println("a : "+resultRegression[0]);
-			 //System.out.println("b : "+resultRegression[1]);
+	
 			 this.a = resultRegression[1];
 			 this.b = resultRegression[0] - resultRegression[1];
 		} catch (IllegalArgumentException e) {
@@ -150,22 +149,17 @@ public class ModeleResultatsCalibration {
 				Double suv70 = (Double)this.donneesCharge.get(i).get(j).get("MEAN70");
 				Double bg = (Double)this.donneesCharge.get(i).get(j).get("BG");
 				
-//System.out.println("i:"+i+"j;"+j+" bg ="+bg);
 				Double TS = this.a * suv70 +this.b* bg;
-//System.out.println("a : "+this.a + " b : "+this.b+ "BG : "+bg+" TS ;"+TS);
+
 				ImagePlus im = ((ImagePlus)this.donneesCharge.get(i).get(j).get("image")).duplicate();
 				StackStatistics ss = new StackStatistics(im);
-
-//System.out.println("pixel count :"+ss.pixelCount);
 	
 				IJ.run(im	,"Macro...", "code=[if(v<"+TS+") v=NaN] stack");
 //im.show();
 				ss = new StackStatistics(im);
 				//mesuré
 				Double volumeCalculated = ss.pixelCount * (Double)this.donneesCharge.get(i).get(j).get("VolumeVoxel");
-//	System.out.println(" pixel count :"+ss.pixelCount);
-//	System.out.println(" volume voxel :"+(Double)this.donneesCharge.get(i).get(j).get("VolumeVoxel"));
-				
+		
 				this.donneesCharge.get(i).get(j).put("VolumeCalculated", volumeCalculated);
 			}
 		}
@@ -183,13 +177,13 @@ public class ModeleResultatsCalibration {
 			for(int j = 0; j < this.donneesCharge.size(); j++) {
 				//numero d'acquisition
 				tableauFinal[j][0] = (double)(j+1);
-				tableauFinal[j][1] = ModeleScin.round(((Double)this.donneesCharge.get(j).get(i).get("SUVmax")),2);
-				tableauFinal[j][2] = ModeleScin.round((Double)this.donneesCharge.get(j).get(i).get("TrueSphereVolume")/1000,2);
-				tableauFinal[j][3] = ModeleScin.round((Double)this.donneesCharge.get(j).get(i).get("VolumeCalculated"),2);
+				tableauFinal[j][1] = Library_Quantif.round(((Double)this.donneesCharge.get(j).get(i).get("SUVmax")),2);
+				tableauFinal[j][2] = Library_Quantif.round((Double)this.donneesCharge.get(j).get(i).get("TrueSphereVolume")/1000,2);
+				tableauFinal[j][3] = Library_Quantif.round((Double)this.donneesCharge.get(j).get(i).get("VolumeCalculated"),2);
 				//difference en ml
-				tableauFinal[j][4] = ModeleScin.round((Double)this.donneesCharge.get(j).get(i).get("VolumeCalculated") - ((Double)this.donneesCharge.get(j).get(i).get("TrueSphereVolume")/1000),2);
+				tableauFinal[j][4] = Library_Quantif.round((Double)this.donneesCharge.get(j).get(i).get("VolumeCalculated") - ((Double)this.donneesCharge.get(j).get(i).get("TrueSphereVolume")/1000),2);
 				//difference en pourcentage
-				tableauFinal[j][5] = ModeleScin.round( (
+				tableauFinal[j][5] = Library_Quantif.round( (
 								tableauFinal[j][4]		 / 
 								((Double)this.donneesCharge.get(j).get(i).get("TrueSphereVolume")/1000) ) *100,2);
 			}
@@ -208,7 +202,7 @@ public class ModeleResultatsCalibration {
 			for(int j = 0; j < this.listTableauFinal.get(i).length ; j++){
 				listDifferencePourcentage.add(Math.abs(this.listTableauFinal.get(i)[j][5]));
 			}
-			listMoyenneDifferencePourcentage.add(ModeleScin.round(mean(listDifferencePourcentage.toArray(new Double[listDifferencePourcentage.size()] )),2));
+			listMoyenneDifferencePourcentage.add(Library_Quantif.round(mean(listDifferencePourcentage.toArray(new Double[listDifferencePourcentage.size()] )),2));
 		}
 		return listMoyenneDifferencePourcentage;
 	}
@@ -217,7 +211,6 @@ public class ModeleResultatsCalibration {
 	    Double sum = 0.0D;
 	    for (int i = 0; i < m.length; i++) {
 	        sum += m[i];
-	       // System.out.println("i:"+i+" m : "+m[i]);
 	    }
 	    return sum / m.length;
 	}

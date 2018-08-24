@@ -180,6 +180,7 @@ public class About extends JDialog implements PlugIn {
 						{"Dynamic Quantification", "Salim Kanoun", "Ruben Gres", "CHU Toulouse"},
 						{"Static Quantifiication", "Salim Kanoun", "Diego Romero", "CHU Toulouse"},
 						{"Schaefer Calibration", "Salim Kanoun", "Diego Romero", "CHU Toulouse"},
+						{"Esophageal Transit", "Pierre Pascal, Gerard Victor", "Diego Romero", null},
 					},
 					new String[] {
 						"Software", "Creator", "Developper", "Institution"

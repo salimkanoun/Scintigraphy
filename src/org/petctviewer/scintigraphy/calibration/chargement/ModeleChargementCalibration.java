@@ -58,7 +58,6 @@ public class ModeleChargementCalibration {
 
 			ImagePlus impMaskPropre = openImagePlus(maskPath);
 			ImagePlus impFloatPropre = openImagePlus(floatPath);
-			//System.out.println("numero acquisition "+k);
 
 			
 			ArrayList<HashMap<String,Object>> paramResultUnExam = new ArrayList<>();
@@ -70,7 +69,6 @@ public class ModeleChargementCalibration {
 
 				HashMap<String, Object> paramResultUnExamElements = new HashMap<>();
 				
-			//	System.out.println("********DEBUT n°"+i);
 				
 				/*********sur mask*******/
 	
@@ -140,7 +138,6 @@ public class ModeleChargementCalibration {
     			//im.show();
 				//fin
 				rm.reset();
-				//System.out.println("********FIN n°"+i);
 				
 				StackStatistics ss = new StackStatistics(im);
 				
@@ -197,29 +194,18 @@ public class ModeleChargementCalibration {
 		// oblige de le faire apres car le background est releve en dernier
 	
 		for(int  i =0; i< paramResult.size(); i++) {
-			//System.out.println("***************exam(i) = "+i );
 			ArrayList<HashMap<String,Object>> paramResultUnExam2 = new ArrayList<>();
 
 			 Double BG = (Double) paramResult.get(i).get(paramResult.get(i).size()-1).get("BG");
 	
-			// System.out.println("BG :"+BG);
 			for(int j=0; j < paramResult.get(i).size(); j++) {
 				HashMap<String, Object> paramResultUnExamElements2 = new HashMap<>();
 
 				if(j!=6) {
-/*					 System.out.println("roi(j) = "+j);
-					 System.out.println(" TS :"+paramResult.get(i).get(j).get("TS"));
-					 System.out.println(" SUV :"+paramResult.get(i).get(j).get("SUV"));
-					 System.out.println(" SUVmax :"+paramResult.get(i).get(j).get("SUVmax"));
-
-					 System.out.println(" BG :"+paramResult.get(i).get(j).get("BG"));
-*/					 
+					 
 					 Double TS = (Double) paramResult.get(i).get(j).get("TS");	 
-					 Double SUV = (Double) paramResult.get(i).get(j).get("SUV");
-					 
-//					 System.out.println(" X :"+((SUV-BG)/BG));
-//				 System.out.println(" Y :"+(TS/(SUV-BG)));
-					 
+					 Double SUV = (Double) paramResult.get(i).get(j).get("SUV");				 
+					
 					 paramResultUnExamElements2.put("TS",paramResult.get(i).get(j).get("TS"));
 					 paramResultUnExamElements2.put("SUV",paramResult.get(i).get(j).get("SUV"));
 					 paramResultUnExamElements2.put("SUVmax",paramResult.get(i).get(j).get("SUVmax"));
@@ -228,18 +214,15 @@ public class ModeleChargementCalibration {
 					 paramResultUnExamElements2.put("image",paramResult.get(i).get(j).get("image"));
 					 paramResultUnExamElements2.put("VolumeVoxel",paramResult.get(i).get(j).get("VolumeVoxel"));
 					 paramResultUnExamElements2.put("TrueSphereVolume",VOLUME_FANTOME_REF[j+1] );
-
 					 
 					 paramResultUnExamElements2.put("x",((SUV-BG)/BG));
 					 paramResultUnExamElements2.put("y",(TS/(SUV-BG)));
 
-//					System.out.println();
 					paramResultUnExam2.add(paramResultUnExamElements2);
 				}
 			}
 			paramResult2.add(paramResultUnExam2);
 		}	
-//		System.out.println("a1= "+ paramResult2.get(0).get(0).get("x"));
 		
 		//fermeture du roi manager
 		rm.close();
