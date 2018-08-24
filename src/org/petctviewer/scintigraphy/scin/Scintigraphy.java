@@ -11,6 +11,8 @@ import javax.swing.SwingUtilities;
 
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -44,7 +46,7 @@ public abstract class Scintigraphy implements PlugIn {
 			if (images.length > 0) {
 				this.imp = preparerImp(images);
 				// on set la lut des preferences
-				StaticMethod.setCustomLut(imp);
+				Library_Gui.setCustomLut(imp);
 
 				this.lancerProgramme();
 			}
@@ -97,7 +99,7 @@ public abstract class Scintigraphy implements PlugIn {
 
 		// generation du tag info
 		String info = modele.genererDicomTagsPartie1SameUID(this.getImp(), this.getExamType())
-				+ StaticMethod.genererDicomTagsPartie2(this.getImp());
+				+ Library_Capture_CSV.genererDicomTagsPartie2(this.getImp());
 
 		// on ajoute le listener sur le bouton capture
 		btn_capture.addActionListener(new ActionListener() {
@@ -117,7 +119,7 @@ public abstract class Scintigraphy implements PlugIn {
 
 					@Override
 					public void run() {
-						Container root = StaticMethod.getRootContainer(cont);
+						Container root = Library_Capture_CSV.getRootContainer(cont);
 
 						// Capture, nouvelle methode a utiliser sur le reste des programmes
 						BufferedImage capture = new BufferedImage(root.getWidth(), root.getHeight(),
@@ -149,7 +151,7 @@ public abstract class Scintigraphy implements PlugIn {
 						String resultats = modele.toString();
 
 						try {
-							StaticMethod.exportAll(resultats, getFenApplication().getControleur().getRoiManager(),
+							Library_Capture_CSV.exportAll(resultats, getFenApplication().getControleur().getRoiManager(),
 									examType, imp, additionalInfo);
 
 							getFenApplication().getControleur().getRoiManager().close();

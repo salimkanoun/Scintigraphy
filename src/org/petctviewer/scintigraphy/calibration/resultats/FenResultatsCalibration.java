@@ -33,7 +33,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.scin.StaticMethod;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
 
@@ -173,7 +173,7 @@ public class FenResultatsCalibration extends JFrame{
 							
 							tabbedPane.setSelectedIndex(0);
 							ImagePlus imageplus = new ImagePlus( );
-							imageplus.setStack(StaticMethod.captureToStack(im));
+							imageplus.setStack(Library_Capture_CSV.captureToStack(im));
 							imageplus.show();
 						} catch (AWTException e1) {
 							e1.printStackTrace();

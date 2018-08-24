@@ -20,10 +20,12 @@ import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
 import org.petctviewer.scintigraphy.renal.postMictional.CustomControleur;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 
 import ij.ImagePlus;
 import ij.Prefs;
@@ -161,7 +163,7 @@ class TabPostMict extends PanelImpContrastSlider implements ActionListener, Cust
 		if (bladder) {
 			Double bld = data.get("Bladder P0");
 			bld /= (duration / 1000);
-			this.panel_bladder.add(new JLabel("Bladder : " + StaticMethod.round(modele.getExcrBladder(bld), 2) + " %"));
+			this.panel_bladder.add(new JLabel("Bladder : " + Library_Quantif.round(modele.getExcrBladder(bld), 2) + " %"));
 		}
 
 		this.remove(this.sidePanel);
@@ -182,8 +184,8 @@ class TabPostMict extends PanelImpContrastSlider implements ActionListener, Cust
 	public Roi getOrganRoi(Roi roi) {
 		int index = this.vueBasic.getFenApplication().getControleur().getIndexRoi();
 		if (index == 1 || index == 3) {
-			return StaticMethod.createBkgRoi(roi, this.vueBasic.getFenApplication().getImagePlus(),
-					StaticMethod.KIDNEY);
+			return Library_Roi.createBkgRoi(roi, this.vueBasic.getFenApplication().getImagePlus(),
+					Library_Roi.KIDNEY);
 		}
 		return null;
 	}
@@ -193,11 +195,11 @@ class TabPostMict extends PanelImpContrastSlider implements ActionListener, Cust
 		Overlay ov = this.vueBasic.getImp().getOverlay();
 
 		if (ov.getIndex("L. bkg") != -1) {
-			StaticMethod.editLabelOverlay(ov, "L. bkg", "", Color.GRAY);
+			Library_Gui.editLabelOverlay(ov, "L. bkg", "", Color.GRAY);
 		}
 
 		if (ov.getIndex("R. bkg") != -1) {
-			StaticMethod.editLabelOverlay(ov, "R. bkg", "", Color.GRAY);
+			Library_Gui.editLabelOverlay(ov, "R. bkg", "", Color.GRAY);
 		}
 	}
 
@@ -208,7 +210,7 @@ class TabPostMict extends PanelImpContrastSlider implements ActionListener, Cust
 		// elements du tableau
 		JLabel[] lbls = new JLabel[] { new JLabel("L"), new JLabel("R"), new JLabel("Max"),
 				new JLabel("" + naIfNull(excr[0][0])), new JLabel("" + naIfNull(excr[1][0])),
-				new JLabel("" + StaticMethod.round(modele.getAdjustedValues().get("lasilix") - 1, 1) + " min"),
+				new JLabel("" + Library_Quantif.round(modele.getAdjustedValues().get("lasilix") - 1, 1) + " min"),
 				new JLabel("" + naIfNull(excr[0][1])), new JLabel("" + naIfNull(excr[1][1])), };
 
 		// panel excr

@@ -24,6 +24,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
 import ij.ImageListener;
@@ -60,9 +61,9 @@ public abstract class ControleurScin implements ActionListener {
 		this.scin = scin;
 
 		if (scin.getImp().getOverlay() == null) {
-			scin.getImp().setOverlay(StaticMethod.initOverlay(scin.getImp()));
+			scin.getImp().setOverlay(Library_Gui.initOverlay(scin.getImp()));
 		}
-		this.overlay = StaticMethod.duplicateOverlay(scin.getImp().getOverlay());
+		this.overlay = Library_Gui.duplicateOverlay(scin.getImp().getOverlay());
 
 		//SK BOOLEAN FALSE POUR MASQUER, A METTRE TRUE POUR DEVELOPPEMENT
 		this.roiManager = new RoiManager();
@@ -470,7 +471,7 @@ public abstract class ControleurScin implements ActionListener {
 		ImagePlus imp = this.scin.getImp();
 
 		imp.getOverlay().clear();
-		imp.setOverlay(StaticMethod.duplicateOverlay(overlay));
+		imp.setOverlay(Library_Gui.duplicateOverlay(overlay));
 		imp.killRoi();
 
 		// change la slice courante

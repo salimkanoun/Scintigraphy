@@ -27,8 +27,8 @@ import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTran
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
-import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 
 @SuppressWarnings("serial")
@@ -104,7 +104,7 @@ public class TabTransitTime extends JPanel{
 				tab.selectorsTransitValue[numSeriesSelectors][1] = tab.endSelector.getXValue();
 				
 				double delta = Math.abs(tab.startSelector.getXValue() - tab.endSelector.getXValue());
-				tab.labelsMesureTempsSelectorTransit[numSeriesSelectors].setText("Acquisition "+(numSeriesSelectors+1)+" : "+StaticMethod.round(delta, 2)+" sec");
+				tab.labelsMesureTempsSelectorTransit[numSeriesSelectors].setText("Acquisition "+(numSeriesSelectors+1)+" : "+Library_Quantif.round(delta, 2)+" sec");
 				
 				//on l'envoi au modele pour le csv
 				tab.modele.setTimeMeasure(numSeriesSelectors, delta);

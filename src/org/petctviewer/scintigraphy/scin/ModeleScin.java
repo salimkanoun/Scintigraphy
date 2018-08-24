@@ -1,5 +1,7 @@
 package org.petctviewer.scintigraphy.scin;
 
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+
 import ij.ImagePlus;
 
 public abstract class ModeleScin {
@@ -62,7 +64,7 @@ public abstract class ModeleScin {
 	 */
 	public String genererDicomTagsPartie1SameUID(ImagePlus imp, String nomProgramme) {
 		String uid = generateUID6digits();
-		return StaticMethod.genererDicomTagsPartie1(imp, nomProgramme, uid);
+		return Library_Capture_CSV.genererDicomTagsPartie1(imp, nomProgramme, uid);
 	}
 	
 	

@@ -8,7 +8,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.StaticMethod;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
 
@@ -85,13 +85,13 @@ public class Modele_HepaticDyn extends ModeleScinDyn {
 		// foie droit
 		hm.put("T1/2 Righ Liver", this.tDemiFoieDObs + "mn");
 		hm.put("T1/2 Righ Liver *", this.tDemiFoieDFit + "mn");
-		hm.put("Maximum Right Liver", StaticMethod.round(this.maxFoieD, 1) + "mn");
+		hm.put("Maximum Right Liver", Library_Quantif.round(this.maxFoieD, 1) + "mn");
 		hm.put("end/max Ratio Right", (int) (this.finPicD * 100) + "%");
 
 		// foie gauche
 		hm.put("T1/2 Left Liver", this.tDemiFoieGObs + "mn");
 		hm.put("T1/2 Left Liver *", this.tDemiFoieGFit + "mn");
-		hm.put("Maximum Left Liver", StaticMethod.round(this.maxFoieG, 1) + "mn");
+		hm.put("Maximum Left Liver", Library_Quantif.round(this.maxFoieG, 1) + "mn");
 		hm.put("end/max Ratio Left", (int) (this.finPicG * 100) + "%");
 
 		// vasculaire
@@ -111,25 +111,25 @@ public class Modele_HepaticDyn extends ModeleScinDyn {
 		String s = "";
 		s += "Time (mn),";
 		for (int i = 0; i < bloodPool.getItemCount(); i++) {
-			s += StaticMethod.round(bloodPool.getX(i).doubleValue(), 2) + ",";
+			s += Library_Quantif.round(bloodPool.getX(i).doubleValue(), 2) + ",";
 		}
 		s += "\n";
 
 		s += "Blood Pool (counts/sec),";
 		for (int i = 0; i < bloodPool.getItemCount(); i++) {
-			s += StaticMethod.round(bloodPool.getY(i).doubleValue(), 2) + ",";
+			s += Library_Quantif.round(bloodPool.getY(i).doubleValue(), 2) + ",";
 		}
 		s += "\n";
 
 		s += "Right Liver (counts/sec),";
 		for (int i = 0; i < liverR.getItemCount(); i++) {
-			s += StaticMethod.round(liverR.getY(i).doubleValue(), 2) + ",";
+			s += Library_Quantif.round(liverR.getY(i).doubleValue(), 2) + ",";
 		}
 		s += "\n";
 
 		s += "Left Liver (counts/sec),";
 		for (int i = 0; i < liverL.getItemCount(); i++) {
-			s += StaticMethod.round(liverL.getY(i).doubleValue(), 2) + ",";
+			s += Library_Quantif.round(liverL.getY(i).doubleValue(), 2) + ",";
 		}
 		s += "\n";
 

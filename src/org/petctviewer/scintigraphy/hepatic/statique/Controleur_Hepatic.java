@@ -3,7 +3,7 @@ package org.petctviewer.scintigraphy.hepatic.statique;
 import java.awt.image.BufferedImage;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.StaticMethod;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.gui.Roi;
 
@@ -46,7 +46,7 @@ public class Controleur_Hepatic extends ControleurScin {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				BufferedImage capture = StaticMethod.captureImage(getScin().getImp(), 400, 400).getBufferedImage();
+				BufferedImage capture = Library_Capture_CSV.captureImage(getScin().getImp(), 400, 400).getBufferedImage();
 				new FenResultat_Hepatic(getScin(), capture);
 				getScin().getFenApplication().dispose();
 			}

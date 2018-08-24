@@ -19,7 +19,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.StaticMethod;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImageListener;
 import ij.ImagePlus;
@@ -106,7 +106,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			for (int i = 0; i < id.length; i++) {
 				ImagePlus imp = WindowManager.getImage(id[i]);
 
-				HashMap<String, String> hm = StaticMethod.getPatientInfo(imp);
+				HashMap<String, String> hm = Library_Capture_CSV.getPatientInfo(imp);
 
 				data[i][0] = replaceNull(hm.get("name"));
 

@@ -3,7 +3,7 @@ package org.petctviewer.scintigraphy.renal.postMictional;
 import java.util.HashMap;
 
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.StaticMethod;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
 
@@ -13,7 +13,7 @@ public class Modele_PostMictional extends ModeleScin {
 	
 	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
-		hm.put(nomRoi, StaticMethod.getCounts(imp));
+		hm.put(nomRoi, Library_Quantif.getCounts(imp));
 	}
 
 	@Override

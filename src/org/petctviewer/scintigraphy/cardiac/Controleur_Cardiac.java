@@ -12,7 +12,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.StaticMethod;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
@@ -65,7 +65,7 @@ public class Controleur_Cardiac extends ControleurScin {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				BufferedImage capture = StaticMethod.captureImage(vue.getImp(), 410, 820).getBufferedImage();	
+				BufferedImage capture = Library_Capture_CSV.captureImage(vue.getImp(), 410, 820).getBufferedImage();	
 				new FenResultat_Cardiac(vue, capture);
 			}
 		});

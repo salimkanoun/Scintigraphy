@@ -10,9 +10,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,22 +22,16 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.Renderer;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.category.LineAndShapeRenderer;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.chart.renderer.xy.XYSplineRenderer;
-import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.scin.StaticMethod;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -546,7 +538,7 @@ public class FenApplication_FollowUp extends JFrame{
 			public void actionPerformed(ActionEvent e) {
 				
 				String partie1 = (String)allExamens.get(Collections.max(allExamens.keySet())).get("tags");
-				Container root =  StaticMethod.getRootContainer(captureButton);
+				Container root =  Library_Capture_CSV.getRootContainer(captureButton);
 				
 				captureButton.setVisible(false);
 			
@@ -554,7 +546,7 @@ public class FenApplication_FollowUp extends JFrame{
 				BufferedImage capture = new BufferedImage(root.getWidth(), root.getHeight(),BufferedImage.TYPE_INT_ARGB);
 				root.paint(capture.getGraphics());	
 				ImagePlus imp = new ImagePlus("capture", capture);
-				String partie2=StaticMethod.genererDicomTagsPartie2(imp);
+				String partie2=Library_Capture_CSV.genererDicomTagsPartie2(imp);
 				imp.setProperty("Info", partie1+partie2);
 				imp.show();
 				imp.getWindow().toFront();

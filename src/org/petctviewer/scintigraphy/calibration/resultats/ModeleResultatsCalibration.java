@@ -6,7 +6,7 @@ import java.util.HashMap;
 import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.scin.StaticMethod;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -177,13 +177,13 @@ public class ModeleResultatsCalibration {
 			for(int j = 0; j < this.donneesCharge.size(); j++) {
 				//numero d'acquisition
 				tableauFinal[j][0] = (double)(j+1);
-				tableauFinal[j][1] = StaticMethod.round(((Double)this.donneesCharge.get(j).get(i).get("SUVmax")),2);
-				tableauFinal[j][2] = StaticMethod.round((Double)this.donneesCharge.get(j).get(i).get("TrueSphereVolume")/1000,2);
-				tableauFinal[j][3] = StaticMethod.round((Double)this.donneesCharge.get(j).get(i).get("VolumeCalculated"),2);
+				tableauFinal[j][1] = Library_Quantif.round(((Double)this.donneesCharge.get(j).get(i).get("SUVmax")),2);
+				tableauFinal[j][2] = Library_Quantif.round((Double)this.donneesCharge.get(j).get(i).get("TrueSphereVolume")/1000,2);
+				tableauFinal[j][3] = Library_Quantif.round((Double)this.donneesCharge.get(j).get(i).get("VolumeCalculated"),2);
 				//difference en ml
-				tableauFinal[j][4] = StaticMethod.round((Double)this.donneesCharge.get(j).get(i).get("VolumeCalculated") - ((Double)this.donneesCharge.get(j).get(i).get("TrueSphereVolume")/1000),2);
+				tableauFinal[j][4] = Library_Quantif.round((Double)this.donneesCharge.get(j).get(i).get("VolumeCalculated") - ((Double)this.donneesCharge.get(j).get(i).get("TrueSphereVolume")/1000),2);
 				//difference en pourcentage
-				tableauFinal[j][5] = StaticMethod.round( (
+				tableauFinal[j][5] = Library_Quantif.round( (
 								tableauFinal[j][4]		 / 
 								((Double)this.donneesCharge.get(j).get(i).get("TrueSphereVolume")/1000) ) *100,2);
 			}
@@ -202,7 +202,7 @@ public class ModeleResultatsCalibration {
 			for(int j = 0; j < this.listTableauFinal.get(i).length ; j++){
 				listDifferencePourcentage.add(Math.abs(this.listTableauFinal.get(i)[j][5]));
 			}
-			listMoyenneDifferencePourcentage.add(StaticMethod.round(mean(listDifferencePourcentage.toArray(new Double[listDifferencePourcentage.size()] )),2));
+			listMoyenneDifferencePourcentage.add(Library_Quantif.round(mean(listDifferencePourcentage.toArray(new Double[listDifferencePourcentage.size()] )),2));
 		}
 		return listMoyenneDifferencePourcentage;
 	}

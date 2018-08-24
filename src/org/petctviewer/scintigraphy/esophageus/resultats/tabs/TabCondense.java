@@ -25,9 +25,6 @@ import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_Esopha
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
-import ij.ImagePlus;
-import ij.plugin.ContrastEnhancer;
-import ij.plugin.frame.ContrastAdjuster;
 import ij.process.ImageStatistics;
 
 @SuppressWarnings("serial")
@@ -50,14 +47,12 @@ public class TabCondense extends JPanel implements ChangeListener{
 	 
 	 private static int numAcquisitionCondense = 0;
 	
-	private static ContrastEnhancer ce ;
 
 	 private Modele_Resultats_EsophagealTransit modele;
 	 
 	public TabCondense(int nbAcquisition , Modele_Resultats_EsophagealTransit modele, Modele_EsophagealTransit modeleApp) {
 		this.modele = modele;
 		
-		ce = new ContrastEnhancer();
 		this.setLayout(new BorderLayout());
 
 		this.rightRognageValue = new int[nbAcquisition];
@@ -161,6 +156,7 @@ public class TabCondense extends JPanel implements ChangeListener{
 					int max = (int) Math.round(stat.max);
 					contrastSlider.getModel().setMaximum(max);
 					
+					// creation du contraste
 					 modele.getImagePlusAndRoi(numAcquisitionCondense).getProcessor().setMinAndMax(0,(max- ((JSlider)e.getSource()).getValue())+1);
 					imageProjeterEtRoiPanel.setImage(modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
 

@@ -18,9 +18,9 @@ import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
 import ij.plugin.ZProjector;
@@ -152,8 +152,8 @@ class TabPrincipal extends JPanel {
 
 		Double xLasilix = modele.getAdjustedValues().get("lasilix");
 		// minutes a observer pour la capacite d'excretion
-		Double[] mins = new Double[] { StaticMethod.round(xLasilix - 1, 1), StaticMethod.round(xLasilix + 2, 1),
-				StaticMethod.round(modele.getSerie("Blood Pool").getMaxX(), 1) };
+		Double[] mins = new Double[] { Library_Quantif.round(xLasilix - 1, 1), Library_Quantif.round(xLasilix + 2, 1),
+				Library_Quantif.round(modele.getSerie("Blood Pool").getMaxX(), 1) };
 
 		// panel roe
 		JPanel pnl_roe = new JPanel(new GridLayout(4, 3, 0, 3));

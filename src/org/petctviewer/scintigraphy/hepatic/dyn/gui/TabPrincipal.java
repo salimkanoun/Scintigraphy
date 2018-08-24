@@ -18,11 +18,10 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.dyn.Modele_HepaticDyn;
-import org.petctviewer.scintigraphy.scin.DynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.StaticMethod;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
 
@@ -44,7 +43,7 @@ class TabPrincipal extends JPanel{
 		side.addCaptureBtn(scin, "");
 		
 		//montage sur l'ensemble des images
-		ImagePlus imp = StaticMethod.creerMontage(scin.getFrameDurations(), scin.getImpAnt(), capture.getWidth() / 4, 4, 4);
+		ImagePlus imp = Library_Capture_CSV.creerMontage(scin.getFrameDurations(), scin.getImpAnt(), capture.getWidth() / 4, 4, 4);
 		BufferedImage montage = imp.getBufferedImage();
 		
 		//panel qui sera plae au centre de la fenetre

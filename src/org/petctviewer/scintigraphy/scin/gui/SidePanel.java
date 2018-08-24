@@ -18,7 +18,7 @@ import javax.swing.border.EmptyBorder;
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.StaticMethod;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
 /**
@@ -87,7 +87,7 @@ public class SidePanel extends Box {
 		this.add(flow);
 
 		// ajout des informations du patient
-		HashMap<String, String> infoPatient = StaticMethod.getPatientInfo(imp);
+		HashMap<String, String> infoPatient = Library_Capture_CSV.getPatientInfo(imp);
 		JPanel patientInfo = new JPanel(new GridLayout(3, 2, 10, 10));
 		patientInfo.add(new JLabel("Patient name: "));
 		patientInfo.add(new JLabel(infoPatient.get("name")));

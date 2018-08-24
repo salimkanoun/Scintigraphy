@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
-import org.petctviewer.scintigraphy.scin.StaticMethod;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -106,7 +106,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		String[][] asso = fenGroup.getAssociation();
 
 		if (vue.getImpAnt() != null) {
-			capture = StaticMethod.captureImage(imp, 300, 300).getBufferedImage();
+			capture = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
 			ModeleScinDyn modele = saveValues(vue.getImpAnt());
 			new FenResultat_GeneralDyn(vue, capture, modele, asso, "Ant");
 		}
@@ -132,7 +132,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 						e.printStackTrace();
 					}
 
-					BufferedImage c = StaticMethod.captureImage(imp, 300, 300).getBufferedImage();
+					BufferedImage c = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
 
 					ModeleScinDyn modele = saveValues(vue.getImpPost());
 					new FenResultat_GeneralDyn(vue, c, modele, asso, "Post");

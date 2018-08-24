@@ -5,7 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.StaticMethod;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 
 import ij.gui.Overlay;
 import ij.gui.Roi;
@@ -44,7 +45,7 @@ public class Controleur_Dmsa extends ControleurScin {
 	public void fin() {
 		this.over = true;
 		
-		BufferedImage capture = StaticMethod.captureImage(getScin().getImp(), 400, 400).getBufferedImage();
+		BufferedImage capture = Library_Capture_CSV.captureImage(getScin().getImp(), 400, 400).getBufferedImage();
 		
 		if(this.antPost) {
 			this.setSlice(1);
@@ -90,7 +91,7 @@ public class Controleur_Dmsa extends ControleurScin {
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
 		if(this.indexRoi == 1 | this.indexRoi == 3) {
-			return StaticMethod.createBkgRoi(this.roiManager.getRoi(indexRoi - 1), this.getScin().getImp(), StaticMethod.KIDNEY);
+			return Library_Roi.createBkgRoi(this.roiManager.getRoi(indexRoi - 1), this.getScin().getImp(), Library_Roi.KIDNEY);
 		}
 		return null;
 	}
