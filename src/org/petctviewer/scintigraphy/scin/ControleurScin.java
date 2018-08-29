@@ -167,8 +167,7 @@ public abstract class ControleurScin implements ActionListener {
 	public void clicPrecedent() {
 		//Si boutton suivant desactive car on est arrive a la fin du programme, on le reactive quand on a clique sur precedent
 		if( !scin.getFenApplication().getBtn_suivant().isEnabled() ) scin.getFenApplication().getBtn_suivant().setEnabled(true);
-		// sauvegarde du ROI courant
-
+		
 		// on decrement indexRoi
 		if (this.indexRoi > 0) {
 			this.indexRoi--;

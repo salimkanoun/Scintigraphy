@@ -76,7 +76,11 @@ public class Controleur_Renal extends ControleurScin {
 	
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
-		if (indexRoi > 0 && lastRoi < this.indexRoi) {
+		System.out.println("ROImanagerLength"+roiManager.getRoisAsArray().length);
+		System.out.println("lastROi"+lastRoi);
+		System.out.println("current index"+indexRoi);
+		System.out.println("ROImanagerSelectedIndex"+roiManager.getSelectedIndex());
+		if (indexRoi > 0 && lastRoi < indexRoi) {
 			String org = this.getNomOrgane(indexRoi - 1);
 
 			// roi de bruit de fond
@@ -102,7 +106,7 @@ public class Controleur_Renal extends ControleurScin {
 
 	@Override
 	public boolean isOver() {
-		return this.indexRoi >= this.getOrganes().length - 1;
+		return this.indexRoi >= this.getOrganes().length -1 ;
 	}
 
 	
@@ -206,6 +210,9 @@ public class Controleur_Renal extends ControleurScin {
 		// on affiche la fenetre de resultats principale
 		vue.setNephrogramChart(fan.getValueSetter());
 		new FenResultats_Renal(vue, capture);
+		
+		//SK On rebloque le modele pour la prochaine generation
+		modele.setLocked(true);
 	}
 
 	private void hideLabel(String name, Color c) {
