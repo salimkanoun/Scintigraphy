@@ -152,7 +152,7 @@ public class Controleur_Renal extends ControleurScin {
 	@Override
 	public void fin() {
 		// on supprime le listener de l'image plus
-		this.removeImpListener();
+		//this.removeImpListener();
 
 		// on recupere la vue, le modele et l'imp
 		RenalScintigraphy vue = (RenalScintigraphy) this.getScin();
@@ -168,17 +168,17 @@ public class Controleur_Renal extends ControleurScin {
 		BufferedImage capture = Library_Capture_CSV.captureImage(this.getScin().getImp(), 300, 300).getBufferedImage();
 
 		// on ajoute l'imp a la vue
-		this.getScin().setImp(imp);
+		//this.getScin().setImp(imp);
 
 		// on enregistre la mesure pour chaque slice
-		this.indexRoi = 0;
+		int indexRoi = 0;
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
 			for (int j = 0; j < this.getOrganes().length; j++) {
-				imp.setRoi(roiManager.getRoi(this.indexRoi % this.getOrganes().length));
-				String nom = this.getNomOrgane(this.indexRoi);
+				imp.setRoi(roiManager.getRoi(indexRoi % this.getOrganes().length));
+				String nom = this.getNomOrgane(indexRoi);
 				modele.enregistrerMesure(this.addTag(nom), imp);
-				this.indexRoi++;
+				indexRoi++;
 			}
 		}
 

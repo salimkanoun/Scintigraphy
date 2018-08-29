@@ -447,6 +447,7 @@ public abstract class ControleurScin implements ActionListener {
 	 */
 	public void setInstructionsDelimit(int nOrgane) {
 		this.scin.getFenApplication().getTextfield_instructions().setText("Delimit the " + this.getNomOrgane(nOrgane));
+		this.scin.getFenApplication().pack();
 	}
 
 	/**

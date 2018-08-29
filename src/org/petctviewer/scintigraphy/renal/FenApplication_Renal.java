@@ -38,20 +38,21 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 		//Ajout du boutton dynamic au panel de gauche
 		btn_dyn = new Button("Dynamic");
 		btn_dyn.addActionListener(this);
+		
+		this.getPanel_btns_gauche().setLayout(new GridLayout(1, 4));
 		this.getPanel_btns_gauche().add(btn_dyn);
+		this.getPanel_btns_gauche().revalidate();
 		
-		// mise en place des boutons de droites
-		Panel btnsDroits=this.getPanel_bttns_droit();
-		btnsDroits.removeAll();
-		
-		Panel btns_instru = new Panel();
-		btns_instru.setLayout(new GridLayout(1, 3));
+		// Remplacement boutons de droites sous l'instruction
+		Panel btns_instru = new Panel(new GridLayout(1,1));
 		btn_start = new Button("Start");
 		btn_start.addActionListener(this);
 		btns_instru.add(btn_start);
 		
-		btnsDroits.add(btns_instru);
-	
+		this.getPanel_bttns_droit().removeAll();
+		this.getPanel_bttns_droit().setLayout(new GridLayout(1,1));
+		this.getPanel_bttns_droit().add(btns_instru);
+		
 		this.getBtn_drawROI().setEnabled(false);
 		
 		this.setDefaultSize();

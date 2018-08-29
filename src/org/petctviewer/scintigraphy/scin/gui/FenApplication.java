@@ -97,13 +97,14 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		// Creation du panel instructions
 		this.panel_Instructions_btns_droite = new Panel();
 		this.panel_Instructions_btns_droite.setLayout(new GridLayout(2, 1));
-		this.textfield_instructions = new JTextField();
+		this.textfield_instructions = new JTextField("Click To Start Exam");
 		this.textfield_instructions.setEditable(false);
 		this.textfield_instructions.setBackground(Color.LIGHT_GRAY);
 		this.panel_Instructions_btns_droite.add(textfield_instructions);
 
 		panel_btns_droite = this.createPanelInstructionsBtns();
 		this.panel_Instructions_btns_droite.add(panel_btns_droite);
+		
 		panelPrincipal.add(this.panel_Instructions_btns_droite);
 		
 		
@@ -129,15 +130,13 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		double magnification =( canvasW / (1.0 * imp.getWidth()) );
 		
 		this.getCanvas().setMagnification(magnification);
-		// pour que le pack prenne en compte les dimensions du panel
-		//System.out.println(panelPrincipal.getPreferredSize());
-		//this.panelPrincipal.setPreferredSize(panelPrincipal.getPreferredSize());
 		
+		panelPrincipal.revalidate();
 		panelContainer.revalidate();
+		panel_btns_droite.revalidate();
+		panel_btns_gauche.revalidate();
+		panel_Instructions_btns_droite.revalidate();
 		this.revalidate();
-		System.out.println(panelPrincipal.getSize());
-
-		//this.panel.setPreferredSize(panel.getPreferredSize());
 	
 		this.pack();
 		this.setSize(this.getPreferredSize());
@@ -156,7 +155,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	/************Private Method *********/
 	public Panel createPanelInstructionsBtns() {
 		Panel btns_instru = new Panel();
-		btns_instru.setLayout(new GridLayout(1, 3));
+		btns_instru.setLayout(new GridLayout(1, 2));
 		btns_instru.add(this.btn_precedent);
 		btns_instru.add(this.btn_suivant);
 		return btns_instru;
