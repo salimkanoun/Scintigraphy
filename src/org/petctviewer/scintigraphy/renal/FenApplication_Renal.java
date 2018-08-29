@@ -33,11 +33,8 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 	private Button btn_dyn, btn_start;
 
 	public FenApplication_Renal(ImagePlus imp, String nom, RenalScintigraphy vue) {
-	
 		
 		super(imp, nom);
-		
-		
 		//Ajout du boutton dynamic au panel de gauche
 		btn_dyn = new Button("Dynamic");
 		btn_dyn.addActionListener(this);

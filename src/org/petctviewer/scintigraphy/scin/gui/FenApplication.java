@@ -132,6 +132,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		// pour que le pack prenne en compte les dimensions du panel
 		//System.out.println(panelPrincipal.getPreferredSize());
 		//this.panelPrincipal.setPreferredSize(panelPrincipal.getPreferredSize());
+		
 		panelContainer.revalidate();
 		this.revalidate();
 		System.out.println(panelPrincipal.getSize());
