@@ -35,9 +35,7 @@ public class RenalScintigraphy extends Scintigraphy {
 		
 		images[0].close();
 		
-		if(imps[0] != null) {
-			this.impAnt = imps[0];
-		}
+		
 		
 		if(imps[1] != null) {
 			this.impPost = imps[1];
@@ -60,9 +58,10 @@ public class RenalScintigraphy extends Scintigraphy {
 		stack.addSlice(pj.getProcessor());
 
 		// ajout de la prise ant si elle existe
-		if (this.impAnt != null) {
+		if (imps[0] != null) {
 			ImagePlus impProjAnt = Library_Dicom.projeter(impAnt,0,impAnt.getStackSize(),"avg");
 			impProjAnt.getProcessor().flipHorizontal();
+			impAnt=impProjAnt;
 			stack.addSlice(impProjAnt.getProcessor());
 		}
 
