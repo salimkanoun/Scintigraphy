@@ -74,13 +74,13 @@ public class FenApplication_EsophagealTransit extends Scintigraphy {
 			//on ne sauvegarde que la ant
 			//null == pas d'image ant et/ou une image post et != une image post en [0]
 			if(Library_Dicom.sortDynamicAntPost(imagesSelectDicom[i])[0] != null) {
-				imagePourTrieAnt.add(Library_Dicom.sortDynamicAntPost(imagesSelectDicom[i])[0].duplicate());
+				imagePourTrieAnt.add(Library_Dicom.sortDynamicAntPost(imagesSelectDicom[i])[0]);
 			}
 			// [1] : c'est la post
 			// si null : pas dimage post 
 			if(Library_Dicom.sortDynamicAntPost(imagesSelectDicom[i])[1] != null) {
 				//trie + inversement de la post
-				imagePourTriePost.add(Library_Dicom.flipStackHorizontal(Library_Dicom.sortDynamicAntPost(imagesSelectDicom[i])[1].duplicate()));
+				imagePourTriePost.add(Library_Dicom.flipStackHorizontal(Library_Dicom.sortDynamicAntPost(imagesSelectDicom[i])[1]));
 			}
 			imagesSelectDicom[i].close();
 

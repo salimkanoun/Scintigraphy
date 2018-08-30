@@ -182,7 +182,6 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			images[i] = WindowManager.getImage(id[rows[i]]);
 			// ATTENTION NE PAS FAIRE DE HIDE OU DE CLOSE CAR DECLANCHE LE LISTENER
 			// IMAGE PLUS DOIVENT ETRE DUPLIQUEE ET FERMEE DANS LES PROGRAMMES LANCES
-			// images[i].hide();
 		}
 
 		try {

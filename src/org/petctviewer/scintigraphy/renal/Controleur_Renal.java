@@ -80,9 +80,9 @@ public class Controleur_Renal extends ControleurScin {
 		System.out.println("lastROi"+lastRoi);
 		System.out.println("current index"+indexRoi);
 		System.out.println("ROImanagerSelectedIndex"+roiManager.getSelectedIndex());
-		if (indexRoi > 0 && lastRoi < indexRoi) {
-			String org = this.getNomOrgane(indexRoi - 1);
-
+		if (indexRoi >= 0 && lastRoi < indexRoi ) {
+			String org = this.getNomOrgane(lastRoi);
+			System.out.println("organRoiName"+org);
 			// roi de bruit de fond
 			boolean pelvis = Prefs.get("renal.pelvis.preferred", true);
 			if (!pelvis && org.contains("Kidney")) {
@@ -92,7 +92,11 @@ public class Controleur_Renal extends ControleurScin {
 				Roi roi = roiManager.getRoi(indexRoi - 2);
 				return Library_Roi.createBkgRoi(roi, getScin().getImp(),Library_Roi.KIDNEY);
 			}
+		//Sens Retour
+		}else if(indexRoi >= 0 && lastRoi == indexRoi ) {
+			return roiManager.getRoi(indexRoi);
 		}
+		
 
 		return null;
 	}

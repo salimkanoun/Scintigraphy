@@ -231,7 +231,9 @@ public abstract class ControleurScin implements ActionListener {
 	public boolean saveCurrentRoi(String nomRoi, int indexRoi) {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
 			// on change la couleur pour l'overlay
-			this.scin.getImp().getRoi().setStrokeColor(Color.YELLOW);
+			this.scin.getImp()
+			.getRoi()
+			.setStrokeColor(Color.YELLOW);
 			// on enregistre la ROI dans le modele
 			this.modele.enregistrerMesure(
 					this.addTag(nomRoi), 
@@ -240,9 +242,11 @@ public abstract class ControleurScin implements ActionListener {
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
 			if (this.roiManager.getRoi(indexRoi) == null) {
+				//Necessite debug d'ImageJ en attente
+				roiManager.addRoi(this.scin.getImp().getRoi());
 				//On utilise le macro car probleme d'ajout ROI identique sinon // pas toucher
 				//SK VOIR AVEC IMAGEJ PEUT PAS AJOUTER SI ROI MANAGER INVISIBLE
-				IJ.runMacro("roiManager(\"Add\");");
+				//IJ.runMacro("roiManager(\"Add\");");
 			} else { // Si il existe on l'ecrase
 				this.roiManager.setRoi(this.scin.getImp().getRoi(), indexRoi);
 				// on supprime le roi nouvellement ajoute de la vue

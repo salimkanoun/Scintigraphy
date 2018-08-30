@@ -420,9 +420,9 @@ public class Library_Dicom {
 				return sortedImagePlus;
 		} else {
 			if (isAnterieur(imagePlus)) {
-				sortedImagePlus[0] = imagePlus;
+				sortedImagePlus[0] = imagePlus.duplicate();
 			} else {
-				sortedImagePlus[1] = imagePlus;
+				sortedImagePlus[1] = imagePlus.duplicate();
 			}
 		}
 		return sortedImagePlus;
