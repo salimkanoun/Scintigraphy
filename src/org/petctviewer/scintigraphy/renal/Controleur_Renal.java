@@ -80,6 +80,7 @@ public class Controleur_Renal extends ControleurScin {
 		System.out.println("lastROi"+lastRoi);
 		System.out.println("current index"+indexRoi);
 		System.out.println("ROImanagerSelectedIndex"+roiManager.getSelectedIndex());
+		//Sens aller
 		if (indexRoi >= 0 && lastRoi < indexRoi ) {
 			String org = this.getNomOrgane(lastRoi);
 			System.out.println("organRoiName"+org);

@@ -58,7 +58,7 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 		this.setDefaultSize();
 		
 		this.vue = vue;
-		this.impProj = imp.duplicate();
+		this.impProj = imp;
 		
 	
 	}
