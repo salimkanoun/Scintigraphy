@@ -25,7 +25,7 @@ import ij.ImagePlus;
 import ij.gui.Overlay;
 import ij.gui.Toolbar;
 
-public class FenApplication_EsophagealTransit extends Scintigraphy {
+public class EsophagealTransit extends Scintigraphy {
 	/*
 	 * pour cette application on aura 2 phases:
 	 * phase 1 : affichage de chaque stack pour chaque acquisition, avec la possiblité de changer d'acqui.
@@ -48,7 +48,7 @@ public class FenApplication_EsophagealTransit extends Scintigraphy {
 	private int nbAcquisition;
 
 	
-	public FenApplication_EsophagealTransit() {
+	public EsophagealTransit() {
 		super("Esophageal Transit");
 	}
 
@@ -190,11 +190,11 @@ public class FenApplication_EsophagealTransit extends Scintigraphy {
 				fen.setImp(impProjeteAllAcqui);
 				fen.getImagePlus().setSlice(1);
 				fen.updateSliceSelector();
-				FenApplication_EsophagealTransit.this.setImp(impProjeteAllAcqui);
+				EsophagealTransit.this.setImp(impProjeteAllAcqui);
 				IJ.setTool(Toolbar.RECTANGLE);
 
-				Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(FenApplication_EsophagealTransit.this, sauvegardeImagesSelectDicom);
-				FenApplication_EsophagealTransit.this.getFenApplication().setControleur(cet);
+				Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(EsophagealTransit.this, sauvegardeImagesSelectDicom);
+				EsophagealTransit.this.getFenApplication().setControleur(cet);
 
 			}
 		});

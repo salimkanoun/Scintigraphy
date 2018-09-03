@@ -11,7 +11,7 @@ import org.petctviewer.scintigraphy.PrefsWindow;
 import org.petctviewer.scintigraphy.calibration.Calibration;
 import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
 import org.petctviewer.scintigraphy.dynamic.GeneralDynamicScintigraphy;
-import org.petctviewer.scintigraphy.esophageus.application.FenApplication_EsophagealTransit;
+import org.petctviewer.scintigraphy.esophageus.application.EsophagealTransit;
 import org.petctviewer.scintigraphy.gastric.Vue_VG_Dynamique;
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.statique.HepaticScintigraphy;
@@ -155,7 +155,7 @@ public class FenDebug extends JFrame{
 		btn_Esophageal.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				FenApplication_EsophagealTransit eso = new FenApplication_EsophagealTransit();
+				EsophagealTransit eso = new EsophagealTransit();
 				eso.run("");
 			}
 		});
