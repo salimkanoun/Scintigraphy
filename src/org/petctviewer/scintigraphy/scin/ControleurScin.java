@@ -66,7 +66,7 @@ public abstract class ControleurScin implements ActionListener {
 		this.overlay = Library_Gui.duplicateOverlay(scin.getImp().getOverlay());
 
 		//SK BOOLEAN FALSE POUR MASQUER, ne rien mettre POUR DEVELOPPEMENT
-		this.roiManager = new RoiManager();
+		this.roiManager = new RoiManager(false);
 
 		//this.addImageListener
 		this.ctrlImg = new ControleurImp(this);
