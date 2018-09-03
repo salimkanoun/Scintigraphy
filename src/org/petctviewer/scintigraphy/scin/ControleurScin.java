@@ -66,7 +66,7 @@ public abstract class ControleurScin implements ActionListener {
 		this.overlay = Library_Gui.duplicateOverlay(scin.getImp().getOverlay());
 
 		//SK BOOLEAN FALSE POUR MASQUER, ne rien mettre POUR DEVELOPPEMENT
-		this.roiManager = new RoiManager(false);
+		this.roiManager = new RoiManager();
 
 		//this.addImageListener
 		this.ctrlImg = new ControleurImp(this);
@@ -366,6 +366,10 @@ public abstract class ControleurScin implements ActionListener {
 	}
 	
 	public String getNomOrgane(int index) {
+		
+		System.out.println("Index"+index);
+		System.out.println("Lenght"+ this.getOrganes().length);
+		System.out.println("modulo"+index % this.getOrganes().length);
 		return this.getOrganes()[index % this.getOrganes().length];
 	}
 

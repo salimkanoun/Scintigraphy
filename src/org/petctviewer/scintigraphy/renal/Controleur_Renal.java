@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import org.jfree.chart.ChartPanel;
@@ -76,12 +77,10 @@ public class Controleur_Renal extends ControleurScin {
 	
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
-		System.out.println("ROImanagerLength"+roiManager.getRoisAsArray().length);
 		System.out.println("lastROi"+lastRoi);
 		System.out.println("current index"+indexRoi);
-		System.out.println("ROImanagerSelectedIndex"+roiManager.getSelectedIndex());
 		//Sens aller
-		if (indexRoi >= 0 && lastRoi < indexRoi ) {
+		if ( lastRoi < indexRoi ) {
 			String org = this.getNomOrgane(lastRoi);
 			System.out.println("organRoiName"+org);
 			// roi de bruit de fond
@@ -94,7 +93,7 @@ public class Controleur_Renal extends ControleurScin {
 				return Library_Roi.createBkgRoi(roi, getScin().getImp(),Library_Roi.KIDNEY);
 			}
 		//Sens Retour
-		}else if(indexRoi >= 0 && lastRoi == indexRoi ) {
+		}else if(lastRoi == indexRoi ) {
 			return roiManager.getRoi(indexRoi);
 		}
 		
@@ -111,7 +110,7 @@ public class Controleur_Renal extends ControleurScin {
 
 	@Override
 	public boolean isOver() {
-		return this.indexRoi >= this.getOrganes().length -1 ;
+		return this.indexRoi >= this.getOrganes().length -1;
 	}
 
 	
@@ -160,6 +159,7 @@ public class Controleur_Renal extends ControleurScin {
 
 	@Override
 	public void fin() {
+		this.indexRoi++;
 		// on supprime le listener de l'image plus
 		//this.removeImpListener();
 
@@ -167,6 +167,9 @@ public class Controleur_Renal extends ControleurScin {
 		RenalScintigraphy vue = (RenalScintigraphy) this.getScin();
 		Modele_Renal modele = (Modele_Renal) vue.getFenApplication().getControleur().getModele();
 
+		//Remet les data a zero (en cas de relance)
+		modele.getData().clear();
+		
 		// on passe l'image post dans la vue
 		ImagePlus imp = vue.getImpPost();
 
@@ -191,7 +194,9 @@ public class Controleur_Renal extends ControleurScin {
 			}
 		}
 
+		
 		// on calcule les resultats
+		//
 		modele.calculerResultats();
 
 		// on recupere les chartPanels avec l'association
@@ -218,6 +223,7 @@ public class Controleur_Renal extends ControleurScin {
 		
 		//SK On rebloque le modele pour la prochaine generation
 		modele.setLocked(true);
+		
 	}
 
 	private void hideLabel(String name, Color c) {

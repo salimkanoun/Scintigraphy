@@ -77,11 +77,7 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 			ImagePlus imp;
 
 			if (!this.dyn) {
-				if (this.getControleur().isPost()) {
-					imp = vue.getImpPost();
-				} else {
-					imp = vue.getImpAnt();
-				}
+				imp = vue.getImpPost();
 			} else {
 				imp = this.impProj;
 			}
@@ -100,7 +96,7 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 
 			this.revalidate();
 			this.setImage(imp);
-			this.vue.setImp(imp);
+			
 			
 			this.updateSliceSelector();
 
@@ -118,6 +114,7 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 
 		//Mode debut du programme apres visualisation.
 		} else if( e.getSource() == btn_start) {
+			btn_dyn.setEnabled(false);;
 			// TODO move elsewhere
 			Fen_NbRein fen = new Fen_NbRein();
 			fen.setModal(true);
@@ -133,7 +130,9 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 			this.getControleur().setInstructionsDelimit(0);
 			this.getBtn_drawROI().setEnabled(true);
 			IJ.setTool(Toolbar.POLYGON);
+			this.setImage(impProj);
 			this.vue.setImp(impProj);
+			this.updateSliceSelector();
 			resizeCanvas();
 		}
 
