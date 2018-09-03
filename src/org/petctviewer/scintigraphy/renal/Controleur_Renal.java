@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import org.jfree.chart.ChartPanel;
@@ -159,7 +158,10 @@ public class Controleur_Renal extends ControleurScin {
 
 	@Override
 	public void fin() {
+		//Increment l'index de 1 pour eviter erreur d'index
+		//A VEFIRIER SK
 		this.indexRoi++;
+		
 		// on supprime le listener de l'image plus
 		//this.removeImpListener();
 
@@ -167,20 +169,17 @@ public class Controleur_Renal extends ControleurScin {
 		RenalScintigraphy vue = (RenalScintigraphy) this.getScin();
 		Modele_Renal modele = (Modele_Renal) vue.getFenApplication().getControleur().getModele();
 
-		//Remet les data a zero (en cas de relance)
+		//Remet les data du modele a zero (en cas de relance)
 		modele.getData().clear();
 		
-		// on passe l'image post dans la vue
+		// On recupere l'image Post dynamique sur laquelle on fait les quantifications
 		ImagePlus imp = vue.getImpPost();
 
-		// on debloque le modele
+		// on debloque le modele pour avoir l'enregistrement des mesures
 		modele.setLocked(false);
 
 		// capture de l'imageplus ainsi que de l'overlay
 		BufferedImage capture = Library_Capture_CSV.captureImage(this.getScin().getImp(), 300, 300).getBufferedImage();
-
-		// on ajoute l'imp a la vue
-		//this.getScin().setImp(imp);
 
 		// on enregistre la mesure pour chaque slice
 		int indexRoi = 0;
@@ -196,7 +195,6 @@ public class Controleur_Renal extends ControleurScin {
 
 		
 		// on calcule les resultats
-		//
 		modele.calculerResultats();
 
 		// on recupere les chartPanels avec l'association
