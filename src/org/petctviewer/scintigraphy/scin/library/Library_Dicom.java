@@ -9,6 +9,9 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+
 import org.apache.commons.lang.StringUtils;
 
 import ij.IJ;
@@ -346,9 +349,21 @@ public class Library_Dicom {
 					&& !tag.substring(0, separateur).contains("ANT") && !tag.substring(0, separateur).contains("_E")) {
 				// le Boolean reste null et on informe l'user
 				IJ.log("Information not reckognized");
+				
 			}
 		} else {
 			IJ.log("No localization information");
+		}
+		
+		if(anterieur==null) {
+			//SK A EVOLUER VERS UN DIALOG PERSONALISE
+			int dialogResult = JOptionPane.showConfirmDialog (null, "Is Image Anterior?","Warning - No Orientation Found", JOptionPane.YES_NO_OPTION);
+			if(dialogResult == JOptionPane.YES_OPTION){
+			  return true;
+			}else {
+				return false;
+			}
+			
 		}
 	
 		return anterieur;
@@ -363,6 +378,7 @@ public class Library_Dicom {
 	 */
 	public static Boolean isAnterieur(ImagePlus imp) {
 		Boolean anterieur = null;
+		
 		if (Library_Dicom.isMultiFrame(imp)) {
 			anterieur = isAnterieurMultiframe(imp);
 		}
@@ -413,6 +429,7 @@ public class Library_Dicom {
 	public static ImagePlus[] sortDynamicAntPost(ImagePlus imagePlus) {
 		ImagePlus[] sortedImagePlus = new ImagePlus[2];
 		
+	
 		// si l'image est multiframe  et  ce nest pas la meme camera 
 		if (isMultiFrame(imagePlus) && !isSameCameraMultiFrame(imagePlus)) { 
 				sortedImagePlus[0] = splitCameraMultiFrame(imagePlus)[0];
