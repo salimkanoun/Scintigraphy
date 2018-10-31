@@ -65,7 +65,7 @@ public class Controleur_Cardiac extends ControleurScin {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				BufferedImage capture = Library_Capture_CSV.captureImage(vue.getImp(), 600, 0).getBufferedImage();	
+				BufferedImage capture = Library_Capture_CSV.captureImage(vue.getImp(), 400, 0).getBufferedImage();	
 				new FenResultat_Cardiac(vue, capture);
 			}
 		});
