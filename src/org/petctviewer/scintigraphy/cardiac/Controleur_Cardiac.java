@@ -61,11 +61,11 @@ public class Controleur_Cardiac extends ControleurScin {
 		mdl.calculerResultats();
 
 		CardiacScintigraphy vue = (CardiacScintigraphy) this.getScin();
-		vue.getFenApplication().resizeCanvas();
+		//vue.getFenApplication().resizeCanvas();
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				BufferedImage capture = Library_Capture_CSV.captureImage(vue.getImp(), 410, 820).getBufferedImage();	
+				BufferedImage capture = Library_Capture_CSV.captureImage(vue.getImp(), 600, 0).getBufferedImage();	
 				new FenResultat_Cardiac(vue, capture);
 			}
 		});
@@ -165,12 +165,12 @@ public class Controleur_Cardiac extends ControleurScin {
 
 			// on affiche les instructions
 			if (this.getIndexRoi() % 2 == 0) {
-				this.getScin().getFenApplication().getTextfield_instructions().setText("Delimit a new contamination");
+				this.getScin().getFenApplication().setText_instructions("Delimit a new contamination");
 				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getScin().getFenApplication();
 				fac.getBtn_continue().setEnabled(true);
 				fac.getBtn_newCont().setLabel("Next");
 			} else {
-				this.getScin().getFenApplication().getTextfield_instructions().setText("Adjust contamination zone");
+				this.getScin().getFenApplication().setText_instructions("Adjust contamination zone");
 				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getScin().getFenApplication();
 				fac.getBtn_continue().setEnabled(false);
 				fac.getBtn_newCont().setLabel("Save");

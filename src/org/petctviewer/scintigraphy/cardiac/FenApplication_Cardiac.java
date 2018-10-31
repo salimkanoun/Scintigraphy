@@ -7,7 +7,9 @@ import java.awt.Panel;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
+import ij.IJ;
 import ij.ImagePlus;
+import ij.gui.Toolbar;
 
 public class FenApplication_Cardiac extends FenApplication {
 	
@@ -24,9 +26,9 @@ public class FenApplication_Cardiac extends FenApplication {
 
 		this.btn_continue = new Button("End");
 		this.btn_newCont = new Button("Next");
-		this.getTextfield_instructions().setText("Delimit the Bladder");
+		this.setText_instructions("Delimit the Bladder");
 		
-		this.setPreferredCanvasSize(400);
+		this.setPreferredCanvasSize(600);
 		
 		this.setLocationRelativeTo(null);
 	}
@@ -45,7 +47,8 @@ public class FenApplication_Cardiac extends FenApplication {
 		this.getPanel_Instructions_btns_droite().add(btns_instru);
 		this.modeCont = true;
 		
-		this.resizeCanvas();
+		this.pack();
+		
 	}
 	
 	/**
@@ -56,13 +59,13 @@ public class FenApplication_Cardiac extends FenApplication {
 		this.getPanel_Instructions_btns_droite().add(this.createPanelInstructionsBtns());
 		
 		String s = "Delimit the " + this.getControleur().getOrganes()[0];
-		this.getTextfield_instructions().setText(s);
+		this.setText_instructions(s);
 		
 		ControleurScin ctrl = this.getControleur();
 		ctrl.setSlice(ctrl.getSliceNumberByRoiIndex(ctrl.getIndexRoi()));
 		this.modeCont = false;
-		
-		this.resizeCanvas();
+		IJ.setTool(Toolbar.POLYGON);
+		this.pack();
 	}
 	
 	@Override
@@ -70,7 +73,7 @@ public class FenApplication_Cardiac extends FenApplication {
 		super.setControleur(ctrl);
 		this.btn_continue.addActionListener(ctrl);
 		this.btn_newCont.addActionListener(ctrl);
-		this.getTextfield_instructions().setText("Delimit a new contamination");
+		this.setText_instructions("Delimit a new contamination");
 	}
 	
 	public boolean isModeCont() {

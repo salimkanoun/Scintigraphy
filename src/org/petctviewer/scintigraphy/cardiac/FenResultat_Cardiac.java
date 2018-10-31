@@ -4,7 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +16,9 @@ import javax.swing.Box;
 import javax.swing.DefaultRowSorter;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
 import javax.swing.RowSorter.SortKey;
@@ -53,12 +58,16 @@ public class FenResultat_Cardiac extends JFrame {
 		
 		String key = "Ratio H/WB %";
 		JLabel lbl_hwb = new JLabel(key + " : " + resultats.get(key));
+		lbl_hwb.setFont(new Font("Arial",Font.BOLD, 20));
+		lbl_hwb.setHorizontalAlignment(JLabel.CENTER);
 		
 		if(Double.parseDouble(resultats.get(key)) > 7.5) {
 			lbl_hwb.setForeground(Color.RED);
 		}else {
 			lbl_hwb.setForeground(new Color(128, 51, 0));
+		
 		}
+		
 		resultats.remove(key);		
 		resultRouge.add(lbl_hwb);
 		
@@ -66,6 +75,7 @@ public class FenResultat_Cardiac extends JFrame {
 		key = "Cardiac retention %";
 		if (resultats.containsKey(key)) {
 			JLabel lbl = new JLabel(key + " : " + resultats.remove(key));
+			lbl.setHorizontalAlignment(JLabel.CENTER);
 			lbl.setForeground(new Color(128, 51, 0));
 			resultRouge.add(lbl);
 		}			
@@ -74,6 +84,7 @@ public class FenResultat_Cardiac extends JFrame {
 		key = "WB retention %";
 		if (resultats.containsKey(key)) {
 			JLabel lbl = new JLabel(key + " : " + resultats.remove(key));
+			lbl.setHorizontalAlignment(JLabel.CENTER);
 			lbl.setForeground(new Color(128, 51, 0));
 			resultRouge.add(lbl);
 		}
@@ -82,6 +93,18 @@ public class FenResultat_Cardiac extends JFrame {
 		JPanel flow2 = new JPanel(new FlowLayout());
 		flow2.add(resultRouge);
 		returnBox.add(flow2);
+		
+		JPanel flowRef=new JPanel();
+		JPanel gridRef = new JPanel(new GridLayout(0,1));
+		JLabel value=new JLabel("H/WB if >7.5 is associated with higher risk of cardiac event");
+		value.setHorizontalAlignment(JLabel.CENTER);
+		JLabel ref=new JLabel("Rapezzi et al. JACC 2011");
+		ref.setHorizontalAlignment(JLabel.CENTER);
+		gridRef.add(value);
+		gridRef.add(ref);
+		flowRef.add(gridRef);
+		
+		returnBox.add(flowRef);
 
 		// ajout de la table avec les resultats des rois
 		DefaultTableModel modelRes = new DefaultTableModel();
@@ -109,11 +132,23 @@ public class FenResultat_Cardiac extends JFrame {
 		//on empeche l'edition
 		tabRes.setFocusable(false);
 		tabRes.setRowSelectionAllowed(false);
-		returnBox.add(tabRes);
 		
-		JPanel flowRef = new JPanel();
-		flowRef.add( new JLabel("Rapezzi et al. JACC 2011"));
-		returnBox.add(flowRef);
+		//Add popupMenu to hide the Table if Wanted
+		JPopupMenu popMenuHide = new JPopupMenu();
+		JMenuItem hide=new JMenuItem("Hide");
+		popMenuHide.add(hide);
+		hide.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				tabRes.setVisible(false);
+				
+			}
+			
+		});
+		tabRes.setComponentPopupMenu(popMenuHide);
+		//Add to the main panel
+		returnBox.add(tabRes);
 		
 		return returnBox;
 	}

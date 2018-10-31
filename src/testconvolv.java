@@ -26,7 +26,7 @@ public class testconvolv {
 			}
 			
 			//SK REMPLACER 1 PAR LA VALEUR DE TEMPS DE LA FRAME !
-			double result2=( 1 / ( blood[0] * 1 ) ) * (right[i]-somme);
+			double result2=( 1.0D / ( blood[0] ) ) * (right[i]-somme);
 			
 			//double result3=(right[i]-somme)/(blood[0]);
 			

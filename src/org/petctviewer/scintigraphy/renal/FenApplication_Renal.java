@@ -66,7 +66,7 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 	@Override
 	public void setControleur(ControleurScin ctrl) {
 		super.setControleur(ctrl);
-		this.getTextfield_instructions().setText("Click to start the exam");
+		this.setText_instructions("Click to start the exam");
 	}
 
 	@Override

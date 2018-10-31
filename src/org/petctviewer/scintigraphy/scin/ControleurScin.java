@@ -453,7 +453,7 @@ public abstract class ControleurScin implements ActionListener {
 	 *            : numero de l'organe a delimiter
 	 */
 	public void setInstructionsDelimit(int nOrgane) {
-		this.scin.getFenApplication().getTextfield_instructions().setText("Delimit the " + this.getNomOrgane(nOrgane));
+		this.scin.getFenApplication().setText_instructions("Delimit the " + this.getNomOrgane(nOrgane));
 		this.scin.getFenApplication().pack();
 	}
 
@@ -464,7 +464,7 @@ public abstract class ControleurScin implements ActionListener {
 	 *            : numero de l'organe a ajuster
 	 */
 	public void setInstructionsAdjust(int nOrgane) {
-		this.scin.getFenApplication().getTextfield_instructions().setText("Adjust the " + this.getNomOrgane(nOrgane));
+		this.scin.getFenApplication().setText_instructions("Adjust the " + this.getNomOrgane(nOrgane));
 	}
 
 	/**

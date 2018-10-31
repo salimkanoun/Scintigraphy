@@ -31,7 +31,7 @@ public class ControleurScinStatic extends ControleurScin{
 		} else {
 			s = "roi n" + this.indexRoi;
 		}
-		this.getScin().getFenApplication().getTextfield_instructions().setText(s);
+		this.getScin().getFenApplication().setText_instructions(s);
 	}
 
 	@Override

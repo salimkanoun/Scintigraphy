@@ -8,6 +8,9 @@ import java.awt.Panel;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.JTextField;
 
@@ -49,6 +52,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	private String nom;
 
 	private int canvasW, canvasH;
+	
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
@@ -119,27 +123,22 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	public void resizeCanvas() {
 		ImagePlus imp = this.getImagePlus();
 		
-		// on enleve puis remet l'image afin qu'elle reprenne ses dimension originales
-		this.setImage(null);
-		this.setImage(imp);
 		
-		this.getCanvas().setBounds(0,0,canvasW,canvasH);
+		//this.getCanvas().setBounds(0,0,canvasW,canvasH);
 		this.getCanvas().setSize(canvasW, canvasH);
 		
 		// on calcule le facteur de magnification
-		double magnification =( canvasW / (1.0 * imp.getWidth()) );
+		List<Double> magnifications=new ArrayList<Double>();
+		magnifications.add( canvasW / (1.0 * imp.getWidth()) );
+		magnifications.add( canvasH / (1.0 * imp.getHeight()) );
+		
+		Double magnification=Collections.min(magnifications);
 		
 		this.getCanvas().setMagnification(magnification);
 		
-		panelPrincipal.revalidate();
-		panelContainer.revalidate();
-		panel_btns_droite.revalidate();
-		panel_btns_gauche.revalidate();
-		panel_Instructions_btns_droite.revalidate();
 		this.revalidate();
-	
 		this.pack();
-		this.setSize(this.getPreferredSize());
+	
 	}
 	
 	//Close la fenetre
@@ -197,6 +196,11 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	
 	public JTextField getTextfield_instructions() {
 		return this.textfield_instructions;
+	}
+	
+	public void setText_instructions(String instruction) {
+		textfield_instructions.setText(instruction);
+		this.pack();
 	}
 
 	public Panel getPanel_btns_gauche() {
@@ -283,8 +287,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 	@Override
 	public void componentResized(ComponentEvent e) {
-		this.canvasH = this.getCanvas().getHeight();
-		this.canvasW = this.getCanvas().getWidth();
+
 	}
 
 	@Override
