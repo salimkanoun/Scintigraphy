@@ -1,13 +1,11 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
 import java.awt.Button;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Roi;
 
@@ -16,10 +14,8 @@ public class ControleurScinStatic extends ControleurScin{
 	public static int MAXROI = 100;
 	private int nbOrganes = 0;
 	
-	protected ControleurScinStatic(Scintigraphy vue) {
-		super(vue);
-		
-		this.setModele(new ModeleScinStatic());
+	protected ControleurScinStatic(Scintigraphy scin) {
+		super(scin);
 		this.setOrganes(new String[MAXROI] );
 	}
 
@@ -69,7 +65,7 @@ public class ControleurScinStatic extends ControleurScin{
 		for(int i =0; i< this.roiManager.getCount(); i++) {
 			Roi roi = this.roiManager.getRoi(i);
 			imp.setRoi(roi);
-			((ModeleScinStatic)this.getModele()).enregistrerMesureAnt(this.addTag(roi.getName()), imp);
+			((ModeleScinStatic)scin.getModele()).enregistrerMesureAnt(this.addTag(roi.getName()), imp);
 		}
 		
 		//pour la post
@@ -78,11 +74,11 @@ public class ControleurScinStatic extends ControleurScin{
 		for(int i =0; i< this.roiManager.getCount(); i++) {
 			Roi roi = this.roiManager.getRoi(i);
 			imp.setRoi(roi);
-			((ModeleScinStatic)this.getModele()).enregistrerMesurePost(this.addTag(roi.getName()), imp);
+			((ModeleScinStatic)scin.getModele()).enregistrerMesurePost(this.addTag(roi.getName()), imp);
 		}
 		
 		
-		Thread t = new DoubleImageThread("test",this.getScin(),(ModeleScinStatic)this.getModele());
+		Thread t = new DoubleImageThread("test", this.getScin());
 		t.start();
 		
 	
@@ -104,21 +100,18 @@ public class ControleurScinStatic extends ControleurScin{
 		return this.getScin().getImp().getCurrentSlice() == 2;
 	}
 
+	
+	/*
 	@Override
 	public boolean saveCurrentRoi(String nomRoi, int indexRoi) {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
 			// on change la couleur pour l'overlay
 			this.scin.getImp().getRoi().setStrokeColor(Color.YELLOW);
-			// on enregistre la ROI dans le modele
-			this.modele.enregistrerMesure(
-					this.addTag(nomRoi), 
-					this.scin.getImp());
-	
-			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
+			
+			//On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
 			if (this.roiManager.getRoi(indexRoi) == null) {
-				//On utilise le macro car probleme d'ajout ROI identique sinon // pas toucher
-				IJ.runMacro("roiManager(\"Add\");");
+				this.roiManager.addRoi(this.getSelectedRoi());
 			} else { // Si il existe on l'ecrase
 				this.roiManager.setRoi(this.scin.getImp().getRoi(), indexRoi);
 				// on supprime le roi nouvellement ajoute de la vue
@@ -137,5 +130,5 @@ public class ControleurScinStatic extends ControleurScin{
 		}
 		return false;
 		
-	}
+	}*/
 }

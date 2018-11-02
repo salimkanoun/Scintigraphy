@@ -10,12 +10,10 @@ import ij.plugin.MontageMaker;
 public class DoubleImageThread extends Thread{
 	
 	Scintigraphy scin;
-	ModeleScinStatic modele;
 	
-	public DoubleImageThread(String name,Scintigraphy scin, ModeleScinStatic modele) {
+	public DoubleImageThread(String name,Scintigraphy scin) {
 		super(name);
 		this.scin = scin;
-		this.modele = modele;
 	}
 	
 	public void run() {
@@ -48,22 +46,14 @@ public class DoubleImageThread extends Thread{
 				);
 		
 		//ouverture de la fenetre de resultat
-		FenResultat_ScinStatic fen = new FenResultat_ScinStatic( 
-						this.scin, 
-						
-						impRes.getBufferedImage(), 
-
-						(ModeleScinStatic) this.modele );
+		FenResultat_ScinStatic fen = new FenResultat_ScinStatic(scin, impRes.getBufferedImage() );
 		//ajout du tableau 
-		fen.addAntTab(((ModeleScinStatic)this.modele).calculerTableauAnt());
-		fen.addPostTab(((ModeleScinStatic)this.modele).calculerTableauPost());
-		fen.addMoyGeomTab(((ModeleScinStatic)this.modele).calculerTaleauMayGeom());
+		fen.addAntTab(((ModeleScinStatic)scin.getModele()).calculerTableauAnt());
+		fen.addPostTab(((ModeleScinStatic)scin.getModele()).calculerTableauPost());
+		fen.addMoyGeomTab(((ModeleScinStatic)scin.getModele()).calculerTaleauMayGeom());
 		fen.addCaptureButton();
 
 		fen.pack();
-		
-		
-		
 		
 	}
 	

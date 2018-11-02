@@ -37,6 +37,9 @@ public class StaticScintigraphy extends Scintigraphy {
 		
 		this.setFenApplication(new FenApplication_ScinStatic(this.getImp(), this.getExamType()));
 		this.getImp().setOverlay(overlay);
+		
+		ModeleScinStatic modele=new ModeleScinStatic();
+		this.setModele(modele);
 
 		ControleurScinStatic ctrl = new ControleurScinStatic(this);
 		this.getFenApplication().setControleur(ctrl);

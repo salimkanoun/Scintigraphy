@@ -22,7 +22,7 @@ public class FenResultat_ScinStatic extends JFrame {
 	private SidePanel side;
 	private Scintigraphy scin;
 	
-	public FenResultat_ScinStatic( Scintigraphy scin, BufferedImage capture, ModeleScinStatic modele) {
+	public FenResultat_ScinStatic( Scintigraphy scin, BufferedImage capture) {
 
 		this.scin = scin;
 		side = new SidePanel (null, "Static Quant\n", scin.getImp());
