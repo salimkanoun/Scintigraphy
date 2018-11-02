@@ -178,7 +178,6 @@ public class EsophagealTransit extends Scintigraphy {
 				fen.getPanelPrincipal().remove(radioButtonPanelFlow);
 				fen.getPanel_Instructions_btns_droite().add(fen.getTextfield_instructions());
 				fen.getPanel_Instructions_btns_droite().add(fen.createPanelInstructionsBtns());
-				
 				fen.revalidate();
 				
 				
@@ -209,9 +208,6 @@ public class EsophagealTransit extends Scintigraphy {
 
 		fen.resizeCanvas();
 	}
-
-	
-	
 
 	
 	public int[] getFrameDurations() {

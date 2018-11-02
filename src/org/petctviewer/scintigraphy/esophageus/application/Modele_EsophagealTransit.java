@@ -39,12 +39,6 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 		
 		this.esoPlugIn = esoPlugIn;
 	}
-
-	//sert a rien car calculs tous geres a la fin du programme en parcourant le ROI manager
-	@Override
-	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
-	}
-	
 	
 	// utlisé apres que toutes les roi ai ete dessiné
 	public void setRoiManager(RoiManager roiManager) {
@@ -55,14 +49,6 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	//vas ordorner les imageplus pour les envoyer au model fenettre resultats pour les calculs
 	@Override
 	public void calculerResultats() {
-		
-		/*
-		//affichage des images plus avec leurs roi TEST OK
-		for(int i = 0 ;i< sauvegardeImagesSelectDicom.length; i++) {
-			sauvegardeImagesSelectDicom[i].setRoi(this.roimanager.getRoi(i));
-			sauvegardeImagesSelectDicom[i].show();
-		}
-		*/
 		
 		// pour etre sur quon a le meme nombre de roi que d'image plus
 		if(sauvegardeImagesSelectDicom[0].length != this.roimanager.getCount()) {

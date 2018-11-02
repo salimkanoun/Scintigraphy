@@ -40,7 +40,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 
 	
 	/**************** Public *******************/
-	@Override
+	//SK METHODE A EVITER POUR DISSOCIER MODELE ET CONTROLER
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 		// si le modele n'est pas bloque
 		if (!this.isLocked()) {
