@@ -61,18 +61,18 @@ public class Controleur_Cardiac extends ControleurScin {
 		mdl.calculerResultats();
 
 		CardiacScintigraphy vue = (CardiacScintigraphy) this.getScin();
-		vue.getFenApplication().resizeCanvas();
+		//vue.getFenApplication().resizeCanvas();
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				BufferedImage capture = Library_Capture_CSV.captureImage(vue.getImp(), 410, 820).getBufferedImage();	
+				BufferedImage capture = Library_Capture_CSV.captureImage(vue.getImp(), 400, 0).getBufferedImage();	
 				new FenResultat_Cardiac(vue, capture);
 			}
 		});
 
 	}
 
-	@Override
+	/*@Override
 	public String getSameNameRoiCount(String nomRoi) {
 		// on renvoie le nombre de roi identiques uniquement si toutes les
 		// contaminations ont ete prises
@@ -80,7 +80,7 @@ public class Controleur_Cardiac extends ControleurScin {
 			return super.getSameNameRoiCount(nomRoi);
 		}
 		return "";
-	}
+	}*/
 
 	@Override
 	public boolean isPost() {
@@ -165,12 +165,12 @@ public class Controleur_Cardiac extends ControleurScin {
 
 			// on affiche les instructions
 			if (this.getIndexRoi() % 2 == 0) {
-				this.getScin().getFenApplication().getTextfield_instructions().setText("Delimit a new contamination");
+				this.getScin().getFenApplication().setText_instructions("Delimit a new contamination");
 				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getScin().getFenApplication();
 				fac.getBtn_continue().setEnabled(true);
 				fac.getBtn_newCont().setLabel("Next");
 			} else {
-				this.getScin().getFenApplication().getTextfield_instructions().setText("Adjust contamination zone");
+				this.getScin().getFenApplication().setText_instructions("Adjust contamination zone");
 				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getScin().getFenApplication();
 				fac.getBtn_continue().setEnabled(false);
 				fac.getBtn_newCont().setLabel("Save");
@@ -204,17 +204,25 @@ public class Controleur_Cardiac extends ControleurScin {
 	public String addTag(String nomOrgane) {
 		String nom = nomOrgane;
 		
-		if(!this.finContSlice2) {
-			return nom + this.roiManager.getCount();
-		}
 		
 		// on ajoute au nom P ou A pour Post ou Ant
 		if (this.isPost()) {
 			nom += " P";
+			
 		} else {
 			nom += " A";
 		}
-
+		
+		if(!this.finContSlice2) {
+			String count = this.getSameNameRoiCount(nom);
+			nom += count;
+			System.out.println(count);
+		}
+		System.out.println(nom);
+		
+		// on ajoute le nom de la roi a la liste
+		this.nomRois.add(nom);
+				
 		return nom;
 	}
 

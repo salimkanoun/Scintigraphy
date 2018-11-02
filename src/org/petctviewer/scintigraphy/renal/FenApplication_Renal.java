@@ -33,34 +33,32 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 	private Button btn_dyn, btn_start;
 
 	public FenApplication_Renal(ImagePlus imp, String nom, RenalScintigraphy vue) {
-	
 		
 		super(imp, nom);
-		
-		
 		//Ajout du boutton dynamic au panel de gauche
 		btn_dyn = new Button("Dynamic");
 		btn_dyn.addActionListener(this);
+		
+		this.getPanel_btns_gauche().setLayout(new GridLayout(1, 4));
 		this.getPanel_btns_gauche().add(btn_dyn);
+		this.getPanel_btns_gauche().revalidate();
 		
-		// mise en place des boutons de droites
-		Panel btnsDroits=this.getPanel_bttns_droit();
-		btnsDroits.removeAll();
-		
-		Panel btns_instru = new Panel();
-		btns_instru.setLayout(new GridLayout(1, 3));
+		// Remplacement boutons de droites sous l'instruction
+		Panel btns_instru = new Panel(new GridLayout(1,1));
 		btn_start = new Button("Start");
 		btn_start.addActionListener(this);
 		btns_instru.add(btn_start);
 		
-		btnsDroits.add(btns_instru);
-	
+		this.getPanel_bttns_droit().removeAll();
+		this.getPanel_bttns_droit().setLayout(new GridLayout(1,1));
+		this.getPanel_bttns_droit().add(btns_instru);
+		
 		this.getBtn_drawROI().setEnabled(false);
 		
 		this.setDefaultSize();
 		
 		this.vue = vue;
-		this.impProj = imp.duplicate();
+		this.impProj = imp;
 		
 	
 	}
@@ -68,7 +66,7 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 	@Override
 	public void setControleur(ControleurScin ctrl) {
 		super.setControleur(ctrl);
-		this.getTextfield_instructions().setText("Click to start the exam");
+		this.setText_instructions("Click to start the exam");
 	}
 
 	@Override
@@ -79,30 +77,26 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 			ImagePlus imp;
 
 			if (!this.dyn) {
-				if (this.getControleur().isPost()) {
-					imp = vue.getImpPost();
-				} else {
-					imp = vue.getImpAnt();
-				}
+				imp = vue.getImpPost();
 			} else {
 				imp = this.impProj;
 			}
 			
-			//si l'imp est null, on utilise l'image ant ou post
+			/*//si l'imp est null, on utilise l'image ant ou post
 			if(imp == null) {
 				if(vue.getImpPost() != null) {
 					imp = vue.getImpPost();
 				}else if(vue.getImpAnt() != null) {
 					imp = vue.getImpAnt();
 				}
-			}
+			}*/
 
 			imp.setOverlay(ov);
 			Library_Gui.setCustomLut(imp);
 
 			this.revalidate();
 			this.setImage(imp);
-			this.vue.setImp(imp);
+			
 			
 			this.updateSliceSelector();
 
@@ -119,7 +113,8 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 			resizeCanvas();
 
 		//Mode debut du programme apres visualisation.
-		} else {
+		} else if( e.getSource() == btn_start) {
+			btn_dyn.setEnabled(false);;
 			// TODO move elsewhere
 			Fen_NbRein fen = new Fen_NbRein();
 			fen.setModal(true);
@@ -133,10 +128,11 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 			this.getPanel_bttns_droit().removeAll();
 			this.getPanel_bttns_droit().add(this.createPanelInstructionsBtns());
 			this.getControleur().setInstructionsDelimit(0);
-
 			this.getBtn_drawROI().setEnabled(true);
 			IJ.setTool(Toolbar.POLYGON);
-
+			this.setImage(impProj);
+			this.vue.setImp(impProj);
+			this.updateSliceSelector();
 			resizeCanvas();
 		}
 

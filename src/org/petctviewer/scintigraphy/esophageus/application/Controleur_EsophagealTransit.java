@@ -10,10 +10,10 @@ import ij.gui.Toolbar;
 public class Controleur_EsophagealTransit  extends ControleurScin {
  
 	public static String[] ORGANES = {"Esophage"};
-	FenApplication_EsophagealTransit esoPlugin;
+	EsophagealTransit esoPlugin;
 	Modele_EsophagealTransit modele ;
 	
-	public Controleur_EsophagealTransit(FenApplication_EsophagealTransit esoPlugin, ImagePlus [][] sauvegardeImagesSelectDicom) {
+	public Controleur_EsophagealTransit(EsophagealTransit esoPlugin, ImagePlus [][] sauvegardeImagesSelectDicom) {
 		super(esoPlugin);
 		this.esoPlugin = esoPlugin;
 		this.setOrganes(ORGANES);

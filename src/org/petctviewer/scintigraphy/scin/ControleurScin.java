@@ -44,7 +44,7 @@ public abstract class ControleurScin implements ActionListener {
 	private String[] organes;
 	protected int indexRoi;
 
-	private List<String> nomRois = new ArrayList<>();
+	protected List<String> nomRois = new ArrayList<>();
 	private ImageListener ctrlImg;
 	
 	protected Color STROKECOLOR = Color.RED;//couleur de la roi
@@ -167,8 +167,7 @@ public abstract class ControleurScin implements ActionListener {
 	public void clicPrecedent() {
 		//Si boutton suivant desactive car on est arrive a la fin du programme, on le reactive quand on a clique sur precedent
 		if( !scin.getFenApplication().getBtn_suivant().isEnabled() ) scin.getFenApplication().getBtn_suivant().setEnabled(true);
-		// sauvegarde du ROI courant
-
+		
 		// on decrement indexRoi
 		if (this.indexRoi > 0) {
 			this.indexRoi--;
@@ -232,18 +231,21 @@ public abstract class ControleurScin implements ActionListener {
 	public boolean saveCurrentRoi(String nomRoi, int indexRoi) {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
 			// on change la couleur pour l'overlay
-			this.scin.getImp().getRoi().setStrokeColor(Color.YELLOW);
+			this.scin.getImp()
+			.getRoi()
+			.setStrokeColor(Color.YELLOW);
 			// on enregistre la ROI dans le modele
 			this.modele.enregistrerMesure(
 					this.addTag(nomRoi), 
 					this.scin.getImp());
+			
+		
 
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
 			if (this.roiManager.getRoi(indexRoi) == null) {
-				//On utilise le macro car probleme d'ajout ROI identique sinon // pas toucher
-				//SK VOIR AVEC IMAGEJ PEUT PAS AJOUTER SI ROI MANAGER INVISIBLE
-				IJ.runMacro("roiManager(\"Add\");");
+				//Add Roi to the Roi Manager
+				roiManager.addRoi(this.scin.getImp().getRoi());
 			} else { // Si il existe on l'ecrase
 				this.roiManager.setRoi(this.scin.getImp().getRoi(), indexRoi);
 				// on supprime le roi nouvellement ajoute de la vue
@@ -256,6 +258,7 @@ public abstract class ControleurScin implements ActionListener {
 
 			// changement de nom
 			this.roiManager.rename(indexRoi, nomRoi);
+			
 
 			return true;
 		}
@@ -298,7 +301,7 @@ public abstract class ControleurScin implements ActionListener {
 
 		// on ajoute le nom de la roi a la liste
 		this.nomRois.add(nom);
-
+					
 		return nom;
 	}
 
@@ -363,6 +366,10 @@ public abstract class ControleurScin implements ActionListener {
 	}
 	
 	public String getNomOrgane(int index) {
+		
+		System.out.println("Index"+index);
+		System.out.println("Lenght"+ this.getOrganes().length);
+		System.out.println("modulo"+index % this.getOrganes().length);
 		return this.getOrganes()[index % this.getOrganes().length];
 	}
 
@@ -446,7 +453,8 @@ public abstract class ControleurScin implements ActionListener {
 	 *            : numero de l'organe a delimiter
 	 */
 	public void setInstructionsDelimit(int nOrgane) {
-		this.scin.getFenApplication().getTextfield_instructions().setText("Delimit the " + this.getNomOrgane(nOrgane));
+		this.scin.getFenApplication().setText_instructions("Delimit the " + this.getNomOrgane(nOrgane));
+		this.scin.getFenApplication().pack();
 	}
 
 	/**
@@ -456,7 +464,7 @@ public abstract class ControleurScin implements ActionListener {
 	 *            : numero de l'organe a ajuster
 	 */
 	public void setInstructionsAdjust(int nOrgane) {
-		this.scin.getFenApplication().getTextfield_instructions().setText("Adjust the " + this.getNomOrgane(nOrgane));
+		this.scin.getFenApplication().setText_instructions("Adjust the " + this.getNomOrgane(nOrgane));
 	}
 
 	/**

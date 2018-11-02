@@ -409,9 +409,9 @@ public class Modele_Renal extends ModeleScinDyn {
 			// nom de l'organe sans le tag
 			String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
 			// si on n'a pas deja enregistre son aire, on l'ajout a la hashmap
-			if (this.organRois.get(name) == null) {
+			//if (this.organRois.get(name) == null) {
 				this.organRois.put(name, imp.getRoi());
-			}
+			//}
 		}
 
 	}

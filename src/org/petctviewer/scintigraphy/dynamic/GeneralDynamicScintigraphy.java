@@ -30,11 +30,11 @@ public class GeneralDynamicScintigraphy extends Scintigraphy{
 		
 		ImagePlus[] imps = Library_Dicom.sortDynamicAntPost(images[0]);
 		if(imps[0] != null) {
-			this.impAnt = imps[0].duplicate();
+			this.impAnt = imps[0];
 		}
 		
 		if(imps[1] != null) {
-			this.impPost = imps[1].duplicate();
+			this.impPost = imps[1];
 			for(int i = 1; i <= this.impPost.getStackSize(); i++) {
 				this.impPost.getStack().getProcessor(i).flipHorizontal();
 			}

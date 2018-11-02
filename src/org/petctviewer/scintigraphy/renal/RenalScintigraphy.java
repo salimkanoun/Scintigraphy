@@ -15,7 +15,7 @@ import ij.plugin.ZProjector;
 
 public class RenalScintigraphy extends Scintigraphy {
 
-	private ImagePlus impAnt, impPost, impProjetee, impProjeteeAnt;
+	private ImagePlus impAnt, impPost, impProjetee;
 	private int[] frameDurations;
 
 
@@ -32,54 +32,44 @@ public class RenalScintigraphy extends Scintigraphy {
 		}
 		
 		ImagePlus[] imps = Library_Dicom.sortDynamicAntPost(images[0]);
-		if(imps[0] != null) {
-			this.impAnt = imps[0].duplicate();
-		}
+		
+		images[0].close();
+		
+		
 		
 		if(imps[1] != null) {
-			this.impPost = imps[1].duplicate();
+			this.impPost = imps[1];
 			for(int i = 1; i <= this.impPost.getStackSize(); i++) {
-				this.impPost.getStack().getProcessor(i).flipHorizontal();
+				this.impPost.getStack().getProcessor(i).flipHorizontal();	
 			}
-		}
-		
-		if( this.impAnt !=null ) {
-			impProjeteeAnt = Library_Dicom.projeter(this.impAnt,0,impAnt.getStackSize(),"avg");
-			impProjetee=impProjeteeAnt;
-			this.frameDurations = Library_Dicom.buildFrameDurations(this.impAnt);
-		}
-		if ( this.impPost !=null ) {
-			impProjetee = Library_Dicom.projeter(this.impPost,0,impPost.getStackSize(),"avg");
 			this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost);
 		}
-		
-		// on inverse l'image pour garder l'orientation gauche / droite
-		for (int i = 1; i <= this.impPost.getStackSize(); i++) {
-			this.impPost.getStack().getProcessor(i).flipHorizontal();
-		}
 
-		ImagePlus impProjetee = Library_Dicom.projeter(this.impPost,0,impPost.getStackSize(),"avg");
+		impProjetee = Library_Dicom.projeter(this.impPost,0,impPost.getStackSize(),"avg");
 		ImageStack stack = impProjetee.getStack();
 		
 		//deux premieres minutes
 		int fin = ModeleScinDyn.getSliceIndexByTime(2 * 60 * 1000, frameDurations);
 		ImagePlus impPostFirstMin = Library_Dicom.projeter(this.impPost, 0, fin,"avg");
 		stack.addSlice(impPostFirstMin.getProcessor());
+		
 		// MIP
 		ImagePlus pj = ZProjector.run(this.impPost, "max", 0, this.impPost.getNSlices());
 		stack.addSlice(pj.getProcessor());
 
 		// ajout de la prise ant si elle existe
-		if (this.impAnt != null) {
-			for (int i = 1; i <= this.impAnt.getStackSize(); i++) {
-				this.impAnt.getStack().getProcessor(i).flipHorizontal();
-			}
+		if (imps[0] != null) {
 			ImagePlus impProjAnt = Library_Dicom.projeter(impAnt,0,impAnt.getStackSize(),"avg");
+			impProjAnt.getProcessor().flipHorizontal();
+			impAnt=impProjAnt;
 			stack.addSlice(impProjAnt.getProcessor());
 		}
 
 		//ajout du stack a l'imp
 		impProjetee.setStack(stack);
+		
+		this.setImp(impProjetee);
+		
 		return impProjetee;
 	}
 	
@@ -94,6 +84,8 @@ public class RenalScintigraphy extends Scintigraphy {
 		if (this.impAnt != null) {
 			Library_Gui.setOverlayTitle("Ant", overlay, impProjetee, Color.yellow, 4);
 		}
+		
+	System.out.println(this.getImp().getStackSize());
 
 		this.setFenApplication(new FenApplication_Renal(this.getImp(), this.getExamType(), this));
 		this.getImp().setOverlay(overlay);

@@ -76,13 +76,6 @@ public class FenCSVChoice extends JFrame {
 			}
 		});
 		this.add(tracer, BorderLayout.SOUTH);
-	
-		this.ajouterChemin("/Users/diego/Premier.csv");
-		this.ajouterChemin("/Users/diego/Deuxieme.csv");
-		this.ajouterChemin("/Users/diego/Trois.csv");
-		this.ajouterLabelChemin("/Users/diego/Premier.csv");
-		this.ajouterLabelChemin("/Users/diego/Deuxieme.csv");
-		this.ajouterLabelChemin("/Users/diego/Trois.csv");
 
 	}
 	

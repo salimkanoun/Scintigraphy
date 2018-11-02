@@ -45,7 +45,14 @@ public class Library_Quantif {
 	 * @return moyenne geometrique
 	 */
 	public static double moyGeom(Double a, Double b) {
-		return Math.sqrt(a * b);
+		double moyGeom;
+		if(a*b>0) {
+			moyGeom=Math.sqrt(a * b);
+		}else {
+			moyGeom=0;
+		}
+		
+		return moyGeom;
 	}
 
 	/********** Public Static Getter ********/
@@ -59,7 +66,6 @@ public class Library_Quantif {
 	 */
 	public static Double getCounts(ImagePlus imp) {
 		Analyzer.setMeasurement(Measurements.INTEGRATED_DENSITY, true);
-		Analyzer.setMeasurement(Measurements.MEAN, true);
 		Analyzer analyser = new Analyzer(imp);
 		analyser.measure();
 		ResultsTable density = Analyzer.getResultsTable();
@@ -74,10 +80,13 @@ public class Library_Quantif {
 	 * @return nombre moyen de coups
 	 */
 	public static Double getAvgCounts(ImagePlus imp) {
-		int area = imp.getStatistics().pixelCount;
-		return getCounts(imp) / area;
+		return imp.getStatistics().mean;
 	}
 
+	public static int getPixelNumber(ImagePlus imp) {
+		int area = imp.getStatistics().pixelCount;
+		return area;
+	}
 	
 	
 }

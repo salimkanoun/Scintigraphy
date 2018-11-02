@@ -11,8 +11,9 @@ import org.petctviewer.scintigraphy.PrefsWindow;
 import org.petctviewer.scintigraphy.calibration.Calibration;
 import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
 import org.petctviewer.scintigraphy.dynamic.GeneralDynamicScintigraphy;
-import org.petctviewer.scintigraphy.esophageus.application.FenApplication_EsophagealTransit;
+import org.petctviewer.scintigraphy.esophageus.application.EsophagealTransit;
 import org.petctviewer.scintigraphy.gastric.Vue_VG_Dynamique;
+import org.petctviewer.scintigraphy.gastric.Vue_VG_Roi;
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.statique.HepaticScintigraphy;
 import org.petctviewer.scintigraphy.platelet.Vue_Plaquettes;
@@ -124,6 +125,16 @@ public class FenDebug extends JFrame{
 			}
 		});
 		
+		JButton btn_vgStatic = new JButton("Gastric Static");
+		btn_vgStatic.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Vue_VG_Roi vue = new Vue_VG_Roi();
+				vue.run("");
+			}
+		});
+		
 		JButton btn_genStatic = new JButton("Static gen");
 		btn_genStatic.addActionListener(new ActionListener() {
 			@Override
@@ -155,7 +166,7 @@ public class FenDebug extends JFrame{
 		btn_Esophageal.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				FenApplication_EsophagealTransit eso = new FenApplication_EsophagealTransit();
+				EsophagealTransit eso = new EsophagealTransit();
 				eso.run("");
 			}
 		});
@@ -168,10 +179,12 @@ public class FenDebug extends JFrame{
 		p.add(btn_liver);
 		p.add(btn_dmsa);
 		p.add(btn_vgDyn);
+		p.add(btn_vgStatic);
 		p.add(btn_genStatic);
 		p.add(btn_FollowUp);
 		p.add(btn_Calibration);
 		p.add(btn_Esophageal);
+		
 
 		this.add(p, BorderLayout.CENTER);
 		this.add(pnl_pref, BorderLayout.NORTH);

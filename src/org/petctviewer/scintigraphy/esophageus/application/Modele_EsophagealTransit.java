@@ -29,9 +29,9 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	//pour le condensé dynamique
 	ArrayList<Object[]> dicomRoi;
 	
-	public FenApplication_EsophagealTransit esoPlugIn;
+	public EsophagealTransit esoPlugIn;
 	
-	public Modele_EsophagealTransit( ImagePlus [][] sauvegardeImagesSelectDicom, FenApplication_EsophagealTransit esoPlugIn) {
+	public Modele_EsophagealTransit( ImagePlus [][] sauvegardeImagesSelectDicom, EsophagealTransit esoPlugIn) {
 		super(esoPlugIn.getFrameDurations());
 		this.sauvegardeImagesSelectDicom = sauvegardeImagesSelectDicom;
 		

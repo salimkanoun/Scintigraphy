@@ -15,17 +15,18 @@ public class testconvolv {
 
 	public testconvolv() {
 		List<Double> h=new ArrayList<Double>();
-		h.add(0.0);
+		
 
-		for(int i=1; i<blood.length; i++) {
+		for(int i=0; i<blood.length; i++) {
 
 			double somme=0;
 
-			for(int j=1; j<i; j++) {
+			for(int j=0; j<i; j++) {
 				somme+=(i-j+1)*(h.get(j));
 			}
 			
-			double result2=(1 / ((blood[1])) ) * (right[i]-somme);
+			//SK REMPLACER 1 PAR LA VALEUR DE TEMPS DE LA FRAME !
+			double result2=( 1.0D / ( blood[0] ) ) * (right[i]-somme);
 			
 			//double result3=(right[i]-somme)/(blood[0]);
 			

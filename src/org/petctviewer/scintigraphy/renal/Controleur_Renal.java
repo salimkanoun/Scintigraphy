@@ -76,9 +76,12 @@ public class Controleur_Renal extends ControleurScin {
 	
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
-		if (indexRoi > 0 && lastRoi < this.indexRoi) {
-			String org = this.getNomOrgane(indexRoi - 1);
-
+		System.out.println("lastROi"+lastRoi);
+		System.out.println("current index"+indexRoi);
+		//Sens aller
+		if ( lastRoi < indexRoi ) {
+			String org = this.getNomOrgane(lastRoi);
+			System.out.println("organRoiName"+org);
 			// roi de bruit de fond
 			boolean pelvis = Prefs.get("renal.pelvis.preferred", true);
 			if (!pelvis && org.contains("Kidney")) {
@@ -88,7 +91,11 @@ public class Controleur_Renal extends ControleurScin {
 				Roi roi = roiManager.getRoi(indexRoi - 2);
 				return Library_Roi.createBkgRoi(roi, getScin().getImp(),Library_Roi.KIDNEY);
 			}
+		//Sens Retour
+		}else if(lastRoi == indexRoi ) {
+			return roiManager.getRoi(indexRoi);
 		}
+		
 
 		return null;
 	}
@@ -102,7 +109,7 @@ public class Controleur_Renal extends ControleurScin {
 
 	@Override
 	public boolean isOver() {
-		return this.indexRoi >= this.getOrganes().length - 1;
+		return this.indexRoi >= this.getOrganes().length -1;
 	}
 
 	
@@ -151,37 +158,42 @@ public class Controleur_Renal extends ControleurScin {
 
 	@Override
 	public void fin() {
+		//Increment l'index de 1 pour eviter erreur d'index
+		//A VEFIRIER SK
+		this.indexRoi++;
+		
 		// on supprime le listener de l'image plus
-		this.removeImpListener();
+		//this.removeImpListener();
 
 		// on recupere la vue, le modele et l'imp
 		RenalScintigraphy vue = (RenalScintigraphy) this.getScin();
 		Modele_Renal modele = (Modele_Renal) vue.getFenApplication().getControleur().getModele();
 
-		// on passe l'image post dans la vue
+		//Remet les data du modele a zero (en cas de relance)
+		modele.getData().clear();
+		
+		// On recupere l'image Post dynamique sur laquelle on fait les quantifications
 		ImagePlus imp = vue.getImpPost();
 
-		// on debloque le modele
+		// on debloque le modele pour avoir l'enregistrement des mesures
 		modele.setLocked(false);
 
 		// capture de l'imageplus ainsi que de l'overlay
 		BufferedImage capture = Library_Capture_CSV.captureImage(this.getScin().getImp(), 300, 300).getBufferedImage();
 
-		// on ajoute l'imp a la vue
-		this.getScin().setImp(imp);
-
 		// on enregistre la mesure pour chaque slice
-		this.indexRoi = 0;
+		int indexRoi = 0;
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
 			for (int j = 0; j < this.getOrganes().length; j++) {
-				imp.setRoi(roiManager.getRoi(this.indexRoi % this.getOrganes().length));
-				String nom = this.getNomOrgane(this.indexRoi);
+				imp.setRoi(roiManager.getRoi(indexRoi % this.getOrganes().length));
+				String nom = this.getNomOrgane(indexRoi);
 				modele.enregistrerMesure(this.addTag(nom), imp);
-				this.indexRoi++;
+				indexRoi++;
 			}
 		}
 
+		
 		// on calcule les resultats
 		modele.calculerResultats();
 
@@ -206,6 +218,10 @@ public class Controleur_Renal extends ControleurScin {
 		// on affiche la fenetre de resultats principale
 		vue.setNephrogramChart(fan.getValueSetter());
 		new FenResultats_Renal(vue, capture);
+		
+		//SK On rebloque le modele pour la prochaine generation
+		modele.setLocked(true);
+		
 	}
 
 	private void hideLabel(String name, Color c) {

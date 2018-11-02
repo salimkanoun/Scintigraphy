@@ -8,6 +8,9 @@ import java.awt.Panel;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.JTextField;
 
@@ -49,6 +52,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	private String nom;
 
 	private int canvasW, canvasH;
+	
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
@@ -97,13 +101,14 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		// Creation du panel instructions
 		this.panel_Instructions_btns_droite = new Panel();
 		this.panel_Instructions_btns_droite.setLayout(new GridLayout(2, 1));
-		this.textfield_instructions = new JTextField();
+		this.textfield_instructions = new JTextField("Click To Start Exam");
 		this.textfield_instructions.setEditable(false);
 		this.textfield_instructions.setBackground(Color.LIGHT_GRAY);
 		this.panel_Instructions_btns_droite.add(textfield_instructions);
 
 		panel_btns_droite = this.createPanelInstructionsBtns();
 		this.panel_Instructions_btns_droite.add(panel_btns_droite);
+		
 		panelPrincipal.add(this.panel_Instructions_btns_droite);
 		
 		
@@ -118,28 +123,22 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	public void resizeCanvas() {
 		ImagePlus imp = this.getImagePlus();
 		
-		// on enleve puis remet l'image afin qu'elle reprenne ses dimension originales
-		this.setImage(null);
-		this.setImage(imp);
 		
-		this.getCanvas().setBounds(0,0,canvasW,canvasH);
+		//this.getCanvas().setBounds(0,0,canvasW,canvasH);
 		this.getCanvas().setSize(canvasW, canvasH);
 		
 		// on calcule le facteur de magnification
-		double magnification =( canvasW / (1.0 * imp.getWidth()) );
+		List<Double> magnifications=new ArrayList<Double>();
+		magnifications.add( canvasW / (1.0 * imp.getWidth()) );
+		magnifications.add( canvasH / (1.0 * imp.getHeight()) );
+		
+		Double magnification=Collections.min(magnifications);
 		
 		this.getCanvas().setMagnification(magnification);
-		// pour que le pack prenne en compte les dimensions du panel
-		//System.out.println(panelPrincipal.getPreferredSize());
-		//this.panelPrincipal.setPreferredSize(panelPrincipal.getPreferredSize());
-		panelContainer.revalidate();
+		
 		this.revalidate();
-		System.out.println(panelPrincipal.getSize());
-
-		//this.panel.setPreferredSize(panel.getPreferredSize());
-	
 		this.pack();
-		this.setSize(this.getPreferredSize());
+	
 	}
 	
 	//Close la fenetre
@@ -155,7 +154,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	/************Private Method *********/
 	public Panel createPanelInstructionsBtns() {
 		Panel btns_instru = new Panel();
-		btns_instru.setLayout(new GridLayout(1, 3));
+		btns_instru.setLayout(new GridLayout(1, 2));
 		btns_instru.add(this.btn_precedent);
 		btns_instru.add(this.btn_suivant);
 		return btns_instru;
@@ -197,6 +196,11 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	
 	public JTextField getTextfield_instructions() {
 		return this.textfield_instructions;
+	}
+	
+	public void setText_instructions(String instruction) {
+		textfield_instructions.setText(instruction);
+		this.pack();
 	}
 
 	public Panel getPanel_btns_gauche() {
@@ -283,8 +287,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 	@Override
 	public void componentResized(ComponentEvent e) {
-		this.canvasH = this.getCanvas().getHeight();
-		this.canvasW = this.getCanvas().getWidth();
+
 	}
 
 	@Override

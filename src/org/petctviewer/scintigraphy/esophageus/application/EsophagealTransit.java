@@ -25,7 +25,7 @@ import ij.ImagePlus;
 import ij.gui.Overlay;
 import ij.gui.Toolbar;
 
-public class FenApplication_EsophagealTransit extends Scintigraphy {
+public class EsophagealTransit extends Scintigraphy {
 	/*
 	 * pour cette application on aura 2 phases:
 	 * phase 1 : affichage de chaque stack pour chaque acquisition, avec la possiblité de changer d'acqui.
@@ -48,7 +48,7 @@ public class FenApplication_EsophagealTransit extends Scintigraphy {
 	private int nbAcquisition;
 
 	
-	public FenApplication_EsophagealTransit() {
+	public EsophagealTransit() {
 		super("Esophageal Transit");
 	}
 
@@ -74,13 +74,13 @@ public class FenApplication_EsophagealTransit extends Scintigraphy {
 			//on ne sauvegarde que la ant
 			//null == pas d'image ant et/ou une image post et != une image post en [0]
 			if(Library_Dicom.sortDynamicAntPost(imagesSelectDicom[i])[0] != null) {
-				imagePourTrieAnt.add(Library_Dicom.sortDynamicAntPost(imagesSelectDicom[i])[0].duplicate());
+				imagePourTrieAnt.add(Library_Dicom.sortDynamicAntPost(imagesSelectDicom[i])[0]);
 			}
 			// [1] : c'est la post
 			// si null : pas dimage post 
 			if(Library_Dicom.sortDynamicAntPost(imagesSelectDicom[i])[1] != null) {
 				//trie + inversement de la post
-				imagePourTriePost.add(Library_Dicom.flipStackHorizontal(Library_Dicom.sortDynamicAntPost(imagesSelectDicom[i])[1].duplicate()));
+				imagePourTriePost.add(Library_Dicom.flipStackHorizontal(Library_Dicom.sortDynamicAntPost(imagesSelectDicom[i])[1]));
 			}
 			imagesSelectDicom[i].close();
 
@@ -190,11 +190,11 @@ public class FenApplication_EsophagealTransit extends Scintigraphy {
 				fen.setImp(impProjeteAllAcqui);
 				fen.getImagePlus().setSlice(1);
 				fen.updateSliceSelector();
-				FenApplication_EsophagealTransit.this.setImp(impProjeteAllAcqui);
+				EsophagealTransit.this.setImp(impProjeteAllAcqui);
 				IJ.setTool(Toolbar.RECTANGLE);
 
-				Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(FenApplication_EsophagealTransit.this, sauvegardeImagesSelectDicom);
-				FenApplication_EsophagealTransit.this.getFenApplication().setControleur(cet);
+				Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(EsophagealTransit.this, sauvegardeImagesSelectDicom);
+				EsophagealTransit.this.getFenApplication().setControleur(cet);
 
 			}
 		});
