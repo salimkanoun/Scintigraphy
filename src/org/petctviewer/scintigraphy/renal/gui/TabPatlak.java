@@ -24,7 +24,7 @@ class TabPatlak extends JPanel {
 	public TabPatlak(RenalScintigraphy scin) {
 		super(new BorderLayout());
 		
-		Modele_Renal modele = (Modele_Renal) scin.getFenApplication().getControleur().getModele();
+		Modele_Renal modele = (Modele_Renal) scin.getModele();
 		SidePanel side = new SidePanel(this.getSidePanelContent(modele), "Renal Scintigraphy", scin.getImp());
 		side.addCaptureBtn(scin, "_patlak");
 

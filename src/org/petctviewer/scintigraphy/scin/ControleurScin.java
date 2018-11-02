@@ -18,8 +18,7 @@ import java.awt.Button;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 import javax.swing.JOptionPane;
 
@@ -37,14 +36,14 @@ import ij.plugin.frame.RoiManager;
 public abstract class ControleurScin implements ActionListener {
 
 	protected Scintigraphy scin;
-	protected ModeleScin modele;
+	//protected ModeleScin modele;
 	protected RoiManager roiManager;
 
 
 	private String[] organes;
 	protected int indexRoi;
 
-	protected List<String> nomRois = new ArrayList<>();
+	protected HashMap<Integer,String> nomRois = new HashMap<>();
 	private ImageListener ctrlImg;
 	
 	protected Color STROKECOLOR = Color.RED;//couleur de la roi
@@ -234,11 +233,14 @@ public abstract class ControleurScin implements ActionListener {
 			this.scin.getImp()
 			.getRoi()
 			.setStrokeColor(Color.YELLOW);
+			
+			/*
+			
 			// on enregistre la ROI dans le modele
 			this.modele.enregistrerMesure(
 					this.addTag(nomRoi), 
 					this.scin.getImp());
-			
+			*/
 		
 
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
@@ -258,6 +260,9 @@ public abstract class ControleurScin implements ActionListener {
 
 			// changement de nom
 			this.roiManager.rename(indexRoi, nomRoi);
+			
+			// on ajoute le nom de la roi a la liste
+			this.nomRois.put(indexRoi, addTag(nomRoi));
 			
 
 			return true;
@@ -298,9 +303,6 @@ public abstract class ControleurScin implements ActionListener {
 		// on ajoute un numero pour l'identifier
 		String count = this.getSameNameRoiCount(nom);
 		nom += count;
-
-		// on ajoute le nom de la roi a la liste
-		this.nomRois.add(nom);
 					
 		return nom;
 	}
@@ -361,9 +363,9 @@ public abstract class ControleurScin implements ActionListener {
 		return this.organes;
 	}
 
-	public ModeleScin getModele() {
+	/*public ModeleScin getModele() {
 		return this.modele;
-	}
+	}*/
 	
 	public String getNomOrgane(int index) {
 		
@@ -373,7 +375,7 @@ public abstract class ControleurScin implements ActionListener {
 		return this.getOrganes()[index % this.getOrganes().length];
 	}
 
-	public List<String> getNomRois() {
+	public HashMap<Integer,String> getNomRois() {
 		return this.nomRois;
 	}
 
@@ -438,9 +440,9 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 
-	public void setModele(ModeleScin modele) {
+	/*public void setModele(ModeleScin modele) {
 		this.modele = modele;
-	}
+	}*/
 
 	public void setRoiManager(RoiManager rm) {
 		this.roiManager = rm;
@@ -500,5 +502,6 @@ public abstract class ControleurScin implements ActionListener {
 			}
 		}
 	}
+
 
 }

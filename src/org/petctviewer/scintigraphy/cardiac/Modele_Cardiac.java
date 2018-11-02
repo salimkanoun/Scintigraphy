@@ -2,10 +2,12 @@ package org.petctviewer.scintigraphy.cardiac;
 
 import java.util.HashMap;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
+import ij.gui.Roi;
 
 public class Modele_Cardiac extends ModeleScin {
 
@@ -26,33 +28,45 @@ public class Modele_Cardiac extends ModeleScin {
 
 	private Boolean deuxPrises;
 	
+	private Scintigraphy scin;
 	private ImagePlus imp;
+	
+	private Controleur_Cardiac controler;
 
 	private HashMap<String, String> resultats;
 
-	public Modele_Cardiac(ImagePlus imp) {
-		this.imp= (ImagePlus) imp.duplicate();
+	public Modele_Cardiac(Scintigraphy scin) {
+		this.scin=scin;
+		this.imp= scin.getImp().duplicate();
 		this.resultats = new HashMap<>();
 		this.data = new HashMap<>();
 	}
 
-	@Override
-	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
+	
+	public void getResults() {
+		controler=(Controleur_Cardiac) scin.getFenApplication().getControleur();
 		
-		//Array of Double, in 0 raw count, in 1 average count, in 2 number of pixels
-		Double[] counts=new Double[3];
+		for (int i : controler.getNomRois().keySet()) {
+			imp.setSlice(controler.getSliceNumberByRoiIndex(i));
+			imp.setRoi((Roi) controler.getRoiManager().getRoi(i).clone());
+			
+			//Array of Double, in 0 raw count, in 1 average count, in 2 number of pixels
+			Double[] counts=new Double[3];
+			counts[0] =Library_Quantif.getCounts(imp);
+			counts[1] =Library_Quantif.getAvgCounts(imp);
+			counts[2] =(double) Library_Quantif.getPixelNumber(imp);
+
+			this.data.put(controler.getNomRois().get(i), counts);
+			
+		}
+
 		
-		counts[0] =Library_Quantif.getCounts(imp);
-		counts[1] =Library_Quantif.getAvgCounts(imp);
-		counts[2] =(double) Library_Quantif.getPixelNumber(imp);
 		
-		this.data.put(nomRoi, counts);
 		
 	}
 
 	@Override
 	public void calculerResultats() {
-		//ICI A FAIRE
 		
 		//Avg background value of ant and post images
 		Double meanBdfAnt=this.data.get("Bkg noise A")[1];
@@ -95,7 +109,6 @@ public class Modele_Cardiac extends ModeleScin {
 			if (s.startsWith("Cont")) {
 				String label=s.substring(s.indexOf(" ")+2);
 				int number=Integer.parseInt(label);
-				System.out.println(s+"_"+number);
 				
 				if (s.startsWith("ContE")) {
 					if(!contE.containsKey(number)) {
@@ -220,7 +233,6 @@ public class Modele_Cardiac extends ModeleScin {
 		}
 
 		this.resultats.put("WB late (3h)", "" + Library_Quantif.round(this.totLate, 2));
-
 		this.resultats.put("Bladder", "" + Library_Quantif.round(this.fixVessieL, 2));
 		this.resultats.put("Heart", "" + Library_Quantif.round(this.fixCoeurL, 2));
 		this.resultats.put("Bkg noise A", "" + Library_Quantif.round(this.fixBkgNoiseA, 2));

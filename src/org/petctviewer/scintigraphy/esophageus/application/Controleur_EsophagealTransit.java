@@ -13,12 +13,11 @@ public class Controleur_EsophagealTransit  extends ControleurScin {
 	EsophagealTransit esoPlugin;
 	Modele_EsophagealTransit modele ;
 	
-	public Controleur_EsophagealTransit(EsophagealTransit esoPlugin, ImagePlus [][] sauvegardeImagesSelectDicom) {
+	public Controleur_EsophagealTransit(EsophagealTransit esoPlugin) {
 		super(esoPlugin);
 		this.esoPlugin = esoPlugin;
 		this.setOrganes(ORGANES);
-		modele = new Modele_EsophagealTransit(sauvegardeImagesSelectDicom,  esoPlugin);
-		this.setModele(modele);
+		modele=(Modele_EsophagealTransit) esoPlugin.getModele();
 		this.tools = Toolbar.RECTANGLE;
 	}
 
@@ -29,9 +28,9 @@ public class Controleur_EsophagealTransit  extends ControleurScin {
 
 	@Override
 	public void fin() {
-		((Modele_EsophagealTransit) this.getModele()).setRoiManager(this.roiManager);
-		this.getModele().calculerResultats();
-		FenResultats_EsophagealTransit fen = new FenResultats_EsophagealTransit(((Modele_EsophagealTransit)this.getModele()).getExamenMean(), ((Modele_EsophagealTransit)this.getModele()).getDicomRoi(), modele);
+		modele.setRoiManager(this.roiManager);
+		modele.calculerResultats();
+		FenResultats_EsophagealTransit fen = new FenResultats_EsophagealTransit(modele.getExamenMean(), modele.getDicomRoi(), modele);
 		fen.pack();
 		fen.setLocationRelativeTo(null);
 		fen.setVisible(true);

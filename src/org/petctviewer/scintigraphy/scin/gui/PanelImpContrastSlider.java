@@ -28,7 +28,7 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 	private ImagePlus imp;
 	private DynamicImage dynamicImp;
 
-	private Scintigraphy vue;
+	private Scintigraphy scin;
 	private JLabel sliderLabel;
 	private JSlider slider;
 	protected Box boxSlider;
@@ -36,16 +36,16 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 	protected SidePanel sidePanel;
 	String additionalInfo, nomFen;
 
-	public PanelImpContrastSlider(String nomFen, Scintigraphy vue, String additionalInfo) {
+	public PanelImpContrastSlider(String nomFen, Scintigraphy scin, String additionalInfo) {
 		super(new BorderLayout());
-		this.setVue(vue);
+		this.setScin(scin);
 		this.additionalInfo = additionalInfo;
 		this.nomFen = nomFen;
 
 		this.sliderLabel = new JLabel("Contrast", SwingConstants.CENTER);
 		sliderLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-		 sidePanel = new SidePanel(null, nomFen, vue.getImp());
+		 sidePanel = new SidePanel(null, nomFen, scin.getImp());
 		this.add(sidePanel, BorderLayout.EAST);
 	}
 
@@ -68,7 +68,7 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 		
 		sidePanel.add(boxSlider);
 
-		sidePanel.addCaptureBtn(getVue(), this.additionalInfo, new Component[] { this.slider });
+		sidePanel.addCaptureBtn(getScin(), this.additionalInfo, new Component[] { this.slider });
 
 		this.add(sidePanel, BorderLayout.EAST);
 	}
@@ -91,8 +91,8 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 		return this.slider;
 	}
 
-	public Scintigraphy getVue() {
-		return vue;
+	public Scintigraphy getScin() {
+		return scin;
 	}
 
 	public void setImp(ImagePlus imp) {
@@ -117,7 +117,7 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 		}
 	}
 
-	public void setVue(Scintigraphy vue) {
-		this.vue = vue;
+	public void setScin(Scintigraphy scin) {
+		this.scin = scin;
 	}
 }

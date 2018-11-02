@@ -47,7 +47,7 @@ class TabPrincipal extends JPanel {
 		JValueSetter chartNephrogram = vue.getNephrogramChart();
 		
 
-		HashMap<Comparable, Double> adjusted = ((Modele_Renal) vue.getFenApplication().getControleur().getModele())
+		HashMap<Comparable, Double> adjusted = ((Modele_Renal) vue.getModele())
 				.getAdjustedValues();
 		// l'intervalle est defini par l'utilisateur
 		Double x1 = adjusted.get("start");
@@ -60,7 +60,7 @@ class TabPrincipal extends JPanel {
 
 		ImagePlus proj = ZProjector.run(vue.getImp(), "sum", slice1, slice2);
 		proj.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
-		this.modele = (Modele_Renal) vue.getFenApplication().getControleur().getModele();
+		this.modele = (Modele_Renal) vue.getModele();
 
 		JPanel grid = new JPanel(new GridLayout(2, 1));
 

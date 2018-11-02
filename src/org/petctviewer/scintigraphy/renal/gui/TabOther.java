@@ -29,7 +29,7 @@ class TabOther extends JPanel{
 		side.addCaptureBtn(scin, "_other");
 		
 		String[][] asso = new String[][] {{"Blood Pool"} , {"Bladder"}};
-		List<XYSeries> series = ((Modele_Renal) scin.getFenApplication().getControleur().getModele()).getSeries();
+		List<XYSeries> series = ((Modele_Renal) scin.getModele()).getSeries();
 		ChartPanel[] cPanels = ModeleScinDyn.associateSeries(asso, series);
 		
 		JPanel center = new JPanel(new GridLayout(1,1));

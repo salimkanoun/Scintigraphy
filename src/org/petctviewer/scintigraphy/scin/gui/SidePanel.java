@@ -47,7 +47,7 @@ public class SidePanel extends Box {
 	public void addCaptureBtn(Scintigraphy scin, String additionalInfo, Component[] hide) {
 		Component[] comp = setButtonAndLabel();
 
-		ModeleScin modele = scin.getFenApplication().getControleur().getModele();
+		ModeleScin modele = scin.getModele();
 		
 		Component[] hide1 = new Component[] {comp[0]};
 		Component[] both = (Component[])ArrayUtils.addAll(hide1, hide);
@@ -58,7 +58,7 @@ public class SidePanel extends Box {
 	public void addCaptureBtn(Scintigraphy scin, String additionalInfo) {
 		Component[] comp = setButtonAndLabel();
 
-		ModeleScin modele = scin.getFenApplication().getControleur().getModele();
+		ModeleScin modele = scin.getModele();
 		scin.setCaptureButton((JButton) comp[0], comp[1], this, modele, additionalInfo);
 	}
 

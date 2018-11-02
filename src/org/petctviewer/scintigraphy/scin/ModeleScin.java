@@ -18,7 +18,7 @@ public abstract class ModeleScin {
 	 * @param imp
 	 *            ImagePlus a traiter
 	 */
-	public abstract void enregistrerMesure(String nomRoi, ImagePlus imp);
+	//public abstract void enregistrerMesure(String nomRoi, ImagePlus imp);
 
 	public abstract void calculerResultats();
 

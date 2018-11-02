@@ -34,10 +34,10 @@ class TabROE extends JPanel implements ActionListener{
 	
 	public TabROE(Scintigraphy scin) {
 		super(new BorderLayout());
-		modele = (Modele_Renal) scin.getFenApplication().getControleur().getModele();
+		modele = (Modele_Renal) scin.getModele();
 
 		// on recupere le modele et les series
-		Modele_Renal modele = (Modele_Renal) scin.getFenApplication().getControleur().getModele();
+		Modele_Renal modele = (Modele_Renal) scin.getModele();
 		List<XYSeries> series = modele.getSeries();
 
 		// recuperation des chart panel avec association

@@ -22,11 +22,11 @@ class TabZoomed extends JPanel {
 		SidePanel side = new SidePanel(null, "Renal scintigraphy", scin.getImp());
 		side.addCaptureBtn(scin, "_vascular");
 
-		Modele_Renal modele = ((Modele_Renal) scin.getFenApplication().getControleur().getModele());
+		Modele_Renal modele = ((Modele_Renal) scin.getModele());
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		
 		//creation du chartPanel
-		boolean[] kidneys = ((Modele_Renal) scin.getFenApplication().getControleur().getModele()).getKidneys();
+		boolean[] kidneys = ((Modele_Renal) scin.getModele()).getKidneys();
 		if(kidneys[0]) {
 			XYSeries finalKL = modele.getSerie("Final KL");
 			XYSeries finalKLCropped = Modele_Renal.cropSeries(finalKL, 0.0, 1.0);

@@ -19,7 +19,7 @@ class TabCort extends JPanel {
 
 	public TabCort(Scintigraphy scin) {
 		super(new BorderLayout());
-		ModeleScinDyn modele = (ModeleScinDyn) scin.getFenApplication().getControleur().getModele();
+		ModeleScinDyn modele = (ModeleScinDyn) scin.getModele();
 		
 		List<XYSeries> listSeries = modele.getSeries();
 		// recuperation des chart panel avec association

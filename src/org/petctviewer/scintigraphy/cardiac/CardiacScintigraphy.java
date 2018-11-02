@@ -70,8 +70,16 @@ public class CardiacScintigraphy extends Scintigraphy {
 		// fenetre de l'application
 		this.setFenApplication(new FenApplication_Cardiac(this.getImp(), this.getExamType()));
 		this.getImp().setOverlay(overlay);
-		Controleur_Cardiac ctrl = new Controleur_Cardiac(this);
+		
+		//Cree Modele
+		Modele_Cardiac modele=new Modele_Cardiac(this);
+		this.setModele(modele);
+		
+		//Cree controller
+		Controleur_Cardiac ctrl = new Controleur_Cardiac(this, modele);
 		this.getFenApplication().setControleur(ctrl);
+		
+		
 	}
 
 }

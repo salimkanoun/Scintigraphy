@@ -25,6 +25,8 @@ public abstract class Scintigraphy implements PlugIn {
 
 	private ImagePlus imp;
 	protected int nombreAcquisitions;
+	
+	private ModeleScin modele;
 
 	protected Scintigraphy(String examType) {
 		this.examType = examType;
@@ -37,6 +39,7 @@ public abstract class Scintigraphy implements PlugIn {
 	 */
 	@Override
 	public void run(String arg) {
+		//SK FAIRE DANS UN AUTRE THREAD ?
 		FenSelectionDicom fen = new FenSelectionDicom(this.getExamType(), this);
 		fen.setVisible(true);
 	}
@@ -212,6 +215,14 @@ public abstract class Scintigraphy implements PlugIn {
 
 	public FenApplication getFenApplication() {
 		return this.fen_application;
+	}
+	
+	public void setModele(ModeleScin modele) {
+		this.modele=modele;
+	}
+	
+	public ModeleScin getModele() {
+		return modele;
 	}
 	
 	

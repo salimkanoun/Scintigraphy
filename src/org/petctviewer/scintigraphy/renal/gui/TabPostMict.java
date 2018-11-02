@@ -117,7 +117,7 @@ class TabPostMict extends PanelImpContrastSlider implements ActionListener, Cust
 	}
 
 	private String[] createOrgans() {
-		Modele_Renal modele = (Modele_Renal) getVue().getFenApplication().getControleur().getModele();
+		Modele_Renal modele = (Modele_Renal) getScin().getModele();
 
 		// ajout des organes a delimiter selon le nombre de rein du patient
 		List<String> organes = new ArrayList<String>();
@@ -138,7 +138,7 @@ class TabPostMict extends PanelImpContrastSlider implements ActionListener, Cust
 	}
 
 	public void fin() {
-		Modele_Renal modele = (Modele_Renal) getVue().getFenApplication().getControleur().getModele();
+		Modele_Renal modele = (Modele_Renal) getScin().getModele();
 
 		HashMap<String, Double> data = this.vueBasic.getData();
 		this.setImp(vueBasic.getImp());
@@ -204,7 +204,7 @@ class TabPostMict extends PanelImpContrastSlider implements ActionListener, Cust
 	}
 
 	private Component getPanelExcr(Double rg, Double rd) {
-		Modele_Renal modele = (Modele_Renal) this.getVue().getFenApplication().getControleur().getModele();
+		Modele_Renal modele = (Modele_Renal) this.getScin().getModele();
 		Double[][] excr = modele.getExcrPM(rg, rd);
 
 		// elements du tableau

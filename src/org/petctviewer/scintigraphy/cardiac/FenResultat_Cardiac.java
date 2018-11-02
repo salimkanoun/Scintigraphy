@@ -34,19 +34,19 @@ public class FenResultat_Cardiac extends JFrame {
 
 	private static final long serialVersionUID = -5261203439330504164L;
 
-	public FenResultat_Cardiac(Scintigraphy scin, BufferedImage capture) {
+	public FenResultat_Cardiac(Controleur_Cardiac controler, BufferedImage capture) {
 		this.setLayout(new BorderLayout());
 		//super("DPD Quant", vueScin, capture, "");
-		HashMap<String, String> resultats = ((Modele_Cardiac) scin.getFenApplication().getControleur().getModele()).getResultsHashMap();
-		SidePanel side = new SidePanel(getSidePanelContent(resultats), "DPD Quant", scin.getImp());
-		side.addCaptureBtn(scin, "");
+		HashMap<String, String> resultats = ((Modele_Cardiac) controler.getModele()).getResultsHashMap();
+		SidePanel side = new SidePanel(getSidePanelContent(resultats), "DPD Quant", controler.getScin().getImp());
+		side.addCaptureBtn(controler.getScin(), "");
 		this.add(new DynamicImage(capture), BorderLayout.CENTER);
 		this.add(side, BorderLayout.EAST);
 		
 		this.setTitle("DPD Quant results");
 		this.pack();
 		this.setMinimumSize(side.getSize());
-		this.setLocationRelativeTo(scin.getFenApplication());
+		this.setLocationRelativeTo(controler.getScin().getFenApplication());
 		this.setVisible(true);
 	}
 

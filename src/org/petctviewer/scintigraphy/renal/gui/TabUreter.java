@@ -26,7 +26,7 @@ class TabUreter extends JPanel {
 		side.addCaptureBtn(scin, "ureter");
 		
 		String[][] asso = new String[][] {{"L. Ureter" , "R. Ureter"}};
-		List<XYSeries> series = ((Modele_Renal) scin.getFenApplication().getControleur().getModele()).getSeries();
+		List<XYSeries> series = ((Modele_Renal) scin.getModele()).getSeries();
 		ChartPanel[] cPanels = ModeleScinDyn.associateSeries(asso, series);
 		
 		cPanels[0].getChart().setTitle("Ureters");

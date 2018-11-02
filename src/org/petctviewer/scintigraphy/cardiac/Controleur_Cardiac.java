@@ -10,7 +10,6 @@ import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
@@ -23,17 +22,18 @@ public class Controleur_Cardiac extends ControleurScin {
 	private boolean finContSlice1;
 	private boolean finContSlice2;
 	private static String[] organes = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
+	private Modele_Cardiac modele;
+	private Controleur_Cardiac controler;
 
-	protected Controleur_Cardiac(Scintigraphy vue) {
-		super(vue);
-
-		Modele_Cardiac modele = new Modele_Cardiac(this.getScin().getImp());
-
+	protected Controleur_Cardiac(Scintigraphy scin, Modele_Cardiac modele) {
+		super(scin);
+		controler=this;
+		this.modele =modele;
+		
 		// on declare si il y a deux prises
 		modele.setDeuxPrise(this.isDeuxPrises());
 
 		modele.calculerMoyGeomTotale();
-		this.setModele(modele);
 
 		// double les organes pour prise ant/post
 		List<String> organesAntPost = new ArrayList<>();
@@ -55,18 +55,15 @@ public class Controleur_Cardiac extends ControleurScin {
 	@Override
 	public void fin() {
 		// suppression du controleur de l'imp
-		this.removeImpListener();
-
-		ModeleScin mdl = this.getModele();
-		mdl.calculerResultats();
-
-		CardiacScintigraphy vue = (CardiacScintigraphy) this.getScin();
-		//vue.getFenApplication().resizeCanvas();
+		//this.removeImpListener();
+		modele.getResults();
+		modele.calculerResultats();
+		
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				BufferedImage capture = Library_Capture_CSV.captureImage(vue.getImp(), 400, 0).getBufferedImage();	
-				new FenResultat_Cardiac(vue, capture);
+				BufferedImage capture = Library_Capture_CSV.captureImage(controler.getScin().getFenApplication().getImagePlus(), 400, 0).getBufferedImage();	
+				new FenResultat_Cardiac(controler, capture);
 			}
 		});
 
@@ -204,7 +201,6 @@ public class Controleur_Cardiac extends ControleurScin {
 	public String addTag(String nomOrgane) {
 		String nom = nomOrgane;
 		
-		
 		// on ajoute au nom P ou A pour Post ou Ant
 		if (this.isPost()) {
 			nom += " P";
@@ -216,13 +212,9 @@ public class Controleur_Cardiac extends ControleurScin {
 		if(!this.finContSlice2) {
 			String count = this.getSameNameRoiCount(nom);
 			nom += count;
-			System.out.println(count);
+			
 		}
-		System.out.println(nom);
 		
-		// on ajoute le nom de la roi a la liste
-		this.nomRois.add(nom);
-				
 		return nom;
 	}
 
@@ -236,6 +228,10 @@ public class Controleur_Cardiac extends ControleurScin {
 		} else if (b == ((FenApplication_Cardiac) this.getScin().getFenApplication()).getBtn_continue()) {
 			this.clicEndCont();
 		}
+	}
+	
+	public Modele_Cardiac getModele() {
+		return modele;
 	}
 
 }

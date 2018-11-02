@@ -36,7 +36,6 @@ public class EsophagealTransit extends Scintigraphy {
 	 * 	vec selection de la roi pour chaque acqui
 	 */
 	
-	
 	private int[] frameDurations;
 	
 	//[0: ant | 1: post][numAcquisition]
@@ -143,8 +142,6 @@ public class EsophagealTransit extends Scintigraphy {
 		fen.getPanel_btns_gauche().remove(fen.getBtn_drawROI());
 		fen.getPanel_Instructions_btns_droite().removeAll();
 		
-		
-		
 		JPanel radioButtonPanel = new JPanel();
 		radioButtonPanel.setLayout(new GridLayout(nbAcquisition, 1));
 		
@@ -170,8 +167,6 @@ public class EsophagealTransit extends Scintigraphy {
 		radioButtonPanelFlow.setLayout(new FlowLayout());
 		radioButtonPanelFlow.add(radioButtonPanel);
 		
-		
-		
 		JButton startQuantificationButton = new JButton("Start Quantification");
 		startQuantificationButton.addActionListener(new ActionListener() {
 			
@@ -193,7 +188,7 @@ public class EsophagealTransit extends Scintigraphy {
 				EsophagealTransit.this.setImp(impProjeteAllAcqui);
 				IJ.setTool(Toolbar.RECTANGLE);
 
-				Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(EsophagealTransit.this, sauvegardeImagesSelectDicom);
+				Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(EsophagealTransit.this);
 				EsophagealTransit.this.getFenApplication().setControleur(cet);
 
 			}
@@ -208,6 +203,9 @@ public class EsophagealTransit extends Scintigraphy {
 		ControleurDynamique_EsophagealTransit cdet = new ControleurDynamique_EsophagealTransit(this);
 		this.getFenApplication().setControleur(cdet);*/
 		this.getFenApplication().setVisible(true);
+		
+		Modele_EsophagealTransit model=new Modele_EsophagealTransit(sauvegardeImagesSelectDicom, this);
+		this.setModele(model);
 
 		fen.resizeCanvas();
 	}

@@ -427,11 +427,6 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 		
 	}
 
-	@Override
-	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
-		// TODO Auto-generated method stub
-		
-	}
 
 
 }
