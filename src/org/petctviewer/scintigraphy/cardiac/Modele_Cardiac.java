@@ -1,8 +1,6 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
@@ -15,8 +13,7 @@ public class Modele_Cardiac extends ModeleScin {
 
 	/** Valeurs mesur�es **/
 	// valeurs de la prise late
-	private Double fixCoeurL, fixReinGL, fixReinDL, fixVessieL;
-	//fixBkgNoise;
+	private Double fixCoeurL, fixReinGL, fixReinDL, fixVessieL, fixBkgNoiseA, fixBkgNoiseP;
 	// valeurs des contamination
 	private Double sumContE = 0.0, sumContL = 0.0;
 	// valeurs totales
@@ -79,19 +76,17 @@ public class Modele_Cardiac extends ModeleScin {
 		
 		
 		
-		// on fait les moyennes geometriques de chaque ROI Late
-
-		//SK DEVRAIT SAUVER QUE LA MOYENNE
-		//this.fixBkgNoise = Library_Quantif.moyGeom(this.data.get("Bkg noise A"), this.data.get("Bkg noise P"));
 		
+		this.fixBkgNoiseA = meanBdfAnt;
+		this.fixBkgNoiseP= meanBdfPost;
+		
+		// on fait les moyennes geometriques de chaque ROI Late
 		this.fixCoeurL = Library_Quantif.moyGeom(correctedHeartAnt, correctedHeartPost);
 		this.fixReinGL = Library_Quantif.moyGeom(correctedKLAnt, correctedKLPost);
 		this.fixReinDL = Library_Quantif.moyGeom(correctedKRAnt, correctedKRPost);
 		this.fixVessieL = Library_Quantif.moyGeom(correctedBladAnt, correctedBladPost);
 
 		// on somme les moyennes geometriques des contaminations
-		//SK RISQUE DE MELANGER ANT ET POST DE DEUX CONTAMINATION DIFFERENTES !
-		//List<Double> contAntPost = new ArrayList<>();
 		
 		HashMap<Integer, Double[]> contE = new HashMap<>();
 		HashMap<Integer, Double[]> contL = new HashMap<>();
@@ -138,23 +133,6 @@ public class Modele_Cardiac extends ModeleScin {
 		for (Integer i : contL.keySet()) {
 			this.sumContL += Library_Quantif.moyGeom(contL.get(i)[0], contL.get(i)[1]);
 		}
-		
-		
-		/*//SK A RETIRER QUAND LA METHODE AU DESSUS SERA OK
-		for (String s : this.data.keySet()) {
-			if (s.startsWith("Cont")) {
-				contAntPost.add(this.data.get(s)[0]);
-				if (contAntPost.size() == 2) {
-					Double moyCont = Library_Quantif.moyGeom(contAntPost.get(0), contAntPost.get(1));
-					if (s.startsWith("ContE")) {
-						this.sumContE += moyCont;
-					} else {
-						this.sumContL += moyCont;
-					}
-					contAntPost.clear();
-				}
-			}
-		}*/
 
 		//calcul heart/whole body
 		this.hwb = (this.fixCoeurL)
@@ -220,8 +198,8 @@ public class Modele_Cardiac extends ModeleScin {
 			s += "WB early (5mn)," + Library_Quantif.round(this.totEarly,2) + "\n";
 		s += "WB late (3h)," + Library_Quantif.round(this.totLate,2) + "\n";
 		s += "Bladder," + Library_Quantif.round(this.fixVessieL,2) + "\n";
-		//SK A VOIR
-		//s += "Bkg noise," + Library_Quantif.round(this.fixBkgNoise,2) + "\n";
+		s += "Bkg Ant (mean)," + Library_Quantif.round(this.fixBkgNoiseA,2) + "\n";
+		s += "Bkg Post (mean)," + Library_Quantif.round(this.fixBkgNoiseP,2) + "\n";
 		s += "Ratio H/WB %," + Library_Quantif.round(this.hwb, 2) + "\n";
 		if(this.deuxPrises) {
 			s += "Cardiac retention %," + Library_Quantif.round(this.retCardiaque * 100, 2) + "\n";
@@ -245,8 +223,8 @@ public class Modele_Cardiac extends ModeleScin {
 
 		this.resultats.put("Bladder", "" + Library_Quantif.round(this.fixVessieL, 2));
 		this.resultats.put("Heart", "" + Library_Quantif.round(this.fixCoeurL, 2));
-		//SK A VOIR
-		//this.resultats.put("Bkg noise", "" + Library_Quantif.round(this.fixBkgNoise, 2));
+		this.resultats.put("Bkg noise A", "" + Library_Quantif.round(this.fixBkgNoiseA, 2));
+		this.resultats.put("Bkg noise P", "" + Library_Quantif.round(this.fixBkgNoiseP, 2));
 		this.resultats.put("Right Kidney", "" + Library_Quantif.round(this.fixReinDL, 2));
 		this.resultats.put("Left Kidney", "" + Library_Quantif.round(this.fixReinGL, 2));
 		
