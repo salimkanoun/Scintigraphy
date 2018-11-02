@@ -25,10 +25,10 @@ public class Controleur_Cardiac extends ControleurScin {
 	private Modele_Cardiac modele;
 	private Controleur_Cardiac controler;
 
-	protected Controleur_Cardiac(Scintigraphy scin, Modele_Cardiac modele) {
+	protected Controleur_Cardiac(Scintigraphy scin) {
 		super(scin);
 		controler=this;
-		this.modele =modele;
+		this.modele =(Modele_Cardiac) scin.getModele();
 		
 		// on declare si il y a deux prises
 		modele.setDeuxPrise(this.isDeuxPrises());
@@ -63,21 +63,11 @@ public class Controleur_Cardiac extends ControleurScin {
 			@Override
 			public void run() {
 				BufferedImage capture = Library_Capture_CSV.captureImage(controler.getScin().getFenApplication().getImagePlus(), 400, 0).getBufferedImage();	
-				new FenResultat_Cardiac(controler, capture);
+				new FenResultat_Cardiac(controler.getScin(), capture);
 			}
 		});
 
 	}
-
-	/*@Override
-	public String getSameNameRoiCount(String nomRoi) {
-		// on renvoie le nombre de roi identiques uniquement si toutes les
-		// contaminations ont ete prises
-		if (!this.finContSlice1 || !this.finContSlice2) {
-			return super.getSameNameRoiCount(nomRoi);
-		}
-		return "";
-	}*/
 
 	@Override
 	public boolean isPost() {

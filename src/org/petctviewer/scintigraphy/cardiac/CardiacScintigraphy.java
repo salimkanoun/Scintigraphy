@@ -76,7 +76,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 		this.setModele(modele);
 		
 		//Cree controller
-		Controleur_Cardiac ctrl = new Controleur_Cardiac(this, modele);
+		Controleur_Cardiac ctrl = new Controleur_Cardiac(this);
 		this.getFenApplication().setControleur(ctrl);
 		
 		
