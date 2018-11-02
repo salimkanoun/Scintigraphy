@@ -72,7 +72,7 @@ public class Controleur_Cardiac extends ControleurScin {
 
 	}
 
-	@Override
+	/*@Override
 	public String getSameNameRoiCount(String nomRoi) {
 		// on renvoie le nombre de roi identiques uniquement si toutes les
 		// contaminations ont ete prises
@@ -80,7 +80,7 @@ public class Controleur_Cardiac extends ControleurScin {
 			return super.getSameNameRoiCount(nomRoi);
 		}
 		return "";
-	}
+	}*/
 
 	@Override
 	public boolean isPost() {
@@ -204,17 +204,25 @@ public class Controleur_Cardiac extends ControleurScin {
 	public String addTag(String nomOrgane) {
 		String nom = nomOrgane;
 		
-		if(!this.finContSlice2) {
-			return nom + this.roiManager.getCount();
-		}
 		
 		// on ajoute au nom P ou A pour Post ou Ant
 		if (this.isPost()) {
 			nom += " P";
+			
 		} else {
 			nom += " A";
 		}
-
+		
+		if(!this.finContSlice2) {
+			String count = this.getSameNameRoiCount(nom);
+			nom += count;
+			System.out.println(count);
+		}
+		System.out.println(nom);
+		
+		// on ajoute le nom de la roi a la liste
+		this.nomRois.add(nom);
+				
 		return nom;
 	}
 

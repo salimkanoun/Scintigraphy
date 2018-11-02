@@ -29,8 +29,8 @@ public class FenApplication_Cardiac extends FenApplication {
 		this.setText_instructions("Delimit the Bladder");
 		
 		this.setPreferredCanvasSize(600);
-		
 		this.setLocationRelativeTo(null);
+		IJ.setTool(Toolbar.POLYGON);
 	}
 	
 	/**

@@ -44,7 +44,7 @@ public abstract class ControleurScin implements ActionListener {
 	private String[] organes;
 	protected int indexRoi;
 
-	private List<String> nomRois = new ArrayList<>();
+	protected List<String> nomRois = new ArrayList<>();
 	private ImageListener ctrlImg;
 	
 	protected Color STROKECOLOR = Color.RED;//couleur de la roi
@@ -238,15 +238,14 @@ public abstract class ControleurScin implements ActionListener {
 			this.modele.enregistrerMesure(
 					this.addTag(nomRoi), 
 					this.scin.getImp());
+			
+		
 
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
 			if (this.roiManager.getRoi(indexRoi) == null) {
-				//Necessite debug d'ImageJ en attente
+				//Add Roi to the Roi Manager
 				roiManager.addRoi(this.scin.getImp().getRoi());
-				//On utilise le macro car probleme d'ajout ROI identique sinon // pas toucher
-				//SK VOIR AVEC IMAGEJ PEUT PAS AJOUTER SI ROI MANAGER INVISIBLE
-				//IJ.runMacro("roiManager(\"Add\");");
 			} else { // Si il existe on l'ecrase
 				this.roiManager.setRoi(this.scin.getImp().getRoi(), indexRoi);
 				// on supprime le roi nouvellement ajoute de la vue
@@ -259,6 +258,7 @@ public abstract class ControleurScin implements ActionListener {
 
 			// changement de nom
 			this.roiManager.rename(indexRoi, nomRoi);
+			
 
 			return true;
 		}
@@ -301,7 +301,7 @@ public abstract class ControleurScin implements ActionListener {
 
 		// on ajoute le nom de la roi a la liste
 		this.nomRois.add(nom);
-
+					
 		return nom;
 	}
 
