@@ -17,11 +17,6 @@ public class ModeleScinStatic  extends ModeleScin{
 		this.roisPost = new HashMap<>();
 
 	}
-	
-	@Override
-	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
-
-	}
 
 	public void enregistrerMesureAnt(String nomRoi, ImagePlus imp) {
 			// on garde uniquement le nom de la roi sans le tag
