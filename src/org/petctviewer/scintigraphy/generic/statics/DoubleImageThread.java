@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.statics;
+package org.petctviewer.scintigraphy.generic.statics;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;

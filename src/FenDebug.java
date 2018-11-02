@@ -10,10 +10,11 @@ import javax.swing.JPanel;
 import org.petctviewer.scintigraphy.PrefsWindow;
 import org.petctviewer.scintigraphy.calibration.Calibration;
 import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
-import org.petctviewer.scintigraphy.dynamic.GeneralDynamicScintigraphy;
 import org.petctviewer.scintigraphy.esophageus.application.EsophagealTransit;
 import org.petctviewer.scintigraphy.gastric.Vue_VG_Dynamique;
 import org.petctviewer.scintigraphy.gastric.Vue_VG_Roi;
+import org.petctviewer.scintigraphy.generic.dynamic.GeneralDynamicScintigraphy;
+import org.petctviewer.scintigraphy.generic.statics.StaticScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.statique.HepaticScintigraphy;
 import org.petctviewer.scintigraphy.platelet.Vue_Plaquettes;
@@ -21,7 +22,6 @@ import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.renal.dmsa.DmsaScintigraphy;
 import org.petctviewer.scintigraphy.renal.followup.FollowUp;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.statics.StaticScintigraphy;
 
 public class FenDebug extends JFrame{
 

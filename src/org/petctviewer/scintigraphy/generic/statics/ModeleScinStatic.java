@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.statics;
+package org.petctviewer.scintigraphy.generic.statics;
 
 import java.util.HashMap;
 

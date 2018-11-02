@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.dynamic;
+package org.petctviewer.scintigraphy.generic.dynamic;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
