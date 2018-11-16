@@ -9,9 +9,9 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.hepatic.dyn.Modele_HepaticDyn;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 public class TabVasculaire extends JPanel {
 
@@ -25,7 +25,7 @@ public class TabVasculaire extends JPanel {
 		
 		Modele_HepaticDyn modele = (Modele_HepaticDyn) scin.getFenApplication().getControleur().getModele();
 		List<XYSeries> series = modele.getSeries();
-		ChartPanel chartVasculaire = ModeleScinDyn.associateSeries(new String[] {"Blood pool"}, series);
+		ChartPanel chartVasculaire = Library_JFreeChart.associateSeries(new String[] {"Blood pool"}, series);
 		
 		SidePanel border = new SidePanel(null, "Renal Scintigraphy", scin.getImp());
 		border.addCaptureBtn(scin, "Blood Pool");

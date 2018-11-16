@@ -18,10 +18,10 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.dyn.Modele_HepaticDyn;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 import ij.ImagePlus;
 
@@ -56,7 +56,7 @@ class TabPrincipal extends JPanel{
 		center.add(pnl_top);
 		
 		List<XYSeries> series = modele.getSeries();
-		ChartPanel cp = ModeleScinDyn.associateSeries(new String[] {"R. Liver","L. Liver"}, series);
+		ChartPanel cp = Library_JFreeChart.associateSeries(new String[] {"R. Liver","L. Liver"}, series);
 		center.add(cp);
 		
 		this.add(center, BorderLayout.CENTER);

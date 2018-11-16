@@ -11,8 +11,8 @@ import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.gui.FenNeph;
 import org.petctviewer.scintigraphy.renal.gui.FenResultats_Renal;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 
 import ij.ImagePlus;
@@ -200,7 +200,7 @@ public class Controleur_Renal extends ControleurScin {
 		// on recupere les chartPanels avec l'association
 		List<XYSeries> series = modele.getSeries();
 		String[][] asso = new String[][] { { "Final KL", "Final KR" } };
-		ChartPanel[] cp = ModeleScinDyn.associateSeries(asso, series);
+		ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
 		
 		FenNeph fan = new FenNeph(cp[0], this.getScin().getFenApplication(), modele);
 		fan.setModal(true);

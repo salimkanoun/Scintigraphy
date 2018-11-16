@@ -29,7 +29,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.Selector;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 public class FenPatlak extends JDialog implements ActionListener, ChartMouseListener {
@@ -149,11 +149,11 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		Double minutesMax = 4.0;
 
 		for (Double t = 0.0; t < minutesMax; t += 2 / 60.0) {
-			Double x = ModeleScinDyn.getY(bpi, t) / ModeleScinDyn.getY(bp, t);
-			Double y1 = ModeleScinDyn.getY(lk, t) / ModeleScinDyn.getY(bpl, t);
+			Double x = Library_JFreeChart.getY(bpi, t) / Library_JFreeChart.getY(bp, t);
+			Double y1 = Library_JFreeChart.getY(lk, t) / Library_JFreeChart.getY(bpl, t);
 			lkPatlak.add(x, y1);
 
-			Double y2 = ModeleScinDyn.getY(rk, t) / ModeleScinDyn.getY(bpr, t);
+			Double y2 = Library_JFreeChart.getY(rk, t) / Library_JFreeChart.getY(bpr, t);
 			rkPatlak.add(x, y2);
 		}
 		data.addSeries(lkPatlak);
@@ -179,8 +179,8 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		}
 
 		// on coupe les series dans l'intervalle
-		XYSeries lkCropped = ModeleScinDyn.cropSeries(this.lkPatlak, this.debutG, this.finG);
-		XYSeries rkCropped = ModeleScinDyn.cropSeries(this.rkPatlak, this.debutD, this.finD);
+		XYSeries lkCropped = Library_JFreeChart.cropSeries(this.lkPatlak, this.debutG, this.finG);
+		XYSeries rkCropped = Library_JFreeChart.cropSeries(this.rkPatlak, this.debutD, this.finD);
 		XYSeriesCollection data = new XYSeriesCollection();
 		data.addSeries(lkCropped);
 		data.addSeries(rkCropped);

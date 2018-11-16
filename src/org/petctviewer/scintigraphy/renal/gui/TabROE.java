@@ -22,9 +22,9 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 class TabROE extends JPanel implements ActionListener{
@@ -44,7 +44,7 @@ class TabROE extends JPanel implements ActionListener{
 		String[][] asso = { { "Blood pool fitted L", "Final KL", "Output KL" },
 				{ "Blood pool fitted R", "Final KR", "Output KR" } };
 
-		ChartPanel[] cPanels = ModeleScinDyn.associateSeries(asso, series);
+		ChartPanel[] cPanels = Library_JFreeChart.associateSeries(asso, series);
 
 		BasicStroke stroke = new BasicStroke(5.0F);
 		JPanel p = new JPanel(new GridLayout(2, 1));
@@ -155,7 +155,7 @@ class TabROE extends JPanel implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		JFrame frameBPI = new JFrame();
-		frameBPI.add(ModeleScinDyn.associateSeries(new String[] {"BPI", "Blood pool fitted"}, modele.getSeries()));
+		frameBPI.add(Library_JFreeChart.associateSeries(new String[] {"BPI", "Blood pool fitted"}, modele.getSeries()));
 		frameBPI.pack();
 		frameBPI.setVisible(true);
 	}

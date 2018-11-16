@@ -10,9 +10,9 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 import ij.Prefs;
 
@@ -30,7 +30,7 @@ class TabOther extends JPanel{
 		
 		String[][] asso = new String[][] {{"Blood Pool"} , {"Bladder"}};
 		List<XYSeries> series = ((Modele_Renal) scin.getModele()).getSeries();
-		ChartPanel[] cPanels = ModeleScinDyn.associateSeries(asso, series);
+		ChartPanel[] cPanels = Library_JFreeChart.associateSeries(asso, series);
 		
 		JPanel center = new JPanel(new GridLayout(1,1));
 		cPanels[0].getChart().getXYPlot().getRenderer().setSeriesPaint(0, Color.GREEN);

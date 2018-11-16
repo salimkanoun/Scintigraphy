@@ -12,6 +12,7 @@ import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 class TabCort extends JPanel {
 
@@ -24,7 +25,7 @@ class TabCort extends JPanel {
 		List<XYSeries> listSeries = modele.getSeries();
 		// recuperation des chart panel avec association
 		String[][] asso = { { "L. Cortical", "L. Pelvis" }, {"R. Cortical" , "R. Pelvis" } };
-		ChartPanel[] cPanels = ModeleScinDyn.associateSeries(asso, listSeries);
+		ChartPanel[] cPanels = Library_JFreeChart.associateSeries(asso, listSeries);
 		
 		cPanels[0].getChart().setTitle("Left kidney");
 		cPanels[1].getChart().setTitle("Right kidney");

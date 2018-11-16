@@ -6,12 +6,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.ZProjector;
@@ -23,10 +26,10 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	private boolean over;
 	private ImagePlus impProjetee;
 
-	protected Controleur_GeneralDyn(GeneralDynamicScintigraphy vue) {
-		super(vue);
+	protected Controleur_GeneralDyn(GeneralDynamicScintigraphy scin) {
+		super(scin);
 		this.setOrganes(new String[MAXROI]);
-		this.setModele(new Modele_GeneralDyn(vue.getFrameDurations()));
+		
 		this.over = false;
 
 		this.getScin().getFenApplication().getTextfield_instructions().addKeyListener(new KeyListener() {
@@ -107,8 +110,8 @@ public class Controleur_GeneralDyn extends ControleurScin {
 
 		if (vue.getImpAnt() != null) {
 			capture = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
-			ModeleScinDyn modele = saveValues(vue.getImpAnt());
-			new FenResultat_GeneralDyn(vue, capture, modele, asso, "Ant");
+			saveValues(vue.getImpAnt());
+			new FenResultat_GeneralDyn(vue, capture, (ModeleScinDyn) scin.getModele(), asso, "Ant");
 		}
 
 		if (vue.getImpPost() != null) {
@@ -134,8 +137,8 @@ public class Controleur_GeneralDyn extends ControleurScin {
 
 					BufferedImage c = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
 
-					ModeleScinDyn modele = saveValues(vue.getImpPost());
-					new FenResultat_GeneralDyn(vue, c, modele, asso, "Post");
+					saveValues(vue.getImpPost());
+					new FenResultat_GeneralDyn(vue, c, (ModeleScinDyn) scin.getModele(), asso, "Post");
 
 					Controleur_GeneralDyn.this.finishDrawingResultWindow();
 				}
@@ -161,25 +164,34 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		vue.getFenApplication().resizeCanvas();
 	}
 
-	private ModeleScinDyn saveValues(ImagePlus imp) {
-		GeneralDynamicScintigraphy vue = (GeneralDynamicScintigraphy) this.getScin();
-		ModeleScinDyn modele = new Modele_GeneralDyn(vue.getFrameDurations());
+	private void saveValues(ImagePlus imp) {
 
 		this.getScin().setImp(imp);
 		this.indexRoi = 0;
+		
+		HashMap<String, List<Double>> mapData=((ModeleScinDyn) scin.getModele()).getData();
+		mapData=new HashMap<String, List<Double>>();
 		// on copie les roi sur toutes les slices
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
 			for (int j = 0; j < this.nbOrganes; j++) {
 				imp.setRoi(getOrganRoi(this.indexRoi));
 				String nom = this.getNomOrgane(this.indexRoi);
-				modele.enregistrerMesure(this.addTag(nom), imp);
+				
+				String name = nom.substring(0, nom.lastIndexOf(" "));
+				// on cree la liste si elle n'existe pas
+				if ( mapData.get(name) == null) {
+					mapData.put(name, new ArrayList<Double>());
+				}
+				// on y ajoute le nombre de coups
+				mapData.get(name).add(Library_Quantif.getCounts(imp));
+				
 				this.indexRoi++;
 			}
 		}
-		modele.calculerResultats();
 		
-		return modele;
+		scin.getModele().calculerResultats();
+		
 	}
 
 	@Override
@@ -212,15 +224,15 @@ public class Controleur_GeneralDyn extends ControleurScin {
 			// on change la couleur pour l'overlay
 			this.scin.getImp().getRoi().setStrokeColor(Color.YELLOW);
 			// on enregistre la ROI dans le modele
-			this.modele.enregistrerMesure(
+			//SK ICI ON REMPLACE
+			/*(( GeneralDynamicScintigraphy)scin.getModele()).enregistrerMesure(
 					this.addTag(nomRoi), 
-					this.scin.getImp());
+					this.scin.getImp());*/
 	
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
 			if (this.roiManager.getRoi(indexRoi) == null) {
-				//On utilise le macro car probleme d'ajout ROI identique sinon // pas toucher
-				IJ.runMacro("roiManager(\"Add\");");
+				roiManager.addRoi(this.scin.getImp().getRoi());
 			} else { // Si il existe on l'ecrase
 				this.roiManager.setRoi(this.scin.getImp().getRoi(), indexRoi);
 				// on supprime le roi nouvellement ajoute de la vue

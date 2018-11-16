@@ -11,6 +11,7 @@ import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 public class FenResultat_GeneralDyn extends JFrame {
 
@@ -26,7 +27,7 @@ public class FenResultat_GeneralDyn extends JFrame {
 
 		grid.add(new DynamicImage(capture));
 
-		ChartPanel[] cPanels = ModeleScinDyn.associateSeries(asso, modele.getSeries());
+		ChartPanel[] cPanels = Library_JFreeChart.associateSeries(asso, modele.getSeries());
 		for (ChartPanel c : cPanels) {
 			c.setPreferredSize(new Dimension(capture.getWidth() + 1 / 3 * capture.getWidth(), capture.getHeight()));
 			grid.add(c);

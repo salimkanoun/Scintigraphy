@@ -15,6 +15,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.json.simple.JSONObject;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
@@ -146,8 +147,8 @@ public class Modele_Renal extends ModeleScinDyn {
 		try {
 			XYSeries output = this.getSerie("Output K" + lr);
 			XYSeries serieBPF = this.getSerie("Blood pool fitted " + lr);
-			 perct = (int) (ModeleScinDyn.getY(output, min).doubleValue()
-					/ ModeleScinDyn.getY(serieBPF, min).doubleValue() * 100);
+			 perct = (int) (Library_JFreeChart.getY(output, min).doubleValue()
+					/ Library_JFreeChart.getY(serieBPF, min).doubleValue() * 100);
 		} catch (IllegalArgumentException e) {
 		}
 		
@@ -166,7 +167,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		if (this.kidneys[0]) {
 			Double xMaxG = this.adjustedValues.get("tmax L");
 			XYSeries lk = this.getSerie("Final KL");
-			res[1][0] = Library_Quantif.round(ModeleScinDyn.getTDemiObs(lk, xMaxG), 1);
+			res[1][0] = Library_Quantif.round(Library_JFreeChart.getTDemiObs(lk, xMaxG), 1);
 			res[0][0] = Library_Quantif.round(xMaxG, 2);
 		} else {
 			res[0][0] = Double.NaN;
@@ -176,7 +177,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		if (this.kidneys[1]) {
 			Double xMaxD = this.adjustedValues.get("tmax R");
 			XYSeries rk = this.getSerie("Final KR");
-			res[1][1] = Library_Quantif.round(ModeleScinDyn.getTDemiObs(rk, xMaxD), 1);
+			res[1][1] = Library_Quantif.round(Library_JFreeChart.getTDemiObs(rk, xMaxD), 1);
 			res[0][1] = Library_Quantif.round(xMaxD, 2);
 		} else {
 			res[0][1] = Double.NaN;
@@ -204,16 +205,16 @@ public class Modele_Renal extends ModeleScinDyn {
 		// si il y a un rein gauche
 		if (this.kidneys[0]) {
 			Double xMaxL = this.adjustedValues.get("tmax L");
-			res[0][0] = Library_Quantif.round((100 * rg / ModeleScinDyn.getY(this.getSerie("Final KL"), xMaxL)), 2);
-			res[0][1] = Library_Quantif.round((100 * rg / ModeleScinDyn.getY(this.getSerie("Final KL"), xLasilixM1)), 2);
+			res[0][0] = Library_Quantif.round((100 * rg / Library_JFreeChart.getY(this.getSerie("Final KL"), xMaxL)), 2);
+			res[0][1] = Library_Quantif.round((100 * rg / Library_JFreeChart.getY(this.getSerie("Final KL"), xLasilixM1)), 2);
 
 		}
 
 		// si il y a un rein droit
 		if (this.kidneys[1]) {
 			Double xMaxR = this.adjustedValues.get("tmax R");
-			res[1][0] = Library_Quantif.round((100 * rd / ModeleScinDyn.getY(this.getSerie("Final KR"), xMaxR)), 2);
-			res[1][1] = Library_Quantif.round((100 * rd / ModeleScinDyn.getY(this.getSerie("Final KR"), xLasilixM1)), 2);
+			res[1][0] = Library_Quantif.round((100 * rd / Library_JFreeChart.getY(this.getSerie("Final KR"), xMaxR)), 2);
+			res[1][1] = Library_Quantif.round((100 * rd / Library_JFreeChart.getY(this.getSerie("Final KR"), xLasilixM1)), 2);
 		}
 
 		return res;
@@ -245,7 +246,7 @@ public class Modele_Renal extends ModeleScinDyn {
 			// calcul Excr rein gauche
 			for (int i = 0; i < 3; i++) {
 				if (this.getAdjustedValues().get("tmax " + lr) < res[0][i]) {
-					res[index][i] = Library_Quantif.round(getY(kidney, res[0][i]) * 100 / max, 1);
+					res[index][i] = Library_Quantif.round(Library_JFreeChart.getY(kidney, res[0][i]) * 100 / max, 1);
 				}
 			}
 		}
@@ -272,7 +273,7 @@ public class Modele_Renal extends ModeleScinDyn {
 
 			// calcul nora rein gauche
 			for (int i = 0; i < 3; i++) {
-				res[index][i] = Library_Quantif.round(getY(kidney, res[0][i]) * 100 / getY(kidney, 2.0), 1);
+				res[index][i] = Library_Quantif.round(Library_JFreeChart.getY(kidney, res[0][i]) * 100 / Library_JFreeChart.getY(kidney, 2.0), 1);
 			}
 		}
 
@@ -328,7 +329,7 @@ public class Modele_Renal extends ModeleScinDyn {
 
 	public double getExcrBladder(Double bld) {
 		XYSeries bldSeries = this.getSerie("Bladder");
-		return 100 * bld / ModeleScinDyn.getY(bldSeries, bldSeries.getMaxX());
+		return 100 * bld / Library_JFreeChart.getY(bldSeries, bldSeries.getMaxX());
 	}
 
 	/**
@@ -582,7 +583,7 @@ public class Modele_Renal extends ModeleScinDyn {
 			seriesVasc.add(x, reg[0] + reg[1] * x + reg[2] * Math.pow(x, 2) + reg[3] * Math.pow(x, 3));
 		}
 
-		this.getData().put("Blood pool fitted", ModeleScinDyn.seriesToList(seriesVasc));
+		this.getData().put("Blood pool fitted", Library_JFreeChart.seriesToList(seriesVasc));
 
 		XYSeries seriesKid = this.createSerie(kidney, "Kidney");
 

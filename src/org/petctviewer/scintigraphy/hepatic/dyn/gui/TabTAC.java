@@ -13,9 +13,9 @@ import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.hepatic.dyn.Modele_HepaticDyn;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 class TabTAC extends JPanel {
 
@@ -34,15 +34,15 @@ class TabTAC extends JPanel {
 		JPanel pnl_center = new JPanel(new GridLayout(2,2));
 		
 		List<XYSeries> series = modele.getSeries();
-		ChartPanel chartDuodenom = ModeleScinDyn.associateSeries(new String[] {"Duodenom"}, series);
+		ChartPanel chartDuodenom = Library_JFreeChart.associateSeries(new String[] {"Duodenom"}, series);
 		JValueSetter setterDuodenom = new JValueSetter(chartDuodenom.getChart());
 		setterDuodenom.addSelector(new Selector("start", 10, -1, RectangleAnchor.BOTTOM_RIGHT), "start");
 		pnl_center.add(setterDuodenom);
 		
-		ChartPanel chartCBD = ModeleScinDyn.associateSeries(new String[] {"CBD"}, series);
+		ChartPanel chartCBD = Library_JFreeChart.associateSeries(new String[] {"CBD"}, series);
 		pnl_center.add(chartCBD);
 
-		ChartPanel chartHilium = ModeleScinDyn.associateSeries(new String[] {"Hilium"}, series);
+		ChartPanel chartHilium = Library_JFreeChart.associateSeries(new String[] {"Hilium"}, series);
 		JValueSetter setterHilium = new JValueSetter(chartHilium.getChart());
 		setterHilium.addSelector(new Selector("start", 10, -1, RectangleAnchor.BOTTOM_RIGHT), "start");
 		pnl_center.add(setterHilium);

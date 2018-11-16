@@ -20,6 +20,7 @@ public class GeneralDynamicScintigraphy extends Scintigraphy{
 	public void lancerProgramme() {
 		this.setFenApplication(new FenApplication_GeneralDyn(this.getImp(), this.getExamType(), this));
 		this.getFenApplication().setControleur(new Controleur_GeneralDyn(this));
+		this.setModele(new Modele_GeneralDyn(getFrameDurations()));
 		IJ.setTool(Toolbar.POLYGON);
 	}
 	
