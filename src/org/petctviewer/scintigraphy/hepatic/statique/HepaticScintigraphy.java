@@ -31,5 +31,6 @@ public class HepaticScintigraphy extends Scintigraphy {
 	public void lancerProgramme() {
 		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));
 		this.getFenApplication().setControleur(new Controleur_Hepatic(this));
+		this.setModele(new Modele_Hepatic());
 	}
 }

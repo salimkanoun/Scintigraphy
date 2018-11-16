@@ -41,7 +41,7 @@ public class Controleur_Renal extends ControleurScin {
 		// on bloque le modele pour ne pas enregistrer les valeurs de la projection
 		modele.setLocked(true);
 
-		this.setModele(modele);
+		renalScinti.setModele(modele);
 	}
 
 	
@@ -59,7 +59,7 @@ public class Controleur_Renal extends ControleurScin {
 	
 	public void setKidneys(boolean[] kidneys) {
 		this.kidneys = kidneys;
-		((Modele_Renal) this.getModele()).setKidneys(kidneys);
+		((Modele_Renal) scin.getModele()).setKidneys(kidneys);
 		this.adjustOrgans();
 	}
 
@@ -166,14 +166,14 @@ public class Controleur_Renal extends ControleurScin {
 		//this.removeImpListener();
 
 		// on recupere la vue, le modele et l'imp
-		RenalScintigraphy vue = (RenalScintigraphy) this.getScin();
-		Modele_Renal modele = (Modele_Renal) vue.getFenApplication().getControleur().getModele();
+		RenalScintigraphy scinRenal = (RenalScintigraphy) this.getScin();
+		Modele_Renal modele = (Modele_Renal) scinRenal.getModele();
 
 		//Remet les data du modele a zero (en cas de relance)
 		modele.getData().clear();
 		
 		// On recupere l'image Post dynamique sur laquelle on fait les quantifications
-		ImagePlus imp = vue.getImpPost();
+		ImagePlus imp = scinRenal.getImpPost();
 
 		// on debloque le modele pour avoir l'enregistrement des mesures
 		modele.setLocked(false);
@@ -216,8 +216,8 @@ public class Controleur_Renal extends ControleurScin {
 		modele.fitVasculaire();
 
 		// on affiche la fenetre de resultats principale
-		vue.setNephrogramChart(fan.getValueSetter());
-		new FenResultats_Renal(vue, capture);
+		scinRenal.setNephrogramChart(fan.getValueSetter());
+		new FenResultats_Renal(scinRenal, capture);
 		
 		//SK On rebloque le modele pour la prochaine generation
 		modele.setLocked(true);

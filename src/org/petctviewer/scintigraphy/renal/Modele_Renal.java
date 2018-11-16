@@ -402,16 +402,23 @@ public class Modele_Renal extends ModeleScinDyn {
 	
 	
 	/********** Public *********/
-	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 		if (!this.isLocked()) {
-			super.enregistrerMesure(nomRoi, imp);
-
+			//super.enregistrerMesure(nomRoi, imp);
+			
 			// nom de l'organe sans le tag
 			String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
+			this.organRois.put(name, imp.getRoi());
+			
+			if (this.getData().get(name) == null) {
+				this.getData().put(name, new ArrayList<Double>());
+			}
+			// on y ajoute le nombre de coups
+			this.getData().get(name).add(Library_Quantif.getCounts(imp));
+			
 			// si on n'a pas deja enregistre son aire, on l'ajout a la hashmap
 			//if (this.organRois.get(name) == null) {
-				this.organRois.put(name, imp.getRoi());
+				
 			//}
 		}
 

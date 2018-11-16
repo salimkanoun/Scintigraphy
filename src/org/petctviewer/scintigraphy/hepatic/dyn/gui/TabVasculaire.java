@@ -23,7 +23,7 @@ public class TabVasculaire extends JPanel {
 	public TabVasculaire(Scintigraphy scin, int width, int height) {
 		super(new BorderLayout());
 		
-		Modele_HepaticDyn modele = (Modele_HepaticDyn) scin.getFenApplication().getControleur().getModele();
+		Modele_HepaticDyn modele = (Modele_HepaticDyn) scin.getModele();
 		List<XYSeries> series = modele.getSeries();
 		ChartPanel chartVasculaire = Library_JFreeChart.associateSeries(new String[] {"Blood pool"}, series);
 		

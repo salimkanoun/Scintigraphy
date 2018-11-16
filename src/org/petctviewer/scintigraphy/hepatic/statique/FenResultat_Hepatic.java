@@ -23,7 +23,7 @@ public class FenResultat_Hepatic extends JFrame {
 
 	public FenResultat_Hepatic(Scintigraphy scin, BufferedImage capture) {
 		this.setLayout(new BorderLayout());
-		this.resultats = ((Modele_Hepatic) scin.getFenApplication().getControleur().getModele()).getResultsHashMap();
+		this.resultats = ((Modele_Hepatic) scin.getModele()).getResultsHashMap();
 		
 		SidePanel side = new SidePanel(this.getSidePanelContent(), scin.getExamType(), scin.getImp());
 		side.addCaptureBtn(scin, "");

@@ -8,18 +8,10 @@ import ij.ImagePlus;
 
 public class Modele_Hepatic extends ModeleScin {
 
-	private HashMap<String, Double> data = new HashMap<>();
+	private HashMap<String, Double> data;
 	private Double MGFoie, MGIntes, MGTot;
-	private ImagePlus imp;
 
-	public Modele_Hepatic(ImagePlus imp) {
-		this.imp=imp.duplicate();
-	}
-
-	@Override
-	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
-		Double counts = Library_Quantif.getCounts(imp);
-		this.data.put(nomRoi, counts);
+	public Modele_Hepatic() {
 	}
 	
 	public HashMap<String, String> getResultsHashMap() {
@@ -46,6 +38,10 @@ public class Modele_Hepatic extends ModeleScin {
 		s += "GM Intestine," + Library_Quantif.round(this.MGIntes, 2) + "\n";
 		s += "GM Total," + Library_Quantif.round(this.MGTot, 2) + "\n";		
 		return s;
+	}
+	
+	public void setData(HashMap<String, Double> data) {
+		this.data=data;
 	}
 
 }

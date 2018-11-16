@@ -36,7 +36,7 @@ class TabPrincipal extends JPanel{
 	public TabPrincipal(HepaticDynamicScintigraphy scin, BufferedImage capture, int width, int height) {
 		super(new BorderLayout());
 		
-		Modele_HepaticDyn modele = (Modele_HepaticDyn) scin.getFenApplication().getControleur().getModele();
+		Modele_HepaticDyn modele = (Modele_HepaticDyn) scin.getModele();
 		this.resultats = modele.getResultsHashMap();
 		
 		SidePanel side = new SidePanel(this.getSidePanelContent(), "Biliary scintiraphy", scin.getImp());

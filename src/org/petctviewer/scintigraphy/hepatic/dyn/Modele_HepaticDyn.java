@@ -19,12 +19,10 @@ public class Modele_HepaticDyn extends ModeleScinDyn {
 	// resultats calcules
 	private Double tDemiFoieDFit, tDemiFoieGFit, tDemiVascFit, tDemiFoieDObs, tDemiFoieGObs, tDemiVascObs;
 	private Double maxFoieD, maxFoieG, finPicD, finPicG, pctVasc;
-	private ImagePlus imp;
 
 	public Modele_HepaticDyn(HepaticDynamicScintigraphy vue) {
 		super(vue.getFrameDurations());
 		
-		this.imp=vue.getImp().duplicate();
 	}
 
 	@Override
@@ -54,6 +52,8 @@ public class Modele_HepaticDyn extends ModeleScinDyn {
 
 	}
 
+	/*
+	 * Calcul par interessant SK
 	private static int getTDemiFit(XYSeries series, Double startX) {
 		XYSeries linear = new XYSeries("linear");
 		for(int i = 0; i < series.getItemCount(); i++) {
@@ -70,7 +70,7 @@ public class Modele_HepaticDyn extends ModeleScinDyn {
 		
 		int tdemi = (int) (Math.log(2.0) / results[1]) * -1;
 		return tdemi;		
-	}
+	}*/
 	
 	private XYDataset createDataset() {
 		final XYSeriesCollection dataset = new XYSeriesCollection();

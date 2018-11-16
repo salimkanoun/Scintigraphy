@@ -29,7 +29,7 @@ class TabTAC extends JPanel {
 		SidePanel side = new SidePanel(null, "Biliary scintigraphy", scin.getImp());
 		side.addCaptureBtn(scin, "");
 		
-		Modele_HepaticDyn modele = (Modele_HepaticDyn) scin.getFenApplication().getControleur().getModele();
+		Modele_HepaticDyn modele = (Modele_HepaticDyn) scin.getModele();
 		
 		JPanel pnl_center = new JPanel(new GridLayout(2,2));
 		

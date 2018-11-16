@@ -1,9 +1,12 @@
 package org.petctviewer.scintigraphy.hepatic.statique;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.gui.Roi;
 
@@ -11,10 +14,9 @@ public class Controleur_Hepatic extends ControleurScin {
 
 	public static String[] organes = { "Liver", "Intestine" };
 
-	protected Controleur_Hepatic(Scintigraphy vue) {
-		super(vue);
+	protected Controleur_Hepatic(Scintigraphy scin) {
+		super(scin);
 		this.setOrganes(organes);
-		this.setModele(new Modele_Hepatic(vue.getImp()));
 		this.setSlice(1);
 	}
 
@@ -25,16 +27,21 @@ public class Controleur_Hepatic extends ControleurScin {
 
 	@Override
 	public void fin() {
+		//SK A REVOIR MANQUE LES ROI DE LA PREMIERE SLICE
+		this.setSlice(1);
+		
 		this.setSlice(2);
-		Scintigraphy vue = this.getScin();
 		// Copie des rois sur la deuxieme slice
+		HashMap<String, Double> data =new HashMap<String, Double>();
 		for (int i = 0; i < 2; i++) {
 			this.indexRoi++;
-			vue.getImp().setRoi(getOrganRoi(this.indexRoi));
-			this.getModele().enregistrerMesure(this.addTag(this.getNomOrgane(this.indexRoi)), vue.getImp());
+			scin.getImp().setRoi(getOrganRoi(this.indexRoi));
+			
+			Double counts = Library_Quantif.getCounts(scin.getImp());
+			data.put(this.addTag(this.getNomOrgane(this.indexRoi)), counts);
 		}
-		
-		this.getModele().calculerResultats();
+		((Modele_Hepatic) this.getScin().getModele()).setData(data);
+		this.getScin().getModele().calculerResultats();
 		
 		this.setSlice(1);
 		
