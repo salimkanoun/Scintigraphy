@@ -16,12 +16,10 @@ import ij.gui.Overlay;
 public class PostMictional extends Scintigraphy {
 
 	private String[] organes;
-	private CustomControleur cusCtrl;
 
-	public PostMictional(String[] organes, CustomControleur cusCtrl) {
+	public PostMictional(String[] organes) {
 		super("Scintigraphy");
 		this.organes = organes;
-		this.cusCtrl = cusCtrl;
 	}
 
 	@Override
@@ -49,13 +47,13 @@ public class PostMictional extends Scintigraphy {
 		this.setFenApplication(fen);
 		this.getImp().setOverlay(ov);
 		Controleur_PostMictional ctrl = new Controleur_PostMictional(this, this.organes);
-		ctrl.setCustomControleur(this.cusCtrl);
 		this.getFenApplication().setControleur(ctrl);
+		this.setModele(new Modele_PostMictional());
 	}
 
 	
 	public HashMap<String, Double> getData() {
-		return ((Modele_PostMictional) this.getFenApplication().getControleur().getModele()).getData();
+		return ((Modele_PostMictional) this.getModele()).getData();
 	}
 	
 	public BufferedImage getCapture() {

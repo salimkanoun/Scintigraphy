@@ -182,6 +182,10 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	public HashMap<String, List<Double>> getData() {
 		return this.data;
 	}
+	
+	public void setData(HashMap<String, List<Double>> data) {
+		this.data=data;
+	}
 
 	public List<Double> getData(String key) {
 		return this.data.get(key);

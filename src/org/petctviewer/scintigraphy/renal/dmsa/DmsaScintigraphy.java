@@ -37,6 +37,8 @@ public class DmsaScintigraphy extends Scintigraphy {
 		this.setFenApplication(fen);
 		this.getImp().setOverlay(overlay);
 		fen.setControleur(new Controleur_Dmsa(this));
+		Modele_Dmsa modele = new Modele_Dmsa();
+		this.setModele(modele);
 	}
 
 }

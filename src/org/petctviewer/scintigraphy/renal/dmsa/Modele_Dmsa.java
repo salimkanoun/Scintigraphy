@@ -13,7 +13,6 @@ public class Modele_Dmsa extends ModeleScin {
 	HashMap<String, Integer> areas = new HashMap<>();
 	double[] pct = new double[2];
 
-	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 		data.put(nomRoi, Library_Quantif.getCounts(imp));
 

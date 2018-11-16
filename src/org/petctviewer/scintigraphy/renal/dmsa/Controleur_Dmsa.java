@@ -19,10 +19,10 @@ public class Controleur_Dmsa extends ControleurScin {
 	private boolean antPost;
 	private boolean over;
 	
-	protected Controleur_Dmsa(Scintigraphy vue) {
-		super(vue);
+	protected Controleur_Dmsa(Scintigraphy scin) {
+		super(scin);
 		
-		this.antPost = vue.getImp().getNSlices() == 2;
+		this.antPost = scin.getImp().getNSlices() == 2;
 		if (antPost) {
 			this.setSlice(2);
 			String[] organes = new String[ORGANES.length];
@@ -32,8 +32,6 @@ public class Controleur_Dmsa extends ControleurScin {
 			this.setOrganes(organes);
 		}
 		
-		Modele_Dmsa modele = new Modele_Dmsa();
-		this.setModele(modele);
 	}
 
 	@Override
@@ -53,11 +51,11 @@ public class Controleur_Dmsa extends ControleurScin {
 				this.indexRoi++;
 				this.getScin().getImp().setRoi(roi);
 				String nom = this.getNomOrgane(indexRoi);
-				this.getModele().enregistrerMesure(this.addTag(nom), this.getScin().getImp());
+				((Modele_Dmsa)this.getScin().getModele()).enregistrerMesure(this.addTag(nom), this.getScin().getImp());
 			}
 		}
 		
-		this.getModele().calculerResultats();
+		this.getScin().getModele().calculerResultats();
 		
 		new FenResultats_Dmsa(this.getScin(), capture);
 	}

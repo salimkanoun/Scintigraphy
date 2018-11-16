@@ -89,10 +89,10 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		this.impProjetee = this.getScin().getImp().duplicate();
 		this.over = true; 
 		this.nbOrganes = this.roiManager.getCount();
-		GeneralDynamicScintigraphy vue = (GeneralDynamicScintigraphy) this.getScin();
+		GeneralDynamicScintigraphy scindyn = (GeneralDynamicScintigraphy) this.getScin();
 		this.removeImpListener();
 
-		ImagePlus imp = vue.getImp();
+		ImagePlus imp = scin.getImp();
 		BufferedImage capture;
 
 		boolean postExists = false;
@@ -108,23 +108,23 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		fenGroup.setVisible(true);
 		String[][] asso = fenGroup.getAssociation();
 
-		if (vue.getImpAnt() != null) {
+		if (scindyn.getImpAnt() != null) {
 			capture = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
-			saveValues(vue.getImpAnt());
-			new FenResultat_GeneralDyn(vue, capture, (ModeleScinDyn) scin.getModele(), asso, "Ant");
+			saveValues(scindyn.getImpAnt());
+			new FenResultat_GeneralDyn(scindyn, capture, (ModeleScinDyn) scin.getModele(), asso, "Ant");
 		}
 
-		if (vue.getImpPost() != null) {
+		if (scindyn.getImpPost() != null) {
 			postExists = true;
-			ImagePlus imp2 = ZProjector.run(vue.getImpPost(), "sum");
+			ImagePlus imp2 = ZProjector.run(scindyn.getImpPost(), "sum");
 			imp2.setOverlay(imp.getOverlay());
 			
 			imp2.setProperty("Info", this.getScin().getImp().getInfoProperty());
 
-			vue.setImp(imp2);
-			vue.getFenApplication().setImage(imp2);
-			vue.getFenApplication().resizeCanvas();
-			vue.getFenApplication().toFront();
+			scindyn.setImp(imp2);
+			scindyn.getFenApplication().setImage(imp2);
+			scindyn.getFenApplication().resizeCanvas();
+			scindyn.getFenApplication().toFront();
 
 			Thread th = new Thread(new Runnable() {
 				@Override
@@ -137,8 +137,8 @@ public class Controleur_GeneralDyn extends ControleurScin {
 
 					BufferedImage c = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
 
-					saveValues(vue.getImpPost());
-					new FenResultat_GeneralDyn(vue, c, (ModeleScinDyn) scin.getModele(), asso, "Post");
+					saveValues(scindyn.getImpPost());
+					new FenResultat_GeneralDyn(scindyn, c, (ModeleScinDyn) scin.getModele(), asso, "Post");
 
 					Controleur_GeneralDyn.this.finishDrawingResultWindow();
 				}
@@ -169,16 +169,15 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		this.getScin().setImp(imp);
 		this.indexRoi = 0;
 		
-		HashMap<String, List<Double>> mapData=((ModeleScinDyn) scin.getModele()).getData();
-		mapData=new HashMap<String, List<Double>>();
+		HashMap<String, List<Double>> mapData=new HashMap<String, List<Double>>();
 		// on copie les roi sur toutes les slices
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
 			for (int j = 0; j < this.nbOrganes; j++) {
 				imp.setRoi(getOrganRoi(this.indexRoi));
-				String nom = this.getNomOrgane(this.indexRoi);
+				String name = this.getNomOrgane(this.indexRoi);
 				
-				String name = nom.substring(0, nom.lastIndexOf(" "));
+				//String name = nom.substring(0, nom.lastIndexOf(" "));
 				// on cree la liste si elle n'existe pas
 				if ( mapData.get(name) == null) {
 					mapData.put(name, new ArrayList<Double>());
@@ -189,7 +188,8 @@ public class Controleur_GeneralDyn extends ControleurScin {
 				this.indexRoi++;
 			}
 		}
-		
+		//set data to the model
+		((ModeleScinDyn) scin.getModele()).setData(mapData);
 		scin.getModele().calculerResultats();
 		
 	}
@@ -199,7 +199,8 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		if (!isOver()) {
 			return this.getScin().getFenApplication().getTextfield_instructions().getText();
 		}
-		return this.roiManager.getRoi(index % this.nbOrganes).getName();
+		System.out.println(roiManager.getRoi(index % this.nbOrganes).getName());
+		return roiManager.getRoi(index % this.nbOrganes).getName();
 	}
 
 	@Override
