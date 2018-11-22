@@ -22,12 +22,10 @@ public class Controleur_HepaticDyn extends ControleurScin {
 
 	public static String[] organes = { "R. Liver", "L. Liver", "Hilium", "CBD", "Duodenom", "Blood pool" };
 
-	protected Controleur_HepaticDyn(HepaticDynamicScintigraphy vue) {
-		super(vue);
+	protected Controleur_HepaticDyn(HepaticDynamicScintigraphy scin) {
+		super(scin);
 		this.setOrganes(organes);
-		Modele_HepaticDyn modele = new Modele_HepaticDyn(vue);
-		modele.setLocked(true);
-		this.setModele(modele);
+		
 		
 	}
 
@@ -43,7 +41,7 @@ public class Controleur_HepaticDyn extends ControleurScin {
 		ImagePlus imp = vue.getImp();
 		BufferedImage capture = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
 	
-		ModeleScinDyn modele = (ModeleScinDyn) this.getModele();
+		ModeleScinDyn modele = (ModeleScinDyn) scin.getModele();
 		modele.setLocked(false);
 		
 		//on copie les roi sur toutes les slices

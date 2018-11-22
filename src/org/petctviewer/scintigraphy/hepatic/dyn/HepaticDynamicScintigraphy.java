@@ -29,6 +29,10 @@ public class HepaticDynamicScintigraphy extends Scintigraphy {
 		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));
 		this.getImp().setOverlay(overlay);
 		this.getFenApplication().setControleur(new Controleur_HepaticDyn(this));
+		
+		Modele_HepaticDyn modele = new Modele_HepaticDyn(this);
+		modele.setLocked(true);
+		this.setModele(modele);
 	}
 
 	
