@@ -59,7 +59,6 @@ public class Modele_Plaquettes extends ModeleScin {
 		this.dateHeureDebut = dateHeureDebut;
 	}
 
-	@Override
 	public void enregistrerMesure(String roi, ImagePlus imp) {
 		Date dateAcquisition = Library_Dicom.getDateAcquisition(imp);
 

@@ -105,6 +105,9 @@ public class Vue_Plaquettes extends Scintigraphy {
 		this.getFenApplication().getImagePlus().getCanvas().setSize(512,512);
 		this.getFenApplication().pack();
 		this.getFenApplication().setSize(this.getFenApplication().getPreferredSize());
+		
+		Modele_Plaquettes leModele = new Modele_Plaquettes(this.getDateDebut());
+		this.setModele(leModele);
 	}
 	
 	public Date getDateDebut() {

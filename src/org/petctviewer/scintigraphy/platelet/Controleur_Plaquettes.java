@@ -37,8 +37,7 @@ public class Controleur_Plaquettes extends ControleurScin {
 	// Sert au restart
 	protected Controleur_Plaquettes(Vue_Plaquettes vue) {
 		super(vue);
-		this.leModele = new Modele_Plaquettes(vue.getDateDebut());
-		this.setModele(this.leModele);
+		
 		this.antPost = vue.antPost;
 		
 		if (vue.antPost) {
