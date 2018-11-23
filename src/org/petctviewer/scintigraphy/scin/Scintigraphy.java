@@ -157,7 +157,7 @@ public abstract class Scintigraphy implements PlugIn {
 							Library_Capture_CSV.exportAll(resultats, getFenApplication().getControleur().getRoiManager(),
 									examType, imp, additionalInfo);
 
-							getFenApplication().getControleur().getRoiManager().close();
+							
 
 							imp.killRoi();
 						} catch (Exception e1) {
@@ -171,7 +171,9 @@ public abstract class Scintigraphy implements PlugIn {
 							e1.printStackTrace();
 						}
 
-						Scintigraphy.this.fen_application.windowClosing(null);
+						//SK ROUTINE DE FERMETURE A VOIR PEUT ETRE METTRE DANS SCIN OU DANS RESULTATS
+						//getFenApplication().getControleur().getRoiManager().close();
+						//Scintigraphy.this.fen_application.windowClosing(null);
 						System.gc();
 					}
 				});

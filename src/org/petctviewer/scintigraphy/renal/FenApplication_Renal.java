@@ -73,13 +73,34 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 	public void actionPerformed(ActionEvent e) {
 		// clic sur le bouton dynamique
 		if (e.getSource() == btn_dyn) {
-			Overlay ov = Library_Gui.duplicateOverlay(this.getImagePlus().getOverlay());
+			
+			
+			//Overlay ov = Library_Gui.duplicateOverlay(this.getImagePlus().getOverlay());
 			ImagePlus imp;
 
 			if (!this.dyn) {
+				
 				imp = vue.getImpPost();
+				Library_Gui.setCustomLut(imp);
+				Overlay overlay=Library_Gui.initOverlay(imp);
+				imp.setOverlay(overlay);
+				Library_Gui.setOverlayGD(imp.getOverlay(), imp);
+				revalidate();
+				setImage(imp);
+				resizeCanvas();
+				updateSliceSelector();
+				this.btn_dyn.setBackground(Color.LIGHT_GRAY);
+				
 			} else {
 				imp = this.impProj;
+				Library_Gui.setCustomLut(imp);
+				this.btn_dyn.setBackground(null);
+				
+				revalidate();
+				setImage(imp);
+				updateSliceSelector();
+				resizeCanvas();
+				
 			}
 			
 			/*//si l'imp est null, on utilise l'image ant ou post
@@ -91,32 +112,21 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 				}
 			}*/
 
-			imp.setOverlay(ov);
-			Library_Gui.setCustomLut(imp);
-
-			this.revalidate();
-			this.setImage(imp);
 			
 			
-			this.updateSliceSelector();
+			
+			
 
-			this.setAnimate(false);
-
-			// on inverse la couleur de fond du bouton
+			// on inverse le boolean pour l'utilisation suivante
 			this.dyn = !this.dyn;
-			if (this.dyn) {
-				this.btn_dyn.setBackground(Color.LIGHT_GRAY);
-			} else {
-				this.btn_dyn.setBackground(null);
-			}
-
-			resizeCanvas();
+			
 
 		//Mode debut du programme apres visualisation.
 		} else if( e.getSource() == btn_start) {
 			btn_dyn.setEnabled(false);;
 			// TODO move elsewhere
 			Fen_NbRein fen = new Fen_NbRein();
+			fen.setLocationRelativeTo(this);
 			fen.setModal(true);
 			fen.setVisible(true);
 			fen.setAlwaysOnTop(true);

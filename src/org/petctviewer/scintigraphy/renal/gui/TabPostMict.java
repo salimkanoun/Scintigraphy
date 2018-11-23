@@ -18,22 +18,17 @@ import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
-import org.petctviewer.scintigraphy.renal.postMictional.CustomControleur;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
+import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 
 import ij.ImagePlus;
 import ij.Prefs;
-import ij.gui.Overlay;
-import ij.gui.Roi;
 import ij.util.DicomTools;
 
-class TabPostMict extends PanelImpContrastSlider implements ActionListener, CustomControleur {
+public class TabPostMict extends PanelImpContrastSlider implements ActionListener  {
 
 	private static final long serialVersionUID = 8125367912250906052L;
 	private PostMictional vueBasic;
@@ -110,9 +105,6 @@ class TabPostMict extends PanelImpContrastSlider implements ActionListener, Cust
 			this.vueBasic.startExam(new ImagePlus[] { this.getImagePlus() });
 			
 			
-			
-			
-			
 		}
 	}
 
@@ -137,7 +129,7 @@ class TabPostMict extends PanelImpContrastSlider implements ActionListener, Cust
 		return organes.toArray(new String[0]);
 	}
 
-	public void fin() {
+	public void updateResultFrame() {
 		Modele_Renal modele = (Modele_Renal) getScin().getModele();
 
 		HashMap<String, Double> data = this.vueBasic.getData();
@@ -180,28 +172,7 @@ class TabPostMict extends PanelImpContrastSlider implements ActionListener, Cust
 
 	
 
-	@Override
-	public Roi getOrganRoi(Roi roi) {
-		int index = this.vueBasic.getFenApplication().getControleur().getIndexRoi();
-		if (index == 1 || index == 3) {
-			return Library_Roi.createBkgRoi(roi, this.vueBasic.getFenApplication().getImagePlus(),
-					Library_Roi.KIDNEY);
-		}
-		return null;
-	}
-
-	@Override
-	public void notifyClic(ActionEvent arg0) {
-		Overlay ov = this.vueBasic.getImp().getOverlay();
-
-		if (ov.getIndex("L. bkg") != -1) {
-			Library_Gui.editLabelOverlay(ov, "L. bkg", "", Color.GRAY);
-		}
-
-		if (ov.getIndex("R. bkg") != -1) {
-			Library_Gui.editLabelOverlay(ov, "R. bkg", "", Color.GRAY);
-		}
-	}
+	
 
 	private Component getPanelExcr(Double rg, Double rd) {
 		Modele_Renal modele = (Modele_Renal) this.getScin().getModele();
@@ -232,4 +203,5 @@ class TabPostMict extends PanelImpContrastSlider implements ActionListener, Cust
 		}
 		return d + " %";
 	}
+	
 }

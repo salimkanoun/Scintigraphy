@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
+import org.petctviewer.scintigraphy.renal.gui.TabPostMict;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -16,10 +17,12 @@ import ij.gui.Overlay;
 public class PostMictional extends Scintigraphy {
 
 	private String[] organes;
+	private TabPostMict resultFrame;
 
-	public PostMictional(String[] organes) {
+	public PostMictional(String[] organes, TabPostMict resultFrame) {
 		super("Scintigraphy");
 		this.organes = organes;
+		this.resultFrame=resultFrame;
 	}
 
 	@Override
@@ -59,4 +62,10 @@ public class PostMictional extends Scintigraphy {
 	public BufferedImage getCapture() {
 		return null;
 	}
+	
+	public TabPostMict getResultFrame() {
+		return resultFrame;
+		
+	}
+	
 }

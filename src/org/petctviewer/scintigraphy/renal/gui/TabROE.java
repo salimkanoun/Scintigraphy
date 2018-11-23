@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -156,7 +157,8 @@ class TabROE extends JPanel implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		JFrame frameBPI = new JFrame();
 		frameBPI.add(Library_JFreeChart.associateSeries(new String[] {"BPI", "Blood pool fitted"}, modele.getSeries()));
-		frameBPI.pack();
+		frameBPI.setLocationRelativeTo(this);
+		frameBPI.setSize(new Dimension(512,512));
 		frameBPI.setVisible(true);
 	}
 

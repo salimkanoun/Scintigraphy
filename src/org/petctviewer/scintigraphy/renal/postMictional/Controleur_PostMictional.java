@@ -1,12 +1,16 @@
 package org.petctviewer.scintigraphy.renal.postMictional;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 
+import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.plugin.frame.RoiManager;
 
@@ -36,6 +40,7 @@ public class Controleur_PostMictional extends ControleurScin{
 		}
 		( (Modele_PostMictional) this.getScin().getModele()).setData(hm);
 		this.getScin().getFenApplication().dispose();
+		((PostMictional) this.getScin()).getResultFrame().updateResultFrame();
 	}
 
 	@Override
@@ -53,9 +58,26 @@ public class Controleur_PostMictional extends ControleurScin{
 	public boolean isPost() {
 		return true;
 	}
-	
-	@Override
-	public void notifyClic(ActionEvent arg0) {
+
+	public Roi getOrganRoi(Roi roi) {
+		int index =  getIndexRoi();
+		if (index == 1 || index == 3) {
+			return Library_Roi.createBkgRoi(roi, this.getScin().getImp(),
+					Library_Roi.KIDNEY);
+		}
+		return null;
 	}
 
+	@Override
+	public void notifyClic(ActionEvent arg0) {
+		Overlay ov = this.getScin().getImp().getOverlay();
+
+		if (ov.getIndex("L. bkg") != -1) {
+			Library_Gui.editLabelOverlay(ov, "L. bkg", "", Color.GRAY);
+		}
+
+		if (ov.getIndex("R. bkg") != -1) {
+			Library_Gui.editLabelOverlay(ov, "R. bkg", "", Color.GRAY);
+		}
+	}
 }
