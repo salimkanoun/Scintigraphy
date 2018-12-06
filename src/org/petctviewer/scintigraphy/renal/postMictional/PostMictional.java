@@ -20,7 +20,7 @@ public class PostMictional extends Scintigraphy {
 	private TabPostMict resultFrame;
 
 	public PostMictional(String[] organes, TabPostMict resultFrame) {
-		super("Scintigraphy");
+		super("Post-mictional");
 		this.organes = organes;
 		this.resultFrame=resultFrame;
 	}
@@ -67,5 +67,6 @@ public class PostMictional extends Scintigraphy {
 		return resultFrame;
 		
 	}
+	
 	
 }

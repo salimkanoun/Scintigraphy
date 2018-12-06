@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.renal.gui;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,6 +17,7 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
+import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYLineAnnotation;
 import org.jfree.chart.plot.PlotOrientation;
@@ -51,7 +51,7 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 	private XYSeries lkPatlak, rkPatlak;
 	private double[] regG, regD;
 	
-	public FenPatlak(Modele_Renal modele, Component parentComponent) {
+	public FenPatlak(Modele_Renal modele) {
 		this.modele = modele;
 		JFreeChart patlakChart = this.createPatlakChart(modele);
 		XYPlot plot = patlakChart.getXYPlot();
@@ -108,12 +108,12 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		this.setLayout(new BorderLayout());
 		
 		//ajoute le graphique au centre de l'ecran
-		this.add(this.valueSetter, BorderLayout.CENTER);
 		
 		this.add(wrap_ok, BorderLayout.SOUTH);
 		this.add(rightBox, BorderLayout.EAST);
-		this.pack();
-		this.setLocationRelativeTo(parentComponent);
+		this.add(this.valueSetter, BorderLayout.CENTER);
+		pack();
+		
 	}
 
 	private JValueSetter createValueSetter(JFreeChart patlak) {
@@ -162,7 +162,7 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		this.lkPatlak = lkPatlak;
 		this.rkPatlak = rkPatlak;
 
-		JFreeChart chart = ChartFactory.createXYLineChart("", "x", "y", data, PlotOrientation.VERTICAL, true, true,
+		JFreeChart chart = ChartFactory.createXYLineChart("Patlak", "x", "y", data, PlotOrientation.VERTICAL, true, true,
 				true);
 
 		return chart;

@@ -111,10 +111,13 @@ public class FenNeph extends JDialog implements ActionListener {
 	}
 
 	private void clicPatlak() {
-		FenPatlak fpt = new FenPatlak(modele, this);
+		FenPatlak fpt = new FenPatlak(modele);
+		
+		//fpt.pack();
+		fpt.setLocationRelativeTo(null);
+		fpt.pack();
 		fpt.setModal(true);
 		fpt.setVisible(true);
-
 		this.patlakChart = fpt.getValueSetter();
 	}
 

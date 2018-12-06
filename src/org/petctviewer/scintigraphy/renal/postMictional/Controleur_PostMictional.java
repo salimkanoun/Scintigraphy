@@ -30,6 +30,7 @@ public class Controleur_PostMictional extends ControleurScin{
 
 	@Override
 	public void fin() {
+		indexRoi=0;
 		HashMap<String, Double> hm =new HashMap<String, Double>();
 		for (int j = 0; j < roiManager.getCount(); j++) {
 			scin.getImp().setRoi(getOrganRoi(this.indexRoi));
@@ -41,6 +42,7 @@ public class Controleur_PostMictional extends ControleurScin{
 		( (Modele_PostMictional) this.getScin().getModele()).setData(hm);
 		this.getScin().getFenApplication().dispose();
 		((PostMictional) this.getScin()).getResultFrame().updateResultFrame();
+		
 	}
 
 	@Override
@@ -59,13 +61,20 @@ public class Controleur_PostMictional extends ControleurScin{
 		return true;
 	}
 
-	public Roi getOrganRoi(Roi roi) {
+	@Override
+	public void preparerRoi(int lastRoi) {
 		int index =  getIndexRoi();
 		if (index == 1 || index == 3) {
-			return Library_Roi.createBkgRoi(roi, this.getScin().getImp(),
+			Roi organRoi= Library_Roi.createBkgRoi(this.getOrganRoi(lastRoi), this.getScin().getImp(),
 					Library_Roi.KIDNEY);
+			
+			this.scin.getImp().setRoi((Roi) organRoi.clone());
+			this.scin.getImp().getRoi().setStrokeColor(this.STROKECOLOR);
+			int nOrgane = this.indexRoi % this.getOrganes().length;
+			this.setInstructionsAdjust(nOrgane);
 		}
-		return null;
+		
+
 	}
 
 	@Override

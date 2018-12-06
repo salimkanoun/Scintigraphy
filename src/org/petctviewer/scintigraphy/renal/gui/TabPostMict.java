@@ -77,8 +77,8 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getSource() == this.btn_addImp) {
-						
-			// Assez sale
+			
+			// Open DICOM dialog Selection to select post mictional image
 			FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", new Scintigraphy("") {
 				@Override
 				protected ImagePlus preparerImp(ImagePlus[] images) {
@@ -90,6 +90,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 					btn_addImp.setVisible(false);
 					btn_quantify.setVisible(true);
 					sidePanel.add(boxSlider);
+					
 					return images[0];
 				}
 
@@ -97,6 +98,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 				public void lancerProgramme() {
 				}
 			});
+			
 			fen.setVisible(true);
 			
 		} else if(arg0.getSource().equals(this.btn_quantify)){
@@ -166,7 +168,9 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 		sidePanel = new SidePanel(flow, "Renal Scintigraphy2", this.getImagePlus());
 		sidePanel.addCaptureBtn(vueBasic, "_PostMict", new Component[] { this.getSlider() });
 		this.add(sidePanel,BorderLayout.EAST);
+		this.revalidate();
 		this.repaint();
+
 		
 	}
 
