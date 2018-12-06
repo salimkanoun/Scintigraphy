@@ -7,7 +7,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 
+import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -16,10 +18,12 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 import ij.ImageListener;
 import ij.ImagePlus;
@@ -57,10 +61,17 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		this.setTitle("Select Series");
 
 		// creation du tableau
-		String[] columnNames = { "Patient", "Study", "Date", "Series", "Dimensions", "Stack Size" };
+		//SK ICI NECESSIET MODELE DIFFERENT
+		String[] columnNames = { "Patient", "Study", "Date", "Series", "Dimensions", "Stack Size", "Type" };
 		this.dataModel = new DefaultTableModel(this.getTableData(), columnNames);
 		table = new JTable();
 		table.setModel(this.dataModel);
+		
+		TableColumn manifacturer=table.getColumnModel().getColumn(6);
+		String[] TypeString=new String[] { "Ant", "Post", "Ant/Post", "Post/Ant", "Dynamic Ant", "Dynamic Post", "Dynamic A/P", "Dynamic P/A", "Unkwnown"};
+		DefaultCellEditor celleditor= new DefaultCellEditor(new JComboBox<String>(TypeString));
+		manifacturer.setCellEditor(celleditor);
+		
 		resizeColumnWidth(table);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -98,7 +109,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 	// renvoie les informations a afficher dans le tableau
 	private String[][] getTableData() {
-		String[][] data = new String[WindowManager.getImageCount()][6];
+		String[][] data = new String[WindowManager.getImageCount()][7];
 
 		if (WindowManager.getImageCount() > 0) {
 
@@ -126,9 +137,45 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 				data[i][4] = imp.getDimensions()[0] + "x" + imp.getDimensions()[1];
 				data[i][5] = "" + imp.getStack().getSize();
+				
+				//Determining Image Orientation
+				boolean sameCameraMultiFrame=Library_Dicom.isSameCameraMultiFrame(imp);
+				Boolean firstImageAnt=Library_Dicom.isAnterieur(imp);
+				
+				if(imp.getStackSize()==1  && firstImageAnt!=null){
+					if(firstImageAnt) {
+						data[i][6] = "Ant";
+					}else {
+						data[i][6] = "Post";
+					}
+					
+				}
+				else if(imp.getStackSize()==2 && firstImageAnt!=null) {
+					if(firstImageAnt) {
+						data[i][6] = "Ant/Post";
+					}else {
+						data[i][6] = "Post/Ant";
+					}
+					
+				}
+				else if (imp.getStackSize()>2 && sameCameraMultiFrame && firstImageAnt!=null) {
+					if(firstImageAnt) {
+						data[i][6] = "Dynamic Ant";
+					}else if(!firstImageAnt) {
+						data[i][6] = "Dynamic Ant";
+					}
+				}else if(imp.getStackSize()>2 && !sameCameraMultiFrame && firstImageAnt!=null) {
+					if(firstImageAnt) {
+						data[i][6] = "Dynamic A/P";
+					}else if(!firstImageAnt) {
+						data[i][6] = "Dynamic P/A";
+					}
+				}else {
+					data[i][6] = "Unkwnown";
+				}
 			}
 		} else {
-			data = new String[0][6];
+			data = new String[0][7];
 		}
 
 		return data;
@@ -200,6 +247,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		for (String[] s : this.getTableData()) {
 			this.dataModel.addRow(s);
 		}
+		resizeColumnWidth(table);
 
 	}
 
