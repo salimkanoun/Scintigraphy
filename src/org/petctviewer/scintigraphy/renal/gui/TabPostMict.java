@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
+import org.petctviewer.scintigraphy.scin.ImageOrientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
@@ -79,19 +80,25 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 		if (arg0.getSource() == this.btn_addImp) {
 			
 			// Open DICOM dialog Selection to select post mictional image
+			//SK A REFACTORISER
 			FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", new Scintigraphy("") {
 				@Override
-				protected ImagePlus preparerImp(ImagePlus[] images) {
-					if (images.length > 1) {
-						return null;
+				protected ImagePlus preparerImp(ImageOrientation[] selectedImages) throws Exception {
+					if (selectedImages.length > 1) {
+						throw new Exception("Only one serie is expected");
 					}
-					
-					TabPostMict.this.setImp(images[0]);
-					btn_addImp.setVisible(false);
-					btn_quantify.setVisible(true);
-					sidePanel.add(boxSlider);
-					
-					return images[0];
+					if(selectedImages[0].getImageOrientation()==ImageOrientation.ANT_POST || selectedImages[0].getImageOrientation()==ImageOrientation.POST_ANT || selectedImages[0].getImageOrientation()==ImageOrientation.POST ) {
+						//SK A GERER RECUPERER SEULE L IMAGE POST SI STATIC A/P ?
+						ImagePlus imp=selectedImages[0].getImagePlus().duplicate();
+						TabPostMict.this.setImp(imp);
+						btn_addImp.setVisible(false);
+						btn_quantify.setVisible(true);
+						sidePanel.add(boxSlider);
+						return imp;
+					}else {
+						throw new Exception("No Static Posterior Image");
+					}
+
 				}
 
 				@Override
@@ -102,9 +109,15 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 			fen.setVisible(true);
 			
 		} else if(arg0.getSource().equals(this.btn_quantify)){
-			
+			//SK A REVOIR
 			this.vueBasic = new PostMictional(createOrgans(), this);
-			this.vueBasic.startExam(new ImagePlus[] { this.getImagePlus() });
+			ImageOrientation imageOrientation=new ImageOrientation(ImageOrientation.POST, this.getImagePlus());
+			try {
+				this.vueBasic.startExam(new ImageOrientation[] { imageOrientation });
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 			
 		}
