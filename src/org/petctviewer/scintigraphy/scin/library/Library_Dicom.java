@@ -9,11 +9,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import org.apache.commons.lang.StringUtils;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.plugin.Concatenator;
@@ -152,7 +149,7 @@ public class Library_Dicom {
 				}
 			}
 		} else {
-			IJ.log("assuming image 2 is posterior. Please notify Salim.kanoun@gmail.com");
+			System.out.println("assuming image 2 is posterior. Please notify Salim.kanoun@gmail.com");
 			for (int i = 0; i < sequenceDetecteur.length; i++) {
 				if (sequenceDetecteur[i].equals("1")) {
 					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
@@ -271,7 +268,7 @@ public class Library_Dicom {
 				}
 	
 				else {
-					IJ.log("Orientation not reckognized");
+					System.out.println("Orientation not reckognized");
 				}
 			}
 	
@@ -285,11 +282,11 @@ public class Library_Dicom {
 						anterieur = true;
 					if (tagVector.equals("2"))
 						anterieur = false;
-					IJ.log("Orientation Not reckgnized, assuming vector 1 is anterior");
+					System.out.println("Orientation Not reckgnized, assuming vector 1 is anterior");
 				}
 				// le Boolean reste null et on informe l'user
 				else {
-					IJ.log("Orientation not reckognized");
+					System.out.println("Orientation not reckognized");
 				}
 			}
 	
@@ -297,7 +294,7 @@ public class Library_Dicom {
 	
 		// Si aucun des deux echec du reperage
 		else {
-			IJ.log("Orientation not reckognized");
+			System.out.println("Orientation not reckognized");
 		}
 	
 		return anterieur;
@@ -305,7 +302,7 @@ public class Library_Dicom {
 
 	/**
 	 * Permet de tester si l'image est anterieure pour une MultiFrame, ne teste que
-	 * la premi�re Image (peut etre generalisee plus tard si besoin) A Eviter
+	 * la premiere Image (peut etre generalisee plus tard si besoin) A Eviter
 	 * d'utiliser car la methode isAnterieur(ImagePlus imp) est generique pour tout
 	 * type d'image
 	 * 
@@ -347,22 +344,11 @@ public class Library_Dicom {
 			else if (!tag.substring(0, separateur).contains("POS") && !tag.substring(0, separateur).contains("_F")
 					&& !tag.substring(0, separateur).contains("ANT") && !tag.substring(0, separateur).contains("_E")) {
 				// le Boolean reste null et on informe l'user
-				IJ.log("Information not reckognized");
+				System.out.println("Information not reckognized");
 				
 			}
 		} else {
-			IJ.log("No localization information");
-		}
-		
-		if(anterieur==null) {
-			//SK A EVOLUER VERS UN DIALOG PERSONALISE
-			int dialogResult = JOptionPane.showConfirmDialog (null, "Is Image Anterior?","Warning - No Orientation Found", JOptionPane.YES_NO_OPTION);
-			if(dialogResult == JOptionPane.YES_OPTION){
-			  return true;
-			}else {
-				return false;
-			}
-			
+			System.out.println("No localization information");
 		}
 	
 		return anterieur;
@@ -509,10 +495,10 @@ public class Library_Dicom {
 	
 		// Si la 1ere image est labelisee anterieure
 		if (tag.substring(0, separateur).contains("ANT") || tag.substring(0, separateur).contains("_E")) {
-			// On recupere le num锟絩o du detecteur
+			// On recupere le numero du detecteur
 			int detecteurAnterieur = Integer.parseInt(sequenceDeteceur[0]);
 			// On parcours la sequence de detecteur et on flip 锟� chaque fois que ce
-			// n'est pas le num锟絩o de ce deteceur
+			// n'est pas le numero de ce deteceur
 			for (int j = 0; j < sequenceDeteceur.length; j++) {
 				int detecteur = Integer.parseInt(sequenceDeteceur[j]);
 				if (detecteur != detecteurAnterieur) {
@@ -523,10 +509,10 @@ public class Library_Dicom {
 	
 		// Si la 1ere image est labelisee posterieurs
 		if (tag.substring(0, separateur).contains("POS") || tag.substring(0, separateur).contains("_F")) {
-			// on r锟絚upere le num锟絩o du detecteur posterieur
+			// on recupere le numero du detecteur posterieur
 			int detecteurPosterieur = Integer.parseInt(sequenceDeteceur[0]);
 			// On parcours la sequence de detecteur et on flip 锟� chaque fois que ca
-			// correspond 锟� ce deteceur
+			// correspond a ce deteceur
 			for (int j = 0; j < sequenceDeteceur.length; j++) {
 				int detecteur = Integer.parseInt(sequenceDeteceur[j]);
 				if (detecteur == detecteurPosterieur) {
@@ -539,7 +525,7 @@ public class Library_Dicom {
 		// l'utilisateur
 		if (!tag.substring(0, separateur).contains("POS") && !tag.substring(0, separateur).contains("_F")
 				&& !tag.substring(0, separateur).contains("ANT") && !tag.substring(0, separateur).contains("_E")) {
-			IJ.log("No Orientation tag found, assuming detector 2 is posterior. Please Notify Salim.Kanoun@gmail.com");
+			System.out.println("No Orientation tag found, assuming detector 2 is posterior. Please Notify Salim.Kanoun@gmail.com");
 			for (int j = 0; j < sequenceDeteceur.length; j++) {
 				int detecteur = Integer.parseInt(sequenceDeteceur[j]);
 				if (detecteur == 2) {
@@ -603,7 +589,7 @@ public class Library_Dicom {
 					imp.setTitle("Ant" + i);// On ne fait rien
 				} else {
 					if (imp.getStackSize() == 2) {
-						IJ.log("No Orientation found assuming Image 2 is posterior, please send image sample to Salim.kanoun@gmail.com if wrong");
+						System.out.println("No Orientation found assuming Image 2 is posterior, please send image sample to Salim.kanoun@gmail.com if wrong");
 						imp.getProcessor().flipHorizontal();
 					}
 				}
@@ -611,7 +597,7 @@ public class Library_Dicom {
 	
 			else {
 				if (imp.getStackSize() == 2 && StringUtils.equals(tagVector, "2")) {
-					IJ.log("No Orientation found assuming Image 2 is posterior, please send image sample to Salim.kanoun@gmail.com if wrong");
+					System.out.println("No Orientation found assuming Image 2 is posterior, please send image sample to Salim.kanoun@gmail.com if wrong");
 					imp.getProcessor().flipHorizontal();
 				}
 			}
@@ -656,7 +642,6 @@ public class Library_Dicom {
 	public static int[] buildFrameDurations(ImagePlus imp) {
 		int[] frameDurations = new int[imp.getStackSize()];
 		int nbPhase;
-		System.out.println(DicomTools.getTag(imp, "0054,0031"));
 		if(DicomTools.getTag(imp, "0054,0031") != null) {
 			nbPhase = Integer.parseInt(DicomTools.getTag(imp, "0054,0031").trim());
 		}
