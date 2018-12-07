@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -21,10 +22,12 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
+import org.petctviewer.scintigraphy.scin.ImageOrientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
+import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
 import ij.WindowManager;
@@ -40,7 +43,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	private static final long serialVersionUID = 6706629497515318270L;
 
 	private JButton btn_select, btn_selectAll;
-	private Scintigraphy vue;
+	private Scintigraphy scin;
 	private DefaultTableModel dataModel;
 	protected JTable table;
 	protected int[] id;
@@ -54,14 +57,13 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 *            : scintigraphie a demarrer quand les dicoms sont selectionnes
 	 */
 	public FenSelectionDicom(String examType, Scintigraphy scin) {
-		this.vue = scin;
+		this.scin = scin;
 		ImagePlus.addImageListener(this);
 
 		// on ajoute le titre a la fenetre
 		this.setTitle("Select Series");
 
 		// creation du tableau
-		//SK ICI NECESSIET MODELE DIFFERENT
 		String[] columnNames = { "Patient", "Study", "Date", "Series", "Dimensions", "Stack Size", "Type" };
 		this.dataModel = new DefaultTableModel(this.getTableData(), columnNames);
 		table = new JTable();
@@ -162,7 +164,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 					if(firstImageAnt) {
 						data[i][6] = "Dynamic Ant";
 					}else if(!firstImageAnt) {
-						data[i][6] = "Dynamic Ant";
+						data[i][6] = "Dynamic Post";
 					}
 				}else if(imp.getStackSize()>2 && !sameCameraMultiFrame && firstImageAnt!=null) {
 					if(firstImageAnt) {
@@ -213,32 +215,56 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			table.selectAll();
 		}
 
-		if(table.getSelectedRowCount() != 0 ) {
-			this.startExam();
+		if(table.getSelectedRowCount() > 0 ) {
+			if(this.isMissingOrientation()) {
+				JOptionPane.showMessageDialog(this, "Select orientation in last column for selected series", "Missing Orientation", JOptionPane.ERROR_MESSAGE);
+			}else {
+				this.startExam();
+			}
+			
 		}
 		
 
+	}
+	
+	/**
+	 * Check that selected studies have an orientation set before exiting the frame
+	 * @return
+	 */
+	private boolean isMissingOrientation() {
+		int[] selectedRows=table.getSelectedRows();
+		for (int i=0; i<selectedRows.length; i++) {
+			String orientation=(String) table.getValueAt(selectedRows[i], 6);
+			if (orientation.equals("Unkwnown")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void startExam() {
 
 		int[] rows = this.table.getSelectedRows();
-		ImagePlus[] images = new ImagePlus[rows.length];
-
+		ImageOrientation[] selectedImages = new ImageOrientation[rows.length];
+		
+		// ATTENTION NE PAS FAIRE DE HIDE OU DE CLOSE CAR DECLANCHE LE LISTENER
+		// IMAGE PLUS DOIVENT ETRE DUPLIQUEE ET FERMEE DANS LES PROGRAMMES LANCES
 		for (int i = 0; i < rows.length; i++) {
-			images[i] = WindowManager.getImage(id[rows[i]]);
-			// ATTENTION NE PAS FAIRE DE HIDE OU DE CLOSE CAR DECLANCHE LE LISTENER
-			// IMAGE PLUS DOIVENT ETRE DUPLIQUEE ET FERMEE DANS LES PROGRAMMES LANCES
-		}
+			String orientation=(String) table.getValueAt(rows[i], 6);
+			selectedImages[i] = new ImageOrientation(orientationStringToInt(orientation), WindowManager.getImage(id[rows[i]]) );
 
+		}
+		
+		
 		try {
-			this.vue.startExam(images);
+			this.scin.startExam(selectedImages);
 			ImagePlus.removeImageListener(this);
 			this.dispose();
-		} catch (Exception e) {
-			System.err.println("The selected DICOM are not fit for this exam");
-			e.printStackTrace();
+		}catch (Exception e) {
+			IJ.log((e.getMessage()));
 		}
+		
+		
 	}
 
 	private void updateTable() {
@@ -265,6 +291,35 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	public void imageUpdated(ImagePlus imp) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	private Integer orientationStringToInt(String orientation) {
+		
+		if (orientation.equals("Ant")) {
+			return ImageOrientation.ANT;
+		}
+		else if(orientation.equals("Post")) {
+			return ImageOrientation.POST;
+		}
+		else if(orientation.equals("Ant/Post")) {
+			return ImageOrientation.ANT_POST;
+		}
+		else if(orientation.equals("Post/Ant")) {
+			return ImageOrientation.POST_ANT;
+		}
+		else if(orientation.equals("Dynamic Ant")) {
+			return ImageOrientation.DYNAMIC_ANT;
+		}
+		else if(orientation.equals("Dynamic Post")) {
+			return ImageOrientation.DYNAMIC_POST;
+		}
+		else if(orientation.equals("Dynamic A/P")) {
+			return ImageOrientation.DYNAMIC_ANT_POST;
+		}
+		else if(orientation.equals("Dynamic P/A")) {
+			return ImageOrientation.DYNAMIC_POST_ANT;
+		}
+		return null;
 	}
 
 }

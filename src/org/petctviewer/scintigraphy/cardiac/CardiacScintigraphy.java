@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.cardiac;
 import java.awt.Color;
 import java.util.ArrayList;
 
+import org.petctviewer.scintigraphy.scin.ImageOrientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -21,15 +22,16 @@ public class CardiacScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImagePlus[] images) {
+	protected ImagePlus preparerImp(ImageOrientation[] selectedImages) throws Exception {
 
 		ArrayList<ImagePlus> mountedImages = new ArrayList<>();
 
 		int[] frameDuration = new int[2];
 
-		for (int i = 0; i < images.length; i++) {
-			ImagePlus imp = images[i];
-			if (imp.getStackSize() == 2) {
+		for (int i = 0; i < selectedImages.length; i++) {
+			
+			if (selectedImages[i].getImageOrientation() == ImageOrientation.ANT_POST || selectedImages[i].getImageOrientation() == ImageOrientation.POST_ANT) {
+				ImagePlus imp = selectedImages[i].getImagePlus();
 				String info = imp.getInfoProperty();
 				ImagePlus impReversed = Library_Dicom.sortImageAntPost(imp);
 				MontageMaker mm = new MontageMaker();
@@ -38,9 +40,9 @@ public class CardiacScintigraphy extends Scintigraphy {
 				frameDuration[i] = Integer.parseInt(DicomTools.getTag(imp, "0018,1242").trim());
 				mountedImages.add(montageImage);
 			} else {
-				IJ.log("wrong input, need ant/post image");
+				new Exception("wrong input, need ant/post image");
 			}
-			imp.close();
+			selectedImages[i].getImagePlus().close();
 		}
 
 		ImagePlus[] mountedSorted = Library_Dicom.orderImagesByAcquisitionTime(mountedImages);
@@ -48,7 +50,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 
 		ImagePlus impStacked;
 		// si la prise est early/late
-		if (images.length == 2) {
+		if (selectedImages.length == 2) {
 			impStacked = enchainer.concatenate(mountedSorted, false);
 			// si il y a plus de 3 minutes de diff�rence entre les deux prises
 			if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {

@@ -2,12 +2,12 @@ package org.petctviewer.scintigraphy.renal;
 
 import java.awt.Color;
 
+import org.petctviewer.scintigraphy.scin.ImageOrientation;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Overlay;
@@ -26,14 +26,27 @@ public class RenalScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImagePlus[] images) {
-		if (images.length > 1) {
-			IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
+	protected ImagePlus preparerImp(ImageOrientation[] selectedImages) throws Exception {
+		
+		//Prepare the final ImagePlus array, position 0 for anterior dynamic and position 1 for posterior dynamic.
+		ImagePlus[] imps =new ImagePlus[2];
+		
+		for (int i=0 ; i<selectedImages.length; i++) {
+			if(selectedImages[i].getImageOrientation()==ImageOrientation.DYNAMIC_ANT ) {
+				if(imps[0]!=null) throw new Exception("Multiple dynamic Antorior Image");
+				imps[0] = selectedImages[i].getImagePlus().duplicate();
+			}else if(selectedImages[i].getImageOrientation()==ImageOrientation.DYNAMIC_POST) {
+				if(imps[1]!=null) throw new Exception("Multiple dynamic Posterior Image");
+				imps[1] = selectedImages[i].getImagePlus().duplicate();
+			}else if(selectedImages[i].getImageOrientation()==ImageOrientation.DYNAMIC_ANT_POST) {
+				if(imps[1]!=null || imps[0]!=null) throw new Exception("Multiple dynamic Image");
+				imps=Library_Dicom.sortDynamicAntPost(selectedImages[i].getImagePlus());
+			}else{
+				throw new Exception("Unexpected Image type");
+			}
+			
+			selectedImages[i].getImagePlus().close();
 		}
-		
-		ImagePlus[] imps = Library_Dicom.sortDynamicAntPost(images[0]);
-		
-		images[0].close();
 		
 		
 		

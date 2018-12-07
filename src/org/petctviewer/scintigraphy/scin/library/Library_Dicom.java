@@ -420,8 +420,8 @@ public class Library_Dicom {
 
 	/********************* Public Static Sort ****************************************/
 	/**
-	  * Permet de renvoyer un tableau d'image plus selon les dicoms ouvertes, il
-	 * peut y avoir une ou deux ouverte
+	  * Pour les images dynamiques, Permet de renvoyer un tableau d'Image plus avec
+	  * le dynamique Ant en position 0 et le dynamique Post en position 1
 	 * 
 	 * @return les imps, [0] correspond a l'ant, [1] a la post
 	 */

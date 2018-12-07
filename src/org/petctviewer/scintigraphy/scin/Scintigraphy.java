@@ -11,7 +11,6 @@ import javax.swing.SwingUtilities;
 
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.IJ;
@@ -44,16 +43,13 @@ public abstract class Scintigraphy implements PlugIn {
 		fen.setVisible(true);
 	}
 
-	public void startExam(ImagePlus[] images) {
-		if (images != null) {
-			if (images.length > 0) {
-				this.imp = preparerImp(images);
-				// on set la lut des preferences
-				Library_Gui.setCustomLut(imp);
+	public void startExam(ImageOrientation[] selectedImages) throws Exception {
 
-				this.lancerProgramme();
-			}
-		}
+		//Send selected image to specific app to retrieve the ImagePlus to show in the app (will be stored in this object)
+		this.imp = preparerImp(selectedImages);
+		//Start the program, this overided method should construct the FenApplication, the controller and the model
+		this.lancerProgramme();
+
 	}
 
 	
@@ -67,7 +63,7 @@ public abstract class Scintigraphy implements PlugIn {
 	 *            liste des fenetres ouvertes
 	 * @return
 	 */
-	protected abstract ImagePlus preparerImp(ImagePlus[] images);
+	protected abstract ImagePlus preparerImp(ImageOrientation[] selectedImages) throws Exception;
 
 	/**
 	 * lance le programme

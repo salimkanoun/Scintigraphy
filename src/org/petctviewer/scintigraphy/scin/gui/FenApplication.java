@@ -15,6 +15,7 @@ import java.util.List;
 import javax.swing.JTextField;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.ImagePlus;
 import ij.gui.ImageCanvas;
@@ -64,6 +65,8 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	 */
 	public FenApplication(ImagePlus imp, String nom) {
 		super(imp, new ImageCanvas(imp));
+		// on set la lut des preferences
+		Library_Gui.setCustomLut(imp);
 /*
 		try {
 		    UIManager.setLookAndFeel( UIManager.getCrossPlatformLookAndFeelClassName() );
