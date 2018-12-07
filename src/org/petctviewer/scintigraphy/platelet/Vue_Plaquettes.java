@@ -19,6 +19,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.petctviewer.scintigraphy.scin.ImageOrientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -44,30 +45,29 @@ public class Vue_Plaquettes extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImagePlus[] images) {
+	protected ImagePlus preparerImp(ImageOrientation[] selectedImages) {
 
 		ArrayList<ImagePlus> series = new ArrayList<>();
 
-		for (int i = 0; i < images.length; i++) {
+		for (int i = 0; i < selectedImages.length; i++) {
 
-			ImagePlus imp = images[i];
-			if (imp.getStackSize() == 2) {
-				this.antPost = true;
-				Boolean ant = Library_Dicom.isAnterieur(imp);
-				// Si l'image 1 est anterieur on inverse le stack pour avoir d'abord l'image
-				// post
-				if (ant != null && ant) {
-					StackReverser reverser = new StackReverser();
-					reverser.flipStack(imp);
-				}
-			}
-			// Si uniquement une image on verifie qu'elle est post et on la flip
-			else if (imp.getStackSize() == 1) {
-				// SK Pas propre necessite de mieux orienter les Image pour Ant/Post
+			ImagePlus imp = selectedImages[i].getImagePlus().duplicate();
+			selectedImages[i].getImagePlus().close();
+			
+			if(selectedImages[i].getImageOrientation()==ImageOrientation.ANT_POST) {
+				//On inverse pour avoir l'image post en 1er
+				StackReverser reverser = new StackReverser();
+				reverser.flipStack(imp);
+				series.add(Library_Dicom.sortImageAntPost(imp));
+			}else if(selectedImages[i].getImageOrientation()==ImageOrientation.POST_ANT) {
+				series.add(Library_Dicom.sortImageAntPost(imp));
+				
+			}else if(selectedImages[i].getImageOrientation()==ImageOrientation.POST) {
 				imp.getProcessor().flipHorizontal();
+				series.add(imp);
+				
 			}
-			series.add(Library_Dicom.sortImageAntPost(imp));
-			imp.close();
+			
 		}
 		this.nombreAcquisitions = series.size();
 		// IJ.log(String.valueOf(antPost));

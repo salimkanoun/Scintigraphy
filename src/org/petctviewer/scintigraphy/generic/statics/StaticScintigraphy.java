@@ -28,8 +28,8 @@ public class StaticScintigraphy extends Scintigraphy {
 		//SK ETENDRE A SEULEMENT UNE INCIDENCE ??
 		//SK PAS SUR QUE POST ANT SOIT BIEN PRIS EN COMPTE DANS LE FLIP / Ordre du stack
 		if(selectedImages[0].getImageOrientation()==ImageOrientation.ANT_POST || selectedImages[0].getImageOrientation()==ImageOrientation.POST_ANT) {
-			imp = selectedImages[0].getImagePlus();
-			imp = Library_Dicom.sortImageAntPost(imp);//inverse la 2 eme slice
+			imp = Library_Dicom.sortImageAntPost(selectedImages[0].getImagePlus());//inverse la 2 eme slice
+			selectedImages[0].getImagePlus().close();
 		}else {
 			throw new Exception("Not A/P view");
 		}
