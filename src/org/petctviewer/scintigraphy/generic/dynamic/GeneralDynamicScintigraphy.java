@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
+import org.petctviewer.scintigraphy.scin.ImageOrientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
@@ -24,21 +25,34 @@ public class GeneralDynamicScintigraphy extends Scintigraphy{
 		IJ.setTool(Toolbar.POLYGON);
 	}
 	
-	protected ImagePlus preparerImp(ImagePlus[] images) {
-		if (images.length > 1) {
-			IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
+	protected ImagePlus preparerImp(ImageOrientation[] selectedImages) throws Exception {
+		
+		ImagePlus[] imps = new ImagePlus[2];
+		
+		for (int i=0 ; i<selectedImages.length; i++) {
+			if(selectedImages[i].getImageOrientation()==ImageOrientation.DYNAMIC_ANT ) {
+				if(imps[0]!=null) throw new Exception("Multiple dynamic Antorior Image");
+				imps[0] = selectedImages[i].getImagePlus().duplicate();
+			}else if(selectedImages[i].getImageOrientation()==ImageOrientation.DYNAMIC_POST) {
+				if(imps[1]!=null) throw new Exception("Multiple dynamic Posterior Image");
+				imps[1] = selectedImages[i].getImagePlus().duplicate();
+			}else if(selectedImages[i].getImageOrientation()==ImageOrientation.DYNAMIC_ANT_POST) {
+				if(imps[1]!=null || imps[0]!=null) throw new Exception("Multiple dynamic Image");
+				imps=Library_Dicom.sortDynamicAntPost(selectedImages[i].getImagePlus());
+			}else{
+				throw new Exception("Unexpected Image type");
+			}
+			
+			selectedImages[i].getImagePlus().close();
 		}
 		
-		ImagePlus[] imps = Library_Dicom.sortDynamicAntPost(images[0]);
 		if(imps[0] != null) {
 			this.impAnt = imps[0];
 		}
 		
 		if(imps[1] != null) {
 			this.impPost = imps[1];
-			for(int i = 1; i <= this.impPost.getStackSize(); i++) {
-				this.impPost.getStack().getProcessor(i).flipHorizontal();
-			}
+			Library_Dicom.flipStackHorizontal(impPost);
 		}
 		
 		if( this.impAnt !=null ) {

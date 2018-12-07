@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.generic.statics;
 
 import java.awt.Color;
 
+import org.petctviewer.scintigraphy.scin.ImageOrientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -18,14 +19,21 @@ public class StaticScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImagePlus[] images) {
+	protected ImagePlus preparerImp(ImageOrientation[] selectedImages) throws Exception {
 		
-		if(images.length > 1 || images.length <= 0) {
-			throw new IllegalArgumentException("Exam needs exactly one image");
+		if(selectedImages.length != 1) {
+			throw new Exception("Software Accept only one A/P serie");
+		}
+		ImagePlus imp = null;
+		//SK ETENDRE A SEULEMENT UNE INCIDENCE ??
+		//SK PAS SUR QUE POST ANT SOIT BIEN PRIS EN COMPTE DANS LE FLIP / Ordre du stack
+		if(selectedImages[0].getImageOrientation()==ImageOrientation.ANT_POST || selectedImages[0].getImageOrientation()==ImageOrientation.POST_ANT) {
+			imp = selectedImages[0].getImagePlus();
+			imp = Library_Dicom.sortImageAntPost(imp);//inverse la 2 eme slice
+		}else {
+			throw new Exception("Not A/P view");
 		}
 		
-		ImagePlus imp = images[0];
-		imp = Library_Dicom.sortImageAntPost(imp);//inverse la 2 eme slice
 		return imp;
 	}
 
