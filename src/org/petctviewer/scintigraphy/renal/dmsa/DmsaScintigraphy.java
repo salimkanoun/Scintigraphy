@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.renal.dmsa;
 
 import java.awt.Color;
 
+import org.petctviewer.scintigraphy.scin.ImageOrientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -16,15 +17,19 @@ public class DmsaScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImagePlus[] images) {
-		ImagePlus imp = images[0];
+	protected ImagePlus preparerImp(ImageOrientation[] selectedImages) throws Exception {
+		if(selectedImages.length>1) throw new Exception ("Only one serie Expected");
+		
+		ImagePlus imp = selectedImages[0].getImagePlus();
 
-		if(imp.getStackSize() == 2) {
+		if(selectedImages[0].getImageOrientation()==ImageOrientation.ANT_POST) {
 			imp.getStack().getProcessor(1).flipHorizontal();
+		}else if(selectedImages[0].getImageOrientation()==ImageOrientation.POST_ANT){
+			imp.getStack().getProcessor(0).flipHorizontal();
+		}else {
+			throw new Exception("Ant/Post Image expected");
 		}
 
-		//TODO test bon format dicom
-		
 		return imp.duplicate();
 	}
 

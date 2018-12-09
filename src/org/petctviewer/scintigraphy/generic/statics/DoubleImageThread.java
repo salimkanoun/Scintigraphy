@@ -20,7 +20,6 @@ public class DoubleImageThread extends Thread{
 		double ratioCapture = this.scin.getFenApplication().getImagePlus().getWidth()*1.0 / this.scin.getFenApplication().getImagePlus().getHeight()*1.0;
 		ImagePlus impRes = new ImagePlus();
 		ImageStack capture = new ImageStack(200, (int) (200/ratioCapture));
-		System.out.println((int) (300/ratioCapture));
 		
 		capture.addSlice( Library_Capture_CSV.captureImage(this.scin.getImp(), 200, (int) (200/ratioCapture) ).getProcessor());
 		capture.setSliceLabel("ant", 1);

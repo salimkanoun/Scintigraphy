@@ -42,22 +42,31 @@ public class Controleur_Dmsa extends ControleurScin {
 	@Override
 	public void fin() {
 		this.over = true;
+		//Clear the result hashmap in case of a second validation
+		((Modele_Dmsa)this.getScin().getModele()).data.clear();
 		
 		BufferedImage capture = Library_Capture_CSV.captureImage(getScin().getImp(), 400, 400).getBufferedImage();
 		
-		if(this.antPost) {
-			this.setSlice(1);
-			for(Roi roi : this.roiManager.getRoisAsArray()) {
-				this.indexRoi++;
-				this.getScin().getImp().setRoi(roi);
-				String nom = this.getNomOrgane(indexRoi);
+		for(Roi roi : this.roiManager.getRoisAsArray()) {
+			this.indexRoi++;
+			this.getScin().getImp().setRoi(roi);
+			String nom = this.getNomOrgane(indexRoi);
+			this.setSlice(0);
+			((Modele_Dmsa)this.getScin().getModele()).enregistrerMesure(this.addTag(nom), this.getScin().getImp());
+			if(this.antPost) {
+				this.setSlice(1);
 				((Modele_Dmsa)this.getScin().getModele()).enregistrerMesure(this.addTag(nom), this.getScin().getImp());
+				
 			}
+			
 		}
+		
 		
 		this.getScin().getModele().calculerResultats();
 		
 		new FenResultats_Dmsa(this.getScin(), capture);
+		
+		this.over=false;
 	}
 
 	@Override
