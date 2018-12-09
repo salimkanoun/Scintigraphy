@@ -14,6 +14,7 @@ public class Modele_Dmsa extends ModeleScin {
 	double[] pct = new double[2];
 
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
+		System.out.println(nomRoi);
 		data.put(nomRoi, Library_Quantif.getCounts(imp));
 
 		int area = imp.getStatistics().pixelCount;

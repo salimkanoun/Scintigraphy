@@ -9,6 +9,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.ImagePlus;
 import ij.gui.Overlay;
+import ij.plugin.StackReverser;
 
 public class DmsaScintigraphy extends Scintigraphy {
 
@@ -24,9 +25,14 @@ public class DmsaScintigraphy extends Scintigraphy {
 
 		if(selectedImages[0].getImageOrientation()==ImageOrientation.ANT_POST) {
 			imp.getStack().getProcessor(1).flipHorizontal();
+			//SK REVERSE DES METADATA A VERIFIER !!!!
+			StackReverser reverser=new StackReverser();
+			reverser.flipStack(imp);
 		}else if(selectedImages[0].getImageOrientation()==ImageOrientation.POST_ANT){
-			imp.getStack().getProcessor(0).flipHorizontal();
-		}else {
+			imp.getStack().getProcessor(2).flipHorizontal();
+		}else if (selectedImages[0].getImageOrientation()==ImageOrientation.POST) {
+			return imp.duplicate();
+		} else {
 			throw new Exception("Ant/Post Image expected");
 		}
 

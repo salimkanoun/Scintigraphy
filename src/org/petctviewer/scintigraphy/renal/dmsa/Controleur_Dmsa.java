@@ -44,17 +44,19 @@ public class Controleur_Dmsa extends ControleurScin {
 		this.over = true;
 		//Clear the result hashmap in case of a second validation
 		((Modele_Dmsa)this.getScin().getModele()).data.clear();
+		this.nomRois.clear();
 		
+		indexRoi=0;
 		BufferedImage capture = Library_Capture_CSV.captureImage(getScin().getImp(), 400, 400).getBufferedImage();
 		
 		for(Roi roi : this.roiManager.getRoisAsArray()) {
 			this.indexRoi++;
 			this.getScin().getImp().setRoi(roi);
-			String nom = this.getNomOrgane(indexRoi);
-			this.setSlice(0);
+			String nom = getNomOrgane(indexRoi);
+			this.setSlice(1);
 			((Modele_Dmsa)this.getScin().getModele()).enregistrerMesure(this.addTag(nom), this.getScin().getImp());
 			if(this.antPost) {
-				this.setSlice(1);
+				this.setSlice(2);
 				((Modele_Dmsa)this.getScin().getModele()).enregistrerMesure(this.addTag(nom), this.getScin().getImp());
 				
 			}
@@ -71,7 +73,7 @@ public class Controleur_Dmsa extends ControleurScin {
 
 	@Override
 	public int getSliceNumberByRoiIndex(int roiIndex) {
-		return 2;
+		return 1;
 	}
 	
 	@Override
@@ -105,8 +107,8 @@ public class Controleur_Dmsa extends ControleurScin {
 
 	@Override
 	public boolean isPost() {
-		if(this.over) {
-			return this.getScin().getImp().getCurrentSlice() == 2;
+		if(this.over && antPost) {
+			return this.getScin().getImp().getCurrentSlice() != 2;
 		}
 		return true;
 	}
