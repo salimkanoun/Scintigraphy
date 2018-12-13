@@ -18,9 +18,13 @@ public class Controleur_PostMictional extends ControleurScin{
 
 
 	protected Controleur_PostMictional(Scintigraphy scin, String[] organes) {
+		
 		super(scin);
+		for (int i=0; i<organes.length; i++) {
+			System.out.println(organes[i]);
+		}
 		this.setOrganes(organes);
-		this.setRoiManager(new RoiManager());
+		this.setRoiManager(new RoiManager(false));
 	}
 
 	@Override
@@ -35,7 +39,8 @@ public class Controleur_PostMictional extends ControleurScin{
 		for (int j = 0; j < roiManager.getCount(); j++) {
 			scin.getImp().setRoi(getOrganRoi(this.indexRoi));
 			String name = this.getNomOrgane(this.indexRoi);
-			
+			System.out.println(name);
+			System.out.println(Library_Quantif.getCounts(scin.getImp()));
 			hm.put(name, Library_Quantif.getCounts(scin.getImp()));
 			this.indexRoi++;
 		}

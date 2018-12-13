@@ -153,12 +153,12 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 		Double rg = null, rd = null;
 		int duration = Integer.parseInt(DicomTools.getTag(this.getImagePlus(), "0018,1242").trim());
 		if (modele.getKidneys()[0]) {
-			rg = data.get("L. Kidney P0") - data.get("L. bkg P0");
+			rg = data.get("L. Kidney") - data.get("L. bkg");
 			// on calcule les valeurs en coups/sec
 			rg /= (duration / 1000);
 		}
 		if (modele.getKidneys()[1]) {
-			rd = data.get("R. Kidney P0") - data.get("R. bkg P0");
+			rd = data.get("R. Kidney") - data.get("R. bkg");
 			// on calcule les valeurs en coups/sec
 			rd /= (duration / 1000);
 		}
@@ -168,7 +168,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 
 		// ajout de la vessie dans la liste d'organes si elle est selectionnee
 		if (bladder) {
-			Double bld = data.get("Bladder P0");
+			Double bld = data.get("Bladder");
 			bld /= (duration / 1000);
 			this.panel_bladder.add(new JLabel("Bladder : " + Library_Quantif.round(modele.getExcrBladder(bld), 2) + " %"));
 		}
