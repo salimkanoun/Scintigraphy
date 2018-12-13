@@ -20,7 +20,7 @@ public class Controleur_PostMictional extends ControleurScin{
 	protected Controleur_PostMictional(Scintigraphy scin, String[] organes) {
 		super(scin);
 		this.setOrganes(organes);
-		this.setRoiManager(new RoiManager(false));
+		this.setRoiManager(new RoiManager());
 	}
 
 	@Override

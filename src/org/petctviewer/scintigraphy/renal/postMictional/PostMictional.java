@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 import org.petctviewer.scintigraphy.renal.gui.TabPostMict;
+import org.petctviewer.scintigraphy.scin.ImageOrientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -26,18 +27,27 @@ public class PostMictional extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImagePlus[] images) {
+	protected ImagePlus preparerImp(ImageOrientation[] images) {
 		if (images.length > 1) {
 			IJ.log("There must be exactly one dicom opened");
 		}
+		ImagePlus impSorted = null;
+		ImagePlus imp = images[0].getImagePlus();
+		if(images[0].getImageOrientation()==ImageOrientation.ANT_POST) {
+			impSorted = Library_Dicom.sortImageAntPost(imp);
+			
+		}else if(images[0].getImageOrientation()==ImageOrientation.POST_ANT){
+			impSorted = Library_Dicom.sortImageAntPost(imp);
+			
+		}
+		else if(images[0].getImageOrientation()==ImageOrientation.POST) {
+			impSorted=imp.duplicate();
+		}
+			
+		
 
-		ImagePlus imp = images[0];
-		String info = imp.getInfoProperty();
 		
-		ImagePlus impSorted = Library_Dicom.sortImageAntPost(imp);
-		impSorted.setProperty("Info", info);
-		
-		return impSorted.duplicate();
+		return impSorted;
 	}
 	
 	@Override
