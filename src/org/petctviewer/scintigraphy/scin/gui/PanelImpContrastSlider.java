@@ -103,18 +103,15 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 	private void setContrast(int sliderValue) {
 		imp.getProcessor().setMinAndMax(0, (slider.getModel().getMaximum() - sliderValue)+1);
 		
-		try {
-			SwingUtilities.invokeLater(new Runnable() {
+		SwingUtilities.invokeLater(new Runnable() {
 
-				@Override
-				public void run() {
-					dynamicImp.setImage(imp.getBufferedImage());
-					dynamicImp.repaint();
-				}
-			});
-		} catch (@SuppressWarnings("unused") Exception e1) {
-			// vide
-		}
+			@Override
+			public void run() {
+				dynamicImp.setImage(imp.getBufferedImage());
+				dynamicImp.repaint();
+			}
+		});
+
 	}
 
 	public void setScin(Scintigraphy scin) {
