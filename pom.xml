@@ -13,7 +13,7 @@
 <parent>
 	<groupId>org.scijava</groupId>
 	<artifactId>pom-scijava</artifactId>
-	<version>19.2.0</version>
+	<version>25.0.0</version>
 </parent>
   <repositories>
     <repository>
@@ -39,7 +39,6 @@
 		<dependency>
 			<groupId>org.jfree</groupId>
 			<artifactId>jfreechart</artifactId>
-			<version>1.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -65,7 +64,6 @@
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
-			<version>1.52d</version>
 		</dependency>
 		
 		<dependency>
