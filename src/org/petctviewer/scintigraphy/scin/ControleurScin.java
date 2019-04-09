@@ -122,21 +122,7 @@ public abstract class ControleurScin implements ActionListener {
 			fen.close();
 			return;
 		}
-
-		// on apelle la methode notify clic pour recuperer le clic dans les classes
-		// heritees
-		this.notifyClic(arg0);
-	}
-
-	/**
-	 * Est appelee a la fin de action performed, son corps est vide </br>
-	 * <b> Cette methode existe uniquement pour etre override </b>
-	 * 
-	 * @param arg0
-	 *            ActionEvent
-	 */
-	public void notifyClic(ActionEvent arg0) {
-		// A overrider si besoin
+		
 	}
 
 	/**
