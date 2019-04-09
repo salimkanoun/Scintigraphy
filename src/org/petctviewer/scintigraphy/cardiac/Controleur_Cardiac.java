@@ -207,9 +207,10 @@ public class Controleur_Cardiac extends ControleurScin {
 		
 		return nom;
 	}
-
+	
 	@Override
-	public void notifyClic(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent arg0) {
+		super.actionPerformed(arg0);
 		// permet d'appeller les methodes correspondant au clic des deux nouveaux
 		// boutons
 		Button b = (Button) arg0.getSource();

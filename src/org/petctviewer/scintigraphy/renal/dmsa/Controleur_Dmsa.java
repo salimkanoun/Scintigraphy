@@ -93,8 +93,9 @@ public class Controleur_Dmsa extends ControleurScin {
 	}
 	
 	@Override
-	public void notifyClic(ActionEvent arg0) {
-		this.maxIndexRoi = Math.max(this.maxIndexRoi, this.indexRoi);
+	public void actionPerformed(ActionEvent arg0) {
+		super.actionPerformed(arg0);
+		maxIndexRoi = Math.max(this.maxIndexRoi, this.indexRoi);
 	}
 	
 	@Override
