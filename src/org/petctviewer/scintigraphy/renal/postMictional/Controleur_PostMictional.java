@@ -81,9 +81,10 @@ public class Controleur_PostMictional extends ControleurScin{
 		
 
 	}
-
+	
 	@Override
-	public void notifyClic(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent arg0) {
+		super.actionPerformed(arg0);
 		Overlay ov = this.getScin().getImp().getOverlay();
 
 		if (ov.getIndex("L. bkg") != -1) {
@@ -93,5 +94,6 @@ public class Controleur_PostMictional extends ControleurScin{
 		if (ov.getIndex("R. bkg") != -1) {
 			Library_Gui.editLabelOverlay(ov, "R. bkg", "", Color.GRAY);
 		}
+		
 	}
 }

@@ -64,8 +64,10 @@ public class Controleur_GeneralDyn extends ControleurScin {
 		this.getScin().getFenApplication().getTextfield_instructions().setText(s);
 	}
 
+	
 	@Override
-	public void notifyClic(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent arg0) {
+		super.actionPerformed(arg0);
 		Button b = (Button) arg0.getSource();
 		FenApplication_GeneralDyn fen = (FenApplication_GeneralDyn) this.getScin().getFenApplication();
 
@@ -73,6 +75,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 			this.clicSuivant();
 			this.fin();
 		}
+		
 	}
 
 	@Override

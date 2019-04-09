@@ -31,7 +31,8 @@ public class ControleurScinStatic extends ControleurScin{
 	}
 
 	@Override
-	public void notifyClic(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent arg0) {
+		super.actionPerformed(arg0);
 		Button b = (Button) arg0.getSource();
 		
 		FenApplication_ScinStatic fen = (FenApplication_ScinStatic) this.getScin().getFenApplication();
@@ -40,6 +41,7 @@ public class ControleurScinStatic extends ControleurScin{
 			this.clicSuivant();
 			this.fin();
 		}
+		
 	}
 	
 	@Override
