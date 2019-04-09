@@ -18,6 +18,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="src/Read_CD.jar"/>
 	<classpathentry kind="lib" path="src/Pet_Ct_Viewer.jar"/>
-	<classpathentry kind="lib" path="C:/Users/kanoun_s/Desktop/Fiji.app/plugins/Pet_Ct_Tools.jar"/>
+	<classpathentry kind="lib" path="E:/noaTMP/Stage Oncopole/Fiji.app/plugins/Pet_Ct_Tools.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
