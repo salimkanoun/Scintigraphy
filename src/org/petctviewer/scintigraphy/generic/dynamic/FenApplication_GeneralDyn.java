@@ -5,7 +5,7 @@ import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Panel;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
@@ -43,7 +43,7 @@ public class FenApplication_GeneralDyn extends FenApplication {
 	}
 
 	@Override
-	public void setControleur(ControleurScin ctrl) {
+	public void setControleur(Controleur_OrganeFixe ctrl) {
 		super.setControleur(ctrl);
 		this.btn_finish.addActionListener(ctrl);
 	}

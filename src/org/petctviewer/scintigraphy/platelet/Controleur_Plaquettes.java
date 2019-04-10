@@ -16,7 +16,7 @@ package org.petctviewer.scintigraphy.platelet;
 
 import javax.swing.JTable;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
@@ -26,7 +26,7 @@ import ij.plugin.CanvasResizer;
 import ij.plugin.MontageMaker;
 import ij.process.ImageProcessor;
 
-public class Controleur_Plaquettes extends ControleurScin {
+public class Controleur_Plaquettes extends Controleur_OrganeFixe {
 
 	protected static boolean showLog;
 	private Modele_Plaquettes leModele;

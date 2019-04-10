@@ -1,11 +1,11 @@
 package org.petctviewer.scintigraphy.shunpo;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.gui.Roi;
 
-public class ControleurShunpo_KidneyPulmon extends ControleurScin {
+public class ControleurShunpo_KidneyPulmon extends Controleur_OrganeFixe {
 
 	private Modele_Shunpo modele;
 

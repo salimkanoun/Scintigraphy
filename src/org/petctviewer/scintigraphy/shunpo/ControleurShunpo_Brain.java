@@ -2,12 +2,12 @@ package org.petctviewer.scintigraphy.shunpo;
 
 import javax.swing.JOptionPane;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.gui.Roi;
 
-public class ControleurShunpo_Brain extends ControleurScin {
+public class ControleurShunpo_Brain extends Controleur_OrganeFixe {
 
 	private Modele_Shunpo modele;
 

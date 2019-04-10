@@ -15,6 +15,7 @@ import java.util.List;
 import javax.swing.JTextField;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.ImagePlus;
@@ -148,7 +149,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	@Override
 	public boolean close() {
 		if (this.controleur != null) {
-			this.controleur.getRoiManager().close();
+			this.controleur.close();
 		}
 		return super.close();
 	}
@@ -215,7 +216,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	}
 
 	/************* Setter *************/
-	public void setControleur(ControleurScin ctrl) {
+	public void setControleur(Controleur_OrganeFixe ctrl) {
 		this.controleur = ctrl;
 
 		// on affiche la premiere instruction

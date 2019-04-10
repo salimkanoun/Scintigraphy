@@ -3,13 +3,13 @@ package org.petctviewer.scintigraphy.generic.statics;
 import java.awt.Button;
 import java.awt.event.ActionEvent;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
 
-public class ControleurScinStatic extends ControleurScin{
+public class ControleurScinStatic extends Controleur_OrganeFixe{
 
 	public static int MAXROI = 100;
 	private int nbOrganes = 0;
