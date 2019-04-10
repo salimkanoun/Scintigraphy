@@ -123,7 +123,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		 * 
 		 * @return TRUE if authorized values are defined and FALSE otherwise
 		 */
-		public boolean hasAuthorizedValue() {
+		public boolean hasAuthorizedValues() {
 			return this.authorizedValues != null;
 		}
 
@@ -216,7 +216,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			columnsName[i] = col.getName();
 			TableColumn manifacturer = this.table.getColumnModel().getColumn(i);
 			manifacturer.setHeaderValue(columnsName[i]);
-			if (col.hasAuthorizedValue()) {
+			if (col.hasAuthorizedValues()) {
 				DefaultCellEditor celleditor = new DefaultCellEditor(new JComboBox<String>(col.authorizedValues));
 				manifacturer.setCellEditor(celleditor);
 			}
