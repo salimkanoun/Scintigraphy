@@ -36,20 +36,13 @@ import ij.plugin.frame.RoiManager;
 public abstract class ControleurScin implements ActionListener {
 
 	protected Scintigraphy scin;
-	//protected ModeleScin modele;
 	protected RoiManager roiManager;
-
-
 	private String[] organes;
 	protected int indexRoi;
-
 	protected HashMap<Integer,String> nomRois = new HashMap<>();
 	private ImageListener ctrlImg;
-	
-	protected Color STROKECOLOR = Color.RED;//couleur de la roi
-
+	protected Color STROKECOLOR = Color.RED; //couleur de la roi
 	private Overlay overlay;
-	
 	protected int tools = Toolbar.POLYGON;
 
 	/**
@@ -348,10 +341,6 @@ public abstract class ControleurScin implements ActionListener {
 	public String[] getOrganes() {
 		return this.organes;
 	}
-
-	/*public ModeleScin getModele() {
-		return this.modele;
-	}*/
 	
 	public String getNomOrgane(int index) {
 		
@@ -424,11 +413,6 @@ public abstract class ControleurScin implements ActionListener {
 	public void setOrganes(String[] organes) {
 		this.organes = organes;
 	}
-
-
-	/*public void setModele(ModeleScin modele) {
-		this.modele = modele;
-	}*/
 
 	public void setRoiManager(RoiManager rm) {
 		this.roiManager = rm;
