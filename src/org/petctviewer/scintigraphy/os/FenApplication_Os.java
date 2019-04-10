@@ -12,6 +12,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -28,6 +29,7 @@ import org.apache.xmlgraphics.image.loader.impl.ImageBuffered;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
 import ij.gui.ImageCanvas;
@@ -115,11 +117,8 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
 				// System.out.println("Fen_Os 5.");
 				if (this.dynamicImps[i][j] == null) {
 					BufferedImage imgbuffered = this.imps[i][j].getBufferedImage();
-					Graphics g = imgbuffered.getGraphics();
-					g.getFont().deriveFont(52);
-					g.drawString("Blablabla", 5, 5);
-					g.dispose();
 					this.dynamicImps[i][j] = new DynamicImage(imgbuffered);
+					displayInformations(dynamicImps[i][j], i, j);
 					this.dynamicImps[i][j].addMouseListener(new MouseAdapter() {
 						@Override
 				         public void mousePressed(MouseEvent e) {
@@ -244,10 +243,22 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
 	
 	
 	
+	public void displayInformations(DynamicImage dyn,int i,int j) {
+		ImagePlus impCurrent = imps[i][j];
+		HashMap<String, String> infoPatient = Library_Capture_CSV.getPatientInfo(impCurrent);
+		Graphics g = dyn.getImage().getGraphics();
+		g.getFont().deriveFont(25);
+		g.drawString(infoPatient.get("date"), impCurrent.getWidth()/2, impCurrent.getHeight()*9/10);
+		System.out.println("Height : "+impCurrent.getWidth()+"\n Width : "+impCurrent.getHeight());
+		g.dispose();
+		g.setColor(Color.RED);
+		System.out.println("Displayed");
+	}
 	
 	
-	
-	
+	public void displayInformations(DynamicImage dyn) {
+		displayInformations(dyn,position(dyn)[0],position(dyn)[1]);
+	}
 	
 	
 	
@@ -268,10 +279,6 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
                     3, 3, 3, 3, Color.red));
 			selected[i][j] = true;
 		}
-		Graphics g = dyn.getImage().getGraphics();
-		g.getFont().deriveFont(52);
-		g.drawString("Blablabla", 5, 5);
-		g.dispose();
 	}
 	
 	
