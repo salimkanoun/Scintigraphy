@@ -2,6 +2,8 @@ package org.petctviewer.scintigraphy.scin;
 
 import java.util.HashMap;
 
+import org.petctviewer.scintigraphy.shunpo.FenSelectionDicom.Column;
+
 import ij.ImagePlus;
 
 /**
@@ -22,8 +24,8 @@ public class ImageSelection {
 	 * @param imp    Image selected
 	 * @param keys   Columns specified by the table
 	 * @param values Values for each column
-	 * @throws IllegalArgumentException if the keys and values don't have the
-	 *                                  same length
+	 * @throws IllegalArgumentException if the keys and values don't have the same
+	 *                                  length
 	 */
 	public ImageSelection(ImagePlus imp, String[] keys, String[] values) {
 		if (keys.length != values.length)
@@ -48,5 +50,14 @@ public class ImageSelection {
 	 */
 	public ImagePlus getImagePlus() {
 		return this.imp;
+	}
+
+	/**
+	 * @return image orientation or UNKNOWN if no orientation was set during image
+	 *         selection
+	 */
+	public Orientation getImageOrientation() {
+		Orientation o = Orientation.parse(this.columnsValues.get(Column.ORIENTATION.getName()));
+		return o == null ? Orientation.UNKNOWN : o;
 	}
 }

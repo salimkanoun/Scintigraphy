@@ -1,5 +1,9 @@
-package org.petctviewer.scintigraphy.shunpo;
+package org.petctviewer.scintigraphy.scin;
 
+/**
+ * Represents image orientation.
+ *
+ */
 public enum Orientation {
 
 	ANT("Ant"), POST("Post"), ANT_POST("Ant/Post"), POST_ANT("Post/Ant"), DYNAMIC_ANT("Dynamic Ant"),
@@ -16,6 +20,9 @@ public enum Orientation {
 		return this.s;
 	}
 
+	/**
+	 * @return array of all possible orientations
+	 */
 	public static String[] allOrientations() {
 		Orientation[] o = Orientation.values();
 		String[] s = new String[o.length];
@@ -23,6 +30,21 @@ public enum Orientation {
 			s[i] = o[i].toString();
 		}
 		return s;
+	}
+
+	/**
+	 * Parses a string to retrieve orientation.<br>
+	 * The orientation is returned if toString().equals(display).
+	 * 
+	 * @param display String to parse
+	 * @return orientation of the string or null if no orientation matches
+	 */
+	public static Orientation parse(String display) {
+		for (Orientation o : Orientation.values()) {
+			if (o.toString().equals(display))
+				return o;
+		}
+		return null;
 	}
 
 }
