@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.os;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -89,6 +90,8 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
 		this.sliderLabel = new JLabel("Contrast", SwingConstants.CENTER);
 		sliderLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
+		
+		
 		this.finishBuildingWindow();
 	}
 
@@ -98,14 +101,13 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
 	
 	
 	public void finishBuildingWindow() {
-		System.out.println("ok");
+
 		this.slider = new JSlider(SwingConstants.HORIZONTAL, 0, (int) imp.getStatistics().max, 4);
 		slider.addChangeListener(this);
-		System.out.println("ok0");
+
 		this.boxSlider = Box.createVerticalBox();
 		boxSlider.add(this.sliderLabel);
 		boxSlider.add(this.slider);
-		System.out.println("ok0.");
 		// BufferedImage img = this.imp.getBufferedImage();
 		
 		for(int i = 0; i<nbScinty ; i++){
@@ -113,8 +115,11 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
 				// System.out.println("Fen_Os 5.");
 				if (this.dynamicImps[i][j] == null) {
 					BufferedImage imgbuffered = this.imps[i][j].getBufferedImage();
+					Graphics g = imgbuffered.getGraphics();
+					g.getFont().deriveFont(52);
+					g.drawString("Blablabla", 5, 5);
+					g.dispose();
 					this.dynamicImps[i][j] = new DynamicImage(imgbuffered);
-					System.out.println("ok0.0");
 					this.dynamicImps[i][j].addMouseListener(new MouseAdapter() {
 						@Override
 				         public void mousePressed(MouseEvent e) {
@@ -122,21 +127,18 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
 				     		for (int i =0 ;i<nbScinty;i++) {
 				     			for (int j = 0;j<2;j++) {
 				     				if(di == dynamicImps[i][j]){
-				     					System.out.println("ok1");
 				     					imp = imps[i][j];
 				     					dynamicImp = dynamicImps[i][j];
 				     					perform(dynamicImps[i][j],i,j);
+				     					
 				     				}
 				     			}
 				     		}
 				     		slider.setValue((int) ((slider.getModel().getMaximum() - imp.getLuts()[0].max)+1));
 				     	}
 				      });
-					System.out.println("ok1.");
 					this.setContrast(this.slider.getValue());
-					System.out.println("ok1.1");
 					grid.add(dynamicImps[i][j]);
-					System.out.println("ok1.2");
 				}
 				
 			}
@@ -202,8 +204,12 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
 				for(int i = 0; i<nbScinty ; i++){
 					for (int j=0 ; j<2 ; j++) {
 						if(isSelected(dynamicImps[i][j])) {
-							dynamicImps[i][j].setImage(imps[i][j].getBufferedImage());
+							dynamicImps[i][j].setImage(imps[i][j].getBufferedImage());	
 							dynamicImps[i][j].repaint();
+							Graphics g = dynamicImps[i][j].getImage().getGraphics();
+							g.getFont().deriveFont(52);
+							g.drawString("Blablabla", 5, 5);
+							g.dispose();
 						}
 					}
 				}
@@ -227,6 +233,10 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
 					imps[i][j].setLut(imps[i][j].getLuts()[0].createInvertedLut());
 					dynamicImps[i][j].setImage(imps[i][j].getBufferedImage());
 					dynamicImps[i][j].repaint();
+					Graphics g = dynamicImps[i][j].getImage().getGraphics();
+					g.getFont().deriveFont(52);
+					g.drawString("Blablabla", 5, 5);
+					g.dispose();
 				}
 			}
 		}
@@ -244,16 +254,7 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
 	
 	
 	public void  perform(DynamicImage dyn) {
-		if(selected[position(dyn)[0]][position(dyn)[1]]) {
-			dyn.setBorder(BorderFactory.createMatteBorder(
-                    0, 0, 0, 0, Color.red));
-			selected[position(dyn)[0]][position(dyn)[1]] = false;
-			
-		}else {
-			dyn.setBorder(BorderFactory.createMatteBorder(
-                    3, 3, 3, 3, Color.red));
-			selected[position(dyn)[0]][position(dyn)[1]] = true;
-		}
+		perform(dyn,position(dyn)[0], position(dyn)[1]);
 	}
 	
 	public void  perform(DynamicImage dyn,int i, int j) {
@@ -267,6 +268,10 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
                     3, 3, 3, 3, Color.red));
 			selected[i][j] = true;
 		}
+		Graphics g = dyn.getImage().getGraphics();
+		g.getFont().deriveFont(52);
+		g.drawString("Blablabla", 5, 5);
+		g.dispose();
 	}
 	
 	
@@ -278,8 +283,6 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
  				if(dyn == dynamicImps[i][j]){
  					location[0] = i;
  					location[1] = j;
- 					System.out.println(" i : "+i);
- 					System.out.println(" j : "+j);
  				}
  			}	
  		}
