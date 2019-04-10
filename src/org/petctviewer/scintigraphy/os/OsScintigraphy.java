@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.os;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
 import javax.swing.JFrame;
 
@@ -63,6 +64,8 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 	
 
 	protected ImagePlus preparerImp(ImageOrientation[] selectedImages) throws Exception {
+		
+		HashMap<String, String> infoPatient = Library_Capture_CSV.getPatientInfo(imp);
 
 		ImagePlus[] imps = new ImagePlus[2];
 		ImagePlus impSorted = null;
