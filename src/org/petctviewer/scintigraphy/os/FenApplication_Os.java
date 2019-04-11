@@ -3,15 +3,20 @@ package org.petctviewer.scintigraphy.os;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
@@ -45,23 +50,22 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
 	private JLabel sliderLabel;
 	protected Box boxSlider;
 	
-	private JPanel grid;
+	private JPanel grid;												// Panneau central contenant les DynamicImage de la Scintigrapjie Osseuse
 	
-	private ImagePlus[][] imps;
-	DynamicImage[][] dynamicImps;
+	private ImagePlus[][] imps;											// Tableau à double dimension contenant les ImagePlus liées aux DynamicImage de(s) Scintigraphie(s) Osseuse(s)
+	DynamicImage[][] dynamicImps;										// Tableau à double dimension contenant les DynamicImage liées aux ImagePlus de(s) Scintigraphie(s) Osseuse(s)
 	
-	boolean[][] selected;
+	boolean[][] selected;												// Tableau permettant de savoir quel DynamicImage sont selectionnées
 	
 	
-	private ImagePlus imp;
-	private DynamicImage dynamicImp;
+	private ImagePlus imp;												// ImagePlus courrante
+	private DynamicImage dynamicImp;									// DynamicImage courrante
 	
 	protected SidePanel sidePanel;
 	String additionalInfo, nomFen;
 	
 	private int nbScinty;
 	
-	public boolean reversed;
 	
 	
 	 /**
@@ -86,16 +90,11 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
 		
 		this.nbScinty = img.length;
 		
-		this.reversed = false;
-		
 		this.additionalInfo = "Info";
 		this.nomFen = "Fen";
 		
 		sidePanel = new SidePanel(null, "Bone scintigraphy", scin.getImp());
-		JButton b = new JButton("Inverser");
-		ActionListener ad = new inverser();
-		b.addActionListener(ad);
-		sidePanel.add(b);
+		
 		// sidePanel.addCaptureBtn(scin, "_other");
 		this.add(sidePanel, BorderLayout.WEST);
 		
@@ -142,30 +141,50 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
 		boxSlider.add(this.sliderLabel);
 		boxSlider.add(this.slider);
 		
+		
+		JButton b = new JButton("Inverser");														// Boutton inversant le contraste.
+		ActionListener ad = new inverser();
+		b.addActionListener(ad);
+		b.setPreferredSize(new Dimension(200, 40));
+		
+		JPanel grod = new JPanel(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridy = 2;       //third row
+		c.insets = new Insets(10,0,0,0);  //top padding
+		grod.add(boxSlider);
+		grod.add(b,c);
+		
+		sidePanel.add(grod);
+
+		
+		sidePanel.revalidate();	
+		for(int comp = 0 ;comp <  sidePanel.getComponentCount();comp++) {
+			sidePanel.getComponent(comp).repaint();
+			sidePanel.getComponent(comp).revalidate();
+		}
+		sidePanel.revalidate();
+		sidePanel.repaint();
+		
+		SwingUtilities.updateComponentTreeUI(sidePanel);
+		sidePanel.invalidate();
+		sidePanel.validate();
+		sidePanel.repaint();
+		
 		for(int i = 0; i<nbScinty ; i++){												// For every Scintigraphy
 			for (int j=0 ; j<2 ; j++) {													// For ANT and POST of the Scintigraphy
 				if (this.dynamicImps[i][j] == null) {									// If it is not already displayed.
-					BufferedImage imgbuffered = this.imps[i][j].getBufferedImage();		// Getting Image from the list of ImagePlus
-					this.dynamicImps[i][j] = new DynamicImage(imgbuffered);				// Creating the new Panel displaying the Image
-					displayInformations(dynamicImps[i][j], i, j);						// Drawing informations in the image
-					this.dynamicImps[i][j].addMouseListener(new MouseAdapter() {		// Adding a MouseListener
-						@Override
-				         public void mousePressed(MouseEvent e) {						// For every click on the object
-				        	JPanel di = (JPanel)e.getSource();
-				     		for (int i =0 ;i<nbScinty;i++) {							// This loop look for the DynamicImage clicked on the DynamicImage list (dynamicImps)
-				     			for (int j = 0;j<2;j++) {
-				     				if(di == dynamicImps[i][j]){						// When we found it
-				     					imp = imps[i][j];								// We change the current ImagePlus
-				     					dynamicImp = dynamicImps[i][j];					// We change the current DynamicImage
-				     					perform(dynamicImps[i][j],i,j);					// We perform this DynamicImage
-				     				}
-				     			}
-				     		}
-				     		slider.setValue((int) ((slider.getModel().getMaximum() - imp.getLuts()[0].max)+1));		// We put the slider value to the current ImagePlus contrast value.
-				     	}
-				      });																							// End of the listener
-					this.setContrast(this.slider.getValue());														
-					grid.add(dynamicImps[i][j]);																	// Adding the DynamicImage to the gridLayout to diplay it.
+					if(this.imps[i][j] != null){
+						BufferedImage imgbuffered = this.imps[i][j].getBufferedImage();		// Getting Image from the list of ImagePlus
+						this.dynamicImps[i][j] = new DynamicImage(imgbuffered);				// Creating the new Panel displaying the Image
+						displayInformations(dynamicImps[i][j], i, j);						// Drawing informations in the image
+						
+						MouseListener selectionner = new Selectionner();
+						this.dynamicImps[i][j].addMouseListener(selectionner);						
+						
+						this.setContrast(this.slider.getValue());														
+						grid.add(dynamicImps[i][j]);										// Adding the DynamicImage to the gridLayout to diplay it.
+					}
 				}
 				
 			}
@@ -173,7 +192,7 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
 		
 		this.dynamicImp = this.dynamicImps[0][0];																	// The basic current DynamicImage is the most recent ANT
 		this.setContrast(slider.getValue());
-		sidePanel.add(boxSlider);
+
 		// sidePanel.addCaptureBtn(getScin(), this.additionalInfo, new Component[] { this.slider });
 		this.add(sidePanel, BorderLayout.WEST);
 	}
@@ -256,7 +275,37 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
 
 	
 	
-	
+	public class Selectionner implements MouseListener{																// Classe interne pour selectionner une DynamicImage
+		/**
+		 * Listener permmettant d'inverser la LUT de chaque image, et donc son contraste.
+		 *@param arg0
+		 *            
+		 * @return
+		 */
+		@Override
+        public void mousePressed(MouseEvent e) {						// For every click on the object
+       	JPanel di = (JPanel)e.getSource();
+    		for (int i =0 ;i<nbScinty;i++) {							// This loop look for the DynamicImage clicked on the DynamicImage list (dynamicImps)
+    			for (int j = 0;j<2;j++) {
+    				if(di == dynamicImps[i][j]){						// When we found it
+    					imp = imps[i][j];								// We change the current ImagePlus
+    					dynamicImp = dynamicImps[i][j];					// We change the current DynamicImage
+    					perform(dynamicImps[i][j],i,j);					// We perform this DynamicImage
+    				}
+    			}
+    		}
+    		slider.setValue((int) ((slider.getModel().getMaximum() - imp.getLuts()[0].max)+1));		// We put the slider value to the current ImagePlus contrast value.
+    	}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {}
+		@Override
+		public void mouseEntered(MouseEvent e) {}
+		@Override
+		public void mouseExited(MouseEvent e) {}
+		@Override
+		public void mouseReleased(MouseEvent e) {}
+	}
 	
 	 
 	public class inverser implements ActionListener{																// Boutton pour inverser le contrast
@@ -347,7 +396,7 @@ public class FenApplication_Os extends JPanel implements ChangeListener{
 			
 		}else {
 			dyn.setBorder(BorderFactory.createMatteBorder(
-                    3, 3, 3, 3, Color.red));
+                    3, 3, 3, 3, new Color(148,252,9)));
 			selected[i][j] = true;
 		}
 	}

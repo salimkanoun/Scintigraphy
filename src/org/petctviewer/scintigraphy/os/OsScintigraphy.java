@@ -1,44 +1,25 @@
 package org.petctviewer.scintigraphy.os;
 
-import java.awt.Color;
-import java.awt.font.FontRenderContext;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 
 import javax.swing.JFrame;
 
-import org.petctviewer.scintigraphy.renal.postMictional.Controleur_PostMictional;
-import org.petctviewer.scintigraphy.renal.postMictional.Modele_PostMictional;
 import org.petctviewer.scintigraphy.scin.ImageOrientation;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-
-import ij.IJ;
 import ij.ImagePlus;
-import ij.gui.Overlay;
-import ij.gui.TextRoi;
 import ij.plugin.PlugIn;
 
 public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 	
 	private String examType;
 	
-	private ImagePlus[] impAnt, impPost = new ImagePlus[2];
+
 	ImagePlus[][] buffer;
 	
 	private FenApplication_Os fen_application_os;
@@ -88,29 +69,11 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 		fen.pack();
 	}
 	
-	Comparator<ImageOrientation> imagePlusDateComparator = new Comparator<ImageOrientation>() {
-        @Override
-        public int compare(ImageOrientation e1, ImageOrientation e2) {
-        	HashMap<String, String> patient1 = Library_Capture_CSV.getPatientInfo(e1.getImagePlus());
-        	HashMap<String, String> patient2 = Library_Capture_CSV.getPatientInfo(e2.getImagePlus());
-        	/*
-        	String date1 = String.join("",patient1.get("date").split("[/]"));
-        	String date2 = String.join("",patient2.get("date").split("[/]"));
-        	Integer.parseInt(date1)-Integer.parseInt(date2)
-        	*/
-        	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyy", Locale.ENGLISH);
-        	LocalDate datebis1 = LocalDate.parse(patient1.get("date"), formatter);
-        	LocalDate datebis2 = LocalDate.parse(patient2.get("date"), formatter);
-
-            return (datebis1.compareTo(datebis2));
-        }
-    };
-	
     /**
 	 * Prépare les images à traiter.<br/>
-	 * Dans ce plug-in, les images qui seront envoyées doivent être POST/ANT, au nombre maximum de 3<br/>
-	 * Dans un premier temps, trie les images par date.<br/>
-	 * Met ensuite les Image ANT/POST dans le bonne ordre au niveau des slice, à savoir Ant puis POST.<br/>
+	 * Dans ce plug-in, les images qui seront envoyées doivent être POST/ANT ou ANT/POST, au nombre maximum de 3<br/>
+	 * Dans un premier temps, travaille les images pour mettre le ANT en slice 1 et le POST en slice 2.<br/>
+	 * Tri ensuite les ImagePlus par date, avec la plus récente en première.<br/>
 	 * Sépare ensuite les deux slice en deux ImagePlus, en transmettant les informations de l'image originale.<br/>
 	 * Enregistre les images dans un buffer, qui sera transmis à la fenêtre traitant les images de Scinty Osseuse.<br/>
 	 * Le buffer enregistré est un tableau à double dimension possédant 2 colonnes et n ligne (n = nombre de patient).<br/>
@@ -124,62 +87,55 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 		
 		if(selectedImages.length>3)
 			throw new Exception("Vous avez rentré trop d'images. Seulement 3 images peuvent être traitées.");
-		
-		
-		ImagePlus[] bufferForSort = new ImagePlus[selectedImages.length];
-		for(int IO=0 ; IO<selectedImages.length; IO++) {
-			bufferForSort[IO] = selectedImages[IO].getImagePlus();
-		}
-		ArrayList<ImagePlus> arrayBuffer = new ArrayList<ImagePlus>(Arrays.asList(bufferForSort));
-		ImagePlus[] impsSorted = Library_Dicom.orderImagesByAcquisitionTime(arrayBuffer);
-		
-		
-		
-		// Arrays.sort(selectedImages);
-
-
-		ImagePlus[] imps = new ImagePlus[2];
-		ImagePlus impSorted = null;
 		buffer = new ImagePlus[selectedImages.length][2];
+
+		ImagePlus impSorted = null;
+		ImagePlus[] impsSortedAntPost = new ImagePlus[selectedImages.length];
 		
-		for (int i=0 ; i<selectedImages.length; i++) {
-			
-			ImagePlus imp = impsSorted[i];
+		for (int i=0 ; i<selectedImages.length; i++) {																// Modifie l'ImagePlus pour mettre ANT en slice 1 et POST en slice 2
+			impSorted = null;
+			ImagePlus imp = selectedImages[i].getImagePlus();
 			if(selectedImages[i].getImageOrientation()==ImageOrientation.ANT_POST) {
 				impSorted = Library_Dicom.sortImageAntPost(imp);
-				
 			}else if(selectedImages[i].getImageOrientation()==ImageOrientation.POST_ANT){
 				impSorted = Library_Dicom.sortImageAntPost(imp);
-				
 			}
 			else if(selectedImages[i].getImageOrientation()==ImageOrientation.POST) {
 				impSorted=imp.duplicate();
+			}else {
+				throw new Exception("Mauvais type d'image choisie.\n Types acceptés : ANT/POST | POST/ANT | POST");
 			}
-
-			for (int j=0 ; j<2; j++) {
-				
-				ImagePlus Ant = new ImagePlus("Ant", impSorted.getStack().getProcessor(1));
-				Ant.setProperty("Info", impSorted.getStack().getSliceLabel(1));
-				buffer[i][0] = Ant;
-				
-				
-				ImagePlus Post = new ImagePlus("Ant", impSorted.getStack().getProcessor(2));
-				Post.setProperty("Info", impSorted.getStack().getSliceLabel(2));
-				buffer[i][1] = Post;
-			}
+			
+			impsSortedAntPost[i]=impSorted;
 			selectedImages[i].getImagePlus().close();
 		}
-		if(imps[0] != null) {
-			this.impPost[0] = imps[0];
+		
+		
+		ArrayList<ImagePlus> arrayBufferForSortByTime = new ArrayList<ImagePlus>(Arrays.asList(impsSortedAntPost));
+		ImagePlus[] impsSortedByTime = Library_Dicom.orderImagesByAcquisitionTime(arrayBufferForSortByTime);
+		
+		int reverseIndex = 0;
+		int nbImpsSortedByTime = impsSortedByTime.length;
+		ImagePlus tempImp;
+        for (reverseIndex = 0 ; reverseIndex < nbImpsSortedByTime / 2 ; reverseIndex++){
+        	tempImp = impsSortedByTime[reverseIndex];
+                impsSortedByTime[reverseIndex] = impsSortedByTime[nbImpsSortedByTime - reverseIndex - 1];
+                impsSortedByTime[nbImpsSortedByTime - reverseIndex - 1] = tempImp;
+        }
+		
+		for (int i=0 ; i<impsSortedByTime.length; i++) {
+			for (int j=0 ; j<2; j++) {
+				
+				ImagePlus Ant = new ImagePlus("Ant", impsSortedByTime[i].getStack().getProcessor(1));
+				Ant.setProperty("Info", impsSortedByTime[i].getStack().getSliceLabel(1));
+				buffer[i][0] = Ant;
+				
+				ImagePlus Post = new ImagePlus("Post", impsSortedByTime[i].getStack().getProcessor(2));
+				Post.setProperty("Info", impsSortedByTime[i].getStack().getSliceLabel(2));
+				buffer[i][1] = Post;
+			}
 		}
-		if(imps[1] != null) {
-			this.impPost[1] = imps[1];
-		}
-		
-		
-		
 		this.setImp(impSorted);
-		
 		return impSorted;
 	}
 

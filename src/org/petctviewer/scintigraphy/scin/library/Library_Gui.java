@@ -211,5 +211,21 @@ public class Library_Gui {
 			imp.setLut(lut);
 		}
 	}
+	
+	/**
+	 * Applique la LUT definie dans les preference � l'ImagePlus demandee, grâce au chemin de préférence défini par Lut
+	 * 
+	 * @param imp
+	 *            : L'ImagePlus sur laquelle on va appliquer la LUT des preferences
+	 * @param Lut
+	 *            : chemin des preferences servant à définir la Lut à appliquer
+	 */
+	public static void setCustomLut(ImagePlus imp,String Lut) {
+		String lalut = Prefs.get(Lut, null);
+		if (lalut != null) {
+			LUT lut = ij.plugin.LutLoader.openLut(lalut);
+			imp.setLut(lut);
+		}
+	}
 
 }
