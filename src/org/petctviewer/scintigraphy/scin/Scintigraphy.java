@@ -142,13 +142,14 @@ public abstract class Scintigraphy implements PlugIn {
 						String resultats = modele.toString();
 
 						try {
+							// TODO: change this to export even if the controleur is not OrganeFixe
 							ControleurScin controleur = getFenApplication().getControleur();
-							Library_Capture_CSV.exportAll(resultats,
-									(controleur instanceof Controleur_OrganeFixe
-											? ((Controleur_OrganeFixe) controleur).getRoiManager()
-											: null),
-									examType, imp, additionalInfo);
-
+							if (controleur instanceof Controleur_OrganeFixe)
+								Library_Capture_CSV.exportAll(resultats,
+										((Controleur_OrganeFixe) controleur).getRoiManager(), examType, imp,
+										additionalInfo);
+							else
+								Library_Capture_CSV.exportAll(resultats, null, examType, imp, additionalInfo);
 							imp.killRoi();
 						} catch (Exception e1) {
 							e1.printStackTrace();

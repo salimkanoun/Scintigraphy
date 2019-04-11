@@ -34,8 +34,8 @@ import ij.plugin.frame.RoiManager;
 
 public abstract class Controleur_OrganeFixe extends ControleurScin {
 
+	// TODO: supprimer cette référence pour découpler le controleur de scintigraphy
 	protected Scintigraphy scin;
-	//protected ModeleScin modele;
 	protected RoiManager roiManager;
 
 
@@ -56,6 +56,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	 * declarer le modele ainsi que la liste d'organes
 	 */
 	protected Controleur_OrganeFixe(Scintigraphy scin) {
+		super(scin.getFenApplication());
 		this.scin = scin;
 
 		if (scin.getImp().getOverlay() == null) {
