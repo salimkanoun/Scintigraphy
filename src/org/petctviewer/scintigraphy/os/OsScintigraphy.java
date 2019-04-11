@@ -57,6 +57,14 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 		this.imp = imp;
 	}
 	
+	
+	/**
+	 * Permet de préparer les images reçu depuis la FenSelectionDicom et ensuite de lancer le programme.
+	 * 
+	 * @param selectedImages
+	 *            liste des images transmises depuis FenSelectionDicom
+	 * @return
+	 */
 	public void startExam(ImageOrientation[] selectedImages) throws Exception {
 		//Send selected image to specific app to retrieve the ImagePlus to show in the app (will be stored in this object)
 		this.imp = preparerImp(selectedImages);
@@ -65,7 +73,13 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 
 	}
 	
-	
+	/**
+	 * Lance la FenSelectionDicom qui permet de selectionner les images qui seront traité par ce plug-in.
+	 * 
+	 * @param selectedImages
+	 *            liste des images transmises depuis FenSelectionDicom
+	 * @return
+	 */
 	@Override
 	public void run(String arg) {
 		//SK FAIRE DANS UN AUTRE THREAD ?
@@ -92,8 +106,33 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
         }
     };
 	
-
+    /**
+	 * Prépare les images à traiter.<br/>
+	 * Dans ce plug-in, les images qui seront envoyées doivent être POST/ANT, au nombre maximum de 3<br/>
+	 * Dans un premier temps, trie les images par date.<br/>
+	 * Met ensuite les Image ANT/POST dans le bonne ordre au niveau des slice, à savoir Ant puis POST.<br/>
+	 * Sépare ensuite les deux slice en deux ImagePlus, en transmettant les informations de l'image originale.<br/>
+	 * Enregistre les images dans un buffer, qui sera transmis à la fenêtre traitant les images de Scinty Osseuse.<br/>
+	 * Le buffer enregistré est un tableau à double dimension possédant 2 colonnes et n ligne (n = nombre de patient).<br/>
+	 * Chaque ligne est un patient. <br/>
+	 * La colonne 0 : l'ImagePlus ANT du patient --/-- la colonne 1 : l'ImagePlus POST du patient.<br/>
+	 * @param selectedImages
+	 *            liste des images transmises depuis FenSelectionDicom
+	 * @return
+	 */
 	protected ImagePlus preparerImp(ImageOrientation[] selectedImages) throws Exception {
+		
+		if(selectedImages.length>3)
+			throw new Exception("Vous avez rentré trop d'images. Seulement 3 images peuvent être traitées.");
+		
+		
+		ImagePlus[] bufferForSort = new ImagePlus[selectedImages.length];
+		for(int IO=0 ; IO<selectedImages.length; IO++) {
+			bufferForSort[IO] = selectedImages[IO].getImagePlus();
+		}
+		ArrayList<ImagePlus> arrayBuffer = new ArrayList<ImagePlus>(Arrays.asList(bufferForSort));
+		ImagePlus[] impsSorted = Library_Dicom.orderImagesByAcquisitionTime(arrayBuffer);
+		
 		
 		
 		// Arrays.sort(selectedImages);
@@ -105,7 +144,7 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 		
 		for (int i=0 ; i<selectedImages.length; i++) {
 			
-			ImagePlus imp = selectedImages[i].getImagePlus();
+			ImagePlus imp = impsSorted[i];
 			if(selectedImages[i].getImageOrientation()==ImageOrientation.ANT_POST) {
 				impSorted = Library_Dicom.sortImageAntPost(imp);
 				
@@ -116,43 +155,19 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 			else if(selectedImages[i].getImageOrientation()==ImageOrientation.POST) {
 				impSorted=imp.duplicate();
 			}
-			
-			Overlay overlay = Library_Gui.initOverlay(impSorted, 12);
-			impSorted.setOverlay(overlay);
-			Library_Gui.setOverlayTitle("Post",overlay, impSorted, Color.yellow, 1);
-			Library_Gui.setOverlayTitle("Ant",overlay, impSorted, Color.yellow, 2);
-			OsScintigraphy.setOverlayBottom(Library_Capture_CSV.getPatientInfo(impSorted).get("date"),overlay, impSorted, Color.yellow, 1);
-			OsScintigraphy.setOverlayBottom(Library_Capture_CSV.getPatientInfo(impSorted).get("date"),overlay, impSorted, Color.yellow, 2);
-			// impSorted.show();
+
 			for (int j=0 ; j<2; j++) {
-				// System.out.println("Show "+j); // Appel bloquant.
-				// buffer[i][1] = Library_Dicom.splitCameraMultiFrame(impSorted)[j];
 				
 				ImagePlus Ant = new ImagePlus("Ant", impSorted.getStack().getProcessor(1));
 				Ant.setProperty("Info", impSorted.getStack().getSliceLabel(1));
 				buffer[i][0] = Ant;
 				
 				
-				
 				ImagePlus Post = new ImagePlus("Ant", impSorted.getStack().getProcessor(2));
 				Post.setProperty("Info", impSorted.getStack().getSliceLabel(2));
 				buffer[i][1] = Post;
-				
-				
-				Overlay overlay2 = Library_Gui.initOverlay(buffer[i][0], 12);
-				buffer[i][0].setOverlay(overlay2);
-				OsScintigraphy.setOverlayBottom(Library_Capture_CSV.getPatientInfo(impSorted).get("date"),overlay2, buffer[i][0], Color.yellow, 1);
-				Library_Gui.setOverlayTitle("Post",overlay2, buffer[i][0], Color.yellow, 1);
-				
-				Overlay overlay3 = Library_Gui.initOverlay(buffer[i][1], 12);
-				buffer[i][1].setOverlay(overlay3);
-				OsScintigraphy.setOverlayBottom(Library_Capture_CSV.getPatientInfo(impSorted).get("date"),overlay3, buffer[i][1], Color.yellow, 1);
-				Library_Gui.setOverlayTitle("Ant",overlay3, buffer[i][1], Color.yellow, 1);
-				
-				System.out.println("Buffer length : "+ buffer.length);
-				System.out.println("Buffer["+i+"] length : "+ buffer[i].length);
 			}
-			// selectedImages[i].getImagePlus().close();
+			selectedImages[i].getImagePlus().close();
 		}
 		if(imps[0] != null) {
 			this.impPost[0] = imps[0];
@@ -161,16 +176,24 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 			this.impPost[1] = imps[1];
 		}
 		
+		
+		
 		this.setImp(impSorted);
 		
 		return impSorted;
 	}
 
+	 /**
+		 * Créé un JFrame et la fenêtre qui traitera les images de scinty osseuse<br/>
+		 * Cette fenêtre prend en paramètre la classe actuelle (dérivée de Scinty), et le buffer d'images.<br/>
+		 * Le buffer enregistré est un tableau à double dimension possédant 2 colonnes et n ligne (n = nombre de patient)<br/>
+		 * Chaque ligne est un patient. <br/>
+		 * La colonne 0 : l'ImagePlus ANT du patient --/-- la colonne 1 : l'ImagePlus POST du patient.<br/>
+		 * @return
+		 */
 	public void lancerProgramme() {
 		
 		FenApplication_Os fen = new FenApplication_Os(this, buffer);
-		System.out.println("Fen_Os");
-		// fen.setPreferredCanvasSize(950);
 		fen.setVisible(true);
 		this.setFenApplication_Os(fen);
 
@@ -180,8 +203,6 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 		frame.pack();
 		frame.setVisible(true);
 		frame.setResizable(true);
-		
-		System.out.println("test");
 	}
 	
 	
@@ -216,32 +237,5 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 	public ModeleScin getModele() {
 		return modele;
 	}
-	
-	
-	
-	public static void setOverlayBottom(String title, Overlay overlay, ImagePlus imp, Color color, int slice) {
-		int w = imp.getWidth();
-		int h = imp.getHeight();
-	
-		AffineTransform affinetransform = new AffineTransform();
-		FontRenderContext frc = new FontRenderContext(affinetransform, true, true);
-	
-		Rectangle2D bounds = overlay.getLabelFont().getStringBounds(title, frc);
-		double textHeight = bounds.getHeight();
-		double textWidth = bounds.getWidth();
-	
-		double x = (w / 2) - (textWidth / 2);
-		TextRoi bottom = new TextRoi(x, h*0.5, title);
-		bottom.setPosition(slice);
-		if (color != null) {
-			bottom.setStrokeColor(color);
-		}
-	
-		// Set la police des text ROI
-		bottom.setCurrentFont(overlay.getLabelFont());
-	
-		overlay.add(bottom);
-	}
-	
 
 }
