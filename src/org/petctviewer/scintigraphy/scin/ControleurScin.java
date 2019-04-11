@@ -4,34 +4,232 @@ import java.awt.Button;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
+import ij.gui.Roi;
 import ij.gui.Toolbar;
+import ij.plugin.frame.RoiManager;
 
 public abstract class ControleurScin implements ActionListener {
 
+	/**
+	 * View of the MVC pattern
+	 */
 	protected FenApplication vue;
+	/**
+	 * Position in the flow of the controller.<br>
+	 * Increments when 'Next' button is pressed.<br>
+	 * Decrements when 'Previous' button is pressed.<br>
+	 * The position must always be positive.
+	 */
+	protected int position;
+	protected RoiManager roiManager;
+	/**
+	 * Map of all the ROI names by they index
+	 */
+	protected Map<Integer, String> roiNames;
 
 	public ControleurScin(FenApplication vue) {
 		this.vue = vue;
+		this.position = 0;
+		this.roiManager = new RoiManager();
+		this.roiNames = new HashMap<>();
+
+		Roi.setColor(Color.RED);
 	}
 
 	/**
-	 * This method is called when the 'Previous' button is pressed.
+	 * Checks if the controller has done its work.
+	 * 
+	 * @return TRUE if the controller has finished, FALSE otherwise
 	 */
-	public abstract void clicPrecedent();
-
-	/**
-	 * This method is called when the 'Next' button is pressed.
-	 */
-	public abstract void clicSuivant();
+	public abstract boolean isOver();
 
 	/**
 	 * This method is called when the FenApplication is closed.
 	 */
-	public abstract void close();
+	public void close() {
+		this.roiManager.close();
+	}
+
+	/**
+	 * This method is called when the 'Previous' button is pressed. It will
+	 * decrement the position by 1.
+	 */
+	public void clicPrecedent() {
+		this.position--;
+		if (this.position == 0) {
+			this.vue.getBtn_precedent().setEnabled(false);
+		}
+		this.vue.getBtn_suivant().setEnabled(true);
+	}
+
+	/**
+	 * This method is called when the 'Next' button is pressed. It will increment
+	 * the position by 1.
+	 */
+	public void clicSuivant() {
+		this.position++;
+		this.vue.getBtn_precedent().setEnabled(true);
+	}
+
+	/**
+	 * Saves the current ROI of the current ImagePlus in the RoiManager. If the ROI
+	 * has already been saved, it will be replaced.
+	 * 
+	 * @param name Name of the ROI to save
+	 * @return TRUE if a ROI was save and FALSE if not
+	 */
+	public boolean saveCurrentRoi(String name) {
+		Roi roiToSave = this.vue.getImagePlus().getRoi();
+
+		// Check if there is a ROI to save
+		if (roiToSave != null) {
+			roiToSave.setStrokeColor(Color.YELLOW);
+			roiToSave.setPosition(0);
+
+//			Roi existingRoi = this.roiManager.getRoi(this.position);
+			Roi existingRoi = this.getRoi(name);
+			int posExisting = this.position;
+
+			// Check if there is an existing ROI
+			if (existingRoi != null) {
+				posExisting = this.roiManager.getRoiIndex(existingRoi);
+				// Overwrite it
+//				this.roiManager.setRoi(roiToSave, this.position);
+				this.roiManager.setRoi(roiToSave, posExisting);
+			} else {
+				// Add it
+				this.roiManager.addRoi(roiToSave);
+			}
+			this.vue.getImagePlus().killRoi();
+
+			// Name the ROI
+//			this.roiManager.rename(this.position, name);
+//			this.roiNames.put(this.position, name);
+			this.roiManager.rename(posExisting, name);
+			this.roiNames.put(posExisting, name);
+
+			return true;
+		}
+
+		// No ROI to save
+		JOptionPane.showMessageDialog(vue, "No ROI to save\nPlease draw a ROI", "", JOptionPane.WARNING_MESSAGE);
+		return false;
+	}
+
+	/**
+	 * Displays the ROI with the specified index if existing on the overlay of the
+	 * current image.
+	 * 
+	 * @param index Index of the ROI to display
+	 */
+	public void displayRoi(int index) {
+		int[] array = { index };
+		this.displayRois(array);
+	}
+
+	/**
+	 * Displays all existing ROIs with the specified indexes on the overlay of the
+	 * current image.
+	 * 
+	 * @param indexes Indexes of the ROIs to display
+	 */
+	public void displayRois(int[] indexes) {
+		// Get ROIs to display
+		for (int i : indexes) {
+			Roi roiToDisplay = this.roiManager.getRoi(i);
+			if (roiToDisplay != null) {
+				this.vue.getImagePlus().getOverlay().add(roiToDisplay);
+			}
+		}
+	}
+
+	/**
+	 * Displays all of the existing ROIs that have an index >= index_start and <
+	 * index_end. <i>Careful</i>: this method resets the image overlay.
+	 * 
+	 * @param index_start First ROI index to be displayed
+	 * @param index_end   The last ROI index (not displayed)
+	 */
+	public void displayRois(int index_start, int index_end) {
+		// Clear overlay
+		this.resetOverlay();
+
+		int[] array = new int[index_end - index_start];
+		for (int i = index_start; i < index_end; i++) {
+			array[i - index_start] = i;
+		}
+		this.displayRois(array);
+	}
+
+	/**
+	 * Displays all of the existing ROIs that have an index < to the specified
+	 * index.<br>
+	 * <i>Careful</i>: this method resets the image overlay.
+	 * 
+	 * @param index
+	 */
+	public void displayRoisUpTo(int index) {
+		this.displayRois(0, index);
+	}
+
+	public void resetOverlay() {
+		this.vue.getOverlay().clear();
+		Library_Gui.setOverlayDG(this.vue.getOverlay(), this.vue.getImagePlus(), Color.YELLOW);
+		Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus().getOverlay(), this.vue.getImagePlus(), Color.YELLOW,
+				1);
+		Library_Gui.setOverlayTitle("Post", this.vue.getImagePlus().getOverlay(), this.vue.getImagePlus(), Color.YELLOW,
+				2);
+	}
+
+	/**
+	 * Displays the ROI with the specified index if existing and make it editable.
+	 * 
+	 * @param index Index of the ROI to edit
+	 * @return TRUE if the ROI already existed and could be retrieved and FALSE if
+	 *         not
+	 */
+	public boolean editRoi(int index) {
+		Roi roiToEdit = this.roiManager.getRoi(index);
+		if (roiToEdit != null) {
+			this.vue.getImagePlus().setRoi(roiToEdit);
+			this.vue.getImagePlus().getRoi().setStrokeColor(Color.RED);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Displays the ROI with the specified name if existing and make it editable.
+	 * 
+	 * @param name Name of the ROI to edit
+	 * @return TRUE if the ROI already existed and could be retrieved and FALSE if
+	 *         not
+	 */
+	public boolean editRoi(String name) {
+		Roi roiToEdit = this.getRoi(name);
+		if (roiToEdit != null) {
+			this.vue.getImagePlus().setRoi(roiToEdit);
+			this.vue.getImagePlus().getRoi().setStrokeColor(Color.RED);
+			return true;
+		}
+		return false;
+	}
+	
+	private Roi getRoi(String name) {
+		for(Roi r : this.roiManager.getRoisAsArray())
+			if(r.getName().equals(name))
+				return r;
+		return null;
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {

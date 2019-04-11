@@ -12,6 +12,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -64,7 +65,7 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 	}
 
 	@Override
-	public void setControleur(Controleur_OrganeFixe ctrl) {
+	public void setControleur(ControleurScin ctrl) {
 		super.setControleur(ctrl);
 		this.setText_instructions("Click to start the exam");
 	}

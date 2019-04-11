@@ -61,12 +61,13 @@ public class ShunpoScintigraphy extends Scintigraphy {
 			return;
 		}
 
-		// Start program with KIDNEY-PULMON
-		ImageSelection selection;
-		if (selectedImages[0].getValue(this.orgranColumn.getName()).equals(ORGAN_KIDNEY_PULMON))
-			selection = selectedImages[0];
-		else
-			selection = selectedImages[1];
+		// Order selectedImages: 1st KIDNEY-PULMON; 2nd BRAIN
+		ImageSelection tmp;
+		if (!selectedImages[0].getValue(this.orgranColumn.getName()).equals(ORGAN_KIDNEY_PULMON)) {
+			tmp = selectedImages[0];
+			selectedImages[0] = selectedImages[1];
+			selectedImages[1] = tmp;
+		}
 
 		// Check orientation
 		for (int idImg = 0; idImg < 2; idImg++) {
@@ -80,12 +81,13 @@ public class ShunpoScintigraphy extends Scintigraphy {
 				return;
 			}
 		}
-
-		this.setImp(selection.getImagePlus());
+		
+		this.setImp(selectedImages[0].getImagePlus());
 
 		// Start program
 		this.setFenApplication(new FenApplication_Shunpo(this));
-		this.getFenApplication().setControleur(new ControleurShunpo_KidneyPulmon(this));
+		this.getFenApplication().setControleur(new ControleurShunpo(this.getFenApplication(), selectedImages));
+//		this.getFenApplication().setControleur(new ControleurShunpo_KidneyPulmon(this));
 		this.getFenApplication().setVisible(true);
 	}
 

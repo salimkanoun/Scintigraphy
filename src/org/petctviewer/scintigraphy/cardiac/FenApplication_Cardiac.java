@@ -4,6 +4,7 @@ import java.awt.Button;
 import java.awt.GridLayout;
 import java.awt.Panel;
 
+import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
@@ -70,7 +71,7 @@ public class FenApplication_Cardiac extends FenApplication {
 	}
 
 	@Override
-	public void setControleur(Controleur_OrganeFixe ctrl) {
+	public void setControleur(ControleurScin ctrl) {
 		super.setControleur(ctrl);
 		this.btn_continue.addActionListener(ctrl);
 		this.btn_newCont.addActionListener(ctrl);

@@ -36,7 +36,6 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 
 	// TODO: supprimer cette référence pour découpler le controleur de scintigraphy
 	protected Scintigraphy scin;
-	protected RoiManager roiManager;
 
 
 	private String[] organes;
@@ -146,9 +145,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 		}
 	}
 
-	/**
-	 * est appelle lors du clic sur le bouton "Previous"
-	 */
+	@Override
 	public void clicPrecedent() {
 		//Si boutton suivant desactive car on est arrive a la fin du programme, on le reactive quand on a clique sur precedent
 		if( !scin.getFenApplication().getBtn_suivant().isEnabled() ) scin.getFenApplication().getBtn_suivant().setEnabled(true);
@@ -167,9 +164,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 		//this.saveCurrentRoi(this.getNomOrgane(this.indexRoi), this.indexRoi);
 	}
 
-	/**
-	 * est appelle lors du clic sur le bouton "Next"
-	 */
+	@Override
 	public void clicSuivant() {
 		// sauvegarde du ROI actuel
 		boolean saved = this.saveCurrentRoi(this.getNomOrgane(this.indexRoi), this.indexRoi);
@@ -233,7 +228,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 			// pour eviter les doublons
 			if (this.roiManager.getRoi(indexRoi) == null) {
 				//Add Roi to the Roi Manager
-				roiManager.addRoi(this.scin.getImp().getRoi());
+				this.roiManager.addRoi(this.scin.getImp().getRoi());
 			} else { // Si il existe on l'ecrase
 				this.roiManager.setRoi(this.scin.getImp().getRoi(), indexRoi);
 				// on supprime le roi nouvellement ajoute de la vue

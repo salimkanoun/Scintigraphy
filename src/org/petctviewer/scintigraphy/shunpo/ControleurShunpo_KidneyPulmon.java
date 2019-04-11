@@ -1,5 +1,7 @@
 package org.petctviewer.scintigraphy.shunpo;
 
+import javax.swing.JOptionPane;
+
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
@@ -25,10 +27,7 @@ public class ControleurShunpo_KidneyPulmon extends Controleur_OrganeFixe {
 
 	@Override
 	public void fin() {
-		// Brain
-		this.scin.getFenApplication().getBtn_suivant().setEnabled(true);
-		this.scin.getFenApplication().getBtn_precedent().setEnabled(false);
-		this.scin.getFenApplication().setControleur(new ControleurShunpo_Brain(this.scin));
+		JOptionPane.showMessageDialog(vue, "Fin !", "", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	@Override

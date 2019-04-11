@@ -208,11 +208,12 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	}
 
 	/************* Setter *************/
-	public void setControleur(Controleur_OrganeFixe ctrl) {
+	public void setControleur(ControleurScin ctrl) {
 		this.controleur = ctrl;
 
 		// on affiche la premiere instruction
-		ctrl.setInstructionsDelimit(0);
+		if (ctrl instanceof Controleur_OrganeFixe)
+			((Controleur_OrganeFixe) ctrl).setInstructionsDelimit(0);
 
 		// on ajoute le controleur a tous les boutons
 		this.btn_contrast.addActionListener(ctrl);
