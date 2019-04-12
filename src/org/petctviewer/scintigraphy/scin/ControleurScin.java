@@ -13,8 +13,11 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
 import ij.gui.Roi;
 import ij.gui.Toolbar;
+import ij.plugin.MontageMaker;
 import ij.plugin.frame.RoiManager;
 
 public abstract class ControleurScin implements ActionListener {
@@ -56,6 +59,11 @@ public abstract class ControleurScin implements ActionListener {
 	public abstract boolean isOver();
 
 	/**
+	 * This method should be called when the controller is over.
+	 */
+	protected abstract void end();
+
+	/**
 	 * This method is called when the FenApplication is closed.
 	 */
 	public void close() {
@@ -84,11 +92,37 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 	/**
-	 * Saves the current ROI of the current ImagePlus in the RoiManager. If the ROI
-	 * has already been saved, it will be replaced.
+	 * Displays the instruction on the view.
+	 * 
+	 * @param instruction Instruction to display
+	 */
+	public void displayInstruction(String instruction) {
+		this.vue.getTextfield_instructions().setText(instruction);
+		this.vue.pack();
+	}
+
+	/**
+	 * Creates an ImagePlus with 4 captures.
+	 * 
+	 * @param captures ImageStack with 4 captures
+	 * @return ImagePlus with the 4 captures on 1 slice
+	 */
+	protected ImagePlus montage(ImageStack captures) {
+		MontageMaker mm = new MontageMaker();
+		// TODO: patient ID
+		String patientID = "NO_ID_FOUND";
+		ImagePlus imp = new ImagePlus("Resultats ShunPo -" + this.main.getExamType() + " -" + patientID, captures);
+		imp = mm.makeMontage2(imp, 2, 2, 0.50, 1, 4, 1, 10, false);
+		return imp;
+	}
+
+	/**
+	 * Saves the current ROI of the current ImagePlus in the RoiManager. If a ROI
+	 * with the same name has already been saved, it will be replaced.
 	 * 
 	 * @param name Name of the ROI to save
-	 * @return TRUE if a ROI was save and FALSE if not
+	 * @return TRUE if a ROI was save and FALSE if no ROI is present on the current
+	 *         ImagePlus
 	 */
 	public boolean saveCurrentRoi(String name) {
 		Roi roiToSave = this.vue.getImagePlus().getRoi();
@@ -98,7 +132,6 @@ public abstract class ControleurScin implements ActionListener {
 			roiToSave.setStrokeColor(Color.YELLOW);
 			roiToSave.setPosition(0);
 
-//			Roi existingRoi = this.roiManager.getRoi(this.position);
 			Roi existingRoi = this.getRoi(name);
 			int posExisting = this.position;
 
@@ -106,7 +139,6 @@ public abstract class ControleurScin implements ActionListener {
 			if (existingRoi != null) {
 				posExisting = this.roiManager.getRoiIndex(existingRoi);
 				// Overwrite it
-//				this.roiManager.setRoi(roiToSave, this.position);
 				this.roiManager.setRoi(roiToSave, posExisting);
 			} else {
 				// Add it
@@ -115,8 +147,6 @@ public abstract class ControleurScin implements ActionListener {
 			this.vue.getImagePlus().killRoi();
 
 			// Name the ROI
-//			this.roiManager.rename(this.position, name);
-//			this.roiNames.put(this.position, name);
 			this.roiManager.rename(posExisting, name);
 			this.roiNames.put(posExisting, name);
 
@@ -128,6 +158,9 @@ public abstract class ControleurScin implements ActionListener {
 		return false;
 	}
 
+	/**
+	 * @return index of the last ROI saved
+	 */
 	public int getIndexLastRoi() {
 		return this.roiNames.size() - 1;
 	}
@@ -189,6 +222,13 @@ public abstract class ControleurScin implements ActionListener {
 		this.displayRois(0, index);
 	}
 
+	/**
+	 * Clears the current ImagePlus' overlay and replace the DG overlay and the
+	 * title.<br>
+	 * <b><i>Be careful</b></i>: this method assumes the current ImagePlus is in
+	 * Ant/Post orientation and the Post is in DG. <br>
+	 * TODO: Refactor this method to remove this assumption
+	 */
 	public void resetOverlay() {
 		this.vue.getOverlay().clear();
 		Library_Gui.setOverlayDG(this.vue.getOverlay(), this.vue.getImagePlus(), Color.YELLOW);
@@ -196,6 +236,24 @@ public abstract class ControleurScin implements ActionListener {
 				1);
 		Library_Gui.setOverlayTitle("Post", this.vue.getImagePlus().getOverlay(), this.vue.getImagePlus(), Color.YELLOW,
 				2);
+	}
+
+	/**
+	 * Displays a clone of the ROI with the specified index if existing and make it
+	 * editable.
+	 * 
+	 * @param index Index of the ROI to clone and edit
+	 * @return TRUE if the ROI already existed and could be retrieved and FALSE if
+	 *         not
+	 */
+	public boolean editCopyRoi(int index) {
+		Roi roiToEdit = this.roiManager.getRoi(index);
+		if (roiToEdit != null) {
+			this.vue.getImagePlus().setRoi((Roi) roiToEdit.clone());
+			this.vue.getImagePlus().getRoi().setStrokeColor(Color.RED);
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -226,7 +284,13 @@ public abstract class ControleurScin implements ActionListener {
 		return this.editRoi(this.roiManager.getRoiIndex(this.getRoi(name)));
 	}
 
-	private Roi getRoi(String name) {
+	/**
+	 * Finds the first ROI matching the specified name.
+	 * 
+	 * @param name Name of the ROI to find
+	 * @return first ROI found or null if not
+	 */
+	protected Roi getRoi(String name) {
 		for (Roi r : this.roiManager.getRoisAsArray())
 			if (r.getName().equals(name))
 				return r;

@@ -1,13 +1,20 @@
 package org.petctviewer.scintigraphy.shunpo;
 
+import java.awt.Rectangle;
+
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.gui.Roi;
+import ij.plugin.frame.RoiManager;
 
 public class ControleurShunpo extends ControleurScin {
 
@@ -15,9 +22,9 @@ public class ControleurShunpo extends ControleurScin {
 		DELIMIT_ORGAN_ANT, DELEMIT_ORGAN_POST, END;
 	}
 
-	private static final int STEP_PULMON_KIDNEY = 0, STEP_BRAIN = 1;
+	private static final int INDEX_ORGAN_AUTO_GENERATE_ROI = 4;
 	private String[][] steps = { { "Right lung", "Left lung", "Right kidney", "Left kidney", "Background" },
-			{ "Brain", "Brain_2", "Brain_3" } };
+			{ "Brain" } };
 
 	/**
 	 * Index of the step for the current state
@@ -35,8 +42,10 @@ public class ControleurShunpo extends ControleurScin {
 	private State state;
 	private ImageSelection[] images;
 
-	private Modele_Shunpo model;
+	private ModeleScin model;
 	private ImagePlus[] captures;
+
+	private FenResults fenResults;
 
 	/**
 	 * @param vue
@@ -50,32 +59,56 @@ public class ControleurShunpo extends ControleurScin {
 		this.indexOrgan = 0;
 		this.currentOrgan = 0;
 
-		this.model = new Modele_Shunpo();
+		this.model = new ModeleShunpo();
 		this.captures = new ImagePlus[4];
+		new RoiManager();
 
 		// Start working with kidney-pulmon
 		this.prepareStep(this.currentStep);
 	}
 
 	private final void DEBUG() {
-		System.out.println("Index organ: " + this.indexOrgan);
-		System.out.println(
-				"Current organ: " + this.currentOrgan + " [" + this.steps[this.currentStep][this.currentOrgan] + "]");
+		System.out.println("Current state: " + this.state);
 		System.out.println(
 				"Current step: " + this.currentStep + " [" + (this.currentStep == 0 ? "PULMON_KIDNEY" : "BRAIN") + "]");
-		System.out.println("Current state: " + this.state);
+		System.out.println(
+				"Current organ: " + this.currentOrgan + " [" + this.steps[this.currentStep][this.currentOrgan] + "]");
+		System.out.println("Index organ: " + this.indexOrgan);
+		System.out.println("Position: " + this.position);
 		System.out.println();
 	}
 
-	private void displayInstruction(String instruction) {
-		this.vue.getTextfield_instructions().setText(instruction);
-		this.vue.pack();
+	/**
+	 * Creates a rectangle between the two ROIs specified.
+	 * 
+	 * @param r1
+	 * @param r2
+	 * @return Rectangle at the center of the ROIs specified
+	 */
+	private Rectangle roiBetween(Roi r1, Roi r2) {
+		int x = (int) ((r1.getBounds().getLocation().x + r2.getBounds().getLocation().x + r2.getBounds().getWidth())
+				/ 2);
+		int y = (r1.getBounds().getLocation().y + r2.getBounds().getLocation().y) / 2;
+		return new Rectangle(x, y, 15, 30);
 	}
 
+	/**
+	 * Displays the current organ's instruction type.<br>
+	 * Instruction is of the form: 'TYPE the CURRENT_ORGAN'.<br>
+	 * example: 'Delimit the Right Kidney'.
+	 * 
+	 * @param type Type of the instruction (expecting 'Delimit' or 'Adjust')
+	 */
 	private void displayInstructionCurrentOrgan(String type) {
 		this.displayInstruction(type + " the " + this.steps[this.currentStep][this.currentOrgan]);
 	}
 
+	/**
+	 * This method will set the right image (Ant/Post orientation) for the specified
+	 * step and place the ROI to edit if necessary.
+	 * 
+	 * @param step Step to prepare (0 <= step < this.steps.length)
+	 */
 	private void prepareStep(int step) {
 		// Remove overlay
 		this.resetOverlay();
@@ -87,9 +120,16 @@ public class ControleurShunpo extends ControleurScin {
 		} else {
 			this.vue.getImagePlus().setSlice(1);
 		}
-		this.editIndexOrgan();
+
+		this.editOrgan();
 	}
 
+	/**
+	 * This method will reset the counters: currentStep, currentOrgan, indexOrgan
+	 * and change the state to the specified state. Also, it will prepare the step.
+	 * 
+	 * @param state State to prepare
+	 */
 	private void prepareState(State state) {
 		this.currentStep = 0;
 		this.currentOrgan = 0;
@@ -100,8 +140,24 @@ public class ControleurShunpo extends ControleurScin {
 		this.prepareStep(this.currentOrgan);
 	}
 
-	private void editIndexOrgan() {
-		if (this.editRoi(this.indexOrgan))
+	/**
+	 * This method displays the organ to edit (if necessary) and the instruction for
+	 * the user.
+	 * 
+	 * @param indexOrgan
+	 */
+	private void editOrgan() {
+		boolean existed = false;
+		if (this.state == State.DELIMIT_ORGAN_ANT) {
+			existed = this.editRoi(this.indexOrgan);
+		} else {
+			existed = this.editRoi(this.position);
+			if (!existed) {
+				existed = this.editCopyRoi(this.indexOrgan);
+			}
+		}
+
+		if (existed)
 			this.displayInstructionCurrentOrgan("Adjust");
 		else
 			this.displayInstructionCurrentOrgan("Delimit");
@@ -109,23 +165,44 @@ public class ControleurShunpo extends ControleurScin {
 
 	private void nextOrgan() {
 		this.currentOrgan++;
-		this.editIndexOrgan();
+		if (this.currentOrgan == INDEX_ORGAN_AUTO_GENERATE_ROI)
+			// Auto generate ROI
+			this.vue.getImagePlus().setRoi(
+					this.roiBetween(this.roiManager.getRoi(indexOrgan - 2), this.roiManager.getRoi(indexOrgan - 1)));
+		else
+			this.editOrgan();
+
 	}
 
 	private void previousOrgan() {
 		this.currentOrgan--;
-		this.editIndexOrgan();
+		this.editOrgan();
 	}
 
+	/**
+	 * @return TRUE if all of the organs of the currentStep are delimited and FALSE
+	 *         if organs remain
+	 */
 	private boolean allOrgansDelimited() {
 		return this.currentOrgan >= this.steps[this.currentStep].length - 1;
 	}
 
+	/**
+	 * @return TRUE if all of the steps are completed and FALSE if steps remain
+	 */
 	private boolean allStepsCompleted() {
 		return this.currentStep == this.steps.length;
 	}
 
-	private void end() {
+	private int nbTotalOrgans() {
+		int tot = 0;
+		for (String[] organs : this.steps)
+			tot += organs.length;
+		return tot;
+	}
+
+	@Override
+	protected void end() {
 		this.state = State.END;
 		this.currentOrgan = 0;
 		this.currentStep = 0;
@@ -134,118 +211,93 @@ public class ControleurShunpo extends ControleurScin {
 
 		// Save model
 		ImageStack stackCapture = Library_Capture_CSV.captureToStack(this.captures);
-		this.model.montage(stackCapture, this.main.getExamType());
-		
+		ImagePlus montage = this.montage(stackCapture);
+
+		// Display result
+		this.fenResults = new FenResults("Results", this.main.getExamType());
+		this.fenResults.setResult(new DynamicImage(montage.getImage()));
+		this.fenResults.setInfos(new SidePanel(null, this.main.getExamType(), this.images[0].getImagePlus()));
+		this.fenResults.setVisible(true);
 	}
 
 	@Override
 	public void clicSuivant() {
-		if (this.saveCurrentRoi(this.steps[this.currentStep][this.currentOrgan])) {
+		if (this.saveCurrentRoi(this.steps[this.currentStep][this.currentOrgan]
+				+ (this.state == State.DELIMIT_ORGAN_ANT ? "_A" : "_P"))) {
 			super.clicSuivant();
-			this.displayRoi(this.indexOrgan);
-			System.out.println("Displaying: " + this.indexOrgan);
+			DEBUG();
+			this.displayRoi(this.position - 1);
 			this.indexOrgan++;
 
-			switch (this.state) {
-			case DELIMIT_ORGAN_ANT:
-				// All organs delimited
-				if (this.allOrgansDelimited()) {
-					// Capture
-					this.captures[this.currentStep] = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 512,
-							512);
-					// Next step
-					this.currentStep++;
-					// All steps completed
-					if (this.allStepsCompleted()) {
+			// All organs delimited
+			if (this.allOrgansDelimited()) {
+				// Capture
+				int indexCapture = this.currentStep + (this.state == State.DELEMIT_ORGAN_POST ? this.steps.length : 0);
+				this.captures[indexCapture] = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 0, 0);
+				// Next step
+				this.currentStep++;
+				// All steps completed
+				if (this.allStepsCompleted()) {
+					switch (this.state) {
+					case DELIMIT_ORGAN_ANT:
 						// Next state
 						this.prepareState(State.DELEMIT_ORGAN_POST);
-					} else {
-						this.currentOrgan = 0;
-						this.prepareStep(this.currentStep);
-					}
-				}
-				// There is organs to be delimited
-				else {
-					// Next organ
-					this.nextOrgan();
-				}
-				break;
-
-			case DELEMIT_ORGAN_POST:
-				// All organs delimited
-				if (this.allOrgansDelimited()) {
-					// Capture
-					this.captures[this.currentStep + this.steps.length] = Library_Capture_CSV
-							.captureImage(this.vue.getImagePlus(), 512, 512);
-					// Next step
-					this.currentStep++;
-					// All steps completed
-					if (this.allStepsCompleted()) {
+						break;
+					case DELEMIT_ORGAN_POST:
 						// End
 						this.end();
-					} else {
-						this.currentOrgan = 0;
-						this.prepareStep(this.currentStep);
+						break;
+					default:
+						break;
 					}
+				} else {
+					this.currentOrgan = 0;
+					this.prepareStep(this.currentStep);
 				}
-				// There is organs to be delimited
-				else {
-					// Next organ
-					this.nextOrgan();
-				}
-				break;
-
-			case END:
-				break;
 			}
-
-			this.DEBUG();
+			// There is organs to be delimited
+			else {
+				// Next organ
+				this.nextOrgan();
+			}
+			DEBUG();
 		}
 	}
 
 	@Override
 	public void clicPrecedent() {
 		super.clicPrecedent();
-		System.out.println("== PREVIOUS ==");
 
+		DEBUG();
 		this.indexOrgan--;
-		this.DEBUG();
 		if (this.currentOrgan > 0) {
-			// Previous organ
-			System.out.println("-> Previous organ");
 			this.previousOrgan();
-			this.DEBUG();
 		} else if (this.currentStep > 0) {
-			System.out.println("-> Previous step");
 			// Previous step
 			this.currentStep--;
 			this.currentOrgan = this.steps[this.currentStep].length - 1;
 			this.prepareStep(currentStep);
-			this.DEBUG();
 		} else {
-			System.out.println("-> Previous state");
 			// Previous state
 			this.currentStep = this.steps.length - 1;
 			this.currentOrgan = this.steps[this.currentStep].length - 1;
 			switch (this.state) {
 			case END:
+				this.fenResults.dispose();
 				this.state = State.DELEMIT_ORGAN_POST;
 				break;
 			case DELEMIT_ORGAN_POST:
 				this.state = State.DELIMIT_ORGAN_ANT;
-				this.indexOrgan = this.getIndexLastRoi();
+				this.indexOrgan = this.nbTotalOrgans() - 1;
 				break;
 			default:
 				break;
 			}
 			this.prepareStep(currentStep);
-			this.DEBUG();
 		}
 
-		System.out.println("Displaying: " + (this.indexOrgan - this.currentOrgan) + " to " + this.indexOrgan);
-		this.displayRois(this.indexOrgan - this.currentOrgan, this.indexOrgan);
-		System.out.println("Editing: " + this.indexOrgan);
-		this.editRoi(this.indexOrgan);
+		this.displayRois(this.position - this.currentOrgan, this.position);
+		DEBUG();
 	}
 
 	@Override
