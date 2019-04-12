@@ -213,8 +213,8 @@ public class Library_Gui {
 	}
 	
 	/**
-	 * Applique la LUT definie dans les preference � l'ImagePlus demandee, grâce au chemin de préférence défini par Lut
-	 * 
+	 * Applique la LUT definie dans les preference � l'ImagePlus demandee.<br/>
+	 * Le paramètre String Lut est le chemin des preferences donnant la Lut à appliquer.
 	 * @param imp
 	 *            : L'ImagePlus sur laquelle on va appliquer la LUT des preferences
 	 * @param Lut

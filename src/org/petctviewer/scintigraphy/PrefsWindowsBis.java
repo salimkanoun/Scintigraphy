@@ -29,12 +29,15 @@ import ij.plugin.PlugIn;
 public class PrefsWindowsBis implements PlugIn{
 
 	private Container main, renal, bone;
+	
+	@Override
+	public void run(String arg) {
+		this.main = new prefsTabMain();
+		this.renal = new prefsTabRenal();
+		this.bone = new prefsTabBone();
+		
 
-	
-	
-	
-	
-	public PrefsWindowsBis() {
+		showGUI();
 		
 	}
 	
@@ -73,16 +76,7 @@ public class PrefsWindowsBis implements PlugIn{
 		}
 	}
 
-	@Override
-	public void run(String arg) {
-		this.main = new prefsTabMain();
-		this.renal = new prefsTabRenal();
-		this.bone = new prefsTabBone();
-		
-
-		showGUI();
-		
-	}
+	
 
 
 }

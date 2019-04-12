@@ -149,12 +149,15 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 		 */
 	public void lancerProgramme() {
 		
-		FenApplication_Os fen = new FenApplication_Os(this, buffer);
+		// FenApplication_Os fen = new FenApplication_Os(this, buffer);
+		
+		Controleur_Os controleur_os = new Controleur_Os(buffer, this);
+		FenApplication_Os fen = controleur_os.getFenApplicatio_Os();
 		fen.setVisible(true);
 		this.setFenApplication_Os(fen);
 
 		
-		JFrame frame = new JFrame("Results Renal Exam");
+		JFrame frame = new JFrame("Bone Scinthigraphy");
 		frame.add(fen);
 		frame.pack();
 		frame.setVisible(true);
