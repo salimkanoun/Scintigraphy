@@ -36,11 +36,14 @@ public abstract class ControleurScin implements ActionListener {
 	 */
 	protected Map<Integer, String> roiNames;
 
-	public ControleurScin(FenApplication vue) {
+	protected Scintigraphy main;
+
+	public ControleurScin(Scintigraphy main, FenApplication vue) {
 		this.vue = vue;
 		this.position = 0;
-		this.roiManager = new RoiManager();
+		this.roiManager = new RoiManager(false);
 		this.roiNames = new HashMap<>();
+		this.main = main;
 
 		Roi.setColor(Color.RED);
 	}
@@ -125,6 +128,10 @@ public abstract class ControleurScin implements ActionListener {
 		return false;
 	}
 
+	public int getIndexLastRoi() {
+		return this.roiNames.size() - 1;
+	}
+
 	/**
 	 * Displays the ROI with the specified index if existing on the overlay of the
 	 * current image.
@@ -154,7 +161,8 @@ public abstract class ControleurScin implements ActionListener {
 
 	/**
 	 * Displays all of the existing ROIs that have an index >= index_start and <
-	 * index_end. <i>Careful</i>: this method resets the image overlay.
+	 * index_end.<br>
+	 * <i>Careful</i>: this method resets the image overlay.
 	 * 
 	 * @param index_start First ROI index to be displayed
 	 * @param index_end   The last ROI index (not displayed)
@@ -215,18 +223,12 @@ public abstract class ControleurScin implements ActionListener {
 	 *         not
 	 */
 	public boolean editRoi(String name) {
-		Roi roiToEdit = this.getRoi(name);
-		if (roiToEdit != null) {
-			this.vue.getImagePlus().setRoi(roiToEdit);
-			this.vue.getImagePlus().getRoi().setStrokeColor(Color.RED);
-			return true;
-		}
-		return false;
+		return this.editRoi(this.roiManager.getRoiIndex(this.getRoi(name)));
 	}
-	
+
 	private Roi getRoi(String name) {
-		for(Roi r : this.roiManager.getRoisAsArray())
-			if(r.getName().equals(name))
+		for (Roi r : this.roiManager.getRoisAsArray())
+			if (r.getName().equals(name))
 				return r;
 		return null;
 	}

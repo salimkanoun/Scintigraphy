@@ -55,7 +55,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	 * declarer le modele ainsi que la liste d'organes
 	 */
 	protected Controleur_OrganeFixe(Scintigraphy scin) {
-		super(scin.getFenApplication());
+		super(scin, scin.getFenApplication());
 		this.scin = scin;
 
 		if (scin.getImp().getOverlay() == null) {

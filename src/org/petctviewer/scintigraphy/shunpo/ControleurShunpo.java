@@ -1,10 +1,13 @@
 package org.petctviewer.scintigraphy.shunpo;
 
-import javax.swing.JOptionPane;
-
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+
+import ij.ImagePlus;
+import ij.ImageStack;
 
 public class ControleurShunpo extends ControleurScin {
 
@@ -12,6 +15,7 @@ public class ControleurShunpo extends ControleurScin {
 		DELIMIT_ORGAN_ANT, DELEMIT_ORGAN_POST, END;
 	}
 
+	private static final int STEP_PULMON_KIDNEY = 0, STEP_BRAIN = 1;
 	private String[][] steps = { { "Right lung", "Left lung", "Right kidney", "Left kidney", "Background" },
 			{ "Brain", "Brain_2", "Brain_3" } };
 
@@ -31,27 +35,34 @@ public class ControleurShunpo extends ControleurScin {
 	private State state;
 	private ImageSelection[] images;
 
+	private Modele_Shunpo model;
+	private ImagePlus[] captures;
+
 	/**
 	 * @param vue
 	 * @param images 2 images, 1st: KIDNEY-PULMON; 2nd: BRAIN
 	 */
-	public ControleurShunpo(FenApplication vue, ImageSelection[] images) {
-		super(vue);
+	public ControleurShunpo(Scintigraphy main, FenApplication vue, ImageSelection[] images) {
+		super(main, vue);
 		this.images = images;
 		this.state = State.DELIMIT_ORGAN_ANT;
 		this.currentStep = 0;
 		this.indexOrgan = 0;
 		this.currentOrgan = 0;
 
+		this.model = new Modele_Shunpo();
+		this.captures = new ImagePlus[4];
+
 		// Start working with kidney-pulmon
 		this.prepareStep(this.currentStep);
 	}
 
 	private final void DEBUG() {
+		System.out.println("Index organ: " + this.indexOrgan);
 		System.out.println(
-				"Organ position: " + this.currentOrgan + " [" + this.steps[this.currentStep][this.currentOrgan] + "]");
-		System.out.println("Step position: " + this.currentStep + " ["
-				+ (this.currentStep == 0 ? "PULMON_KIDNEY" : "BRAIN") + "]");
+				"Current organ: " + this.currentOrgan + " [" + this.steps[this.currentStep][this.currentOrgan] + "]");
+		System.out.println(
+				"Current step: " + this.currentStep + " [" + (this.currentStep == 0 ? "PULMON_KIDNEY" : "BRAIN") + "]");
 		System.out.println("Current state: " + this.state);
 		System.out.println();
 	}
@@ -81,8 +92,8 @@ public class ControleurShunpo extends ControleurScin {
 
 	private void prepareState(State state) {
 		this.currentStep = 0;
-		this.indexOrgan = 0;
 		this.currentOrgan = 0;
+		this.indexOrgan = 0;
 
 		this.state = state;
 
@@ -120,6 +131,11 @@ public class ControleurShunpo extends ControleurScin {
 		this.currentStep = 0;
 		this.vue.getTextfield_instructions().setText("End!");
 		this.vue.getBtn_suivant().setEnabled(false);
+
+		// Save model
+		ImageStack stackCapture = Library_Capture_CSV.captureToStack(this.captures);
+		this.model.montage(stackCapture, this.main.getExamType());
+		
 	}
 
 	@Override
@@ -134,6 +150,9 @@ public class ControleurShunpo extends ControleurScin {
 			case DELIMIT_ORGAN_ANT:
 				// All organs delimited
 				if (this.allOrgansDelimited()) {
+					// Capture
+					this.captures[this.currentStep] = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 512,
+							512);
 					// Next step
 					this.currentStep++;
 					// All steps completed
@@ -155,14 +174,15 @@ public class ControleurShunpo extends ControleurScin {
 			case DELEMIT_ORGAN_POST:
 				// All organs delimited
 				if (this.allOrgansDelimited()) {
+					// Capture
+					this.captures[this.currentStep + this.steps.length] = Library_Capture_CSV
+							.captureImage(this.vue.getImagePlus(), 512, 512);
 					// Next step
 					this.currentStep++;
 					// All steps completed
 					if (this.allStepsCompleted()) {
 						// End
 						this.end();
-						// TODO: End
-						JOptionPane.showMessageDialog(vue, "Done !", "", JOptionPane.INFORMATION_MESSAGE);
 					} else {
 						this.currentOrgan = 0;
 						this.prepareStep(this.currentStep);
@@ -185,38 +205,47 @@ public class ControleurShunpo extends ControleurScin {
 
 	@Override
 	public void clicPrecedent() {
-		// TODO: ERRORS IN THIS METHOD!!!
 		super.clicPrecedent();
+		System.out.println("== PREVIOUS ==");
 
 		this.indexOrgan--;
-		System.out.println("Index organ: " + this.indexOrgan);
+		this.DEBUG();
 		if (this.currentOrgan > 0) {
 			// Previous organ
+			System.out.println("-> Previous organ");
 			this.previousOrgan();
+			this.DEBUG();
 		} else if (this.currentStep > 0) {
+			System.out.println("-> Previous step");
 			// Previous step
 			this.currentStep--;
+			this.currentOrgan = this.steps[this.currentStep].length - 1;
 			this.prepareStep(currentStep);
+			this.DEBUG();
 		} else {
+			System.out.println("-> Previous state");
 			// Previous state
+			this.currentStep = this.steps.length - 1;
+			this.currentOrgan = this.steps[this.currentStep].length - 1;
 			switch (this.state) {
 			case END:
 				this.state = State.DELEMIT_ORGAN_POST;
 				break;
 			case DELEMIT_ORGAN_POST:
 				this.state = State.DELIMIT_ORGAN_ANT;
+				this.indexOrgan = this.getIndexLastRoi();
+				break;
+			default:
 				break;
 			}
-			this.currentStep = this.steps.length - 1;
-			this.currentOrgan = this.steps[this.currentStep].length - 1;
+			this.prepareStep(currentStep);
+			this.DEBUG();
 		}
 
 		System.out.println("Displaying: " + (this.indexOrgan - this.currentOrgan) + " to " + this.indexOrgan);
 		this.displayRois(this.indexOrgan - this.currentOrgan, this.indexOrgan);
 		System.out.println("Editing: " + this.indexOrgan);
 		this.editRoi(this.indexOrgan);
-
-		this.DEBUG();
 	}
 
 	@Override
