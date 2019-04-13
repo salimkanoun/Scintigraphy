@@ -18,14 +18,14 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.SwingConstants;
 
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
-import ij.ImagePlus;
 
-
-
+/**
+ * DISCLAIMER :
+ * Dans cette application, il a été fait comme choix d'initialiser le module par le biais du Contrôleur, qui va ensuite créer la vue et le modèle.
+ * */
 public class FenApplication_Os extends JPanel {
 	
 	/**
@@ -33,7 +33,6 @@ public class FenApplication_Os extends JPanel {
 	 */
 	private static final long serialVersionUID = 7121587802669948009L;
 	private JSlider slider;
-	private Scintigraphy scin;
 	private JLabel sliderLabel;
 	protected Box boxSlider;
 	protected JButton reverseButton;
@@ -42,8 +41,6 @@ public class FenApplication_Os extends JPanel {
 
 	protected SidePanel sidePanel;
 	String additionalInfo, nomFen;
-	
-	private int nbScinty;
 	
 	
 	
@@ -58,27 +55,27 @@ public class FenApplication_Os extends JPanel {
 		 * Appelle finishBuildingWindow() à la fin de l'execution.<br/>
 		 * @param selectedImages
 		 *            liste des images transmises depuis FenSelectionDicom
-		 *@param img
-		 *            Tableau à double dimension des images transmises
+		 *@param scin
+		 *            On ne sait pas. C'était dans l'ancien modèle.
+		 *@param controleur_os
+		 *            Contrôleur permettant de réagir au click.
 		 * @return
 		 */
-	public FenApplication_Os(OsScintigraphy scin, ImagePlus[][] img,Controleur_Os controleur_os) {
+	public FenApplication_Os(Controleur_Os controleur_os) {
 		super(new BorderLayout());
 		
-		this.setScin(scin);
 		
-		this.nbScinty = img.length;
-		System.out.println("Vue : "+this.nbScinty);
+		System.out.println("Vue : "+controleur_os.getNbScinti());
 		
 		this.additionalInfo = "Info";
 		this.nomFen = "Fen";
 		
-		sidePanel = new SidePanel(null, "Bone scintigraphy", scin.getImp());
+		sidePanel = new SidePanel(null, "Bone scintigraphy", controleur_os.getImp());
 		
 		// sidePanel.addCaptureBtn(scin, "_other");
 		this.add(sidePanel, BorderLayout.WEST);
 		
-		this.grid = new JPanel(new GridLayout(1, nbScinty*2));
+		this.grid = new JPanel(new GridLayout(1, controleur_os.getNbScinti()*2));
 		
 		this.add(grid, BorderLayout.CENTER);
 		
@@ -141,12 +138,6 @@ public class FenApplication_Os extends JPanel {
 	}
 	public JSlider getSlider() {
 		return this.slider;
-	}
-	public Scintigraphy getScin() {
-		return scin;
-	}
-	public void setScin(Scintigraphy scin) {
-		this.scin = scin;
 	}
 	
 	

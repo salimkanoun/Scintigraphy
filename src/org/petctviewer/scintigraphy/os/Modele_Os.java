@@ -19,11 +19,16 @@ import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import ij.ImagePlus;
 import ij.Prefs;
 
+
+/**
+ * DISCLAIMER :
+ * Dans cette application, il a été fait comme choix d'initialiser le module par le biais du Contrôleur, qui va ensuite créer la vue et le modèle.
+ * */
 public class Modele_Os {
 	
 	boolean[][] selected;												// Tableau permettant de savoir quel DynamicImage sont selectionnées
 	private ImagePlus[][] imps;											// Tableau à double dimension contenant les ImagePlus liées aux DynamicImage de(s) Scintigraphie(s) Osseuse(s)
-	private ImagePlus imp;											// Tableau à double dimension contenant les ImagePlus liées aux DynamicImage de(s) Scintigraphie(s) Osseuse(s)
+	private ImagePlus imp;												// Tableau à double dimension contenant les ImagePlus liées aux DynamicImage de(s) Scintigraphie(s) Osseuse(s)
 	DynamicImage[][] dynamicImps;										// Tableau à double dimension contenant les DynamicImage liées aux ImagePlus de(s) Scintigraphie(s) Osseuse(s)
 	private int nbScinty;
 	

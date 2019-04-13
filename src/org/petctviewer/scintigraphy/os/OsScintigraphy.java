@@ -15,6 +15,10 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import ij.ImagePlus;
 import ij.plugin.PlugIn;
 
+/**
+ * DISCLAIMER :
+ * Dans cette application, il a été fait comme choix d'initialiser le module par le biais du Contrôleur, qui va ensuite créer la vue et le modèle.
+ * */
 public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 	
 	private String examType;

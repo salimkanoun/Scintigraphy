@@ -14,6 +14,12 @@ import javax.swing.event.ChangeListener;
 
 import ij.ImagePlus;
 
+
+
+/**
+ * DISCLAIMER :
+ * Dans cette application, il a été fait comme choix d'initialiser le module par le biais du Contrôleur, qui va ensuite créer la vue et le modèle.
+ * */
 public class Controleur_Os implements ActionListener, ChangeListener, MouseListener{
 	
 	Modele_Os modele;
@@ -26,7 +32,7 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 		this.modele = new Modele_Os(imps);
 		this.imp=imps[0][0];
 		
-		this.vue = new FenApplication_Os(scin, imps,this);
+		this.vue = new FenApplication_Os(this);
 		initialiser_Vue();
 	}
 
@@ -126,6 +132,10 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 	
 	public ImagePlus getImp() {
 		return this.modele.getImp();
+	}
+	
+	public int getNbScinti() {
+		return this.modele.getNbScinti();
 	}
 
 }
