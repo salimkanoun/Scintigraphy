@@ -2,11 +2,11 @@ package org.petctviewer.scintigraphy.shunpo;
 
 import javax.swing.JOptionPane;
 
-import org.petctviewer.scintigraphy.scin.ImageOrientation;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.shunpo.FenSelectionDicom.Column;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 
 import ij.ImagePlus;
 
@@ -92,7 +92,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImageOrientation[] selectedImages) throws Exception {
+	protected ImagePlus preparerImp(ImageSelection[] selectedImages) throws Exception {
 		return null;
 	}
 

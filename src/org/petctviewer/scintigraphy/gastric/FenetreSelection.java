@@ -31,7 +31,7 @@ public class FenetreSelection extends FenSelectionDicom {
 		ImagePlus[] images = new ImagePlus[rows.length];
 		
 		for (int i = 0; i < rows.length; i++) {;
-			images[i] = WindowManager.getImage(id[rows[i]]);
+			images[i] = WindowManager.getImage(rows[i]);
 		}
 		
 		try {

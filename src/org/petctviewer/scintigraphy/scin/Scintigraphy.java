@@ -18,13 +18,13 @@ import ij.ImagePlus;
 import ij.plugin.PlugIn;
 
 public abstract class Scintigraphy implements PlugIn {
-
+	
 	private String examType;
 	private FenApplication fen_application;
 
 	private ImagePlus imp;
 	protected int nombreAcquisitions;
-
+	
 	private ModeleScin modele;
 
 	protected Scintigraphy(String examType) {
@@ -38,50 +38,58 @@ public abstract class Scintigraphy implements PlugIn {
 	 */
 	@Override
 	public void run(String arg) {
-		// SK FAIRE DANS UN AUTRE THREAD ?
+		//SK FAIRE DANS UN AUTRE THREAD ?
 		FenSelectionDicom fen = new FenSelectionDicom(this.getExamType(), this);
 		fen.setVisible(true);
 	}
 
-	public void startExam(ImageOrientation[] selectedImages) throws Exception {
+	public void startExam(ImageSelection[] selectedImages) throws Exception {
 
-		// Send selected image to specific app to retrieve the ImagePlus to show in the
-		// app (will be stored in this object)
+		//Send selected image to specific app to retrieve the ImagePlus to show in the app (will be stored in this object)
 		this.imp = preparerImp(selectedImages);
-		// Start the program, this overided method should construct the FenApplication,
-		// the controller and the model
+		//Start the program, this overided method should construct the FenApplication, the controller and the model
 		this.lancerProgramme();
 
 	}
+
+	
+	
 
 	/*************************** Abstract ************************/
 	/**
 	 * Prepare l'image plus selon les fenetres de dicoms ouvertes
 	 * 
-	 * @param titresFenetres liste des fenetres ouvertes
+	 * @param titresFenetres
+	 *            liste des fenetres ouvertes
 	 * @return
 	 */
-	protected abstract ImagePlus preparerImp(ImageOrientation[] selectedImages) throws Exception;
+	protected abstract ImagePlus preparerImp(ImageSelection[] selectedImages) throws Exception;
 
 	/**
 	 * lance le programme
 	 */
 	public abstract void lancerProgramme();
-
+	
+	
+	
 	/*********************** Setter ******************/
 	public void setImp(ImagePlus imp) {
 		this.imp = imp;
 	}
-
+	
 	/**
 	 * Prepare le bouton capture de la fenetre resultat
 	 * 
-	 * @param btn_capture    le bouton capture, masque lors de la capture
-	 * @param show           le label de credits, affiche lors de la capture
-	 * @param cont           la jframe
-	 * @param modele         le modele
-	 * @param additionalInfo string a ajouter a la fin du nom de la capture si
-	 *                       besoin
+	 * @param btn_capture
+	 *            le bouton capture, masque lors de la capture
+	 * @param show
+	 *            le label de credits, affiche lors de la capture
+	 * @param cont
+	 *            la jframe
+	 * @param modele
+	 *            le modele
+	 * @param additionalInfo
+	 *            string a ajouter a la fin du nom de la capture si besoin
 	 */
 	public void setCaptureButton(JButton btn_capture, Component[] show, Component[] hide, Component cont,
 			ModeleScin modele, String additionalInfo) {
@@ -126,9 +134,9 @@ public abstract class Scintigraphy implements PlugIn {
 							comp.setVisible(false);
 						}
 
-						// TODO garder cette partie ?
-						// if (root instanceof Window) // on ferme la fenetre
-						// ((Window) root).dispose();
+						//TODO garder cette partie ?
+						//if (root instanceof Window) // on ferme la fenetre
+						//	((Window) root).dispose();
 
 						// on passe a la capture les infos de la dicom
 						imp.setProperty("Info", info);
@@ -142,14 +150,11 @@ public abstract class Scintigraphy implements PlugIn {
 						String resultats = modele.toString();
 
 						try {
-							// TODO: change this to export even if the controleur is not OrganeFixe
-							ControleurScin controleur = getFenApplication().getControleur();
-							if (controleur instanceof Controleur_OrganeFixe)
-								Library_Capture_CSV.exportAll(resultats,
-										((Controleur_OrganeFixe) controleur).getRoiManager(), examType, imp,
-										additionalInfo);
-							else
-								Library_Capture_CSV.exportAll(resultats, null, examType, imp, additionalInfo);
+							Library_Capture_CSV.exportAll(resultats, getFenApplication().getControleur().getRoiManager(),
+									examType, imp, additionalInfo);
+
+							
+
 							imp.killRoi();
 						} catch (Exception e1) {
 							e1.printStackTrace();
@@ -162,9 +167,9 @@ public abstract class Scintigraphy implements PlugIn {
 							e1.printStackTrace();
 						}
 
-						// SK ROUTINE DE FERMETURE A VOIR PEUT ETRE METTRE DANS SCIN OU DANS RESULTATS
-						// getFenApplication().getControleur().getRoiManager().close();
-						// Scintigraphy.this.fen_application.windowClosing(null);
+						//SK ROUTINE DE FERMETURE A VOIR PEUT ETRE METTRE DANS SCIN OU DANS RESULTATS
+						//getFenApplication().getControleur().getRoiManager().close();
+						//Scintigraphy.this.fen_application.windowClosing(null);
 						System.gc();
 					}
 				});
@@ -172,7 +177,7 @@ public abstract class Scintigraphy implements PlugIn {
 			}
 		});
 	}
-
+	
 	/**
 	 * permet de preparer le bouton de capture de la frame.
 	 * 
@@ -187,15 +192,16 @@ public abstract class Scintigraphy implements PlugIn {
 		setCaptureButton(btn_capture, new Component[] { lbl_credits }, new Component[] { btn_capture }, cont, modele,
 				additionalInfo);
 	}
-
+	
 	public void setExamType(String examType) {
 		this.examType = examType;
 	}
-
+	
 	public void setFenApplication(FenApplication fen_application) {
 		this.fen_application = fen_application;
 	}
-
+	
+	
 	/********************** Getter **************************/
 	public ImagePlus getImp() {
 		return this.imp;
@@ -208,13 +214,17 @@ public abstract class Scintigraphy implements PlugIn {
 	public FenApplication getFenApplication() {
 		return this.fen_application;
 	}
-
+	
 	public void setModele(ModeleScin modele) {
-		this.modele = modele;
+		this.modele=modele;
 	}
-
+	
 	public ModeleScin getModele() {
 		return modele;
 	}
+	
+	
+	
 
+	
 }

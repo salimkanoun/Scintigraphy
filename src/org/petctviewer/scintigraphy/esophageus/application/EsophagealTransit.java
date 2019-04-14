@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -53,35 +54,36 @@ public class EsophagealTransit extends Scintigraphy {
 
 	//possible de refactorier le trie des images....
 	@Override
-	protected ImagePlus preparerImp(ImagePlus[] imagesSelectDicom) {
+	protected ImagePlus preparerImp(ImageSelection[] selectedImages) {
 		//entrée : tableau de toutes les images passées envoyé par la selecteur de dicom
 
 		//sauvegarde des images pour le modele
-		sauvegardeImagesSelectDicom = new  ImagePlus[2][imagesSelectDicom.length];
+		sauvegardeImagesSelectDicom = new  ImagePlus[2][selectedImages.length];
 
 		// oblige de faire duplicate sinon probleme 
 		
 		// trier les images par date et que avec les ant
 		//on creer une liste avec toutes les images plus 
-		ArrayList<ImagePlus> imagePourTrieAnt = new ArrayList<>();
+		ArrayList<ImagePlus> imagePourTrieAnt = new ArrayList<ImagePlus>();
 		
 		// la meme chose pour la ant
-		ArrayList<ImagePlus> imagePourTriePost = new ArrayList<>();
+		ArrayList<ImagePlus> imagePourTriePost = new ArrayList<ImagePlus>();
 
 		//poour chaque acquisition
-		for(int i =0; i< imagesSelectDicom.length; i++){
+		for(int i =0; i< selectedImages.length; i++){
 			//on ne sauvegarde que la ant
 			//null == pas d'image ant et/ou une image post et != une image post en [0]
-			if(Library_Dicom.sortDynamicAntPost(imagesSelectDicom[i])[0] != null) {
-				imagePourTrieAnt.add(Library_Dicom.sortDynamicAntPost(imagesSelectDicom[i])[0]);
+			ImagePlus[] splited=Library_Dicom.sortDynamicAntPost(selectedImages[i].getImagePlus());
+			if(splited[0] != null) {
+				imagePourTrieAnt.add(Library_Dicom.sortDynamicAntPost(selectedImages[i].getImagePlus())[0]);
 			}
 			// [1] : c'est la post
 			// si null : pas dimage post 
-			if(Library_Dicom.sortDynamicAntPost(imagesSelectDicom[i])[1] != null) {
+			if(splited[1] != null) {
 				//trie + inversement de la post
-				imagePourTriePost.add(Library_Dicom.flipStackHorizontal(Library_Dicom.sortDynamicAntPost(imagesSelectDicom[i])[1]));
+				imagePourTriePost.add(Library_Dicom.flipStackHorizontal(Library_Dicom.sortDynamicAntPost(selectedImages[i].getImagePlus())[1]));
 			}
-			imagesSelectDicom[i].close();
+			selectedImages[i].getImagePlus().close();
 
 		}
 		
@@ -104,7 +106,7 @@ public class EsophagealTransit extends Scintigraphy {
 		// preparetion de l'image plus la 2eme phase 
 		// image plus du projet de chaque acquisiton avec sur chaque slice une acquistion
 		 impProjeteAllAcqui = null;
-		if(imagesSelectDicom != null && imagesSelectDicom.length>0) {
+		if(imagePourTrieAnt.size()>0) {
 			ArrayList<ImagePlus> imagesAnt = new ArrayList<>();
 			for(int i =0; i< imagePourTrieAnt.size(); i++) {
 				//null == pas d'image ant et/ou une image post et != une image post en [0]
@@ -198,9 +200,6 @@ public class EsophagealTransit extends Scintigraphy {
 		this.setFenApplication(fen);
 		this.getImp().setOverlay(overlay);
 		
-		/*
-		ControleurDynamique_EsophagealTransit cdet = new ControleurDynamique_EsophagealTransit(this);
-		this.getFenApplication().setControleur(cdet);*/
 		this.getFenApplication().setVisible(true);
 		
 		Modele_EsophagealTransit model=new Modele_EsophagealTransit(sauvegardeImagesSelectDicom, this);

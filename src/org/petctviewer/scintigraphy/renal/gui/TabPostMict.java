@@ -18,7 +18,8 @@ import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
-import org.petctviewer.scintigraphy.scin.ImageOrientation;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
@@ -35,6 +36,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 	private PostMictional vueBasic;
 	private JButton btn_addImp, btn_quantify;
 	private boolean bladder;
+	private Orientation ortientation;
 
 	private JPanel panel_excr, panel_bladder;
 
@@ -83,14 +85,15 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 			//SK A REFACTORISER
 			FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", new Scintigraphy("") {
 				@Override
-				protected ImagePlus preparerImp(ImageOrientation[] selectedImages) throws Exception {
+				protected ImagePlus preparerImp(ImageSelection[] selectedImages) throws Exception {
 					if (selectedImages.length > 1) {
 						throw new Exception("Only one serie is expected");
 					}
-					if(selectedImages[0].getImageOrientation()==ImageOrientation.ANT_POST || selectedImages[0].getImageOrientation()==ImageOrientation.POST_ANT || selectedImages[0].getImageOrientation()==ImageOrientation.POST ) {
+					if(selectedImages[0].getImageOrientation()==Orientation.ANT_POST || selectedImages[0].getImageOrientation()==Orientation.POST_ANT || selectedImages[0].getImageOrientation()==Orientation.POST ) {
 						//SK A GERER RECUPERER SEULE L IMAGE POST SI STATIC A/P ?
 						ImagePlus imp=selectedImages[0].getImagePlus().duplicate();
 						TabPostMict.this.setImp(imp);
+						ortientation=selectedImages[0].getImageOrientation();
 						btn_addImp.setVisible(false);
 						btn_quantify.setVisible(true);
 						sidePanel.add(boxSlider);
@@ -111,9 +114,8 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 		} else if(arg0.getSource().equals(this.btn_quantify)){
 			//SK A REVOIR
 			this.vueBasic = new PostMictional(createOrgans(), this);
-			ImageOrientation imageOrientation=new ImageOrientation(ImageOrientation.POST, this.getImagePlus());
 			try {
-				this.vueBasic.startExam(new ImageOrientation[] { imageOrientation });
+				this.vueBasic.startExam(getImagePlus(), ortientation);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

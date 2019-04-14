@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
-import org.petctviewer.scintigraphy.scin.ImageOrientation;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
@@ -25,18 +26,18 @@ public class GeneralDynamicScintigraphy extends Scintigraphy{
 		IJ.setTool(Toolbar.POLYGON);
 	}
 	
-	protected ImagePlus preparerImp(ImageOrientation[] selectedImages) throws Exception {
+	protected ImagePlus preparerImp(ImageSelection[] selectedImages) throws Exception {
 		
 		ImagePlus[] imps = new ImagePlus[2];
 		
 		for (int i=0 ; i<selectedImages.length; i++) {
-			if(selectedImages[i].getImageOrientation()==ImageOrientation.DYNAMIC_ANT ) {
+			if(selectedImages[i].getImageOrientation()==Orientation.DYNAMIC_ANT ) {
 				if(imps[0]!=null) throw new Exception("Multiple dynamic Antorior Image");
 				imps[0] = selectedImages[i].getImagePlus().duplicate();
-			}else if(selectedImages[i].getImageOrientation()==ImageOrientation.DYNAMIC_POST) {
+			}else if(selectedImages[i].getImageOrientation()==Orientation.DYNAMIC_POST) {
 				if(imps[1]!=null) throw new Exception("Multiple dynamic Posterior Image");
 				imps[1] = selectedImages[i].getImagePlus().duplicate();
-			}else if(selectedImages[i].getImageOrientation()==ImageOrientation.DYNAMIC_ANT_POST) {
+			}else if(selectedImages[i].getImageOrientation()==Orientation.DYNAMIC_ANT_POST) {
 				if(imps[1]!=null || imps[0]!=null) throw new Exception("Multiple dynamic Image");
 				imps=Library_Dicom.sortDynamicAntPost(selectedImages[i].getImagePlus());
 			}else{

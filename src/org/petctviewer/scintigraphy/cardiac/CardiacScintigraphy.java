@@ -3,7 +3,8 @@ package org.petctviewer.scintigraphy.cardiac;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import org.petctviewer.scintigraphy.scin.ImageOrientation;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -22,7 +23,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImageOrientation[] selectedImages) throws Exception {
+	protected ImagePlus preparerImp(ImageSelection[] selectedImages) throws Exception {
 
 		ArrayList<ImagePlus> mountedImages = new ArrayList<>();
 
@@ -30,7 +31,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 
 		for (int i = 0; i < selectedImages.length; i++) {
 			
-			if (selectedImages[i].getImageOrientation() == ImageOrientation.ANT_POST || selectedImages[i].getImageOrientation() == ImageOrientation.POST_ANT) {
+			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST || selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
 				ImagePlus imp = selectedImages[i].getImagePlus();
 				String info = imp.getInfoProperty();
 				ImagePlus impReversed = Library_Dicom.sortImageAntPost(imp);
