@@ -16,6 +16,7 @@ package org.petctviewer.scintigraphy.platelet;
 
 import javax.swing.JTable;
 
+import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
@@ -48,7 +49,7 @@ public class Controleur_Plaquettes extends Controleur_OrganeFixe {
 	}
 
 	@Override
-	public void fin() {	
+	public void end() {	
 		
 		Thread captureThread = new Thread(new Runnable() {
 			@Override

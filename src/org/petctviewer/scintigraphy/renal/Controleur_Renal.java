@@ -10,6 +10,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.gui.FenNeph;
 import org.petctviewer.scintigraphy.renal.gui.FenResultats_Renal;
+import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
@@ -157,7 +158,7 @@ public class Controleur_Renal extends Controleur_OrganeFixe {
 	}
 
 	@Override
-	public void fin() {
+	public void end() {
 		//Increment l'index de 1 pour eviter erreur d'index
 		//A VEFIRIER SK
 		this.indexRoi++;

@@ -1,6 +1,19 @@
-package org.petctviewer.scintigraphy;
+/**
+Copyright (C) 2017 MOHAND Mathis and KANOUN Salim
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public v.3 License as published by
+the Free Software Foundation;
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
 
-import java.awt.BorderLayout;
+package org.petctviewer.scintigraphy.scin.preference;
+
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,6 +22,7 @@ import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -16,19 +30,20 @@ import ij.IJ;
 import ij.Prefs;
 import ij.plugin.PlugIn;
 
-public class prefsTabMain extends JPanel implements ActionListener{
+
+
+public class PrefsWindow extends JPanel implements PlugIn, ActionListener {
 	
+	private static final long serialVersionUID = 1148288454969248518L;
+	private JFrame frame ;
 	private JLabel lut, dir ;
 	private JButton btn_choixLut, btn_dir, btn_displut, btn_stRenal ;
 	private JFileChooser fc ;
 	private JComboBox comboDate;
 	
-	public prefsTabMain() {
-		this.setLayout(new BorderLayout());
-		JPanel pnl_titre = new JPanel();
-		pnl_titre.add(new JLabel("<html><h3>Main settings</h3></html>"));
-		this.add(pnl_titre, BorderLayout.NORTH);
-		
+	@Override
+	public void run(String arg0) {
+		this.frame = new JFrame("Preferences Window");
 		String plut = Prefs.get("lut.preferred", null)==null?"Preferred LUT":Prefs.get("lut.preferred", null) ;
 		this.lut = new JLabel(plut) ;
 		this.lut.setEnabled(false);
@@ -66,17 +81,33 @@ public class prefsTabMain extends JPanel implements ActionListener{
 		pnl_formatDate.add(comboDate);
 		pan.add(pnl_formatDate);
 		
-		this.add(pan,BorderLayout.CENTER);
+		JPanel flow_btns = new JPanel();
+		this.btn_stRenal = new JButton("Renal Settings");
+		this.btn_stRenal.addActionListener(this);
+		flow_btns.add(this.btn_stRenal);
+		pan.add(flow_btns);
 		
+		this.add(pan);
 		
+		 //Create and set up the window.
+        this.frame.setSize(this.frame.getPreferredSize());
+        //Add content to the window.
+        this.frame.add(this);
+ 
+        //Display the window.
+        this.frame.pack();
+        this.frame.setLocationRelativeTo(null);
+        this.frame.setSize(frame.getPreferredSize());
+        this.frame.setVisible(true);
+        
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getSource() == this.btn_choixLut) {
 			this.fc.setCurrentDirectory(new File("./luts"));
 			this.fc.setDialogTitle("Choose Preferred LUT");
-			int returnVal = fc.showOpenDialog(prefsTabMain.this);
+			int returnVal = fc.showOpenDialog(PrefsWindow.this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File file = fc.getSelectedFile();
 					this.lut.setText(file.getPath());
@@ -90,7 +121,7 @@ public class prefsTabMain extends JPanel implements ActionListener{
 			this.fc.setCurrentDirectory(this.fc.getFileSystemView().getDefaultDirectory());
 			this.fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			this.fc.setAcceptAllFileFilterUsed(false);
-			int rval = fc.showOpenDialog(prefsTabMain.this);
+			int rval = fc.showOpenDialog(PrefsWindow.this);
 			if (rval == JFileChooser.APPROVE_OPTION) {
 				this.dir.setText(fc.getSelectedFile().getAbsoluteFile().toString()) ;
 				Prefs.set("dir.preferred", this.dir.getText()+"");
@@ -102,7 +133,9 @@ public class prefsTabMain extends JPanel implements ActionListener{
 			IJ.run("Display LUTs");
 		}
 		
-
+		else if (arg0.getSource() == this.btn_stRenal) {
+			new RenalSettings(this.frame);
+		}
 		
 		else if (arg0.getSource() == this.comboDate) {
 			Prefs.set("dateformat.preferred", (String) this.comboDate.getSelectedItem());

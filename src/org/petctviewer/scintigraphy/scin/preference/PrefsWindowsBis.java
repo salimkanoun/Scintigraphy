@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy;
+package org.petctviewer.scintigraphy.scin.preference;
 
 import java.awt.Container;
 import java.awt.Dimension;

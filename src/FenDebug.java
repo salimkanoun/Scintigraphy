@@ -7,7 +7,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.PrefsWindow;
 import org.petctviewer.scintigraphy.calibration.Calibration;
 import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
 import org.petctviewer.scintigraphy.esophageus.application.EsophagealTransit;
@@ -22,6 +21,7 @@ import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.renal.dmsa.DmsaScintigraphy;
 import org.petctviewer.scintigraphy.renal.followup.FollowUp;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.preference.PrefsWindowsBis;
 import org.petctviewer.scintigraphy.shunpo.ShunpoScintigraphy;
 import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
 
@@ -38,7 +38,7 @@ public class FenDebug extends JFrame{
 		btn_pref.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				PrefsWindow pref = new PrefsWindow();
+				PrefsWindowsBis pref = new PrefsWindowsBis();
 				pref.run("");
 			}
 		});

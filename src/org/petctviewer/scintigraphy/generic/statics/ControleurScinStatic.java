@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.generic.statics;
 import java.awt.Button;
 import java.awt.event.ActionEvent;
 
+import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
@@ -39,7 +40,7 @@ public class ControleurScinStatic extends Controleur_OrganeFixe{
 
 		if (b == fen.getBtn_finish()) {
 			this.clicSuivant();
-			this.fin();
+			this.end();
 		}
 		
 	}
@@ -58,7 +59,7 @@ public class ControleurScinStatic extends Controleur_OrganeFixe{
 	}
 
 	@Override
-	public void fin() {
+	public void end() {
 		ImagePlus imp = this.getScin().getImp();
 		
 		//pour la ant

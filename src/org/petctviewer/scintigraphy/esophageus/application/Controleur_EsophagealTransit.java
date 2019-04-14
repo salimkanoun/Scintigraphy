@@ -24,7 +24,7 @@ public class Controleur_EsophagealTransit  extends Controleur_OrganeFixe {
 	}
 
 	@Override
-	public void fin() {
+	public void end() {
 		modele.setRoiManager(this.roiManager);
 		modele.calculerResultats();
 		FenResultats_EsophagealTransit fen = new FenResultats_EsophagealTransit(modele.getExamenMean(), modele.getDicomRoi(), modele);

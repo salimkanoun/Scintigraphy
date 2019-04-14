@@ -26,7 +26,7 @@ public class Controleur_Hepatic extends Controleur_OrganeFixe {
 	}
 
 	@Override
-	public void fin() {
+	public void end() {
 		//SK A REVOIR MANQUE LES ROI DE LA PREMIERE SLICE
 		this.setSlice(1);
 		

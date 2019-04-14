@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
 
+import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -33,7 +34,7 @@ public class Controleur_PostMictional extends Controleur_OrganeFixe{
 	}
 
 	@Override
-	public void fin() {
+	public void end() {
 		indexRoi=0;
 		HashMap<String, Double> hm =new HashMap<String, Double>();
 		for (int j = 0; j < roiManager.getCount(); j++) {
