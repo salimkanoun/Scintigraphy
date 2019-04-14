@@ -1,12 +1,12 @@
 package org.petctviewer.scintigraphy.esophageus.application;
 
 import org.petctviewer.scintigraphy.esophageus.resultats.FenResultats_EsophagealTransit;
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 
 import ij.gui.Roi;
 import ij.gui.Toolbar;
 
-public class Controleur_EsophagealTransit  extends ControleurScin {
+public class Controleur_EsophagealTransit  extends Controleur_OrganeFixe {
  
 	public static String[] ORGANES = {"Esophage"};
 	Modele_EsophagealTransit modele ;

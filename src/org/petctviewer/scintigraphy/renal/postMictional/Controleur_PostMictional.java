@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
@@ -14,7 +14,7 @@ import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.plugin.frame.RoiManager;
 
-public class Controleur_PostMictional extends ControleurScin{
+public class Controleur_PostMictional extends Controleur_OrganeFixe{
 
 
 	protected Controleur_PostMictional(Scintigraphy scin, String[] organes) {
