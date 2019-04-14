@@ -64,9 +64,6 @@ public class FenApplication_Os extends JPanel {
 	public FenApplication_Os(Controleur_Os controleur_os) {
 		super(new BorderLayout());
 		
-		
-		System.out.println("Vue : "+controleur_os.getNbScinti());
-		
 		this.additionalInfo = "Info";
 		this.nomFen = "Fen";
 		

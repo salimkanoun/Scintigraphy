@@ -31,10 +31,13 @@ public class Modele_Os {
 	private ImagePlus imp;												// Tableau à double dimension contenant les ImagePlus liées aux DynamicImage de(s) Scintigraphie(s) Osseuse(s)
 	DynamicImage[][] dynamicImps;										// Tableau à double dimension contenant les DynamicImage liées aux ImagePlus de(s) Scintigraphie(s) Osseuse(s)
 	private int nbScinty;
+	private boolean reversed;
 	
 	
 	public Modele_Os(ImagePlus[][] imps) {
 		nbScinty = imps.length;
+		
+		this.reversed = false;
 
 		this.selected= new boolean[nbScinty][2];
 		this.dynamicImps = new DynamicImage[nbScinty][2];
@@ -81,8 +84,14 @@ public class Modele_Os {
 				dynamicImps[i][j].setImage(imps[i][j].getBufferedImage());										// On recharge lea DynamicImage depuis la ImagePlus correspondante.
 				dynamicImps[i][j].repaint();																	// On réaffiche
 				displayInformations(dynamicImps[i][j],i,j);														// On affiche les informations (sinon elles disparaissent)
+				if(reversed) {
+					dynamicImps[i][j].setBackground(Color.black);
+				}else {
+					dynamicImps[i][j].setBackground(Color.white);
+				}
 			}
 		}
+		this.reversed = !this.reversed;
 		return dynamicImps;
 	}
 	

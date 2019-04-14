@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.os;
 
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -122,6 +123,7 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 			for (int j=0 ; j<2 ; j++) {
 				panel.add(modele.getDynamicImage(i,j));
 				modele.getDynamicImage(i,j).addMouseListener(this);
+				modele.getDynamicImage(i,j).setBackground(Color.black);
 			}
 		}
 	}
