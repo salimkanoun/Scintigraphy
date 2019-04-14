@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin.preference;
+package org.petctviewer.scintigraphy.scin.preferences;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -14,12 +14,12 @@ import javax.swing.JPanel;
 
 import ij.IJ;
 import ij.Prefs;
-import ij.plugin.PlugIn;
 
 public class prefsTabMain extends JPanel implements ActionListener{
 	
+	private static final long serialVersionUID = 1L;
 	private JLabel lut, dir ;
-	private JButton btn_choixLut, btn_dir, btn_displut, btn_stRenal ;
+	private JButton btn_choixLut, btn_dir, btn_displut ;
 	private JFileChooser fc ;
 	private JComboBox comboDate;
 	

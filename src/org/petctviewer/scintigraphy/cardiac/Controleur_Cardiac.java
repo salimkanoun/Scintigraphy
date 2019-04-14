@@ -9,7 +9,6 @@ import java.util.List;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
@@ -18,7 +17,7 @@ import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.RoiScaler;
 
-public class Controleur_Cardiac extends ControleurScin {
+public class Controleur_Cardiac extends Controleur_OrganeFixe {
 
 	private boolean finContSlice1;
 	private boolean finContSlice2;

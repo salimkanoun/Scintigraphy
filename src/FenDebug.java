@@ -21,7 +21,7 @@ import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.renal.dmsa.DmsaScintigraphy;
 import org.petctviewer.scintigraphy.renal.followup.FollowUp;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.preference.PrefsWindowsBis;
+import org.petctviewer.scintigraphy.scin.preferences.PrefsWindows;
 import org.petctviewer.scintigraphy.shunpo.ShunpoScintigraphy;
 import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
 
@@ -38,7 +38,7 @@ public class FenDebug extends JFrame{
 		btn_pref.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				PrefsWindowsBis pref = new PrefsWindowsBis();
+				PrefsWindows pref = new PrefsWindows();
 				pref.run("");
 			}
 		});

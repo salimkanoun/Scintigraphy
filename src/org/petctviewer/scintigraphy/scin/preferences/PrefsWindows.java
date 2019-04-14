@@ -1,32 +1,15 @@
-package org.petctviewer.scintigraphy.scin.preference;
+package org.petctviewer.scintigraphy.scin.preferences;
 
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
 
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 
-import org.jfree.chart.ChartPanel;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
-
-
-import ij.IJ;
-import ij.Prefs;
 import ij.plugin.PlugIn;
 
-public class PrefsWindowsBis implements PlugIn{
+public class PrefsWindows implements PlugIn{
 
 	private Container main, renal, bone;
 	
@@ -65,18 +48,6 @@ public class PrefsWindowsBis implements PlugIn{
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
-
-	// renomme la serie
-	static void renameSeries(ChartPanel chartPanel, String oldKey, String newKey) {
-		XYSeriesCollection dataset = ((XYSeriesCollection) chartPanel.getChart().getXYPlot().getDataset());
-		try {
-			dataset.getSeries(oldKey).setKey(newKey);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	
 
 
 }
