@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.renal.dmsa;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
-import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
