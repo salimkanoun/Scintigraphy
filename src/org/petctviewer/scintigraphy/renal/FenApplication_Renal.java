@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -137,7 +138,7 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 
 			this.getPanel_bttns_droit().removeAll();
 			this.getPanel_bttns_droit().add(this.createPanelInstructionsBtns());
-			this.getControleur().setInstructionsDelimit(0);
+			((Controleur_OrganeFixe)this.getControleur()).setInstructionsDelimit(0);
 			this.getBtn_drawROI().setEnabled(true);
 			IJ.setTool(Toolbar.POLYGON);
 			this.setImage(impProj);

@@ -3,14 +3,14 @@ package org.petctviewer.scintigraphy.hepatic.statique;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.gui.Roi;
 
-public class Controleur_Hepatic extends ControleurScin {
+public class Controleur_Hepatic extends Controleur_OrganeFixe {
 
 	public static String[] organes = { "Liver", "Intestine" };
 
