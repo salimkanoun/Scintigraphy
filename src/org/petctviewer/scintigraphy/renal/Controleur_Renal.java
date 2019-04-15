@@ -157,7 +157,7 @@ public class Controleur_Renal extends Controleur_OrganeFixe {
 	}
 
 	@Override
-	public void fin() {
+	public void end() {
 		//Increment l'index de 1 pour eviter erreur d'index
 		//A VEFIRIER SK
 		this.indexRoi++;

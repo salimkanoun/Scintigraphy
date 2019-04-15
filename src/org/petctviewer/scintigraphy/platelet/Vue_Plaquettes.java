@@ -19,7 +19,8 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.petctviewer.scintigraphy.scin.ImageOrientation;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -45,7 +46,7 @@ public class Vue_Plaquettes extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImageOrientation[] selectedImages) {
+	protected ImagePlus preparerImp(ImageSelection[] selectedImages) {
 
 		ArrayList<ImagePlus> series = new ArrayList<>();
 
@@ -54,15 +55,15 @@ public class Vue_Plaquettes extends Scintigraphy {
 			ImagePlus imp = selectedImages[i].getImagePlus().duplicate();
 			selectedImages[i].getImagePlus().close();
 			
-			if(selectedImages[i].getImageOrientation()==ImageOrientation.ANT_POST) {
+			if(selectedImages[i].getImageOrientation()==Orientation.ANT_POST) {
 				//On inverse pour avoir l'image post en 1er
 				StackReverser reverser = new StackReverser();
 				reverser.flipStack(imp);
 				series.add(Library_Dicom.sortImageAntPost(imp));
-			}else if(selectedImages[i].getImageOrientation()==ImageOrientation.POST_ANT) {
+			}else if(selectedImages[i].getImageOrientation()==Orientation.POST_ANT) {
 				series.add(Library_Dicom.sortImageAntPost(imp));
 				
-			}else if(selectedImages[i].getImageOrientation()==ImageOrientation.POST) {
+			}else if(selectedImages[i].getImageOrientation()==Orientation.POST) {
 				imp.getProcessor().flipHorizontal();
 				series.add(imp);
 				

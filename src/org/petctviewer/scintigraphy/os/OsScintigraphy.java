@@ -6,8 +6,9 @@ import java.util.Arrays;
 
 import javax.swing.JFrame;
 
-import org.petctviewer.scintigraphy.scin.ImageOrientation;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -50,7 +51,7 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 	 *            liste des images transmises depuis FenSelectionDicom
 	 * @return
 	 */
-	public void startExam(ImageOrientation[] selectedImages) throws Exception {
+	public void startExam(ImageSelection[] selectedImages) throws Exception {
 		//Send selected image to specific app to retrieve the ImagePlus to show in the app (will be stored in this object)
 		this.imp = preparerImp(selectedImages);
 		//Start the program, this overided method should construct the FenApplication, the controller and the model
@@ -87,7 +88,7 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 	 *            liste des images transmises depuis FenSelectionDicom
 	 * @return
 	 */
-	protected ImagePlus preparerImp(ImageOrientation[] selectedImages) throws Exception {
+	protected ImagePlus preparerImp(ImageSelection[] selectedImages) throws Exception {
 		
 		if(selectedImages.length>3)
 			throw new Exception("Vous avez rentré trop d'images. Seulement 3 images peuvent être traitées.");
@@ -99,12 +100,12 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 		for (int i=0 ; i<selectedImages.length; i++) {																// Modifie l'ImagePlus pour mettre ANT en slice 1 et POST en slice 2
 			impSorted = null;
 			ImagePlus imp = selectedImages[i].getImagePlus();
-			if(selectedImages[i].getImageOrientation()==ImageOrientation.ANT_POST) {
+			if(selectedImages[i].getImageOrientation()==Orientation.ANT_POST) {
 				impSorted = Library_Dicom.sortImageAntPost(imp);
-			}else if(selectedImages[i].getImageOrientation()==ImageOrientation.POST_ANT){
+			}else if(selectedImages[i].getImageOrientation()==Orientation.POST_ANT){
 				impSorted = Library_Dicom.sortImageAntPost(imp);
 			}
-			else if(selectedImages[i].getImageOrientation()==ImageOrientation.POST) {
+			else if(selectedImages[i].getImageOrientation()==Orientation.POST) {
 				impSorted=imp.duplicate();
 			}else {
 				throw new Exception("Mauvais type d'image choisie.\n Types acceptés : ANT/POST | POST/ANT | POST");

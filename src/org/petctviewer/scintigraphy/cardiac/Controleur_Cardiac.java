@@ -53,7 +53,7 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 	}
 
 	@Override
-	public void fin() {
+	public void end() {
 		// suppression du controleur de l'imp
 		//this.removeImpListener();
 		modele.getResults();

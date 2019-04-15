@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy;
+package org.petctviewer.scintigraphy.scin.preferences;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -16,7 +16,8 @@ import ij.IJ;
 import ij.Prefs;
 
 public class prefsTabBone extends JPanel implements ActionListener {
-	
+
+	private static final long serialVersionUID = 1L;
 	private JLabel lut ;
 	private JButton btn_choixLut, btn_displut;
 	private JFileChooser fc;

@@ -2,7 +2,7 @@ package org.petctviewer.scintigraphy.scin;
 
 import java.util.HashMap;
 
-import org.petctviewer.scintigraphy.shunpo.FenSelectionDicom.Column;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 
 import ij.ImagePlus;
 

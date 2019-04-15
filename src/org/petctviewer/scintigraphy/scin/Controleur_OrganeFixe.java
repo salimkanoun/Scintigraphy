@@ -188,7 +188,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-						fin();
+						end();
 					}
 				});
 				captureThread.start();
@@ -305,12 +305,6 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	 * @return true si le bon nombre de roi est enregistre
 	 */
 	public abstract boolean isOver();
-
-	/**
-	 * est execute quand la prise est finie, doit ouvrir la fenetre de resultat <br>
-	 * See also {@link #isOver()}
-	 */
-	public abstract void fin();
 
 	/**
 	 * Permet de determiner si la roi indexRoi est post ou ant
@@ -486,6 +480,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	
 	@Override
 	public void close() {
+		
 		this.roiManager.close();
 	}
 

@@ -145,13 +145,13 @@ public class Library_Gui {
 
 	public static void setOverlayTitle(String title, Overlay overlay, ImagePlus imp, Color color, int slice) {
 		int w = imp.getWidth();
-		int h = imp.getHeight();
+		//int h = imp.getHeight();
 	
 		AffineTransform affinetransform = new AffineTransform();
 		FontRenderContext frc = new FontRenderContext(affinetransform, true, true);
 	
 		Rectangle2D bounds = overlay.getLabelFont().getStringBounds(title, frc);
-		double textHeight = bounds.getHeight();
+		//double textHeight = bounds.getHeight();
 		double textWidth = bounds.getWidth();
 	
 		double x = (w / 2) - (textWidth / 2);
