@@ -105,6 +105,7 @@ public class SidePanel extends Box {
 
 	public void setSidePanelContent(Component sidePanelContent) {
 		this.sidePanelContent = sidePanelContent;
+		this.add(sidePanelContent);
 	}
 
 	public Component getSidePanelContent() {

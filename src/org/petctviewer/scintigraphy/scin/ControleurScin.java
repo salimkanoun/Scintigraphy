@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.scin;
 
 import java.awt.Button;
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
@@ -295,6 +296,20 @@ public abstract class ControleurScin implements ActionListener {
 			if (r.getName().equals(name))
 				return r;
 		return null;
+	}
+
+	/**
+	 * Creates a rectangle between the two ROIs specified.
+	 * 
+	 * @param r1
+	 * @param r2
+	 * @return Rectangle at the center of the ROIs specified
+	 */
+	protected Rectangle roiBetween(Roi r1, Roi r2) {
+		int x = (int) ((r1.getBounds().getLocation().x + r2.getBounds().getLocation().x + r2.getBounds().getWidth())
+				/ 2);
+		int y = (r1.getBounds().getLocation().y + r2.getBounds().getLocation().y) / 2;
+		return new Rectangle(x, y, 15, 30);
 	}
 
 	@Override
