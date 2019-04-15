@@ -193,6 +193,7 @@ public class FenDebug extends JFrame{
 			}
 		});
 		
+		
 		p.add(btn_cardiac);
 		p.add(btn_plaquettes);
 		p.add(btn_hepatic);
