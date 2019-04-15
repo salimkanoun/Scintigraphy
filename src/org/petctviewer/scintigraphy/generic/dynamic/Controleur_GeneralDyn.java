@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
@@ -19,7 +19,7 @@ import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.ZProjector;
 
-public class Controleur_GeneralDyn extends ControleurScin {
+public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 
 	public static int MAXROI = 100;
 	private int nbOrganes = 0;
@@ -73,7 +73,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 
 		if (b == fen.getBtn_finish()) {
 			this.clicSuivant();
-			this.fin();
+			this.end();
 		}
 		
 	}
@@ -87,7 +87,7 @@ public class Controleur_GeneralDyn extends ControleurScin {
 	}
 
 	@Override
-	public void fin() {
+	public void end() {
 		//on sauvegarde l'imp projetee pour la reafficher par la suite
 		this.impProjetee = this.getScin().getImp().duplicate();
 		this.over = true; 

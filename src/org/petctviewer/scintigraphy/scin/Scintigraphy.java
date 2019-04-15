@@ -43,7 +43,7 @@ public abstract class Scintigraphy implements PlugIn {
 		fen.setVisible(true);
 	}
 
-	public void startExam(ImageOrientation[] selectedImages) throws Exception {
+	public void startExam(ImageSelection[] selectedImages) throws Exception {
 
 		//Send selected image to specific app to retrieve the ImagePlus to show in the app (will be stored in this object)
 		this.imp = preparerImp(selectedImages);
@@ -63,7 +63,7 @@ public abstract class Scintigraphy implements PlugIn {
 	 *            liste des fenetres ouvertes
 	 * @return
 	 */
-	protected abstract ImagePlus preparerImp(ImageOrientation[] selectedImages) throws Exception;
+	protected abstract ImagePlus preparerImp(ImageSelection[] selectedImages) throws Exception;
 
 	/**
 	 * lance le programme

@@ -1,11 +1,10 @@
-package org.petctviewer.scintigraphy;
+package org.petctviewer.scintigraphy.scin.preferences;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.Box;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -15,6 +14,7 @@ import ij.Prefs;
 
 public class prefsTabRenal extends JPanel implements ActionListener{
 	
+	private static final long serialVersionUID = 1L;
 	private JCheckBox ckb_bld, ckb_plv, ckb_utr;
 	private JTextField txt_lasilix;
 	

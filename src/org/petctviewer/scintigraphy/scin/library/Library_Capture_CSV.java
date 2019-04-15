@@ -47,7 +47,7 @@ public class Library_Capture_CSV {
 	 */
 	public static HashMap<String, String> getPatientInfo(ImagePlus imp) {
 		HashMap<String, String> hm = new HashMap<>();
-	
+
 		// ajout du nom, si il n'existe pas on ajoute une string vide
 		if (DicomTools.getTag(imp, "0010,0010") != null) {
 			String nom = DicomTools.getTag(imp, "0010,0010").trim();
@@ -575,7 +575,6 @@ public class Library_Capture_CSV {
 	 * @param additionalInfo
 	 *            :String qui sera rajoutée à la fin du nom du fichier
 	 */
-	@SuppressWarnings("null")
 	private static void saveFiles(ImagePlus imp, RoiManager roiManager, StringBuilder csv, String nomProgramme,
 			String[] infoPatient, String additionalInfo) {
 	

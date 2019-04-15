@@ -7,8 +7,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.PrefsWindow;
-import org.petctviewer.scintigraphy.PrefsWindowsBis;
 import org.petctviewer.scintigraphy.calibration.Calibration;
 import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
 import org.petctviewer.scintigraphy.esophageus.application.EsophagealTransit;
@@ -18,14 +16,14 @@ import org.petctviewer.scintigraphy.generic.dynamic.GeneralDynamicScintigraphy;
 import org.petctviewer.scintigraphy.generic.statics.StaticScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.statique.HepaticScintigraphy;
-import org.petctviewer.scintigraphy.os.OsScintigraphy;
 import org.petctviewer.scintigraphy.platelet.Vue_Plaquettes;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.renal.dmsa.DmsaScintigraphy;
 import org.petctviewer.scintigraphy.renal.followup.FollowUp;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.preferences.PrefsWindows;
+import org.petctviewer.scintigraphy.shunpo.ShunpoScintigraphy;
 import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
-
 
 public class FenDebug extends JFrame{
 
@@ -40,7 +38,7 @@ public class FenDebug extends JFrame{
 		btn_pref.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				PrefsWindowsBis pref = new PrefsWindowsBis();
+				PrefsWindows pref = new PrefsWindows();
 				pref.run("");
 			}
 		});
@@ -174,17 +172,26 @@ public class FenDebug extends JFrame{
 				eso.run("");
 			}
 		});
-		
-		JButton btn_Os = new JButton("ScinOs");
-		btn_Os.addActionListener(new ActionListener() {
+
+		JButton btn_shunpo = new JButton("Shunpo_original");
+		btn_shunpo.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				OsScintigraphy os = new OsScintigraphy();
-				os.run("");
+				
+				Vue_Shunpo vue = new Vue_Shunpo();
+				vue.run("");
 			}
 		});
 		
-
+		JButton btn_shunpoMaVersion = new JButton("Shunpo_maVersion");
+		btn_shunpoMaVersion.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				Scintigraphy vue = new ShunpoScintigraphy();
+				vue.run("");
+			}
+		});
 		
 		p.add(btn_cardiac);
 		p.add(btn_plaquettes);
@@ -199,8 +206,8 @@ public class FenDebug extends JFrame{
 		p.add(btn_FollowUp);
 		p.add(btn_Calibration);
 		p.add(btn_Esophageal);
-		p.add(btn_Os);
-
+		p.add(btn_shunpo);
+		p.add(btn_shunpoMaVersion);
 		
 
 		this.add(p, BorderLayout.CENTER);
