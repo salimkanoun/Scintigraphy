@@ -13,22 +13,30 @@ public class PrefsWindows implements PlugIn{
 
 	private Container main, renal, bone;
 	
+	private static JFrame frame = null;												// Trying to implement Singleton pattern
+	
+	private static boolean INSTANCE = false;										// Trying to implement Singleton pattern
+	
 	@Override
 	public void run(String arg) {
-		this.main = new prefsTabMain();
-		this.renal = new prefsTabRenal();
-		this.bone = new prefsTabBone();
-		
-
-		showGUI();
+		if (!INSTANCE) {															// Trying to implement Singleton pattern
+			this.main = new prefsTabMain();
+			this.renal = new prefsTabRenal();
+			this.bone = new prefsTabBone();
+			
+	
+			showGUI();
+		}else {																		// Trying to implement Singleton pattern
+			PrefsWindows.frame.toFront();
+		}
 		
 	}
 	
 	private void showGUI() {
 
 		// Create and set up the window.
-		JFrame frame = new JFrame("Results Renal Exam");
-		frame.getContentPane().setLayout(new GridLayout(1, 1));
+		PrefsWindows.frame = new JFrame("Preferences panel");
+		PrefsWindows.frame.getContentPane().setLayout(new GridLayout(1, 1));
 
 		JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
 
@@ -38,15 +46,17 @@ public class PrefsWindows implements PlugIn{
 
 		
 		
-		frame.getContentPane().add(tabbedPane);
+		PrefsWindows.frame.getContentPane().add(tabbedPane);
 
 		// Display the window
 
-		frame.pack();
-		frame.setVisible(true);
-		frame.setResizable(true);
-		frame.setLocationRelativeTo(null);
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		PrefsWindows.frame.pack();
+		PrefsWindows.frame.setVisible(true);
+		PrefsWindows.frame.setResizable(true);
+		PrefsWindows.frame.setLocationRelativeTo(null);
+		PrefsWindows.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		
+		INSTANCE = true;
 	}
 
 
