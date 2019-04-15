@@ -38,7 +38,7 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 
 	public PanelImpContrastSlider(String nomFen, Scintigraphy scin, String additionalInfo) {
 		super(new BorderLayout());
-		this.setScin(scin);
+		this.scin=scin;
 		this.additionalInfo = additionalInfo;
 		this.nomFen = nomFen;
 
@@ -50,10 +50,10 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 	}
 
 	public void finishBuildingWindow() {
-		this.slider = new JSlider(SwingConstants.HORIZONTAL, 0, (int) imp.getStatistics().max, 4);
+		slider = new JSlider(SwingConstants.HORIZONTAL, 0, (int) imp.getStatistics().max, 4);
 		slider.addChangeListener(this);
 		
-		this.boxSlider = Box.createVerticalBox();
+		boxSlider = Box.createVerticalBox();
 		boxSlider.add(this.sliderLabel);
 		boxSlider.add(this.slider);
 
@@ -112,9 +112,5 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 			}
 		});
 
-	}
-
-	public void setScin(Scintigraphy scin) {
-		this.scin = scin;
 	}
 }

@@ -48,7 +48,7 @@ public class Controleur_Plaquettes extends Controleur_OrganeFixe {
 	}
 
 	@Override
-	public void fin() {	
+	public void end() {	
 		
 		Thread captureThread = new Thread(new Runnable() {
 			@Override

@@ -5,13 +5,13 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 import org.petctviewer.scintigraphy.renal.gui.TabPostMict;
-import org.petctviewer.scintigraphy.scin.ImageOrientation;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Overlay;
 
@@ -25,27 +25,20 @@ public class PostMictional extends Scintigraphy {
 		this.organes = organes;
 		this.resultFrame=resultFrame;
 	}
-
-	@Override
-	protected ImagePlus preparerImp(ImageOrientation[] images) {
-		if (images.length > 1) {
-			IJ.log("There must be exactly one dicom opened");
-		}
-		ImagePlus impSorted = null;
-		ImagePlus imp = images[0].getImagePlus();
-		if(images[0].getImageOrientation()==ImageOrientation.ANT_POST) {
-			impSorted = Library_Dicom.sortImageAntPost(imp);
-			
-		}else if(images[0].getImageOrientation()==ImageOrientation.POST_ANT){
-			impSorted = Library_Dicom.sortImageAntPost(imp);
-			
-		}
-		else if(images[0].getImageOrientation()==ImageOrientation.POST) {
-			impSorted=imp.duplicate();
-		}
-			
+	
+	protected ImagePlus preparerImp(ImagePlus image, Orientation orientation) {
 		
-
+		ImagePlus impSorted = null;
+		if(orientation==Orientation.ANT_POST) {
+			impSorted = Library_Dicom.sortImageAntPost(image);
+			
+		}else if(orientation==Orientation.POST_ANT){
+			impSorted = Library_Dicom.sortImageAntPost(image);
+			
+		}
+		else if(orientation==Orientation.POST) {
+			impSorted=image.duplicate();
+		}
 		
 		return impSorted;
 	}
@@ -76,6 +69,17 @@ public class PostMictional extends Scintigraphy {
 	public TabPostMict getResultFrame() {
 		return resultFrame;
 		
+	}
+
+	@Override
+	protected ImagePlus preparerImp(ImageSelection[] selectedImages) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void startExam(ImagePlus imagePlus, Orientation ortientation) {
+		this.setImp(preparerImp(imagePlus, ortientation));
+		this.lancerProgramme();
 	}
 	
 	

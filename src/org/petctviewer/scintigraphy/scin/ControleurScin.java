@@ -340,5 +340,9 @@ public abstract class ControleurScin implements ActionListener {
 			return;
 		}
 	}
+	
+	public RoiManager getRoiManager() {
+		return this.roiManager;
+	}
 
 }
