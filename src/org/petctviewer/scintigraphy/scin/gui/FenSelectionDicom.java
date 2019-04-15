@@ -30,7 +30,6 @@ import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-import org.petctviewer.scintigraphy.shunpo.ShunpoScintigraphy;
 
 import ij.IJ;
 import ij.ImageListener;
@@ -386,10 +385,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		}
 
 		try {
-			/*
-			 * TODO: Stop casting to ShunpoScintigraphy
-			 */
-			((ShunpoScintigraphy) this.scin).startExam(selectedImages);
+			this.scin.startExam(selectedImages);
 			ImagePlus.removeImageListener(this);
 			this.dispose();
 		} catch (Exception e) {
