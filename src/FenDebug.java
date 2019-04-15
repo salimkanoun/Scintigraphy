@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.PrefsWindow;
+import org.petctviewer.scintigraphy.PrefsWindowsBis;
 import org.petctviewer.scintigraphy.calibration.Calibration;
 import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
 import org.petctviewer.scintigraphy.esophageus.application.EsophagealTransit;
@@ -17,11 +18,14 @@ import org.petctviewer.scintigraphy.generic.dynamic.GeneralDynamicScintigraphy;
 import org.petctviewer.scintigraphy.generic.statics.StaticScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.statique.HepaticScintigraphy;
+import org.petctviewer.scintigraphy.os.OsScintigraphy;
 import org.petctviewer.scintigraphy.platelet.Vue_Plaquettes;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.renal.dmsa.DmsaScintigraphy;
 import org.petctviewer.scintigraphy.renal.followup.FollowUp;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
+
 
 public class FenDebug extends JFrame{
 
@@ -36,7 +40,7 @@ public class FenDebug extends JFrame{
 		btn_pref.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				PrefsWindow pref = new PrefsWindow();
+				PrefsWindowsBis pref = new PrefsWindowsBis();
 				pref.run("");
 			}
 		});
@@ -171,6 +175,17 @@ public class FenDebug extends JFrame{
 			}
 		});
 		
+		JButton btn_Os = new JButton("ScinOs");
+		btn_Os.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				OsScintigraphy os = new OsScintigraphy();
+				os.run("");
+			}
+		});
+		
+
+		
 		p.add(btn_cardiac);
 		p.add(btn_plaquettes);
 		p.add(btn_hepatic);
@@ -184,6 +199,8 @@ public class FenDebug extends JFrame{
 		p.add(btn_FollowUp);
 		p.add(btn_Calibration);
 		p.add(btn_Esophageal);
+		p.add(btn_Os);
+
 		
 
 		this.add(p, BorderLayout.CENTER);
