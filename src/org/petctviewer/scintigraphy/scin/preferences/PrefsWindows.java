@@ -2,6 +2,8 @@ package org.petctviewer.scintigraphy.scin.preferences;
 
 import java.awt.Container;
 import java.awt.GridLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
@@ -15,21 +17,18 @@ public class PrefsWindows implements PlugIn{
 	
 	private static JFrame frame = null;												// Trying to implement Singleton pattern
 	
-	private static boolean INSTANCE = false;										// Trying to implement Singleton pattern
 	
 	@Override
 	public void run(String arg) {
-		if (!INSTANCE) {															// Trying to implement Singleton pattern
+		if (PrefsWindows.frame == null) {											// Trying to implement Singleton pattern
 			this.main = new prefsTabMain();
 			this.renal = new prefsTabRenal();
 			this.bone = new prefsTabBone();
 			
-	
 			showGUI();
 		}else {																		// Trying to implement Singleton pattern
 			PrefsWindows.frame.toFront();
 		}
-		
 	}
 	
 	private void showGUI() {
@@ -43,8 +42,6 @@ public class PrefsWindows implements PlugIn{
 		tabbedPane.addTab("Main", this.main);
 		tabbedPane.addTab("Renal", this.renal);
 		tabbedPane.addTab("Bone", this.bone);
-
-		
 		
 		PrefsWindows.frame.getContentPane().add(tabbedPane);
 
@@ -54,10 +51,16 @@ public class PrefsWindows implements PlugIn{
 		PrefsWindows.frame.setVisible(true);
 		PrefsWindows.frame.setResizable(true);
 		PrefsWindows.frame.setLocationRelativeTo(null);
-		PrefsWindows.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		
-		INSTANCE = true;
-	}
+		PrefsWindows.frame.addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+                e.getWindow().dispose();
+                PrefsWindows.frame=null;
+            }
+        });
+	}	
 
 
 }
