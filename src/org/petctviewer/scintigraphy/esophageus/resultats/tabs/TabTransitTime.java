@@ -175,7 +175,7 @@ public class TabTransitTime extends JPanel{
 			selectionAcquiTransitPanelFlow.add(selectionAcquiTransitPanel);
 			
 			Box sidePanel = Box.createVerticalBox();
-			SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getExamType(), modeleApp.esoPlugIn.getImp());
+			SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getExamType(), modeleApp.getImagePlus());
 			sidePanel.add(sidePanelScin);
 			
 		    sidePanel.add(selectionAcquiTransitPanelFlow);

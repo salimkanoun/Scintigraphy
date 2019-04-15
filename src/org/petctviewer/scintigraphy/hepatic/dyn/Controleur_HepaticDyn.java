@@ -23,7 +23,7 @@ public class Controleur_HepaticDyn extends Controleur_OrganeFixe {
 	public static String[] organes = { "R. Liver", "L. Liver", "Hilium", "CBD", "Duodenom", "Blood pool" };
 
 	protected Controleur_HepaticDyn(HepaticDynamicScintigraphy scin) {
-		super(scin);
+		super(scin, scin.getModele());
 		this.setOrganes(organes);
 		
 		
@@ -35,7 +35,7 @@ public class Controleur_HepaticDyn extends Controleur_OrganeFixe {
 	}
 
 	@Override
-	public void fin() {
+	public void end() {
 		HepaticDynamicScintigraphy vue = (HepaticDynamicScintigraphy) this.getScin();
 		
 		ImagePlus imp = vue.getImp();
@@ -90,7 +90,7 @@ public class Controleur_HepaticDyn extends Controleur_OrganeFixe {
 
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
-		return this.roiManager.getRoi(this.indexRoi % Controleur_HepaticDyn.organes.length);
+		return this.model.getRoiManager().getRoi(this.indexRoi % Controleur_HepaticDyn.organes.length);
 	}
 
 	@Override

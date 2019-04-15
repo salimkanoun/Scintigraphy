@@ -74,7 +74,7 @@ public class TabCondense extends JPanel implements ChangeListener{
 		imageCondensePanel.setLayout( new BorderLayout());
 		titleAndCondensePanel.add(imageCondensePanel, BorderLayout.CENTER);
 		
-		SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getExamType(), modeleApp.esoPlugIn.getImp());
+		SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getExamType(), modele.getImagesPlus()[0]);
 		titleAndCondensePanel.add(sidePanelScin,BorderLayout.NORTH);
 		
 		this.add(titleAndCondensePanel, BorderLayout.CENTER);

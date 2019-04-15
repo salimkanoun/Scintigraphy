@@ -15,15 +15,15 @@ public class ControleurScinStatic extends Controleur_OrganeFixe{
 	private int nbOrganes = 0;
 	
 	protected ControleurScinStatic(Scintigraphy scin) {
-		super(scin);
+		super(scin, new ModeleScinStatic());
 		this.setOrganes(new String[MAXROI] );
 	}
 
 	@Override
 	public void setInstructionsDelimit(int indexRoi) {
 		String s;
-		if (this.roiManager.getCount() > this.indexRoi) {
-			s = this.roiManager.getRoi(this.indexRoi).getName();
+		if (this.model.getRoiManager().getCount() > this.indexRoi) {
+			s = this.model.getRoiManager().getRoi(this.indexRoi).getName();
 		} else {
 			s = "roi n" + this.indexRoi;
 		}
@@ -49,7 +49,7 @@ public class ControleurScinStatic extends Controleur_OrganeFixe{
 		if (!isOver()) {
 			return this.getScin().getFenApplication().getTextfield_instructions().getText();
 		}
-		return this.roiManager.getRoi(index % this.nbOrganes).getName();
+		return this.model.getRoiManager().getRoi(index % this.nbOrganes).getName();
 	}
 	
 	@Override
@@ -59,28 +59,28 @@ public class ControleurScinStatic extends Controleur_OrganeFixe{
 
 	@Override
 	public void end() {
-		ImagePlus imp = this.getScin().getImp();
+		ImagePlus imp = this.model.getImagePlus();
 		
 		//pour la ant
 		imp.setSlice(1);
 		
-		for(int i =0; i< this.roiManager.getCount(); i++) {
-			Roi roi = this.roiManager.getRoi(i);
+		for(int i =0; i< this.model.getRoiManager().getCount(); i++) {
+			Roi roi = this.model.getRoiManager().getRoi(i);
 			imp.setRoi(roi);
-			((ModeleScinStatic)scin.getModele()).enregistrerMesureAnt(this.addTag(roi.getName()), imp);
+			((ModeleScinStatic)this.model).enregistrerMesureAnt(this.addTag(roi.getName()), imp);
 		}
 		
 		//pour la post
 		imp.setSlice(2);
 		
-		for(int i =0; i< this.roiManager.getCount(); i++) {
-			Roi roi = this.roiManager.getRoi(i);
+		for(int i =0; i< this.model.getRoiManager().getCount(); i++) {
+			Roi roi = this.model.getRoiManager().getRoi(i);
 			imp.setRoi(roi);
-			((ModeleScinStatic)scin.getModele()).enregistrerMesurePost(this.addTag(roi.getName()), imp);
+			((ModeleScinStatic)this.model).enregistrerMesurePost(this.addTag(roi.getName()), imp);
 		}
 		
 		
-		Thread t = new DoubleImageThread("test", this.getScin());
+		Thread t = new DoubleImageThread("test", this.getScin(), this.model);
 		t.start();
 		
 	
@@ -99,7 +99,7 @@ public class ControleurScinStatic extends Controleur_OrganeFixe{
 
 	@Override
 	public boolean isPost() {
-		return this.getScin().getImp().getCurrentSlice() == 2;
+		return this.model.getImagePlus().getCurrentSlice() == 2;
 	}
 
 	
@@ -112,21 +112,21 @@ public class ControleurScinStatic extends Controleur_OrganeFixe{
 			
 			//On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
-			if (this.roiManager.getRoi(indexRoi) == null) {
-				this.roiManager.addRoi(this.getSelectedRoi());
+			if (this.model.getRoiManager().getRoi(indexRoi) == null) {
+				this.model.getRoiManager().addRoi(this.getSelectedRoi());
 			} else { // Si il existe on l'ecrase
-				this.roiManager.setRoi(this.scin.getImp().getRoi(), indexRoi);
+				this.model.getRoiManager().setRoi(this.scin.getImp().getRoi(), indexRoi);
 				// on supprime le roi nouvellement ajoute de la vue
 				this.scin.getFenApplication().getImagePlus().killRoi();
 			}
 	
 			// precise la postion en z
-			this.roiManager.
+			this.model.getRoiManager().
 			getRoi(indexRoi).
 			setPosition(this.getSliceNumberByRoiIndex(indexRoi));
 	
 			// changement de nom
-			this.roiManager.rename(indexRoi, nomRoi);
+			this.model.getRoiManager().rename(indexRoi, nomRoi);
 	
 			return true;
 		}

@@ -21,6 +21,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	 *            duree de chaque frame en ms
 	 */
 	public ModeleScinDyn(int[] frameDuration) {
+		super(null);
 		this.data = new HashMap<>();
 		this.frameduration = frameDuration;
 	}

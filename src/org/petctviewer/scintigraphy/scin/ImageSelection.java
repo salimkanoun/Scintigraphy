@@ -28,10 +28,14 @@ public class ImageSelection {
 	 *                                  length
 	 */
 	public ImageSelection(ImagePlus imp, String[] keys, String[] values) {
-		if (keys.length != values.length)
-			throw new IllegalArgumentException("Arrays size must be equals! (" + keys.length + " != " + values.length);
 		this.imp = imp;
 		this.columnsValues = new HashMap<>();
+		
+		if (keys == null || values == null) {
+			return;
+		}
+		if (keys.length != values.length)
+			throw new IllegalArgumentException("Arrays size must be equals! (" + keys.length + " != " + values.length);
 		for (int i = 0; i < keys.length; i++) {
 			this.columnsValues.put(keys[i], values[i]);
 		}

@@ -15,14 +15,14 @@ public class Controleur_Hepatic extends Controleur_OrganeFixe {
 	public static String[] organes = { "Liver", "Intestine" };
 
 	protected Controleur_Hepatic(Scintigraphy scin) {
-		super(scin);
+		super(scin, scin.getModele());
 		this.setOrganes(organes);
 		this.setSlice(1);
 	}
 
 	@Override
 	public boolean isOver() {
-		return this.roiManager.getCount() >= 2;
+		return this.model.getRoiManager().getCount() >= 2;
 	}
 
 	@Override
@@ -77,7 +77,7 @@ public class Controleur_Hepatic extends Controleur_OrganeFixe {
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
 		if (this.isPost()) {
-			return this.roiManager.getRoi(this.getIndexRoi() - 2);
+			return this.model.getRoiManager().getRoi(this.getIndexRoi() - 2);
 		}
 		return null;
 	}

@@ -13,6 +13,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.ImagePlus;
@@ -32,20 +33,23 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 	private JLabel sliderLabel;
 	private JSlider slider;
 	protected Box boxSlider;
+	
+	private ModeleScin model;
 
 	protected SidePanel sidePanel;
 	String additionalInfo, nomFen;
 
-	public PanelImpContrastSlider(String nomFen, Scintigraphy scin, String additionalInfo) {
+	public PanelImpContrastSlider(String nomFen, Scintigraphy scin, String additionalInfo, ModeleScin model) {
 		super(new BorderLayout());
 		this.scin=scin;
 		this.additionalInfo = additionalInfo;
 		this.nomFen = nomFen;
+		this.model = model;
 
 		this.sliderLabel = new JLabel("Contrast", SwingConstants.CENTER);
 		sliderLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-		 sidePanel = new SidePanel(null, nomFen, scin.getImp());
+		 sidePanel = new SidePanel(null, nomFen, model.getImagePlus());
 		this.add(sidePanel, BorderLayout.EAST);
 	}
 
@@ -68,7 +72,7 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 		
 		sidePanel.add(boxSlider);
 
-		sidePanel.addCaptureBtn(getScin(), this.additionalInfo, new Component[] { this.slider });
+		sidePanel.addCaptureBtn(getScin(), this.additionalInfo, new Component[] { this.slider }, model);
 
 		this.add(sidePanel, BorderLayout.EAST);
 	}

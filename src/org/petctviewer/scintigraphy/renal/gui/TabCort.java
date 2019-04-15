@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
@@ -18,9 +19,9 @@ class TabCort extends JPanel {
 
 	private static final long serialVersionUID = -2324369375150642778L;
 
-	public TabCort(Scintigraphy scin) {
+	public TabCort(Scintigraphy scin, ModeleScin model) {
 		super(new BorderLayout());
-		ModeleScinDyn modele = (ModeleScinDyn) scin.getModele();
+		ModeleScinDyn modele = (ModeleScinDyn) model;
 		
 		List<XYSeries> listSeries = modele.getSeries();
 		// recuperation des chart panel avec association
@@ -40,7 +41,7 @@ class TabCort extends JPanel {
 		
 		grid.add(cPanels[1]);
 
-		SidePanel side = new SidePanel(null, "Renal scintigraphy", scin.getImp());
+		SidePanel side = new SidePanel(null, "Renal scintigraphy", model.getImagePlus());
 		
 		this.add(side, BorderLayout.EAST);
 		this.add(grid, BorderLayout.CENTER);

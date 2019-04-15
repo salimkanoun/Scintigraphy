@@ -17,6 +17,7 @@ import javax.swing.SwingConstants;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
@@ -42,12 +43,12 @@ class TabPrincipal extends JPanel {
 	 * @param chartPanel
 	 *            chartpanel avec l'overlay d'ajustation
 	 */
-	public TabPrincipal(RenalScintigraphy vue, BufferedImage capture) {
+	public TabPrincipal(RenalScintigraphy vue, BufferedImage capture, ModeleScin model) {
 		super(new BorderLayout());
 		JValueSetter chartNephrogram = vue.getNephrogramChart();
 		
 
-		HashMap<Comparable, Double> adjusted = ((Modele_Renal) vue.getModele())
+		HashMap<Comparable, Double> adjusted = ((Modele_Renal) model)
 				.getAdjustedValues();
 		// l'intervalle est defini par l'utilisateur
 		Double x1 = adjusted.get("start");
@@ -58,9 +59,9 @@ class TabPrincipal extends JPanel {
 		int slice1 = ModeleScinDyn.getSliceIndexByTime(debut * 60 * 1000, vue.getFrameDurations());
 		int slice2 = ModeleScinDyn.getSliceIndexByTime(fin * 60 * 1000, vue.getFrameDurations());
 
-		ImagePlus proj = ZProjector.run(vue.getImp(), "sum", slice1, slice2);
+		ImagePlus proj = ZProjector.run(model.getImagePlus(), "sum", slice1, slice2);
 		proj.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
-		this.modele = (Modele_Renal) vue.getModele();
+		this.modele = (Modele_Renal) model;
 
 		JPanel grid = new JPanel(new GridLayout(2, 1));
 
@@ -76,8 +77,8 @@ class TabPrincipal extends JPanel {
 		grid.add(chartNephrogram);
 
 		// ajout de la grille a la fenetre
-		SidePanel side = new SidePanel(getSidePanelContent(), "Renal scintigraphy", vue.getImp());
-		side.addCaptureBtn(vue, "");
+		SidePanel side = new SidePanel(getSidePanelContent(), "Renal scintigraphy", model.getImagePlus());
+		side.addCaptureBtn(vue, "", model);
 		
 		this.add(side, BorderLayout.EAST);
 		this.add(grid, BorderLayout.CENTER);

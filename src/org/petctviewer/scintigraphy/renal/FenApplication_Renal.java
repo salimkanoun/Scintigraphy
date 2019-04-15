@@ -142,7 +142,6 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 			this.getBtn_drawROI().setEnabled(true);
 			IJ.setTool(Toolbar.POLYGON);
 			this.setImage(impProj);
-			this.vue.setImp(impProj);
 			this.updateSliceSelector();
 			resizeCanvas();
 		}

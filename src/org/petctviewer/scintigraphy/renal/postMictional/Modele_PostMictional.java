@@ -7,6 +7,10 @@ import org.petctviewer.scintigraphy.scin.ModeleScin;
 public class Modele_PostMictional extends ModeleScin {
 
 	private HashMap<String, Double> hm ;
+	
+	public Modele_PostMictional() {
+		super(null);
+	}
 
 	@Override
 	public void calculerResultats() {

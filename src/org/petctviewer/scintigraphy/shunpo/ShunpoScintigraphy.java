@@ -8,8 +8,6 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 
-import ij.ImagePlus;
-
 public class ShunpoScintigraphy extends Scintigraphy {
 
 	private Column orgranColumn;
@@ -31,7 +29,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 
 		// Organ column
 		String[] organValues = { ORGAN_KIDNEY_PULMON, ORGAN_BRAIN };
-		this.orgranColumn = new Column("Ogran", organValues);
+		this.orgranColumn = new Column("Organ", organValues);
 
 		// Choose columns to display
 		Column[] cols = { Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
@@ -81,23 +79,21 @@ public class ShunpoScintigraphy extends Scintigraphy {
 				return;
 			}
 		}
-		
-		this.setImp(selectedImages[0].getImagePlus());
 
 		// Start program
-		this.setFenApplication(new FenApplication_Shunpo(this));
+		this.setFenApplication(new FenApplication_Shunpo(this, selectedImages[0].getImagePlus()));
 		this.getFenApplication().setControleur(new ControleurShunpo(this, this.getFenApplication(), selectedImages));
 //		this.getFenApplication().setControleur(new ControleurShunpo_KidneyPulmon(this));
 		this.getFenApplication().setVisible(true);
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImageSelection[] selectedImages) throws Exception {
+	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
 		return null;
 	}
 
 	@Override
-	public void lancerProgramme() {
+	public void lancerProgramme(ImageSelection[] selectedImages) {
 	}
 
 }

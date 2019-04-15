@@ -99,7 +99,7 @@ public class TabCurves extends JPanel{
 	    JPanel sidePanel = new JPanel();
 		sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
 		
-		SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getExamType(), modeleApp.esoPlugIn.getImp());
+		SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getExamType(), modeleApp.getImagesPlus()[0]);
 		sidePanel.add(sidePanelScin);
 		
 	    sidePanel.add(tableCheckbox);

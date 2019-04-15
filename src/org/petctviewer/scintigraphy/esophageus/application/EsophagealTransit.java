@@ -54,7 +54,7 @@ public class EsophagealTransit extends Scintigraphy {
 
 	//possible de refactorier le trie des images....
 	@Override
-	protected ImagePlus preparerImp(ImageSelection[] selectedImages) {
+	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) {
 		//entrée : tableau de toutes les images passées envoyé par la selecteur de dicom
 
 		//sauvegarde des images pour le modele
@@ -130,17 +130,19 @@ public class EsophagealTransit extends Scintigraphy {
 		
 		// phase 1
 		// on retourne la stack de la 1ere acquisition
-		return sauvegardeImagesSelectDicom[0][0];
+		ImageSelection[] selection = new ImageSelection[1];
+		selection[0] = new ImageSelection(sauvegardeImagesSelectDicom[0][0], null, null);
+		return selection;
 	}
 
 
 	@Override
-	public void lancerProgramme() {
+	public void lancerProgramme(ImageSelection[] selectedImages) {
 		// phase 1
-		Overlay overlay = Library_Gui.initOverlay(this.getImp(), 12);
-		Library_Gui.setOverlayDG(overlay, this.getImp(), Color.yellow);
+		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
+		Library_Gui.setOverlayDG(overlay, selectedImages[0].getImagePlus(), Color.yellow);
 		
-		FenApplication fen = new FenApplication(this.getImp(), "Oesophageus");
+		FenApplication fen = new FenApplication(selectedImages[0].getImagePlus(), "Oesophageus");
 		fen.getPanel_btns_gauche().remove(fen.getBtn_drawROI());
 		fen.getPanel_Instructions_btns_droite().removeAll();
 		
@@ -186,10 +188,9 @@ public class EsophagealTransit extends Scintigraphy {
 				fen.setImp(impProjeteAllAcqui);
 				fen.getImagePlus().setSlice(1);
 				fen.updateSliceSelector();
-				EsophagealTransit.this.setImp(impProjeteAllAcqui);
 				IJ.setTool(Toolbar.RECTANGLE);
 
-				Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(EsophagealTransit.this);
+				Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(EsophagealTransit.this, sauvegardeImagesSelectDicom);
 				EsophagealTransit.this.getFenApplication().setControleur(cet);
 
 			}
@@ -198,12 +199,9 @@ public class EsophagealTransit extends Scintigraphy {
 		fen.getPanelPrincipal().add(radioButtonPanelFlow);
 		fen.getPanelPrincipal().add(startQuantificationButton);
 		this.setFenApplication(fen);
-		this.getImp().setOverlay(overlay);
+		selectedImages[0].getImagePlus().setOverlay(overlay);
 		
 		this.getFenApplication().setVisible(true);
-		
-		Modele_EsophagealTransit model=new Modele_EsophagealTransit(sauvegardeImagesSelectDicom, this);
-		this.setModele(model);
 
 		fen.resizeCanvas();
 	}

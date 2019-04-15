@@ -38,10 +38,9 @@ public class Modele_Renal extends ModeleScinDyn {
 	 * @param frameDuration
 	 *            duree de chaque frame en ms
 	 */
-	public Modele_Renal(int[] frameDuration, boolean[] kidneys, ImagePlus imp) {
+	public Modele_Renal(int[] frameDuration, ImagePlus imp) {
 		super(frameDuration);
 		this.imp=imp;
-		this.kidneys = kidneys;
 		this.organRois = new HashMap<>();
 	}
 	

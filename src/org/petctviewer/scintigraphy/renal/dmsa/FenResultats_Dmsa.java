@@ -20,10 +20,9 @@ public class FenResultats_Dmsa extends JFrame{
 	
 	private static final long serialVersionUID = 8836086131939302449L;
 
-	public FenResultats_Dmsa(Scintigraphy scin, BufferedImage capture) {
-		Modele_Dmsa modele = (Modele_Dmsa) scin.getModele();
-		SidePanel side = new SidePanel(getSidePanelContent(modele), "DMSA", scin.getImp());
-		side.addCaptureBtn(scin, "");
+	public FenResultats_Dmsa(Scintigraphy scin, BufferedImage capture, Modele_Dmsa model) {
+		SidePanel side = new SidePanel(getSidePanelContent(model), "DMSA", model.getImagePlus());
+		side.addCaptureBtn(scin, "", model);
 		
 		this.add(new DynamicImage(capture), BorderLayout.CENTER);
 		this.add(side, BorderLayout.EAST);

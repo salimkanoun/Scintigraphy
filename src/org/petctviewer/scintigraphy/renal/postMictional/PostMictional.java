@@ -26,35 +26,38 @@ public class PostMictional extends Scintigraphy {
 		this.resultFrame=resultFrame;
 	}
 	
-	protected ImagePlus preparerImp(ImagePlus image, Orientation orientation) {
+	@Override
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) {
 		
 		ImagePlus impSorted = null;
-		if(orientation==Orientation.ANT_POST) {
-			impSorted = Library_Dicom.sortImageAntPost(image);
+		if(selectedImages[0].getImageOrientation()==Orientation.ANT_POST) {
+			impSorted = Library_Dicom.sortImageAntPost(selectedImages[0].getImagePlus());
 			
-		}else if(orientation==Orientation.POST_ANT){
-			impSorted = Library_Dicom.sortImageAntPost(image);
+		}else if(selectedImages[0].getImageOrientation()==Orientation.POST_ANT){
+			impSorted = Library_Dicom.sortImageAntPost(selectedImages[0].getImagePlus());
 			
 		}
-		else if(orientation==Orientation.POST) {
-			impSorted=image.duplicate();
+		else if(selectedImages[0].getImageOrientation()==Orientation.POST) {
+			impSorted=selectedImages[0].getImagePlus().duplicate();
 		}
 		
-		return impSorted;
+
+		ImageSelection[] selection = new ImageSelection[1];
+		selection[0] = new ImageSelection(impSorted, null, null);
+		return selection;
 	}
 	
 	@Override
-	public void lancerProgramme() {
-		Overlay ov = Library_Gui.initOverlay(this.getImp());
-		Library_Gui.setOverlayGD(ov, this.getImp(), Color.YELLOW);
+	public void lancerProgramme(ImageSelection[] selectedImages) {
+		Overlay ov = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
+		Library_Gui.setOverlayGD(ov, selectedImages[0].getImagePlus(), Color.YELLOW);
 		
-		FenApplication fen = new FenApplication(this.getImp(), this.getExamType());
+		FenApplication fen = new FenApplication(selectedImages[0].getImagePlus(), this.getExamType());
 		fen.setVisible(true);
 		this.setFenApplication(fen);
-		this.getImp().setOverlay(ov);
+		selectedImages[0].getImagePlus().setOverlay(ov);
 		Controleur_PostMictional ctrl = new Controleur_PostMictional(this, this.organes);
 		this.getFenApplication().setControleur(ctrl);
-		this.setModele(new Modele_PostMictional());
 	}
 
 	
@@ -69,17 +72,6 @@ public class PostMictional extends Scintigraphy {
 	public TabPostMict getResultFrame() {
 		return resultFrame;
 		
-	}
-
-	@Override
-	protected ImagePlus preparerImp(ImageSelection[] selectedImages) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public void startExam(ImagePlus imagePlus, Orientation ortientation) {
-		this.setImp(preparerImp(imagePlus, ortientation));
-		this.lancerProgramme();
 	}
 	
 	

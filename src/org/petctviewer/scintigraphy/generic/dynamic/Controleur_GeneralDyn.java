@@ -27,7 +27,7 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 	private ImagePlus impProjetee;
 
 	protected Controleur_GeneralDyn(GeneralDynamicScintigraphy scin) {
-		super(scin);
+		super(scin, new Modele_GeneralDyn(scin.getFrameDurations()));
 		this.setOrganes(new String[MAXROI]);
 		
 		this.over = false;
@@ -56,8 +56,8 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 	@Override
 	public void setInstructionsDelimit(int indexRoi) {
 		String s;
-		if (this.roiManager.getCount() > this.indexRoi) {
-			s = this.roiManager.getRoi(this.indexRoi).getName();
+		if (this.model.getRoiManager().getCount() > this.indexRoi) {
+			s = this.model.getRoiManager().getRoi(this.indexRoi).getName();
 		} else {
 			s = "roi" + this.indexRoi;
 		}
@@ -81,7 +81,7 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
 		if (this.isOver()) {
-			return this.roiManager.getRoi(this.indexRoi % this.nbOrganes);
+			return this.model.getRoiManager().getRoi(this.indexRoi % this.nbOrganes);
 		}
 		return null;
 	}
@@ -89,20 +89,20 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 	@Override
 	public void end() {
 		//on sauvegarde l'imp projetee pour la reafficher par la suite
-		this.impProjetee = this.getScin().getImp().duplicate();
+		this.impProjetee = this.model.getImagePlus().duplicate();
 		this.over = true; 
-		this.nbOrganes = this.roiManager.getCount();
+		this.nbOrganes = this.model.getRoiManager().getCount();
 		GeneralDynamicScintigraphy scindyn = (GeneralDynamicScintigraphy) this.getScin();
 		this.removeImpListener();
 
-		ImagePlus imp = scin.getImp();
+		ImagePlus imp = this.model.getImagePlus();
 		BufferedImage capture;
 
 		boolean postExists = false;
 
 		String[] roiNames = new String[this.nbOrganes];
-		for (int i = 0; i < this.roiManager.getCount(); i++) {
-			roiNames[i] = this.roiManager.getRoi(i).getName();
+		for (int i = 0; i < this.model.getRoiManager().getCount(); i++) {
+			roiNames[i] = this.model.getRoiManager().getRoi(i).getName();
 		}
 
 		FenGroup_GeneralDyn fenGroup = new FenGroup_GeneralDyn(roiNames);
@@ -114,7 +114,7 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 		if (scindyn.getImpAnt() != null) {
 			capture = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
 			saveValues(scindyn.getImpAnt());
-			new FenResultat_GeneralDyn(scindyn, capture, (ModeleScinDyn) scin.getModele(), asso, "Ant");
+			new FenResultat_GeneralDyn(scindyn, capture, (ModeleScinDyn) this.model, asso, "Ant");
 		}
 
 		if (scindyn.getImpPost() != null) {
@@ -122,9 +122,10 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 			ImagePlus imp2 = ZProjector.run(scindyn.getImpPost(), "sum");
 			imp2.setOverlay(imp.getOverlay());
 			
-			imp2.setProperty("Info", this.getScin().getImp().getInfoProperty());
+			imp2.setProperty("Info", this.model.getImagePlus().getInfoProperty());
 
-			scindyn.setImp(imp2);
+//			scindyn.setImp(imp2);
+			this.model.getImagesPlus()[0] = imp2;
 			scindyn.getFenApplication().setImage(imp2);
 			scindyn.getFenApplication().resizeCanvas();
 			scindyn.getFenApplication().toFront();
@@ -141,7 +142,7 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 					BufferedImage c = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
 
 					saveValues(scindyn.getImpPost());
-					new FenResultat_GeneralDyn(scindyn, c, (ModeleScinDyn) scin.getModele(), asso, "Post");
+					new FenResultat_GeneralDyn(scindyn, c, (ModeleScinDyn) model, asso, "Post");
 
 					Controleur_GeneralDyn.this.finishDrawingResultWindow();
 				}
@@ -162,14 +163,16 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 		this.addImpListener();
 		
 		vue.getFenApplication().setImage(this.impProjetee);
-		vue.setImp(this.impProjetee);
+//		vue.setImp(this.impProjetee);
+		this.model.getImagesPlus()[0] = this.impProjetee;
 		
 		vue.getFenApplication().resizeCanvas();
 	}
 
 	private void saveValues(ImagePlus imp) {
 
-		this.getScin().setImp(imp);
+		this.model.getImagesPlus()[0] = imp;
+//		this.getScin().setImp(imp);
 		this.indexRoi = 0;
 		
 		HashMap<String, List<Double>> mapData=new HashMap<String, List<Double>>();
@@ -192,8 +195,8 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 			}
 		}
 		//set data to the model
-		((ModeleScinDyn) scin.getModele()).setData(mapData);
-		scin.getModele().calculerResultats();
+		((ModeleScinDyn) this.model).setData(mapData);
+		this.model.calculerResultats();
 		
 	}
 
@@ -202,8 +205,8 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 		if (!isOver()) {
 			return this.getScin().getFenApplication().getTextfield_instructions().getText();
 		}
-		System.out.println(roiManager.getRoi(index % this.nbOrganes).getName());
-		return roiManager.getRoi(index % this.nbOrganes).getName();
+		System.out.println(this.model.getRoiManager().getRoi(index % this.nbOrganes).getName());
+		return this.model.getRoiManager().getRoi(index % this.nbOrganes).getName();
 	}
 
 	@Override
@@ -219,37 +222,37 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 	@Override
 	public boolean isPost() {
 		ImagePlus impPost = ((GeneralDynamicScintigraphy) this.getScin()).getImpPost();
-		return this.getScin().getImp().equals(impPost);
+		return this.model.getImagePlus().equals(impPost);
 	}
 
 	@Override
 	public boolean saveCurrentRoi(String nomRoi, int indexRoi) {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
 			// on change la couleur pour l'overlay
-			this.scin.getImp().getRoi().setStrokeColor(Color.YELLOW);
+			this.model.getImagePlus().getRoi().setStrokeColor(Color.YELLOW);
 			// on enregistre la ROI dans le modele
 			//SK ICI ON REMPLACE
-			/*(( GeneralDynamicScintigraphy)scin.getModele()).enregistrerMesure(
+			/*(( GeneralDynamicScintigraphy)this.model).enregistrerMesure(
 					this.addTag(nomRoi), 
-					this.scin.getImp());*/
+					this.model.getImagePlus());*/
 	
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
-			if (this.roiManager.getRoi(indexRoi) == null) {
-				roiManager.addRoi(this.scin.getImp().getRoi());
+			if (this.model.getRoiManager().getRoi(indexRoi) == null) {
+				this.model.getRoiManager().addRoi(this.model.getImagePlus().getRoi());
 			} else { // Si il existe on l'ecrase
-				this.roiManager.setRoi(this.scin.getImp().getRoi(), indexRoi);
+				this.model.getRoiManager().setRoi(this.model.getImagePlus().getRoi(), indexRoi);
 				// on supprime le roi nouvellement ajoute de la vue
 				this.scin.getFenApplication().getImagePlus().killRoi();
 			}
 	
 			// precise la postion en z
-			this.roiManager.
+			this.model.getRoiManager().
 			getRoi(indexRoi).
 			setPosition(this.getSliceNumberByRoiIndex(indexRoi));
 	
 			// changement de nom
-			this.roiManager.rename(indexRoi, nomRoi);
+			this.model.getRoiManager().rename(indexRoi, nomRoi);
 	
 			return true;
 		}

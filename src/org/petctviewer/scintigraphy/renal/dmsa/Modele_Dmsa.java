@@ -12,6 +12,10 @@ public class Modele_Dmsa extends ModeleScin {
 	HashMap<String, Double> data = new HashMap<>();
 	HashMap<String, Integer> areas = new HashMap<>();
 	double[] pct = new double[2];
+	
+	public Modele_Dmsa() {
+		super(null);
+	}
 
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 		System.out.println(nomRoi);

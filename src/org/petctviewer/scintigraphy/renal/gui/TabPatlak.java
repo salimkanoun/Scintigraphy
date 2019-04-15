@@ -12,6 +12,7 @@ import javax.swing.SwingConstants;
 
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 class TabPatlak extends JPanel {
@@ -21,12 +22,12 @@ class TabPatlak extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public TabPatlak(RenalScintigraphy scin) {
+	public TabPatlak(RenalScintigraphy scin, ModeleScin model) {
 		super(new BorderLayout());
 		
-		Modele_Renal modele = (Modele_Renal) scin.getModele();
-		SidePanel side = new SidePanel(this.getSidePanelContent(modele), "Renal Scintigraphy", scin.getImp());
-		side.addCaptureBtn(scin, "_patlak");
+		Modele_Renal modele = (Modele_Renal) model;
+		SidePanel side = new SidePanel(this.getSidePanelContent(modele), "Renal Scintigraphy", model.getImagePlus());
+		side.addCaptureBtn(scin, "_patlak", model);
 
 		this.add(scin.getPatlakChart(), BorderLayout.CENTER);
 		this.add(side, BorderLayout.EAST);

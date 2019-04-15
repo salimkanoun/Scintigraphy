@@ -12,6 +12,7 @@ import javax.swing.SwingConstants;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 
 import ij.Prefs;
 
@@ -20,17 +21,17 @@ public class FenResultats_Renal {
 	private Container principal, zoomed, kidneys, timedImage, tabCort, tabUreter, tabOther, tabPost, tabPatlak;
 	private final int width = 1000, height = 800;
 
-	public FenResultats_Renal(RenalScintigraphy vue, BufferedImage capture) {
-		this.principal = new TabPrincipal(vue, capture);
-		this.zoomed = new TabZoomed(vue);
-		this.kidneys = new TabROE(vue);
-		this.timedImage = new TabTimedImage(vue, 4, 5);
-		this.tabCort = new TabCort(vue);
-		this.tabUreter = new TabUreter(vue);
-		this.tabOther = new TabOther(vue);
-		this.tabPost = new TabPostMict(vue);
+	public FenResultats_Renal(RenalScintigraphy vue, BufferedImage capture, ModeleScin model) {
+		this.principal = new TabPrincipal(vue, capture, model);
+		this.zoomed = new TabZoomed(vue, model);
+		this.kidneys = new TabROE(vue, model);
+		this.timedImage = new TabTimedImage(vue, 4, 5, model);
+		this.tabCort = new TabCort(vue, model);
+		this.tabUreter = new TabUreter(vue, model);
+		this.tabOther = new TabOther(vue, model);
+		this.tabPost = new TabPostMict(vue, model);
 		if (vue.getPatlakChart() != null) {
-			this.tabPatlak = new TabPatlak(vue);
+			this.tabPatlak = new TabPatlak(vue, model);
 		}
 
 		showGUI(vue);
@@ -74,7 +75,7 @@ public class FenResultats_Renal {
 		frame.pack();
 		frame.setVisible(true);
 		frame.setResizable(true);
-		frame.setLocationRelativeTo(vue.getImp().getWindow());
+		frame.setLocationRelativeTo(vue.getFenApplication());
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
 

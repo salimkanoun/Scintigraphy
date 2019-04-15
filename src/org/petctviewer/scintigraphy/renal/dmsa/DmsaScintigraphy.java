@@ -19,7 +19,7 @@ public class DmsaScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImageSelection[] selectedImages) throws Exception {
+	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
 		if(selectedImages.length>1) throw new Exception ("Only one serie Expected");
 		
 		ImagePlus imp = selectedImages[0].getImagePlus();
@@ -32,25 +32,27 @@ public class DmsaScintigraphy extends Scintigraphy {
 		}else if(selectedImages[0].getImageOrientation()==Orientation.POST_ANT){
 			imp.getStack().getProcessor(2).flipHorizontal();
 		}else if (selectedImages[0].getImageOrientation()==Orientation.POST) {
-			return imp.duplicate();
+			ImageSelection[] selection = new ImageSelection[1];
+			selection[0] = new ImageSelection(imp.duplicate(), null, null);
+			return selection;
 		} else {
 			throw new Exception("Ant/Post Image expected");
 		}
-
-		return imp.duplicate();
+		
+		ImageSelection[] selection = new ImageSelection[1];
+		selection[0] = new ImageSelection(imp.duplicate(), null, null);
+		return selection;
 	}
 
 	@Override
-	public void lancerProgramme() {
-		Overlay overlay = Library_Gui.initOverlay(this.getImp());
-		Library_Gui.setOverlayDG(overlay, this.getImp(), Color.yellow);
+	public void lancerProgramme(ImageSelection[] selectedImages) {
+		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
+		Library_Gui.setOverlayDG(overlay, selectedImages[0].getImagePlus(), Color.yellow);
 		
-		FenApplication fen = new FenApplication(this.getImp(), this.getExamType());
+		FenApplication fen = new FenApplication(selectedImages[0].getImagePlus(), this.getExamType());
 		this.setFenApplication(fen);
-		this.getImp().setOverlay(overlay);
+		selectedImages[0].getImagePlus().setOverlay(overlay);
 		fen.setControleur(new Controleur_Dmsa(this));
-		Modele_Dmsa modele = new Modele_Dmsa();
-		this.setModele(modele);
 	}
 
 }

@@ -27,7 +27,7 @@ public class RenalScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImageSelection[] selectedImages) throws Exception {
+	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
 		
 		//Prepare the final ImagePlus array, position 0 for anterior dynamic and position 1 for posterior dynamic.
 		ImagePlus[] imps =new ImagePlus[2];
@@ -82,14 +82,15 @@ public class RenalScintigraphy extends Scintigraphy {
 		//ajout du stack a l'imp
 		impProjetee.setStack(stack);
 		
-		this.setImp(impProjetee);
-		
-		return impProjetee;
+
+		ImageSelection[] selection = new ImageSelection[1];
+		selection[0] = new ImageSelection(impProjetee, null, null);
+		return selection;
 	}
 	
 
 	@Override
-	public void lancerProgramme() {
+	public void lancerProgramme(ImageSelection[] selectedImages) {
 		Overlay overlay = Library_Gui.initOverlay(impProjetee, 12);
 		Library_Gui.setOverlayGD(overlay, impProjetee, Color.yellow);
 		Library_Gui.setOverlayTitle("Post",overlay, impProjetee, Color.yellow, 1);
@@ -99,10 +100,10 @@ public class RenalScintigraphy extends Scintigraphy {
 			Library_Gui.setOverlayTitle("Ant", overlay, impProjetee, Color.yellow, 4);
 		}
 		
-	System.out.println(this.getImp().getStackSize());
+	System.out.println(selectedImages[0].getImagePlus().getStackSize());
 
-		this.setFenApplication(new FenApplication_Renal(this.getImp(), this.getExamType(), this));
-		this.getImp().setOverlay(overlay);
+		this.setFenApplication(new FenApplication_Renal(selectedImages[0].getImagePlus(), this.getExamType(), this));
+		selectedImages[0].getImagePlus().setOverlay(overlay);
 		this.getFenApplication().setControleur(new Controleur_Renal(this));
 	}
 

@@ -22,10 +22,7 @@ public abstract class Scintigraphy implements PlugIn {
 	private String examType;
 	private FenApplication fen_application;
 
-	private ImagePlus imp;
 	protected int nombreAcquisitions;
-	
-	private ModeleScin modele;
 
 	protected Scintigraphy(String examType) {
 		this.examType = examType;
@@ -44,11 +41,7 @@ public abstract class Scintigraphy implements PlugIn {
 	}
 
 	public void startExam(ImageSelection[] selectedImages) throws Exception {
-
-		//Send selected image to specific app to retrieve the ImagePlus to show in the app (will be stored in this object)
-		this.imp = preparerImp(selectedImages);
-		//Start the program, this overided method should construct the FenApplication, the controller and the model
-		this.lancerProgramme();
+		this.lancerProgramme(preparerImp(selectedImages));
 
 	}
 
@@ -63,19 +56,16 @@ public abstract class Scintigraphy implements PlugIn {
 	 *            liste des fenetres ouvertes
 	 * @return
 	 */
-	protected abstract ImagePlus preparerImp(ImageSelection[] selectedImages) throws Exception;
+	protected abstract ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception;
 
 	/**
 	 * lance le programme
 	 */
-	public abstract void lancerProgramme();
+	public abstract void lancerProgramme(ImageSelection[] selectedImages);
 	
 	
 	
 	/*********************** Setter ******************/
-	public void setImp(ImagePlus imp) {
-		this.imp = imp;
-	}
 	
 	/**
 	 * Prepare le bouton capture de la fenetre resultat
@@ -97,8 +87,8 @@ public abstract class Scintigraphy implements PlugIn {
 		String examType = this.getExamType();
 
 		// generation du tag info
-		String info = modele.genererDicomTagsPartie1SameUID(this.getImp(), this.getExamType())
-				+ Library_Capture_CSV.genererDicomTagsPartie2(this.getImp());
+		String info = modele.genererDicomTagsPartie1SameUID(modele.getImageSelection()[0].getImagePlus(), this.getExamType())
+				+ Library_Capture_CSV.genererDicomTagsPartie2(modele.getImageSelection()[0].getImagePlus());
 
 		// on ajoute le listener sur le bouton capture
 		btn_capture.addActionListener(new ActionListener() {
@@ -203,9 +193,6 @@ public abstract class Scintigraphy implements PlugIn {
 	
 	
 	/********************** Getter **************************/
-	public ImagePlus getImp() {
-		return this.imp;
-	}
 
 	public String getExamType() {
 		return this.examType;
@@ -214,17 +201,5 @@ public abstract class Scintigraphy implements PlugIn {
 	public FenApplication getFenApplication() {
 		return this.fen_application;
 	}
-	
-	public void setModele(ModeleScin modele) {
-		this.modele=modele;
-	}
-	
-	public ModeleScin getModele() {
-		return modele;
-	}
-	
-	
-	
-
 	
 }

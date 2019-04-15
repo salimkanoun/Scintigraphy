@@ -132,7 +132,7 @@ public class TabRentention extends JPanel{
 		radioButtonRetentionPanelFlow.add(radioButtonRetentionPanel);
 	    
 		Box sidePanel = Box.createVerticalBox();
-		SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getExamType(), modeleApp.esoPlugIn.getImp());
+		SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getExamType(), modeleApp.getImagePlus());
 		sidePanel.add(sidePanelScin);
 		
 	    sidePanel.add(radioButtonRetentionPanelFlow);

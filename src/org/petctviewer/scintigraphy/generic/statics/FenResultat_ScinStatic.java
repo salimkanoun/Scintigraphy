@@ -9,6 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
@@ -21,16 +22,18 @@ public class FenResultat_ScinStatic extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private SidePanel side;
 	private Scintigraphy scin;
+	private ModeleScin model;
 	
-	public FenResultat_ScinStatic( Scintigraphy scin, BufferedImage capture) {
+	public FenResultat_ScinStatic( Scintigraphy scin, BufferedImage capture, ModeleScin model) {
 
 		this.scin = scin;
-		side = new SidePanel (null, "Static Quant\n", scin.getImp());
+		this.model = model;
+		side = new SidePanel (null, "Static Quant\n", model.getImagePlus());
 	
 		this.add(new DynamicImage(capture),	 BorderLayout.CENTER);
 		this.add(side, BorderLayout.EAST);
 		this.pack();
-		this.setLocationRelativeTo(scin.getImp().getWindow());
+		this.setLocationRelativeTo(model.getImagePlus().getWindow());
 		this.setVisible(true);
 	}
 
@@ -97,7 +100,7 @@ public class FenResultat_ScinStatic extends JFrame {
 	}
 	
 	public void addCaptureButton() {
-		side.addCaptureBtn(scin, "cc");
+		side.addCaptureBtn(scin, "cc", model);
 	}
 	
 

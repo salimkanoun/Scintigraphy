@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.awt.Color;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -38,12 +39,12 @@ public class HepaticDynamicScintigraphy extends Scintigraphy {
 	
 
 	  @Override
-	  protected ImagePlus preparerImp(ImagePlus[] images) {
+	  protected ImagePlus preparerImp(ImageSelection[] images) {
 	    if (images.length > 2) {
 	      IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 	    }
 	    
-	    ImagePlus[] imps = Library_Dicom.sortDynamicAntPost(images[0]);
+	    ImagePlus[] imps = Library_Dicom.sortDynamicAntPost(images[0].getImagePlus());
 	    if(imps[0] != null) {
 	      this.impAnt = imps[0];
 	    }

@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
@@ -23,13 +24,13 @@ class TabOther extends JPanel{
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public TabOther(Scintigraphy scin) {
+	public TabOther(Scintigraphy scin, ModeleScin model) {
 		super(new BorderLayout());
-		SidePanel side = new SidePanel(null, "Renal scintigraphy", scin.getImp());
-		side.addCaptureBtn(scin, "_other");
+		SidePanel side = new SidePanel(null, "Renal scintigraphy", model.getImagePlus());
+		side.addCaptureBtn(scin, "_other", model);
 		
 		String[][] asso = new String[][] {{"Blood Pool"} , {"Bladder"}};
-		List<XYSeries> series = ((Modele_Renal) scin.getModele()).getSeries();
+		List<XYSeries> series = ((Modele_Renal) model).getSeries();
 		ChartPanel[] cPanels = Library_JFreeChart.associateSeries(asso, series);
 		
 		JPanel center = new JPanel(new GridLayout(1,1));

@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.hepatic.statique;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -14,12 +15,12 @@ public class HepaticScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImagePlus[] images) {
+	protected ImagePlus preparerImp(ImageSelection[] images) {
 		if (images.length > 1) {
 			IJ.log("There must be exactly one dicom opened");
 		}
 
-		ImagePlus imp = images[0];
+		ImagePlus imp = images[0].getImagePlus();
 		String info = imp.getInfoProperty();
 		ImagePlus impSorted = Library_Dicom.sortImageAntPost(imp);
 		impSorted.setProperty("Info", info);
