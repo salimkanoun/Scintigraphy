@@ -11,9 +11,12 @@ public abstract class ModeleScin {
 	protected RoiManager roiManager;
 	protected ImageSelection[] selectedImages;
 	
-	public ModeleScin(ImageSelection[] selectedImages) {
+	protected String studyName;
+	
+	public ModeleScin(ImageSelection[] selectedImages, String studyName) {
 		this.roiManager = new RoiManager(false);
 		this.setImageSelection(selectedImages);
+		this.studyName = studyName;
 	}
 
 	public RoiManager getRoiManager() {
@@ -37,6 +40,10 @@ public abstract class ModeleScin {
 	
 	public ImagePlus getImagePlus() {
 		return this.selectedImages[0].getImagePlus();
+	}
+	
+	public String getStudyName() {
+		return this.studyName;
 	}
 
 	/*********** Public Abstract *********/

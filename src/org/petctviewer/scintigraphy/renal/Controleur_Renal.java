@@ -11,6 +11,7 @@ import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.gui.FenNeph;
 import org.petctviewer.scintigraphy.renal.gui.FenResultats_Renal;
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
@@ -29,8 +30,8 @@ public class Controleur_Renal extends Controleur_OrganeFixe {
 	 * 
 	 * @param renalScinti la vue
 	 */
-	protected Controleur_Renal(RenalScintigraphy renalScinti) {
-		super(renalScinti, new Modele_Renal(renalScinti.getFrameDurations(), renalScinti.getImpPost()));
+	protected Controleur_Renal(RenalScintigraphy renalScinti, ImageSelection[] selectedImages, String studyName) {
+		super(renalScinti, new Modele_Renal(renalScinti.getFrameDurations(), selectedImages, studyName));
 		
 		((Modele_Renal)this.model).setKidneys(new boolean[2]);
 

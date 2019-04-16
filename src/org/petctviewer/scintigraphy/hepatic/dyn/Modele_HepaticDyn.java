@@ -2,11 +2,10 @@ package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.util.HashMap;
 
-import org.jfree.data.statistics.Regression;
-import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
@@ -20,8 +19,8 @@ public class Modele_HepaticDyn extends ModeleScinDyn {
 	private Double tDemiFoieDFit, tDemiFoieGFit, tDemiVascFit, tDemiFoieDObs, tDemiFoieGObs, tDemiVascObs;
 	private Double maxFoieD, maxFoieG, finPicD, finPicG, pctVasc;
 
-	public Modele_HepaticDyn(HepaticDynamicScintigraphy vue) {
-		super(vue.getFrameDurations());
+	public Modele_HepaticDyn(HepaticDynamicScintigraphy vue, ImageSelection[] selectedImage) {
+		super(selectedImage, vue.getFrameDurations());
 		
 	}
 

@@ -17,11 +17,11 @@ import javax.swing.SwingConstants;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.shunpo.FenResults;
 
 import ij.ImagePlus;
 import ij.plugin.ZProjector;
@@ -43,12 +43,12 @@ class TabPrincipal extends JPanel {
 	 * @param chartPanel
 	 *            chartpanel avec l'overlay d'ajustation
 	 */
-	public TabPrincipal(RenalScintigraphy vue, BufferedImage capture, ModeleScin model) {
+	public TabPrincipal(RenalScintigraphy vue, BufferedImage capture, FenResults parent) {
 		super(new BorderLayout());
 		JValueSetter chartNephrogram = vue.getNephrogramChart();
 		
 
-		HashMap<Comparable, Double> adjusted = ((Modele_Renal) model)
+		HashMap<Comparable, Double> adjusted = ((Modele_Renal) parent.getModel())
 				.getAdjustedValues();
 		// l'intervalle est defini par l'utilisateur
 		Double x1 = adjusted.get("start");
@@ -59,9 +59,9 @@ class TabPrincipal extends JPanel {
 		int slice1 = ModeleScinDyn.getSliceIndexByTime(debut * 60 * 1000, vue.getFrameDurations());
 		int slice2 = ModeleScinDyn.getSliceIndexByTime(fin * 60 * 1000, vue.getFrameDurations());
 
-		ImagePlus proj = ZProjector.run(model.getImagePlus(), "sum", slice1, slice2);
+		ImagePlus proj = ZProjector.run(parent.getModel().getImagePlus(), "sum", slice1, slice2);
 		proj.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
-		this.modele = (Modele_Renal) model;
+		this.modele = (Modele_Renal) parent.getModel();
 
 		JPanel grid = new JPanel(new GridLayout(2, 1));
 
@@ -77,10 +77,10 @@ class TabPrincipal extends JPanel {
 		grid.add(chartNephrogram);
 
 		// ajout de la grille a la fenetre
-		SidePanel side = new SidePanel(getSidePanelContent(), "Renal scintigraphy", model.getImagePlus());
-		side.addCaptureBtn(vue, "", model);
+//		SidePanel side = new SidePanel(getSidePanelContent(), "Renal scintigraphy", model.getImagePlus());
+		parent.createCaptureButton();
+		parent.getSidePanel().setSidePanelContent(this.getSidePanelContent());
 		
-		this.add(side, BorderLayout.EAST);
 		this.add(grid, BorderLayout.CENTER);
 		chartNephrogram.removeChartMouseListener(chartNephrogram);
 		

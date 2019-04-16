@@ -12,6 +12,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.hepatic.dyn.gui.FenResultat_HepaticDyn;
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
@@ -22,11 +23,11 @@ public class Controleur_HepaticDyn extends Controleur_OrganeFixe {
 
 	public static String[] organes = { "R. Liver", "L. Liver", "Hilium", "CBD", "Duodenom", "Blood pool" };
 
-	protected Controleur_HepaticDyn(HepaticDynamicScintigraphy scin) {
-		super(scin, scin.getModele());
+	protected Controleur_HepaticDyn(HepaticDynamicScintigraphy scin, ImageSelection[] selectedImages) {
+		super(scin, new Modele_HepaticDyn(scin, selectedImages));
 		this.setOrganes(organes);
-		
-		
+		((Modele_HepaticDyn) this.model).setLocked(true);
+
 	}
 
 	@Override
@@ -36,50 +37,51 @@ public class Controleur_HepaticDyn extends Controleur_OrganeFixe {
 
 	@Override
 	public void end() {
-		HepaticDynamicScintigraphy vue = (HepaticDynamicScintigraphy) this.getScin();
-		
-		ImagePlus imp = vue.getImp();
+		HepaticDynamicScintigraphy scin = (HepaticDynamicScintigraphy) this.getScin();
+
+		ImagePlus imp = this.model.getImagePlus();
 		BufferedImage capture = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
-	
-		ModeleScinDyn modele = (ModeleScinDyn) scin.getModele();
+
+		ModeleScinDyn modele = (ModeleScinDyn) this.model;
 		modele.setLocked(false);
-		
-		//on copie les roi sur toutes les slices
-		for (int i = 1; i <= vue.getImpAnt().getStackSize(); i++) {
-			vue.getImpAnt().setSlice(i);
+
+		// on copie les roi sur toutes les slices
+		for (int i = 1; i <= scin.getImpAnt().getStackSize(); i++) {
+			scin.getImpAnt().setSlice(i);
 			for (int j = 0; j < this.getOrganes().length; j++) {
-				vue.getImpAnt().setRoi(getOrganRoi(this.indexRoi));
-				modele.enregistrerMesure(this.addTag(this.getNomOrgane(this.indexRoi)), vue.getImpAnt());
+				scin.getImpAnt().setRoi(getOrganRoi(this.indexRoi));
+				((Modele_HepaticDyn) modele).enregistrerMesure(this.addTag(this.getNomOrgane(this.indexRoi)),
+						scin.getImpAnt());
 				this.indexRoi++;
 			}
 		}
-		
+
 		modele.calculerResultats();
-		
-		//TODO remove start
+
+		// TODO remove start
 		List<Double> bp = modele.getData("Blood pool");
 		List<Double> rliver = modele.getData("R. Liver");
-		
+
 		Double[] deconv = new Double[bp.size()];
-		for(int i = 0; i < bp.size(); i++) {
+		for (int i = 0; i < bp.size(); i++) {
 			deconv[i] = rliver.get(i) / bp.get(i);
 		}
-		
+
 		XYSeriesCollection data = new XYSeriesCollection();
 		data.addSeries(modele.createSerie(Arrays.asList(deconv), "deconv"));
 		data.addSeries(modele.getSerie("Blood pool"));
 		data.addSeries(modele.getSerie("R. Liver"));
-		
+
 		JFreeChart chart = ChartFactory.createXYLineChart("", "x", "y", data);
-		
+
 		ChartPanel chartpanel = new ChartPanel(chart);
 		JFrame frame = new JFrame();
 		frame.add(chartpanel);
 		frame.pack();
 		frame.setVisible(true);
-		
-		//remove finish
-		new FenResultat_HepaticDyn(vue, capture);
+
+		// remove finish
+		new FenResultat_HepaticDyn(scin, capture);
 		this.getScin().getFenApplication().dispose();
 	}
 

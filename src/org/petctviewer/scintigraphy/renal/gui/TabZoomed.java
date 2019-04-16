@@ -10,24 +10,24 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.shunpo.FenResults;
 
 class TabZoomed extends JPanel {
 
 	private static final long serialVersionUID = -2647720655737610538L;
 
-	public TabZoomed(Scintigraphy scin, ModeleScin model) {
+	public TabZoomed(Scintigraphy scin, FenResults parent) {
 		this.setLayout(new BorderLayout());
-		SidePanel side = new SidePanel(null, "Renal scintigraphy", model.getImagePlus());
-		side.addCaptureBtn(scin, "_vascular", model);
+//		SidePanel side = new SidePanel(null, "Renal scintigraphy", parent.getImagePlus());
+//		side.addCaptureBtn(scin, "_vascular", parent);
+		parent.createCaptureButton("_vascular");
 
-		Modele_Renal modele = ((Modele_Renal) model);
+		Modele_Renal modele = ((Modele_Renal) parent.getModel());
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		
 		//creation du chartPanel
-		boolean[] kidneys = ((Modele_Renal) model).getKidneys();
+		boolean[] kidneys = ((Modele_Renal) parent.getModel()).getKidneys();
 		if(kidneys[0]) {
 			XYSeries finalKL = modele.getSerie("Final KL");
 			XYSeries finalKLCropped = Modele_Renal.cropSeries(finalKL, 0.0, 1.0);
@@ -46,6 +46,6 @@ class TabZoomed extends JPanel {
 		chart.setTitle("First minute of nephrogram");
 
 		this.add(cp, BorderLayout.CENTER);
-		this.add(side, BorderLayout.EAST);
+//		this.add(side, BorderLayout.EAST);
 	}
 }

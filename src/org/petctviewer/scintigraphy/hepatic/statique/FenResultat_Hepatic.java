@@ -3,17 +3,17 @@ package org.petctviewer.scintigraphy.hepatic.statique;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
-
-import java.awt.image.BufferedImage;
 
 public class FenResultat_Hepatic extends JFrame {
 
@@ -21,12 +21,12 @@ public class FenResultat_Hepatic extends JFrame {
 
 	private HashMap<String, String> resultats;
 
-	public FenResultat_Hepatic(Scintigraphy scin, BufferedImage capture) {
+	public FenResultat_Hepatic(Scintigraphy scin, BufferedImage capture, ModeleScin model) {
 		this.setLayout(new BorderLayout());
-		this.resultats = ((Modele_Hepatic) scin.getModele()).getResultsHashMap();
+		this.resultats = ((Modele_Hepatic) model).getResultsHashMap();
 		
-		SidePanel side = new SidePanel(this.getSidePanelContent(), scin.getExamType(), scin.getImp());
-		side.addCaptureBtn(scin, "");
+		SidePanel side = new SidePanel(this.getSidePanelContent(), scin.getExamType(), model.getImagePlus());
+		side.addCaptureBtn(scin, "", model);
 		
 		this.add(side, BorderLayout.EAST);
 		this.add(new DynamicImage(capture), BorderLayout.CENTER);

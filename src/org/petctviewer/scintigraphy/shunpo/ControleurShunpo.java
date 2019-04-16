@@ -1,17 +1,22 @@
 package org.petctviewer.scintigraphy.shunpo;
 
+import java.awt.Component;
+import java.awt.GridLayout;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
-import ij.plugin.frame.RoiManager;
 
 public class ControleurShunpo extends ControleurScin {
 
@@ -46,15 +51,14 @@ public class ControleurShunpo extends ControleurScin {
 	 * @param vue
 	 * @param images 2 images, 1st: KIDNEY-PULMON; 2nd: BRAIN
 	 */
-	public ControleurShunpo(Scintigraphy main, FenApplication vue, ImageSelection[] images) {
-		super(main, vue, new ModeleShunpo(images));
+	public ControleurShunpo(Scintigraphy main, FenApplication vue, ImageSelection[] images, String studyName) {
+		super(main, vue, new ModeleShunpo(images, studyName));
 		this.state = State.DELIMIT_ORGAN_ANT;
 		this.currentStep = 0;
 		this.indexOrgan = 0;
 		this.currentOrgan = 0;
 
 		this.captures = new ImagePlus[4];
-		new RoiManager();
 
 		// Start working with kidney-pulmon
 		this.prepareStep(this.currentStep);
@@ -225,11 +229,41 @@ public class ControleurShunpo extends ControleurScin {
 		ImagePlus montage = this.montage(stackCapture);
 
 		// Display result
-		this.fenResults = new FenResults("Results", this.main.getExamType());
-		this.fenResults.setResult(new DynamicImage(montage.getImage()));
-		this.fenResults.setInfos(new SidePanel(null, this.main.getExamType(), this.model.getImageSelection()[0].getImagePlus()));
-		this.fenResults.setComplement(((ModeleShunpo) this.model).getResult());
+		this.fenResults = new FenResults(this.model);
+		this.fenResults.addTab(new TabResult(fenResults, "Result", true) {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public Component getSidePanelContent() {
+				String[] result = ((ModeleShunpo) model).getResult();
+				JPanel res = new JPanel(new GridLayout(result.length+1, 1));
+				for(String s : result)
+					res.add(new JLabel(s));
+				return res;
+			}
+			@Override
+			public JPanel getResultContent() {
+				return new DynamicImage(montage.getImage());
+			}
+		});
+		this.fenResults.addTab(new TabResult(fenResults, "Test", true) {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public Component getSidePanelContent() {
+				JPanel res = new JPanel(new GridLayout(1, 1));
+				res.add(new JLabel("TEsting"));
+				res.add(new JButton("Test"));
+				return res;
+			}
+			@Override
+			public JPanel getResultContent() {
+				JPanel pan = new JPanel();
+				pan.add(new JButton("TEst"));
+				return pan;
+			}
+		});
 		this.fenResults.setVisible(true);
+		
+		
 	}
 
 	@Override

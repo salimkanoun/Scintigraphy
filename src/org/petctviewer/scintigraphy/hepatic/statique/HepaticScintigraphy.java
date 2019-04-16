@@ -15,7 +15,7 @@ public class HepaticScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImageSelection[] images) {
+	protected ImageSelection[] preparerImp(ImageSelection[] images) {
 		if (images.length > 1) {
 			IJ.log("There must be exactly one dicom opened");
 		}
@@ -25,13 +25,15 @@ public class HepaticScintigraphy extends Scintigraphy {
 		ImagePlus impSorted = Library_Dicom.sortImageAntPost(imp);
 		impSorted.setProperty("Info", info);
 
-		return impSorted.duplicate();
+
+		ImageSelection[] selection = new ImageSelection[1];
+		selection[0] = new ImageSelection(impSorted.duplicate(), null, null);
+		return selection;
 	}
 
 	@Override
-	public void lancerProgramme() {
-		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));
-		this.getFenApplication().setControleur(new Controleur_Hepatic(this));
-		this.setModele(new Modele_Hepatic());
+	public void lancerProgramme(ImageSelection[] selectedImages) {
+		this.setFenApplication(new FenApplication(selectedImages[0].getImagePlus(), this.getExamType()));
+		this.getFenApplication().setControleur(new Controleur_Hepatic(this, selectedImages));
 	}
 }

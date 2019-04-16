@@ -27,10 +27,10 @@ public class ModeleShunpo extends ModeleScin {
 
 	private static final int RESULT_LUNG_RIGHT = 0, RESULT_LUNG_LEFT = 1, RESULT_KIDNEY_RIGHT = 2,
 			RESULT_KIDNEY_LEFT = 3, RESULT_BRAIN = 4, RESULT_TOTAL_AVG = 5, RESULT_TOTAL_SHUNT = 6, RESULT_SYSTEMIC = 7,
-			RESULT_PULMONARY_SHUNT = 8, TOTAL_RESULT = 9;
+			RESULT_PULMONARY_SHUNT = 8;
 
-	public ModeleShunpo(ImageSelection[] selectedImages) {
-		super(selectedImages);
+	public ModeleShunpo(ImageSelection[] selectedImages, String studyName) {
+		super(selectedImages, studyName);
 		this.coups = new HashMap<>();
 		this.geometricalAverage = new HashMap<>();
 		this.retour = new String[9];

@@ -19,13 +19,12 @@ import javax.swing.JPanel;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.shunpo.FenResults;
 
 import ij.ImagePlus;
 import ij.Prefs;
@@ -37,14 +36,11 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 	private PostMictional vueBasic;
 	private JButton btn_addImp, btn_quantify;
 	private boolean bladder;
-	
-	private ModeleScin model;
 
 	private JPanel panel_excr, panel_bladder;
 
-	public TabPostMict(Scintigraphy vue, ModeleScin model) {
-		super("Renal scintigraphy", vue, "postmict", model);
-		this.model = model;
+	public TabPostMict(Scintigraphy vue, FenResults parent) {
+		super("Renal scintigraphy", vue, "postmict", parent);
 		this.bladder = Prefs.get("renal.bladder.preferred", true);
 
 		
@@ -75,9 +71,9 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 		this.btn_quantify.setVisible(false);
 		side.add(btn_quantify);
 		
-		sidePanel = new SidePanel(side, "Renal Scintigraphy1", model.getImagePlus());
+//		sidePanel = new SidePanel(side, "Renal Scintigraphy1", parent.getImagePlus());
 
-		this.add(sidePanel, BorderLayout.EAST);
+//		this.add(sidePanel, BorderLayout.EAST);
 	}
 
 	@Override
@@ -98,7 +94,8 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 						TabPostMict.this.setImp(imp);
 						btn_addImp.setVisible(false);
 						btn_quantify.setVisible(true);
-						sidePanel.add(boxSlider);
+//						sidePanel.add(boxSlider);
+						parent.getSidePanel().setSidePanelContent(boxSlider);
 						
 						ImageSelection[] selection = new ImageSelection[1];
 						selection[0] = new ImageSelection(imp, null, null);
@@ -120,7 +117,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 			//SK A REVOIR
 			this.vueBasic = new PostMictional(createOrgans(), this);
 			try {
-				this.vueBasic.startExam(this.model.getImageSelection());
+				this.vueBasic.startExam(this.parent.getModel().getImageSelection());
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -131,7 +128,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 	}
 
 	private String[] createOrgans() {
-		Modele_Renal modele = (Modele_Renal) this.model;
+		Modele_Renal modele = (Modele_Renal) this.parent.getModel();
 
 		// ajout des organes a delimiter selon le nombre de rein du patient
 		List<String> organes = new ArrayList<String>();
@@ -152,10 +149,10 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 	}
 
 	public void updateResultFrame() {
-		Modele_Renal modele = (Modele_Renal) this.model;
+		Modele_Renal modele = (Modele_Renal) this.parent.getModel();
 
 		HashMap<String, Double> data = this.vueBasic.getData();
-		this.setImp(this.model.getImagePlus());
+		this.setImp(this.parent.getModel().getImagePlus());
 
 		Double rg = null, rd = null;
 		int duration = Integer.parseInt(DicomTools.getTag(this.getImagePlus(), "0018,1242").trim());
@@ -180,14 +177,16 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 			this.panel_bladder.add(new JLabel("Bladder : " + Library_Quantif.round(modele.getExcrBladder(bld), 2) + " %"));
 		}
 
-		this.remove(this.sidePanel);
+//		this.remove(this.sidePanel);
 		
 		JPanel flow = new JPanel();
 		flow.add(panel_excr);
+		this.parent.getSidePanel().setSidePanelContent(flow);
 
-		sidePanel = new SidePanel(flow, "Renal Scintigraphy2", this.getImagePlus());
-		sidePanel.addCaptureBtn(vueBasic, "_PostMict", new Component[] { this.getSlider() }, model);
-		this.add(sidePanel,BorderLayout.EAST);
+//		sidePanel = new SidePanel(flow, "Renal Scintigraphy2", this.getImagePlus());
+//		sidePanel.addCaptureBtn(vueBasic, "_PostMict", new Component[] { this.getSlider() }, model);
+		this.parent.createCaptureButton("_PostMict");
+//		this.add(sidePanel,BorderLayout.EAST);
 		this.revalidate();
 		this.repaint();
 
@@ -199,7 +198,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 	
 
 	private Component getPanelExcr(Double rg, Double rd) {
-		Modele_Renal modele = (Modele_Renal) this.model;
+		Modele_Renal modele = (Modele_Renal) this.parent.getModel();
 		Double[][] excr = modele.getExcrPM(rg, rd);
 
 		// elements du tableau

@@ -104,7 +104,7 @@ public class RenalScintigraphy extends Scintigraphy {
 
 		this.setFenApplication(new FenApplication_Renal(selectedImages[0].getImagePlus(), this.getExamType(), this));
 		selectedImages[0].getImagePlus().setOverlay(overlay);
-		this.getFenApplication().setControleur(new Controleur_Renal(this));
+		this.getFenApplication().setControleur(new Controleur_Renal(this, selectedImages, "Renal scintigraphy"));
 	}
 
 	public JValueSetter getNephrogramChart() {

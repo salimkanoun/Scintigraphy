@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 
-import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 
@@ -13,35 +12,37 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.shunpo.FenResults;
 
 import ij.Prefs;
 
-public class FenResultats_Renal {
-
+public class FenResultats_Renal extends FenResults {
+	private static final long serialVersionUID = 1L;
+	
 	private Container principal, zoomed, kidneys, timedImage, tabCort, tabUreter, tabOther, tabPost, tabPatlak;
 	private final int width = 1000, height = 800;
 
 	public FenResultats_Renal(RenalScintigraphy vue, BufferedImage capture, ModeleScin model) {
-		this.principal = new TabPrincipal(vue, capture, model);
-		this.zoomed = new TabZoomed(vue, model);
-		this.kidneys = new TabROE(vue, model);
-		this.timedImage = new TabTimedImage(vue, 4, 5, model);
-		this.tabCort = new TabCort(vue, model);
-		this.tabUreter = new TabUreter(vue, model);
-		this.tabOther = new TabOther(vue, model);
-		this.tabPost = new TabPostMict(vue, model);
+		super(model, "Renal Exam", model.getStudyName());
+		this.principal = new TabPrincipal(vue, capture, this);
+		this.zoomed = new TabZoomed(vue, this);
+		this.kidneys = new TabROE(vue, this);
+		this.timedImage = new TabTimedImage(vue, 4, 5, this);
+		this.tabCort = new TabCort(vue, this);
+		this.tabUreter = new TabUreter(vue, this);
+		this.tabOther = new TabOther(vue, this);
+		this.tabPost = new TabPostMict(vue, this);
 		if (vue.getPatlakChart() != null) {
-			this.tabPatlak = new TabPatlak(vue, model);
+			this.tabPatlak = new TabPatlak(vue, this);
 		}
 
 		showGUI(vue);
 	}
 
 	private void showGUI(RenalScintigraphy vue) {
-
 		// Create and set up the window.
-		JFrame frame = new JFrame("Results Renal Exam");
-		frame.getContentPane().setLayout(new GridLayout(1, 1));
+		this.setTitle("Results Renal Exam");
+		this.getContentPane().setLayout(new GridLayout(1, 1));
 
 		JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
 
@@ -68,15 +69,16 @@ public class FenResultats_Renal {
 			tabbedPane.addTab("Patlak", this.tabPatlak);
 		}
 		
-		frame.getContentPane().add(tabbedPane);
-
+//		this.getContentPane().add(tabbedPane);
+		this.setResult(tabbedPane);
+		
 		// Display the window
-		frame.setPreferredSize(new Dimension(width, height));
-		frame.pack();
-		frame.setVisible(true);
-		frame.setResizable(true);
-		frame.setLocationRelativeTo(vue.getFenApplication());
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		this.setPreferredSize(new Dimension(width, height));
+		this.setLocationRelativeTo(vue.getFenApplication());
+		this.pack();
+//		this.setVisible(true);
+//		this.setResizable(true);
+//		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
 
 	// renomme la serie

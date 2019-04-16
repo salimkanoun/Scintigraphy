@@ -23,23 +23,19 @@ public class HepaticDynamicScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void lancerProgramme() {
-		Overlay overlay = Library_Gui.initOverlay(this.getImp(), 12);
-		Library_Gui.setOverlayDG(overlay, this.getImp(), Color.YELLOW);
+	public void lancerProgramme(ImageSelection[] selectedImages) {
+		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
+		Library_Gui.setOverlayDG(overlay, selectedImages[0].getImagePlus(), Color.YELLOW);
 		
-		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));
-		this.getImp().setOverlay(overlay);
-		this.getFenApplication().setControleur(new Controleur_HepaticDyn(this));
-		
-		Modele_HepaticDyn modele = new Modele_HepaticDyn(this);
-		modele.setLocked(true);
-		this.setModele(modele);
+		this.setFenApplication(new FenApplication(selectedImages[0].getImagePlus(), this.getExamType()));
+		selectedImages[0].getImagePlus().setOverlay(overlay);
+		this.getFenApplication().setControleur(new Controleur_HepaticDyn(this, selectedImages));
 	}
 
 	
 
 	  @Override
-	  protected ImagePlus preparerImp(ImageSelection[] images) {
+	  protected ImageSelection[] preparerImp(ImageSelection[] images) {
 	    if (images.length > 2) {
 	      IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 	    }
@@ -65,8 +61,10 @@ public class HepaticDynamicScintigraphy extends Scintigraphy {
 	      impProjetee = Library_Dicom.projeter(this.impPost,0,impPost.getStackSize(),"avg");
 	      this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost);
 	    }
-	 
-	    return impProjetee.duplicate();
+
+		ImageSelection[] selection = new ImageSelection[1];
+		selection[0] = new ImageSelection(impProjetee.duplicate(), null, null);
+		return selection;
 	  }
 
 	public ImagePlus getImpAnt() {

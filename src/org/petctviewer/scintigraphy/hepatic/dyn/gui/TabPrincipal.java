@@ -18,6 +18,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.dyn.Modele_HepaticDyn;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
@@ -33,14 +34,14 @@ class TabPrincipal extends JPanel{
 	private static final long serialVersionUID = 1L;
 	private HashMap<String, String> resultats;
 
-	public TabPrincipal(HepaticDynamicScintigraphy scin, BufferedImage capture, int width, int height) {
+	public TabPrincipal(HepaticDynamicScintigraphy scin, BufferedImage capture, int width, int height, ModeleScin model) {
 		super(new BorderLayout());
 		
-		Modele_HepaticDyn modele = (Modele_HepaticDyn) scin.getModele();
+		Modele_HepaticDyn modele = (Modele_HepaticDyn) model;
 		this.resultats = modele.getResultsHashMap();
 		
-		SidePanel side = new SidePanel(this.getSidePanelContent(), "Biliary scintiraphy", scin.getImp());
-		side.addCaptureBtn(scin, "");
+		SidePanel side = new SidePanel(this.getSidePanelContent(), "Biliary scintiraphy", model.getImagePlus());
+		side.addCaptureBtn(scin, "", model);
 		
 		//montage sur l'ensemble des images
 		ImagePlus imp = Library_Capture_CSV.creerMontage(scin.getFrameDurations(), scin.getImpAnt(), capture.getWidth() / 4, 4, 4);

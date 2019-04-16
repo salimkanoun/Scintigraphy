@@ -52,7 +52,7 @@ public class DmsaScintigraphy extends Scintigraphy {
 		FenApplication fen = new FenApplication(selectedImages[0].getImagePlus(), this.getExamType());
 		this.setFenApplication(fen);
 		selectedImages[0].getImagePlus().setOverlay(overlay);
-		fen.setControleur(new Controleur_Dmsa(this));
+		fen.setControleur(new Controleur_Dmsa(this, selectedImages, "dmsa"));
 	}
 
 }

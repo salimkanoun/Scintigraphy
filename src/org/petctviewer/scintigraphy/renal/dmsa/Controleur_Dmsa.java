@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
@@ -19,8 +20,8 @@ public class Controleur_Dmsa extends Controleur_OrganeFixe {
 	private boolean antPost;
 	private boolean over;
 
-	protected Controleur_Dmsa(Scintigraphy scin) {
-		super(scin, new Modele_Dmsa());
+	protected Controleur_Dmsa(Scintigraphy scin, ImageSelection[] selectedImages, String studyName) {
+		super(scin, new Modele_Dmsa(selectedImages, studyName));
 
 		this.antPost = this.model.getImagePlus().getNSlices() == 2;
 		if (antPost) {
@@ -66,7 +67,7 @@ public class Controleur_Dmsa extends Controleur_OrganeFixe {
 
 		this.model.calculerResultats();
 
-		new FenResultats_Dmsa(this.getScin(), capture, (Modele_Dmsa) this.model);
+		new FenResultats_Dmsa(capture, this.model);
 
 		this.over = false;
 	}

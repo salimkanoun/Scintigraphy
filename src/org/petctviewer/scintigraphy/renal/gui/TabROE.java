@@ -23,23 +23,22 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.shunpo.FenResults;
 
 class TabROE extends JPanel implements ActionListener{
 
 	private static final long serialVersionUID = -8303889633428224794L;
 	Modele_Renal modele;
 	
-	public TabROE(Scintigraphy scin, ModeleScin model) {
+	public TabROE(Scintigraphy scin, FenResults parent) {
 		super(new BorderLayout());
-		modele = (Modele_Renal) model;
+		modele = (Modele_Renal) parent.getModel();
 
 		// on recupere le modele et les series
-		Modele_Renal modele = (Modele_Renal) model;
+		Modele_Renal modele = (Modele_Renal) parent.getModel();
 		List<XYSeries> series = modele.getSeries();
 
 		// recuperation des chart panel avec association
@@ -90,10 +89,11 @@ class TabROE extends JPanel implements ActionListener{
 			p.add(c1);
 		}
 		
-		SidePanel side = new SidePanel(this.getSidePanelContent(), "Renal Scintigraphy", model.getImagePlus());
-		side.addCaptureBtn(scin, "_roe", model);
+//		SidePanel side = new SidePanel(this.getSidePanelContent(), "Renal Scintigraphy", parent.getImagePlus());
+//		side.addCaptureBtn(scin, "_roe", parent);
+		parent.createCaptureButton("_roe");
 		
-		this.add(side, BorderLayout.EAST);
+//		this.add(side, BorderLayout.EAST);
 		this.add(p, BorderLayout.CENTER);
 	}
 

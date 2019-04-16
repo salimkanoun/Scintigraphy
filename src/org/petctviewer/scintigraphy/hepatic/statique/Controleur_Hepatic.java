@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
@@ -14,8 +15,8 @@ public class Controleur_Hepatic extends Controleur_OrganeFixe {
 
 	public static String[] organes = { "Liver", "Intestine" };
 
-	protected Controleur_Hepatic(Scintigraphy scin) {
-		super(scin, scin.getModele());
+	protected Controleur_Hepatic(Scintigraphy scin, ImageSelection[] selectedImages) {
+		super(scin, new Modele_Hepatic(selectedImages));
 		this.setOrganes(organes);
 		this.setSlice(1);
 	}
@@ -35,13 +36,13 @@ public class Controleur_Hepatic extends Controleur_OrganeFixe {
 		HashMap<String, Double> data =new HashMap<String, Double>();
 		for (int i = 0; i < 2; i++) {
 			this.indexRoi++;
-			scin.getImp().setRoi(getOrganRoi(this.indexRoi));
+			this.model.getImagePlus().setRoi(getOrganRoi(this.indexRoi));
 			
-			Double counts = Library_Quantif.getCounts(scin.getImp());
+			Double counts = Library_Quantif.getCounts(this.model.getImagePlus());
 			data.put(this.addTag(this.getNomOrgane(this.indexRoi)), counts);
 		}
-		((Modele_Hepatic) this.getScin().getModele()).setData(data);
-		this.getScin().getModele().calculerResultats();
+		((Modele_Hepatic) this.model).setData(data);
+		this.model.calculerResultats();
 		
 		this.setSlice(1);
 		
@@ -53,8 +54,8 @@ public class Controleur_Hepatic extends Controleur_OrganeFixe {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				BufferedImage capture = Library_Capture_CSV.captureImage(getScin().getImp(), 400, 400).getBufferedImage();
-				new FenResultat_Hepatic(getScin(), capture);
+				BufferedImage capture = Library_Capture_CSV.captureImage(Controleur_Hepatic.this.model.getImagePlus(), 400, 400).getBufferedImage();
+				new FenResultat_Hepatic(getScin(), capture, Controleur_Hepatic.this.model);
 				getScin().getFenApplication().dispose();
 			}
 		});
