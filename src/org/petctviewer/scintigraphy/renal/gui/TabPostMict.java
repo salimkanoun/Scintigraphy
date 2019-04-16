@@ -95,7 +95,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 						btn_addImp.setVisible(false);
 						btn_quantify.setVisible(true);
 //						sidePanel.add(boxSlider);
-						parent.getSidePanel().setSidePanelContent(boxSlider);
+						parent.getPanel().setSidePanelContent(boxSlider);
 						
 						ImageSelection[] selection = new ImageSelection[1];
 						selection[0] = new ImageSelection(imp, null, null);
@@ -181,7 +181,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 		
 		JPanel flow = new JPanel();
 		flow.add(panel_excr);
-		this.parent.getSidePanel().setSidePanelContent(flow);
+		this.parent.getPanel().setSidePanelContent(flow);
 
 //		sidePanel = new SidePanel(flow, "Renal Scintigraphy2", this.getImagePlus());
 //		sidePanel.addCaptureBtn(vueBasic, "_PostMict", new Component[] { this.getSlider() }, model);

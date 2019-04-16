@@ -6,8 +6,8 @@ import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 
 public class Modele_GeneralDyn extends ModeleScinDyn {
 
-	public Modele_GeneralDyn(int[] frameDuration) {
-		super(null, frameDuration);
+	public Modele_GeneralDyn(String studyName, int[] frameDuration) {
+		super(null, studyName, frameDuration);
 	}
 
 	@Override

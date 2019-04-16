@@ -35,8 +35,8 @@ public class Modele_Cardiac extends ModeleScin {
 
 	private HashMap<String, String> resultats;
 
-	public Modele_Cardiac(Scintigraphy scin, ImageSelection[] selectedImages) {
-		super(selectedImages);
+	public Modele_Cardiac(Scintigraphy scin, ImageSelection[] selectedImages, String studyName) {
+		super(selectedImages, studyName);
 		this.scin=scin;
 		this.resultats = new HashMap<>();
 		this.data = new HashMap<>();

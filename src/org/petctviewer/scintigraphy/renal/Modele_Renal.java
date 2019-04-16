@@ -31,6 +31,8 @@ public class Modele_Renal extends ModeleScinDyn {
 	private boolean[] kidneys;
 	private double[] patlakPente;
 	private ArrayList<String> kidneysLR;
+	private JValueSetter nephrogramChart;
+	private JValueSetter patlakChart;
 
 	/**
 	 * recupere les valeurs et calcule les resultats de l'examen renal
@@ -698,6 +700,21 @@ public class Modele_Renal extends ModeleScinDyn {
 	}
 
 
+	public void setNephrogramChart(JValueSetter nephrogramChart) {
+		this.nephrogramChart = nephrogramChart;
+	}
+
+	public JValueSetter getNephrogramChart() {
+		return nephrogramChart;
+	}
+
+	public JValueSetter getPatlakChart() {
+		return patlakChart;
+	}
+
+	public void setPatlakChart(JValueSetter patlakChart) {
+		this.patlakChart = patlakChart;
+	}
 
 	
 }

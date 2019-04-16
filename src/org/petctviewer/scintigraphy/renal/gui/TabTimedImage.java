@@ -8,7 +8,7 @@ import org.petctviewer.scintigraphy.shunpo.FenResults;
 import ij.ImagePlus;
 import ij.process.ImageProcessor;
 
-class TabTimedImage extends PanelImpContrastSlider{
+class TabTimedImage extends PanelImpContrastSlider {
 
 	private static final long serialVersionUID = 8125367912250906052L;
 

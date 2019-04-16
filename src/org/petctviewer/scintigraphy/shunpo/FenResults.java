@@ -1,7 +1,5 @@
 package org.petctviewer.scintigraphy.shunpo;
 
-import java.awt.BorderLayout;
-
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 
@@ -20,14 +18,12 @@ public class FenResults extends JFrame {
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		this.model = model;
+
 		this.tabPane = new JTabbedPane();
-
 	
-		this.setLayout(new BorderLayout());
-
-		// Add components
-		this.add(this.tabPane, BorderLayout.CENTER);
-		this.pack();
+		this.add(tabPane);
+		
+		this.setVisible(true);
 	}
 	
 	public ModeleScin getModel() {
@@ -35,7 +31,7 @@ public class FenResults extends JFrame {
 	}
 	
 	public void addTab(TabResult tab) {
-		this.tabPane.add(tab.getTitle(), tab);
+		this.tabPane.addTab(tab.getTitle(), tab.getPanel());
 		this.pack();
 	}
 

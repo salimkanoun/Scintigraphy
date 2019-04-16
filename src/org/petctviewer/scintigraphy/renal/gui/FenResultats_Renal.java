@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
@@ -13,17 +12,18 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.shunpo.FenResults;
+import org.petctviewer.scintigraphy.shunpo.TabResult;
 
 import ij.Prefs;
 
 public class FenResultats_Renal extends FenResults {
 	private static final long serialVersionUID = 1L;
 	
-	private Container principal, zoomed, kidneys, timedImage, tabCort, tabUreter, tabOther, tabPost, tabPatlak;
+	private TabResult principal, zoomed, kidneys, timedImage, tabCort, tabUreter, tabOther, tabPost, tabPatlak;
 	private final int width = 1000, height = 800;
 
 	public FenResultats_Renal(RenalScintigraphy vue, BufferedImage capture, ModeleScin model) {
-		super(model, "Renal Exam", model.getStudyName());
+		super(model);
 		this.principal = new TabPrincipal(vue, capture, this);
 		this.zoomed = new TabZoomed(vue, this);
 		this.kidneys = new TabROE(vue, this);

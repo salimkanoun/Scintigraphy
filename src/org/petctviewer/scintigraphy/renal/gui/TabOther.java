@@ -1,7 +1,7 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridLayout;
 import java.util.List;
 
@@ -13,22 +13,23 @@ import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.shunpo.FenResults;
+import org.petctviewer.scintigraphy.shunpo.TabResult;
 
 import ij.Prefs;
 
-class TabOther extends JPanel{
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+class TabOther extends TabResult {
 
 	public TabOther(Scintigraphy scin, FenResults parent) {
-		super(new BorderLayout());
-//		SidePanel side = new SidePanel(null, "Renal scintigraphy", parent.getImagePlus());
-//		side.addCaptureBtn(scin, "_other", parent);
-		parent.createCaptureButton("_other");
-		
+		super(parent, "Other", true);
+	}
+
+	@Override
+	public Component getSidePanelContent() {
+		return null;
+	}
+
+	@Override
+	public JPanel getResultContent() {
 		String[][] asso = new String[][] {{"Blood Pool"} , {"Bladder"}};
 		List<XYSeries> series = ((Modele_Renal) parent.getModel()).getSeries();
 		ChartPanel[] cPanels = Library_JFreeChart.associateSeries(asso, series);
@@ -43,8 +44,7 @@ class TabOther extends JPanel{
 			cPanels[1].getChart().getXYPlot().getRenderer().setSeriesPaint(0, Color.PINK);
 			center.add(cPanels[1]);
 		}
-		
-		this.add(center, BorderLayout.CENTER);
+		return center;
 	}
 
 }

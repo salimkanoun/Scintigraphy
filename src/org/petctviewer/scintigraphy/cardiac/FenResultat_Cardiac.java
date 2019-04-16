@@ -14,7 +14,6 @@ import java.util.HashMap;
 
 import javax.swing.Box;
 import javax.swing.DefaultRowSorter;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -29,25 +28,39 @@ import javax.swing.table.DefaultTableModel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.shunpo.FenResults;
+import org.petctviewer.scintigraphy.shunpo.TabResult;
 
-public class FenResultat_Cardiac extends JFrame {
+public class FenResultat_Cardiac extends FenResults {
 
 	private static final long serialVersionUID = -5261203439330504164L;
 
 	public FenResultat_Cardiac(Scintigraphy scin, BufferedImage capture, ModeleScin model) {
+		super(model);
 		this.setLayout(new BorderLayout());
 		HashMap<String, String> resultats = ((Modele_Cardiac) model).getResultsHashMap();
-		SidePanel side = new SidePanel(getSidePanelContent(resultats), "DPD Quant", model.getImagesPlus()[0]);
-		side.addCaptureBtn(scin, "", model);
-		this.add(new DynamicImage(capture), BorderLayout.CENTER);
-		this.add(side, BorderLayout.EAST);
+//		SidePanel side = new SidePanel(getSidePanelContent(resultats), "DPD Quant", model.getImagesPlus()[0]);
+//		side.addCaptureBtn(scin, "", model);
+		this.addTab(new TabResult(this, "DPD Quant") {
+			
+			@Override
+			public Component getSidePanelContent() {
+				return FenResultat_Cardiac.this.getSidePanelContent(resultats);
+			}
+			
+			@Override
+			public JPanel getResultContent() {
+				return new DynamicImage(capture);
+			}
+		});
+//		this.add(new DynamicImage(capture), BorderLayout.CENTER);
+//		this.add(side, BorderLayout.EAST);
 		
-		this.setTitle("DPD Quant results");
-		this.pack();
-		this.setMinimumSize(side.getSize());
-		this.setLocationRelativeTo(scin.getFenApplication());
-		this.setVisible(true);
+//		this.setTitle("DPD Quant results");
+//		this.pack();
+//		this.setMinimumSize(side.getSize());
+//		this.setLocationRelativeTo(scin.getFenApplication());
+//		this.setVisible(true);
 	}
 
 	public Component getSidePanelContent(HashMap<String, String> resultats) {

@@ -14,7 +14,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.shunpo.FenResults;
+import org.petctviewer.scintigraphy.shunpo.TabResult;
 
 import ij.ImagePlus;
 /**
@@ -34,11 +34,11 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 	private JSlider slider;
 	protected Box boxSlider;
 	
-	protected FenResults parent;
+	protected TabResult parent;
 	
 	String additionalInfo, nomFen;
 
-	public PanelImpContrastSlider(String nomFen, Scintigraphy scin, String additionalInfo, FenResults parent) {
+	public PanelImpContrastSlider(String nomFen, Scintigraphy scin, String additionalInfo, TabResult parent) {
 		super(new BorderLayout());
 		this.scin=scin;
 		this.additionalInfo = additionalInfo;
@@ -67,10 +67,10 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 		this.setContrast(slider.getValue());
 		
 //		sidePanel.add(boxSlider);
-		parent.getSidePanel().setSidePanelContent(boxSlider);
+		this.parent.setSidePanelContent(boxSlider);
 
 //		sidePanel.addCaptureBtn(getScin(), this.additionalInfo, new Component[] { this.slider }, model);
-		this.parent.createCaptureButton(additionalInfo);
+		this.parent.createCaptureButton();
 
 //		this.add(sidePanel, BorderLayout.EAST);
 	}

@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.shunpo;
 import java.awt.Component;
 import java.awt.GridLayout;
 
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -231,11 +230,10 @@ public class ControleurShunpo extends ControleurScin {
 		// Display result
 		this.fenResults = new FenResults(this.model);
 		this.fenResults.addTab(new TabResult(fenResults, "Result", true) {
-			private static final long serialVersionUID = 1L;
 			@Override
 			public Component getSidePanelContent() {
 				String[] result = ((ModeleShunpo) model).getResult();
-				JPanel res = new JPanel(new GridLayout(result.length+1, 1));
+				JPanel res = new JPanel(new GridLayout(result.length, 1));
 				for(String s : result)
 					res.add(new JLabel(s));
 				return res;
@@ -243,22 +241,6 @@ public class ControleurShunpo extends ControleurScin {
 			@Override
 			public JPanel getResultContent() {
 				return new DynamicImage(montage.getImage());
-			}
-		});
-		this.fenResults.addTab(new TabResult(fenResults, "Test", true) {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public Component getSidePanelContent() {
-				JPanel res = new JPanel(new GridLayout(1, 1));
-				res.add(new JLabel("TEsting"));
-				res.add(new JButton("Test"));
-				return res;
-			}
-			@Override
-			public JPanel getResultContent() {
-				JPanel pan = new JPanel();
-				pan.add(new JButton("TEst"));
-				return pan;
 			}
 		});
 		this.fenResults.setVisible(true);

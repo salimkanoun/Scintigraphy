@@ -19,9 +19,6 @@ public class RenalScintigraphy extends Scintigraphy {
 	private ImagePlus impAnt, impPost, impProjetee;
 	private int[] frameDurations;
 
-
-	JValueSetter nephrogramChart, patlakChart;
-
 	public RenalScintigraphy() {
 		super("Renal scintigraphy");
 	}
@@ -105,22 +102,6 @@ public class RenalScintigraphy extends Scintigraphy {
 		this.setFenApplication(new FenApplication_Renal(selectedImages[0].getImagePlus(), this.getExamType(), this));
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 		this.getFenApplication().setControleur(new Controleur_Renal(this, selectedImages, "Renal scintigraphy"));
-	}
-
-	public JValueSetter getNephrogramChart() {
-		return nephrogramChart;
-	}
-
-	public void setNephrogramChart(JValueSetter nephrogramChart) {
-		this.nephrogramChart = nephrogramChart;
-	}
-
-	public JValueSetter getPatlakChart() {
-		return patlakChart;
-	}
-
-	public void setPatlakChart(JValueSetter patlakChart) {
-		this.patlakChart = patlakChart;
 	}
 
 

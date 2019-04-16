@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -22,71 +21,30 @@ import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.shunpo.FenResults;
+import org.petctviewer.scintigraphy.shunpo.TabResult;
 
 import ij.ImagePlus;
 import ij.plugin.ZProjector;
 import ij.process.ImageProcessor;
 
-class TabPrincipal extends JPanel {
-
-	private static final long serialVersionUID = 5670592335800832792L;
+class TabPrincipal extends TabResult {
 
 	private Modele_Renal modele;
+	private BufferedImage capture;
 
 	/**
 	 * affiche les resultats de l'examen renal
 	 * 
-	 * @param vueScin
-	 *            la vue
-	 * @param capture
-	 *            capture du rein projetee
-	 * @param chartPanel
-	 *            chartpanel avec l'overlay d'ajustation
+	 * @param vueScin    la vue
+	 * @param capture    capture du rein projetee
+	 * @param chartPanel chartpanel avec l'overlay d'ajustation
 	 */
 	public TabPrincipal(RenalScintigraphy vue, BufferedImage capture, FenResults parent) {
-		super(new BorderLayout());
-		JValueSetter chartNephrogram = vue.getNephrogramChart();
-		
-
-		HashMap<Comparable, Double> adjusted = ((Modele_Renal) parent.getModel())
-				.getAdjustedValues();
-		// l'intervalle est defini par l'utilisateur
-		Double x1 = adjusted.get("start");
-		Double x2 = adjusted.get("end");
-		Double debut = Math.min(x1, x2);
-		Double fin = Math.max(x1, x2);
-
-		int slice1 = ModeleScinDyn.getSliceIndexByTime(debut * 60 * 1000, vue.getFrameDurations());
-		int slice2 = ModeleScinDyn.getSliceIndexByTime(fin * 60 * 1000, vue.getFrameDurations());
-
-		ImagePlus proj = ZProjector.run(parent.getModel().getImagePlus(), "sum", slice1, slice2);
-		proj.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
-		this.modele = (Modele_Renal) parent.getModel();
-
-		JPanel grid = new JPanel(new GridLayout(2, 1));
-
-		// creation du panel du haut
-		JPanel panel_top = new JPanel(new GridLayout(1, 2));
-
-		// ajout de la capture et du montage
-		panel_top.add(new DynamicImage(capture));
-		panel_top.add(new DynamicImage(proj.getImage()));
-
-		// on ajoute les panels a la grille principale
-		grid.add(panel_top);
-		grid.add(chartNephrogram);
-
-		// ajout de la grille a la fenetre
-//		SidePanel side = new SidePanel(getSidePanelContent(), "Renal scintigraphy", model.getImagePlus());
-		parent.createCaptureButton();
-		parent.getSidePanel().setSidePanelContent(this.getSidePanelContent());
-		
-		this.add(grid, BorderLayout.CENTER);
-		chartNephrogram.removeChartMouseListener(chartNephrogram);
-		
-		
+		super(parent, "Main", true);
+		this.capture = capture;
 	}
 
+	@Override
 	public Component getSidePanelContent() {
 		boolean[] kidneys = this.modele.getKidneys();
 
@@ -123,28 +81,28 @@ class TabPrincipal extends JPanel {
 		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
 		JLabel lbl_R = new JLabel("R");
 		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
-		
+
 		Double[] size = modele.getSize();
-		
+
 		JPanel pnl_size = new JPanel(new GridLayout(2, 3, 0, 3));
 		pnl_size.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-		
+
 		pnl_size.add(new JLabel(" Kidney Size"));
 		pnl_size.add(lbl_L);
 		pnl_size.add(lbl_R);
-		
+
 		pnl_size.add(new JLabel(""));
 		JLabel lbl_heightL = new JLabel(size[0] + " cm");
 		lbl_heightL.setHorizontalAlignment(JLabel.CENTER);
 		pnl_size.add(lbl_heightL);
-		
+
 		JLabel lbl_heightR = new JLabel(size[1] + " cm");
 		lbl_heightR.setHorizontalAlignment(JLabel.CENTER);
 		pnl_size.add(lbl_heightR);
-		
+
 		return pnl_size;
 	}
-	
+
 	private Component getPanelROE() {
 		JLabel lbl_L = new JLabel("L");
 		lbl_L.setHorizontalAlignment(SwingConstants.CENTER);
@@ -204,7 +162,7 @@ class TabPrincipal extends JPanel {
 		Double[][] nora = modele.getNora();
 		JPanel pnl_nora = new JPanel(new GridLayout(4, 3, 0, 3));
 		pnl_nora.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-		
+
 		pnl_nora.add(new JLabel(" NORA"));
 		pnl_nora.add(lbl_L);
 		pnl_nora.add(lbl_R);
@@ -351,6 +309,38 @@ class TabPrincipal extends JPanel {
 		}
 
 		return pnl_sep;
+	}
+
+	@Override
+	public JPanel getResultContent() {
+		HashMap<Comparable, Double> adjusted = ((Modele_Renal) parent.getModel()).getAdjustedValues();
+// l'intervalle est defini par l'utilisateur
+		Double x1 = adjusted.get("start");
+		Double x2 = adjusted.get("end");
+		Double debut = Math.min(x1, x2);
+		Double fin = Math.max(x1, x2);
+
+		int slice1 = ModeleScinDyn.getSliceIndexByTime(debut * 60 * 1000, this.modele.getFrameduration());
+		int slice2 = ModeleScinDyn.getSliceIndexByTime(fin * 60 * 1000, this.modele.getFrameduration());
+		JValueSetter chartNephrogram = this.modele.getNephrogramChart();
+		ImagePlus proj = ZProjector.run(parent.getModel().getImagePlus(), "sum", slice1, slice2);
+		proj.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
+		JPanel grid = new JPanel(new GridLayout(2, 1));
+
+		// creation du panel du haut
+		JPanel panel_top = new JPanel(new GridLayout(1, 2));
+
+		// ajout de la capture et du montage
+		panel_top.add(new DynamicImage(capture));
+		panel_top.add(new DynamicImage(proj.getImage()));
+
+		// on ajoute les panels a la grille principale
+		grid.add(panel_top);
+		grid.add(chartNephrogram);
+
+		chartNephrogram.removeChartMouseListener(chartNephrogram);
+
+		return grid;
 	}
 
 }

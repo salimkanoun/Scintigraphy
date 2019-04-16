@@ -42,18 +42,18 @@ public class SidePanel extends JPanel {
 	public SidePanel(Component sidePanelContent, String titre, ImagePlus imp) {
 		super(new BorderLayout());
 		this.box = new Box(BoxLayout.Y_AXIS);
-//		this.sidePanelContent = sidePanelContent;
+		this.sidePanelContent = sidePanelContent;
 		
-//		this.panSouth = new JPanel(new GridLayout(1, 1));
+		this.panSouth = new JPanel(new GridLayout(1, 1));
 
-//		this.fillbox(titre, imp);
+		this.fillbox(titre, imp);
 
-//		if (sidePanelContent != null) {
-//			this.box.add(sidePanelContent);
-//		}
+		if (sidePanelContent != null) {
+			this.box.add(sidePanelContent);
+		}
 		
 		this.add(this.box, BorderLayout.CENTER);
-//		this.add(this.panSouth, BorderLayout.SOUTH);
+		this.add(this.panSouth, BorderLayout.SOUTH);
 
 	}
 
@@ -120,9 +120,9 @@ public class SidePanel extends JPanel {
 		JButton captureButton = new JButton("Capture");
 
 		// label de credits
-//		JLabel lbl_credits = new JLabel("Provided by petctviewer.org");
-//		lbl_credits.setVisible(false);
-//		this.box.add(lbl_credits);
+		JLabel lbl_credits = new JLabel("Provided by petctviewer.org");
+		lbl_credits.setVisible(false);
+		this.box.add(lbl_credits);
 
 		// generation du tag info
 		String info = Library_Capture_CSV.genererDicomTagsPartie1(tab.getParent().getModel().getImagesPlus()[0],
@@ -140,7 +140,7 @@ public class SidePanel extends JPanel {
 				for (Component comp : hide)
 					comp.setVisible(false);
 
-//				lbl_credits.setVisible(true);
+				lbl_credits.setVisible(true);
 				for (Component comp : show)
 					comp.setVisible(true);
 
@@ -150,16 +150,16 @@ public class SidePanel extends JPanel {
 					public void run() {
 						System.out.println("RUNNING");
 						// Capture, nouvelle methode a utiliser sur le reste des programmes
-						BufferedImage capture = new BufferedImage(tab.getWidth(), tab.getHeight(),
+						BufferedImage capture = new BufferedImage(tab.getPanel().getWidth(), tab.getPanel().getHeight(),
 								BufferedImage.TYPE_INT_ARGB);
-						tab.paint(capture.getGraphics());
+						tab.getPanel().paint(capture.getGraphics());
 						ImagePlus imp = new ImagePlus("capture", capture);
 
 						captureButton.setVisible(true);
 						for (Component comp : hide)
 							comp.setVisible(true);
 
-//						lbl_credits.setVisible(false);
+						lbl_credits.setVisible(false);
 						for (Component comp : show)
 							comp.setVisible(false);
 

@@ -192,8 +192,8 @@ public class Controleur_Renal extends Controleur_OrganeFixe {
 		fan.setModal(true);
 		fan.setVisible(true);
 
-		((RenalScintigraphy) this.getScin()).setNephrogramChart(fan.getValueSetter());
-		((RenalScintigraphy) this.getScin()).setPatlakChart(fan.getPatlakChart());
+		((Modele_Renal)model).setNephrogramChart(fan.getValueSetter());
+		((Modele_Renal)model).setPatlakChart(fan.getPatlakChart());
 
 		// on passe les valeurs ajustees au modele
 		modele.setAdjustedValues(fan.getValueSetter().getValues());
@@ -202,7 +202,7 @@ public class Controleur_Renal extends Controleur_OrganeFixe {
 		modele.fitVasculaire();
 
 		// on affiche la fenetre de resultats principale
-		scinRenal.setNephrogramChart(fan.getValueSetter());
+		((Modele_Renal)model).setNephrogramChart(fan.getValueSetter());
 		new FenResultats_Renal(scinRenal, capture, this.model);
 
 		// SK On rebloque le modele pour la prochaine generation
