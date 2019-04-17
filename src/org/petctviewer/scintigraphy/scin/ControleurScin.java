@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.scin;
 
 import java.awt.Button;
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
@@ -33,7 +34,6 @@ public abstract class ControleurScin implements ActionListener {
 	 * The position must always be positive.
 	 */
 	protected int position;
-	protected RoiManager roiManager;
 	/**
 	 * Map of all the ROI names by they index
 	 */
@@ -41,12 +41,14 @@ public abstract class ControleurScin implements ActionListener {
 
 	protected Scintigraphy main;
 
-	public ControleurScin(Scintigraphy main, FenApplication vue) {
+	protected ModeleScin model;
+
+	public ControleurScin(Scintigraphy main, FenApplication vue, ModeleScin model) {
 		this.vue = vue;
 		this.position = 0;
-		this.roiManager = new RoiManager(false);
 		this.roiNames = new HashMap<>();
 		this.main = main;
+		this.model = model;
 
 		Roi.setColor(Color.RED);
 	}
@@ -67,7 +69,7 @@ public abstract class ControleurScin implements ActionListener {
 	 * This method is called when the FenApplication is closed.
 	 */
 	public void close() {
-		this.roiManager.close();
+		this.model.roiManager.close();
 	}
 
 	/**
@@ -137,17 +139,17 @@ public abstract class ControleurScin implements ActionListener {
 
 			// Check if there is an existing ROI
 			if (existingRoi != null) {
-				posExisting = this.roiManager.getRoiIndex(existingRoi);
+				posExisting = this.model.getRoiManager().getRoiIndex(existingRoi);
 				// Overwrite it
-				this.roiManager.setRoi(roiToSave, posExisting);
+				this.model.getRoiManager().setRoi(roiToSave, posExisting);
 			} else {
 				// Add it
-				this.roiManager.addRoi(roiToSave);
+				this.model.getRoiManager().addRoi(roiToSave);
 			}
 			this.vue.getImagePlus().killRoi();
 
 			// Name the ROI
-			this.roiManager.rename(posExisting, name);
+			this.model.getRoiManager().rename(posExisting, name);
 			this.roiNames.put(posExisting, name);
 
 			return true;
@@ -185,7 +187,7 @@ public abstract class ControleurScin implements ActionListener {
 	public void displayRois(int[] indexes) {
 		// Get ROIs to display
 		for (int i : indexes) {
-			Roi roiToDisplay = this.roiManager.getRoi(i);
+			Roi roiToDisplay = this.model.getRoiManager().getRoi(i);
 			if (roiToDisplay != null) {
 				this.vue.getImagePlus().getOverlay().add(roiToDisplay);
 			}
@@ -247,7 +249,7 @@ public abstract class ControleurScin implements ActionListener {
 	 *         not
 	 */
 	public boolean editCopyRoi(int index) {
-		Roi roiToEdit = this.roiManager.getRoi(index);
+		Roi roiToEdit = this.model.getRoiManager().getRoi(index);
 		if (roiToEdit != null) {
 			this.vue.getImagePlus().setRoi((Roi) roiToEdit.clone());
 			this.vue.getImagePlus().getRoi().setStrokeColor(Color.RED);
@@ -264,7 +266,7 @@ public abstract class ControleurScin implements ActionListener {
 	 *         not
 	 */
 	public boolean editRoi(int index) {
-		Roi roiToEdit = this.roiManager.getRoi(index);
+		Roi roiToEdit = this.model.getRoiManager().getRoi(index);
 		if (roiToEdit != null) {
 			this.vue.getImagePlus().setRoi(roiToEdit);
 			this.vue.getImagePlus().getRoi().setStrokeColor(Color.RED);
@@ -281,7 +283,7 @@ public abstract class ControleurScin implements ActionListener {
 	 *         not
 	 */
 	public boolean editRoi(String name) {
-		return this.editRoi(this.roiManager.getRoiIndex(this.getRoi(name)));
+		return this.editRoi(this.model.getRoiManager().getRoiIndex(this.getRoi(name)));
 	}
 
 	/**
@@ -291,10 +293,24 @@ public abstract class ControleurScin implements ActionListener {
 	 * @return first ROI found or null if not
 	 */
 	protected Roi getRoi(String name) {
-		for (Roi r : this.roiManager.getRoisAsArray())
+		for (Roi r : this.model.getRoiManager().getRoisAsArray())
 			if (r.getName().equals(name))
 				return r;
 		return null;
+	}
+
+	/**
+	 * Creates a rectangle between the two ROIs specified.
+	 * 
+	 * @param r1
+	 * @param r2
+	 * @return Rectangle at the center of the ROIs specified
+	 */
+	protected Rectangle roiBetween(Roi r1, Roi r2) {
+		int x = (int) ((r1.getBounds().getLocation().x + r2.getBounds().getLocation().x + r2.getBounds().getWidth())
+				/ 2);
+		int y = (r1.getBounds().getLocation().y + r2.getBounds().getLocation().y) / 2;
+		return new Rectangle(x, y, 15, 30);
 	}
 
 	@Override
@@ -340,9 +356,9 @@ public abstract class ControleurScin implements ActionListener {
 			return;
 		}
 	}
-	
+
 	public RoiManager getRoiManager() {
-		return this.roiManager;
+		return this.model.getRoiManager();
 	}
 
 }

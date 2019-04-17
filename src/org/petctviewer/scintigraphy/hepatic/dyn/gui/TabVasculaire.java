@@ -1,6 +1,6 @@
 package org.petctviewer.scintigraphy.hepatic.dyn.gui;
 
-import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.util.List;
 
@@ -10,29 +10,30 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.hepatic.dyn.Modele_HepaticDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+import org.petctviewer.scintigraphy.shunpo.FenResults;
+import org.petctviewer.scintigraphy.shunpo.TabResult;
 
-public class TabVasculaire extends JPanel {
+public class TabVasculaire extends TabResult {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	public TabVasculaire(Scintigraphy scin, int width, int height, FenResults parent) {
+		super(parent, "Vascular");
 
-	public TabVasculaire(Scintigraphy scin, int width, int height) {
-		super(new BorderLayout());
-		
-		Modele_HepaticDyn modele = (Modele_HepaticDyn) scin.getModele();
+		this.getPanel().setPreferredSize(new Dimension(width, height));
+	}
+
+	@Override
+	public Component getSidePanelContent() {
+		return null;
+	}
+
+	@Override
+	public JPanel getResultContent() {
+		Modele_HepaticDyn modele = (Modele_HepaticDyn) this.parent.getModel();
 		List<XYSeries> series = modele.getSeries();
-		ChartPanel chartVasculaire = Library_JFreeChart.associateSeries(new String[] {"Blood pool"}, series);
+		ChartPanel chartVasculaire = Library_JFreeChart.associateSeries(new String[] { "Blood pool" }, series);
 		
-		SidePanel border = new SidePanel(null, "Renal Scintigraphy", scin.getImp());
-		border.addCaptureBtn(scin, "Blood Pool");
-		
-		this.add(chartVasculaire, BorderLayout.CENTER);
-		
-		this.setPreferredSize(new Dimension(width, height));
+		return chartVasculaire;
 	}
 
 }

@@ -46,7 +46,7 @@ public class Vue_Plaquettes extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImageSelection[] selectedImages) {
+	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) {
 
 		ArrayList<ImagePlus> series = new ArrayList<>();
 
@@ -86,29 +86,28 @@ public class Vue_Plaquettes extends Scintigraphy {
 		HyperStackConverter convert = new HyperStackConverter();
 		convert.run("hstostack");
 		
-		return imp.duplicate();
+		ImageSelection[] selection = new ImageSelection[1];
+		selection[0] = new ImageSelection(imp.duplicate(), null, null);
+		return selection;
 	}
 
 	@Override
-	public void lancerProgramme() {
+	public void lancerProgramme(ImageSelection[] selectedImages) {
 		// Initialisation du Canvas qui permet de mettre la pile d'images
 		// dans une fenetre c'est une pile d'images (plus d'une image) on cree une
 		// fenetre pour la pile d'images;
-		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));
+		this.setFenApplication(new FenApplication(selectedImages[0].getImagePlus(), this.getExamType()));
 		
-		Overlay overlay = Library_Gui.initOverlay(this.getImp());
-		Library_Gui.setOverlayDG(overlay, getImp(), Color.YELLOW);
-		this.getImp().setOverlay(overlay);
+		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
+		Library_Gui.setOverlayDG(overlay, selectedImages[0].getImagePlus(), Color.YELLOW);
+		selectedImages[0].getImagePlus().setOverlay(overlay);
 		
-		Controleur_Plaquettes ctrl = new Controleur_Plaquettes(this);
+		Controleur_Plaquettes ctrl = new Controleur_Plaquettes(this, this.getDateDebut(), selectedImages);
 		this.getFenApplication().setControleur(ctrl);
 		this.getFenApplication().getImagePlus().getCanvas().setScaleToFit(true);
 		this.getFenApplication().getImagePlus().getCanvas().setSize(512,512);
 		this.getFenApplication().pack();
 		this.getFenApplication().setSize(this.getFenApplication().getPreferredSize());
-		
-		Modele_Plaquettes leModele = new Modele_Plaquettes(this.getDateDebut());
-		this.setModele(leModele);
 	}
 	
 	public Date getDateDebut() {

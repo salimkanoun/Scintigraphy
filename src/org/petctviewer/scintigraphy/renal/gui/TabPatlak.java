@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
@@ -12,27 +11,17 @@ import javax.swing.SwingConstants;
 
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.shunpo.FenResults;
+import org.petctviewer.scintigraphy.shunpo.TabResult;
 
-class TabPatlak extends JPanel {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+class TabPatlak extends TabResult {
 
-	public TabPatlak(RenalScintigraphy scin) {
-		super(new BorderLayout());
-		
-		Modele_Renal modele = (Modele_Renal) scin.getModele();
-		SidePanel side = new SidePanel(this.getSidePanelContent(modele), "Renal Scintigraphy", scin.getImp());
-		side.addCaptureBtn(scin, "_patlak");
-
-		this.add(scin.getPatlakChart(), BorderLayout.CENTER);
-		this.add(side, BorderLayout.EAST);
+	public TabPatlak(RenalScintigraphy scin, FenResults parent) {
+		super(parent, "Patlak", true);
 	}
 
-	public Component getSidePanelContent(Modele_Renal modele) {
+	@Override
+	public Component getSidePanelContent() {
 		JPanel pnl_sep = new JPanel(new GridLayout(2, 3));
 		pnl_sep.add(new JLabel("Relative function"));
 		
@@ -43,7 +32,7 @@ class TabPatlak extends JPanel {
 		pnl_sep.add(lbl_L);
 		pnl_sep.add(lbl_R);
 		
-		double[] patlak = modele.getPatlakPente();
+		double[] patlak = ((Modele_Renal)this.getParent().getModel()).getPatlakPente();
 		pnl_sep.add(new JLabel("patlak"));
 		JLabel lbl_pd = new JLabel(patlak[0] + " %");
 		lbl_pd.setHorizontalAlignment(SwingConstants.CENTER);
@@ -59,6 +48,11 @@ class TabPatlak extends JPanel {
 		flow.add(pnl_sep);
 		
 		return flow;
+	}
+
+	@Override
+	public JPanel getResultContent() {
+		return ((Modele_Renal)this.parent.getModel()).getPatlakChart();
 	}
 
 }

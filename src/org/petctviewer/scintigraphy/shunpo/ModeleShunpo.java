@@ -4,8 +4,8 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
@@ -18,16 +18,28 @@ public class ModeleShunpo extends ModeleScin {
 	private int pixrgp;
 	private int pixrda;
 	private int pixrga;
-	private HashMap<Integer, Integer> geometricalAverage;
-	private String[] abvsMG = { "PD", "PG", "RD", "RG", "C" };
+	private Map<Integer, Integer> geometricalAverage;
 	private String[] retour;
 
-	public static final int PULMON_RIGHT_ANT = 0, PULMON_RIGHT_POST = 1, PULMON_LEFT_ANT = 2, PULMON_LEFT_POST = 3,
-			KIDNEY_RIGHT_ANT = 4, KIDNEY_RIGHT_POST = 5, KIDNEY_LEFT_ANT = 6, KIDNEY_LEFT_POST = 7, BRAIN_ANT = 8,
-			BRAIN_POST = 9, BACKGROUND_NOISE_ANT = 10, BACKGROUND_NOISE_POST = 11, TOTAL_ORGANS = 12;
+	public static final int LUNG_RIGHT_ANT = 0, LUNG_RIGHT_POST = 1, LUNG_LEFT_ANT = 2, LUNG_LEFT_POST = 3,
+			KIDNEY_RIGHT_ANT = 4, KIDNEY_RIGHT_POST = 5, KIDNEY_LEFT_ANT = 6, KIDNEY_LEFT_POST = 7,
+			BACKGROUND_NOISE_ANT = 8, BACKGROUND_NOISE_POST = 9, BRAIN_ANT = 10, BRAIN_POST = 11, TOTAL_ORGANS = 12;
+
+	private static final int RESULT_LUNG_RIGHT = 0, RESULT_LUNG_LEFT = 1, RESULT_KIDNEY_RIGHT = 2,
+			RESULT_KIDNEY_LEFT = 3, RESULT_BRAIN = 4, RESULT_TOTAL_AVG = 5, RESULT_TOTAL_SHUNT = 6, RESULT_SYSTEMIC = 7,
+			RESULT_PULMONARY_SHUNT = 8;
+
+	public ModeleShunpo(ImageSelection[] selectedImages, String studyName) {
+		super(selectedImages, studyName);
+		this.coups = new HashMap<>();
+		this.geometricalAverage = new HashMap<>();
+		this.retour = new String[9];
+	}
 
 	protected void calculerCoups(int organ, ImagePlus imp) {
-		this.coups.put(organ, Library_Quantif.getCounts(imp));
+		double counts = Library_Quantif.getCounts(imp);
+		this.coups.put(organ, counts);
+		System.out.println("Calculations for " + organ + "[" + ModeleShunpo.convertOrgan(organ) + "] -> " + counts);
 	}
 
 	// Retrait du BDF aux reins
@@ -42,35 +54,49 @@ public class ModeleShunpo extends ModeleScin {
 		double bdfa = coups.get(BACKGROUND_NOISE_ANT);
 		coups.put(KIDNEY_RIGHT_ANT, rda - (bdfa * pixrda));
 		coups.put(KIDNEY_LEFT_ANT, rga - (bdfa * pixrga));
+
+		coups.remove(BACKGROUND_NOISE_ANT);
+		coups.remove(BACKGROUND_NOISE_POST);
 	}
 
 	private void computeGeometricalAverage() {
-		for (int i = 0; i < TOTAL_ORGANS; i += 2)
-			this.moyenneGeo(i);
+		this.moyenneGeo(LUNG_RIGHT_ANT);
+		this.moyenneGeo(LUNG_LEFT_ANT);
+		this.moyenneGeo(KIDNEY_RIGHT_ANT);
+		this.moyenneGeo(KIDNEY_LEFT_ANT);
+		this.moyenneGeo(BRAIN_ANT);
 	}
 
 	// Calcule la moyenne g茅om茅trique pour un organe sp茅cifique
 	// Si abv = PD alors on calculera la MG pour le poumon droit
 	private void moyenneGeo(int organ) {
-		geometricalAverage.put(organ, (int) Library_Quantif.moyGeom(this.coups.get(organ), this.coups.get(organ + 1)));
+		if (organ % 2 == 0)
+			geometricalAverage.put(organ,
+					(int) Library_Quantif.moyGeom(this.coups.get(organ), this.coups.get(organ + 1)));
+		else
+			geometricalAverage.put(organ,
+					(int) Library_Quantif.moyGeom(this.coups.get(organ - 1), this.coups.get(organ)));
 	}
 
-	private String convertOrgan(int organ) {
+	public static String convertOrgan(int organ) {
 		switch (organ) {
-		case PULMON_RIGHT_ANT:
-		case PULMON_RIGHT_POST:
-			return "Right Pulmon: ";
-		case PULMON_LEFT_ANT:
-		case PULMON_LEFT_POST:
-			return "Left Pulmon: ";
+		case LUNG_RIGHT_ANT:
+		case LUNG_RIGHT_POST:
+			return "Right Lung: ";
+		case LUNG_LEFT_ANT:
+		case LUNG_LEFT_POST:
+			return "Left Lung: ";
 		case KIDNEY_RIGHT_ANT:
 		case KIDNEY_RIGHT_POST:
 			return "Right Kidney: ";
+		case KIDNEY_LEFT_ANT:
+		case KIDNEY_LEFT_POST:
+			return "Left Kidney: ";
 		case BRAIN_ANT:
 		case BRAIN_POST:
 			return "Brain: ";
 		default:
-			return "Unknown Organ: ";
+			return "Unknown Organ (" + organ + "): ";
 		}
 	}
 
@@ -82,13 +108,13 @@ public class ModeleShunpo extends ModeleScin {
 	public void calculerResultats() {
 		this.retour = new String[9];
 		coupsReins();
-		int index = 0;
 		// Les 5 MGs
 		computeGeometricalAverage();
-		for (Entry<Integer, Integer> entry : geometricalAverage.entrySet()) {
-			retour[index] = convertOrgan(entry.getKey()) + entry.getValue();
-			index++;
-		}
+		retour[RESULT_LUNG_RIGHT] = convertOrgan(LUNG_RIGHT_ANT) + geometricalAverage.get(LUNG_RIGHT_ANT);
+		retour[RESULT_LUNG_LEFT] = convertOrgan(LUNG_LEFT_ANT) + geometricalAverage.get(LUNG_LEFT_ANT);
+		retour[RESULT_KIDNEY_RIGHT] = convertOrgan(KIDNEY_RIGHT_ANT) + geometricalAverage.get(KIDNEY_RIGHT_ANT);
+		retour[RESULT_KIDNEY_LEFT] = convertOrgan(KIDNEY_LEFT_ANT) + geometricalAverage.get(KIDNEY_LEFT_ANT);
+		retour[RESULT_BRAIN] = convertOrgan(BRAIN_ANT) + geometricalAverage.get(BRAIN_ANT);
 		// Permet de definir le nombre de chiffre apr猫s la virgule et mettre la
 		// virgue en system US avec un .
 		DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance();
@@ -96,24 +122,21 @@ public class ModeleShunpo extends ModeleScin {
 		DecimalFormat us = new DecimalFormat("##.##");
 		us.setDecimalFormatSymbols(sym);
 		// Calculs
-		double percPD = (geometricalAverage.get(PULMON_RIGHT_ANT)
-				/ (1.0 * geometricalAverage.get(PULMON_RIGHT_ANT) + geometricalAverage.get(PULMON_LEFT_ANT))) * 100;
-		retour[3] += " (" + us.format(percPD) + "%)";
-		double percPG = (geometricalAverage.get(PULMON_LEFT_ANT)
-				/ (1.0 * geometricalAverage.get(PULMON_RIGHT_ANT) + geometricalAverage.get(PULMON_LEFT_ANT))) * 100;
-		retour[0] += " (" + us.format(percPG) + "%)";
-		int totmg = geometricalAverage.get(PULMON_RIGHT_ANT) + geometricalAverage.get(PULMON_LEFT_ANT);
-		retour[index] = "Total MG : " + totmg;
-		index++;
+		double percPD = (geometricalAverage.get(LUNG_RIGHT_ANT)
+				/ (1.0 * geometricalAverage.get(LUNG_RIGHT_ANT) + geometricalAverage.get(LUNG_LEFT_ANT))) * 100;
+		retour[RESULT_LUNG_RIGHT] += " (" + us.format(percPD) + "%)";
+		double percPG = (geometricalAverage.get(LUNG_LEFT_ANT)
+				/ (1.0 * geometricalAverage.get(LUNG_RIGHT_ANT) + geometricalAverage.get(LUNG_LEFT_ANT))) * 100;
+		retour[RESULT_LUNG_LEFT] += " (" + us.format(percPG) + "%)";
+		int totmg = geometricalAverage.get(LUNG_RIGHT_ANT) + geometricalAverage.get(LUNG_LEFT_ANT);
+		retour[RESULT_TOTAL_AVG] = "Total MG : " + totmg;
 		int totshunt = geometricalAverage.get(KIDNEY_RIGHT_ANT) + geometricalAverage.get(KIDNEY_LEFT_ANT)
 				+ geometricalAverage.get(BRAIN_ANT);
-		retour[index] = "Total Shunt : " + totshunt;
-		index++;
+		retour[RESULT_TOTAL_SHUNT] = "Total Shunt : " + totshunt;
 		double percSyst = (100.0 * totshunt) / totmg;
-		retour[index] = "% Systemic : " + us.format(percSyst) + "%";
-		index++;
+		retour[RESULT_SYSTEMIC] = "% Systemic : " + us.format(percSyst) + "%";
 		Modele_Shunpo.shunt = ((totshunt * 100.0) / (totmg * 0.38));
-		retour[index] = "Pulmonary Shunt : " + us.format(Modele_Shunpo.shunt) + "% (total blood Flow)";
+		retour[RESULT_PULMONARY_SHUNT] = "Pulmonary Shunt : " + us.format(Modele_Shunpo.shunt) + "% (total blood Flow)";
 	}
 
 }

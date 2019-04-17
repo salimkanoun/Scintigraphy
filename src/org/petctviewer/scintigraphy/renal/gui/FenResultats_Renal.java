@@ -1,81 +1,41 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
-
-import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.shunpo.FenResults;
 
 import ij.Prefs;
 
-public class FenResultats_Renal {
+public class FenResultats_Renal extends FenResults {
+	private static final long serialVersionUID = 1L;
 
-	private Container principal, zoomed, kidneys, timedImage, tabCort, tabUreter, tabOther, tabPost, tabPatlak;
 	private final int width = 1000, height = 800;
 
-	public FenResultats_Renal(RenalScintigraphy vue, BufferedImage capture) {
-		this.principal = new TabPrincipal(vue, capture);
-		this.zoomed = new TabZoomed(vue);
-		this.kidneys = new TabROE(vue);
-		this.timedImage = new TabTimedImage(vue, 4, 5);
-		this.tabCort = new TabCort(vue);
-		this.tabUreter = new TabUreter(vue);
-		this.tabOther = new TabOther(vue);
-		this.tabPost = new TabPostMict(vue);
-		if (vue.getPatlakChart() != null) {
-			this.tabPatlak = new TabPatlak(vue);
+	public FenResultats_Renal(RenalScintigraphy vue, BufferedImage capture, ModeleScin model) {
+		super(model);
+		this.addTab(new TabPrincipal(vue, capture, this));
+		this.addTab(new TabROE(vue, this));
+		this.addTab(new TabTimedImage(vue, 4, 5, this));
+		if (Prefs.get("renal.pelvis.preferred", true))
+			this.addTab(new TabCort(vue, this));
+		if (Prefs.get("renal.ureter.preferred", true))
+			this.addTab(new TabUreter(vue, this));
+		this.addTab(new TabZoomed(vue, this));
+		this.addTab(new TabOther(vue, this));
+		this.addTab(new TabPostMict(vue, this));
+		if (((Modele_Renal) model).getPatlakChart() != null) {
+			this.addTab(new TabPatlak(vue, this));
 		}
 
-		showGUI(vue);
-	}
-
-	private void showGUI(RenalScintigraphy vue) {
-
-		// Create and set up the window.
-		JFrame frame = new JFrame("Results Renal Exam");
-		frame.getContentPane().setLayout(new GridLayout(1, 1));
-
-		JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
-
-		tabbedPane.addTab("Main", this.principal);
-		tabbedPane.addTab("Timed image", this.timedImage);
-		tabbedPane.addTab("ROE", this.kidneys);
-
-		// si les pelvis sont activees
-		if (Prefs.get("renal.pelvis.preferred", true)) {
-			tabbedPane.addTab("Corticals/Pelvis", this.tabCort);
-		}
-
-		// si les ureteres sont activees
-		if (Prefs.get("renal.ureter.preferred", true)) {
-			tabbedPane.addTab("Ureters", this.tabUreter);
-		}
-
-		tabbedPane.addTab("Vascular phase", this.zoomed);
-		tabbedPane.addTab("Other", this.tabOther);
-
-		tabbedPane.addTab("Post-mictional", this.tabPost);
-		
-		if (this.tabPatlak != null) {
-			tabbedPane.addTab("Patlak", this.tabPatlak);
-		}
-		
-		frame.getContentPane().add(tabbedPane);
-
-		// Display the window
-		frame.setPreferredSize(new Dimension(width, height));
-		frame.pack();
-		frame.setVisible(true);
-		frame.setResizable(true);
-		frame.setLocationRelativeTo(vue.getImp().getWindow());
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		this.setTitle("Results Renal Exam");
+		this.setPreferredSize(new Dimension(width, height));
+		this.setLocationRelativeTo(vue.getFenApplication());
 	}
 
 	// renomme la serie

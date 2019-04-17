@@ -54,17 +54,14 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	 * Classe abstraite permettant de controler les programmes de scintigraphie
 	 * declarer le modele ainsi que la liste d'organes
 	 */
-	protected Controleur_OrganeFixe(Scintigraphy scin) {
-		super(scin, scin.getFenApplication());
+	protected Controleur_OrganeFixe(Scintigraphy scin, ModeleScin model) {
+		super(scin, scin.getFenApplication(), model);
 		this.scin = scin;
 
-		if (scin.getImp().getOverlay() == null) {
-			scin.getImp().setOverlay(Library_Gui.initOverlay(scin.getImp()));
+		if (this.model.getImagePlus().getOverlay() == null) {
+			this.model.getImagePlus().setOverlay(Library_Gui.initOverlay(this.model.getImagePlus()));
 		}
-		this.overlay = Library_Gui.duplicateOverlay(scin.getImp().getOverlay());
-
-		//SK BOOLEAN FALSE POUR MASQUER, ne rien mettre POUR DEVELOPPEMENT
-		this.roiManager = new RoiManager();
+		this.overlay = Library_Gui.duplicateOverlay(this.model.getImagePlus().getOverlay());
 
 		//this.addImageListener
 		this.ctrlImg = new ControleurImp(this);
@@ -136,8 +133,8 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 		int nOrgane = this.indexRoi % this.getOrganes().length;
 		Roi organRoi = this.getOrganRoi(lastRoi);
 		if (organRoi != null) {
-			this.scin.getImp().setRoi((Roi) organRoi.clone());
-			this.scin.getImp().getRoi().setStrokeColor(this.STROKECOLOR);
+			this.model.getImagePlus().setRoi((Roi) organRoi.clone());
+			this.model.getImagePlus().getRoi().setStrokeColor(this.STROKECOLOR);
 			this.setInstructionsAdjust(nOrgane);
 		} else {
 			// on affiche les prochaines instructions
@@ -176,7 +173,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 
 			// on active la fin si c'est necessaire
 			if (this.isOver()) {
-				this.setSlice(this.scin.getImp().getCurrentSlice());
+				this.setSlice(this.model.getImagePlus().getCurrentSlice());
 				scin.getFenApplication().getBtn_suivant().setEnabled(false);
 				// thread de capture, permet de laisser le temps de charger l'image plus dans le
 				// thread principal
@@ -211,7 +208,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	public boolean saveCurrentRoi(String nomRoi, int indexRoi) {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
 			// on change la couleur pour l'overlay
-			this.scin.getImp()
+			this.model.getImagePlus()
 			.getRoi()
 			.setStrokeColor(Color.YELLOW);
 			
@@ -220,27 +217,27 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 			// on enregistre la ROI dans le modele
 			this.modele.enregistrerMesure(
 					this.addTag(nomRoi), 
-					this.scin.getImp());
+					this.model.getImagePlus());
 			*/
 		
 
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
-			if (this.roiManager.getRoi(indexRoi) == null) {
+			if (this.model.getRoiManager().getRoi(indexRoi) == null) {
 				//Add Roi to the Roi Manager
-				this.roiManager.addRoi(this.scin.getImp().getRoi());
+				this.model.getRoiManager().addRoi(this.model.getImagePlus().getRoi());
 			} else { // Si il existe on l'ecrase
-				this.roiManager.setRoi(this.scin.getImp().getRoi(), indexRoi);
+				this.model.getRoiManager().setRoi(this.model.getImagePlus().getRoi(), indexRoi);
 				// on supprime le roi nouvellement ajoute de la vue
 				this.scin.getFenApplication().getImagePlus().killRoi();
 			}
 
 			// precise la postion en z
-			this.roiManager.
+			this.model.getRoiManager().
 			getRoi(indexRoi).setPosition(this.getSliceNumberByRoiIndex(indexRoi));
 
 			// changement de nom
-			this.roiManager.rename(indexRoi, nomRoi);
+			this.model.getRoiManager().rename(indexRoi, nomRoi);
 			
 			// on ajoute le nom de la roi a la liste
 			this.nomRois.put(indexRoi, addTag(nomRoi));
@@ -256,7 +253,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 			// restore la roi organe si c'est possible
 			JOptionPane.showMessageDialog(scin.getFenApplication(), "Roi Lost, previous Roi restaured", "Warning",
 			        JOptionPane.WARNING_MESSAGE);
-			this.scin.getImp().setRoi(this.getOrganRoi(indexRoi));
+			this.model.getImagePlus().setRoi(this.getOrganRoi(indexRoi));
 		}
 
 		return false;
@@ -355,7 +352,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	}
 
 	public RoiManager getRoiManager() {
-		return this.roiManager;
+		return this.model.getRoiManager();
 	}
 
 	/**
@@ -414,15 +411,6 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 		this.organes = organes;
 	}
 
-
-	/*public void setModele(ModeleScin modele) {
-		this.modele = modele;
-	}*/
-
-	public void setRoiManager(RoiManager rm) {
-		this.roiManager = rm;
-	}
-
 	/**
 	 * Affiche les instructions de delimitation d'un organe (" ...")
 	 * 
@@ -453,18 +441,18 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	 */
 	public void setSlice(int indexSlice) {
 		// ecrase l'overlay et tue la roi
-		ImagePlus imp = this.scin.getImp();
+		ImagePlus imp = this.model.getImagePlus();
 
 		imp.getOverlay().clear();
 		imp.setOverlay(Library_Gui.duplicateOverlay(overlay));
 		imp.killRoi();
 
 		// change la slice courante
-		this.scin.getImp().setSlice(indexSlice);
+		this.model.getImagePlus().setSlice(indexSlice);
 
 		// ajout des roi dans l'overlay
-		for (int i = 0; i < this.roiManager.getCount(); i++) {
-			Roi roi = this.roiManager.getRoi(i);
+		for (int i = 0; i < this.model.getRoiManager().getCount(); i++) {
+			Roi roi = this.model.getRoiManager().getRoi(i);
 			// si la roi se trouve sur la slice courante ou sur toutes les slices
 			if (roi.getZPosition() == indexSlice || roi.getZPosition() == 0) {
 				// si c'est la roi courante on la set dans l'imp
@@ -481,7 +469,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	@Override
 	public void close() {
 		
-		this.roiManager.close();
+		this.model.getRoiManager().close();
 	}
 
 

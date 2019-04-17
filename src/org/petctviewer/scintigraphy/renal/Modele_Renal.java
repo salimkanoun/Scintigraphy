@@ -14,6 +14,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.json.simple.JSONObject;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
@@ -30,7 +31,8 @@ public class Modele_Renal extends ModeleScinDyn {
 	private boolean[] kidneys;
 	private double[] patlakPente;
 	private ArrayList<String> kidneysLR;
-	private ImagePlus imp;
+	private JValueSetter nephrogramChart;
+	private JValueSetter patlakChart;
 
 	/**
 	 * recupere les valeurs et calcule les resultats de l'examen renal
@@ -38,10 +40,8 @@ public class Modele_Renal extends ModeleScinDyn {
 	 * @param frameDuration
 	 *            duree de chaque frame en ms
 	 */
-	public Modele_Renal(int[] frameDuration, boolean[] kidneys, ImagePlus imp) {
-		super(frameDuration);
-		this.imp=imp;
-		this.kidneys = kidneys;
+	public Modele_Renal(int[] frameDuration, ImageSelection[] selectedImages, String studyName) {
+		super(selectedImages, studyName, frameDuration);
 		this.organRois = new HashMap<>();
 	}
 	
@@ -351,7 +351,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		//calibration.setUnit("mm");
 		//Double pixelHeight=calibration.pixelHeight;
 		///System.out.println(pixelHeight);
-		String pixelHeightString = DicomTools.getTag(imp, "0028,0030").trim().split("\\\\")[1];
+		String pixelHeightString = DicomTools.getTag(this.getImagePlus(), "0028,0030").trim().split("\\\\")[1];
 		Double pixelHeight = Double.parseDouble(pixelHeightString);
 		Double[] kidneyHeight = new Double[2];
 
@@ -542,25 +542,25 @@ public class Modele_Renal extends ModeleScinDyn {
 			+"Time ROE (min), "+ time[2]+","+this.getROE(time[2], "L")+","+this.getROE(time[2], "R")+"\n";
 	
 		HashMap<String, String> mapTags = new HashMap<>();
-		mapTags.put("0008,0020", DicomTools.getTag(imp, "0008,0020") );
-		mapTags.put("0008,0021", DicomTools.getTag(imp, "0008,0021") );
-		mapTags.put("0008,0030", DicomTools.getTag(imp, "0008,0030") );
-		mapTags.put("0008,0031", DicomTools.getTag(imp, "0008,0031") );
-		mapTags.put("0008,0050", DicomTools.getTag(imp, "0008,0050") );
-		mapTags.put("0008,0060", DicomTools.getTag(imp, "0008,0060") );
-		mapTags.put("0008,0070", DicomTools.getTag(imp, "0008,0070") );
-		mapTags.put("0008,0080", DicomTools.getTag(imp, "0008,0080") );
-		mapTags.put("0008,0090", DicomTools.getTag(imp, "0008,0090") );
-		mapTags.put("0008,1030", DicomTools.getTag(imp, "0008,1030") );
-		mapTags.put("0010,0010", DicomTools.getTag(imp, "0010,0010") );
-		mapTags.put("0010,0020", DicomTools.getTag(imp, "0010,0020") );
-		mapTags.put("0010,0030", DicomTools.getTag(imp, "0010,0030") );
-		mapTags.put("0010,0040", DicomTools.getTag(imp, "0010,0040") );
-		mapTags.put("0020,000D", DicomTools.getTag(imp, "0020,000D") );
-		mapTags.put("0020,000E", DicomTools.getTag(imp, "0020,000E") );
-		mapTags.put("0020,0010", DicomTools.getTag(imp, "0020,0010") );
-		mapTags.put("0020,0032" ,DicomTools.getTag(imp, "0020,0032") );
-		mapTags.put("0020,0037", DicomTools.getTag(imp, "0020,0037") );
+		mapTags.put("0008,0020", DicomTools.getTag(this.getImagePlus(), "0008,0020") );
+		mapTags.put("0008,0021", DicomTools.getTag(this.getImagePlus(), "0008,0021") );
+		mapTags.put("0008,0030", DicomTools.getTag(this.getImagePlus(), "0008,0030") );
+		mapTags.put("0008,0031", DicomTools.getTag(this.getImagePlus(), "0008,0031") );
+		mapTags.put("0008,0050", DicomTools.getTag(this.getImagePlus(), "0008,0050") );
+		mapTags.put("0008,0060", DicomTools.getTag(this.getImagePlus(), "0008,0060") );
+		mapTags.put("0008,0070", DicomTools.getTag(this.getImagePlus(), "0008,0070") );
+		mapTags.put("0008,0080", DicomTools.getTag(this.getImagePlus(), "0008,0080") );
+		mapTags.put("0008,0090", DicomTools.getTag(this.getImagePlus(), "0008,0090") );
+		mapTags.put("0008,1030", DicomTools.getTag(this.getImagePlus(), "0008,1030") );
+		mapTags.put("0010,0010", DicomTools.getTag(this.getImagePlus(), "0010,0010") );
+		mapTags.put("0010,0020", DicomTools.getTag(this.getImagePlus(), "0010,0020") );
+		mapTags.put("0010,0030", DicomTools.getTag(this.getImagePlus(), "0010,0030") );
+		mapTags.put("0010,0040", DicomTools.getTag(this.getImagePlus(), "0010,0040") );
+		mapTags.put("0020,000D", DicomTools.getTag(this.getImagePlus(), "0020,000D") );
+		mapTags.put("0020,000E", DicomTools.getTag(this.getImagePlus(), "0020,000E") );
+		mapTags.put("0020,0010", DicomTools.getTag(this.getImagePlus(), "0020,0010") );
+		mapTags.put("0020,0032" ,DicomTools.getTag(this.getImagePlus(), "0020,0032") );
+		mapTags.put("0020,0037", DicomTools.getTag(this.getImagePlus(), "0020,0037") );
 		
 		
 		String tags = JSONObject.toJSONString(mapTags);
@@ -700,6 +700,21 @@ public class Modele_Renal extends ModeleScinDyn {
 	}
 
 
+	public void setNephrogramChart(JValueSetter nephrogramChart) {
+		this.nephrogramChart = nephrogramChart;
+	}
+
+	public JValueSetter getNephrogramChart() {
+		return nephrogramChart;
+	}
+
+	public JValueSetter getPatlakChart() {
+		return patlakChart;
+	}
+
+	public void setPatlakChart(JValueSetter patlakChart) {
+		this.patlakChart = patlakChart;
+	}
 
 	
 }

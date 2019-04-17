@@ -1,17 +1,18 @@
 package org.petctviewer.scintigraphy.hepatic.statique;
 
 import java.util.HashMap;
+
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-
-import ij.ImagePlus;
 
 public class Modele_Hepatic extends ModeleScin {
 
 	private HashMap<String, Double> data;
 	private Double MGFoie, MGIntes, MGTot;
 
-	public Modele_Hepatic() {
+	public Modele_Hepatic(ImageSelection[] selectedImages, String studyName) {
+		super(selectedImages, studyName);
 	}
 	
 	public HashMap<String, String> getResultsHashMap() {
