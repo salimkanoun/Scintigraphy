@@ -13,8 +13,6 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
-
 import ij.ImagePlus;
 
 
@@ -27,7 +25,6 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 	
 	Modele_Os modele;
 	FenApplication_Os vue;
-	Scintigraphy scin;
 
 	ImagePlus imp;
 	
@@ -35,9 +32,6 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 		
 		this.modele = new Modele_Os(imps);
 		this.imp=imps[0][0];
-		
-		this.scin = scin;
-		this.scin.setModele(this.modele);
 		
 		this.vue = new FenApplication_Os(this);
 		initialiser_Vue();
@@ -144,10 +138,6 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 	
 	public int getNbScinti() {
 		return this.modele.getNbScinti();
-	}
-	
-	public Scintigraphy getScin() {
-		return this.scin;
 	}
 
 }

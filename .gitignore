@@ -7,7 +7,5 @@
 /.settings/
 /.classpath
 /jars/
-
-.project
-.classpath
+/.project
 

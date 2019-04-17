@@ -12,7 +12,6 @@ import java.util.List;
 import javax.swing.JSlider;
 import javax.swing.SwingUtilities;
 
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -25,7 +24,7 @@ import ij.Prefs;
  * DISCLAIMER :
  * Dans cette application, il a été fait comme choix d'initialiser le module par le biais du Contrôleur, qui va ensuite créer la vue et le modèle.
  * */
-public class Modele_Os extends ModeleScin{
+public class Modele_Os {
 	
 	boolean[][] selected;												// Tableau permettant de savoir quel DynamicImage sont selectionnées
 	private ImagePlus[][] imps;											// Tableau à double dimension contenant les ImagePlus liées aux DynamicImage de(s) Scintigraphie(s) Osseuse(s)
@@ -119,10 +118,10 @@ public class Modele_Os extends ModeleScin{
 		
 		Graphics g = dyn.getImage().getGraphics();																	// On crée un objet graphique qui va être appliquer à la Image de notre Dynamic Image
 		g.setColor(Color.BLACK);																					// Couleur pour le fond du rectangle
-		g.fillRect(14, impCurrent.getHeight()*97/100-fontLenght, infoPatient.get("date").length()*fontLenght/2+3, fontLenght+3);
+		g.fillRect(4, impCurrent.getHeight()*97/100-fontLenght, infoPatient.get("date").length()*fontLenght/2+3, fontLenght+3);
 		g.setColor(Color.white);																					// Couleur pour le texte
 		g.setFont(new Font("TimesRoman", Font.PLAIN, fontLenght));													// Font du texte
-		g.drawString(infoPatient.get("date"), 15 , impCurrent.getHeight()*97/100);									// On dessine le texte sur l'image
+		g.drawString(infoPatient.get("date"), 5 , impCurrent.getHeight()*97/100);									// On dessine le texte sur l'image
 		g.dispose();																								// On applique les dessins sur l'image
 		
 	}
@@ -330,9 +329,5 @@ public class Modele_Os extends ModeleScin{
 	public ImagePlus getImp() {
 		return this.imp;
 	}
-
-
-	@Override
-	public void calculerResultats() {}
 
 }
