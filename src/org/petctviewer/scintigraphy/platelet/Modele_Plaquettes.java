@@ -56,8 +56,8 @@ public class Modele_Plaquettes extends ModeleScin {
 	HashMap<Date, MesureImage> mesures = new HashMap<>();
 	private Date dateHeureDebut;
 
-	public Modele_Plaquettes(Date dateHeureDebut, ImageSelection[] selectedImages) {
-		super(selectedImages);
+	public Modele_Plaquettes(Date dateHeureDebut, ImageSelection[] selectedImages, String studyName) {
+		super(selectedImages, studyName);
 		this.dateHeureDebut = dateHeureDebut;
 	}
 

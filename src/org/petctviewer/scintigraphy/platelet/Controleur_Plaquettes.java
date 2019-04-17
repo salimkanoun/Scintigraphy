@@ -38,8 +38,8 @@ public class Controleur_Plaquettes extends Controleur_OrganeFixe {
 	private boolean antPost;
 
 	// Sert au restart
-	protected Controleur_Plaquettes(Vue_Plaquettes vue, Date dateDebut, ImageSelection[] selectedImages) {
-		super(vue, new Modele_Plaquettes(dateDebut, selectedImages));
+	protected Controleur_Plaquettes(Vue_Plaquettes vue, Date dateDebut, ImageSelection[] selectedImages, String studyName) {
+		super(vue, new Modele_Plaquettes(dateDebut, selectedImages, studyName));
 		
 		this.antPost = vue.antPost;
 		
