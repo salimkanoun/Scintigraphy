@@ -20,7 +20,7 @@ public class StaticScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImageSelection[] selectedImages) throws Exception {
+	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
 		
 		if(selectedImages.length != 1) {
 			throw new Exception("Software Accept only one A/P serie");
@@ -35,22 +35,21 @@ public class StaticScintigraphy extends Scintigraphy {
 			throw new Exception("Not A/P view");
 		}
 		
-		return imp;
+		ImageSelection[] selection = new ImageSelection[1];
+		selection[0] = new ImageSelection(imp, null, null);
+		return selection;
 	}
 
 	@Override
-	public void lancerProgramme() {
+	public void lancerProgramme(ImageSelection[] selectedImages) {
 		
-		Overlay overlay = Library_Gui.initOverlay(this.getImp(),12);
-		Library_Gui.setOverlayDG(overlay, this.getImp(),Color.white);
+		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(),12);
+		Library_Gui.setOverlayDG(overlay, selectedImages[0].getImagePlus(),Color.white);
 		
-		this.setFenApplication(new FenApplication_ScinStatic(this.getImp(), this.getExamType()));
-		this.getImp().setOverlay(overlay);
-		
-		ModeleScinStatic modele=new ModeleScinStatic();
-		this.setModele(modele);
+		this.setFenApplication(new FenApplication_ScinStatic(selectedImages[0].getImagePlus(), this.getExamType()));
+		selectedImages[0].getImagePlus().setOverlay(overlay);
 
-		ControleurScinStatic ctrl = new ControleurScinStatic(this);
+		ControleurScinStatic ctrl = new ControleurScinStatic(this, "General static scintigraphy");
 		this.getFenApplication().setControleur(ctrl);
 		IJ.setTool(Toolbar.POLYGON);
 	}

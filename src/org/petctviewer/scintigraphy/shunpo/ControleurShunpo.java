@@ -1,20 +1,21 @@
 package org.petctviewer.scintigraphy.shunpo;
 
-import java.awt.Rectangle;
+import java.awt.Component;
+import java.awt.GridLayout;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
-import ij.plugin.frame.RoiManager;
 
 public class ControleurShunpo extends ControleurScin {
 
@@ -23,6 +24,7 @@ public class ControleurShunpo extends ControleurScin {
 	}
 
 	private static final int INDEX_ORGAN_AUTO_GENERATE_ROI = 4;
+	private static final int STEP_KIDNEY_PULMON = 0;
 	private String[][] steps = { { "Right lung", "Left lung", "Right kidney", "Left kidney", "Background" },
 			{ "Brain" } };
 
@@ -40,9 +42,7 @@ public class ControleurShunpo extends ControleurScin {
 	private int indexOrgan;
 
 	private State state;
-	private ImageSelection[] images;
 
-	private ModeleScin model;
 	private ImagePlus[] captures;
 
 	private FenResults fenResults;
@@ -51,46 +51,28 @@ public class ControleurShunpo extends ControleurScin {
 	 * @param vue
 	 * @param images 2 images, 1st: KIDNEY-PULMON; 2nd: BRAIN
 	 */
-	public ControleurShunpo(Scintigraphy main, FenApplication vue, ImageSelection[] images) {
-		super(main, vue);
-		this.images = images;
+	public ControleurShunpo(Scintigraphy main, FenApplication vue, ImageSelection[] images, String studyName) {
+		super(main, vue, new ModeleShunpo(images, studyName));
 		this.state = State.DELIMIT_ORGAN_ANT;
-		this.currentStep = 0;
+		this.currentStep = STEP_KIDNEY_PULMON;
 		this.indexOrgan = 0;
 		this.currentOrgan = 0;
 
-		this.model = new ModeleShunpo();
 		this.captures = new ImagePlus[4];
-		new RoiManager();
 
 		// Start working with kidney-pulmon
 		this.prepareStep(this.currentStep);
 	}
 
-	private final void DEBUG() {
-		System.out.println("Current state: " + this.state);
-		System.out.println(
-				"Current step: " + this.currentStep + " [" + (this.currentStep == 0 ? "PULMON_KIDNEY" : "BRAIN") + "]");
-		System.out.println(
-				"Current organ: " + this.currentOrgan + " [" + this.steps[this.currentStep][this.currentOrgan] + "]");
-		System.out.println("Index organ: " + this.indexOrgan);
-		System.out.println("Position: " + this.position);
-		System.out.println();
-	}
-
-	/**
-	 * Creates a rectangle between the two ROIs specified.
-	 * 
-	 * @param r1
-	 * @param r2
-	 * @return Rectangle at the center of the ROIs specified
+	/*
+	 * private final void DEBUG() { System.out.println("Current state: " +
+	 * this.state); System.out.println( "Current step: " + this.currentStep + " [" +
+	 * (this.currentStep == 0 ? "PULMON_KIDNEY" : "BRAIN") + "]");
+	 * System.out.println( "Current organ: " + this.currentOrgan + " [" +
+	 * this.steps[this.currentStep][this.currentOrgan] + "]");
+	 * System.out.println("Index organ: " + this.indexOrgan);
+	 * System.out.println("Position: " + this.position); System.out.println(); }
 	 */
-	private Rectangle roiBetween(Roi r1, Roi r2) {
-		int x = (int) ((r1.getBounds().getLocation().x + r2.getBounds().getLocation().x + r2.getBounds().getWidth())
-				/ 2);
-		int y = (r1.getBounds().getLocation().y + r2.getBounds().getLocation().y) / 2;
-		return new Rectangle(x, y, 15, 30);
-	}
 
 	/**
 	 * Displays the current organ's instruction type.<br>
@@ -113,7 +95,7 @@ public class ControleurShunpo extends ControleurScin {
 		// Remove overlay
 		this.resetOverlay();
 
-		this.vue.setImp(this.images[step].getImagePlus());
+		this.vue.setImp(this.model.getImageSelection()[step].getImagePlus());
 		if (this.state == State.DELEMIT_ORGAN_POST) {
 			// Display post image
 			this.vue.getImagePlus().setSlice(2);
@@ -167,8 +149,8 @@ public class ControleurShunpo extends ControleurScin {
 		this.currentOrgan++;
 		if (this.currentOrgan == INDEX_ORGAN_AUTO_GENERATE_ROI)
 			// Auto generate ROI
-			this.vue.getImagePlus().setRoi(
-					this.roiBetween(this.roiManager.getRoi(indexOrgan - 2), this.roiManager.getRoi(indexOrgan - 1)));
+			this.vue.getImagePlus().setRoi(this.roiBetween(this.model.getRoiManager().getRoi(indexOrgan - 2),
+					this.model.getRoiManager().getRoi(indexOrgan - 1)));
 		else
 			this.editOrgan();
 
@@ -209,15 +191,62 @@ public class ControleurShunpo extends ControleurScin {
 		this.vue.getTextfield_instructions().setText("End!");
 		this.vue.getBtn_suivant().setEnabled(false);
 
-		// Save model
+		// Compute model
+		int index = 0;
+		ImagePlus img = this.model.getImageSelection()[0].getImagePlus();
+		this.model.getImageSelection()[0].getImagePlus().setSlice(1);
+		this.model.getImageSelection()[1].getImagePlus().setSlice(1);
+		for (Roi r : this.model.getRoiManager().getRoisAsArray()) {
+			String title_completion = "";
+			if (index >= ModeleShunpo.TOTAL_ORGANS) {
+				// POST
+				this.model.getImageSelection()[0].getImagePlus().setSlice(2);
+				this.model.getImageSelection()[1].getImagePlus().setSlice(2);
+				index = 1;
+			}
+			if (index % 2 == 0)
+				title_completion += " ANT(" + img.getCurrentSlice() + ")";
+			else
+				title_completion += " POST(" + img.getCurrentSlice() + ")";
+
+			if (index >= ModeleShunpo.BRAIN_ANT) {
+				// BRAIN IMG
+				img = this.model.getImageSelection()[1].getImagePlus();
+				title_completion += " - BRAIN_IMG";
+			} else {
+				img = this.model.getImageSelection()[0].getImagePlus();
+				title_completion += " - KIDNEY-PULMON_IMG";
+			}
+			img.setRoi(r);
+			System.out.println("Oppening:: " + r.getName() + title_completion);
+			((ModeleShunpo) this.model).calculerCoups(index, img);
+			index += 2;
+		}
+		this.model.calculerResultats();
+
+		// Save captures
 		ImageStack stackCapture = Library_Capture_CSV.captureToStack(this.captures);
 		ImagePlus montage = this.montage(stackCapture);
 
 		// Display result
-		this.fenResults = new FenResults("Results", this.main.getExamType());
-		this.fenResults.setResult(new DynamicImage(montage.getImage()));
-		this.fenResults.setInfos(new SidePanel(null, this.main.getExamType(), this.images[0].getImagePlus()));
+		this.fenResults = new FenResults(this.model);
+		this.fenResults.addTab(new TabResult(fenResults, "Result", true) {
+			@Override
+			public Component getSidePanelContent() {
+				String[] result = ((ModeleShunpo) model).getResult();
+				JPanel res = new JPanel(new GridLayout(result.length, 1));
+				for(String s : result)
+					res.add(new JLabel(s));
+				return res;
+			}
+			@Override
+			public JPanel getResultContent() {
+				return new DynamicImage(montage.getImage());
+			}
+		});
 		this.fenResults.setVisible(true);
+		
+		
 	}
 
 	@Override
@@ -225,7 +254,7 @@ public class ControleurShunpo extends ControleurScin {
 		if (this.saveCurrentRoi(this.steps[this.currentStep][this.currentOrgan]
 				+ (this.state == State.DELIMIT_ORGAN_ANT ? "_A" : "_P"))) {
 			super.clicSuivant();
-			DEBUG();
+
 			this.displayRoi(this.position - 1);
 			this.indexOrgan++;
 
@@ -233,7 +262,7 @@ public class ControleurShunpo extends ControleurScin {
 			if (this.allOrgansDelimited()) {
 				// Capture
 				int indexCapture = this.currentStep + (this.state == State.DELEMIT_ORGAN_POST ? this.steps.length : 0);
-				this.captures[indexCapture] = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 0, 0);
+				this.captures[indexCapture] = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 512, 0);
 				// Next step
 				this.currentStep++;
 				// All steps completed
@@ -260,7 +289,6 @@ public class ControleurShunpo extends ControleurScin {
 				// Next organ
 				this.nextOrgan();
 			}
-			DEBUG();
 		}
 	}
 
@@ -268,7 +296,6 @@ public class ControleurShunpo extends ControleurScin {
 	public void clicPrecedent() {
 		super.clicPrecedent();
 
-		DEBUG();
 		this.indexOrgan--;
 		if (this.currentOrgan > 0) {
 			this.previousOrgan();
@@ -297,7 +324,6 @@ public class ControleurShunpo extends ControleurScin {
 		}
 
 		this.displayRois(this.position - this.currentOrgan, this.position);
-		DEBUG();
 	}
 
 	@Override

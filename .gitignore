@@ -4,8 +4,10 @@
 # mac
 *.DS_Store
 
-.settings/
-.classpath
+/.settings/
+/.classpath
 /jars/
+
 .project
+.classpath
 

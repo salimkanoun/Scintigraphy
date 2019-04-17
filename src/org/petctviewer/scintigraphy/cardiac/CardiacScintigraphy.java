@@ -23,7 +23,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImageSelection[] selectedImages) throws Exception {
+	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
 
 		ArrayList<ImagePlus> mountedImages = new ArrayList<>();
 
@@ -62,24 +62,22 @@ public class CardiacScintigraphy extends Scintigraphy {
 			impStacked = mountedSorted[0];
 		}
 
-		return impStacked.duplicate();
+		ImageSelection[] selection = new ImageSelection[1];
+		selection[0] = new ImageSelection(impStacked.duplicate(), null, null);
+		return selection;
 	}
 
 	@Override
-	public void lancerProgramme() {
-		Overlay overlay = Library_Gui.initOverlay(this.getImp(), 7);
-		Library_Gui.setOverlayDG(overlay, this.getImp(), Color.YELLOW);
+	public void lancerProgramme(ImageSelection[] selectedImages) {
+		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 7);
+		Library_Gui.setOverlayDG(overlay, selectedImages[0].getImagePlus(), Color.YELLOW);
 		
 		// fenetre de l'application
-		this.setFenApplication(new FenApplication_Cardiac(this.getImp(), this.getExamType()));
-		this.getImp().setOverlay(overlay);
-		
-		//Cree Modele
-		Modele_Cardiac modele=new Modele_Cardiac(this);
-		this.setModele(modele);
+		this.setFenApplication(new FenApplication_Cardiac(selectedImages[0].getImagePlus(), this.getExamType()));
+		selectedImages[0].getImagePlus().setOverlay(overlay);
 		
 		//Cree controller
-		Controleur_Cardiac ctrl = new Controleur_Cardiac(this);
+		Controleur_Cardiac ctrl = new Controleur_Cardiac(this, selectedImages, "Cardiac");
 		this.getFenApplication().setControleur(ctrl);
 		
 		

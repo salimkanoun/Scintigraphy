@@ -6,19 +6,23 @@ import org.petctviewer.scintigraphy.scin.ModeleScin;
 
 public class Modele_PostMictional extends ModeleScin {
 
-	private HashMap<String, Double> hm ;
+	private HashMap<String, Double> hm;
+
+	public Modele_PostMictional(String studyName) {
+		super(null, studyName);
+	}
 
 	@Override
 	public void calculerResultats() {
-		//pas de calcul
+		// pas de calcul
 	}
-	
+
 	public HashMap<String, Double> getData() {
 		return this.hm;
 	}
-	
+
 	public void setData(HashMap<String, Double> hm) {
-		this.hm=hm;
+		this.hm = hm;
 	}
 
 }

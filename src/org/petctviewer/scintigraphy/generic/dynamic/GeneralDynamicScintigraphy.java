@@ -19,14 +19,13 @@ public class GeneralDynamicScintigraphy extends Scintigraphy{
 	}
 	
 	@Override
-	public void lancerProgramme() {
-		this.setFenApplication(new FenApplication_GeneralDyn(this.getImp(), this.getExamType(), this));
-		this.getFenApplication().setControleur(new Controleur_GeneralDyn(this));
-		this.setModele(new Modele_GeneralDyn(getFrameDurations()));
+	public void lancerProgramme(ImageSelection[] selectedImages) {
+		this.setFenApplication(new FenApplication_GeneralDyn(selectedImages[0].getImagePlus(), this.getExamType(), this));
+		this.getFenApplication().setControleur(new Controleur_GeneralDyn(this, "Dynamic scintigraphy"));
 		IJ.setTool(Toolbar.POLYGON);
 	}
 	
-	protected ImagePlus preparerImp(ImageSelection[] selectedImages) throws Exception {
+	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
 		
 		ImagePlus[] imps = new ImagePlus[2];
 		
@@ -66,7 +65,9 @@ public class GeneralDynamicScintigraphy extends Scintigraphy{
 			this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost);
 		}
 
-		return impProjetee.duplicate();
+		ImageSelection[] selection = new ImageSelection[1];
+		selection[0] = new ImageSelection(impProjetee.duplicate(), null, null);
+		return selection;
 	}
 
 

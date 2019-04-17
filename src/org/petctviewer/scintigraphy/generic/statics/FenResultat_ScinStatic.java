@@ -1,37 +1,70 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.image.BufferedImage;
 
-import javax.swing.JFrame;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.shunpo.FenResults;
+import org.petctviewer.scintigraphy.shunpo.TabResult;
 
-public class FenResultat_ScinStatic extends JFrame {
+public class FenResultat_ScinStatic extends FenResults {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private SidePanel side;
-	private Scintigraphy scin;
 	
-	public FenResultat_ScinStatic( Scintigraphy scin, BufferedImage capture) {
+	private JPanel panAnt, panPost, panAvgGeo;
+	private BufferedImage capture;
+	
+	private TabResult tab;
+	
+	public FenResultat_ScinStatic(BufferedImage capture, ModeleScin model) {
+		super(model);
+		this.capture = capture;
+		
+		this.tab = new Tab(this, "Result");
+		
+		this.addAntTab(((ModeleScinStatic)model).calculerTableauAnt());
+		this.addPostTab(((ModeleScinStatic)model).calculerTableauPost());
+		this.addMoyGeomTab(((ModeleScinStatic)model).calculerTaleauMayGeom());
+	
+		this.setLocationRelativeTo(model.getImagePlus().getWindow());
+	}
+	
+	private class Tab extends TabResult {
 
-		this.scin = scin;
-		side = new SidePanel (null, "Static Quant\n", scin.getImp());
-	
-		this.add(new DynamicImage(capture),	 BorderLayout.CENTER);
-		this.add(side, BorderLayout.EAST);
-		this.pack();
-		this.setLocationRelativeTo(scin.getImp().getWindow());
-		this.setVisible(true);
+		public Tab(FenResults parent, String title) {
+			super(parent, title);
+			this.createCaptureButton("cc");
+		}
+
+		@Override
+		public Component getSidePanelContent() {
+			Box box = new Box(BoxLayout.PAGE_AXIS);
+			if(panAnt != null)
+				box.add(panAnt);
+			if(panPost != null)
+				box.add(panPost);
+			if(panAvgGeo != null)
+				box.add(panAvgGeo);
+			return box;
+		}
+
+		@Override
+		public JPanel getResultContent() {
+			return new DynamicImage(capture);
+		}
+		
 	}
 
 
@@ -49,10 +82,11 @@ public class FenResultat_ScinStatic extends JFrame {
         
         JPanel fixedSize = new JPanel(new FlowLayout());
         fixedSize.add(p);
-        this.side.add(new JLabel("Ant"));
-		this.side.add(fixedSize);	
+        
+        this.panAnt.add(new JLabel("Ant"));
+		this.panAnt.add(fixedSize);
 		
-
+		this.tab.reloadDisplay();
 	}
 	
 	public void addPostTab(Object[][] data){
@@ -69,9 +103,10 @@ public class FenResultat_ScinStatic extends JFrame {
         JPanel fixedSize = new JPanel(new FlowLayout());
         fixedSize.add(p);
         
-        this.side.add(new JLabel("Post"));
-		this.side.add(fixedSize);		
+        this.panPost.add(new JLabel("Post"));
+		this.panPost.add(fixedSize);		
 
+		this.tab.reloadDisplay();
 	}
 	//csv
 	//2 ant et post sur la cpture
@@ -91,13 +126,10 @@ public class FenResultat_ScinStatic extends JFrame {
 		JPanel fixedSize = new JPanel(new FlowLayout());
         fixedSize.add(p);
         
-		this.side.add(new JLabel("Geom Mean"));
-		this.side.add(fixedSize);
+		this.panAvgGeo.add(new JLabel("Geom Mean"));
+		this.panAvgGeo.add(fixedSize);
 		
-	}
-	
-	public void addCaptureButton() {
-		side.addCaptureBtn(scin, "cc");
+		this.tab.reloadDisplay();
 	}
 	
 

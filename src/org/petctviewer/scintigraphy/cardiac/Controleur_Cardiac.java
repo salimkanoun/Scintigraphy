@@ -10,6 +10,7 @@ import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
@@ -22,18 +23,16 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 	private boolean finContSlice1;
 	private boolean finContSlice2;
 	private static String[] organes = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
-	private Modele_Cardiac modele;
 	private Controleur_Cardiac controler;
 
-	protected Controleur_Cardiac(Scintigraphy scin) {
-		super(scin);
-		controler=this;
-		this.modele =(Modele_Cardiac) scin.getModele();
-		
-		// on declare si il y a deux prises
-		modele.setDeuxPrise(this.isDeuxPrises());
+	protected Controleur_Cardiac(Scintigraphy scin, ImageSelection[] selectedImages, String studyName) {
+		super(scin, new Modele_Cardiac(scin, selectedImages, studyName));
+		controler = this;
 
-		modele.calculerMoyGeomTotale();
+		// on declare si il y a deux prises
+		((Modele_Cardiac)this.model).setDeuxPrise(this.isDeuxPrises());
+
+		((Modele_Cardiac)this.model).calculerMoyGeomTotale();
 
 		// double les organes pour prise ant/post
 		List<String> organesAntPost = new ArrayList<>();
@@ -55,15 +54,17 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 	@Override
 	public void end() {
 		// suppression du controleur de l'imp
-		//this.removeImpListener();
-		modele.getResults();
-		modele.calculerResultats();
-		
+		// this.removeImpListener();
+		((Modele_Cardiac)this.model).getResults();
+		((Modele_Cardiac)this.model).calculerResultats();
+
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				BufferedImage capture = Library_Capture_CSV.captureImage(controler.getScin().getFenApplication().getImagePlus(), 400, 0).getBufferedImage();	
-				new FenResultat_Cardiac(controler.getScin(), capture);
+				BufferedImage capture = Library_Capture_CSV
+						.captureImage(controler.getScin().getFenApplication().getImagePlus(), 400, 0)
+						.getBufferedImage();
+				new FenResultat_Cardiac(controler.getScin(), capture, model);
 			}
 		});
 
@@ -71,12 +72,12 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 
 	@Override
 	public boolean isPost() {
-		ImagePlus imp = this.getScin().getImp();
+		ImagePlus imp = this.model.getImagesPlus()[0];
 
 		if (imp.getRoi() != null) {
 			return imp.getRoi().getXBase() > imp.getWidth() / 2;
-		} else if (this.roiManager.getRoi(indexRoi - 1) != null) {
-			return this.roiManager.getRoi(indexRoi - 1).getXBase() > imp.getWidth() / 2;
+		} else if (this.model.getRoiManager().getRoi(indexRoi - 1) != null) {
+			return this.model.getRoiManager().getRoi(indexRoi - 1).getXBase() > imp.getWidth() / 2;
 		}
 
 		return false;
@@ -97,34 +98,36 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 	public Roi getOrganRoi(int lastRoi) {
 		// symetrique du coeur
 		if (this.getIndexRoi() == this.getOrganes().length - 2) {
-			Roi roi = (Roi) this.roiManager.getRoi(this.getIndexRoi() - 2).clone();
+			Roi roi = (Roi) this.model.getRoiManager().getRoi(this.getIndexRoi() - 2).clone();
 
 			// on fait le symetrique de la roi
 			roi = RoiScaler.scale(roi, -1, 1, true);
 
-			int quart = (this.getScin().getImp().getWidth() / 4);
+			int quart = (this.model.getImagesPlus()[0].getWidth() / 4);
 			int newX = (int) (roi.getXBase() - Math.abs(2 * (roi.getXBase() - quart)) - roi.getFloatWidth());
 			roi.setLocation(newX, roi.getYBase());
 			return roi;
 		}
 
-		//recupere la roi de l'organe symetrique
-		Roi lastOrgan = (Roi) this.roiManager.getRoi(getIndexRoi() - 1);
-		if(lastOrgan == null) { //si elle n'existe pas, on renvoie null
+		// recupere la roi de l'organe symetrique
+		Roi lastOrgan = (Roi) this.model.getRoiManager().getRoi(getIndexRoi() - 1);
+		if (lastOrgan == null) { // si elle n'existe pas, on renvoie null
 			return null;
 		}
 		lastOrgan = (Roi) lastOrgan.clone();
 
 		// si la derniere roi etait post ou ant
-		boolean OrganPost = lastOrgan.getXBase() > this.getScin().getImp().getWidth() / 2;
+		boolean OrganPost = lastOrgan.getXBase() > this.model.getImagesPlus()[0].getWidth() / 2;
 
 		// si on doit faire le symetrique et que l'on a appuye sur next
 		if (this.getIndexRoi() % 2 == 1 && lastRoi < this.indexRoi) {
 
 			if (OrganPost) { // si la prise est ant, on decale l'organe precedent vers la droite
-				lastOrgan.setLocation(lastOrgan.getXBase() - (this.getScin().getImp().getWidth() / 2), lastOrgan.getYBase());
+				lastOrgan.setLocation(lastOrgan.getXBase() - (this.model.getImagesPlus()[0].getWidth() / 2),
+						lastOrgan.getYBase());
 			} else { // sinon vers la gauche
-				lastOrgan.setLocation(lastOrgan.getXBase() + (this.getScin().getImp().getWidth() / 2), lastOrgan.getYBase());
+				lastOrgan.setLocation(lastOrgan.getXBase() + (this.model.getImagesPlus()[0].getWidth() / 2),
+						lastOrgan.getYBase());
 			}
 
 			return lastOrgan;
@@ -134,7 +137,7 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 	}
 
 	private boolean isDeuxPrises() {
-		return this.getScin().getImp().getImageStackSize() > 1;
+		return this.model.getImagesPlus()[0].getImageStackSize() > 1;
 	}
 
 	private void clicNewCont() {
@@ -168,7 +171,7 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 
 	private void clicEndCont() {
 		// on set la slice
-		if ((this.getScin().getImp().getCurrentSlice() == 1 && this.isDeuxPrises())) {
+		if ((this.model.getImagesPlus()[0].getCurrentSlice() == 1 && this.isDeuxPrises())) {
 			// on relance le mode decontamination, cette fois ci pour la deuxieme slice
 			this.finContSlice1 = true;
 			this.setSlice(2);
@@ -190,24 +193,24 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 	@Override
 	public String addTag(String nomOrgane) {
 		String nom = nomOrgane;
-		
+
 		// on ajoute au nom P ou A pour Post ou Ant
 		if (this.isPost()) {
 			nom += " P";
-			
+
 		} else {
 			nom += " A";
 		}
-		
-		if(!this.finContSlice2) {
+
+		if (!this.finContSlice2) {
 			String count = this.getSameNameRoiCount(nom);
 			nom += count;
-			
+
 		}
-		
+
 		return nom;
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		super.actionPerformed(arg0);
@@ -220,9 +223,9 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 			this.clicEndCont();
 		}
 	}
-	
+
 	public Modele_Cardiac getModele() {
-		return modele;
+		return (Modele_Cardiac) this.model;
 	}
 
 }

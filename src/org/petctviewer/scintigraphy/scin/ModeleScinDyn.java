@@ -20,7 +20,8 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	 * @param frameDuration
 	 *            duree de chaque frame en ms
 	 */
-	public ModeleScinDyn(int[] frameDuration) {
+	public ModeleScinDyn(ImageSelection[] selectedImages, String studyName, int[] frameDuration) {
+		super(selectedImages, studyName);
 		this.data = new HashMap<>();
 		this.frameduration = frameDuration;
 	}

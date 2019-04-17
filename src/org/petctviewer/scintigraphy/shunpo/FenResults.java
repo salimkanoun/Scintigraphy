@@ -1,73 +1,48 @@
 package org.petctviewer.scintigraphy.shunpo;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Font;
-
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
+import org.petctviewer.scintigraphy.scin.ModeleScin;
+
+/**
+ * Class that represent a result window for a study.
+ * 
+ * @author Titouan QUÉMA
+ *
+ */
 public class FenResults extends JFrame {
 	private static final long serialVersionUID = 1L;
 
-	private static final Font FONT_TITLE = new Font("Arial", Font.PLAIN, 25);
+	private JTabbedPane tabPane;
 
-	private JLabel resultTitle, studyName;
+	private ModeleScin model;
 
-	private JPanel panCenter, panResult, panEast;
-
-	public FenResults() {
-		this("Untitiled", "Study Unknown");
-	}
-
-	public FenResults(String resultTitle, String studyName) {
+	public FenResults(ModeleScin model) {
 		this.setLocationRelativeTo(null);
-		this.setTitle("Result for " + studyName);
+		this.setTitle("Result for " + model.getStudyName());
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-		this.getContentPane().setLayout(new BorderLayout());
+		this.model = model;
 
-		// Center
-		this.panCenter = new JPanel(new BorderLayout());
-		this.panCenter.setAlignmentX(JPanel.CENTER_ALIGNMENT);
+		this.tabPane = new JTabbedPane();
 
-		this.resultTitle = new JLabel(resultTitle);
-		this.resultTitle.setHorizontalAlignment(JLabel.CENTER);
-		this.resultTitle.setFont(FONT_TITLE);
-		panCenter.add(this.resultTitle, BorderLayout.NORTH);
+		this.add(tabPane);
 
-		this.panResult = new JPanel();
-		this.panCenter.add(panResult, BorderLayout.CENTER);
-
-		// East
-		this.panEast = new JPanel();
-
-		// Add components
-		this.getContentPane().add(panCenter, BorderLayout.CENTER);
-		this.getContentPane().add(panEast, BorderLayout.EAST);
-		this.pack();
+		this.setVisible(true);
 	}
 
-	public void setResultTitle(String title) {
-		this.resultTitle.setText(title);
-		this.pack();
+	public ModeleScin getModel() {
+		return this.model;
 	}
 
-	public void setStudyName(String studyName) {
-		this.studyName.setText(studyName);
-		this.pack();
-	}
-
-	public void setResult(JPanel panel) {
-		this.panCenter.remove(this.panResult);
-		this.panCenter.add(panel, BorderLayout.CENTER);
-		this.pack();
-	}
-	
-	public void setInfos(Component component) {
-		this.panEast.removeAll();
-		this.panEast.add(component);
+	/**
+	 * Adds a new tab to be displayed.
+	 * 
+	 * @param tab Tab to add
+	 */
+	public void addTab(TabResult tab) {
+		this.tabPane.addTab(tab.getTitle(), tab.getPanel());
 		this.pack();
 	}
 

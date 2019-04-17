@@ -17,6 +17,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.LineBorder;
 
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
@@ -61,18 +64,17 @@ public class FenApplication_Os extends JPanel {
 		 *            Contrôleur permettant de réagir au click.
 		 * @return
 		 */
-	public FenApplication_Os(Controleur_Os controleur_os) {
+	public FenApplication_Os(Controleur_Os controleur_Os) {
 		super(new BorderLayout());
 		
 		this.additionalInfo = "Info";
 		this.nomFen = "Fen";
 		
-		sidePanel = new SidePanel(null, "Bone scintigraphy", controleur_os.getImp());
-		
-		// sidePanel.addCaptureBtn(scin, "_other");
+		sidePanel = new SidePanel(null, "Bone scintigraphy", controleur_Os.getImp());
+
 		this.add(sidePanel, BorderLayout.WEST);
 		
-		this.grid = new JPanel(new GridLayout(1, controleur_os.getNbScinti()*2));
+		this.grid = new JPanel(new GridLayout(1, controleur_Os.getNbScinti()*2));
 		
 		this.add(grid, BorderLayout.CENTER);
 		
@@ -81,7 +83,7 @@ public class FenApplication_Os extends JPanel {
 		
 		
 		
-		this.finishBuildingWindow(controleur_os);
+		this.finishBuildingWindow(controleur_Os);
 	}
 
 	
@@ -124,7 +126,7 @@ public class FenApplication_Os extends JPanel {
 		sidePanel.add(gbl);
 
 
-		// sidePanel.addCaptureBtn(getScin(), this.additionalInfo, new Component[] { this.slider });
+		sidePanel.addCaptureBtn(controleur_Os.getScin(), this.additionalInfo, new Component[] { this.slider });
 		this.add(sidePanel, BorderLayout.WEST);
 	}
 	
@@ -138,11 +140,29 @@ public class FenApplication_Os extends JPanel {
 	}
 	
 	
+	 /**
+		 * Dessine un cadre autour de la DynamicImage sélectionnée.
+		 *@param index
+		 *            Index de la DynamicImage pour laquelle il faut ajouter ou retirer le cadre.
+		 *@param selected
+		 *            Transmet si c'est une sélection ou l'arrêt d'une sélection, pour savoir si il faut retirer ou ajouter le cadre.
+		 * @return
+		 */
 	public void cadrer(int index,boolean selected) {
-		if(selected)
-			((DynamicImage) grid.getComponent(index)).setBorder(BorderFactory.createMatteBorder(
-                    3, 3, 3, 3, new Color(148,252,9)));
-		else
+		if(selected) {
+			Border border1 = new CompoundBorder(LineBorder.createBlackLineBorder(),
+			        BorderFactory.createLineBorder(new Color(150,40,27), 4));
+
+			    Border border2 = new CompoundBorder( BorderFactory
+			        .createLoweredBevelBorder(),border1);
+			    ((DynamicImage) grid.getComponent(index)).setBorder(border2);
+			
+			//((DynamicImage) grid.getComponent(index)).setBorder(new CompoundBorder(
+				 //   BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(150,40,27)), 
+				  //  BorderFactory.createMatteBorder(0, 0, 1, 0, Color.black)));
+		
+		
+		}else
 			((DynamicImage) grid.getComponent(index)).setBorder(BorderFactory.createMatteBorder(
 					0, 0, 0, 0, Color.black));
 	}
@@ -155,5 +175,6 @@ public class FenApplication_Os extends JPanel {
 	public JButton getReverseButton() {
 		return this.reverseButton;
 	}
+	
 	
 }

@@ -43,22 +43,6 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 		this.imp = imp;
 	}
 	
-	
-	/**
-	 * Permet de préparer les images reçu depuis la FenSelectionDicom et ensuite de lancer le programme.
-	 * 
-	 * @param selectedImages
-	 *            liste des images transmises depuis FenSelectionDicom
-	 * @return
-	 */
-	public void startExam(ImageSelection[] selectedImages) throws Exception {
-		//Send selected image to specific app to retrieve the ImagePlus to show in the app (will be stored in this object)
-		this.imp = preparerImp(selectedImages);
-		//Start the program, this overided method should construct the FenApplication, the controller and the model
-		this.lancerProgramme();
-
-	}
-	
 	/**
 	 * Lance la FenSelectionDicom qui permet de selectionner les images qui seront traité par ce plug-in.
 	 * 
@@ -88,7 +72,7 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 	 *            liste des images transmises depuis FenSelectionDicom
 	 * @return
 	 */
-	protected ImagePlus preparerImp(ImageSelection[] selectedImages) throws Exception {
+	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
 		
 		if(selectedImages.length>3)
 			throw new Exception("Vous avez rentré trop d'images. Seulement 3 images peuvent être traitées.");
@@ -141,7 +125,10 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 			}
 		}
 		this.setImp(impSorted);
-		return impSorted;
+		
+		ImageSelection[] selection = new ImageSelection[1];
+		selection[0] = new ImageSelection(impSorted, null, null);
+		return selection;
 	}
 
 	 /**
@@ -152,7 +139,7 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 		 * La colonne 0 : l'ImagePlus ANT du patient --/-- la colonne 1 : l'ImagePlus POST du patient.<br/>
 		 * @return
 		 */
-	public void lancerProgramme() {
+	public void lancerProgramme(ImageSelection[] selectedImages) {
 		
 		// FenApplication_Os fen = new FenApplication_Os(this, buffer);
 		

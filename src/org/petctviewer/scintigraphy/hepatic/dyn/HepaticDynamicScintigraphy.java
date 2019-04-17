@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.awt.Color;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -22,28 +23,24 @@ public class HepaticDynamicScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void lancerProgramme() {
-		Overlay overlay = Library_Gui.initOverlay(this.getImp(), 12);
-		Library_Gui.setOverlayDG(overlay, this.getImp(), Color.YELLOW);
+	public void lancerProgramme(ImageSelection[] selectedImages) {
+		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
+		Library_Gui.setOverlayDG(overlay, selectedImages[0].getImagePlus(), Color.YELLOW);
 		
-		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));
-		this.getImp().setOverlay(overlay);
-		this.getFenApplication().setControleur(new Controleur_HepaticDyn(this));
-		
-		Modele_HepaticDyn modele = new Modele_HepaticDyn(this);
-		modele.setLocked(true);
-		this.setModele(modele);
+		this.setFenApplication(new FenApplication(selectedImages[0].getImagePlus(), this.getExamType()));
+		selectedImages[0].getImagePlus().setOverlay(overlay);
+		this.getFenApplication().setControleur(new Controleur_HepaticDyn(this, selectedImages, "Biliary scintigraphy"));
 	}
 
 	
 
 	  @Override
-	  protected ImagePlus preparerImp(ImagePlus[] images) {
+	  protected ImageSelection[] preparerImp(ImageSelection[] images) {
 	    if (images.length > 2) {
 	      IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 	    }
 	    
-	    ImagePlus[] imps = Library_Dicom.sortDynamicAntPost(images[0]);
+	    ImagePlus[] imps = Library_Dicom.sortDynamicAntPost(images[0].getImagePlus());
 	    if(imps[0] != null) {
 	      this.impAnt = imps[0];
 	    }
@@ -64,8 +61,10 @@ public class HepaticDynamicScintigraphy extends Scintigraphy {
 	      impProjetee = Library_Dicom.projeter(this.impPost,0,impPost.getStackSize(),"avg");
 	      this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost);
 	    }
-	 
-	    return impProjetee.duplicate();
+
+		ImageSelection[] selection = new ImageSelection[1];
+		selection[0] = new ImageSelection(impProjetee.duplicate(), null, null);
+		return selection;
 	  }
 
 	public ImagePlus getImpAnt() {

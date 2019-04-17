@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
@@ -10,10 +11,12 @@ import ij.plugin.MontageMaker;
 public class DoubleImageThread extends Thread{
 	
 	Scintigraphy scin;
+	private ModeleScin model;
 	
-	public DoubleImageThread(String name,Scintigraphy scin) {
+	public DoubleImageThread(String name,Scintigraphy scin, ModeleScin model) {
 		super(name);
 		this.scin = scin;
+		this.model = model;
 	}
 	
 	public void run() {
@@ -21,11 +24,11 @@ public class DoubleImageThread extends Thread{
 		ImagePlus impRes = new ImagePlus();
 		ImageStack capture = new ImageStack(200, (int) (200/ratioCapture));
 		
-		capture.addSlice( Library_Capture_CSV.captureImage(this.scin.getImp(), 200, (int) (200/ratioCapture) ).getProcessor());
+		capture.addSlice( Library_Capture_CSV.captureImage(this.model.getImagePlus(), 200, (int) (200/ratioCapture) ).getProcessor());
 		capture.setSliceLabel("ant", 1);
-		this.scin.getImp().setSlice(2);
+		this.model.getImagePlus().setSlice(2);
 
-		capture.addSlice( Library_Capture_CSV.captureImage(this.scin.getImp(), 200, (int) (200/ratioCapture) ).getProcessor());
+		capture.addSlice( Library_Capture_CSV.captureImage(this.model.getImagePlus(), 200, (int) (200/ratioCapture) ).getProcessor());
 		capture.setSliceLabel("post", 2);
 		
 		impRes.setStack(capture);
@@ -45,14 +48,7 @@ public class DoubleImageThread extends Thread{
 				);
 		
 		//ouverture de la fenetre de resultat
-		FenResultat_ScinStatic fen = new FenResultat_ScinStatic(scin, impRes.getBufferedImage() );
-		//ajout du tableau 
-		fen.addAntTab(((ModeleScinStatic)scin.getModele()).calculerTableauAnt());
-		fen.addPostTab(((ModeleScinStatic)scin.getModele()).calculerTableauPost());
-		fen.addMoyGeomTab(((ModeleScinStatic)scin.getModele()).calculerTaleauMayGeom());
-		fen.addCaptureButton();
-
-		fen.pack();
+		new FenResultat_ScinStatic(impRes.getBufferedImage(), this.model);
 		
 	}
 	
