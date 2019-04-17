@@ -15,8 +15,8 @@ public class Controleur_Hepatic extends Controleur_OrganeFixe {
 
 	public static String[] organes = { "Liver", "Intestine" };
 
-	protected Controleur_Hepatic(Scintigraphy scin, ImageSelection[] selectedImages) {
-		super(scin, new Modele_Hepatic(selectedImages));
+	protected Controleur_Hepatic(Scintigraphy scin, ImageSelection[] selectedImages, String studyName) {
+		super(scin, new Modele_Hepatic(selectedImages, studyName));
 		this.setOrganes(organes);
 		this.setSlice(1);
 	}

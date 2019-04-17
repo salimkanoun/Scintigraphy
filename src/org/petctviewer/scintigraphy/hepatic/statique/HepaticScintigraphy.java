@@ -34,6 +34,6 @@ public class HepaticScintigraphy extends Scintigraphy {
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		this.setFenApplication(new FenApplication(selectedImages[0].getImagePlus(), this.getExamType()));
-		this.getFenApplication().setControleur(new Controleur_Hepatic(this, selectedImages));
+		this.getFenApplication().setControleur(new Controleur_Hepatic(this, selectedImages, "Hepatic retention"));
 	}
 }

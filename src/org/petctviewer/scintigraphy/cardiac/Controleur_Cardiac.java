@@ -25,8 +25,8 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 	private static String[] organes = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
 	private Controleur_Cardiac controler;
 
-	protected Controleur_Cardiac(Scintigraphy scin, ImageSelection[] selectedImages) {
-		super(scin, new Modele_Cardiac(scin, selectedImages));
+	protected Controleur_Cardiac(Scintigraphy scin, ImageSelection[] selectedImages, String studyName) {
+		super(scin, new Modele_Cardiac(scin, selectedImages, studyName));
 		controler = this;
 
 		// on declare si il y a deux prises

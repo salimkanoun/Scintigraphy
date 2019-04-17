@@ -11,8 +11,8 @@ public class Controleur_EsophagealTransit extends Controleur_OrganeFixe {
 
 	public static String[] ORGANES = { "Esophage" };
 
-	public Controleur_EsophagealTransit(EsophagealTransit esoPlugin, ImagePlus[][] sauvegardeImagesSelectDicom) {
-		super(esoPlugin, new Modele_EsophagealTransit(sauvegardeImagesSelectDicom, esoPlugin));
+	public Controleur_EsophagealTransit(EsophagealTransit esoPlugin, ImagePlus[][] sauvegardeImagesSelectDicom, String studyName) {
+		super(esoPlugin, new Modele_EsophagealTransit(sauvegardeImagesSelectDicom, studyName, esoPlugin));
 		this.setOrganes(ORGANES);
 		this.tools = Toolbar.RECTANGLE;
 	}
@@ -27,7 +27,7 @@ public class Controleur_EsophagealTransit extends Controleur_OrganeFixe {
 		model.calculerResultats();
 		FenResultats_EsophagealTransit fen = new FenResultats_EsophagealTransit(
 				((Modele_EsophagealTransit) model).getExamenMean(), ((Modele_EsophagealTransit) model).getDicomRoi(),
-				((Modele_EsophagealTransit)model));
+				((Modele_EsophagealTransit)model), "Esophageal Transit");
 		fen.pack();
 		fen.setLocationRelativeTo(null);
 		fen.setVisible(true);

@@ -79,10 +79,14 @@ public class ShunpoScintigraphy extends Scintigraphy {
 				return;
 			}
 		}
+		
+		ImageSelection[] selection = selectedImages;//.clone();
+//		for(ImageSelection i : selectedImages)
+//			i.getImagePlus().close();
 
 		// Start program
-		this.setFenApplication(new FenApplication_Shunpo(this, selectedImages[0].getImagePlus()));
-		this.getFenApplication().setControleur(new ControleurShunpo(this, this.getFenApplication(), selectedImages, "Pulmonary Shunt"));
+		this.setFenApplication(new FenApplication_Shunpo(this, selection[0].getImagePlus()));
+		this.getFenApplication().setControleur(new ControleurShunpo(this, this.getFenApplication(), selection, "Pulmonary Shunt"));
 //		this.getFenApplication().setControleur(new ControleurShunpo_KidneyPulmon(this));
 		this.getFenApplication().setVisible(true);
 	}

@@ -1,43 +1,66 @@
-  package org.petctviewer.scintigraphy.generic.dynamic;
+package org.petctviewer.scintigraphy.generic.dynamic;
 
-import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
-import javax.swing.JFrame;
+
 import javax.swing.JPanel;
+
 import org.jfree.chart.ChartPanel;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+import org.petctviewer.scintigraphy.shunpo.FenResults;
+import org.petctviewer.scintigraphy.shunpo.TabResult;
 
-public class FenResultat_GeneralDyn extends JFrame {
+public class FenResultat_GeneralDyn extends FenResults {
 
 	private static final long serialVersionUID = -6949646596222162929L;
 
+	private String antOrPost;
+	private BufferedImage capture;
+	private String[][] asso;
+
 	public FenResultat_GeneralDyn(Scintigraphy scin, BufferedImage capture, ModeleScinDyn modele, String[][] asso,
 			String antOrPost) {
-		SidePanel side = new SidePanel(null, "Dynamic Quant\n" + antOrPost, modele.getImagePlus());
-		side.addCaptureBtn(scin, "_" + antOrPost, modele);
-		
-		int cols = (modele.getNbRoi() + 1) / 2;
-		JPanel grid = new JPanel(new GridLayout(2, cols));
+		super(modele);
+		this.capture = capture;
+		this.antOrPost = antOrPost;
+		this.asso = asso;
 
-		grid.add(new DynamicImage(capture));
+		this.addTab(new Tab());
 
-		ChartPanel[] cPanels = Library_JFreeChart.associateSeries(asso, modele.getSeries());
-		for (ChartPanel c : cPanels) {
-			c.setPreferredSize(new Dimension(capture.getWidth() + 1 / 3 * capture.getWidth(), capture.getHeight()));
-			grid.add(c);
+		this.setLocationRelativeTo(modele.getImagePlus().getWindow());
+	}
+
+	private class Tab extends TabResult {
+
+		public Tab() {
+			super(FenResultat_GeneralDyn.this, "Result");
+			this.createCaptureButton("_" + antOrPost);
 		}
 
-		this.add(grid, BorderLayout.CENTER);
-		this.add(side, BorderLayout.EAST);
-		this.setLocationRelativeTo(modele.getImagePlus().getWindow());
-		this.pack();
-		this.setMinimumSize(side.getSize());
-		this.setVisible(true);
+		@Override
+		public Component getSidePanelContent() {
+			return null;
+		}
+
+		@Override
+		public JPanel getResultContent() {
+			Modele_GeneralDyn modele = (Modele_GeneralDyn) this.parent.getModel();
+			int cols = (modele.getNbRoi() + 1) / 2;
+			JPanel grid = new JPanel(new GridLayout(2, cols));
+
+			grid.add(new DynamicImage(capture));
+
+			ChartPanel[] cPanels = Library_JFreeChart.associateSeries(asso, modele.getSeries());
+			for (ChartPanel c : cPanels) {
+				c.setPreferredSize(new Dimension(capture.getWidth() + 1 / 3 * capture.getWidth(), capture.getHeight()));
+				grid.add(c);
+			}
+			return grid;
+		}
 	}
 }

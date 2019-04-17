@@ -23,8 +23,8 @@ public class Controleur_HepaticDyn extends Controleur_OrganeFixe {
 
 	public static String[] organes = { "R. Liver", "L. Liver", "Hilium", "CBD", "Duodenom", "Blood pool" };
 
-	protected Controleur_HepaticDyn(HepaticDynamicScintigraphy scin, ImageSelection[] selectedImages) {
-		super(scin, new Modele_HepaticDyn(scin, selectedImages));
+	protected Controleur_HepaticDyn(HepaticDynamicScintigraphy scin, ImageSelection[] selectedImages, String studyName) {
+		super(scin, new Modele_HepaticDyn(scin, selectedImages, studyName));
 		this.setOrganes(organes);
 		((Modele_HepaticDyn) this.model).setLocked(true);
 
@@ -81,7 +81,7 @@ public class Controleur_HepaticDyn extends Controleur_OrganeFixe {
 		frame.setVisible(true);
 
 		// remove finish
-		new FenResultat_HepaticDyn(scin, capture);
+		new FenResultat_HepaticDyn(scin, capture, this.model);
 		this.getScin().getFenApplication().dispose();
 	}
 

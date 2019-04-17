@@ -190,7 +190,7 @@ public class EsophagealTransit extends Scintigraphy {
 				fen.updateSliceSelector();
 				IJ.setTool(Toolbar.RECTANGLE);
 
-				Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(EsophagealTransit.this, sauvegardeImagesSelectDicom);
+				Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(EsophagealTransit.this, sauvegardeImagesSelectDicom, "Esophageal Transit");
 				EsophagealTransit.this.getFenApplication().setControleur(cet);
 
 			}

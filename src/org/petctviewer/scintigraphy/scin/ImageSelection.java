@@ -13,7 +13,7 @@ import ij.ImagePlus;
  * @author Titouan QUÉMA
  *
  */
-public class ImageSelection {
+public class ImageSelection implements Cloneable {
 	private ImagePlus imp;
 	private HashMap<String, String> columnsValues;
 
@@ -63,5 +63,12 @@ public class ImageSelection {
 	public Orientation getImageOrientation() {
 		Orientation o = Orientation.parse(this.columnsValues.get(Column.ORIENTATION.getName()));
 		return o == null ? Orientation.UNKNOWN : o;
+	}
+
+	@Override
+	protected ImageSelection clone() {
+		ImageSelection img = new ImageSelection(this.imp.duplicate(), null, null);
+		img.columnsValues = this.columnsValues;
+		return img;
 	}
 }

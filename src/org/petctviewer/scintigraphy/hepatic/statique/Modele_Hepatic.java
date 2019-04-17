@@ -11,8 +11,8 @@ public class Modele_Hepatic extends ModeleScin {
 	private HashMap<String, Double> data;
 	private Double MGFoie, MGIntes, MGTot;
 
-	public Modele_Hepatic(ImageSelection[] selectedImages) {
-		super(selectedImages);
+	public Modele_Hepatic(ImageSelection[] selectedImages, String studyName) {
+		super(selectedImages, studyName);
 	}
 	
 	public HashMap<String, String> getResultsHashMap() {

@@ -27,8 +27,8 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	
 	public EsophagealTransit esoPlugIn;
 	
-	public Modele_EsophagealTransit( ImagePlus [][] sauvegardeImagesSelectDicom, EsophagealTransit esoPlugIn) {
-		super(null, esoPlugIn.getFrameDurations());
+	public Modele_EsophagealTransit( ImagePlus [][] sauvegardeImagesSelectDicom, String studyName, EsophagealTransit esoPlugIn) {
+		super(null, studyName, esoPlugIn.getFrameDurations());
 		this.sauvegardeImagesSelectDicom = sauvegardeImagesSelectDicom;
 		
 		examenMean = new ArrayList<>();

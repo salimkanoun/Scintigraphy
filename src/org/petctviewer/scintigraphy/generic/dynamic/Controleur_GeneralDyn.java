@@ -26,8 +26,8 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 	private boolean over;
 	private ImagePlus impProjetee;
 
-	protected Controleur_GeneralDyn(GeneralDynamicScintigraphy scin) {
-		super(scin, new Modele_GeneralDyn(scin.getFrameDurations()));
+	protected Controleur_GeneralDyn(GeneralDynamicScintigraphy scin, String studyName) {
+		super(scin, new Modele_GeneralDyn(studyName, scin.getFrameDurations()));
 		this.setOrganes(new String[MAXROI]);
 		
 		this.over = false;

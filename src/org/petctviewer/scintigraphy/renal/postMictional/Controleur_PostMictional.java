@@ -13,13 +13,12 @@ import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import ij.gui.Overlay;
 import ij.gui.Roi;
 
-public class Controleur_PostMictional extends Controleur_OrganeFixe{
+public class Controleur_PostMictional extends Controleur_OrganeFixe {
 
+	protected Controleur_PostMictional(Scintigraphy scin, String[] organes, String studyName) {
 
-	protected Controleur_PostMictional(Scintigraphy scin, String[] organes) {
-		
-		super(scin, new Modele_PostMictional());
-		for (int i=0; i<organes.length; i++) {
+		super(scin, new Modele_PostMictional(studyName));
+		for (int i = 0; i < organes.length; i++) {
 			System.out.println(organes[i]);
 		}
 		this.setOrganes(organes);
@@ -32,8 +31,8 @@ public class Controleur_PostMictional extends Controleur_OrganeFixe{
 
 	@Override
 	public void end() {
-		indexRoi=0;
-		HashMap<String, Double> hm =new HashMap<String, Double>();
+		indexRoi = 0;
+		HashMap<String, Double> hm = new HashMap<String, Double>();
 		for (int j = 0; j < this.model.getRoiManager().getCount(); j++) {
 			this.model.getImagePlus().setRoi(getOrganRoi(this.indexRoi));
 			String name = this.getNomOrgane(this.indexRoi);
@@ -42,10 +41,10 @@ public class Controleur_PostMictional extends Controleur_OrganeFixe{
 			hm.put(name, Library_Quantif.getCounts(this.model.getImagePlus()));
 			this.indexRoi++;
 		}
-		( (Modele_PostMictional) this.model).setData(hm);
+		((Modele_PostMictional) this.model).setData(hm);
 		this.getScin().getFenApplication().dispose();
-		((PostMictional) this.getScin()).getResultFrame().updateResultFrame();
-		
+		((PostMictional) this.getScin()).getResultFrame().updateResultFrame((Modele_PostMictional) this.model);
+
 	}
 
 	@Override
@@ -66,20 +65,19 @@ public class Controleur_PostMictional extends Controleur_OrganeFixe{
 
 	@Override
 	public void preparerRoi(int lastRoi) {
-		int index =  getIndexRoi();
+		int index = getIndexRoi();
 		if (index == 1 || index == 3) {
-			Roi organRoi= Library_Roi.createBkgRoi(this.getOrganRoi(lastRoi), this.model.getImagePlus(),
+			Roi organRoi = Library_Roi.createBkgRoi(this.getOrganRoi(lastRoi), this.model.getImagePlus(),
 					Library_Roi.KIDNEY);
-			
+
 			this.model.getImagePlus().setRoi((Roi) organRoi.clone());
 			this.model.getImagePlus().getRoi().setStrokeColor(this.STROKECOLOR);
 			int nOrgane = this.indexRoi % this.getOrganes().length;
 			this.setInstructionsAdjust(nOrgane);
 		}
-		
 
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		super.actionPerformed(arg0);
@@ -92,6 +90,6 @@ public class Controleur_PostMictional extends Controleur_OrganeFixe{
 		if (ov.getIndex("R. bkg") != -1) {
 			Library_Gui.editLabelOverlay(ov, "R. bkg", "", Color.GRAY);
 		}
-		
+
 	}
 }

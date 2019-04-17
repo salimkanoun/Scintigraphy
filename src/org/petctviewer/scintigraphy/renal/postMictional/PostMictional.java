@@ -2,7 +2,6 @@ package org.petctviewer.scintigraphy.renal.postMictional;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import org.petctviewer.scintigraphy.renal.gui.TabPostMict;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -56,14 +55,14 @@ public class PostMictional extends Scintigraphy {
 		fen.setVisible(true);
 		this.setFenApplication(fen);
 		selectedImages[0].getImagePlus().setOverlay(ov);
-		Controleur_PostMictional ctrl = new Controleur_PostMictional(this, this.organes);
+		Controleur_PostMictional ctrl = new Controleur_PostMictional(this, this.organes, "Post-mictional");
 		this.getFenApplication().setControleur(ctrl);
 	}
 
 	
-	public HashMap<String, Double> getData() {
-		return ((Modele_PostMictional) this.getModele()).getData();
-	}
+//	public HashMap<String, Double> getData() {
+//		return ((Modele_PostMictional) this.getModele()).getData();
+//	}
 	
 	public BufferedImage getCapture() {
 		return null;

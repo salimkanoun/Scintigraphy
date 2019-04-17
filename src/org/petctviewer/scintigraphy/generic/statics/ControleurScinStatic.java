@@ -14,8 +14,8 @@ public class ControleurScinStatic extends Controleur_OrganeFixe{
 	public static int MAXROI = 100;
 	private int nbOrganes = 0;
 	
-	protected ControleurScinStatic(Scintigraphy scin) {
-		super(scin, new ModeleScinStatic());
+	protected ControleurScinStatic(Scintigraphy scin, String studyName) {
+		super(scin, new ModeleScinStatic(studyName));
 		this.setOrganes(new String[MAXROI] );
 	}
 

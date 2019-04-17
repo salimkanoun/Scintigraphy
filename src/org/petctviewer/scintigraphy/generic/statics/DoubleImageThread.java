@@ -48,14 +48,7 @@ public class DoubleImageThread extends Thread{
 				);
 		
 		//ouverture de la fenetre de resultat
-		FenResultat_ScinStatic fen = new FenResultat_ScinStatic(scin, impRes.getBufferedImage(), this.model);
-		//ajout du tableau 
-		fen.addAntTab(((ModeleScinStatic)this.model).calculerTableauAnt());
-		fen.addPostTab(((ModeleScinStatic)this.model).calculerTableauPost());
-		fen.addMoyGeomTab(((ModeleScinStatic)this.model).calculerTaleauMayGeom());
-		fen.addCaptureButton();
-
-		fen.pack();
+		new FenResultat_ScinStatic(impRes.getBufferedImage(), this.model);
 		
 	}
 	

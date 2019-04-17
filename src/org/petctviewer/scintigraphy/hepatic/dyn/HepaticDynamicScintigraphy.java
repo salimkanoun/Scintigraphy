@@ -29,7 +29,7 @@ public class HepaticDynamicScintigraphy extends Scintigraphy {
 		
 		this.setFenApplication(new FenApplication(selectedImages[0].getImagePlus(), this.getExamType()));
 		selectedImages[0].getImagePlus().setOverlay(overlay);
-		this.getFenApplication().setControleur(new Controleur_HepaticDyn(this, selectedImages));
+		this.getFenApplication().setControleur(new Controleur_HepaticDyn(this, selectedImages, "Biliary scintigraphy"));
 	}
 
 	

@@ -37,8 +37,8 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 	private double[] retentionDecrease;
 
 
-	public Modele_Resultats_EsophagealTransit(ArrayList<HashMap<String, ArrayList<Double>>> arrayList, ArrayList<Object[]> dicomRoi) {
-		super(null);
+	public Modele_Resultats_EsophagealTransit(ArrayList<HashMap<String, ArrayList<Double>>> arrayList, ArrayList<Object[]> dicomRoi, String studyName) {
+		super(null, studyName);
 		
 		//pr csv
 		longueurEsophage = new double[arrayList.size()];

@@ -24,6 +24,7 @@ public class ControleurShunpo extends ControleurScin {
 	}
 
 	private static final int INDEX_ORGAN_AUTO_GENERATE_ROI = 4;
+	private static final int STEP_KIDNEY_PULMON = 0;
 	private String[][] steps = { { "Right lung", "Left lung", "Right kidney", "Left kidney", "Background" },
 			{ "Brain" } };
 
@@ -53,7 +54,7 @@ public class ControleurShunpo extends ControleurScin {
 	public ControleurShunpo(Scintigraphy main, FenApplication vue, ImageSelection[] images, String studyName) {
 		super(main, vue, new ModeleShunpo(images, studyName));
 		this.state = State.DELIMIT_ORGAN_ANT;
-		this.currentStep = 0;
+		this.currentStep = STEP_KIDNEY_PULMON;
 		this.indexOrgan = 0;
 		this.currentOrgan = 0;
 
@@ -261,7 +262,7 @@ public class ControleurShunpo extends ControleurScin {
 			if (this.allOrgansDelimited()) {
 				// Capture
 				int indexCapture = this.currentStep + (this.state == State.DELEMIT_ORGAN_POST ? this.steps.length : 0);
-				this.captures[indexCapture] = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 0, 0);
+				this.captures[indexCapture] = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 512, 0);
 				// Next step
 				this.currentStep++;
 				// All steps completed

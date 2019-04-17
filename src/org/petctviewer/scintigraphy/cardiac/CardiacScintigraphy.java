@@ -77,7 +77,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 		
 		//Cree controller
-		Controleur_Cardiac ctrl = new Controleur_Cardiac(this, selectedImages);
+		Controleur_Cardiac ctrl = new Controleur_Cardiac(this, selectedImages, "Cardiac");
 		this.getFenApplication().setControleur(ctrl);
 		
 		

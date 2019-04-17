@@ -10,8 +10,6 @@ import ij.process.ImageProcessor;
 
 class TabTimedImage extends PanelImpContrastSlider {
 
-	private static final long serialVersionUID = 8125367912250906052L;
-
 	public TabTimedImage(RenalScintigraphy vue, int rows, int columns, FenResults parent) {
 		super("Renal scintigraphy", vue, "timed", parent);
 	

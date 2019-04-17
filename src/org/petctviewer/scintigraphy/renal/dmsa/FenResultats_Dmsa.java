@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
@@ -14,25 +13,30 @@ import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.shunpo.FenResults;
+import org.petctviewer.scintigraphy.shunpo.TabResult;
 
 public class FenResultats_Dmsa extends FenResults {
 
 	private static final long serialVersionUID = 8836086131939302449L;
 
 	public FenResultats_Dmsa(BufferedImage capture, ModeleScin model) {
-		super(model, "DMSA", model.getStudyName());
-//		SidePanel side = new SidePanel(getSidePanelContent(model), "DMSA", model.getImagePlus());
-//		side.addCaptureBtn(scin, "", model);
-		this.setInfos(getSidePanelContent((Modele_Dmsa) model), model.getImagePlus());
-		this.createCaptureButton();
-
-		this.add(new DynamicImage(capture), BorderLayout.CENTER);
-
-		this.pack();
-		this.setVisible(true);
+		super(model);
+		this.addTab(new TabResult(this, this.getModel().getStudyName()) {
+			
+			@Override
+			public Component getSidePanelContent() {
+				return FenResultats_Dmsa.this.getSidePanelContent();
+			}
+			
+			@Override
+			public JPanel getResultContent() {
+				return new DynamicImage(capture);
+			}
+		});
 	}
 
-	public Component getSidePanelContent(Modele_Dmsa modele) {
+	public Component getSidePanelContent() {
+		Modele_Dmsa modele = (Modele_Dmsa) this.getModel();
 		Double pctL = modele.getPct()[0] * 100;
 		Double pctR = modele.getPct()[1] * 100;
 		JPanel flow = new JPanel();

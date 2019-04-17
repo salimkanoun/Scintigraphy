@@ -40,6 +40,8 @@ import ij.util.DicomTools;
 /**
  * Window to select DICOM files. The list of DICOM files can add informations on
  * the files to be selected.
+ * 
+ * @author Titouan QUÉMA
  *
  */
 public class FenSelectionDicom extends JFrame implements ActionListener, ImageListener {
@@ -47,8 +49,6 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 	/**
 	 * Represents a column for the selection table.
-	 * 
-	 * @author Titouan QUÉMA
 	 *
 	 */
 	public static class Column {

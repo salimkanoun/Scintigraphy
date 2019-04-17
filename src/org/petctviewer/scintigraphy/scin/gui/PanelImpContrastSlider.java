@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.image.BufferedImage;
 
@@ -14,6 +13,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.shunpo.FenResults;
 import org.petctviewer.scintigraphy.shunpo.TabResult;
 
 import ij.ImagePlus;
@@ -23,9 +23,7 @@ import ij.ImagePlus;
  * @author diego
  *
  */
-public abstract class PanelImpContrastSlider extends JPanel implements ChangeListener {
-
-	private static final long serialVersionUID = 1L;
+public abstract class PanelImpContrastSlider extends TabResult implements ChangeListener {
 	private ImagePlus imp;
 	private DynamicImage dynamicImp;
 
@@ -34,12 +32,10 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 	private JSlider slider;
 	protected Box boxSlider;
 	
-	protected TabResult parent;
-	
 	String additionalInfo, nomFen;
 
-	public PanelImpContrastSlider(String nomFen, Scintigraphy scin, String additionalInfo, TabResult parent) {
-		super(new BorderLayout());
+	public PanelImpContrastSlider(String nomFen, Scintigraphy scin, String additionalInfo, FenResults parent) {
+		super(parent, nomFen, true);
 		this.scin=scin;
 		this.additionalInfo = additionalInfo;
 		this.nomFen = nomFen;
@@ -61,16 +57,16 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 		if (this.dynamicImp == null) {
 			this.dynamicImp = new DynamicImage(img);
 			this.setContrast(this.slider.getValue());
-			this.add(dynamicImp, BorderLayout.CENTER);
+//			this.add(dynamicImp, BorderLayout.CENTER);
 		}
 
 		this.setContrast(slider.getValue());
 		
 //		sidePanel.add(boxSlider);
-		this.parent.setSidePanelContent(boxSlider);
+//		this.parent.setSidePanelContent(boxSlider);
 
 //		sidePanel.addCaptureBtn(getScin(), this.additionalInfo, new Component[] { this.slider }, model);
-		this.parent.createCaptureButton();
+//		this.parent.createCaptureButton();
 
 //		this.add(sidePanel, BorderLayout.EAST);
 	}
@@ -79,10 +75,6 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 	public void stateChanged(ChangeEvent e) {	
 		JSlider slider = (JSlider) e.getSource();
 		this.setContrast(slider.getValue());
-	}
-	
-	public ImagePlus getImagePlus() {
-		return this.imp;
 	}
 
 	public Box getBoxSlider() {
@@ -100,6 +92,11 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 	public void setImp(ImagePlus imp) {
 		this.imp = imp;
 		this.finishBuildingWindow();
+		this.reloadDisplay();
+	}
+	
+	public ImagePlus getImagePlus() {
+		return this.imp;
 	}
 
 	private void setContrast(int sliderValue) {
@@ -114,5 +111,17 @@ public abstract class PanelImpContrastSlider extends JPanel implements ChangeLis
 			}
 		});
 
+	}
+
+	@Override
+	public Component getSidePanelContent() {
+		return this.boxSlider;
+	}
+
+	@Override
+	public JPanel getResultContent() {
+		if(this.imp == null)
+			return null;
+		return this.dynamicImp;
 	}
 }

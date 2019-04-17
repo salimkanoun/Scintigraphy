@@ -12,8 +12,8 @@ public class ModeleScinStatic  extends ModeleScin{
 	private HashMap<String, Object[]> roisAnt;
 	private HashMap<String, Object[]> roisPost;
 	
-	public ModeleScinStatic() {
-		super(null);
+	public ModeleScinStatic(String studyName) {
+		super(null, studyName);
 		this.roisAnt = new HashMap<>();
 		this.roisPost = new HashMap<>();
 
