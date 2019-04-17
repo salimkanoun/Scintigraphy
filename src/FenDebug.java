@@ -173,7 +173,7 @@ public class FenDebug extends JFrame{
 				eso.run("");
 			}
 		});
-		
+
 		JButton btn_shunpo = new JButton("Shunpo_original");
 		btn_shunpo.addActionListener(new ActionListener() {			
 			@Override
@@ -194,6 +194,7 @@ public class FenDebug extends JFrame{
 			}
 		});
 		
+
 		JButton btn_os = new JButton("Os");
 		btn_os.addActionListener(new ActionListener() {			
 			@Override
