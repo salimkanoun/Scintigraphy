@@ -134,7 +134,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 		this.getCanvas().setMagnification(magnification);
 
-		this.revalidate();
+//		this.revalidate();															// This may cause some trouble for the resizing.
 		this.pack();
 
 	}
