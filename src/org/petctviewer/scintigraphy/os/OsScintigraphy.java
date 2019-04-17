@@ -1,16 +1,31 @@
 package org.petctviewer.scintigraphy.os;
 
 
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.List;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTable;
 
+import org.petctviewer.scintigraphy.renal.FenApplication_Renal;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 import ij.ImagePlus;
@@ -34,9 +49,12 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 	protected int nombreAcquisitions;
 	
 	private ModeleScin modele;
+	
+	private boolean process;
 
 	public OsScintigraphy() {
 		super("Scinti Os");
+		this.process=true;
 	}
 	
 	public void setImp(ImagePlus imp) {
@@ -126,9 +144,33 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 		}
 		this.setImp(impSorted);
 		
+		
+		ArrayList<String> patientID = new ArrayList<>();
+		ArrayList<String> patientName = new ArrayList<>();
+		for(ImagePlus[] slctd : buffer) {
+			HashMap<String, String> infoPatient = Library_Capture_CSV.getPatientInfo(slctd[0]);
+			if(!patientID.contains(infoPatient.get("id"))) {
+				patientID.add(infoPatient.get("id"));
+				patientName.add(infoPatient.get("name"));
+			}
+		}
+		
+		if(patientID.size()>1) {
+			process = false;
+			Fen_MultiplPatient fen = new Fen_MultiplPatient(patientID,patientID);
+			fen.setModal(true);
+			fen.setVisible(true);
+			fen.setAlwaysOnTop(true);
+			fen.setLocationRelativeTo(null);
+		}
+		
 		ImageSelection[] selection = new ImageSelection[1];
 		selection[0] = new ImageSelection(impSorted, null, null);
 		return selection;
+		
+		
+		
+		
 	}
 
 	 /**
@@ -141,23 +183,24 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 		 */
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		
-		// FenApplication_Os fen = new FenApplication_Os(this, buffer);
+		if(process) {
+			// FenApplication_Os fen = new FenApplication_Os(this, buffer);
+			
+			Controleur_Os controleur_os = new Controleur_Os(buffer, this);
+			FenApplication_Os fen = controleur_os.getFenApplicatio_Os();
+			fen.setVisible(true);
+			this.setFenApplication_Os(fen);
 		
-		Controleur_Os controleur_os = new Controleur_Os(buffer, this);
-		FenApplication_Os fen = controleur_os.getFenApplicatio_Os();
-		fen.setVisible(true);
-		this.setFenApplication_Os(fen);
-
-		
-		JFrame frame = new JFrame("Bone Scinthigraphy");
-		frame.add(fen);
-		frame.pack();
-		frame.setVisible(true);
-		frame.setResizable(true);
+			
+			JFrame frame = new JFrame("Bone Scinthigraphy");
+			frame.add(fen);
+			frame.pack();
+			frame.setVisible(true);
+			frame.setResizable(true);
+		}
 	}
 	
-	
-	
+
 	public void setExamType(String examType) {
 		this.examType = examType;
 	}
@@ -187,6 +230,75 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 	
 	public ModeleScin getModele() {
 		return modele;
+	}
+	
+	private class Fen_MultiplPatient extends JDialog implements ActionListener {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private JButton btn_y, btn_n;
+
+		public Fen_MultiplPatient(ArrayList<String> patientID, ArrayList<String> patientName) {
+			
+			JPanel flow  = new JPanel(new GridLayout(4,1));
+			
+			flow.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+			this.setTitle("Multiple patient ID");
+			flow.add(this.add(new JLabel("There is more than one patient ID")));
+			
+			Object[][] donnees = new Object[patientID.size()][3];
+			
+			for(int i = 0 ; i < patientID.size() ; i ++) {
+				donnees[i][0] = "Exam"+i;
+				donnees[i][1] = patientID.get(i);
+				donnees[i][2] = patientName.get(i);
+			}
+	 
+	        String[] entetes = {"", "ID", "Name"};
+	 
+	        JTable tableau = new JTable(donnees, entetes);
+	        
+	        JPanel tableContainer = new JPanel(new BorderLayout());
+	        tableContainer.add(tableau.getTableHeader(),BorderLayout.NORTH);
+	        tableContainer.add(tableau, BorderLayout.CENTER);
+	        
+	        flow.add(tableContainer);
+			
+	        flow.add(this.add(new JLabel("Do you want to still process the exam ?")));
+
+			JPanel radio = new JPanel();
+			this.btn_y = new JButton("Yes");
+			this.btn_y.addActionListener(this);
+			radio.add(btn_y);
+			this.btn_n = new JButton("No");
+			this.btn_n.addActionListener(this);
+			radio.add(btn_n);
+			
+			flow.add(radio);
+			
+			this.add(flow);
+			
+			this.setLocationRelativeTo(null);
+			
+			this.pack();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			JButton b = (JButton) arg0.getSource();
+			if (b == this.btn_y) {
+				process = true;
+				System.out.println("ok");
+			} else if (b == this.btn_n) {
+				process = false;
+				System.out.println("pas_Ok");
+			}
+
+			this.dispose();
+		}
+
 	}
 
 }

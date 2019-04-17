@@ -61,18 +61,18 @@ public class Library_Dicom {
 	
 			@Override
 			public int compare(ImagePlus arg0, ImagePlus arg1) {
-				arg0.show();
-				arg1.show();
+//				arg0.show();
+//				arg1.show();
 				DateFormat dateHeure = new SimpleDateFormat("yyyyMMddHHmmss");
 				String dateImage0 = DicomTools.getTag(arg0, "0008,0022");
 				String dateImage1 = DicomTools.getTag(arg1, "0008,0022");
 				String heureImage0 = DicomTools.getTag(arg0, "0008,0032");
 				String heureImage1 = DicomTools.getTag(arg1, "0008,0032");
 				
-				System.out.println(dateImage0);
-				System.out.println(dateImage1);
-				System.out.println(heureImage0);
-				System.out.println(heureImage1);
+//				System.out.println(dateImage0);
+//				System.out.println(dateImage1);
+//				System.out.println(heureImage0);
+//				System.out.println(heureImage1);
 	
 				String dateInputImage0 = dateImage0.trim() + heureImage0.trim();
 				// On split les millisecondes qui sont apr�s le . car nombre inconstant de
