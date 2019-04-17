@@ -90,6 +90,10 @@ public class SidePanel extends JPanel {
 		this.sidePanelContent = sidePanelContent;
 		this.box.add(sidePanelContent);
 	}
+	
+	public void addContent(Component component) {
+		this.box.add(component);
+	}
 
 	public Component getSidePanelContent() {
 		return this.sidePanelContent;
