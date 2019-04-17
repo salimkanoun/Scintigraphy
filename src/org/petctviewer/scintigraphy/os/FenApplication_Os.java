@@ -17,6 +17,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.LineBorder;
 
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
@@ -139,10 +142,16 @@ public class FenApplication_Os extends JPanel {
 	
 	
 	public void cadrer(int index,boolean selected) {
-		if(selected)
-			((DynamicImage) grid.getComponent(index)).setBorder(BorderFactory.createMatteBorder(
-                    3, 3, 3, 3, new Color(148,252,9)));
-		else
+		if(selected) {
+			Border border1 = new CompoundBorder(LineBorder.createBlackLineBorder(),
+			        BorderFactory.createLineBorder(new Color(150,40,27), 4));
+
+			    Border border2 = new CompoundBorder( BorderFactory
+			        .createLoweredBevelBorder(),border1);
+			    ((DynamicImage) grid.getComponent(index)).setBorder(border2);
+		
+		
+		}else
 			((DynamicImage) grid.getComponent(index)).setBorder(BorderFactory.createMatteBorder(
 					0, 0, 0, 0, Color.black));
 	}
