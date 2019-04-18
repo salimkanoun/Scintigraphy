@@ -41,16 +41,16 @@ public class Controller_Gastric extends ControleurScin {
 		this.prepareOrientation();
 	}
 
-	private void DEBUG(String s) {
-		System.out.println("== " + s + " ==");
-		System.out.println("Current image: " + this.currentImage);
-		System.out.println("Current orientation: " + (this.currentOrientation == SLICE_ANT ? "ANT" : "POST") + "("
-				+ this.currentOrientation + ")");
-		System.out.println(
-				"Current organ: " + (this.currentOrgan < this.organs.length ? this.organs[this.currentOrgan] : "") + "("
-						+ this.currentOrgan + ")");
-		System.out.println();
-	}
+//	private void DEBUG(String s) {
+//		System.out.println("== " + s + " ==");
+//		System.out.println("Current image: " + this.currentImage);
+//		System.out.println("Current orientation: " + (this.currentOrientation == SLICE_ANT ? "ANT" : "POST") + "("
+//				+ this.currentOrientation + ")");
+//		System.out.println(
+//				"Current organ: " + (this.currentOrgan < this.organs.length ? this.organs[this.currentOrgan] : "") + "("
+//						+ this.currentOrgan + ")");
+//		System.out.println();
+//	}
 
 	private void prepareOrientation() {
 		this.resetOverlay();
@@ -66,7 +66,7 @@ public class Controller_Gastric extends ControleurScin {
 		this.currentOrientation = this.currentOrientation % 2 + 1;
 		this.prepareOrientation();
 	}
-	
+
 	private void previousOrientation() {
 		this.currentOrgan = this.organs.length - 1;
 		this.currentOrientation--;
@@ -79,7 +79,7 @@ public class Controller_Gastric extends ControleurScin {
 		this.currentImage++;
 		this.prepareOrientation();
 	}
-	
+
 	private void previousImage() {
 		this.currentOrgan = this.organs.length - 1;
 		this.currentOrientation = SLICE_SECOND;
@@ -91,10 +91,29 @@ public class Controller_Gastric extends ControleurScin {
 		this.currentOrgan++;
 		this.editOrgan();
 	}
-	
+
 	private void previousOrgan() {
 		this.currentOrgan--;
 		this.editOrgan();
+	}
+
+	/**
+	 * Checks that there is an intersection between the previous ROI and the current
+	 * one.
+	 */
+	private boolean checkIntersectionBetweenRois() {
+		this.model.getRoiManager().setSelectedIndexes(new int[] { this.position - 1, this.position });
+		this.model.getRoiManager().runCommand("AND");
+		this.model.getRoiManager().runCommand("Deselect");
+		this.model.getRoiManager().deselect();
+		if (this.vue.getImagePlus().getRoi() == null) {
+			JOptionPane.showMessageDialog(this.vue,
+					"Please adjust the intestine in order to create an intersection with the estomach.",
+					"Intersection missing", JOptionPane.PLAIN_MESSAGE);
+			this.model.getRoiManager().select(this.position);
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -130,19 +149,17 @@ public class Controller_Gastric extends ControleurScin {
 
 	@Override
 	public void clicPrecedent() {
-		DEBUG("PREVIOUS");
 		super.clicPrecedent();
 
-		if (this.currentOrgan == 0) {
-			if (this.currentOrientation == SLICE_FIRST) {
+		if (this.currentOrgan == 0)
+			if (this.currentOrientation == SLICE_FIRST)
 				this.previousImage();
-			} else
+			else
 				this.previousOrientation();
-		} else
+		else
 			this.previousOrgan();
-		
+
 		this.displayRois(this.position - this.currentOrgan, this.position);
-		DEBUG("        ");
 	}
 
 	@Override
@@ -150,28 +167,24 @@ public class Controller_Gastric extends ControleurScin {
 		try {
 			this.saveCurrentRoi("#" + this.currentImage + "_" + this.organs[this.currentOrgan]
 					+ (this.currentOrientation == SLICE_POST ? "_P" : "_A"));
-			DEBUG("NEXT");
+			if (this.currentOrgan == this.organs.length - 1 && !this.checkIntersectionBetweenRois())
+				return;
+
 			this.displayRoi(this.position);
 			super.clicSuivant();
 
 			// All organs delimited
-			if (this.currentOrgan >= this.organs.length - 1) {
-				System.out.println("-> All organs delimited :: " + this.currentOrgan + ">=" + (this.organs.length - 1));
-				if (this.currentOrientation == SLICE_SECOND) {
-					System.out.println(
-							"-> All orientation completed :: " + this.currentOrientation + "==" + this.SLICE_SECOND);
-					if (this.currentImage >= this.model.getImageSelection().length - 1) {
-						System.out.println("All images terminated :: " + this.currentImage + ">="
-								+ (this.model.getImageSelection().length - 1));
+			if (this.currentOrgan >= this.organs.length - 1)
+				if (this.currentOrientation == SLICE_SECOND)
+					if (this.currentImage >= this.model.getImageSelection().length - 1)
 						this.end();
-					} else
+					else
 						this.nextImage();
-				} else
+				else
 					this.nextOrientation();
-			} else
+			else
 				this.nextOrgan();
 
-			DEBUG("    ");
 		} catch (NoDataException e) {
 			JOptionPane.showMessageDialog(this.vue, e.getMessage(), "", JOptionPane.WARNING_MESSAGE);
 		}
@@ -179,8 +192,8 @@ public class Controller_Gastric extends ControleurScin {
 
 	@Override
 	public boolean isOver() {
-		// TODO Auto-generated method stub
-		return false;
+		return this.currentImage == this.model.getImageSelection().length - 1 && this.currentOrientation == SLICE_SECOND
+				&& this.currentOrgan == this.organs.length - 1;
 	}
 
 	@Override

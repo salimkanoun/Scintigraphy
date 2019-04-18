@@ -72,6 +72,8 @@ public class Library_Gui {
 		overlay.drawNames(true);
 		// Pour rendre overlay non selectionnable
 		overlay.selectable(false);
+		
+		imp.setOverlay(overlay);
 	
 		return overlay;
 	}

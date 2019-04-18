@@ -15,7 +15,8 @@ public class WrongOrientationException extends WrongInputException {
 	 * @param expected    Orientations that are valid
 	 */
 	public WrongOrientationException(Orientation badProvided, Orientation[] expected) {
-		super("Orientation [" + badProvided + "] is not supported. Please use one of:\n" + Arrays.toString(expected));
+		super("Orientation [" + badProvided + "] is not supported. Please use " + (expected.length > 1 ? "one of" : "")
+				+ ":\n" + Arrays.toString(expected));
 		this.expected = expected;
 		this.badOrientation = badProvided;
 	}
