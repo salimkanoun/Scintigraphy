@@ -7,7 +7,7 @@ public class WrongNumberImagesException extends WrongInputException {
 
 	/**
 	 * @param provided Number of images provided
-	 * @param required Number of images required
+	 * @param required Exact number of images required
 	 */
 	public WrongNumberImagesException(int provided, int required) {
 		super("Can only accept " + required + " images. (" + provided + " provided)");
@@ -16,8 +16,14 @@ public class WrongNumberImagesException extends WrongInputException {
 		this.maxRequired = required;
 	}
 
+	/**
+	 * @param provided    Number of images provided
+	 * @param minRequired Minimum number of images required
+	 * @param maxRequired Maximum number of images required
+	 */
 	public WrongNumberImagesException(int provided, int minRequired, int maxRequired) {
-		super("Can only accept " + minRequired + " to " + maxRequired + " images. (" + provided + " provided)");
+		super("Can only accept " + minRequired + " to " + (maxRequired == Integer.MAX_VALUE ? "Infinity" : maxRequired)
+				+ " images. (" + provided + " provided)");
 		this.provided = provided;
 		this.maxRequired = maxRequired;
 		this.minRequired = minRequired;

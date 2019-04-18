@@ -299,6 +299,7 @@ public abstract class ControleurScin implements ActionListener {
 
 	/**
 	 * Creates a rectangle between the two ROIs specified.
+	 * TODO: move this method in Library_Roi
 	 * 
 	 * @param r1
 	 * @param r2

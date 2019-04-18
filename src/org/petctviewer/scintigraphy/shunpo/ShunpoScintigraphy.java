@@ -1,11 +1,12 @@
 package org.petctviewer.scintigraphy.shunpo;
 
-import javax.swing.JOptionPane;
-
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 
@@ -44,16 +45,12 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 		// Check that number of images is correct
 		if (selectedImages.length != 2) {
-			JOptionPane.showMessageDialog(this.getFenApplication(),
-					"2 images expected, " + selectedImages.length + " received", "", JOptionPane.ERROR_MESSAGE);
-			return null;
+			throw new WrongNumberImagesException(selectedImages.length, 2);
 		}
 
 		if (selectedImages[0].getValue(this.orgranColumn.getName()) == selectedImages[1]
 				.getValue(this.orgranColumn.getName())) {
-			JOptionPane.showMessageDialog(this.getFenApplication(),
-					"Organs must be " + ORGAN_KIDNEY_PULMON + " and " + ORGAN_BRAIN, "", JOptionPane.ERROR_MESSAGE);
-			return null;
+			throw new WrongColumnException(orgranColumn, "expecting " + ORGAN_KIDNEY_PULMON + " and " + ORGAN_BRAIN);
 		}
 
 		// Order selectedImages: 1st KIDNEY-PULMON; 2nd BRAIN
@@ -71,9 +68,8 @@ public class ShunpoScintigraphy extends Scintigraphy {
 			} else if (selectedImages[idImg].getImageOrientation() == Orientation.POST_ANT) {
 				selectedImages[idImg].getImagePlus().getStack().getProcessor(1).flipHorizontal();
 			} else {
-				JOptionPane.showMessageDialog(this.getFenApplication(), "Bad orientation", "",
-						JOptionPane.ERROR_MESSAGE);
-				return null;
+				throw new WrongOrientationException(selectedImages[idImg].getImageOrientation(),
+						new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT });
 			}
 		}
 
