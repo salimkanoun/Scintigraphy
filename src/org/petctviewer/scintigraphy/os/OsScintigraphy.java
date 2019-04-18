@@ -117,7 +117,9 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 			selectedImages[i].getImagePlus().close();
 		}
 		
+		ImagePlus[] impsSortedByTime=Library_Dicom.orderImagesByAcquisitionTime(impsSortedAntPost,true);
 		
+		/*
 		ArrayList<ImagePlus> arrayBufferForSortByTime = new ArrayList<ImagePlus>(Arrays.asList(impsSortedAntPost));
 		ImagePlus[] impsSortedByTime = Library_Dicom.orderImagesByAcquisitionTime(arrayBufferForSortByTime);
 		
@@ -129,6 +131,7 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
                 impsSortedByTime[reverseIndex] = impsSortedByTime[nbImpsSortedByTime - reverseIndex - 1];
                 impsSortedByTime[nbImpsSortedByTime - reverseIndex - 1] = tempImp;
         }
+		*/
 		
 		for (int i=0 ; i<impsSortedByTime.length; i++) {
 			for (int j=0 ; j<2; j++) {
@@ -290,10 +293,8 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 			JButton b = (JButton) arg0.getSource();
 			if (b == this.btn_y) {
 				process = true;
-				System.out.println("ok");
 			} else if (b == this.btn_n) {
 				process = false;
-				System.out.println("pas_Ok");
 			}
 
 			this.dispose();
