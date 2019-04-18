@@ -6,6 +6,7 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -24,23 +25,23 @@ public class RenalScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 		
 		//Prepare the final ImagePlus array, position 0 for anterior dynamic and position 1 for posterior dynamic.
 		ImagePlus[] imps =new ImagePlus[2];
 		
 		for (int i=0 ; i<selectedImages.length; i++) {
 			if(selectedImages[i].getImageOrientation()==Orientation.DYNAMIC_ANT ) {
-				if(imps[0]!=null) throw new Exception("Multiple dynamic Antorior Image");
+				if(imps[0]!=null) throw new WrongInputException("Multiple dynamic Antorior Image");
 				imps[0] = selectedImages[i].getImagePlus().duplicate();
 			}else if(selectedImages[i].getImageOrientation()==Orientation.DYNAMIC_POST) {
-				if(imps[1]!=null) throw new Exception("Multiple dynamic Posterior Image");
+				if(imps[1]!=null) throw new WrongInputException("Multiple dynamic Posterior Image");
 				imps[1] = selectedImages[i].getImagePlus().duplicate();
 			}else if(selectedImages[i].getImageOrientation()==Orientation.DYNAMIC_ANT_POST) {
-				if(imps[1]!=null || imps[0]!=null) throw new Exception("Multiple dynamic Image");
+				if(imps[1]!=null || imps[0]!=null) throw new WrongInputException("Multiple dynamic Image");
 				imps=Library_Dicom.sortDynamicAntPost(selectedImages[i].getImagePlus());
 			}else{
-				throw new Exception("Unexpected Image type");
+				throw new WrongInputException("Unexpected Image type");
 			}
 			
 			selectedImages[i].getImagePlus().close();
@@ -89,17 +90,17 @@ public class RenalScintigraphy extends Scintigraphy {
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		Overlay overlay = Library_Gui.initOverlay(impProjetee, 12);
-		Library_Gui.setOverlayGD(overlay, impProjetee, Color.yellow);
-		Library_Gui.setOverlayTitle("Post",overlay, impProjetee, Color.yellow, 1);
-		Library_Gui.setOverlayTitle("2 first min posterior", overlay, impProjetee, Color.YELLOW, 2);
-		Library_Gui.setOverlayTitle("MIP", overlay, impProjetee, Color.YELLOW, 3);
+		Library_Gui.setOverlayGD(impProjetee, Color.yellow);
+		Library_Gui.setOverlayTitle("Post",impProjetee, Color.yellow, 1);
+		Library_Gui.setOverlayTitle("2 first min posterior", impProjetee, Color.YELLOW, 2);
+		Library_Gui.setOverlayTitle("MIP", impProjetee, Color.YELLOW, 3);
 		if (this.impAnt != null) {
-			Library_Gui.setOverlayTitle("Ant", overlay, impProjetee, Color.yellow, 4);
+			Library_Gui.setOverlayTitle("Ant", impProjetee, Color.yellow, 4);
 		}
 		
 	System.out.println(selectedImages[0].getImagePlus().getStackSize());
 
-		this.setFenApplication(new FenApplication_Renal(selectedImages[0].getImagePlus(), this.getExamType(), this));
+		this.setFenApplication(new FenApplication_Renal(selectedImages[0].getImagePlus(), this.getStudyName(), this));
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 		this.getFenApplication().setControleur(new Controleur_Renal(this, selectedImages, "Renal scintigraphy"));
 	}

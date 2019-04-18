@@ -113,7 +113,7 @@ public abstract class ControleurScin implements ActionListener {
 		MontageMaker mm = new MontageMaker();
 		// TODO: patient ID
 		String patientID = "NO_ID_FOUND";
-		ImagePlus imp = new ImagePlus("Resultats ShunPo -" + this.main.getExamType() + " -" + patientID, captures);
+		ImagePlus imp = new ImagePlus("Resultats ShunPo -" + this.main.getStudyName() + " -" + patientID, captures);
 		imp = mm.makeMontage2(imp, 2, 2, 0.50, 1, 4, 1, 10, false);
 		return imp;
 	}
@@ -233,11 +233,9 @@ public abstract class ControleurScin implements ActionListener {
 	 */
 	public void resetOverlay() {
 		this.vue.getOverlay().clear();
-		Library_Gui.setOverlayDG(this.vue.getOverlay(), this.vue.getImagePlus(), Color.YELLOW);
-		Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus().getOverlay(), this.vue.getImagePlus(), Color.YELLOW,
-				1);
-		Library_Gui.setOverlayTitle("Post", this.vue.getImagePlus().getOverlay(), this.vue.getImagePlus(), Color.YELLOW,
-				2);
+		Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
+		Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus(), Color.YELLOW, 1);
+		Library_Gui.setOverlayTitle("Post", this.vue.getImagePlus(), Color.YELLOW, 2);
 	}
 
 	/**
@@ -301,6 +299,7 @@ public abstract class ControleurScin implements ActionListener {
 
 	/**
 	 * Creates a rectangle between the two ROIs specified.
+	 * TODO: move this method in Library_Roi
 	 * 
 	 * @param r1
 	 * @param r2

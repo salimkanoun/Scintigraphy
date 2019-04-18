@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.shunpo.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 
 public class FenResultat_HepaticDyn extends FenResults {
 	private static final long serialVersionUID = 1L;

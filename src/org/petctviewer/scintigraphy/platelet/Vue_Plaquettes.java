@@ -22,6 +22,7 @@ import java.util.Date;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -46,7 +47,7 @@ public class Vue_Plaquettes extends Scintigraphy {
 	}
 
 	@Override
-	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 
 		ArrayList<ImagePlus> series = new ArrayList<>();
 
@@ -96,13 +97,13 @@ public class Vue_Plaquettes extends Scintigraphy {
 		// Initialisation du Canvas qui permet de mettre la pile d'images
 		// dans une fenetre c'est une pile d'images (plus d'une image) on cree une
 		// fenetre pour la pile d'images;
-		this.setFenApplication(new FenApplication(selectedImages[0].getImagePlus(), this.getExamType()));
+		this.setFenApplication(new FenApplication(selectedImages[0].getImagePlus(), this.getStudyName()));
 		
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
-		Library_Gui.setOverlayDG(overlay, selectedImages[0].getImagePlus(), Color.YELLOW);
+		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 		
-		Controleur_Plaquettes ctrl = new Controleur_Plaquettes(this, this.getDateDebut(), selectedImages);
+		Controleur_Plaquettes ctrl = new Controleur_Plaquettes(this, this.getDateDebut(), selectedImages, "Platelet");
 		this.getFenApplication().setControleur(ctrl);
 		this.getFenApplication().getImagePlus().getCanvas().setScaleToFit(true);
 		this.getFenApplication().getImagePlus().getCanvas().setSize(512,512);

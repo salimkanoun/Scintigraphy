@@ -16,6 +16,7 @@ import javax.swing.JRadioButton;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -54,7 +55,7 @@ public class EsophagealTransit extends Scintigraphy {
 
 	//possible de refactorier le trie des images....
 	@Override
-	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 		//entrée : tableau de toutes les images passées envoyé par la selecteur de dicom
 
 		//sauvegarde des images pour le modele
@@ -140,7 +141,7 @@ public class EsophagealTransit extends Scintigraphy {
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		// phase 1
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
-		Library_Gui.setOverlayDG(overlay, selectedImages[0].getImagePlus(), Color.yellow);
+		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.yellow);
 		
 		FenApplication fen = new FenApplication(selectedImages[0].getImagePlus(), "Oesophageus");
 		fen.getPanel_btns_gauche().remove(fen.getBtn_drawROI());
@@ -157,7 +158,7 @@ public class EsophagealTransit extends Scintigraphy {
 	    	radioButton[i].addItemListener(new ItemListener() {
 				@Override
 				public void itemStateChanged(ItemEvent e) {
-					fen.setImp(sauvegardeImagesSelectDicom[0][num]);
+					fen.setImage(sauvegardeImagesSelectDicom[0][num]);
 				}
 			});
 	    	buttonGroup.add(radioButton[i]);
@@ -185,7 +186,7 @@ public class EsophagealTransit extends Scintigraphy {
 				fen.revalidate();
 				
 				
-				fen.setImp(impProjeteAllAcqui);
+				fen.setImage(impProjeteAllAcqui);
 				fen.getImagePlus().setSlice(1);
 				fen.updateSliceSelector();
 				IJ.setTool(Toolbar.RECTANGLE);

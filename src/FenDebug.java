@@ -16,7 +16,6 @@ import org.petctviewer.scintigraphy.generic.dynamic.GeneralDynamicScintigraphy;
 import org.petctviewer.scintigraphy.generic.statics.StaticScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.statique.HepaticScintigraphy;
-import org.petctviewer.scintigraphy.lympho.LymphoSintigraphy;
 import org.petctviewer.scintigraphy.os.OsScintigraphy;
 import org.petctviewer.scintigraphy.platelet.Vue_Plaquettes;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
@@ -25,17 +24,16 @@ import org.petctviewer.scintigraphy.renal.followup.FollowUp;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.preferences.PrefsWindows;
 import org.petctviewer.scintigraphy.shunpo.ShunpoScintigraphy;
-import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
 
-public class FenDebug extends JFrame{
+public class FenDebug extends JFrame {
 
 	private static final long serialVersionUID = -902779990950720955L;
 
 	public FenDebug() {
 		this.setLayout(new BorderLayout());
-		
+
 		JPanel pnl_pref = new JPanel();
-		
+
 		JButton btn_pref = new JButton("Preferences");
 		btn_pref.addActionListener(new ActionListener() {
 			@Override
@@ -44,101 +42,101 @@ public class FenDebug extends JFrame{
 				pref.run("");
 			}
 		});
-		
+
 		pnl_pref.add(btn_pref);
-		
-		JPanel p = new JPanel(new GridLayout(5,3));
-		
+
+		JPanel p = new JPanel(new GridLayout(5, 3));
+
 		JButton btn_cardiac = new JButton("Cardiac");
-		btn_cardiac.addActionListener(new ActionListener() {			
+		btn_cardiac.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+
 				Scintigraphy vue = new CardiacScintigraphy();
 				vue.run("");
 			}
 		});
-		
+
 		JButton btn_plaquettes = new JButton("Plaquettes");
-		btn_plaquettes.addActionListener(new ActionListener() {			
+		btn_plaquettes.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+
 				Scintigraphy vue = new Vue_Plaquettes();
 				vue.run("");
 			}
 		});
-		
+
 		JButton btn_hepatic = new JButton("Hepatique");
-		btn_hepatic.addActionListener(new ActionListener() {			
+		btn_hepatic.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+
 				Scintigraphy vue = new HepaticScintigraphy();
 				vue.run("");
 			}
 		});
-		
+
 		JButton btn_hepaticdyn = new JButton("Hepatique Dyn");
-		btn_hepaticdyn.addActionListener(new ActionListener() {			
+		btn_hepaticdyn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+
 				Scintigraphy vue = new HepaticDynamicScintigraphy();
 				vue.run("");
 			}
 		});
-		
+
 		JButton btn_dyn = new JButton("Scintigraphy Dyn");
-		btn_dyn.addActionListener(new ActionListener() {			
+		btn_dyn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+
 				Scintigraphy vue = new GeneralDynamicScintigraphy();
 				vue.run("");
 			}
 		});
-		
+
 		JButton btn_liver = new JButton("Renal");
-		btn_liver.addActionListener(new ActionListener() {			
+		btn_liver.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+
 				Scintigraphy vue = new RenalScintigraphy();
 				vue.run("");
 			}
 		});
-	
+
 		JButton btn_dmsa = new JButton("DMSA");
 		btn_dmsa.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Scintigraphy vue = new DmsaScintigraphy();
 				vue.run("");
 			}
 		});
-		
+
 		JButton btn_vgDyn = new JButton("Gastric Dyn");
 		btn_vgDyn.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Vue_VG_Dynamique vue = new Vue_VG_Dynamique();
 				vue.run("");
 			}
 		});
-		
+
 		JButton btn_vgStatic = new JButton("Gastric Static");
 		btn_vgStatic.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Vue_VG_Roi vue = new Vue_VG_Roi();
 				vue.run("");
 			}
 		});
-		
+
 		JButton btn_genStatic = new JButton("Static gen");
 		btn_genStatic.addActionListener(new ActionListener() {
 			@Override
@@ -147,16 +145,16 @@ public class FenDebug extends JFrame{
 				scin.run("");
 			}
 		});
-		
+
 		JButton btn_FollowUp = new JButton("Follow-up");
 		btn_FollowUp.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				 FollowUp cvsComparator = new FollowUp();
+				FollowUp cvsComparator = new FollowUp();
 				cvsComparator.run("");
 			}
 		});
-		
+
 		JButton btn_Calibration = new JButton("Calibration");
 		btn_Calibration.addActionListener(new ActionListener() {
 			@Override
@@ -165,7 +163,7 @@ public class FenDebug extends JFrame{
 				calibration.run("");
 			}
 		});
-		
+
 		JButton btn_Esophageal = new JButton("Esophageal Transit");
 		btn_Esophageal.addActionListener(new ActionListener() {
 			@Override
@@ -174,47 +172,27 @@ public class FenDebug extends JFrame{
 				eso.run("");
 			}
 		});
-		
-		JButton btn_shunpo = new JButton("Shunpo_original");
-		btn_shunpo.addActionListener(new ActionListener() {			
+
+		JButton btn_shunpoMaVersion = new JButton("Shunpo");
+		btn_shunpoMaVersion.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
-				Vue_Shunpo vue = new Vue_Shunpo();
-				vue.run("");
-			}
-		});
-		
-		JButton btn_shunpoMaVersion = new JButton("Shunpo_maVersion");
-		btn_shunpoMaVersion.addActionListener(new ActionListener() {			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
+
 				Scintigraphy vue = new ShunpoScintigraphy();
 				vue.run("");
 			}
 		});
-		
+
 		JButton btn_os = new JButton("Os");
-		btn_os.addActionListener(new ActionListener() {			
+		btn_os.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+
 				Scintigraphy vue = new OsScintigraphy();
 				vue.run("");
 			}
 		});
-		
-		JButton btn_Lympho = new JButton("Lympho");
-		btn_Lympho.addActionListener(new ActionListener() {			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				Scintigraphy vue = new LymphoSintigraphy();
-				vue.run("");
-			}
-		});
-		
+
 		p.add(btn_cardiac);
 		p.add(btn_plaquettes);
 		p.add(btn_hepatic);
@@ -228,18 +206,15 @@ public class FenDebug extends JFrame{
 		p.add(btn_FollowUp);
 		p.add(btn_Calibration);
 		p.add(btn_Esophageal);
-		p.add(btn_shunpo);
 		p.add(btn_shunpoMaVersion);
 		p.add(btn_os);
-		p.add(btn_Lympho);
-		
 
 		this.add(p, BorderLayout.CENTER);
 		this.add(pnl_pref, BorderLayout.NORTH);
-		
+
 		this.pack();
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
 	}
-	
+
 }

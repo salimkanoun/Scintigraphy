@@ -135,8 +135,8 @@ public class ModeleShunpo extends ModeleScin {
 		retour[RESULT_TOTAL_SHUNT] = "Total Shunt : " + totshunt;
 		double percSyst = (100.0 * totshunt) / totmg;
 		retour[RESULT_SYSTEMIC] = "% Systemic : " + us.format(percSyst) + "%";
-		Modele_Shunpo.shunt = ((totshunt * 100.0) / (totmg * 0.38));
-		retour[RESULT_PULMONARY_SHUNT] = "Pulmonary Shunt : " + us.format(Modele_Shunpo.shunt) + "% (total blood Flow)";
+		double shunt = ((totshunt * 100.0) / (totmg * 0.38));
+		retour[RESULT_PULMONARY_SHUNT] = "Pulmonary Shunt : " + us.format(shunt) + "% (total blood Flow)";
 	}
 
 }

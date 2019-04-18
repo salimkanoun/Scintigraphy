@@ -8,7 +8,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.shunpo.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 
 import ij.Prefs;
 

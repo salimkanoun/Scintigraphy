@@ -59,8 +59,10 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
 	 * 
-	 * @param imp ImagePlus a traiter
-	 * @param nom Nom du type de scintigraphie
+	 * @param imp
+	 *            ImagePlus a traiter
+	 * @param nom
+	 *            Nom du type de scintigraphie
 	 */
 	public FenApplication(ImagePlus imp, String nom) {
 		super(imp, new ImageCanvas(imp));
@@ -134,7 +136,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 		this.getCanvas().setMagnification(magnification);
 
-//		this.revalidate();															// This may cause some trouble for the resizing.
+		// this.revalidate(); // This may cause some trouble for the resizing.
 		this.pack();
 
 	}
@@ -235,15 +237,13 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		this.setPreferredCanvasSize(512);
 	}
 
-	public void setImp(ImagePlus imp) {
-		this.setImage(imp);
+	@Override
+	public void setImage(ImagePlus imp) {
+		super.setImage(imp);
+		Library_Gui.setCustomLut(imp);
 		this.imp = imp;
 		this.revalidate();
 		this.resizeCanvas();
-	}
-
-	public ImagePlus getImp() {
-		return this.imp;
 	}
 
 	/**

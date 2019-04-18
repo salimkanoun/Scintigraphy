@@ -590,7 +590,7 @@ public class Controleur_VG_Roi implements ActionListener {
 		laVue.leRoi.deselect();
 		}
 		laVue.overlay.clear();
-		Library_Gui.setOverlayDG(laVue.overlay, laVue.imp);
+		Library_Gui.setOverlayDG(laVue.imp);
 	
 		if (nom.contains("Stomach")){
 			laVue.overlay.add(laVue.leRoi.getRoi(index_Roi));
@@ -609,7 +609,7 @@ public class Controleur_VG_Roi implements ActionListener {
 			laVue.leRoi.select(index_Roi);
 			//On clear l'Overlay
 			laVue.overlay.clear();
-			Library_Gui.setOverlayDG(laVue.overlay, laVue.imp);
+			Library_Gui.setOverlayDG(laVue.imp);
 			//On affiche l'overlay de la ROI n-1 si intestin ou n+1 si estomac
 			if (laVue.leRoi.getRoi(index_Roi).getName().contains("Intestine")){
 				laVue.overlay.add(laVue.leRoi.getRoi(index_Roi-1));
