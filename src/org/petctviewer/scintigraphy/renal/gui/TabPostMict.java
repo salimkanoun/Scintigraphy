@@ -51,7 +51,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 		btn_addImp.addActionListener(this);
 		box.add(btn_addImp);
 		box.add(Box.createHorizontalGlue());
-		
+
 		JPanel pan = new JPanel();
 		pan.add(box);
 		return pan;
@@ -84,7 +84,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 			// SK A REFACTORISER
 			FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", new Scintigraphy("") {
 				@Override
-				protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
+				public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
 					if (selectedImages.length > 1) {
 						throw new Exception("Only one serie is expected");
 					}
@@ -120,7 +120,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 			// SK A REVOIR
 			this.vueBasic = new PostMictional(createOrgans(), this);
 			try {
-				this.vueBasic.startExam(this.parent.getModel().getImageSelection());
+				this.vueBasic.lancerProgramme(this.vueBasic.preparerImp(this.parent.getModel().getImageSelection()));
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -190,7 +190,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 //		sidePanel = new SidePanel(flow, "Renal Scintigraphy2", this.getImagePlus());
 //		sidePanel.addCaptureBtn(vueBasic, "_PostMict", new Component[] { this.getSlider() }, model);
 //		this.parent.createCaptureButton("_PostMict");
-		this.createCaptureButton(new Component[] {this.getSlider()}, null, "_PostMict");
+		this.createCaptureButton(new Component[] { this.getSlider() }, null, "_PostMict");
 //		this.add(sidePanel,BorderLayout.EAST);
 //		this.revalidate();
 //		this.repaint();

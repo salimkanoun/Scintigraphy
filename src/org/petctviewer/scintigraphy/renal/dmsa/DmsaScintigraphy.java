@@ -19,7 +19,7 @@ public class DmsaScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
 		if(selectedImages.length>1) throw new Exception ("Only one serie Expected");
 		
 		ImagePlus imp = selectedImages[0].getImagePlus();

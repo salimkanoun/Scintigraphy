@@ -39,24 +39,20 @@ public class ShunpoScintigraphy extends Scintigraphy {
 		fen.setVisible(true);
 	}
 
-	/**
-	 * TODO: remove this method and use preparerImp
-	 * 
-	 * @param selectedImages Selected images by the user
-	 */
-	public void startExam(ImageSelection[] selectedImages) {
+	@Override
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
 		// Check that number of images is correct
 		if (selectedImages.length != 2) {
 			JOptionPane.showMessageDialog(this.getFenApplication(),
 					"2 images expected, " + selectedImages.length + " received", "", JOptionPane.ERROR_MESSAGE);
-			return;
+			return null;
 		}
 
 		if (selectedImages[0].getValue(this.orgranColumn.getName()) == selectedImages[1]
 				.getValue(this.orgranColumn.getName())) {
 			JOptionPane.showMessageDialog(this.getFenApplication(),
 					"Organs must be " + ORGAN_KIDNEY_PULMON + " and " + ORGAN_BRAIN, "", JOptionPane.ERROR_MESSAGE);
-			return;
+			return null;
 		}
 
 		// Order selectedImages: 1st KIDNEY-PULMON; 2nd BRAIN
@@ -76,28 +72,24 @@ public class ShunpoScintigraphy extends Scintigraphy {
 			} else {
 				JOptionPane.showMessageDialog(this.getFenApplication(), "Bad orientation", "",
 						JOptionPane.ERROR_MESSAGE);
-				return;
+				return null;
 			}
 		}
-		
-		ImageSelection[] selection = selectedImages;//.clone();
+
+		ImageSelection[] selection = selectedImages;// .clone();
 //		for(ImageSelection i : selectedImages)
 //			i.getImagePlus().close();
 
-		// Start program
-		this.setFenApplication(new FenApplication_Shunpo(this, selection[0].getImagePlus()));
-		this.getFenApplication().setControleur(new ControleurShunpo(this, this.getFenApplication(), selection, "Pulmonary Shunt"));
-//		this.getFenApplication().setControleur(new ControleurShunpo_KidneyPulmon(this));
-		this.getFenApplication().setVisible(true);
-	}
-
-	@Override
-	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
-		return null;
+		return selection;
 	}
 
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
+		// Start program
+		this.setFenApplication(new FenApplication_Shunpo(this, selectedImages[0].getImagePlus()));
+		this.getFenApplication()
+				.setControleur(new ControleurShunpo(this, this.getFenApplication(), selectedImages, "Pulmonary Shunt"));
+		this.getFenApplication().setVisible(true);
 	}
 
 }

@@ -23,7 +23,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
 
 		ArrayList<ImagePlus> mountedImages = new ArrayList<>();
 

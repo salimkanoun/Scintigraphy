@@ -25,7 +25,7 @@ public class GeneralDynamicScintigraphy extends Scintigraphy{
 		IJ.setTool(Toolbar.POLYGON);
 	}
 	
-	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
 		
 		ImagePlus[] imps = new ImagePlus[2];
 		

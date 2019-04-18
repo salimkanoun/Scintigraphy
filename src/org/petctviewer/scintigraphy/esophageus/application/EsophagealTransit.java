@@ -54,7 +54,7 @@ public class EsophagealTransit extends Scintigraphy {
 
 	//possible de refactorier le trie des images....
 	@Override
-	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) {
 		//entrée : tableau de toutes les images passées envoyé par la selecteur de dicom
 
 		//sauvegarde des images pour le modele

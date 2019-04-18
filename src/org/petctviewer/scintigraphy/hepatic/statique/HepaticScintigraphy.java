@@ -15,7 +15,7 @@ public class HepaticScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImageSelection[] preparerImp(ImageSelection[] images) {
+	public ImageSelection[] preparerImp(ImageSelection[] images) {
 		if (images.length > 1) {
 			IJ.log("There must be exactly one dicom opened");
 		}

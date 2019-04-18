@@ -72,7 +72,7 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn  {
 	 *            liste des images transmises depuis FenSelectionDicom
 	 * @return
 	 */
-	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
 		
 		if(selectedImages.length>3)
 			throw new Exception("Vous avez rentré trop d'images. Seulement 3 images peuvent être traitées.");

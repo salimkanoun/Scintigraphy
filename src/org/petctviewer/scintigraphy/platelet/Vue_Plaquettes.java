@@ -46,7 +46,7 @@ public class Vue_Plaquettes extends Scintigraphy {
 	}
 
 	@Override
-	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) {
 
 		ArrayList<ImagePlus> series = new ArrayList<>();
 

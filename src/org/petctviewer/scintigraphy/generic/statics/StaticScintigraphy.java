@@ -20,7 +20,7 @@ public class StaticScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
 		
 		if(selectedImages.length != 1) {
 			throw new Exception("Software Accept only one A/P serie");

@@ -24,7 +24,7 @@ public class RenalScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
 		
 		//Prepare the final ImagePlus array, position 0 for anterior dynamic and position 1 for posterior dynamic.
 		ImagePlus[] imps =new ImagePlus[2];

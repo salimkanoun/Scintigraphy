@@ -385,9 +385,12 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		}
 
 		try {
-			this.scin.startExam(selectedImages);
-			ImagePlus.removeImageListener(this);
-			this.dispose();
+			ImageSelection[] userSelection = this.scin.preparerImp(selectedImages);
+			if (userSelection != null) {
+				ImagePlus.removeImageListener(this);
+				this.dispose();
+				this.scin.lancerProgramme(userSelection);
+			}
 		} catch (Exception e) {
 			IJ.log((e.getMessage()));
 		}

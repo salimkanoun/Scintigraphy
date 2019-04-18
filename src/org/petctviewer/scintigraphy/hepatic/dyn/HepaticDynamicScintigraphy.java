@@ -35,7 +35,7 @@ public class HepaticDynamicScintigraphy extends Scintigraphy {
 	
 
 	  @Override
-	  protected ImageSelection[] preparerImp(ImageSelection[] images) {
+	  public ImageSelection[] preparerImp(ImageSelection[] images) {
 	    if (images.length > 2) {
 	      IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 	    }
