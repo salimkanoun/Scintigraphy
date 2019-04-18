@@ -1,11 +1,9 @@
-package org.petctviewer.scintigraphy.shunpo;
+package org.petctviewer.scintigraphy.scin.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 
 import javax.swing.JPanel;
-
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 public abstract class TabResult {
 

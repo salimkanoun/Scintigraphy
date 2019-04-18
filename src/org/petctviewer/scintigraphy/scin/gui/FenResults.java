@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.shunpo;
+package org.petctviewer.scintigraphy.scin.gui;
 
 import java.util.ArrayList;
 import java.util.List;

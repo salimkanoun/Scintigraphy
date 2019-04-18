@@ -24,7 +24,6 @@ import org.petctviewer.scintigraphy.renal.followup.FollowUp;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.preferences.PrefsWindows;
 import org.petctviewer.scintigraphy.shunpo.ShunpoScintigraphy;
-import org.petctviewer.scintigraphy.shunpo.Vue_Shunpo;
 
 public class FenDebug extends JFrame{
 
@@ -174,17 +173,7 @@ public class FenDebug extends JFrame{
 			}
 		});
 		
-		JButton btn_shunpo = new JButton("Shunpo_original");
-		btn_shunpo.addActionListener(new ActionListener() {			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				Vue_Shunpo vue = new Vue_Shunpo();
-				vue.run("");
-			}
-		});
-		
-		JButton btn_shunpoMaVersion = new JButton("Shunpo_maVersion");
+		JButton btn_shunpoMaVersion = new JButton("Shunpo");
 		btn_shunpoMaVersion.addActionListener(new ActionListener() {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -217,7 +206,6 @@ public class FenDebug extends JFrame{
 		p.add(btn_FollowUp);
 		p.add(btn_Calibration);
 		p.add(btn_Esophageal);
-		p.add(btn_shunpo);
 		p.add(btn_shunpoMaVersion);
 		p.add(btn_os);
 		

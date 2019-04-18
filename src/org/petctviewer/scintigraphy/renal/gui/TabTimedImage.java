@@ -1,9 +1,9 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.shunpo.FenResults;
 
 import ij.ImagePlus;
 import ij.process.ImageProcessor;
