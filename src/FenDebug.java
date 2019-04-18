@@ -63,7 +63,7 @@ public class FenDebug extends JFrame {
 		JPanel pnl_pref = new JPanel();
 		pnl_pref.add(this.getProgramButton(PrefsWindows.class));
 
-		this.panel = new JPanel(new GridLayout(5, 3));
+		this.panel = new JPanel(new GridLayout(0, 3));
 
 		this.registerNewProgram(CardiacScintigraphy.class);
 		this.registerNewProgram(Vue_Plaquettes.class);

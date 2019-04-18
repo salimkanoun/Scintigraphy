@@ -4,11 +4,13 @@ import java.awt.Component;
 import java.awt.GridLayout;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -151,8 +153,7 @@ public class ControleurShunpo extends ControleurScin {
 	@Override
 	protected void end() {
 		this.currentOrgan++;
-		this.vue.getTextfield_instructions().setText("End!");
-		this.vue.getBtn_suivant().setEnabled(false);
+		super.end();
 
 		// Compute model
 		int firstSlice = (this.FIRST_ORIENTATION_POST ? SLICE_POST : SLICE_ANT);
@@ -169,7 +170,7 @@ public class ControleurShunpo extends ControleurScin {
 				img = this.model.getImageSelection()[STEP_KIDNEY_LUNG].getImagePlus();
 				img.setSlice(firstSlice);
 				title_completion += " {KIDNEY_LUNG}";
-				if(this.FIRST_ORIENTATION_POST)
+				if (this.FIRST_ORIENTATION_POST)
 					organ = i * 2 + 1;
 				else
 					organ = i * 2;
@@ -177,7 +178,7 @@ public class ControleurShunpo extends ControleurScin {
 				img = this.model.getImageSelection()[STEP_KIDNEY_LUNG].getImagePlus();
 				img.setSlice(secondSlice);
 				title_completion += " {KIDNEY_LUNG}";
-				if(this.FIRST_ORIENTATION_POST)
+				if (this.FIRST_ORIENTATION_POST)
 					organ = (i - this.steps[STEP_KIDNEY_LUNG].length) * 2;
 				else
 					organ = (i - this.steps[STEP_KIDNEY_LUNG].length) * 2 + 1;
@@ -185,7 +186,7 @@ public class ControleurShunpo extends ControleurScin {
 				img = this.model.getImageSelection()[STEP_BRAIN].getImagePlus();
 				img.setSlice(firstSlice);
 				title_completion += " {BRAIN}";
-				if(this.FIRST_ORIENTATION_POST)
+				if (this.FIRST_ORIENTATION_POST)
 					organ = i + 1;
 				else
 					organ = i;
@@ -193,7 +194,7 @@ public class ControleurShunpo extends ControleurScin {
 				img = this.model.getImageSelection()[STEP_BRAIN].getImagePlus();
 				img.setSlice(secondSlice);
 				title_completion += " {BRAIN}";
-				if(this.FIRST_ORIENTATION_POST)
+				if (this.FIRST_ORIENTATION_POST)
 					organ = i - 1;
 				else
 					organ = i;
@@ -308,7 +309,8 @@ public class ControleurShunpo extends ControleurScin {
 
 	@Override
 	public void clicSuivant() {
-		if (this.saveCurrentRoi(this.steps[this.currentStep][this.currentOrgan] + (this.isNowPost() ? "_P" : "_A"))) {
+		try {
+			this.saveCurrentRoi(this.steps[this.currentStep][this.currentOrgan] + (this.isNowPost() ? "_P" : "_A"));
 
 			this.displayRoi(this.position);
 			super.clicSuivant();
@@ -324,6 +326,8 @@ public class ControleurShunpo extends ControleurScin {
 					this.nextOrientation();
 			} else
 				this.nextOrgan();
+		} catch (NoDataException e) {
+			JOptionPane.showMessageDialog(this.vue, e.getMessage(), "", JOptionPane.WARNING_MESSAGE);
 		}
 	}
 
