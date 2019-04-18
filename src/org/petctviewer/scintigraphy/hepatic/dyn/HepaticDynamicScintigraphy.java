@@ -4,6 +4,7 @@ import java.awt.Color;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -27,7 +28,7 @@ public class HepaticDynamicScintigraphy extends Scintigraphy {
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
 		
-		this.setFenApplication(new FenApplication(selectedImages[0].getImagePlus(), this.getExamType()));
+		this.setFenApplication(new FenApplication(selectedImages[0].getImagePlus(), this.getStudyName()));
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 		this.getFenApplication().setControleur(new Controleur_HepaticDyn(this, selectedImages, "Biliary scintigraphy"));
 	}
@@ -35,7 +36,7 @@ public class HepaticDynamicScintigraphy extends Scintigraphy {
 	
 
 	  @Override
-	  public ImageSelection[] preparerImp(ImageSelection[] images) {
+	  public ImageSelection[] preparerImp(ImageSelection[] images) throws WrongInputException {
 	    if (images.length > 2) {
 	      IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 	    }

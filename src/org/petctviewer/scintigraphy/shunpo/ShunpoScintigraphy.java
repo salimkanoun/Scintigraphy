@@ -5,6 +5,7 @@ import javax.swing.JOptionPane;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 
@@ -20,7 +21,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	@Override
 	public void run(String arg) {
 		// Override to use custom dicom selection window
-		FenSelectionDicom fen = new FenSelectionDicom(this.getExamType(), this);
+		FenSelectionDicom fen = new FenSelectionDicom(this.getStudyName(), this);
 
 		// Orientation column
 		String[] orientationValues = { Orientation.ANT.toString(), Orientation.POST.toString(),
@@ -40,7 +41,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 		// Check that number of images is correct
 		if (selectedImages.length != 2) {
 			JOptionPane.showMessageDialog(this.getFenApplication(),

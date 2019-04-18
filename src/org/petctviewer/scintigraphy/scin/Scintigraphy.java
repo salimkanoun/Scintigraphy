@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.scin;
 
+import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 
@@ -7,11 +8,11 @@ import ij.plugin.PlugIn;
 
 public abstract class Scintigraphy implements PlugIn {
 
-	private String examType;
+	private String studyName;
 	private FenApplication fen_application;
 
-	protected Scintigraphy(String examType) {
-		this.examType = examType;
+	protected Scintigraphy(String studyName) {
+		this.studyName = studyName;
 	}
 
 	/*************************** Public ************************/
@@ -22,7 +23,7 @@ public abstract class Scintigraphy implements PlugIn {
 	@Override
 	public void run(String arg) {
 		// SK FAIRE DANS UN AUTRE THREAD ?
-		FenSelectionDicom fen = new FenSelectionDicom(this.getExamType(), this);
+		FenSelectionDicom fen = new FenSelectionDicom(this.getStudyName(), this);
 		fen.setVisible(true);
 	}
 
@@ -40,8 +41,9 @@ public abstract class Scintigraphy implements PlugIn {
 	 *                     'Select' button in the FenSelectionDicom
 	 * @return The well formatted images. If this return value is null, then the
 	 *         program will NOT be launched
+	 * @throws WrongInputException TODO
 	 */
-	public abstract ImageSelection[] preparerImp(ImageSelection[] openedImages) throws Exception;
+	public abstract ImageSelection[] preparerImp(ImageSelection[] openedImages) throws WrongInputException;
 
 	/**
 	 * Launches the program with the specified images. This method implies that the
@@ -54,8 +56,8 @@ public abstract class Scintigraphy implements PlugIn {
 	 */
 	public abstract void lancerProgramme(ImageSelection[] selectedImages);
 
-	public void setExamType(String examType) {
-		this.examType = examType;
+	public void setStudyName(String studyName) {
+		this.studyName = studyName;
 	}
 
 	public void setFenApplication(FenApplication fen_application) {
@@ -64,8 +66,8 @@ public abstract class Scintigraphy implements PlugIn {
 
 	/********************** Getter **************************/
 
-	public String getExamType() {
-		return this.examType;
+	public String getStudyName() {
+		return this.studyName;
 	}
 
 	public FenApplication getFenApplication() {

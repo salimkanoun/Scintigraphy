@@ -21,6 +21,9 @@ import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
@@ -84,9 +87,9 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 			// SK A REFACTORISER
 			FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", new Scintigraphy("") {
 				@Override
-				public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
+				public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 					if (selectedImages.length > 1) {
-						throw new Exception("Only one serie is expected");
+						throw new WrongNumberImagesException(selectedImages.length, 1);
 					}
 					if (selectedImages[0].getImageOrientation() == Orientation.ANT_POST
 							|| selectedImages[0].getImageOrientation() == Orientation.POST_ANT
@@ -104,7 +107,8 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 						selection[0] = new ImageSelection(imp, null, null);
 						return selection;
 					} else {
-						throw new Exception("No Static Posterior Image");
+						throw new WrongOrientationException(selectedImages[0].getImageOrientation(),
+								new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT, Orientation.POST });
 					}
 
 				}

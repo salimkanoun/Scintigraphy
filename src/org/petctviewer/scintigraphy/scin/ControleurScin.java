@@ -113,7 +113,7 @@ public abstract class ControleurScin implements ActionListener {
 		MontageMaker mm = new MontageMaker();
 		// TODO: patient ID
 		String patientID = "NO_ID_FOUND";
-		ImagePlus imp = new ImagePlus("Resultats ShunPo -" + this.main.getExamType() + " -" + patientID, captures);
+		ImagePlus imp = new ImagePlus("Resultats ShunPo -" + this.main.getStudyName() + " -" + patientID, captures);
 		imp = mm.makeMontage2(imp, 2, 2, 0.50, 1, 4, 1, 10, false);
 		return imp;
 	}

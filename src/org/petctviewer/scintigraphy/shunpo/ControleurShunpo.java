@@ -108,7 +108,7 @@ public class ControleurShunpo extends ControleurScin {
 		// Remove overlay
 		this.resetOverlay();
 
-		this.vue.setImp(this.model.getImageSelection()[this.currentStep].getImagePlus());
+		this.vue.setImage(this.model.getImageSelection()[this.currentStep].getImagePlus());
 		if (this.isNowPost()) {
 			// Display post image
 			this.vue.getImagePlus().setSlice(2);

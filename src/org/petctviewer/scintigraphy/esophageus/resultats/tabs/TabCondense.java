@@ -257,7 +257,7 @@ public class TabCondense extends TabResult implements ChangeListener {
 		imageCondensePanel.setLayout(new BorderLayout());
 		titleAndCondensePanel.add(imageCondensePanel, BorderLayout.CENTER);
 
-		SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getExamType(), modele.getImagesPlus()[0]);
+		SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getStudyName(), modele.getImagesPlus()[0]);
 		titleAndCondensePanel.add(sidePanelScin, BorderLayout.NORTH);
 
 		return titleAndCondensePanel;

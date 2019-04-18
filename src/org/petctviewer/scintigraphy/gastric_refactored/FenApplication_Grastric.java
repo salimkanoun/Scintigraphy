@@ -15,6 +15,7 @@ public class FenApplication_Grastric extends FenApplication {
 		
 		IJ.setTool(Toolbar.POLYGON);
 		this.imp.setOverlay(Library_Gui.initOverlay(getImagePlus()));
+		Library_Gui.setOverlayDG(getImagePlus());
 	}
 
 }

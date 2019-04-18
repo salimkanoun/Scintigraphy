@@ -7,6 +7,7 @@ import org.petctviewer.scintigraphy.renal.gui.TabPostMict;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -26,7 +27,7 @@ public class PostMictional extends Scintigraphy {
 	}
 	
 	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 		
 		ImagePlus impSorted = null;
 		if(selectedImages[0].getImageOrientation()==Orientation.ANT_POST) {
@@ -51,7 +52,7 @@ public class PostMictional extends Scintigraphy {
 		Overlay ov = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
 		Library_Gui.setOverlayGD(selectedImages[0].getImagePlus(), Color.YELLOW);
 		
-		FenApplication fen = new FenApplication(selectedImages[0].getImagePlus(), this.getExamType());
+		FenApplication fen = new FenApplication(selectedImages[0].getImagePlus(), this.getStudyName());
 		fen.setVisible(true);
 		this.setFenApplication(fen);
 		selectedImages[0].getImagePlus().setOverlay(ov);

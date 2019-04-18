@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -23,7 +24,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 
 		ArrayList<ImagePlus> mountedImages = new ArrayList<>();
 
@@ -73,7 +74,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
 		
 		// fenetre de l'application
-		this.setFenApplication(new FenApplication_Cardiac(selectedImages[0].getImagePlus(), this.getExamType()));
+		this.setFenApplication(new FenApplication_Cardiac(selectedImages[0].getImagePlus(), this.getStudyName()));
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 		
 		//Cree controller
