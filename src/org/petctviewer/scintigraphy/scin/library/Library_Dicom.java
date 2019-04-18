@@ -5,9 +5,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -22,7 +27,7 @@ import ij.util.DicomTools;
 public class Library_Dicom {
 
 	/**
-	 * 
+	 *
 	 * @param imp
 	 * @return date d'acquisition de l'image plus
 	 */
@@ -34,7 +39,7 @@ public class Library_Dicom {
 		int separateurPoint = dateInput.indexOf(".");
 		if (separateurPoint != -1)
 			dateInput = dateInput.substring(0, separateurPoint);
-	
+		
 		SimpleDateFormat parser = new SimpleDateFormat("yyyyMMddHHmmss");
 		Date dateAcquisition = null;
 		try {
@@ -62,6 +67,7 @@ public class Library_Dicom {
 	
 			@Override
 			public int compare(ImagePlus arg0, ImagePlus arg1) {
+				/*
 //				arg0.show();
 //				arg1.show();
 				DateFormat dateHeure = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -97,10 +103,48 @@ public class Library_Dicom {
 					e.printStackTrace();
 				}
 				return 0;
+				*/
+				return (int) ((getDateAcquisition(arg0).getTime() - getDateAcquisition(arg1).getTime()) / 1000);
 			}
 		});
 	
 		return retour;
+	}
+	
+	
+	/**
+	 * Sort an ImageSelection array by acquisition time.<br/>
+	 * Specify false to get from oldest to newest, or true for newest to oldest<br/>
+	 * (Using a TreeMap and a comparator to process)
+	 * 
+	 * @param selectedImages
+	 *            : {@link ImageSelection} array to sort
+	 *@param newToOld
+	 *            : boolean to specify the sort order (false for oldest to newest / true for newest to oldest)
+	 * @return {@link ImageSelection} array sorted by acquisition time
+	 * 
+	 * @see
+	 * <ul><li>{@link Library_Dicom#getDateAcquisition(ImagePlus)}</li></ul>
+	 */
+	public static ImageSelection[] orderImagesByAcquisitionTime(ImageSelection[] selectedImages,boolean newToOld) {
+		
+		SortedMap<Date,ImageSelection> sortedImageSelection = new TreeMap<>(new Comparator<Date>() {
+			@Override
+			public int compare(Date o1, Date o2) {
+				if(!newToOld)
+					return (int) ((o1.getTime() - o2.getTime()) / 1000);
+				else
+					return (int) ((o2.getTime() - o1.getTime()) / 1000);
+			}
+		});
+		for(ImageSelection slctd : selectedImages)
+			sortedImageSelection.put(getDateAcquisition(slctd.getImagePlus()), slctd);
+		
+		Collection<ImageSelection> values = sortedImageSelection.values();
+		ImageSelection[] sortedImageSelectionArray = values.toArray(new ImageSelection[values.size()]);
+			
+		return sortedImageSelectionArray;
+		
 	}
 	
 	/**
