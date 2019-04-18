@@ -19,12 +19,11 @@ import ij.gui.Roi;
 
 public class ControleurShunpo extends ControleurScin {
 
-	private enum State {
-		DELIMIT_ORGAN_ANT, DELEMIT_ORGAN_POST, END;
-	}
+	private final boolean FIRST_ORIENTATION_POST;
 
+	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 	private static final int INDEX_ORGAN_AUTO_GENERATE_ROI = 4;
-	private static final int STEP_KIDNEY_PULMON = 0;
+	private static final int STEP_KIDNEY_LUNG = 0, STEP_BRAIN = 1;
 	private String[][] steps = { { "Right lung", "Left lung", "Right kidney", "Left kidney", "Background" },
 			{ "Brain" } };
 
@@ -39,10 +38,11 @@ public class ControleurShunpo extends ControleurScin {
 	/**
 	 * Index of the organ in the RoiManager
 	 */
-	private int indexOrgan;
+	private int indexRoi;
+	private boolean firstOrientationOver;
 
-	private State state;
-
+	private static final int CAPTURE_ANT_KIDNEY_LUNG = 0, CAPTURE_POST_KIDNEY_LUNG = 1, CAPTURE_ANT_BRAIN = 2,
+			CAPTURE_POST_BRAIN = 3, TOTAL_CAPTURES = 4;
 	private ImagePlus[] captures;
 
 	private FenResults fenResults;
@@ -53,26 +53,39 @@ public class ControleurShunpo extends ControleurScin {
 	 */
 	public ControleurShunpo(Scintigraphy main, FenApplication vue, ImageSelection[] images, String studyName) {
 		super(main, vue, new ModeleShunpo(images, studyName));
-		this.state = State.DELIMIT_ORGAN_ANT;
-		this.currentStep = STEP_KIDNEY_PULMON;
-		this.indexOrgan = 0;
+		this.FIRST_ORIENTATION_POST = true;
+		this.currentStep = STEP_KIDNEY_LUNG;
+		this.firstOrientationOver = false;
+		this.indexRoi = 0;
 		this.currentOrgan = 0;
 
-		this.captures = new ImagePlus[4];
+		this.captures = new ImagePlus[TOTAL_CAPTURES];
+
+		this.fenResults = new FenResults(this.model);
+		this.fenResults.setVisible(false);
 
 		// Start working with kidney-pulmon
-		this.prepareStep(this.currentStep);
+		this.prepareOrientation();
 	}
 
-	/*
-	 * private final void DEBUG() { System.out.println("Current state: " +
-	 * this.state); System.out.println( "Current step: " + this.currentStep + " [" +
-	 * (this.currentStep == 0 ? "PULMON_KIDNEY" : "BRAIN") + "]");
-	 * System.out.println( "Current organ: " + this.currentOrgan + " [" +
-	 * this.steps[this.currentStep][this.currentOrgan] + "]");
-	 * System.out.println("Index organ: " + this.indexOrgan);
-	 * System.out.println("Position: " + this.position); System.out.println(); }
-	 */
+	private final void DEBUG() {
+		this.DEBUG(null);
+	}
+
+	private final void DEBUG(String location) {
+		if (location != null)
+			System.out.println("== " + location.toUpperCase() + " ==");
+		System.out.println("Current orientation: " + (this.isNowPost() ? "POST" : "ANT"));
+		System.out.println(
+				"Current step: " + this.currentStep + " [" + (this.currentStep == 0 ? "PULMON_KIDNEY" : "BRAIN") + "]");
+		System.out.println(
+				"Current organ: " + this.currentOrgan + " [" + this.steps[this.currentStep][this.currentOrgan] + "]");
+		System.out.println("Index ROI: " + this.indexRoi);
+		System.out.println("Position: " + this.position);
+		if (location == null)
+			System.out.println("==============");
+		System.out.println();
+	}
 
 	/**
 	 * Displays the current organ's instruction type.<br>
@@ -88,18 +101,17 @@ public class ControleurShunpo extends ControleurScin {
 	/**
 	 * This method will set the right image (Ant/Post orientation) for the specified
 	 * step and place the ROI to edit if necessary.
-	 * 
-	 * @param step Step to prepare (0 <= step < this.steps.length)
 	 */
-	private void prepareStep(int step) {
+	private void prepareOrientation() {
 		// Remove overlay
 		this.resetOverlay();
 
-		this.vue.setImp(this.model.getImageSelection()[step].getImagePlus());
-		if (this.state == State.DELEMIT_ORGAN_POST) {
+		this.vue.setImp(this.model.getImageSelection()[this.currentStep].getImagePlus());
+		if (this.isNowPost()) {
 			// Display post image
 			this.vue.getImagePlus().setSlice(2);
 		} else {
+			// Display ant image
 			this.vue.getImagePlus().setSlice(1);
 		}
 
@@ -107,58 +119,34 @@ public class ControleurShunpo extends ControleurScin {
 	}
 
 	/**
-	 * This method will reset the counters: currentStep, currentOrgan, indexOrgan
-	 * and change the state to the specified state. Also, it will prepare the step.
-	 * 
-	 * @param state State to prepare
-	 */
-	private void prepareState(State state) {
-		this.currentStep = 0;
-		this.currentOrgan = 0;
-		this.indexOrgan = 0;
-
-		this.state = state;
-
-		this.prepareStep(this.currentOrgan);
-	}
-
-	/**
 	 * This method displays the organ to edit (if necessary) and the instruction for
 	 * the user.
 	 * 
-	 * @param indexOrgan
+	 * @param indexRoi
 	 */
 	private void editOrgan() {
+		DEBUG("EDIT ORGAN");
 		boolean existed = false;
-		if (this.state == State.DELIMIT_ORGAN_ANT) {
-			existed = this.editRoi(this.indexOrgan);
-		} else {
-			existed = this.editRoi(this.position);
-			if (!existed) {
-				existed = this.editCopyRoi(this.indexOrgan);
-			}
+
+		existed = this.editRoi(this.position);
+		if (!existed) {
+			existed = this.editCopyRoi(this.indexRoi * 2 - this.currentOrgan);
 		}
+
+//		if (this.isNowPost()) {
+//			existed = this.editRoi(this.indexRoi);
+//		} else {
+//			existed = this.editRoi(this.position);
+//			if (!existed) {
+//				existed = this.editCopyRoi(this.indexRoi);
+//			}
+//		}
 
 		if (existed)
 			this.displayInstructionCurrentOrgan("Adjust");
 		else
 			this.displayInstructionCurrentOrgan("Delimit");
-	}
-
-	private void nextOrgan() {
-		this.currentOrgan++;
-		if (this.currentOrgan == INDEX_ORGAN_AUTO_GENERATE_ROI)
-			// Auto generate ROI
-			this.vue.getImagePlus().setRoi(this.roiBetween(this.model.getRoiManager().getRoi(indexOrgan - 2),
-					this.model.getRoiManager().getRoi(indexOrgan - 1)));
-		else
-			this.editOrgan();
-
-	}
-
-	private void previousOrgan() {
-		this.currentOrgan--;
-		this.editOrgan();
+		DEBUG();
 	}
 
 	/**
@@ -169,58 +157,65 @@ public class ControleurShunpo extends ControleurScin {
 		return this.currentOrgan >= this.steps[this.currentStep].length - 1;
 	}
 
-	/**
-	 * @return TRUE if all of the steps are completed and FALSE if steps remain
-	 */
-	private boolean allStepsCompleted() {
-		return this.currentStep == this.steps.length;
-	}
-
-	private int nbTotalOrgans() {
-		int tot = 0;
-		for (String[] organs : this.steps)
-			tot += organs.length;
-		return tot;
-	}
-
 	@Override
 	protected void end() {
-		this.state = State.END;
-		this.currentOrgan = 0;
-		this.currentStep = 0;
+		this.currentOrgan++;
 		this.vue.getTextfield_instructions().setText("End!");
 		this.vue.getBtn_suivant().setEnabled(false);
 
 		// Compute model
-		int index = 0;
-		ImagePlus img = this.model.getImageSelection()[0].getImagePlus();
-		this.model.getImageSelection()[0].getImagePlus().setSlice(1);
-		this.model.getImageSelection()[1].getImagePlus().setSlice(1);
-		for (Roi r : this.model.getRoiManager().getRoisAsArray()) {
+		int firstSlice = (this.FIRST_ORIENTATION_POST ? SLICE_POST : SLICE_ANT);
+		int secondSlice = firstSlice % 2 + 1;
+		ImagePlus img = this.model.getImageSelection()[STEP_KIDNEY_LUNG].getImagePlus();
+		this.model.getImageSelection()[STEP_KIDNEY_LUNG].getImagePlus().setSlice(firstSlice);
+		this.model.getImageSelection()[STEP_BRAIN].getImagePlus().setSlice(firstSlice);
+		for (int i = 0; i < this.model.getRoiManager().getRoisAsArray().length; i++) {
 			String title_completion = "";
-			if (index >= ModeleShunpo.TOTAL_ORGANS) {
-				// POST
-				this.model.getImageSelection()[0].getImagePlus().setSlice(2);
-				this.model.getImageSelection()[1].getImagePlus().setSlice(2);
-				index = 1;
-			}
-			if (index % 2 == 0)
-				title_completion += " ANT(" + img.getCurrentSlice() + ")";
-			else
-				title_completion += " POST(" + img.getCurrentSlice() + ")";
+			Roi r = this.model.getRoiManager().getRoisAsArray()[i];
+			int organ = 0;
 
-			if (index >= ModeleShunpo.BRAIN_ANT) {
-				// BRAIN IMG
-				img = this.model.getImageSelection()[1].getImagePlus();
-				title_completion += " - BRAIN_IMG";
+			if (i < this.steps[STEP_KIDNEY_LUNG].length) {
+				img = this.model.getImageSelection()[STEP_KIDNEY_LUNG].getImagePlus();
+				img.setSlice(firstSlice);
+				title_completion += " {KIDNEY_LUNG}";
+				if(this.FIRST_ORIENTATION_POST)
+					organ = i * 2 + 1;
+				else
+					organ = i * 2;
+			} else if (i < 2 * this.steps[STEP_KIDNEY_LUNG].length) {
+				img = this.model.getImageSelection()[STEP_KIDNEY_LUNG].getImagePlus();
+				img.setSlice(secondSlice);
+				title_completion += " {KIDNEY_LUNG}";
+				if(this.FIRST_ORIENTATION_POST)
+					organ = (i - this.steps[STEP_KIDNEY_LUNG].length) * 2;
+				else
+					organ = (i - this.steps[STEP_KIDNEY_LUNG].length) * 2 + 1;
+			} else if (i - 2 * this.steps[STEP_KIDNEY_LUNG].length < this.steps[STEP_BRAIN].length) {
+				img = this.model.getImageSelection()[STEP_BRAIN].getImagePlus();
+				img.setSlice(firstSlice);
+				title_completion += " {BRAIN}";
+				if(this.FIRST_ORIENTATION_POST)
+					organ = i + 1;
+				else
+					organ = i;
 			} else {
-				img = this.model.getImageSelection()[0].getImagePlus();
-				title_completion += " - KIDNEY-PULMON_IMG";
+				img = this.model.getImageSelection()[STEP_BRAIN].getImagePlus();
+				img.setSlice(secondSlice);
+				title_completion += " {BRAIN}";
+				if(this.FIRST_ORIENTATION_POST)
+					organ = i - 1;
+				else
+					organ = i;
 			}
-			img.setRoi(r);
+
+			if (img.getCurrentSlice() == SLICE_ANT)
+				title_completion += " ANT";
+			else
+				title_completion += " POST";
+
 			System.out.println("Oppening:: " + r.getName() + title_completion);
-			((ModeleShunpo) this.model).calculerCoups(index, img);
-			index += 2;
+			img.setRoi(r);
+			((ModeleShunpo) this.model).calculerCoups(organ, img);
 		}
 		this.model.calculerResultats();
 
@@ -229,66 +224,115 @@ public class ControleurShunpo extends ControleurScin {
 		ImagePlus montage = this.montage(stackCapture);
 
 		// Display result
-		this.fenResults = new FenResults(this.model);
-		this.fenResults.addTab(new TabResult(fenResults, "Result", true) {
+		this.fenResults.setMainTab(new TabResult(fenResults, "Result", true) {
 			@Override
 			public Component getSidePanelContent() {
 				String[] result = ((ModeleShunpo) model).getResult();
 				JPanel res = new JPanel(new GridLayout(result.length, 1));
-				for(String s : result)
+				for (String s : result)
 					res.add(new JLabel(s));
 				return res;
 			}
+
 			@Override
 			public JPanel getResultContent() {
 				return new DynamicImage(montage.getImage());
 			}
 		});
+		this.fenResults.pack();
 		this.fenResults.setVisible(true);
-		
-		
+
+	}
+
+	/**
+	 * @return TRUE if the current position is in post orientation
+	 */
+	private boolean isNowPost() {
+		return !(FIRST_ORIENTATION_POST && this.firstOrientationOver)
+				|| (!FIRST_ORIENTATION_POST && !this.firstOrientationOver);
+	}
+
+	private void capture() {
+		ImagePlus capture = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 512, 0);
+		if (this.currentStep == STEP_KIDNEY_LUNG)
+			if (this.isNowPost())
+				this.captures[CAPTURE_POST_KIDNEY_LUNG] = capture;
+			else
+				this.captures[CAPTURE_ANT_KIDNEY_LUNG] = capture;
+
+		else if (this.isNowPost())
+			this.captures[CAPTURE_POST_BRAIN] = capture;
+		else
+			this.captures[CAPTURE_ANT_BRAIN] = capture;
+
+	}
+
+	private void nextStep() {
+		this.currentStep++;
+		this.currentOrgan = 0;
+		this.indexRoi++;
+		this.firstOrientationOver = false;
+		this.prepareOrientation();
+	}
+
+	private void previousStep() {
+		this.currentStep--;
+		this.currentOrgan = this.steps[this.currentStep].length - 1;
+		this.indexRoi--;
+		this.firstOrientationOver = true;
+		this.prepareOrientation();
+	}
+
+	private void nextOrientation() {
+		this.firstOrientationOver = true;
+		this.currentOrgan = 0;
+		this.indexRoi -= this.steps[this.currentStep].length - 1;
+		this.prepareOrientation();
+	}
+
+	private void previousOrientation() {
+		this.firstOrientationOver = false;
+		this.currentOrgan = this.steps[this.currentStep].length - 1;
+		this.indexRoi += this.steps[this.currentStep].length - 1;
+		this.prepareOrientation();
+	}
+
+	private void nextOrgan() {
+		this.currentOrgan++;
+		this.indexRoi++;
+		if (this.currentOrgan == INDEX_ORGAN_AUTO_GENERATE_ROI)
+			// Auto generate ROI
+			this.vue.getImagePlus().setRoi(this.roiBetween(this.model.getRoiManager().getRoi(this.position - 2),
+					this.model.getRoiManager().getRoi(this.position - 1)));
+		else
+			this.editOrgan();
+
+	}
+
+	private void previousOrgan() {
+		this.currentOrgan--;
+		this.indexRoi--;
+		this.editOrgan();
 	}
 
 	@Override
 	public void clicSuivant() {
-		if (this.saveCurrentRoi(this.steps[this.currentStep][this.currentOrgan]
-				+ (this.state == State.DELIMIT_ORGAN_ANT ? "_A" : "_P"))) {
+		if (this.saveCurrentRoi(this.steps[this.currentStep][this.currentOrgan] + (this.isNowPost() ? "_P" : "_A"))) {
+
+			this.displayRoi(this.position);
 			super.clicSuivant();
 
-			this.displayRoi(this.position - 1);
-			this.indexOrgan++;
-
-			// All organs delimited
 			if (this.allOrgansDelimited()) {
-				// Capture
-				int indexCapture = this.currentStep + (this.state == State.DELEMIT_ORGAN_POST ? this.steps.length : 0);
-				this.captures[indexCapture] = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 512, 0);
-				// Next step
-				this.currentStep++;
-				// All steps completed
-				if (this.allStepsCompleted()) {
-					switch (this.state) {
-					case DELIMIT_ORGAN_ANT:
-						// Next state
-						this.prepareState(State.DELEMIT_ORGAN_POST);
-						break;
-					case DELEMIT_ORGAN_POST:
-						// End
+				this.capture();
+				if (this.firstOrientationOver)
+					if (this.currentStep == this.steps.length - 1)
 						this.end();
-						break;
-					default:
-						break;
-					}
-				} else {
-					this.currentOrgan = 0;
-					this.prepareStep(this.currentStep);
-				}
-			}
-			// There is organs to be delimited
-			else {
-				// Next organ
+					else
+						this.nextStep();
+				else
+					this.nextOrientation();
+			} else
 				this.nextOrgan();
-			}
 		}
 	}
 
@@ -296,39 +340,24 @@ public class ControleurShunpo extends ControleurScin {
 	public void clicPrecedent() {
 		super.clicPrecedent();
 
-		this.indexOrgan--;
-		if (this.currentOrgan > 0) {
+		if (this.currentOrgan == 0)
+			if (!this.firstOrientationOver)
+				this.previousStep();
+			else
+				this.previousOrientation();
+
+		else
 			this.previousOrgan();
-		} else if (this.currentStep > 0) {
-			// Previous step
-			this.currentStep--;
-			this.currentOrgan = this.steps[this.currentStep].length - 1;
-			this.prepareStep(currentStep);
-		} else {
-			// Previous state
-			this.currentStep = this.steps.length - 1;
-			this.currentOrgan = this.steps[this.currentStep].length - 1;
-			switch (this.state) {
-			case END:
-				this.fenResults.dispose();
-				this.state = State.DELEMIT_ORGAN_POST;
-				break;
-			case DELEMIT_ORGAN_POST:
-				this.state = State.DELIMIT_ORGAN_ANT;
-				this.indexOrgan = this.nbTotalOrgans() - 1;
-				break;
-			default:
-				break;
-			}
-			this.prepareStep(currentStep);
-		}
 
 		this.displayRois(this.position - this.currentOrgan, this.position);
+
+		this.fenResults.setVisible(false);
 	}
 
 	@Override
 	public boolean isOver() {
-		return this.state == State.END;
+		return this.currentStep == this.steps.length - 1 && this.firstOrientationOver
+				&& this.currentOrgan == this.steps[this.currentStep].length - 1;
 	}
 
 }

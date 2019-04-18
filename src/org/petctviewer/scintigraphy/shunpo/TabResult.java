@@ -74,6 +74,10 @@ public abstract class TabResult {
 	public String getTitle() {
 		return this.title;
 	}
+	
+	public void setTitle(String title) {
+		this.title = title;
+	}
 
 	/**
 	 * @return FenResults where this tab is placed on
