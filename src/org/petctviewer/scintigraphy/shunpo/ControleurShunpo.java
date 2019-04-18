@@ -70,24 +70,24 @@ public class ControleurShunpo extends ControleurScin {
 		this.prepareOrientation();
 	}
 
-	private final void DEBUG() {
-		this.DEBUG(null);
-	}
-
-	private final void DEBUG(String location) {
-		if (location != null)
-			System.out.println("== " + location.toUpperCase() + " ==");
-		System.out.println("Current orientation: " + (this.isNowPost() ? "POST" : "ANT"));
-		System.out.println(
-				"Current step: " + this.currentStep + " [" + (this.currentStep == 0 ? "PULMON_KIDNEY" : "BRAIN") + "]");
-		System.out.println(
-				"Current organ: " + this.currentOrgan + " [" + this.steps[this.currentStep][this.currentOrgan] + "]");
-		System.out.println("Index ROI: " + this.indexRoi);
-		System.out.println("Position: " + this.position);
-		if (location == null)
-			System.out.println("==============");
-		System.out.println();
-	}
+//	private final void DEBUG() {
+//		this.DEBUG(null);
+//	}
+//
+//	private final void DEBUG(String location) {
+//		if (location != null)
+//			System.out.println("== " + location.toUpperCase() + " ==");
+//		System.out.println("Current orientation: " + (this.isNowPost() ? "POST" : "ANT"));
+//		System.out.println(
+//				"Current step: " + this.currentStep + " [" + (this.currentStep == 0 ? "PULMON_KIDNEY" : "BRAIN") + "]");
+//		System.out.println(
+//				"Current organ: " + this.currentOrgan + " [" + this.steps[this.currentStep][this.currentOrgan] + "]");
+//		System.out.println("Index ROI: " + this.indexRoi);
+//		System.out.println("Position: " + this.position);
+//		if (location == null)
+//			System.out.println("==============");
+//		System.out.println();
+//	}
 
 	/**
 	 * Displays the current organ's instruction type.<br>
@@ -127,7 +127,6 @@ public class ControleurShunpo extends ControleurScin {
 	 * @param indexRoi
 	 */
 	private void editOrgan() {
-		DEBUG("EDIT ORGAN");
 		boolean existed = false;
 
 		existed = this.editRoi(this.position);
@@ -135,20 +134,10 @@ public class ControleurShunpo extends ControleurScin {
 			existed = this.editCopyRoi(this.indexRoi * 2 - this.currentOrgan);
 		}
 
-//		if (this.isNowPost()) {
-//			existed = this.editRoi(this.indexRoi);
-//		} else {
-//			existed = this.editRoi(this.position);
-//			if (!existed) {
-//				existed = this.editCopyRoi(this.indexRoi);
-//			}
-//		}
-
 		if (existed)
 			this.displayInstructionCurrentOrgan("Adjust");
 		else
 			this.displayInstructionCurrentOrgan("Delimit");
-		DEBUG();
 	}
 
 	/**

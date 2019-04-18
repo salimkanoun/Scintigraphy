@@ -6,7 +6,6 @@ import java.util.Arrays;
 import javax.swing.JFrame;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
@@ -16,33 +15,18 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 import ij.ImagePlus;
-import ij.plugin.PlugIn;
 
 /**
  * DISCLAIMER : Dans cette application, il a été fait comme choix d'initialiser
  * le module par le biais du Contrôleur, qui va ensuite créer la vue et le
  * modèle.
  */
-public class OsScintigraphy extends Scintigraphy implements PlugIn {
-
-	private String examType;
+public class OsScintigraphy extends Scintigraphy {
 
 	ImagePlus[][] buffer;
 
-	private FenApplication_Os fen_application_os;
-
-	private ImagePlus imp;
-
-	protected int nombreAcquisitions;
-
-	private ModeleScin modele;
-
 	public OsScintigraphy() {
 		super("Scinti Os");
-	}
-
-	public void setImp(ImagePlus imp) {
-		this.imp = imp;
 	}
 
 	/**
@@ -132,7 +116,6 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn {
 				buffer[i][1] = Post;
 			}
 		}
-		this.setImp(impSorted);
 
 		ImageSelection[] selection = new ImageSelection[1];
 		selection[0] = new ImageSelection(impSorted, null, null);
@@ -158,42 +141,12 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn {
 		Controleur_Os controleur_os = new Controleur_Os(buffer, this);
 		FenApplication_Os fen = controleur_os.getFenApplicatio_Os();
 		fen.setVisible(true);
-		this.setFenApplication_Os(fen);
 
 		JFrame frame = new JFrame("Bone Scinthigraphy");
 		frame.add(fen);
 		frame.pack();
 		frame.setVisible(true);
 		frame.setResizable(true);
-	}
-
-	public void setStudyName(String examType) {
-		this.examType = examType;
-	}
-
-	public void setFenApplication_Os(FenApplication_Os fen_application) {
-		this.fen_application_os = fen_application;
-	}
-
-	/********************** Getter **************************/
-	public ImagePlus getImp() {
-		return this.imp;
-	}
-
-	public String getStudyName() {
-		return this.examType;
-	}
-
-	public FenApplication_Os getFenApplication_Os() {
-		return this.fen_application_os;
-	}
-
-	public void setModele(ModeleScin modele) {
-		this.modele = modele;
-	}
-
-	public ModeleScin getModele() {
-		return modele;
 	}
 
 }

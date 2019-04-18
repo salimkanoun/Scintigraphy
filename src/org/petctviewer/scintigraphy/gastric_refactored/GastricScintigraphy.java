@@ -9,7 +9,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 
 public class GastricScintigraphy extends Scintigraphy {
 
-	protected GastricScintigraphy() {
+	public GastricScintigraphy() {
 		super("Gastric Scintigraphy");
 	}
 
@@ -31,7 +31,8 @@ public class GastricScintigraphy extends Scintigraphy {
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		this.setFenApplication(new FenApplication_Grastric(selectedImages[0].getImagePlus(), getStudyName()));
-		this.getFenApplication().setControleur(new Controleur_Gastric());
+		this.getFenApplication().setControleur(new Controller_Gastric(this, this.getFenApplication(), selectedImages, "Gastric Scintigraphy"));
+		this.getFenApplication().setVisible(true);
 	}
 
 }
