@@ -16,6 +16,7 @@ import org.petctviewer.scintigraphy.generic.dynamic.GeneralDynamicScintigraphy;
 import org.petctviewer.scintigraphy.generic.statics.StaticScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.statique.HepaticScintigraphy;
+import org.petctviewer.scintigraphy.lympho.LymphoSintigraphy;
 import org.petctviewer.scintigraphy.os.OsScintigraphy;
 import org.petctviewer.scintigraphy.platelet.Vue_Plaquettes;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
@@ -204,6 +205,16 @@ public class FenDebug extends JFrame{
 			}
 		});
 		
+		JButton btn_Lympho = new JButton("Lympho");
+		btn_Lympho.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				Scintigraphy vue = new LymphoSintigraphy();
+				vue.run("");
+			}
+		});
+		
 		p.add(btn_cardiac);
 		p.add(btn_plaquettes);
 		p.add(btn_hepatic);
@@ -220,6 +231,7 @@ public class FenDebug extends JFrame{
 		p.add(btn_shunpo);
 		p.add(btn_shunpoMaVersion);
 		p.add(btn_os);
+		p.add(btn_Lympho);
 		
 
 		this.add(p, BorderLayout.CENTER);
