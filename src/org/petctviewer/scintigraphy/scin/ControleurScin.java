@@ -233,11 +233,9 @@ public abstract class ControleurScin implements ActionListener {
 	 */
 	public void resetOverlay() {
 		this.vue.getOverlay().clear();
-		Library_Gui.setOverlayDG(this.vue.getOverlay(), this.vue.getImagePlus(), Color.YELLOW);
-		Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus().getOverlay(), this.vue.getImagePlus(), Color.YELLOW,
-				1);
-		Library_Gui.setOverlayTitle("Post", this.vue.getImagePlus().getOverlay(), this.vue.getImagePlus(), Color.YELLOW,
-				2);
+		Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
+		Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus(), Color.YELLOW, 1);
+		Library_Gui.setOverlayTitle("Post", this.vue.getImagePlus(), Color.YELLOW, 2);
 	}
 
 	/**

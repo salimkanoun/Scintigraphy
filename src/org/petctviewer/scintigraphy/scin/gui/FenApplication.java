@@ -243,10 +243,6 @@ public class FenApplication extends StackWindow implements ComponentListener {
 		this.resizeCanvas();
 	}
 
-	public ImagePlus getImp() {
-		return this.imp;
-	}
-
 	/**
 	 * redimension de la canvas selon la largeur voulue et aux dimensions de
 	 * l'imageplus affichee

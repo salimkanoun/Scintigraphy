@@ -49,7 +49,7 @@ public class PostMictional extends Scintigraphy {
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		Overlay ov = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
-		Library_Gui.setOverlayGD(ov, selectedImages[0].getImagePlus(), Color.YELLOW);
+		Library_Gui.setOverlayGD(selectedImages[0].getImagePlus(), Color.YELLOW);
 		
 		FenApplication fen = new FenApplication(selectedImages[0].getImagePlus(), this.getExamType());
 		fen.setVisible(true);

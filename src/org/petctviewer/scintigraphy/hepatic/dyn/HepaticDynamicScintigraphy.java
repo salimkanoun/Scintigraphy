@@ -25,7 +25,7 @@ public class HepaticDynamicScintigraphy extends Scintigraphy {
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
-		Library_Gui.setOverlayDG(overlay, selectedImages[0].getImagePlus(), Color.YELLOW);
+		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
 		
 		this.setFenApplication(new FenApplication(selectedImages[0].getImagePlus(), this.getExamType()));
 		selectedImages[0].getImagePlus().setOverlay(overlay);

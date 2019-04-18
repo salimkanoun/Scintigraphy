@@ -99,7 +99,7 @@ public class Vue_Plaquettes extends Scintigraphy {
 		this.setFenApplication(new FenApplication(selectedImages[0].getImagePlus(), this.getExamType()));
 		
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
-		Library_Gui.setOverlayDG(overlay, selectedImages[0].getImagePlus(), Color.YELLOW);
+		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 		
 		Controleur_Plaquettes ctrl = new Controleur_Plaquettes(this, this.getDateDebut(), selectedImages, "Platelet");

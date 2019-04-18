@@ -140,7 +140,7 @@ public class EsophagealTransit extends Scintigraphy {
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		// phase 1
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
-		Library_Gui.setOverlayDG(overlay, selectedImages[0].getImagePlus(), Color.yellow);
+		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.yellow);
 		
 		FenApplication fen = new FenApplication(selectedImages[0].getImagePlus(), "Oesophageus");
 		fen.getPanel_btns_gauche().remove(fen.getBtn_drawROI());

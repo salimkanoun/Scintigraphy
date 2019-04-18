@@ -47,7 +47,7 @@ public class DmsaScintigraphy extends Scintigraphy {
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
-		Library_Gui.setOverlayDG(overlay, selectedImages[0].getImagePlus(), Color.yellow);
+		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.yellow);
 		
 		FenApplication fen = new FenApplication(selectedImages[0].getImagePlus(), this.getExamType());
 		this.setFenApplication(fen);

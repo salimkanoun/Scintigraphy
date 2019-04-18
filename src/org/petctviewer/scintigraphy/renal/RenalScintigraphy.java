@@ -89,12 +89,12 @@ public class RenalScintigraphy extends Scintigraphy {
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		Overlay overlay = Library_Gui.initOverlay(impProjetee, 12);
-		Library_Gui.setOverlayGD(overlay, impProjetee, Color.yellow);
-		Library_Gui.setOverlayTitle("Post",overlay, impProjetee, Color.yellow, 1);
-		Library_Gui.setOverlayTitle("2 first min posterior", overlay, impProjetee, Color.YELLOW, 2);
-		Library_Gui.setOverlayTitle("MIP", overlay, impProjetee, Color.YELLOW, 3);
+		Library_Gui.setOverlayGD(impProjetee, Color.yellow);
+		Library_Gui.setOverlayTitle("Post",impProjetee, Color.yellow, 1);
+		Library_Gui.setOverlayTitle("2 first min posterior", impProjetee, Color.YELLOW, 2);
+		Library_Gui.setOverlayTitle("MIP", impProjetee, Color.YELLOW, 3);
 		if (this.impAnt != null) {
-			Library_Gui.setOverlayTitle("Ant", overlay, impProjetee, Color.yellow, 4);
+			Library_Gui.setOverlayTitle("Ant", impProjetee, Color.yellow, 4);
 		}
 		
 	System.out.println(selectedImages[0].getImagePlus().getStackSize());

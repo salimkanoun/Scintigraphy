@@ -18,6 +18,8 @@ public class Library_Gui {
 	/********************* Public Static ****************************************/
 
 	
+	public static final int DEFAULT_FONT_SIZE = 12;
+
 	/**
 	 *  Change le nom et la couleur de l'overlay
 	 * @param ov
@@ -56,12 +58,6 @@ public class Library_Gui {
 	 * @return Overlay
 	 */
 	public static Overlay initOverlay(ImagePlus imp, int taillePolice) {
-		int taille2;
-		if (taillePolice != -1) {
-			taille2 = taillePolice;
-		} else {
-			taille2 = 12;
-		}
 		// On initialise l'overlay il ne peut y avoir qu'un Overlay
 		// pour tout le programme sur lequel on va ajouter/enlever les ROI au fur et a
 		// mesure
@@ -70,7 +66,7 @@ public class Library_Gui {
 		int width = imp.getWidth();
 		// On normalise Taille 12 a 256 pour avoir une taille stable pour toute image
 		Float facteurConversion = (float) ((width * 1.0) / 256);
-		Font font = new Font("Arial", Font.PLAIN, Math.round(taille2 * facteurConversion));
+		Font font = new Font("Arial", Font.PLAIN, Math.round(taillePolice * facteurConversion));
 		overlay.setLabelFont(font, true);
 		overlay.drawLabels(true);
 		overlay.drawNames(true);
@@ -86,64 +82,54 @@ public class Library_Gui {
 	 * @return Overlay
 	 */
 	public static Overlay initOverlay(ImagePlus imp) {
-		return initOverlay(imp, -1);
+		return initOverlay(imp, DEFAULT_FONT_SIZE);
 	}
 
 	/**************** Public Static Setter ***************************/
 	
 	/** 
 	 * Affiche D et G en overlay sur l'image, L a gauche et R a droite
-	 * 
-	 * @param overlay
-	 *            : Overlay sur lequel ajouter D/G
 	 * @param imp
 	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
 	 */
-	public static void setOverlayGD(Overlay overlay, ImagePlus imp) {
-		Library_Gui.setOverlaySides(overlay, imp, null, "L", "R", 0);
+	public static void setOverlayGD(ImagePlus imp) {
+		Library_Gui.setOverlaySides(imp, null, "L", "R", 0);
 	}
 
 	/**
 	 * Affiche D et G en overlay sur l'image, L a gauche et R a droite
-	 * 
-	 * @param overlay
-	 *            : Overlay sur lequel ajouter D/G
 	 * @param imp
 	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
 	 * @param color
 	 *            : Couleur de l'overlay
 	 */
-	public static void setOverlayGD(Overlay overlay, ImagePlus imp, Color color) {
-		Library_Gui.setOverlaySides(overlay, imp, color, "L", "R", 0);
+	public static void setOverlayGD(ImagePlus imp, Color color) {
+		Library_Gui.setOverlaySides(imp, color, "L", "R", 0);
 	}
 
 	/**
 	 * Affiche D et G en overlay sur l'image, R a gauche et L a droite
-	 * 
-	 * @param overlay
-	 *            : Overlay sur lequel ajouter D/G
 	 * @param imp
 	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
 	 */
-	public static void setOverlayDG(Overlay overlay, ImagePlus imp) {
-		Library_Gui.setOverlaySides(overlay, imp, null, "R", "L", 0);
+	public static void setOverlayDG(ImagePlus imp) {
+		Library_Gui.setOverlaySides(imp, null, "R", "L", 0);
 	}
 
 	/**
 	 * Affiche D et G en overlay sur l'image, R a gauche et L a droite
-	 * 
-	 * @param overlay
-	 *            : Overlay sur lequel ajouter D/G
 	 * @param imp
 	 *            : ImagePlus sur laquelle est appliqu�e l'overlay
 	 * @param color
 	 *            : Couleur de l'overlay
 	 */
-	public static void setOverlayDG(Overlay overlay, ImagePlus imp, Color color) {
-		Library_Gui.setOverlaySides(overlay, imp, color, "R", "L", 0);
+	public static void setOverlayDG(ImagePlus imp, Color color) {
+		Library_Gui.setOverlaySides(imp, color, "R", "L", 0);
 	}
 
-	public static void setOverlayTitle(String title, Overlay overlay, ImagePlus imp, Color color, int slice) {
+	public static void setOverlayTitle(String title, ImagePlus imp, Color color, int slice) {
+		Overlay overlay = imp.getOverlay();
+		
 		int w = imp.getWidth();
 		//int h = imp.getHeight();
 	
@@ -167,8 +153,9 @@ public class Library_Gui {
 		overlay.add(top);
 	}
 
-	public static void setOverlaySides(Overlay overlay, ImagePlus imp, Color color, String textL, String textR,
-			int slice) {
+	public static void setOverlaySides(ImagePlus imp, Color color, String textL, String textR, int slice) {
+		Overlay overlay = imp.getOverlay();
+		
 		// Get taille Image
 		int tailleImage = imp.getHeight();
 	

@@ -70,7 +70,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 7);
-		Library_Gui.setOverlayDG(overlay, selectedImages[0].getImagePlus(), Color.YELLOW);
+		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
 		
 		// fenetre de l'application
 		this.setFenApplication(new FenApplication_Cardiac(selectedImages[0].getImagePlus(), this.getExamType()));
