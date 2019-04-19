@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.lympho;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
@@ -19,8 +20,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-
-
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -30,7 +30,7 @@ public class ControleurLympho extends ControleurScin{
 	
 	
 	public String[] organes = { "L. foot", "R. foot"};
-	private enum Etat { FIRST_IMAGE, SECOND_IMAGE; }
+
 	
 	private static final int FIRST_IMAGE = 0, SECOND_IMAGE = 1;
 	
@@ -40,30 +40,33 @@ public class ControleurLympho extends ControleurScin{
 	
 	private int etape;
 	
-	private static final int CAPTURE_FIRST_ANT = 0, CAPTURE_SECOND_ANT = 1, TOTAL_CAPTURES = 2;
-	
-	private Etat etat;
+	private static final int CAPTURE_FIRST_ANT = 0,CAPTURE_FIRST_POST = 1, CAPTURE_SECOND_ANT = 2,CAPTURE_SECOND_POST = 3, TOTAL_CAPTURES = 4;
+
 	
 	private ImagePlus[] captures;
 	
 	private FenResults fenResults;
+	
+	private boolean firstOrientationOver;
 
 	public ControleurLympho(Scintigraphy main, FenApplication vue, String examType,ImageSelection[] selectedImages) {
 		super(main, vue, new ModeleLympho(selectedImages,examType));
 
-		this.etat = Etat.FIRST_IMAGE;
+
 		// on bloque le modele pour ne pas enregistrer les valeurs de la projection
 		((ModeleLympho) model).setLocked(true);
 		
 		this.organe = 0;
 		this.organeRoiMaganer = 0;
-		
+		this.firstOrientationOver = false;
 		etape = 0;
 		
 		this.captures = new ImagePlus[TOTAL_CAPTURES];
 		
 		this.fenResults = new FenResults(this.model);
 		this.fenResults.setVisible(false);
+		
+		this.changerImage();
 	}
 
 	@Override
@@ -71,76 +74,25 @@ public class ControleurLympho extends ControleurScin{
 		return this.organeRoiMaganer >= this.organes.length*2 - 1;
 	}
 
-	
-	/*
-	@Override
-	protected void end() {
-		
-		LymphoSintigraphy scinRenal = (LymphoSintigraphy) this.getScin();
-		ModeleLympho modele = (ModeleLympho) this.model;
-		
-		ImagePlus imp = model.getImagePlus();
-		
-		// capture de l'imageplus ainsi que de l'overlay
-		BufferedImage capture = Library_Capture_CSV.captureImage(this.model.getImagePlus(), 300, 300).getBufferedImage();
-		
-		// on enregistre la mesure pour chaque slice
-		int organeRoiMaganer = 0;
-		for (int i = 1; i <= imp.getStackSize(); i++) {
-			imp.setSlice(i);
-			for (int j = 0; j < this.getOrganes().length; j++) {
-				imp.setRoi(this.model.getRoiManager().getRoi(organeRoiMaganer % this.getOrganes().length));
-				String nom = this.getNomOrgane(organeRoiMaganer);
-				//modele.enregistrerMesure(this.addTag(nom), imp);
-				organeRoiMaganer++;
-			}
-		}
-		
-		// on calcule les resultats
-		modele.calculerResultats();
-		
-		ImagePlus[] captures = new ImagePlus[2];
-		ImageStack stackCapture = Library_Capture_CSV.captureToStack(captures);
-		ImagePlus montage = this.montage(stackCapture);
-		
-		FenResults fenResult = new FenResults(this.model);
-		fenResult.addTab(new TabResult(fenResult, "Result", true) {
-			@Override
-			public Component getSidePanelContent() {
-				String[] result = ((ModeleLympho) model).getResult();
-				JPanel res = new JPanel(new GridLayout(result.length, 1));
-				for(String s : result)
-					res.add(new JLabel(s));
-				return res;
-			}
-			@Override
-			public JPanel getResultContent() {
-				return new DynamicImage(montage.getImage());
-			}
-		});
 
-		// SK On rebloque le modele pour la prochaine generation
-		modele.setLocked(true);
-		
-	}
-	
-	*/
 	
 	@Override
 	public void clicSuivant() {
 		if (this.saveCurrentRoi(this.organes[this.organe]
-				+ (this.etat == Etat.FIRST_IMAGE ? "_F" : "_S"))) {
+				+ (this.etape == FIRST_IMAGE ? "_F" : "_S") + (firstOrientationOver ? "_P" : "_A"))) {
 			super.clicSuivant();
 
-			this.displayRoi(this.position);
-			this.organeRoiMaganer++;
+			this.displayRoi(this.position - 1);
 			
 			if (this.allOrgansDelimited()) {
 				this.capture();
-				if (this.etape == this.organes.length - 1)
-					this.end();
+				if (this.firstOrientationOver)
+					if (this.etape == this.organes.length - 1)
+						this.end();
+					else
+						this.nextStep();
 				else
-					this.nextStep();
+					this.nextOrientation();;
 			} else
 				this.nextOrgan();
 
@@ -154,7 +106,10 @@ public class ControleurLympho extends ControleurScin{
 		super.clicPrecedent();
 
 		if (this.organe == 0)
-			this.previousStep();
+			if (!this.firstOrientationOver)
+				this.previousStep();
+			else
+				this.previousOrientation();
 		else
 			this.previousOrgan();
 
@@ -181,6 +136,7 @@ public class ControleurLympho extends ControleurScin{
 			this.etape++;
 			this.organe = 0;
 			this.organeRoiMaganer++;
+			this.firstOrientationOver = false;
 			changerImage();
 		}
 
@@ -188,23 +144,39 @@ public class ControleurLympho extends ControleurScin{
 			this.etape--;
 			this.organe = this.organes.length - 1;
 			this.organeRoiMaganer--;
+			this.firstOrientationOver = true;
+			changerImage();
+		}
+		
+		private void nextOrientation() {
+			this.firstOrientationOver = true;
+			this.organe = 0;
+			this.organeRoiMaganer -= this.organes.length - 1;
+			this.prepareOrientation();
+		}
+		
+		private void previousOrientation() {
+			this.firstOrientationOver = false;
+			this.organe = this.organes.length - 1;
+			this.organeRoiMaganer += this.organes.length - 1;
+			this.prepareOrientation();
 		}
 		
 		
 		
 		private void capture() {
-			this.vue.getImagePlus().setSlice(1);
-			ImagePlus captureAnt = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 512, 0);
-			this.vue.getImagePlus().setSlice(2);
-			ImagePlus capturePost = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 512, 0);
-			if (this.etat == Etat.FIRST_IMAGE) {
-					this.captures[CAPTURE_FIRST_ANT] = captureAnt;
-					this.captures[CAPTURE_FIRST_ANT+1] = capturePost;
-
-			}else {
-				this.captures[CAPTURE_SECOND_ANT] = captureAnt;
-				this.captures[CAPTURE_SECOND_ANT+1] = capturePost;
-			}
+			ImagePlus capture = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 512, 0);
+			if (this.etape == FIRST_IMAGE) 
+				if (firstOrientationOver)
+					this.captures[CAPTURE_FIRST_ANT] = capture;
+				else
+					this.captures[CAPTURE_FIRST_POST] = capture;
+			else if (firstOrientationOver)
+					this.captures[CAPTURE_SECOND_ANT] = capture;
+			else
+				this.captures[CAPTURE_SECOND_POST] = capture;
+				
+			
 
 		}
 		
@@ -221,15 +193,6 @@ public class ControleurLympho extends ControleurScin{
 			if (!existed) {
 				existed = this.editCopyRoi(this.organeRoiMaganer * 2 - this.organe);
 			}
-
-//			if (this.isNowPost()) {
-//				existed = this.editRoi(this.organeRoiMaganer);
-//			} else {
-//				existed = this.editRoi(this.position);
-//				if (!existed) {
-//					existed = this.editCopyRoi(this.organeRoiMaganer);
-//				}
-//			}
 
 			if (existed)
 				this.displayInstructionorgane("Adjust");
@@ -248,7 +211,7 @@ public class ControleurLympho extends ControleurScin{
 			if (location != null)
 				System.out.println("== " + location.toUpperCase() + " ==");
 			System.out.println(
-					"Current step: " + this.etape + " [" + (this.etape == 0 ? "PULMON_KIDNEY" : "BRAIN") + "]");
+					"Current step: " + this.etape + " [" + (this.etape == 0 ? "FirstImage" : "SecondImage") + "]");
 			System.out.println(
 					"Current organ: " + this.organe + " [" + this.organes[this.organe] + "]");
 			System.out.println("Index ROI: " + this.organeRoiMaganer);
@@ -261,40 +224,7 @@ public class ControleurLympho extends ControleurScin{
 		private final void DEBUG() {
 			this.DEBUG(null);
 		}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	private boolean feetDone() {
-		return (Boolean) null;
-	}
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	@Override
 	protected void end() {
@@ -318,9 +248,16 @@ public class ControleurLympho extends ControleurScin{
 				img.setSlice(firstSlice);
 				organ++;
 
-			} else {
+			} else if (i < 2 * this.organes.length) {
+				img = this.model.getImageSelection()[FIRST_IMAGE].getImagePlus();
+				img.setSlice(secondSlice);
+			} else if (i < 3 * this.organes.length) {
 				img = this.model.getImageSelection()[SECOND_IMAGE].getImagePlus();
 				img.setSlice(firstSlice);
+			}
+			else {
+				img = this.model.getImageSelection()[SECOND_IMAGE].getImagePlus();
+				img.setSlice(secondSlice);
 
 			} 
 
@@ -328,11 +265,7 @@ public class ControleurLympho extends ControleurScin{
 			img.setRoi(r);
 			((ModeleLympho) this.model).calculerCoups(organ, img);
 			
-			
-			img.setSlice(secondSlice);
-			organ++;
-			img.setRoi(r);
-			((ModeleLympho) this.model).calculerCoups(organ, img);
+
 		}
 		this.model.calculerResultats();
 
@@ -360,19 +293,18 @@ public class ControleurLympho extends ControleurScin{
 		this.fenResults.setVisible(true);
 
 	}
-	
-	
-	
-	
-	
-	
+
 	
 	
 	private void changerImage() {
-		// Remove overlay
-		this.resetOverlay();
-
+		
 		this.vue.setImage(this.model.getImageSelection()[this.etape].getImagePlus());
+		this.vue.getImagePlus().setOverlay(Library_Gui.initOverlay(this.vue.getImagePlus()));
+		Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
+		// Remove overlay
+		
+		this.resetOverlay(this.vue.getImagePlus());
+		
 		// Display ant image
 		this.vue.getImagePlus().setSlice(1);
 
@@ -380,19 +312,23 @@ public class ControleurLympho extends ControleurScin{
 	}
 	
 	
+	public void resetOverlay(ImagePlus imp) {
+		imp.setOverlay(Library_Gui.initOverlay(imp));
+		Library_Gui.setOverlayDG(imp, Color.YELLOW);
+		Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
+		Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus(), Color.YELLOW, 1);
+		Library_Gui.setOverlayTitle("Post", this.vue.getImagePlus(), Color.YELLOW, 2);
+	}
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	private void prepareOrientation() {
+		// Remove overlay
+		this.resetOverlay();
+
+		this.vue.setImage(this.model.getImageSelection()[this.etape].getImagePlus());
+		this.vue.getImagePlus().setSlice(2);
+		this.editOrgan();
+	}
+
 
 }

@@ -56,7 +56,7 @@ public class ModeleLympho extends ModeleScin{
 		
 		
 		
-		return null;
+		return new String[] {"Test","OK"};
 	}
 
 	protected void calculerCoups(int organ, ImagePlus imp) {

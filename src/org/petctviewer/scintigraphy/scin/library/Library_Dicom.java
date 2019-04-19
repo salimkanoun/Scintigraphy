@@ -127,7 +127,7 @@ public class Library_Dicom {
 	 * <ul><li>{@link Library_Dicom#getDateAcquisition(ImagePlus)}</li></ul>
 	 */
 	public static ImageSelection[] orderImagesByAcquisitionTime(ImageSelection[] selectedImages,boolean newToOld) {
-		
+
 		SortedMap<Date,ImageSelection> sortedImageSelection = new TreeMap<>(new Comparator<Date>() {
 			@Override
 			public int compare(Date o1, Date o2) {
@@ -137,14 +137,34 @@ public class Library_Dicom {
 					return (int) ((o2.getTime() - o1.getTime()) / 1000);
 			}
 		});
-		for(ImageSelection slctd : selectedImages)
+		for(ImageSelection slctd : selectedImages) {
+			
 			sortedImageSelection.put(getDateAcquisition(slctd.getImagePlus()), slctd);
+
+		}
 		
 		Collection<ImageSelection> values = sortedImageSelection.values();
 		ImageSelection[] sortedImageSelectionArray = values.toArray(new ImageSelection[values.size()]);
+
 			
 		return sortedImageSelectionArray;
 		
+	}
+	
+	
+	/**
+	 * Sort an ImagePlus array by acquisition time.<br/>
+	 * Sort from oldest to newest<br/>
+	 * 
+	 * @param selectedImages
+	 *            :{@link ImagePlus} array to sort
+	 * @return {@link ImagePlus} array sorted by acquisition time
+	 * 
+	 * @see
+	 * 			<ul><li>{@link Library_Dicom#orderImagesByAcquisitionTime(ImagePlus[], boolean)}</li></ul>
+	 */
+	public static ImageSelection[] orderImagesByAcquisitionTime(ImageSelection[] selectedImages) {
+		return Library_Dicom.orderImagesByAcquisitionTime(selectedImages,false);
 	}
 	
 	/**

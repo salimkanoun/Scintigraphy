@@ -23,29 +23,36 @@ public class LymphoSintigraphy extends Scintigraphy {
 
 	@Override
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
-
+		
+		selectedImages = Library_Dicom.orderImagesByAcquisitionTime(selectedImages);
+		
+		System.out.println("----------------------------------------------------");
+		System.out.println(DicomTools.getTag(selectedImages[0].getImagePlus(), "0008,0032"));
+		System.out.println(DicomTools.getTag(selectedImages[0].getImagePlus(), "0008,0022"));
+		System.out.println(DicomTools.getTag(selectedImages[0].getImagePlus(), "0008,0008"));
+		System.out.println();
+		System.out.println(DicomTools.getTag(selectedImages[1].getImagePlus(), "0008,0032"));
+		System.out.println(DicomTools.getTag(selectedImages[1].getImagePlus(), "0008,0022"));
+		System.out.println(DicomTools.getTag(selectedImages[1].getImagePlus(), "0008,0008"));
+		
+		System.out.println("----------------------------------------------------");
+		
+		
 		ImagePlus impSorted = null;
 		ImagePlus[] impsSortedAntPost = new ImagePlus[selectedImages.length];
 		int DynamicPosition = -1;
 
-		for (int i = 0; i < selectedImages.length; i++) { // Modifie l'ImagePlus pour mettre ANT en slice 1 et POST en
-															// slice 2
+		for (int i = 0; i < selectedImages.length; i++) { 
 			impSorted = null;
 			ImagePlus imp = selectedImages[i].getImagePlus();
 			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST) {
-				System.out.println("------------------------ Avant Analyse ------------------------");
 				impSorted = Library_Dicom.sortImageAntPost(imp);
-				impSorted.getStack().getProcessor(1).flipHorizontal();
+				impSorted.getStack().getProcessor(2).flipHorizontal();
 			} else if (selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
 				System.out.println("_______________________________ ??? _______________________________");
 				impSorted = Library_Dicom.sortImageAntPost(imp);
 			} else if (selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
-				System.out.println("-_-_-_-_-_-_-_-_-_-_-_- Avant transformation -_-_-_-_-_-_-_-_-_-_-_-");
-				impSorted = imp;
-				HashMap<String, String> infoPatient = Library_Capture_CSV.getPatientInfo(imp);
-				System.out.println(infoPatient.size());
-				System.out.println("Orientation : "+DicomTools.getTag(imp, "0008,0008"));
-				System.out.println("-_-_-_-_-_-_-_-_-_-_-_- Après transformation -_-_-_-_-_-_-_-_-_-_-_-");
+				impSorted = imp.duplicate();
 				DynamicPosition = i;
 			} else {
 				throw new WrongInputException("Unexpected Image type.\n Accepted : ANT/POST | POST/ANT | DYNAMIC_ANT_POST");
@@ -55,15 +62,9 @@ public class LymphoSintigraphy extends Scintigraphy {
 			selectedImages[i].getImagePlus().close();
 		}
 		
-
-		for (ImagePlus dnmc : impsSortedAntPost) {
-			HashMap<String, String> infoPatient = Library_Capture_CSV.getPatientInfo(dnmc);
-			System.out.println("Orientation : "+DicomTools.getTag(dnmc, "0008,0008"));
-			
-			
-			if(infoPatient.get(Column.ORIENTATION.getName()) != null) {
-				
-			}
+		ImagePlus[] impsSortedByTime = new 	ImagePlus[impsSortedAntPost.length];
+		System.out.println("DynamicPosition : "+DynamicPosition);
+		if(DynamicPosition != -1)  {
 			ImagePlus staticImage = impsSortedAntPost[Math.abs((DynamicPosition - 1))];
 			ImagePlus dynamicImage = impsSortedAntPost[DynamicPosition];
 			int[] timeStatic = Library_Dicom.buildFrameDurations(staticImage);
@@ -73,24 +74,24 @@ public class LymphoSintigraphy extends Scintigraphy {
 				acquisitionTimeDynamic += times;
 			}
 			
-			
-			impSorted = dynamicToStaticAntPost(dynamicImage);
+			impsSortedByTime = new 	ImagePlus[impsSortedAntPost.length];
+			dynamicImage = dynamicToStaticAntPost(dynamicImage);
 			int ratio = timeStatic[0] / acquisitionTimeDynamic;
+			
+			System.out.println("timeStatic[0] : "+timeStatic[0]);
+			System.out.println("acquisitionTimeDynamic : "+acquisitionTimeDynamic);
+			System.out.println("ratio : "+ratio);
+
 			dynamicImage.getProcessor().setMinAndMax(0, dynamicImage.getStatistics().max * ratio);
-			impsSortedAntPost[0] = staticImage;
-			impsSortedAntPost[1] = dynamicImage;
+			impsSortedByTime[Math.abs((DynamicPosition - 1))] = staticImage;
+			impsSortedByTime[DynamicPosition ] = dynamicImage;
+
 			
-			
-			/*
-			System.out.println("show 1");
-			impsSortedAntPost[0].show();
-			System.out.println("show 2");
-			impsSortedAntPost[1].show();
-			System.out.println("show 3");
-			*/
+		}else {
+			impsSortedByTime = impsSortedAntPost;
 		}
 
-		ImagePlus[] impsSortedByTime = Library_Dicom.orderImagesByAcquisitionTime(impsSortedAntPost);
+		// ImagePlus[] impsSortedByTime = Library_Dicom.orderImagesByAcquisitionTime(impsSortedAntPost);
 
 		ImageSelection[] selection = new ImageSelection[impsSortedByTime.length];
 		for (int i = 0; i < impsSortedByTime.length; i++) {
@@ -147,7 +148,7 @@ public class LymphoSintigraphy extends Scintigraphy {
 		
 		ImageRetour.getStack().getProcessor(1).flipHorizontal();
 		
-		ImageRetour.show();
+		// ImageRetour.show();
 		return ImageRetour;
 	}
 
