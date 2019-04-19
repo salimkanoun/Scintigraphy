@@ -10,6 +10,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
+import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.util.DicomTools;
@@ -25,32 +26,22 @@ public class LymphoSintigraphy extends Scintigraphy {
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 		
 		selectedImages = Library_Dicom.orderImagesByAcquisitionTime(selectedImages);
-		
-		System.out.println("----------------------------------------------------");
-		System.out.println(DicomTools.getTag(selectedImages[0].getImagePlus(), "0008,0032"));
-		System.out.println(DicomTools.getTag(selectedImages[0].getImagePlus(), "0008,0022"));
-		System.out.println(DicomTools.getTag(selectedImages[0].getImagePlus(), "0008,0008"));
-		System.out.println();
-		System.out.println(DicomTools.getTag(selectedImages[1].getImagePlus(), "0008,0032"));
-		System.out.println(DicomTools.getTag(selectedImages[1].getImagePlus(), "0008,0022"));
-		System.out.println(DicomTools.getTag(selectedImages[1].getImagePlus(), "0008,0008"));
-		
-		System.out.println("----------------------------------------------------");
-		
-		
+
 		ImagePlus impSorted = null;
 		ImagePlus[] impsSortedAntPost = new ImagePlus[selectedImages.length];
 		int DynamicPosition = -1;
 
 		for (int i = 0; i < selectedImages.length; i++) { 
+			
 			impSorted = null;
 			ImagePlus imp = selectedImages[i].getImagePlus();
 			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST) {
-				impSorted = Library_Dicom.sortImageAntPost(imp);
+				impSorted = imp.duplicate();
 				impSorted.getStack().getProcessor(2).flipHorizontal();
 			} else if (selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
-				System.out.println("_______________________________ ??? _______________________________");
-				impSorted = Library_Dicom.sortImageAntPost(imp);
+				impSorted = imp.duplicate();
+				IJ.run(impSorted, "Reverse", "");
+				impSorted.getStack().getProcessor(2).flipHorizontal();
 			} else if (selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
 				impSorted = imp.duplicate();
 				DynamicPosition = i;
@@ -63,11 +54,10 @@ public class LymphoSintigraphy extends Scintigraphy {
 		}
 		
 		ImagePlus[] impsSortedByTime = new 	ImagePlus[impsSortedAntPost.length];
-		System.out.println("DynamicPosition : "+DynamicPosition);
 		if(DynamicPosition != -1)  {
 			ImagePlus staticImage = impsSortedAntPost[Math.abs((DynamicPosition - 1))];
 			ImagePlus dynamicImage = impsSortedAntPost[DynamicPosition];
-			int[] timeStatic = Library_Dicom.buildFrameDurations(staticImage);
+			int timeStatic = Library_Dicom.getFrameDuration(staticImage);
 			int[] timesDynamic = Library_Dicom.buildFrameDurations(dynamicImage);
 			int acquisitionTimeDynamic = 0;
 			for (int times : timesDynamic) {
@@ -76,11 +66,7 @@ public class LymphoSintigraphy extends Scintigraphy {
 			
 			impsSortedByTime = new 	ImagePlus[impsSortedAntPost.length];
 			dynamicImage = dynamicToStaticAntPost(dynamicImage);
-			int ratio = timeStatic[0] / acquisitionTimeDynamic;
-			
-			System.out.println("timeStatic[0] : "+timeStatic[0]);
-			System.out.println("acquisitionTimeDynamic : "+acquisitionTimeDynamic);
-			System.out.println("ratio : "+ratio);
+			double ratio =  (timeStatic*1.0D / acquisitionTimeDynamic*1.0D);
 
 			dynamicImage.getProcessor().setMinAndMax(0, dynamicImage.getStatistics().max * ratio);
 			impsSortedByTime[Math.abs((DynamicPosition - 1))] = staticImage;
@@ -128,16 +114,9 @@ public class LymphoSintigraphy extends Scintigraphy {
 	public ImagePlus dynamicToStaticAntPost(ImagePlus imp) {
 		ImagePlus[] Ant_Post = Library_Dicom.sortDynamicAntPost(imp);
 		
-//		Ant_Post[0].show();
-		/*
-		Ant_Post[1].show();
-		*/
 		ImagePlus Ant = Library_Dicom.projeter(Ant_Post[0], 0, Ant_Post[0].getStackSize(), "avg");
 		ImagePlus Post = Library_Dicom.projeter(Ant_Post[1], 0, Ant_Post[1].getStackSize(), "avg");
 
-//		Ant.show();
-
-//		Post.show();
 
 		
 		ImageStack img = new ImageStack(Ant.getWidth(), Ant.getHeight());
@@ -147,8 +126,8 @@ public class LymphoSintigraphy extends Scintigraphy {
 		ImageRetour.setStack(img);
 		
 		ImageRetour.getStack().getProcessor(1).flipHorizontal();
-		
-		// ImageRetour.show();
+		ImageRetour.setProperty("Info", imp.getInfoProperty());
+
 		return ImageRetour;
 	}
 

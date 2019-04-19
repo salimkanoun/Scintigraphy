@@ -16,11 +16,6 @@ public class FenApplicationLympho extends FenApplication{
 
 
 		IJ.setTool(Toolbar.RECTANGLE);
-		this.imp.setOverlay(Library_Gui.initOverlay(getImagePlus()));
-		Library_Gui.setOverlayDG(getImagePlus(), Color.YELLOW);
-//		getImagePlus().setSlice(2);
-//		Library_Gui.setOverlayDG(getImagePlus(), Color.YELLOW);
-//		getImagePlus().setSlice(1);
 	}
 
 }

@@ -656,6 +656,7 @@ public class Library_Dicom {
 	
 		Concatenator enchainer = new Concatenator();
 		ImagePlus imp2 = enchainer.concatenate(pileImage, false);
+		imp2.setProperty("Info", metadata);
 		// ImagePlus imp2 = enchainer.concatenate(impAnt,impPost, false);
 		// On retourne le resultat
 		return imp2;
@@ -684,8 +685,6 @@ public class Library_Dicom {
 			// String tagStartAngle = DicomTools.getTag(imp, "0054,00200");
 			// SK STRINGUTILS A GENERALISER DANS LE CODE CAR REGLE LES PROBLEME DES NULL ET
 			// EMPTY STRING
-			if (!StringUtils.isEmpty(tag))
-				tag = tag.trim();
 			// if (!StringUtils.isEmpty(tagStartAngle)) tagStartAngle=tagStartAngle.trim();
 	
 			String tagVector = DicomTools.getTag(imp, "0054,0020");
@@ -693,6 +692,7 @@ public class Library_Dicom {
 				tagVector = tagVector.trim();
 	
 			if (!StringUtils.isEmpty(tag)) {
+				tag = tag.trim();
 				if (StringUtils.contains(tag, "POS") || StringUtils.contains(tag, "_F")) {
 					imp.getProcessor().flipHorizontal();
 					imp.setTitle("Post" + i);
@@ -721,18 +721,18 @@ public class Library_Dicom {
 	/**************** Public Static Getter ***************************/
 	
 	/**
-	 * @deprecated Internal method, used in {@link Library_Dicom#buildFrameDurations()}
+	 * 
 	 * return frame Duration as this tag is stored in sequence tag that are ignored by dicomTools (if multiple the first one is sent)
 	 * @param imp
 	 * @return
 	 */
-	public static String getFrameDuration(ImagePlus imp) {
+	public static int getFrameDuration(ImagePlus imp) {
 		String property=imp.getInfoProperty();
 		int index1 = property.indexOf("0018,1242");
 		int index2 = property.indexOf(":", index1);
 		int index3 = property.indexOf("\n", index2);
 		String tag00181242 = property.substring(index2+1, index3).trim();
-		return tag00181242;
+		return Integer.parseInt(tag00181242);
 	}
 
 	
@@ -761,7 +761,7 @@ public class Library_Dicom {
 		
 		
 		if (nbPhase == 1) {
-			int duration = Integer.parseInt(getFrameDuration(imp));
+			int duration = getFrameDuration(imp);
 			for (int i = 0; i < frameDurations.length; i++) {
 				frameDurations[i] = duration;
 			}

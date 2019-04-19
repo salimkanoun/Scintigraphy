@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import ij.ImagePlus;
+import ij.gui.Roi;
 import ij.measure.Measurements;
 import ij.measure.ResultsTable;
 import ij.plugin.filter.Analyzer;
@@ -86,6 +87,32 @@ public class Library_Quantif {
 	public static int getPixelNumber(ImagePlus imp) {
 		int area = imp.getStatistics().pixelCount;
 		return area;
+	}
+	
+	
+	public static Double getCountCorrectedBackground(ImagePlus imp, Roi roi, Roi background) {
+		
+		imp.setRoi(background);
+		Double ratioNoise = Library_Quantif.getCounts(imp) / imp.getStatistics().pixelCount*1.0D;	
+		imp.setRoi(roi);
+		return Library_Quantif.getCounts(imp) - (ratioNoise * imp.getStatistics().pixelCount);
+		
+		
+//		imp.setRoi(background);
+//		Double countBackground = Library_Quantif.getCounts(imp);
+//		int pixelsBackground= imp.getStatistics().pixelCount;
+//		
+//		Double ratioNoise = countBackground / pixelsBackground*1.0D;
+//
+//		
+//		imp.setRoi(roi);
+//		Double countRoi = Library_Quantif.getCounts(imp);
+//		int pixelsRoi = imp.getStatistics().pixelCount;
+//		
+//		
+//		return countRoi - (ratioNoise * pixelsRoi);
+
+		
 	}
 	
 	

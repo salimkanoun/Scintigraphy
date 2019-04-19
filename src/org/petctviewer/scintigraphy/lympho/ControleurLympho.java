@@ -238,15 +238,16 @@ public class ControleurLympho extends ControleurScin{
 		ImagePlus img = this.model.getImageSelection()[FIRST_IMAGE].getImagePlus();
 		this.model.getImageSelection()[FIRST_IMAGE].getImagePlus().setSlice(firstSlice);
 		this.model.getImageSelection()[SECOND_IMAGE].getImagePlus().setSlice(firstSlice);
+		int organ = 0;
 		for (int i = 0; i < this.model.getRoiManager().getRoisAsArray().length; i++) {
 
 			Roi r = this.model.getRoiManager().getRoisAsArray()[i];
-			int organ = 0;
+			
 
 			if (i < this.organes.length) {
 				img = this.model.getImageSelection()[FIRST_IMAGE].getImagePlus();
 				img.setSlice(firstSlice);
-				organ++;
+				
 
 			} else if (i < 2 * this.organes.length) {
 				img = this.model.getImageSelection()[FIRST_IMAGE].getImagePlus();
@@ -261,10 +262,9 @@ public class ControleurLympho extends ControleurScin{
 
 			} 
 
-			
 			img.setRoi(r);
 			((ModeleLympho) this.model).calculerCoups(organ, img);
-			
+			organ++;
 
 		}
 		this.model.calculerResultats();
@@ -300,14 +300,16 @@ public class ControleurLympho extends ControleurScin{
 		
 		this.vue.setImage(this.model.getImageSelection()[this.etape].getImagePlus());
 		this.vue.getImagePlus().setOverlay(Library_Gui.initOverlay(this.vue.getImagePlus()));
-		Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
+
 		// Remove overlay
 		
 		this.resetOverlay(this.vue.getImagePlus());
 		
 		// Display ant image
-		this.vue.getImagePlus().setSlice(1);
-
+		if(firstOrientationOver)
+			this.vue.getImagePlus().setSlice(2);
+		else
+			this.vue.getImagePlus().setSlice(1);
 		this.editOrgan();
 	}
 	
@@ -326,7 +328,10 @@ public class ControleurLympho extends ControleurScin{
 		this.resetOverlay();
 
 		this.vue.setImage(this.model.getImageSelection()[this.etape].getImagePlus());
-		this.vue.getImagePlus().setSlice(2);
+		if(firstOrientationOver)
+			this.vue.getImagePlus().setSlice(2);
+		else
+			this.vue.getImagePlus().setSlice(1);
 		this.editOrgan();
 	}
 
