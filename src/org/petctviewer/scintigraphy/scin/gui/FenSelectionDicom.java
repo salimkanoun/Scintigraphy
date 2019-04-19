@@ -224,7 +224,8 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		resizeColumnWidth(table);
 	}
 
-	// TODO: Do not assume that index of rows matches the ID of the image in the WindowManager!
+	// TODO: Do not assume that index of rows matches the ID of the image in the
+	// WindowManager!
 	private String[][] getTableData() {
 		String[][] data = new String[WindowManager.getImageCount()][this.columns.size()];
 
@@ -357,6 +358,8 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 				}
 			}
 		}
+
+		// TODO: Check that patient is the same for every image selected
 
 		if (ready)
 			this.startExam();

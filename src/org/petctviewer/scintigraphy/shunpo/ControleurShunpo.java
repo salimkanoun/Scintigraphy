@@ -310,7 +310,7 @@ public class ControleurShunpo extends ControleurScin {
 	@Override
 	public void clicSuivant() {
 		try {
-			this.saveCurrentRoi(this.steps[this.currentStep][this.currentOrgan] + (this.isNowPost() ? "_P" : "_A"));
+			this.saveRoiAtIndex(this.steps[this.currentStep][this.currentOrgan] + (this.isNowPost() ? "_P" : "_A"), this.position);
 
 			this.displayRoi(this.position);
 			super.clicSuivant();

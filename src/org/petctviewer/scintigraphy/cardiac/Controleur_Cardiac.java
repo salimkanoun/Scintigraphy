@@ -147,7 +147,7 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 			nom = "ContL";
 		}
 
-		boolean saved = this.saveCurrentRoi(nom, this.indexRoi);
+		boolean saved = this.saveRoiAtIndex(nom, this.indexRoi);
 
 		if (saved) {
 			this.indexRoi++;

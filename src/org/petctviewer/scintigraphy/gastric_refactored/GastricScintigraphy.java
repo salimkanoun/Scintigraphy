@@ -38,7 +38,9 @@ public class GastricScintigraphy extends Scintigraphy {
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		this.setFenApplication(new FenApplication_Grastric(selectedImages[0].getImagePlus(), getStudyName()));
 		this.getFenApplication().setControleur(
-				new Controller_Gastric(this, this.getFenApplication(), selectedImages, "Gastric Scintigraphy"));
+//				new Controller_Gastric(this, this.getFenApplication(), selectedImages, "Gastric Scintigraphy")
+				new ControllerWorkflow_Gastric(this, this.getFenApplication(), selectedImages, "Gastric Scintigraphy")
+				);
 		this.getFenApplication().setVisible(true);
 	}
 

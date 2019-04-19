@@ -165,8 +165,8 @@ public class Controller_Gastric extends ControleurScin {
 	@Override
 	public void clicSuivant() {
 		try {
-			this.saveCurrentRoi("#" + this.currentImage + "_" + this.organs[this.currentOrgan]
-					+ (this.currentOrientation == SLICE_POST ? "_P" : "_A"));
+			this.saveRoiAtIndex("#" + this.currentImage + "_" + this.organs[this.currentOrgan]
+					+ (this.currentOrientation == SLICE_POST ? "_P" : "_A"), this.position);
 			if (this.currentOrgan == this.organs.length - 1 && !this.checkIntersectionBetweenRois())
 				return;
 
