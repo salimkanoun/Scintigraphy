@@ -30,7 +30,7 @@ public class ImageSelection implements Cloneable {
 	public ImageSelection(ImagePlus imp, String[] keys, String[] values) {
 		this.imp = imp;
 		this.columnsValues = new HashMap<>();
-		
+
 		if (keys == null || values == null) {
 			return;
 		}
@@ -65,7 +65,11 @@ public class ImageSelection implements Cloneable {
 		return o == null ? Orientation.UNKNOWN : o;
 	}
 
+	/**
+	 * TODO: This might not work
+	 */
 	@Override
+	@Deprecated
 	protected ImageSelection clone() {
 		ImageSelection img = new ImageSelection(this.imp.duplicate(), null, null);
 		img.columnsValues = this.columnsValues;

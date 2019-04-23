@@ -13,6 +13,22 @@ import org.petctviewer.scintigraphy.scin.instructions.Instruction.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.LastInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 
+/**
+ * This controller is used when working with a flow of instructions.<br>
+ * In order to use this type of controller, you need to redefine the
+ * {@link #generateInstructions()} method to create the workflow.<br>
+ * Typically, this will look like a repetition of this:<br>
+ * 
+ * <pre>
+ * this.workflow[0].addInstruction(new DrawRoiInstruction(...));
+ * </pre>
+ * 
+ * Be careful, this controller expect that the images are in Ant/Post
+ * orientation.
+ * 
+ * @author Titouan QUÉMA
+ *
+ */
 public abstract class ControllerWorkflow extends ControleurScin {
 
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
@@ -56,6 +72,9 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			this.editCopyRoi(roiToCopy);
 	}
 
+	/**
+	 * @return current orientation of the ImagePlus
+	 */
 	private Orientation getCurrentOrientation() {
 		switch (this.vue.getImagePlus().getCurrentSlice()) {
 		case SLICE_ANT:
@@ -67,6 +86,9 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		}
 	}
 
+	/**
+	 * @return array of ROI indexes to display for the current instruction
+	 */
 	private int[] roisToDisplay() {
 		List<Instruction> dris = new ArrayList<>();
 		for (Instruction i : this.workflows[this.indexCurrentImage]
@@ -115,71 +137,88 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 		Instruction previousInstruction = this.workflows[this.indexCurrentImage].getCurrentInstruction();
 
+		// Only execute 'Next' if the instruction is not cancelled
 		if (!previousInstruction.isCancelled()) {
+
+			// Prepare next instruction
 			int indexPreviousImage = this.indexCurrentImage;
 			if (this.workflows[this.indexCurrentImage].isOver()) {
 				this.indexCurrentImage++;
 			}
-			Instruction currentInstruction = this.workflows[this.indexCurrentImage].next();
+			Instruction nextInstruction = this.workflows[this.indexCurrentImage].next();
 
+			// === Draw ROI of the previous instruction ===
 			if (previousInstruction != null) {
+				String organName = previousInstruction.getClass().getSimpleName();
 				if (previousInstruction instanceof DrawRoiInstruction) {
-					DrawRoiInstruction dri_previous = (DrawRoiInstruction) previousInstruction;
-					if (dri_previous.isDisplayable()) {
-						try {
-							this.saveRoiAtIndex("#" + indexPreviousImage + "_" + dri_previous.getOrganName()
-									+ (dri_previous.getImageState().orientation == Orientation.ANT ? "_A" : "_P"),
-									this.indexRoi);
-							dri_previous.setRoi(this.indexRoi);
+					organName = ((DrawRoiInstruction) previousInstruction).getOrganName();
+				}
 
-							this.displayRoi(this.indexRoi);
+				try {
+					this.saveRoiAtIndex("#" + indexPreviousImage + "_" + organName
+							+ (previousInstruction.getImageState().orientation == Orientation.ANT ? "_A" : "_P"),
+							this.indexRoi);
+					previousInstruction.setRoi(this.indexRoi);
 
-							this.indexRoi++;
-						} catch (NoDataException e) {
-							JOptionPane.showMessageDialog(vue, e.getMessage(), "", JOptionPane.WARNING_MESSAGE);
-							return;
-						}
-					}
+					this.displayRoi(this.indexRoi);
+
+					this.indexRoi++;
+				} catch (NoDataException e) {
+					JOptionPane.showMessageDialog(vue, e.getMessage(), "", JOptionPane.WARNING_MESSAGE);
+					return;
 				}
 			}
 
+			// == Go to the next instruction ==
 			super.clicSuivant();
 
 			if (this.isOver()) {
-				currentInstruction.afterNext(this);
+				nextInstruction.afterNext(this);
 				this.end();
 			}
 
-			if (currentInstruction.isDisplayable()) {
-				this.displayInstruction(currentInstruction.getMessage());
-				this.prepareImage(currentInstruction.getImageState());
+			// == Display instruction for the user ==
+			if (nextInstruction.isDisplayable()) {
+				this.displayInstruction(nextInstruction.getMessage());
+				this.prepareImage(nextInstruction.getImageState());
 
-				if (currentInstruction instanceof DrawRoiInstruction) {
-					DrawRoiInstruction dri_current = (DrawRoiInstruction) currentInstruction;
+				if (nextInstruction instanceof DrawRoiInstruction) {
+					DrawRoiInstruction dri_current = (DrawRoiInstruction) nextInstruction;
 					this.editOrgan(dri_current.roiToDisplay());
 				}
 
-				currentInstruction.afterNext(this);
+				nextInstruction.afterNext(this);
 			} else {
-				currentInstruction.afterNext(this);
+				// If not displayable, go directly to the next instruction
+				nextInstruction.afterNext(this);
 				this.clicSuivant();
 			}
 		} else {
+			// Execution cancelled
 			if (!previousInstruction.isDisplayable()) {
+				// Since the previous instruction is not displayable, it should not be stopped
+				// on, so you go back to the previous instruction
 				this.clicPrecedent();
 			}
 		}
 	}
 
+	/**
+	 * Prepares the ImagePlus with the specified state.
+	 * 
+	 * @param imageState State the ImagePlus must complies
+	 */
 	private void prepareImage(ImageState imageState) {
 		if (imageState == null)
 			return;
 
+		// Change image only if different than the previous
 		if (this.vue.getImagePlus() != this.model.getImageSelection()[this.indexCurrentImage].getImagePlus()) {
 			this.vue.setImage(this.model.getImageSelection()[this.indexCurrentImage].getImagePlus());
 			this.resetOverlay();
 		}
 
+		// Change slice only if different than the previous
 		int newSlice = -1;
 		if (imageState.orientation == Orientation.ANT)
 			newSlice = SLICE_ANT;

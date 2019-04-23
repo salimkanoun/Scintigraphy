@@ -52,6 +52,9 @@ public abstract class ControleurScin implements ActionListener {
 	 */
 	public abstract boolean isOver();
 	
+	/**
+	 * @return view of the MVC pattern
+	 */
 	public FenApplication getVue() {
 		return this.vue;
 	}
