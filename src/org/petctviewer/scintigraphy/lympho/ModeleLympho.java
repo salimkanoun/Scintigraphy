@@ -7,7 +7,9 @@ import java.util.Map;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 import org.petctviewer.scintigraphy.shunpo.ModeleShunpo;
 
 import ij.ImagePlus;
@@ -18,7 +20,7 @@ public class ModeleLympho extends ModeleScin{
 			FOOT_RIGHT_ANT_SECOND = 4,FOOT_LEFT_ANT_SECOND = 5, FOOT_RIGHT_POST_SECOND = 6,  FOOT_LEFT_POST_SECOND = 7, TOTAL_ORGANS = 8;
 	
 	private static final int RESULT_FOOT_RIGHT_FIRST = 0, RESULT_FOOT_LEFT_FIRST = 1, RESULT_FOOT_RIGHT_SECOND = 2,
-			RESULT_FOOT_LEFT_SECOND = 3, GEOM_AVG = 4, GEOM_AVG_2 = 5;
+			RESULT_FOOT_LEFT_SECOND = 3, GEOM_AVG = 4, GEOM_AVG_2 = 5, GEOM_AVG_3 = 6, GEOM_AVG_4 = 7;
 
 	private boolean locked;
 	
@@ -28,6 +30,8 @@ public class ModeleLympho extends ModeleScin{
 	
 	private String[] retour;
 
+	private double ratio;
+
 	public ModeleLympho(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
 		
@@ -35,14 +39,9 @@ public class ModeleLympho extends ModeleScin{
 		this.geometricalAverage = new HashMap<>();
 		
 		this.retour = new String[9];
-	}
-
-//	@Override
-//	public void calculerResultats() {
-//		// TODO Auto-generated method stub
-//		
-//	}
-	
+		
+		this.calculerRatio();
+	}	
 	
 	public boolean isLocked() {
 		return locked;
@@ -60,25 +59,37 @@ public class ModeleLympho extends ModeleScin{
 	}
 
 	protected void calculerCoups(int organ, ImagePlus imp) {
-		double counts = Library_Quantif.getCounts(imp);
-		this.coups.put(organ, counts);
-		System.out.println("Calculations for " + organ + "[" + ModeleShunpo.convertOrgan(organ) + "] -> " + counts);
+//		double correctedRadioactiveDecrease = Library_Quantif.calculer_countCorrected(getImagePlus(), imp, Isotope.TECHNICIUM_99);
+		double correctedRadioactiveDecrease;
+		if(!(imp == getImagePlus())) {
+			correctedRadioactiveDecrease = Library_Quantif.calculer_countCorrected(18902000,Library_Quantif.getCounts(imp),Isotope.TECHNICIUM_99);
+		}else {
+			correctedRadioactiveDecrease = Library_Quantif.getCounts(imp);
+		}
+		System.out.println("\t\tAvant correction : "+Library_Quantif.getCounts(imp));
+		System.out.println("\t\tAprès correction : "+correctedRadioactiveDecrease);
+		this.coups.put(organ, correctedRadioactiveDecrease);
+		System.out.println("Calculations for " + organ + " [" + ModeleLympho.convertOrgan(organ) + "] -> " + correctedRadioactiveDecrease);
 	}
 	
 	public static String convertOrgan(int organ) {
 		switch (organ) {
 		case FOOT_RIGHT_ANT_FIRST:
+			return "Right Foot First Image ANT: ";
 		case FOOT_RIGHT_POST_FIRST:
-			return "Right Foot First Image: ";
+			return "Right Foot First Image POST: ";
 		case FOOT_LEFT_ANT_FIRST:
+			return "Left Foot First Image ANT: ";
 		case FOOT_LEFT_POST_FIRST:
-			return "Left Foot First Image: ";
+			return "Left Foot First Image POST: ";
 		case FOOT_RIGHT_ANT_SECOND:
+			return "Right Foot Second Image ANT: ";
 		case FOOT_RIGHT_POST_SECOND:
-			return "Right Foot Second Image: ";
+			return "Right Foot Second Image POST: ";
 		case FOOT_LEFT_ANT_SECOND:
+			return "Left Foot Second Image ANT: ";
 		case FOOT_LEFT_POST_SECOND:
-			return "Left Foot Second Image: ";
+			return "Left Foot Second Image POST: ";
 		default:
 			return "Unknown Organ (" + organ + "): ";
 		}
@@ -104,6 +115,7 @@ public class ModeleLympho extends ModeleScin{
 	private void moyenneGeo(int organ) {
 		geometricalAverage.put(organ,
 				(int) Library_Quantif.moyGeom(this.coups.get(organ), this.coups.get(organ + 2)));
+		System.out.println("MG " + organ + " [" + ModeleLympho.convertOrgan(organ) + "/"+ModeleLympho.convertOrgan(organ+2)+"] --- ["+this.coups.get(organ) +"/"+this.coups.get(organ + 2)+"] -> " + geometricalAverage.get(organ));
 
 	}
 	
@@ -112,6 +124,8 @@ public class ModeleLympho extends ModeleScin{
 	@Override
 	public void calculerResultats() {
 		this.retour = new String[9];
+
+		
 
 		// Les 5 MGs
 		computeGeometricalAverage();
@@ -127,15 +141,25 @@ public class ModeleLympho extends ModeleScin{
 		us.setDecimalFormatSymbols(sym);
 		
 		// Calculs
-		retour[GEOM_AVG] ="Stayed geometric average : ";
+		retour[GEOM_AVG] ="Stayed geometric average RIGHT : ";
 		double percPD = (geometricalAverage.get(FOOT_RIGHT_ANT_SECOND)
 				/ (1.0 * geometricalAverage.get(FOOT_RIGHT_ANT_FIRST))) * 100;
 		retour[GEOM_AVG] += " " + us.format(percPD) + "%";
 		
-		retour[GEOM_AVG_2] ="Dispatched geometric average : ";
+		retour[GEOM_AVG_2] ="Dispatched geometric average RIGHT: ";
 		double percPG = (geometricalAverage.get(FOOT_RIGHT_ANT_FIRST)
 				/ (1.0 * geometricalAverage.get(FOOT_RIGHT_ANT_SECOND))) * 100;
 		retour[GEOM_AVG_2] += " " + us.format(percPG) + "%";
+		
+		retour[GEOM_AVG_3] ="Stayed geometric average LEFT : ";
+		double percPDP = (geometricalAverage.get(FOOT_LEFT_ANT_SECOND)
+				/ (1.0 * geometricalAverage.get(FOOT_LEFT_ANT_FIRST))) * 100;
+		retour[GEOM_AVG_3] += " " + us.format(percPDP) + "%";
+		
+		retour[GEOM_AVG_4] ="Dispatched geometric average : ";
+		double percPGP = (geometricalAverage.get(FOOT_LEFT_ANT_FIRST)
+				/ (1.0 * geometricalAverage.get(FOOT_LEFT_ANT_SECOND))) * 100;
+		retour[GEOM_AVG_4] += " " + us.format(percPGP) + "%";
 		// Calculs
 //		double percPD = (geometricalAverage.get(LUNG_RIGHT_ANT)
 //				/ (1.0 * geometricalAverage.get(LUNG_RIGHT_ANT) + geometricalAverage.get(LUNG_LEFT_ANT))) * 100;
@@ -156,4 +180,15 @@ public class ModeleLympho extends ModeleScin{
 	
 	
 
+	
+	public void calculerRatio() {
+		int timeStatic = Library_Dicom.getFrameDuration(getImagesPlus()[1]);
+		int[] timesDynamic = Library_Dicom.buildFrameDurations(getImagePlus());
+		int acquisitionTimeDynamic = 0;
+		for (int times : timesDynamic) {
+			acquisitionTimeDynamic += times;
+		}
+		this.ratio =  (timeStatic*1.0D / acquisitionTimeDynamic*1.0D);
+
+	}
 }

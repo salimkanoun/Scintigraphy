@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.scin.library;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Date;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
@@ -10,6 +11,36 @@ import ij.measure.ResultsTable;
 import ij.plugin.filter.Analyzer;
 
 public class Library_Quantif {
+	
+	
+	/**
+	 * Enumeration of isotopes, with the associated halflife
+	 * Current isotope :
+	 * 
+	 * <p>
+	 *	<table>
+	 * 		<tr><th>Isotope</th><th>Half Life</th></tr>
+	 * 		<tr><td>RADIUM_111</td>	<td>242330000</td></tr>
+	 * 		<tr><td>TECHNETIUM_99</td>	<td>21620880</td></tr>
+	 * 		<tr><td>CHROME_51</td>	<td>2393500000</td></tr>
+	 *	</table>
+	 * </p>
+	 */
+	public enum Isotope {
+			INDIUM_111(242330000l), TECHNICIUM_99(21620880l), CHROME_51(2393500000l);
+			
+			private long halfLifeMS;
+	
+			private Isotope(long isotope) {
+				this.halfLifeMS = isotope;
+			}
+			
+			public long getHalLifeMS() {
+				return this.halfLifeMS;
+			}
+		}
+	
+
 
 	/**
 	 * arrondi la valeur
@@ -93,26 +124,42 @@ public class Library_Quantif {
 	public static Double getCountCorrectedBackground(ImagePlus imp, Roi roi, Roi background) {
 		
 		imp.setRoi(background);
-		Double ratioNoise = Library_Quantif.getCounts(imp) / imp.getStatistics().pixelCount*1.0D;	
+		Double meanCountBackground = Library_Quantif.getAvgCounts(imp);	
 		imp.setRoi(roi);
-		return Library_Quantif.getCounts(imp) - (ratioNoise * imp.getStatistics().pixelCount);
+		return Library_Quantif.getCounts(imp) - (meanCountBackground * imp.getStatistics().pixelCount);
+	}
+	
+	/**
+	 * Calcul les coups corriges par rapport a heure d'injection et ajoute la valeur corrig�e dans les objets mesures
+	 * @param mesureCollection
+	 * @param injectionDate
+	 */
+	public static double calculer_countCorrected(int delayMs, double mesuredCount, Isotope isotope) {
 		
+		double decayedFraction=Math.pow(Math.E, ((Math.log(2)/isotope.getHalLifeMS())*delayMs*(-1)));
+		System.out.println("Half life : "+isotope.getHalLifeMS());
+		System.out.println("Délai : : "+delayMs);
+		System.out.println("decayedFraction : "+decayedFraction);
+		double correctedCount=mesuredCount/(decayedFraction);
 		
-//		imp.setRoi(background);
-//		Double countBackground = Library_Quantif.getCounts(imp);
-//		int pixelsBackground= imp.getStatistics().pixelCount;
-//		
-//		Double ratioNoise = countBackground / pixelsBackground*1.0D;
-//
-//		
-//		imp.setRoi(roi);
-//		Double countRoi = Library_Quantif.getCounts(imp);
-//		int pixelsRoi = imp.getStatistics().pixelCount;
-//		
-//		
-//		return countRoi - (ratioNoise * pixelsRoi);
-
-		
+		return correctedCount;
+	}
+	
+	
+	/**
+	 * Return the corrected counts of the second image.
+	 * @param firstImage
+	 *             Image of the first acquisition, from where we take our reference time
+	 * @param secondImage
+	 *             Image on which we want to correct counts
+	 * @param isotope
+	 *            Referencing the isotope used for the correction ({@link Isotope})
+	 */
+	public static double calculer_countCorrected(ImagePlus firstImage,ImagePlus secondImage, Isotope isotope) {
+		Date firstAcquisitionTime = Library_Dicom.getDateAcquisition(firstImage);
+		Date SecondAcquisitionTime = Library_Dicom.getDateAcquisition(secondImage);
+		System.out.println("Difference de temps : "+(int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime())/1000);
+		return Library_Quantif.calculer_countCorrected((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime())/1000,Library_Quantif.getCounts(secondImage),isotope);
 	}
 	
 	
