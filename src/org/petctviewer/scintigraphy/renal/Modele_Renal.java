@@ -4,13 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.swing.JFrame;
-
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
 import org.jfree.data.statistics.Regression;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.json.simple.JSONObject;
@@ -43,72 +37,6 @@ public class Modele_Renal extends ModeleScinDyn {
 	public Modele_Renal(int[] frameDuration, ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName, frameDuration);
 		this.organRois = new HashMap<>();
-	}
-	
-	
-	/********** Public Static **********/
-	public static void graph(XYDataset data) {
-		JFreeChart chart = ChartFactory.createXYLineChart("", "x", "y", data);
-
-		JFrame frame = new JFrame();
-		frame.add(new ChartPanel(chart));
-		frame.pack();
-		frame.setVisible(true);
-	}
-
-	// recupere les valeurs situees entre startX et endX
-	public static XYSeries cropSeries(XYSeries series, Double startX, Double endX) {
-		XYSeries cropped = new XYSeries(series.getKey() + " cropped");
-		for (int i = 0; i < series.getItemCount(); i++) {
-			if (series.getX(i).doubleValue() >= startX && series.getX(i).doubleValue() <= endX) {
-				cropped.add(series.getX(i), series.getY(i));
-			}
-		}
-		return cropped;
-	}
-
-	// recupere les valeurs situees entre startX et endX
-	public static XYDataset cropDataset(XYDataset data, Double startX, Double endX) {
-		XYSeriesCollection dataset = new XYSeriesCollection();
-
-		for (int i = 0; i < data.getSeriesCount(); i++) {
-			XYSeries series = new XYSeries("" + i);
-			for (int j = 0; j < data.getItemCount(0); j++) {
-				series.add(data.getX(i, j), data.getY(i, j));
-			}
-			dataset.addSeries(cropSeries(series, startX, endX));
-		}
-
-		return dataset;
-	}
-
-	
-	/********** Private Static **********/
-	// renvoie l'aire sous la courbe entre les points startX et endX
-	private static List<Double> getIntegral(XYSeries series, Double startX, Double endX) {
-
-		List<Double> integrale = new ArrayList<>();
-
-		// on recupere les points de l'intervalle voulu
-		XYSeries croppedSeries = Modele_Renal.cropSeries(series, startX, endX);
-
-		// on calcule les aires sous la courbe entre chaque paire de points
-		Double airePt1 = croppedSeries.getX(0).doubleValue() * croppedSeries.getY(0).doubleValue() / 2;
-		integrale.add(airePt1);
-		for (int i = 0; i < croppedSeries.getItemCount() - 1; i++) {
-			Double aire = ((croppedSeries.getX(i + 1).doubleValue() - croppedSeries.getX(i).doubleValue())
-					* (croppedSeries.getY(i).doubleValue() + croppedSeries.getY(i + 1).doubleValue())) / 2;
-			integrale.add(aire);
-		}
-
-		// on en deduit l'integrale
-		List<Double> integraleSum = new ArrayList<>();
-		integraleSum.add(integrale.get(0));
-		for (int i = 1; i < integrale.size(); i++) {
-			integraleSum.add(integraleSum.get(i - 1) + integrale.get(i));
-		}
-
-		return integraleSum;
 	}
 
 
@@ -305,8 +233,8 @@ public class Modele_Renal extends ModeleScinDyn {
 			Double debut = Math.min(x1, x2);
 			Double fin = Math.max(x1, x2);
 	
-			List<Double> listRG = Modele_Renal.getIntegral(lk, debut, fin);
-			List<Double> listRD = Modele_Renal.getIntegral(rk, debut, fin);
+			List<Double> listRG = Library_JFreeChart.getIntegralSummed(lk, debut, fin);
+			List<Double> listRD = Library_JFreeChart.getIntegralSummed(rk, debut, fin);
 			Double intRG = listRG.get(listRG.size() - 1);
 			Double intRD = listRD.get(listRD.size() - 1);
 	
@@ -454,7 +382,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		// on recupere la liste des donnees vasculaires
 		List<Double> vasc = this.getData("Blood Pool");
 		XYSeries serieVasc = this.createSerie(vasc, "");
-		List<Double> vascIntegree = Modele_Renal.getIntegral(serieVasc, serieVasc.getMinX(), serieVasc.getMaxX());
+		List<Double> vascIntegree = Library_JFreeChart.getIntegralSummed(serieVasc, serieVasc.getMinX(), serieVasc.getMaxX());
 		this.getData().put("BPI", vascIntegree); // BPI == Blood Pool Integrated
 	}
 
@@ -601,8 +529,8 @@ public class Modele_Renal extends ModeleScinDyn {
 		Double endX = Math.max(x1, x2);
 
 		// on recupere les points compris dans l'intervalle
-		XYSeries croppedKidney = Modele_Renal.cropSeries(seriesKid, startX, endX);
-		XYSeries croppedVasc = Modele_Renal.cropSeries(seriesVasc, startX, endX);
+		XYSeries croppedKidney = Library_JFreeChart.cropSeries(seriesKid, startX, endX);
+		XYSeries croppedVasc = Library_JFreeChart.cropSeries(seriesVasc, startX, endX);
 
 		// on ajoute les series dans une collection afin d'utiliser le fit de jfreechart
 		XYSeriesCollection dataset = new XYSeriesCollection();

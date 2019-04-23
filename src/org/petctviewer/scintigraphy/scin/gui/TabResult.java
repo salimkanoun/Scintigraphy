@@ -1,11 +1,9 @@
-package org.petctviewer.scintigraphy.shunpo;
+package org.petctviewer.scintigraphy.scin.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 
 import javax.swing.JPanel;
-
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
 public abstract class TabResult {
 
@@ -73,6 +71,10 @@ public abstract class TabResult {
 	 */
 	public String getTitle() {
 		return this.title;
+	}
+	
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	/**

@@ -5,58 +5,75 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import ij.ImagePlus;
 import ij.plugin.frame.RoiManager;
 
+/**
+ * Represents the model in the MVC pattern.
+ *
+ */
 public abstract class ModeleScin {
 
 	private Integer uid;
 	protected RoiManager roiManager;
 	protected ImageSelection[] selectedImages;
-	
+
 	protected String studyName;
-	
+
 	public ModeleScin(ImageSelection[] selectedImages, String studyName) {
 		this.roiManager = new RoiManager(false);
-		this.setImageSelection(selectedImages);
+		this.selectedImages = selectedImages;
 		this.studyName = studyName;
 	}
 
-	public RoiManager getRoiManager() {
-		return this.roiManager;
-	}
-	
-	public void setImageSelection(ImageSelection[] selectedImages) {
-		this.selectedImages = selectedImages;
-	}
-	
+	/**
+	 * Calculates the results for this study. This method should be called by the
+	 * controller when all the data has been loaded in this model.
+	 */
+	public abstract void calculerResultats();
+
+	/**
+	 * Consider using {@link #getImagePlus()} if you just need to get access to the
+	 * first (main) image of this model, since this method is creating a new array,
+	 * it is less efficient.
+	 * 
+	 * @return all of the selected images passed to this model converted to
+	 *         ImagePlus
+	 */
 	public ImagePlus[] getImagesPlus() {
 		ImagePlus[] selection = new ImagePlus[this.selectedImages.length];
-		for(int i = 0; i<this.selectedImages.length; i++)
+		for (int i = 0; i < this.selectedImages.length; i++)
 			selection[i] = this.selectedImages[i].getImagePlus();
 		return selection;
 	}
-	
+
+	/**
+	 * @return all of the selected images passed to this model
+	 */
 	public ImageSelection[] getImageSelection() {
 		return this.selectedImages;
 	}
-	
+
+	/**
+	 * This method returns the first image of the selected images passed to this
+	 * model.<br>
+	 * This method is preferable from using this.getImagesPlus()[0].getImagePlus().
+	 * 
+	 * @return ImagePlus the first (main) image of this model
+	 */
 	public ImagePlus getImagePlus() {
 		return this.selectedImages[0].getImagePlus();
 	}
-	
+
+	/**
+	 * This method is mainly used for display purposes.
+	 * 
+	 * @return study name of this model
+	 */
 	public String getStudyName() {
 		return this.studyName;
 	}
-
-	/*********** Public Abstract *********/
-	/**
-	 * Enregistrer la mesure de la roi courante de l'image plus dans le format
-	 * souhait�
-	 * 
-	 * @param nomRoi nom de la roi presente sur l'image plus
-	 * @param imp    ImagePlus a traiter
-	 */
-	// public abstract void enregistrerMesure(String nomRoi, ImagePlus imp);
-
-	public abstract void calculerResultats();
+	
+	
+	
+	// ============================== OLD CLASS ========================
 
 	/**
 	 * calcule la decay fraction (countsCorrected=counts/decayedFraction)
@@ -98,6 +115,10 @@ public abstract class ModeleScin {
 	public String genererDicomTagsPartie1SameUID(ImagePlus imp, String nomProgramme) {
 		String uid = getUID6digits();
 		return Library_Capture_CSV.genererDicomTagsPartie1(imp, nomProgramme, uid);
+	}
+
+	public RoiManager getRoiManager() {
+		return this.roiManager;
 	}
 
 }

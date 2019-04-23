@@ -12,8 +12,8 @@ import javax.swing.JPanel;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
-import org.petctviewer.scintigraphy.shunpo.FenResults;
-import org.petctviewer.scintigraphy.shunpo.TabResult;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
 public class FenResultat_Hepatic extends FenResults {
 

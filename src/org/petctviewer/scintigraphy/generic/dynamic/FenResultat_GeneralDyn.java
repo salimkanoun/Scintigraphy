@@ -11,9 +11,9 @@ import org.jfree.chart.ChartPanel;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
-import org.petctviewer.scintigraphy.shunpo.FenResults;
-import org.petctviewer.scintigraphy.shunpo.TabResult;
 
 public class FenResultat_GeneralDyn extends FenResults {
 

@@ -11,9 +11,9 @@ import javax.swing.SwingConstants;
 
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.shunpo.FenResults;
-import org.petctviewer.scintigraphy.shunpo.TabResult;
 
 public class FenResultats_Dmsa extends FenResults {
 

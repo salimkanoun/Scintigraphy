@@ -18,10 +18,10 @@ import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.shunpo.FenResults;
-import org.petctviewer.scintigraphy.shunpo.TabResult;
 
 import ij.ImagePlus;
 import ij.plugin.ZProjector;

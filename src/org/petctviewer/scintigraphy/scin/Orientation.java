@@ -14,6 +14,32 @@ public enum Orientation {
 	private Orientation(String s) {
 		this.s = s;
 	}
+	
+	/**
+	 * @return abreviation of this Orientation
+	 */
+	public String abrev() {
+		switch(this) {
+		case ANT:
+			return "A";
+		case POST:
+			return "P";
+		case ANT_POST:
+			return "A/P";
+		case POST_ANT:
+			return "P/A";
+		case DYNAMIC_ANT:
+			return "DynA";
+		case DYNAMIC_POST:
+			return "DynP";
+		case DYNAMIC_ANT_POST:
+			return "DynA/P";
+		case DYNAMIC_POST_ANT:
+			return "DynP/A";
+		default:
+			return "Unknown";
+		}
+	}
 
 	@Override
 	public String toString() {

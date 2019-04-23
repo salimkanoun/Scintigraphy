@@ -223,7 +223,7 @@ public class Vue_VG_Dynamique  implements PlugIn {
 				imp.setTitle(titre);
 				windowstack.setTitle(titre);
 				this.overlay=Library_Gui.initOverlay(imp, 12);
-				Library_Gui.setOverlayDG(overlay, imp);
+				Library_Gui.setOverlayDG(imp);
 				// On set la dimension de l'image
 				windowstack.getCanvas().setSize(new Dimension(512,512));
 				windowstack.getCanvas().setScaleToFit(true);

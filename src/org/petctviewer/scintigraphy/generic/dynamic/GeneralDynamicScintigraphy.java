@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.generic.dynamic;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 import ij.IJ;
@@ -20,27 +21,27 @@ public class GeneralDynamicScintigraphy extends Scintigraphy{
 	
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
-		this.setFenApplication(new FenApplication_GeneralDyn(selectedImages[0].getImagePlus(), this.getExamType(), this));
+		this.setFenApplication(new FenApplication_GeneralDyn(selectedImages[0].getImagePlus(), this.getStudyName(), this));
 		this.getFenApplication().setControleur(new Controleur_GeneralDyn(this, "Dynamic scintigraphy"));
 		IJ.setTool(Toolbar.POLYGON);
 	}
 	
-	protected ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws Exception {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 		
 		ImagePlus[] imps = new ImagePlus[2];
 		
 		for (int i=0 ; i<selectedImages.length; i++) {
 			if(selectedImages[i].getImageOrientation()==Orientation.DYNAMIC_ANT ) {
-				if(imps[0]!=null) throw new Exception("Multiple dynamic Antorior Image");
+				if(imps[0]!=null) throw new WrongInputException("Multiple dynamic Antorior Image");
 				imps[0] = selectedImages[i].getImagePlus().duplicate();
 			}else if(selectedImages[i].getImageOrientation()==Orientation.DYNAMIC_POST) {
-				if(imps[1]!=null) throw new Exception("Multiple dynamic Posterior Image");
+				if(imps[1]!=null) throw new WrongInputException("Multiple dynamic Posterior Image");
 				imps[1] = selectedImages[i].getImagePlus().duplicate();
 			}else if(selectedImages[i].getImageOrientation()==Orientation.DYNAMIC_ANT_POST) {
-				if(imps[1]!=null || imps[0]!=null) throw new Exception("Multiple dynamic Image");
+				if(imps[1]!=null || imps[0]!=null) throw new WrongInputException("Multiple dynamic Image");
 				imps=Library_Dicom.sortDynamicAntPost(selectedImages[i].getImagePlus());
 			}else{
-				throw new Exception("Unexpected Image type");
+				throw new WrongInputException("Unexpected Image orientation");
 			}
 			
 			selectedImages[i].getImagePlus().close();

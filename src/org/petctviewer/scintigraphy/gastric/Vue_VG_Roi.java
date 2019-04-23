@@ -344,7 +344,7 @@ public class Vue_VG_Roi extends JPanel implements PlugIn {
 			imp.setTitle(titre);
 			windowstack.setTitle(titre);
 			this.overlay=Library_Gui.initOverlay(imp, 12);
-			Library_Gui.setOverlayDG(overlay, imp);
+			Library_Gui.setOverlayDG(imp);
 			windowstack.getImagePlus().setOverlay(overlay);
 			// On set la dimension de l'image
 			windowstack.getCanvas().setSize(new Dimension(512,512));

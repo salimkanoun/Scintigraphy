@@ -21,7 +21,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.shunpo.TabResult;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -89,6 +88,10 @@ public class SidePanel extends JPanel {
 			this.box.remove(this.sidePanelContent);
 		this.sidePanelContent = sidePanelContent;
 		this.box.add(sidePanelContent);
+	}
+	
+	public void addContent(Component component) {
+		this.box.add(component);
 	}
 
 	public Component getSidePanelContent() {

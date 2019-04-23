@@ -28,10 +28,10 @@ import javax.swing.table.TableColumnModel;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
-import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
 import ij.WindowManager;
@@ -224,6 +224,8 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		resizeColumnWidth(table);
 	}
 
+	// TODO: Do not assume that index of rows matches the ID of the image in the
+	// WindowManager!
 	private String[][] getTableData() {
 		String[][] data = new String[WindowManager.getImageCount()][this.columns.size()];
 
@@ -357,6 +359,8 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			}
 		}
 
+		// TODO: Check that patient is the same for every image selected
+
 		if (ready)
 			this.startExam();
 
@@ -385,11 +389,16 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		}
 
 		try {
-			this.scin.startExam(selectedImages);
-			ImagePlus.removeImageListener(this);
-			this.dispose();
-		} catch (Exception e) {
-			IJ.log((e.getMessage()));
+			ImageSelection[] userSelection = this.scin.preparerImp(selectedImages);
+			if (userSelection != null) {
+				ImagePlus.removeImageListener(this);
+				this.dispose();
+				this.scin.lancerProgramme(userSelection);
+			}
+		} catch (WrongInputException e) {
+//			IJ.log((e.getMessage()));
+			JOptionPane.showMessageDialog(this, "Error while selecting images:\n" + e.getMessage(), "Selection error",
+					JOptionPane.ERROR_MESSAGE);
 		}
 
 	}

@@ -24,9 +24,9 @@ import javax.swing.event.ChangeListener;
 import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
-import org.petctviewer.scintigraphy.shunpo.FenResults;
-import org.petctviewer.scintigraphy.shunpo.TabResult;
+import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
 import ij.process.ImageStatistics;
 
@@ -257,7 +257,7 @@ public class TabCondense extends TabResult implements ChangeListener {
 		imageCondensePanel.setLayout(new BorderLayout());
 		titleAndCondensePanel.add(imageCondensePanel, BorderLayout.CENTER);
 
-		SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getExamType(), modele.getImagesPlus()[0]);
+		SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getStudyName(), modele.getImagesPlus()[0]);
 		titleAndCondensePanel.add(sidePanelScin, BorderLayout.NORTH);
 
 		return titleAndCondensePanel;

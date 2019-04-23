@@ -121,7 +121,7 @@ public class FenApplication_Os extends JPanel {
 		gbl.add(boxSlider);
 		gbl.add(this.reverseButton,c);
 		
-		sidePanel.add(gbl);
+		sidePanel.addContent(gbl);
 
 
 		// sidePanel.addCaptureBtn(getScin(), this.additionalInfo, new Component[] { this.slider });

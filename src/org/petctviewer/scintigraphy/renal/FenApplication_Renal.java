@@ -85,7 +85,7 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 				Library_Gui.setCustomLut(imp);
 				Overlay overlay=Library_Gui.initOverlay(imp);
 				imp.setOverlay(overlay);
-				Library_Gui.setOverlayGD(imp.getOverlay(), imp);
+				Library_Gui.setOverlayGD(imp);
 				revalidate();
 				setImage(imp);
 				resizeCanvas();
