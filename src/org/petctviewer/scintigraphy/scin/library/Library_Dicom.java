@@ -5,11 +5,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -21,7 +27,7 @@ import ij.util.DicomTools;
 public class Library_Dicom {
 
 	/**
-	 * 
+	 *
 	 * @param imp
 	 * @return date d'acquisition de l'image plus
 	 */
@@ -33,7 +39,7 @@ public class Library_Dicom {
 		int separateurPoint = dateInput.indexOf(".");
 		if (separateurPoint != -1)
 			dateInput = dateInput.substring(0, separateurPoint);
-	
+		
 		SimpleDateFormat parser = new SimpleDateFormat("yyyyMMddHHmmss");
 		Date dateAcquisition = null;
 		try {
@@ -61,18 +67,19 @@ public class Library_Dicom {
 	
 			@Override
 			public int compare(ImagePlus arg0, ImagePlus arg1) {
-				arg0.show();
-				arg1.show();
+				/*
+//				arg0.show();
+//				arg1.show();
 				DateFormat dateHeure = new SimpleDateFormat("yyyyMMddHHmmss");
 				String dateImage0 = DicomTools.getTag(arg0, "0008,0022");
 				String dateImage1 = DicomTools.getTag(arg1, "0008,0022");
 				String heureImage0 = DicomTools.getTag(arg0, "0008,0032");
 				String heureImage1 = DicomTools.getTag(arg1, "0008,0032");
 				
-				System.out.println(dateImage0);
-				System.out.println(dateImage1);
-				System.out.println(heureImage0);
-				System.out.println(heureImage1);
+//				System.out.println(dateImage0);
+//				System.out.println(dateImage1);
+//				System.out.println(heureImage0);
+//				System.out.println(heureImage1);
 	
 				String dateInputImage0 = dateImage0.trim() + heureImage0.trim();
 				// On split les millisecondes qui sont apr�s le . car nombre inconstant de
@@ -96,16 +103,120 @@ public class Library_Dicom {
 					e.printStackTrace();
 				}
 				return 0;
+				*/
+				return (int) ((getDateAcquisition(arg0).getTime() - getDateAcquisition(arg1).getTime()) / 1000);
 			}
 		});
 	
 		return retour;
 	}
+	
+	
+	/**
+	 * Sort an ImageSelection array by acquisition time.<br/>
+	 * Specify false to get from oldest to newest, or true for newest to oldest<br/>
+	 * (Using a TreeMap and a comparator to process)
+	 * 
+	 * @param selectedImages
+	 *            : {@link ImageSelection} array to sort
+	 *@param newToOld
+	 *            : boolean to specify the sort order (false for oldest to newest / true for newest to oldest)
+	 * @return {@link ImageSelection} array sorted by acquisition time
+	 * 
+	 * @see
+	 * <ul><li>{@link Library_Dicom#getDateAcquisition(ImagePlus)}</li></ul>
+	 */
+	public static ImageSelection[] orderImagesByAcquisitionTime(ImageSelection[] selectedImages,boolean newToOld) {
+
+		SortedMap<Date,ImageSelection> sortedImageSelection = new TreeMap<>(new Comparator<Date>() {
+			@Override
+			public int compare(Date o1, Date o2) {
+				if(!newToOld)
+					return (int) ((o1.getTime() - o2.getTime()) / 1000);
+				else
+					return (int) ((o2.getTime() - o1.getTime()) / 1000);
+			}
+		});
+		for(ImageSelection slctd : selectedImages) {
+			
+			sortedImageSelection.put(getDateAcquisition(slctd.getImagePlus()), slctd);
+
+		}
+		
+		Collection<ImageSelection> values = sortedImageSelection.values();
+		ImageSelection[] sortedImageSelectionArray = values.toArray(new ImageSelection[values.size()]);
+
+			
+		return sortedImageSelectionArray;
+		
+	}
+	
+	
+	/**
+	 * Sort an ImagePlus array by acquisition time.<br/>
+	 * Sort from oldest to newest<br/>
+	 * 
+	 * @param selectedImages
+	 *            :{@link ImagePlus} array to sort
+	 * @return {@link ImagePlus} array sorted by acquisition time
+	 * 
+	 * @see
+	 * 			<ul><li>{@link Library_Dicom#orderImagesByAcquisitionTime(ImagePlus[], boolean)}</li></ul>
+	 */
+	public static ImageSelection[] orderImagesByAcquisitionTime(ImageSelection[] selectedImages) {
+		return Library_Dicom.orderImagesByAcquisitionTime(selectedImages,false);
+	}
+	
+	/**
+	 * Sort an ImagePlus array by acquisition time.<br/>
+	 * Specify false to get from oldest to newest, or true for newest to oldest<br/>
+	 * 
+	 * @param selectedImages
+	 *            : {@link ImagePlus} array to sort
+	 *@param newToOld
+	 *            : boolean to specify the sort order (false for oldest to newest / true for newest to oldest)
+	 * @return {@link ImagePlus} array sorted by acquisition time
+	 * 
+	 * @see
+	 * <ul><li>{@link Library_Dicom#orderImagesByAcquisitionTime(ArrayList)}</li></ul>
+	 */
+	public static ImagePlus[] orderImagesByAcquisitionTime(ImagePlus[] selectedImages,boolean newToOld) {
+		ArrayList<ImagePlus> arrayBufferForSortByTime = new ArrayList<ImagePlus>(Arrays.asList(selectedImages));
+		ImagePlus[] impsSortedByTime = Library_Dicom.orderImagesByAcquisitionTime(arrayBufferForSortByTime);
+		
+		if(newToOld){
+			int reverseIndex = 0;
+			int nbImpsSortedByTime = impsSortedByTime.length;
+			ImagePlus tempImp;
+	        for (reverseIndex = 0 ; reverseIndex < nbImpsSortedByTime / 2 ; reverseIndex++){
+	        	tempImp = impsSortedByTime[reverseIndex];
+	                impsSortedByTime[reverseIndex] = impsSortedByTime[nbImpsSortedByTime - reverseIndex - 1];
+	                impsSortedByTime[nbImpsSortedByTime - reverseIndex - 1] = tempImp;
+	        }
+		}
+		
+		return impsSortedByTime;
+	}
+	
+	/**
+	 * Sort an ImagePlus array by acquisition time.<br/>
+	 * Sort from oldest to newest<br/>
+	 * 
+	 * @param selectedImages
+	 *            :{@link ImagePlus} array to sort
+	 * @return {@link ImagePlus} array sorted by acquisition time
+	 * 
+	 * @see
+	 * 			<ul><li>{@link Library_Dicom#orderImagesByAcquisitionTime(ImagePlus[], boolean)}</li></ul>
+	 */
+	public static ImagePlus[] orderImagesByAcquisitionTime(ImagePlus[] selectedImages) {
+		return Library_Dicom.orderImagesByAcquisitionTime(selectedImages,false);
+	}
 
 	
 	/**
 	 * Permet de spliter les images d'un multiFrame contenant 2 camera, image 0
-	 * camera Ant et Image1 Camera Post (ne retourne pas l'image post)
+	 * camera Ant et Image1 Camera Post (ne flip pas l'image post)
 	 * 
 	 * @param imp
 	 *            : ImagePlus a traiter
@@ -228,7 +339,7 @@ public class Library_Dicom {
 	/**
 	 * Permet de tester si l'image est anterieure pour une unique frame, ne teste
 	 * que la premi�re Image (peut etre generalisee plus tard si besoin) A Eviter
-	 * d'utiliser car la methode isAnterieur(ImagePlus imp) est generique pour tout
+	 * d'utiliser car la methode {@link Library_Dicom#isAnterieur()} est generique pour tout
 	 * type d'image
 	 * 
 	 * @param imp
@@ -303,7 +414,7 @@ public class Library_Dicom {
 	/**
 	 * Permet de tester si l'image est anterieure pour une MultiFrame, ne teste que
 	 * la premiere Image (peut etre generalisee plus tard si besoin) A Eviter
-	 * d'utiliser car la methode isAnterieur(ImagePlus imp) est generique pour tout
+	 * d'utiliser car la methode {@link Library_Dicom#isAnterieur()} est generique pour tout
 	 * type d'image
 	 * 
 	 * @param imp
@@ -453,7 +564,7 @@ public class Library_Dicom {
 
 	/**
 	 * Permet de tirer et inverser les images posterieure pour les images multiframe
-	 * A Eviter d'utiliser, preferer la methode sortImageAntPost(ImagePlus imp) qui
+	 * A Eviter d'utiliser, preferer la methode {@link Library_Dicom#sortImageAntPost()} qui
 	 * est generique pour tout type d'image
 	 * 
 	 * @param imp0
@@ -545,6 +656,7 @@ public class Library_Dicom {
 	
 		Concatenator enchainer = new Concatenator();
 		ImagePlus imp2 = enchainer.concatenate(pileImage, false);
+		imp2.setProperty("Info", metadata);
 		// ImagePlus imp2 = enchainer.concatenate(impAnt,impPost, false);
 		// On retourne le resultat
 		return imp2;
@@ -553,7 +665,7 @@ public class Library_Dicom {
 
 	/**
 	 * Permet de trier les image unique frame et inverser l'image posterieure A
-	 * Eviter d'utiliser, pr�f�rer la methode sortImageAntPost(ImagePlus imp) qui
+	 * Eviter d'utiliser, pr�f�rer la methode {@link Library_Dicom#sortImageAntPost()} qui
 	 * est g�n�rique pour tout type d'image
 	 * 
 	 * @param imp0
@@ -573,8 +685,6 @@ public class Library_Dicom {
 			// String tagStartAngle = DicomTools.getTag(imp, "0054,00200");
 			// SK STRINGUTILS A GENERALISER DANS LE CODE CAR REGLE LES PROBLEME DES NULL ET
 			// EMPTY STRING
-			if (!StringUtils.isEmpty(tag))
-				tag = tag.trim();
 			// if (!StringUtils.isEmpty(tagStartAngle)) tagStartAngle=tagStartAngle.trim();
 	
 			String tagVector = DicomTools.getTag(imp, "0054,0020");
@@ -582,6 +692,7 @@ public class Library_Dicom {
 				tagVector = tagVector.trim();
 	
 			if (!StringUtils.isEmpty(tag)) {
+				tag = tag.trim();
 				if (StringUtils.contains(tag, "POS") || StringUtils.contains(tag, "_F")) {
 					imp.getProcessor().flipHorizontal();
 					imp.setTitle("Post" + i);
@@ -610,17 +721,18 @@ public class Library_Dicom {
 	/**************** Public Static Getter ***************************/
 	
 	/**
+	 * 
 	 * return frame Duration as this tag is stored in sequence tag that are ignored by dicomTools (if multiple the first one is sent)
 	 * @param imp
 	 * @return
 	 */
-	public static String getFrameDuration(ImagePlus imp) {
+	public static int getFrameDuration(ImagePlus imp) {
 		String property=imp.getInfoProperty();
 		int index1 = property.indexOf("0018,1242");
 		int index2 = property.indexOf(":", index1);
 		int index3 = property.indexOf("\n", index2);
 		String tag00181242 = property.substring(index2+1, index3).trim();
-		return tag00181242;
+		return Integer.parseInt(tag00181242);
 	}
 
 	
@@ -649,7 +761,7 @@ public class Library_Dicom {
 		
 		
 		if (nbPhase == 1) {
-			int duration = Integer.parseInt(getFrameDuration(imp));
+			int duration = getFrameDuration(imp);
 			for (int i = 0; i < frameDurations.length; i++) {
 				frameDurations[i] = duration;
 			}
@@ -671,6 +783,10 @@ public class Library_Dicom {
 		return frameDurations;
 	}
 
+	/**
+	 * @deprecated Internal method, used in {@link Library_Dicom#buildFrameDurations()}
+	 * 
+	 */
 	private static Integer[] getDurations(ImagePlus imp) {
 		List<Integer> duration = new ArrayList<>();
 		String info = imp.getInfoProperty();
@@ -685,7 +801,7 @@ public class Library_Dicom {
 	}
 
 	/**
-	 * Make projection of stacck
+	 * Make projection of stack
 	 * @param imp : image to project
 	 * @param startSlice : first index slice
 	 * @param stopSlice : last index slice

@@ -5,7 +5,7 @@
 *.DS_Store
 
 /.settings/
-/.classpath
+.classpath
 /jars/
 /.project
 
