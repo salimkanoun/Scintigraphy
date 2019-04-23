@@ -51,6 +51,10 @@ public abstract class ControleurScin implements ActionListener {
 	 * @return TRUE if the controller has finished, FALSE otherwise
 	 */
 	public abstract boolean isOver();
+	
+	public FenApplication getVue() {
+		return this.vue;
+	}
 
 	/**
 	 * This method should be called when the controller is over.

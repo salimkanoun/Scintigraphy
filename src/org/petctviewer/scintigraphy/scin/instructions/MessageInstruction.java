@@ -52,4 +52,9 @@ public abstract class MessageInstruction implements Instruction {
 	public void setRoi(int index) {
 	}
 
+	@Override
+	public boolean isCancelled() {
+		return false;
+	}
+
 }

@@ -56,16 +56,6 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			this.editCopyRoi(roiToCopy);
 	}
 
-	private void DEBUG(String s) {
-		Instruction i = this.workflows[this.indexCurrentImage].getCurrentInstruction();
-		System.out.println("== " + s + " ==");
-		System.out.println("Current image: " + this.indexCurrentImage);
-		System.out.println("Current instruction: " + (i != null ? i.getMessage() : "-No Instruction-"));
-		System.out.println("Index roi: " + this.indexRoi);
-		System.out.println("Current position: " + this.position);
-		System.out.println("=======");
-	}
-
 	private Orientation getCurrentOrientation() {
 		switch (this.vue.getImagePlus().getCurrentSlice()) {
 		case SLICE_ANT:
@@ -78,20 +68,11 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	}
 
 	private int[] roisToDisplay() {
-		System.out.println("-> Finding rois to display (current orientation=" + this.getCurrentOrientation() + ")");
 		List<Instruction> dris = new ArrayList<>();
 		for (Instruction i : this.workflows[this.indexCurrentImage]
 				.getInstructionsWithOrientation(this.getCurrentOrientation()))
 			if (i.roiToDisplay() >= 0 && i.roiToDisplay() < this.indexRoi) {
 				dris.add(i);
-				System.out.println("\tROI: " + this.getRoiManager().getRoi(i.roiToDisplay()).getName() + " "
-						+ i.getImageState().orientation);
-			} else {
-				if (i.roiToDisplay() < 0)
-					System.out.println(i.getMessage() + " has no ROI yet");
-				else
-					System.out.println("\t" + this.getRoiManager().getRoi(i.roiToDisplay()).getName()
-							+ " ignored because after current image");
 			}
 		int[] array = new int[dris.size()];
 		for (int i = 0; i < dris.size(); i++)
@@ -101,24 +82,17 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 	@Override
 	public void clicPrecedent() {
-		this.DEBUG("PREVIOUS");
 		super.clicPrecedent();
 
-		Instruction previousInstruction = this.workflows[this.indexCurrentImage].getCurrentInstruction();
 		Instruction currentInstruction = this.workflows[this.indexCurrentImage].previous();
 		if (currentInstruction == null) {
 			this.indexCurrentImage--;
 			currentInstruction = this.workflows[this.indexCurrentImage].getCurrentInstruction();
 		}
 
-		System.out.println("Previous:: " + previousInstruction);
-		System.out.println("Current:: " + currentInstruction);
-
 		if (currentInstruction.isDisplayable()) {
 			this.displayInstruction(currentInstruction.getMessage());
-			System.out.println("Asked Orientation == " + currentInstruction.getImageState().orientation);
 			this.prepareImage(currentInstruction.getImageState());
-			System.out.println("Actual Orientation == " + this.getCurrentOrientation());
 
 			this.resetOverlay();
 			this.indexRoi--;
@@ -128,68 +102,73 @@ public abstract class ControllerWorkflow extends ControleurScin {
 				DrawRoiInstruction dri_current = (DrawRoiInstruction) currentInstruction;
 				this.editOrgan(dri_current.roiToDisplay());
 			}
+
+			currentInstruction.afterPrevious(this);
 		} else {
+			currentInstruction.afterPrevious(this);
 			this.clicPrecedent();
 		}
-
-		this.DEBUG("       ");
 	}
 
 	@Override
 	public void clicSuivant() {
 
-		this.DEBUG("NEXT");
-
 		Instruction previousInstruction = this.workflows[this.indexCurrentImage].getCurrentInstruction();
-		int indexPreviousImage = this.indexCurrentImage;
-		if (this.workflows[this.indexCurrentImage].isOver()) {
-			this.indexCurrentImage++;
-		}
-		Instruction currentInstruction = this.workflows[this.indexCurrentImage].next();
 
-		System.out.println("Previous:: " + previousInstruction);
-		System.out.println("Current:: " + currentInstruction);
+		if (!previousInstruction.isCancelled()) {
+			int indexPreviousImage = this.indexCurrentImage;
+			if (this.workflows[this.indexCurrentImage].isOver()) {
+				this.indexCurrentImage++;
+			}
+			Instruction currentInstruction = this.workflows[this.indexCurrentImage].next();
 
-		if (previousInstruction != null) {
-			if (previousInstruction instanceof DrawRoiInstruction) {
-				DrawRoiInstruction dri_previous = (DrawRoiInstruction) previousInstruction;
-				if (dri_previous.isDisplayable()) {
-					try {
-						this.saveRoiAtIndex(
-								"#" + indexPreviousImage + "_" + dri_previous.getOrganName()
-										+ (dri_previous.getImageState().orientation == Orientation.ANT ? "_A" : "_P"),
-								this.indexRoi);
-						dri_previous.setRoi(this.indexRoi);
+			if (previousInstruction != null) {
+				if (previousInstruction instanceof DrawRoiInstruction) {
+					DrawRoiInstruction dri_previous = (DrawRoiInstruction) previousInstruction;
+					if (dri_previous.isDisplayable()) {
+						try {
+							this.saveRoiAtIndex("#" + indexPreviousImage + "_" + dri_previous.getOrganName()
+									+ (dri_previous.getImageState().orientation == Orientation.ANT ? "_A" : "_P"),
+									this.indexRoi);
+							dri_previous.setRoi(this.indexRoi);
 
-						this.displayRoi(this.indexRoi);
+							this.displayRoi(this.indexRoi);
 
-						this.indexRoi++;
-					} catch (NoDataException e) {
-						JOptionPane.showMessageDialog(vue, e.getMessage(), "", JOptionPane.WARNING_MESSAGE);
-						return;
+							this.indexRoi++;
+						} catch (NoDataException e) {
+							JOptionPane.showMessageDialog(vue, e.getMessage(), "", JOptionPane.WARNING_MESSAGE);
+							return;
+						}
 					}
 				}
 			}
-		}
-		super.clicSuivant();
 
-		if (this.isOver()) {
-			this.end();
-		}
+			super.clicSuivant();
 
-		if (currentInstruction.isDisplayable()) {
-			this.displayInstruction(currentInstruction.getMessage());
-			this.prepareImage(currentInstruction.getImageState());
+			if (this.isOver()) {
+				currentInstruction.afterNext(this);
+				this.end();
+			}
 
-			if (currentInstruction instanceof DrawRoiInstruction) {
-				DrawRoiInstruction dri_current = (DrawRoiInstruction) currentInstruction;
-				this.editOrgan(dri_current.roiToDisplay());
+			if (currentInstruction.isDisplayable()) {
+				this.displayInstruction(currentInstruction.getMessage());
+				this.prepareImage(currentInstruction.getImageState());
+
+				if (currentInstruction instanceof DrawRoiInstruction) {
+					DrawRoiInstruction dri_current = (DrawRoiInstruction) currentInstruction;
+					this.editOrgan(dri_current.roiToDisplay());
+				}
+
+				currentInstruction.afterNext(this);
+			} else {
+				currentInstruction.afterNext(this);
+				this.clicSuivant();
 			}
 		} else {
-			this.clicSuivant();
+			if (!previousInstruction.isDisplayable()) {
+				this.clicPrecedent();
+			}
 		}
-
-		this.DEBUG("    ");
 	}
 
 	private void prepareImage(ImageState imageState) {

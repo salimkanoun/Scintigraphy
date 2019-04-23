@@ -5,6 +5,7 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.instructions.CheckIntersectionInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
@@ -29,8 +30,10 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 			this.workflows[i].addInstruction(dri_1);
 			this.workflows[i].addInstruction(dri_2);
+			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_1, dri_2));
 			this.workflows[i].addInstruction(dri_3);
 			this.workflows[i].addInstruction(dri_4);
+			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_3, dri_4));
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}

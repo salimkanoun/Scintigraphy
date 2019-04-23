@@ -68,12 +68,19 @@ public interface Instruction {
 	 * If an instruction is not displayed, then it will automatically go to the next
 	 * instruction without the user intervention.<br>
 	 * <br>
-	 * If an instruction is not displayed, {@link #isDisplayable()} is ignored.
+	 * <i>Ignored if {@link #isCancelled()} is TRUE</i>
 	 * 
 	 * @return TRUE if this instruction should be displayed on the screen of the
 	 *         user and FALSE if this instruction should not be displayed
 	 */
 	public abstract boolean isDisplayable();
+
+	/**
+	 * If an instruction is cancelled, then the 'Next' button is not executed.
+	 * 
+	 * @return TRUE if this instruction is cancelled and FALSE otherwise
+	 */
+	public abstract boolean isCancelled();
 
 	/**
 	 * State in which the ImagePlus must be when this instruction is displayed.<br>

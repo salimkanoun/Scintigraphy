@@ -95,4 +95,9 @@ public class DrawRoiInstruction implements Instruction {
 	public void afterPrevious(ControllerWorkflow controller) {
 	}
 
+	@Override
+	public boolean isCancelled() {
+		return false;
+	}
+
 }

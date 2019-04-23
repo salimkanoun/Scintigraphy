@@ -63,8 +63,8 @@ public class Workflow {
 			Instruction previous = this.iterator.previous();
 			if (this.iterator.hasPrevious()) {
 				previous = this.iterator.previous();
-				this.iterator.next();
 				previous.prepareAsPrevious();
+				this.iterator.next();
 				this.current = previous;
 				return previous;
 			}
