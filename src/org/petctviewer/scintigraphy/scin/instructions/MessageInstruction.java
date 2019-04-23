@@ -43,4 +43,13 @@ public abstract class MessageInstruction implements Instruction {
 	public void afterPrevious(ControllerWorkflow controller) {
 	}
 
+	@Override
+	public int roiToDisplay() {
+		return -1;
+	}
+
+	@Override
+	public void setRoi(int index) {
+	}
+
 }

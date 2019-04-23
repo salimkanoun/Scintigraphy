@@ -17,13 +17,12 @@ public class DrawRoiInstruction implements Instruction {
 	 * 
 	 * @param organToDelimit Name of the organ to delimit
 	 * @param orientation    Orientation of the image
-	 * @param indexRoiToEdit Index of the ROI to display for edition
+	 * @param instructionToCopy Instruction to take a copy of the ROI from
 	 */
 	public DrawRoiInstruction(String organToDelimit, Orientation orientation, DrawRoiInstruction instructionToCopy) {
 		this.organToDelimit = organToDelimit;
 		this.isAdjusting = false;
-		this.state = new ImageState();
-		this.state.orientation = orientation;
+		this.state = new ImageState(orientation);
 		this.instructionToCopy = instructionToCopy;
 		this.indexRoiToEdit = -1;
 	}
@@ -38,19 +37,16 @@ public class DrawRoiInstruction implements Instruction {
 		this(organToDelimit, orientation, null);
 	}
 
-	/**
-	 * This method is called when the ROI is set for this Instruction. This will
-	 * replace the indexRoiToEdit.
-	 * 
-	 * @param roi ROI set at this Instruction
-	 */
+	public String getOrganName() {
+		return this.organToDelimit;
+	}
+	
+	@Override
 	public void setRoi(int index) {
 		this.indexRoiToEdit = index;
 	}
 
-	/**
-	 * @return index of the ROI to display or <0 if none
-	 */
+	@Override
 	public int roiToDisplay() {
 		if (this.indexRoiToEdit != -1)
 			return this.indexRoiToEdit;
@@ -58,10 +54,6 @@ public class DrawRoiInstruction implements Instruction {
 			return this.instructionToCopy.indexRoiToEdit;
 		else
 			return -1;
-	}
-
-	public String getOrganName() {
-		return this.organToDelimit;
 	}
 
 	@Override
@@ -97,14 +89,10 @@ public class DrawRoiInstruction implements Instruction {
 
 	@Override
 	public void afterNext(ControllerWorkflow controller) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void afterPrevious(ControllerWorkflow controller) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

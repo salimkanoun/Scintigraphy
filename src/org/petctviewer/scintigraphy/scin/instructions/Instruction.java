@@ -22,12 +22,23 @@ public interface Instruction {
 		/**
 		 * Orientation of the image.
 		 */
-		public Orientation orientation;
+		public final Orientation orientation;
 
 		public ImageState() {
+			this.orientation = null;
 		}
 
-		public ImageState(Orientation orientation) {
+		/**
+		 * Instantiate a state for an image.
+		 * 
+		 * @param orientation Orientation the image should have (expecting ANT or POST
+		 *                    only)
+		 * @throw {@link IllegalArgumentException} if the orientation is different from
+		 *        ANT or POST
+		 */
+		public ImageState(Orientation orientation) throws IllegalArgumentException {
+			if (orientation != Orientation.ANT && orientation != Orientation.POST)
+				throw new IllegalArgumentException("The orientation " + orientation + " is nonsense here!");
 			this.orientation = orientation;
 		}
 	}
@@ -86,5 +97,18 @@ public interface Instruction {
 	 * At this stage, all of the operations for the previous action are done.
 	 */
 	public abstract void afterPrevious(ControllerWorkflow controller);
+
+	/**
+	 * @return index of the ROI to display or <0 if none
+	 */
+	public abstract int roiToDisplay();
+
+	/**
+	 * This method is called when the ROI is set for this Instruction. This will
+	 * replace the indexRoiToEdit.
+	 * 
+	 * @param roi ROI set at this Instruction
+	 */
+	public abstract void setRoi(int index);
 
 }

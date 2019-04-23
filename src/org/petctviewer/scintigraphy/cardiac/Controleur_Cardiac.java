@@ -6,12 +6,14 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
@@ -30,9 +32,9 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 		controler = this;
 
 		// on declare si il y a deux prises
-		((Modele_Cardiac)this.model).setDeuxPrise(this.isDeuxPrises());
+		((Modele_Cardiac) this.model).setDeuxPrise(this.isDeuxPrises());
 
-		((Modele_Cardiac)this.model).calculerMoyGeomTotale();
+		((Modele_Cardiac) this.model).calculerMoyGeomTotale();
 
 		// double les organes pour prise ant/post
 		List<String> organesAntPost = new ArrayList<>();
@@ -55,8 +57,8 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 	public void end() {
 		// suppression du controleur de l'imp
 		// this.removeImpListener();
-		((Modele_Cardiac)this.model).getResults();
-		((Modele_Cardiac)this.model).calculerResultats();
+		((Modele_Cardiac) this.model).getResults();
+		((Modele_Cardiac) this.model).calculerResultats();
 
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -147,9 +149,9 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 			nom = "ContL";
 		}
 
-		boolean saved = this.saveRoiAtIndex(nom, this.indexRoi);
+		try {
+			this.saveRoiAtIndex(nom, this.indexRoi);
 
-		if (saved) {
 			this.indexRoi++;
 			this.preparerRoi(this.indexRoi - 1);
 
@@ -165,7 +167,8 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 				fac.getBtn_continue().setEnabled(false);
 				fac.getBtn_newCont().setLabel("Save");
 			}
-
+		} catch (NoDataException e) {
+			JOptionPane.showMessageDialog(vue, e.getMessage(), "", JOptionPane.WARNING_MESSAGE);
 		}
 	}
 

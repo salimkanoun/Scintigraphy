@@ -1,5 +1,8 @@
 package org.petctviewer.scintigraphy.scin;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
@@ -63,11 +66,37 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		System.out.println("=======");
 	}
 
-	private int countRoisCreatedUntilNow() {
-		int count = 0;
-		for (int i = 0; i < this.indexCurrentImage; i++)
-			count += this.workflows[i].countRoisCreated();
-		return count;
+	private Orientation getCurrentOrientation() {
+		switch (this.vue.getImagePlus().getCurrentSlice()) {
+		case SLICE_ANT:
+			return Orientation.ANT;
+		case SLICE_POST:
+			return Orientation.POST;
+		default:
+			throw new IllegalStateException();
+		}
+	}
+
+	private int[] roisToDisplay() {
+		System.out.println("-> Finding rois to display (current orientation=" + this.getCurrentOrientation() + ")");
+		List<Instruction> dris = new ArrayList<>();
+		for (Instruction i : this.workflows[this.indexCurrentImage]
+				.getInstructionsWithOrientation(this.getCurrentOrientation()))
+			if (i.roiToDisplay() >= 0 && i.roiToDisplay() < this.indexRoi) {
+				dris.add(i);
+				System.out.println("\tROI: " + this.getRoiManager().getRoi(i.roiToDisplay()).getName() + " "
+						+ i.getImageState().orientation);
+			} else {
+				if (i.roiToDisplay() < 0)
+					System.out.println(i.getMessage() + " has no ROI yet");
+				else
+					System.out.println("\t" + this.getRoiManager().getRoi(i.roiToDisplay()).getName()
+							+ " ignored because after current image");
+			}
+		int[] array = new int[dris.size()];
+		for (int i = 0; i < dris.size(); i++)
+			array[i] = dris.get(i).roiToDisplay();
+		return array;
 	}
 
 	@Override
@@ -79,7 +108,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		Instruction currentInstruction = this.workflows[this.indexCurrentImage].previous();
 		if (currentInstruction == null) {
 			this.indexCurrentImage--;
-			currentInstruction = this.workflows[this.indexCurrentImage].previous();
+			currentInstruction = this.workflows[this.indexCurrentImage].getCurrentInstruction();
 		}
 
 		System.out.println("Previous:: " + previousInstruction);
@@ -87,9 +116,13 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 		if (currentInstruction.isDisplayable()) {
 			this.displayInstruction(currentInstruction.getMessage());
+			System.out.println("Asked Orientation == " + currentInstruction.getImageState().orientation);
 			this.prepareImage(currentInstruction.getImageState());
+			System.out.println("Actual Orientation == " + this.getCurrentOrientation());
 
-			this.displayRois(this.countRoisCreatedUntilNow(), --this.indexRoi);
+			this.resetOverlay();
+			this.indexRoi--;
+			this.displayRois(this.roisToDisplay());
 
 			if (currentInstruction instanceof DrawRoiInstruction) {
 				DrawRoiInstruction dri_current = (DrawRoiInstruction) currentInstruction;
@@ -124,7 +157,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 					try {
 						this.saveRoiAtIndex(
 								"#" + indexPreviousImage + "_" + dri_previous.getOrganName()
-										+ (this.vue.getImagePlus().getSlice() == SLICE_ANT ? "_A" : "_P"),
+										+ (dri_previous.getImageState().orientation == Orientation.ANT ? "_A" : "_P"),
 								this.indexRoi);
 						dri_previous.setRoi(this.indexRoi);
 
@@ -176,7 +209,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		else
 			System.err.println("The orientation specified in the state (" + imageState.orientation
 					+ ") is not valid, it shoud be one of:\n[" + Orientation.ANT + ", " + Orientation.POST + "]");
-		if(newSlice != -1 && newSlice != this.vue.getImagePlus().getSlice()) {
+		if (newSlice != -1 && newSlice != this.vue.getImagePlus().getCurrentSlice()) {
 			this.vue.getImagePlus().setSlice(newSlice);
 			this.resetOverlay();
 		}

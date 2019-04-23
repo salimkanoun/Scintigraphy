@@ -7,7 +7,6 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.EndInstruction;
-import org.petctviewer.scintigraphy.scin.instructions.ExecutionInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 
 public class ControllerWorkflow_Gastric extends ControllerWorkflow {
@@ -19,27 +18,19 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 	@Override
 	protected void generateInstructions() {
+		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null;
+
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
 			this.workflows[i] = new Workflow();
-			this.workflows[i].addInstruction(new DrawRoiInstruction("Stomach", Orientation.ANT,
-					(DrawRoiInstruction) (i - 1 >= 0 ? this.workflows[i - 1].getInstructionAt(3) : null)));
-			this.workflows[i].addInstruction(new DrawRoiInstruction("Intestine", Orientation.ANT,
-					(DrawRoiInstruction) (i - 1 >= 0 ? this.workflows[i - 1].getInstructionAt(4) : null)));
-			this.workflows[i].addInstruction(new ExecutionInstruction() {
-				@Override
-				public void afterNext(ControllerWorkflow controller) {
-					controller.resetOverlay();
-				}
+			dri_1 = new DrawRoiInstruction("Stomach", Orientation.ANT, dri_3);
+			dri_2 = new DrawRoiInstruction("Intestine", Orientation.ANT, dri_4);
+			dri_3 = new DrawRoiInstruction("Stomach", Orientation.POST, dri_1);
+			dri_4 = new DrawRoiInstruction("Intestine", Orientation.POST, dri_2);
 
-				@Override
-				public void afterPrevious(ControllerWorkflow controller) {
-					controller.resetOverlay();
-				}
-			});
-			this.workflows[i].addInstruction(new DrawRoiInstruction("Stomach", Orientation.POST,
-					(DrawRoiInstruction) this.workflows[i].getInstructionAt(0)));
-			this.workflows[i].addInstruction(new DrawRoiInstruction("Intestine", Orientation.POST,
-					(DrawRoiInstruction) this.workflows[i].getInstructionAt(1)));
+			this.workflows[i].addInstruction(dri_1);
+			this.workflows[i].addInstruction(dri_2);
+			this.workflows[i].addInstruction(dri_3);
+			this.workflows[i].addInstruction(dri_4);
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}

@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.petctviewer.scintigraphy.scin.Orientation;
+
 public class Workflow {
 
 	private List<Instruction> instructions;
@@ -97,9 +99,19 @@ public class Workflow {
 	 * 
 	 * @return Instruction at the index position of this workflow
 	 */
-	@Deprecated
 	public Instruction getInstructionAt(int index) {
 		return this.instructions.get(index);
+	}
+
+	/**
+	 * @return all the instructions matching the specified orientation
+	 */
+	public Instruction[] getInstructionsWithOrientation(Orientation orientation) {
+		List<Instruction> instructions = new LinkedList<>();
+		for (Instruction i : this.instructions)
+			if (i.getImageState() != null && i.getImageState().orientation == orientation)
+				instructions.add(i);
+		return instructions.toArray(new Instruction[instructions.size()]);
 	}
 
 }
