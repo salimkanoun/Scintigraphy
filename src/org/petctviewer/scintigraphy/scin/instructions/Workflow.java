@@ -29,17 +29,17 @@ public class Workflow {
 	}
 
 	/**
-	 * Adds an instruction in this workflow. Adding an instruction reset the
+	 * Adds an instruction in this workflow. Adding an instruction restart the
 	 * workflow, so a call to {@link #next()} will return the first instruction.<br>
-	 * Adding a null instruction reset this workflow but the instruction is ignored.
+	 * Adding a null instruction restart this workflow but the instruction is
+	 * ignored.
 	 * 
-	 * @param instruction
+	 * @param instruction Instruction to add in the workflow
 	 */
 	public void addInstruction(Instruction instruction) {
 		if (instruction != null)
 			this.instructions.add(instruction);
-		this.iterator = this.instructions.listIterator();
-		this.current = null;
+		this.restart();
 	}
 
 	/**
@@ -70,6 +70,15 @@ public class Workflow {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Restarts the workflow. This method reset this workflow's state for the one
+	 * that it had at its initialization.
+	 */
+	public void restart() {
+		this.iterator = this.instructions.listIterator();
+		this.current = null;
 	}
 
 	/**

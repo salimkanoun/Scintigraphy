@@ -149,7 +149,7 @@ public class FenNeph extends JDialog implements ActionListener {
 		Double debut = Math.min(values.get("start"), values.get("end"));
 		Double fin = Math.max(values.get("start"), values.get("end"));
 
-		XYDataset dataCropped = Modele_Renal.cropDataset(data, debut, fin);
+		XYDataset dataCropped = Library_JFreeChart.cropDataset(data, debut, fin);
 
 		for (int i = 1; i < dataCropped.getItemCount(0); i++) {
 			Double N1 = (dataCropped.getYValue(0, i) / dataCropped.getYValue(1, i));

@@ -8,8 +8,8 @@ import javax.swing.JOptionPane;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
-import org.petctviewer.scintigraphy.scin.instructions.Instruction.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.LastInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 
@@ -21,6 +21,8 @@ import org.petctviewer.scintigraphy.scin.instructions.Workflow;
  * 
  * <pre>
  * this.workflow[0].addInstruction(new DrawRoiInstruction(...));
+ * ...
+ * this.workflow[0].addInstruction(new EndInstruction());
  * </pre>
  * 
  * Be careful, this controller expect that the images are in Ant/Post

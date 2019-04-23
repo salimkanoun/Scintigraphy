@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.scin.instructions;
 
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.Orientation;
 
 /**
  * Represents an instruction in the workflow.
@@ -10,38 +9,6 @@ import org.petctviewer.scintigraphy.scin.Orientation;
  *
  */
 public interface Instruction {
-
-	/**
-	 * Represents a state of an ImagePlus.<br>
-	 * If a field is set to null, then it will be interpreted as no changes.
-	 * 
-	 * @author Titouan QUÉMA
-	 *
-	 */
-	public class ImageState {
-		/**
-		 * Orientation of the image.
-		 */
-		public final Orientation orientation;
-
-		public ImageState() {
-			this.orientation = null;
-		}
-
-		/**
-		 * Instantiate a state for an image.
-		 * 
-		 * @param orientation Orientation the image should have (expecting ANT or POST
-		 *                    only)
-		 * @throw {@link IllegalArgumentException} if the orientation is different from
-		 *        ANT or POST
-		 */
-		public ImageState(Orientation orientation) throws IllegalArgumentException {
-			if (orientation != Orientation.ANT && orientation != Orientation.POST)
-				throw new IllegalArgumentException("The orientation " + orientation + " is nonsense here!");
-			this.orientation = orientation;
-		}
-	}
 
 	/**
 	 * This method is called when this instruction is displayed in response to a
