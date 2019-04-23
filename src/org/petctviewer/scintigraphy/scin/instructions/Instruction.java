@@ -73,7 +73,20 @@ public interface Instruction {
 	 * @return TRUE if this instruction should be displayed on the screen of the
 	 *         user and FALSE if this instruction should not be displayed
 	 */
-	public abstract boolean isDisplayable();
+	public abstract boolean isExpectingUserInput();
+
+	/**
+	 * If an instruction saves a ROI, it must:
+	 * <ul>
+	 * <li>ask the user to draw a ROI</li>or
+	 * <li>automatically draw a ROI in the {@link #prepareAsNext()} or
+	 * {@link #prepareAsPrevious()} method</li>
+	 * </ul>
+	 * <i>Ignored if {@link #isCancelled()} is TRUE</i>
+	 * 
+	 * @return TRUE if this instruction needs to save a ROI or FALSE otherwise
+	 */
+	public abstract boolean saveRoi();
 
 	/**
 	 * If an instruction is cancelled, then the 'Next' button is not executed.
@@ -83,11 +96,29 @@ public interface Instruction {
 	public abstract boolean isCancelled();
 
 	/**
+	 * The ROI of an instruction will only be visible if:
+	 * <ul>
+	 * <li>the ROI exists</li>
+	 * <li>the current ROI index is greater than this ROI index</li>
+	 * <li>the current image is the same as this workflow's image</li>
+	 * <li>the current orientation is the same as this instruction's image state's
+	 * orientation</li>
+	 * </ul>
+	 * If one of this conditions is FALSE, then the ROI will not be drawn.<br>
+	 * <br>
+	 * <i>Ignored if {@link #saveRoi()} is FALSE</i>
+	 * 
+	 * @return TRUE if the ROI saved by this instruction should be visible on the
+	 *         overlay and FALSE otherwise
+	 */
+	public abstract boolean isRoiVisible();
+
+	/**
 	 * State in which the ImagePlus must be when this instruction is displayed.<br>
 	 * If this method returns null, then the image will remain constant with the
-	 * previous instruction (it is preferable NOT to return null).<br>
+	 * previous instruction (it is preferable not to return null).<br>
 	 * <br>
-	 * <i>Ignored if {@link #isDisplayable()} is FALSE</i>
+	 * <i>Ignored if {@link #isCancelled()} is TRUE</i>
 	 * 
 	 * @return state of the ImagePlus
 	 */

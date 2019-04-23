@@ -112,7 +112,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			currentInstruction = this.workflows[this.indexCurrentImage].getCurrentInstruction();
 		}
 
-		if (currentInstruction.isDisplayable()) {
+		if (currentInstruction.isExpectingUserInput()) {
 			this.displayInstruction(currentInstruction.getMessage());
 			this.prepareImage(currentInstruction.getImageState());
 
@@ -127,6 +127,9 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 			currentInstruction.afterPrevious(this);
 		} else {
+			if (currentInstruction.saveRoi() && !currentInstruction.isRoiVisible()) {
+				this.indexRoi--;
+			}
 			currentInstruction.afterPrevious(this);
 			this.clicPrecedent();
 		}
@@ -148,19 +151,21 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			Instruction nextInstruction = this.workflows[this.indexCurrentImage].next();
 
 			// === Draw ROI of the previous instruction ===
-			if (previousInstruction != null) {
+			if (previousInstruction != null && previousInstruction.saveRoi()) {
 				String organName = previousInstruction.getClass().getSimpleName();
+				Orientation orientation = previousInstruction.getImageState() == null ? this.getCurrentOrientation()
+						: previousInstruction.getImageState().orientation;
 				if (previousInstruction instanceof DrawRoiInstruction) {
 					organName = ((DrawRoiInstruction) previousInstruction).getOrganName();
 				}
 
 				try {
-					this.saveRoiAtIndex("#" + indexPreviousImage + "_" + organName
-							+ (previousInstruction.getImageState().orientation == Orientation.ANT ? "_A" : "_P"),
+					this.saveRoiAtIndex("#" + indexPreviousImage + "_" + organName + orientation.abrev(),
 							this.indexRoi);
 					previousInstruction.setRoi(this.indexRoi);
 
-					this.displayRoi(this.indexRoi);
+					if (previousInstruction.isRoiVisible())
+						this.displayRoi(this.indexRoi);
 
 					this.indexRoi++;
 				} catch (NoDataException e) {
@@ -178,7 +183,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			}
 
 			// == Display instruction for the user ==
-			if (nextInstruction.isDisplayable()) {
+			if (nextInstruction.isExpectingUserInput()) {
 				this.displayInstruction(nextInstruction.getMessage());
 				this.prepareImage(nextInstruction.getImageState());
 
@@ -195,7 +200,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			}
 		} else {
 			// Execution cancelled
-			if (!previousInstruction.isDisplayable()) {
+			if (!previousInstruction.isExpectingUserInput()) {
 				// Since the previous instruction is not displayable, it should not be stopped
 				// on, so you go back to the previous instruction
 				this.clicPrecedent();

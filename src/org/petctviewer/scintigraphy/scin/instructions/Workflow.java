@@ -104,12 +104,14 @@ public class Workflow {
 	}
 
 	/**
-	 * @return all the instructions matching the specified orientation
+	 * @return all the instructions with a ROI to display matching the specified
+	 *         orientation
 	 */
 	public Instruction[] getInstructionsWithOrientation(Orientation orientation) {
 		List<Instruction> instructions = new LinkedList<>();
 		for (Instruction i : this.instructions)
-			if (i.getImageState() != null && i.getImageState().orientation == orientation)
+			if (i.getImageState() != null && i.getImageState().orientation == orientation && i.saveRoi()
+					&& i.isRoiVisible())
 				instructions.add(i);
 		return instructions.toArray(new Instruction[instructions.size()]);
 	}

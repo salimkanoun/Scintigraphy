@@ -5,6 +5,10 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import ij.ImagePlus;
 import ij.plugin.frame.RoiManager;
 
+/**
+ * Represents the model in the MVC pattern.
+ *
+ */
 public abstract class ModeleScin {
 
 	private Integer uid;
@@ -19,9 +23,11 @@ public abstract class ModeleScin {
 		this.studyName = studyName;
 	}
 
-	public RoiManager getRoiManager() {
-		return this.roiManager;
-	}
+	/**
+	 * Calculates the results for this study. This method should be called by the
+	 * controller when all the data has been loaded in this model.
+	 */
+	public abstract void calculerResultats();
 
 	/**
 	 * Consider using {@link #getImagePlus()} if you just need to get access to the
@@ -64,10 +70,10 @@ public abstract class ModeleScin {
 	public String getStudyName() {
 		return this.studyName;
 	}
-
-	/*********** Public Abstract *********/
-
-	public abstract void calculerResultats();
+	
+	
+	
+	// ============================== OLD CLASS ========================
 
 	/**
 	 * calcule la decay fraction (countsCorrected=counts/decayedFraction)
@@ -109,6 +115,10 @@ public abstract class ModeleScin {
 	public String genererDicomTagsPartie1SameUID(ImagePlus imp, String nomProgramme) {
 		String uid = getUID6digits();
 		return Library_Capture_CSV.genererDicomTagsPartie1(imp, nomProgramme, uid);
+	}
+
+	public RoiManager getRoiManager() {
+		return this.roiManager;
 	}
 
 }

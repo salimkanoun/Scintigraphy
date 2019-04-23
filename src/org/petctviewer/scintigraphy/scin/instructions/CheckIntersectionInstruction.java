@@ -26,7 +26,6 @@ public class CheckIntersectionInstruction extends ExecutionInstruction {
 		this.controller.getRoiManager().runCommand("AND");
 		this.controller.getRoiManager().runCommand("Deselect");
 		this.controller.getRoiManager().deselect();
-		this.controller.getVue().getImagePlus().killRoi();
 		if (this.controller.getVue().getImagePlus().getRoi() == null) {
 			JOptionPane.showMessageDialog(this.controller.getVue(),
 					"Please adjust the intestine in order to create an intersection with the estomach.",
@@ -46,5 +45,15 @@ public class CheckIntersectionInstruction extends ExecutionInstruction {
 			System.out.println("\tNo intersection");
 		}
 		return !res;
+	}
+
+	@Override
+	public boolean saveRoi() {
+		return true;
+	}
+
+	@Override
+	public boolean isRoiVisible() {
+		return false;
 	}
 }

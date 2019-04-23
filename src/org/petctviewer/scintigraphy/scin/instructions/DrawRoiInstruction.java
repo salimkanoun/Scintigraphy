@@ -62,7 +62,7 @@ public class DrawRoiInstruction implements Instruction {
 	}
 
 	@Override
-	public boolean isDisplayable() {
+	public boolean isExpectingUserInput() {
 		return true;
 	}
 
@@ -98,6 +98,16 @@ public class DrawRoiInstruction implements Instruction {
 	@Override
 	public boolean isCancelled() {
 		return false;
+	}
+
+	@Override
+	public boolean saveRoi() {
+		return true;
+	}
+
+	@Override
+	public boolean isRoiVisible() {
+		return true;
 	}
 
 }
