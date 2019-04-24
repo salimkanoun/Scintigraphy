@@ -14,6 +14,7 @@ import ij.ImagePlus;
 public class ModeleShunpo extends ModeleScin {
 
 	private Map<Integer, Double> coups;
+	// TODO: those values are never set ??????? !!!!!!!!
 	private int pixrdp;
 	private int pixrgp;
 	private int pixrda;

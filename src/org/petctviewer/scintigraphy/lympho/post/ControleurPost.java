@@ -1,15 +1,23 @@
-package org.petctviewer.scintigraphy.lympho;
+package org.petctviewer.scintigraphy.lympho.post;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridLayout;
 
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.lympho.gui.FenResultatsLympho;
+import org.petctviewer.scintigraphy.lympho.gui.TabPost;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
+import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -17,9 +25,9 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
 
-public class ControleurLympho extends ControleurScin {
+public class ControleurPost extends ControleurScin {
 
-	public String[] organes = { "L. foot", "R. foot" };
+	public String[] organes = { "Pelvis_Right", "Pelvis_Left","Background" };
 
 	private static final int FIRST_IMAGE = 0, SECOND_IMAGE = 1;
 
@@ -29,19 +37,23 @@ public class ControleurLympho extends ControleurScin {
 
 	private int etape;
 
-	private static final int CAPTURE_FIRST_ANT = 0, CAPTURE_FIRST_POST = 1, CAPTURE_SECOND_ANT = 2,
-			CAPTURE_SECOND_POST = 3, TOTAL_CAPTURES = 4;
+	private static final int CAPTURE_ANT = 0, CAPTURE_POST = 1, TOTAL_CAPTURES = 2;
 
 	private ImagePlus[] captures;
 
+	private FenResults fenResults;
 
 	private boolean firstOrientationOver;
+	
+	private TabResult resultTab;
 
-	public ControleurLympho(Scintigraphy main, FenApplication vue, String examType, ImageSelection[] selectedImages) {
-		super(main, vue, new ModeleLympho(selectedImages, examType));
+	public ControleurPost(Scintigraphy main, FenApplication vue, ModeleScin model) {
+		super(main, vue, model);
+		// TODO Auto-generated constructor stub
+	}
 
-		// on bloque le modele pour ne pas enregistrer les valeurs de la projection
-		((ModeleLympho) model).setLocked(true);
+	public ControleurPost(Scintigraphy main, FenApplication vue, String examType, ImageSelection[] selectedImages, TabResult resultTab) {
+		super(main, vue, new ModelePost(selectedImages, examType, resultTab));
 
 		this.organe = 0;
 		this.organeRoiMaganer = 0;
@@ -50,9 +62,12 @@ public class ControleurLympho extends ControleurScin {
 
 		this.captures = new ImagePlus[TOTAL_CAPTURES];
 
-
-
+		this.fenResults = new FenResults(this.model);
+		this.fenResults.setVisible(false);
+		
 		this.changerImage();
+		this.resultTab = resultTab;
+
 	}
 
 	@Override
@@ -72,10 +87,7 @@ public class ControleurLympho extends ControleurScin {
 			if (this.allOrgansDelimited()) {
 				this.capture();
 				if (this.firstOrientationOver)
-					if (this.etape == this.organes.length - 1)
-						this.end();
-					else
-						this.nextStep();
+					this.end();
 				else
 					this.nextOrientation();
 				;
@@ -100,6 +112,7 @@ public class ControleurLympho extends ControleurScin {
 
 		this.displayRois(this.position - this.organe, this.position);
 
+		this.fenResults.setVisible(false);
 	}
 
 	private void nextOrgan() {
@@ -147,15 +160,11 @@ public class ControleurLympho extends ControleurScin {
 
 	private void capture() {
 		ImagePlus capture = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 512, 0);
-		if (this.etape == FIRST_IMAGE)
-			if (firstOrientationOver)
-				this.captures[CAPTURE_FIRST_ANT] = capture;
-			else
-				this.captures[CAPTURE_FIRST_POST] = capture;
-		else if (firstOrientationOver)
-			this.captures[CAPTURE_SECOND_ANT] = capture;
+		if (firstOrientationOver)
+			this.captures[CAPTURE_ANT] = capture;
 		else
-			this.captures[CAPTURE_SECOND_POST] = capture;
+			this.captures[CAPTURE_POST] = capture;
+		;
 
 	}
 
@@ -209,7 +218,6 @@ public class ControleurLympho extends ControleurScin {
 		int secondSlice = 2;
 		ImagePlus img = this.model.getImageSelection()[FIRST_IMAGE].getImagePlus();
 		this.model.getImageSelection()[FIRST_IMAGE].getImagePlus().setSlice(firstSlice);
-		this.model.getImageSelection()[SECOND_IMAGE].getImagePlus().setSlice(firstSlice);
 		int organ = 0;
 		for (int i = 0; i < this.model.getRoiManager().getRoisAsArray().length; i++) {
 
@@ -222,17 +230,10 @@ public class ControleurLympho extends ControleurScin {
 			} else if (i < 2 * this.organes.length) {
 				img = this.model.getImageSelection()[FIRST_IMAGE].getImagePlus();
 				img.setSlice(secondSlice);
-			} else if (i < 3 * this.organes.length) {
-				img = this.model.getImageSelection()[SECOND_IMAGE].getImagePlus();
-				img.setSlice(firstSlice);
-			} else {
-				img = this.model.getImageSelection()[SECOND_IMAGE].getImagePlus();
-				img.setSlice(secondSlice);
-
 			}
 
 			img.setRoi(r);
-			((ModeleLympho) this.model).calculerCoups(organ, img);
+			((ModelePost) this.model).calculerCoups(organ, img);
 			organ++;
 
 		}
@@ -242,26 +243,29 @@ public class ControleurLympho extends ControleurScin {
 		ImageStack stackCapture = Library_Capture_CSV.captureToStack(this.captures);
 		ImagePlus montage = this.montage(stackCapture);
 
-		// Display result
-//				this.fenResults.setMainTab(new TabResult(fenResults, "Result", true) {
-//					@Override
-//					public Component getSidePanelContent() {
-//						String[] result = ((ModeleLympho) model).getResult();
-//						JPanel res = new JPanel(new GridLayout(result.length, 1));
-//						for (String s : result)
-//							res.add(new JLabel(s));
-//						return res;
-//					}
+//		// Display result
+//		this.fenResults.setMainTab(new TabResult(fenResults, "Result", true) {
+//			@Override
+//			public Component getSidePanelContent() {
+//				String[] result = ((ModelePost) model).getResult();
+//				JPanel res = new JPanel(new GridLayout(result.length, 1));
+//				for (String s : result)
+//					res.add(new JLabel(s));
+//				return res;
+//			}
 //
-//					@Override
-//					public JPanel getResultContent() {
-//						return new DynamicImage(montage.getImage());
-//					}
-//				});
-//				this.fenResults.pack();
-//				this.fenResults.setVisible(true);
-		System.out.println(model != null);
-		new FenResultatsLympho(model, captures);
+//			@Override
+//			public JPanel getResultContent() {
+//				return new DynamicImage(montage.getImage());
+//			}
+//		});
+//		this.fenResults.pack();
+//		this.fenResults.setVisible(true);
+		
+		((ModelePost)this.model).setPelvisMontage(montage);
+		montage.show();
+		((TabPost)this.resultTab).setExamDone(true);
+		((TabPost)this.resultTab).reloadDisplay();
 
 	}
 
@@ -300,6 +304,11 @@ public class ControleurLympho extends ControleurScin {
 		else
 			this.vue.getImagePlus().setSlice(1);
 		this.editOrgan();
+	}
+	
+	
+	public ModeleScin getModel() {
+		return this.model;
 	}
 
 }

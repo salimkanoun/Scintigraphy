@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 import javax.swing.JOptionPane;
 
+import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -37,17 +38,16 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	// TODO: supprimer cette référence pour découpler le controleur de scintigraphy
 	protected Scintigraphy scin;
 
-
 	private String[] organes;
 	protected int indexRoi;
 
-	protected HashMap<Integer,String> nomRois = new HashMap<>();
+	protected HashMap<Integer, String> nomRois = new HashMap<>();
 	private ImageListener ctrlImg;
-	
-	protected Color STROKECOLOR = Color.RED;//couleur de la roi
+
+	protected Color STROKECOLOR = Color.RED;// couleur de la roi
 
 	private Overlay overlay;
-	
+
 	protected int tools = Toolbar.POLYGON;
 
 	/**
@@ -63,12 +63,12 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 		}
 		this.overlay = Library_Gui.duplicateOverlay(this.model.getImagePlus().getOverlay());
 
-		//this.addImageListener
+		// this.addImageListener
 		this.ctrlImg = new ControleurImp(this);
 		ImagePlus.addImageListener(this.ctrlImg);
-		
+
 		this.indexRoi = 0;
-		
+
 		Roi.setColor(this.STROKECOLOR);
 	}
 
@@ -81,13 +81,13 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 		// on execute des action selon quel bouton a ete clique
 		if (b == fen.getBtn_suivant()) {
 			this.clicSuivant();
-			
-		}else if (b == fen.getBtn_precedent()) {
+
+		} else if (b == fen.getBtn_precedent()) {
 			this.clicPrecedent();
-			
-		}else if (b == fen.getBtn_drawROI()){
+
+		} else if (b == fen.getBtn_drawROI()) {
 			Button btn = fen.getBtn_drawROI();
-			
+
 			// on change la couleur du bouton
 			if (btn.getBackground() != Color.LIGHT_GRAY) {
 				btn.setBackground(Color.LIGHT_GRAY);
@@ -99,8 +99,8 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 			fen.getBtn_contrast().setBackground(null);
 
 			IJ.setTool(tools);
-			
-		}else if (b == fen.getBtn_contrast()) {
+
+		} else if (b == fen.getBtn_contrast()) {
 			// on change la couleur du bouton
 			if (b.getBackground() != Color.LIGHT_GRAY) {
 				b.setBackground(Color.LIGHT_GRAY);
@@ -112,13 +112,13 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 			fen.getBtn_drawROI().setBackground(null);
 
 			IJ.run("Window Level Tool");
-			
-		}else if (b == fen.getBtn_quitter()) {
-			//this.scin.getFenApplication().getBtn_quitter()
+
+		} else if (b == fen.getBtn_quitter()) {
+			// this.scin.getFenApplication().getBtn_quitter()
 			fen.close();
 			return;
 		}
-		
+
 	}
 
 	/**
@@ -144,30 +144,31 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 
 	@Override
 	public void clicPrecedent() {
-		//Si boutton suivant desactive car on est arrive a la fin du programme, on le reactive quand on a clique sur precedent
-		if( !scin.getFenApplication().getBtn_suivant().isEnabled() ) scin.getFenApplication().getBtn_suivant().setEnabled(true);
-		
+		// Si boutton suivant desactive car on est arrive a la fin du programme, on le
+		// reactive quand on a clique sur precedent
+		if (!scin.getFenApplication().getBtn_suivant().isEnabled())
+			scin.getFenApplication().getBtn_suivant().setEnabled(true);
+
 		// on decrement indexRoi
 		if (this.indexRoi > 0) {
 			this.indexRoi--;
-			if(indexRoi==0) {
+			if (indexRoi == 0) {
 				// si on est arrive au dernier roi, on desactive le bouton
 				this.scin.getFenApplication().getBtn_precedent().setEnabled(false);
 			}
-		} 
-		//On affiche la ROI et la slice n-1
+		}
+		// On affiche la ROI et la slice n-1
 		this.preparerRoi(this.indexRoi);
 
-		//this.saveCurrentRoi(this.getNomOrgane(this.indexRoi), this.indexRoi);
+		// this.saveCurrentRoi(this.getNomOrgane(this.indexRoi), this.indexRoi);
 	}
 
 	@Override
 	public void clicSuivant() {
 		// sauvegarde du ROI actuel
-		boolean saved = this.saveCurrentRoi(this.getNomOrgane(this.indexRoi), this.indexRoi);
+		try {
+			this.saveRoiAtIndex(this.getNomOrgane(this.indexRoi), this.indexRoi);
 
-		// si la sauvegarde est reussie
-		if (saved) {
 			// on active le bouton precedent
 			this.scin.getFenApplication().getBtn_precedent().setEnabled(true);
 
@@ -195,36 +196,32 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 				this.indexRoi++;
 				this.preparerRoi(this.indexRoi - 1);
 			}
+		} catch (NoDataException e1) {
+//			JOptionPane.showMessageDialog(vue, e1.getMessage(), "", JOptionPane.WARNING_MESSAGE);
 		}
 	}
-	
+
 	/**
 	 * Sauvegarde la roi dans le roi manager et dans le modele
 	 * 
-	 * @param nomRoi
-	 *            : nom de la roi a sauvegarder
+	 * @param nomRoi : nom de la roi a sauvegarder
 	 * @return true si la sauvegarde est reussie, false si elle ne l'est pas
 	 */
-	public boolean saveCurrentRoi(String nomRoi, int indexRoi) {
+	public void saveRoiAtIndex(String nomRoi, int indexRoi) throws NoDataException {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
 			// on change la couleur pour l'overlay
-			this.model.getImagePlus()
-			.getRoi()
-			.setStrokeColor(Color.YELLOW);
-			
+			this.model.getImagePlus().getRoi().setStrokeColor(Color.YELLOW);
+
 			/*
-			
-			// on enregistre la ROI dans le modele
-			this.modele.enregistrerMesure(
-					this.addTag(nomRoi), 
-					this.model.getImagePlus());
-			*/
-		
+			 * 
+			 * // on enregistre la ROI dans le modele this.modele.enregistrerMesure(
+			 * this.addTag(nomRoi), this.model.getImagePlus());
+			 */
 
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
 			if (this.model.getRoiManager().getRoi(indexRoi) == null) {
-				//Add Roi to the Roi Manager
+				// Add Roi to the Roi Manager
 				this.model.getRoiManager().addRoi(this.model.getImagePlus().getRoi());
 			} else { // Si il existe on l'ecrase
 				this.model.getRoiManager().setRoi(this.model.getImagePlus().getRoi(), indexRoi);
@@ -233,39 +230,33 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 			}
 
 			// precise la postion en z
-			this.model.getRoiManager().
-			getRoi(indexRoi).setPosition(this.getSliceNumberByRoiIndex(indexRoi));
+			this.model.getRoiManager().getRoi(indexRoi).setPosition(this.getSliceNumberByRoiIndex(indexRoi));
 
 			// changement de nom
 			this.model.getRoiManager().rename(indexRoi, nomRoi);
-			
+
 			// on ajoute le nom de la roi a la liste
 			this.nomRois.put(indexRoi, addTag(nomRoi));
-			
-
-			return true;
-		}
-
-		if (this.getOrganRoi(indexRoi) == null) {
-			JOptionPane.showMessageDialog(scin.getFenApplication(), "Roi Lost", "Warning",
-				        JOptionPane.WARNING_MESSAGE);
 		} else {
-			// restore la roi organe si c'est possible
-			JOptionPane.showMessageDialog(scin.getFenApplication(), "Roi Lost, previous Roi restaured", "Warning",
-			        JOptionPane.WARNING_MESSAGE);
-			this.model.getImagePlus().setRoi(this.getOrganRoi(indexRoi));
+
+			if (this.getOrganRoi(indexRoi) == null) {
+				JOptionPane.showMessageDialog(scin.getFenApplication(), "Roi Lost", "Warning",
+						JOptionPane.WARNING_MESSAGE);
+			} else {
+				// restore la roi organe si c'est possible
+				JOptionPane.showMessageDialog(scin.getFenApplication(), "Roi Lost, previous Roi restaured", "Warning",
+						JOptionPane.WARNING_MESSAGE);
+				this.model.getImagePlus().setRoi(this.getOrganRoi(indexRoi));
+			}
+			throw new NoDataException("No ROI selected");
 		}
-
-		return false;
-
 	}
 
 	/**
 	 * Rajoute au nom de l'organe son type de prise (A pour Ant / P pour Post) ainsi
 	 * qu'un numero pour eviter les doublons
 	 * 
-	 * @param nomOrgane
-	 *            nom de l'organe
+	 * @param nomOrgane nom de l'organe
 	 * @return nouveau nom
 	 */
 	public String addTag(String nomOrgane) {
@@ -281,7 +272,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 		// on ajoute un numero pour l'identifier
 		String count = this.getSameNameRoiCount(nom);
 		nom += count;
-					
+
 		return nom;
 	}
 
@@ -293,9 +284,9 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 		this.ctrlImg = new ControleurImp(this);
 		ImagePlus.addImageListener(this.ctrlImg);
 	}
-	
-	/********Abstract*****/
-	
+
+	/******** Abstract *****/
+
 	/**
 	 * permet de savoir si toutes les rois necessaires ont ete enregistrees
 	 * 
@@ -310,9 +301,8 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	 */
 	public abstract boolean isPost();
 
-	
 	/*********** Getter *******/
-	
+
 	/**
 	 * Renvoie la roi de l'image plus
 	 * 
@@ -335,19 +325,19 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 		return this.organes;
 	}
 
-	/*public ModeleScin getModele() {
-		return this.modele;
-	}*/
-	
+	/*
+	 * public ModeleScin getModele() { return this.modele; }
+	 */
+
 	public String getNomOrgane(int index) {
-		
-		System.out.println("Index"+index);
-		System.out.println("Lenght"+ this.getOrganes().length);
-		System.out.println("modulo"+index % this.getOrganes().length);
+
+		System.out.println("Index" + index);
+		System.out.println("Lenght" + this.getOrganes().length);
+		System.out.println("modulo" + index % this.getOrganes().length);
 		return this.getOrganes()[index % this.getOrganes().length];
 	}
 
-	public HashMap<Integer,String> getNomRois() {
+	public HashMap<Integer, String> getNomRois() {
 		return this.nomRois;
 	}
 
@@ -358,8 +348,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	/**
 	 * Renvoie le numero de slice ou doit se trouver la roi d'index roiIndex
 	 * 
-	 * @param roiIndex
-	 *            : Index de la roi dont il faut determiner le numero de slice
+	 * @param roiIndex : Index de la roi dont il faut determiner le numero de slice
 	 * @return le numero de slice ou se trouve la roi
 	 */
 	public abstract int getSliceNumberByRoiIndex(int roiIndex);
@@ -379,8 +368,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	/**
 	 * Renvoie le nombre de roi avec le meme nom ayant deja ete enregistrees
 	 * 
-	 * @param nomRoi
-	 *            : nom de la roi
+	 * @param nomRoi : nom de la roi
 	 * 
 	 * @return nombre de roi avec le meme nom
 	 */
@@ -395,14 +383,12 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 		return String.valueOf(count);
 	}
 
-	
 	/********** Setter **********/
 
 	public void setScin(Scintigraphy scin) {
 		this.scin = scin;
 	}
-	
-	
+
 	public void setIndexRoi(int indexRoi) {
 		this.indexRoi = indexRoi;
 	}
@@ -414,8 +400,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	/**
 	 * Affiche les instructions de delimitation d'un organe (" ...")
 	 * 
-	 * @param nOrgane
-	 *            : numero de l'organe a delimiter
+	 * @param nOrgane : numero de l'organe a delimiter
 	 */
 	public void setInstructionsDelimit(int nOrgane) {
 		this.scin.getFenApplication().setText_instructions("Delimit the " + this.getNomOrgane(nOrgane));
@@ -425,8 +410,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	/**
 	 * Affiche les instructions d'ajustement d'un organe ("Adjust the ...")
 	 * 
-	 * @param nOrgane
-	 *            : numero de l'organe a ajuster
+	 * @param nOrgane : numero de l'organe a ajuster
 	 */
 	public void setInstructionsAdjust(int nOrgane) {
 		this.scin.getFenApplication().setText_instructions("Adjust the " + this.getNomOrgane(nOrgane));
@@ -436,8 +420,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	 * Affiche une slice et son Overlay, si la roi indexRoi se trouve sur cette
 	 * slice, elle n'est pas affichee dans l'overlay mais chargee dans l'imp
 	 * 
-	 * @param indexSlice
-	 *            : numero de la slice a afficher
+	 * @param indexSlice : numero de la slice a afficher
 	 */
 	public void setSlice(int indexSlice) {
 		// ecrase l'overlay et tue la roi
@@ -465,12 +448,11 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 			}
 		}
 	}
-	
+
 	@Override
 	public void close() {
-		
+
 		this.model.getRoiManager().close();
 	}
-
 
 }

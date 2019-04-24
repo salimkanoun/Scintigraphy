@@ -5,6 +5,8 @@ import java.awt.Component;
 
 import javax.swing.JPanel;
 
+import org.petctviewer.scintigraphy.lympho.post.ModelePost;
+
 public abstract class TabResult {
 
 	private String title;
@@ -141,6 +143,11 @@ public abstract class TabResult {
 		this.parent.repaint();
 		this.parent.revalidate();
 		this.parent.pack();
+	}
+
+	public void updateResultFrame(ModelePost modelePost) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

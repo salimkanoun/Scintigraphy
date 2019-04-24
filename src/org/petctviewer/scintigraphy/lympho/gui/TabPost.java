@@ -1,18 +1,28 @@
 package org.petctviewer.scintigraphy.lympho.gui;
 
 import java.awt.Component;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.petctviewer.scintigraphy.lympho.post.ModelePost;
+import org.petctviewer.scintigraphy.lympho.post.ControleurPost;
+import org.petctviewer.scintigraphy.lympho.post.postScintigraphy;
+import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
 public class TabPost extends TabResult implements ActionListener {
 	
+	private boolean examDone;
+
+	private postScintigraphy vueBasic;
+
 	private JButton btn_addImp;
 
 	public TabPost(FenResults parent, String title, boolean captureBtn) {
@@ -22,29 +32,51 @@ public class TabPost extends TabResult implements ActionListener {
 
 	@Override
 	public Component getSidePanelContent() {
-		// TODO Auto-generated method stub
-		return null;
+		if(!this.examDone) {
+			return null;
+		}else {
+			String[] result = ((ModelePost) ((ControleurPost) this.vueBasic.getFenApplication().getControleur()).getModel()).getResult();
+			JPanel res = new JPanel(new GridLayout(result.length, 1));
+			for (String s : result)
+				res.add(new JLabel(s));
+			return res;
+		}
 	}
 
 	@Override
 	public JPanel getResultContent() {
-		Box box = Box.createHorizontalBox();
-		box.add(Box.createHorizontalGlue());
-
-		btn_addImp = new JButton("Choose post-mictional dicom");
-		btn_addImp.addActionListener(this);
-		box.add(btn_addImp);
-		box.add(Box.createHorizontalGlue());
-
 		JPanel pan = new JPanel();
-		pan.add(box);
+		if(!this.examDone) {
+			Box box = Box.createHorizontalBox();
+			box.add(Box.createHorizontalGlue());
+	
+			btn_addImp = new JButton("Choose post-mictional dicom");
+			btn_addImp.addActionListener(this);
+			box.add(btn_addImp);
+			box.add(Box.createHorizontalGlue());
+	
+			pan.add(box);
+		}else {
+			DynamicImage test = new DynamicImage(((ModelePost) ((ControleurPost) this.vueBasic.getFenApplication().getControleur()).getModel()).getPelvisMontage().getImage());
+			pan.add(test);
+		}
 		return pan;
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
-		
+		this.vueBasic = new postScintigraphy("Post Scinty", this);
+		try {
+			this.vueBasic.run("");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
+	
+	public void setExamDone(boolean boobool) {
+		this.examDone = boobool;
+	}
+	
 
 }

@@ -4,11 +4,13 @@ import java.awt.Component;
 import java.awt.GridLayout;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -19,7 +21,7 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
 
-public class ControleurShunpo extends ControleurScin {
+public class ControllerShunpo extends ControleurScin {
 
 	private final boolean FIRST_ORIENTATION_POST;
 
@@ -53,7 +55,7 @@ public class ControleurShunpo extends ControleurScin {
 	 * @param vue
 	 * @param images 2 images, 1st: KIDNEY-PULMON; 2nd: BRAIN
 	 */
-	public ControleurShunpo(Scintigraphy main, FenApplication vue, ImageSelection[] images, String studyName) {
+	public ControllerShunpo(Scintigraphy main, FenApplication vue, ImageSelection[] images, String studyName) {
 		super(main, vue, new ModeleShunpo(images, studyName));
 		this.FIRST_ORIENTATION_POST = true;
 		this.currentStep = STEP_KIDNEY_LUNG;
@@ -70,24 +72,24 @@ public class ControleurShunpo extends ControleurScin {
 		this.prepareOrientation();
 	}
 
-	private final void DEBUG() {
-		this.DEBUG(null);
-	}
-
-	private final void DEBUG(String location) {
-		if (location != null)
-			System.out.println("== " + location.toUpperCase() + " ==");
-		System.out.println("Current orientation: " + (this.isNowPost() ? "POST" : "ANT"));
-		System.out.println(
-				"Current step: " + this.currentStep + " [" + (this.currentStep == 0 ? "PULMON_KIDNEY" : "BRAIN") + "]");
-		System.out.println(
-				"Current organ: " + this.currentOrgan + " [" + this.steps[this.currentStep][this.currentOrgan] + "]");
-		System.out.println("Index ROI: " + this.indexRoi);
-		System.out.println("Position: " + this.position);
-		if (location == null)
-			System.out.println("==============");
-		System.out.println();
-	}
+//	private final void DEBUG() {
+//		this.DEBUG(null);
+//	}
+//
+//	private final void DEBUG(String location) {
+//		if (location != null)
+//			System.out.println("== " + location.toUpperCase() + " ==");
+//		System.out.println("Current orientation: " + (this.isNowPost() ? "POST" : "ANT"));
+//		System.out.println(
+//				"Current step: " + this.currentStep + " [" + (this.currentStep == 0 ? "PULMON_KIDNEY" : "BRAIN") + "]");
+//		System.out.println(
+//				"Current organ: " + this.currentOrgan + " [" + this.steps[this.currentStep][this.currentOrgan] + "]");
+//		System.out.println("Index ROI: " + this.indexRoi);
+//		System.out.println("Position: " + this.position);
+//		if (location == null)
+//			System.out.println("==============");
+//		System.out.println();
+//	}
 
 	/**
 	 * Displays the current organ's instruction type.<br>
@@ -127,7 +129,6 @@ public class ControleurShunpo extends ControleurScin {
 	 * @param indexRoi
 	 */
 	private void editOrgan() {
-		DEBUG("EDIT ORGAN");
 		boolean existed = false;
 
 		existed = this.editRoi(this.position);
@@ -135,20 +136,10 @@ public class ControleurShunpo extends ControleurScin {
 			existed = this.editCopyRoi(this.indexRoi * 2 - this.currentOrgan);
 		}
 
-//		if (this.isNowPost()) {
-//			existed = this.editRoi(this.indexRoi);
-//		} else {
-//			existed = this.editRoi(this.position);
-//			if (!existed) {
-//				existed = this.editCopyRoi(this.indexRoi);
-//			}
-//		}
-
 		if (existed)
 			this.displayInstructionCurrentOrgan("Adjust");
 		else
 			this.displayInstructionCurrentOrgan("Delimit");
-		DEBUG();
 	}
 
 	/**
@@ -162,8 +153,7 @@ public class ControleurShunpo extends ControleurScin {
 	@Override
 	protected void end() {
 		this.currentOrgan++;
-		this.vue.getTextfield_instructions().setText("End!");
-		this.vue.getBtn_suivant().setEnabled(false);
+		super.end();
 
 		// Compute model
 		int firstSlice = (this.FIRST_ORIENTATION_POST ? SLICE_POST : SLICE_ANT);
@@ -180,7 +170,7 @@ public class ControleurShunpo extends ControleurScin {
 				img = this.model.getImageSelection()[STEP_KIDNEY_LUNG].getImagePlus();
 				img.setSlice(firstSlice);
 				title_completion += " {KIDNEY_LUNG}";
-				if(this.FIRST_ORIENTATION_POST)
+				if (this.FIRST_ORIENTATION_POST)
 					organ = i * 2 + 1;
 				else
 					organ = i * 2;
@@ -188,7 +178,7 @@ public class ControleurShunpo extends ControleurScin {
 				img = this.model.getImageSelection()[STEP_KIDNEY_LUNG].getImagePlus();
 				img.setSlice(secondSlice);
 				title_completion += " {KIDNEY_LUNG}";
-				if(this.FIRST_ORIENTATION_POST)
+				if (this.FIRST_ORIENTATION_POST)
 					organ = (i - this.steps[STEP_KIDNEY_LUNG].length) * 2;
 				else
 					organ = (i - this.steps[STEP_KIDNEY_LUNG].length) * 2 + 1;
@@ -196,7 +186,7 @@ public class ControleurShunpo extends ControleurScin {
 				img = this.model.getImageSelection()[STEP_BRAIN].getImagePlus();
 				img.setSlice(firstSlice);
 				title_completion += " {BRAIN}";
-				if(this.FIRST_ORIENTATION_POST)
+				if (this.FIRST_ORIENTATION_POST)
 					organ = i + 1;
 				else
 					organ = i;
@@ -204,7 +194,7 @@ public class ControleurShunpo extends ControleurScin {
 				img = this.model.getImageSelection()[STEP_BRAIN].getImagePlus();
 				img.setSlice(secondSlice);
 				title_completion += " {BRAIN}";
-				if(this.FIRST_ORIENTATION_POST)
+				if (this.FIRST_ORIENTATION_POST)
 					organ = i - 1;
 				else
 					organ = i;
@@ -319,7 +309,8 @@ public class ControleurShunpo extends ControleurScin {
 
 	@Override
 	public void clicSuivant() {
-		if (this.saveCurrentRoi(this.steps[this.currentStep][this.currentOrgan] + (this.isNowPost() ? "_P" : "_A"))) {
+		try {
+			this.saveRoiAtIndex(this.steps[this.currentStep][this.currentOrgan] + (this.isNowPost() ? "_P" : "_A"), this.position);
 
 			this.displayRoi(this.position);
 			super.clicSuivant();
@@ -335,6 +326,8 @@ public class ControleurShunpo extends ControleurScin {
 					this.nextOrientation();
 			} else
 				this.nextOrgan();
+		} catch (NoDataException e) {
+			JOptionPane.showMessageDialog(this.vue, e.getMessage(), "", JOptionPane.WARNING_MESSAGE);
 		}
 	}
 

@@ -16,7 +16,6 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
@@ -27,44 +26,26 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 import ij.ImagePlus;
-import ij.plugin.PlugIn;
 
 /**
  * DISCLAIMER : Dans cette application, il a été fait comme choix d'initialiser
  * le module par le biais du Contrôleur, qui va ensuite créer la vue et le
  * modèle.
  */
-public class OsScintigraphy extends Scintigraphy implements PlugIn {
-
-	private String examType;
-
-	ImagePlus[][] buffer;
-
-	private FenApplication_Os fen_application_os;
-
-	private ImagePlus imp;
-
-	protected int nombreAcquisitions;
-
-	private ModeleScin modele;
-
+public class OsScintigraphy extends Scintigraphy {
 	private boolean process;
+	private ImagePlus[][] buffer;
 
 	public OsScintigraphy() {
 		super("Scinti Os");
 		this.process = true;
 	}
 
-	public void setImp(ImagePlus imp) {
-		this.imp = imp;
-	}
-
 	/**
 	 * Lance la FenSelectionDicom qui permet de selectionner les images qui seront
 	 * traité par ce plug-in.
 	 * 
-	 * @param selectedImages
-	 *            liste des images transmises depuis FenSelectionDicom
+	 * @param selectedImages liste des images transmises depuis FenSelectionDicom
 	 * @return
 	 */
 	@Override
@@ -92,8 +73,7 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn {
 	 * La colonne 0 : l'ImagePlus ANT du patient --/-- la colonne 1 : l'ImagePlus
 	 * POST du patient.<br/>
 	 * 
-	 * @param selectedImages
-	 *            liste des images transmises depuis FenSelectionDicom
+	 * @param selectedImages liste des images transmises depuis FenSelectionDicom
 	 * @return
 	 */
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
@@ -155,7 +135,6 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn {
 				buffer[i][1] = Post;
 			}
 		}
-		this.setImp(impSorted);
 
 		ArrayList<String> patientID = new ArrayList<>();
 		ArrayList<String> patientName = new ArrayList<>();
@@ -202,7 +181,6 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn {
 			Controleur_Os controleur_os = new Controleur_Os(buffer, this);
 			FenApplication_Os fen = controleur_os.getFenApplicatio_Os();
 			fen.setVisible(true);
-			this.setFenApplication_Os(fen);
 
 			JFrame frame = new JFrame("Bone Scinthigraphy");
 			frame.add(fen);
@@ -210,35 +188,6 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn {
 			frame.setVisible(true);
 			frame.setResizable(true);
 		}
-	}
-
-	public void setExamType(String examType) {
-		this.examType = examType;
-	}
-
-	public void setFenApplication_Os(FenApplication_Os fen_application) {
-		this.fen_application_os = fen_application;
-	}
-
-	/********************** Getter **************************/
-	public ImagePlus getImp() {
-		return this.imp;
-	}
-
-	public String getStudyName() {
-		return this.examType;
-	}
-
-	public FenApplication_Os getFenApplication_Os() {
-		return this.fen_application_os;
-	}
-
-	public void setModele(ModeleScin modele) {
-		this.modele = modele;
-	}
-
-	public ModeleScin getModele() {
-		return modele;
 	}
 
 	private class Fen_MultiplPatient extends JDialog implements ActionListener {
@@ -307,5 +256,4 @@ public class OsScintigraphy extends Scintigraphy implements PlugIn {
 		}
 
 	}
-
 }

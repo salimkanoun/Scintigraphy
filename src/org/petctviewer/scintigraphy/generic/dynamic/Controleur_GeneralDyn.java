@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
@@ -29,19 +30,19 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 	protected Controleur_GeneralDyn(GeneralDynamicScintigraphy scin, String studyName) {
 		super(scin, new Modele_GeneralDyn(studyName, scin.getFrameDurations()));
 		this.setOrganes(new String[MAXROI]);
-		
+
 		this.over = false;
 
 		this.getScin().getFenApplication().getTextfield_instructions().addKeyListener(new KeyListener() {
 
 			@Override
 			public void keyTyped(KeyEvent arg0) {
-				//non utilise
+				// non utilise
 			}
 
 			@Override
 			public void keyReleased(KeyEvent arg0) {
-				//non utilise
+				// non utilise
 			}
 
 			@Override
@@ -64,7 +65,6 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 		this.getScin().getFenApplication().getTextfield_instructions().setText(s);
 	}
 
-	
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		super.actionPerformed(arg0);
@@ -75,7 +75,7 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 			this.clicSuivant();
 			this.end();
 		}
-		
+
 	}
 
 	@Override
@@ -88,9 +88,9 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 
 	@Override
 	public void end() {
-		//on sauvegarde l'imp projetee pour la reafficher par la suite
+		// on sauvegarde l'imp projetee pour la reafficher par la suite
 		this.impProjetee = this.model.getImagePlus().duplicate();
-		this.over = true; 
+		this.over = true;
 		this.nbOrganes = this.model.getRoiManager().getCount();
 		GeneralDynamicScintigraphy scindyn = (GeneralDynamicScintigraphy) this.getScin();
 		this.removeImpListener();
@@ -121,7 +121,7 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 			postExists = true;
 			ImagePlus imp2 = ZProjector.run(scindyn.getImpPost(), "sum");
 			imp2.setOverlay(imp.getOverlay());
-			
+
 			imp2.setProperty("Info", this.model.getImagePlus().getInfoProperty());
 
 //			scindyn.setImp(imp2);
@@ -161,11 +161,11 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 		this.indexRoi = this.nbOrganes;
 		this.over = false;
 		this.addImpListener();
-		
+
 		vue.getFenApplication().setImage(this.impProjetee);
 //		vue.setImp(this.impProjetee);
 		this.model.getImagesPlus()[0] = this.impProjetee;
-		
+
 		vue.getFenApplication().resizeCanvas();
 	}
 
@@ -174,30 +174,30 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 		this.model.getImagesPlus()[0] = imp;
 //		this.getScin().setImp(imp);
 		this.indexRoi = 0;
-		
-		HashMap<String, List<Double>> mapData=new HashMap<String, List<Double>>();
+
+		HashMap<String, List<Double>> mapData = new HashMap<String, List<Double>>();
 		// on copie les roi sur toutes les slices
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
 			for (int j = 0; j < this.nbOrganes; j++) {
 				imp.setRoi(getOrganRoi(this.indexRoi));
 				String name = this.getNomOrgane(this.indexRoi);
-				
-				//String name = nom.substring(0, nom.lastIndexOf(" "));
+
+				// String name = nom.substring(0, nom.lastIndexOf(" "));
 				// on cree la liste si elle n'existe pas
-				if ( mapData.get(name) == null) {
+				if (mapData.get(name) == null) {
 					mapData.put(name, new ArrayList<Double>());
 				}
 				// on y ajoute le nombre de coups
 				mapData.get(name).add(Library_Quantif.getCounts(imp));
-				
+
 				this.indexRoi++;
 			}
 		}
-		//set data to the model
+		// set data to the model
 		((ModeleScinDyn) this.model).setData(mapData);
 		this.model.calculerResultats();
-		
+
 	}
 
 	@Override
@@ -226,16 +226,17 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 	}
 
 	@Override
-	public boolean saveCurrentRoi(String nomRoi, int indexRoi) {
+	public void saveRoiAtIndex(String nomRoi, int indexRoi) throws NoDataException {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
 			// on change la couleur pour l'overlay
 			this.model.getImagePlus().getRoi().setStrokeColor(Color.YELLOW);
 			// on enregistre la ROI dans le modele
-			//SK ICI ON REMPLACE
-			/*(( GeneralDynamicScintigraphy)this.model).enregistrerMesure(
-					this.addTag(nomRoi), 
-					this.model.getImagePlus());*/
-	
+			// SK ICI ON REMPLACE
+			/*
+			 * (( GeneralDynamicScintigraphy)this.model).enregistrerMesure(
+			 * this.addTag(nomRoi), this.model.getImagePlus());
+			 */
+
 			// On verifie que la ROI n'existe pas dans le ROI manager avant de l'ajouter
 			// pour eviter les doublons
 			if (this.model.getRoiManager().getRoi(indexRoi) == null) {
@@ -245,19 +246,15 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 				// on supprime le roi nouvellement ajoute de la vue
 				this.scin.getFenApplication().getImagePlus().killRoi();
 			}
-	
+
 			// precise la postion en z
-			this.model.getRoiManager().
-			getRoi(indexRoi).
-			setPosition(this.getSliceNumberByRoiIndex(indexRoi));
-	
+			this.model.getRoiManager().getRoi(indexRoi).setPosition(this.getSliceNumberByRoiIndex(indexRoi));
+
 			// changement de nom
 			this.model.getRoiManager().rename(indexRoi, nomRoi);
-	
-			return true;
+		} else {
+			throw new NoDataException("No ROI selected");
 		}
-		return false;
-		
+
 	}
 }
-

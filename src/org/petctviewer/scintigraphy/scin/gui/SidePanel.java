@@ -43,7 +43,7 @@ public class SidePanel extends JPanel {
 		this.box = new Box(BoxLayout.Y_AXIS);
 		this.sidePanelContent = sidePanelContent;
 		
-		this.panSouth = new JPanel(new GridLayout(1, 1));
+		this.panSouth = new JPanel();
 
 		this.fillbox(titre, imp);
 
@@ -118,14 +118,13 @@ public class SidePanel extends JPanel {
 	}
 
 	public void createCaptureButton(TabResult tab, Component[] hide, Component[] show, String additionalInfo) {
-		// TODO: place button at the right place
 		// capture button
 		JButton captureButton = new JButton("Capture");
 
 		// label de credits
 		JLabel lbl_credits = new JLabel("Provided by petctviewer.org");
 		lbl_credits.setVisible(false);
-		this.box.add(lbl_credits);
+		this.panSouth.add(lbl_credits);
 
 		// generation du tag info
 		String info = Library_Capture_CSV.genererDicomTagsPartie1(tab.getParent().getModel().getImagesPlus()[0],
@@ -202,7 +201,7 @@ public class SidePanel extends JPanel {
 		
 		captureButton.setHorizontalAlignment(JButton.CENTER);
 		captureButton.setEnabled(true);
-		this.box.add(captureButton);
+		this.panSouth.add(captureButton);
 	}
 
 }

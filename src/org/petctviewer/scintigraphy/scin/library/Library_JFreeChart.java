@@ -160,7 +160,7 @@ public class Library_JFreeChart {
 		List<Double> integrale = new ArrayList<>();
 	
 		// on recupere les points de l'intervalle voulu
-		XYSeries croppedSeries = Modele_Renal.cropSeries(series, startX, endX);
+		XYSeries croppedSeries = Library_JFreeChart.cropSeries(series, startX, endX);
 	
 		// on calcule les aires sous la courbe entre chaque paire de points
 		Double airePt1 = croppedSeries.getX(0).doubleValue() * croppedSeries.getY(0).doubleValue() / 2;

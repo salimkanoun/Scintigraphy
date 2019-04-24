@@ -23,17 +23,27 @@ public class TabPrincipalLympho extends TabResult {
 	
 	ImagePlus montage;
 
-	public TabPrincipalLympho(FenResults parent, String title,ModeleScin model,ImagePlus[] captures) {
-		super(parent, title,true);
-		// TODO Auto-generated constructor stub
+	public TabPrincipalLympho(FenResults parent, String title, ModeleScin model,ImagePlus[] captures) {
+		super(parent, title);
+
+
+		System.out.println("TabPrincipalLympho : "+model!=null);
 		this.model = model;
 		ImageStack stackCapture = Library_Capture_CSV.captureToStack(captures);
 		this.montage = this.montage(stackCapture);
+		
+		
+		this.createCaptureButton();
+		
+		this.reloadDisplay();
+		
+		
 	}
 
 	@Override
 	public Component getSidePanelContent() {
-		String[] result = ((ModeleLympho) model).getResult();
+		System.out.println(model != null);
+		String[] result = ((ModeleLympho) parent.getModel()).getResult();
 		JPanel res = new JPanel(new GridLayout(result.length, 1));
 		for (String s : result)
 			res.add(new JLabel(s));
@@ -42,7 +52,10 @@ public class TabPrincipalLympho extends TabResult {
 
 	@Override
 	public JPanel getResultContent() {
-		return new DynamicImage(montage.getImage());
+		if(montage != null)
+			return new DynamicImage(montage.getImage());
+		else 
+			return null;
 	}
 	
 	
@@ -50,7 +63,7 @@ public class TabPrincipalLympho extends TabResult {
 		MontageMaker mm = new MontageMaker();
 		// TODO: patient ID
 		String patientID = "NO_ID_FOUND";
-		ImagePlus imp = new ImagePlus("Resultats ShunPo -" + this.model.getStudyName() + " -" + patientID, captures);
+		ImagePlus imp = new ImagePlus("Results Pelvis -" + this.model.getStudyName() + " -" + patientID, captures);
 		imp = mm.makeMontage2(imp, 2, 2, 0.50, 1, 4, 1, 10, false);
 		return imp;
 	}

@@ -13,6 +13,7 @@ import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 class TabZoomed extends TabResult {
 
@@ -32,13 +33,13 @@ class TabZoomed extends TabResult {
 		boolean[] kidneys = modele.getKidneys();
 		if (kidneys[0]) {
 			XYSeries finalKL = modele.getSerie("Final KL");
-			XYSeries finalKLCropped = Modele_Renal.cropSeries(finalKL, 0.0, 1.0);
+			XYSeries finalKLCropped = Library_JFreeChart.cropSeries(finalKL, 0.0, 1.0);
 			finalKLCropped.setKey("Left Kidney");
 			dataset.addSeries(finalKLCropped);
 		}
 		if (kidneys[1]) {
 			XYSeries finalKR = modele.getSerie("Final KR");
-			XYSeries finalKRCropped = Modele_Renal.cropSeries(finalKR, 0.0, 1.0);
+			XYSeries finalKRCropped = Library_JFreeChart.cropSeries(finalKR, 0.0, 1.0);
 			finalKRCropped.setKey("Right Kidney");
 			dataset.addSeries(finalKRCropped);
 		}
