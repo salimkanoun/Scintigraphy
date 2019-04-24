@@ -117,6 +117,8 @@ public interface Instruction {
 	public abstract void afterPrevious(ControllerWorkflow controller);
 
 	/**
+	 * <i>Ignored if {@link #saveRoi()} is FALSE</i>
+	 * 
 	 * @return index of the ROI to display or <0 if none
 	 */
 	public abstract int roiToDisplay();

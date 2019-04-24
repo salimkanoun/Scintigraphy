@@ -72,7 +72,7 @@ public abstract class TabResult {
 	public String getTitle() {
 		return this.title;
 	}
-	
+
 	public void setTitle(String title) {
 		this.title = title;
 	}
@@ -114,6 +114,12 @@ public abstract class TabResult {
 	}
 
 	/**
+	 * Do not use this method to change directly the content of the panel.<br>
+	 * If you need to change the content of any panel, please do that in the
+	 * abstract methods {@link #getSidePanelContent()} and
+	 * {@link #getResultContent()}. <br>
+	 * This method is only designed to be used by the capture tool.
+	 * 
 	 * @return Panel containing the result panel and the side panel
 	 */
 	public JPanel getPanel() {
