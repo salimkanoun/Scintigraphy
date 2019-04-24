@@ -5,14 +5,10 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
 
-import javax.swing.JOptionPane;
-
+import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
-import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -35,10 +31,6 @@ public abstract class ControleurScin implements ActionListener {
 	 * The position must always be positive.
 	 */
 	protected int position;
-	/**
-	 * Map of all the ROI names by they index
-	 */
-	protected Map<Integer, String> roiNames;
 
 	protected Scintigraphy main;
 
@@ -47,7 +39,6 @@ public abstract class ControleurScin implements ActionListener {
 	public ControleurScin(Scintigraphy main, FenApplication vue, ModeleScin model) {
 		this.vue = vue;
 		this.position = 0;
-		this.roiNames = new HashMap<>();
 		this.main = main;
 		this.model = model;
 
@@ -60,11 +51,21 @@ public abstract class ControleurScin implements ActionListener {
 	 * @return TRUE if the controller has finished, FALSE otherwise
 	 */
 	public abstract boolean isOver();
+	
+	/**
+	 * @return view of the MVC pattern
+	 */
+	public FenApplication getVue() {
+		return this.vue;
+	}
 
 	/**
 	 * This method should be called when the controller is over.
 	 */
-	protected abstract void end();
+	protected void end() {
+		this.vue.getTextfield_instructions().setText("End!");
+		this.vue.getBtn_suivant().setEnabled(false);
+	}
 
 	/**
 	 * This method is called when the FenApplication is closed.
@@ -120,52 +121,77 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 	/**
+	 * Saves the current ROI of the current ImagePlus in the RoiManager at the
+	 * specified index. If a ROI with the same name has already been saved, it will
+	 * be replaced.
+	 * 
+	 * @param name           Name of the ROI to save
+	 * @param indexRoiToSave index of the roi to save on the RoiManager
+	 * @throws NoDataException if no ROI is present on the current ImagePlus
+	 */
+	public void saveRoiAtIndex(String name, int indexRoiToSave) throws NoDataException {
+		Roi roiToSave = this.vue.getImagePlus().getRoi();
+
+		// Check if there is a ROI to save
+		if (roiToSave == null)
+			throw new NoDataException("No ROI to save");
+
+		roiToSave.setStrokeColor(Color.YELLOW);
+		roiToSave.setPosition(0);
+
+		Roi existingRoi = this.getRoi(name);
+		int posExisting = indexRoiToSave;
+
+		// Check if there is an existing ROI
+		if (existingRoi != null) {
+			posExisting = this.model.getRoiManager().getRoiIndex(existingRoi);
+			// Overwrite it
+			this.model.getRoiManager().setRoi(roiToSave, posExisting);
+			System.out.println("Overriding ROI " + posExisting + " by " + roiToSave.getName());
+		} else {
+			// Add it
+			this.model.getRoiManager().addRoi(roiToSave);
+			System.out.println("Creating new ROI#" + posExisting);
+		}
+		this.vue.getImagePlus().killRoi();
+
+		// Name the ROI
+		this.model.getRoiManager().rename(posExisting, name);
+	}
+
+	/**
 	 * Saves the current ROI of the current ImagePlus in the RoiManager. If a ROI
 	 * with the same name has already been saved, it will be replaced.
 	 * 
 	 * @param name Name of the ROI to save
-	 * @return TRUE if a ROI was save and FALSE if no ROI is present on the current
-	 *         ImagePlus
+	 * @throws NoDataException if no ROI is present on the current ImagePlus
 	 */
-	public boolean saveCurrentRoi(String name) {
+	public void saveCurrentRoi(String name) throws NoDataException {
 		Roi roiToSave = this.vue.getImagePlus().getRoi();
 
 		// Check if there is a ROI to save
-		if (roiToSave != null) {
-			roiToSave.setStrokeColor(Color.YELLOW);
-			roiToSave.setPosition(0);
+		if (roiToSave == null)
+			throw new NoDataException("No ROI to save");
 
-			Roi existingRoi = this.getRoi(name);
-			int posExisting = this.position;
+		roiToSave.setStrokeColor(Color.YELLOW);
+		roiToSave.setPosition(0);
 
-			// Check if there is an existing ROI
-			if (existingRoi != null) {
-				posExisting = this.model.getRoiManager().getRoiIndex(existingRoi);
-				// Overwrite it
-				this.model.getRoiManager().setRoi(roiToSave, posExisting);
-			} else {
-				// Add it
-				this.model.getRoiManager().addRoi(roiToSave);
-			}
-			this.vue.getImagePlus().killRoi();
+		Roi existingRoi = this.getRoi(name);
+		int posExisting = this.position;
 
-			// Name the ROI
-			this.model.getRoiManager().rename(posExisting, name);
-			this.roiNames.put(posExisting, name);
-
-			return true;
+		// Check if there is an existing ROI
+		if (existingRoi != null) {
+			posExisting = this.model.getRoiManager().getRoiIndex(existingRoi);
+			// Overwrite it
+			this.model.getRoiManager().setRoi(roiToSave, posExisting);
+		} else {
+			// Add it
+			this.model.getRoiManager().addRoi(roiToSave);
 		}
+		this.vue.getImagePlus().killRoi();
 
-		// No ROI to save
-		JOptionPane.showMessageDialog(vue, "No ROI to save\nPlease draw a ROI", "", JOptionPane.WARNING_MESSAGE);
-		return false;
-	}
-
-	/**
-	 * @return index of the last ROI saved
-	 */
-	public int getIndexLastRoi() {
-		return this.roiNames.size() - 1;
+		// Name the ROI
+		this.model.getRoiManager().rename(posExisting, name);
 	}
 
 	/**
@@ -175,8 +201,7 @@ public abstract class ControleurScin implements ActionListener {
 	 * @param index Index of the ROI to display
 	 */
 	public void displayRoi(int index) {
-		int[] array = { index };
-		this.displayRois(array);
+		this.displayRois(new int[] { index });
 	}
 
 	/**
@@ -188,9 +213,14 @@ public abstract class ControleurScin implements ActionListener {
 	public void displayRois(int[] indexes) {
 		// Get ROIs to display
 		for (int i : indexes) {
+			System.out.println("Trying to display ROI#" + i);
 			Roi roiToDisplay = this.model.getRoiManager().getRoi(i);
 			if (roiToDisplay != null) {
 				this.vue.getImagePlus().getOverlay().add(roiToDisplay);
+				System.out.println(
+						"Displaying : " + roiToDisplay.getName() + " (0->" + this.getRoiManager().getCount() + ")");
+			} else {
+				System.out.println("FAILED: ROIs are only from 0 to " + this.getRoiManager().getCount());
 			}
 		}
 	}
@@ -258,6 +288,19 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 	/**
+	 * Displays a clone of the specified ROI and make it editable.<br>
+	 * If the ROI is null, this method does nothing.
+	 * 
+	 * @param index Index of the ROI to clone and edit
+	 */
+	public void editCopyRoi(Roi roi) {
+		if (roi != null) {
+			this.vue.getImagePlus().setRoi((Roi) roi.clone());
+			this.vue.getImagePlus().getRoi().setStrokeColor(Color.RED);
+		}
+	}
+
+	/**
 	 * Displays the ROI with the specified index if existing and make it editable.
 	 * 
 	 * @param index Index of the ROI to edit
@@ -299,8 +342,8 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 	/**
-	 * Creates a rectangle between the two ROIs specified.
-	 * TODO: move this method in Library_Roi
+	 * Creates a rectangle between the two ROIs specified. TODO: move this method in
+	 * Library_Roi
 	 * 
 	 * @param r1
 	 * @param r2
@@ -362,3 +405,4 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 }
+
