@@ -27,9 +27,22 @@ public interface Instruction {
 	public abstract void prepareAsPrevious();
 
 	/**
+	 * <i>Ignored if {@link #isExpectingUserInput()} is FALSE.</i>
+	 * 
 	 * @return message displayed for the user
 	 */
 	public abstract String getMessage();
+
+	/**
+	 * This method should return the name of the organ delimited by the ROI.<br>
+	 * For example, if this Instruction delimit the brain, then this method should
+	 * return "Brain". <br>
+	 * <br>
+	 * <i>Ignored if {@link #saveRoi()} is FALSE</i>
+	 * 
+	 * @return name of the ROI to store in the RoiManager
+	 */
+	public abstract String getRoiName();
 
 	/**
 	 * If an instruction is not displayed, then it will automatically go to the next

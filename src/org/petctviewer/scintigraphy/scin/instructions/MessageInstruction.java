@@ -67,4 +67,9 @@ public abstract class MessageInstruction implements Instruction {
 		return false;
 	}
 
+	@Override
+	public String getRoiName() {
+		return null;
+	}
+
 }

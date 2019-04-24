@@ -14,7 +14,7 @@ public abstract class ExecutionInstruction implements Instruction {
 
 	@Override
 	public String getMessage() {
-		return null;
+		return "";
 	}
 
 	@Override
@@ -57,6 +57,11 @@ public abstract class ExecutionInstruction implements Instruction {
 	@Override
 	public boolean isRoiVisible() {
 		return this.saveRoi();
+	}
+
+	@Override
+	public String getRoiName() {
+		return "Unknown ROI";
 	}
 
 }

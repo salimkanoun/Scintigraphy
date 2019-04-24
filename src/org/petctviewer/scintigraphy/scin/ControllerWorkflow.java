@@ -154,15 +154,12 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 			// === Draw ROI of the previous instruction ===
 			if (previousInstruction != null && previousInstruction.saveRoi()) {
-				String organName = previousInstruction.getClass().getSimpleName();
 				Orientation orientation = previousInstruction.getImageState() == null ? this.getCurrentOrientation()
 						: previousInstruction.getImageState().orientation;
-				if (previousInstruction instanceof DrawRoiInstruction) {
-					organName = ((DrawRoiInstruction) previousInstruction).getOrganName();
-				}
 
 				try {
-					this.saveRoiAtIndex("#" + indexPreviousImage + "_" + organName + orientation.abrev(),
+					this.saveRoiAtIndex(
+							"#" + indexPreviousImage + "_" + previousInstruction.getRoiName() + orientation.abrev(),
 							this.indexRoi);
 					previousInstruction.setRoi(this.indexRoi);
 
