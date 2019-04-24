@@ -30,6 +30,9 @@ public class GastricScintigraphy extends Scintigraphy {
 			selection[i] = new ImageSelection(Library_Dicom.sortImageAntPost(ims.getImagePlus()), null, null);
 			ims.getImagePlus().close();
 		}
+		
+		// Order images by time
+		selection = Library_Dicom.orderImagesByAcquisitionTime(selection, false);
 
 		return selection;
 	}

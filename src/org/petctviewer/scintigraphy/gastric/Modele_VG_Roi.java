@@ -46,23 +46,27 @@ import ij.util.DicomTools;
 
 public class Modele_VG_Roi {
 	public static Font italic = new Font("Arial", Font.ITALIC, 8);
-	private HashMap<String, Integer> coups;//pour enregistrer les coups dans chaque organe sur chaque image
-	private HashMap<String, Integer> mgs;//pour enregistrer le MG dans chaque organe pour chaque serie
-	protected static double[] temps;//pour enregistrer l'horaire où on recupere  chaque serie
-	protected static double[] estomacPourcent;//pour enregistrer le pourcentage de l'estomac(par rapport a total) pour chaque serie
-	protected static double[] fundusPourcent;//pour enregistrer le pourcentage du fundus(par rapport a total) pour chaque serie
-	protected static double[] antrePourcent;//pour enregistrer le pourcentage de l'antre(par rapport a total) pour chaque serie
-	protected static double[] funDevEsto;//pour enregistrer le rapport fundus/estomac pour chaque serie
-	protected static double[] estoInter;//pour enregistrer le rapport fundus/estomac pour chaque serie
-	protected static double[] tempsInter;//pour enregistrerla derivee de la courbe de variation de l’estomac
-	protected static boolean logOn;//signifie si log est ouvert
-	protected static double[] intestinPourcent;//pour enregistrer le pourcentage de l'intestin(par rapport a total) pour chaque serie
+	private HashMap<String, Integer> coups;// pour enregistrer les coups dans chaque organe sur chaque image
+	private HashMap<String, Integer> mgs;// pour enregistrer le MG dans chaque organe pour chaque serie
+	protected static double[] temps;// pour enregistrer l'horaire où on recupere chaque serie
+	protected static double[] estomacPourcent;// pour enregistrer le pourcentage de l'estomac(par rapport a total) pour
+												// chaque serie
+	protected static double[] fundusPourcent;// pour enregistrer le pourcentage du fundus(par rapport a total) pour
+												// chaque serie
+	protected static double[] antrePourcent;// pour enregistrer le pourcentage de l'antre(par rapport a total) pour
+											// chaque serie
+	protected static double[] funDevEsto;// pour enregistrer le rapport fundus/estomac pour chaque serie
+	protected static double[] estoInter;// pour enregistrer le rapport fundus/estomac pour chaque serie
+	protected static double[] tempsInter;// pour enregistrerla derivee de la courbe de variation de l’estomac
+	protected static boolean logOn;// signifie si log est ouvert
+	protected static double[] intestinPourcent;// pour enregistrer le pourcentage de l'intestin(par rapport a total)
+												// pour chaque serie
 
 	private String[] organes = { "Estomac", "Intestin", "Fundus", "Antre" };
 
 	private String patient;
 	private String date;
-	private boolean trouve;//signifie si la valeur qu'on veut est trouvee sur la courbe
+	private boolean trouve;// signifie si la valeur qu'on veut est trouvee sur la courbe
 
 	public Modele_VG_Roi() {
 		this.coups = new HashMap<>();
@@ -72,7 +76,8 @@ public class Modele_VG_Roi {
 	}
 
 	public enum Etat {
-		ESTOMAC_ANT, INTESTIN_ANT, ESTOMAC_POS, INTESTIN_POS, CIR_ESTOMAC_ANT, CIR_INTESTIN_ANT, CIR_ESTOMAC_POS, CIR_INTESTIN_POS, FIN, RESULTAT;
+		ESTOMAC_ANT, INTESTIN_ANT, ESTOMAC_POS, INTESTIN_POS, CIR_ESTOMAC_ANT, CIR_INTESTIN_ANT, CIR_ESTOMAC_POS,
+		CIR_INTESTIN_POS, FIN, RESULTAT;
 		private static Etat[] vals = values();
 
 		public Etat next() {
@@ -89,7 +94,8 @@ public class Modele_VG_Roi {
 	public void setPatient(String pat, ImagePlus imp) {
 		this.patient = pat;
 		this.date = DicomTools.getTag(imp, "0008,0020");
-		if (date!=null && !date.isEmpty()) date = date.trim();
+		if (date != null && !date.isEmpty())
+			date = date.trim();
 	}
 
 	// Cree un montage a partir de l'ImageStack
@@ -118,13 +124,13 @@ public class Modele_VG_Roi {
 	}
 
 	private void mgs(int indexImage) {
-		//on calcule cet de l'antre et de l'intestin 
+		// on calcule cet de l'antre et de l'intestin
 		for (String roi : this.organes)
 			this.moyenneGeo(roi, indexImage);
-		//on calcule les MGs de l'estomac
+		// on calcule les MGs de l'estomac
 		this.mgs.put("Estomac_MG" + indexImage,
 				1 * this.mgs.get("Fundus_MG" + indexImage) + 1 * this.mgs.get("Antre_MG" + indexImage));
-		//on calcule la somme des MGs 
+		// on calcule la somme des MGs
 		this.mgs.put("Total" + indexImage,
 				1 * this.mgs.get("Estomac_MG" + indexImage) + 1 * this.mgs.get("Intestin_MG" + indexImage));
 	}
@@ -163,11 +169,14 @@ public class Modele_VG_Roi {
 		long day = diff / (24 * 60 * 60 * 1000);
 		long hour = (diff / (60 * 60 * 1000) - day * 24);
 		long min = ((diff / (60 * 1000)) - day * 24 * 60 - hour * 60);
-		Modele_VG_Roi.temps[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 1] = (double) (day * 24 * 60 + hour * 60 + min);
+		Modele_VG_Roi.temps[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4
+				- 1] = (double) (day * 24 * 60 + hour * 60 + min);
 	}
 
-	//pour chaque serie, on calcule le pourcentage de l'estomac, le fundus, l'antre et l'intestin par rapport au total du repas
-	//calcule le rapport fundus/estomac et la derivee de la courbe de variation de l’estomac
+	// pour chaque serie, on calcule le pourcentage de l'estomac, le fundus, l'antre
+	// et l'intestin par rapport au total du repas
+	// calcule le rapport fundus/estomac et la derivee de la courbe de variation de
+	// l’estomac
 	public void pourcVGImage(int indexImage) {
 		this.mgs(indexImage);
 
@@ -197,9 +206,13 @@ public class Modele_VG_Roi {
 		Modele_VG_Roi.funDevEsto[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 1] = Double
 				.parseDouble(us.format(funDevEsto));
 
-		Modele_VG_Roi.tempsInter[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 2] = Modele_VG_Roi.temps[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 1];
-		double estoInter = ((Modele_VG_Roi.estomacPourcent[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 2] - Modele_VG_Roi.estomacPourcent[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 1])
-				/ (Modele_VG_Roi.temps[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 1] - Modele_VG_Roi.temps[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 2])) * 30;
+		Modele_VG_Roi.tempsInter[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4
+				- 2] = Modele_VG_Roi.temps[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 1];
+		double estoInter = ((Modele_VG_Roi.estomacPourcent[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 2]
+				- Modele_VG_Roi.estomacPourcent[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 1])
+				/ (Modele_VG_Roi.temps[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 1]
+						- Modele_VG_Roi.temps[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 2]))
+				* 30;
 		Modele_VG_Roi.estoInter[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 2] = Double
 				.parseDouble(us.format(estoInter));
 		if (Modele_VG_Roi.logOn) {
@@ -230,31 +243,32 @@ public class Modele_VG_Roi {
 			Modele_VG_Roi.antrePourcent[i] = Double.parseDouble(Vue_VG_Roi.resultatsDynamique[i * 4 + 3]);
 			Modele_VG_Roi.intestinPourcent[i] = 100.0 - Modele_VG_Roi.estomacPourcent[i];
 			Modele_VG_Roi.funDevEsto[i] = Modele_VG_Roi.fundusPourcent[i] / Modele_VG_Roi.estomacPourcent[i] * 100.0;
-			if(i>0){
-				Modele_VG_Roi.tempsInter[i-1]=Modele_VG_Roi.temps[i];
-				Modele_VG_Roi.estoInter[i-1] = ((Modele_VG_Roi.estomacPourcent[i-1] - Modele_VG_Roi.estomacPourcent[i])
-						/ (Modele_VG_Roi.temps[i] - Modele_VG_Roi.temps[i-1])) * 30.0;
-				
+			if (i > 0) {
+				Modele_VG_Roi.tempsInter[i - 1] = Modele_VG_Roi.temps[i];
+				Modele_VG_Roi.estoInter[i
+						- 1] = ((Modele_VG_Roi.estomacPourcent[i - 1] - Modele_VG_Roi.estomacPourcent[i])
+								/ (Modele_VG_Roi.temps[i] - Modele_VG_Roi.temps[i - 1])) * 30.0;
+
 			}
 		}
 	}
 
 	// permet de transferer toutes les resultats en une tableau de chaine
 	public String[] resultats(ImagePlus imp) {
-		String[] retour = new String[4 * (imp.getStackSize() / 2 +Vue_VG_Roi.resultatsDynamique.length/4+ 1) + 12];
-		//on enregistre la premiere partie des resultats
+		String[] retour = new String[4 * (imp.getStackSize() / 2 + Vue_VG_Roi.resultatsDynamique.length / 4 + 1) + 12];
+		// on enregistre la premiere partie des resultats
 		retour[0] = "Time(min)";
 		retour[1] = "Stomach(%)";
 		retour[2] = "Fundus(%)";
 		retour[3] = "Antrum(%)";
-		for (int i = 0; i < imp.getStackSize() / 2+Vue_VG_Roi.resultatsDynamique.length/4; i++) {
+		for (int i = 0; i < imp.getStackSize() / 2 + Vue_VG_Roi.resultatsDynamique.length / 4; i++) {
 			retour[i * 4 + 4] = Integer.toString((int) Modele_VG_Roi.temps[i]);
 			retour[i * 4 + 5] = Double.toString(Modele_VG_Roi.estomacPourcent[i]);
 			retour[i * 4 + 6] = Double.toString(Modele_VG_Roi.fundusPourcent[i]);
 			retour[i * 4 + 7] = Double.toString(Modele_VG_Roi.antrePourcent[i]);
 		}
 		// on enregistre la deuxime partie des resultats
-		int j = (imp.getStackSize() / 2+Vue_VG_Roi.resultatsDynamique.length/4) * 4 + 4;
+		int j = (imp.getStackSize() / 2 + Vue_VG_Roi.resultatsDynamique.length / 4) * 4 + 4;
 		String institutionName = "";
 		if (DicomTools.getTag(imp, "0008,0080") != null) {
 			institutionName = DicomTools.getTag(imp, "0008,0080").trim();
@@ -263,7 +277,7 @@ public class Modele_VG_Roi {
 		String studyDescription = "";
 		if (DicomTools.getTag(imp, "0008,1030") != null) {
 			studyDescription = DicomTools.getTag(imp, "0008,1030").trim();
-			//On remplace les virgules car elle cassent la structure du CSV
+			// On remplace les virgules car elle cassent la structure du CSV
 			studyDescription = studyDescription.replaceAll(",", "_");
 		}
 		retour[j++] = studyDescription;
@@ -273,13 +287,13 @@ public class Modele_VG_Roi {
 				+ Vue_VG_Roi.timeStart.substring(2, 4);
 		retour[j++] = "Start Antrum : " + this.getDebut("Antre") + " min";
 		retour[j++] = "Start Intestine : " + this.getDebut("Intestin") + " min";
-		//SI valeur interpolee on ajoute * a la string
-		retour[j++] = "Lag Phase : " + this.getX(95.0) + (trouve? " min":" min*") ;
-		retour[j++] = "T1/2 : " + this.getX(50.0) +  (trouve? " min":" min*") ;
-		retour[j++] = "Retention at 1h : " +  this.getY(60.0) + (trouve? "%":"%*") ;
-		retour[j++] = "Retention at 2h : " + this.getY(120.0) + (trouve? "%":"%*") ;
-		retour[j++] = "Retention at 3h : " + this.getY(180.0) + (trouve? "%":"%*") ;
-		retour[j] = "Retention at 4h : " + this.getY(240.0) + (trouve? "%":"%*") ;
+		// SI valeur interpolee on ajoute * a la string
+		retour[j++] = "Lag Phase : " + this.getX(95.0) + (trouve ? " min" : " min*");
+		retour[j++] = "T1/2 : " + this.getX(50.0) + (trouve ? " min" : " min*");
+		retour[j++] = "Retention at 1h : " + this.getY(60.0) + (trouve ? "%" : "%*");
+		retour[j++] = "Retention at 2h : " + this.getY(120.0) + (trouve ? "%" : "%*");
+		retour[j++] = "Retention at 3h : " + this.getY(180.0) + (trouve ? "%" : "%*");
+		retour[j] = "Retention at 4h : " + this.getY(240.0) + (trouve ? "%" : "%*");
 		return retour;
 	}
 
@@ -336,12 +350,11 @@ public class Modele_VG_Roi {
 	// permet de creer un graphique avec trois courbes
 	protected ImagePlus createCourbeTrois(String yAxisLabel, double[] resX, double[] resY1, Color color1, String titre1,
 			double[] resY2, Color color2, String titre2, double[] resY3, Color color3, String titre3) {
-		//On cree un dataset qui contient les 3 series
-		XYSeriesCollection dataset=createDatasetTrois(resX, resY1, titre1, resY2, titre2, resY3, titre3);
-		//On cree le graphique
-		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", yAxisLabel,
-				dataset, PlotOrientation.VERTICAL, true,
-				true, false);
+		// On cree un dataset qui contient les 3 series
+		XYSeriesCollection dataset = createDatasetTrois(resX, resY1, titre1, resY2, titre2, resY3, titre3);
+		// On cree le graphique
+		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", yAxisLabel, dataset,
+				PlotOrientation.VERTICAL, true, true, false);
 		// Parametres de l'affichage
 		XYPlot plot = (XYPlot) xylineChart.getPlot();
 		// choix du Background
@@ -351,23 +364,23 @@ public class Modele_VG_Roi {
 		// reference:
 		// https://stackoverflow.com/questions/28428991/setting-series-line-style-and-legend-size-in-jfreechart
 		XYLineAndShapeRenderer lineAndShapeRenderer = new XYLineAndShapeRenderer();
-		//on set le renderer dans le plot
+		// on set le renderer dans le plot
 		plot.setRenderer(lineAndShapeRenderer);
-		//On definit les parametre du renderer
+		// On definit les parametre du renderer
 		lineAndShapeRenderer.setDefaultLegendTextFont(new Font("", Font.BOLD, 16));
 		lineAndShapeRenderer.setSeriesPaint(0, color1);
 		lineAndShapeRenderer.setSeriesPaint(1, color2);
 		lineAndShapeRenderer.setSeriesPaint(2, color3);
-		//Defini la taille de la courbes (epaisseur du trait)
+		// Defini la taille de la courbes (epaisseur du trait)
 		lineAndShapeRenderer.setSeriesStroke(0, new BasicStroke(2.0F));
 		lineAndShapeRenderer.setSeriesStroke(1, new BasicStroke(2.0F));
 		lineAndShapeRenderer.setSeriesStroke(2, new BasicStroke(2.0F));
 
 		// XAxis
 		NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
-		//Limites de l'axe X
+		// Limites de l'axe X
 		domainAxis.setRange(0.00, 360.00);
-		//Pas de l'axe X
+		// Pas de l'axe X
 		domainAxis.setTickUnit(new NumberTickUnit(30.00));
 		domainAxis.setTickMarkStroke(new BasicStroke(2.5F));
 		domainAxis.setLabelFont(new Font("", Font.BOLD, 16));
@@ -380,14 +393,14 @@ public class Modele_VG_Roi {
 		rangeAxis.setTickMarkStroke(new BasicStroke(2.5F));
 		rangeAxis.setLabelFont(new Font("", Font.BOLD, 16));
 		rangeAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
-		
+
 		// Grid
-		//On ne met pas de grille sur la courbe
+		// On ne met pas de grille sur la courbe
 		plot.setDomainGridlinesVisible(false);
-		//On cree la buffered image de la courbe et on envoie dans une ImagePlus
+		// On cree la buffered image de la courbe et on envoie dans une ImagePlus
 		BufferedImage buff = xylineChart.createBufferedImage(640, 512);
 		ImagePlus courbe = new ImagePlus("", buff);
-		
+
 		return courbe;
 	}
 
@@ -398,7 +411,7 @@ public class Modele_VG_Roi {
 		XYSeries courbe1 = new XYSeries(titre1);
 		XYSeries courbe2 = new XYSeries(titre2);
 		XYSeries courbe3 = new XYSeries(titre3);
-		//On initialise un dataset
+		// On initialise un dataset
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		// Pour chaque serie on ajouter les valeurs une a une
 		for (int i = 0; i < resX.length; i++) {
@@ -406,20 +419,19 @@ public class Modele_VG_Roi {
 			courbe2.add(resX[i], resY2[i]);
 			courbe3.add(resX[i], resY3[i]);
 		}
-		//On ajoute les 3 series dans le dataset
+		// On ajoute les 3 series dans le dataset
 		dataset.addSeries(courbe1);
 		dataset.addSeries(courbe2);
 		dataset.addSeries(courbe3);
 		return dataset;
 	}
-	
-	//Pour faire un fit lineaire et extrapoler les valeurs non existante
-	private double[] getParametreCourbeFit(){
-		XYSeriesCollection dataset=createDatasetTrois(Modele_VG_Roi.temps,
-				Modele_VG_Roi.estomacPourcent,  "Stomach", Modele_VG_Roi.fundusPourcent, 
-				"Fundus", Modele_VG_Roi.antrePourcent,  "Antrum");
-		//Retourne les valeurs a et b de la fonction fit y=ax+b
-		double[] parametreCourbe=Regression.getOLSRegression(dataset, 0 );
+
+	// Pour faire un fit lineaire et extrapoler les valeurs non existante
+	private double[] getParametreCourbeFit() {
+		XYSeriesCollection dataset = createDatasetTrois(Modele_VG_Roi.temps, Modele_VG_Roi.estomacPourcent, "Stomach",
+				Modele_VG_Roi.fundusPourcent, "Fundus", Modele_VG_Roi.antrePourcent, "Antrum");
+		// Retourne les valeurs a et b de la fonction fit y=ax+b
+		double[] parametreCourbe = Regression.getOLSRegression(dataset, 0);
 		return parametreCourbe;
 	}
 
@@ -427,24 +439,25 @@ public class Modele_VG_Roi {
 	private int getDebut(String organe) {
 		boolean trouve = false;
 		double res = 0.0;
-		if(organe=="Antre"){
-		for (int i = 0; i < Modele_VG_Roi.antrePourcent.length && !trouve; i++) {
-			//si le pourcentage de l'antre > 0
-			if (Modele_VG_Roi.antrePourcent[i] > 0) {
-				trouve = true;
-				res = Modele_VG_Roi.temps[i];
+		if (organe == "Antre") {
+			for (int i = 0; i < Modele_VG_Roi.antrePourcent.length && !trouve; i++) {
+				// si le pourcentage de l'antre > 0
+				if (Modele_VG_Roi.antrePourcent[i] > 0) {
+					trouve = true;
+					res = Modele_VG_Roi.temps[i];
+				}
 			}
 		}
-		}
-		if(organe=="Intestin"){
+		if (organe == "Intestin") {
 			for (int i = 0; i < Modele_VG_Roi.estomacPourcent.length && !trouve; i++) {
-				//si le pourcentage de l'estomac est < 100, c'est a dire le pourcentage de l'intestin  > 0
+				// si le pourcentage de l'estomac est < 100, c'est a dire le pourcentage de
+				// l'intestin > 0
 				if (Modele_VG_Roi.estomacPourcent[i] < 100.0) {
 					trouve = true;
 					res = Modele_VG_Roi.temps[i];
 				}
 			}
-			}
+		}
 		return (int) Math.round(res);
 	}
 
@@ -462,12 +475,12 @@ public class Modele_VG_Roi {
 				valueX = x2 - (y2 - valueY) * ((x2 - x1) / (y2 - y1));
 			}
 		}
-		if(trouve==false){
-			//Si les valeurs n'existent pas on realise le fit
-			double[] parametres=this.getParametreCourbeFit();
-			double a=parametres[1];
-			double b=parametres[0];
-			valueX=(valueY-b)/a;
+		if (trouve == false) {
+			// Si les valeurs n'existent pas on realise le fit
+			double[] parametres = this.getParametreCourbeFit();
+			double a = parametres[1];
+			double b = parametres[0];
+			valueX = (valueY - b) / a;
 		}
 		return (int) Math.round(valueX);
 	}
@@ -486,14 +499,15 @@ public class Modele_VG_Roi {
 				valueY = y2 - (x2 - valueX) * ((y2 - y1) / (x2 - x1));
 			}
 		}
-		if(trouve==false){
-			//Si les valeurs n'existent pas on realise le fit
-			double[] parametres=this.getParametreCourbeFit();
-			double a=parametres[1];
-			double b=parametres[0];
-			valueY=a*valueX+b;
-			//Si valeur negative on met 0;
-			if (valueY<=0) valueY=0;
+		if (trouve == false) {
+			// Si les valeurs n'existent pas on realise le fit
+			double[] parametres = this.getParametreCourbeFit();
+			double a = parametres[1];
+			double b = parametres[0];
+			valueY = a * valueX + b;
+			// Si valeur negative on met 0;
+			if (valueY <= 0)
+				valueY = 0;
 		}
 		return (double) (Math.round(valueY * 10) / 10.0);
 	}

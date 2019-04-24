@@ -1,8 +1,8 @@
-package org.petctviewer.scintigraphy.scin.instructions;
-
-import javax.swing.JDialog;
+package org.petctviewer.scintigraphy.scin.instructions.prompts;
 
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 
 public class PromptInstruction implements Instruction {
 	
@@ -14,13 +14,6 @@ public class PromptInstruction implements Instruction {
 		
 		this.dialog = dialog;
 		this.dialog.setModal(true);
-	}
-	
-	public abstract static class PromptDialog extends JDialog {
-		private static final long serialVersionUID = 1L;
-
-		public abstract Object getResult();
-		public abstract boolean isCompleted();
 	}
 	
 	private void after() {
