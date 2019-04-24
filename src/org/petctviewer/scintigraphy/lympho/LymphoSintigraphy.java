@@ -1,19 +1,14 @@
 package org.petctviewer.scintigraphy.lympho;
 
-import java.util.HashMap;
-
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
-import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.util.DicomTools;
 
 public class LymphoSintigraphy extends Scintigraphy {
 

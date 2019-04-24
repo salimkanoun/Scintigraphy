@@ -21,7 +21,7 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
 
-public class ControleurShunpo extends ControleurScin {
+public class ControllerShunpo extends ControleurScin {
 
 	private final boolean FIRST_ORIENTATION_POST;
 
@@ -55,7 +55,7 @@ public class ControleurShunpo extends ControleurScin {
 	 * @param vue
 	 * @param images 2 images, 1st: KIDNEY-PULMON; 2nd: BRAIN
 	 */
-	public ControleurShunpo(Scintigraphy main, FenApplication vue, ImageSelection[] images, String studyName) {
+	public ControllerShunpo(Scintigraphy main, FenApplication vue, ImageSelection[] images, String studyName) {
 		super(main, vue, new ModeleShunpo(images, studyName));
 		this.FIRST_ORIENTATION_POST = true;
 		this.currentStep = STEP_KIDNEY_LUNG;

@@ -33,8 +33,9 @@ import ij.ImagePlus;
  * modèle.
  */
 public class OsScintigraphy extends Scintigraphy {
+	private boolean process;
+	private ImagePlus[][] buffer;
 
-	ImagePlus[][] buffer;
 	public OsScintigraphy() {
 		super("Scinti Os");
 		this.process = true;
@@ -44,8 +45,7 @@ public class OsScintigraphy extends Scintigraphy {
 	 * Lance la FenSelectionDicom qui permet de selectionner les images qui seront
 	 * traité par ce plug-in.
 	 * 
-	 * @param selectedImages
-	 *            liste des images transmises depuis FenSelectionDicom
+	 * @param selectedImages liste des images transmises depuis FenSelectionDicom
 	 * @return
 	 */
 	@Override
@@ -73,8 +73,7 @@ public class OsScintigraphy extends Scintigraphy {
 	 * La colonne 0 : l'ImagePlus ANT du patient --/-- la colonne 1 : l'ImagePlus
 	 * POST du patient.<br/>
 	 * 
-	 * @param selectedImages
-	 *            liste des images transmises depuis FenSelectionDicom
+	 * @param selectedImages liste des images transmises depuis FenSelectionDicom
 	 * @return
 	 */
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
@@ -179,9 +178,9 @@ public class OsScintigraphy extends Scintigraphy {
 		if (process) {
 			// FenApplication_Os fen = new FenApplication_Os(this, buffer);
 
-		Controleur_Os controleur_os = new Controleur_Os(buffer, this);
-		FenApplication_Os fen = controleur_os.getFenApplicatio_Os();
-		fen.setVisible(true);
+			Controleur_Os controleur_os = new Controleur_Os(buffer, this);
+			FenApplication_Os fen = controleur_os.getFenApplicatio_Os();
+			fen.setVisible(true);
 
 			JFrame frame = new JFrame("Bone Scinthigraphy");
 			frame.add(fen);
