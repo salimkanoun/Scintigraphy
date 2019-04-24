@@ -13,6 +13,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.plugin.ZProjector;
 import ij.util.DicomTools;
 
 public class LymphoSintigraphy extends Scintigraphy {
@@ -39,7 +40,6 @@ public class LymphoSintigraphy extends Scintigraphy {
 				System.out.println("---------------------!!!---------------------");
 				impSorted = imp.duplicate();
 				impSorted.getStack().getProcessor(2).flipHorizontal();
-				impSorted.show();
 			} else if (selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
 				impSorted = imp.duplicate();
 				IJ.run(impSorted, "Reverse", "");
@@ -72,12 +72,10 @@ public class LymphoSintigraphy extends Scintigraphy {
 			double ratio =  (timeStatic*1.0D / acquisitionTimeDynamic*1.0D);
 			
 			
-			IJ.run(dynamicImage, "Multiply...", "value="+ratio+" stack");
-			System.out.println("--------------------- timeStatic : "+timeStatic);
-			System.out.println("--------------------- acquisitionTimeDynamic : "+acquisitionTimeDynamic);
-			System.out.println("--------------------- ratio : "+ratio);
+			IJ.run(staticImage, "Multiply...", "value="+(1f/ratio)+" stack");
+
 			
-//			dynamicImage.getProcessor().setMinAndMax(0, dynamicImage.getStatistics().max * ratio);
+			dynamicImage.getProcessor().setMinAndMax(0, dynamicImage.getStatistics().max * ratio);
 			impsSortedByTime[Math.abs((DynamicPosition - 1))] = staticImage;
 			impsSortedByTime[DynamicPosition ] = dynamicImage;
 
@@ -85,8 +83,7 @@ public class LymphoSintigraphy extends Scintigraphy {
 		}else {
 			impsSortedByTime = impsSortedAntPost;
 		}
-
-		// ImagePlus[] impsSortedByTime = Library_Dicom.orderImagesByAcquisitionTime(impsSortedAntPost);
+		
 
 		ImageSelection[] selection = new ImageSelection[impsSortedByTime.length];
 		for (int i = 0; i < impsSortedByTime.length; i++) {
@@ -122,17 +119,11 @@ public class LymphoSintigraphy extends Scintigraphy {
 	 */
 	public ImagePlus dynamicToStaticAntPost(ImagePlus imp) {
 		ImagePlus[] Ant_Post = Library_Dicom.sortDynamicAntPost(imp);
-		Ant_Post[0].show();
-		Ant_Post[1].show();
+
 		
 		ImagePlus Ant = Library_Dicom.projeter(Ant_Post[0], 1, Ant_Post[0].getStackSize(), "sum");
-		System.out.println("Stack size : "+Ant_Post[0].getStackSize());
 		ImagePlus Post = Library_Dicom.projeter(Ant_Post[1], 1, Ant_Post[1].getStackSize(), "sum");
 		
-		Ant.show();
-		Post.show();
-
-
 		
 		ImageStack img = new ImageStack(Ant.getWidth(), Ant.getHeight());
 		img.addSlice(Ant.getProcessor());

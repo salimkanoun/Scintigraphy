@@ -186,7 +186,6 @@ public class ControleurLympho extends ControleurScin{
 		
 		
 		private void editOrgan() {
-			DEBUG("EDIT ORGAN");
 			boolean existed = false;
 
 			existed = this.editRoi(this.position);
@@ -198,7 +197,6 @@ public class ControleurLympho extends ControleurScin{
 				this.displayInstructionorgane("Adjust");
 			else
 				this.displayInstructionorgane("Delimit");
-			DEBUG();
 		}
 
 	

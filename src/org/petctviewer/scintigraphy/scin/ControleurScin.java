@@ -12,6 +12,7 @@ import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.IJ;
 import ij.ImagePlus;

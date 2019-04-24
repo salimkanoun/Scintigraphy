@@ -137,9 +137,6 @@ public class Library_Quantif {
 	public static double calculer_countCorrected(int delayMs, double mesuredCount, Isotope isotope) {
 		
 		double decayedFraction=Math.pow(Math.E, ((Math.log(2)/isotope.getHalLifeMS())*delayMs*(-1)));
-		System.out.println("Half life : "+isotope.getHalLifeMS());
-		System.out.println("Délai : : "+delayMs);
-		System.out.println("decayedFraction : "+decayedFraction);
 		double correctedCount=mesuredCount/(decayedFraction);
 		
 		return correctedCount;

@@ -115,7 +115,7 @@ public class ModeleLympho extends ModeleScin{
 	private void moyenneGeo(int organ) {
 		geometricalAverage.put(organ,
 				(int) Library_Quantif.moyGeom(this.coups.get(organ), this.coups.get(organ + 2)));
-		System.out.println("MG " + organ + " [" + ModeleLympho.convertOrgan(organ) + "/"+ModeleLympho.convertOrgan(organ+2)+"] --- ["+this.coups.get(organ) +"/"+this.coups.get(organ + 2)+"] -> " + geometricalAverage.get(organ));
+		System.out.println("MG " + organ + " [" + ModeleLympho.convertOrgan(organ) + "/ "+ModeleLympho.convertOrgan(organ+2)+"] --- ["+this.coups.get(organ) +"/"+this.coups.get(organ + 2)+"] -> " + geometricalAverage.get(organ));
 
 	}
 	
@@ -141,25 +141,17 @@ public class ModeleLympho extends ModeleScin{
 		us.setDecimalFormatSymbols(sym);
 		
 		// Calculs
-		retour[GEOM_AVG] ="Stayed geometric average RIGHT : ";
+		retour[GEOM_AVG_3] ="MGDrainage Droit : ";
 		double percPD = (geometricalAverage.get(FOOT_RIGHT_ANT_SECOND)
 				/ (1.0 * geometricalAverage.get(FOOT_RIGHT_ANT_FIRST))) * 100;
-		retour[GEOM_AVG] += " " + us.format(percPD) + "%";
+		retour[GEOM_AVG_3] += " " + us.format(percPD) + "%";
 		
-		retour[GEOM_AVG_2] ="Dispatched geometric average RIGHT: ";
-		double percPG = (geometricalAverage.get(FOOT_RIGHT_ANT_FIRST)
-				/ (1.0 * geometricalAverage.get(FOOT_RIGHT_ANT_SECOND))) * 100;
-		retour[GEOM_AVG_2] += " " + us.format(percPG) + "%";
 		
-		retour[GEOM_AVG_3] ="Stayed geometric average LEFT : ";
+		retour[GEOM_AVG_4] ="MGDrainage Gauche : ";
 		double percPDP = (geometricalAverage.get(FOOT_LEFT_ANT_SECOND)
 				/ (1.0 * geometricalAverage.get(FOOT_LEFT_ANT_FIRST))) * 100;
-		retour[GEOM_AVG_3] += " " + us.format(percPDP) + "%";
+		retour[GEOM_AVG_4] += " " + us.format(percPDP) + "%";
 		
-		retour[GEOM_AVG_4] ="Dispatched geometric average : ";
-		double percPGP = (geometricalAverage.get(FOOT_LEFT_ANT_FIRST)
-				/ (1.0 * geometricalAverage.get(FOOT_LEFT_ANT_SECOND))) * 100;
-		retour[GEOM_AVG_4] += " " + us.format(percPGP) + "%";
 		// Calculs
 //		double percPD = (geometricalAverage.get(LUNG_RIGHT_ANT)
 //				/ (1.0 * geometricalAverage.get(LUNG_RIGHT_ANT) + geometricalAverage.get(LUNG_LEFT_ANT))) * 100;
