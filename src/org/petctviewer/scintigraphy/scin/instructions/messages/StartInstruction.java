@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin.instructions;
+package org.petctviewer.scintigraphy.scin.instructions.messages;
 
 public class StartInstruction extends MessageInstruction {
 
