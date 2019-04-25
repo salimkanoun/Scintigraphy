@@ -60,12 +60,37 @@ public class TabChart extends TabResult implements ActionListener {
 	private XYSeries createPolynomialSerie(double[] coefficients) {
 		final int resolution = 10;
 		XYSeries serie = new XYSeries(Fit.POLYNOMIAL_FIT.getName());
-		for(int x = 0; x < this.chart.getXYPlot().getDomainAxis().getUpperBound(); x+= resolution) {
+		for (int x = 0; x < this.chart.getXYPlot().getDomainAxis().getUpperBound(); x += resolution) {
 			double y = coefficients[0];
-			for(int i = 1; i < coefficients.length-1; i++)
+			for (int i = 1; i < coefficients.length - 1; i++)
 				y += Math.pow(x, i) * coefficients[i];
 			serie.add(x, y);
 		}
+		return serie;
+	}
+
+	private XYSeries createLnSerie() {
+		XYSeries serie = new XYSeries("Ln(x)");
+		double[] time = Model_Gastric.temps;
+		double[] estomac = Model_Gastric.estomacPourcent;
+		for (int i = 0; i < time.length; i++)
+			serie.add(time[i], Math.log(estomac[i]));
+		return serie;
+	}
+	
+	private XYSeries createExponential(double[] coefs) {
+		XYSeries serie = new XYSeries("e(x)");
+		double[] time = Model_Gastric.temps;
+		for (int i = 0; i < time.length; i++)
+			serie.add(time[i], Math.exp(coefs[0]) * Math.exp(coefs[1] * time[i]));
+		return serie;
+	}
+	
+	private XYSeries createExponential_2(double[] coefs) {
+		XYSeries serie = new XYSeries("e2(x)");
+		double[] time = Model_Gastric.temps;
+		for (int i = 0; i < time.length; i++)
+			serie.add(time[i], coefs[0] * Math.exp(coefs[1] * time[i]));
 		return serie;
 	}
 
@@ -93,6 +118,14 @@ public class TabChart extends TabResult implements ActionListener {
 			double[] regression = Regression.getPolynomialRegression(data, 0, 3);
 			System.out.println("Regression: " + Arrays.toString(regression));
 			this.data.addSeries(this.createPolynomialSerie(regression));
+		} else if (fit == Fit.TEST_FIT) {
+			this.data.addSeries(this.createLnSerie());
+			double[] regression = Regression.getOLSRegression(this.data, 1);
+			linearFit = new XYLineAnnotation(0, regression[0], maxValue, maxValue * regression[1] + regression[0],
+					stroke, Color.ORANGE);
+			chart.getXYPlot().addAnnotation(linearFit);
+			this.data.addSeries(this.createExponential(regression));
+			this.data.addSeries(this.createExponential_2(regression));
 		}
 	}
 
