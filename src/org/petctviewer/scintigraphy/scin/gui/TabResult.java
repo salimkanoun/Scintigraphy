@@ -40,8 +40,10 @@ public abstract class TabResult {
 		this.title = title;
 		this.parent = parent;
 
-		Component content = this.getSidePanelContent() == null ? new JPanel() : this.getSidePanelContent();
-		this.result = this.getResultContent() == null ? new JPanel() : this.getResultContent();
+		Component sidePanelContent = this.getSidePanelContent();
+		Component content = sidePanelContent == null ? new JPanel() : sidePanelContent;
+		JPanel resultContent = this.getResultContent();
+		this.result = resultContent == null ? new JPanel() : resultContent;
 
 		this.sidePanel = new SidePanel(content, parent.getModel().getStudyName(), parent.getModel().getImagePlus());
 
@@ -136,7 +138,8 @@ public abstract class TabResult {
 	 */
 	public void reloadDisplay() {
 		// Side panel
-		Component content = this.getSidePanelContent() == null ? new JPanel() : this.getSidePanelContent();
+		Component sidePanelContent = this.getSidePanelContent();
+		Component content = sidePanelContent == null ? new JPanel() : sidePanelContent;
 		this.sidePanel.setSidePanelContent(content);
 
 		// Result

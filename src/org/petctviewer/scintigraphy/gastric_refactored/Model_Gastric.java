@@ -18,6 +18,9 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -76,28 +79,6 @@ public class Model_Gastric extends ModeleScin {
 		Model_Gastric.logOn = false;
 	}
 
-	public int nbAcquisitions() {
-		// number of images + the starting point
-		return this.selectedImages.length + 1;
-	}
-
-	public void setTimeIngestion(Date timeIngestion) {
-		this.timeIngestion = timeIngestion;
-	}
-
-	// calcule le coups du ROI
-	public void calculerCoups(String roi, int indexImage, ImagePlus imp) {
-		this.coups.put(roi + indexImage, Library_Quantif.getCounts(imp));
-	}
-
-	public double getCoups(String roi, int indexImage) {
-		return this.coups.get(roi + indexImage);
-	}
-
-	public void setCoups(String roi, int indexImage, double d) {
-		this.coups.put(roi + indexImage, d);
-	}
-
 	private void mgs(int indexImage) {
 		// on calcule cet de l'antre et de l'intestin
 		for (String roi : this.organes)
@@ -123,106 +104,6 @@ public class Model_Gastric extends ModeleScin {
 			}
 		}
 		this.mgs.put(organe + "_MG" + indexImage, Library_Quantif.moyGeom((double) coupsa[0], (double) coupsa[1]));
-	}
-
-	/**
-	 * Calculates the acquisition time of the image.
-	 * 
-	 * @param indexImage Index of the image worked on
-	 */
-	public void tempsImage(int indexImage, ImagePlus imp) {
-		long diff = Library_Dicom.getDateAcquisition(imp).getTime() - this.timeIngestion.getTime();
-		long day = diff / (24 * 60 * 60 * 1000);
-		long hour = (diff / (60 * 60 * 1000) - day * 24);
-		long min = ((diff / (60 * 1000)) - day * 24 * 60 - hour * 60);
-		Model_Gastric.temps[indexImage + 1] = (double) (day * 24 * 60 + hour * 60 + min);
-	}
-
-	// pour chaque serie, on calcule le pourcentage de l'estomac, le fundus, l'antre
-	// et l'intestin par rapport au total du repas
-	// calcule le rapport fundus/estomac et la derivee de la courbe de variation de
-	// l’estomac
-	public void pourcVGImage(int indexImage) {
-		this.mgs(indexImage);
-
-		double fundusPour = ((double) this.mgs.get("Fundus_MG" + indexImage)
-				/ (double) this.mgs.get("Total" + indexImage)) * 100;
-		Model_Gastric.fundusPourcent[indexImage + 1] = fundusPour;
-		double antrePour = ((double) this.mgs.get("Antre_MG" + indexImage)
-				/ (double) this.mgs.get("Total" + indexImage)) * 100;
-		Model_Gastric.antrePourcent[indexImage + 1] = antrePour;
-		double estomacPour = ((double) this.mgs.get("Estomac_MG" + indexImage)
-				/ (double) this.mgs.get("Total" + indexImage)) * 100;
-		Model_Gastric.estomacPourcent[indexImage + 1] = estomacPour;
-		double intestinPour = ((double) this.mgs.get("Intestin_MG" + indexImage)
-				/ (double) this.mgs.get("Total" + indexImage)) * 100;
-		Model_Gastric.intestinPourcent[indexImage + 1] = intestinPour;
-		double funDevEsto = (Model_Gastric.fundusPourcent[indexImage + 1]
-				/ Model_Gastric.estomacPourcent[indexImage + 1]) * 100;
-		Model_Gastric.funDevEsto[indexImage + 1] = funDevEsto;
-
-		Model_Gastric.tempsInter[indexImage] = Model_Gastric.temps[indexImage + 1];
-		double estoInter = ((Model_Gastric.estomacPourcent[indexImage] - Model_Gastric.estomacPourcent[indexImage + 1])
-				/ (Model_Gastric.temps[indexImage + 1] - Model_Gastric.temps[indexImage])) * 30;
-		Model_Gastric.estoInter[indexImage] = estoInter;
-		if (Model_Gastric.logOn) {
-			// affiche le resultat au log pour que l'utilisateur peut le
-			// verifier
-			IJ.log("image " + (indexImage) + ": " + " Stomach " + Model_Gastric.estomacPourcent[indexImage + 1]
-					+ " Intestine " + Model_Gastric.intestinPourcent[indexImage + 1] + " Fundus "
-					+ Model_Gastric.fundusPourcent[indexImage + 1] + " Antre "
-					+ Model_Gastric.antrePourcent[indexImage + 1]);
-		}
-
-	}
-
-	// initialisation des tables de resultats
-	public void initResultat() {
-		Model_Gastric.temps = new double[this.nbAcquisitions()];
-		Model_Gastric.estomacPourcent = new double[this.nbAcquisitions()];
-		Model_Gastric.fundusPourcent = new double[this.nbAcquisitions()];
-		Model_Gastric.antrePourcent = new double[this.nbAcquisitions()];
-		Model_Gastric.intestinPourcent = new double[this.nbAcquisitions()];
-		Model_Gastric.funDevEsto = new double[this.nbAcquisitions()];
-		// -1 because the derivative is not calculated for the starting point
-		Model_Gastric.estoInter = new double[this.nbAcquisitions() - 1];
-		Model_Gastric.tempsInter = new double[this.nbAcquisitions() - 1];
-
-		// Starting point is supposed to be 100 % in the stomach (fundus)
-		Model_Gastric.temps[0] = 0.;
-		Model_Gastric.estomacPourcent[0] = 100.;
-		Model_Gastric.fundusPourcent[0] = 100.;
-		Model_Gastric.antrePourcent[0] = 0.;
-		Model_Gastric.intestinPourcent[0] = 0.;
-		Model_Gastric.funDevEsto[0] = .01;
-	}
-
-	// permet de transferer toutes les resultats en une tableau de chaine
-	public String[] resultats() {
-		String[] retour = new String[4 * (this.nbAcquisitions()) + 12];
-		// on enregistre la premiere partie des resultats
-		retour[0] = "Time(min)";
-		retour[1] = "Stomach(%)";
-		retour[2] = "Fundus(%)";
-		retour[3] = "Antrum(%)";
-		for (int i = 0; i < this.selectedImages.length; i++) {
-			retour[i * 4 + 4] = Double.toString(Model_Gastric.temps[i]);
-			retour[i * 4 + 5] = Double.toString(Model_Gastric.estomacPourcent[i]);
-			retour[i * 4 + 6] = Double.toString(Model_Gastric.fundusPourcent[i]);
-			retour[i * 4 + 7] = Double.toString(Model_Gastric.antrePourcent[i]);
-		}
-		// on enregistre la deuxime partie des resultats
-		int j = this.selectedImages.length * 4 + 4;
-		retour[j++] = "Start Antrum : " + this.getDebut("Antre") + " min";
-		retour[j++] = "Start Intestine : " + this.getDebut("Intestin") + " min";
-		// SI valeur interpolee on ajoute * a la string
-		retour[j++] = "Lag Phase : " + this.getX(95.0) + (trouve ? " min" : " min*");
-		retour[j++] = "T1/2 : " + this.getX(50.0) + (trouve ? " min" : " min*");
-		retour[j++] = "Retention at 1h : " + this.getY(60.0) + (trouve ? "%" : "%*");
-		retour[j++] = "Retention at 2h : " + this.getY(120.0) + (trouve ? "%" : "%*");
-		retour[j++] = "Retention at 3h : " + this.getY(180.0) + (trouve ? "%" : "%*");
-		retour[j] = "Retention at 4h : " + this.getY(240.0) + (trouve ? "%" : "%*");
-		return retour;
 	}
 
 	/**
@@ -274,16 +155,6 @@ public class Model_Gastric extends ModeleScin {
 		return courbe;
 	}
 
-	// permet de obtenir un courbe
-	public ImagePlus createGraph_1() {
-		return createGraph("Fundus/Stomach (%)", new Color(0, 100, 0), "Intragastric Distribution", temps, funDevEsto,
-				100.0);
-	}
-
-	public ImagePlus createGraph_2() {
-		return createGraph("% meal in the interval", Color.RED, "Gastrointestinal flow", tempsInter, estoInter, 50.0);
-	}
-
 	// permet de creer un dataset d'un group de donees pour un courbe
 	private static XYSeriesCollection createDatasetUn(double[] resX, double[] resY, String titre) {
 		XYSeries courbe = new XYSeries(titre);
@@ -293,63 +164,6 @@ public class Model_Gastric extends ModeleScin {
 		}
 		dataset.addSeries(courbe);
 		return dataset;
-	}
-
-	// permet de creer un graphique avec trois courbes
-	protected ImagePlus createGraph_3() {
-		// On cree un dataset qui contient les 3 series
-		XYSeriesCollection dataset = createDatasetTrois(temps, estomacPourcent, "Stomach", fundusPourcent, "Fundus",
-				antrePourcent, "Antrum");
-		// On cree le graphique
-		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "Retention (% meal)", dataset,
-				PlotOrientation.VERTICAL, true, true, false);
-		// Parametres de l'affichage
-		XYPlot plot = (XYPlot) xylineChart.getPlot();
-		// choix du Background
-		plot.setBackgroundPaint(Color.WHITE);
-
-		// XYLineAndShapeRenderer
-		// reference:
-		// https://stackoverflow.com/questions/28428991/setting-series-line-style-and-legend-size-in-jfreechart
-		XYLineAndShapeRenderer lineAndShapeRenderer = new XYLineAndShapeRenderer();
-		// on set le renderer dans le plot
-		plot.setRenderer(lineAndShapeRenderer);
-		// On definit les parametre du renderer
-		lineAndShapeRenderer.setDefaultLegendTextFont(new Font("", Font.BOLD, 16));
-		lineAndShapeRenderer.setSeriesPaint(0, Color.RED);
-		lineAndShapeRenderer.setSeriesPaint(1, new Color(0, 100, 0));
-		lineAndShapeRenderer.setSeriesPaint(2, Color.BLUE);
-		// Defini la taille de la courbes (epaisseur du trait)
-		lineAndShapeRenderer.setSeriesStroke(0, new BasicStroke(2.0F));
-		lineAndShapeRenderer.setSeriesStroke(1, new BasicStroke(2.0F));
-		lineAndShapeRenderer.setSeriesStroke(2, new BasicStroke(2.0F));
-
-		// XAxis
-		NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
-		// Limites de l'axe X
-		domainAxis.setRange(0.00, 360.00);
-		// Pas de l'axe X
-		domainAxis.setTickUnit(new NumberTickUnit(30.00));
-		domainAxis.setTickMarkStroke(new BasicStroke(2.5F));
-		domainAxis.setLabelFont(new Font("", Font.BOLD, 16));
-		domainAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
-
-		// YAxis
-		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-		rangeAxis.setRange(0.00, 100.00);
-		rangeAxis.setTickUnit(new NumberTickUnit(10.00));
-		rangeAxis.setTickMarkStroke(new BasicStroke(2.5F));
-		rangeAxis.setLabelFont(new Font("", Font.BOLD, 16));
-		rangeAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
-
-		// Grid
-		// On ne met pas de grille sur la courbe
-		plot.setDomainGridlinesVisible(false);
-		// On cree la buffered image de la courbe et on envoie dans une ImagePlus
-		BufferedImage buff = xylineChart.createBufferedImage(640, 512);
-		ImagePlus courbe = new ImagePlus("", buff);
-
-		return courbe;
 	}
 
 	// permet de creer un dataset de trois groups de donees pour trois courbes
@@ -459,7 +273,202 @@ public class Model_Gastric extends ModeleScin {
 		}
 		return (double) (Math.round(valueY * 10) / 10.0);
 	}
-	
+
+	public int nbAcquisitions() {
+		// number of images + the starting point
+		return this.selectedImages.length + 1;
+	}
+
+	public void setTimeIngestion(Date timeIngestion) {
+		this.timeIngestion = timeIngestion;
+	}
+
+	// calcule le coups du ROI
+	public void calculerCoups(String roi, int indexImage, ImagePlus imp) {
+		this.coups.put(roi + indexImage, Library_Quantif.getCounts(imp));
+	}
+
+	public double getCoups(String roi, int indexImage) {
+		return this.coups.get(roi + indexImage);
+	}
+
+	public void setCoups(String roi, int indexImage, double d) {
+		this.coups.put(roi + indexImage, d);
+	}
+
+	/**
+	 * Calculates the acquisition time of the image.
+	 * 
+	 * @param indexImage Index of the image worked on
+	 */
+	public void tempsImage(int indexImage, ImagePlus imp) {
+		double diff = Library_Dicom.getDateAcquisition(imp).getTime() - this.timeIngestion.getTime();
+		double day = diff / (24 * 60 * 60 * 1000);
+		double hour = (diff / (60 * 60 * 1000) - day * 24);
+		double min = ((diff / (60 * 1000)) - day * 24 * 60 - hour * 60);
+		Model_Gastric.temps[indexImage + 1] = day * 24 * 60 + hour * 60 + min;
+	}
+
+	// pour chaque serie, on calcule le pourcentage de l'estomac, le fundus, l'antre
+	// et l'intestin par rapport au total du repas
+	// calcule le rapport fundus/estomac et la derivee de la courbe de variation de
+	// l’estomac
+	public void pourcVGImage(int indexImage) {
+		this.mgs(indexImage);
+
+		double fundusPour = ((double) this.mgs.get("Fundus_MG" + indexImage)
+				/ (double) this.mgs.get("Total" + indexImage)) * 100;
+		Model_Gastric.fundusPourcent[indexImage + 1] = fundusPour;
+		double antrePour = ((double) this.mgs.get("Antre_MG" + indexImage)
+				/ (double) this.mgs.get("Total" + indexImage)) * 100;
+		Model_Gastric.antrePourcent[indexImage + 1] = antrePour;
+		double estomacPour = ((double) this.mgs.get("Estomac_MG" + indexImage)
+				/ (double) this.mgs.get("Total" + indexImage)) * 100;
+		Model_Gastric.estomacPourcent[indexImage + 1] = estomacPour;
+		double intestinPour = ((double) this.mgs.get("Intestin_MG" + indexImage)
+				/ (double) this.mgs.get("Total" + indexImage)) * 100;
+		Model_Gastric.intestinPourcent[indexImage + 1] = intestinPour;
+		double funDevEsto = (Model_Gastric.fundusPourcent[indexImage + 1]
+				/ Model_Gastric.estomacPourcent[indexImage + 1]) * 100;
+		Model_Gastric.funDevEsto[indexImage + 1] = funDevEsto;
+
+		Model_Gastric.tempsInter[indexImage] = Model_Gastric.temps[indexImage + 1];
+		double estoInter = ((Model_Gastric.estomacPourcent[indexImage] - Model_Gastric.estomacPourcent[indexImage + 1])
+				/ (Model_Gastric.temps[indexImage + 1] - Model_Gastric.temps[indexImage])) * 30.;
+		Model_Gastric.estoInter[indexImage] = estoInter;
+		if (Model_Gastric.logOn) {
+			// affiche le resultat au log pour que l'utilisateur peut le
+			// verifier
+			IJ.log("image " + (indexImage) + ": " + " Stomach " + Model_Gastric.estomacPourcent[indexImage + 1]
+					+ " Intestine " + Model_Gastric.intestinPourcent[indexImage + 1] + " Fundus "
+					+ Model_Gastric.fundusPourcent[indexImage + 1] + " Antre "
+					+ Model_Gastric.antrePourcent[indexImage + 1]);
+		}
+
+	}
+
+	// initialisation des tables de resultats
+	public void initResultat() {
+		Model_Gastric.temps = new double[this.nbAcquisitions()];
+		Model_Gastric.estomacPourcent = new double[this.nbAcquisitions()];
+		Model_Gastric.fundusPourcent = new double[this.nbAcquisitions()];
+		Model_Gastric.antrePourcent = new double[this.nbAcquisitions()];
+		Model_Gastric.intestinPourcent = new double[this.nbAcquisitions()];
+		Model_Gastric.funDevEsto = new double[this.nbAcquisitions()];
+		// -1 because the derivative is not calculated for the starting point
+		Model_Gastric.estoInter = new double[this.nbAcquisitions() - 1];
+		Model_Gastric.tempsInter = new double[this.nbAcquisitions() - 1];
+
+		// Starting point is supposed to be 100 % in the stomach (fundus)
+		Model_Gastric.temps[0] = 0.;
+		Model_Gastric.estomacPourcent[0] = 100.;
+		Model_Gastric.fundusPourcent[0] = 100.;
+		Model_Gastric.antrePourcent[0] = 0.;
+		Model_Gastric.intestinPourcent[0] = 0.;
+		Model_Gastric.funDevEsto[0] = .01;
+	}
+
+	// permet de transferer toutes les resultats en une tableau de chaine
+	public String[] resultats() {
+		String[] retour = new String[4 * this.nbAcquisitions() + 12];
+		// on enregistre la premiere partie des resultats
+		retour[0] = "Time(min)";
+		retour[1] = "Stomach(%)";
+		retour[2] = "Fundus(%)";
+		retour[3] = "Antrum(%)";
+		for (int i = 0; i < this.nbAcquisitions(); i++) {
+			System.out.println("Generating results for acquisition #" + i);
+			System.out.println("\tTime: " + Model_Gastric.temps[i]);
+			retour[i * 4 + 4] = BigDecimal.valueOf(Model_Gastric.temps[i]).setScale(2, RoundingMode.HALF_UP).toString();
+			retour[i * 4 + 5] = BigDecimal.valueOf(Model_Gastric.estomacPourcent[i]).setScale(2, RoundingMode.HALF_UP)
+					.toString();
+			retour[i * 4 + 6] = BigDecimal.valueOf(Model_Gastric.fundusPourcent[i]).setScale(2, RoundingMode.HALF_UP)
+					.toString();
+			retour[i * 4 + 7] = BigDecimal.valueOf(Model_Gastric.antrePourcent[i]).setScale(2, RoundingMode.HALF_UP)
+					.toString();
+		}
+		// on enregistre la deuxime partie des resultats
+		int j = this.nbAcquisitions() * 4 + 4;
+		retour[j++] = "Start Antrum : " + this.getDebut("Antre") + " min";
+		retour[j++] = "Start Intestine : " + this.getDebut("Intestin") + " min";
+		// SI valeur interpolee on ajoute * a la string
+		retour[j++] = "Lag Phase : " + this.getX(95.0) + (trouve ? " min" : " min*");
+		retour[j++] = "T1/2 : " + this.getX(50.0) + (trouve ? " min" : " min*");
+		retour[j++] = "Retention at 1h : " + this.getY(60.0) + (trouve ? "%" : "%*");
+		retour[j++] = "Retention at 2h : " + this.getY(120.0) + (trouve ? "%" : "%*");
+		retour[j++] = "Retention at 3h : " + this.getY(180.0) + (trouve ? "%" : "%*");
+		retour[j] = "Retention at 4h : " + this.getY(240.0) + (trouve ? "%" : "%*");
+		System.out.println(Arrays.toString(retour));
+		return retour;
+	}
+
+	// permet de obtenir un courbe
+	public ImagePlus createGraph_1() {
+		return createGraph("Fundus/Stomach (%)", new Color(0, 100, 0), "Intragastric Distribution", temps, funDevEsto,
+				100.0);
+	}
+
+	public ImagePlus createGraph_2() {
+		return createGraph("% meal in the interval", Color.RED, "Gastrointestinal flow", tempsInter, estoInter, 50.0);
+	}
+
+	// permet de creer un graphique avec trois courbes
+	public ImagePlus createGraph_3() {
+		// On cree un dataset qui contient les 3 series
+		XYSeriesCollection dataset = createDatasetTrois(temps, estomacPourcent, "Stomach", fundusPourcent, "Fundus",
+				antrePourcent, "Antrum");
+		// On cree le graphique
+		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "Retention (% meal)", dataset,
+				PlotOrientation.VERTICAL, true, true, false);
+		// Parametres de l'affichage
+		XYPlot plot = (XYPlot) xylineChart.getPlot();
+		// choix du Background
+		plot.setBackgroundPaint(Color.WHITE);
+
+		// XYLineAndShapeRenderer
+		// reference:
+		// https://stackoverflow.com/questions/28428991/setting-series-line-style-and-legend-size-in-jfreechart
+		XYLineAndShapeRenderer lineAndShapeRenderer = new XYLineAndShapeRenderer();
+		// on set le renderer dans le plot
+		plot.setRenderer(lineAndShapeRenderer);
+		// On definit les parametre du renderer
+		lineAndShapeRenderer.setDefaultLegendTextFont(new Font("", Font.BOLD, 16));
+		lineAndShapeRenderer.setSeriesPaint(0, Color.RED);
+		lineAndShapeRenderer.setSeriesPaint(1, new Color(0, 100, 0));
+		lineAndShapeRenderer.setSeriesPaint(2, Color.BLUE);
+		// Defini la taille de la courbes (epaisseur du trait)
+		lineAndShapeRenderer.setSeriesStroke(0, new BasicStroke(2.0F));
+		lineAndShapeRenderer.setSeriesStroke(1, new BasicStroke(2.0F));
+		lineAndShapeRenderer.setSeriesStroke(2, new BasicStroke(2.0F));
+
+		// XAxis
+		NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
+		// Limites de l'axe X
+		domainAxis.setRange(0.00, 360.00);
+		// Pas de l'axe X
+		domainAxis.setTickUnit(new NumberTickUnit(30.00));
+		domainAxis.setTickMarkStroke(new BasicStroke(2.5F));
+		domainAxis.setLabelFont(new Font("", Font.BOLD, 16));
+		domainAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
+
+		// YAxis
+		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+		rangeAxis.setRange(0.00, 100.00);
+		rangeAxis.setTickUnit(new NumberTickUnit(10.00));
+		rangeAxis.setTickMarkStroke(new BasicStroke(2.5F));
+		rangeAxis.setLabelFont(new Font("", Font.BOLD, 16));
+		rangeAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
+
+		// Grid
+		// On ne met pas de grille sur la courbe
+		plot.setDomainGridlinesVisible(false);
+		// On cree la buffered image de la courbe et on envoie dans une ImagePlus
+		BufferedImage buff = xylineChart.createBufferedImage(640, 512);
+		ImagePlus courbe = new ImagePlus("", buff);
+
+		return courbe;
+	}
+
 	public ImagePlus montage(ImageStack stack) {
 		MontageMaker mm = new MontageMaker();
 		ImagePlus imp = new ImagePlus("Resultats Vidange Gastrique", stack);
