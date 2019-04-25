@@ -426,7 +426,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 		int result = JOptionPane.YES_OPTION;
 		if (patientIds.size() > 1 || patientNames.size() > 1) {
-			String message = "Selected images might belong to different patient:\n" + patientIds + "\n" + patientNames
+			String message = "Selected images might belong to different patient:\nDifferent IDs: " + patientIds + "\nDifferent Names: " + patientNames
 					+ "\n\nWould you like to continue?";
 			result = JOptionPane.showConfirmDialog(this, message, "Multiple patient found", JOptionPane.YES_NO_OPTION,
 					JOptionPane.WARNING_MESSAGE);

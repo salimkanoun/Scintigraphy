@@ -31,6 +31,7 @@ import ij.ImageStack;
 public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 	private FenResults fenResults;
+	private ImagePlus capture;
 
 	public ControllerWorkflow_Gastric(Scintigraphy main, FenApplication vue, ImageSelection[] selectedImages,
 			String studyName) {
@@ -61,41 +62,37 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			// Ant
 			imp.setSlice(SLICE_ANT);
 			imp.setRoi(this.getRoiManager().getRoisAsArray()[i]);
-			System.out.println("ROI: " + this.getRoiManager().getRoisAsArray()[i]);
 			this.getModel().calculerCoups("Estomac_Ant", i / 6, imp);
 			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 1]);
-			System.out.println("ROI: " + this.getRoiManager().getRoisAsArray()[i + 1].getName());
 			this.getModel().calculerCoups("Intes_Ant", i / 6, imp);
 			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 2]);
-			System.out.println("ROI: " + this.getRoiManager().getRoisAsArray()[i + 2].getName());
 			this.getModel().calculerCoups("Antre_Ant", i / 6, imp);
 			this.getModel().setCoups("Fundus_Ant", i / 6,
 					this.getModel().getCoups("Estomac_Ant", i / 6) - this.getModel().getCoups("Antre_Ant", i / 6));
 			this.getModel().setCoups("Intestin_Ant", i / 6,
 					this.getModel().getCoups("Intes_Ant", i / 6) - this.getModel().getCoups("Antre_Ant", i / 6));
 			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 3]);
-			System.out.println("ROI: " + this.getRoiManager().getRoisAsArray()[i + 3].getName());
 
 			// Post
 			imp.setSlice(SLICE_POST);
 			this.getModel().calculerCoups("Estomac_Post", i / 6, imp);
 			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 4]);
-			System.out.println("ROI: " + this.getRoiManager().getRoisAsArray()[i + 4].getName());
 			this.getModel().calculerCoups("Intes_Post", i / 6, imp);
 			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 5]);
-			System.out.println("ROI: " + this.getRoiManager().getRoisAsArray()[i + 5].getName());
 			this.getModel().calculerCoups("Antre_Post", i / 6, imp);
 			this.getModel().setCoups("Fundus_Post", i / 6,
 					this.getModel().getCoups("Estomac_Post", i / 6) - this.getModel().getCoups("Antre_Post", i / 6));
 			this.getModel().setCoups("Intestin_Post", i / 6,
 					this.getModel().getCoups("Intes_Post", i / 6) - this.getModel().getCoups("Antre_Post", i / 6));
+			if(i == 0)
+				this.capture = Library_Capture_CSV.captureImage(imp, 640, 512);
 
-			this.getModel().pourcVGImage(i / 6);
 			try {
 				this.getModel().tempsImage(i / 6, imp);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			this.getModel().pourcVGImage(i / 6);
 		}
 		this.model.calculerResultats();
 
@@ -141,8 +138,8 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 			@Override
 			public JPanel getResultContent() {
-				ImageStack ims = Library_Capture_CSV.captureToStack(new ImagePlus[] { getModel().createGraph_1(),
-						getModel().createGraph_1(), getModel().createGraph_2(), getModel().createGraph_3() });
+				ImageStack ims = Library_Capture_CSV.captureToStack(new ImagePlus[] { capture,
+						getModel().createGraph_3(), getModel().createGraph_1(), getModel().createGraph_2() });
 
 				JPanel panel = new JPanel();
 				panel.add(new DynamicImage(getModel().montage(ims).getImage()));

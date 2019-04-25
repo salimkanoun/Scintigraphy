@@ -213,6 +213,13 @@ public class Modele_VG_Roi {
 				/ (Modele_VG_Roi.temps[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 1]
 						- Modele_VG_Roi.temps[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 2]))
 				* 30;
+		System.out.println("Result #" + indexImage);
+		System.out.println("EstoInter: ("
+				+ (Modele_VG_Roi.estomacPourcent[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 2]) + " - "
+				+ (Modele_VG_Roi.estomacPourcent[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 1]) + ") / ("
+				+ (Modele_VG_Roi.temps[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 1] + " - "
+						+ (Modele_VG_Roi.temps[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 2]) + ")"));
+		System.out.println("EstoInter=" + estoInter);
 		Modele_VG_Roi.estoInter[indexImage + Vue_VG_Roi.resultatsDynamique.length / 4 - 2] = Double
 				.parseDouble(us.format(estoInter));
 		if (Modele_VG_Roi.logOn) {

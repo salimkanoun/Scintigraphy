@@ -18,7 +18,7 @@ public class FenResults extends JFrame {
 	private static final long serialVersionUID = 1L;
 
 	private JTabbedPane tabPane;
-	private List<TabResult> tabs;
+	private List<TabResult> tabsResult;
 
 	private ModeleScin model;
 
@@ -29,7 +29,7 @@ public class FenResults extends JFrame {
 		this.model = model;
 
 		this.tabPane = new JTabbedPane();
-		this.tabs = new ArrayList<>();
+		this.tabsResult = new ArrayList<>();
 
 		this.add(tabPane);
 
@@ -47,37 +47,57 @@ public class FenResults extends JFrame {
 	 */
 	public void addTab(TabResult tab) {
 		this.tabPane.addTab(tab.getTitle(), tab.getPanel());
-		this.tabs.add(tab);
+		this.tabsResult.add(tab);
 		this.pack();
 		this.setLocationRelativeTo(null);
 	}
 
+	/**
+	 * @param index Index of the tab to get
+	 * @return TabResult at the specified index
+	 */
 	public TabResult getTab(int index) {
-		if (index < 0 || index >= this.tabs.size())
+		if (index < 0 || index >= this.tabsResult.size())
 			return null;
-		return this.tabs.get(index);
+		return this.tabsResult.get(index);
 	}
 
+	/**
+	 * The main tab is the first tab displayed.
+	 * 
+	 * @return first tab
+	 */
 	public TabResult getMainTab() {
-		if (this.tabs.size() == 0)
+		if (this.tabsResult.size() == 0)
 			return null;
-		return this.tabs.get(0);
+		return this.tabsResult.get(0);
 	}
 
+	/**
+	 * The main tab is the first tab displayed. This method replaces the main tab
+	 * with the specified tab.
+	 * 
+	 * @param tab Tab to be displayed first
+	 */
 	public void setMainTab(TabResult tab) {
-		if (this.tabs.size() == 0)
-			this.tabs.add(tab);
+		if (this.tabsResult.size() == 0)
+			this.tabsResult.add(tab);
 		else {
-			this.tabs.set(0, tab);
+			this.tabsResult.set(0, tab);
 			this.tabPane.removeTabAt(0);
 		}
 		this.tabPane.insertTab(tab.getTitle(), null, tab.getPanel(), null, 0);
 	}
 
+	/**
+	 * Removes the specified tab. If the tab doesn't exist, nothing happen.
+	 * 
+	 * @param tabToRemove Tab to remove
+	 */
 	public void removeTab(TabResult tabToRemove) {
-		int indexToRemove = this.tabs.indexOf(tabToRemove);
+		int indexToRemove = this.tabsResult.indexOf(tabToRemove);
 		if (indexToRemove >= 0) {
-			this.tabs.remove(indexToRemove);
+			this.tabsResult.remove(indexToRemove);
 			this.tabPane.remove(indexToRemove);
 		}
 	}

@@ -156,6 +156,7 @@ public class Library_Capture_CSV {
 
 			dimensionCapture[i] = tableauImagePlus[i].getDimensions();
 			if (!Arrays.equals(dimensionCapture[i], tableauImagePlus[0].getDimensions())) {
+				// TODO: throw exception instead of showing message
 				IJ.showMessage("Error Capture have different dimension");
 			}
 		}
