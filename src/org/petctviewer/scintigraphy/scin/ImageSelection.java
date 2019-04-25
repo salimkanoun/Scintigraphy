@@ -82,12 +82,8 @@ public class ImageSelection implements Cloneable {
 		this.columnsValues.put(Column.ROW.getName(), row+"");
 	}
 
-	/**
-	 * TODO: This might not work
-	 */
 	@Override
-	@Deprecated
-	protected ImageSelection clone() {
+	public ImageSelection clone() {
 		ImageSelection img = new ImageSelection(this.imp.duplicate(), null, null);
 		img.columnsValues = this.columnsValues;
 		return img;

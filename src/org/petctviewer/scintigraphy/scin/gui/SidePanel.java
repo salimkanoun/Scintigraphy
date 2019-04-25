@@ -118,7 +118,6 @@ public class SidePanel extends JPanel {
 	}
 
 	public void createCaptureButton(TabResult tab, Component[] hide, Component[] show, String additionalInfo) {
-		// TODO: place button at the right place
 		// capture button
 		JButton captureButton = new JButton("Capture");
 

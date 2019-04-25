@@ -4,6 +4,12 @@ import java.util.Arrays;
 
 import org.petctviewer.scintigraphy.scin.Orientation;
 
+/**
+ * Thrown to indicate that the orientation is not supported.
+ * 
+ * @author Titouan QUÉMA
+ *
+ */
 public class WrongOrientationException extends WrongInputException {
 	private static final long serialVersionUID = 1L;
 

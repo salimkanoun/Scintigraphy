@@ -229,8 +229,8 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 		this.add(panel);
 		this.setPreferredSize(new Dimension(500, 500));
-		this.setLocationRelativeTo(null);
 		this.pack();
+		this.setLocationRelativeTo(null);
 	}
 
 	public void declareColumns(Column[] columns) {
@@ -279,7 +279,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 						data[idImgOpen][i] = imp.getDimensions()[0] + "x" + imp.getDimensions()[1];
 					} else if (c == Column.STACK_SIZE) {
 						data[idImgOpen][i] = "" + imp.getStack().getSize();
-					} else if (c == Column.ORIENTATION) {
+					} else if (c.getName().equals(Column.ORIENTATION.getName())) {
 						data[idImgOpen][i] = determineImageOrientation(imp).toString();
 					} else {
 						data[idImgOpen][i] = "CHOOSE VALUE";
@@ -400,9 +400,10 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			for (int idCol = 0; idCol < this.columns.size(); idCol++) {
 				String value = (String) this.table.getValueAt(idSelectedRow, idCol);
 				Column column = this.columns.get(idCol);
-				if (!column.isAuthorizedValue(value))
+				if (!column.isAuthorizedValue(value)) {
 					throw new WrongColumnException(column, (idSelectedRow + 1), "The value " + value
 							+ " is incorrect, it must be one of: " + Arrays.toString(column.getAuthorizedValues()));
+				}
 			}
 		}
 	}

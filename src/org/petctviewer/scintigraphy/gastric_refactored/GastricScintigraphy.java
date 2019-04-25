@@ -24,7 +24,7 @@ public class GastricScintigraphy extends Scintigraphy {
 		ImageSelection[] selection = new ImageSelection[openedImages.length];
 		for (int i = 0; i < openedImages.length; i++) {
 			ImageSelection ims = openedImages[i];
-			if (ims.getImageOrientation() != Orientation.ANT_POST)
+			if (ims.getImageOrientation() != Orientation.ANT_POST && ims.getImageOrientation() != Orientation.POST_ANT)
 				throw new WrongColumnException.OrientationColumn(ims.getRow(), ims.getImageOrientation(),
 						new Orientation[] { Orientation.ANT_POST });
 			selection[i] = new ImageSelection(Library_Dicom.sortImageAntPost(ims.getImagePlus()), null, null);

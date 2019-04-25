@@ -6,9 +6,11 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
-import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+
+import ij.ImagePlus;
 
 public class ShunpoScintigraphy extends Scintigraphy {
 
@@ -49,7 +51,8 @@ public class ShunpoScintigraphy extends Scintigraphy {
 
 		if (selectedImages[0].getValue(this.orgranColumn.getName()) == selectedImages[1]
 				.getValue(this.orgranColumn.getName()))
-			throw new WrongColumnException(orgranColumn, selectedImages[0].getRow(), "expecting " + ORGAN_KIDNEY_PULMON + " and " + ORGAN_BRAIN);
+			throw new WrongColumnException(orgranColumn, selectedImages[0].getRow(),
+					"expecting " + ORGAN_KIDNEY_PULMON + " and " + ORGAN_BRAIN);
 
 		// Order selectedImages: 1st KIDNEY-PULMON; 2nd BRAIN
 		ImageSelection tmp;
@@ -60,22 +63,15 @@ public class ShunpoScintigraphy extends Scintigraphy {
 		}
 
 		// Check orientation
+		ImagePlus[] toClose = new ImagePlus[selectedImages.length];
 		for (int idImg = 0; idImg < 2; idImg++) {
-			if (selectedImages[idImg].getImageOrientation() == Orientation.ANT_POST) {
-				selectedImages[idImg].getImagePlus().getStack().getProcessor(2).flipHorizontal();
-			} else if (selectedImages[idImg].getImageOrientation() == Orientation.POST_ANT) {
-				selectedImages[idImg].getImagePlus().getStack().getProcessor(1).flipHorizontal();
-			} else {
-				throw new WrongOrientationException(selectedImages[idImg].getImageOrientation(),
-						new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT });
-			}
+			toClose[idImg] = selectedImages[idImg].getImagePlus();
+			selectedImages[idImg] = Library_Dicom.ensureAntPostFlipped(selectedImages[idImg]);
 		}
+		for(ImagePlus imp : toClose)
+			imp.close();
 
-		ImageSelection[] selection = selectedImages;// .clone();
-//		for(ImageSelection i : selectedImages)
-//			i.getImagePlus().close();
-
-		return selection;
+		return selectedImages;
 	}
 
 	@Override
