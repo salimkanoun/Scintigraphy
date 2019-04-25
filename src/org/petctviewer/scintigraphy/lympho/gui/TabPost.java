@@ -11,31 +11,36 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.lympho.post.ModelePost;
+import org.petctviewer.scintigraphy.lympho.ModeleLympho;
 import org.petctviewer.scintigraphy.lympho.post.ControleurPost;
-import org.petctviewer.scintigraphy.lympho.post.postScintigraphy;
+import org.petctviewer.scintigraphy.lympho.post.PostScintigraphy;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
 public class TabPost extends TabResult implements ActionListener {
-	
+
 	private boolean examDone;
 
-	private postScintigraphy vueBasic;
+	private PostScintigraphy vueBasic;
 
 	private JButton btn_addImp;
 
 	public TabPost(FenResults parent, String title, boolean captureBtn) {
 		super(parent, title, captureBtn);
 		// TODO Auto-generated constructor stub
+
+		((ModeleLympho) this.parent.getModel()).setResultTab(this);
 	}
 
 	@Override
 	public Component getSidePanelContent() {
-		if(!this.examDone) {
+		if (!this.examDone) {
 			return null;
-		}else {
-			String[] result = ((ModelePost) ((ControleurPost) this.vueBasic.getFenApplication().getControleur()).getModel()).getResult();
+		} else {
+			String[] result = ((ModelePost) ((ControleurPost) this.vueBasic.getFenApplication().getControleur())
+					.getModel()).getResult();
 			JPanel res = new JPanel(new GridLayout(result.length, 1));
 			for (String s : result)
 				res.add(new JLabel(s));
@@ -46,18 +51,20 @@ public class TabPost extends TabResult implements ActionListener {
 	@Override
 	public JPanel getResultContent() {
 		JPanel pan = new JPanel();
-		if(!this.examDone) {
+		if (!this.examDone) {
 			Box box = Box.createHorizontalBox();
 			box.add(Box.createHorizontalGlue());
-	
+
 			btn_addImp = new JButton("Choose post-mictional dicom");
 			btn_addImp.addActionListener(this);
 			box.add(btn_addImp);
 			box.add(Box.createHorizontalGlue());
-	
+
 			pan.add(box);
-		}else {
-			DynamicImage test = new DynamicImage(((ModelePost) ((ControleurPost) this.vueBasic.getFenApplication().getControleur()).getModel()).getPelvisMontage().getImage());
+		} else {
+			DynamicImage test = new DynamicImage(
+					((ModelePost) ((ControleurPost) this.vueBasic.getFenApplication().getControleur()).getModel())
+							.getPelvisMontage().getBufferedImage());
 			pan.add(test);
 		}
 		return pan;
@@ -65,7 +72,7 @@ public class TabPost extends TabResult implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		this.vueBasic = new postScintigraphy("Post Scinty", this);
+		this.vueBasic = new PostScintigraphy("Post Scinty", this);
 		try {
 			this.vueBasic.run("");
 		} catch (Exception e) {
@@ -73,10 +80,13 @@ public class TabPost extends TabResult implements ActionListener {
 		}
 
 	}
-	
+
 	public void setExamDone(boolean boobool) {
 		this.examDone = boobool;
 	}
-	
+
+	public Scintigraphy getVueBasic() {
+		return this.vueBasic;
+	}
 
 }

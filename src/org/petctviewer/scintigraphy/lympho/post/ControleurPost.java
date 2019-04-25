@@ -1,12 +1,8 @@
 package org.petctviewer.scintigraphy.lympho.post;
 
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.GridLayout;
 
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.lympho.gui.TabPost;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
@@ -14,7 +10,6 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
-import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -27,9 +22,9 @@ import ij.gui.Roi;
 
 public class ControleurPost extends ControleurScin {
 
-	public String[] organes = { "Pelvis_Right", "Pelvis_Left","Background" };
+	public String[] organes = { "Pelvis_Right", "Pelvis_Left", "Background" };
 
-	private static final int FIRST_IMAGE = 0, SECOND_IMAGE = 1;
+	private static final int FIRST_IMAGE = 0;
 
 	private int organe;
 
@@ -44,7 +39,7 @@ public class ControleurPost extends ControleurScin {
 	private FenResults fenResults;
 
 	private boolean firstOrientationOver;
-	
+
 	private TabResult resultTab;
 
 	public ControleurPost(Scintigraphy main, FenApplication vue, ModeleScin model) {
@@ -52,7 +47,8 @@ public class ControleurPost extends ControleurScin {
 		// TODO Auto-generated constructor stub
 	}
 
-	public ControleurPost(Scintigraphy main, FenApplication vue, String examType, ImageSelection[] selectedImages, TabResult resultTab) {
+	public ControleurPost(Scintigraphy main, FenApplication vue, String examType, ImageSelection[] selectedImages,
+			TabResult resultTab) {
 		super(main, vue, new ModelePost(selectedImages, examType, resultTab));
 
 		this.organe = 0;
@@ -64,7 +60,7 @@ public class ControleurPost extends ControleurScin {
 
 		this.fenResults = new FenResults(this.model);
 		this.fenResults.setVisible(false);
-		
+
 		this.changerImage();
 		this.resultTab = resultTab;
 
@@ -103,10 +99,7 @@ public class ControleurPost extends ControleurScin {
 		super.clicPrecedent();
 
 		if (this.organe == 0)
-			if (!this.firstOrientationOver)
-				this.previousStep();
-			else
-				this.previousOrientation();
+			this.previousOrientation();
 		else
 			this.previousOrgan();
 
@@ -126,22 +119,6 @@ public class ControleurPost extends ControleurScin {
 		this.organe--;
 		this.organeRoiMaganer--;
 		this.editOrgan();
-	}
-
-	private void nextStep() {
-		this.etape++;
-		this.organe = 0;
-		this.organeRoiMaganer++;
-		this.firstOrientationOver = false;
-		changerImage();
-	}
-
-	private void previousStep() {
-		this.etape--;
-		this.organe = this.organes.length - 1;
-		this.organeRoiMaganer--;
-		this.firstOrientationOver = true;
-		changerImage();
 	}
 
 	private void nextOrientation() {
@@ -190,23 +167,6 @@ public class ControleurPost extends ControleurScin {
 		this.displayInstruction(type + " the " + this.organes[this.organe]);
 	}
 
-	private final void DEBUG(String location) {
-		if (location != null)
-			System.out.println("== " + location.toUpperCase() + " ==");
-		System.out
-				.println("Current step: " + this.etape + " [" + (this.etape == 0 ? "FirstImage" : "SecondImage") + "]");
-		System.out.println("Current organ: " + this.organe + " [" + this.organes[this.organe] + "]");
-		System.out.println("Index ROI: " + this.organeRoiMaganer);
-		System.out.println("Position: " + this.position);
-		if (location == null)
-			System.out.println("==============");
-		System.out.println();
-	}
-
-	private final void DEBUG() {
-		this.DEBUG(null);
-	}
-
 	@Override
 	protected void end() {
 		this.organe++;
@@ -243,29 +203,30 @@ public class ControleurPost extends ControleurScin {
 		ImageStack stackCapture = Library_Capture_CSV.captureToStack(this.captures);
 		ImagePlus montage = this.montage(stackCapture);
 
-//		// Display result
-//		this.fenResults.setMainTab(new TabResult(fenResults, "Result", true) {
-//			@Override
-//			public Component getSidePanelContent() {
-//				String[] result = ((ModelePost) model).getResult();
-//				JPanel res = new JPanel(new GridLayout(result.length, 1));
-//				for (String s : result)
-//					res.add(new JLabel(s));
-//				return res;
-//			}
-//
-//			@Override
-//			public JPanel getResultContent() {
-//				return new DynamicImage(montage.getImage());
-//			}
-//		});
-//		this.fenResults.pack();
-//		this.fenResults.setVisible(true);
-		
-		((ModelePost)this.model).setPelvisMontage(montage);
-		montage.show();
-		((TabPost)this.resultTab).setExamDone(true);
-		((TabPost)this.resultTab).reloadDisplay();
+		// // Display result
+		// this.fenResults.setMainTab(new TabResult(fenResults, "Result", true) {
+		// @Override
+		// public Component getSidePanelContent() {
+		// String[] result = ((ModelePost) model).getResult();
+		// JPanel res = new JPanel(new GridLayout(result.length, 1));
+		// for (String s : result)
+		// res.add(new JLabel(s));
+		// return res;
+		// }
+		//
+		// @Override
+		// public JPanel getResultContent() {
+		// return new DynamicImage(montage.getImage());
+		// }
+		// });
+		// this.fenResults.pack();
+		// this.fenResults.setVisible(true);
+
+		((ModelePost) this.model).setPelvisMontage(montage);
+		((TabPost) this.resultTab).setExamDone(true);
+		((TabPost) this.resultTab).reloadDisplay();
+
+		this.vue.close();
 
 	}
 
@@ -305,8 +266,7 @@ public class ControleurPost extends ControleurScin {
 			this.vue.getImagePlus().setSlice(1);
 		this.editOrgan();
 	}
-	
-	
+
 	public ModeleScin getModel() {
 		return this.model;
 	}

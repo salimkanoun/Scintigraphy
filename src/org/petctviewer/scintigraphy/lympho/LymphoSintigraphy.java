@@ -64,14 +64,29 @@ public class LymphoSintigraphy extends Scintigraphy {
 
 			impsSortedByTime = new ImagePlus[impsSortedAntPost.length];
 			dynamicImage = dynamicToStaticAntPost(dynamicImage);
-			double ratio = (timeStatic * 1.0D / acquisitionTimeDynamic * 1.0D);											// On calcule le ration de temps pour égaliser le nombre de coup/miliseconde
+			double ratio = (timeStatic * 1.0D / acquisitionTimeDynamic * 1.0D); // On calcule le ration de temps pour
+																				// égaliser le nombre de
+																				// coup/miliseconde
 
-			IJ.run(staticImage, "Multiply...", "value=" + (1f / ratio) + " stack");										// On passe la static sur le même temps théorique que la dynamic
-			IJ.run(staticImage, "Multiply...", "value=" + (60000f / acquisitionTimeDynamic) + " stack");				// On ramène sur 1 minute
-			IJ.run(dynamicImage, "Multiply...", "value=" + (60000f / acquisitionTimeDynamic) + " stack");				// On ramène sur 1 minute
+			IJ.run(staticImage, "Multiply...", "value=" + (1f / ratio) + " stack"); // On passe la static sur le même
+																					// temps théorique que la dynamic
+			IJ.run(staticImage, "Multiply...", "value=" + (60000f / acquisitionTimeDynamic) + " stack"); // On ramène
+																											// sur 1
+																											// minute
+			IJ.run(dynamicImage, "Multiply...", "value=" + (60000f / acquisitionTimeDynamic) + " stack"); // On ramène
+																											// sur 1
+																											// minute
 
-			dynamicImage.getProcessor().setMinAndMax(0, dynamicImage.getStatistics().max * ratio);						// On augmente le contraste (uniquement visuel, n'impacte pas les données)
-			staticImage.getProcessor().setMinAndMax(0, staticImage.getStatistics().max * ratio);						// On augmente le contraste (uniquement visuel, n'impacte pas les données)
+			dynamicImage.getProcessor().setMinAndMax(0, dynamicImage.getStatistics().max * ratio); // On augmente le
+																									// contraste
+																									// (uniquement
+																									// visuel, n'impacte
+																									// pas les données)
+			staticImage.getProcessor().setMinAndMax(0, staticImage.getStatistics().max * ratio); // On augmente le
+																									// contraste
+																									// (uniquement
+																									// visuel, n'impacte
+																									// pas les données)
 			impsSortedByTime[Math.abs((DynamicPosition - 1))] = staticImage;
 			impsSortedByTime[DynamicPosition] = dynamicImage;
 

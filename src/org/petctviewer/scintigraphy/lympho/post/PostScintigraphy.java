@@ -9,13 +9,13 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import ij.IJ;
 import ij.ImagePlus;
 
-public class postScintigraphy extends Scintigraphy {
-	
+public class PostScintigraphy extends Scintigraphy {
+
 	TabResult resultTab;
 
-	public postScintigraphy(String studyName, TabResult tab) {
+	public PostScintigraphy(String studyName, TabResult tab) {
 		super("Post Scintigraphy");
-		
+
 		this.resultTab = tab;
 	}
 
@@ -39,6 +39,16 @@ public class postScintigraphy extends Scintigraphy {
 			} else {
 				throw new WrongInputException("Unexpected Image type.\n Accepted : ANT/POST | POST/ANT ");
 			}
+			int ratio = (int) (25000 / impSorted.getStatistics().max);
+			System.out.println("Ratio : " + ratio);
+			System.out.println("MAX : " + impSorted.getStatistics().max);
+			impSorted.getProcessor().setMinAndMax(0, impSorted.getStatistics().max * (1.0d / ratio)); // On augmente le
+																										// contraste
+																										// (uniquement
+																										// visuel,
+																										// n'impacte pas
+																										// les données)
+			System.out.println("MAX : " + impSorted.getStatistics().max);
 
 			impsSortedAntPost[i] = impSorted;
 			selectedImages[i].getImagePlus().close();
@@ -55,8 +65,8 @@ public class postScintigraphy extends Scintigraphy {
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 
 		this.setFenApplication(new FenApplicationPost(selectedImages[0].getImagePlus(), this.getStudyName()));
-		this.getFenApplication()
-				.setControleur(new ControleurPost(this, this.getFenApplication(), "Lympho Scinti", selectedImages, this.resultTab));
+		this.getFenApplication().setControleur(
+				new ControleurPost(this, this.getFenApplication(), "Lympho Scinti", selectedImages, this.resultTab));
 		this.getFenApplication().setVisible(true);
 
 	}

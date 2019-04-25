@@ -14,7 +14,6 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.ImagePlus;
-import ij.ImageStack;
 import ij.gui.Roi;
 
 public class ControleurLympho extends ControleurScin {
@@ -34,7 +33,6 @@ public class ControleurLympho extends ControleurScin {
 
 	private ImagePlus[] captures;
 
-
 	private boolean firstOrientationOver;
 
 	public ControleurLympho(Scintigraphy main, FenApplication vue, String examType, ImageSelection[] selectedImages) {
@@ -49,8 +47,6 @@ public class ControleurLympho extends ControleurScin {
 		etape = 0;
 
 		this.captures = new ImagePlus[TOTAL_CAPTURES];
-
-
 
 		this.changerImage();
 	}
@@ -181,23 +177,6 @@ public class ControleurLympho extends ControleurScin {
 		this.displayInstruction(type + " the " + this.organes[this.organe]);
 	}
 
-	private final void DEBUG(String location) {
-		if (location != null)
-			System.out.println("== " + location.toUpperCase() + " ==");
-		System.out
-				.println("Current step: " + this.etape + " [" + (this.etape == 0 ? "FirstImage" : "SecondImage") + "]");
-		System.out.println("Current organ: " + this.organe + " [" + this.organes[this.organe] + "]");
-		System.out.println("Index ROI: " + this.organeRoiMaganer);
-		System.out.println("Position: " + this.position);
-		if (location == null)
-			System.out.println("==============");
-		System.out.println();
-	}
-
-	private final void DEBUG() {
-		this.DEBUG(null);
-	}
-
 	@Override
 	protected void end() {
 		this.organe++;
@@ -238,29 +217,29 @@ public class ControleurLympho extends ControleurScin {
 		}
 		this.model.calculerResultats();
 
-		// Save captures
-		ImageStack stackCapture = Library_Capture_CSV.captureToStack(this.captures);
-		ImagePlus montage = this.montage(stackCapture);
-
-		// Display result
-//				this.fenResults.setMainTab(new TabResult(fenResults, "Result", true) {
-//					@Override
-//					public Component getSidePanelContent() {
-//						String[] result = ((ModeleLympho) model).getResult();
-//						JPanel res = new JPanel(new GridLayout(result.length, 1));
-//						for (String s : result)
-//							res.add(new JLabel(s));
-//						return res;
-//					}
-//
-//					@Override
-//					public JPanel getResultContent() {
-//						return new DynamicImage(montage.getImage());
-//					}
-//				});
-//				this.fenResults.pack();
-//				this.fenResults.setVisible(true);
-		System.out.println(model != null);
+		// // Save captures
+		// ImageStack stackCapture = Library_Capture_CSV.captureToStack(this.captures);
+		// ImagePlus montage = this.montage(stackCapture);
+		//
+		// // Display result
+		//// this.fenResults.setMainTab(new TabResult(fenResults, "Result", true) {
+		//// @Override
+		//// public Component getSidePanelContent() {
+		//// String[] result = ((ModeleLympho) model).getResult();
+		//// JPanel res = new JPanel(new GridLayout(result.length, 1));
+		//// for (String s : result)
+		//// res.add(new JLabel(s));
+		//// return res;
+		//// }
+		////
+		//// @Override
+		//// public JPanel getResultContent() {
+		//// return new DynamicImage(montage.getImage());
+		//// }
+		//// });
+		//// this.fenResults.pack();
+		//// this.fenResults.setVisible(true);
+		// System.out.println(model != null);
 		new FenResultatsLympho(model, captures);
 
 	}

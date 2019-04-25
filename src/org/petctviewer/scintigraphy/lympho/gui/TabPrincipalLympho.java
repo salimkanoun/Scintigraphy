@@ -18,26 +18,23 @@ import ij.ImageStack;
 import ij.plugin.MontageMaker;
 
 public class TabPrincipalLympho extends TabResult {
-	
+
 	ModeleScin model;
-	
+
 	ImagePlus montage;
 
-	public TabPrincipalLympho(FenResults parent, String title, ModeleScin model,ImagePlus[] captures) {
+	public TabPrincipalLympho(FenResults parent, String title, ModeleScin model, ImagePlus[] captures) {
 		super(parent, title);
 
-
-		System.out.println("TabPrincipalLympho : "+model!=null);
+		System.out.println("TabPrincipalLympho : " + model != null);
 		this.model = model;
 		ImageStack stackCapture = Library_Capture_CSV.captureToStack(captures);
 		this.montage = this.montage(stackCapture);
-		
-		
+
 		this.createCaptureButton();
-		
+
 		this.reloadDisplay();
-		
-		
+
 	}
 
 	@Override
@@ -52,13 +49,12 @@ public class TabPrincipalLympho extends TabResult {
 
 	@Override
 	public JPanel getResultContent() {
-		if(montage != null)
+		if (montage != null)
 			return new DynamicImage(montage.getImage());
-		else 
+		else
 			return null;
 	}
-	
-	
+
 	protected ImagePlus montage(ImageStack captures) {
 		MontageMaker mm = new MontageMaker();
 		// TODO: patient ID

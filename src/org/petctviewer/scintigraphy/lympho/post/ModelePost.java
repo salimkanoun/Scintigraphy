@@ -2,7 +2,9 @@ package org.petctviewer.scintigraphy.lympho.post;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.petctviewer.scintigraphy.lympho.ModeleLympho;
@@ -10,16 +12,13 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 
 import ij.ImagePlus;
 
 public class ModelePost extends ModeleScin {
 
-	public static final int RIGHT_PELVIS_ANT = 0, LEFT_PELVIS_ANT = 1,BACKGROUND_ANT = 2, RIGHT_PELVIS_POST = 3, LEFT_PELVIS_POST = 4, BACKGROUND_POST = 5,
-			TOTAL_ORGANS = 6;
-
-	private static final int RESULT_PELVIS_RIGHT = 0, RESULT_PELVIS_LEFT = 1;
+	public static final int RIGHT_PELVIS_ANT = 0, LEFT_PELVIS_ANT = 1, BACKGROUND_ANT = 2, RIGHT_PELVIS_POST = 3,
+			LEFT_PELVIS_POST = 4, BACKGROUND_POST = 5, TOTAL_ORGANS = 6;
 
 	private boolean locked;
 
@@ -30,8 +29,10 @@ public class ModelePost extends ModeleScin {
 	private String[] retour;
 
 	TabResult resutlTab;
-	
+
 	private ImagePlus pelvisMontage;
+
+	private List<Double> results;
 
 	public ModelePost(ImageSelection[] selectedImages, String studyName, TabResult resultTab) {
 		super(selectedImages, studyName);
@@ -42,6 +43,8 @@ public class ModelePost extends ModeleScin {
 		this.retour = new String[9];
 
 		this.resutlTab = resultTab;
+
+		this.results = new ArrayList<>();
 	}
 
 	public boolean isLocked() {
@@ -64,16 +67,16 @@ public class ModelePost extends ModeleScin {
 		// Library_Quantif.calculer_countCorrected(getImagePlus(), imp,
 		// Isotope.TECHNICIUM_99);
 		double correctedRadioactiveDecrease;
-		if(organ%3==2) {
+		if (organ % 3 == 2) {
 			correctedRadioactiveDecrease = Library_Quantif.getCounts(imp);
-		}else {
-			correctedRadioactiveDecrease = Library_Quantif.getCountCorrectedBackground(imp, this.roiManager.getRoi(organ), this.roiManager.getRoi((organ/3)+2));
-			System.out.println("\t\tAvant correction : " + Library_Quantif.getCounts(imp));
-			System.out.println("\t\tAprès correction : " + correctedRadioactiveDecrease);
+		} else {
+			System.out.println("\n\n\tAvant correction : " + Library_Quantif.getCounts(imp));
+			correctedRadioactiveDecrease = Library_Quantif.getCountCorrectedBackground(imp,
+					this.roiManager.getRoi(organ), this.roiManager.getRoi(((organ / 3) * 3) + 2));
 		}
 		this.coups.put(organ, correctedRadioactiveDecrease);
-		System.out.println("Calculations for " + organ + " [" + ModeleLympho.convertOrgan(organ) + "] -> "
-				+ correctedRadioactiveDecrease);
+		System.out.println("Calculations for " + organ + " [" + ModelePost.convertOrgan(organ) + "] -> "
+				+ correctedRadioactiveDecrease + "\n\n");
 	}
 
 	public static String convertOrgan(int organ) {
@@ -108,7 +111,8 @@ public class ModelePost extends ModeleScin {
 	// Calcule la moyenne g茅om茅trique pour un organe sp茅cifique
 	// Si abv = PD alors on calculera la MG pour le poumon droit
 	private void moyenneGeo(int organ) {
-		Library_Quantif.getCountCorrectedBackground(this.selectedImages[organ/3].getImagePlus(), this.roiManager.getRoi(organ), this.roiManager.getRoi((organ/3)+3));
+		Library_Quantif.getCountCorrectedBackground(this.selectedImages[organ / 3].getImagePlus(),
+				this.roiManager.getRoi(organ), this.roiManager.getRoi((organ / 3) + 3));
 		geometricalAverage.put(organ, (int) Library_Quantif.moyGeom(this.coups.get(organ), this.coups.get(organ + 3)));
 		System.out.println("MG " + organ + " [" + ModeleLympho.convertOrgan(organ) + "/ "
 				+ ModeleLympho.convertOrgan(organ + 3) + "] --- [" + this.coups.get(organ) + "/"
@@ -119,7 +123,7 @@ public class ModelePost extends ModeleScin {
 	@Override
 	public void calculerResultats() {
 		this.retour = new String[9];
-		
+
 		// Permet de definir le nombre de chiffre apr猫s la virgule et mettre la
 		// virgue en system US avec un .
 		DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance();
@@ -130,36 +134,51 @@ public class ModelePost extends ModeleScin {
 		// Les 5 MGs
 		computeGeometricalAverage();
 		retour[0] = "Geometric Average Drainage RIGHT : ";
-		double GeometricAverageRight = geometricalAverage.get(RIGHT_PELVIS_ANT) ;
-		retour[0] += " " + us.format(GeometricAverageRight) + "%";
-		
-		retour[1] = "Geometric Average Drainage RIGHT : ";
-		double GeometricAverageLeft = geometricalAverage.get(LEFT_PELVIS_ANT) ;
-		retour[1] += " " + us.format(GeometricAverageLeft) + "%";
-		
+		double GeometricAverageRight = geometricalAverage.get(RIGHT_PELVIS_ANT);
+		retour[0] += " " + us.format(GeometricAverageRight) + "";
+
+		retour[1] = "Geometric Average Drainage LEFT : ";
+		double GeometricAverageLeft = geometricalAverage.get(LEFT_PELVIS_ANT);
+		retour[1] += " " + us.format(GeometricAverageLeft) + "";
+
 		retour[2] = "Gradient Right/Left : ";
-		double LeftRightGradient = (GeometricAverageRight/GeometricAverageLeft) - 100;
+		double LeftRightGradient = ((GeometricAverageRight - GeometricAverageLeft) / GeometricAverageLeft) * 100;
 		retour[2] += " " + us.format(LeftRightGradient) + "%";
-		
+
 		retour[3] = "Gradient Left/Right : ";
-		double RightLeftGradient = (GeometricAverageLeft/GeometricAverageRight) - 100;
+		double RightLeftGradient = ((GeometricAverageLeft - GeometricAverageRight) / GeometricAverageRight) * 100;
 		retour[3] += " " + us.format(RightLeftGradient) + "%";
 
-
-
-		
-		((ModeleLympho)resutlTab.getParent().getModel()).getInjectionRatio();
+		((ModeleLympho) resutlTab.getParent().getModel()).getInjectionRatio();
 
 		this.resutlTab.updateResultFrame((ModelePost) this);
+
+		this.results.add(Double.valueOf(us.format(GeometricAverageRight)));
+		this.results.add(Double.valueOf(us.format(GeometricAverageLeft)));
+		this.results.add(Double.valueOf(us.format(LeftRightGradient)));
+		this.results.add(Double.valueOf(us.format(RightLeftGradient)));
 
 	}
 
 	public ImagePlus getPelvisMontage() {
 		return this.pelvisMontage;
 	}
-	
+
 	public void setPelvisMontage(ImagePlus pelvisMontage) {
 		this.pelvisMontage = pelvisMontage;
+	}
+
+	@Override
+	public String toString() {
+
+		String s = "";
+
+		s += ",Right,Left\n";
+		s += "Geometric Average Drainage," + this.results.get(0) + "," + results.get(1) + "\n\n";
+		s += "Gradient Right/Left," + this.results.get(2) + "\n";
+		s += "Gradient Left/Right," + this.results.get(3) + "\n\n";
+
+		return s;
 	}
 
 }
