@@ -33,7 +33,7 @@ import org.petctviewer.scintigraphy.scin.instructions.Workflow;
  */
 public abstract class ControllerWorkflow extends ControleurScin {
 
-	private static final int SLICE_ANT = 1, SLICE_POST = 2;
+	protected static final int SLICE_ANT = 1, SLICE_POST = 2;
 
 	protected Workflow[] workflows;
 	protected int indexCurrentImage;

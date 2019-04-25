@@ -49,35 +49,41 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	protected void end() {
 		super.end();
 
+		// TODO: maybe move this code in another method
 		// Compute model
 		ImagePlus imp = this.model.getImagePlus();
 		this.getModel().initResultat();
 		for (int i = 0; i < this.getRoiManager().getRoisAsArray().length; i += 6) {
 			imp = this.model.getImagesPlus()[i / 6];
-			
+
 			System.out.println("Saving results for image#" + i / 6);
-			
+
+			// Ant
+			imp.setSlice(SLICE_ANT);
 			imp.setRoi(this.getRoiManager().getRoisAsArray()[i]);
 			System.out.println("ROI: " + this.getRoiManager().getRoisAsArray()[i]);
 			this.getModel().calculerCoups("Estomac_Ant", i / 6, imp);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i+1]);
-			System.out.println("ROI: " + this.getRoiManager().getRoisAsArray()[i+1].getName());
+			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 1]);
+			System.out.println("ROI: " + this.getRoiManager().getRoisAsArray()[i + 1].getName());
 			this.getModel().calculerCoups("Intes_Ant", i / 6, imp);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i+2]);
-			System.out.println("ROI: " + this.getRoiManager().getRoisAsArray()[i+2].getName());
+			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 2]);
+			System.out.println("ROI: " + this.getRoiManager().getRoisAsArray()[i + 2].getName());
 			this.getModel().calculerCoups("Antre_Ant", i / 6, imp);
 			this.getModel().setCoups("Fundus_Ant", i / 6,
 					this.getModel().getCoups("Estomac_Ant", i / 6) - this.getModel().getCoups("Antre_Ant", i / 6));
 			this.getModel().setCoups("Intestin_Ant", i / 6,
 					this.getModel().getCoups("Intes_Ant", i / 6) - this.getModel().getCoups("Antre_Ant", i / 6));
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i+3]);
-			System.out.println("ROI: " + this.getRoiManager().getRoisAsArray()[i+3].getName());
+			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 3]);
+			System.out.println("ROI: " + this.getRoiManager().getRoisAsArray()[i + 3].getName());
+
+			// Post
+			imp.setSlice(SLICE_POST);
 			this.getModel().calculerCoups("Estomac_Post", i / 6, imp);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i+4]);
-			System.out.println("ROI: " + this.getRoiManager().getRoisAsArray()[i+4].getName());
+			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 4]);
+			System.out.println("ROI: " + this.getRoiManager().getRoisAsArray()[i + 4].getName());
 			this.getModel().calculerCoups("Intes_Post", i / 6, imp);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i+5]);
-			System.out.println("ROI: " + this.getRoiManager().getRoisAsArray()[i+5].getName());
+			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 5]);
+			System.out.println("ROI: " + this.getRoiManager().getRoisAsArray()[i + 5].getName());
 			this.getModel().calculerCoups("Antre_Post", i / 6, imp);
 			this.getModel().setCoups("Fundus_Post", i / 6,
 					this.getModel().getCoups("Estomac_Post", i / 6) - this.getModel().getCoups("Antre_Post", i / 6));
@@ -101,7 +107,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 				JTable table = new JTable(0, 4);
 				DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
 				String[] arr = new String[tableModel.getColumnCount()];
-				for (int i = 0; i < getModel().nbAcquisitions(); i++) {
+				for (int i = 0; i < getModel().nbAcquisitions() + 1; i++) { // +1 for the title
 					for (int j = 0; j < tableModel.getColumnCount(); j++) {
 						arr[j] = resultats[i * tableModel.getColumnCount() + j];
 					}
@@ -126,9 +132,10 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 			@Override
 			public Component getSidePanelContent() {
+				String[] results = getModel().resultats();
 				JPanel panel = new JPanel(new GridLayout(0, 1));
-				panel.add(this.tablesResultats(getModel().resultats()));
-				panel.add(this.infoResultats(getModel().resultats()));
+				panel.add(this.tablesResultats(results));
+				panel.add(this.infoResultats(results));
 				return panel;
 			}
 
