@@ -157,12 +157,9 @@ public class Model_Gastric extends ModeleScin {
 	// permet de creer un dataset d'un group de donees pour un courbe
 	private static XYSeriesCollection createDatasetUn(double[] resX, double[] resY, String titre) {
 		XYSeries courbe = new XYSeries(titre);
-		XYSeriesCollection dataset = new XYSeriesCollection();
-		for (int i = 0; i < resX.length; i++) {
+		for (int i = 0; i < resX.length; i++)
 			courbe.add(resX[i], resY[i]);
-		}
-		dataset.addSeries(courbe);
-		return dataset;
+		return new XYSeriesCollection(courbe);
 	}
 
 	// permet de creer un dataset de trois groups de donees pour trois courbes
@@ -272,12 +269,27 @@ public class Model_Gastric extends ModeleScin {
 		}
 		return (double) (Math.round(valueY * 10) / 10.0);
 	}
+	
+	public XYSeries getStomachSerie() {
+		XYSeries serie = new XYSeries("Stomach");
+		for(int i = 0; i<estomacPourcent.length; i++)
+			serie.add(temps[i], estomacPourcent[i]);
+		return serie;
+	}
 
+	/**
+	 * @return number of points on the chart
+	 */
 	public int nbAcquisitions() {
 		// number of images + the starting point
 		return this.selectedImages.length + 1;
 	}
 
+	/**
+	 * Sets the time when the patient ingested the food.
+	 * 
+	 * @param timeIngestion Time of ingestion
+	 */
 	public void setTimeIngestion(Date timeIngestion) {
 		this.timeIngestion = timeIngestion;
 	}
@@ -306,7 +318,7 @@ public class Model_Gastric extends ModeleScin {
 		double hour = (diff / (60 * 60 * 1000) - day * 24);
 		double min = ((diff / (60 * 1000)) - day * 24 * 60 - hour * 60);
 		Model_Gastric.temps[indexImage + 1] = day * 24 * 60 + hour * 60 + min;
-		System.out.println("Time[" + (indexImage+1) + "] = " + Model_Gastric.temps[indexImage + 1]);
+		System.out.println("Time[" + (indexImage + 1) + "] = " + Model_Gastric.temps[indexImage + 1]);
 	}
 
 	// pour chaque serie, on calcule le pourcentage de l'estomac, le fundus, l'antre
@@ -342,7 +354,8 @@ public class Model_Gastric extends ModeleScin {
 				+ (Model_Gastric.estomacPourcent[indexImage + 1]) + ") / ("
 				+ (Model_Gastric.temps[indexImage + 1] + " - " + (Model_Gastric.temps[indexImage]) + ")"));
 		System.out.println("EstoInter: " + estoInter);
-		System.out.println("temps[("+indexImage+"+1)"+(indexImage+1)+"] = " + Model_Gastric.temps[indexImage + 1]);
+		System.out.println(
+				"temps[(" + indexImage + "+1)" + (indexImage + 1) + "] = " + Model_Gastric.temps[indexImage + 1]);
 
 		if (Model_Gastric.logOn) {
 			IJ.log("image " + (indexImage) + ": " + " Stomach " + Model_Gastric.estomacPourcent[indexImage + 1]

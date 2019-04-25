@@ -150,7 +150,6 @@ public class SidePanel extends JPanel {
 
 					@Override
 					public void run() {
-						System.out.println("RUNNING");
 						// Capture, nouvelle methode a utiliser sur le reste des programmes
 						BufferedImage capture = new BufferedImage(tab.getPanel().getWidth(), tab.getPanel().getHeight(),
 								BufferedImage.TYPE_INT_ARGB);
