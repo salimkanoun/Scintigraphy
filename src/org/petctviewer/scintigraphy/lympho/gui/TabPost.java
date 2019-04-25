@@ -10,9 +10,9 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.lympho.post.ModelePost;
 import org.petctviewer.scintigraphy.lympho.ModeleLympho;
 import org.petctviewer.scintigraphy.lympho.post.ControleurPost;
+import org.petctviewer.scintigraphy.lympho.post.ModelePost;
 import org.petctviewer.scintigraphy.lympho.post.PostScintigraphy;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
@@ -30,7 +30,7 @@ public class TabPost extends TabResult implements ActionListener {
 	public TabPost(FenResults parent, String title, boolean captureBtn) {
 		super(parent, title, captureBtn);
 		// TODO Auto-generated constructor stub
-
+		this.setSidePanelTitle("Pelvis Scintigraphy");
 		((ModeleLympho) this.parent.getModel()).setResultTab(this);
 	}
 
@@ -50,24 +50,26 @@ public class TabPost extends TabResult implements ActionListener {
 
 	@Override
 	public JPanel getResultContent() {
-		JPanel pan = new JPanel();
 		if (!this.examDone) {
+			JPanel pan = new JPanel();
 			Box box = Box.createHorizontalBox();
 			box.add(Box.createHorizontalGlue());
 
-			btn_addImp = new JButton("Choose post-mictional dicom");
+			btn_addImp = new JButton("Choose Pelvis dicom");
 			btn_addImp.addActionListener(this);
 			box.add(btn_addImp);
 			box.add(Box.createHorizontalGlue());
 
 			pan.add(box);
+			return pan;
+
 		} else {
-			DynamicImage test = new DynamicImage(
+			DynamicImage pelvis = new DynamicImage(
 					((ModelePost) ((ControleurPost) this.vueBasic.getFenApplication().getControleur()).getModel())
-							.getPelvisMontage().getBufferedImage());
-			pan.add(test);
+							.getPelvisMontage().getImage());
+			return pelvis;
 		}
-		return pan;
+
 	}
 
 	@Override

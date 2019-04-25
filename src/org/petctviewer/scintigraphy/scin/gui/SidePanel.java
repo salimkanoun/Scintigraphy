@@ -37,6 +37,7 @@ public class SidePanel extends JPanel {
 	private Box box;
 	private Component sidePanelContent;
 	private JPanel panSouth;
+	private JLabel titreFen;
 
 	public SidePanel(Component sidePanelContent, String titre, ImagePlus imp) {
 		super(new BorderLayout());
@@ -61,7 +62,7 @@ public class SidePanel extends JPanel {
 
 		// ajout du titre de la fenetre
 		JPanel flow = new JPanel();
-		JLabel titreFen = new JLabel("<html><h1>" + titre + "</h1><html>");
+		titreFen = new JLabel("<html><h1>" + titre + "</h1><html>");
 		titreFen.setHorizontalAlignment(SwingConstants.CENTER);
 		flow.add(titreFen);
 		this.box.add(flow);
@@ -202,6 +203,10 @@ public class SidePanel extends JPanel {
 		captureButton.setHorizontalAlignment(JButton.CENTER);
 		captureButton.setEnabled(true);
 		this.panSouth.add(captureButton);
+	}
+	
+	public void setTitle(String title) {
+		titreFen.setText("<html><h1>" + title + "</h1><html>");
 	}
 
 }

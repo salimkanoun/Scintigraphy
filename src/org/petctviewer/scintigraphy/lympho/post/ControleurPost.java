@@ -19,6 +19,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
+import ij.plugin.MontageMaker;
 
 public class ControleurPost extends ControleurScin {
 
@@ -201,26 +202,7 @@ public class ControleurPost extends ControleurScin {
 
 		// Save captures
 		ImageStack stackCapture = Library_Capture_CSV.captureToStack(this.captures);
-		ImagePlus montage = this.montage(stackCapture);
-
-		// // Display result
-		// this.fenResults.setMainTab(new TabResult(fenResults, "Result", true) {
-		// @Override
-		// public Component getSidePanelContent() {
-		// String[] result = ((ModelePost) model).getResult();
-		// JPanel res = new JPanel(new GridLayout(result.length, 1));
-		// for (String s : result)
-		// res.add(new JLabel(s));
-		// return res;
-		// }
-		//
-		// @Override
-		// public JPanel getResultContent() {
-		// return new DynamicImage(montage.getImage());
-		// }
-		// });
-		// this.fenResults.pack();
-		// this.fenResults.setVisible(true);
+		ImagePlus montage = this.montage2Images(stackCapture);
 
 		((ModelePost) this.model).setPelvisMontage(montage);
 		((TabPost) this.resultTab).setExamDone(true);
@@ -269,6 +251,21 @@ public class ControleurPost extends ControleurScin {
 
 	public ModeleScin getModel() {
 		return this.model;
+	}
+	
+	/**
+	 * Creates an ImagePlus with 2 captures.
+	 * 
+	 * @param captures ImageStack with 2 captures
+	 * @return ImagePlus with the 2 captures on 1 slice
+	 */
+	private ImagePlus montage2Images(ImageStack captures) {
+		MontageMaker mm = new MontageMaker();
+		// TODO: patient ID
+		String patientID = "NO_ID_FOUND";
+		ImagePlus imp = new ImagePlus("Resultats Pelvis -" + this.model.getStudyName() + " -" + patientID, captures);
+		imp = mm.makeMontage2(imp, 1, 2, 0.50, 1, 2, 1, 10, false);
+		return imp;
 	}
 
 }

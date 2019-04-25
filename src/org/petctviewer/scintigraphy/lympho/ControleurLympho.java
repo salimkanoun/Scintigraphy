@@ -217,29 +217,6 @@ public class ControleurLympho extends ControleurScin {
 		}
 		this.model.calculerResultats();
 
-		// // Save captures
-		// ImageStack stackCapture = Library_Capture_CSV.captureToStack(this.captures);
-		// ImagePlus montage = this.montage(stackCapture);
-		//
-		// // Display result
-		//// this.fenResults.setMainTab(new TabResult(fenResults, "Result", true) {
-		//// @Override
-		//// public Component getSidePanelContent() {
-		//// String[] result = ((ModeleLympho) model).getResult();
-		//// JPanel res = new JPanel(new GridLayout(result.length, 1));
-		//// for (String s : result)
-		//// res.add(new JLabel(s));
-		//// return res;
-		//// }
-		////
-		//// @Override
-		//// public JPanel getResultContent() {
-		//// return new DynamicImage(montage.getImage());
-		//// }
-		//// });
-		//// this.fenResults.pack();
-		//// this.fenResults.setVisible(true);
-		// System.out.println(model != null);
 		new FenResultatsLympho(model, captures);
 
 	}

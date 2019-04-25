@@ -63,9 +63,6 @@ public class ModelePost extends ModeleScin {
 	}
 
 	protected void calculerCoups(int organ, ImagePlus imp) {
-		// double correctedRadioactiveDecrease =
-		// Library_Quantif.calculer_countCorrected(getImagePlus(), imp,
-		// Isotope.TECHNICIUM_99);
 		double correctedRadioactiveDecrease;
 		if (organ % 3 == 2) {
 			correctedRadioactiveDecrease = Library_Quantif.getCounts(imp);
@@ -150,8 +147,6 @@ public class ModelePost extends ModeleScin {
 		retour[3] += " " + us.format(RightLeftGradient) + "%";
 
 		((ModeleLympho) resutlTab.getParent().getModel()).getInjectionRatio();
-
-		this.resutlTab.updateResultFrame((ModelePost) this);
 
 		this.results.add(Double.valueOf(us.format(GeometricAverageRight)));
 		this.results.add(Double.valueOf(us.format(GeometricAverageLeft)));
