@@ -8,7 +8,9 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
@@ -28,6 +30,7 @@ import javax.swing.table.TableColumnModel;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -47,6 +50,7 @@ import ij.util.DicomTools;
 public class FenSelectionDicom extends JFrame implements ActionListener, ImageListener {
 	private static final long serialVersionUID = 6706629497515318270L;
 
+	// TODO: make a column invisible to add data
 	/**
 	 * Represents a column for the selection table.
 	 *
@@ -54,7 +58,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	public static class Column {
 		public static final Column PATIENT = new Column("Patient"), STUDY = new Column("Study"),
 				DATE = new Column("Date"), SERIES = new Column("Series"), DIMENSIONS = new Column("Dimensions"),
-				STACK_SIZE = new Column("Stack Size"), ORIENTATION;
+				STACK_SIZE = new Column("Stack Size"), ORIENTATION, ROW = new Column("Index", null, false);
 		static {
 			String[] s = Orientation.allOrientations();
 			ORIENTATION = new Column("Orientation", s);
@@ -62,6 +66,26 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 		private String name;
 		private String[] authorizedValues;
+//		private boolean visible;
+
+		/**
+		 * Creates a new column with the specified name. The authorized values are
+		 * displayed as a list for the user to choose from. <br>
+		 * If the authorized value is empty, then no value will be authorized. If the
+		 * authorized value is null, then all values will be authorized.
+		 * 
+		 * @param name             Name of the column (shown in the header of the table)
+		 * @param authorizedValues Possible values for the user to choose from. Null
+		 *                         means all values authorized. Empty means no values
+		 *                         authorized
+		 * @param visible          TRUE if the column should be visible and FALSE if the
+		 *                         column should be hidden
+		 */
+		public Column(String name, String[] authorizedValues, boolean visible) {
+			this.name = name;
+			this.authorizedValues = authorizedValues;
+//			this.visible = visible;
+		}
 
 		/**
 		 * Creates a new column with the specified name. The authorized values are
@@ -75,8 +99,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		 *                         authorized
 		 */
 		public Column(String name, String[] authorizedValues) {
-			this.name = name;
-			this.authorizedValues = authorizedValues;
+			this(name, authorizedValues, true);
 		}
 
 		/**
@@ -141,6 +164,13 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		public String getName() {
 			return this.name;
 		}
+
+//		/**
+//		 * @return TRUE if the column is visible and FALSE otherwise
+//		 */
+//		public boolean isVisible() {
+//			return this.visible;
+//		}
 	}
 
 	private JButton btn_select, btn_selectAll;
@@ -237,19 +267,19 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 				for (int i = 0; i < data[0].length; i++) {
 					Column c = this.columns.get(i);
-					if (c.getName().equals(Column.PATIENT.getName())) {
+					if (c == Column.PATIENT) {
 						data[idImgOpen][i] = infosPatient.get("name");
-					} else if (c.getName().equals(Column.STUDY.getName())) {
+					} else if (c == Column.STUDY) {
 						data[idImgOpen][i] = replaceNull(DicomTools.getTag(imp, "0008,1030")).trim();
-					} else if (c.getName().equals(Column.DATE.getName())) {
+					} else if (c == Column.DATE) {
 						data[idImgOpen][i] = replaceNull(infosPatient.get("date"));
-					} else if (c.getName().equals(Column.SERIES.getName())) {
+					} else if (c == Column.SERIES) {
 						data[idImgOpen][i] = replaceNull(DicomTools.getTag(imp, "0008,103E")).trim();
-					} else if (c.getName().equals(Column.DIMENSIONS.getName())) {
+					} else if (c == Column.DIMENSIONS) {
 						data[idImgOpen][i] = imp.getDimensions()[0] + "x" + imp.getDimensions()[1];
-					} else if (c.getName().equals(Column.STACK_SIZE.getName())) {
+					} else if (c == Column.STACK_SIZE) {
 						data[idImgOpen][i] = "" + imp.getStack().getSize();
-					} else if (c.getName().equals(Column.ORIENTATION.getName())) {
+					} else if (c == Column.ORIENTATION) {
 						data[idImgOpen][i] = determineImageOrientation(imp).toString();
 					} else {
 						data[idImgOpen][i] = "CHOOSE VALUE";
@@ -304,7 +334,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	}
 
 	/**
-	 * Replaces a null of empty string with 'N/A' annotation.
+	 * Replaces a null or empty string with 'N/A' annotation.
 	 * 
 	 * TODO: Maybe move this method in a library???
 	 * 
@@ -335,39 +365,83 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		JButton b = (JButton) e.getSource();
+	public void actionPerformed(ActionEvent event) {
+		JButton b = (JButton) event.getSource();
 
 		if (b == this.btn_selectAll) {
 			// on selectionne toutes les fenetres
 			table.selectAll();
 		}
 
-		// Check that all selected rows have authorized value in all column
-		boolean ready = true;
-		for (int i = 0; i < this.table.getSelectedRows().length && ready; i++) {
-			int idSelectedRow = this.table.getSelectedRows()[i];
-			for (int idCol = 0; idCol < this.columns.size() && ready; idCol++) {
-				String value = (String) this.table.getValueAt(idSelectedRow, idCol);
-				Column column = this.columns.get(idCol);
-				if (!column.isAuthorizedValue(value)) {
-					JOptionPane.showMessageDialog(this, "The value " + value + " at row " + (idSelectedRow + 1)
-							+ " is incorrect, it must be one of: " + Arrays.toString(column.getAuthorizedValues()), "",
-							JOptionPane.ERROR_MESSAGE);
-					ready = false;
-				}
-			}
+		ImageSelection[] selectedImages = this.getSelectedImages();
+
+		try {
+
+			this.checkForUnauthorizedValues();
+			this.checkSamePatient(selectedImages);
+			this.startExam(selectedImages);
+
+		} catch (WrongColumnException e) {
+			JOptionPane.showMessageDialog(this, e.getMessage(), "", JOptionPane.ERROR_MESSAGE);
+		} catch (WrongInputException e) {
+			JOptionPane.showMessageDialog(this, "Selection aborted", "", JOptionPane.INFORMATION_MESSAGE);
 		}
-
-		// TODO: Check that patient is the same for every image selected
-
-		if (ready)
-			this.startExam();
 
 	}
 
-	public void startExam() {
+	/**
+	 * Checks that all selected rows have authorized value in all columns.
+	 * 
+	 * @throws WrongColumnException if a column has an unauthorized value
+	 */
+	private void checkForUnauthorizedValues() throws WrongColumnException {
+		for (int i = 0; i < this.table.getSelectedRows().length; i++) {
+			int idSelectedRow = this.table.getSelectedRows()[i];
+			for (int idCol = 0; idCol < this.columns.size(); idCol++) {
+				String value = (String) this.table.getValueAt(idSelectedRow, idCol);
+				Column column = this.columns.get(idCol);
+				if (!column.isAuthorizedValue(value))
+					throw new WrongColumnException(column, (idSelectedRow + 1), "The value " + value
+							+ " is incorrect, it must be one of: " + Arrays.toString(column.getAuthorizedValues()));
+			}
+		}
+	}
 
+	/**
+	 * Checks that all selected images are for the same patient (id and name). If
+	 * not, the user can override the process.
+	 * 
+	 * @throws WrongInputException if selected images belong to multiple patient and
+	 *                             the user do not override the process
+	 */
+	private void checkSamePatient(ImageSelection[] selectedImages) throws WrongInputException {
+		Set<String> patientIds = new HashSet<>();
+		Set<String> patientNames = new HashSet<>();
+
+		for (ImageSelection ims : selectedImages) {
+			HashMap<String, String> infoPatient = Library_Capture_CSV.getPatientInfo(ims.getImagePlus());
+			patientIds.add(infoPatient.get(Library_Capture_CSV.PATIENT_INFO_ID));
+			patientNames.add(infoPatient.get(Library_Capture_CSV.PATIENT_INFO_NAME));
+		}
+
+		int result = JOptionPane.YES_OPTION;
+		if (patientIds.size() > 1 || patientNames.size() > 1) {
+			String message = "Selected images might belong to different patient:\n" + patientIds + "\n" + patientNames
+					+ "\n\nWould you like to continue?";
+			result = JOptionPane.showConfirmDialog(this, message, "Multiple patient found", JOptionPane.YES_NO_OPTION,
+					JOptionPane.WARNING_MESSAGE);
+		}
+
+		if (result != JOptionPane.YES_OPTION)
+			throw new WrongInputException("Images belong to multiple patients");
+	}
+
+	/**
+	 * This method is used to get all of the images selected by the user.
+	 * 
+	 * @return images selected by the user
+	 */
+	private ImageSelection[] getSelectedImages() {
 		int[] rows = this.table.getSelectedRows();
 		ImageSelection[] selectedImages = new ImageSelection[rows.length];
 
@@ -385,9 +459,22 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 				columns[idCol] = this.columns.get(idCol).getName();
 			selectedImages[i] = new ImageSelection(WindowManager.getImage(WindowManager.getIDList()[rows[i]]), columns,
 					values);
+			// TODO: do not add row here, use the invisible columns
+			selectedImages[i].setRow(i+1);
 
 		}
 
+		return selectedImages;
+	}
+
+	/**
+	 * This method starts the exam by calling the <code>lancerProgramme()</code>
+	 * method on {@link Scintigraphy}.
+	 * 
+	 * @param selectedImages Images selected by the user (at this point, they are
+	 *                       not conform to the Controller's requirements)
+	 */
+	protected void startExam(ImageSelection[] selectedImages) {
 		try {
 			ImageSelection[] userSelection = this.scin.preparerImp(selectedImages);
 			if (userSelection != null) {
@@ -396,7 +483,6 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 				this.scin.lancerProgramme(userSelection);
 			}
 		} catch (WrongInputException e) {
-//			IJ.log((e.getMessage()));
 			JOptionPane.showMessageDialog(this, "Error while selecting images:\n" + e.getMessage(), "Selection error",
 					JOptionPane.ERROR_MESSAGE);
 		}
