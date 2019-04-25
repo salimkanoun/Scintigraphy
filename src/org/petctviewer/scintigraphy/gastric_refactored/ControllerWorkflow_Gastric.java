@@ -119,7 +119,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			// TODO: change this method to have only desired data in input
 			private JPanel infoResultats(String[] resultats) {
 				JPanel infoRes = new JPanel();
-				infoRes.setLayout(new GridLayout(14, 1));
+				infoRes.setLayout(new GridLayout(0, 2));
 				// la deuxime partir du resultats contient 13 ligne
 				for (int i = getModel().nbAcquisitions() * 4 + 4; i < resultats.length; i++) {
 					infoRes.add(new Label(resultats[i]));
@@ -141,9 +141,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 				ImageStack ims = Library_Capture_CSV.captureToStack(new ImagePlus[] { capture,
 						getModel().createGraph_3(), getModel().createGraph_1(), getModel().createGraph_2() });
 
-				JPanel panel = new JPanel();
-				panel.add(new DynamicImage(getModel().montage(ims).getImage()));
-				return panel;
+				return new DynamicImage(getModel().montage(ims).getImage());
 			}
 		});
 		this.fenResults.pack();
