@@ -124,7 +124,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 				JPanel infoRes = new JPanel();
 				infoRes.setLayout(new GridLayout(14, 1));
 				// la deuxime partir du resultats contient 13 ligne
-				for (int i = model.getImageSelection().length * 4 + 4; i < resultats.length; i++) {
+				for (int i = getModel().nbAcquisitions() * 4 + 4; i < resultats.length; i++) {
 					infoRes.add(new Label(resultats[i]));
 				}
 				return infoRes;

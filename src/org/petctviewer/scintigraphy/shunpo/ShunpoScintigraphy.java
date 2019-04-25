@@ -44,14 +44,12 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	@Override
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 		// Check that number of images is correct
-		if (selectedImages.length != 2) {
+		if (selectedImages.length != 2)
 			throw new WrongNumberImagesException(selectedImages.length, 2);
-		}
 
 		if (selectedImages[0].getValue(this.orgranColumn.getName()) == selectedImages[1]
-				.getValue(this.orgranColumn.getName())) {
-			throw new WrongColumnException(orgranColumn, "expecting " + ORGAN_KIDNEY_PULMON + " and " + ORGAN_BRAIN);
-		}
+				.getValue(this.orgranColumn.getName()))
+			throw new WrongColumnException(orgranColumn, selectedImages[0].getRow(), "expecting " + ORGAN_KIDNEY_PULMON + " and " + ORGAN_BRAIN);
 
 		// Order selectedImages: 1st KIDNEY-PULMON; 2nd BRAIN
 		ImageSelection tmp;
@@ -86,7 +84,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 		this.setFenApplication(new FenApplication_Shunpo(this, selectedImages[0].getImagePlus()));
 		this.getFenApplication()
 //				.setControleur(new ControleurShunpo(this, this.getFenApplication(), selectedImages, "Pulmonary Shunt"));
-		.setControleur(new ControllerShunpo(this, getFenApplication(), selectedImages, "Pulmonary Shunt"));
+				.setControleur(new ControllerShunpo(this, getFenApplication(), selectedImages, "Pulmonary Shunt"));
 		this.getFenApplication().setVisible(true);
 	}
 

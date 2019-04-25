@@ -23,7 +23,6 @@ public class FenResults extends JFrame {
 	private ModeleScin model;
 
 	public FenResults(ModeleScin model) {
-		this.setLocationRelativeTo(null);
 		this.setTitle("Result for " + model.getStudyName());
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -50,6 +49,7 @@ public class FenResults extends JFrame {
 		this.tabPane.addTab(tab.getTitle(), tab.getPanel());
 		this.tabs.add(tab);
 		this.pack();
+		this.setLocationRelativeTo(null);
 	}
 
 	public TabResult getTab(int index) {
