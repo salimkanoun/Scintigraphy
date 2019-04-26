@@ -10,11 +10,14 @@ public class Fit {
 			POWER_FIT = new Fit("Exponential",
 					new ImageIcon(
 							"/Scintigraphy/src/org/petctviewer/scintigraphy/gastric_refactored/gui/fit_linear.png")),
-			POLYNOMIAL_FIT = new Fit("Polynomial", new ImageIcon(
+			POLYNOMIAL_FIT = new Fit("Polynomial",
+					new ImageIcon(
+							"/Scintigraphy/src/org/petctviewer/scintigraphy/gastric_refactored/gui/fit_linear.png")),
+			NO_FIT = new Fit("No fit", new ImageIcon(
 					"/Scintigraphy/src/org/petctviewer/scintigraphy/gastric_refactored/gui/fit_linear.png"));
 
 	public static Fit[] allFits() {
-		return new Fit[] { LINEAR_FIT, POWER_FIT, POLYNOMIAL_FIT };
+		return new Fit[] { NO_FIT, LINEAR_FIT, POWER_FIT, POLYNOMIAL_FIT };
 	}
 
 	private String name;

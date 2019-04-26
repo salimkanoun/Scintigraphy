@@ -18,13 +18,10 @@ public abstract class TabResult {
 	/**
 	 * Instantiate a new tab.
 	 * 
-	 * @param parent
-	 *            FenResults where this tab is placed on
-	 * @param title
-	 *            Title of this tab, displayed on the JTabbedPane's title bar
-	 * @param captureBtn
-	 *            TRUE to create a default capture button and FALSE to create a tab
-	 *            without a capture button
+	 * @param parent     FenResults where this tab is placed on
+	 * @param title      Title of this tab, displayed on the JTabbedPane's title bar
+	 * @param captureBtn TRUE to create a default capture button and FALSE to create
+	 *                   a tab without a capture button
 	 */
 	public TabResult(FenResults parent, String title, boolean captureBtn) {
 		this(parent, title);
@@ -36,10 +33,8 @@ public abstract class TabResult {
 	 * Instantiate a new tab with no capture button. This method is equivalent to
 	 * TabResult(parent, title, false).
 	 * 
-	 * @param parent
-	 *            FenResults where this tab is placed on
-	 * @param title
-	 *            Title of this tab, displayed on the JTabbedPane's title bar
+	 * @param parent FenResults where this tab is placed on
+	 * @param title  Title of this tab, displayed on the JTabbedPane's title bar
 	 */
 	public TabResult(FenResults parent, String title) {
 		this.title = title;
@@ -103,8 +98,7 @@ public abstract class TabResult {
 	/**
 	 * Creates the button to take a capture of this tab.
 	 * 
-	 * @param additionalInfo
-	 *            String that will be added to the end of the backup file
+	 * @param additionalInfo String that will be added to the end of the backup file
 	 */
 	public void createCaptureButton(String additionalInfo) {
 		this.sidePanel.createCaptureButton(this, additionalInfo);
@@ -113,14 +107,11 @@ public abstract class TabResult {
 	/**
 	 * Creates the button to take a capture of this tab.
 	 * 
-	 * @param hide
-	 *            Components that will be hidden during the capture and set visible
-	 *            after
-	 * @param show
-	 *            Component that will be revealed during the capture and set
-	 *            invisible after
-	 * @param additionalInfo
-	 *            String that will be added to the end of the backup file
+	 * @param hide           Components that will be hidden during the capture and
+	 *                       set visible after
+	 * @param show           Component that will be revealed during the capture and
+	 *                       set invisible after
+	 * @param additionalInfo String that will be added to the end of the backup file
 	 */
 	public void createCaptureButton(Component[] hide, Component[] show, String additionalInfo) {
 		this.sidePanel.createCaptureButton(this, hide, show, additionalInfo);

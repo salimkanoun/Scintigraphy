@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.jfree.chart.ChartFactory;
@@ -35,9 +36,13 @@ public class TabChart extends TabResult implements ActionListener {
 	private XYSeries polynomialSeries, exponentialSeries;
 
 	private JComboBox<Fit> fitsChoices;
+	private JLabel labelInterpolation;
 
 	public TabChart(FenResults parent) {
-		super(parent, "Stomach retention", true);
+		super(parent, "Stomach retention");
+		Component[] hide = new Component[] { this.fitsChoices };
+		Component[] show = new Component[] { this.labelInterpolation };
+		this.createCaptureButton(hide, show, null);
 	}
 
 	// TODO: maybe move this method in a library
@@ -183,24 +188,44 @@ public class TabChart extends TabResult implements ActionListener {
 
 	@Override
 	public Component getSidePanelContent() {
-		fitsChoices = new JComboBox<>(Fit.allFits());
-		fitsChoices.setRenderer(new FitCellRenderer());
-		fitsChoices.addActionListener(this);
 		JPanel panel = new JPanel();
+
+		if (this.fitsChoices == null) {
+			// Instantiate combo box
+			fitsChoices = new JComboBox<>(Fit.allFits());
+			fitsChoices.setRenderer(new FitCellRenderer());
+			fitsChoices.addActionListener(this);
+		}
 		panel.add(fitsChoices);
+
+		if (this.labelInterpolation == null) {
+			// Instantiate label
+			this.labelInterpolation = new JLabel();
+			this.labelInterpolation.setVisible(false);
+		}
+		panel.add(this.labelInterpolation);
+
 		return panel;
 	}
 
 	@Override
 	public JPanel getResultContent() {
 		this.createChart();
+		this.actionPerformed(new ActionEvent(this.fitsChoices, ActionEvent.ACTION_PERFORMED, null));
 		return new ChartPanel(chart);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		JComboBox<Fit> source = (JComboBox<Fit>) e.getSource();
-		this.drawFit((Fit) source.getSelectedItem());
+		Fit selectedFit = (Fit) source.getSelectedItem();
+		this.drawFit(selectedFit);
+		
+		// Change label interpolation text (for capture)
+		if (selectedFit == Fit.NO_FIT)
+			this.labelInterpolation.setText("");
+		else
+			this.labelInterpolation.setText("-- " + selectedFit.getName() + " interpolation --");
 	}
 
 }
