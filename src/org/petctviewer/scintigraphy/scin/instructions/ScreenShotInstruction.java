@@ -12,17 +12,37 @@ public class ScreenShotInstruction implements Instruction {
 
 	private List<ImagePlus> captures;
 
-	private FenApplication fenApp;
+//	private ImagePlus imp;
+	private FenApplication fen;
+
+	private int captureHeight, captureWidht;
+
+//	public ScreenShotInstruction(List<ImagePlus> captures, ImagePlus imp, int captureHeight, int captureWidth) {
+//		this.captures = captures;
+//		this.imp = imp;
+//		this.captureHeight = captureHeight;
+//		this.captureWidht = captureWidth;
+//	}
+
+	public ScreenShotInstruction(List<ImagePlus> captures, FenApplication fen, int captureWidth, int captureHeight) {
+		this.captures = captures;
+		this.fen = fen;
+		this.captureHeight = captureHeight;
+		this.captureWidht = captureWidth;
+	}
+
+//	public ScreenShotInstruction(List<ImagePlus> captures, ImagePlus imp) {
+//		this(captures, imp, 512, 0);
+//	}
 
 	public ScreenShotInstruction(List<ImagePlus> captures, FenApplication fen) {
-		this.captures = captures;
-		this.fenApp = fen;
-		System.out.println("\n\n\n Captures enregistrées \n\n\n");
+		this(captures, fen, 512, 0);
 	}
 
 	@Override
 	public void prepareAsNext() {
-		ImagePlus capture = Library_Capture_CSV.captureImage(this.fenApp.getImagePlus(), 512, 0);
+		ImagePlus capture = Library_Capture_CSV.captureImage(this.fen.getImagePlus(), this.captureWidht,
+				this.captureHeight);
 		System.out.println(capture != null);
 		System.out.println(captures != null);
 		this.captures.add(capture);
@@ -31,73 +51,60 @@ public class ScreenShotInstruction implements Instruction {
 
 	@Override
 	public void prepareAsPrevious() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public String getMessage() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Taking screen shot, please wait...";
 	}
 
 	@Override
 	public boolean isExpectingUserInput() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean saveRoi() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isCancelled() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean isRoiVisible() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public ImageState getImageState() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void afterNext(ControllerWorkflow controller) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void afterPrevious(ControllerWorkflow controller) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public int roiToDisplay() {
-		// TODO Auto-generated method stub
-		return 0;
+		return -1;
 	}
 
 	@Override
 	public void setRoi(int index) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public String getRoiName() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
