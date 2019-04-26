@@ -16,7 +16,11 @@ public abstract class TabResult {
 	private JPanel result;
 
 	/**
-	 * Instantiate a new tab.
+	 * Instantiate a new tab.<br>
+	 * <br>
+	 * <i><b>Be careful:</b></i> This method do NOT call the
+	 * {@link #getResultContent()} and {@link #getSidePanelContent()} methods. You
+	 * need to call the {@link #reloadDisplay()} when you are ready to display them.
 	 * 
 	 * @param parent     FenResults where this tab is placed on
 	 * @param title      Title of this tab, displayed on the JTabbedPane's title bar
@@ -31,7 +35,11 @@ public abstract class TabResult {
 
 	/**
 	 * Instantiate a new tab with no capture button. This method is equivalent to
-	 * TabResult(parent, title, false).
+	 * TabResult(parent, title, false).<br>
+	 * <br>
+	 * <i><b>Be careful:</b></i> This method do NOT call the
+	 * {@link #getResultContent()} and {@link #getSidePanelContent()} methods. You
+	 * need to call the {@link #reloadDisplay()} when you are ready to display them.
 	 * 
 	 * @param parent FenResults where this tab is placed on
 	 * @param title  Title of this tab, displayed on the JTabbedPane's title bar
@@ -39,13 +47,9 @@ public abstract class TabResult {
 	public TabResult(FenResults parent, String title) {
 		this.title = title;
 		this.parent = parent;
+		this.result = new JPanel();
 
-		Component sidePanelContent = this.getSidePanelContent();
-		Component content = sidePanelContent == null ? new JPanel() : sidePanelContent;
-		JPanel resultContent = this.getResultContent();
-		this.result = resultContent == null ? new JPanel() : resultContent;
-
-		this.sidePanel = new SidePanel(content, parent.getModel().getStudyName(), parent.getModel().getImagePlus());
+		this.sidePanel = new SidePanel(null, parent.getModel().getStudyName(), parent.getModel().getImagePlus());
 
 		this.panel = new JPanel(new BorderLayout());
 		this.panel.add(this.sidePanel, BorderLayout.EAST);
