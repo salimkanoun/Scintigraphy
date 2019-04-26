@@ -497,5 +497,4 @@ public class Model_Gastric extends ModeleScin {
 	public void calculerResultats() {
 
 	}
-
 }

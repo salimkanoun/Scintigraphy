@@ -514,3 +514,4 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	public void imageUpdated(ImagePlus imp) {
 	}
 }
+

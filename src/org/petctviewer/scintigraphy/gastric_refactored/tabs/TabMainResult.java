@@ -70,7 +70,7 @@ public class TabMainResult extends TabResult {
 	public JPanel getResultContent() {
 		if (capture == null)
 			return null;
-		
+
 		ImageStack ims = Library_Capture_CSV
 				.captureToStack(new ImagePlus[] { capture, ((Model_Gastric) this.parent.getModel()).createGraph_3(),
 						((Model_Gastric) this.parent.getModel()).createGraph_1(),

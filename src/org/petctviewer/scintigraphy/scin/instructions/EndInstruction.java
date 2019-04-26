@@ -1,6 +1,6 @@
-package org.petctviewer.scintigraphy.scin.instructions.messages;
+package org.petctviewer.scintigraphy.scin.instructions;
 
-import org.petctviewer.scintigraphy.scin.instructions.LastInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.messages.MessageInstruction;
 
 public class EndInstruction extends MessageInstruction implements LastInstruction {
 

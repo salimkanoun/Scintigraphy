@@ -33,7 +33,7 @@ public class TabChart extends TabResult implements ActionListener {
 	private XYAnnotation linearFit;
 
 	private XYSeries polynomialSeries, exponentialSeries;
-	
+
 	private JComboBox<Fit> fitsChoices;
 
 	public TabChart(FenResults parent) {

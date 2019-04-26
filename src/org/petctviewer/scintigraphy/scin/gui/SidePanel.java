@@ -37,13 +37,14 @@ public class SidePanel extends JPanel {
 	private Box box;
 	private Component sidePanelContent;
 	private JPanel panSouth;
+	private JLabel titreFen;
 
 	public SidePanel(Component sidePanelContent, String titre, ImagePlus imp) {
 		super(new BorderLayout());
 		this.box = new Box(BoxLayout.Y_AXIS);
 		this.sidePanelContent = sidePanelContent;
 		
-		this.panSouth = new JPanel(new GridLayout(1, 1));
+		this.panSouth = new JPanel();
 
 		this.fillbox(titre, imp);
 
@@ -61,7 +62,7 @@ public class SidePanel extends JPanel {
 
 		// ajout du titre de la fenetre
 		JPanel flow = new JPanel();
-		JLabel titreFen = new JLabel("<html><h1>" + titre + "</h1><html>");
+		titreFen = new JLabel("<html><h1>" + titre + "</h1><html>");
 		titreFen.setHorizontalAlignment(SwingConstants.CENTER);
 		flow.add(titreFen);
 		this.box.add(flow);
@@ -124,7 +125,7 @@ public class SidePanel extends JPanel {
 		// label de credits
 		JLabel lbl_credits = new JLabel("Provided by petctviewer.org");
 		lbl_credits.setVisible(false);
-		this.box.add(lbl_credits);
+		this.panSouth.add(lbl_credits);
 
 		// generation du tag info
 		String info = Library_Capture_CSV.genererDicomTagsPartie1(tab.getParent().getModel().getImagesPlus()[0],
@@ -200,7 +201,11 @@ public class SidePanel extends JPanel {
 		
 		captureButton.setHorizontalAlignment(JButton.CENTER);
 		captureButton.setEnabled(true);
-		this.box.add(captureButton);
+		this.panSouth.add(captureButton);
+	}
+	
+	public void setTitle(String title) {
+		titreFen.setText("<html><h1>" + title + "</h1><html>");
 	}
 
 }

@@ -82,6 +82,7 @@ public class FenDebug extends JFrame {
 		this.registerNewProgram(ShunpoScintigraphy.class);
 		this.registerNewProgram(OsScintigraphy.class);
 		this.registerNewProgram(GastricScintigraphy.class);
+		this.registerNewProgram(LymphoSintigraphy.class);
 
 		this.add(this.panel, BorderLayout.CENTER);
 		this.add(pnl_pref, BorderLayout.NORTH);
