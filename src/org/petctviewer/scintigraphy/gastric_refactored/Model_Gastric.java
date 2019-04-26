@@ -50,8 +50,8 @@ public class Model_Gastric extends ModeleScin {
 	public static Font italic = new Font("Arial", Font.ITALIC, 8);
 	private HashMap<String, Double> coups;// pour enregistrer les coups dans chaque organe sur chaque image
 	private HashMap<String, Double> mgs;// pour enregistrer le MG dans chaque organe pour chaque serie
-	public static double[] temps;// pour enregistrer l'horaire où on recupere chaque serie
-	public static double[] estomacPourcent;// pour enregistrer le pourcentage de l'estomac(par rapport a total) pour
+	protected static double[] temps;// pour enregistrer l'horaire où on recupere chaque serie
+	protected static double[] estomacPourcent;// pour enregistrer le pourcentage de l'estomac(par rapport a total) pour
 											// chaque serie
 	protected static double[] fundusPourcent;// pour enregistrer le pourcentage du fundus(par rapport a total) pour
 												// chaque serie
@@ -270,7 +270,7 @@ public class Model_Gastric extends ModeleScin {
 		return (double) (Math.round(valueY * 10) / 10.0);
 	}
 
-	public XYSeries getStomachSerie() {
+	public XYSeries getStomachSeries() {
 		XYSeries serie = new XYSeries("Stomach");
 		for (int i = 0; i < estomacPourcent.length; i++)
 			serie.add(temps[i], estomacPourcent[i]);

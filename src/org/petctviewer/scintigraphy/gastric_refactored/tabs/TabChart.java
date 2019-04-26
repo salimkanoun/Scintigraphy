@@ -25,6 +25,7 @@ import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.FitCellRenderer;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 public class TabChart extends TabResult implements ActionListener {
 
@@ -45,40 +46,13 @@ public class TabChart extends TabResult implements ActionListener {
 		this.createCaptureButton(hide, show, null);
 	}
 
-	// TODO: maybe move this method in a library
-	/**
-	 * From an array of the form:
-	 * 
-	 * <pre>
-	 * [0][i] = x
-	 * [1][i] = y
-	 * </pre>
-	 * 
-	 * inverts it to the form:
-	 * 
-	 * <pre>
-	 * [i][0] = x
-	 * [i][1] = y
-	 * </pre>
-	 * 
-	 * @param toInvert Array to invert
-	 * @return Array where columns are rows
-	 */
-	private double[][] invertArray(double[][] toInvert) {
-		double[][] res = new double[toInvert[0].length][2];
-		for (int j = 0; j < 2; j++)
-			for (int i = 0; i < toInvert[j].length; i++)
-				res[i][j] = toInvert[j][i];
-		return res;
-	}
-
 	/**
 	 * Creates the chart along with all series.
 	 */
 	private void createChart() {
 		// Create chart
 		this.data = new XYSeriesCollection();
-		this.data.addSeries(((Model_Gastric) this.parent.getModel()).getStomachSerie());
+		this.data.addSeries(((Model_Gastric) this.parent.getModel()).getStomachSeries());
 
 		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (min)", "Stomach retention (%)",
 				data, PlotOrientation.VERTICAL, true, true, true);
@@ -95,7 +69,8 @@ public class TabChart extends TabResult implements ActionListener {
 		}
 
 		// - Exponential
-		double[] regression = Regression.getOLSRegression(this.invertArray(this.createLnSerie().toArray()));
+		double[] regression = Regression
+				.getOLSRegression(Library_JFreeChart.invertArray(this.createLnSerie().toArray()));
 		this.exponentialSeries = this.createExponential(regression);
 	}
 
@@ -129,8 +104,9 @@ public class TabChart extends TabResult implements ActionListener {
 	 */
 	private XYSeries createLnSerie() {
 		XYSeries serie = new XYSeries("Ln(x)");
-		double[] time = Model_Gastric.temps; // TODO: do not use public attributes
-		double[] estomac = Model_Gastric.estomacPourcent;
+		XYSeries stomachSeries = ((Model_Gastric) this.parent.getModel()).getStomachSeries();
+		double[] time = stomachSeries.toArray()[0];
+		double[] estomac = stomachSeries.toArray()[1];
 		for (int i = 0; i < time.length; i++)
 			serie.add(time[i], Math.log(estomac[i]));
 		return serie;
@@ -147,7 +123,8 @@ public class TabChart extends TabResult implements ActionListener {
 	 */
 	private XYSeries createExponential(double[] coefs) {
 		XYSeries serie = new XYSeries("e(x)");
-		double[] time = Model_Gastric.temps;
+		XYSeries stomachSeries = ((Model_Gastric) this.parent.getModel()).getStomachSeries();
+		double[] time = stomachSeries.toArray()[0];
 		for (int i = 0; i < time.length; i++)
 			serie.add(time[i], Math.exp(coefs[0]) * Math.exp(coefs[1] * time[i]));
 		return serie;
@@ -220,7 +197,7 @@ public class TabChart extends TabResult implements ActionListener {
 		JComboBox<Fit> source = (JComboBox<Fit>) e.getSource();
 		Fit selectedFit = (Fit) source.getSelectedItem();
 		this.drawFit(selectedFit);
-		
+
 		// Change label interpolation text (for capture)
 		if (selectedFit == Fit.NO_FIT)
 			this.labelInterpolation.setText("");
