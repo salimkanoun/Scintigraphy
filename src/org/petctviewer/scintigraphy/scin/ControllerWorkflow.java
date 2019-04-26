@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.scin;
 
+import java.awt.Button;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,11 +9,11 @@ import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
-import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.LastInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
+import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
 
 /**
  * This controller is used when working with a flow of instructions.<br>
@@ -54,7 +55,8 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 	/**
 	 * This method must instantiate the workflow and fill it with the instructions
-	 * for this model.
+	 * for this model.<br>
+	 * Only the last workflow generated MUST end with a {@link LastInstruction}.
 	 */
 	protected abstract void generateInstructions();
 
@@ -125,6 +127,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	@Override
 	public void clicPrecedent() {
 		super.clicPrecedent();
+		System.out.println(this.workflows[this.indexCurrentImage]);
 
 		Instruction currentInstruction = this.workflows[this.indexCurrentImage].previous();
 		if (currentInstruction == null) {
@@ -141,9 +144,8 @@ public abstract class ControllerWorkflow extends ControleurScin {
 				this.indexRoi--;
 			this.displayRois(this.roisToDisplay());
 
-			if (currentInstruction instanceof DrawRoiInstruction) {
-				DrawRoiInstruction dri_current = (DrawRoiInstruction) currentInstruction;
-				this.editOrgan(dri_current.roiToDisplay());
+			if (currentInstruction.saveRoi()) {
+				this.editOrgan(currentInstruction.roiToDisplay());
 			}
 
 			currentInstruction.afterPrevious(this);
@@ -160,6 +162,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 	@Override
 	public void clicSuivant() {
+		System.out.println(this.workflows[this.indexCurrentImage]);
 
 		Instruction previousInstruction = this.workflows[this.indexCurrentImage].getCurrentInstruction();
 
@@ -190,6 +193,12 @@ public abstract class ControllerWorkflow extends ControleurScin {
 				}
 			}
 
+			// == Generate next instruction if necessary ==
+			if (previousInstruction instanceof GeneratorInstruction) {
+				GeneratorInstruction generatorInstruction = (GeneratorInstruction) previousInstruction;
+				this.workflows[indexPreviousImage].addInstructionOnTheFly(generatorInstruction.generate());
+			}
+
 			// == Go to the next instruction ==
 			super.clicSuivant();
 
@@ -208,10 +217,8 @@ public abstract class ControllerWorkflow extends ControleurScin {
 				this.displayInstruction(nextInstruction.getMessage());
 				this.prepareImage(nextInstruction.getImageState());
 
-				if (nextInstruction instanceof DrawRoiInstruction) {
-					DrawRoiInstruction dri_current = (DrawRoiInstruction) nextInstruction;
-					this.editOrgan(dri_current.roiToDisplay());
-				}
+				if (nextInstruction.saveRoi())
+					this.editOrgan(nextInstruction.roiToDisplay());
 
 				nextInstruction.afterNext(this);
 			} else {
@@ -271,6 +278,12 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		super.actionPerformed(e);
+
+		Button source = (Button) e.getSource();
+		if (source.getActionCommand().contentEquals(COMMAND_END)) {
+			if (this.workflows[this.indexCurrentImage].getCurrentInstruction() instanceof GeneratorInstruction)
+				((GeneratorInstruction) this.workflows[this.indexCurrentImage].getCurrentInstruction()).stop();
+		}
 	}
 
 }
