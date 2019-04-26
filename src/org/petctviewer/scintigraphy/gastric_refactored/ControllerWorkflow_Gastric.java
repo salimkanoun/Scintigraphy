@@ -85,7 +85,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	protected void end() {
 		super.end();
 
-		// TODO: maybe move this code in another method
 		// Compute model
 		this.computeModel();
 

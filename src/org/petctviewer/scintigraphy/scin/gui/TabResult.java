@@ -53,14 +53,16 @@ public abstract class TabResult {
 	}
 
 	/**
-	 * Creates the complement of information displayed in the SidePanel.
+	 * Creates the complement of information displayed in the SidePanel.<br>
+	 * This method is called BEFORE {@link #getResultContent()}.
 	 * 
 	 * @return Complement of information for the result
 	 */
 	public abstract Component getSidePanelContent();
 
 	/**
-	 * Creates the result of the analysis.
+	 * Creates the result of the analysis.<br>
+	 * This method is called AFTER {@link #getSidePanelContent()}.
 	 * 
 	 * @return displayable result
 	 */

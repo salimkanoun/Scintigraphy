@@ -75,7 +75,7 @@ public class Model_Gastric extends ModeleScin {
 		this.coups = new HashMap<>();
 		this.mgs = new HashMap<>();
 		Prefs.useNamesAsLabels = true;
-		Model_Gastric.logOn = true;
+		Model_Gastric.logOn = false;
 	}
 
 	private void mgs(int indexImage) {

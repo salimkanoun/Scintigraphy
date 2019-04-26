@@ -24,7 +24,7 @@ public class TabMainResult extends TabResult {
 	private ImagePlus capture;
 
 	public TabMainResult(FenResults parent, ImagePlus capture) {
-		super(parent, "Result");
+		super(parent, "Result", true);
 		this.capture = capture;
 		this.reloadDisplay();
 	}
