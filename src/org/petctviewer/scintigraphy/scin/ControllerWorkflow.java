@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.scin;
 
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -265,6 +266,11 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		return this.indexCurrentImage == this.model.getImageSelection().length - 1
 				&& (this.workflows[this.indexCurrentImage].isOver()
 						|| this.workflows[this.indexCurrentImage].getCurrentInstruction() instanceof LastInstruction);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		super.actionPerformed(e);
 	}
 
 }

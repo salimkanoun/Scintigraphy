@@ -22,6 +22,7 @@ public class FenApplication_ScinStatic extends FenApplication{
 		super(imp, nom);
 		this.getTextfield_instructions().setEditable(true);
 		this.btn_finish = new Button("Finish");
+		this.btn_finish.setActionCommand(ControleurScin.COMMAND_END);
 		
 		this.getPanel_Instructions_btns_droite().removeAll();
 		Panel instru = new Panel(new GridLayout(1, 2));

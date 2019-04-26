@@ -4,7 +4,7 @@ import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 
-public abstract class MessageInstruction implements Instruction {
+public class MessageInstruction implements Instruction {
 
 	private String message;
 

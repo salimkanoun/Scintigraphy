@@ -167,16 +167,16 @@ public class TabChart extends TabResult implements ActionListener {
 	public Component getSidePanelContent() {
 		JPanel panel = new JPanel();
 
+		// Instantiate combo box
 		if (this.fitsChoices == null) {
-			// Instantiate combo box
 			fitsChoices = new JComboBox<>(Fit.allFits());
 			fitsChoices.setRenderer(new FitCellRenderer());
 			fitsChoices.addActionListener(this);
 		}
 		panel.add(fitsChoices);
 
+		// Instantiate label
 		if (this.labelInterpolation == null) {
-			// Instantiate label
 			this.labelInterpolation = new JLabel();
 			this.labelInterpolation.setVisible(false);
 		}
