@@ -38,6 +38,7 @@ public class TabChart extends TabResult implements ActionListener {
 
 	public TabChart(FenResults parent) {
 		super(parent, "Stomach retention", true);
+		this.reloadDisplay();
 	}
 
 	// TODO: maybe move this method in a library

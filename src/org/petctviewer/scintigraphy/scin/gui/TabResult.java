@@ -16,15 +16,16 @@ public abstract class TabResult {
 	private JPanel result;
 
 	/**
-	 * Instantiate a new tab.
+	 * Instantiate a new tab.<br>
+	 * <br>
+	 * <i><b>Be careful:</b></i> This method do NOT call the
+	 * {@link #getResultContent()} and {@link #getSidePanelContent()} methods. You
+	 * need to call the {@link #reloadDisplay()} when you are ready to display them.
 	 * 
-	 * @param parent
-	 *            FenResults where this tab is placed on
-	 * @param title
-	 *            Title of this tab, displayed on the JTabbedPane's title bar
-	 * @param captureBtn
-	 *            TRUE to create a default capture button and FALSE to create a tab
-	 *            without a capture button
+	 * @param parent     FenResults where this tab is placed on
+	 * @param title      Title of this tab, displayed on the JTabbedPane's title bar
+	 * @param captureBtn TRUE to create a default capture button and FALSE to create
+	 *                   a tab without a capture button
 	 */
 	public TabResult(FenResults parent, String title, boolean captureBtn) {
 		this(parent, title);
@@ -34,23 +35,21 @@ public abstract class TabResult {
 
 	/**
 	 * Instantiate a new tab with no capture button. This method is equivalent to
-	 * TabResult(parent, title, false).
+	 * TabResult(parent, title, false).<br>
+	 * <br>
+	 * <i><b>Be careful:</b></i> This method do NOT call the
+	 * {@link #getResultContent()} and {@link #getSidePanelContent()} methods. You
+	 * need to call the {@link #reloadDisplay()} when you are ready to display them.
 	 * 
-	 * @param parent
-	 *            FenResults where this tab is placed on
-	 * @param title
-	 *            Title of this tab, displayed on the JTabbedPane's title bar
+	 * @param parent FenResults where this tab is placed on
+	 * @param title  Title of this tab, displayed on the JTabbedPane's title bar
 	 */
 	public TabResult(FenResults parent, String title) {
 		this.title = title;
 		this.parent = parent;
+		this.result = new JPanel();
 
-		Component sidePanelContent = this.getSidePanelContent();
-		Component content = sidePanelContent == null ? new JPanel() : sidePanelContent;
-		JPanel resultContent = this.getResultContent();
-		this.result = resultContent == null ? new JPanel() : resultContent;
-
-		this.sidePanel = new SidePanel(content, parent.getModel().getStudyName(), parent.getModel().getImagePlus());
+		this.sidePanel = new SidePanel(null, parent.getModel().getStudyName(), parent.getModel().getImagePlus());
 
 		this.panel = new JPanel(new BorderLayout());
 		this.panel.add(this.sidePanel, BorderLayout.EAST);
@@ -103,8 +102,7 @@ public abstract class TabResult {
 	/**
 	 * Creates the button to take a capture of this tab.
 	 * 
-	 * @param additionalInfo
-	 *            String that will be added to the end of the backup file
+	 * @param additionalInfo String that will be added to the end of the backup file
 	 */
 	public void createCaptureButton(String additionalInfo) {
 		this.sidePanel.createCaptureButton(this, additionalInfo);
@@ -113,14 +111,11 @@ public abstract class TabResult {
 	/**
 	 * Creates the button to take a capture of this tab.
 	 * 
-	 * @param hide
-	 *            Components that will be hidden during the capture and set visible
-	 *            after
-	 * @param show
-	 *            Component that will be revealed during the capture and set
-	 *            invisible after
-	 * @param additionalInfo
-	 *            String that will be added to the end of the backup file
+	 * @param hide           Components that will be hidden during the capture and
+	 *                       set visible after
+	 * @param show           Component that will be revealed during the capture and
+	 *                       set invisible after
+	 * @param additionalInfo String that will be added to the end of the backup file
 	 */
 	public void createCaptureButton(Component[] hide, Component[] show, String additionalInfo) {
 		this.sidePanel.createCaptureButton(this, hide, show, additionalInfo);
