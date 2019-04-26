@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.lympho;
 
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -13,6 +14,8 @@ public class FenApplicationLympho extends FenApplication {
 		super(imp, nom);
 
 		IJ.setTool(Toolbar.RECTANGLE);
+		this.imp.setOverlay(Library_Gui.initOverlay(getImagePlus()));
+		Library_Gui.setOverlayDG(getImagePlus());
 	}
 
 }

@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.json.simple.JSONObject;
 import org.petctviewer.scintigraphy.lympho.gui.TabPost;
-import org.petctviewer.scintigraphy.lympho.post.ControleurPost;
+import org.petctviewer.scintigraphy.lympho.post.ControllerWorkflowPelvis;
 import org.petctviewer.scintigraphy.lympho.post.ModelePost;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
@@ -218,7 +218,7 @@ public class ModeleLympho extends ModeleScin {
 
 		if (((TabPost) this.resutlTab) != null)
 			if (((TabPost) this.resutlTab).getVueBasic() != null)
-				s += ((ModelePost) ((ControleurPost) ((TabPost) this.resutlTab).getVueBasic().getFenApplication()
+				s += ((ModelePost) ((ControllerWorkflowPelvis) ((TabPost) this.resutlTab).getVueBasic().getFenApplication()
 						.getControleur()).getModel()).toString();
 
 		HashMap<String, String> mapTags = new HashMap<>();

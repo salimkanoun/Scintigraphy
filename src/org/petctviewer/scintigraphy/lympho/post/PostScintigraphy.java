@@ -65,8 +65,10 @@ public class PostScintigraphy extends Scintigraphy {
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 
 		this.setFenApplication(new FenApplicationPost(selectedImages[0].getImagePlus(), this.getStudyName()));
+//		this.getFenApplication().setControleur(
+//				new ControleurPost(this, this.getFenApplication(), "Lympho Scinti", selectedImages, this.resultTab));
 		this.getFenApplication().setControleur(
-				new ControleurPost(this, this.getFenApplication(), "Lympho Scinti", selectedImages, this.resultTab));
+				new ControllerWorkflowPelvis(this, this.getFenApplication(), new ModelePost(selectedImages, "Pelvis Scinty", this.resultTab), this.resultTab));
 		this.getFenApplication().setVisible(true);
 
 	}

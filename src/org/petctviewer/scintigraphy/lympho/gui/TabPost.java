@@ -11,7 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.lympho.ModeleLympho;
-import org.petctviewer.scintigraphy.lympho.post.ControleurPost;
+import org.petctviewer.scintigraphy.lympho.post.ControllerWorkflowPelvis;
 import org.petctviewer.scintigraphy.lympho.post.ModelePost;
 import org.petctviewer.scintigraphy.lympho.post.PostScintigraphy;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -39,7 +39,7 @@ public class TabPost extends TabResult implements ActionListener {
 		if (!this.examDone) {
 			return null;
 		} else {
-			String[] result = ((ModelePost) ((ControleurPost) this.vueBasic.getFenApplication().getControleur())
+			String[] result = ((ModelePost) ((ControllerWorkflowPelvis) this.vueBasic.getFenApplication().getControleur())
 					.getModel()).getResult();
 			JPanel res = new JPanel(new GridLayout(result.length, 1));
 			for (String s : result)
@@ -65,7 +65,7 @@ public class TabPost extends TabResult implements ActionListener {
 
 		} else {
 			DynamicImage pelvis = new DynamicImage(
-					((ModelePost) ((ControleurPost) this.vueBasic.getFenApplication().getControleur()).getModel())
+					((ModelePost) ((ControllerWorkflowPelvis) this.vueBasic.getFenApplication().getControleur()).getModel())
 							.getPelvisMontage().getImage());
 			return pelvis;
 		}
