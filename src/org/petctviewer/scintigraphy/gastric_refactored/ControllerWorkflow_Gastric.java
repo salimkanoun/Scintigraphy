@@ -1,5 +1,8 @@
 package org.petctviewer.scintigraphy.gastric_refactored;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabChart;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
@@ -8,19 +11,19 @@ import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
-import org.petctviewer.scintigraphy.scin.instructions.CheckIntersectionInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
+import org.petctviewer.scintigraphy.scin.instructions.execution.CheckIntersectionInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
 
 public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 	private FenResults fenResults;
-	private ImagePlus capture;
+	private List<ImagePlus> captures;
 
 	public ControllerWorkflow_Gastric(Scintigraphy main, FenApplication vue, ImageSelection[] selectedImages,
 			String studyName) {
@@ -63,8 +66,8 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 					this.getModel().getCoups("Estomac_Post", i / 6) - this.getModel().getCoups("Antre_Post", i / 6));
 			this.getModel().setCoups("Intestin_Post", i / 6,
 					this.getModel().getCoups("Intes_Post", i / 6) - this.getModel().getCoups("Antre_Post", i / 6));
-			if (i == 0)
-				this.capture = Library_Capture_CSV.captureImage(imp, 640, 512);
+//			if (i == 0)
+//				this.capture = Library_Capture_CSV.captureImage(imp, 640, 512);
 
 			try {
 				this.getModel().tempsImage(i / 6, imp);
@@ -89,7 +92,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.computeModel();
 
 		// Display results
-		this.fenResults.setMainTab(new TabMainResult(this.fenResults, this.capture));
+		this.fenResults.setMainTab(new TabMainResult(this.fenResults, this.captures.get(0)));
 		this.fenResults.addTab(new TabChart(this.fenResults));
 		this.fenResults.pack();
 		this.fenResults.setVisible(true);
@@ -98,6 +101,8 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	@Override
 	protected void generateInstructions() {
 		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null;
+
+		this.captures = new ArrayList<>();
 
 		// First instruction to get the acquisition time for the starting point
 		PromptIngestionTime promptIngestionTime = new PromptIngestionTime(this);
@@ -120,6 +125,8 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			this.workflows[i].addInstruction(dri_3);
 			this.workflows[i].addInstruction(dri_4);
 			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_3, dri_4, "Antre"));
+			if (i == 0)
+				this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 640, 512));
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}

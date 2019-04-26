@@ -1,8 +1,9 @@
-package org.petctviewer.scintigraphy.scin.instructions;
+package org.petctviewer.scintigraphy.scin.instructions.execution;
 
 import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 
 /**
  * Instruction to check if two ROIs are intersecting.
