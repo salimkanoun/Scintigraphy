@@ -37,7 +37,8 @@ public class DrawRoiInstruction implements Instruction {
 		this(organToDelimit, orientation, null);
 	}
 
-	public String getOrganName() {
+	@Override
+	public String getRoiName() {
 		return this.organToDelimit;
 	}
 	

@@ -66,11 +66,24 @@ public class ImageSelection implements Cloneable {
 	}
 
 	/**
-	 * TODO: This might not work
+	 * @return row of the image in the FenSelectionDicom (from 1 to
+	 *         selectedImages.length)
 	 */
+	public int getRow() {
+		return Integer.parseInt(this.columnsValues.get(Column.ROW.getName()));
+	}
+
+	/**
+	 * Sets the row of this image.
+	 * 
+	 * @param row Row in the FenSelectionDicom
+	 */
+	public void setRow(int row) {
+		this.columnsValues.put(Column.ROW.getName(), row+"");
+	}
+
 	@Override
-	@Deprecated
-	protected ImageSelection clone() {
+	public ImageSelection clone() {
 		ImageSelection img = new ImageSelection(this.imp.duplicate(), null, null);
 		img.columnsValues = this.columnsValues;
 		return img;

@@ -1,31 +1,26 @@
 package org.petctviewer.scintigraphy.gastric_refactored;
 
-import java.awt.Component;
-import java.awt.GridLayout;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
+import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabChart;
+import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
-import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.instructions.CheckIntersectionInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
-import org.petctviewer.scintigraphy.scin.instructions.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
+import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
-import ij.ImageStack;
 
 public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 	private FenResults fenResults;
+	private ImagePlus capture;
 
 	public ControllerWorkflow_Gastric(Scintigraphy main, FenApplication vue, ImageSelection[] selectedImages,
 			String studyName) {
@@ -35,64 +30,81 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.fenResults.setVisible(false);
 	}
 
+	private void computeModel() {
+		ImagePlus imp = this.model.getImagePlus();
+		this.getModel().initResultat();
+		for (int i = 0; i < this.getRoiManager().getRoisAsArray().length; i += 6) {
+			imp = this.model.getImagesPlus()[i / 6];
+
+			System.out.println("Saving results for image#" + i / 6);
+
+			// Ant
+			imp.setSlice(SLICE_ANT);
+			imp.setRoi(this.getRoiManager().getRoisAsArray()[i]);
+			this.getModel().calculerCoups("Estomac_Ant", i / 6, imp);
+			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 1]);
+			this.getModel().calculerCoups("Intes_Ant", i / 6, imp);
+			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 2]);
+			this.getModel().calculerCoups("Antre_Ant", i / 6, imp);
+			this.getModel().setCoups("Fundus_Ant", i / 6,
+					this.getModel().getCoups("Estomac_Ant", i / 6) - this.getModel().getCoups("Antre_Ant", i / 6));
+			this.getModel().setCoups("Intestin_Ant", i / 6,
+					this.getModel().getCoups("Intes_Ant", i / 6) - this.getModel().getCoups("Antre_Ant", i / 6));
+			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 3]);
+
+			// Post
+			imp.setSlice(SLICE_POST);
+			this.getModel().calculerCoups("Estomac_Post", i / 6, imp);
+			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 4]);
+			this.getModel().calculerCoups("Intes_Post", i / 6, imp);
+			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 5]);
+			this.getModel().calculerCoups("Antre_Post", i / 6, imp);
+			this.getModel().setCoups("Fundus_Post", i / 6,
+					this.getModel().getCoups("Estomac_Post", i / 6) - this.getModel().getCoups("Antre_Post", i / 6));
+			this.getModel().setCoups("Intestin_Post", i / 6,
+					this.getModel().getCoups("Intes_Post", i / 6) - this.getModel().getCoups("Antre_Post", i / 6));
+			if (i == 0)
+				this.capture = Library_Capture_CSV.captureImage(imp, 640, 512);
+
+			try {
+				this.getModel().tempsImage(i / 6, imp);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			this.getModel().pourcVGImage(i / 6);
+		}
+		this.model.calculerResultats();
+	}
+
+	@Override
+	public Model_Gastric getModel() {
+		return (Model_Gastric) this.model;
+	}
+
 	@Override
 	protected void end() {
 		super.end();
 
+		// TODO: maybe move this code in another method
 		// Compute model
-		ImagePlus imp = this.model.getImagePlus();
-		((Model_Gastric)model).initResultat(imp);
-		for (int i = 0; i < this.getRoiManager().getRoisAsArray().length; i += 6) {
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i]);
-			((Model_Gastric) this.model).calculerCoups("Estomac_Ant", i % 6, imp);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i]);
-			((Model_Gastric) this.model).calculerCoups("Intestin_Ant", i % 6, imp);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i]);
-			((Model_Gastric) this.model).calculerCoups("Antre_Ant", i % 6, imp);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i]);
-			((Model_Gastric) this.model).calculerCoups("Estomac_Post", i % 6, imp);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i]);
-			((Model_Gastric) this.model).calculerCoups("Intestin_Post", i % 6, imp);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i]);
-			((Model_Gastric) this.model).calculerCoups("Antre_Post", i % 6, imp);
-
-			((Model_Gastric) model).pourcVGImage(i % 6);
-			try {
-				((Model_Gastric) model).tempsImage(i % 6, "010203");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		this.model.calculerResultats();
+		this.computeModel();
 
 		// Display results
-		this.fenResults.setMainTab(new TabResult(this.fenResults, "Result", true) {
-
-			@Override
-			public Component getSidePanelContent() {
-				JPanel panel = new JPanel(new GridLayout(0, 1));
-				for (String s : ((Model_Gastric) model).resultats(imp)) {
-					panel.add(new JLabel(s));
-				}
-				return panel;
-			}
-
-			@Override
-			public JPanel getResultContent() {
-				ImageStack ims = Library_Capture_CSV.captureToStack(new ImagePlus[] {
-						((Model_Gastric) model).createCourbeUn(), ((Model_Gastric) model).createCourbeTrois() });
-
-				JPanel panel = new JPanel();
-				panel.add(new DynamicImage(montage(ims).getImage()));
-				return panel;
-			}
-		});
+		this.fenResults.setMainTab(new TabMainResult(this.fenResults, this.capture));
+		this.fenResults.addTab(new TabChart(this.fenResults));
+		this.fenResults.pack();
 		this.fenResults.setVisible(true);
 	}
 
 	@Override
 	protected void generateInstructions() {
 		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null;
+
+		// First instruction to get the acquisition time for the starting point
+		PromptIngestionTime promptIngestionTime = new PromptIngestionTime(this);
+		PromptInstruction promptTimeAcquisition = new PromptInstruction(promptIngestionTime);
+		if (promptIngestionTime.isCompleted())
+			this.getModel().setTimeIngestion(promptIngestionTime.getResult());
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
 			this.workflows[i] = new Workflow();
@@ -101,12 +113,14 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			dri_3 = new DrawRoiInstruction("Stomach", Orientation.POST, dri_1);
 			dri_4 = new DrawRoiInstruction("Intestine", Orientation.POST, dri_2);
 
+			if (i == 0)
+				this.workflows[i].addInstruction(promptTimeAcquisition);
 			this.workflows[i].addInstruction(dri_1);
 			this.workflows[i].addInstruction(dri_2);
-			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_1, dri_2));
+			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_1, dri_2, "Antre"));
 			this.workflows[i].addInstruction(dri_3);
 			this.workflows[i].addInstruction(dri_4);
-			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_3, dri_4));
+			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_3, dri_4, "Antre"));
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}

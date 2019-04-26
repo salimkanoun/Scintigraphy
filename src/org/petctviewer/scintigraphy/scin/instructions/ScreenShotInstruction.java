@@ -95,4 +95,10 @@ public class ScreenShotInstruction implements Instruction {
 
 	}
 
+	@Override
+	public String getRoiName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

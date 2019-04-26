@@ -33,7 +33,7 @@ import org.petctviewer.scintigraphy.scin.instructions.Workflow;
  */
 public abstract class ControllerWorkflow extends ControleurScin {
 
-	private static final int SLICE_ANT = 1, SLICE_POST = 2;
+	protected static final int SLICE_ANT = 1, SLICE_POST = 2;
 
 	protected Workflow[] workflows;
 	protected int indexCurrentImage;
@@ -63,6 +63,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			this.displayInstruction(i.getMessage());
 			this.prepareImage(i.getImageState());
 			this.resetOverlay();
+			i.afterNext(this);
 		}
 	}
 
@@ -104,6 +105,22 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		return array;
 	}
 
+	private void DEBUG(String s) {
+		System.out.println("=== " + s + " ===");
+		System.out.println("Current position: " + this.position);
+		System.out.println("Current image: " + this.indexCurrentImage);
+		String currentInstruction = "-No instruction-";
+		if (this.indexCurrentImage >= 0 && this.indexCurrentImage < this.workflows.length) {
+			Instruction i = this.workflows[this.indexCurrentImage].getCurrentInstruction();
+			if (i != null)
+				currentInstruction = i.getMessage();
+			else
+				currentInstruction = "-No Message-";
+		}
+		System.out.println("Current instruction: " + currentInstruction);
+		System.out.println();
+	}
+
 	@Override
 	public void clicPrecedent() {
 		super.clicPrecedent();
@@ -119,7 +136,8 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			this.prepareImage(currentInstruction.getImageState());
 
 			this.resetOverlay();
-			this.indexRoi--;
+			if (currentInstruction.saveRoi())
+				this.indexRoi--;
 			this.displayRois(this.roisToDisplay());
 
 			if (currentInstruction instanceof DrawRoiInstruction) {
@@ -135,6 +153,8 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			currentInstruction.afterPrevious(this);
 			this.clicPrecedent();
 		}
+
+		DEBUG("PREVIOUS");
 	}
 
 	@Override
@@ -147,22 +167,15 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 			// Prepare next instruction
 			int indexPreviousImage = this.indexCurrentImage;
-			if (this.workflows[this.indexCurrentImage].isOver()) {
-				this.indexCurrentImage++;
-			}
-			Instruction nextInstruction = this.workflows[this.indexCurrentImage].next();
 
 			// === Draw ROI of the previous instruction ===
 			if (previousInstruction != null && previousInstruction.saveRoi()) {
-				String organName = previousInstruction.getClass().getSimpleName();
 				Orientation orientation = previousInstruction.getImageState() == null ? this.getCurrentOrientation()
 						: previousInstruction.getImageState().orientation;
-				if (previousInstruction instanceof DrawRoiInstruction) {
-					organName = ((DrawRoiInstruction) previousInstruction).getOrganName();
-				}
 
 				try {
-					this.saveRoiAtIndex("#" + indexPreviousImage + "_" + organName + orientation.abrev(),
+					this.saveRoiAtIndex(
+							"#" + indexPreviousImage + "_" + previousInstruction.getRoiName() + orientation.abrev(),
 							this.indexRoi);
 					previousInstruction.setRoi(this.indexRoi);
 
@@ -178,6 +191,11 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 			// == Go to the next instruction ==
 			super.clicSuivant();
+
+			if (this.workflows[this.indexCurrentImage].isOver()) {
+				this.indexCurrentImage++;
+			}
+			Instruction nextInstruction = this.workflows[this.indexCurrentImage].next();
 
 			if (this.isOver()) {
 				nextInstruction.afterNext(this);
@@ -208,6 +226,8 @@ public abstract class ControllerWorkflow extends ControleurScin {
 				this.clicPrecedent();
 			}
 		}
+
+		DEBUG("NEXT");
 	}
 
 	/**

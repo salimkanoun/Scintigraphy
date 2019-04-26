@@ -1,25 +1,35 @@
-package org.petctviewer.scintigraphy.scin.instructions;
+package org.petctviewer.scintigraphy.scin.instructions.messages;
 
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 
-public abstract class ExecutionInstruction implements Instruction {
+public abstract class MessageInstruction implements Instruction {
+
+	private String message;
+
+	public MessageInstruction(String message) {
+		this.message = message;
+	}
 
 	@Override
 	public void prepareAsNext() {
+
 	}
 
 	@Override
 	public void prepareAsPrevious() {
+
 	}
 
 	@Override
 	public String getMessage() {
-		return "";
+		return this.message;
 	}
 
 	@Override
 	public boolean isExpectingUserInput() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -56,12 +66,12 @@ public abstract class ExecutionInstruction implements Instruction {
 
 	@Override
 	public boolean isRoiVisible() {
-		return this.saveRoi();
+		return false;
 	}
 
 	@Override
 	public String getRoiName() {
-		return "Unknown ROI";
+		return null;
 	}
 
 }

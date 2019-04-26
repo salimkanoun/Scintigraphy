@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.scin.instructions;
 
 import org.petctviewer.scintigraphy.scin.Orientation;
+import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 
 public class WorkflowGenerator {
 

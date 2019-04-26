@@ -51,12 +51,19 @@ public abstract class ControleurScin implements ActionListener {
 	 * @return TRUE if the controller has finished, FALSE otherwise
 	 */
 	public abstract boolean isOver();
-	
+
 	/**
 	 * @return view of the MVC pattern
 	 */
 	public FenApplication getVue() {
 		return this.vue;
+	}
+
+	/**
+	 * @return model of the MVC pattern
+	 */
+	public ModeleScin getModel() {
+		return this.model;
 	}
 
 	/**
@@ -110,8 +117,13 @@ public abstract class ControleurScin implements ActionListener {
 	 * 
 	 * @param captures ImageStack with 4 captures
 	 * @return ImagePlus with the 4 captures on 1 slice
+	 * @throws IllegalArgumentException if the number of captures is different than
+	 *                                  4
 	 */
-	protected ImagePlus montage(ImageStack captures) {
+	protected ImagePlus montage(ImageStack captures) throws IllegalArgumentException {
+		if (captures.getSize() != 4)
+			throw new IllegalArgumentException("The number of captures (" + captures.getSize() + ") must be 4");
+
 		MontageMaker mm = new MontageMaker();
 		// TODO: patient ID
 		String patientID = "NO_ID_FOUND";

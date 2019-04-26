@@ -4,16 +4,31 @@ import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 
+/**
+ * Instruction to check if two ROIs are intersecting.
+ * 
+ * @author Titouan QUÉMA
+ *
+ */
 public class CheckIntersectionInstruction extends ExecutionInstruction {
 
 	private Instruction previous_1, previous_2;
 	private ControleurScin controller;
+	private String nameIntersection;
 
-	public CheckIntersectionInstruction(ControleurScin controller, Instruction intersection1,
-			Instruction intersection2) {
+	/**
+	 * @param intersection1    First instruction from which the intersection must be
+	 *                         computed
+	 * @param intersection2    Second instruction from which the intersection must
+	 *                         be computed
+	 * @param nameIntersection Name of the intersection (for display purposes)
+	 */
+	public CheckIntersectionInstruction(ControleurScin controller, Instruction intersection1, Instruction intersection2,
+			String nameIntersection) {
 		this.controller = controller;
 		this.previous_1 = intersection1;
 		this.previous_2 = intersection2;
+		this.nameIntersection = nameIntersection;
 	}
 
 	/**
@@ -27,8 +42,9 @@ public class CheckIntersectionInstruction extends ExecutionInstruction {
 		this.controller.getRoiManager().runCommand("Deselect");
 		this.controller.getRoiManager().deselect();
 		if (this.controller.getVue().getImagePlus().getRoi() == null) {
-			JOptionPane.showMessageDialog(this.controller.getVue(),
-					"Please adjust the intestine in order to create an intersection with the estomach.",
+			JOptionPane.showMessageDialog(
+					this.controller.getVue(), "Please adjust the " + previous_2.getRoiName()
+							+ " in order to create an intersection with the " + previous_1.getRoiName() + ".",
 					"Intersection missing", JOptionPane.PLAIN_MESSAGE);
 			return false;
 		}
@@ -37,14 +53,7 @@ public class CheckIntersectionInstruction extends ExecutionInstruction {
 
 	@Override
 	public boolean isCancelled() {
-		System.out.println("*-* Checking intersection...");
-		boolean res = this.checkIntersectionBetweenRois();
-		if (res) {
-			System.out.println("\tIntersection!");
-		} else {
-			System.out.println("\tNo intersection");
-		}
-		return !res;
+		return !this.checkIntersectionBetweenRois();
 	}
 
 	@Override
@@ -55,5 +64,10 @@ public class CheckIntersectionInstruction extends ExecutionInstruction {
 	@Override
 	public boolean isRoiVisible() {
 		return false;
+	}
+
+	@Override
+	public String getRoiName() {
+		return this.nameIntersection;
 	}
 }
