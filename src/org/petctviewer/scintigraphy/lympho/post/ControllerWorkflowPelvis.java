@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.petctviewer.scintigraphy.lympho.gui.TabPost;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -41,7 +40,6 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null, dri_5 = null, dri_6 = null;
 		ScreenShotInstruction dri_capture = null;
 		this.captures = new ArrayList<>();
-		System.out.println("Captures créées");
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
 			this.workflows[i] = new Workflow();
@@ -124,7 +122,7 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 		imp = mm.makeMontage2(imp, 1, 2, 0.50, 1, 2, 1, 10, false);
 		return imp;
 	}
-	
+
 	public ModeleScin getModel() {
 		return this.model;
 	}

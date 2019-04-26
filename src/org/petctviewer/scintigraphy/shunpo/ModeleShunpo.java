@@ -2,14 +2,18 @@ package org.petctviewer.scintigraphy.shunpo;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.json.simple.JSONObject;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
+import ij.util.DicomTools;
 
 public class ModeleShunpo extends ModeleScin {
 
@@ -21,6 +25,7 @@ public class ModeleShunpo extends ModeleScin {
 	private int pixrga;
 	private Map<Integer, Integer> geometricalAverage;
 	private String[] retour;
+	private List<Double> results;
 
 	public static final int LUNG_RIGHT_ANT = 0, LUNG_RIGHT_POST = 1, LUNG_LEFT_ANT = 2, LUNG_LEFT_POST = 3,
 			KIDNEY_RIGHT_ANT = 4, KIDNEY_RIGHT_POST = 5, KIDNEY_LEFT_ANT = 6, KIDNEY_LEFT_POST = 7,
@@ -35,6 +40,7 @@ public class ModeleShunpo extends ModeleScin {
 		this.coups = new HashMap<>();
 		this.geometricalAverage = new HashMap<>();
 		this.retour = new String[9];
+		this.results = new ArrayList<>();
 	}
 
 	protected void calculerCoups(int organ, ImagePlus imp) {
@@ -138,6 +144,66 @@ public class ModeleShunpo extends ModeleScin {
 		retour[RESULT_SYSTEMIC] = "% Systemic : " + us.format(percSyst) + "%";
 		double shunt = ((totshunt * 100.0) / (totmg * 0.38));
 		retour[RESULT_PULMONARY_SHUNT] = "Pulmonary Shunt : " + us.format(shunt) + "% (total blood Flow)";
+
+		this.results.add(Double.valueOf(us.format(geometricalAverage.get(LUNG_RIGHT_ANT))));
+		this.results.add(Double.valueOf(us.format(percPD)));
+		this.results.add(Double.valueOf(us.format(geometricalAverage.get(LUNG_LEFT_ANT))));
+		this.results.add(Double.valueOf(us.format(percPG)));
+		this.results.add(Double.valueOf(us.format(geometricalAverage.get(KIDNEY_RIGHT_ANT))));
+		this.results.add(Double.valueOf(us.format(geometricalAverage.get(KIDNEY_LEFT_ANT))));
+		this.results.add(Double.valueOf(us.format(geometricalAverage.get(BRAIN_ANT))));
+		this.results.add(Double.valueOf(us.format(totmg)));
+		this.results.add(Double.valueOf(us.format(totshunt)));
+		this.results.add(Double.valueOf(us.format(percSyst)));
+		this.results.add(Double.valueOf(us.format(shunt)));
+
+	}
+
+	public String toString() {
+		String s = "\n";
+
+		s += ",Right,Left\n";
+		s += "Geometric Mean," + this.results.get(0) + "," + results.get(2) + "\n";
+		s += "Percentage Geometric Mean," + this.results.get(1) + "," + results.get(3) + "\n";
+		s += "Kidneys," + this.results.get(4) + "," + results.get(5) + "\n\n";
+
+		s += "Brain," + this.results.get(6) + "\n\n";
+
+		s += "Total Geometric Mean :," + this.results.get(7) + "\n\n";
+
+		s += "\nTotal Shunt," + this.results.get(8) + "\n\n";
+
+		s += "\nSystemic Pencentage ," + this.results.get(9) + "\n\n";
+
+		s += "\nPulmonary Shunt Percentage (total blood flow) ," + this.results.get(10) + "\n\n";
+
+		HashMap<String, String> mapTags = new HashMap<>();
+		mapTags.put("0008,0020", DicomTools.getTag(this.getImagePlus(), "0008,0020"));
+		mapTags.put("0008,0021", DicomTools.getTag(this.getImagePlus(), "0008,0021"));
+		mapTags.put("0008,0030", DicomTools.getTag(this.getImagePlus(), "0008,0030"));
+		mapTags.put("0008,0031", DicomTools.getTag(this.getImagePlus(), "0008,0031"));
+		mapTags.put("0008,0050", DicomTools.getTag(this.getImagePlus(), "0008,0050"));
+		mapTags.put("0008,0060", DicomTools.getTag(this.getImagePlus(), "0008,0060"));
+		mapTags.put("0008,0070", DicomTools.getTag(this.getImagePlus(), "0008,0070"));
+		mapTags.put("0008,0080", DicomTools.getTag(this.getImagePlus(), "0008,0080"));
+		mapTags.put("0008,0090", DicomTools.getTag(this.getImagePlus(), "0008,0090"));
+		mapTags.put("0008,1030", DicomTools.getTag(this.getImagePlus(), "0008,1030"));
+		mapTags.put("0010,0010", DicomTools.getTag(this.getImagePlus(), "0010,0010"));
+		mapTags.put("0010,0020", DicomTools.getTag(this.getImagePlus(), "0010,0020"));
+		mapTags.put("0010,0030", DicomTools.getTag(this.getImagePlus(), "0010,0030"));
+		mapTags.put("0010,0040", DicomTools.getTag(this.getImagePlus(), "0010,0040"));
+		mapTags.put("0020,000D", DicomTools.getTag(this.getImagePlus(), "0020,000D"));
+		mapTags.put("0020,000E", DicomTools.getTag(this.getImagePlus(), "0020,000E"));
+		mapTags.put("0020,0010", DicomTools.getTag(this.getImagePlus(), "0020,0010"));
+		mapTags.put("0020,0032", DicomTools.getTag(this.getImagePlus(), "0020,0032"));
+		mapTags.put("0020,0037", DicomTools.getTag(this.getImagePlus(), "0020,0037"));
+
+		String tags = JSONObject.toJSONString(mapTags);
+
+		s += "\n" + "tags," + tags;
+
+		return s;
+
 	}
 
 }
