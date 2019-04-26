@@ -15,6 +15,13 @@ import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 
+/**
+ * This class represents a dialog prompt for a time (hours, minutes, seconds) in
+ * 24H format.
+ * 
+ * @author Titouan QUÉMA
+ *
+ */
 public class PromptTime extends PromptDialog {
 	private static final long serialVersionUID = 1L;
 
@@ -105,7 +112,7 @@ public class PromptTime extends PromptDialog {
 		btnOk.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (isCompleted()) {
+				if (isInputValid()) {
 					dispose();
 					controller.clicSuivant();
 				}
@@ -143,7 +150,8 @@ public class PromptTime extends PromptDialog {
 	}
 
 	@Override
-	public boolean isCompleted() {
+	public boolean isInputValid() {
+		// The time is always valid since the combo boxes only display valid time
 		return true;
 	}
 
