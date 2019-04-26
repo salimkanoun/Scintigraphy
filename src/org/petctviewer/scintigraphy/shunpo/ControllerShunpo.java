@@ -1,20 +1,13 @@
 package org.petctviewer.scintigraphy.shunpo;
 
-import java.awt.Component;
-import java.awt.GridLayout;
-
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
-import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
-import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
@@ -216,22 +209,7 @@ public class ControllerShunpo extends ControleurScin {
 		ImagePlus montage = this.montage(stackCapture);
 
 		// Display result
-		this.fenResults.setMainTab(new TabResult(fenResults, "Result", true) {
-			@Override
-			public Component getSidePanelContent() {
-				String[] result = ((ModeleShunpo) model).getResult();
-				JPanel res = new JPanel(new GridLayout(result.length, 1));
-				for (String s : result)
-					res.add(new JLabel(s));
-				return res;
-			}
-
-			@Override
-			public JPanel getResultContent() {
-				return new DynamicImage(montage.getImage());
-			}
-		});
-		this.fenResults.pack();
+		this.fenResults.setMainTab(new MainResult(this.fenResults, montage));
 		this.fenResults.setVisible(true);
 
 	}
