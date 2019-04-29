@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.scin.instructions;
 
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.Orientation;
 
 public class DrawRoiInstruction implements Instruction {
 
@@ -15,14 +14,14 @@ public class DrawRoiInstruction implements Instruction {
 	 * Instantiates a new instruction to draw ROI. With this constructor, you can
 	 * specify a ROI to edit.
 	 * 
-	 * @param organToDelimit Name of the organ to delimit
-	 * @param orientation    Orientation of the image
+	 * @param organToDelimit    Name of the organ to delimit
+	 * @param state             State of the image
 	 * @param instructionToCopy Instruction to take a copy of the ROI from
 	 */
-	public DrawRoiInstruction(String organToDelimit, Orientation orientation, DrawRoiInstruction instructionToCopy) {
+	public DrawRoiInstruction(String organToDelimit, ImageState state, DrawRoiInstruction instructionToCopy) {
 		this.organToDelimit = organToDelimit;
 		this.isAdjusting = false;
-		this.state = new ImageState(orientation);
+		this.state = state;
 		this.instructionToCopy = instructionToCopy;
 		this.indexRoiToEdit = -1;
 	}
@@ -31,17 +30,17 @@ public class DrawRoiInstruction implements Instruction {
 	 * Instantiates a new instruction to draw ROI.
 	 * 
 	 * @param organToDelimit Name of the organ to delimit
-	 * @param orientation    Orientation of the image
+	 * @param state          State of the image
 	 */
-	public DrawRoiInstruction(String organToDelimit, Orientation orientation) {
-		this(organToDelimit, orientation, null);
+	public DrawRoiInstruction(String organToDelimit, ImageState state) {
+		this(organToDelimit, state, null);
 	}
 
 	@Override
 	public String getRoiName() {
 		return this.organToDelimit;
 	}
-	
+
 	@Override
 	public void setRoi(int index) {
 		this.indexRoiToEdit = index;

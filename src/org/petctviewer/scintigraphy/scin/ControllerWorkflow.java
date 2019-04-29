@@ -15,20 +15,12 @@ import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.LastInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 
+import ij.ImagePlus;
+
 /**
  * This controller is used when working with a flow of instructions.<br>
  * In order to use this type of controller, you need to redefine the
- * {@link #generateInstructions()} method to create the workflow.<br>
- * Typically, this will look like a repetition of this:<br>
- * 
- * <pre>
- * this.workflow[0].addInstruction(new DrawRoiInstruction(...));
- * ...
- * this.workflow[0].addInstruction(new EndInstruction());
- * </pre>
- * 
- * Be careful, this controller expect that the images are in Ant/Post
- * orientation.
+ * {@link #generateInstructions()} method to create the workflow.
  * 
  * @author Titouan QUÉMA
  *
@@ -42,10 +34,18 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	 */
 	public static final String COMMAND_END = "command.end";
 
+	/**
+	 * This constants can only be used if the {@link #imageOrientation} is static
+	 */
 	protected static final int SLICE_ANT = 1, SLICE_POST = 2;
 
 	protected Workflow[] workflows;
+
 	protected int indexCurrentImage;
+	/**
+	 * Orientation of the current image
+	 */
+	protected Orientation imageOrientation;
 
 	private int indexRoi;
 
@@ -55,6 +55,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		this.generateInstructions();
 
 		this.indexCurrentImage = 0;
+		this.imageOrientation = this.model.getImageSelection()[0].getImageOrientation();
 		this.indexRoi = 0;
 
 		this.start();
@@ -62,7 +63,17 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 	/**
 	 * This method must instantiate the workflow and fill it with the instructions
-	 * for this model.
+	 * for this model.<br>
+	 * Typically, this will look like a repetition of this:<br>
+	 * 
+	 * <pre>
+	 * this.workflow[0].addInstruction(new DrawRoiInstruction(...));
+	 * ...
+	 * this.workflow[0].addInstruction(new EndInstruction());
+	 * </pre>
+	 * 
+	 * Be careful, this controller expect that the images are in Ant/Post
+	 * orientation.
 	 */
 	protected abstract void generateInstructions();
 
@@ -85,17 +96,48 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	}
 
 	/**
-	 * @return current orientation of the ImagePlus
+	 * This method returns Ant if the image is displaying the anterior orientation
+	 * and returns Post if the image is displaying the posterior orientation.<br>
+	 * Note that this is NOT the real orientation of the image, only its
+	 * representation on the window.
+	 * 
+	 * @return current orientation of the ImagePlus (Ant or Post)
 	 */
 	private Orientation getCurrentOrientation() {
-		switch (this.vue.getImagePlus().getCurrentSlice()) {
-		case SLICE_ANT:
+		ImagePlus currentImage = this.model.selectedImages[this.indexCurrentImage].getImagePlus();
+		ImageState currentState = this.workflows[this.indexCurrentImage].getCurrentInstruction().getImageState();
+
+		switch (this.imageOrientation) {
+		case ANT:
+		case POST:
+		case UNKNOWN:
+			return this.imageOrientation;
+		case ANT_POST:
+			if (currentImage.getCurrentSlice() == 1)
+				return Orientation.ANT;
+			else
+				return Orientation.POST;
+		case POST_ANT:
+			if (currentImage.getCurrentSlice() == 1)
+				return Orientation.POST;
+			else
+				return Orientation.ANT;
+		case DYNAMIC_ANT:
 			return Orientation.ANT;
-		case SLICE_POST:
+		case DYNAMIC_POST:
 			return Orientation.POST;
-		default:
-			throw new IllegalStateException();
+		case DYNAMIC_ANT_POST:
+			if (currentState.slice <= currentImage.getSlice() / 2)
+				return Orientation.ANT;
+			else
+				return Orientation.POST;
+		case DYNAMIC_POST_ANT:
+			if (currentState.slice <= currentImage.getSlice() / 2)
+				return Orientation.POST;
+			else
+				return Orientation.ANT;
 		}
+		return Orientation.UNKNOWN;
 	}
 
 	/**
@@ -179,13 +221,9 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 			// === Draw ROI of the previous instruction ===
 			if (previousInstruction != null && previousInstruction.saveRoi()) {
-				Orientation orientation = previousInstruction.getImageState() == null ? this.getCurrentOrientation()
-						: previousInstruction.getImageState().orientation;
-
 				try {
-					this.saveRoiAtIndex(
-							"#" + indexPreviousImage + "_" + previousInstruction.getRoiName() + orientation.abrev(),
-							this.indexRoi);
+					this.saveRoiAtIndex("#" + indexPreviousImage + "_" + previousInstruction.getRoiName()
+							+ this.getCurrentOrientation().abrev(), this.indexRoi);
 					previousInstruction.setRoi(this.indexRoi);
 
 					if (previousInstruction.isRoiVisible())
@@ -255,14 +293,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		}
 
 		// Change slice only if different than the previous
-		int newSlice = -1;
-		if (imageState.orientation == Orientation.ANT)
-			newSlice = SLICE_ANT;
-		else if (imageState.orientation == Orientation.POST)
-			newSlice = SLICE_POST;
-		else
-			System.err.println("The orientation specified in the state (" + imageState.orientation
-					+ ") is not valid, it shoud be one of:\n[" + Orientation.ANT + ", " + Orientation.POST + "]");
+		int newSlice = imageState.slice;
 		if (newSlice != -1 && newSlice != this.vue.getImagePlus().getCurrentSlice()) {
 			this.vue.getImagePlus().setSlice(newSlice);
 			this.resetOverlay();

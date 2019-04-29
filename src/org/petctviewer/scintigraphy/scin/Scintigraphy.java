@@ -11,7 +11,7 @@ public abstract class Scintigraphy implements PlugIn {
 	private String studyName;
 	private FenApplication fen_application;
 
-	protected Scintigraphy(String studyName) {
+	public Scintigraphy(String studyName) {
 		this.studyName = studyName;
 	}
 

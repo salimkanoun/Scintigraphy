@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabChart;
+import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabDynamic;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -99,6 +100,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.fenResults.clearTabs();
 		this.fenResults.setMainTab(new TabMainResult(this.fenResults, this.captures.get(0)));
 		this.fenResults.addTab(new TabChart(this.fenResults));
+		this.fenResults.addTab(new TabDynamic(this.fenResults, this));
 		this.fenResults.pack();
 		this.fenResults.setVisible(true);
 	}

@@ -12,6 +12,7 @@ public class WorkflowGenerator {
 	 * <ol>
 	 * <li>All organs for <code>firstOrientation</code> orientation</li>
 	 * <li>All organs for <code>firstOrientation.invert()</code> orientation</li>
+	 * <li>End instruction</li>
 	 * </ol>
 	 * 
 	 * @param firstOrientation first orientation prompted to the user

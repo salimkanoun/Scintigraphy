@@ -1,7 +1,5 @@
 package org.petctviewer.scintigraphy.scin.instructions;
 
-import org.petctviewer.scintigraphy.scin.Orientation;
-
 /**
  * Represents a state of an ImagePlus.<br>
  * If a field is set to null, then it will be interpreted as no changes.
@@ -11,42 +9,48 @@ import org.petctviewer.scintigraphy.scin.Orientation;
  */
 public class ImageState {
 	/**
-	 * Orientation of the image.
+	 * No id defined
 	 */
-	public final Orientation orientation;
+	public static final int ID_NONE = 0;
+	/**
+	 * Use the slice of the previous instruction
+	 */
+	public static final int SLICE_NONE = -1;
+
+	/**
+	 * Number of the image (if there is multiple images, then this ID is used to
+	 * differentiate each image)
+	 */
 	public final int idImage;
+	/**
+	 * Slice of the image (starting at 1)
+	 */
+	public final int slice;
 
 	public ImageState() {
-		this(null, 0);
+		this(0);
 	}
 
 	/**
 	 * Instantiate a state for an image.
 	 * 
-	 * @param orientation Orientation the image should have (expecting ANT or POST
-	 *                    only)
-	 * @throw {@link IllegalArgumentException} if the orientation is different from
-	 *        ANT or POST
+	 * @param idImage number of the image (if there is multiple images, then this ID
+	 *                is used to differentiate each image)
 	 */
-	public ImageState(Orientation orientation) throws IllegalArgumentException {
-		this(orientation, 0);
+	public ImageState(int idImage) {
+		this(idImage, -1);
 	}
 
 	/**
 	 * Instantiate a state for an image.
 	 * 
-	 * @param orientation Orientation the image should have (expecting ANT or POST
-	 *                    only)
-	 * @param idImage     number of the image (if there is multiple images, then
-	 *                    this ID is used to differentiate each image)
-	 * @throw {@link IllegalArgumentException} if the orientation is different from
-	 *        ANT or POST
+	 * @param idImage Number of the image (if there is multiple images, then this ID
+	 *                is used to differentiate each image)
+	 * @param slice   Slice of the image (starting at 1) (negative value is ignored)
 	 */
-	public ImageState(Orientation orientation, int idImage) throws IllegalArgumentException {
-		if (orientation != null && orientation != Orientation.ANT && orientation != Orientation.POST)
-			throw new IllegalArgumentException("The orientation " + orientation + " is nonsense here!");
-		this.orientation = orientation;
+	public ImageState(int idImage, int slice) {
 		this.idImage = idImage;
+		this.slice = slice;
 	}
 
 	@Override
@@ -54,7 +58,7 @@ public class ImageState {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + idImage;
-		result = prime * result + ((orientation == null) ? 0 : orientation.hashCode());
+		result = prime * result + slice;
 		return result;
 	}
 
@@ -69,7 +73,7 @@ public class ImageState {
 		ImageState other = (ImageState) obj;
 		if (idImage != other.idImage)
 			return false;
-		if (orientation != other.orientation)
+		if (slice != other.slice)
 			return false;
 		return true;
 	}

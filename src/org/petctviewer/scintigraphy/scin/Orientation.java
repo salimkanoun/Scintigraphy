@@ -1,5 +1,9 @@
 package org.petctviewer.scintigraphy.scin;
 
+import java.util.Arrays;
+
+import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
+
 /**
  * Represents image orientation.
  *
@@ -20,6 +24,59 @@ public enum Orientation {
 
 	private Orientation(String s) {
 		this.s = s;
+	}
+
+	/**
+	 * Checks if the orientation is static.<br>
+	 * This method returns TRUE for the following orientations:
+	 * <ul>
+	 * <li>ANT</li>
+	 * <li>POST</li>
+	 * <li>ANT_POST</li>
+	 * <li>POST_ANT</li>
+	 * </ul>
+	 * This method returns FALSE for the following orientations:
+	 * <ul>
+	 * <li>DYNAMIC_ANT</li>
+	 * <li>DYNAMIC_POST</li>
+	 * <li>DYNAMIC_ANT_POST</li>
+	 * <li>DYNAMIC_POST_ANT</li>
+	 * </ul>
+	 * 
+	 * @return TRUE if this orientation is static and FALSE if this orientation is
+	 *         dynamic
+	 * @throws WrongOrientationException if this orientation is UNKNOWN
+	 */
+	public boolean isStatic() throws WrongOrientationException {
+		if (this == UNKNOWN)
+			throw new WrongOrientationException(UNKNOWN);
+
+		return Arrays.stream(staticOrientations()).anyMatch(o -> o.equals(this));
+	}
+
+	/**
+	 * Checks if the orientation is dynamic.<br>
+	 * This method returns TRUE for the following orientations:
+	 * <ul>
+	 * <li>DYNAMIC_ANT</li>
+	 * <li>DYNAMIC_POST</li>
+	 * <li>DYNAMIC_ANT_POST</li>
+	 * <li>DYNAMIC_POST_ANT</li>
+	 * </ul>
+	 * This method returns FALSE for the following orientations:
+	 * <ul>
+	 * <li>ANT</li>
+	 * <li>POST</li>
+	 * <li>ANT_POST</li>
+	 * <li>POST_ANT</li>
+	 * </ul>
+	 * 
+	 * @return TRUE if this orientation is dynamic and FALSE if this orientation is
+	 *         static
+	 * @throws WrongOrientationException if this orientation is UNKNOWN
+	 */
+	public boolean isDynamic() throws WrongOrientationException {
+		return !this.isStatic();
 	}
 
 	/**
@@ -100,6 +157,35 @@ public enum Orientation {
 			s[i] = o[i].toString();
 		}
 		return s;
+	}
+
+	/**
+	 * @return Post and Ant orientation (in this order)
+	 */
+	public static Orientation[] postAntOrder() {
+		return new Orientation[] { Orientation.POST, Orientation.ANT };
+	}
+
+	/**
+	 * @return Ant and Post orientation (in this order)
+	 */
+	public static Orientation[] antPostOrder() {
+		return new Orientation[] { Orientation.ANT, Orientation.POST };
+	}
+
+	/**
+	 * @return array of all static orientations
+	 */
+	public static Orientation[] staticOrientations() {
+		return new Orientation[] { Orientation.ANT, Orientation.POST, Orientation.ANT_POST, Orientation.POST_ANT };
+	}
+
+	/**
+	 * @return array of all dynamic orientations
+	 */
+	public static Orientation[] dynamicOrientations() {
+		return new Orientation[] { Orientation.DYNAMIC_ANT, Orientation.DYNAMIC_POST, Orientation.DYNAMIC_ANT_POST,
+				Orientation.DYNAMIC_POST_ANT };
 	}
 
 	/**

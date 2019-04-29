@@ -57,6 +57,15 @@ public class ImageSelection implements Cloneable {
 	}
 
 	/**
+	 * Sets the ImagePlus to the specified imp.
+	 * 
+	 * @param imp ImagePlus to set
+	 */
+	public void setImagePlus(ImagePlus imp) {
+		this.imp = imp;
+	}
+
+	/**
 	 * @return image orientation or UNKNOWN if no orientation was set during image
 	 *         selection
 	 */
@@ -79,7 +88,7 @@ public class ImageSelection implements Cloneable {
 	 * @param row Row in the FenSelectionDicom
 	 */
 	public void setRow(int row) {
-		this.columnsValues.put(Column.ROW.getName(), row+"");
+		this.columnsValues.put(Column.ROW.getName(), row + "");
 	}
 
 	@Override
