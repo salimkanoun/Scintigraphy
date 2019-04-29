@@ -87,6 +87,8 @@ public class FenResults extends JFrame {
 			this.tabPane.removeTabAt(0);
 		}
 		this.tabPane.insertTab(tab.getTitle(), null, tab.getPanel(), null, 0);
+		this.pack();
+		this.setLocationRelativeTo(null);
 	}
 
 	/**

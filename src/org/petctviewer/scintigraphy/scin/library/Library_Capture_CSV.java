@@ -3,6 +3,8 @@ package org.petctviewer.scintigraphy.scin.library;
 import java.awt.AWTException;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
@@ -71,7 +73,8 @@ public class Library_Capture_CSV {
 		if (tagDate != null) {
 			String dateStr = tagDate.trim();
 			Date result = null;
-			// TODO: do not leave result null after try catch -> will generate NullPointerException
+			// TODO: do not leave result null after try catch -> will generate
+			// NullPointerException
 			try {
 				result = new SimpleDateFormat("yyyyMMdd").parse(dateStr);
 			} catch (ParseException e) {
@@ -172,55 +175,39 @@ public class Library_Capture_CSV {
 	}
 
 	/**
-	 * Capture secondaire de l'image sans l'interface et la redimmensionner � la
-	 * taille voulue
+	 * Creates a capture of the specified image (this includes the overlay of the
+	 * ImagePlus). The image is then resized with the specified dimensions (width,
+	 * height).<br>
+	 * If width <b>or</b> height is set to 0, then the ratio is kept.
 	 * 
-	 * @param imp     : ImagePlus a capturer
-	 * @param largeur : largeur de la capture finale (si hauteur et largeur = 0 :
-	 *                pas de redimensionnement)
-	 * @param hauteur : hauteur de la capture finale (si hauteur =0 on ne
-	 *                redimensionne que la largeur en gardant le ratio)
-	 * @return Renvoie l'ImagePlus contenant la capture secondaire
+	 * @param imp    ImagePlus to take a capture from
+	 * @param width  Width of the output capture
+	 * @param height Height of the output capture
+	 * @return capture of the image at the specified dimensions
+	 * @throws IllegalArgumentException if any dimension is negative
 	 */
-	public static ImagePlus captureImage(ImagePlus imp, int largeur, int hauteur) {
-		// Cette methode capture la partie image seule d'une fenetre
-		ImageWindow win = imp.getWindow();
-		Point loc = win.getLocation();
-		ImageCanvas ic = win.getCanvas();
-		Rectangle bounds = ic.getBounds();
-		loc.y += bounds.y;
-		loc.x += bounds.x;
-		BufferedImage buff = null;
-		// efface le zoom indicateur : carre bleu en haut a gauche quand zoom inf a 1
-		boolean wasHidden = ic.hideZoomIndicator(true);
-		ic.repaint();
+	public static ImagePlus captureImage(ImagePlus imp, int width, int height) throws IllegalArgumentException {
+		if (width < 0 || height < 0)
+			throw new IllegalArgumentException("Width and height cannot be negative");
 
-		try {
-			Rectangle r = new Rectangle(loc.x, loc.y, bounds.width, bounds.height);
-			buff = new Robot().createScreenCapture(r);
+		ImageCanvas canvas = imp.getCanvas();
+		BufferedImage buf = (BufferedImage) canvas.createImage(canvas.getWidth(), canvas.getHeight());
+		Graphics2D g2 = buf.createGraphics();
+		canvas.paint(g2);
 
-		} catch (AWTException e) {
-			e.printStackTrace();
-		}
+		// Calculate ratio
+		Image img = null;
+		if (width == 0 && height == 0)
+			img = (Image) buf;
+		else if (width == 0)
+			img = buf.getScaledInstance(canvas.getWidth() * height / canvas.getHeight(), height, Image.SCALE_DEFAULT);
+		else if(height == 0)
+			img = buf.getScaledInstance(width, canvas.getHeight() * width / canvas.getWidth(), Image.SCALE_DEFAULT);
+		else
+			img = buf.getScaledInstance(width, height, Image.SCALE_DEFAULT);
 
-		ic.hideZoomIndicator(wasHidden);
-		// On resize la capture aux dimensions choisies pour rentrer dans le
-		// stack
-		ImagePlus imp2 = new ImagePlus("Capture", buff);
-		ImageProcessor ip = imp2.getProcessor();
-		ip.setInterpolate(true);
-		ip.setInterpolationMethod(ImageProcessor.BICUBIC);
-		ImageProcessor ip2;
-		if (hauteur == 0 && largeur != 0) {
-			ip2 = ip.resize(largeur);
-		} else if (hauteur == 0 && largeur == 0) {
-			ip2 = ip;
-		} else {
-			ip2 = ip.resize(largeur, hauteur, true);
-		}
-		imp2.setProcessor(ip2);
-		// On renvoie l'ImagePlus contenant la capture
-		return imp2;
+		ImagePlus i = new ImagePlus("Test", img);
+		return i;
 	}
 
 	/**

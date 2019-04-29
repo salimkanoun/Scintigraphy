@@ -27,7 +27,8 @@ public interface Instruction {
 	public abstract void prepareAsPrevious();
 
 	/**
-	 * <i>Ignored if {@link #isExpectingUserInput()} is FALSE.</i>
+	 * <i>Ignored if {@link #isExpectingUserInput()} is FALSE.</i><br>
+	 * If {@link #isExpectingUserInput()} is TRUE, this method cannot return null.
 	 * 
 	 * @return message displayed for the user
 	 */

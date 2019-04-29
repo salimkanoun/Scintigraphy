@@ -1,6 +1,8 @@
-package org.petctviewer.scintigraphy.scin.instructions;
+package org.petctviewer.scintigraphy.scin.instructions.execution;
 
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 
 public abstract class ExecutionInstruction implements Instruction {
 

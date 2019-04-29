@@ -14,6 +14,12 @@ import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptTime;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
+/**
+ * This class represents a dialog prompt for the ingestion time.
+ * 
+ * @author Titouan QUÉMA
+ *
+ */
 public class PromptIngestionTime extends PromptTime {
 	private static final long serialVersionUID = 1L;
 
@@ -27,7 +33,7 @@ public class PromptIngestionTime extends PromptTime {
 
 		this.setTitle("Ingestion Time");
 		this.setLocationRelativeTo(controller.getVue());
-		
+
 		this.acquisitionTime = Library_Dicom.getDateAcquisition(controller.getModel().getImagePlus());
 
 		panMsg.add(new JLabel("The acquisition time of the first image is "
@@ -36,12 +42,12 @@ public class PromptIngestionTime extends PromptTime {
 		lError = new JLabel();
 		lError.setForeground(Color.RED);
 		panMsg.add(this.lError);
-		
+
 		CheckTimeListener listener = new CheckTimeListener();
 		this.hours.addItemListener(listener);
 		this.minutes.addItemListener(listener);
 		this.seconds.addItemListener(listener);
-		
+
 		this.pack();
 	}
 
@@ -65,7 +71,8 @@ public class PromptIngestionTime extends PromptTime {
 	}
 
 	@Override
-	public boolean isCompleted() {
+	public boolean isInputValid() {
+		// Time of ingestion must be before time of first acquisition
 		return this.getResult().before(acquisitionTime);
 	}
 
@@ -80,7 +87,7 @@ public class PromptIngestionTime extends PromptTime {
 		@Override
 		public void itemStateChanged(ItemEvent e) {
 			if (e.getStateChange() == ItemEvent.SELECTED) {
-				if (isCompleted()) {
+				if (isInputValid()) {
 					lError.setText("");
 				} else {
 					lError.setText("The time of ingestion must be before the acquisition time.");

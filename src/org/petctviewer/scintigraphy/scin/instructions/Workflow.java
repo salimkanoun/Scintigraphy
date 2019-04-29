@@ -4,8 +4,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.Orientation;
 
+/**
+ * This class represents a flow of instructions used by the
+ * {@link ControllerWorkflow}.
+ * 
+ * @author Titouan QUÉMA
+ *
+ */
 public class Workflow {
 
 	private List<Instruction> instructions;
@@ -40,6 +48,26 @@ public class Workflow {
 		if (instruction != null)
 			this.instructions.add(instruction);
 		this.restart();
+	}
+
+	/**
+	 * Adds an instruction in this workflow. Adding an instruction on the fly adds
+	 * the specified instruction <b>before</b> the instruction returned by
+	 * {@link #getCurrentInstruction()} and do NOT restart this workflow.<br>
+	 * Adding a null instruction does nothing.<br>
+	 * If the current instruction is null (meaning the workflow has not been
+	 * started) then this function is equivalent to
+	 * {@link #addInstruction(Instruction)}.<br>
+	 * This method is meant to be used by the {@link GeneratorInstruction} class.
+	 * 
+	 * @param instruction Instruction to add after the current instruction.
+	 */
+	public void addInstructionOnTheFly(Instruction instruction) {
+		if (this.current == null)
+			this.addInstruction(instruction);
+		else if (instruction != null) {
+			this.iterator.add(instruction);
+		}
 	}
 
 	/**

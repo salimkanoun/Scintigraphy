@@ -4,18 +4,32 @@ import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 
+/**
+ * This class represents a instruction openning a prompt dialog. This
+ * instruction requires the user to enter data on this dialog.
+ * 
+ * @author Titouan QUÉMA
+ *
+ */
 public class PromptInstruction implements Instruction {
-	
+
 	private PromptDialog dialog;
-	
+
+	/**
+	 * Instantiates an instruction with the specified dialog as a prompt for the
+	 * user.
+	 * 
+	 * @param dialog Dialog the user will have to answer (it cannot be null)
+	 * @throws IllegalArgumentException if the dialog is null
+	 */
 	public PromptInstruction(PromptDialog dialog) throws IllegalArgumentException {
-		if(dialog == null)
+		if (dialog == null)
 			throw new IllegalArgumentException("The dialog cannot be null");
-		
+
 		this.dialog = dialog;
 		this.dialog.setModal(true);
 	}
-	
+
 	private void after() {
 		this.dialog.setVisible(true);
 	}
@@ -50,7 +64,7 @@ public class PromptInstruction implements Instruction {
 
 	@Override
 	public boolean isCancelled() {
-		return !this.dialog.isCompleted();
+		return !this.dialog.isInputValid();
 	}
 
 	@Override

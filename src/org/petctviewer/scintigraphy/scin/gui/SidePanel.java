@@ -43,7 +43,7 @@ public class SidePanel extends JPanel {
 		super(new BorderLayout());
 		this.box = new Box(BoxLayout.Y_AXIS);
 		this.sidePanelContent = sidePanelContent;
-		
+
 		this.panSouth = new JPanel();
 
 		this.fillbox(titre, imp);
@@ -51,7 +51,7 @@ public class SidePanel extends JPanel {
 		if (sidePanelContent != null) {
 			this.box.add(sidePanelContent);
 		}
-		
+
 		this.add(this.box, BorderLayout.CENTER);
 		this.add(this.panSouth, BorderLayout.SOUTH);
 
@@ -90,7 +90,7 @@ public class SidePanel extends JPanel {
 		this.sidePanelContent = sidePanelContent;
 		this.box.add(sidePanelContent);
 	}
-	
+
 	public void addContent(Component component) {
 		this.box.add(component);
 	}
@@ -111,7 +111,7 @@ public class SidePanel extends JPanel {
 	}
 
 	public void createCaptureButton(TabResult tab) {
-		this.createCaptureButton(tab, "");
+		this.createCaptureButton(tab, null);
 	}
 
 	public void createCaptureButton(TabResult tab, String additionalInfo) {
@@ -178,7 +178,8 @@ public class SidePanel extends JPanel {
 
 						try {
 							Library_Capture_CSV.exportAll(resultats, tab.getParent().getModel().getRoiManager(),
-									tab.getParent().getModel().getStudyName(), imp, additionalInfo);
+									tab.getParent().getModel().getStudyName(), imp,
+									additionalInfo == null ? "" : additionalInfo);
 
 							imp.killRoi();
 						} catch (Exception e1) {
@@ -198,12 +199,12 @@ public class SidePanel extends JPanel {
 
 			}
 		});
-		
+
 		captureButton.setHorizontalAlignment(JButton.CENTER);
 		captureButton.setEnabled(true);
 		this.panSouth.add(captureButton);
 	}
-	
+
 	public void setTitle(String title) {
 		titreFen.setText("<html><h1>" + title + "</h1><html>");
 	}

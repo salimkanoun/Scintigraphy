@@ -45,23 +45,23 @@ import ij.ImageStack;
 import ij.Prefs;
 import ij.plugin.MontageMaker;
 
-// TODO: Completly refactor this class
 public class Model_Gastric extends ModeleScin {
 	public static Font italic = new Font("Arial", Font.ITALIC, 8);
 	private HashMap<String, Double> coups;// pour enregistrer les coups dans chaque organe sur chaque image
 	private HashMap<String, Double> mgs;// pour enregistrer le MG dans chaque organe pour chaque serie
-	public static double[] temps;// pour enregistrer l'horaire où on recupere chaque serie
-	public static double[] estomacPourcent;// pour enregistrer le pourcentage de l'estomac(par rapport a total) pour
-												// chaque serie
-	protected static double[] fundusPourcent;// pour enregistrer le pourcentage du fundus(par rapport a total) pour
-												// chaque serie
-	protected static double[] antrePourcent;// pour enregistrer le pourcentage de l'antre(par rapport a total) pour
+	
+	private double[] temps;// pour enregistrer l'horaire où on recupere chaque serie
+	private double[] estomacPourcent;// pour enregistrer le pourcentage de l'estomac(par rapport a total) pour
 											// chaque serie
-	protected static double[] funDevEsto;// pour enregistrer le rapport fundus/estomac pour chaque serie
-	protected static double[] estoInter;// pour enregistrer le rapport fundus/estomac pour chaque serie
-	protected static double[] tempsInter;// pour enregistrerla derivee de la courbe de variation de l’estomac
-	protected static boolean logOn;// signifie si log est ouvert
-	protected static double[] intestinPourcent;// pour enregistrer le pourcentage de l'intestin(par rapport a total)
+	private double[] fundusPourcent;// pour enregistrer le pourcentage du fundus(par rapport a total) pour
+												// chaque serie
+	private double[] antrePourcent;// pour enregistrer le pourcentage de l'antre(par rapport a total) pour
+											// chaque serie
+	private double[] funDevEsto;// pour enregistrer le rapport fundus/estomac pour chaque serie
+	private double[] estoInter;// pour enregistrer le rapport fundus/estomac pour chaque serie
+	private double[] tempsInter;// pour enregistrerla derivee de la courbe de variation de l’estomac
+	private boolean logOn;// signifie si log est ouvert
+	private double[] intestinPourcent;// pour enregistrer le pourcentage de l'intestin(par rapport a total)
 												// pour chaque serie
 
 	private String[] organes = { "Estomac", "Intestin", "Fundus", "Antre" };
@@ -75,7 +75,7 @@ public class Model_Gastric extends ModeleScin {
 		this.coups = new HashMap<>();
 		this.mgs = new HashMap<>();
 		Prefs.useNamesAsLabels = true;
-		Model_Gastric.logOn = true;
+		this.logOn = false;
 	}
 
 	private void mgs(int indexImage) {
@@ -106,7 +106,7 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * Generates a graphic with the specified arguments.
+	 * Generates a graphic image with the specified arguments.
 	 * 
 	 * @param yAxisLabel Label of the Y axis
 	 * @param color      Color of the line
@@ -186,8 +186,8 @@ public class Model_Gastric extends ModeleScin {
 
 	// Pour faire un fit lineaire et extrapoler les valeurs non existante
 	private double[] getParametreCourbeFit() {
-		XYSeriesCollection dataset = createDatasetTrois(Model_Gastric.temps, Model_Gastric.estomacPourcent, "Stomach",
-				Model_Gastric.fundusPourcent, "Fundus", Model_Gastric.antrePourcent, "Antrum");
+		XYSeriesCollection dataset = createDatasetTrois(this.temps, this.estomacPourcent, "Stomach",
+				this.fundusPourcent, "Fundus", this.antrePourcent, "Antrum");
 		// Retourne les valeurs a et b de la fonction fit y=ax+b
 		double[] parametreCourbe = Regression.getOLSRegression(dataset, 0);
 		return parametreCourbe;
@@ -198,21 +198,21 @@ public class Model_Gastric extends ModeleScin {
 		boolean trouve = false;
 		double res = 0.0;
 		if (organe == "Antre") {
-			for (int i = 0; i < Model_Gastric.antrePourcent.length && !trouve; i++) {
+			for (int i = 0; i < this.antrePourcent.length && !trouve; i++) {
 				// si le pourcentage de l'antre > 0
-				if (Model_Gastric.antrePourcent[i] > 0) {
+				if (this.antrePourcent[i] > 0) {
 					trouve = true;
-					res = Model_Gastric.temps[i];
+					res = this.temps[i];
 				}
 			}
 		}
 		if (organe == "Intestin") {
-			for (int i = 0; i < Model_Gastric.estomacPourcent.length && !trouve; i++) {
+			for (int i = 0; i < this.estomacPourcent.length && !trouve; i++) {
 				// si le pourcentage de l'estomac est < 100, c'est a dire le pourcentage de
 				// l'intestin > 0
-				if (Model_Gastric.estomacPourcent[i] < 100.0) {
+				if (this.estomacPourcent[i] < 100.0) {
 					trouve = true;
-					res = Model_Gastric.temps[i];
+					res = this.temps[i];
 				}
 			}
 		}
@@ -223,13 +223,13 @@ public class Model_Gastric extends ModeleScin {
 	private int getX(double valueY) {
 		trouve = false;
 		double valueX = 0.0;
-		for (int i = 1; i < Model_Gastric.estomacPourcent.length && !trouve; i++) {
-			if (Model_Gastric.estomacPourcent[i] <= valueY) {
+		for (int i = 1; i < this.estomacPourcent.length && !trouve; i++) {
+			if (this.estomacPourcent[i] <= valueY) {
 				trouve = true;
-				double x1 = Model_Gastric.temps[i - 1];
-				double x2 = Model_Gastric.temps[i];
-				double y1 = Model_Gastric.estomacPourcent[i - 1];
-				double y2 = Model_Gastric.estomacPourcent[i];
+				double x1 = this.temps[i - 1];
+				double x2 = this.temps[i];
+				double y1 = this.estomacPourcent[i - 1];
+				double y2 = this.estomacPourcent[i];
 				valueX = x2 - (y2 - valueY) * ((x2 - x1) / (y2 - y1));
 			}
 		}
@@ -247,13 +247,13 @@ public class Model_Gastric extends ModeleScin {
 	private double getY(double valueX) {
 		trouve = false;
 		double valueY = 0.0;
-		for (int i = 0; i < Model_Gastric.temps.length && !trouve; i++) {
-			if (Model_Gastric.temps[i] >= valueX) {
+		for (int i = 0; i < this.temps.length && !trouve; i++) {
+			if (this.temps[i] >= valueX) {
 				trouve = true;
-				double x1 = Model_Gastric.temps[i - 1];
-				double x2 = Model_Gastric.temps[i];
-				double y1 = Model_Gastric.estomacPourcent[i - 1];
-				double y2 = Model_Gastric.estomacPourcent[i];
+				double x1 = this.temps[i - 1];
+				double x2 = this.temps[i];
+				double y1 = this.estomacPourcent[i - 1];
+				double y2 = this.estomacPourcent[i];
 				valueY = y2 - (x2 - valueX) * ((y2 - y1) / (x2 - x1));
 			}
 		}
@@ -269,10 +269,10 @@ public class Model_Gastric extends ModeleScin {
 		}
 		return (double) (Math.round(valueY * 10) / 10.0);
 	}
-	
-	public XYSeries getStomachSerie() {
+
+	public XYSeries getStomachSeries() {
 		XYSeries serie = new XYSeries("Stomach");
-		for(int i = 0; i<estomacPourcent.length; i++)
+		for (int i = 0; i < estomacPourcent.length; i++)
 			serie.add(temps[i], estomacPourcent[i]);
 		return serie;
 	}
@@ -317,8 +317,8 @@ public class Model_Gastric extends ModeleScin {
 		double day = diff / (24 * 60 * 60 * 1000);
 		double hour = (diff / (60 * 60 * 1000) - day * 24);
 		double min = ((diff / (60 * 1000)) - day * 24 * 60 - hour * 60);
-		Model_Gastric.temps[indexImage + 1] = day * 24 * 60 + hour * 60 + min;
-		System.out.println("Time[" + (indexImage + 1) + "] = " + Model_Gastric.temps[indexImage + 1]);
+		this.temps[indexImage + 1] = day * 24 * 60 + hour * 60 + min;
+		System.out.println("Time[" + (indexImage + 1) + "] = " + this.temps[indexImage + 1]);
 	}
 
 	// pour chaque serie, on calcule le pourcentage de l'estomac, le fundus, l'antre
@@ -330,61 +330,61 @@ public class Model_Gastric extends ModeleScin {
 
 		double fundusPour = ((double) this.mgs.get("Fundus_MG" + indexImage)
 				/ (double) this.mgs.get("Total" + indexImage)) * 100;
-		Model_Gastric.fundusPourcent[indexImage + 1] = fundusPour;
+		this.fundusPourcent[indexImage + 1] = fundusPour;
 		double antrePour = ((double) this.mgs.get("Antre_MG" + indexImage)
 				/ (double) this.mgs.get("Total" + indexImage)) * 100;
-		Model_Gastric.antrePourcent[indexImage + 1] = antrePour;
+		this.antrePourcent[indexImage + 1] = antrePour;
 		double estomacPour = ((double) this.mgs.get("Estomac_MG" + indexImage)
 				/ (double) this.mgs.get("Total" + indexImage)) * 100;
-		Model_Gastric.estomacPourcent[indexImage + 1] = estomacPour;
+		this.estomacPourcent[indexImage + 1] = estomacPour;
 		double intestinPour = ((double) this.mgs.get("Intestin_MG" + indexImage)
 				/ (double) this.mgs.get("Total" + indexImage)) * 100;
-		Model_Gastric.intestinPourcent[indexImage + 1] = intestinPour;
-		double funDevEsto = (Model_Gastric.fundusPourcent[indexImage + 1]
-				/ Model_Gastric.estomacPourcent[indexImage + 1]) * 100;
-		Model_Gastric.funDevEsto[indexImage + 1] = funDevEsto;
+		this.intestinPourcent[indexImage + 1] = intestinPour;
+		double funDevEsto = (this.fundusPourcent[indexImage + 1]
+				/ this.estomacPourcent[indexImage + 1]) * 100;
+		this.funDevEsto[indexImage + 1] = funDevEsto;
 
-		Model_Gastric.tempsInter[indexImage] = Model_Gastric.temps[indexImage + 1];
-		double estoInter = ((Model_Gastric.estomacPourcent[indexImage] - Model_Gastric.estomacPourcent[indexImage + 1])
-				/ (Model_Gastric.temps[indexImage + 1] - Model_Gastric.temps[indexImage])) * 30.;
-		Model_Gastric.estoInter[indexImage] = estoInter;
+		this.tempsInter[indexImage] = this.temps[indexImage + 1];
+		double estoInter = ((this.estomacPourcent[indexImage] - this.estomacPourcent[indexImage + 1])
+				/ (this.temps[indexImage + 1] - this.temps[indexImage])) * 30.;
+		this.estoInter[indexImage] = estoInter;
 
 		System.out.println("Result #" + indexImage);
-		System.out.println("EstoInter: (" + (Model_Gastric.estomacPourcent[indexImage]) + " - "
-				+ (Model_Gastric.estomacPourcent[indexImage + 1]) + ") / ("
-				+ (Model_Gastric.temps[indexImage + 1] + " - " + (Model_Gastric.temps[indexImage]) + ")"));
+		System.out.println("EstoInter: (" + (this.estomacPourcent[indexImage]) + " - "
+				+ (this.estomacPourcent[indexImage + 1]) + ") / ("
+				+ (this.temps[indexImage + 1] + " - " + (this.temps[indexImage]) + ")"));
 		System.out.println("EstoInter: " + estoInter);
 		System.out.println(
-				"temps[(" + indexImage + "+1)" + (indexImage + 1) + "] = " + Model_Gastric.temps[indexImage + 1]);
+				"temps[(" + indexImage + "+1)" + (indexImage + 1) + "] = " + this.temps[indexImage + 1]);
 
-		if (Model_Gastric.logOn) {
-			IJ.log("image " + (indexImage) + ": " + " Stomach " + Model_Gastric.estomacPourcent[indexImage + 1]
-					+ " Intestine " + Model_Gastric.intestinPourcent[indexImage + 1] + " Fundus "
-					+ Model_Gastric.fundusPourcent[indexImage + 1] + " Antre "
-					+ Model_Gastric.antrePourcent[indexImage + 1]);
+		if (this.logOn) {
+			IJ.log("image " + (indexImage) + ": " + " Stomach " + this.estomacPourcent[indexImage + 1]
+					+ " Intestine " + this.intestinPourcent[indexImage + 1] + " Fundus "
+					+ this.fundusPourcent[indexImage + 1] + " Antre "
+					+ this.antrePourcent[indexImage + 1]);
 		}
 
 	}
 
 	// initialisation des tables de resultats
 	public void initResultat() {
-		Model_Gastric.temps = new double[this.nbAcquisitions()];
-		Model_Gastric.estomacPourcent = new double[this.nbAcquisitions()];
-		Model_Gastric.fundusPourcent = new double[this.nbAcquisitions()];
-		Model_Gastric.antrePourcent = new double[this.nbAcquisitions()];
-		Model_Gastric.intestinPourcent = new double[this.nbAcquisitions()];
-		Model_Gastric.funDevEsto = new double[this.nbAcquisitions()];
+		this.temps = new double[this.nbAcquisitions()];
+		this.estomacPourcent = new double[this.nbAcquisitions()];
+		this.fundusPourcent = new double[this.nbAcquisitions()];
+		this.antrePourcent = new double[this.nbAcquisitions()];
+		this.intestinPourcent = new double[this.nbAcquisitions()];
+		this.funDevEsto = new double[this.nbAcquisitions()];
 		// -1 because the derivative is not calculated for the starting point
-		Model_Gastric.estoInter = new double[this.nbAcquisitions() - 1];
-		Model_Gastric.tempsInter = new double[this.nbAcquisitions() - 1];
+		this.estoInter = new double[this.nbAcquisitions() - 1];
+		this.tempsInter = new double[this.nbAcquisitions() - 1];
 
 		// Starting point is supposed to be 100 % in the stomach (fundus)
-		Model_Gastric.temps[0] = 0.;
-		Model_Gastric.estomacPourcent[0] = 100.;
-		Model_Gastric.fundusPourcent[0] = 100.;
-		Model_Gastric.antrePourcent[0] = 0.;
-		Model_Gastric.intestinPourcent[0] = 0.;
-		Model_Gastric.funDevEsto[0] = 100.;
+		this.temps[0] = 0.;
+		this.estomacPourcent[0] = 100.;
+		this.fundusPourcent[0] = 100.;
+		this.antrePourcent[0] = 0.;
+		this.intestinPourcent[0] = 0.;
+		this.funDevEsto[0] = 100.;
 	}
 
 	// permet de transferer toutes les resultats en une tableau de chaine
@@ -396,12 +396,12 @@ public class Model_Gastric extends ModeleScin {
 		retour[2] = "Fundus(%)";
 		retour[3] = "Antrum(%)";
 		for (int i = 0; i < this.nbAcquisitions(); i++) {
-			retour[i * 4 + 4] = BigDecimal.valueOf(Model_Gastric.temps[i]).setScale(2, RoundingMode.HALF_UP).toString();
-			retour[i * 4 + 5] = BigDecimal.valueOf(Model_Gastric.estomacPourcent[i]).setScale(2, RoundingMode.HALF_UP)
+			retour[i * 4 + 4] = BigDecimal.valueOf(this.temps[i]).setScale(2, RoundingMode.HALF_UP).toString();
+			retour[i * 4 + 5] = BigDecimal.valueOf(this.estomacPourcent[i]).setScale(2, RoundingMode.HALF_UP)
 					.toString();
-			retour[i * 4 + 6] = BigDecimal.valueOf(Model_Gastric.fundusPourcent[i]).setScale(2, RoundingMode.HALF_UP)
+			retour[i * 4 + 6] = BigDecimal.valueOf(this.fundusPourcent[i]).setScale(2, RoundingMode.HALF_UP)
 					.toString();
-			retour[i * 4 + 7] = BigDecimal.valueOf(Model_Gastric.antrePourcent[i]).setScale(2, RoundingMode.HALF_UP)
+			retour[i * 4 + 7] = BigDecimal.valueOf(this.antrePourcent[i]).setScale(2, RoundingMode.HALF_UP)
 					.toString();
 		}
 		// on enregistre la deuxime partie des resultats

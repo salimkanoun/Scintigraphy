@@ -24,7 +24,7 @@ public class TabMainResult extends TabResult {
 	private ImagePlus capture;
 
 	public TabMainResult(FenResults parent, ImagePlus capture) {
-		super(parent, "Result");
+		super(parent, "Result", true);
 		this.capture = capture;
 		this.reloadDisplay();
 	}
@@ -68,9 +68,6 @@ public class TabMainResult extends TabResult {
 
 	@Override
 	public JPanel getResultContent() {
-		if (capture == null)
-			return null;
-		
 		ImageStack ims = Library_Capture_CSV
 				.captureToStack(new ImagePlus[] { capture, ((Model_Gastric) this.parent.getModel()).createGraph_3(),
 						((Model_Gastric) this.parent.getModel()).createGraph_1(),
