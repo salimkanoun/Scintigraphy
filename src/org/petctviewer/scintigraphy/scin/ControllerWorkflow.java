@@ -44,6 +44,8 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 	public ControllerWorkflow(Scintigraphy main, FenApplication vue, ModeleScin model) {
 		super(main, vue, model);
+		// TODO: remove the creation of the workflow here to move it in the
+		// generateInstruction method
 		this.workflows = new Workflow[model.getImageSelection().length];
 		this.generateInstructions();
 
