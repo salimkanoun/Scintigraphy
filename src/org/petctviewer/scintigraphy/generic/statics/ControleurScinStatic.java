@@ -4,6 +4,7 @@ import java.awt.Button;
 import java.awt.event.ActionEvent;
 
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
 import ij.ImagePlus;
@@ -14,8 +15,8 @@ public class ControleurScinStatic extends Controleur_OrganeFixe{
 	public static int MAXROI = 100;
 	private int nbOrganes = 0;
 	
-	protected ControleurScinStatic(Scintigraphy scin, String studyName) {
-		super(scin, new ModeleScinStatic(studyName));
+	protected ControleurScinStatic(Scintigraphy scin, String studyName,ImageSelection[] selectedImages) {
+		super(scin, new ModeleScinStatic(selectedImages,studyName));
 		this.setOrganes(new String[MAXROI] );
 	}
 

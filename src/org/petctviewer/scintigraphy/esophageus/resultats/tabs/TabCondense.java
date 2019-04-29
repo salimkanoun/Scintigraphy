@@ -60,6 +60,8 @@ public class TabCondense extends TabResult implements ChangeListener {
 
 		this.createCaptureButton("Condense");
 
+		this.reloadDisplay();
+
 	}
 
 	@Override

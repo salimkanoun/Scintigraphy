@@ -24,6 +24,8 @@ class TabTAC extends TabResult {
 		super(parent, "TAC", true);
 
 		this.getPanel().setPreferredSize(new Dimension(width, height));
+
+		this.reloadDisplay();
 	}
 
 	@Override

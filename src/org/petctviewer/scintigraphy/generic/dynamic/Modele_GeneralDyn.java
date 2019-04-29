@@ -2,12 +2,13 @@
 
 import java.util.List;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 
 public class Modele_GeneralDyn extends ModeleScinDyn {
 
-	public Modele_GeneralDyn(String studyName, int[] frameDuration) {
-		super(null, studyName, frameDuration);
+	public Modele_GeneralDyn(ImageSelection[] selectedImages, String studyName, int[] frameDuration) {
+		super(selectedImages, studyName, frameDuration);
 	}
 
 	@Override

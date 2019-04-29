@@ -20,6 +20,8 @@ public class TabVasculaire extends TabResult {
 		super(parent, "Vascular");
 
 		this.getPanel().setPreferredSize(new Dimension(width, height));
+
+		this.reloadDisplay();
 	}
 
 	@Override
@@ -32,7 +34,7 @@ public class TabVasculaire extends TabResult {
 		Modele_HepaticDyn modele = (Modele_HepaticDyn) this.parent.getModel();
 		List<XYSeries> series = modele.getSeries();
 		ChartPanel chartVasculaire = Library_JFreeChart.associateSeries(new String[] { "Blood pool" }, series);
-		
+
 		return chartVasculaire;
 	}
 

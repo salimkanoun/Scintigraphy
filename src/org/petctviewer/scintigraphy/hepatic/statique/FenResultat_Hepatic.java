@@ -26,18 +26,7 @@ public class FenResultat_Hepatic extends FenResults {
 		this.setLayout(new BorderLayout());
 		this.resultats = ((Modele_Hepatic) model).getResultsHashMap();
 		
-		this.addTab(new TabResult(this, "Result") {
-			
-			@Override
-			public Component getSidePanelContent() {
-				return FenResultat_Hepatic.this.getSidePanelContent();
-			}
-			
-			@Override
-			public JPanel getResultContent() {
-				return new DynamicImage(capture);
-			}
-		});
+		this.addTab(new TabMain(this, "Result",true,capture));
 	}
 
 	public Component getSidePanelContent() {
@@ -57,6 +46,27 @@ public class FenResultat_Hepatic extends FenResults {
 	private JLabel getLabel(String key) {
 		JLabel lbl_hwb = new JLabel(key + " : " + this.resultats.get(key));
 		return lbl_hwb;
+	}
+	
+	private class TabMain extends TabResult{
+		
+		BufferedImage capture;
+		
+		public TabMain(FenResults parent, String title, boolean captureBtn, BufferedImage capture) {
+			super(parent, title, captureBtn);
+			this.capture = capture;
+		}
+
+		@Override
+		public Component getSidePanelContent() {
+			return FenResultat_Hepatic.this.getSidePanelContent();
+		}
+		
+		@Override
+		public JPanel getResultContent() {
+			return new DynamicImage(capture);
+		}
+		
 	}
 
 }
