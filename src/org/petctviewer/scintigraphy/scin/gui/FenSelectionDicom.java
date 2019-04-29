@@ -377,7 +377,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 		try {
 
-			this.checkForUnauthorizedValues();
+			this.checkForUnauthorizedValues(selectedImages);
 			this.checkSamePatient(selectedImages);
 			this.startExam(selectedImages);
 
@@ -394,16 +394,14 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 * 
 	 * @throws WrongColumnException if a column has an unauthorized value
 	 */
-	private void checkForUnauthorizedValues() throws WrongColumnException {
-		for (int i = 0; i < this.table.getSelectedRows().length; i++) {
-			int idSelectedRow = this.table.getSelectedRows()[i];
-			for (int idCol = 0; idCol < this.columns.size(); idCol++) {
-				String value = (String) this.table.getValueAt(idSelectedRow, idCol);
-				Column column = this.columns.get(idCol);
-				if (!column.isAuthorizedValue(value)) {
-					throw new WrongColumnException(column, (idSelectedRow + 1), "The value " + value
+	private void checkForUnauthorizedValues(ImageSelection[] selectedImages) throws WrongColumnException {
+		for (int i = 0; i < selectedImages.length; i++) {
+			ImageSelection ims = selectedImages[i];
+			for (Column column : this.columns) {
+				String value = ims.getValue(column.getName());
+				if (!column.isAuthorizedValue(value))
+					throw new WrongColumnException(column, ims.getRow(), "The value " + value
 							+ " is incorrect, it must be one of: " + Arrays.toString(column.getAuthorizedValues()));
-				}
 			}
 		}
 	}
@@ -427,8 +425,8 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 		int result = JOptionPane.YES_OPTION;
 		if (patientIds.size() > 1 || patientNames.size() > 1) {
-			String message = "Selected images might belong to different patient:\nDifferent IDs: " + patientIds + "\nDifferent Names: " + patientNames
-					+ "\n\nWould you like to continue?";
+			String message = "Selected images might belong to different patient:\nDifferent IDs: " + patientIds
+					+ "\nDifferent Names: " + patientNames + "\n\nWould you like to continue?";
 			result = JOptionPane.showConfirmDialog(this, message, "Multiple patient found", JOptionPane.YES_NO_OPTION,
 					JOptionPane.WARNING_MESSAGE);
 		}
@@ -449,20 +447,20 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		// ATTENTION NE PAS FAIRE DE HIDE OU DE CLOSE CAR DECLANCHE LE LISTENER
 		// IMAGE PLUS DOIVENT ETRE DUPLIQUEE ET FERMEE DANS LES PROGRAMMES LANCES
 		for (int i = 0; i < rows.length; i++) {
+			int row = rows[i];
 			// Generate values for the selection
 			String[] values = new String[this.columns.size()];
 			for (int col = 0; col < values.length; col++) {
-				values[col] = (String) this.table.getValueAt(i, col);
+				values[col] = (String) this.table.getValueAt(row, col);
 			}
 			// Generate columns array
 			String[] columns = new String[this.columns.size()];
 			for (int idCol = 0; idCol < columns.length; idCol++)
 				columns[idCol] = this.columns.get(idCol).getName();
-			selectedImages[i] = new ImageSelection(WindowManager.getImage(WindowManager.getIDList()[rows[i]]), columns,
+			selectedImages[i] = new ImageSelection(WindowManager.getImage(WindowManager.getIDList()[row]), columns,
 					values);
 			// TODO: do not add row here, use the invisible columns
-			selectedImages[i].setRow(i+1);
-
+			selectedImages[i].setRow(row+1);
 		}
 
 		return selectedImages;
@@ -514,4 +512,3 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	public void imageUpdated(ImagePlus imp) {
 	}
 }
-
