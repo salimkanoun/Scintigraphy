@@ -17,9 +17,9 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
-import org.petctviewer.scintigraphy.scin.instructions.EndInstruction;
-import org.petctviewer.scintigraphy.scin.instructions.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
+import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
@@ -31,7 +31,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 	private FenResults fenResults;
 
 	private List<ImagePlus> captures;
-	
+
 	private final boolean FIRST_ORIENTATION_POST;
 
 	private static final int STEP_KIDNEY_LUNG = 0, STEP_BRAIN = 1;
@@ -150,7 +150,8 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		this.model.calculerResultats();
 
 		// Save captures
-		ImageStack stackCapture = Library_Capture_CSV.captureToStack(this.captures.toArray(new ImagePlus[this.captures.size()]));
+		ImageStack stackCapture = Library_Capture_CSV
+				.captureToStack(this.captures.toArray(new ImagePlus[this.captures.size()]));
 		ImagePlus montage = this.montage(stackCapture);
 
 		// Display result

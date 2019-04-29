@@ -4,14 +4,14 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Stack;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.lympho.FenApplicationLympho;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
@@ -26,9 +26,11 @@ public class TabTest3 extends TabResult implements ActionListener {
 
 	private JLabel label;
 
-	public TabTest3(FenResults parent, String title, boolean captureBtn, ImagePlus captures) {
+	public TabTest3(FenResults parent, String title, boolean captureBtn) {
 		super(parent, title, captureBtn);
 		// TODO Auto-generated constructor stub
+
+		this.reloadDisplay();
 	}
 
 	@Override
@@ -44,22 +46,10 @@ public class TabTest3 extends TabResult implements ActionListener {
 
 	@Override
 	public JPanel getResultContent() {
-		this.imp = parent.getModel().getImagePlus();
+		this.imp = parent.getModel().getImagePlus().duplicate();
 
 		JPanel borderLayout = new JPanel(new BorderLayout());
 
-//		JPanel pan_center = new JPanel();
-//		ImageCanvas ic = new ImageCanvas(imp);
-////		ic = imp.getCanvas();
-//		ic.setSize((int)(imp.getWidth()), (int)(imp.getHeight()));
-////		ic.zoomIn(0, 0);
-////		ic.updateImage(imp);
-//		ic.setImageUpdated();
-//		ic.repaint();
-//		pan_center.add(ic);
-
-		
-		
 		ImageCanvas canvas = TabTest3.getConnectedImageCanvas(imp);
 		JPanel pan_center = new JPanel();
 		pan_center.add(canvas);
@@ -71,26 +61,44 @@ public class TabTest3 extends TabResult implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		this.label.setText("Nombre de coups : " + Library_Quantif.getCounts(this.imp));
 	}
-	
-	
-	
-	public static ImageCanvas getConnectedImageCanvas (ImagePlus imp) {
-		
-		ImagePlus impDuplicate = imp.duplicate();
-		
-		FenApplication fenApplication = new FenApplication(impDuplicate, "Test");
+
+	public static ImageCanvas getConnectedImageCanvas(ImagePlus imp) {
+
+		ImageCanvas canvas = new ImageCanvas(imp);
+
+		StackWindow fenApplication = new StackWindow(imp, canvas);
 		fenApplication.setVisible(false);
-		// TODO Auto-generated constructor stub
-		Component[] compo = fenApplication.getComponents();
-		for(int i = 0 ; i < fenApplication.getComponentCount(); i++) {
-			Component encours = fenApplication.getComponent(1);
-			encours = null;
-			fenApplication.remove(1);
-			fenApplication.revalidate();
+
+		int canvasW, canvasH;
+
+		int width = 512;
+
+		int w = imp.getWidth();
+		int h = imp.getHeight();
+		Double ratioImagePlus = w * 1.0 / h * 1.0;
+
+		if (ratioImagePlus < 1) {
+			canvasW = (int) (width * ratioImagePlus);
+			canvasH = (int) (width);
+
+		} else {
+			canvasW = width;
+			canvasH = (int) (width / ratioImagePlus);
 		}
-		fenApplication = null;
-		
-		return ((ImageCanvas)compo[0]);
+
+		// this.getCanvas().setBounds(0,0,canvasW,canvasH);
+		canvas.setSize(canvasW, canvasH);
+
+		// on calcule le facteur de magnification
+		List<Double> magnifications = new ArrayList<Double>();
+		magnifications.add(canvasW / (1.0 * imp.getWidth()));
+		magnifications.add(canvasH / (1.0 * imp.getHeight()));
+
+		Double magnification = Collections.min(magnifications);
+
+		canvas.setMagnification(magnification);
+
+		return (canvas);
 	}
 
 }

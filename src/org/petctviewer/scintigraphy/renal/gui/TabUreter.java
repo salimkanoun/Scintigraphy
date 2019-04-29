@@ -17,6 +17,8 @@ class TabUreter extends TabResult {
 
 	public TabUreter(Scintigraphy scin, FenResults parent) {
 		super(parent, "Ureters", true);
+
+		this.reloadDisplay();
 	}
 
 	@Override

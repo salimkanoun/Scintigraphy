@@ -32,6 +32,8 @@ public class TabPost extends TabResult implements ActionListener {
 		// TODO Auto-generated constructor stub
 		this.setSidePanelTitle("Pelvis Scintigraphy");
 		((ModeleLympho) this.parent.getModel()).setResultTab(this);
+		
+		this.reloadDisplay();
 	}
 
 	@Override

@@ -19,6 +19,8 @@ class TabCort extends TabResult {
 
 	public TabCort(Scintigraphy scin, FenResults parent) {
 		super(parent, "Corticals/Pelvis");
+		
+		this.reloadDisplay();
 	}
 
 	@Override

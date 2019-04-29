@@ -43,6 +43,8 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 	public TabPostMict(Scintigraphy vue, FenResults parent) {
 		super("Renal scintigraphy", vue, "postmict", parent);
 		this.bladder = Prefs.get("renal.bladder.preferred", true);
+		
+		this.reloadDisplay();
 	}
 
 	@Override

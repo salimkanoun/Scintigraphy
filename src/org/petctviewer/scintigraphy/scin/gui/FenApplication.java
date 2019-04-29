@@ -65,7 +65,12 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	 *            Nom du type de scintigraphie
 	 */
 	public FenApplication(ImagePlus imp, String nom) {
-		super(imp, new ImageCanvas(imp));
+		this(imp,nom,new ImageCanvas(imp));
+
+	}
+	
+	public FenApplication(ImagePlus imp, String nom, ImageCanvas canvas) {
+		super(imp, canvas);
 		// on set la lut des preferences
 		Library_Gui.setCustomLut(imp);
 		/*
@@ -118,7 +123,6 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 		this.setDefaultSize();
 		this.addComponentListener(this);
-
 	}
 
 	public void resizeCanvas() {

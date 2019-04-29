@@ -19,6 +19,8 @@ class TabZoomed extends TabResult {
 
 	public TabZoomed(Scintigraphy scin, FenResults parent) {
 		super(parent, "Vascular phase", true);
+
+		this.reloadDisplay();
 	}
 
 	@Override
