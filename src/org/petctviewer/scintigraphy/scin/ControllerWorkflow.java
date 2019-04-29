@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.GeneratorInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.LastInstruction;
@@ -33,6 +34,13 @@ import org.petctviewer.scintigraphy.scin.instructions.Workflow;
  *
  */
 public abstract class ControllerWorkflow extends ControleurScin {
+
+	/**
+	 * This command signals that the instruction should not generate a next
+	 * instruction.<br>
+	 * This is only used for {@link GeneratorInstruction}.
+	 */
+	public static final String COMMAND_END = "command.end";
 
 	protected static final int SLICE_ANT = 1, SLICE_POST = 2;
 

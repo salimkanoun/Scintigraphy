@@ -19,8 +19,6 @@ import ij.plugin.MontageMaker;
 import ij.plugin.frame.RoiManager;
 
 public abstract class ControleurScin implements ActionListener {
-	
-	public static final String COMMAND_END = "command.end";
 
 	/**
 	 * View of the MVC pattern
@@ -419,4 +417,3 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 }
-

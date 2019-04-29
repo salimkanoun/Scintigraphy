@@ -10,22 +10,27 @@ public class WorkflowGenerator {
 	 * instructions asking the user to draw a ROI for each organ.<br>
 	 * The instructions are in the following order:<br>
 	 * <ol>
-	 * <li>All organs for Ant orientation</li>
-	 * <li>All organs for Post orientation</li>
+	 * <li>All organs for <code>firstOrientation</code> orientation</li>
+	 * <li>All organs for <code>firstOrientation.invert()</code> orientation</li>
 	 * </ol>
-	 * When asking for the ROI in Post orientation, the ROI of the Ant orientation
-	 * is auto-filled.
 	 * 
+	 * @param firstOrientation first orientation prompted to the user
 	 * @return Workflow generated
+	 * @throws IllegalArgumentException if the specified orientation doesn't have an
+	 *                                  inverse
 	 */
-	public static Workflow oneImageSimpleWorkflow(String[] organs) {
+	public static Workflow oneImageSimpleWorkflow(String[] organs, Orientation firstOrientation)
+			throws IllegalArgumentException {
+		if (firstOrientation.invert() == Orientation.UNKNOWN)
+			throw new IllegalArgumentException("The orientation " + firstOrientation + " doesn't have a inverse!");
+
 		Workflow w = new Workflow();
 		for (String organ : organs) {
-			w.addInstruction(new DrawRoiInstruction(organ, Orientation.ANT));
+			w.addInstruction(new DrawRoiInstruction(organ, firstOrientation));
 		}
 		for (int i = 0; i < organs.length; i++) {
-			w.addInstruction(
-					new DrawRoiInstruction(organs[i], Orientation.POST, (DrawRoiInstruction) w.getInstructionAt(i)));
+			w.addInstruction(new DrawRoiInstruction(organs[i], firstOrientation.invert(),
+					(DrawRoiInstruction) w.getInstructionAt(i)));
 		}
 		w.addInstruction(new EndInstruction());
 		return w;
@@ -36,15 +41,19 @@ public class WorkflowGenerator {
 	 * 
 	 * @see #oneImageSimpleWorkflow(String[])
 	 * 
-	 * @param organs array of organs for each image
+	 * @param organs           array of organs for each image
+	 * @param firstOrientation first orientation prompted to the user
 	 * @return workflow for each image
+	 * @throws IllegalArgumentException if the specified orientation doesn't have an
+	 *                                  inverse
 	 */
-	public static Workflow[] multipleImagesSimpleWorkflow(String[][] organs) {
+	public static Workflow[] multipleImagesSimpleWorkflow(String[][] organs, Orientation firstOrientation)
+			throws IllegalArgumentException {
 		Workflow[] w = new Workflow[organs.length];
 		for (int i = 0; i < organs.length; i++) {
-			w[i] = oneImageSimpleWorkflow(organs[i]);
+			w[i] = oneImageSimpleWorkflow(organs[i], firstOrientation);
 		}
-		w[organs.length-1].addInstruction(new EndInstruction());
+		w[organs.length - 1].addInstruction(new EndInstruction());
 		return w;
 	}
 

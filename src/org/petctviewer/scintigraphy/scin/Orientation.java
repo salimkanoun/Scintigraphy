@@ -6,20 +6,64 @@ package org.petctviewer.scintigraphy.scin;
  */
 public enum Orientation {
 
-	ANT("Ant"), POST("Post"), ANT_POST("Ant/Post"), POST_ANT("Post/Ant"), DYNAMIC_ANT("Dynamic Ant"),
-	DYNAMIC_POST("Dynamic Post"), DYNAMIC_ANT_POST("Dynamic A/P"), DYNAMIC_POST_ANT("Dynamic P/A"), UNKNOWN("Unknown");
+	ANT("Ant"),
+	POST("Post"),
+	ANT_POST("Ant/Post"),
+	POST_ANT("Post/Ant"),
+	DYNAMIC_ANT("Dynamic Ant"),
+	DYNAMIC_POST("Dynamic Post"),
+	DYNAMIC_ANT_POST("Dynamic A/P"),
+	DYNAMIC_POST_ANT("Dynamic P/A"),
+	UNKNOWN("Unknown");
 
 	private String s;
 
 	private Orientation(String s) {
 		this.s = s;
 	}
-	
+
+	/**
+	 * This method will return the inverse of an Orientation with the following
+	 * rules:<br>
+	 * 
+	 * <pre>
+	 * ANT <-> POST
+	 * ANT_POST <-> POST_ANT
+	 * DYNAMIC_ANT_POST <-> DYNAMIC_POST_ANT
+	 * DYNAMIC_ANT <-> DYNAMIC_POST
+	 * UNKNOWN <-> UNKNOWN
+	 * </pre>
+	 * 
+	 * @return inverse of the Orientation
+	 */
+	public Orientation invert() {
+		switch (this) {
+		case ANT:
+			return POST;
+		case POST:
+			return ANT;
+		case ANT_POST:
+			return POST_ANT;
+		case POST_ANT:
+			return ANT_POST;
+		case DYNAMIC_ANT:
+			return DYNAMIC_POST;
+		case DYNAMIC_POST:
+			return DYNAMIC_ANT;
+		case DYNAMIC_ANT_POST:
+			return DYNAMIC_POST_ANT;
+		case DYNAMIC_POST_ANT:
+			return DYNAMIC_ANT_POST;
+		default:
+			return UNKNOWN;
+		}
+	}
+
 	/**
 	 * @return abreviation of this Orientation
 	 */
 	public String abrev() {
-		switch(this) {
+		switch (this) {
 		case ANT:
 			return "A";
 		case POST:

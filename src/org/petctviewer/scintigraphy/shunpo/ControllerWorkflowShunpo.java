@@ -1,25 +1,18 @@
 package org.petctviewer.scintigraphy.shunpo;
 
-import java.awt.Component;
-import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
-import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
-import org.petctviewer.scintigraphy.scin.instructions.EndInstruction;
-import org.petctviewer.scintigraphy.scin.instructions.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
+import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
@@ -41,7 +34,6 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 	public ControllerWorkflowShunpo(Scintigraphy main, FenApplication vue, ModeleScin model) {
 		super(main, vue, model);
 		this.FIRST_ORIENTATION_POST = true;
-		// TODO Auto-generated constructor stub
 		this.fenResults = new FenResults(this.model);
 		this.fenResults.setVisible(false);
 	}
@@ -90,6 +82,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}
 
+	@Override
 	protected void end() {
 		super.end();
 
@@ -154,21 +147,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		ImagePlus montage = this.montage(stackCapture);
 
 		// Display result
-		this.fenResults.setMainTab(new TabResult(fenResults, "Result", true) {
-			@Override
-			public Component getSidePanelContent() {
-				String[] result = ((ModeleShunpo) model).getResult();
-				JPanel res = new JPanel(new GridLayout(result.length, 1));
-				for (String s : result)
-					res.add(new JLabel(s));
-				return res;
-			}
-
-			@Override
-			public JPanel getResultContent() {
-				return new DynamicImage(montage.getImage());
-			}
-		});
+		this.fenResults.setMainTab(new MainResult(this.fenResults, montage));
 		this.fenResults.pack();
 		this.fenResults.setVisible(true);
 

@@ -6,6 +6,7 @@ import java.awt.Label;
 import java.awt.Panel;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.ImagePlus;
@@ -22,7 +23,7 @@ public class FenApplication_ScinStatic extends FenApplication{
 		super(imp, nom);
 		this.getTextfield_instructions().setEditable(true);
 		this.btn_finish = new Button("Finish");
-		this.btn_finish.setActionCommand(ControleurScin.COMMAND_END);
+		this.btn_finish.setActionCommand(ControllerWorkflow.COMMAND_END);
 		
 		this.getPanel_Instructions_btns_droite().removeAll();
 		Panel instru = new Panel(new GridLayout(1, 2));

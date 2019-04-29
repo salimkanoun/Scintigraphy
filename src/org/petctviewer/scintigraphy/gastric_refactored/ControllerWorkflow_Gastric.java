@@ -66,8 +66,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 					this.getModel().getCoups("Estomac_Post", i / 6) - this.getModel().getCoups("Antre_Post", i / 6));
 			this.getModel().setCoups("Intestin_Post", i / 6,
 					this.getModel().getCoups("Intes_Post", i / 6) - this.getModel().getCoups("Antre_Post", i / 6));
-//			if (i == 0)
-//				this.capture = Library_Capture_CSV.captureImage(imp, 640, 512);
 
 			try {
 				this.getModel().tempsImage(i / 6, imp);
@@ -77,6 +75,12 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			this.getModel().pourcVGImage(i / 6);
 		}
 		this.model.calculerResultats();
+	}
+
+	@Override
+	public void clicPrecedent() {
+		super.clicPrecedent();
+		this.fenResults.setVisible(false);
 	}
 
 	@Override
@@ -92,6 +96,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.computeModel();
 
 		// Display results
+		this.fenResults.clearTabs();
 		this.fenResults.setMainTab(new TabMainResult(this.fenResults, this.captures.get(0)));
 		this.fenResults.addTab(new TabChart(this.fenResults));
 		this.fenResults.pack();
