@@ -50,9 +50,7 @@ public class TabTest extends TabResult implements ActionListener{
 
 		JPanel pan_center = new JPanel();
 
-		for (int i = 0; i < 1; i++) {
-			pan_center.add(compo[i]);
-		}
+		pan_center.add(compo[0]);
 		borderLayout.add(pan_center, BorderLayout.CENTER);
 		return borderLayout;
 	}

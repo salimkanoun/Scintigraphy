@@ -4,16 +4,21 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Stack;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.petctviewer.scintigraphy.lympho.FenApplicationLympho;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
+import ij.gui.ImageCanvas;
+import ij.gui.StackWindow;
 
 public class TabTest3 extends TabResult implements ActionListener {
 
@@ -43,10 +48,21 @@ public class TabTest3 extends TabResult implements ActionListener {
 
 		JPanel borderLayout = new JPanel(new BorderLayout());
 
+//		JPanel pan_center = new JPanel();
+//		ImageCanvas ic = new ImageCanvas(imp);
+////		ic = imp.getCanvas();
+//		ic.setSize((int)(imp.getWidth()), (int)(imp.getHeight()));
+////		ic.zoomIn(0, 0);
+////		ic.updateImage(imp);
+//		ic.setImageUpdated();
+//		ic.repaint();
+//		pan_center.add(ic);
+
+		
+		
+		ImageCanvas canvas = TabTest3.getConnectedImageCanvas(imp);
 		JPanel pan_center = new JPanel();
-
-		pan_center.add(imp.getCanvas());
-
+		pan_center.add(canvas);
 		borderLayout.add(pan_center, BorderLayout.CENTER);
 		return borderLayout;
 	}
@@ -54,6 +70,27 @@ public class TabTest3 extends TabResult implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		this.label.setText("Nombre de coups : " + Library_Quantif.getCounts(this.imp));
+	}
+	
+	
+	
+	public static ImageCanvas getConnectedImageCanvas (ImagePlus imp) {
+		
+		ImagePlus impDuplicate = imp.duplicate();
+		
+		FenApplication fenApplication = new FenApplication(impDuplicate, "Test");
+		fenApplication.setVisible(false);
+		// TODO Auto-generated constructor stub
+		Component[] compo = fenApplication.getComponents();
+		for(int i = 0 ; i < fenApplication.getComponentCount(); i++) {
+			Component encours = fenApplication.getComponent(1);
+			encours = null;
+			fenApplication.remove(1);
+			fenApplication.revalidate();
+		}
+		fenApplication = null;
+		
+		return ((ImageCanvas)compo[0]);
 	}
 
 }
