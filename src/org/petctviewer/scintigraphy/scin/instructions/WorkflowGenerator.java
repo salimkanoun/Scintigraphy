@@ -1,7 +1,10 @@
 package org.petctviewer.scintigraphy.scin.instructions;
 
+import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
+
+import ij.ImagePlus;
 
 public class WorkflowGenerator {
 
@@ -18,8 +21,8 @@ public class WorkflowGenerator {
 	 * 
 	 * @return Workflow generated
 	 */
-	public static Workflow oneImageSimpleWorkflow(String[] organs) {
-		Workflow w = new Workflow();
+	public static Workflow oneImageSimpleWorkflow(ControllerWorkflow controller, ImagePlus imp, String[] organs) {
+		Workflow w = new Workflow(controller, imp);
 		for (String organ : organs) {
 			w.addInstruction(new DrawRoiInstruction(organ, Orientation.ANT));
 		}
@@ -39,12 +42,12 @@ public class WorkflowGenerator {
 	 * @param organs array of organs for each image
 	 * @return workflow for each image
 	 */
-	public static Workflow[] multipleImagesSimpleWorkflow(String[][] organs) {
+	public static Workflow[] multipleImagesSimpleWorkflow(ControllerWorkflow controller, ImagePlus[] imps, String[][] organs) {
 		Workflow[] w = new Workflow[organs.length];
 		for (int i = 0; i < organs.length; i++) {
-			w[i] = oneImageSimpleWorkflow(organs[i]);
+			w[i] = oneImageSimpleWorkflow(controller, imps[i], organs[i]);
 		}
-		w[organs.length-1].addInstruction(new EndInstruction());
+		w[organs.length - 1].addInstruction(new EndInstruction());
 		return w;
 	}
 

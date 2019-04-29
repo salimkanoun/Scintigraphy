@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.generic.statics;
 
 import java.util.HashMap;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
@@ -12,8 +13,8 @@ public class ModeleScinStatic  extends ModeleScin{
 	private HashMap<String, Object[]> roisAnt;
 	private HashMap<String, Object[]> roisPost;
 	
-	public ModeleScinStatic(String studyName) {
-		super(null, studyName);
+	public ModeleScinStatic(ImageSelection[] selectedImages, String studyName) {
+		super(selectedImages, studyName);
 		this.roisAnt = new HashMap<>();
 		this.roisPost = new HashMap<>();
 

@@ -44,6 +44,7 @@ public class TabChart extends TabResult implements ActionListener {
 		Component[] hide = new Component[] { this.fitsChoices };
 		Component[] show = new Component[] { this.labelInterpolation };
 		this.createCaptureButton(hide, show, null);
+		this.reloadDisplay();
 	}
 
 	/**
