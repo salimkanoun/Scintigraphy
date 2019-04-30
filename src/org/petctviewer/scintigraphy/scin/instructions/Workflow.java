@@ -5,10 +5,9 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
-
-import ij.ImagePlus;
 
 /**
  * This class represents a flow of instructions used by the
@@ -26,19 +25,20 @@ public class Workflow {
 	private Instruction current;
 
 	private ControllerWorkflow controller;
-	private ImagePlus imageAssociated;
+	private ImageSelection imageAssociated;
 
 	/**
-	 * Creates a new workflow. A workflow is based on a ImageSelection.
+	 * Creates a new workflow. A workflow is based on a ImageSelection and is linked
+	 * to only 1 controller.
 	 */
-	public Workflow(ControllerWorkflow controller, ImagePlus imageAssociated) {
+	public Workflow(ControllerWorkflow controller, ImageSelection imageAssociated) {
 		this.instructions = new LinkedList<>();
 		this.controller = controller;
 		this.imageAssociated = imageAssociated;
 		this.restart();
 	}
 
-	public ImagePlus getImageAssociated() {
+	public ImageSelection getImageAssociated() {
 		return this.imageAssociated;
 	}
 
@@ -145,7 +145,7 @@ public class Workflow {
 	public int countRoisCreated() {
 		int count = 0;
 		for (Instruction i : this.instructions)
-			if (i instanceof DrawRoiInstruction)
+			if (i.saveRoi())
 				count++;
 		return count;
 	}
@@ -160,14 +160,23 @@ public class Workflow {
 	}
 
 	/**
+	 * This method will look through all instructions to search for any instruction
+	 * matching the same facingOrientation specified. If an instruction has no
+	 * state, or its facingOrientation's state is null ; this instruction will be
+	 * returned.
+	 * 
+	 * @param facingOrientation Facing orientation to search (if null, then all
+	 *                          instructions saving a ROI are returned)
 	 * @return all the instructions with a ROI to display matching the specified
-	 *         orientation
+	 *         orientation, including the instructions with no state
 	 */
-	public Instruction[] getInstructionsWithOrientation(Orientation orientation) {
+	public Instruction[] getInstructionsWithOrientation(Orientation facingOrientation) {
 		List<Instruction> instructions = new LinkedList<>();
 		for (Instruction i : this.instructions)
-			if ((i.getImageState() == null || i.getImageState().orientation == orientation) && i.saveRoi()
-					&& i.isRoiVisible())
+			// Checking instruction has a ROI to display, the facingOrientation is the same
+			// or is null
+			if (i.saveRoi() && i.isRoiVisible() && (facingOrientation == null || i.getImageState() == null
+					|| i.getImageState().getFacingOrientation() == facingOrientation))
 				instructions.add(i);
 		return instructions.toArray(new Instruction[instructions.size()]);
 	}
@@ -177,7 +186,7 @@ public class Workflow {
 		StringBuilder s = new StringBuilder();
 
 		s.append("--| WORKFLOW: ");
-		s.append(this.imageAssociated.getShortTitle());
+		s.append(this.imageAssociated.getImagePlus().getShortTitle());
 		s.append(" |--\n");
 
 		for (int i = 0; i < this.instructions.size(); i++) {

@@ -19,55 +19,68 @@ import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruc
  * This controller is used when working with a flow of instructions.<br>
  * In order to use this type of controller, you need to redefine the
  * {@link #generateInstructions()} method to create the workflow.<br>
- * Typically, this will look like a repetition of this:<br>
- * 
- * <pre>
- * this.workflow[0].addInstruction(new DrawRoiInstruction(...));
- * ...
- * this.workflow[0].addInstruction(new EndInstruction());
- * </pre>
- * 
- * Be careful, this controller expect that the images are in Ant/Post
- * orientation.
+ * Then, the constructor must call the {@link #generateInstructions()} and the
+ * {@link #start()} methods (in that order).
  * 
  * @author Titouan QUÉMA
  *
  */
 public abstract class ControllerWorkflow extends ControleurScin {
 
-	protected static final int SLICE_ANT = 1, SLICE_POST = 2;
+	/**
+	 * This command signals that the instruction should not generate a next
+	 * instruction.<br>
+	 * This is only used for {@link GeneratorInstruction}.
+	 */
+	public static final String COMMAND_END = "command.end";
 
 	protected Workflow[] workflows;
-	protected int indexCurrentImage;
 
+	protected int indexCurrentImage;
+	protected ImageState currentState;
+
+	/**
+	 * Index of the ROI to store in the RoiManager.
+	 */
 	private int indexRoi;
 
 	public ControllerWorkflow(Scintigraphy main, FenApplication vue, ModeleScin model) {
 		super(main, vue, model);
-		// TODO: remove the creation of the workflow here to move it in the
-		// generateInstruction method
-		this.workflows = new Workflow[model.getImageSelection().length];
-		this.generateInstructions();
-
-		this.indexCurrentImage = 0;
-		this.indexRoi = 0;
-
-		this.start();
 	}
 
 	/**
 	 * This method must instantiate the workflow and fill it with the instructions
 	 * for this model.<br>
+	 * Typically, this will look like a repetition of this:<br>
+	 * 
+	 * <pre>
+	 * this.workflow[0].addInstruction(new DrawRoiInstruction(...));
+	 * ...
+	 * this.workflow[0].addInstruction(new EndInstruction());
+	 * </pre>
+	 * 
 	 * Only the last workflow generated MUST end with a {@link LastInstruction}.
 	 */
 	protected abstract void generateInstructions();
 
-	private void start() {
+	/**
+	 * This method initializes the controller. It must be called <b>after</b> the
+	 * {@link #generateInstructions()} method.
+	 */
+	protected void start() {
+		this.indexCurrentImage = 0;
+		this.indexRoi = 0;
+
 		Instruction i = this.workflows[0].next();
 		if (i != null) {
+			// TODO: maybe do not assume the lateralisation is RL?
+			this.currentState = new ImageState(
+					this.workflows[0].getImageAssociated().getImageOrientation().getFacingOrientation(), 1,
+					ImageState.LAT_RL, ImageState.ID_NONE);
+			this.setOverlay(currentState);
+
 			this.displayInstruction(i.getMessage());
 			this.prepareImage(i.getImageState());
-			this.resetOverlay();
 			i.afterNext(this);
 		}
 	}
@@ -81,26 +94,12 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	}
 
 	/**
-	 * @return current orientation of the ImagePlus
-	 */
-	private Orientation getCurrentOrientation() {
-		switch (this.vue.getImagePlus().getCurrentSlice()) {
-		case SLICE_ANT:
-			return Orientation.ANT;
-		case SLICE_POST:
-			return Orientation.POST;
-		default:
-			throw new IllegalStateException();
-		}
-	}
-
-	/**
 	 * @return array of ROI indexes to display for the current instruction
 	 */
 	private int[] roisToDisplay() {
 		List<Instruction> dris = new ArrayList<>();
 		for (Instruction i : this.workflows[this.indexCurrentImage]
-				.getInstructionsWithOrientation(this.getCurrentOrientation()))
+				.getInstructionsWithOrientation(this.currentState.getFacingOrientation()))
 			if (i.roiToDisplay() >= 0 && i.roiToDisplay() < this.indexRoi) {
 				dris.add(i);
 			}
@@ -126,6 +125,10 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		System.out.println();
 	}
 
+	private String generateRoiName(int indexImage, String instructionRoiName) {
+		return "#" + indexImage + "_" + instructionRoiName + this.currentState.getFacingOrientation().abrev();
+	}
+
 	@Override
 	public void clicPrecedent() {
 		super.clicPrecedent();
@@ -140,8 +143,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		if (currentInstruction.isExpectingUserInput()) {
 			this.displayInstruction(currentInstruction.getMessage());
 			this.prepareImage(currentInstruction.getImageState());
-
-			this.resetOverlay();
+			
 			if (currentInstruction.saveRoi())
 				this.indexRoi--;
 			this.displayRois(this.roisToDisplay());
@@ -176,12 +178,8 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 			// === Draw ROI of the previous instruction ===
 			if (previousInstruction != null && previousInstruction.saveRoi()) {
-				Orientation orientation = previousInstruction.getImageState() == null ? this.getCurrentOrientation()
-						: previousInstruction.getImageState().orientation;
-
 				try {
-					this.saveRoiAtIndex(
-							"#" + indexPreviousImage + "_" + previousInstruction.getRoiName() + orientation.abrev(),
+					this.saveRoiAtIndex(this.generateRoiName(indexPreviousImage, previousInstruction.getRoiName()),
 							this.indexRoi);
 					previousInstruction.setRoi(this.indexRoi);
 
@@ -224,6 +222,8 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 				nextInstruction.afterNext(this);
 			} else {
+				// TODO: might be a problem if the workflow is over: this code should not
+				// execute
 				// If not displayable, go directly to the next instruction
 				nextInstruction.afterNext(this);
 				this.clicSuivant();
@@ -241,7 +241,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	}
 
 	/**
-	 * Prepares the ImagePlus with the specified state.
+	 * Prepares the ImagePlus with the specified state and updates the currentState.
 	 * 
 	 * @param imageState State the ImagePlus must complies
 	 */
@@ -249,25 +249,44 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		if (imageState == null)
 			return;
 
-		// Change image only if different than the previous
-		if (this.vue.getImagePlus() != this.model.getImageSelection()[this.indexCurrentImage].getImagePlus()) {
-			this.vue.setImage(this.model.getImageSelection()[this.indexCurrentImage].getImagePlus());
-			this.resetOverlay();
+		boolean resetOverlay = false;
+
+		// == FACING ORIENTATION ==
+		if (imageState.getFacingOrientation() != null
+				&& imageState.getFacingOrientation() != this.currentState.getFacingOrientation()) {
+			this.currentState.setFacingOrientation(imageState.getFacingOrientation());
+			resetOverlay = true;
 		}
 
-		// Change slice only if different than the previous
-		int newSlice = -1;
-		if (imageState.orientation == Orientation.ANT)
-			newSlice = SLICE_ANT;
-		else if (imageState.orientation == Orientation.POST)
-			newSlice = SLICE_POST;
-		else
-			System.err.println("The orientation specified in the state (" + imageState.orientation
-					+ ") is not valid, it shoud be one of:\n[" + Orientation.ANT + ", " + Orientation.POST + "]");
-		if (newSlice != -1 && newSlice != this.vue.getImagePlus().getCurrentSlice()) {
-			this.vue.getImagePlus().setSlice(newSlice);
-			this.resetOverlay();
+		// == ID IMAGE ==
+		if (imageState.getIdImage() == ImageState.ID_NONE)
+			// Don't use the id
+			this.currentState.setIdImage(this.indexCurrentImage);
+		else if (imageState.getIdImage() >= 0)
+			// Use the specified id
+			this.currentState.setIdImage(imageState.getIdImage());
+		// else, don't touch the previous id
+
+		// Change image only if different than the previous
+		if (this.vue.getImagePlus() != this.model.getImageSelection()[this.currentState.getIdImage()].getImagePlus()) {
+			this.vue.setImage(this.model.getImageSelection()[this.currentState.getIdImage()].getImagePlus());
+			resetOverlay = true;
 		}
+
+		// == SLICE ==
+		if (imageState.getSlice() > ImageState.SLICE_PREVIOUS)
+			// Use the specified slice
+			this.currentState.setSlice(imageState.getSlice());
+		// else, don't touch the previous slice
+
+		// Change slice only if different than the previous
+		if (this.currentState.getSlice() != this.vue.getImagePlus().getCurrentSlice()) {
+			this.vue.getImagePlus().setSlice(this.currentState.getSlice());
+			resetOverlay = true;
+		}
+		
+		if(resetOverlay)
+			this.setOverlay(this.currentState);
 	}
 
 	@Override
@@ -283,10 +302,8 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 		Button source = (Button) e.getSource();
 		if (source.getActionCommand().contentEquals(COMMAND_END)) {
-			if (this.workflows[this.indexCurrentImage].getCurrentInstruction() instanceof GeneratorInstruction) {
+			if (this.workflows[this.indexCurrentImage].getCurrentInstruction() instanceof GeneratorInstruction)
 				((GeneratorInstruction) this.workflows[this.indexCurrentImage].getCurrentInstruction()).stop();
-				this.clicSuivant();
-			}
 		}
 	}
 

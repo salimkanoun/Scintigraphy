@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
@@ -18,9 +19,15 @@ import ij.gui.Toolbar;
 import ij.plugin.MontageMaker;
 import ij.plugin.frame.RoiManager;
 
+/**
+ * This class represents the Controller in the MVC pattern.<br>
+ * This abstract class is only a provider for functions simplifying the
+ * interactions with the RoiManager of Fiji.
+ * 
+ * @author Titouan QUÉMA
+ *
+ */
 public abstract class ControleurScin implements ActionListener {
-	
-	public static final String COMMAND_END = "command.end";
 
 	/**
 	 * View of the MVC pattern
@@ -140,7 +147,7 @@ public abstract class ControleurScin implements ActionListener {
 	 * be replaced.
 	 * 
 	 * @param name           Name of the ROI to save
-	 * @param indexRoiToSave index of the roi to save on the RoiManager
+	 * @param indexRoiToSave index of the ROI to save on the RoiManager
 	 * @throws NoDataException if no ROI is present on the current ImagePlus
 	 */
 	public void saveRoiAtIndex(String name, int indexRoiToSave) throws NoDataException {
@@ -242,15 +249,11 @@ public abstract class ControleurScin implements ActionListener {
 	/**
 	 * Displays all of the existing ROIs that have an index >= index_start and <
 	 * index_end.<br>
-	 * <i>Careful</i>: this method resets the image overlay.
 	 * 
 	 * @param index_start First ROI index to be displayed
 	 * @param index_end   The last ROI index (not displayed)
 	 */
 	public void displayRois(int index_start, int index_end) {
-		// Clear overlay
-		this.resetOverlay();
-
 		int[] array = new int[index_end - index_start];
 		for (int i = index_start; i < index_end; i++) {
 			array[i - index_start] = i;
@@ -261,7 +264,6 @@ public abstract class ControleurScin implements ActionListener {
 	/**
 	 * Displays all of the existing ROIs that have an index < to the specified
 	 * index.<br>
-	 * <i>Careful</i>: this method resets the image overlay.
 	 * 
 	 * @param index
 	 */
@@ -270,17 +272,34 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 	/**
-	 * Clears the current ImagePlus' overlay and replace the DG overlay and the
-	 * title.<br>
-	 * <b><i>Be careful</b></i>: this method assumes the current ImagePlus is in
-	 * Ant/Post orientation and the Post is in DG. <br>
-	 * TODO: Refactor this method to remove this assumption
+	 * Clears the current ImagePlus' overlay and places the correct title and
+	 * lateralisation according to the specified state.<br>
+	 * 
+	 * @param state The following state parameters must be provided:
+	 *              <ul>
+	 *              <li>lateralisation</li>
+	 *              <li>facingOrientation (cannot be <code>null</code>)</li>
+	 *              <li>slice (cannot be less or equals to
+	 *              <code>{@link ImageState#SLICE_PREVIOUS}</code>)</li>
+	 *              </ul>
+	 * @throws IllegalArgumentException if the state doesn't have the required data
 	 */
-	public void resetOverlay() {
+	public void setOverlay(ImageState state) throws IllegalArgumentException {
+		if(state == null)
+			throw new IllegalArgumentException("The state cannot be null");
+		if (state.getFacingOrientation() == null)
+			throw new IllegalArgumentException(
+					"The state misses the required data: -facingOrientation=" + state.getFacingOrientation() + "; " + state.getSlice());
+
 		this.vue.getOverlay().clear();
-		Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
-		Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus(), Color.YELLOW, 1);
-		Library_Gui.setOverlayTitle("Post", this.vue.getImagePlus(), Color.YELLOW, 2);
+
+		if (state.isLateralisationRL())
+			Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
+		else
+			Library_Gui.setOverlayGD(this.vue.getImagePlus(), Color.YELLOW);
+
+		Library_Gui.setOverlayTitle(state.getFacingOrientation().toString(), this.vue.getImagePlus(), Color.YELLOW,
+				state.getSlice());
 	}
 
 	/**
@@ -356,8 +375,8 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 	/**
-	 * Creates a rectangle between the two ROIs specified. TODO: move this method in
-	 * Library_Roi
+	 * Creates a rectangle between the two ROIs specified.<br>
+	 * TODO: move this method in Library_Roi
 	 * 
 	 * @param r1
 	 * @param r2
@@ -419,4 +438,3 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 }
-

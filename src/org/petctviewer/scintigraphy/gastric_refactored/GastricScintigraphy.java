@@ -1,5 +1,7 @@
 package org.petctviewer.scintigraphy.gastric_refactored;
 
+import java.util.Arrays;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -27,12 +29,13 @@ public class GastricScintigraphy extends Scintigraphy {
 			if (ims.getImageOrientation() != Orientation.ANT_POST && ims.getImageOrientation() != Orientation.POST_ANT)
 				throw new WrongColumnException.OrientationColumn(ims.getRow(), ims.getImageOrientation(),
 						new Orientation[] { Orientation.ANT_POST });
-			selection[i] = new ImageSelection(Library_Dicom.sortImageAntPost(ims.getImagePlus()), null, null);
+			selection[i] = Library_Dicom.ensureAntPostFlipped(ims);
 		}
 
+		// TODO: check images have same duration
+		
 		// Close all images
-		for (ImageSelection ims : openedImages)
-			ims.getImagePlus().close();
+		Arrays.stream(openedImages).forEach(ims -> ims.getImagePlus().close());
 
 		// Order images by time
 		selection = Library_Dicom.orderImagesByAcquisitionTime(selection, false);

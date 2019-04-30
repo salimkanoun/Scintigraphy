@@ -129,7 +129,6 @@ public class Library_Dicom {
 		for (ImageSelection slctd : selectedImages) {
 
 			sortedImageSelection.put(getDateAcquisition(slctd.getImagePlus()), slctd);
-
 		}
 
 		Collection<ImageSelection> values = sortedImageSelection.values();
@@ -511,16 +510,18 @@ public class Library_Dicom {
 		ImagePlus[] sortedImagePlus = new ImagePlus[2];
 
 		// si l'image est multiframe et ce nest pas la meme camera
+
 		if (isMultiFrame(imagePlus) && !isSameCameraMultiFrame(imagePlus)) {
-			sortedImagePlus[0] = splitCameraMultiFrame(imagePlus)[0];
-			sortedImagePlus[1] = splitCameraMultiFrame(imagePlus)[1];
+			ImagePlus[] imageSplitted = splitCameraMultiFrame(imagePlus);
+			sortedImagePlus[0] = imageSplitted[0];
+			sortedImagePlus[1] = imageSplitted[1];
 			return sortedImagePlus;
+		}
+
+		if (isAnterieur(imagePlus)) {
+			sortedImagePlus[0] = imagePlus.duplicate();
 		} else {
-			if (isAnterieur(imagePlus)) {
-				sortedImagePlus[0] = imagePlus.duplicate();
-			} else {
-				sortedImagePlus[1] = imagePlus.duplicate();
-			}
+			sortedImagePlus[1] = imagePlus.duplicate();
 		}
 		return sortedImagePlus;
 	}
@@ -793,25 +794,29 @@ public class Library_Dicom {
 	 * @param imp        : image to project
 	 * @param startSlice : first index slice
 	 * @param stopSlice  : last index slice
-	 * @param type       : "avg" or "max"
+	 * @param type       : "avg" or "max" or "sum"
 	 * @return projected imageplus (of all slice)
 	 */
 	public static ImagePlus projeter(ImagePlus imp, int startSlice, int stopSlice, String type) {
 		ImagePlus pj = ZProjector.run(imp, type, startSlice, stopSlice);
 		pj.setProperty("Info", imp.getInfoProperty());
+		System.out.println("Checking for " + imp.getTitle());
+		System.out.println("Pj null: " + pj == null);
+		
 		return pj;
 	}
 
 	/**
-	 * This method will always return an ImageSelection in Ant/Post orientation with
-	 * the Post image flipped. This ensure the image is in the right
-	 * orientation.<br>
+	 * This method will always return a clone of the specified ImageSelection in
+	 * Ant/Post orientation with the Post image flipped. This ensure the image is in
+	 * the right orientation.<br>
 	 * This method can only be used with Ant/Post or Post/Ant images.
 	 * 
 	 * @param ims ImageSelection to compute
 	 * @return ImageSelection in Ant/Post with Post flipped
 	 * @throws WrongOrientationException if the orientation of the image is
 	 *                                   different than Ant/Post or Post/Ant
+	 * @author Titouan QUÉMA
 	 */
 	public static ImageSelection ensureAntPostFlipped(ImageSelection ims) throws WrongOrientationException {
 		ImageSelection result = ims.clone();

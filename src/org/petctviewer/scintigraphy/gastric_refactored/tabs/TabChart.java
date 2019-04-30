@@ -12,17 +12,19 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.annotations.XYLineAnnotation;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.FitCellRenderer;
+import org.petctviewer.scintigraphy.renal.JValueSetter;
+import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
@@ -31,6 +33,7 @@ public class TabChart extends TabResult implements ActionListener {
 
 	private XYSeriesCollection data;
 	private JFreeChart chart;
+	private JValueSetter valueSetter;
 
 	private XYAnnotation linearFit;
 
@@ -38,6 +41,7 @@ public class TabChart extends TabResult implements ActionListener {
 
 	private JComboBox<Fit> fitsChoices;
 	private JLabel labelInterpolation;
+	private JPanel panResult;
 
 	public TabChart(FenResults parent) {
 		super(parent, "Stomach retention");
@@ -73,11 +77,17 @@ public class TabChart extends TabResult implements ActionListener {
 		double[] regression = Regression
 				.getOLSRegression(Library_JFreeChart.invertArray(this.createLnSerie().toArray()));
 		this.exponentialSeries = this.createExponential(regression);
+
+		// Create value setter
+		valueSetter = new JValueSetter(chart);
+		valueSetter.addSelector(new Selector(" ", 1, -1, RectangleAnchor.TOP_LEFT), "start");
+		valueSetter.addSelector(new Selector(" ", 1, -1, RectangleAnchor.TOP_LEFT), "end");
+		valueSetter.addArea("start", "end", "area", null);
 	}
 
 	/**
 	 * Creates a polynomial series with the specified coefficients.<br>
-	 * The number of x calculated is equal to
+	 * The number of X calculated is equal to
 	 * <code>(maxX - minX) / resolution</code>.
 	 * 
 	 * @param coefficients Coefficients for the polynomial function
@@ -188,9 +198,16 @@ public class TabChart extends TabResult implements ActionListener {
 
 	@Override
 	public JPanel getResultContent() {
+		this.panResult = new JPanel();
+		
 		this.createChart();
+
+		// Select 'No Fit' by default
 		this.actionPerformed(new ActionEvent(this.fitsChoices, ActionEvent.ACTION_PERFORMED, null));
-		return new ChartPanel(chart);
+
+//		this.panResult.add(new ChartPanel(chart));
+		this.panResult.add(this.valueSetter);
+		return this.panResult;
 	}
 
 	@Override

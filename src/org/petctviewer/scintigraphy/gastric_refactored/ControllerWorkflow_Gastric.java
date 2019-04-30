@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabChart;
+import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabDynamic;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -12,6 +13,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.execution.CheckIntersectionInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
@@ -22,6 +24,8 @@ import ij.ImagePlus;
 
 public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
+	private static final int SLICE_ANT = 1, SLICE_POST = 2;
+
 	private FenResults fenResults;
 	private List<ImagePlus> captures;
 
@@ -29,10 +33,14 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			String studyName) {
 		super(main, vue, new Model_Gastric(selectedImages, studyName));
 
+		this.generateInstructions();
+		this.start();
+
 		this.fenResults = new FenResults(model);
 		this.fenResults.setVisible(false);
 	}
 
+	// TODO: remove this method and compute the model during the process
 	private void computeModel() {
 		ImagePlus imp = this.model.getImagePlus();
 		this.getModel().initResultat();
@@ -66,8 +74,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 					this.getModel().getCoups("Estomac_Post", i / 6) - this.getModel().getCoups("Antre_Post", i / 6));
 			this.getModel().setCoups("Intestin_Post", i / 6,
 					this.getModel().getCoups("Intes_Post", i / 6) - this.getModel().getCoups("Antre_Post", i / 6));
-//			if (i == 0)
-//				this.capture = Library_Capture_CSV.captureImage(imp, 640, 512);
 
 			try {
 				this.getModel().tempsImage(i / 6, imp);
@@ -77,6 +83,12 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			this.getModel().pourcVGImage(i / 6);
 		}
 		this.model.calculerResultats();
+	}
+
+	@Override
+	public void clicPrecedent() {
+		super.clicPrecedent();
+		this.fenResults.setVisible(false);
 	}
 
 	@Override
@@ -92,14 +104,18 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.computeModel();
 
 		// Display results
+		this.fenResults.clearTabs();
 		this.fenResults.setMainTab(new TabMainResult(this.fenResults, this.captures.get(0)));
 		this.fenResults.addTab(new TabChart(this.fenResults));
+		this.fenResults.addTab(new TabDynamic(this.fenResults, this));
 		this.fenResults.pack();
 		this.fenResults.setVisible(true);
 	}
 
 	@Override
 	protected void generateInstructions() {
+		this.workflows = new Workflow[this.model.getImageSelection().length];
+
 		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null;
 
 		this.captures = new ArrayList<>();
@@ -111,11 +127,15 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			this.getModel().setTimeIngestion(promptIngestionTime.getResult());
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
-			this.workflows[i] = new Workflow(this, this.getModel().getImageSelection()[i].getImagePlus());
-			dri_1 = new DrawRoiInstruction("Stomach", Orientation.ANT, dri_3);
-			dri_2 = new DrawRoiInstruction("Intestine", Orientation.ANT, dri_4);
-			dri_3 = new DrawRoiInstruction("Stomach", Orientation.POST, dri_1);
-			dri_4 = new DrawRoiInstruction("Intestine", Orientation.POST, dri_2);
+			this.workflows[i] = new Workflow(this, this.getModel().getImageSelection()[i]);
+
+			ImageState stateAnt = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_NONE);
+			ImageState statePost = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, ImageState.ID_NONE);
+
+			dri_1 = new DrawRoiInstruction("Stomach", stateAnt, dri_3);
+			dri_2 = new DrawRoiInstruction("Intestine", stateAnt, dri_4);
+			dri_3 = new DrawRoiInstruction("Stomach", statePost, dri_1);
+			dri_4 = new DrawRoiInstruction("Intestine", statePost, dri_2);
 
 			if (i == 0)
 				this.workflows[i].addInstruction(promptTimeAcquisition);
