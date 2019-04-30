@@ -1,7 +1,5 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
-import java.awt.Button;
-import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +25,7 @@ import ij.plugin.ZProjector;
 public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
 	private FenResults fenResult;
-	
+
 	private int nbOrganes = 0;
 	private boolean over;
 	private ImagePlus impProjetee;
@@ -46,13 +44,12 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0].getImagePlus());
 		dri_1 = new DrawLoopInstruction(this.workflows[0]);
-		
+
 		this.workflows[0].addInstructionOnTheFly(dri_1);
-		
+
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}
-	
-	
+
 	@Override
 	public void end() {
 		// on sauvegarde l'imp projetee pour la reafficher par la suite
@@ -124,8 +121,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		}
 
 	}
-	
-	
+
 	private void finishDrawingResultWindow() {
 		GeneralDynamicScintigraphy vue = (GeneralDynamicScintigraphy) this.main;
 		this.indexRoi = this.nbOrganes;
@@ -137,9 +133,8 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
 		vue.getFenApplication().resizeCanvas();
 	}
-	
-	private void saveValues(ImagePlus imp) {
 
+	private void saveValues(ImagePlus imp) {
 		this.model.getImagesPlus()[0] = imp;
 		// this.getScin().setImp(imp);
 		this.indexRoi = 0;
@@ -168,15 +163,14 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		this.model.calculerResultats();
 
 	}
-	
+
 	public Roi getOrganRoi(int lastRoi) {
 		if (this.isOver()) {
 			return this.model.getRoiManager().getRoi(this.indexRoi % this.nbOrganes);
 		}
 		return null;
 	}
-	
-	
+
 	public String getNomOrgane(int index) {
 		if (!isOver()) {
 			return this.main.getFenApplication().getTextfield_instructions().getText();

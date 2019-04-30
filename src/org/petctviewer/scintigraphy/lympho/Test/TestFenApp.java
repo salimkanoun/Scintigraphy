@@ -14,6 +14,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -76,13 +79,17 @@ public class TestFenApp extends JFrame implements ActionListener, ChangeListener
 		ImageCanvas ic = (ImageCanvas) compo[0];
 
 		int originalHeight = ic.getHeight();
-		// int originalWidth = ic.getWidth();
+		int originalWidth = ic.getWidth();
 
-		this.fenApplication.setBounds(new Rectangle(0, 0, ic.getWidth(), ic.getHeight()));
+//		this.fenApplication.setBounds(new Rectangle(0, 0, ic.getWidth(), ic.getHeight()));
+//		this.fenApplication.setSize(new Dimension(ic.getWidth(), ic.getHeight()));
+//		this.fenApplication.setPreferredSize(new Dimension(ic.getWidth(), ic.getHeight()));
+//		// this.fenApplication.setPreferredCanvasSize(ic.getWidth());
 		this.fenApplication.setSize(new Dimension(ic.getWidth(), ic.getHeight()));
-		this.fenApplication.setPreferredSize(new Dimension(ic.getWidth(), ic.getHeight()));
-		// this.fenApplication.setPreferredCanvasSize(ic.getWidth());
-		this.fenApplication.setSize(new Dimension(ic.getWidth(), ic.getHeight()));
+		int originalZoom = (int) (((ic.getHeight()*1.0f)/(imp.getHeight()*1.0f))*100);
+		System.out.println("Zoom de base : "+originalZoom);
+		IJ.run("Set... ", "zoom="+originalZoom);
+		
 
 		System.out.println("ic.getWidth() : " + ic.getWidth() + "   |||    ic.getHeight() : " + ic.getHeight());
 
@@ -125,26 +132,32 @@ public class TestFenApp extends JFrame implements ActionListener, ChangeListener
 								IJ.run("Set... ", "zoom=600");
 								ic.zoomIn(x, y);
 								zoomed++;
-							} else if (icHeightPrevious < originalHeight) {
-								ic.zoomIn(x, y);
+							} 
+							else if (icHeightPrevious < originalHeight) {
+								System.out.println("\t Resize : " + zoomed);
+								TestFenApp.this.fenApplication.setSize(new Dimension(originalWidth, originalHeight));
+								ic.setSize(originalWidth, originalHeight);
+								System.out.println("\t\t TestFenApp.this.fenApplication.getHeight() : "+TestFenApp.this.fenApplication.getHeight());
+								System.out.println("\t\t ic.getHeight() : "+ic.getHeight());
 							}
 
-							System.out.println("\tZoom vers l'avant : " + zoomed);
+							
 						} else {
 							System.out.println("\t Juste avant condition zoom arrière : " + icHeight);
 							System.out.println("\t\t icHeight : " + icHeight);
 							System.out.println("\t\t originalHeight : " + originalHeight);
 							ic.zoomOut(x, y);
-							int icHeightPrevious = ic.getHeight();
-							System.out.println("\t\t\t icHeightPrevious : " + ic.getHeight());
-							ic.zoomIn(x, y);
-							if (!(icHeightPrevious < originalHeight)) {
-								ic.zoomOut(x, y);
+							int icHeightPreviousZoomOut = ic.getHeight();
+							System.out.println("\t\t\t icHeightPreviousZoomOut : " + icHeightPreviousZoomOut);
+							
+							if (!(icHeightPreviousZoomOut < originalHeight)) {
 								zoomed--;
 								System.out.println("\tZoom vers l'arrière : " + zoomed);
-							} else if (icHeightPrevious < originalHeight || icHeightPrevious > originalHeight) {
-								System.out.println("\tFin de zoom arrière : " + zoomed);
+							} else if (icHeightPreviousZoomOut < originalHeight || icHeightPreviousZoomOut > originalHeight) {
 								zoomed = 0;
+								ic.zoomIn(x, y);
+								System.out.println("\tFin de zoom arrière : " + zoomed);
+								ic.setSize(new Dimension(originalWidth, originalHeight));
 							}
 						}
 						System.out.println("icHeight de fin : " + ic.getHeight());
