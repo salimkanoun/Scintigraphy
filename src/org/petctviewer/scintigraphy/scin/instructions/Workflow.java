@@ -145,7 +145,7 @@ public class Workflow {
 	public int countRoisCreated() {
 		int count = 0;
 		for (Instruction i : this.instructions)
-			if (i instanceof DrawRoiInstruction)
+			if (i.saveRoi())
 				count++;
 		return count;
 	}
@@ -160,14 +160,23 @@ public class Workflow {
 	}
 
 	/**
+	 * This method will look through all instructions to search for any instruction
+	 * matching the same facingOrientation specified. If an instruction has no
+	 * state, or its facingOrientation's state is null ; this instruction will be
+	 * returned.
+	 * 
+	 * @param facingOrientation Facing orientation to search (if null, then all
+	 *                          instructions saving a ROI are returned)
 	 * @return all the instructions with a ROI to display matching the specified
-	 *         orientation
+	 *         orientation, including the instructions with no state
 	 */
-	public Instruction[] getInstructionsWithOrientation(Orientation orientation) {
+	public Instruction[] getInstructionsWithOrientation(Orientation facingOrientation) {
 		List<Instruction> instructions = new LinkedList<>();
 		for (Instruction i : this.instructions)
-			if ((i.getImageState() == null || i.getImageState().facingOrientation == orientation) && i.saveRoi()
-					&& i.isRoiVisible())
+			// Checking instruction has a ROI to display, the facingOrientation is the same
+			// or is null
+			if (i.saveRoi() && i.isRoiVisible() && (facingOrientation == null || i.getImageState() == null
+					|| i.getImageState().getFacingOrientation() == facingOrientation))
 				instructions.add(i);
 		return instructions.toArray(new Instruction[instructions.size()]);
 	}

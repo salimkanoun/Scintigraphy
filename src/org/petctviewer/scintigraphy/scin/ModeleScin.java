@@ -7,6 +7,8 @@ import ij.plugin.frame.RoiManager;
 
 /**
  * Represents the model in the MVC pattern.
+ * 
+ * @author Titouan QUÉMA
  *
  */
 public abstract class ModeleScin {
@@ -72,6 +74,17 @@ public abstract class ModeleScin {
 	 */
 	public String getStudyName() {
 		return this.studyName;
+	}
+
+	/**
+	 * Modifies the set of images used for this application.<br>
+	 * <i>Be careful: </i>This method is not trivial and will result in the
+	 * modification of the images used by all of the program.
+	 * 
+	 * @param newImages New images to use
+	 */
+	public void setImages(ImageSelection[] newImages) {
+		this.selectedImages = newImages;
 	}
 
 	// ============================== OLD CLASS ========================

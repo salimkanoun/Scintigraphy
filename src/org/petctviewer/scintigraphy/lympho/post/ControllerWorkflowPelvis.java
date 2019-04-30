@@ -11,6 +11,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
@@ -42,14 +43,18 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 		this.captures = new ArrayList<>();
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
-			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i].getImagePlus());
-			dri_1 = new DrawRoiInstruction("Right Pelvis", Orientation.ANT);
-			dri_2 = new DrawRoiInstruction("Left Pelvis", Orientation.ANT);
-			dri_3 = new DrawRoiInstruction("Background", Orientation.ANT);
+			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i]);
+			
+			ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
+			ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
+			
+			dri_1 = new DrawRoiInstruction("Right Pelvis", stateAnt, null);
+			dri_2 = new DrawRoiInstruction("Left Pelvis", stateAnt, null);
+			dri_3 = new DrawRoiInstruction("Background", stateAnt, null);
 			dri_capture = new ScreenShotInstruction(captures, this.getVue());
-			dri_4 = new DrawRoiInstruction("Right Pelvis", Orientation.POST, dri_1);
-			dri_5 = new DrawRoiInstruction("Left Pelvis", Orientation.POST, dri_2);
-			dri_6 = new DrawRoiInstruction("Background", Orientation.POST, dri_3);
+			dri_4 = new DrawRoiInstruction("Right Pelvis", statePost, dri_1);
+			dri_5 = new DrawRoiInstruction("Left Pelvis", statePost, dri_2);
+			dri_6 = new DrawRoiInstruction("Background", statePost, dri_3);
 
 			this.workflows[i].addInstruction(dri_1);
 			this.workflows[i].addInstruction(dri_2);

@@ -24,6 +24,8 @@ import ij.ImagePlus;
 
 public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
+	private static final int SLICE_ANT = 1, SLICE_POST = 2;
+
 	private FenResults fenResults;
 	private List<ImagePlus> captures;
 
@@ -31,10 +33,14 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			String studyName) {
 		super(main, vue, new Model_Gastric(selectedImages, studyName));
 
+		this.generateInstructions();
+		this.start();
+
 		this.fenResults = new FenResults(model);
 		this.fenResults.setVisible(false);
 	}
 
+	// TODO: remove this method and compute the model during the process
 	private void computeModel() {
 		ImagePlus imp = this.model.getImagePlus();
 		this.getModel().initResultat();
@@ -108,6 +114,8 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 	@Override
 	protected void generateInstructions() {
+		this.workflows = new Workflow[this.model.getImageSelection().length];
+
 		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null;
 
 		this.captures = new ArrayList<>();
@@ -120,10 +128,14 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
 			this.workflows[i] = new Workflow(this, this.getModel().getImageSelection()[i]);
-			dri_1 = new DrawRoiInstruction("Stomach", new ImageState(Orientation.ANT, 1), dri_3);
-			dri_2 = new DrawRoiInstruction("Intestine", new ImageState(Orientation.ANT, 1), dri_4);
-			dri_3 = new DrawRoiInstruction("Stomach", new ImageState(Orientation.POST, 2), dri_1);
-			dri_4 = new DrawRoiInstruction("Intestine", new ImageState(Orientation.POST, 2), dri_2);
+
+			ImageState stateAnt = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_NONE);
+			ImageState statePost = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, ImageState.ID_NONE);
+
+			dri_1 = new DrawRoiInstruction("Stomach", stateAnt, dri_3);
+			dri_2 = new DrawRoiInstruction("Intestine", stateAnt, dri_4);
+			dri_3 = new DrawRoiInstruction("Stomach", statePost, dri_1);
+			dri_4 = new DrawRoiInstruction("Intestine", statePost, dri_2);
 
 			if (i == 0)
 				this.workflows[i].addInstruction(promptTimeAcquisition);

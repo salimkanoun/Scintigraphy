@@ -4,20 +4,28 @@ import org.petctviewer.scintigraphy.scin.Orientation;
 
 /**
  * Represents a state of an ImagePlus.<br>
- * If a field is set to null, then it will be interpreted as no changes.
+ * The interpretation of the fields is left to the classes that uses this state.
  * 
  * @author Titouan QUÉMA
  *
  */
 public class ImageState {
 	/**
-	 * No id defined
+	 * No id defined.
 	 */
 	public static final int ID_NONE = -1;
 	/**
-	 * Use the slice of the previous instruction
+	 * Id should be the same as the previous image.
 	 */
-	public static final int SLICE_NONE = -1;
+	public static final int ID_PREVIOUS = -2;
+	/**
+	 * No slice specified.
+	 */
+	public static final int SLICE_PREVIOUS = 0;
+	/**
+	 * Lateralisation RL: Right-Left, LR: Left-Right
+	 */
+	public static final boolean LAT_RL = true, LAT_LR = false;
 
 	/**
 	 * Number of the image: if there is multiple images, then this ID is used to
@@ -29,65 +37,102 @@ public class ImageState {
 	 * <br>
 	 * {@link #ID_NONE} for no id
 	 */
-	public final int idImage;
+	private int idImage;
 	/**
 	 * Slice of the image
 	 * <ul>
 	 * <li>starting at 1</li>
-	 * <li>negative values mean to use the previous image slice</li>
 	 * </ul>
-	 * {@link #SLICE_NONE} for previous image slice
+	 * {@link #SLICE_PREVIOUS} for previous image slice
 	 */
-	public final int slice;
+	private int slice;
 	/**
 	 * Facing orientation of the image. Ant or Post allowed only.
+	 * <ul>
+	 * <li><code>null</code> means to use the previous image orientation</li>
+	 * </ul>
 	 */
-	public final Orientation facingOrientation;
-
-	public ImageState() {
-		this(ID_NONE, SLICE_NONE);
-	}
+	private Orientation facingOrientation;
+	/**
+	 * Right-Left or Left-Right lateralisation. If <code>TRUE</code>: Right-Left
+	 * lateralisation. If <code>FALSE</code>: Left-Right lateralisation.
+	 * <ul>
+	 * <li>default is <code>TRUE</code></li>
+	 * </ul>
+	 */
+	private boolean lateralisation;
 
 	/**
 	 * Instantiates a state for an image.
 	 * 
-	 * @param idImage Number of the image (if there is multiple images, then this ID
-	 *                is used to differentiate each image)
-	 * @param slice   Slice of the image (starting at 1)
+	 * @param facingOrientation Facing orientation of the image (Ant or Post only)
+	 * @param slice             Number of the slice to display (if multiple slices)
+	 * @param lateralisation    TRUE for a Right-Left lateralisation and FALSE for a
+	 *                          Left-Right lateralisation
+	 * @param idImage           Number of the image (if multiple images)
+	 * @throws IllegalArgumentException if the facingOrientation is different than
+	 *                                  Ant or Post
 	 */
-	public ImageState(int idImage, int slice) {
-		this(null, idImage, slice);
+	public ImageState(Orientation facingOrientation, int slice, boolean lateralisation, int idImage)
+			throws IllegalArgumentException {
+		this.setFacingOrientation(facingOrientation);
+		this.setSlice(slice);
+		this.setLateralisation(lateralisation);
+		this.setIdImage(idImage);
+	}
+
+	public int getIdImage() {
+		return idImage;
+	}
+
+	public int getSlice() {
+		return slice;
+	}
+
+	public Orientation getFacingOrientation() {
+		return facingOrientation;
+	}
+
+	public boolean isLateralisationRL() {
+		return lateralisation;
 	}
 	
-	/**
-	 * Instantiates a state for an image.
-	 * 
-	 * @param facingOrientation Facing orientation of the image (Ant or Post only)
-	 * @param slice             Number of the slice to display (if multiple slices)
-	 * @throws IllegalArgumentException if the facingOrientation is different than
-	 *                                  Ant or Post
-	 */
-	public ImageState(Orientation facingOrientation, int slice) {
-		this(facingOrientation, ID_NONE, slice);
+	public boolean isLateralisationLR() {
+		return !this.lateralisation;
 	}
 
 	/**
-	 * Instantiates a state for an image.
-	 * 
+	 * @param idImage Number of the image (if multiple images)
+	 */
+	public void setIdImage(int idImage) {
+		this.idImage = idImage;
+	}
+
+	/**
+	 * @param slice Number of the slice to display (if multiple slices)
+	 */
+	public void setSlice(int slice) {
+		this.slice = slice;
+	}
+
+	/**
 	 * @param facingOrientation Facing orientation of the image (Ant or Post only)
-	 * @param idImage           Number of the image (if multiple images)
-	 * @param slice             Number of the slice to display (if multiple slices)
 	 * @throws IllegalArgumentException if the facingOrientation is different than
 	 *                                  Ant or Post
 	 */
-	public ImageState(Orientation facingOrientation, int idImage, int slice) throws IllegalArgumentException {
+	public void setFacingOrientation(Orientation facingOrientation) throws IllegalArgumentException {
 		if (facingOrientation != Orientation.ANT && facingOrientation != Orientation.POST && facingOrientation != null)
 			throw new IllegalArgumentException("The orientation " + facingOrientation
 					+ " is nonsense here, it should be one of " + Orientation.ANT + ", " + Orientation.POST + "!");
-
 		this.facingOrientation = facingOrientation;
-		this.idImage = idImage;
-		this.slice = slice;
+	}
+
+	/**
+	 * @param lateralisation TRUE for a Right-Left lateralisation and FALSE for a
+	 *                       Left-Right lateralisation
+	 */
+	public void setLateralisation(boolean lateralisation) {
+		this.lateralisation = lateralisation;
 	}
 
 	@Override
