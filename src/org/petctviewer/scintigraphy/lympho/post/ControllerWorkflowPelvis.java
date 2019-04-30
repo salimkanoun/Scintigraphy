@@ -42,7 +42,7 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 		this.captures = new ArrayList<>();
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
-			this.workflows[i] = new Workflow();
+			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i].getImagePlus());
 			dri_1 = new DrawRoiInstruction("Right Pelvis", Orientation.ANT);
 			dri_2 = new DrawRoiInstruction("Left Pelvis", Orientation.ANT);
 			dri_3 = new DrawRoiInstruction("Background", Orientation.ANT);

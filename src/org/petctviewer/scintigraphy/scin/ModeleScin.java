@@ -36,7 +36,10 @@ public abstract class ModeleScin {
 	 * 
 	 * @return all of the selected images passed to this model converted to
 	 *         ImagePlus
+	 * @deprecated This method is not optimized, please consider using
+	 *             {@link #getImageSelection()} instead!
 	 */
+	@Deprecated
 	public ImagePlus[] getImagesPlus() {
 		ImagePlus[] selection = new ImagePlus[this.selectedImages.length];
 		for (int i = 0; i < this.selectedImages.length; i++)
@@ -70,9 +73,7 @@ public abstract class ModeleScin {
 	public String getStudyName() {
 		return this.studyName;
 	}
-	
-	
-	
+
 	// ============================== OLD CLASS ========================
 
 	/**

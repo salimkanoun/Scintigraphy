@@ -36,7 +36,7 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 		System.out.println("Captures créées");
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
-			this.workflows[i] = new Workflow();
+			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i].getImagePlus());
 			dri_1 = new DrawRoiInstruction("Right Foot", Orientation.ANT);
 			dri_2 = new DrawRoiInstruction("Left Foot", Orientation.ANT);
 			dri_capture = new ScreenShotInstruction(captures, this.getVue());

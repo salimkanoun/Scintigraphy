@@ -27,6 +27,43 @@ public enum Orientation {
 	}
 
 	/**
+	 * Converts this orientation to an Ant or Post orientation.<br>
+	 * This method returns Ant for the following orientations:
+	 * <ul>
+	 * <li>ANT</li>
+	 * <li>ANT_POST</li>
+	 * <li>DYNAMIC_ANT</li>
+	 * <li>DYNAMIC_ANT_POST</li>
+	 * </ul>
+	 * This method returns Post for the following orientations:
+	 * <ul>
+	 * <li>POST</li>
+	 * <li>POST_ANT</li>
+	 * <li>DYNAMIC_POST</li>
+	 * <li>DYNAMIC_POST_ANT</li>
+	 * </ul>
+	 * This method returns UNKNOWN for any other orientation.
+	 * 
+	 * @return Ant or Post orientation
+	 */
+	public Orientation getFacingOrientation() {
+		switch (this) {
+		case ANT:
+		case ANT_POST:
+		case DYNAMIC_ANT:
+		case DYNAMIC_ANT_POST:
+			return ANT;
+		case DYNAMIC_POST:
+		case POST:
+		case DYNAMIC_POST_ANT:
+		case POST_ANT:
+			return POST;
+		default:
+			return UNKNOWN;
+		}
+	}
+
+	/**
 	 * Checks if the orientation is static.<br>
 	 * This method returns TRUE for the following orientations:
 	 * <ul>

@@ -38,7 +38,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		ImagePlus imp = this.model.getImagePlus();
 		this.getModel().initResultat();
 		for (int i = 0; i < this.getRoiManager().getRoisAsArray().length; i += 6) {
-			imp = this.model.getImagesPlus()[i / 6];
+			imp = this.model.getImageSelection()[i / 6].getImagePlus();
 
 			System.out.println("Saving results for image#" + i / 6);
 
@@ -118,7 +118,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			this.getModel().setTimeIngestion(promptIngestionTime.getResult());
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
-			this.workflows[i] = new Workflow();
+			this.workflows[i] = new Workflow(this, this.getModel().getImageSelection()[i].getImagePlus());
 			dri_1 = new DrawRoiInstruction("Stomach", Orientation.ANT, dri_3);
 			dri_2 = new DrawRoiInstruction("Intestine", Orientation.ANT, dri_4);
 			dri_3 = new DrawRoiInstruction("Stomach", Orientation.POST, dri_1);

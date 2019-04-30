@@ -2,7 +2,6 @@ package org.petctviewer.scintigraphy.gastric_refactored.dynamic;
 
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
@@ -22,7 +21,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 	protected void generateInstructions() {
 		DrawRoiInstruction dri_1 = null, dri_2 = null;
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
-			this.workflows[i] = new Workflow();
+			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i]);
 
 			dri_1 = new DrawRoiInstruction("Stomach", new ImageState(ImageState.ID_NONE, 1), dri_1);
 			dri_2 = new DrawRoiInstruction("Intestine", new ImageState(ImageState.ID_NONE, 1), dri_2);

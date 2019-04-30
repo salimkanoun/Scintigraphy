@@ -5,11 +5,15 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
+import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
 
 /**
  * This class represents a flow of instructions used by the
- * {@link ControllerWorkflow}.
+ * {@link ControllerWorkflow}.<br>
+ * Only the last workflow of a controller MUST end with the
+ * {@link LastInstruction}.
  * 
  * @author Titouan QUÉMA
  *
@@ -20,12 +24,26 @@ public class Workflow {
 	private ListIterator<Instruction> iterator;
 	private Instruction current;
 
+	private ControllerWorkflow controller;
+	private ImageSelection imageAssociated;
+
 	/**
-	 * Creates a new workflow. A workflow is based on a ImageSelection.
+	 * Creates a new workflow. A workflow is based on a ImageSelection and is linked
+	 * to only 1 controller.
 	 */
-	public Workflow() {
+	public Workflow(ControllerWorkflow controller, ImageSelection imageAssociated) {
 		this.instructions = new LinkedList<>();
-		this.addInstruction(null);
+		this.controller = controller;
+		this.imageAssociated = imageAssociated;
+		this.restart();
+	}
+
+	public ImageSelection getImageAssociated() {
+		return this.imageAssociated;
+	}
+
+	public ControllerWorkflow getController() {
+		return this.controller;
 	}
 
 	/**
@@ -52,7 +70,7 @@ public class Workflow {
 
 	/**
 	 * Adds an instruction in this workflow. Adding an instruction on the fly adds
-	 * the specified instruction <b>before</b> the instruction returned by
+	 * the specified instruction <b>after</b> the instruction returned by
 	 * {@link #getCurrentInstruction()} and do NOT restart this workflow.<br>
 	 * Adding a null instruction does nothing.<br>
 	 * If the current instruction is null (meaning the workflow has not been
@@ -67,6 +85,7 @@ public class Workflow {
 			this.addInstruction(instruction);
 		else if (instruction != null) {
 			this.iterator.add(instruction);
+			this.iterator.previous();
 		}
 	}
 
@@ -147,10 +166,48 @@ public class Workflow {
 	public Instruction[] getInstructionsWithOrientation(Orientation orientation) {
 		List<Instruction> instructions = new LinkedList<>();
 		for (Instruction i : this.instructions)
-			if (i.getImageState() != null && i.getImageState().orientation == orientation && i.saveRoi()
+			if ((i.getImageState() == null || i.getImageState().facingOrientation == orientation) && i.saveRoi()
 					&& i.isRoiVisible())
 				instructions.add(i);
 		return instructions.toArray(new Instruction[instructions.size()]);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder s = new StringBuilder();
+
+		s.append("--| WORKFLOW: ");
+		s.append(this.imageAssociated.getImagePlus().getShortTitle());
+		s.append(" |--\n");
+
+		for (int i = 0; i < this.instructions.size(); i++) {
+			Instruction ins = this.instructions.get(i);
+			if (ins == this.current)
+				s.append(">> ");
+			s.append("[");
+			s.append(i);
+			s.append("] (");
+			s.append(ins.getClass().getSimpleName());
+			s.append(") ");
+			s.append(ins.getMessage());
+
+			if (ins instanceof GeneratorInstruction) {
+				GeneratorInstruction gi = (GeneratorInstruction) ins;
+				s.append(" -index:" + gi.getIndex());
+				if (gi.getParent() != null)
+					s.append("- Parent: " + gi.getParent().getIndex());
+				else
+					s.append("- ROOT_INSTRUCTION");
+			}
+
+			if (ins == this.current)
+				s.append(" <<");
+			s.append("\n");
+		}
+
+		s.append("----------------------\n");
+
+		return s.toString();
 	}
 
 }
