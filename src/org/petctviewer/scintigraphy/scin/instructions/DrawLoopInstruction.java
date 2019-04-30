@@ -32,7 +32,11 @@ public class DrawLoopInstruction extends DefaultGenerator {
 
 	@Override
 	public String getRoiName() {
-		return "__NEW ROI - " + this.indexLoop + "__";
+		if (!this.workflow.getController().isOver()) {
+			return this.workflow.getController().getVue().getTextfield_instructions().getText();
+		}
+		System.out.println(this.workflow.getController().getModel().getRoiManager().getRoi(this.roiToDisplay()).getName());
+		return this.workflow.getController().getModel().getRoiManager().getRoi(this.roiToDisplay()).getName();
 	}
 
 	@Override
@@ -54,5 +58,6 @@ public class DrawLoopInstruction extends DefaultGenerator {
 	public void setRoi(int index) {
 		this.indexRoiToDisplay = index;
 	}
+	
 
 }

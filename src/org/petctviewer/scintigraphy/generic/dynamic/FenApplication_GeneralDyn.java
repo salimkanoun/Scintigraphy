@@ -6,10 +6,14 @@ import java.awt.Label;
 import java.awt.Panel;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
+import ij.IJ;
 import ij.ImagePlus;
+import ij.gui.Toolbar;
 
 public class FenApplication_GeneralDyn extends FenApplication {
 
@@ -21,6 +25,7 @@ public class FenApplication_GeneralDyn extends FenApplication {
 		super(imp, nom);
 		this.getTextfield_instructions().setEditable(true);
 		this.btn_finish = new Button("Finish");
+		btn_finish.setActionCommand(ControllerWorkflow.COMMAND_END);
 
 		this.getPanel_Instructions_btns_droite().removeAll();
 		Panel instru = new Panel(new GridLayout(1, 2));
@@ -31,11 +36,15 @@ public class FenApplication_GeneralDyn extends FenApplication {
 		Panel btns_instru = new Panel(new GridLayout(1, 3));
 		btns_instru.add(this.btn_finish);
 		btns_instru.add(this.getBtn_precedent());
-		this.getBtn_suivant().setLabel("Validate/New Roi");
+		this.getBtn_suivant().setLabel("Create a new Roi");
 		btns_instru.add(this.getBtn_suivant());
 		this.getPanel_Instructions_btns_droite().add(btns_instru);
 
 		this.setDefaultSize();
+		
+		IJ.setTool(Toolbar.RECTANGLE);
+		this.imp.setOverlay(Library_Gui.initOverlay(getImagePlus()));
+		Library_Gui.setOverlayDG(getImagePlus());
 	}
 
 	public Button getBtn_finish() {
