@@ -94,6 +94,7 @@ public class ControleurLympho extends ControleurScin {
 		else
 			this.previousOrgan();
 
+		this.resetOverlay();
 		this.displayRois(this.position - this.organe, this.position);
 
 	}

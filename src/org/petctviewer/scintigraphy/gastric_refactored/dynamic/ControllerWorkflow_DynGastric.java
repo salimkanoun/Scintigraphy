@@ -1,7 +1,10 @@
 package org.petctviewer.scintigraphy.gastric_refactored.dynamic;
 
+import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
@@ -13,18 +16,28 @@ import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 
 public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
-	public ControllerWorkflow_DynGastric(Scintigraphy main, FenApplication vue, ModeleScin model) {
+	public ControllerWorkflow_DynGastric(Scintigraphy main, FenApplication vue, ModeleScin model,
+			ImageSelection[] selectedImages) {
 		super(main, vue, model);
+		((Model_Gastric) this.model).swapToDynamic();
+		this.model.setImages(selectedImages);
+
+		this.generateInstructions();
+		this.start();
 	}
 
 	@Override
 	protected void generateInstructions() {
+		this.workflows = new Workflow[this.model.getImageSelection().length];
+
 		DrawRoiInstruction dri_1 = null, dri_2 = null;
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
 			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i]);
 
-			dri_1 = new DrawRoiInstruction("Stomach", new ImageState(ImageState.ID_NONE, 1), dri_1);
-			dri_2 = new DrawRoiInstruction("Intestine", new ImageState(ImageState.ID_NONE, 1), dri_2);
+			dri_1 = new DrawRoiInstruction("Stomach", new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE),
+					dri_1);
+			dri_2 = new DrawRoiInstruction("Intestine", new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE),
+					dri_2);
 
 			this.workflows[i].addInstruction(dri_1);
 			this.workflows[i].addInstruction(dri_2);

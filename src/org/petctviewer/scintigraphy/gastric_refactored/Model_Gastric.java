@@ -20,6 +20,7 @@ import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -47,22 +48,30 @@ import ij.plugin.MontageMaker;
 
 public class Model_Gastric extends ModeleScin {
 	public static Font italic = new Font("Arial", Font.ITALIC, 8);
+	
+	// == STATIC ACQUISITION ==
 	private HashMap<String, Double> coups;// pour enregistrer les coups dans chaque organe sur chaque image
 	private HashMap<String, Double> mgs;// pour enregistrer le MG dans chaque organe pour chaque serie
-	
+
 	private double[] temps;// pour enregistrer l'horaire où on recupere chaque serie
 	private double[] estomacPourcent;// pour enregistrer le pourcentage de l'estomac(par rapport a total) pour
-											// chaque serie
+										// chaque serie
 	private double[] fundusPourcent;// pour enregistrer le pourcentage du fundus(par rapport a total) pour
-												// chaque serie
+									// chaque serie
 	private double[] antrePourcent;// pour enregistrer le pourcentage de l'antre(par rapport a total) pour
-											// chaque serie
+									// chaque serie
 	private double[] funDevEsto;// pour enregistrer le rapport fundus/estomac pour chaque serie
 	private double[] estoInter;// pour enregistrer le rapport fundus/estomac pour chaque serie
 	private double[] tempsInter;// pour enregistrerla derivee de la courbe de variation de l’estomac
 	private boolean logOn;// signifie si log est ouvert
 	private double[] intestinPourcent;// pour enregistrer le pourcentage de l'intestin(par rapport a total)
-												// pour chaque serie
+										// pour chaque serie
+	
+	private ImageSelection[] staticImages;
+	
+	// == DYNAMIC ACQUISITION ==
+	
+	// == BOTH ACQUISITIONS ==
 
 	private String[] organes = { "Estomac", "Intestin", "Fundus", "Antre" };
 
@@ -294,6 +303,15 @@ public class Model_Gastric extends ModeleScin {
 		this.timeIngestion = timeIngestion;
 	}
 
+	/**
+	 * Swaps this model to be ready for the dynamic acquisition.
+	 */
+	public void swapToDynamic() {
+		this.staticImages = Arrays.copyOf(this.selectedImages, this.selectedImages.length);
+		this.selectedImages = null;
+		this.roiManager.reset();
+	}
+
 	// calcule le coups du ROI
 	public void calculerCoups(String roi, int indexImage, ImagePlus imp) {
 		this.coups.put(roi + indexImage, Library_Quantif.getCounts(imp));
@@ -340,8 +358,7 @@ public class Model_Gastric extends ModeleScin {
 		double intestinPour = ((double) this.mgs.get("Intestin_MG" + indexImage)
 				/ (double) this.mgs.get("Total" + indexImage)) * 100;
 		this.intestinPourcent[indexImage + 1] = intestinPour;
-		double funDevEsto = (this.fundusPourcent[indexImage + 1]
-				/ this.estomacPourcent[indexImage + 1]) * 100;
+		double funDevEsto = (this.fundusPourcent[indexImage + 1] / this.estomacPourcent[indexImage + 1]) * 100;
 		this.funDevEsto[indexImage + 1] = funDevEsto;
 
 		this.tempsInter[indexImage] = this.temps[indexImage + 1];
@@ -350,18 +367,16 @@ public class Model_Gastric extends ModeleScin {
 		this.estoInter[indexImage] = estoInter;
 
 		System.out.println("Result #" + indexImage);
-		System.out.println("EstoInter: (" + (this.estomacPourcent[indexImage]) + " - "
-				+ (this.estomacPourcent[indexImage + 1]) + ") / ("
-				+ (this.temps[indexImage + 1] + " - " + (this.temps[indexImage]) + ")"));
-		System.out.println("EstoInter: " + estoInter);
 		System.out.println(
-				"temps[(" + indexImage + "+1)" + (indexImage + 1) + "] = " + this.temps[indexImage + 1]);
+				"EstoInter: (" + (this.estomacPourcent[indexImage]) + " - " + (this.estomacPourcent[indexImage + 1])
+						+ ") / (" + (this.temps[indexImage + 1] + " - " + (this.temps[indexImage]) + ")"));
+		System.out.println("EstoInter: " + estoInter);
+		System.out.println("temps[(" + indexImage + "+1)" + (indexImage + 1) + "] = " + this.temps[indexImage + 1]);
 
 		if (this.logOn) {
-			IJ.log("image " + (indexImage) + ": " + " Stomach " + this.estomacPourcent[indexImage + 1]
-					+ " Intestine " + this.intestinPourcent[indexImage + 1] + " Fundus "
-					+ this.fundusPourcent[indexImage + 1] + " Antre "
-					+ this.antrePourcent[indexImage + 1]);
+			IJ.log("image " + (indexImage) + ": " + " Stomach " + this.estomacPourcent[indexImage + 1] + " Intestine "
+					+ this.intestinPourcent[indexImage + 1] + " Fundus " + this.fundusPourcent[indexImage + 1]
+					+ " Antre " + this.antrePourcent[indexImage + 1]);
 		}
 
 	}
@@ -399,10 +414,8 @@ public class Model_Gastric extends ModeleScin {
 			retour[i * 4 + 4] = BigDecimal.valueOf(this.temps[i]).setScale(2, RoundingMode.HALF_UP).toString();
 			retour[i * 4 + 5] = BigDecimal.valueOf(this.estomacPourcent[i]).setScale(2, RoundingMode.HALF_UP)
 					.toString();
-			retour[i * 4 + 6] = BigDecimal.valueOf(this.fundusPourcent[i]).setScale(2, RoundingMode.HALF_UP)
-					.toString();
-			retour[i * 4 + 7] = BigDecimal.valueOf(this.antrePourcent[i]).setScale(2, RoundingMode.HALF_UP)
-					.toString();
+			retour[i * 4 + 6] = BigDecimal.valueOf(this.fundusPourcent[i]).setScale(2, RoundingMode.HALF_UP).toString();
+			retour[i * 4 + 7] = BigDecimal.valueOf(this.antrePourcent[i]).setScale(2, RoundingMode.HALF_UP).toString();
 		}
 		// on enregistre la deuxime partie des resultats
 		int j = this.nbAcquisitions() * 4 + 4;

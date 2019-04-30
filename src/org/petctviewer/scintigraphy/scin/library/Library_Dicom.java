@@ -126,11 +126,8 @@ public class Library_Dicom {
 					return (int) ((o2.getTime() - o1.getTime()) / 1000);
 			}
 		});
-		System.out.println("== IN LIBRARY DICOM ==");
 		for (ImageSelection slctd : selectedImages) {
 
-			System.out.println("Checking for " + slctd.getImagePlus().getTitle());
-			System.out.println(slctd == null ? "NULL" : "not null");
 			sortedImageSelection.put(getDateAcquisition(slctd.getImagePlus()), slctd);
 		}
 

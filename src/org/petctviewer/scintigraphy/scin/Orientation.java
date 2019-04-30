@@ -154,7 +154,47 @@ public enum Orientation {
 	}
 
 	/**
-	 * @return abreviation of this Orientation
+	 * The abbreviation is set according to the following rules:
+	 * <table border=1>
+	 * <tr>
+	 * <td><code>ANT</code></td>
+	 * <td>A</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>POST</code></td>
+	 * <td>P</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>ANT_POST</code></td>
+	 * <td>A/P</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>POST_ANT</code></td>
+	 * <td>P/A</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>DYNAMIC_ANT</code></td>
+	 * <td>DynA</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>DYNAMIC_POST</code></td>
+	 * <td>DynP</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>DYNAMIC_ANT_POST</code></td>
+	 * <td>DynA/P</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>DYNAMIC_POST_ANT</code></td>
+	 * <td>DynP/A</td>
+	 * </tr>
+	 * <tr>
+	 * <td>All other orientations</td>
+	 * <td>Unknown</td>
+	 * </tr>
+	 * </table>
+	 * 
+	 * @return abbreviation of this Orientation
 	 */
 	public String abrev() {
 		switch (this) {
@@ -179,6 +219,47 @@ public enum Orientation {
 		}
 	}
 
+	/**
+	 * Returns a string matching this orientation. The following rules are applied:
+	 * <table border=1>
+	 * <tr>
+	 * <td><code>ANT</code></td>
+	 * <td>Ant</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>POST</code></td>
+	 * <td>Post</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>ANT_POST</code></td>
+	 * <td>Ant/Post</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>POST_ANT</code></td>
+	 * <td>Post/Ant</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>DYNAMIC_ANT</code></td>
+	 * <td>Dynamic Ant</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>DYNAMIC_POST</code></td>
+	 * <td>Dynamic Post</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>DYNAMIC_ANT_POST</code></td>
+	 * <td>Dynamic A/P</td>
+	 * </tr>
+	 * <tr>
+	 * <td><code>DYNAMIC_POST_ANT</code></td>
+	 * <td>Dynamic P/A</td>
+	 * </tr>
+	 * <tr>
+	 * <td>All other orientations</td>
+	 * <td>Unknown</td>
+	 * </tr>
+	 * </table>
+	 */
 	@Override
 	public String toString() {
 		return this.s;
