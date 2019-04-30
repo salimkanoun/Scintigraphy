@@ -12,6 +12,7 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.execution.CheckIntersectionInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptDialog;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 
 public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
@@ -31,6 +32,9 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 
 		DrawRoiInstruction dri_1 = null, dri_2 = null;
+		
+		PromptDialog promptBkgNoise = new PromptBkgNoise(this);
+		
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
 			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i]);
 
@@ -42,7 +46,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 			this.workflows[i].addInstruction(dri_1);
 			this.workflows[i].addInstruction(dri_2);
 			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_1, dri_2, "Antre"));
-			this.workflows[i].addInstruction(new PromptInstruction(new PromptBkgNoise(this)));
+			this.workflows[i].addInstruction(new PromptInstruction(promptBkgNoise));
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}

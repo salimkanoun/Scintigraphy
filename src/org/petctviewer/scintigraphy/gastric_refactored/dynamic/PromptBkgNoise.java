@@ -20,11 +20,14 @@ public class PromptBkgNoise extends PromptDialog {
 
 	private JRadioButton rbAntre_yes, rbAntre_no, rbIntestine_yes, rbIntestine_no;
 
+	private JPanel panCenter;
+	private JPanel panAntre, panIntestine;
+
 	public PromptBkgNoise(ControleurScin controller) {
 		JPanel panel = new JPanel(new BorderLayout());
 
-		JPanel panCenter = new JPanel(new GridLayout(0, 1));
-		JPanel panAntre = new JPanel();
+		panCenter = new JPanel(new GridLayout(0, 1));
+		panAntre = new JPanel();
 		JLabel lAntre = new JLabel("Is Antre region a background noise?");
 		panAntre.add(lAntre);
 		ButtonGroup bgAntre = new ButtonGroup();
@@ -37,7 +40,7 @@ public class PromptBkgNoise extends PromptDialog {
 		panAntre.add(this.rbAntre_yes);
 		panCenter.add(panAntre);
 
-		JPanel panIntestine = new JPanel();
+		panIntestine = new JPanel();
 		JLabel lIntestine = new JLabel("Is Intestine region a background noise?");
 		panIntestine.add(lIntestine);
 		ButtonGroup bgIntestine = new ButtonGroup();
@@ -55,7 +58,7 @@ public class PromptBkgNoise extends PromptDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (isInputValid()) {
-					dispose();
+					setVisible(false);
 					controller.clicSuivant();
 				}
 			}
@@ -69,6 +72,20 @@ public class PromptBkgNoise extends PromptDialog {
 		this.pack();
 		this.setLocationRelativeTo(controller.getVue());
 	}
+
+	@Override
+	public void setVisible(boolean b) {
+		if(b) {
+			// Do not render antre or intestine if the answer is yes
+			if(this.getResult()[0])
+				this.panCenter.remove(panAntre);
+			if(this.getResult()[1])
+				this.panCenter.remove(panIntestine);
+		}
+		super.setVisible(b);
+	}
+
+
 
 	@Override
 	public boolean[] getResult() {

@@ -143,7 +143,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		if (currentInstruction.isExpectingUserInput()) {
 			this.displayInstruction(currentInstruction.getMessage());
 			this.prepareImage(currentInstruction.getImageState());
-
+			
 			if (currentInstruction.saveRoi())
 				this.indexRoi--;
 			this.displayRois(this.roisToDisplay());
