@@ -33,7 +33,6 @@ public class FenResultat_ScinStatic extends FenResults {
 		this.capture = capture;
 
 		this.tab = new Tab(this, "Result");
-		
 		this.panAnt = new JPanel();
 		this.panPost = new JPanel();
 		this.panAvgGeo = new JPanel();
@@ -41,6 +40,8 @@ public class FenResultat_ScinStatic extends FenResults {
 		this.addAntTab(((ModeleScinStatic) model).calculerTableauAnt());
 		this.addPostTab(((ModeleScinStatic) model).calculerTableauPost());
 		this.addMoyGeomTab(((ModeleScinStatic) model).calculerTaleauMayGeom());
+
+		this.addTab(tab);
 
 		this.setLocationRelativeTo(model.getImagePlus().getWindow());
 	}
