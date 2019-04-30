@@ -56,6 +56,7 @@ public class StaticScintigraphy extends Scintigraphy {
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 
 		ControleurScinStatic ctrl = new ControleurScinStatic(this, selectedImages, "General static scintigraphy");
+
 		this.getFenApplication().setControleur(ctrl);
 		IJ.setTool(Toolbar.POLYGON);
 	}

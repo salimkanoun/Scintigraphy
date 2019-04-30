@@ -39,60 +39,50 @@ public class FenResultat_Cardiac extends FenResults {
 		super(model);
 		this.setLayout(new BorderLayout());
 		HashMap<String, String> resultats = ((Modele_Cardiac) model).getResultsHashMap();
-//		SidePanel side = new SidePanel(getSidePanelContent(resultats), "DPD Quant", model.getImagesPlus()[0]);
-//		side.addCaptureBtn(scin, "", model);
-		this.addTab(new TabResult(this, "DPD Quant") {
-			
-			@Override
-			public Component getSidePanelContent() {
-				return FenResultat_Cardiac.this.getSidePanelContent(resultats);
-			}
-			
-			@Override
-			public JPanel getResultContent() {
-				return new DynamicImage(capture);
-			}
-		});
-//		this.add(new DynamicImage(capture), BorderLayout.CENTER);
-//		this.add(side, BorderLayout.EAST);
-		
-//		this.setTitle("DPD Quant results");
-//		this.pack();
-//		this.setMinimumSize(side.getSize());
-//		this.setLocationRelativeTo(scin.getFenApplication());
-//		this.setVisible(true);
+		// SidePanel side = new SidePanel(getSidePanelContent(resultats), "DPD Quant",
+		// model.getImagesPlus()[0]);
+		// side.addCaptureBtn(scin, "", model);
+		this.addTab(new TabMain(this, "DPD Quant", true, resultats, capture));
+		// this.add(new DynamicImage(capture), BorderLayout.CENTER);
+		// this.add(side, BorderLayout.EAST);
+
+		// this.setTitle("DPD Quant results");
+		// this.pack();
+		// this.setMinimumSize(side.getSize());
+		// this.setLocationRelativeTo(scin.getFenApplication());
+		// this.setVisible(true);
 	}
 
 	public Component getSidePanelContent(HashMap<String, String> resultats) {
 		Box returnBox = Box.createVerticalBox();
-		
+
 		JPanel resultRouge = new JPanel(new GridLayout(3, 1, 10, 10));
-		
+
 		String key = "Ratio H/WB %";
 		JLabel lbl_hwb = new JLabel(key + " : " + resultats.get(key));
-		lbl_hwb.setFont(new Font("Arial",Font.BOLD, 20));
+		lbl_hwb.setFont(new Font("Arial", Font.BOLD, 20));
 		lbl_hwb.setHorizontalAlignment(JLabel.CENTER);
-		
-		if(Double.parseDouble(resultats.get(key)) > 7.5) {
+
+		if (Double.parseDouble(resultats.get(key)) > 7.5) {
 			lbl_hwb.setForeground(Color.RED);
-		}else {
+		} else {
 			lbl_hwb.setForeground(new Color(128, 51, 0));
-		
+
 		}
-		
-		resultats.remove(key);		
+
+		resultats.remove(key);
 		resultRouge.add(lbl_hwb);
-		
-		//on ajoute le pourcentage de retention cardiaque si il existe
+
+		// on ajoute le pourcentage de retention cardiaque si il existe
 		key = "Cardiac retention %";
 		if (resultats.containsKey(key)) {
 			JLabel lbl = new JLabel(key + " : " + resultats.remove(key));
 			lbl.setHorizontalAlignment(JLabel.CENTER);
 			lbl.setForeground(new Color(128, 51, 0));
 			resultRouge.add(lbl);
-		}			
-		
-		//idem pour la retention du corps entier
+		}
+
+		// idem pour la retention du corps entier
 		key = "WB retention %";
 		if (resultats.containsKey(key)) {
 			JLabel lbl = new JLabel(key + " : " + resultats.remove(key));
@@ -100,22 +90,22 @@ public class FenResultat_Cardiac extends FenResults {
 			lbl.setForeground(new Color(128, 51, 0));
 			resultRouge.add(lbl);
 		}
-		
-		//on utilise un flow layout pour centrer le panel
+
+		// on utilise un flow layout pour centrer le panel
 		JPanel flow2 = new JPanel(new FlowLayout());
 		flow2.add(resultRouge);
 		returnBox.add(flow2);
-		
-		JPanel flowRef=new JPanel();
-		JPanel gridRef = new JPanel(new GridLayout(0,1));
-		JLabel value=new JLabel("H/WB if >7.5 is associated with higher risk of cardiac event");
+
+		JPanel flowRef = new JPanel();
+		JPanel gridRef = new JPanel(new GridLayout(0, 1));
+		JLabel value = new JLabel("H/WB if >7.5 is associated with higher risk of cardiac event");
 		value.setHorizontalAlignment(JLabel.CENTER);
-		JLabel ref=new JLabel("Rapezzi et al. JACC 2011");
+		JLabel ref = new JLabel("Rapezzi et al. JACC 2011");
 		ref.setHorizontalAlignment(JLabel.CENTER);
 		gridRef.add(value);
 		gridRef.add(ref);
 		flowRef.add(gridRef);
-		
+
 		returnBox.add(flowRef);
 
 		// ajout de la table avec les resultats des rois
@@ -126,51 +116,80 @@ public class FenResultat_Cardiac extends FenResults {
 		for (String k : resultats.keySet()) {
 			modelRes.addRow(this.getTabRes(k, resultats));
 		}
-		
-		//tri des valeurs
+
+		// tri des valeurs
 		tabRes.setAutoCreateRowSorter(true);
 		DefaultRowSorter<?, ?> sorter = ((DefaultRowSorter<?, ?>) tabRes.getRowSorter());
 		ArrayList<SortKey> list = new ArrayList<>();
 		list.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
 		sorter.setSortKeys(list);
 		sorter.sort();
-		
-		//ajout d'une bordure
+
+		// ajout d'une bordure
 		tabRes.setBorder(LineBorder.createBlackLineBorder());
-		
+
 		// desactive l'edition
 		tabRes.setDefaultEditor(Object.class, null);
-		
-		//on empeche l'edition
+
+		// on empeche l'edition
 		tabRes.setFocusable(false);
 		tabRes.setRowSelectionAllowed(false);
-		
-		//Add popupMenu to hide the Table if Wanted
+
+		// Add popupMenu to hide the Table if Wanted
 		JPopupMenu popMenuHide = new JPopupMenu();
-		JMenuItem hide=new JMenuItem("Hide");
+		JMenuItem hide = new JMenuItem("Hide");
 		popMenuHide.add(hide);
 		hide.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				tabRes.setVisible(false);
-				
+
 			}
-			
+
 		});
 		tabRes.setComponentPopupMenu(popMenuHide);
-		//Add to the main panel
+		// Add to the main panel
 		returnBox.add(tabRes);
-		
+
 		return returnBox;
 	}
-	
+
 	private String[] getTabRes(String key, HashMap<String, String> resultats) {
 		String v = "";
 		if (resultats.containsKey(key)) {
 			v = resultats.get(key);
 		}
 		return new String[] { " " + key, v };
+	}
+
+	private class TabMain extends TabResult {
+
+		private HashMap<String, String> resultats;
+
+		private BufferedImage capture;
+
+		public TabMain(FenResults parent, String title, boolean captureBtn, HashMap<String, String> resultats,
+				BufferedImage capture) {
+			super(parent, title, captureBtn);
+
+			this.resultats = resultats;
+
+			this.capture = capture;
+
+			this.reloadDisplay();
+		}
+
+		@Override
+		public Component getSidePanelContent() {
+			return FenResultat_Cardiac.this.getSidePanelContent(resultats);
+		}
+
+		@Override
+		public JPanel getResultContent() {
+			return new DynamicImage(capture);
+		}
+
 	}
 
 }

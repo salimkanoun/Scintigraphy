@@ -10,6 +10,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
@@ -24,7 +25,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 	private FenResults fenResults;
 
 	private List<ImagePlus> captures;
-	
+
 	private final boolean FIRST_ORIENTATION_POST;
 
 	private static final int STEP_KIDNEY_LUNG = 0, STEP_BRAIN = 1;
@@ -45,18 +46,18 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		ScreenShotInstruction dri_capture = null;
 		this.captures = new ArrayList<>();
 
-		this.workflows[0] = new Workflow();
-		dri_1 = new DrawRoiInstruction("Right lung", Orientation.POST);
-		dri_2 = new DrawRoiInstruction("Left lung", Orientation.POST);
-		dri_3 = new DrawRoiInstruction("Right kidney", Orientation.POST);
-		dri_4 = new DrawRoiInstruction("Left kidney", Orientation.POST);
-		dri_5 = new DrawRoiInstruction("Background", Orientation.POST);
+		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
+		dri_1 = new DrawRoiInstruction("Right lung", new ImageState(Orientation.POST, 2));
+		dri_2 = new DrawRoiInstruction("Left lung", new ImageState(Orientation.POST, 2));
+		dri_3 = new DrawRoiInstruction("Right kidney", new ImageState(Orientation.POST, 2));
+		dri_4 = new DrawRoiInstruction("Left kidney", new ImageState(Orientation.POST, 2));
+		dri_5 = new DrawRoiInstruction("Background", new ImageState(Orientation.POST, 2));
 		dri_capture = new ScreenShotInstruction(captures, this.getVue());
-		dri_6 = new DrawRoiInstruction("Right lung", Orientation.ANT, dri_1);
-		dri_7 = new DrawRoiInstruction("Left lung", Orientation.ANT, dri_2);
-		dri_8 = new DrawRoiInstruction("Right kidney", Orientation.ANT, dri_3);
-		dri_9 = new DrawRoiInstruction("Left kidney", Orientation.ANT, dri_4);
-		dri_10 = new DrawRoiInstruction("Background", Orientation.ANT, dri_5);
+		dri_6 = new DrawRoiInstruction("Right lung", new ImageState(Orientation.ANT, 1), dri_1);
+		dri_7 = new DrawRoiInstruction("Left lung", new ImageState(Orientation.ANT, 1), dri_2);
+		dri_8 = new DrawRoiInstruction("Right kidney", new ImageState(Orientation.ANT, 1), dri_3);
+		dri_9 = new DrawRoiInstruction("Left kidney", new ImageState(Orientation.ANT, 1), dri_4);
+		dri_10 = new DrawRoiInstruction("Background", new ImageState(Orientation.ANT, 1), dri_5);
 
 		this.workflows[0].addInstruction(dri_1);
 		this.workflows[0].addInstruction(dri_2);
@@ -71,9 +72,9 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		this.workflows[0].addInstruction(dri_10);
 		this.workflows[0].addInstruction(dri_capture);
 
-		this.workflows[1] = new Workflow();
-		dri_11 = new DrawRoiInstruction("Brain", Orientation.POST);
-		dri_12 = new DrawRoiInstruction("Brain", Orientation.ANT, dri_11);
+		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
+		dri_11 = new DrawRoiInstruction("Brain", new ImageState(Orientation.POST, 2));
+		dri_12 = new DrawRoiInstruction("Brain", new ImageState(Orientation.ANT, 1), dri_11);
 		this.workflows[1].addInstruction(dri_11);
 		this.workflows[1].addInstruction(dri_capture);
 		this.workflows[1].addInstruction(dri_12);
@@ -143,7 +144,8 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		this.model.calculerResultats();
 
 		// Save captures
-		ImageStack stackCapture = Library_Capture_CSV.captureToStack(this.captures.toArray(new ImagePlus[this.captures.size()]));
+		ImageStack stackCapture = Library_Capture_CSV
+				.captureToStack(this.captures.toArray(new ImagePlus[this.captures.size()]));
 		ImagePlus montage = this.montage(stackCapture);
 
 		// Display result

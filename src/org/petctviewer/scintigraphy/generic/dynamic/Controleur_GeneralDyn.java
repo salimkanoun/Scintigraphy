@@ -11,8 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
@@ -26,9 +28,11 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 	private int nbOrganes = 0;
 	private boolean over;
 	private ImagePlus impProjetee;
+	private FenResults fenResult;
 
-	protected Controleur_GeneralDyn(GeneralDynamicScintigraphy scin, String studyName) {
-		super(scin, new Modele_GeneralDyn(studyName, scin.getFrameDurations()));
+	protected Controleur_GeneralDyn(GeneralDynamicScintigraphy scin, String studyName,
+			ImageSelection[] selectedImages) {
+		super(scin, new Modele_GeneralDyn(selectedImages, studyName, scin.getFrameDurations()));
 		this.setOrganes(new String[MAXROI]);
 
 		this.over = false;
@@ -111,10 +115,12 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 		fenGroup.setVisible(true);
 		String[][] asso = fenGroup.getAssociation();
 
+		this.fenResult = new FenResultat_GeneralDyn((ModeleScinDyn) this.model, asso);
+
 		if (scindyn.getImpAnt() != null) {
 			capture = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
 			saveValues(scindyn.getImpAnt());
-			new FenResultat_GeneralDyn(scindyn, capture, (ModeleScinDyn) this.model, asso, "Ant");
+			this.fenResult.addTab(new TabAntPost(capture, "Ant", this.fenResult));
 		}
 
 		if (scindyn.getImpPost() != null) {
@@ -124,7 +130,7 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 
 			imp2.setProperty("Info", this.model.getImagePlus().getInfoProperty());
 
-//			scindyn.setImp(imp2);
+			// scindyn.setImp(imp2);
 			this.model.getImagesPlus()[0] = imp2;
 			scindyn.getFenApplication().setImage(imp2);
 			scindyn.getFenApplication().resizeCanvas();
@@ -142,7 +148,8 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 					BufferedImage c = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
 
 					saveValues(scindyn.getImpPost());
-					new FenResultat_GeneralDyn(scindyn, c, (ModeleScinDyn) model, asso, "Post");
+					Controleur_GeneralDyn.this.fenResult
+							.addTab(new TabAntPost(c, "Post", Controleur_GeneralDyn.this.fenResult));
 
 					Controleur_GeneralDyn.this.finishDrawingResultWindow();
 				}
@@ -163,7 +170,7 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 		this.addImpListener();
 
 		vue.getFenApplication().setImage(this.impProjetee);
-//		vue.setImp(this.impProjetee);
+		// vue.setImp(this.impProjetee);
 		this.model.getImagesPlus()[0] = this.impProjetee;
 
 		vue.getFenApplication().resizeCanvas();
@@ -172,7 +179,7 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 	private void saveValues(ImagePlus imp) {
 
 		this.model.getImagesPlus()[0] = imp;
-//		this.getScin().setImp(imp);
+		// this.getScin().setImp(imp);
 		this.indexRoi = 0;
 
 		HashMap<String, List<Double>> mapData = new HashMap<String, List<Double>>();
@@ -257,4 +264,5 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 		}
 
 	}
+
 }

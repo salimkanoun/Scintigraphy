@@ -57,6 +57,8 @@ public class TabTransitTime extends TabResult {
 		this.nbAcquisition = nbAcquisition;
 
 		this.createCaptureButton("TransitTimes");
+
+		this.reloadDisplay();
 	}
 
 	private void setVisibilitySeriesGraph(JFreeChart graph, int numSerie, boolean visibility) {

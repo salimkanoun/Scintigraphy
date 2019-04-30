@@ -21,6 +21,8 @@ class TabOther extends TabResult {
 
 	public TabOther(Scintigraphy scin, FenResults parent) {
 		super(parent, "Other", true);
+
+		this.reloadDisplay();
 	}
 
 	@Override
@@ -30,17 +32,17 @@ class TabOther extends TabResult {
 
 	@Override
 	public JPanel getResultContent() {
-		String[][] asso = new String[][] {{"Blood Pool"} , {"Bladder"}};
+		String[][] asso = new String[][] { { "Blood Pool" }, { "Bladder" } };
 		List<XYSeries> series = ((Modele_Renal) parent.getModel()).getSeries();
 		ChartPanel[] cPanels = Library_JFreeChart.associateSeries(asso, series);
-		
-		JPanel center = new JPanel(new GridLayout(1,1));
+
+		JPanel center = new JPanel(new GridLayout(1, 1));
 		cPanels[0].getChart().getXYPlot().getRenderer().setSeriesPaint(0, Color.GREEN);
 		center.add(cPanels[0]);
-		
-		//si la vessie est activee
-		if(Prefs.get("renal.bladder.preferred", true)) {
-			center.setLayout(new GridLayout(2,1));
+
+		// si la vessie est activee
+		if (Prefs.get("renal.bladder.preferred", true)) {
+			center.setLayout(new GridLayout(2, 1));
 			cPanels[1].getChart().getXYPlot().getRenderer().setSeriesPaint(0, Color.PINK);
 			center.add(cPanels[1]);
 		}

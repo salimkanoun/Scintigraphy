@@ -52,6 +52,7 @@ public class TabRentention extends TabResult {
 
 		this.createCaptureButton("Retention");
 
+		this.reloadDisplay();
 	}
 
 	private void setVisibilitySeriesGraph(JFreeChart graph, int numSerie, boolean visibility) {

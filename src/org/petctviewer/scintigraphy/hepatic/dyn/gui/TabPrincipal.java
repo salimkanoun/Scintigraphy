@@ -27,7 +27,7 @@ import ij.ImagePlus;
 
 class TabPrincipal extends TabResult {
 	private HashMap<String, String> resultats;
-	
+
 	private BufferedImage capture;
 	private HepaticDynamicScintigraphy scin;
 
@@ -36,8 +36,10 @@ class TabPrincipal extends TabResult {
 		super(parent, "Main", true);
 		this.capture = capture;
 		this.scin = scin;
-		
+
 		this.getPanel().setPreferredSize(new Dimension(width, height));
+
+		this.reloadDisplay();
 	}
 
 	@Override

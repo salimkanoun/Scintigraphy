@@ -13,6 +13,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.execution.CheckIntersectionInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
@@ -118,11 +119,11 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			this.getModel().setTimeIngestion(promptIngestionTime.getResult());
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
-			this.workflows[i] = new Workflow(this, this.getModel().getImageSelection()[i].getImagePlus());
-			dri_1 = new DrawRoiInstruction("Stomach", Orientation.ANT, dri_3);
-			dri_2 = new DrawRoiInstruction("Intestine", Orientation.ANT, dri_4);
-			dri_3 = new DrawRoiInstruction("Stomach", Orientation.POST, dri_1);
-			dri_4 = new DrawRoiInstruction("Intestine", Orientation.POST, dri_2);
+			this.workflows[i] = new Workflow(this, this.getModel().getImageSelection()[i]);
+			dri_1 = new DrawRoiInstruction("Stomach", new ImageState(Orientation.ANT, 1), dri_3);
+			dri_2 = new DrawRoiInstruction("Intestine", new ImageState(Orientation.ANT, 1), dri_4);
+			dri_3 = new DrawRoiInstruction("Stomach", new ImageState(Orientation.POST, 2), dri_1);
+			dri_4 = new DrawRoiInstruction("Intestine", new ImageState(Orientation.POST, 2), dri_2);
 
 			if (i == 0)
 				this.workflows[i].addInstruction(promptTimeAcquisition);

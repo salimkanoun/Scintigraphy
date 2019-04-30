@@ -34,13 +34,18 @@ class TabPrincipal extends TabResult {
 	/**
 	 * affiche les resultats de l'examen renal
 	 * 
-	 * @param vueScin    la vue
-	 * @param capture    capture du rein projetee
-	 * @param chartPanel chartpanel avec l'overlay d'ajustation
+	 * @param vueScin
+	 *            la vue
+	 * @param capture
+	 *            capture du rein projetee
+	 * @param chartPanel
+	 *            chartpanel avec l'overlay d'ajustation
 	 */
 	public TabPrincipal(RenalScintigraphy vue, BufferedImage capture, FenResults parent) {
 		super(parent, "Main", true);
 		this.capture = capture;
+
+		this.reloadDisplay();
 	}
 
 	@Override
@@ -81,7 +86,7 @@ class TabPrincipal extends TabResult {
 		JLabel lbl_R = new JLabel("R");
 		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
 
-		Double[] size = ((Modele_Renal)this.parent.getModel()).getSize();
+		Double[] size = ((Modele_Renal) this.parent.getModel()).getSize();
 
 		JPanel pnl_size = new JPanel(new GridLayout(2, 3, 0, 3));
 		pnl_size.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
@@ -108,10 +113,10 @@ class TabPrincipal extends TabResult {
 		JLabel lbl_R = new JLabel("R");
 		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
 
-		Double xLasilix = ((Modele_Renal)this.parent.getModel()).getAdjustedValues().get("lasilix");
+		Double xLasilix = ((Modele_Renal) this.parent.getModel()).getAdjustedValues().get("lasilix");
 		// minutes a observer pour la capacite d'excretion
 		Double[] mins = new Double[] { Library_Quantif.round(xLasilix - 1, 1), Library_Quantif.round(xLasilix + 2, 1),
-				Library_Quantif.round(((Modele_Renal)this.parent.getModel()).getSerie("Blood Pool").getMaxX(), 1) };
+				Library_Quantif.round(((Modele_Renal) this.parent.getModel()).getSerie("Blood Pool").getMaxX(), 1) };
 
 		// panel roe
 		JPanel pnl_roe = new JPanel(new GridLayout(4, 3, 0, 3));
@@ -121,7 +126,7 @@ class TabPrincipal extends TabResult {
 		pnl_roe.add(lbl_L);
 		pnl_roe.add(lbl_R);
 
-		boolean[] kidneys = ((Modele_Renal)this.parent.getModel()).getKidneys();
+		boolean[] kidneys = ((Modele_Renal) this.parent.getModel()).getKidneys();
 
 		for (int i = 0; i < 3; i++) {
 			// aligne a droite
@@ -130,7 +135,7 @@ class TabPrincipal extends TabResult {
 
 			JLabel lbl_g = null;
 			if (kidneys[0]) {
-				lbl_g = new JLabel(((Modele_Renal)this.parent.getModel()).getROE(mins[i], "L") + " %");
+				lbl_g = new JLabel(((Modele_Renal) this.parent.getModel()).getROE(mins[i], "L") + " %");
 			} else {
 				lbl_g = new JLabel("N/A");
 			}
@@ -139,7 +144,7 @@ class TabPrincipal extends TabResult {
 
 			JLabel lbl_d = null;
 			if (kidneys[1]) {
-				lbl_d = new JLabel(((Modele_Renal)this.parent.getModel()).getROE(mins[i], "R") + " %");
+				lbl_d = new JLabel(((Modele_Renal) this.parent.getModel()).getROE(mins[i], "R") + " %");
 			} else {
 				lbl_d = new JLabel("N/A");
 			}
@@ -158,7 +163,7 @@ class TabPrincipal extends TabResult {
 		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
 
 		// panel Nora
-		Double[][] nora = ((Modele_Renal)this.parent.getModel()).getNora();
+		Double[][] nora = ((Modele_Renal) this.parent.getModel()).getNora();
 		JPanel pnl_nora = new JPanel(new GridLayout(4, 3, 0, 3));
 		pnl_nora.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
@@ -192,7 +197,7 @@ class TabPrincipal extends TabResult {
 		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
 
 		// panel Excr
-		Double[][] Excr = ((Modele_Renal)this.parent.getModel()).getExcr();
+		Double[][] Excr = ((Modele_Renal) this.parent.getModel()).getExcr();
 		JPanel pnl_Excr = new JPanel(new GridLayout(4, 3, 0, 3));
 		pnl_Excr.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
@@ -226,7 +231,7 @@ class TabPrincipal extends TabResult {
 		lbl_R.setHorizontalAlignment(SwingConstants.CENTER);
 
 		// panel de timing
-		Double[][] timing = ((Modele_Renal)this.parent.getModel()).getTiming();
+		Double[][] timing = ((Modele_Renal) this.parent.getModel()).getTiming();
 		JPanel pnl_timing = new JPanel(new GridLayout(3, 3, 0, 3));
 		pnl_timing.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
@@ -276,7 +281,7 @@ class TabPrincipal extends TabResult {
 		lbl_R.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
 		// panel de fonction separee
-		Double[] sep = ((Modele_Renal)this.parent.getModel()).getSeparatedFunction();
+		Double[] sep = ((Modele_Renal) this.parent.getModel()).getSeparatedFunction();
 		JPanel pnl_sep = new JPanel(new GridLayout(2, 3));
 		pnl_sep.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
@@ -293,8 +298,8 @@ class TabPrincipal extends TabResult {
 		lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
 		pnl_sep.add(lbl_g);
 
-		if (((Modele_Renal)this.parent.getModel()).getPatlakPente() != null) {
-			double[] patlak = ((Modele_Renal)this.parent.getModel()).getPatlakPente();
+		if (((Modele_Renal) this.parent.getModel()).getPatlakPente() != null) {
+			double[] patlak = ((Modele_Renal) this.parent.getModel()).getPatlakPente();
 			pnl_sep.setLayout(new GridLayout(3, 3));
 
 			pnl_sep.add(new JLabel("patlak"));
@@ -313,15 +318,17 @@ class TabPrincipal extends TabResult {
 	@Override
 	public JPanel getResultContent() {
 		HashMap<Comparable, Double> adjusted = ((Modele_Renal) parent.getModel()).getAdjustedValues();
-// l'intervalle est defini par l'utilisateur
+		// l'intervalle est defini par l'utilisateur
 		Double x1 = adjusted.get("start");
 		Double x2 = adjusted.get("end");
 		Double debut = Math.min(x1, x2);
 		Double fin = Math.max(x1, x2);
 
-		int slice1 = ModeleScinDyn.getSliceIndexByTime(debut * 60 * 1000, ((Modele_Renal)this.parent.getModel()).getFrameduration());
-		int slice2 = ModeleScinDyn.getSliceIndexByTime(fin * 60 * 1000, ((Modele_Renal)this.parent.getModel()).getFrameduration());
-		JValueSetter chartNephrogram = ((Modele_Renal)this.parent.getModel()).getNephrogramChart();
+		int slice1 = ModeleScinDyn.getSliceIndexByTime(debut * 60 * 1000,
+				((Modele_Renal) this.parent.getModel()).getFrameduration());
+		int slice2 = ModeleScinDyn.getSliceIndexByTime(fin * 60 * 1000,
+				((Modele_Renal) this.parent.getModel()).getFrameduration());
+		JValueSetter chartNephrogram = ((Modele_Renal) this.parent.getModel()).getNephrogramChart();
 		ImagePlus proj = ZProjector.run(parent.getModel().getImagePlus(), "sum", slice1, slice2);
 		proj.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
 		JPanel grid = new JPanel(new GridLayout(2, 1));

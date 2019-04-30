@@ -58,6 +58,18 @@ public class ImageState {
 	public ImageState(int idImage, int slice) {
 		this(null, idImage, slice);
 	}
+	
+	/**
+	 * Instantiates a state for an image.
+	 * 
+	 * @param facingOrientation Facing orientation of the image (Ant or Post only)
+	 * @param slice             Number of the slice to display (if multiple slices)
+	 * @throws IllegalArgumentException if the facingOrientation is different than
+	 *                                  Ant or Post
+	 */
+	public ImageState(Orientation facingOrientation, int slice) {
+		this(facingOrientation, ID_NONE, slice);
+	}
 
 	/**
 	 * Instantiates a state for an image.
@@ -69,7 +81,7 @@ public class ImageState {
 	 *                                  Ant or Post
 	 */
 	public ImageState(Orientation facingOrientation, int idImage, int slice) throws IllegalArgumentException {
-		if (facingOrientation != Orientation.ANT && facingOrientation != Orientation.POST)
+		if (facingOrientation != Orientation.ANT && facingOrientation != Orientation.POST && facingOrientation != null)
 			throw new IllegalArgumentException("The orientation " + facingOrientation
 					+ " is nonsense here, it should be one of " + Orientation.ANT + ", " + Orientation.POST + "!");
 

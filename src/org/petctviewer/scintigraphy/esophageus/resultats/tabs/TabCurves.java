@@ -47,6 +47,8 @@ public class TabCurves extends TabResult {
 		titleRows = new String[datasetModele.length];
 
 		this.createCaptureButton("Curves");
+		
+		this.reloadDisplay();
 	}
 
 	public void setVisibilitySeriesMain(int x, int y, boolean visibility) {

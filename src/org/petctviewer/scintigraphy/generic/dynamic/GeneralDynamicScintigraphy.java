@@ -22,7 +22,7 @@ public class GeneralDynamicScintigraphy extends Scintigraphy{
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		this.setFenApplication(new FenApplication_GeneralDyn(selectedImages[0].getImagePlus(), this.getStudyName(), this));
-		this.getFenApplication().setControleur(new Controleur_GeneralDyn(this, "Dynamic scintigraphy"));
+		this.getFenApplication().setControleur(new Controleur_GeneralDyn(this, "Dynamic scintigraphy",selectedImages));
 		IJ.setTool(Toolbar.POLYGON);
 	}
 	
