@@ -209,7 +209,7 @@ public class Library_Dicom {
 	 * @param imp : ImagePlus a traiter
 	 * @return Tableau d'imagePlus avec 2 ImagePlus (camera 1 et 2 )
 	 */
-	public static ImagePlus[] splitCameraMultiFrame(ImagePlus imp) {
+	private static ImagePlus[] splitCameraMultiFrame(ImagePlus imp, boolean isAntPost) {
 		// On prend le Header
 		String metadata = imp.getInfoProperty();
 
@@ -226,11 +226,11 @@ public class Library_Dicom {
 
 		// Determination de l'orientation des camera en regardant la 1ere image
 		String detecteurPremiereImage = sequenceDetecteur[0];
-		Boolean anterieurPremiereImage = Library_Dicom.isAnterieurMultiframe(imp);
+//		Boolean anterieurPremiereImage = Library_Dicom.isAnterieurMultiframe(imp);
 
 		// On ajoute les images dans les camera adhoc
 
-		if (anterieurPremiereImage != null && anterieurPremiereImage) {
+		if (isAntPost) {
 			for (int i = 0; i < sequenceDetecteur.length; i++) {
 				if (sequenceDetecteur[i].equals(detecteurPremiereImage)) {
 					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
@@ -238,7 +238,7 @@ public class Library_Dicom {
 					camera1.addSlice(imp.getImageStack().getProcessor((i + 1)));
 				}
 			}
-		} else if (anterieurPremiereImage != null && !anterieurPremiereImage) {
+		} else // if (anterieurPremiereImage != null && !anterieurPremiereImage) {
 			for (int i = 0; i < sequenceDetecteur.length; i++) {
 				if (sequenceDetecteur[i].equals(detecteurPremiereImage)) {
 					camera1.addSlice(imp.getImageStack().getProcessor((i + 1)));
@@ -246,16 +246,16 @@ public class Library_Dicom {
 					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
 				}
 			}
-		} else {
-			System.out.println("assuming image 2 is posterior. Please notify Salim.kanoun@gmail.com");
-			for (int i = 0; i < sequenceDetecteur.length; i++) {
-				if (sequenceDetecteur[i].equals("1")) {
-					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
-				} else if (sequenceDetecteur[i].equals("2")) {
-					camera1.addSlice(imp.getImageStack().getProcessor((i + 1)));
-				}
-			}
-		}
+//		} else {
+//			System.out.println("assuming image 2 is posterior. Please notify Salim.kanoun@gmail.com");
+//			for (int i = 0; i < sequenceDetecteur.length; i++) {
+//				if (sequenceDetecteur[i].equals("1")) {
+//					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
+//				} else if (sequenceDetecteur[i].equals("2")) {
+//					camera1.addSlice(imp.getImageStack().getProcessor((i + 1)));
+//				}
+//			}
+//		}
 
 		ImagePlus cameraAnt = new ImagePlus();
 		ImagePlus cameraPost = new ImagePlus();
@@ -497,41 +497,46 @@ public class Library_Dicom {
 
 	}
 
-	/*********************
-	 * Public Static Sort
-	 ****************************************/
 	/**
-	 * Pour les images dynamiques, Permet de renvoyer un tableau d'Image plus avec
-	 * le dynamique Ant en position 0 et le dynamique Post en position 1
+	 * Splits the specified image into an array of ImageSelection such as
+	 * <ul>
+	 * <li>[0]-><code>ANT</code></li>
+	 * <li>[1]-><code>POST</code>.</li>
+	 * </ul>
+	 * The returned images are clones of the input image, and their orientation is
+	 * updated.
 	 * 
-	 * @return les imps, [0] correspond a l'ant, [1] a la post
+	 * @param image Dynamic image in DynP/A or DynA/P orientation
+	 * @return array of ImageSelection
+	 * @throws WrongOrientationException if the image has an orientation different
+	 *                                   than DYNAMIC_ANT_POST and DYNAMIC_POST_ANT
+	 * @throws IllegalArgumentException  if the image's tag indicates the camera is
+	 *                                   the same or it indicates it's not a dynamic
+	 *                                   image
+	 * @author Titouan QUÉMA
 	 */
-	public static ImagePlus[] splitDynamicAntPost(ImagePlus imagePlus) {
-		ImagePlus[] sortedImagePlus = new ImagePlus[2];
+	public static ImageSelection[] splitDynamicAntPost(ImageSelection image)
+			throws WrongOrientationException, IllegalArgumentException {
+		Orientation[] expectedOrientations = new Orientation[] { Orientation.DYNAMIC_ANT_POST,
+				Orientation.DYNAMIC_POST_ANT };
+		ImagePlus imagePlus = image.getImagePlus();
+		if (!Arrays.stream(expectedOrientations).anyMatch(i -> i.equals(image.getImageOrientation())))
+			throw new WrongOrientationException(image.getImageOrientation(), expectedOrientations);
 
-		// si l'image est multiframe et ce nest pas la meme camera
+		if (!isMultiFrame(imagePlus) || isSameCameraMultiFrame(imagePlus))
+			throw new IllegalArgumentException("The image's tag are incorrect and cannot be detected as an "
+					+ Arrays.toString(Orientation.dynamicOrientations()) + " image!");
 
-		if (isMultiFrame(imagePlus) && !isSameCameraMultiFrame(imagePlus)) {
-			ImagePlus[] imageSplitted = splitCameraMultiFrame(imagePlus);
-			sortedImagePlus[0] = imageSplitted[0];
-			sortedImagePlus[1] = imageSplitted[1];
-			return sortedImagePlus;
-		}
+		ImageSelection[] result = new ImageSelection[2];
+		for (int i = 0; i < result.length; i++)
+			result[i] = image.clone();
 
-		if (isAnterieur(imagePlus)) {
-			sortedImagePlus[0] = imagePlus.duplicate();
-		} else {
-			sortedImagePlus[1] = imagePlus.duplicate();
-		}
-		return sortedImagePlus;
-	}
+		ImagePlus[] imageSplitted = splitCameraMultiFrame(imagePlus,
+				image.getImageOrientation() == Orientation.DYNAMIC_ANT_POST);
+		result[0].setImagePlus(imageSplitted[0]);
+		result[1].setImagePlus(imageSplitted[1]);
 
-	public static ImagePlus[][] sortDynamicAntPost(ImagePlus[] imagePlus) {
-		ImagePlus[][] imps = new ImagePlus[imagePlus.length][2];
-		for (int i = 0; i < imagePlus.length; i++) { // pour chaque fenetre
-			imps[i] = splitDynamicAntPost(imagePlus[i]);
-		}
-		return imps;
+		return result;
 	}
 
 	/**
@@ -802,14 +807,14 @@ public class Library_Dicom {
 		pj.setProperty("Info", imp.getInfoProperty());
 		System.out.println("Checking for " + imp.getTitle());
 		System.out.println("Pj null: " + pj == null);
-		
+
 		return pj;
 	}
 
 	/**
 	 * This method will always return a clone of the specified ImageSelection in
 	 * Ant/Post orientation with the Post image flipped. This ensure the image is in
-	 * the right orientation.<br>
+	 * the right lateralisation.<br>
 	 * This method can only be used with Ant/Post or Post/Ant images.
 	 * 
 	 * @param ims ImageSelection to compute

@@ -12,8 +12,6 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
-import ij.ImagePlus;
-
 public class DynGastricScintigraphy extends Scintigraphy {
 
 	private Model_Gastric model;
@@ -38,24 +36,24 @@ public class DynGastricScintigraphy extends Scintigraphy {
 		ImageSelection[] selection = new ImageSelection[openedImages.length];
 		for (int i = 0; i < openedImages.length; i++) {
 			ImageSelection ims = openedImages[i];
-			if (!Arrays.stream(acceptedOrientations).anyMatch(o -> o.equals(ims.getImageOrientation())))
+			if (!Arrays.stream(acceptedOrientations).anyMatch(o -> o.equals(ims.getImageOrientation()))) {
+				System.out.println("Error here!");
+				System.out.println("Accepted orientations: " + Arrays.toString(acceptedOrientations));
 				throw new WrongColumnException.OrientationColumn(ims.getRow(), ims.getImageOrientation(),
 						acceptedOrientations);
+			}
 
 			// Sort orientation to always have Ant
-			ImagePlus[] dyn = Library_Dicom.splitDynamicAntPost(ims.getImagePlus());
-			if (ims.getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
-				selection[i] = ims.clone();
-				selection[i].setImagePlus(Library_Dicom.projeter(dyn[0], 1, 10, "sum"));
-			} else if (ims.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
-				selection[i] = ims.clone();
-				selection[i].setImagePlus(Library_Dicom.projeter(dyn[1], 1, 10, "sum"));
+			if (ims.getImageOrientation() == Orientation.DYNAMIC_ANT_POST
+					|| ims.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
+				ImageSelection[] dyn = Library_Dicom.splitDynamicAntPost(ims);
+				selection[i] = dyn[0].clone();
+				selection[i].setImagePlus(Library_Dicom.projeter(dyn[0].getImagePlus(), 1, 10, "sum"));
 			} else {
 				selection[i] = ims.clone();
-				selection[i].setImagePlus(Library_Dicom.projeter(ims.getImagePlus(), 1, 10, "sum"));
 			}
 		}
-		
+
 		System.out.println(openedImages.length + " images opened");
 
 		// Close other images
@@ -71,8 +69,8 @@ public class DynGastricScintigraphy extends Scintigraphy {
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		this.setFenApplication(
 				new FenApplication_DynGastric(selectedImages[0].getImagePlus(), "Dynamic Gastric Scintigraphy"));
-		this.getFenApplication()
-				.setControleur(new ControllerWorkflow_DynGastric(this, this.getFenApplication(), this.model, selectedImages));
+		this.getFenApplication().setControleur(
+				new ControllerWorkflow_DynGastric(this, this.getFenApplication(), this.model, selectedImages));
 		this.getFenApplication().setVisible(true);
 	}
 
