@@ -138,7 +138,9 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		if (currentInstruction == null) {
 			this.indexCurrentImage--;
 			currentInstruction = this.workflows[this.indexCurrentImage].getCurrentInstruction();
+			currentInstruction.prepareAsPrevious();
 		}
+		System.out.println("Previous instruction: " + currentInstruction.getClass().getSimpleName());
 
 		if (currentInstruction.isExpectingUserInput()) {
 			this.displayInstruction(currentInstruction.getMessage());

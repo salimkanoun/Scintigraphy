@@ -23,6 +23,8 @@ public class PromptBkgNoise extends PromptDialog {
 	private JPanel panCenter;
 	private JPanel panAntre, panIntestine;
 
+	private boolean[] previousState;
+
 	public PromptBkgNoise(ControleurScin controller) {
 		JPanel panel = new JPanel(new BorderLayout());
 
@@ -73,19 +75,21 @@ public class PromptBkgNoise extends PromptDialog {
 		this.setLocationRelativeTo(controller.getVue());
 	}
 
-	@Override
-	public void setVisible(boolean b) {
-		if(b) {
-			// Do not render antre or intestine if the answer is yes
-			if(this.getResult()[0])
-				this.panCenter.remove(panAntre);
-			if(this.getResult()[1])
-				this.panCenter.remove(panIntestine);
-		}
-		super.setVisible(b);
+	private void reloadDisplay() {
+		if (this.previousState[0])
+			this.panAntre.setVisible(false);
+		else
+			this.panAntre.setVisible(true);
+
+		if (this.previousState[1])
+			this.panIntestine.setVisible(false);
+		else
+			this.panIntestine.setVisible(true);
 	}
 
-
+	public boolean shouldBeDisplayed() {
+		return !(this.getResult()[0] && this.getResult()[1]);
+	}
 
 	@Override
 	public boolean[] getResult() {
@@ -95,6 +99,19 @@ public class PromptBkgNoise extends PromptDialog {
 	@Override
 	public boolean isInputValid() {
 		return true;
+	}
+
+	@Override
+	protected void prepareAsNext() {
+		this.previousState = this.getResult();
+		this.reloadDisplay();
+	}
+
+	@Override
+	protected void prepareAsPrevious() {
+		if (this.previousState != null) {
+			this.reloadDisplay();
+		}
 	}
 
 }
