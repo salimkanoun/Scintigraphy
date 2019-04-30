@@ -283,8 +283,10 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 		Button source = (Button) e.getSource();
 		if (source.getActionCommand().contentEquals(COMMAND_END)) {
-			if (this.workflows[this.indexCurrentImage].getCurrentInstruction() instanceof GeneratorInstruction)
+			if (this.workflows[this.indexCurrentImage].getCurrentInstruction() instanceof GeneratorInstruction) {
 				((GeneratorInstruction) this.workflows[this.indexCurrentImage].getCurrentInstruction()).stop();
+				this.clicSuivant();
+			}
 		}
 	}
 

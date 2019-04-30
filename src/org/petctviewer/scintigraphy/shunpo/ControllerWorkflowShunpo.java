@@ -53,7 +53,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		ScreenShotInstruction dri_capture = null;
 		this.captures = new ArrayList<>();
 
-		this.workflows[0] = new Workflow();
+		this.workflows[0] = new Workflow(this,  this.model.getImageSelection()[0].getImagePlus());
 		dri_1 = new DrawRoiInstruction("Right lung", Orientation.POST);
 		dri_2 = new DrawRoiInstruction("Left lung", Orientation.POST);
 		dri_3 = new DrawRoiInstruction("Right kidney", Orientation.POST);
@@ -79,7 +79,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		this.workflows[0].addInstruction(dri_10);
 		this.workflows[0].addInstruction(dri_capture);
 
-		this.workflows[1] = new Workflow();
+		this.workflows[1] = new Workflow(this,  this.model.getImageSelection()[1].getImagePlus());
 		dri_11 = new DrawRoiInstruction("Brain", Orientation.POST);
 		dri_12 = new DrawRoiInstruction("Brain", Orientation.ANT, dri_11);
 		this.workflows[1].addInstruction(dri_11);
