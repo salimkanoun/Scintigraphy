@@ -117,12 +117,12 @@ public class LymphoSintigraphy extends Scintigraphy {
 	 * 
 	 * @see
 	 *      <ul>
-	 *      <li>{@link Library_Dicom#sortDynamicAntPost(ImagePlus)}</li>
+	 *      <li>{@link Library_Dicom#splitDynamicAntPost(ImagePlus)}</li>
 	 *      <li>{@link Library_Dicom#projeter(ImagePlus, int, int, String)}</li>
 	 *      </ul>
 	 */
 	public ImagePlus dynamicToStaticAntPost(ImagePlus imp) {
-		ImagePlus[] Ant_Post = Library_Dicom.sortDynamicAntPost(imp);
+		ImagePlus[] Ant_Post = Library_Dicom.splitDynamicAntPost(imp);
 
 		ImagePlus Ant = Library_Dicom.projeter(Ant_Post[0], 1, Ant_Post[0].getStackSize(), "sum");
 		ImagePlus Post = Library_Dicom.projeter(Ant_Post[1], 1, Ant_Post[1].getStackSize(), "sum");

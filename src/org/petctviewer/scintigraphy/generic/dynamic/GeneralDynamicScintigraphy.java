@@ -39,7 +39,7 @@ public class GeneralDynamicScintigraphy extends Scintigraphy{
 				imps[1] = selectedImages[i].getImagePlus().duplicate();
 			}else if(selectedImages[i].getImageOrientation()==Orientation.DYNAMIC_ANT_POST) {
 				if(imps[1]!=null || imps[0]!=null) throw new WrongInputException("Multiple dynamic Image");
-				imps=Library_Dicom.sortDynamicAntPost(selectedImages[i].getImagePlus());
+				imps=Library_Dicom.splitDynamicAntPost(selectedImages[i].getImagePlus());
 			}else{
 				throw new WrongInputException("Unexpected Image orientation");
 			}

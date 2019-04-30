@@ -74,15 +74,15 @@ public class EsophagealTransit extends Scintigraphy {
 		for(int i =0; i< selectedImages.length; i++){
 			//on ne sauvegarde que la ant
 			//null == pas d'image ant et/ou une image post et != une image post en [0]
-			ImagePlus[] splited=Library_Dicom.sortDynamicAntPost(selectedImages[i].getImagePlus());
+			ImagePlus[] splited=Library_Dicom.splitDynamicAntPost(selectedImages[i].getImagePlus());
 			if(splited[0] != null) {
-				imagePourTrieAnt.add(Library_Dicom.sortDynamicAntPost(selectedImages[i].getImagePlus())[0]);
+				imagePourTrieAnt.add(Library_Dicom.splitDynamicAntPost(selectedImages[i].getImagePlus())[0]);
 			}
 			// [1] : c'est la post
 			// si null : pas dimage post 
 			if(splited[1] != null) {
 				//trie + inversement de la post
-				imagePourTriePost.add(Library_Dicom.flipStackHorizontal(Library_Dicom.sortDynamicAntPost(selectedImages[i].getImagePlus())[1]));
+				imagePourTriePost.add(Library_Dicom.flipStackHorizontal(Library_Dicom.splitDynamicAntPost(selectedImages[i].getImagePlus())[1]));
 			}
 			selectedImages[i].getImagePlus().close();
 

@@ -506,7 +506,7 @@ public class Library_Dicom {
 	 * 
 	 * @return les imps, [0] correspond a l'ant, [1] a la post
 	 */
-	public static ImagePlus[] sortDynamicAntPost(ImagePlus imagePlus) {
+	public static ImagePlus[] splitDynamicAntPost(ImagePlus imagePlus) {
 		ImagePlus[] sortedImagePlus = new ImagePlus[2];
 
 		// si l'image est multiframe et ce nest pas la meme camera
@@ -529,7 +529,7 @@ public class Library_Dicom {
 	public static ImagePlus[][] sortDynamicAntPost(ImagePlus[] imagePlus) {
 		ImagePlus[][] imps = new ImagePlus[imagePlus.length][2];
 		for (int i = 0; i < imagePlus.length; i++) { // pour chaque fenetre
-			imps[i] = sortDynamicAntPost(imagePlus[i]);
+			imps[i] = splitDynamicAntPost(imagePlus[i]);
 		}
 		return imps;
 	}

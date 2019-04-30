@@ -43,7 +43,7 @@ public class DynGastricScintigraphy extends Scintigraphy {
 						acceptedOrientations);
 
 			// Sort orientation to always have Ant
-			ImagePlus[] dyn = Library_Dicom.sortDynamicAntPost(ims.getImagePlus());
+			ImagePlus[] dyn = Library_Dicom.splitDynamicAntPost(ims.getImagePlus());
 			if (ims.getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
 				selection[i] = ims.clone();
 				selection[i].setImagePlus(Library_Dicom.projeter(dyn[0], 1, 10, "sum"));
