@@ -6,6 +6,7 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 
+import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 
 /**
@@ -20,13 +21,13 @@ public class FenResults extends JFrame {
 	private JTabbedPane tabPane;
 	private List<TabResult> tabsResult;
 
-	private ModeleScin model;
+	private ControleurScin controller;
 
-	public FenResults(ModeleScin model) {
-		this.setTitle("Result for " + model.getStudyName());
+	public FenResults(ControleurScin controller) {
+		this.setTitle("Result for " + controller.getModel().getStudyName());
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-		this.model = model;
+		this.controller = controller;
 
 		this.tabPane = new JTabbedPane();
 		this.tabsResult = new ArrayList<>();
@@ -35,9 +36,13 @@ public class FenResults extends JFrame {
 
 		this.setVisible(true);
 	}
-
+	
 	public ModeleScin getModel() {
-		return this.model;
+		return this.controller.getModel();
+	}
+
+	public ControleurScin getController() {
+		return this.controller;
 	}
 
 	/**

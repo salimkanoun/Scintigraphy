@@ -151,6 +151,8 @@ public abstract class ControleurScin implements ActionListener {
 	 * @throws NoDataException if no ROI is present on the current ImagePlus
 	 */
 	public void saveRoiAtIndex(String name, int indexRoiToSave) throws NoDataException {
+		// TODO: do not check if a ROI exists with its name, use the index!!
+
 		Roi roiToSave = this.vue.getImagePlus().getRoi();
 
 		// Check if there is a ROI to save
@@ -160,24 +162,22 @@ public abstract class ControleurScin implements ActionListener {
 		roiToSave.setStrokeColor(Color.YELLOW);
 		roiToSave.setPosition(0);
 
-		Roi existingRoi = this.getRoi(name);
-		int posExisting = indexRoiToSave;
+		Roi existingRoi = this.getRoiManager().getRoi(indexRoiToSave);
 
 		// Check if there is an existing ROI
 		if (existingRoi != null) {
-			posExisting = this.model.getRoiManager().getRoiIndex(existingRoi);
 			// Overwrite it
-			this.model.getRoiManager().setRoi(roiToSave, posExisting);
-			System.out.println("Overriding ROI " + posExisting + " by " + roiToSave.getName());
+			this.model.getRoiManager().setRoi(roiToSave, indexRoiToSave);
+			System.out.println("Overriding ROI " + indexRoiToSave + " by " + roiToSave.getName());
 		} else {
 			// Add it
 			this.model.getRoiManager().addRoi(roiToSave);
-			System.out.println("Creating new ROI#" + posExisting);
+			System.out.println("Creating new ROI#" + indexRoiToSave);
 		}
 		this.vue.getImagePlus().killRoi();
 
 		// Name the ROI
-		this.model.getRoiManager().rename(posExisting, name);
+		this.model.getRoiManager().rename(indexRoiToSave, name);
 	}
 
 	/**
@@ -285,11 +285,11 @@ public abstract class ControleurScin implements ActionListener {
 	 * @throws IllegalArgumentException if the state doesn't have the required data
 	 */
 	public void setOverlay(ImageState state) throws IllegalArgumentException {
-		if(state == null)
+		if (state == null)
 			throw new IllegalArgumentException("The state cannot be null");
 		if (state.getFacingOrientation() == null)
-			throw new IllegalArgumentException(
-					"The state misses the required data: -facingOrientation=" + state.getFacingOrientation() + "; " + state.getSlice());
+			throw new IllegalArgumentException("The state misses the required data: -facingOrientation="
+					+ state.getFacingOrientation() + "; " + state.getSlice());
 
 		this.vue.getOverlay().clear();
 
@@ -391,6 +391,9 @@ public abstract class ControleurScin implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		if (!(e.getSource() instanceof Button))
+			return;
+
 		Button b = (Button) e.getSource();
 
 		if (b == this.vue.getBtn_suivant()) {

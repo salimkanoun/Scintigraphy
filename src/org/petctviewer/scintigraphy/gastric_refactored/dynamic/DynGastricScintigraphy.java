@@ -37,8 +37,6 @@ public class DynGastricScintigraphy extends Scintigraphy {
 		for (int i = 0; i < openedImages.length; i++) {
 			ImageSelection ims = openedImages[i];
 			if (!Arrays.stream(acceptedOrientations).anyMatch(o -> o.equals(ims.getImageOrientation()))) {
-				System.out.println("Error here!");
-				System.out.println("Accepted orientations: " + Arrays.toString(acceptedOrientations));
 				throw new WrongColumnException.OrientationColumn(ims.getRow(), ims.getImageOrientation(),
 						acceptedOrientations);
 			}
@@ -53,8 +51,6 @@ public class DynGastricScintigraphy extends Scintigraphy {
 				selection[i] = ims.clone();
 			}
 		}
-
-		System.out.println(openedImages.length + " images opened");
 
 		// Close other images
 		Arrays.stream(openedImages).forEach(ims -> ims.getImagePlus().close());
