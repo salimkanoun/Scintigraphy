@@ -20,15 +20,17 @@ public class DoubleImageThread extends Thread{
 	}
 	
 	public void run() {
+		int width = 512;
 		double ratioCapture = this.scin.getFenApplication().getImagePlus().getWidth()*1.0 / this.scin.getFenApplication().getImagePlus().getHeight()*1.0;
 		ImagePlus impRes = new ImagePlus();
-		ImageStack capture = new ImageStack(200, (int) (200/ratioCapture));
+		ImageStack capture = new ImageStack(width, (int) (width/ratioCapture));
 		
-		capture.addSlice( Library_Capture_CSV.captureImage(this.model.getImagePlus(), 200, (int) (200/ratioCapture) ).getProcessor());
+		this.model.getImagePlus().setSlice(1);
+		capture.addSlice( Library_Capture_CSV.captureImage(this.model.getImagePlus(), width, 0 ).getProcessor());
 		capture.setSliceLabel("ant", 1);
 		this.model.getImagePlus().setSlice(2);
 
-		capture.addSlice( Library_Capture_CSV.captureImage(this.model.getImagePlus(), 200, (int) (200/ratioCapture) ).getProcessor());
+		capture.addSlice( Library_Capture_CSV.captureImage(this.model.getImagePlus(), width, 0 ).getProcessor());
 		capture.setSliceLabel("post", 2);
 		
 		impRes.setStack(capture);
@@ -36,9 +38,9 @@ public class DoubleImageThread extends Thread{
 		
 		MontageMaker montageMaker = new MontageMaker();
 		impRes = montageMaker.makeMontage2(impRes,
-				2, //columns
-				1, //rows 
-				1.00, //scaleFactor 
+				1, //columns
+				2, //rows 
+				0.50, //scaleFactor 
 				1, //first slice 
 				2, //last slice 
 				1, //increment

@@ -7,36 +7,60 @@ public class DrawLoopInstruction extends DefaultGenerator {
 
 	private int indexRoiToDisplay;
 
-	public DrawLoopInstruction(Workflow workflow) {
-		this(workflow, null);
+	private ImageState state;
+
+	private String RoiName;
+
+	private String suffixe;
+
+	public DrawLoopInstruction(Workflow workflow, ImageState state) {
+		this(workflow, null, state);
 	}
 
-	protected DrawLoopInstruction(Workflow workflow, GeneratorInstruction parent) {
+	protected DrawLoopInstruction(Workflow workflow, GeneratorInstruction parent, ImageState state) {
 		super(workflow, parent);
 		this.indexRoiToDisplay = -1;
+		
+		this.suffixe = "";
+		
+		if (state == null)
+			this.state = parent.getImageState();
+		else
+			this.state = state;
 	}
 
 	@Override
 	public Instruction generate() {
 		if (!this.isStopped) {
 			this.stop();
-			return new DrawLoopInstruction(this.workflow, this);
+			return new DrawLoopInstruction(this.workflow, this, null);
 		}
 		return null;
 	}
 
 	@Override
 	public String getMessage() {
-		return "Draw your ROI";
+		return this.workflow.getController().getModel().getRoiManager().getRoi(this.roiToDisplay()) != null
+				? this.RoiName
+				: "Draw your Roi";
+
 	}
 
 	@Override
 	public String getRoiName() {
 		if (!this.workflow.getController().isOver()) {
-			return this.workflow.getController().getVue().getTextfield_instructions().getText();
+			int i = 0;
+			for (Instruction instruction : this.workflow.getInstructions())
+				if (instruction instanceof DrawLoopInstruction)
+					if (this.workflow.getController().getVue().getTextfield_instructions().getText()
+							.equals(((DrawLoopInstruction) instruction).getInstructionRoiName()))
+						i++;
+			this.RoiName = this.workflow.getController().getVue().getTextfield_instructions().getText();
+			if (i != 0)
+				this.suffixe = "_" + i;
+			return this.RoiName + this.suffixe;
 		}
-		System.out.println(this.workflow.getController().getModel().getRoiManager().getRoi(this.roiToDisplay()).getName());
-		return this.workflow.getController().getModel().getRoiManager().getRoi(this.roiToDisplay()).getName();
+		return this.RoiName;
 	}
 
 	@Override
@@ -58,6 +82,14 @@ public class DrawLoopInstruction extends DefaultGenerator {
 	public void setRoi(int index) {
 		this.indexRoiToDisplay = index;
 	}
-	
+
+	@Override
+	public ImageState getImageState() {
+		return this.state;
+	}
+
+	private String getInstructionRoiName() {
+		return this.RoiName;
+	}
 
 }

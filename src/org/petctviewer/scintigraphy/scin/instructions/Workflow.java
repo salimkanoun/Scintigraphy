@@ -218,5 +218,9 @@ public class Workflow {
 
 		return s.toString();
 	}
+	
+	public List<Instruction> getInstructions(){
+		return this.instructions;
+	}
 
 }

@@ -22,7 +22,7 @@ public class ModeleScinStatic  extends ModeleScin{
 
 	public void enregistrerMesureAnt(String nomRoi, ImagePlus imp) {
 			// on garde uniquement le nom de la roi sans le tag
-			nomRoi = nomRoi.substring(0,nomRoi.lastIndexOf(" "));
+//			nomRoi = nomRoi.substring(0,nomRoi.lastIndexOf(" "));
 			// si la roi n'existe pas, on la crée 
 			if(this.roisAnt.get(nomRoi)==null) {
 				Object[] o = { 	Library_Quantif.round(Library_Quantif.getCounts(imp),3),
@@ -35,7 +35,7 @@ public class ModeleScinStatic  extends ModeleScin{
 	
 	public void enregistrerMesurePost(String nomRoi, ImagePlus imp) {
 		// on garde uniquement le nom de la roi sans le tag
-		nomRoi = nomRoi.substring(0,nomRoi.lastIndexOf(" "));
+//		nomRoi = nomRoi.substring(0,nomRoi.lastIndexOf(" "));
 		// si la roi n'existe pas, on la crée 
 		if(this.roisPost.get(nomRoi)==null) {
 			Object[] o = { 	Library_Quantif.round(Library_Quantif.getCounts(imp),3),

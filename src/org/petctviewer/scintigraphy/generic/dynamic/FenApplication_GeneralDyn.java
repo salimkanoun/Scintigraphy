@@ -44,7 +44,6 @@ public class FenApplication_GeneralDyn extends FenApplication {
 		
 		IJ.setTool(Toolbar.RECTANGLE);
 		this.imp.setOverlay(Library_Gui.initOverlay(getImagePlus()));
-		Library_Gui.setOverlayDG(getImagePlus());
 	}
 
 	public Button getBtn_finish() {

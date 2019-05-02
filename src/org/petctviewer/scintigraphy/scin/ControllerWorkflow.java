@@ -74,6 +74,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		Instruction i = this.workflows[0].next();
 		if (i != null) {
 			// TODO: maybe do not assume the lateralisation is RL?
+			System.out.println(this.workflows[0].getImageAssociated().getImageOrientation());
 			this.currentState = new ImageState(
 					this.workflows[0].getImageAssociated().getImageOrientation().getFacingOrientation(), 1,
 					ImageState.LAT_RL, ImageState.ID_NONE);
@@ -285,8 +286,10 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			resetOverlay = true;
 		}
 		
-		if(resetOverlay)
+		if(resetOverlay) {
+			this.vue.getOverlay().clear();
 			this.setOverlay(this.currentState);
+		}
 	}
 
 	@Override
@@ -302,8 +305,10 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 		Button source = (Button) e.getSource();
 		if (source.getActionCommand().contentEquals(COMMAND_END)) {
-			if (this.workflows[this.indexCurrentImage].getCurrentInstruction() instanceof GeneratorInstruction)
+			if (this.workflows[this.indexCurrentImage].getCurrentInstruction() instanceof GeneratorInstruction) {
 				((GeneratorInstruction) this.workflows[this.indexCurrentImage].getCurrentInstruction()).stop();
+				this.clicSuivant();
+			}
 		}
 	}
 

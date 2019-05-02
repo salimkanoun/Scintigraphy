@@ -8,10 +8,12 @@ import java.util.List;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.DrawLoopInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
@@ -33,6 +35,9 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
 	public ControllerWorkflowScinDynamic(Scintigraphy main, FenApplication vue, ModeleScin model) {
 		super(main, vue, model);
+		
+		this.generateInstructions();
+		this.start();
 
 		this.fenResult = new FenResults(this.model);
 		this.fenResult.setVisible(false);
@@ -40,10 +45,13 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
 	@Override
 	protected void generateInstructions() {
+		this.workflows = new Workflow[this.model.getImageSelection().length];
 		DefaultGenerator dri_1 = null;
+		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
 
-		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0].getImagePlus());
-		dri_1 = new DrawLoopInstruction(this.workflows[0]);
+		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
+		
+		dri_1 = new DrawLoopInstruction(this.workflows[0],stateAnt);
 
 		this.workflows[0].addInstructionOnTheFly(dri_1);
 
@@ -77,7 +85,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		this.fenResult = new FenResultat_GeneralDyn((ModeleScinDyn) this.model, asso);
 
 		if (scindyn.getImpAnt() != null) {
-			capture = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
+			capture = Library_Capture_CSV.captureImage(imp, 512, 0).getBufferedImage();
 			saveValues(scindyn.getImpAnt());
 			this.fenResult.addTab(new TabAntPost(capture, "Ant", this.fenResult));
 		}
@@ -103,8 +111,8 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-
-					BufferedImage c = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
+					imp.setSlice(2);
+					BufferedImage c = Library_Capture_CSV.captureImage(imp, 512, 0).getBufferedImage();
 
 					saveValues(scindyn.getImpPost());
 					ControllerWorkflowScinDynamic.this.fenResult
