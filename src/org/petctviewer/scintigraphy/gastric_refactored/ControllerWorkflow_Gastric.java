@@ -129,7 +129,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null;
 
-		this.captures = new ArrayList<>();
+		this.captures = new ArrayList<>(1);
 
 		// First instruction to get the acquisition time for the starting point
 		PromptIngestionTime promptIngestionTime = new PromptIngestionTime(this);
@@ -157,7 +157,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			this.workflows[i].addInstruction(dri_4);
 			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_3, dri_4, "Antre"));
 			if (i == 0)
-				this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 640, 512));
+				this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 0, 640, 512));
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}

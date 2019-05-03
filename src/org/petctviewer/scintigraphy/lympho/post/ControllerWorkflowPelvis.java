@@ -51,7 +51,7 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 			dri_1 = new DrawRoiInstruction("Right Pelvis", stateAnt, null);
 			dri_2 = new DrawRoiInstruction("Left Pelvis", stateAnt, null);
 			dri_3 = new DrawRoiInstruction("Background", stateAnt, null);
-			dri_capture = new ScreenShotInstruction(captures, this.getVue());
+			dri_capture = new ScreenShotInstruction(captures, this.getVue(), i);
 			dri_4 = new DrawRoiInstruction("Right Pelvis", statePost, dri_1);
 			dri_5 = new DrawRoiInstruction("Left Pelvis", statePost, dri_2);
 			dri_6 = new DrawRoiInstruction("Background", statePost, dri_3);

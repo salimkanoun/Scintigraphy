@@ -43,7 +43,7 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 			
 			dri_1 = new DrawRoiInstruction("Right Foot", stateAnt);
 			dri_2 = new DrawRoiInstruction("Left Foot", stateAnt);
-			dri_capture = new ScreenShotInstruction(captures, this.getVue());
+			dri_capture = new ScreenShotInstruction(captures, this.getVue(), i);
 			dri_3 = new DrawRoiInstruction("Right Foot", statePost, dri_1);
 			dri_4 = new DrawRoiInstruction("Left Foot", statePost, dri_2);
 
