@@ -113,9 +113,7 @@ public class FenResults extends JFrame {
 	 * Removes all the tabs.
 	 */
 	public void clearTabs() {
-		for (TabResult tab : this.tabsResult) {
-			this.removeTab(tab);
-		}
+		this.tabsResult.clear();
 		this.tabPane.removeAll();
 	}
 
