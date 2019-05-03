@@ -29,6 +29,7 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 		IJ.setTool(Toolbar.POLYGON);
 	}
 
+	@SuppressWarnings("deprecation")
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 
 		ImageSelection[] imps = new ImageSelection[2];

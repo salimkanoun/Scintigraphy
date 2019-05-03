@@ -10,6 +10,7 @@ import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
@@ -36,12 +37,16 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 		System.out.println("Captures créées");
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
-			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i].getImagePlus());
-			dri_1 = new DrawRoiInstruction("Right Foot", Orientation.ANT);
-			dri_2 = new DrawRoiInstruction("Left Foot", Orientation.ANT);
+			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i]);
+			
+			ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
+			ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
+			
+			dri_1 = new DrawRoiInstruction("Right Foot", stateAnt);
+			dri_2 = new DrawRoiInstruction("Left Foot", stateAnt);
 			dri_capture = new ScreenShotInstruction(captures, this.getVue());
-			dri_3 = new DrawRoiInstruction("Right Foot", Orientation.POST, dri_1);
-			dri_4 = new DrawRoiInstruction("Left Foot", Orientation.POST, dri_2);
+			dri_3 = new DrawRoiInstruction("Right Foot", statePost, dri_1);
+			dri_4 = new DrawRoiInstruction("Left Foot", statePost, dri_2);
 
 			this.workflows[i].addInstruction(dri_1);
 			this.workflows[i].addInstruction(dri_2);
@@ -92,7 +97,7 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 		}
 		this.model.calculerResultats();
 		System.out.println(captures != null);
-		new FenResultatsLympho(model, captures.toArray(new ImagePlus[captures.size()]));
+		new FenResultatsLympho(this, captures.toArray(new ImagePlus[captures.size()]));
 
 	}
 

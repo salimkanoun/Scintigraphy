@@ -239,7 +239,7 @@ public class ControleurPost extends ControleurScin {
 
 	private void prepareOrientation() {
 		// Remove overlay
-		this.resetOverlay();
+		this.resetOverlay(null);
 
 		this.vue.setImage(this.model.getImageSelection()[this.etape].getImagePlus());
 		if (firstOrientationOver)

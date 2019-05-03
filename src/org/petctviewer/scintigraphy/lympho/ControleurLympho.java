@@ -94,7 +94,7 @@ public class ControleurLympho extends ControleurScin {
 		else
 			this.previousOrgan();
 
-		this.resetOverlay();
+		this.resetOverlay(null);
 		this.displayRois(this.position - this.organe, this.position);
 
 	}
@@ -249,7 +249,8 @@ public class ControleurLympho extends ControleurScin {
 
 	private void prepareOrientation() {
 		// Remove overlay
-		this.resetOverlay();
+		
+		this.setOverlay(null);
 
 		this.vue.setImage(this.model.getImageSelection()[this.etape].getImagePlus());
 		if (firstOrientationOver)

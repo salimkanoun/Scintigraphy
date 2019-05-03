@@ -97,4 +97,9 @@ public class ImageSelection implements Cloneable {
 		img.columnsValues = this.columnsValues;
 		return img;
 	}
+	public ImageSelection clone(Orientation o) {
+		ImageSelection img = this.clone();
+		img.columnsValues.replace(Column.ORIENTATION.getName(), o.toString());
+		return img;
+	}
 }
