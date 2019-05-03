@@ -28,34 +28,35 @@ public class Controleur_Hepatic extends Controleur_OrganeFixe {
 
 	@Override
 	public void end() {
-		//SK A REVOIR MANQUE LES ROI DE LA PREMIERE SLICE
+		// SK A REVOIR MANQUE LES ROI DE LA PREMIERE SLICE
 		this.setSlice(1);
-		
+
 		this.setSlice(2);
 		// Copie des rois sur la deuxieme slice
-		HashMap<String, Double> data =new HashMap<String, Double>();
+		HashMap<String, Double> data = new HashMap<String, Double>();
 		for (int i = 0; i < 2; i++) {
 			this.indexRoi++;
 			this.model.getImagePlus().setRoi(getOrganRoi(this.indexRoi));
-			
+
 			Double counts = Library_Quantif.getCounts(this.model.getImagePlus());
 			data.put(this.addTag(this.getNomOrgane(this.indexRoi)), counts);
 		}
 		((Modele_Hepatic) this.model).setData(data);
 		this.model.calculerResultats();
-		
+
 		this.setSlice(1);
-		
+
 		Thread captureThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-				    Thread.sleep(200);
+					Thread.sleep(200);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				BufferedImage capture = Library_Capture_CSV.captureImage(Controleur_Hepatic.this.model.getImagePlus(), 400, 400).getBufferedImage();
-				new FenResultat_Hepatic(getScin(), capture, Controleur_Hepatic.this.model);
+				BufferedImage capture = Library_Capture_CSV
+						.captureImage(Controleur_Hepatic.this.model.getImagePlus(), 400, 400).getBufferedImage();
+				new FenResultat_Hepatic(getScin(), capture, Controleur_Hepatic.this);
 				getScin().getFenApplication().dispose();
 			}
 		});

@@ -11,6 +11,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+import org.petctviewer.scintigraphy.scin.library.ReversedChronologicalAcquisitionComparator;
 
 public class DynGastricScintigraphy extends Scintigraphy {
 
@@ -45,8 +46,7 @@ public class DynGastricScintigraphy extends Scintigraphy {
 			if (ims.getImageOrientation() == Orientation.DYNAMIC_ANT_POST
 					|| ims.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
 				ImageSelection[] dyn = Library_Dicom.splitDynamicAntPost(ims);
-				selection[i] = dyn[0].clone();
-				selection[i].setImagePlus(Library_Dicom.projeter(dyn[0].getImagePlus(), 1, 10, "sum"));
+				selection[i] = Library_Dicom.project(dyn[0], 1, 10, "sum");
 			} else {
 				selection[i] = ims.clone();
 			}
@@ -56,7 +56,7 @@ public class DynGastricScintigraphy extends Scintigraphy {
 		Arrays.stream(openedImages).forEach(ims -> ims.getImagePlus().close());
 
 		// Order image by time (reversed)
-		selection = Library_Dicom.orderImagesByAcquisitionTime(selection, true);
+		Arrays.parallelSort(selection, new ReversedChronologicalAcquisitionComparator());
 
 		return selection;
 	}

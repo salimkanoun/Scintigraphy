@@ -1,6 +1,6 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 
 public class FenResultat_GeneralDyn extends FenResults {
@@ -9,12 +9,12 @@ public class FenResultat_GeneralDyn extends FenResults {
 
 	private String[][] asso;
 
-	public FenResultat_GeneralDyn(ModeleScinDyn modele, String[][] asso) {
-		super(modele);
+	public FenResultat_GeneralDyn(ControleurScin controller, String[][] asso) {
+		super(controller);
 		this.asso = asso;
 
 
-		this.setLocationRelativeTo(modele.getImagePlus().getWindow());
+		this.setLocationRelativeTo(controller.getModel().getImagePlus().getWindow());
 	}
 
 	public String[][] getAsso() {

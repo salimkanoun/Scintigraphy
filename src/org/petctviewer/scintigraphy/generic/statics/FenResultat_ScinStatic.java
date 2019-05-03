@@ -11,7 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 
-import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -28,8 +28,8 @@ public class FenResultat_ScinStatic extends FenResults {
 
 	private TabResult tab;
 
-	public FenResultat_ScinStatic(BufferedImage capture, ModeleScin model) {
-		super(model);
+	public FenResultat_ScinStatic(BufferedImage capture, ControleurScin controller) {
+		super(controller);
 		this.capture = capture;
 
 		this.tab = new Tab(this, "Result");
@@ -37,13 +37,13 @@ public class FenResultat_ScinStatic extends FenResults {
 		this.panPost = new JPanel();
 		this.panAvgGeo = new JPanel();
 
-		this.addAntTab(((ModeleScinStatic) model).calculerTableauAnt());
-		this.addPostTab(((ModeleScinStatic) model).calculerTableauPost());
-		this.addMoyGeomTab(((ModeleScinStatic) model).calculerTaleauMayGeom());
+		this.addAntTab(((ModeleScinStatic) controller.getModel()).calculerTableauAnt());
+		this.addPostTab(((ModeleScinStatic) controller.getModel()).calculerTableauPost());
+		this.addMoyGeomTab(((ModeleScinStatic) controller.getModel()).calculerTaleauMayGeom());
 
 		this.addTab(tab);
 
-		this.setLocationRelativeTo(model.getImagePlus().getWindow());
+		this.setLocationRelativeTo(controller.getModel().getImagePlus().getWindow());
 	}
 
 	private class Tab extends TabResult {

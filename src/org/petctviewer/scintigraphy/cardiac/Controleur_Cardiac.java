@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
@@ -59,22 +58,14 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 		// this.removeImpListener();
 		((Modele_Cardiac) this.model).getResults();
 		((Modele_Cardiac) this.model).calculerResultats();
-
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				BufferedImage capture = Library_Capture_CSV
-						.captureImage(controler.getScin().getFenApplication().getImagePlus(), 400, 0)
-						.getBufferedImage();
-				new FenResultat_Cardiac(controler.getScin(), capture, model);
-			}
-		});
-
+		
+		BufferedImage capture = Library_Capture_CSV.captureImage(controler.getScin().getFenApplication().getImagePlus(), 400, 0).getBufferedImage();
+		new FenResultat_Cardiac(controler.getScin(), capture, this);
 	}
 
 	@Override
 	public boolean isPost() {
-		ImagePlus imp = this.model.getImagesPlus()[0];
+		ImagePlus imp = this.model.getImageSelection()[0].getImagePlus();
 
 		if (imp.getRoi() != null) {
 			return imp.getRoi().getXBase() > imp.getWidth() / 2;
@@ -105,7 +96,7 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 			// on fait le symetrique de la roi
 			roi = RoiScaler.scale(roi, -1, 1, true);
 
-			int quart = (this.model.getImagesPlus()[0].getWidth() / 4);
+			int quart = (this.model.getImageSelection()[0].getImagePlus().getWidth() / 4);
 			int newX = (int) (roi.getXBase() - Math.abs(2 * (roi.getXBase() - quart)) - roi.getFloatWidth());
 			roi.setLocation(newX, roi.getYBase());
 			return roi;
@@ -119,16 +110,16 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 		lastOrgan = (Roi) lastOrgan.clone();
 
 		// si la derniere roi etait post ou ant
-		boolean OrganPost = lastOrgan.getXBase() > this.model.getImagesPlus()[0].getWidth() / 2;
+		boolean OrganPost = lastOrgan.getXBase() > this.model.getImageSelection()[0].getImagePlus().getWidth() / 2;
 
 		// si on doit faire le symetrique et que l'on a appuye sur next
 		if (this.getIndexRoi() % 2 == 1 && lastRoi < this.indexRoi) {
 
 			if (OrganPost) { // si la prise est ant, on decale l'organe precedent vers la droite
-				lastOrgan.setLocation(lastOrgan.getXBase() - (this.model.getImagesPlus()[0].getWidth() / 2),
+				lastOrgan.setLocation(lastOrgan.getXBase() - (this.model.getImageSelection()[0].getImagePlus().getWidth() / 2),
 						lastOrgan.getYBase());
 			} else { // sinon vers la gauche
-				lastOrgan.setLocation(lastOrgan.getXBase() + (this.model.getImagesPlus()[0].getWidth() / 2),
+				lastOrgan.setLocation(lastOrgan.getXBase() + (this.model.getImageSelection()[0].getImagePlus().getWidth() / 2),
 						lastOrgan.getYBase());
 			}
 
@@ -139,7 +130,7 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 	}
 
 	private boolean isDeuxPrises() {
-		return this.model.getImagesPlus()[0].getImageStackSize() > 1;
+		return this.model.getImageSelection()[0].getImagePlus().getImageStackSize() > 1;
 	}
 
 	private void clicNewCont() {
@@ -174,7 +165,7 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 
 	private void clicEndCont() {
 		// on set la slice
-		if ((this.model.getImagesPlus()[0].getCurrentSlice() == 1 && this.isDeuxPrises())) {
+		if ((this.model.getImageSelection()[0].getImagePlus().getCurrentSlice() == 1 && this.isDeuxPrises())) {
 			// on relance le mode decontamination, cette fois ci pour la deuxieme slice
 			this.finContSlice1 = true;
 			this.setSlice(2);

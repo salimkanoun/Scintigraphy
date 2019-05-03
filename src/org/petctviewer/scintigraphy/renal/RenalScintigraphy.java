@@ -28,18 +28,18 @@ public class RenalScintigraphy extends Scintigraphy {
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 		
 		//Prepare the final ImagePlus array, position 0 for anterior dynamic and position 1 for posterior dynamic.
-		ImagePlus[] imps =new ImagePlus[2];
+		ImageSelection[] imps =new ImageSelection[2];
 		
 		for (int i=0 ; i<selectedImages.length; i++) {
 			if(selectedImages[i].getImageOrientation()==Orientation.DYNAMIC_ANT ) {
 				if(imps[0]!=null) throw new WrongInputException("Multiple dynamic Antorior Image");
-				imps[0] = selectedImages[i].getImagePlus().duplicate();
+				imps[0] = selectedImages[i].clone();
 			}else if(selectedImages[i].getImageOrientation()==Orientation.DYNAMIC_POST) {
 				if(imps[1]!=null) throw new WrongInputException("Multiple dynamic Posterior Image");
-				imps[1] = selectedImages[i].getImagePlus().duplicate();
+				imps[1] = selectedImages[i].clone();
 			}else if(selectedImages[i].getImageOrientation()==Orientation.DYNAMIC_ANT_POST) {
 				if(imps[1]!=null || imps[0]!=null) throw new WrongInputException("Multiple dynamic Image");
-				imps=Library_Dicom.splitDynamicAntPost(selectedImages[i].getImagePlus());
+				imps=Library_Dicom.splitDynamicAntPost(selectedImages[i]);
 			}else{
 				throw new WrongInputException("Unexpected Image type");
 			}
@@ -50,7 +50,7 @@ public class RenalScintigraphy extends Scintigraphy {
 		
 		
 		if(imps[1] != null) {
-			this.impPost = imps[1];
+			this.impPost = imps[1].getImagePlus();
 			for(int i = 1; i <= this.impPost.getStackSize(); i++) {
 				this.impPost.getStack().getProcessor(i).flipHorizontal();	
 			}

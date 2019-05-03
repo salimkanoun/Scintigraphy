@@ -9,7 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -19,8 +19,8 @@ public class FenResultats_Dmsa extends FenResults {
 
 	private static final long serialVersionUID = 8836086131939302449L;
 
-	public FenResultats_Dmsa(BufferedImage capture, ModeleScin model) {
-		super(model);
+	public FenResultats_Dmsa(BufferedImage capture, ControleurScin controller) {
+		super(controller);
 		this.addTab(new TabResult(this, this.getModel().getStudyName()) {
 			
 			@Override

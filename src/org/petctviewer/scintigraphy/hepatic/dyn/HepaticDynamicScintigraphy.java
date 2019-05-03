@@ -41,13 +41,13 @@ public class HepaticDynamicScintigraphy extends Scintigraphy {
 	      IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 	    }
 	    
-	    ImagePlus[] imps = Library_Dicom.splitDynamicAntPost(images[0].getImagePlus());
+	    ImageSelection[] imps = Library_Dicom.splitDynamicAntPost(images[0]);
 	    if(imps[0] != null) {
-	      this.impAnt = imps[0];
+	      this.impAnt = imps[0].getImagePlus();
 	    }
 	    
 	    if(imps[1] != null) {
-	      this.impPost = imps[1];
+	      this.impPost = imps[1].getImagePlus();
 	      for(int i = 1; i <= this.impPost.getStackSize(); i++) {
 	        this.impPost.getStack().getProcessor(i).flipHorizontal();
 	      }

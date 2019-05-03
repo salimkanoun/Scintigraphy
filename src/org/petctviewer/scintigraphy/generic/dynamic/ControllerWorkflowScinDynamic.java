@@ -34,7 +34,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 	public ControllerWorkflowScinDynamic(Scintigraphy main, FenApplication vue, ModeleScin model) {
 		super(main, vue, model);
 
-		this.fenResult = new FenResults(this.model);
+		this.fenResult = new FenResults(this);
 		this.fenResult.setVisible(false);
 	}
 
@@ -42,7 +42,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 	protected void generateInstructions() {
 		DefaultGenerator dri_1 = null;
 
-		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0].getImagePlus());
+		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 		dri_1 = new DrawLoopInstruction(this.workflows[0]);
 
 		this.workflows[0].addInstructionOnTheFly(dri_1);
@@ -74,7 +74,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		fenGroup.setVisible(true);
 		String[][] asso = fenGroup.getAssociation();
 
-		this.fenResult = new FenResultat_GeneralDyn((ModeleScinDyn) this.model, asso);
+		this.fenResult = new FenResultat_GeneralDyn(this, asso);
 
 		if (scindyn.getImpAnt() != null) {
 			capture = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();

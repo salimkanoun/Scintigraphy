@@ -67,7 +67,7 @@ public class Controleur_Dmsa extends Controleur_OrganeFixe {
 
 		this.model.calculerResultats();
 
-		new FenResultats_Dmsa(capture, this.model);
+		new FenResultats_Dmsa(capture, this);
 
 		this.over = false;
 	}

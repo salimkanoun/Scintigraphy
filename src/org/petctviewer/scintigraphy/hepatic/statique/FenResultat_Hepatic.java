@@ -9,7 +9,7 @@ import java.util.HashMap;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -21,10 +21,10 @@ public class FenResultat_Hepatic extends FenResults {
 
 	private HashMap<String, String> resultats;
 
-	public FenResultat_Hepatic(Scintigraphy scin, BufferedImage capture, ModeleScin model) {
-		super(model);
+	public FenResultat_Hepatic(Scintigraphy scin, BufferedImage capture, ControleurScin controller) {
+		super(controller);
 		this.setLayout(new BorderLayout());
-		this.resultats = ((Modele_Hepatic) model).getResultsHashMap();
+		this.resultats = ((Modele_Hepatic) controller.getModel()).getResultsHashMap();
 		
 		this.addTab(new TabMain(this, "Result",true,capture));
 	}

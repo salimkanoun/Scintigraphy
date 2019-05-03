@@ -218,7 +218,7 @@ public class ControleurLympho extends ControleurScin {
 		}
 		this.model.calculerResultats();
 
-		new FenResultatsLympho(model, captures);
+		new FenResultatsLympho(this, captures);
 
 	}
 

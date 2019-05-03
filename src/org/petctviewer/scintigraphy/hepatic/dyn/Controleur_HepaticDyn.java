@@ -81,7 +81,7 @@ public class Controleur_HepaticDyn extends Controleur_OrganeFixe {
 		frame.setVisible(true);
 
 		// remove finish
-		new FenResultat_HepaticDyn(scin, capture, this.model);
+		new FenResultat_HepaticDyn(scin, capture, this);
 		this.getScin().getFenApplication().dispose();
 	}
 

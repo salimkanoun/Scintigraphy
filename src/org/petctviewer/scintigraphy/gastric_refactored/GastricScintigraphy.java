@@ -8,6 +8,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 public class GastricScintigraphy extends Scintigraphy {
@@ -38,7 +39,7 @@ public class GastricScintigraphy extends Scintigraphy {
 		Arrays.stream(openedImages).forEach(ims -> ims.getImagePlus().close());
 
 		// Order images by time
-		selection = Library_Dicom.orderImagesByAcquisitionTime(selection, false);
+		Arrays.parallelSort(selection, new ChronologicalAcquisitionComparator());
 
 		return selection;
 	}

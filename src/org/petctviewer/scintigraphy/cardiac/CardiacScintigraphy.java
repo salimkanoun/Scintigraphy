@@ -7,6 +7,7 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
+import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -47,7 +48,9 @@ public class CardiacScintigraphy extends Scintigraphy {
 			selectedImages[i].getImagePlus().close();
 		}
 
-		ImagePlus[] mountedSorted = Library_Dicom.orderImagesByAcquisitionTime(mountedImages);
+		ImagePlus[] mountedSorted = new ImagePlus[mountedImages.size()];
+		mountedImages.sort(new ChronologicalAcquisitionComparator.ImagePlusComparator());
+		mountedSorted = mountedImages.toArray(mountedSorted);
 		Concatenator enchainer = new Concatenator();
 
 		ImagePlus impStacked;
