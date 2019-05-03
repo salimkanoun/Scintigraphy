@@ -59,7 +59,8 @@ public interface Instruction {
 	/**
 	 * If an instruction saves a ROI, it must:
 	 * <ul>
-	 * <li>ask the user to draw a ROI</li>or
+	 * <li>ask the user to draw a ROI</li><br>
+	 * or
 	 * <li>automatically draw a ROI in the {@link #prepareAsNext()} or
 	 * {@link #prepareAsPrevious()} method</li>
 	 * </ul>

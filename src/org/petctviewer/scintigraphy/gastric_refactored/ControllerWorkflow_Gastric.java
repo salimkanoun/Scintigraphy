@@ -174,7 +174,8 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 		// By default, use linear fit
 		((Model_Gastric) this.model).setExtrapolation(Fit.createFit(selectedFit, this.getModel().generateDataset()));
-		((TabChart) this.tabChart).drawFit(((Model_Gastric) model).getFittedSeries());
+		((TabChart) this.tabChart).drawSeries(((Model_Gastric) model).getFittedSeries());
+		((TabChart) this.tabChart).changeLabelInterpolation(selectedFit.toString());
 		this.tabMain.reloadSidePanelContent();
 	}
 

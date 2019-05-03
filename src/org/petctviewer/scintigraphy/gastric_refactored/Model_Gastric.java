@@ -451,7 +451,9 @@ public class Model_Gastric extends ModeleScin {
 		START_ANTRUM("Start antrum", "min"),
 		START_INTESTINE("Start intestine", "min"),
 		LAG_PHASE("Lag phase", "%"),
-		T_HALF("T 1/2", "%");
+		T_HALF("T 1/2", "%"),
+		RETENTION("Retention", "%");
+
 		private String s;
 		private String unit;
 
@@ -459,29 +461,40 @@ public class Model_Gastric extends ModeleScin {
 			this.s = s;
 			this.unit = unit;
 		}
-		
+
 		public String getUnit() {
 			return this.unit;
 		}
-		
+
 		public String getName() {
 			return this.s;
 		}
 	}
 
 	public class ResultValue {
+		public Result type;
 		public double value;
 		public FitType extrapolation;
 
-		public ResultValue(double value, FitType extrapolation) {
+		public ResultValue(Result type, double value, FitType extrapolation) {
+			this.type = type;
 			this.value = value;
 			this.extrapolation = extrapolation;
+		}
+
+		public boolean isExtrapolated() {
+			return this.extrapolation != null;
+		}
+
+		public String notNegative() {
+			return BigDecimal.valueOf(Math.max(0, value)).setScale(2, RoundingMode.HALF_UP).toString()
+					+ (isExtrapolated() ? "(*)" : "");
 		}
 
 		@Override
 		public String toString() {
 			return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).toString()
-					+ (extrapolation != null ? "(*)" : "");
+					+ (isExtrapolated() ? "(*)" : "");
 		}
 	}
 
@@ -544,9 +557,9 @@ public class Model_Gastric extends ModeleScin {
 		FitType extrapolationType = null;
 		switch (result) {
 		case START_ANTRUM:
-			return new ResultValue(this.getDebut("Antre"), null);
+			return new ResultValue(result, this.getDebut("Antre"), null);
 		case START_INTESTINE:
-			return new ResultValue(this.getDebut("Intestin"), null);
+			return new ResultValue(result, this.getDebut("Intestin"), null);
 		case LAG_PHASE:
 			extrapolationType = null;
 			Double valX = this.getX(95.);
@@ -555,7 +568,7 @@ public class Model_Gastric extends ModeleScin {
 				valX = this.interpolateX(95., this.extrapolation);
 				extrapolationType = this.extrapolation.getType();
 			}
-			return new ResultValue(valX, extrapolationType);
+			return new ResultValue(result, valX, extrapolationType);
 		case T_HALF:
 			extrapolationType = null;
 			Double valY = this.getY(50.);
@@ -564,9 +577,9 @@ public class Model_Gastric extends ModeleScin {
 				valY = this.interpolateY(50., this.extrapolation);
 				extrapolationType = this.extrapolation.getType();
 			}
-			return new ResultValue(valY, extrapolationType);
+			return new ResultValue(result, valY, extrapolationType);
 		default:
-			return new ResultValue(0., this.extrapolation.getType());
+			return new ResultValue(result, 0., this.extrapolation.getType());
 		}
 	}
 
@@ -580,8 +593,9 @@ public class Model_Gastric extends ModeleScin {
 	public ResultValue retentionAt(double time) {
 		Double res = this.getY(time);
 		if (res == null)
-			return new ResultValue(this.interpolateY(time, this.extrapolation), this.extrapolation.getType());
-		return new ResultValue(res, null);
+			return new ResultValue(Result.RETENTION, this.interpolateY(time, this.extrapolation),
+					this.extrapolation.getType());
+		return new ResultValue(Result.RETENTION, res, null);
 	}
 
 	// permet de transferer toutes les resultats en une tableau de chaine

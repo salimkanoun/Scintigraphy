@@ -78,12 +78,17 @@ public class TabChart extends TabResult {
 	 * 
 	 * @param fit Type of regression to fit the values of the chart
 	 */
-	public void drawFit(XYSeries series) {
+	public void drawSeries(XYSeries series) {
 		this.clearFits();
 
 		this.data.addSeries(series);
 	}
 
+	/**
+	 * Changes the text of the extrapolation name (used for capture).
+	 * 
+	 * @param labelName New name of the extrapolation
+	 */
 	public void changeLabelInterpolation(String labelName) {
 		// Change label interpolation text (for capture)
 		this.labelInterpolation.setText("-- " + labelName + " --");
