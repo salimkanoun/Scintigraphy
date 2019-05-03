@@ -160,7 +160,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
 		// Save captures
 		ImageStack stackCapture = Library_Capture_CSV
-				.captureToStack(this.captures.toArray(new ImageSelection[this.captures.size()]));
+				.captureToStack(this.captures.toArray(new ImagePlus[this.captures.size()]));
 		ImagePlus montage = this.montage(stackCapture);
 
 		// Display result
