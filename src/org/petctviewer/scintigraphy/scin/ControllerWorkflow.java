@@ -294,9 +294,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 	@Override
 	public boolean isOver() {
-		return this.indexCurrentImage == this.model.getImageSelection().length - 1
-				&& (this.workflows[this.indexCurrentImage].isOver()
-						|| this.workflows[this.indexCurrentImage].getCurrentInstruction() instanceof LastInstruction);
+		return this.workflows[this.indexCurrentImage].getCurrentInstruction() instanceof LastInstruction;
 	}
 
 	@Override

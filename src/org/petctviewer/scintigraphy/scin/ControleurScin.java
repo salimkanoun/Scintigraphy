@@ -155,17 +155,16 @@ public abstract class ControleurScin implements ActionListener {
 	 * @throws NoDataException
 	 *             if no ROI is present on the current ImagePlus
 	 */
-	public void saveRoiAtIndex(String name, int indexRoiToSave) throws NoDataException {
+	public void saveRoiAtIndex(String name, int indexRoiToSave) throws NoDataException, IllegalArgumentException {
 		Roi roiToSave = this.vue.getImagePlus().getRoi();
 
 		// Check if there is a ROI to save
 		if (roiToSave == null)
 			throw new NoDataException("No ROI to save");
-
 		roiToSave.setStrokeColor(Color.YELLOW);
 		roiToSave.setPosition(0);
 
-		Roi existingRoi = this.getRoi(name);
+		Roi existingRoi = this.getRoiManager().getRoi(indexRoiToSave);
 		int posExisting = indexRoiToSave;
 
 		// Check if there is an existing ROI

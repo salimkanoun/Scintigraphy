@@ -24,12 +24,14 @@ public class ModeleScinStatic  extends ModeleScin{
 			// on garde uniquement le nom de la roi sans le tag
 //			nomRoi = nomRoi.substring(0,nomRoi.lastIndexOf(" "));
 			// si la roi n'existe pas, on la crée 
-			if(this.roisAnt.get(nomRoi)==null) {
+			
 				Object[] o = { 	Library_Quantif.round(Library_Quantif.getCounts(imp),3),
 						Library_Quantif.round(imp.getRoi().getStatistics().mean,3),
 						Library_Quantif.round(imp.getRoi().getStatistics().stdDev,3)};
+			if(this.roisAnt.get(nomRoi)==null) 
 				this.roisAnt.put(nomRoi,o);
-			}
+			else
+			this.roisAnt.replace(nomRoi, o);
 			
 	}
 	
@@ -37,12 +39,15 @@ public class ModeleScinStatic  extends ModeleScin{
 		// on garde uniquement le nom de la roi sans le tag
 //		nomRoi = nomRoi.substring(0,nomRoi.lastIndexOf(" "));
 		// si la roi n'existe pas, on la crée 
-		if(this.roisPost.get(nomRoi)==null) {
+		
 			Object[] o = { 	Library_Quantif.round(Library_Quantif.getCounts(imp),3),
 							Library_Quantif.round(imp.getRoi().getStatistics().mean,3),
 							Library_Quantif.round(imp.getRoi().getStatistics().stdDev,3)};
-			this.roisPost.put(nomRoi,o);
-		}
+			if(this.roisPost.get(nomRoi)==null) 
+				this.roisPost.put(nomRoi,o);
+			else
+				this.roisPost.replace(nomRoi, o);
+		
 		
 }
 	

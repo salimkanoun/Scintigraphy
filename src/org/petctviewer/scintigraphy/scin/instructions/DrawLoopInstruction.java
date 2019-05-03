@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.scin.instructions;
 
+import org.petctviewer.scintigraphy.generic.statics.ControllerWorkflow_ScinStatic;
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
 
@@ -21,12 +22,13 @@ public class DrawLoopInstruction extends DefaultGenerator {
 		super(workflow, parent);
 		this.indexRoiToDisplay = -1;
 		
-		this.suffixe = "";
+		this.suffixe="";
 		
 		if (state == null)
 			this.state = parent.getImageState();
 		else
 			this.state = state;
+		
 	}
 
 	@Override
@@ -50,11 +52,16 @@ public class DrawLoopInstruction extends DefaultGenerator {
 	public String getRoiName() {
 		if (!this.workflow.getController().isOver()) {
 			int i = 0;
-			for (Instruction instruction : this.workflow.getInstructions())
-				if (instruction instanceof DrawLoopInstruction)
+			boolean depasse = false;
+			for (Instruction instruction : this.workflow.getInstructions()) {
+				if (instruction instanceof DrawLoopInstruction) {
+					if(this == instruction)
+						depasse = true;
 					if (this.workflow.getController().getVue().getTextfield_instructions().getText()
-							.equals(((DrawLoopInstruction) instruction).getInstructionRoiName()))
+							.equals(((DrawLoopInstruction) instruction).getInstructionRoiName()) && !depasse)
 						i++;
+				}
+			}
 			this.RoiName = this.workflow.getController().getVue().getTextfield_instructions().getText();
 			if (i != 0)
 				this.suffixe = "_" + i;
@@ -88,7 +95,7 @@ public class DrawLoopInstruction extends DefaultGenerator {
 		return this.state;
 	}
 
-	private String getInstructionRoiName() {
+	public String getInstructionRoiName() {
 		return this.RoiName;
 	}
 

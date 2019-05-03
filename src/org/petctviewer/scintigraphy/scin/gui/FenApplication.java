@@ -7,6 +7,8 @@ import java.awt.GridLayout;
 import java.awt.Panel;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +32,7 @@ import ij.util.DicomTools;
  * @author diego
  *
  */
-public class FenApplication extends StackWindow implements ComponentListener {
+public class FenApplication extends StackWindow implements ComponentListener, MouseWheelListener {
 	private static final long serialVersionUID = -6280620624574294247L;
 
 	// Panel d'instruction avec le textfield et boutons precedent et suivant
@@ -123,6 +125,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 		this.setDefaultSize();
 		this.addComponentListener(this);
+		this.setResizable(false);
 	}
 
 	public void resizeCanvas() {
@@ -291,7 +294,7 @@ public class FenApplication extends StackWindow implements ComponentListener {
 
 	@Override
 	public void componentResized(ComponentEvent e) {
-
+		
 	}
 
 	@Override
@@ -305,4 +308,8 @@ public class FenApplication extends StackWindow implements ComponentListener {
 	@Override
 	public void componentHidden(ComponentEvent e) {
 	}
+//	@Override
+//	public synchronized void mouseWheelMoved(MouseWheelEvent e) {
+//		
+//	}
 }

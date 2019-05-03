@@ -38,8 +38,8 @@ public class DoubleImageThread extends Thread{
 		
 		MontageMaker montageMaker = new MontageMaker();
 		impRes = montageMaker.makeMontage2(impRes,
-				1, //columns
-				2, //rows 
+				2, //columns
+				1, //rows 
 				0.50, //scaleFactor 
 				1, //first slice 
 				2, //last slice 

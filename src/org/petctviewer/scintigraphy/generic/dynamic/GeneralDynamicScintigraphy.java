@@ -8,11 +8,12 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 import ij.IJ;
 import ij.ImagePlus;
+import ij.ImageStack;
 import ij.gui.Toolbar;
 
 public class GeneralDynamicScintigraphy extends Scintigraphy{
 
-	private ImageSelection impAnt, impPost, impProjetee, impProjeteeAnt;
+	private ImageSelection impAnt, impPost, impProjetee, impProjeteeAnt,impProjeteePost;
 	private int[] frameDurations;
 
 	public GeneralDynamicScintigraphy() {
@@ -66,14 +67,31 @@ public class GeneralDynamicScintigraphy extends Scintigraphy{
 			this.frameDurations = Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus());
 		}
 		if ( this.impPost !=null ) {
-			impProjetee = this.impPost.clone();
-			impProjetee.setImagePlus(Library_Dicom.projeter(this.impPost.getImagePlus(),0,impPost.getImagePlus().getStackSize(),"avg"));
+			impProjeteePost = this.impPost.clone();
+			impProjeteePost.setImagePlus(Library_Dicom.projeter(this.impPost.getImagePlus(),0,impPost.getImagePlus().getStackSize(),"avg"));
+			impProjetee=impProjeteePost;
 			this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost.getImagePlus());
+			
+		}
+		if(this.impAnt != null && this.impPost != null) {
+			ImagePlus Ant = impAnt.getImagePlus().duplicate();
+			ImagePlus Post = impPost.getImagePlus().duplicate();
+			ImageStack img = new ImageStack(Ant.getWidth(), Ant.getHeight());
+			img.addSlice(Ant.getProcessor());
+			img.addSlice(Post.getProcessor());
+			ImagePlus ImageRetour = new ImagePlus();
+			ImageRetour.setStack(img);
+
+			ImageRetour.setProperty("Info", impPost.getImagePlus().getInfoProperty());
+			impProjetee.setImagePlus(ImageRetour);
 		}
 
-		ImageSelection[] selection = new ImageSelection[1];
+		ImageSelection[] selection = new ImageSelection[5];
 		selection[0] = impProjetee;
-		System.out.println(selection[0].getImageOrientation());
+		selection[1] = impAnt != null ?  impAnt : null;
+		selection[2] = impPost != null ?  impPost : null;
+		selection[3] = impProjeteeAnt != null ?  impProjeteeAnt : null;
+		selection[4] = impProjeteePost != null ?  impProjeteePost : null ;
 		return selection;
 	}
 
