@@ -38,8 +38,9 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
 			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i]);
-			ImageState stateAnt = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_NONE);
-			ImageState statePost = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, ImageState.ID_NONE);
+			
+			ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
+			ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
 			
 			dri_1 = new DrawRoiInstruction("Right Foot", stateAnt);
 			dri_2 = new DrawRoiInstruction("Left Foot", stateAnt);
