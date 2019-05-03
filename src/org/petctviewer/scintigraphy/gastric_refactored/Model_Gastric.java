@@ -32,9 +32,11 @@ import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
+import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
+import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.LinearFit;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -48,7 +50,7 @@ import ij.plugin.MontageMaker;
 
 public class Model_Gastric extends ModeleScin {
 	public static Font italic = new Font("Arial", Font.ITALIC, 8);
-	
+
 	// == STATIC ACQUISITION ==
 	private HashMap<String, Double> coups;// pour enregistrer les coups dans chaque organe sur chaque image
 	private HashMap<String, Double> mgs;// pour enregistrer le MG dans chaque organe pour chaque serie
@@ -66,11 +68,11 @@ public class Model_Gastric extends ModeleScin {
 	private boolean logOn;// signifie si log est ouvert
 	private double[] intestinPourcent;// pour enregistrer le pourcentage de l'intestin(par rapport a total)
 										// pour chaque serie
-	
+
 	private ImageSelection[] staticImages;
-	
+
 	// == DYNAMIC ACQUISITION ==
-	
+
 	// == BOTH ACQUISITIONS ==
 
 	private String[] organes = { "Estomac", "Intestin", "Fundus", "Antre" };
@@ -78,6 +80,8 @@ public class Model_Gastric extends ModeleScin {
 	private boolean trouve;// signifie si la valeur qu'on veut est trouvee sur la courbe
 
 	private Date timeIngestion;
+
+	private Fit extrapolation;
 
 	public Model_Gastric(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
@@ -193,17 +197,8 @@ public class Model_Gastric extends ModeleScin {
 		return dataset;
 	}
 
-	// Pour faire un fit lineaire et extrapoler les valeurs non existante
-	private double[] getParametreCourbeFit() {
-		XYSeriesCollection dataset = createDatasetTrois(this.temps, this.estomacPourcent, "Stomach",
-				this.fundusPourcent, "Fundus", this.antrePourcent, "Antrum");
-		// Retourne les valeurs a et b de la fonction fit y=ax+b
-		double[] parametreCourbe = Regression.getOLSRegression(dataset, 0);
-		return parametreCourbe;
-	}
-
 	// permet de obtenir le temps de debut antre et debut intestin
-	private int getDebut(String organe) {
+	private double getDebut(String organe) {
 		boolean trouve = false;
 		double res = 0.0;
 		if (organe == "Antre") {
@@ -225,58 +220,84 @@ public class Model_Gastric extends ModeleScin {
 				}
 			}
 		}
-		return (int) Math.round(res);
+		return res;
 	}
 
-	// permet de obtenir la valeur X de la courbe selon la valeur Y donee
-	private int getX(double valueY) {
-		trouve = false;
-		double valueX = 0.0;
+	/**
+	 * Gets the X value based upon the specified Y value of the graph.<br>
+	 * The value X returned is calculated with a linear interpolation as the point
+	 * between x1 and x2 with <code>x1 <= X <= x2</code>. If x1 or x2 could not be
+	 * found, then the result is null.<br>
+	 * 
+	 * @return X value or null if none found
+	 * @see #interpolateX(double, Fit)
+	 */
+	private Double getX(double valueY) {
 		for (int i = 1; i < this.estomacPourcent.length && !trouve; i++) {
 			if (this.estomacPourcent[i] <= valueY) {
-				trouve = true;
 				double x1 = this.temps[i - 1];
 				double x2 = this.temps[i];
 				double y1 = this.estomacPourcent[i - 1];
 				double y2 = this.estomacPourcent[i];
-				valueX = x2 - (y2 - valueY) * ((x2 - x1) / (y2 - y1));
+				return x2 - (y2 - valueY) * ((x2 - x1) / (y2 - y1));
 			}
 		}
-		if (trouve == false) {
-			// Si les valeurs n'existent pas on realise le fit
-			double[] parametres = this.getParametreCourbeFit();
-			double a = parametres[1];
-			double b = parametres[0];
-			valueX = (valueY - b) / a;
-		}
-		return (int) Math.round(valueX);
+		return null;
 	}
 
-	// permet de obtenir la valeur Y de la courbe selon la valeur X donee
-	private double getY(double valueX) {
-		trouve = false;
-		double valueY = 0.0;
+	/**
+	 * Interpolates the X value based upon the specified Y value of the graph.<br>
+	 * The value X returned is interpolated with the specified fit.
+	 * 
+	 * @param valueY Y value
+	 * @param fit    Fit the interpolation must rely on
+	 * @return X value interpolated
+	 */
+	private Double interpolateX(double valueY, Fit fit) {
+		return fit.extrapolateX(valueY);
+	}
+
+	/**
+	 * Gets the Y value based upon the specified X value of the graph.<br>
+	 * The value Y returned is calculated with a linear interpolation as the point
+	 * between y1 and y2 with <code>y1 <= Y <= y2</code>. If y1 or y2 could not be
+	 * found, then the result is null.<br>
+	 * 
+	 * @return Y value or null if none found
+	 * @see #interpolateY(double, Fit)
+	 */
+	private Double getY(double valueX) {
 		for (int i = 0; i < this.temps.length && !trouve; i++) {
 			if (this.temps[i] >= valueX) {
-				trouve = true;
 				double x1 = this.temps[i - 1];
 				double x2 = this.temps[i];
 				double y1 = this.estomacPourcent[i - 1];
 				double y2 = this.estomacPourcent[i];
-				valueY = y2 - (x2 - valueX) * ((y2 - y1) / (x2 - x1));
+				return y2 - (x2 - valueX) * ((y2 - y1) / (x2 - x1));
 			}
 		}
-		if (trouve == false) {
-			// Si les valeurs n'existent pas on realise le fit
-			double[] parametres = this.getParametreCourbeFit();
-			double a = parametres[1];
-			double b = parametres[0];
-			valueY = a * valueX + b;
-			// Si valeur negative on met 0;
-			if (valueY <= 0)
-				valueY = 0;
+		return null;
+	}
+
+	/**
+	 * Interpolates the Y value based upon the specified X value of the graph.<br>
+	 * The value Y returned is interpolated with the specified fit.
+	 * 
+	 * @param valueX X value
+	 * @param fit    Fit the interpolation must rely on
+	 * @return Y value interpolated
+	 */
+	private Double interpolateY(double valueX, Fit fit) {
+		return fit.extrapolateY(valueX);
+	}
+
+	public double[][] generateDataset() {
+		double[][] dataset = new double[temps.length][2];
+		for (int i = 0; i < temps.length; i++) {
+			dataset[i][0] = temps[i];
+			dataset[i][1] = estomacPourcent[i];
 		}
-		return (double) (Math.round(valueY * 10) / 10.0);
+		return dataset;
 	}
 
 	public XYSeries getStomachSeries() {
@@ -284,6 +305,14 @@ public class Model_Gastric extends ModeleScin {
 		for (int i = 0; i < estomacPourcent.length; i++)
 			serie.add(temps[i], estomacPourcent[i]);
 		return serie;
+	}
+
+	public XYSeries getFittedSeries() {
+		double[] y = this.extrapolation.generateOrdinates(temps);
+		XYSeries fittedSeries = new XYSeries(this.extrapolation.toString());
+		for (int i = 0; i < temps.length; i++)
+			fittedSeries.add(temps[i], y[i]);
+		return fittedSeries;
 	}
 
 	/**
@@ -301,6 +330,22 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	public void setTimeIngestion(Date timeIngestion) {
 		this.timeIngestion = timeIngestion;
+	}
+
+	/**
+	 * Sets the interpolation the graph and the result must follow.
+	 * 
+	 * @param fit Interpolation to follow
+	 */
+	public void setExtrapolation(Fit fit) {
+		this.extrapolation = fit;
+	}
+
+	/**
+	 * @return interpolation defined
+	 */
+	public Fit getExtrapolation() {
+		return this.extrapolation;
 	}
 
 	/**
@@ -400,6 +445,157 @@ public class Model_Gastric extends ModeleScin {
 		this.antrePourcent[0] = 0.;
 		this.intestinPourcent[0] = 0.;
 		this.funDevEsto[0] = 100.;
+	}
+
+	public enum Result {
+		START_ANTRUM("Start antrum", "min"),
+		START_INTESTINE("Start intestine", "min"),
+		LAG_PHASE("Lag phase", "%"),
+		T_HALF("T 1/2", "%"),
+		RETENTION("Retention", "%");
+
+		private String s;
+		private String unit;
+
+		private Result(String s, String unit) {
+			this.s = s;
+			this.unit = unit;
+		}
+
+		public String getUnit() {
+			return this.unit;
+		}
+
+		public String getName() {
+			return this.s;
+		}
+	}
+
+	public class ResultValue {
+		public Result type;
+		public double value;
+		public FitType extrapolation;
+
+		public ResultValue(Result type, double value, FitType extrapolation) {
+			this.type = type;
+			this.value = value;
+			this.extrapolation = extrapolation;
+		}
+
+		public boolean isExtrapolated() {
+			return this.extrapolation != null;
+		}
+
+		public String notNegative() {
+			return BigDecimal.valueOf(Math.max(0, value)).setScale(2, RoundingMode.HALF_UP).toString()
+					+ (isExtrapolated() ? "(*)" : "");
+		}
+
+		@Override
+		public String toString() {
+			return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).toString()
+					+ (isExtrapolated() ? "(*)" : "");
+		}
+	}
+
+	public static final int RES_TIME = 0, RES_STOMACH = 1, RES_FUNDUS = 2, RES_ANTRUM = 3;
+
+	public String valueOfResult(int result) {
+		switch (result) {
+		case RES_TIME:
+			return "Time";
+		case RES_STOMACH:
+			return "Stomach";
+		case RES_FUNDUS:
+			return "Fundus";
+		case RES_ANTRUM:
+			return "Antrum";
+		default:
+			return "Unknown";
+		}
+	}
+
+	/**
+	 * Result for the specified image.
+	 * 
+	 * @param result  Result to get
+	 * @param idImage Image to get the result from
+	 * @return Result
+	 * @see Model_Gastric#getResult(Result)
+	 */
+	public double getImageResult(int result, int idImage) {
+		if (idImage >= this.nbAcquisitions())
+			throw new IllegalArgumentException(
+					"The id (" + idImage + ") is out of bounds [" + 0 + ";" + this.nbAcquisitions() + "]");
+
+		System.out.println("Get image result " + this.valueOfResult(result) + " with " + this.extrapolation.toString()
+				+ " interpolation");
+
+		switch (result) {
+		case RES_TIME:
+			return BigDecimal.valueOf(this.temps[idImage]).setScale(2, RoundingMode.HALF_UP).doubleValue();
+		case RES_STOMACH:
+			return BigDecimal.valueOf(this.estomacPourcent[idImage]).setScale(2, RoundingMode.HALF_UP).doubleValue();
+		case RES_FUNDUS:
+			return BigDecimal.valueOf(this.fundusPourcent[idImage]).setScale(2, RoundingMode.HALF_UP).doubleValue();
+		case RES_ANTRUM:
+			return BigDecimal.valueOf(this.antrePourcent[idImage]).setScale(2, RoundingMode.HALF_UP).doubleValue();
+		default:
+			return 0.;
+		}
+	}
+
+	/**
+	 * Result.
+	 * 
+	 * @param result Result to get
+	 * @return Result
+	 * @see Model_Gastric#getImageResult(Result, int)
+	 */
+	public ResultValue getResult(Result result) {
+		System.out.println("Get result " + result + " with " + this.extrapolation.toString() + " interpolation");
+		FitType extrapolationType = null;
+		switch (result) {
+		case START_ANTRUM:
+			return new ResultValue(result, this.getDebut("Antre"), null);
+		case START_INTESTINE:
+			return new ResultValue(result, this.getDebut("Intestin"), null);
+		case LAG_PHASE:
+			extrapolationType = null;
+			Double valX = this.getX(95.);
+			if (valX == null) {
+				// Interpolate
+				valX = this.interpolateX(95., this.extrapolation);
+				extrapolationType = this.extrapolation.getType();
+			}
+			return new ResultValue(result, valX, extrapolationType);
+		case T_HALF:
+			extrapolationType = null;
+			Double valY = this.getY(50.);
+			if (valY == null) {
+				// Interpolate
+				valY = this.interpolateY(50., this.extrapolation);
+				extrapolationType = this.extrapolation.getType();
+			}
+			return new ResultValue(result, valY, extrapolationType);
+		default:
+			return new ResultValue(result, 0., this.extrapolation.getType());
+		}
+	}
+
+	/**
+	 * Returns the retention percentage at the specified time.<br>
+	 * The result might be interpolated.
+	 * 
+	 * @param time Time to observe in minutes
+	 * @return retention time
+	 */
+	public ResultValue retentionAt(double time) {
+		Double res = this.getY(time);
+		if (res == null)
+			return new ResultValue(Result.RETENTION, this.interpolateY(time, this.extrapolation),
+					this.extrapolation.getType());
+		return new ResultValue(Result.RETENTION, res, null);
 	}
 
 	// permet de transferer toutes les resultats en une tableau de chaine
@@ -508,6 +704,7 @@ public class Model_Gastric extends ModeleScin {
 
 	@Override
 	public void calculerResultats() {
-
+		// Set fit
+		this.setExtrapolation(new LinearFit(this.generateDataset()));
 	}
 }

@@ -5,6 +5,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import javax.swing.BorderFactory;
@@ -24,6 +25,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+import org.petctviewer.scintigraphy.scin.library.ReversedChronologicalAcquisitionComparator;
 
 import ij.ImagePlus;
 
@@ -104,34 +106,34 @@ public class OsScintigraphy extends Scintigraphy {
 			selectedImages[i].getImagePlus().close();
 		}
 
-		ImagePlus[] impsSortedByTime = Library_Dicom.orderImagesByAcquisitionTime(impsSortedAntPost, true);
+		Arrays.parallelSort(impsSortedAntPost, new ReversedChronologicalAcquisitionComparator.ImagePlusComparator());
 
 		/*
 		 * 
 		 * ArrayList<ImagePlus> arrayBufferForSortByTime = new
 		 * ArrayList<ImagePlus>(Arrays.asList(impsSortedAntPost)); ImagePlus[]
-		 * impsSortedByTime =
+		 * impsSortedAntPost =
 		 * Library_Dicom.orderImagesByAcquisitionTime(arrayBufferForSortByTime);
 		 * 
-		 * int reverseIndex = 0; int nbImpsSortedByTime = impsSortedByTime.length;
+		 * int reverseIndex = 0; int nbimpsSortedAntPost = impsSortedAntPost.length;
 		 * ImagePlus tempImp;
 		 * 
-		 * for (reverseIndex = 0 ; reverseIndex < nbImpsSortedByTime / 2 ;
-		 * reverseIndex++){ tempImp = impsSortedByTime[reverseIndex];
-		 * impsSortedByTime[reverseIndex] = impsSortedByTime[nbImpsSortedByTime -
-		 * reverseIndex - 1]; impsSortedByTime[nbImpsSortedByTime - reverseIndex - 1] =
+		 * for (reverseIndex = 0 ; reverseIndex < nbimpsSortedAntPost / 2 ;
+		 * reverseIndex++){ tempImp = impsSortedAntPost[reverseIndex];
+		 * impsSortedAntPost[reverseIndex] = impsSortedAntPost[nbimpsSortedAntPost -
+		 * reverseIndex - 1]; impsSortedAntPost[nbimpsSortedAntPost - reverseIndex - 1] =
 		 * tempImp; }
 		 */
 
-		for (int i = 0; i < impsSortedByTime.length; i++) {
+		for (int i = 0; i < impsSortedAntPost.length; i++) {
 			for (int j = 0; j < 2; j++) {
 
-				ImagePlus Ant = new ImagePlus("Ant", impsSortedByTime[i].getStack().getProcessor(1));
-				Ant.setProperty("Info", impsSortedByTime[i].getStack().getSliceLabel(1));
+				ImagePlus Ant = new ImagePlus("Ant", impsSortedAntPost[i].getStack().getProcessor(1));
+				Ant.setProperty("Info", impsSortedAntPost[i].getStack().getSliceLabel(1));
 				buffer[i][0] = Ant;
 
-				ImagePlus Post = new ImagePlus("Post", impsSortedByTime[i].getStack().getProcessor(2));
-				Post.setProperty("Info", impsSortedByTime[i].getStack().getSliceLabel(2));
+				ImagePlus Post = new ImagePlus("Post", impsSortedAntPost[i].getStack().getProcessor(2));
+				Post.setProperty("Info", impsSortedAntPost[i].getStack().getSliceLabel(2));
 				buffer[i][1] = Post;
 			}
 		}

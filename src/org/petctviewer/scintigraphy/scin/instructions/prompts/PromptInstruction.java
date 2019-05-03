@@ -13,7 +13,7 @@ import org.petctviewer.scintigraphy.scin.instructions.Instruction;
  */
 public class PromptInstruction implements Instruction {
 
-	private PromptDialog dialog;
+	protected PromptDialog dialog;
 
 	/**
 	 * Instantiates an instruction with the specified dialog as a prompt for the
@@ -36,10 +36,12 @@ public class PromptInstruction implements Instruction {
 
 	@Override
 	public void prepareAsNext() {
+		this.dialog.prepareAsNext();
 	}
 
 	@Override
 	public void prepareAsPrevious() {
+		this.dialog.prepareAsPrevious();
 	}
 
 	@Override

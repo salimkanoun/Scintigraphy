@@ -1,8 +1,13 @@
 package org.petctviewer.scintigraphy.gastric_refactored;
 
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JComboBox;
+
+import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
+import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabChart;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabDynamic;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
@@ -27,6 +32,9 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 
 	private FenResults fenResults;
+	private TabChart tabChart;
+	private TabMainResult tabMain;
+
 	private List<ImagePlus> captures;
 
 	public ControllerWorkflow_Gastric(Scintigraphy main, FenApplication vue, ImageSelection[] selectedImages,
@@ -36,7 +44,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.generateInstructions();
 		this.start();
 
-		this.fenResults = new FenResults(model);
+		this.fenResults = new FenResults(this);
 		this.fenResults.setVisible(false);
 	}
 
@@ -104,9 +112,12 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.computeModel();
 
 		// Display results
+		this.tabChart = new TabChart(this.fenResults);
+		this.tabMain = new TabMainResult(this.fenResults, this.captures.get(0));
+
 		this.fenResults.clearTabs();
-		this.fenResults.setMainTab(new TabMainResult(this.fenResults, this.captures.get(0)));
-		this.fenResults.addTab(new TabChart(this.fenResults));
+		this.fenResults.setMainTab(this.tabMain);
+		this.fenResults.addTab(this.tabChart);
 		this.fenResults.addTab(new TabDynamic(this.fenResults, this));
 		this.fenResults.pack();
 		this.fenResults.setVisible(true);
@@ -149,6 +160,23 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 				this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 640, 512));
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		super.actionPerformed(e);
+
+		if (!(e.getSource() instanceof JComboBox))
+			return;
+
+		JComboBox<FitType> source = (JComboBox<FitType>) e.getSource();
+		FitType selectedFit = (FitType) source.getSelectedItem();
+
+		// By default, use linear fit
+		((Model_Gastric) this.model).setExtrapolation(Fit.createFit(selectedFit, this.getModel().generateDataset()));
+		((TabChart) this.tabChart).drawSeries(((Model_Gastric) model).getFittedSeries());
+		((TabChart) this.tabChart).changeLabelInterpolation(selectedFit.toString());
+		this.tabMain.reloadSidePanelContent();
 	}
 
 }

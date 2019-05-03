@@ -137,7 +137,6 @@ public class SidePanel extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Clicked");
 
 				captureButton.setVisible(false);
 				for (Component comp : hide)

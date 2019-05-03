@@ -139,12 +139,14 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		if (currentInstruction == null) {
 			this.indexCurrentImage--;
 			currentInstruction = this.workflows[this.indexCurrentImage].getCurrentInstruction();
+			currentInstruction.prepareAsPrevious();
 		}
+		System.out.println("Previous instruction: " + currentInstruction.getClass().getSimpleName());
 
 		if (currentInstruction.isExpectingUserInput()) {
 			this.displayInstruction(currentInstruction.getMessage());
 			this.prepareImage(currentInstruction.getImageState());
-			
+
 			if (currentInstruction.saveRoi())
 				this.indexRoi--;
 			this.displayRois(this.roisToDisplay());
@@ -244,7 +246,8 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	/**
 	 * Prepares the ImagePlus with the specified state and updates the currentState.
 	 * 
-	 * @param imageState State the ImagePlus must complies
+	 * @param imageState
+	 *            State the ImagePlus must complies
 	 */
 	private void prepareImage(ImageState imageState) {
 		if (imageState == null)
@@ -285,8 +288,8 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			this.vue.getImagePlus().setSlice(this.currentState.getSlice());
 			resetOverlay = true;
 		}
-		
-		if(resetOverlay) {
+
+		if (resetOverlay) {
 			this.vue.getOverlay().clear();
 			this.setOverlay(this.currentState);
 		}
@@ -300,6 +303,9 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		super.actionPerformed(e);
+
+		if (!(e.getSource() instanceof Button))
+			return;
 
 		Button source = (Button) e.getSource();
 		if (source.getActionCommand().contentEquals(COMMAND_END)) {

@@ -203,7 +203,7 @@ public class Controleur_Renal extends Controleur_OrganeFixe {
 
 		// on affiche la fenetre de resultats principale
 		((Modele_Renal)model).setNephrogramChart(fan.getValueSetter());
-		new FenResultats_Renal(scinRenal, capture, this.model);
+		new FenResultats_Renal(scinRenal, capture, this);
 
 		// SK On rebloque le modele pour la prochaine generation
 		modele.setLocked(true);

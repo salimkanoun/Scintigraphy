@@ -4,12 +4,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -51,165 +47,13 @@ public class Library_Dicom {
 	}
 
 	/**
-	 * Premet de trier un tableau d'ImagePlus par leur acquisition date et time de
-	 * la plus ancienne � la plus recente
-	 * 
-	 * @param serie : Tableau d'ImagePlus a trier
-	 * @return Tableau d'ImagePlus ordonne par acquisition time
-	 */
-	public static ImagePlus[] orderImagesByAcquisitionTime(ArrayList<ImagePlus> serie) {
-
-		ImagePlus[] retour = new ImagePlus[serie.size()];
-		serie.toArray(retour);
-
-		Arrays.sort(retour, new Comparator<ImagePlus>() {
-
-			@Override
-			public int compare(ImagePlus arg0, ImagePlus arg1) {
-				/*
-				 * // arg0.show(); // arg1.show(); DateFormat dateHeure = new
-				 * SimpleDateFormat("yyyyMMddHHmmss"); String dateImage0 =
-				 * DicomTools.getTag(arg0, "0008,0022"); String dateImage1 =
-				 * DicomTools.getTag(arg1, "0008,0022"); String heureImage0 =
-				 * DicomTools.getTag(arg0, "0008,0032"); String heureImage1 =
-				 * DicomTools.getTag(arg1, "0008,0032");
-				 * 
-				 * // System.out.println(dateImage0); // System.out.println(dateImage1); //
-				 * System.out.println(heureImage0); // System.out.println(heureImage1);
-				 * 
-				 * String dateInputImage0 = dateImage0.trim() + heureImage0.trim(); // On split
-				 * les millisecondes qui sont apr�s le . car nombre inconstant de // millisec
-				 * int separateurMilliSec = dateInputImage0.indexOf("."); if (separateurMilliSec
-				 * != -1) dateInputImage0 = dateInputImage0.substring(0, separateurMilliSec);
-				 * 
-				 * String dateInputImage1 = dateImage1.trim() + heureImage1.trim(); int
-				 * separateurMilliSecImage1 = dateInputImage1.indexOf("."); if
-				 * (separateurMilliSecImage1 != -1) dateInputImage1 =
-				 * dateInputImage1.substring(0, separateurMilliSecImage1);
-				 * 
-				 * Date timeImage0 = null; Date timeImage1 = null; try { timeImage0 =
-				 * dateHeure.parse(dateInputImage0); timeImage1 =
-				 * dateHeure.parse(dateInputImage1); return (int) ((timeImage0.getTime() -
-				 * timeImage1.getTime()) / 1000); } catch (ParseException e) {
-				 * e.printStackTrace(); } return 0;
-				 */
-				return (int) ((getDateAcquisition(arg0).getTime() - getDateAcquisition(arg1).getTime()) / 1000);
-			}
-		});
-
-		return retour;
-	}
-
-	/**
-	 * Sort an ImageSelection array by acquisition time.<br/>
-	 * Specify false to get from oldest to newest, or true for newest to oldest<br/>
-	 * (Using a TreeMap and a comparator to process)
-	 * 
-	 * @param selectedImages : {@link ImageSelection} array to sort
-	 * @param newToOld       : boolean to specify the sort order (false for oldest
-	 *                       to newest / true for newest to oldest)
-	 * @return {@link ImageSelection} array sorted by acquisition time
-	 * 
-	 * @see
-	 *      <ul>
-	 *      <li>{@link Library_Dicom#getDateAcquisition(ImagePlus)}</li>
-	 *      </ul>
-	 */
-	public static ImageSelection[] orderImagesByAcquisitionTime(ImageSelection[] selectedImages, boolean newToOld) {
-
-		SortedMap<Date, ImageSelection> sortedImageSelection = new TreeMap<>(new Comparator<Date>() {
-			@Override
-			public int compare(Date o1, Date o2) {
-				if (!newToOld)
-					return (int) ((o1.getTime() - o2.getTime()) / 1000);
-				else
-					return (int) ((o2.getTime() - o1.getTime()) / 1000);
-			}
-		});
-		for (ImageSelection slctd : selectedImages) {
-
-			sortedImageSelection.put(getDateAcquisition(slctd.getImagePlus()), slctd);
-		}
-
-		Collection<ImageSelection> values = sortedImageSelection.values();
-		ImageSelection[] sortedImageSelectionArray = values.toArray(new ImageSelection[values.size()]);
-
-		return sortedImageSelectionArray;
-
-	}
-
-	/**
-	 * Sort an ImagePlus array by acquisition time.<br/>
-	 * Sort from oldest to newest<br/>
-	 * 
-	 * @param selectedImages :{@link ImagePlus} array to sort
-	 * @return {@link ImagePlus} array sorted by acquisition time
-	 * 
-	 * @see
-	 *      <ul>
-	 *      <li>{@link Library_Dicom#orderImagesByAcquisitionTime(ImagePlus[], boolean)}</li>
-	 *      </ul>
-	 */
-	public static ImageSelection[] orderImagesByAcquisitionTime(ImageSelection[] selectedImages) {
-		return Library_Dicom.orderImagesByAcquisitionTime(selectedImages, false);
-	}
-
-	/**
-	 * Sort an ImagePlus array by acquisition time.<br/>
-	 * Specify false to get from oldest to newest, or true for newest to oldest<br/>
-	 * 
-	 * @param selectedImages : {@link ImagePlus} array to sort
-	 * @param newToOld       : boolean to specify the sort order (false for oldest
-	 *                       to newest / true for newest to oldest)
-	 * @return {@link ImagePlus} array sorted by acquisition time
-	 * 
-	 * @see
-	 *      <ul>
-	 *      <li>{@link Library_Dicom#orderImagesByAcquisitionTime(ArrayList)}</li>
-	 *      </ul>
-	 */
-	public static ImagePlus[] orderImagesByAcquisitionTime(ImagePlus[] selectedImages, boolean newToOld) {
-		ArrayList<ImagePlus> arrayBufferForSortByTime = new ArrayList<ImagePlus>(Arrays.asList(selectedImages));
-		ImagePlus[] impsSortedByTime = Library_Dicom.orderImagesByAcquisitionTime(arrayBufferForSortByTime);
-
-		if (newToOld) {
-			int reverseIndex = 0;
-			int nbImpsSortedByTime = impsSortedByTime.length;
-			ImagePlus tempImp;
-			for (reverseIndex = 0; reverseIndex < nbImpsSortedByTime / 2; reverseIndex++) {
-				tempImp = impsSortedByTime[reverseIndex];
-				impsSortedByTime[reverseIndex] = impsSortedByTime[nbImpsSortedByTime - reverseIndex - 1];
-				impsSortedByTime[nbImpsSortedByTime - reverseIndex - 1] = tempImp;
-			}
-		}
-
-		return impsSortedByTime;
-	}
-
-	/**
-	 * Sort an ImagePlus array by acquisition time.<br/>
-	 * Sort from oldest to newest<br/>
-	 * 
-	 * @param selectedImages :{@link ImagePlus} array to sort
-	 * @return {@link ImagePlus} array sorted by acquisition time
-	 * 
-	 * @see
-	 *      <ul>
-	 *      <li>{@link Library_Dicom#orderImagesByAcquisitionTime(ImagePlus[], boolean)}</li>
-	 *      </ul>
-	 */
-	public static ImagePlus[] orderImagesByAcquisitionTime(ImagePlus[] selectedImages) {
-		return Library_Dicom.orderImagesByAcquisitionTime(selectedImages, false);
-	}
-
-	/**
 	 * Permet de spliter les images d'un multiFrame contenant 2 camera, image 0
 	 * camera Ant et Image1 Camera Post (ne flip pas l'image post)
 	 * 
 	 * @param imp : ImagePlus a traiter
 	 * @return Tableau d'imagePlus avec 2 ImagePlus (camera 1 et 2 )
 	 */
-	public static ImagePlus[] splitCameraMultiFrame(ImagePlus imp) {
+	private static ImagePlus[] splitCameraMultiFrame(ImagePlus imp, boolean isAntPost) {
 		// On prend le Header
 		String metadata = imp.getInfoProperty();
 
@@ -226,11 +70,11 @@ public class Library_Dicom {
 
 		// Determination de l'orientation des camera en regardant la 1ere image
 		String detecteurPremiereImage = sequenceDetecteur[0];
-		Boolean anterieurPremiereImage = Library_Dicom.isAnterieurMultiframe(imp);
+//		Boolean anterieurPremiereImage = Library_Dicom.isAnterieurMultiframe(imp);
 
 		// On ajoute les images dans les camera adhoc
 
-		if (anterieurPremiereImage != null && anterieurPremiereImage) {
+		if (isAntPost) {
 			for (int i = 0; i < sequenceDetecteur.length; i++) {
 				if (sequenceDetecteur[i].equals(detecteurPremiereImage)) {
 					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
@@ -238,7 +82,7 @@ public class Library_Dicom {
 					camera1.addSlice(imp.getImageStack().getProcessor((i + 1)));
 				}
 			}
-		} else if (anterieurPremiereImage != null && !anterieurPremiereImage) {
+		} else // if (anterieurPremiereImage != null && !anterieurPremiereImage) {
 			for (int i = 0; i < sequenceDetecteur.length; i++) {
 				if (sequenceDetecteur[i].equals(detecteurPremiereImage)) {
 					camera1.addSlice(imp.getImageStack().getProcessor((i + 1)));
@@ -246,16 +90,16 @@ public class Library_Dicom {
 					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
 				}
 			}
-		} else {
-			System.out.println("assuming image 2 is posterior. Please notify Salim.kanoun@gmail.com");
-			for (int i = 0; i < sequenceDetecteur.length; i++) {
-				if (sequenceDetecteur[i].equals("1")) {
-					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
-				} else if (sequenceDetecteur[i].equals("2")) {
-					camera1.addSlice(imp.getImageStack().getProcessor((i + 1)));
-				}
-			}
-		}
+//		} else {
+//			System.out.println("assuming image 2 is posterior. Please notify Salim.kanoun@gmail.com");
+//			for (int i = 0; i < sequenceDetecteur.length; i++) {
+//				if (sequenceDetecteur[i].equals("1")) {
+//					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
+//				} else if (sequenceDetecteur[i].equals("2")) {
+//					camera1.addSlice(imp.getImageStack().getProcessor((i + 1)));
+//				}
+//			}
+//		}
 
 		ImagePlus cameraAnt = new ImagePlus();
 		ImagePlus cameraPost = new ImagePlus();
@@ -497,41 +341,46 @@ public class Library_Dicom {
 
 	}
 
-	/*********************
-	 * Public Static Sort
-	 ****************************************/
 	/**
-	 * Pour les images dynamiques, Permet de renvoyer un tableau d'Image plus avec
-	 * le dynamique Ant en position 0 et le dynamique Post en position 1
+	 * Splits the specified image into an array of ImageSelection such as
+	 * <ul>
+	 * <li>[0]-><code>ANT</code></li>
+	 * <li>[1]-><code>POST</code>.</li>
+	 * </ul>
+	 * The returned images are clones of the input image, and their orientation is
+	 * updated.
 	 * 
-	 * @return les imps, [0] correspond a l'ant, [1] a la post
+	 * @param image Dynamic image in DynP/A or DynA/P orientation
+	 * @return array of ImageSelection
+	 * @throws WrongOrientationException if the image has an orientation different
+	 *                                   than DYNAMIC_ANT_POST and DYNAMIC_POST_ANT
+	 * @throws IllegalArgumentException  if the image's tag indicates the camera is
+	 *                                   the same or if it indicates it's not a
+	 *                                   dynamic image
+	 * @author Titouan QUÉMA
 	 */
-	public static ImagePlus[] sortDynamicAntPost(ImagePlus imagePlus) {
-		ImagePlus[] sortedImagePlus = new ImagePlus[2];
+	public static ImageSelection[] splitDynamicAntPost(ImageSelection image)
+			throws WrongOrientationException, IllegalArgumentException {
+		Orientation[] expectedOrientations = new Orientation[] { Orientation.DYNAMIC_ANT_POST,
+				Orientation.DYNAMIC_POST_ANT };
+		ImagePlus imagePlus = image.getImagePlus();
+		if (!Arrays.stream(expectedOrientations).anyMatch(i -> i.equals(image.getImageOrientation())))
+			throw new WrongOrientationException(image.getImageOrientation(), expectedOrientations);
 
-		// si l'image est multiframe et ce nest pas la meme camera
+		if (!isMultiFrame(imagePlus) || isSameCameraMultiFrame(imagePlus))
+			throw new IllegalArgumentException("The image's tag are incorrect and cannot be detected as an "
+					+ Arrays.toString(Orientation.dynamicOrientations()) + " image!");
 
-		if (isMultiFrame(imagePlus) && !isSameCameraMultiFrame(imagePlus)) {
-			ImagePlus[] imageSplitted = splitCameraMultiFrame(imagePlus);
-			sortedImagePlus[0] = imageSplitted[0];
-			sortedImagePlus[1] = imageSplitted[1];
-			return sortedImagePlus;
-		}
+		ImageSelection[] result = new ImageSelection[2];
+		for (int i = 0; i < result.length; i++)
+			result[i] = image.clone();
 
-		if (isAnterieur(imagePlus)) {
-			sortedImagePlus[0] = imagePlus.duplicate();
-		} else {
-			sortedImagePlus[1] = imagePlus.duplicate();
-		}
-		return sortedImagePlus;
-	}
+		ImagePlus[] imageSplitted = splitCameraMultiFrame(imagePlus,
+				image.getImageOrientation() == Orientation.DYNAMIC_ANT_POST);
+		result[0].setImagePlus(imageSplitted[0]);
+		result[1].setImagePlus(imageSplitted[1]);
 
-	public static ImagePlus[][] sortDynamicAntPost(ImagePlus[] imagePlus) {
-		ImagePlus[][] imps = new ImagePlus[imagePlus.length][2];
-		for (int i = 0; i < imagePlus.length; i++) { // pour chaque fenetre
-			imps[i] = sortDynamicAntPost(imagePlus[i]);
-		}
-		return imps;
+		return result;
 	}
 
 	/**
@@ -724,14 +573,14 @@ public class Library_Dicom {
 		return Integer.parseInt(tag00181242);
 	}
 
-	/*
-	 * inverse le stack de l'image plus passée en paramètre (imp : donner l'implus
-	 * ne contenant que la post)
+	/**
+	 * Inverts the stack of the specified image.
+	 * 
+	 * @param ims The image containing <b>only</b> the Post orientation
 	 */
-	public static ImagePlus flipStackHorizontal(ImagePlus imp) {
-		StackProcessor sp = new StackProcessor(imp.getImageStack());
+	public static void flipStackHorizontal(ImageSelection ims) {
+		StackProcessor sp = new StackProcessor(ims.getImagePlus().getImageStack());
 		sp.flipHorizontal();
-		return imp;
 	}
 
 	/**
@@ -789,6 +638,24 @@ public class Library_Dicom {
 	}
 
 	/**
+	 * Make a projection of an image.<br>
+	 * This method returns a clone of the specified image.
+	 * 
+	 * @param ims        Image to project
+	 * @param startSlice Index of slice to project from
+	 * @param stopSlice  Index of slice to project to
+	 * @param type       Type of projection
+	 * @return projected image
+	 * @see ZProjector#run(ImagePlus, String, int, int)
+	 */
+	public static ImageSelection project(ImageSelection ims, int startSlice, int stopSlice, String type) {
+		ImageSelection imsProj = ims.clone();
+		imsProj.setImagePlus(ZProjector.run(ims.getImagePlus(), type, startSlice, stopSlice));
+		imsProj.getImagePlus().setProperty("Info", ims.getImagePlus().getInfoProperty());
+		return imsProj;
+	}
+
+	/**
 	 * Make projection of stack
 	 * 
 	 * @param imp        : image to project
@@ -796,20 +663,23 @@ public class Library_Dicom {
 	 * @param stopSlice  : last index slice
 	 * @param type       : "avg" or "max" or "sum"
 	 * @return projected imageplus (of all slice)
+	 * @deprecated Please use {@link #project(ImageSelection, int, int, String)}
+	 *             instead
 	 */
+	@Deprecated
 	public static ImagePlus projeter(ImagePlus imp, int startSlice, int stopSlice, String type) {
 		ImagePlus pj = ZProjector.run(imp, type, startSlice, stopSlice);
 		pj.setProperty("Info", imp.getInfoProperty());
 		System.out.println("Checking for " + imp.getTitle());
 		System.out.println("Pj null: " + pj == null);
-		
+
 		return pj;
 	}
 
 	/**
 	 * This method will always return a clone of the specified ImageSelection in
 	 * Ant/Post orientation with the Post image flipped. This ensure the image is in
-	 * the right orientation.<br>
+	 * the right lateralisation.<br>
 	 * This method can only be used with Ant/Post or Post/Ant images.
 	 * 
 	 * @param ims ImageSelection to compute

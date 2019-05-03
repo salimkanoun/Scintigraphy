@@ -12,7 +12,6 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.execution.CheckIntersectionInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
-import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptDialog;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 
 public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
@@ -32,9 +31,9 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 
 		DrawRoiInstruction dri_1 = null, dri_2 = null;
-		
-		PromptDialog promptBkgNoise = new PromptBkgNoise(this);
-		
+
+		PromptBkgNoise promptBkgNoise = new PromptBkgNoise(this);
+
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
 			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i]);
 
@@ -46,9 +45,35 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 			this.workflows[i].addInstruction(dri_1);
 			this.workflows[i].addInstruction(dri_2);
 			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_1, dri_2, "Antre"));
-			this.workflows[i].addInstruction(new PromptInstruction(promptBkgNoise));
+			this.workflows[i].addInstruction(new BkgNoiseInstruction(promptBkgNoise));
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
+	}
+
+	private class BkgNoiseInstruction extends PromptInstruction {
+
+		public BkgNoiseInstruction(PromptBkgNoise dialog) throws IllegalArgumentException {
+			super(dialog);
+		}
+
+		@Override
+		public boolean isExpectingUserInput() {
+			if (!((PromptBkgNoise) this.dialog).shouldBeDisplayed())
+				return false;
+			return super.isExpectingUserInput();
+		}
+
+		@Override
+		public void afterNext(ControllerWorkflow controller) {
+			if (((PromptBkgNoise) this.dialog).shouldBeDisplayed())
+				super.afterNext(controller);
+		}
+
+		@Override
+		public void afterPrevious(ControllerWorkflow controller) {
+			if (((PromptBkgNoise) this.dialog).shouldBeDisplayed())
+				super.afterPrevious(controller);
+		}
 	}
 
 }

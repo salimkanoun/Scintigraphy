@@ -7,7 +7,6 @@ import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
@@ -39,7 +38,8 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		this.generateInstructions();
 		this.start();
 
-		this.fenResult = new FenResults(this.model);
+		this.fenResult = new FenResults(this);
+
 		this.fenResult.setVisible(false);
 	}
 
@@ -85,7 +85,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		fenGroup.setVisible(true);
 		String[][] asso = fenGroup.getAssociation();
 
-		this.fenResult = new FenResultat_GeneralDyn((ModeleScinDyn) this.model, asso);
+		this.fenResult = new FenResultat_GeneralDyn(this, asso);
 
 		if (scindyn.getImpAnt() != null) {
 			this.vue.getImagePlus().setSlice(1);

@@ -115,7 +115,7 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 		fenGroup.setVisible(true);
 		String[][] asso = fenGroup.getAssociation();
 
-		this.fenResult = new FenResultat_GeneralDyn((ModeleScinDyn) this.model, asso);
+		this.fenResult = new FenResultat_GeneralDyn(this, asso);
 
 		if (scindyn.getImpAnt() != null) {
 			capture = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();

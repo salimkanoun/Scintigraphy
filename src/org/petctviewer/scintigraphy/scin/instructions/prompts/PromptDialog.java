@@ -30,4 +30,20 @@ public abstract class PromptDialog extends JDialog {
 	 */
 	public abstract boolean isInputValid();
 
+	/**
+	 * This method is called when this dialog will be opened by a click on the
+	 * 'Next' button.
+	 */
+	protected void prepareAsNext() {
+		// By default do nothing
+	}
+
+	/**
+	 * This method is called when this dialog will be opened by a click on the
+	 * 'Previous' button.
+	 */
+	protected void prepareAsPrevious() {
+		// By default do nothing
+	}
+
 }

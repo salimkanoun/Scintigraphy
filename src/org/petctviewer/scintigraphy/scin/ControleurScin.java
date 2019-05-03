@@ -155,7 +155,10 @@ public abstract class ControleurScin implements ActionListener {
 	 * @throws NoDataException
 	 *             if no ROI is present on the current ImagePlus
 	 */
-	public void saveRoiAtIndex(String name, int indexRoiToSave) throws NoDataException, IllegalArgumentException {
+
+	public void saveRoiAtIndex(String name, int indexRoiToSave) throws NoDataException {
+		// TODO: do not check if a ROI exists with its name, use the index!!
+
 		Roi roiToSave = this.vue.getImagePlus().getRoi();
 
 		// Check if there is a ROI to save
@@ -165,23 +168,21 @@ public abstract class ControleurScin implements ActionListener {
 		roiToSave.setPosition(0);
 
 		Roi existingRoi = this.getRoiManager().getRoi(indexRoiToSave);
-		int posExisting = indexRoiToSave;
 
 		// Check if there is an existing ROI
 		if (existingRoi != null) {
-			posExisting = this.model.getRoiManager().getRoiIndex(existingRoi);
 			// Overwrite it
-			this.model.getRoiManager().setRoi(roiToSave, posExisting);
-			System.out.println("Overriding ROI " + posExisting + " by " + roiToSave.getName());
+			this.model.getRoiManager().setRoi(roiToSave, indexRoiToSave);
+			System.out.println("Overriding ROI " + indexRoiToSave + " by " + roiToSave.getName());
 		} else {
 			// Add it
 			this.model.getRoiManager().addRoi(roiToSave);
-			System.out.println("Creating new ROI#" + posExisting);
+			System.out.println("Creating new ROI#" + indexRoiToSave);
 		}
 		this.vue.getImagePlus().killRoi();
 
 		// Name the ROI
-		this.model.getRoiManager().rename(posExisting, name);
+		this.model.getRoiManager().rename(indexRoiToSave, name);
 	}
 
 	/**
@@ -406,6 +407,9 @@ public abstract class ControleurScin implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		if (!(e.getSource() instanceof Button))
+			return;
+
 		Button b = (Button) e.getSource();
 
 		if (b == this.vue.getBtn_suivant()) {

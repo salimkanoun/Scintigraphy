@@ -50,7 +50,7 @@ public class DoubleImageThread extends Thread{
 				);
 		
 		//ouverture de la fenetre de resultat
-		new FenResultat_ScinStatic(impRes.getBufferedImage(), this.model);
+		new FenResultat_ScinStatic(impRes.getBufferedImage(), this.scin.getFenApplication().getControleur());
 		
 	}
 	

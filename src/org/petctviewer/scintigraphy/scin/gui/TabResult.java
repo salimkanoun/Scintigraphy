@@ -143,12 +143,27 @@ public abstract class TabResult {
 	 * getSidePanelContent and the getResultContent methods.
 	 */
 	public void reloadDisplay() {
-		// Side panel
+		this.reloadSidePanelContent();
+		this.reloadResultContent();
+	}
+
+	/**
+	 * This method reloads only the side panel of this tab.
+	 * 
+	 * @see TabResult#reloadDisplay()
+	 */
+	public void reloadSidePanelContent() {
 		Component sidePanelContent = this.getSidePanelContent();
 		Component content = sidePanelContent == null ? new JPanel() : sidePanelContent;
 		this.sidePanel.setSidePanelContent(content);
+	}
 
-		// Result
+	/**
+	 * This method reloads only the result panel of this tab.
+	 * 
+	 * @see TabResult#reloadDisplay()
+	 */
+	public void reloadResultContent() {
 		if (this.result != null)
 			this.panel.remove(this.result);
 		this.result = this.getResultContent() == null ? new JPanel() : this.getResultContent();

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 
 import ij.IJ;
@@ -145,13 +146,36 @@ public class Library_Capture_CSV {
 	}
 
 	/**
+	 * Creates a stack from an array of images.<br>
+	 * <b><i>Important</b></i>: all images in the array <b>must</b> have the same
+	 * dimension.
+	 * 
+	 * @param captures Array containing the images to place in the stack.
+	 * @return stack of images
+	 */
+	public static ImageStack captureToStack(ImageSelection[] captures) {
+		// On cree de stack de taille adhoc
+		int[] dimensions = captures[0].getImagePlus().getDimensions();
+		ImageStack stackCapture = new ImageStack(dimensions[0], dimensions[1]);
+		// On rajoute les images dans le stack
+		for (int i = 0; i < captures.length; i++) {
+
+			stackCapture.addSlice(captures[i].getImagePlus().getProcessor());
+		}
+		// On retourne le stack de Capture
+		return stackCapture;
+	}
+
+	/**
 	 * Permet de creer un stack a partir d'un tableau d'ImagePlus *
 	 * 
 	 * @param tableauImagePlus : Tableau contenant les ImagePlus a mettre dans le
 	 *                         stack (toutes les images doivent avoir la m�me
 	 *                         taille)
 	 * @return Renvoie le stack d'image produit
+	 * @deprecated Please use {@link #captureToStack(ImageSelection[])} instead
 	 */
+	@Deprecated
 	public static ImageStack captureToStack(ImagePlus[] tableauImagePlus) {
 		// On verifie que toutes les images ont la meme taille
 		int[][] dimensionCapture = new int[tableauImagePlus.length][2];
@@ -185,6 +209,7 @@ public class Library_Capture_CSV {
 	 * @param height Height of the output capture
 	 * @return capture of the image at the specified dimensions
 	 * @throws IllegalArgumentException if any dimension is negative
+	 * @author Titouan QUÉMA
 	 */
 	public static ImagePlus captureImage(ImagePlus imp, int width, int height) throws IllegalArgumentException {
 		if (width < 0 || height < 0)
@@ -201,12 +226,12 @@ public class Library_Capture_CSV {
 			img = (Image) buf;
 		else if (width == 0)
 			img = buf.getScaledInstance(canvas.getWidth() * height / canvas.getHeight(), height, Image.SCALE_DEFAULT);
-		else if(height == 0)
+		else if (height == 0)
 			img = buf.getScaledInstance(width, canvas.getHeight() * width / canvas.getWidth(), Image.SCALE_DEFAULT);
 		else
 			img = buf.getScaledInstance(width, height, Image.SCALE_DEFAULT);
 
-		ImagePlus i = new ImagePlus("Test", img);
+		ImagePlus i = new ImagePlus("Capture of " + imp.getShortTitle(), img);
 		return i;
 	}
 

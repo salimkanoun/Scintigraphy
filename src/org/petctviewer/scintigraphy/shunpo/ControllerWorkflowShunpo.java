@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -41,7 +42,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		this.start();
 
 		this.FIRST_ORIENTATION_POST = true;
-		this.fenResults = new FenResults(this.model);
+		this.fenResults = new FenResults(this);
 		this.fenResults.setVisible(false);
 	}
 
@@ -54,12 +55,11 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		ScreenShotInstruction dri_capture = null;
 		this.captures = new ArrayList<>();
 
-
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
-		
+
 		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
 		ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
-		
+
 		dri_1 = new DrawRoiInstruction("Right lung", statePost);
 		dri_2 = new DrawRoiInstruction("Left lung", statePost);
 		dri_3 = new DrawRoiInstruction("Right kidney", statePost);
@@ -85,7 +85,6 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		this.workflows[0].addInstruction(dri_9);
 		this.workflows[0].addInstruction(dri_10);
 		this.workflows[0].addInstruction(dri_capture);
-
 
 		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
 		dri_11 = new DrawRoiInstruction("Brain", statePost);
@@ -161,7 +160,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
 		// Save captures
 		ImageStack stackCapture = Library_Capture_CSV
-				.captureToStack(this.captures.toArray(new ImagePlus[this.captures.size()]));
+				.captureToStack(this.captures.toArray(new ImageSelection[this.captures.size()]));
 		ImagePlus montage = this.montage(stackCapture);
 
 		// Display result

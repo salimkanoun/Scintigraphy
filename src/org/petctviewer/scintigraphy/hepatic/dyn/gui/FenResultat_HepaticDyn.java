@@ -4,7 +4,7 @@ import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 
 public class FenResultat_HepaticDyn extends FenResults {
@@ -12,8 +12,8 @@ public class FenResultat_HepaticDyn extends FenResults {
 	
 	private final int width = 1000, height = 800;
 
-	public FenResultat_HepaticDyn(HepaticDynamicScintigraphy vue, BufferedImage capture, ModeleScin model) {
-		super(model);
+	public FenResultat_HepaticDyn(HepaticDynamicScintigraphy vue, BufferedImage capture, ControleurScin controller) {
+		super(controller);
 		
 		this.addTab(new TabPrincipal(vue, capture, width, height, this));
 		this.addTab(new TabTAC(vue, width, height, this));

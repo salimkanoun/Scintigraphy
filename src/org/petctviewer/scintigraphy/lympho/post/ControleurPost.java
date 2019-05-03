@@ -59,7 +59,7 @@ public class ControleurPost extends ControleurScin {
 
 		this.captures = new ImagePlus[TOTAL_CAPTURES];
 
-		this.fenResults = new FenResults(this.model);
+		this.fenResults = new FenResults(this);
 		this.fenResults.setVisible(false);
 
 		this.changerImage();

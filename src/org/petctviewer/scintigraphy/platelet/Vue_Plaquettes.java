@@ -24,6 +24,7 @@ import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -74,7 +75,9 @@ public class Vue_Plaquettes extends Scintigraphy {
 		this.nombreAcquisitions = series.size();
 		// IJ.log(String.valueOf(antPost));
 
-		ImagePlus[] seriesTriee = Library_Dicom.orderImagesByAcquisitionTime(series);
+		series.sort(new ChronologicalAcquisitionComparator.ImagePlusComparator());
+		ImagePlus[] seriesTriee = new ImagePlus[series.size()];
+		seriesTriee = series.toArray(seriesTriee);
 
 		// On recupere la date et le jour de la 1ere image
 		this.dateHeureDebut=Library_Dicom.getDateAcquisition(seriesTriee[0]);
