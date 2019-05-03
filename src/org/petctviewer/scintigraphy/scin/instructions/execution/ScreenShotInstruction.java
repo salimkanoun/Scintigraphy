@@ -13,7 +13,8 @@ import ij.ImagePlus;
  * Instruction to take a capture of the image in the FenApplication when this
  * instruction is executed.
  * 
- * @author Esteban BAICHOO & Titouan QUÉMA
+ * @author Esteban BAICHOO
+ * @author Titouan QUÉMA
  *
  */
 public class ScreenShotInstruction extends ExecutionInstruction {

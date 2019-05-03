@@ -51,6 +51,87 @@ import ij.plugin.MontageMaker;
 public class Model_Gastric extends ModeleScin {
 	public static Font italic = new Font("Arial", Font.ITALIC, 8);
 
+	/**
+	 * Results available for the {@link Model_Gastric} model.
+	 * 
+	 * @author Titouan QUÉMA
+	 *
+	 */
+	public enum Result {
+		START_ANTRUM("Start antrum", "min"),
+		START_INTESTINE("Start intestine", "min"),
+		LAG_PHASE("Lag phase", "min"),
+		T_HALF("T 1/2", "%"),
+		RETENTION("Retention", "%");
+
+		private String s;
+		private String unit;
+
+		private Result(String s, String unit) {
+			this.s = s;
+			this.unit = unit;
+		}
+
+		/**
+		 * @return unit of this result
+		 */
+		public String getUnit() {
+			return this.unit;
+		}
+
+		/**
+		 * @return name of this result
+		 */
+		public String getName() {
+			return this.s;
+		}
+	}
+
+	/**
+	 * Result returned by the {@link Model_Gastric} model.
+	 * 
+	 * @author Titouan QUÉMA
+	 *
+	 */
+	public class ResultValue {
+		public Result type;
+		public double value;
+		public FitType extrapolation;
+
+		public ResultValue(Result type, double value, FitType extrapolation) {
+			this.type = type;
+			this.value = value;
+			this.extrapolation = extrapolation;
+		}
+
+		/**
+		 * @return TRUE if the value is extrapolated from the current fit and FALSE if
+		 *         the value is linearly extrapolated between two known points
+		 */
+		public boolean isExtrapolated() {
+			return this.extrapolation != null;
+		}
+
+		/**
+		 * Returns the value of this result rounded at 2 decimals and set to 0 if
+		 * negative.<br>
+		 * If this result is extrapolated, then a star '(*)' is added at the end of the
+		 * result.
+		 * 
+		 * @return rounded value for this result (2 decimals) restrained to 0 if
+		 *         negative
+		 */
+		public String notNegative() {
+			return BigDecimal.valueOf(Math.max(0, value)).setScale(2, RoundingMode.HALF_UP).toString()
+					+ (isExtrapolated() ? "(*)" : "");
+		}
+	}
+
+	/**
+	 * Results calculated for each image.
+	 */
+	public static final int RES_TIME = 0, RES_STOMACH = 1, RES_FUNDUS = 2, RES_ANTRUM = 3;
+
 	// == STATIC ACQUISITION ==
 	private HashMap<String, Double> coups;// pour enregistrer les coups dans chaque organe sur chaque image
 	private HashMap<String, Double> mgs;// pour enregistrer le MG dans chaque organe pour chaque serie
@@ -230,7 +311,7 @@ public class Model_Gastric extends ModeleScin {
 	 * found, then the result is null.<br>
 	 * 
 	 * @return X value or null if none found
-	 * @see #interpolateX(double, Fit)
+	 * @see #extrapolateX(double, Fit)
 	 */
 	private Double getX(double valueY) {
 		for (int i = 1; i < this.estomacPourcent.length && !trouve; i++) {
@@ -246,14 +327,14 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * Interpolates the X value based upon the specified Y value of the graph.<br>
-	 * The value X returned is interpolated with the specified fit.
+	 * Extrapolates the X value based upon the specified Y value of the graph.<br>
+	 * The value X returned is extrapolated with the specified fit.
 	 * 
 	 * @param valueY Y value
 	 * @param fit    Fit the interpolation must rely on
 	 * @return X value interpolated
 	 */
-	private Double interpolateX(double valueY, Fit fit) {
+	private Double extrapolateX(double valueY, Fit fit) {
 		return fit.extrapolateX(valueY);
 	}
 
@@ -264,7 +345,7 @@ public class Model_Gastric extends ModeleScin {
 	 * found, then the result is null.<br>
 	 * 
 	 * @return Y value or null if none found
-	 * @see #interpolateY(double, Fit)
+	 * @see #extrapolateY(double, Fit)
 	 */
 	private Double getY(double valueX) {
 		for (int i = 0; i < this.temps.length && !trouve; i++) {
@@ -280,17 +361,26 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * Interpolates the Y value based upon the specified X value of the graph.<br>
-	 * The value Y returned is interpolated with the specified fit.
+	 * Extrapolates the Y value based upon the specified X value of the graph.<br>
+	 * The value Y returned is extrapolated with the specified fit.
 	 * 
 	 * @param valueX X value
 	 * @param fit    Fit the interpolation must rely on
 	 * @return Y value interpolated
 	 */
-	private Double interpolateY(double valueX, Fit fit) {
+	private Double extrapolateY(double valueX, Fit fit) {
 		return fit.extrapolateY(valueX);
 	}
 
+	/**
+	 * Generates the dataset of the graph.
+	 * 
+	 * @return array in the form:
+	 *         <ul>
+	 *         <li><code>[i][0] -> x</code></li>
+	 *         <li><code>[i][1] -> y</code></li>
+	 *         </ul>
+	 */
 	public double[][] generateDataset() {
 		double[][] dataset = new double[temps.length][2];
 		for (int i = 0; i < temps.length; i++) {
@@ -300,6 +390,9 @@ public class Model_Gastric extends ModeleScin {
 		return dataset;
 	}
 
+	/**
+	 * @return series for the stomach (used for the graph)
+	 */
 	public XYSeries getStomachSeries() {
 		XYSeries serie = new XYSeries("Stomach");
 		for (int i = 0; i < estomacPourcent.length; i++)
@@ -307,6 +400,9 @@ public class Model_Gastric extends ModeleScin {
 		return serie;
 	}
 
+	/**
+	 * @return series for the selected fit of the graph
+	 */
 	public XYSeries getFittedSeries() {
 		double[] y = this.extrapolation.generateOrdinates(temps);
 		XYSeries fittedSeries = new XYSeries(this.extrapolation.toString());
@@ -447,59 +543,13 @@ public class Model_Gastric extends ModeleScin {
 		this.funDevEsto[0] = 100.;
 	}
 
-	public enum Result {
-		START_ANTRUM("Start antrum", "min"),
-		START_INTESTINE("Start intestine", "min"),
-		LAG_PHASE("Lag phase", "%"),
-		T_HALF("T 1/2", "%"),
-		RETENTION("Retention", "%");
-
-		private String s;
-		private String unit;
-
-		private Result(String s, String unit) {
-			this.s = s;
-			this.unit = unit;
-		}
-
-		public String getUnit() {
-			return this.unit;
-		}
-
-		public String getName() {
-			return this.s;
-		}
-	}
-
-	public class ResultValue {
-		public Result type;
-		public double value;
-		public FitType extrapolation;
-
-		public ResultValue(Result type, double value, FitType extrapolation) {
-			this.type = type;
-			this.value = value;
-			this.extrapolation = extrapolation;
-		}
-
-		public boolean isExtrapolated() {
-			return this.extrapolation != null;
-		}
-
-		public String notNegative() {
-			return BigDecimal.valueOf(Math.max(0, value)).setScale(2, RoundingMode.HALF_UP).toString()
-					+ (isExtrapolated() ? "(*)" : "");
-		}
-
-		@Override
-		public String toString() {
-			return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).toString()
-					+ (isExtrapolated() ? "(*)" : "");
-		}
-	}
-
-	public static final int RES_TIME = 0, RES_STOMACH = 1, RES_FUNDUS = 2, RES_ANTRUM = 3;
-
+	/**
+	 * Converts the index of the result into a readable String.
+	 * 
+	 * @param result Result to convert
+	 * @return String corresponding to the specified result or 'Unknown' if none was
+	 *         found
+	 */
 	public String valueOfResult(int result) {
 		switch (result) {
 		case RES_TIME:
@@ -516,14 +566,20 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * Result for the specified image.
+	 * Delivers the requested result for the specified image.<br>
+	 * If the result requested is not recognized, then 0 is returned.
 	 * 
-	 * @param result  Result to get
+	 * @param result  ID of the result to get. It must be one of {@link #RES_TIME},
+	 *                {@link #RES_STOMACH}, {@link #RES_FUNDUS} and
+	 *                {@link #RES_ANTRUM}
 	 * @param idImage Image to get the result from
-	 * @return Result
+	 * @return result found<br>
+	 *         or<br>
+	 *         0 if the result is not recognized
 	 * @see Model_Gastric#getResult(Result)
+	 * @throws IllegalArgumentException if the image ID is incorrect
 	 */
-	public double getImageResult(int result, int idImage) {
+	public double getImageResult(int result, int idImage) throws IllegalArgumentException {
 		if (idImage >= this.nbAcquisitions())
 			throw new IllegalArgumentException(
 					"The id (" + idImage + ") is out of bounds [" + 0 + ";" + this.nbAcquisitions() + "]");
@@ -546,10 +602,15 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * Result.
+	 * Delivers the requested result.<br>
+	 * This method can only be used for the results that are calculated for all of
+	 * the images. If you need a result specific for an image, use
+	 * {@link #getImageResult(int, int)}<br>
+	 * This method should only be called once all of the data was incorporated in
+	 * this model.<br>
 	 * 
 	 * @param result Result to get
-	 * @return Result
+	 * @return ResultValue containing the result requested
 	 * @see Model_Gastric#getImageResult(Result, int)
 	 */
 	public ResultValue getResult(Result result) {
@@ -565,7 +626,7 @@ public class Model_Gastric extends ModeleScin {
 			Double valX = this.getX(95.);
 			if (valX == null) {
 				// Interpolate
-				valX = this.interpolateX(95., this.extrapolation);
+				valX = this.extrapolateX(95., this.extrapolation);
 				extrapolationType = this.extrapolation.getType();
 			}
 			return new ResultValue(result, valX, extrapolationType);
@@ -574,12 +635,12 @@ public class Model_Gastric extends ModeleScin {
 			Double valY = this.getY(50.);
 			if (valY == null) {
 				// Interpolate
-				valY = this.interpolateY(50., this.extrapolation);
+				valY = this.extrapolateY(50., this.extrapolation);
 				extrapolationType = this.extrapolation.getType();
 			}
 			return new ResultValue(result, valY, extrapolationType);
 		default:
-			return new ResultValue(result, 0., this.extrapolation.getType());
+			throw new UnsupportedOperationException("This result is not available here!");
 		}
 	}
 
@@ -593,7 +654,7 @@ public class Model_Gastric extends ModeleScin {
 	public ResultValue retentionAt(double time) {
 		Double res = this.getY(time);
 		if (res == null)
-			return new ResultValue(Result.RETENTION, this.interpolateY(time, this.extrapolation),
+			return new ResultValue(Result.RETENTION, this.extrapolateY(time, this.extrapolation),
 					this.extrapolation.getType());
 		return new ResultValue(Result.RETENTION, res, null);
 	}
