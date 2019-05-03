@@ -38,7 +38,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		this.generateInstructions();
 		this.start();
 
-		this.fenResult = new FenResults(this.model);
+		this.fenResult = new FenResults(this);
 		this.fenResult.setVisible(false);
 	}
 
