@@ -125,6 +125,18 @@ public class Model_Gastric extends ModeleScin {
 			return BigDecimal.valueOf(Math.max(0, value)).setScale(2, RoundingMode.HALF_UP).toString()
 					+ (isExtrapolated() ? "(*)" : "");
 		}
+
+		/**
+		 * Returns the value of this result rounded at 2 decimals.<br>
+		 * If this result is extrapolated, then a start '(*)' is added at the end of the
+		 * result.
+		 * 
+		 * @return rounded value for this result (2 decimals)
+		 */
+		public String value() {
+			return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).toString()
+					+ (isExtrapolated() ? "(*)" : "");
+		}
 	}
 
 	/**

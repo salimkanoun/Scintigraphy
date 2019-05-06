@@ -30,8 +30,6 @@ public class TabMainResult extends TabResult {
 
 	private ImagePlus capture;
 
-	private Fit currentExtrapolation;
-
 	public TabMainResult(FenResults parent, ImagePlus capture) {
 		super(parent, "Result", true);
 		this.capture = capture;
@@ -68,7 +66,7 @@ public class TabMainResult extends TabResult {
 		Library_Debug.checkNull("result", result);
 		Library_Debug.checkNull("result.type", result.type);
 		infoRes.add(new JLabel(result.type.getName() + ":"));
-		JLabel lRes = new JLabel(result + " " + result.type.getUnit());
+		JLabel lRes = new JLabel(result.value() + " " + result.type.getUnit());
 		if (result.extrapolation == FitType.NONE)
 			lRes.setForeground(Color.RED);
 		infoRes.add(lRes);
@@ -98,7 +96,6 @@ public class TabMainResult extends TabResult {
 
 	private JPanel infoResultats() {
 		Model_Gastric model = (Model_Gastric) this.parent.getModel();
-		this.currentExtrapolation = model.getExtrapolation();
 
 		JPanel panel = new JPanel(new BorderLayout());
 
@@ -109,13 +106,11 @@ public class TabMainResult extends TabResult {
 
 		ResultValue result = model.getResult(Result.START_ANTRUM);
 		hasExtrapolatedValue = result.extrapolation != null;
-		infoRes.add(new JLabel("Start Antrum:"));
-		infoRes.add(new JLabel(result + " min"));
+		this.displayResult(infoRes, result);
 
 		result = model.getResult(Result.START_INTESTINE);
 		hasExtrapolatedValue = result.extrapolation != null;
-		infoRes.add(new JLabel("Start Intestine:"));
-		infoRes.add(new JLabel(result + " min"));
+		this.displayResult(infoRes, result);
 
 		result = model.getResult(Result.LAG_PHASE);
 		hasExtrapolatedValue = result.extrapolation != null;

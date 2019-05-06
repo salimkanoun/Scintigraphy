@@ -18,7 +18,6 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 
 	public GeneralDynamicScintigraphy() {
 		super("Dynamic scintigraphy");
-		IJ.log("ici");
 	}
 
 	@Override
