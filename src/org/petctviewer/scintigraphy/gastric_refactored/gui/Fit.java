@@ -1,13 +1,11 @@
 package org.petctviewer.scintigraphy.gastric_refactored.gui;
 
 import org.jfree.data.statistics.Regression;
-import org.jfree.data.xy.DefaultXYDataset;
-import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 public abstract class Fit {
 
 	public enum FitType {
-		NONE("No Fit"), LINEAR("Linear"), EXPONENTIAL("Exponential"), POLYNOMIAL("Polynomial");
+		NONE("No Fit"), LINEAR("Linear"), EXPONENTIAL("Exponential");
 		private String s;
 
 		private FitType(String s) {
@@ -32,8 +30,6 @@ public abstract class Fit {
 			return new LinearFit(dataset);
 		case EXPONENTIAL:
 			return new ExponentialFit(dataset);
-		case POLYNOMIAL:
-			return new PolynomialFit(dataset);
 		default:
 			return new NoFit();
 		}
@@ -109,33 +105,6 @@ public abstract class Fit {
 		public double extrapolateY(double valueX) {
 			double res = Math.exp(coefs[0]) * Math.exp(coefs[1] * valueX);
 			System.out.println("Value Y for " + valueX + " with Exponential interpolation -> " + res);
-			return res;
-		}
-
-	}
-
-	public static class PolynomialFit extends Fit {
-
-		private double[] coefs;
-
-		public PolynomialFit(double[][] dataset) {
-			super(FitType.POLYNOMIAL);
-			DefaultXYDataset ds = new DefaultXYDataset();
-			ds.addSeries("Polynomial", Library_JFreeChart.invertArray(dataset));
-			this.coefs = Regression.getPolynomialRegression(ds, 0, 3);
-		}
-
-		@Override
-		public double extrapolateX(double valueY) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public double extrapolateY(double valueX) {
-			double res = coefs[0];
-			for (int i = 1; i < coefs.length - 1; i++)
-				res += Math.pow(valueX, i) * coefs[i];
-			System.out.println("Value Y for " + valueX + " with Polynomial interpolation -> " + res);
 			return res;
 		}
 

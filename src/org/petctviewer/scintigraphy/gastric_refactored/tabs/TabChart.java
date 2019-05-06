@@ -22,7 +22,6 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 public class TabChart extends TabResult {
 
 	private XYSeriesCollection data;
-	private JFreeChart chart;
 	private JValueSetter valueSetter;
 
 	private JComboBox<FitType> fitsChoices;
@@ -52,16 +51,18 @@ public class TabChart extends TabResult {
 	private void createChart() {
 		// Create chart
 		this.data = new XYSeriesCollection();
-		this.data.addSeries(((Model_Gastric) this.parent.getModel()).getStomachSeries());
+		XYSeries stomachSeries = ((Model_Gastric) this.parent.getModel()).getStomachSeries();
+		this.data.addSeries(stomachSeries);
 
 		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (min)", "Stomach retention (%)",
 				data, PlotOrientation.VERTICAL, true, true, true);
-		this.chart = chart;
 
 		// Create value setter
+		double startX = stomachSeries.getMinX() + .1 * (stomachSeries.getMaxX() - stomachSeries.getMinX());
+		double endX = stomachSeries.getMinX() + .7 * (stomachSeries.getMaxX() - stomachSeries.getMinX());
 		valueSetter = new JValueSetter(chart);
-		valueSetter.addSelector(new Selector(" ", 1, -1, RectangleAnchor.TOP_LEFT), "start");
-		valueSetter.addSelector(new Selector(" ", 1, -1, RectangleAnchor.TOP_LEFT), "end");
+		valueSetter.addSelector(new Selector(" ", startX, -1, RectangleAnchor.TOP_LEFT), "start");
+		valueSetter.addSelector(new Selector(" ", endX, -1, RectangleAnchor.TOP_LEFT), "end");
 		valueSetter.addArea("start", "end", "area", null);
 	}
 
@@ -100,16 +101,11 @@ public class TabChart extends TabResult {
 
 		// Instantiate combo box
 		// Remove polynomial fit if not enough data
-		FitType[] possibleFits;
-		if (((Model_Gastric) this.parent.getModel()).nbAcquisitions() <= 4)
-			possibleFits = new FitType[] { FitType.NONE, FitType.LINEAR, FitType.EXPONENTIAL };
-		else
-			possibleFits = FitType.values();
+		FitType[] possibleFits = FitType.values();
 
 		for (FitType type : possibleFits)
 			this.fitsChoices.addItem(type);
 
-//			fitsChoices.setRenderer(new FitCellRenderer());
 		fitsChoices.addActionListener(this.parent.getController());
 		panel.add(fitsChoices);
 
