@@ -127,7 +127,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	}
 
 	private String generateRoiName(int indexImage, String instructionRoiName) {
-		return "#" + indexImage + "_" + instructionRoiName + this.currentState.getFacingOrientation().abrev();
+		return instructionRoiName + "-" + this.currentState.getFacingOrientation().abrev();
 	}
 
 	@Override
