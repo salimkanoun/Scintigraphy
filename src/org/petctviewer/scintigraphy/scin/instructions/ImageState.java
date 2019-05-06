@@ -28,7 +28,7 @@ public class ImageState {
 	public static final boolean LAT_RL = true, LAT_LR = false;
 
 	/**
-	 * Number of the image: if there is multiple images, then this ID is used to
+	 * Id of the image: if there is multiple images, then this ID is used to
 	 * differentiate each image
 	 * <ul>
 	 * <li>starting at 0</li>
@@ -69,7 +69,8 @@ public class ImageState {
 	 * @param slice             Number of the slice to display (if multiple slices)
 	 * @param lateralisation    TRUE for a Right-Left lateralisation and FALSE for a
 	 *                          Left-Right lateralisation
-	 * @param idImage           Number of the image (if multiple images)
+	 * @param idImage           ID of the image to display (index of the image in
+	 *                          the model)
 	 * @throws IllegalArgumentException if the facingOrientation is different than
 	 *                                  Ant or Post
 	 */
@@ -96,7 +97,7 @@ public class ImageState {
 	public boolean isLateralisationRL() {
 		return lateralisation;
 	}
-	
+
 	public boolean isLateralisationLR() {
 		return !this.lateralisation;
 	}

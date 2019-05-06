@@ -64,14 +64,14 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		dri_2 = new DrawRoiInstruction("Left lung", statePost);
 		dri_3 = new DrawRoiInstruction("Right kidney", statePost);
 		dri_4 = new DrawRoiInstruction("Left kidney", statePost);
-		dri_5 = new DrawRoiInstruction("Background", statePost);
+		dri_5 = new DrawRoiInMiddle("Background", statePost, dri_3, dri_4);
 
 		dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), 0);
 		dri_6 = new DrawRoiInstruction("Right lung", stateAnt, dri_1);
 		dri_7 = new DrawRoiInstruction("Left lung", stateAnt, dri_2);
 		dri_8 = new DrawRoiInstruction("Right kidney", stateAnt, dri_3);
 		dri_9 = new DrawRoiInstruction("Left kidney", stateAnt, dri_4);
-		dri_10 = new DrawRoiInstruction("Background", stateAnt, dri_5);
+		dri_10 = new DrawRoiInMiddle("Background", stateAnt, dri_8, dri_9);
 		dri_capture_2 = new ScreenShotInstruction(captures, this.getVue(), 1);
 		dri_capture_3 = new ScreenShotInstruction(captures, this.getVue(), 2);
 		dri_capture_4 = new ScreenShotInstruction(captures, this.getVue(), 3);
@@ -170,6 +170,28 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		this.fenResults.setMainTab(new MainResult(this.fenResults, montage));
 		this.fenResults.pack();
 		this.fenResults.setVisible(true);
+
+	}
+
+	private class DrawRoiInMiddle extends DrawRoiInstruction {
+
+		private DrawRoiInstruction dri_1, dri_2;
+
+		public DrawRoiInMiddle(String organToDelimit, ImageState state, DrawRoiInstruction roi1,
+				DrawRoiInstruction roi2) {
+			super(organToDelimit, state);
+			this.dri_1 = roi1;
+			this.dri_2 = roi2;
+		}
+
+		@Override
+		public void afterNext(ControllerWorkflow controller) {
+			super.afterNext(controller);
+			Roi r1 = getRoiManager().getRoi(this.dri_1.roiToDisplay());
+			Roi r2 = getRoiManager().getRoi(this.dri_2.roiToDisplay());
+			controller.getModel().getImageSelection()[controller.getCurrentImageState().getIdImage()].getImagePlus()
+					.setRoi(roiBetween(r1, r2));
+		}
 
 	}
 
