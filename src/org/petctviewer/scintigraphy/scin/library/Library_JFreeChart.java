@@ -238,7 +238,7 @@ public class Library_JFreeChart {
 
 		for (int i = 0; i < data.getSeriesCount(); i++) {
 			XYSeries series = new XYSeries("" + i);
-			for (int j = 0; j < data.getItemCount(0); j++) {
+			for (int j = 0; j < data.getItemCount(i); j++) {
 				series.add(data.getX(i, j), data.getY(i, j));
 			}
 			dataset.addSeries(cropSeries(series, startX, endX));

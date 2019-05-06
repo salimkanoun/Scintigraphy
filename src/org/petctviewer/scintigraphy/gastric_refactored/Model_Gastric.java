@@ -58,6 +58,10 @@ public class Model_Gastric extends ModeleScin {
 	 *
 	 */
 	public enum Result {
+		RES_TIME("Time", "min"),
+		RES_STOMACH("Stomach", "%"),
+		RES_FUNDUS("Fundus", "%"),
+		RES_ANTRUM("Antrum", "%"),
 		START_ANTRUM("Start antrum", "min"),
 		START_INTESTINE("Start intestine", "min"),
 		LAG_PHASE("Lag phase", "min"),
@@ -175,6 +179,7 @@ public class Model_Gastric extends ModeleScin {
 	private Date timeIngestion;
 
 	private Fit extrapolation;
+	private XYSeries seriesFitted;
 
 	public Model_Gastric(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
@@ -447,6 +452,15 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	public void setExtrapolation(Fit fit) {
 		this.extrapolation = fit;
+	}
+
+	/**
+	 * Current extrapolation selected.
+	 * 
+	 * @return
+	 */
+	public FitType getCurrentExtrapolation() {
+		return this.extrapolation.getType();
 	}
 
 	/**

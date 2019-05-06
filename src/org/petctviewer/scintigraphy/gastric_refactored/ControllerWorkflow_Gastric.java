@@ -6,6 +6,10 @@ import java.util.List;
 
 import javax.swing.JComboBox;
 
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabChart;
@@ -24,10 +28,11 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.CheckIntersectio
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 import ij.ImagePlus;
 
-public class ControllerWorkflow_Gastric extends ControllerWorkflow {
+public class ControllerWorkflow_Gastric extends ControllerWorkflow implements ChartMouseListener {
 
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 
@@ -173,10 +178,27 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		FitType selectedFit = (FitType) source.getSelectedItem();
 
 		// By default, use linear fit
-		((Model_Gastric) this.model).setExtrapolation(Fit.createFit(selectedFit, this.getModel().generateDataset()));
-		((TabChart) this.tabChart).drawSeries(((Model_Gastric) model).getFittedSeries());
-		((TabChart) this.tabChart).changeLabelInterpolation(selectedFit.toString());
+		XYSeries series = ((XYSeriesCollection) this.tabChart.getValueSetter().retrieveValuesInSpan()).getSeries(0);
+		this.getModel().setExtrapolation(Fit.createFit(selectedFit, Library_JFreeChart.invertArray(series.toArray())));
+		this.tabChart.drawFit(this.getModel().getFittedSeries());
+		this.tabChart.changeLabelInterpolation(selectedFit.toString());
 		this.tabMain.reloadSidePanelContent();
+	}
+
+	@Override
+	public void chartMouseClicked(ChartMouseEvent event) {
+		// Does nothing
+	}
+
+	@Override
+	public void chartMouseMoved(ChartMouseEvent event) {
+		// Reload fit
+		if (this.tabChart.getValueSetter().getGrabbedSelector() != null) {
+			XYSeries series = ((XYSeriesCollection) this.tabChart.getValueSetter().retrieveValuesInSpan()).getSeries(0);
+			this.getModel().setExtrapolation(Fit.createFit(this.getModel().getCurrentExtrapolation(),
+					Library_JFreeChart.invertArray(series.toArray())));
+			this.tabChart.drawFit(this.getModel().getFittedSeries());
+		}
 	}
 
 }

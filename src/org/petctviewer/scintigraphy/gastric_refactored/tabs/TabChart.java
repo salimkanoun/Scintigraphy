@@ -8,11 +8,14 @@ import javax.swing.JPanel;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.AxisSpace;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.gastric_refactored.ControllerWorkflow_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
+import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
@@ -64,22 +67,32 @@ public class TabChart extends TabResult {
 		valueSetter.addSelector(new Selector(" ", startX, -1, RectangleAnchor.TOP_LEFT), "start");
 		valueSetter.addSelector(new Selector(" ", endX, -1, RectangleAnchor.TOP_LEFT), "end");
 		valueSetter.addArea("start", "end", "area", null);
+		valueSetter.addChartMouseListener((ControllerWorkflow_Gastric) this.parent.getController());
+
+		// By default, create linear extrapolation
+		((Model_Gastric) this.parent.getModel())
+				.setExtrapolation(Fit.createFit(FitType.LINEAR, stomachSeries.toArray()));
+		this.drawFit(((Model_Gastric) this.parent.getModel()).getFittedSeries());
 	}
 
 	/**
-	 * Removes all previous fits (annotations included).
+	 * Removes all previous fits.
 	 */
 	private void clearFits() {
 		for (int i = 1; i < this.data.getSeriesCount(); i++)
 			this.data.removeSeries(i);
 	}
 
+	public JValueSetter getValueSetter() {
+		return this.valueSetter;
+	}
+
 	/**
-	 * Displays the fit and removes the previous fit.
+	 * Displays the specified fit and removes the previous fit if existing.
 	 * 
-	 * @param fit Type of regression to fit the values of the chart
+	 * @param series Fit to draw
 	 */
-	public void drawSeries(XYSeries series) {
+	public void drawFit(XYSeries series) {
 		this.clearFits();
 
 		this.data.addSeries(series);
@@ -100,7 +113,6 @@ public class TabChart extends TabResult {
 		JPanel panel = new JPanel();
 
 		// Instantiate combo box
-		// Remove polynomial fit if not enough data
 		FitType[] possibleFits = FitType.values();
 
 		for (FitType type : possibleFits)
