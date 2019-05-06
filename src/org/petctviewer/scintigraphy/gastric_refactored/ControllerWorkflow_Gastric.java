@@ -60,8 +60,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 		for (int i = 0; i < this.getRoiManager().getRoisAsArray().length; i += 6) {
 			imp = this.model.getImageSelection()[i / 6].getImagePlus();
 
-			System.out.println("Saving results for image#" + i / 6);
-
 			// Ant
 			imp.setSlice(SLICE_ANT);
 			imp.setRoi(this.getRoiManager().getRoisAsArray()[i]);
@@ -168,26 +166,37 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		super.actionPerformed(e);
+	public void actionPerformed(ActionEvent event) {
+		super.actionPerformed(event);
 
-		if (!(e.getSource() instanceof JComboBox))
+		if (!(event.getSource() instanceof JComboBox))
 			return;
 
-		JComboBox<FitType> source = (JComboBox<FitType>) e.getSource();
+		JComboBox<FitType> source = (JComboBox<FitType>) event.getSource();
 		FitType selectedFit = (FitType) source.getSelectedItem();
 
 		// By default, use linear fit
 		XYSeries series = ((XYSeriesCollection) this.tabChart.getValueSetter().retrieveValuesInSpan()).getSeries(0);
-		this.getModel().setExtrapolation(Fit.createFit(selectedFit, Library_JFreeChart.invertArray(series.toArray())));
-		this.tabChart.drawFit(this.getModel().getFittedSeries());
-		this.tabChart.changeLabelInterpolation(selectedFit.toString());
-		this.tabMain.reloadSidePanelContent();
+		try {
+			this.getModel()
+					.setExtrapolation(Fit.createFit(selectedFit, Library_JFreeChart.invertArray(series.toArray())));
+			this.tabChart.drawFit(this.getModel().getFittedSeries());
+			this.tabChart.changeLabelInterpolation(selectedFit.toString());
+			this.tabMain.reloadSidePanelContent();
+			this.tabChart.setErrorMessage(null);
+		} catch (IllegalArgumentException e) {
+			// Error messages
+			System.err.println("Not enough data");
+			this.tabChart.setErrorMessage("Not enough data to fit the graph");
+			// Reset combo box
+			source.setSelectedItem(this.getModel().getCurrentExtrapolation());
+		}
 	}
 
 	@Override
 	public void chartMouseClicked(ChartMouseEvent event) {
 		// Does nothing
+		this.tabMain.reloadSidePanelContent();
 	}
 
 	@Override
@@ -195,9 +204,15 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 		// Reload fit
 		if (this.tabChart.getValueSetter().getGrabbedSelector() != null) {
 			XYSeries series = ((XYSeriesCollection) this.tabChart.getValueSetter().retrieveValuesInSpan()).getSeries(0);
-			this.getModel().setExtrapolation(Fit.createFit(this.getModel().getCurrentExtrapolation(),
-					Library_JFreeChart.invertArray(series.toArray())));
-			this.tabChart.drawFit(this.getModel().getFittedSeries());
+			try {
+				this.getModel().setExtrapolation(Fit.createFit(this.getModel().getCurrentExtrapolation(),
+						Library_JFreeChart.invertArray(series.toArray())));
+				this.tabChart.drawFit(this.getModel().getFittedSeries());
+				this.tabChart.setErrorMessage(null);
+			} catch (IllegalArgumentException e) {
+				System.err.println("Not enough data");
+				this.tabChart.setErrorMessage("Not enough data to fit the graph");
+			}
 		}
 	}
 

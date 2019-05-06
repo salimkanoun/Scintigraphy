@@ -58,20 +58,34 @@ public class Model_Gastric extends ModeleScin {
 	 *
 	 */
 	public enum Result {
-		RES_TIME("Time", "min"),
-		RES_STOMACH("Stomach", "%"),
-		RES_FUNDUS("Fundus", "%"),
-		RES_ANTRUM("Antrum", "%"),
-		START_ANTRUM("Start antrum", "min"),
-		START_INTESTINE("Start intestine", "min"),
-		LAG_PHASE("Lag phase", "min"),
-		T_HALF("T 1/2", "%"),
-		RETENTION("Retention", "%");
+		RES_TIME("Time", Unit.MINUTES),
+		RES_STOMACH("Stomach", Unit.PERCENTAGE),
+		RES_FUNDUS("Fundus", Unit.PERCENTAGE),
+		RES_ANTRUM("Antrum", Unit.PERCENTAGE),
+		START_ANTRUM("Start antrum", Unit.MINUTES),
+		START_INTESTINE("Start intestine", Unit.MINUTES),
+		LAG_PHASE("Lag phase", Unit.MINUTES),
+		T_HALF("T 1/2", Unit.PERCENTAGE),
+		RETENTION("Retention", Unit.PERCENTAGE);
+
+		public enum Unit {
+			PERCENTAGE("%"), MINUTES("h:m:s");
+			private String s;
+
+			private Unit(String s) {
+				this.s = s;
+			}
+
+			@Override
+			public String toString() {
+				return this.s;
+			}
+		}
 
 		private String s;
-		private String unit;
+		private Unit unit;
 
-		private Result(String s, String unit) {
+		private Result(String s, Unit unit) {
 			this.s = s;
 			this.unit = unit;
 		}
@@ -79,7 +93,7 @@ public class Model_Gastric extends ModeleScin {
 		/**
 		 * @return unit of this result
 		 */
-		public String getUnit() {
+		public Unit getUnit() {
 			return this.unit;
 		}
 
@@ -88,6 +102,19 @@ public class Model_Gastric extends ModeleScin {
 		 */
 		public String getName() {
 			return this.s;
+		}
+
+		@Override
+		public String toString() {
+			return this.s;
+		}
+
+		public static Result[] imageResults() {
+			return new Result[] { RES_TIME, RES_STOMACH, RES_FUNDUS, RES_ANTRUM };
+		}
+
+		public static Result[] globalResults() {
+			return new Result[] { START_ANTRUM, START_INTESTINE, LAG_PHASE, T_HALF, RETENTION };
 		}
 	}
 
@@ -117,6 +144,20 @@ public class Model_Gastric extends ModeleScin {
 		}
 
 		/**
+		 * Adjusts the value returned by this result.<br>
+		 * The unit of this result is not displayed.<br>
+		 * For example, if this value is a time, then this method will format the value
+		 * like this: '01:20:34'.<br>
+		 * 
+		 * @return formatted value for this result
+		 */
+		public String value() {
+			if (this.type.getUnit() == Result.Unit.MINUTES)
+				return this.displayAsTime();
+			return this.notNegative();
+		}
+
+		/**
 		 * Returns the value of this result rounded at 2 decimals and set to 0 if
 		 * negative.<br>
 		 * If this result is extrapolated, then a star '(*)' is added at the end of the
@@ -137,16 +178,44 @@ public class Model_Gastric extends ModeleScin {
 		 * 
 		 * @return rounded value for this result (2 decimals)
 		 */
-		public String value() {
+		public String roundedValue() {
 			return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).toString()
 					+ (isExtrapolated() ? "(*)" : "");
 		}
-	}
 
-	/**
-	 * Results calculated for each image.
-	 */
-	public static final int RES_TIME = 0, RES_STOMACH = 1, RES_FUNDUS = 2, RES_ANTRUM = 3;
+		/**
+		 * Returns the value of this result as a time considering the value in minutes.
+		 * 
+		 * @return time value for this result
+		 */
+		public String displayAsTime() {
+			int seconds = (int) ((value - (double) ((int) value)) * 60.);
+			int minutes = (int) (value % 60.);
+			int hours = (int) (value / 60.);
+
+			StringBuilder s = new StringBuilder();
+			// Hours
+			if (hours > 0) {
+				if (hours < 10)
+					s.append(0);
+				s.append(hours);
+				s.append(':');
+			}
+
+			// Minutes
+			if (minutes < 10)
+				s.append(0);
+			s.append(minutes);
+			s.append(':');
+
+			// Seconds
+			if (seconds < 10)
+				s.append(0);
+			s.append(seconds);
+
+			return s.toString();
+		}
+	}
 
 	// == STATIC ACQUISITION ==
 	private HashMap<String, Double> coups;// pour enregistrer les coups dans chaque organe sur chaque image
@@ -179,7 +248,6 @@ public class Model_Gastric extends ModeleScin {
 	private Date timeIngestion;
 
 	private Fit extrapolation;
-	private XYSeries seriesFitted;
 
 	public Model_Gastric(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
@@ -503,7 +571,6 @@ public class Model_Gastric extends ModeleScin {
 		double hour = (diff / (60 * 60 * 1000) - day * 24);
 		double min = ((diff / (60 * 1000)) - day * 24 * 60 - hour * 60);
 		this.temps[indexImage + 1] = day * 24 * 60 + hour * 60 + min;
-		System.out.println("Time[" + (indexImage + 1) + "] = " + this.temps[indexImage + 1]);
 	}
 
 	// pour chaque serie, on calcule le pourcentage de l'estomac, le fundus, l'antre
@@ -532,13 +599,6 @@ public class Model_Gastric extends ModeleScin {
 		double estoInter = ((this.estomacPourcent[indexImage] - this.estomacPourcent[indexImage + 1])
 				/ (this.temps[indexImage + 1] - this.temps[indexImage])) * 30.;
 		this.estoInter[indexImage] = estoInter;
-
-		System.out.println("Result #" + indexImage);
-		System.out.println(
-				"EstoInter: (" + (this.estomacPourcent[indexImage]) + " - " + (this.estomacPourcent[indexImage + 1])
-						+ ") / (" + (this.temps[indexImage + 1] + " - " + (this.temps[indexImage]) + ")"));
-		System.out.println("EstoInter: " + estoInter);
-		System.out.println("temps[(" + indexImage + "+1)" + (indexImage + 1) + "] = " + this.temps[indexImage + 1]);
 
 		if (this.logOn) {
 			IJ.log("image " + (indexImage) + ": " + " Stomach " + this.estomacPourcent[indexImage + 1] + " Intestine "
@@ -570,60 +630,37 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * Converts the index of the result into a readable String.
+	 * Delivers the requested result for the specified image
 	 * 
-	 * @param result Result to convert
-	 * @return String corresponding to the specified result or 'Unknown' if none was
-	 *         found
-	 */
-	public String valueOfResult(int result) {
-		switch (result) {
-		case RES_TIME:
-			return "Time";
-		case RES_STOMACH:
-			return "Stomach";
-		case RES_FUNDUS:
-			return "Fundus";
-		case RES_ANTRUM:
-			return "Antrum";
-		default:
-			return "Unknown";
-		}
-	}
-
-	/**
-	 * Delivers the requested result for the specified image.<br>
-	 * If the result requested is not recognized, then 0 is returned.
-	 * 
-	 * @param result  ID of the result to get. It must be one of {@link #RES_TIME},
-	 *                {@link #RES_STOMACH}, {@link #RES_FUNDUS} and
-	 *                {@link #RES_ANTRUM}
+	 * @param result  Result to get, it must be one of TIME, STOMACH, FUNDUS, ANTRUM
 	 * @param idImage Image to get the result from
-	 * @return result found<br>
-	 *         or<br>
-	 *         0 if the result is not recognized
+	 * @return result found
 	 * @see Model_Gastric#getResult(Result)
-	 * @throws IllegalArgumentException if the image ID is incorrect
+	 * @throws IllegalArgumentException if the image ID or the result is incorrect
 	 */
-	public double getImageResult(int result, int idImage) throws IllegalArgumentException {
+	public ResultValue getImageResult(Result result, int idImage) throws IllegalArgumentException {
 		if (idImage >= this.nbAcquisitions())
 			throw new IllegalArgumentException(
 					"The id (" + idImage + ") is out of bounds [" + 0 + ";" + this.nbAcquisitions() + "]");
 
-		System.out.println("Get image result " + this.valueOfResult(result) + " with " + this.extrapolation.toString()
-				+ " interpolation");
-
 		switch (result) {
 		case RES_TIME:
-			return BigDecimal.valueOf(this.temps[idImage]).setScale(2, RoundingMode.HALF_UP).doubleValue();
+			return new ResultValue(result,
+					BigDecimal.valueOf(this.temps[idImage]).setScale(2, RoundingMode.HALF_UP).doubleValue(), null);
 		case RES_STOMACH:
-			return BigDecimal.valueOf(this.estomacPourcent[idImage]).setScale(2, RoundingMode.HALF_UP).doubleValue();
+			return new ResultValue(result,
+					BigDecimal.valueOf(this.estomacPourcent[idImage]).setScale(2, RoundingMode.HALF_UP).doubleValue(),
+					null);
 		case RES_FUNDUS:
-			return BigDecimal.valueOf(this.fundusPourcent[idImage]).setScale(2, RoundingMode.HALF_UP).doubleValue();
+			return new ResultValue(result,
+					BigDecimal.valueOf(this.fundusPourcent[idImage]).setScale(2, RoundingMode.HALF_UP).doubleValue(),
+					null);
 		case RES_ANTRUM:
-			return BigDecimal.valueOf(this.antrePourcent[idImage]).setScale(2, RoundingMode.HALF_UP).doubleValue();
+			return new ResultValue(result,
+					BigDecimal.valueOf(this.antrePourcent[idImage]).setScale(2, RoundingMode.HALF_UP).doubleValue(),
+					null);
 		default:
-			return 0.;
+			throw new IllegalArgumentException("The result " + result + " is not available here!");
 		}
 	}
 
@@ -640,7 +677,6 @@ public class Model_Gastric extends ModeleScin {
 	 * @see Model_Gastric#getImageResult(Result, int)
 	 */
 	public ResultValue getResult(Result result) {
-		System.out.println("Get result " + result + " with " + this.extrapolation.toString() + " interpolation");
 		FitType extrapolationType = null;
 		switch (result) {
 		case START_ANTRUM:

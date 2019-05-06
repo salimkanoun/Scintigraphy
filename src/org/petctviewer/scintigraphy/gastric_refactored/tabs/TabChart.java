@@ -1,5 +1,7 @@
 package org.petctviewer.scintigraphy.gastric_refactored.tabs;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.JComboBox;
@@ -8,15 +10,16 @@ import javax.swing.JPanel;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.AxisSpace;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric_refactored.ControllerWorkflow_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
-import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
+import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.NoFit;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -28,7 +31,7 @@ public class TabChart extends TabResult {
 	private JValueSetter valueSetter;
 
 	private JComboBox<FitType> fitsChoices;
-	private JLabel labelInterpolation;
+	private JLabel labelInterpolation, labelError;
 	private JPanel panResult;
 
 	public TabChart(FenResults parent) {
@@ -39,6 +42,9 @@ public class TabChart extends TabResult {
 
 		this.labelInterpolation = new JLabel();
 		this.labelInterpolation.setVisible(false);
+
+		this.labelError = new JLabel();
+		this.labelError.setForeground(Color.RED);
 
 		this.createChart();
 
@@ -60,6 +66,15 @@ public class TabChart extends TabResult {
 		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (min)", "Stomach retention (%)",
 				data, PlotOrientation.VERTICAL, true, true, true);
 
+		// Set bounds
+		XYPlot plot = chart.getXYPlot();
+		// X axis
+		NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();
+		xAxis.setRange(-10., stomachSeries.getMaxX() + 10.);
+		// Y axis
+		NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
+		yAxis.setRange(-10., stomachSeries.getMaxY() + 10.);
+
 		// Create value setter
 		double startX = stomachSeries.getMinX() + .1 * (stomachSeries.getMaxX() - stomachSeries.getMinX());
 		double endX = stomachSeries.getMinX() + .7 * (stomachSeries.getMaxX() - stomachSeries.getMinX());
@@ -70,8 +85,7 @@ public class TabChart extends TabResult {
 		valueSetter.addChartMouseListener((ControllerWorkflow_Gastric) this.parent.getController());
 
 		// By default, create linear extrapolation
-		((Model_Gastric) this.parent.getModel())
-				.setExtrapolation(Fit.createFit(FitType.LINEAR, stomachSeries.toArray()));
+		((Model_Gastric) this.parent.getModel()).setExtrapolation(new NoFit());
 		this.drawFit(((Model_Gastric) this.parent.getModel()).getFittedSeries());
 	}
 
@@ -108,9 +122,20 @@ public class TabChart extends TabResult {
 		this.labelInterpolation.setText("-- " + labelName + " --");
 	}
 
+	/**
+	 * Changes the error message. This message is displayed in red. If null is
+	 * passed, then the previous message is erased.
+	 * 
+	 * @param msg message to show or null to erase the last message
+	 */
+	public void setErrorMessage(String msg) {
+		this.labelError.setText(msg);
+	}
+
 	@Override
 	public Component getSidePanelContent() {
-		JPanel panel = new JPanel();
+		JPanel panel = new JPanel(new BorderLayout());
+		JPanel panCenter = new JPanel();
 
 		// Instantiate combo box
 		FitType[] possibleFits = FitType.values();
@@ -119,9 +144,11 @@ public class TabChart extends TabResult {
 			this.fitsChoices.addItem(type);
 
 		fitsChoices.addActionListener(this.parent.getController());
-		panel.add(fitsChoices);
-
-		panel.add(this.labelInterpolation);
+		panCenter.add(fitsChoices);
+		panCenter.add(this.labelInterpolation);
+		
+		panel.add(panCenter, BorderLayout.CENTER);
+		panel.add(this.labelError, BorderLayout.SOUTH);
 
 		return panel;
 	}

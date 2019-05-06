@@ -57,11 +57,13 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 	public void chartMouseClicked(ChartMouseEvent event) {
 		// curseur par defaut
 		Component c = (Component) event.getTrigger().getSource();
-		c.setCursor(null);
 
 		// si on avait un selecteur selectionne, on le deselectionne
 		if (this.current != null) {
+			this.current.chartMouseClicked(event);
 			this.current = null;
+			c.setCursor(null);
+			return;
 		}
 
 		// on recupere le selecteur clique
@@ -79,6 +81,32 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 			// qu'il prenne le focus
 			this.selectors.remove(v);
 			this.selectors.add(0, v);
+		}
+	}
+
+	@Override
+	public void chartMouseMoved(ChartMouseEvent event) {
+		Component c = (Component) event.getTrigger().getSource();
+
+		updateAreas();
+
+		// on recupere le selecteur sous la souris
+		int xMouse = (int) event.getTrigger().getPoint().getX();
+		Rectangle2D plotArea = this.getScreenDataArea();
+		Selector v = this.getSelector(xMouse, plotArea);
+
+		// si la souris est sur un selecteur ou qu'un selecteur est selectionne
+		if (v != null || this.current != null) {
+			// on change le curseur en main
+			c.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		} else {
+			// sinon on laisse le curseur par defaut
+			c.setCursor(null);
+		}
+
+		// si un selecteur est selectionne, on appelle la methode chartMouseMoved
+		if (this.current != null) {
+			this.current.chartMouseMoved(event);
 		}
 	}
 
@@ -106,32 +134,6 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 			}
 		}
 		return null;
-	}
-
-	@Override
-	public void chartMouseMoved(ChartMouseEvent event) {
-		Component c = (Component) event.getTrigger().getSource();
-
-		updateAreas();
-
-		// on recupere le selecteur sous la souris
-		int xMouse = (int) event.getTrigger().getPoint().getX();
-		Rectangle2D plotArea = this.getScreenDataArea();
-		Selector v = this.getSelector(xMouse, plotArea);
-
-		// si la souris est sur un selecteur ou qu'un selecteur est selectionne
-		if (v != null || this.current != null) {
-			// on change le curseur en main
-			c.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		} else {
-			// sinon on laisse le curseur par defaut
-			c.setCursor(null);
-		}
-
-		// si un selecteur est selectionne, on appelle la methode chartMouseMoved
-		if (this.current != null) {
-			this.current.chartMouseMoved(event);
-		}
 	}
 
 	public void updateAreas() {

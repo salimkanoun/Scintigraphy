@@ -112,14 +112,12 @@ public abstract class Fit {
 		@Override
 		public double extrapolateX(double valueY) {
 			double res = valueY - coefs[0] / coefs[1];
-			System.out.println("Value X for " + valueY + " with Linear interpolation -> " + res);
 			return res;
 		}
 
 		@Override
 		public double extrapolateY(double valueX) {
 			double res = coefs[1] * valueX + coefs[0];
-			System.out.println("Value Y for " + valueX + " with Linear interpolation -> " + res);
 			return res;
 		}
 
@@ -149,14 +147,12 @@ public abstract class Fit {
 		@Override
 		public double extrapolateX(double valueY) {
 			double res = valueY - coefs[0] / coefs[1];
-			System.out.println("Value X for " + valueY + " with Exponential interpolation -> " + res);
 			return res;
 		}
 
 		@Override
 		public double extrapolateY(double valueX) {
 			double res = Math.exp(coefs[0]) * Math.exp(coefs[1] * valueX);
-			System.out.println("Value Y for " + valueX + " with Exponential interpolation -> " + res);
 			return res;
 		}
 

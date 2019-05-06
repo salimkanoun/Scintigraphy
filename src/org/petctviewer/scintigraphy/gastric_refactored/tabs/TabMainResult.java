@@ -14,7 +14,6 @@ import javax.swing.table.DefaultTableModel;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric.Result;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric.ResultValue;
-import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.NoFit;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
@@ -44,7 +43,8 @@ public class TabMainResult extends TabResult {
 		tableModel.addRow(new String[] { "Time (min)", "Stomach (%)", "Fundus (%)", "Antrum (%)" });
 		for (int i = 0; i < ((Model_Gastric) this.parent.getModel()).nbAcquisitions(); i++) {
 			for (int j = 0; j < tableModel.getColumnCount(); j++) {
-				arr[j] = model.getImageResult(j, i) + "";
+				ResultValue res = model.getImageResult(Result.imageResults()[j], i);
+				arr[j] = res.value();
 			}
 			tableModel.addRow(arr);
 		}
@@ -88,7 +88,7 @@ public class TabMainResult extends TabResult {
 
 		infoRes.add(new JLabel(result.type.getName() + " at " + (int) (time / 60) + "h:"));
 		// The value cannot be negative, so we restrain it with Math.max
-		JLabel lRes = new JLabel(result.notNegative() +" " + result.type.getUnit());
+		JLabel lRes = new JLabel(result.value() + " " + result.type.getUnit());
 		if (result.extrapolation == FitType.NONE)
 			lRes.setForeground(Color.RED);
 		infoRes.add(lRes);
@@ -143,7 +143,6 @@ public class TabMainResult extends TabResult {
 
 	@Override
 	public Component getSidePanelContent() {
-		String[] results = ((Model_Gastric) this.parent.getModel()).resultats();
 		JPanel panel = new JPanel(new GridLayout(0, 1));
 		panel.add(this.tablesResultats());
 		panel.add(this.infoResultats());
