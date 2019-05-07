@@ -29,6 +29,7 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
 
@@ -55,43 +56,55 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 
 	// TODO: remove this method and compute the model during the process
 	private void computeModel() {
-		ImagePlus imp = this.model.getImagePlus();
-		this.getModel().initResultat();
+		ImageSelection ims = this.model.getImageSelection()[0];
+
+		// Place point 0
+		this.getModel().forcePercentageDataValue(ims, Model_Gastric.REGION_STOMACH, 100.);
+		this.getModel().forcePercentageDataValue(ims, Model_Gastric.REGION_FUNDUS, 100.);
+		this.getModel().forcePercentageDataValue(ims, Model_Gastric.REGION_ANTRE, 0.);
+		this.getModel().forcePercentageDataValue(ims, Model_Gastric.REGION_INTESTINE, 0.);
+
+		this.getModel().forceDerivativeDataValue(ims, Model_Gastric.REGION_FUNDUS, 100.);
+
+		ImageSelection previousImage = null;
 		for (int i = 0; i < this.getRoiManager().getRoisAsArray().length; i += 6) {
-			imp = this.model.getImageSelection()[i / 6].getImagePlus();
+			ims = this.model.getImageSelection()[i / 6];
 
-			// Ant
-			imp.setSlice(SLICE_ANT);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i]);
-			this.getModel().calculerCoups("Estomac_Ant", i / 6, imp);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 1]);
-			this.getModel().calculerCoups("Intes_Ant", i / 6, imp);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 2]);
-			this.getModel().calculerCoups("Antre_Ant", i / 6, imp);
-			this.getModel().setCoups("Fundus_Ant", i / 6,
-					this.getModel().getCoups("Estomac_Ant", i / 6) - this.getModel().getCoups("Antre_Ant", i / 6));
-			this.getModel().setCoups("Intestin_Ant", i / 6,
-					this.getModel().getCoups("Intes_Ant", i / 6) - this.getModel().getCoups("Antre_Ant", i / 6));
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 3]);
+			for (Orientation orientation : Orientation.antPostOrder()) {
+				int indexIncrementPost = 0;
+				int slice = SLICE_ANT;
+				if (orientation == Orientation.POST) {
+					indexIncrementPost = 3;
+					slice = SLICE_POST;
+				}
+				ImageState state = new ImageState(orientation, slice, ImageState.LAT_RL, i / 6);
+				// - Stomach
+				Model_Gastric.REGION_STOMACH.inflate(ims, state, this.getRoiManager().getRoisAsArray()[i + indexIncrementPost]);
+				getModel().calculateCounts(Model_Gastric.REGION_STOMACH);
 
-			// Post
-			imp.setSlice(SLICE_POST);
-			this.getModel().calculerCoups("Estomac_Post", i / 6, imp);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 4]);
-			this.getModel().calculerCoups("Intes_Post", i / 6, imp);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 5]);
-			this.getModel().calculerCoups("Antre_Post", i / 6, imp);
-			this.getModel().setCoups("Fundus_Post", i / 6,
-					this.getModel().getCoups("Estomac_Post", i / 6) - this.getModel().getCoups("Antre_Post", i / 6));
-			this.getModel().setCoups("Intestin_Post", i / 6,
-					this.getModel().getCoups("Intes_Post", i / 6) - this.getModel().getCoups("Antre_Post", i / 6));
+				// - Intestine (value)
+				ims.getImagePlus().setRoi(this.getRoiManager().getRoisAsArray()[i + 1 + indexIncrementPost]);
+				ims.getImagePlus().setSlice(state.getSlice());
+				double intestineValue = Library_Quantif.getCounts(ims.getImagePlus());
 
-			try {
-				this.getModel().tempsImage(i / 6, imp);
-			} catch (Exception e) {
-				e.printStackTrace();
+				// - Antre
+				Model_Gastric.REGION_ANTRE.inflate(ims, state, this.getRoiManager().getRoisAsArray()[i + 2 + indexIncrementPost]);
+				getModel().calculateCounts(Model_Gastric.REGION_ANTRE);
+
+				// - Fundus
+				Model_Gastric.REGION_FUNDUS.inflate(ims, state, null);
+				getModel().forceCountsDataValue(ims, Model_Gastric.REGION_FUNDUS,
+						getModel().getCounts(ims, Model_Gastric.REGION_STOMACH, orientation)
+								- getModel().getCounts(ims, Model_Gastric.REGION_ANTRE, orientation));
+
+				// - Intestine
+				Model_Gastric.REGION_INTESTINE.inflate(ims, state, null);
+				getModel().forceCountsDataValue(ims, Model_Gastric.REGION_INTESTINE,
+						intestineValue - getModel().getCounts(ims, Model_Gastric.REGION_ANTRE, orientation));
 			}
-			this.getModel().pourcVGImage(i / 6);
+			
+			getModel().computeData(ims, previousImage);
+			previousImage = ims;
 		}
 		this.model.calculerResultats();
 	}

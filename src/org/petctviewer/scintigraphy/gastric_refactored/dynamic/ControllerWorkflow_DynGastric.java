@@ -19,7 +19,6 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 	public ControllerWorkflow_DynGastric(Scintigraphy main, FenApplication vue, ModeleScin model,
 			ImageSelection[] selectedImages) {
 		super(main, vue, model);
-		((Model_Gastric) this.model).swapToDynamic();
 		this.model.setImages(selectedImages);
 
 		this.generateInstructions();

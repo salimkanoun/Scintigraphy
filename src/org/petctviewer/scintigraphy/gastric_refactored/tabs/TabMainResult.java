@@ -43,7 +43,7 @@ public class TabMainResult extends TabResult {
 		tableModel.addRow(new String[] { "Time (min)", "Stomach (%)", "Fundus (%)", "Antrum (%)" });
 		for (int i = 0; i < ((Model_Gastric) this.parent.getModel()).nbAcquisitions(); i++) {
 			for (int j = 0; j < tableModel.getColumnCount(); j++) {
-				ResultValue res = model.getImageResult(Result.imageResults()[j], i);
+				ResultValue res = model.getImageResult(Result.imageResults()[j], parent.getModel().getImageSelection()[i]);
 				arr[j] = res.value();
 			}
 			tableModel.addRow(arr);
