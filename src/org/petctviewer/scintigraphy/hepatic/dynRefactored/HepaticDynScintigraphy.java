@@ -29,7 +29,7 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 		}
 
 		ImageSelection impSorted = null;
-		ImageSelection[] impsSortedAntPost = new ImageSelection[selectedImages.length];
+		ImageSelection[] impsSortedAntPost = new ImageSelection[2];
 
 		ImageSelection impSelect = selectedImages[0];
 		if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_ANT) {
@@ -51,10 +51,12 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
-			imp.getImageStack().getProcessor(i).multiply(1000d / this.frameDurations[i - 1]);
+			imp.getImageStack().getProcessor(i).multiply(1000d / (double)this.frameDurations[i - 1]);
 		}
 
 		imp.getProcessor().setMinAndMax(0, imp.getStatistics().max * 1f / 1f);
+		
+		impsSortedAntPost[1] = impSelect;
 
 		return impsSortedAntPost;
 	}

@@ -1,18 +1,9 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.JFrame;
-
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabOtherMethod;
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabTAC;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -24,17 +15,10 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
-import ij.ImageStack;
-import ij.plugin.MontageMaker;
 
 public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
-
-	private final int NBORGAN = 6;
-
-	public static String[] organes = { "R. Liver", "L. Liver", "Hilium", "CBD", "Duodenom", "Blood pool" };
 
 	private List<ImagePlus> captures;
 
@@ -84,62 +68,20 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 
 	@Override
 	public void end() {
-		SecondHepaticScintigraphy scin = (SecondHepaticScintigraphy) this.main;
 
 		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) this.model;
 
-		ImagePlus imp = modele.getImageSelection()[0].getImagePlus();
-		BufferedImage capture = Library_Capture_CSV.captureImage(imp, 512, 0).getBufferedImage();
+		modele.setCapture(this.vue.getImagePlus());
 
 		modele.setLocked(false);
 
 		// on copie les roi sur toutes les slices
 		modele.saveValues();
 
-		// TODO remove start
-		List<Double> bp = modele.getData("Blood pool");
-		List<Double> rliver = modele.getData("Right Liver");
-		System.out.println("bp.size() : " + bp.size());
-		System.out.println("rliver.size() : " + rliver.size());
-
-		Double[] deconv = new Double[bp.size()];
-		for (int i = 0; i < bp.size(); i++) {
-			deconv[i] = rliver.get(i) / bp.get(i);
-		}
-
-		XYSeriesCollection data = new XYSeriesCollection();
-		data.addSeries(modele.createSerie(Arrays.asList(deconv), "deconv"));
-		data.addSeries(modele.getSerie("Blood pool"));
-		data.addSeries(modele.getSerie("Right Liver"));
-
-		JFreeChart chart = ChartFactory.createXYLineChart("", "x", "y", data);
-
-		ChartPanel chartpanel = new ChartPanel(chart);
-		JFrame frame = new JFrame();
-		frame.add(chartpanel);
-		frame.pack();
-		frame.setVisible(true);
-
 		// remove finish
 		((TabOtherMethod) this.resultTab).setExamDone(true);
 		this.resultTab.reloadDisplay();
 		this.main.getFenApplication().dispose();
-	}
-
-	/**
-	 * Creates an ImagePlus with 2 captures.
-	 * 
-	 * @param captures
-	 *            ImageStack with 2 captures
-	 * @return ImagePlus with the 2 captures on 1 slice
-	 */
-	private ImagePlus montage2Images(ImageStack captures) {
-		MontageMaker mm = new MontageMaker();
-		// TODO: patient ID
-		String patientID = "NO_ID_FOUND";
-		ImagePlus imp = new ImagePlus("Resultats Pelvis -" + this.model.getStudyName() + " -" + patientID, captures);
-		imp = mm.makeMontage2(imp, 1, 2, 0.50, 1, 2, 1, 10, false);
-		return imp;
 	}
 
 	public ModeleScin getModel() {

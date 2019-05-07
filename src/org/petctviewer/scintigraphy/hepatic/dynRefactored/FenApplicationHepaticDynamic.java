@@ -36,19 +36,19 @@ public class FenApplicationHepaticDynamic extends FenApplication {
 
 		Panel instru = new Panel(gridbag);
 
-		this.labelSlice1 = new Button("Slice 1");
+		this.labelSlice1 = new Button("Hilium");
 		labelSlice1.addMouseListener((ControllerHepaticDynamic) this.getControleur());
 		labelSlice1.addActionListener(this);
 		gridbag.setConstraints(labelSlice1, c);
 		instru.add(labelSlice1);
 
-		this.labelSlice2 = new Button("Slice 2");
+		this.labelSlice2 = new Button("Duodenum");
 		labelSlice2.addMouseListener((ControllerHepaticDynamic) this.getControleur());
 		gridbag.setConstraints(labelSlice2, c);
 		instru.add(labelSlice2);
 
 		c.gridwidth = GridBagConstraints.REMAINDER; // end row
-		this.labelSlice3 = new Button("Slice 3");
+		this.labelSlice3 = new Button("Intestine");
 		labelSlice3.addMouseListener((ControllerHepaticDynamic) this.getControleur());
 		gridbag.setConstraints(labelSlice3, c);
 		instru.add(labelSlice3);

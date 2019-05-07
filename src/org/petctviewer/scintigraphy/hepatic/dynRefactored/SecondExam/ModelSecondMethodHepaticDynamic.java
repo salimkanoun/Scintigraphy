@@ -25,6 +25,8 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 
 	int nbOrganes;
 
+	ImagePlus capture;
+
 	public ModelSecondMethodHepaticDynamic(ImageSelection[] selectedImages, String studyName, int[] frameDuration) {
 		super(selectedImages, studyName, frameDuration);
 		// TODO Auto-generated constructor stub
@@ -91,7 +93,7 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 				this.getData().put(name, new ArrayList<Double>());
 			}
 			// on y ajoute le nombre de coups
-			this.getData().get(name).add(Library_Quantif.getCounts(imp));
+			this.getData().get(name).add(Library_Quantif.getCounts(imp) != 0.0d ? Library_Quantif.getCounts(imp) : 1);
 		}
 	}
 
@@ -116,15 +118,25 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 					mapData.put(name, new ArrayList<Double>());
 				}
 				// on y ajoute le nombre de coups
-				mapData.get(name).add(Library_Quantif.getCounts(imp));
+				// Si on est à l'Hilium, on corrige du background
+				if (name.equals("Hilium")) {
+					// Apply the roi of the Right Liver, and save the count
+					imp.setRoi(getOrganRoi(0));
+					double averageCountLiverRight = Library_Quantif.getAvgCounts(imp);
+					// Apply the roi of the Right Liver
+					imp.setRoi(getOrganRoi(1));
+					double averageCountLiverLeft = Library_Quantif.getAvgCounts(imp);
+					double averageCountLiver = (averageCountLiverRight + averageCountLiverLeft) / 2;
+
+					imp.setRoi(getOrganRoi(this.indexRoi));
+					double count = Library_Quantif.getCountCorrectedBackground(imp, getOrganRoi(this.indexRoi),
+							averageCountLiver);
+					mapData.get(name).add(count != 0.0d ? count : 1);
+
+				} else
+					mapData.get(name).add(Library_Quantif.getCounts(imp) != 0.0d ? Library_Quantif.getCounts(imp) : 1);
 			}
 		}
-		System.out.println("Size Left Liver :" + mapData.get("Left Liver").size());
-		System.out.println("Size Hilium :" + mapData.get("Hilium").size());
-		System.out.println("Size Blood pool :" + mapData.get("Blood pool").size());
-		System.out.println("Size Right Liver :" + mapData.get("Right Liver").size());
-		System.out.println("Size CBD :" + mapData.get("CBD").size());
-		System.out.println("Duodenom :" + mapData.get("Duodenom").size());
 		// set data to the model
 		this.setData(mapData);
 		this.calculerResultats();
@@ -132,7 +144,7 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 	}
 
 	public Roi getOrganRoi(int lastRoi) {
-		return this.getRoiManager().getRoi(this.indexRoi % this.nbOrganes);
+		return this.getRoiManager().getRoi(lastRoi % this.nbOrganes);
 	}
 
 	public String getNomOrgane(int index) {
@@ -143,10 +155,46 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 		this.resutlTab = resultTab;
 	}
 
+	public void setCapture(ImagePlus capture) {
+		this.capture = capture;
+	}
+
+	public ImagePlus getCapture() {
+		return this.capture;
+	}
+
+	/**
+	 * Create the deconvolution of the liver by the blood pool.
+	 * @param blood
+	 * @param liver
+	 * @return
+	 */
+	public List<Double> deconvolv(Double[] blood, Double[] liver) {
+		List<Double> h = new ArrayList<Double>();
+
+		for (int i = 0; i < blood.length; i++) {
+
+			double somme = 0;
+
+			for (int j = 0; j < i; j++) {
+				somme += (i - j + 1) * (h.get(j));
+			}
+
+			// SK REMPLACER 1 PAR LA VALEUR DE TEMPS DE LA FRAME !
+			double result2 = (1.0D / (blood[0])) * (liver[i] - somme);
+
+			// double result3=(right[i]-somme)/(blood[0]);
+
+			h.add(result2);
+
+		}
+		return h;
+	}
+
 	@Override
 	public String toString() {
-		XYSeries liverL = this.getSerie("L. Liver");
-		XYSeries liverR = this.getSerie("R. Liver");
+		XYSeries liverL = this.getSerie("Left Liver");
+		XYSeries liverR = this.getSerie("Right Liver");
 		XYSeries bloodPool = this.getSerie("Blood pool");
 
 		String s = "";

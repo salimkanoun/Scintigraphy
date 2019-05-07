@@ -1,19 +1,22 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.tab;
 
 import java.awt.Component;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.ModelHepaticDynamic;
+import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ModelSecondMethodHepaticDynamic;
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.SecondHepaticScintigraphy;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
@@ -26,7 +29,7 @@ public class TabOtherMethod extends TabResult implements ActionListener {
 	private JButton btn_addImp;
 
 	private JTabbedPane tabPane;
-	private List<TabResult> tabsResult;
+	// private List<TabResult> tabsResult;
 
 	public TabOtherMethod(FenResults parent, String title) {
 		super(parent, title, true);
@@ -35,7 +38,7 @@ public class TabOtherMethod extends TabResult implements ActionListener {
 		((ModelHepaticDynamic) this.parent.getModel()).setResultTab(this);
 
 		this.tabPane = new JTabbedPane();
-		this.tabsResult = new ArrayList<>();
+		// this.tabsResult = new ArrayList<>();
 
 		this.getPanel().add(tabPane);
 
@@ -44,8 +47,19 @@ public class TabOtherMethod extends TabResult implements ActionListener {
 
 	@Override
 	public Component getSidePanelContent() {
-		// TODO Auto-generated method stub
-		return null;
+		if (this.examDone) {
+			JPanel resultPane = new JPanel(new GridLayout(0, 2));
+			HashMap<String, String> results = ((ModelSecondMethodHepaticDynamic) this.vueBasic.getFenApplication()
+					.getControleur().getModel()).getResultsHashMap();
+			String[] keys = { "T1/2 Righ Liver", "T1/2 Righ Liver *", "Maximum Right Liver", "end/max Ratio Right",
+					"T1/2 Left Liver", "T1/2 Left Liver *", "Maximum Left Liver", "end/max Ratio Left",
+					"T1/2 Blood pool", "T1/2 Blood pool *", "Blood pool ratio 20mn/5mn" };
+			for (String s : keys)
+				resultPane.add(new JLabel(s + " : " + results.get(s)));
+
+			return resultPane;
+		} else
+			return null;
 	}
 
 	@Override
@@ -67,9 +81,14 @@ public class TabOtherMethod extends TabResult implements ActionListener {
 			JPanel panelDeFin = new JPanel();
 			this.tabPane = new JTabbedPane();
 			TabTAC tabTac = new TabTAC(this.getParent(), this);
-			// TabVasculaire tabVasculaire = new TabVasculaire(this.resultTab.getParent());
+			TabVasculaire tabVasculaire = new TabVasculaire(this.getParent(), this);
+			TabAnotherGraph anotherGraph = new TabAnotherGraph(this.getParent(), this);
+			TabDeconvolv deconvolvGraph = new TabDeconvolv(this.getParent(), this);
+
 			this.tabPane.addTab(tabTac.getTitle(), tabTac.getPanel());
-			// this.tabPane.addTab(tabVasculaire.getTitle(),tabVasculaire.getPanel());
+			this.tabPane.addTab(tabVasculaire.getTitle(), tabVasculaire.getPanel());
+			this.tabPane.addTab(anotherGraph.getTitle(), anotherGraph.getPanel());
+			this.tabPane.addTab(deconvolvGraph.getTitle(), deconvolvGraph.getPanel());
 
 			panelDeFin.add(this.tabPane);
 			return panelDeFin;
@@ -89,6 +108,7 @@ public class TabOtherMethod extends TabResult implements ActionListener {
 
 	public void setExamDone(boolean boobool) {
 		this.examDone = boobool;
+		((ModelHepaticDynamic)this.parent.getModel()).setExamDone(boobool);
 	}
 
 	public Scintigraphy getVueBasic() {
@@ -99,7 +119,7 @@ public class TabOtherMethod extends TabResult implements ActionListener {
 		return this.tabPane;
 	}
 
-	public SecondHepaticScintigraphy getFenApplication() {
-		return this.vueBasic;
+	public FenApplication getFenApplication() {
+		return this.vueBasic.getFenApplication();
 	}
 }

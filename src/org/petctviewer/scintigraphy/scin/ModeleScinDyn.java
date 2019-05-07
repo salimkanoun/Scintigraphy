@@ -109,6 +109,8 @@ public abstract class ModeleScinDyn extends ModeleScin {
 			s += "," + sum;
 		}
 		
+		s+=super.toString();
+		
 		return s;
 	}
 

@@ -34,10 +34,14 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 		super(main, vue, model);
 
 		this.resultTab = resultTab;
+		
+		this.generateInstructions();
+		this.start();
 	}
 
 	@Override
 	protected void generateInstructions() {
+		this.workflows = new Workflow[this.model.getImageSelection().length];
 		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null, dri_5 = null, dri_6 = null;
 		ScreenShotInstruction dri_capture = null;
 		this.captures = new ArrayList<>();

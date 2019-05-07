@@ -24,8 +24,6 @@ public class ControllerHepaticDynamic extends ControleurScin implements MouseLis
 
 	public ControllerHepaticDynamic(Scintigraphy main, FenApplication vue, ModeleScin model) {
 		super(main, main.getFenApplication(), model);
-		System.out.println("MODEL DEPUIS LE CONTROLLER : " + (this.model != null));
-		System.out.println("ok");
 	}
 
 	@Override
@@ -53,14 +51,6 @@ public class ControllerHepaticDynamic extends ControleurScin implements MouseLis
 		if (e.getSource() instanceof Label) {
 			Label label = (Label) e.getSource();
 			this.vue.getImagePlus().setSlice(Integer.valueOf(label.getText() != "" ? label.getText() : "1"));
-		} else {
-			Button button = (Button) e.getSource();
-			int buttonNumber = ((FenApplicationHepaticDynamic) this.vue).getButtonNumber(button);
-			((FenApplicationHepaticDynamic) this.vue).setLabelText("" + this.vue.getImagePlus().getCurrentSlice(),
-					buttonNumber);
-			((FenApplicationHepaticDynamic) this.vue).setLabelBackground(new Color(147, 142, 222),buttonNumber);
-			((ModelHepaticDynamic) this.model).setCapture(this.vue.getImagePlus(), buttonNumber - 1);
-			
 		}
 
 	}
@@ -72,6 +62,14 @@ public class ControllerHepaticDynamic extends ControleurScin implements MouseLis
 				label.setBackground(new Color(229, 77, 77));
 			else
 				label.setBackground(new Color(124, 118, 218));
+		} else {
+			Button button = (Button) e.getSource();
+			int buttonNumber = ((FenApplicationHepaticDynamic) this.vue).getButtonNumber(button);
+			((FenApplicationHepaticDynamic) this.vue).setLabelText("" + this.vue.getImagePlus().getCurrentSlice(),
+					buttonNumber);
+			((FenApplicationHepaticDynamic) this.vue).setLabelBackground(new Color(147, 142, 222),buttonNumber);
+			((ModelHepaticDynamic) this.model).setCapture(this.vue.getImagePlus(), buttonNumber - 1);
+			
 		}
 	}
 

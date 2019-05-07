@@ -1,9 +1,16 @@
 package org.petctviewer.scintigraphy.scin;
 
+import java.util.HashMap;
+
+import org.json.simple.JSONObject;
+import org.petctviewer.scintigraphy.lympho.gui.TabPost;
+import org.petctviewer.scintigraphy.lympho.post.ControllerWorkflowPelvis;
+import org.petctviewer.scintigraphy.lympho.post.ModelePost;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
 import ij.plugin.frame.RoiManager;
+import ij.util.DicomTools;
 
 /**
  * Represents the model in the MVC pattern.
@@ -133,6 +140,43 @@ public abstract class ModeleScin {
 
 	public RoiManager getRoiManager() {
 		return this.roiManager;
+	}
+	
+	
+	
+	/**
+	 * Get tags to put in CSV.
+	 */
+	@Override
+	public String toString() {
+		String s = "";
+
+		HashMap<String, String> mapTags = new HashMap<>();
+		mapTags.put("0008,0020", DicomTools.getTag(this.getImagePlus(), "0008,0020"));
+		mapTags.put("0008,0021", DicomTools.getTag(this.getImagePlus(), "0008,0021"));
+		mapTags.put("0008,0030", DicomTools.getTag(this.getImagePlus(), "0008,0030"));
+		mapTags.put("0008,0031", DicomTools.getTag(this.getImagePlus(), "0008,0031"));
+		mapTags.put("0008,0050", DicomTools.getTag(this.getImagePlus(), "0008,0050"));
+		mapTags.put("0008,0060", DicomTools.getTag(this.getImagePlus(), "0008,0060"));
+		mapTags.put("0008,0070", DicomTools.getTag(this.getImagePlus(), "0008,0070"));
+		mapTags.put("0008,0080", DicomTools.getTag(this.getImagePlus(), "0008,0080"));
+		mapTags.put("0008,0090", DicomTools.getTag(this.getImagePlus(), "0008,0090"));
+		mapTags.put("0008,1030", DicomTools.getTag(this.getImagePlus(), "0008,1030"));
+		mapTags.put("0010,0010", DicomTools.getTag(this.getImagePlus(), "0010,0010"));
+		mapTags.put("0010,0020", DicomTools.getTag(this.getImagePlus(), "0010,0020"));
+		mapTags.put("0010,0030", DicomTools.getTag(this.getImagePlus(), "0010,0030"));
+		mapTags.put("0010,0040", DicomTools.getTag(this.getImagePlus(), "0010,0040"));
+		mapTags.put("0020,000D", DicomTools.getTag(this.getImagePlus(), "0020,000D"));
+		mapTags.put("0020,000E", DicomTools.getTag(this.getImagePlus(), "0020,000E"));
+		mapTags.put("0020,0010", DicomTools.getTag(this.getImagePlus(), "0020,0010"));
+		mapTags.put("0020,0032", DicomTools.getTag(this.getImagePlus(), "0020,0032"));
+		mapTags.put("0020,0037", DicomTools.getTag(this.getImagePlus(), "0020,0037"));
+
+		String tags = JSONObject.toJSONString(mapTags);
+
+		s += "\n" + "tags," + tags;
+		
+		return s;
 	}
 
 }

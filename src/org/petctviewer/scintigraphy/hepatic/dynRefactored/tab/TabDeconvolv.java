@@ -5,14 +5,15 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
-import org.jfree.data.xy.XYSeries;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ModelSecondMethodHepaticDynamic;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
-import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
-public class TabVasculaire {
+public class TabDeconvolv {
 
 	private String title;
 	protected FenResults parent;
@@ -23,9 +24,9 @@ public class TabVasculaire {
 
 	private TabResult tab;
 
-	public TabVasculaire(FenResults parent, TabResult tab) {
+	public TabDeconvolv(FenResults parent, TabResult tab) {
 
-		this.title = "Vascular";
+		this.title = "Deconvolv";
 		this.parent = parent;
 		this.result = new JPanel();
 
@@ -35,15 +36,32 @@ public class TabVasculaire {
 		this.tab = tab;
 
 		this.reloadDisplay();
+
 	}
 
 	public JPanel getResultContent() {
+
 		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabOtherMethod) this.tab)
 				.getFenApplication().getControleur().getModel();
-		List<XYSeries> series = modele.getSeries();
-		ChartPanel chartVasculaire = Library_JFreeChart.associateSeries(new String[] { "Blood pool" }, series);
 
-		return chartVasculaire;
+		// TODO remove start
+		List<Double> bp = modele.getData("Blood pool");
+		List<Double> rliver = modele.getData("Right Liver");
+
+		List<Double> deconv = modele.deconvolv(bp.toArray(new Double[bp.size()]),
+				rliver.toArray(new Double[rliver.size()]));
+
+		XYSeriesCollection data = new XYSeriesCollection();
+		data.addSeries(modele.createSerie(deconv, "deconv"));
+		data.addSeries(modele.getSerie("Blood pool"));
+		data.addSeries(modele.getSerie("Right Liver"));
+		JFreeChart chart = ChartFactory.createXYLineChart("", "x", "y", data);
+
+		ChartPanel chartpanel = new ChartPanel(chart);
+
+		return chartpanel;
+
+		// return null;
 	}
 
 	public String getTitle() {
@@ -67,5 +85,4 @@ public class TabVasculaire {
 		this.parent.revalidate();
 		this.parent.pack();
 	}
-
 }
