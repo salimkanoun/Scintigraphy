@@ -233,7 +233,8 @@ public class Model_Gastric extends ModeleScin {
 		public Double time;
 
 		public static final int STOMACH = 0, ANTRE = 1, FUNDUS = 2, INTESTINE = 3, ALL = 4, TOTAL_ORGANS = 5;
-		public static final int ANT_COUNTS = 0, POST_COUNTS = 1, GEO_AVEREAGE = 2, PERCENTAGE = 3, DERIVATIVE = 4;
+		public static final int ANT_COUNTS = 0, POST_COUNTS = 1, GEO_AVEREAGE = 2, PERCENTAGE = 3, DERIVATIVE = 4,
+				CORRELATION = 5;
 
 		public Data(ImageSelection ims) {
 			this.ims = ims;
@@ -279,18 +280,18 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	private Map<Integer, Data> results;
+	private Data time0;
 
 	private Date timeIngestion;
 
 	private Fit extrapolation;
 
-	private double[] times;
+	private double[] times, timesDerivative;
 
 	public Model_Gastric(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
 		Prefs.useNamesAsLabels = true;
 
-		// ==
 		this.results = new HashMap<>();
 	}
 
@@ -496,6 +497,7 @@ public class Model_Gastric extends ModeleScin {
 	private List<Data> generatesDataOrdered() {
 		List<Data> orderedData = new ArrayList<>(this.results.values());
 		Collections.sort(orderedData);
+		orderedData.add(0, time0);
 		return orderedData;
 	}
 
@@ -537,19 +539,22 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	public void generatesTimes() {
-		this.times = new double[this.results.size()];
+		this.times = new double[this.nbAcquisitions()];
+		this.timesDerivative = new double[this.nbAcquisitions() - 1];
 
 		int i = 0;
 		for (Data data : this.generatesDataOrdered()) {
-			Date time = Library_Dicom.getDateAcquisition(data.ims.getImagePlus());
-			System.out.println("For data " + data + " time is:" + time);
-			times[i++] = this.calculateDeltaTime(time);
-			System.out.println("Resulted time: " + times[i - 1]);
-			if (data.time == null) {
-				this.calculateDeltaTime(time);
-				System.out.println("No previous time was stored, new time stored: " + time);
+			if (data == time0)
+				times[i] = 0.;
+			else {
+				Date time = Library_Dicom.getDateAcquisition(data.ims.getImagePlus());
+				times[i] = this.calculateDeltaTime(time);
+				if (data.time == null)
+					this.calculateDeltaTime(time);
 			}
-			System.out.println("===");
+			if (i > 0)
+				this.timesDerivative[i - 1] = times[i];
+			i++;
 		}
 	}
 
@@ -569,6 +574,7 @@ public class Model_Gastric extends ModeleScin {
 		while (it.hasNext()) {
 			dataset[i][0] = times[i];
 			dataset[i][1] = it.next().getValue(REGION_STOMACH, Data.PERCENTAGE);
+			i++;
 		}
 		return dataset;
 	}
@@ -579,8 +585,9 @@ public class Model_Gastric extends ModeleScin {
 	public XYSeries getStomachSeries() {
 		XYSeries serie = new XYSeries("Stomach");
 		double[][] dataset = this.generateDataset();
-		for (int i = 0; i < dataset.length; i++)
+		for (int i = 0; i < dataset.length; i++) {
 			serie.add(dataset[i][0], dataset[i][1]);
+		}
 		return serie;
 	}
 
@@ -600,7 +607,7 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	public int nbAcquisitions() {
 		// number of images + the starting point
-		return this.results.size();
+		return this.results.size() + (this.time0 != null ? 1 : 0);
 	}
 
 	/**
@@ -610,6 +617,10 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	public void setTimeIngestion(Date timeIngestion) {
 		this.timeIngestion = timeIngestion;
+	}
+
+	public Date getTimeIngestion() {
+		return this.timeIngestion;
 	}
 
 	/**
@@ -646,7 +657,18 @@ public class Model_Gastric extends ModeleScin {
 		return data.getValue(region, orientation == Orientation.ANT ? Data.ANT_COUNTS : Data.POST_COUNTS);
 	}
 
-	private void forceDataValue(ImageSelection ims, Region region, int key, double value) {
+	public void activateTime0() {
+		this.time0 = new Data(null);
+		this.time0.time = 0.;
+		this.time0.setValue(REGION_STOMACH, Data.PERCENTAGE, 100.);
+		this.time0.setValue(REGION_FUNDUS, Data.PERCENTAGE, 100.);
+		this.time0.setValue(REGION_ANTRE, Data.PERCENTAGE, 0.);
+		this.time0.setValue(REGION_INTESTINE, Data.PERCENTAGE, 0.);
+
+		this.time0.setValue(REGION_FUNDUS, Data.CORRELATION, 100.);
+	}
+
+	private void forceDataValue(ImageSelection ims, Region region, int key, double value, Date time) {
 		Data data = this.results.get(ims.hashCode());
 		if (data == null) {
 			data = new Data(ims);
@@ -654,20 +676,22 @@ public class Model_Gastric extends ModeleScin {
 		}
 
 		data.setValue(region, key, value);
+		if (time != null)
+			data.time = this.calculateDeltaTime(time);
 	}
 
-	public void forcePercentageDataValue(ImageSelection ims, Region region, double value) {
-		this.forceDataValue(ims, region, Data.PERCENTAGE, value);
+	public void forcePercentageDataValue(ImageSelection ims, Region region, double value, Date time) {
+		this.forceDataValue(ims, region, Data.PERCENTAGE, value, time);
 	}
 
-	public void forceDerivativeDataValue(ImageSelection ims, Region region, double value) {
-		this.forceDataValue(ims, region, Data.DERIVATIVE, value);
+	public void forceCorrelationDataValue(ImageSelection ims, Region region, double value, Date time) {
+		this.forceDataValue(ims, region, Data.CORRELATION, value, time);
 	}
 
-	public void forceCountsDataValue(ImageSelection ims, Region region, double value) {
+	public void forceCountsDataValue(ImageSelection ims, Region region, double value, Date time) {
 		this.forceDataValue(ims, region,
-				region.getState().getFacingOrientation() == Orientation.ANT ? Data.ANT_COUNTS : Data.POST_COUNTS,
-				value);
+				region.getState().getFacingOrientation() == Orientation.ANT ? Data.ANT_COUNTS : Data.POST_COUNTS, value,
+				time);
 	}
 
 	public void computeData(ImageSelection ims, ImageSelection previousImage) {
@@ -696,7 +720,7 @@ public class Model_Gastric extends ModeleScin {
 
 		double fundusDerivative = data.getValue(REGION_FUNDUS, Data.PERCENTAGE)
 				/ data.getValue(REGION_STOMACH, Data.PERCENTAGE) * 100.;
-		data.setValue(REGION_FUNDUS, Data.DERIVATIVE, fundusDerivative);
+		data.setValue(REGION_FUNDUS, Data.CORRELATION, fundusDerivative);
 
 		if (previousImage != null) {
 			Data previousData = this.results.get(previousImage.hashCode());
@@ -723,29 +747,29 @@ public class Model_Gastric extends ModeleScin {
 	 * @see Model_Gastric#getResult(Result)
 	 * @throws IllegalArgumentException if the image ID or the result is incorrect
 	 */
-	public ResultValue getImageResult(Result result, ImageSelection ims) throws IllegalArgumentException {
-		Data data = this.results.get(ims.hashCode());
+	public ResultValue getImageResult(Result result, int indexImage) throws IllegalArgumentException {
+		Data data = this.generatesDataOrdered().get(indexImage);
 		if (data == null)
 			throw new NoSuchElementException(
-					"No data has been set for this image (" + ims.getImagePlus().getTitle() + ")");
+					"No data has been set for this image#" + indexImage);
 
 		switch (result) {
 		case RES_TIME:
-			return new ResultValue(result, BigDecimal.valueOf(this.results.get(ims.hashCode()).time)
+			return new ResultValue(result, BigDecimal.valueOf(data.time)
 					.setScale(2, RoundingMode.HALF_UP).doubleValue(), null);
 		case RES_STOMACH:
 			return new ResultValue(result,
-					BigDecimal.valueOf(this.results.get(ims.hashCode()).getValue(REGION_STOMACH, Data.PERCENTAGE))
+					BigDecimal.valueOf(data.getValue(REGION_STOMACH, Data.PERCENTAGE))
 							.setScale(2, RoundingMode.HALF_UP).doubleValue(),
 					null);
 		case RES_FUNDUS:
 			return new ResultValue(result,
-					BigDecimal.valueOf(this.results.get(ims.hashCode()).getValue(REGION_FUNDUS, Data.PERCENTAGE))
+					BigDecimal.valueOf(data.getValue(REGION_FUNDUS, Data.PERCENTAGE))
 							.setScale(2, RoundingMode.HALF_UP).doubleValue(),
 					null);
 		case RES_ANTRUM:
 			return new ResultValue(result,
-					BigDecimal.valueOf(this.results.get(ims.hashCode()).getValue(REGION_ANTRE, Data.PERCENTAGE))
+					BigDecimal.valueOf(data.getValue(REGION_ANTRE, Data.PERCENTAGE))
 							.setScale(2, RoundingMode.HALF_UP).doubleValue(),
 					null);
 		default:
@@ -811,22 +835,27 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	public double[] getResultAsArray(Region region, int key) {
-		double[] res = new double[this.results.size()];
+		double[] res;
+		if (key == Data.DERIVATIVE)
+			res = new double[this.nbAcquisitions() - 1];
+		else
+			res = new double[this.nbAcquisitions()];
+
 		int i = 0;
 		for (Data data : this.generatesDataOrdered())
-			res[i++] = data.getValue(region, key);
+			if (key != Data.DERIVATIVE || (key == Data.DERIVATIVE && i != 0))
+				res[i++] = data.getValue(region, key);
 		return res;
 	}
 
 	// permet de obtenir un courbe
 	public ImagePlus createGraph_1() {
 		return createGraph("Fundus/Stomach (%)", new Color(0, 100, 0), "Intragastric Distribution", times,
-				this.getResultAsArray(REGION_FUNDUS, Data.DERIVATIVE), 100.0);
+				this.getResultAsArray(REGION_FUNDUS, Data.CORRELATION), 100.0);
 	}
 
 	public ImagePlus createGraph_2() {
-		// TODO: change times for timesDerivated
-		return createGraph("% meal in the interval", Color.RED, "Gastrointestinal flow", times,
+		return createGraph("% meal in the interval", Color.RED, "Gastrointestinal flow", timesDerivative,
 				this.getResultAsArray(REGION_STOMACH, Data.DERIVATIVE), 50.0);
 	}
 

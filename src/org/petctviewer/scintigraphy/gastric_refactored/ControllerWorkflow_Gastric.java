@@ -59,12 +59,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 		ImageSelection ims = this.model.getImageSelection()[0];
 
 		// Place point 0
-		this.getModel().forcePercentageDataValue(ims, Model_Gastric.REGION_STOMACH, 100.);
-		this.getModel().forcePercentageDataValue(ims, Model_Gastric.REGION_FUNDUS, 100.);
-		this.getModel().forcePercentageDataValue(ims, Model_Gastric.REGION_ANTRE, 0.);
-		this.getModel().forcePercentageDataValue(ims, Model_Gastric.REGION_INTESTINE, 0.);
-
-		this.getModel().forceDerivativeDataValue(ims, Model_Gastric.REGION_FUNDUS, 100.);
+		getModel().activateTime0();
 
 		ImageSelection previousImage = null;
 		for (int i = 0; i < this.getRoiManager().getRoisAsArray().length; i += 6) {
@@ -95,12 +90,12 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 				Model_Gastric.REGION_FUNDUS.inflate(ims, state, null);
 				getModel().forceCountsDataValue(ims, Model_Gastric.REGION_FUNDUS,
 						getModel().getCounts(ims, Model_Gastric.REGION_STOMACH, orientation)
-								- getModel().getCounts(ims, Model_Gastric.REGION_ANTRE, orientation));
+								- getModel().getCounts(ims, Model_Gastric.REGION_ANTRE, orientation), null);
 
 				// - Intestine
 				Model_Gastric.REGION_INTESTINE.inflate(ims, state, null);
 				getModel().forceCountsDataValue(ims, Model_Gastric.REGION_INTESTINE,
-						intestineValue - getModel().getCounts(ims, Model_Gastric.REGION_ANTRE, orientation));
+						intestineValue - getModel().getCounts(ims, Model_Gastric.REGION_ANTRE, orientation), null);
 			}
 			
 			getModel().computeData(ims, previousImage);
