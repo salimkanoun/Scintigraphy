@@ -931,4 +931,8 @@ public class Model_Gastric extends ModeleScin {
 		// Set fit
 		this.setExtrapolation(new LinearFit(this.generateDataset()));
 	}
+
+	public void deactivateTime0() {
+		this.time0 = null;
+	}
 }

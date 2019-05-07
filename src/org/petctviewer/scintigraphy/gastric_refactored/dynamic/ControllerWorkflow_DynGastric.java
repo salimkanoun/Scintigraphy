@@ -19,10 +19,47 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 	public ControllerWorkflow_DynGastric(Scintigraphy main, FenApplication vue, ModeleScin model,
 			ImageSelection[] selectedImages) {
 		super(main, vue, model);
+		this.getRoiManager().reset();
 		this.model.setImages(selectedImages);
 
 		this.generateInstructions();
 		this.start();
+	}
+	
+	private void computeModel() {
+		ImageSelection ims = this.model.getImageSelection()[0];
+		
+		// Remove point 0
+		getModel().deactivateTime0();
+		
+		ImageSelection previousImage = null;
+		for(int i = 0; i<this.getRoiManager().getRoisAsArray().length; i += 6) {
+			ims = this.model.getImageSelection()[i / 6];
+			
+			for(Orientation orientation : Orientation.antPostOrder()) {
+				int indexIncrementPost = 0;
+				int slice = SLICE_ANT;
+				if(orientation == Orientation.POST) {
+					indexIncrementPost = 3;
+					slice = SLICE_POST;
+				}
+			}
+		}
+	}
+
+	@Override
+	public Model_Gastric getModel() {
+		return (Model_Gastric) super.getModel();
+	}
+
+	@Override
+	protected void end() {
+		super.end();
+		
+		// Compute model
+		this.computeModel();
+		
+		// Update results
 	}
 
 	@Override
