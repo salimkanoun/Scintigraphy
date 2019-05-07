@@ -22,33 +22,29 @@ public class PostScintigraphy extends Scintigraphy {
 	@Override
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 
-		ImagePlus impSorted = null;
-		ImagePlus[] impsSortedAntPost = new ImagePlus[selectedImages.length];
+		ImageSelection impSorted = null;
+		ImageSelection[] impsSortedAntPost = new ImageSelection[selectedImages.length];
 
 		for (int i = 0; i < selectedImages.length; i++) {
 
 			impSorted = null;
-			ImagePlus imp = selectedImages[i].getImagePlus();
+			ImageSelection imp = selectedImages[i];
 			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST) {
-				impSorted = imp.duplicate();
-				impSorted.getStack().getProcessor(2).flipHorizontal();
+				impSorted = imp.clone();
+				impSorted.getImagePlus().getStack().getProcessor(2).flipHorizontal();
 			} else if (selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
-				impSorted = imp.duplicate();
-				IJ.run(impSorted, "Reverse", "");
-				impSorted.getStack().getProcessor(2).flipHorizontal();
+				impSorted = imp.clone();
+				IJ.run(impSorted.getImagePlus(), "Reverse", "");
+				impSorted.getImagePlus().getStack().getProcessor(2).flipHorizontal();
 			} else {
 				throw new WrongInputException("Unexpected Image type.\n Accepted : ANT/POST | POST/ANT ");
 			}
-			int ratio = (int) (25000 / impSorted.getStatistics().max);
+			int ratio = (int) (25000 / impSorted.getImagePlus().getStatistics().max);
 			System.out.println("Ratio : " + ratio);
-			System.out.println("MAX : " + impSorted.getStatistics().max);
-			impSorted.getProcessor().setMinAndMax(0, impSorted.getStatistics().max * (1.0d / ratio)); // On augmente le
-																										// contraste
-																										// (uniquement
-																										// visuel,
-																										// n'impacte pas
-																										// les données)
-			System.out.println("MAX : " + impSorted.getStatistics().max);
+			System.out.println("MAX : " + impSorted.getImagePlus().getStatistics().max);
+			// On augmente le contraste(uniquement visuel, n'impacte pas les données)
+			impSorted.getImagePlus().getProcessor().setMinAndMax(0, impSorted.getImagePlus().getStatistics().max * (1.0d / ratio)); 
+			System.out.println("MAX : " + impSorted.getImagePlus().getStatistics().max);
 
 			impsSortedAntPost[i] = impSorted;
 			selectedImages[i].getImagePlus().close();
@@ -56,7 +52,7 @@ public class PostScintigraphy extends Scintigraphy {
 
 		ImageSelection[] selection = new ImageSelection[impsSortedAntPost.length];
 		for (int i = 0; i < impsSortedAntPost.length; i++) {
-			selection[i] = new ImageSelection(impsSortedAntPost[i], null, null);
+			selection[i] = impsSortedAntPost[i].clone();
 		}
 		return selection;
 	}
