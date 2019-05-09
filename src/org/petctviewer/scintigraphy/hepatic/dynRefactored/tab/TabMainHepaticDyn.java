@@ -1,14 +1,12 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.tab;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.ModelHepaticDynamic;
-import org.petctviewer.scintigraphy.lympho.ModeleLympho;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
@@ -32,18 +30,16 @@ public class TabMainHepaticDyn extends TabResult{
 	public TabMainHepaticDyn(FenResults parent, ModelHepaticDynamic model) {
 		super(parent, "Main", true);
 		this.model = model;
-		ImageSelection image = this.parent.getController().getModel().getImageSelection()[0].clone();
-		ImageSelection capture = image;
-		capture.getImagePlus().show();
-		capture.getImagePlus().getCanvas().setSize(this.parent.getController().getVue().getCanvas().getWidth(), this.parent.getController().getVue().getCanvas().getHeight());
-		capture.getImagePlus().getCanvas().setPreferredSize(new Dimension(this.parent.getController().getVue().getCanvas().getWidth(), this.parent.getController().getVue().getCanvas().getHeight()));
-		capture.getImagePlus().getProcessor().resize(this.parent.getController().getVue().getCanvas().getWidth());
-		model.setCapture(capture.getImagePlus(), 3);
-//		capture.getImagePlus().close();
-		this.captures = model.getCaptures();
-		System.out.println(capture.getImagePlus().getCanvas().getWidth());
-		System.out.println(capture.getImagePlus().getCanvas().getHeight());
 		
+		ImagePlus currentImage =  this.getParent().getController().getVue().getImagePlus();
+		ImageSelection imageAnt = this.parent.getController().getModel().getImageSelection()[0].clone();
+		ImageSelection impProjeteeAnt = Library_Dicom.project(imageAnt, 0, imageAnt.getImagePlus().getStackSize(), "avg");
+		this.getParent().getController().getVue().setImage(impProjeteeAnt.getImagePlus());
+		this.model.setCapture(this.getParent().getController().getVue().getImagePlus(), 3);
+		this.getParent().getController().getVue().setImage(currentImage);
+		
+		
+		this.captures = model.getCaptures();
 		
 		ImageStack stackCapture = Library_Capture_CSV.captureToStack(captures);
 		this.montage = this.montage(stackCapture);

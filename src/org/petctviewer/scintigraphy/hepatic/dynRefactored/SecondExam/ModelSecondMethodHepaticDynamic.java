@@ -98,18 +98,16 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 	}
 
 	public void saveValues() {
-		// this.selectedImages[0].setImagePlus(imp);
 		ImagePlus imp = this.selectedImages[1].getImagePlus();
-		// this.getScin().setImp(imp);
 		this.indexRoi = 0;
 		this.nbOrganes = this.getRoiManager().getCount();
 		HashMap<String, List<Double>> mapData = new HashMap<String, List<Double>>();
-		// on copie les roi sur toutes les slices
+		// For every slice, we calculate the number of count
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
 			for (this.indexRoi = 0; this.indexRoi < this.nbOrganes; this.indexRoi++) {
 				imp.setRoi(getOrganRoi(this.indexRoi));
-				// String name = this.getNomOrgane(this.indexRoi);
+				// On récupère seulement le nom de l'organe (usually 0_organNameA => 0 for the number of image, A for Ant or Post)
 				String name = this.getNomOrgane(this.indexRoi).substring(
 						this.getNomOrgane(this.indexRoi).lastIndexOf("_") + 1,
 						this.getNomOrgane(this.indexRoi).length() - 1);
@@ -118,12 +116,12 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 					mapData.put(name, new ArrayList<Double>());
 				}
 				// on y ajoute le nombre de coups
-				// Si on est à l'Hilium, on corrige du background
+				// For Hillium, we correct by Right Liver as Background
 				if (name.equals("Hilium")) {
 					// Apply the roi of the Right Liver, and save the count
 					imp.setRoi(getOrganRoi(0));
 					double averageCountLiverRight = Library_Quantif.getAvgCounts(imp);
-					// Apply the roi of the Right Liver
+					// Apply the roi of the Left Liver
 					imp.setRoi(getOrganRoi(1));
 					double averageCountLiverLeft = Library_Quantif.getAvgCounts(imp);
 					double averageCountLiver = (averageCountLiverRight + averageCountLiverLeft) / 2;
@@ -137,6 +135,25 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 					mapData.get(name).add(Library_Quantif.getCounts(imp) != 0.0d ? Library_Quantif.getCounts(imp) : 1);
 			}
 		}
+		
+		// Putting in data the count/pixel of Right Liver and Blood Pool, used in the deconvolution.
+		String[] organAVGCount = { "Right Liver AVG", "Blood Pool AVG" };
+		int[] organRoiNumber = { 0, 5 };
+		for (int i = 1; i <= imp.getStackSize(); i++) {
+			imp.setSlice(i);
+			for (int orgAVG = 0; orgAVG < organAVGCount.length; orgAVG++) {
+				imp.setRoi(getOrganRoi(organRoiNumber[orgAVG]));
+				// String name = this.getNomOrgane(this.indexRoi);
+				String name = organAVGCount[orgAVG];
+				// on cree la liste si elle n'existe pas
+				if (mapData.get(name) == null) {
+					mapData.put(name, new ArrayList<Double>());
+				}
+				mapData.get(name)
+						.add(Library_Quantif.getAvgCounts(imp) != 0.0d ? Library_Quantif.getAvgCounts(imp) : 1);
+			}
+		}
+
 		// set data to the model
 		this.setData(mapData);
 		this.calculerResultats();
@@ -165,13 +182,14 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 
 	/**
 	 * Create the deconvolution of the liver by the blood pool.
+	 * @deprecated Does not works
 	 * @param blood
 	 * @param liver
 	 * @return
 	 */
 	public List<Double> deconvolv(Double[] blood, Double[] liver) {
 		List<Double> h = new ArrayList<Double>();
-
+		System.out.println("\tDECONVOLV : ");
 		for (int i = 0; i < blood.length; i++) {
 
 			double somme = 0;
@@ -181,7 +199,7 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 			}
 
 			// SK REMPLACER 1 PAR LA VALEUR DE TEMPS DE LA FRAME !
-			double result2 = (1.0D / (blood[0])) * (liver[i] - somme);
+			double result2 = (1.0D / (blood[10])) * (liver[i] - somme);
 
 			// double result3=(right[i]-somme)/(blood[0]);
 
@@ -193,6 +211,11 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 
 	@Override
 	public String toString() {
+		return this.resutlTab.getParent().getModel().toString();
+
+	}
+
+	public String toCSV() {
 		XYSeries liverL = this.getSerie("Left Liver");
 		XYSeries liverR = this.getSerie("Right Liver");
 		XYSeries bloodPool = this.getSerie("Blood pool");

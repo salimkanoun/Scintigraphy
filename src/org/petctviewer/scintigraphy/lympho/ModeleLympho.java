@@ -227,7 +227,7 @@ public class ModeleLympho extends ModeleScin {
 		if (((TabPost) this.resutlTab) != null)
 			if (((TabPost) this.resutlTab).getVueBasic() != null)
 				s += ((ModelePost) ((ControllerWorkflowPelvis) ((TabPost) this.resutlTab).getVueBasic().getFenApplication()
-						.getControleur()).getModel()).toString();
+						.getControleur()).getModel()).toCSV();
 
 		s += super.toString();
 

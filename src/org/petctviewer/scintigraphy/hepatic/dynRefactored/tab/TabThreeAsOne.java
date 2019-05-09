@@ -1,8 +1,6 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.tab;
 
 import java.awt.BorderLayout;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.swing.JPanel;
 
@@ -14,7 +12,7 @@ import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ModelSecond
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
-public class TabAnotherGraph {
+public class TabThreeAsOne {
 
 	private String title;
 	protected FenResults parent;
@@ -25,9 +23,11 @@ public class TabAnotherGraph {
 
 	private TabResult tab;
 
-	public TabAnotherGraph(FenResults parent, TabResult tab) {
+	private String studyName;
 
-		this.title = "AnotherGraph";
+	public TabThreeAsOne(FenResults parent, TabResult tab) {
+
+		this.title = "ThreeAsOne";
 		this.parent = parent;
 		this.result = new JPanel();
 
@@ -36,35 +36,26 @@ public class TabAnotherGraph {
 
 		this.tab = tab;
 
+		this.studyName = ((TabOtherMethod) this.tab).getFenApplication().getControleur().getModel().getStudyName();
+
 		this.reloadDisplay();
 
 	}
 
 	public JPanel getResultContent() {
-
 		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabOtherMethod) this.tab)
 				.getFenApplication().getControleur().getModel();
 
-		// TODO remove start
-		List<Double> bp = modele.getData("Blood pool");
-		List<Double> rliver = modele.getData("Right Liver");
-
-		Double[] deconv = new Double[bp.size()];
-		for (int i = 0; i < bp.size(); i++) {
-			deconv[i] = rliver.get(i) / bp.get(i);
-		}
-
 		XYSeriesCollection data = new XYSeriesCollection();
-		data.addSeries(modele.createSerie(Arrays.asList(deconv), "deconv"));
-		data.addSeries(modele.getSerie("Blood pool"));
-		data.addSeries(modele.getSerie("Right Liver"));
-		JFreeChart chart = ChartFactory.createXYLineChart("", "x", "y", data);
+		data.addSeries(modele.getSerie("Duodenom"));
+		data.addSeries(modele.getSerie("CBD"));
+		data.addSeries(modele.getSerie("Hilium"));
+
+		JFreeChart chart = ChartFactory.createXYLineChart("", "min", "counts/sec", data);
 
 		ChartPanel chartpanel = new ChartPanel(chart);
 
 		return chartpanel;
-		
-//		return null;
 	}
 
 	public String getTitle() {

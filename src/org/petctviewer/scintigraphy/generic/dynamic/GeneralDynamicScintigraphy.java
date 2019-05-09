@@ -59,12 +59,15 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 
 		if (imps[0] != null) {
 			this.impAnt = imps[0];
+			this.frameDurations = Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus());
+			Library_Dicom.normalizeToCountPerSecond(this.impAnt.getImagePlus(), frameDurations);
 		}
 
 		if (imps[1] != null) {
 			this.impPost = imps[1];
+			this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost.getImagePlus());
 			Library_Dicom.flipStackHorizontal(impPost);
-
+			Library_Dicom.normalizeToCountPerSecond(this.impPost.getImagePlus(), frameDurations);
 		}
 
 		if (this.impAnt != null) {
@@ -72,14 +75,14 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 			impProjeteeAnt.setImagePlus(
 					Library_Dicom.projeter(this.impAnt.getImagePlus(), 0, impAnt.getImagePlus().getStackSize(), "avg"));
 			impProjetee = impProjeteeAnt;
-			this.frameDurations = Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus());
+			
 		}
 		if (this.impPost != null) {
 			impProjeteePost = this.impPost.clone();
 			impProjeteePost.setImagePlus(Library_Dicom.projeter(this.impPost.getImagePlus(), 0,
 					impPost.getImagePlus().getStackSize(), "avg"));
 			impProjetee = impProjeteePost;
-			this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost.getImagePlus());
+			
 
 		}
 		if (this.impAnt != null && this.impPost != null) {

@@ -45,17 +45,17 @@ public class TabDeconvolv {
 				.getFenApplication().getControleur().getModel();
 
 		// TODO remove start
-		List<Double> bp = modele.getData("Blood pool");
-		List<Double> rliver = modele.getData("Right Liver");
+		List<Double> bp = modele.getData("Blood Pool AVG");
+		List<Double> rliver = modele.getData("Right Liver AVG");
 
 		List<Double> deconv = modele.deconvolv(bp.toArray(new Double[bp.size()]),
 				rliver.toArray(new Double[rliver.size()]));
 
 		XYSeriesCollection data = new XYSeriesCollection();
 		data.addSeries(modele.createSerie(deconv, "deconv"));
-		data.addSeries(modele.getSerie("Blood pool"));
-		data.addSeries(modele.getSerie("Right Liver"));
-		JFreeChart chart = ChartFactory.createXYLineChart("", "x", "y", data);
+		data.addSeries(modele.getSerie("Blood Pool AVG"));
+		data.addSeries(modele.getSerie("Right Liver AVG"));
+		JFreeChart chart = ChartFactory.createXYLineChart("", "min", "counts/sec", data);
 
 		ChartPanel chartpanel = new ChartPanel(chart);
 

@@ -82,13 +82,14 @@ public class TabOtherMethod extends TabResult implements ActionListener {
 			this.tabPane = new JTabbedPane();
 			TabTAC tabTac = new TabTAC(this.getParent(), this);
 			TabVasculaire tabVasculaire = new TabVasculaire(this.getParent(), this);
-			TabAnotherGraph anotherGraph = new TabAnotherGraph(this.getParent(), this);
 			TabDeconvolv deconvolvGraph = new TabDeconvolv(this.getParent(), this);
+			TabThreeAsOne threeAsOne = new TabThreeAsOne(this.getParent(), this);
 
 			this.tabPane.addTab(tabTac.getTitle(), tabTac.getPanel());
 			this.tabPane.addTab(tabVasculaire.getTitle(), tabVasculaire.getPanel());
-			this.tabPane.addTab(anotherGraph.getTitle(), anotherGraph.getPanel());
 			this.tabPane.addTab(deconvolvGraph.getTitle(), deconvolvGraph.getPanel());
+			this.tabPane.addTab(threeAsOne.getTitle(), threeAsOne.getPanel());
+			
 
 			panelDeFin.add(this.tabPane);
 			return panelDeFin;

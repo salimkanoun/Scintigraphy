@@ -173,9 +173,7 @@ public class Library_Capture_CSV {
 	 *                         stack (toutes les images doivent avoir la m�me
 	 *                         taille)
 	 * @return Renvoie le stack d'image produit
-	 * @deprecated Please use {@link #captureToStack(ImageSelection[])} instead
 	 */
-	@Deprecated
 	public static ImageStack captureToStack(ImagePlus[] tableauImagePlus) {
 		// On verifie que toutes les images ont la meme taille
 		int[][] dimensionCapture = new int[tableauImagePlus.length][2];

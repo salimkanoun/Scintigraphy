@@ -44,15 +44,12 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 
 		impsSortedAntPost[0] = impSorted;
 		selectedImages[0].getImagePlus().close();
+		
+		ImagePlus imp = impSorted.getImagePlus();
 
-		this.frameDurations = Library_Dicom.buildFrameDurations(impSorted.getImagePlus());
+		this.frameDurations = Library_Dicom.buildFrameDurations(imp);
 
-		ImagePlus imp = impsSortedAntPost[0].getImagePlus();
-
-		for (int i = 1; i <= imp.getStackSize(); i++) {
-			imp.setSlice(i);
-			imp.getImageStack().getProcessor(i).multiply(1000d / (double)this.frameDurations[i - 1]);
-		}
+		Library_Dicom.normalizeToCountPerSecond(imp, frameDurations);
 
 		imp.getProcessor().setMinAndMax(0, imp.getStatistics().max * 1f / 1f);
 		

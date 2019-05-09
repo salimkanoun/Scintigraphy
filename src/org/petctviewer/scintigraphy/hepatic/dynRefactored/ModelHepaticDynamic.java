@@ -1,44 +1,41 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import org.json.simple.JSONObject;
-import org.petctviewer.scintigraphy.lympho.gui.TabPost;
-import org.petctviewer.scintigraphy.lympho.post.ControllerWorkflowPelvis;
-import org.petctviewer.scintigraphy.lympho.post.ModelePost;
+import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ControllerWorkflowHepaticDyn;
+import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ModelSecondMethodHepaticDynamic;
+import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabOtherMethod;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
-import ij.util.DicomTools;
 
 public class ModelHepaticDynamic extends ModeleScinDyn {
-	
+
 	private TabResult resutlTab;
 
 	private int[] frames;
-	
+
 	private int[] times;
 
 	private ImagePlus[] captures;
-	
+
 	private ImageSelection[] impSecondMethod;
-	
+
 	int indexRoi;
-	
+
 	int nbOrganes;
-	
+
 	boolean examDone;
-	
+
 	private List<Double> results;
 
 	public ModelHepaticDynamic(ImageSelection[] selectedImages, String studyName, int[] frameDuration) {
 		super(selectedImages, studyName, frameDuration);
-		System.out.println("STUDY NAME DEPUIS MODEL"+studyName);
+		System.out.println("STUDY NAME DEPUIS MODEL" + studyName);
 		this.frames = new int[3];
 		this.times = new int[6];
 		this.captures = new ImagePlus[4];
@@ -49,22 +46,21 @@ public class ModelHepaticDynamic extends ModeleScinDyn {
 		this.frames[0] = label1;
 		this.frames[1] = label2;
 		this.frames[2] = label3;
-		
+
 		int frameDuration[] = this.getFrameduration();
-		
+
 		int time1 = 0;
 		int time2 = 0;
 		int time3 = 0;
-		for(int i = 0 ; i < label1-1 ; i++)
-			time1+=frameDuration[i];
-		
-		for(int i = 0 ; i < label2-1 ; i++)
-			time2+=frameDuration[i];
-		
-		for(int i = 0 ; i < label3-1 ; i++)
-			time3+=frameDuration[i];
-		
-		
+		for (int i = 0; i < label1 - 1; i++)
+			time1 += frameDuration[i];
+
+		for (int i = 0; i < label2 - 1; i++)
+			time2 += frameDuration[i];
+
+		for (int i = 0; i < label3 - 1; i++)
+			time3 += frameDuration[i];
+
 		this.times[0] = time1;
 		this.times[1] = time2;
 		this.times[2] = time3;
@@ -88,72 +84,77 @@ public class ModelHepaticDynamic extends ModeleScinDyn {
 	public void setCapture(ImagePlus imp, int i, int captureWidht, int captureHeight) {
 		this.captures[i] = Library_Capture_CSV.captureImage(imp, captureWidht, captureHeight);
 	}
-	
-	public ImagePlus[] getCaptures(){
+
+	public ImagePlus[] getCaptures() {
 		return this.captures;
 	}
 
 	public String[] getResult() {
 		String[] retour = new String[9];
-		
+
 		retour[0] = "Delay before : ";
-		retour[1] = "\t Hilium (frame n°"+this.frames[0]+") : "+(this.times[0]/1000/60)+" min "+((this.times[0]/1000)-((this.times[0]/1000/60)*60))+" sec";
-		retour[2] = "\t Duodenum (frame n°"+this.frames[1]+") : "+(this.times[1]/1000/60)+" min "+((this.times[1]/1000)-((this.times[1]/1000/60)*60))+" sec";
-		retour[3] = "\t Intestine (frame n°"+this.frames[2]+") : "+(this.times[2]/1000/60)+" min "+((this.times[2]/1000)-((this.times[2]/1000/60)*60))+" sec ";
-		
+		retour[1] = "\t Hilium (frame n°" + this.frames[0] + ") : " + (this.times[0] / 1000 / 60) + " min "
+				+ ((this.times[0] / 1000) - ((this.times[0] / 1000 / 60) * 60)) + " sec";
+		retour[2] = "\t Duodenum (frame n°" + this.frames[1] + ") : " + (this.times[1] / 1000 / 60) + " min "
+				+ ((this.times[1] / 1000) - ((this.times[1] / 1000 / 60) * 60)) + " sec";
+		retour[3] = "\t Intestine (frame n°" + this.frames[2] + ") : " + (this.times[2] / 1000 / 60) + " min "
+				+ ((this.times[2] / 1000) - ((this.times[2] / 1000 / 60) * 60)) + " sec ";
+
 		retour[4] = "";
-		
+
 		retour[5] = "Delay difference : ";
-		retour[6] = "\t Hilium to Duodenum : "+(this.times[3]/1000/60)+" min & "+((this.times[3]/1000)-((this.times[3]/1000/60)*60))+" sec";
-		retour[7] = "\t Duodenum to Intestine : "+(this.times[4]/1000/60)+" min & "+((this.times[4]/1000)-((this.times[4]/1000/60)*60))+" sec";
-		retour[8] = "\t Hilium to Intestine : "+(this.times[5]/1000/60)+" min & "+((this.times[5]/1000)-((this.times[5]/1000/60)*60))+" sec";
-		
+		retour[6] = "\t Hilium to Duodenum : " + (this.times[3] / 1000 / 60) + " min & "
+				+ ((this.times[3] / 1000) - ((this.times[3] / 1000 / 60) * 60)) + " sec";
+		retour[7] = "\t Duodenum to Intestine : " + (this.times[4] / 1000 / 60) + " min & "
+				+ ((this.times[4] / 1000) - ((this.times[4] / 1000 / 60) * 60)) + " sec";
+		retour[8] = "\t Hilium to Intestine : " + (this.times[5] / 1000 / 60) + " min & "
+				+ ((this.times[5] / 1000) - ((this.times[5] / 1000 / 60) * 60)) + " sec";
+
 		this.results.add((double) this.frames[0]);
 		this.results.add((double) this.times[0]);
 		this.results.add((double) this.frames[1]);
-		this.results.add((double) this.times[0]);
+		this.results.add((double) this.times[1]);
 		this.results.add((double) this.frames[2]);
-		this.results.add((double) this.times[0]);
+		this.results.add((double) this.times[2]);
 		this.results.add((double) this.times[3]);
 		this.results.add((double) this.times[4]);
 		this.results.add((double) this.times[5]);
 
 		return retour;
 	}
-	
+
 	public void setResultTab(TabResult resultTab) {
 		this.resutlTab = resultTab;
 	}
-	
+
 	public void setImpSecondMethod(ImageSelection[] selectedImages) {
 		this.impSecondMethod = selectedImages;
 	}
-	
+
 	public ImageSelection[] getImpSecondMethod() {
 		return this.impSecondMethod;
 	}
-	
+
 	public void setExamDone(boolean boobool) {
 		this.examDone = boobool;
 	}
 
-	
-	
 	@Override
 	public String toString() {
 		String s = "";
 
 		s += "\n\nInjection Ratio Left/Right," + this.results.get(0) + "\n\n";
 
-		s += ",Right,Left\n";
-		s += "Geometric Average," + this.results.get(1) + "," + results.get(2) + "\n\n";
-		s += "Delta Drainage," + this.results.get(3) + "\n";
-		s += "L < R of :," + this.results.get(4) + "\n\n\n";
+		s += ",Hilium,Duodenum,Intestine\n";
+		s += "Delay before," + this.results.get(1) + "," + results.get(3) + "," + results.get(5) + "\n\n";
+		s += "Frame," + this.results.get(0) + "," + results.get(2) + "," + results.get(4) + "\n\n";
 
-		if (((TabPost) this.resutlTab) != null)
-			if (((TabPost) this.resutlTab).getVueBasic() != null)
-				s += ((ModelePost) ((ControllerWorkflowPelvis) ((TabPost) this.resutlTab).getVueBasic().getFenApplication()
-						.getControleur()).getModel()).toString();
+		s += ",Hilium to Duodenum,Duodenum to Intestine,Hilium to Intestine\n";
+		s += "Delay difference," + this.results.get(6) + "," + results.get(7) + "," + results.get(8) + "\n\n";
+
+		if (examDone)
+			s += ((ModelSecondMethodHepaticDynamic) ((ControllerWorkflowHepaticDyn) ((TabOtherMethod) this.resutlTab)
+					.getVueBasic().getFenApplication().getControleur()).getModel()).toCSV();
 
 		s += super.toString();
 
@@ -163,36 +164,7 @@ public class ModelHepaticDynamic extends ModeleScinDyn {
 	@Override
 	public void calculerResultats() {
 		// TODO Auto-generated method stub
-		
-	}
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	}
 
 }
