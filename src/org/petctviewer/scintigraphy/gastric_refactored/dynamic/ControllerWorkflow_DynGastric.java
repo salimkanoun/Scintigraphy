@@ -69,13 +69,12 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 			Model_Gastric.REGION_FUNDUS.inflate(state, null);
 			getModel().forceCountsDataValue(Model_Gastric.REGION_FUNDUS,
 					getModel().getCounts(Model_Gastric.REGION_STOMACH, Orientation.ANT)
-							- getModel().getCounts(Model_Gastric.REGION_ANTRE, Orientation.ANT),
-					null);
+							- getModel().getCounts(Model_Gastric.REGION_ANTRE, Orientation.ANT));
 
 			// - Intestine
 			Model_Gastric.REGION_INTESTINE.inflate(state, null);
 			getModel().forceCountsDataValue(Model_Gastric.REGION_INTESTINE,
-					intestineValue - getModel().getCounts(Model_Gastric.REGION_ANTRE, Orientation.ANT), null);
+					intestineValue - getModel().getCounts(Model_Gastric.REGION_ANTRE, Orientation.ANT));
 
 			getModel().computeDynamicData(state, previousState);
 			previousState = state;
@@ -109,7 +108,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		PromptBkgNoise promptBkgNoise = new PromptBkgNoise(this);
 
 		for (int i = 0; i < getModel().getImageSelection().length; i++) {
-			this.workflows[i] = new Workflow(this, projections[i]);
+			this.workflows[i] = new Workflow(this, getModel().getImageSelection()[i]);
 
 			ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
 			state.specifieImage(this.workflows[i].getImageAssociated());
@@ -122,7 +121,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_1, dri_2, "Antre"));
 			this.workflows[i].addInstruction(new BkgNoiseInstruction(promptBkgNoise));
 		}
-		this.workflows[projections.length - 1].addInstruction(new EndInstruction());
+		this.workflows[getModel().getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}
 
 	private class BkgNoiseInstruction extends PromptInstruction {

@@ -60,11 +60,10 @@ public class DynGastricScintigraphy extends Scintigraphy {
 
 		// Order image by time (reversed)
 		Arrays.parallelSort(selection, new ReversedChronologicalAcquisitionComparator());
-		
+
 		// Create projection for each image
-		for(int i = 0; i<selection.length; i++) {
+		for (int i = 0; i < selection.length; i++)
 			selection[i] = Library_Dicom.project(selection[i], 1, 10, "sum");
-		}
 
 		return selection;
 	}
@@ -73,8 +72,8 @@ public class DynGastricScintigraphy extends Scintigraphy {
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		this.setFenApplication(
 				new FenApplication_DynGastric(selectedImages[0].getImagePlus(), "Dynamic Gastric Scintigraphy"));
-		this.getFenApplication().setControleur(
-				new ControllerWorkflow_DynGastric(this, this.getFenApplication(), this.model, selectedImages, fenResults));
+		this.getFenApplication().setControleur(new ControllerWorkflow_DynGastric(this, this.getFenApplication(),
+				this.model, selectedImages, fenResults));
 		this.getFenApplication().setVisible(true);
 	}
 

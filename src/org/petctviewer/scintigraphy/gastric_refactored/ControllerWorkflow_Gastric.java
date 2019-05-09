@@ -93,13 +93,12 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 				Model_Gastric.REGION_FUNDUS.inflate(state, null);
 				getModel().forceCountsDataValue(Model_Gastric.REGION_FUNDUS,
 						getModel().getCounts(Model_Gastric.REGION_STOMACH, orientation)
-								- getModel().getCounts(Model_Gastric.REGION_ANTRE, orientation),
-						null);
+								- getModel().getCounts(Model_Gastric.REGION_ANTRE, orientation));
 
 				// - Intestine
 				Model_Gastric.REGION_INTESTINE.inflate(state, null);
 				getModel().forceCountsDataValue(Model_Gastric.REGION_INTESTINE,
-						intestineValue - getModel().getCounts(Model_Gastric.REGION_ANTRE, orientation), null);
+						intestineValue - getModel().getCounts(Model_Gastric.REGION_ANTRE, orientation));
 			}
 
 			getModel().computeData(state, previousState);
