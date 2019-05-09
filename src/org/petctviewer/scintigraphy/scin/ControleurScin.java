@@ -157,13 +157,13 @@ public abstract class ControleurScin implements ActionListener {
 	 */
 
 	public void saveRoiAtIndex(String name, int indexRoiToSave) throws NoDataException {
-		// TODO: do not check if a ROI exists with its name, use the index!!
-
 		Roi roiToSave = this.vue.getImagePlus().getRoi();
 
 		// Check if there is a ROI to save
 		if (roiToSave == null)
 			throw new NoDataException("No ROI to save");
+		
+		// TODO: maybe allow the user to choose the color for the ROI?
 		roiToSave.setStrokeColor(Color.YELLOW);
 		roiToSave.setPosition(0);
 
@@ -183,43 +183,6 @@ public abstract class ControleurScin implements ActionListener {
 
 		// Name the ROI
 		this.model.getRoiManager().rename(indexRoiToSave, name);
-	}
-
-	/**
-	 * Saves the current ROI of the current ImagePlus in the RoiManager. If a ROI
-	 * with the same name has already been saved, it will be replaced.
-	 * 
-	 * @param name
-	 *            Name of the ROI to save
-	 * @throws NoDataException
-	 *             if no ROI is present on the current ImagePlus
-	 */
-	public void saveCurrentRoi(String name) throws NoDataException {
-		Roi roiToSave = this.vue.getImagePlus().getRoi();
-
-		// Check if there is a ROI to save
-		if (roiToSave == null)
-			throw new NoDataException("No ROI to save");
-
-		roiToSave.setStrokeColor(Color.YELLOW);
-		roiToSave.setPosition(0);
-
-		Roi existingRoi = this.getRoi(name);
-		int posExisting = this.position;
-
-		// Check if there is an existing ROI
-		if (existingRoi != null) {
-			posExisting = this.model.getRoiManager().getRoiIndex(existingRoi);
-			// Overwrite it
-			this.model.getRoiManager().setRoi(roiToSave, posExisting);
-		} else {
-			// Add it
-			this.model.getRoiManager().addRoi(roiToSave);
-		}
-		this.vue.getImagePlus().killRoi();
-
-		// Name the ROI
-		this.model.getRoiManager().rename(posExisting, name);
 	}
 
 	/**

@@ -238,7 +238,8 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		String[] columnsName = new String[this.columns.size()];
 
 		// Create model
-		this.dataModel = new DefaultTableModel(this.getTableData(), columnsName);
+		this.dataModel = new DefaultTableModel(columnsName, 0);
+		this.updateTable();
 		this.table.setModel(this.dataModel);
 
 		for (int i = 0; i < this.columns.size(); i++) {
@@ -256,8 +257,8 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 	// TODO: Do not assume that index of rows matches the ID of the image in the
 	// WindowManager!
-	private String[][] getTableData() {
-		String[][] data = new String[WindowManager.getImageCount()][this.columns.size()];
+	private List<String[]> getTableData() {
+		List<String[]> data = new ArrayList<>(WindowManager.getImageCount());
 
 		int[] idList = WindowManager.getIDList();
 		if (idList != null) {
@@ -265,25 +266,32 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 				ImagePlus imp = WindowManager.getImage(WindowManager.getIDList()[idImgOpen]);
 				HashMap<String, String> infosPatient = Library_Capture_CSV.getPatientInfo(imp);
 
-				for (int i = 0; i < data[0].length; i++) {
-					Column c = this.columns.get(i);
-					if (c == Column.PATIENT) {
-						data[idImgOpen][i] = infosPatient.get("name");
-					} else if (c == Column.STUDY) {
-						data[idImgOpen][i] = replaceNull(DicomTools.getTag(imp, "0008,1030")).trim();
-					} else if (c == Column.DATE) {
-						data[idImgOpen][i] = replaceNull(infosPatient.get("date"));
-					} else if (c == Column.SERIES) {
-						data[idImgOpen][i] = replaceNull(DicomTools.getTag(imp, "0008,103E")).trim();
-					} else if (c == Column.DIMENSIONS) {
-						data[idImgOpen][i] = imp.getDimensions()[0] + "x" + imp.getDimensions()[1];
-					} else if (c == Column.STACK_SIZE) {
-						data[idImgOpen][i] = "" + imp.getStack().getSize();
-					} else if (c.getName().equals(Column.ORIENTATION.getName())) {
-						data[idImgOpen][i] = determineImageOrientation(imp).toString();
-					} else {
-						data[idImgOpen][i] = "CHOOSE VALUE";
+				String[] imageData = new String[this.columns.size()];
+
+				try {
+					for (int i = 0; i < this.columns.size(); i++) {
+						Column c = this.columns.get(i);
+						if (c == Column.PATIENT) {
+							imageData[i] = infosPatient.get("name");
+						} else if (c == Column.STUDY) {
+							imageData[i] = replaceNull(DicomTools.getTag(imp, "0008,1030")).trim();
+						} else if (c == Column.DATE) {
+							imageData[i] = replaceNull(infosPatient.get("date"));
+						} else if (c == Column.SERIES) {
+							imageData[i] = replaceNull(DicomTools.getTag(imp, "0008,103E")).trim();
+						} else if (c == Column.DIMENSIONS) {
+							imageData[i] = imp.getDimensions()[0] + "x" + imp.getDimensions()[1];
+						} else if (c == Column.STACK_SIZE) {
+							imageData[i] = "" + imp.getStack().getSize();
+						} else if (c.getName().equals(Column.ORIENTATION.getName())) {
+							imageData[i] = determineImageOrientation(imp).toString();
+						} else {
+							imageData[i] = "CHOOSE VALUE";
+						}
 					}
+					data.add(imageData);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		}
@@ -460,7 +468,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			selectedImages[i] = new ImageSelection(WindowManager.getImage(WindowManager.getIDList()[row]), columns,
 					values);
 			// TODO: do not add row here, use the invisible columns
-			selectedImages[i].setRow(row+1);
+			selectedImages[i].setRow(row + 1);
 		}
 
 		return selectedImages;

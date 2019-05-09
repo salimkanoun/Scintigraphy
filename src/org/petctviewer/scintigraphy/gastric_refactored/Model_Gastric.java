@@ -20,10 +20,15 @@ import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -39,10 +44,10 @@ import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.LinearFit;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.Prefs;
@@ -51,71 +56,275 @@ import ij.plugin.MontageMaker;
 public class Model_Gastric extends ModeleScin {
 	public static Font italic = new Font("Arial", Font.ITALIC, 8);
 
-	// == STATIC ACQUISITION ==
-	private HashMap<String, Double> coups;// pour enregistrer les coups dans chaque organe sur chaque image
-	private HashMap<String, Double> mgs;// pour enregistrer le MG dans chaque organe pour chaque serie
+	/**
+	 * Results available for the {@link Model_Gastric} model.
+	 * 
+	 * @author Titouan QUÉMA
+	 *
+	 */
+	public enum Result {
+		RES_TIME("Time", Unit.MINUTES),
+		RES_STOMACH("Stomach", Unit.PERCENTAGE),
+		RES_FUNDUS("Fundus", Unit.PERCENTAGE),
+		RES_ANTRUM("Antrum", Unit.PERCENTAGE),
+		START_ANTRUM("Start antrum", Unit.MINUTES),
+		START_INTESTINE("Start intestine", Unit.MINUTES),
+		LAG_PHASE("Lag phase", Unit.MINUTES),
+		T_HALF("T 1/2", Unit.PERCENTAGE),
+		RETENTION("Retention", Unit.PERCENTAGE);
 
-	private double[] temps;// pour enregistrer l'horaire où on recupere chaque serie
-	private double[] estomacPourcent;// pour enregistrer le pourcentage de l'estomac(par rapport a total) pour
-										// chaque serie
-	private double[] fundusPourcent;// pour enregistrer le pourcentage du fundus(par rapport a total) pour
-									// chaque serie
-	private double[] antrePourcent;// pour enregistrer le pourcentage de l'antre(par rapport a total) pour
-									// chaque serie
-	private double[] funDevEsto;// pour enregistrer le rapport fundus/estomac pour chaque serie
-	private double[] estoInter;// pour enregistrer le rapport fundus/estomac pour chaque serie
-	private double[] tempsInter;// pour enregistrerla derivee de la courbe de variation de l’estomac
-	private boolean logOn;// signifie si log est ouvert
-	private double[] intestinPourcent;// pour enregistrer le pourcentage de l'intestin(par rapport a total)
-										// pour chaque serie
+		public enum Unit {
+			PERCENTAGE("%"), MINUTES("h:m:s");
+			private String s;
 
-	private ImageSelection[] staticImages;
+			private Unit(String s) {
+				this.s = s;
+			}
 
-	// == DYNAMIC ACQUISITION ==
+			@Override
+			public String toString() {
+				return this.s;
+			}
+		}
 
-	// == BOTH ACQUISITIONS ==
+		private String s;
+		private Unit unit;
 
-	private String[] organes = { "Estomac", "Intestin", "Fundus", "Antre" };
+		private Result(String s, Unit unit) {
+			this.s = s;
+			this.unit = unit;
+		}
 
-	private boolean trouve;// signifie si la valeur qu'on veut est trouvee sur la courbe
+		/**
+		 * @return unit of this result
+		 */
+		public Unit getUnit() {
+			return this.unit;
+		}
+
+		/**
+		 * @return name of this result
+		 */
+		public String getName() {
+			return this.s;
+		}
+
+		@Override
+		public String toString() {
+			return this.s;
+		}
+
+		public static Result[] imageResults() {
+			return new Result[] { RES_TIME, RES_STOMACH, RES_FUNDUS, RES_ANTRUM };
+		}
+
+		public static Result[] globalResults() {
+			return new Result[] { START_ANTRUM, START_INTESTINE, LAG_PHASE, T_HALF, RETENTION };
+		}
+	}
+
+	/**
+	 * Result returned by the {@link Model_Gastric} model.
+	 * 
+	 * @author Titouan QUÉMA
+	 *
+	 */
+	public class ResultValue {
+		public Result type;
+		public double value;
+		public FitType extrapolation;
+
+		public ResultValue(Result type, double value, FitType extrapolation) {
+			this.type = type;
+			this.value = value;
+			this.extrapolation = extrapolation;
+		}
+
+		/**
+		 * @return TRUE if the value is extrapolated from the current fit and FALSE if
+		 *         the value is linearly extrapolated between two known points
+		 */
+		public boolean isExtrapolated() {
+			return this.extrapolation != null;
+		}
+
+		/**
+		 * Adjusts the value returned by this result.<br>
+		 * The unit of this result is not displayed.<br>
+		 * For example, if this value is a time, then this method will format the value
+		 * like this: '01:20:34'.<br>
+		 * 
+		 * @return formatted value for this result
+		 */
+		public String value() {
+			if (this.type.getUnit() == Result.Unit.MINUTES)
+				return this.displayAsTime();
+			return this.notNegative();
+		}
+
+		/**
+		 * Returns the value of this result rounded at 2 decimals and set to 0 if
+		 * negative.<br>
+		 * If this result is extrapolated, then a star '(*)' is added at the end of the
+		 * result.
+		 * 
+		 * @return rounded value for this result (2 decimals) restrained to 0 if
+		 *         negative
+		 */
+		public String notNegative() {
+			return BigDecimal.valueOf(Math.max(0, value)).setScale(2, RoundingMode.HALF_UP).toString()
+					+ (isExtrapolated() ? "(*)" : "");
+		}
+
+		/**
+		 * Returns the value of this result rounded at 2 decimals.<br>
+		 * If this result is extrapolated, then a start '(*)' is added at the end of the
+		 * result.
+		 * 
+		 * @return rounded value for this result (2 decimals)
+		 */
+		public String roundedValue() {
+			return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).toString()
+					+ (isExtrapolated() ? "(*)" : "");
+		}
+
+		/**
+		 * Returns the value of this result as a time considering the value in minutes.
+		 * 
+		 * @return time value for this result
+		 */
+		public String displayAsTime() {
+			int seconds = (int) ((value - (double) ((int) value)) * 60.);
+			int minutes = (int) (value % 60.);
+			int hours = (int) (value / 60.);
+
+			StringBuilder s = new StringBuilder();
+			// Hours
+			if (hours > 0) {
+				if (hours < 10)
+					s.append(0);
+				s.append(hours);
+				s.append(':');
+			}
+
+			// Minutes
+			if (minutes < 10)
+				s.append(0);
+			s.append(minutes);
+			s.append(':');
+
+			// Seconds
+			if (seconds < 10)
+				s.append(0);
+			s.append(seconds);
+
+			return s.toString();
+		}
+	}
+
+	// == REFACTORING ==
+	public static final Region REGION_STOMACH = new Region("Stomach"), REGION_ANTRE = new Region("Antre"),
+			REGION_FUNDUS = new Region("Fundus"), REGION_INTESTINE = new Region("Intestine"),
+			REGION_ALL = new Region("Total");
+
+	private class Data implements Comparable<Data> {
+		private ImageSelection ims;
+		private Map<Integer, Double>[] organs;
+		public Double time;
+
+		public static final int STOMACH = 0, ANTRE = 1, FUNDUS = 2, INTESTINE = 3, ALL = 4, TOTAL_ORGANS = 5;
+		public static final int ANT_COUNTS = 0, POST_COUNTS = 1, GEO_AVEREAGE = 2, PERCENTAGE = 3, DERIVATIVE = 4,
+				CORRELATION = 5;
+
+		public Data(ImageSelection ims) {
+			this.ims = ims;
+			this.organs = new Map[TOTAL_ORGANS];
+			for (int i = 0; i < TOTAL_ORGANS; i++)
+				this.organs[i] = new HashMap<>();
+			this.time = null;
+		}
+
+		public void setValue(Region region, int key, double value) {
+			this.organs[indexFromRegion(region)].put(key, value);
+		}
+
+		public double getValue(Region region, int key) {
+			return this.organs[indexFromRegion(region)].get(key);
+		}
+
+		public int indexFromRegion(Region region) {
+			if (region == REGION_STOMACH)
+				return STOMACH;
+			if (region == REGION_ANTRE)
+				return ANTRE;
+			if (region == REGION_FUNDUS)
+				return FUNDUS;
+			if (region == REGION_INTESTINE)
+				return INTESTINE;
+			if (region == REGION_ALL)
+				return ALL;
+
+			throw new IllegalArgumentException("This region is not requested in this model");
+		}
+
+		@Override
+		public int compareTo(Data o) {
+			return Library_Dicom.getDateAcquisition(this.ims.getImagePlus())
+					.compareTo(Library_Dicom.getDateAcquisition(o.ims.getImagePlus()));
+		}
+
+		@Override
+		public String toString() {
+			return this.ims.getImagePlus().getTitle();
+		}
+	}
+
+	private Map<Integer, Data> results;
+	private Data time0;
 
 	private Date timeIngestion;
 
 	private Fit extrapolation;
 
+	private double[] times, timesDerivative;
+
 	public Model_Gastric(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
-		this.coups = new HashMap<>();
-		this.mgs = new HashMap<>();
 		Prefs.useNamesAsLabels = true;
-		this.logOn = false;
+
+		this.results = new HashMap<>();
 	}
 
-	private void mgs(int indexImage) {
-		// on calcule cet de l'antre et de l'intestin
-		for (String roi : this.organes)
-			this.moyenneGeo(roi, indexImage);
-		// on calcule les MGs de l'estomac
-		this.mgs.put("Estomac_MG" + indexImage,
-				this.mgs.get("Fundus_MG" + indexImage) + this.mgs.get("Antre_MG" + indexImage));
-		// on calcule la somme des MGs
-		this.mgs.put("Total" + indexImage,
-				1 * this.mgs.get("Estomac_MG" + indexImage) + 1 * this.mgs.get("Intestin_MG" + indexImage));
-	}
+	private void computeGeometricalAverages(ImageSelection ims) {
+		Data data = this.results.get(ims.hashCode());
+		if (data == null)
+			throw new NoSuchElementException(
+					"No data has been set for this image (" + ims.getImagePlus().getTitle() + ")");
 
-	// Calcule la moyenne geometrique pour un organe specifique
-	private void moyenneGeo(String organe, int indexImage) {
-		double[] coupsa = new double[2];
-		String[] asuppr = new String[2];
-		int index = 0;
-		for (Entry<String, Double> entry : this.coups.entrySet()) {
-			if (entry.getKey().contains(organe) && entry.getKey().contains(Integer.toString(indexImage))) {
-				coupsa[index] = entry.getValue();
-				asuppr[index] = entry.getKey();
-				index++;
-			}
-		}
-		this.mgs.put(organe + "_MG" + indexImage, Library_Quantif.moyGeom((double) coupsa[0], (double) coupsa[1]));
+		// Antre
+		Double valueAnt = data.getValue(REGION_ANTRE, Data.ANT_COUNTS);
+		Double valuePost = data.getValue(REGION_ANTRE, Data.POST_COUNTS);
+		data.setValue(REGION_ANTRE, Data.GEO_AVEREAGE, Library_Quantif.moyGeom(valueAnt, valuePost));
+
+		// Intestine
+		valueAnt = data.getValue(REGION_INTESTINE, Data.ANT_COUNTS);
+		valuePost = data.getValue(REGION_INTESTINE, Data.POST_COUNTS);
+		Double geoIntestine = Library_Quantif.moyGeom(valueAnt, valuePost);
+		data.setValue(REGION_INTESTINE, Data.GEO_AVEREAGE, geoIntestine);
+
+		// Fundus
+		valueAnt = data.getValue(REGION_FUNDUS, Data.ANT_COUNTS);
+		valuePost = data.getValue(REGION_FUNDUS, Data.POST_COUNTS);
+		data.setValue(REGION_FUNDUS, Data.GEO_AVEREAGE, Library_Quantif.moyGeom(valueAnt, valuePost));
+
+		// Stomach
+		Double valueFundus = data.getValue(REGION_FUNDUS, Data.GEO_AVEREAGE);
+		Double valueAntre = data.getValue(REGION_ANTRE, Data.GEO_AVEREAGE);
+		Double geoStomach = valueFundus + valueAntre;
+		data.setValue(REGION_STOMACH, Data.GEO_AVEREAGE, geoStomach);
+
+		// Total
+		data.setValue(REGION_ALL, Data.GEO_AVEREAGE, geoStomach + geoIntestine);
 	}
 
 	/**
@@ -198,29 +407,15 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	// permet de obtenir le temps de debut antre et debut intestin
-	private double getDebut(String organe) {
-		boolean trouve = false;
-		double res = 0.0;
-		if (organe == "Antre") {
-			for (int i = 0; i < this.antrePourcent.length && !trouve; i++) {
-				// si le pourcentage de l'antre > 0
-				if (this.antrePourcent[i] > 0) {
-					trouve = true;
-					res = this.temps[i];
-				}
-			}
-		}
-		if (organe == "Intestin") {
-			for (int i = 0; i < this.estomacPourcent.length && !trouve; i++) {
-				// si le pourcentage de l'estomac est < 100, c'est a dire le pourcentage de
-				// l'intestin > 0
-				if (this.estomacPourcent[i] < 100.0) {
-					trouve = true;
-					res = this.temps[i];
-				}
-			}
-		}
-		return res;
+	private double getDebut(Region region) {
+		if (region != REGION_ANTRE && region != REGION_INTESTINE)
+			throw new IllegalArgumentException("The region " + region + " is not supported here!");
+
+		for (Data data : this.generatesDataOrdered())
+			if (data.getValue(region, Data.PERCENTAGE) > 0)
+				return data.time;
+
+		throw new NoSuchElementException("No data found, please first use the calculateCounts method before!");
 	}
 
 	/**
@@ -230,15 +425,17 @@ public class Model_Gastric extends ModeleScin {
 	 * found, then the result is null.<br>
 	 * 
 	 * @return X value or null if none found
-	 * @see #interpolateX(double, Fit)
+	 * @see #extrapolateX(double, Fit)
 	 */
 	private Double getX(double valueY) {
-		for (int i = 1; i < this.estomacPourcent.length && !trouve; i++) {
-			if (this.estomacPourcent[i] <= valueY) {
-				double x1 = this.temps[i - 1];
-				double x2 = this.temps[i];
-				double y1 = this.estomacPourcent[i - 1];
-				double y2 = this.estomacPourcent[i];
+		double[] stomachPercentage = this.getResultAsArray(REGION_STOMACH, Data.PERCENTAGE);
+
+		for (int i = 1; i < stomachPercentage.length; i++) {
+			if (stomachPercentage[i] <= valueY) {
+				double x1 = times[i - 1];
+				double x2 = times[i];
+				double y1 = stomachPercentage[i - 1];
+				double y2 = stomachPercentage[i];
 				return x2 - (y2 - valueY) * ((x2 - x1) / (y2 - y1));
 			}
 		}
@@ -246,14 +443,14 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * Interpolates the X value based upon the specified Y value of the graph.<br>
-	 * The value X returned is interpolated with the specified fit.
+	 * Extrapolates the X value based upon the specified Y value of the graph.<br>
+	 * The value X returned is extrapolated with the specified fit.
 	 * 
 	 * @param valueY Y value
 	 * @param fit    Fit the interpolation must rely on
 	 * @return X value interpolated
 	 */
-	private Double interpolateX(double valueY, Fit fit) {
+	private Double extrapolateX(double valueY, Fit fit) {
 		return fit.extrapolateX(valueY);
 	}
 
@@ -264,15 +461,17 @@ public class Model_Gastric extends ModeleScin {
 	 * found, then the result is null.<br>
 	 * 
 	 * @return Y value or null if none found
-	 * @see #interpolateY(double, Fit)
+	 * @see #extrapolateY(double, Fit)
 	 */
 	private Double getY(double valueX) {
-		for (int i = 0; i < this.temps.length && !trouve; i++) {
-			if (this.temps[i] >= valueX) {
-				double x1 = this.temps[i - 1];
-				double x2 = this.temps[i];
-				double y1 = this.estomacPourcent[i - 1];
-				double y2 = this.estomacPourcent[i];
+		System.out.println("Times: " + Arrays.toString(times));
+		double[] stomachPercentage = this.getResultAsArray(REGION_STOMACH, Data.PERCENTAGE);
+		for (int i = 0; i < times.length; i++) {
+			if (times[i] >= valueX) {
+				double x1 = times[i - 1];
+				double x2 = times[i];
+				double y1 = stomachPercentage[i - 1];
+				double y2 = stomachPercentage[i];
 				return y2 - (x2 - valueX) * ((y2 - y1) / (x2 - x1));
 			}
 		}
@@ -280,38 +479,126 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * Interpolates the Y value based upon the specified X value of the graph.<br>
-	 * The value Y returned is interpolated with the specified fit.
+	 * Extrapolates the Y value based upon the specified X value of the graph.<br>
+	 * The value Y returned is extrapolated with the specified fit.
 	 * 
 	 * @param valueX X value
 	 * @param fit    Fit the interpolation must rely on
 	 * @return Y value interpolated
 	 */
-	private Double interpolateY(double valueX, Fit fit) {
+	private Double extrapolateY(double valueX, Fit fit) {
 		return fit.extrapolateY(valueX);
 	}
 
+	// =============================
+	// REFACTORED
+	// =============================
+
+	private List<Data> generatesDataOrdered() {
+		List<Data> orderedData = new ArrayList<>(this.results.values());
+		Collections.sort(orderedData);
+		orderedData.add(0, time0);
+		return orderedData;
+	}
+
+	public Region[] getAllRegions() {
+		return new Region[] { REGION_STOMACH, REGION_ANTRE, REGION_FUNDUS, REGION_INTESTINE };
+	}
+
+	public void calculateCounts(Region region) {
+		// Check region is part of requested regions for this model
+		if (!Arrays.stream(this.getAllRegions()).anyMatch(r -> r == region))
+			throw new IllegalArgumentException("This region is not requested in this model");
+
+		ImageSelection ims = region.getImage();
+		ImagePlus imp = ims.getImagePlus();
+
+		// Create data if not existing
+		Data data = this.results.get(ims.hashCode());
+		if (data == null) {
+			data = new Data(ims);
+			this.results.put(ims.hashCode(), data);
+		}
+
+		// Find orientation (ant or post)
+		int key;
+		if (region.getState().getFacingOrientation() == Orientation.ANT)
+			key = Data.ANT_COUNTS;
+		else
+			key = Data.POST_COUNTS;
+
+		// Save value
+		imp.setSlice(region.getState().getSlice());
+		imp.setRoi(region.getRoi());
+		data.setValue(region, key, Library_Quantif.getCounts(imp));
+		data.time = this.calculateDeltaTime(Library_Dicom.getDateAcquisition(imp));
+	}
+
+	public double calculateDeltaTime(Date time) {
+		return (time.getTime() - this.timeIngestion.getTime()) / 1000. / 60.;
+	}
+
+	public void generatesTimes() {
+		this.times = new double[this.nbAcquisitions()];
+		this.timesDerivative = new double[this.nbAcquisitions() - 1];
+
+		int i = 0;
+		for (Data data : this.generatesDataOrdered()) {
+			if (data == time0)
+				times[i] = 0.;
+			else {
+				Date time = Library_Dicom.getDateAcquisition(data.ims.getImagePlus());
+				times[i] = this.calculateDeltaTime(time);
+				if (data.time == null)
+					this.calculateDeltaTime(time);
+			}
+			if (i > 0)
+				this.timesDerivative[i - 1] = times[i];
+			i++;
+		}
+	}
+
+	/**
+	 * Generates the dataset of the graph.
+	 * 
+	 * @return array in the form:
+	 *         <ul>
+	 *         <li><code>[i][0] -> x</code></li>
+	 *         <li><code>[i][1] -> y</code></li>
+	 *         </ul>
+	 */
 	public double[][] generateDataset() {
-		double[][] dataset = new double[temps.length][2];
-		for (int i = 0; i < temps.length; i++) {
-			dataset[i][0] = temps[i];
-			dataset[i][1] = estomacPourcent[i];
+		double[][] dataset = new double[times.length][2];
+		Iterator<Data> it = this.generatesDataOrdered().iterator();
+		int i = 0;
+		while (it.hasNext()) {
+			dataset[i][0] = times[i];
+			dataset[i][1] = it.next().getValue(REGION_STOMACH, Data.PERCENTAGE);
+			i++;
 		}
 		return dataset;
 	}
 
+	/**
+	 * @return series for the stomach (used for the graph)
+	 */
 	public XYSeries getStomachSeries() {
 		XYSeries serie = new XYSeries("Stomach");
-		for (int i = 0; i < estomacPourcent.length; i++)
-			serie.add(temps[i], estomacPourcent[i]);
+		double[][] dataset = this.generateDataset();
+		for (int i = 0; i < dataset.length; i++) {
+			serie.add(dataset[i][0], dataset[i][1]);
+		}
 		return serie;
 	}
 
+	/**
+	 * @return series for the selected fit of the graph
+	 */
 	public XYSeries getFittedSeries() {
-		double[] y = this.extrapolation.generateOrdinates(temps);
+		double[] y = this.extrapolation.generateOrdinates(times);
 		XYSeries fittedSeries = new XYSeries(this.extrapolation.toString());
-		for (int i = 0; i < temps.length; i++)
-			fittedSeries.add(temps[i], y[i]);
+		for (int i = 0; i < times.length; i++)
+			fittedSeries.add(times[i], y[i]);
 		return fittedSeries;
 	}
 
@@ -320,7 +607,7 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	public int nbAcquisitions() {
 		// number of images + the starting point
-		return this.selectedImages.length + 1;
+		return this.results.size() + (this.time0 != null ? 1 : 0);
 	}
 
 	/**
@@ -330,6 +617,10 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	public void setTimeIngestion(Date timeIngestion) {
 		this.timeIngestion = timeIngestion;
+	}
+
+	public Date getTimeIngestion() {
+		return this.timeIngestion;
 	}
 
 	/**
@@ -342,230 +633,175 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
+	 * Current extrapolation selected.
+	 * 
+	 * @return
+	 */
+	public FitType getCurrentExtrapolation() {
+		return this.extrapolation.getType();
+	}
+
+	/**
 	 * @return interpolation defined
 	 */
 	public Fit getExtrapolation() {
 		return this.extrapolation;
 	}
 
+	public double getCounts(ImageSelection ims, Region region, Orientation orientation) {
+		Data data = this.results.get(ims.hashCode());
+		if (data == null)
+			throw new NoSuchElementException(
+					"No data has been set for this image (" + ims.getImagePlus().getTitle() + ")");
+
+		return data.getValue(region, orientation == Orientation.ANT ? Data.ANT_COUNTS : Data.POST_COUNTS);
+	}
+
+	public void activateTime0() {
+		this.time0 = new Data(null);
+		this.time0.time = 0.;
+		this.time0.setValue(REGION_STOMACH, Data.PERCENTAGE, 100.);
+		this.time0.setValue(REGION_FUNDUS, Data.PERCENTAGE, 100.);
+		this.time0.setValue(REGION_ANTRE, Data.PERCENTAGE, 0.);
+		this.time0.setValue(REGION_INTESTINE, Data.PERCENTAGE, 0.);
+
+		this.time0.setValue(REGION_FUNDUS, Data.CORRELATION, 100.);
+	}
+
+	private void forceDataValue(ImageSelection ims, Region region, int key, double value, Date time) {
+		Data data = this.results.get(ims.hashCode());
+		if (data == null) {
+			data = new Data(ims);
+			this.results.put(ims.hashCode(), data);
+		}
+
+		data.setValue(region, key, value);
+		if (time != null)
+			data.time = this.calculateDeltaTime(time);
+	}
+
+	public void forcePercentageDataValue(ImageSelection ims, Region region, double value, Date time) {
+		this.forceDataValue(ims, region, Data.PERCENTAGE, value, time);
+	}
+
+	public void forceCorrelationDataValue(ImageSelection ims, Region region, double value, Date time) {
+		this.forceDataValue(ims, region, Data.CORRELATION, value, time);
+	}
+
+	public void forceCountsDataValue(ImageSelection ims, Region region, double value, Date time) {
+		this.forceDataValue(ims, region,
+				region.getState().getFacingOrientation() == Orientation.ANT ? Data.ANT_COUNTS : Data.POST_COUNTS, value,
+				time);
+	}
+
+	public void computeData(ImageSelection ims, ImageSelection previousImage) {
+		this.computeGeometricalAverages(ims);
+
+		Data data = this.results.get(ims.hashCode());
+		if (data == null)
+			throw new NoSuchElementException(
+					"No data has been set for this image (" + ims.getImagePlus().getTitle() + ")");
+
+		double fundusPercentage = data.getValue(REGION_FUNDUS, Data.GEO_AVEREAGE)
+				/ data.getValue(REGION_ALL, Data.GEO_AVEREAGE) * 100.;
+		data.setValue(REGION_FUNDUS, Data.PERCENTAGE, fundusPercentage);
+
+		double antrePercentage = data.getValue(REGION_ANTRE, Data.GEO_AVEREAGE)
+				/ data.getValue(REGION_ALL, Data.GEO_AVEREAGE) * 100.;
+		data.setValue(REGION_ANTRE, Data.PERCENTAGE, antrePercentage);
+
+		double stomachPercentage = data.getValue(REGION_STOMACH, Data.GEO_AVEREAGE)
+				/ data.getValue(REGION_ALL, Data.GEO_AVEREAGE) * 100.;
+		data.setValue(REGION_STOMACH, Data.PERCENTAGE, stomachPercentage);
+
+		double intestinePercentage = data.getValue(REGION_INTESTINE, Data.GEO_AVEREAGE)
+				/ data.getValue(REGION_ALL, Data.GEO_AVEREAGE) * 100.;
+		data.setValue(REGION_INTESTINE, Data.PERCENTAGE, intestinePercentage);
+
+		double fundusDerivative = data.getValue(REGION_FUNDUS, Data.PERCENTAGE)
+				/ data.getValue(REGION_STOMACH, Data.PERCENTAGE) * 100.;
+		data.setValue(REGION_FUNDUS, Data.CORRELATION, fundusDerivative);
+
+		if (previousImage != null) {
+			Data previousData = this.results.get(previousImage.hashCode());
+			if (previousData != null) {
+				double stomachDerivative = (previousData.getValue(REGION_STOMACH, Data.PERCENTAGE)
+						- data.getValue(REGION_STOMACH, Data.PERCENTAGE))
+						/ (this.calculateDeltaTime(Library_Dicom.getDateAcquisition(ims.getImagePlus())) - this
+								.calculateDeltaTime(Library_Dicom.getDateAcquisition(previousImage.getImagePlus())))
+						* 30.;
+				previousData.setValue(REGION_STOMACH, Data.DERIVATIVE, stomachDerivative);
+			} else {
+				System.err.println("Careful: no data found for the previous image specified ("
+						+ previousImage.getImagePlus().getTitle() + ")");
+			}
+		}
+	}
+
 	/**
-	 * Swaps this model to be ready for the dynamic acquisition.
-	 */
-	public void swapToDynamic() {
-		this.staticImages = Arrays.copyOf(this.selectedImages, this.selectedImages.length);
-		this.selectedImages = null;
-		this.roiManager.reset();
-	}
-
-	// calcule le coups du ROI
-	public void calculerCoups(String roi, int indexImage, ImagePlus imp) {
-		this.coups.put(roi + indexImage, Library_Quantif.getCounts(imp));
-	}
-
-	public double getCoups(String roi, int indexImage) {
-		return this.coups.get(roi + indexImage);
-	}
-
-	public void setCoups(String roi, int indexImage, double d) {
-		this.coups.put(roi + indexImage, d);
-	}
-
-	/**
-	 * Calculates the acquisition time of the image.
+	 * Delivers the requested result for the specified image
 	 * 
-	 * @param indexImage Index of the image worked on
-	 */
-	public void tempsImage(int indexImage, ImagePlus imp) {
-		double diff = Library_Dicom.getDateAcquisition(imp).getTime() - this.timeIngestion.getTime();
-		double day = diff / (24 * 60 * 60 * 1000);
-		double hour = (diff / (60 * 60 * 1000) - day * 24);
-		double min = ((diff / (60 * 1000)) - day * 24 * 60 - hour * 60);
-		this.temps[indexImage + 1] = day * 24 * 60 + hour * 60 + min;
-		System.out.println("Time[" + (indexImage + 1) + "] = " + this.temps[indexImage + 1]);
-	}
-
-	// pour chaque serie, on calcule le pourcentage de l'estomac, le fundus, l'antre
-	// et l'intestin par rapport au total du repas
-	// calcule le rapport fundus/estomac et la derivee de la courbe de variation de
-	// l’estomac
-	public void pourcVGImage(int indexImage) {
-		this.mgs(indexImage);
-
-		double fundusPour = ((double) this.mgs.get("Fundus_MG" + indexImage)
-				/ (double) this.mgs.get("Total" + indexImage)) * 100;
-		this.fundusPourcent[indexImage + 1] = fundusPour;
-		double antrePour = ((double) this.mgs.get("Antre_MG" + indexImage)
-				/ (double) this.mgs.get("Total" + indexImage)) * 100;
-		this.antrePourcent[indexImage + 1] = antrePour;
-		double estomacPour = ((double) this.mgs.get("Estomac_MG" + indexImage)
-				/ (double) this.mgs.get("Total" + indexImage)) * 100;
-		this.estomacPourcent[indexImage + 1] = estomacPour;
-		double intestinPour = ((double) this.mgs.get("Intestin_MG" + indexImage)
-				/ (double) this.mgs.get("Total" + indexImage)) * 100;
-		this.intestinPourcent[indexImage + 1] = intestinPour;
-		double funDevEsto = (this.fundusPourcent[indexImage + 1] / this.estomacPourcent[indexImage + 1]) * 100;
-		this.funDevEsto[indexImage + 1] = funDevEsto;
-
-		this.tempsInter[indexImage] = this.temps[indexImage + 1];
-		double estoInter = ((this.estomacPourcent[indexImage] - this.estomacPourcent[indexImage + 1])
-				/ (this.temps[indexImage + 1] - this.temps[indexImage])) * 30.;
-		this.estoInter[indexImage] = estoInter;
-
-		System.out.println("Result #" + indexImage);
-		System.out.println(
-				"EstoInter: (" + (this.estomacPourcent[indexImage]) + " - " + (this.estomacPourcent[indexImage + 1])
-						+ ") / (" + (this.temps[indexImage + 1] + " - " + (this.temps[indexImage]) + ")"));
-		System.out.println("EstoInter: " + estoInter);
-		System.out.println("temps[(" + indexImage + "+1)" + (indexImage + 1) + "] = " + this.temps[indexImage + 1]);
-
-		if (this.logOn) {
-			IJ.log("image " + (indexImage) + ": " + " Stomach " + this.estomacPourcent[indexImage + 1] + " Intestine "
-					+ this.intestinPourcent[indexImage + 1] + " Fundus " + this.fundusPourcent[indexImage + 1]
-					+ " Antre " + this.antrePourcent[indexImage + 1]);
-		}
-
-	}
-
-	// initialisation des tables de resultats
-	public void initResultat() {
-		this.temps = new double[this.nbAcquisitions()];
-		this.estomacPourcent = new double[this.nbAcquisitions()];
-		this.fundusPourcent = new double[this.nbAcquisitions()];
-		this.antrePourcent = new double[this.nbAcquisitions()];
-		this.intestinPourcent = new double[this.nbAcquisitions()];
-		this.funDevEsto = new double[this.nbAcquisitions()];
-		// -1 because the derivative is not calculated for the starting point
-		this.estoInter = new double[this.nbAcquisitions() - 1];
-		this.tempsInter = new double[this.nbAcquisitions() - 1];
-
-		// Starting point is supposed to be 100 % in the stomach (fundus)
-		this.temps[0] = 0.;
-		this.estomacPourcent[0] = 100.;
-		this.fundusPourcent[0] = 100.;
-		this.antrePourcent[0] = 0.;
-		this.intestinPourcent[0] = 0.;
-		this.funDevEsto[0] = 100.;
-	}
-
-	public enum Result {
-		START_ANTRUM("Start antrum", "min"),
-		START_INTESTINE("Start intestine", "min"),
-		LAG_PHASE("Lag phase", "%"),
-		T_HALF("T 1/2", "%"),
-		RETENTION("Retention", "%");
-
-		private String s;
-		private String unit;
-
-		private Result(String s, String unit) {
-			this.s = s;
-			this.unit = unit;
-		}
-
-		public String getUnit() {
-			return this.unit;
-		}
-
-		public String getName() {
-			return this.s;
-		}
-	}
-
-	public class ResultValue {
-		public Result type;
-		public double value;
-		public FitType extrapolation;
-
-		public ResultValue(Result type, double value, FitType extrapolation) {
-			this.type = type;
-			this.value = value;
-			this.extrapolation = extrapolation;
-		}
-
-		public boolean isExtrapolated() {
-			return this.extrapolation != null;
-		}
-
-		public String notNegative() {
-			return BigDecimal.valueOf(Math.max(0, value)).setScale(2, RoundingMode.HALF_UP).toString()
-					+ (isExtrapolated() ? "(*)" : "");
-		}
-
-		@Override
-		public String toString() {
-			return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).toString()
-					+ (isExtrapolated() ? "(*)" : "");
-		}
-	}
-
-	public static final int RES_TIME = 0, RES_STOMACH = 1, RES_FUNDUS = 2, RES_ANTRUM = 3;
-
-	public String valueOfResult(int result) {
-		switch (result) {
-		case RES_TIME:
-			return "Time";
-		case RES_STOMACH:
-			return "Stomach";
-		case RES_FUNDUS:
-			return "Fundus";
-		case RES_ANTRUM:
-			return "Antrum";
-		default:
-			return "Unknown";
-		}
-	}
-
-	/**
-	 * Result for the specified image.
-	 * 
-	 * @param result  Result to get
+	 * @param result  Result to get, it must be one of TIME, STOMACH, FUNDUS, ANTRUM
 	 * @param idImage Image to get the result from
-	 * @return Result
+	 * @return result found
 	 * @see Model_Gastric#getResult(Result)
+	 * @throws IllegalArgumentException if the image ID or the result is incorrect
 	 */
-	public double getImageResult(int result, int idImage) {
-		if (idImage >= this.nbAcquisitions())
-			throw new IllegalArgumentException(
-					"The id (" + idImage + ") is out of bounds [" + 0 + ";" + this.nbAcquisitions() + "]");
-
-		System.out.println("Get image result " + this.valueOfResult(result) + " with " + this.extrapolation.toString()
-				+ " interpolation");
+	public ResultValue getImageResult(Result result, int indexImage) throws IllegalArgumentException {
+		Data data = this.generatesDataOrdered().get(indexImage);
+		if (data == null)
+			throw new NoSuchElementException(
+					"No data has been set for this image#" + indexImage);
 
 		switch (result) {
 		case RES_TIME:
-			return BigDecimal.valueOf(this.temps[idImage]).setScale(2, RoundingMode.HALF_UP).doubleValue();
+			return new ResultValue(result, BigDecimal.valueOf(data.time)
+					.setScale(2, RoundingMode.HALF_UP).doubleValue(), null);
 		case RES_STOMACH:
-			return BigDecimal.valueOf(this.estomacPourcent[idImage]).setScale(2, RoundingMode.HALF_UP).doubleValue();
+			return new ResultValue(result,
+					BigDecimal.valueOf(data.getValue(REGION_STOMACH, Data.PERCENTAGE))
+							.setScale(2, RoundingMode.HALF_UP).doubleValue(),
+					null);
 		case RES_FUNDUS:
-			return BigDecimal.valueOf(this.fundusPourcent[idImage]).setScale(2, RoundingMode.HALF_UP).doubleValue();
+			return new ResultValue(result,
+					BigDecimal.valueOf(data.getValue(REGION_FUNDUS, Data.PERCENTAGE))
+							.setScale(2, RoundingMode.HALF_UP).doubleValue(),
+					null);
 		case RES_ANTRUM:
-			return BigDecimal.valueOf(this.antrePourcent[idImage]).setScale(2, RoundingMode.HALF_UP).doubleValue();
+			return new ResultValue(result,
+					BigDecimal.valueOf(data.getValue(REGION_ANTRE, Data.PERCENTAGE))
+							.setScale(2, RoundingMode.HALF_UP).doubleValue(),
+					null);
 		default:
-			return 0.;
+			throw new IllegalArgumentException("The result " + result + " is not available here!");
 		}
 	}
 
 	/**
-	 * Result.
+	 * Delivers the requested result.<br>
+	 * This method can only be used for the results that are calculated for all of
+	 * the images. If you need a result specific for an image, use
+	 * {@link #getImageResult(int, int)}<br>
+	 * This method should only be called once all of the data was incorporated in
+	 * this model.<br>
 	 * 
 	 * @param result Result to get
-	 * @return Result
+	 * @return ResultValue containing the result requested
 	 * @see Model_Gastric#getImageResult(Result, int)
 	 */
 	public ResultValue getResult(Result result) {
-		System.out.println("Get result " + result + " with " + this.extrapolation.toString() + " interpolation");
 		FitType extrapolationType = null;
 		switch (result) {
 		case START_ANTRUM:
-			return new ResultValue(result, this.getDebut("Antre"), null);
+			return new ResultValue(result, this.getDebut(REGION_ANTRE), null);
 		case START_INTESTINE:
-			return new ResultValue(result, this.getDebut("Intestin"), null);
+			return new ResultValue(result, this.getDebut(REGION_INTESTINE), null);
 		case LAG_PHASE:
 			extrapolationType = null;
 			Double valX = this.getX(95.);
 			if (valX == null) {
-				// Interpolate
-				valX = this.interpolateX(95., this.extrapolation);
+				// Extrapolate
+				valX = this.extrapolateX(95., this.extrapolation);
 				extrapolationType = this.extrapolation.getType();
 			}
 			return new ResultValue(result, valX, extrapolationType);
@@ -573,13 +809,13 @@ public class Model_Gastric extends ModeleScin {
 			extrapolationType = null;
 			Double valY = this.getY(50.);
 			if (valY == null) {
-				// Interpolate
-				valY = this.interpolateY(50., this.extrapolation);
+				// Extrapolate
+				valY = this.extrapolateY(50., this.extrapolation);
 				extrapolationType = this.extrapolation.getType();
 			}
 			return new ResultValue(result, valY, extrapolationType);
 		default:
-			return new ResultValue(result, 0., this.extrapolation.getType());
+			throw new UnsupportedOperationException("The result " + result + " is not available here!");
 		}
 	}
 
@@ -593,55 +829,42 @@ public class Model_Gastric extends ModeleScin {
 	public ResultValue retentionAt(double time) {
 		Double res = this.getY(time);
 		if (res == null)
-			return new ResultValue(Result.RETENTION, this.interpolateY(time, this.extrapolation),
+			return new ResultValue(Result.RETENTION, this.extrapolateY(time, this.extrapolation),
 					this.extrapolation.getType());
 		return new ResultValue(Result.RETENTION, res, null);
 	}
 
-	// permet de transferer toutes les resultats en une tableau de chaine
-	public String[] resultats() {
-		String[] retour = new String[4 * this.nbAcquisitions() + 12];
-		// on enregistre la premiere partie des resultats
-		retour[0] = "Time(min)";
-		retour[1] = "Stomach(%)";
-		retour[2] = "Fundus(%)";
-		retour[3] = "Antrum(%)";
-		for (int i = 0; i < this.nbAcquisitions(); i++) {
-			retour[i * 4 + 4] = BigDecimal.valueOf(this.temps[i]).setScale(2, RoundingMode.HALF_UP).toString();
-			retour[i * 4 + 5] = BigDecimal.valueOf(this.estomacPourcent[i]).setScale(2, RoundingMode.HALF_UP)
-					.toString();
-			retour[i * 4 + 6] = BigDecimal.valueOf(this.fundusPourcent[i]).setScale(2, RoundingMode.HALF_UP).toString();
-			retour[i * 4 + 7] = BigDecimal.valueOf(this.antrePourcent[i]).setScale(2, RoundingMode.HALF_UP).toString();
-		}
-		// on enregistre la deuxime partie des resultats
-		int j = this.nbAcquisitions() * 4 + 4;
-		retour[j++] = "Start Antrum : " + this.getDebut("Antre") + " min";
-		retour[j++] = "Start Intestine : " + this.getDebut("Intestin") + " min";
-		// SI valeur interpolee on ajoute * a la string
-		retour[j++] = "Lag Phase : " + this.getX(95.0) + (trouve ? " min" : " min*");
-		retour[j++] = "T1/2 : " + this.getX(50.0) + (trouve ? " min" : " min*");
-		retour[j++] = "Retention at 1h : " + this.getY(60.0) + (trouve ? "%" : "%*");
-		retour[j++] = "Retention at 2h : " + this.getY(120.0) + (trouve ? "%" : "%*");
-		retour[j++] = "Retention at 3h : " + this.getY(180.0) + (trouve ? "%" : "%*");
-		retour[j] = "Retention at 4h : " + this.getY(240.0) + (trouve ? "%" : "%*");
-		return retour;
+	public double[] getResultAsArray(Region region, int key) {
+		double[] res;
+		if (key == Data.DERIVATIVE)
+			res = new double[this.nbAcquisitions() - 1];
+		else
+			res = new double[this.nbAcquisitions()];
+
+		int i = 0;
+		for (Data data : this.generatesDataOrdered())
+			if (key != Data.DERIVATIVE || (key == Data.DERIVATIVE && i != 0))
+				res[i++] = data.getValue(region, key);
+		return res;
 	}
 
 	// permet de obtenir un courbe
 	public ImagePlus createGraph_1() {
-		return createGraph("Fundus/Stomach (%)", new Color(0, 100, 0), "Intragastric Distribution", temps, funDevEsto,
-				100.0);
+		return createGraph("Fundus/Stomach (%)", new Color(0, 100, 0), "Intragastric Distribution", times,
+				this.getResultAsArray(REGION_FUNDUS, Data.CORRELATION), 100.0);
 	}
 
 	public ImagePlus createGraph_2() {
-		return createGraph("% meal in the interval", Color.RED, "Gastrointestinal flow", tempsInter, estoInter, 50.0);
+		return createGraph("% meal in the interval", Color.RED, "Gastrointestinal flow", timesDerivative,
+				this.getResultAsArray(REGION_STOMACH, Data.DERIVATIVE), 50.0);
 	}
 
 	// permet de creer un graphique avec trois courbes
 	public ImagePlus createGraph_3() {
 		// On cree un dataset qui contient les 3 series
-		XYSeriesCollection dataset = createDatasetTrois(temps, estomacPourcent, "Stomach", fundusPourcent, "Fundus",
-				antrePourcent, "Antrum");
+		XYSeriesCollection dataset = createDatasetTrois(times, this.getResultAsArray(REGION_STOMACH, Data.PERCENTAGE),
+				"Stomach", this.getResultAsArray(REGION_FUNDUS, Data.PERCENTAGE), "Fundus",
+				this.getResultAsArray(REGION_ANTRE, Data.PERCENTAGE), "Antrum");
 		// On cree le graphique
 		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "Retention (% meal)", dataset,
 				PlotOrientation.VERTICAL, true, true, false);
@@ -704,6 +927,7 @@ public class Model_Gastric extends ModeleScin {
 
 	@Override
 	public void calculerResultats() {
+		this.generatesTimes();
 		// Set fit
 		this.setExtrapolation(new LinearFit(this.generateDataset()));
 	}

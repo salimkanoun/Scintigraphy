@@ -131,7 +131,10 @@ public class EsophagealTransit extends Scintigraphy {
 			// param ( un image trié, projeté et ant)
 			// ImagePlus[] tabProj = Scintigraphy.orderImagesByAcquisitionTime(imagesAnt);
 			Arrays.parallelSort(imagesAnt, chronologicalOrder);
-			impProjeteAllAcqui = new ImagePlus("EsoStack", Library_Capture_CSV.captureToStack(imagesAnt));
+			ImagePlus[] impsAnt = new ImagePlus[imagesAnt.length];
+			for (int i = 0; i < imagesAnt.length; i++)
+				impsAnt[i] = imagesAnt[i].getImagePlus();
+			impProjeteAllAcqui = new ImagePlus("EsoStack", Library_Capture_CSV.captureToStack(impsAnt));
 			// SK VOIR METHODE POUR GARDER LES METADATA ORIGINALE DANS LE STACK GENEREs
 			impProjeteAllAcqui.setProperty("Info", sauvegardeImagesSelectDicom[0][0].getInfoProperty());
 		}

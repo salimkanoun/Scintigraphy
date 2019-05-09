@@ -1,13 +1,24 @@
 package org.petctviewer.scintigraphy.gastric_refactored.gui;
 
 import org.jfree.data.statistics.Regression;
-import org.jfree.data.xy.DefaultXYDataset;
-import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
+/**
+ * This class represents a fit for a certain dataset. The fit can be used to
+ * extrapolate values.
+ * 
+ * @author Titouan QUÉMA
+ *
+ */
 public abstract class Fit {
 
+	/**
+	 * Type of a fit.
+	 * 
+	 * @author Titouan QUÉMA
+	 *
+	 */
 	public enum FitType {
-		NONE("No Fit"), LINEAR("Linear"), EXPONENTIAL("Exponential"), POLYNOMIAL("Polynomial");
+		NONE("No Fit"), LINEAR("Linear"), EXPONENTIAL("Exponential");
 		private String s;
 
 		private FitType(String s) {
@@ -19,28 +30,47 @@ public abstract class Fit {
 			return s;
 		}
 	}
-	
+
 	private FitType type;
-	
+
 	public Fit(FitType type) {
 		this.type = type;
 	}
 
+	/**
+	 * Instantiates the fit corresponding to the specified type.
+	 * 
+	 * @param type    Type of fit to create
+	 * @param dataset Dataset for the fit
+	 * @return Instance of a fit
+	 */
 	public static Fit createFit(FitType type, double[][] dataset) {
 		switch (type) {
 		case LINEAR:
 			return new LinearFit(dataset);
 		case EXPONENTIAL:
 			return new ExponentialFit(dataset);
-		case POLYNOMIAL:
-			return new PolynomialFit(dataset);
 		default:
 			return new NoFit();
 		}
 	}
 
+	/**
+	 * Extrapolates the X value from the specified Y value according to this fit
+	 * instance.
+	 * 
+	 * @param valueY Y value to extrapolate the X value from
+	 * @return X value extrapolated
+	 */
 	public abstract double extrapolateX(double valueY);
 
+	/**
+	 * Extrapolates the Y value from the specified X value according to this fit
+	 * instance.
+	 * 
+	 * @param valueX X value to extrapolate the Y value from
+	 * @return Y value extrapolated
+	 */
 	public abstract double extrapolateY(double valueX);
 
 	public double[] generateOrdinates(double[] valuesX) {
@@ -49,16 +79,27 @@ public abstract class Fit {
 			ordinates[i] = this.extrapolateY(valuesX[i]);
 		return ordinates;
 	}
-	
+
+	/**
+	 * @return type of this fit
+	 */
 	public FitType getType() {
 		return this.type;
 	}
-	
+
 	@Override
 	public String toString() {
 		return this.type.s;
 	}
 
+	/**
+	 * Linear extrapolation.
+	 * 
+	 * @see Regression#getOLSRegression
+	 * 
+	 * @author Titouan QUÉMA
+	 *
+	 */
 	public static class LinearFit extends Fit {
 
 		private double[] coefs;
@@ -71,19 +112,24 @@ public abstract class Fit {
 		@Override
 		public double extrapolateX(double valueY) {
 			double res = valueY - coefs[0] / coefs[1];
-			System.out.println("Value X for " + valueY + " with Linear interpolation -> " + res);
 			return res;
 		}
 
 		@Override
 		public double extrapolateY(double valueX) {
 			double res = coefs[1] * valueX + coefs[0];
-			System.out.println("Value Y for " + valueX + " with Linear interpolation -> " + res);
 			return res;
 		}
 
 	}
 
+	/**
+	 * Exponential extrapolation.
+	 * 
+	 * @see Regression#getPowerRegression
+	 * @author Titouan QUÉMA
+	 *
+	 */
 	public static class ExponentialFit extends Fit {
 
 		private double[] coefs;
@@ -101,46 +147,23 @@ public abstract class Fit {
 		@Override
 		public double extrapolateX(double valueY) {
 			double res = valueY - coefs[0] / coefs[1];
-			System.out.println("Value X for " + valueY + " with Exponential interpolation -> " + res);
 			return res;
 		}
 
 		@Override
 		public double extrapolateY(double valueX) {
 			double res = Math.exp(coefs[0]) * Math.exp(coefs[1] * valueX);
-			System.out.println("Value Y for " + valueX + " with Exponential interpolation -> " + res);
 			return res;
 		}
 
 	}
 
-	public static class PolynomialFit extends Fit {
-
-		private double[] coefs;
-
-		public PolynomialFit(double[][] dataset) {
-			super(FitType.POLYNOMIAL);
-			DefaultXYDataset ds = new DefaultXYDataset();
-			ds.addSeries("Polynomial", Library_JFreeChart.invertArray(dataset));
-			this.coefs = Regression.getPolynomialRegression(ds, 0, 3);
-		}
-
-		@Override
-		public double extrapolateX(double valueY) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public double extrapolateY(double valueX) {
-			double res = coefs[0];
-			for (int i = 1; i < coefs.length - 1; i++)
-				res += Math.pow(valueX, i) * coefs[i];
-			System.out.println("Value Y for " + valueX + " with Polynomial interpolation -> " + res);
-			return res;
-		}
-
-	}
-
+	/**
+	 * No extrapolation.
+	 * 
+	 * @author Titouan QUÉMA
+	 *
+	 */
 	public static class NoFit extends Fit {
 
 		public NoFit() {

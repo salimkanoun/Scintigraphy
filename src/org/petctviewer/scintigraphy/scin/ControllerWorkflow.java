@@ -86,6 +86,22 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		}
 	}
 
+	private void DEBUG(String s) {
+		System.out.println("=== " + s + " ===");
+		System.out.println("Current position: " + this.position);
+		System.out.println("Current image: " + this.indexCurrentImage);
+		String currentInstruction = "-No instruction-";
+		if (this.indexCurrentImage >= 0 && this.indexCurrentImage < this.workflows.length) {
+			Instruction i = this.workflows[this.indexCurrentImage].getCurrentInstruction();
+			if (i != null)
+				currentInstruction = i.getMessage();
+			else
+				currentInstruction = "-No Message-";
+		}
+		System.out.println("Current instruction: " + currentInstruction);
+		System.out.println();
+	}
+
 	/**
 	 * This method displays the ROI to edit (if necessary).
 	 */
@@ -110,24 +126,64 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		return array;
 	}
 
-	private void DEBUG(String s) {
-		System.out.println("=== " + s + " ===");
-		System.out.println("Current position: " + this.position);
-		System.out.println("Current image: " + this.indexCurrentImage);
-		String currentInstruction = "-No instruction-";
-		if (this.indexCurrentImage >= 0 && this.indexCurrentImage < this.workflows.length) {
-			Instruction i = this.workflows[this.indexCurrentImage].getCurrentInstruction();
-			if (i != null)
-				currentInstruction = i.getMessage();
-			else
-				currentInstruction = "-No Message-";
-		}
-		System.out.println("Current instruction: " + currentInstruction);
-		System.out.println();
+	private String generateRoiName(int indexImage, String instructionRoiName) {
+		return instructionRoiName + "-" + this.currentState.getFacingOrientation().abrev();
 	}
 
-	private String generateRoiName(int indexImage, String instructionRoiName) {
-		return "#" + indexImage + "_" + instructionRoiName + this.currentState.getFacingOrientation().abrev();
+	/**
+	 * Prepares the ImagePlus with the specified state and updates the currentState.
+	 * 
+	 * @param imageState
+	 *            State the ImagePlus must complies
+	 */
+	private void prepareImage(ImageState imageState) {
+		if (imageState == null)
+			return;
+
+		boolean resetOverlay = false;
+
+		// == FACING ORIENTATION ==
+		if (imageState.getFacingOrientation() != null
+				&& imageState.getFacingOrientation() != this.currentState.getFacingOrientation()) {
+			this.currentState.setFacingOrientation(imageState.getFacingOrientation());
+			resetOverlay = true;
+		}
+
+		// == ID IMAGE ==
+		if (imageState.getIdImage() == ImageState.ID_NONE)
+			// Don't use the id
+			this.currentState.setIdImage(this.indexCurrentImage);
+		else if (imageState.getIdImage() >= 0)
+			// Use the specified id
+			this.currentState.setIdImage(imageState.getIdImage());
+		// else, don't touch the previous id
+
+		// Change image only if different than the previous
+		if (this.vue.getImagePlus() != this.model.getImageSelection()[this.currentState.getIdImage()].getImagePlus()) {
+			this.vue.setImage(this.model.getImageSelection()[this.currentState.getIdImage()].getImagePlus());
+			resetOverlay = true;
+		}
+
+		// == SLICE ==
+		if (imageState.getSlice() > ImageState.SLICE_PREVIOUS)
+			// Use the specified slice
+			this.currentState.setSlice(imageState.getSlice());
+		// else, don't touch the previous slice
+
+		// Change slice only if different than the previous
+		if (this.currentState.getSlice() != this.vue.getImagePlus().getCurrentSlice()) {
+			this.vue.getImagePlus().setSlice(this.currentState.getSlice());
+			resetOverlay = true;
+		}
+
+		if (resetOverlay) {
+			this.vue.getOverlay().clear();
+			this.setOverlay(this.currentState);
+		}
+	}
+	
+	public ImageState getCurrentImageState() {
+		return this.currentState;
 	}
 
 	@Override
@@ -145,6 +201,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 		if (currentInstruction.isExpectingUserInput()) {
 			this.displayInstruction(currentInstruction.getMessage());
+			this.vue.getOverlay().clear();
 			this.prepareImage(currentInstruction.getImageState());
 
 			if (currentInstruction.saveRoi())
@@ -241,58 +298,6 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		}
 
 		DEBUG("NEXT");
-	}
-
-	/**
-	 * Prepares the ImagePlus with the specified state and updates the currentState.
-	 * 
-	 * @param imageState
-	 *            State the ImagePlus must complies
-	 */
-	private void prepareImage(ImageState imageState) {
-		if (imageState == null)
-			return;
-
-		boolean resetOverlay = false;
-
-		// == FACING ORIENTATION ==
-		if (imageState.getFacingOrientation() != null
-				&& imageState.getFacingOrientation() != this.currentState.getFacingOrientation()) {
-			this.currentState.setFacingOrientation(imageState.getFacingOrientation());
-			resetOverlay = true;
-		}
-
-		// == ID IMAGE ==
-		if (imageState.getIdImage() == ImageState.ID_NONE)
-			// Don't use the id
-			this.currentState.setIdImage(this.indexCurrentImage);
-		else if (imageState.getIdImage() >= 0)
-			// Use the specified id
-			this.currentState.setIdImage(imageState.getIdImage());
-		// else, don't touch the previous id
-
-		// Change image only if different than the previous
-		if (this.vue.getImagePlus() != this.model.getImageSelection()[this.currentState.getIdImage()].getImagePlus()) {
-			this.vue.setImage(this.model.getImageSelection()[this.currentState.getIdImage()].getImagePlus());
-			resetOverlay = true;
-		}
-
-		// == SLICE ==
-		if (imageState.getSlice() > ImageState.SLICE_PREVIOUS)
-			// Use the specified slice
-			this.currentState.setSlice(imageState.getSlice());
-		// else, don't touch the previous slice
-
-		// Change slice only if different than the previous
-		if (this.currentState.getSlice() != this.vue.getImagePlus().getCurrentSlice()) {
-			this.vue.getImagePlus().setSlice(this.currentState.getSlice());
-			resetOverlay = true;
-		}
-
-		if (resetOverlay) {
-			this.vue.getOverlay().clear();
-			this.setOverlay(this.currentState);
-		}
 	}
 
 	@Override

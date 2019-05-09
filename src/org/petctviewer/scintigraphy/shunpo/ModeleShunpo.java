@@ -117,11 +117,13 @@ public class ModeleShunpo extends ModeleScin {
 		coupsReins();
 		// Les 5 MGs
 		computeGeometricalAverage();
-		retour[RESULT_LUNG_RIGHT] = convertOrgan(LUNG_RIGHT_ANT) + geometricalAverage.get(LUNG_RIGHT_ANT);
-		retour[RESULT_LUNG_LEFT] = convertOrgan(LUNG_LEFT_ANT) + geometricalAverage.get(LUNG_LEFT_ANT);
-		retour[RESULT_KIDNEY_RIGHT] = convertOrgan(KIDNEY_RIGHT_ANT) + geometricalAverage.get(KIDNEY_RIGHT_ANT);
-		retour[RESULT_KIDNEY_LEFT] = convertOrgan(KIDNEY_LEFT_ANT) + geometricalAverage.get(KIDNEY_LEFT_ANT);
-		retour[RESULT_BRAIN] = convertOrgan(BRAIN_ANT) + geometricalAverage.get(BRAIN_ANT);
+		retour[RESULT_LUNG_RIGHT] = convertOrgan(LUNG_RIGHT_ANT) + geometricalAverage.get(LUNG_RIGHT_ANT) + " counts";
+		retour[RESULT_LUNG_LEFT] = convertOrgan(LUNG_LEFT_ANT) + geometricalAverage.get(LUNG_LEFT_ANT) + " counts";
+		retour[RESULT_KIDNEY_RIGHT] = convertOrgan(KIDNEY_RIGHT_ANT) + geometricalAverage.get(KIDNEY_RIGHT_ANT)
+				+ " counts";
+		retour[RESULT_KIDNEY_LEFT] = convertOrgan(KIDNEY_LEFT_ANT) + geometricalAverage.get(KIDNEY_LEFT_ANT)
+				+ " counts";
+		retour[RESULT_BRAIN] = convertOrgan(BRAIN_ANT) + geometricalAverage.get(BRAIN_ANT) + " counts";
 		// Permet de definir le nombre de chiffre apr猫s la virgule et mettre la
 		// virgue en system US avec un .
 		DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance();
@@ -136,10 +138,10 @@ public class ModeleShunpo extends ModeleScin {
 				/ (1.0 * geometricalAverage.get(LUNG_RIGHT_ANT) + geometricalAverage.get(LUNG_LEFT_ANT))) * 100;
 		retour[RESULT_LUNG_LEFT] += " (" + us.format(percPG) + "%)";
 		int totmg = geometricalAverage.get(LUNG_RIGHT_ANT) + geometricalAverage.get(LUNG_LEFT_ANT);
-		retour[RESULT_TOTAL_AVG] = "Total MG : " + totmg;
+		retour[RESULT_TOTAL_AVG] = "Total MG : " + totmg + " counts";
 		int totshunt = geometricalAverage.get(KIDNEY_RIGHT_ANT) + geometricalAverage.get(KIDNEY_LEFT_ANT)
 				+ geometricalAverage.get(BRAIN_ANT);
-		retour[RESULT_TOTAL_SHUNT] = "Total Shunt : " + totshunt;
+		retour[RESULT_TOTAL_SHUNT] = "Total Shunt : " + totshunt + " counts";
 		double percSyst = (100.0 * totshunt) / totmg;
 		retour[RESULT_SYSTEMIC] = "% Systemic : " + us.format(percSyst) + "%";
 		double shunt = ((totshunt * 100.0) / (totmg * 0.38));

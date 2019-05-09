@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.scin;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 
@@ -94,12 +95,45 @@ public class ImageSelection implements Cloneable {
 	@Override
 	public ImageSelection clone() {
 		ImageSelection img = new ImageSelection(this.imp.duplicate(), null, null);
-		img.columnsValues = this.columnsValues;
+		// Deep copy of all values in the map
+		for(Entry<String, String> e : this.columnsValues.entrySet())
+			img.columnsValues.put(e.getKey(), e.getValue());
 		return img;
 	}
 	public ImageSelection clone(Orientation o) {
 		ImageSelection img = this.clone();
 		img.columnsValues.replace(Column.ORIENTATION.getName(), o.toString());
 		return img;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((columnsValues == null) ? 0 : columnsValues.hashCode());
+		result = prime * result + ((imp == null) ? 0 : imp.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ImageSelection other = (ImageSelection) obj;
+		if (columnsValues == null) {
+			if (other.columnsValues != null)
+				return false;
+		} else if (!columnsValues.equals(other.columnsValues))
+			return false;
+		if (imp == null) {
+			if (other.imp != null)
+				return false;
+		} else if (!imp.equals(other.imp))
+			return false;
+		return true;
 	}
 }

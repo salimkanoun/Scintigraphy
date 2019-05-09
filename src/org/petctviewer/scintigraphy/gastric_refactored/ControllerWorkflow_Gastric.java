@@ -6,6 +6,10 @@ import java.util.List;
 
 import javax.swing.JComboBox;
 
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabChart;
@@ -17,17 +21,19 @@ import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
-import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
+import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.CheckIntersectionInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
 
-public class ControllerWorkflow_Gastric extends ControllerWorkflow {
+public class ControllerWorkflow_Gastric extends ControllerWorkflow implements ChartMouseListener {
 
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 
@@ -50,45 +56,50 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 	// TODO: remove this method and compute the model during the process
 	private void computeModel() {
-		ImagePlus imp = this.model.getImagePlus();
-		this.getModel().initResultat();
+		ImageSelection ims = this.model.getImageSelection()[0];
+
+		// Place point 0
+		getModel().activateTime0();
+
+		ImageSelection previousImage = null;
 		for (int i = 0; i < this.getRoiManager().getRoisAsArray().length; i += 6) {
-			imp = this.model.getImageSelection()[i / 6].getImagePlus();
+			ims = this.model.getImageSelection()[i / 6];
 
-			System.out.println("Saving results for image#" + i / 6);
+			for (Orientation orientation : Orientation.antPostOrder()) {
+				int indexIncrementPost = 0;
+				int slice = SLICE_ANT;
+				if (orientation == Orientation.POST) {
+					indexIncrementPost = 3;
+					slice = SLICE_POST;
+				}
+				ImageState state = new ImageState(orientation, slice, ImageState.LAT_RL, i / 6);
+				// - Stomach
+				Model_Gastric.REGION_STOMACH.inflate(ims, state, this.getRoiManager().getRoisAsArray()[i + indexIncrementPost]);
+				getModel().calculateCounts(Model_Gastric.REGION_STOMACH);
 
-			// Ant
-			imp.setSlice(SLICE_ANT);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i]);
-			this.getModel().calculerCoups("Estomac_Ant", i / 6, imp);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 1]);
-			this.getModel().calculerCoups("Intes_Ant", i / 6, imp);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 2]);
-			this.getModel().calculerCoups("Antre_Ant", i / 6, imp);
-			this.getModel().setCoups("Fundus_Ant", i / 6,
-					this.getModel().getCoups("Estomac_Ant", i / 6) - this.getModel().getCoups("Antre_Ant", i / 6));
-			this.getModel().setCoups("Intestin_Ant", i / 6,
-					this.getModel().getCoups("Intes_Ant", i / 6) - this.getModel().getCoups("Antre_Ant", i / 6));
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 3]);
+				// - Intestine (value)
+				ims.getImagePlus().setRoi(this.getRoiManager().getRoisAsArray()[i + 1 + indexIncrementPost]);
+				ims.getImagePlus().setSlice(state.getSlice());
+				double intestineValue = Library_Quantif.getCounts(ims.getImagePlus());
 
-			// Post
-			imp.setSlice(SLICE_POST);
-			this.getModel().calculerCoups("Estomac_Post", i / 6, imp);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 4]);
-			this.getModel().calculerCoups("Intes_Post", i / 6, imp);
-			imp.setRoi(this.getRoiManager().getRoisAsArray()[i + 5]);
-			this.getModel().calculerCoups("Antre_Post", i / 6, imp);
-			this.getModel().setCoups("Fundus_Post", i / 6,
-					this.getModel().getCoups("Estomac_Post", i / 6) - this.getModel().getCoups("Antre_Post", i / 6));
-			this.getModel().setCoups("Intestin_Post", i / 6,
-					this.getModel().getCoups("Intes_Post", i / 6) - this.getModel().getCoups("Antre_Post", i / 6));
+				// - Antre
+				Model_Gastric.REGION_ANTRE.inflate(ims, state, this.getRoiManager().getRoisAsArray()[i + 2 + indexIncrementPost]);
+				getModel().calculateCounts(Model_Gastric.REGION_ANTRE);
 
-			try {
-				this.getModel().tempsImage(i / 6, imp);
-			} catch (Exception e) {
-				e.printStackTrace();
+				// - Fundus
+				Model_Gastric.REGION_FUNDUS.inflate(ims, state, null);
+				getModel().forceCountsDataValue(ims, Model_Gastric.REGION_FUNDUS,
+						getModel().getCounts(ims, Model_Gastric.REGION_STOMACH, orientation)
+								- getModel().getCounts(ims, Model_Gastric.REGION_ANTRE, orientation), null);
+
+				// - Intestine
+				Model_Gastric.REGION_INTESTINE.inflate(ims, state, null);
+				getModel().forceCountsDataValue(ims, Model_Gastric.REGION_INTESTINE,
+						intestineValue - getModel().getCounts(ims, Model_Gastric.REGION_ANTRE, orientation), null);
 			}
-			this.getModel().pourcVGImage(i / 6);
+			
+			getModel().computeData(ims, previousImage);
+			previousImage = ims;
 		}
 		this.model.calculerResultats();
 	}
@@ -129,7 +140,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null;
 
-		this.captures = new ArrayList<>();
+		this.captures = new ArrayList<>(1);
 
 		// First instruction to get the acquisition time for the starting point
 		PromptIngestionTime promptIngestionTime = new PromptIngestionTime(this);
@@ -157,26 +168,60 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			this.workflows[i].addInstruction(dri_4);
 			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_3, dri_4, "Antre"));
 			if (i == 0)
-				this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 640, 512));
+				this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 0, 640, 512));
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		super.actionPerformed(e);
+	public void actionPerformed(ActionEvent event) {
+		super.actionPerformed(event);
 
-		if (!(e.getSource() instanceof JComboBox))
+		if (!(event.getSource() instanceof JComboBox))
 			return;
 
-		JComboBox<FitType> source = (JComboBox<FitType>) e.getSource();
+		JComboBox<FitType> source = (JComboBox<FitType>) event.getSource();
 		FitType selectedFit = (FitType) source.getSelectedItem();
 
 		// By default, use linear fit
-		((Model_Gastric) this.model).setExtrapolation(Fit.createFit(selectedFit, this.getModel().generateDataset()));
-		((TabChart) this.tabChart).drawSeries(((Model_Gastric) model).getFittedSeries());
-		((TabChart) this.tabChart).changeLabelInterpolation(selectedFit.toString());
+		XYSeries series = ((XYSeriesCollection) this.tabChart.getValueSetter().retrieveValuesInSpan()).getSeries(0);
+		try {
+			this.getModel()
+					.setExtrapolation(Fit.createFit(selectedFit, Library_JFreeChart.invertArray(series.toArray())));
+			this.tabChart.drawFit(this.getModel().getFittedSeries());
+			this.tabChart.changeLabelInterpolation(selectedFit.toString());
+			this.tabMain.reloadSidePanelContent();
+			this.tabChart.setErrorMessage(null);
+		} catch (IllegalArgumentException e) {
+			// Error messages
+			System.err.println("Not enough data");
+			this.tabChart.setErrorMessage("Not enough data to fit the graph");
+			// Reset combo box
+			source.setSelectedItem(this.getModel().getCurrentExtrapolation());
+		}
+	}
+
+	@Override
+	public void chartMouseClicked(ChartMouseEvent event) {
+		// Does nothing
 		this.tabMain.reloadSidePanelContent();
+	}
+
+	@Override
+	public void chartMouseMoved(ChartMouseEvent event) {
+		// Reload fit
+		if (this.tabChart.getValueSetter().getGrabbedSelector() != null) {
+			XYSeries series = ((XYSeriesCollection) this.tabChart.getValueSetter().retrieveValuesInSpan()).getSeries(0);
+			try {
+				this.getModel().setExtrapolation(Fit.createFit(this.getModel().getCurrentExtrapolation(),
+						Library_JFreeChart.invertArray(series.toArray())));
+				this.tabChart.drawFit(this.getModel().getFittedSeries());
+				this.tabChart.setErrorMessage(null);
+			} catch (IllegalArgumentException e) {
+				System.err.println("Not enough data");
+				this.tabChart.setErrorMessage("Not enough data to fit the graph");
+			}
+		}
 	}
 
 }

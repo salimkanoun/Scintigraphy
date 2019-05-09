@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
 
-import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 
 import ij.IJ;
@@ -143,27 +142,6 @@ public class Library_Capture_CSV {
 				+ "0028,0002 Samples per Pixel: 3" + "\n" + "0028,0004 Photometric Interpretation: RGB" + "\n"
 				+ "0028,0006 Planar Configuration: 0" + "\n" + "0028,0008 Number of Frames: 1 \n";
 		return tag;
-	}
-
-	/**
-	 * Creates a stack from an array of images.<br>
-	 * <b><i>Important</b></i>: all images in the array <b>must</b> have the same
-	 * dimension.
-	 * 
-	 * @param captures Array containing the images to place in the stack.
-	 * @return stack of images
-	 */
-	public static ImageStack captureToStack(ImageSelection[] captures) {
-		// On cree de stack de taille adhoc
-		int[] dimensions = captures[0].getImagePlus().getDimensions();
-		ImageStack stackCapture = new ImageStack(dimensions[0], dimensions[1]);
-		// On rajoute les images dans le stack
-		for (int i = 0; i < captures.length; i++) {
-
-			stackCapture.addSlice(captures[i].getImagePlus().getProcessor());
-		}
-		// On retourne le stack de Capture
-		return stackCapture;
 	}
 
 	/**

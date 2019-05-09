@@ -1,5 +1,7 @@
 package org.petctviewer.scintigraphy.gastric_refactored.tabs;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.JComboBox;
@@ -8,12 +10,16 @@ import javax.swing.JPanel;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.gastric_refactored.ControllerWorkflow_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
+import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.NoFit;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -22,11 +28,10 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 public class TabChart extends TabResult {
 
 	private XYSeriesCollection data;
-	private JFreeChart chart;
 	private JValueSetter valueSetter;
 
 	private JComboBox<FitType> fitsChoices;
-	private JLabel labelInterpolation;
+	private JLabel labelInterpolation, labelError;
 	private JPanel panResult;
 
 	public TabChart(FenResults parent) {
@@ -37,6 +42,9 @@ public class TabChart extends TabResult {
 
 		this.labelInterpolation = new JLabel();
 		this.labelInterpolation.setVisible(false);
+
+		this.labelError = new JLabel();
+		this.labelError.setForeground(Color.RED);
 
 		this.createChart();
 
@@ -52,33 +60,53 @@ public class TabChart extends TabResult {
 	private void createChart() {
 		// Create chart
 		this.data = new XYSeriesCollection();
-		this.data.addSeries(((Model_Gastric) this.parent.getModel()).getStomachSeries());
+		XYSeries stomachSeries = ((Model_Gastric) this.parent.getModel()).getStomachSeries();
+		this.data.addSeries(stomachSeries);
 
 		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (min)", "Stomach retention (%)",
 				data, PlotOrientation.VERTICAL, true, true, true);
-		this.chart = chart;
+
+		// Set bounds
+		XYPlot plot = chart.getXYPlot();
+		// X axis
+		NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();
+		xAxis.setRange(-10., stomachSeries.getMaxX() + 10.);
+		// Y axis
+		NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
+		yAxis.setRange(-10., stomachSeries.getMaxY() + 10.);
 
 		// Create value setter
+		double startX = stomachSeries.getMinX() + .1 * (stomachSeries.getMaxX() - stomachSeries.getMinX());
+		double endX = stomachSeries.getMinX() + .7 * (stomachSeries.getMaxX() - stomachSeries.getMinX());
 		valueSetter = new JValueSetter(chart);
-		valueSetter.addSelector(new Selector(" ", 1, -1, RectangleAnchor.TOP_LEFT), "start");
-		valueSetter.addSelector(new Selector(" ", 1, -1, RectangleAnchor.TOP_LEFT), "end");
+		valueSetter.addSelector(new Selector(" ", startX, -1, RectangleAnchor.TOP_LEFT), "start");
+		valueSetter.addSelector(new Selector(" ", endX, -1, RectangleAnchor.TOP_LEFT), "end");
 		valueSetter.addArea("start", "end", "area", null);
+		valueSetter.addChartMouseListener((ControllerWorkflow_Gastric) this.parent.getController());
+
+		// By default, create linear extrapolation
+		((Model_Gastric) this.parent.getModel()).setExtrapolation(new NoFit());
+		this.drawFit(((Model_Gastric) this.parent.getModel()).getFittedSeries());
 	}
 
 	/**
-	 * Removes all previous fits (annotations included).
+	 * Removes all previous fits.
 	 */
 	private void clearFits() {
 		for (int i = 1; i < this.data.getSeriesCount(); i++)
 			this.data.removeSeries(i);
 	}
 
+	public JValueSetter getValueSetter() {
+		return this.valueSetter;
+	}
+
 	/**
-	 * Displays the fit and removes the previous fit.
+	 * Displays the specified fit and removes the previous fit if existing.
 	 * 
-	 * @param fit Type of regression to fit the values of the chart
+	 * @param series Fit to draw
 	 */
-	public void drawSeries(XYSeries series) {
+	public void drawFit(XYSeries series) {
 		this.clearFits();
 
 		this.data.addSeries(series);
@@ -94,26 +122,33 @@ public class TabChart extends TabResult {
 		this.labelInterpolation.setText("-- " + labelName + " --");
 	}
 
+	/**
+	 * Changes the error message. This message is displayed in red. If null is
+	 * passed, then the previous message is erased.
+	 * 
+	 * @param msg message to show or null to erase the last message
+	 */
+	public void setErrorMessage(String msg) {
+		this.labelError.setText(msg);
+	}
+
 	@Override
 	public Component getSidePanelContent() {
-		JPanel panel = new JPanel();
+		JPanel panel = new JPanel(new BorderLayout());
+		JPanel panCenter = new JPanel();
 
 		// Instantiate combo box
-		// Remove polynomial fit if not enough data
-		FitType[] possibleFits;
-		if (((Model_Gastric) this.parent.getModel()).nbAcquisitions() <= 4)
-			possibleFits = new FitType[] { FitType.NONE, FitType.LINEAR, FitType.EXPONENTIAL };
-		else
-			possibleFits = FitType.values();
+		FitType[] possibleFits = FitType.values();
 
 		for (FitType type : possibleFits)
 			this.fitsChoices.addItem(type);
 
-//			fitsChoices.setRenderer(new FitCellRenderer());
 		fitsChoices.addActionListener(this.parent.getController());
-		panel.add(fitsChoices);
-
-		panel.add(this.labelInterpolation);
+		panCenter.add(fitsChoices);
+		panCenter.add(this.labelInterpolation);
+		
+		panel.add(panCenter, BorderLayout.CENTER);
+		panel.add(this.labelError, BorderLayout.SOUTH);
 
 		return panel;
 	}

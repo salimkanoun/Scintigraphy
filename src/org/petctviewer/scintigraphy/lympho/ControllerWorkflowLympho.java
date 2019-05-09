@@ -9,9 +9,9 @@ import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
-import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
+import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 
@@ -48,7 +48,7 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 			
 			dri_1 = new DrawRoiInstruction("Right Foot", stateAnt);
 			dri_2 = new DrawRoiInstruction("Left Foot", stateAnt);
-			dri_capture = new ScreenShotInstruction(captures, this.getVue());
+			dri_capture = new ScreenShotInstruction(captures, this.getVue(), i);
 			dri_3 = new DrawRoiInstruction("Right Foot", statePost, dri_1);
 			dri_4 = new DrawRoiInstruction("Left Foot", statePost, dri_2);
 

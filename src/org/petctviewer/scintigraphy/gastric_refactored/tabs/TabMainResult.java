@@ -14,7 +14,6 @@ import javax.swing.table.DefaultTableModel;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric.Result;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric.ResultValue;
-import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.NoFit;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
@@ -30,8 +29,6 @@ public class TabMainResult extends TabResult {
 
 	private ImagePlus capture;
 
-	private Fit currentExtrapolation;
-
 	public TabMainResult(FenResults parent, ImagePlus capture) {
 		super(parent, "Result", true);
 		this.capture = capture;
@@ -46,7 +43,8 @@ public class TabMainResult extends TabResult {
 		tableModel.addRow(new String[] { "Time (min)", "Stomach (%)", "Fundus (%)", "Antrum (%)" });
 		for (int i = 0; i < ((Model_Gastric) this.parent.getModel()).nbAcquisitions(); i++) {
 			for (int j = 0; j < tableModel.getColumnCount(); j++) {
-				arr[j] = model.getImageResult(j, i) + "";
+				ResultValue res = model.getImageResult(Result.imageResults()[j], i);
+				arr[j] = res.value();
 			}
 			tableModel.addRow(arr);
 		}
@@ -68,7 +66,7 @@ public class TabMainResult extends TabResult {
 		Library_Debug.checkNull("result", result);
 		Library_Debug.checkNull("result.type", result.type);
 		infoRes.add(new JLabel(result.type.getName() + ":"));
-		JLabel lRes = new JLabel(result + " " + result.type.getUnit());
+		JLabel lRes = new JLabel(result.value() + " " + result.type.getUnit());
 		if (result.extrapolation == FitType.NONE)
 			lRes.setForeground(Color.RED);
 		infoRes.add(lRes);
@@ -90,7 +88,7 @@ public class TabMainResult extends TabResult {
 
 		infoRes.add(new JLabel(result.type.getName() + " at " + (int) (time / 60) + "h:"));
 		// The value cannot be negative, so we restrain it with Math.max
-		JLabel lRes = new JLabel(result.notNegative() +" " + result.type.getUnit());
+		JLabel lRes = new JLabel(result.value() + " " + result.type.getUnit());
 		if (result.extrapolation == FitType.NONE)
 			lRes.setForeground(Color.RED);
 		infoRes.add(lRes);
@@ -98,7 +96,6 @@ public class TabMainResult extends TabResult {
 
 	private JPanel infoResultats() {
 		Model_Gastric model = (Model_Gastric) this.parent.getModel();
-		this.currentExtrapolation = model.getExtrapolation();
 
 		JPanel panel = new JPanel(new BorderLayout());
 
@@ -109,13 +106,11 @@ public class TabMainResult extends TabResult {
 
 		ResultValue result = model.getResult(Result.START_ANTRUM);
 		hasExtrapolatedValue = result.extrapolation != null;
-		infoRes.add(new JLabel("Start Antrum:"));
-		infoRes.add(new JLabel(result + " min"));
+		this.displayResult(infoRes, result);
 
 		result = model.getResult(Result.START_INTESTINE);
 		hasExtrapolatedValue = result.extrapolation != null;
-		infoRes.add(new JLabel("Start Intestine:"));
-		infoRes.add(new JLabel(result + " min"));
+		this.displayResult(infoRes, result);
 
 		result = model.getResult(Result.LAG_PHASE);
 		hasExtrapolatedValue = result.extrapolation != null;
@@ -148,7 +143,6 @@ public class TabMainResult extends TabResult {
 
 	@Override
 	public Component getSidePanelContent() {
-		String[] results = ((Model_Gastric) this.parent.getModel()).resultats();
 		JPanel panel = new JPanel(new GridLayout(0, 1));
 		panel.add(this.tablesResultats());
 		panel.add(this.infoResultats());

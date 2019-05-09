@@ -1,6 +1,8 @@
-package org.petctviewer.scintigraphy.scin.instructions;
+package org.petctviewer.scintigraphy.scin.instructions.drawing;
 
-import org.petctviewer.scintigraphy.generic.statics.ControllerWorkflow_ScinStatic;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.instructions.Instruction;
+import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
 

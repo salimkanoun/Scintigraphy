@@ -7,9 +7,9 @@ import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
-import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
+import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.CheckIntersectionInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
@@ -19,7 +19,6 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 	public ControllerWorkflow_DynGastric(Scintigraphy main, FenApplication vue, ModeleScin model,
 			ImageSelection[] selectedImages) {
 		super(main, vue, model);
-		((Model_Gastric) this.model).swapToDynamic();
 		this.model.setImages(selectedImages);
 
 		this.generateInstructions();
