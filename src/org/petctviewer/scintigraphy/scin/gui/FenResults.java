@@ -36,7 +36,7 @@ public class FenResults extends JFrame {
 
 		this.setVisible(true);
 	}
-	
+
 	public ModeleScin getModel() {
 		return this.controller.getModel();
 	}
@@ -115,6 +115,14 @@ public class FenResults extends JFrame {
 	public void clearTabs() {
 		this.tabsResult.clear();
 		this.tabPane.removeAll();
+	}
+
+	/**
+	 * Reloads side content and result content of all tabs.
+	 */
+	public void reloadAllTabs() {
+		for (TabResult tab : this.tabsResult)
+			tab.reloadDisplay();
 	}
 
 }

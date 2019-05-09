@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.scin.instructions;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 
 /**
@@ -11,21 +12,33 @@ import org.petctviewer.scintigraphy.scin.Orientation;
  */
 public class ImageState {
 	/**
-	 * No id defined.
+	 * Specifies that no id is defined.<br>
+	 * The interpretation can vary, please refer to the method or the class that use
+	 * this ImageState.
 	 */
 	public static final int ID_NONE = -1;
 	/**
-	 * Id should be the same as the previous image.
+	 * Specifies that the ID used should be the same as the previous image.<br>
+	 * If the previous ID was {@link #ID_CUSTOM_IMAGE} then the custom image should
+	 * be displayed.
 	 */
 	public static final int ID_PREVIOUS = -2;
 	/**
-	 * No slice specified.
+	 * Specifies that the ID should not be used because an image is specified.
+	 */
+	public static final int ID_CUSTOM_IMAGE = -3;
+	/**
+	 * Specifies that the slice should be the same as the previous image.
 	 */
 	public static final int SLICE_PREVIOUS = 0;
 	/**
-	 * Lateralisation RL: Right-Left, LR: Left-Right
+	 * Specifies a Right-Left lateralisation.
 	 */
-	public static final boolean LAT_RL = true, LAT_LR = false;
+	public static final boolean LAT_RL = true;
+	/**
+	 * Specifies a Left-Right lateralisation.
+	 */
+	public static final boolean LAT_LR = false;
 
 	/**
 	 * Id of the image: if there is multiple images, then this ID is used to
@@ -61,6 +74,10 @@ public class ImageState {
 	 * </ul>
 	 */
 	private boolean lateralisation;
+	/**
+	 * Image specified
+	 */
+	private ImageSelection image;
 
 	/**
 	 * Instantiates a state for an image.
@@ -82,24 +99,62 @@ public class ImageState {
 		this.setIdImage(idImage);
 	}
 
+	/**
+	 * If the image to be used is not in the model, then this method should return
+	 * {@link #ID_CUSTOM_IMAGE} and the {@link #getImage()} method should be used to
+	 * know which image to use.
+	 * 
+	 * @return ID of the image to be used (the image is taken from the model)
+	 */
 	public int getIdImage() {
 		return idImage;
 	}
 
+	/**
+	 * @return index of the slice to be used
+	 */
 	public int getSlice() {
 		return slice;
 	}
 
+	/**
+	 * @return facing orientation (Ant or Post)
+	 * @see Orientation#getFacingOrientation()
+	 */
 	public Orientation getFacingOrientation() {
 		return facingOrientation;
 	}
 
+	/**
+	 * @return TRUE if the lateralisation is Right-Left and FALSE if the
+	 *         lateralisation is Left-Right
+	 */
 	public boolean isLateralisationRL() {
 		return lateralisation;
 	}
 
+	/**
+	 * @return TRUE if the lateralisation is Left-Right and FALSE if the
+	 *         lateralisation is Right-Left
+	 */
 	public boolean isLateralisationLR() {
 		return !this.lateralisation;
+	}
+
+	/**
+	 * @return image specified or null if none
+	 */
+	public ImageSelection getImage() {
+		return this.image;
+	}
+
+	/**
+	 * Specifies an image to be used.
+	 * 
+	 * @param image Image to use
+	 */
+	public void specifieImage(ImageSelection image) {
+		this.image = image;
 	}
 
 	/**
@@ -142,6 +197,8 @@ public class ImageState {
 		int result = 1;
 		result = prime * result + ((facingOrientation == null) ? 0 : facingOrientation.hashCode());
 		result = prime * result + idImage;
+		result = prime * result + ((image == null) ? 0 : image.hashCode());
+		result = prime * result + (lateralisation ? 1231 : 1237);
 		result = prime * result + slice;
 		return result;
 	}
@@ -158,6 +215,13 @@ public class ImageState {
 		if (facingOrientation != other.facingOrientation)
 			return false;
 		if (idImage != other.idImage)
+			return false;
+		if (image == null) {
+			if (other.image != null)
+				return false;
+		} else if (!image.equals(other.image))
+			return false;
+		if (lateralisation != other.lateralisation)
 			return false;
 		if (slice != other.slice)
 			return false;

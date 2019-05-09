@@ -4,9 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.border.MatteBorder;
 import javax.swing.table.DefaultTableModel;
@@ -20,7 +23,6 @@ import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.library.Library_Debug;
 
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -28,6 +30,7 @@ import ij.ImageStack;
 public class TabMainResult extends TabResult {
 
 	private ImagePlus capture;
+	private Date timeIngestion;
 
 	public TabMainResult(FenResults parent, ImagePlus capture) {
 		super(parent, "Result", true);
@@ -62,9 +65,6 @@ public class TabMainResult extends TabResult {
 	 * @return
 	 */
 	private void displayResult(JPanel infoRes, ResultValue result) {
-		Library_Debug.checkNull("infoRes", infoRes);
-		Library_Debug.checkNull("result", result);
-		Library_Debug.checkNull("result.type", result.type);
 		infoRes.add(new JLabel(result.type.getName() + ":"));
 		JLabel lRes = new JLabel(result.value() + " " + result.type.getUnit());
 		if (result.extrapolation == FitType.NONE)
@@ -141,10 +141,26 @@ public class TabMainResult extends TabResult {
 		return panel;
 	}
 
+	public void displayTimeIngestion(Date timeIngestion) {
+		this.timeIngestion = timeIngestion;
+		this.reloadSidePanelContent();
+	}
+
+	private JPanel additionalResults() {
+		JPanel panel = new JPanel();
+
+		if (this.timeIngestion != null) {
+			panel.add(new JLabel("Ingestion Time: " + new SimpleDateFormat("HH:mm:ss").format(timeIngestion)));
+		}
+
+		return panel;
+	}
+
 	@Override
 	public Component getSidePanelContent() {
 		JPanel panel = new JPanel(new GridLayout(0, 1));
-		panel.add(this.tablesResultats());
+		panel.add(this.additionalResults());
+		panel.add(new JScrollPane(tablesResultats()));
 		panel.add(this.infoResultats());
 		return panel;
 	}

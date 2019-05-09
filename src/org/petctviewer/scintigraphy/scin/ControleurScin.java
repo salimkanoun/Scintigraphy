@@ -173,11 +173,9 @@ public abstract class ControleurScin implements ActionListener {
 		if (existingRoi != null) {
 			// Overwrite it
 			this.model.getRoiManager().setRoi(roiToSave, indexRoiToSave);
-			System.out.println("Overriding ROI " + indexRoiToSave + " by " + roiToSave.getName());
 		} else {
 			// Add it
 			this.model.getRoiManager().addRoi(roiToSave);
-			System.out.println("Creating new ROI#" + indexRoiToSave);
 		}
 		this.vue.getImagePlus().killRoi();
 
@@ -206,14 +204,9 @@ public abstract class ControleurScin implements ActionListener {
 	public void displayRois(int[] indexes) {
 		// Get ROIs to display
 		for (int i : indexes) {
-			System.out.println("Trying to display ROI#" + i);
 			Roi roiToDisplay = this.model.getRoiManager().getRoi(i);
 			if (roiToDisplay != null) {
 				this.vue.getImagePlus().getOverlay().add(roiToDisplay);
-				System.out.println(
-						"Displaying : " + roiToDisplay.getName() + " (0->" + this.getRoiManager().getCount() + ")");
-			} else {
-				System.out.println("FAILED: ROIs are only from 0 to " + this.getRoiManager().getCount());
 			}
 		}
 	}

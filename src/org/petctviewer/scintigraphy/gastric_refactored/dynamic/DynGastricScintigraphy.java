@@ -9,6 +9,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.ReversedChronologicalAcquisitionComparator;
@@ -16,10 +17,12 @@ import org.petctviewer.scintigraphy.scin.library.ReversedChronologicalAcquisitio
 public class DynGastricScintigraphy extends Scintigraphy {
 
 	private Model_Gastric model;
+	private FenResults fenResults;
 
-	public DynGastricScintigraphy(Model_Gastric model) {
+	public DynGastricScintigraphy(Model_Gastric model, FenResults fenResults) {
 		super("Dynamic Gastric Scintigraphy");
 		this.model = model;
+		this.fenResults = fenResults;
 
 		FenSelectionDicom fsd = new FenSelectionDicom(this.getStudyName(), this);
 		fsd.setVisible(true);
@@ -57,6 +60,11 @@ public class DynGastricScintigraphy extends Scintigraphy {
 
 		// Order image by time (reversed)
 		Arrays.parallelSort(selection, new ReversedChronologicalAcquisitionComparator());
+		
+		// Create projection for each image
+		for(int i = 0; i<selection.length; i++) {
+			selection[i] = Library_Dicom.project(selection[i], 1, 10, "sum");
+		}
 
 		return selection;
 	}
@@ -66,7 +74,7 @@ public class DynGastricScintigraphy extends Scintigraphy {
 		this.setFenApplication(
 				new FenApplication_DynGastric(selectedImages[0].getImagePlus(), "Dynamic Gastric Scintigraphy"));
 		this.getFenApplication().setControleur(
-				new ControllerWorkflow_DynGastric(this, this.getFenApplication(), this.model, selectedImages));
+				new ControllerWorkflow_DynGastric(this, this.getFenApplication(), this.model, selectedImages, fenResults));
 		this.getFenApplication().setVisible(true);
 	}
 

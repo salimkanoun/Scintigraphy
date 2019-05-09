@@ -45,6 +45,8 @@ import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.LinearFit;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
@@ -222,26 +224,29 @@ public class Model_Gastric extends ModeleScin {
 		}
 	}
 
-	// == REFACTORING ==
 	public static final Region REGION_STOMACH = new Region("Stomach"), REGION_ANTRE = new Region("Antre"),
 			REGION_FUNDUS = new Region("Fundus"), REGION_INTESTINE = new Region("Intestine"),
 			REGION_ALL = new Region("Total");
 
 	private class Data implements Comparable<Data> {
-		private ImageSelection ims;
+		private ImageState state;
 		private Map<Integer, Double>[] organs;
-		public Double time;
+		private double time;
 
 		public static final int STOMACH = 0, ANTRE = 1, FUNDUS = 2, INTESTINE = 3, ALL = 4, TOTAL_ORGANS = 5;
 		public static final int ANT_COUNTS = 0, POST_COUNTS = 1, GEO_AVEREAGE = 2, PERCENTAGE = 3, DERIVATIVE = 4,
 				CORRELATION = 5;
 
-		public Data(ImageSelection ims) {
-			this.ims = ims;
+		public Data(ImageState state, double time) {
+			this.state = state;
 			this.organs = new Map[TOTAL_ORGANS];
 			for (int i = 0; i < TOTAL_ORGANS; i++)
 				this.organs[i] = new HashMap<>();
-			this.time = null;
+			this.time = time;
+		}
+
+		public double getTime() {
+			return this.time;
 		}
 
 		public void setValue(Region region, int key, double value) {
@@ -267,15 +272,19 @@ public class Model_Gastric extends ModeleScin {
 			throw new IllegalArgumentException("This region is not requested in this model");
 		}
 
+		public ImageSelection getImage() {
+			return imageFromState(state);
+		}
+
 		@Override
 		public int compareTo(Data o) {
-			return Library_Dicom.getDateAcquisition(this.ims.getImagePlus())
-					.compareTo(Library_Dicom.getDateAcquisition(o.ims.getImagePlus()));
+			return Library_Dicom.getDateAcquisition(getImage().getImagePlus())
+					.compareTo(Library_Dicom.getDateAcquisition(getImage().getImagePlus()));
 		}
 
 		@Override
 		public String toString() {
-			return this.ims.getImagePlus().getTitle();
+			return imageFromState(state).getImagePlus().getTitle();
 		}
 	}
 
@@ -295,11 +304,25 @@ public class Model_Gastric extends ModeleScin {
 		this.results = new HashMap<>();
 	}
 
-	private void computeGeometricalAverages(ImageSelection ims) {
-		Data data = this.results.get(ims.hashCode());
+	private ImageSelection imageFromState(ImageState state) {
+		if (state.getIdImage() == ImageState.ID_CUSTOM_IMAGE)
+			return state.getImage();
+
+		if (state.getIdImage() >= 0)
+			return this.selectedImages[state.getIdImage()];
+
+		throw new IllegalArgumentException("ID " + state.getIdImage() + " is not applicable here");
+	}
+
+	private int hashState(ImageState state) {
+		return imageFromState(state).hashCode();
+	}
+
+	private void computeGeometricalAverages(ImageState state) {
+		Data data = this.results.get(hashState(state));
 		if (data == null)
 			throw new NoSuchElementException(
-					"No data has been set for this image (" + ims.getImagePlus().getTitle() + ")");
+					"No data has been set for this image (" + imageFromState(state).getImagePlus().getTitle() + ")");
 
 		// Antre
 		Double valueAnt = data.getValue(REGION_ANTRE, Data.ANT_COUNTS);
@@ -464,7 +487,6 @@ public class Model_Gastric extends ModeleScin {
 	 * @see #extrapolateY(double, Fit)
 	 */
 	private Double getY(double valueX) {
-		System.out.println("Times: " + Arrays.toString(times));
 		double[] stomachPercentage = this.getResultAsArray(REGION_STOMACH, Data.PERCENTAGE);
 		for (int i = 0; i < times.length; i++) {
 			if (times[i] >= valueX) {
@@ -497,7 +519,8 @@ public class Model_Gastric extends ModeleScin {
 	private List<Data> generatesDataOrdered() {
 		List<Data> orderedData = new ArrayList<>(this.results.values());
 		Collections.sort(orderedData);
-		orderedData.add(0, time0);
+		if (time0 != null)
+			orderedData.add(0, time0);
 		return orderedData;
 	}
 
@@ -505,19 +528,50 @@ public class Model_Gastric extends ModeleScin {
 		return new Region[] { REGION_STOMACH, REGION_ANTRE, REGION_FUNDUS, REGION_INTESTINE };
 	}
 
+	public double evaluateTime(ImageState state) {
+		ImageSelection ims = imageFromState(state);
+		ImagePlus imp = ims.getImagePlus();
+		double time = this.calculateDeltaTime(Library_Dicom.getDateAcquisition(imp));
+		try {
+			if (ims.getImageOrientation().isDynamic()) {
+				// TODO: for optimization -> do not recalculate every time the frame durations
+				int[] frameDurations = Library_Dicom.buildFrameDurations(imp);
+				int totalDuration = 0;
+				for (int i = 0; i < state.getSlice(); i++) {
+					totalDuration += frameDurations[i];
+				}
+				time += totalDuration / 1000. / 60.;
+				System.out.println("Frames: " + Arrays.toString(frameDurations));
+				System.out.println("Dynamic +" + totalDuration / 1000. / 60. + "min (" + totalDuration + ")");
+			}
+		} catch (WrongOrientationException e) {
+			System.err.println("Error: the orientation of the image (" + imp.getTitle()
+					+ ") is Unknown. Assuming the orientation is Static.");
+		}
+		return time;
+	}
+
 	public void calculateCounts(Region region) {
 		// Check region is part of requested regions for this model
 		if (!Arrays.stream(this.getAllRegions()).anyMatch(r -> r == region))
 			throw new IllegalArgumentException("This region is not requested in this model");
 
-		ImageSelection ims = region.getImage();
+		ImageState state = region.getState();
+		ImageSelection ims = imageFromState(state);
 		ImagePlus imp = ims.getImagePlus();
 
+		System.out.println("Adding new counts for region " + region);
+
 		// Create data if not existing
-		Data data = this.results.get(ims.hashCode());
+		Data data = this.results.get(hashState(state));
 		if (data == null) {
-			data = new Data(ims);
-			this.results.put(ims.hashCode(), data);
+			System.out.println("No previous Data, creating new Data...");
+			data = new Data(state, this.evaluateTime(state));
+			this.results.put(hashState(state), data);
+			System.out.println("Generated Data with hash = " + hashState(state));
+		} else {
+			System.out.println("Found previous Data(hash = " + hashState(state) + "), the Image associated is: "
+					+ data.getImage().getImagePlus().getTitle());
 		}
 
 		// Find orientation (ant or post)
@@ -531,7 +585,10 @@ public class Model_Gastric extends ModeleScin {
 		imp.setSlice(region.getState().getSlice());
 		imp.setRoi(region.getRoi());
 		data.setValue(region, key, Library_Quantif.getCounts(imp));
-		data.time = this.calculateDeltaTime(Library_Dicom.getDateAcquisition(imp));
+
+		System.out.println("Data inserted, now having " + this.nbAcquisitions() + " acquisitions (with "
+				+ this.results.size() + " actual results)");
+		System.out.println("====");
 	}
 
 	public double calculateDeltaTime(Date time) {
@@ -544,14 +601,7 @@ public class Model_Gastric extends ModeleScin {
 
 		int i = 0;
 		for (Data data : this.generatesDataOrdered()) {
-			if (data == time0)
-				times[i] = 0.;
-			else {
-				Date time = Library_Dicom.getDateAcquisition(data.ims.getImagePlus());
-				times[i] = this.calculateDeltaTime(time);
-				if (data.time == null)
-					this.calculateDeltaTime(time);
-			}
+			times[i] = data.getTime();
 			if (i > 0)
 				this.timesDerivative[i - 1] = times[i];
 			i++;
@@ -648,17 +698,17 @@ public class Model_Gastric extends ModeleScin {
 		return this.extrapolation;
 	}
 
-	public double getCounts(ImageSelection ims, Region region, Orientation orientation) {
-		Data data = this.results.get(ims.hashCode());
+	public double getCounts(Region region, Orientation orientation) {
+		Data data = this.results.get(hashState(region.getState()));
 		if (data == null)
-			throw new NoSuchElementException(
-					"No data has been set for this image (" + ims.getImagePlus().getTitle() + ")");
+			throw new NoSuchElementException("No data has been set for this image ("
+					+ imageFromState(region.getState()).getImagePlus().getTitle() + ")");
 
 		return data.getValue(region, orientation == Orientation.ANT ? Data.ANT_COUNTS : Data.POST_COUNTS);
 	}
 
 	public void activateTime0() {
-		this.time0 = new Data(null);
+		this.time0 = new Data(null, 0.);
 		this.time0.time = 0.;
 		this.time0.setValue(REGION_STOMACH, Data.PERCENTAGE, 100.);
 		this.time0.setValue(REGION_FUNDUS, Data.PERCENTAGE, 100.);
@@ -668,72 +718,119 @@ public class Model_Gastric extends ModeleScin {
 		this.time0.setValue(REGION_FUNDUS, Data.CORRELATION, 100.);
 	}
 
-	private void forceDataValue(ImageSelection ims, Region region, int key, double value, Date time) {
-		Data data = this.results.get(ims.hashCode());
+	private void forceDataValue(Region region, int key, double value, Date time) {
+		ImageState state = region.getState();
+		Data data = this.results.get(hashState(state));
 		if (data == null) {
-			data = new Data(ims);
-			this.results.put(ims.hashCode(), data);
+			data = new Data(state, this.evaluateTime(state));
+			this.results.put(hashState(state), data);
 		}
 
 		data.setValue(region, key, value);
-		if (time != null)
-			data.time = this.calculateDeltaTime(time);
 	}
 
-	public void forcePercentageDataValue(ImageSelection ims, Region region, double value, Date time) {
-		this.forceDataValue(ims, region, Data.PERCENTAGE, value, time);
+	public void forcePercentageDataValue(Region region, double value, Date time) {
+		this.forceDataValue(region, Data.PERCENTAGE, value, time);
 	}
 
-	public void forceCorrelationDataValue(ImageSelection ims, Region region, double value, Date time) {
-		this.forceDataValue(ims, region, Data.CORRELATION, value, time);
+	public void forceCorrelationDataValue(Region region, double value, Date time) {
+		this.forceDataValue(region, Data.CORRELATION, value, time);
 	}
 
-	public void forceCountsDataValue(ImageSelection ims, Region region, double value, Date time) {
-		this.forceDataValue(ims, region,
+	public void forceCountsDataValue(Region region, double value, Date time) {
+		this.forceDataValue(region,
 				region.getState().getFacingOrientation() == Orientation.ANT ? Data.ANT_COUNTS : Data.POST_COUNTS, value,
 				time);
 	}
 
-	public void computeData(ImageSelection ims, ImageSelection previousImage) {
-		this.computeGeometricalAverages(ims);
-
-		Data data = this.results.get(ims.hashCode());
+	public void computeDynamicData(ImageState state, ImageState previousState) {
+		Data data = this.results.get(hashState(state));
 		if (data == null)
 			throw new NoSuchElementException(
-					"No data has been set for this image (" + ims.getImagePlus().getTitle() + ")");
+					"No data has been set for this image (" + imageFromState(state).getImagePlus().getTitle() + ")");
 
-		double fundusPercentage = data.getValue(REGION_FUNDUS, Data.GEO_AVEREAGE)
-				/ data.getValue(REGION_ALL, Data.GEO_AVEREAGE) * 100.;
-		data.setValue(REGION_FUNDUS, Data.PERCENTAGE, fundusPercentage);
+		// Compute first
+		// - Stomach
+		Double valueFundus = data.getValue(REGION_FUNDUS, Data.ANT_COUNTS);
+		Double valueAntre = data.getValue(REGION_ANTRE, Data.ANT_COUNTS);
+		Double antStomach = valueFundus + valueAntre;
+		data.setValue(REGION_STOMACH, Data.ANT_COUNTS, antStomach);
+		// - Total
+		data.setValue(REGION_ALL, Data.ANT_COUNTS, antStomach + data.getValue(REGION_INTESTINE, Data.ANT_COUNTS));
 
-		double antrePercentage = data.getValue(REGION_ANTRE, Data.GEO_AVEREAGE)
-				/ data.getValue(REGION_ALL, Data.GEO_AVEREAGE) * 100.;
-		data.setValue(REGION_ANTRE, Data.PERCENTAGE, antrePercentage);
+		// Compute second
+		data.setValue(REGION_FUNDUS, Data.PERCENTAGE, calculateAntPercentage(data, REGION_FUNDUS));
 
-		double stomachPercentage = data.getValue(REGION_STOMACH, Data.GEO_AVEREAGE)
-				/ data.getValue(REGION_ALL, Data.GEO_AVEREAGE) * 100.;
-		data.setValue(REGION_STOMACH, Data.PERCENTAGE, stomachPercentage);
+		data.setValue(REGION_ANTRE, Data.PERCENTAGE, calculateAntPercentage(data, REGION_ANTRE));
 
-		double intestinePercentage = data.getValue(REGION_INTESTINE, Data.GEO_AVEREAGE)
-				/ data.getValue(REGION_ALL, Data.GEO_AVEREAGE) * 100.;
-		data.setValue(REGION_INTESTINE, Data.PERCENTAGE, intestinePercentage);
+		data.setValue(REGION_STOMACH, Data.PERCENTAGE, calculateAntPercentage(data, REGION_STOMACH));
+
+		data.setValue(REGION_INTESTINE, Data.PERCENTAGE, calculateAntPercentage(data, REGION_INTESTINE));
+
+		double fundusCorrelation = data.getValue(REGION_FUNDUS, Data.PERCENTAGE)
+				/ data.getValue(REGION_STOMACH, Data.PERCENTAGE) * 100.;
+		data.setValue(REGION_FUNDUS, Data.CORRELATION, fundusCorrelation);
+
+		if (previousState != null) {
+			Data previousData = this.results.get(hashState(previousState));
+			if (previousData != null) {
+				double stomachDerivative = (previousData.getValue(REGION_STOMACH, Data.PERCENTAGE)
+						- data.getValue(REGION_STOMACH, Data.PERCENTAGE))
+						/ (this.calculateDeltaTime(
+								Library_Dicom.getDateAcquisition(imageFromState(state).getImagePlus()))
+								- this.calculateDeltaTime(
+										Library_Dicom.getDateAcquisition(imageFromState(previousState).getImagePlus())))
+						* 30.;
+				previousData.setValue(REGION_STOMACH, Data.DERIVATIVE, stomachDerivative);
+			} else {
+				System.err.println("Careful: no data found for the previous image specified ("
+						+ imageFromState(previousState).getImagePlus().getTitle() + ")");
+			}
+		}
+	}
+
+	private double calculateGeoPercentage(Data data, Region region) {
+		return data.getValue(region, Data.GEO_AVEREAGE) / data.getValue(REGION_ALL, Data.GEO_AVEREAGE) * 100.;
+	}
+
+	private double calculateAntPercentage(Data data, Region region) {
+		return data.getValue(region, Data.ANT_COUNTS) / data.getValue(REGION_ALL, Data.ANT_COUNTS) * 100.;
+	}
+
+	public void computeData(ImageState state, ImageState previousState) {
+		this.computeGeometricalAverages(state);
+
+		Data data = this.results.get(hashState(state));
+		if (data == null)
+			throw new NoSuchElementException(
+					"No data has been set for this image (" + imageFromState(state).getImagePlus().getTitle() + ")");
+
+		data.setValue(REGION_FUNDUS, Data.PERCENTAGE, calculateGeoPercentage(data, REGION_FUNDUS));
+
+		data.setValue(REGION_ANTRE, Data.PERCENTAGE, calculateGeoPercentage(data, REGION_ANTRE));
+
+		data.setValue(REGION_STOMACH, Data.PERCENTAGE, calculateGeoPercentage(data, REGION_STOMACH));
+
+		data.setValue(REGION_INTESTINE, Data.PERCENTAGE, calculateGeoPercentage(data, REGION_INTESTINE));
 
 		double fundusDerivative = data.getValue(REGION_FUNDUS, Data.PERCENTAGE)
 				/ data.getValue(REGION_STOMACH, Data.PERCENTAGE) * 100.;
 		data.setValue(REGION_FUNDUS, Data.CORRELATION, fundusDerivative);
 
-		if (previousImage != null) {
-			Data previousData = this.results.get(previousImage.hashCode());
+		if (previousState != null) {
+			Data previousData = this.results.get(hashState(previousState));
 			if (previousData != null) {
 				double stomachDerivative = (previousData.getValue(REGION_STOMACH, Data.PERCENTAGE)
 						- data.getValue(REGION_STOMACH, Data.PERCENTAGE))
-						/ (this.calculateDeltaTime(Library_Dicom.getDateAcquisition(ims.getImagePlus())) - this
-								.calculateDeltaTime(Library_Dicom.getDateAcquisition(previousImage.getImagePlus())))
+						/ (this.calculateDeltaTime(
+								Library_Dicom.getDateAcquisition(imageFromState(state).getImagePlus()))
+								- this.calculateDeltaTime(
+										Library_Dicom.getDateAcquisition(imageFromState(previousState).getImagePlus())))
 						* 30.;
 				previousData.setValue(REGION_STOMACH, Data.DERIVATIVE, stomachDerivative);
 			} else {
 				System.err.println("Careful: no data found for the previous image specified ("
-						+ previousImage.getImagePlus().getTitle() + ")");
+						+ imageFromState(previousState).getImagePlus().getTitle() + ")");
 			}
 		}
 	}
@@ -750,28 +847,21 @@ public class Model_Gastric extends ModeleScin {
 	public ResultValue getImageResult(Result result, int indexImage) throws IllegalArgumentException {
 		Data data = this.generatesDataOrdered().get(indexImage);
 		if (data == null)
-			throw new NoSuchElementException(
-					"No data has been set for this image#" + indexImage);
+			throw new NoSuchElementException("No data has been set for this image#" + indexImage);
 
 		switch (result) {
 		case RES_TIME:
-			return new ResultValue(result, BigDecimal.valueOf(data.time)
-					.setScale(2, RoundingMode.HALF_UP).doubleValue(), null);
+			return new ResultValue(result,
+					BigDecimal.valueOf(data.time).setScale(2, RoundingMode.HALF_UP).doubleValue(), null);
 		case RES_STOMACH:
-			return new ResultValue(result,
-					BigDecimal.valueOf(data.getValue(REGION_STOMACH, Data.PERCENTAGE))
-							.setScale(2, RoundingMode.HALF_UP).doubleValue(),
-					null);
+			return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_STOMACH, Data.PERCENTAGE))
+					.setScale(2, RoundingMode.HALF_UP).doubleValue(), null);
 		case RES_FUNDUS:
-			return new ResultValue(result,
-					BigDecimal.valueOf(data.getValue(REGION_FUNDUS, Data.PERCENTAGE))
-							.setScale(2, RoundingMode.HALF_UP).doubleValue(),
-					null);
+			return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_FUNDUS, Data.PERCENTAGE))
+					.setScale(2, RoundingMode.HALF_UP).doubleValue(), null);
 		case RES_ANTRUM:
-			return new ResultValue(result,
-					BigDecimal.valueOf(data.getValue(REGION_ANTRE, Data.PERCENTAGE))
-							.setScale(2, RoundingMode.HALF_UP).doubleValue(),
-					null);
+			return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_ANTRE, Data.PERCENTAGE))
+					.setScale(2, RoundingMode.HALF_UP).doubleValue(), null);
 		default:
 			throw new IllegalArgumentException("The result " + result + " is not available here!");
 		}
