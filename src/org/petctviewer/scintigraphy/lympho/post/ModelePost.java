@@ -165,7 +165,10 @@ public class ModelePost extends ModeleScin {
 
 	@Override
 	public String toString() {
-
+		return this.resutlTab.getParent().getModel().toString();
+	}
+	
+	public String toCSV() {
 		String s = "";
 
 		s += ",Right,Left\n";

@@ -26,11 +26,15 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 
 	public ControllerWorkflowLympho(Scintigraphy main, FenApplication vue, ModeleScin model) {
 		super(main, vue, model);
-
+		
+		this.generateInstructions();
+		this.start();
 	}
 
 	@Override
 	protected void generateInstructions() {
+		
+		this.workflows = new Workflow[this.model.getImageSelection().length];
 		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null;
 		ScreenShotInstruction dri_capture = null;
 		this.captures = new ArrayList<>();

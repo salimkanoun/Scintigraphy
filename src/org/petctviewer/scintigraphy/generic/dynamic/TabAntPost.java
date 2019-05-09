@@ -21,8 +21,6 @@ public class TabAntPost extends TabResult {
 		super(parent, antOrPost);
 		this.createCaptureButton("_" + antOrPost);
 		this.capture = capture;
-
-		this.reloadDisplay();
 	}
 
 	@Override

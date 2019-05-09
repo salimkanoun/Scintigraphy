@@ -29,7 +29,7 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 		}
 
 		ImageSelection impSorted = null;
-		ImageSelection[] impsSortedAntPost = new ImageSelection[selectedImages.length];
+		ImageSelection[] impsSortedAntPost = new ImageSelection[2];
 
 		ImageSelection impSelect = selectedImages[0];
 		if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_ANT) {
@@ -44,17 +44,16 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 
 		impsSortedAntPost[0] = impSorted;
 		selectedImages[0].getImagePlus().close();
+		
+		ImagePlus imp = impSorted.getImagePlus();
 
-		this.frameDurations = Library_Dicom.buildFrameDurations(impSorted.getImagePlus());
+		this.frameDurations = Library_Dicom.buildFrameDurations(imp);
 
-		ImagePlus imp = impsSortedAntPost[0].getImagePlus();
-
-		for (int i = 1; i <= imp.getStackSize(); i++) {
-			imp.setSlice(i);
-			imp.getImageStack().getProcessor(i).multiply(1000d / this.frameDurations[i - 1]);
-		}
+		Library_Dicom.normalizeToCountPerSecond(imp, frameDurations);
 
 		imp.getProcessor().setMinAndMax(0, imp.getStatistics().max * 1f / 1f);
+		
+		impsSortedAntPost[1] = impSelect;
 
 		return impsSortedAntPost;
 	}
@@ -63,10 +62,10 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
-
+		System.out.println("STUDY NAME DEPUIS SCINTI"+this.getStudyName());
 		this.setFenApplication(new FenApplicationHepaticDynamic(selectedImages[0].getImagePlus(), this.getStudyName()));
 		selectedImages[0].getImagePlus().setOverlay(overlay);
-		this.getFenApplication().setControleur(new ControllerHepaticDynamic(this, this.getFenApplication(),
+		((FenApplicationHepaticDynamic)this.getFenApplication()).setControleur(new ControllerHepaticDynamic(this, this.getFenApplication(),
 				new ModelHepaticDynamic(selectedImages, this.getStudyName(), this.frameDurations)));
 	}
 

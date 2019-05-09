@@ -129,9 +129,37 @@ public class Library_Quantif {
 		return area;
 	}
 
+	/**
+	 * Calculate the counts/pixels mean of the Background , and subtract to the Roi count this mean applied to the Roi pixels
+	 * 
+	 * @param imp
+	 *             ImagePlus to apply the Roi and Background
+	 * @param roi
+	 *             Roi to correct
+	 * @param background
+	 *             Roi used to correct
+	 * @return
+	 *              The Roi count corrected
+	 */
 	public static Double getCountCorrectedBackground(ImagePlus imp, Roi roi, Roi background) {
 		imp.setRoi(background);
 		Double meanCountBackground = Library_Quantif.getAvgCounts(imp);
+		imp.setRoi(roi);
+		return Library_Quantif.getCounts(imp) - (meanCountBackground * imp.getStatistics().pixelCount);
+	}
+	
+	/**
+	 * Subtract to the Roi count the background counts/pixels mean applied to the Roi pixels
+	 * @param imp
+	 *             ImagePlus to apply the Roi and Background
+	 * @param roi
+	 *             Roi to correct
+	 * @param meanCountBackground
+	 *              The mean count to use
+	 * @return
+	 *             The Roi count corrected
+	 */
+	public static Double getCountCorrectedBackground(ImagePlus imp, Roi roi, double meanCountBackground) {
 		imp.setRoi(roi);
 		return Library_Quantif.getCounts(imp) - (meanCountBackground * imp.getStatistics().pixelCount);
 	}

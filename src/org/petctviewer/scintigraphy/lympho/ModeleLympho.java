@@ -154,45 +154,53 @@ public class ModeleLympho extends ModeleScin {
 		us.setDecimalFormatSymbols(sym);
 
 		// Calculs
-
-		retour[0] = "Geometric Average Drainage RIGHT : ";
+		retour[0] = "Geometric Average : ";
+		retour[1] = "<html>Drainage RIGHT : ";
 		double drainedPercentageRight = 100 - ((geometricalAverage.get(FOOT_RIGHT_ANT_SECOND)
 				/ (1.0 * geometricalAverage.get(FOOT_RIGHT_ANT_FIRST))) * 100);
-		retour[0] += " -" + us.format(drainedPercentageRight) + "%";
+		if (drainedPercentageRight < 30) 
+			retour[1] += "<span style=\"color:red\"> " + us.format(drainedPercentageRight) + "%</span></html>";
+		else
+			retour[1] += " " + us.format(drainedPercentageRight) + "%";
 
-		retour[1] = "Geometric Average Drainage LEFT : ";
+		retour[2] = "<html> Drainage LEFT : ";
 		double drainedPercentageLeft = 100
 				- ((geometricalAverage.get(FOOT_LEFT_ANT_SECOND) / (1.0 * geometricalAverage.get(FOOT_LEFT_ANT_FIRST)))
 						* 100);
-		retour[1] += " -" + us.format(drainedPercentageLeft) + "%";
-
-		retour[2] = "Delta Drainage : ";
+		if (drainedPercentageLeft < 30)
+			retour[2] += "<span style=\"color:red\"> " + us.format(drainedPercentageLeft) + "%</span></html>";
+		else
+			retour[2] += " " + us.format(drainedPercentageLeft) + "%";
+		
+		retour[3] = "Delta Drainage : ";
 		double drainedDelta = (drainedPercentageRight - drainedPercentageLeft);
-		retour[2] += " " + us.format(drainedDelta) + "";
+		retour[3] += " " + us.format(drainedDelta) + "";
+		
+		retour[4] = "";
 
-		retour[3] = "L < R of : ";
-		double relativeDeltaToRight = (drainedDelta / drainedPercentageRight) * 100;
-		retour[3] += " " + us.format(relativeDeltaToRight) + "%";
-		if (relativeDeltaToRight < 0.25 * ((int) (drainedPercentageRight + drainedPercentageLeft) / 2)) {
-			retour[4] = "<html><span style=\"color:green\">Non significant dissymetry because delta &lsaquo; 0.25 MG  ";
+//		retour[3] = "L < R of : ";
+//		double relativeDeltaToRight = (drainedDelta / drainedPercentageRight) * 100;
+//		retour[3] += " " + us.format(relativeDeltaToRight) + "%";
+		if (drainedDelta < 0.25 * ((int) (drainedPercentageRight + drainedPercentageLeft) / 2)) {
+			retour[5] = "<html><span style=\"color:green\">Non significant dissymetry because delta &lsaquo; 0.25 MG  ";
 			double quartOfMG = 0.25 * ((int) (drainedPercentageRight + drainedPercentageLeft) / 2);
-			retour[4] += " (" + us.format(quartOfMG) + " ) </span></html>";
+			retour[5] += " (" + us.format(quartOfMG) + " ) </span></html>";
 		} else {
-			retour[4] = "<html><span style=\"color:red\">Significant dissymetry because delta &lraquo; 0.25 MG  ";
+			retour[5] = "<html><span style=\"color:red\">Significant dissymetry because delta &raquo; 0.25 MG  ";
 			double quartOfMG = 0.25 * ((int) (drainedPercentageRight + drainedPercentageLeft) / 2);
-			retour[4] += " (" + us.format(quartOfMG) + " ) </span></html>";
+			retour[5] += " (" + us.format(quartOfMG) + " ) </span></html>";
 		}
 
-		retour[5] = "<html><span style=\"color:deeppink\">Injection ratio of MG Left/Right:   ";
+		retour[6] = "<html><span style=\"color:deeppink\">Injection ratio of MG Left/Right:   ";
 		double injectionRatio = this.coups.get(1) / this.coups.get(0);
-		retour[5] += " " + us.format(injectionRatio) + "  </span></html>";
+		retour[6] += " " + us.format(injectionRatio) + "  </span></html>";
 		this.injectionRatio = injectionRatio;
 
 		this.results.add(Double.valueOf(us.format(injectionRatio)));
 		this.results.add(Double.valueOf(us.format(drainedPercentageRight)));
 		this.results.add(Double.valueOf(us.format(drainedPercentageLeft)));
 		this.results.add(Double.valueOf(us.format(drainedDelta)));
-		this.results.add(Double.valueOf(us.format(relativeDeltaToRight)));
+//		this.results.add(Double.valueOf(us.format(relativeDeltaToRight)));
 
 	}
 
@@ -214,37 +222,14 @@ public class ModeleLympho extends ModeleScin {
 		s += ",Right,Left\n";
 		s += "Geometric Average," + this.results.get(1) + "," + results.get(2) + "\n\n";
 		s += "Delta Drainage," + this.results.get(3) + "\n";
-		s += "L < R of :," + this.results.get(4) + "\n\n\n";
+//		s += "L < R of :," + this.results.get(4) + "\n\n\n";
 
 		if (((TabPost) this.resutlTab) != null)
 			if (((TabPost) this.resutlTab).getVueBasic() != null)
 				s += ((ModelePost) ((ControllerWorkflowPelvis) ((TabPost) this.resutlTab).getVueBasic().getFenApplication()
-						.getControleur()).getModel()).toString();
+						.getControleur()).getModel()).toCSV();
 
-		HashMap<String, String> mapTags = new HashMap<>();
-		mapTags.put("0008,0020", DicomTools.getTag(this.getImagePlus(), "0008,0020"));
-		mapTags.put("0008,0021", DicomTools.getTag(this.getImagePlus(), "0008,0021"));
-		mapTags.put("0008,0030", DicomTools.getTag(this.getImagePlus(), "0008,0030"));
-		mapTags.put("0008,0031", DicomTools.getTag(this.getImagePlus(), "0008,0031"));
-		mapTags.put("0008,0050", DicomTools.getTag(this.getImagePlus(), "0008,0050"));
-		mapTags.put("0008,0060", DicomTools.getTag(this.getImagePlus(), "0008,0060"));
-		mapTags.put("0008,0070", DicomTools.getTag(this.getImagePlus(), "0008,0070"));
-		mapTags.put("0008,0080", DicomTools.getTag(this.getImagePlus(), "0008,0080"));
-		mapTags.put("0008,0090", DicomTools.getTag(this.getImagePlus(), "0008,0090"));
-		mapTags.put("0008,1030", DicomTools.getTag(this.getImagePlus(), "0008,1030"));
-		mapTags.put("0010,0010", DicomTools.getTag(this.getImagePlus(), "0010,0010"));
-		mapTags.put("0010,0020", DicomTools.getTag(this.getImagePlus(), "0010,0020"));
-		mapTags.put("0010,0030", DicomTools.getTag(this.getImagePlus(), "0010,0030"));
-		mapTags.put("0010,0040", DicomTools.getTag(this.getImagePlus(), "0010,0040"));
-		mapTags.put("0020,000D", DicomTools.getTag(this.getImagePlus(), "0020,000D"));
-		mapTags.put("0020,000E", DicomTools.getTag(this.getImagePlus(), "0020,000E"));
-		mapTags.put("0020,0010", DicomTools.getTag(this.getImagePlus(), "0020,0010"));
-		mapTags.put("0020,0032", DicomTools.getTag(this.getImagePlus(), "0020,0032"));
-		mapTags.put("0020,0037", DicomTools.getTag(this.getImagePlus(), "0020,0037"));
-
-		String tags = JSONObject.toJSONString(mapTags);
-
-		s += "\n" + "tags," + tags;
+		s += super.toString();
 
 		return s;
 	}

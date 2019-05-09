@@ -179,30 +179,7 @@ public class ModeleShunpo extends ModeleScin {
 
 		s += "\nPulmonary Shunt Percentage (total blood flow) ," + this.results.get(10) + "\n\n";
 
-		HashMap<String, String> mapTags = new HashMap<>();
-		mapTags.put("0008,0020", DicomTools.getTag(this.getImagePlus(), "0008,0020"));
-		mapTags.put("0008,0021", DicomTools.getTag(this.getImagePlus(), "0008,0021"));
-		mapTags.put("0008,0030", DicomTools.getTag(this.getImagePlus(), "0008,0030"));
-		mapTags.put("0008,0031", DicomTools.getTag(this.getImagePlus(), "0008,0031"));
-		mapTags.put("0008,0050", DicomTools.getTag(this.getImagePlus(), "0008,0050"));
-		mapTags.put("0008,0060", DicomTools.getTag(this.getImagePlus(), "0008,0060"));
-		mapTags.put("0008,0070", DicomTools.getTag(this.getImagePlus(), "0008,0070"));
-		mapTags.put("0008,0080", DicomTools.getTag(this.getImagePlus(), "0008,0080"));
-		mapTags.put("0008,0090", DicomTools.getTag(this.getImagePlus(), "0008,0090"));
-		mapTags.put("0008,1030", DicomTools.getTag(this.getImagePlus(), "0008,1030"));
-		mapTags.put("0010,0010", DicomTools.getTag(this.getImagePlus(), "0010,0010"));
-		mapTags.put("0010,0020", DicomTools.getTag(this.getImagePlus(), "0010,0020"));
-		mapTags.put("0010,0030", DicomTools.getTag(this.getImagePlus(), "0010,0030"));
-		mapTags.put("0010,0040", DicomTools.getTag(this.getImagePlus(), "0010,0040"));
-		mapTags.put("0020,000D", DicomTools.getTag(this.getImagePlus(), "0020,000D"));
-		mapTags.put("0020,000E", DicomTools.getTag(this.getImagePlus(), "0020,000E"));
-		mapTags.put("0020,0010", DicomTools.getTag(this.getImagePlus(), "0020,0010"));
-		mapTags.put("0020,0032", DicomTools.getTag(this.getImagePlus(), "0020,0032"));
-		mapTags.put("0020,0037", DicomTools.getTag(this.getImagePlus(), "0020,0037"));
-
-		String tags = JSONObject.toJSONString(mapTags);
-
-		s += "\n" + "tags," + tags;
+		s += super.toString();
 
 		return s;
 

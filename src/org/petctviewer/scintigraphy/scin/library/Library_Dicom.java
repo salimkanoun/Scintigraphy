@@ -703,5 +703,20 @@ public class Library_Dicom {
 					new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT });
 		return result;
 	}
+	
+	/**
+	 * Normalize to have on each frame, the count/second number.
+	 * 
+	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image.
+	 * Otherwise, the count are only ineter, and we lose many informations.
+	 * @param imp
+	 */
+	public static void normalizeToCountPerSecond(ImagePlus imp, int[] frameDurations) {
+		IJ.run(imp, "32-bit", "");
+		for (int i = 1; i <= imp.getStackSize(); i++) {
+			imp.setSlice(i);
+			imp.getImageStack().getProcessor(i).multiply(1000d / (double)frameDurations[i - 1]);
+		}
+	}
 
 }

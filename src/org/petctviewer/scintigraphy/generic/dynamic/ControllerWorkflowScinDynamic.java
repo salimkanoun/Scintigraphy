@@ -141,7 +141,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 					.getRoi(indexRoi) != null /* && indexRoiToSave > this.model.getRoiManager().getCount() */) {
 				JOptionPane d = new JOptionPane();
 				retour = d.showConfirmDialog(getVue(), "A Roi already have this name. Do you want to continue ?",
-						"Duplicate Roi Name", JOptionPane.YES_NO_CANCEL_OPTION);
+						"Duplicate Roi Name", JOptionPane.YES_NO_OPTION);
 			}
 			if (retour != JOptionPane.OK_OPTION)
 				return;
