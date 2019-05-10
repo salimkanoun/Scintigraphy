@@ -1,9 +1,12 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.math3.util.MathArrays;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
@@ -20,6 +23,9 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 	private Double maxFoieD, maxFoieG, finPicD, finPicG, pctVasc;
 
 	private TabResult resutlTab;
+	
+	// This organ names and order shall be the same  that the controller organs
+	private String[] organNames = {"Right Liver","Left Liver","Hilium","CBD","Duodenom","Blood pool"};
 
 	int indexRoi;
 
@@ -108,9 +114,7 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 			for (this.indexRoi = 0; this.indexRoi < this.nbOrganes; this.indexRoi++) {
 				imp.setRoi(getOrganRoi(this.indexRoi));
 				// On récupère seulement le nom de l'organe (usually 0_organNameA => 0 for the number of image, A for Ant or Post)
-				String name = this.getNomOrgane(this.indexRoi).substring(
-						this.getNomOrgane(this.indexRoi).lastIndexOf("_") + 1,
-						this.getNomOrgane(this.indexRoi).length() - 1);
+				String name = this.organNames[this.indexRoi];
 				// on cree la liste si elle n'existe pas
 				if (mapData.get(name) == null) {
 					mapData.put(name, new ArrayList<Double>());
@@ -182,24 +186,47 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 
 	/**
 	 * Create the deconvolution of the liver by the blood pool.
-	 * @deprecated Does not works
+	 * @deprecated => Does not works
 	 * @param blood
 	 * @param liver
 	 * @return
 	 */
-	public List<Double> deconvolv(Double[] blood, Double[] liver) {
+	public List<Double> deconvolv(Double[] blood, Double[] liver, int init) {
+		
+//		double[] convolved = processNConvolv(ArrayUtils.toPrimitive(blood), new double[] {1.0d,2.0d,1.0d} , 6);
+		double[] test1 = {5.0d,7.0d,10.0d};
+		double[] test2 = {1.0d,2.0d,1.0d};
+		
+		double[] convolved = processNConvolv(test1, test2 , 6);
+		
+		double[] convolved2 = processNConvolv(new double[] {0.47d,1.73d,0.96d,0.96d}, test2 , 8);
+		
+		double[] convolvedBlood = processNConvolv(ArrayUtils.toPrimitive(blood), test2 , 6);
+		
+		double[] convolvedLiver = processNConvolv(ArrayUtils.toPrimitive(liver), test2 , 6);
+		
+		this.getData().put("convolvBloodTest",Arrays.asList(ArrayUtils.toObject(convolvedBlood)));
+		
+//		this.createSerie(Arrays.asList(ArrayUtils.toObject(convolvedLiver)), "deconvLiverTest");
+		
+		this.getData().put("convolvLiverTest",Arrays.asList(ArrayUtils.toObject(convolvedLiver)));
+		
 		List<Double> h = new ArrayList<Double>();
-		System.out.println("\tDECONVOLV : ");
 		for (int i = 0; i < blood.length; i++) {
 
+			if(i<init) {
+				h.add(0.0d);
+				continue;
+			}
+			
 			double somme = 0;
 
 			for (int j = 0; j < i; j++) {
 				somme += (i - j + 1) * (h.get(j));
 			}
 
-			// SK REMPLACER 1 PAR LA VALEUR DE TEMPS DE LA FRAME !
-			double result2 = (1.0D / (blood[10])) * (liver[i] - somme);
+			// SK REMPLACER 1 PAR LA VALEUR DE TEMPS DE LA FRAME !, ou mettre les valeurs en coups/sec
+			double result2 = (1.0D / (convolvedBlood[init])) * (convolvedLiver[i] - somme);
 
 			// double result3=(right[i]-somme)/(blood[0]);
 
@@ -260,6 +287,58 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 		s += "T1/2 Blood pool Fit," + this.tDemiVascFit + "mn" + "\n";
 
 		return s;
+	}
+	
+	public double[] processNConvolv(double[] values, double[] kernel, int nbConvolv) {
+		
+		List<double[]> list = new ArrayList<>(); 
+		
+		list.add(MathArrays.convolve(values, kernel));
+//		System.out.println("\n\n\n\n\n\n\n");
+//		System.out.println("Tableau "+0+" : ");
+//		System.out.print("[ ");
+//		for(double d : list.get(0))
+//			System.out.print(d+", ");
+//		System.out.print(" ]");
+//		System.out.println("\n\n");
+		
+		for(int i = 0 ; i < nbConvolv - 1; i++) {
+			list.add(MathArrays.convolve(list.get(i), kernel));
+			
+//			System.out.println("Tableau "+(i+1)+" : ");
+//			System.out.print("[ ");
+//			for(double d : list.get(i+1))
+//				System.out.print(d+", ");
+//			System.out.print(" ]");
+//			System.out.println("\n\n");
+		}
+		
+		double[] result = new double[values.length];
+		
+//		System.out.println("Longueur du tableau de la dernière convolution : "+list.get(list.size() - 1).length);
+//		System.out.println("Bords du tableau : 0 à "+(list.get(list.size() - 1).length - nbConvolv*(kernel.length - 1 ) - 1));
+//		System.out.println("Bords du tableau : "+((nbConvolv*(kernel.length - 1)/2))+" à "+(list.get(list.size() - 1).length - (nbConvolv*(kernel.length - 1)/2) - 1));
+		
+		for(int i = 0 ; i <  list.get(list.size() - 1).length - nbConvolv*(kernel.length - 1 ) ; i++) {
+			
+			result[i] = list.get(list.size() - 1)[i + (nbConvolv*(kernel.length - 1)/2)];
+//			System.out.println("result["+i+"] = "+list.get(list.size() - 1)[i + (nbConvolv*(kernel.length - 1)/2)]+" (list.get("+(list.size() - 1)+")["+i+"+"+(nbConvolv*(kernel.length - 1)/2)+"]");
+			
+		}
+//		System.out.println("Result array : ");
+//		System.out.print("[ ");
+//		for(double d : result)
+//			System.out.print(d+", ");
+//		System.out.print(" ]\n");
+//		
+//		System.out.println("Original array : ");
+//		System.out.print("[ ");
+//		for(double d : values)
+//			System.out.print(d+", ");
+//		System.out.print(" ]\n\n");
+//		System.out.println("\n\n\n\n\n\n\n");
+		return result;
+		
 	}
 
 }

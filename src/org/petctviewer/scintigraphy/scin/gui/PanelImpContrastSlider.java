@@ -44,6 +44,7 @@ public abstract class PanelImpContrastSlider extends TabResult implements Change
 	}
 
 	public void finishBuildingWindow() {
+		System.out.println(imp.getStatistics().max);
 		slider = new JSlider(SwingConstants.HORIZONTAL, 0, (int) imp.getStatistics().max, 4);
 		slider.addChangeListener(this);
 		
@@ -121,5 +122,9 @@ public abstract class PanelImpContrastSlider extends TabResult implements Change
 		if(this.imp == null)
 			return null;
 		return this.dynamicImp;
+	}
+	
+	public void setOnlyImp(ImagePlus imp){
+		this.imp = imp;
 	}
 }

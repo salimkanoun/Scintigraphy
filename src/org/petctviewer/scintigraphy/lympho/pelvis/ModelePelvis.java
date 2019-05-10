@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.lympho.post;
+package org.petctviewer.scintigraphy.lympho.pelvis;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -15,7 +15,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
 
-public class ModelePost extends ModeleScin {
+public class ModelePelvis extends ModeleScin {
 
 	public static final int RIGHT_PELVIS_ANT = 0, LEFT_PELVIS_ANT = 1, BACKGROUND_ANT = 2, RIGHT_PELVIS_POST = 3,
 			LEFT_PELVIS_POST = 4, BACKGROUND_POST = 5, TOTAL_ORGANS = 6;
@@ -34,7 +34,7 @@ public class ModelePost extends ModeleScin {
 
 	private List<Double> results;
 
-	public ModelePost(ImageSelection[] selectedImages, String studyName, TabResult resultTab) {
+	public ModelePelvis(ImageSelection[] selectedImages, String studyName, TabResult resultTab) {
 		super(selectedImages, studyName);
 
 		this.coups = new HashMap<>();
@@ -72,7 +72,7 @@ public class ModelePost extends ModeleScin {
 					this.roiManager.getRoi(organ), this.roiManager.getRoi(((organ / 3) * 3) + 2));
 		}
 		this.coups.put(organ, correctedRadioactiveDecrease);
-		System.out.println("Calculations for " + organ + " [" + ModelePost.convertOrgan(organ) + "] -> "
+		System.out.println("Calculations for " + organ + " [" + ModelePelvis.convertOrgan(organ) + "] -> "
 				+ correctedRadioactiveDecrease + "\n\n");
 	}
 

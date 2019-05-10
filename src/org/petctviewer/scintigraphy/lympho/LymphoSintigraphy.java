@@ -1,10 +1,13 @@
 package org.petctviewer.scintigraphy.lympho;
 
+import java.util.Arrays;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
+import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 import ij.IJ;
@@ -21,7 +24,7 @@ public class LymphoSintigraphy extends Scintigraphy {
 	@Override
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 
-		// selectedImages = Library_Dicom.orderImagesByAcquisitionTime(selectedImages);
+		Arrays.parallelSort(selectedImages, new ChronologicalAcquisitionComparator());
 
 		ImageSelection impSorted = null;
 		ImageSelection[] impsSortedAntPost = new ImageSelection[selectedImages.length];
@@ -31,13 +34,8 @@ public class LymphoSintigraphy extends Scintigraphy {
 
 			impSorted = null;
 			ImageSelection imp = selectedImages[i];
-			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST) {
-				impSorted = imp.clone();
-				impSorted.getImagePlus().getStack().getProcessor(2).flipHorizontal();
-			} else if (selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
-				impSorted = imp.clone();
-				IJ.run(impSorted.getImagePlus(), "Reverse", "");
-				impSorted.getImagePlus().getStack().getProcessor(2).flipHorizontal();
+			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST || selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
+				impSorted = Library_Dicom.ensureAntPostFlipped(imp);
 			} else if (selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
 				impSorted = imp.clone();
 				DynamicPosition = i;
@@ -50,7 +48,7 @@ public class LymphoSintigraphy extends Scintigraphy {
 			selectedImages[i].getImagePlus().close();
 		}
 
-		ImageSelection[] impsSortedByTime = new ImageSelection[impsSortedAntPost.length];
+		ImageSelection[] impsCorrectedByTime = new ImageSelection[impsSortedAntPost.length];
 		if (DynamicPosition != -1) {
 			ImageSelection staticImage = impsSortedAntPost[Math.abs((DynamicPosition - 1))];
 			ImageSelection dynamicImage = impsSortedAntPost[DynamicPosition];
@@ -60,8 +58,8 @@ public class LymphoSintigraphy extends Scintigraphy {
 			for (int times = 0; times < timesDynamic.length / 2; times++) {
 				acquisitionTimeDynamic += timesDynamic[times];
 			}
-
-			impsSortedByTime = new ImageSelection[impsSortedAntPost.length];
+			
+			// Create a projected image, from a dynamic Ant/Post image to static Ant/Post image
 			dynamicImage = dynamicToStaticAntPost(dynamicImage);
 			// On calcule le ration de temps pour égaliser le nombre de coup/miliseconde
 			double ratio = (timeStatic * 1.0D / acquisitionTimeDynamic * 1.0D);
@@ -78,14 +76,31 @@ public class LymphoSintigraphy extends Scintigraphy {
 			// On augmente le contraste (uniquement visuel, n'impacte pas les données)
 			staticImage.getImagePlus().getProcessor().setMinAndMax(0, staticImage.getImagePlus().getStatistics().max * ratio);
 
-			impsSortedByTime[Math.abs((DynamicPosition - 1))] = staticImage;
-			impsSortedByTime[DynamicPosition] = dynamicImage;
+			impsCorrectedByTime[Math.abs((DynamicPosition - 1))] = staticImage;
+			selectedImages[DynamicPosition] = dynamicImage;
 
 		} else {
-			impsSortedByTime = impsSortedAntPost;
+			int timeStatic1 = Library_Dicom.getFrameDuration(impsSortedAntPost[0].getImagePlus());
+			int timeStatic2 = Library_Dicom.getFrameDuration(impsSortedAntPost[1].getImagePlus());
+			double ratio = (timeStatic1 * 1.0D / timeStatic2 * 1.0D);
+			
+			// On passe les deux static sur le même temps théorique
+			IJ.run(impsSortedAntPost[0].getImagePlus(), "Multiply...", "value=" + (1f / ratio) + " stack");
+			// On ramène sur 1 minute
+			IJ.run(impsSortedAntPost[0].getImagePlus(), "Multiply...", "value=" + (60000f / timeStatic2) + " stack");
+			// On ramène sur 1 minute
+			IJ.run(impsSortedAntPost[1].getImagePlus(), "Multiply...", "value=" + (60000f / timeStatic2) + " stack");
+			
+			// On augmente le contraste (uniquement visuel, n'impacte pas les données)
+			impsSortedAntPost[0].getImagePlus().getProcessor().setMinAndMax(0, impsSortedAntPost[0].getImagePlus().getStatistics().max * ratio);
+			// On augmente le contraste (uniquement visuel, n'impacte pas les données)
+			impsSortedAntPost[1].getImagePlus().getProcessor().setMinAndMax(0, impsSortedAntPost[1].getImagePlus().getStatistics().max * ratio);
+			
+			
+			selectedImages = impsSortedAntPost;
 		}
 
-		return impsSortedByTime;
+		return selectedImages;
 	}
 
 	@Override
@@ -115,7 +130,7 @@ public class LymphoSintigraphy extends Scintigraphy {
 	 * @see
 	 *      <ul>
 	 *      <li>{@link Library_Dicom#splitDynamicAntPost(ImagePlus)}</li>
-	 *      <li>{@link Library_Dicom#projeter(ImagePlus, int, int, String)}</li>
+	 *      <li>{@link Library_Dicom#project(ImageSelection, int, int, String)}</li>
 	 *      </ul>
 	 */
 	public ImageSelection dynamicToStaticAntPost(ImageSelection imp) throws WrongOrientationException, IllegalArgumentException {

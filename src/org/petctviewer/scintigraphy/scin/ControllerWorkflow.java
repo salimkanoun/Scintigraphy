@@ -77,7 +77,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			System.out.println(this.workflows[0].getImageAssociated().getImageOrientation());
 			this.currentState = new ImageState(
 					this.workflows[0].getImageAssociated().getImageOrientation().getFacingOrientation(), 1,
-					ImageState.LAT_RL, ImageState.ID_NONE);
+					i.getImageState().isLateralisationRL(), ImageState.ID_NONE);
 			this.setOverlay(currentState);
 
 			this.displayInstruction(i.getMessage());

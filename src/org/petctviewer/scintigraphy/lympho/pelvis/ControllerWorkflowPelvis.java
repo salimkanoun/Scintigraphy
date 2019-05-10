@@ -1,9 +1,9 @@
-package org.petctviewer.scintigraphy.lympho.post;
+package org.petctviewer.scintigraphy.lympho.pelvis;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.petctviewer.scintigraphy.lympho.gui.TabPost;
+import org.petctviewer.scintigraphy.lympho.gui.TabPelvis;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -43,7 +43,7 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null, dri_5 = null, dri_6 = null;
-		ScreenShotInstruction dri_capture = null;
+		ScreenShotInstruction dri_capture_1 = null, dri_capture_2 = null;
 		this.captures = new ArrayList<>();
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
@@ -55,19 +55,20 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 			dri_1 = new DrawRoiInstruction("Right Pelvis", stateAnt, null);
 			dri_2 = new DrawRoiInstruction("Left Pelvis", stateAnt, null);
 			dri_3 = new DrawRoiInstruction("Background", stateAnt, null);
-			dri_capture = new ScreenShotInstruction(captures, this.getVue(), i);
+			dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), i);
 			dri_4 = new DrawRoiInstruction("Right Pelvis", statePost, dri_1);
 			dri_5 = new DrawRoiInstruction("Left Pelvis", statePost, dri_2);
 			dri_6 = new DrawRoiInstruction("Background", statePost, dri_3);
+			dri_capture_2 = new ScreenShotInstruction(captures, this.getVue(), (i*2)+1);
 
 			this.workflows[i].addInstruction(dri_1);
 			this.workflows[i].addInstruction(dri_2);
 			this.workflows[i].addInstruction(dri_3);
-			this.workflows[i].addInstruction(dri_capture);
+			this.workflows[i].addInstruction(dri_capture_1);
 			this.workflows[i].addInstruction(dri_4);
 			this.workflows[i].addInstruction(dri_5);
 			this.workflows[i].addInstruction(dri_6);
-			this.workflows[i].addInstruction(dri_capture);
+			this.workflows[i].addInstruction(dri_capture_2);
 
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
@@ -97,7 +98,7 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 			}
 
 			img.setRoi(r);
-			((ModelePost) this.model).calculerCoups(organ, img);
+			((ModelePelvis) this.model).calculerCoups(organ, img);
 			organ++;
 
 		}
@@ -108,9 +109,9 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 				.captureToStack(this.captures.toArray(new ImagePlus[this.captures.size()]));
 		ImagePlus montage = this.montage2Images(stackCapture);
 
-		((ModelePost) this.model).setPelvisMontage(montage);
-		((TabPost) this.resultTab).setExamDone(true);
-		((TabPost) this.resultTab).reloadDisplay();
+		((ModelePelvis) this.model).setPelvisMontage(montage);
+		((TabPelvis) this.resultTab).setExamDone(true);
+		((TabPelvis) this.resultTab).reloadDisplay();
 
 		this.vue.close();
 

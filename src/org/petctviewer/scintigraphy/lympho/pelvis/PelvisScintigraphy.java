@@ -1,19 +1,17 @@
-package org.petctviewer.scintigraphy.lympho.post;
+package org.petctviewer.scintigraphy.lympho.pelvis;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
-import ij.IJ;
-import ij.ImagePlus;
-
-public class PostScintigraphy extends Scintigraphy {
+public class PelvisScintigraphy extends Scintigraphy {
 
 	TabResult resultTab;
 
-	public PostScintigraphy(String studyName, TabResult tab) {
+	public PelvisScintigraphy(String studyName, TabResult tab) {
 		super("Post Scintigraphy");
 
 		this.resultTab = tab;
@@ -29,22 +27,15 @@ public class PostScintigraphy extends Scintigraphy {
 
 			impSorted = null;
 			ImageSelection imp = selectedImages[i];
-			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST) {
-				impSorted = imp.clone();
-				impSorted.getImagePlus().getStack().getProcessor(2).flipHorizontal();
-			} else if (selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
-				impSorted = imp.clone();
-				IJ.run(impSorted.getImagePlus(), "Reverse", "");
-				impSorted.getImagePlus().getStack().getProcessor(2).flipHorizontal();
+			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST || selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
+				impSorted = Library_Dicom.ensureAntPostFlipped(imp);
 			} else {
 				throw new WrongInputException("Unexpected Image type.\n Accepted : ANT/POST | POST/ANT ");
 			}
 			int ratio = (int) (25000 / impSorted.getImagePlus().getStatistics().max);
-			System.out.println("Ratio : " + ratio);
-			System.out.println("MAX : " + impSorted.getImagePlus().getStatistics().max);
 			// On augmente le contraste(uniquement visuel, n'impacte pas les données)
 			impSorted.getImagePlus().getProcessor().setMinAndMax(0, impSorted.getImagePlus().getStatistics().max * (1.0d / ratio)); 
-			System.out.println("MAX : " + impSorted.getImagePlus().getStatistics().max);
+
 
 			impsSortedAntPost[i] = impSorted;
 			selectedImages[i].getImagePlus().close();
@@ -60,11 +51,9 @@ public class PostScintigraphy extends Scintigraphy {
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 
-		this.setFenApplication(new FenApplicationPost(selectedImages[0].getImagePlus(), this.getStudyName()));
-//		this.getFenApplication().setControleur(
-//				new ControleurPost(this, this.getFenApplication(), "Lympho Scinti", selectedImages, this.resultTab));
+		this.setFenApplication(new FenApplicationPelvis(selectedImages[0].getImagePlus(), this.getStudyName()));
 		this.getFenApplication().setControleur(
-				new ControllerWorkflowPelvis(this, this.getFenApplication(), new ModelePost(selectedImages, "Pelvis Scinty", this.resultTab), this.resultTab));
+				new ControllerWorkflowPelvis(this, this.getFenApplication(), new ModelePelvis(selectedImages, "Pelvis Scinty", this.resultTab), this.resultTab));
 		this.getFenApplication().setVisible(true);
 
 	}

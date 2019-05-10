@@ -11,9 +11,9 @@ import ij.process.ImageProcessor;
 class TabTimedImage extends PanelImpContrastSlider {
 
 	public TabTimedImage(RenalScintigraphy vue, int rows, int columns, FenResults parent) {
-		super("Renal scintigraphy", vue, "timed", parent);
+		super("Timed Images", vue, "timed", parent);
 
-		ImagePlus montage = Library_Capture_CSV.creerMontage(vue.getFrameDurations(), vue.getImpPost(), 200, rows,
+		ImagePlus montage = Library_Capture_CSV.creerMontage(vue.getFrameDurations(), vue.getImpPost().getImagePlus(), 200, rows,
 				columns);
 		montage.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
 

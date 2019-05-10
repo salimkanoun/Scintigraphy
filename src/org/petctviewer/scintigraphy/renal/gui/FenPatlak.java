@@ -255,6 +255,7 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 			patlakRatio[1] = Library_Quantif.round(100 * regD[1] / (this.regG[1] + this.regD[1]), 1);
 
 			this.modele.setPatlakPente(patlakRatio);
+			this.getValueSetter().removeChartMouseListener(this);
 			this.dispose();
 		} else {
 			this.comboUpdated(e);

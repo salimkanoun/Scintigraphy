@@ -160,7 +160,7 @@ public class Controleur_Renal extends Controleur_OrganeFixe {
 		modele.getData().clear();
 
 		// On recupere l'image Post dynamique sur laquelle on fait les quantifications
-		ImagePlus imp = scinRenal.getImpPost();
+		ImagePlus imp = scinRenal.getImpPost().getImagePlus();
 
 		// on debloque le modele pour avoir l'enregistrement des mesures
 		modele.setLocked(false);
