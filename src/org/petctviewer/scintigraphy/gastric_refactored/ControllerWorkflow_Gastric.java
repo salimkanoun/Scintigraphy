@@ -29,7 +29,6 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
-import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
 
@@ -56,15 +55,12 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 
 	// TODO: remove this method and compute the model during the process
 	private void computeModel() {
-		ImageSelection ims = this.model.getImageSelection()[0];
 
 		// Place point 0
 		getModel().activateTime0();
 
 		ImageState previousState = null;
 		for (int i = 0; i < this.getRoiManager().getRoisAsArray().length; i += 6) {
-			ims = this.model.getImageSelection()[i / 6];
-
 			ImageState state = null;
 			for (Orientation orientation : Orientation.antPostOrder()) {
 				int indexIncrementPost = 0;
@@ -74,34 +70,31 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 					slice = SLICE_POST;
 				}
 				state = new ImageState(orientation, slice, ImageState.LAT_RL, i / 6);
-				// - Stomach
-				Model_Gastric.REGION_STOMACH.inflate(state,
-						this.getRoiManager().getRoisAsArray()[i + indexIncrementPost]);
-				getModel().calculateCounts(Model_Gastric.REGION_STOMACH);
 
-				// - Intestine (value)
-				ims.getImagePlus().setRoi(this.getRoiManager().getRoisAsArray()[i + 1 + indexIncrementPost]);
-				ims.getImagePlus().setSlice(state.getSlice());
-				double intestineValue = Library_Quantif.getCounts(ims.getImagePlus());
+				// - Stomach
+				Region regionStomach = new Region(Model_Gastric.REGION_STOMACH);
+				regionStomach.inflate(state, this.getRoiManager().getRoisAsArray()[i + indexIncrementPost]);
+				getModel().calculateCounts(regionStomach);
 
 				// - Antre
-				Model_Gastric.REGION_ANTRE.inflate(state,
-						this.getRoiManager().getRoisAsArray()[i + 2 + indexIncrementPost]);
-				getModel().calculateCounts(Model_Gastric.REGION_ANTRE);
+				Region regionAntre = new Region(Model_Gastric.REGION_ANTRE);
+				regionAntre.inflate(state, this.getRoiManager().getRoisAsArray()[i + 2 + indexIncrementPost]);
+				getModel().calculateCounts(regionAntre);
 
 				// - Fundus
-				Model_Gastric.REGION_FUNDUS.inflate(state, null);
-				getModel().forceCountsDataValue(Model_Gastric.REGION_FUNDUS,
-						getModel().getCounts(Model_Gastric.REGION_STOMACH, orientation)
-								- getModel().getCounts(Model_Gastric.REGION_ANTRE, orientation));
+				Region regionFundus = new Region(Model_Gastric.REGION_FUNDUS);
+				regionFundus.inflate(state, null);
+				getModel().calculateCounts(regionFundus);
 
 				// - Intestine
-				Model_Gastric.REGION_INTESTINE.inflate(state, null);
-				getModel().forceCountsDataValue(Model_Gastric.REGION_INTESTINE,
-						intestineValue - getModel().getCounts(Model_Gastric.REGION_ANTRE, orientation));
+				Region regionIntestine = new Region(Model_Gastric.REGION_INTESTINE);
+				regionIntestine.inflate(state, this.getRoiManager().getRoisAsArray()[i + 1 + indexIncrementPost]);
+				getModel().calculateCounts(regionIntestine);
 			}
 
-			getModel().computeData(state, previousState);
+			// The numActualImage is reversed because the images are in reversed order
+			getModel().computeData(state, previousState, getModel().getImageSelection().length - i / 6,
+					getModel().getImageSelection().length);
 			previousState = state;
 		}
 		this.model.calculerResultats();

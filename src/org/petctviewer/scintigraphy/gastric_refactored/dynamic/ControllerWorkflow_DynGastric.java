@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.gastric_refactored.dynamic;
 import java.util.Arrays;
 
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
+import org.petctviewer.scintigraphy.gastric_refactored.Region;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -19,7 +20,6 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
@@ -38,8 +38,6 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 	}
 
 	private void computeModel() {
-		ImageSelection ims = this.model.getImageSelection()[0];
-
 		// Remove point 0
 		getModel().deactivateTime0();
 		ImageSelection[] timeOrderedSelection = Arrays.copyOf(getModel().getImageSelection(),
@@ -51,37 +49,29 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
 		ImageState previousState = null;
 		for (int image = 0; image < getModel().getImageSelection().length; image++) {
-			ims = this.model.getImageSelection()[image];
-
 			ImageState state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, image);
 			// - Stomach
-			Model_Gastric.REGION_STOMACH.inflate(state,
-					this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE]);
-			getModel().calculateCounts(Model_Gastric.REGION_STOMACH);
-
-			// - Intestine (value)
-			ims.getImagePlus().setRoi(this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE + 1]);
-			ims.getImagePlus().setSlice(state.getSlice());
-			double intestineValue = Library_Quantif.getCounts(ims.getImagePlus());
+			Region regionStomach = new Region(Model_Gastric.REGION_STOMACH);
+			regionStomach.inflate(state, this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE]);
+			getModel().calculateCounts(regionStomach);
 
 			// - Antre
-			Model_Gastric.REGION_ANTRE.inflate(state,
-					this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE + 2]);
-			getModel().calculateCounts(Model_Gastric.REGION_ANTRE);
+			Region regionAntre = new Region(Model_Gastric.REGION_ANTRE);
+			regionAntre.inflate(state, this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE + 2]);
+			getModel().calculateCounts(regionAntre);
 
 			// - Fundus
-			Model_Gastric.REGION_FUNDUS.inflate(state, null);
-			getModel().forceCountsDataValue(Model_Gastric.REGION_FUNDUS,
-					getModel().getCounts(Model_Gastric.REGION_STOMACH, Orientation.ANT)
-							- getModel().getCounts(Model_Gastric.REGION_ANTRE, Orientation.ANT));
+			Region regionFundus = new Region(Model_Gastric.REGION_FUNDUS);
+			regionFundus.inflate(state, null);
+			getModel().calculateCounts(regionFundus);
 
 			// - Intestine
-			Model_Gastric.REGION_INTESTINE.inflate(state, null);
-			getModel().forceCountsDataValue(Model_Gastric.REGION_INTESTINE,
-					intestineValue - getModel().getCounts(Model_Gastric.REGION_ANTRE, Orientation.ANT));
+			Region regionIntestine = new Region(Model_Gastric.REGION_INTESTINE);
+			regionIntestine.inflate(state, this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE + 1]);
+			getModel().calculateCounts(regionIntestine);
 
 			// The numActualImage is reversed because the images are in reversed order
-			getModel().computeDynamicData(state, previousState, getModel().getImageSelection().length - image,
+			getModel().computeData(state, previousState, getModel().getImageSelection().length - image,
 					getModel().getImageSelection().length);
 			previousState = state;
 		}
@@ -145,8 +135,10 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
 		@Override
 		public void afterNext(ControllerWorkflow controller) {
-			if (((PromptBkgNoise) this.dialog).shouldBeDisplayed())
+			PromptBkgNoise dialog = (PromptBkgNoise) this.dialog;
+			if (dialog.shouldBeDisplayed())
 				super.afterNext(controller);
+			// Inform model if this instruction got the background
 		}
 
 		@Override

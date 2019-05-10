@@ -5,7 +5,7 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 
 /**
- * This class represents a instruction openning a prompt dialog. This
+ * This class represents a instruction opening a prompt dialog. This
  * instruction requires the user to enter data on this dialog.
  * 
  * @author Titouan QUÉMA

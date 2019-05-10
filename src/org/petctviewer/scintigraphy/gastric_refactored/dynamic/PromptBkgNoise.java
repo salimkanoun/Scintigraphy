@@ -24,8 +24,12 @@ public class PromptBkgNoise extends PromptDialog {
 	private JPanel panAntre, panIntestine;
 
 	private boolean[] previousState;
+	private boolean[] newlySelected;
 
 	public PromptBkgNoise(ControleurScin controller) {
+		this.previousState = new boolean[2];
+		this.newlySelected = new boolean[2];
+		
 		JPanel panel = new JPanel(new BorderLayout());
 
 		panCenter = new JPanel(new GridLayout(0, 1));
@@ -91,6 +95,21 @@ public class PromptBkgNoise extends PromptDialog {
 		return !(this.getResult()[0] && this.getResult()[1]);
 	}
 
+	/**
+	 * @return TRUE if the Antre 'yes' button was not selected and is now selected
+	 */
+	public boolean antreIsNowSelected() {
+		return this.newlySelected[0];
+	}
+
+	/**
+	 * @return TRUE if the Intestine 'yes' button was not selected and is now
+	 *         selected
+	 */
+	public boolean intestineIsNowSelected() {
+		return this.newlySelected[1];
+	}
+
 	@Override
 	public boolean[] getResult() {
 		return new boolean[] { this.rbAntre_yes.isSelected(), this.rbIntestine_yes.isSelected() };
@@ -103,6 +122,13 @@ public class PromptBkgNoise extends PromptDialog {
 
 	@Override
 	protected void prepareAsNext() {
+		for (int i = 0; i < 2; i++) {
+			if (!this.previousState[i] && this.getResult()[i])
+				this.newlySelected[i] = true;
+			else
+				this.newlySelected[i] = false;
+		}
+		
 		this.previousState = this.getResult();
 		this.reloadDisplay();
 	}
