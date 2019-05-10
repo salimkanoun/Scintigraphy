@@ -47,22 +47,26 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		Arrays.parallelSort(timeOrderedSelection, new ChronologicalAcquisitionComparator());
 		getModel().setTimeIngestion(Library_Dicom.getDateAcquisition(timeOrderedSelection[0].getImagePlus()));
 
+		final int NB_ROI_PER_IMAGE = 3;
+
 		ImageState previousState = null;
 		for (int image = 0; image < getModel().getImageSelection().length; image++) {
 			ims = this.model.getImageSelection()[image];
 
 			ImageState state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, image);
 			// - Stomach
-			Model_Gastric.REGION_STOMACH.inflate(state, this.getRoiManager().getRoisAsArray()[image * 2]);
+			Model_Gastric.REGION_STOMACH.inflate(state,
+					this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE]);
 			getModel().calculateCounts(Model_Gastric.REGION_STOMACH);
 
 			// - Intestine (value)
-			ims.getImagePlus().setRoi(this.getRoiManager().getRoisAsArray()[image * 2 + 1]);
+			ims.getImagePlus().setRoi(this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE + 1]);
 			ims.getImagePlus().setSlice(state.getSlice());
 			double intestineValue = Library_Quantif.getCounts(ims.getImagePlus());
 
 			// - Antre
-			Model_Gastric.REGION_ANTRE.inflate(state, this.getRoiManager().getRoisAsArray()[image * 2 + 2]);
+			Model_Gastric.REGION_ANTRE.inflate(state,
+					this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE + 2]);
 			getModel().calculateCounts(Model_Gastric.REGION_ANTRE);
 
 			// - Fundus
@@ -76,7 +80,9 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 			getModel().forceCountsDataValue(Model_Gastric.REGION_INTESTINE,
 					intestineValue - getModel().getCounts(Model_Gastric.REGION_ANTRE, Orientation.ANT));
 
-			getModel().computeDynamicData(state, previousState);
+			// The numActualImage is reversed because the images are in reversed order
+			getModel().computeDynamicData(state, previousState, getModel().getImageSelection().length - image,
+					getModel().getImageSelection().length);
 			previousState = state;
 		}
 		getModel().calculerResultats();

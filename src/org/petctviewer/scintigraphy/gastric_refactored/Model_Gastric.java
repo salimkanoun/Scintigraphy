@@ -250,13 +250,15 @@ public class Model_Gastric extends ModeleScin {
 
 		public static final int STOMACH = 0, ANTRE = 1, FUNDUS = 2, INTESTINE = 3, ALL = 4, TOTAL_ORGANS = 5;
 		public static final int ANT_COUNTS = 0, POST_COUNTS = 1, GEO_AVEREAGE = 2, PERCENTAGE = 3, DERIVATIVE = 4,
-				CORRELATION = 5;
+				CORRELATION = 5, TOTAL_FIELDS = 6;
 
 		/**
 		 * Instantiates a new data. The image state of a data should be unique (in this
-		 * model).
+		 * model).<br>
+		 * The {@link ImageState#getImage()} method of the state <b>must</b> return
+		 * something different than null!
 		 * 
-		 * @param state Unique state for this data (if null, this data is user-made)
+		 * @param state Unique state for this data (null allowed only for the time 0)
 		 * @param time  Time in minutes after the ingestion time
 		 */
 		public Data(ImageState state, double time) {
@@ -340,9 +342,52 @@ public class Model_Gastric extends ModeleScin {
 			return 0;
 		}
 
+		private String nameOfOrganIndex(int index) {
+			switch (index) {
+			case STOMACH:
+				return "Stomach";
+			case ANTRE:
+				return "Antre";
+			case FUNDUS:
+				return "Fundus";
+			case INTESTINE:
+				return "Intestine";
+			case ALL:
+				return "Total";
+			default:
+				return "Unknown";
+			}
+		}
+
+		public String nameOfDataField(int field) {
+			switch (field) {
+			case ANT_COUNTS:
+				return "Nb Ant-counts";
+			case POST_COUNTS:
+				return "Nb Post-counts";
+			case GEO_AVEREAGE:
+				return "Geo-avg";
+			case PERCENTAGE:
+				return "Percentage";
+			case DERIVATIVE:
+				return "Derivative";
+			case CORRELATION:
+				return "Correlation";
+			default:
+				return "???";
+			}
+		}
+
 		@Override
 		public String toString() {
-			return state.getImage().getImagePlus().getTitle();
+			String s = "Data |" + this.state.getImage().getImagePlus().getTitle() + "|\n";
+			for (int i = 0; i < TOTAL_ORGANS; i++) {
+				for (int j = 0; j < TOTAL_FIELDS; j++) {
+					s += this.nameOfOrganIndex(i) + "(" + this.nameOfDataField(j) + ") => " + this.organs[i].get(j)
+							+ "\n";
+				}
+			}
+			return s;
 		}
 	}
 
@@ -733,6 +778,8 @@ public class Model_Gastric extends ModeleScin {
 
 	private Data createOrRetrieveData(ImageState state) {
 		// Set the image in the state
+		// This is important: the getImage() of a state in a data must return something
+		// different than null
 		if (state.getIdImage() != ImageState.ID_CUSTOM_IMAGE)
 			state.specifieImage(this.selectedImages[state.getIdImage()]);
 
@@ -986,6 +1033,14 @@ public class Model_Gastric extends ModeleScin {
 				value);
 	}
 
+	private double adjustPercentageWithEggsRatio(Region region, double percentage, int numActualImage,
+			int nbTotalImages) {
+		double ratio = (nbTotalImages - numActualImage) / nbTotalImages;
+		if (region == REGION_FUNDUS)
+			return 100. * ratio + percentage * (1. - ratio);
+		return percentage * (1. - ratio);
+	}
+
 	/**
 	 * Computes the data retrieved from the specified state. This method calculates
 	 * the percentages for each region. This method should be used once the dynamic
@@ -995,13 +1050,18 @@ public class Model_Gastric extends ModeleScin {
 	 * If the previous state is not null, then the derivative is calculated for the
 	 * stomach.
 	 * 
-	 * @param state         State of the data to retrieve
-	 * @param previousState State of the previous data to retrieve (in chronological
-	 *                      order)
+	 * @param state          State of the data to retrieve
+	 * @param previousState  State of the previous data to retrieve (in
+	 *                       chronological order)
+	 * @param numActualImage Image number (1 = first image in chronological order).
+	 *                       The first images contains less tracer than the last
+	 *                       images.
+	 * @param nbTotalImages  Total number of dynamic images
 	 * @throws NoSuchElementException if no data could be retrieved from the
 	 *                                specified state
 	 */
-	public void computeDynamicData(ImageState state, ImageState previousState) throws NoSuchElementException {
+	public void computeDynamicData(ImageState state, ImageState previousState, int numActualImage, int nbTotalImages)
+			throws NoSuchElementException {
 		Data data = this.results.get(hashState(state));
 		if (data == null)
 			throw new NoSuchElementException(
@@ -1017,13 +1077,21 @@ public class Model_Gastric extends ModeleScin {
 		data.setValue(REGION_ALL, Data.ANT_COUNTS, antStomach + data.getValue(REGION_INTESTINE, Data.ANT_COUNTS));
 
 		// Compute second
-		data.setValue(REGION_FUNDUS, Data.PERCENTAGE, calculateAntPercentage(data, REGION_FUNDUS));
+		double percentage = this.adjustPercentageWithEggsRatio(REGION_FUNDUS,
+				calculateAntPercentage(data, REGION_FUNDUS), numActualImage, nbTotalImages);
+		data.setValue(REGION_FUNDUS, Data.PERCENTAGE, percentage);
 
-		data.setValue(REGION_ANTRE, Data.PERCENTAGE, calculateAntPercentage(data, REGION_ANTRE));
+		percentage = this.adjustPercentageWithEggsRatio(REGION_ANTRE, calculateAntPercentage(data, REGION_ANTRE),
+				numActualImage, nbTotalImages);
+		data.setValue(REGION_ANTRE, Data.PERCENTAGE, percentage);
 
-		data.setValue(REGION_STOMACH, Data.PERCENTAGE, calculateAntPercentage(data, REGION_STOMACH));
+		percentage = this.adjustPercentageWithEggsRatio(REGION_STOMACH, calculateAntPercentage(data, REGION_STOMACH),
+				numActualImage, nbTotalImages);
+		data.setValue(REGION_STOMACH, Data.PERCENTAGE, percentage);
 
-		data.setValue(REGION_INTESTINE, Data.PERCENTAGE, calculateAntPercentage(data, REGION_INTESTINE));
+		percentage = this.adjustPercentageWithEggsRatio(REGION_INTESTINE,
+				calculateAntPercentage(data, REGION_INTESTINE), numActualImage, nbTotalImages);
+		data.setValue(REGION_INTESTINE, Data.PERCENTAGE, percentage);
 
 		double fundusCorrelation = data.getValue(REGION_FUNDUS, Data.PERCENTAGE)
 				/ data.getValue(REGION_STOMACH, Data.PERCENTAGE) * 100.;
@@ -1044,6 +1112,11 @@ public class Model_Gastric extends ModeleScin {
 						+ previousState.getImage().getImagePlus().getTitle() + ")");
 			}
 		}
+
+		System.out.println("Computing data for " + state.getImage().getImagePlus().getTitle());
+		System.out.println("All results:");
+		System.out.println(data);
+		System.out.println("===");
 	}
 
 	/**
