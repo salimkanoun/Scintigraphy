@@ -12,6 +12,7 @@ import java.util.List;
 import javax.swing.JSlider;
 import javax.swing.SwingUtilities;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -27,28 +28,47 @@ import ij.Prefs;
 public class Modele_Os {
 	
 	boolean[][] selected;												// Tableau permettant de savoir quel DynamicImage sont selectionnées
-	private ImagePlus[][] imps;											// Tableau à double dimension contenant les ImagePlus liées aux DynamicImage de(s) Scintigraphie(s) Osseuse(s)
-	private ImagePlus imp;												// Tableau à double dimension contenant les ImagePlus liées aux DynamicImage de(s) Scintigraphie(s) Osseuse(s)
+	private ImageSelection[][] imps;											// Tableau à double dimension contenant les ImagePlus liées aux DynamicImage de(s) Scintigraphie(s) Osseuse(s)
+	private ImageSelection imp;												// Tableau à double dimension contenant les ImagePlus liées aux DynamicImage de(s) Scintigraphie(s) Osseuse(s)
 	DynamicImage[][] dynamicImps;										// Tableau à double dimension contenant les DynamicImage liées aux ImagePlus de(s) Scintigraphie(s) Osseuse(s)
 	private int nbScinty;
 	private boolean reversed;
 	
 	
-	public Modele_Os(ImagePlus[][] imps) {
+	public Modele_Os(ImageSelection[] imps) {
 		nbScinty = imps.length;
 		
 		this.reversed = false;
 
 		this.selected= new boolean[nbScinty][2];
 		this.dynamicImps = new DynamicImage[nbScinty][2];
-		this.imps = new ImagePlus[nbScinty][2];
-		this.imps = imps;
+		this.imps = new ImageSelection[nbScinty][2];
+		
+		for (int i = 0; i < imps.length; i++) {
+		for (int j = 0; j < 2; j++) {
+			
+			
+			ImageSelection Ant = imps[i].clone();
+			Ant.setImagePlus(new ImagePlus("Ant", imps[i].getImagePlus().getStack().getProcessor(1)));
+//			Ant.getImagePlus().setProperty("Info", imps[i].getImagePlus().getStack().getSliceLabel(1));
+			Ant.getImagePlus().setProperty("Info", imps[i].getImagePlus().getInfoProperty());
+			this.imps[i][0] = Ant;
+			
+			ImageSelection Post = imps[i].clone();
+			Post.setImagePlus(new ImagePlus("Post", imps[i].getImagePlus().getStack().getProcessor(2)));
+//			Post.getImagePlus().setProperty("Info", imps[i].getImagePlus().getStack().getSliceLabel(2));
+			Post.getImagePlus().setProperty("Info", imps[i].getImagePlus().getInfoProperty());
+			this.imps[i][1] = Post;
+		}
+	}
+		
+		
 		this.imp = this.imps[0][0];
 		
 		if (!Prefs.get("bone.defaultlut.preferred", true)) {					// Récupération dee la préférence d'application de la Lut (coloration des images). Si il faut appliquer une Lut particulière
-			for(ImagePlus[] imgs : imps)
-				for(ImagePlus img : imgs)										// Pour toutes les images
-					Library_Gui.setCustomLut(img,"lut.preferredforbone");		// Appelle de la méthode permettant d'appliquer la Lut si on applique pas la Lut par défaut.
+			for(ImageSelection[] imgs : this.imps)
+				for(ImageSelection img : imgs)										// Pour toutes les images
+					Library_Gui.setCustomLut(img.getImagePlus(),"lut.preferredforbone");		// Appelle de la méthode permettant d'appliquer la Lut si on applique pas la Lut par défaut.
 		}
 		
 		for(int i = 0; i<nbScinty ; i++){												// For every Scintigraphy
@@ -56,7 +76,7 @@ public class Modele_Os {
 				if (this.dynamicImps[i][j] == null) {									// If it is not already displayed.
 					if(this.imps[i][j] != null){
 						
-						BufferedImage imgbuffered = this.imps[i][j].getBufferedImage();		// Getting Image from the list of ImagePlus
+						BufferedImage imgbuffered = this.imps[i][j].getImagePlus().getBufferedImage();		// Getting Image from the list of ImagePlus
 						this.dynamicImps[i][j] = new DynamicImage(imgbuffered);				// Creating the new Panel displaying the Image
 						displayInformations(dynamicImps[i][j], i, j);						// Drawing informations in the image
 						
@@ -80,8 +100,8 @@ public class Modele_Os {
 	public DynamicImage[][] inverser() {
 		for(int i = 0; i<nbScinty ; i++){																		// Pour toutes les images
 			for (int j=0 ; j<2 ; j++) {
-				imps[i][j].setLut(imps[i][j].getLuts()[0].createInvertedLut());									// On inverse la LUT
-				dynamicImps[i][j].setImage(imps[i][j].getBufferedImage());										// On recharge lea DynamicImage depuis la ImagePlus correspondante.
+				imps[i][j].getImagePlus().setLut(imps[i][j].getImagePlus().getLuts()[0].createInvertedLut());									// On inverse la LUT
+				dynamicImps[i][j].setImage(imps[i][j].getImagePlus().getBufferedImage());										// On recharge lea DynamicImage depuis la ImagePlus correspondante.
 				dynamicImps[i][j].repaint();																	// On réaffiche
 				displayInformations(dynamicImps[i][j],i,j);														// On affiche les informations (sinon elles disparaissent)
 				if(reversed) {
@@ -110,7 +130,7 @@ public class Modele_Os {
 	 * @return
 	 */
 	public void displayInformations(DynamicImage dyn,int i,int j) {													// Affiche la date de la scintigraphie en bas
-		ImagePlus impCurrent = imps[i][j];																			// On récupère l'ImagePlus
+		ImagePlus impCurrent = imps[i][j].getImagePlus();																			// On récupère l'ImagePlus
 		HashMap<String, String> infoPatient = Library_Capture_CSV.getPatientInfo(impCurrent);						// On récupère les informations liées à l'ImagePlus
 		
 		int fontLenght = impCurrent.getWidth()/infoPatient.get("date").length();									// On définit la taille de la police en fonction de la taille de l'image et du texte à écrire
@@ -135,11 +155,11 @@ public class Modele_Os {
 		return dynamicImps[i][j];
 	}
 	
-	public ImagePlus getImagePlus(int index) {
+	public ImageSelection getImagePlus(int index) {
 		return imps[index/2][index%2];
 	}
 	
-	public ImagePlus getImagePlus(int i,int j) {
+	public ImageSelection getImagePlus(int i,int j) {
 		return imps[i][j];
 	}
 	
@@ -156,7 +176,7 @@ public class Modele_Os {
 		for(int i = 0; i<nbScinty ; i++){																			// Pour toutes les ImagePlus
 			for (int j=0 ; j<2 ; j++) {
 				if(isSelected(imps[i][j])) {																		// Si l'ImagePlus est selectionée
-					imps[i][j].getProcessor().setMinAndMax(0, (slider.getModel().getMaximum() - slider.getValue())+1);	// On change son contraste.
+					imps[i][j].getImagePlus().getProcessor().setMinAndMax(0, (slider.getModel().getMaximum() - slider.getValue())+1);	// On change son contraste.
 				}
 			}
 		}
@@ -170,7 +190,7 @@ public class Modele_Os {
 				for(int i = 0; i<nbScinty ; i++){																	// Pour toutes les DynamicImage
 					for (int j=0 ; j<2 ; j++) {
 						if(isSelected(dynamicImps[i][j])) {															// Si elle est selectionnée
-							dynamicImps[i][j].setImage(imps[i][j].getBufferedImage());								// On récupère l'ImagePlus associée
+							dynamicImps[i][j].setImage(imps[i][j].getImagePlus().getBufferedImage());								// On récupère l'ImagePlus associée
 							dynamicImps[i][j].repaint();															// On l'actualise
 							displayInformations(dynamicImps[i][j],i,j);												// On affiche les informations (sinon elles disparaissent)
 						}
@@ -246,7 +266,7 @@ public class Modele_Os {
 	 *            ImagePlus dont il faut retourner la position.
 	 * @return boolean
 	 */
-	public boolean isSelected(ImagePlus imp) {
+	public boolean isSelected(ImageSelection imp) {
 		return this.selected[position(imp)[0]][position(imp)[1]];
 	}
 	
@@ -309,7 +329,7 @@ public class Modele_Os {
 	 *            ImagePlus dont il faut retourner la position dans le tableau stockant les ImagePlus.
 	 * @return int[] (Tableau de 2 entiers correspondant aux position dans le tableau à double entrée stockant les ImagePlus)
 	 */
-	public int[] position(ImagePlus image) {
+	public int[] position(ImageSelection image) {
 		int[] location = new int[2];				
 		for (int i =0 ;i<nbScinty;i++) {
  			for (int j = 0;j<2;j++) {
@@ -326,7 +346,7 @@ public class Modele_Os {
 		return imps.length;
 	}
 	
-	public ImagePlus getImp() {
+	public ImageSelection getImageSelection() {
 		return this.imp;
 	}
 

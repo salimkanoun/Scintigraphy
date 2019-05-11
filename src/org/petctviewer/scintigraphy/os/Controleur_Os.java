@@ -13,6 +13,8 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+
 import ij.ImagePlus;
 
 
@@ -26,12 +28,12 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 	Modele_Os modele;
 	FenApplication_Os vue;
 
-	ImagePlus imp;
+	ImageSelection imp;
 	
-	public Controleur_Os(ImagePlus[][] imps, OsScintigraphy scin) {
+	public Controleur_Os(ImageSelection[] imps, OsScintigraphy scin) {
 		
 		this.modele = new Modele_Os(imps);
-		this.imp=imps[0][0];
+		this.imp=imps[0];
 		
 		this.vue = new FenApplication_Os(this);
 		initialiser_Vue();
@@ -55,7 +57,7 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 					if(di == this.modele.getDynamicImage(i, j)){									// When we found it
 						this.modele.perform(i,j);													// We perform this DynamicImage
 						this.vue.cadrer(i*2+j, modele.isSelected(i,j));
-						this.vue.getSlider().setValue((int) ((this.vue.getSlider().getModel().getMaximum() - this.modele.getImagePlus(i, j).getLuts()[0].max)+1));		// We put the slider value to the current ImagePlus contrast value.
+						this.vue.getSlider().setValue((int) ((this.vue.getSlider().getModel().getMaximum() - this.modele.getImagePlus(i, j).getImagePlus().getLuts()[0].max)+1));		// We put the slider value to the current ImagePlus contrast value.
 					}
 				}
 			}
@@ -91,7 +93,7 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 				if(di == this.modele.getDynamicImage(i, j)){									// When we found it
 					this.modele.perform(i,j);													// We perform this DynamicImage
 					this.vue.cadrer(i*2+j, modele.isSelected(i,j));
-					this.vue.getSlider().setValue((int) ((this.vue.getSlider().getModel().getMaximum() - this.modele.getImagePlus(i, j).getLuts()[0].max)+1));		// We put the slider value to the current ImagePlus contrast value.
+					this.vue.getSlider().setValue((int) ((this.vue.getSlider().getModel().getMaximum() - this.modele.getImagePlus(i, j).getImagePlus().getLuts()[0].max)+1));		// We put the slider value to the current ImagePlus contrast value.
 				}
 			}
 		}
@@ -132,8 +134,8 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 		return this.vue;
 	}
 	
-	public ImagePlus getImp() {
-		return this.modele.getImp();
+	public ImageSelection getImageSelection() {
+		return this.modele.getImageSelection();
 	}
 	
 	public int getNbScinti() {

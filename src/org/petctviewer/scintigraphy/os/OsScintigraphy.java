@@ -36,7 +36,7 @@ import ij.ImagePlus;
  */
 public class OsScintigraphy extends Scintigraphy {
 	private boolean process;
-	private ImagePlus[][] buffer;
+	
 
 	public OsScintigraphy() {
 		super("Scinti Os");
@@ -52,7 +52,6 @@ public class OsScintigraphy extends Scintigraphy {
 	 */
 	@Override
 	public void run(String arg) {
-		// SK FAIRE DANS UN AUTRE THREAD ?
 		FenSelectionDicom fen = new FenSelectionDicom(this.getStudyName(), this);
 		fen.setVisible(true);
 		fen.pack();
@@ -82,21 +81,20 @@ public class OsScintigraphy extends Scintigraphy {
 
 		if (selectedImages.length > 3)
 			throw new WrongNumberImagesException(selectedImages.length, 1, 3);
-		buffer = new ImagePlus[selectedImages.length][2];
 
-		ImagePlus impSorted = null;
-		ImagePlus[] impsSortedAntPost = new ImagePlus[selectedImages.length];
+		ImageSelection impSorted = null;
+		ImageSelection[] impsSortedAntPost = new ImageSelection[selectedImages.length];
 
 		for (int i = 0; i < selectedImages.length; i++) { // Modifie l'ImagePlus pour mettre ANT en slice 1 et POST en
 															// slice 2
 			impSorted = null;
-			ImagePlus imp = selectedImages[i].getImagePlus();
+			ImageSelection imp = selectedImages[i];
 			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST) {
-				impSorted = Library_Dicom.sortImageAntPost(imp);
+				impSorted = Library_Dicom.ensureAntPostFlipped(imp);
 			} else if (selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
-				impSorted = Library_Dicom.sortImageAntPost(imp);
+				impSorted = Library_Dicom.ensureAntPostFlipped(imp);
 			} else if (selectedImages[i].getImageOrientation() == Orientation.POST) {
-				impSorted = imp.duplicate();
+				impSorted = imp.clone();
 			} else {
 				throw new WrongOrientationException(selectedImages[i].getImageOrientation(),
 						new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT, Orientation.POST });
@@ -106,42 +104,28 @@ public class OsScintigraphy extends Scintigraphy {
 			selectedImages[i].getImagePlus().close();
 		}
 
-		Arrays.parallelSort(impsSortedAntPost, new ReversedChronologicalAcquisitionComparator.ImagePlusComparator());
+		Arrays.parallelSort(impsSortedAntPost, new ReversedChronologicalAcquisitionComparator());
 
-		/*
-		 * 
-		 * ArrayList<ImagePlus> arrayBufferForSortByTime = new
-		 * ArrayList<ImagePlus>(Arrays.asList(impsSortedAntPost)); ImagePlus[]
-		 * impsSortedAntPost =
-		 * Library_Dicom.orderImagesByAcquisitionTime(arrayBufferForSortByTime);
-		 * 
-		 * int reverseIndex = 0; int nbimpsSortedAntPost = impsSortedAntPost.length;
-		 * ImagePlus tempImp;
-		 * 
-		 * for (reverseIndex = 0 ; reverseIndex < nbimpsSortedAntPost / 2 ;
-		 * reverseIndex++){ tempImp = impsSortedAntPost[reverseIndex];
-		 * impsSortedAntPost[reverseIndex] = impsSortedAntPost[nbimpsSortedAntPost -
-		 * reverseIndex - 1]; impsSortedAntPost[nbimpsSortedAntPost - reverseIndex - 1] =
-		 * tempImp; }
-		 */
-
-		for (int i = 0; i < impsSortedAntPost.length; i++) {
-			for (int j = 0; j < 2; j++) {
-
-				ImagePlus Ant = new ImagePlus("Ant", impsSortedAntPost[i].getStack().getProcessor(1));
-				Ant.setProperty("Info", impsSortedAntPost[i].getStack().getSliceLabel(1));
-				buffer[i][0] = Ant;
-
-				ImagePlus Post = new ImagePlus("Post", impsSortedAntPost[i].getStack().getProcessor(2));
-				Post.setProperty("Info", impsSortedAntPost[i].getStack().getSliceLabel(2));
-				buffer[i][1] = Post;
-			}
-		}
+//		for (int i = 0; i < impsSortedAntPost.length; i++) {
+//			for (int j = 0; j < 2; j++) {
+//				
+//				
+//				ImageSelection Ant = impsSortedAntPost[i].clone();
+//				Ant.setImagePlus(new ImagePlus("Ant", impsSortedAntPost[i].getImagePlus().getStack().getProcessor(1)));
+//				Ant.getImagePlus().setProperty("Info", impsSortedAntPost[i].getImagePlus().getStack().getSliceLabel(1));
+//				buffer[i][0] = Ant;
+//				
+//				ImageSelection Post = impsSortedAntPost[i].clone();
+//				Post.setImagePlus(new ImagePlus("Post", impsSortedAntPost[i].getImagePlus().getStack().getProcessor(2)));
+//				Post.getImagePlus().setProperty("Info", impsSortedAntPost[i].getImagePlus().getStack().getSliceLabel(2));
+//				buffer[i][1] = Post;
+//			}
+//		}
 
 		ArrayList<String> patientID = new ArrayList<>();
 		ArrayList<String> patientName = new ArrayList<>();
-		for (ImagePlus[] slctd : buffer) {
-			HashMap<String, String> infoPatient = Library_Capture_CSV.getPatientInfo(slctd[0]);
+		for (ImageSelection slctd : impsSortedAntPost) {
+			HashMap<String, String> infoPatient = Library_Capture_CSV.getPatientInfo(slctd.getImagePlus());
 			if (!patientID.contains(infoPatient.get("id"))) {
 				patientID.add(infoPatient.get("id"));
 				patientName.add(infoPatient.get("name"));
@@ -150,16 +134,14 @@ public class OsScintigraphy extends Scintigraphy {
 
 		if (patientID.size() > 1) {
 			process = false;
-			Fen_MultiplPatient fen = new Fen_MultiplPatient(patientID, patientID);
+			Fen_MultiplPatient fen = new Fen_MultiplPatient(patientID, patientName);
 			fen.setModal(true);
 			fen.setVisible(true);
 			fen.setAlwaysOnTop(true);
 			fen.setLocationRelativeTo(null);
 		}
 
-		ImageSelection[] selection = new ImageSelection[1];
-		selection[0] = new ImageSelection(impSorted, null, null);
-		return selection;
+		return impsSortedAntPost;
 
 	}
 
@@ -180,7 +162,7 @@ public class OsScintigraphy extends Scintigraphy {
 		if (process) {
 			// FenApplication_Os fen = new FenApplication_Os(this, buffer);
 
-			Controleur_Os controleur_os = new Controleur_Os(buffer, this);
+			Controleur_Os controleur_os = new Controleur_Os(selectedImages, this);
 			FenApplication_Os fen = controleur_os.getFenApplicatio_Os();
 			fen.setVisible(true);
 

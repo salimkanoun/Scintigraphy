@@ -56,7 +56,7 @@ public class TabDeconvolv {
 //		double[] kernel = ;
 		Double[] kernel = {1.0d,2.0d,1.0d};
 		Double[] convolvedBP = Library_Quantif.processNConvolv(bp, kernel, 6);
-		Double[] convolvedRL = Library_Quantif.processNConvolv(bp, kernel, 6);
+		Double[] convolvedRL = Library_Quantif.processNConvolv(rliver, kernel, 6);
 
 		@SuppressWarnings("deprecation")
 		List<Double> deconv = Library_Quantif.deconvolv(convolvedBP,
