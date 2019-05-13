@@ -27,8 +27,6 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.ReversedChronologicalAcquisitionComparator;
 
-import ij.ImagePlus;
-
 /**
  * DISCLAIMER : Dans cette application, il a été fait comme choix d'initialiser
  * le module par le biais du Contrôleur, qui va ensuite créer la vue et le
