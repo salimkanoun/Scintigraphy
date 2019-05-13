@@ -4,9 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -17,8 +20,10 @@ import javax.swing.table.DefaultTableModel;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric.Result;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric.ResultValue;
+import org.petctviewer.scintigraphy.gastric_refactored.dynamic.DynGastricScintigraphy;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.NoFit;
+import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -32,9 +37,13 @@ public class TabMainResult extends TabResult {
 	private ImagePlus capture;
 	private Date timeIngestion;
 
-	public TabMainResult(FenResults parent, ImagePlus capture) {
+	private ControllerWorkflow controller;
+
+	public TabMainResult(FenResults parent, ImagePlus capture, ControllerWorkflow controller) {
 		super(parent, "Result", true);
 		this.capture = capture;
+		this.controller = controller;
+		
 		this.reloadDisplay();
 	}
 
@@ -172,7 +181,24 @@ public class TabMainResult extends TabResult {
 						((Model_Gastric) this.parent.getModel()).createGraph_1(),
 						((Model_Gastric) this.parent.getModel()).createGraph_2() });
 
-		return new DynamicImage(((Model_Gastric) this.parent.getModel()).montage(ims).getImage());
+		JButton btn = new JButton("Launch dynamic acquisition");
+		btn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Finish gastric
+				controller.getVue().setVisible(false);
+
+				// Start scintigraphy
+				new DynGastricScintigraphy(((Model_Gastric) parent.getModel()), parent);
+			}
+		});
+
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(new DynamicImage(((Model_Gastric) this.parent.getModel()).montage(ims).getImage()),
+				BorderLayout.CENTER);
+		panel.add(btn, BorderLayout.SOUTH);
+
+		return panel;
 	}
 
 }

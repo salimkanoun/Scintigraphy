@@ -13,7 +13,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabChart;
-import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabDynamic;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -62,6 +61,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 		ImageState previousState = null;
 		for (int i = 0; i < this.getRoiManager().getRoisAsArray().length; i += 6) {
 			ImageState state = null;
+
 			for (Orientation orientation : Orientation.antPostOrder()) {
 				int indexIncrementPost = 0;
 				int slice = SLICE_ANT;
@@ -72,24 +72,19 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 				state = new ImageState(orientation, slice, ImageState.LAT_RL, i / 6);
 
 				// - Stomach
-				Region regionStomach = new Region(Model_Gastric.REGION_STOMACH);
-				regionStomach.inflate(state, this.getRoiManager().getRoisAsArray()[i + indexIncrementPost]);
-				getModel().calculateCounts(regionStomach);
+				getModel().calculateCounts(Model_Gastric.REGION_STOMACH, state,
+						this.getRoiManager().getRoisAsArray()[i + indexIncrementPost]);
 
 				// - Antre
-				Region regionAntre = new Region(Model_Gastric.REGION_ANTRE);
-				regionAntre.inflate(state, this.getRoiManager().getRoisAsArray()[i + 2 + indexIncrementPost]);
-				getModel().calculateCounts(regionAntre);
+				getModel().calculateCounts(Model_Gastric.REGION_ANTRE, state,
+						this.getRoiManager().getRoisAsArray()[i + 2 + indexIncrementPost]);
 
 				// - Fundus
-				Region regionFundus = new Region(Model_Gastric.REGION_FUNDUS);
-				regionFundus.inflate(state, null);
-				getModel().calculateCounts(regionFundus);
+				getModel().calculateCounts(Model_Gastric.REGION_FUNDUS, state, null);
 
 				// - Intestine
-				Region regionIntestine = new Region(Model_Gastric.REGION_INTESTINE);
-				regionIntestine.inflate(state, this.getRoiManager().getRoisAsArray()[i + 1 + indexIncrementPost]);
-				getModel().calculateCounts(regionIntestine);
+				getModel().calculateCounts(Model_Gastric.REGION_INTESTINE, state,
+						this.getRoiManager().getRoisAsArray()[i + 1 + indexIncrementPost]);
 			}
 
 			// The numActualImage is reversed because the images are in reversed order
@@ -119,13 +114,12 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 
 		// Display results
 		this.tabChart = new TabChart(this.fenResults);
-		this.tabMain = new TabMainResult(this.fenResults, this.captures.get(0));
+		this.tabMain = new TabMainResult(this.fenResults, this.captures.get(0), this);
 		this.tabMain.displayTimeIngestion(getModel().getTimeIngestion());
 
 		this.fenResults.clearTabs();
 		this.fenResults.setMainTab(this.tabMain);
 		this.fenResults.addTab(this.tabChart);
-		this.fenResults.addTab(new TabDynamic(this.fenResults, this));
 		this.fenResults.pack();
 		this.fenResults.setSize(this.fenResults.getSize().width, 1024);
 		this.fenResults.setVisible(true);

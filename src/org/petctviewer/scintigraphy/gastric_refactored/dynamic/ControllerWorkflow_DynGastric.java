@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.gastric_refactored.dynamic;
 import java.util.Arrays;
 
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
-import org.petctviewer.scintigraphy.gastric_refactored.Region;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -52,40 +51,32 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		 * depending on the image
 		 */
 		// Set background noise for stomach
-		Region bkgNoise_stomach = new Region("Background Noise " + Model_Gastric.REGION_STOMACH);
 		ImageState bkgState = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_CUSTOM_IMAGE);
 		bkgState.specifieImage(timeOrderedSelection[0]);
 		Workflow workflowOfFirstImage = this.getWorkflowAssociatedWithImage(timeOrderedSelection[0]);
 		Instruction instructionSelected = workflowOfFirstImage.getInstructionAt(0);
-		bkgNoise_stomach.inflate(bkgState, getRoiManager().getRoi(instructionSelected.roiToDisplay()));
 
-		bkgState.getImage().getImagePlus().setRoi(getRoiManager().getRoi(
-				this.getWorkflowAssociatedWithImage(timeOrderedSelection[0]).getInstructionAt(0).roiToDisplay()));
-		getModel().setBkgNoise(bkgNoise_stomach);
+		getModel().setBkgNoise(Model_Gastric.REGION_STOMACH, bkgState,
+				getRoiManager().getRoi(instructionSelected.roiToDisplay()));
 
 		final int NB_ROI_PER_IMAGE = 3;
 		ImageState previousState = null;
 		for (int image = 0; image < getModel().getImageSelection().length; image++) {
 			ImageState state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, image);
 			// - Stomach
-			Region regionStomach = new Region(Model_Gastric.REGION_STOMACH);
-			regionStomach.inflate(state, this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE]);
-			getModel().calculateCounts(regionStomach);
+			getModel().calculateCounts(Model_Gastric.REGION_STOMACH, state,
+					this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE]);
 
 			// - Antre
-			Region regionAntre = new Region(Model_Gastric.REGION_ANTRE);
-			regionAntre.inflate(state, this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE + 2]);
-			getModel().calculateCounts(regionAntre);
+			getModel().calculateCounts(Model_Gastric.REGION_ANTRE, state,
+					this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE + 2]);
 
 			// - Fundus
-			Region regionFundus = new Region(Model_Gastric.REGION_FUNDUS);
-			regionFundus.inflate(state, null);
-			getModel().calculateCounts(regionFundus);
+			getModel().calculateCounts(Model_Gastric.REGION_FUNDUS, state, null);
 
 			// - Intestine
-			Region regionIntestine = new Region(Model_Gastric.REGION_INTESTINE);
-			regionIntestine.inflate(state, this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE + 1]);
-			getModel().calculateCounts(regionIntestine);
+			getModel().calculateCounts(Model_Gastric.REGION_INTESTINE, state,
+					this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE + 1]);
 
 			// The numActualImage is reversed because the images are in reversed order
 			getModel().computeDynamicData(state, previousState, getModel().getImageSelection().length - image,
@@ -160,18 +151,14 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
 			// Inform model if this instruction got the background
 			if (dialog.antreIsNowSelected()) {
-				Region bkgNoiseAntre = new Region("Background Noise " + Model_Gastric.REGION_ANTRE);
-				System.out.println("State for ANTRE: " + controller.getCurrentImageState());
-				bkgNoiseAntre.inflate(controller.getCurrentImageState(),
+				((Model_Gastric) controller.getModel()).setBkgNoise(Model_Gastric.REGION_ANTRE,
+						controller.getCurrentImageState(),
 						controller.getRoiManager().getRoi(controller.getIndexLastRoiSaved()));
-				((Model_Gastric) controller.getModel()).setBkgNoise(bkgNoiseAntre);
 			}
 			if (dialog.intestineIsNowSelected()) {
-				Region bkgNoiseIntestine = new Region("Background Noise " + Model_Gastric.REGION_INTESTINE);
-				System.out.println("State for INTESTINE: " + controller.getCurrentImageState());
-				bkgNoiseIntestine.inflate(controller.getCurrentImageState(),
+				((Model_Gastric) controller.getModel()).setBkgNoise(Model_Gastric.REGION_INTESTINE,
+						controller.getCurrentImageState(),
 						controller.getRoiManager().getRoi(controller.getIndexLastRoiSaved() - 1));
-				((Model_Gastric) controller.getModel()).setBkgNoise(bkgNoiseIntestine);
 			}
 		}
 
