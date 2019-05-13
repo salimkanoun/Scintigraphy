@@ -2,8 +2,6 @@ package org.petctviewer.scintigraphy.scin.instructions.execution;
 
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 

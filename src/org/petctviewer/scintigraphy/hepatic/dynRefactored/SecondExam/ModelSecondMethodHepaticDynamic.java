@@ -1,9 +1,12 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.math3.util.MathArrays;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
@@ -20,6 +23,9 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 	private Double maxFoieD, maxFoieG, finPicD, finPicG, pctVasc;
 
 	private TabResult resutlTab;
+	
+	// This organ names and order shall be the same  that the controller organs
+	private String[] organNames = {"Right Liver","Left Liver","Hilium","CBD","Duodenom","Blood pool"};
 
 	int indexRoi;
 
@@ -108,9 +114,7 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 			for (this.indexRoi = 0; this.indexRoi < this.nbOrganes; this.indexRoi++) {
 				imp.setRoi(getOrganRoi(this.indexRoi));
 				// On récupère seulement le nom de l'organe (usually 0_organNameA => 0 for the number of image, A for Ant or Post)
-				String name = this.getNomOrgane(this.indexRoi).substring(
-						this.getNomOrgane(this.indexRoi).lastIndexOf("_") + 1,
-						this.getNomOrgane(this.indexRoi).length() - 1);
+				String name = this.organNames[this.indexRoi];
 				// on cree la liste si elle n'existe pas
 				if (mapData.get(name) == null) {
 					mapData.put(name, new ArrayList<Double>());
@@ -178,35 +182,6 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 
 	public ImagePlus getCapture() {
 		return this.capture;
-	}
-
-	/**
-	 * Create the deconvolution of the liver by the blood pool.
-	 * @deprecated Does not works
-	 * @param blood
-	 * @param liver
-	 * @return
-	 */
-	public List<Double> deconvolv(Double[] blood, Double[] liver) {
-		List<Double> h = new ArrayList<Double>();
-		System.out.println("\tDECONVOLV : ");
-		for (int i = 0; i < blood.length; i++) {
-
-			double somme = 0;
-
-			for (int j = 0; j < i; j++) {
-				somme += (i - j + 1) * (h.get(j));
-			}
-
-			// SK REMPLACER 1 PAR LA VALEUR DE TEMPS DE LA FRAME !
-			double result2 = (1.0D / (blood[10])) * (liver[i] - somme);
-
-			// double result3=(right[i]-somme)/(blood[0]);
-
-			h.add(result2);
-
-		}
-		return h;
 	}
 
 	@Override

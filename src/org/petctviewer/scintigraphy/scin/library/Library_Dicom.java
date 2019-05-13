@@ -710,6 +710,9 @@ public class Library_Dicom {
 	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image.
 	 * Otherwise, the count are only ineter, and we lose many informations.
 	 * @param imp
+	 *         ImagePlus to normalize
+	 * @param framDurations
+	 *         int[] of the ImagePlus duration frames
 	 */
 	public static void normalizeToCountPerSecond(ImagePlus imp, int[] frameDurations) {
 		IJ.run(imp, "32-bit", "");
@@ -717,6 +720,33 @@ public class Library_Dicom {
 			imp.setSlice(i);
 			imp.getImageStack().getProcessor(i).multiply(1000d / (double)frameDurations[i - 1]);
 		}
+	}
+	
+	/**
+	 * Normalize to have on each frame, the count/second number.
+	 * 
+	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image.
+	 * Otherwise, the count are only ineter, and we lose many informations.
+	 * @param imp
+	 *        ImagePlus to normalize
+	 * 
+	 */
+	public static void normalizeToCountPerSecond(ImagePlus imp) {
+		int[] frameDurations = Library_Dicom.buildFrameDurations(imp);
+		normalizeToCountPerSecond(imp,frameDurations);
+	}
+	
+	/**
+	 * Normalize to have on each frame, the count/second number.
+	 * 
+	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image.
+	 * Otherwise, the count are only ineter, and we lose many informations.
+	 * @param imp
+	 *        ImageSelection to normalize
+	 * 
+	 */
+	public static void normalizeToCountPerSecond(ImageSelection imp) {
+		normalizeToCountPerSecond(imp.getImagePlus());
 	}
 
 }

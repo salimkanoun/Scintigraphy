@@ -70,7 +70,7 @@ public class FenApplication_Os extends JPanel {
 		this.additionalInfo = "Info";
 		this.nomFen = "Fen";
 		
-		sidePanel = new SidePanel(null, "Bone scintigraphy", controleur_os.getImp());
+		sidePanel = new SidePanel(null, "Bone scintigraphy", controleur_os.getImageSelection().getImagePlus());
 		
 		// sidePanel.addCaptureBtn(scin, "_other");
 		this.add(sidePanel, BorderLayout.WEST);
@@ -104,7 +104,7 @@ public class FenApplication_Os extends JPanel {
 	 */
 	public void finishBuildingWindow(Controleur_Os controleur_Os) {
 
-		this.slider = new JSlider(SwingConstants.HORIZONTAL, 0, (int) controleur_Os.getImp().getStatistics().max, 4);
+		this.slider = new JSlider(SwingConstants.HORIZONTAL, 0, (int) controleur_Os.getImageSelection().getImagePlus().getStatistics().max, 4);
 		slider.addChangeListener(controleur_Os);
 
 		this.boxSlider = Box.createVerticalBox();

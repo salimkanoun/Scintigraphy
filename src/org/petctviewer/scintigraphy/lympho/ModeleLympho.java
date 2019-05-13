@@ -7,10 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.simple.JSONObject;
-import org.petctviewer.scintigraphy.lympho.gui.TabPost;
-import org.petctviewer.scintigraphy.lympho.post.ControllerWorkflowPelvis;
-import org.petctviewer.scintigraphy.lympho.post.ModelePost;
+import org.petctviewer.scintigraphy.lympho.gui.TabPelvis;
+import org.petctviewer.scintigraphy.lympho.pelvis.ControllerWorkflowPelvis;
+import org.petctviewer.scintigraphy.lympho.pelvis.ModelePelvis;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -18,7 +17,6 @@ import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 
 import ij.ImagePlus;
-import ij.util.DicomTools;
 
 public class ModeleLympho extends ModeleScin {
 
@@ -70,21 +68,21 @@ public class ModeleLympho extends ModeleScin {
 	}
 
 	protected void calculerCoups(int organ, ImagePlus imp) {
-		// double correctedRadioactiveDecrease =
-		// Library_Quantif.calculer_countCorrected(getImagePlus(), imp,
-		// Isotope.TECHNICIUM_99);
+		
 		double correctedRadioactiveDecrease;
 		if (!(imp == getImagePlus())) {
-			correctedRadioactiveDecrease = Library_Quantif.calculer_countCorrected(18902000,
-					Library_Quantif.getCounts(imp), Isotope.TECHNICIUM_99);
+//			correctedRadioactiveDecrease = Library_Quantif.calculer_countCorrected(18902000,
+//					Library_Quantif.getCounts(imp), Isotope.TECHNICIUM_99);
+			correctedRadioactiveDecrease =Library_Quantif.calculer_countCorrected(getImagePlus(), imp,Isotope.TECHNICIUM_99);
 		} else {
 			correctedRadioactiveDecrease = Library_Quantif.getCounts(imp);
 		}
-		System.out.println("\t\tAvant correction : " + Library_Quantif.getCounts(imp));
-		System.out.println("\t\tAprès correction : " + correctedRadioactiveDecrease);
+//		System.out.println("\t\tAvant correction : " + Library_Quantif.getCounts(imp));
+//		System.out.println("\t\tAprès correction : " + correctedRadioactiveDecrease);
 		this.coups.put(organ, correctedRadioactiveDecrease);
-		System.out.println("Calculations for " + organ + " [" + ModeleLympho.convertOrgan(organ) + "] -> "
-				+ correctedRadioactiveDecrease);
+		// System.out.println("Calculations for " + organ + " [" +
+		// ModeleLympho.convertOrgan(organ) + "] -> "
+		// + correctedRadioactiveDecrease);
 	}
 
 	public static String convertOrgan(int organ) {
@@ -224,9 +222,9 @@ public class ModeleLympho extends ModeleScin {
 		s += "Delta Drainage," + this.results.get(3) + "\n";
 //		s += "L < R of :," + this.results.get(4) + "\n\n\n";
 
-		if (((TabPost) this.resutlTab) != null)
-			if (((TabPost) this.resutlTab).getVueBasic() != null)
-				s += ((ModelePost) ((ControllerWorkflowPelvis) ((TabPost) this.resutlTab).getVueBasic().getFenApplication()
+		if (((TabPelvis) this.resutlTab) != null)
+			if (((TabPelvis) this.resutlTab).getVueBasic() != null)
+				s += ((ModelePelvis) ((ControllerWorkflowPelvis) ((TabPelvis) this.resutlTab).getVueBasic().getFenApplication()
 						.getControleur()).getModel()).toCSV();
 
 		s += super.toString();

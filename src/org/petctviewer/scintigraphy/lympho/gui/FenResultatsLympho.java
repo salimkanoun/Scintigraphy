@@ -13,7 +13,7 @@ public class FenResultatsLympho extends FenResults {
 		super(controller);
 
 		this.setMainTab(new TabPrincipalLympho(this, "Result", controller.getModel(), captures));
-		this.addTab(new TabPost(this, "Pelvis", true));
+		this.addTab(new TabPelvis(this, "Pelvis", true));
 		controller.getModel().getImagePlus().show();
 
 		this.addTab(new TabTest3(this, "Test3", true));

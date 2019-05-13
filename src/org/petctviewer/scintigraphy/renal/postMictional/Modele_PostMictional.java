@@ -2,14 +2,15 @@ package org.petctviewer.scintigraphy.renal.postMictional;
 
 import java.util.HashMap;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 
 public class Modele_PostMictional extends ModeleScin {
 
 	private HashMap<String, Double> hm;
 
-	public Modele_PostMictional(String studyName) {
-		super(null, studyName);
+	public Modele_PostMictional(ImageSelection[] selectedImages,String studyName) {
+		super(selectedImages, studyName);
 	}
 
 	@Override

@@ -20,16 +20,15 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.ImagePlus;
 import ij.gui.Roi;
 
 public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
 	private FenResults fenResult;
 
-	private int nbOrganes = 0;
-
-	private ImagePlus impProjetee;
+	// private int nbOrganes = 0;
+	//
+	// private ImagePlus impProjetee;
 	private int indexRoi;
 
 	public ControllerWorkflowScinDynamic(Scintigraphy main, FenApplication vue, ModeleScin model) {
@@ -61,7 +60,8 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 	@Override
 	public void end() {
 		// on sauvegarde l'imp projetee pour la reafficher par la suite
-		this.impProjetee = ((Modele_GeneralDyn) this.model).getImpProjetee().getImagePlus();
+		// this.impProjetee = ((Modele_GeneralDyn)
+		// this.model).getImpProjetee().getImagePlus();
 
 		Library_Gui.initOverlay(this.vue.getImagePlus());
 		Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus(), Color.yellow, 1);
@@ -72,7 +72,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 			this.vue.getImagePlus().getOverlay().add(roi);
 		}
 
-		this.nbOrganes = this.model.getRoiManager().getCount();
+		// this.nbOrganes = this.model.getRoiManager().getCount();
 		GeneralDynamicScintigraphy scindyn = (GeneralDynamicScintigraphy) this.main;
 
 		BufferedImage capture;
@@ -114,16 +114,16 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
 	}
 
-	private void finishDrawingResultWindow() {
-		GeneralDynamicScintigraphy vue = (GeneralDynamicScintigraphy) this.main;
-		this.indexRoi = this.nbOrganes;
-
-		vue.getFenApplication().setImage(this.impProjetee);
-		// vue.setImp(this.impProjetee);
-		this.model.getImagesPlus()[0] = this.impProjetee;
-
-		vue.getFenApplication().resizeCanvas();
-	}
+	// private void finishDrawingResultWindow() {
+	// GeneralDynamicScintigraphy vue = (GeneralDynamicScintigraphy) this.main;
+	// this.indexRoi = this.nbOrganes;
+	//
+	// vue.getFenApplication().setImage(this.impProjetee);
+	// // vue.setImp(this.impProjetee);
+	// this.model.getImagesPlus()[0] = this.impProjetee;
+	//
+	// vue.getFenApplication().resizeCanvas();
+	// }
 
 	@Override
 	public void clicSuivant() {
@@ -139,9 +139,9 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 			int retour = JOptionPane.OK_OPTION;
 			if (this.model.getRoiManager()
 					.getRoi(indexRoi) != null /* && indexRoiToSave > this.model.getRoiManager().getCount() */) {
-				JOptionPane d = new JOptionPane();
-				retour = d.showConfirmDialog(getVue(), "A Roi already have this name. Do you want to continue ?",
-						"Duplicate Roi Name", JOptionPane.YES_NO_OPTION);
+				retour = JOptionPane.showConfirmDialog(getVue(),
+						"A Roi already have this name. Do you want to continue ?", "Duplicate Roi Name",
+						JOptionPane.YES_NO_OPTION);
 			}
 			if (retour != JOptionPane.OK_OPTION)
 				return;

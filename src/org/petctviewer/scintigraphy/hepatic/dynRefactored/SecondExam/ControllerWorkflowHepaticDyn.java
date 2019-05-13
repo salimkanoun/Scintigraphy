@@ -10,7 +10,7 @@ import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
-import org.petctviewer.scintigraphy.scin.instructions.DrawRoiInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
@@ -52,7 +52,7 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 		dri_4 = new DrawRoiInstruction("CBD", stateAnt, null);
 		dri_5 = new DrawRoiInstruction("Duodenom", stateAnt, null);
 		dri_6 = new DrawRoiInstruction("Blood pool", stateAnt, null);
-		dri_capture = new ScreenShotInstruction(captures, this.getVue());
+		dri_capture = new ScreenShotInstruction(captures, this.getVue(), 0);
 
 		this.workflows[0].addInstruction(dri_1);
 		this.workflows[0].addInstruction(dri_2);

@@ -10,17 +10,22 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.ModelHepaticDynamic;
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ModelSecondMethodHepaticDynamic;
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.SecondHepaticScintigraphy;
+import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
-public class TabOtherMethod extends TabResult implements ActionListener {
+public class TabOtherMethod extends TabResult implements ActionListener, ChangeListener  {
 
 	private boolean examDone;
 
@@ -30,6 +35,8 @@ public class TabOtherMethod extends TabResult implements ActionListener {
 
 	private JTabbedPane tabPane;
 	// private List<TabResult> tabsResult;
+	
+	private TabDeconvolv deconvolvGraph;
 
 	public TabOtherMethod(FenResults parent, String title) {
 		super(parent, title, true);
@@ -56,7 +63,10 @@ public class TabOtherMethod extends TabResult implements ActionListener {
 					"T1/2 Blood pool", "T1/2 Blood pool *", "Blood pool ratio 20mn/5mn" };
 			for (String s : keys)
 				resultPane.add(new JLabel(s + " : " + results.get(s)));
-
+			
+			JSpinner spinner = new JSpinner(new SpinnerNumberModel(0, 0, 100, 1));
+			spinner.addChangeListener(this);
+			resultPane.add(spinner);
 			return resultPane;
 		} else
 			return null;
@@ -82,7 +92,7 @@ public class TabOtherMethod extends TabResult implements ActionListener {
 			this.tabPane = new JTabbedPane();
 			TabTAC tabTac = new TabTAC(this.getParent(), this);
 			TabVasculaire tabVasculaire = new TabVasculaire(this.getParent(), this);
-			TabDeconvolv deconvolvGraph = new TabDeconvolv(this.getParent(), this);
+			this.deconvolvGraph = new TabDeconvolv(this.getParent(), this);
 			TabThreeAsOne threeAsOne = new TabThreeAsOne(this.getParent(), this);
 
 			this.tabPane.addTab(tabTac.getTitle(), tabTac.getPanel());
@@ -122,5 +132,12 @@ public class TabOtherMethod extends TabResult implements ActionListener {
 
 	public FenApplication getFenApplication() {
 		return this.vueBasic.getFenApplication();
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent arg0) {
+		JSpinner spin = (JSpinner) arg0.getSource();
+		this.deconvolvGraph.setDeconvolvFactor((int) spin.getValue());
+		this.deconvolvGraph.reloadDisplay();
 	}
 }

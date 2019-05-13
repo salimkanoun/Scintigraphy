@@ -22,11 +22,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 	private FenResults fenResult;
 
-	private int nbOrganes = 0;
-	private boolean over;
-	private ImagePlus impProjetee;
 	private int indexRoi;
-
 
 	public ControllerWorkflow_ScinStatic(Scintigraphy main, FenApplication vue, ImageSelection[] selectedImages,
 			String studyName) {
@@ -56,7 +52,6 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
 		dri_1 = new DrawLoopInstruction(this.workflows[0], stateAnt);
-
 
 		this.workflows[0].addInstructionOnTheFly(dri_1);
 
@@ -94,7 +89,8 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		boolean sameName = false;
 		for (Instruction instruction : this.workflows[this.indexCurrentImage].getInstructions())
 			if (instruction instanceof DrawLoopInstruction)
-				if (((DrawLoopInstruction) instruction) != this.workflows[this.indexCurrentImage].getCurrentInstruction())
+				if (((DrawLoopInstruction) instruction) != this.workflows[this.indexCurrentImage]
+						.getCurrentInstruction())
 					if (this.workflows[this.indexCurrentImage].getController().getVue().getTextfield_instructions()
 							.getText().equals(((DrawLoopInstruction) instruction).getInstructionRoiName()))
 						sameName = true;
@@ -102,9 +98,9 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 			int retour = JOptionPane.OK_OPTION;
 			if (this.model.getRoiManager()
 					.getRoi(indexRoi) != null /* && indexRoiToSave > this.model.getRoiManager().getCount() */) {
-				JOptionPane d = new JOptionPane();
-				retour = d.showConfirmDialog(getVue(), "A Roi already have this name. Do you want to continue ?",
-						"Duplicate Roi Name", JOptionPane.YES_NO_CANCEL_OPTION);
+				retour = JOptionPane.showConfirmDialog(getVue(),
+						"A Roi already have this name. Do you want to continue ?", "Duplicate Roi Name",
+						JOptionPane.YES_NO_CANCEL_OPTION);
 			}
 			if (retour != JOptionPane.OK_OPTION)
 				return;
@@ -113,7 +109,5 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		super.clicSuivant();
 		System.out.println(this.model.getRoiManager().getRoi(indexRoi).getName());
 	}
-
-
 
 }

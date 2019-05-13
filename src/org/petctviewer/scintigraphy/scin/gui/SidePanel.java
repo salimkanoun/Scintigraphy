@@ -128,9 +128,9 @@ public class SidePanel extends JPanel {
 		this.panSouth.add(lbl_credits);
 
 		// generation du tag info
-		String info = Library_Capture_CSV.genererDicomTagsPartie1(tab.getParent().getModel().getImagesPlus()[0],
+		String info = Library_Capture_CSV.genererDicomTagsPartie1(tab.getParent().getModel().getImagePlus(),
 				tab.getParent().getModel().getStudyName(), tab.getParent().getModel().getUID6digits())
-				+ Library_Capture_CSV.genererDicomTagsPartie2(tab.getParent().getModel().getImagesPlus()[0]);
+				+ Library_Capture_CSV.genererDicomTagsPartie2(tab.getParent().getModel().getImagePlus());
 
 		// on ajoute le listener sur le bouton capture
 		captureButton.addActionListener(new ActionListener() {

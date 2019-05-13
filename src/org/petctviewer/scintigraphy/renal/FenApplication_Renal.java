@@ -81,7 +81,7 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 
 			if (!this.dyn) {
 				
-				imp = vue.getImpPost();
+				imp = vue.getImpPost().getImagePlus();
 				Library_Gui.setCustomLut(imp);
 				Overlay overlay=Library_Gui.initOverlay(imp);
 				imp.setOverlay(overlay);
@@ -132,13 +132,14 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 			fen.setVisible(true);
 			fen.setAlwaysOnTop(true);
 			fen.setLocationRelativeTo(this);
-			((Controleur_Renal) this.getControleur()).setKidneys(fen.getKidneys());
+//			((Controleur_Renal) this.getControleur()).setKidneys(fen.getKidneys());
+			((ControllerWorkflowRenal) this.getControleur()).setKidneys(fen.getKidneys());
 
 			this.getBtn_contrast().setEnabled(true);
 
 			this.getPanel_bttns_droit().removeAll();
 			this.getPanel_bttns_droit().add(this.createPanelInstructionsBtns());
-			((Controleur_OrganeFixe)this.getControleur()).setInstructionsDelimit(0);
+//			((Controleur_OrganeFixe)this.getControleur()).setInstructionsDelimit(0);
 			this.getBtn_drawROI().setEnabled(true);
 			IJ.setTool(Toolbar.POLYGON);
 			this.setImage(impProj);

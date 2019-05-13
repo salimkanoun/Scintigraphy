@@ -36,9 +36,8 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 		
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null;
-		ScreenShotInstruction dri_capture = null;
+		ScreenShotInstruction dri_capture_1 = null, dri_capture_2 = null;
 		this.captures = new ArrayList<>();
-		System.out.println("Captures créées");
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
 			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i]);
@@ -48,16 +47,17 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 			
 			dri_1 = new DrawRoiInstruction("Right Foot", stateAnt);
 			dri_2 = new DrawRoiInstruction("Left Foot", stateAnt);
-			dri_capture = new ScreenShotInstruction(captures, this.getVue(), i);
+			dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), i*2);
 			dri_3 = new DrawRoiInstruction("Right Foot", statePost, dri_1);
 			dri_4 = new DrawRoiInstruction("Left Foot", statePost, dri_2);
+			dri_capture_2 = new ScreenShotInstruction(captures, this.getVue(), (i*2)+1);
 
 			this.workflows[i].addInstruction(dri_1);
 			this.workflows[i].addInstruction(dri_2);
-			this.workflows[i].addInstruction(dri_capture);
+			this.workflows[i].addInstruction(dri_capture_1);
 			this.workflows[i].addInstruction(dri_3);
 			this.workflows[i].addInstruction(dri_4);
-			this.workflows[i].addInstruction(dri_capture);
+			this.workflows[i].addInstruction(dri_capture_2);
 
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());

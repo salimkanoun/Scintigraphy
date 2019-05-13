@@ -11,23 +11,23 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.lympho.ModeleLympho;
-import org.petctviewer.scintigraphy.lympho.post.ControllerWorkflowPelvis;
-import org.petctviewer.scintigraphy.lympho.post.ModelePost;
-import org.petctviewer.scintigraphy.lympho.post.PostScintigraphy;
+import org.petctviewer.scintigraphy.lympho.pelvis.ControllerWorkflowPelvis;
+import org.petctviewer.scintigraphy.lympho.pelvis.ModelePelvis;
+import org.petctviewer.scintigraphy.lympho.pelvis.PelvisScintigraphy;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
-public class TabPost extends TabResult implements ActionListener {
+public class TabPelvis extends TabResult implements ActionListener {
 
 	private boolean examDone;
 
-	private PostScintigraphy vueBasic;
+	private PelvisScintigraphy vueBasic;
 
 	private JButton btn_addImp;
 
-	public TabPost(FenResults parent, String title, boolean captureBtn) {
+	public TabPelvis(FenResults parent, String title, boolean captureBtn) {
 		super(parent, title, captureBtn);
 		// TODO Auto-generated constructor stub
 		this.setSidePanelTitle("Pelvis Scintigraphy");
@@ -41,7 +41,7 @@ public class TabPost extends TabResult implements ActionListener {
 		if (!this.examDone) {
 			return null;
 		} else {
-			String[] result = ((ModelePost) ((ControllerWorkflowPelvis) this.vueBasic.getFenApplication().getControleur())
+			String[] result = ((ModelePelvis) ((ControllerWorkflowPelvis) this.vueBasic.getFenApplication().getControleur())
 					.getModel()).getResult();
 			JPanel res = new JPanel(new GridLayout(result.length, 1));
 			for (String s : result)
@@ -67,7 +67,7 @@ public class TabPost extends TabResult implements ActionListener {
 
 		} else {
 			DynamicImage pelvis = new DynamicImage(
-					((ModelePost) ((ControllerWorkflowPelvis) this.vueBasic.getFenApplication().getControleur()).getModel())
+					((ModelePelvis) ((ControllerWorkflowPelvis) this.vueBasic.getFenApplication().getControleur()).getModel())
 							.getPelvisMontage().getImage());
 			return pelvis;
 		}
@@ -76,7 +76,7 @@ public class TabPost extends TabResult implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		this.vueBasic = new PostScintigraphy("Post Scinty", this);
+		this.vueBasic = new PelvisScintigraphy("Post Scinty", this);
 		try {
 			this.vueBasic.run("");
 		} catch (Exception e) {
