@@ -858,10 +858,6 @@ public class Model_Gastric extends ModeleScin {
 		imp.setSlice(region.getState().getSlice());
 		imp.setRoi(region.getRoi());
 		data.setValue(region, key, Library_Quantif.getCounts(imp));
-
-		System.out.println("Data inserted, now having " + this.nbAcquisitions() + " acquisitions (with "
-				+ this.results.size() + " actual results)");
-		System.out.println("====");
 	}
 
 	private void calculateCountsFromData(Region region) {
@@ -886,10 +882,6 @@ public class Model_Gastric extends ModeleScin {
 
 		// Save value
 		data.setValue(region, key, counts);
-
-		System.out.println("Data inserted, now having " + this.nbAcquisitions() + " acquisitions (with "
-				+ this.results.size() + " actual results)");
-		System.out.println("====");
 	}
 
 	/**
@@ -909,15 +901,11 @@ public class Model_Gastric extends ModeleScin {
 			throw new IllegalArgumentException("The region (" + region
 					+ ") is not requested in this model\nValid regions: " + Arrays.toString(this.getAllRegions()));
 
-		System.out.println("Adding new counts for region " + region);
-
 		if (region.getName().equals(REGION_STOMACH) || region.getName().equals(REGION_ANTRE)
 				|| region.getName().equals(REGION_INTESTINE)) {
-			System.out.println("Counts are calculated from Image");
 			this.calculateCountsFromImage(region);
 		}
 		if (region.getName().equals(REGION_FUNDUS) || region.getName().equals(REGION_INTESTINE)) {
-			System.out.println("Counts are calculated from Data");
 			this.calculateCountsFromData(region);
 		}
 	}
@@ -1129,13 +1117,23 @@ public class Model_Gastric extends ModeleScin {
 		return percentage * (1. - ratio);
 	}
 
-	private double backgroundNoise;
+	private double bkgNoise_antre, bkgNoise_intestine, bkgNoise_stomach;
 
 	public void setBkgNoise(Region region) {
 		ImagePlus imp = region.getState().getImage().getImagePlus();
 		imp.setRoi(region.getRoi());
 
-		this.backgroundNoise = Library_Quantif.getAvgCounts(imp);
+		double bkgNoise = Library_Quantif.getAvgCounts(imp);
+		if (region.getName().contains(REGION_ANTRE))
+			this.bkgNoise_antre = bkgNoise;
+		else if (region.getName().contains(REGION_INTESTINE))
+			this.bkgNoise_intestine = bkgNoise;
+		else if (region.getName().contains(REGION_STOMACH))
+			this.bkgNoise_stomach = bkgNoise;
+		else
+			throw new IllegalArgumentException("The region (" + region + ") doesn't contain a background noise");
+
+		System.out.println("The background noise for the " + region + " is set at " + bkgNoise + "!");
 	}
 
 	/**
@@ -1163,6 +1161,8 @@ public class Model_Gastric extends ModeleScin {
 			throw new NoSuchElementException(
 					"No data has been set for this image (" + state.getImage().getImagePlus().getTitle() + ")");
 
+		System.out.println("Data before computing: " + data);
+
 		boolean computingDynamic = false;
 		try {
 			computingDynamic = state.getImage().getImageOrientation().isDynamic();
@@ -1175,18 +1175,16 @@ public class Model_Gastric extends ModeleScin {
 		if (computingDynamic) {
 			key = Data.ANT_COUNTS;
 
-			Double valueFundus = data.getValue(REGION_FUNDUS, Data.ANT_COUNTS);
-			Double valueAntre = data.getValue(REGION_ANTRE, Data.ANT_COUNTS);
-			Double antStomach = valueFundus + valueAntre;
-			data.setValue(REGION_STOMACH, Data.ANT_COUNTS, antStomach);
 			// - Total
 			data.setValue(new Region(REGION_ALL), Data.ANT_COUNTS,
-					antStomach + data.getValue(REGION_INTESTINE, Data.ANT_COUNTS));
+					data.getValue(REGION_STOMACH, Data.ANT_COUNTS) + data.getValue(REGION_INTESTINE, Data.ANT_COUNTS));
 		} else {
 			key = Data.GEO_AVEREAGE;
 
 			this.computeGeometricalAverages(state);
 		}
+
+		System.out.println("Data after first computation: " + data);
 
 		// Adjust counts with background
 		for (Region region : data.getRegions()) {
@@ -1194,9 +1192,38 @@ public class Model_Gastric extends ModeleScin {
 			if (region.getName().equals(REGION_ALL))
 				continue;
 
-			data.setValue(region, key, data.getValue(region.getName(), key)
-					- (this.backgroundNoise * region.getState().getImage().getImagePlus().getStatistics().pixelCount));
+			Double bkgNoise = null;
+			if (region.getName().equals(REGION_ANTRE)) {
+				bkgNoise = this.bkgNoise_antre;
+			} else if (region.getName().equals(REGION_INTESTINE)) {
+				bkgNoise = this.bkgNoise_intestine;
+				System.out.println("Background noise = " + bkgNoise);
+			} else if (region.getName().equals(REGION_STOMACH)) {
+				bkgNoise = this.bkgNoise_stomach;
+			} else
+				// TODO: correct with a bkg noise
+				System.err.println("Warning: The region (" + region + ") is not corrected with a background noise!");
+
+			if (bkgNoise != null) {
+				System.out.println("Value = " + data.getValue(region.getName(), key));
+				System.out.println("Bkg noise = " + bkgNoise);
+				System.out.println(
+						"Pixel count = " + region.getState().getImage().getImagePlus().getStatistics().pixelCount);
+				System.out.println("Result = "
+						+ (bkgNoise * region.getState().getImage().getImagePlus().getStatistics().pixelCount));
+				System.out.println("New value = " + data.getValue(region.getName(), key) + " = "
+						+ (data.getValue(region.getName(), key)
+								- (bkgNoise * region.getState().getImage().getImagePlus().getStatistics().pixelCount)));
+				data.setValue(region, key, data.getValue(region.getName(), key)
+						- (bkgNoise * region.getState().getImage().getImagePlus().getStatistics().pixelCount));
+				if (bkgNoise == 0.)
+					System.err.println("Warning: The background noise " + region + " is 0.");
+
+				System.out.println();
+			}
 		}
+
+		System.out.println("Data after bkg noise: " + data);
 
 		// Adjust percentages with eggs ratio
 		double percentage = this.adjustPercentageWithEggsRatio(REGION_FUNDUS,
@@ -1236,6 +1263,8 @@ public class Model_Gastric extends ModeleScin {
 						+ previousState.getImage().getImagePlus().getTitle() + ")");
 			}
 		}
+
+		System.out.println("Data after percentages: " + data);
 	}
 
 	/**

@@ -13,6 +13,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.CheckIntersectionInstruction;
@@ -45,8 +46,24 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		Arrays.parallelSort(timeOrderedSelection, new ChronologicalAcquisitionComparator());
 		getModel().setTimeIngestion(Library_Dicom.getDateAcquisition(timeOrderedSelection[0].getImagePlus()));
 
-		final int NB_ROI_PER_IMAGE = 3;
+		/*
+		 * TODO: this seems incorrect: this relies on the assumption that the first
+		 * dynamic image (in chronological order) is only noise, which might be wrong
+		 * depending on the image
+		 */
+		// Set background noise for stomach
+		Region bkgNoise_stomach = new Region("Background Noise " + Model_Gastric.REGION_STOMACH);
+		ImageState bkgState = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_CUSTOM_IMAGE);
+		bkgState.specifieImage(timeOrderedSelection[0]);
+		Workflow workflowOfFirstImage = this.getWorkflowAssociatedWithImage(timeOrderedSelection[0]);
+		Instruction instructionSelected = workflowOfFirstImage.getInstructionAt(0);
+		bkgNoise_stomach.inflate(bkgState, getRoiManager().getRoi(instructionSelected.roiToDisplay()));
 
+		bkgState.getImage().getImagePlus().setRoi(getRoiManager().getRoi(
+				this.getWorkflowAssociatedWithImage(timeOrderedSelection[0]).getInstructionAt(0).roiToDisplay()));
+		getModel().setBkgNoise(bkgNoise_stomach);
+
+		final int NB_ROI_PER_IMAGE = 3;
 		ImageState previousState = null;
 		for (int image = 0; image < getModel().getImageSelection().length; image++) {
 			ImageState state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, image);
@@ -99,7 +116,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 
-		DrawRoiInstruction dri_1 = null, dri_2 = null;
+		DrawRoiInstruction dri_antre = null, dri_intestine = null;
 
 		PromptBkgNoise promptBkgNoise = new PromptBkgNoise(this);
 
@@ -109,12 +126,14 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 			ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
 			state.specifieImage(this.workflows[i].getImageAssociated());
 
-			dri_1 = new DrawRoiInstruction("Stomach", state, dri_1);
-			dri_2 = new DrawRoiInstruction("Intestine", state, dri_2);
+			dri_antre = new DrawRoiInstruction("Stomach", state, dri_antre);
+			dri_intestine = new DrawRoiInstruction("Intestine", state, dri_intestine);
+			CheckIntersectionInstruction checkIntersection = new CheckIntersectionInstruction(this, dri_antre,
+					dri_intestine, "Antre");
 
-			this.workflows[i].addInstruction(dri_1);
-			this.workflows[i].addInstruction(dri_2);
-			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_1, dri_2, "Antre"));
+			this.workflows[i].addInstruction(dri_antre);
+			this.workflows[i].addInstruction(dri_intestine);
+			this.workflows[i].addInstruction(checkIntersection);
 			this.workflows[i].addInstruction(new BkgNoiseInstruction(promptBkgNoise));
 		}
 		this.workflows[getModel().getImageSelection().length - 1].addInstruction(new EndInstruction());
@@ -137,8 +156,27 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		public void afterNext(ControllerWorkflow controller) {
 			PromptBkgNoise dialog = (PromptBkgNoise) this.dialog;
 			if (dialog.shouldBeDisplayed())
-				super.afterNext(controller);
+				dialog.setVisible(true);
+			
+			/*
+			 * Trouver un moyen de récupérer la ROI créée par la DRI de l'estomac
+			 */
+
 			// Inform model if this instruction got the background
+			if (dialog.antreIsNowSelected()) {
+				Region bkgNoiseAntre = new Region("Background Noise " + Model_Gastric.REGION_ANTRE);
+				System.out.println("State for ANTRE: " + controller.getCurrentImageState());
+				bkgNoiseAntre.inflate(controller.getCurrentImageState(),
+						controller.getRoiManager().getRoi(workflows[indexCurrentImage].getCurrentInstruction()));
+				((Model_Gastric) controller.getModel()).setBkgNoise(bkgNoiseAntre);
+			}
+			if (dialog.intestineIsNowSelected()) {
+				Region bkgNoiseIntestine = new Region("Background Noise " + Model_Gastric.REGION_INTESTINE);
+				System.out.println("State for INTESTINE: " + controller.getCurrentImageState());
+				bkgNoiseIntestine.inflate(controller.getCurrentImageState(),
+						controller.getRoiManager().getRoi(dri_intestine.roiToDisplay()));
+				((Model_Gastric) controller.getModel()).setBkgNoise(bkgNoiseIntestine);
+			}
 		}
 
 		@Override

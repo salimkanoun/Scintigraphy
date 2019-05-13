@@ -74,6 +74,10 @@ public abstract class ControleurScin implements ActionListener {
 	public ModeleScin getModel() {
 		return this.model;
 	}
+	
+	public int getPosition() {
+		return this.position;
+	}
 
 	/**
 	 * This method should be called when the controller is over.
