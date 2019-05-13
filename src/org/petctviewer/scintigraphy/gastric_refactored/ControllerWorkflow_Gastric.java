@@ -93,8 +93,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 			}
 
 			// The numActualImage is reversed because the images are in reversed order
-			getModel().computeData(state, previousState, getModel().getImageSelection().length - i / 6,
-					getModel().getImageSelection().length);
+			getModel().computeStaticData(state, previousState);
 			previousState = state;
 		}
 		this.model.calculerResultats();

@@ -88,7 +88,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 			getModel().calculateCounts(regionIntestine);
 
 			// The numActualImage is reversed because the images are in reversed order
-			getModel().computeData(state, previousState, getModel().getImageSelection().length - image,
+			getModel().computeDynamicData(state, previousState, getModel().getImageSelection().length - image,
 					getModel().getImageSelection().length);
 			previousState = state;
 		}

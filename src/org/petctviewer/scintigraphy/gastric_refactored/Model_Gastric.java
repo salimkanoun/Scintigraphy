@@ -45,7 +45,6 @@ import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.LinearFit;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
@@ -416,6 +415,8 @@ public class Model_Gastric extends ModeleScin {
 				return "Derivative";
 			case CORRELATION:
 				return "Correlation";
+			case PIXEL_COUNTS:
+				return "Pixel counts";
 			default:
 				return "???";
 			}
@@ -600,7 +601,7 @@ public class Model_Gastric extends ModeleScin {
 	private static XYSeriesCollection createDatasetUn(double[] resX, double[] resY, String titre) {
 		XYSeries courbe = new XYSeries(titre);
 		for (int i = 0; i < resX.length; i++)
-			courbe.add(resX[i], resY[i]);
+			courbe.add(resX[i], Math.max(0, resY[i]));
 		return new XYSeriesCollection(courbe);
 	}
 
@@ -1112,10 +1113,21 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	private double adjustPercentageWithEggsRatio(String region, double percentage, int numActualImage,
 			int nbTotalImages) {
-		double ratio = (nbTotalImages - numActualImage) / nbTotalImages;
-		if (region.equals(REGION_FUNDUS))
-			return 100. * ratio + percentage * (1. - ratio);
-		return percentage * (1. - ratio);
+//		System.out.println("Inputs: region=" + region + ", percentage=" + percentage + ", image=" + numActualImage
+//				+ ", totImgs=" + nbTotalImages);
+		double ratioEggsInBody = (double) numActualImage / (double) nbTotalImages;
+//		System.out.println("Ratio eggs in body: " + (double)numActualImage + " / " + (double)nbTotalImages + " = " + ratioEggsInBody);
+		double percentEggsNotInBody = 100. - ratioEggsInBody * 100.;
+//		System.out.println("Percent eggs not in body: 100 - " + ratioEggsInBody + " * 100 = " + percentEggsNotInBody);
+
+		if (region == REGION_FUNDUS) {
+//			System.out.println("Returned value: " + percentEggsNotInBody + " + " + percentage + " * " + ratioEggsInBody
+//					+ " = " + (percentEggsNotInBody + percentage * ratioEggsInBody));
+			return percentEggsNotInBody + percentage * ratioEggsInBody;
+		}
+//		System.out.println(
+//				"Returned value: " + percentage + " * " + ratioEggsInBody + " = " + (percentage * ratioEggsInBody));
+		return percentage * ratioEggsInBody;
 	}
 
 	private double bkgNoise_antre, bkgNoise_intestine, bkgNoise_stomach;
@@ -1146,6 +1158,62 @@ public class Model_Gastric extends ModeleScin {
 	 * If the previous state is not null, then the derivative is calculated for the
 	 * stomach.
 	 * 
+	 * @param state         State of the data to retrieve
+	 * @param previousState State of the previous data to retrieve (in chronological
+	 *                      order)
+	 * @throws NoSuchElementException if no data could be retrieved from the
+	 *                                specified state
+	 */
+	public void computeStaticData(ImageState state, ImageState previousState) {
+		Data data = this.results.get(hashState(state));
+		if (data == null)
+			throw new NoSuchElementException(
+					"No data has been set for this image (" + state.getImage().getImagePlus().getTitle() + ")");
+
+		int key = Data.GEO_AVEREAGE;
+
+		this.computeGeometricalAverages(state);
+
+		// Adjust percentages with eggs ratio
+		data.setValue(REGION_FUNDUS, Data.PERCENTAGE, calculatePercentage(data, REGION_FUNDUS, key));
+
+		data.setValue(REGION_ANTRE, Data.PERCENTAGE, calculatePercentage(data, REGION_ANTRE, key));
+
+		data.setValue(REGION_STOMACH, Data.PERCENTAGE,
+				data.getValue(REGION_FUNDUS, Data.PERCENTAGE) + data.getValue(REGION_ANTRE, Data.PERCENTAGE));
+
+		data.setValue(REGION_INTESTINE, Data.PERCENTAGE, 100. - data.getValue(REGION_STOMACH, Data.PERCENTAGE));
+
+		double fundusDerivative = data.getValue(REGION_FUNDUS, Data.PERCENTAGE)
+				/ data.getValue(REGION_STOMACH, Data.PERCENTAGE) * 100.;
+		data.setValue(REGION_FUNDUS, Data.CORRELATION, fundusDerivative);
+
+		if (previousState != null) {
+			Data previousData = this.results.get(hashState(previousState));
+			if (previousData != null) {
+				double stomachDerivative = (previousData.getValue(REGION_STOMACH, Data.PERCENTAGE)
+						- data.getValue(REGION_STOMACH, Data.PERCENTAGE))
+						/ (this.calculateDeltaTime(Library_Dicom.getDateAcquisition(state.getImage().getImagePlus()))
+								- this.calculateDeltaTime(
+										Library_Dicom.getDateAcquisition(previousState.getImage().getImagePlus())))
+						* 30.;
+				previousData.setValue(REGION_STOMACH, Data.DERIVATIVE, stomachDerivative);
+			} else {
+				System.err.println("Careful: no data found for the previous image specified ("
+						+ previousState.getImage().getImagePlus().getTitle() + ")");
+			}
+		}
+	}
+
+	/**
+	 * Computes the data retrieved from the specified state. This method calculates
+	 * the percentages for each region. This method should be used when the dynamic
+	 * acquisition has been made.<br>
+	 * The {@link Data#ANT_COUNTS} <b>must</b> be defined in every region (except
+	 * REGION_ALL).<br>
+	 * If the previous state is not null, then the derivative is calculated for the
+	 * stomach.
+	 * 
 	 * @param state          State of the data to retrieve
 	 * @param previousState  State of the previous data to retrieve (in
 	 *                       chronological order)
@@ -1156,36 +1224,17 @@ public class Model_Gastric extends ModeleScin {
 	 * @throws NoSuchElementException if no data could be retrieved from the
 	 *                                specified state
 	 */
-	public void computeData(ImageState state, ImageState previousState, int numActualImage, int nbTotalImages) {
+	public void computeDynamicData(ImageState state, ImageState previousState, int numActualImage, int nbTotalImages) {
 		Data data = this.results.get(hashState(state));
 		if (data == null)
 			throw new NoSuchElementException(
 					"No data has been set for this image (" + state.getImage().getImagePlus().getTitle() + ")");
 
-		System.out.println("Data before computing: " + data);
+		int key = Data.ANT_COUNTS;
 
-		boolean computingDynamic = false;
-		try {
-			computingDynamic = state.getImage().getImageOrientation().isDynamic();
-		} catch (WrongOrientationException e) {
-			System.err.println("Warning: The orientation of the image (" + state.getImage().getImagePlus().getTitle()
-					+ ") is Unknown. Assuming the image is static");
-		}
-
-		int key;
-		if (computingDynamic) {
-			key = Data.ANT_COUNTS;
-
-			// - Total
-			data.setValue(new Region(REGION_ALL), Data.ANT_COUNTS,
-					data.getValue(REGION_STOMACH, Data.ANT_COUNTS) + data.getValue(REGION_INTESTINE, Data.ANT_COUNTS));
-		} else {
-			key = Data.GEO_AVEREAGE;
-
-			this.computeGeometricalAverages(state);
-		}
-
-		System.out.println("Data after first computation: " + data);
+		// - Total
+		data.setValue(new Region(REGION_ALL), Data.ANT_COUNTS,
+				data.getValue(REGION_STOMACH, Data.ANT_COUNTS) + data.getValue(REGION_INTESTINE, Data.ANT_COUNTS));
 
 		// Adjust counts with background
 		for (Region region : data.getRegions()) {
@@ -1206,36 +1255,41 @@ public class Model_Gastric extends ModeleScin {
 				System.err.println("Warning: The region (" + region + ") is not corrected with a background noise!");
 
 			if (bkgNoise != null) {
-				System.out.println("Value = " + data.getValue(region.getName(), key));
-				System.out.println("Bkg noise = " + bkgNoise);
-				System.out.println("Pixel count = " + data.getValue(region.getName(), Data.PIXEL_COUNTS));
-				System.out.println("Applied to img: " + region.getState().getImage().getImagePlus().getTitle());
-				System.out.println("Result = " + (bkgNoise * data.getValue(region.getName(), Data.PIXEL_COUNTS)));
-				System.out.println("New value = " + data.getValue(region.getName(), key) + " = "
-						+ (data.getValue(region.getName(), key)
-								- (bkgNoise * data.getValue(region.getName(), Data.PIXEL_COUNTS))));
+//						System.out.println("Value = " + data.getValue(region.getName(), key));
+//						System.out.println("Bkg noise = " + bkgNoise);
+//						System.out.println("Pixel count = " + data.getValue(region.getName(), Data.PIXEL_COUNTS));
+//						System.out.println("Applied to img: " + region.getState().getImage().getImagePlus().getTitle());
+//						System.out.println("Result = " + (bkgNoise * data.getValue(region.getName(), Data.PIXEL_COUNTS)));
+//						System.out.println("New value = " + data.getValue(region.getName(), key) + " = "
+//								+ (data.getValue(region.getName(), key)
+//										- (bkgNoise * data.getValue(region.getName(), Data.PIXEL_COUNTS))));
 				data.setValue(region, key, data.getValue(region.getName(), key)
 						- (bkgNoise * data.getValue(region.getName(), Data.PIXEL_COUNTS)));
 				if (bkgNoise == 0.)
 					System.err.println("Warning: The background noise " + region + " is 0.");
 
-				System.out.println();
+//						System.out.println();
 			}
 		}
 
-		System.out.println("Data after bkg noise: " + data);
-
 		// Adjust percentages with eggs ratio
+		System.out.println("Percentage for image #" + numActualImage + " / " + nbTotalImages + " (image: "
+				+ data.getAssociatedImage().getImagePlus().getTitle());
 		double percentage = this.adjustPercentageWithEggsRatio(REGION_FUNDUS,
 				calculatePercentage(data, REGION_FUNDUS, key), numActualImage, nbTotalImages);
 		data.setValue(REGION_FUNDUS, Data.PERCENTAGE, percentage);
+		System.out.println("Percentage of FUNDUS: " + calculatePercentage(data, REGION_FUNDUS, key));
+		System.out.println("Corrected percentage: " + percentage);
 
 		percentage = this.adjustPercentageWithEggsRatio(REGION_ANTRE, calculatePercentage(data, REGION_ANTRE, key),
 				numActualImage, nbTotalImages);
 		data.setValue(REGION_ANTRE, Data.PERCENTAGE, percentage);
+		System.out.println("Percentage of ANTRE: " + calculatePercentage(data, REGION_ANTRE, key));
+		System.out.println("Corrected percentage: " + percentage);
 
 		percentage = data.getValue(REGION_FUNDUS, Data.PERCENTAGE) + data.getValue(REGION_ANTRE, Data.PERCENTAGE);
 		data.setValue(REGION_STOMACH, Data.PERCENTAGE, percentage);
+		System.out.println("Percentage of STOMACH: " + percentage);
 
 		percentage = 100. - data.getValue(REGION_STOMACH, Data.PERCENTAGE);
 		data.setValue(REGION_INTESTINE, Data.PERCENTAGE, percentage);
@@ -1259,8 +1313,6 @@ public class Model_Gastric extends ModeleScin {
 						+ previousState.getImage().getImagePlus().getTitle() + ")");
 			}
 		}
-
-		System.out.println("Data after percentages: " + data);
 	}
 
 	/**
