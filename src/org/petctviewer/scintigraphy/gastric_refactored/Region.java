@@ -88,5 +88,15 @@ public class Region {
 			return false;
 		return true;
 	}
+	
+	@Override
+	public Region clone() {
+		Region clone = new Region(name, model);
+		clone.inflate(state.clone(), roi);
+		clone.data = new HashMap<>();
+		for(Entry<Integer, Double> entry : this.data.entrySet())
+			clone.data.put(entry.getKey(), entry.getValue());
+		return clone;
+	}
 
 }

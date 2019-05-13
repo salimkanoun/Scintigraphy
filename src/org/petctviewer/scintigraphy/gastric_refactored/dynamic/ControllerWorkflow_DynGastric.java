@@ -1,7 +1,5 @@
 package org.petctviewer.scintigraphy.gastric_refactored.dynamic;
 
-import java.util.Arrays;
-
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
@@ -18,7 +16,6 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction
 import org.petctviewer.scintigraphy.scin.instructions.execution.CheckIntersectionInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
-import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
@@ -29,7 +26,15 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 			ImageSelection[] selectedImages, FenResults fenResults) {
 		super(main, vue, model);
 		this.getRoiManager().reset();
-		this.model.setImages(selectedImages);
+
+		// Create projection for each image
+		ImageSelection[] projections = new ImageSelection[selectedImages.length];
+		for (int i = 0; i < selectedImages.length; i++)
+			projections[i] = Library_Dicom.project(selectedImages[i], 1, 10, "sum");
+		getModel().setImages(projections);
+
+		// Set first image
+		getModel().setFirstImage(selectedImages[selectedImages.length - 1]);
 
 		this.fenResults = fenResults;
 
@@ -40,20 +45,19 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 	private void computeModel() {
 		// Remove point 0
 		getModel().deactivateTime0();
-		ImageSelection[] timeOrderedSelection = Arrays.copyOf(getModel().getImageSelection(),
-				getModel().getImageSelection().length);
-		Arrays.parallelSort(timeOrderedSelection, new ChronologicalAcquisitionComparator());
-		getModel().setTimeIngestion(Library_Dicom.getDateAcquisition(timeOrderedSelection[0].getImagePlus()));
+		getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
 
-		/*
-		 * TODO: this seems incorrect: this relies on the assumption that the first
-		 * dynamic image (in chronological order) is only noise, which might be wrong
-		 * depending on the image
-		 */
 		// Set background noise for stomach
+		/*
+		 * The background is calculated with the first dynamic image (in chronological
+		 * order).
+		 */
 		ImageState bkgState = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_CUSTOM_IMAGE);
-		bkgState.specifieImage(timeOrderedSelection[0]);
-		Workflow workflowOfFirstImage = this.getWorkflowAssociatedWithImage(timeOrderedSelection[0]);
+		bkgState.specifieImage(getModel().getFirstImage());
+		// Assumption: the order of the workflows is the same as the order of the images
+		// (which is reverse chronological)
+		Workflow workflowOfFirstImage = this.workflows[this.workflows.length - 1];
+		// Assumption: the first instruction is dri_stomach
 		Instruction instructionSelected = workflowOfFirstImage.getInstructionAt(0);
 
 		getModel().setBkgNoise(Model_Gastric.REGION_STOMACH, bkgState,

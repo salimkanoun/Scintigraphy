@@ -1,9 +1,11 @@
 package org.petctviewer.scintigraphy.scin;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 import ij.ImagePlus;
 
@@ -67,6 +69,14 @@ public class ImageSelection implements Cloneable {
 	}
 
 	/**
+	 * @see Library_Dicom#getDateAcquisition
+	 * @return date of acquisition of this image
+	 */
+	public Date getDateAcquisition() {
+		return Library_Dicom.getDateAcquisition(imp);
+	}
+
+	/**
 	 * @return image orientation or UNKNOWN if no orientation was set during image
 	 *         selection
 	 */
@@ -96,10 +106,11 @@ public class ImageSelection implements Cloneable {
 	public ImageSelection clone() {
 		ImageSelection img = new ImageSelection(this.imp.duplicate(), null, null);
 		// Deep copy of all values in the map
-		for(Entry<String, String> e : this.columnsValues.entrySet())
+		for (Entry<String, String> e : this.columnsValues.entrySet())
 			img.columnsValues.put(e.getKey(), e.getValue());
 		return img;
 	}
+
 	public ImageSelection clone(Orientation o) {
 		ImageSelection img = this.clone();
 		img.columnsValues.replace(Column.ORIENTATION.getName(), o.toString());

@@ -255,4 +255,11 @@ public class ImageState {
 		return "ImageState [idImage=" + idImage + ",\n\tslice=" + slice + ",\n\tfacingOrientation=" + facingOrientation
 				+ ",\n\tlateralisation=" + lateralisation + ",\n\timage=" + image.getImagePlus().getTitle() + "]";
 	}
+	
+	@Override
+	public ImageState clone() {
+		ImageState clone = new ImageState(facingOrientation, SLICE_PREVIOUS, lateralisation, idImage);
+		clone.specifieImage(image);
+		return clone;
+	}
 }

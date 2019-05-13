@@ -305,7 +305,7 @@ public class Model_Gastric extends ModeleScin {
 						this.regionsPost.put(regionName, storedRegion);
 				}
 			}
-			
+
 			storedRegion.inflate(state, roi);
 		}
 
@@ -325,7 +325,7 @@ public class Model_Gastric extends ModeleScin {
 			}
 
 			// Set value
-			region.setValue(key, value);
+			region.setValue(key, Math.max(0, value));
 		}
 
 		public void setPostValue(String regionName, int key, double value) {
@@ -337,7 +337,7 @@ public class Model_Gastric extends ModeleScin {
 			}
 
 			// Set value
-			region.setValue(key, value);
+			region.setValue(key, Math.max(0, value));
 		}
 
 		public double getValue(String region, int key) {
@@ -390,7 +390,10 @@ public class Model_Gastric extends ModeleScin {
 		}
 	}
 
+	private ImageSelection firstImage;
+
 	private Map<Integer, Data> results;
+
 	/**
 	 * Fictional data representing the first acquisition.
 	 */
@@ -818,7 +821,7 @@ public class Model_Gastric extends ModeleScin {
 		imp.setRoi(roi);
 		data.setValue(regionName, key, Math.max(0, Library_Quantif.getCounts(imp)));
 		data.setValue(regionName, DATA_PIXEL_COUNTS, imp.getStatistics().pixelCount);
-		
+
 		// Inflate region
 		data.inflateRegion(regionName, state, roi);
 	}
@@ -835,17 +838,21 @@ public class Model_Gastric extends ModeleScin {
 			key = DATA_POST_COUNTS;
 
 		// Calculate value
-		double counts;
+		double counts, pixels;
 		if (regionName.equals(REGION_FUNDUS)) {
 			counts = data.getValue(REGION_STOMACH, key) - data.getValue(REGION_ANTRE, key);
+			pixels = data.getValue(REGION_STOMACH, DATA_PIXEL_COUNTS) - data.getValue(REGION_ANTRE, DATA_PIXEL_COUNTS);
 		} else if (regionName.equals(REGION_INTESTINE)) {
 			counts = data.getValue(REGION_INTESTINE, key) - data.getValue(REGION_ANTRE, key);
+			pixels = data.getValue(REGION_INTESTINE, DATA_PIXEL_COUNTS)
+					- data.getValue(REGION_ANTRE, DATA_PIXEL_COUNTS);
 		} else
 			throw new UnsupportedOperationException("The region " + regionName + " is not supported here!");
 
 		// Save value
 		data.setValue(regionName, key, Math.max(0, counts));
-		
+		data.setValue(regionName, DATA_PIXEL_COUNTS, pixels);
+
 		// Inflate region
 		data.inflateRegion(regionName, state, null);
 	}
@@ -986,6 +993,14 @@ public class Model_Gastric extends ModeleScin {
 		}
 	}
 
+	public void setFirstImage(ImageSelection firstImage) {
+		this.firstImage = firstImage;
+	}
+
+	public ImageSelection getFirstImage() {
+		return this.firstImage;
+	}
+
 	/**
 	 * @return time when the patient ingested the food
 	 */
@@ -1062,7 +1077,7 @@ public class Model_Gastric extends ModeleScin {
 	 * @param value  Value to force
 	 */
 	public void forcePercentageDataValue(Region region, double value) {
-		this.forceDataValue(region, DATA_PERCENTAGE, value);
+		this.forceDataValue(region, DATA_PERCENTAGE, Math.max(0, value));
 	}
 
 	/**
@@ -1140,7 +1155,8 @@ public class Model_Gastric extends ModeleScin {
 			double countsFundus = bkgNoise_stomach.getValue(DATA_ANT_COUNTS) - bkgNoise_antre.getValue(DATA_ANT_COUNTS);
 			double pixelsFundus = bkgNoise_stomach.getValue(DATA_PIXEL_COUNTS)
 					- bkgNoise_antre.getValue(DATA_PIXEL_COUNTS);
-			this.bkgNoise_fundus = region;
+			
+			this.bkgNoise_fundus = region.clone();
 			this.bkgNoise_fundus.setValue(DATA_ANT_COUNTS, countsFundus);
 			this.bkgNoise_fundus.setValue(DATA_PIXEL_COUNTS, pixelsFundus);
 			this.bkgNoise_fundus.setValue(DATA_BKG_NOISE, countsFundus / pixelsFundus);
@@ -1233,16 +1249,11 @@ public class Model_Gastric extends ModeleScin {
 
 		int key = DATA_ANT_COUNTS;
 
-		// - Total
-		data.setValue(REGION_ALL, DATA_ANT_COUNTS,
-				data.getValue(REGION_STOMACH, DATA_ANT_COUNTS) + data.getValue(REGION_INTESTINE, DATA_ANT_COUNTS));
-
 		System.out.println();
 		System.out.println("BEFORE ADJUSTMENTS\n" + data);
 
 		// Adjust counts with background
 		for (Region region : data.getRegions()) {
-			// Do not adjust total
 			if (region.getName().equals(REGION_ALL))
 				continue;
 
@@ -1251,7 +1262,6 @@ public class Model_Gastric extends ModeleScin {
 				bkgNoise = this.bkgNoise_antre.getValue(DATA_BKG_NOISE);
 			} else if (region.getName().equals(REGION_INTESTINE)) {
 				bkgNoise = this.bkgNoise_intestine.getValue(DATA_BKG_NOISE);
-				System.out.println("Background noise = " + bkgNoise);
 			} else if (region.getName().equals(REGION_STOMACH)) {
 				bkgNoise = this.bkgNoise_stomach.getValue(DATA_BKG_NOISE);
 			} else if (region.getName().equals(REGION_FUNDUS)) {
@@ -1261,12 +1271,26 @@ public class Model_Gastric extends ModeleScin {
 				System.err.println("Warning: The region (" + region + ") is not corrected with a background noise!");
 
 			if (bkgNoise != null) {
+				System.out.println("=== Adjusting region " + region.getName() + " with background noise ===");
+				System.out.println("Background noise found: " + bkgNoise);
+				System.out.println("Pixels count of the region: " + data.getValue(region.getName(), DATA_PIXEL_COUNTS));
+				System.out.println(
+						"Adjusting value " + data.getValue(region.getName(), key) + " with background noise (- "
+								+ (bkgNoise * data.getValue(region.getName(), DATA_PIXEL_COUNTS) + ") = "
+										+ (data.getValue(region.getName(), key)
+												- (bkgNoise * data.getValue(region.getName(), DATA_PIXEL_COUNTS)))));
+				System.out.println();
+				
 				data.setValue(region.getName(), key, data.getValue(region.getName(), key)
 						- (bkgNoise * data.getValue(region.getName(), DATA_PIXEL_COUNTS)));
 				if (bkgNoise == 0.)
 					System.err.println("Warning: The background noise " + region + " is 0.");
 			}
 		}
+
+		// Calculate total
+		data.setValue(REGION_ALL, DATA_ANT_COUNTS,
+				data.getValue(REGION_STOMACH, DATA_ANT_COUNTS) + data.getValue(REGION_INTESTINE, DATA_ANT_COUNTS));
 
 		System.out.println();
 		System.out.println("AFTER ADJUSTING BKG\n" + data);
