@@ -128,6 +128,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 		this.fenResults.addTab(this.tabChart);
 		this.fenResults.addTab(new TabDynamic(this.fenResults, this));
 		this.fenResults.pack();
+		this.fenResults.setSize(this.fenResults.getSize().width, 1024);
 		this.fenResults.setVisible(true);
 	}
 

@@ -30,7 +30,7 @@ public class PromptInstruction implements Instruction {
 		this.dialog.setModal(true);
 	}
 
-	private void after() {
+	private void displayDialog() {
 		this.dialog.setVisible(true);
 	}
 
@@ -82,13 +82,13 @@ public class PromptInstruction implements Instruction {
 	@Override
 	public void afterNext(ControllerWorkflow controller) {
 		this.dialog.afterNext();
-		this.after();
+		this.displayDialog();
 	}
 
 	@Override
 	public void afterPrevious(ControllerWorkflow controller) {
 		this.dialog.afterPrevious();
-		this.after();
+		this.displayDialog();
 	}
 
 	@Override

@@ -157,24 +157,20 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 			PromptBkgNoise dialog = (PromptBkgNoise) this.dialog;
 			if (dialog.shouldBeDisplayed())
 				dialog.setVisible(true);
-			
-			/*
-			 * Trouver un moyen de récupérer la ROI créée par la DRI de l'estomac
-			 */
 
 			// Inform model if this instruction got the background
 			if (dialog.antreIsNowSelected()) {
 				Region bkgNoiseAntre = new Region("Background Noise " + Model_Gastric.REGION_ANTRE);
 				System.out.println("State for ANTRE: " + controller.getCurrentImageState());
 				bkgNoiseAntre.inflate(controller.getCurrentImageState(),
-						controller.getRoiManager().getRoi(workflows[indexCurrentImage].getCurrentInstruction()));
+						controller.getRoiManager().getRoi(controller.getIndexLastRoiSaved()));
 				((Model_Gastric) controller.getModel()).setBkgNoise(bkgNoiseAntre);
 			}
 			if (dialog.intestineIsNowSelected()) {
 				Region bkgNoiseIntestine = new Region("Background Noise " + Model_Gastric.REGION_INTESTINE);
 				System.out.println("State for INTESTINE: " + controller.getCurrentImageState());
 				bkgNoiseIntestine.inflate(controller.getCurrentImageState(),
-						controller.getRoiManager().getRoi(dri_intestine.roiToDisplay()));
+						controller.getRoiManager().getRoi(controller.getIndexLastRoiSaved() - 1));
 				((Model_Gastric) controller.getModel()).setBkgNoise(bkgNoiseIntestine);
 			}
 		}

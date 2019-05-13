@@ -128,10 +128,10 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	private String generateRoiName(int indexImage, String instructionRoiName) {
 		return instructionRoiName + "-" + this.currentState.getFacingOrientation().abrev();
 	}
-	
+
 	protected Workflow getWorkflowAssociatedWithImage(ImageSelection ims) {
-		for(Workflow workflow : this.workflows)
-			if(workflow.getImageAssociated() == ims)
+		for (Workflow workflow : this.workflows)
+			if (workflow.getImageAssociated() == ims)
 				return workflow;
 		return null;
 	}
@@ -200,6 +200,10 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 	public ImageState getCurrentImageState() {
 		return this.currentState;
+	}
+
+	public int getIndexLastRoiSaved() {
+		return this.indexRoi - 1;
 	}
 
 	@Override

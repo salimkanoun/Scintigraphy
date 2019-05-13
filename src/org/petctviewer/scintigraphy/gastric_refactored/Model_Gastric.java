@@ -252,7 +252,7 @@ public class Model_Gastric extends ModeleScin {
 
 		public static final int STOMACH = 0, ANTRE = 1, FUNDUS = 2, INTESTINE = 3, ALL = 4, TOTAL_REGIONS = 5;
 		public static final int ANT_COUNTS = 0, POST_COUNTS = 1, GEO_AVEREAGE = 2, PERCENTAGE = 3, DERIVATIVE = 4,
-				CORRELATION = 5, TOTAL_FIELDS = 6;
+				CORRELATION = 5, PIXEL_COUNTS = 6, TOTAL_FIELDS = 7;
 
 		/**
 		 * Instantiates a new data. The image state of a data should be unique (in this
@@ -858,6 +858,7 @@ public class Model_Gastric extends ModeleScin {
 		imp.setSlice(region.getState().getSlice());
 		imp.setRoi(region.getRoi());
 		data.setValue(region, key, Library_Quantif.getCounts(imp));
+		data.setValue(region, Data.PIXEL_COUNTS, imp.getStatistics().pixelCount);
 	}
 
 	private void calculateCountsFromData(Region region) {
@@ -1207,15 +1208,14 @@ public class Model_Gastric extends ModeleScin {
 			if (bkgNoise != null) {
 				System.out.println("Value = " + data.getValue(region.getName(), key));
 				System.out.println("Bkg noise = " + bkgNoise);
-				System.out.println(
-						"Pixel count = " + region.getState().getImage().getImagePlus().getStatistics().pixelCount);
-				System.out.println("Result = "
-						+ (bkgNoise * region.getState().getImage().getImagePlus().getStatistics().pixelCount));
+				System.out.println("Pixel count = " + data.getValue(region.getName(), Data.PIXEL_COUNTS));
+				System.out.println("Applied to img: " + region.getState().getImage().getImagePlus().getTitle());
+				System.out.println("Result = " + (bkgNoise * data.getValue(region.getName(), Data.PIXEL_COUNTS)));
 				System.out.println("New value = " + data.getValue(region.getName(), key) + " = "
 						+ (data.getValue(region.getName(), key)
-								- (bkgNoise * region.getState().getImage().getImagePlus().getStatistics().pixelCount)));
+								- (bkgNoise * data.getValue(region.getName(), Data.PIXEL_COUNTS))));
 				data.setValue(region, key, data.getValue(region.getName(), key)
-						- (bkgNoise * region.getState().getImage().getImagePlus().getStatistics().pixelCount));
+						- (bkgNoise * data.getValue(region.getName(), Data.PIXEL_COUNTS)));
 				if (bkgNoise == 0.)
 					System.err.println("Warning: The background noise " + region + " is 0.");
 
@@ -1234,13 +1234,9 @@ public class Model_Gastric extends ModeleScin {
 				numActualImage, nbTotalImages);
 		data.setValue(REGION_ANTRE, Data.PERCENTAGE, percentage);
 
-//		percentage = this.adjustPercentageWithEggsRatio(REGION_STOMACH, calculateAntPercentage(data, REGION_STOMACH),
-//				numActualImage, nbTotalImages);
 		percentage = data.getValue(REGION_FUNDUS, Data.PERCENTAGE) + data.getValue(REGION_ANTRE, Data.PERCENTAGE);
 		data.setValue(REGION_STOMACH, Data.PERCENTAGE, percentage);
 
-//		percentage = this.adjustPercentageWithEggsRatio(REGION_INTESTINE,
-//				calculateAntPercentage(data, REGION_INTESTINE), numActualImage, nbTotalImages);
 		percentage = 100. - data.getValue(REGION_STOMACH, Data.PERCENTAGE);
 		data.setValue(REGION_INTESTINE, Data.PERCENTAGE, percentage);
 

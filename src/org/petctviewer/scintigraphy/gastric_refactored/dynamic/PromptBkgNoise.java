@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,10 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.UIManager;
 
-import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
-import org.petctviewer.scintigraphy.gastric_refactored.Region;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptDialog;
 
 public class PromptBkgNoise extends PromptDialog {
@@ -32,8 +28,6 @@ public class PromptBkgNoise extends PromptDialog {
 	private int indexState;
 	private Map<Integer, boolean[]> states;
 	private boolean[] newlySelected;
-
-	private Instruction dri_antre, dri_intestine;
 
 	public PromptBkgNoise(ControllerWorkflow controller) {
 		this.states = new HashMap<>();
@@ -79,8 +73,6 @@ public class PromptBkgNoise extends PromptDialog {
 				if (isInputValid()) {
 					setVisible(false);
 					saveState();
-
-					controller.clicSuivant();
 				}
 			}
 		});
@@ -92,11 +84,6 @@ public class PromptBkgNoise extends PromptDialog {
 		this.getContentPane().add(panel);
 		this.pack();
 		this.setLocationRelativeTo(controller.getVue());
-	}
-
-	public void setInstructions(Instruction antre, Instruction intestine) {
-		this.dri_antre = antre;
-		this.dri_intestine = intestine;
 	}
 
 	public boolean shouldBeDisplayed() {
