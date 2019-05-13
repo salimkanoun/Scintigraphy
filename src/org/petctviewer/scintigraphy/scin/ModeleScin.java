@@ -3,9 +3,6 @@ package org.petctviewer.scintigraphy.scin;
 import java.util.HashMap;
 
 import org.json.simple.JSONObject;
-import org.petctviewer.scintigraphy.lympho.gui.TabPelvis;
-import org.petctviewer.scintigraphy.lympho.pelvis.ControllerWorkflowPelvis;
-import org.petctviewer.scintigraphy.lympho.pelvis.ModelePelvis;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;

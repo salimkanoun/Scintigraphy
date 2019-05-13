@@ -1,12 +1,10 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.tab;
 
 import java.awt.BorderLayout;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JPanel;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -16,6 +14,10 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
+/**
+ * Tab showing the deconvolve of Right liver, using the Blood Pool values.
+ *
+ */
 public class TabDeconvolv {
 
 	private String title;

@@ -1,12 +1,9 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.math3.util.MathArrays;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;

@@ -125,10 +125,6 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		return array;
 	}
 
-	private String generateRoiName(int indexImage, String instructionRoiName) {
-		return instructionRoiName + "-" + this.currentState.getFacingOrientation().abrev();
-	}
-
 	/**
 	 * Prepares the ImagePlus with the specified state and updates the currentState.
 	 * 
@@ -209,6 +205,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		if (currentInstruction.isExpectingUserInput()) {
 			this.displayInstruction(currentInstruction.getMessage());
 			this.vue.getOverlay().clear();
+			this.setOverlay(this.currentState);
 			this.prepareImage(currentInstruction.getImageState());
 
 			if (currentInstruction.saveRoi())
@@ -244,7 +241,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			// === Draw ROI of the previous instruction ===
 			if (previousInstruction != null && previousInstruction.saveRoi()) {
 				try {
-					this.saveRoiAtIndex(this.generateRoiName(indexPreviousImage, previousInstruction.getRoiName()),
+					this.saveRoiAtIndex(previousInstruction.getRoiName(),
 							this.indexRoi);
 					previousInstruction.setRoi(this.indexRoi);
 

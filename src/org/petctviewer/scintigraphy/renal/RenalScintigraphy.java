@@ -101,7 +101,6 @@ public class RenalScintigraphy extends Scintigraphy {
 		}
 		if(impPost != null) {
 			selection[nbImage] = impPost;
-			System.out.println("impPost ok !");
 			nbImage++;
 		}
 		if(impAnt != null) {
@@ -120,8 +119,6 @@ public class RenalScintigraphy extends Scintigraphy {
 		if (this.impAnt != null) {
 			Library_Gui.setOverlayTitle("Ant", impProjetee.getImagePlus(), Color.yellow, 4);
 		}
-		
-	System.out.println(selectedImages[0].getImagePlus().getStackSize());
 
 		this.setFenApplication(new FenApplication_Renal(selectedImages[0].getImagePlus(), this.getStudyName(), this));
 		selectedImages[0].getImagePlus().setOverlay(overlay);

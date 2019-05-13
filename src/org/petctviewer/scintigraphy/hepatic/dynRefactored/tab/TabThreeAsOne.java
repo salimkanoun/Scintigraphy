@@ -23,8 +23,6 @@ public class TabThreeAsOne {
 
 	private TabResult tab;
 
-	private String studyName;
-
 	public TabThreeAsOne(FenResults parent, TabResult tab) {
 
 		this.title = "ThreeAsOne";
@@ -35,8 +33,6 @@ public class TabThreeAsOne {
 		this.panel.add(this.result, BorderLayout.CENTER);
 
 		this.tab = tab;
-
-		this.studyName = ((TabOtherMethod) this.tab).getFenApplication().getControleur().getModel().getStudyName();
 
 		this.reloadDisplay();
 

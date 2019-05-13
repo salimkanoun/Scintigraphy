@@ -27,7 +27,6 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
-import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.Prefs;
@@ -192,17 +191,13 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 		int duration = Integer.parseInt(DicomTools.getTag(this.getImagePlus(), "0018,1242").trim());
 		if (modele.getKidneys()[0]) {
 			rg = data.get("L. Kidney") - data.get("L. bkg");
-			System.out.println("rg => "+rg+" = "+data.get("L. Kidney")+" - "+data.get("L. bkg"));
 			// on calcule les valeurs en coups/sec
 			rg /= (duration / 1000);
-			System.out.println("rg => "+rg+" = "+rg+" / "+(duration / 1000));
 		}
 		if (modele.getKidneys()[1]) {
 			rd = data.get("R. Kidney") - data.get("R. bkg");
-			System.out.println("rg => "+rg+" = "+data.get("R. Kidney")+" - "+data.get("R. bkg"));
 			// on calcule les valeurs en coups/sec
 			rd /= (duration / 1000);
-			System.out.println("rg => "+rd+" = "+rd+" / "+(duration / 1000));
 		}
 
 		// creation du panel excr rein gauche et droit

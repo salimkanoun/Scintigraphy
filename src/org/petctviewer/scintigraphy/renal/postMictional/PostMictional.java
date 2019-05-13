@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.renal.postMictional;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
@@ -14,17 +13,15 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
-import ij.ImagePlus;
 import ij.gui.Overlay;
 
 public class PostMictional extends Scintigraphy {
 
-	private String[] organes;
 	private TabPostMict resultFrame;
 
 	public PostMictional(String[] organes, TabPostMict resultFrame) {
 		super("Post-mictional");
-		this.organes = organes;
+
 		this.resultFrame = resultFrame;
 	}
 

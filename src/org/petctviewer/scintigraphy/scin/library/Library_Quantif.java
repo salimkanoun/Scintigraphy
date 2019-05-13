@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.scin.library;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -278,12 +279,19 @@ public class Library_Quantif {
 	
 	/**
 	 * Create the deconvolution of the liver by the blood pool.
-	 * @deprecated => Work when you used convolved array.
+	 * @deprecated => Work when you used convolved array (actually, working with a 6times convolved array) See {@link org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabDeconvolv} or {@link org.petctviewer.scintigraphy.renal.gui.TabDeconvolve}.
 	 * @param blood
 	 * @param liver
 	 * @return
 	 */
 	public static List<Double> deconvolv(Double[] blood, Double[] liver, int init) {
+		
+		System.out.println("\n\nConvolved Blood Pool");
+		System.out.println(Arrays.asList(blood));
+		System.out.println();
+		System.out.println("Convolved liver");
+		System.out.println(Arrays.asList(liver));
+		System.out.println("\n\n");
 		
 		List<Double> h = new ArrayList<Double>();
 		for (int i = 0; i < blood.length; i++) {

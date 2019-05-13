@@ -12,7 +12,6 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
-import ij.ImagePlus;
 import ij.gui.Overlay;
 import ij.gui.Toolbar;
 
