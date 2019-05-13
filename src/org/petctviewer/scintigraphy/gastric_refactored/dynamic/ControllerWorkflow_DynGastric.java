@@ -1,28 +1,102 @@
 package org.petctviewer.scintigraphy.gastric_refactored.dynamic;
 
+import java.util.Arrays;
+
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
+import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.CheckIntersectionInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
+import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
+	private FenResults fenResults;
+
 	public ControllerWorkflow_DynGastric(Scintigraphy main, FenApplication vue, ModeleScin model,
-			ImageSelection[] selectedImages) {
+			ImageSelection[] selectedImages, FenResults fenResults) {
 		super(main, vue, model);
+		this.getRoiManager().reset();
 		this.model.setImages(selectedImages);
+
+		this.fenResults = fenResults;
 
 		this.generateInstructions();
 		this.start();
+	}
+
+	private void computeModel() {
+		ImageSelection ims = this.model.getImageSelection()[0];
+
+		// Remove point 0
+		getModel().deactivateTime0();
+		ImageSelection[] timeOrderedSelection = Arrays.copyOf(getModel().getImageSelection(),
+				getModel().getImageSelection().length);
+		Arrays.parallelSort(timeOrderedSelection, new ChronologicalAcquisitionComparator());
+		getModel().setTimeIngestion(Library_Dicom.getDateAcquisition(timeOrderedSelection[0].getImagePlus()));
+
+		ImageState previousState = null;
+		for (int image = 0; image < getModel().getImageSelection().length; image++) {
+			ims = this.model.getImageSelection()[image];
+
+			ImageState state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, image);
+			// - Stomach
+			Model_Gastric.REGION_STOMACH.inflate(state, this.getRoiManager().getRoisAsArray()[image * 2]);
+			getModel().calculateCounts(Model_Gastric.REGION_STOMACH);
+
+			// - Intestine (value)
+			ims.getImagePlus().setRoi(this.getRoiManager().getRoisAsArray()[image * 2 + 1]);
+			ims.getImagePlus().setSlice(state.getSlice());
+			double intestineValue = Library_Quantif.getCounts(ims.getImagePlus());
+
+			// - Antre
+			Model_Gastric.REGION_ANTRE.inflate(state, this.getRoiManager().getRoisAsArray()[image * 2 + 2]);
+			getModel().calculateCounts(Model_Gastric.REGION_ANTRE);
+
+			// - Fundus
+			Model_Gastric.REGION_FUNDUS.inflate(state, null);
+			getModel().forceCountsDataValue(Model_Gastric.REGION_FUNDUS,
+					getModel().getCounts(Model_Gastric.REGION_STOMACH, Orientation.ANT)
+							- getModel().getCounts(Model_Gastric.REGION_ANTRE, Orientation.ANT));
+
+			// - Intestine
+			Model_Gastric.REGION_INTESTINE.inflate(state, null);
+			getModel().forceCountsDataValue(Model_Gastric.REGION_INTESTINE,
+					intestineValue - getModel().getCounts(Model_Gastric.REGION_ANTRE, Orientation.ANT));
+
+			getModel().computeDynamicData(state, previousState);
+			previousState = state;
+		}
+		getModel().calculerResultats();
+	}
+
+	@Override
+	public Model_Gastric getModel() {
+		return (Model_Gastric) super.getModel();
+	}
+
+	@Override
+	protected void end() {
+		super.end();
+
+		// Compute model
+		this.computeModel();
+
+		// Update results
+		((TabMainResult) this.fenResults.getMainTab()).displayTimeIngestion(getModel().getTimeIngestion());
+		fenResults.reloadAllTabs();
 	}
 
 	@Override
@@ -33,20 +107,21 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
 		PromptBkgNoise promptBkgNoise = new PromptBkgNoise(this);
 
-		for (int i = 0; i < this.model.getImageSelection().length; i++) {
-			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i]);
+		for (int i = 0; i < getModel().getImageSelection().length; i++) {
+			this.workflows[i] = new Workflow(this, getModel().getImageSelection()[i]);
 
-			dri_1 = new DrawRoiInstruction("Stomach", new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE),
-					dri_1);
-			dri_2 = new DrawRoiInstruction("Intestine", new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE),
-					dri_2);
+			ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
+			state.specifieImage(this.workflows[i].getImageAssociated());
+
+			dri_1 = new DrawRoiInstruction("Stomach", state, dri_1);
+			dri_2 = new DrawRoiInstruction("Intestine", state, dri_2);
 
 			this.workflows[i].addInstruction(dri_1);
 			this.workflows[i].addInstruction(dri_2);
 			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_1, dri_2, "Antre"));
 			this.workflows[i].addInstruction(new BkgNoiseInstruction(promptBkgNoise));
 		}
-		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
+		this.workflows[getModel().getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}
 
 	private class BkgNoiseInstruction extends PromptInstruction {

@@ -61,10 +61,11 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 		// Place point 0
 		getModel().activateTime0();
 
-		ImageSelection previousImage = null;
+		ImageState previousState = null;
 		for (int i = 0; i < this.getRoiManager().getRoisAsArray().length; i += 6) {
 			ims = this.model.getImageSelection()[i / 6];
 
+			ImageState state = null;
 			for (Orientation orientation : Orientation.antPostOrder()) {
 				int indexIncrementPost = 0;
 				int slice = SLICE_ANT;
@@ -72,9 +73,10 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 					indexIncrementPost = 3;
 					slice = SLICE_POST;
 				}
-				ImageState state = new ImageState(orientation, slice, ImageState.LAT_RL, i / 6);
+				state = new ImageState(orientation, slice, ImageState.LAT_RL, i / 6);
 				// - Stomach
-				Model_Gastric.REGION_STOMACH.inflate(ims, state, this.getRoiManager().getRoisAsArray()[i + indexIncrementPost]);
+				Model_Gastric.REGION_STOMACH.inflate(state,
+						this.getRoiManager().getRoisAsArray()[i + indexIncrementPost]);
 				getModel().calculateCounts(Model_Gastric.REGION_STOMACH);
 
 				// - Intestine (value)
@@ -83,23 +85,24 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 				double intestineValue = Library_Quantif.getCounts(ims.getImagePlus());
 
 				// - Antre
-				Model_Gastric.REGION_ANTRE.inflate(ims, state, this.getRoiManager().getRoisAsArray()[i + 2 + indexIncrementPost]);
+				Model_Gastric.REGION_ANTRE.inflate(state,
+						this.getRoiManager().getRoisAsArray()[i + 2 + indexIncrementPost]);
 				getModel().calculateCounts(Model_Gastric.REGION_ANTRE);
 
 				// - Fundus
-				Model_Gastric.REGION_FUNDUS.inflate(ims, state, null);
-				getModel().forceCountsDataValue(ims, Model_Gastric.REGION_FUNDUS,
-						getModel().getCounts(ims, Model_Gastric.REGION_STOMACH, orientation)
-								- getModel().getCounts(ims, Model_Gastric.REGION_ANTRE, orientation), null);
+				Model_Gastric.REGION_FUNDUS.inflate(state, null);
+				getModel().forceCountsDataValue(Model_Gastric.REGION_FUNDUS,
+						getModel().getCounts(Model_Gastric.REGION_STOMACH, orientation)
+								- getModel().getCounts(Model_Gastric.REGION_ANTRE, orientation));
 
 				// - Intestine
-				Model_Gastric.REGION_INTESTINE.inflate(ims, state, null);
-				getModel().forceCountsDataValue(ims, Model_Gastric.REGION_INTESTINE,
-						intestineValue - getModel().getCounts(ims, Model_Gastric.REGION_ANTRE, orientation), null);
+				Model_Gastric.REGION_INTESTINE.inflate(state, null);
+				getModel().forceCountsDataValue(Model_Gastric.REGION_INTESTINE,
+						intestineValue - getModel().getCounts(Model_Gastric.REGION_ANTRE, orientation));
 			}
-			
-			getModel().computeData(ims, previousImage);
-			previousImage = ims;
+
+			getModel().computeData(state, previousState);
+			previousState = state;
 		}
 		this.model.calculerResultats();
 	}
@@ -125,6 +128,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 		// Display results
 		this.tabChart = new TabChart(this.fenResults);
 		this.tabMain = new TabMainResult(this.fenResults, this.captures.get(0));
+		this.tabMain.displayTimeIngestion(getModel().getTimeIngestion());
 
 		this.fenResults.clearTabs();
 		this.fenResults.setMainTab(this.tabMain);

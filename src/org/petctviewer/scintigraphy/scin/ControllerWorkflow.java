@@ -74,7 +74,6 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		Instruction i = this.workflows[0].next();
 		if (i != null) {
 			// TODO: maybe do not assume the lateralisation is RL?
-			System.out.println(this.workflows[0].getImageAssociated().getImageOrientation());
 			this.currentState = new ImageState(
 					this.workflows[0].getImageAssociated().getImageOrientation().getFacingOrientation(), 1,
 					i.getImageState().isLateralisationRL(), ImageState.ID_NONE);
@@ -86,21 +85,21 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		}
 	}
 
-	private void DEBUG(String s) {
-		System.out.println("=== " + s + " ===");
-		System.out.println("Current position: " + this.position);
-		System.out.println("Current image: " + this.indexCurrentImage);
-		String currentInstruction = "-No instruction-";
-		if (this.indexCurrentImage >= 0 && this.indexCurrentImage < this.workflows.length) {
-			Instruction i = this.workflows[this.indexCurrentImage].getCurrentInstruction();
-			if (i != null)
-				currentInstruction = i.getMessage();
-			else
-				currentInstruction = "-No Message-";
-		}
-		System.out.println("Current instruction: " + currentInstruction);
-		System.out.println();
-	}
+//	private void DEBUG(String s) {
+//		System.out.println("=== " + s + " ===");
+//		System.out.println("Current position: " + this.position);
+//		System.out.println("Current image: " + this.indexCurrentImage);
+//		String currentInstruction = "-No instruction-";
+//		if (this.indexCurrentImage >= 0 && this.indexCurrentImage < this.workflows.length) {
+//			Instruction i = this.workflows[this.indexCurrentImage].getCurrentInstruction();
+//			if (i != null)
+//				currentInstruction = i.getMessage();
+//			else
+//				currentInstruction = "-No Message-";
+//		}
+//		System.out.println("Current instruction: " + currentInstruction);
+//		System.out.println();
+//	}
 
 	/**
 	 * This method displays the ROI to edit (if necessary).
@@ -133,8 +132,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	/**
 	 * Prepares the ImagePlus with the specified state and updates the currentState.
 	 * 
-	 * @param imageState
-	 *            State the ImagePlus must complies
+	 * @param imageState State the ImagePlus must complies
 	 */
 	private void prepareImage(ImageState imageState) {
 		if (imageState == null)
@@ -150,17 +148,28 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		}
 
 		// == ID IMAGE ==
-		if (imageState.getIdImage() == ImageState.ID_NONE)
-			// Don't use the id
-			this.currentState.setIdImage(this.indexCurrentImage);
-		else if (imageState.getIdImage() >= 0)
-			// Use the specified id
-			this.currentState.setIdImage(imageState.getIdImage());
-		// else, don't touch the previous id
+		if (imageState.getIdImage() == ImageState.ID_CUSTOM_IMAGE) {
+			if (imageState.getImage() == null)
+				throw new IllegalStateException(
+						"The state specifies that a custom image should be used but no image has been set!");
+			// Use image specified in the image state
+			this.currentState.setIdImage(ImageState.ID_CUSTOM_IMAGE);
+			this.currentState.specifieImage(imageState.getImage());
+		} else {
+			if (imageState.getIdImage() == ImageState.ID_NONE) {
+				// Don't use the id
+				this.currentState.setIdImage(this.indexCurrentImage);
+				this.currentState.specifieImage(getModel().getImageSelection()[this.currentState.getIdImage()]);
+			} else if (imageState.getIdImage() >= 0) {
+				// Use the specified id
+				this.currentState.setIdImage(imageState.getIdImage());
+			}
+			// else, don't touch the previous id
+		}
 
 		// Change image only if different than the previous
-		if (this.vue.getImagePlus() != this.model.getImageSelection()[this.currentState.getIdImage()].getImagePlus()) {
-			this.vue.setImage(this.model.getImageSelection()[this.currentState.getIdImage()].getImagePlus());
+		if (this.vue.getImagePlus() != this.currentState.getImage().getImagePlus()) {
+			this.vue.setImage(this.currentState.getImage().getImagePlus());
 			resetOverlay = true;
 		}
 
@@ -181,7 +190,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			this.setOverlay(this.currentState);
 		}
 	}
-	
+
 	public ImageState getCurrentImageState() {
 		return this.currentState;
 	}
@@ -189,7 +198,6 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	@Override
 	public void clicPrecedent() {
 		super.clicPrecedent();
-		System.out.println(this.workflows[this.indexCurrentImage]);
 
 		Instruction currentInstruction = this.workflows[this.indexCurrentImage].previous();
 		if (currentInstruction == null) {
@@ -197,7 +205,6 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			currentInstruction = this.workflows[this.indexCurrentImage].getCurrentInstruction();
 			currentInstruction.prepareAsPrevious();
 		}
-		System.out.println("Previous instruction: " + currentInstruction.getClass().getSimpleName());
 
 		if (currentInstruction.isExpectingUserInput()) {
 			this.displayInstruction(currentInstruction.getMessage());
@@ -221,13 +228,11 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			this.clicPrecedent();
 		}
 
-		DEBUG("PREVIOUS");
+//		DEBUG("PREVIOUS");
 	}
 
 	@Override
 	public void clicSuivant() {
-		System.out.println(this.workflows[this.indexCurrentImage]);
-
 		Instruction previousInstruction = this.workflows[this.indexCurrentImage].getCurrentInstruction();
 
 		// Only execute 'Next' if the instruction is not cancelled
@@ -297,7 +302,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			}
 		}
 
-		DEBUG("NEXT");
+//		DEBUG("NEXT");
 	}
 
 	@Override

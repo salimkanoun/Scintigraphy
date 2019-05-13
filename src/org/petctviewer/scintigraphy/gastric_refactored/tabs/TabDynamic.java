@@ -39,7 +39,7 @@ public class TabDynamic extends TabResult {
 				controller.getVue().setVisible(false);
 				
 				// Start scintigraphy
-				new DynGastricScintigraphy(((Model_Gastric) parent.getModel()));
+				new DynGastricScintigraphy(((Model_Gastric) parent.getModel()), parent);
 			}
 		});
 		panel.add(btn);

@@ -28,14 +28,14 @@ public enum Orientation {
 
 	/**
 	 * Converts this orientation to an Ant or Post orientation.<br>
-	 * This method returns Ant for the following orientations:
+	 * This method returns <b>Ant</b> for the following orientations:
 	 * <ul>
 	 * <li>ANT</li>
 	 * <li>ANT_POST</li>
 	 * <li>DYNAMIC_ANT</li>
 	 * <li>DYNAMIC_ANT_POST</li>
 	 * </ul>
-	 * This method returns Post for the following orientations:
+	 * This method returns <b>Post</b> for the following orientations:
 	 * <ul>
 	 * <li>POST</li>
 	 * <li>POST_ANT</li>
