@@ -747,18 +747,18 @@ public class Model_Gastric extends ModeleScin {
 		List<Data> datas = this.generatesDataOrdered();
 		for (int indexData = 0; indexData < datas.size(); indexData++) {
 			Data data = datas.get(indexData);
-			if (key == DATA_DERIVATIVE)
-				System.out.println("Searching in data #" + indexData + ":\n" + data);
+//			if (key == DATA_DERIVATIVE)
+//				System.out.println("Searching in data #" + indexData + ":\n" + data);
 			if (key != DATA_DERIVATIVE || (key == DATA_DERIVATIVE && indexData > 0)) {
 				res[i++] = data.getValue(region, key);
-				if (key == DATA_DERIVATIVE)
-					System.out.println("--> Found value " + data.getValue(region, key));
+//				if (key == DATA_DERIVATIVE)
+//					System.out.println("--> Found value " + data.getValue(region, key));
 			} else {
-				if (key == DATA_DERIVATIVE)
-					System.out.println(this.nameOfDataField(key) + " cannot be retrieved from index #" + indexData);
+//				if (key == DATA_DERIVATIVE)
+//					System.out.println(this.nameOfDataField(key) + " cannot be retrieved from index #" + indexData);
 			}
-			if (key == DATA_DERIVATIVE)
-				System.out.println("Now data state is:\n" + data);
+//			if (key == DATA_DERIVATIVE)
+//				System.out.println("Now data state is:\n" + data);
 		}
 		return res;
 	}
@@ -1302,8 +1302,8 @@ public class Model_Gastric extends ModeleScin {
 
 		int key = DATA_ANT_COUNTS;
 
-		System.out.println();
-		System.out.println("BEFORE ADJUSTMENTS\n" + data);
+//		System.out.println();
+//		System.out.println("BEFORE ADJUSTMENTS\n" + data);
 
 		// Adjust counts with background
 		for (Region region : data.getRegions()) {
@@ -1324,15 +1324,15 @@ public class Model_Gastric extends ModeleScin {
 				System.err.println("Warning: The region (" + region + ") is not corrected with a background noise!");
 
 			if (bkgNoise != null) {
-				System.out.println("=== Adjusting region " + region.getName() + " with background noise ===");
-				System.out.println("Background noise found: " + bkgNoise);
-				System.out.println("Pixels count of the region: " + data.getValue(region.getName(), DATA_PIXEL_COUNTS));
-				System.out.println(
-						"Adjusting value " + data.getValue(region.getName(), key) + " with background noise (- "
-								+ (bkgNoise * data.getValue(region.getName(), DATA_PIXEL_COUNTS) + ") = "
-										+ (data.getValue(region.getName(), key)
-												- (bkgNoise * data.getValue(region.getName(), DATA_PIXEL_COUNTS)))));
-				System.out.println();
+//				System.out.println("=== Adjusting region " + region.getName() + " with background noise ===");
+//				System.out.println("Background noise found: " + bkgNoise);
+//				System.out.println("Pixels count of the region: " + data.getValue(region.getName(), DATA_PIXEL_COUNTS));
+//				System.out.println(
+//						"Adjusting value " + data.getValue(region.getName(), key) + " with background noise (- "
+//								+ (bkgNoise * data.getValue(region.getName(), DATA_PIXEL_COUNTS) + ") = "
+//										+ (data.getValue(region.getName(), key)
+//												- (bkgNoise * data.getValue(region.getName(), DATA_PIXEL_COUNTS)))));
+//				System.out.println();
 
 				data.setValue(region.getName(), key, data.getValue(region.getName(), key)
 						- (bkgNoise * data.getValue(region.getName(), DATA_PIXEL_COUNTS)));
@@ -1345,8 +1345,8 @@ public class Model_Gastric extends ModeleScin {
 		data.setValue(REGION_ALL, DATA_ANT_COUNTS,
 				data.getValue(REGION_STOMACH, DATA_ANT_COUNTS) + data.getValue(REGION_INTESTINE, DATA_ANT_COUNTS));
 
-		System.out.println();
-		System.out.println("AFTER ADJUSTING BKG\n" + data);
+//		System.out.println();
+//		System.out.println("AFTER ADJUSTING BKG\n" + data);
 
 		// Adjust percentages with eggs ratio
 		double percentage = this.adjustPercentageWithEggsRatio(REGION_FUNDUS,
@@ -1370,10 +1370,10 @@ public class Model_Gastric extends ModeleScin {
 		// Compute derivative
 		this.computeDerivative(data, state, previousState);
 
-		System.out.println();
-		System.out.println("AFTER ADJUSTING PERCENTAGES\n" + data);
-		System.out.println();
-		System.out.println();
+//		System.out.println();
+//		System.out.println("AFTER ADJUSTING PERCENTAGES\n" + data);
+//		System.out.println();
+//		System.out.println();
 	}
 
 	/**
@@ -1494,9 +1494,9 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	public ImagePlus createGraph_2() {
 		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_DERIVATIVE);
-		System.out.println("Result for Gastrointestinal flow:");
-		System.out.println(Arrays.toString(timesDerivative));
-		System.out.println(Arrays.toString(result));
+//		System.out.println("Result for Gastrointestinal flow:");
+//		System.out.println(Arrays.toString(timesDerivative));
+//		System.out.println(Arrays.toString(result));
 		return createGraph("% meal in the interval", Color.RED, "Gastrointestinal flow", timesDerivative, result, 50.0);
 	}
 

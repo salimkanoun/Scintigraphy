@@ -57,7 +57,7 @@ public class TabChart extends TabResult {
 	/**
 	 * Creates the chart along with all series.
 	 */
-	private void createChart() {
+	public void createChart() {
 		// Create chart
 		this.data = new XYSeriesCollection();
 		XYSeries stomachSeries = ((Model_Gastric) this.parent.getModel()).getStomachSeries();
