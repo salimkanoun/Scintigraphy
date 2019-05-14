@@ -181,7 +181,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			if (imageState.getIdImage() == ImageState.ID_NONE) {
 				// Don't use the id
 				this.currentState.setIdImage(this.indexCurrentWorkflow);
-				this.currentState.specifieImage(getModel().getImageSelection()[this.currentState.getIdImage()]);
+				this.currentState.specifieImage(this.workflows[this.indexCurrentWorkflow].getImageAssociated());
 			} else if (imageState.getIdImage() >= 0) {
 				// Use the specified id
 				this.currentState.setIdImage(imageState.getIdImage());
