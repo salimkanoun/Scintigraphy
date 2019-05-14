@@ -1209,11 +1209,17 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	private void computeDerivative(Data data, ImageState state, ImageState previousState) {
-		Data previousData = null;
-		if (previousState == null)
+		Data previousData = null, dataToInflate = null;
+		if (previousState == null) {
 			previousData = this.time0;
+		}
 		else
 			previousData = this.results.get(hashState(previousState));
+		
+		if(data.associatedImage.getImageOrientation().isDynamic())
+			dataToInflate = previousData;
+		else
+			dataToInflate = data;
 
 		if (previousData != null) {
 			double stomachDerivative = (previousData.getValue(REGION_STOMACH, DATA_PERCENTAGE)
@@ -1221,7 +1227,7 @@ public class Model_Gastric extends ModeleScin {
 					/ (this.calculateDeltaTime(Library_Dicom.getDateAcquisition(state.getImage().getImagePlus()))
 							- previousData.getMinutes())
 					* 30.;
-			data.setValue(REGION_STOMACH, DATA_DERIVATIVE, stomachDerivative);
+			dataToInflate.setValue(REGION_STOMACH, DATA_DERIVATIVE, stomachDerivative);
 		} else {
 			System.err.println("Warning: no data found");
 		}

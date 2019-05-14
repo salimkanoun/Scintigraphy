@@ -2,8 +2,6 @@ package org.petctviewer.scintigraphy.scin;
 
 import java.util.Arrays;
 
-import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
-
 /**
  * Represents image orientation.
  *
@@ -78,16 +76,13 @@ public enum Orientation {
 	 * <li>DYNAMIC_POST</li>
 	 * <li>DYNAMIC_ANT_POST</li>
 	 * <li>DYNAMIC_POST_ANT</li>
+	 * <li>UNKNOWN</li>
 	 * </ul>
 	 * 
 	 * @return TRUE if this orientation is static and FALSE if this orientation is
-	 *         dynamic
-	 * @throws WrongOrientationException if this orientation is UNKNOWN
+	 *         dynamic or Unknown
 	 */
-	public boolean isStatic() throws WrongOrientationException {
-		if (this == UNKNOWN)
-			throw new WrongOrientationException(UNKNOWN);
-
+	public boolean isStatic() {
 		return Arrays.stream(staticOrientations()).anyMatch(o -> o.equals(this));
 	}
 
@@ -106,14 +101,14 @@ public enum Orientation {
 	 * <li>POST</li>
 	 * <li>ANT_POST</li>
 	 * <li>POST_ANT</li>
+	 * <li>UNKNOWN</li>
 	 * </ul>
 	 * 
 	 * @return TRUE if this orientation is dynamic and FALSE if this orientation is
 	 *         static
-	 * @throws WrongOrientationException if this orientation is UNKNOWN
 	 */
-	public boolean isDynamic() throws WrongOrientationException {
-		return !this.isStatic();
+	public boolean isDynamic() {
+		return Arrays.stream(dynamicOrientations()).anyMatch(o -> o.equals(this));
 	}
 
 	/**
