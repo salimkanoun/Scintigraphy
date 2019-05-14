@@ -18,8 +18,6 @@ public class PrefsWindows implements PlugIn{
 		this.main = new prefsTabMain();
 		this.renal = new prefsTabRenal();
 		this.bone = new prefsTabBone();
-		
-
 		showGUI();
 		
 	}
@@ -37,11 +35,9 @@ public class PrefsWindows implements PlugIn{
 		tabbedPane.addTab("Bone", this.bone);
 
 		
-		
 		frame.getContentPane().add(tabbedPane);
 
 		// Display the window
-
 		frame.pack();
 		frame.setVisible(true);
 		frame.setResizable(true);
