@@ -33,34 +33,33 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 	private Button btn_dyn, btn_start;
 
 	public FenApplication_Renal(ImagePlus imp, String nom, RenalScintigraphy vue) {
-		
+
 		super(imp, nom);
-		//Ajout du boutton dynamic au panel de gauche
+		// Ajout du boutton dynamic au panel de gauche
 		btn_dyn = new Button("Dynamic");
 		btn_dyn.addActionListener(this);
-		
+
 		this.getPanel_btns_gauche().setLayout(new GridLayout(1, 4));
 		this.getPanel_btns_gauche().add(btn_dyn);
 		this.getPanel_btns_gauche().revalidate();
-		
+
 		// Remplacement boutons de droites sous l'instruction
-		Panel btns_instru = new Panel(new GridLayout(1,1));
+		Panel btns_instru = new Panel(new GridLayout(1, 1));
 		btn_start = new Button("Start");
 		btn_start.addActionListener(this);
 		btns_instru.add(btn_start);
-		
+
 		this.getPanel_bttns_droit().removeAll();
-		this.getPanel_bttns_droit().setLayout(new GridLayout(1,1));
+		this.getPanel_bttns_droit().setLayout(new GridLayout(1, 1));
 		this.getPanel_bttns_droit().add(btns_instru);
-		
+
 		this.getBtn_drawROI().setEnabled(false);
-		
+
 		this.setDefaultSize();
-		
+
 		this.vue = vue;
 		this.impProj = imp;
-		
-	
+
 	}
 
 	@Override
@@ -73,65 +72,66 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 	public void actionPerformed(ActionEvent e) {
 		// clic sur le bouton dynamique
 		if (e.getSource() == btn_dyn) {
-			Overlay ov = Library_Gui.duplicateOverlay(this.getImagePlus().getOverlay());
+
+			// Overlay ov = Library_Gui.duplicateOverlay(this.getImagePlus().getOverlay());
 			ImagePlus imp;
 
 			if (!this.dyn) {
-				imp = vue.getImpPost();
+
+				imp = vue.getImpPost().getImagePlus();
+				Library_Gui.setCustomLut(imp);
+				Overlay overlay = Library_Gui.initOverlay(imp);
+				imp.setOverlay(overlay);
+				Library_Gui.setOverlayGD(imp);
+				revalidate();
+				setImage(imp);
+				resizeCanvas();
+				updateSliceSelector();
+				this.btn_dyn.setBackground(Color.LIGHT_GRAY);
+
 			} else {
 				imp = this.impProj;
-			}
-			
-			/*//si l'imp est null, on utilise l'image ant ou post
-			if(imp == null) {
-				if(vue.getImpPost() != null) {
-					imp = vue.getImpPost();
-				}else if(vue.getImpAnt() != null) {
-					imp = vue.getImpAnt();
-				}
-			}*/
-
-			imp.setOverlay(ov);
-			Library_Gui.setCustomLut(imp);
-
-			this.revalidate();
-			this.setImage(imp);
-			
-			
-			this.updateSliceSelector();
-
-			this.setAnimate(false);
-
-			// on inverse la couleur de fond du bouton
-			this.dyn = !this.dyn;
-			if (this.dyn) {
-				this.btn_dyn.setBackground(Color.LIGHT_GRAY);
-			} else {
+				Library_Gui.setCustomLut(imp);
 				this.btn_dyn.setBackground(null);
+
+				revalidate();
+				setImage(imp);
+				updateSliceSelector();
+				resizeCanvas();
+
 			}
 
-			resizeCanvas();
+			/*
+			 * //si l'imp est null, on utilise l'image ant ou post if(imp == null) {
+			 * if(vue.getImpPost() != null) { imp = vue.getImpPost(); }else
+			 * if(vue.getImpAnt() != null) { imp = vue.getImpAnt(); } }
+			 */
 
-		//Mode debut du programme apres visualisation.
-		} else if( e.getSource() == btn_start) {
-			btn_dyn.setEnabled(false);;
+			// on inverse le boolean pour l'utilisation suivante
+			this.dyn = !this.dyn;
+
+			// Mode debut du programme apres visualisation.
+		} else if (e.getSource() == btn_start) {
+			btn_dyn.setEnabled(false);
+			;
 			// TODO move elsewhere
 			Fen_NbRein fen = new Fen_NbRein();
+			fen.setLocationRelativeTo(this);
 			fen.setModal(true);
 			fen.setVisible(true);
 			fen.setAlwaysOnTop(true);
 			fen.setLocationRelativeTo(this);
-			((Controleur_Renal) this.getControleur()).setKidneys(fen.getKidneys());
+			// ((Controleur_Renal) this.getControleur()).setKidneys(fen.getKidneys());
+			((ControllerWorkflowRenal) this.getControleur()).setKidneys(fen.getKidneys());
 
 			this.getBtn_contrast().setEnabled(true);
 
 			this.getPanel_bttns_droit().removeAll();
 			this.getPanel_bttns_droit().add(this.createPanelInstructionsBtns());
-			this.getControleur().setInstructionsDelimit(0);
+			// ((Controleur_OrganeFixe)this.getControleur()).setInstructionsDelimit(0);
 			this.getBtn_drawROI().setEnabled(true);
 			IJ.setTool(Toolbar.POLYGON);
 			this.setImage(impProj);
-			this.vue.setImp(impProj);
 			this.updateSliceSelector();
 			resizeCanvas();
 		}

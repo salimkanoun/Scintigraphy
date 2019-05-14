@@ -13,10 +13,6 @@ import ij.gui.Roi;
 import ij.plugin.frame.RoiManager;
 
 public class Modele_EsophagealTransit  extends ModeleScinDyn{
-
-	
-	//le roi manager qui possede toutes le roi sur lesquelles travailler
-	private RoiManager roimanager;
 	
 	// sauvegarde des imageplus de depart avec tous leur stack chacun : pour pouvoir faire les calculs de mean dans le temps//trié 
 	private ImagePlus [][] sauvegardeImagesSelectDicom;
@@ -31,24 +27,18 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	
 	public EsophagealTransit esoPlugIn;
 	
-	public Modele_EsophagealTransit( ImagePlus [][] sauvegardeImagesSelectDicom, EsophagealTransit esoPlugIn) {
-		super(esoPlugIn.getFrameDurations());
+	public Modele_EsophagealTransit( ImagePlus [][] sauvegardeImagesSelectDicom, String studyName, EsophagealTransit esoPlugIn) {
+		super(null, studyName, esoPlugIn.getFrameDurations());
 		this.sauvegardeImagesSelectDicom = sauvegardeImagesSelectDicom;
 		
 		examenMean = new ArrayList<>();
 		
 		this.esoPlugIn = esoPlugIn;
 	}
-
-	//sert a rien car calculs tous geres a la fin du programme en parcourant le ROI manager
-	@Override
-	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
-	}
-	
 	
 	// utlisé apres que toutes les roi ai ete dessiné
 	public void setRoiManager(RoiManager roiManager) {
-		this.roimanager = roiManager;
+		this.roiManager = roiManager;
 	}
 	
 	
@@ -56,16 +46,8 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	@Override
 	public void calculerResultats() {
 		
-		/*
-		//affichage des images plus avec leurs roi TEST OK
-		for(int i = 0 ;i< sauvegardeImagesSelectDicom.length; i++) {
-			sauvegardeImagesSelectDicom[i].setRoi(this.roimanager.getRoi(i));
-			sauvegardeImagesSelectDicom[i].show();
-		}
-		*/
-		
 		// pour etre sur quon a le meme nombre de roi que d'image plus
-		if(sauvegardeImagesSelectDicom[0].length != this.roimanager.getCount()) {
+		if(sauvegardeImagesSelectDicom[0].length != this.roiManager.getCount()) {
 			System.err.println("nombre d'imageplus different du nombre de roi");
 		}
 		
@@ -94,7 +76,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 			
 			
 			//decoupage de la roi en 3
-			Roi premiereRoi = this.roimanager.getRoi(i);
+			Roi premiereRoi = this.roiManager.getRoi(i);
 			
 			Point pointOrigine = premiereRoi.getContainedPoints()[0];
 			Double largeurRef = premiereRoi.getBounds().getWidth();
@@ -198,7 +180,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 		//condense
 		dicomRoi = new ArrayList<>();
 		for(int i =0; i< sauvegardeImagesSelectDicom[0].length; i++) {
-			Object [] content = {sauvegardeImagesSelectDicom[0][i], this.roimanager.getRoi(i).getBounds()};
+			Object [] content = {sauvegardeImagesSelectDicom[0][i], this.roiManager.getRoi(i).getBounds()};
 			dicomRoi.add(content);	
 		}
 	}

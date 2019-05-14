@@ -2,28 +2,25 @@ package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.util.HashMap;
 
-import org.jfree.data.statistics.Regression;
-import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
 
 public class Modele_HepaticDyn extends ModeleScinDyn {
 
-	
 	// resultats calcules
 	private Double tDemiFoieDFit, tDemiFoieGFit, tDemiVascFit, tDemiFoieDObs, tDemiFoieGObs, tDemiVascObs;
 	private Double maxFoieD, maxFoieG, finPicD, finPicG, pctVasc;
-	private ImagePlus imp;
 
-	public Modele_HepaticDyn(HepaticDynamicScintigraphy vue) {
-		super(vue.getFrameDurations());
-		
-		this.imp=vue.getImp().duplicate();
+	public Modele_HepaticDyn(HepaticDynamicScintigraphy vue, ImageSelection[] selectedImage, String studyName) {
+		super(selectedImage, studyName, vue.getFrameDurations());
+
 	}
 
 	@Override
@@ -37,40 +34,40 @@ public class Modele_HepaticDyn extends ModeleScinDyn {
 		XYSeries liverR = this.getSerie("R. Liver");
 		XYSeries bloodPool = this.getSerie("Blood pool");
 
-		this.maxFoieD = ModeleScinDyn.getAbsMaxY(liverR);
-		//this.tDemiFoieDFit = Modele_HepaticDyn.getTDemiFit(liverR, (this.maxFoieD + 2)*1.0);
-		this.tDemiFoieDObs = ModeleScinDyn.getTDemiObs(liverR, this.maxFoieD + 2);
+		this.maxFoieD = Library_JFreeChart.getAbsMaxY(liverR);
+		// this.tDemiFoieDFit = Modele_HepaticDyn.getTDemiFit(liverR, (this.maxFoieD +
+		// 2)*1.0);
+		this.tDemiFoieDObs = Library_JFreeChart.getTDemiObs(liverR, this.maxFoieD + 2);
 		this.finPicD = liverR.getY(liverR.getItemCount() - 1).doubleValue() / liverR.getMaxY();
 
-		this.maxFoieG = ModeleScinDyn.getAbsMaxY(liverL);
-		//this.tDemiFoieGFit = Modele_HepaticDyn.getTDemiFit(liverL, this.maxFoieG + 2);
-		this.tDemiFoieGObs = ModeleScinDyn.getTDemiObs(liverL, this.maxFoieG + 2);
+		this.maxFoieG = Library_JFreeChart.getAbsMaxY(liverL);
+		// this.tDemiFoieGFit = Modele_HepaticDyn.getTDemiFit(liverL, this.maxFoieG +
+		// 2);
+		this.tDemiFoieGObs = Library_JFreeChart.getTDemiObs(liverL, this.maxFoieG + 2);
 		this.finPicG = liverL.getY(liverL.getItemCount() - 1).doubleValue() / liverL.getMaxY();
 
-		this.pctVasc = ModeleScinDyn.getY(bloodPool, 20.0) / ModeleScinDyn.getY(bloodPool, 5.0);
-		//this.tDemiVascFit = Modele_HepaticDyn.getTDemiFit(bloodPool, 20.0);
-		this.tDemiVascObs = ModeleScinDyn.getTDemiObs(bloodPool, 20.0);
+		this.pctVasc = Library_JFreeChart.getY(bloodPool, 20.0) / Library_JFreeChart.getY(bloodPool, 5.0);
+		// this.tDemiVascFit = Modele_HepaticDyn.getTDemiFit(bloodPool, 20.0);
+		this.tDemiVascObs = Library_JFreeChart.getTDemiObs(bloodPool, 20.0);
 
 	}
 
-	private static int getTDemiFit(XYSeries series, Double startX) {
-		XYSeries linear = new XYSeries("linear");
-		for(int i = 0; i < series.getItemCount(); i++) {
-			XYDataItem item = series.getDataItem(i);
-			if(item.getX().doubleValue() >= startX) {
-				linear.add(item.getX().doubleValue(), Math.log(item.getY().doubleValue()));
-			}			
-		}
-		
-		final XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries(linear);
-		
-		double[] results = Regression.getOLSRegression(dataset, 0);
-		
-		int tdemi = (int) (Math.log(2.0) / results[1]) * -1;
-		return tdemi;		
-	}
-	
+	/*
+	 * Calcul par interessant SK private static int getTDemiFit(XYSeries series,
+	 * Double startX) { XYSeries linear = new XYSeries("linear"); for(int i = 0; i <
+	 * series.getItemCount(); i++) { XYDataItem item = series.getDataItem(i);
+	 * if(item.getX().doubleValue() >= startX) {
+	 * linear.add(item.getX().doubleValue(), Math.log(item.getY().doubleValue())); }
+	 * }
+	 * 
+	 * final XYSeriesCollection dataset = new XYSeriesCollection();
+	 * dataset.addSeries(linear);
+	 * 
+	 * double[] results = Regression.getOLSRegression(dataset, 0);
+	 * 
+	 * int tdemi = (int) (Math.log(2.0) / results[1]) * -1; return tdemi; }
+	 */
+
 	private XYDataset createDataset() {
 		final XYSeriesCollection dataset = new XYSeriesCollection();
 		dataset.addSeries(this.getSerie("Blood pool"));
@@ -107,7 +104,7 @@ public class Modele_HepaticDyn extends ModeleScinDyn {
 		XYSeries liverL = this.getSerie("L. Liver");
 		XYSeries liverR = this.getSerie("R. Liver");
 		XYSeries bloodPool = this.getSerie("Blood pool");
-		
+
 		String s = "";
 		s += "Time (mn),";
 		for (int i = 0; i < bloodPool.getItemCount(); i++) {

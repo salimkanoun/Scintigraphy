@@ -3,37 +3,30 @@ package org.petctviewer.scintigraphy.hepatic.statique;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
-import java.awt.image.BufferedImage;
-
-public class FenResultat_Hepatic extends JFrame {
+public class FenResultat_Hepatic extends FenResults {
 
 	private static final long serialVersionUID = -5261203439330504164L;
 
 	private HashMap<String, String> resultats;
 
-	public FenResultat_Hepatic(Scintigraphy scin, BufferedImage capture) {
+	public FenResultat_Hepatic(Scintigraphy scin, BufferedImage capture, ControleurScin controller) {
+		super(controller);
 		this.setLayout(new BorderLayout());
-		this.resultats = ((Modele_Hepatic) scin.getFenApplication().getControleur().getModele()).getResultsHashMap();
+		this.resultats = ((Modele_Hepatic) controller.getModel()).getResultsHashMap();
 		
-		SidePanel side = new SidePanel(this.getSidePanelContent(), scin.getExamType(), scin.getImp());
-		side.addCaptureBtn(scin, "");
-		
-		this.add(side, BorderLayout.EAST);
-		this.add(new DynamicImage(capture), BorderLayout.CENTER);
-		
-		this.pack();
-		this.setMinimumSize(side.getSize());
-		this.setVisible(true);
+		this.addTab(new TabMain(this, "Result",true,capture));
 	}
 
 	public Component getSidePanelContent() {
@@ -53,6 +46,27 @@ public class FenResultat_Hepatic extends JFrame {
 	private JLabel getLabel(String key) {
 		JLabel lbl_hwb = new JLabel(key + " : " + this.resultats.get(key));
 		return lbl_hwb;
+	}
+	
+	private class TabMain extends TabResult{
+		
+		BufferedImage capture;
+		
+		public TabMain(FenResults parent, String title, boolean captureBtn, BufferedImage capture) {
+			super(parent, title, captureBtn);
+			this.capture = capture;
+		}
+
+		@Override
+		public Component getSidePanelContent() {
+			return FenResultat_Hepatic.this.getSidePanelContent();
+		}
+		
+		@Override
+		public JPanel getResultContent() {
+			return new DynamicImage(capture);
+		}
+		
 	}
 
 }

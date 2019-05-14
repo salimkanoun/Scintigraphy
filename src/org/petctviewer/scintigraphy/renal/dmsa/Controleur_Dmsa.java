@@ -3,7 +3,8 @@ package org.petctviewer.scintigraphy.renal.dmsa;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
@@ -11,29 +12,27 @@ import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import ij.gui.Overlay;
 import ij.gui.Roi;
 
-public class Controleur_Dmsa extends ControleurScin {
+public class Controleur_Dmsa extends Controleur_OrganeFixe {
 
 	public static String[] ORGANES = { "L. Kidney", "L. bkg", "R. Kidney", "R. bkg" };
 	private int maxIndexRoi = 0;
 
 	private boolean antPost;
 	private boolean over;
-	
-	protected Controleur_Dmsa(Scintigraphy vue) {
-		super(vue);
-		
-		this.antPost = vue.getImp().getNSlices() == 2;
+
+	protected Controleur_Dmsa(Scintigraphy scin, ImageSelection[] selectedImages, String studyName) {
+		super(scin, new Modele_Dmsa(selectedImages, studyName));
+
+		this.antPost = this.model.getImagePlus().getNSlices() == 2;
 		if (antPost) {
 			this.setSlice(2);
 			String[] organes = new String[ORGANES.length];
 			for (int i = 0; i < organes.length; i++) {
-				organes[i] = ORGANES[i%ORGANES.length];
+				organes[i] = ORGANES[i % ORGANES.length];
 			}
 			this.setOrganes(organes);
 		}
-		
-		Modele_Dmsa modele = new Modele_Dmsa();
-		this.setModele(modele);
+
 	}
 
 	@Override
@@ -42,31 +41,42 @@ public class Controleur_Dmsa extends ControleurScin {
 	}
 
 	@Override
-	public void fin() {
+	public void end() {
 		this.over = true;
-		
-		BufferedImage capture = Library_Capture_CSV.captureImage(getScin().getImp(), 400, 400).getBufferedImage();
-		
-		if(this.antPost) {
+		// Clear the result hashmap in case of a second validation
+		((Modele_Dmsa) this.model).data.clear();
+		this.nomRois.clear();
+
+		indexRoi = 0;
+		BufferedImage capture = Library_Capture_CSV.captureImage(this.model.getImagePlus(), 400, 400)
+				.getBufferedImage();
+
+		for (Roi roi : this.model.getRoiManager().getRoisAsArray()) {
+			this.indexRoi++;
+			this.model.getImagePlus().setRoi(roi);
+			String nom = getNomOrgane(indexRoi);
 			this.setSlice(1);
-			for(Roi roi : this.roiManager.getRoisAsArray()) {
-				this.indexRoi++;
-				this.getScin().getImp().setRoi(roi);
-				String nom = this.getNomOrgane(indexRoi);
-				this.getModele().enregistrerMesure(this.addTag(nom), this.getScin().getImp());
+			((Modele_Dmsa) this.model).enregistrerMesure(this.addTag(nom), this.model.getImagePlus());
+			if (this.antPost) {
+				this.setSlice(2);
+				((Modele_Dmsa) this.model).enregistrerMesure(this.addTag(nom), this.model.getImagePlus());
+
 			}
+
 		}
-		
-		this.getModele().calculerResultats();
-		
-		new FenResultats_Dmsa(this.getScin(), capture);
+
+		this.model.calculerResultats();
+
+		new FenResultats_Dmsa(capture, this);
+
+		this.over = false;
 	}
 
 	@Override
 	public int getSliceNumberByRoiIndex(int roiIndex) {
-		return 2;
+		return 1;
 	}
-	
+
 	@Override
 	public void setSlice(int indexSlice) {
 		super.setSlice(indexSlice);
@@ -75,31 +85,33 @@ public class Controleur_Dmsa extends ControleurScin {
 	}
 
 	private void hideAndColorLabel(String name, Color c) {
-		Overlay ov = this.getScin().getImp().getOverlay();
+		Overlay ov = this.model.getImagePlus().getOverlay();
 		Roi roi = ov.get(ov.getIndex(name));
 		if (roi != null) {
 			roi.setName("");
 			roi.setStrokeColor(c);
 		}
 	}
-	
+
 	@Override
-	public void notifyClic(ActionEvent arg0) {
-		this.maxIndexRoi = Math.max(this.maxIndexRoi, this.indexRoi);
+	public void actionPerformed(ActionEvent arg0) {
+		super.actionPerformed(arg0);
+		maxIndexRoi = Math.max(this.maxIndexRoi, this.indexRoi);
 	}
-	
+
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
-		if(this.indexRoi == 1 | this.indexRoi == 3) {
-			return Library_Roi.createBkgRoi(this.roiManager.getRoi(indexRoi - 1), this.getScin().getImp(), Library_Roi.KIDNEY);
+		if (this.indexRoi == 1 | this.indexRoi == 3) {
+			return Library_Roi.createBkgRoi(this.model.getRoiManager().getRoi(indexRoi - 1), this.model.getImagePlus(),
+					Library_Roi.KIDNEY);
 		}
 		return null;
 	}
 
 	@Override
 	public boolean isPost() {
-		if(this.over) {
-			return this.getScin().getImp().getCurrentSlice() == 2;
+		if (this.over && antPost) {
+			return this.model.getImagePlus().getCurrentSlice() != 2;
 		}
 		return true;
 	}

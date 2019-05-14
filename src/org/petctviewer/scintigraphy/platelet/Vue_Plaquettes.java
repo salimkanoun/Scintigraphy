@@ -19,8 +19,12 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -44,35 +48,36 @@ public class Vue_Plaquettes extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImagePlus[] images) {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 
 		ArrayList<ImagePlus> series = new ArrayList<>();
 
-		for (int i = 0; i < images.length; i++) {
+		for (int i = 0; i < selectedImages.length; i++) {
 
-			ImagePlus imp = images[i];
-			if (imp.getStackSize() == 2) {
-				this.antPost = true;
-				Boolean ant = Library_Dicom.isAnterieur(imp);
-				// Si l'image 1 est anterieur on inverse le stack pour avoir d'abord l'image
-				// post
-				if (ant != null && ant) {
-					StackReverser reverser = new StackReverser();
-					reverser.flipStack(imp);
-				}
-			}
-			// Si uniquement une image on verifie qu'elle est post et on la flip
-			else if (imp.getStackSize() == 1) {
-				// SK Pas propre necessite de mieux orienter les Image pour Ant/Post
+			ImagePlus imp = selectedImages[i].getImagePlus().duplicate();
+			selectedImages[i].getImagePlus().close();
+			
+			if(selectedImages[i].getImageOrientation()==Orientation.ANT_POST) {
+				//On inverse pour avoir l'image post en 1er
+				StackReverser reverser = new StackReverser();
+				reverser.flipStack(imp);
+				series.add(Library_Dicom.sortImageAntPost(imp));
+			}else if(selectedImages[i].getImageOrientation()==Orientation.POST_ANT) {
+				series.add(Library_Dicom.sortImageAntPost(imp));
+				
+			}else if(selectedImages[i].getImageOrientation()==Orientation.POST) {
 				imp.getProcessor().flipHorizontal();
+				series.add(imp);
+				
 			}
-			series.add(Library_Dicom.sortImageAntPost(imp));
-			imp.close();
+			
 		}
 		this.nombreAcquisitions = series.size();
 		// IJ.log(String.valueOf(antPost));
 
-		ImagePlus[] seriesTriee = Library_Dicom.orderImagesByAcquisitionTime(series);
+		series.sort(new ChronologicalAcquisitionComparator.ImagePlusComparator());
+		ImagePlus[] seriesTriee = new ImagePlus[series.size()];
+		seriesTriee = series.toArray(seriesTriee);
 
 		// On recupere la date et le jour de la 1ere image
 		this.dateHeureDebut=Library_Dicom.getDateAcquisition(seriesTriee[0]);
@@ -85,21 +90,23 @@ public class Vue_Plaquettes extends Scintigraphy {
 		HyperStackConverter convert = new HyperStackConverter();
 		convert.run("hstostack");
 		
-		return imp.duplicate();
+		ImageSelection[] selection = new ImageSelection[1];
+		selection[0] = new ImageSelection(imp.duplicate(), null, null);
+		return selection;
 	}
 
 	@Override
-	public void lancerProgramme() {
+	public void lancerProgramme(ImageSelection[] selectedImages) {
 		// Initialisation du Canvas qui permet de mettre la pile d'images
 		// dans une fenetre c'est une pile d'images (plus d'une image) on cree une
 		// fenetre pour la pile d'images;
-		this.setFenApplication(new FenApplication(this.getImp(), this.getExamType()));
+		this.setFenApplication(new FenApplication(selectedImages[0].getImagePlus(), this.getStudyName()));
 		
-		Overlay overlay = Library_Gui.initOverlay(this.getImp());
-		Library_Gui.setOverlayDG(overlay, getImp(), Color.YELLOW);
-		this.getImp().setOverlay(overlay);
+		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
+		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
+		selectedImages[0].getImagePlus().setOverlay(overlay);
 		
-		Controleur_Plaquettes ctrl = new Controleur_Plaquettes(this);
+		Controleur_Plaquettes ctrl = new Controleur_Plaquettes(this, this.getDateDebut(), selectedImages, "Platelet");
 		this.getFenApplication().setControleur(ctrl);
 		this.getFenApplication().getImagePlus().getCanvas().setScaleToFit(true);
 		this.getFenApplication().getImagePlus().getCanvas().setSize(512,512);

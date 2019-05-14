@@ -19,7 +19,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.Selector;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 import ij.Prefs;
 
@@ -71,7 +71,7 @@ public class FenNeph extends JDialog implements ActionListener {
 		// si il y a un rein gauche
 		if (modele.getKidneys()[0]) {
 			// on cree toutes les valueSelector que l'on va utiliser
-			Selector tmaxl = new Selector("TMax L", ModeleScinDyn.getAbsMaxY(plot.getDataset(), 0), 0, 
+			Selector tmaxl = new Selector("TMax L", Library_JFreeChart.getAbsMaxY(plot.getDataset(), 0), 0, 
 					RectangleAnchor.BOTTOM_LEFT);
 			jvs.addSelector(tmaxl, "tmax L");
 		}
@@ -84,7 +84,7 @@ public class FenNeph extends JDialog implements ActionListener {
 				index = 1;
 			}
 			
-			Selector tmaxr = new Selector("TMax R", ModeleScinDyn.getAbsMaxY(plot.getDataset(), index), 1,
+			Selector tmaxr = new Selector("TMax R", Library_JFreeChart.getAbsMaxY(plot.getDataset(), index), 1,
 					RectangleAnchor.TOP_LEFT);
 			jvs.addSelector(tmaxr, "tmax R");
 		}
@@ -111,10 +111,13 @@ public class FenNeph extends JDialog implements ActionListener {
 	}
 
 	private void clicPatlak() {
-		FenPatlak fpt = new FenPatlak(modele, this);
+		FenPatlak fpt = new FenPatlak(modele);
+		
+		//fpt.pack();
+		fpt.setLocationRelativeTo(null);
+		fpt.pack();
 		fpt.setModal(true);
 		fpt.setVisible(true);
-
 		this.patlakChart = fpt.getValueSetter();
 	}
 
@@ -146,7 +149,7 @@ public class FenNeph extends JDialog implements ActionListener {
 		Double debut = Math.min(values.get("start"), values.get("end"));
 		Double fin = Math.max(values.get("start"), values.get("end"));
 
-		XYDataset dataCropped = Modele_Renal.cropDataset(data, debut, fin);
+		XYDataset dataCropped = Library_JFreeChart.cropDataset(data, debut, fin);
 
 		for (int i = 1; i < dataCropped.getItemCount(0); i++) {
 			Double N1 = (dataCropped.getYValue(0, i) / dataCropped.getYValue(1, i));

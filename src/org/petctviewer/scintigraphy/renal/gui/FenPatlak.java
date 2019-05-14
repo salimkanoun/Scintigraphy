@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.renal.gui;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,7 +28,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.Selector;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 public class FenPatlak extends JDialog implements ActionListener, ChartMouseListener {
@@ -51,7 +50,7 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 	private XYSeries lkPatlak, rkPatlak;
 	private double[] regG, regD;
 	
-	public FenPatlak(Modele_Renal modele, Component parentComponent) {
+	public FenPatlak(Modele_Renal modele) {
 		this.modele = modele;
 		JFreeChart patlakChart = this.createPatlakChart(modele);
 		XYPlot plot = patlakChart.getXYPlot();
@@ -108,12 +107,12 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		this.setLayout(new BorderLayout());
 		
 		//ajoute le graphique au centre de l'ecran
-		this.add(this.valueSetter, BorderLayout.CENTER);
 		
 		this.add(wrap_ok, BorderLayout.SOUTH);
 		this.add(rightBox, BorderLayout.EAST);
-		this.pack();
-		this.setLocationRelativeTo(parentComponent);
+		this.add(this.valueSetter, BorderLayout.CENTER);
+		pack();
+		
 	}
 
 	private JValueSetter createValueSetter(JFreeChart patlak) {
@@ -149,11 +148,11 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		Double minutesMax = 4.0;
 
 		for (Double t = 0.0; t < minutesMax; t += 2 / 60.0) {
-			Double x = ModeleScinDyn.getY(bpi, t) / ModeleScinDyn.getY(bp, t);
-			Double y1 = ModeleScinDyn.getY(lk, t) / ModeleScinDyn.getY(bpl, t);
+			Double x = Library_JFreeChart.getY(bpi, t) / Library_JFreeChart.getY(bp, t);
+			Double y1 = Library_JFreeChart.getY(lk, t) / Library_JFreeChart.getY(bpl, t);
 			lkPatlak.add(x, y1);
 
-			Double y2 = ModeleScinDyn.getY(rk, t) / ModeleScinDyn.getY(bpr, t);
+			Double y2 = Library_JFreeChart.getY(rk, t) / Library_JFreeChart.getY(bpr, t);
 			rkPatlak.add(x, y2);
 		}
 		data.addSeries(lkPatlak);
@@ -162,7 +161,7 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		this.lkPatlak = lkPatlak;
 		this.rkPatlak = rkPatlak;
 
-		JFreeChart chart = ChartFactory.createXYLineChart("", "x", "y", data, PlotOrientation.VERTICAL, true, true,
+		JFreeChart chart = ChartFactory.createXYLineChart("Patlak", "x", "y", data, PlotOrientation.VERTICAL, true, true,
 				true);
 
 		return chart;
@@ -179,8 +178,8 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		}
 
 		// on coupe les series dans l'intervalle
-		XYSeries lkCropped = ModeleScinDyn.cropSeries(this.lkPatlak, this.debutG, this.finG);
-		XYSeries rkCropped = ModeleScinDyn.cropSeries(this.rkPatlak, this.debutD, this.finD);
+		XYSeries lkCropped = Library_JFreeChart.cropSeries(this.lkPatlak, this.debutG, this.finG);
+		XYSeries rkCropped = Library_JFreeChart.cropSeries(this.rkPatlak, this.debutD, this.finD);
 		XYSeriesCollection data = new XYSeriesCollection();
 		data.addSeries(lkCropped);
 		data.addSeries(rkCropped);
@@ -256,6 +255,7 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 			patlakRatio[1] = Library_Quantif.round(100 * regD[1] / (this.regG[1] + this.regD[1]), 1);
 
 			this.modele.setPatlakPente(patlakRatio);
+			this.getValueSetter().removeChartMouseListener(this);
 			this.dispose();
 		} else {
 			this.comboUpdated(e);

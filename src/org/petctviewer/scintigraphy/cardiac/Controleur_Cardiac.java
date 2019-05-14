@@ -6,34 +6,34 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.SwingUtilities;
+import javax.swing.JOptionPane;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.RoiScaler;
 
-public class Controleur_Cardiac extends ControleurScin {
+public class Controleur_Cardiac extends Controleur_OrganeFixe {
 
 	private boolean finContSlice1;
 	private boolean finContSlice2;
 	private static String[] organes = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
+	private Controleur_Cardiac controler;
 
-	protected Controleur_Cardiac(Scintigraphy vue) {
-		super(vue);
-
-		Modele_Cardiac modele = new Modele_Cardiac(this.getScin().getImp());
+	protected Controleur_Cardiac(Scintigraphy scin, ImageSelection[] selectedImages, String studyName) {
+		super(scin, new Modele_Cardiac(scin, selectedImages, studyName));
+		controler = this;
 
 		// on declare si il y a deux prises
-		modele.setDeuxPrise(this.isDeuxPrises());
+		((Modele_Cardiac) this.model).setDeuxPrise(this.isDeuxPrises());
 
-		modele.calculerMoyGeomTotale();
-		this.setModele(modele);
+		((Modele_Cardiac) this.model).calculerMoyGeomTotale();
 
 		// double les organes pour prise ant/post
 		List<String> organesAntPost = new ArrayList<>();
@@ -53,43 +53,24 @@ public class Controleur_Cardiac extends ControleurScin {
 	}
 
 	@Override
-	public void fin() {
+	public void end() {
 		// suppression du controleur de l'imp
-		this.removeImpListener();
-
-		ModeleScin mdl = this.getModele();
-		mdl.calculerResultats();
-
-		CardiacScintigraphy vue = (CardiacScintigraphy) this.getScin();
-		//vue.getFenApplication().resizeCanvas();
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				BufferedImage capture = Library_Capture_CSV.captureImage(vue.getImp(), 400, 0).getBufferedImage();	
-				new FenResultat_Cardiac(vue, capture);
-			}
-		});
-
+		// this.removeImpListener();
+		((Modele_Cardiac) this.model).getResults();
+		((Modele_Cardiac) this.model).calculerResultats();
+		
+		BufferedImage capture = Library_Capture_CSV.captureImage(controler.getScin().getFenApplication().getImagePlus(), 400, 0).getBufferedImage();
+		new FenResultat_Cardiac(controler.getScin(), capture, this);
 	}
-
-	/*@Override
-	public String getSameNameRoiCount(String nomRoi) {
-		// on renvoie le nombre de roi identiques uniquement si toutes les
-		// contaminations ont ete prises
-		if (!this.finContSlice1 || !this.finContSlice2) {
-			return super.getSameNameRoiCount(nomRoi);
-		}
-		return "";
-	}*/
 
 	@Override
 	public boolean isPost() {
-		ImagePlus imp = this.getScin().getImp();
+		ImagePlus imp = this.model.getImageSelection()[0].getImagePlus();
 
 		if (imp.getRoi() != null) {
 			return imp.getRoi().getXBase() > imp.getWidth() / 2;
-		} else if (this.roiManager.getRoi(indexRoi - 1) != null) {
-			return this.roiManager.getRoi(indexRoi - 1).getXBase() > imp.getWidth() / 2;
+		} else if (this.model.getRoiManager().getRoi(indexRoi - 1) != null) {
+			return this.model.getRoiManager().getRoi(indexRoi - 1).getXBase() > imp.getWidth() / 2;
 		}
 
 		return false;
@@ -110,34 +91,36 @@ public class Controleur_Cardiac extends ControleurScin {
 	public Roi getOrganRoi(int lastRoi) {
 		// symetrique du coeur
 		if (this.getIndexRoi() == this.getOrganes().length - 2) {
-			Roi roi = (Roi) this.roiManager.getRoi(this.getIndexRoi() - 2).clone();
+			Roi roi = (Roi) this.model.getRoiManager().getRoi(this.getIndexRoi() - 2).clone();
 
 			// on fait le symetrique de la roi
 			roi = RoiScaler.scale(roi, -1, 1, true);
 
-			int quart = (this.getScin().getImp().getWidth() / 4);
+			int quart = (this.model.getImageSelection()[0].getImagePlus().getWidth() / 4);
 			int newX = (int) (roi.getXBase() - Math.abs(2 * (roi.getXBase() - quart)) - roi.getFloatWidth());
 			roi.setLocation(newX, roi.getYBase());
 			return roi;
 		}
 
-		//recupere la roi de l'organe symetrique
-		Roi lastOrgan = (Roi) this.roiManager.getRoi(getIndexRoi() - 1);
-		if(lastOrgan == null) { //si elle n'existe pas, on renvoie null
+		// recupere la roi de l'organe symetrique
+		Roi lastOrgan = (Roi) this.model.getRoiManager().getRoi(getIndexRoi() - 1);
+		if (lastOrgan == null) { // si elle n'existe pas, on renvoie null
 			return null;
 		}
 		lastOrgan = (Roi) lastOrgan.clone();
 
 		// si la derniere roi etait post ou ant
-		boolean OrganPost = lastOrgan.getXBase() > this.getScin().getImp().getWidth() / 2;
+		boolean OrganPost = lastOrgan.getXBase() > this.model.getImageSelection()[0].getImagePlus().getWidth() / 2;
 
 		// si on doit faire le symetrique et que l'on a appuye sur next
 		if (this.getIndexRoi() % 2 == 1 && lastRoi < this.indexRoi) {
 
 			if (OrganPost) { // si la prise est ant, on decale l'organe precedent vers la droite
-				lastOrgan.setLocation(lastOrgan.getXBase() - (this.getScin().getImp().getWidth() / 2), lastOrgan.getYBase());
+				lastOrgan.setLocation(lastOrgan.getXBase() - (this.model.getImageSelection()[0].getImagePlus().getWidth() / 2),
+						lastOrgan.getYBase());
 			} else { // sinon vers la gauche
-				lastOrgan.setLocation(lastOrgan.getXBase() + (this.getScin().getImp().getWidth() / 2), lastOrgan.getYBase());
+				lastOrgan.setLocation(lastOrgan.getXBase() + (this.model.getImageSelection()[0].getImagePlus().getWidth() / 2),
+						lastOrgan.getYBase());
 			}
 
 			return lastOrgan;
@@ -147,7 +130,7 @@ public class Controleur_Cardiac extends ControleurScin {
 	}
 
 	private boolean isDeuxPrises() {
-		return this.getScin().getImp().getImageStackSize() > 1;
+		return this.model.getImageSelection()[0].getImagePlus().getImageStackSize() > 1;
 	}
 
 	private void clicNewCont() {
@@ -157,9 +140,9 @@ public class Controleur_Cardiac extends ControleurScin {
 			nom = "ContL";
 		}
 
-		boolean saved = this.saveCurrentRoi(nom, this.indexRoi);
+		try {
+			this.saveRoiAtIndex(nom, this.indexRoi);
 
-		if (saved) {
 			this.indexRoi++;
 			this.preparerRoi(this.indexRoi - 1);
 
@@ -175,13 +158,14 @@ public class Controleur_Cardiac extends ControleurScin {
 				fac.getBtn_continue().setEnabled(false);
 				fac.getBtn_newCont().setLabel("Save");
 			}
-
+		} catch (NoDataException e) {
+			JOptionPane.showMessageDialog(vue, e.getMessage(), "", JOptionPane.WARNING_MESSAGE);
 		}
 	}
 
 	private void clicEndCont() {
 		// on set la slice
-		if ((this.getScin().getImp().getCurrentSlice() == 1 && this.isDeuxPrises())) {
+		if ((this.model.getImageSelection()[0].getImagePlus().getCurrentSlice() == 1 && this.isDeuxPrises())) {
 			// on relance le mode decontamination, cette fois ci pour la deuxieme slice
 			this.finContSlice1 = true;
 			this.setSlice(2);
@@ -203,31 +187,27 @@ public class Controleur_Cardiac extends ControleurScin {
 	@Override
 	public String addTag(String nomOrgane) {
 		String nom = nomOrgane;
-		
-		
+
 		// on ajoute au nom P ou A pour Post ou Ant
 		if (this.isPost()) {
 			nom += " P";
-			
+
 		} else {
 			nom += " A";
 		}
-		
-		if(!this.finContSlice2) {
+
+		if (!this.finContSlice2) {
 			String count = this.getSameNameRoiCount(nom);
 			nom += count;
-			System.out.println(count);
+
 		}
-		System.out.println(nom);
-		
-		// on ajoute le nom de la roi a la liste
-		this.nomRois.add(nom);
-				
+
 		return nom;
 	}
 
 	@Override
-	public void notifyClic(ActionEvent arg0) {
+	public void actionPerformed(ActionEvent arg0) {
+		super.actionPerformed(arg0);
 		// permet d'appeller les methodes correspondant au clic des deux nouveaux
 		// boutons
 		Button b = (Button) arg0.getSource();
@@ -236,6 +216,10 @@ public class Controleur_Cardiac extends ControleurScin {
 		} else if (b == ((FenApplication_Cardiac) this.getScin().getFenApplication()).getBtn_continue()) {
 			this.clicEndCont();
 		}
+	}
+
+	public Modele_Cardiac getModele() {
+		return (Modele_Cardiac) this.model;
 	}
 
 }

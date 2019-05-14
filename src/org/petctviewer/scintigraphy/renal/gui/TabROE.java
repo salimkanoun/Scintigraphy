@@ -1,9 +1,9 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
 import java.awt.BasicStroke;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,77 +22,18 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
-class TabROE extends JPanel implements ActionListener{
+class TabROE extends TabResult implements ActionListener {
 
-	private static final long serialVersionUID = -8303889633428224794L;
-	Modele_Renal modele;
-	
-	public TabROE(Scintigraphy scin) {
-		super(new BorderLayout());
-		modele = (Modele_Renal) scin.getFenApplication().getControleur().getModele();
+	public TabROE(Scintigraphy scin, FenResults parent) {
+		super(parent, "ROE", true);
 
-		// on recupere le modele et les series
-		Modele_Renal modele = (Modele_Renal) scin.getFenApplication().getControleur().getModele();
-		List<XYSeries> series = modele.getSeries();
-
-		// recuperation des chart panel avec association
-		String[][] asso = { { "Blood pool fitted L", "Final KL", "Output KL" },
-				{ "Blood pool fitted R", "Final KR", "Output KR" } };
-
-		ChartPanel[] cPanels = ModeleScinDyn.associateSeries(asso, series);
-
-		BasicStroke stroke = new BasicStroke(5.0F);
-		JPanel p = new JPanel(new GridLayout(2, 1));
-
-		if (modele.getKidneys()[1]) {
-			// graphique rein droit
-			ChartPanel c = cPanels[1];
-			FenResultats_Renal.renameSeries(c, "Blood pool fitted R", "Blood Pool");
-			FenResultats_Renal.renameSeries(c, "Final KR", "Right Kidney");
-			FenResultats_Renal.renameSeries(c, "Output KR", "Output");
-			
-
-			XYItemRenderer ren = c.getChart().getXYPlot().getRenderer();
-			ren.setDefaultStroke(stroke);
-			ren.setSeriesPaint(0, Color.GREEN);
-			ren.setSeriesPaint(1, Color.BLUE);
-			ren.setSeriesPaint(2, Color.MAGENTA);
-			
-			c.getChart().setTitle("Right Kidney");
-			c.getChart().getLegend().setPosition(RectangleEdge.LEFT);
-			p.add(c);
-		}
-
-		if (modele.getKidneys()[0]) {
-			// graphique rein gauche
-			ChartPanel c1 = cPanels[0];
-			
-			XYItemRenderer ren = c1.getChart().getXYPlot().getRenderer();
-
-			ren.setDefaultStroke(stroke);
-			ren.setSeriesPaint(0, Color.GREEN);
-			ren.setSeriesPaint(1, Color.RED);
-			ren.setSeriesPaint(2, Color.MAGENTA);
-			
-			FenResultats_Renal.renameSeries(c1, "Output KL", "Output");
-			FenResultats_Renal.renameSeries(c1, "Blood pool fitted L", "Blood Pool");
-			FenResultats_Renal.renameSeries(c1, "Final KL", "Left Kidney");
-			
-			c1.getChart().setTitle("Left Kidney");
-			c1.getChart().getLegend().setPosition(RectangleEdge.LEFT);
-			p.add(c1);
-		}
-		
-		SidePanel side = new SidePanel(this.getSidePanelContent(), "Renal Scintigraphy", scin.getImp());
-		side.addCaptureBtn(scin, "_roe");
-		
-		this.add(side, BorderLayout.EAST);
-		this.add(p, BorderLayout.CENTER);
+		this.reloadDisplay();
 	}
 
 	private Component getPanelROE() {
@@ -103,7 +44,10 @@ class TabROE extends JPanel implements ActionListener{
 
 		Double[] mins = new Double[10];
 		for (int i = 0; i < mins.length; i++) {
-			mins[i] = Library_Quantif.round((modele.getSerie("Blood Pool").getMaxX() / (mins.length * 1.0)) * i + 1, 1);
+			mins[i] = Library_Quantif.round(
+					(((Modele_Renal) this.parent.getModel()).getSerie("Blood Pool").getMaxX() / (mins.length * 1.0)) * i
+							+ 1,
+					1);
 		}
 
 		// panel roe
@@ -119,16 +63,16 @@ class TabROE extends JPanel implements ActionListener{
 			JLabel lbl_min = new JLabel(mins[i] + "  min");
 			pnl_roe.add(lbl_min);
 
-			if (modele.getKidneys()[0]) {
-				JLabel lbl_g = new JLabel(modele.getROE(mins[i], "L") + " %");
+			if (((Modele_Renal) this.parent.getModel()).getKidneys()[0]) {
+				JLabel lbl_g = new JLabel(((Modele_Renal) this.parent.getModel()).getROE(mins[i], "L") + " %");
 				lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
 				pnl_roe.add(lbl_g);
 			} else {
 				pnl_roe.add(new JLabel("N/A"));
 			}
 
-			if (modele.getKidneys()[1]) {
-				JLabel lbl_d = new JLabel(modele.getROE(mins[i], "R") + " %");
+			if (((Modele_Renal) this.parent.getModel()).getKidneys()[1]) {
+				JLabel lbl_d = new JLabel(((Modele_Renal) this.parent.getModel()).getROE(mins[i], "R") + " %");
 				lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
 				pnl_roe.add(lbl_d);
 			} else {
@@ -155,9 +99,65 @@ class TabROE extends JPanel implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		JFrame frameBPI = new JFrame();
-		frameBPI.add(ModeleScinDyn.associateSeries(new String[] {"BPI", "Blood pool fitted"}, modele.getSeries()));
-		frameBPI.pack();
+		frameBPI.add(Library_JFreeChart.associateSeries(new String[] { "BPI", "Blood pool fitted" },
+				((Modele_Renal) this.parent.getModel()).getSeries()));
+		frameBPI.setLocationRelativeTo(parent);
+		frameBPI.setSize(new Dimension(512, 512));
 		frameBPI.setVisible(true);
+	}
+
+	@Override
+	public JPanel getResultContent() {// on recupere le modele et les series
+		Modele_Renal modele = (Modele_Renal) parent.getModel();
+		List<XYSeries> series = modele.getSeries();
+
+		// recuperation des chart panel avec association
+		String[][] asso = { { "Blood pool fitted L", "Final KL", "Output KL" },
+				{ "Blood pool fitted R", "Final KR", "Output KR" } };
+
+		ChartPanel[] cPanels = Library_JFreeChart.associateSeries(asso, series);
+
+		BasicStroke stroke = new BasicStroke(5.0F);
+		JPanel p = new JPanel(new GridLayout(2, 1));
+
+		if (modele.getKidneys()[1]) {
+			// graphique rein droit
+			ChartPanel c = cPanels[1];
+			FenResultats_Renal.renameSeries(c, "Blood pool fitted R", "Blood Pool");
+			FenResultats_Renal.renameSeries(c, "Final KR", "Right Kidney");
+			FenResultats_Renal.renameSeries(c, "Output KR", "Output");
+
+			XYItemRenderer ren = c.getChart().getXYPlot().getRenderer();
+			ren.setDefaultStroke(stroke);
+			ren.setSeriesPaint(0, Color.GREEN);
+			ren.setSeriesPaint(1, Color.BLUE);
+			ren.setSeriesPaint(2, Color.MAGENTA);
+
+			c.getChart().setTitle("Right Kidney");
+			c.getChart().getLegend().setPosition(RectangleEdge.LEFT);
+			p.add(c);
+		}
+
+		if (modele.getKidneys()[0]) {
+			// graphique rein gauche
+			ChartPanel c1 = cPanels[0];
+
+			XYItemRenderer ren = c1.getChart().getXYPlot().getRenderer();
+
+			ren.setDefaultStroke(stroke);
+			ren.setSeriesPaint(0, Color.GREEN);
+			ren.setSeriesPaint(1, Color.RED);
+			ren.setSeriesPaint(2, Color.MAGENTA);
+
+			FenResultats_Renal.renameSeries(c1, "Output KL", "Output");
+			FenResultats_Renal.renameSeries(c1, "Blood pool fitted L", "Blood Pool");
+			FenResultats_Renal.renameSeries(c1, "Final KL", "Left Kidney");
+
+			c1.getChart().setTitle("Left Kidney");
+			c1.getChart().getLegend().setPosition(RectangleEdge.LEFT);
+			p.add(c1);
+		}
+		return p;
 	}
 
 }

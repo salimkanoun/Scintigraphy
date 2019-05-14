@@ -14,9 +14,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 package org.petctviewer.scintigraphy.platelet;
 
+import java.util.Date;
+
 import javax.swing.JTable;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
@@ -26,7 +29,7 @@ import ij.plugin.CanvasResizer;
 import ij.plugin.MontageMaker;
 import ij.process.ImageProcessor;
 
-public class Controleur_Plaquettes extends ControleurScin {
+public class Controleur_Plaquettes extends Controleur_OrganeFixe {
 
 	protected static boolean showLog;
 	private Modele_Plaquettes leModele;
@@ -35,10 +38,9 @@ public class Controleur_Plaquettes extends ControleurScin {
 	private boolean antPost;
 
 	// Sert au restart
-	protected Controleur_Plaquettes(Vue_Plaquettes vue) {
-		super(vue);
-		this.leModele = new Modele_Plaquettes(vue.getDateDebut());
-		this.setModele(this.leModele);
+	protected Controleur_Plaquettes(Vue_Plaquettes vue, Date dateDebut, ImageSelection[] selectedImages, String studyName) {
+		super(vue, new Modele_Plaquettes(dateDebut, selectedImages, studyName));
+		
 		this.antPost = vue.antPost;
 		
 		if (vue.antPost) {
@@ -49,7 +51,7 @@ public class Controleur_Plaquettes extends ControleurScin {
 	}
 
 	@Override
-	public void fin() {	
+	public void end() {	
 		
 		Thread captureThread = new Thread(new Runnable() {
 			@Override
@@ -66,7 +68,7 @@ public class Controleur_Plaquettes extends ControleurScin {
 		captureThread.start();
 		
 		
-		ImagePlus capture = Library_Capture_CSV.captureImage(this.getScin().getImp(), 512, 512);
+		ImagePlus capture = Library_Capture_CSV.captureImage(this.model.getImagePlus(), 512, 512);
 		// On resize le canvas pour etre a la meme taille que les courbes
 		ImageProcessor ip = capture.getProcessor();
 		CanvasResizer canvas = new CanvasResizer();
@@ -99,7 +101,7 @@ public class Controleur_Plaquettes extends ControleurScin {
 
 	@Override
 	public boolean isOver() {
-		return this.roiManager.getCount() >= this.getScin().getImp().getStackSize() * 3;
+		return this.model.getRoiManager().getCount() >= this.model.getImagePlus().getStackSize() * 3;
 	}
 
 	@Override
@@ -118,9 +120,9 @@ public class Controleur_Plaquettes extends ControleurScin {
 
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
-		if (this.roiManager.getRoi(getIndexRoi()) == null)
-			if (this.getScin().getImp().getCurrentSlice() > 1) {
-				return this.roiManager.getRoi(this.getIndexRoi() - 3);
+		if (this.model.getRoiManager().getRoi(getIndexRoi()) == null)
+			if (this.model.getImagePlus().getCurrentSlice() > 1) {
+				return this.model.getRoiManager().getRoi(this.getIndexRoi() - 3);
 			}
 		return null;
 	}

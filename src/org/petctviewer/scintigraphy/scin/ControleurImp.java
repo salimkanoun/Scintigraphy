@@ -5,7 +5,7 @@ import ij.ImagePlus;
 
 public class ControleurImp implements ImageListener {
 	
-	private ControleurScin ctrlScin;
+	private Controleur_OrganeFixe ctrlScin;
 	private int lastSlice = 1;
 	private boolean lockUpdate = false;
 	
@@ -13,14 +13,14 @@ public class ControleurImp implements ImageListener {
 	 * met a jour l'overlay de l'imp si elle est modifiee
 	 * @param ctrlScin
 	 */
-	public ControleurImp(ControleurScin ctrlScin) {
+	public ControleurImp(Controleur_OrganeFixe ctrlScin) {
 		this.ctrlScin = ctrlScin;
 	}
 	
 	@Override
 	public void imageUpdated(ImagePlus imp) {
 		if(!this.lockUpdate) {
-			int currentSlice = this.ctrlScin.getScin().getImp().getCurrentSlice();
+			int currentSlice = this.ctrlScin.model.getImagePlus().getCurrentSlice();
 			if(currentSlice != this.lastSlice) {
 				this.lastSlice = currentSlice;
 				this.lockUpdate = true;

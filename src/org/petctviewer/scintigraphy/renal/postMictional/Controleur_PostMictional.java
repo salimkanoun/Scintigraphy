@@ -1,22 +1,27 @@
 package org.petctviewer.scintigraphy.renal.postMictional;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.util.HashMap;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 
+import ij.gui.Overlay;
 import ij.gui.Roi;
-import ij.plugin.frame.RoiManager;
 
-public class Controleur_PostMictional extends ControleurScin{
+public class Controleur_PostMictional extends Controleur_OrganeFixe {
 
-	private CustomControleur ctrl;
+	protected Controleur_PostMictional(Scintigraphy scin, String[] organes, String studyName) {
 
-	protected Controleur_PostMictional(Scintigraphy vue, String[] organes) {
-		super(vue);
+		super(scin, new Modele_PostMictional(studyName));
+		for (int i = 0; i < organes.length; i++) {
+			System.out.println(organes[i]);
+		}
 		this.setOrganes(organes);
-		this.setModele(new Modele_PostMictional());
-		this.setRoiManager(new RoiManager(false));
 	}
 
 	@Override
@@ -25,9 +30,21 @@ public class Controleur_PostMictional extends ControleurScin{
 	}
 
 	@Override
-	public void fin() {
-		ctrl.fin();
+	public void end() {
+		indexRoi = 0;
+		HashMap<String, Double> hm = new HashMap<String, Double>();
+		for (int j = 0; j < this.model.getRoiManager().getCount(); j++) {
+			this.model.getImagePlus().setRoi(getOrganRoi(this.indexRoi));
+			String name = this.getNomOrgane(this.indexRoi);
+			System.out.println(name);
+			System.out.println(Library_Quantif.getCounts(this.model.getImagePlus()));
+			hm.put(name, Library_Quantif.getCounts(this.model.getImagePlus()));
+			this.indexRoi++;
+		}
+		((Modele_PostMictional) this.model).setData(hm);
 		this.getScin().getFenApplication().dispose();
+		((PostMictional) this.getScin()).getResultFrame().updateResultFrame((Modele_PostMictional) this.model);
+
 	}
 
 	@Override
@@ -37,22 +54,42 @@ public class Controleur_PostMictional extends ControleurScin{
 
 	@Override
 	public Roi getOrganRoi(int lastRoi) {
-		Roi roi = this.roiManager.getRoi(indexRoi - 1);
-		return ctrl.getOrganRoi(roi);
+		Roi roi = this.model.getRoiManager().getRoi(indexRoi - 1);
+		return roi;
 	}
 
 	@Override
 	public boolean isPost() {
 		return true;
 	}
-	
+
 	@Override
-	public void notifyClic(ActionEvent arg0) {
-		ctrl.notifyClic(arg0);
-	}
-	
-	public void setCustomControleur(CustomControleur ctrl) {
-		this.ctrl = ctrl;
+	public void preparerRoi(int lastRoi) {
+		int index = getIndexRoi();
+		if (index == 1 || index == 3) {
+			Roi organRoi = Library_Roi.createBkgRoi(this.getOrganRoi(lastRoi), this.model.getImagePlus(),
+					Library_Roi.KIDNEY);
+
+			this.model.getImagePlus().setRoi((Roi) organRoi.clone());
+			this.model.getImagePlus().getRoi().setStrokeColor(this.STROKECOLOR);
+			int nOrgane = this.indexRoi % this.getOrganes().length;
+			this.setInstructionsAdjust(nOrgane);
+		}
+
 	}
 
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		super.actionPerformed(arg0);
+		Overlay ov = this.model.getImagePlus().getOverlay();
+
+		if (ov.getIndex("L. bkg") != -1) {
+			Library_Gui.editLabelOverlay(ov, "L. bkg", "", Color.GRAY);
+		}
+
+		if (ov.getIndex("R. bkg") != -1) {
+			Library_Gui.editLabelOverlay(ov, "R. bkg", "", Color.GRAY);
+		}
+
+	}
 }

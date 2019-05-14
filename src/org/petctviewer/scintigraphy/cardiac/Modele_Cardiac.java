@@ -1,11 +1,14 @@
 package org.petctviewer.scintigraphy.cardiac;
 
 import java.util.HashMap;
+
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
-import ij.ImagePlus;
+import ij.gui.Roi;
 
 public class Modele_Cardiac extends ModeleScin {
 
@@ -26,33 +29,44 @@ public class Modele_Cardiac extends ModeleScin {
 
 	private Boolean deuxPrises;
 	
-	private ImagePlus imp;
+	private Scintigraphy scin;
+	
+	private Controleur_Cardiac controler;
 
 	private HashMap<String, String> resultats;
 
-	public Modele_Cardiac(ImagePlus imp) {
-		this.imp= (ImagePlus) imp.duplicate();
+	public Modele_Cardiac(Scintigraphy scin, ImageSelection[] selectedImages, String studyName) {
+		super(selectedImages, studyName);
+		this.scin=scin;
 		this.resultats = new HashMap<>();
 		this.data = new HashMap<>();
 	}
 
-	@Override
-	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
+	
+	public void getResults() {
+		controler=(Controleur_Cardiac) scin.getFenApplication().getControleur();
 		
-		//Array of Double, in 0 raw count, in 1 average count, in 2 number of pixels
-		Double[] counts=new Double[3];
+		for (int i : controler.getNomRois().keySet()) {
+			this.selectedImages[0].getImagePlus().setSlice(controler.getSliceNumberByRoiIndex(i));
+			this.selectedImages[0].getImagePlus().setRoi((Roi) controler.getRoiManager().getRoi(i).clone());
+			
+			//Array of Double, in 0 raw count, in 1 average count, in 2 number of pixels
+			Double[] counts=new Double[3];
+			counts[0] =Library_Quantif.getCounts(this.selectedImages[0].getImagePlus());
+			counts[1] =Library_Quantif.getAvgCounts(this.selectedImages[0].getImagePlus());
+			counts[2] =(double) Library_Quantif.getPixelNumber(this.selectedImages[0].getImagePlus());
+
+			this.data.put(controler.getNomRois().get(i), counts);
+			
+		}
+
 		
-		counts[0] =Library_Quantif.getCounts(imp);
-		counts[1] =Library_Quantif.getAvgCounts(imp);
-		counts[2] =(double) Library_Quantif.getPixelNumber(imp);
 		
-		this.data.put(nomRoi, counts);
 		
 	}
 
 	@Override
 	public void calculerResultats() {
-		//ICI A FAIRE
 		
 		//Avg background value of ant and post images
 		Double meanBdfAnt=this.data.get("Bkg noise A")[1];
@@ -95,7 +109,6 @@ public class Modele_Cardiac extends ModeleScin {
 			if (s.startsWith("Cont")) {
 				String label=s.substring(s.indexOf(" ")+2);
 				int number=Integer.parseInt(label);
-				System.out.println(s+"_"+number);
 				
 				if (s.startsWith("ContE")) {
 					if(!contE.containsKey(number)) {
@@ -143,10 +156,10 @@ public class Modele_Cardiac extends ModeleScin {
 			
 			this.finalEarly = this.totEarly - this.sumContE;
 			
-			imp.setSlice(1);
-			long timeEarly = Library_Dicom.getDateAcquisition(imp).getTime();
-			imp.setSlice(2);
-			long timeLate = Library_Dicom.getDateAcquisition(imp).getTime();
+			this.selectedImages[0].getImagePlus().setSlice(1);
+			long timeEarly = Library_Dicom.getDateAcquisition(this.selectedImages[0].getImagePlus()).getTime();
+			this.selectedImages[0].getImagePlus().setSlice(2);
+			long timeLate = Library_Dicom.getDateAcquisition(this.selectedImages[0].getImagePlus()).getTime();
 
 			int delaySeconds = (int) (timeEarly - timeLate) / 1000;
 			Double facDecroissance = ModeleScin.getDecayFraction(delaySeconds, (int) (6.02 * 3600));
@@ -160,27 +173,27 @@ public class Modele_Cardiac extends ModeleScin {
 
 	//renvoie la moyenne geometrique de la vue ant et post de la slice courante
 	private Double getGlobalCountAvg() {
-		imp.setRoi(0, 0, imp.getWidth() / 2, imp.getHeight());
-		Double countAnt = Library_Quantif.getCounts(imp);
+		this.selectedImages[0].getImagePlus().setRoi(0, 0, this.selectedImages[0].getImagePlus().getWidth() / 2, this.selectedImages[0].getImagePlus().getHeight());
+		Double countAnt = Library_Quantif.getCounts(this.selectedImages[0].getImagePlus());
 
-		imp.setRoi(imp.getWidth() / 2, 0, imp.getWidth() / 2, imp.getHeight());
-		Double countPost = Library_Quantif.getCounts(imp);
+		this.selectedImages[0].getImagePlus().setRoi(this.selectedImages[0].getImagePlus().getWidth() / 2, 0, this.selectedImages[0].getImagePlus().getWidth() / 2, this.selectedImages[0].getImagePlus().getHeight());
+		Double countPost = Library_Quantif.getCounts(this.selectedImages[0].getImagePlus());
 
 		return Library_Quantif.moyGeom(countAnt, countPost);
 	}
 
 	public void calculerMoyGeomTotale() {
-		imp.setSlice(1);
+		this.selectedImages[0].getImagePlus().setSlice(1);
 		if (this.deuxPrises) {
 			this.totEarly = getGlobalCountAvg();
-			imp.setSlice(2);
+			this.selectedImages[0].getImagePlus().setSlice(2);
 			this.totLate = getGlobalCountAvg();
 		} else {
 			this.totLate = getGlobalCountAvg();
 		}
 
-		imp.killRoi();
-		imp.setSlice(1);
+		this.selectedImages[0].getImagePlus().killRoi();
+		this.selectedImages[0].getImagePlus().setSlice(1);
 	}
 
 	public void setDeuxPrise(Boolean b) {
@@ -220,7 +233,6 @@ public class Modele_Cardiac extends ModeleScin {
 		}
 
 		this.resultats.put("WB late (3h)", "" + Library_Quantif.round(this.totLate, 2));
-
 		this.resultats.put("Bladder", "" + Library_Quantif.round(this.fixVessieL, 2));
 		this.resultats.put("Heart", "" + Library_Quantif.round(this.fixCoeurL, 2));
 		this.resultats.put("Bkg noise A", "" + Library_Quantif.round(this.fixBkgNoiseA, 2));

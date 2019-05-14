@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.gastric;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 
 import ij.ImagePlus;
@@ -26,12 +27,12 @@ public class FenetreSelection extends FenSelectionDicom {
 
 	
 	@Override
-	public void startExam() {
+	public void startExam(ImageSelection[] selectedImages) {
 		int[] rows = this.table.getSelectedRows();
 		ImagePlus[] images = new ImagePlus[rows.length];
 		
 		for (int i = 0; i < rows.length; i++) {;
-			images[i] = WindowManager.getImage(id[rows[i]]);
+			images[i] = WindowManager.getImage(WindowManager.getIDList()[rows[i]]);
 		}
 		
 		try {

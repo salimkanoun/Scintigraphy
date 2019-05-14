@@ -1,6 +1,6 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.BorderLayout;
+import java.awt.Component;
 
 import javax.swing.JPanel;
 
@@ -11,31 +11,37 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
-class TabZoomed extends JPanel {
+class TabZoomed extends TabResult {
 
-	private static final long serialVersionUID = -2647720655737610538L;
+	public TabZoomed(Scintigraphy scin, FenResults parent) {
+		super(parent, "Vascular phase", true);
 
-	public TabZoomed(Scintigraphy scin) {
-		this.setLayout(new BorderLayout());
-		SidePanel side = new SidePanel(null, "Renal scintigraphy", scin.getImp());
-		side.addCaptureBtn(scin, "_vascular");
+		this.reloadDisplay();
+	}
 
-		Modele_Renal modele = ((Modele_Renal) scin.getFenApplication().getControleur().getModele());
+	@Override
+	public Component getSidePanelContent() {
+		return null;
+	}
+
+	@Override
+	public JPanel getResultContent() {
+		Modele_Renal modele = ((Modele_Renal) parent.getModel());
 		XYSeriesCollection dataset = new XYSeriesCollection();
-		
-		//creation du chartPanel
-		boolean[] kidneys = ((Modele_Renal) scin.getFenApplication().getControleur().getModele()).getKidneys();
-		if(kidneys[0]) {
+		boolean[] kidneys = modele.getKidneys();
+		if (kidneys[0]) {
 			XYSeries finalKL = modele.getSerie("Final KL");
-			XYSeries finalKLCropped = Modele_Renal.cropSeries(finalKL, 0.0, 1.0);
+			XYSeries finalKLCropped = Library_JFreeChart.cropSeries(finalKL, 0.0, 1.0);
 			finalKLCropped.setKey("Left Kidney");
 			dataset.addSeries(finalKLCropped);
 		}
-		if(kidneys[1]) {
+		if (kidneys[1]) {
 			XYSeries finalKR = modele.getSerie("Final KR");
-			XYSeries finalKRCropped = Modele_Renal.cropSeries(finalKR, 0.0, 1.0);
+			XYSeries finalKRCropped = Library_JFreeChart.cropSeries(finalKR, 0.0, 1.0);
 			finalKRCropped.setKey("Right Kidney");
 			dataset.addSeries(finalKRCropped);
 		}
@@ -43,8 +49,6 @@ class TabZoomed extends JPanel {
 		ChartPanel cp = new ChartPanel(chart);
 		cp.getChart().getPlot().setBackgroundPaint(null);
 		chart.setTitle("First minute of nephrogram");
-
-		this.add(cp, BorderLayout.CENTER);
-		this.add(side, BorderLayout.EAST);
+		return cp;
 	}
 }

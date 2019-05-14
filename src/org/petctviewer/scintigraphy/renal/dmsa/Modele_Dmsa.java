@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.renal.dmsa;
 
 import java.util.HashMap;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
@@ -12,9 +13,13 @@ public class Modele_Dmsa extends ModeleScin {
 	HashMap<String, Double> data = new HashMap<>();
 	HashMap<String, Integer> areas = new HashMap<>();
 	double[] pct = new double[2];
+	
+	public Modele_Dmsa(ImageSelection[] selectedImages, String studyName) {
+		super(selectedImages, studyName);
+	}
 
-	@Override
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
+		System.out.println(nomRoi);
 		data.put(nomRoi, Library_Quantif.getCounts(imp));
 
 		int area = imp.getStatistics().pixelCount;

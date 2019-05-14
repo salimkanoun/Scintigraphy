@@ -21,9 +21,11 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.chart.ui.TextAnchor;
+import org.jfree.data.xy.XYDataset;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 public class JValueSetter extends ChartPanel implements ChartMouseListener {
-	
+
 	/**
 	 * 
 	 */
@@ -32,15 +34,15 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 	private List<Selector> selectors;
 	private Selector current;
 	private HashMap<Comparable, Area> areas;
-	
+
 	public JValueSetter(JFreeChart chart) {
 		super(chart);
 		this.addChartMouseListener(this);
-		
+
 		this.selectors = new ArrayList<>();
 		this.areas = new HashMap<Comparable, Area>();
-		
-		//desactive le zoom
+
+		// desactive le zoom
 		this.setDomainZoomable(false);
 		this.setRangeZoomable(false);
 	}
@@ -55,11 +57,13 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 	public void chartMouseClicked(ChartMouseEvent event) {
 		// curseur par defaut
 		Component c = (Component) event.getTrigger().getSource();
-		c.setCursor(null);
 
 		// si on avait un selecteur selectionne, on le deselectionne
 		if (this.current != null) {
+			this.current.chartMouseClicked(event);
 			this.current = null;
+			c.setCursor(null);
+			return;
 		}
 
 		// on recupere le selecteur clique
@@ -80,10 +84,35 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 		}
 	}
 
+	@Override
+	public void chartMouseMoved(ChartMouseEvent event) {
+		Component c = (Component) event.getTrigger().getSource();
+
+		updateAreas();
+
+		// on recupere le selecteur sous la souris
+		int xMouse = (int) event.getTrigger().getPoint().getX();
+		Rectangle2D plotArea = this.getScreenDataArea();
+		Selector v = this.getSelector(xMouse, plotArea);
+
+		// si la souris est sur un selecteur ou qu'un selecteur est selectionne
+		if (v != null || this.current != null) {
+			// on change le curseur en main
+			c.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		} else {
+			// sinon on laisse le curseur par defaut
+			c.setCursor(null);
+		}
+
+		// si un selecteur est selectionne, on appelle la methode chartMouseMoved
+		if (this.current != null) {
+			this.current.chartMouseMoved(event);
+		}
+	}
 
 	private Selector getSelector(Comparable key) {
-		for(Selector s : this.selectors) {
-			if(s.getKey() == key) {
+		for (Selector s : this.selectors) {
+			if (s.getKey() == key) {
 				return s;
 			}
 		}
@@ -107,32 +136,6 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 		return null;
 	}
 
-	@Override
-	public void chartMouseMoved(ChartMouseEvent event) {
-		Component c = (Component) event.getTrigger().getSource();
-
-		updateAreas();
-
-		// on recupere le selecteur sous la souris
-		int xMouse = (int) event.getTrigger().getPoint().getX();
-		Rectangle2D plotArea = this.getScreenDataArea();
-		Selector v = this.getSelector(xMouse, plotArea);
-
-		// si la souris est sur un selecteur ou qu'un selecteur est selectionne
-		if (v != null || this.current != null   ) {
-			// on change le curseur en main
-			c.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		} else {
-			// sinon on laisse le curseur par defaut
-			c.setCursor(null);
-		}
-		
-		// si un selecteur est selectionne, on appelle la methode chartMouseMoved
-		if (this.current != null) {
-			this.current.chartMouseMoved(event);
-		}
-	}
-
 	public void updateAreas() {
 		XYPlot plot = this.getChart().getXYPlot();
 		plot.clearDomainMarkers();
@@ -145,10 +148,8 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 	/**
 	 * ajoute un selecteur a un cle donne
 	 * 
-	 * @param v
-	 *            le selecteur
-	 * @param key
-	 *            cle du selecteur
+	 * @param v   le selecteur
+	 * @param key cle du selecteur
 	 */
 	public void addSelector(Selector v, Comparable key) {
 		// on passe la cle au selecteur
@@ -176,12 +177,11 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 	/**
 	 * supprime le selecteur d'un index donne de l'overlay
 	 * 
-	 * @param index
-	 *            index du selecteur
+	 * @param index index du selecteur
 	 */
 	public void removeSelector(Comparable key) {
 		Selector v = this.getSelector(key);
-		
+
 		// si il n'y a pas de selecteur avec cette cle
 		if (v == null) {
 			return;
@@ -199,7 +199,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 			if (v == debut || v == fin) {
 				this.removeOverlay(debut);
 				this.selectors.remove(debut);
-				
+
 				this.removeOverlay(fin);
 				this.selectors.remove(fin);
 
@@ -243,6 +243,22 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 		return hm;
 	}
 
+	/**
+	 * Returns the values of the graph between the 'start' and the 'end' selectors.
+	 * 
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public XYDataset retrieveValuesInSpan() {
+		return Library_JFreeChart.cropDataset(this.getChart().getXYPlot().getDataset(),
+				this.getSelector("start").getXValue(), this.getSelector("end").getXValue());
+	}
+	
+	public Selector getGrabbedSelector() {
+		return this.current;
+	}
+
 	private class Area {
 		private Selector start, end, middle;
 		private Color color;
@@ -254,7 +270,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 			this.end = end;
 
 			if (color == null) {
-				this.color = new Color(225, 244, 50, 120);//jaune
+				this.color = new Color(225, 244, 50, 120);// jaune
 			} else {
 				this.color = color;
 			}

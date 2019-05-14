@@ -3,7 +3,11 @@ package org.petctviewer.scintigraphy.cardiac;
 import java.awt.Color;
 import java.util.ArrayList;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
+import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -21,15 +25,16 @@ public class CardiacScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	protected ImagePlus preparerImp(ImagePlus[] images) {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 
 		ArrayList<ImagePlus> mountedImages = new ArrayList<>();
 
 		int[] frameDuration = new int[2];
 
-		for (int i = 0; i < images.length; i++) {
-			ImagePlus imp = images[i];
-			if (imp.getStackSize() == 2) {
+		for (int i = 0; i < selectedImages.length; i++) {
+			
+			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST || selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
+				ImagePlus imp = selectedImages[i].getImagePlus();
 				String info = imp.getInfoProperty();
 				ImagePlus impReversed = Library_Dicom.sortImageAntPost(imp);
 				MontageMaker mm = new MontageMaker();
@@ -38,17 +43,19 @@ public class CardiacScintigraphy extends Scintigraphy {
 				frameDuration[i] = Integer.parseInt(DicomTools.getTag(imp, "0018,1242").trim());
 				mountedImages.add(montageImage);
 			} else {
-				IJ.log("wrong input, need ant/post image");
+				new Exception("wrong input, need ant/post image");
 			}
-			imp.close();
+			selectedImages[i].getImagePlus().close();
 		}
 
-		ImagePlus[] mountedSorted = Library_Dicom.orderImagesByAcquisitionTime(mountedImages);
+		ImagePlus[] mountedSorted = new ImagePlus[mountedImages.size()];
+		mountedImages.sort(new ChronologicalAcquisitionComparator.ImagePlusComparator());
+		mountedSorted = mountedImages.toArray(mountedSorted);
 		Concatenator enchainer = new Concatenator();
 
 		ImagePlus impStacked;
 		// si la prise est early/late
-		if (images.length == 2) {
+		if (selectedImages.length == 2) {
 			impStacked = enchainer.concatenate(mountedSorted, false);
 			// si il y a plus de 3 minutes de diff�rence entre les deux prises
 			if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {
@@ -59,19 +66,25 @@ public class CardiacScintigraphy extends Scintigraphy {
 			impStacked = mountedSorted[0];
 		}
 
-		return impStacked.duplicate();
+		ImageSelection[] selection = new ImageSelection[1];
+		selection[0] = new ImageSelection(impStacked.duplicate(), null, null);
+		return selection;
 	}
 
 	@Override
-	public void lancerProgramme() {
-		Overlay overlay = Library_Gui.initOverlay(this.getImp(), 7);
-		Library_Gui.setOverlayDG(overlay, this.getImp(), Color.YELLOW);
+	public void lancerProgramme(ImageSelection[] selectedImages) {
+		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 7);
+		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
 		
 		// fenetre de l'application
-		this.setFenApplication(new FenApplication_Cardiac(this.getImp(), this.getExamType()));
-		this.getImp().setOverlay(overlay);
-		Controleur_Cardiac ctrl = new Controleur_Cardiac(this);
+		this.setFenApplication(new FenApplication_Cardiac(selectedImages[0].getImagePlus(), this.getStudyName()));
+		selectedImages[0].getImagePlus().setOverlay(overlay);
+		
+		//Cree controller
+		Controleur_Cardiac ctrl = new Controleur_Cardiac(this, selectedImages, "Cardiac");
 		this.getFenApplication().setControleur(ctrl);
+		
+		
 	}
 
 }

@@ -38,6 +38,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
@@ -55,11 +56,11 @@ public class Modele_Plaquettes extends ModeleScin {
 	HashMap<Date, MesureImage> mesures = new HashMap<>();
 	private Date dateHeureDebut;
 
-	public Modele_Plaquettes(Date dateHeureDebut) {
+	public Modele_Plaquettes(Date dateHeureDebut, ImageSelection[] selectedImages, String studyName) {
+		super(selectedImages, studyName);
 		this.dateHeureDebut = dateHeureDebut;
 	}
 
-	@Override
 	public void enregistrerMesure(String roi, ImagePlus imp) {
 		Date dateAcquisition = Library_Dicom.getDateAcquisition(imp);
 

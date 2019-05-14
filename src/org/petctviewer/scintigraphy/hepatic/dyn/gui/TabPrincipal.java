@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.hepatic.dyn.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -18,60 +17,33 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.dyn.Modele_HepaticDyn;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 import ij.ImagePlus;
 
-class TabPrincipal extends JPanel{
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+class TabPrincipal extends TabResult {
 	private HashMap<String, String> resultats;
 
-	public TabPrincipal(HepaticDynamicScintigraphy scin, BufferedImage capture, int width, int height) {
-		super(new BorderLayout());
-		
-		Modele_HepaticDyn modele = (Modele_HepaticDyn) scin.getFenApplication().getControleur().getModele();
-		this.resultats = modele.getResultsHashMap();
-		
-		SidePanel side = new SidePanel(this.getSidePanelContent(), "Biliary scintiraphy", scin.getImp());
-		side.addCaptureBtn(scin, "");
-		
-		//montage sur l'ensemble des images
-		ImagePlus imp = Library_Capture_CSV.creerMontage(scin.getFrameDurations(), scin.getImpAnt(), capture.getWidth() / 4, 4, 4);
-		BufferedImage montage = imp.getBufferedImage();
-		
-		//panel qui sera plae au centre de la fenetre
-		JPanel center = new JPanel(new GridLayout(2, 1));
-		
-		//panel du haut, contenant les eux images
-		JPanel pnl_top = new JPanel(new GridLayout(1,2));
-		pnl_top.add(new DynamicImage(capture));
-		pnl_top.add(new DynamicImage(montage));
-		center.add(pnl_top);
-		
-		List<XYSeries> series = modele.getSeries();
-		ChartPanel cp = ModeleScinDyn.associateSeries(new String[] {"R. Liver","L. Liver"}, series);
-		center.add(cp);
-		
-		this.add(center, BorderLayout.CENTER);
-		this.add(side, BorderLayout.EAST);
-		
-		this.setPreferredSize(new Dimension(width, height));
+	private BufferedImage capture;
+	private HepaticDynamicScintigraphy scin;
+
+	public TabPrincipal(HepaticDynamicScintigraphy scin, BufferedImage capture, int width, int height,
+			FenResults parent) {
+		super(parent, "Main", true);
+		this.capture = capture;
+		this.scin = scin;
+
+		this.getPanel().setPreferredSize(new Dimension(width, height));
+
+		this.reloadDisplay();
 	}
-	
+
+	@Override
 	public Component getSidePanelContent() {
-		JPanel flow = new JPanel();
-		flow.add(getBoxResultats());
-		return flow;
-	}
-	
-	private Box getBoxResultats() {		
 		// texte de resultat
 		Box res = Box.createVerticalBox();
 		res.setBorder(new EmptyBorder(0, 15, 0, 15));
@@ -93,6 +65,31 @@ class TabPrincipal extends JPanel{
 		res.add(Box.createVerticalGlue());
 
 		return res;
+	}
+
+	@Override
+	public JPanel getResultContent() {
+		Modele_HepaticDyn modele = (Modele_HepaticDyn) this.parent.getModel();
+		this.resultats = modele.getResultsHashMap();
+
+		// montage sur l'ensemble des images
+		ImagePlus imp = Library_Capture_CSV.creerMontage(scin.getFrameDurations(), scin.getImpAnt(),
+				capture.getWidth() / 4, 4, 4);
+		BufferedImage montage = imp.getBufferedImage();
+
+		// panel qui sera plae au centre de la fenetre
+		JPanel center = new JPanel(new GridLayout(2, 1));
+
+		// panel du haut, contenant les eux images
+		JPanel pnl_top = new JPanel(new GridLayout(1, 2));
+		pnl_top.add(new DynamicImage(capture));
+		pnl_top.add(new DynamicImage(montage));
+		center.add(pnl_top);
+
+		List<XYSeries> series = modele.getSeries();
+		ChartPanel cp = Library_JFreeChart.associateSeries(new String[] { "R. Liver", "L. Liver" }, series);
+		center.add(cp);
+		return center;
 	}
 
 	private JLabel getLabel(String key, Color c) {

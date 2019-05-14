@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
@@ -17,107 +16,152 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.renal.postMictional.Modele_PostMictional;
 import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
-import org.petctviewer.scintigraphy.renal.postMictional.CustomControleur;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 
-import ij.ImagePlus;
 import ij.Prefs;
-import ij.gui.Overlay;
-import ij.gui.Roi;
 import ij.util.DicomTools;
 
-class TabPostMict extends PanelImpContrastSlider implements ActionListener, CustomControleur {
-
-	private static final long serialVersionUID = 8125367912250906052L;
+public class TabPostMict extends PanelImpContrastSlider implements ActionListener {
 	private PostMictional vueBasic;
 	private JButton btn_addImp, btn_quantify;
 	private boolean bladder;
 
+	private boolean imgSelected;
+	private ImageSelection[] images;
+
 	private JPanel panel_excr, panel_bladder;
+	private boolean examDone;
+	private Modele_PostMictional modelPostMictional;
 
-	public TabPostMict(Scintigraphy vue) {
-		super("Renal scintigraphy", vue, "postmict");
+	public TabPostMict(Scintigraphy vue, FenResults parent) {
+		super("Post Mictional", vue, "postmict", parent);
 		this.bladder = Prefs.get("renal.bladder.preferred", true);
+		this.imgSelected = false;
+		this.examDone = false;
 
-		
+		this.reloadDisplay();
+	}
 
-		Box box = Box.createHorizontalBox();
-		box.add(Box.createHorizontalGlue());
-		
-		btn_addImp = new JButton("Choose post-mictional dicom");
-		btn_addImp.addActionListener(this);
-		box.add(btn_addImp);
-		box.add(Box.createHorizontalGlue());
-		this.add(box, BorderLayout.CENTER);
+	@Override
+	public JPanel getResultContent() {
+		if (!this.imgSelected) {
+			Box box = Box.createHorizontalBox();
+			box.add(Box.createHorizontalGlue());
 
-		
-		
+			btn_addImp = new JButton("Choose post-mictional dicom");
+			btn_addImp.addActionListener(this);
+			box.add(btn_addImp);
+			box.add(Box.createHorizontalGlue());
+
+			JPanel pan = new JPanel();
+			pan.add(box);
+			return pan;
+		} else
+			return super.getResultContent();
+	}
+
+	@Override
+	public Component getSidePanelContent() {
+
 		Box side = Box.createVerticalBox();
 		JPanel flow = new JPanel();
-		
+
 		this.panel_excr = new JPanel();
 		flow.add(this.panel_excr);
 		side.add(flow);
-		
 		this.panel_bladder = new JPanel();
 		side.add(this.panel_bladder);
 
 		this.btn_quantify = new JButton("Quantify");
 		this.btn_quantify.addActionListener(this);
-		this.btn_quantify.setVisible(false);
 		side.add(btn_quantify);
 		
-		sidePanel = new SidePanel(side, "Renal Scintigraphy1", vue.getImp());
+		// Simulate a \n
+		side.add(new JLabel(""));
 
-		this.add(sidePanel, BorderLayout.EAST);
+		if (!this.imgSelected) {
+			this.btn_quantify.setVisible(false);
+
+			return side;
+		} else if (examDone) {
+			return updateResultFrame(this.modelPostMictional);
+		} else {
+			btn_addImp.setVisible(false);
+			btn_quantify.setVisible(true);
+			side.add(super.getSidePanelContent());
+
+			return side;
+		}
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getSource() == this.btn_addImp) {
-						
-			// Assez sale
+
+			// Open DICOM dialog Selection to select post mictional image
+			// SK A REFACTORISER
 			FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", new Scintigraphy("") {
 				@Override
-				protected ImagePlus preparerImp(ImagePlus[] images) {
-					if (images.length > 1) {
-						return null;
+				public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
+					if (selectedImages.length > 1) {
+						throw new WrongNumberImagesException(selectedImages.length, 1);
 					}
-					
-					TabPostMict.this.setImp(images[0]);
-					btn_addImp.setVisible(false);
-					btn_quantify.setVisible(true);
-					sidePanel.add(boxSlider);
-					return images[0];
+					if (selectedImages[0].getImageOrientation() == Orientation.ANT_POST
+							|| selectedImages[0].getImageOrientation() == Orientation.POST_ANT
+							|| selectedImages[0].getImageOrientation() == Orientation.POST) {
+						// SK A GERER RECUPERER SEULE L IMAGE POST SI STATIC A/P ?
+						ImageSelection imp = selectedImages[0].clone();
+
+//						Library_Dicom.normalizeToCountPerSecond(imp);
+
+						TabPostMict.this.imgSelected = true;
+						TabPostMict.this.setImp(imp.getImagePlus());
+
+						ImageSelection[] selection = new ImageSelection[1];
+						selection[0] = imp;
+						return selection;
+					} else {
+						throw new WrongOrientationException(selectedImages[0].getImageOrientation(),
+								new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT, Orientation.POST });
+					}
+
 				}
 
 				@Override
-				public void lancerProgramme() {
+				public void lancerProgramme(ImageSelection[] selectedImages) {
+					// TabPostMict.this.reloadDisplay();
+					TabPostMict.this.images = selectedImages;
 				}
 			});
+
 			fen.setVisible(true);
-			
-		} else if(arg0.getSource().equals(this.btn_quantify)){
-			
+
+		} else if (arg0.getSource().equals(this.btn_quantify)) {
+			// SK A REVOIR
 			this.vueBasic = new PostMictional(createOrgans(), this);
-			this.vueBasic.startExam(new ImagePlus[] { this.getImagePlus() });
-			
-			
-			
-			
-			
+			try {
+				this.vueBasic.lancerProgramme(this.vueBasic.preparerImp(TabPostMict.this.images));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		}
 	}
 
 	private String[] createOrgans() {
-		Modele_Renal modele = (Modele_Renal) getVue().getFenApplication().getControleur().getModele();
+		Modele_Renal modele = (Modele_Renal) this.parent.getModel();
 
 		// ajout des organes a delimiter selon le nombre de rein du patient
 		List<String> organes = new ArrayList<String>();
@@ -137,74 +181,60 @@ class TabPostMict extends PanelImpContrastSlider implements ActionListener, Cust
 		return organes.toArray(new String[0]);
 	}
 
-	public void fin() {
-		Modele_Renal modele = (Modele_Renal) getVue().getFenApplication().getControleur().getModele();
+	public JPanel updateResultFrame(Modele_PostMictional model) {
+		Modele_Renal modele = (Modele_Renal) this.parent.getModel();
 
-		HashMap<String, Double> data = this.vueBasic.getData();
-		this.setImp(vueBasic.getImp());
+		HashMap<String, Double> data = model.getData();
+		this.setOnlyImp(this.parent.getModel().getImagePlus());
 
 		Double rg = null, rd = null;
 		int duration = Integer.parseInt(DicomTools.getTag(this.getImagePlus(), "0018,1242").trim());
 		if (modele.getKidneys()[0]) {
-			rg = data.get("L. Kidney P0") - data.get("L. bkg P0");
+			rg = data.get("L. Kidney") - data.get("L. bkg");
 			// on calcule les valeurs en coups/sec
 			rg /= (duration / 1000);
 		}
 		if (modele.getKidneys()[1]) {
-			rd = data.get("R. Kidney P0") - data.get("R. bkg P0");
+			rd = data.get("R. Kidney") - data.get("R. bkg");
 			// on calcule les valeurs en coups/sec
 			rd /= (duration / 1000);
 		}
 
 		// creation du panel excr rein gauche et droit
-		this.panel_excr = (JPanel) this.getPanelExcr(rg, rd);
+		this.inflatePanelExcr(rg, rd);
 
 		// ajout de la vessie dans la liste d'organes si elle est selectionnee
 		if (bladder) {
-			Double bld = data.get("Bladder P0");
+			Double bld = data.get("Bladder");
 			bld /= (duration / 1000);
-			this.panel_bladder.add(new JLabel("Bladder : " + Library_Quantif.round(modele.getExcrBladder(bld), 2) + " %"));
+			this.panel_bladder
+					.add(new JLabel("Bladder : " + Library_Quantif.round(modele.getExcrBladder(bld), 2) + " %"));
 		}
 
-		this.remove(this.sidePanel);
-		
-		JPanel flow = new JPanel();
+		// this.remove(this.sidePanel);
+
+		JPanel flow = new JPanel(new GridLayout(3, 1));
 		flow.add(panel_excr);
+		// Equivalent to a \n
+		flow.add(new JLabel(""));
+		flow.add(super.getSidePanelContent());
+		// this.parent.getPanel().setSidePanelContent(flow);
+		// this.reloadDisplay();
 
-		sidePanel = new SidePanel(flow, "Renal Scintigraphy2", this.getImagePlus());
-		sidePanel.addCaptureBtn(vueBasic, "_PostMict", new Component[] { this.getSlider() });
-		this.add(sidePanel,BorderLayout.EAST);
-		this.repaint();
-		
+		// sidePanel = new SidePanel(flow, "Renal Scintigraphy2", this.getImagePlus());
+		// sidePanel.addCaptureBtn(vueBasic, "_PostMict", new Component[] {
+		// this.getSlider() }, model);
+		// this.parent.createCaptureButton("_PostMict");
+		// this.createCaptureButton(new Component[] { this.getSlider() }, null,
+		// "_PostMict");
+		// this.add(sidePanel,BorderLayout.EAST);
+		// this.revalidate();
+		// this.repaint();
+		return flow;
 	}
 
-	
-
-	@Override
-	public Roi getOrganRoi(Roi roi) {
-		int index = this.vueBasic.getFenApplication().getControleur().getIndexRoi();
-		if (index == 1 || index == 3) {
-			return Library_Roi.createBkgRoi(roi, this.vueBasic.getFenApplication().getImagePlus(),
-					Library_Roi.KIDNEY);
-		}
-		return null;
-	}
-
-	@Override
-	public void notifyClic(ActionEvent arg0) {
-		Overlay ov = this.vueBasic.getImp().getOverlay();
-
-		if (ov.getIndex("L. bkg") != -1) {
-			Library_Gui.editLabelOverlay(ov, "L. bkg", "", Color.GRAY);
-		}
-
-		if (ov.getIndex("R. bkg") != -1) {
-			Library_Gui.editLabelOverlay(ov, "R. bkg", "", Color.GRAY);
-		}
-	}
-
-	private Component getPanelExcr(Double rg, Double rd) {
-		Modele_Renal modele = (Modele_Renal) this.getVue().getFenApplication().getControleur().getModele();
+	private void inflatePanelExcr(Double rg, Double rd) {
+		Modele_Renal modele = (Modele_Renal) this.parent.getModel();
 		Double[][] excr = modele.getExcrPM(rg, rd);
 
 		// elements du tableau
@@ -214,16 +244,15 @@ class TabPostMict extends PanelImpContrastSlider implements ActionListener, Cust
 				new JLabel("" + naIfNull(excr[0][1])), new JLabel("" + naIfNull(excr[1][1])), };
 
 		// panel excr
-		JPanel pnl_excr = new JPanel(new GridLayout(3, 3, 0, 3));
-		pnl_excr.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-		pnl_excr.add(new JLabel("Excretion ratio Post-Mict"));
+		this.panel_excr.removeAll();
+		this.panel_excr.setLayout(new GridLayout(3, 3, 0, 3));
+		this.panel_excr.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+		this.panel_excr.add(new JLabel("Excretion ratio Post-Mict"));
 		// on centre les contenu du tableau
 		for (JLabel l : lbls) {
 			l.setHorizontalAlignment(JLabel.CENTER);
-			pnl_excr.add(l);
+			this.panel_excr.add(l);
 		}
-
-		return pnl_excr;
 	}
 
 	private String naIfNull(Double d) {
@@ -232,4 +261,13 @@ class TabPostMict extends PanelImpContrastSlider implements ActionListener, Cust
 		}
 		return d + " %";
 	}
+
+	public void setExamDone(boolean boobool) {
+		this.examDone = boobool;
+	}
+
+	public void setModelPostMictional(Modele_PostMictional model) {
+		this.modelPostMictional = model;
+	}
+
 }

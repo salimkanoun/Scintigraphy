@@ -13,7 +13,7 @@
 <parent>
 	<groupId>org.scijava</groupId>
 	<artifactId>pom-scijava</artifactId>
-	<version>19.2.0</version>
+	<version>25.0.0</version>
 </parent>
   <repositories>
     <repository>
@@ -24,6 +24,16 @@
 		<id>imagej.public</id>
 		<url>http://maven.imagej.net/content/groups/public</url>
 	</repository>
+	 <repository>
+      <id>ome</id>
+      <name>OME Artifactory</name>
+      <url>https://artifacts.openmicroscopy.org/artifactory/maven/</url>
+    </repository>
+     <repository>
+      <id>www.dcm4che.org</id>
+      <name>dcm4che Repository</name>
+      <url>http://maven.dcm4che.org</url>
+    </repository>
  </repositories>
 
 
@@ -39,7 +49,6 @@
 		<dependency>
 			<groupId>org.jfree</groupId>
 			<artifactId>jfreechart</artifactId>
-			<version>1.5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -65,7 +74,7 @@
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
-			<version>1.52d</version>
+			<version>1.52n</version>
 		</dependency>
 		
 		<dependency>
@@ -83,6 +92,12 @@
 		    <version>5.9.0</version>
 		    <type>pom</type>
 		</dependency>	
+		
+		<dependency>
+		    <groupId>org.dcm4che</groupId>
+		    <artifactId>dcm4che-core</artifactId>
+		    <version>5.16.0</version>
+		</dependency>
 	</dependencies>
 	
 </project>

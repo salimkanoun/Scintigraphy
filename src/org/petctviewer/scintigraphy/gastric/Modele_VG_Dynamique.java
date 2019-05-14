@@ -61,7 +61,7 @@ public class Modele_VG_Dynamique {
 		}
 
 		public Etat previous() {
-			// On ajoute un vals.length car le modulo peut ¨ºtre < 0 en java
+			// On ajoute un vals.length car le modulo peut ï¿½ï¿½tre < 0 en java
 			return vals[((this.ordinal() - 1) + vals.length) % vals.length];
 		}
 	}
@@ -216,8 +216,14 @@ public class Modele_VG_Dynamique {
 		for (int i = 0; i < oeufPourc.length; i++) {
 			this.oeufNonIngerePourc[i+1]=Double.parseDouble(us.format(this.oeufNonIngerePourc[i]-oeufPourc[i]));
 			if (Modele_VG_Dynamique.logOn) IJ.log("egg"+(i+1)+" : "+us.format(oeufPourc[i])+"non ingere :"+this.oeufNonIngerePourc[i]);
-			this.pourcCorrigeOeuf[i][0]=Double.parseDouble(us.format(this.oeufNonIngerePourc[i]+((double)this.coupsCorrigeBDF[i][2][0]/((double)this.coupsCorrigeBDF[i][2][4]+0.00000000001))*(100.00-this.oeufNonIngerePourc[i])));
-			this.pourcCorrigeOeuf[i][1]=Double.parseDouble(us.format(((double)this.coupsCorrigeBDF[i][2][1]/((double)this.coupsCorrigeBDF[i][2][4]+0.00000000001))*(100.00-this.oeufNonIngerePourc[i])));
+			this.pourcCorrigeOeuf[i][0]=Double.parseDouble(us.format(
+					this.oeufNonIngerePourc[i]
+					+((double)this.coupsCorrigeBDF[i][2][0] / ((double)this.coupsCorrigeBDF[i][2][4]+0.00000000001))
+					*(100.00-this.oeufNonIngerePourc[i])
+			));
+			this.pourcCorrigeOeuf[i][1]=Double.parseDouble(us.format(
+					((double)this.coupsCorrigeBDF[i][2][1]/((double)this.coupsCorrigeBDF[i][2][4]+0.00000000001))
+					*(100.00-this.oeufNonIngerePourc[i])));
 			this.pourcCorrigeOeuf[i][3]=Double.parseDouble(us.format(this.pourcCorrigeOeuf[i][0]+this.pourcCorrigeOeuf[i][1]));
 			this.pourcCorrigeOeuf[i][2]=Double.parseDouble(us.format(100.00-this.pourcCorrigeOeuf[i][3]));
 			if (Modele_VG_Dynamique.logOn) IJ.log("coups avant corrige: "+"   pourcentage apres corrige");

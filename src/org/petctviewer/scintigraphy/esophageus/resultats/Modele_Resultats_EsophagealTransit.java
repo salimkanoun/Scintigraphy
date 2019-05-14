@@ -9,9 +9,9 @@ import java.util.List;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.IJ;
@@ -37,8 +37,8 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 	private double[] retentionDecrease;
 
 
-	public Modele_Resultats_EsophagealTransit(ArrayList<HashMap<String, ArrayList<Double>>> arrayList, ArrayList<Object[]> dicomRoi) {
-		super();
+	public Modele_Resultats_EsophagealTransit(ArrayList<HashMap<String, ArrayList<Double>>> arrayList, ArrayList<Object[]> dicomRoi, String studyName) {
+		super(null, studyName);
 		
 		//pr csv
 		longueurEsophage = new double[arrayList.size()];
@@ -90,8 +90,8 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 			XYSeries serie = datasetTransitTime[i][0];
 			
 			double ymax = serie.getMaxY();
-			double x = ModeleScinDyn.getAbsMaxY(serie);
-			double ycalc = ModeleScinDyn.getInterpolatedY(serie, x+10);
+			double x = Library_JFreeChart.getAbsMaxY(serie);
+			double ycalc = Library_JFreeChart.getInterpolatedY(serie, x+10);
 			double fractionDecrease = (ycalc/ymax)*100;
 			
 			ymax = Library_Quantif.round(ymax, 2);
@@ -110,7 +110,7 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 		for(int i =0 ; i < datasetTransitTime.length; i++) {
 			XYSeries serie = datasetTransitTime[i][0];
 			
-			double x = ModeleScinDyn.getAbsMaxY(serie);
+			double x = Library_JFreeChart.getAbsMaxY(serie);
 			;
 			res[i] = x;
 		}
@@ -128,9 +128,9 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 		
 		
 		//recherche du x le plus proche
-		double ymax = ModeleScinDyn.getInterpolatedY(serie, xForYMax);
+		double ymax = Library_JFreeChart.getInterpolatedY(serie, xForYMax);
 
-		double ycalc = ModeleScinDyn.getInterpolatedY(serie, xForYMax+10);
+		double ycalc = Library_JFreeChart.getInterpolatedY(serie, xForYMax+10);
 		double fractionDecrease = (ycalc/ymax)*100;
 		
 		xForYMax = Library_Quantif.round(xForYMax, 2);
@@ -427,11 +427,6 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin{
 		
 	}
 
-	@Override
-	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
-		// TODO Auto-generated method stub
-		
-	}
 
 
 }
