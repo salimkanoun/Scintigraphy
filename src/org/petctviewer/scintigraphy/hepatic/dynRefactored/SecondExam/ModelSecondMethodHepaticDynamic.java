@@ -37,6 +37,13 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 
 	@Override
 	public void calculerResultats() {
+		
+		for (String k : this.getData().keySet()) {
+			List<Double> data = this.getData().get(k);
+			this.getData().put(k, this.adjustValues(data));
+			System.out.println("Je put : this.getData().put("+k+", this.adjustValues("+data+"))");
+		}
+		
 		for (String s : this.getData().keySet())
 			System.out.println(s);
 		XYSeries liverL = this.getSerie("Left Liver");

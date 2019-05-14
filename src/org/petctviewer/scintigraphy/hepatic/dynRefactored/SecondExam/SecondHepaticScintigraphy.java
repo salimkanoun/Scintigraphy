@@ -22,7 +22,7 @@ public class SecondHepaticScintigraphy extends Scintigraphy {
 	private ModelHepaticDynamic model;
 	private TabResult tab;
 	private int[] frameDurations;
-
+	
 	public SecondHepaticScintigraphy(TabResult tab, ModelHepaticDynamic model) {
 		super("Second Method");
 		this.model = model;
@@ -56,17 +56,22 @@ public class SecondHepaticScintigraphy extends Scintigraphy {
 		this.frameDurations = Library_Dicom.buildFrameDurations(impAnt.getImagePlus());
 
 
-		Library_Dicom.normalizeToCountPerSecond(impAnt.getImagePlus(), this.frameDurations);
-		Library_Dicom.normalizeToCountPerSecond(impPost.getImagePlus(), this.frameDurations);
+//		Library_Dicom.normalizeToCountPerSecond(impAnt.getImagePlus(), this.frameDurations);
+		IJ.run(this.impAnt.getImagePlus(), "32-bit", "");
+//		Library_Dicom.normalizeToCountPerSecond(impPost.getImagePlus(), this.frameDurations);
+		IJ.run(this.impPost.getImagePlus(), "32-bit", "");
 
 		if (this.impAnt != null) {
-			impProjeteeAnt = Library_Dicom.project(this.impAnt, 0, impAnt.getImagePlus().getStackSize(), "avg");
+			impProjeteeAnt = this.impAnt.clone();
+			Library_Dicom.normalizeToCountPerSecond(impProjeteeAnt);
+			impProjeteeAnt = Library_Dicom.project(this.impProjeteeAnt, 0, impProjeteeAnt.getImagePlus().getStackSize(), "avg");
+			
 		}
 		if (this.impPost != null) {
 			impProjeteePost = Library_Dicom.project(this.impPost, 0, impPost.getImagePlus().getStackSize(), "avg");
 		}
 
-		ImageSelection[] selection = new ImageSelection[5];
+		ImageSelection[] selection = new ImageSelection[4];
 		selection[0] = impProjeteeAnt;
 		selection[1] = impAnt;
 		selection[2] = impPost;

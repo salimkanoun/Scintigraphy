@@ -73,7 +73,7 @@ public class ModeleLympho extends ModeleScin {
 		if (!(imp == getImagePlus())) {
 //			correctedRadioactiveDecrease = Library_Quantif.calculer_countCorrected(18902000,
 //					Library_Quantif.getCounts(imp), Isotope.TECHNICIUM_99);
-			correctedRadioactiveDecrease =Library_Quantif.calculer_countCorrected(getImagePlus(), imp,Isotope.TECHNETIUM_99);
+			correctedRadioactiveDecrease =Library_Quantif.calculer_countCorrected(getImagePlus(), imp,Isotope.TECHNICIUM_99);
 		} else {
 			correctedRadioactiveDecrease = Library_Quantif.getCounts(imp);
 		}

@@ -55,14 +55,16 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 		if (imps[0] != null) {
 			this.impAnt = imps[0];
 			this.frameDurations = Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus());
-			Library_Dicom.normalizeToCountPerSecond(this.impAnt.getImagePlus(), frameDurations);
+			IJ.run(this.impAnt.getImagePlus(), "32-bit", "");
+//			Library_Dicom.normalizeToCountPerSecond(this.impAnt.getImagePlus(), frameDurations);
 		}
 
 		if (imps[1] != null) {
 			this.impPost = imps[1];
 			this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost.getImagePlus());
 			Library_Dicom.flipStackHorizontal(impPost);
-			Library_Dicom.normalizeToCountPerSecond(this.impPost.getImagePlus(), frameDurations);
+			IJ.run(this.impPost.getImagePlus(), "32-bit", "");
+//			Library_Dicom.normalizeToCountPerSecond(this.impPost.getImagePlus(), frameDurations);
 		}
 
 		if (this.impAnt != null) {

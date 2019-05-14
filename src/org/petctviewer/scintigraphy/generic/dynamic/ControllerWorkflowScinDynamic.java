@@ -47,8 +47,11 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 		DefaultGenerator dri_1 = null;
 		ImageState state; 
-		if(((Modele_GeneralDyn) model).getImpAnt() != null)
+		if(((Modele_GeneralDyn) model).getImpAnt() != null) {
 			state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
+			if(((Modele_GeneralDyn) model).getImpPost() != null)
+				Library_Gui.setOverlayTitle("Inverted Post", this.vue.getImagePlus(), Color.yellow, 2);
+		}
 		else
 			state = new ImageState(Orientation.POST, 1, true, ImageState.ID_NONE);
 
@@ -68,9 +71,17 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		// this.model).getImpProjetee().getImagePlus();
 
 		Library_Gui.initOverlay(this.vue.getImagePlus());
-		Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus(), Color.yellow, 1);
-		Library_Gui.setOverlayTitle("Inverted Post", this.vue.getImagePlus(), Color.yellow, 2);
+		if(((Modele_GeneralDyn) model).getImpAnt() != null) {
+			Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus(), Color.yellow, 1);
+			if(((Modele_GeneralDyn) model).getImpPost() != null)
+				Library_Gui.setOverlayTitle("Inverted Post", this.vue.getImagePlus(), Color.yellow, 2);
+			
+		}
+		else
+			Library_Gui.setOverlayTitle("Inverted Post", this.vue.getImagePlus(), Color.yellow, 1);
 
+		Library_Gui.setOverlayDG(this.vue.getImagePlus(),Color.yellow);
+		
 		for (Roi roi : this.model.getRoiManager().getRoisAsArray()) {
 			roi.setPosition(0);
 			this.vue.getImagePlus().getOverlay().add(roi);
@@ -93,6 +104,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
 		if (scindyn.getImpAnt() != null) {
 			this.vue.getImagePlus().setSlice(1);
+			this.vue.getImagePlus().setOverlay(this.vue.getOverlay());
 			capture = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 512, 0).getBufferedImage();
 			((Modele_GeneralDyn) this.model).saveValues(((Modele_GeneralDyn) this.model).getImpAnt().getImagePlus());
 			this.fenResult.addTab(new TabAntPost(capture, "Ant", this.fenResult));
@@ -101,6 +113,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		if (scindyn.getImpPost() != null) {
 
 			this.vue.getImagePlus().setSlice(2);
+			this.vue.getImagePlus().setOverlay(this.vue.getOverlay());
 
 			BufferedImage c = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 512, 0).getBufferedImage();
 
