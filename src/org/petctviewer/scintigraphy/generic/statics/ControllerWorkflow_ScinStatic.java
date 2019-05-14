@@ -87,11 +87,11 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 	@Override
 	public void clicSuivant() {
 		boolean sameName = false;
-		for (Instruction instruction : this.workflows[this.indexCurrentImage].getInstructions())
+		for (Instruction instruction : this.workflows[this.indexCurrentWorkflow].getInstructions())
 			if (instruction instanceof DrawLoopInstruction)
-				if (((DrawLoopInstruction) instruction) != this.workflows[this.indexCurrentImage]
+				if (((DrawLoopInstruction) instruction) != this.workflows[this.indexCurrentWorkflow]
 						.getCurrentInstruction())
-					if (this.workflows[this.indexCurrentImage].getController().getVue().getTextfield_instructions()
+					if (this.workflows[this.indexCurrentWorkflow].getController().getVue().getTextfield_instructions()
 							.getText().equals(((DrawLoopInstruction) instruction).getInstructionRoiName()))
 						sameName = true;
 		if (sameName) {

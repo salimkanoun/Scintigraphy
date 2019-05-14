@@ -43,12 +43,26 @@ public class Library_Quantif {
 	 * </p>
 	 */
 	public enum Isotope {
-		INDIUM_111(242330000l), TECHNICIUM_99(21620880l), CHROME_51(2393500000l);
+		// TODO: add codes http://dicom.nema.org/medical/Dicom/2015b/output/chtml/part16/sect_CID_18.html
+		INDIUM_111(242330000l, "CODE"), TECHNICIUM_99(21620880l, "CODE"), CHROME_51(2393500000l, "CODE");
 
 		private long halfLifeMS;
+		private String code;
 
-		private Isotope(long isotope) {
+		private Isotope(long isotope, String code) {
 			this.halfLifeMS = isotope;
+			this.code = code;
+		}
+
+		public static Isotope getIsotopeFromCode(String code) {
+			for (Isotope i : Isotope.values())
+				if (i.code.equals(code))
+					return i;
+			return null;
+		}
+
+		public String getCode() {
+			return this.code;
 		}
 
 		public long getHalLifeMS() {
@@ -59,10 +73,8 @@ public class Library_Quantif {
 	/**
 	 * arrondi la valeur
 	 * 
-	 * @param value
-	 *            valeur a arrondir
-	 * @param places
-	 *            nb de chiffre apres la virgule
+	 * @param value  valeur a arrondir
+	 * @param places nb de chiffre apres la virgule
 	 * @return valeur arrondie
 	 */
 	public static double round(Double value, int places) {
@@ -85,10 +97,8 @@ public class Library_Quantif {
 	/**
 	 * renvoie la moyenne geometrique
 	 * 
-	 * @param a
-	 *            chiffre a
-	 * @param b
-	 *            chiffre b
+	 * @param a chiffre a
+	 * @param b chiffre b
 	 * @return moyenne geometrique
 	 */
 	public static double moyGeom(Double a, Double b) {
@@ -107,8 +117,7 @@ public class Library_Quantif {
 	/**
 	 * Renvoie le nombre de coups sur la roi presente dans l'image plus
 	 * 
-	 * @param imp
-	 *            l'imp
+	 * @param imp l'imp
 	 * @return nombre de coups
 	 */
 	public static Double getCounts(ImagePlus imp) {
@@ -122,8 +131,7 @@ public class Library_Quantif {
 	/**
 	 * renvoie le nombre de coups moyens de la roi presente sur l'imp
 	 * 
-	 * @param imp
-	 *            l'imp
+	 * @param imp l'imp
 	 * @return nombre moyen de coups
 	 */
 	public static Double getAvgCounts(ImagePlus imp) {
@@ -136,16 +144,13 @@ public class Library_Quantif {
 	}
 
 	/**
-	 * Calculate the counts/pixels mean of the Background , and subtract to the Roi count this mean applied to the Roi pixels
+	 * Calculate the counts/pixels mean of the Background , and subtract to the Roi
+	 * count this mean applied to the Roi pixels
 	 * 
-	 * @param imp
-	 *             ImagePlus to apply the Roi and Background
-	 * @param roi
-	 *             Roi to correct
-	 * @param background
-	 *             Roi used to correct
-	 * @return
-	 *              The Roi count corrected
+	 * @param imp        ImagePlus to apply the Roi and Background
+	 * @param roi        Roi to correct
+	 * @param background Roi used to correct
+	 * @return The Roi count corrected
 	 */
 	public static Double getCountCorrectedBackground(ImagePlus imp, Roi roi, Roi background) {
 		imp.setRoi(background);
@@ -153,17 +158,15 @@ public class Library_Quantif {
 		imp.setRoi(roi);
 		return Library_Quantif.getCounts(imp) - (meanCountBackground * imp.getStatistics().pixelCount);
 	}
-	
+
 	/**
-	 * Subtract to the Roi count the background counts/pixels mean applied to the Roi pixels
-	 * @param imp
-	 *             ImagePlus to apply the Roi and Background
-	 * @param roi
-	 *             Roi to correct
-	 * @param meanCountBackground
-	 *              The mean count to use
-	 * @return
-	 *             The Roi count corrected
+	 * Subtract to the Roi count the background counts/pixels mean applied to the
+	 * Roi pixels
+	 * 
+	 * @param imp                 ImagePlus to apply the Roi and Background
+	 * @param roi                 Roi to correct
+	 * @param meanCountBackground The mean count to use
+	 * @return The Roi count corrected
 	 */
 	public static Double getCountCorrectedBackground(ImagePlus imp, Roi roi, double meanCountBackground) {
 		imp.setRoi(roi);
@@ -173,14 +176,10 @@ public class Library_Quantif {
 	/**
 	 * Returns the corrected counts of the radioactive decay
 	 * 
-	 * @param delayMs
-	 *              Delay between the 2 images, in miliseconds
-	 * @param mesuredCount
-	 *               Current count of the image
-	 * @param isotope
-	 *                Isotope used in this exam ({@link Isotope})
-	 * @return
-	 *                The corrected count
+	 * @param delayMs      Delay between the 2 images, in miliseconds
+	 * @param mesuredCount Current count of the image
+	 * @param isotope      Isotope used in this exam ({@link Isotope})
+	 * @return The corrected count
 	 */
 	public static double calculer_countCorrected(int delayMs, double mesuredCount, Isotope isotope) {
 
@@ -193,15 +192,12 @@ public class Library_Quantif {
 	/**
 	 * Return the corrected counts of the second image.
 	 * 
-	 * @param firstImage
-	 *            Image of the first acquisition, used to take our reference
-	 *            time
-	 * @param secondImage
-	 *            Image on which we want to correct counts
-	 * @param isotope
-	 *            Referencing the isotope used for the correction ({@link Isotope})
-	 * @return
-	 *            The corrected count
+	 * @param firstImage  Image of the first acquisition, used to take our reference
+	 *                    time
+	 * @param secondImage Image on which we want to correct counts
+	 * @param isotope     Referencing the isotope used for the correction
+	 *                    ({@link Isotope})
+	 * @return The corrected count
 	 */
 	public static double calculer_countCorrected(ImagePlus firstImage, ImagePlus secondImage, Isotope isotope) {
 		Date firstAcquisitionTime = Library_Dicom.getDateAcquisition(firstImage);
@@ -212,109 +208,104 @@ public class Library_Quantif {
 				(int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime()) / 1000,
 				Library_Quantif.getCounts(secondImage), isotope);
 	}
-	
-	
-	
+
 	/**
 	 * Convolve n times an array of double, using a kernel.
-	 * @param values
-	 *           The array ou double to convolve
-	 * @param kernel
-	 *           The kernel used in the convolution
-	 * @param nbConvolv
-	 *           The number of convolution to apply
-	 * @return 
-	 *           The convolved array
+	 * 
+	 * @param values    The array ou double to convolve
+	 * @param kernel    The kernel used in the convolution
+	 * @param nbConvolv The number of convolution to apply
+	 * @return The convolved array
 	 */
 	public static double[] processNConvolv(double[] values, double[] kernel, int nbConvolv) {
-		
-		List<double[]> list = new ArrayList<>(); 
-		
+
+		List<double[]> list = new ArrayList<>();
+
 		list.add(MathArrays.convolve(values, kernel));
 
-		for(int i = 0 ; i < nbConvolv - 1; i++) {
+		for (int i = 0; i < nbConvolv - 1; i++) {
 			list.add(MathArrays.convolve(list.get(i), kernel));
 		}
-		
+
 		double[] result = new double[values.length];
 
-		for(int i = 0 ; i <  list.get(list.size() - 1).length - nbConvolv*(kernel.length - 1 ) ; i++) {
-			result[i] = list.get(list.size() - 1)[i + (nbConvolv*(kernel.length - 1)/2)];
+		for (int i = 0; i < list.get(list.size() - 1).length - nbConvolv * (kernel.length - 1); i++) {
+			result[i] = list.get(list.size() - 1)[i + (nbConvolv * (kernel.length - 1) / 2)];
 		}
 
-		return result;	
+		return result;
 	}
-	
+
 	/**
 	 * Convolve n times an array of double, using a kernel.
-	 * @param values
-	 *           The array ou double to convolve
-	 * @param kernel
-	 *           The kernel used in the convolution
-	 * @param nbConvolv
-	 *           The number of convolution to apply
-	 * @return 
-	 *           The convolved array
+	 * 
+	 * @param values    The array ou double to convolve
+	 * @param kernel    The kernel used in the convolution
+	 * @param nbConvolv The number of convolution to apply
+	 * @return The convolved array
 	 */
 	public static Double[] processNConvolv(Double[] values, Double[] kernel, int nbConvolv) {
-		return ArrayUtils.toObject(processNConvolv(ArrayUtils.toPrimitive(values),ArrayUtils.toPrimitive(kernel),nbConvolv));
+		return ArrayUtils
+				.toObject(processNConvolv(ArrayUtils.toPrimitive(values), ArrayUtils.toPrimitive(kernel), nbConvolv));
 	}
-	
+
 	/**
 	 * Convolve n times an array of double, using a kernel.
-	 * @param values
-	 *           The array ou double to convolve
-	 * @param kernel
-	 *           The kernel used in the convolution
-	 * @param nbConvolv
-	 *           The number of convolution to apply
-	 * @return 
-	 *           The convolved array
+	 * 
+	 * @param values    The array ou double to convolve
+	 * @param kernel    The kernel used in the convolution
+	 * @param nbConvolv The number of convolution to apply
+	 * @return The convolved array
 	 */
 	public static Double[] processNConvolv(List<Double> values, Double[] kernel, int nbConvolv) {
-		return processNConvolv(values.toArray(new Double[values.size()]),kernel,nbConvolv);
+		return processNConvolv(values.toArray(new Double[values.size()]), kernel, nbConvolv);
 	}
-	
-	/**
-	 * Convolve n times an array of double, using a kernel.
-	 * @param values
-	 *           The array ou double to convolve
-	 * @param kernel
-	 *           The kernel used in the convolution
-	 * @param nbConvolv
-	 *           The number of convolution to apply
-	 * @return 
-	 *           The convolved array
-	 */
-	public static List<Double> processNConvolv(List<Double> values, List<Double> kernel, int nbConvolv) {
-		return Arrays.asList(processNConvolv(values.toArray(new Double[values.size()]),kernel.toArray(new Double[kernel.size()]),nbConvolv));
-	}
-	
+
 	/**
 	 * Create the deconvolution of the liver by the blood pool.
-	 * @deprecated => Work when you used convolved array (actually, working with a 6times convolved array) See {@link org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabDeconvolv} or {@link org.petctviewer.scintigraphy.renal.gui.TabDeconvolve}.
+	 * 
+	 * @deprecated => Work when you used convolved array. =======
+	 * 
+	 *             /** Convolve n times an array of double, using a kernel.
+	 * @param values    The array ou double to convolve
+	 * @param kernel    The kernel used in the convolution
+	 * @param nbConvolv The number of convolution to apply
+	 * @return The convolved array
+	 */
+	public static List<Double> processNConvolv(List<Double> values, List<Double> kernel, int nbConvolv) {
+		return Arrays.asList(processNConvolv(values.toArray(new Double[values.size()]),
+				kernel.toArray(new Double[kernel.size()]), nbConvolv));
+	}
+
+	/**
+	 * Create the deconvolution of the liver by the blood pool.
+	 * 
+	 * @deprecated => Work when you used convolved array (actually, working with a
+	 *             6times convolved array) See
+	 *             {@link org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabDeconvolv}
+	 *             or {@link org.petctviewer.scintigraphy.renal.gui.TabDeconvolve}.
 	 * @param blood
 	 * @param liver
 	 * @return
 	 */
 	public static List<Double> deconvolv(Double[] blood, Double[] liver, int init) {
-		
+
 		System.out.println("\n\nConvolved Blood Pool");
 		System.out.println(Arrays.asList(blood));
 		System.out.println();
 		System.out.println("Convolved liver");
 		System.out.println(Arrays.asList(liver));
 		System.out.println("\n\n");
-		
-		List<Double> h = new ArrayList<Double>();
-		
-		for (int i=0; i<init; i++) {
 
-			if(i<init) {
+		List<Double> h = new ArrayList<Double>();
+
+		for (int i = 0; i < init; i++) {
+
+			if (i < init) {
 				h.add(0.0d);
 			}
 		}
-		
+
 		for (int i = init; i < blood.length; i++) {
 
 			double somme = 0;
@@ -322,8 +313,9 @@ public class Library_Quantif {
 			for (int j = init; j < i; j++) {
 				somme += (i - j + 1) * (h.get(j));
 			}
-			
-		
+
+			// SK REMPLACER 1 PAR LA VALEUR DE TEMPS DE LA FRAME !, ou mettre les valeurs en
+			// coups/sec
 			double result2 = (1.0D / (blood[init])) * (liver[i] - somme);
 
 			h.add(result2);
@@ -331,11 +323,14 @@ public class Library_Quantif {
 		}
 		return h;
 	}
-	
-	
+
 	/**
 	 * Create the deconvolution of the liver by the blood pool.
-	 * @deprecated => Work when you used convolved array (actually, working with a 6times convolved array) See {@link org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabDeconvolv} or {@link org.petctviewer.scintigraphy.renal.gui.TabDeconvolve}.
+	 * 
+	 * @deprecated => Work when you used convolved array (actually, working with a
+	 *             6times convolved array) See
+	 *             {@link org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabDeconvolv}
+	 *             or {@link org.petctviewer.scintigraphy.renal.gui.TabDeconvolve}.
 	 * @param blood
 	 * @param liver
 	 * @return

@@ -34,9 +34,18 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	 */
 	public static final String COMMAND_END = "command.end";
 
+	/**
+	 * Workflows containing the instructions to execute by this controller
+	 */
 	protected Workflow[] workflows;
 
-	protected int indexCurrentImage;
+	/**
+	 * Index of the current workflow
+	 */
+	protected int indexCurrentWorkflow;
+	/**
+	 * Current state the image must be in
+	 */
 	protected ImageState currentState;
 
 	/**
@@ -44,6 +53,11 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	 */
 	private int indexRoi;
 
+	/**
+	 * @param main  Reference to the main class
+	 * @param vue   View of the MVC pattern
+	 * @param model Model of the MVC pattern
+	 */
 	public ControllerWorkflow(Scintigraphy main, FenApplication vue, ModeleScin model) {
 		super(main, vue, model);
 	}
@@ -51,7 +65,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	/**
 	 * This method must instantiate the workflow and fill it with the instructions
 	 * for this model.<br>
-	 * Typically, this will look like a repetition of this:<br>
+	 * Typically, this will look like a repetition of:<br>
 	 * 
 	 * <pre>
 	 * this.workflow[0].addInstruction(new DrawRoiInstruction(...));
@@ -62,28 +76,6 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	 * Only the last workflow generated MUST end with a {@link LastInstruction}.
 	 */
 	protected abstract void generateInstructions();
-
-	/**
-	 * This method initializes the controller. It must be called <b>after</b> the
-	 * {@link #generateInstructions()} method.
-	 */
-	protected void start() {
-		this.indexCurrentImage = 0;
-		this.indexRoi = 0;
-
-		Instruction i = this.workflows[0].next();
-		if (i != null) {
-			// TODO: maybe do not assume the lateralisation is RL?
-			this.currentState = new ImageState(
-					this.workflows[0].getImageAssociated().getImageOrientation().getFacingOrientation(), 1,
-					i.getImageState().isLateralisationRL(), ImageState.ID_NONE);
-			this.setOverlay(currentState);
-
-			this.displayInstruction(i.getMessage());
-			this.prepareImage(i.getImageState());
-			i.afterNext(this);
-		}
-	}
 
 //	private void DEBUG(String s) {
 //		System.out.println("=== " + s + " ===");
@@ -114,7 +106,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	 */
 	private int[] roisToDisplay() {
 		List<Instruction> dris = new ArrayList<>();
-		for (Instruction i : this.workflows[this.indexCurrentImage]
+		for (Instruction i : this.workflows[this.indexCurrentWorkflow]
 				.getInstructionsWithOrientation(this.currentState.getFacingOrientation()))
 			if (i.roiToDisplay() >= 0 && i.roiToDisplay() < this.indexRoi) {
 				dris.add(i);
@@ -125,6 +117,33 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		return array;
 	}
 
+	/**
+	 * This method initializes the controller. It must be called <b>after</b> the
+	 * {@link #generateInstructions()} method.
+	 */
+	protected void start() {
+		this.indexCurrentWorkflow = 0;
+		this.indexRoi = 0;
+
+		Instruction i = this.workflows[0].next();
+		if (i != null) {
+			this.currentState = new ImageState(
+					this.workflows[0].getImageAssociated().getImageOrientation().getFacingOrientation(), 1,
+					ImageState.LAT_RL, ImageState.ID_NONE);
+			this.setOverlay(currentState);
+
+			this.displayInstruction(i.getMessage());
+			this.prepareImage(i.getImageState());
+			i.afterNext(this);
+		}
+	}
+
+	/**
+	 * Finds the workflow matching the specified image.
+	 * 
+	 * @param ims Image to find
+	 * @return Workflow associated with the image or null if not found
+	 */
 	protected Workflow getWorkflowAssociatedWithImage(ImageSelection ims) {
 		for (Workflow workflow : this.workflows)
 			if (workflow.getImageAssociated() == ims)
@@ -161,7 +180,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		} else {
 			if (imageState.getIdImage() == ImageState.ID_NONE) {
 				// Don't use the id
-				this.currentState.setIdImage(this.indexCurrentImage);
+				this.currentState.setIdImage(this.indexCurrentWorkflow);
 				this.currentState.specifieImage(getModel().getImageSelection()[this.currentState.getIdImage()]);
 			} else if (imageState.getIdImage() >= 0) {
 				// Use the specified id
@@ -188,16 +207,28 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			resetOverlay = true;
 		}
 
+		// == LATERALISATION ==
+		if (imageState.getLateralisation() != this.currentState.getLateralisation()) {
+			this.currentState.setLateralisation(imageState.getLateralisation());
+			resetOverlay = true;
+		}
+
 		if (resetOverlay) {
 			this.vue.getOverlay().clear();
 			this.setOverlay(this.currentState);
 		}
 	}
 
+	/**
+	 * @return state of the current image
+	 */
 	public ImageState getCurrentImageState() {
 		return this.currentState;
 	}
 
+	/**
+	 * @return index of the last ROI saved by this controller
+	 */
 	public int getIndexLastRoiSaved() {
 		return this.indexRoi - 1;
 	}
@@ -206,10 +237,10 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	public void clicPrecedent() {
 		super.clicPrecedent();
 
-		Instruction currentInstruction = this.workflows[this.indexCurrentImage].previous();
+		Instruction currentInstruction = this.workflows[this.indexCurrentWorkflow].previous();
 		if (currentInstruction == null) {
-			this.indexCurrentImage--;
-			currentInstruction = this.workflows[this.indexCurrentImage].getCurrentInstruction();
+			this.indexCurrentWorkflow--;
+			currentInstruction = this.workflows[this.indexCurrentWorkflow].getCurrentInstruction();
 			currentInstruction.prepareAsPrevious();
 		}
 
@@ -241,13 +272,13 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 	@Override
 	public void clicSuivant() {
-		Instruction previousInstruction = this.workflows[this.indexCurrentImage].getCurrentInstruction();
+		Instruction previousInstruction = this.workflows[this.indexCurrentWorkflow].getCurrentInstruction();
 
 		// Only execute 'Next' if the instruction is not cancelled
 		if (!previousInstruction.isCancelled()) {
 
 			// Prepare next instruction
-			int indexPreviousImage = this.indexCurrentImage;
+			int indexPreviousImage = this.indexCurrentWorkflow;
 
 			// === Draw ROI of the previous instruction ===
 			if (previousInstruction != null && previousInstruction.saveRoi()) {
@@ -275,10 +306,10 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			// == Go to the next instruction ==
 			super.clicSuivant();
 
-			if (this.workflows[this.indexCurrentImage].isOver()) {
-				this.indexCurrentImage++;
+			if (this.workflows[this.indexCurrentWorkflow].isOver()) {
+				this.indexCurrentWorkflow++;
 			}
-			Instruction nextInstruction = this.workflows[this.indexCurrentImage].next();
+			Instruction nextInstruction = this.workflows[this.indexCurrentWorkflow].next();
 
 			if (this.isOver()) {
 				nextInstruction.afterNext(this);
@@ -315,7 +346,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 	@Override
 	public boolean isOver() {
-		return this.workflows[this.indexCurrentImage].getCurrentInstruction() instanceof LastInstruction;
+		return this.workflows[this.indexCurrentWorkflow].getCurrentInstruction() instanceof LastInstruction;
 	}
 
 	@Override
@@ -327,8 +358,8 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 		Button source = (Button) e.getSource();
 		if (source.getActionCommand().contentEquals(COMMAND_END)) {
-			if (this.workflows[this.indexCurrentImage].getCurrentInstruction() instanceof GeneratorInstruction) {
-				((GeneratorInstruction) this.workflows[this.indexCurrentImage].getCurrentInstruction()).stop();
+			if (this.workflows[this.indexCurrentWorkflow].getCurrentInstruction() instanceof GeneratorInstruction) {
+				((GeneratorInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
 				this.clicSuivant();
 			}
 		}

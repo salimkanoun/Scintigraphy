@@ -8,6 +8,13 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 
 import ij.gui.Roi;
 
+/**
+ * This class represents a area in an image. Data resulting of calculations can
+ * be stored in this region.
+ * 
+ * @author Titouan QUÉMA
+ *
+ */
 public class Region {
 
 	private ImageState state;
@@ -18,6 +25,13 @@ public class Region {
 
 	private Model_Gastric model;
 
+	/**
+	 * Instantiates a new region with the specified name and the associated model.
+	 * 
+	 * @param name  Name of the region (names can be identical though it is not
+	 *              recommended)
+	 * @param model Model associated with this region
+	 */
 	public Region(String name, Model_Gastric model) {
 		this.name = name;
 		this.data = new HashMap<>();
@@ -26,27 +40,67 @@ public class Region {
 		this.model = model;
 	}
 
+	/**
+	 * Adds a ROI along with the state the image should have to get informations.
+	 * 
+	 * @param state State the image should be in to get informations from the ROI
+	 * @param roi   ROI of the region
+	 */
 	public void inflate(ImageState state, Roi roi) {
 		this.roi = roi;
 		this.state = state;
 	}
 
+	/**
+	 * Changes the value with the specified key. The keys are stored by the model.
+	 * 
+	 * @param key   Key of the value to change
+	 * @param value Value to set
+	 */
 	public void setValue(int key, double value) {
 		this.data.put(key, value);
 	}
 
+	/**
+	 * Removes the value associated with the specified key.<br>
+	 * If no value was associated with this key, nothing happens.
+	 * 
+	 * @param key Key of the value to remove
+	 */
+	public void removeValue(int key) {
+		this.data.remove(key);
+	}
+
+	/**
+	 * Gets the value associated with the specified key.F
+	 * 
+	 * @param key Key of the value to get
+	 * @return value associated with the key or null if none
+	 */
 	public Double getValue(int key) {
 		return this.data.get(key);
 	}
 
+	/**
+	 * @return ROI corresponding to this region or null if none
+	 */
 	public Roi getRoi() {
 		return this.roi;
 	}
 
+	/**
+	 * Returns the state the image should be in in order to get informations about
+	 * the ROI associated.
+	 * 
+	 * @return state the image or null if none
+	 */
 	public ImageState getState() {
 		return this.state;
 	}
 
+	/**
+	 * @return name of this region
+	 */
 	public String getName() {
 		return this.name;
 	}
