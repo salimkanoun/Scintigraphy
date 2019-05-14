@@ -140,6 +140,10 @@ public class ImageState {
 	public boolean isLateralisationLR() {
 		return !this.lateralisation;
 	}
+	
+	public boolean getLateralisation() {
+		return this.lateralisation;
+	}
 
 	/**
 	 * @return image specified or null if none
