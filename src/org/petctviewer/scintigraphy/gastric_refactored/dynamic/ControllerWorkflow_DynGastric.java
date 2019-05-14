@@ -115,9 +115,9 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
 		DrawRoiInstruction dri_antre = null, dri_intestine = null;
 
-		PromptBkgNoise promptBkgNoise = new PromptBkgNoise(this);
+		PromptBkgNoise promptBkgNoise = new PromptBkgNoise(this, this.workflows.length);
 
-		for (int i = 0; i < getModel().getImageSelection().length; i++) {
+		for (int i = 0; i < this.workflows.length; i++) {
 			this.workflows[i] = new Workflow(this, getModel().getImageSelection()[i]);
 
 			ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
@@ -133,7 +133,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 			this.workflows[i].addInstruction(checkIntersection);
 			this.workflows[i].addInstruction(new BkgNoiseInstruction(promptBkgNoise));
 		}
-		this.workflows[getModel().getImageSelection().length - 1].addInstruction(new EndInstruction());
+		this.workflows[this.workflows.length - 1].addInstruction(new EndInstruction());
 	}
 
 	private class BkgNoiseInstruction extends PromptInstruction {
@@ -144,7 +144,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
 		@Override
 		public boolean isExpectingUserInput() {
-			if (!((PromptBkgNoise) this.dialog).shouldBeDisplayed())
+			if (!this.dialog.shouldBeDisplayed())
 				return false;
 			return super.isExpectingUserInput();
 		}
@@ -152,26 +152,32 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		@Override
 		public void afterNext(ControllerWorkflow controller) {
 			PromptBkgNoise dialog = (PromptBkgNoise) this.dialog;
-			if (dialog.shouldBeDisplayed())
-				dialog.setVisible(true);
 
-			// Inform model if this instruction got the background
-			if (dialog.antreIsNowSelected()) {
-				((Model_Gastric) controller.getModel()).setBkgNoise(Model_Gastric.REGION_ANTRE,
-						controller.getCurrentImageState(),
-						controller.getRoiManager().getRoi(controller.getIndexLastRoiSaved()));
-			}
-			if (dialog.intestineIsNowSelected()) {
-				((Model_Gastric) controller.getModel()).setBkgNoise(Model_Gastric.REGION_INTESTINE,
-						controller.getCurrentImageState(),
-						controller.getRoiManager().getRoi(controller.getIndexLastRoiSaved() - 1));
+			if (dialog.shouldBeDisplayed()) {
+				this.displayDialog(controller.getVue());
+
+				// Inform model if this instruction got the background
+				if (dialog.antreIsNowSelected()) {
+					((Model_Gastric) controller.getModel()).setBkgNoise(Model_Gastric.REGION_ANTRE,
+							controller.getCurrentImageState(),
+							controller.getRoiManager().getRoi(controller.getIndexLastRoiSaved()));
+				}
+				if (dialog.intestineIsNowSelected()) {
+					((Model_Gastric) controller.getModel()).setBkgNoise(Model_Gastric.REGION_INTESTINE,
+							controller.getCurrentImageState(),
+							controller.getRoiManager().getRoi(controller.getIndexLastRoiSaved() - 1));
+				}
+
+				ControllerWorkflow_DynGastric.this.skipInstruction();
 			}
 		}
 
 		@Override
 		public void afterPrevious(ControllerWorkflow controller) {
-			if (((PromptBkgNoise) this.dialog).shouldBeDisplayed())
-				super.afterPrevious(controller);
+			if (dialog.shouldBeDisplayed()) {
+				this.displayDialog(controller.getVue());
+				ControllerWorkflow_DynGastric.this.skipInstruction();
+			}
 		}
 	}
 

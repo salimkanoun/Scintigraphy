@@ -60,6 +60,8 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	 */
 	public ControllerWorkflow(Scintigraphy main, FenApplication vue, ModeleScin model) {
 		super(main, vue, model);
+		
+		this.skipInstruction = false;
 	}
 
 	/**
@@ -274,6 +276,12 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			currentInstruction.afterPrevious(this);
 			this.clicPrecedent();
 		}
+		
+		// == Skip instruction if requested ==
+		if(this.skipInstruction) {
+			this.skipInstruction = false;
+			this.clicPrecedent();
+		}
 
 //		DEBUG("PREVIOUS");
 	}
@@ -348,7 +356,19 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			}
 		}
 
+		// == Skip instruction if requested ==
+		if (this.skipInstruction) {
+			this.skipInstruction = false;
+			this.clicSuivant();
+		}
+
 //		DEBUG("NEXT");
+	}
+
+	private boolean skipInstruction;
+
+	public void skipInstruction() {
+		this.skipInstruction = true;
 	}
 
 	@Override
