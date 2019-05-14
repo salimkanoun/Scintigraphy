@@ -76,8 +76,8 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 
 		}
 		if (this.impAnt != null && this.impPost != null) {
-			ImagePlus Ant = impAnt.getImagePlus().duplicate();
-			ImagePlus Post = impPost.getImagePlus().duplicate();
+			ImagePlus Ant = impProjeteeAnt.getImagePlus().duplicate();
+			ImagePlus Post = impProjeteePost.getImagePlus().duplicate();
 			ImageStack img = new ImageStack(Ant.getWidth(), Ant.getHeight());
 			img.addSlice(Ant.getProcessor());
 			img.addSlice(Post.getProcessor());
