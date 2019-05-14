@@ -1,10 +1,9 @@
 package org.petctviewer.scintigraphy.gastric_refactored;
 
-import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JComboBox;
 
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -31,7 +30,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 import ij.ImagePlus;
 
-public class ControllerWorkflow_Gastric extends ControllerWorkflow implements ChartMouseListener {
+public class ControllerWorkflow_Gastric extends ControllerWorkflow implements ChartMouseListener, ItemListener {
 
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 
@@ -166,14 +165,31 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent event) {
-		super.actionPerformed(event);
+	public void chartMouseClicked(ChartMouseEvent event) {
+		// Does nothing
+		this.tabMain.reloadSidePanelContent();
+	}
 
-		if (!(event.getSource() instanceof JComboBox))
-			return;
+	@Override
+	public void chartMouseMoved(ChartMouseEvent event) {
+		// Reload fit
+		if (this.tabChart.getValueSetter().getGrabbedSelector() != null) {
+			XYSeries series = ((XYSeriesCollection) this.tabChart.getValueSetter().retrieveValuesInSpan()).getSeries(0);
+			try {
+				this.getModel().setExtrapolation(Fit.createFit(this.tabChart.getSelectedFit(),
+						Library_JFreeChart.invertArray(series.toArray())));
+				this.tabChart.drawFit(this.getModel().getFittedSeries());
+				this.tabChart.setErrorMessage(null);
+			} catch (IllegalArgumentException e) {
+				System.err.println("Not enough data");
+				this.tabChart.setErrorMessage("Not enough data to fit the graph");
+			}
+		}
+	}
 
-		JComboBox<FitType> source = (JComboBox<FitType>) event.getSource();
-		FitType selectedFit = (FitType) source.getSelectedItem();
+	@Override
+	public void itemStateChanged(ItemEvent event) {
+		FitType selectedFit = (FitType) event.getItem();
 
 		// By default, use linear fit
 		XYSeries series = ((XYSeriesCollection) this.tabChart.getValueSetter().retrieveValuesInSpan()).getSeries(0);
@@ -188,31 +204,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 			// Error messages
 			System.err.println("Not enough data");
 			this.tabChart.setErrorMessage("Not enough data to fit the graph");
-			// Reset combo box
-			source.setSelectedItem(this.getModel().getCurrentExtrapolation());
-		}
-	}
-
-	@Override
-	public void chartMouseClicked(ChartMouseEvent event) {
-		// Does nothing
-		this.tabMain.reloadSidePanelContent();
-	}
-
-	@Override
-	public void chartMouseMoved(ChartMouseEvent event) {
-		// Reload fit
-		if (this.tabChart.getValueSetter().getGrabbedSelector() != null) {
-			XYSeries series = ((XYSeriesCollection) this.tabChart.getValueSetter().retrieveValuesInSpan()).getSeries(0);
-			try {
-				this.getModel().setExtrapolation(Fit.createFit(this.getModel().getCurrentExtrapolation(),
-						Library_JFreeChart.invertArray(series.toArray())));
-				this.tabChart.drawFit(this.getModel().getFittedSeries());
-				this.tabChart.setErrorMessage(null);
-			} catch (IllegalArgumentException e) {
-				System.err.println("Not enough data");
-				this.tabChart.setErrorMessage("Not enough data to fit the graph");
-			}
 		}
 	}
 

@@ -1,5 +1,7 @@
 package org.petctviewer.scintigraphy.scin.instructions.prompts;
 
+import java.awt.Component;
+
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
@@ -30,7 +32,8 @@ public class PromptInstruction implements Instruction {
 		this.dialog.setModal(true);
 	}
 
-	private void displayDialog() {
+	private void displayDialog(Component parent) {
+		this.dialog.setLocationRelativeTo(parent);
 		this.dialog.setVisible(true);
 	}
 
@@ -82,13 +85,13 @@ public class PromptInstruction implements Instruction {
 	@Override
 	public void afterNext(ControllerWorkflow controller) {
 		this.dialog.afterNext();
-		this.displayDialog();
+		this.displayDialog(controller.getVue());
 	}
 
 	@Override
 	public void afterPrevious(ControllerWorkflow controller) {
 		this.dialog.afterPrevious();
-		this.displayDialog();
+		this.displayDialog(controller.getVue());
 	}
 
 	@Override

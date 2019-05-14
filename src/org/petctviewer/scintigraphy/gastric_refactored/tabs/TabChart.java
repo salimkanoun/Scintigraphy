@@ -100,6 +100,10 @@ public class TabChart extends TabResult {
 	public JValueSetter getValueSetter() {
 		return this.valueSetter;
 	}
+	
+	public FitType getSelectedFit() {
+		return (FitType) this.fitsChoices.getSelectedItem();
+	}
 
 	/**
 	 * Displays the specified fit and removes the previous fit if existing.
@@ -140,13 +144,14 @@ public class TabChart extends TabResult {
 		// Instantiate combo box
 		FitType[] possibleFits = FitType.values();
 
+		this.fitsChoices.removeAllItems();
 		for (FitType type : possibleFits)
 			this.fitsChoices.addItem(type);
 
-		fitsChoices.addActionListener(this.parent.getController());
+		fitsChoices.addItemListener((ControllerWorkflow_Gastric) this.parent.getController());
 		panCenter.add(fitsChoices);
 		panCenter.add(this.labelInterpolation);
-		
+
 		panel.add(panCenter, BorderLayout.CENTER);
 		panel.add(this.labelError, BorderLayout.SOUTH);
 
