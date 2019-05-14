@@ -100,14 +100,10 @@ public class TabDeconvolv {
 		
 		//generate the chart
         JFreeChart chart1 = new JFreeChart("Convolved curves", null, plot, true);
-
 		ChartPanel chartpanel = new ChartPanel(chart1);
 
-		
 
 		
-		XYSeriesCollection dataRight2 = new XYSeriesCollection();
-		dataRight2.addSeries(modele.createSerie(deconv, "Deconvolve"));
 		
 		XYSeriesCollection dataset2 = new XYSeriesCollection();
 		dataset2.addSeries(modele.getSerie("Blood Pool AVG"));
@@ -115,7 +111,7 @@ public class TabDeconvolv {
 		
 		
 		XYPlot plotRight = new XYPlot();
-		plotRight.setDataset(0, dataRight2);
+		plotRight.setDataset(0, dataRight);
 		plotRight.setDataset(1, dataset2);
 
         //customize the plot with renderers and axis
@@ -131,7 +127,6 @@ public class TabDeconvolv {
 
         //generate the chart
         JFreeChart chart2 = new JFreeChart("Not convolved curves", null, plotRight, true);
-
 		ChartPanel chartpanelRight = new ChartPanel(chart2);
 		
 		

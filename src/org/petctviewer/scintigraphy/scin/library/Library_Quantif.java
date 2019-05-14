@@ -28,7 +28,7 @@ public class Library_Quantif {
 	 * <th>&nbsp; Half Life (miliseconds) &nbsp;</th>
 	 * </tr>
 	 * <tr align=center>
-	 * <td>RADIUM_111</td>
+	 * <td>INDIUM_111</td>
 	 * <td>242330000</td>
 	 * </tr>
 	 * <tr align=center>
@@ -43,7 +43,7 @@ public class Library_Quantif {
 	 * </p>
 	 */
 	public enum Isotope {
-		INDIUM_111(242330000l), TECHNICIUM_99(21620880l), CHROME_51(2393500000l);
+		INDIUM_111(242330000l), TECHNETIUM_99(21620880l), CHROME_51(2393500000l);
 
 		private long halfLifeMS;
 
