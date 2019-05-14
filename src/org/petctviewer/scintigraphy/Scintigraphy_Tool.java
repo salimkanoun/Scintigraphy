@@ -128,13 +128,11 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			general.add(cardiac);
 			general.add(gastric);
 			general.add(hepatic);
+			general.add(lymphatic);
 			general.add(pulmonary);
 			general.add(renal);
 			general.add(preferences);
 			general.add(about);
-			general.add(lymphatic);
-			
-			
 			
 			par.add(general);
 		}
@@ -153,7 +151,7 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 				IJ.run("Biliary Scintigraphy");
 			}
 			if (cmd=="Gastric Emptying") {
-				IJ.run("Gastric Emptying");
+				IJ.run("Gastric Emptying Scintigraphy");
 			}
 			if (cmd=="Esophageal Transit") {
 				IJ.run("Esophageal Transit");
