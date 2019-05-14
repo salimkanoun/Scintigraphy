@@ -1,12 +1,9 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.math3.util.MathArrays;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
@@ -142,6 +139,7 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 		
 		// Putting in data the count/pixel of Right Liver and Blood Pool, used in the deconvolution.
 		String[] organAVGCount = { "Right Liver AVG", "Blood Pool AVG" };
+		// Roi number of the Right Liver (0), and the Blood Pool (5), in the Roi Manager.
 		int[] organRoiNumber = { 0, 5 };
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);

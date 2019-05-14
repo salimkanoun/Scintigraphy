@@ -52,9 +52,9 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 			ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
 			ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
 			
-			dri_1 = new DrawRoiInstruction("Right Pelvis", stateAnt, null);
-			dri_2 = new DrawRoiInstruction("Left Pelvis", stateAnt, null);
-			dri_3 = new DrawRoiInstruction("Background", stateAnt, null);
+			dri_1 = new DrawRoiInstruction("Right Pelvis", stateAnt);
+			dri_2 = new DrawRoiInstruction("Left Pelvis", stateAnt);
+			dri_3 = new DrawRoiInstruction("Background", stateAnt);
 			dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), i);
 			dri_4 = new DrawRoiInstruction("Right Pelvis", statePost, dri_1);
 			dri_5 = new DrawRoiInstruction("Left Pelvis", statePost, dri_2);

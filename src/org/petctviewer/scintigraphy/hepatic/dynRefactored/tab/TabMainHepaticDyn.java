@@ -8,7 +8,6 @@ import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.ModelHepaticDynamic;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;

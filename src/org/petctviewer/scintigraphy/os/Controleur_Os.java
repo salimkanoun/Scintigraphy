@@ -15,8 +15,6 @@ import javax.swing.event.ChangeListener;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 
-import ij.ImagePlus;
-
 
 
 /**

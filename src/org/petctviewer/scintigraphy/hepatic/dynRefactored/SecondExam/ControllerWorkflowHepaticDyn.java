@@ -46,12 +46,12 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 
 		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
 
-		dri_1 = new DrawRoiInstruction("Right Liver", stateAnt, null);
-		dri_2 = new DrawRoiInstruction("Left Liver", stateAnt, null);
-		dri_3 = new DrawRoiInstruction("Hilium", stateAnt, null);
-		dri_4 = new DrawRoiInstruction("CBD", stateAnt, null);
-		dri_5 = new DrawRoiInstruction("Duodenom", stateAnt, null);
-		dri_6 = new DrawRoiInstruction("Blood pool", stateAnt, null);
+		dri_1 = new DrawRoiInstruction("Right Liver", stateAnt);
+		dri_2 = new DrawRoiInstruction("Left Liver", stateAnt);
+		dri_3 = new DrawRoiInstruction("Hilium", stateAnt);
+		dri_4 = new DrawRoiInstruction("CBD", stateAnt);
+		dri_5 = new DrawRoiInstruction("Duodenom", stateAnt);
+		dri_6 = new DrawRoiInstruction("Blood pool", stateAnt);
 		dri_capture = new ScreenShotInstruction(captures, this.getVue(), 0);
 
 		this.workflows[0].addInstruction(dri_1);

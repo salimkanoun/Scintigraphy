@@ -34,6 +34,7 @@ public class Modele_GeneralDyn extends ModeleScinDyn {
 		for (String k : this.getData().keySet()) {
 			List<Double> data = this.getData().get(k);
 			this.getData().put(k, this.adjustValues(data));
+			System.out.println("Je put : this.getData().put("+k+", this.adjustValues("+data+"))");
 		}
 	}
 
@@ -61,6 +62,7 @@ public class Modele_GeneralDyn extends ModeleScinDyn {
 		// on copie les roi sur toutes les slices
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
+			System.out.println(i);
 			for (this.indexRoi = 0; this.indexRoi < this.nbOrganes; this.indexRoi++) {
 				imp.setRoi(getOrganRoi(this.indexRoi));
 				String name = this.getNomOrgane(this.indexRoi);

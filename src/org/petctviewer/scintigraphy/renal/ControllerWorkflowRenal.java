@@ -22,6 +22,7 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
 import ij.Prefs;
@@ -59,9 +60,8 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), 0);
 
 		if (((Modele_Renal) this.model).getKidneys()[0]) {
-			System.out.println(statePost.isLateralisationLR());
-			dri_1 = new DrawRoiInstruction("L. Kidney", statePost);
 			
+			dri_1 = new DrawRoiInstruction("L. Kidney", statePost);
 			this.workflows[0].addInstruction(dri_1);
 			organes.add("L. Kidney");
 
@@ -71,7 +71,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 				organes.add("L. Pelvis");
 			}
 
-			dri_Background_1 = new DrawRoiBackground("L. Background", statePost, dri_1, this.model);
+			dri_Background_1 = new DrawRoiBackground("L. Background", statePost, dri_1, this.model,"");
 			this.workflows[0].addInstruction(dri_Background_1);
 			organes.add("L. bkg");
 
@@ -88,7 +88,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 				organes.add("R. Pelvis");
 			}
 
-			dri_Background_2 = new DrawRoiBackground("R. Background", statePost, dri_3, this.model);
+			dri_Background_2 = new DrawRoiBackground("R. Background", statePost, dri_3, this.model,"");
 			this.workflows[0].addInstruction(dri_Background_2);
 			organes.add("R. bkg");
 
@@ -147,18 +147,18 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		BufferedImage capture = Library_Capture_CSV.captureImage(this.model.getImagePlus(), 512, 0).getBufferedImage();
 
 		// on enregistre la mesure pour chaque slice
-		int indexRoi = 0;
-		for (int i = 1; i <= imp.getStackSize(); i++) {
-			imp.setSlice(i);
-			for (int j = 0; j < this.organeListe.length; j++) {
-				imp.setRoi(this.model.getRoiManager().getRoi(indexRoi % this.organeListe.length));
-				String nom = this.getNomOrgane(indexRoi);
-				System.out.println("Noms : " + nom);
+		for (int indexSlice = 1; indexSlice <= imp.getStackSize(); indexSlice++) {
+			imp.setSlice(indexSlice);
+			for (int indexRoi = 0; indexRoi < this.organeListe.length ; indexRoi++) {
+				imp.setRoi(this.model.getRoiManager().getRoi(indexRoi));
+				String nom = this.organeListe[indexRoi];
 				modele.enregistrerMesure(nom, imp);
-				indexRoi++;
+				
+				if(indexSlice == 1)
+					modele.enregistrerPixelRoi(nom, Library_Quantif.getPixelNumber(imp));
 			}
 		}
-
+		
 		// on calcule les resultats
 		modele.calculerResultats();
 
@@ -187,10 +187,6 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		// SK On rebloque le modele pour la prochaine generation
 		modele.setLocked(true);
 
-	}
-
-	public String getNomOrgane(int index) {
-		return this.organeListe[index % this.organeListe.length];
 	}
 
 	public void setKidneys(boolean[] kidneys) {

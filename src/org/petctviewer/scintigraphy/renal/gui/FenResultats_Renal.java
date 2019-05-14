@@ -32,6 +32,7 @@ public class FenResultats_Renal extends FenResults {
 		if (((Modele_Renal) controller.getModel()).getPatlakChart() != null) {
 			this.addTab(new TabPatlak(vue, this));
 		}
+		this.addTab(new TabDeconvolve(this, "Deconvolve"));
 
 		this.setTitle("Results Renal Exam");
 		this.setPreferredSize(new Dimension(width, height));

@@ -211,12 +211,10 @@ public class Model_Gastric extends ModeleScin {
 
 			StringBuilder s = new StringBuilder();
 			// Hours
-			if (hours > 0) {
-				if (hours < 10)
-					s.append(0);
-				s.append(hours);
-				s.append(':');
-			}
+			if (hours < 10)
+				s.append(0);
+			s.append(hours);
+			s.append(':');
 
 			// Minutes
 			if (minutes < 10)
@@ -1212,11 +1210,10 @@ public class Model_Gastric extends ModeleScin {
 		Data previousData = null, dataToInflate = null;
 		if (previousState == null) {
 			previousData = this.time0;
-		}
-		else
+		} else
 			previousData = this.results.get(hashState(previousState));
-		
-		if(data.associatedImage.getImageOrientation().isDynamic())
+
+		if (data.associatedImage.getImageOrientation().isDynamic())
 			dataToInflate = previousData;
 		else
 			dataToInflate = data;

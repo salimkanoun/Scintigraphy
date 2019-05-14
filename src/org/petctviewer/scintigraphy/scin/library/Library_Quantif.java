@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.scin.library;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -42,6 +43,7 @@ public class Library_Quantif {
 	 * </p>
 	 */
 	public enum Isotope {
+		// TODO: add codes http://dicom.nema.org/medical/Dicom/2015b/output/chtml/part16/sect_CID_18.html
 		INDIUM_111(242330000l, "CODE"), TECHNICIUM_99(21620880l, "CODE"), CHROME_51(2393500000l, "CODE");
 
 		private long halfLifeMS;
@@ -262,24 +264,53 @@ public class Library_Quantif {
 	/**
 	 * Create the deconvolution of the liver by the blood pool.
 	 * 
-	 * @deprecated => Work when you used convolved array.
+	 * @deprecated => Work when you used convolved array. =======
+	 * 
+	 *             /** Convolve n times an array of double, using a kernel.
+	 * @param values    The array ou double to convolve
+	 * @param kernel    The kernel used in the convolution
+	 * @param nbConvolv The number of convolution to apply
+	 * @return The convolved array
+	 */
+	public static List<Double> processNConvolv(List<Double> values, List<Double> kernel, int nbConvolv) {
+		return Arrays.asList(processNConvolv(values.toArray(new Double[values.size()]),
+				kernel.toArray(new Double[kernel.size()]), nbConvolv));
+	}
+
+	/**
+	 * Create the deconvolution of the liver by the blood pool.
+	 * 
+	 * @deprecated => Work when you used convolved array (actually, working with a
+	 *             6times convolved array) See
+	 *             {@link org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabDeconvolv}
+	 *             or {@link org.petctviewer.scintigraphy.renal.gui.TabDeconvolve}.
 	 * @param blood
 	 * @param liver
 	 * @return
 	 */
 	public static List<Double> deconvolv(Double[] blood, Double[] liver, int init) {
 
+		System.out.println("\n\nConvolved Blood Pool");
+		System.out.println(Arrays.asList(blood));
+		System.out.println();
+		System.out.println("Convolved liver");
+		System.out.println(Arrays.asList(liver));
+		System.out.println("\n\n");
+
 		List<Double> h = new ArrayList<Double>();
-		for (int i = 0; i < blood.length; i++) {
+
+		for (int i = 0; i < init; i++) {
 
 			if (i < init) {
 				h.add(0.0d);
-				continue;
 			}
+		}
+
+		for (int i = init; i < blood.length; i++) {
 
 			double somme = 0;
 
-			for (int j = 0; j < i; j++) {
+			for (int j = init; j < i; j++) {
 				somme += (i - j + 1) * (h.get(j));
 			}
 
@@ -287,12 +318,25 @@ public class Library_Quantif {
 			// coups/sec
 			double result2 = (1.0D / (blood[init])) * (liver[i] - somme);
 
-			// double result3=(right[i]-somme)/(blood[0]);
-
 			h.add(result2);
 
 		}
 		return h;
+	}
+
+	/**
+	 * Create the deconvolution of the liver by the blood pool.
+	 * 
+	 * @deprecated => Work when you used convolved array (actually, working with a
+	 *             6times convolved array) See
+	 *             {@link org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabDeconvolv}
+	 *             or {@link org.petctviewer.scintigraphy.renal.gui.TabDeconvolve}.
+	 * @param blood
+	 * @param liver
+	 * @return
+	 */
+	public static List<Double> deconvolv(List<Double> blood, List<Double> liver, int init) {
+		return deconvolv(blood.toArray(new Double[blood.size()]), liver.toArray(new Double[liver.size()]), init);
 	}
 
 }

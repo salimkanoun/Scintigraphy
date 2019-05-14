@@ -90,6 +90,7 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 		return null;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void end() {
 		// on sauvegarde l'imp projetee pour la reafficher par la suite
@@ -163,6 +164,7 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 
 	}
 
+	@SuppressWarnings("deprecation")
 	private void finishDrawingResultWindow() {
 		GeneralDynamicScintigraphy vue = (GeneralDynamicScintigraphy) this.getScin();
 		this.indexRoi = this.nbOrganes;
@@ -176,6 +178,7 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 		vue.getFenApplication().resizeCanvas();
 	}
 
+	@SuppressWarnings("deprecation")
 	private void saveValues(ImagePlus imp) {
 
 		this.model.getImagesPlus()[0] = imp;

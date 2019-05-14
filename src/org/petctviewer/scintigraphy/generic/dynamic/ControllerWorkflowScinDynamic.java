@@ -46,11 +46,15 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 		DefaultGenerator dri_1 = null;
-		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
+		ImageState state; 
+		if(((Modele_GeneralDyn) model).getImpAnt() != null)
+			state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
+		else
+			state = new ImageState(Orientation.POST, 1, true, ImageState.ID_NONE);
 
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
-		dri_1 = new DrawLoopInstruction(this.workflows[0], stateAnt);
+		dri_1 = new DrawLoopInstruction(this.workflows[0], state);
 
 		this.workflows[0].addInstructionOnTheFly(dri_1);
 

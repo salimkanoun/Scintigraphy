@@ -13,8 +13,34 @@ public class DrawRoiBackground extends DrawRoiInstruction {
 	
 	private ModeleScin model;
 
+	/**
+	 * Instantiates a new instruction to draw a background ROI.
+	 * This special Roi will automatically draw two other Roi around the specified Roi, folowing the shape.
+	 * 
+	 * @param organToDelimit    Name of the organ to delimit
+	 * @param state             State of the image
+	 * @param roi1 				Instruction to take a copy of the ROI from
+	 * @param model				Model, to get the Roi manager and the ImagePlus
+	 */
 	public DrawRoiBackground(String organToDelimit, ImageState state, DrawRoiInstruction roi1, ModeleScin model) {
 		super(organToDelimit, state);
+		this.dri_1 = roi1;
+		this.model = model;
+	}
+	
+	
+	/**
+	 * Instantiates a new instruction to draw a background ROI.
+	 * This special Roi will automatically draw two other Roi around the specified Roi, folowing the shape.
+	 * 
+	 * @param organToDelimit    Name of the organ to delimit
+	 * @param state             State of the image
+	 * @param roi1 				Instruction to take a copy of the ROI from
+	 * @param model				Model, to get the Roi manager and the ImagePlus
+	 * @param roiName 			Name of the Roi (displayed name)
+	 */
+	public DrawRoiBackground(String organToDelimit, ImageState state, DrawRoiInstruction roi1, ModeleScin model, String roiName) {
+		super(organToDelimit, state, roiName);
 		this.dri_1 = roi1;
 		this.model = model;
 	}

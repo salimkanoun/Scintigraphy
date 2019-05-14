@@ -7,7 +7,6 @@ import java.util.List;
 import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.json.simple.JSONObject;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
@@ -27,8 +26,9 @@ public class Modele_Renal extends ModeleScinDyn {
 	private ArrayList<String> kidneysLR;
 	private JValueSetter nephrogramChart;
 	private JValueSetter patlakChart;
-	private ImageSelection impAnt, impPost, impProjetee;
+	private ImageSelection impAnt, impPost/*, impProjetee*/;
 	private int[] frameDurations;
+	private HashMap<String, Integer> pixelCounts;
 
 	/**
 	 * recupere les valeurs et calcule les resultats de l'examen renal
@@ -39,10 +39,12 @@ public class Modele_Renal extends ModeleScinDyn {
 	public Modele_Renal(int[] frameDuration, ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName, frameDuration);
 		this.organRois = new HashMap<>();
-		this.impProjetee = selectedImages[0];
+//		this.impProjetee = selectedImages[0];
 		this.impPost = selectedImages[1];
 		if(selectedImages.length > 2)
 			this.impAnt = selectedImages[2];
+		
+		this.pixelCounts = new HashMap<>();
 	}
 
 
@@ -136,14 +138,11 @@ public class Modele_Renal extends ModeleScinDyn {
 
 		Double xLasilixM1 = this.adjustedValues.get("lasilix") - 1;
 
-		System.out.println("\tCalculs : ");
 		// si il y a un rein gauche
 		if (this.kidneys[0]) {
 			Double xMaxL = this.adjustedValues.get("tmax L");
 			res[0][0] = Library_Quantif.round((100 * rg / Library_JFreeChart.getY(this.getSerie("Final KL"), xMaxL)), 2);
-			System.out.println("\t\t"+res[0][0]+" = 100 * "+rg+" / "+Library_JFreeChart.getY(this.getSerie("Final KL"), xMaxL));
 			res[0][1] = Library_Quantif.round((100 * rg / Library_JFreeChart.getY(this.getSerie("Final KL"), xLasilixM1)), 2);
-			System.out.println("\t\t"+res[0][1]+" = 100 * "+rg+" / "+Library_JFreeChart.getY(this.getSerie("Final KL"), xLasilixM1));
 
 		}
 
@@ -151,9 +150,7 @@ public class Modele_Renal extends ModeleScinDyn {
 		if (this.kidneys[1]) {
 			Double xMaxR = this.adjustedValues.get("tmax R");
 			res[1][0] = Library_Quantif.round((100 * rd / Library_JFreeChart.getY(this.getSerie("Final KR"), xMaxR)), 2);
-			System.out.println("\t\t"+res[1][0]+" = 100 * "+rg+" / "+Library_JFreeChart.getY(this.getSerie("Final KL"), xMaxR));
 			res[1][1] = Library_Quantif.round((100 * rd / Library_JFreeChart.getY(this.getSerie("Final KR"), xLasilixM1)), 2);
-			System.out.println("\t\t"+res[1][1]+" = 100 * "+rg+" / "+Library_JFreeChart.getY(this.getSerie("Final KL"), xLasilixM1));
 		}
 
 		return res;
@@ -342,28 +339,16 @@ public class Modele_Renal extends ModeleScinDyn {
 	
 	/********** Public *********/
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
-		System.out.println("Locked ? "+this.isLocked());
 		if (!this.isLocked()) {
-			//super.enregistrerMesure(nomRoi, imp);
-			
-			// nom de l'organe sans le tag
-//			String ancienname = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
-			String name = nomRoi;
-//			System.out.println("\tNom anciennement enregistré :"+ancienname);
-			this.organRois.put(name, imp.getRoi());
-			
-			if (this.getData().get(name) == null) {
-				this.getData().put(name, new ArrayList<Double>());
-			}
-			// on y ajoute le nombre de coups
-			this.getData().get(name).add(Math.max(Library_Quantif.getCounts(imp),1.0d) );
-			
-			// si on n'a pas deja enregistre son aire, on l'ajout a la hashmap
-			//if (this.organRois.get(name) == null) {
-				
-			//}
-		}
 
+			this.organRois.put(nomRoi, imp.getRoi());
+			
+			if (this.getData().get(nomRoi) == null) 
+				this.getData().put(nomRoi, new ArrayList<Double>());
+			
+			// on y ajoute le nombre de coups
+			this.getData().get(nomRoi).add(Math.max(Library_Quantif.getCounts(imp),1.0d) );
+		}
 	}
 
 	@Override
@@ -588,8 +573,6 @@ public class Modele_Renal extends ModeleScinDyn {
 	// normalise la vasculaire pour le rein gauche et droit pour le patlak
 	private void normalizeBP() {
 		List<Double> bp = getData("Blood Pool");
-		System.out.println("Noms des data : ");
-		
 		Integer aireBP = this.organRois.get("Blood Pool").getStatistics().pixelCount;
 
 		// pour chaque rein on ajoute la valeur normalisee de la vasculaire
@@ -609,23 +592,12 @@ public class Modele_Renal extends ModeleScinDyn {
 	private void calculCortical() {
 		for (String lr : this.kidneysLR) { // on calcule la valeur de la corticale pour chaque rein
 			List<Double> cortical = new ArrayList<>(); // coups de la corticale
-
-			System.out.println(lr + ". Kidney");
-			System.out.println(this.getData(lr + ". Kidney") == null);
-			System.out.println(lr + ". Pelvis");
-			System.out.println(this.getData(lr + ". Pelvis") == null);
-			System.out.println("Nom :");
-			for(String s : getData().keySet())
-				System.out.println(""+s);
 			
 			List<Double> rein = this.getData(lr + ". Kidney");
 			List<Double> bassinet = this.getData(lr + ". Pelvis");
 			for (int i = 0; i < this.getData("Blood Pool").size(); i++) {
 				cortical.add(rein.get(i) - bassinet.get(i));
 			}
-			System.out.println(this.getData() == null);
-			System.out.println(lr == null);
-			System.out.println(cortical == null);
 			this.getData().put(lr + ". Cortical", cortical);
 		}
 	}
@@ -657,6 +629,19 @@ public class Modele_Renal extends ModeleScinDyn {
 
 	public ImageSelection getImpPost() {
 		return impPost;
+	}
+
+
+	public void enregistrerPixelRoi(String roiName, int pixelNumber) {
+		this.pixelCounts.put(roiName, pixelNumber);
+	}
+	
+	public int getPixelCount(String roiName) {
+		return this.pixelCounts.get(roiName);
+	}
+	
+	public HashMap<String, Integer> getPixelRoi() {
+		return this.pixelCounts;
 	}
 
 	

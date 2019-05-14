@@ -29,33 +29,28 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 		IJ.setTool(Toolbar.POLYGON);
 	}
 
-	@SuppressWarnings("deprecation")
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 
 		ImageSelection[] imps = new ImageSelection[2];
 
-		for (int i = 0; i < selectedImages.length; i++) {
-			if (selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_ANT) {
-				if (imps[0] != null)
-					throw new WrongInputException("Multiple dynamic Antorior Image");
-				imps[0] = selectedImages[i].clone();
-			} else if (selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_POST) {
-				if (imps[1] != null)
-					throw new WrongInputException("Multiple dynamic Posterior Image");
-				imps[1] = selectedImages[i].clone();
-			} else if (selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
-				if (imps[1] != null || imps[0] != null)
-					throw new WrongInputException("Multiple dynamic Image");
-				imps[0] = selectedImages[i].clone();
-				imps[1] = selectedImages[i].clone();
-				imps[0] = Library_Dicom.splitDynamicAntPost(selectedImages[i])[0];
-				imps[1] = Library_Dicom.splitDynamicAntPost(selectedImages[i])[1];
-			} else {
-				throw new WrongInputException("Unexpected Image orientation");
-			}
-
-			selectedImages[i].getImagePlus().close();
+		if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_ANT) {
+			if (imps[0] != null)
+				throw new WrongInputException("Multiple dynamic Antorior Image");
+			imps[0] = selectedImages[0].clone();
+		} else if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_POST) {
+			if (imps[1] != null)
+				throw new WrongInputException("Multiple dynamic Posterior Image");
+			imps[1] = selectedImages[0].clone();
+		} else if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
+			if (imps[1] != null || imps[0] != null)
+				throw new WrongInputException("Multiple dynamic Image");
+			imps[0] = Library_Dicom.splitDynamicAntPost(selectedImages[0])[0];
+			imps[1] = Library_Dicom.splitDynamicAntPost(selectedImages[0])[1];
+		} else {
+			throw new WrongInputException("Unexpected Image orientation");
 		}
+
+		selectedImages[0].getImagePlus().close();
 
 		if (imps[0] != null) {
 			this.impAnt = imps[0];
@@ -71,18 +66,13 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 		}
 
 		if (this.impAnt != null) {
-			impProjeteeAnt = this.impAnt.clone();
-			impProjeteeAnt.setImagePlus(
-					Library_Dicom.projeter(this.impAnt.getImagePlus(), 0, impAnt.getImagePlus().getStackSize(), "avg"));
+			impProjeteeAnt = Library_Dicom.project(this.impAnt, 0, impAnt.getImagePlus().getStackSize(), "avg");
 			impProjetee = impProjeteeAnt;
-			
+
 		}
 		if (this.impPost != null) {
-			impProjeteePost = this.impPost.clone();
-			impProjeteePost.setImagePlus(Library_Dicom.projeter(this.impPost.getImagePlus(), 0,
-					impPost.getImagePlus().getStackSize(), "avg"));
+			impProjeteePost = Library_Dicom.project(this.impPost, 0, impPost.getImagePlus().getStackSize(), "avg");
 			impProjetee = impProjeteePost;
-			
 
 		}
 		if (this.impAnt != null && this.impPost != null) {
@@ -98,6 +88,9 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 			impProjetee.setImagePlus(ImageRetour);
 		}
 
+		impProjetee.getImagePlus().getProcessor().setMinAndMax(0,
+				impProjetee.getImagePlus().getStatistics().max * 1f / 1f);
+
 		ImageSelection[] selection = new ImageSelection[5];
 		selection[0] = impProjetee;
 		selection[1] = impAnt != null ? impAnt : null;
@@ -108,15 +101,15 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 	}
 
 	public ImagePlus getImpAnt() {
-		return impAnt.getImagePlus();
+		return impAnt != null ? impAnt.getImagePlus() : null;
 	}
 
 	public ImagePlus getImpPost() {
-		return impPost.getImagePlus();
+		return impPost != null ? impPost.getImagePlus() : null;
 	}
 
 	public int[] getFrameDurations() {
-		return frameDurations;
+		return frameDurations != null ? frameDurations : null;
 	}
 
 }
