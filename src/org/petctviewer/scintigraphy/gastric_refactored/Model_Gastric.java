@@ -47,6 +47,7 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.library.Library_Debug;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
@@ -286,7 +287,7 @@ public class Model_Gastric extends ModeleScin {
 		/**
 		 * @return time in minutes for this data
 		 */
-		public double getTime() {
+		public double getMinutes() {
 			return this.time;
 		}
 
@@ -375,13 +376,42 @@ public class Model_Gastric extends ModeleScin {
 			return 0;
 		}
 
+		private String listRegions(Orientation orientation) {
+			StringBuilder res = new StringBuilder();
+			if (orientation == Orientation.ANT) {
+				res.append(Library_Debug.subtitle("ANT REGIONS"));
+				res.append('\n');
+
+				if (this.regionsAnt.size() == 0)
+					res.append("// NO REGION //\n");
+				else
+					for (Region region : this.regionsAnt.values())
+						res.append(region + "\n");
+			} else {
+				res.append(Library_Debug.subtitle("POST REGIONS"));
+				res.append('\n');
+
+				if (this.regionsPost.size() == 0)
+					res.append("// NO REGION //\n");
+				else
+					for (Region region : this.regionsPost.values())
+						res.append(region + "\n");
+			}
+			return res.toString();
+		}
+
 		@Override
 		public String toString() {
-			String s = "Data |" + this.associatedImage.getImagePlus().getTitle() + "|\n";
-			for (Region region : this.getRegions()) {
-				s += region + "\n";
-			}
-			s += "=========";
+			String s = Library_Debug.separator(0);
+			String imageTitle = (this.associatedImage == null ? "// NO-IMAGE //"
+					: this.associatedImage.getImagePlus().getTitle());
+			s += Library_Debug.title("Data");
+			s += "\n";
+			s += Library_Debug.title(imageTitle);
+			s += "\n";
+			s += this.listRegions(Orientation.ANT);
+			s += this.listRegions(Orientation.POST);
+			s += Library_Debug.separator(0);
 			return s;
 		}
 
@@ -714,20 +744,34 @@ public class Model_Gastric extends ModeleScin {
 			res = new double[this.nbAcquisitions()];
 
 		int i = 0;
-		for (Data data : this.generatesDataOrdered())
-			if (key != DATA_DERIVATIVE || (key == DATA_DERIVATIVE && i != 0))
+		List<Data> datas = this.generatesDataOrdered();
+		for (int indexData = 0; indexData < datas.size(); indexData++) {
+			Data data = datas.get(indexData);
+			if (key == DATA_DERIVATIVE)
+				System.out.println("Searching in data #" + indexData + ":\n" + data);
+			if (key != DATA_DERIVATIVE || (key == DATA_DERIVATIVE && indexData > 0)) {
 				res[i++] = data.getValue(region, key);
+				if (key == DATA_DERIVATIVE)
+					System.out.println("--> Found value " + data.getValue(region, key));
+			} else {
+				if (key == DATA_DERIVATIVE)
+					System.out.println(this.nameOfDataField(key) + " cannot be retrieved from index #" + indexData);
+			}
+			if (key == DATA_DERIVATIVE)
+				System.out.println("Now data state is:\n" + data);
+		}
 		return res;
 	}
 
 	/**
-	 * Evaluates the difference between the time of the data associated with the
+	 * Calculates the difference between the time of the data associated with the
 	 * specified state and the ingestion's time of this model.
 	 * 
 	 * @param state State associated with the data to retrieve
 	 * @return difference of time expressed in minutes
+	 * @see #calculateDeltaTime(Date)
 	 */
-	private double evaluateTime(ImageState state) {
+	private double calculateDeltaTime(ImageState state) {
 		return this.calculateDeltaTime(Library_Dicom.getDateAcquisition(state.getImage().getImagePlus()));
 	}
 
@@ -780,7 +824,7 @@ public class Model_Gastric extends ModeleScin {
 
 		// Create data if not existing
 		if (data == null) {
-			data = new Data(state.getImage(), this.evaluateTime(state));
+			data = new Data(state.getImage(), this.calculateDeltaTime(state));
 			this.results.put(hashState(state), data);
 //			System.out.println("Created data for image " + state.getImage().getImagePlus().getTitle());
 		}
@@ -810,10 +854,8 @@ public class Model_Gastric extends ModeleScin {
 		int key;
 		if (state.getFacingOrientation() == Orientation.ANT) {
 			key = DATA_ANT_COUNTS;
-			System.out.println("Found ANT orientation (key is " + key + ")");
 		} else {
 			key = DATA_POST_COUNTS;
-			System.out.println("Found POST orientation (key is " + key + ")");
 		}
 
 		// Save value
@@ -893,7 +935,7 @@ public class Model_Gastric extends ModeleScin {
 
 		int i = 0;
 		for (Data data : this.generatesDataOrdered()) {
-			times[i] = data.getTime();
+			times[i] = data.getMinutes();
 			if (i > 0)
 				this.timesDerivative[i - 1] = times[i];
 			i++;
@@ -1155,7 +1197,7 @@ public class Model_Gastric extends ModeleScin {
 			double countsFundus = bkgNoise_stomach.getValue(DATA_ANT_COUNTS) - bkgNoise_antre.getValue(DATA_ANT_COUNTS);
 			double pixelsFundus = bkgNoise_stomach.getValue(DATA_PIXEL_COUNTS)
 					- bkgNoise_antre.getValue(DATA_PIXEL_COUNTS);
-			
+
 			this.bkgNoise_fundus = region.clone();
 			this.bkgNoise_fundus.setValue(DATA_ANT_COUNTS, countsFundus);
 			this.bkgNoise_fundus.setValue(DATA_PIXEL_COUNTS, pixelsFundus);
@@ -1164,6 +1206,25 @@ public class Model_Gastric extends ModeleScin {
 			throw new IllegalArgumentException("The region (" + region + ") is not a background noise");
 
 		System.out.println("The background noise for the " + region + " is set at " + bkgNoise + "!");
+	}
+
+	private void computeDerivative(Data data, ImageState state, ImageState previousState) {
+		Data previousData = null;
+		if (previousState == null)
+			previousData = this.time0;
+		else
+			previousData = this.results.get(hashState(previousState));
+
+		if (previousData != null) {
+			double stomachDerivative = (previousData.getValue(REGION_STOMACH, DATA_PERCENTAGE)
+					- data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
+					/ (this.calculateDeltaTime(Library_Dicom.getDateAcquisition(state.getImage().getImagePlus()))
+							- previousData.getMinutes())
+					* 30.;
+			data.setValue(REGION_STOMACH, DATA_DERIVATIVE, stomachDerivative);
+		} else {
+			System.err.println("Warning: no data found");
+		}
 	}
 
 	/**
@@ -1191,7 +1252,7 @@ public class Model_Gastric extends ModeleScin {
 
 		this.computeGeometricalAverages(state);
 
-		// Adjust percentages with eggs ratio
+		// Calculate percentages
 		data.setValue(REGION_FUNDUS, DATA_PERCENTAGE, calculatePercentage(data, REGION_FUNDUS, key));
 
 		data.setValue(REGION_ANTRE, DATA_PERCENTAGE, calculatePercentage(data, REGION_ANTRE, key));
@@ -1205,21 +1266,7 @@ public class Model_Gastric extends ModeleScin {
 				/ data.getValue(REGION_STOMACH, DATA_PERCENTAGE) * 100.;
 		data.setValue(REGION_FUNDUS, DATA_CORRELATION, fundusDerivative);
 
-		if (previousState != null) {
-			Data previousData = this.results.get(hashState(previousState));
-			if (previousData != null) {
-				double stomachDerivative = (previousData.getValue(REGION_STOMACH, DATA_PERCENTAGE)
-						- data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
-						/ (this.calculateDeltaTime(Library_Dicom.getDateAcquisition(state.getImage().getImagePlus()))
-								- this.calculateDeltaTime(
-										Library_Dicom.getDateAcquisition(previousState.getImage().getImagePlus())))
-						* 30.;
-				previousData.setValue(REGION_STOMACH, DATA_DERIVATIVE, stomachDerivative);
-			} else {
-				System.err.println("Careful: no data found for the previous image specified ("
-						+ previousState.getImage().getImagePlus().getTitle() + ")");
-			}
-		}
+		this.computeDerivative(data, state, previousState);
 	}
 
 	/**
@@ -1280,7 +1327,7 @@ public class Model_Gastric extends ModeleScin {
 										+ (data.getValue(region.getName(), key)
 												- (bkgNoise * data.getValue(region.getName(), DATA_PIXEL_COUNTS)))));
 				System.out.println();
-				
+
 				data.setValue(region.getName(), key, data.getValue(region.getName(), key)
 						- (bkgNoise * data.getValue(region.getName(), DATA_PIXEL_COUNTS)));
 				if (bkgNoise == 0.)
@@ -1314,21 +1361,8 @@ public class Model_Gastric extends ModeleScin {
 				/ data.getValue(REGION_STOMACH, DATA_PERCENTAGE) * 100.;
 		data.setValue(REGION_FUNDUS, DATA_CORRELATION, fundusDerivative);
 
-		if (previousState != null) {
-			Data previousData = this.results.get(hashState(previousState));
-			if (previousData != null) {
-				double stomachDerivative = (previousData.getValue(REGION_STOMACH, DATA_PERCENTAGE)
-						- data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
-						/ (this.calculateDeltaTime(Library_Dicom.getDateAcquisition(state.getImage().getImagePlus()))
-								- this.calculateDeltaTime(
-										Library_Dicom.getDateAcquisition(previousState.getImage().getImagePlus())))
-						* 30.;
-				previousData.setValue(REGION_STOMACH, DATA_DERIVATIVE, stomachDerivative);
-			} else {
-				System.err.println("Careful: no data found for the previous image specified ("
-						+ previousState.getImage().getImagePlus().getTitle() + ")");
-			}
-		}
+		// Compute derivative
+		this.computeDerivative(data, state, previousState);
 
 		System.out.println();
 		System.out.println("AFTER ADJUSTING PERCENTAGES\n" + data);
@@ -1453,8 +1487,11 @@ public class Model_Gastric extends ModeleScin {
 	 * @return Gastrointestinal flow graph as an image
 	 */
 	public ImagePlus createGraph_2() {
-		return createGraph("% meal in the interval", Color.RED, "Gastrointestinal flow", timesDerivative,
-				this.getResultAsArray(REGION_STOMACH, DATA_DERIVATIVE), 50.0);
+		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_DERIVATIVE);
+		System.out.println("Result for Gastrointestinal flow:");
+		System.out.println(Arrays.toString(timesDerivative));
+		System.out.println(Arrays.toString(result));
+		return createGraph("% meal in the interval", Color.RED, "Gastrointestinal flow", timesDerivative, result, 50.0);
 	}
 
 	/**

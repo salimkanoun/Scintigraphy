@@ -59,6 +59,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 		getModel().activateTime0();
 
 		ImageState previousState = null;
+		int count = 0;
 		for (int i = 0; i < this.getRoiManager().getRoisAsArray().length; i += 6) {
 			ImageState state = null;
 
@@ -87,7 +88,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 						this.getRoiManager().getRoisAsArray()[i + 1 + indexIncrementPost]);
 			}
 
-			// The numActualImage is reversed because the images are in reversed order
+			System.out.println("*** COMPUTING " + ++count + " ***");
 			getModel().computeStaticData(state, previousState);
 			previousState = state;
 		}
