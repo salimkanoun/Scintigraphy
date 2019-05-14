@@ -73,10 +73,9 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 		Instruction i = this.workflows[0].next();
 		if (i != null) {
-			// TODO: maybe do not assume the lateralisation is RL?
 			this.currentState = new ImageState(
 					this.workflows[0].getImageAssociated().getImageOrientation().getFacingOrientation(), 1,
-					i.getImageState().isLateralisationRL(), ImageState.ID_NONE);
+					ImageState.LAT_RL, ImageState.ID_NONE);
 			this.setOverlay(currentState);
 
 			this.displayInstruction(i.getMessage());
@@ -189,6 +188,12 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		// Change slice only if different than the previous
 		if (this.currentState.getSlice() != this.vue.getImagePlus().getCurrentSlice()) {
 			this.vue.getImagePlus().setSlice(this.currentState.getSlice());
+			resetOverlay = true;
+		}
+
+		// == LATERALISATION ==
+		if (imageState.getLateralisation() != this.currentState.getLateralisation()) {
+			this.currentState.setLateralisation(imageState.getLateralisation());
 			resetOverlay = true;
 		}
 
