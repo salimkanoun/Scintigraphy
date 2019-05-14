@@ -1,7 +1,5 @@
 package org.petctviewer.scintigraphy.gastric_refactored.dynamic;
 
-import java.util.Arrays;
-
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
@@ -12,14 +10,13 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.CheckIntersectionInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
-import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
@@ -29,7 +26,15 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 			ImageSelection[] selectedImages, FenResults fenResults) {
 		super(main, vue, model);
 		this.getRoiManager().reset();
-		this.model.setImages(selectedImages);
+
+		// Create projection for each image
+		ImageSelection[] projections = new ImageSelection[selectedImages.length];
+		for (int i = 0; i < selectedImages.length; i++)
+			projections[i] = Library_Dicom.project(selectedImages[i], 1, 10, "sum");
+		getModel().setImages(projections);
+
+		// Set first image
+		getModel().setFirstImage(selectedImages[selectedImages.length - 1]);
 
 		this.fenResults = fenResults;
 
@@ -38,45 +43,48 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 	}
 
 	private void computeModel() {
-		ImageSelection ims = this.model.getImageSelection()[0];
-
 		// Remove point 0
 		getModel().deactivateTime0();
-		ImageSelection[] timeOrderedSelection = Arrays.copyOf(getModel().getImageSelection(),
-				getModel().getImageSelection().length);
-		Arrays.parallelSort(timeOrderedSelection, new ChronologicalAcquisitionComparator());
-		getModel().setTimeIngestion(Library_Dicom.getDateAcquisition(timeOrderedSelection[0].getImagePlus()));
+		getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
 
+		// Set background noise for stomach
+		/*
+		 * The background is calculated with the first dynamic image (in chronological
+		 * order).
+		 */
+		ImageState bkgState = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_CUSTOM_IMAGE);
+		bkgState.specifieImage(getModel().getFirstImage());
+		// Assumption: the order of the workflows is the same as the order of the images
+		// (which is reverse chronological)
+		Workflow workflowOfFirstImage = this.workflows[this.workflows.length - 1];
+		// Assumption: the first instruction is dri_stomach
+		Instruction instructionSelected = workflowOfFirstImage.getInstructionAt(0);
+
+		getModel().setBkgNoise(Model_Gastric.REGION_STOMACH, bkgState,
+				getRoiManager().getRoi(instructionSelected.roiToDisplay()));
+
+		final int NB_ROI_PER_IMAGE = 3;
 		ImageState previousState = null;
 		for (int image = 0; image < getModel().getImageSelection().length; image++) {
-			ims = this.model.getImageSelection()[image];
-
 			ImageState state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, image);
 			// - Stomach
-			Model_Gastric.REGION_STOMACH.inflate(state, this.getRoiManager().getRoisAsArray()[image * 2]);
-			getModel().calculateCounts(Model_Gastric.REGION_STOMACH);
-
-			// - Intestine (value)
-			ims.getImagePlus().setRoi(this.getRoiManager().getRoisAsArray()[image * 2 + 1]);
-			ims.getImagePlus().setSlice(state.getSlice());
-			double intestineValue = Library_Quantif.getCounts(ims.getImagePlus());
+			getModel().calculateCounts(Model_Gastric.REGION_STOMACH, state,
+					this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE]);
 
 			// - Antre
-			Model_Gastric.REGION_ANTRE.inflate(state, this.getRoiManager().getRoisAsArray()[image * 2 + 2]);
-			getModel().calculateCounts(Model_Gastric.REGION_ANTRE);
+			getModel().calculateCounts(Model_Gastric.REGION_ANTRE, state,
+					this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE + 2]);
 
 			// - Fundus
-			Model_Gastric.REGION_FUNDUS.inflate(state, null);
-			getModel().forceCountsDataValue(Model_Gastric.REGION_FUNDUS,
-					getModel().getCounts(Model_Gastric.REGION_STOMACH, Orientation.ANT)
-							- getModel().getCounts(Model_Gastric.REGION_ANTRE, Orientation.ANT));
+			getModel().calculateCounts(Model_Gastric.REGION_FUNDUS, state, null);
 
 			// - Intestine
-			Model_Gastric.REGION_INTESTINE.inflate(state, null);
-			getModel().forceCountsDataValue(Model_Gastric.REGION_INTESTINE,
-					intestineValue - getModel().getCounts(Model_Gastric.REGION_ANTRE, Orientation.ANT));
+			getModel().calculateCounts(Model_Gastric.REGION_INTESTINE, state,
+					this.getRoiManager().getRoisAsArray()[image * NB_ROI_PER_IMAGE + 1]);
 
-			getModel().computeDynamicData(state, previousState);
+			// The numActualImage is reversed because the images are in reversed order
+			getModel().computeDynamicData(state, previousState, getModel().getImageSelection().length - image,
+					getModel().getImageSelection().length);
 			previousState = state;
 		}
 		getModel().calculerResultats();
@@ -103,7 +111,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 
-		DrawRoiInstruction dri_1 = null, dri_2 = null;
+		DrawRoiInstruction dri_antre = null, dri_intestine = null;
 
 		PromptBkgNoise promptBkgNoise = new PromptBkgNoise(this);
 
@@ -113,12 +121,14 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 			ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
 			state.specifieImage(this.workflows[i].getImageAssociated());
 
-			dri_1 = new DrawRoiInstruction("Stomach", state, dri_1);
-			dri_2 = new DrawRoiInstruction("Intestine", state, dri_2);
+			dri_antre = new DrawRoiInstruction("Stomach", state, dri_antre);
+			dri_intestine = new DrawRoiInstruction("Intestine", state, dri_intestine);
+			CheckIntersectionInstruction checkIntersection = new CheckIntersectionInstruction(this, dri_antre,
+					dri_intestine, "Antre");
 
-			this.workflows[i].addInstruction(dri_1);
-			this.workflows[i].addInstruction(dri_2);
-			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_1, dri_2, "Antre"));
+			this.workflows[i].addInstruction(dri_antre);
+			this.workflows[i].addInstruction(dri_intestine);
+			this.workflows[i].addInstruction(checkIntersection);
 			this.workflows[i].addInstruction(new BkgNoiseInstruction(promptBkgNoise));
 		}
 		this.workflows[getModel().getImageSelection().length - 1].addInstruction(new EndInstruction());
@@ -139,8 +149,21 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
 		@Override
 		public void afterNext(ControllerWorkflow controller) {
-			if (((PromptBkgNoise) this.dialog).shouldBeDisplayed())
-				super.afterNext(controller);
+			PromptBkgNoise dialog = (PromptBkgNoise) this.dialog;
+			if (dialog.shouldBeDisplayed())
+				dialog.setVisible(true);
+
+			// Inform model if this instruction got the background
+			if (dialog.antreIsNowSelected()) {
+				((Model_Gastric) controller.getModel()).setBkgNoise(Model_Gastric.REGION_ANTRE,
+						controller.getCurrentImageState(),
+						controller.getRoiManager().getRoi(controller.getIndexLastRoiSaved()));
+			}
+			if (dialog.intestineIsNowSelected()) {
+				((Model_Gastric) controller.getModel()).setBkgNoise(Model_Gastric.REGION_INTESTINE,
+						controller.getCurrentImageState(),
+						controller.getRoiManager().getRoi(controller.getIndexLastRoiSaved() - 1));
+			}
 		}
 
 		@Override

@@ -5,8 +5,8 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 
 /**
- * This class represents a instruction openning a prompt dialog. This
- * instruction requires the user to enter data on this dialog.
+ * This class represents a instruction opening a prompt dialog. This instruction
+ * requires the user to enter data on this dialog.
  * 
  * @author Titouan QUÉMA
  *
@@ -30,7 +30,7 @@ public class PromptInstruction implements Instruction {
 		this.dialog.setModal(true);
 	}
 
-	private void after() {
+	private void displayDialog() {
 		this.dialog.setVisible(true);
 	}
 
@@ -81,12 +81,14 @@ public class PromptInstruction implements Instruction {
 
 	@Override
 	public void afterNext(ControllerWorkflow controller) {
-		this.after();
+		this.dialog.afterNext();
+		this.displayDialog();
 	}
 
 	@Override
 	public void afterPrevious(ControllerWorkflow controller) {
-		this.after();
+		this.dialog.afterPrevious();
+		this.displayDialog();
 	}
 
 	@Override

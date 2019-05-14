@@ -2,6 +2,8 @@ package org.petctviewer.scintigraphy.scin.instructions.prompts;
 
 import javax.swing.JDialog;
 
+import org.petctviewer.scintigraphy.scin.instructions.Instruction;
+
 /**
  * This class represents a dialog prompting an information to the user.
  * 
@@ -33,6 +35,8 @@ public abstract class PromptDialog extends JDialog {
 	/**
 	 * This method is called when this dialog will be opened by a click on the
 	 * 'Next' button.
+	 * 
+	 * @see Instruction#prepareAsNext
 	 */
 	protected void prepareAsNext() {
 		// By default do nothing
@@ -41,8 +45,30 @@ public abstract class PromptDialog extends JDialog {
 	/**
 	 * This method is called when this dialog will be opened by a click on the
 	 * 'Previous' button.
+	 * 
+	 * @see Instruction#prepareAsPrevious
 	 */
 	protected void prepareAsPrevious() {
+		// By default do nothing
+	}
+
+	/**
+	 * This method is called after the 'Next' button has been clicked.<br>
+	 * At this stage, all of the operations for the next action are done.
+	 * 
+	 * @see Instruction#afterNext
+	 */
+	protected void afterNext() {
+		// By default do nothing
+	}
+
+	/**
+	 * This method is called after the 'Previous' button has been clicked.<br>
+	 * At this stage, all of the operations for the previous action are done.
+	 * 
+	 * @see Instruction#afterPrevious
+	 */
+	protected void afterPrevious() {
 		// By default do nothing
 	}
 

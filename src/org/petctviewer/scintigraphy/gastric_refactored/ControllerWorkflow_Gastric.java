@@ -13,7 +13,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabChart;
-import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabDynamic;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -29,7 +28,6 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
-import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
 
@@ -56,16 +54,14 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 
 	// TODO: remove this method and compute the model during the process
 	private void computeModel() {
-		ImageSelection ims = this.model.getImageSelection()[0];
 
 		// Place point 0
 		getModel().activateTime0();
 
 		ImageState previousState = null;
 		for (int i = 0; i < this.getRoiManager().getRoisAsArray().length; i += 6) {
-			ims = this.model.getImageSelection()[i / 6];
-
 			ImageState state = null;
+
 			for (Orientation orientation : Orientation.antPostOrder()) {
 				int indexIncrementPost = 0;
 				int slice = SLICE_ANT;
@@ -74,34 +70,25 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 					slice = SLICE_POST;
 				}
 				state = new ImageState(orientation, slice, ImageState.LAT_RL, i / 6);
-				// - Stomach
-				Model_Gastric.REGION_STOMACH.inflate(state,
-						this.getRoiManager().getRoisAsArray()[i + indexIncrementPost]);
-				getModel().calculateCounts(Model_Gastric.REGION_STOMACH);
 
-				// - Intestine (value)
-				ims.getImagePlus().setRoi(this.getRoiManager().getRoisAsArray()[i + 1 + indexIncrementPost]);
-				ims.getImagePlus().setSlice(state.getSlice());
-				double intestineValue = Library_Quantif.getCounts(ims.getImagePlus());
+				// - Stomach
+				getModel().calculateCounts(Model_Gastric.REGION_STOMACH, state,
+						this.getRoiManager().getRoisAsArray()[i + indexIncrementPost]);
 
 				// - Antre
-				Model_Gastric.REGION_ANTRE.inflate(state,
+				getModel().calculateCounts(Model_Gastric.REGION_ANTRE, state,
 						this.getRoiManager().getRoisAsArray()[i + 2 + indexIncrementPost]);
-				getModel().calculateCounts(Model_Gastric.REGION_ANTRE);
 
 				// - Fundus
-				Model_Gastric.REGION_FUNDUS.inflate(state, null);
-				getModel().forceCountsDataValue(Model_Gastric.REGION_FUNDUS,
-						getModel().getCounts(Model_Gastric.REGION_STOMACH, orientation)
-								- getModel().getCounts(Model_Gastric.REGION_ANTRE, orientation));
+				getModel().calculateCounts(Model_Gastric.REGION_FUNDUS, state, null);
 
 				// - Intestine
-				Model_Gastric.REGION_INTESTINE.inflate(state, null);
-				getModel().forceCountsDataValue(Model_Gastric.REGION_INTESTINE,
-						intestineValue - getModel().getCounts(Model_Gastric.REGION_ANTRE, orientation));
+				getModel().calculateCounts(Model_Gastric.REGION_INTESTINE, state,
+						this.getRoiManager().getRoisAsArray()[i + 1 + indexIncrementPost]);
 			}
 
-			getModel().computeData(state, previousState);
+			// The numActualImage is reversed because the images are in reversed order
+			getModel().computeStaticData(state, previousState);
 			previousState = state;
 		}
 		this.model.calculerResultats();
@@ -127,14 +114,14 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 
 		// Display results
 		this.tabChart = new TabChart(this.fenResults);
-		this.tabMain = new TabMainResult(this.fenResults, this.captures.get(0));
+		this.tabMain = new TabMainResult(this.fenResults, this.captures.get(0), this);
 		this.tabMain.displayTimeIngestion(getModel().getTimeIngestion());
 
 		this.fenResults.clearTabs();
 		this.fenResults.setMainTab(this.tabMain);
 		this.fenResults.addTab(this.tabChart);
-		this.fenResults.addTab(new TabDynamic(this.fenResults, this));
 		this.fenResults.pack();
+		this.fenResults.setSize(this.fenResults.getSize().width, 1024);
 		this.fenResults.setVisible(true);
 	}
 

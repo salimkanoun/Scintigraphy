@@ -227,4 +227,39 @@ public class ImageState {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		String idImage;
+		if (this.idImage == ID_CUSTOM_IMAGE)
+			idImage = "CUSTOM_IMAGE";
+		else if (this.idImage == ID_NONE)
+			idImage = "NONE";
+		else if (this.idImage == ID_PREVIOUS)
+			idImage = "PREVIOUS";
+		else
+			idImage = this.idImage + "";
+
+		String slice;
+		if (this.slice == SLICE_PREVIOUS)
+			slice = "PREVIOUS";
+		else
+			slice = this.slice + "";
+
+		String lateralisation;
+		if (this.lateralisation == LAT_LR)
+			lateralisation = "LEFT-RIGHT";
+		else
+			lateralisation = "RIGHT-LEFT";
+
+		return "ImageState [idImage=" + idImage + ",\n\tslice=" + slice + ",\n\tfacingOrientation=" + facingOrientation
+				+ ",\n\tlateralisation=" + lateralisation + ",\n\timage=" + image.getImagePlus().getTitle() + "]";
+	}
+	
+	@Override
+	public ImageState clone() {
+		ImageState clone = new ImageState(facingOrientation, SLICE_PREVIOUS, lateralisation, idImage);
+		clone.specifieImage(image);
+		return clone;
+	}
 }

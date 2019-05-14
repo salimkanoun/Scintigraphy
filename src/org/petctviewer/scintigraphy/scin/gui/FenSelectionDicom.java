@@ -262,6 +262,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 		int[] idList = WindowManager.getIDList();
 		if (idList != null) {
+			int countErrors = 0;
 			for (int idImgOpen = 0; idImgOpen < WindowManager.getIDList().length; idImgOpen++) {
 				ImagePlus imp = WindowManager.getImage(WindowManager.getIDList()[idImgOpen]);
 				HashMap<String, String> infosPatient = Library_Capture_CSV.getPatientInfo(imp);
@@ -291,9 +292,11 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 					}
 					data.add(imageData);
 				} catch (Exception e) {
-					e.printStackTrace();
+					countErrors++;
 				}
 			}
+			if (countErrors > 0)
+				System.err.println(countErrors + " images could not be opened");
 		}
 		return data;
 	}

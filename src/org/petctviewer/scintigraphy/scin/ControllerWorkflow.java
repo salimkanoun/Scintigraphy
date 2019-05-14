@@ -125,12 +125,19 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		return array;
 	}
 
+	protected Workflow getWorkflowAssociatedWithImage(ImageSelection ims) {
+		for (Workflow workflow : this.workflows)
+			if (workflow.getImageAssociated() == ims)
+				return workflow;
+		return null;
+	}
+
 	/**
 	 * Prepares the ImagePlus with the specified state and updates the currentState.
 	 * 
 	 * @param imageState State the ImagePlus must complies
 	 */
-	private void prepareImage(ImageState imageState) {
+	protected void prepareImage(ImageState imageState) {
 		if (imageState == null)
 			return;
 
@@ -189,6 +196,10 @@ public abstract class ControllerWorkflow extends ControleurScin {
 
 	public ImageState getCurrentImageState() {
 		return this.currentState;
+	}
+
+	public int getIndexLastRoiSaved() {
+		return this.indexRoi - 1;
 	}
 
 	@Override

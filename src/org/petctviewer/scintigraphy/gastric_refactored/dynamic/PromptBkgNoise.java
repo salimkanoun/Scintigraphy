@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -12,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.UIManager;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptDialog;
 
 public class PromptBkgNoise extends PromptDialog {
@@ -23,9 +25,18 @@ public class PromptBkgNoise extends PromptDialog {
 	private JPanel panCenter;
 	private JPanel panAntre, panIntestine;
 
-	private boolean[] previousState;
+	private int indexState;
+	private Map<Integer, boolean[]> states;
+	private boolean[] newlySelected;
 
-	public PromptBkgNoise(ControleurScin controller) {
+	public PromptBkgNoise(ControllerWorkflow controller) {
+		this.states = new HashMap<>();
+		this.indexState = 0;
+		this.newlySelected = new boolean[2];
+
+		// State 0
+		this.states.put(-1, new boolean[2]);
+
 		JPanel panel = new JPanel(new BorderLayout());
 
 		panCenter = new JPanel(new GridLayout(0, 1));
@@ -61,7 +72,7 @@ public class PromptBkgNoise extends PromptDialog {
 			public void actionPerformed(ActionEvent e) {
 				if (isInputValid()) {
 					setVisible(false);
-					controller.clicSuivant();
+					saveState();
 				}
 			}
 		});
@@ -75,20 +86,43 @@ public class PromptBkgNoise extends PromptDialog {
 		this.setLocationRelativeTo(controller.getVue());
 	}
 
-	private void reloadDisplay() {
-		if (this.previousState[0])
-			this.panAntre.setVisible(false);
-		else
-			this.panAntre.setVisible(true);
-
-		if (this.previousState[1])
-			this.panIntestine.setVisible(false);
-		else
-			this.panIntestine.setVisible(true);
+	public boolean shouldBeDisplayed() {
+		return true;
 	}
 
-	public boolean shouldBeDisplayed() {
-		return !(this.getResult()[0] && this.getResult()[1]);
+	/**
+	 * @return TRUE if the Antre 'yes' button was not selected and is now selected
+	 */
+	public boolean antreIsNowSelected() {
+		return this.newlySelected[0];
+	}
+
+	/**
+	 * @return TRUE if the Intestine 'yes' button was not selected and is now
+	 *         selected
+	 */
+	public boolean intestineIsNowSelected() {
+		return this.newlySelected[1];
+	}
+
+	private void restoreState(boolean[] state) {
+		this.rbAntre_no.setSelected(!state[0]);
+		this.rbAntre_yes.setSelected(state[0]);
+
+		this.rbIntestine_no.setSelected(!state[1]);
+		this.rbIntestine_yes.setSelected(state[1]);
+	}
+
+	private void saveState() {
+		// Save state
+		this.states.put(this.indexState, this.getResult());
+		boolean[] previousState = this.states.get(this.indexState - 1);
+		if (previousState != null) {
+			for (int i = 0; i < 2; i++) {
+				this.newlySelected[i] = !previousState[i] && this.getResult()[i];
+			}
+		}
+		this.indexState++;
 	}
 
 	@Override
@@ -102,16 +136,10 @@ public class PromptBkgNoise extends PromptDialog {
 	}
 
 	@Override
-	protected void prepareAsNext() {
-		this.previousState = this.getResult();
-		this.reloadDisplay();
-	}
-
-	@Override
 	protected void prepareAsPrevious() {
-		if (this.previousState != null) {
-			this.reloadDisplay();
-		}
+		this.indexState--;
+		// Restore state
+		this.restoreState(this.states.get(this.indexState));
 	}
 
 }
