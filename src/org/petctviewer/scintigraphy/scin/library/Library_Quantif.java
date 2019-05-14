@@ -275,7 +275,20 @@ public class Library_Quantif {
 		return processNConvolv(values.toArray(new Double[values.size()]),kernel,nbConvolv);
 	}
 	
-	
+	/**
+	 * Convolve n times an array of double, using a kernel.
+	 * @param values
+	 *           The array ou double to convolve
+	 * @param kernel
+	 *           The kernel used in the convolution
+	 * @param nbConvolv
+	 *           The number of convolution to apply
+	 * @return 
+	 *           The convolved array
+	 */
+	public static List<Double> processNConvolv(List<Double> values, List<Double> kernel, int nbConvolv) {
+		return Arrays.asList(processNConvolv(values.toArray(new Double[values.size()]),kernel.toArray(new Double[kernel.size()]),nbConvolv));
+	}
 	
 	/**
 	 * Create the deconvolution of the liver by the blood pool.
@@ -316,6 +329,18 @@ public class Library_Quantif {
 
 		}
 		return h;
+	}
+	
+	
+	/**
+	 * Create the deconvolution of the liver by the blood pool.
+	 * @deprecated => Work when you used convolved array (actually, working with a 6times convolved array) See {@link org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabDeconvolv} or {@link org.petctviewer.scintigraphy.renal.gui.TabDeconvolve}.
+	 * @param blood
+	 * @param liver
+	 * @return
+	 */
+	public static List<Double> deconvolv(List<Double> blood, List<Double> liver, int init) {
+		return deconvolv(blood.toArray(new Double[blood.size()]), liver.toArray(new Double[liver.size()]), init);
 	}
 
 }

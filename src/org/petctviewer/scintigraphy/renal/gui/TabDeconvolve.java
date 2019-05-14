@@ -67,7 +67,7 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 			
 			List<Double> bloodPoolCorrected = getAVGPixelCounts(modele, "Blood Pool");
 			
-			bloodPoolCorrected = truckage(bloodPoolCorrected);
+//			bloodPoolCorrected = multiplyAllValuesby(bloodPoolCorrected, 3);
 			
 			List<Double> leftKidneyCorrected = getAVGPixelCounts(modele, "L. Kidney");
 			
@@ -75,23 +75,24 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 //			List<Double> bp = modele.getData("Blood Pool");
 //			List<Double> leftKidney = modele.getData("L. Kidney");
 			Double[] kernel = { 1.0d, 2.0d, 1.0d };
-			Double[] convolvedBP = Library_Quantif.processNConvolv(bloodPoolCorrected, kernel, 12);
-			Double[] convolvedKDNLeft = Library_Quantif.processNConvolv(leftKidneyCorrected, kernel, 12);
+			Double[] convolvedBP = Library_Quantif.processNConvolv(bloodPoolCorrected, kernel, 6);
+			Double[] convolvedKDNLeft = Library_Quantif.processNConvolv(leftKidneyCorrected, kernel, 6);
 
 			@SuppressWarnings("deprecation")
-			List<Double> deconvolveLeft = Library_Quantif.deconvolv(convolvedBP, convolvedKDNLeft, this.deconvolve);
+			List<Double> deconvolveLeft = Library_Quantif.deconvolv(normalizeToOne(convolvedBP), normalizeToOne(convolvedKDNLeft), this.deconvolve);
 
 			XYSeriesCollection dataLeft = new XYSeriesCollection();
 			dataLeft.addSeries(modele.createSerie(deconvolveLeft, "Deconvolve"));
 //			dataLeft.addSeries(modele.getSerie("Blood Pool"));
 //			dataLeft.addSeries(modele.getSerie("L. Kidney"));
 //			dataLeft.addSeries(modele.createSerie(Arrays.asList(convolvedKDNLeft), "L. Kidney convolved"));
+//			dataLeft.addSeries(modele.createSerie(Arrays.asList(convolvedBP), "Blood Pool convolved"));
 			JFreeChart chartLeft = ChartFactory.createXYLineChart("", "min", "counts/sec", dataLeft);
-			
+//			ChartPanel chartpanelLeft = new ChartPanel(chartLeft);
 			
 			XYSeriesCollection dataset2 = new XYSeriesCollection();
-			dataset2.addSeries(modele.createSerie(Arrays.asList(convolvedKDNLeft), "L. Kidney convolved"));
-			dataset2.addSeries(modele.createSerie(Arrays.asList(convolvedBP), "Blood Pool convolved"));
+			dataset2.addSeries(modele.createSerie(normalizeToOne(convolvedKDNLeft), "L. Kidney convolved"));
+			dataset2.addSeries(modele.createSerie(normalizeToOne(convolvedBP), "Blood Pool convolved"));
 			
 			XYPlot plot = new XYPlot();
 	        plot.setDataset(0, dataLeft);
@@ -123,23 +124,24 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 			
 			List<Double> rightKidneyCorrected = getAVGPixelCounts(modele, "R. Kidney");
 //			List<Double> rightKidney = modele.getData("R. Kidney");
-			Double[] convolvedKDNRight = Library_Quantif.processNConvolv(rightKidneyCorrected, kernel, 12);
+			Double[] convolvedKDNRight = Library_Quantif.processNConvolv(rightKidneyCorrected, kernel, 6);
 
 			@SuppressWarnings("deprecation")
-			List<Double> deconvolveRight = Library_Quantif.deconvolv(convolvedBP, convolvedKDNRight, this.deconvolve);
+			List<Double> deconvolveRight = Library_Quantif.deconvolv(normalizeToOne(convolvedBP), normalizeToOne(convolvedKDNRight), this.deconvolve);
 
 			XYSeriesCollection dataRight = new XYSeriesCollection();
 			dataRight.addSeries(modele.createSerie(deconvolveRight, "Deconvolve"));
 //			dataRight.addSeries(modele.getSerie("Blood Pool"));
 //			dataRight.addSeries(modele.getSerie("R. Kidney"));
 //			dataRight.addSeries(modele.createSerie(Arrays.asList(convolvedKDNRight), "R. Kidney convolved"));
+//			dataRight.addSeries(modele.createSerie(Arrays.asList(convolvedBP), "Blood Pool convolved"));
 			JFreeChart chartRight = ChartFactory.createXYLineChart("", "min", "counts/sec", dataRight);
-			
+//			ChartPanel chartpanelRight = new ChartPanel(chartRight);
 			
 			
 			XYSeriesCollection dataset2Right = new XYSeriesCollection();
-			dataset2Right.addSeries(modele.createSerie(Arrays.asList(convolvedKDNRight), "R. Kidney convolved"));
-			dataset2Right.addSeries(modele.createSerie(Arrays.asList(convolvedBP), "Blood Pool convolved"));
+			dataset2Right.addSeries(modele.createSerie(normalizeToOne(convolvedKDNRight), "R. Kidney convolved"));
+			dataset2Right.addSeries(modele.createSerie(normalizeToOne(convolvedBP), "Blood Pool convolved"));
 			
 			XYPlot plotRight = new XYPlot();
 			plotRight.setDataset(0, dataRight);
@@ -161,7 +163,7 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 
 	        //generate the chart
 	        JFreeChart chart2 = new JFreeChart("Right Kidney", null, plotRight, true);
-
+//
 			ChartPanel chartpanelRight = new ChartPanel(chart2);
 
 			JPanel grid = new JPanel(new GridLayout(2, 1));
@@ -236,18 +238,28 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 		return finalValues;
 	}
 	
-	public List<Double> truckage(List<Double> truck){
-		
-		List<Double> values = truck;
+	public List<Double> multiplyAllValuesby(List<Double> values, Double value){
 		
 		List<Double> finalValues = new ArrayList<>();
-
 		
 		for(Double doubles : values)
-			finalValues.add(doubles*3);
+			finalValues.add(doubles*value);
 
-		
 		return finalValues;
+	}
+	
+	public List<Double> normalizeToOne(List<Double> values){
+		
+		Double maxValue = new Double(0.0d);
+		for(Double doubles : values)
+			if(doubles > maxValue)
+				maxValue = doubles;
+
+		return multiplyAllValuesby(values, 1.0d/maxValue);
+	}
+	
+	public List<Double> normalizeToOne(Double[] values){
+		return this.normalizeToOne(Arrays.asList(values));
 	}
 
 }

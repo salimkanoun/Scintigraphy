@@ -139,6 +139,7 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 		
 		// Putting in data the count/pixel of Right Liver and Blood Pool, used in the deconvolution.
 		String[] organAVGCount = { "Right Liver AVG", "Blood Pool AVG" };
+		// Roi number of the Right Liver (0), and the Blood Pool (5), in the Roi Manager.
 		int[] organRoiNumber = { 0, 5 };
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
