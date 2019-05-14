@@ -307,23 +307,24 @@ public class Library_Quantif {
 		System.out.println("\n\n");
 		
 		List<Double> h = new ArrayList<Double>();
-		for (int i = 0; i < blood.length; i++) {
+		
+		for (int i=0; i<init; i++) {
 
 			if(i<init) {
 				h.add(0.0d);
-				continue;
 			}
-			
+		}
+		
+		for (int i = init; i < blood.length; i++) {
+
 			double somme = 0;
 
-			for (int j = 0; j < i; j++) {
+			for (int j = init; j < i; j++) {
 				somme += (i - j + 1) * (h.get(j));
 			}
-
-			// SK REMPLACER 1 PAR LA VALEUR DE TEMPS DE LA FRAME !, ou mettre les valeurs en coups/sec
+			
+		
 			double result2 = (1.0D / (blood[init])) * (liver[i] - somme);
-
-			// double result3=(right[i]-somme)/(blood[0]);
 
 			h.add(result2);
 
