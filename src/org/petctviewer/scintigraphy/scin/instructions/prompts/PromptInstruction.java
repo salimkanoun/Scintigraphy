@@ -32,7 +32,7 @@ public class PromptInstruction implements Instruction {
 		this.dialog.setModal(true);
 	}
 
-	private void displayDialog(Component parent) {
+	protected void displayDialog(Component parent) {
 		this.dialog.setLocationRelativeTo(parent);
 		this.dialog.setVisible(true);
 	}
@@ -85,13 +85,15 @@ public class PromptInstruction implements Instruction {
 	@Override
 	public void afterNext(ControllerWorkflow controller) {
 		this.dialog.afterNext();
-		this.displayDialog(controller.getVue());
+		if (this.dialog.shouldBeDisplayed())
+			this.displayDialog(controller.getVue());
 	}
 
 	@Override
 	public void afterPrevious(ControllerWorkflow controller) {
 		this.dialog.afterPrevious();
-		this.displayDialog(controller.getVue());
+		if (this.dialog.shouldBeDisplayed())
+			this.displayDialog(controller.getVue());
 	}
 
 	@Override

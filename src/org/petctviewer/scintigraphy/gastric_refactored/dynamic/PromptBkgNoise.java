@@ -4,8 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -16,6 +14,7 @@ import javax.swing.UIManager;
 
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptDialog;
+import org.petctviewer.scintigraphy.scin.library.Library_Debug;
 
 public class PromptBkgNoise extends PromptDialog {
 	private static final long serialVersionUID = 1L;
@@ -26,16 +25,18 @@ public class PromptBkgNoise extends PromptDialog {
 	private JPanel panAntre, panIntestine;
 
 	private int indexState;
-	private Map<Integer, boolean[]> states;
+	private boolean forward;
+	private boolean[][] states;
 	private boolean[] newlySelected;
 
-	public PromptBkgNoise(ControllerWorkflow controller) {
-		this.states = new HashMap<>();
-		this.indexState = 0;
+	public PromptBkgNoise(ControllerWorkflow controller, int nbAppearances) {
+		this.states = new boolean[nbAppearances + 1][2];
+		this.indexState = 1;
 		this.newlySelected = new boolean[2];
 
 		// State 0
-		this.states.put(-1, new boolean[2]);
+		this.states[0] = new boolean[2];
+		this.forward = true;
 
 		JPanel panel = new JPanel(new BorderLayout());
 
@@ -70,10 +71,9 @@ public class PromptBkgNoise extends PromptDialog {
 		okBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (isInputValid()) {
-					setVisible(false);
-					saveState();
-				}
+				setVisible(false);
+				saveState();
+				updateIndex();
 			}
 		});
 
@@ -86,7 +86,22 @@ public class PromptBkgNoise extends PromptDialog {
 		this.setLocationRelativeTo(controller.getVue());
 	}
 
+	private void updateIndex() {
+		if (this.forward) {
+			this.indexState++;
+		} else {
+//			this.indexState--;
+		}
+
+		this.DEBUG("Update index");
+	}
+
+	@Override
 	public boolean shouldBeDisplayed() {
+		boolean[] state = this.states[this.indexState];
+		if (this.forward && state[0] && state[1])
+			return false;
+
 		return true;
 	}
 
@@ -115,14 +130,15 @@ public class PromptBkgNoise extends PromptDialog {
 
 	private void saveState() {
 		// Save state
-		this.states.put(this.indexState, this.getResult());
-		boolean[] previousState = this.states.get(this.indexState - 1);
+		this.states[this.indexState] = this.getResult();
+		boolean[] previousState = this.states[this.indexState - 1];
 		if (previousState != null) {
 			for (int i = 0; i < 2; i++) {
 				this.newlySelected[i] = !previousState[i] && this.getResult()[i];
 			}
 		}
-		this.indexState++;
+
+		this.DEBUG("Saved state");
 	}
 
 	@Override
@@ -135,11 +151,69 @@ public class PromptBkgNoise extends PromptDialog {
 		return true;
 	}
 
+	private void DEBUG(String s) {
+		System.out.println(Library_Debug.separator(0));
+		System.out.println("== " + s + " ==");
+		System.out.println("Current index = " + this.indexState);
+		System.out.println("Current states:");
+		int i = 0;
+		for (boolean[] b : this.states) {
+			if (i == this.indexState)
+				System.out.println(Library_Debug.title("State #" + i++));
+			else
+				System.out.println(Library_Debug.subtitle("State #" + i++));
+			System.out.println("\t- antre: " + b[0]);
+			System.out.println("\t- intestine: " + b[1]);
+		}
+	}
+
+	@Override
+	protected void prepareAsNext() {
+		// Restore state
+		this.restoreState(this.states[this.indexState-1]);
+		
+		// Last time this prompt will be displayed
+		if (this.indexState == this.states.length - 1) {
+			this.rbAntre_no.setEnabled(false);
+			this.rbAntre_yes.setSelected(true);
+
+			this.rbIntestine_no.setEnabled(false);
+			this.rbIntestine_yes.setSelected(true);
+		} else {
+			this.rbAntre_no.setEnabled(true);
+
+			this.rbIntestine_no.setEnabled(true);
+		}
+
+		// Change direction
+		this.forward = true;
+
+		this.DEBUG("Prepared as next");
+	}
+
 	@Override
 	protected void prepareAsPrevious() {
+		// Change direction
 		this.indexState--;
+		this.forward = false;
+
 		// Restore state
-		this.restoreState(this.states.get(this.indexState));
+		this.restoreState(this.states[this.indexState]);
+		
+		// Last time this prompt will be displayed
+		if (this.indexState == this.states.length - 1) {
+			this.rbAntre_no.setEnabled(false);
+			this.rbAntre_yes.setSelected(true);
+
+			this.rbIntestine_no.setEnabled(false);
+			this.rbIntestine_yes.setSelected(true);
+		} else {
+			this.rbAntre_no.setEnabled(true);
+
+			this.rbIntestine_no.setEnabled(true);
+		}
+
+		this.DEBUG("Prepared as previous");
 	}
 
 }

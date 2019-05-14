@@ -255,9 +255,15 @@ public class ImageState {
 			lateralisation = "LEFT-RIGHT";
 		else
 			lateralisation = "RIGHT-LEFT";
+		
+		String imageName;
+		if(this.image != null)
+			imageName = (this.image.getImagePlus() != null ? this.image.getImagePlus().getTitle() : "// NO IMAGE PLUS//");
+		else
+			imageName = "NO-IMAGE";
 
 		return "ImageState [idImage=" + idImage + ",\n\tslice=" + slice + ",\n\tfacingOrientation=" + facingOrientation
-				+ ",\n\tlateralisation=" + lateralisation + ",\n\timage=" + image.getImagePlus().getTitle() + "]";
+				+ ",\n\tlateralisation=" + lateralisation + ",\n\timage=" + imageName + "]";
 	}
 	
 	@Override
