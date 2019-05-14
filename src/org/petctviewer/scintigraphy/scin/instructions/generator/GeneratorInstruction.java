@@ -48,4 +48,9 @@ public interface GeneratorInstruction extends Instruction {
 	 */
 	void stop();
 
+	/**
+	 * This method allows this instruction to generate again a new instruction.
+	 */
+	void activate();
+
 }

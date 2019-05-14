@@ -97,6 +97,11 @@ public abstract class DefaultGenerator implements GeneratorInstruction {
 	}
 
 	@Override
+	public void activate() {
+		this.isStopped = false;
+	}
+
+	@Override
 	public int getIndex() {
 		return this.indexLoop;
 	}

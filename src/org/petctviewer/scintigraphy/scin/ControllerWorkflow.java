@@ -237,7 +237,15 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	public void clicPrecedent() {
 		super.clicPrecedent();
 
+		Instruction previousInstruction = this.workflows[this.indexCurrentWorkflow].getCurrentInstruction();
+
 		Instruction currentInstruction = this.workflows[this.indexCurrentWorkflow].previous();
+
+		if (previousInstruction instanceof LastInstruction && currentInstruction != null
+				&& currentInstruction instanceof GeneratorInstruction) {
+			((GeneratorInstruction) currentInstruction).activate();
+		}
+
 		if (currentInstruction == null) {
 			this.indexCurrentWorkflow--;
 			currentInstruction = this.workflows[this.indexCurrentWorkflow].getCurrentInstruction();
@@ -283,8 +291,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			// === Draw ROI of the previous instruction ===
 			if (previousInstruction != null && previousInstruction.saveRoi()) {
 				try {
-					this.saveRoiAtIndex(previousInstruction.getRoiName(),
-							this.indexRoi);
+					this.saveRoiAtIndex(previousInstruction.getRoiName(), this.indexRoi);
 					previousInstruction.setRoi(this.indexRoi);
 
 					if (previousInstruction.isRoiVisible())
