@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.tab;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -42,6 +43,8 @@ public class TabVasculaire {
 				.getFenApplication().getControleur().getModel();
 		List<XYSeries> series = modele.getSeries();
 		ChartPanel chartVasculaire = Library_JFreeChart.associateSeries(new String[] { "Blood pool" }, series);
+
+		chartVasculaire.setPreferredSize(new Dimension(1000, 650));
 
 		return chartVasculaire;
 	}

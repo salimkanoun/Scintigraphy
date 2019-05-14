@@ -151,7 +151,7 @@ public class Library_Quantif {
 		imp.setRoi(background);
 		Double meanCountBackground = Library_Quantif.getAvgCounts(imp);
 		imp.setRoi(roi);
-		return Library_Quantif.getCounts(imp) - (meanCountBackground * imp.getStatistics().pixelCount);
+		return Math.max(0, Library_Quantif.getCounts(imp) - (meanCountBackground * imp.getStatistics().pixelCount));
 	}
 	
 	/**
@@ -167,7 +167,7 @@ public class Library_Quantif {
 	 */
 	public static Double getCountCorrectedBackground(ImagePlus imp, Roi roi, double meanCountBackground) {
 		imp.setRoi(roi);
-		return Library_Quantif.getCounts(imp) - (meanCountBackground * imp.getStatistics().pixelCount);
+		return Math.max(0,Library_Quantif.getCounts(imp) - (meanCountBackground * imp.getStatistics().pixelCount));
 	}
 
 	/**

@@ -54,7 +54,7 @@ public class Modele_GeneralDyn extends ModeleScinDyn {
 	}
 
 	void saveValues(ImagePlus imp) {
-		this.selectedImages[0].setImagePlus(imp);
+//		this.selectedImages[0].setImagePlus(imp);
 		// this.getScin().setImp(imp);
 		this.indexRoi = 0;
 		this.nbOrganes = this.getRoiManager().getCount();

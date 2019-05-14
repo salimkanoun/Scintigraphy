@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.tab;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 import javax.swing.JPanel;
 
@@ -50,6 +51,8 @@ public class TabThreeAsOne {
 		JFreeChart chart = ChartFactory.createXYLineChart("", "min", "counts/sec", data);
 
 		ChartPanel chartpanel = new ChartPanel(chart);
+
+		chartpanel.setPreferredSize(new Dimension(1000, 650));
 
 		return chartpanel;
 	}
