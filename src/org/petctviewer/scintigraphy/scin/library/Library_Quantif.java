@@ -28,7 +28,7 @@ public class Library_Quantif {
 	 * <th>&nbsp; Half Life (miliseconds) &nbsp;</th>
 	 * </tr>
 	 * <tr align=center>
-	 * <td>RADIUM_111</td>
+	 * <td>INDIUM_111</td>
 	 * <td>242330000</td>
 	 * </tr>
 	 * <tr align=center>
@@ -43,7 +43,8 @@ public class Library_Quantif {
 	 * </p>
 	 */
 	public enum Isotope {
-		// TODO: add codes http://dicom.nema.org/medical/Dicom/2015b/output/chtml/part16/sect_CID_18.html
+		// TODO: add codes
+		// http://dicom.nema.org/medical/Dicom/2015b/output/chtml/part16/sect_CID_18.html
 		INDIUM_111(242330000l, "CODE"), TECHNICIUM_99(21620880l, "CODE"), CHROME_51(2393500000l, "CODE");
 
 		private long halfLifeMS;
@@ -73,8 +74,10 @@ public class Library_Quantif {
 	/**
 	 * arrondi la valeur
 	 * 
-	 * @param value  valeur a arrondir
-	 * @param places nb de chiffre apres la virgule
+	 * @param value
+	 *            valeur a arrondir
+	 * @param places
+	 *            nb de chiffre apres la virgule
 	 * @return valeur arrondie
 	 */
 	public static double round(Double value, int places) {
@@ -97,8 +100,10 @@ public class Library_Quantif {
 	/**
 	 * renvoie la moyenne geometrique
 	 * 
-	 * @param a chiffre a
-	 * @param b chiffre b
+	 * @param a
+	 *            chiffre a
+	 * @param b
+	 *            chiffre b
 	 * @return moyenne geometrique
 	 */
 	public static double moyGeom(Double a, Double b) {
@@ -117,7 +122,8 @@ public class Library_Quantif {
 	/**
 	 * Renvoie le nombre de coups sur la roi presente dans l'image plus
 	 * 
-	 * @param imp l'imp
+	 * @param imp
+	 *            l'imp
 	 * @return nombre de coups
 	 */
 	public static Double getCounts(ImagePlus imp) {
@@ -131,7 +137,8 @@ public class Library_Quantif {
 	/**
 	 * renvoie le nombre de coups moyens de la roi presente sur l'imp
 	 * 
-	 * @param imp l'imp
+	 * @param imp
+	 *            l'imp
 	 * @return nombre moyen de coups
 	 */
 	public static Double getAvgCounts(ImagePlus imp) {
@@ -147,9 +154,12 @@ public class Library_Quantif {
 	 * Calculate the counts/pixels mean of the Background , and subtract to the Roi
 	 * count this mean applied to the Roi pixels
 	 * 
-	 * @param imp        ImagePlus to apply the Roi and Background
-	 * @param roi        Roi to correct
-	 * @param background Roi used to correct
+	 * @param imp
+	 *            ImagePlus to apply the Roi and Background
+	 * @param roi
+	 *            Roi to correct
+	 * @param background
+	 *            Roi used to correct
 	 * @return The Roi count corrected
 	 */
 	public static Double getCountCorrectedBackground(ImagePlus imp, Roi roi, Roi background) {
@@ -163,9 +173,12 @@ public class Library_Quantif {
 	 * Subtract to the Roi count the background counts/pixels mean applied to the
 	 * Roi pixels
 	 * 
-	 * @param imp                 ImagePlus to apply the Roi and Background
-	 * @param roi                 Roi to correct
-	 * @param meanCountBackground The mean count to use
+	 * @param imp
+	 *            ImagePlus to apply the Roi and Background
+	 * @param roi
+	 *            Roi to correct
+	 * @param meanCountBackground
+	 *            The mean count to use
 	 * @return The Roi count corrected
 	 */
 	public static Double getCountCorrectedBackground(ImagePlus imp, Roi roi, double meanCountBackground) {
@@ -176,9 +189,12 @@ public class Library_Quantif {
 	/**
 	 * Returns the corrected counts of the radioactive decay
 	 * 
-	 * @param delayMs      Delay between the 2 images, in miliseconds
-	 * @param mesuredCount Current count of the image
-	 * @param isotope      Isotope used in this exam ({@link Isotope})
+	 * @param delayMs
+	 *            Delay between the 2 images, in miliseconds
+	 * @param mesuredCount
+	 *            Current count of the image
+	 * @param isotope
+	 *            Isotope used in this exam ({@link Isotope})
 	 * @return The corrected count
 	 */
 	public static double calculer_countCorrected(int delayMs, double mesuredCount, Isotope isotope) {
@@ -192,11 +208,12 @@ public class Library_Quantif {
 	/**
 	 * Return the corrected counts of the second image.
 	 * 
-	 * @param firstImage  Image of the first acquisition, used to take our reference
-	 *                    time
-	 * @param secondImage Image on which we want to correct counts
-	 * @param isotope     Referencing the isotope used for the correction
-	 *                    ({@link Isotope})
+	 * @param firstImage
+	 *            Image of the first acquisition, used to take our reference time
+	 * @param secondImage
+	 *            Image on which we want to correct counts
+	 * @param isotope
+	 *            Referencing the isotope used for the correction ({@link Isotope})
 	 * @return The corrected count
 	 */
 	public static double calculer_countCorrected(ImagePlus firstImage, ImagePlus secondImage, Isotope isotope) {
@@ -212,9 +229,12 @@ public class Library_Quantif {
 	/**
 	 * Convolve n times an array of double, using a kernel.
 	 * 
-	 * @param values    The array ou double to convolve
-	 * @param kernel    The kernel used in the convolution
-	 * @param nbConvolv The number of convolution to apply
+	 * @param values
+	 *            The array ou double to convolve
+	 * @param kernel
+	 *            The kernel used in the convolution
+	 * @param nbConvolv
+	 *            The number of convolution to apply
 	 * @return The convolved array
 	 */
 	public static double[] processNConvolv(double[] values, double[] kernel, int nbConvolv) {
@@ -239,9 +259,12 @@ public class Library_Quantif {
 	/**
 	 * Convolve n times an array of double, using a kernel.
 	 * 
-	 * @param values    The array ou double to convolve
-	 * @param kernel    The kernel used in the convolution
-	 * @param nbConvolv The number of convolution to apply
+	 * @param values
+	 *            The array ou double to convolve
+	 * @param kernel
+	 *            The kernel used in the convolution
+	 * @param nbConvolv
+	 *            The number of convolution to apply
 	 * @return The convolved array
 	 */
 	public static Double[] processNConvolv(Double[] values, Double[] kernel, int nbConvolv) {
@@ -252,9 +275,12 @@ public class Library_Quantif {
 	/**
 	 * Convolve n times an array of double, using a kernel.
 	 * 
-	 * @param values    The array ou double to convolve
-	 * @param kernel    The kernel used in the convolution
-	 * @param nbConvolv The number of convolution to apply
+	 * @param values
+	 *            The array ou double to convolve
+	 * @param kernel
+	 *            The kernel used in the convolution
+	 * @param nbConvolv
+	 *            The number of convolution to apply
 	 * @return The convolved array
 	 */
 	public static Double[] processNConvolv(List<Double> values, Double[] kernel, int nbConvolv) {
@@ -267,9 +293,12 @@ public class Library_Quantif {
 	 * @deprecated => Work when you used convolved array. =======
 	 * 
 	 *             /** Convolve n times an array of double, using a kernel.
-	 * @param values    The array ou double to convolve
-	 * @param kernel    The kernel used in the convolution
-	 * @param nbConvolv The number of convolution to apply
+	 * @param values
+	 *            The array ou double to convolve
+	 * @param kernel
+	 *            The kernel used in the convolution
+	 * @param nbConvolv
+	 *            The number of convolution to apply
 	 * @return The convolved array
 	 */
 	public static List<Double> processNConvolv(List<Double> values, List<Double> kernel, int nbConvolv) {

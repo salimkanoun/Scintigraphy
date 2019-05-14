@@ -18,31 +18,31 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.plugin.MontageMaker;
 
-public class TabMainHepaticDyn extends TabResult{
-	
+public class TabMainHepaticDyn extends TabResult {
+
 	private ImagePlus[] captures;
-	
+
 	ImagePlus montage;
-	
+
 	ModelHepaticDynamic model;
 
 	public TabMainHepaticDyn(FenResults parent, ModelHepaticDynamic model) {
 		super(parent, "Main", true);
 		this.model = model;
-		
-		ImagePlus currentImage =  this.getParent().getController().getVue().getImagePlus();
+
+		ImagePlus currentImage = this.getParent().getController().getVue().getImagePlus();
 		ImageSelection imageAnt = this.parent.getController().getModel().getImageSelection()[0].clone();
-		ImageSelection impProjeteeAnt = Library_Dicom.project(imageAnt, 0, imageAnt.getImagePlus().getStackSize(), "avg");
+		ImageSelection impProjeteeAnt = Library_Dicom.project(imageAnt, 0, imageAnt.getImagePlus().getStackSize(),
+				"avg");
 		this.getParent().getController().getVue().setImage(impProjeteeAnt.getImagePlus());
 		this.model.setCapture(this.getParent().getController().getVue().getImagePlus(), 3);
 		this.getParent().getController().getVue().setImage(currentImage);
-		
-		
+
 		this.captures = model.getCaptures();
-		
+
 		ImageStack stackCapture = Library_Capture_CSV.captureToStack(captures);
 		this.montage = this.montage(stackCapture);
-		
+
 		this.reloadDisplay();
 	}
 
@@ -60,13 +60,13 @@ public class TabMainHepaticDyn extends TabResult{
 	public JPanel getResultContent() {
 		return new DynamicImage(montage.getImage());
 	}
-	
+
 	protected ImagePlus montage(ImageStack captures) {
 		MontageMaker mm = new MontageMaker();
 		// TODO: patient ID
 		String patientID = "NO_ID_FOUND";
 		System.out.println(captures != null);
-		System.out.println(this.model != null );
+		System.out.println(this.model != null);
 		System.out.println(this.model.getStudyName());
 		ImagePlus imp = new ImagePlus("Results Pelvis -" + this.model.getStudyName() + " -" + patientID, captures);
 		imp = mm.makeMontage2(imp, 2, 2, 0.50, 1, 4, 1, 10, false);
