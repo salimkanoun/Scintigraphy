@@ -12,6 +12,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabChart;
+import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabDefaultMethod;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -37,6 +38,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 	private FenResults fenResults;
 	private TabChart tabChart;
 	private TabMainResult tabMain;
+	private TabDefaultMethod tabDefaultMethod;
 
 	private List<ImagePlus> captures;
 
@@ -114,12 +116,16 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 
 		// Display results
 		this.tabChart = new TabChart(this.fenResults);
+		
 		this.tabMain = new TabMainResult(this.fenResults, this.captures.get(0), this);
 		this.tabMain.displayTimeIngestion(getModel().getTimeIngestion());
+		
+		this.tabDefaultMethod = new TabDefaultMethod(this.fenResults);
 
 		this.fenResults.clearTabs();
 		this.fenResults.setMainTab(this.tabMain);
 		this.fenResults.addTab(this.tabChart);
+		this.fenResults.addTab(tabDefaultMethod);
 		this.fenResults.pack();
 		this.fenResults.setSize(this.fenResults.getSize().width, 1024);
 		this.fenResults.setVisible(true);

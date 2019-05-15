@@ -84,7 +84,7 @@ public class TabChart extends TabResult {
 		valueSetter.addArea("start", "end", "area", null);
 		valueSetter.addChartMouseListener((ControllerWorkflow_Gastric) this.parent.getController());
 
-		// By default, create linear extrapolation
+		// By default, no extrapolation
 		((Model_Gastric) this.parent.getModel()).setExtrapolation(new NoFit());
 		this.drawFit(((Model_Gastric) this.parent.getModel()).getFittedSeries());
 	}

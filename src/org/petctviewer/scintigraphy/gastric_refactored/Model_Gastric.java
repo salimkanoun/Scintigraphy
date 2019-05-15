@@ -963,6 +963,42 @@ public class Model_Gastric extends ModeleScin {
 		}
 	}
 
+	private double[][] generateDatasetFromKey(String regionName, int key) {
+		// Get all Y points
+		double[] yPoints = new double[this.nbAcquisitions()];
+		Iterator<Data> it = this.generatesDataOrdered().iterator();
+		int i = 0;
+		int pointsIgnored = 0;
+		while (it.hasNext()) {
+			Data data = it.next();
+			try {
+				double value = data.getValue(regionName, key);
+				yPoints[i] = value;
+			} catch (NullPointerException e) {
+				// No data found
+				// Ignore point
+				pointsIgnored++;
+				yPoints[i] = Double.NaN;
+			}
+			i++;
+		}
+
+		// Create dataset with right dimensions
+		double[][] dataset = new double[this.nbAcquisitions() - pointsIgnored][2];
+
+		// Fill dataset
+		int j = 0;
+		for (i = 0; i < yPoints.length; i++) {
+			if(!Double.isNaN(yPoints[i])) {
+				dataset[j][0] = times[i];
+				dataset[j][1] = yPoints[i];
+				j++;
+			}
+		}
+
+		return dataset;
+	}
+
 	/**
 	 * Generates the dataset for the graph of the stomach retention.
 	 * 
@@ -972,28 +1008,30 @@ public class Model_Gastric extends ModeleScin {
 	 *         <li><code>[i][1] -> y</code></li>
 	 *         </ul>
 	 */
-	public double[][] generateStomachDataset() {
-		double[][] dataset = new double[times.length][2];
-		Iterator<Data> it = this.generatesDataOrdered().iterator();
-		int i = 0;
-		while (it.hasNext()) {
-			dataset[i][0] = times[i];
-			dataset[i][1] = it.next().getValue(REGION_STOMACH, DATA_PERCENTAGE);
-			i++;
-		}
-		return dataset;
+	private double[][] generateStomachDataset() {
+		return this.generateDatasetFromKey(REGION_STOMACH, DATA_PERCENTAGE);
+	}
+
+	private double[][] generateStomachDatasetDefaultMethod() {
+		return this.generateDatasetFromKey(REGION_STOMACH, DATA_GEO_AVERAGE);
+	}
+
+	private XYSeries generateSeriesFromDataset(String seriesName, double[][] dataset) {
+		XYSeries series = new XYSeries(seriesName);
+		for (int i = 0; i < dataset.length; i++)
+			series.add(dataset[i][0], dataset[i][1]);
+		return series;
 	}
 
 	/**
 	 * @return series for the stomach (used for the graph)
 	 */
 	public XYSeries getStomachSeries() {
-		XYSeries serie = new XYSeries("Stomach");
-		double[][] dataset = this.generateStomachDataset();
-		for (int i = 0; i < dataset.length; i++) {
-			serie.add(dataset[i][0], dataset[i][1]);
-		}
-		return serie;
+		return this.generateSeriesFromDataset("Stomach", this.generateStomachDataset());
+	}
+
+	public XYSeries getStomachSeriesDefaultMethod() {
+		return this.generateSeriesFromDataset("Stomach", this.generateStomachDatasetDefaultMethod());
 	}
 
 	/**
