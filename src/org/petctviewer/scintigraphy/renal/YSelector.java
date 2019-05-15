@@ -14,14 +14,19 @@ import org.jfree.chart.plot.Crosshair;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleEdge;
-import org.jfree.chart.util.Args;
-import org.jfree.data.DomainOrder;
 import org.jfree.data.xy.XYDataset;
 
+/**
+ * An horizontal selector, showing the X coordinate associated to the Y step.
+ * Extends {@link Selector}
+ *
+ */
 public class YSelector extends Selector implements ChartMouseListener {
 	private static final long serialVersionUID = 6794595703667698248L;
 	private Crosshair crossY;
-	private List<Crosshair> crossX;
+	private List<Crosshair> crossXs;
+	private Crosshair crossDemieX;
+	private int currentLabelVisible;
 
 	// si le selecteur n'est pas selectionne
 	private boolean yLocked;
@@ -35,28 +40,27 @@ public class YSelector extends Selector implements ChartMouseListener {
 	/**
 	 * Permet de creer un selecteur deplacable sur un courbe
 	 * 
-	 * @param nom    nom du selecteur (null accepte)
-	 * @param startX position de depart du selecteur
-	 * @param series series observee (-1 si aucune)
-	 * @param anchor position du label
+	 * @param nom
+	 *            nom du selecteur (null accepte)
+	 * @param startX
+	 *            position de depart du selecteur
+	 * @param series
+	 *            series observee (-1 si aucune)
+	 * @param anchor
+	 *            position du label
 	 */
 	public YSelector(String nom, double startY, int series, RectangleAnchor anchor) {
 		super(nom, startY, series, anchor);
 		this.series = series;
 		this.yLocked = true;
-		this.crossX = new ArrayList<>();
+		this.crossXs = new ArrayList<>();
+		this.removeDomainCrosshair(this.getCrossX());
 
 		// on intialise le selecteur vertical
 		this.crossY = new Crosshair(startY, Color.GRAY, new BasicStroke(0f));
 
 		// on place le label a l'endroit demande
 		this.crossY.setLabelOutlineVisible(false);
-
-		if (anchor != null) {
-			this.crossY.setLabelAnchor(anchor);
-		} else {
-			this.crossY.setLabelAnchor(RectangleAnchor.BOTTOM);
-		}
 
 		// on rend le label invisible si le nom est null ou si c'est un espace
 		this.crossY.setLabelGenerator(new CrosshairLabelGenerator() {
@@ -70,12 +74,9 @@ public class YSelector extends Selector implements ChartMouseListener {
 		});
 
 		// le selecteur vertical n'est pour l'instant pas affiche
-//		this.crossX.add(new Crosshair(Double.NaN, Color.GRAY, new BasicStroke(0f)));
 		this.crossY.setLabelVisible(true);
-//		this.crossX.get(0).setLabelVisible(true);
+		this.crossY.setLabelAnchor(RectangleAnchor.RIGHT);
 
-		// on ajoute les selecteurs horizontaux et verticaux
-//		this.addDomainCrosshair(this.crossX.get(0));
 		this.addRangeCrosshair(this.crossY);
 	}
 
@@ -86,54 +87,89 @@ public class YSelector extends Selector implements ChartMouseListener {
 
 		// on rend visible le selecteur horizontal si le selecteur horizontal est
 		// debloque
-		for(Crosshair ch : this.crossX)
+		for (Crosshair ch : this.crossXs)
 			ch.setVisible(!this.yLocked);
+
+		for (Crosshair domain : this.getDomainCrosshairs())
+			this.removeDomainCrosshair(domain);
+
+		
+		// Calculate and display the t1/2 of the ltas hited point of crossY
+		if (this.yLocked) {
+			XYPlot plot = (XYPlot) event.getChart().getPlot();
+			ValueAxis yAxis = plot.getRangeAxis();
+
+			// on calcule la nouvelle valeur du selecteur vertical
+			double y = yAxis.java2DToValue(event.getTrigger().getY(), this.jValueSetter.getScreenDataArea(),
+					RectangleEdge.LEFT);
+
+			Number xValue = 0;
+			double previousYValue = (double) plot.getDataset().getY(this.series, 0);
+			int lastIndex = 0;
+			// double lastValue = 0;
+			for (int itemIndex = 0; itemIndex < plot.getDataset().getItemCount(this.series); itemIndex++) {
+				Number yValue = (double) plot.getDataset().getY(this.series, itemIndex);
+				if ((((double) yValue) <= y && y <= previousYValue)) {
+					// lastValue = (double) plot.getDataset().getY(this.series, itemIndex - 1);
+					lastIndex = itemIndex - 1;
+				}
+				previousYValue = (double) yValue;
+			}
+			double demieLastValue = y / 2;
+
+			previousYValue = (double) plot.getDataset().getY(this.series, lastIndex);
+			for (int itemIndex = lastIndex; itemIndex < plot.getDataset().getItemCount(this.series); itemIndex++) {
+				Number yValue = Math.max(0.0d, (double) plot.getDataset().getY(this.series, itemIndex));
+				if (((double) yValue) == demieLastValue || demieLastValue == previousYValue
+						|| (((double) yValue) <= demieLastValue && demieLastValue <= previousYValue)
+						|| (((double) yValue) >= demieLastValue && demieLastValue >= previousYValue)) {
+					xValue = findYValue(plot.getDataset(), this.series, demieLastValue, previousYValue, (double) yValue,
+							itemIndex - 1);
+					break;
+
+				}
+				previousYValue = (double) yValue;
+			}
+			this.crossDemieX = new Crosshair(Double.NaN, Color.GRAY, new BasicStroke(0f));
+			this.crossDemieX.setValue(xValue.doubleValue());
+			this.crossDemieX.setLabelVisible(true);
+			this.addDomainCrosshair(this.crossDemieX);
+		}
 	}
 
 	@Override
 	public void chartMouseMoved(ChartMouseEvent event) {
 		XYPlot plot = (XYPlot) event.getChart().getPlot();
-		
+
 		// si le selecteur vertical n'est pas bloque
 		if (!this.yLocked) {
 			ValueAxis yAxis = plot.getRangeAxis();
-			
-//			ValueAxis xAxis = plot.getDomainAxis();
 
 			// on calcule la nouvelle valeur du selecteur vertical
 			double y = yAxis.java2DToValue(event.getTrigger().getY(), this.jValueSetter.getScreenDataArea(),
 					RectangleEdge.LEFT);
-//			double x = Double.NaN;
-			
-			for(Crosshair ch : this.crossX)
-				this.removeDomainCrosshair(ch);
-			this.crossX.clear();
-			
-			Number xValue;
-			double previousValue = (double) plot.getDataset().getY(this.series, 0);
-	        for (int itemIndex = 0 ; itemIndex < plot.getDataset().getItemCount(this.series) ; itemIndex ++){
-	            Number yValue = (double) plot.getDataset().getY(this.series, itemIndex);
-	            if (((double) yValue) == y || y == previousValue || (((double) yValue) <= y && y <= previousValue) || (((double) yValue) >= y && y >= previousValue)){
-	            	System.out.println(yValue+" = "+y);
-	            	xValue = plot.getDataset().getX(this.series, itemIndex);
-	            	xValue = findYValue(plot.getDataset(), this.series, y);
-	                this.crossX.add(new Crosshair(Double.NaN, Color.GRAY, new BasicStroke(0f)));
-	                this.crossX.get(this.crossX.size() - 1).setValue(xValue.doubleValue());
-	                this.crossX.get(this.crossX.size() - 1).setLabelVisible(true);
-	                this.addDomainCrosshair(this.crossX.get(this.crossX.size() - 1));
-	                System.out.println("\tValeurs de x pour moi : "+xValue);
-	            }
-	            previousValue = (double) yValue;
-	        }
-			// si on se situe sur une serie
-//			if (this.series != -1) {
-//				// on renvoie le y correspondant
-//				x = DatasetUtils.findYValue(plot.getDataset(), this.series, y);
-//			}
 
-			// on met a jour les valeurs
-//			this.crossX.setValue(x);
+			for (Crosshair ch : this.crossXs)
+				this.removeDomainCrosshair(ch);
+			this.crossXs.clear();
+
+			Number xValue;
+			double previousYValue = (double) plot.getDataset().getY(this.series, 0);
+			for (int itemIndex = 0; itemIndex < plot.getDataset().getItemCount(this.series); itemIndex++) {
+				Number yValue = (double) plot.getDataset().getY(this.series, itemIndex);
+				if (((double) yValue) == y || y == previousYValue || (((double) yValue) <= y && y <= previousYValue)
+						|| (((double) yValue) >= y && y >= previousYValue)) {
+					xValue = findYValue(plot.getDataset(), this.series, y, previousYValue, (double) yValue,
+							itemIndex - 1);
+					this.crossXs.add(new Crosshair(Double.NaN, Color.GRAY, new BasicStroke(0f)));
+					this.crossXs.get(this.crossXs.size() - 1).setValue(xValue.doubleValue());
+					this.crossXs.get(this.crossXs.size() - 1).setLabelVisible(true);
+					this.addDomainCrosshair(this.crossXs.get(this.crossXs.size() - 1));
+				}
+				previousYValue = (double) yValue;
+			}
 			this.crossY.setValue(y);
+			this.currentLabelVisible = -1;
 		}
 	}
 
@@ -169,142 +205,53 @@ public class YSelector extends Selector implements ChartMouseListener {
 	public void setJValueSetter(JValueSetter jValueSetter) {
 		this.jValueSetter = jValueSetter;
 	}
-	
-	
-	
-	
-	
+
+	public List<Crosshair> getCrossXs() {
+		return this.crossXs;
+	}
+
 	/**
-     * Finds the indices of the the items in the dataset that span the 
-     * specified y-value.  There are three cases for the return value:
-     * <ul>
-     * <li>there is an exact match for the y-value at index i 
-     * (returns {@code int[] {i, i}});</li>
-     * <li>the y-value falls between two (adjacent) items at index i and i+1 
-     * (returns {@code int[] {i, i+1}});</li>
-     * <li>the y-value falls outside the domain bounds, in which case the 
-     *    method returns {@code int[] {-1, -1}}.</li>
-     * </ul>
-     * @param dataset  the dataset ({@code null} not permitted).
-     * @param series  the series index.
-     * @param y  the y-value.
-     *
-     * @return The indices of the two items that span the x-value.
-     *
-     * @since 1.0.16
-     * 
-     * @see #findYValue(org.jfree.data.xy.XYDataset, int, double) 
-     */
-    public static int[] findItemIndicesForY(XYDataset dataset, int series,
-            double x) {
-        Args.nullNotPermitted(dataset, "dataset");
-        int itemCount = dataset.getItemCount(series);
-        if (itemCount == 0) {
-            return new int[] {-1, -1};
-        }
-        if (itemCount == 1) {
-            if (x == dataset.getYValue(series, 0)) {
-                return new int[] {0, 0};
-            } else {
-                return new int[] {-1, -1};
-            }
-        }
-        if (dataset.getDomainOrder() == DomainOrder.ASCENDING) {
-            int low = 0;
-            int high = itemCount - 1;
-            double lowValue = dataset.getYValue(series, low);
-            if (lowValue > x) {
-                return new int[] {-1, -1};
-            }
-            if (lowValue == x) {
-                return new int[] {low, low};
-            }
-            double highValue = dataset.getYValue(series, high);
-            if (highValue < x) {
-                return new int[] {-1, -1};
-            }
-            if (highValue == x) {
-                return new int[] {high, high};
-            }
-            int mid = (low + high) / 2;
-            while (high - low > 1) {
-                double midV = dataset.getYValue(series, mid);
-                if (x == midV) {
-                    return new int[] {mid, mid};
-                }
-                if (midV < x) {
-                    low = mid;
-                }
-                else {
-                    high = mid;
-                }
-                mid = (low + high) / 2;
-            }
-            return new int[] {low, high};
-        }
-        else if (dataset.getDomainOrder() == DomainOrder.DESCENDING) {
-            int high = 0;
-            int low = itemCount - 1;
-            double lowValue = dataset.getYValue(series, low);
-            if (lowValue > x) {
-                return new int[] {-1, -1};
-            }
-            double highValue = dataset.getYValue(series, high);
-            if (highValue < x) {
-                return new int[] {-1, -1};
-            }
-            int mid = (low + high) / 2;
-            while (high - low > 1) {
-                double midV = dataset.getYValue(series, mid);
-                if (x == midV) {
-                    return new int[] {mid, mid};
-                }
-                if (midV < x) {
-                    low = mid;
-                }
-                else {
-                    high = mid;
-                }
-                mid = (low + high) / 2;
-            }
-            return new int[] {low, high};
-        }
-        else {
-            // we don't know anything about the ordering of the x-values,
-            // so we iterate until we find the first crossing of x (if any)
-            // we know there are at least 2 items in the series at this point
-            double prev = dataset.getYValue(series, 0);
-            if (x == prev) {
-                return new int[] {0, 0}; // exact match on first item
-            }
-            for (int i = 1; i < itemCount; i++) {
-                double next = dataset.getYValue(series, i);
-                if (x == next) {
-                    return new int[] {i, i}; // exact match
-                }
-                if ((x > prev && x < next) || (x < prev && x > next)) {
-                    return new int[] {i - 1, i}; // spanning match
-                }
-            }
-            return new int[] {-1, -1}; // no crossing of x
-        }
-    }
-    
-    public static double findYValue(XYDataset dataset, int series, double x) {
-        // delegate null check on dataset
-        int[] indices = findItemIndicesForY(dataset, series, x);
-        if (indices[0] == -1) {
-        	System.out.println("\t\t\tFail dans la trouvail !");
-            return Double.NaN;
-        }
-        if (indices[0] == indices[1]) {
-            return dataset.getXValue(series, indices[0]);
-        }
-        double x0 = dataset.getYValue(series, indices[0]);
-        double x1 = dataset.getYValue(series, indices[1]);
-        double y0 = dataset.getXValue(series, indices[0]);
-        double y1 = dataset.getXValue(series, indices[1]);
-        return y0 + (y1 - y0) * (x - x0) / (x1 - x0);
-    }
-	
+	 * Returns the interpolated value of x that corresponds to the specified y-value
+	 * in the given series.
+	 * 
+	 * @param dataset
+	 *            the dataset ({@code null} not permitted).
+	 * @param series
+	 *            the series index.
+	 * @param y
+	 *            the y-value on the graph.
+	 * @param previousValue
+	 *            the previousValue in the dataset.
+	 * @param nextValue
+	 *            the next value in the dataset.
+	 * @param itemIndex
+	 *            the index of the previous value.
+	 * 
+	 * @return The x value.
+	 */
+	public static double findYValue(XYDataset dataset, int series, double y, double previousValue, double nextValue,
+			int itemIndex) {
+
+		if (y == previousValue)
+			return dataset.getXValue(series, itemIndex);
+		if (y == nextValue)
+			return dataset.getXValue(series, itemIndex + 1);
+
+		int[] indices = { itemIndex, itemIndex + 1 };
+
+		double y0 = dataset.getYValue(series, indices[0]);
+		double y1 = dataset.getYValue(series, indices[1]);
+		double x0 = dataset.getXValue(series, indices[0]);
+		double x1 = dataset.getXValue(series, indices[1]);
+		return x0 + (x1 - x0) * (y - y0) / (y1 - y0);
+	}
+
+	public void setCurrentLabelVisible(int crossXIndex) {
+		this.currentLabelVisible = crossXIndex;
+	}
+
+	public int getCurrentLabelVisible() {
+		return this.currentLabelVisible;
+	}
+
 }
