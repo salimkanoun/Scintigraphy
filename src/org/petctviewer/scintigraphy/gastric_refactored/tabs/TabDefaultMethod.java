@@ -40,7 +40,7 @@ public class TabDefaultMethod extends TabResult {
 	public void createChart() {
 		// Create chart
 		this.data = new XYSeriesCollection();
-		XYSeries stomachSeries = getModel().getStomachSeriesDefaultMethod();
+		XYSeries stomachSeries = getModel().getDecayFunction();
 		this.data.addSeries(stomachSeries);
 
 		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (min)", "Stomach retention (counts)",

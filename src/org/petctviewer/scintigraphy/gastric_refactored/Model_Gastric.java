@@ -50,12 +50,14 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Debug;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.Prefs;
 import ij.gui.Roi;
 import ij.plugin.MontageMaker;
+import loci.plugins.util.LibraryChecker.Library;
 
 /**
  * Model of the Gastric Scintigraphy.
@@ -235,7 +237,8 @@ public class Model_Gastric extends ModeleScin {
 			REGION_INTESTINE = "Intestine", REGION_ALL = "Total";
 
 	public static final int DATA_ANT_COUNTS = 0, DATA_POST_COUNTS = 1, DATA_GEO_AVERAGE = 2, DATA_PERCENTAGE = 3,
-			DATA_DERIVATIVE = 4, DATA_CORRELATION = 5, DATA_PIXEL_COUNTS = 6, DATA_BKG_NOISE = 7, DATA_TOTAL_FIELDS = 8;
+			DATA_DERIVATIVE = 4, DATA_CORRELATION = 5, DATA_PIXEL_COUNTS = 6, DATA_BKG_NOISE = 7,
+			DATA_DECAY_CORRECTED = 8, DATA_TOTAL_FIELDS = 9;
 
 	/**
 	 * This class stores the data measured or calculated for each region of the
@@ -436,6 +439,7 @@ public class Model_Gastric extends ModeleScin {
 	 * Extrapolation used to fit the values.
 	 */
 	private Fit extrapolation;
+	private Isotope isotope;
 
 	/**
 	 * Times calculated.
@@ -989,7 +993,7 @@ public class Model_Gastric extends ModeleScin {
 		// Fill dataset
 		int j = 0;
 		for (i = 0; i < yPoints.length; i++) {
-			if(!Double.isNaN(yPoints[i])) {
+			if (!Double.isNaN(yPoints[i])) {
 				dataset[j][0] = times[i];
 				dataset[j][1] = yPoints[i];
 				j++;
@@ -1012,8 +1016,8 @@ public class Model_Gastric extends ModeleScin {
 		return this.generateDatasetFromKey(REGION_STOMACH, DATA_PERCENTAGE);
 	}
 
-	private double[][] generateStomachDatasetDefaultMethod() {
-		return this.generateDatasetFromKey(REGION_STOMACH, DATA_GEO_AVERAGE);
+	private double[][] generateDecayFunction() {
+		return this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED);
 	}
 
 	private XYSeries generateSeriesFromDataset(String seriesName, double[][] dataset) {
@@ -1030,8 +1034,8 @@ public class Model_Gastric extends ModeleScin {
 		return this.generateSeriesFromDataset("Stomach", this.generateStomachDataset());
 	}
 
-	public XYSeries getStomachSeriesDefaultMethod() {
-		return this.generateSeriesFromDataset("Stomach", this.generateStomachDatasetDefaultMethod());
+	public XYSeries getDecayFunction() {
+		return this.generateSeriesFromDataset("Stomach", this.generateDecayFunction());
 	}
 
 	/**
@@ -1069,6 +1073,10 @@ public class Model_Gastric extends ModeleScin {
 			data.setTime(this
 					.calculateDeltaTime(Library_Dicom.getDateAcquisition(data.getAssociatedImage().getImagePlus())));
 		}
+	}
+
+	public void setIsotope(Isotope isotope) {
+		this.isotope = isotope;
 	}
 
 	public void setFirstImage(ImageSelection firstImage) {
@@ -1268,6 +1276,13 @@ public class Model_Gastric extends ModeleScin {
 		}
 	}
 
+	private void computeDecayFunction(Data data) {
+		int delayMs = (int) (data.time * 60. * 1000.);
+		double value = Library_Quantif.calculer_countCorrected(delayMs, data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE),
+				isotope);
+		data.setValue(REGION_STOMACH, DATA_DECAY_CORRECTED, value);
+	}
+
 	/**
 	 * Computes the data retrieved from the specified state. This method calculates
 	 * the percentages for each region. This method should be used when the static
@@ -1308,6 +1323,8 @@ public class Model_Gastric extends ModeleScin {
 		data.setValue(REGION_FUNDUS, DATA_CORRELATION, fundusDerivative);
 
 		this.computeDerivative(data, state, previousState);
+
+		this.computeDecayFunction(data);
 	}
 
 	/**

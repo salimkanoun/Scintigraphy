@@ -6,11 +6,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -703,50 +706,68 @@ public class Library_Dicom {
 					new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT });
 		return result;
 	}
-	
+
 	/**
 	 * Normalize to have on each frame, the count/second number.
 	 * 
-	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image.
-	 * Otherwise, the count are only ineter, and we lose many informations.
-	 * @param imp
-	 *         ImagePlus to normalize
-	 * @param framDurations
-	 *         int[] of the ImagePlus duration frames
+	 * To avoid a loss of information, we recommand to do this normalization on a 32
+	 * bit image. Otherwise, the count are only ineter, and we lose many
+	 * informations.
+	 * 
+	 * @param imp           ImagePlus to normalize
+	 * @param framDurations int[] of the ImagePlus duration frames
 	 */
 	public static void normalizeToCountPerSecond(ImagePlus imp, int[] frameDurations) {
 		IJ.run(imp, "32-bit", "");
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
-			imp.getImageStack().getProcessor(i).multiply(1000d / (double)frameDurations[i - 1]);
+			imp.getImageStack().getProcessor(i).multiply(1000d / (double) frameDurations[i - 1]);
 		}
 	}
-	
+
 	/**
 	 * Normalize to have on each frame, the count/second number.
 	 * 
-	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image.
-	 * Otherwise, the count are only ineter, and we lose many informations.
-	 * @param imp
-	 *        ImagePlus to normalize
+	 * To avoid a loss of information, we recommand to do this normalization on a 32
+	 * bit image. Otherwise, the count are only ineter, and we lose many
+	 * informations.
+	 * 
+	 * @param imp ImagePlus to normalize
 	 * 
 	 */
 	public static void normalizeToCountPerSecond(ImagePlus imp) {
 		int[] frameDurations = Library_Dicom.buildFrameDurations(imp);
-		normalizeToCountPerSecond(imp,frameDurations);
+		normalizeToCountPerSecond(imp, frameDurations);
 	}
-	
+
 	/**
 	 * Normalize to have on each frame, the count/second number.
 	 * 
-	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image.
-	 * Otherwise, the count are only ineter, and we lose many informations.
-	 * @param imp
-	 *        ImageSelection to normalize
+	 * To avoid a loss of information, we recommand to do this normalization on a 32
+	 * bit image. Otherwise, the count are only ineter, and we lose many
+	 * informations.
+	 * 
+	 * @param imp ImageSelection to normalize
 	 * 
 	 */
 	public static void normalizeToCountPerSecond(ImageSelection imp) {
 		normalizeToCountPerSecond(imp.getImagePlus());
+	}
+	
+	public static String findIsotopeCode(ImagePlus imp) {
+		String infoProperty = imp.getInfoProperty();
+		if (infoProperty != null) {
+			Pattern pattern = Pattern.compile("Radionuclide Code Sequence.*Code Value: (C-\\w*)", Pattern.DOTALL);
+			Matcher matcher = pattern.matcher(infoProperty);
+			if (matcher.find()) {
+				return matcher.group(1);
+			}
+		}
+		return null;
+	}
+
+	public static Isotope findIsotope(ImagePlus imp) {
+		return Isotope.getIsotopeFromCode(findIsotopeCode(imp));
 	}
 
 }
