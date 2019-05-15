@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.gastric_refactored.gui;
 
 import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYSeries;
+import org.petctviewer.scintigraphy.gastric_refactored.Unit;
 
 /**
  * This class represents a fit for a certain dataset. The fit can be used to
@@ -33,9 +34,12 @@ public abstract class Fit {
 	}
 
 	private FitType type;
+	
+	private Unit unit;
 
-	public Fit(FitType type) {
+	public Fit(FitType type, Unit unit) {
 		this.type = type;
+		this.unit = unit;
 	}
 
 	/**
@@ -45,14 +49,14 @@ public abstract class Fit {
 	 * @param dataset Dataset for the fit
 	 * @return Instance of a fit
 	 */
-	public static Fit createFit(FitType type, double[][] dataset) {
+	public static Fit createFit(FitType type, double[][] dataset, Unit unit) {
 		switch (type) {
 		case LINEAR:
-			return new LinearFit(dataset);
+			return new LinearFit(unit, dataset);
 		case EXPONENTIAL:
-			return new ExponentialFit(dataset);
+			return new ExponentialFit(unit, dataset);
 		default:
-			return new NoFit();
+			return new NoFit(unit);
 		}
 	}
 
@@ -73,6 +77,10 @@ public abstract class Fit {
 	 * @return Y value extrapolated
 	 */
 	public abstract double extrapolateY(double valueX);
+	
+	public Unit getUnit() {
+		return this.unit;
+	}
 
 	public double[] generateOrdinates(double[] valuesX) {
 		double[] ordinates = new double[valuesX.length];
@@ -116,8 +124,8 @@ public abstract class Fit {
 
 		private double[] coefs;
 
-		public LinearFit(double[][] dataset) {
-			super(FitType.LINEAR);
+		public LinearFit(Unit unit, double[][] dataset) {
+			super(FitType.LINEAR, unit);
 			this.coefs = Regression.getOLSRegression(dataset);
 		}
 
@@ -146,8 +154,8 @@ public abstract class Fit {
 
 		private double[] coefs;
 
-		public ExponentialFit(double[][] dataset) {
-			super(FitType.EXPONENTIAL);
+		public ExponentialFit(Unit unit, double[][] dataset) {
+			super(FitType.EXPONENTIAL, unit);
 			double[][] lnSeries = new double[dataset.length][2];
 			for (int i = 0; i < dataset.length; i++) {
 				lnSeries[i][0] = dataset[i][0];
@@ -178,8 +186,8 @@ public abstract class Fit {
 	 */
 	public static class NoFit extends Fit {
 
-		public NoFit() {
-			super(FitType.NONE);
+		public NoFit(Unit unit) {
+			super(FitType.NONE, unit);
 		}
 
 		@Override

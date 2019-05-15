@@ -42,7 +42,6 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
-import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.LinearFit;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -67,104 +66,6 @@ import ij.plugin.MontageMaker;
  */
 public class Model_Gastric extends ModeleScin {
 	public static Font italic = new Font("Arial", Font.ITALIC, 8);
-
-	public enum Unit {
-		PERCENTAGE("%"),
-		TIME("h:m:s"),
-		COUNTS("counts"),
-		COUNTS_PER_SECOND("counts/sec"),
-		COUNTS_PER_MINUTE("counts/min"),
-		KCOUNTS("kcounts"),
-		KCOUNTS_PER_SECOND("kcounts/sec"),
-		KCOUNTS_PER_MINUTE("kcounts/min");
-
-		private String s;
-
-		private Unit(String s) {
-			this.s = s;
-		}
-
-		public double convertTo(double value, Unit unit) {
-			if (this == unit)
-				return value;
-
-			switch (this) {
-			case COUNTS:
-				if (unit == KCOUNTS)
-					return value / 1000.;
-				else if (unit == COUNTS)
-					return value;
-				else
-					throw new UnsupportedOperationException("This unit cannot be converted to " + unit);
-			case KCOUNTS:
-				if (unit == KCOUNTS)
-					return value;
-				else if (unit == COUNTS)
-					return value * 1000.;
-				else
-					throw new UnsupportedOperationException("This unit cannot be converted to " + unit);
-			case COUNTS_PER_MINUTE:
-				switch (unit) {
-				case COUNTS_PER_MINUTE:
-					return value;
-				case COUNTS_PER_SECOND:
-					return value / 60.;
-				case KCOUNTS_PER_MINUTE:
-					return value / 1000.;
-				case KCOUNTS_PER_SECOND:
-					return value / 1000. / 60.;
-				default:
-					throw new UnsupportedOperationException("This unit cannot be converted to " + unit);
-				}
-			case COUNTS_PER_SECOND:
-				switch (unit) {
-				case COUNTS_PER_MINUTE:
-					return value * 60.;
-				case COUNTS_PER_SECOND:
-					return value;
-				case KCOUNTS_PER_MINUTE:
-					return value / 1000. * 60.;
-				case KCOUNTS_PER_SECOND:
-					return value / 1000.;
-				default:
-					throw new UnsupportedOperationException("This unit cannot be converted to " + unit);
-				}
-			case KCOUNTS_PER_MINUTE:
-				switch (unit) {
-				case COUNTS_PER_MINUTE:
-					return value * 1000.;
-				case COUNTS_PER_SECOND:
-					return value * 1000. * 60.;
-				case KCOUNTS_PER_MINUTE:
-					return value;
-				case KCOUNTS_PER_SECOND:
-					return value * 60.;
-				default:
-					throw new UnsupportedOperationException("This unit cannot be converted to " + unit);
-				}
-			case KCOUNTS_PER_SECOND:
-				switch (unit) {
-				case COUNTS_PER_MINUTE:
-					return value * 1000. / 60.;
-				case COUNTS_PER_SECOND:
-					return value * 1000.;
-				case KCOUNTS_PER_MINUTE:
-					return value / 60.;
-				case KCOUNTS_PER_SECOND:
-					return value;
-				default:
-					throw new UnsupportedOperationException("This unit cannot be converted to " + unit);
-				}
-			default:
-				throw new UnsupportedOperationException("This unit (" + this + ") cannot be converted");
-			}
-		}
-
-		@Override
-		public String toString() {
-			return this.s;
-		}
-	}
 
 	/**
 	 * Results available for the {@link Model_Gastric} model.
@@ -330,8 +231,8 @@ public class Model_Gastric extends ModeleScin {
 			if (seconds < 10)
 				s.append(0);
 			s.append(seconds);
-			
-			if(this.isExtrapolated())
+
+			if (this.isExtrapolated())
 				s.append("(*)");
 
 			return s.toString();
@@ -539,7 +440,7 @@ public class Model_Gastric extends ModeleScin {
 	 * Time when the ingestion started.
 	 */
 	private Date timeIngestion;
-	
+
 	private Isotope isotope;
 
 	/**
@@ -725,7 +626,6 @@ public class Model_Gastric extends ModeleScin {
 		return dataset;
 	}
 
-	// permet de obtenir le temps de debut antre et debut intestin
 	/**
 	 * Finds the starting time for the Antre or Intestine region (only).
 	 * 
@@ -747,6 +647,7 @@ public class Model_Gastric extends ModeleScin {
 		throw new NoSuchElementException("No data found, please first use the calculateCounts method before!");
 	}
 
+	// TODO: the formula seems wrong!
 	/**
 	 * Gets the X value based upon the specified Y value of the graph.<br>
 	 * The value X returned is calculated with a linear interpolation as the point
@@ -756,15 +657,15 @@ public class Model_Gastric extends ModeleScin {
 	 * @return X value or null if none found
 	 * @see #extrapolateX(double, Fit)
 	 */
-	private Double getX(double valueY) {
-		double[] stomachPercentage = this.getResultAsArray(REGION_STOMACH, DATA_PERCENTAGE);
-
-		for (int i = 1; i < stomachPercentage.length; i++) {
-			if (stomachPercentage[i] <= valueY) {
+	private Double getX(double[] yValues, double valueY) {
+		for (int i = 1; i < times.length; i++) {
+			if (yValues[i] == valueY)
+				return times[i];
+			else if (yValues[i] < valueY) {
 				double x1 = times[i - 1];
 				double x2 = times[i];
-				double y1 = stomachPercentage[i - 1];
-				double y2 = stomachPercentage[i];
+				double y1 = yValues[i - 1];
+				double y2 = yValues[i];
 				return x2 - (y2 - valueY) * ((x2 - x1) / (y2 - y1));
 			}
 		}
@@ -783,6 +684,7 @@ public class Model_Gastric extends ModeleScin {
 		return fit.extrapolateX(valueY);
 	}
 
+	//TODO: the formula seems wrong
 	/**
 	 * Gets the Y value based upon the specified X value of the graph.<br>
 	 * The value Y returned is calculated with a linear interpolation as the point
@@ -792,14 +694,16 @@ public class Model_Gastric extends ModeleScin {
 	 * @return Y value or null if none found
 	 * @see #extrapolateY(double, Fit)
 	 */
-	private Double getY(double valueX) {
-		double[] stomachPercentage = this.getResultAsArray(REGION_STOMACH, DATA_PERCENTAGE);
+	private Double getY(double[] yValues, double valueX) {
 		for (int i = 0; i < times.length; i++) {
-			if (times[i] >= valueX) {
+			if (times[i] == valueX)
+				return yValues[i];
+			else if (times[i] > valueX) {
 				double x1 = times[i - 1];
 				double x2 = times[i];
-				double y1 = stomachPercentage[i - 1];
-				double y2 = stomachPercentage[i];
+				double y1 = yValues[i - 1];
+				double y2 = yValues[i];
+
 				return y2 - (x2 - valueX) * ((y2 - y1) / (x2 - x1));
 			}
 		}
@@ -1045,6 +949,10 @@ public class Model_Gastric extends ModeleScin {
 		}
 	}
 
+	public double[] getTimes() {
+		return this.times;
+	}
+
 	public String nameOfDataField(int field) {
 		switch (field) {
 		case DATA_ANT_COUNTS:
@@ -1128,6 +1036,14 @@ public class Model_Gastric extends ModeleScin {
 		return series;
 	}
 
+	private double[] generateValuesFromDataset(double[][] dataset) {
+		double[] yValues = new double[dataset.length];
+		int i = 0;
+		for (double[] d : dataset)
+			yValues[i++] = d[1];
+		return yValues;
+	}
+
 	/**
 	 * @return series for the stomach (used for the graph)
 	 */
@@ -1135,8 +1051,16 @@ public class Model_Gastric extends ModeleScin {
 		return this.generateSeriesFromDataset("Stomach", this.generateStomachDataset());
 	}
 
+	public double[] getStomachValues() {
+		return this.generateValuesFromDataset(generateStomachDataset());
+	}
+
 	public XYSeries getDecayFunction() {
 		return this.generateSeriesFromDataset("Stomach", this.generateDecayFunction());
+	}
+
+	public double[] getDecayValues() {
+		return this.generateValuesFromDataset(generateDecayFunction());
 	}
 
 	/**
@@ -1182,31 +1106,6 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	public Date getTimeIngestion() {
 		return this.timeIngestion;
-	}
-
-	/**
-	 * Sets the interpolation the graph and the result must follow.
-	 * 
-	 * @param fit Interpolation to follow
-	 */
-	public void setExtrapolation(Fit fit) {
-		this.extrapolation = fit;
-	}
-
-	/**
-	 * Current extrapolation defined.
-	 * 
-	 * @return type of the current extrapolation
-	 */
-	public FitType getCurrentExtrapolation() {
-		return this.extrapolation.getType();
-	}
-
-	/**
-	 * @return interpolation defined
-	 */
-	public Fit getExtrapolation() {
-		return this.extrapolation;
 	}
 
 	/**
@@ -1574,7 +1473,7 @@ public class Model_Gastric extends ModeleScin {
 	 *                                       than START_ANTRUM or START_INTESTINE or
 	 *                                       LAG_PHASE or T_HALF
 	 */
-	public ResultValue getResult(Result result) throws UnsupportedOperationException {
+	public ResultValue getResult(Result result, Fit fit) throws UnsupportedOperationException {
 		FitType extrapolationType = null;
 		switch (result) {
 		case START_ANTRUM:
@@ -1586,8 +1485,8 @@ public class Model_Gastric extends ModeleScin {
 			Double valX = this.getX(95.);
 			if (valX == null) {
 				// Extrapolate
-				valX = this.extrapolateX(95., this.extrapolation);
-				extrapolationType = this.extrapolation.getType();
+				valX = this.extrapolateX(95., fit);
+				extrapolationType = fit.getType();
 			}
 			return new ResultValue(result, valX, Unit.TIME, extrapolationType);
 		case T_HALF:
@@ -1595,8 +1494,8 @@ public class Model_Gastric extends ModeleScin {
 			valX = this.getX(50.);
 			if (valX == null) {
 				// Extrapolate
-				valX = this.extrapolateX(50., this.extrapolation);
-				extrapolationType = this.extrapolation.getType();
+				valX = this.extrapolateX(50., fit);
+				extrapolationType = fit.getType();
 			}
 			return new ResultValue(result, valX, Unit.TIME, extrapolationType);
 		default:
@@ -1611,12 +1510,18 @@ public class Model_Gastric extends ModeleScin {
 	 * @param time Time to observe in minutes
 	 * @return retention time
 	 */
-	public ResultValue retentionAt(double time) {
-		Double res = this.getY(time);
-		if (res == null)
-			return new ResultValue(Result.RETENTION, this.extrapolateY(time, this.extrapolation), Unit.PERCENTAGE,
-					this.extrapolation.getType());
-		return new ResultValue(Result.RETENTION, res, Unit.PERCENTAGE);
+	public ResultValue retentionAt(double[] yValues, double time, Fit fit) {
+		Double res = this.getY(yValues, time);
+		FitType extrapolated = null;
+		if (res == null) {
+			res = this.extrapolateY(time, fit);
+			extrapolated = fit.getType();
+		}
+
+		// Percentage of res
+		res = res * 100. / this.getY(yValues, 0.);
+
+		return new ResultValue(Result.RETENTION, res, Unit.PERCENTAGE, extrapolated);
 	}
 
 	/**
@@ -1732,7 +1637,5 @@ public class Model_Gastric extends ModeleScin {
 	@Override
 	public void calculerResultats() {
 		this.generatesTimes();
-		// Set fit
-		this.setExtrapolation(new LinearFit(this.generateStomachDataset()));
 	}
 }

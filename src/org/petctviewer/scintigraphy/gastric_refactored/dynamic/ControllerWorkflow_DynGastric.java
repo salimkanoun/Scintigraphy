@@ -1,8 +1,8 @@
 package org.petctviewer.scintigraphy.gastric_refactored.dynamic;
 
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
-import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabChart;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
+import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMethod2;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
@@ -104,8 +104,15 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		this.computeModel();
 
 		// Update results
-		((TabChart) this.fenResults.getTab(1)).createChart();
-		((TabMainResult) this.fenResults.getMainTab()).displayTimeIngestion(getModel().getTimeIngestion());
+		TabMainResult tabMain = ((TabMainResult) this.fenResults.getMainTab());
+		TabMethod2 tabMethod2 = ((TabMethod2) this.fenResults.getTab(1));
+		
+		tabMain.displayTimeIngestion(getModel().getTimeIngestion());
+		tabMain.createGraph();
+		tabMethod2.displayTimeIngestion(getModel().getTimeIngestion());
+		tabMethod2.createGraph();
+		
+		
 		fenResults.reloadAllTabs();
 	}
 

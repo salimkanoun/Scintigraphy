@@ -1,15 +1,8 @@
 package org.petctviewer.scintigraphy.gastric_refactored;
 
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jfree.chart.ChartMouseEvent;
-import org.jfree.chart.ChartMouseListener;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMethod2;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
@@ -27,12 +20,11 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 
 import ij.ImagePlus;
 
-public class ControllerWorkflow_Gastric extends ControllerWorkflow implements ChartMouseListener, ItemListener {
+public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 
@@ -191,41 +183,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 				this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 0, 640, 512));
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
-	}
-
-	@Override
-	public void chartMouseClicked(ChartMouseEvent event) {
-		// Does nothing
-	}
-
-	private void reloadFit() {
-		// Reload fit
-		XYSeries series = ((XYSeriesCollection) this.tabMain.getValueSetter().retrieveValuesInSpan()).getSeries(0);
-		try {
-			this.getModel().setExtrapolation(
-					Fit.createFit(this.tabMain.getSelectedFit(), Library_JFreeChart.invertArray(series.toArray())));
-			this.tabMain.drawFit(this.getModel().getFittedSeries());
-			this.tabMain.setErrorMessage(null);
-			this.tabMain.reloadSidePanelContent();
-		} catch (IllegalArgumentException e) {
-			System.err.println("Not enough data");
-			this.tabMain.setErrorMessage("Not enough data to fit the graph");
-		}
-	}
-
-	@Override
-	public void chartMouseMoved(ChartMouseEvent event) {
-		if (this.tabMain.getValueSetter().getGrabbedSelector() != null) {
-			this.reloadFit();
-		}
-	}
-
-	@Override
-	public void itemStateChanged(ItemEvent event) {
-		if (event.getStateChange() == ItemEvent.SELECTED) {
-			this.reloadFit();
-			this.tabMain.changeLabelInterpolation(event.getItem().toString() + " extrapolation");
-		}
 	}
 
 }

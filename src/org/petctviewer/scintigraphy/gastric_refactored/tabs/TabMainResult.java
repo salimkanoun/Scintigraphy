@@ -6,6 +6,8 @@ import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -20,6 +22,8 @@ import javax.swing.border.MatteBorder;
 import javax.swing.table.DefaultTableModel;
 
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
@@ -31,10 +35,10 @@ import org.petctviewer.scintigraphy.gastric_refactored.ControllerWorkflow_Gastri
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric.Result;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric.ResultValue;
-import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric.Unit;
+import org.petctviewer.scintigraphy.gastric_refactored.Unit;
 import org.petctviewer.scintigraphy.gastric_refactored.dynamic.DynGastricScintigraphy;
+import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
-import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.NoFit;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
@@ -42,11 +46,12 @@ import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 import ij.ImagePlus;
 import ij.ImageStack;
 
-public class TabMainResult extends TabResult {
+public class TabMainResult extends TabResult implements ItemListener, ChartMouseListener {
 
 	private ImagePlus capture;
 	private Date timeIngestion;
@@ -58,13 +63,17 @@ public class TabMainResult extends TabResult {
 
 	private JComboBox<FitType> fitsChoices;
 	private JLabel labelInterpolation, labelError;
+	
+	private Fit currentFit;
+	
+	private static final Unit UNIT = Unit.PERCENTAGE;
 
 	public TabMainResult(FenResults parent, ImagePlus capture, ControllerWorkflow_Gastric controller) {
 		super(parent, "Result");
 
 		// Instantiate variables
 		fitsChoices = new JComboBox<>(FitType.values());
-		fitsChoices.addItemListener(controller);
+		fitsChoices.addItemListener(this);
 
 		this.labelInterpolation = new JLabel();
 		this.labelInterpolation.setVisible(false);
@@ -74,6 +83,8 @@ public class TabMainResult extends TabResult {
 
 		this.capture = capture;
 		this.controller = controller;
+		
+		this.currentFit = new Fit.NoFit(UNIT);
 
 		this.createGraph();
 
@@ -86,7 +97,7 @@ public class TabMainResult extends TabResult {
 
 	private JTable tablesResultats() {
 		Result[] results = new Result[] { Result.RES_TIME, Result.RES_STOMACH, Result.RES_FUNDUS, Result.RES_ANTRUM };
-		Unit[] unitsUsed = new Unit[] { Unit.TIME, Unit.PERCENTAGE, Unit.PERCENTAGE, Unit.PERCENTAGE };
+		Unit[] unitsUsed = new Unit[] { Unit.TIME, UNIT, UNIT, UNIT };
 
 		Model_Gastric model = (Model_Gastric) this.parent.getModel();
 
@@ -166,24 +177,24 @@ public class TabMainResult extends TabResult {
 		JPanel infoRes = new JPanel();
 		infoRes.setLayout(new GridLayout(0, 2));
 
-		ResultValue result = getModel().getResult(Result.START_ANTRUM);
+		ResultValue result = getModel().getResult(Result.START_ANTRUM, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
-		result = getModel().getResult(Result.START_INTESTINE);
+		result = getModel().getResult(Result.START_INTESTINE, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
-		result = getModel().getResult(Result.LAG_PHASE);
+		result = getModel().getResult(Result.LAG_PHASE, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
-		result = getModel().getResult(Result.T_HALF);
+		result = getModel().getResult(Result.T_HALF, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
 		for (double time = 60.; time <= 240.; time += 60.) {
-			result = getModel().retentionAt(time);
+			result = getModel().retentionAt(getModel().getStomachValues(), time, this.currentFit);
 			hasExtrapolatedValue = result.getExtrapolation() != null;
 			this.displayRetentionResult(infoRes, time, result);
 		}
@@ -191,12 +202,11 @@ public class TabMainResult extends TabResult {
 		panel.add(infoRes, BorderLayout.CENTER);
 		if (hasExtrapolatedValue) {
 			JLabel l = null;
-			if (getModel().getExtrapolation() instanceof NoFit) {
+			if (getSelectedFit() == FitType.NONE) {
 				l = new JLabel("(*) No fit has been selected to extrapolate the values!");
 				l.setForeground(Color.RED);
 			} else {
-				l = new JLabel("(*) The results are calculated with a " + getModel().getExtrapolation().toString()
-						+ " extrapolation");
+				l = new JLabel("(*) The results are calculated with a " + getSelectedFit() + " extrapolation");
 			}
 			panel.add(l, BorderLayout.SOUTH);
 		}
@@ -295,11 +305,7 @@ public class TabMainResult extends TabResult {
 		valueSetter.addSelector(new Selector(" ", startX, -1, RectangleAnchor.TOP_LEFT), "start");
 		valueSetter.addSelector(new Selector(" ", endX, -1, RectangleAnchor.TOP_LEFT), "end");
 		valueSetter.addArea("start", "end", "area", null);
-		valueSetter.addChartMouseListener((ControllerWorkflow_Gastric) this.parent.getController());
-
-		// By default, no extrapolation
-		getModel().setExtrapolation(new NoFit());
-		this.drawFit(getModel().getFittedSeries());
+		valueSetter.addChartMouseListener(this);
 	}
 
 	/**
@@ -319,14 +325,12 @@ public class TabMainResult extends TabResult {
 	}
 
 	/**
-	 * Displays the specified fit and removes the previous fit if existing.
-	 * 
-	 * @param series Fit to draw
+	 * Displays the current fit and removes the previous fit if existing.
 	 */
-	public void drawFit(XYSeries series) {
+	public void drawFit() {
 		this.clearFits();
 
-		this.data.addSeries(series);
+		this.data.addSeries(this.currentFit.getFittedSeries(getModel().getTimes()));
 	}
 
 	/**
@@ -362,6 +366,42 @@ public class TabMainResult extends TabResult {
 		JPanel panel = new JPanel();
 		panel.add(tab);
 		return panel;
+	}
+	
+	private void reloadFit() {
+		try {
+			// Create fit
+			XYSeries series = ((XYSeriesCollection) this.getValueSetter().retrieveValuesInSpan()).getSeries(0);
+			this.currentFit = Fit.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray()), UNIT);
+			
+			this.drawFit();
+			this.setErrorMessage(null);
+			this.reloadSidePanelContent();
+		} catch (IllegalArgumentException error) {
+			System.err.println("Not enough data");
+			this.setErrorMessage("Not enough data to fit the graph");
+		}
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if(e.getStateChange() == ItemEvent.SELECTED) {
+			this.reloadFit();
+			
+			this.changeLabelInterpolation(e.getItem().toString() + " extrapolation");
+		}
+	}
+
+	@Override
+	public void chartMouseClicked(ChartMouseEvent event) {
+		// Does nothing
+	}
+
+	@Override
+	public void chartMouseMoved(ChartMouseEvent event) {
+		if (this.getValueSetter().getGrabbedSelector() != null) {
+			this.reloadFit();
+		}
 	}
 
 }
