@@ -14,11 +14,18 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ModelSecondMethodHepaticDynamic;
+import org.petctviewer.scintigraphy.renal.JValueSetter;
+import org.petctviewer.scintigraphy.renal.Selector;
+import org.petctviewer.scintigraphy.renal.YSelector;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+
+import ij.Prefs;
 
 /**
  * Tab showing the deconvolve of Right liver, using the Blood Pool values.
@@ -123,8 +130,8 @@ public class TabDeconvolv {
 		ChartPanel chartpanelRight = new ChartPanel(chart2);
 
 		JPanel grid = new JPanel(new GridLayout(2, 1));
-		grid.add(chartpanel);
-		grid.add(chartpanelRight);
+		grid.add(prepareValueSetter(chartpanel));
+		grid.add(prepareValueSetter(chartpanelRight));
 
 		grid.setPreferredSize(new Dimension(1000, 650));
 
@@ -187,4 +194,20 @@ public class TabDeconvolv {
 	public List<Double> normalizeToOne(Double[] values) {
 		return this.normalizeToOne(Arrays.asList(values));
 	}
+	
+	private JValueSetter prepareValueSetter(ChartPanel chart) {
+		XYPlot plot = chart.getChart().getXYPlot();
+		chart.getChart().getPlot().setBackgroundPaint(null);
+		JValueSetter jvs = new JValueSetter(chart.getChart());
+		
+		YSelector test = new YSelector("TestYSelector", 0.0d, 0,
+				RectangleAnchor.TOP_LEFT);
+		jvs.addSelector(test, "TestYSelector");
+		
+		jvs.revalidate();
+		jvs.repaint();
+		
+		return jvs;
+	}
+
 }

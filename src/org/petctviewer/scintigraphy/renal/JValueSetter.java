@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +17,7 @@ import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.Crosshair;
 import org.jfree.chart.plot.IntervalMarker;
 import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.XYPlot;
@@ -24,7 +27,7 @@ import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.xy.XYDataset;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
-public class JValueSetter extends ChartPanel implements ChartMouseListener {
+public class JValueSetter extends ChartPanel implements ChartMouseListener, MouseWheelListener {
 
 	/**
 	 * 
@@ -38,6 +41,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 	public JValueSetter(JFreeChart chart) {
 		super(chart);
 		this.addChartMouseListener(this);
+		this.addMouseWheelListener(this);
 
 		this.selectors = new ArrayList<>();
 		this.areas = new HashMap<Comparable, Area>();
@@ -68,8 +72,9 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 
 		// on recupere le selecteur clique
 		int xMouse = (int) event.getTrigger().getPoint().getX();
+		int yMouse = (int) event.getTrigger().getPoint().getY();
 		Rectangle2D plotArea = this.getScreenDataArea();
-		Selector v = this.getSelector(xMouse, plotArea);
+		Selector v = this.getSelector(xMouse, yMouse, plotArea);
 
 		// si il y a un selecteur sous la souris
 		if (v != null && this.current == null) {
@@ -92,8 +97,9 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 
 		// on recupere le selecteur sous la souris
 		int xMouse = (int) event.getTrigger().getPoint().getX();
+		int yMouse = (int) event.getTrigger().getPoint().getY();
 		Rectangle2D plotArea = this.getScreenDataArea();
-		Selector v = this.getSelector(xMouse, plotArea);
+		Selector v = this.getSelector(xMouse, yMouse, plotArea);
 
 		// si la souris est sur un selecteur ou qu'un selecteur est selectionne
 		if (v != null || this.current != null) {
@@ -119,7 +125,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 		return null;
 	}
 
-	private Selector getSelector(int xMouse, Rectangle2D plotArea) {
+	private Selector getSelector(int xMouse, int yMouse, Rectangle2D plotArea) {
 		// marge a gauche et a droite du selecteur permettant le clic
 		int marge = 5;
 		XYPlot plot = this.getChart().getXYPlot();
@@ -127,10 +133,20 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 		// pour chaque selecteur en respectant l'ordre de priorite
 		for (Selector v : this.selectors) {
 			// on converti l'abscisse du selecteur sur le tableau en abscisse sur la fenetre
-			int xJava2D = (int) plot.getDomainAxis().valueToJava2D(v.getXValue(), plotArea, plot.getDomainAxisEdge());
-			// si il y a un selecteur la ou on a clique, on le renvoie
-			if (xJava2D > xMouse - marge && xJava2D < xMouse + marge) {
-				return v;
+			int xJava2D;
+			if(v instanceof YSelector) {
+				xJava2D = (int) plot.getRangeAxis().valueToJava2D(v.getXValue(), plotArea, plot.getRangeAxisEdge());
+				// si il y a un selecteur la ou on a clique, on le renvoie
+				if (xJava2D > yMouse - marge && xJava2D < yMouse + marge) {
+					return v;
+				}
+			}
+			else {
+				xJava2D = (int) plot.getDomainAxis().valueToJava2D(v.getXValue(), plotArea, plot.getDomainAxisEdge());
+				// si il y a un selecteur la ou on a clique, on le renvoie
+				if (xJava2D > xMouse - marge && xJava2D < xMouse + marge) {
+					return v;
+				}
 			}
 		}
 		return null;
@@ -305,6 +321,35 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 			bst.setLabelFont(new Font("SansSerif", 0, 12));
 			bst.setLabelTextAnchor(TextAnchor.BASELINE_RIGHT);
 			plot.addDomainMarker(bst);
+		}
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		for(Selector selector : selectors) {
+			if(selector instanceof YSelector) {
+				YSelector ySelector = (YSelector) selector;
+				if (ySelector.getCrossXs().size() > 0) {
+					if(ySelector.getCurrentLabelVisible() == -1) {
+						for(Crosshair crossX :  ySelector.getCrossXs())
+							crossX.setLabelVisible(false);
+						if (e.getWheelRotation() < 0)
+							ySelector.setCurrentLabelVisible(0);
+						else
+							ySelector.setCurrentLabelVisible(((YSelector) ySelector).getCrossXs().size() - 1);
+					}else {
+						int currentLabel = ySelector.getCurrentLabelVisible();
+						if (e.getWheelRotation() < 0) {
+							ySelector.getCrossXs().get(currentLabel).setLabelVisible(false);
+							ySelector.setCurrentLabelVisible((currentLabel + 1) % ySelector.getCrossXs().size());
+						}else {
+							ySelector.getCrossXs().get(currentLabel).setLabelVisible(false);
+							ySelector.setCurrentLabelVisible((currentLabel == 0 ? ySelector.getCrossXs().size() - 1 : currentLabel - 1) % ySelector.getCrossXs().size());
+						}
+					}
+					ySelector.getCrossXs().get(ySelector.getCurrentLabelVisible()).setLabelVisible(true);
+				}
+			}
 		}
 	}
 }

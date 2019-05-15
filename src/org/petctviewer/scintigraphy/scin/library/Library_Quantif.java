@@ -290,12 +290,12 @@ public class Library_Quantif {
 	 */
 	public static List<Double> deconvolv(Double[] blood, Double[] liver, int init) {
 
-		System.out.println("\n\nConvolved Blood Pool");
-		System.out.println(Arrays.asList(blood));
-		System.out.println();
-		System.out.println("Convolved liver");
-		System.out.println(Arrays.asList(liver));
-		System.out.println("\n\n");
+//		System.out.println("\n\nConvolved Blood Pool");
+//		System.out.println(Arrays.asList(blood));
+//		System.out.println();
+//		System.out.println("Convolved liver");
+//		System.out.println(Arrays.asList(liver));
+//		System.out.println("\n\n");
 
 		List<Double> h = new ArrayList<Double>();
 

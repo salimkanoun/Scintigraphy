@@ -20,10 +20,14 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.renal.YSelector;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 /**
@@ -174,8 +178,8 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 
 			JPanel grid = new JPanel(new GridLayout(2, 1));
 
-			grid.add(chartpanelLeft);
-			grid.add(chartpanelRight);
+			grid.add(prepareValueSetter(chartpanelLeft));
+			grid.add(prepareValueSetter(chartpanelRight));
 
 			return grid;
 		} else if (modele.getKidneys()[0]) {
@@ -196,7 +200,7 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 
 			ChartPanel chartpanel = new ChartPanel(chart);
 
-			return chartpanel;
+			return prepareValueSetter(chartpanel);
 		} else {
 			List<Double> bp = modele.getData("Blood Pool");
 			List<Double> kidney = modele.getData("R. Kidney");
@@ -215,7 +219,7 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 
 			ChartPanel chartpanel = new ChartPanel(chart);
 
-			return chartpanel;
+			return prepareValueSetter(chartpanel);
 		}
 
 	}
@@ -267,6 +271,18 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 
 	public List<Double> normalizeToOne(Double[] values) {
 		return this.normalizeToOne(Arrays.asList(values));
+	}
+	
+	private JValueSetter prepareValueSetter(ChartPanel chart) {
+		XYPlot plot = chart.getChart().getXYPlot();
+		chart.getChart().getPlot().setBackgroundPaint(null);
+		JValueSetter jvs = new JValueSetter(chart.getChart());
+		
+		YSelector test = new YSelector("TestYSelector", 0.0d, 0,
+				RectangleAnchor.TOP_LEFT);
+		jvs.addSelector(test, "TestYSelector");
+
+		return jvs;
 	}
 
 }
