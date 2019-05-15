@@ -239,9 +239,6 @@ public class Model_Gastric extends ModeleScin {
 		}
 
 		public void convert(Unit newUnit) {
-			Library_Debug.checkNull("this.value", this.value);
-			Library_Debug.checkNull("newUnit", newUnit);
-			Library_Debug.checkNull("this.unit", this.unit);
 			this.value = this.unit.convertTo(this.value, newUnit);
 			this.unit = newUnit;
 		}
@@ -333,6 +330,9 @@ public class Model_Gastric extends ModeleScin {
 			if (seconds < 10)
 				s.append(0);
 			s.append(seconds);
+			
+			if(this.isExtrapolated())
+				s.append("(*)");
 
 			return s.toString();
 		}
@@ -539,11 +539,7 @@ public class Model_Gastric extends ModeleScin {
 	 * Time when the ingestion started.
 	 */
 	private Date timeIngestion;
-
-	/**
-	 * Extrapolation used to fit the values.
-	 */
-	private Fit extrapolation;
+	
 	private Isotope isotope;
 
 	/**
@@ -1144,17 +1140,6 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * @return series for the selected fit of the graph
-	 */
-	public XYSeries getFittedSeries() {
-		double[] y = this.extrapolation.generateOrdinates(times);
-		XYSeries fittedSeries = new XYSeries(this.extrapolation.toString());
-		for (int i = 0; i < times.length; i++)
-			fittedSeries.add(times[i], y[i]);
-		return fittedSeries;
-	}
-
-	/**
 	 * This method returns the number of data this model possesses. If a fictional
 	 * time 0 has been activated, then it will be counted as an acquisition.
 	 * 
@@ -1607,13 +1592,13 @@ public class Model_Gastric extends ModeleScin {
 			return new ResultValue(result, valX, Unit.TIME, extrapolationType);
 		case T_HALF:
 			extrapolationType = null;
-			Double valY = this.getY(50.);
-			if (valY == null) {
+			valX = this.getX(50.);
+			if (valX == null) {
 				// Extrapolate
-				valY = this.extrapolateY(50., this.extrapolation);
+				valX = this.extrapolateX(50., this.extrapolation);
 				extrapolationType = this.extrapolation.getType();
 			}
-			return new ResultValue(result, valY, Unit.TIME, extrapolationType);
+			return new ResultValue(result, valX, Unit.TIME, extrapolationType);
 		default:
 			throw new UnsupportedOperationException("The result " + result + " is not available here!");
 		}
@@ -1629,9 +1614,9 @@ public class Model_Gastric extends ModeleScin {
 	public ResultValue retentionAt(double time) {
 		Double res = this.getY(time);
 		if (res == null)
-			return new ResultValue(Result.RETENTION, this.extrapolateY(time, this.extrapolation), Unit.TIME,
+			return new ResultValue(Result.RETENTION, this.extrapolateY(time, this.extrapolation), Unit.PERCENTAGE,
 					this.extrapolation.getType());
-		return new ResultValue(Result.RETENTION, res, null);
+		return new ResultValue(Result.RETENTION, res, Unit.PERCENTAGE);
 	}
 
 	/**

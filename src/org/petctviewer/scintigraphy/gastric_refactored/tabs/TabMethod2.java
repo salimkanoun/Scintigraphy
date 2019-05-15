@@ -83,6 +83,7 @@ public class TabMethod2 extends TabResult {
 	private JTable tablesResultats() {
 		Result[] results = new Result[] { Result.RES_TIME, Result.RES_STOMACH_COUNTS };
 		Unit[] unitsUsed = new Unit[] { Unit.TIME, Unit.KCOUNTS };
+		
 		Model_Gastric model = (Model_Gastric) this.parent.getModel();
 
 		// Create table

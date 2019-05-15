@@ -31,6 +31,7 @@ import org.petctviewer.scintigraphy.gastric_refactored.ControllerWorkflow_Gastri
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric.Result;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric.ResultValue;
+import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric.Unit;
 import org.petctviewer.scintigraphy.gastric_refactored.dynamic.DynGastricScintigraphy;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.NoFit;
@@ -84,21 +85,39 @@ public class TabMainResult extends TabResult {
 	}
 
 	private JTable tablesResultats() {
+		Result[] results = new Result[] { Result.RES_TIME, Result.RES_STOMACH, Result.RES_FUNDUS, Result.RES_ANTRUM };
+		Unit[] unitsUsed = new Unit[] { Unit.TIME, Unit.PERCENTAGE, Unit.PERCENTAGE, Unit.PERCENTAGE };
+
 		Model_Gastric model = (Model_Gastric) this.parent.getModel();
-		JTable table = new JTable(0, 4);
+
+		// Create table
+		JTable table = new JTable(0, results.length);
 		DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
 		String[] arr = new String[tableModel.getColumnCount()];
-		tableModel.addRow(new String[] { "Time (min)", "Stomach (%)", "Fundus (%)", "Antrum (%)" });
+
+		// Change column titles
+		for (int i = 0; i < tableModel.getColumnCount(); i++)
+			table.getColumnModel().getColumn(i).setHeaderValue(results[i].getName() + " (" + unitsUsed[i] + ")");
+
+		// Fill table with data
 		for (int i = 0; i < ((Model_Gastric) this.parent.getModel()).nbAcquisitions(); i++) {
 			for (int j = 0; j < tableModel.getColumnCount(); j++) {
-				ResultValue res = model.getImageResult(Result.imageResults()[j], i);
-				arr[j] = res.value();
+				ResultValue res = model.getImageResult(results[j], i);
+				if (res == null)
+					arr[j] = "--";
+				else {
+					res.convert(unitsUsed[j]);
+					arr[j] = res.value();
+				}
 			}
 			tableModel.addRow(arr);
 		}
+
+		// Customize tabke
 		table.setRowHeight(30);
 		MatteBorder border = new MatteBorder(1, 1, 1, 1, Color.BLACK);
 		table.setBorder(border);
+
 		return table;
 	}
 

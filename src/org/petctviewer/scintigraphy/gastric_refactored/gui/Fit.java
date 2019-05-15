@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.gastric_refactored.gui;
 
 import org.jfree.data.statistics.Regression;
+import org.jfree.data.xy.XYSeries;
 
 /**
  * This class represents a fit for a certain dataset. The fit can be used to
@@ -78,6 +79,17 @@ public abstract class Fit {
 		for (int i = 0; i < valuesX.length; i++)
 			ordinates[i] = this.extrapolateY(valuesX[i]);
 		return ordinates;
+	}
+
+	/**
+	 * @return series for the selected fit of the graph
+	 */
+	public XYSeries getFittedSeries(double[] xValues) {
+		double[] y = this.generateOrdinates(xValues);
+		XYSeries fittedSeries = new XYSeries(this.toString());
+		for (int i = 0; i < xValues.length; i++)
+			fittedSeries.add(xValues[i], y[i]);
+		return fittedSeries;
 	}
 
 	/**
