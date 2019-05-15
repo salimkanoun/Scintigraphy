@@ -10,8 +10,6 @@ import org.jfree.chart.ChartMouseListener;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
-import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
-import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabChart;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabDefaultMethod;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
@@ -39,7 +37,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 
 	private FenResults fenResults;
-	private TabChart tabChart;
 	private TabMainResult tabMain;
 	private TabDefaultMethod tabDefaultMethod;
 
@@ -60,7 +57,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 	protected void start() {
 		// Find isotope
 		String isotopeCode = Library_Dicom.findIsotopeCode(getModel().getImagePlus());
-		if(isotopeCode == null) {
+		if (isotopeCode == null) {
 			// No code
 			System.out.println("No code found in the image");
 			// Ask user for code
@@ -68,7 +65,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 			isotopeDialog.setVisible(true);
 		}
 		Isotope isotope = Isotope.getIsotopeFromCode(isotopeCode);
-		if(isotope == null) {
+		if (isotope == null) {
 			// Code unknown
 			System.out.println("Code found in the image unknown");
 			// Ask user for isotope
@@ -78,7 +75,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 		}
 		getModel().setIsotope(isotope);
 		System.out.println("Isotope found: " + isotope);
-		
+
 		super.start();
 	}
 
@@ -144,16 +141,13 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 		this.computeModel();
 
 		// Display results
-		this.tabChart = new TabChart(this.fenResults);
-		
 		this.tabMain = new TabMainResult(this.fenResults, this.captures.get(0), this);
 		this.tabMain.displayTimeIngestion(getModel().getTimeIngestion());
-		
+
 		this.tabDefaultMethod = new TabDefaultMethod(this.fenResults);
 
 		this.fenResults.clearTabs();
 		this.fenResults.setMainTab(this.tabMain);
-		this.fenResults.addTab(this.tabChart);
 		this.fenResults.addTab(tabDefaultMethod);
 		this.fenResults.pack();
 		this.fenResults.setSize(this.fenResults.getSize().width, 1024);
@@ -202,43 +196,34 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 	@Override
 	public void chartMouseClicked(ChartMouseEvent event) {
 		// Does nothing
-		this.tabMain.reloadSidePanelContent();
+	}
+
+	private void reloadFit() {
+		// Reload fit
+		XYSeries series = ((XYSeriesCollection) this.tabMain.getValueSetter().retrieveValuesInSpan()).getSeries(0);
+		try {
+			this.getModel().setExtrapolation(
+					Fit.createFit(this.tabMain.getSelectedFit(), Library_JFreeChart.invertArray(series.toArray())));
+			this.tabMain.drawFit(this.getModel().getFittedSeries());
+			this.tabMain.setErrorMessage(null);
+			this.tabMain.reloadSidePanelContent();
+		} catch (IllegalArgumentException e) {
+			System.err.println("Not enough data");
+			this.tabMain.setErrorMessage("Not enough data to fit the graph");
+		}
 	}
 
 	@Override
 	public void chartMouseMoved(ChartMouseEvent event) {
-		// Reload fit
-		if (this.tabChart.getValueSetter().getGrabbedSelector() != null) {
-			XYSeries series = ((XYSeriesCollection) this.tabChart.getValueSetter().retrieveValuesInSpan()).getSeries(0);
-			try {
-				this.getModel().setExtrapolation(Fit.createFit(this.tabChart.getSelectedFit(),
-						Library_JFreeChart.invertArray(series.toArray())));
-				this.tabChart.drawFit(this.getModel().getFittedSeries());
-				this.tabChart.setErrorMessage(null);
-			} catch (IllegalArgumentException e) {
-				System.err.println("Not enough data");
-				this.tabChart.setErrorMessage("Not enough data to fit the graph");
-			}
+		if (this.tabMain.getValueSetter().getGrabbedSelector() != null) {
+			this.reloadFit();
 		}
 	}
 
 	@Override
 	public void itemStateChanged(ItemEvent event) {
-		FitType selectedFit = (FitType) event.getItem();
-
-		// By default, use linear fit
-		XYSeries series = ((XYSeriesCollection) this.tabChart.getValueSetter().retrieveValuesInSpan()).getSeries(0);
-		try {
-			this.getModel()
-					.setExtrapolation(Fit.createFit(selectedFit, Library_JFreeChart.invertArray(series.toArray())));
-			this.tabChart.drawFit(this.getModel().getFittedSeries());
-			this.tabChart.changeLabelInterpolation(selectedFit.toString());
-			this.tabMain.reloadSidePanelContent();
-			this.tabChart.setErrorMessage(null);
-		} catch (IllegalArgumentException e) {
-			// Error messages
-			System.err.println("Not enough data");
-			this.tabChart.setErrorMessage("Not enough data to fit the graph");
+		if (event.getStateChange() == ItemEvent.SELECTED) {
+			this.reloadFit();
 		}
 	}
 

@@ -57,7 +57,6 @@ import ij.ImageStack;
 import ij.Prefs;
 import ij.gui.Roi;
 import ij.plugin.MontageMaker;
-import loci.plugins.util.LibraryChecker.Library;
 
 /**
  * Model of the Gastric Scintigraphy.
