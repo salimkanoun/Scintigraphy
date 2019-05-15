@@ -4,13 +4,15 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 
 public abstract class TabResult {
 
 	private String title;
 	protected FenResults parent;
-
+	
 	private JPanel panel;
+	private JSplitPane split;
 
 	private SidePanel sidePanel;
 	private JPanel result;
@@ -52,8 +54,11 @@ public abstract class TabResult {
 		this.sidePanel = new SidePanel(null, parent.getModel().getStudyName(), parent.getModel().getImagePlus());
 
 		this.panel = new JPanel(new BorderLayout());
-		this.panel.add(this.sidePanel, BorderLayout.EAST);
-		this.panel.add(this.result, BorderLayout.CENTER);
+		
+		split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.result, this.sidePanel);
+		this.panel.add(split, BorderLayout.CENTER);
+//		this.panel.add(this.sidePanel, BorderLayout.EAST);
+//		this.panel.add(this.result, BorderLayout.CENTER);
 	}
 
 	/**
@@ -167,7 +172,8 @@ public abstract class TabResult {
 		if (this.result != null)
 			this.panel.remove(this.result);
 		this.result = this.getResultContent() == null ? new JPanel() : this.getResultContent();
-		this.panel.add(this.result, BorderLayout.CENTER);
+		this.split.remove(0);
+		this.split.add(this.result, null, 0);
 		this.parent.repaint();
 		this.parent.revalidate();
 		this.parent.pack();
