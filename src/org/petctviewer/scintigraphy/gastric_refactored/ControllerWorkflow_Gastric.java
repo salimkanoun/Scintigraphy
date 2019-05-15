@@ -10,8 +10,8 @@ import org.jfree.chart.ChartMouseListener;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
-import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabDefaultMethod;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
+import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMethod2;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -38,7 +38,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 
 	private FenResults fenResults;
 	private TabMainResult tabMain;
-	private TabDefaultMethod tabDefaultMethod;
+	private TabMethod2 tabDefaultMethod;
 
 	private List<ImagePlus> captures;
 
@@ -144,7 +144,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 		this.tabMain = new TabMainResult(this.fenResults, this.captures.get(0), this);
 		this.tabMain.displayTimeIngestion(getModel().getTimeIngestion());
 
-		this.tabDefaultMethod = new TabDefaultMethod(this.fenResults);
+		this.tabDefaultMethod = new TabMethod2(this.fenResults, this.captures.get(0), this);
 
 		this.fenResults.clearTabs();
 		this.fenResults.setMainTab(this.tabMain);
@@ -224,6 +224,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow implements Ch
 	public void itemStateChanged(ItemEvent event) {
 		if (event.getStateChange() == ItemEvent.SELECTED) {
 			this.reloadFit();
+			this.tabMain.changeLabelInterpolation(event.getItem().toString() + " extrapolation");
 		}
 	}
 

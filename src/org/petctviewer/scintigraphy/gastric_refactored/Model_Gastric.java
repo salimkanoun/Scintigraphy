@@ -68,6 +68,104 @@ import ij.plugin.MontageMaker;
 public class Model_Gastric extends ModeleScin {
 	public static Font italic = new Font("Arial", Font.ITALIC, 8);
 
+	public enum Unit {
+		PERCENTAGE("%"),
+		TIME("h:m:s"),
+		COUNTS("counts"),
+		COUNTS_PER_SECOND("counts/sec"),
+		COUNTS_PER_MINUTE("counts/min"),
+		KCOUNTS("kcounts"),
+		KCOUNTS_PER_SECOND("kcounts/sec"),
+		KCOUNTS_PER_MINUTE("kcounts/min");
+
+		private String s;
+
+		private Unit(String s) {
+			this.s = s;
+		}
+
+		public double convertTo(double value, Unit unit) {
+			if (this == unit)
+				return value;
+
+			switch (this) {
+			case COUNTS:
+				if (unit == KCOUNTS)
+					return value / 1000.;
+				else if (unit == COUNTS)
+					return value;
+				else
+					throw new UnsupportedOperationException("This unit cannot be converted to " + unit);
+			case KCOUNTS:
+				if (unit == KCOUNTS)
+					return value;
+				else if (unit == COUNTS)
+					return value * 1000.;
+				else
+					throw new UnsupportedOperationException("This unit cannot be converted to " + unit);
+			case COUNTS_PER_MINUTE:
+				switch (unit) {
+				case COUNTS_PER_MINUTE:
+					return value;
+				case COUNTS_PER_SECOND:
+					return value / 60.;
+				case KCOUNTS_PER_MINUTE:
+					return value / 1000.;
+				case KCOUNTS_PER_SECOND:
+					return value / 1000. / 60.;
+				default:
+					throw new UnsupportedOperationException("This unit cannot be converted to " + unit);
+				}
+			case COUNTS_PER_SECOND:
+				switch (unit) {
+				case COUNTS_PER_MINUTE:
+					return value * 60.;
+				case COUNTS_PER_SECOND:
+					return value;
+				case KCOUNTS_PER_MINUTE:
+					return value / 1000. * 60.;
+				case KCOUNTS_PER_SECOND:
+					return value / 1000.;
+				default:
+					throw new UnsupportedOperationException("This unit cannot be converted to " + unit);
+				}
+			case KCOUNTS_PER_MINUTE:
+				switch (unit) {
+				case COUNTS_PER_MINUTE:
+					return value * 1000.;
+				case COUNTS_PER_SECOND:
+					return value * 1000. * 60.;
+				case KCOUNTS_PER_MINUTE:
+					return value;
+				case KCOUNTS_PER_SECOND:
+					return value * 60.;
+				default:
+					throw new UnsupportedOperationException("This unit cannot be converted to " + unit);
+				}
+			case KCOUNTS_PER_SECOND:
+				switch (unit) {
+				case COUNTS_PER_MINUTE:
+					return value * 1000. / 60.;
+				case COUNTS_PER_SECOND:
+					return value * 1000.;
+				case KCOUNTS_PER_MINUTE:
+					return value / 60.;
+				case KCOUNTS_PER_SECOND:
+					return value;
+				default:
+					throw new UnsupportedOperationException("This unit cannot be converted to " + unit);
+				}
+			default:
+				throw new UnsupportedOperationException("This unit (" + this + ") cannot be converted");
+			}
+		}
+
+		@Override
+		public String toString() {
+			return this.s;
+		}
+	}
+
 	/**
 	 * Results available for the {@link Model_Gastric} model.
 	 * 
@@ -75,43 +173,21 @@ public class Model_Gastric extends ModeleScin {
 	 *
 	 */
 	public enum Result {
-		RES_TIME("Time", Unit.MINUTES),
-		RES_STOMACH("Stomach", Unit.PERCENTAGE),
-		RES_FUNDUS("Fundus", Unit.PERCENTAGE),
-		RES_ANTRUM("Antrum", Unit.PERCENTAGE),
-		START_ANTRUM("Start antrum", Unit.MINUTES),
-		START_INTESTINE("Start intestine", Unit.MINUTES),
-		LAG_PHASE("Lag phase", Unit.MINUTES),
-		T_HALF("T 1/2", Unit.PERCENTAGE),
-		RETENTION("Retention", Unit.PERCENTAGE);
-
-		public enum Unit {
-			PERCENTAGE("%"), MINUTES("h:m:s");
-			private String s;
-
-			private Unit(String s) {
-				this.s = s;
-			}
-
-			@Override
-			public String toString() {
-				return this.s;
-			}
-		}
+		RES_TIME("Time"),
+		RES_STOMACH("Stomach"),
+		RES_FUNDUS("Fundus"),
+		RES_ANTRUM("Antrum"),
+		RES_STOMACH_COUNTS("Stomach"),
+		START_ANTRUM("Start antrum"),
+		START_INTESTINE("Start intestine"),
+		LAG_PHASE("Lag phase"),
+		T_HALF("T 1/2"),
+		RETENTION("Retention");
 
 		private String s;
-		private Unit unit;
 
-		private Result(String s, Unit unit) {
+		private Result(String s) {
 			this.s = s;
-			this.unit = unit;
-		}
-
-		/**
-		 * @return unit of this result
-		 */
-		public Unit getUnit() {
-			return this.unit;
 		}
 
 		/**
@@ -142,14 +218,44 @@ public class Model_Gastric extends ModeleScin {
 	 *
 	 */
 	public class ResultValue {
-		public Result type;
-		public double value;
-		public FitType extrapolation;
+		private Result type;
+		private double value;
+		private Unit unit;
+		private FitType extrapolation;
 
-		public ResultValue(Result type, double value, FitType extrapolation) {
+		public ResultValue(Result type, double value, Unit unit, FitType extrapolation) {
+			if (type == null)
+				throw new IllegalArgumentException("Result type cannot be null");
+			if (unit == null)
+				throw new IllegalArgumentException("Unit cannot be null");
 			this.type = type;
 			this.value = value;
 			this.extrapolation = extrapolation;
+			this.unit = unit;
+		}
+
+		public ResultValue(Result type, double value, Unit unit) {
+			this(type, value, unit, null);
+		}
+
+		public void convert(Unit newUnit) {
+			Library_Debug.checkNull("this.value", this.value);
+			Library_Debug.checkNull("newUnit", newUnit);
+			Library_Debug.checkNull("this.unit", this.unit);
+			this.value = this.unit.convertTo(this.value, newUnit);
+			this.unit = newUnit;
+		}
+
+		public Unit getUnit() {
+			return this.unit;
+		}
+
+		public Result getResultType() {
+			return this.type;
+		}
+
+		public FitType getExtrapolation() {
+			return this.extrapolation;
 		}
 
 		/**
@@ -169,7 +275,7 @@ public class Model_Gastric extends ModeleScin {
 		 * @return formatted value for this result
 		 */
 		public String value() {
-			if (this.type.getUnit() == Result.Unit.MINUTES)
+			if (this.unit == Unit.TIME)
 				return this.displayAsTime();
 			return this.notNegative();
 		}
@@ -1434,33 +1540,33 @@ public class Model_Gastric extends ModeleScin {
 	 *                   RES_FUNDUS, RES_ANTRUM
 	 * @param indexImage Index of the image (in chronological order) to get the
 	 *                   result from
-	 * @return result found
+	 * @return result found or null if no data was found
 	 * @see Model_Gastric#getResult(Result)
 	 * @throws UnsupportedOperationException if the requested result is different
 	 *                                       than RES_TIME or RES_STOMACH or
 	 *                                       RES_FUNDU or RES_ANTRUM
-	 * @throws NoSuchElementException        if no data could not be retrieved from
-	 *                                       the specified indexImage
 	 */
-	public ResultValue getImageResult(Result result, int indexImage)
-			throws UnsupportedOperationException, NoSuchElementException {
+	public ResultValue getImageResult(Result result, int indexImage) throws UnsupportedOperationException {
 		Data data = this.generatesDataOrdered().get(indexImage);
-		if (data == null)
-			throw new NoSuchElementException("No data has been set for this image#" + indexImage);
 
 		switch (result) {
 		case RES_TIME:
 			return new ResultValue(result,
-					BigDecimal.valueOf(data.time).setScale(2, RoundingMode.HALF_UP).doubleValue(), null);
+					BigDecimal.valueOf(data.time).setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.TIME);
 		case RES_STOMACH:
 			return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
-					.setScale(2, RoundingMode.HALF_UP).doubleValue(), null);
+					.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
 		case RES_FUNDUS:
 			return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_FUNDUS, DATA_PERCENTAGE))
-					.setScale(2, RoundingMode.HALF_UP).doubleValue(), null);
+					.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
 		case RES_ANTRUM:
 			return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_ANTRE, DATA_PERCENTAGE))
-					.setScale(2, RoundingMode.HALF_UP).doubleValue(), null);
+					.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+		case RES_STOMACH_COUNTS:
+			if (data == time0)
+				return null;
+			return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE))
+					.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.COUNTS);
 		default:
 			throw new UnsupportedOperationException("The result " + result + " is not available here!");
 		}
@@ -1487,9 +1593,9 @@ public class Model_Gastric extends ModeleScin {
 		FitType extrapolationType = null;
 		switch (result) {
 		case START_ANTRUM:
-			return new ResultValue(result, this.getDebut(REGION_ANTRE), null);
+			return new ResultValue(result, this.getDebut(REGION_ANTRE), Unit.TIME);
 		case START_INTESTINE:
-			return new ResultValue(result, this.getDebut(REGION_INTESTINE), null);
+			return new ResultValue(result, this.getDebut(REGION_INTESTINE), Unit.TIME);
 		case LAG_PHASE:
 			extrapolationType = null;
 			Double valX = this.getX(95.);
@@ -1498,7 +1604,7 @@ public class Model_Gastric extends ModeleScin {
 				valX = this.extrapolateX(95., this.extrapolation);
 				extrapolationType = this.extrapolation.getType();
 			}
-			return new ResultValue(result, valX, extrapolationType);
+			return new ResultValue(result, valX, Unit.TIME, extrapolationType);
 		case T_HALF:
 			extrapolationType = null;
 			Double valY = this.getY(50.);
@@ -1507,7 +1613,7 @@ public class Model_Gastric extends ModeleScin {
 				valY = this.extrapolateY(50., this.extrapolation);
 				extrapolationType = this.extrapolation.getType();
 			}
-			return new ResultValue(result, valY, extrapolationType);
+			return new ResultValue(result, valY, Unit.TIME, extrapolationType);
 		default:
 			throw new UnsupportedOperationException("The result " + result + " is not available here!");
 		}
@@ -1523,7 +1629,7 @@ public class Model_Gastric extends ModeleScin {
 	public ResultValue retentionAt(double time) {
 		Double res = this.getY(time);
 		if (res == null)
-			return new ResultValue(Result.RETENTION, this.extrapolateY(time, this.extrapolation),
+			return new ResultValue(Result.RETENTION, this.extrapolateY(time, this.extrapolation), Unit.TIME,
 					this.extrapolation.getType());
 		return new ResultValue(Result.RETENTION, res, null);
 	}

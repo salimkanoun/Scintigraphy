@@ -59,7 +59,7 @@ public class TabMainResult extends TabResult {
 	private JLabel labelInterpolation, labelError;
 
 	public TabMainResult(FenResults parent, ImagePlus capture, ControllerWorkflow_Gastric controller) {
-		super(parent, "Result", true);
+		super(parent, "Result");
 
 		// Instantiate variables
 		fitsChoices = new JComboBox<>(FitType.values());
@@ -75,6 +75,10 @@ public class TabMainResult extends TabResult {
 		this.controller = controller;
 
 		this.createGraph();
+
+		Component[] hide = new Component[] { fitsChoices };
+		Component[] show = new Component[] { this.labelInterpolation };
+		this.createCaptureButton(hide, show, null);
 
 		this.reloadDisplay();
 	}
@@ -106,9 +110,9 @@ public class TabMainResult extends TabResult {
 	 * @return
 	 */
 	private void displayResult(JPanel infoRes, ResultValue result) {
-		infoRes.add(new JLabel(result.type.getName() + ":"));
-		JLabel lRes = new JLabel(result.value() + " " + result.type.getUnit());
-		if (result.extrapolation == FitType.NONE)
+		infoRes.add(new JLabel(result.getResultType().getName() + ":"));
+		JLabel lRes = new JLabel(result.value() + " " + result.getUnit());
+		if (result.getExtrapolation() == FitType.NONE)
 			lRes.setForeground(Color.RED);
 		infoRes.add(lRes);
 	}
@@ -124,13 +128,13 @@ public class TabMainResult extends TabResult {
 	 */
 	private void displayRetentionResult(JPanel infoRes, double time, ResultValue result)
 			throws IllegalArgumentException {
-		if (result.type != Result.RETENTION)
+		if (result.getResultType() != Result.RETENTION)
 			throw new IllegalArgumentException("Result type must be " + Result.RETENTION);
 
-		infoRes.add(new JLabel(result.type.getName() + " at " + (int) (time / 60) + "h:"));
+		infoRes.add(new JLabel(result.getResultType().getName() + " at " + (int) (time / 60) + "h:"));
 		// The value cannot be negative, so we restrain it with Math.max
-		JLabel lRes = new JLabel(result.value() + " " + result.type.getUnit());
-		if (result.extrapolation == FitType.NONE)
+		JLabel lRes = new JLabel(result.value() + " " + result.getUnit());
+		if (result.getExtrapolation() == FitType.NONE)
 			lRes.setForeground(Color.RED);
 		infoRes.add(lRes);
 	}
@@ -144,24 +148,24 @@ public class TabMainResult extends TabResult {
 		infoRes.setLayout(new GridLayout(0, 2));
 
 		ResultValue result = getModel().getResult(Result.START_ANTRUM);
-		hasExtrapolatedValue = result.extrapolation != null;
+		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
 		result = getModel().getResult(Result.START_INTESTINE);
-		hasExtrapolatedValue = result.extrapolation != null;
+		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
 		result = getModel().getResult(Result.LAG_PHASE);
-		hasExtrapolatedValue = result.extrapolation != null;
+		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
 		result = getModel().getResult(Result.T_HALF);
-		hasExtrapolatedValue = result.extrapolation != null;
+		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
 		for (double time = 60.; time <= 240.; time += 60.) {
 			result = getModel().retentionAt(time);
-			hasExtrapolatedValue = result.extrapolation != null;
+			hasExtrapolatedValue = result.getExtrapolation() != null;
 			this.displayRetentionResult(infoRes, time, result);
 		}
 
