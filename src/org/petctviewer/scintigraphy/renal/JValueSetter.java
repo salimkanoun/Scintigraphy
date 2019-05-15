@@ -68,8 +68,9 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 
 		// on recupere le selecteur clique
 		int xMouse = (int) event.getTrigger().getPoint().getX();
+		int yMouse = (int) event.getTrigger().getPoint().getY();
 		Rectangle2D plotArea = this.getScreenDataArea();
-		Selector v = this.getSelector(xMouse, plotArea);
+		Selector v = this.getSelector(xMouse, yMouse, plotArea);
 
 		// si il y a un selecteur sous la souris
 		if (v != null && this.current == null) {
@@ -92,8 +93,9 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 
 		// on recupere le selecteur sous la souris
 		int xMouse = (int) event.getTrigger().getPoint().getX();
+		int yMouse = (int) event.getTrigger().getPoint().getY();
 		Rectangle2D plotArea = this.getScreenDataArea();
-		Selector v = this.getSelector(xMouse, plotArea);
+		Selector v = this.getSelector(xMouse, yMouse, plotArea);
 
 		// si la souris est sur un selecteur ou qu'un selecteur est selectionne
 		if (v != null || this.current != null) {
@@ -119,7 +121,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 		return null;
 	}
 
-	private Selector getSelector(int xMouse, Rectangle2D plotArea) {
+	private Selector getSelector(int xMouse, int yMouse, Rectangle2D plotArea) {
 		// marge a gauche et a droite du selecteur permettant le clic
 		int marge = 5;
 		XYPlot plot = this.getChart().getXYPlot();
@@ -127,10 +129,20 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener {
 		// pour chaque selecteur en respectant l'ordre de priorite
 		for (Selector v : this.selectors) {
 			// on converti l'abscisse du selecteur sur le tableau en abscisse sur la fenetre
-			int xJava2D = (int) plot.getDomainAxis().valueToJava2D(v.getXValue(), plotArea, plot.getDomainAxisEdge());
-			// si il y a un selecteur la ou on a clique, on le renvoie
-			if (xJava2D > xMouse - marge && xJava2D < xMouse + marge) {
-				return v;
+			int xJava2D;
+			if(v instanceof YSelector) {
+				xJava2D = (int) plot.getRangeAxis().valueToJava2D(v.getXValue(), plotArea, plot.getRangeAxisEdge());
+				// si il y a un selecteur la ou on a clique, on le renvoie
+				if (xJava2D > yMouse - marge && xJava2D < yMouse + marge) {
+					return v;
+				}
+			}
+			else {
+				xJava2D = (int) plot.getDomainAxis().valueToJava2D(v.getXValue(), plotArea, plot.getDomainAxisEdge());
+				// si il y a un selecteur la ou on a clique, on le renvoie
+				if (xJava2D > xMouse - marge && xJava2D < xMouse + marge) {
+					return v;
+				}
 			}
 		}
 		return null;
