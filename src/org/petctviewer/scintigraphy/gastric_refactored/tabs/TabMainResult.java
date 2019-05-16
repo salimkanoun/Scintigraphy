@@ -125,7 +125,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 			tableModel.addRow(arr);
 		}
 
-		// Customize tabke
+		// Customize table
 		table.setRowHeight(30);
 		MatteBorder border = new MatteBorder(1, 1, 1, 1, Color.BLACK);
 		table.setBorder(border);
@@ -163,7 +163,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 			throw new IllegalArgumentException("Result type must be " + Model_Gastric.RETENTION);
 
 		infoRes.add(new JLabel(result.getResultType().getName() + " at " + (int) (time / 60) + "h:"));
-		// The value cannot be negative, so we restrain it with Math.max
+		
 		JLabel lRes = new JLabel(result.value() + " " + result.getUnit());
 		if (result.getExtrapolation() == FitType.NONE)
 			lRes.setForeground(Color.RED);
@@ -217,9 +217,19 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		return panel;
 	}
 
-	public void displayTimeIngestion(Date timeIngestion) {
-		this.timeIngestion = timeIngestion;
-		this.reloadSidePanelContent();
+	private void reloadFit() {
+		try {
+			// Create fit
+			XYSeries series = ((XYSeriesCollection) this.getValueSetter().retrieveValuesInSpan()).getSeries(0);
+			this.currentFit = Fit.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray()), UNIT);
+
+			this.drawFit();
+			this.setErrorMessage(null);
+			this.reloadSidePanelContent();
+		} catch (IllegalArgumentException error) {
+			System.err.println("Not enough data");
+			this.setErrorMessage("Not enough data to fit the graph");
+		}
 	}
 
 	private JPanel additionalResults() {
@@ -232,13 +242,12 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		return panel;
 	}
 
-	@Override
-	public Component getSidePanelContent() {
-		JPanel panel = new JPanel(new GridLayout(0, 1));
-		panel.add(this.additionalResults());
-		panel.add(new JScrollPane(tablesResultats()));
-		panel.add(this.infoResultats());
-		return panel;
+	/**
+	 * Removes all previous fits.
+	 */
+	private void clearFits() {
+		for (int i = 1; i < this.data.getSeriesCount(); i++)
+			this.data.removeSeries(i);
 	}
 
 	private JPanel createPanelResults() {
@@ -312,16 +321,13 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		valueSetter.addChartMouseListener(this);
 	}
 
-	/**
-	 * Removes all previous fits.
-	 */
-	private void clearFits() {
-		for (int i = 1; i < this.data.getSeriesCount(); i++)
-			this.data.removeSeries(i);
-	}
-
 	public JValueSetter getValueSetter() {
 		return this.valueSetter;
+	}
+
+	public void displayTimeIngestion(Date timeIngestion) {
+		this.timeIngestion = timeIngestion;
+		this.reloadSidePanelContent();
 	}
 
 	public FitType getSelectedFit() {
@@ -372,19 +378,13 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		return panel;
 	}
 
-	private void reloadFit() {
-		try {
-			// Create fit
-			XYSeries series = ((XYSeriesCollection) this.getValueSetter().retrieveValuesInSpan()).getSeries(0);
-			this.currentFit = Fit.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray()), UNIT);
-
-			this.drawFit();
-			this.setErrorMessage(null);
-			this.reloadSidePanelContent();
-		} catch (IllegalArgumentException error) {
-			System.err.println("Not enough data");
-			this.setErrorMessage("Not enough data to fit the graph");
-		}
+	@Override
+	public Component getSidePanelContent() {
+		JPanel panel = new JPanel(new GridLayout(0, 1));
+		panel.add(this.additionalResults());
+		panel.add(new JScrollPane(tablesResultats()));
+		panel.add(this.infoResultats());
+		return panel;
 	}
 
 	@Override

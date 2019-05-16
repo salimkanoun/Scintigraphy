@@ -313,6 +313,10 @@ public class Library_JFreeChart {
 	 * @return generated dataset with 1 series
 	 */
 	private static XYSeriesCollection createDatasetUn(double[] resX, double[] resY, String titre) {
+		if (resX.length != resY.length)
+			throw new IllegalArgumentException(
+					"The two arrays must have the same length (" + resX.length + " != " + resY.length + ")");
+
 		XYSeries courbe = new XYSeries(titre);
 		for (int i = 0; i < resX.length; i++)
 			courbe.add(resX[i], Math.max(0, resY[i]));
@@ -386,19 +390,19 @@ public class Library_JFreeChart {
 
 		return result;
 	}
-	
+
 	public static <T extends Comparable> T maxValue(T[] array) {
 		T max = array[0];
-		for(T val : array)
-			if(val.compareTo(max) > 0)
+		for (T val : array)
+			if (val.compareTo(max) > 0)
 				max = val;
 		return max;
 	}
-	
+
 	public static double maxValue(double[] array) {
 		double max = array[0];
-		for(double val : array)
-			if(val > max)
+		for (double val : array)
+			if (val > max)
 				max = val;
 		return max;
 	}

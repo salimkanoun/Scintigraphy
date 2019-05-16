@@ -1338,25 +1338,28 @@ public class Model_Gastric extends ModeleScin {
 	public ResultValue getImageResult(Result result, int indexImage) throws UnsupportedOperationException {
 		Data data = this.generatesDataOrdered().get(indexImage);
 
-		if (result == RES_TIME)
-			return new ResultValue(result,
-					BigDecimal.valueOf(data.time).setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.TIME);
-		if (result == RES_STOMACH)
-			return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
-					.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
-		if (result == RES_FUNDUS)
-			return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_FUNDUS, DATA_PERCENTAGE))
-					.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
-		if (result == RES_ANTRUM)
-			return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_ANTRE, DATA_PERCENTAGE))
-					.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
-		if (result == RES_STOMACH_COUNTS) {
-			if (data == time0)
-				return null;
-			return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE))
-					.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.COUNTS);
-		} else
-			throw new UnsupportedOperationException("The result " + result + " is not available here!");
+		try {
+			if (result == RES_TIME)
+				return new ResultValue(result,
+						BigDecimal.valueOf(data.time).setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.TIME);
+			if (result == RES_STOMACH)
+				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
+						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+			if (result == RES_FUNDUS)
+				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_FUNDUS, DATA_PERCENTAGE))
+						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+			if (result == RES_ANTRUM)
+				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_ANTRE, DATA_PERCENTAGE))
+						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+			if (result == RES_STOMACH_COUNTS) {
+				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE))
+						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.COUNTS);
+			} else
+				throw new UnsupportedOperationException("The result " + result + " is not available here!");
+		} catch (NullPointerException e) {
+			// Exception = data not found
+			return null;
+		}
 	}
 
 	/**
@@ -1523,9 +1526,17 @@ public class Model_Gastric extends ModeleScin {
 
 		// TODO: convert to kcounts/min
 		result = Library_JFreeChart.convert(result, Unit.COUNTS, unit);
+		
+		System.out.println(" -- DATA -- ");
+		for(Data data : this.generatesDataOrdered())
+			System.out.println(data);
 
-		return Library_JFreeChart.createGraph(unit.abrev(), Color.GREEN, "Stomach retention",
-				ArrayUtils.remove(times, 0), result, Library_JFreeChart.maxValue(result) * 1.1);
+		double[] xValues = times;
+		if (this.time0 != null)
+			xValues = ArrayUtils.remove(times, 0);
+
+		return Library_JFreeChart.createGraph(unit.abrev(), Color.GREEN, "Stomach retention", xValues, result,
+				Library_JFreeChart.maxValue(result) * 1.1);
 	}
 
 	/**

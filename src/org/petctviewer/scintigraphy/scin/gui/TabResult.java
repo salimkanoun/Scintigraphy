@@ -53,12 +53,10 @@ public abstract class TabResult {
 
 		this.sidePanel = new SidePanel(null, parent.getModel().getStudyName(), parent.getModel().getImagePlus());
 
-		this.panel = new JPanel(new BorderLayout());
+		this.panel = new JPanel();
 		
 		split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.result, this.sidePanel);
 		this.panel.add(split, BorderLayout.CENTER);
-//		this.panel.add(this.sidePanel, BorderLayout.EAST);
-//		this.panel.add(this.result, BorderLayout.CENTER);
 	}
 
 	/**
@@ -169,14 +167,13 @@ public abstract class TabResult {
 	 * @see TabResult#reloadDisplay()
 	 */
 	public void reloadResultContent() {
-		if (this.result != null)
-			this.panel.remove(this.result);
-		this.result = this.getResultContent() == null ? new JPanel() : this.getResultContent();
-		this.split.remove(0);
-		this.split.add(this.result, null, 0);
-		this.parent.repaint();
-		this.parent.revalidate();
-		this.parent.pack();
+		this.result = this.getResultContent();
+		// Prevent from null
+		if(this.result == null)
+			this.result = new JPanel();
+		
+		// Remove previous result and add new one
+		this.split.setLeftComponent(this.result);
 	}
 
 	public void setSidePanelTitle(String sidePanelTitle) {
