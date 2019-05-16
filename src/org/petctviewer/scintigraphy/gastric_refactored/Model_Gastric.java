@@ -48,6 +48,7 @@ import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Debug;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 
@@ -74,16 +75,9 @@ public class Model_Gastric extends ModeleScin {
 	 *
 	 */
 	public enum Result {
-		RES_TIME("Time"),
-		RES_STOMACH("Stomach"),
-		RES_FUNDUS("Fundus"),
-		RES_ANTRUM("Antrum"),
-		RES_STOMACH_COUNTS("Stomach"),
-		START_ANTRUM("Start antrum"),
-		START_INTESTINE("Start intestine"),
-		LAG_PHASE("Lag phase"),
-		T_HALF("T 1/2"),
-		RETENTION("Retention");
+		RES_TIME("Time"), RES_STOMACH("Stomach"), RES_FUNDUS("Fundus"), RES_ANTRUM("Antrum"),
+		RES_STOMACH_COUNTS("Stomach"), START_ANTRUM("Start antrum"), START_INTESTINE("Start intestine"),
+		LAG_PHASE("Lag phase"), T_HALF("T 1/2"), RETENTION("Retention");
 
 		private String s;
 
@@ -530,70 +524,6 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * Generates a graphic image with the specified arguments.
-	 * 
-	 * @param yAxisLabel Label of the Y axis
-	 * @param color      Color of the line
-	 * @param titre      Title of the graph
-	 * @param resX       Values of the points for the X axis
-	 * @param resY       Values of the points for the Y axis
-	 * @param upperBound The upper axis limit
-	 * @return ImagePlus containing the graphic
-	 */
-	private static ImagePlus createGraph(String yAxisLabel, Color color, String titre, double[] resX, double[] resY,
-			double upperBound) {
-		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", yAxisLabel,
-				createDatasetUn(resX, resY, titre), PlotOrientation.VERTICAL, true, true, true);
-
-		XYPlot plot = (XYPlot) xylineChart.getPlot();
-		// Background
-		plot.setBackgroundPaint(Color.WHITE);
-
-		// XYLineAndShapeRenderer
-		// reference:
-		// https://stackoverflow.com/questions/28428991/setting-series-line-style-and-legend-size-in-jfreechart
-		XYLineAndShapeRenderer lineAndShapeRenderer = new XYLineAndShapeRenderer();
-		lineAndShapeRenderer.setSeriesPaint(0, color);
-		lineAndShapeRenderer.setSeriesStroke(0, new BasicStroke(2.0F));
-		plot.setRenderer(lineAndShapeRenderer);
-		lineAndShapeRenderer.setDefaultLegendTextFont(new Font("", Font.BOLD, 16));
-		// XAxis
-		NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
-		domainAxis.setRange(0.00, 360.00);
-		domainAxis.setTickUnit(new NumberTickUnit(30.00));
-		domainAxis.setTickMarkStroke(new BasicStroke(2.5F));
-		domainAxis.setLabelFont(new Font("", Font.BOLD, 16));
-		domainAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
-		// YAxis
-		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-		rangeAxis.setRange(0.00, upperBound);
-		rangeAxis.setTickUnit(new NumberTickUnit(10.00));
-		rangeAxis.setTickMarkStroke(new BasicStroke(2.5F));
-		rangeAxis.setLabelFont(new Font("", Font.BOLD, 16));
-		rangeAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
-		// Grid
-		plot.setDomainGridlinesVisible(false);
-		BufferedImage buff = xylineChart.createBufferedImage(640, 512);
-		ImagePlus courbe = new ImagePlus("", buff);
-		return courbe;
-	}
-
-	/**
-	 * Generates a dataset of 1 series with the specified arguments.
-	 * 
-	 * @param resX  Values of the points for the X axis
-	 * @param resY  Values of the points for the Y axis
-	 * @param titre Title of the series
-	 * @return generated dataset with 1 series
-	 */
-	private static XYSeriesCollection createDatasetUn(double[] resX, double[] resY, String titre) {
-		XYSeries courbe = new XYSeries(titre);
-		for (int i = 0; i < resX.length; i++)
-			courbe.add(resX[i], Math.max(0, resY[i]));
-		return new XYSeriesCollection(courbe);
-	}
-
-	/**
 	 * Generates a dataset of 3 series with the specified arguments.
 	 * 
 	 * @param resX   Values of the points for the X axis for all series
@@ -659,13 +589,13 @@ public class Model_Gastric extends ModeleScin {
 	private Double getX(double[] yValues, double valueY) {
 		for (int i = 1; i < times.length; i++) {
 			// Prevent from overflow
-			if(i >= yValues.length)
+			if (i >= yValues.length)
 				return null;
-			
+
 			// Exact value
 			if (yValues[i] == valueY)
 				return times[i];
-			
+
 			// Approximate value
 			if (yValues[i] < valueY) {
 				double x1 = times[i - 1];
@@ -676,7 +606,7 @@ public class Model_Gastric extends ModeleScin {
 				return ((valueY - y1) * (x2 - x1)) / (y2 - y1) + x1;
 			}
 		}
-		
+
 		// Not found
 		return null;
 	}
@@ -705,13 +635,13 @@ public class Model_Gastric extends ModeleScin {
 	private Double getY(double[] yValues, double valueX) {
 		for (int i = 0; i < times.length; i++) {
 			// Prevent from overflow
-			if(i >= yValues.length)
+			if (i >= yValues.length)
 				return null;
-			
+
 			// Exact value
 			if (times[i] == valueX)
 				return yValues[i];
-			
+
 			// Approximate value
 			if (times[i] > valueX) {
 				double x1 = times[i - 1];
@@ -722,7 +652,7 @@ public class Model_Gastric extends ModeleScin {
 				return y2 - (x2 - valueX) * ((y2 - y1) / (x2 - x1));
 			}
 		}
-		
+
 		// Not found
 		return null;
 	}
@@ -1547,8 +1477,8 @@ public class Model_Gastric extends ModeleScin {
 	 * @return Intragastric distribution graph as an image
 	 */
 	public ImagePlus createGraph_1() {
-		return createGraph("Fundus/Stomach (%)", new Color(0, 100, 0), "Intragastric Distribution", times,
-				this.getResultAsArray(REGION_FUNDUS, DATA_CORRELATION), 100.0);
+		return Library_JFreeChart.createGraph("Fundus/Stomach (%)", new Color(0, 100, 0), "Intragastric Distribution",
+				times, this.getResultAsArray(REGION_FUNDUS, DATA_CORRELATION), 100.0);
 	}
 
 	/**
@@ -1561,7 +1491,8 @@ public class Model_Gastric extends ModeleScin {
 //		System.out.println("Result for Gastrointestinal flow:");
 //		System.out.println(Arrays.toString(timesDerivative));
 //		System.out.println(Arrays.toString(result));
-		return createGraph("% meal in the interval", Color.RED, "Gastrointestinal flow", timesDerivative, result, 50.0);
+		return Library_JFreeChart.createGraph("% meal in the interval", Color.RED, "Gastrointestinal flow",
+				timesDerivative, result, 50.0);
 	}
 
 	/**
