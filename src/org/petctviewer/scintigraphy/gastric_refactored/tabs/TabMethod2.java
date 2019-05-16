@@ -172,20 +172,23 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 
 		JPanel infoRes = new JPanel();
 		infoRes.setLayout(new GridLayout(0, 2));
+		
+		// Data
+		double[] data = getModel().getDecayValues();
 
-		ResultValue result = getModel().getResult(Result.START_ANTRUM, this.currentFit);
+		ResultValue result = getModel().getResult(data, Result.START_ANTRUM, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
-		result = getModel().getResult(Result.START_INTESTINE, this.currentFit);
+		result = getModel().getResult(data, Result.START_INTESTINE, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
-		result = getModel().getResult(Result.LAG_PHASE, this.currentFit);
+		result = getModel().getResult(data, Result.LAG_PHASE, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
-		result = getModel().getResult(Result.T_HALF, this.currentFit);
+		result = getModel().getResult(data, Result.T_HALF, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 

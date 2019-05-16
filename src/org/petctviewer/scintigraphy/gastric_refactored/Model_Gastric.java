@@ -647,7 +647,6 @@ public class Model_Gastric extends ModeleScin {
 		throw new NoSuchElementException("No data found, please first use the calculateCounts method before!");
 	}
 
-	// TODO: the formula seems wrong!
 	/**
 	 * Gets the X value based upon the specified Y value of the graph.<br>
 	 * The value X returned is calculated with a linear interpolation as the point
@@ -659,16 +658,26 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	private Double getX(double[] yValues, double valueY) {
 		for (int i = 1; i < times.length; i++) {
+			// Prevent from overflow
+			if(i >= yValues.length)
+				return null;
+			
+			// Exact value
 			if (yValues[i] == valueY)
 				return times[i];
-			else if (yValues[i] < valueY) {
+			
+			// Approximate value
+			if (yValues[i] < valueY) {
 				double x1 = times[i - 1];
 				double x2 = times[i];
 				double y1 = yValues[i - 1];
 				double y2 = yValues[i];
-				return x2 - (y2 - valueY) * ((x2 - x1) / (y2 - y1));
+//				return x2 - (y2 - valueY) * ((x2 - x1) / (y2 - y1));
+				return ((valueY - y1) * (x2 - x1)) / (y2 - y1) + x1;
 			}
 		}
+		
+		// Not found
 		return null;
 	}
 
@@ -684,7 +693,6 @@ public class Model_Gastric extends ModeleScin {
 		return fit.extrapolateX(valueY);
 	}
 
-	//TODO: the formula seems wrong
 	/**
 	 * Gets the Y value based upon the specified X value of the graph.<br>
 	 * The value Y returned is calculated with a linear interpolation as the point
@@ -696,9 +704,16 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	private Double getY(double[] yValues, double valueX) {
 		for (int i = 0; i < times.length; i++) {
+			// Prevent from overflow
+			if(i >= yValues.length)
+				return null;
+			
+			// Exact value
 			if (times[i] == valueX)
 				return yValues[i];
-			else if (times[i] > valueX) {
+			
+			// Approximate value
+			if (times[i] > valueX) {
 				double x1 = times[i - 1];
 				double x2 = times[i];
 				double y1 = yValues[i - 1];
@@ -707,6 +722,8 @@ public class Model_Gastric extends ModeleScin {
 				return y2 - (x2 - valueX) * ((y2 - y1) / (x2 - x1));
 			}
 		}
+		
+		// Not found
 		return null;
 	}
 
@@ -1473,7 +1490,7 @@ public class Model_Gastric extends ModeleScin {
 	 *                                       than START_ANTRUM or START_INTESTINE or
 	 *                                       LAG_PHASE or T_HALF
 	 */
-	public ResultValue getResult(Result result, Fit fit) throws UnsupportedOperationException {
+	public ResultValue getResult(double[] yValues, Result result, Fit fit) throws UnsupportedOperationException {
 		FitType extrapolationType = null;
 		switch (result) {
 		case START_ANTRUM:
@@ -1482,7 +1499,7 @@ public class Model_Gastric extends ModeleScin {
 			return new ResultValue(result, this.getDebut(REGION_INTESTINE), Unit.TIME);
 		case LAG_PHASE:
 			extrapolationType = null;
-			Double valX = this.getX(95.);
+			Double valX = this.getX(yValues, 95.);
 			if (valX == null) {
 				// Extrapolate
 				valX = this.extrapolateX(95., fit);
@@ -1491,7 +1508,7 @@ public class Model_Gastric extends ModeleScin {
 			return new ResultValue(result, valX, Unit.TIME, extrapolationType);
 		case T_HALF:
 			extrapolationType = null;
-			valX = this.getX(50.);
+			valX = this.getX(yValues, 50.);
 			if (valX == null) {
 				// Extrapolate
 				valX = this.extrapolateX(50., fit);
