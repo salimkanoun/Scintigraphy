@@ -15,7 +15,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.border.MatteBorder;
@@ -382,7 +381,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	public Component getSidePanelContent() {
 		JPanel panel = new JPanel(new GridLayout(0, 1));
 		panel.add(this.additionalResults());
-		panel.add(new JScrollPane(tablesResultats()));
+		panel.add(tablesResultats());
 		panel.add(this.infoResultats());
 		return panel;
 	}

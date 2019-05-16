@@ -1,9 +1,10 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
 public abstract class TabResult {
@@ -11,7 +12,6 @@ public abstract class TabResult {
 	private String title;
 	protected FenResults parent;
 	
-	private JPanel panel;
 	private JSplitPane split;
 
 	private SidePanel sidePanel;
@@ -52,11 +52,8 @@ public abstract class TabResult {
 		this.result = new JPanel();
 
 		this.sidePanel = new SidePanel(null, parent.getModel().getStudyName(), parent.getModel().getImagePlus());
-
-		this.panel = new JPanel();
 		
 		split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.result, this.sidePanel);
-		this.panel.add(split, BorderLayout.CENTER);
 	}
 
 	/**
@@ -133,8 +130,8 @@ public abstract class TabResult {
 	 * 
 	 * @return Panel containing the result panel and the side panel
 	 */
-	public JPanel getPanel() {
-		return this.panel;
+	public Container getPanel() {
+		return this.split;
 	}
 
 	/**
@@ -158,7 +155,7 @@ public abstract class TabResult {
 	public void reloadSidePanelContent() {
 		Component sidePanelContent = this.getSidePanelContent();
 		Component content = sidePanelContent == null ? new JPanel() : sidePanelContent;
-		this.sidePanel.setSidePanelContent(content);
+		this.sidePanel.setSidePanelContent(new JScrollPane(content));
 	}
 
 	/**
