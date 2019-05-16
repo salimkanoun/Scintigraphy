@@ -32,8 +32,8 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric_refactored.ControllerWorkflow_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
-import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric.ResultValue;
 import org.petctviewer.scintigraphy.gastric_refactored.Result;
+import org.petctviewer.scintigraphy.gastric_refactored.ResultValue;
 import org.petctviewer.scintigraphy.gastric_refactored.Unit;
 import org.petctviewer.scintigraphy.gastric_refactored.dynamic.DynGastricScintigraphy;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
@@ -94,6 +94,11 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		this.reloadDisplay();
 	}
 
+	/**
+	 * Generates the table with all of the results to display for this scintigraphy.
+	 * 
+	 * @return table containing the results
+	 */
 	private JTable tablesResultats() {
 		Result[] results = new Result[] { Model_Gastric.RES_TIME, Model_Gastric.RES_STOMACH, Model_Gastric.RES_FUNDUS,
 				Model_Gastric.RES_ANTRUM };
@@ -133,11 +138,10 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	}
 
 	/**
-	 * Displays the result.
+	 * Utility method to print on the panel the specified result.
 	 * 
 	 * @param infoRes Panel on which to place the result in
 	 * @param result  Result of the model to display
-	 * @return
 	 */
 	private void displayResult(JPanel infoRes, ResultValue result) {
 		infoRes.add(new JLabel(result.getResultType().getName() + ":"));
@@ -147,14 +151,14 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		infoRes.add(lRes);
 	}
 
-	// TODO: maybe combine this method with displayResult()
 	/**
-	 * Displays the result for the retention at a certain time.
+	 * Utility method to print the result for the retention at a certain time.
 	 * 
 	 * @param infoRes Panel on which to place the result in
 	 * @param time    Time of the retention in minutes
 	 * @param result  Result of the model to display
-	 * @throws IllegalArgumentException if the result is not a RETENTION type
+	 * @throws IllegalArgumentException if the result is not a
+	 *                                  {@link Model_Gastric#RETENTION} type
 	 */
 	private void displayRetentionResult(JPanel infoRes, double time, ResultValue result)
 			throws IllegalArgumentException {
@@ -162,13 +166,19 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 			throw new IllegalArgumentException("Result type must be " + Model_Gastric.RETENTION);
 
 		infoRes.add(new JLabel(result.getResultType().getName() + " at " + (int) (time / 60) + "h:"));
-		
+
 		JLabel lRes = new JLabel(result.value() + " " + result.getUnit());
 		if (result.getExtrapolation() == FitType.NONE)
 			lRes.setForeground(Color.RED);
 		infoRes.add(lRes);
 	}
 
+	/**
+	 * Utility method that generates a panel containing all of the results needed
+	 * for that scintigraphy.
+	 * 
+	 * @return panel containing the results
+	 */
 	private JPanel infoResultats() {
 		JPanel panel = new JPanel(new BorderLayout());
 
@@ -216,6 +226,9 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		return panel;
 	}
 
+	/**
+	 * Detects the fit selected by the combo box and draw the fit on the tab.
+	 */
 	private void reloadFit() {
 		try {
 			// Create fit
@@ -231,6 +244,14 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		}
 	}
 
+	/**
+	 * Displays additional results on the tab:
+	 * <ul>
+	 * <li>time of ingestion</li>
+	 * </ul>
+	 * 
+	 * @return panel containing the additional results
+	 */
 	private JPanel additionalResults() {
 		JPanel panel = new JPanel();
 
@@ -249,6 +270,9 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 			this.data.removeSeries(i);
 	}
 
+	/**
+	 * Creates the panel with the images of the graphs
+	 */
 	private JPanel createPanelResults() {
 		ImageStack ims = Library_Capture_CSV.captureToStack(new ImagePlus[] { capture, getModel().createGraph_3(),
 				getModel().createGraph_1(), getModel().createGraph_2() });
@@ -276,6 +300,9 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		return (Model_Gastric) this.parent.getModel();
 	}
 
+	/**
+	 * Creates the panel with the graph fitted.
+	 */
 	private JPanel createPanelFit() {
 		JPanel panel = new JPanel(new BorderLayout());
 
@@ -292,6 +319,9 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		return panel;
 	}
 
+	/**
+	 * Generates the graph for the fit of this tab.
+	 */
 	public void createGraph() {
 		// Create chart
 		this.data = new XYSeriesCollection();
@@ -320,21 +350,38 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		valueSetter.addChartMouseListener(this);
 	}
 
+	/**
+	 * @return value setter containing the graph of this tab
+	 */
 	public JValueSetter getValueSetter() {
 		return this.valueSetter;
 	}
 
+	/**
+	 * Sets the time of ingestion to display. If set to null, then deletes the
+	 * previous time displayed.
+	 * 
+	 * @param timeIngestion Time of ingestion to display
+	 */
 	public void displayTimeIngestion(Date timeIngestion) {
 		this.timeIngestion = timeIngestion;
 		this.reloadSidePanelContent();
 	}
 
+	/**
+	 * Gets the fit selected by the user with the combo box.
+	 * 
+	 * @return type of the fit selected by the user
+	 */
 	public FitType getSelectedFit() {
 		return (FitType) this.fitsChoices.getSelectedItem();
 	}
 
 	/**
-	 * Displays the current fit and removes the previous fit if existing.
+	 * Displays the fit selected by the user and removes the previous fit if
+	 * existing.
+	 * 
+	 * @see #getSelectedFit()
 	 */
 	public void drawFit() {
 		this.clearFits();

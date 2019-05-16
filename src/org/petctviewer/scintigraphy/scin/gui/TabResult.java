@@ -11,7 +11,7 @@ public abstract class TabResult {
 
 	private String title;
 	protected FenResults parent;
-	
+
 	private JSplitPane split;
 
 	private SidePanel sidePanel;
@@ -52,7 +52,7 @@ public abstract class TabResult {
 		this.result = new JPanel();
 
 		this.sidePanel = new SidePanel(null, parent.getModel().getStudyName(), parent.getModel().getImagePlus());
-		
+
 		split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.result, this.sidePanel);
 	}
 
@@ -73,7 +73,7 @@ public abstract class TabResult {
 	public abstract JPanel getResultContent();
 
 	/**
-	 * Title of this tab. This title should be displayed on the JTabbedPane's title.
+	 * Title of this tab. This title should be displayed on the JTabbedPane title.
 	 * 
 	 * @return title of this tab
 	 */
@@ -166,13 +166,18 @@ public abstract class TabResult {
 	public void reloadResultContent() {
 		this.result = this.getResultContent();
 		// Prevent from null
-		if(this.result == null)
+		if (this.result == null)
 			this.result = new JPanel();
-		
+
 		// Remove previous result and add new one
 		this.split.setLeftComponent(this.result);
 	}
 
+	/**
+	 * Changes the title of the side panel.
+	 * 
+	 * @param sidePanelTitle New title to display
+	 */
 	public void setSidePanelTitle(String sidePanelTitle) {
 		this.sidePanel.setTitle(sidePanelTitle);
 	}
