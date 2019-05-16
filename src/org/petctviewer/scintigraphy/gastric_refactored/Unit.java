@@ -15,6 +15,10 @@ public enum Unit {
 		private Unit(String s) {
 			this.s = s;
 		}
+		
+		public String abrev() {
+			return s;
+		}
 
 		public double convertTo(double value, Unit unit) {
 			if (this == unit)

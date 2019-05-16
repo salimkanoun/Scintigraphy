@@ -21,6 +21,7 @@ import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.gastric_refactored.Unit;
 
 import ij.ImagePlus;
 
@@ -365,6 +366,41 @@ public class Library_JFreeChart {
 		BufferedImage buff = xylineChart.createBufferedImage(640, 512);
 		ImagePlus courbe = new ImagePlus("", buff);
 		return courbe;
+	}
+
+	/**
+	 * Converts an array of values from one unit to another.<br>
+	 * The array returned is a new instance.
+	 * 
+	 * @param values       Values to convert
+	 * @param previousUnit Unit the values are
+	 * @param newUnit      Unit the values will be convert to
+	 * @return new array with the converted values
+	 */
+	public static double[] convert(double[] values, Unit previousUnit, Unit newUnit) {
+		double[] result = new double[values.length];
+
+		for (int i = 0; i < values.length; i++) {
+			result[i] = previousUnit.convertTo(values[i], newUnit);
+		}
+
+		return result;
+	}
+	
+	public static <T extends Comparable> T maxValue(T[] array) {
+		T max = array[0];
+		for(T val : array)
+			if(val.compareTo(max) > 0)
+				max = val;
+		return max;
+	}
+	
+	public static double maxValue(double[] array) {
+		double max = array[0];
+		for(double val : array)
+			if(val > max)
+				max = val;
+		return max;
 	}
 
 }

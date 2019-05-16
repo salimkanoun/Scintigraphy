@@ -65,7 +65,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	private JLabel labelInterpolation, labelError;
 
 	private Fit currentFit;
-	
+
 	private final static Unit UNIT = Unit.KCOUNTS;
 
 	public TabMethod2(FenResults parent, ImagePlus capture, ControllerWorkflow_Gastric controller) {
@@ -172,7 +172,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 
 		JPanel infoRes = new JPanel();
 		infoRes.setLayout(new GridLayout(0, 2));
-		
+
 		// Data
 		double[] data = getModel().getDecayValues();
 
@@ -223,8 +223,8 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	}
 
 	private JPanel createPanelResults() {
-		ImageStack ims = Library_Capture_CSV.captureToStack(new ImagePlus[] { capture, getModel().createGraph_3(),
-				getModel().createGraph_1(), getModel().createGraph_2() });
+		ImageStack ims = Library_Capture_CSV
+				.captureToStack(new ImagePlus[] { capture, getModel().createGraph_4(UNIT) });
 
 		JButton btn = new JButton("Launch dynamic acquisition");
 		btn.addActionListener(new ActionListener() {

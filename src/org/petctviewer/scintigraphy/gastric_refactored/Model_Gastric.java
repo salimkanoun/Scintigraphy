@@ -686,35 +686,43 @@ public class Model_Gastric extends ModeleScin {
 	/**
 	 * Creates an array with all of the requested results ordered chronologically.
 	 * 
-	 * @param region Region to get the result from
-	 * @param key    Key of the results to place in the array
+	 * @param regionName Region to get the result from
+	 * @param key        Key of the results to place in the array
 	 * @return array of all data for the requested key result
 	 */
-	private double[] getResultAsArray(String region, int key) {
-		double[] res;
-		if (key == DATA_DERIVATIVE)
-			res = new double[this.nbAcquisitions() - 1];
-		else
-			res = new double[this.nbAcquisitions()];
-
+	private double[] getResultAsArray(String regionName, int key) {
+		// Get all results
+		double[] results = new double[this.nbAcquisitions()];
+		Iterator<Data> it = this.generatesDataOrdered().iterator();
 		int i = 0;
-		List<Data> datas = this.generatesDataOrdered();
-		for (int indexData = 0; indexData < datas.size(); indexData++) {
-			Data data = datas.get(indexData);
-//			if (key == DATA_DERIVATIVE)
-//				System.out.println("Searching in data #" + indexData + ":\n" + data);
-			if (key != DATA_DERIVATIVE || (key == DATA_DERIVATIVE && indexData > 0)) {
-				res[i++] = data.getValue(region, key);
-//				if (key == DATA_DERIVATIVE)
-//					System.out.println("--> Found value " + data.getValue(region, key));
-			} else {
-//				if (key == DATA_DERIVATIVE)
-//					System.out.println(this.nameOfDataField(key) + " cannot be retrieved from index #" + indexData);
+		int resultsIgnored = 0;
+		while (it.hasNext()) {
+			Data data = it.next();
+			try {
+				double value = data.getValue(regionName, key);
+				results[i] = value;
+			} catch (NullPointerException e) {
+				// No data found for this point
+				// Ignore value
+				resultsIgnored++;
+				results[i] = Double.NaN;
 			}
-//			if (key == DATA_DERIVATIVE)
-//				System.out.println("Now data state is:\n" + data);
+			i++;
 		}
-		return res;
+
+		// Create array with right dimensions
+		double[] goodResults = new double[this.nbAcquisitions() - resultsIgnored];
+
+		// Fill array
+		int j = 0;
+		for (i = 0; i < results.length; i++) {
+			if (!Double.isNaN(results[i])) {
+				goodResults[j] = results[i];
+				j++;
+			}
+		}
+
+		return goodResults;
 	}
 
 	/**
@@ -925,34 +933,16 @@ public class Model_Gastric extends ModeleScin {
 
 	private double[][] generateDatasetFromKey(String regionName, int key) {
 		// Get all Y points
-		double[] yPoints = new double[this.nbAcquisitions()];
-		Iterator<Data> it = this.generatesDataOrdered().iterator();
-		int i = 0;
-		int pointsIgnored = 0;
-		while (it.hasNext()) {
-			Data data = it.next();
-			try {
-				double value = data.getValue(regionName, key);
-				yPoints[i] = value;
-			} catch (NullPointerException e) {
-				// No data found
-				// Ignore point
-				pointsIgnored++;
-				yPoints[i] = Double.NaN;
-			}
-			i++;
-		}
+		double[] yPoints = this.getResultAsArray(regionName, key);
 
 		// Create dataset with right dimensions
-		double[][] dataset = new double[this.nbAcquisitions() - pointsIgnored][2];
+		double[][] dataset = new double[yPoints.length][2];
 
 		// Fill dataset
-		int j = 0;
-		for (i = 0; i < yPoints.length; i++) {
+		for (int i = 0; i < yPoints.length; i++) {
 			if (!Double.isNaN(yPoints[i])) {
-				dataset[j][0] = times[i];
-				dataset[j][1] = yPoints[i];
-				j++;
+				dataset[i][0] = times[i];
+				dataset[i][1] = yPoints[i];
 			}
 		}
 
@@ -1471,6 +1461,7 @@ public class Model_Gastric extends ModeleScin {
 		return new ResultValue(Result.RETENTION, res, Unit.PERCENTAGE, extrapolated);
 	}
 
+	// TODO: change this method, the model should not decide for rendering
 	/**
 	 * Creates the graphic for the Intragastric Distribution.
 	 * 
@@ -1481,6 +1472,7 @@ public class Model_Gastric extends ModeleScin {
 				times, this.getResultAsArray(REGION_FUNDUS, DATA_CORRELATION), 100.0);
 	}
 
+	// TODO: change this method, the model should not decide for rendering
 	/**
 	 * Creates the graphic for the Gastrointestinal flow.
 	 * 
@@ -1557,6 +1549,17 @@ public class Model_Gastric extends ModeleScin {
 		return courbe;
 	}
 
+	// TODO: change this method, the model should not decide for rendering
+	public ImagePlus createGraph_4(Unit unit) {
+		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_GEO_AVERAGE);
+
+		// TODO: convert to kcounts/min
+		result = Library_JFreeChart.convert(result, Unit.COUNTS, unit);
+
+		return Library_JFreeChart.createGraph(unit.abrev(), Color.GREEN, "Stomach retention",
+				ArrayUtils.remove(times, 0), result, Library_JFreeChart.maxValue(result) * 1.1);
+	}
+
 	/**
 	 * Deactivates the fictional time 0.<br>
 	 * The ingestion time should now be set to the time of the first dynamic
@@ -1577,7 +1580,10 @@ public class Model_Gastric extends ModeleScin {
 	public ImagePlus montage(ImageStack stack) {
 		MontageMaker mm = new MontageMaker();
 		ImagePlus imp = new ImagePlus("Resultats Vidange Gastrique", stack);
-		imp = mm.makeMontage2(imp, 2, 2, 0.5, 1, 4, 1, 10, false);
+		if (stack.size() == 4)
+			imp = mm.makeMontage2(imp, 2, 2, 0.5, 1, 4, 1, 10, false);
+		else if (stack.size() == 2)
+			imp = mm.makeMontage2(imp, 2, 1, .5, 1, 2, 1, 10, false);
 		imp.setTitle("Resultats " + this.studyName);
 		return imp;
 	}
