@@ -31,7 +31,9 @@ public class Modele_Cardiac extends ModeleScin {
 	
 	private Scintigraphy scin;
 	
-	private Controleur_Cardiac controler;
+//	private Controleur_Cardiac controler;
+	
+	private ControllerWorkflowCardiac controler;
 
 	private HashMap<String, String> resultats;
 
@@ -44,11 +46,26 @@ public class Modele_Cardiac extends ModeleScin {
 
 	
 	public void getResults() {
-		controler=(Controleur_Cardiac) scin.getFenApplication().getControleur();
+//		controler=(Controleur_Cardiac) scin.getFenApplication().getControleur();
+		controler=(ControllerWorkflowCardiac) scin.getFenApplication().getControleur();
 		
-		for (int i : controler.getNomRois().keySet()) {
-			this.selectedImages[0].getImagePlus().setSlice(controler.getSliceNumberByRoiIndex(i));
-			this.selectedImages[0].getImagePlus().setRoi((Roi) controler.getRoiManager().getRoi(i).clone());
+//		for (int i : controler.getNomRois().keySet()) {
+//			this.selectedImages[0].getImagePlus().setSlice(controler.getSliceNumberByRoiIndex(i));
+//			this.selectedImages[0].getImagePlus().setRoi((Roi) controler.getRoiManager().getRoi(i).clone());
+//			
+//			//Array of Double, in 0 raw count, in 1 average count, in 2 number of pixels
+//			Double[] counts=new Double[3];
+//			counts[0] =Library_Quantif.getCounts(this.selectedImages[0].getImagePlus());
+//			counts[1] =Library_Quantif.getAvgCounts(this.selectedImages[0].getImagePlus());
+//			counts[2] =(double) Library_Quantif.getPixelNumber(this.selectedImages[0].getImagePlus());
+//
+//			this.data.put(controler.getNomRois().get(i), counts);
+//			
+//		}
+		
+		for (Roi roi : this.getRoiManager().getRoisAsArray()) {
+			this.selectedImages[0].getImagePlus().setSlice(controler.getSliceNumberByRoiIndex());
+			this.selectedImages[0].getImagePlus().setRoi((Roi) roi.clone());
 			
 			//Array of Double, in 0 raw count, in 1 average count, in 2 number of pixels
 			Double[] counts=new Double[3];
@@ -56,7 +73,7 @@ public class Modele_Cardiac extends ModeleScin {
 			counts[1] =Library_Quantif.getAvgCounts(this.selectedImages[0].getImagePlus());
 			counts[2] =(double) Library_Quantif.getPixelNumber(this.selectedImages[0].getImagePlus());
 
-			this.data.put(controler.getNomRois().get(i), counts);
+			this.data.put(roi.getName(), counts);
 			
 		}
 

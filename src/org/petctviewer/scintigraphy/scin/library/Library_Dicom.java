@@ -748,5 +748,26 @@ public class Library_Dicom {
 	public static void normalizeToCountPerSecond(ImageSelection imp) {
 		normalizeToCountPerSecond(imp.getImagePlus());
 	}
+	
+	/**
+	 * Use the methode concatenate of a Concatenator.
+	 * This method hide the complexity of this call, for ImageSelection.
+	 * @param imageSelection
+	 * @param keepIms
+	 * @return The concatenate ImagePlus
+	 * 
+	 * @see {@link  Concatenator}
+	 * @see {@link  Concatenator#concatenate(ImagePlus[], boolean)}
+	 */
+	public static ImagePlus concatenate(ImageSelection[] imageSelection, boolean keepIms) {
+		Concatenator enchainer = new Concatenator();
+		
+		ImagePlus[] images = new ImagePlus[imageSelection.length];
+		for(int i = 0 ; i < imageSelection.length ; i ++)
+			images[i] = imageSelection[i].getImagePlus();
+		
+		return enchainer.concatenate(images, keepIms);
+	}
+	
 
 }

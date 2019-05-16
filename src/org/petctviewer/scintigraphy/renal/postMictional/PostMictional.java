@@ -59,7 +59,7 @@ public class PostMictional extends Scintigraphy {
 		// this.organes, "Post-mictional");
 		// this.getFenApplication().setControleur(ctrl);
 		this.getFenApplication()
-				.setControleur(new ControllerWorflowPostMictional(this, this.getFenApplication(),
+				.setControleur(new ControllerWorkflowPostMictional(this, this.getFenApplication(),
 						new Modele_PostMictional(selectedImages, "Post-mictional"),
 						((Modele_Renal) this.resultFrame.getParent().getModel()).getKidneys()));
 	}

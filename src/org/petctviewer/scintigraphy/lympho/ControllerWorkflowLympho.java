@@ -100,7 +100,6 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 
 		}
 		this.model.calculerResultats();
-		System.out.println(captures != null);
 		new FenResultatsLympho(this, captures.toArray(new ImagePlus[captures.size()]));
 
 	}

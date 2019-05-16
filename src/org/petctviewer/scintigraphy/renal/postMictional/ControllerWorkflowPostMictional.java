@@ -24,13 +24,13 @@ import ij.ImagePlus;
 import ij.Prefs;
 import ij.gui.Overlay;
 
-public class ControllerWorflowPostMictional extends ControllerWorkflow {
+public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 
 	public String[] organeListe;
 
 	private boolean[] kidneys;
 
-	public ControllerWorflowPostMictional(Scintigraphy main, FenApplication vue, ModeleScin model, boolean[] kidneys) {
+	public ControllerWorkflowPostMictional(Scintigraphy main, FenApplication vue, ModeleScin model, boolean[] kidneys) {
 		super(main, vue, model);
 
 		this.kidneys = kidneys;

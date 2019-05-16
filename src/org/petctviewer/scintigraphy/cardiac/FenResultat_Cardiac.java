@@ -51,6 +51,7 @@ public class FenResultat_Cardiac extends FenResults {
 		// this.setMinimumSize(side.getSize());
 		// this.setLocationRelativeTo(scin.getFenApplication());
 		// this.setVisible(true);
+		
 	}
 
 	public Component getSidePanelContent(HashMap<String, String> resultats) {
