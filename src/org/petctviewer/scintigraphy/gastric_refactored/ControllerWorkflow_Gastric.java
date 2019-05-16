@@ -133,7 +133,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.computeModel();
 
 		// Display results
-		this.tabMain = new TabMainResult(this.fenResults, this.captures.get(0), this);
+		this.tabMain = new TabMainResult(this.fenResults, this.captures.get(1), this);
 		this.tabMain.displayTimeIngestion(getModel().getTimeIngestion());
 
 		this.tabDefaultMethod = new TabMethod2(this.fenResults, this.captures.get(0), this);
@@ -177,10 +177,12 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			this.workflows[i].addInstruction(dri_2);
 			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_1, dri_2, "Antre"));
 			this.workflows[i].addInstruction(dri_3);
+			if(i == 0)
+				this.workflows[i].addInstruction(new ScreenShotInstruction(captures, vue, 0, 640, 512));
 			this.workflows[i].addInstruction(dri_4);
 			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_3, dri_4, "Antre"));
 			if (i == 0)
-				this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 0, 640, 512));
+				this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 1, 640, 512));
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}
