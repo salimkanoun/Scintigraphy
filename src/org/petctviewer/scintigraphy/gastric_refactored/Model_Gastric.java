@@ -1427,11 +1427,13 @@ public class Model_Gastric extends ModeleScin {
 			}
 			return new ResultValue(result, valX, Unit.TIME, extrapolationType);
 		case T_HALF:
+			// Assumption: the first value is the highest (maybe do not assume that...)
+			double half = yValues[0] / 2.;
 			extrapolationType = null;
-			valX = this.getX(yValues, 50.);
+			valX = this.getX(yValues, half);
 			if (valX == null) {
 				// Extrapolate
-				valX = this.extrapolateX(50., fit);
+				valX = this.extrapolateX(half, fit);
 				extrapolationType = fit.getType();
 			}
 			return new ResultValue(result, valX, Unit.TIME, extrapolationType);
