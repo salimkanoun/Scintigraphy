@@ -29,8 +29,8 @@ import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
-import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric.Result;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric.ResultValue;
+import org.petctviewer.scintigraphy.gastric_refactored.Result;
 import org.petctviewer.scintigraphy.gastric_refactored.Unit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
@@ -83,7 +83,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	}
 
 	private JTable tablesResultats() {
-		Result[] results = new Result[] { Result.RES_TIME, Result.RES_STOMACH_COUNTS };
+		Result[] results = new Result[] { Model_Gastric.RES_TIME, Model_Gastric.RES_STOMACH_COUNTS };
 		Unit[] unitsUsed = new Unit[] { Unit.TIME, UNIT };
 
 		Model_Gastric model = (Model_Gastric) this.parent.getModel();
@@ -145,8 +145,8 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	 */
 	private void displayRetentionResult(JPanel infoRes, double time, ResultValue result)
 			throws IllegalArgumentException {
-		if (result.getResultType() != Result.RETENTION)
-			throw new IllegalArgumentException("Result type must be " + Result.RETENTION);
+		if (result.getResultType() != Model_Gastric.RETENTION)
+			throw new IllegalArgumentException("Result type must be " + Model_Gastric.RETENTION);
 
 		infoRes.add(new JLabel(result.getResultType().getName() + " at " + (int) (time / 60) + "h:"));
 
@@ -167,19 +167,19 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		// Data
 		double[] data = getModel().getDecayValues();
 
-		ResultValue result = getModel().getResult(data, Result.START_ANTRUM, this.currentFit);
+		ResultValue result = getModel().getResult(data, Model_Gastric.START_ANTRUM, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
-		result = getModel().getResult(data, Result.START_INTESTINE, this.currentFit);
+		result = getModel().getResult(data, Model_Gastric.START_INTESTINE, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
-		result = getModel().getResult(data, Result.LAG_PHASE, this.currentFit);
+		result = getModel().getResult(data, Model_Gastric.LAG_PHASE, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
-		result = getModel().getResult(data, Result.T_HALF, this.currentFit);
+		result = getModel().getResult(data, Model_Gastric.T_HALF, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 

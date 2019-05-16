@@ -68,43 +68,11 @@ import ij.plugin.MontageMaker;
 public class Model_Gastric extends ModeleScin {
 	public static Font italic = new Font("Arial", Font.ITALIC, 8);
 
-	/**
-	 * Results available for the {@link Model_Gastric} model.
-	 * 
-	 * @author Titouan QUÉMA
-	 *
-	 */
-	public enum Result {
-		RES_TIME("Time"), RES_STOMACH("Stomach"), RES_FUNDUS("Fundus"), RES_ANTRUM("Antrum"),
-		RES_STOMACH_COUNTS("Stomach"), START_ANTRUM("Start antrum"), START_INTESTINE("Start intestine"),
-		LAG_PHASE("Lag phase"), T_HALF("T 1/2"), RETENTION("Retention");
-
-		private String s;
-
-		private Result(String s) {
-			this.s = s;
-		}
-
-		/**
-		 * @return name of this result
-		 */
-		public String getName() {
-			return this.s;
-		}
-
-		@Override
-		public String toString() {
-			return this.s;
-		}
-
-		public static Result[] imageResults() {
-			return new Result[] { RES_TIME, RES_STOMACH, RES_FUNDUS, RES_ANTRUM };
-		}
-
-		public static Result[] globalResults() {
-			return new Result[] { START_ANTRUM, START_INTESTINE, LAG_PHASE, T_HALF, RETENTION };
-		}
-	}
+	public static final Result RES_TIME = new Result("Time"), RES_STOMACH = new Result("Stomach"),
+			RES_FUNDUS = new Result("Fundus"), RES_ANTRUM = new Result("Antrum"),
+			RES_STOMACH_COUNTS = new Result("Stomach"), START_ANTRUM = new Result("Start antrum"),
+			START_INTESTINE = new Result("Start intestine"), LAG_PHASE = new Result("Lag phase"),
+			T_HALF = new Result("T 1/2"), RETENTION = new Result("Retention");
 
 	/**
 	 * Result returned by the {@link Model_Gastric} model.
@@ -441,6 +409,8 @@ public class Model_Gastric extends ModeleScin {
 	 * Times calculated.
 	 */
 	private double[] times, timesDerivative;
+
+	private Region bkgNoise_antre, bkgNoise_intestine, bkgNoise_stomach, bkgNoise_fundus;
 
 	public Model_Gastric(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
@@ -798,11 +768,35 @@ public class Model_Gastric extends ModeleScin {
 		return data;
 	}
 
-	/**
-	 * @return all regions required by this model
-	 */
-	public String[] getAllRegionsName() {
-		return new String[] { REGION_STOMACH, REGION_ANTRE, REGION_FUNDUS, REGION_INTESTINE };
+	private void computeDerivative(Data data, ImageState state, ImageState previousState) {
+		Data previousData = null, dataToInflate = null;
+		if (previousState == null) {
+			previousData = this.time0;
+		} else
+			previousData = this.results.get(hashState(previousState));
+
+		if (data.associatedImage.getImageOrientation().isDynamic())
+			dataToInflate = previousData;
+		else
+			dataToInflate = data;
+
+		if (previousData != null) {
+			double stomachDerivative = (previousData.getValue(REGION_STOMACH, DATA_PERCENTAGE)
+					- data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
+					/ (this.calculateDeltaTime(Library_Dicom.getDateAcquisition(state.getImage().getImagePlus()))
+							- previousData.getMinutes())
+					* 30.;
+			dataToInflate.setValue(REGION_STOMACH, DATA_DERIVATIVE, stomachDerivative);
+		} else {
+			System.err.println("Warning: no data found");
+		}
+	}
+
+	private void computeDecayFunction(Data data) {
+		int delayMs = (int) (data.time * 60. * 1000.);
+		double value = Library_Quantif.calculer_countCorrected(delayMs, data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE),
+				isotope);
+		data.setValue(REGION_STOMACH, DATA_DECAY_CORRECTED, value);
 	}
 
 	private void calculateCountsFromImage(String regionName, ImageState state, Roi roi) {
@@ -859,6 +853,84 @@ public class Model_Gastric extends ModeleScin {
 
 		// Inflate region
 		data.inflateRegion(regionName, state, null);
+	}
+
+	/**
+	 * Generates the dataset for the graph of the stomach retention.
+	 * 
+	 * @return array in the form:
+	 *         <ul>
+	 *         <li><code>[i][0] -> x</code></li>
+	 *         <li><code>[i][1] -> y</code></li>
+	 *         </ul>
+	 */
+	private double[][] generateStomachDataset() {
+		return this.generateDatasetFromKey(REGION_STOMACH, DATA_PERCENTAGE);
+	}
+
+	private double[][] generateDecayFunction() {
+		return this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED);
+	}
+
+	private XYSeries generateSeriesFromDataset(String seriesName, double[][] dataset) {
+		XYSeries series = new XYSeries(seriesName);
+		for (int i = 0; i < dataset.length; i++)
+			series.add(dataset[i][0], dataset[i][1]);
+		return series;
+	}
+
+	private double[] generateValuesFromDataset(double[][] dataset) {
+		double[] yValues = new double[dataset.length];
+		int i = 0;
+		for (double[] d : dataset)
+			yValues[i++] = d[1];
+		return yValues;
+	}
+
+	private double[][] generateDatasetFromKey(String regionName, int key) {
+		// Get all Y points
+		double[] yPoints = this.getResultAsArray(regionName, key);
+
+		// Create dataset with right dimensions
+		double[][] dataset = new double[yPoints.length][2];
+
+		// Fill dataset
+		for (int i = 0; i < yPoints.length; i++) {
+			if (!Double.isNaN(yPoints[i])) {
+				dataset[i][0] = times[i];
+				dataset[i][1] = yPoints[i];
+			}
+		}
+
+		return dataset;
+	}
+
+	/**
+	 * Adjusts the percentage with the ratio of eggs in the body.
+	 * 
+	 * @param region
+	 * @param percentage
+	 * @param numActualImage
+	 * @param nbTotalImages
+	 * @return
+	 */
+	private double adjustPercentageWithEggsRatio(String region, double percentage, int numActualImage,
+			int nbTotalImages) {
+//		System.out.println("Inputs: region=" + region + ", percentage=" + percentage + ", image=" + numActualImage
+//				+ ", totImgs=" + nbTotalImages);
+		double ratioEggsInBody = (double) numActualImage / (double) nbTotalImages;
+//		System.out.println("Ratio eggs in body: " + (double)numActualImage + " / " + (double)nbTotalImages + " = " + ratioEggsInBody);
+		double percentEggsNotInBody = 100. - ratioEggsInBody * 100.;
+//		System.out.println("Percent eggs not in body: 100 - " + ratioEggsInBody + " * 100 = " + percentEggsNotInBody);
+
+		if (region == REGION_FUNDUS) {
+//			System.out.println("Returned value: " + percentEggsNotInBody + " + " + percentage + " * " + ratioEggsInBody
+//					+ " = " + (percentEggsNotInBody + percentage * ratioEggsInBody));
+			return percentEggsNotInBody + percentage * ratioEggsInBody;
+		}
+//		System.out.println(
+//				"Returned value: " + percentage + " * " + ratioEggsInBody + " = " + (percentage * ratioEggsInBody));
+		return percentage * ratioEggsInBody;
 	}
 
 	/**
@@ -931,54 +1003,11 @@ public class Model_Gastric extends ModeleScin {
 		}
 	}
 
-	private double[][] generateDatasetFromKey(String regionName, int key) {
-		// Get all Y points
-		double[] yPoints = this.getResultAsArray(regionName, key);
-
-		// Create dataset with right dimensions
-		double[][] dataset = new double[yPoints.length][2];
-
-		// Fill dataset
-		for (int i = 0; i < yPoints.length; i++) {
-			if (!Double.isNaN(yPoints[i])) {
-				dataset[i][0] = times[i];
-				dataset[i][1] = yPoints[i];
-			}
-		}
-
-		return dataset;
-	}
-
 	/**
-	 * Generates the dataset for the graph of the stomach retention.
-	 * 
-	 * @return array in the form:
-	 *         <ul>
-	 *         <li><code>[i][0] -> x</code></li>
-	 *         <li><code>[i][1] -> y</code></li>
-	 *         </ul>
+	 * @return all regions required by this model
 	 */
-	private double[][] generateStomachDataset() {
-		return this.generateDatasetFromKey(REGION_STOMACH, DATA_PERCENTAGE);
-	}
-
-	private double[][] generateDecayFunction() {
-		return this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED);
-	}
-
-	private XYSeries generateSeriesFromDataset(String seriesName, double[][] dataset) {
-		XYSeries series = new XYSeries(seriesName);
-		for (int i = 0; i < dataset.length; i++)
-			series.add(dataset[i][0], dataset[i][1]);
-		return series;
-	}
-
-	private double[] generateValuesFromDataset(double[][] dataset) {
-		double[] yValues = new double[dataset.length];
-		int i = 0;
-		for (double[] d : dataset)
-			yValues[i++] = d[1];
-		return yValues;
+	public String[] getAllRegionsName() {
+		return new String[] { REGION_STOMACH, REGION_ANTRE, REGION_FUNDUS, REGION_INTESTINE };
 	}
 
 	/**
@@ -1116,36 +1145,6 @@ public class Model_Gastric extends ModeleScin {
 				Math.max(0, value));
 	}
 
-	/**
-	 * Adjusts the percentage with the ratio of eggs in the body.
-	 * 
-	 * @param region
-	 * @param percentage
-	 * @param numActualImage
-	 * @param nbTotalImages
-	 * @return
-	 */
-	private double adjustPercentageWithEggsRatio(String region, double percentage, int numActualImage,
-			int nbTotalImages) {
-//		System.out.println("Inputs: region=" + region + ", percentage=" + percentage + ", image=" + numActualImage
-//				+ ", totImgs=" + nbTotalImages);
-		double ratioEggsInBody = (double) numActualImage / (double) nbTotalImages;
-//		System.out.println("Ratio eggs in body: " + (double)numActualImage + " / " + (double)nbTotalImages + " = " + ratioEggsInBody);
-		double percentEggsNotInBody = 100. - ratioEggsInBody * 100.;
-//		System.out.println("Percent eggs not in body: 100 - " + ratioEggsInBody + " * 100 = " + percentEggsNotInBody);
-
-		if (region == REGION_FUNDUS) {
-//			System.out.println("Returned value: " + percentEggsNotInBody + " + " + percentage + " * " + ratioEggsInBody
-//					+ " = " + (percentEggsNotInBody + percentage * ratioEggsInBody));
-			return percentEggsNotInBody + percentage * ratioEggsInBody;
-		}
-//		System.out.println(
-//				"Returned value: " + percentage + " * " + ratioEggsInBody + " = " + (percentage * ratioEggsInBody));
-		return percentage * ratioEggsInBody;
-	}
-
-	private Region bkgNoise_antre, bkgNoise_intestine, bkgNoise_stomach, bkgNoise_fundus;
-
 	public void setBkgNoise(String regionName, ImageState state, Roi roi) {
 		ImagePlus imp = state.getImage().getImagePlus();
 		imp.setRoi(roi);
@@ -1176,37 +1175,6 @@ public class Model_Gastric extends ModeleScin {
 			throw new IllegalArgumentException("The region (" + region + ") is not a background noise");
 
 		System.out.println("The background noise for the " + region + " is set at " + bkgNoise + "!");
-	}
-
-	private void computeDerivative(Data data, ImageState state, ImageState previousState) {
-		Data previousData = null, dataToInflate = null;
-		if (previousState == null) {
-			previousData = this.time0;
-		} else
-			previousData = this.results.get(hashState(previousState));
-
-		if (data.associatedImage.getImageOrientation().isDynamic())
-			dataToInflate = previousData;
-		else
-			dataToInflate = data;
-
-		if (previousData != null) {
-			double stomachDerivative = (previousData.getValue(REGION_STOMACH, DATA_PERCENTAGE)
-					- data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
-					/ (this.calculateDeltaTime(Library_Dicom.getDateAcquisition(state.getImage().getImagePlus()))
-							- previousData.getMinutes())
-					* 30.;
-			dataToInflate.setValue(REGION_STOMACH, DATA_DERIVATIVE, stomachDerivative);
-		} else {
-			System.err.println("Warning: no data found");
-		}
-	}
-
-	private void computeDecayFunction(Data data) {
-		int delayMs = (int) (data.time * 60. * 1000.);
-		double value = Library_Quantif.calculer_countCorrected(delayMs, data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE),
-				isotope);
-		data.setValue(REGION_STOMACH, DATA_DECAY_CORRECTED, value);
 	}
 
 	/**
@@ -1370,27 +1338,25 @@ public class Model_Gastric extends ModeleScin {
 	public ResultValue getImageResult(Result result, int indexImage) throws UnsupportedOperationException {
 		Data data = this.generatesDataOrdered().get(indexImage);
 
-		switch (result) {
-		case RES_TIME:
+		if (result == RES_TIME)
 			return new ResultValue(result,
 					BigDecimal.valueOf(data.time).setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.TIME);
-		case RES_STOMACH:
+		if (result == RES_STOMACH)
 			return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
 					.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
-		case RES_FUNDUS:
+		if (result == RES_FUNDUS)
 			return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_FUNDUS, DATA_PERCENTAGE))
 					.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
-		case RES_ANTRUM:
+		if (result == RES_ANTRUM)
 			return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_ANTRE, DATA_PERCENTAGE))
 					.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
-		case RES_STOMACH_COUNTS:
+		if (result == RES_STOMACH_COUNTS) {
 			if (data == time0)
 				return null;
 			return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE))
 					.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.COUNTS);
-		default:
+		} else
 			throw new UnsupportedOperationException("The result " + result + " is not available here!");
-		}
 	}
 
 	/**
@@ -1412,12 +1378,12 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	public ResultValue getResult(double[] yValues, Result result, Fit fit) throws UnsupportedOperationException {
 		FitType extrapolationType = null;
-		switch (result) {
-		case START_ANTRUM:
+
+		if (result == START_ANTRUM)
 			return new ResultValue(result, this.getDebut(REGION_ANTRE), Unit.TIME);
-		case START_INTESTINE:
+		if (result == START_INTESTINE)
 			return new ResultValue(result, this.getDebut(REGION_INTESTINE), Unit.TIME);
-		case LAG_PHASE:
+		if (result == LAG_PHASE) {
 			extrapolationType = null;
 			Double valX = this.getX(yValues, 95.);
 			if (valX == null) {
@@ -1426,20 +1392,20 @@ public class Model_Gastric extends ModeleScin {
 				extrapolationType = fit.getType();
 			}
 			return new ResultValue(result, valX, Unit.TIME, extrapolationType);
-		case T_HALF:
+		}
+		if (result == T_HALF) {
 			// Assumption: the first value is the highest (maybe do not assume that...)
 			double half = yValues[0] / 2.;
 			extrapolationType = null;
-			valX = this.getX(yValues, half);
+			Double valX = this.getX(yValues, half);
 			if (valX == null) {
 				// Extrapolate
 				valX = this.extrapolateX(half, fit);
 				extrapolationType = fit.getType();
 			}
 			return new ResultValue(result, valX, Unit.TIME, extrapolationType);
-		default:
+		} else
 			throw new UnsupportedOperationException("The result " + result + " is not available here!");
-		}
 	}
 
 	/**
@@ -1460,7 +1426,7 @@ public class Model_Gastric extends ModeleScin {
 		// Percentage of res
 		res = res * 100. / this.getY(yValues, 0.);
 
-		return new ResultValue(Result.RETENTION, res, Unit.PERCENTAGE, extrapolated);
+		return new ResultValue(RETENTION, res, Unit.PERCENTAGE, extrapolated);
 	}
 
 	// TODO: change this method, the model should not decide for rendering
