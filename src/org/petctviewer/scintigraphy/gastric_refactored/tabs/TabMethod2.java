@@ -212,11 +212,6 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		return panel;
 	}
 
-	public void displayTimeIngestion(Date timeIngestion) {
-		this.timeIngestion = timeIngestion;
-		this.reloadSidePanelContent();
-	}
-
 	private JPanel additionalResults() {
 		JPanel panel = new JPanel();
 
@@ -224,15 +219,6 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 			panel.add(new JLabel("Ingestion Time: " + new SimpleDateFormat("HH:mm:ss").format(timeIngestion)));
 		}
 
-		return panel;
-	}
-
-	@Override
-	public Component getSidePanelContent() {
-		JPanel panel = new JPanel(new GridLayout(0, 1));
-		panel.add(this.additionalResults());
-		panel.add(new JScrollPane(tablesResultats()));
-		panel.add(this.infoResultats());
 		return panel;
 	}
 
@@ -279,11 +265,34 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		return panel;
 	}
 
+	/**
+	 * Removes all previous fits.
+	 */
+	private void clearFits() {
+		for (int i = 1; i < this.data.getSeriesCount(); i++)
+			this.data.removeSeries(i);
+	}
+
+	private void reloadFit() {
+		try {
+			// Create fit
+			XYSeries series = ((XYSeriesCollection) this.getValueSetter().retrieveValuesInSpan()).getSeries(0);
+			this.currentFit = Fit.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray()), UNIT);
+
+			this.drawFit();
+			this.setErrorMessage(null);
+			this.reloadSidePanelContent();
+		} catch (IllegalArgumentException error) {
+			System.err.println("Not enough data");
+			this.setErrorMessage("Not enough data to fit the graph");
+		}
+	}
+
 	public void createGraph() {
 		// Create chart
 		this.data = new XYSeriesCollection();
-		XYSeries stomachSeries = getModel().getDecayFunction();
-		this.data.addSeries(stomachSeries);
+		XYSeries series = getModel().getDecayFunction();
+		this.data.addSeries(series);
 
 		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (min)",
 				"Stomach retention (counts)", data, PlotOrientation.VERTICAL, true, true, true);
@@ -292,14 +301,14 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		XYPlot plot = chart.getXYPlot();
 		// X axis
 		NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();
-		xAxis.setRange(-10., stomachSeries.getMaxX() + 10.);
+		xAxis.setRange(-10., series.getMaxX() + 10.);
 		// Y axis
 		NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
-		yAxis.setRange(-10., stomachSeries.getMaxY() + 10.);
+		yAxis.setRange(-10., series.getMaxY() * 1.1);
 
 		// Create value setter
-		double startX = stomachSeries.getMinX() + .1 * (stomachSeries.getMaxX() - stomachSeries.getMinX());
-		double endX = stomachSeries.getMinX() + .7 * (stomachSeries.getMaxX() - stomachSeries.getMinX());
+		double startX = series.getMinX() + .1 * (series.getMaxX() - series.getMinX());
+		double endX = series.getMinX() + .7 * (series.getMaxX() - series.getMinX());
 		valueSetter = new JValueSetter(chart);
 		valueSetter.addSelector(new Selector(" ", startX, -1, RectangleAnchor.TOP_LEFT), "start");
 		valueSetter.addSelector(new Selector(" ", endX, -1, RectangleAnchor.TOP_LEFT), "end");
@@ -307,12 +316,18 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		valueSetter.addChartMouseListener(this);
 	}
 
-	/**
-	 * Removes all previous fits.
-	 */
-	private void clearFits() {
-		for (int i = 1; i < this.data.getSeriesCount(); i++)
-			this.data.removeSeries(i);
+	public void displayTimeIngestion(Date timeIngestion) {
+		this.timeIngestion = timeIngestion;
+		this.reloadSidePanelContent();
+	}
+
+	@Override
+	public Component getSidePanelContent() {
+		JPanel panel = new JPanel(new GridLayout(0, 1));
+		panel.add(this.additionalResults());
+		panel.add(new JScrollPane(tablesResultats()));
+		panel.add(this.infoResultats());
+		return panel;
 	}
 
 	public JValueSetter getValueSetter() {
@@ -367,21 +382,6 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		JPanel panel = new JPanel();
 		panel.add(tab);
 		return panel;
-	}
-
-	private void reloadFit() {
-		try {
-			// Create fit
-			XYSeries series = ((XYSeriesCollection) this.getValueSetter().retrieveValuesInSpan()).getSeries(0);
-			this.currentFit = Fit.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray()), UNIT);
-
-			this.drawFit();
-			this.setErrorMessage(null);
-			this.reloadSidePanelContent();
-		} catch (IllegalArgumentException error) {
-			System.err.println("Not enough data");
-			this.setErrorMessage("Not enough data to fit the graph");
-		}
 	}
 
 	@Override
