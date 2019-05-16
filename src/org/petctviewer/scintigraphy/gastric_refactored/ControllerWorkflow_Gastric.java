@@ -136,7 +136,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.tabMain = new TabMainResult(this.fenResults, this.captures.get(1), this);
 		this.tabMain.displayTimeIngestion(getModel().getTimeIngestion());
 
-		this.tabDefaultMethod = new TabMethod2(this.fenResults, this.captures.get(0), this);
+		this.tabDefaultMethod = new TabMethod2(this.fenResults, this.captures.get(0));
 
 		this.fenResults.clearTabs();
 		this.fenResults.setMainTab(this.tabMain);
@@ -177,10 +177,12 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			this.workflows[i].addInstruction(dri_2);
 			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_1, dri_2, "Antre"));
 			this.workflows[i].addInstruction(dri_3);
+			// Capture 1: only stomach, for method 2
 			if(i == 0)
 				this.workflows[i].addInstruction(new ScreenShotInstruction(captures, vue, 0, 640, 512));
 			this.workflows[i].addInstruction(dri_4);
 			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_3, dri_4, "Antre"));
+			// Capture 2: stomach and intestine, for toulouse method
 			if (i == 0)
 				this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 1, 640, 512));
 		}

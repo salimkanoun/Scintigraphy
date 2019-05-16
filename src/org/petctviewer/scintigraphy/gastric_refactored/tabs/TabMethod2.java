@@ -4,14 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -31,17 +28,14 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.gastric_refactored.ControllerWorkflow_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric.Result;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric.ResultValue;
 import org.petctviewer.scintigraphy.gastric_refactored.Unit;
-import org.petctviewer.scintigraphy.gastric_refactored.dynamic.DynGastricScintigraphy;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
-import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -56,8 +50,6 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	private ImagePlus capture;
 	private Date timeIngestion;
 
-	private ControllerWorkflow controller;
-
 	private XYSeriesCollection data;
 	private JValueSetter valueSetter;
 
@@ -68,7 +60,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 
 	private final static Unit UNIT = Unit.KCOUNTS;
 
-	public TabMethod2(FenResults parent, ImagePlus capture, ControllerWorkflow_Gastric controller) {
+	public TabMethod2(FenResults parent, ImagePlus capture) {
 		super(parent, "General Method", true);
 
 		// Instantiate variables
@@ -82,7 +74,6 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		this.labelError.setForeground(Color.RED);
 
 		this.capture = capture;
-		this.controller = controller;
 
 		this.currentFit = new Fit.NoFit(UNIT);
 
@@ -226,21 +217,8 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		ImageStack ims = Library_Capture_CSV
 				.captureToStack(new ImagePlus[] { capture, getModel().createGraph_4(UNIT) });
 
-		JButton btn = new JButton("Launch dynamic acquisition");
-		btn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// Finish gastric
-				controller.getVue().setVisible(false);
-
-				// Start scintigraphy
-				new DynGastricScintigraphy(getModel(), parent);
-			}
-		});
-
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.add(new DynamicImage(getModel().montage(ims).getImage()), BorderLayout.CENTER);
-		panel.add(btn, BorderLayout.SOUTH);
 
 		return panel;
 	}
@@ -321,15 +299,6 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		this.reloadSidePanelContent();
 	}
 
-	@Override
-	public Component getSidePanelContent() {
-		JPanel panel = new JPanel(new GridLayout(0, 1));
-		panel.add(this.additionalResults());
-		panel.add(new JScrollPane(tablesResultats()));
-		panel.add(this.infoResultats());
-		return panel;
-	}
-
 	public JValueSetter getValueSetter() {
 		return this.valueSetter;
 	}
@@ -367,6 +336,15 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	 */
 	public void setErrorMessage(String msg) {
 		this.labelError.setText(msg);
+	}
+
+	@Override
+	public Component getSidePanelContent() {
+		JPanel panel = new JPanel(new GridLayout(0, 1));
+		panel.add(this.additionalResults());
+		panel.add(new JScrollPane(tablesResultats()));
+		panel.add(this.infoResultats());
+		return panel;
 	}
 
 	@Override
