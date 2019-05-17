@@ -37,6 +37,8 @@ public class Modele_Cardiac extends ModeleScin {
 
 	private HashMap<String, String> resultats;
 
+//	private int[] nbConta;
+
 	public Modele_Cardiac(Scintigraphy scin, ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
 		this.scin=scin;
@@ -121,36 +123,32 @@ public class Modele_Cardiac extends ModeleScin {
 		
 		HashMap<Integer, Double[]> contE = new HashMap<>();
 		HashMap<Integer, Double[]> contL = new HashMap<>();
-		
+		System.out.println("this.data.keySet() contient : ");
 		for (String s : this.data.keySet()) {
+			System.out.println("\t"+s);
 			if (s.startsWith("Cont")) {
 				String label=s.substring(s.indexOf(" ")+2);
+				System.out.println("Label : ");
 				int number=Integer.parseInt(label);
 				
 				if (s.startsWith("ContE")) {
-					if(!contE.containsKey(number)) {
+					if(!contE.containsKey(number)) 
 						contE.put(number, new Double[2]);
-					}
-					if(s.contains("A")) {
+					
+					if(s.contains("A")) 
 						contE.get(number)[0]=this.data.get(s)[0];
-					}else if (s.contains("P")) {
+					else if (s.contains("P")) 
 						contE.get(number)[1]=this.data.get(s)[0];
-						
-					}
 					
-					
-					
+							
 				} else if (s.startsWith("ContL")) {
-					if(!contL.containsKey(number)) {
+					if(!contL.containsKey(number)) 
 						contL.put(number, new Double[2]);
-					}
-					if(s.contains("A")) {
-						contL.get(number)[0]=this.data.get(s)[0];
-					}else if (s.contains("P")) {
-						contL.get(number)[1]=this.data.get(s)[0];
-						
-					}
 					
+					if(s.contains("A")) 
+						contL.get(number)[0]=this.data.get(s)[0];
+					else if (s.contains("P")) 
+						contL.get(number)[1]=this.data.get(s)[0];	
 					
 				}
 			}
@@ -261,5 +259,10 @@ public class Modele_Cardiac extends ModeleScin {
 
 		return this.resultats;
 	}
+
+
+//	public void setNbConta(int[] is) {
+//		this.nbConta = is;
+//	}
 
 }

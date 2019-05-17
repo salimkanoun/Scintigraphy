@@ -11,7 +11,6 @@ import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
-import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoopInstruction;
@@ -30,6 +29,9 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	 */
 	public static final String COMMAND_CONTINUE = "command.continue";
 	
+//	private int nbConta1;
+//	private int nbConta2;
+	
 	private boolean finContSlice1;
 	private boolean finContSlice2;
 	private String[] organes = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
@@ -39,9 +41,12 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		// TODO Auto-generated constructor stub
 		
 		// on declare si il y a deux prises
-				((Modele_Cardiac) this.model).setDeuxPrise(this.model.getImageSelection()[0].getImagePlus().getImageStackSize() > 1);
+		((Modele_Cardiac) this.model).setDeuxPrise(this.model.getImageSelection()[0].getImagePlus().getImageStackSize() > 1);
 
-				((Modele_Cardiac) this.model).calculerMoyGeomTotale();
+		((Modele_Cardiac) this.model).calculerMoyGeomTotale();
+		
+//		this.nbConta1 = 0;
+//		this.nbConta2 = 0;
 		
 		this.generateInstructions();
 		((FenApplication_Cardiac) this.main.getFenApplication()).startContaminationMode();
@@ -78,20 +83,20 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		
 		
 		// Organs to delimit
-		dri_3 = new DrawRoiInstruction("Bladder A", state_2);
-		dri_4 = new DrawSymmetricalRoiInstruction("Bladder P", state_2, dri_3, null, model, Organ.OTHER);
+		dri_3 = new DrawSymmetricalRoiInstruction("Bladder", state_2, null, null, model, Organ.DEMIE);
+		dri_4 = new DrawSymmetricalRoiInstruction("Bladder", state_2, dri_3, null, model, Organ.DEMIE);
 		
-		dri_5 = new DrawRoiInstruction("Kidney R A", state_2);
-		dri_6 = new DrawSymmetricalRoiInstruction("Kidney R P", state_2, dri_5, null, model, Organ.OTHER);
+		dri_5 = new DrawSymmetricalRoiInstruction("Kidney R", state_2, null, null, model, Organ.DEMIE);
+		dri_6 = new DrawSymmetricalRoiInstruction("Kidney R", state_2, dri_5, null, model, Organ.DEMIE);
 		
-		dri_7 = new DrawRoiInstruction("Kidney L A", state_2);
-		dri_8 = new DrawSymmetricalRoiInstruction("Kidney L P", state_2, dri_7, null, model, Organ.OTHER);
+		dri_7 = new DrawSymmetricalRoiInstruction("Kidney L", state_2, null, null, model, Organ.DEMIE);
+		dri_8 = new DrawSymmetricalRoiInstruction("Kidney L", state_2, dri_7, null, model, Organ.DEMIE);
 		
-		dri_9 = new DrawRoiInstruction("Heart A", state_2);
-		dri_10 = new DrawSymmetricalRoiInstruction("Heart P", state_2, dri_9, null, model, Organ.OTHER);
+		dri_9 = new DrawSymmetricalRoiInstruction("Heart", state_2, null, null, model, Organ.DEMIE);
+		dri_10 = new DrawSymmetricalRoiInstruction("Heart", state_2, dri_9, null, model, Organ.DEMIE);
 		
-		dri_11 = new DrawSymmetricalRoiInstruction("Bkg noise A", state_2, dri_9, null, model, Organ.HEART);
-		dri_12 = new DrawSymmetricalRoiInstruction("Bkg noise P", state_2, dri_10, null, model, Organ.HEART);
+		dri_11 = new DrawSymmetricalRoiInstruction("Bkg noise", state_2, dri_9, null, model, Organ.QUART);
+		dri_12 = new DrawSymmetricalRoiInstruction("Bkg noise", state_2, dri_10, null, model, Organ.QUART);
 		
 		
 		
@@ -123,6 +128,8 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			fac.getBtn_continue().setEnabled(false);
 			fac.getBtn_newCont().setLabel("Save");
 		}
+//		if(this.finCosonta2++;
+			
 		this.clicSuivant();
 	}
 
@@ -181,6 +188,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		// this.removeImpListener();
 		((Modele_Cardiac) this.model).getResults();
 		((Modele_Cardiac) this.model).calculerResultats();
+//		((Modele_Cardiac) this.model).setNbConta(new int[] {this.nbConta1, this.nbConta2});
 		
 		BufferedImage capture = Library_Capture_CSV.captureImage(this.main.getFenApplication().getImagePlus(), 512, 0).getBufferedImage();
 		new FenResultat_Cardiac(this.main, capture, this);

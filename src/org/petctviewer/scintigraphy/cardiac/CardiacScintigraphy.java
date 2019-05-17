@@ -12,9 +12,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
-import ij.ImagePlus;
 import ij.gui.Overlay;
-import ij.plugin.Concatenator;
 import ij.plugin.MontageMaker;
 import ij.util.DicomTools;
 
@@ -28,12 +26,13 @@ public class CardiacScintigraphy extends Scintigraphy {
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 
 		ArrayList<ImageSelection> mountedImages = new ArrayList<>();
-		
+
 		int[] frameDuration = new int[2];
 
 		for (int i = 0; i < selectedImages.length; i++) {
-			
-			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST || selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
+
+			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST
+					|| selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
 				ImageSelection imp = selectedImages[i];
 				String info = imp.getImagePlus().getInfoProperty();
 				ImageSelection impReversed = Library_Dicom.ensureAntPostFlipped(imp);
@@ -66,24 +65,25 @@ public class CardiacScintigraphy extends Scintigraphy {
 			impStacked = mountedSorted[0];
 		}
 
-		return new ImageSelection[] {impStacked};
+		return new ImageSelection[] { impStacked };
 	}
 
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 7);
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
-		
+
 		// fenetre de l'application
 		this.setFenApplication(new FenApplication_Cardiac(selectedImages[0].getImagePlus(), this.getStudyName()));
 		selectedImages[0].getImagePlus().setOverlay(overlay);
-		
-		//Cree controller
-//		Controleur_Cardiac ctrl = new Controleur_Cardiac(this, selectedImages, "Cardiac");
-		ControllerWorkflowCardiac ctrl = new ControllerWorkflowCardiac(this, this.getFenApplication(), new Modele_Cardiac(this, selectedImages, "Cardiac"));
+
+		// Cree controller
+		// Controleur_Cardiac ctrl = new Controleur_Cardiac(this, selectedImages,
+		// "Cardiac");
+		ControllerWorkflowCardiac ctrl = new ControllerWorkflowCardiac(this, this.getFenApplication(),
+				new Modele_Cardiac(this, selectedImages, "Cardiac"));
 		this.getFenApplication().setControleur(ctrl);
-		
-		
+
 	}
 
 }

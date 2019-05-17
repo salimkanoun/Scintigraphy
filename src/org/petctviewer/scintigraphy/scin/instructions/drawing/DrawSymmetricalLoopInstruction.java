@@ -1,5 +1,7 @@
 package org.petctviewer.scintigraphy.scin.instructions.drawing;
 
+import java.awt.Color;
+
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
@@ -51,7 +53,19 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 	
 	@Override
 	public String getRoiName() {
-		return this.roiName;
+		String name = this.roiName;
+		
+		Roi thisRoi = (Roi) this.getImageState().getImage().getImagePlus().getRoi();
+		boolean OrganPost = thisRoi.getXBase() > this.getImageState().getImage().getImagePlus().getWidth() / 2;
+		
+		if(OrganPost)
+			name+=" P";
+		else
+			name+=" A";		
+		
+		name+=""+(indexLoop/2);
+		
+		return name;
 	}
 	
 	
@@ -83,21 +97,22 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 			lastOrgan = (Roi) lastOrgan.clone();
 	
 			// si la derniere roi etait post ou ant
-			boolean OrganPost = lastOrgan.getXBase() > this.model.getImageSelection()[0].getImagePlus().getWidth() / 2;
+			boolean OrganPost = lastOrgan.getXBase() > this.getImageState().getImage().getImagePlus().getWidth() / 2;
 	
 			// si on doit faire le symetrique et que l'on a appuye sur next
 			if (this.dri_1 != null) {
 	
 				if (OrganPost) { // si la prise est ant, on decale l'organe precedent vers la droite
 					lastOrgan.setLocation(
-							lastOrgan.getXBase() - (this.model.getImageSelection()[0].getImagePlus().getWidth() / 2),
+							lastOrgan.getXBase() - (this.getImageState().getImage().getImagePlus().getWidth() / 2),
 							lastOrgan.getYBase());
 				} else { // sinon vers la gauche
 					lastOrgan.setLocation(
-							lastOrgan.getXBase() + (this.model.getImageSelection()[0].getImagePlus().getWidth() / 2),
+							lastOrgan.getXBase() + (this.getImageState().getImage().getImagePlus().getWidth() / 2),
 							lastOrgan.getYBase());
 				}
-	
+				if(this.indexLoop % 2 != 0) 
+					lastOrgan.setStrokeColor(Color.RED);
 				controller.getCurrentImageState().getImage().getImagePlus().setRoi(lastOrgan);
 				return;
 			}

@@ -5,8 +5,6 @@ import java.awt.GridLayout;
 import java.awt.Panel;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
-import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import ij.IJ;
@@ -27,7 +25,7 @@ public class FenApplication_Cardiac extends FenApplication {
 		this.modeCont = false;
 
 		this.btn_continue = new Button("End");
-//		btn_continue.setActionCommand(ControllerWorkflow.COMMAND_END);
+		// btn_continue.setActionCommand(ControllerWorkflow.COMMAND_END);
 		this.btn_newCont = new Button("Next");
 		this.setText_instructions("Delimit the Bladder");
 
@@ -62,12 +60,14 @@ public class FenApplication_Cardiac extends FenApplication {
 		this.getPanel_Instructions_btns_droite().remove(1);
 		this.getPanel_Instructions_btns_droite().add(this.createPanelInstructionsBtns());
 
-//		String s = "Delimit the " + ((Controleur_OrganeFixe)this.getControleur()).getOrganes()[0];
-//		String s = "Delimit the " + ((ControllerWorkflowCardiac)this.getControleur()).getOrganes()[0];
-//		this.setText_instructions(s);
+		// String s = "Delimit the " +
+		// ((Controleur_OrganeFixe)this.getControleur()).getOrganes()[0];
+		// String s = "Delimit the " +
+		// ((ControllerWorkflowCardiac)this.getControleur()).getOrganes()[0];
+		// this.setText_instructions(s);
 
-//		Controleur_OrganeFixe ctrl = (Controleur_OrganeFixe) this.getControleur();
-//		ctrl.setSlice(ctrl.getSliceNumberByRoiIndex(ctrl.getIndexRoi()));
+		// Controleur_OrganeFixe ctrl = (Controleur_OrganeFixe) this.getControleur();
+		// ctrl.setSlice(ctrl.getSliceNumberByRoiIndex(ctrl.getIndexRoi()));
 		this.modeCont = false;
 		IJ.setTool(Toolbar.POLYGON);
 		this.pack();
