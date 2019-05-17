@@ -15,7 +15,7 @@ public abstract class TabResult {
 	private JSplitPane split;
 
 	private SidePanel sidePanel;
-	private JPanel result;
+	private Container result;
 
 	/**
 	 * Instantiate a new tab.<br>
@@ -54,6 +54,7 @@ public abstract class TabResult {
 		this.sidePanel = new SidePanel(null, parent.getModel().getStudyName(), parent.getModel().getImagePlus());
 
 		split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.result, this.sidePanel);
+		this.split.setResizeWeight(1.);
 	}
 
 	/**
@@ -70,7 +71,7 @@ public abstract class TabResult {
 	 * 
 	 * @return displayable result
 	 */
-	public abstract JPanel getResultContent();
+	public abstract Container getResultContent();
 
 	/**
 	 * Title of this tab. This title should be displayed on the JTabbedPane title.

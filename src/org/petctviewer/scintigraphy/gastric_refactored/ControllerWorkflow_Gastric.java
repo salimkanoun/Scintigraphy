@@ -97,7 +97,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	private void fitBest(String command) {
 		if (command.equals(COMMAND_FIT_BEST_1) || command.equals(COMMAND_FIT_BEST_ALL))
 			this.tabMain.selectFit(this.tabMain.findBestFit());
-		else if (command.equals(COMMAND_FIT_BEST_2) || command.equals(COMMAND_FIT_BEST_ALL))
+		if (command.equals(COMMAND_FIT_BEST_2) || command.equals(COMMAND_FIT_BEST_ALL))
 			this.tabDefaultMethod.selectFit(this.tabDefaultMethod.findBestFit());
 	}
 
@@ -147,7 +147,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.fenResults.setMainTab(this.tabMain);
 		this.fenResults.addTab(tabDefaultMethod);
 		this.fenResults.pack();
-		this.fenResults.setSize(this.fenResults.getSize().width, 1024);
+//		this.fenResults.setSize(this.fenResults.getSize().width, 1024);
 		this.fenResults.setVisible(true);
 	}
 

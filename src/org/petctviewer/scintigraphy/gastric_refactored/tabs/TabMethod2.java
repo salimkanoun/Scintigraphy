@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.gastric_refactored.tabs;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -458,7 +459,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	}
 
 	@Override
-	public JPanel getResultContent() {
+	public Container getResultContent() {
 		JTabbedPane tab = new JTabbedPane(JTabbedPane.LEFT);
 
 		// Results
@@ -467,9 +468,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		// Fit
 		tab.add("Fit", this.createPanelFit());
 
-		JPanel panel = new JPanel();
-		panel.add(tab);
-		return panel;
+		return tab;
 	}
 
 	@Override
