@@ -147,7 +147,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.fenResults.setMainTab(this.tabMain);
 		this.fenResults.addTab(tabDefaultMethod);
 		this.fenResults.pack();
-//		this.fenResults.setSize(this.fenResults.getSize().width, 1024);
 		this.fenResults.setVisible(true);
 	}
 
