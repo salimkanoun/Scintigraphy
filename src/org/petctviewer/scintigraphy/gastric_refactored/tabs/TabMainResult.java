@@ -42,7 +42,6 @@ import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
-import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -57,14 +56,12 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	private ImagePlus capture;
 	private Date timeIngestion;
 
-	private ControllerWorkflow controller;
-
 	private XYSeriesCollection data;
 	private JValueSetter valueSetter;
 
 	private JComboBox<FitType> fitsChoices;
 	private JLabel labelInterpolation, labelError;
-	private JButton btnAutoFit;
+	private JButton btnAutoFit, btnDynAcquisition;
 
 	private Fit currentFit;
 
@@ -90,9 +87,24 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		btnAutoFit.addActionListener(controller);
 		btnAutoFit.setActionCommand(ControllerWorkflow_Gastric.COMMAND_FIT_BEST_1);
 
+		// - Button to launch the dynamic acquisition
+		this.btnDynAcquisition = new JButton("Launch dynamic acquisition");
+		this.btnDynAcquisition.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Finish gastric
+				controller.getVue().setVisible(false);
+				
+				// Stop this button
+				btnDynAcquisition.setEnabled(false);
+
+				// Start scintigraphy
+				new DynGastricScintigraphy(getModel(), parent);
+			}
+		});
+
 		// Set variables
 		this.capture = capture;
-		this.controller = controller;
 
 		this.currentFit = new Fit.NoFit(UNIT);
 
@@ -259,7 +271,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	 * Displays additional results on the tab:
 	 * <ul>
 	 * <li>time of ingestion</li>
-	 * <li>button to auto-fit the graph</li>
+	 * <li>button to launch dyn acquisition</li>
 	 * </ul>
 	 * 
 	 * @return panel containing the additional results
@@ -271,6 +283,9 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		if (this.timeIngestion != null) {
 			panel.add(new JLabel("Ingestion Time: " + new SimpleDateFormat("HH:mm:ss").format(timeIngestion)));
 		}
+		
+		// Button dyn acquisition
+		panel.add(this.btnDynAcquisition);
 
 		return panel;
 	}
@@ -290,21 +305,8 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		ImageStack ims = Library_Capture_CSV.captureToStack(new ImagePlus[] { capture, getModel().createGraph_3(),
 				getModel().createGraph_1(), getModel().createGraph_2() });
 
-		JButton btn = new JButton("Launch dynamic acquisition");
-		btn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// Finish gastric
-				controller.getVue().setVisible(false);
-
-				// Start scintigraphy
-				new DynGastricScintigraphy(getModel(), parent);
-			}
-		});
-
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.add(new DynamicImage(getModel().montage(ims).getImage()), BorderLayout.CENTER);
-		panel.add(btn, BorderLayout.SOUTH);
 
 		return panel;
 	}

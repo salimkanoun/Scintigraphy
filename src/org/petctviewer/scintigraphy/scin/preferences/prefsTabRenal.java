@@ -88,7 +88,6 @@ public class prefsTabRenal extends JPanel implements ActionListener{
 		}else if(e.getSource() == ckb_bld){
 			Prefs.set("renal.bladder.preferred", this.ckb_bld.isSelected());
 		}
-		Prefs.savePreferences();
 	}
 
 }
