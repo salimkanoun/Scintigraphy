@@ -19,7 +19,7 @@ import ij.Prefs;
 public class PrefsTabGastric extends JPanel implements ActionListener, ItemListener {
 	private static final long serialVersionUID = 1L;
 
-	private static final String PREF_SIMPLE_METHOD = "petctviewer.scin.gastric.simple_method",
+	public static final String PREF_SIMPLE_METHOD = "petctviewer.scin.gastric.simple_method",
 			PREF_UNIT_USED = "petctviewer.scin.gastric.unit_used";
 
 	private JCheckBox simpleMethod;

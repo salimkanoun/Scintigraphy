@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -45,11 +46,9 @@ import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 import ij.ImagePlus;
-import ij.ImageStack;
 
 public class TabMainResult extends TabResult implements ItemListener, ChartMouseListener {
 
@@ -65,10 +64,13 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 
 	private Fit currentFit;
 
-	private static final Unit UNIT = Unit.PERCENTAGE;
+	private final Unit UNIT;
 
 	public TabMainResult(FenResults parent, ImagePlus capture, ControllerWorkflow_Gastric controller) {
 		super(parent, "Result");
+
+		// Set unit
+		UNIT = Unit.PERCENTAGE;
 
 		// Instantiate components
 		fitsChoices = new JComboBox<>(FitType.values());
@@ -81,7 +83,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		// - Label error
 		this.labelError = new JLabel();
 		this.labelError.setForeground(Color.RED);
-		
+
 		// - Button to auto-fit the graph
 		btnAutoFit = new JButton("Auto-fit");
 		btnAutoFit.addActionListener(controller);
@@ -94,7 +96,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 			public void actionPerformed(ActionEvent e) {
 				// Finish gastric
 				controller.getVue().setVisible(false);
-				
+
 				// Stop this button
 				btnDynAcquisition.setEnabled(false);
 
@@ -283,7 +285,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		if (this.timeIngestion != null) {
 			panel.add(new JLabel("Ingestion Time: " + new SimpleDateFormat("HH:mm:ss").format(timeIngestion)));
 		}
-		
+
 		// Button dyn acquisition
 		panel.add(this.btnDynAcquisition);
 
@@ -302,11 +304,12 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	 * Creates the panel with the images of the graphs
 	 */
 	private JPanel createPanelResults() {
-		ImageStack ims = Library_Capture_CSV.captureToStack(new ImagePlus[] { capture, getModel().createGraph_3(),
-				getModel().createGraph_1(), getModel().createGraph_2() });
-
-		JPanel panel = new JPanel(new BorderLayout());
-		panel.add(new DynamicImage(getModel().montage(ims).getImage()), BorderLayout.CENTER);
+		JPanel panel = new JPanel(new GridLayout(2, 2));
+		
+		panel.add(new DynamicImage(capture.getImage()));
+		panel.add(getModel().createGraph_3());
+		panel.add(getModel().createGraph_1());
+		panel.add(getModel().createGraph_2());
 
 		return panel;
 	}
@@ -318,19 +321,19 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	/**
 	 * Creates the panel with the graph fitted.
 	 */
-	private JPanel createPanelFit() {		
+	private JPanel createPanelFit() {
 		JPanel panel = new JPanel(new BorderLayout());
 
 		panel.add(this.valueSetter, BorderLayout.CENTER);
 
 		JPanel panSouth = new JPanel();
 		panSouth.setLayout(new BoxLayout(panSouth, BoxLayout.LINE_AXIS));
-		
+
 		panSouth.add(this.fitsChoices);
 		panSouth.add(this.btnAutoFit);
 		panSouth.add(this.labelInterpolation);
 		panSouth.add(this.labelError);
-		
+
 		panel.add(panSouth, BorderLayout.SOUTH);
 
 		return panel;
@@ -481,6 +484,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		// Fit
 		tab.add("Fit", this.createPanelFit());
 
+		tab.setPreferredSize(new Dimension(1024, 768));
 		return tab;
 	}
 
@@ -493,14 +497,14 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 
 		// Center
 		JPanel panCenter = new JPanel(new BorderLayout());
-		
+
 		// - Table
 		JPanel panTable = new JPanel(new BorderLayout());
 		JTable table = tablesResultats();
 		panTable.add(table.getTableHeader(), BorderLayout.PAGE_START);
 		panTable.add(table, BorderLayout.CENTER);
 		panCenter.add(panTable, BorderLayout.CENTER);
-		
+
 		panCenter.add(this.infoResultats(), BorderLayout.SOUTH);
 		panel.add(panCenter, BorderLayout.CENTER);
 

@@ -17,7 +17,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ import java.util.NoSuchElementException;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
@@ -1294,7 +1294,7 @@ public class Model_Gastric extends ModeleScin {
 	 * 
 	 * @return Intragastric distribution graph as an image
 	 */
-	public ImagePlus createGraph_1() {
+	public ChartPanel createGraph_1() {
 		return Library_JFreeChart.createGraph("Fundus/Stomach (%)", new Color(0, 100, 0), "Intragastric Distribution",
 				times, this.getResultAsArray(REGION_FUNDUS, DATA_CORRELATION), 100.0);
 	}
@@ -1305,7 +1305,7 @@ public class Model_Gastric extends ModeleScin {
 	 * 
 	 * @return Gastrointestinal flow graph as an image
 	 */
-	public ImagePlus createGraph_2() {
+	public ChartPanel createGraph_2() {
 		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_DERIVATIVE);
 //		System.out.println("Result for Gastrointestinal flow:");
 //		System.out.println(Arrays.toString(timesDerivative));
@@ -1319,7 +1319,7 @@ public class Model_Gastric extends ModeleScin {
 	 * 
 	 * @return graph as an image
 	 */
-	public ImagePlus createGraph_3() {
+	public ChartPanel createGraph_3() {
 		// On cree un dataset qui contient les 3 series
 		XYSeriesCollection dataset = createDatasetTrois(times, this.getResultAsArray(REGION_STOMACH, DATA_PERCENTAGE),
 				"Stomach", this.getResultAsArray(REGION_FUNDUS, DATA_PERCENTAGE), "Fundus",
@@ -1369,15 +1369,12 @@ public class Model_Gastric extends ModeleScin {
 		// Grid
 		// On ne met pas de grille sur la courbe
 		plot.setDomainGridlinesVisible(false);
-		// On cree la buffered image de la courbe et on envoie dans une ImagePlus
-		BufferedImage buff = xylineChart.createBufferedImage(640, 512);
-		ImagePlus courbe = new ImagePlus("", buff);
-
-		return courbe;
+		
+		return new ChartPanel(xylineChart);
 	}
 
 	// TODO: change this method, the model should not decide for rendering
-	public ImagePlus createGraph_4(Unit unit) {
+	public ChartPanel createGraph_4(Unit unit) {
 		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_GEO_AVERAGE);
 
 		// TODO: convert to kcounts/min

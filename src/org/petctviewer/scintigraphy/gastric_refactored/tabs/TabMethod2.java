@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -43,11 +44,11 @@ import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+import org.petctviewer.scintigraphy.scin.preferences.PrefsTabGastric;
 
 import ij.ImagePlus;
-import ij.ImageStack;
+import ij.Prefs;
 
 public class TabMethod2 extends TabResult implements ItemListener, ChartMouseListener {
 
@@ -63,10 +64,13 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 
 	private Fit currentFit;
 
-	private final static Unit UNIT = Unit.KCOUNTS;
+	private final Unit UNIT;
 
 	public TabMethod2(FenResults parent, ImagePlus capture, ControleurScin controller) {
 		super(parent, "General Method", true);
+
+		// Set unit from Prefs
+		UNIT = Unit.valueOf(Prefs.get(PrefsTabGastric.PREF_UNIT_USED, Unit.COUNTS.name()));
 
 		// Instantiate components
 		fitsChoices = new JComboBox<>(FitType.values());
@@ -248,11 +252,10 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	 * Creates the panel with the images of the graphs
 	 */
 	private JPanel createPanelResults() {
-		ImageStack ims = Library_Capture_CSV
-				.captureToStack(new ImagePlus[] { capture, getModel().createGraph_4(UNIT) });
-
-		JPanel panel = new JPanel(new BorderLayout());
-		panel.add(new DynamicImage(getModel().montage(ims).getImage()), BorderLayout.CENTER);
+		JPanel panel = new JPanel(new GridLayout(2, 1));
+		
+		panel.add(new DynamicImage(capture.getImage()));
+		panel.add(getModel().createGraph_4(UNIT));
 
 		return panel;
 	}
@@ -468,6 +471,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		// Fit
 		tab.add("Fit", this.createPanelFit());
 
+		tab.setPreferredSize(new Dimension(1024, 768));
 		return tab;
 	}
 
