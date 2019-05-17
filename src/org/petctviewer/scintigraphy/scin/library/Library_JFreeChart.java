@@ -1,11 +1,17 @@
 package org.petctviewer.scintigraphy.scin.library;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
@@ -15,6 +21,9 @@ import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.gastric_refactored.Unit;
+
+import ij.ImagePlus;
 
 public class Library_JFreeChart {
 
@@ -293,6 +302,109 @@ public class Library_JFreeChart {
 			for (int i = 0; i < toInvert[j].length; i++)
 				res[i][j] = toInvert[j][i];
 		return res;
+	}
+
+	/**
+	 * Generates a dataset of 1 series with the specified arguments.
+	 * 
+	 * @param resX  Values of the points for the X axis
+	 * @param resY  Values of the points for the Y axis
+	 * @param titre Title of the series
+	 * @return generated dataset with 1 series
+	 */
+	private static XYSeriesCollection createDatasetUn(double[] resX, double[] resY, String titre) {
+		if (resX.length != resY.length)
+			throw new IllegalArgumentException(
+					"The two arrays must have the same length (" + resX.length + " != " + resY.length + ")");
+
+		XYSeries courbe = new XYSeries(titre);
+		for (int i = 0; i < resX.length; i++)
+			courbe.add(resX[i], Math.max(0, resY[i]));
+		return new XYSeriesCollection(courbe);
+	}
+
+	/**
+	 * Generates a graphic image with the specified arguments.
+	 * 
+	 * @param yAxisLabel Label of the Y axis
+	 * @param color      Color of the line
+	 * @param titre      Title of the graph
+	 * @param resX       Values of the points for the X axis
+	 * @param resY       Values of the points for the Y axis
+	 * @param upperBound The upper axis limit
+	 * @return ImagePlus containing the graphic
+	 */
+	public static ImagePlus createGraph(String yAxisLabel, Color color, String titre, double[] resX, double[] resY,
+			double upperBound) {
+		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", yAxisLabel,
+				createDatasetUn(resX, resY, titre), PlotOrientation.VERTICAL, true, true, true);
+
+		XYPlot plot = (XYPlot) xylineChart.getPlot();
+		// Background
+		plot.setBackgroundPaint(Color.WHITE);
+
+		// XYLineAndShapeRenderer
+		// reference:
+		// https://stackoverflow.com/questions/28428991/setting-series-line-style-and-legend-size-in-jfreechart
+		XYLineAndShapeRenderer lineAndShapeRenderer = new XYLineAndShapeRenderer();
+		lineAndShapeRenderer.setSeriesPaint(0, color);
+		lineAndShapeRenderer.setSeriesStroke(0, new BasicStroke(2.0F));
+		plot.setRenderer(lineAndShapeRenderer);
+		lineAndShapeRenderer.setDefaultLegendTextFont(new Font("", Font.BOLD, 16));
+		// XAxis
+		NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
+		domainAxis.setRange(0.00, 360.00);
+		domainAxis.setTickUnit(new NumberTickUnit(30.00));
+		domainAxis.setTickMarkStroke(new BasicStroke(2.5F));
+		domainAxis.setLabelFont(new Font("", Font.BOLD, 16));
+		domainAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
+		// YAxis
+		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+		rangeAxis.setRange(0.00, upperBound);
+		rangeAxis.setTickUnit(new NumberTickUnit(10.00));
+		rangeAxis.setTickMarkStroke(new BasicStroke(2.5F));
+		rangeAxis.setLabelFont(new Font("", Font.BOLD, 16));
+		rangeAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
+		// Grid
+		plot.setDomainGridlinesVisible(false);
+		BufferedImage buff = xylineChart.createBufferedImage(640, 512);
+		ImagePlus courbe = new ImagePlus("", buff);
+		return courbe;
+	}
+
+	/**
+	 * Converts an array of values from one unit to another.<br>
+	 * The array returned is a new instance.
+	 * 
+	 * @param values       Values to convert
+	 * @param previousUnit Unit the values are
+	 * @param newUnit      Unit the values will be convert to
+	 * @return new array with the converted values
+	 */
+	public static double[] convert(double[] values, Unit previousUnit, Unit newUnit) {
+		double[] result = new double[values.length];
+
+		for (int i = 0; i < values.length; i++) {
+			result[i] = previousUnit.convertTo(values[i], newUnit);
+		}
+
+		return result;
+	}
+
+	public static <T extends Comparable> T maxValue(T[] array) {
+		T max = array[0];
+		for (T val : array)
+			if (val.compareTo(max) > 0)
+				max = val;
+		return max;
+	}
+
+	public static double maxValue(double[] array) {
+		double max = array[0];
+		for (double val : array)
+			if (val > max)
+				max = val;
+		return max;
 	}
 
 }
