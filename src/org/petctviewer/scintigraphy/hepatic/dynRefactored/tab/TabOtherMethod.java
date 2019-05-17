@@ -62,7 +62,7 @@ public class TabOtherMethod extends TabResult implements ActionListener, ChangeL
 		this.tabPane = new JTabbedPane();
 		// this.tabsResult = new ArrayList<>();
 
-		this.getPanel().add(tabPane);
+		this.getResultContent().add(tabPane);
 
 		this.currentSidePanel = 1;
 
@@ -97,7 +97,7 @@ public class TabOtherMethod extends TabResult implements ActionListener, ChangeL
 			box.add(Box.createHorizontalGlue());
 
 			pan.add(box);
-			pan.setPreferredSize(new Dimension(1050, 700));
+//			pan.setPreferredSize(new Dimension(1050, 700));
 			return pan;
 
 		} else {
@@ -132,7 +132,6 @@ public class TabOtherMethod extends TabResult implements ActionListener, ChangeL
 		} else if (button == buttonSwitchGraph) {
 			this.tabTAC.switchGraph(this.buttonSwitchGraph);
 		}
-
 	}
 
 	public void setExamDone(boolean boobool) {

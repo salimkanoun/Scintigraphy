@@ -35,7 +35,6 @@ public class ModelHepaticDynamic extends ModeleScinDyn {
 
 	public ModelHepaticDynamic(ImageSelection[] selectedImages, String studyName, int[] frameDuration) {
 		super(selectedImages, studyName, frameDuration);
-		System.out.println("STUDY NAME DEPUIS MODEL" + studyName);
 		this.frames = new int[3];
 		this.times = new int[6];
 		this.captures = new ImagePlus[4];

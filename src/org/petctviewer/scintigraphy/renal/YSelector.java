@@ -93,7 +93,6 @@ public class YSelector extends Selector implements ChartMouseListener {
 		for (Crosshair domain : this.getDomainCrosshairs())
 			this.removeDomainCrosshair(domain);
 
-		
 		// Calculate and display the t1/2 of the ltas hited point of crossY
 		if (this.yLocked) {
 			XYPlot plot = (XYPlot) event.getChart().getPlot();
@@ -105,11 +104,12 @@ public class YSelector extends Selector implements ChartMouseListener {
 
 			// The futur x value
 			Number xValue = 0;
-			// The y graph value, before the current value (default to the y value on index 0)
+			// The y graph value, before the current value (default to the y value on index
+			// 0)
 			double previousYValue = (double) plot.getDataset().getY(this.series, 0);
 			// Index of the selected value
 			int lastIndex = 0;
-			
+
 			// For every y of the graph
 			for (int itemIndex = 0; itemIndex < plot.getDataset().getItemCount(this.series); itemIndex++) {
 				Number yValue = (double) plot.getDataset().getY(this.series, itemIndex);
@@ -143,44 +143,50 @@ public class YSelector extends Selector implements ChartMouseListener {
 	@Override
 	public void chartMouseMoved(ChartMouseEvent event) {
 		XYPlot plot = (XYPlot) event.getChart().getPlot();
+		
+		ValueAxis yAxis = plot.getRangeAxis();
 
+		// on calcule la nouvelle valeur du selecteur horizontal
+		double y = yAxis.java2DToValue(event.getTrigger().getY(), this.jValueSetter.getScreenDataArea(),
+				RectangleEdge.LEFT);
+		
+		// This method won't be use, beause it's useless. But it's cool so, I can't delete it.
 		// si le selecteur horizontal n'est pas bloque
-		if (!this.yLocked) {
-			ValueAxis yAxis = plot.getRangeAxis();
+		if (false) {
+			if (!this.yLocked) {
+				
 
-			// on calcule la nouvelle valeur du selecteur horizontal
-			double y = yAxis.java2DToValue(event.getTrigger().getY(), this.jValueSetter.getScreenDataArea(),
-					RectangleEdge.LEFT);
+				for (Crosshair ch : this.crossXs)
+					this.removeDomainCrosshair(ch);
+				this.crossXs.clear();
 
-			for (Crosshair ch : this.crossXs)
-				this.removeDomainCrosshair(ch);
-			this.crossXs.clear();
-
-			// Futur value of x (interpolated)
-			Number xValue;
-			// The value of the previous point
-			double previousYValue = (double) plot.getDataset().getY(this.series, 0);
-			// FOr every y point of our value
-			for (int itemIndex = 0; itemIndex < plot.getDataset().getItemCount(this.series); itemIndex++) {
-				// The actual y value of the selector, on the graph.
-				Number yValue = (double) plot.getDataset().getY(this.series, itemIndex);
-				// If the value of the selector match the current value of the graph
-				if (((double) yValue) == y || y == previousYValue || (((double) yValue) <= y && y <= previousYValue)
-						|| (((double) yValue) >= y && y >= previousYValue)) {
-					// Interpolation of x
-					xValue = findYValue(plot.getDataset(), this.series, y, previousYValue, (double) yValue,
-							itemIndex - 1);
-					// Add the interpoled x to the value to display, and display it
-					this.crossXs.add(new Crosshair(Double.NaN, Color.GRAY, new BasicStroke(0f)));
-					this.crossXs.get(this.crossXs.size() - 1).setValue(xValue.doubleValue());
-					this.crossXs.get(this.crossXs.size() - 1).setLabelVisible(true);
-					this.addDomainCrosshair(this.crossXs.get(this.crossXs.size() - 1));
+				// Futur value of x (interpolated)
+				Number xValue;
+				// The value of the previous point
+				double previousYValue = (double) plot.getDataset().getY(this.series, 0);
+				// FOr every y point of our value
+				for (int itemIndex = 0; itemIndex < plot.getDataset().getItemCount(this.series); itemIndex++) {
+					// The actual y value of the selector, on the graph.
+					Number yValue = (double) plot.getDataset().getY(this.series, itemIndex);
+					// If the value of the selector match the current value of the graph
+					if (((double) yValue) == y || y == previousYValue || (((double) yValue) <= y && y <= previousYValue)
+							|| (((double) yValue) >= y && y >= previousYValue)) {
+						// Interpolation of x
+						xValue = findYValue(plot.getDataset(), this.series, y, previousYValue, (double) yValue,
+								itemIndex - 1);
+						// Add the interpoled x to the value to display, and display it
+						this.crossXs.add(new Crosshair(Double.NaN, Color.GRAY, new BasicStroke(0f)));
+						this.crossXs.get(this.crossXs.size() - 1).setValue(xValue.doubleValue());
+						this.crossXs.get(this.crossXs.size() - 1).setLabelVisible(true);
+						this.addDomainCrosshair(this.crossXs.get(this.crossXs.size() - 1));
+					}
+					previousYValue = (double) yValue;
 				}
-				previousYValue = (double) yValue;
+				
+				this.currentLabelVisible = -1;
 			}
-			this.crossY.setValue(y);
-			this.currentLabelVisible = -1;
 		}
+		this.crossY.setValue(y);
 	}
 
 	public double getXValue() {
