@@ -1,5 +1,9 @@
 package org.petctviewer.scintigraphy.gastric_refactored.dynamic;
 
+import java.awt.event.ActionEvent;
+
+import javax.swing.JButton;
+
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
@@ -19,6 +23,8 @@ import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
+
+	public static final String COMMAND_FIT_BEST_1 = "cfb_method1", COMMAND_FIT_BEST_2 = "cfb_method2", COMMAND_FIT_BEST_ALL = "cfb_all";
 
 	private FenResults fenResults;
 
@@ -90,9 +96,10 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		getModel().calculerResultats();
 	}
 
-	@Override
-	public Model_Gastric getModel() {
-		return (Model_Gastric) super.getModel();
+	private void fitBest(String command) {
+		TabMainResult tabMain = (TabMainResult) this.fenResults.getMainTab();
+		if (command.equals(COMMAND_FIT_BEST_1))
+			tabMain.selectFit(tabMain.findBestFit());
 	}
 
 	@Override
@@ -103,14 +110,16 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		this.computeModel();
 
 		// Update results
-		TabMainResult tabMain = ((TabMainResult) this.fenResults.getMainTab());
+		TabMainResult tabMain = (TabMainResult) this.fenResults.getMainTab();
 		
 		tabMain.displayTimeIngestion(getModel().getTimeIngestion());
 		tabMain.createGraph();
+
+		// Set the best fit by default
+		this.fitBest(COMMAND_FIT_BEST_ALL);
 		
 		// Do not reload the method 2
-		this.fenResults.getTab(0).reloadDisplay();
-//		fenResults.reloadAllTabs();
+		tabMain.reloadDisplay();
 	}
 
 	@Override
@@ -138,6 +147,22 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 			this.workflows[i].addInstruction(new BkgNoiseInstruction(promptBkgNoise));
 		}
 		this.workflows[this.workflows.length - 1].addInstruction(new EndInstruction());
+	}
+
+	@Override
+	public Model_Gastric getModel() {
+		return (Model_Gastric) super.getModel();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		super.actionPerformed(e);
+		
+		// Auto-fit
+		if(e.getSource() instanceof JButton) {
+			JButton source = (JButton) e.getSource();
+			this.fitBest(source.getActionCommand());
+		}
 	}
 
 	private class BkgNoiseInstruction extends PromptInstruction {

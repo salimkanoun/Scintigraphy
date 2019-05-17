@@ -1,7 +1,10 @@
 package org.petctviewer.scintigraphy.gastric_refactored;
 
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JButton;
 
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
 import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMethod2;
@@ -28,6 +31,9 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 
+	public static final String COMMAND_FIT_BEST_1 = "cfb_method1", COMMAND_FIT_BEST_2 = "cfb_method2",
+			COMMAND_FIT_BEST_ALL = "cfb_all";
+
 	private FenResults fenResults;
 	private TabMainResult tabMain;
 	private TabMethod2 tabDefaultMethod;
@@ -43,32 +49,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 		this.fenResults = new FenResults(this);
 		this.fenResults.setVisible(false);
-	}
-
-	@Override
-	protected void start() {
-		// Find isotope
-		String isotopeCode = Library_Dicom.findIsotopeCode(getModel().getImagePlus());
-		if (isotopeCode == null) {
-			// No code
-			System.out.println("No code found in the image");
-			// Ask user for code
-			IsotopeDialog isotopeDialog = new IsotopeDialog(vue);
-			isotopeDialog.setVisible(true);
-		}
-		Isotope isotope = Isotope.getIsotopeFromCode(isotopeCode);
-		if (isotope == null) {
-			// Code unknown
-			System.out.println("Code found in the image unknown");
-			// Ask user for isotope
-			IsotopeDialog isotopeDialog = new IsotopeDialog(vue, isotopeCode);
-			isotopeDialog.setVisible(true);
-			isotope = isotopeDialog.getIsotope();
-		}
-		getModel().setIsotope(isotope);
-		System.out.println("Isotope found: " + isotope);
-
-		super.start();
 	}
 
 	// TODO: remove this method and compute the model during the process
@@ -114,15 +94,37 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.model.calculerResultats();
 	}
 
-	@Override
-	public void clicPrecedent() {
-		super.clicPrecedent();
-		this.fenResults.setVisible(false);
+	private void fitBest(String command) {
+		if (command.equals(COMMAND_FIT_BEST_1) || command.equals(COMMAND_FIT_BEST_ALL))
+			this.tabMain.selectFit(this.tabMain.findBestFit());
+		else if (command.equals(COMMAND_FIT_BEST_2) || command.equals(COMMAND_FIT_BEST_ALL))
+			this.tabDefaultMethod.selectFit(this.tabDefaultMethod.findBestFit());
 	}
 
 	@Override
-	public Model_Gastric getModel() {
-		return (Model_Gastric) this.model;
+	protected void start() {
+		// Find isotope
+		String isotopeCode = Library_Dicom.findIsotopeCode(getModel().getImagePlus());
+		if (isotopeCode == null) {
+			// No code
+			System.out.println("No code found in the image");
+			// Ask user for code
+			IsotopeDialog isotopeDialog = new IsotopeDialog(vue);
+			isotopeDialog.setVisible(true);
+		}
+		Isotope isotope = Isotope.getIsotopeFromCode(isotopeCode);
+		if (isotope == null) {
+			// Code unknown
+			System.out.println("Code found in the image unknown");
+			// Ask user for isotope
+			IsotopeDialog isotopeDialog = new IsotopeDialog(vue, isotopeCode);
+			isotopeDialog.setVisible(true);
+			isotope = isotopeDialog.getIsotope();
+		}
+		getModel().setIsotope(isotope);
+		System.out.println("Isotope found: " + isotope);
+
+		super.start();
 	}
 
 	@Override
@@ -136,7 +138,10 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.tabMain = new TabMainResult(this.fenResults, this.captures.get(1), this);
 		this.tabMain.displayTimeIngestion(getModel().getTimeIngestion());
 
-		this.tabDefaultMethod = new TabMethod2(this.fenResults, this.captures.get(0));
+		this.tabDefaultMethod = new TabMethod2(this.fenResults, this.captures.get(0), this);
+
+		// Set the best fit by default
+		this.fitBest(COMMAND_FIT_BEST_ALL);
 
 		this.fenResults.clearTabs();
 		this.fenResults.setMainTab(this.tabMain);
@@ -178,7 +183,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_1, dri_2, "Antre"));
 			this.workflows[i].addInstruction(dri_3);
 			// Capture 1: only stomach, for method 2
-			if(i == 0)
+			if (i == 0)
 				this.workflows[i].addInstruction(new ScreenShotInstruction(captures, vue, 0, 640, 512));
 			this.workflows[i].addInstruction(dri_4);
 			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_3, dri_4, "Antre"));
@@ -187,6 +192,28 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 				this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 1, 640, 512));
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
+	}
+
+	@Override
+	public void clicPrecedent() {
+		super.clicPrecedent();
+		this.fenResults.setVisible(false);
+	}
+
+	@Override
+	public Model_Gastric getModel() {
+		return (Model_Gastric) this.model;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		super.actionPerformed(e);
+
+		// Auto-fit
+		if (e.getSource() instanceof JButton) {
+			JButton source = (JButton) e.getSource();
+			this.fitBest(source.getActionCommand());
+		}
 	}
 
 }

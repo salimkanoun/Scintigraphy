@@ -11,6 +11,7 @@ import java.awt.event.ItemListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -62,6 +63,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 
 	private JComboBox<FitType> fitsChoices;
 	private JLabel labelInterpolation, labelError;
+	private JButton btnAutoFit;
 
 	private Fit currentFit;
 
@@ -70,16 +72,24 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	public TabMainResult(FenResults parent, ImagePlus capture, ControllerWorkflow_Gastric controller) {
 		super(parent, "Result");
 
-		// Instantiate variables
+		// Instantiate components
 		fitsChoices = new JComboBox<>(FitType.values());
 		fitsChoices.addItemListener(this);
 
+		// - Label interpolation
 		this.labelInterpolation = new JLabel();
 		this.labelInterpolation.setVisible(false);
 
+		// - Label error
 		this.labelError = new JLabel();
 		this.labelError.setForeground(Color.RED);
+		
+		// - Button to auto-fit the graph
+		btnAutoFit = new JButton("Auto-fit");
+		btnAutoFit.addActionListener(controller);
+		btnAutoFit.setActionCommand(ControllerWorkflow_Gastric.COMMAND_FIT_BEST_1);
 
+		// Set variables
 		this.capture = capture;
 		this.controller = controller;
 
@@ -87,7 +97,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 
 		this.createGraph();
 
-		Component[] hide = new Component[] { fitsChoices };
+		Component[] hide = new Component[] { fitsChoices, btnAutoFit };
 		Component[] show = new Component[] { this.labelInterpolation };
 		this.createCaptureButton(hide, show, null);
 
@@ -188,7 +198,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		infoRes.setLayout(new GridLayout(0, 2));
 
 		// Data
-		double[] data = getModel().getStomachValues();
+		double[] data = getModel().generateStomachValues();
 
 		ResultValue result = getModel().getResult(data, Model_Gastric.START_ANTRUM, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
@@ -207,7 +217,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		this.displayResult(infoRes, result);
 
 		for (double time = 60.; time <= 240.; time += 60.) {
-			result = getModel().retentionAt(getModel().getStomachValues(), time, this.currentFit);
+			result = getModel().retentionAt(getModel().generateStomachValues(), time, this.currentFit);
 			hasExtrapolatedValue = result.getExtrapolation() != null;
 			this.displayRetentionResult(infoRes, time, result);
 		}
@@ -248,13 +258,15 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	 * Displays additional results on the tab:
 	 * <ul>
 	 * <li>time of ingestion</li>
+	 * <li>button to auto-fit the graph</li>
 	 * </ul>
 	 * 
 	 * @return panel containing the additional results
 	 */
 	private JPanel additionalResults() {
-		JPanel panel = new JPanel();
+		JPanel panel = new JPanel(new GridLayout(0, 1));
 
+		// Time of ingestion
 		if (this.timeIngestion != null) {
 			panel.add(new JLabel("Ingestion Time: " + new SimpleDateFormat("HH:mm:ss").format(timeIngestion)));
 		}
@@ -303,20 +315,67 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	/**
 	 * Creates the panel with the graph fitted.
 	 */
-	private JPanel createPanelFit() {
+	private JPanel createPanelFit() {		
 		JPanel panel = new JPanel(new BorderLayout());
 
 		panel.add(this.valueSetter, BorderLayout.CENTER);
 
-		JPanel panSouth = new JPanel(new GridLayout(1, 0));
+		JPanel panSouth = new JPanel();
+		panSouth.setLayout(new BoxLayout(panSouth, BoxLayout.LINE_AXIS));
+		
 		panSouth.add(this.fitsChoices);
+		panSouth.add(this.btnAutoFit);
 		panSouth.add(this.labelInterpolation);
 		panSouth.add(this.labelError);
-		if (this.timeIngestion != null)
-			panSouth.add(new JLabel("Ingestion Time: " + new SimpleDateFormat("HH:mm:ss").format(this.timeIngestion)));
+		
 		panel.add(panSouth, BorderLayout.SOUTH);
 
 		return panel;
+	}
+
+	/**
+	 * Finds the best fit matching the graph. Only the values in the area specified
+	 * by the user are taken into account.<br>
+	 * The best fit is determined by the method of least squares.
+	 * 
+	 * @return best fit for this graph
+	 */
+	public FitType findBestFit() {
+		double bestScore = Double.MAX_VALUE;
+		FitType bestFit = null;
+		for (FitType type : FitType.values()) {
+			double[][] dataset = ((XYSeriesCollection) this.valueSetter.retrieveValuesInSpan()).getSeries(0).toArray();
+
+			try {
+				// Create fit
+				Fit fit = Fit.createFit(type, Library_JFreeChart.invertArray(dataset), UNIT);
+
+				// Get Y points
+				double[] yPoints = dataset[1];
+				double[] yFittedPoints = fit.generateOrdinates(dataset[0]);
+
+				// Compute score
+				double score = getModel().computeLeastSquares(yPoints, yFittedPoints);
+
+				if (score < bestScore) {
+					bestScore = score;
+					bestFit = type;
+				}
+			} catch (IllegalArgumentException e) {
+				// Not enough data selected in the area
+			}
+		}
+
+		return bestFit;
+	}
+
+	/**
+	 * Selects the specified type for the fit.
+	 * 
+	 * @param type Type of fit to select
+	 */
+	public void selectFit(FitType type) {
+		this.fitsChoices.setSelectedItem(type);
 	}
 
 	/**
@@ -325,7 +384,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	public void createGraph() {
 		// Create chart
 		this.data = new XYSeriesCollection();
-		XYSeries stomachSeries = getModel().getStomachSeries();
+		XYSeries stomachSeries = getModel().generateStomachSeries();
 		this.data.addSeries(stomachSeries);
 
 		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (min)", "Stomach retention (%)",
@@ -426,10 +485,17 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 
 	@Override
 	public Component getSidePanelContent() {
-		JPanel panel = new JPanel(new GridLayout(0, 1));
-		panel.add(this.additionalResults());
-		panel.add(tablesResultats());
-		panel.add(this.infoResultats());
+		JPanel panel = new JPanel(new BorderLayout());
+
+		// North
+		panel.add(this.additionalResults(), BorderLayout.NORTH);
+
+		// Center
+		JPanel panCenter = new JPanel(new GridLayout(0, 1));
+		panCenter.add(tablesResultats());
+		panCenter.add(this.infoResultats());
+		panel.add(panCenter, BorderLayout.CENTER);
+
 		return panel;
 	}
 

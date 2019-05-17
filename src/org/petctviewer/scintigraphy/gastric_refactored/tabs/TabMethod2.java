@@ -9,6 +9,8 @@ import java.awt.event.ItemListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -27,6 +29,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.gastric_refactored.ControllerWorkflow_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric_refactored.Result;
 import org.petctviewer.scintigraphy.gastric_refactored.ResultValue;
@@ -35,6 +38,7 @@ import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
+import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -54,30 +58,38 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 
 	private JComboBox<FitType> fitsChoices;
 	private JLabel labelInterpolation, labelError;
+	private JButton btnAutoFit;
 
 	private Fit currentFit;
 
 	private final static Unit UNIT = Unit.KCOUNTS;
 
-	public TabMethod2(FenResults parent, ImagePlus capture) {
+	public TabMethod2(FenResults parent, ImagePlus capture, ControleurScin controller) {
 		super(parent, "General Method", true);
 
-		// Instantiate variables
+		// Instantiate components
 		fitsChoices = new JComboBox<>(FitType.values());
 		fitsChoices.addItemListener(this);
 
+		// - Label interpolation
 		this.labelInterpolation = new JLabel();
 		this.labelInterpolation.setVisible(false);
 
+		// - Label error
 		this.labelError = new JLabel();
 		this.labelError.setForeground(Color.RED);
 
+		// - Button to auto-fit the graph
+		btnAutoFit = new JButton("Auto-fit");
+		btnAutoFit.addActionListener(controller);
+		btnAutoFit.setActionCommand(ControllerWorkflow_Gastric.COMMAND_FIT_BEST_2);
+
+		// Set variables
 		this.capture = capture;
 
 		this.currentFit = new Fit.NoFit(UNIT);
 
 		this.createGraph();
-
 		this.reloadDisplay();
 	}
 
@@ -174,7 +186,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		infoRes.setLayout(new GridLayout(0, 2));
 
 		// Data
-		double[] data = getModel().getDecayValues();
+		double[] data = getModel().generateDecayFunctionValues();
 
 		ResultValue result = getModel().getResult(data, Model_Gastric.START_ANTRUM, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
@@ -193,7 +205,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		this.displayResult(infoRes, result);
 
 		for (double time = 60.; time <= 240.; time += 60.) {
-			result = getModel().retentionAt(getModel().getDecayValues(), time, this.currentFit);
+			result = getModel().retentionAt(getModel().generateDecayFunctionValues(), time, this.currentFit);
 			hasExtrapolatedValue = result.getExtrapolation() != null;
 			this.displayRetentionResult(infoRes, time, result);
 		}
@@ -216,12 +228,13 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	 * Displays additional results on the tab:
 	 * <ul>
 	 * <li>time of ingestion</li>
+	 * <li>button to auto-fit the graph</li>
 	 * </ul>
 	 * 
 	 * @return panel containing the additional results
 	 */
 	private JPanel additionalResults() {
-		JPanel panel = new JPanel();
+		JPanel panel = new JPanel(new GridLayout(0, 1));
 
 		if (this.timeIngestion != null) {
 			panel.add(new JLabel("Ingestion Time: " + new SimpleDateFormat("HH:mm:ss").format(timeIngestion)));
@@ -255,12 +268,14 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 
 		panel.add(this.valueSetter, BorderLayout.CENTER);
 
-		JPanel panSouth = new JPanel(new GridLayout(1, 0));
+		JPanel panSouth = new JPanel();
+		panSouth.setLayout(new BoxLayout(panSouth, BoxLayout.LINE_AXIS));
+
 		panSouth.add(this.fitsChoices);
+		panSouth.add(this.btnAutoFit);
 		panSouth.add(this.labelInterpolation);
 		panSouth.add(this.labelError);
-		if (this.timeIngestion != null)
-			panSouth.add(new JLabel("Ingestion Time: " + new SimpleDateFormat("HH:mm:ss").format(this.timeIngestion)));
+
 		panel.add(panSouth, BorderLayout.SOUTH);
 
 		return panel;
@@ -293,12 +308,57 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	}
 
 	/**
+	 * Finds the best fit matching the graph. Only the values in the area specified
+	 * by the user are taken into account.<br>
+	 * The best fit is determined by the method of least squares.
+	 * 
+	 * @return best fit for this graph
+	 */
+	public FitType findBestFit() {
+		double bestScore = Double.MAX_VALUE;
+		FitType bestFit = null;
+		for (FitType type : FitType.values()) {
+			double[][] dataset = ((XYSeriesCollection) this.valueSetter.retrieveValuesInSpan()).getSeries(0).toArray();
+
+			try {
+				// Create fit
+				Fit fit = Fit.createFit(type, Library_JFreeChart.invertArray(dataset), UNIT);
+
+				// Get Y points
+				double[] yPoints = dataset[1];
+				double[] yFittedPoints = fit.generateOrdinates(dataset[0]);
+
+				// Compute score
+				double score = getModel().computeLeastSquares(yPoints, yFittedPoints);
+
+				if (score < bestScore) {
+					bestScore = score;
+					bestFit = type;
+				}
+			} catch (IllegalArgumentException e) {
+				// Not enough data selected in the area
+			}
+		}
+
+		return bestFit;
+	}
+
+	/**
+	 * Selects the specified type for the fit.
+	 * 
+	 * @param type Type of fit to select
+	 */
+	public void selectFit(FitType type) {
+		this.fitsChoices.setSelectedItem(type);
+	}
+
+	/**
 	 * Generates the graph for the fit of this tab.
 	 */
 	public void createGraph() {
 		// Create chart
 		this.data = new XYSeriesCollection();
-		XYSeries series = getModel().getDecayFunction();
+		XYSeries series = getModel().generateDecayFunction();
 		this.data.addSeries(series);
 
 		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (min)",
@@ -383,10 +443,17 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 
 	@Override
 	public Component getSidePanelContent() {
-		JPanel panel = new JPanel(new GridLayout(0, 1));
-		panel.add(this.additionalResults());
-		panel.add(tablesResultats());
-		panel.add(this.infoResultats());
+		JPanel panel = new JPanel(new BorderLayout());
+
+		// North
+		panel.add(this.additionalResults(), BorderLayout.NORTH);
+
+		// Center
+		JPanel panCenter = new JPanel(new GridLayout(0, 1));
+		panCenter.add(tablesResultats());
+		panCenter.add(this.infoResultats());
+		panel.add(panCenter, BorderLayout.CENTER);
+
 		return panel;
 	}
 
