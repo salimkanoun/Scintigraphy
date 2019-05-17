@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -471,7 +470,6 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		// Fit
 		tab.add("Fit", this.createPanelFit());
 
-		tab.setPreferredSize(new Dimension(1024, 768));
 		return tab;
 	}
 

@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.scin.gui;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -172,6 +173,9 @@ public abstract class TabResult {
 
 		// Remove previous result and add new one
 		this.split.setLeftComponent(this.result);
+		
+		// Respect ratio
+		this.result.setPreferredSize(new Dimension(1024, 768));
 	}
 
 	/**
