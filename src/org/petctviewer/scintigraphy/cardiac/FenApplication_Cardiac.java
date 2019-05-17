@@ -25,13 +25,13 @@ public class FenApplication_Cardiac extends FenApplication {
 		this.modeCont = false;
 
 		this.btn_continue = new Button("End");
-		// btn_continue.setActionCommand(ControllerWorkflow.COMMAND_END);
 		this.btn_newCont = new Button("Next");
-		this.setText_instructions("Delimit the Bladder");
 
 		this.setPreferredCanvasSize(600);
 		this.setLocationRelativeTo(null);
 		IJ.setTool(Toolbar.POLYGON);
+
+		this.pack();
 	}
 
 	/**
@@ -59,15 +59,6 @@ public class FenApplication_Cardiac extends FenApplication {
 	public void stopContaminationMode() {
 		this.getPanel_Instructions_btns_droite().remove(1);
 		this.getPanel_Instructions_btns_droite().add(this.createPanelInstructionsBtns());
-
-		// String s = "Delimit the " +
-		// ((Controleur_OrganeFixe)this.getControleur()).getOrganes()[0];
-		// String s = "Delimit the " +
-		// ((ControllerWorkflowCardiac)this.getControleur()).getOrganes()[0];
-		// this.setText_instructions(s);
-
-		// Controleur_OrganeFixe ctrl = (Controleur_OrganeFixe) this.getControleur();
-		// ctrl.setSlice(ctrl.getSliceNumberByRoiIndex(ctrl.getIndexRoi()));
 		this.modeCont = false;
 		IJ.setTool(Toolbar.POLYGON);
 		this.pack();

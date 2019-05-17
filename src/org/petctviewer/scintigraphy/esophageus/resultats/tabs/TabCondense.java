@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.esophageus.resultats.tabs;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -21,11 +22,9 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
 import ij.process.ImageStatistics;
@@ -49,13 +48,13 @@ public class TabCondense extends TabResult implements ChangeListener {
 
 	private static int numAcquisitionCondense = 0;
 
-	private Modele_EsophagealTransit modeleApp;
+	private Modele_Resultats_EsophagealTransit modeleApp;
 
 	private Integer nbAcquisition;
 
-	public TabCondense(int nbAcquisition, FenResults parent, Modele_EsophagealTransit modeleApp) {
+	public TabCondense(int nbAcquisition, FenResults parent, Modele_Resultats_EsophagealTransit model) {
 		super(parent, "Condensed Dynamic images");
-		this.modeleApp = modeleApp;
+		this.modeleApp = model;
 		this.nbAcquisition = nbAcquisition;
 
 		this.createCaptureButton("Condense");
@@ -66,7 +65,7 @@ public class TabCondense extends TabResult implements ChangeListener {
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		Modele_Resultats_EsophagealTransit modele = (Modele_Resultats_EsophagealTransit) this.parent.getModel();
+		Modele_Resultats_EsophagealTransit modele = (Modele_Resultats_EsophagealTransit) modeleApp;
 
 		if (e.getSource() instanceof JSpinner) {
 			JSpinner spinner = (JSpinner) e.getSource();
@@ -105,7 +104,10 @@ public class TabCondense extends TabResult implements ChangeListener {
 
 	@Override
 	public Component getSidePanelContent() {
-		Modele_Resultats_EsophagealTransit modele = (Modele_Resultats_EsophagealTransit) this.parent.getModel();
+
+		this.getResultContent();
+
+		Modele_Resultats_EsophagealTransit modele = (Modele_Resultats_EsophagealTransit) modeleApp;
 
 		JPanel spinnerPanel = new JPanel();
 		spinnerPanel.add(new JLabel("Left side"));
@@ -230,7 +232,11 @@ public class TabCondense extends TabResult implements ChangeListener {
 
 			}
 		});
-		contrastCapture.add(tempsFenButton);
+
+		JPanel encapsulate = new JPanel();
+		encapsulate.add(tempsFenButton);
+
+		contrastCapture.add(encapsulate);
 
 		sidePanel.add(contrastCapture, BorderLayout.SOUTH);
 
@@ -241,7 +247,7 @@ public class TabCondense extends TabResult implements ChangeListener {
 
 	@Override
 	public JPanel getResultContent() {
-		Modele_Resultats_EsophagealTransit modele = (Modele_Resultats_EsophagealTransit) this.parent.getModel();
+		Modele_Resultats_EsophagealTransit modele = (Modele_Resultats_EsophagealTransit) modeleApp;
 
 		this.rightRognageValue = new int[nbAcquisition];
 		this.leftRognageValue = new int[nbAcquisition];
@@ -250,7 +256,7 @@ public class TabCondense extends TabResult implements ChangeListener {
 			contrastValue[i] = 4;
 		}
 
-		((Modele_Resultats_EsophagealTransit) this.parent.getModel()).calculAllCondense();
+		((Modele_Resultats_EsophagealTransit) modeleApp).calculAllCondense();
 
 		JPanel titleAndCondensePanel = new JPanel();
 		titleAndCondensePanel.setLayout(new BorderLayout());
@@ -259,8 +265,12 @@ public class TabCondense extends TabResult implements ChangeListener {
 		imageCondensePanel.setLayout(new BorderLayout());
 		titleAndCondensePanel.add(imageCondensePanel, BorderLayout.CENTER);
 
-		SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getStudyName(), modele.getImagesPlus()[0]);
-		titleAndCondensePanel.add(sidePanelScin, BorderLayout.NORTH);
+		// SidePanel sidePanelScin = new SidePanel(null,
+		// modeleApp.esoPlugIn.getStudyName(), modele.getImagesPlus()[0]);
+		// titleAndCondensePanel.add(sidePanelScin, BorderLayout.NORTH);
+
+		titleAndCondensePanel
+				.setPreferredSize(new Dimension((int) (this.parent.getWidth() * 0.75), imageCondensePanel.getHeight()));
 
 		return titleAndCondensePanel;
 	}
