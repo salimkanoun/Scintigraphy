@@ -738,11 +738,11 @@ public class Model_Gastric extends ModeleScin {
 	 *         </ul>
 	 */
 	private double[][] generateStomachDataset() {
-		return this.generateDatasetFromKey(REGION_STOMACH, DATA_PERCENTAGE);
+		return this.generateDatasetFromKey(REGION_STOMACH, DATA_PERCENTAGE, false);
 	}
 
 	private double[][] generateDecayFunctionDataset() {
-		return this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED);
+		return this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED, true);
 	}
 
 	private XYSeries generateSeriesFromDataset(String seriesName, double[][] dataset) {
@@ -752,7 +752,7 @@ public class Model_Gastric extends ModeleScin {
 		return series;
 	}
 
-	private double[] generateValuesFromDataset(double[][] dataset) {
+	private double[] generateYValuesFromDataset(double[][] dataset) {
 		double[] yValues = new double[dataset.length];
 		int i = 0;
 		for (double[] d : dataset)
@@ -760,12 +760,19 @@ public class Model_Gastric extends ModeleScin {
 		return yValues;
 	}
 
-	private double[][] generateDatasetFromKey(String regionName, int key) {
+	private double[][] generateDatasetFromKey(String regionName, int key, boolean ignoreTime0) {
 		// Get all Y points
 		double[] yPoints = this.getResultAsArray(regionName, key);
 
 		// Create dataset with right dimensions
 		double[][] dataset = new double[yPoints.length][2];
+		
+		// Get times
+		double[] times;
+		if(ignoreTime0)
+			times = this.getRealTimes();
+		else
+			times = this.getTimes();
 
 		// Fill dataset
 		for (int i = 0; i < yPoints.length; i++) {
@@ -935,8 +942,20 @@ public class Model_Gastric extends ModeleScin {
 		}
 	}
 
+	/**
+	 * @return all times, including time 0 if existing
+	 */
 	public double[] getTimes() {
 		return this.times;
+	}
+
+	/**
+	 * @return times, except fictional time 0
+	 */
+	public double[] getRealTimes() {
+		if (time0 != null)
+			return ArrayUtils.remove(times, 0);
+		return times;
 	}
 
 	public String nameOfDataField(int field) {
@@ -977,7 +996,7 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	public double[] generateStomachValues() {
-		return this.generateValuesFromDataset(generateStomachDataset());
+		return this.generateYValuesFromDataset(generateStomachDataset());
 	}
 
 	public XYSeries generateDecayFunction() {
@@ -985,7 +1004,7 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	public double[] generateDecayFunctionValues() {
-		return this.generateValuesFromDataset(generateDecayFunctionDataset());
+		return this.generateYValuesFromDataset(generateDecayFunctionDataset());
 	}
 
 	/**
@@ -1369,7 +1388,7 @@ public class Model_Gastric extends ModeleScin {
 		// Grid
 		// On ne met pas de grille sur la courbe
 		plot.setDomainGridlinesVisible(false);
-		
+
 		return new ChartPanel(xylineChart);
 	}
 

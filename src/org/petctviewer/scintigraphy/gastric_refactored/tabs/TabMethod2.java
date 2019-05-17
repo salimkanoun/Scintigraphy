@@ -305,7 +305,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 			this.setErrorMessage(null);
 			this.reloadSidePanelContent();
 		} catch (IllegalArgumentException error) {
-			System.err.println("Not enough data");
+			this.clearFits();
 			this.setErrorMessage("Not enough data to fit the graph");
 		}
 	}
@@ -421,7 +421,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	public void drawFit() {
 		this.clearFits();
 
-		this.data.addSeries(this.currentFit.getFittedSeries(getModel().getTimes()));
+		this.data.addSeries(this.currentFit.getFittedSeries(getModel().getRealTimes()));
 	}
 
 	/**
