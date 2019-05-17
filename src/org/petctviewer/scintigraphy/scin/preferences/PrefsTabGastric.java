@@ -52,10 +52,10 @@ public class PrefsTabGastric extends JPanel implements ActionListener, ItemListe
 		Unit[] possibleUnits = new Unit[] { Unit.COUNTS, Unit.KCOUNTS };
 		this.unitUsed = new JComboBox<>(possibleUnits);
 		// Get state
-		System.out.println(Unit.COUNTS.name());
-		System.out.println(Unit.valueOf(Unit.COUNTS.name()));
-		Unit unitState = Unit.valueOf(Prefs.get(PREF_UNIT_USED, Unit.COUNTS.name()));
+		String prefValue = Prefs.get(PREF_UNIT_USED, Unit.COUNTS.name());
+		Unit unitState = Unit.valueOf(prefValue);
 		this.unitUsed.setSelectedItem(unitState);
+		this.unitUsed.addItemListener(this);
 		panUnit.add(new JLabel("Unit used: "));
 		panUnit.add(this.unitUsed);
 		panel.add(panUnit);
@@ -68,7 +68,7 @@ public class PrefsTabGastric extends JPanel implements ActionListener, ItemListe
 		if (e.getSource() == this.simpleMethod) {
 			// Save value in prefs
 			Prefs.set(PREF_SIMPLE_METHOD, this.simpleMethod.isSelected());
-			this.parent.setStatus("Please close the window to save the preferences");
+			this.parent.displayMessage("Please close the window to save the preferences", PrefsWindows.DURATION_SHORT);
 		}
 	}
 
@@ -77,6 +77,7 @@ public class PrefsTabGastric extends JPanel implements ActionListener, ItemListe
 		if (e.getSource() == this.unitUsed && e.getStateChange() == ItemEvent.SELECTED) {
 			// Save new unit
 			Prefs.set(PREF_UNIT_USED, ((Unit) e.getItem()).name());
+			this.parent.displayMessage("Please close the window to save the preferences", PrefsWindows.DURATION_SHORT);
 		}
 	}
 
