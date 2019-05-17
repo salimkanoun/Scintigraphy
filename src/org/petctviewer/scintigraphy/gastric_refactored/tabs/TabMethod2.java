@@ -452,9 +452,16 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		panel.add(this.additionalResults(), BorderLayout.NORTH);
 
 		// Center
-		JPanel panCenter = new JPanel(new GridLayout(0, 1));
-		panCenter.add(tablesResultats());
-		panCenter.add(this.infoResultats());
+		JPanel panCenter = new JPanel(new BorderLayout());
+
+		// - Table
+		JPanel panTable = new JPanel(new BorderLayout());
+		JTable table = tablesResultats();
+		panTable.add(table.getTableHeader(), BorderLayout.PAGE_START);
+		panTable.add(table, BorderLayout.CENTER);
+		panCenter.add(panTable, BorderLayout.CENTER);
+
+		panCenter.add(this.infoResultats(), BorderLayout.SOUTH);
 		panel.add(panCenter, BorderLayout.CENTER);
 
 		return panel;
