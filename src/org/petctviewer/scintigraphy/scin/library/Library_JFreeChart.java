@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.scin.library;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +21,6 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric_refactored.Unit;
-
-import ij.ImagePlus;
 
 public class Library_JFreeChart {
 
@@ -334,7 +331,7 @@ public class Library_JFreeChart {
 	 * @param upperBound The upper axis limit
 	 * @return ImagePlus containing the graphic
 	 */
-	public static ImagePlus createGraph(String yAxisLabel, Color color, String titre, double[] resX, double[] resY,
+	public static ChartPanel createGraph(String yAxisLabel, Color color, String titre, double[] resX, double[] resY,
 			double upperBound) {
 		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", yAxisLabel,
 				createDatasetUn(resX, resY, titre), PlotOrientation.VERTICAL, true, true, true);
@@ -361,15 +358,13 @@ public class Library_JFreeChart {
 		// YAxis
 		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
 		rangeAxis.setRange(0.00, upperBound);
-		rangeAxis.setTickUnit(new NumberTickUnit(10.00));
 		rangeAxis.setTickMarkStroke(new BasicStroke(2.5F));
 		rangeAxis.setLabelFont(new Font("", Font.BOLD, 16));
 		rangeAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
 		// Grid
 		plot.setDomainGridlinesVisible(false);
-		BufferedImage buff = xylineChart.createBufferedImage(640, 512);
-		ImagePlus courbe = new ImagePlus("", buff);
-		return courbe;
+		
+		return new ChartPanel(xylineChart);
 	}
 
 	/**

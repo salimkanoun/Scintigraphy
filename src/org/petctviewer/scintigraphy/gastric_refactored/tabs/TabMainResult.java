@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.gastric_refactored.tabs;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,6 +12,7 @@ import java.awt.event.ItemListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -40,54 +42,76 @@ import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
 import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
-import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 import ij.ImagePlus;
-import ij.ImageStack;
 
 public class TabMainResult extends TabResult implements ItemListener, ChartMouseListener {
 
 	private ImagePlus capture;
 	private Date timeIngestion;
 
-	private ControllerWorkflow controller;
-
 	private XYSeriesCollection data;
 	private JValueSetter valueSetter;
 
 	private JComboBox<FitType> fitsChoices;
 	private JLabel labelInterpolation, labelError;
+	private JButton btnAutoFit, btnDynAcquisition;
 
 	private Fit currentFit;
 
-	private static final Unit UNIT = Unit.PERCENTAGE;
+	private final Unit UNIT;
 
 	public TabMainResult(FenResults parent, ImagePlus capture, ControllerWorkflow_Gastric controller) {
 		super(parent, "Result");
 
-		// Instantiate variables
+		// Set unit
+		UNIT = Unit.PERCENTAGE;
+
+		// Instantiate components
 		fitsChoices = new JComboBox<>(FitType.values());
 		fitsChoices.addItemListener(this);
 
+		// - Label interpolation
 		this.labelInterpolation = new JLabel();
 		this.labelInterpolation.setVisible(false);
 
+		// - Label error
 		this.labelError = new JLabel();
 		this.labelError.setForeground(Color.RED);
 
+		// - Button to auto-fit the graph
+		btnAutoFit = new JButton("Auto-fit");
+		btnAutoFit.addActionListener(controller);
+		btnAutoFit.setActionCommand(ControllerWorkflow_Gastric.COMMAND_FIT_BEST_1);
+
+		// - Button to launch the dynamic acquisition
+		this.btnDynAcquisition = new JButton("Launch dynamic acquisition");
+		this.btnDynAcquisition.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Finish gastric
+				controller.getVue().setVisible(false);
+
+				// Stop this button
+				btnDynAcquisition.setEnabled(false);
+
+				// Start scintigraphy
+				new DynGastricScintigraphy(getModel(), parent);
+			}
+		});
+
+		// Set variables
 		this.capture = capture;
-		this.controller = controller;
 
 		this.currentFit = new Fit.NoFit(UNIT);
 
 		this.createGraph();
 
-		Component[] hide = new Component[] { fitsChoices };
+		Component[] hide = new Component[] { fitsChoices, btnAutoFit };
 		Component[] show = new Component[] { this.labelInterpolation };
 		this.createCaptureButton(hide, show, null);
 
@@ -188,7 +212,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		infoRes.setLayout(new GridLayout(0, 2));
 
 		// Data
-		double[] data = getModel().getStomachValues();
+		double[] data = getModel().generateStomachValues();
 
 		ResultValue result = getModel().getResult(data, Model_Gastric.START_ANTRUM, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
@@ -207,7 +231,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		this.displayResult(infoRes, result);
 
 		for (double time = 60.; time <= 240.; time += 60.) {
-			result = getModel().retentionAt(getModel().getStomachValues(), time, this.currentFit);
+			result = getModel().retentionAt(getModel().generateStomachValues(), time, this.currentFit);
 			hasExtrapolatedValue = result.getExtrapolation() != null;
 			this.displayRetentionResult(infoRes, time, result);
 		}
@@ -248,16 +272,21 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	 * Displays additional results on the tab:
 	 * <ul>
 	 * <li>time of ingestion</li>
+	 * <li>button to launch dyn acquisition</li>
 	 * </ul>
 	 * 
 	 * @return panel containing the additional results
 	 */
 	private JPanel additionalResults() {
-		JPanel panel = new JPanel();
+		JPanel panel = new JPanel(new GridLayout(0, 1));
 
+		// Time of ingestion
 		if (this.timeIngestion != null) {
 			panel.add(new JLabel("Ingestion Time: " + new SimpleDateFormat("HH:mm:ss").format(timeIngestion)));
 		}
+
+		// Button dyn acquisition
+		panel.add(this.btnDynAcquisition);
 
 		return panel;
 	}
@@ -274,24 +303,12 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	 * Creates the panel with the images of the graphs
 	 */
 	private JPanel createPanelResults() {
-		ImageStack ims = Library_Capture_CSV.captureToStack(new ImagePlus[] { capture, getModel().createGraph_3(),
-				getModel().createGraph_1(), getModel().createGraph_2() });
-
-		JButton btn = new JButton("Launch dynamic acquisition");
-		btn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// Finish gastric
-				controller.getVue().setVisible(false);
-
-				// Start scintigraphy
-				new DynGastricScintigraphy(getModel(), parent);
-			}
-		});
-
-		JPanel panel = new JPanel(new BorderLayout());
-		panel.add(new DynamicImage(getModel().montage(ims).getImage()), BorderLayout.CENTER);
-		panel.add(btn, BorderLayout.SOUTH);
+		JPanel panel = new JPanel(new GridLayout(2, 2));
+		
+		panel.add(new DynamicImage(capture.getImage()));
+		panel.add(getModel().createGraph_3());
+		panel.add(getModel().createGraph_1());
+		panel.add(getModel().createGraph_2());
 
 		return panel;
 	}
@@ -308,15 +325,62 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 
 		panel.add(this.valueSetter, BorderLayout.CENTER);
 
-		JPanel panSouth = new JPanel(new GridLayout(1, 0));
+		JPanel panSouth = new JPanel();
+		panSouth.setLayout(new BoxLayout(panSouth, BoxLayout.LINE_AXIS));
+
 		panSouth.add(this.fitsChoices);
+		panSouth.add(this.btnAutoFit);
 		panSouth.add(this.labelInterpolation);
 		panSouth.add(this.labelError);
-		if (this.timeIngestion != null)
-			panSouth.add(new JLabel("Ingestion Time: " + new SimpleDateFormat("HH:mm:ss").format(this.timeIngestion)));
+
 		panel.add(panSouth, BorderLayout.SOUTH);
 
 		return panel;
+	}
+
+	/**
+	 * Finds the best fit matching the graph. Only the values in the area specified
+	 * by the user are taken into account.<br>
+	 * The best fit is determined by the method of least squares.
+	 * 
+	 * @return best fit for this graph
+	 */
+	public FitType findBestFit() {
+		double bestScore = Double.MAX_VALUE;
+		FitType bestFit = null;
+		for (FitType type : FitType.values()) {
+			double[][] dataset = ((XYSeriesCollection) this.valueSetter.retrieveValuesInSpan()).getSeries(0).toArray();
+
+			try {
+				// Create fit
+				Fit fit = Fit.createFit(type, Library_JFreeChart.invertArray(dataset), UNIT);
+
+				// Get Y points
+				double[] yPoints = dataset[1];
+				double[] yFittedPoints = fit.generateOrdinates(dataset[0]);
+
+				// Compute score
+				double score = getModel().computeLeastSquares(yPoints, yFittedPoints);
+
+				if (score < bestScore) {
+					bestScore = score;
+					bestFit = type;
+				}
+			} catch (IllegalArgumentException e) {
+				// Not enough data selected in the area
+			}
+		}
+
+		return bestFit;
+	}
+
+	/**
+	 * Selects the specified type for the fit.
+	 * 
+	 * @param type Type of fit to select
+	 */
+	public void selectFit(FitType type) {
+		this.fitsChoices.setSelectedItem(type);
 	}
 
 	/**
@@ -325,7 +389,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	public void createGraph() {
 		// Create chart
 		this.data = new XYSeriesCollection();
-		XYSeries stomachSeries = getModel().getStomachSeries();
+		XYSeries stomachSeries = getModel().generateStomachSeries();
 		this.data.addSeries(stomachSeries);
 
 		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (min)", "Stomach retention (%)",
@@ -410,7 +474,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	}
 
 	@Override
-	public JPanel getResultContent() {
+	public Container getResultContent() {
 		JTabbedPane tab = new JTabbedPane(JTabbedPane.LEFT);
 
 		// Results
@@ -419,17 +483,29 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		// Fit
 		tab.add("Fit", this.createPanelFit());
 
-		JPanel panel = new JPanel();
-		panel.add(tab);
-		return panel;
+		return tab;
 	}
 
 	@Override
 	public Component getSidePanelContent() {
-		JPanel panel = new JPanel(new GridLayout(0, 1));
-		panel.add(this.additionalResults());
-		panel.add(tablesResultats());
-		panel.add(this.infoResultats());
+		JPanel panel = new JPanel(new BorderLayout());
+
+		// North
+		panel.add(this.additionalResults(), BorderLayout.NORTH);
+
+		// Center
+		JPanel panCenter = new JPanel(new BorderLayout());
+
+		// - Table
+		JPanel panTable = new JPanel(new BorderLayout());
+		JTable table = tablesResultats();
+		panTable.add(table.getTableHeader(), BorderLayout.PAGE_START);
+		panTable.add(table, BorderLayout.CENTER);
+		panCenter.add(panTable, BorderLayout.CENTER);
+
+		panCenter.add(this.infoResultats(), BorderLayout.SOUTH);
+		panel.add(panCenter, BorderLayout.CENTER);
+
 		return panel;
 	}
 

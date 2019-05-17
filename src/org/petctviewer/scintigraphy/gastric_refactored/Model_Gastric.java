@@ -17,7 +17,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ import java.util.NoSuchElementException;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
@@ -741,7 +741,7 @@ public class Model_Gastric extends ModeleScin {
 		return this.generateDatasetFromKey(REGION_STOMACH, DATA_PERCENTAGE);
 	}
 
-	private double[][] generateDecayFunction() {
+	private double[][] generateDecayFunctionDataset() {
 		return this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED);
 	}
 
@@ -833,121 +833,6 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * Generates arrays of times used by the graphs.<br>
-	 * This method must be called before generating datasets for the graphs.
-	 */
-	public void generatesTimes() {
-		this.times = new double[this.nbAcquisitions()];
-		this.timesDerivative = new double[this.nbAcquisitions() - 1];
-
-		int i = 0;
-		for (Data data : this.generatesDataOrdered()) {
-			times[i] = data.getMinutes();
-			if (i > 0)
-				this.timesDerivative[i - 1] = times[i];
-			i++;
-		}
-	}
-
-	public double[] getTimes() {
-		return this.times;
-	}
-
-	public String nameOfDataField(int field) {
-		switch (field) {
-		case DATA_ANT_COUNTS:
-			return "Nb Ant-counts";
-		case DATA_POST_COUNTS:
-			return "Nb Post-counts";
-		case DATA_GEO_AVERAGE:
-			return "Geo-avg";
-		case DATA_PERCENTAGE:
-			return "Percentage";
-		case DATA_DERIVATIVE:
-			return "Derivative";
-		case DATA_CORRELATION:
-			return "Correlation";
-		case DATA_PIXEL_COUNTS:
-			return "Pixel counts";
-		case DATA_BKG_NOISE:
-			return "Background Noise";
-		default:
-			return "???";
-		}
-	}
-
-	/**
-	 * @return all regions required by this model
-	 */
-	public String[] getAllRegionsName() {
-		return new String[] { REGION_STOMACH, REGION_ANTRE, REGION_FUNDUS, REGION_INTESTINE };
-	}
-
-	/**
-	 * @return series for the stomach (used for the graph)
-	 */
-	public XYSeries getStomachSeries() {
-		return this.generateSeriesFromDataset("Stomach", this.generateStomachDataset());
-	}
-
-	public double[] getStomachValues() {
-		return this.generateValuesFromDataset(generateStomachDataset());
-	}
-
-	public XYSeries getDecayFunction() {
-		return this.generateSeriesFromDataset("Stomach", this.generateDecayFunction());
-	}
-
-	public double[] getDecayValues() {
-		return this.generateValuesFromDataset(generateDecayFunction());
-	}
-
-	/**
-	 * This method returns the number of data this model possesses. If a fictional
-	 * time 0 has been activated, then it will be counted as an acquisition.
-	 * 
-	 * @return number of data of this model
-	 */
-	public int nbAcquisitions() {
-		// number of images + the starting point
-		return this.results.size() + (this.time0 != null ? 1 : 0);
-	}
-
-	/**
-	 * Sets the time when the patient ingested the food.
-	 * 
-	 * @param timeIngestion Time of ingestion
-	 */
-	public void setTimeIngestion(Date timeIngestion) {
-		this.timeIngestion = timeIngestion;
-
-		// Refresh all data times
-		for (Data data : this.results.values()) {
-			data.setTime(this
-					.calculateDeltaTime(Library_Dicom.getDateAcquisition(data.getAssociatedImage().getImagePlus())));
-		}
-	}
-
-	public void setIsotope(Isotope isotope) {
-		this.isotope = isotope;
-	}
-
-	public void setFirstImage(ImageSelection firstImage) {
-		this.firstImage = firstImage;
-	}
-
-	public ImageSelection getFirstImage() {
-		return this.firstImage;
-	}
-
-	/**
-	 * @return time when the patient ingested the food
-	 */
-	public Date getTimeIngestion() {
-		return this.timeIngestion;
-	}
-
-	/**
 	 * Retrieves the number of counts for the specified region and orientation.<br>
 	 * The orientation accepted is only Ant or Post. If any other orientation is
 	 * passed, then the result will be returned as if it was a Post orientation.<br>
@@ -966,21 +851,6 @@ public class Model_Gastric extends ModeleScin {
 					+ region.getState().getImage().getImagePlus().getTitle() + ")");
 
 		return data.getValue(region.getName(), orientation == Orientation.ANT ? DATA_ANT_COUNTS : DATA_POST_COUNTS);
-	}
-
-	/**
-	 * Activates the fictional time 0 representing the moment when the fundus
-	 * contains all of the food.
-	 */
-	public void activateTime0() {
-		this.time0 = new Data(null, 0.);
-		this.time0.time = 0.;
-		this.time0.setValue(REGION_STOMACH, DATA_PERCENTAGE, 100.);
-		this.time0.setValue(REGION_FUNDUS, DATA_PERCENTAGE, 100.);
-		this.time0.setValue(REGION_ANTRE, DATA_PERCENTAGE, 0.);
-		this.time0.setValue(REGION_INTESTINE, DATA_PERCENTAGE, 0.);
-
-		this.time0.setValue(REGION_FUNDUS, DATA_CORRELATION, 100.);
 	}
 
 	/**
@@ -1046,8 +916,121 @@ public class Model_Gastric extends ModeleScin {
 			this.bkgNoise_fundus.setValue(DATA_BKG_NOISE, countsFundus / pixelsFundus);
 		} else
 			throw new IllegalArgumentException("The region (" + region + ") is not a background noise");
+	}
 
-		System.out.println("The background noise for the " + region + " is set at " + bkgNoise + "!");
+	/**
+	 * Generates arrays of times used by the graphs.<br>
+	 * This method must be called before generating datasets for the graphs.
+	 */
+	public void generatesTimes() {
+		this.times = new double[this.nbAcquisitions()];
+		this.timesDerivative = new double[this.nbAcquisitions() - 1];
+
+		int i = 0;
+		for (Data data : this.generatesDataOrdered()) {
+			times[i] = data.getMinutes();
+			if (i > 0)
+				this.timesDerivative[i - 1] = times[i];
+			i++;
+		}
+	}
+
+	public double[] getTimes() {
+		return this.times;
+	}
+
+	public String nameOfDataField(int field) {
+		switch (field) {
+		case DATA_ANT_COUNTS:
+			return "Nb Ant-counts";
+		case DATA_POST_COUNTS:
+			return "Nb Post-counts";
+		case DATA_GEO_AVERAGE:
+			return "Geo-avg";
+		case DATA_PERCENTAGE:
+			return "Percentage";
+		case DATA_DERIVATIVE:
+			return "Derivative";
+		case DATA_CORRELATION:
+			return "Correlation";
+		case DATA_PIXEL_COUNTS:
+			return "Pixel counts";
+		case DATA_BKG_NOISE:
+			return "Background Noise";
+		default:
+			return "???";
+		}
+	}
+
+	/**
+	 * @return all regions required by this model
+	 */
+	public String[] getAllRegionsName() {
+		return new String[] { REGION_STOMACH, REGION_ANTRE, REGION_FUNDUS, REGION_INTESTINE };
+	}
+
+	/**
+	 * @return series for the stomach (used for the graph)
+	 */
+	public XYSeries generateStomachSeries() {
+		return this.generateSeriesFromDataset("Stomach", this.generateStomachDataset());
+	}
+
+	public double[] generateStomachValues() {
+		return this.generateValuesFromDataset(generateStomachDataset());
+	}
+
+	public XYSeries generateDecayFunction() {
+		return this.generateSeriesFromDataset("Stomach", this.generateDecayFunctionDataset());
+	}
+
+	public double[] generateDecayFunctionValues() {
+		return this.generateValuesFromDataset(generateDecayFunctionDataset());
+	}
+
+	/**
+	 * This method returns the number of data this model possesses. If a fictional
+	 * time 0 has been activated, then it will be counted as an acquisition.
+	 * 
+	 * @return number of data of this model
+	 */
+	public int nbAcquisitions() {
+		// number of images + the starting point
+		return this.results.size() + (this.time0 != null ? 1 : 0);
+	}
+
+	public void setIsotope(Isotope isotope) {
+		this.isotope = isotope;
+	}
+
+	public void setFirstImage(ImageSelection firstImage) {
+		this.firstImage = firstImage;
+	}
+
+	public ImageSelection getFirstImage() {
+		return this.firstImage;
+	}
+
+	/**
+	 * Sets the time when the patient ingested the food.
+	 * 
+	 * @param timeIngestion Time of ingestion
+	 */
+	public void setTimeIngestion(Date timeIngestion) {
+		this.timeIngestion = timeIngestion;
+
+		// Refresh all data times
+		for (Data data : this.results.values()) {
+			data.setTime(this
+					.calculateDeltaTime(Library_Dicom.getDateAcquisition(data.getAssociatedImage().getImagePlus())));
+		}
+	}
+
+	/**
+	 * @return time when the patient ingested the food
+	 */
+	public Date getTimeIngestion() {
+		return this.timeIngestion;
 	}
 
 	/**
@@ -1196,46 +1179,6 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * Delivers the requested result for the specified image
-	 * 
-	 * @param result     Result to get, it must be one of RES_TIME, RES_STOMACH,
-	 *                   RES_FUNDUS, RES_ANTRUM
-	 * @param indexImage Index of the image (in chronological order) to get the
-	 *                   result from
-	 * @return result found or null if no data was found
-	 * @see Model_Gastric#getResult(Result)
-	 * @throws UnsupportedOperationException if the requested result is different
-	 *                                       than RES_TIME or RES_STOMACH or
-	 *                                       RES_FUNDU or RES_ANTRUM
-	 */
-	public ResultValue getImageResult(Result result, int indexImage) throws UnsupportedOperationException {
-		Data data = this.generatesDataOrdered().get(indexImage);
-
-		try {
-			if (result == RES_TIME)
-				return new ResultValue(result,
-						BigDecimal.valueOf(data.time).setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.TIME);
-			if (result == RES_STOMACH)
-				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
-						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
-			if (result == RES_FUNDUS)
-				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_FUNDUS, DATA_PERCENTAGE))
-						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
-			if (result == RES_ANTRUM)
-				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_ANTRE, DATA_PERCENTAGE))
-						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
-			if (result == RES_STOMACH_COUNTS) {
-				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE))
-						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.COUNTS);
-			} else
-				throw new UnsupportedOperationException("The result " + result + " is not available here!");
-		} catch (NullPointerException e) {
-			// Exception = data not found
-			return null;
-		}
-	}
-
-	/**
 	 * Delivers the requested result.<br>
 	 * This method can only be used for the results that are calculated for all of
 	 * the images (meaning START_ANTRUM, START_INTESTINE, LAG_PHASE and T_HALF). Any
@@ -1285,6 +1228,46 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
+	 * Delivers the requested result for the specified image
+	 * 
+	 * @param result     Result to get, it must be one of RES_TIME, RES_STOMACH,
+	 *                   RES_FUNDUS, RES_ANTRUM
+	 * @param indexImage Index of the image (in chronological order) to get the
+	 *                   result from
+	 * @return result found or null if no data was found
+	 * @see Model_Gastric#getResult(Result)
+	 * @throws UnsupportedOperationException if the requested result is different
+	 *                                       than RES_TIME or RES_STOMACH or
+	 *                                       RES_FUNDU or RES_ANTRUM
+	 */
+	public ResultValue getImageResult(Result result, int indexImage) throws UnsupportedOperationException {
+		Data data = this.generatesDataOrdered().get(indexImage);
+
+		try {
+			if (result == RES_TIME)
+				return new ResultValue(result,
+						BigDecimal.valueOf(data.time).setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.TIME);
+			if (result == RES_STOMACH)
+				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
+						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+			if (result == RES_FUNDUS)
+				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_FUNDUS, DATA_PERCENTAGE))
+						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+			if (result == RES_ANTRUM)
+				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_ANTRE, DATA_PERCENTAGE))
+						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+			if (result == RES_STOMACH_COUNTS) {
+				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE))
+						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.COUNTS);
+			} else
+				throw new UnsupportedOperationException("The result " + result + " is not available here!");
+		} catch (NullPointerException e) {
+			// Exception = data not found
+			return null;
+		}
+	}
+
+	/**
 	 * Returns the retention percentage at the specified time.<br>
 	 * The result might be interpolated.
 	 * 
@@ -1311,7 +1294,7 @@ public class Model_Gastric extends ModeleScin {
 	 * 
 	 * @return Intragastric distribution graph as an image
 	 */
-	public ImagePlus createGraph_1() {
+	public ChartPanel createGraph_1() {
 		return Library_JFreeChart.createGraph("Fundus/Stomach (%)", new Color(0, 100, 0), "Intragastric Distribution",
 				times, this.getResultAsArray(REGION_FUNDUS, DATA_CORRELATION), 100.0);
 	}
@@ -1322,7 +1305,7 @@ public class Model_Gastric extends ModeleScin {
 	 * 
 	 * @return Gastrointestinal flow graph as an image
 	 */
-	public ImagePlus createGraph_2() {
+	public ChartPanel createGraph_2() {
 		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_DERIVATIVE);
 //		System.out.println("Result for Gastrointestinal flow:");
 //		System.out.println(Arrays.toString(timesDerivative));
@@ -1336,7 +1319,7 @@ public class Model_Gastric extends ModeleScin {
 	 * 
 	 * @return graph as an image
 	 */
-	public ImagePlus createGraph_3() {
+	public ChartPanel createGraph_3() {
 		// On cree un dataset qui contient les 3 series
 		XYSeriesCollection dataset = createDatasetTrois(times, this.getResultAsArray(REGION_STOMACH, DATA_PERCENTAGE),
 				"Stomach", this.getResultAsArray(REGION_FUNDUS, DATA_PERCENTAGE), "Fundus",
@@ -1386,23 +1369,16 @@ public class Model_Gastric extends ModeleScin {
 		// Grid
 		// On ne met pas de grille sur la courbe
 		plot.setDomainGridlinesVisible(false);
-		// On cree la buffered image de la courbe et on envoie dans une ImagePlus
-		BufferedImage buff = xylineChart.createBufferedImage(640, 512);
-		ImagePlus courbe = new ImagePlus("", buff);
-
-		return courbe;
+		
+		return new ChartPanel(xylineChart);
 	}
 
 	// TODO: change this method, the model should not decide for rendering
-	public ImagePlus createGraph_4(Unit unit) {
+	public ChartPanel createGraph_4(Unit unit) {
 		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_GEO_AVERAGE);
 
 		// TODO: convert to kcounts/min
 		result = Library_JFreeChart.convert(result, Unit.COUNTS, unit);
-		
-		System.out.println(" -- DATA -- ");
-		for(Data data : this.generatesDataOrdered())
-			System.out.println(data);
 
 		double[] xValues = times;
 		if (this.time0 != null)
@@ -1410,6 +1386,21 @@ public class Model_Gastric extends ModeleScin {
 
 		return Library_JFreeChart.createGraph(unit.abrev(), Color.GREEN, "Stomach retention", xValues, result,
 				Library_JFreeChart.maxValue(result) * 1.1);
+	}
+
+	/**
+	 * Activates the fictional time 0 representing the moment when the fundus
+	 * contains all of the food.
+	 */
+	public void activateTime0() {
+		this.time0 = new Data(null, 0.);
+		this.time0.time = 0.;
+		this.time0.setValue(REGION_STOMACH, DATA_PERCENTAGE, 100.);
+		this.time0.setValue(REGION_FUNDUS, DATA_PERCENTAGE, 100.);
+		this.time0.setValue(REGION_ANTRE, DATA_PERCENTAGE, 0.);
+		this.time0.setValue(REGION_INTESTINE, DATA_PERCENTAGE, 0.);
+
+		this.time0.setValue(REGION_FUNDUS, DATA_CORRELATION, 100.);
 	}
 
 	/**
@@ -1421,6 +1412,29 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	public void deactivateTime0() {
 		this.time0 = null;
+	}
+
+	/**
+	 * Given two dataset of Y values, this method will add the square of the result
+	 * of the subtraction of each point.<br>
+	 * For instance, given two points <code>A(x, 4) A'(x, 5)</code> and
+	 * <code>B(x, 3) B'(x, 1)</code> the result will be calculate like this:<br>
+	 * <code>(4-5)² + (3-1)²</code>
+	 * 
+	 * @param yValues       First dataset
+	 * @param yFittedValues Second dataset
+	 * @return least square of the two dataset
+	 */
+	public double computeLeastSquares(double[] yValues, double[] yFittedValues) {
+		if (yValues.length != yFittedValues.length)
+			throw new IllegalArgumentException("The lengths of the arrays must be equals (" + yValues.length + " != "
+					+ yFittedValues.length + ")");
+
+		double result = 0.;
+		for (int i = 0; i < yValues.length; i++) {
+			result += Math.pow(yValues[i] - yFittedValues[i], 2);
+		}
+		return result;
 	}
 
 	/**

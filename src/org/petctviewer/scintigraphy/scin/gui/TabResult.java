@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.scin.gui;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -15,7 +16,7 @@ public abstract class TabResult {
 	private JSplitPane split;
 
 	private SidePanel sidePanel;
-	private JPanel result;
+	private Container result;
 
 	/**
 	 * Instantiate a new tab.<br>
@@ -54,6 +55,7 @@ public abstract class TabResult {
 		this.sidePanel = new SidePanel(null, parent.getModel().getStudyName(), parent.getModel().getImagePlus());
 
 		split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.result, this.sidePanel);
+		this.split.setResizeWeight(1.);
 	}
 
 	/**
@@ -70,7 +72,7 @@ public abstract class TabResult {
 	 * 
 	 * @return displayable result
 	 */
-	public abstract JPanel getResultContent();
+	public abstract Container getResultContent();
 
 	/**
 	 * Title of this tab. This title should be displayed on the JTabbedPane title.
@@ -171,6 +173,9 @@ public abstract class TabResult {
 
 		// Remove previous result and add new one
 		this.split.setLeftComponent(this.result);
+		
+		// Respect ratio
+		this.result.setPreferredSize(new Dimension(1024, 768));
 	}
 
 	/**

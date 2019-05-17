@@ -81,7 +81,6 @@ public class prefsTabMain extends JPanel implements ActionListener{
 					File file = fc.getSelectedFile();
 					this.lut.setText(file.getPath());
 					Prefs.set("lut.preferred", this.lut.getText()+"");
-					Prefs.savePreferences();
 			}
 		}
 		
@@ -94,7 +93,6 @@ public class prefsTabMain extends JPanel implements ActionListener{
 			if (rval == JFileChooser.APPROVE_OPTION) {
 				this.dir.setText(fc.getSelectedFile().getAbsoluteFile().toString()) ;
 				Prefs.set("dir.preferred", this.dir.getText()+"");
-				Prefs.savePreferences();
 			}
 		}
 		
