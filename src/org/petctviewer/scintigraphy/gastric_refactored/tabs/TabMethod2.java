@@ -66,7 +66,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	private final Unit UNIT;
 
 	public TabMethod2(FenResults parent, ImagePlus capture, ControleurScin controller) {
-		super(parent, "General Method", true);
+		super(parent, "Gastric Only", true);
 
 		// Set unit from Prefs
 		UNIT = Unit.valueOf(Prefs.get(PrefsTabGastric.PREF_UNIT_USED, Unit.COUNTS.name()));
