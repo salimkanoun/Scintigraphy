@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
@@ -45,7 +46,7 @@ public class EsophagealTransit extends Scintigraphy {
 	private int[] frameDurations;
 
 	// [0: ant | 1: post][numAcquisition]
-	private ImagePlus[][] sauvegardeImagesSelectDicom;
+	private ImageSelection[][] sauvegardeImagesSelectDicom;
 
 	// imp du projet de chaque Acqui
 	private ImagePlus impProjeteAllAcqui;
@@ -63,7 +64,7 @@ public class EsophagealTransit extends Scintigraphy {
 		// dicom
 
 		// sauvegarde des images pour le modele
-		sauvegardeImagesSelectDicom = new ImagePlus[2][selectedImages.length];
+		sauvegardeImagesSelectDicom = new ImageSelection[2][selectedImages.length];
 
 		// oblige de faire duplicate sinon probleme
 
@@ -76,20 +77,26 @@ public class EsophagealTransit extends Scintigraphy {
 
 		// poour chaque acquisition
 		for (int i = 0; i < selectedImages.length; i++) {
-			// on ne sauvegarde que la ant
-			// null == pas d'image ant et/ou une image post et != une image post en [0]
-			ImageSelection[] splited = Library_Dicom.splitDynamicAntPost(selectedImages[i]);
-			if (splited[0] != null) {
-				imagePourTrieAnt.add(Library_Dicom.splitDynamicAntPost(selectedImages[i])[0]);
-			}
-			// [1] : c'est la post
-			// si null : pas dimage post
-			if (splited[1] != null) {
-				// trie + inversement de la post
-				ImageSelection ims = Library_Dicom.splitDynamicAntPost(selectedImages[i])[1];
-				Library_Dicom.flipStackHorizontal(ims);
-				imagePourTriePost.add(ims);
-			}
+			if (selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_ANT_POST || selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
+				// on ne sauvegarde que la ant
+				// null == pas d'image ant et/ou une image post et != une image post en [0]
+				ImageSelection[] splited = Library_Dicom.splitDynamicAntPost(selectedImages[i]);
+				if (splited[0] != null) {
+					imagePourTrieAnt.add(Library_Dicom.splitDynamicAntPost(selectedImages[i])[0]);
+				}
+				// [1] : c'est la post
+				// si null : pas dimage post
+				if (splited[1] != null) {
+					// trie + inversement de la post
+					ImageSelection ims = Library_Dicom.splitDynamicAntPost(selectedImages[i])[1];
+					Library_Dicom.flipStackHorizontal(ims);
+					imagePourTriePost.add(ims);
+				}
+			}else if(selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_ANT)
+				imagePourTrieAnt.add(selectedImages[i]);
+			else
+				throw new WrongInputException(
+						"Unexpected Image type.\n Accepted : DYNAMIC_ANT | DYNAMIC_ANT_POST | DYNAMIC_POST_ANT");
 			selectedImages[i].getImagePlus().close();
 
 		}
@@ -99,7 +106,7 @@ public class EsophagealTransit extends Scintigraphy {
 		// on met les imageplus (ANT) dans cette fonction pour les trier, ensuite on
 		// stock le tout dans le tableau en [0]
 		Collections.sort(imagePourTrieAnt, chronologicalOrder);
-		sauvegardeImagesSelectDicom[0] = imagePourTrieAnt.toArray(sauvegardeImagesSelectDicom[0]);
+		sauvegardeImagesSelectDicom[0] = imagePourTrieAnt.toArray(new ImageSelection[imagePourTrieAnt.size()]);
 		// Pareil pour la post
 		Collections.sort(imagePourTriePost, chronologicalOrder);
 		sauvegardeImagesSelectDicom[1] = imagePourTriePost.toArray(sauvegardeImagesSelectDicom[1]);
@@ -108,7 +115,7 @@ public class EsophagealTransit extends Scintigraphy {
 		if (sauvegardeImagesSelectDicom[0].length != sauvegardeImagesSelectDicom[1].length) {
 			System.err.println(
 					"(EsophagealTransit) Le nombre de slice ant est différent du nombre de slice post -> seules les ant seront pris en comptes");
-			sauvegardeImagesSelectDicom[1] = new ImagePlus[0];
+			sauvegardeImagesSelectDicom[1] = new ImageSelection[0];
 		}
 
 		nbAcquisition = sauvegardeImagesSelectDicom[0].length;
@@ -136,13 +143,13 @@ public class EsophagealTransit extends Scintigraphy {
 				impsAnt[i] = imagesAnt[i].getImagePlus();
 			impProjeteAllAcqui = new ImagePlus("EsoStack", Library_Capture_CSV.captureToStack(impsAnt));
 			// SK VOIR METHODE POUR GARDER LES METADATA ORIGINALE DANS LE STACK GENEREs
-			impProjeteAllAcqui.setProperty("Info", sauvegardeImagesSelectDicom[0][0].getInfoProperty());
+			impProjeteAllAcqui.setProperty("Info", sauvegardeImagesSelectDicom[0][0].getImagePlus().getInfoProperty());
 		}
 
 		// phase 1
 		// on retourne la stack de la 1ere acquisition
 		ImageSelection[] selection = new ImageSelection[1];
-		selection[0] = new ImageSelection(sauvegardeImagesSelectDicom[0][0], null, null);
+		selection[0] = sauvegardeImagesSelectDicom[0][0];
 		return selection;
 	}
 
@@ -167,7 +174,7 @@ public class EsophagealTransit extends Scintigraphy {
 			radioButton[i].addItemListener(new ItemListener() {
 				@Override
 				public void itemStateChanged(ItemEvent e) {
-					fen.setImage(sauvegardeImagesSelectDicom[0][num]);
+					fen.setImage(sauvegardeImagesSelectDicom[0][num].getImagePlus());
 				}
 			});
 			buttonGroup.add(radioButton[i]);
@@ -198,8 +205,9 @@ public class EsophagealTransit extends Scintigraphy {
 				fen.updateSliceSelector();
 				IJ.setTool(Toolbar.RECTANGLE);
 
-				Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(EsophagealTransit.this,
-						sauvegardeImagesSelectDicom, "Esophageal Transit");
+//				Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(EsophagealTransit.this,
+//						sauvegardeImagesSelectDicom, "Esophageal Transit");
+				ControllerWorkflowEsophagealTransit cet = new ControllerWorkflowEsophagealTransit(EsophagealTransit.this, EsophagealTransit.this.getFenApplication(), new Modele_EsophagealTransit(sauvegardeImagesSelectDicom, "Esophageal Transit", EsophagealTransit.this));
 				EsophagealTransit.this.getFenApplication().setControleur(cet);
 
 			}

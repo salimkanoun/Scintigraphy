@@ -14,7 +14,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 @SuppressWarnings("serial")
 public class FenResultats_EsophagealTransit extends FenResults {
 
-//	private Modele_Resultats_EsophagealTransit modele ;
+	// private Modele_Resultats_EsophagealTransit modele ;
 
 	/*
 	 * un partie main avec graph main et un jtablecheckbox main un partie transit
@@ -24,13 +24,15 @@ public class FenResultats_EsophagealTransit extends FenResults {
 	public FenResultats_EsophagealTransit(ArrayList<HashMap<String, ArrayList<Double>>> arrayList,
 			ArrayList<Object[]> dicomRoi, Modele_EsophagealTransit modeleApp, String studyName,
 			ControleurScin controller) {
-//		super(new Modele_Resultats_EsophagealTransit(arrayList, dicomRoi, studyName));
 		super(controller);
 
-		this.addTab(new TabCurves(arrayList.size(), this, modeleApp));
-		this.addTab(new TabTransitTime(arrayList.size(), this, modeleApp));
-		this.addTab(new TabRentention(arrayList.size(), this, modeleApp));
-		this.addTab(new TabCondense(arrayList.size(), this, modeleApp));
+		Modele_Resultats_EsophagealTransit model = new Modele_Resultats_EsophagealTransit(arrayList, dicomRoi,
+				studyName, modeleApp.esoPlugIn, modeleApp.getImageSelection());
+
+		this.addTab(new TabCurves(arrayList.size(), this, model));
+		this.addTab(new TabTransitTime(arrayList.size(), this, model));
+		this.addTab(new TabRentention(arrayList.size(), this, model));
+		this.addTab(new TabCondense(arrayList.size(), this, model));
 
 	}
 

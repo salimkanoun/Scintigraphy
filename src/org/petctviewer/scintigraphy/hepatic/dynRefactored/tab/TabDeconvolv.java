@@ -18,14 +18,10 @@ import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ModelSecondMethodHepaticDynamic;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
-import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.renal.YSelector;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
-import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-
-import ij.Prefs;
 
 /**
  * Tab showing the deconvolve of Right liver, using the Blood Pool values.
@@ -196,7 +192,6 @@ public class TabDeconvolv {
 	}
 	
 	private JValueSetter prepareValueSetter(ChartPanel chart) {
-		XYPlot plot = chart.getChart().getXYPlot();
 		chart.getChart().getPlot().setBackgroundPaint(null);
 		JValueSetter jvs = new JValueSetter(chart.getChart());
 		

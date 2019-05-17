@@ -99,18 +99,21 @@ public class YSelector extends Selector implements ChartMouseListener {
 			XYPlot plot = (XYPlot) event.getChart().getPlot();
 			ValueAxis yAxis = plot.getRangeAxis();
 
-			// on calcule la nouvelle valeur du selecteur vertical
+			// Getting the y value of the selector
 			double y = yAxis.java2DToValue(event.getTrigger().getY(), this.jValueSetter.getScreenDataArea(),
 					RectangleEdge.LEFT);
 
+			// The futur x value
 			Number xValue = 0;
+			// The y graph value, before the current value (default to the y value on index 0)
 			double previousYValue = (double) plot.getDataset().getY(this.series, 0);
+			// Index of the selected value
 			int lastIndex = 0;
-			// double lastValue = 0;
+			
+			// For every y of the graph
 			for (int itemIndex = 0; itemIndex < plot.getDataset().getItemCount(this.series); itemIndex++) {
 				Number yValue = (double) plot.getDataset().getY(this.series, itemIndex);
 				if ((((double) yValue) <= y && y <= previousYValue)) {
-					// lastValue = (double) plot.getDataset().getY(this.series, itemIndex - 1);
 					lastIndex = itemIndex - 1;
 				}
 				previousYValue = (double) yValue;
@@ -141,11 +144,11 @@ public class YSelector extends Selector implements ChartMouseListener {
 	public void chartMouseMoved(ChartMouseEvent event) {
 		XYPlot plot = (XYPlot) event.getChart().getPlot();
 
-		// si le selecteur vertical n'est pas bloque
+		// si le selecteur horizontal n'est pas bloque
 		if (!this.yLocked) {
 			ValueAxis yAxis = plot.getRangeAxis();
 
-			// on calcule la nouvelle valeur du selecteur vertical
+			// on calcule la nouvelle valeur du selecteur horizontal
 			double y = yAxis.java2DToValue(event.getTrigger().getY(), this.jValueSetter.getScreenDataArea(),
 					RectangleEdge.LEFT);
 
@@ -153,14 +156,21 @@ public class YSelector extends Selector implements ChartMouseListener {
 				this.removeDomainCrosshair(ch);
 			this.crossXs.clear();
 
+			// Futur value of x (interpolated)
 			Number xValue;
+			// The value of the previous point
 			double previousYValue = (double) plot.getDataset().getY(this.series, 0);
+			// FOr every y point of our value
 			for (int itemIndex = 0; itemIndex < plot.getDataset().getItemCount(this.series); itemIndex++) {
+				// The actual y value of the selector, on the graph.
 				Number yValue = (double) plot.getDataset().getY(this.series, itemIndex);
+				// If the value of the selector match the current value of the graph
 				if (((double) yValue) == y || y == previousYValue || (((double) yValue) <= y && y <= previousYValue)
 						|| (((double) yValue) >= y && y >= previousYValue)) {
+					// Interpolation of x
 					xValue = findYValue(plot.getDataset(), this.series, y, previousYValue, (double) yValue,
 							itemIndex - 1);
+					// Add the interpoled x to the value to display, and display it
 					this.crossXs.add(new Crosshair(Double.NaN, Color.GRAY, new BasicStroke(0f)));
 					this.crossXs.get(this.crossXs.size() - 1).setValue(xValue.doubleValue());
 					this.crossXs.get(this.crossXs.size() - 1).setLabelVisible(true);

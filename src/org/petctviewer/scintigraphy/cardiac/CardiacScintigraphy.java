@@ -12,9 +12,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
-import ij.ImagePlus;
 import ij.gui.Overlay;
-import ij.plugin.Concatenator;
 import ij.plugin.MontageMaker;
 import ij.util.DicomTools;
 
@@ -27,20 +25,22 @@ public class CardiacScintigraphy extends Scintigraphy {
 	@Override
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 
-		ArrayList<ImagePlus> mountedImages = new ArrayList<>();
+		ArrayList<ImageSelection> mountedImages = new ArrayList<>();
 
 		int[] frameDuration = new int[2];
 
 		for (int i = 0; i < selectedImages.length; i++) {
-			
-			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST || selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
-				ImagePlus imp = selectedImages[i].getImagePlus();
-				String info = imp.getInfoProperty();
-				ImagePlus impReversed = Library_Dicom.sortImageAntPost(imp);
+
+			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST
+					|| selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
+				ImageSelection imp = selectedImages[i];
+				String info = imp.getImagePlus().getInfoProperty();
+				ImageSelection impReversed = Library_Dicom.ensureAntPostFlipped(imp);
 				MontageMaker mm = new MontageMaker();
-				ImagePlus montageImage = mm.makeMontage2(impReversed, 2, 1, 1.0, 1, 2, 1, 0, false);
-				montageImage.setProperty("Info", info);
-				frameDuration[i] = Integer.parseInt(DicomTools.getTag(imp, "0018,1242").trim());
+				ImageSelection montageImage = impReversed.clone();
+				montageImage.setImagePlus(mm.makeMontage2(impReversed.getImagePlus(), 2, 1, 1.0, 1, 2, 1, 0, false));
+				montageImage.getImagePlus().setProperty("Info", info);
+				frameDuration[i] = Integer.parseInt(DicomTools.getTag(imp.getImagePlus(), "0018,1242").trim());
 				mountedImages.add(montageImage);
 			} else {
 				new Exception("wrong input, need ant/post image");
@@ -48,15 +48,14 @@ public class CardiacScintigraphy extends Scintigraphy {
 			selectedImages[i].getImagePlus().close();
 		}
 
-		ImagePlus[] mountedSorted = new ImagePlus[mountedImages.size()];
-		mountedImages.sort(new ChronologicalAcquisitionComparator.ImagePlusComparator());
+		ImageSelection[] mountedSorted = new ImageSelection[mountedImages.size()];
+		mountedImages.sort(new ChronologicalAcquisitionComparator());
 		mountedSorted = mountedImages.toArray(mountedSorted);
-		Concatenator enchainer = new Concatenator();
 
-		ImagePlus impStacked;
+		ImageSelection impStacked = mountedSorted[0].clone();
 		// si la prise est early/late
 		if (selectedImages.length == 2) {
-			impStacked = enchainer.concatenate(mountedSorted, false);
+			impStacked.setImagePlus(Library_Dicom.concatenate(mountedSorted, false));
 			// si il y a plus de 3 minutes de diff�rence entre les deux prises
 			if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {
 				IJ.log("Warning, frame duration differ by "
@@ -66,25 +65,25 @@ public class CardiacScintigraphy extends Scintigraphy {
 			impStacked = mountedSorted[0];
 		}
 
-		ImageSelection[] selection = new ImageSelection[1];
-		selection[0] = new ImageSelection(impStacked.duplicate(), null, null);
-		return selection;
+		return new ImageSelection[] { impStacked };
 	}
 
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 7);
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
-		
+
 		// fenetre de l'application
 		this.setFenApplication(new FenApplication_Cardiac(selectedImages[0].getImagePlus(), this.getStudyName()));
 		selectedImages[0].getImagePlus().setOverlay(overlay);
-		
-		//Cree controller
-		Controleur_Cardiac ctrl = new Controleur_Cardiac(this, selectedImages, "Cardiac");
+
+		// Cree controller
+		// Controleur_Cardiac ctrl = new Controleur_Cardiac(this, selectedImages,
+		// "Cardiac");
+		ControllerWorkflowCardiac ctrl = new ControllerWorkflowCardiac(this, this.getFenApplication(),
+				new Modele_Cardiac(this, selectedImages, "Cardiac"));
 		this.getFenApplication().setControleur(ctrl);
-		
-		
+
 	}
 
 }

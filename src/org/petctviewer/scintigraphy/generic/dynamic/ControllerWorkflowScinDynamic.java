@@ -44,7 +44,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
 	@Override
 	protected void generateInstructions() {
-		this.workflows = new Workflow[this.model.getImageSelection().length];
+		this.workflows = new Workflow[1];
 		DefaultGenerator dri_1 = null;
 		ImageState state; 
 		if(((Modele_GeneralDyn) model).getImpAnt() != null) {

@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -37,20 +36,21 @@ public class FenResultat_Cardiac extends FenResults {
 
 	public FenResultat_Cardiac(Scintigraphy scin, BufferedImage capture, ControleurScin controller) {
 		super(controller);
-		this.setLayout(new BorderLayout());
+		// this.setLayout(new BorderLayout());
 		HashMap<String, String> resultats = ((Modele_Cardiac) controller.getModel()).getResultsHashMap();
 		// SidePanel side = new SidePanel(getSidePanelContent(resultats), "DPD Quant",
 		// model.getImagesPlus()[0]);
 		// side.addCaptureBtn(scin, "", model);
-		this.addTab(new TabMain(this, "DPD Quant", true, resultats, capture));
+		this.setMainTab(new TabMainCardiac(this, "DPD Quant", true, resultats, capture));
 		// this.add(new DynamicImage(capture), BorderLayout.CENTER);
 		// this.add(side, BorderLayout.EAST);
 
-		// this.setTitle("DPD Quant results");
+		this.setTitle("DPD Quant results");
 		// this.pack();
 		// this.setMinimumSize(side.getSize());
 		// this.setLocationRelativeTo(scin.getFenApplication());
 		// this.setVisible(true);
+
 	}
 
 	public Component getSidePanelContent(HashMap<String, String> resultats) {
@@ -63,6 +63,11 @@ public class FenResultat_Cardiac extends FenResults {
 		lbl_hwb.setFont(new Font("Arial", Font.BOLD, 20));
 		lbl_hwb.setHorizontalAlignment(JLabel.CENTER);
 
+		System.out.println(resultats.get(key) == null);
+		for (String s : resultats.keySet())
+			System.out.println(s + " : " + resultats.get(s));
+
+		System.out.println("\n\n" + key + " : " + resultats.get(key) + "\n\n");
 		if (Double.parseDouble(resultats.get(key)) > 7.5) {
 			lbl_hwb.setForeground(Color.RED);
 		} else {
@@ -70,13 +75,13 @@ public class FenResultat_Cardiac extends FenResults {
 
 		}
 
-		resultats.remove(key);
+		// resultats.remove(key);
 		resultRouge.add(lbl_hwb);
 
 		// on ajoute le pourcentage de retention cardiaque si il existe
 		key = "Cardiac retention %";
 		if (resultats.containsKey(key)) {
-			JLabel lbl = new JLabel(key + " : " + resultats.remove(key));
+			JLabel lbl = new JLabel(key + " : " + resultats.get(key));
 			lbl.setHorizontalAlignment(JLabel.CENTER);
 			lbl.setForeground(new Color(128, 51, 0));
 			resultRouge.add(lbl);
@@ -85,7 +90,7 @@ public class FenResultat_Cardiac extends FenResults {
 		// idem pour la retention du corps entier
 		key = "WB retention %";
 		if (resultats.containsKey(key)) {
-			JLabel lbl = new JLabel(key + " : " + resultats.remove(key));
+			JLabel lbl = new JLabel(key + " : " + resultats.get(key));
 			lbl.setHorizontalAlignment(JLabel.CENTER);
 			lbl.setForeground(new Color(128, 51, 0));
 			resultRouge.add(lbl);
@@ -163,13 +168,13 @@ public class FenResultat_Cardiac extends FenResults {
 		return new String[] { " " + key, v };
 	}
 
-	private class TabMain extends TabResult {
+	private class TabMainCardiac extends TabResult {
 
 		private HashMap<String, String> resultats;
 
 		private BufferedImage capture;
 
-		public TabMain(FenResults parent, String title, boolean captureBtn, HashMap<String, String> resultats,
+		public TabMainCardiac(FenResults parent, String title, boolean captureBtn, HashMap<String, String> resultats,
 				BufferedImage capture) {
 			super(parent, title, captureBtn);
 
@@ -178,6 +183,7 @@ public class FenResultat_Cardiac extends FenResults {
 			this.capture = capture;
 
 			this.reloadDisplay();
+			System.out.println("TabMainCardiac");
 		}
 
 		@Override

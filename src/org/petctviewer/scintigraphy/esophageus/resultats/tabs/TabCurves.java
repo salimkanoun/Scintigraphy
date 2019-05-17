@@ -21,7 +21,6 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.calibration.resultats.JTableCheckBox;
-import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
@@ -31,23 +30,23 @@ import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 public class TabCurves extends TabResult {
 
 	private JFreeChart graphMain;
-	private Modele_EsophagealTransit modeleApp;
+	private Modele_Resultats_EsophagealTransit modeleApp;
 	private Integer nbAcquisition;
-	
+
 	private XYSeries[][] datasetModele;
 	private String[] titleRows;
 
-	public TabCurves(int nbAcquisition, FenResults parent, Modele_EsophagealTransit modeleApp) {
+	public TabCurves(int nbAcquisition, FenResults parent, Modele_Resultats_EsophagealTransit modeleApp) {
 		super(parent, "Curves");
 		this.modeleApp = modeleApp;
 		this.nbAcquisition = nbAcquisition;
 
 		// set les data du graph
-		datasetModele = ((Modele_Resultats_EsophagealTransit) this.parent.getModel()).getDataSetMain();
+		datasetModele = ((Modele_Resultats_EsophagealTransit) modeleApp).getDataSetMain();
 		titleRows = new String[datasetModele.length];
 
 		this.createCaptureButton("Curves");
-		
+
 		this.reloadDisplay();
 	}
 
@@ -59,10 +58,12 @@ public class TabCurves extends TabResult {
 
 	@Override
 	public Component getSidePanelContent() {
-		if(nbAcquisition == null || titleRows == null)
+
+		this.getResultContent();
+
+		if (nbAcquisition == null || titleRows == null)
 			return null;
-		
-		
+
 		String[] titleCols = { "Full", "Upper", "Middle", "Lower" };
 
 		// table de checkbox
@@ -85,6 +86,7 @@ public class TabCurves extends TabResult {
 		JPanel sidePanel = new JPanel();
 		sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
 
+		@SuppressWarnings("deprecation")
 		SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getStudyName(), modeleApp.getImagesPlus()[0]);
 		sidePanel.add(sidePanelScin);
 
@@ -93,8 +95,7 @@ public class TabCurves extends TabResult {
 		JPanel longeurEsophageResultPanel = new JPanel();
 		longeurEsophageResultPanel.setLayout(new GridLayout(nbAcquisition + 1, 1));
 		longeurEsophageResultPanel.add(new JLabel("Esophageal height"));
-		double[] longueurEsophage = ((Modele_Resultats_EsophagealTransit) this.parent.getModel())
-				.calculLongeurEsophage();
+		double[] longueurEsophage = ((Modele_Resultats_EsophagealTransit) modeleApp).calculLongeurEsophage();
 		for (int i = 0; i < longueurEsophage.length; i++) {
 			longeurEsophageResultPanel.add(new JLabel(
 					"Acquisition " + (i + 1) + " : " + (Library_Quantif.round(longueurEsophage[i], 2)) + " cm"));
@@ -110,10 +111,9 @@ public class TabCurves extends TabResult {
 
 	@Override
 	public JPanel getResultContent() {
-		if(datasetModele == null || titleRows == null)
+		if (datasetModele == null || titleRows == null)
 			return null;
-		
-		
+
 		// graph
 		graphMain = ChartFactory.createXYLineChart("Esophageal Transit", "s", "Count/s", null);
 
@@ -131,7 +131,7 @@ public class TabCurves extends TabResult {
 
 		// Changes background color et grid color
 		this.graphMain.getXYPlot().setBackgroundPaint(new Color(255, 255, 255));
-		
+
 		XYSeriesCollection dataset = new XYSeriesCollection();
 
 		for (int i = 0; i < datasetModele.length; i++) {

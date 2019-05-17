@@ -4,18 +4,18 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
-import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.frame.RoiManager;
 
 public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	
 	// sauvegarde des imageplus de depart avec tous leur stack chacun : pour pouvoir faire les calculs de mean dans le temps//trié 
-	private ImagePlus [][] sauvegardeImagesSelectDicom;
+	private ImageSelection [][] sauvegardeImagesSelectDicom;
 
 	// list : liste des examen
 	// list->map : map des 4 roi ( entier, premier tier, deuxieme tier et troisieme tier)
@@ -27,8 +27,8 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	
 	public EsophagealTransit esoPlugIn;
 	
-	public Modele_EsophagealTransit( ImagePlus [][] sauvegardeImagesSelectDicom, String studyName, EsophagealTransit esoPlugIn) {
-		super(null, studyName, esoPlugIn.getFrameDurations());
+	public Modele_EsophagealTransit( ImageSelection [][] sauvegardeImagesSelectDicom, String studyName, EsophagealTransit esoPlugIn) {
+		super(sauvegardeImagesSelectDicom[0], studyName, esoPlugIn.getFrameDurations());
 		this.sauvegardeImagesSelectDicom = sauvegardeImagesSelectDicom;
 		
 		examenMean = new ArrayList<>();
@@ -58,7 +58,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 			
 			HashMap<String, ArrayList<Double>> map4rois = new HashMap<>();
 			// on stock les temps d'acquisition
-			int[] tempsInt =   (Library_Dicom.buildFrameDurations(sauvegardeImagesSelectDicom[0][i]));// on prends la ant
+			int[] tempsInt =   (Library_Dicom.buildFrameDurations(sauvegardeImagesSelectDicom[0][i].getImagePlus()));// on prends la ant
 			
 			double [] tempsSeconde = new double[tempsInt.length];
 			for(int j =0;j<tempsInt.length; j++) {
@@ -99,65 +99,65 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 			//si on a pas de post on utlise que les ant
 			if(sauvegardeImagesSelectDicom[1].length==0) {
 				//pour chaque slice de l'image plus
-				for(int j =1; j<= sauvegardeImagesSelectDicom[0][i].getStackSize(); j++) {
-					sauvegardeImagesSelectDicom[0][i].setSlice(j);
+				for(int j =1; j<= sauvegardeImagesSelectDicom[0][i].getImagePlus().getStackSize(); j++) {
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().setSlice(j);
 
-					sauvegardeImagesSelectDicom[0][i].deleteRoi();
-					sauvegardeImagesSelectDicom[0][i].setRoi(premiereRoi);
-					roiEntier.add(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i])/tempsSeconde[j-1]);
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().deleteRoi();
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().setRoi(premiereRoi);
+					roiEntier.add(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i].getImagePlus())/tempsSeconde[j-1]);
 					
 					//for each roi (ici 3)
-					sauvegardeImagesSelectDicom[0][i].deleteRoi();
-					sauvegardeImagesSelectDicom[0][i].setRoi(unTier);
-					unTierList.add(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i])/tempsSeconde[j-1]);
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().deleteRoi();
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().setRoi(unTier);
+					unTierList.add(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i].getImagePlus())/tempsSeconde[j-1]);
 					
-					sauvegardeImagesSelectDicom[0][i].deleteRoi();
-					sauvegardeImagesSelectDicom[0][i].setRoi(deuxTier);
-					deuxTierList.add(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i])/tempsSeconde[j-1]);
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().deleteRoi();
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().setRoi(deuxTier);
+					deuxTierList.add(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i].getImagePlus())/tempsSeconde[j-1]);
 					
-					sauvegardeImagesSelectDicom[0][i].deleteRoi();
-					sauvegardeImagesSelectDicom[0][i].setRoi(troisTier);
-					troisTierList.add(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i])/tempsSeconde[j-1]);
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().deleteRoi();
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().setRoi(troisTier);
+					troisTierList.add(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i].getImagePlus())/tempsSeconde[j-1]);
 				}
 			}else {
 				//pour chaque slice de l'image plus
-				for(int j =1; j<= sauvegardeImagesSelectDicom[0][i].getStackSize(); j++) {
-					sauvegardeImagesSelectDicom[0][i].setSlice(j);
-					sauvegardeImagesSelectDicom[1][i].setSlice(j);
+				for(int j =1; j<= sauvegardeImagesSelectDicom[0][i].getImagePlus().getStackSize(); j++) {
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().setSlice(j);
+					sauvegardeImagesSelectDicom[1][i].getImagePlus().setSlice(j);
 
 
-					sauvegardeImagesSelectDicom[0][i].deleteRoi();
-					sauvegardeImagesSelectDicom[0][i].setRoi(premiereRoi);
-					sauvegardeImagesSelectDicom[1][i].deleteRoi();
-					sauvegardeImagesSelectDicom[1][i].setRoi(premiereRoi);
-					roiEntier.add(Library_Quantif.moyGeom(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i]),
-													 Library_Quantif.getCounts(sauvegardeImagesSelectDicom[1][i]))
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().deleteRoi();
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().setRoi(premiereRoi);
+					sauvegardeImagesSelectDicom[1][i].getImagePlus().deleteRoi();
+					sauvegardeImagesSelectDicom[1][i].getImagePlus().setRoi(premiereRoi);
+					roiEntier.add(Library_Quantif.moyGeom(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i].getImagePlus()),
+													 Library_Quantif.getCounts(sauvegardeImagesSelectDicom[1][i].getImagePlus()))
 								/tempsSeconde[j-1]);
 					// moygeom( cout(ant), cout(post)) /temps
 					
 					//for each roi (ici 3)
-					sauvegardeImagesSelectDicom[0][i].deleteRoi();
-					sauvegardeImagesSelectDicom[0][i].setRoi(unTier);
-					sauvegardeImagesSelectDicom[1][i].deleteRoi();
-					sauvegardeImagesSelectDicom[1][i].setRoi(unTier);
-					unTierList.add(Library_Quantif.moyGeom(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i]),
-							 						Library_Quantif.getCounts(sauvegardeImagesSelectDicom[1][i]))
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().deleteRoi();
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().setRoi(unTier);
+					sauvegardeImagesSelectDicom[1][i].getImagePlus().deleteRoi();
+					sauvegardeImagesSelectDicom[1][i].getImagePlus().setRoi(unTier);
+					unTierList.add(Library_Quantif.moyGeom(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i].getImagePlus()),
+							 						Library_Quantif.getCounts(sauvegardeImagesSelectDicom[1][i].getImagePlus()))
 								/tempsSeconde[j-1]);
 					
-					sauvegardeImagesSelectDicom[0][i].deleteRoi();
-					sauvegardeImagesSelectDicom[0][i].setRoi(deuxTier);
-					sauvegardeImagesSelectDicom[1][i].deleteRoi();
-					sauvegardeImagesSelectDicom[1][i].setRoi(deuxTier);
-					deuxTierList.add(Library_Quantif.moyGeom(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i]),
-	 												  Library_Quantif.getCounts(sauvegardeImagesSelectDicom[1][i]))
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().deleteRoi();
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().setRoi(deuxTier);
+					sauvegardeImagesSelectDicom[1][i].getImagePlus().deleteRoi();
+					sauvegardeImagesSelectDicom[1][i].getImagePlus().setRoi(deuxTier);
+					deuxTierList.add(Library_Quantif.moyGeom(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i].getImagePlus()),
+	 												  Library_Quantif.getCounts(sauvegardeImagesSelectDicom[1][i].getImagePlus()))
 							 	  /tempsSeconde[j-1]);
 					
-					sauvegardeImagesSelectDicom[0][i].deleteRoi();
-					sauvegardeImagesSelectDicom[0][i].setRoi(troisTier);
-					sauvegardeImagesSelectDicom[1][i].deleteRoi();
-					sauvegardeImagesSelectDicom[1][i].setRoi(troisTier);
-					troisTierList.add(Library_Quantif.moyGeom(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i]),
-														Library_Quantif.getCounts(sauvegardeImagesSelectDicom[1][i]))
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().deleteRoi();
+					sauvegardeImagesSelectDicom[0][i].getImagePlus().setRoi(troisTier);
+					sauvegardeImagesSelectDicom[1][i].getImagePlus().deleteRoi();
+					sauvegardeImagesSelectDicom[1][i].getImagePlus().setRoi(troisTier);
+					troisTierList.add(Library_Quantif.moyGeom(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i].getImagePlus()),
+														Library_Quantif.getCounts(sauvegardeImagesSelectDicom[1][i].getImagePlus()))
 									/tempsSeconde[j-1]);
 				}
 
@@ -180,7 +180,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 		//condense
 		dicomRoi = new ArrayList<>();
 		for(int i =0; i< sauvegardeImagesSelectDicom[0].length; i++) {
-			Object [] content = {sauvegardeImagesSelectDicom[0][i], this.roiManager.getRoi(i).getBounds()};
+			Object [] content = {sauvegardeImagesSelectDicom[0][i].getImagePlus(), this.roiManager.getRoi(i).getBounds()};
 			dicomRoi.add(content);	
 		}
 	}

@@ -27,7 +27,6 @@ import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.YSelector;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
-import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 /**
@@ -272,14 +271,12 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 	public List<Double> normalizeToOne(Double[] values) {
 		return this.normalizeToOne(Arrays.asList(values));
 	}
-	
+
 	private JValueSetter prepareValueSetter(ChartPanel chart) {
-		XYPlot plot = chart.getChart().getXYPlot();
 		chart.getChart().getPlot().setBackgroundPaint(null);
 		JValueSetter jvs = new JValueSetter(chart.getChart());
-		
-		YSelector test = new YSelector("TestYSelector", 0.0d, 0,
-				RectangleAnchor.TOP_LEFT);
+
+		YSelector test = new YSelector("TestYSelector", 0.0d, 0, RectangleAnchor.TOP_LEFT);
 		jvs.addSelector(test, "TestYSelector");
 
 		return jvs;
