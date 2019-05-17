@@ -101,6 +101,9 @@ public class Modele_Os {
 			}
 		}
 
+		if (Prefs.get("bone.defaultInverse.preferred", true))
+			this.inverser();
+
 	}
 
 	/**
@@ -130,6 +133,8 @@ public class Modele_Os {
 			}
 		}
 		this.reversed = !this.reversed;
+		Prefs.set("bone.defaultInverse.preferred", reversed);
+		Prefs.savePreferences();
 		return dynamicImps;
 	}
 
@@ -196,21 +201,16 @@ public class Modele_Os {
 	 */
 	void setContrast(JSlider slider) {
 
-		for (int i = 0; i < nbScinty; i++)
-			for (int j = 0; j < 2; j++)
-				if (isSelected(imps[i][j]))
-					imps[i][j].getImagePlus().getProcessor().setMinAndMax(0,
-							(slider.getModel().getMaximum() - slider.getValue()) + 1);
+		if (this.noImageSelected()) {
+			SwingUtilities.invokeLater(new Runnable() {
 
-		// Lancement en tache de fond, pour ne pas bloquer le thread principal
-		SwingUtilities.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				// Pour toutes les DynamicImage
-				for (int i = 0; i < nbScinty; i++)
-					for (int j = 0; j < 2; j++)
-						if (isSelected(dynamicImps[i][j])) {
+				@Override
+				public void run() {
+					// Pour toutes les DynamicImage
+					for (int i = 0; i < nbScinty; i++)
+						for (int j = 0; j < 2; j++) {
+							imps[i][j].getImagePlus().getProcessor().setMinAndMax(0,
+									(slider.getModel().getMaximum() - slider.getValue()) + 1);
 							// On récupère l'ImagePlus associée
 							dynamicImps[i][j].setImage(imps[i][j].getImagePlus().getBufferedImage());
 							// On l'actualise
@@ -218,8 +218,31 @@ public class Modele_Os {
 							// On affiche les informations (sinon elles disparaissent)
 							displayInformations(dynamicImps[i][j], i, j);
 						}
-			}
-		});
+				}
+			});
+
+		} else {
+			// Lancement en tache de fond, pour ne pas bloquer le thread principal
+			SwingUtilities.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					// Pour toutes les DynamicImage
+					for (int i = 0; i < nbScinty; i++)
+						for (int j = 0; j < 2; j++)
+							if (isSelected(dynamicImps[i][j])) {
+								imps[i][j].getImagePlus().getProcessor().setMinAndMax(0,
+										(slider.getModel().getMaximum() - slider.getValue()) + 1);
+								// On récupère l'ImagePlus associée
+								dynamicImps[i][j].setImage(imps[i][j].getImagePlus().getBufferedImage());
+								// On l'actualise
+								dynamicImps[i][j].repaint();
+								// On affiche les informations (sinon elles disparaissent)
+								displayInformations(dynamicImps[i][j], i, j);
+							}
+				}
+			});
+		}
 	}
 
 	/**
@@ -237,10 +260,7 @@ public class Modele_Os {
 	 * @return
 	 */
 	public void perform(int i, int j) {
-		if (selected[i][j])
-			selected[i][j] = false;
-		else
-			selected[i][j] = true;
+		selected[i][j] = !selected[i][j];
 	}
 
 	/**
@@ -318,6 +338,14 @@ public class Modele_Os {
 		return this.selected[i][j];
 	}
 
+	public boolean noImageSelected() {
+		for (boolean[] bool : selected)
+			for (boolean boo : bool)
+				if (boo)
+					return false;
+		return true;
+	}
+
 	/**
 	 * Retourne si l'index passé en paramètre identifie une DynamicImage
 	 * selectionnée.
@@ -391,6 +419,13 @@ public class Modele_Os {
 
 	public ImageSelection getImageSelection() {
 		return this.imp;
+	}
+
+	public void deselectAll() {
+		for (int i = 0; i < this.selected.length; i++)
+			for (int j = 0; j < this.selected[0].length; j++) {
+				this.selected[i][j] = false;
+			}
 	}
 
 }

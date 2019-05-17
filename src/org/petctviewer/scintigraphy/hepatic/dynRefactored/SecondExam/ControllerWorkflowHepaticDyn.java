@@ -80,7 +80,9 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 
 		// remove finish
 		((TabOtherMethod) this.resultTab).setExamDone(true);
+		
 		this.resultTab.reloadDisplay();
+		
 		this.main.getFenApplication().dispose();
 	}
 

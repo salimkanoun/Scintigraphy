@@ -41,11 +41,9 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 		for (String k : this.getData().keySet()) {
 			List<Double> data = this.getData().get(k);
 			this.getData().put(k, this.adjustValues(data));
-			System.out.println("Je put : this.getData().put("+k+", this.adjustValues("+data+"))");
 		}
 		
-		for (String s : this.getData().keySet())
-			System.out.println(s);
+
 		XYSeries liverL = this.getSerie("Left Liver");
 		XYSeries liverR = this.getSerie("Right Liver");
 		XYSeries bloodPool = this.getSerie("Blood pool");
@@ -97,7 +95,6 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 			// recupere la phrase sans le dernier mot (tag)
 
 			String name = nomRoi.substring(nomRoi.lastIndexOf("_"), nomRoi.length() - 1);
-			System.out.println("Name : " + name);
 			// on cree la liste si elle n'existe pas
 			if (this.getData().get(name) == null) {
 				this.getData().put(name, new ArrayList<Double>());
