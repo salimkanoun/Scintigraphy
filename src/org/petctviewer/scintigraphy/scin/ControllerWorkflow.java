@@ -2,13 +2,15 @@ package org.petctviewer.scintigraphy.scin;
 
 import java.awt.Button;
 import java.awt.event.ActionEvent;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.LastInstruction;
@@ -25,7 +27,7 @@ import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruc
  * @author Titouan QUÉMA
  *
  */
-public abstract class ControllerWorkflow extends ControleurScin {
+public abstract class ControllerWorkflow extends ControleurScin implements AdjustmentListener {
 
 	/**
 	 * This command signals that the instruction should not generate a next
@@ -58,9 +60,9 @@ public abstract class ControllerWorkflow extends ControleurScin {
 	 * @param vue   View of the MVC pattern
 	 * @param model Model of the MVC pattern
 	 */
-	public ControllerWorkflow(Scintigraphy main, FenApplication vue, ModeleScin model) {
+	public ControllerWorkflow(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
 		super(main, vue, model);
-		
+
 		this.skipInstruction = false;
 	}
 
@@ -103,6 +105,11 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			this.editCopyRoi(roiToCopy);
 	}
 
+	@Override
+	public FenApplicationWorkflow getVue() {
+		return (FenApplicationWorkflow) super.getVue();
+	}
+
 	/**
 	 * @return array of ROI indexes to display for the current instruction
 	 */
@@ -117,6 +124,16 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		for (int i = 0; i < dris.size(); i++)
 			array[i] = dris.get(i).roiToDisplay();
 		return array;
+	}
+
+	protected List<Instruction> allInputInstructions() {
+		List<Instruction> instructions = new ArrayList<>();
+		for (Workflow w : this.workflows) {
+			for (Instruction i : w.getInstructions())
+				if (i.isExpectingUserInput())
+					instructions.add(i);
+		}
+		return instructions;
 	}
 
 	/**
@@ -276,9 +293,9 @@ public abstract class ControllerWorkflow extends ControleurScin {
 			currentInstruction.afterPrevious(this);
 			this.clicPrecedent();
 		}
-		
+
 		// == Skip instruction if requested ==
-		if(this.skipInstruction) {
+		if (this.skipInstruction) {
 			this.skipInstruction = false;
 			this.clicPrecedent();
 		}
@@ -389,6 +406,17 @@ public abstract class ControllerWorkflow extends ControleurScin {
 				((GeneratorInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
 				this.clicSuivant();
 			}
+		}
+	}
+
+	@Override
+	public void adjustmentValueChanged(AdjustmentEvent e) {
+		List<Instruction> instructions = this.allInputInstructions();
+		if (e.getValueIsAdjusting()) {
+			// Display only title of Instruction
+			getVue().displayScrollToolTip("[" + e.getValue() + "] " + instructions.get(e.getValue()).getMessage());
+		} else {
+			// Change instruction
 		}
 	}
 

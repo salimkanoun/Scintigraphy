@@ -8,6 +8,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
@@ -34,7 +35,7 @@ public class GastricScintigraphy extends Scintigraphy {
 		}
 
 		// TODO: check images have same duration
-		
+
 		// Close all images
 		Arrays.stream(openedImages).forEach(ims -> ims.getImagePlus().close());
 
@@ -46,12 +47,14 @@ public class GastricScintigraphy extends Scintigraphy {
 
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
-		this.setFenApplication(new FenApplication_Grastric(selectedImages[0].getImagePlus(), getStudyName()));
-		this.getFenApplication().setControleur(
+//		this.setFenApplication(new FenApplication_Grastric(selectedImages[0].getImagePlus(), getStudyName()));
+//		this.setFenApplication(new FenApplicationWorkflow(selectedImages[0], "Gastric Scintigraphy"));
+		this.setFenApplication(new FenApplication_Grastric(selectedImages[0], getStudyName()));
+		((FenApplicationWorkflow) this.getFenApplication()).setControleur(
 //				new Controller_Gastric(this, this.getFenApplication(), selectedImages, "Gastric Scintigraphy")
-				new ControllerWorkflow_Gastric(this, this.getFenApplication(), selectedImages, "Gastric Scintigraphy"));
+				new ControllerWorkflow_Gastric(this, (FenApplicationWorkflow) this.getFenApplication(), selectedImages,
+						"Gastric Scintigraphy"));
 		this.getFenApplication().setVisible(true);
 	}
 
 }
-

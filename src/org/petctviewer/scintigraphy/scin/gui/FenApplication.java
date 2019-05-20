@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -38,24 +39,24 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	protected Panel panel_Instructions_btns_droite;
 
 	// Panel avec boutons quit, draw roi, contrast
-	private Panel panel_btns_gauche;
-	private Panel panel_btns_droite;
+	protected Panel panel_btns_gauche;
+	protected Panel panel_btns_droite;
 
-	private JTextField textfield_instructions;
+	protected JTextField textfield_instructions;
 
-	private Button btn_quitter;
-	private Button btn_drawROI;
-	private Button btn_contrast;
-	private Button btn_precedent;
-	private Button btn_suivant;
+	protected Button btn_quitter;
+	protected Button btn_drawROI;
+	protected Button btn_contrast;
+	protected Button btn_precedent;
+	protected Button btn_suivant;
 
-	private ControleurScin controleur;
+	protected ControleurScin controleur;
 
-	private Panel panelPrincipal, panelContainer;
+	protected Panel panelPrincipal, panelContainer;
 
-	private String nom;
+	protected String nom;
 
-	private int canvasW, canvasH;
+	protected int canvasW, canvasH;
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
@@ -87,7 +88,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		setTitle(titre);// frame title
 		this.imp.setTitle(titre);// imp title
 
-		panelContainer = new Panel();
+		panelContainer = new Panel(new BorderLayout());
 		this.panelPrincipal = new Panel(new FlowLayout());
 
 		// construit tous les boutons
@@ -119,7 +120,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 		panelPrincipal.add(this.panel_Instructions_btns_droite);
 
-		panelContainer.add(this.panelPrincipal);
+		panelContainer.add(this.panelPrincipal, BorderLayout.CENTER);
 		this.add(panelContainer);
 
 		this.setDefaultSize();

@@ -12,7 +12,7 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
@@ -30,7 +30,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
 	private FenResults fenResults;
 
-	public ControllerWorkflow_DynGastric(Scintigraphy main, FenApplication vue, ModeleScin model,
+	public ControllerWorkflow_DynGastric(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model,
 			ImageSelection[] selectedImages, FenResults fenResults) {
 		super(main, vue, model);
 		this.getRoiManager().reset();

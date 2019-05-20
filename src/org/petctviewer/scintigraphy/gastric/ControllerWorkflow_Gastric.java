@@ -12,7 +12,7 @@ import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.IsotopeDialog;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
@@ -44,10 +44,10 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 	private final boolean DO_ONLY_GASTRIC;
 
-	public ControllerWorkflow_Gastric(Scintigraphy main, FenApplication vue, ImageSelection[] selectedImages,
+	public ControllerWorkflow_Gastric(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages,
 			String studyName) {
 		super(main, vue, new Model_Gastric(selectedImages, studyName));
-		
+
 		getModel().setFirstImage(selectedImages[0]);
 
 		// Check do only gastric (from Prefs)
@@ -63,7 +63,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	private void computeOnlyGastric() {
 		// Point 0
 		getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
-		
+
 		for (int i = 0; i < this.getRoiManager().getRoisAsArray().length; i += 2) {
 			ImageState antState = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, i / 2);
 			ImageState postState = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_RL, i / 2);
@@ -232,7 +232,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 		// Display results
 		this.fenResults.clearTabs();
-		
+
 		if (!DO_ONLY_GASTRIC) {
 			this.tabMain = new TabMainResult(this.fenResults, this.captures.get(1), this);
 			this.tabMain.displayTimeIngestion(getModel().getTimeIngestion());
@@ -257,6 +257,8 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		} else {
 			this.generateInstructionsBothMethods();
 		}
+		
+		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	@Override
