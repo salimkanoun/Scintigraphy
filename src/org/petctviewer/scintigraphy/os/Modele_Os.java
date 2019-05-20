@@ -42,6 +42,8 @@ public class Modele_Os {
 	DynamicImage[][] dynamicImps;
 	private int nbScinty;
 	private boolean reversed;
+	
+	private Integer uid;
 
 	public Modele_Os(ImageSelection[] imps) {
 		nbScinty = imps.length;
@@ -426,6 +428,22 @@ public class Modele_Os {
 			for (int j = 0; j < this.selected[0].length; j++) {
 				this.selected[i][j] = false;
 			}
+	}
+	
+	
+	public String getStudyName() {
+		return "Bone Scintigraphy";
+	}
+	
+	public ImagePlus getImagePlus() {
+		return this.imp.getImagePlus();
+	}
+	
+	public String getUID6digits() {
+		if (this.uid == null) {
+			this.uid = (int) (Math.random() * 1000000.);
+		}
+		return this.uid.toString();
 	}
 
 }

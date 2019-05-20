@@ -44,7 +44,7 @@ public class TabVasculaire {
 		List<XYSeries> series = modele.getSeries();
 		ChartPanel chartVasculaire = Library_JFreeChart.associateSeries(new String[] { "Blood pool" }, series);
 
-		chartVasculaire.setPreferredSize(new Dimension(1000, 650));
+//		chartVasculaire.setPreferredSize(new Dimension(1000, 650));
 
 		return chartVasculaire;
 	}

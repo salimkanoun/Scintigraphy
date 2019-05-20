@@ -169,6 +169,7 @@ public class OsScintigraphy extends Scintigraphy {
 			frame.pack();
 			frame.setVisible(true);
 			frame.setResizable(true);
+			frame.setLocationRelativeTo(null);
 		}
 	}
 

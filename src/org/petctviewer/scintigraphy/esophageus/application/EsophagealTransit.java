@@ -100,6 +100,9 @@ public class EsophagealTransit extends Scintigraphy {
 			selectedImages[i].getImagePlus().close();
 
 		}
+		
+		for(ImageSelection ims: imagePourTrieAnt)
+			ims.getImagePlus().show();
 
 		// on appelle la fonction de trie
 		ChronologicalAcquisitionComparator chronologicalOrder = new ChronologicalAcquisitionComparator();

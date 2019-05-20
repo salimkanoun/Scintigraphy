@@ -1,19 +1,29 @@
 package org.petctviewer.scintigraphy.os;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+
+import ij.IJ;
+import ij.ImagePlus;
+import ij.Prefs;
 
 /**
  * DISCLAIMER : Dans cette application, il a été fait comme choix d'initialiser
@@ -133,7 +143,11 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 			for (int j = 0; j < 2; j++) {
 				panel.add(modele.getDynamicImage(i, j));
 				modele.getDynamicImage(i, j).addMouseListener(this);
-				modele.getDynamicImage(i, j).setBackground(Color.black);
+
+				if (Prefs.get("bone.defaultInverse.preferred", true))
+					modele.getDynamicImage(i, j).setBackground(Color.white);
+				else
+					modele.getDynamicImage(i, j).setBackground(Color.black);
 			}
 		}
 	}
@@ -156,6 +170,93 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 		for (int i = 0; i < this.modele.getNbScinti(); i++)
 			for (int j = 0; j < 2; j++)
 				this.vue.cadrer(i * 2 + j, modele.isSelected(i, j));
+	}
+
+	public void createCaptureButton(SidePanel sidePanel, Component[] hide, Component[] show, String additionalInfo) {
+		// capture button
+		JButton captureButton = new JButton("Capture");
+
+		// label de credits
+		JLabel lbl_credits = new JLabel("Provided by petctviewer.org");
+		lbl_credits.setVisible(false);
+		sidePanel.addContent(lbl_credits);
+
+		// generation du tag info
+		String info = Library_Capture_CSV.genererDicomTagsPartie1(this.modele.getImagePlus(),
+				this.modele.getStudyName(), this.modele.getUID6digits())
+				+ Library_Capture_CSV.genererDicomTagsPartie2(this.modele.getImagePlus());
+
+		// on ajoute le listener sur le bouton capture
+		captureButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				captureButton.setVisible(false);
+				for (Component comp : hide)
+					comp.setVisible(false);
+
+				lbl_credits.setVisible(true);
+				for (Component comp : show)
+					comp.setVisible(true);
+
+				SwingUtilities.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						// Capture, nouvelle methode a utiliser sur le reste des programmes
+						BufferedImage capture = new BufferedImage(Controleur_Os.this.vue.getWidth(),
+								Controleur_Os.this.vue.getHeight(), BufferedImage.TYPE_INT_ARGB);
+						Controleur_Os.this.vue.paint(capture.getGraphics());
+						ImagePlus imp = new ImagePlus("capture", capture);
+
+						captureButton.setVisible(true);
+						for (Component comp : hide)
+							comp.setVisible(true);
+
+						lbl_credits.setVisible(false);
+						for (Component comp : show)
+							comp.setVisible(false);
+
+						// on passe a la capture les infos de la dicom
+						imp.setProperty("Info", info);
+						// on affiche la capture
+						imp.show();
+
+						// on change l'outil
+						IJ.setTool("hand");
+
+						// generation du csv
+						// String resultats = Controleur_Os.this.modele.toString();
+
+						// try {
+						// Library_Capture_CSV.exportAll(resultats,
+						// Controleur_Os.this.modele.getRoiManager(),
+						// Controleur_Os.this.modele.getStudyName(), imp,
+						// additionalInfo == null ? "" : additionalInfo);
+						//
+						// imp.killRoi();
+						// } catch (Exception e1) {
+						// e1.printStackTrace();
+						// }
+
+						// Execution du plugin myDicom
+						try {
+							IJ.run("myDicom...");
+						} catch (Exception e1) {
+							e1.printStackTrace();
+						}
+
+						System.gc();
+					}
+				});
+
+			}
+		});
+
+		captureButton.setHorizontalAlignment(JButton.CENTER);
+		captureButton.setEnabled(true);
+		sidePanel.addContent(captureButton);
 	}
 
 }

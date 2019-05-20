@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.tab;
 
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -85,7 +86,7 @@ public class TabOtherMethod extends TabResult implements ActionListener, ChangeL
 	}
 
 	@Override
-	public JPanel getResultContent() {
+	public Container getResultContent() {
 		if (!this.examDone) {
 			JPanel pan = new JPanel();
 			Box box = Box.createHorizontalBox();
@@ -114,8 +115,8 @@ public class TabOtherMethod extends TabResult implements ActionListener, ChangeL
 			this.tabPane.addChangeListener(this);
 
 			panelDeFin.add(this.tabPane);
-			panelDeFin.setPreferredSize(new Dimension(1050, 700));
-			return panelDeFin;
+//			panelDeFin.setPreferredSize(new Dimension(1050, 700));
+			return tabPane;
 		}
 	}
 
