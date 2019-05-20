@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.gastric_refactored.dynamic;
+package org.petctviewer.scintigraphy.gastric.dynamic;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;

@@ -157,7 +157,9 @@ public abstract class TabResult {
 	public void reloadSidePanelContent() {
 		Component sidePanelContent = this.getSidePanelContent();
 		Component content = sidePanelContent == null ? new JPanel() : sidePanelContent;
-		this.sidePanel.setSidePanelContent(new JScrollPane(content));
+		JScrollPane scroll = new JScrollPane(content);
+		scroll.setBorder(null);
+		this.sidePanel.setSidePanelContent(scroll);
 	}
 
 	/**

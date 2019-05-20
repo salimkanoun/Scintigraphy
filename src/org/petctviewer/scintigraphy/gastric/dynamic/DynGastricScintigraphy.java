@@ -1,8 +1,8 @@
-package org.petctviewer.scintigraphy.gastric_refactored.dynamic;
+package org.petctviewer.scintigraphy.gastric.dynamic;
 
 import java.util.Arrays;
 
-import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
+import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;

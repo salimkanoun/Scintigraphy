@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.gastric_refactored;
+package org.petctviewer.scintigraphy.gastric;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -6,8 +6,8 @@ import java.util.List;
 
 import javax.swing.JButton;
 
-import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
-import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMethod2;
+import org.petctviewer.scintigraphy.gastric.tabs.TabMainResult;
+import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -58,7 +58,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		getModel().activateTime0();
 
 		ImageState previousState = null;
-		int count = 0;
 		for (int i = 0; i < this.getRoiManager().getRoisAsArray().length; i += 6) {
 			ImageState state = null;
 
@@ -87,7 +86,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 						this.getRoiManager().getRoisAsArray()[i + 1 + indexIncrementPost]);
 			}
 
-			System.out.println("*** COMPUTING " + ++count + " ***");
 			getModel().computeStaticData(state, previousState);
 			previousState = state;
 		}
@@ -107,22 +105,19 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		String isotopeCode = Library_Dicom.findIsotopeCode(getModel().getImagePlus());
 		if (isotopeCode == null) {
 			// No code
-			System.out.println("No code found in the image");
-			// Ask user for code
+			// Ask user for isotope
 			IsotopeDialog isotopeDialog = new IsotopeDialog(vue);
 			isotopeDialog.setVisible(true);
 		}
 		Isotope isotope = Isotope.getIsotopeFromCode(isotopeCode);
 		if (isotope == null) {
 			// Code unknown
-			System.out.println("Code found in the image unknown");
 			// Ask user for isotope
 			IsotopeDialog isotopeDialog = new IsotopeDialog(vue, isotopeCode);
 			isotopeDialog.setVisible(true);
 			isotope = isotopeDialog.getIsotope();
 		}
 		getModel().setIsotope(isotope);
-		System.out.println("Isotope found: " + isotope);
 
 		super.start();
 	}

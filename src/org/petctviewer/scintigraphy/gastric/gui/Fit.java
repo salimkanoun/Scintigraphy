@@ -1,8 +1,8 @@
-package org.petctviewer.scintigraphy.gastric_refactored.gui;
+package org.petctviewer.scintigraphy.gastric.gui;
 
 import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYSeries;
-import org.petctviewer.scintigraphy.gastric_refactored.Unit;
+import org.petctviewer.scintigraphy.gastric.Unit;
 
 /**
  * This class represents a fit for a certain dataset. The fit can be used to
@@ -34,7 +34,7 @@ public abstract class Fit {
 	}
 
 	private FitType type;
-	
+
 	private Unit unit;
 
 	public Fit(FitType type, Unit unit) {
@@ -77,7 +77,7 @@ public abstract class Fit {
 	 * @return Y value extrapolated
 	 */
 	public abstract double extrapolateY(double valueX);
-	
+
 	public Unit getUnit() {
 		return this.unit;
 	}
@@ -131,7 +131,7 @@ public abstract class Fit {
 
 		@Override
 		public double extrapolateX(double valueY) {
-			double res = valueY - coefs[0] / coefs[1];
+			double res = (valueY - coefs[0]) / coefs[1];
 			return res;
 		}
 

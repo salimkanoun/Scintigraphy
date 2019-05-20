@@ -28,9 +28,13 @@ public class ImageState {
 	 */
 	public static final int ID_CUSTOM_IMAGE = -3;
 	/**
+	 * Specifies that all slices should be used.
+	 */
+	public static final int SLICE_ALL = 0;
+	/**
 	 * Specifies that the slice should be the same as the previous image.
 	 */
-	public static final int SLICE_PREVIOUS = 0;
+	public static final int SLICE_PREVIOUS = -1;
 	/**
 	 * Specifies a Right-Left lateralisation.
 	 */

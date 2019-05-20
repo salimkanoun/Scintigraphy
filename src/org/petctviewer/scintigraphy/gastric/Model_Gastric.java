@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.gastric_refactored;
+package org.petctviewer.scintigraphy.gastric;
 
 /**
 Copyright (C) 2017 PING Xie and KANOUN Salim
@@ -40,8 +40,8 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
-import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
+import org.petctviewer.scintigraphy.gastric.gui.Fit;
+import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -97,13 +97,11 @@ public class Model_Gastric extends ModeleScin {
 		private ImageSelection associatedImage;
 
 		/**
-		 * Instantiates a new data. The image state of a data should be unique (in this
-		 * model).<br>
-		 * The {@link ImageState#getImage()} method of the state <b>must</b> return
-		 * something different than null!
+		 * Instantiates a new data. The image should be unique (for this model).<br>
 		 * 
-		 * @param state Unique state for this data (null allowed only for the time 0)
-		 * @param time  Time in minutes after the ingestion time
+		 * @param associatedImage Unique image for this data (null allowed only for the
+		 *                        time 0)
+		 * @param time            Time in minutes after the ingestion time
 		 */
 		public Data(ImageSelection associatedImage, double time) {
 			this.associatedImage = associatedImage;
@@ -112,112 +110,13 @@ public class Model_Gastric extends ModeleScin {
 			this.time = time;
 		}
 
-		public Region[] getRegions() {
-			return (Region[]) ArrayUtils.addAll(this.regionsAnt.values().toArray(new Region[this.regionsAnt.size()]),
-					this.regionsPost.values().toArray(new Region[this.regionsPost.size()]));
-		}
-
 		/**
-		 * This method reset the time of this data
+		 * Generates a string with the regions contained in this data for the specified
+		 * orientation.
 		 * 
-		 * @param time Time elapsed in minutes since the ingestion
+		 * @param orientation Ant or Post orientation to get the regions
+		 * @return string with the list of the region
 		 */
-		public void setTime(double time) {
-			this.time = time;
-		}
-
-		/**
-		 * @return time in minutes for this data
-		 */
-		public double getMinutes() {
-			return this.time;
-		}
-
-		public void inflateRegion(String regionName, ImageState state, Roi roi) {
-			Region storedRegion = this.regionsAnt.get(regionName);
-			if (storedRegion == null) {
-				storedRegion = this.regionsPost.get(regionName);
-
-				if (storedRegion == null) {
-					// Create region
-					storedRegion = new Region(regionName, Model_Gastric.this);
-					storedRegion.inflate(state, roi);
-					if (state.getFacingOrientation() == Orientation.ANT)
-						this.regionsAnt.put(regionName, storedRegion);
-					else
-						this.regionsPost.put(regionName, storedRegion);
-				}
-			}
-
-			storedRegion.inflate(state, roi);
-		}
-
-		public void setValue(String regionName, int key, double value) {
-			if (key == DATA_POST_COUNTS)
-				this.setPostValue(regionName, key, value);
-
-			this.setAntValue(regionName, key, value);
-		}
-
-		public void setAntValue(String regionName, int key, double value) {
-			Region region = this.regionsAnt.get(regionName);
-			if (region == null) {
-				// Create region
-				region = new Region(regionName, Model_Gastric.this);
-				this.regionsAnt.put(regionName, region);
-			}
-
-			// Set value
-			region.setValue(key, Math.max(0, value));
-		}
-
-		public void setPostValue(String regionName, int key, double value) {
-			Region region = this.regionsPost.get(regionName);
-			if (region == null) {
-				// Create region
-				region = new Region(regionName, Model_Gastric.this);
-				this.regionsPost.put(regionName, region);
-			}
-
-			// Set value
-			region.setValue(key, Math.max(0, value));
-		}
-
-		public double getValue(String region, int key) {
-			if (key == DATA_POST_COUNTS)
-				return this.getPostValue(region, key);
-
-			return this.getAntValue(region, key);
-		}
-
-		public double getAntValue(String region, int key) {
-			try {
-				return this.regionsAnt.get(region).getValue(key);
-			} catch (NullPointerException e) {
-				throw new NullPointerException("The key " + key + "(" + nameOfDataField(key) + ") of the region ("
-						+ region + ") has no data associated with it");
-			}
-		}
-
-		public double getPostValue(String region, int key) {
-			try {
-				return this.regionsPost.get(region).getValue(key);
-			} catch (NullPointerException e) {
-				throw new NullPointerException("The key " + key + "(" + nameOfDataField(key) + ") of the region ("
-						+ region + ") has no data associated with it");
-			}
-		}
-
-		@Override
-		public int compareTo(Data o) {
-			double res = this.time - o.time;
-			if (res > 0)
-				return 1;
-			if (res < 0)
-				return -1;
-			return 0;
-		}
-
 		private String listRegions(Orientation orientation) {
 			StringBuilder res = new StringBuilder();
 			if (orientation == Orientation.ANT) {
@@ -240,6 +139,191 @@ public class Model_Gastric extends ModeleScin {
 						res.append(region + "\n");
 			}
 			return res.toString();
+		}
+
+		/**
+		 * @return all regions stored by this data
+		 */
+		public Region[] getRegions() {
+			return (Region[]) ArrayUtils.addAll(this.regionsAnt.values().toArray(new Region[this.regionsAnt.size()]),
+					this.regionsPost.values().toArray(new Region[this.regionsPost.size()]));
+		}
+
+		/**
+		 * Sets the time for this data. The times in minutes represents the duration
+		 * since the ingestion of the food.
+		 * 
+		 * @param time Time elapsed in minutes since the ingestion
+		 */
+		public void setTime(double time) {
+			this.time = time;
+		}
+
+		/**
+		 * @return time in minutes for this data
+		 */
+		public double getMinutes() {
+			return this.time;
+		}
+
+		/**
+		 * Adds information on the specified region. If the region doesn't exist, then
+		 * it will be created. When creating the region, the orientation of the image
+		 * state will be used to determine if the region is Ant or Post.
+		 * 
+		 * @param regionName Region on which the informations will be added
+		 * @param state      State of the image for the region
+		 * @param roi        ROI associated with the region
+		 */
+		public void inflateRegion(String regionName, ImageState state, Roi roi) {
+			Region storedRegion = this.regionsAnt.get(regionName);
+			if (storedRegion == null) {
+				storedRegion = this.regionsPost.get(regionName);
+
+				if (storedRegion == null) {
+					// Create region
+					storedRegion = new Region(regionName, Model_Gastric.this);
+					storedRegion.inflate(state, roi);
+					if (state.getFacingOrientation() == Orientation.ANT)
+						this.regionsAnt.put(regionName, storedRegion);
+					else
+						this.regionsPost.put(regionName, storedRegion);
+				}
+			}
+
+			storedRegion.inflate(state, roi);
+		}
+
+		/**
+		 * Sets the key value to the specified region. This method will try to determine
+		 * if the region is Ant or Post.<br>
+		 * If the key contains 'Post' keyword, then the value will be added in the Post
+		 * region. For any other key, then the value will be added in the Ant
+		 * region.<br>
+		 * If the region could not be found in the Ant or Post, then it will be created.
+		 * 
+		 * @param regionName Region on which the value will be set
+		 * @param key        Key of the value
+		 * @param value      Value to set
+		 */
+		public void setValue(String regionName, int key, double value) {
+			if (key == DATA_POST_COUNTS)
+				this.setPostValue(regionName, key, value);
+
+			this.setAntValue(regionName, key, value);
+		}
+
+		/**
+		 * Sets the key value to the specified region. The region will be search in the
+		 * Ant regions.<br>
+		 * If the region could not be found, then the region will be created.
+		 * 
+		 * @param regionName Region on which the value will be set
+		 * @param key        Key of the value
+		 * @param value      Value to set
+		 */
+		public void setAntValue(String regionName, int key, double value) {
+			Region region = this.regionsAnt.get(regionName);
+			if (region == null) {
+				// Create region
+				region = new Region(regionName, Model_Gastric.this);
+				this.regionsAnt.put(regionName, region);
+			}
+
+			// Set value
+			region.setValue(key, Math.max(0, value));
+		}
+
+		/**
+		 * Sets the key value to the specified region. The region will be search in the
+		 * Post regions.<br>
+		 * If the region could not be found, then the region will be created.
+		 * 
+		 * @param regionName Region on which the value will be set
+		 * @param key        Key of the value
+		 * @param value      Value to set
+		 */
+		public void setPostValue(String regionName, int key, double value) {
+			Region region = this.regionsPost.get(regionName);
+			if (region == null) {
+				// Create region
+				region = new Region(regionName, Model_Gastric.this);
+				this.regionsPost.put(regionName, region);
+			}
+
+			// Set value
+			region.setValue(key, Math.max(0, value));
+		}
+
+		/**
+		 * Gets the value associated with the specified key. This method will try to
+		 * determine if the region is Ant or Post.<br>
+		 * If the key contains 'Post' keyword, then the value will be searched in the
+		 * Post regions. For any other key, then the value will be searched in the Ant
+		 * regions.<br>
+		 * If the region could not be found in the Ant or Post, then this method throws
+		 * a NullPointerException.
+		 * 
+		 * 
+		 * @param region Region for which the value will be retrieved
+		 * @param key    Key of the value to get
+		 * @return value associated with the key for the region
+		 */
+		public double getValue(String region, int key) {
+			if (key == DATA_POST_COUNTS)
+				return this.getPostValue(region, key);
+
+			return this.getAntValue(region, key);
+		}
+
+		/**
+		 * Gets the value associated with the specified key. The region will be searched
+		 * in the Ant regions.<br>
+		 * If the region could not be found, then a NullPointerException is thrown.
+		 * 
+		 * @param region Region for which the value will be retrieved
+		 * @param key    Key of the value to get
+		 * @return value associated with the key for the region
+		 * @throws NullPointerException if no region exists or if no data is associated
+		 *                              with the key
+		 */
+		public double getAntValue(String region, int key) throws NullPointerException {
+			try {
+				return this.regionsAnt.get(region).getValue(key);
+			} catch (NullPointerException e) {
+				throw new NullPointerException("The key " + key + "(" + nameOfDataField(key) + ") of the region ("
+						+ region + ") has no data associated with it");
+			}
+		}
+
+		/**
+		 * Gets the value associated with the specified key. The region will be searched
+		 * in the Post regions.<br>
+		 * If the region could not be found, then a NullPointerException is thrown.
+		 * 
+		 * @param region Region for which the value will be retrieved
+		 * @param key    Key of the value to get
+		 * @return value associated with the key for the region
+		 * @throws NullPointerException if no region exists or if no data is associated
+		 *                              with the key
+		 */
+		public double getPostValue(String region, int key) {
+			try {
+				return this.regionsPost.get(region).getValue(key);
+			} catch (NullPointerException e) {
+				throw new NullPointerException("The key " + key + "(" + nameOfDataField(key) + ") of the region ("
+						+ region + ") has no data associated with it");
+			}
+		}
+
+		@Override
+		public int compareTo(Data o) {
+			double res = this.time - o.time;
+			if (res > 0)
+				return 1;
+			if (res < 0)
+				return -1;
+			return 0;
 		}
 
 		@Override
@@ -528,17 +612,18 @@ public class Model_Gastric extends ModeleScin {
 
 	/**
 	 * Creates an array with all of the requested results ordered chronologically.
+	 * The array may contain NaN values if no value was found for a data.
 	 * 
 	 * @param regionName Region to get the result from
 	 * @param key        Key of the results to place in the array
 	 * @return array of all data for the requested key result
 	 */
-	private double[] getResultAsArray(String regionName, int key) {
+	private double[] getAllResultsAsArray(String regionName, int key) {
 		// Get all results
 		double[] results = new double[this.nbAcquisitions()];
 		Iterator<Data> it = this.generatesDataOrdered().iterator();
 		int i = 0;
-		int resultsIgnored = 0;
+//		int resultsIgnored = 0;
 		while (it.hasNext()) {
 			Data data = it.next();
 			try {
@@ -547,18 +632,35 @@ public class Model_Gastric extends ModeleScin {
 			} catch (NullPointerException e) {
 				// No data found for this point
 				// Ignore value
-				resultsIgnored++;
+//				resultsIgnored++;
 				results[i] = Double.NaN;
 			}
 			i++;
 		}
+
+		return results;
+	}
+
+	/**
+	 * Creates an array with all of the requested results ordered chronologically.
+	 * 
+	 * @param regionName Region to get the result from
+	 * @param key        Key of the results to place in the array
+	 * @return array of all data for the requested key result
+	 */
+	private double[] getResultAsArray(String regionName, int key) {
+		// Get all results
+		double[] results = getAllResultsAsArray(regionName, key);
+
+		// Count results to ignore
+		int resultsIgnored = (int) Arrays.stream(results).filter(d -> Double.isNaN(d)).count();
 
 		// Create array with right dimensions
 		double[] goodResults = new double[this.nbAcquisitions() - resultsIgnored];
 
 		// Fill array
 		int j = 0;
-		for (i = 0; i < results.length; i++) {
+		for (int i = 0; i < results.length; i++) {
 			if (!Double.isNaN(results[i])) {
 				goodResults[j] = results[i];
 				j++;
@@ -617,6 +719,13 @@ public class Model_Gastric extends ModeleScin {
 		return data.getValue(region, key) / data.getValue(REGION_ALL, key) * 100.;
 	}
 
+	/**
+	 * Gets the data with the specified image state. If no data could be retrieved
+	 * with this image state, then the data is created.
+	 * 
+	 * @param state Image state associated with the data
+	 * @return data created or retrieved (always not null)
+	 */
 	private Data createOrRetrieveData(ImageState state) {
 		// Set the image in the state
 		// This is important: the getImage() of a state in a data must return something
@@ -641,6 +750,13 @@ public class Model_Gastric extends ModeleScin {
 		return data;
 	}
 
+	/**
+	 * Calculates the DATA_DERIVATIVE of the REGION_STOMACH if necessary.
+	 * 
+	 * @param data          Data on which the derivative will be added
+	 * @param state         State of the image analyzed
+	 * @param previousState State of the image before the image analyzed
+	 */
 	private void computeDerivative(Data data, ImageState state, ImageState previousState) {
 		Data previousData = null, dataToInflate = null;
 		if (previousState == null) {
@@ -665,6 +781,11 @@ public class Model_Gastric extends ModeleScin {
 		}
 	}
 
+	/**
+	 * Generates the decay function for the specified data.
+	 * 
+	 * @param data Data for which the decay function will be calculated
+	 */
 	private void computeDecayFunction(Data data) {
 		int delayMs = (int) (data.time * 60. * 1000.);
 		double value = Library_Quantif.calculer_countCorrected(delayMs, data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE),
@@ -672,6 +793,14 @@ public class Model_Gastric extends ModeleScin {
 		data.setValue(REGION_STOMACH, DATA_DECAY_CORRECTED, value);
 	}
 
+	/**
+	 * Calculates the number of counts of the specified region from the given image
+	 * state.
+	 * 
+	 * @param regionName Region for which the counts will be calculated
+	 * @param state      State of the image to do the calculations on
+	 * @param roi        ROI on the image where the calculations will be made
+	 */
 	private void calculateCountsFromImage(String regionName, ImageState state, Roi roi) {
 		ImageSelection ims = imageFromState(state);
 		ImagePlus imp = ims.getImagePlus();
@@ -697,6 +826,14 @@ public class Model_Gastric extends ModeleScin {
 		data.inflateRegion(regionName, state, roi);
 	}
 
+	/**
+	 * Calculates the number of counts for the specified region using existing
+	 * data.<br>
+	 * This method must only be called when all of the data required are available.
+	 * 
+	 * @param regionName Region for which the counts will be calculated
+	 * @param state      State of the image to retrieved the data
+	 */
 	private void calculateCountsFromData(String regionName, ImageState state) {
 		// Create data if not existing
 		Data data = this.createOrRetrieveData(state);
@@ -741,10 +878,31 @@ public class Model_Gastric extends ModeleScin {
 		return this.generateDatasetFromKey(REGION_STOMACH, DATA_PERCENTAGE, false);
 	}
 
+	/**
+	 * Generates the dataset for the graph of the decay function.
+	 * 
+	 * @return array in the form:
+	 *         <ul>
+	 *         <li><code>[i][0] -> x</code></li>
+	 *         <li><code>[i][1] -> y</code></li>
+	 *         </ul>
+	 */
 	private double[][] generateDecayFunctionDataset() {
 		return this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED, true);
 	}
 
+	/**
+	 * Generates the series from the specified array.<br>
+	 * The array must be of the form:
+	 * <ul>
+	 * <li><code>[i][0] = x</code></li>
+	 * <li><code>[i][1] = y</code></li>
+	 * </ul>
+	 * 
+	 * @param seriesName Name of the series to generate (used for display)
+	 * @param dataset    Data to generate the series
+	 * @return Series based on the dataset
+	 */
 	private XYSeries generateSeriesFromDataset(String seriesName, double[][] dataset) {
 		XYSeries series = new XYSeries(seriesName);
 		for (int i = 0; i < dataset.length; i++)
@@ -752,6 +910,17 @@ public class Model_Gastric extends ModeleScin {
 		return series;
 	}
 
+	/**
+	 * Retrieves the Y value of the specified dataset.<br>
+	 * The array must be of the form:
+	 * <ul>
+	 * <li><code>[i][0] = x</code></li>
+	 * <li><code>[i][1] = y</code></li>
+	 * </ul>
+	 * 
+	 * @param dataset Data to retrieve the Y values
+	 * @return array containing only the Y values
+	 */
 	private double[] generateYValuesFromDataset(double[][] dataset) {
 		double[] yValues = new double[dataset.length];
 		int i = 0;
@@ -760,25 +929,43 @@ public class Model_Gastric extends ModeleScin {
 		return yValues;
 	}
 
+	/**
+	 * Generates the dataset with the values of the data for the specified key.<br>
+	 * All data that have not the requested value will be ignored.
+	 * 
+	 * @param regionName  Region on which the data will be retrieved
+	 * @param key         Key of the values to retrieve
+	 * @param ignoreTime0 If TRUE, then the time 0 will not be used. If FALSE, then
+	 *                    the time 0 will be used if existing
+	 * @return dataset with the values from the data associated with the region
+	 */
 	private double[][] generateDatasetFromKey(String regionName, int key, boolean ignoreTime0) {
 		// Get all Y points
-		double[] yPoints = this.getResultAsArray(regionName, key);
+		double[] yPoints = this.getAllResultsAsArray(regionName, key);
+
+		// Count results to ignore
+		int nbResultsToIgnore = (int) Arrays.stream(yPoints).filter(d -> Double.isNaN(d)).count();
 
 		// Create dataset with right dimensions
-		double[][] dataset = new double[yPoints.length][2];
-		
+		double[][] dataset = new double[yPoints.length - nbResultsToIgnore][2];
+
 		// Get times
-		double[] times;
-		if(ignoreTime0)
-			times = this.getRealTimes();
-		else
-			times = this.getTimes();
+		double[] times = getTimes();
+
+		// Check dimensions
+		if (times.length != yPoints.length)
+			throw new IllegalStateException("The length of the datas (" + yPoints.length
+					+ ") is different than the length of the times (" + times.length + ")");
 
 		// Fill dataset
+		int j = 0;
 		for (int i = 0; i < yPoints.length; i++) {
 			if (!Double.isNaN(yPoints[i])) {
-				dataset[i][0] = times[i];
-				dataset[i][1] = yPoints[i];
+				if (i != 0 || !ignoreTime0 || time0 == null) {
+					dataset[j][0] = times[i];
+					dataset[j][1] = yPoints[i];
+					j++;
+				}
 			}
 		}
 
@@ -895,6 +1082,14 @@ public class Model_Gastric extends ModeleScin {
 				Math.max(0, value));
 	}
 
+	/**
+	 * Sets the background noise for the specified region with the given image and
+	 * ROI.
+	 * 
+	 * @param regionName Region on which the background will be set
+	 * @param state      State the image should be when taking the noise
+	 * @param roi        ROI where to take the noise
+	 */
 	public void setBkgNoise(String regionName, ImageState state, Roi roi) {
 		ImagePlus imp = state.getImage().getImagePlus();
 		imp.setRoi(roi);
@@ -958,8 +1153,14 @@ public class Model_Gastric extends ModeleScin {
 		return times;
 	}
 
-	public String nameOfDataField(int field) {
-		switch (field) {
+	/**
+	 * Converts the specified key into a readable name.
+	 * 
+	 * @param key Key to convert
+	 * @return string representing the key
+	 */
+	public String nameOfDataField(int key) {
+		switch (key) {
 		case DATA_ANT_COUNTS:
 			return "Nb Ant-counts";
 		case DATA_POST_COUNTS:
@@ -995,14 +1196,23 @@ public class Model_Gastric extends ModeleScin {
 		return this.generateSeriesFromDataset("Stomach", this.generateStomachDataset());
 	}
 
+	/**
+	 * @return Y values for the stomach
+	 */
 	public double[] generateStomachValues() {
 		return this.generateYValuesFromDataset(generateStomachDataset());
 	}
 
+	/**
+	 * @return series for the decay function
+	 */
 	public XYSeries generateDecayFunction() {
 		return this.generateSeriesFromDataset("Stomach", this.generateDecayFunctionDataset());
 	}
 
+	/**
+	 * @return Y values for the decay function
+	 */
 	public double[] generateDecayFunctionValues() {
 		return this.generateYValuesFromDataset(generateDecayFunctionDataset());
 	}
@@ -1018,14 +1228,30 @@ public class Model_Gastric extends ModeleScin {
 		return this.results.size() + (this.time0 != null ? 1 : 0);
 	}
 
+	/**
+	 * Sets the isotope used in this study
+	 * 
+	 * @param isotope Isotope to use (cannot be null)
+	 */
 	public void setIsotope(Isotope isotope) {
+		if (isotope == null)
+			throw new IllegalArgumentException("The isotope cannot be null");
+
 		this.isotope = isotope;
 	}
 
+	/**
+	 * Sets the dynamic image corresponding to the first image of the model.
+	 * 
+	 * @param firstImage First image acquired (time 0)
+	 */
 	public void setFirstImage(ImageSelection firstImage) {
 		this.firstImage = firstImage;
 	}
 
+	/**
+	 * @return first image acquired (dynamic image)
+	 */
 	public ImageSelection getFirstImage() {
 		return this.firstImage;
 	}
@@ -1234,11 +1460,14 @@ public class Model_Gastric extends ModeleScin {
 		if (result == T_HALF) {
 			// Assumption: the first value is the highest (maybe do not assume that...)
 			double half = yValues[0] / 2.;
+			System.out.println("Half value: " + half);
 			extrapolationType = null;
 			Double valX = this.getX(yValues, half);
+			System.out.println("Value found: " + valX);
 			if (valX == null) {
 				// Extrapolate
 				valX = this.extrapolateX(half, fit);
+				System.out.println("Extrapolation: " + valX);
 				extrapolationType = fit.getType();
 			}
 			return new ResultValue(result, valX, Unit.TIME, extrapolationType);

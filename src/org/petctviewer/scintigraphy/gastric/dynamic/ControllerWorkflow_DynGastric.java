@@ -1,12 +1,12 @@
-package org.petctviewer.scintigraphy.gastric_refactored.dynamic;
+package org.petctviewer.scintigraphy.gastric.dynamic;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.JButton;
 
-import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
-import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMainResult;
-import org.petctviewer.scintigraphy.gastric_refactored.tabs.TabMethod2;
+import org.petctviewer.scintigraphy.gastric.Model_Gastric;
+import org.petctviewer.scintigraphy.gastric.tabs.TabMainResult;
+import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
