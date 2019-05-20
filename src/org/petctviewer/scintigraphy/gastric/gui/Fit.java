@@ -166,8 +166,8 @@ public abstract class Fit {
 
 		@Override
 		public double extrapolateX(double valueY) {
-			double res = valueY - coefs[0] / coefs[1];
-			return res;
+			// TODO: formula
+			return 0.;
 		}
 
 		@Override

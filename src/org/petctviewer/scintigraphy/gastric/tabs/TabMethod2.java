@@ -192,15 +192,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		// Data
 		double[] data = getModel().generateDecayFunctionValues();
 
-		ResultValue result = getModel().getResult(data, Model_Gastric.START_ANTRUM, this.currentFit);
-		hasExtrapolatedValue = result.getExtrapolation() != null;
-		this.displayResult(infoRes, result);
-
-		result = getModel().getResult(data, Model_Gastric.START_INTESTINE, this.currentFit);
-		hasExtrapolatedValue = result.getExtrapolation() != null;
-		this.displayResult(infoRes, result);
-
-		result = getModel().getResult(data, Model_Gastric.LAG_PHASE, this.currentFit);
+		ResultValue result = getModel().getResult(data, Model_Gastric.LAG_PHASE, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
