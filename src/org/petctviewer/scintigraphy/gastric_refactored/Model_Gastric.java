@@ -1460,11 +1460,14 @@ public class Model_Gastric extends ModeleScin {
 		if (result == T_HALF) {
 			// Assumption: the first value is the highest (maybe do not assume that...)
 			double half = yValues[0] / 2.;
+			System.out.println("Half value: " + half);
 			extrapolationType = null;
 			Double valX = this.getX(yValues, half);
+			System.out.println("Value found: " + valX);
 			if (valX == null) {
 				// Extrapolate
 				valX = this.extrapolateX(half, fit);
+				System.out.println("Extrapolation: " + valX);
 				extrapolationType = fit.getType();
 			}
 			return new ResultValue(result, valX, Unit.TIME, extrapolationType);
