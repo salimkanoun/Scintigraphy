@@ -151,7 +151,6 @@ public class TabTransitTime extends TabResult {
 		// graph
 		graphTransitTime = ChartFactory.createXYLineChart("Transit Time", "s", "Count/s", null);
 		// Changes background color et grid color
-		graphTransitTime.getXYPlot().setBackgroundPaint(new Color(255, 255, 255));
 		graphTransitTime.getXYPlot().setRangeGridlinePaint(Color.black);
 		graphTransitTime.getXYPlot().setDomainGridlinePaint(Color.black);
 
@@ -164,12 +163,11 @@ public class TabTransitTime extends TabResult {
 		}
 		// Changes background color
 		XYPlot plott = (XYPlot) graphTransitTime.getPlot();
-		plott.setBackgroundPaint(new Color(255, 255, 255));
 
 		graphTransitTime.getXYPlot().setDataset(dataset);
 
-		// rend toutes les coubres visible
-		for (int i = 0; i < nbAcquisition; i++) {
+		// Hide every curves exept the first one
+		for (int i = 1; i < nbAcquisition; i++) {
 			this.setVisibilitySeriesGraph(graphTransitTime, i, false);
 		}
 

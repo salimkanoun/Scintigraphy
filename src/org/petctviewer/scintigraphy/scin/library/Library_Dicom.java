@@ -31,7 +31,6 @@ public class Library_Dicom {
 	 * @return date d'acquisition de l'image plus
 	 */
 	public static Date getDateAcquisition(ImagePlus imp) {
-		imp.show();
 		String aquisitionDate = DicomTools.getTag(imp, "0008,0022");
 		String aquisitionTime = DicomTools.getTag(imp, "0008,0032");
 		String dateInput = aquisitionDate.trim() + aquisitionTime.trim();

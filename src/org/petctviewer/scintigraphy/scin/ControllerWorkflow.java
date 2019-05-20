@@ -206,7 +206,7 @@ public abstract class ControllerWorkflow extends ControleurScin {
 		// Change slice only if different than the previous
 		if (this.currentState.getSlice() != this.vue.getImagePlus().getCurrentSlice()) {
 			this.vue.getImagePlus().setSlice(this.currentState.getSlice());
-			resetOverlay = true;
+//			resetOverlay = true;
 		}
 
 		// == LATERALISATION ==

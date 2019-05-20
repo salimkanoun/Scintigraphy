@@ -143,7 +143,6 @@ public class TabRentention extends TabResult {
 		rendererTransit.setDefaultToolTipGenerator(new StandardXYToolTipGenerator());
 		graphRetention.getXYPlot().setRenderer(rendererTransit);
 
-		this.graphRetention.getXYPlot().setBackgroundPaint(new Color(255, 255, 255));
 
 		// grille en noir
 		this.graphRetention.getXYPlot().setRangeGridlinePaint(Color.black);
@@ -178,6 +177,12 @@ public class TabRentention extends TabResult {
 
 		selectorRentention = new Selector("max", 1, -1, RectangleAnchor.TOP_RIGHT);
 		valueSetterRetention.addSelector(selectorRentention, "max");
+		
+		// Hide every curves exept the first one
+		for (int i = 1; i < nbAcquisition; i++) {
+			this.setVisibilitySeriesGraph(graphRetention, i, false);
+		}
+		
 		return valueSetterRetention;
 	}
 

@@ -82,27 +82,24 @@ public class EsophagealTransit extends Scintigraphy {
 				// null == pas d'image ant et/ou une image post et != une image post en [0]
 				ImageSelection[] splited = Library_Dicom.splitDynamicAntPost(selectedImages[i]);
 				if (splited[0] != null) {
-					imagePourTrieAnt.add(Library_Dicom.splitDynamicAntPost(selectedImages[i])[0]);
+					imagePourTrieAnt.add(splited[0]);
 				}
 				// [1] : c'est la post
 				// si null : pas dimage post
 				if (splited[1] != null) {
 					// trie + inversement de la post
-					ImageSelection ims = Library_Dicom.splitDynamicAntPost(selectedImages[i])[1];
+					ImageSelection ims = splited[1];
 					Library_Dicom.flipStackHorizontal(ims);
 					imagePourTriePost.add(ims);
 				}
 			}else if(selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_ANT)
-				imagePourTrieAnt.add(selectedImages[i]);
+				imagePourTrieAnt.add(selectedImages[i].clone());
 			else
 				throw new WrongInputException(
 						"Unexpected Image type.\n Accepted : DYNAMIC_ANT | DYNAMIC_ANT_POST | DYNAMIC_POST_ANT");
 			selectedImages[i].getImagePlus().close();
 
 		}
-		
-		for(ImageSelection ims: imagePourTrieAnt)
-			ims.getImagePlus().show();
 
 		// on appelle la fonction de trie
 		ChronologicalAcquisitionComparator chronologicalOrder = new ChronologicalAcquisitionComparator();
@@ -112,7 +109,7 @@ public class EsophagealTransit extends Scintigraphy {
 		sauvegardeImagesSelectDicom[0] = imagePourTrieAnt.toArray(new ImageSelection[imagePourTrieAnt.size()]);
 		// Pareil pour la post
 		Collections.sort(imagePourTriePost, chronologicalOrder);
-		sauvegardeImagesSelectDicom[1] = imagePourTriePost.toArray(sauvegardeImagesSelectDicom[1]);
+		sauvegardeImagesSelectDicom[1] = imagePourTriePost.toArray(new ImageSelection[imagePourTriePost.size()]);
 
 		// test de verification de la taille des stack
 		if (sauvegardeImagesSelectDicom[0].length != sauvegardeImagesSelectDicom[1].length) {
@@ -152,6 +149,9 @@ public class EsophagealTransit extends Scintigraphy {
 		// phase 1
 		// on retourne la stack de la 1ere acquisition
 		ImageSelection[] selection = new ImageSelection[1];
+//		ImageSelection imsProjeteAllAcqui = sauvegardeImagesSelectDicom[0][0].clone();
+//		imsProjeteAllAcqui.setImagePlus(impProjeteAllAcqui);
+//		selection[0] = imsProjeteAllAcqui;
 		selection[0] = sauvegardeImagesSelectDicom[0][0];
 		return selection;
 	}
@@ -228,6 +228,12 @@ public class EsophagealTransit extends Scintigraphy {
 
 	public int[] getFrameDurations() {
 		return frameDurations;
+	}
+	
+	public ImageSelection getImgPrjtAllAcqui() {
+		ImageSelection returned = sauvegardeImagesSelectDicom[0][0].clone(Orientation.ANT);
+		returned.setImagePlus(impProjeteAllAcqui);
+		return returned;
 	}
 
 }

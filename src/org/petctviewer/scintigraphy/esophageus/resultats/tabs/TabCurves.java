@@ -130,7 +130,6 @@ public class TabCurves extends TabResult {
 		graphMain.getXYPlot().setRenderer(rendererMain);
 
 		// Changes background color et grid color
-		this.graphMain.getXYPlot().setBackgroundPaint(new Color(255, 255, 255));
 
 		XYSeriesCollection dataset = new XYSeriesCollection();
 

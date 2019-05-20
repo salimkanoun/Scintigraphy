@@ -17,12 +17,17 @@ public class DrawRoiInstruction implements Instruction {
 	 * Instantiates a new instruction to draw ROI. With this constructor, you can
 	 * specify a ROI to edit and roi name to display.
 	 * 
-	 * @param organToDelimit    Name of the organ to delimit
-	 * @param state             State of the image
-	 * @param instructionToCopy Instruction to take a copy of the ROI from
-	 * @param roiName 			Name of the Roi (displayed one)
+	 * @param organToDelimit
+	 *            Name of the organ to delimit
+	 * @param state
+	 *            State of the image
+	 * @param instructionToCopy
+	 *            Instruction to take a copy of the ROI from
+	 * @param roiName
+	 *            Name of the Roi (displayed one)
 	 */
-	public DrawRoiInstruction(String organToDelimit, ImageState state, DrawRoiInstruction instructionToCopy, String roiName) {
+	public DrawRoiInstruction(String organToDelimit, ImageState state, DrawRoiInstruction instructionToCopy,
+			String roiName) {
 		this.organToDelimit = organToDelimit;
 		this.isAdjusting = false;
 		this.state = state;
@@ -30,14 +35,17 @@ public class DrawRoiInstruction implements Instruction {
 		this.indexRoiToEdit = -1;
 		this.roiName = roiName == null ? organToDelimit : roiName;
 	}
-	
+
 	/**
 	 * Instantiates a new instruction to draw ROI. With this constructor, you can
 	 * specify a ROI to edit.
 	 * 
-	 * @param organToDelimit    Name of the organ to delimit
-	 * @param state             State of the image
-	 * @param instructionToCopy Instruction to take a copy of the ROI from
+	 * @param organToDelimit
+	 *            Name of the organ to delimit
+	 * @param state
+	 *            State of the image
+	 * @param instructionToCopy
+	 *            Instruction to take a copy of the ROI from
 	 */
 	public DrawRoiInstruction(String organToDelimit, ImageState state, DrawRoiInstruction instructionToCopy) {
 		this(organToDelimit, state, instructionToCopy, null);
@@ -46,20 +54,25 @@ public class DrawRoiInstruction implements Instruction {
 	/**
 	 * Instantiates a new instruction to draw ROI.
 	 * 
-	 * @param organToDelimit Name of the organ to delimit
-	 * @param state          State of the image
+	 * @param organToDelimit
+	 *            Name of the organ to delimit
+	 * @param state
+	 *            State of the image
 	 */
 	public DrawRoiInstruction(String organToDelimit, ImageState state) {
 		this(organToDelimit, state, null, null);
 	}
-	
+
 	/**
 	 * Instantiates a new instruction to draw ROI. With this constructor, you can
 	 * specify a ROI to edit.
 	 * 
-	 * @param organToDelimit    Name of the organ to delimit
-	 * @param state             State of the image
-	 * @param roiName 			Name of the Roi (displayed one)
+	 * @param organToDelimit
+	 *            Name of the organ to delimit
+	 * @param state
+	 *            State of the image
+	 * @param roiName
+	 *            Name of the Roi (displayed one)
 	 */
 	public DrawRoiInstruction(String organToDelimit, ImageState state, String roiName) {
 		this(organToDelimit, state, null, roiName);
@@ -68,6 +81,17 @@ public class DrawRoiInstruction implements Instruction {
 	@Override
 	public String getRoiName() {
 		return this.roiName;
+	}
+
+	/**
+	 * This method return the name of the organ delimited by the ROI. This name
+	 * could be different of the RoiName because, for background, you don't want to
+	 * display the RoiName, and you have to specify it to "".
+	 * 
+	 * @return
+	 */
+	public String getOrganToDelimit() {
+		return this.organToDelimit;
 	}
 
 	@Override

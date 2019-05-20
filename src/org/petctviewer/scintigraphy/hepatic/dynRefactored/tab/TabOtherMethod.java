@@ -2,7 +2,6 @@ package org.petctviewer.scintigraphy.hepatic.dynRefactored.tab;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,6 +24,8 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+
+import ij.Prefs;
 
 public class TabOtherMethod extends TabResult implements ActionListener, ChangeListener {
 
@@ -98,7 +99,7 @@ public class TabOtherMethod extends TabResult implements ActionListener, ChangeL
 			box.add(Box.createHorizontalGlue());
 
 			pan.add(box);
-//			pan.setPreferredSize(new Dimension(1050, 700));
+			// pan.setPreferredSize(new Dimension(1050, 700));
 			return pan;
 
 		} else {
@@ -106,16 +107,18 @@ public class TabOtherMethod extends TabResult implements ActionListener, ChangeL
 			this.tabPane = new JTabbedPane();
 			this.tabTAC = new TabTAC(this.getParent(), this);
 			TabVasculaire tabVasculaire = new TabVasculaire(this.getParent(), this);
-			this.deconvolvGraph = new TabDeconvolv(this.getParent(), this);
 
 			this.tabPane.addTab(this.tabTAC.getTitle(), this.tabTAC.getPanel());
 			this.tabPane.addTab(tabVasculaire.getTitle(), tabVasculaire.getPanel());
-			this.tabPane.addTab(deconvolvGraph.getTitle(), deconvolvGraph.getPanel());
+			if (Prefs.get("petctviewer.scin.experimental", false)) {
+				this.deconvolvGraph = new TabDeconvolv(this.getParent(), this);
+				this.tabPane.addTab(deconvolvGraph.getTitle(), deconvolvGraph.getPanel());
+			}
 
 			this.tabPane.addChangeListener(this);
 
 			panelDeFin.add(this.tabPane);
-//			panelDeFin.setPreferredSize(new Dimension(1050, 700));
+			// panelDeFin.setPreferredSize(new Dimension(1050, 700));
 			return tabPane;
 		}
 	}

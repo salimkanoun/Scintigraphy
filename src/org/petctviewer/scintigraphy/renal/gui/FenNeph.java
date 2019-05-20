@@ -19,7 +19,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.Selector;
-import org.petctviewer.scintigraphy.renal.YSelector;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 import ij.Prefs;
@@ -88,10 +87,6 @@ public class FenNeph extends JDialog implements ActionListener {
 			Selector tmaxr = new Selector("TMax R", Library_JFreeChart.getAbsMaxY(plot.getDataset(), index), 1,
 					RectangleAnchor.TOP_LEFT);
 			jvs.addSelector(tmaxr, "tmax R");
-			
-			YSelector test = new YSelector("TestYSelector", Library_JFreeChart.getAbsMaxY(plot.getDataset(), index), 1,
-					RectangleAnchor.TOP_LEFT);
-			jvs.addSelector(test, "TestYSelector");
 		}
 
 		Selector start = new Selector(" ", 1, -1, RectangleAnchor.TOP_LEFT);

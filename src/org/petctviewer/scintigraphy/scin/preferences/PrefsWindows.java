@@ -34,7 +34,7 @@ public class PrefsWindows extends WindowAdapter implements PlugIn {
 
 	@Override
 	public void run(String arg) {
-		this.main = new prefsTabMain();
+		this.main = new prefsTabMain(this);
 		this.renal = new prefsTabRenal();
 		this.bone = new prefsTabBone();
 		this.gastric = new PrefsTabGastric(this);

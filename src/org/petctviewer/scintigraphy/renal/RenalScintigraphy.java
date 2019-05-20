@@ -49,32 +49,38 @@ public class RenalScintigraphy extends Scintigraphy {
 		
 		if(imps[0] != null) {
 			this.impAnt = imps[0];
-			for(int i = 1; i <= this.impPost.getImagePlus().getStackSize(); i++) {
-				this.impPost.getImagePlus().getStack().getProcessor(i).flipHorizontal();
-			}
-			this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost.getImagePlus());
+			this.frameDurations = Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus());
 		}
 		
 		if(imps[1] != null) {
 			this.impPost = imps[1];
 			this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost.getImagePlus());
 		}
+		
+		ImageSelection impPostCountPerSec = this.impPost.clone();
+		Library_Dicom.normalizeToCountPerSecond(impPostCountPerSec);
+		
+		
 
-		impProjetee = Library_Dicom.project(this.impPost,0,impPost.getImagePlus().getStackSize(),"avg");
+		impProjetee = Library_Dicom.project(impPostCountPerSec,0,impPostCountPerSec.getImagePlus().getStackSize(),"avg");
 		ImageStack stack = impProjetee.getImagePlus().getStack();
 		
 		//deux premieres minutes
 		int fin = ModeleScinDyn.getSliceIndexByTime(2 * 60 * 1000, frameDurations);
-		ImageSelection impPostFirstMin = Library_Dicom.project(this.impPost, 0, fin,"avg");
+		ImageSelection impPostFirstMin = Library_Dicom.project(impPostCountPerSec, 0, fin,"avg");
 		stack.addSlice(impPostFirstMin.getImagePlus().getProcessor());
 		
 		// MIP
-		ImagePlus pj = ZProjector.run(this.impPost.getImagePlus(), "max", 0, this.impPost.getImagePlus().getNSlices());
+		ImagePlus pj = ZProjector.run(impPostCountPerSec.getImagePlus(), "max", 0, impPostCountPerSec.getImagePlus().getNSlices());
 		stack.addSlice(pj.getProcessor());
 
 		// ajout de la prise ant si elle existe
 		if (imps[0] != null) {
-			ImageSelection impProjAnt = Library_Dicom.project(impAnt,0,impAnt.getImagePlus().getStackSize(),"avg");
+			
+			ImageSelection impAntCountPerSec = this.impAnt.clone();
+			Library_Dicom.normalizeToCountPerSecond(impAntCountPerSec);
+			
+			ImageSelection impProjAnt = Library_Dicom.project(impAntCountPerSec,0,impAntCountPerSec.getImagePlus().getStackSize(),"avg");
 			impProjAnt.getImagePlus().getProcessor().flipHorizontal();
 			impAnt=impProjAnt;
 			stack.addSlice(impProjAnt.getImagePlus().getProcessor());
