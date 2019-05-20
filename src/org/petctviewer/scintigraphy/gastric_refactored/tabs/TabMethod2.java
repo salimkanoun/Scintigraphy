@@ -66,7 +66,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	private final Unit UNIT;
 
 	public TabMethod2(FenResults parent, ImagePlus capture, ControleurScin controller) {
-		super(parent, "General Method", true);
+		super(parent, "Gastric Only", true);
 
 		// Set unit from Prefs
 		UNIT = Unit.valueOf(Prefs.get(PrefsTabGastric.PREF_UNIT_USED, Unit.COUNTS.name()));
@@ -305,7 +305,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 			this.setErrorMessage(null);
 			this.reloadSidePanelContent();
 		} catch (IllegalArgumentException error) {
-			System.err.println("Not enough data");
+			this.clearFits();
 			this.setErrorMessage("Not enough data to fit the graph");
 		}
 	}
@@ -421,7 +421,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	public void drawFit() {
 		this.clearFits();
 
-		this.data.addSeries(this.currentFit.getFittedSeries(getModel().getTimes()));
+		this.data.addSeries(this.currentFit.getFittedSeries(getModel().getRealTimes()));
 	}
 
 	/**
@@ -452,9 +452,16 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		panel.add(this.additionalResults(), BorderLayout.NORTH);
 
 		// Center
-		JPanel panCenter = new JPanel(new GridLayout(0, 1));
-		panCenter.add(tablesResultats());
-		panCenter.add(this.infoResultats());
+		JPanel panCenter = new JPanel(new BorderLayout());
+
+		// - Table
+		JPanel panTable = new JPanel(new BorderLayout());
+		JTable table = tablesResultats();
+		panTable.add(table.getTableHeader(), BorderLayout.PAGE_START);
+		panTable.add(table, BorderLayout.CENTER);
+		panCenter.add(panTable, BorderLayout.CENTER);
+
+		panCenter.add(this.infoResultats(), BorderLayout.SOUTH);
 		panel.add(panCenter, BorderLayout.CENTER);
 
 		return panel;

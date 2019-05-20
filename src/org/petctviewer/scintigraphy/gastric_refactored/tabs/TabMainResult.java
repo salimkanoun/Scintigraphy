@@ -66,7 +66,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	private final Unit UNIT;
 
 	public TabMainResult(FenResults parent, ImagePlus capture, ControllerWorkflow_Gastric controller) {
-		super(parent, "Result");
+		super(parent, "Intragastric Distribution");
 
 		// Set unit
 		UNIT = Unit.PERCENTAGE;
