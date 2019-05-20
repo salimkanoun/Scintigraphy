@@ -74,7 +74,7 @@ public abstract class ControleurScin implements ActionListener {
 	public ModeleScin getModel() {
 		return this.model;
 	}
-	
+
 	public int getPosition() {
 		return this.position;
 	}
@@ -118,8 +118,7 @@ public abstract class ControleurScin implements ActionListener {
 	/**
 	 * Displays the instruction on the view.
 	 * 
-	 * @param instruction
-	 *            Instruction to display
+	 * @param instruction Instruction to display
 	 */
 	public void displayInstruction(String instruction) {
 		this.vue.getTextfield_instructions().setText(instruction);
@@ -129,11 +128,10 @@ public abstract class ControleurScin implements ActionListener {
 	/**
 	 * Creates an ImagePlus with 4 captures.
 	 * 
-	 * @param captures
-	 *            ImageStack with 4 captures
+	 * @param captures ImageStack with 4 captures
 	 * @return ImagePlus with the 4 captures on 1 slice
-	 * @throws IllegalArgumentException
-	 *             if the number of captures is different than 4
+	 * @throws IllegalArgumentException if the number of captures is different than
+	 *                                  4
 	 */
 	protected ImagePlus montage(ImageStack captures) throws IllegalArgumentException {
 		if (captures.getSize() != 4)
@@ -152,12 +150,9 @@ public abstract class ControleurScin implements ActionListener {
 	 * specified index. If a ROI with the same name has already been saved, it will
 	 * be replaced.
 	 * 
-	 * @param name
-	 *            Name of the ROI to save
-	 * @param indexRoiToSave
-	 *            index of the ROI to save on the RoiManager
-	 * @throws NoDataException
-	 *             if no ROI is present on the current ImagePlus
+	 * @param name           Name of the ROI to save
+	 * @param indexRoiToSave index of the ROI to save on the RoiManager
+	 * @throws NoDataException if no ROI is present on the current ImagePlus
 	 */
 
 	public void saveRoiAtIndex(String name, int indexRoiToSave) throws NoDataException {
@@ -166,7 +161,7 @@ public abstract class ControleurScin implements ActionListener {
 		// Check if there is a ROI to save
 		if (roiToSave == null)
 			throw new NoDataException("No ROI to save");
-		
+
 		// TODO: maybe allow the user to choose the color for the ROI?
 		roiToSave.setStrokeColor(Color.YELLOW);
 		roiToSave.setPosition(0);
@@ -191,8 +186,7 @@ public abstract class ControleurScin implements ActionListener {
 	 * Displays the ROI with the specified index if existing on the overlay of the
 	 * current image.
 	 * 
-	 * @param index
-	 *            Index of the ROI to display
+	 * @param index Index of the ROI to display
 	 */
 	public void displayRoi(int index) {
 		this.displayRois(new int[] { index });
@@ -202,8 +196,7 @@ public abstract class ControleurScin implements ActionListener {
 	 * Displays all existing ROIs with the specified indexes on the overlay of the
 	 * current image.
 	 * 
-	 * @param indexes
-	 *            Indexes of the ROIs to display
+	 * @param indexes Indexes of the ROIs to display
 	 */
 	public void displayRois(int[] indexes) {
 		// Get ROIs to display
@@ -219,10 +212,8 @@ public abstract class ControleurScin implements ActionListener {
 	 * Displays all of the existing ROIs that have an index >= index_start and <
 	 * index_end.<br>
 	 * 
-	 * @param index_start
-	 *            First ROI index to be displayed
-	 * @param index_end
-	 *            The last ROI index (not displayed)
+	 * @param index_start First ROI index to be displayed
+	 * @param index_end   The last ROI index (not displayed)
 	 */
 	public void displayRois(int index_start, int index_end) {
 		int[] array = new int[index_end - index_start];
@@ -243,19 +234,17 @@ public abstract class ControleurScin implements ActionListener {
 	}
 
 	/**
-	 * Clears the current ImagePlus' overlay and places the correct title and
-	 * lateralisation according to the specified state.<br>
+	 * Places the correct title and lateralisation according to the specified
+	 * state.<br>
 	 * 
-	 * @param state
-	 *            The following state parameters must be provided:
-	 *            <ul>
-	 *            <li>lateralisation</li>
-	 *            <li>facingOrientation (cannot be <code>null</code>)</li>
-	 *            <li>slice (cannot be less or equals to
-	 *            <code>{@link ImageState#SLICE_PREVIOUS}</code>)</li>
-	 *            </ul>
-	 * @throws IllegalArgumentException
-	 *             if the state doesn't have the required data
+	 * @param state The following state parameters must be provided:
+	 *              <ul>
+	 *              <li>lateralisation</li>
+	 *              <li>facingOrientation (cannot be <code>null</code>)</li>
+	 *              <li>slice (cannot be less or equals to
+	 *              <code>{@link ImageState#SLICE_PREVIOUS}</code>)</li>
+	 *              </ul>
+	 * @throws IllegalArgumentException if the state doesn't have the required data
 	 */
 	public void setOverlay(ImageState state) throws IllegalArgumentException {
 		if (state == null)
@@ -263,6 +252,8 @@ public abstract class ControleurScin implements ActionListener {
 		if (state.getFacingOrientation() == null)
 			throw new IllegalArgumentException("The state misses the required data: -facingOrientation="
 					+ state.getFacingOrientation() + "; " + state.getSlice());
+		if(state.getSlice() <= ImageState.SLICE_PREVIOUS)
+			throw new IllegalArgumentException("The slice is invalid");
 
 		if (state.isLateralisationRL())
 			Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
@@ -277,8 +268,7 @@ public abstract class ControleurScin implements ActionListener {
 	 * Displays a clone of the ROI with the specified index if existing and make it
 	 * editable.
 	 * 
-	 * @param index
-	 *            Index of the ROI to clone and edit
+	 * @param index Index of the ROI to clone and edit
 	 * @return TRUE if the ROI already existed and could be retrieved and FALSE if
 	 *         not
 	 */
@@ -296,8 +286,7 @@ public abstract class ControleurScin implements ActionListener {
 	 * Displays a clone of the specified ROI and make it editable.<br>
 	 * If the ROI is null, this method does nothing.
 	 * 
-	 * @param index
-	 *            Index of the ROI to clone and edit
+	 * @param index Index of the ROI to clone and edit
 	 */
 	public void editCopyRoi(Roi roi) {
 		if (roi != null) {
@@ -309,8 +298,7 @@ public abstract class ControleurScin implements ActionListener {
 	/**
 	 * Displays the ROI with the specified index if existing and make it editable.
 	 * 
-	 * @param index
-	 *            Index of the ROI to edit
+	 * @param index Index of the ROI to edit
 	 * @return TRUE if the ROI already existed and could be retrieved and FALSE if
 	 *         not
 	 */
@@ -327,8 +315,7 @@ public abstract class ControleurScin implements ActionListener {
 	/**
 	 * Displays the ROI with the specified name if existing and make it editable.
 	 * 
-	 * @param name
-	 *            Name of the ROI to edit
+	 * @param name Name of the ROI to edit
 	 * @return TRUE if the ROI already existed and could be retrieved and FALSE if
 	 *         not
 	 */
@@ -339,8 +326,7 @@ public abstract class ControleurScin implements ActionListener {
 	/**
 	 * Finds the first ROI matching the specified name.
 	 * 
-	 * @param name
-	 *            Name of the ROI to find
+	 * @param name Name of the ROI to find
 	 * @return first ROI found or null if not
 	 */
 	protected Roi getRoi(String name) {

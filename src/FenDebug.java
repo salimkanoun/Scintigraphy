@@ -10,8 +10,6 @@ import javax.swing.JPanel;
 import org.petctviewer.scintigraphy.calibration.Calibration;
 import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
 import org.petctviewer.scintigraphy.esophageus.application.EsophagealTransit;
-import org.petctviewer.scintigraphy.gastric.Vue_VG_Dynamique;
-import org.petctviewer.scintigraphy.gastric.Vue_VG_Roi;
 import org.petctviewer.scintigraphy.gastric_refactored.GastricScintigraphy;
 import org.petctviewer.scintigraphy.generic.dynamic.GeneralDynamicScintigraphy;
 import org.petctviewer.scintigraphy.generic.statics.StaticScintigraphy;
@@ -74,8 +72,6 @@ public class FenDebug extends JFrame {
 		this.registerNewProgram(GeneralDynamicScintigraphy.class);
 		this.registerNewProgram(RenalScintigraphy.class);
 		this.registerNewProgram(DmsaScintigraphy.class);
-		this.registerNewProgram(Vue_VG_Dynamique.class);
-		this.registerNewProgram(Vue_VG_Roi.class);
 		this.registerNewProgram(StaticScintigraphy.class);
 		this.registerNewProgram(FollowUp.class);
 		this.registerNewProgram(Calibration.class);
