@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.gastric_refactored;
+package org.petctviewer.scintigraphy.gastric;
 
 public enum Unit {
 		PERCENTAGE("%"),

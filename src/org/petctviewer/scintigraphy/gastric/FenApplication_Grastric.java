@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.gastric_refactored;
+package org.petctviewer.scintigraphy.gastric;
 
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;

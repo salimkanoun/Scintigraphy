@@ -1,9 +1,9 @@
-package org.petctviewer.scintigraphy.gastric_refactored;
+package org.petctviewer.scintigraphy.gastric;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
+import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
 
 /**
  * This class represents a result returned by a model.<br>

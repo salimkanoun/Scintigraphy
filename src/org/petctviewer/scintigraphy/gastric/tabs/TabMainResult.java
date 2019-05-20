@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.gastric_refactored.tabs;
+package org.petctviewer.scintigraphy.gastric.tabs;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -32,14 +32,14 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.gastric_refactored.ControllerWorkflow_Gastric;
-import org.petctviewer.scintigraphy.gastric_refactored.Model_Gastric;
-import org.petctviewer.scintigraphy.gastric_refactored.Result;
-import org.petctviewer.scintigraphy.gastric_refactored.ResultValue;
-import org.petctviewer.scintigraphy.gastric_refactored.Unit;
-import org.petctviewer.scintigraphy.gastric_refactored.dynamic.DynGastricScintigraphy;
-import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
-import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
+import org.petctviewer.scintigraphy.gastric.ControllerWorkflow_Gastric;
+import org.petctviewer.scintigraphy.gastric.Model_Gastric;
+import org.petctviewer.scintigraphy.gastric.Result;
+import org.petctviewer.scintigraphy.gastric.ResultValue;
+import org.petctviewer.scintigraphy.gastric.Unit;
+import org.petctviewer.scintigraphy.gastric.dynamic.DynGastricScintigraphy;
+import org.petctviewer.scintigraphy.gastric.gui.Fit;
+import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;

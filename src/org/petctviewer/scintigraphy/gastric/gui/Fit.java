@@ -1,8 +1,8 @@
-package org.petctviewer.scintigraphy.gastric_refactored.gui;
+package org.petctviewer.scintigraphy.gastric.gui;
 
 import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYSeries;
-import org.petctviewer.scintigraphy.gastric_refactored.Unit;
+import org.petctviewer.scintigraphy.gastric.Unit;
 
 /**
  * This class represents a fit for a certain dataset. The fit can be used to

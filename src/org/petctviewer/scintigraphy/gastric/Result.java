@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.gastric_refactored;
+package org.petctviewer.scintigraphy.gastric;
 
 /**
  * This class represents a result a model can provide.<br>

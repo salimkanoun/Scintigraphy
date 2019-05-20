@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 import org.petctviewer.scintigraphy.calibration.Calibration;
 import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
 import org.petctviewer.scintigraphy.esophageus.application.EsophagealTransit;
-import org.petctviewer.scintigraphy.gastric_refactored.GastricScintigraphy;
+import org.petctviewer.scintigraphy.gastric.GastricScintigraphy;
 import org.petctviewer.scintigraphy.generic.dynamic.GeneralDynamicScintigraphy;
 import org.petctviewer.scintigraphy.generic.statics.StaticScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynamicScintigraphy;

@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.gastric_refactored.gui;
+package org.petctviewer.scintigraphy.gastric.gui;
 
 import java.awt.Component;
 import java.io.File;
@@ -10,7 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
-import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
+import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
 
 public class FitCellRenderer extends JLabel implements ListCellRenderer<FitType> {
 	private static final long serialVersionUID = 1L;

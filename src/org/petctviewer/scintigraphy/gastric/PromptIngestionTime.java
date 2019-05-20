@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.gastric_refactored;
+package org.petctviewer.scintigraphy.gastric;
 
 import java.awt.Color;
 import java.awt.event.ItemEvent;

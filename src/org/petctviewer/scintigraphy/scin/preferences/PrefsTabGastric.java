@@ -12,7 +12,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.gastric_refactored.Unit;
+import org.petctviewer.scintigraphy.gastric.Unit;
 
 import ij.Prefs;
 

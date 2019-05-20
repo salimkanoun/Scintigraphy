@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.gastric_refactored;
+package org.petctviewer.scintigraphy.gastric;
 
 /**
 Copyright (C) 2017 PING Xie and KANOUN Salim
@@ -40,8 +40,8 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit;
-import org.petctviewer.scintigraphy.gastric_refactored.gui.Fit.FitType;
+import org.petctviewer.scintigraphy.gastric.gui.Fit;
+import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
