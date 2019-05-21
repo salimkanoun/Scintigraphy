@@ -64,7 +64,7 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 	}
 
 	@Override
-	protected void end() {
+	public void end() {
 		super.end();
 
 		// Compute model

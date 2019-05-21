@@ -22,7 +22,7 @@ public class FenResultats_Dmsa extends FenResults {
 
 	public FenResultats_Dmsa(BufferedImage capture, ControleurScin controller) {
 		super(controller);
-		this.addTab(new TabMain(this, "dmsa", true, capture));
+		this.addTab(new TabMain(this, "DMSA", true, capture));
 	}
 
 	private class TabMain extends TabResult {

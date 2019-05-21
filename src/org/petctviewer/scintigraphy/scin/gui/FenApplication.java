@@ -4,7 +4,12 @@ import java.awt.Button;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Menu;
+import java.awt.MenuBar;
+import java.awt.MenuItem;
 import java.awt.Panel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseWheelListener;
@@ -15,6 +20,7 @@ import java.util.List;
 
 import javax.swing.JTextField;
 
+import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.FenApplicationSecondHepaticDyn;
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -56,6 +62,8 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	private String nom;
 
 	private int canvasW, canvasH;
+	
+	private MenuBar menuBar;
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
@@ -121,7 +129,11 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 		panelContainer.add(this.panelPrincipal);
 		this.add(panelContainer);
-
+		
+		this.menuBar = new MenuBar();
+		
+		this.createMenuBar();
+		
 		this.setDefaultSize();
 		this.addComponentListener(this);
 		this.setResizable(false);
@@ -237,6 +249,31 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 	public Panel getPanel_bttns_droit() {
 		return panel_btns_droite;
+	}
+	
+	public MenuBar getMenuBar() {
+		return this.menuBar;
+	}
+	
+	private void createMenuBar() {
+		Menu options = new Menu("Options");
+		MenuItem loadRois = new MenuItem("Load ROIs from .zip");
+		loadRois.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FenApplicationSecondHepaticDyn.importRoiList(FenApplication.this, FenApplication.this.controleur.getModel(), FenApplication.this.controleur);
+				FenApplication.this.getImagePlus().setRoi(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
+			}
+		});
+		
+		Menu help = new Menu("Help");
+		MenuItem documentation = new MenuItem("Documentation");
+		help.add(documentation);
+		
+		options.add(loadRois);
+		this.menuBar.add(options);
+		this.menuBar.add(help);
+		this.setMenuBar(this.menuBar);
 	}
 
 	public void setDefaultSize() {

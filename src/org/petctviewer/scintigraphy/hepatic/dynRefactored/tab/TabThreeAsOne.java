@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.tab;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 
 import javax.swing.JPanel;
 
@@ -40,7 +39,7 @@ public class TabThreeAsOne {
 	}
 
 	public JPanel getResultContent() {
-		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabOtherMethod) this.tab)
+		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
 				.getFenApplication().getControleur().getModel();
 
 		XYSeriesCollection data = new XYSeriesCollection();
