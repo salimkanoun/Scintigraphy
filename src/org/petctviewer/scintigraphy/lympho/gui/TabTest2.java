@@ -1,12 +1,9 @@
 package org.petctviewer.scintigraphy.lympho.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
 import java.awt.image.MemoryImageSource;
@@ -19,14 +16,11 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.lympho.FenApplicationLympho;
-import org.petctviewer.scintigraphy.scin.gui.FenResults;
-import org.petctviewer.scintigraphy.scin.gui.TabResult;
-
 import ij.ImagePlus;
 import ij.io.Opener;
 
 public class TabTest2 extends JPanel {
+	private static final long serialVersionUID = 1L;
 	
 	Image image2;
 	

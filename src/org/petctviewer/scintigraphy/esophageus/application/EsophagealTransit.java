@@ -21,7 +21,7 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -77,7 +77,8 @@ public class EsophagealTransit extends Scintigraphy {
 
 		// poour chaque acquisition
 		for (int i = 0; i < selectedImages.length; i++) {
-			if (selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_ANT_POST || selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
+			if (selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_ANT_POST
+					|| selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
 				// on ne sauvegarde que la ant
 				// null == pas d'image ant et/ou une image post et != une image post en [0]
 				ImageSelection[] splited = Library_Dicom.splitDynamicAntPost(selectedImages[i]);
@@ -162,7 +163,7 @@ public class EsophagealTransit extends Scintigraphy {
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.yellow);
 
-		FenApplication fen = new FenApplication(selectedImages[0].getImagePlus(), "Oesophageus");
+		FenApplicationWorkflow fen = new FenApplicationWorkflow(selectedImages[0], "Oesophageus");
 		fen.getPanel_btns_gauche().remove(fen.getBtn_drawROI());
 		fen.getPanel_Instructions_btns_droite().removeAll();
 
@@ -208,10 +209,11 @@ public class EsophagealTransit extends Scintigraphy {
 				fen.updateSliceSelector();
 				IJ.setTool(Toolbar.RECTANGLE);
 
-//				Controleur_EsophagealTransit cet = new Controleur_EsophagealTransit(EsophagealTransit.this,
-//						sauvegardeImagesSelectDicom, "Esophageal Transit");
-				ControllerWorkflowEsophagealTransit cet = new ControllerWorkflowEsophagealTransit(EsophagealTransit.this, EsophagealTransit.this.getFenApplication(), new Modele_EsophagealTransit(sauvegardeImagesSelectDicom, "Esophageal Transit", EsophagealTransit.this));
-				EsophagealTransit.this.getFenApplication().setControleur(cet);
+				ControllerWorkflowEsophagealTransit cet = new ControllerWorkflowEsophagealTransit(
+						EsophagealTransit.this, (FenApplicationWorkflow) EsophagealTransit.this.getFenApplication(),
+						new Modele_EsophagealTransit(sauvegardeImagesSelectDicom, "Esophageal Transit",
+								EsophagealTransit.this));
+				((FenApplicationWorkflow) EsophagealTransit.this.getFenApplication()).setControleur(cet);
 
 			}
 		});

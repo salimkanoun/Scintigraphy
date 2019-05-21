@@ -1,44 +1,24 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam;
 
 import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.Panel;
-import java.awt.event.ActionEvent;
 import java.util.List;
 
-import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 
-import ij.ImagePlus;
 import ij.gui.Roi;
 
-public class FenApplicationSecondHepaticDyn extends FenApplication {
-
+public class FenApplicationSecondHepaticDyn extends FenApplicationWorkflow {
 	private static final long serialVersionUID = -910237891674972798L;
 
-	JButton buttonTest;
+	public FenApplicationSecondHepaticDyn(ImageSelection ims, String nom) {
+		super(ims, nom);
 
-	public FenApplicationSecondHepaticDyn(ImagePlus imp, String nom) {
-		super(imp, nom);
-
-		// mise en place des boutons
-		Panel btns_instru = new Panel();
-		btns_instru.setLayout(new GridLayout(1, 2));
-		buttonTest = new JButton("Load Roi");
-		buttonTest.addActionListener(this);
-		btns_instru.add(buttonTest);
-		this.getPanel_Instructions_btns_droite().add(btns_instru);
-		this.pack();
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		FenApplicationSecondHepaticDyn.importRoiList(this, this.getControleur().getModel(), this.getControleur());
 	}
 
 	public static void importRoiList(Frame frame, ModeleScin modele, ControleurScin controller) {

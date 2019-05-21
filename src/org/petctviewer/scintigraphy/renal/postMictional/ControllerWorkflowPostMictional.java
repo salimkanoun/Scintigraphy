@@ -10,7 +10,7 @@ import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackground;
@@ -30,7 +30,8 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 
 	private boolean[] kidneys;
 
-	public ControllerWorkflowPostMictional(Scintigraphy main, FenApplication vue, ModeleScin model, boolean[] kidneys) {
+	public ControllerWorkflowPostMictional(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model,
+			boolean[] kidneys) {
 		super(main, vue, model);
 
 		this.kidneys = kidneys;
@@ -85,14 +86,13 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 
 	}
 
-	
 	@Override
 	public void end() {
 		HashMap<String, Double> hm = new HashMap<String, Double>();
 		ImagePlus imp = this.model.getImagePlus().duplicate();
 		// Normalizing to compare to the previous values, from the original exam.
 		Library_Dicom.normalizeToCountPerSecond(imp);
-		for (int indexRoi = 0; indexRoi < this.organeListe.length ; indexRoi++) {
+		for (int indexRoi = 0; indexRoi < this.organeListe.length; indexRoi++) {
 			imp.setRoi(this.model.getRoiManager().getRoi(indexRoi));
 			hm.put(this.organeListe[indexRoi], Library_Quantif.getCounts(imp));
 		}
@@ -109,10 +109,10 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 		super.actionPerformed(arg0);
 		Overlay ov = this.model.getImagePlus().getOverlay();
 
-		if (ov.getIndex("L. bkg") != -1) 
+		if (ov.getIndex("L. bkg") != -1)
 			Library_Gui.editLabelOverlay(ov, "L. bkg", "", Color.GRAY);
 
-		if (ov.getIndex("R. bkg") != -1) 
+		if (ov.getIndex("R. bkg") != -1)
 			Library_Gui.editLabelOverlay(ov, "R. bkg", "", Color.GRAY);
 	}
 

@@ -8,6 +8,7 @@ import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -89,10 +90,11 @@ public class SecondHepaticScintigraphy extends Scintigraphy {
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
 		this.model.setImpSecondMethod(selectedImages);
 
-		this.setFenApplication(new FenApplicationSecondHepaticDyn(impProjeteeAnt.getImagePlus(), this.getStudyName()));
+		this.setFenApplication(new FenApplicationSecondHepaticDyn(impProjeteeAnt, this.getStudyName()));
 		impProjeteeAnt.getImagePlus().setOverlay(overlay);
-		this.getFenApplication()
-				.setControleur(new ControllerWorkflowHepaticDyn(this.getFenApplication(),
+
+		((FenApplicationWorkflow) this.getFenApplication())
+				.setControleur(new ControllerWorkflowHepaticDyn((FenApplicationWorkflow) this.getFenApplication(),
 						new ModelSecondMethodHepaticDynamic(selectedImages, this.getStudyName(), this.frameDurations),
 						this.tab));
 

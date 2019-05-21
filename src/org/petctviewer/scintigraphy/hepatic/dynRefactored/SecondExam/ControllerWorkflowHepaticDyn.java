@@ -7,7 +7,7 @@ import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabCurves;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
@@ -23,8 +23,9 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 
 	private TabResult resultTab;
 
-	public ControllerWorkflowHepaticDyn(FenApplication vue, ModeleScin model, TabResult resultTab) {
+	public ControllerWorkflowHepaticDyn(FenApplicationWorkflow vue, ModeleScin model, TabResult resultTab) {
 		super(null, vue, model);
+
 		// TODO Auto-generated constructor stub
 		this.resultTab = resultTab;
 
