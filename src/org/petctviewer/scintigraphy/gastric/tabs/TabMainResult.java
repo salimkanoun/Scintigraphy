@@ -51,6 +51,8 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
+import com.itextpdf.text.Font;
+
 import ij.ImagePlus;
 
 public class TabMainResult extends TabResult implements ItemListener, ChartMouseListener {
@@ -231,6 +233,42 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	}
 
 	/**
+	 * Returns a string indicating the grade of the retention values after 4h.<br>
+	 * Based upon <code>tech.snmjournals.org</code>.
+	 * 
+	 * @param value Value of the retention after 4h
+	 * @return <code>string[0]</code> = grade and <code>string[1]</code> = readable
+	 *         value
+	 */
+	private JLabel[] gradeOfRetention(double value) {
+		JLabel l1, l2;
+		if (value < 11.) {
+			l1 = new JLabel("--");
+			l2 = new JLabel("Result is OK");
+		} else if (value >= 11. && value <= 20.) {
+			l1 = new JLabel("Grade 1");
+			l2 = new JLabel("Mild");
+		} else if (value > 20. && value <= 35.) {
+			l1 = new JLabel("Grade 2");
+			l2 = new JLabel("Moderate");
+		} else if (value > 35. && value <= 50.) {
+			l1 = new JLabel("Grade 3");
+			l2 = new JLabel("Severe");
+		} else {
+			l1 = new JLabel("Grade 4");
+			l2 = new JLabel("Very severe");
+		}
+		
+		l1.setFont(l1.getFont().deriveFont(Font.BOLD));
+		l1.setForeground(Color.ORANGE);
+		l1.setBackground(Color.BLACK);
+		l2.setFont(l2.getFont().deriveFont(12f));
+		l2.setForeground(Color.ORANGE);
+		l2.setBackground(Color.BLACK);
+		return new JLabel[] { l1, l2 };
+	}
+
+	/**
 	 * Utility method to print the result for the retention at a certain time.
 	 * 
 	 * @param infoRes Panel on which to place the result in
@@ -244,7 +282,14 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		if (result.getResultType() != Model_Gastric.RETENTION)
 			throw new IllegalArgumentException("Result type must be " + Model_Gastric.RETENTION);
 
-		infoRes.add(new JLabel(result.getResultType().getName() + " at " + (int) (time / 60) + "h:"));
+		// Format time string
+		String timeString;
+		if (time < 60.)
+			timeString = (int) time + "min";
+		else
+			timeString = (int) (time / 60) + "h";
+
+		infoRes.add(new JLabel(result.getResultType().getName() + " at " + timeString + ":"));
 
 		JLabel lRes = new JLabel(result.formatValue() + " " + result.getUnit());
 		if (result.getExtrapolation() == FitType.NONE) {
@@ -271,27 +316,40 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		JPanel infoRes = new JPanel();
 		infoRes.setLayout(new GridLayout(0, 2));
 
+		// Antrum
 		ResultValue result = getModel().getResult(this.YData, Model_Gastric.START_ANTRUM, this.currentFit);
-		hasExtrapolatedValue = result.getExtrapolation() != null;
+		hasExtrapolatedValue = result.isExtrapolated();
 		this.displayResult(infoRes, result);
 
+		// Intestine
 		result = getModel().getResult(this.YData, Model_Gastric.START_INTESTINE, this.currentFit);
-		hasExtrapolatedValue = result.getExtrapolation() != null;
+		hasExtrapolatedValue = result.isExtrapolated();
 		this.displayResult(infoRes, result);
 
+		// Lag phase
 		result = getModel().getResult(this.YData, Model_Gastric.LAG_PHASE, this.currentFit);
-		hasExtrapolatedValue = result.getExtrapolation() != null;
+		hasExtrapolatedValue = result.isExtrapolated();
 		this.displayResult(infoRes, result);
 
+		// T 1/2
 		result = getModel().getResult(this.YData, Model_Gastric.T_HALF, this.currentFit);
-		hasExtrapolatedValue = result.getExtrapolation() != null;
+		hasExtrapolatedValue = result.isExtrapolated();
 		this.displayResult(infoRes, result);
 
+		// Retention 30min
+		result = getModel().retentionAt(YData, 30., currentFit);
+		hasExtrapolatedValue = result.isExtrapolated();
+		this.displayRetentionResult(infoRes, 30., result);
+		// Retention from 1h to 4h
 		for (double time = 60.; time <= 240.; time += 60.) {
 			result = getModel().retentionAt(this.YData, time, this.currentFit);
-			hasExtrapolatedValue = result.getExtrapolation() != null;
+			hasExtrapolatedValue = result.isExtrapolated();
 			this.displayRetentionResult(infoRes, time, result);
 		}
+		// Grade of retention at 4h
+		JLabel[] grade = this.gradeOfRetention(result.getValue());
+		infoRes.add(grade[0]);
+		infoRes.add(grade[1]);
 
 		panel.add(infoRes, BorderLayout.CENTER);
 		if (hasExtrapolatedValue) {
