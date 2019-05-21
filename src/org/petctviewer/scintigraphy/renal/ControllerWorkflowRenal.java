@@ -13,7 +13,7 @@ import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackground;
@@ -33,7 +33,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 	private List<ImagePlus> captures;
 
-	public ControllerWorkflowRenal(Scintigraphy main, FenApplication vue, ModeleScin model) {
+	public ControllerWorkflowRenal(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
 		super(main, vue, model);
 		// TODO Auto-generated constructor stub
 
@@ -60,7 +60,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), 0);
 
 		if (((Modele_Renal) this.model).getKidneys()[0]) {
-			
+
 			dri_1 = new DrawRoiInstruction("L. Kidney", statePost);
 			this.workflows[0].addInstruction(dri_1);
 			organes.add("L. Kidney");
@@ -71,7 +71,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 				organes.add("L. Pelvis");
 			}
 
-			dri_Background_1 = new DrawRoiBackground("L. Background", statePost, dri_1, this.model,"");
+			dri_Background_1 = new DrawRoiBackground("L. Background", statePost, dri_1, this.model, "");
 			this.workflows[0].addInstruction(dri_Background_1);
 			organes.add("L. bkg");
 
@@ -88,7 +88,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 				organes.add("R. Pelvis");
 			}
 
-			dri_Background_2 = new DrawRoiBackground("R. Background", statePost, dri_3, this.model,"");
+			dri_Background_2 = new DrawRoiBackground("R. Background", statePost, dri_3, this.model, "");
 			this.workflows[0].addInstruction(dri_Background_2);
 			organes.add("R. bkg");
 
@@ -149,16 +149,16 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		// on enregistre la mesure pour chaque slice
 		for (int indexSlice = 1; indexSlice <= imp.getStackSize(); indexSlice++) {
 			imp.setSlice(indexSlice);
-			for (int indexRoi = 0; indexRoi < this.organeListe.length ; indexRoi++) {
+			for (int indexRoi = 0; indexRoi < this.organeListe.length; indexRoi++) {
 				imp.setRoi(this.model.getRoiManager().getRoi(indexRoi));
 				String nom = this.organeListe[indexRoi];
 				modele.enregistrerMesure(nom, imp);
-				
-				if(indexSlice == 1)
+
+				if (indexSlice == 1)
 					modele.enregistrerPixelRoi(nom, Library_Quantif.getPixelNumber(imp));
 			}
 		}
-		
+
 		// on calcule les resultats
 		modele.calculerResultats();
 

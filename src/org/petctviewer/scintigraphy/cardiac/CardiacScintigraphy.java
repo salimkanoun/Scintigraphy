@@ -7,6 +7,7 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -74,15 +75,13 @@ public class CardiacScintigraphy extends Scintigraphy {
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
 
 		// fenetre de l'application
-		this.setFenApplication(new FenApplication_Cardiac(selectedImages[0].getImagePlus(), this.getStudyName()));
+		this.setFenApplication(new FenApplication_Cardiac(selectedImages[0], this.getStudyName()));
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 
 		// Cree controller
-		// Controleur_Cardiac ctrl = new Controleur_Cardiac(this, selectedImages,
-		// "Cardiac");
-		ControllerWorkflowCardiac ctrl = new ControllerWorkflowCardiac(this, this.getFenApplication(),
-				new Modele_Cardiac(this, selectedImages, "Cardiac"));
-		this.getFenApplication().setControleur(ctrl);
+		((FenApplicationWorkflow) this.getFenApplication())
+				.setControleur(new ControllerWorkflowCardiac(this, (FenApplicationWorkflow) this.getFenApplication(),
+						new Modele_Cardiac(this, selectedImages, "Cardiac")));
 
 	}
 

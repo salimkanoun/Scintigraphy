@@ -42,8 +42,6 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 		this.setVisualisationEnable(true);
 	}
 
-	// == NEW ==
-
 	public void setVisualisationEnable(boolean state) {
 		if (state) {
 			// Create tooltip

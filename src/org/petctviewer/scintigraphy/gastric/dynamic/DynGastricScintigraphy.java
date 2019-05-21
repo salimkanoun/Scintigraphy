@@ -9,6 +9,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -73,8 +74,8 @@ public class DynGastricScintigraphy extends Scintigraphy {
 		System.out.println("-- Starting dynamic acquisition --");
 		this.setFenApplication(
 				new FenApplication_DynGastric(selectedImages[0].getImagePlus(), "Dynamic Gastric Scintigraphy"));
-		this.getFenApplication().setControleur(new ControllerWorkflow_DynGastric(this, this.getFenApplication(),
-				this.model, selectedImages, fenResults));
+		((FenApplicationWorkflow) this.getFenApplication()).setControleur(new ControllerWorkflow_DynGastric(this,
+				(FenApplicationWorkflow) this.getFenApplication(), this.model, selectedImages, fenResults));
 		this.getFenApplication().setVisible(true);
 	}
 

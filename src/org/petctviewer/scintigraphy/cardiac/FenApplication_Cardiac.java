@@ -5,13 +5,13 @@ import java.awt.GridLayout;
 import java.awt.Panel;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 
 import ij.IJ;
-import ij.ImagePlus;
 import ij.gui.Toolbar;
 
-public class FenApplication_Cardiac extends FenApplication {
+public class FenApplication_Cardiac extends FenApplicationWorkflow {
 
 	private static final long serialVersionUID = -8986173550839545500L;
 
@@ -20,8 +20,8 @@ public class FenApplication_Cardiac extends FenApplication {
 	private Button btn_continue;
 	private boolean modeCont;
 
-	public FenApplication_Cardiac(ImagePlus imp, String nom) {
-		super(imp, nom);
+	public FenApplication_Cardiac(ImageSelection ims, String nom) {
+		super(ims, nom);
 		this.modeCont = false;
 
 		this.btn_continue = new Button("End");

@@ -1,17 +1,17 @@
 package org.petctviewer.scintigraphy.lympho;
 
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
-import ij.ImagePlus;
 import ij.gui.Toolbar;
 
-public class FenApplicationLympho extends FenApplication {
+public class FenApplicationLympho extends FenApplicationWorkflow {
 	private static final long serialVersionUID = 1L;
 
-	public FenApplicationLympho(ImagePlus imp, String nom) {
-		super(imp, nom);
+	public FenApplicationLympho(ImageSelection ims, String nom) {
+		super(ims, nom);
 
 		IJ.setTool(Toolbar.RECTANGLE);
 		this.imp.setOverlay(Library_Gui.initOverlay(getImagePlus()));

@@ -13,7 +13,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
@@ -21,7 +22,7 @@ import ij.ImagePlus;
 import ij.gui.Overlay;
 import ij.gui.Toolbar;
 
-public class FenApplication_Renal extends FenApplication implements ActionListener {
+public class FenApplication_Renal extends FenApplicationWorkflow {
 
 	/**
 	 * 
@@ -32,9 +33,11 @@ public class FenApplication_Renal extends FenApplication implements ActionListen
 	private ImagePlus impProj;
 	private Button btn_dyn, btn_start;
 
-	public FenApplication_Renal(ImagePlus imp, String nom, RenalScintigraphy vue) {
-
-		super(imp, nom);
+	public FenApplication_Renal(ImageSelection ims, String nom, RenalScintigraphy vue) {
+		super(ims, nom);
+		// Keep default visualisation
+		this.setVisualisationEnable(false);
+		
 		// Ajout du boutton dynamic au panel de gauche
 		btn_dyn = new Button("Dynamic");
 		btn_dyn.addActionListener(this);
