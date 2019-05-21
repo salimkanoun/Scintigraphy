@@ -790,5 +790,4 @@ public class Library_Dicom {
 	public static Isotope findIsotope(ImagePlus imp) {
 		return Isotope.getIsotopeFromCode(findIsotopeCode(imp));
 	}
-
 }
