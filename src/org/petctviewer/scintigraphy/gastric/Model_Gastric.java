@@ -261,15 +261,15 @@ public class Model_Gastric extends ModeleScin {
 		 * If the key contains 'Post' keyword, then the value will be searched in the
 		 * Post regions. For any other key, then the value will be searched in the Ant
 		 * regions.<br>
-		 * If the region could not be found in the Ant or Post, then this method throws
-		 * a NullPointerException.
+		 * If the region could not be found in the Ant or Post, then this method returns
+		 * null.
 		 * 
 		 * 
 		 * @param region Region for which the value will be retrieved
 		 * @param key    Key of the value to get
-		 * @return value associated with the key for the region
+		 * @return value associated with the key for the region or null if not found
 		 */
-		public double getValue(String region, int key) {
+		public Double getValue(String region, int key) {
 			if (key == DATA_POST_COUNTS)
 				return this.getPostValue(region, key);
 
@@ -279,41 +279,43 @@ public class Model_Gastric extends ModeleScin {
 		/**
 		 * Gets the value associated with the specified key. The region will be searched
 		 * in the Ant regions.<br>
-		 * If the region could not be found, then a NullPointerException is thrown.
+		 * If the region could not be found, then returns null.
 		 * 
 		 * @param region Region for which the value will be retrieved
 		 * @param key    Key of the value to get
-		 * @return value associated with the key for the region
-		 * @throws NullPointerException if no region exists or if no data is associated
-		 *                              with the key
+		 * @return value associated with the key for the region or null if not found
 		 */
-		public double getAntValue(String region, int key) throws NullPointerException {
+		public Double getAntValue(String region, int key) throws NullPointerException {
 			try {
 				return this.regionsAnt.get(region).getValue(key);
 			} catch (NullPointerException e) {
-				throw new NullPointerException("The key " + key + "(" + nameOfDataField(key) + ") of the region ("
-						+ region + ") has no data associated with it");
+				return null;
 			}
 		}
 
 		/**
 		 * Gets the value associated with the specified key. The region will be searched
 		 * in the Post regions.<br>
-		 * If the region could not be found, then a NullPointerException is thrown.
+		 * If the region could not be found, then returns null.
 		 * 
 		 * @param region Region for which the value will be retrieved
 		 * @param key    Key of the value to get
-		 * @return value associated with the key for the region
-		 * @throws NullPointerException if no region exists or if no data is associated
-		 *                              with the key
+		 * @return value associated with the key for the region or null if not found
 		 */
-		public double getPostValue(String region, int key) {
+		public Double getPostValue(String region, int key) {
 			try {
 				return this.regionsPost.get(region).getValue(key);
 			} catch (NullPointerException e) {
-				throw new NullPointerException("The key " + key + "(" + nameOfDataField(key) + ") of the region ("
-						+ region + ") has no data associated with it");
+				return null;
 			}
+		}
+
+		public ImageSelection getAssociatedImage() {
+			return this.associatedImage;
+		}
+
+		public boolean hasRegion(String region) {
+			return this.regionsAnt.containsKey(region) || this.regionsPost.containsKey(region);
 		}
 
 		@Override
@@ -339,10 +341,6 @@ public class Model_Gastric extends ModeleScin {
 			s += this.listRegions(Orientation.POST);
 			s += Library_Debug.separator(0);
 			return s;
-		}
-
-		public ImageSelection getAssociatedImage() {
-			return this.associatedImage;
 		}
 	}
 
@@ -406,6 +404,21 @@ public class Model_Gastric extends ModeleScin {
 		return state.getImage().hashCode();
 	}
 
+	private void computeAverage(Data data, String region) {
+		if (data.hasRegion(region)) {
+			Double valueAnt = data.getValue(region, DATA_ANT_COUNTS);
+			Double valuePost = data.getValue(region, DATA_POST_COUNTS);
+			if (valueAnt != null && valuePost != null) {
+				data.setValue(region, DATA_GEO_AVERAGE, Library_Quantif.moyGeom(valueAnt, valuePost));
+			} else {
+				
+			}
+		} else {
+			System.out.println("Region " + region + " is not present in data "
+					+ data.getAssociatedImage().getImagePlus().getTitle());
+		}
+	}
+
 	/**
 	 * Computes the geometrical average of each region of the data found.<br>
 	 * The average is made with the {@link Data#ANT_COUNTS} and the
@@ -425,29 +438,32 @@ public class Model_Gastric extends ModeleScin {
 		Data data = this.results.get(hashState(state));
 
 		// Antre
-		Double valueAnt = data.getValue(REGION_ANTRE, DATA_ANT_COUNTS);
-		Double valuePost = data.getValue(REGION_ANTRE, DATA_POST_COUNTS);
-		data.setValue(REGION_ANTRE, DATA_GEO_AVERAGE, Library_Quantif.moyGeom(valueAnt, valuePost));
+		this.computeAverage(data, REGION_ANTRE);
 
 		// Intestine
-		valueAnt = data.getValue(REGION_INTESTINE, DATA_ANT_COUNTS);
-		valuePost = data.getValue(REGION_INTESTINE, DATA_POST_COUNTS);
-		Double geoIntestine = Library_Quantif.moyGeom(valueAnt, valuePost);
-		data.setValue(REGION_INTESTINE, DATA_GEO_AVERAGE, geoIntestine);
+		this.computeAverage(data, REGION_INTESTINE);
 
 		// Fundus
-		valueAnt = data.getValue(REGION_FUNDUS, DATA_ANT_COUNTS);
-		valuePost = data.getValue(REGION_FUNDUS, DATA_POST_COUNTS);
-		data.setValue(REGION_FUNDUS, DATA_GEO_AVERAGE, Library_Quantif.moyGeom(valueAnt, valuePost));
+		this.computeAverage(data, REGION_FUNDUS);
 
 		// Stomach
 		Double valueFundus = data.getValue(REGION_FUNDUS, DATA_GEO_AVERAGE);
 		Double valueAntre = data.getValue(REGION_ANTRE, DATA_GEO_AVERAGE);
-		Double geoStomach = valueFundus + valueAntre;
-		data.setValue(REGION_STOMACH, DATA_GEO_AVERAGE, geoStomach);
+		Double geoStomach = null;
+		if (valueFundus != null && valueAntre != null) {
+			geoStomach = valueFundus + valueAntre;
+			System.out.println("Found stomach value from fundus and antre: " + geoStomach);
+			data.setValue(REGION_STOMACH, DATA_GEO_AVERAGE, geoStomach);
+		} else {
+			this.computeAverage(data, REGION_STOMACH);
+			geoStomach = data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE);
+			System.out.println("Found stomach value from stomach counts: " + geoStomach);
+		}
 
 		// Total
-		data.setValue(REGION_ALL, DATA_GEO_AVERAGE, geoStomach + geoIntestine);
+		Double geoIntestine = data.getValue(REGION_INTESTINE, DATA_GEO_AVERAGE);
+		if (geoStomach != null && geoIntestine != null)
+			data.setValue(REGION_ALL, DATA_GEO_AVERAGE, geoStomach + geoIntestine);
 	}
 
 	/**
@@ -715,8 +731,12 @@ public class Model_Gastric extends ModeleScin {
 	 * 
 	 * @return percentage using key values
 	 */
-	private double calculatePercentage(Data data, String region, int key) {
-		return data.getValue(region, key) / data.getValue(REGION_ALL, key) * 100.;
+	private Double calculatePercentage(Data data, String region, int key) {
+		Double valueRegion = data.getValue(region, key);
+		Double valueAll = data.getValue(REGION_ALL, key);
+		if (valueRegion != null && valueAll != null)
+			return valueRegion / valueAll * 100.;
+		return null;
 	}
 
 	/**
@@ -770,12 +790,15 @@ public class Model_Gastric extends ModeleScin {
 			dataToInflate = data;
 
 		if (previousData != null) {
-			double stomachDerivative = (previousData.getValue(REGION_STOMACH, DATA_PERCENTAGE)
-					- data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
-					/ (this.calculateDeltaTime(Library_Dicom.getDateAcquisition(state.getImage().getImagePlus()))
-							- previousData.getMinutes())
-					* 30.;
-			dataToInflate.setValue(REGION_STOMACH, DATA_DERIVATIVE, stomachDerivative);
+			Double prevPercentageStomach = previousData.getValue(REGION_STOMACH, DATA_PERCENTAGE);
+			Double percentageStomach = data.getValue(REGION_STOMACH, DATA_PERCENTAGE);
+			if (prevPercentageStomach != null && percentageStomach != null) {
+				double stomachDerivative = (prevPercentageStomach - percentageStomach)
+						/ (this.calculateDeltaTime(Library_Dicom.getDateAcquisition(state.getImage().getImagePlus()))
+								- previousData.getMinutes())
+						* 30.;
+				dataToInflate.setValue(REGION_STOMACH, DATA_DERIVATIVE, stomachDerivative);
+			}
 		} else {
 			System.err.println("Warning: no data found");
 		}
@@ -788,9 +811,15 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	private void computeDecayFunction(Data data) {
 		int delayMs = (int) (data.time * 60. * 1000.);
-		double value = Library_Quantif.calculer_countCorrected(delayMs, data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE),
-				isotope);
-		data.setValue(REGION_STOMACH, DATA_DECAY_CORRECTED, value);
+		Double stomachAverage = data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE);
+		if (stomachAverage != null) {
+			double value = Library_Quantif.calculer_countCorrected(delayMs, stomachAverage, isotope);
+			System.out.println("Decay function, value=" + value);
+			data.setValue(REGION_STOMACH, DATA_DECAY_CORRECTED, value);
+		} else {
+			System.out.println("Stomach average = null");
+			System.out.println("Data:\n" + data);
+		}
 	}
 
 	/**
@@ -888,7 +917,11 @@ public class Model_Gastric extends ModeleScin {
 	 *         </ul>
 	 */
 	private double[][] generateDecayFunctionDataset() {
-		return this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED, true);
+		double[][] dataset = this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED, true);
+		for (double[] d : dataset)
+			System.out.println(Arrays.toString(d));
+		System.out.println("==");
+		return dataset;
 	}
 
 	/**
@@ -1299,27 +1332,43 @@ public class Model_Gastric extends ModeleScin {
 			throw new NoSuchElementException(
 					"No data has been set for this image (" + state.getImage().getImagePlus().getTitle() + ")");
 
-		int key = DATA_GEO_AVERAGE;
-
 		this.computeGeometricalAverages(state);
 
 		// Calculate percentages
-		data.setValue(REGION_FUNDUS, DATA_PERCENTAGE, calculatePercentage(data, REGION_FUNDUS, key));
+		// - Fundus
+		Double percentageFundus = calculatePercentage(data, REGION_FUNDUS, DATA_GEO_AVERAGE);
+		if (percentageFundus != null)
+			data.setValue(REGION_FUNDUS, DATA_PERCENTAGE, percentageFundus);
 
-		data.setValue(REGION_ANTRE, DATA_PERCENTAGE, calculatePercentage(data, REGION_ANTRE, key));
+		// - Antre
+		Double percentageAntre = calculatePercentage(data, REGION_ANTRE, DATA_GEO_AVERAGE);
+		if (percentageAntre != null)
+			data.setValue(REGION_ANTRE, DATA_PERCENTAGE, percentageAntre);
 
-		data.setValue(REGION_STOMACH, DATA_PERCENTAGE,
-				data.getValue(REGION_FUNDUS, DATA_PERCENTAGE) + data.getValue(REGION_ANTRE, DATA_PERCENTAGE));
+		// - Stomach
+		Double percentageStomach = null;
+		if (percentageAntre != null && percentageFundus != null) {
+			percentageStomach = percentageFundus + percentageAntre;
+			data.setValue(REGION_STOMACH, DATA_PERCENTAGE, percentageStomach);
+		}
 
-		data.setValue(REGION_INTESTINE, DATA_PERCENTAGE, 100. - data.getValue(REGION_STOMACH, DATA_PERCENTAGE));
+		// - Intestine
+		if (percentageStomach != null)
+			data.setValue(REGION_INTESTINE, DATA_PERCENTAGE, 100. - percentageStomach);
 
-		double fundusDerivative = data.getValue(REGION_FUNDUS, DATA_PERCENTAGE)
-				/ data.getValue(REGION_STOMACH, DATA_PERCENTAGE) * 100.;
-		data.setValue(REGION_FUNDUS, DATA_CORRELATION, fundusDerivative);
+		// Calculate correlation
+		if (percentageFundus != null && percentageStomach != null) {
+			double fundusCorrelation = percentageFundus / percentageStomach * 100.;
+			data.setValue(REGION_FUNDUS, DATA_CORRELATION, fundusCorrelation);
+		}
 
-		this.computeDerivative(data, state, previousState);
+		try {
+			this.computeDerivative(data, state, previousState);
 
-		this.computeDecayFunction(data);
+			this.computeDecayFunction(data);
+		} catch (NullPointerException e) {
+			// Data missing, the derivative or decay function could not be calculated
+		}
 	}
 
 	/**
