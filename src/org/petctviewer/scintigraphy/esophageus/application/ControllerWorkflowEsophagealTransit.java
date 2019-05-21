@@ -27,10 +27,11 @@ public class ControllerWorkflowEsophagealTransit extends ControllerWorkflow {
 
 		DrawRoiInstruction dri_1;
 
-		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
+		ImageState stateAnt;
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
-			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i]);
+			stateAnt = new ImageState(Orientation.ANT, (i+1), true, ImageState.ID_NONE);
+			this.workflows[i] = new Workflow(this, ((EsophagealTransit) this.main).getImgPrjtAllAcqui());
 			dri_1 = new DrawRoiInstruction("Esophageal", stateAnt);
 			this.workflows[i].addInstruction(dri_1);
 		}

@@ -126,6 +126,8 @@ public class FenApplication_Os extends JPanel {
 
 		sidePanel.addContent(gbl);
 
+		controleur_Os.createCaptureButton(sidePanel, new Component[] { this.slider, this.sliderLabel, this.reverseButton }, new Component[] {}, null);
+
 		// sidePanel.addCaptureBtn(getScin(), this.additionalInfo, new Component[] {
 		// this.slider });
 		this.add(sidePanel, BorderLayout.WEST);

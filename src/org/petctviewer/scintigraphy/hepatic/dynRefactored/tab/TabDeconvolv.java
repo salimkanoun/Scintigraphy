@@ -129,7 +129,7 @@ public class TabDeconvolv {
 		grid.add(prepareValueSetter(chartpanel));
 		grid.add(prepareValueSetter(chartpanelRight));
 
-		grid.setPreferredSize(new Dimension(1000, 650));
+//		grid.setPreferredSize(new Dimension(1000, 650));
 
 		return grid;
 

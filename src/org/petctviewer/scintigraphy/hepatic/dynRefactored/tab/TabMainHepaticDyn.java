@@ -61,7 +61,7 @@ public class TabMainHepaticDyn extends TabResult {
 	@Override
 	public JPanel getResultContent() {
 		DynamicImage dynamic = new DynamicImage(montage.getImage());
-		dynamic.setPreferredSize(new Dimension((int) (this.parent.getWidth() * 0.75), dynamic.getHeight()));
+//		dynamic.setPreferredSize(new Dimension((int) (this.parent.getWidth() * 0.75), dynamic.getHeight()));
 		return dynamic;
 	}
 

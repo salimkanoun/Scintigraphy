@@ -52,7 +52,7 @@ public class TabThreeAsOne {
 
 		ChartPanel chartpanel = new ChartPanel(chart);
 
-		chartpanel.setPreferredSize(new Dimension(1000, 650));
+//		chartpanel.setPreferredSize(new Dimension(1000, 650));
 
 		return chartpanel;
 	}

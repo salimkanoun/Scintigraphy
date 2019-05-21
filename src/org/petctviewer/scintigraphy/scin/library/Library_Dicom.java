@@ -34,6 +34,7 @@ public class Library_Dicom {
 		String aquisitionDate = DicomTools.getTag(imp, "0008,0022");
 		String aquisitionTime = DicomTools.getTag(imp, "0008,0032");
 		String dateInput = aquisitionDate.trim() + aquisitionTime.trim();
+		
 		// On enleve les milisec qui sont inconstantes
 		int separateurPoint = dateInput.indexOf(".");
 		if (separateurPoint != -1)

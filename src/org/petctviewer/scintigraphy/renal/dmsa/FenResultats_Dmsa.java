@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.renal.dmsa;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 
@@ -21,55 +22,62 @@ public class FenResultats_Dmsa extends FenResults {
 
 	public FenResultats_Dmsa(BufferedImage capture, ControleurScin controller) {
 		super(controller);
-		this.addTab(new TabResult(this, this.getModel().getStudyName()) {
-			
-			@Override
-			public Component getSidePanelContent() {
-				return FenResultats_Dmsa.this.getSidePanelContent();
-			}
-			
-			@Override
-			public JPanel getResultContent() {
-				return new DynamicImage(capture);
-			}
-		});
+		this.addTab(new TabMain(this, "dmsa", true, capture));
 	}
 
-	public Component getSidePanelContent() {
-		Modele_Dmsa modele = (Modele_Dmsa) this.getModel();
-		Double pctL = modele.getPct()[0] * 100;
-		Double pctR = modele.getPct()[1] * 100;
-		JPanel flow = new JPanel();
+	private class TabMain extends TabResult {
 
-		JLabel lbl_dmsaL = new JLabel("" + Library_Quantif.round(pctL, 1) + "%");
-		JLabel lbl_dmsaR = new JLabel("" + Library_Quantif.round(pctR, 1) + "%");
+		BufferedImage capture;
 
-		if (pctL > 55 | pctL < 45) {
-			lbl_dmsaL.setForeground(Color.RED);
-			lbl_dmsaR.setForeground(Color.RED);
+		public TabMain(FenResults parent, String title, boolean captureBtn, BufferedImage capture) {
+			super(parent, title, captureBtn);
+
+			this.capture = capture;
+			
+			this.reloadDisplay();
 		}
 
-		JPanel grid = new JPanel(new GridLayout(2, 3, 10, 10));
+		@Override
+		public Component getSidePanelContent() {
+			Modele_Dmsa modele = (Modele_Dmsa) this.parent.getController().getModel();
+			Double pctL = modele.getPct()[0] * 100;
+			Double pctR = modele.getPct()[1] * 100;
 
-		grid.add(new JPanel());
-		JLabel lbl_l = new JLabel("L");
-		lbl_l.setHorizontalAlignment(SwingConstants.CENTER);
-		grid.add(lbl_l);
+			JLabel lbl_dmsaL = new JLabel("" + Library_Quantif.round(pctL, 1) + "%");
+			JLabel lbl_dmsaR = new JLabel("" + Library_Quantif.round(pctR, 1) + "%");
 
-		JLabel lbl_r = new JLabel("R");
-		lbl_r.setHorizontalAlignment(SwingConstants.CENTER);
-		grid.add(lbl_r);
+			if (pctL > 55 | pctL < 45) {
+				lbl_dmsaL.setForeground(Color.RED);
+				lbl_dmsaR.setForeground(Color.RED);
+			}
 
-		grid.add(new JLabel("DMSA"));
+			JPanel grid = new JPanel(new GridLayout(2, 3, 10, 10));
 
-		lbl_dmsaL.setHorizontalAlignment(SwingConstants.CENTER);
-		grid.add(lbl_dmsaL);
+			grid.add(new JPanel());
+			JLabel lbl_l = new JLabel("L");
+			lbl_l.setHorizontalAlignment(SwingConstants.CENTER);
+			grid.add(lbl_l);
 
-		lbl_dmsaR.setHorizontalAlignment(SwingConstants.CENTER);
-		grid.add(lbl_dmsaR);
+			JLabel lbl_r = new JLabel("R");
+			lbl_r.setHorizontalAlignment(SwingConstants.CENTER);
+			grid.add(lbl_r);
 
-		flow.add(grid);
-		return flow;
+			grid.add(new JLabel("DMSA"));
+
+			lbl_dmsaL.setHorizontalAlignment(SwingConstants.CENTER);
+			grid.add(lbl_dmsaL);
+
+			lbl_dmsaR.setHorizontalAlignment(SwingConstants.CENTER);
+			grid.add(lbl_dmsaR);
+
+			return grid;
+		}
+
+		@Override
+		public Container getResultContent() {
+			return new DynamicImage(capture);
+		}
+
 	}
 
 }

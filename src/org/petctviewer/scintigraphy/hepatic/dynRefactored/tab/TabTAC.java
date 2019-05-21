@@ -75,32 +75,32 @@ public class TabTAC {
 
 			grid.add(new DynamicImage(this.montage.getBufferedImage()));
 
-			JPanel pnl_center = new JPanel(new GridLayout(2, 2));
+
 
 			List<XYSeries> series = modele.getSeries();
 			ChartPanel chartDuodenom = Library_JFreeChart.associateSeries(new String[] { "Duodenom" }, series);
 			JValueSetter setterDuodenom = new JValueSetter(chartDuodenom.getChart());
 			setterDuodenom.addSelector(new Selector("start", 10, -1, RectangleAnchor.BOTTOM_RIGHT), "start");
-			pnl_center.add(setterDuodenom);
+
 
 			ChartPanel chartCBD = Library_JFreeChart.associateSeries(new String[] { "CBD" }, series);
-			pnl_center.add(chartCBD);
+
 
 			ChartPanel chartHilium = Library_JFreeChart.associateSeries(new String[] { "Hilium" }, series);
 			JValueSetter setterHilium = new JValueSetter(chartHilium.getChart());
 			setterHilium.addSelector(new Selector("start", 10, -1, RectangleAnchor.BOTTOM_RIGHT), "start");
-			pnl_center.add(setterHilium);
 
-			chartDuodenom.setPreferredSize(new Dimension(parent.getWidth() / 2, parent.getHeight() / 2));
+
+//			chartDuodenom.setPreferredSize(new Dimension(parent.getWidth() / 2, parent.getHeight() / 2));
 			grid.add(chartDuodenom);
 
-			chartCBD.setPreferredSize(new Dimension(parent.getWidth() / 2, parent.getHeight() / 2));
+//			chartCBD.setPreferredSize(new Dimension(parent.getWidth() / 2, parent.getHeight() / 2));
 			grid.add(chartCBD);
 
-			chartHilium.setPreferredSize(new Dimension(parent.getWidth() / 2, parent.getHeight() / 2));
+//			chartHilium.setPreferredSize(new Dimension(parent.getWidth() / 2, parent.getHeight() / 2));
 			grid.add(chartHilium);
 
-			grid.setPreferredSize(new Dimension(1000, 650));
+//			grid.setPreferredSize(new Dimension(1000, 650));
 
 			return grid;
 		} else {
