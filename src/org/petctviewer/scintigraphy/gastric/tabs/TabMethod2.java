@@ -125,7 +125,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 					arr[j] = "--";
 				else {
 					res.convert(unitsUsed[j]);
-					arr[j] = res.value();
+					arr[j] = res.formatValue();
 				}
 			}
 			tableModel.addRow(arr);
@@ -147,7 +147,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	 */
 	private void displayResult(JPanel infoRes, ResultValue result) {
 		infoRes.add(new JLabel(result.getResultType().getName() + ":"));
-		JLabel lRes = new JLabel(result.value() + " " + result.getUnit());
+		JLabel lRes = new JLabel(result.formatValue() + " " + result.getUnit());
 		if (result.getExtrapolation() == FitType.NONE)
 			lRes.setForeground(Color.RED);
 		infoRes.add(lRes);
@@ -169,7 +169,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 
 		infoRes.add(new JLabel(result.getResultType().getName() + " at " + (int) (time / 60) + "h:"));
 
-		JLabel lRes = new JLabel(result.value() + " " + result.getUnit());
+		JLabel lRes = new JLabel(result.formatValue() + " " + result.getUnit());
 		if (result.getExtrapolation() == FitType.NONE)
 			lRes.setForeground(Color.RED);
 		infoRes.add(lRes);

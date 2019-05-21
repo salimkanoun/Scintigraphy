@@ -152,7 +152,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 					arr[j] = "--";
 				else {
 					res.convert(unitsUsed[j]);
-					arr[j] = res.value();
+					arr[j] = res.formatValue();
 				}
 			}
 			tableModel.addRow(arr);
@@ -174,10 +174,60 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	 */
 	private void displayResult(JPanel infoRes, ResultValue result) {
 		infoRes.add(new JLabel(result.getResultType().getName() + ":"));
-		JLabel lRes = new JLabel(result.value() + " " + result.getUnit());
+		JLabel lRes = new JLabel(result.formatValue() + " " + result.getUnit());
 		if (result.getExtrapolation() == FitType.NONE)
 			lRes.setForeground(Color.RED);
 		infoRes.add(lRes);
+	}
+
+	/**
+	 * Checks if the value obtained for the specified time is a normal value.<br>
+	 * The <i>normal</i> value is based upon <code>tech.snmjournals.org</code>.<br>
+	 * The only times accepted are <code>30min</code>, <code>60min</code>,
+	 * <code>120min</code>, <code>180min</code> and <code>240min</code>.
+	 * 
+	 * @param time  Time for retention in minutes
+	 * @param value Value obtained in percentage
+	 * @return TRUE if the result is normal and FALSE if the result is abnormal
+	 */
+	private boolean isRetentionNormal(double time, double value) {
+		if (time == 30.)
+			return value >= 70.;
+		if (time == 60.)
+			return value >= 30. && value <= 90.;
+		if (time == 120.)
+			return value <= 60.;
+		if (time == 180.)
+			return value <= 30.;
+		if (time == 240.)
+			return value <= 10.;
+
+		throw new IllegalArgumentException("No information for this time (" + time + ")");
+	}
+
+	/**
+	 * Returns a string indicating the range of the normal values for the specified
+	 * time.<br>
+	 * The <i>normal</i> value is based upon <code>tech.snmjournals.org</code>.<br>
+	 * The only times accepted are <code>30min</code>, <code>60min</code>,
+	 * <code>120min</code>, <code>180min</code> and <code>240min</code>.
+	 * 
+	 * @param time Time for retention in minutes
+	 * @return readable string indicating the normal range
+	 */
+	private String retentionNormalArea(double time) {
+		if (time == 30.)
+			return ">= 70%";
+		if (time == 60.)
+			return ">= 30% and <= 90%";
+		if (time == 120.)
+			return "<= 60%";
+		if (time == 180.)
+			return "<= 30%";
+		if (time == 240.)
+			return "<= 10%";
+
+		throw new IllegalArgumentException("No information for this time (" + time + ")");
 	}
 
 	/**
@@ -196,9 +246,14 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 
 		infoRes.add(new JLabel(result.getResultType().getName() + " at " + (int) (time / 60) + "h:"));
 
-		JLabel lRes = new JLabel(result.value() + " " + result.getUnit());
-		if (result.getExtrapolation() == FitType.NONE)
+		JLabel lRes = new JLabel(result.formatValue() + " " + result.getUnit());
+		if (result.getExtrapolation() == FitType.NONE) {
 			lRes.setForeground(Color.RED);
+		}
+		if (!this.isRetentionNormal(time, result.getValue())) {
+			lRes.setForeground(Color.RED);
+			lRes.setToolTipText("The result is abnormal! Value should be " + this.retentionNormalArea(time));
+		}
 		infoRes.add(lRes);
 	}
 
@@ -348,21 +403,24 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 			public void removeUpdate(DocumentEvent e) {
 				updateResult();
 			}
+
 			@Override
 			public void insertUpdate(DocumentEvent e) {
 				updateResult();
 			}
+
 			@Override
 			public void changedUpdate(DocumentEvent e) {
 				updateResult();
 			}
+
 			public void updateResult() {
 				// Calculate result
 				try {
 					ResultValue result = getModel().retentionAt(YData,
 							Double.parseDouble(fieldCustomRetention.getText()), currentFit);
 					// Update result
-					resultRetention.setText(result.value() + result.getUnit().abrev());
+					resultRetention.setText(result.formatValue() + result.getUnit().abrev());
 				} catch (NumberFormatException exception) {
 					resultRetention.setText("--");
 				}
