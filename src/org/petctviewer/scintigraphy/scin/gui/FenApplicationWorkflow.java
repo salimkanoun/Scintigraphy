@@ -32,6 +32,8 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	public FenApplicationWorkflow(ImageSelection ims, String nom) {
 		super(ims.getImagePlus(), nom);
 		this.imageSelection = ims;
+		
+		this.setResizable(true);
 
 		this.scroll = new Scrollbar(Scrollbar.HORIZONTAL);
 		this.panelContainer.add(scroll, BorderLayout.NORTH);
@@ -53,6 +55,9 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 				this.scroll.addAdjustmentListener((AdjustmentListener) this.getControleur());
 			this.scroll.addMouseMotionListener(this);
 			this.scroll.addMouseListener(this);
+			
+			// Remove slider of fiji
+			this.getComponents()[1].setVisible(false);
 		} else {
 			// Destroy tooltip
 			this.tooltip = null;
@@ -63,6 +68,9 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 				this.scroll.removeAdjustmentListener((AdjustmentListener) this.getControleur());
 			this.scroll.removeMouseListener(this);
 			this.scroll.removeMouseMotionListener(this);
+			
+			// Replace slider of fiji
+			this.getComponents()[1].setVisible(true);
 		}
 	}
 
