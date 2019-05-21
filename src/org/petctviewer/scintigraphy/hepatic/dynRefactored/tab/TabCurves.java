@@ -140,7 +140,7 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 			Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
 			Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
 
-			this.vueBasic = new FenApplicationSecondHepaticDyn(selectedImages[0].getImagePlus(),
+			this.vueBasic = new FenApplicationSecondHepaticDyn(selectedImages[0],
 					model.getStudyName());
 			selectedImages[0].getImagePlus().setOverlay(overlay);
 			this.vueBasic.setControleur(new ControllerWorkflowHepaticDyn(this.vueBasic, new ModelSecondMethodHepaticDynamic(selectedImages,
