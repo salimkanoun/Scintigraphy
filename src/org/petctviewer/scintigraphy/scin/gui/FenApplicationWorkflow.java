@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.scin.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Button;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.MouseInfo;
 import java.awt.Point;
@@ -70,10 +71,15 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 		this.scroll.setValues(1, 1, 1, nbInstructions);
 		System.out.println("Nb instructions: " + nbInstructions);
 	}
+	
+	public void currentInstruction(int value) {
+		this.scroll.setValue(value);
+	}
 
-	public void displayScrollToolTip(String message) {
+	public void displayScrollToolTip(String message, Color color) {
 		// Change message
 		this.tooltip.setText(message);
+		this.tooltip.setBackground(color);
 		this.tooltip.pack();
 	}
 
@@ -162,7 +168,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-
+		this.tooltip.setVisible(true);
 	}
 
 	@Override

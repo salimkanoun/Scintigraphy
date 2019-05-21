@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.scin;
 
 import java.awt.Button;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
@@ -110,11 +111,14 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	/**
 	 * @return array of ROI indexes to display for the current instruction
 	 */
-	private int[] roisToDisplay() {
+	private int[] currentRoisToDisplay() {
+		return this.roisToDisplay(this.indexCurrentWorkflow, this.currentState, this.indexRoi);
+	}
+
+	private int[] roisToDisplay(int indexWorkflow, ImageState state, int indexRoi) {
 		List<Instruction> dris = new ArrayList<>();
-		for (Instruction i : this.workflows[this.indexCurrentWorkflow]
-				.getInstructionsWithOrientation(this.currentState.getFacingOrientation()))
-			if (i.roiToDisplay() >= 0 && i.roiToDisplay() < this.indexRoi) {
+		for (Instruction i : this.workflows[indexWorkflow].getInstructionsWithOrientation(state.getFacingOrientation()))
+			if (i.roiToDisplay() >= 0 && i.roiToDisplay() < indexRoi) {
 				dris.add(i);
 			}
 		int[] array = new int[dris.size()];
@@ -123,19 +127,33 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		return array;
 	}
 
-	/*
-	private ImageSelection imageFromInstruction(Instruction instruction) {
-		// Find workflow associated with instruction
-		Workflow workflow = this.getWorkflowAssociatedWithInstruction(instruction);
-
-		ImageState state = instruction.getImageState();
-		if (state != null) {
-			if (state.getIdImage() == ImageState.ID_WORKFLOW)
-				return workflow.getImageAssociated();
+	private int[] roisToDisplay(int indexWorkflow, ImageState state, Instruction last) {
+		List<Instruction> dris = new ArrayList<>();
+		Instruction[] instructions = this.workflows[indexWorkflow]
+				.getInstructionsWithOrientation(state.getFacingOrientation());
+		for (Instruction i : instructions) {
+			if (i.roiToDisplay() >= 0) {
+				dris.add(i);
+			}
+			if (i == last) {
+				break;
+			}
 		}
-		return this.imageFrom(state);
+		int[] array = new int[dris.size()];
+		for (int i = 0; i < dris.size(); i++)
+			array[i] = dris.get(i).roiToDisplay();
+		return array;
 	}
-	*/
+
+	/*
+	 * private ImageSelection imageFromInstruction(Instruction instruction) { //
+	 * Find workflow associated with instruction Workflow workflow =
+	 * this.getWorkflowAssociatedWithInstruction(instruction);
+	 * 
+	 * ImageState state = instruction.getImageState(); if (state != null) { if
+	 * (state.getIdImage() == ImageState.ID_WORKFLOW) return
+	 * workflow.getImageAssociated(); } return this.imageFrom(state); }
+	 */
 
 	private int indexWorkflowFromInstruction(Instruction instruction) {
 		for (int i = 0; i < this.workflows.length; i++)
@@ -214,6 +232,13 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 				if (i.isExpectingUserInput())
 					instructions.add(i);
 		}
+		return instructions;
+	}
+
+	protected List<Instruction> allInstructions() {
+		List<Instruction> instructions = new ArrayList<>();
+		for (Workflow w : this.workflows)
+			instructions.addAll(w.getInstructions());
 		return instructions;
 	}
 
@@ -313,6 +338,11 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 
 		Instruction currentInstruction = this.workflows[this.indexCurrentWorkflow].previous();
 
+		// Update view
+		int indexInstruction = this.allInputInstructions().indexOf(currentInstruction);
+		if (indexInstruction != -1)
+			this.getVue().currentInstruction(indexInstruction);
+
 		if (previousInstruction instanceof LastInstruction && currentInstruction != null
 				&& currentInstruction instanceof GeneratorInstruction) {
 			((GeneratorInstruction) currentInstruction).activate();
@@ -332,7 +362,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 
 			if (currentInstruction.saveRoi())
 				this.indexRoi--;
-			this.displayRois(this.roisToDisplay());
+			this.displayRois(this.currentRoisToDisplay());
 
 			if (currentInstruction.saveRoi()) {
 				this.editOrgan(currentInstruction.roiToDisplay());
@@ -401,6 +431,11 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			}
 			Instruction nextInstruction = this.workflows[this.indexCurrentWorkflow].next();
 
+			// Update view
+			int indexInstruction = this.allInputInstructions().indexOf(nextInstruction);
+			if (indexInstruction != -1)
+				this.getVue().currentInstruction(indexInstruction);
+
 			if (this.isOver()) {
 				nextInstruction.afterNext(this);
 				this.end();
@@ -463,14 +498,35 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 
 	@Override
 	public void adjustmentValueChanged(AdjustmentEvent e) {
+		List<Instruction> allInstructions = this.allInstructions();
 		List<Instruction> instructions = this.allInputInstructions();
 		Instruction instruction = instructions.get(e.getValue());
-		if (e.getValueIsAdjusting()) {
-			// Display title of Instruction
-			getVue().displayScrollToolTip("[" + e.getValue() + "] " + instruction.getMessage());
-		} else {
-			// Change to prepare image
-			this.prepareImage(instruction.getImageState(), this.indexWorkflowFromInstruction(instruction));
+		int indexWorkflow = this.indexWorkflowFromInstruction(instruction);
+
+		// Index of instructions
+		int indexInstruction = allInstructions.indexOf(instruction);
+		int indexCurrentInstruction = allInstructions
+				.indexOf(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
+
+		// Find color to display
+		Color color;
+		if (indexInstruction < indexCurrentInstruction)
+			color = Color.GREEN;
+		else if (indexInstruction == indexCurrentInstruction)
+			color = Color.YELLOW;
+		else
+			color = Color.WHITE;
+
+		// Display title of Instruction
+		getVue().displayScrollToolTip("[" + e.getValue() + "] " + instruction.getMessage(), color);
+
+		// Change to prepare image
+		if (instruction.getImageState() != null) {
+			this.prepareImage(instruction.getImageState(), indexWorkflow);
+			int[] roisToDisplay = this.roisToDisplay(indexWorkflow, instruction.getImageState(), instruction);
+			this.vue.getOverlay().clear();
+			this.setOverlay(instruction.getImageState());
+			this.displayRois(roisToDisplay);
 		}
 	}
 

@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.gastric;
 
+import java.awt.Color;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.awt.Label;
@@ -19,6 +20,12 @@ public class InstructionTooltip extends Window {
 	
 	public void setText(String msg) {
 		this.label.setText(msg);
+	}
+
+	@Override
+	public void setBackground(Color bgColor) {
+		super.setBackground(bgColor);
+		this.label.setBackground(bgColor);
 	}
 
 }

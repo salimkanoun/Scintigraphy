@@ -250,6 +250,8 @@ public class ImageState {
 			idImage = "NONE";
 		else if (this.idImage == ID_PREVIOUS)
 			idImage = "PREVIOUS";
+		else if (this.idImage == ID_WORKFLOW)
+			idImage = "WORKFLOW";
 		else
 			idImage = this.idImage + "";
 
