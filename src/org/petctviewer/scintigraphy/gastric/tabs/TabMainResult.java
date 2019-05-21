@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,7 +20,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.border.MatteBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 
 import org.jfree.chart.ChartFactory;
@@ -63,6 +67,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 
 	private Fit currentFit;
 
+	private double[] YData;
 	private final Unit UNIT;
 
 	public TabMainResult(FenResults parent, ImagePlus capture, ControllerWorkflow_Gastric controller) {
@@ -211,27 +216,24 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		JPanel infoRes = new JPanel();
 		infoRes.setLayout(new GridLayout(0, 2));
 
-		// Data
-		double[] data = getModel().generateStomachValues(UNIT);
-
-		ResultValue result = getModel().getResult(data, Model_Gastric.START_ANTRUM, this.currentFit);
+		ResultValue result = getModel().getResult(this.YData, Model_Gastric.START_ANTRUM, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
-		result = getModel().getResult(data, Model_Gastric.START_INTESTINE, this.currentFit);
+		result = getModel().getResult(this.YData, Model_Gastric.START_INTESTINE, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
-		result = getModel().getResult(data, Model_Gastric.LAG_PHASE, this.currentFit);
+		result = getModel().getResult(this.YData, Model_Gastric.LAG_PHASE, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
-		result = getModel().getResult(data, Model_Gastric.T_HALF, this.currentFit);
+		result = getModel().getResult(this.YData, Model_Gastric.T_HALF, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
 		for (double time = 60.; time <= 240.; time += 60.) {
-			result = getModel().retentionAt(data, time, this.currentFit);
+			result = getModel().retentionAt(this.YData, time, this.currentFit);
 			hasExtrapolatedValue = result.getExtrapolation() != null;
 			this.displayRetentionResult(infoRes, time, result);
 		}
@@ -299,6 +301,10 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 			this.data.removeSeries(i);
 	}
 
+	private Model_Gastric getModel() {
+		return (Model_Gastric) this.parent.getModel();
+	}
+
 	/**
 	 * Creates the panel with the images of the graphs
 	 */
@@ -311,10 +317,6 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		panel.add(getModel().createGraph_2());
 
 		return panel;
-	}
-
-	private Model_Gastric getModel() {
-		return (Model_Gastric) this.parent.getModel();
 	}
 
 	/**
@@ -336,6 +338,49 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		panel.add(panSouth, BorderLayout.SOUTH);
 
 		return panel;
+	}
+
+	private JPanel createPanelCustomRetention() {
+		JTextField fieldCustomRetention = new JTextField(3);
+		JLabel resultRetention = new JLabel("--");
+		fieldCustomRetention.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				updateResult();
+			}
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				updateResult();
+			}
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				updateResult();
+			}
+			public void updateResult() {
+				// Calculate result
+				try {
+					ResultValue result = getModel().retentionAt(YData,
+							Double.parseDouble(fieldCustomRetention.getText()), currentFit);
+					// Update result
+					resultRetention.setText(result.value() + result.getUnit().abrev());
+				} catch (NumberFormatException exception) {
+					resultRetention.setText("--");
+				}
+			}
+		});
+
+		JPanel panRetention = new JPanel(new GridLayout(1, 2));
+
+		JPanel panWest = new JPanel(new FlowLayout());
+		panWest.add(new JLabel("Calculate retention at"));
+		panWest.add(fieldCustomRetention);
+		panWest.add(new JLabel("min"));
+		panWest.add(new JLabel(" ="));
+		panRetention.add(panWest);
+
+		panRetention.add(resultRetention);
+
+		return panRetention;
 	}
 
 	/**
@@ -488,6 +533,9 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 
 	@Override
 	public Component getSidePanelContent() {
+		// Update data
+		this.YData = getModel().generateStomachValues(UNIT);
+
 		JPanel panel = new JPanel(new BorderLayout());
 
 		// North
@@ -505,6 +553,10 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 
 		panCenter.add(this.infoResultats(), BorderLayout.SOUTH);
 		panel.add(panCenter, BorderLayout.CENTER);
+
+		// - Custom retention
+		JPanel panCustomRetention = this.createPanelCustomRetention();
+		panel.add(panCustomRetention, BorderLayout.SOUTH);
 
 		return panel;
 	}
