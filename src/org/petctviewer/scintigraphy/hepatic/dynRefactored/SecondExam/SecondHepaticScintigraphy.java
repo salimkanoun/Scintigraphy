@@ -8,7 +8,6 @@ import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -58,9 +57,11 @@ public class SecondHepaticScintigraphy extends Scintigraphy {
 
 		this.frameDurations = Library_Dicom.buildFrameDurations(impAnt.getImagePlus());
 
-//		Library_Dicom.normalizeToCountPerSecond(impAnt.getImagePlus(), this.frameDurations);
+		// Library_Dicom.normalizeToCountPerSecond(impAnt.getImagePlus(),
+		// this.frameDurations);
 		IJ.run(this.impAnt.getImagePlus(), "32-bit", "");
-//		Library_Dicom.normalizeToCountPerSecond(impPost.getImagePlus(), this.frameDurations);
+		// Library_Dicom.normalizeToCountPerSecond(impPost.getImagePlus(),
+		// this.frameDurations);
 		IJ.run(this.impPost.getImagePlus(), "32-bit", "");
 
 		if (this.impAnt != null) {
@@ -89,10 +90,11 @@ public class SecondHepaticScintigraphy extends Scintigraphy {
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
 		this.model.setImpSecondMethod(selectedImages);
 
-		this.setFenApplication(new FenApplication(impProjeteeAnt.getImagePlus(), this.getStudyName()));
+		this.setFenApplication(new FenApplicationSecondHepaticDyn(impProjeteeAnt, this.getStudyName()));
 		impProjeteeAnt.getImagePlus().setOverlay(overlay);
+
 		((FenApplicationWorkflow) this.getFenApplication())
-				.setControleur(new ControllerWorkflowHepaticDyn(this, (FenApplicationWorkflow) this.getFenApplication(),
+				.setControleur(new ControllerWorkflowHepaticDyn((FenApplicationWorkflow) this.getFenApplication(),
 						new ModelSecondMethodHepaticDynamic(selectedImages, this.getStudyName(), this.frameDurations),
 						this.tab));
 

@@ -17,7 +17,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
@@ -162,7 +161,7 @@ public class TabTransitTime extends TabResult {
 			}
 		}
 		// Changes background color
-		XYPlot plott = (XYPlot) graphTransitTime.getPlot();
+//		XYPlot plott = (XYPlot) graphTransitTime.getPlot();
 
 		graphTransitTime.getXYPlot().setDataset(dataset);
 

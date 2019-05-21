@@ -12,13 +12,17 @@ import java.awt.Window;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
@@ -573,6 +577,24 @@ public class Library_Capture_CSV {
 			roiManager.setSelectedIndexes(tab);
 			roiManager.runCommand("Save", pathFinal.toString() + File.separator + nomFichier + ".zip");
 
+			
+//			List<Roi> roiList = new ArrayList<>();
+//			for(Roi r : rois2)
+//				roiList.add(r);
+//			
+//			FileOutputStream fos = null;
+//			ObjectOutputStream oos = null;
+//			try {
+//				fos = new FileOutputStream(pathFinal.toString() + File.separator + nomFichier);
+//				oos = new ObjectOutputStream(fos);
+//				oos.writeObject(roiList);
+//				oos.close();
+//			} catch (IOException e1) {
+//				e1.printStackTrace();
+//			}
+			
+			
+			
 			// On sauve l'image en jpeg
 			IJ.saveAs(imp, "Jpeg", pathFinal.toString() + File.separator + nomFichier + ".jpg");
 

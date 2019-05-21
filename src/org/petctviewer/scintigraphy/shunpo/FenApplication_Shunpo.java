@@ -20,5 +20,4 @@ public class FenApplication_Shunpo extends FenApplicationWorkflow {
 		this.imp.setOverlay(Library_Gui.initOverlay(getImagePlus()));
 		Library_Gui.setOverlayDG(getImagePlus(), Color.YELLOW);
 	}
-
 }

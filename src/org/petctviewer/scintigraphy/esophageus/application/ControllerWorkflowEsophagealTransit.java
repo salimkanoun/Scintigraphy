@@ -23,23 +23,24 @@ public class ControllerWorkflowEsophagealTransit extends ControllerWorkflow {
 	@Override
 	protected void generateInstructions() {
 
-		this.workflows = new Workflow[this.model.getImageSelection().length];
+		this.workflows = new Workflow[1];
+		this.workflows[0] = new Workflow(this, ((EsophagealTransit) this.main).getImgPrjtAllAcqui());
 
-		DrawRoiInstruction dri_1;
+		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null;
 
-		ImageState stateAnt;
+		dri_1 = new DrawRoiInstruction("Esophageal", new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE));
+		dri_2 = new DrawRoiInstruction("Esophageal", new ImageState(Orientation.ANT, 2, true, ImageState.ID_NONE), dri_1);
+		dri_3 = new DrawRoiInstruction("Esophageal", new ImageState(Orientation.ANT, 3, true, ImageState.ID_NONE), dri_2);
+		dri_4 = new DrawRoiInstruction("Esophageal", new ImageState(Orientation.ANT, 4, true, ImageState.ID_NONE), dri_3);
 
-		for (int i = 0; i < this.model.getImageSelection().length; i++) {
-			stateAnt = new ImageState(Orientation.ANT, (i+1), true, ImageState.ID_NONE);
-			this.workflows[i] = new Workflow(this, ((EsophagealTransit) this.main).getImgPrjtAllAcqui());
-			dri_1 = new DrawRoiInstruction("Esophageal", stateAnt);
-			this.workflows[i].addInstruction(dri_1);
-		}
-
-		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
+		this.workflows[0].addInstruction(dri_1);
+		this.workflows[0].addInstruction(dri_2);
+		this.workflows[0].addInstruction(dri_3);
+		this.workflows[0].addInstruction(dri_4);
+		this.workflows[0].addInstruction(new EndInstruction());
 
 	}
-	
+
 	@Override
 	public void end() {
 		model.calculerResultats();

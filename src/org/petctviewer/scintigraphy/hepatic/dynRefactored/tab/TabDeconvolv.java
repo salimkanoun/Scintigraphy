@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.tab;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +59,7 @@ public class TabDeconvolv {
 
 	public JPanel getResultContent() {
 
-		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabOtherMethod) this.tab)
+		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
 				.getFenApplication().getControleur().getModel();
 
 		List<Double> bp = modele.getData("Blood Pool AVG");
