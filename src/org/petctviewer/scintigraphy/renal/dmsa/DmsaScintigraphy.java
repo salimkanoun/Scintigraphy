@@ -9,6 +9,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.gui.Overlay;
@@ -55,9 +56,10 @@ public class DmsaScintigraphy extends Scintigraphy {
 		FenApplication fen = new FenApplication(selectedImages[0].getImagePlus(), this.getStudyName());
 		this.setFenApplication(fen);
 		selectedImages[0].getImagePlus().setOverlay(overlay);
-		// fen.setControleur(new Controleur_Dmsa(this, selectedImages, "dmsa"));
-		fen.setControleur(
-				new ControllerWorkflowDMSA(this, this.getFenApplication(), new Modele_Dmsa(selectedImages, "dmsa")));
+
+//		fen.setControleur(new Controleur_Dmsa(this, selectedImages, "dmsa"));
+		((FenApplicationWorkflow) fen).setControleur(new ControllerWorkflowDMSA(this,
+				(FenApplicationWorkflow) this.getFenApplication(), new Modele_Dmsa(selectedImages, "dmsa")));
 	}
 
 }
