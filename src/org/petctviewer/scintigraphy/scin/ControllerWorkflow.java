@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +30,7 @@ import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruc
  * @author Titouan QUÉMA
  *
  */
-public abstract class ControllerWorkflow extends ControleurScin implements AdjustmentListener {
+public abstract class ControllerWorkflow extends ControleurScin implements AdjustmentListener, MouseWheelListener {
 
 	/**
 	 * This command signals that the instruction should not generate a next
@@ -160,6 +162,39 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			if (workflows[i].getInstructions().contains(instruction))
 				return i;
 		return -1;
+	}
+
+	private void updateScrollbar(int value) {
+		List<Instruction> allInstructions = this.allInstructions();
+		List<Instruction> instructions = this.allInputInstructions();
+		Instruction instruction = instructions.get(value);
+		int indexWorkflow = this.indexWorkflowFromInstruction(instruction);
+
+		// Index of instructions
+		int indexInstruction = allInstructions.indexOf(instruction);
+		int indexCurrentInstruction = allInstructions
+				.indexOf(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
+
+		// Find color to display
+		Color color;
+		if (indexInstruction < indexCurrentInstruction)
+			color = Color.GREEN;
+		else if (indexInstruction == indexCurrentInstruction)
+			color = Color.YELLOW;
+		else
+			color = Color.WHITE;
+
+		// Display title of Instruction
+		getVue().displayScrollToolTip("[" + value + "] " + instruction.getMessage(), color);
+
+		// Change to prepare image
+		if (instruction.getImageState() != null) {
+			this.prepareImage(instruction.getImageState(), indexWorkflow);
+			int[] roisToDisplay = this.roisToDisplay(indexWorkflow, instruction.getImageState(), instruction);
+			this.vue.getOverlay().clear();
+			this.setOverlay(instruction.getImageState());
+			this.displayRois(roisToDisplay);
+		}
 	}
 
 	private void prepareImage(ImageState imageState, int indexWorkflow) {
@@ -498,35 +533,16 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 
 	@Override
 	public void adjustmentValueChanged(AdjustmentEvent e) {
-		List<Instruction> allInstructions = this.allInstructions();
-		List<Instruction> instructions = this.allInputInstructions();
-		Instruction instruction = instructions.get(e.getValue());
-		int indexWorkflow = this.indexWorkflowFromInstruction(instruction);
+		this.updateScrollbar(e.getValue());
+	}
 
-		// Index of instructions
-		int indexInstruction = allInstructions.indexOf(instruction);
-		int indexCurrentInstruction = allInstructions
-				.indexOf(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
-
-		// Find color to display
-		Color color;
-		if (indexInstruction < indexCurrentInstruction)
-			color = Color.GREEN;
-		else if (indexInstruction == indexCurrentInstruction)
-			color = Color.YELLOW;
-		else
-			color = Color.WHITE;
-
-		// Display title of Instruction
-		getVue().displayScrollToolTip("[" + e.getValue() + "] " + instruction.getMessage(), color);
-
-		// Change to prepare image
-		if (instruction.getImageState() != null) {
-			this.prepareImage(instruction.getImageState(), indexWorkflow);
-			int[] roisToDisplay = this.roisToDisplay(indexWorkflow, instruction.getImageState(), instruction);
-			this.vue.getOverlay().clear();
-			this.setOverlay(instruction.getImageState());
-			this.displayRois(roisToDisplay);
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		int rotation = e.getWheelRotation();
+		int value = this.getVue().getInstructionDisplayed() + rotation;
+		if (value < this.getVue().getMaxInstruction()) {
+			this.updateScrollbar(value);
+			this.getVue().currentInstruction(value);
 		}
 	}
 

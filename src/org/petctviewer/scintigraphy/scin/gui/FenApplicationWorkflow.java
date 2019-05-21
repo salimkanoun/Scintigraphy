@@ -4,18 +4,21 @@ import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Event;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Scrollbar;
-import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
 
 import org.petctviewer.scintigraphy.gastric.InstructionTooltip;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
+
+import ij.IJ;
 
 public class FenApplicationWorkflow extends FenApplication implements MouseMotionListener, MouseListener {
 	private static final long serialVersionUID = -6280620624574294247L;
@@ -32,14 +35,24 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	public FenApplicationWorkflow(ImageSelection ims, String nom) {
 		super(ims.getImagePlus(), nom);
 		this.imageSelection = ims;
-		
+
 		this.setResizable(true);
 
 		this.scroll = new Scrollbar(Scrollbar.HORIZONTAL);
 		this.panelContainer.add(scroll, BorderLayout.NORTH);
 
+		this.addMouseWheelListener(this);
+
 		// Enable visualisation by default
 		this.setVisualisationEnable(true);
+	}
+	
+	private void addControllerListeners() {
+		if (this.getControleur() != null) {
+			ControllerWorkflow controller = (ControllerWorkflow) this.getControleur();
+			this.scroll.addAdjustmentListener(controller);
+			this.addMouseWheelListener(controller);
+		}
 	}
 
 	public void setVisualisationEnable(boolean state) {
@@ -49,37 +62,56 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 			this.scroll.setVisible(true);
 
 			// Add listeners
-			if (this.getControleur() != null)
-				this.scroll.addAdjustmentListener((AdjustmentListener) this.getControleur());
+			this.addControllerListeners();
 			this.scroll.addMouseMotionListener(this);
 			this.scroll.addMouseListener(this);
-			
+
+			// Remove listeners
+			this.removeMouseWheelListener(this);
+
 			// Remove slider of fiji
 			this.getComponents()[1].setVisible(false);
+			
 		} else {
+			
 			// Destroy tooltip
 			this.tooltip = null;
 			this.scroll.setVisible(false);
 
 			// Remove listeners
-			if (this.getControleur() != null)
-				this.scroll.removeAdjustmentListener((AdjustmentListener) this.getControleur());
+			if (this.getControleur() != null) {
+				ControllerWorkflow controller = (ControllerWorkflow) this.getControleur();
+				this.scroll.removeAdjustmentListener(controller);
+				this.removeMouseWheelListener(controller);
+			}
 			this.scroll.removeMouseListener(this);
 			this.scroll.removeMouseMotionListener(this);
-			
+
+			// Remove listeners
+			this.removeMouseWheelListener(this);
+
 			// Replace slider of fiji
 			this.getComponents()[1].setVisible(true);
 		}
 	}
 
 	public void setNbInstructions(int nbInstructions) {
+		this.scroll.setBlockIncrement(1);
 		this.scroll.setUnitIncrement(1);
 		this.scroll.setValues(1, 1, 1, nbInstructions);
 		System.out.println("Nb instructions: " + nbInstructions);
 	}
-	
+
+	public int getInstructionDisplayed() {
+		return this.scroll.getValue();
+	}
+
 	public void currentInstruction(int value) {
 		this.scroll.setValue(value);
+	}
+	
+	public int getMaxInstruction() {
+		return this.scroll.getMaximum();
 	}
 
 	public void displayScrollToolTip(String message, Color color) {
@@ -145,8 +177,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 	public void setControleur(ControllerWorkflow controller) {
 		super.setControleur(controller);
-		if(this.tooltip != null)
-			this.scroll.addAdjustmentListener((AdjustmentListener) this.getControleur());
+		this.addControllerListeners();
 	}
 
 	@Override
@@ -190,6 +221,22 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	@Override
 	public void mouseExited(MouseEvent e) {
 
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		int rotation = e.getWheelRotation();
+		boolean ctrl = (e.getModifiers() & Event.CTRL_MASK) != 0;
+		if ((ctrl || IJ.shiftKeyDown()) && ic != null) {
+			Point loc = ic.getCursorLoc();
+			int x = ic.screenX(loc.x);
+			int y = ic.screenY(loc.y);
+			if (rotation < 0)
+				ic.zoomIn(x, y);
+			else
+				ic.zoomOut(x, y);
+			return;
+		}
 	}
 
 }
