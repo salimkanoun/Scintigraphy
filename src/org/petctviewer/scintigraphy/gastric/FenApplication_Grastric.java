@@ -1,21 +1,21 @@
 package org.petctviewer.scintigraphy.gastric;
 
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
-import ij.ImagePlus;
 import ij.gui.Toolbar;
 
-public class FenApplication_Grastric extends FenApplication {
+public class FenApplication_Grastric extends FenApplicationWorkflow {
 	private static final long serialVersionUID = 1L;
 
-	public FenApplication_Grastric(ImagePlus imp, String nom) {
-		super(imp, nom);
+	public FenApplication_Grastric(ImageSelection ims, String nom) {
+		super(ims, nom);
 		
 		IJ.setTool(Toolbar.POLYGON);
-		this.imp.setOverlay(Library_Gui.initOverlay(getImagePlus()));
-		Library_Gui.setOverlayDG(getImagePlus());
+		Library_Gui.initOverlay(ims.getImagePlus());
+		Library_Gui.setOverlayDG(ims.getImagePlus());
 	}
 
 }

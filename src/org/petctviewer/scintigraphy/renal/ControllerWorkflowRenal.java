@@ -13,7 +13,7 @@ import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackground;
@@ -33,7 +33,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 	private List<ImagePlus> captures;
 
-	public ControllerWorkflowRenal(Scintigraphy main, FenApplication vue, ModeleScin model) {
+	public ControllerWorkflowRenal(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
 		super(main, vue, model);
 		// TODO Auto-generated constructor stub
 

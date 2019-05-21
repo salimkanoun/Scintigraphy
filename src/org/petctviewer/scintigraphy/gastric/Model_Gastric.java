@@ -413,9 +413,6 @@ public class Model_Gastric extends ModeleScin {
 			} else {
 				
 			}
-		} else {
-			System.out.println("Region " + region + " is not present in data "
-					+ data.getAssociatedImage().getImagePlus().getTitle());
 		}
 	}
 
@@ -452,12 +449,10 @@ public class Model_Gastric extends ModeleScin {
 		Double geoStomach = null;
 		if (valueFundus != null && valueAntre != null) {
 			geoStomach = valueFundus + valueAntre;
-			System.out.println("Found stomach value from fundus and antre: " + geoStomach);
 			data.setValue(REGION_STOMACH, DATA_GEO_AVERAGE, geoStomach);
 		} else {
 			this.computeAverage(data, REGION_STOMACH);
 			geoStomach = data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE);
-			System.out.println("Found stomach value from stomach counts: " + geoStomach);
 		}
 
 		// Total
@@ -814,11 +809,7 @@ public class Model_Gastric extends ModeleScin {
 		Double stomachAverage = data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE);
 		if (stomachAverage != null) {
 			double value = Library_Quantif.calculer_countCorrected(delayMs, stomachAverage, isotope);
-			System.out.println("Decay function, value=" + value);
 			data.setValue(REGION_STOMACH, DATA_DECAY_CORRECTED, value);
-		} else {
-			System.out.println("Stomach average = null");
-			System.out.println("Data:\n" + data);
 		}
 	}
 
@@ -918,9 +909,6 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	private double[][] generateDecayFunctionDataset() {
 		double[][] dataset = this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED, true);
-		for (double[] d : dataset)
-			System.out.println(Arrays.toString(d));
-		System.out.println("==");
 		return dataset;
 	}
 

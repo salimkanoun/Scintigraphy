@@ -16,10 +16,10 @@ import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import ij.ImagePlus;
 
-public class TabTest extends TabResult implements ActionListener{
+public class TabTest extends TabResult implements ActionListener {
 
 	private ImagePlus imp;
-	
+
 	private JLabel label;
 
 	public TabTest(FenResults parent, String title, boolean captureBtn, ImagePlus captures) {
@@ -33,7 +33,7 @@ public class TabTest extends TabResult implements ActionListener{
 		this.label = new JLabel();
 		JButton button = new JButton("Get counts");
 		button.addActionListener(this);
-		container.add(this.label,BorderLayout.CENTER);
+		container.add(this.label, BorderLayout.CENTER);
 		container.add(button, BorderLayout.NORTH);
 		return container;
 	}
@@ -41,7 +41,8 @@ public class TabTest extends TabResult implements ActionListener{
 	@Override
 	public JPanel getResultContent() {
 		this.imp = parent.getModel().getImagePlus();
-		FenApplicationLympho fenApplication = new FenApplicationLympho(this.imp, "Test");
+		FenApplicationLympho fenApplication = new FenApplicationLympho(this.parent.getModel().getImageSelection()[0],
+				"Test");
 		fenApplication.setVisible(false);
 		// TODO Auto-generated constructor stub
 		Component[] compo = fenApplication.getComponents();
@@ -54,13 +55,10 @@ public class TabTest extends TabResult implements ActionListener{
 		borderLayout.add(pan_center, BorderLayout.CENTER);
 		return borderLayout;
 	}
-	
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		this.label.setText("Nombre de coups : "+Library_Quantif.getCounts(this.imp));
+		this.label.setText("Nombre de coups : " + Library_Quantif.getCounts(this.imp));
 	}
-
-	
 
 }

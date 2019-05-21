@@ -1,16 +1,13 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam;
 
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 
-import ij.ImagePlus;
-
-public class FenApplicationSecondHepaticDyn extends FenApplication {
-
+public class FenApplicationSecondHepaticDyn extends FenApplicationWorkflow {
 	private static final long serialVersionUID = -910237891674972798L;
 
-	public FenApplicationSecondHepaticDyn(ImagePlus imp, String nom) {
-		super(imp, nom);
-		// TODO Auto-generated constructor stub
+	public FenApplicationSecondHepaticDyn(ImageSelection ims, String nom) {
+		super(ims, nom);
 	}
 
 }

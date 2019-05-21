@@ -6,7 +6,7 @@ import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
@@ -24,7 +24,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 	private int indexRoi;
 
-	public ControllerWorkflow_ScinStatic(Scintigraphy main, FenApplication vue, ImageSelection[] selectedImages,
+	public ControllerWorkflow_ScinStatic(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages,
 			String studyName) {
 		super(main, vue, new ModeleScinStatic(selectedImages, studyName));
 

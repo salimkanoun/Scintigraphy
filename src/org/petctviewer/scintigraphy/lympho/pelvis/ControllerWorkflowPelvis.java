@@ -8,7 +8,7 @@ import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
@@ -30,11 +30,12 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 
 	private TabResult resultTab;
 
-	public ControllerWorkflowPelvis(Scintigraphy main, FenApplication vue, ModeleScin model, TabResult resultTab) {
+	public ControllerWorkflowPelvis(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model,
+			TabResult resultTab) {
 		super(main, vue, model);
 
 		this.resultTab = resultTab;
-		
+
 		this.generateInstructions();
 		this.start();
 	}
@@ -48,10 +49,10 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
 			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i]);
-			
+
 			ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
 			ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
-			
+
 			dri_1 = new DrawRoiInstruction("Right Pelvis", stateAnt);
 			dri_2 = new DrawRoiInstruction("Left Pelvis", stateAnt);
 			dri_3 = new DrawRoiInstruction("Background", stateAnt);
@@ -59,7 +60,7 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 			dri_4 = new DrawRoiInstruction("Right Pelvis", statePost, dri_1);
 			dri_5 = new DrawRoiInstruction("Left Pelvis", statePost, dri_2);
 			dri_6 = new DrawRoiInstruction("Background", statePost, dri_3);
-			dri_capture_2 = new ScreenShotInstruction(captures, this.getVue(), (i*2)+1);
+			dri_capture_2 = new ScreenShotInstruction(captures, this.getVue(), (i * 2) + 1);
 
 			this.workflows[i].addInstruction(dri_1);
 			this.workflows[i].addInstruction(dri_2);
@@ -120,8 +121,7 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 	/**
 	 * Creates an ImagePlus with 2 captures.
 	 * 
-	 * @param captures
-	 *            ImageStack with 2 captures
+	 * @param captures ImageStack with 2 captures
 	 * @return ImagePlus with the 2 captures on 1 slice
 	 */
 	private ImagePlus montage2Images(ImageStack captures) {

@@ -8,6 +8,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -54,11 +55,8 @@ public class StaticScintigraphy extends Scintigraphy {
 		this.setFenApplication(new FenApplication_ScinStatic(selectedImages[0].getImagePlus(), this.getStudyName()));
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 
-//		ControleurScinStatic ctrl = new ControleurScinStatic(this, selectedImages, "General static scintigraphy");
-		
-		ControllerWorkflow_ScinStatic cntrlWrkflow = new ControllerWorkflow_ScinStatic(this, getFenApplication(), selectedImages, getStudyName());
-
-		this.getFenApplication().setControleur(cntrlWrkflow);
+		((FenApplicationWorkflow) this.getFenApplication()).setControleur(new ControllerWorkflow_ScinStatic(this,
+				(FenApplicationWorkflow) getFenApplication(), selectedImages, getStudyName()));
 		IJ.setTool(Toolbar.POLYGON);
 	}
 
