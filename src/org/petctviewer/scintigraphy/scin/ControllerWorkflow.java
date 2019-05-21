@@ -55,6 +55,8 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	 */
 	private int indexRoi;
 
+	private boolean skipInstruction;
+
 	/**
 	 * @param main  Reference to the main class
 	 * @param vue   View of the MVC pattern
@@ -105,11 +107,6 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			this.editCopyRoi(roiToCopy);
 	}
 
-	@Override
-	public FenApplicationWorkflow getVue() {
-		return (FenApplicationWorkflow) super.getVue();
-	}
-
 	/**
 	 * @return array of ROI indexes to display for the current instruction
 	 */
@@ -124,6 +121,90 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		for (int i = 0; i < dris.size(); i++)
 			array[i] = dris.get(i).roiToDisplay();
 		return array;
+	}
+
+	/*
+	private ImageSelection imageFromInstruction(Instruction instruction) {
+		// Find workflow associated with instruction
+		Workflow workflow = this.getWorkflowAssociatedWithInstruction(instruction);
+
+		ImageState state = instruction.getImageState();
+		if (state != null) {
+			if (state.getIdImage() == ImageState.ID_WORKFLOW)
+				return workflow.getImageAssociated();
+		}
+		return this.imageFrom(state);
+	}
+	*/
+
+	private int indexWorkflowFromInstruction(Instruction instruction) {
+		for (int i = 0; i < this.workflows.length; i++)
+			if (workflows[i].getInstructions().contains(instruction))
+				return i;
+		return -1;
+	}
+
+	private void prepareImage(ImageState imageState, int indexWorkflow) {
+		if (imageState == null)
+			return;
+
+		boolean resetOverlay = false;
+
+		// == FACING ORIENTATION ==
+		if (imageState.getFacingOrientation() != null
+				&& imageState.getFacingOrientation() != this.currentState.getFacingOrientation()) {
+			this.currentState.setFacingOrientation(imageState.getFacingOrientation());
+			resetOverlay = true;
+		}
+
+		// == ID IMAGE ==
+		if (imageState.getIdImage() == ImageState.ID_CUSTOM_IMAGE) {
+			if (imageState.getImage() == null)
+				throw new IllegalStateException(
+						"The state specifies that a custom image should be used but no image has been set!");
+			// Use image specified in the image state
+			this.currentState.setIdImage(ImageState.ID_CUSTOM_IMAGE);
+			this.currentState.specifieImage(imageState.getImage());
+		} else {
+			if (imageState.getIdImage() == ImageState.ID_NONE || imageState.getIdImage() == ImageState.ID_WORKFLOW) {
+				// Don't use the id
+				this.currentState.setIdImage(indexWorkflow);
+				this.currentState.specifieImage(this.workflows[indexWorkflow].getImageAssociated());
+			} else if (imageState.getIdImage() >= 0) {
+				// Use the specified id
+				this.currentState.setIdImage(imageState.getIdImage());
+			}
+			// else, don't touch the previous id
+		}
+
+		// Change image only if different than the previous
+		if (this.vue.getImagePlus() != this.currentState.getImage().getImagePlus()) {
+			this.vue.setImage(this.currentState.getImage().getImagePlus());
+			resetOverlay = true;
+		}
+
+		// == SLICE ==
+		if (imageState.getSlice() > ImageState.SLICE_PREVIOUS)
+			// Use the specified slice
+			this.currentState.setSlice(imageState.getSlice());
+		// else, don't touch the previous slice
+
+		// Change slice only if different than the previous
+		if (this.currentState.getSlice() != this.vue.getImagePlus().getCurrentSlice()) {
+			this.vue.getImagePlus().setSlice(this.currentState.getSlice());
+//			resetOverlay = true;
+		}
+
+		// == LATERALISATION ==
+		if (imageState.getLateralisation() != this.currentState.getLateralisation()) {
+			this.currentState.setLateralisation(imageState.getLateralisation());
+			resetOverlay = true;
+		}
+
+		if (resetOverlay) {
+			this.vue.getOverlay().clear();
+			this.setOverlay(this.currentState);
+		}
 	}
 
 	protected List<Instruction> allInputInstructions() {
@@ -170,72 +251,40 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		return null;
 	}
 
+	protected Workflow getWorkflowAssociatedWithInstruction(Instruction instruction) {
+		int index = this.indexWorkflowFromInstruction(instruction);
+		if (index == -1)
+			return null;
+		return this.workflows[index];
+	}
+
+	protected ImageSelection imageFrom(ImageState imageState) {
+		if (imageState == null)
+			return null;
+
+		if (imageState.getIdImage() == ImageState.ID_CUSTOM_IMAGE) {
+			if (imageState.getImage() == null)
+				throw new IllegalStateException(
+						"The state specifies that a custom image should be used but no image has been set!");
+			return imageState.getImage();
+		} else {
+			if (imageState.getIdImage() == ImageState.ID_NONE || imageState.getIdImage() == ImageState.ID_WORKFLOW) {
+				return this.workflows[this.indexCurrentWorkflow].getImageAssociated();
+			} else if (imageState.getIdImage() >= 0) {
+				return this.workflows[imageState.getIdImage()].getImageAssociated();
+			}
+			// else, don't touch the previous id
+			return this.workflows[this.currentState.getIdImage()].getImageAssociated();
+		}
+	}
+
 	/**
 	 * Prepares the ImagePlus with the specified state and updates the currentState.
 	 * 
 	 * @param imageState State the ImagePlus must complies
 	 */
 	protected void prepareImage(ImageState imageState) {
-		if (imageState == null)
-			return;
-
-		boolean resetOverlay = false;
-
-		// == FACING ORIENTATION ==
-		if (imageState.getFacingOrientation() != null
-				&& imageState.getFacingOrientation() != this.currentState.getFacingOrientation()) {
-			this.currentState.setFacingOrientation(imageState.getFacingOrientation());
-			resetOverlay = true;
-		}
-
-		// == ID IMAGE ==
-		if (imageState.getIdImage() == ImageState.ID_CUSTOM_IMAGE) {
-			if (imageState.getImage() == null)
-				throw new IllegalStateException(
-						"The state specifies that a custom image should be used but no image has been set!");
-			// Use image specified in the image state
-			this.currentState.setIdImage(ImageState.ID_CUSTOM_IMAGE);
-			this.currentState.specifieImage(imageState.getImage());
-		} else {
-			if (imageState.getIdImage() == ImageState.ID_NONE) {
-				// Don't use the id
-				this.currentState.setIdImage(this.indexCurrentWorkflow);
-				this.currentState.specifieImage(this.workflows[this.indexCurrentWorkflow].getImageAssociated());
-			} else if (imageState.getIdImage() >= 0) {
-				// Use the specified id
-				this.currentState.setIdImage(imageState.getIdImage());
-			}
-			// else, don't touch the previous id
-		}
-
-		// Change image only if different than the previous
-		if (this.vue.getImagePlus() != this.currentState.getImage().getImagePlus()) {
-			this.vue.setImage(this.currentState.getImage().getImagePlus());
-			resetOverlay = true;
-		}
-
-		// == SLICE ==
-		if (imageState.getSlice() > ImageState.SLICE_PREVIOUS)
-			// Use the specified slice
-			this.currentState.setSlice(imageState.getSlice());
-		// else, don't touch the previous slice
-
-		// Change slice only if different than the previous
-		if (this.currentState.getSlice() != this.vue.getImagePlus().getCurrentSlice()) {
-			this.vue.getImagePlus().setSlice(this.currentState.getSlice());
-//			resetOverlay = true;
-		}
-
-		// == LATERALISATION ==
-		if (imageState.getLateralisation() != this.currentState.getLateralisation()) {
-			this.currentState.setLateralisation(imageState.getLateralisation());
-			resetOverlay = true;
-		}
-
-		if (resetOverlay) {
-			this.vue.getOverlay().clear();
-			this.setOverlay(this.currentState);
-		}
+		this.prepareImage(imageState, this.indexCurrentWorkflow);
 	}
 
 	/**
@@ -250,6 +299,10 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	 */
 	public int getIndexLastRoiSaved() {
 		return this.indexRoi - 1;
+	}
+
+	public void skipInstruction() {
+		this.skipInstruction = true;
 	}
 
 	@Override
@@ -301,6 +354,11 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		}
 
 //		DEBUG("PREVIOUS");
+	}
+
+	@Override
+	public FenApplicationWorkflow getVue() {
+		return (FenApplicationWorkflow) super.getVue();
 	}
 
 	@Override
@@ -382,12 +440,6 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 //		DEBUG("NEXT");
 	}
 
-	private boolean skipInstruction;
-
-	public void skipInstruction() {
-		this.skipInstruction = true;
-	}
-
 	@Override
 	public boolean isOver() {
 		return this.workflows[this.indexCurrentWorkflow].getCurrentInstruction() instanceof LastInstruction;
@@ -412,11 +464,13 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	@Override
 	public void adjustmentValueChanged(AdjustmentEvent e) {
 		List<Instruction> instructions = this.allInputInstructions();
+		Instruction instruction = instructions.get(e.getValue());
 		if (e.getValueIsAdjusting()) {
-			// Display only title of Instruction
-			getVue().displayScrollToolTip("[" + e.getValue() + "] " + instructions.get(e.getValue()).getMessage());
+			// Display title of Instruction
+			getVue().displayScrollToolTip("[" + e.getValue() + "] " + instruction.getMessage());
 		} else {
-			// Change instruction
+			// Change to prepare image
+			this.prepareImage(instruction.getImageState(), this.indexWorkflowFromInstruction(instruction));
 		}
 	}
 

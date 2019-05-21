@@ -133,6 +133,8 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 	public void setControleur(ControllerWorkflow controller) {
 		super.setControleur(controller);
+		if(this.tooltip != null)
+			this.scroll.addAdjustmentListener((AdjustmentListener) this.getControleur());
 	}
 
 	@Override

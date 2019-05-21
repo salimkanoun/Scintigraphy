@@ -174,8 +174,8 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
 			this.workflows[i] = new Workflow(this, this.getModel().getImageSelection()[i]);
 
-			ImageState stateAnt = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_NONE);
-			ImageState statePost = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, ImageState.ID_NONE);
+			ImageState stateAnt = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_WORKFLOW);
+			ImageState statePost = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, ImageState.ID_WORKFLOW);
 
 			dri_1 = new DrawRoiInstruction("Stomach", stateAnt, dri_3);
 			dri_2 = new DrawRoiInstruction("Intestine", stateAnt, dri_4);
@@ -193,7 +193,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 				this.workflows[i].addInstruction(new ScreenShotInstruction(captures, vue, 0, 640, 512));
 			this.workflows[i].addInstruction(dri_4);
 			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_3, dri_4, "Antre"));
-			// Capture 2: stomach and intestine, for toulouse method
+			// Capture 2: stomach and intestine, for method 1
 			if (i == 0)
 				this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 1, 640, 512));
 		}
