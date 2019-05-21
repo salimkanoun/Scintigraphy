@@ -190,7 +190,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		infoRes.setLayout(new GridLayout(0, 2));
 
 		// Data
-		double[] data = getModel().generateDecayFunctionValues();
+		double[] data = getModel().generateDecayFunctionValues(UNIT);
 
 		ResultValue result = getModel().getResult(data, Model_Gastric.LAG_PHASE, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
@@ -201,7 +201,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		this.displayResult(infoRes, result);
 
 		for (double time = 60.; time <= 240.; time += 60.) {
-			result = getModel().retentionAt(getModel().generateDecayFunctionValues(), time, this.currentFit);
+			result = getModel().retentionAt(data, time, this.currentFit);
 			hasExtrapolatedValue = result.getExtrapolation() != null;
 			this.displayRetentionResult(infoRes, time, result);
 		}
@@ -244,7 +244,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	 */
 	private JPanel createPanelResults() {
 		JPanel panel = new JPanel(new GridLayout(2, 1));
-		
+
 		panel.add(new DynamicImage(capture.getImage()));
 		panel.add(getModel().createGraph_4(UNIT));
 
@@ -353,11 +353,11 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	public void createGraph() {
 		// Create chart
 		this.data = new XYSeriesCollection();
-		XYSeries series = getModel().generateDecayFunction();
+		XYSeries series = getModel().generateDecayFunction(UNIT);
 		this.data.addSeries(series);
 
 		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (min)",
-				"Stomach retention (counts)", data, PlotOrientation.VERTICAL, true, true, true);
+				"Stomach retention (" + UNIT.abrev() + ")", data, PlotOrientation.VERTICAL, true, true, true);
 
 		// Set bounds
 		XYPlot plot = chart.getXYPlot();

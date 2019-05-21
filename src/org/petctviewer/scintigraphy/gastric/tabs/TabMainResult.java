@@ -212,7 +212,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		infoRes.setLayout(new GridLayout(0, 2));
 
 		// Data
-		double[] data = getModel().generateStomachValues();
+		double[] data = getModel().generateStomachValues(UNIT);
 
 		ResultValue result = getModel().getResult(data, Model_Gastric.START_ANTRUM, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
@@ -231,7 +231,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		this.displayResult(infoRes, result);
 
 		for (double time = 60.; time <= 240.; time += 60.) {
-			result = getModel().retentionAt(getModel().generateStomachValues(), time, this.currentFit);
+			result = getModel().retentionAt(data, time, this.currentFit);
 			hasExtrapolatedValue = result.getExtrapolation() != null;
 			this.displayRetentionResult(infoRes, time, result);
 		}
@@ -304,7 +304,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	 */
 	private JPanel createPanelResults() {
 		JPanel panel = new JPanel(new GridLayout(2, 2));
-		
+
 		panel.add(new DynamicImage(capture.getImage()));
 		panel.add(getModel().createGraph_3());
 		panel.add(getModel().createGraph_1());
@@ -389,11 +389,11 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	public void createGraph() {
 		// Create chart
 		this.data = new XYSeriesCollection();
-		XYSeries stomachSeries = getModel().generateStomachSeries();
+		XYSeries stomachSeries = getModel().generateStomachSeries(UNIT);
 		this.data.addSeries(stomachSeries);
 
-		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (min)", "Stomach retention (%)",
-				data, PlotOrientation.VERTICAL, true, true, true);
+		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (min)",
+				"Stomach retention (" + UNIT.abrev() + ")", data, PlotOrientation.VERTICAL, true, true, true);
 
 		// Set bounds
 		XYPlot plot = chart.getXYPlot();
