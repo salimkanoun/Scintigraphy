@@ -14,9 +14,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -29,7 +26,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.petctviewer.scintigraphy.lympho.FenApplicationLympho;
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -54,16 +52,16 @@ public class TestFenApp extends JFrame implements ActionListener, ChangeListener
 
 	protected int zoomed;
 
-	public TestFenApp(ImagePlus imagePlus, String studyName) {
-		this.fenApplication = new FenApplicationLympho(imagePlus, studyName);
+	public TestFenApp(ImageSelection ims, String studyName) {
+		this.fenApplication = new FenApplicationLympho(ims, studyName);
 		this.fenApplication.setVisible(true);
 
-		imagePlus.setOverlay(Library_Gui.initOverlay(imagePlus));
-		Library_Gui.setOverlayDG(imagePlus);
+		Library_Gui.initOverlay(ims.getImagePlus());
+		Library_Gui.setOverlayDG(ims.getImagePlus());
 
 		Component[] compo = this.fenApplication.getComponents();
 
-		this.imp = imagePlus;
+		this.imp = ims.getImagePlus();
 
 		Panel borderLayout = new Panel(new BorderLayout());
 		this.add(borderLayout);
@@ -86,10 +84,9 @@ public class TestFenApp extends JFrame implements ActionListener, ChangeListener
 //		this.fenApplication.setPreferredSize(new Dimension(ic.getWidth(), ic.getHeight()));
 //		// this.fenApplication.setPreferredCanvasSize(ic.getWidth());
 		this.fenApplication.setSize(new Dimension(ic.getWidth(), ic.getHeight()));
-		int originalZoom = (int) (((ic.getHeight()*1.0f)/(imp.getHeight()*1.0f))*100);
-		System.out.println("Zoom de base : "+originalZoom);
-		IJ.run("Set... ", "zoom="+originalZoom);
-		
+		int originalZoom = (int) (((ic.getHeight() * 1.0f) / (imp.getHeight() * 1.0f)) * 100);
+		System.out.println("Zoom de base : " + originalZoom);
+		IJ.run("Set... ", "zoom=" + originalZoom);
 
 		System.out.println("ic.getWidth() : " + ic.getWidth() + "   |||    ic.getHeight() : " + ic.getHeight());
 
@@ -132,16 +129,15 @@ public class TestFenApp extends JFrame implements ActionListener, ChangeListener
 								IJ.run("Set... ", "zoom=600");
 								ic.zoomIn(x, y);
 								zoomed++;
-							} 
-							else if (icHeightPrevious < originalHeight) {
+							} else if (icHeightPrevious < originalHeight) {
 								System.out.println("\t Resize : " + zoomed);
 								TestFenApp.this.fenApplication.setSize(new Dimension(originalWidth, originalHeight));
 								ic.setSize(originalWidth, originalHeight);
-								System.out.println("\t\t TestFenApp.this.fenApplication.getHeight() : "+TestFenApp.this.fenApplication.getHeight());
-								System.out.println("\t\t ic.getHeight() : "+ic.getHeight());
+								System.out.println("\t\t TestFenApp.this.fenApplication.getHeight() : "
+										+ TestFenApp.this.fenApplication.getHeight());
+								System.out.println("\t\t ic.getHeight() : " + ic.getHeight());
 							}
 
-							
 						} else {
 							System.out.println("\t Juste avant condition zoom arrière : " + icHeight);
 							System.out.println("\t\t icHeight : " + icHeight);
@@ -149,11 +145,12 @@ public class TestFenApp extends JFrame implements ActionListener, ChangeListener
 							ic.zoomOut(x, y);
 							int icHeightPreviousZoomOut = ic.getHeight();
 							System.out.println("\t\t\t icHeightPreviousZoomOut : " + icHeightPreviousZoomOut);
-							
+
 							if (!(icHeightPreviousZoomOut < originalHeight)) {
 								zoomed--;
 								System.out.println("\tZoom vers l'arrière : " + zoomed);
-							} else if (icHeightPreviousZoomOut < originalHeight || icHeightPreviousZoomOut > originalHeight) {
+							} else if (icHeightPreviousZoomOut < originalHeight
+									|| icHeightPreviousZoomOut > originalHeight) {
 								zoomed = 0;
 								ic.zoomIn(x, y);
 								System.out.println("\tFin de zoom arrière : " + zoomed);
@@ -177,11 +174,11 @@ public class TestFenApp extends JFrame implements ActionListener, ChangeListener
 		});
 		SidePanel sidePanel;
 
-		sidePanel = new SidePanel(null, "Bone scintigraphy", imagePlus);
+		sidePanel = new SidePanel(null, "Bone scintigraphy", ims.getImagePlus());
 
 		this.sliderLabel = new JLabel("Contrast", SwingConstants.CENTER);
 		sliderLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		this.slider = new JSlider(SwingConstants.HORIZONTAL, 0, (int) imagePlus.getStatistics().max, 4);
+		this.slider = new JSlider(SwingConstants.HORIZONTAL, 0, (int) ims.getImagePlus().getStatistics().max, 4);
 		slider.addChangeListener(this);
 
 		this.boxSlider = Box.createVerticalBox();

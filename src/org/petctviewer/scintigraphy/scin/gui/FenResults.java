@@ -6,8 +6,8 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 /**
  * Class that represent a result window for a study.

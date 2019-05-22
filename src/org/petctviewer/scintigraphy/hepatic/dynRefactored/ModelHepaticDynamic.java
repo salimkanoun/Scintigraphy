@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ControllerWorkflowHepaticDyn;
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ModelSecondMethodHepaticDynamic;
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabOtherMethod;
+import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabCurves;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.model.ModeleScinDyn;
 
 import ij.ImagePlus;
 
@@ -152,8 +152,8 @@ public class ModelHepaticDynamic extends ModeleScinDyn {
 		s += "Delay difference," + this.results.get(6) + "," + results.get(7) + "," + results.get(8) + "\n\n";
 
 		if (examDone)
-			s += ((ModelSecondMethodHepaticDynamic) ((ControllerWorkflowHepaticDyn) ((TabOtherMethod) this.resutlTab)
-					.getVueBasic().getFenApplication().getControleur()).getModel()).toCSV();
+			s += ((ModelSecondMethodHepaticDynamic) ((ControllerWorkflowHepaticDyn) ((TabCurves) this.resutlTab)
+					.getFenApplication().getControleur()).getModel()).toCSV();
 
 		s += super.toString();
 

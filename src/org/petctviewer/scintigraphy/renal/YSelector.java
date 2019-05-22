@@ -150,7 +150,7 @@ public class YSelector extends Selector implements ChartMouseListener {
 		double y = yAxis.java2DToValue(event.getTrigger().getY(), this.jValueSetter.getScreenDataArea(),
 				RectangleEdge.LEFT);
 		
-		// This method won't be use, beause it's useless. But it's cool so, I can't delete it.
+		// This method won't be use ... because it's useless. But it's cool so, I can't delete it.
 		// si le selecteur horizontal n'est pas bloque
 		if (false) {
 			if (!this.yLocked) {

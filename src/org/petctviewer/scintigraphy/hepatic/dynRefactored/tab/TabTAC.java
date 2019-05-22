@@ -54,7 +54,7 @@ public class TabTAC {
 
 		this.tab = tab;
 
-		this.studyName = ((TabOtherMethod) this.tab).getFenApplication().getControleur().getModel().getStudyName();
+		this.studyName = ((TabCurves) this.tab).getFenApplication().getControleur().getModel().getStudyName();
 
 		this.reloadDisplay();
 
@@ -62,7 +62,7 @@ public class TabTAC {
 
 	public JPanel getResultContent() {
 		if (!singleGraph) {
-			ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabOtherMethod) this.tab)
+			ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
 					.getFenApplication().getControleur().getModel();
 
 			JPanel grid = new JPanel(new GridLayout(2, 2));
@@ -104,7 +104,7 @@ public class TabTAC {
 
 			return grid;
 		} else {
-			ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabOtherMethod) this.tab)
+			ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
 					.getFenApplication().getControleur().getModel();
 
 			XYSeriesCollection data = new XYSeriesCollection();

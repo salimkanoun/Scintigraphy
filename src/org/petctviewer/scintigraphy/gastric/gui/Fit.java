@@ -162,17 +162,17 @@ public abstract class Fit {
 				lnSeries[i][1] = Math.log(dataset[i][1]);
 			}
 			this.coefs = Regression.getOLSRegression(lnSeries);
+			this.coefs[0] = Math.exp(coefs[0]);
 		}
 
 		@Override
 		public double extrapolateX(double valueY) {
-			double res = valueY - coefs[0] / coefs[1];
-			return res;
+			return (Math.log(valueY) - Math.log(coefs[0])) / coefs[1];
 		}
 
 		@Override
 		public double extrapolateY(double valueX) {
-			double res = Math.exp(coefs[0]) * Math.exp(coefs[1] * valueX);
+			double res = coefs[0] * Math.exp(coefs[1] * valueX);
 			return res;
 		}
 

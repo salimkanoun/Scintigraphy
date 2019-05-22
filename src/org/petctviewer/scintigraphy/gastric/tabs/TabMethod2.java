@@ -39,7 +39,7 @@ import org.petctviewer.scintigraphy.gastric.gui.Fit;
 import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -125,7 +125,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 					arr[j] = "--";
 				else {
 					res.convert(unitsUsed[j]);
-					arr[j] = res.value();
+					arr[j] = res.formatValue();
 				}
 			}
 			tableModel.addRow(arr);
@@ -147,7 +147,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	 */
 	private void displayResult(JPanel infoRes, ResultValue result) {
 		infoRes.add(new JLabel(result.getResultType().getName() + ":"));
-		JLabel lRes = new JLabel(result.value() + " " + result.getUnit());
+		JLabel lRes = new JLabel(result.formatValue() + " " + result.getUnit());
 		if (result.getExtrapolation() == FitType.NONE)
 			lRes.setForeground(Color.RED);
 		infoRes.add(lRes);
@@ -169,7 +169,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 
 		infoRes.add(new JLabel(result.getResultType().getName() + " at " + (int) (time / 60) + "h:"));
 
-		JLabel lRes = new JLabel(result.value() + " " + result.getUnit());
+		JLabel lRes = new JLabel(result.formatValue() + " " + result.getUnit());
 		if (result.getExtrapolation() == FitType.NONE)
 			lRes.setForeground(Color.RED);
 		infoRes.add(lRes);
@@ -190,17 +190,9 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		infoRes.setLayout(new GridLayout(0, 2));
 
 		// Data
-		double[] data = getModel().generateDecayFunctionValues();
+		double[] data = getModel().generateDecayFunctionValues(UNIT);
 
-		ResultValue result = getModel().getResult(data, Model_Gastric.START_ANTRUM, this.currentFit);
-		hasExtrapolatedValue = result.getExtrapolation() != null;
-		this.displayResult(infoRes, result);
-
-		result = getModel().getResult(data, Model_Gastric.START_INTESTINE, this.currentFit);
-		hasExtrapolatedValue = result.getExtrapolation() != null;
-		this.displayResult(infoRes, result);
-
-		result = getModel().getResult(data, Model_Gastric.LAG_PHASE, this.currentFit);
+		ResultValue result = getModel().getResult(data, Model_Gastric.LAG_PHASE, this.currentFit);
 		hasExtrapolatedValue = result.getExtrapolation() != null;
 		this.displayResult(infoRes, result);
 
@@ -209,7 +201,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		this.displayResult(infoRes, result);
 
 		for (double time = 60.; time <= 240.; time += 60.) {
-			result = getModel().retentionAt(getModel().generateDecayFunctionValues(), time, this.currentFit);
+			result = getModel().retentionAt(data, time, this.currentFit);
 			hasExtrapolatedValue = result.getExtrapolation() != null;
 			this.displayRetentionResult(infoRes, time, result);
 		}
@@ -252,7 +244,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	 */
 	private JPanel createPanelResults() {
 		JPanel panel = new JPanel(new GridLayout(2, 1));
-		
+
 		panel.add(new DynamicImage(capture.getImage()));
 		panel.add(getModel().createGraph_4(UNIT));
 
@@ -361,11 +353,11 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	public void createGraph() {
 		// Create chart
 		this.data = new XYSeriesCollection();
-		XYSeries series = getModel().generateDecayFunction();
+		XYSeries series = getModel().generateDecayFunction(UNIT);
 		this.data.addSeries(series);
 
 		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (min)",
-				"Stomach retention (counts)", data, PlotOrientation.VERTICAL, true, true, true);
+				"Stomach retention (" + UNIT.abrev() + ")", data, PlotOrientation.VERTICAL, true, true, true);
 
 		// Set bounds
 		XYPlot plot = chart.getXYPlot();

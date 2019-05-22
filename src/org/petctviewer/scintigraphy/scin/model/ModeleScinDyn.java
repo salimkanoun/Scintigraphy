@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin;
+package org.petctviewer.scintigraphy.scin.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,6 +7,7 @@ import java.util.List;
 import org.jfree.data.general.DatasetUtils;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 
 public abstract class ModeleScinDyn extends ModeleScin {
 
@@ -55,8 +56,6 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	 */
 	public XYSeries createSerie(List<Double> l, String nom) {
 		if (l.size() != frameduration.length) {
-			System.out.println(l.size());
-			System.out.println(frameduration.length);
 			throw new IllegalArgumentException("List size does not match duration time");
 		}
 

@@ -8,7 +8,7 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -51,15 +51,15 @@ public class PostMictional extends Scintigraphy {
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		Overlay ov = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
 
-		FenApplication fen = new FenApplication(selectedImages[0].getImagePlus(), this.getStudyName());
+		FenApplicationWorkflow fen = new FenApplicationWorkflow(selectedImages[0], this.getStudyName());
 		fen.setVisible(true);
 		this.setFenApplication(fen);
 		selectedImages[0].getImagePlus().setOverlay(ov);
 		// Controleur_PostMictional ctrl = new Controleur_PostMictional(this,
 		// this.organes, "Post-mictional");
 		// this.getFenApplication().setControleur(ctrl);
-		this.getFenApplication()
-				.setControleur(new ControllerWorkflowPostMictional(this, this.getFenApplication(),
+		((FenApplicationWorkflow) this.getFenApplication()).setControleur(
+				new ControllerWorkflowPostMictional(this, (FenApplicationWorkflow) this.getFenApplication(),
 						new Modele_PostMictional(selectedImages, "Post-mictional"),
 						((Modele_Renal) this.resultFrame.getParent().getModel()).getKidneys()));
 	}

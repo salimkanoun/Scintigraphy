@@ -509,13 +509,13 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		for (String[] s : this.getTableData()) {
 			this.dataModel.addRow(s);
 		}
-		resizeColumnWidth(table);
 
 	}
 
 	@Override
 	public void imageOpened(ImagePlus imp) {
 		this.updateTable();
+		resizeColumnWidth(table);
 	}
 
 	@Override

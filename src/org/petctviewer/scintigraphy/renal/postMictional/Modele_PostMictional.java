@@ -3,7 +3,7 @@ package org.petctviewer.scintigraphy.renal.postMictional;
 import java.util.HashMap;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 public class Modele_PostMictional extends ModeleScin {
 

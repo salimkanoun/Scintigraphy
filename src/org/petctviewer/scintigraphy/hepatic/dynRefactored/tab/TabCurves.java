@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.tab;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.GridLayout;
@@ -18,20 +19,25 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.ModelHepaticDynamic;
+import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ControllerWorkflowHepaticDyn;
+import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.FenApplicationSecondHepaticDyn;
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ModelSecondMethodHepaticDynamic;
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.SecondHepaticScintigraphy;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModeleScinDyn;
 
 import ij.Prefs;
+import ij.gui.Overlay;
 
-public class TabOtherMethod extends TabResult implements ActionListener, ChangeListener {
+public class TabCurves extends TabResult implements ActionListener, ChangeListener {
 
 	private boolean examDone;
 
-	private SecondHepaticScintigraphy vueBasic;
+	private FenApplicationSecondHepaticDyn vueBasic;
 
 	private JButton btn_addImp;
 
@@ -55,10 +61,10 @@ public class TabOtherMethod extends TabResult implements ActionListener, ChangeL
 
 	private int currentSidePanel;
 
-	public TabOtherMethod(FenResults parent, String title) {
+	public TabCurves(FenResults parent, String title) {
 		super(parent, title, true);
 		// TODO Auto-generated constructor stub
-		this.setSidePanelTitle("Other Method");
+		this.setSidePanelTitle("Curves");
 		((ModelHepaticDynamic) this.parent.getModel()).setResultTab(this);
 
 		this.tabPane = new JTabbedPane();
@@ -93,7 +99,7 @@ public class TabOtherMethod extends TabResult implements ActionListener, ChangeL
 			Box box = Box.createHorizontalBox();
 			box.add(Box.createHorizontalGlue());
 
-			btn_addImp = new JButton("Choose the dynamic dicom");
+			btn_addImp = new JButton("Start the exam");
 			btn_addImp.addActionListener(this);
 			box.add(btn_addImp);
 			box.add(Box.createHorizontalGlue());
@@ -127,15 +133,22 @@ public class TabOtherMethod extends TabResult implements ActionListener, ChangeL
 	public void actionPerformed(ActionEvent arg0) {
 		JButton button = (JButton) arg0.getSource();
 		if (button == btn_addImp) {
-			this.vueBasic = new SecondHepaticScintigraphy(this, ((ModelHepaticDynamic) this.parent.getModel()));
-			try {
-				this.vueBasic.run("");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+
+			ModeleScin model = TabCurves.this.parent.getModel();
+			ImageSelection[] ims = model.getImageSelection();
+			ImageSelection[] selectedImages = new ImageSelection[] { ims[1], ims[2], ims[3], ims[4] };
+			Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
+			Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
+
+			this.vueBasic = new FenApplicationSecondHepaticDyn(selectedImages[0],
+					model.getStudyName());
+			selectedImages[0].getImagePlus().setOverlay(overlay);
+			this.vueBasic.setControleur(new ControllerWorkflowHepaticDyn(this.vueBasic, new ModelSecondMethodHepaticDynamic(selectedImages,
+					model.getStudyName(), ((ModeleScinDyn) model).getFrameduration()), this));
 		} else if (button == buttonSwitchGraph) {
 			this.tabTAC.switchGraph(this.buttonSwitchGraph);
 		}
+		
 	}
 
 	public void setExamDone(boolean boobool) {
@@ -143,16 +156,13 @@ public class TabOtherMethod extends TabResult implements ActionListener, ChangeL
 		((ModelHepaticDynamic) this.parent.getModel()).setExamDone(boobool);
 	}
 
-	public Scintigraphy getVueBasic() {
-		return this.vueBasic;
-	}
 
 	public JTabbedPane getTabPane() {
 		return this.tabPane;
 	}
 
 	public FenApplication getFenApplication() {
-		return this.vueBasic.getFenApplication();
+		return this.vueBasic;
 	}
 
 	@Override
@@ -171,13 +181,13 @@ public class TabOtherMethod extends TabResult implements ActionListener, ChangeL
 			int index = -1;
 			switch (this.tabPane.getSelectedIndex()) {
 			case 0:
-				this.currentSidePanel = TabOtherMethod.TABTAC_SIDE_PANEL;
+				this.currentSidePanel = TabCurves.TABTAC_SIDE_PANEL;
 				break;
 			case 2:
-				this.currentSidePanel = TabOtherMethod.DECONVOLVE_SIDE_PANEL;
+				this.currentSidePanel = TabCurves.DECONVOLVE_SIDE_PANEL;
 				break;
 			default:
-				this.currentSidePanel = TabOtherMethod.CLASSICAL_SIDE_PANEL;
+				this.currentSidePanel = TabCurves.CLASSICAL_SIDE_PANEL;
 				break;
 			}
 			index = this.tabPane.getSelectedIndex();
@@ -213,8 +223,8 @@ public class TabOtherMethod extends TabResult implements ActionListener, ChangeL
 	public JPanel sidePanelTabTAC() {
 		if (this.sidePanelTAC == null) {
 			JPanel resultPane = new JPanel(new GridLayout(0, 2));
-			HashMap<String, String> results = ((ModelSecondMethodHepaticDynamic) this.vueBasic.getFenApplication()
-					.getControleur().getModel()).getResultsHashMap();
+			HashMap<String, String> results = ((ModelSecondMethodHepaticDynamic) this.vueBasic.getControleur()
+					.getModel()).getResultsHashMap();
 			String[] keys = { "T1/2 Righ Liver", "T1/2 Righ Liver *", "Maximum Right Liver", "end/max Ratio Right",
 					"T1/2 Left Liver", "T1/2 Left Liver *", "Maximum Left Liver", "end/max Ratio Left",
 					"T1/2 Blood pool", "T1/2 Blood pool *", "Blood pool ratio 20mn/5mn" };
@@ -234,8 +244,8 @@ public class TabOtherMethod extends TabResult implements ActionListener, ChangeL
 
 	public JPanel sidePanelClassical() {
 		JPanel resultPane = new JPanel(new GridLayout(0, 2));
-		HashMap<String, String> results = ((ModelSecondMethodHepaticDynamic) this.vueBasic.getFenApplication()
-				.getControleur().getModel()).getResultsHashMap();
+		HashMap<String, String> results = ((ModelSecondMethodHepaticDynamic) this.vueBasic.getControleur().getModel())
+				.getResultsHashMap();
 		String[] keys = { "T1/2 Righ Liver", "T1/2 Righ Liver *", "Maximum Right Liver", "end/max Ratio Right",
 				"T1/2 Left Liver", "T1/2 Left Liver *", "Maximum Left Liver", "end/max Ratio Left", "T1/2 Blood pool",
 				"T1/2 Blood pool *", "Blood pool ratio 20mn/5mn" };

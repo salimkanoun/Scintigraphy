@@ -5,11 +5,10 @@ import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
@@ -19,6 +18,7 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoi
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
@@ -35,7 +35,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	private boolean finContSlice1;
 	private String[] organes = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
 
-	public ControllerWorkflowCardiac(Scintigraphy main, FenApplication vue, ModeleScin model) {
+	public ControllerWorkflowCardiac(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
 		super(main, vue, model);
 
 		// on declare si il y a deux prises
@@ -107,6 +107,8 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 		this.workflows[2].addInstruction(new EndInstruction());
 
+		// Update view
+		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	private void clicNewCont() {

@@ -2,13 +2,13 @@ package org.petctviewer.scintigraphy.scin.instructions.drawing;
 
 import java.awt.Color;
 
-import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoiInstruction.Organ;
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import ij.gui.Roi;
 

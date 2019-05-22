@@ -39,8 +39,8 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import ij.IJ;
 import ij.ImagePlus;

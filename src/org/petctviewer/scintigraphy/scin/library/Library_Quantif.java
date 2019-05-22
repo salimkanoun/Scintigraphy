@@ -203,9 +203,45 @@ public class Library_Quantif {
 		Date firstAcquisitionTime = Library_Dicom.getDateAcquisition(firstImage);
 		Date SecondAcquisitionTime = Library_Dicom.getDateAcquisition(secondImage);
 		System.out.println("Difference de temps : "
-				+ (int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime()) / 1000);
+				+ (int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime()));
 		return Library_Quantif.calculer_countCorrected(
-				(int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime()) / 1000,
+				(int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime()),
+				Library_Quantif.getCounts(secondImage), isotope);
+	}
+	
+	
+	/**
+	 * Returns the counts with th radioactive decay applied.
+	 * 
+	 * @param Delay between the 2 images, in miliseconds
+	 * @param mesuredCount Current count of the image
+	 * @param isotope      Isotope used in this exam ({@link Isotope})
+	 * @return The corrected count
+	 */
+	public static double applyDecayFraction(int delayMs, double mesuredCount, Isotope isotope) {
+
+		double decayedFraction = Math.pow(Math.E, ((Math.log(2) / isotope.getHalLifeMS()) * delayMs * (-1)));
+		double correctedCount = mesuredCount * (decayedFraction);
+
+		return correctedCount;
+	}
+	
+	/**
+	 * Returns the counts of the second Image, with the radioactive decay applied.
+	 * 
+	 * @param firstImage	Image representing the time delay
+	 * @param secondImage	Image to apply decay
+	 * @param isotope		Isotope used
+	 * @return				Count of the second image, with decay applied
+	 */
+	public static double applyDecayFraction(ImagePlus firstImage, ImagePlus secondImage, Isotope isotope) {
+		Date firstAcquisitionTime = Library_Dicom.getDateAcquisition(firstImage);
+		Date SecondAcquisitionTime = Library_Dicom.getDateAcquisition(secondImage);
+		System.out.println("Difference de temps : "
+				+ Math.abs((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime())));
+		
+		return Library_Quantif.applyDecayFraction(
+				Math.abs((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime())),
 				Library_Quantif.getCounts(secondImage), isotope);
 	}
 

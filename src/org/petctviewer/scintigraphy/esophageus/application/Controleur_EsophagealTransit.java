@@ -1,8 +1,8 @@
 package org.petctviewer.scintigraphy.esophageus.application;
 
 import org.petctviewer.scintigraphy.esophageus.resultats.FenResultats_EsophagealTransit;
-import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.controller.Controleur_OrganeFixe;
 
 import ij.gui.Roi;
 import ij.gui.Toolbar;

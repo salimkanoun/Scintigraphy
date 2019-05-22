@@ -1,6 +1,6 @@
 package org.petctviewer.scintigraphy.scin.instructions;
 
-import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 
 /**
  * Represents an instruction in the workflow.

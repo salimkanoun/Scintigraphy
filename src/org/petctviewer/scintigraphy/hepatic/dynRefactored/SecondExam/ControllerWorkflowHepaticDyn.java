@@ -3,18 +3,17 @@ package org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabOtherMethod;
-import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabCurves;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
-import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
+import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import ij.ImagePlus;
 
@@ -24,8 +23,9 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 
 	private TabResult resultTab;
 
-	public ControllerWorkflowHepaticDyn(Scintigraphy main, FenApplication vue, ModeleScin model, TabResult resultTab) {
-		super(main, vue, model);
+	public ControllerWorkflowHepaticDyn(FenApplicationWorkflow vue, ModeleScin model, TabResult resultTab) {
+		super(null, vue, model);
+
 		// TODO Auto-generated constructor stub
 		this.resultTab = resultTab;
 
@@ -79,11 +79,11 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 		modele.saveValues();
 
 		// remove finish
-		((TabOtherMethod) this.resultTab).setExamDone(true);
-		
+		((TabCurves) this.resultTab).setExamDone(true);
+
 		this.resultTab.reloadDisplay();
-		
-		this.main.getFenApplication().dispose();
+
+		this.vue.dispose();
 	}
 
 	public ModeleScin getModel() {

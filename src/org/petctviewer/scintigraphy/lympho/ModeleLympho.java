@@ -11,10 +11,10 @@ import org.petctviewer.scintigraphy.lympho.gui.TabPelvis;
 import org.petctviewer.scintigraphy.lympho.pelvis.ControllerWorkflowPelvis;
 import org.petctviewer.scintigraphy.lympho.pelvis.ModelePelvis;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import ij.ImagePlus;
 
@@ -73,7 +73,7 @@ public class ModeleLympho extends ModeleScin {
 		if (!(imp == getImagePlus())) {
 //			correctedRadioactiveDecrease = Library_Quantif.calculer_countCorrected(18902000,
 //					Library_Quantif.getCounts(imp), Isotope.TECHNICIUM_99);
-			correctedRadioactiveDecrease =Library_Quantif.calculer_countCorrected(getImagePlus(), imp,Isotope.TECHNICIUM_99);
+			correctedRadioactiveDecrease = Library_Quantif.calculer_countCorrected(getImagePlus(), imp,Isotope.TECHNICIUM_99);
 		} else {
 			correctedRadioactiveDecrease = Library_Quantif.getCounts(imp);
 		}

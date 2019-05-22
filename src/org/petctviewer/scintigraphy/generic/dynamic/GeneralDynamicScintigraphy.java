@@ -4,6 +4,7 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 import ij.IJ;
@@ -23,9 +24,10 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		this.setFenApplication(
-				new FenApplication_GeneralDyn(selectedImages[0].getImagePlus(), this.getStudyName(), this));
-		this.getFenApplication().setControleur(new ControllerWorkflowScinDynamic(this, this.getFenApplication(),
-				new Modele_GeneralDyn(selectedImages, "General Dynamic", this.getFrameDurations())));
+				new FenApplication_GeneralDyn(selectedImages[0], this.getStudyName(), this));
+		((FenApplicationWorkflow) this.getFenApplication()).setControleur(
+				new ControllerWorkflowScinDynamic(this, (FenApplicationWorkflow) this.getFenApplication(),
+						new Modele_GeneralDyn(selectedImages, "General Dynamic", this.getFrameDurations())));
 		IJ.setTool(Toolbar.POLYGON);
 	}
 

@@ -1,16 +1,140 @@
 package org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam;
 
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import java.awt.Frame;
+import java.util.List;
 
-import ij.ImagePlus;
+import javax.swing.JOptionPane;
 
-public class FenApplicationSecondHepaticDyn extends FenApplication {
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.library.Library_Roi;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
+import ij.gui.Roi;
+
+public class FenApplicationSecondHepaticDyn extends FenApplicationWorkflow {
 	private static final long serialVersionUID = -910237891674972798L;
 
-	public FenApplicationSecondHepaticDyn(ImagePlus imp, String nom) {
-		super(imp, nom);
-		// TODO Auto-generated constructor stub
+	public FenApplicationSecondHepaticDyn(ImageSelection ims, String nom) {
+		super(ims, nom);
+
 	}
 
+	public static void importRoiList(Frame frame, ModeleScin modele, ControleurScin controller) {
+		// List<Roi> rois = new ArrayList<>();
+		// JFileChooser fc = new JFileChooser();
+		// fc.setCurrentDirectory(new File("./"));
+		// fc.setDialogTitle("Choose Roi List");
+		// int returnVal = fc.showOpenDialog(frame);
+		// if (returnVal == JFileChooser.APPROVE_OPTION) {
+		//
+		// JList list;
+		// list = new JList();
+		// DefaultListModel listModel = new DefaultListModel();
+		// list.setModel(listModel);
+		// FileInputStream fis = null;
+		// try {
+		// fis = new FileInputStream(fc.getSelectedFile().getPath());
+		// } catch (FileNotFoundException e1) {
+		// // TODO Auto-generated catch block
+		// e1.printStackTrace();
+		// }
+		// ObjectInputStream ois = null;
+		// try {
+		// ois = new ObjectInputStream(fis);
+		// } catch (IOException e1) {
+		// e1.printStackTrace();
+		// }
+		// try {
+		// rois = (List<Roi>) ois.readObject();
+		// } catch (ClassNotFoundException | IOException e1) {
+		// e1.printStackTrace();
+		// System.out.println("erreur");
+		// }
+		// try {
+		// ois.close();
+		// } catch (IOException e1) {
+		// e1.printStackTrace();
+		// }
+		//
+		// for (Roi r : rois)
+		// System.out.println(r);
+		//
+		// modele.getRoiManager().removeAll();
+		// for (Roi r : rois)
+		// modele.getRoiManager().addRoi(r);
+
+		// controller.end();
+
+		// IJ.runMacro("roiManager(\"Open\", getArgument());",
+		// fc.getSelectedFile().getPath());
+		//
+		//
+		// RoiManager newRoiManager = new RoiManager();
+		// for (Roi r : newRoiManager.getRoisAsArray())
+		// System.out.println(r);
+
+		// ZipInputStream in = null;
+		// ByteArrayOutputStream out = null;
+		// rois.clear();
+		// int nRois = 0;
+		// try {
+		// in = new ZipInputStream(new FileInputStream(fc.getSelectedFile().getPath()));
+		// byte[] buf = new byte[1024];
+		// int len;
+		// ZipEntry entry = in.getNextEntry();
+		// while (entry!=null) {
+		// String name = entry.getName();
+		// if (name.endsWith(".roi")) {
+		// out = new ByteArrayOutputStream();
+		// while ((len = in.read(buf)) > 0)
+		// out.write(buf, 0, len);
+		// out.close();
+		// byte[] bytes = out.toByteArray();
+		// RoiDecoder rd = new RoiDecoder(bytes, name);
+		// Roi roi = rd.getRoi();
+		// if (roi!=null) {
+		// name = name.substring(0, name.length()-4);
+		// listModel.addElement(name);
+		// rois.add(roi);
+		// nRois++;
+		// }
+		// }
+		// entry = in.getNextEntry();
+		// }
+		// in.close();
+		// } catch (IOException e) {
+		// System.out.println(e.toString());
+		// } finally {
+		// if (in!=null)
+		// try {in.close();} catch (IOException e) {}
+		// if (out!=null)
+		// try {out.close();} catch (IOException e) {}
+		// }
+		// if(nRois==0)
+		// System.out.println("This ZIP archive does not appear to contain \".roi\"
+		// files");
+
+		List<Roi> rois = Library_Roi.getRoiFromZipWithWindow(frame);
+
+		int result = JOptionPane.YES_OPTION;
+		if (modele.getRoiManager().getCount() > 0) {
+			String message = "Do you want to delete the ROIs already registred ??";
+			result = JOptionPane.showConfirmDialog(frame, message, "ROIs already registred", JOptionPane.YES_NO_OPTION,
+					JOptionPane.WARNING_MESSAGE);
+
+			if (result == JOptionPane.YES_OPTION) {
+				modele.getRoiManager().removeAll();
+				for (Roi roi : rois)
+					modele.getRoiManager().addRoi(roi);
+			} else if (result == JOptionPane.NO_OPTION)
+				for (int index = modele.getRoiManager().getCount(); index < rois.size(); index++)
+					modele.getRoiManager().addRoi(rois.get(index));
+
+		} else
+			for (Roi roi : rois)
+				modele.getRoiManager().addRoi(roi);
+		// }
+	}
 }

@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin;
+package org.petctviewer.scintigraphy.scin.controller;
 
 import java.awt.Button;
 import java.awt.Color;
@@ -6,10 +6,12 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -91,7 +93,7 @@ public abstract class ControleurScin implements ActionListener {
 	 * This method is called when the FenApplication is closed.
 	 */
 	public void close() {
-		this.model.roiManager.close();
+		this.model.getRoiManager().close();
 	}
 
 	/**

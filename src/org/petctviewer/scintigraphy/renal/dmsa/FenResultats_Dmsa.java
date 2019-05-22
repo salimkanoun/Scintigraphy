@@ -10,7 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -22,7 +22,7 @@ public class FenResultats_Dmsa extends FenResults {
 
 	public FenResultats_Dmsa(BufferedImage capture, ControleurScin controller) {
 		super(controller);
-		this.addTab(new TabMain(this, "dmsa", true, capture));
+		this.addTab(new TabMain(this, "DMSA", true, capture));
 	}
 
 	private class TabMain extends TabResult {

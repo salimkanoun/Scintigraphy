@@ -117,10 +117,14 @@ public class ResultValue {
 	 * 
 	 * @return formatted value for this result
 	 */
-	public String value() {
+	public String formatValue() {
 		if (this.unit == Unit.TIME)
 			return this.displayAsTime();
 		return this.notNegative();
+	}
+	
+	public double getValue() {
+		return this.value;
 	}
 
 	/**
