@@ -330,10 +330,6 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	 */
 
 	public String getNomOrgane(int index) {
-
-		System.out.println("Index" + index);
-		System.out.println("Lenght" + this.getOrganes().length);
-		System.out.println("modulo" + index % this.getOrganes().length);
 		return this.getOrganes()[index % this.getOrganes().length];
 	}
 

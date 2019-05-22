@@ -99,6 +99,9 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		this.workflows[1].addInstruction(dri_capture_4);
 
 		this.workflows[1].addInstruction(new EndInstruction());
+
+		// Update view
+		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	@Override
@@ -112,14 +115,12 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		this.model.getImageSelection()[STEP_KIDNEY_LUNG].getImagePlus().setSlice(firstSlice);
 		this.model.getImageSelection()[STEP_BRAIN].getImagePlus().setSlice(firstSlice);
 		for (int i = 0; i < this.model.getRoiManager().getRoisAsArray().length; i++) {
-			String title_completion = "";
 			Roi r = this.model.getRoiManager().getRoisAsArray()[i];
 			int organ = 0;
 
 			if (i < this.NBORGANE[STEP_KIDNEY_LUNG]) {
 				img = this.model.getImageSelection()[STEP_KIDNEY_LUNG].getImagePlus();
 				img.setSlice(firstSlice);
-				title_completion += " {KIDNEY_LUNG}";
 				if (this.FIRST_ORIENTATION_POST)
 					organ = i * 2 + 1;
 				else
@@ -127,7 +128,6 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 			} else if (i < 2 * this.NBORGANE[STEP_KIDNEY_LUNG]) {
 				img = this.model.getImageSelection()[STEP_KIDNEY_LUNG].getImagePlus();
 				img.setSlice(secondSlice);
-				title_completion += " {KIDNEY_LUNG}";
 				if (this.FIRST_ORIENTATION_POST)
 					organ = (i - this.NBORGANE[STEP_KIDNEY_LUNG]) * 2;
 				else
@@ -135,7 +135,6 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 			} else if (i - 2 * this.NBORGANE[STEP_KIDNEY_LUNG] < this.NBORGANE[STEP_BRAIN]) {
 				img = this.model.getImageSelection()[STEP_BRAIN].getImagePlus();
 				img.setSlice(firstSlice);
-				title_completion += " {BRAIN}";
 				if (this.FIRST_ORIENTATION_POST)
 					organ = i + 1;
 				else
@@ -143,19 +142,12 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 			} else {
 				img = this.model.getImageSelection()[STEP_BRAIN].getImagePlus();
 				img.setSlice(secondSlice);
-				title_completion += " {BRAIN}";
 				if (this.FIRST_ORIENTATION_POST)
 					organ = i - 1;
 				else
 					organ = i;
 			}
 
-			if (img.getCurrentSlice() == SLICE_ANT)
-				title_completion += " ANT";
-			else
-				title_completion += " POST";
-
-			System.out.println("Oppening:: " + r.getName() + title_completion);
 			img.setRoi(r);
 			((ModeleShunpo) this.model).calculerCoups(organ, img);
 		}

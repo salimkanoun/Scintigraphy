@@ -245,26 +245,31 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		if (value < 11.) {
 			l1 = new JLabel("--");
 			l2 = new JLabel("Result is OK");
-		} else if (value >= 11. && value <= 20.) {
-			l1 = new JLabel("Grade 1");
-			l2 = new JLabel("Mild");
-		} else if (value > 20. && value <= 35.) {
-			l1 = new JLabel("Grade 2");
-			l2 = new JLabel("Moderate");
-		} else if (value > 35. && value <= 50.) {
-			l1 = new JLabel("Grade 3");
-			l2 = new JLabel("Severe");
+			
+			l1.setForeground(Color.GREEN);
+			l2.setForeground(Color.GREEN);
 		} else {
-			l1 = new JLabel("Grade 4");
-			l2 = new JLabel("Very severe");
+			if (value >= 11. && value <= 20.) {
+				l1 = new JLabel("Grade 1");
+				l2 = new JLabel("Mild");
+			} else if (value > 20. && value <= 35.) {
+				l1 = new JLabel("Grade 2");
+				l2 = new JLabel("Moderate");
+			} else if (value > 35. && value <= 50.) {
+				l1 = new JLabel("Grade 3");
+				l2 = new JLabel("Severe");
+			} else {
+				l1 = new JLabel("Grade 4");
+				l2 = new JLabel("Very severe");
+			}
+
+			l1.setForeground(Color.RED);
+			l2.setForeground(Color.RED);
 		}
 		
 		l1.setFont(l1.getFont().deriveFont(Font.BOLD));
-		l1.setForeground(Color.ORANGE);
-		l1.setBackground(Color.BLACK);
 		l2.setFont(l2.getFont().deriveFont(12f));
-		l2.setForeground(Color.ORANGE);
-		l2.setBackground(Color.BLACK);
+
 		return new JLabel[] { l1, l2 };
 	}
 

@@ -56,6 +56,9 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		this.workflows[0].addInstructionOnTheFly(dri_1);
 
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
+
+		// Update view
+		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	public void end() {

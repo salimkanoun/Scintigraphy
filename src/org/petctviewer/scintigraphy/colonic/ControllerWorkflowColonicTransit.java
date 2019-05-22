@@ -63,6 +63,8 @@ public class ControllerWorkflowColonicTransit extends ControllerWorkflow {
 		}
 		this.workflows[this.workflows.length - 1].addInstruction(new EndInstruction());
 
+		// Update view
+		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	@Override

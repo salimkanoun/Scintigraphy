@@ -59,6 +59,8 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 			this.workflows[i].addInstruction(dri_4);
 			this.workflows[i].addInstruction(dri_capture_2);
 
+			// Update view
+			getVue().setNbInstructions(this.allInputInstructions().size());
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}

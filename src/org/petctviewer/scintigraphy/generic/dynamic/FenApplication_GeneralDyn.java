@@ -7,22 +7,22 @@ import java.awt.Panel;
 
 import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
-import ij.ImagePlus;
 import ij.gui.Toolbar;
 
-public class FenApplication_GeneralDyn extends FenApplication {
+public class FenApplication_GeneralDyn extends FenApplicationWorkflow {
 
 	private static final long serialVersionUID = 2588688323462231144L;
 
 	private Button btn_finish;
 
-	public FenApplication_GeneralDyn(ImagePlus imp, String nom, Scintigraphy vue) {
-		super(imp, nom);
+	public FenApplication_GeneralDyn(ImageSelection ims, String nom, Scintigraphy vue) {
+		super(ims, nom);
 		this.getTextfield_instructions().setEditable(true);
 		this.btn_finish = new Button("Finish");
 		btn_finish.setActionCommand(ControllerWorkflow.COMMAND_END);

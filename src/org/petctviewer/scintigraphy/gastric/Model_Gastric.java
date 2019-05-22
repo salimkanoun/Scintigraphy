@@ -671,13 +671,11 @@ public class Model_Gastric extends ModeleScin {
 				double value = data.getValue(regionName, key);
 				Unit unitValue = data.unitForKey(key);
 				results[i] = unitValue.convertTo(value, unit);
-				System.out.println("Value(" + value + " " + unitValue + ") converted to " + unit + " = " + results[i]);
 			} catch (NullPointerException e) {
 				// No data found for this point
 				// Ignore value
 //				resultsIgnored++;
 				results[i] = Double.NaN;
-				System.out.println("Ignored: " + data.getValue(regionName, key));
 			}
 			i++;
 		}
@@ -696,7 +694,6 @@ public class Model_Gastric extends ModeleScin {
 	private double[] getResultAsArray(String regionName, int key, Unit unit) {
 		// Get all results
 		double[] results = getAllResultsAsArray(regionName, key, unit);
-		System.out.println("RRESULT: " + Arrays.toString(results));
 
 		// Count results to ignore
 		int resultsIgnored = (int) Arrays.stream(results).filter(d -> Double.isNaN(d)).count();
@@ -1536,14 +1533,11 @@ public class Model_Gastric extends ModeleScin {
 		if (result == T_HALF) {
 			// Assumption: the first value is the highest (maybe do not assume that...)
 			double half = yValues[0] / 2.;
-			System.out.println("Half value: " + half);
 			extrapolationType = null;
 			Double valX = this.getX(yValues, half);
-			System.out.println("Value found: " + valX);
 			if (valX == null) {
 				// Extrapolate
 				valX = this.extrapolateX(half, fit);
-				System.out.println("Extrapolation: " + valX);
 				extrapolationType = fit.getType();
 			}
 			return new ResultValue(result, valX, Unit.TIME, extrapolationType);

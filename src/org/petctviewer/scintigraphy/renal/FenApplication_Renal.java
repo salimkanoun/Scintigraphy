@@ -36,7 +36,7 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 	public FenApplication_Renal(ImageSelection ims, String nom, RenalScintigraphy vue) {
 		super(ims, nom);
 		// Keep default visualisation
-		this.setVisualisationEnable(false);
+		this.setVisualizationEnable(false);
 		
 		// Ajout du boutton dynamic au panel de gauche
 		btn_dyn = new Button("Dynamic");

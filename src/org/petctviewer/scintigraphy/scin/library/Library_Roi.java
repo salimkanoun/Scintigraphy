@@ -21,11 +21,8 @@ import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
 
-import org.petctviewer.scintigraphy.scin.ModeleScin;
-
 import ij.IJ;
 import ij.ImagePlus;
-import ij.Macro;
 import ij.gui.Roi;
 import ij.io.RoiDecoder;
 import ij.io.RoiEncoder;

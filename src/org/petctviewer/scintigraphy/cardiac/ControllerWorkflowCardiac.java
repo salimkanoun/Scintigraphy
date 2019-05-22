@@ -107,6 +107,8 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 		this.workflows[2].addInstruction(new EndInstruction());
 
+		// Update view
+		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	private void clicNewCont() {
