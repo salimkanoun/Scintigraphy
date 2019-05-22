@@ -5,13 +5,12 @@ import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Panel;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 
-import ij.ImagePlus;
-
-public class FenApplication_ScinStatic extends FenApplication{
+public class FenApplication_ScinStatic extends FenApplicationWorkflow {
 
 	/**
 	 * 
@@ -19,8 +18,8 @@ public class FenApplication_ScinStatic extends FenApplication{
 	private static final long serialVersionUID = 1L;
 	private Button btn_finish;
 	
-	public FenApplication_ScinStatic(ImagePlus imp, String nom) {
-		super(imp, nom);
+	public FenApplication_ScinStatic(ImageSelection ims, String nom) {
+		super(ims, nom);
 		this.getTextfield_instructions().setEditable(true);
 		this.btn_finish = new Button("Finish");
 		this.btn_finish.setActionCommand(ControllerWorkflow.COMMAND_END);
