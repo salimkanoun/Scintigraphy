@@ -2,7 +2,6 @@ package org.petctviewer.scintigraphy.scin.model;
 
 import java.util.HashMap;
 
-import org.json.JSONObject;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
