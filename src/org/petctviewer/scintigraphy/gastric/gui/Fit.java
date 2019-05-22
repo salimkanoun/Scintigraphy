@@ -132,6 +132,17 @@ public abstract class Fit {
 			double res = coefs[1] * valueX + coefs[0];
 			return res;
 		}
+		
+		@Override
+		public String toString() {
+			String s = super.toString() + "(";
+			for(int i = 0; i<this.coefs.length; i++) {
+				s += this.coefs[i];
+				if(i < this.coefs.length-1)
+					s += ";";
+			}
+			return s + ")";
+		}
 
 	}
 
@@ -166,6 +177,17 @@ public abstract class Fit {
 		public double extrapolateY(double valueX) {
 			double res = coefs[0] * Math.exp(coefs[1] * valueX);
 			return res;
+		}
+		
+		@Override
+		public String toString() {
+			String s = super.toString() + "(";
+			for(int i = 0; i<this.coefs.length; i++) {
+				s += this.coefs[i];
+				if(i < this.coefs.length-1)
+					s += ";";
+			}
+			return s + ")";
 		}
 
 	}

@@ -1438,12 +1438,11 @@ public class Model_Gastric extends ModelWorkflow {
 		boolean isExtrapolated = false;
 		if (res == null) {
 			res = Library_JFreeChart.extrapolateY(time, request.getFit());
-			System.out.println("Result extrapolation: " + res);
 			isExtrapolated = true;
+		} else {
+			// Percentage of res
+			res = res * 100. / Library_JFreeChart.getY(times, yValues, 0.);
 		}
-
-		// Percentage of res
-		res = res * 100. / Library_JFreeChart.getY(times, yValues, 0.);
 
 		return new ResultValue(request, res, Unit.PERCENTAGE, isExtrapolated);
 	}

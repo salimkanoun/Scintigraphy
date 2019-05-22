@@ -204,7 +204,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 
 		// Retention 30min
 		request.changeResultOn(Model_Gastric.RETENTION_GEOAVG);
-		request.setUnit(this.unitTime);
+		request.setUnit(Unit.PERCENTAGE);
 		ResultValue result = getModel().getRetentionResult(request, 30.);
 		hasExtrapolatedValue = result.isExtrapolated();
 		this.displayRetentionResult(infoRes, 30., result);

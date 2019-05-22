@@ -75,4 +75,10 @@ public class ResultRequest {
 		this.unit = unit;
 	}
 
+	@Override
+	public String toString() {
+		return "Request for " + this.resultOn + "\nFit: " + fit + "\nIndex image: " + this.indexImage + "\nUnit: "
+				+ this.unit;
+	}
+
 }

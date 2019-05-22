@@ -336,7 +336,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 
 		// Retention 30min
 		request.changeResultOn(Model_Gastric.RETENTION_PERCENTAGE);
-		request.setUnit(unitTime);
+		request.setUnit(Unit.PERCENTAGE);
 		ResultValue result = getModel().getRetentionResult(request, 30.);
 		hasExtrapolatedValue = result.isExtrapolated();
 		this.displayRetentionResult(infoRes, 30., result);
@@ -476,7 +476,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 				// Calculate result
 				try {
 					request.changeResultOn(Model_Gastric.RETENTION_PERCENTAGE);
-					request.setUnit(unitTime);
+					request.setUnit(Unit.PERCENTAGE);
 					ResultValue result = getModel().getRetentionResult(request,
 							Double.parseDouble(fieldCustomRetention.getText()));
 					// Update result
