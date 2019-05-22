@@ -1,6 +1,6 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 
 public class FenResultat_GeneralDyn extends FenResults {

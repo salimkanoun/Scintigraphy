@@ -8,7 +8,7 @@ import org.petctviewer.scintigraphy.esophageus.resultats.tabs.TabCondense;
 import org.petctviewer.scintigraphy.esophageus.resultats.tabs.TabCurves;
 import org.petctviewer.scintigraphy.esophageus.resultats.tabs.TabRentention;
 import org.petctviewer.scintigraphy.esophageus.resultats.tabs.TabTransitTime;
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 
 @SuppressWarnings("serial")

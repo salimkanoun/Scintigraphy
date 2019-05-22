@@ -12,9 +12,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.UIManager;
 
-import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptDialog;
-import org.petctviewer.scintigraphy.scin.library.Library_Debug;
 
 public class PromptBkgNoise extends PromptDialog {
 	private static final long serialVersionUID = 1L;
@@ -93,7 +92,7 @@ public class PromptBkgNoise extends PromptDialog {
 //			this.indexState--;
 		}
 
-		this.DEBUG("Update index");
+//		this.DEBUG("Update index");
 	}
 
 	@Override
@@ -138,7 +137,7 @@ public class PromptBkgNoise extends PromptDialog {
 			}
 		}
 
-		this.DEBUG("Saved state");
+//		this.DEBUG("Saved state");
 	}
 
 	@Override
@@ -151,21 +150,21 @@ public class PromptBkgNoise extends PromptDialog {
 		return true;
 	}
 
-	private void DEBUG(String s) {
-		System.out.println(Library_Debug.separator(0));
-		System.out.println("== " + s + " ==");
-		System.out.println("Current index = " + this.indexState);
-		System.out.println("Current states:");
-		int i = 0;
-		for (boolean[] b : this.states) {
-			if (i == this.indexState)
-				System.out.println(Library_Debug.title("State #" + i++));
-			else
-				System.out.println(Library_Debug.subtitle("State #" + i++));
-			System.out.println("\t- antre: " + b[0]);
-			System.out.println("\t- intestine: " + b[1]);
-		}
-	}
+//	private void DEBUG(String s) {
+//		System.out.println(Library_Debug.separator(0));
+//		System.out.println("== " + s + " ==");
+//		System.out.println("Current index = " + this.indexState);
+//		System.out.println("Current states:");
+//		int i = 0;
+//		for (boolean[] b : this.states) {
+//			if (i == this.indexState)
+//				System.out.println(Library_Debug.title("State #" + i++));
+//			else
+//				System.out.println(Library_Debug.subtitle("State #" + i++));
+//			System.out.println("\t- antre: " + b[0]);
+//			System.out.println("\t- intestine: " + b[1]);
+//		}
+//	}
 
 	@Override
 	protected void prepareAsNext() {
@@ -188,7 +187,7 @@ public class PromptBkgNoise extends PromptDialog {
 		// Change direction
 		this.forward = true;
 
-		this.DEBUG("Prepared as next");
+//		this.DEBUG("Prepared as next");
 	}
 
 	@Override
@@ -213,7 +212,7 @@ public class PromptBkgNoise extends PromptDialog {
 			this.rbIntestine_no.setEnabled(true);
 		}
 
-		this.DEBUG("Prepared as previous");
+//		this.DEBUG("Prepared as previous");
 	}
 
 }

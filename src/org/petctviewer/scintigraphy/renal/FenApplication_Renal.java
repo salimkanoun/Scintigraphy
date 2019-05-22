@@ -12,8 +12,8 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -36,7 +36,7 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 	public FenApplication_Renal(ImageSelection ims, String nom, RenalScintigraphy vue) {
 		super(ims, nom);
 		// Keep default visualisation
-		this.setVisualisationEnable(false);
+		this.setVisualizationEnable(false);
 		
 		// Ajout du boutton dynamic au panel de gauche
 		btn_dyn = new Button("Dynamic");

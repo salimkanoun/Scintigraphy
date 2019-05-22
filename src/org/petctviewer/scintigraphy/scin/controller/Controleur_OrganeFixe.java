@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.scin;
+package org.petctviewer.scintigraphy.scin.controller;
 
 /*
 Copyright (C) 2017 KANOUN Salim
@@ -21,9 +21,11 @@ import java.util.HashMap;
 
 import javax.swing.JOptionPane;
 
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import ij.IJ;
 import ij.ImageListener;
@@ -330,10 +332,6 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	 */
 
 	public String getNomOrgane(int index) {
-
-		System.out.println("Index" + index);
-		System.out.println("Lenght" + this.getOrganes().length);
-		System.out.println("modulo" + index % this.getOrganes().length);
 		return this.getOrganes()[index % this.getOrganes().length];
 	}
 

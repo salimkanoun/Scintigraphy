@@ -43,7 +43,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric.gui.Fit;
 import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Debug;
@@ -51,6 +50,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -277,6 +277,35 @@ public class Model_Gastric extends ModeleScin {
 		}
 
 		/**
+		 * Gets the unit used to store the values of the specified key.
+		 * 
+		 * @param key Key to know the unit
+		 * @return unit of the key
+		 */
+		public Unit unitForKey(int key) {
+			switch (key) {
+			case DATA_ANT_COUNTS:
+			case DATA_POST_COUNTS:
+			case DATA_GEO_AVERAGE:
+				return Unit.COUNTS;
+			case DATA_DECAY_CORRECTED:
+				return Unit.COUNTS;
+			case DATA_PERCENTAGE:
+				return Unit.PERCENTAGE;
+			case DATA_CORRELATION:
+				return Unit.PERCENTAGE;
+			case DATA_PIXEL_COUNTS:
+				return Unit.COUNTS;
+			case DATA_BKG_NOISE:
+				return Unit.COUNTS;
+			case DATA_DERIVATIVE:
+				return Unit.PERCENTAGE;
+			default:
+				return null;
+			}
+		}
+
+		/**
 		 * Gets the value associated with the specified key. The region will be searched
 		 * in the Ant regions.<br>
 		 * If the region could not be found, then returns null.
@@ -411,7 +440,7 @@ public class Model_Gastric extends ModeleScin {
 			if (valueAnt != null && valuePost != null) {
 				data.setValue(region, DATA_GEO_AVERAGE, Library_Quantif.moyGeom(valueAnt, valuePost));
 			} else {
-				
+
 			}
 		}
 	}
@@ -627,9 +656,10 @@ public class Model_Gastric extends ModeleScin {
 	 * 
 	 * @param regionName Region to get the result from
 	 * @param key        Key of the results to place in the array
+	 * @param unit       Unit of the output
 	 * @return array of all data for the requested key result
 	 */
-	private double[] getAllResultsAsArray(String regionName, int key) {
+	private double[] getAllResultsAsArray(String regionName, int key, Unit unit) {
 		// Get all results
 		double[] results = new double[this.nbAcquisitions()];
 		Iterator<Data> it = this.generatesDataOrdered().iterator();
@@ -639,7 +669,8 @@ public class Model_Gastric extends ModeleScin {
 			Data data = it.next();
 			try {
 				double value = data.getValue(regionName, key);
-				results[i] = value;
+				Unit unitValue = data.unitForKey(key);
+				results[i] = unitValue.convertTo(value, unit);
 			} catch (NullPointerException e) {
 				// No data found for this point
 				// Ignore value
@@ -657,11 +688,12 @@ public class Model_Gastric extends ModeleScin {
 	 * 
 	 * @param regionName Region to get the result from
 	 * @param key        Key of the results to place in the array
+	 * @param unit       Unit of output
 	 * @return array of all data for the requested key result
 	 */
-	private double[] getResultAsArray(String regionName, int key) {
+	private double[] getResultAsArray(String regionName, int key, Unit unit) {
 		// Get all results
-		double[] results = getAllResultsAsArray(regionName, key);
+		double[] results = getAllResultsAsArray(regionName, key, unit);
 
 		// Count results to ignore
 		int resultsIgnored = (int) Arrays.stream(results).filter(d -> Double.isNaN(d)).count();
@@ -888,14 +920,15 @@ public class Model_Gastric extends ModeleScin {
 	/**
 	 * Generates the dataset for the graph of the stomach retention.
 	 * 
+	 * @param unit Unit of the Y axis
 	 * @return array in the form:
 	 *         <ul>
 	 *         <li><code>[i][0] -> x</code></li>
 	 *         <li><code>[i][1] -> y</code></li>
 	 *         </ul>
 	 */
-	private double[][] generateStomachDataset() {
-		return this.generateDatasetFromKey(REGION_STOMACH, DATA_PERCENTAGE, false);
+	private double[][] generateStomachDataset(Unit unit) {
+		return this.generateDatasetFromKey(REGION_STOMACH, DATA_PERCENTAGE, false, unit);
 	}
 
 	/**
@@ -907,8 +940,8 @@ public class Model_Gastric extends ModeleScin {
 	 *         <li><code>[i][1] -> y</code></li>
 	 *         </ul>
 	 */
-	private double[][] generateDecayFunctionDataset() {
-		double[][] dataset = this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED, true);
+	private double[][] generateDecayFunctionDataset(Unit unit) {
+		double[][] dataset = this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED, true, unit);
 		return dataset;
 	}
 
@@ -958,11 +991,12 @@ public class Model_Gastric extends ModeleScin {
 	 * @param key         Key of the values to retrieve
 	 * @param ignoreTime0 If TRUE, then the time 0 will not be used. If FALSE, then
 	 *                    the time 0 will be used if existing
+	 * @param unit        Unit of the output result for the Y axis
 	 * @return dataset with the values from the data associated with the region
 	 */
-	private double[][] generateDatasetFromKey(String regionName, int key, boolean ignoreTime0) {
+	private double[][] generateDatasetFromKey(String regionName, int key, boolean ignoreTime0, Unit unit) {
 		// Get all Y points
-		double[] yPoints = this.getAllResultsAsArray(regionName, key);
+		double[] yPoints = this.getAllResultsAsArray(regionName, key, unit);
 
 		// Count results to ignore
 		int nbResultsToIgnore = (int) Arrays.stream(yPoints).filter(d -> Double.isNaN(d)).count();
@@ -1211,31 +1245,33 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
+	 * @param unit Unit of the Y axis
 	 * @return series for the stomach (used for the graph)
 	 */
-	public XYSeries generateStomachSeries() {
-		return this.generateSeriesFromDataset("Stomach", this.generateStomachDataset());
+	public XYSeries generateStomachSeries(Unit unit) {
+		return this.generateSeriesFromDataset("Stomach", this.generateStomachDataset(unit));
 	}
 
 	/**
+	 * @param unit Unit of the Y axis
 	 * @return Y values for the stomach
 	 */
-	public double[] generateStomachValues() {
-		return this.generateYValuesFromDataset(generateStomachDataset());
+	public double[] generateStomachValues(Unit unit) {
+		return this.generateYValuesFromDataset(generateStomachDataset(unit));
 	}
 
 	/**
 	 * @return series for the decay function
 	 */
-	public XYSeries generateDecayFunction() {
-		return this.generateSeriesFromDataset("Stomach", this.generateDecayFunctionDataset());
+	public XYSeries generateDecayFunction(Unit unit) {
+		return this.generateSeriesFromDataset("Stomach", this.generateDecayFunctionDataset(unit));
 	}
 
 	/**
 	 * @return Y values for the decay function
 	 */
-	public double[] generateDecayFunctionValues() {
-		return this.generateYValuesFromDataset(generateDecayFunctionDataset());
+	public double[] generateDecayFunctionValues(Unit unit) {
+		return this.generateYValuesFromDataset(generateDecayFunctionDataset(unit));
 	}
 
 	/**
@@ -1497,14 +1533,11 @@ public class Model_Gastric extends ModeleScin {
 		if (result == T_HALF) {
 			// Assumption: the first value is the highest (maybe do not assume that...)
 			double half = yValues[0] / 2.;
-			System.out.println("Half value: " + half);
 			extrapolationType = null;
 			Double valX = this.getX(yValues, half);
-			System.out.println("Value found: " + valX);
 			if (valX == null) {
 				// Extrapolate
 				valX = this.extrapolateX(half, fit);
-				System.out.println("Extrapolation: " + valX);
 				extrapolationType = fit.getType();
 			}
 			return new ResultValue(result, valX, Unit.TIME, extrapolationType);
@@ -1581,7 +1614,7 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	public ChartPanel createGraph_1() {
 		return Library_JFreeChart.createGraph("Fundus/Stomach (%)", new Color(0, 100, 0), "Intragastric Distribution",
-				times, this.getResultAsArray(REGION_FUNDUS, DATA_CORRELATION), 100.0);
+				times, this.getResultAsArray(REGION_FUNDUS, DATA_CORRELATION, Unit.PERCENTAGE), 100.0);
 	}
 
 	// TODO: change this method, the model should not decide for rendering
@@ -1591,7 +1624,7 @@ public class Model_Gastric extends ModeleScin {
 	 * @return Gastrointestinal flow graph as an image
 	 */
 	public ChartPanel createGraph_2() {
-		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_DERIVATIVE);
+		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_DERIVATIVE, Unit.PERCENTAGE);
 //		System.out.println("Result for Gastrointestinal flow:");
 //		System.out.println(Arrays.toString(timesDerivative));
 //		System.out.println(Arrays.toString(result));
@@ -1606,9 +1639,10 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	public ChartPanel createGraph_3() {
 		// On cree un dataset qui contient les 3 series
-		XYSeriesCollection dataset = createDatasetTrois(times, this.getResultAsArray(REGION_STOMACH, DATA_PERCENTAGE),
-				"Stomach", this.getResultAsArray(REGION_FUNDUS, DATA_PERCENTAGE), "Fundus",
-				this.getResultAsArray(REGION_ANTRE, DATA_PERCENTAGE), "Antrum");
+		XYSeriesCollection dataset = createDatasetTrois(times,
+				this.getResultAsArray(REGION_STOMACH, DATA_PERCENTAGE, Unit.PERCENTAGE), "Stomach",
+				this.getResultAsArray(REGION_FUNDUS, DATA_PERCENTAGE, Unit.PERCENTAGE), "Fundus",
+				this.getResultAsArray(REGION_ANTRE, DATA_PERCENTAGE, Unit.PERCENTAGE), "Antrum");
 		// On cree le graphique
 		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "Retention (% meal)", dataset,
 				PlotOrientation.VERTICAL, true, true, false);
@@ -1660,10 +1694,7 @@ public class Model_Gastric extends ModeleScin {
 
 	// TODO: change this method, the model should not decide for rendering
 	public ChartPanel createGraph_4(Unit unit) {
-		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_GEO_AVERAGE);
-
-		// TODO: convert to kcounts/min
-		result = Library_JFreeChart.convert(result, Unit.COUNTS, unit);
+		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_GEO_AVERAGE, unit);
 
 		double[] xValues = times;
 		if (this.time0 != null)

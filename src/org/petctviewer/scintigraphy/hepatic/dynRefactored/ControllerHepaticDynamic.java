@@ -12,11 +12,11 @@ import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabMainHepaticDyn;
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabCurves;
-import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 public class ControllerHepaticDynamic extends ControleurScin implements MouseListener, ActionListener {
 

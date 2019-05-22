@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,7 +20,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.border.MatteBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 
 import org.jfree.chart.ChartFactory;
@@ -47,6 +51,8 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
+import com.itextpdf.text.Font;
+
 import ij.ImagePlus;
 
 public class TabMainResult extends TabResult implements ItemListener, ChartMouseListener {
@@ -63,6 +69,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 
 	private Fit currentFit;
 
+	private double[] YData;
 	private final Unit UNIT;
 
 	public TabMainResult(FenResults parent, ImagePlus capture, ControllerWorkflow_Gastric controller) {
@@ -147,7 +154,7 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 					arr[j] = "--";
 				else {
 					res.convert(unitsUsed[j]);
-					arr[j] = res.value();
+					arr[j] = res.formatValue();
 				}
 			}
 			tableModel.addRow(arr);
@@ -169,10 +176,101 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	 */
 	private void displayResult(JPanel infoRes, ResultValue result) {
 		infoRes.add(new JLabel(result.getResultType().getName() + ":"));
-		JLabel lRes = new JLabel(result.value() + " " + result.getUnit());
+		JLabel lRes = new JLabel(result.formatValue() + " " + result.getUnit());
 		if (result.getExtrapolation() == FitType.NONE)
 			lRes.setForeground(Color.RED);
 		infoRes.add(lRes);
+	}
+
+	/**
+	 * Checks if the value obtained for the specified time is a normal value.<br>
+	 * The <i>normal</i> value is based upon <code>tech.snmjournals.org</code>.<br>
+	 * The only times accepted are <code>30min</code>, <code>60min</code>,
+	 * <code>120min</code>, <code>180min</code> and <code>240min</code>.
+	 * 
+	 * @param time  Time for retention in minutes
+	 * @param value Value obtained in percentage
+	 * @return TRUE if the result is normal and FALSE if the result is abnormal
+	 */
+	private boolean isRetentionNormal(double time, double value) {
+		if (time == 30.)
+			return value >= 70.;
+		if (time == 60.)
+			return value >= 30. && value <= 90.;
+		if (time == 120.)
+			return value <= 60.;
+		if (time == 180.)
+			return value <= 30.;
+		if (time == 240.)
+			return value <= 10.;
+
+		throw new IllegalArgumentException("No information for this time (" + time + ")");
+	}
+
+	/**
+	 * Returns a string indicating the range of the normal values for the specified
+	 * time.<br>
+	 * The <i>normal</i> value is based upon <code>tech.snmjournals.org</code>.<br>
+	 * The only times accepted are <code>30min</code>, <code>60min</code>,
+	 * <code>120min</code>, <code>180min</code> and <code>240min</code>.
+	 * 
+	 * @param time Time for retention in minutes
+	 * @return readable string indicating the normal range
+	 */
+	private String retentionNormalArea(double time) {
+		if (time == 30.)
+			return ">= 70%";
+		if (time == 60.)
+			return ">= 30% and <= 90%";
+		if (time == 120.)
+			return "<= 60%";
+		if (time == 180.)
+			return "<= 30%";
+		if (time == 240.)
+			return "<= 10%";
+
+		throw new IllegalArgumentException("No information for this time (" + time + ")");
+	}
+
+	/**
+	 * Returns a string indicating the grade of the retention values after 4h.<br>
+	 * Based upon <code>tech.snmjournals.org</code>.
+	 * 
+	 * @param value Value of the retention after 4h
+	 * @return <code>string[0]</code> = grade and <code>string[1]</code> = readable
+	 *         value
+	 */
+	private JLabel[] gradeOfRetention(double value) {
+		JLabel l1, l2;
+		if (value < 11.) {
+			l1 = new JLabel("--");
+			l2 = new JLabel("Result is OK");
+			
+			l1.setForeground(Color.GREEN);
+			l2.setForeground(Color.GREEN);
+		} else {
+			if (value >= 11. && value <= 20.) {
+				l1 = new JLabel("Grade 1");
+				l2 = new JLabel("Mild");
+			} else if (value > 20. && value <= 35.) {
+				l1 = new JLabel("Grade 2");
+				l2 = new JLabel("Moderate");
+			} else if (value > 35. && value <= 50.) {
+				l1 = new JLabel("Grade 3");
+				l2 = new JLabel("Severe");
+			} else {
+				l1 = new JLabel("Grade 4");
+				l2 = new JLabel("Very severe");
+			}
+
+			l1.setForeground(Color.RED);
+			l2.setForeground(Color.RED);
+		}
+		
+		l1.setFont(l1.getFont().deriveFont(Font.BOLD));
+		l2.setFont(l2.getFont().deriveFont(12f));
+
+		return new JLabel[] { l1, l2 };
 	}
 
 	/**
@@ -189,11 +287,23 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		if (result.getResultType() != Model_Gastric.RETENTION)
 			throw new IllegalArgumentException("Result type must be " + Model_Gastric.RETENTION);
 
-		infoRes.add(new JLabel(result.getResultType().getName() + " at " + (int) (time / 60) + "h:"));
+		// Format time string
+		String timeString;
+		if (time < 60.)
+			timeString = (int) time + "min";
+		else
+			timeString = (int) (time / 60) + "h";
 
-		JLabel lRes = new JLabel(result.value() + " " + result.getUnit());
-		if (result.getExtrapolation() == FitType.NONE)
+		infoRes.add(new JLabel(result.getResultType().getName() + " at " + timeString + ":"));
+
+		JLabel lRes = new JLabel(result.formatValue() + " " + result.getUnit());
+		if (result.getExtrapolation() == FitType.NONE) {
 			lRes.setForeground(Color.RED);
+		}
+		if (!this.isRetentionNormal(time, result.getValue())) {
+			lRes.setForeground(Color.RED);
+			lRes.setToolTipText("The result is abnormal! Value should be " + this.retentionNormalArea(time));
+		}
 		infoRes.add(lRes);
 	}
 
@@ -211,30 +321,40 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		JPanel infoRes = new JPanel();
 		infoRes.setLayout(new GridLayout(0, 2));
 
-		// Data
-		double[] data = getModel().generateStomachValues();
-
-		ResultValue result = getModel().getResult(data, Model_Gastric.START_ANTRUM, this.currentFit);
-		hasExtrapolatedValue = result.getExtrapolation() != null;
+		// Antrum
+		ResultValue result = getModel().getResult(this.YData, Model_Gastric.START_ANTRUM, this.currentFit);
+		hasExtrapolatedValue = result.isExtrapolated();
 		this.displayResult(infoRes, result);
 
-		result = getModel().getResult(data, Model_Gastric.START_INTESTINE, this.currentFit);
-		hasExtrapolatedValue = result.getExtrapolation() != null;
+		// Intestine
+		result = getModel().getResult(this.YData, Model_Gastric.START_INTESTINE, this.currentFit);
+		hasExtrapolatedValue = result.isExtrapolated();
 		this.displayResult(infoRes, result);
 
-		result = getModel().getResult(data, Model_Gastric.LAG_PHASE, this.currentFit);
-		hasExtrapolatedValue = result.getExtrapolation() != null;
+		// Lag phase
+		result = getModel().getResult(this.YData, Model_Gastric.LAG_PHASE, this.currentFit);
+		hasExtrapolatedValue = result.isExtrapolated();
 		this.displayResult(infoRes, result);
 
-		result = getModel().getResult(data, Model_Gastric.T_HALF, this.currentFit);
-		hasExtrapolatedValue = result.getExtrapolation() != null;
+		// T 1/2
+		result = getModel().getResult(this.YData, Model_Gastric.T_HALF, this.currentFit);
+		hasExtrapolatedValue = result.isExtrapolated();
 		this.displayResult(infoRes, result);
 
+		// Retention 30min
+		result = getModel().retentionAt(YData, 30., currentFit);
+		hasExtrapolatedValue = result.isExtrapolated();
+		this.displayRetentionResult(infoRes, 30., result);
+		// Retention from 1h to 4h
 		for (double time = 60.; time <= 240.; time += 60.) {
-			result = getModel().retentionAt(getModel().generateStomachValues(), time, this.currentFit);
-			hasExtrapolatedValue = result.getExtrapolation() != null;
+			result = getModel().retentionAt(this.YData, time, this.currentFit);
+			hasExtrapolatedValue = result.isExtrapolated();
 			this.displayRetentionResult(infoRes, time, result);
 		}
+		// Grade of retention at 4h
+		JLabel[] grade = this.gradeOfRetention(result.getValue());
+		infoRes.add(grade[0]);
+		infoRes.add(grade[1]);
 
 		panel.add(infoRes, BorderLayout.CENTER);
 		if (hasExtrapolatedValue) {
@@ -299,22 +419,22 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 			this.data.removeSeries(i);
 	}
 
+	private Model_Gastric getModel() {
+		return (Model_Gastric) this.parent.getModel();
+	}
+
 	/**
 	 * Creates the panel with the images of the graphs
 	 */
 	private JPanel createPanelResults() {
 		JPanel panel = new JPanel(new GridLayout(2, 2));
-		
+
 		panel.add(new DynamicImage(capture.getImage()));
 		panel.add(getModel().createGraph_3());
 		panel.add(getModel().createGraph_1());
 		panel.add(getModel().createGraph_2());
 
 		return panel;
-	}
-
-	private Model_Gastric getModel() {
-		return (Model_Gastric) this.parent.getModel();
 	}
 
 	/**
@@ -336,6 +456,52 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 		panel.add(panSouth, BorderLayout.SOUTH);
 
 		return panel;
+	}
+
+	private JPanel createPanelCustomRetention() {
+		JTextField fieldCustomRetention = new JTextField(3);
+		JLabel resultRetention = new JLabel("--");
+		fieldCustomRetention.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				updateResult();
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				updateResult();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				updateResult();
+			}
+
+			public void updateResult() {
+				// Calculate result
+				try {
+					ResultValue result = getModel().retentionAt(YData,
+							Double.parseDouble(fieldCustomRetention.getText()), currentFit);
+					// Update result
+					resultRetention.setText(result.formatValue() + result.getUnit().abrev());
+				} catch (NumberFormatException exception) {
+					resultRetention.setText("--");
+				}
+			}
+		});
+
+		JPanel panRetention = new JPanel(new GridLayout(1, 2));
+
+		JPanel panWest = new JPanel(new FlowLayout());
+		panWest.add(new JLabel("Calculate retention at"));
+		panWest.add(fieldCustomRetention);
+		panWest.add(new JLabel("min"));
+		panWest.add(new JLabel(" ="));
+		panRetention.add(panWest);
+
+		panRetention.add(resultRetention);
+
+		return panRetention;
 	}
 
 	/**
@@ -389,11 +555,11 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 	public void createGraph() {
 		// Create chart
 		this.data = new XYSeriesCollection();
-		XYSeries stomachSeries = getModel().generateStomachSeries();
+		XYSeries stomachSeries = getModel().generateStomachSeries(UNIT);
 		this.data.addSeries(stomachSeries);
 
-		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (min)", "Stomach retention (%)",
-				data, PlotOrientation.VERTICAL, true, true, true);
+		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (min)",
+				"Stomach retention (" + UNIT.abrev() + ")", data, PlotOrientation.VERTICAL, true, true, true);
 
 		// Set bounds
 		XYPlot plot = chart.getXYPlot();
@@ -488,6 +654,9 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 
 	@Override
 	public Component getSidePanelContent() {
+		// Update data
+		this.YData = getModel().generateStomachValues(UNIT);
+
 		JPanel panel = new JPanel(new BorderLayout());
 
 		// North
@@ -505,6 +674,10 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 
 		panCenter.add(this.infoResultats(), BorderLayout.SOUTH);
 		panel.add(panCenter, BorderLayout.CENTER);
+
+		// - Custom retention
+		JPanel panCustomRetention = this.createPanelCustomRetention();
+		panel.add(panCustomRetention, BorderLayout.SOUTH);
 
 		return panel;
 	}

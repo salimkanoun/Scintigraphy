@@ -71,7 +71,7 @@ public class DynGastricScintigraphy extends Scintigraphy {
 
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
-		System.out.println("-- Starting dynamic acquisition --");
+//		System.out.println("-- Starting dynamic acquisition --");
 		this.setFenApplication(
 				new FenApplication_DynGastric(selectedImages[0].getImagePlus(), "Dynamic Gastric Scintigraphy"));
 		((FenApplicationWorkflow) this.getFenApplication()).setControleur(new ControllerWorkflow_DynGastric(this,

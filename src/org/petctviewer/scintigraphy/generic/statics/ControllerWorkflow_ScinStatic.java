@@ -2,10 +2,10 @@ package org.petctviewer.scintigraphy.generic.statics;
 
 import javax.swing.JOptionPane;
 
-import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
@@ -56,6 +56,9 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		this.workflows[0].addInstructionOnTheFly(dri_1);
 
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
+
+		// Update view
+		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	public void end() {
