@@ -33,6 +33,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric.ControllerWorkflow_Gastric;
 import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric.Result;
+import org.petctviewer.scintigraphy.gastric.ResultRequest;
 import org.petctviewer.scintigraphy.gastric.ResultValue;
 import org.petctviewer.scintigraphy.gastric.Unit;
 import org.petctviewer.scintigraphy.gastric.gui.Fit;
@@ -61,15 +62,20 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	private JLabel labelInterpolation, labelError;
 	private JButton btnAutoFit;
 
-	private Fit currentFit;
+	private ResultRequest request;
 
-	private final Unit UNIT;
+	private Unit unitDefault, unitTime;
 
 	public TabMethod2(FenResults parent, ImagePlus capture, ControleurScin controller) {
 		super(parent, "Gastric Only", true);
 
-		// Set unit from Prefs
-		UNIT = Unit.valueOf(Prefs.get(PrefsTabGastric.PREF_UNIT_USED, Unit.COUNTS.name()));
+		// Initialize attributes
+		this.unitDefault = Unit.valueOf(Prefs.get(PrefsTabGastric.PREF_UNIT_USED, Unit.COUNTS.name()));
+		this.unitTime = Unit.TIME;
+
+		// Prepare request
+		this.request = new ResultRequest(null);
+		this.request.setFit(new Fit.NoFit());
 
 		// Instantiate components
 		fitsChoices = new JComboBox<>(FitType.values());
@@ -91,8 +97,6 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		// Set variables
 		this.capture = capture;
 
-		this.currentFit = new Fit.NoFit(UNIT);
-
 		this.createGraph();
 		this.reloadDisplay();
 	}
@@ -104,7 +108,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	 */
 	private JTable tablesResultats() {
 		Result[] results = new Result[] { Model_Gastric.RES_TIME, Model_Gastric.RES_STOMACH_COUNTS };
-		Unit[] unitsUsed = new Unit[] { Unit.TIME, UNIT };
+		Unit[] unitsUsed = new Unit[] { this.unitTime, this.unitDefault };
 
 		Model_Gastric model = (Model_Gastric) this.parent.getModel();
 
@@ -120,7 +124,10 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		// Fill table with data
 		for (int i = 0; i < ((Model_Gastric) this.parent.getModel()).nbAcquisitions(); i++) {
 			for (int j = 0; j < tableModel.getColumnCount(); j++) {
-				ResultValue res = model.getImageResult(results[j], i);
+				ResultRequest request = new ResultRequest(results[j]);
+				request.setIndexImage(i);
+				request.setUnit(unitsUsed[j]);
+				ResultValue res = model.getResult(request);
 				if (res == null)
 					arr[j] = "--";
 				else {
@@ -159,13 +166,8 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	 * @param infoRes Panel on which to place the result in
 	 * @param time    Time of the retention in minutes
 	 * @param result  Result of the model to display
-	 * @throws IllegalArgumentException if the result is not a
-	 *                                  {@link Model_Gastric#RETENTION} type
 	 */
-	private void displayRetentionResult(JPanel infoRes, double time, ResultValue result)
-			throws IllegalArgumentException {
-		if (result.getResultType() != Model_Gastric.RETENTION)
-			throw new IllegalArgumentException("Result type must be " + Model_Gastric.RETENTION);
+	private void displayRetentionResult(JPanel infoRes, double time, ResultValue result) {
 
 		infoRes.add(new JLabel(result.getResultType().getName() + " at " + (int) (time / 60) + "h:"));
 
@@ -189,19 +191,26 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		JPanel infoRes = new JPanel();
 		infoRes.setLayout(new GridLayout(0, 2));
 
-		// Data
-		double[] data = getModel().generateDecayFunctionValues(UNIT);
+		Result[] resultsRequested = new Result[] { Model_Gastric.LAG_PHASE_GEOAVG, Model_Gastric.T_HALF_GEOAVG };
+		Unit[] unitsRequested = new Unit[] { Unit.TIME, Unit.TIME };
 
-		ResultValue result = getModel().getResult(data, Model_Gastric.LAG_PHASE, this.currentFit);
-		hasExtrapolatedValue = result.getExtrapolation() != null;
-		this.displayResult(infoRes, result);
+		for (int i = 0; i < resultsRequested.length; i++) {
+			request.changeResultOn(resultsRequested[i]);
+			request.setUnit(unitsRequested[i]);
+			ResultValue result = getModel().getResult(request);
+			hasExtrapolatedValue = result.isExtrapolated();
+			this.displayResult(infoRes, result);
+		}
 
-		result = getModel().getResult(data, Model_Gastric.T_HALF, this.currentFit);
-		hasExtrapolatedValue = result.getExtrapolation() != null;
-		this.displayResult(infoRes, result);
-
+		// Retention 30min
+		request.changeResultOn(Model_Gastric.RETENTION_GEOAVG);
+		request.setUnit(this.unitTime);
+		ResultValue result = getModel().getRetentionResult(request, 30.);
+		hasExtrapolatedValue = result.isExtrapolated();
+		this.displayRetentionResult(infoRes, 30., result);
+		// Retention from 1h to 4h
 		for (double time = 60.; time <= 240.; time += 60.) {
-			result = getModel().retentionAt(data, time, this.currentFit);
+			result = getModel().getRetentionResult(request, time);
 			hasExtrapolatedValue = result.getExtrapolation() != null;
 			this.displayRetentionResult(infoRes, time, result);
 		}
@@ -246,7 +255,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		JPanel panel = new JPanel(new GridLayout(2, 1));
 
 		panel.add(new DynamicImage(capture.getImage()));
-		panel.add(getModel().createGraph_4(UNIT));
+		panel.add(getModel().createGraph_4(this.unitDefault));
 
 		return panel;
 	}
@@ -291,7 +300,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 		try {
 			// Create fit
 			XYSeries series = ((XYSeriesCollection) this.getValueSetter().retrieveValuesInSpan()).getSeries(0);
-			this.currentFit = Fit.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray()), UNIT);
+			this.request.setFit(Fit.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray())));
 
 			this.drawFit();
 			this.setErrorMessage(null);
@@ -317,14 +326,14 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 
 			try {
 				// Create fit
-				Fit fit = Fit.createFit(type, Library_JFreeChart.invertArray(dataset), UNIT);
+				Fit fit = Fit.createFit(type, Library_JFreeChart.invertArray(dataset));
 
 				// Get Y points
 				double[] yPoints = dataset[1];
 				double[] yFittedPoints = fit.generateOrdinates(dataset[0]);
 
 				// Compute score
-				double score = getModel().computeLeastSquares(yPoints, yFittedPoints);
+				double score = Library_JFreeChart.computeLeastSquares(yPoints, yFittedPoints);
 
 				if (score < bestScore) {
 					bestScore = score;
@@ -353,11 +362,12 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	public void createGraph() {
 		// Create chart
 		this.data = new XYSeriesCollection();
-		XYSeries series = getModel().generateDecayFunction(UNIT);
+		XYSeries series = getModel().generateDecayFunction(this.unitDefault);
 		this.data.addSeries(series);
 
-		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (min)",
-				"Stomach retention (" + UNIT.abrev() + ")", data, PlotOrientation.VERTICAL, true, true, true);
+		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (" + this.unitTime + ")",
+				"Stomach retention (" + this.unitDefault.abrev() + ")", data, PlotOrientation.VERTICAL, true, true,
+				true);
 
 		// Set bounds
 		XYPlot plot = chart.getXYPlot();
@@ -413,7 +423,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 	public void drawFit() {
 		this.clearFits();
 
-		this.data.addSeries(this.currentFit.getFittedSeries(getModel().getRealTimes()));
+		this.data.addSeries(this.request.getFit().generateFittedSeries(getModel().getRealTimes()));
 	}
 
 	/**

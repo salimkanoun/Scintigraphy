@@ -1,22 +1,6 @@
 package org.petctviewer.scintigraphy.gastric;
 
-/**
-Copyright (C) 2017 PING Xie and KANOUN Salim
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public v.3 License as published by
-the Free Software Foundation;
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- */
-
-import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Font;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -30,18 +14,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.NumberTickUnit;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric.gui.Fit;
-import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
@@ -50,13 +26,11 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 
 import ij.ImagePlus;
-import ij.ImageStack;
 import ij.Prefs;
 import ij.gui.Roi;
-import ij.plugin.MontageMaker;
 
 /**
  * Model of the Gastric Scintigraphy.
@@ -65,14 +39,20 @@ import ij.plugin.MontageMaker;
  * @author Titouan QUÉMA - refactoring, JavaDoc
  *
  */
-public class Model_Gastric extends ModeleScin {
-	public static Font italic = new Font("Arial", Font.ITALIC, 8);
+public class Model_Gastric extends ModelWorkflow {
+//	public static final ResultRequest RES_TIME = new ResultRequest("Time"), RES_STOMACH = new ResultRequest("Stomach"),
+//			RES_FUNDUS = new ResultRequest("Fundus"), RES_ANTRUM = new ResultRequest("Antrum"),
+//			RES_STOMACH_COUNTS = new ResultRequest("Stomach"), START_ANTRUM = new ResultRequest("Start antrum"),
+//			START_INTESTINE = new ResultRequest("Start intestine"), LAG_PHASE = new ResultRequest("Lag phase"),
+//			T_HALF = new ResultRequest("T 1/2"), RETENTION = new ResultRequest("Retention");
 
 	public static final Result RES_TIME = new Result("Time"), RES_STOMACH = new Result("Stomach"),
 			RES_FUNDUS = new Result("Fundus"), RES_ANTRUM = new Result("Antrum"),
 			RES_STOMACH_COUNTS = new Result("Stomach"), START_ANTRUM = new Result("Start antrum"),
-			START_INTESTINE = new Result("Start intestine"), LAG_PHASE = new Result("Lag phase"),
-			T_HALF = new Result("T 1/2"), RETENTION = new Result("Retention");
+			START_INTESTINE = new Result("Start intestine"), LAG_PHASE_PERCENTAGE = new Result("Lag phase"),
+			LAG_PHASE_GEOAVG = new Result("Lag phase"), T_HALF_PERCENTAGE = new Result("T 1/2"),
+			T_HALF_GEOAVG = new Result("T 1/2"), RETENTION_PERCENTAGE = new Result("Retention"),
+			RETENTION_GEOAVG = new Result("Retention");
 
 	public static final String REGION_STOMACH = "Stomach", REGION_ANTRE = "Antre", REGION_FUNDUS = "Fundus",
 			REGION_INTESTINE = "Intestine", REGION_ALL = "Total";
@@ -433,6 +413,14 @@ public class Model_Gastric extends ModeleScin {
 		return state.getImage().hashCode();
 	}
 
+	/**
+	 * Computes the geometrical average of the region stored in the specified
+	 * data.<br>
+	 * The Ant and Post counts values are used for this operation.
+	 * 
+	 * @param data   Data where the values are taken from
+	 * @param region Region on which to apply the calculation
+	 */
 	private void computeAverage(Data data, String region) {
 		if (data.hasRegion(region)) {
 			Double valueAnt = data.getValue(region, DATA_ANT_COUNTS);
@@ -491,39 +479,6 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * Generates a dataset of 3 series with the specified arguments.
-	 * 
-	 * @param resX   Values of the points for the X axis for all series
-	 * @param resY1  Values of the points for the Y axis of the first series
-	 * @param titre1 Title of the first series
-	 * @param resY2  Values of the points for the Y axis of the second series
-	 * @param titre2 Title of the second series
-	 * @param resY3  Values of the points for the Y axis of the third series
-	 * @param titre3 Title of the thrid series
-	 * @return generated dataset with the 3 series
-	 */
-	private XYSeriesCollection createDatasetTrois(double[] resX, double[] resY1, String titre1, double[] resY2,
-			String titre2, double[] resY3, String titre3) {
-		// On initialise les 3 series avec un titre
-		XYSeries courbe1 = new XYSeries(titre1);
-		XYSeries courbe2 = new XYSeries(titre2);
-		XYSeries courbe3 = new XYSeries(titre3);
-		// On initialise un dataset
-		XYSeriesCollection dataset = new XYSeriesCollection();
-		// Pour chaque serie on ajouter les valeurs une a une
-		for (int i = 0; i < resX.length; i++) {
-			courbe1.add(resX[i], resY1[i]);
-			courbe2.add(resX[i], resY2[i]);
-			courbe3.add(resX[i], resY3[i]);
-		}
-		// On ajoute les 3 series dans le dataset
-		dataset.addSeries(courbe1);
-		dataset.addSeries(courbe2);
-		dataset.addSeries(courbe3);
-		return dataset;
-	}
-
-	/**
 	 * Finds the starting time for the Antre or Intestine region (only).
 	 * 
 	 * @param region Region to find the starting time
@@ -542,98 +497,6 @@ public class Model_Gastric extends ModeleScin {
 				return data.time;
 
 		throw new NoSuchElementException("No data found, please first use the calculateCounts method before!");
-	}
-
-	/**
-	 * Gets the X value based upon the specified Y value of the graph.<br>
-	 * The value X returned is calculated with a linear interpolation as the point
-	 * between x1 and x2 with <code>x1 <= X <= x2</code>.<br>
-	 * If x1 or x2 could not be found, then the result is null.<br>
-	 * 
-	 * @return X value or null if none found
-	 * @see #extrapolateX(double, Fit)
-	 */
-	private Double getX(double[] yValues, double valueY) {
-		for (int i = 1; i < times.length; i++) {
-			// Prevent from overflow
-			if (i >= yValues.length)
-				return null;
-
-			// Exact value
-			if (yValues[i] == valueY)
-				return times[i];
-
-			// Approximate value
-			if (yValues[i] < valueY) {
-				double x1 = times[i - 1];
-				double x2 = times[i];
-				double y1 = yValues[i - 1];
-				double y2 = yValues[i];
-//				return x2 - (y2 - valueY) * ((x2 - x1) / (y2 - y1));
-				return ((valueY - y1) * (x2 - x1)) / (y2 - y1) + x1;
-			}
-		}
-
-		// Not found
-		return null;
-	}
-
-	/**
-	 * Extrapolates the X value based upon the specified Y value of the graph.<br>
-	 * The value X returned is extrapolated with the specified fit.
-	 * 
-	 * @param valueY Y value
-	 * @param fit    Fit the interpolation must rely on
-	 * @return X value interpolated
-	 */
-	private Double extrapolateX(double valueY, Fit fit) {
-		return fit.extrapolateX(valueY);
-	}
-
-	/**
-	 * Gets the Y value based upon the specified X value of the graph.<br>
-	 * The value Y returned is calculated with a linear interpolation as the point
-	 * between y1 and y2 with <code>y1 <= Y <= y2</code>. If y1 or y2 could not be
-	 * found, then the result is null.<br>
-	 * 
-	 * @return Y value or null if none found
-	 * @see #extrapolateY(double, Fit)
-	 */
-	private Double getY(double[] yValues, double valueX) {
-		for (int i = 0; i < times.length; i++) {
-			// Prevent from overflow
-			if (i >= yValues.length)
-				return null;
-
-			// Exact value
-			if (times[i] == valueX)
-				return yValues[i];
-
-			// Approximate value
-			if (times[i] > valueX) {
-				double x1 = times[i - 1];
-				double x2 = times[i];
-				double y1 = yValues[i - 1];
-				double y2 = yValues[i];
-
-				return y2 - (x2 - valueX) * ((y2 - y1) / (x2 - x1));
-			}
-		}
-
-		// Not found
-		return null;
-	}
-
-	/**
-	 * Extrapolates the Y value based upon the specified X value of the graph.<br>
-	 * The value Y returned is extrapolated with the specified fit.
-	 * 
-	 * @param valueX X value
-	 * @param fit    Fit the interpolation must rely on
-	 * @return Y value interpolated
-	 */
-	private Double extrapolateY(double valueX, Fit fit) {
-		return fit.extrapolateY(valueX);
 	}
 
 	/**
@@ -787,12 +650,7 @@ public class Model_Gastric extends ModeleScin {
 		if (data == null) {
 			data = new Data(state.getImage(), this.calculateDeltaTime(state));
 			this.results.put(hashState(state), data);
-//			System.out.println("Created data for image " + state.getImage().getImagePlus().getTitle());
 		}
-
-//		System.out.println(this.nbAcquisitions() + " data stored:");
-//		for(Data d : this.results.values())
-//			System.out.println(d);
 
 		return data;
 	}
@@ -1038,20 +896,13 @@ public class Model_Gastric extends ModeleScin {
 	 */
 	private double adjustPercentageWithEggsRatio(String region, double percentage, int numActualImage,
 			int nbTotalImages) {
-//		System.out.println("Inputs: region=" + region + ", percentage=" + percentage + ", image=" + numActualImage
-//				+ ", totImgs=" + nbTotalImages);
 		double ratioEggsInBody = (double) numActualImage / (double) nbTotalImages;
-//		System.out.println("Ratio eggs in body: " + (double)numActualImage + " / " + (double)nbTotalImages + " = " + ratioEggsInBody);
 		double percentEggsNotInBody = 100. - ratioEggsInBody * 100.;
-//		System.out.println("Percent eggs not in body: 100 - " + ratioEggsInBody + " * 100 = " + percentEggsNotInBody);
 
 		if (region == REGION_FUNDUS) {
-//			System.out.println("Returned value: " + percentEggsNotInBody + " + " + percentage + " * " + ratioEggsInBody
-//					+ " = " + (percentEggsNotInBody + percentage * ratioEggsInBody));
 			return percentEggsNotInBody + percentage * ratioEggsInBody;
 		}
-//		System.out.println(
-//				"Returned value: " + percentage + " * " + ratioEggsInBody + " = " + (percentage * ratioEggsInBody));
+
 		return percentage * ratioEggsInBody;
 	}
 
@@ -1444,16 +1295,6 @@ public class Model_Gastric extends ModeleScin {
 				System.err.println("Warning: The region (" + region + ") is not corrected with a background noise!");
 
 			if (bkgNoise != null) {
-//				System.out.println("=== Adjusting region " + region.getName() + " with background noise ===");
-//				System.out.println("Background noise found: " + bkgNoise);
-//				System.out.println("Pixels count of the region: " + data.getValue(region.getName(), DATA_PIXEL_COUNTS));
-//				System.out.println(
-//						"Adjusting value " + data.getValue(region.getName(), key) + " with background noise (- "
-//								+ (bkgNoise * data.getValue(region.getName(), DATA_PIXEL_COUNTS) + ") = "
-//										+ (data.getValue(region.getName(), key)
-//												- (bkgNoise * data.getValue(region.getName(), DATA_PIXEL_COUNTS)))));
-//				System.out.println();
-
 				data.setValue(region.getName(), key, data.getValue(region.getName(), key)
 						- (bkgNoise * data.getValue(region.getName(), DATA_PIXEL_COUNTS)));
 				if (bkgNoise == 0.)
@@ -1464,9 +1305,6 @@ public class Model_Gastric extends ModeleScin {
 		// Calculate total
 		data.setValue(REGION_ALL, DATA_ANT_COUNTS,
 				data.getValue(REGION_STOMACH, DATA_ANT_COUNTS) + data.getValue(REGION_INTESTINE, DATA_ANT_COUNTS));
-
-//		System.out.println();
-//		System.out.println("AFTER ADJUSTING BKG\n" + data);
 
 		// Adjust percentages with eggs ratio
 		double percentage = this.adjustPercentageWithEggsRatio(REGION_FUNDUS,
@@ -1489,210 +1327,54 @@ public class Model_Gastric extends ModeleScin {
 
 		// Compute derivative
 		this.computeDerivative(data, state, previousState);
-
-//		System.out.println();
-//		System.out.println("AFTER ADJUSTING PERCENTAGES\n" + data);
-//		System.out.println();
-//		System.out.println();
 	}
 
-	/**
-	 * Delivers the requested result.<br>
-	 * This method can only be used for the results that are calculated for all of
-	 * the images (meaning START_ANTRUM, START_INTESTINE, LAG_PHASE and T_HALF). Any
-	 * other request will throw an UnsupportedOperationException<br>
-	 * If you need a result for a specific image, use
-	 * {@link #getImageResult(int, int)} instead.<br>
-	 * This method must be called only when all of the data was incorporated in this
-	 * model.<br>
-	 * 
-	 * @param result Result to get
-	 * @return ResultValue containing the result requested
-	 * @see Model_Gastric#getImageResult(Result, int)
-	 * @throws UnsupportedOperationException if the requested result is different
-	 *                                       than START_ANTRUM or START_INTESTINE or
-	 *                                       LAG_PHASE or T_HALF
-	 */
-	public ResultValue getResult(double[] yValues, Result result, Fit fit) throws UnsupportedOperationException {
-		FitType extrapolationType = null;
-
-		if (result == START_ANTRUM)
-			return new ResultValue(result, this.getDebut(REGION_ANTRE), Unit.TIME);
-		if (result == START_INTESTINE)
-			return new ResultValue(result, this.getDebut(REGION_INTESTINE), Unit.TIME);
-		if (result == LAG_PHASE) {
-			extrapolationType = null;
-			Double valX = this.getX(yValues, 95.);
-			if (valX == null) {
-				// Extrapolate
-				valX = this.extrapolateX(95., fit);
-				extrapolationType = fit.getType();
-			}
-			return new ResultValue(result, valX, Unit.TIME, extrapolationType);
-		}
-		if (result == T_HALF) {
-			// Assumption: the first value is the highest (maybe do not assume that...)
-			double half = yValues[0] / 2.;
-			extrapolationType = null;
-			Double valX = this.getX(yValues, half);
-			if (valX == null) {
-				// Extrapolate
-				valX = this.extrapolateX(half, fit);
-				extrapolationType = fit.getType();
-			}
-			return new ResultValue(result, valX, Unit.TIME, extrapolationType);
-		} else
-			throw new UnsupportedOperationException("The result " + result + " is not available here!");
-	}
-
-	/**
-	 * Delivers the requested result for the specified image
-	 * 
-	 * @param result     Result to get, it must be one of RES_TIME, RES_STOMACH,
-	 *                   RES_FUNDUS, RES_ANTRUM
-	 * @param indexImage Index of the image (in chronological order) to get the
-	 *                   result from
-	 * @return result found or null if no data was found
-	 * @see Model_Gastric#getResult(Result)
-	 * @throws UnsupportedOperationException if the requested result is different
-	 *                                       than RES_TIME or RES_STOMACH or
-	 *                                       RES_FUNDU or RES_ANTRUM
-	 */
-	public ResultValue getImageResult(Result result, int indexImage) throws UnsupportedOperationException {
-		Data data = this.generatesDataOrdered().get(indexImage);
-
-		try {
-			if (result == RES_TIME)
-				return new ResultValue(result,
-						BigDecimal.valueOf(data.time).setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.TIME);
-			if (result == RES_STOMACH)
-				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
-						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
-			if (result == RES_FUNDUS)
-				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_FUNDUS, DATA_PERCENTAGE))
-						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
-			if (result == RES_ANTRUM)
-				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_ANTRE, DATA_PERCENTAGE))
-						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
-			if (result == RES_STOMACH_COUNTS) {
-				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE))
-						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.COUNTS);
-			} else
-				throw new UnsupportedOperationException("The result " + result + " is not available here!");
-		} catch (NullPointerException e) {
-			// Exception = data not found
-			return null;
-		}
-	}
-
-	/**
-	 * Returns the retention percentage at the specified time.<br>
-	 * The result might be interpolated.
-	 * 
-	 * @param time Time to observe in minutes
-	 * @return retention time
-	 */
-	public ResultValue retentionAt(double[] yValues, double time, Fit fit) {
-		Double res = this.getY(yValues, time);
-		FitType extrapolated = null;
-		if (res == null) {
-			res = this.extrapolateY(time, fit);
-			extrapolated = fit.getType();
-		}
-
-		// Percentage of res
-		res = res * 100. / this.getY(yValues, 0.);
-
-		return new ResultValue(RETENTION, res, Unit.PERCENTAGE, extrapolated);
-	}
-
-	// TODO: change this method, the model should not decide for rendering
 	/**
 	 * Creates the graphic for the Intragastric Distribution.
 	 * 
-	 * @return Intragastric distribution graph as an image
+	 * @return Intragastric distribution graph
 	 */
 	public ChartPanel createGraph_1() {
-		return Library_JFreeChart.createGraph("Fundus/Stomach (%)", new Color(0, 100, 0), "Intragastric Distribution",
-				times, this.getResultAsArray(REGION_FUNDUS, DATA_CORRELATION, Unit.PERCENTAGE), 100.0);
+		return Library_JFreeChart.createGraph("Fundus/Stomach (%)", new Color[] { new Color(0, 100, 0) }, "",
+				Library_JFreeChart.createDataset(times,
+						this.getResultAsArray(REGION_FUNDUS, DATA_CORRELATION, Unit.PERCENTAGE),
+						"Intragastric Distribution"),
+				100.0);
 	}
 
-	// TODO: change this method, the model should not decide for rendering
 	/**
 	 * Creates the graphic for the Gastrointestinal flow.
 	 * 
-	 * @return Gastrointestinal flow graph as an image
+	 * @return Gastrointestinal flow graph
 	 */
 	public ChartPanel createGraph_2() {
 		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_DERIVATIVE, Unit.PERCENTAGE);
-//		System.out.println("Result for Gastrointestinal flow:");
-//		System.out.println(Arrays.toString(timesDerivative));
-//		System.out.println(Arrays.toString(result));
-		return Library_JFreeChart.createGraph("% meal in the interval", Color.RED, "Gastrointestinal flow",
-				timesDerivative, result, 50.0);
+		return Library_JFreeChart.createGraph("% meal in the interval", new Color[] { Color.RED }, "",
+				Library_JFreeChart.createDataset(timesDerivative, result, "Gastrointestinal flow"), 50.0);
 	}
 
 	/**
 	 * Creates the graphic for the Stomach, Fundus and Antrum percentages.
 	 * 
-	 * @return graph as an image
+	 * @return graph
 	 */
 	public ChartPanel createGraph_3() {
-		// On cree un dataset qui contient les 3 series
-		XYSeriesCollection dataset = createDatasetTrois(times,
-				this.getResultAsArray(REGION_STOMACH, DATA_PERCENTAGE, Unit.PERCENTAGE), "Stomach",
-				this.getResultAsArray(REGION_FUNDUS, DATA_PERCENTAGE, Unit.PERCENTAGE), "Fundus",
-				this.getResultAsArray(REGION_ANTRE, DATA_PERCENTAGE, Unit.PERCENTAGE), "Antrum");
-		// On cree le graphique
-		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "Retention (% meal)", dataset,
-				PlotOrientation.VERTICAL, true, true, false);
-		// Parametres de l'affichage
-		XYPlot plot = (XYPlot) xylineChart.getPlot();
-		// choix du Background
-		plot.setBackgroundPaint(Color.WHITE);
+		double[][] ySeries = new double[][] { this.getResultAsArray(REGION_STOMACH, DATA_PERCENTAGE, Unit.PERCENTAGE),
+				this.getResultAsArray(REGION_FUNDUS, DATA_PERCENTAGE, Unit.PERCENTAGE),
+				this.getResultAsArray(REGION_ANTRE, DATA_PERCENTAGE, Unit.PERCENTAGE) };
+		String[] titles = new String[] { "Stomach", "Fundus", "Antrum" };
+		Color[] colors = new Color[] { Color.RED, new Color(0, 255, 0), Color.BLUE };
 
-		// XYLineAndShapeRenderer
-		// reference:
-		// https://stackoverflow.com/questions/28428991/setting-series-line-style-and-legend-size-in-jfreechart
-		XYLineAndShapeRenderer lineAndShapeRenderer = new XYLineAndShapeRenderer();
-		// on set le renderer dans le plot
-		plot.setRenderer(lineAndShapeRenderer);
-		// On definit les parametre du renderer
-		lineAndShapeRenderer.setDefaultLegendTextFont(new Font("", Font.BOLD, 16));
-		lineAndShapeRenderer.setSeriesPaint(0, Color.RED);
-		lineAndShapeRenderer.setSeriesPaint(1, new Color(0, 100, 0));
-		lineAndShapeRenderer.setSeriesPaint(2, Color.BLUE);
-		// Defini la taille de la courbes (epaisseur du trait)
-		lineAndShapeRenderer.setSeriesStroke(0, new BasicStroke(2.0F));
-		lineAndShapeRenderer.setSeriesStroke(1, new BasicStroke(2.0F));
-		lineAndShapeRenderer.setSeriesStroke(2, new BasicStroke(2.0F));
+		XYSeriesCollection dataset = Library_JFreeChart.createDataset(times, ySeries, titles);
 
-		// XAxis
-		NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
-		// Limites de l'axe X
-		domainAxis.setRange(0.00, 360.00);
-		// Pas de l'axe X
-		domainAxis.setTickUnit(new NumberTickUnit(30.00));
-		domainAxis.setTickMarkStroke(new BasicStroke(2.5F));
-		domainAxis.setLabelFont(new Font("", Font.BOLD, 16));
-		domainAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
-
-		// YAxis
-		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-		rangeAxis.setRange(0.00, 100.00);
-		rangeAxis.setTickUnit(new NumberTickUnit(10.00));
-		rangeAxis.setTickMarkStroke(new BasicStroke(2.5F));
-		rangeAxis.setLabelFont(new Font("", Font.BOLD, 16));
-		rangeAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
-
-		// Grid
-		// On ne met pas de grille sur la courbe
-		plot.setDomainGridlinesVisible(false);
-
-		return new ChartPanel(xylineChart);
+		return Library_JFreeChart.createGraph("Retention (% meal)", colors, "", dataset, 100.);
 	}
 
-	// TODO: change this method, the model should not decide for rendering
+	/**
+	 * Creates the graphic for the Stomach geometrical average.
+	 * 
+	 * @return graph
+	 */
 	public ChartPanel createGraph_4(Unit unit) {
 		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_GEO_AVERAGE, unit);
 
@@ -1700,7 +1382,9 @@ public class Model_Gastric extends ModeleScin {
 		if (this.time0 != null)
 			xValues = ArrayUtils.remove(times, 0);
 
-		return Library_JFreeChart.createGraph(unit.abrev(), Color.GREEN, "Stomach retention", xValues, result,
+		XYSeriesCollection dataset = Library_JFreeChart.createDataset(xValues, result, "Stomach retention");
+
+		return Library_JFreeChart.createGraph(unit.abrev(), new Color[] { Color.GREEN }, "", dataset,
 				Library_JFreeChart.maxValue(result) * 1.1);
 	}
 
@@ -1731,43 +1415,112 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * Given two dataset of Y values, this method will add the square of the result
-	 * of the subtraction of each point.<br>
-	 * For instance, given two points <code>A(x, 4) A'(x, 5)</code> and
-	 * <code>B(x, 3) B'(x, 1)</code> the result will be calculate like this:<br>
-	 * <code>(4-5)² + (3-1)²</code>
+	 * Delivers the retention percentage at the specified time.<br>
+	 * The result might be interpolated.
 	 * 
-	 * @param yValues       First dataset
-	 * @param yFittedValues Second dataset
-	 * @return least square of the two dataset
+	 * @param request Request for the result (only {@link #RETENTION_GEOAVG} or
+	 *                {@link #RETENTION_PERCENTAGE} allowed)
+	 * @param time    Time to observe in minutes
+	 * @return retention percentage
 	 */
-	public double computeLeastSquares(double[] yValues, double[] yFittedValues) {
-		if (yValues.length != yFittedValues.length)
-			throw new IllegalArgumentException("The lengths of the arrays must be equals (" + yValues.length + " != "
-					+ yFittedValues.length + ")");
+	public ResultValue getRetentionResult(ResultRequest request, double time) {
+		Result result = request.getResultOn();
+		if (result != RETENTION_GEOAVG && result != RETENTION_PERCENTAGE)
+			throw new IllegalArgumentException("The result " + result + " not supported here!");
 
-		double result = 0.;
-		for (int i = 0; i < yValues.length; i++) {
-			result += Math.pow(yValues[i] - yFittedValues[i], 2);
+		double[] yValues;
+		if (result == RETENTION_GEOAVG)
+			yValues = generateStomachValues(Unit.PERCENTAGE);
+		else
+			yValues = generateDecayFunctionValues(Unit.COUNTS);
+
+		Double res = Library_JFreeChart.getY(times, yValues, time);
+		boolean isExtrapolated = false;
+		if (res == null) {
+			res = Library_JFreeChart.extrapolateY(time, request.getFit());
+			System.out.println("Result extrapolation: " + res);
+			isExtrapolated = true;
 		}
-		return result;
+
+		// Percentage of res
+		res = res * 100. / Library_JFreeChart.getY(times, yValues, 0.);
+
+		return new ResultValue(request, res, Unit.PERCENTAGE, isExtrapolated);
 	}
 
 	/**
-	 * Makes a montage from the specified stack.
+	 * Delivers the requested result.<br>
+	 * This method must be called only when all of the data was incorporated in this
+	 * model.<br>
 	 * 
-	 * @param stack Stack to make the image from
-	 * @return image created from the specified stack
+	 * @param request Request for a result
+	 * @return ResultValue containing the requested result or null if the result
 	 */
-	public ImagePlus montage(ImageStack stack) {
-		MontageMaker mm = new MontageMaker();
-		ImagePlus imp = new ImagePlus("Resultats Vidange Gastrique", stack);
-		if (stack.size() == 4)
-			imp = mm.makeMontage2(imp, 2, 2, 0.5, 1, 4, 1, 10, false);
-		else if (stack.size() == 2)
-			imp = mm.makeMontage2(imp, 2, 1, .5, 1, 2, 1, 10, false);
-		imp.setTitle("Resultats " + this.studyName);
-		return imp;
+	@Override
+	public ResultValue getResult(ResultRequest request) {
+		Data data = this.generatesDataOrdered().get(request.getIndexImage());
+		Result result = request.getResultOn();
+		Fit fit = request.getFit();
+
+		if (result == START_ANTRUM)
+			return new ResultValue(request, this.getDebut(REGION_ANTRE), Unit.TIME);
+		else if (result == START_INTESTINE)
+			return new ResultValue(request, this.getDebut(REGION_INTESTINE), Unit.TIME);
+		else if (result == LAG_PHASE_PERCENTAGE || result == LAG_PHASE_GEOAVG) {
+			double[] yValues;
+			if (result == LAG_PHASE_PERCENTAGE)
+				yValues = generateStomachValues(Unit.PERCENTAGE);
+			else
+				yValues = generateDecayFunctionValues(Unit.COUNTS);
+			Double valX = Library_JFreeChart.getX(times, yValues, 95.);
+			boolean isExtrapolated = false;
+			if (valX == null) {
+				// Extrapolate
+				valX = Library_JFreeChart.extrapolateX(95., fit);
+				isExtrapolated = true;
+			}
+			return new ResultValue(request, valX, Unit.TIME, isExtrapolated);
+		} else if (result == T_HALF_PERCENTAGE || result == T_HALF_GEOAVG) {
+			double[] yValues;
+			if (result == T_HALF_PERCENTAGE)
+				yValues = generateStomachValues(Unit.PERCENTAGE);
+			else
+				yValues = generateDecayFunctionValues(Unit.COUNTS);
+			// Assumption: the first value is the highest (maybe do not assume that...)
+			double half = yValues[0] / 2.;
+			boolean isExtrapolated = false;
+			Double valX = Library_JFreeChart.getX(times, yValues, half);
+			if (valX == null) {
+				// Extrapolate
+				valX = Library_JFreeChart.extrapolateX(half, fit);
+				isExtrapolated = true;
+			}
+			return new ResultValue(request, valX, Unit.TIME, isExtrapolated);
+		} else {
+			try {
+				if (result == RES_TIME)
+					return new ResultValue(request,
+							BigDecimal.valueOf(data.time).setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.TIME);
+				if (result == RES_STOMACH)
+					return new ResultValue(request, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
+							.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+				if (result == RES_FUNDUS)
+					return new ResultValue(request, BigDecimal.valueOf(data.getValue(REGION_FUNDUS, DATA_PERCENTAGE))
+							.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+				if (result == RES_ANTRUM)
+					return new ResultValue(request, BigDecimal.valueOf(data.getValue(REGION_ANTRE, DATA_PERCENTAGE))
+							.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+				if (result == RES_STOMACH_COUNTS) {
+					return new ResultValue(request, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE))
+							.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.COUNTS);
+				} else {
+					throw new IllegalArgumentException("Result " + result + " not supported here!");
+				}
+			} catch (NullPointerException e) {
+				// Exception = data not found
+				return null;
+			}
+		}
 	}
 
 	@Override
