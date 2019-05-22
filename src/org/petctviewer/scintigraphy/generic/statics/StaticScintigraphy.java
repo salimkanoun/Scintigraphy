@@ -5,9 +5,9 @@ import java.awt.Color;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
-import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -24,7 +24,7 @@ public class StaticScintigraphy extends Scintigraphy {
 
 	@Override
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
-
+		// Check number
 		if (selectedImages.length != 1) {
 			throw new WrongNumberImagesException(selectedImages.length, 1);
 		}
@@ -37,7 +37,8 @@ public class StaticScintigraphy extends Scintigraphy {
 			imp = Library_Dicom.ensureAntPostFlipped(selectedImages[0]);
 			selectedImages[0].getImagePlus().close();
 		} else {
-			throw new WrongOrientationException(selectedImages[0].getImageOrientation(),
+			throw new WrongColumnException.OrientationColumn(selectedImages[0].getRow(),
+					selectedImages[0].getImageOrientation(),
 					new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT });
 		}
 

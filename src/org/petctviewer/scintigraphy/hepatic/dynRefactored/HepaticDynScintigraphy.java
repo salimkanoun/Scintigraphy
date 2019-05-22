@@ -5,7 +5,9 @@ import java.awt.Color;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -26,9 +28,9 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 	 */
 	@Override
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
-		if (selectedImages.length > 2) {
-			IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
-		}
+		// Check number of images
+		if (selectedImages.length != 1)
+			throw new WrongNumberImagesException(selectedImages.length, 1);
 
 		ImageSelection impSelect = selectedImages[0];
 		if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_ANT) {
@@ -39,8 +41,9 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 			this.impAnt = imps[0];
 			this.impPost = imps[1];
 		} else {
-			throw new WrongInputException(
-					"Unexpected Image type.\n Accepted : DYNAMIC_ANT | DYNAMIC_ANT_POST | DYNAMIC_POST_ANT");
+			throw new WrongColumnException.OrientationColumn(selectedImages[0].getRow(),
+					selectedImages[0].getImageOrientation(), new Orientation[] { Orientation.DYNAMIC_ANT,
+							Orientation.DYNAMIC_ANT_POST, Orientation.DYNAMIC_POST_ANT });
 		}
 
 		IJ.run(this.impAnt.getImagePlus(), "32-bit", "");

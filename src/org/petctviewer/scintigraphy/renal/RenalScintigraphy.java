@@ -5,7 +5,9 @@ import java.awt.Color;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -27,6 +29,9 @@ public class RenalScintigraphy extends Scintigraphy {
 
 	@Override
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
+		// Check number of images
+		if (selectedImages.length != 1 && selectedImages.length != 2)
+			throw new WrongNumberImagesException(selectedImages.length, 1, 2);
 
 		// Prepare the final ImagePlus array, position 0 for anterior dynamic and
 		// position 1 for posterior dynamic.
@@ -46,7 +51,9 @@ public class RenalScintigraphy extends Scintigraphy {
 					throw new WrongInputException("Multiple dynamic Image");
 				imps = Library_Dicom.splitDynamicAntPost(selectedImages[i]);
 			} else {
-				throw new WrongInputException("Unexpected Image type");
+				throw new WrongColumnException.OrientationColumn(selectedImages[i].getRow(),
+						selectedImages[i].getImageOrientation(), new Orientation[] { Orientation.DYNAMIC_ANT,
+								Orientation.DYNAMIC_POST, Orientation.DYNAMIC_ANT_POST });
 			}
 
 			selectedImages[i].getImagePlus().close();
@@ -64,31 +71,32 @@ public class RenalScintigraphy extends Scintigraphy {
 			this.impPost = imps[1];
 			this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost.getImagePlus());
 		}
-		
+
 		ImageSelection impPostCountPerSec = this.impPost.clone();
 		Library_Dicom.normalizeToCountPerSecond(impPostCountPerSec);
-		
-		
 
-		impProjetee = Library_Dicom.project(impPostCountPerSec,0,impPostCountPerSec.getImagePlus().getStackSize(),"avg");
+		impProjetee = Library_Dicom.project(impPostCountPerSec, 0, impPostCountPerSec.getImagePlus().getStackSize(),
+				"avg");
 		ImageStack stack = impProjetee.getImagePlus().getStack();
 
 		// deux premieres minutes
 		int fin = ModeleScinDyn.getSliceIndexByTime(2 * 60 * 1000, frameDurations);
-		ImageSelection impPostFirstMin = Library_Dicom.project(impPostCountPerSec, 0, fin,"avg");
+		ImageSelection impPostFirstMin = Library_Dicom.project(impPostCountPerSec, 0, fin, "avg");
 		stack.addSlice(impPostFirstMin.getImagePlus().getProcessor());
 
 		// MIP
-		ImagePlus pj = ZProjector.run(impPostCountPerSec.getImagePlus(), "max", 0, impPostCountPerSec.getImagePlus().getNSlices());
+		ImagePlus pj = ZProjector.run(impPostCountPerSec.getImagePlus(), "max", 0,
+				impPostCountPerSec.getImagePlus().getNSlices());
 		stack.addSlice(pj.getProcessor());
 
 		// ajout de la prise ant si elle existe
 		if (imps[0] != null) {
-			
+
 			ImageSelection impAntCountPerSec = this.impAnt.clone();
 			Library_Dicom.normalizeToCountPerSecond(impAntCountPerSec);
-			
-			ImageSelection impProjAnt = Library_Dicom.project(impAntCountPerSec,0,impAntCountPerSec.getImagePlus().getStackSize(),"avg");
+
+			ImageSelection impProjAnt = Library_Dicom.project(impAntCountPerSec, 0,
+					impAntCountPerSec.getImagePlus().getStackSize(), "avg");
 			impProjAnt.getImagePlus().getProcessor().flipHorizontal();
 			impAnt = impProjAnt;
 			stack.addSlice(impProjAnt.getImagePlus().getProcessor());

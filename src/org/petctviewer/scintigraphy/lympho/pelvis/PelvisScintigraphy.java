@@ -3,7 +3,9 @@ package org.petctviewer.scintigraphy.lympho.pelvis;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -20,6 +22,9 @@ public class PelvisScintigraphy extends Scintigraphy {
 
 	@Override
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
+		// Check number of images
+		if (selectedImages.length != 1)
+			throw new WrongNumberImagesException(selectedImages.length, 1);
 
 		ImageSelection impSorted = null;
 		ImageSelection[] impsSortedAntPost = new ImageSelection[selectedImages.length];
@@ -32,7 +37,9 @@ public class PelvisScintigraphy extends Scintigraphy {
 					|| selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
 				impSorted = Library_Dicom.ensureAntPostFlipped(imp);
 			} else {
-				throw new WrongInputException("Unexpected Image type.\n Accepted : ANT/POST | POST/ANT ");
+				throw new WrongColumnException.OrientationColumn(selectedImages[i].getRow(),
+						selectedImages[i].getImageOrientation(),
+						new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT });
 			}
 			int ratio = (int) (25000 / impSorted.getImagePlus().getStatistics().max);
 			// On augmente le contraste(uniquement visuel, n'impacte pas les données)

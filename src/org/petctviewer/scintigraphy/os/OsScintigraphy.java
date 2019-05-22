@@ -19,9 +19,9 @@ import javax.swing.JTable;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
-import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -34,7 +34,6 @@ import org.petctviewer.scintigraphy.scin.library.ReversedChronologicalAcquisitio
  */
 public class OsScintigraphy extends Scintigraphy {
 	private boolean process;
-	
 
 	public OsScintigraphy() {
 		super("Scinti Os");
@@ -94,7 +93,8 @@ public class OsScintigraphy extends Scintigraphy {
 			} else if (selectedImages[i].getImageOrientation() == Orientation.POST) {
 				impSorted = imp.clone();
 			} else {
-				throw new WrongOrientationException(selectedImages[i].getImageOrientation(),
+				throw new WrongColumnException.OrientationColumn(selectedImages[i].getRow(),
+						selectedImages[i].getImageOrientation(),
 						new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT, Orientation.POST });
 			}
 

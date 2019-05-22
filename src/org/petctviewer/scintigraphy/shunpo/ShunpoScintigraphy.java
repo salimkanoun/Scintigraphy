@@ -28,9 +28,8 @@ public class ShunpoScintigraphy extends Scintigraphy {
 		FenSelectionDicom fen = new FenSelectionDicom(this.getStudyName(), this);
 
 		// Orientation column
-		String[] orientationValues = { Orientation.ANT.toString(), Orientation.POST.toString(),
-				Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString(), Orientation.UNKNOWN.toString() };
-		Column orientation = new Column("Orientation", orientationValues);
+		String[] orientationValues = { Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString() };
+		Column orientation = new Column(Column.ORIENTATION.getName(), orientationValues);
 
 		// Organ column
 		String[] organValues = { ORGAN_KIDNEY_PULMON, ORGAN_BRAIN };
