@@ -12,7 +12,6 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.FenApplicationSecondHepaticDyn;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
@@ -20,6 +19,10 @@ import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.LastInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
+
+import com.google.gson.Gson;
+
+
 
 /**
  * This controller is used when working with a flow of instructions.<br>
@@ -546,5 +549,19 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			this.getVue().currentInstruction(value);
 		}
 	}
+	
+	
+	
+	
+	public Gson saveWorkflow(String path) {
+		this.getRoiManager();
+		
+		Gson gson = new Gson();
+		
+		
+		
+		return gson;
+	}
+
 
 }
