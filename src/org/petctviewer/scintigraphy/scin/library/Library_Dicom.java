@@ -65,6 +65,8 @@ public class Library_Dicom {
 		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
 		if (!StringUtils.isEmpty(tagDetecteur))
 			tagDetecteur = tagDetecteur.trim();
+		//For orthanc replace \ by space for uniformity with IJ
+		tagDetecteur=tagDetecteur.replaceAll("\\", " ");
 		String delims = "[ ]+";
 		String[] sequenceDetecteur = tagDetecteur.split(delims);
 
@@ -136,6 +138,8 @@ public class Library_Dicom {
 		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
 		if (!StringUtils.isEmpty(tagDetecteur))
 			tagDetecteur = tagDetecteur.trim();
+		//For orthanc replace \ by space for uniformity with IJ
+		tagDetecteur=tagDetecteur.replaceAll("\\", " ");
 		String delims = "[ ]+";
 		String[] sequenceDetecteur = tagDetecteur.split(delims);
 		boolean sameCamera = true;
@@ -160,6 +164,8 @@ public class Library_Dicom {
 		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
 		if (!StringUtils.isEmpty(tagDetecteur))
 			tagDetecteur = tagDetecteur.trim();
+		//For orthanc replace \ by space for uniformity with IJ
+		tagDetecteur=tagDetecteur.replaceAll("\\", " ");
 		String delims = "[ ]+";
 		String[] sequenceDeteceur = tagDetecteur.split(delims);
 		boolean detecteur1 = false;
@@ -425,12 +431,13 @@ public class Library_Dicom {
 		// Si pas de tag
 		if (StringUtils.isEmpty(tag))
 			tag = "no tag";
-		// On recupere la chaine de detecteur
-		// SK ZONE A RISQUE SI PAS DE CHAINE DE DETECTEUR A SURVEILLER
+		// On recupere la chaine de detecteurER
 		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
 		if (!StringUtils.isEmpty(tagDetecteur)) {
 			tagDetecteur = tagDetecteur.trim();
 		}
+		//For orthanc replace \ by space for uniformity with IJ
+		tagDetecteur=tagDetecteur.replaceAll("\\", " ");
 		String delims = "[ ]+";
 		String[] sequenceDeteceur = tagDetecteur.split(delims);
 
@@ -606,7 +613,10 @@ public class Library_Dicom {
 				frameDurations[i] = duration;
 			}
 		} else {
-			String[] phasesStr = DicomTools.getTag(imp, "0054,0030").trim().split(" ");
+			String durationsTag=DicomTools.getTag(imp, "0054,0030").trim();
+			//For orthanc replace \ by space for uniformity with IJ
+			durationsTag=durationsTag.replaceAll("\\", " ");
+			String[] phasesStr = durationsTag.split(" ");
 			int[] phases = new int[phasesStr.length];
 
 			Integer[] durations = Library_Dicom.getDurations(imp);
