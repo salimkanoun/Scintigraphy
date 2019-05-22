@@ -2,9 +2,11 @@ package org.petctviewer.scintigraphy.scin.model;
 
 import java.util.HashMap;
 
-import org.json.simple.JSONObject;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import ij.ImagePlus;
 import ij.plugin.frame.RoiManager;
@@ -171,8 +173,9 @@ public abstract class ModeleScin {
 		mapTags.put("0020,0032", DicomTools.getTag(this.getImagePlus(), "0020,0032"));
 		mapTags.put("0020,0037", DicomTools.getTag(this.getImagePlus(), "0020,0037"));
 
-		String tags = JSONObject.toJSONString(mapTags);
-
+		Gson gson = new GsonBuilder().create();
+		String tags = gson.toJson(mapTags);
+		
 		s += "\n" + "tags," + tags;
 		
 		return s;

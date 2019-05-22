@@ -72,7 +72,8 @@ public class ControllerWorkflowColonicTransit extends ControllerWorkflow {
 			this.workflows[i].addInstruction(dri_6);
 			this.workflows[i].addInstruction(dri_capture_1);
 		}
-		this.workflows[this.model.getImageSelection().length - 2].addInstruction(new EndInstruction());
+		
+		this.workflows[this.workflows.length - 1].addInstruction(new EndInstruction());
 
 		// Update view
 		getVue().setNbInstructions(this.allInputInstructions().size());

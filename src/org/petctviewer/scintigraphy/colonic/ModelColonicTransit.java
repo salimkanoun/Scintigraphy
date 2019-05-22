@@ -1,5 +1,7 @@
 package org.petctviewer.scintigraphy.colonic;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,9 +44,9 @@ public class ModelColonicTransit extends ModeleScin {
 
 		Map<String, Double>[] datas = new HashMap[] { dataImage1, dataImage2, dataImage3 };
 
-		for (int i = 0; i < this.selectedImages.length; i++) {
+		for (int i = 1; i < this.selectedImages.length; i++) {
 			ImageSelection imageForCalculation = this.selectedImages[i];
-			this.calculateResults(imageReference, imageForCalculation, (HashMap<String, Double>) datas[i]);
+			this.calculateResults(imageReference, imageForCalculation, (HashMap<String, Double>) datas[i-1]);
 		}
 
 	}
@@ -103,18 +105,23 @@ public class ModelColonicTransit extends ModeleScin {
 		Map<String, Double>[] datas = new HashMap[] { dataImage1, dataImage2, dataImage3 };
 
 		String[] results = new String[datas[i].size()];
+		
+		DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance();
+		sym.setDecimalSeparator('.');
+		DecimalFormat us = new DecimalFormat("##.##");
+		us.setDecimalFormatSymbols(sym);
 
-		for (int j = 0; j < this.roiManager.getCount(); j++) {
-			results[j] = this.roiManager.getRoi(j).getName() + " : "
-					+ (datas[i].get(this.roiManager.getRoi(j).getName()) / datas[i].get("Sum"));
+		for (int j = 0; j < 6; j++) {
+			results[j] = this.roiManager.getRoi((i*6 + j)).getName() + " : "
+					+ us.format((datas[i].get(this.roiManager.getRoi((i*6 + j)).getName()) / datas[i].get("Sum"))*100)+"%";
 		}
 		
 		
 		results[6] = "Excreted feces : "
-				+ (datas[i].get("Excreted feces") / datas[i].get("Sum"));
+				+ us.format((datas[i].get("Excreted feces") / datas[i].get("Sum"))*100)+"%";
 		
 		results[7] = "Geometric Center : "
-				+ datas[i].get("Geometric Center");
+				+ us.format(datas[i].get("Geometric Center"));
 
 		return results;
 	}
