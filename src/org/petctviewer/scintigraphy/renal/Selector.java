@@ -141,5 +141,9 @@ public class Selector extends CrosshairOverlay implements ChartMouseListener {
 	public void setJValueSetter(JValueSetter jValueSetter) {
 		this.jValueSetter = jValueSetter;
 	}
+	
+	protected Crosshair getCrossX() {
+		return this.crossX;
+	}
 
 }

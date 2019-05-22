@@ -170,17 +170,19 @@ public class About extends JDialog implements PlugIn {
 				table = new JTable();
 				table.setModel(new DefaultTableModel(
 					new Object[][] {
-						{"Pulmonary Shunt", "Gerard Victor", "Mathis Mohand", "CHU Toulouse"},
-						{"Gastric Emptying", "Gerard Victor", "Ping Xie", "CHU Toulouse"},
+						{"Pulmonary Shunt", "Gerard Victor", "Titouan Quema, Mathis Mohand", "CHU Toulouse"},
+						{"Gastric Emptying", "Gerard Victor, Pierre Pascal", "Titouan Quema, Ping Xie", "CHU Toulouse"},
 						{"DPD Quant", "Gerard Victor", "Ruben Gres", "CHU Toulouse"},
-						{"Biliary Scintigraphy", "Gerard Victor", "Ruben Gres", "CHU Toulouse"},
+						{"Biliary Scintigraphy", "Gerard Victor", "Esteban Baicho, Ruben Gres", "CHU Toulouse"},
 						{"Renogram", "Gerard Victor, Salim Kanoun, Pierre Pascal", "Ruben Gres", "CHU Toulouse"},
 						{"DMSA", "Gerard Victor", "Ruben Gres", "CHU Toulouse"},
 						{"Renogram Follow Up", "Alina Berriolo", "Diego Romero", "CHU Toulouse"},
-						{"Dynamic Quantification", "Salim Kanoun", "Ruben Gres", "CHU Toulouse"},
-						{"Static Quantifiication", "Salim Kanoun", "Diego Romero", "CHU Toulouse"},
+						{"Dynamic Quantification", "Salim Kanoun", "Esteban Baicho, Ruben Gres", "CHU Toulouse"},
+						{"Static Quantifiication", "Salim Kanoun", "Esteban Baicho, Diego Romero", "CHU Toulouse"},
 						{"Schaefer Calibration", "Salim Kanoun", "Diego Romero", "CHU Toulouse"},
-						{"Esophageal Transit", "Pierre Pascal, Gerard Victor", "Diego Romero", null},
+						{"Esophageal Transit", "Pierre Pascal, Gerard Victor", "Diego Romero", "CHU Toulouse"},
+						{"Bone Scintigraphy", "Salim Kanoun", "Esteban Baicho", "IUCT Oncopole"},
+						{"Lymphoscintigraphy", "Pierre Pascal", "Esteban Baicho", "CHU Toulouse"},
 					},
 					new String[] {
 						"Software", "Creator", "Developper", "Institution"

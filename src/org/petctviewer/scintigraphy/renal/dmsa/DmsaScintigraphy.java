@@ -9,9 +9,9 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.ImagePlus;
 import ij.gui.Overlay;
 import ij.plugin.StackReverser;
 
@@ -26,26 +26,25 @@ public class DmsaScintigraphy extends Scintigraphy {
 		if (selectedImages.length > 1)
 			throw new WrongNumberImagesException(selectedImages.length, 1);
 
-		ImagePlus imp = selectedImages[0].getImagePlus();
+		ImageSelection imp = selectedImages[0].clone();
 
 		if (selectedImages[0].getImageOrientation() == Orientation.ANT_POST) {
-			imp.getStack().getProcessor(1).flipHorizontal();
+			imp.getImagePlus().getStack().getProcessor(1).flipHorizontal();
 			// SK REVERSE DES METADATA A VERIFIER !!!!
 			StackReverser reverser = new StackReverser();
-			reverser.flipStack(imp);
+			reverser.flipStack(imp.getImagePlus());
+			imp.getImagePlus().getStack().getProcessor(2).flipHorizontal();
 		} else if (selectedImages[0].getImageOrientation() == Orientation.POST_ANT) {
-			imp.getStack().getProcessor(2).flipHorizontal();
+			imp.getImagePlus().getStack().getProcessor(2).flipHorizontal();
 		} else if (selectedImages[0].getImageOrientation() == Orientation.POST) {
-			ImageSelection[] selection = new ImageSelection[1];
-			selection[0] = new ImageSelection(imp.duplicate(), null, null);
-			return selection;
+
 		} else {
 			throw new WrongOrientationException(selectedImages[0].getImageOrientation(),
 					new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT, Orientation.POST });
 		}
 
 		ImageSelection[] selection = new ImageSelection[1];
-		selection[0] = new ImageSelection(imp.duplicate(), null, null);
+		selection[0] = imp;
 		return selection;
 	}
 
@@ -57,7 +56,10 @@ public class DmsaScintigraphy extends Scintigraphy {
 		FenApplication fen = new FenApplication(selectedImages[0].getImagePlus(), this.getStudyName());
 		this.setFenApplication(fen);
 		selectedImages[0].getImagePlus().setOverlay(overlay);
-		fen.setControleur(new Controleur_Dmsa(this, selectedImages, "dmsa"));
+
+//		fen.setControleur(new Controleur_Dmsa(this, selectedImages, "dmsa"));
+		((FenApplicationWorkflow) fen).setControleur(new ControllerWorkflowDMSA(this,
+				(FenApplicationWorkflow) this.getFenApplication(), new Modele_Dmsa(selectedImages, "dmsa")));
 	}
 
 }

@@ -21,7 +21,6 @@ import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
-import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
@@ -41,13 +40,13 @@ public class TabRentention extends TabResult {
 	private JLabel[] retention10sLabel;
 	private static int numAcquisitionRetention = 0;
 
-	private Modele_EsophagealTransit modeleApp;
+	private Modele_Resultats_EsophagealTransit modeleApp;
 
 	private Integer nbAcquisition;
 
-	public TabRentention(int nbAcquisition, FenResults parent, Modele_EsophagealTransit modeleApp) {
+	public TabRentention(int nbAcquisition, FenResults parent, Modele_Resultats_EsophagealTransit model) {
 		super(parent, "Retention");
-		this.modeleApp = modeleApp;
+		this.modeleApp = model;
 		this.nbAcquisition = nbAcquisition;
 
 		this.createCaptureButton("Retention");
@@ -64,11 +63,11 @@ public class TabRentention extends TabResult {
 
 	@Override
 	public Component getSidePanelContent() {
+
+		this.getResultContent();
+
 		if (nbAcquisition == null)
 			return null;
-
-		graphRetention.getXYPlot()
-				.setDataset(((Modele_Resultats_EsophagealTransit) this.parent.getModel()).retentionForGraph());
 
 		JPanel radioButtonRetentionPanel = new JPanel();
 		radioButtonRetentionPanel.setLayout(new GridLayout(nbAcquisition, 1));
@@ -111,7 +110,7 @@ public class TabRentention extends TabResult {
 		retentionResultPanel.setLayout(new GridLayout(nbAcquisition + 1, 1));
 
 		retentionResultPanel.add(new JLabel("Decrease 10s after peak"));
-		double[] retention10s = ((Modele_Resultats_EsophagealTransit) this.parent.getModel()).retentionAllPoucentage();
+		double[] retention10s = ((Modele_Resultats_EsophagealTransit) modeleApp).retentionAllPoucentage();
 		retention10sLabel = new JLabel[nbAcquisition];
 		for (int i = 0; i < retention10s.length; i++) {
 			retention10sLabel[i] = new JLabel("Acquisition " + (i + 1) + " : " + (retention10s[i]) + "%");
@@ -133,6 +132,9 @@ public class TabRentention extends TabResult {
 	public JPanel getResultContent() {
 		// graph center
 		graphRetention = ChartFactory.createXYLineChart("Retention", "s", "Count/s", null);
+
+		graphRetention.getXYPlot().setDataset(((Modele_Resultats_EsophagealTransit) modeleApp).retentionForGraph());
+
 		XYLineAndShapeRenderer rendererTransit = new XYLineAndShapeRenderer();
 		// monter les formes des points
 		rendererTransit.setSeriesShapesVisible(0, true);
@@ -141,13 +143,12 @@ public class TabRentention extends TabResult {
 		rendererTransit.setDefaultToolTipGenerator(new StandardXYToolTipGenerator());
 		graphRetention.getXYPlot().setRenderer(rendererTransit);
 
-		this.graphRetention.getXYPlot().setBackgroundPaint(new Color(255, 255, 255));
 
 		// grille en noir
 		this.graphRetention.getXYPlot().setRangeGridlinePaint(Color.black);
 		this.graphRetention.getXYPlot().setDomainGridlinePaint(Color.black);
 
-		selectorRetentionValue = ((Modele_Resultats_EsophagealTransit) this.parent.getModel()).retentionAllX();
+		selectorRetentionValue = ((Modele_Resultats_EsophagealTransit) modeleApp).retentionAllX();
 
 		JValueSetter valueSetterRetention = new JValueSetter(graphRetention);
 		valueSetterRetention.addChartMouseListener(new ChartMouseListener() {
@@ -163,19 +164,25 @@ public class TabRentention extends TabResult {
 				TabRentention tab = TabRentention.this;
 				tab.selectorRetentionValue[numAcquisitionRetention] = tab.selectorRentention.getXValue();
 
-				double retention = ((Modele_Resultats_EsophagealTransit) tab.getParent().getModel())
+				double retention = ((Modele_Resultats_EsophagealTransit) modeleApp)
 						.retentionPoucentage(tab.selectorRentention.getXValue(), numAcquisitionRetention);
 				retention10sLabel[numAcquisitionRetention]
 						.setText("Acquisition " + (numAcquisitionRetention + 1) + " : " + retention + "%");
 
 				// on l'envoi au modele pour le csv
-				((Modele_Resultats_EsophagealTransit) tab.getParent().getModel())
-						.setRetentionDecrease(numAcquisitionRetention, retention);
+				((Modele_Resultats_EsophagealTransit) modeleApp).setRetentionDecrease(numAcquisitionRetention,
+						retention);
 			}
 		});
 
 		selectorRentention = new Selector("max", 1, -1, RectangleAnchor.TOP_RIGHT);
 		valueSetterRetention.addSelector(selectorRentention, "max");
+		
+		// Hide every curves exept the first one
+		for (int i = 1; i < nbAcquisition; i++) {
+			this.setVisibilitySeriesGraph(graphRetention, i, false);
+		}
+		
 		return valueSetterRetention;
 	}
 

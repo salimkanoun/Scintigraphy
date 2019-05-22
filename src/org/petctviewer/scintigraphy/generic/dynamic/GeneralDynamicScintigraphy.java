@@ -3,7 +3,10 @@ package org.petctviewer.scintigraphy.generic.dynamic;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 import ij.IJ;
@@ -22,14 +25,17 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
-		this.setFenApplication(
-				new FenApplication_GeneralDyn(selectedImages[0].getImagePlus(), this.getStudyName(), this));
-		this.getFenApplication().setControleur(new ControllerWorkflowScinDynamic(this, this.getFenApplication(),
-				new Modele_GeneralDyn(selectedImages, "General Dynamic", this.getFrameDurations())));
+		this.setFenApplication(new FenApplication_GeneralDyn(selectedImages[0], this.getStudyName(), this));
+		((FenApplicationWorkflow) this.getFenApplication()).setControleur(
+				new ControllerWorkflowScinDynamic(this, (FenApplicationWorkflow) this.getFenApplication(),
+						new Modele_GeneralDyn(selectedImages, "General Dynamic", this.getFrameDurations())));
 		IJ.setTool(Toolbar.POLYGON);
 	}
 
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
+		// Check number images
+		if (selectedImages.length != 1)
+			throw new WrongNumberImagesException(selectedImages.length, 1);
 
 		ImageSelection[] imps = new ImageSelection[2];
 
@@ -47,7 +53,9 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 			imps[0] = Library_Dicom.splitDynamicAntPost(selectedImages[0])[0];
 			imps[1] = Library_Dicom.splitDynamicAntPost(selectedImages[0])[1];
 		} else {
-			throw new WrongInputException("Unexpected Image orientation");
+			throw new WrongColumnException.OrientationColumn(selectedImages[0].getRow(),
+					selectedImages[0].getImageOrientation(), new Orientation[] { Orientation.DYNAMIC_ANT,
+							Orientation.DYNAMIC_POST, Orientation.DYNAMIC_ANT_POST });
 		}
 
 		selectedImages[0].getImagePlus().close();
@@ -55,14 +63,16 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 		if (imps[0] != null) {
 			this.impAnt = imps[0];
 			this.frameDurations = Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus());
-			Library_Dicom.normalizeToCountPerSecond(this.impAnt.getImagePlus(), frameDurations);
+			IJ.run(this.impAnt.getImagePlus(), "32-bit", "");
+//			Library_Dicom.normalizeToCountPerSecond(this.impAnt.getImagePlus(), frameDurations);
 		}
 
 		if (imps[1] != null) {
 			this.impPost = imps[1];
 			this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost.getImagePlus());
 			Library_Dicom.flipStackHorizontal(impPost);
-			Library_Dicom.normalizeToCountPerSecond(this.impPost.getImagePlus(), frameDurations);
+			IJ.run(this.impPost.getImagePlus(), "32-bit", "");
+//			Library_Dicom.normalizeToCountPerSecond(this.impPost.getImagePlus(), frameDurations);
 		}
 
 		if (this.impAnt != null) {

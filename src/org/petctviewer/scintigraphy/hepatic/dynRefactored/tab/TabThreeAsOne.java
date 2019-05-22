@@ -39,7 +39,7 @@ public class TabThreeAsOne {
 	}
 
 	public JPanel getResultContent() {
-		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabOtherMethod) this.tab)
+		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
 				.getFenApplication().getControleur().getModel();
 
 		XYSeriesCollection data = new XYSeriesCollection();
@@ -50,6 +50,8 @@ public class TabThreeAsOne {
 		JFreeChart chart = ChartFactory.createXYLineChart("", "min", "counts/sec", data);
 
 		ChartPanel chartpanel = new ChartPanel(chart);
+
+//		chartpanel.setPreferredSize(new Dimension(1000, 650));
 
 		return chartpanel;
 	}

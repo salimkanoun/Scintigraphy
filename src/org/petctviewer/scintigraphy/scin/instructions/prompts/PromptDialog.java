@@ -24,13 +24,24 @@ public abstract class PromptDialog extends JDialog {
 	public abstract Object getResult();
 
 	/**
-	 * This method is called to checks whether the user has entered a valid input.
+	 * This method is called to check whether the user has entered a valid input.
 	 * This method can be called at any time so do not assume that the data entered
 	 * is not null.
 	 * 
 	 * @return TRUE if the user input is correct and FALSE otherwise
 	 */
 	public abstract boolean isInputValid();
+
+	/**
+	 * This method is called to check whether this dialog should be displayed to the
+	 * user. If not, then nothing happens.
+	 * 
+	 * @return TRUE if the dialog should be visible and FALSE if not
+	 */
+	public boolean shouldBeDisplayed() {
+		// By default, always displayed
+		return true;
+	}
 
 	/**
 	 * This method is called when this dialog will be opened by a click on the

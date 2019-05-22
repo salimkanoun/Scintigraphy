@@ -38,10 +38,12 @@ public class TabVasculaire {
 	}
 
 	public JPanel getResultContent() {
-		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabOtherMethod) this.tab)
+		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
 				.getFenApplication().getControleur().getModel();
 		List<XYSeries> series = modele.getSeries();
 		ChartPanel chartVasculaire = Library_JFreeChart.associateSeries(new String[] { "Blood pool" }, series);
+
+//		chartVasculaire.setPreferredSize(new Dimension(1000, 650));
 
 		return chartVasculaire;
 	}

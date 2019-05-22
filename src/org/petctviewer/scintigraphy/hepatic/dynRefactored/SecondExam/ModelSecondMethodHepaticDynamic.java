@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.ModeleScinDyn;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.model.ModeleScinDyn;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
@@ -37,8 +37,13 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 
 	@Override
 	public void calculerResultats() {
-		for (String s : this.getData().keySet())
-			System.out.println(s);
+		
+		for (String k : this.getData().keySet()) {
+			List<Double> data = this.getData().get(k);
+			this.getData().put(k, this.adjustValues(data));
+		}
+		
+
 		XYSeries liverL = this.getSerie("Left Liver");
 		XYSeries liverR = this.getSerie("Right Liver");
 		XYSeries bloodPool = this.getSerie("Blood pool");
@@ -90,7 +95,6 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 			// recupere la phrase sans le dernier mot (tag)
 
 			String name = nomRoi.substring(nomRoi.lastIndexOf("_"), nomRoi.length() - 1);
-			System.out.println("Name : " + name);
 			// on cree la liste si elle n'existe pas
 			if (this.getData().get(name) == null) {
 				this.getData().put(name, new ArrayList<Double>());

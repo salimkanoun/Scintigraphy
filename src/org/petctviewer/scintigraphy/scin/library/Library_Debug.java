@@ -22,7 +22,8 @@ public class Library_Debug {
 			for (int w = 0; w < width; w += pattern.length()) {
 				result.append(pattern);
 			}
-			result.append('\n');
+			if (h != height - 1)
+				result.append('\n');
 		}
 
 		return result.toString();
@@ -38,7 +39,7 @@ public class Library_Debug {
 	public static String title(String title) {
 		return "×º°”˜`”°º×  [" + title + "]  ×º°”˜`”°º×";
 	}
-	
+
 	public static String subtitle(String subtitle) {
 		return "-=> " + subtitle + " <=-";
 	}

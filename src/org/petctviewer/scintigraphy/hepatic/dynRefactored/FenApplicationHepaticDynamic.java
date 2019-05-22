@@ -10,7 +10,7 @@ import java.awt.Label;
 import java.awt.Panel;
 import java.awt.event.MouseListener;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 

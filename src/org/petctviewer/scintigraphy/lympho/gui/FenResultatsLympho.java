@@ -1,6 +1,6 @@
 package org.petctviewer.scintigraphy.lympho.gui;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 
 import ij.ImagePlus;

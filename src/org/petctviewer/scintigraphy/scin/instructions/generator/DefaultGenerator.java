@@ -1,6 +1,6 @@
 package org.petctviewer.scintigraphy.scin.instructions.generator;
 
-import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 
@@ -94,6 +94,11 @@ public abstract class DefaultGenerator implements GeneratorInstruction {
 	@Override
 	public void stop() {
 		this.isStopped = true;
+	}
+
+	@Override
+	public void activate() {
+		this.isStopped = false;
 	}
 
 	@Override

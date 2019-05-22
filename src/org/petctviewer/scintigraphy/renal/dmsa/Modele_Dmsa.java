@@ -3,8 +3,8 @@ package org.petctviewer.scintigraphy.renal.dmsa;
 import java.util.HashMap;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import ij.ImagePlus;
 
@@ -27,26 +27,31 @@ public class Modele_Dmsa extends ModeleScin {
 
 		// si on n'a pas deja enregistre son aire, on l'ajoute a la hashmap
 		if (this.areas.get(name) == null) {
+			System.out.println("name : "+name+"  //   area : "+area);
 			this.areas.put(name, area);
 		}
 	}
 
 	@Override
 	public void calculerResultats() {
+		
+		System.out.println("Datas : ");
+		for(String s : data.keySet())
+			System.out.println("\t"+s);
 		//soustraction du bruit de fond
 		double lkP = data.get("L. Kidney P0")
-				- (areas.get("L. Kidney") * (data.get("L. bkg P0") / areas.get("L. bkg")));
+				- (areas.get("L. Kidney") * (data.get("L. Background P0") / areas.get("L. Background")));
 		double rkP = data.get("R. Kidney P0")
-				- (areas.get("R. Kidney") * (data.get("R. bkg P0") / areas.get("R. bkg")));
+				- (areas.get("R. Kidney") * (data.get("R. Background P0") / areas.get("R. Background")));
 		data.put("L. Kidney Post adjusted", lkP);
 		data.put("R. Kidney Post adjusted", rkP);
 
 		//si il y a une prise ant, on fait les moyennes geometriques
 		if (data.get("L. Kidney A0") != null) {
 			double lkA = data.get("L. Kidney A0")
-					- (areas.get("L. Kidney") * (data.get("L. bkg A0") / areas.get("L. bkg")));
+					- (areas.get("L. Kidney") * (data.get("L. Background A0") / areas.get("L. Background")));
 			double rkA = data.get("R. Kidney A0")
-					- (areas.get("R. Kidney") * (data.get("R. bkg A0") / areas.get("R. bkg")));
+					- (areas.get("R. Kidney") * (data.get("R. Background A0") / areas.get("R. Background")));
 
 			//ajout des donnes dans la hashmap des coups
 			data.put("L. Kidney Ant adjusted", lkA);

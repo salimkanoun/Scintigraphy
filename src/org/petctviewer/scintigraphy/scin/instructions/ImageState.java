@@ -28,9 +28,18 @@ public class ImageState {
 	 */
 	public static final int ID_CUSTOM_IMAGE = -3;
 	/**
+	 * Specifies that the ID should be the same as the current workflow.<br>
+	 * In some cases, this may be similar to {@link #ID_NONE}.
+	 */
+	public static final int ID_WORKFLOW = -4;
+	/**
+	 * Specifies that all slices should be used.
+	 */
+	public static final int SLICE_ALL = 0;
+	/**
 	 * Specifies that the slice should be the same as the previous image.
 	 */
-	public static final int SLICE_PREVIOUS = 0;
+	public static final int SLICE_PREVIOUS = -1;
 	/**
 	 * Specifies a Right-Left lateralisation.
 	 */
@@ -140,7 +149,7 @@ public class ImageState {
 	public boolean isLateralisationLR() {
 		return !this.lateralisation;
 	}
-	
+
 	public boolean getLateralisation() {
 		return this.lateralisation;
 	}
@@ -241,6 +250,8 @@ public class ImageState {
 			idImage = "NONE";
 		else if (this.idImage == ID_PREVIOUS)
 			idImage = "PREVIOUS";
+		else if (this.idImage == ID_WORKFLOW)
+			idImage = "WORKFLOW";
 		else
 			idImage = this.idImage + "";
 
@@ -256,10 +267,17 @@ public class ImageState {
 		else
 			lateralisation = "RIGHT-LEFT";
 
+		String imageName;
+		if (this.image != null)
+			imageName = (this.image.getImagePlus() != null ? this.image.getImagePlus().getTitle()
+					: "// NO IMAGE PLUS//");
+		else
+			imageName = "NO-IMAGE";
+
 		return "ImageState [idImage=" + idImage + ",\n\tslice=" + slice + ",\n\tfacingOrientation=" + facingOrientation
-				+ ",\n\tlateralisation=" + lateralisation + ",\n\timage=" + image.getImagePlus().getTitle() + "]";
+				+ ",\n\tlateralisation=" + lateralisation + ",\n\timage=" + imageName + "]";
 	}
-	
+
 	@Override
 	public ImageState clone() {
 		ImageState clone = new ImageState(facingOrientation, SLICE_PREVIOUS, lateralisation, idImage);

@@ -1,6 +1,6 @@
 package org.petctviewer.scintigraphy.scin.instructions.generator;
 
-import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 
 /**
@@ -47,5 +47,10 @@ public interface GeneratorInstruction extends Instruction {
 	 * {@link #afterNext(ControllerWorkflow)} method.
 	 */
 	void stop();
+
+	/**
+	 * This method allows this instruction to generate again a new instruction.
+	 */
+	void activate();
 
 }

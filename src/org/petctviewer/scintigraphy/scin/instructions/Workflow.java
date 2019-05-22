@@ -4,9 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
 
 /**

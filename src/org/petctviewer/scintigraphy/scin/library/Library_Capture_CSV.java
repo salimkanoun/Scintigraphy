@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
 
-import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -573,6 +573,24 @@ public class Library_Capture_CSV {
 			roiManager.setSelectedIndexes(tab);
 			roiManager.runCommand("Save", pathFinal.toString() + File.separator + nomFichier + ".zip");
 
+			
+//			List<Roi> roiList = new ArrayList<>();
+//			for(Roi r : rois2)
+//				roiList.add(r);
+//			
+//			FileOutputStream fos = null;
+//			ObjectOutputStream oos = null;
+//			try {
+//				fos = new FileOutputStream(pathFinal.toString() + File.separator + nomFichier);
+//				oos = new ObjectOutputStream(fos);
+//				oos.writeObject(roiList);
+//				oos.close();
+//			} catch (IOException e1) {
+//				e1.printStackTrace();
+//			}
+			
+			
+			
 			// On sauve l'image en jpeg
 			IJ.saveAs(imp, "Jpeg", pathFinal.toString() + File.separator + nomFichier + ".jpg");
 

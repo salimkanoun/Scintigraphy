@@ -17,12 +17,10 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.esophageus.application.Modele_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
@@ -49,11 +47,11 @@ public class TabTransitTime extends TabResult {
 
 	private Integer nbAcquisition;
 
-	private Modele_EsophagealTransit modeleApp;
+	private Modele_Resultats_EsophagealTransit modeleApp;
 
-	public TabTransitTime(int nbAcquisition, FenResults parent, Modele_EsophagealTransit modeleApp) {
+	public TabTransitTime(int nbAcquisition, FenResults parent, Modele_Resultats_EsophagealTransit model) {
 		super(parent, "Transit Time");
-		this.modeleApp = modeleApp;
+		this.modeleApp = model;
 		this.nbAcquisition = nbAcquisition;
 
 		this.createCaptureButton("TransitTimes");
@@ -70,6 +68,8 @@ public class TabTransitTime extends TabResult {
 
 	@Override
 	public Component getSidePanelContent() {
+
+		this.getResultContent();
 		// Panel de selection des acquisitions (side panel)
 		JPanel selectionAcquiTransitPanel = new JPanel();
 		selectionAcquiTransitPanel.setLayout(new GridLayout(nbAcquisition, 1));
@@ -150,12 +150,10 @@ public class TabTransitTime extends TabResult {
 		// graph
 		graphTransitTime = ChartFactory.createXYLineChart("Transit Time", "s", "Count/s", null);
 		// Changes background color et grid color
-		graphTransitTime.getXYPlot().setBackgroundPaint(new Color(255, 255, 255));
 		graphTransitTime.getXYPlot().setRangeGridlinePaint(Color.black);
 		graphTransitTime.getXYPlot().setDomainGridlinePaint(Color.black);
 
-		XYSeries[][] datasetModele = ((Modele_Resultats_EsophagealTransit) this.parent.getModel())
-				.getDataSetTransitTime();
+		XYSeries[][] datasetModele = ((Modele_Resultats_EsophagealTransit) modeleApp).getDataSetTransitTime();
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		for (int i = 0; i < datasetModele.length; i++) {
 			for (int j = 0; j < datasetModele[i].length; j++) {
@@ -163,13 +161,12 @@ public class TabTransitTime extends TabResult {
 			}
 		}
 		// Changes background color
-		XYPlot plott = (XYPlot) graphTransitTime.getPlot();
-		plott.setBackgroundPaint(new Color(255, 255, 255));
+//		XYPlot plott = (XYPlot) graphTransitTime.getPlot();
 
 		graphTransitTime.getXYPlot().setDataset(dataset);
 
-		// rend toutes les coubres visible
-		for (int i = 0; i < nbAcquisition; i++) {
+		// Hide every curves exept the first one
+		for (int i = 1; i < nbAcquisition; i++) {
 			this.setVisibilitySeriesGraph(graphTransitTime, i, false);
 		}
 
@@ -201,8 +198,7 @@ public class TabTransitTime extends TabResult {
 						"Acquisition " + (numSeriesSelectors + 1) + " : " + Library_Quantif.round(delta, 2) + " sec");
 
 				// on l'envoi au modele pour le csv
-				((Modele_Resultats_EsophagealTransit) tab.getParent().getModel()).setTimeMeasure(numSeriesSelectors,
-						delta);
+				((Modele_Resultats_EsophagealTransit) modeleApp).setTimeMeasure(numSeriesSelectors, delta);
 			}
 		});
 

@@ -6,11 +6,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -31,6 +34,7 @@ public class Library_Dicom {
 		String aquisitionDate = DicomTools.getTag(imp, "0008,0022");
 		String aquisitionTime = DicomTools.getTag(imp, "0008,0032");
 		String dateInput = aquisitionDate.trim() + aquisitionTime.trim();
+		
 		// On enleve les milisec qui sont inconstantes
 		int separateurPoint = dateInput.indexOf(".");
 		if (separateurPoint != -1)
@@ -61,6 +65,8 @@ public class Library_Dicom {
 		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
 		if (!StringUtils.isEmpty(tagDetecteur))
 			tagDetecteur = tagDetecteur.trim();
+		//For orthanc replace \ by space for uniformity with IJ
+		tagDetecteur=tagDetecteur.replaceAll("\\\\", " ");
 		String delims = "[ ]+";
 		String[] sequenceDetecteur = tagDetecteur.split(delims);
 
@@ -132,6 +138,8 @@ public class Library_Dicom {
 		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
 		if (!StringUtils.isEmpty(tagDetecteur))
 			tagDetecteur = tagDetecteur.trim();
+		//For orthanc replace \ by space for uniformity with IJ
+		tagDetecteur=tagDetecteur.replaceAll("\\\\", " ");
 		String delims = "[ ]+";
 		String[] sequenceDetecteur = tagDetecteur.split(delims);
 		boolean sameCamera = true;
@@ -156,6 +164,8 @@ public class Library_Dicom {
 		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
 		if (!StringUtils.isEmpty(tagDetecteur))
 			tagDetecteur = tagDetecteur.trim();
+		//For orthanc replace \ by space for uniformity with IJ
+		tagDetecteur=tagDetecteur.replaceAll("\\\\", " ");
 		String delims = "[ ]+";
 		String[] sequenceDeteceur = tagDetecteur.split(delims);
 		boolean detecteur1 = false;
@@ -421,12 +431,13 @@ public class Library_Dicom {
 		// Si pas de tag
 		if (StringUtils.isEmpty(tag))
 			tag = "no tag";
-		// On recupere la chaine de detecteur
-		// SK ZONE A RISQUE SI PAS DE CHAINE DE DETECTEUR A SURVEILLER
+		// On recupere la chaine de detecteurER
 		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
 		if (!StringUtils.isEmpty(tagDetecteur)) {
 			tagDetecteur = tagDetecteur.trim();
 		}
+		//For orthanc replace \ by space for uniformity with IJ
+		tagDetecteur=tagDetecteur.replaceAll("\\\\", " ");
 		String delims = "[ ]+";
 		String[] sequenceDeteceur = tagDetecteur.split(delims);
 
@@ -602,7 +613,10 @@ public class Library_Dicom {
 				frameDurations[i] = duration;
 			}
 		} else {
-			String[] phasesStr = DicomTools.getTag(imp, "0054,0030").trim().split(" ");
+			String durationsTag=DicomTools.getTag(imp, "0054,0030").trim();
+			//For orthanc replace \ by space for uniformity with IJ
+			durationsTag=durationsTag.replaceAll("\\\\", " ");
+			String[] phasesStr = durationsTag.split(" ");
 			int[] phases = new int[phasesStr.length];
 
 			Integer[] durations = Library_Dicom.getDurations(imp);
@@ -703,50 +717,87 @@ public class Library_Dicom {
 					new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT });
 		return result;
 	}
-	
+
 	/**
 	 * Normalize to have on each frame, the count/second number.
 	 * 
-	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image.
-	 * Otherwise, the count are only ineter, and we lose many informations.
-	 * @param imp
-	 *         ImagePlus to normalize
-	 * @param framDurations
-	 *         int[] of the ImagePlus duration frames
+	 * To avoid a loss of information, we recommand to do this normalization on a 32
+	 * bit image. Otherwise, the count are only ineter, and we lose many
+	 * informations.
+	 * 
+	 * @param imp           ImagePlus to normalize
+	 * @param framDurations int[] of the ImagePlus duration frames
 	 */
 	public static void normalizeToCountPerSecond(ImagePlus imp, int[] frameDurations) {
 		IJ.run(imp, "32-bit", "");
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
-			imp.getImageStack().getProcessor(i).multiply(1000d / (double)frameDurations[i - 1]);
+			imp.getImageStack().getProcessor(i).multiply(1000d / (double) frameDurations[i - 1]);
 		}
 	}
-	
+
 	/**
 	 * Normalize to have on each frame, the count/second number.
 	 * 
-	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image.
-	 * Otherwise, the count are only ineter, and we lose many informations.
-	 * @param imp
-	 *        ImagePlus to normalize
+	 * To avoid a loss of information, we recommand to do this normalization on a 32
+	 * bit image. Otherwise, the count are only ineter, and we lose many
+	 * informations.
+	 * 
+	 * @param imp ImagePlus to normalize
 	 * 
 	 */
 	public static void normalizeToCountPerSecond(ImagePlus imp) {
 		int[] frameDurations = Library_Dicom.buildFrameDurations(imp);
-		normalizeToCountPerSecond(imp,frameDurations);
+		normalizeToCountPerSecond(imp, frameDurations);
 	}
-	
+
 	/**
 	 * Normalize to have on each frame, the count/second number.
 	 * 
-	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image.
-	 * Otherwise, the count are only ineter, and we lose many informations.
-	 * @param imp
-	 *        ImageSelection to normalize
+	 * To avoid a loss of information, we recommand to do this normalization on a 32
+	 * bit image. Otherwise, the count are only ineter, and we lose many
+	 * informations.
+	 * 
+	 * @param imp ImageSelection to normalize
 	 * 
 	 */
 	public static void normalizeToCountPerSecond(ImageSelection imp) {
 		normalizeToCountPerSecond(imp.getImagePlus());
 	}
+	
+	/**
+	 * Use the methode concatenate of a Concatenator.
+	 * This method hide the complexity of this call, for ImageSelection.
+	 * @param imageSelection
+	 * @param keepIms
+	 * @return The concatenate ImagePlus
+	 * 
+	 * @see {@link  Concatenator}
+	 * @see {@link  Concatenator#concatenate(ImagePlus[], boolean)}
+	 */
+	public static ImagePlus concatenate(ImageSelection[] imageSelection, boolean keepIms) {
+		Concatenator enchainer = new Concatenator();
+		
+		ImagePlus[] images = new ImagePlus[imageSelection.length];
+		for(int i = 0 ; i < imageSelection.length ; i ++)
+			images[i] = imageSelection[i].getImagePlus();
+		
+		return enchainer.concatenate(images, keepIms);
+	}
+	
+	public static String findIsotopeCode(ImagePlus imp) {
+		String infoProperty = imp.getInfoProperty();
+		if (infoProperty != null) {
+			Pattern pattern = Pattern.compile("Radionuclide Code Sequence.*Code Value: (C-\\w*)", Pattern.DOTALL);
+			Matcher matcher = pattern.matcher(infoProperty);
+			if (matcher.find()) {
+				return matcher.group(1);
+			}
+		}
+		return null;
+	}
 
+	public static Isotope findIsotope(ImagePlus imp) {
+		return Isotope.getIsotopeFromCode(findIsotopeCode(imp));
+	}
 }

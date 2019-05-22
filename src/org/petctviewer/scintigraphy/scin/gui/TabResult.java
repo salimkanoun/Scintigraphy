@@ -1,19 +1,22 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 
 public abstract class TabResult {
 
 	private String title;
 	protected FenResults parent;
 
-	private JPanel panel;
+	private JSplitPane split;
 
 	private SidePanel sidePanel;
-	private JPanel result;
+	private Container result;
 
 	/**
 	 * Instantiate a new tab.<br>
@@ -51,9 +54,8 @@ public abstract class TabResult {
 
 		this.sidePanel = new SidePanel(null, parent.getModel().getStudyName(), parent.getModel().getImagePlus());
 
-		this.panel = new JPanel(new BorderLayout());
-		this.panel.add(this.sidePanel, BorderLayout.EAST);
-		this.panel.add(this.result, BorderLayout.CENTER);
+		split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.result, this.sidePanel);
+		this.split.setResizeWeight(1.);
 	}
 
 	/**
@@ -70,10 +72,10 @@ public abstract class TabResult {
 	 * 
 	 * @return displayable result
 	 */
-	public abstract JPanel getResultContent();
+	public abstract Container getResultContent();
 
 	/**
-	 * Title of this tab. This title should be displayed on the JTabbedPane's title.
+	 * Title of this tab. This title should be displayed on the JTabbedPane title.
 	 * 
 	 * @return title of this tab
 	 */
@@ -130,8 +132,8 @@ public abstract class TabResult {
 	 * 
 	 * @return Panel containing the result panel and the side panel
 	 */
-	public JPanel getPanel() {
-		return this.panel;
+	public Container getPanel() {
+		return this.split;
 	}
 
 	/**
@@ -155,7 +157,9 @@ public abstract class TabResult {
 	public void reloadSidePanelContent() {
 		Component sidePanelContent = this.getSidePanelContent();
 		Component content = sidePanelContent == null ? new JPanel() : sidePanelContent;
-		this.sidePanel.setSidePanelContent(content);
+		JScrollPane scroll = new JScrollPane(content);
+		scroll.setBorder(null);
+		this.sidePanel.setSidePanelContent(scroll);
 	}
 
 	/**
@@ -164,15 +168,23 @@ public abstract class TabResult {
 	 * @see TabResult#reloadDisplay()
 	 */
 	public void reloadResultContent() {
-		if (this.result != null)
-			this.panel.remove(this.result);
-		this.result = this.getResultContent() == null ? new JPanel() : this.getResultContent();
-		this.panel.add(this.result, BorderLayout.CENTER);
-		this.parent.repaint();
-		this.parent.revalidate();
-		this.parent.pack();
+		this.result = this.getResultContent();
+		// Prevent from null
+		if (this.result == null)
+			this.result = new JPanel();
+
+		// Remove previous result and add new one
+		this.split.setLeftComponent(this.result);
+		
+		// Respect ratio
+		this.result.setPreferredSize(new Dimension(1024, 768));
 	}
 
+	/**
+	 * Changes the title of the side panel.
+	 * 
+	 * @param sidePanelTitle New title to display
+	 */
 	public void setSidePanelTitle(String sidePanelTitle) {
 		this.sidePanel.setTitle(sidePanelTitle);
 	}

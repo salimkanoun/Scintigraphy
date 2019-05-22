@@ -6,6 +6,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -27,9 +28,8 @@ public class ShunpoScintigraphy extends Scintigraphy {
 		FenSelectionDicom fen = new FenSelectionDicom(this.getStudyName(), this);
 
 		// Orientation column
-		String[] orientationValues = { Orientation.ANT.toString(), Orientation.POST.toString(),
-				Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString(), Orientation.UNKNOWN.toString() };
-		Column orientation = new Column("Orientation", orientationValues);
+		String[] orientationValues = { Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString() };
+		Column orientation = new Column(Column.ORIENTATION.getName(), orientationValues);
 
 		// Organ column
 		String[] organValues = { ORGAN_KIDNEY_PULMON, ORGAN_BRAIN };
@@ -68,7 +68,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 			toClose[idImg] = selectedImages[idImg].getImagePlus();
 			selectedImages[idImg] = Library_Dicom.ensureAntPostFlipped(selectedImages[idImg]);
 		}
-		for(ImagePlus imp : toClose)
+		for (ImagePlus imp : toClose)
 			imp.close();
 
 		return selectedImages;
@@ -77,13 +77,9 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		// Start program
-		this.setFenApplication(new FenApplication_Shunpo(this, selectedImages[0].getImagePlus()));
-//		this.getFenApplication()
-////				.setControleur(new ControleurShunpo(this, this.getFenApplication(), selectedImages, "Pulmonary Shunt"));
-//				.setControleur(new ControllerShunpo(this, getFenApplication(), selectedImages, "Pulmonary Shunt"));
-		this.getFenApplication()
-//		.setControleur(new ControleurShunpo(this, this.getFenApplication(), selectedImages, "Pulmonary Shunt"));
-		.setControleur(new ControllerWorkflowShunpo(this, getFenApplication(),new ModeleShunpo(selectedImages, "Pulmonary Shunt")));
+		this.setFenApplication(new FenApplication_Shunpo(this, selectedImages[0]));
+		((FenApplicationWorkflow) this.getFenApplication()).setControleur(new ControllerWorkflowShunpo(this,
+				(FenApplicationWorkflow) getFenApplication(), new ModeleShunpo(selectedImages, "Pulmonary Shunt")));
 		this.getFenApplication().setVisible(true);
 	}
 

@@ -2,7 +2,7 @@ package org.petctviewer.scintigraphy.scin.instructions.execution;
 
 import javax.swing.JOptionPane;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 
 /**

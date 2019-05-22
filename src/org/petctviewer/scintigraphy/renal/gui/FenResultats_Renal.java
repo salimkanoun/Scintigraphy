@@ -7,7 +7,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.Modele_Renal;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 
 import ij.Prefs;
@@ -32,7 +32,8 @@ public class FenResultats_Renal extends FenResults {
 		if (((Modele_Renal) controller.getModel()).getPatlakChart() != null) {
 			this.addTab(new TabPatlak(vue, this));
 		}
-		this.addTab(new TabDeconvolve(this, "Deconvolve"));
+		if (Prefs.get("petctviewer.scin.experimental", false))
+			this.addTab(new TabDeconvolve(this, "Deconvolve"));
 
 		this.setTitle("Results Renal Exam");
 		this.setPreferredSize(new Dimension(width, height));

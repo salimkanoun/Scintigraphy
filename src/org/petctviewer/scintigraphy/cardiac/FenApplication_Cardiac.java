@@ -3,16 +3,19 @@ package org.petctviewer.scintigraphy.cardiac;
 import java.awt.Button;
 import java.awt.GridLayout;
 import java.awt.Panel;
+import java.awt.event.ActionEvent;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import javax.swing.JButton;
+
+import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.FenApplicationSecondHepaticDyn;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 
 import ij.IJ;
-import ij.ImagePlus;
 import ij.gui.Toolbar;
 
-public class FenApplication_Cardiac extends FenApplication {
+public class FenApplication_Cardiac extends FenApplicationWorkflow {
 
 	private static final long serialVersionUID = -8986173550839545500L;
 
@@ -20,18 +23,20 @@ public class FenApplication_Cardiac extends FenApplication {
 	private Button btn_newCont;
 	private Button btn_continue;
 	private boolean modeCont;
+	JButton buttonTest;
 
-	public FenApplication_Cardiac(ImagePlus imp, String nom) {
-		super(imp, nom);
+	public FenApplication_Cardiac(ImageSelection ims, String nom) {
+		super(ims, nom);
 		this.modeCont = false;
 
 		this.btn_continue = new Button("End");
 		this.btn_newCont = new Button("Next");
-		this.setText_instructions("Delimit the Bladder");
 
 		this.setPreferredCanvasSize(600);
 		this.setLocationRelativeTo(null);
 		IJ.setTool(Toolbar.POLYGON);
+
+		this.pack();
 	}
 
 	/**
@@ -46,6 +51,11 @@ public class FenApplication_Cardiac extends FenApplication {
 		btns_instru.add(this.btn_newCont);
 		btns_instru.add(this.btn_continue);
 		this.getPanel_Instructions_btns_droite().add(btns_instru);
+		
+		btns_instru.setLayout(new GridLayout(1, 1));
+		buttonTest = new JButton("Load Roi");
+		buttonTest.addActionListener(this);
+		btns_instru.add(buttonTest);
 		this.modeCont = true;
 
 		this.pack();
@@ -59,12 +69,6 @@ public class FenApplication_Cardiac extends FenApplication {
 	public void stopContaminationMode() {
 		this.getPanel_Instructions_btns_droite().remove(1);
 		this.getPanel_Instructions_btns_droite().add(this.createPanelInstructionsBtns());
-
-		String s = "Delimit the " + ((Controleur_OrganeFixe)this.getControleur()).getOrganes()[0];
-		this.setText_instructions(s);
-
-		Controleur_OrganeFixe ctrl = (Controleur_OrganeFixe) this.getControleur();
-		ctrl.setSlice(ctrl.getSliceNumberByRoiIndex(ctrl.getIndexRoi()));
 		this.modeCont = false;
 		IJ.setTool(Toolbar.POLYGON);
 		this.pack();
@@ -88,6 +92,14 @@ public class FenApplication_Cardiac extends FenApplication {
 
 	public Button getBtn_continue() {
 		return this.btn_continue;
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if((JButton)e.getSource() == this.buttonTest) {
+			FenApplicationSecondHepaticDyn.importRoiList(this, this.getControleur().getModel(), this.getControleur());
+//			((ControllerWorkflowCardiac)this.getControleur()).end();
+		}
 	}
 
 }

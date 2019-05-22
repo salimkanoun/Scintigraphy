@@ -5,11 +5,15 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.List;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ModelSecondMethodHepaticDynamic;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
@@ -37,6 +41,7 @@ public class TabTAC {
 	private ImagePlus montage;
 
 	private String studyName;
+	private boolean singleGraph;
 
 	public TabTAC(FenResults parent, TabResult tab) {
 
@@ -49,51 +54,72 @@ public class TabTAC {
 
 		this.tab = tab;
 
-		this.studyName = ((TabOtherMethod) this.tab).getFenApplication().getControleur().getModel().getStudyName();
+		this.studyName = ((TabCurves) this.tab).getFenApplication().getControleur().getModel().getStudyName();
 
 		this.reloadDisplay();
 
 	}
 
 	public JPanel getResultContent() {
-		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabOtherMethod) this.tab)
-				.getFenApplication().getControleur().getModel();
+		if (!singleGraph) {
+			ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
+					.getFenApplication().getControleur().getModel();
 
-		JPanel grid = new JPanel(new GridLayout(2, 2));
+			JPanel grid = new JPanel(new GridLayout(2, 2));
 
-		ImageStack stackCapture = Library_Capture_CSV.captureToStack(new ImagePlus[] { Library_Capture_CSV.captureImage(modele.getCapture(), 512, 0) });
-		this.montage = this.montage(stackCapture);
+			ImageStack stackCapture = Library_Capture_CSV
+					.captureToStack(new ImagePlus[] { Library_Capture_CSV.captureImage(modele.getCapture(), 512, 0) });
+			this.montage = this.montage(stackCapture);
 
-		// BufferedImage capture = fenApplication.getImagePlus().getBufferedImage();
+			// BufferedImage capture = fenApplication.getImagePlus().getBufferedImage();
 
-		grid.add(new DynamicImage(this.montage.getBufferedImage()));
+			grid.add(new DynamicImage(this.montage.getBufferedImage()));
 
-		JPanel pnl_center = new JPanel(new GridLayout(2, 2));
 
-		List<XYSeries> series = modele.getSeries();
-		ChartPanel chartDuodenom = Library_JFreeChart.associateSeries(new String[] { "Duodenom" }, series);
-		JValueSetter setterDuodenom = new JValueSetter(chartDuodenom.getChart());
-		setterDuodenom.addSelector(new Selector("start", 10, -1, RectangleAnchor.BOTTOM_RIGHT), "start");
-		pnl_center.add(setterDuodenom);
 
-		ChartPanel chartCBD = Library_JFreeChart.associateSeries(new String[] { "CBD" }, series);
-		pnl_center.add(chartCBD);
+			List<XYSeries> series = modele.getSeries();
+			ChartPanel chartDuodenom = Library_JFreeChart.associateSeries(new String[] { "Duodenom" }, series);
+			JValueSetter setterDuodenom = new JValueSetter(chartDuodenom.getChart());
+			setterDuodenom.addSelector(new Selector("start", 10, -1, RectangleAnchor.BOTTOM_RIGHT), "start");
 
-		ChartPanel chartHilium = Library_JFreeChart.associateSeries(new String[] { "Hilium" }, series);
-		JValueSetter setterHilium = new JValueSetter(chartHilium.getChart());
-		setterHilium.addSelector(new Selector("start", 10, -1, RectangleAnchor.BOTTOM_RIGHT), "start");
-		pnl_center.add(setterHilium);
 
-		chartDuodenom.setPreferredSize(new Dimension(parent.getWidth() / 2, parent.getHeight() / 2));
-		grid.add(chartDuodenom);
+			ChartPanel chartCBD = Library_JFreeChart.associateSeries(new String[] { "CBD" }, series);
 
-		chartCBD.setPreferredSize(new Dimension(parent.getWidth() / 2, parent.getHeight() / 2));
-		grid.add(chartCBD);
 
-		chartHilium.setPreferredSize(new Dimension(parent.getWidth() / 2, parent.getHeight() / 2));
-		grid.add(chartHilium);
+			ChartPanel chartHilium = Library_JFreeChart.associateSeries(new String[] { "Hilium" }, series);
+			JValueSetter setterHilium = new JValueSetter(chartHilium.getChart());
+			setterHilium.addSelector(new Selector("start", 10, -1, RectangleAnchor.BOTTOM_RIGHT), "start");
 
-		return grid;
+
+//			chartDuodenom.setPreferredSize(new Dimension(parent.getWidth() / 2, parent.getHeight() / 2));
+			grid.add(chartDuodenom);
+
+//			chartCBD.setPreferredSize(new Dimension(parent.getWidth() / 2, parent.getHeight() / 2));
+			grid.add(chartCBD);
+
+//			chartHilium.setPreferredSize(new Dimension(parent.getWidth() / 2, parent.getHeight() / 2));
+			grid.add(chartHilium);
+
+//			grid.setPreferredSize(new Dimension(1000, 650));
+
+			return grid;
+		} else {
+			ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
+					.getFenApplication().getControleur().getModel();
+
+			XYSeriesCollection data = new XYSeriesCollection();
+			data.addSeries(modele.getSerie("Duodenom"));
+			data.addSeries(modele.getSerie("CBD"));
+			data.addSeries(modele.getSerie("Hilium"));
+
+			JFreeChart chart = ChartFactory.createXYLineChart("", "min", "counts/sec", data);
+
+			ChartPanel chartpanel = new ChartPanel(chart);
+
+			chartpanel.setPreferredSize(new Dimension(1000, 650));
+
+			return chartpanel;
+		}
 	}
 
 	public String getTitle() {
@@ -125,6 +151,15 @@ public class TabTAC {
 		ImagePlus imp = new ImagePlus("Results TAC -" + this.studyName + " -" + patientID, captures);
 		imp = mm.makeMontage2(imp, 1, 1, 0.50, 1, 1, 1, 10, false);
 		return imp;
+	}
+
+	public void switchGraph(JButton buttonSwitchGraph) {
+		this.singleGraph = !singleGraph;
+		if (this.singleGraph == true)
+			buttonSwitchGraph.setText("Multiple graphs");
+		else
+			buttonSwitchGraph.setText("Sinlgle graph");
+		this.reloadDisplay();
 	}
 
 }

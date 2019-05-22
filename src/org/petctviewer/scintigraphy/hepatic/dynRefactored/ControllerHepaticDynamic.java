@@ -11,12 +11,12 @@ import java.awt.event.MouseListener;
 import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabMainHepaticDyn;
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabOtherMethod;
-import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabCurves;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 public class ControllerHepaticDynamic extends ControleurScin implements MouseListener, ActionListener {
 
@@ -44,7 +44,7 @@ public class ControllerHepaticDynamic extends ControleurScin implements MouseLis
 				Integer.valueOf(value3));
 		FenResults fenResult = new FenResults(this);
 		fenResult.setMainTab(new TabMainHepaticDyn(fenResult, ((ModelHepaticDynamic) this.model)));
-		fenResult.addTab(new TabOtherMethod(fenResult, "Other Method"));
+		fenResult.addTab(new TabCurves(fenResult, "Curves second method"));
 	}
 
 	public void mouseClicked(MouseEvent e) {

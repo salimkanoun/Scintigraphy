@@ -22,10 +22,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -35,6 +35,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
+import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
 import ij.WindowManager;
@@ -228,7 +229,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		panel.add(jp, BorderLayout.SOUTH);
 
 		this.add(panel);
-		this.setPreferredSize(new Dimension(500, 500));
+		this.setPreferredSize(new Dimension(700, 300));
 		this.pack();
 		this.setLocationRelativeTo(null);
 	}
@@ -293,6 +294,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 					data.add(imageData);
 				} catch (Exception e) {
 					countErrors++;
+					IJ.handleException(e);
 				}
 			}
 			if (countErrors > 0)
@@ -361,17 +363,21 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	}
 
 	private void resizeColumnWidth(JTable table) {
-		final TableColumnModel columnModel = table.getColumnModel();
-		for (int column = 0; column < table.getColumnCount(); column++) {
-			int width = 15; // Min width
+//		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+		for (int col = 0; col < table.getColumnCount(); col++) {
+			DefaultTableColumnModel colModel = (DefaultTableColumnModel) table.getColumnModel();
+			TableColumn column = colModel.getColumn(col);
+
+			int width = 100;
+			TableCellRenderer renderer = column.getHeaderRenderer();
 			for (int row = 0; row < table.getRowCount(); row++) {
-				TableCellRenderer renderer = table.getCellRenderer(row, column);
-				Component comp = table.prepareRenderer(renderer, row, column);
-				width = Math.max(comp.getPreferredSize().width + 1, width);
+				renderer = table.getCellRenderer(row, col);
+				Component component = renderer.getTableCellRendererComponent(table, table.getValueAt(row, col), false,
+						false, row, col);
+				width = Math.max(width, component.getPreferredSize().width);
 			}
-			if (width > 300)
-				width = 300;
-			columnModel.getColumn(column).setPreferredWidth(width);
+			column.setPreferredWidth(width + 2);
 		}
 	}
 
@@ -505,13 +511,13 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		for (String[] s : this.getTableData()) {
 			this.dataModel.addRow(s);
 		}
-		resizeColumnWidth(table);
 
 	}
 
 	@Override
 	public void imageOpened(ImagePlus imp) {
 		this.updateTable();
+		resizeColumnWidth(table);
 	}
 
 	@Override

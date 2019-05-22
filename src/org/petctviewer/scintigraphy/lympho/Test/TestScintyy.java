@@ -46,7 +46,7 @@ public class TestScintyy extends Scintigraphy {
 
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
-		TestFenApp test = new TestFenApp(selectedImages[0].getImagePlus(), this.getStudyName());
+		TestFenApp test = new TestFenApp(selectedImages[0], this.getStudyName());
 		// this.getFenApplication()
 		// .setControleur(new ControleurLympho(this, this.getFenApplication(), "Lympho
 		// Scinti", selectedImages));

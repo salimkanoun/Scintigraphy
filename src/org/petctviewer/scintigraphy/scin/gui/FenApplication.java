@@ -1,10 +1,16 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Menu;
+import java.awt.MenuBar;
+import java.awt.MenuItem;
 import java.awt.Panel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseWheelListener;
@@ -15,8 +21,9 @@ import java.util.List;
 
 import javax.swing.JTextField;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
-import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.FenApplicationSecondHepaticDyn;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.ImagePlus;
@@ -38,24 +45,26 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	protected Panel panel_Instructions_btns_droite;
 
 	// Panel avec boutons quit, draw roi, contrast
-	private Panel panel_btns_gauche;
-	private Panel panel_btns_droite;
+	protected Panel panel_btns_gauche;
+	protected Panel panel_btns_droite;
 
-	private JTextField textfield_instructions;
+	protected JTextField textfield_instructions;
 
-	private Button btn_quitter;
-	private Button btn_drawROI;
-	private Button btn_contrast;
-	private Button btn_precedent;
-	private Button btn_suivant;
+	protected Button btn_quitter;
+	protected Button btn_drawROI;
+	protected Button btn_contrast;
+	protected Button btn_precedent;
+	protected Button btn_suivant;
 
-	private ControleurScin controleur;
+	protected ControleurScin controleur;
 
-	private Panel panelPrincipal, panelContainer;
+	protected Panel panelPrincipal, panelContainer;
 
-	private String nom;
+	protected String nom;
 
 	private int canvasW, canvasH;
+
+	private MenuBar menuBar;
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
@@ -66,10 +75,10 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	 *            Nom du type de scintigraphie
 	 */
 	public FenApplication(ImagePlus imp, String nom) {
-		this(imp,nom,new ImageCanvas(imp));
+		this(imp, nom, new ImageCanvas(imp));
 
 	}
-	
+
 	public FenApplication(ImagePlus imp, String nom, ImageCanvas canvas) {
 		super(imp, canvas);
 		// on set la lut des preferences
@@ -87,7 +96,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		setTitle(titre);// frame title
 		this.imp.setTitle(titre);// imp title
 
-		panelContainer = new Panel();
+		panelContainer = new Panel(new BorderLayout());
 		this.panelPrincipal = new Panel(new FlowLayout());
 
 		// construit tous les boutons
@@ -119,8 +128,12 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 		panelPrincipal.add(this.panel_Instructions_btns_droite);
 
-		panelContainer.add(this.panelPrincipal);
+		panelContainer.add(this.panelPrincipal, BorderLayout.CENTER);
 		this.add(panelContainer);
+
+		this.menuBar = new MenuBar();
+
+		this.createMenuBar();
 
 		this.setDefaultSize();
 		this.addComponentListener(this);
@@ -239,6 +252,33 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		return panel_btns_droite;
 	}
 
+	public MenuBar getMenuBar() {
+		return this.menuBar;
+	}
+
+	private void createMenuBar() {
+		Menu options = new Menu("Options");
+		MenuItem loadRois = new MenuItem("Load ROIs from .zip");
+		loadRois.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FenApplicationSecondHepaticDyn.importRoiList(FenApplication.this,
+						FenApplication.this.controleur.getModel(), FenApplication.this.controleur);
+				FenApplication.this.getImagePlus()
+						.setRoi(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
+			}
+		});
+
+		Menu help = new Menu("Help");
+		MenuItem documentation = new MenuItem("Documentation");
+		help.add(documentation);
+
+		options.add(loadRois);
+		this.menuBar.add(options);
+		this.menuBar.add(help);
+		this.setMenuBar(this.menuBar);
+	}
+
 	public void setDefaultSize() {
 		this.setPreferredCanvasSize(512);
 	}
@@ -293,7 +333,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 	@Override
 	public void componentResized(ComponentEvent e) {
-		
+
 	}
 
 	@Override
@@ -307,8 +347,8 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	@Override
 	public void componentHidden(ComponentEvent e) {
 	}
-//	@Override
-//	public synchronized void mouseWheelMoved(MouseWheelEvent e) {
-//		
-//	}
+	// @Override
+	// public synchronized void mouseWheelMoved(MouseWheelEvent e) {
+	//
+	// }
 }

@@ -3,9 +3,9 @@ package org.petctviewer.scintigraphy.generic.statics;
 import java.awt.Button;
 import java.awt.event.ActionEvent;
 
-import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.controller.Controleur_OrganeFixe;
 
 import ij.ImagePlus;
 import ij.gui.Roi;

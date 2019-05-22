@@ -9,11 +9,10 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.gui.FenNeph;
 import org.petctviewer.scintigraphy.renal.gui.FenResultats_Renal;
-import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackground;
@@ -23,6 +22,7 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import ij.ImagePlus;
 import ij.Prefs;
@@ -33,11 +33,12 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 	private List<ImagePlus> captures;
 
-	public ControllerWorkflowRenal(Scintigraphy main, FenApplication vue, ModeleScin model) {
+	public ControllerWorkflowRenal(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
 		super(main, vue, model);
 		// TODO Auto-generated constructor stub
 
-		// Thos method are called in setKidneys, to avoid problems, because you need to
+		// Those method (generateInstructions() and start()) are called in setKidneys,
+		// to avoid problems, because you need to
 		// select the kidneys number before starting the Controller.
 	}
 
@@ -60,7 +61,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), 0);
 
 		if (((Modele_Renal) this.model).getKidneys()[0]) {
-			
+
 			dri_1 = new DrawRoiInstruction("L. Kidney", statePost);
 			this.workflows[0].addInstruction(dri_1);
 			organes.add("L. Kidney");
@@ -71,7 +72,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 				organes.add("L. Pelvis");
 			}
 
-			dri_Background_1 = new DrawRoiBackground("L. Background", statePost, dri_1, this.model,"");
+			dri_Background_1 = new DrawRoiBackground("L. Background", statePost, dri_1, this.model, "");
 			this.workflows[0].addInstruction(dri_Background_1);
 			organes.add("L. bkg");
 
@@ -88,7 +89,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 				organes.add("R. Pelvis");
 			}
 
-			dri_Background_2 = new DrawRoiBackground("R. Background", statePost, dri_3, this.model,"");
+			dri_Background_2 = new DrawRoiBackground("R. Background", statePost, dri_3, this.model, "");
 			this.workflows[0].addInstruction(dri_Background_2);
 			organes.add("R. bkg");
 
@@ -125,6 +126,8 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 		this.workflows[0].addInstruction(new EndInstruction());
 
+		// Update view
+		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	@Override
@@ -149,16 +152,16 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		// on enregistre la mesure pour chaque slice
 		for (int indexSlice = 1; indexSlice <= imp.getStackSize(); indexSlice++) {
 			imp.setSlice(indexSlice);
-			for (int indexRoi = 0; indexRoi < this.organeListe.length ; indexRoi++) {
+			for (int indexRoi = 0; indexRoi < this.organeListe.length; indexRoi++) {
 				imp.setRoi(this.model.getRoiManager().getRoi(indexRoi));
 				String nom = this.organeListe[indexRoi];
 				modele.enregistrerMesure(nom, imp);
-				
-				if(indexSlice == 1)
+
+				if (indexSlice == 1)
 					modele.enregistrerPixelRoi(nom, Library_Quantif.getPixelNumber(imp));
 			}
 		}
-		
+
 		// on calcule les resultats
 		modele.calculerResultats();
 
@@ -189,6 +192,13 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 	}
 
+	/**
+	 * This method is called to construct and start the controller, because we need
+	 * to specifie the number of kidney before.
+	 * 
+	 * @param kidneys
+	 *            Boolean array to specify the kidneys
+	 */
 	public void setKidneys(boolean[] kidneys) {
 		((Modele_Renal) this.model).setKidneys(kidneys);
 		this.generateInstructions();
