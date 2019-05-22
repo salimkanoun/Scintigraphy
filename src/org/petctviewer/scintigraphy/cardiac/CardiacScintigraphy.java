@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -25,6 +27,9 @@ public class CardiacScintigraphy extends Scintigraphy {
 
 	@Override
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
+		// Check number
+		if(selectedImages.length != 2)
+			throw new WrongNumberImagesException(selectedImages.length, 2);
 
 		ArrayList<ImageSelection> mountedImages = new ArrayList<>();
 
@@ -44,7 +49,9 @@ public class CardiacScintigraphy extends Scintigraphy {
 				frameDuration[i] = Integer.parseInt(DicomTools.getTag(imp.getImagePlus(), "0018,1242").trim());
 				mountedImages.add(montageImage);
 			} else {
-				new Exception("wrong input, need ant/post image");
+				throw new WrongColumnException.OrientationColumn(selectedImages[i].getRow(),
+						selectedImages[i].getImageOrientation(),
+						new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT });
 			}
 			selectedImages[i].getImagePlus().close();
 		}

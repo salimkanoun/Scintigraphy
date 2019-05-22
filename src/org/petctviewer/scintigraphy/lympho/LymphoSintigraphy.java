@@ -5,7 +5,9 @@ import java.util.Arrays;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
@@ -23,6 +25,9 @@ public class LymphoSintigraphy extends Scintigraphy {
 
 	@Override
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
+		// Check number of images
+		if (selectedImages.length != 2)
+			throw new WrongNumberImagesException(selectedImages.length, 2);
 
 		Arrays.parallelSort(selectedImages, new ChronologicalAcquisitionComparator());
 
@@ -41,8 +46,9 @@ public class LymphoSintigraphy extends Scintigraphy {
 				impSorted = imp.clone();
 				DynamicPosition = i;
 			} else {
-				throw new WrongInputException(
-						"Unexpected Image type.\n Accepted : ANT/POST | POST/ANT | DYNAMIC_ANT_POST");
+				throw new WrongColumnException.OrientationColumn(selectedImages[i].getRow(),
+						selectedImages[i].getImageOrientation(),
+						new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT, Orientation.DYNAMIC_ANT_POST });
 			}
 
 			impsSortedAntPost[i] = impSorted;

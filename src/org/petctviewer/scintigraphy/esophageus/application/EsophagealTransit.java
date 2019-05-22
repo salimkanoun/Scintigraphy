@@ -20,7 +20,9 @@ import javax.swing.JRadioButton;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
@@ -60,6 +62,10 @@ public class EsophagealTransit extends Scintigraphy {
 	// possible de refactorier le trie des images....
 	@Override
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
+		// Check number
+		if (selectedImages.length == 0)
+			throw new WrongNumberImagesException(selectedImages.length, 1, Integer.MAX_VALUE);
+
 		// entrée : tableau de toutes les images passées envoyé par la selecteur de
 		// dicom
 
@@ -93,11 +99,12 @@ public class EsophagealTransit extends Scintigraphy {
 					Library_Dicom.flipStackHorizontal(ims);
 					imagePourTriePost.add(ims);
 				}
-			}else if(selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_ANT)
+			} else if (selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_ANT)
 				imagePourTrieAnt.add(selectedImages[i].clone());
 			else
-				throw new WrongInputException(
-						"Unexpected Image type.\n Accepted : DYNAMIC_ANT | DYNAMIC_ANT_POST | DYNAMIC_POST_ANT");
+				throw new WrongColumnException.OrientationColumn(selectedImages[i].getRow(),
+						selectedImages[i].getImageOrientation(), new Orientation[] { Orientation.DYNAMIC_ANT,
+								Orientation.DYNAMIC_ANT_POST, Orientation.DYNAMIC_POST_ANT });
 			selectedImages[i].getImagePlus().close();
 
 		}
@@ -231,7 +238,7 @@ public class EsophagealTransit extends Scintigraphy {
 	public int[] getFrameDurations() {
 		return frameDurations;
 	}
-	
+
 	public ImageSelection getImgPrjtAllAcqui() {
 		ImageSelection returned = sauvegardeImagesSelectDicom[0][0].clone(Orientation.ANT);
 		returned.setImagePlus(impProjeteAllAcqui);
