@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.calibration.Calibration;
 import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
+import org.petctviewer.scintigraphy.colonic.ColonicScintigraphy;
 import org.petctviewer.scintigraphy.esophageus.application.EsophagealTransit;
 import org.petctviewer.scintigraphy.gastric.GastricScintigraphy;
 import org.petctviewer.scintigraphy.generic.dynamic.GeneralDynamicScintigraphy;
@@ -77,6 +78,7 @@ public class FenDebug extends JFrame {
 		this.registerNewProgram(GastricScintigraphy.class);
 		this.registerNewProgram(LymphoSintigraphy.class);
 		this.registerNewProgram(HepaticDynScintigraphy.class);
+		this.registerNewProgram(ColonicScintigraphy.class);
 
 		this.add(this.panel, BorderLayout.CENTER);
 		this.add(pnl_pref, BorderLayout.NORTH);

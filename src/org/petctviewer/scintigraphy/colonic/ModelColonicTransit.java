@@ -54,30 +54,31 @@ public class ModelColonicTransit extends ModeleScin {
 
 		imageForCalculation.getImagePlus().killRoi();
 
-		int index = 1;
-		for (Roi roi : this.getRoiManager().getRoisAsArray()) {
-			data.put(roi.getName(), (this.getGeomMean(imageForCalculation, roi) * index));
-			index++;
+		double sumGeometricCenter = 0;
+		double sum = 0;
+		for (int index = 0 ; index < 6 ; index++) {
+			Roi roi = this.getRoiManager().getRoi(index);
+			data.put(roi.getName(), this.getGeomMean(imageForCalculation, roi));
+			sumGeometricCenter += this.getGeomMean(imageForCalculation, roi) * (index + 1);
+			sum += this.getGeomMean(imageForCalculation, roi);
 		}
 
 		imageReference.getImagePlus().killRoi();
+		imageForCalculation.getImagePlus().killRoi();
 		double decayedFirstImageCount = Library_Quantif.applyDecayFraction(imageForCalculation.getImagePlus(),
 				imageReference.getImagePlus(), this.isotope);
 
-		imageForCalculation.getImagePlus().killRoi();
-
+		
 		double excrementGeom = Library_Quantif.moyGeom(Library_Quantif.getCounts(imageForCalculation.getImagePlus()),
 				decayedFirstImageCount);
-
-		data.put("Excreted feces", (excrementGeom * index));
-
-		double sum = 0;
-		for (double values : data.values())
-			sum += values;
+		data.put("Excreted feces", excrementGeom);
 		
+		sumGeometricCenter += excrementGeom * 7;
+		sum += excrementGeom;
+			
 		data.put("Sum", sum);
 
-		data.put("Geometric Center", (sum / decayedFirstImageCount));
+		data.put("Geometric Center", sumGeometricCenter / sum);
 	}
 
 	private double getGeomMean(ImageSelection ims, Roi roi) {
@@ -101,15 +102,19 @@ public class ModelColonicTransit extends ModeleScin {
 	public String[] getResults(int i) {
 		Map<String, Double>[] datas = new HashMap[] { dataImage1, dataImage2, dataImage3 };
 
-		String[] results = new String[this.roiManager.getCount()];
+		String[] results = new String[datas[i].size()];
 
-		for (int j = 0; j < this.roiManager.getCount() - 1; j++) {
+		for (int j = 0; j < this.roiManager.getCount(); j++) {
 			results[j] = this.roiManager.getRoi(j).getName() + " : "
 					+ (datas[i].get(this.roiManager.getRoi(j).getName()) / datas[i].get("Sum"));
 		}
 		
-		results[this.roiManager.getCount() - 1] = this.roiManager.getRoi(this.roiManager.getCount() - 1).getName() + " : "
-				+ datas[i].get(this.roiManager.getRoi(this.roiManager.getCount() - 1).getName());
+		
+		results[6] = "Excreted feces : "
+				+ (datas[i].get("Excreted feces") / datas[i].get("Sum"));
+		
+		results[7] = "Geometric Center : "
+				+ datas[i].get("Geometric Center");
 
 		return results;
 	}

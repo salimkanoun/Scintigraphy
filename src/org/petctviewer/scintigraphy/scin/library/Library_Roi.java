@@ -21,6 +21,8 @@ import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
 
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Roi;
@@ -289,6 +291,15 @@ public class Library_Roi {
 			Recorder.record("roiManager", "Save", path);
 		return true;
 	}
+	
+	
+	public static boolean saveRois(RoiManager roiManager, String path, ControllerWorkflow controller) {
+		
+		
+		
+		return true;
+	}
+	
 	
 	private static String getUniqueName(String[] names,int  i) {
 		return null;
