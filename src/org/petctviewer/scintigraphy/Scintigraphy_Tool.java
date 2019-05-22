@@ -46,6 +46,7 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			PopupMenu pulmonary = new PopupMenu("Pulmonary");
 			PopupMenu hepatic = new PopupMenu("Hepatic");
 			PopupMenu cardiac = new PopupMenu("Cardiac");
+			PopupMenu colon = new PopupMenu("Colon");
 			PopupMenu lymphatic = new PopupMenu("Lymphatic");
 			PopupMenu renal = new PopupMenu("Renal");
 			PopupMenu generic = new PopupMenu("Generic");
@@ -61,6 +62,9 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			
 			//Cardiac
 			MenuItem dpdQuant = new MenuItem("DPD Quant");
+			
+			//Colon
+			MenuItem colonTransit = new MenuItem("Colon Transit");
 			
 			//Hepatic
 			MenuItem biliaryScintigraphyDynamic = new MenuItem("Biliary Scintigraphy");
@@ -93,6 +97,7 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			esophagealTransit.addActionListener(this);
 			plumonaryShunt.addActionListener(this);
 			dpdQuant.addActionListener(this);
+			colonTransit.addActionListener(this);
 			biliaryScintigraphyDynamic.addActionListener(this);
 			lymphoScintigraphy.addActionListener(this);
 			renogram.addActionListener(this);
@@ -111,6 +116,7 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			pulmonary.add(plumonaryShunt);
 			
 			cardiac.add(dpdQuant);
+			colon.add(colonTransit);
 			hepatic.add(biliaryScintigraphyDynamic);
 			
 			renal.add(renogram);
@@ -126,6 +132,7 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			general.add(generic);
 			general.add(bone);
 			general.add(cardiac);
+			general.add(colon);
 			general.add(gastric);
 			general.add(hepatic);
 			general.add(lymphatic);
@@ -133,6 +140,7 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			general.add(renal);
 			general.add(preferences);
 			general.add(about);
+			
 			
 			par.add(general);
 		}
@@ -142,6 +150,8 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			String cmd = e.getActionCommand();
 			if (cmd=="DPD Quant") {
 				IJ.run("DPD Quant");
+			}if (cmd=="Colon Transit") {
+				IJ.run("Colon Transit");
 			}
 			if(cmd=="Bone Scintigrahy") {
 				IJ.run("Bone Scintigraphy");
