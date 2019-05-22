@@ -4,17 +4,22 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 
 import ij.Prefs;
 
@@ -235,6 +240,7 @@ public class Modele_FollowUp {
 		return roe;
 	}
 	
+	//SK A TESTER RISQUE DE POSER PROBLEME
 	private String readTags(int indiceExamen) {
 		int ligneDansCsv = rechercheLineContains(indiceExamen, "tags");
 		String tag = this.allLines.get(indiceExamen).get(ligneDansCsv);
@@ -243,14 +249,12 @@ public class Modele_FollowUp {
 	
 		//System.out.println( "exam="+indiceExamen);
 		//System.out.println(json);
-		JSONParser jsonParser = new JSONParser();
-		JSONObject tags = null;
-		try {
-			tags = (JSONObject) jsonParser.parse(json);
-		} catch (org.json.simple.parser.ParseException e) {
-			e.printStackTrace();
-		}
-		String partie=Library_Capture_CSV.getTagPartie1(tags, "Renal Follow-Up", String.valueOf(Math.random() * 1000000D));
+		
+		HashMap<String, String> mapObj = new Gson().fromJson(
+				json, new TypeToken<HashMap<String, String>>() {}.getType()
+				);
+
+		String partie=Library_Capture_CSV.getTagPartie1(mapObj, "Renal Follow-Up", String.valueOf(Math.random() * 1000000D));
 		//System.out.println(partie);
 		return partie;
 	}
