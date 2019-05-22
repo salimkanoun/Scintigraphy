@@ -10,7 +10,7 @@ import java.util.GregorianCalendar;
 
 import javax.swing.JLabel;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptTime;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 

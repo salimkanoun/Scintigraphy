@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.UIManager;
 
-import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptDialog;
 
 public class PromptBkgNoise extends PromptDialog {

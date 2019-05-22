@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import ij.gui.Roi;
 

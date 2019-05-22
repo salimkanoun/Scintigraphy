@@ -5,11 +5,11 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import org.petctviewer.scintigraphy.scin.ControleurScin;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
+import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import ij.gui.Roi;
 

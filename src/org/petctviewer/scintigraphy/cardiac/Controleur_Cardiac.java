@@ -9,9 +9,9 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.petctviewer.scintigraphy.scin.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.controller.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 

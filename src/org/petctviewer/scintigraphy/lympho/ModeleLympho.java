@@ -11,10 +11,10 @@ import org.petctviewer.scintigraphy.lympho.gui.TabPelvis;
 import org.petctviewer.scintigraphy.lympho.pelvis.ControllerWorkflowPelvis;
 import org.petctviewer.scintigraphy.lympho.pelvis.ModelePelvis;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import ij.ImagePlus;
 

@@ -5,10 +5,9 @@ import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.petctviewer.scintigraphy.scin.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.ModeleScin;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
@@ -19,6 +18,7 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoi
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 public class ControllerWorkflowCardiac extends ControllerWorkflow {
 

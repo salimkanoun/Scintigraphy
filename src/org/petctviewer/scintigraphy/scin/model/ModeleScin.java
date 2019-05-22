@@ -1,8 +1,9 @@
-package org.petctviewer.scintigraphy.scin;
+package org.petctviewer.scintigraphy.scin.model;
 
 import java.util.HashMap;
 
 import org.json.simple.JSONObject;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
@@ -100,6 +101,7 @@ public abstract class ModeleScin {
 	 * @param halLifeSeconds
 	 * @return
 	 */
+	@Deprecated
 	public static double getDecayFraction(int delaySeconds, int halLifeSeconds) {
 		double tcLambdaSeconds = (Math.log(2) / (halLifeSeconds));
 		double decayedFraction = Math.pow(Math.E, (tcLambdaSeconds * delaySeconds * (-1)));
