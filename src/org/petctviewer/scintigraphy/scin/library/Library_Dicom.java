@@ -66,7 +66,7 @@ public class Library_Dicom {
 		if (!StringUtils.isEmpty(tagDetecteur))
 			tagDetecteur = tagDetecteur.trim();
 		//For orthanc replace \ by space for uniformity with IJ
-		tagDetecteur=tagDetecteur.replaceAll("\\", " ");
+		tagDetecteur=tagDetecteur.replaceAll("\\\\", " ");
 		String delims = "[ ]+";
 		String[] sequenceDetecteur = tagDetecteur.split(delims);
 
@@ -139,7 +139,7 @@ public class Library_Dicom {
 		if (!StringUtils.isEmpty(tagDetecteur))
 			tagDetecteur = tagDetecteur.trim();
 		//For orthanc replace \ by space for uniformity with IJ
-		tagDetecteur=tagDetecteur.replaceAll("\\", " ");
+		tagDetecteur=tagDetecteur.replaceAll("\\\\", " ");
 		String delims = "[ ]+";
 		String[] sequenceDetecteur = tagDetecteur.split(delims);
 		boolean sameCamera = true;
@@ -165,7 +165,7 @@ public class Library_Dicom {
 		if (!StringUtils.isEmpty(tagDetecteur))
 			tagDetecteur = tagDetecteur.trim();
 		//For orthanc replace \ by space for uniformity with IJ
-		tagDetecteur=tagDetecteur.replaceAll("\\", " ");
+		tagDetecteur=tagDetecteur.replaceAll("\\\\", " ");
 		String delims = "[ ]+";
 		String[] sequenceDeteceur = tagDetecteur.split(delims);
 		boolean detecteur1 = false;
@@ -437,7 +437,7 @@ public class Library_Dicom {
 			tagDetecteur = tagDetecteur.trim();
 		}
 		//For orthanc replace \ by space for uniformity with IJ
-		tagDetecteur=tagDetecteur.replaceAll("\\", " ");
+		tagDetecteur=tagDetecteur.replaceAll("\\\\", " ");
 		String delims = "[ ]+";
 		String[] sequenceDeteceur = tagDetecteur.split(delims);
 
@@ -615,7 +615,7 @@ public class Library_Dicom {
 		} else {
 			String durationsTag=DicomTools.getTag(imp, "0054,0030").trim();
 			//For orthanc replace \ by space for uniformity with IJ
-			durationsTag=durationsTag.replaceAll("\\", " ");
+			durationsTag=durationsTag.replaceAll("\\\\", " ");
 			String[] phasesStr = durationsTag.split(" ");
 			int[] phases = new int[phasesStr.length];
 

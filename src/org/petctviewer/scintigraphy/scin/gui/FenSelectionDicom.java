@@ -35,6 +35,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
+import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
 import ij.WindowManager;
@@ -293,6 +294,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 					data.add(imageData);
 				} catch (Exception e) {
 					countErrors++;
+					IJ.handleException(e);
 				}
 			}
 			if (countErrors > 0)

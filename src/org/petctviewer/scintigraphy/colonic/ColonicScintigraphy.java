@@ -11,7 +11,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 public class ColonicScintigraphy extends Scintigraphy {
 
-	public ColonicScintigraphy(String studyName) {
+	public ColonicScintigraphy() {
 		super("ColonicScintigraphy");
 		// TODO Auto-generated constructor stub
 	}
