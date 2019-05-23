@@ -12,7 +12,6 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
@@ -26,8 +25,6 @@ import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruc
 import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import com.google.gson.Gson;
-
-
 
 /**
  * This controller is used when working with a flow of instructions.<br>
@@ -65,7 +62,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	/**
 	 * Index of the ROI to store in the RoiManager.
 	 */
-	private int indexRoi;
+	protected int indexRoi;
 
 	private boolean skipInstruction;
 
@@ -95,21 +92,22 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	 */
 	protected abstract void generateInstructions();
 
-//	private void DEBUG(String s) {
-//		System.out.println("=== " + s + " ===");
-//		System.out.println("Current position: " + this.position);
-//		System.out.println("Current image: " + this.indexCurrentImage);
-//		String currentInstruction = "-No instruction-";
-//		if (this.indexCurrentImage >= 0 && this.indexCurrentImage < this.workflows.length) {
-//			Instruction i = this.workflows[this.indexCurrentImage].getCurrentInstruction();
-//			if (i != null)
-//				currentInstruction = i.getMessage();
-//			else
-//				currentInstruction = "-No Message-";
-//		}
-//		System.out.println("Current instruction: " + currentInstruction);
-//		System.out.println();
-//	}
+	private void DEBUG(String s) {
+		System.out.println("=== " + s + " ===");
+		System.out.println("Current position: " + this.position);
+		System.out.println("Current workflow: " + this.indexCurrentWorkflow);
+		String currentInstruction = "-No instruction-";
+		if (this.indexCurrentWorkflow >= 0 && this.indexCurrentWorkflow < this.workflows.length) {
+			Instruction i = this.workflows[this.indexCurrentWorkflow].getCurrentInstruction();
+			if (i != null)
+				currentInstruction = i.getMessage();
+			else
+				currentInstruction = "-No Message-";
+		}
+		System.out.println("Current instruction: " + currentInstruction);
+		System.out.println("Index ROI: " + this.indexRoi);
+		System.out.println();
+	}
 
 	/**
 	 * This method displays the ROI to edit (if necessary).
@@ -516,7 +514,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			this.clicSuivant();
 		}
 
-//		DEBUG("NEXT");
+		DEBUG("NEXT");
 	}
 
 	@Override
@@ -554,19 +552,13 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			this.getVue().currentInstruction(value);
 		}
 	}
-	
-	
-	
-	
+
 	public Gson saveWorkflow(String path) {
 		this.getRoiManager();
-		
+
 		Gson gson = new Gson();
-		
-		
-		
+
 		return gson;
 	}
-
 
 }

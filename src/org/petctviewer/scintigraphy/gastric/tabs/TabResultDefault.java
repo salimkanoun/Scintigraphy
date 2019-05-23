@@ -170,8 +170,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 * The only times accepted are <code>30min</code>, <code>60min</code>,
 	 * <code>120min</code>, <code>180min</code> and <code>240min</code>.
 	 * 
-	 * @param time  Time for retention in minutes
-	 * @param value Value obtained in percentage
+	 * @param time  Time for retention in <i>minutes</i>
+	 * @param value Value obtained in <i>percentage</i>
 	 * @return TRUE if the result is normal and FALSE if the result is abnormal
 	 */
 	private boolean isRetentionNormal(double time, double value) {
@@ -218,7 +218,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 * Returns a string indicating the grade of the retention values after 4h.<br>
 	 * Based upon <code>tech.snmjournals.org</code>.
 	 * 
-	 * @param value Value of the retention after 4h
+	 * @param value Value of the retention after 4h in <i>percentage</i>
 	 * @return <code>string[0]</code> = grade and <code>string[1]</code> = readable
 	 *         value
 	 */
