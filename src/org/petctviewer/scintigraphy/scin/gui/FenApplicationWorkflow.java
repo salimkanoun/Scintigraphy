@@ -40,11 +40,13 @@ import ij.gui.ScrollbarWithLabel;
 public class FenApplicationWorkflow extends FenApplication implements MouseMotionListener, MouseListener {
 	private static final long serialVersionUID = -6280620624574294247L;
 
+	public static final String BTN_TXT_RESUME = "Resume";
+
 	private Scrollbar scroll;
 	private InstructionTooltip tooltip;
 
 	public enum UI_Element {
-		BUTTON_NEXT, BUTTON_PREVIOUS, BUTTON_DRAW_ROI, BUTTON_QUIT, BUTTON_CONTRAST;
+		BUTTON_NEXT, BUTTON_PREVIOUS, BUTTON_DRAW_ROI, BUTTON_QUIT, BUTTON_CONTRAST
 	}
 
 	private ImageSelection imageSelection;
@@ -89,7 +91,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	 * @param state if TRUE the scrollbar for the visualization is displayed and if
 	 *              set to FALSE, then the scrollbar displayed is the one of IJ
 	 */
-	public void setVisualizationEnable(boolean state) {
+	protected void setVisualizationEnable(boolean state) {
 		if (state) {
 			// Create tooltip
 			this.tooltip = new InstructionTooltip(this);
@@ -256,7 +258,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	 * @return TRUE if the specified component is the element in this view and FALSE
 	 *         otherwise
 	 */
-	public boolean matchComponent(Component component, UI_Element element) {
+	private boolean matchComponent(Component component, UI_Element element) {
 		Button btn = this.getButton(element);
 		if (btn != null)
 			return btn == component;
@@ -270,7 +272,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	 * @param element Button to get
 	 * @return button represented by the element or null if element is not a button
 	 */
-	public Button getButton(UI_Element element) {
+	private Button getButton(UI_Element element) {
 		switch (element) {
 		case BUTTON_CONTRAST:
 			return this.btn_contrast;
@@ -363,7 +365,6 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 				ic.zoomIn(x, y);
 			else
 				ic.zoomOut(x, y);
-			return;
 		}
 	}
 

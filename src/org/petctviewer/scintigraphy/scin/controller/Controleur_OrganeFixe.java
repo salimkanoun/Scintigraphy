@@ -82,7 +82,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 
 		// on execute des action selon quel bouton a ete clique
 		if (b == fen.getBtn_suivant()) {
-			this.clicSuivant();
+			this.clickNext();
 
 		} else if (b == fen.getBtn_precedent()) {
 			this.clicPrecedent();
@@ -166,7 +166,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	}
 
 	@Override
-	public void clicSuivant() {
+	public void clickNext() {
 		// sauvegarde du ROI actuel
 		try {
 			this.saveRoiAtIndex(this.getNomOrgane(this.indexRoi), this.indexRoi);

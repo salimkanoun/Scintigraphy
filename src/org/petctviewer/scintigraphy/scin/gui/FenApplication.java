@@ -41,24 +41,27 @@ import ij.util.DicomTools;
 public class FenApplication extends StackWindow implements ComponentListener, MouseWheelListener {
 	private static final long serialVersionUID = -6280620624574294247L;
 
+	public static final String BTN_TXT_NEXT = "Next";
+
 	// Panel d'instruction avec le textfield et boutons precedent et suivant
-	protected Panel panel_Instructions_btns_droite;
+	private Panel panel_Instructions_btns_droite;
 
 	// Panel avec boutons quit, draw roi, contrast
-	protected Panel panel_btns_gauche;
-	protected Panel panel_btns_droite;
+	private Panel panel_btns_gauche;
+	private Panel panel_btns_droite;
 
-	protected JTextField textfield_instructions;
+	JTextField textfield_instructions;
 
-	protected Button btn_quitter;
-	protected Button btn_drawROI;
-	protected Button btn_contrast;
-	protected Button btn_precedent;
-	protected Button btn_suivant;
+	Button btn_quitter;
+	Button btn_drawROI;
+	Button btn_contrast;
+	Button btn_precedent;
+	Button btn_suivant;
 
-	protected ControleurScin controleur;
+	private ControleurScin controleur;
 
-	protected Panel panelPrincipal, panelContainer;
+	private Panel panelPrincipal;
+	Panel panelContainer;
 
 	protected String nom;
 
@@ -104,7 +107,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.btn_drawROI = new Button("Draw ROI");
 		this.btn_precedent = new Button("Previous");
 		this.btn_precedent.setEnabled(false);
-		this.btn_suivant = new Button("Next");
+		this.btn_suivant = new Button(BTN_TXT_NEXT);
 		this.btn_quitter = new Button("Quit");
 
 		// panel contenant les boutons
@@ -147,7 +150,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.getCanvas().setSize(canvasW, canvasH);
 
 		// on calcule le facteur de magnification
-		List<Double> magnifications = new ArrayList<Double>();
+		List<Double> magnifications = new ArrayList<>();
 		magnifications.add(canvasW / (1.0 * imp.getWidth()));
 		magnifications.add(canvasH / (1.0 * imp.getHeight()));
 
@@ -248,7 +251,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.panel_Instructions_btns_droite = instru;
 	}
 
-	public Panel getPanel_bttns_droit() {
+	protected Panel getPanel_bttns_droit() {
 		return panel_btns_droite;
 	}
 
@@ -279,7 +282,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.setMenuBar(this.menuBar);
 	}
 
-	public void setDefaultSize() {
+	protected void setDefaultSize() {
 		this.setPreferredCanvasSize(512);
 	}
 
@@ -298,7 +301,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	 * 
 	 * @param width
 	 */
-	public void setPreferredCanvasSize(int width) {
+	protected void setPreferredCanvasSize(int width) {
 		int w = this.getImagePlus().getWidth();
 		int h = this.getImagePlus().getHeight();
 		Double ratioImagePlus = w * 1.0 / h * 1.0;

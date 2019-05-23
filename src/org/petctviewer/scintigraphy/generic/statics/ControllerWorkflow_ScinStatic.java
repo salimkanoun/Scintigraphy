@@ -96,7 +96,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 	}
 
 	@Override
-	public void clicSuivant() {
+	public void clickNext() {
 		boolean sameName = false;
 		for (Instruction instruction : this.workflows[this.indexCurrentWorkflow].getInstructions())
 			if (instruction instanceof DrawLoopInstruction)
@@ -114,7 +114,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 				return;
 		}
 
-		super.clicSuivant();
+		super.clickNext();
 
 		this.updateButtonLabel(this.indexRoi);
 	}

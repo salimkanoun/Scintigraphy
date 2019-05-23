@@ -114,7 +114,7 @@ public class PromptTime extends PromptDialog {
 			public void actionPerformed(ActionEvent e) {
 				if (isInputValid()) {
 					dispose();
-					controller.clicSuivant();
+					controller.clickNext();
 				}
 			}
 		});

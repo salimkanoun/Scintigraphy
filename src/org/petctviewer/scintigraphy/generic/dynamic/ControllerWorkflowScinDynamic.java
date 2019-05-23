@@ -146,7 +146,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 	// }
 
 	@Override
-	public void clicSuivant() {
+	public void clickNext() {
 		boolean sameName = false;
 		for (Instruction instruction : this.workflows[this.indexCurrentWorkflow].getInstructions())
 			if (instruction instanceof DrawLoopInstruction)
@@ -167,7 +167,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 				return;
 		}
 
-		super.clicSuivant();
+		super.clickNext();
 	}
 
 }

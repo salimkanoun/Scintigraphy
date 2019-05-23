@@ -40,7 +40,7 @@ public class ControleurScinStatic extends Controleur_OrganeFixe {
 		FenApplication_ScinStatic fen = (FenApplication_ScinStatic) this.getScin().getFenApplication();
 
 		if (b == fen.getBtn_finish()) {
-			this.clicSuivant();
+			this.clickNext();
 			this.end();
 		}
 

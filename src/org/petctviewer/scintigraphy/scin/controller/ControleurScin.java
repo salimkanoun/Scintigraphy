@@ -112,7 +112,7 @@ public abstract class ControleurScin implements ActionListener {
 	 * This method is called when the 'Next' button is pressed. It will increment
 	 * the position by 1.
 	 */
-	public void clicSuivant() {
+	public void clickNext() {
 		this.position++;
 		this.vue.getBtn_precedent().setEnabled(true);
 	}
@@ -361,7 +361,7 @@ public abstract class ControleurScin implements ActionListener {
 		Button b = (Button) e.getSource();
 
 		if (b == this.vue.getBtn_suivant()) {
-			this.clicSuivant();
+			this.clickNext();
 
 		} else if (b == this.vue.getBtn_precedent()) {
 			this.clicPrecedent();

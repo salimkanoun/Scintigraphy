@@ -97,8 +97,8 @@ public class ControllerWorkflowColonicTransit extends ControllerWorkflow {
 	}
 
 	@Override
-	public void clicSuivant() {
-		super.clicSuivant();
+	public void clickNext() {
+		super.clickNext();
 		int currentSlice = this.vue.getImagePlus().getCurrentSlice();
 		this.vue.getImagePlus().setSlice(((currentSlice % 2) + 1));
 		this.displayRoi(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction().roiToDisplay());

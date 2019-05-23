@@ -123,7 +123,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			fac.getBtn_newCont().setLabel("Save");
 		}
 
-		this.clicSuivant();
+		this.clickNext();
 	}
 
 	private void clicEndCont() {
@@ -136,7 +136,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			// TODO demander confirmation à Titouan
 			this.position--;
 			((DrawSymmetricalLoopInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
-			this.clicSuivant();
+			this.clickNext();
 
 		} else { // on a trait� toutes les contaminations
 			((FenApplication_Cardiac) this.main.getFenApplication()).stopContaminationMode();
@@ -148,7 +148,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			// l'indexRoi
 			this.setOrganes((String[]) ArrayUtils.addAll(conts, this.getOrganes()));
 			((DrawSymmetricalLoopInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
-			this.clicSuivant();
+			this.clickNext();
 			this.position = 0;
 			this.vue.getBtn_precedent().setEnabled(false);
 		}

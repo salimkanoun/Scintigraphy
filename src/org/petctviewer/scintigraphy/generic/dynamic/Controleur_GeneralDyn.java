@@ -52,7 +52,7 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
-					Controleur_GeneralDyn.this.clicSuivant();
+					Controleur_GeneralDyn.this.clickNext();
 				}
 			}
 		});
@@ -76,7 +76,7 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 		FenApplication_GeneralDyn fen = (FenApplication_GeneralDyn) this.getScin().getFenApplication();
 
 		if (b == fen.getBtn_finish()) {
-			this.clicSuivant();
+			this.clickNext();
 			this.end();
 		}
 
