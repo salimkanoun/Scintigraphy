@@ -56,33 +56,27 @@ public class Library_Dicom {
 	 * 
 	 * @param imp : ImagePlus a traiter
 	 * @return Tableau d'imagePlus avec 2 ImagePlus (camera 1 et 2 )
+	 * @throws ReadTagException 
 	 */
-	private static ImagePlus[] splitCameraMultiFrame(ImagePlus imp, boolean isAntPost) {
+	private static ImagePlus[] splitCameraMultiFrame(ImagePlus imp, boolean isAntPost) throws ReadTagException {
 		// On prend le Header
 		String metadata = imp.getInfoProperty();
 
-		// On recupere la chaine de detecteur
-		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
-		if (!StringUtils.isEmpty(tagDetecteur))
-			tagDetecteur = tagDetecteur.trim();
-		//For orthanc replace \ by space for uniformity with IJ
-		tagDetecteur=tagDetecteur.replaceAll("\\\\", " ");
-		String delims = "[ ]+";
-		String[] sequenceDetecteur = tagDetecteur.split(delims);
+		int[] sequenceDetecteur=Library_Dicom.getCameraNumberArrayMultiFrame(imp);
 
 		// On cree les ImageStack qui vont recevoir les image de chaque t�te
 		ImageStack camera0 = new ImageStack(imp.getWidth(), imp.getHeight());
 		ImageStack camera1 = new ImageStack(imp.getWidth(), imp.getHeight());
 
 		// Determination de l'orientation des camera en regardant la 1ere image
-		String detecteurPremiereImage = sequenceDetecteur[0];
-//		Boolean anterieurPremiereImage = Library_Dicom.isAnterieurMultiframe(imp);
+		int detecteurPremiereImage = sequenceDetecteur[0];
+		// Boolean anterieurPremiereImage = Library_Dicom.isAnterieurMultiframe(imp);
 
 		// On ajoute les images dans les camera adhoc
 
 		if (isAntPost) {
 			for (int i = 0; i < sequenceDetecteur.length; i++) {
-				if (sequenceDetecteur[i].equals(detecteurPremiereImage)) {
+				if (sequenceDetecteur[i]==detecteurPremiereImage) {
 					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
 				} else {
 					camera1.addSlice(imp.getImageStack().getProcessor((i + 1)));
@@ -90,22 +84,12 @@ public class Library_Dicom {
 			}
 		} else // if (anterieurPremiereImage != null && !anterieurPremiereImage) {
 			for (int i = 0; i < sequenceDetecteur.length; i++) {
-				if (sequenceDetecteur[i].equals(detecteurPremiereImage)) {
+				if (sequenceDetecteur[i]==detecteurPremiereImage) {
 					camera1.addSlice(imp.getImageStack().getProcessor((i + 1)));
 				} else {
 					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
 				}
 			}
-//		} else {
-//			System.out.println("assuming image 2 is posterior. Please notify Salim.kanoun@gmail.com");
-//			for (int i = 0; i < sequenceDetecteur.length; i++) {
-//				if (sequenceDetecteur[i].equals("1")) {
-//					camera0.addSlice(imp.getImageStack().getProcessor((i + 1)));
-//				} else if (sequenceDetecteur[i].equals("2")) {
-//					camera1.addSlice(imp.getImageStack().getProcessor((i + 1)));
-//				}
-//			}
-//		}
 
 		ImagePlus cameraAnt = new ImagePlus();
 		ImagePlus cameraPost = new ImagePlus();
