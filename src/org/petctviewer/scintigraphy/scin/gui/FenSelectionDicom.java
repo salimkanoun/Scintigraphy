@@ -34,7 +34,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-import org.petctviewer.scintigraphy.scin.library.ReadTagException;
+import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 
 import ij.IJ;
 import ij.ImageListener;
@@ -314,9 +314,11 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 *         determined)
 	 */
 	private Orientation determineImageOrientation(ImagePlus imp) {
-		boolean sameCameraMultiFrame = Library_Dicom.isSameCameraMultiFrame(imp);
-		Boolean firstImageAnt;
+		boolean sameCameraMultiFrame;
+		boolean firstImageAnt;
+		
 		try {
+			sameCameraMultiFrame = Library_Dicom.isSameCameraMultiFrame(imp);
 			firstImageAnt = Library_Dicom.isAnterieur(imp);
 		} catch (ReadTagException e) {
 			e.printStackTrace();
