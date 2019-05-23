@@ -511,6 +511,10 @@ public class Library_JFreeChart {
 
 			// Approximate value
 			if (xValues[i] > valueX) {
+				if(i == 0) {
+					// Point is before first point of the graph
+					return  null; // Not found
+				}
 				double x1 = xValues[i - 1];
 				double x2 = xValues[i];
 				double y1 = yValues[i - 1];

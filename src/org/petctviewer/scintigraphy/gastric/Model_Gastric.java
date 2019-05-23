@@ -60,10 +60,7 @@ public class Model_Gastric extends ModelWorkflow {
 	 */
 	private Date timeIngestion;
 	private Isotope isotope;
-	/**
-	 * Times calculated.
-	 */
-	private double[] times, timesDerivative;
+
 	private Region bkgNoise_antre, bkgNoise_intestine, bkgNoise_stomach, bkgNoise_fundus;
 
 	public Model_Gastric(ImageSelection[] selectedImages, String studyName) {
@@ -474,7 +471,8 @@ public class Model_Gastric extends ModelWorkflow {
 	 * </ul>
 	 */
 	private double[][] generateStomachDataset(Unit unit) {
-		return this.generateDatasetFromKey(REGION_STOMACH, DATA_PERCENTAGE, false, unit);
+		// TODO: add time 0
+		return this.generateDatasetFromKey(REGION_STOMACH, DATA_PERCENTAGE, unit);
 	}
 
 	/**
@@ -487,7 +485,8 @@ public class Model_Gastric extends ModelWorkflow {
 	 * </ul>
 	 */
 	private double[][] generateDecayFunctionDataset(Unit unit) {
-		return this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED, true, unit);
+		// TODO: remove time 0
+		return this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED, unit);
 	}
 
 	/**
@@ -531,14 +530,12 @@ public class Model_Gastric extends ModelWorkflow {
 	 * Generates the dataset with the values of the data for the specified key.<br>
 	 * All data that have not the requested value will be ignored.
 	 *
-	 * @param regionName  Region on which the data will be retrieved
-	 * @param key         Key of the values to retrieve
-	 * @param ignoreTime0 If TRUE, then the time 0 will not be used. If FALSE, then
-	 *                    the time 0 will be used if existing
-	 * @param unit        Unit of the output result for the Y axis
+	 * @param regionName Region on which the data will be retrieved
+	 * @param key        Key of the values to retrieve
+	 * @param unit       Unit of the output result for the Y axis
 	 * @return dataset with the values from the data associated with the region
 	 */
-	private double[][] generateDatasetFromKey(String regionName, int key, boolean ignoreTime0, Unit unit) {
+	private double[][] generateDatasetFromKey(String regionName, int key, Unit unit) {
 		// Get all Y points
 		double[] yPoints = this.getAllResultsAsArray(regionName, key, unit);
 
@@ -549,7 +546,7 @@ public class Model_Gastric extends ModelWorkflow {
 		double[][] dataset = new double[yPoints.length - nbResultsToIgnore][2];
 
 		// Get times
-		double[] times = getTimes();
+		double[] times = this.generateTime();
 
 		// Check dimensions
 		if (times.length != yPoints.length)
@@ -560,11 +557,9 @@ public class Model_Gastric extends ModelWorkflow {
 		int j = 0;
 		for (int i = 0; i < yPoints.length; i++) {
 			if (!Double.isNaN(yPoints[i])) {
-				if (i != 0 || !ignoreTime0 || time0 == null) {
-					dataset[j][0] = times[i];
-					dataset[j][1] = yPoints[i];
-					j++;
-				}
+				dataset[j][0] = times[i];
+				dataset[j][1] = yPoints[i];
+				j++;
 			}
 		}
 
@@ -717,36 +712,25 @@ public class Model_Gastric extends ModelWorkflow {
 	}
 
 	/**
-	 * Generates arrays of times used by the graphs.<br>
-	 * This method must be called before generating datasets for the graphs.
+	 * Generates an array of durations for each data from the current time of ingestion.
 	 */
-	private void generatesTimes() {
-		this.times = new double[this.nbAcquisitions()];
-		this.timesDerivative = new double[this.nbAcquisitions() - 1];
+	public double[] generateTime() {
+		double[] times = new double[this.nbAcquisitions()];
 
 		int i = 0;
 		for (Data data : this.generatesDataOrdered()) {
-			times[i] = data.getMinutes();
-			if (i > 0)
-				this.timesDerivative[i - 1] = times[i];
+			if (data == time0)
+				times[i] = 0.;
+			else
+				times[i] = this.calculateDeltaTime(data.associatedImage.getDateAcquisition());
 			i++;
 		}
-	}
 
-	/**
-	 * @return all times, including time 0 if existing
-	 */
-	public double[] getTimes() {
-		return this.times;
-	}
-
-	/**
-	 * @return times, except fictional time 0
-	 */
-	public double[] getRealTimes() {
-		if (time0 != null)
-			return ArrayUtils.remove(times, 0);
 		return times;
+	}
+
+	public double[] generateDerivatedTime() {
+		return ArrayUtils.remove(this.generateTime(), 0);
 	}
 
 	/**
@@ -1006,7 +990,8 @@ public class Model_Gastric extends ModelWorkflow {
 					break;
 				default:
 					// TODO: correct with a bkg noise
-					System.err.println("Warning: The region (" + region + ") is not corrected with a background noise!");
+					System.err.println("Warning: The region (" + region + ") is not corrected with a background " +
+							"noise!");
 					break;
 			}
 
@@ -1052,7 +1037,7 @@ public class Model_Gastric extends ModelWorkflow {
 	 */
 	public ChartPanel createGraph_1() {
 		return Library_JFreeChart.createGraph("Fundus/Stomach (%)", new Color[]{new Color(0, 100, 0)}, "",
-				Library_JFreeChart.createDataset(times,
+				Library_JFreeChart.createDataset(this.generateTime(),
 						this.getResultAsArray(REGION_FUNDUS, DATA_CORRELATION, Unit.PERCENTAGE),
 						"Intragastric Distribution"),
 				100.0);
@@ -1066,7 +1051,7 @@ public class Model_Gastric extends ModelWorkflow {
 	public ChartPanel createGraph_2() {
 		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_DERIVATIVE, Unit.PERCENTAGE);
 		return Library_JFreeChart.createGraph("% meal in the interval", new Color[]{Color.RED}, "",
-				Library_JFreeChart.createDataset(timesDerivative, result, "Gastrointestinal flow"), 50.0);
+				Library_JFreeChart.createDataset(this.generateDerivatedTime(), result, "Gastrointestinal flow"), 50.0);
 	}
 
 	/**
@@ -1081,7 +1066,7 @@ public class Model_Gastric extends ModelWorkflow {
 		String[] titles = new String[]{"Stomach", "Fundus", "Antrum"};
 		Color[] colors = new Color[]{Color.RED, new Color(0, 255, 0), Color.BLUE};
 
-		XYSeriesCollection dataset = Library_JFreeChart.createDataset(times, ySeries, titles);
+		XYSeriesCollection dataset = Library_JFreeChart.createDataset(this.generateTime(), ySeries, titles);
 
 		return Library_JFreeChart.createGraph("Retention (% meal)", colors, "", dataset, 100.);
 	}
@@ -1094,11 +1079,8 @@ public class Model_Gastric extends ModelWorkflow {
 	public ChartPanel createGraph_4(Unit unit) {
 		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_GEO_AVERAGE, unit);
 
-		double[] xValues = times;
-		if (this.time0 != null)
-			xValues = ArrayUtils.remove(times, 0);
-
-		XYSeriesCollection dataset = Library_JFreeChart.createDataset(xValues, result, "Stomach retention");
+		XYSeriesCollection dataset = Library_JFreeChart.createDataset(this.generateTime(), result, "Stomach " +
+				"retention");
 
 		return Library_JFreeChart.createGraph(unit.abrev(), new Color[]{Color.GREEN}, "", dataset,
 				Library_JFreeChart.maxValue(result) * 1.1);
@@ -1108,7 +1090,7 @@ public class Model_Gastric extends ModelWorkflow {
 	 * Activates the fictional time 0 representing the moment when the fundus
 	 * contains all of the food.
 	 */
-	void activateTime0() {
+	public void activateTime0() {
 		this.time0 = new Data(null, 0.);
 		this.time0.time = 0.;
 		this.time0.setValue(REGION_STOMACH, DATA_PERCENTAGE, 100.);
@@ -1144,26 +1126,26 @@ public class Model_Gastric extends ModelWorkflow {
 		if (result != RETENTION_GEOAVG && result != RETENTION_PERCENTAGE)
 			throw new IllegalArgumentException("The result " + result + " not supported here!");
 
-//		double[] xValues;
 		double[] yValues;
 		if (result == RETENTION_PERCENTAGE) {
-			yValues = generateStomachValues(Unit.PERCENTAGE);
-//			xValues = getRealTimes();
+			yValues = generateStomachValues(request.getFit().getYUnit());
 		} else {
-			yValues = generateDecayFunctionValues(Unit.COUNTS);
-//			xValues = getTimes();
+			yValues = generateDecayFunctionValues(request.getFit().getYUnit());
 		}
 
-		Double res = Library_JFreeChart.getY(times, yValues, time);
+		System.out.println("Retention");
+		Double res = Library_JFreeChart.getY(this.generateTime(), yValues, time);
+		System.out.println("Found: " + res);
 		boolean isExtrapolated = false;
 		if (res == null) {
 			res = Library_JFreeChart.extrapolateY(time, request.getFit());
+			System.out.println("Extrapolated: " + res);
 			isExtrapolated = true;
-		} else {
-			// Percentage of res
-//			res = res * 100. / Library_JFreeChart.getY(xValues, yValues, 0.);
-			res = res * 100. / yValues[0];
 		}
+		// Percentage of res
+//			res = res * 100. / Library_JFreeChart.getY(this.generateTime(), yValues, 0.);
+		res = res * 100. / yValues[0];
+		System.out.println("Percentage: " + res);
 
 		return new ResultValue(request, res, Unit.PERCENTAGE, isExtrapolated);
 	}
@@ -1193,7 +1175,7 @@ public class Model_Gastric extends ModelWorkflow {
 			else
 				yValues = generateDecayFunctionValues(Unit.COUNTS);
 
-			Double valX = Library_JFreeChart.getX(times, yValues, 95.);
+			Double valX = Library_JFreeChart.getX(this.generateTime(), yValues, 95.);
 			boolean isExtrapolated = false;
 			if (valX == null) {
 				// Extrapolate
@@ -1211,16 +1193,12 @@ public class Model_Gastric extends ModelWorkflow {
 			// Assumption: the first value is the highest (maybe do not assume that...)
 			double half = yValues[0] / 2.;
 			boolean isExtrapolated = false;
-			Double valX = Library_JFreeChart.getX(times, yValues, half);
+			Double valX = Library_JFreeChart.getX(this.generateTime(), yValues, half);
 			if (valX == null) {
 				// Extrapolate
-				System.out.println("Half: " + half);
-				System.out.println("Fit: " + fit);
 				valX = Library_JFreeChart.extrapolateX(half, fit);
-				System.out.println("Result: " + valX);
 				isExtrapolated = true;
 			}
-			System.out.println("T1/2: " + valX);
 			return new ResultValue(request, valX, Unit.TIME, isExtrapolated);
 		} else {
 			try {
@@ -1251,7 +1229,7 @@ public class Model_Gastric extends ModelWorkflow {
 
 	@Override
 	public void calculerResultats() {
-		this.generatesTimes();
+		this.generateTime();
 	}
 
 	/**
@@ -1321,8 +1299,8 @@ public class Model_Gastric extends ModelWorkflow {
 		 * @return all regions stored by this data
 		 */
 		Region[] getRegions() {
-			return (Region[]) ArrayUtils.addAll(this.regionsAnt.values().toArray(new Region[this.regionsAnt.size()]),
-					this.regionsPost.values().toArray(new Region[this.regionsPost.size()]));
+			return (Region[]) ArrayUtils.addAll(this.regionsAnt.values().toArray(new Region[0]),
+					this.regionsPost.values().toArray(new Region[0]));
 		}
 
 		/**

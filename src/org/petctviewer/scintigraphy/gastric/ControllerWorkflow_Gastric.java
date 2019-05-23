@@ -6,9 +6,7 @@ import java.util.List;
 
 import javax.swing.JButton;
 
-import org.petctviewer.scintigraphy.gastric.tabs.TabMainResult;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
-import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2_bis;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -39,8 +37,8 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			COMMAND_FIT_BEST_ALL = "cfb_all";
 
 	private FenResults fenResults;
-//	private TabMethod1 tabMain;
-	private TabMainResult tabMain;
+	private TabMethod1 tabMain;
+//	private TabMainResult tabMain;
 	private TabMethod2_bis tabOnlyGastric;
 
 	private List<ImagePlus> captures;
@@ -238,7 +236,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 		if (!DO_ONLY_GASTRIC) {
 //			this.tabMain = new TabMainResult(this.fenResults, this.captures.get(1), this);
-			this.tabMain = new TabMainResult(this.fenResults, this.captures.get(1), this);
+			this.tabMain = new TabMethod1(this.fenResults, this.captures.get(1), this);
 			this.tabMain.displayTimeIngestion(getModel().getTimeIngestion());
 			this.fenResults.addTab(tabMain);
 			// Select best fit

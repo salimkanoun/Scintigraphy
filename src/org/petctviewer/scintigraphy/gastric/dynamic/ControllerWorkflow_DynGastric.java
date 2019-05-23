@@ -5,8 +5,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.JButton;
 
 import org.petctviewer.scintigraphy.gastric.Model_Gastric;
-import org.petctviewer.scintigraphy.gastric.tabs.TabMainResult;
-import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2;
+import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
+import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2_bis;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -99,7 +99,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 	}
 
 	private void fitBest(String command) {
-		TabMethod2 tab = (TabMethod2) this.fenResults.getTab(1);
+		TabMethod2_bis tab = (TabMethod2_bis) this.fenResults.getTab(1);
 		if (command.equals(COMMAND_FIT_BEST_2) || command.equals(COMMAND_FIT_BEST_ALL))
 			tab.selectFit(tab.findBestFit());
 	}
@@ -112,7 +112,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		this.computeModel();
 
 		// Update results
-		TabMainResult tabMain = (TabMainResult) this.fenResults.getMainTab();
+		TabMethod1 tabMain = (TabMethod1) this.fenResults.getMainTab();
 
 		tabMain.displayTimeIngestion(getModel().getTimeIngestion());
 		tabMain.createGraph();

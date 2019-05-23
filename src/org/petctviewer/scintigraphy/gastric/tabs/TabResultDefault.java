@@ -57,7 +57,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 		// Prepare request
 		this.request = new ResultRequest(null);
-		this.request.setFit(new Fit.NoFit());
+		this.request.setFit(new Fit.NoFit(unitDefault));
 
 		// Instantiate components
 		fitsChoices = new JComboBox<>(FitType.values());
@@ -93,7 +93,11 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 * @return table containing the results
 	 */
 	protected JTable tablesResultats(Result[] results, Unit[] unitsUsed) {
-		Model_Gastric model = (Model_Gastric) this.parent.getModel();
+		// Prepare model
+		if(this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE)
+			getModel().activateTime0();
+		else
+			getModel().deactivateTime0();
 
 		// Create table
 		JTable table = new JTable(0, results.length);
@@ -110,7 +114,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 				ResultRequest request = new ResultRequest(results[j]);
 				request.setUnit(unitsUsed[j]);
 				request.setIndexImage(i);
-				ResultValue res = model.getResult(request);
+				ResultValue res = getModel().getResult(request);
 				if (res == null)
 					arr[j] = "--";
 				else {
@@ -323,7 +327,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		try {
 			// Create fit
 			XYSeries series = ((XYSeriesCollection) this.getValueSetter().retrieveValuesInSpan()).getSeries(0);
-			this.request.setFit(Fit.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray())));
+			this.request.setFit(Fit.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray()), unitDefault));
 
 			this.drawFit();
 			this.setErrorMessage(null);
@@ -367,6 +371,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 */
 	private JPanel createPanelResults() {
 		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
+			getModel().activateTime0();
+
 			JPanel panel = new JPanel(new GridLayout(2, 2));
 
 			panel.add(new DynamicImage(capture.getImage()));
@@ -376,6 +382,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 			return panel;
 		} else if (this.seriesToGenerate == Model_Gastric.SERIES_DECAY_FUNCTION) {
+			getModel().deactivateTime0();
+
 			JPanel panel = new JPanel(new GridLayout(2, 1));
 
 			panel.add(new DynamicImage(capture.getImage()));
@@ -431,8 +439,18 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 			public void updateResult() {
 				// Calculate result
 				try {
-					request.changeResultOn(Model_Gastric.RETENTION_PERCENTAGE);
+					// Prepare model
+					if (seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
+						getModel().activateTime0();
+						request.changeResultOn(Model_Gastric.RETENTION_PERCENTAGE);
+					}
+					else {
+						getModel().deactivateTime0();
+						request.changeResultOn(Model_Gastric.RETENTION_GEOAVG);
+					}
+
 					request.setUnit(Unit.PERCENTAGE);
+
 					ResultValue result = getModel().getRetentionResult(request,
 							Double.parseDouble(fieldCustomRetention.getText()));
 					// Update result
@@ -472,7 +490,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 			try {
 				// Create fit
-				Fit fit = Fit.createFit(type, Library_JFreeChart.invertArray(dataset));
+				Fit fit = Fit.createFit(type, Library_JFreeChart.invertArray(dataset), unitDefault);
 
 				// Get Y points
 				double[] yPoints = dataset[1];
@@ -506,6 +524,12 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 * Generates the graph for the fit of this tab.
 	 */
 	public void createGraph() {
+		// Prepare model
+		if (seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE)
+			getModel().activateTime0();
+		else
+			getModel().deactivateTime0();
+
 		// Create chart
 		this.data = new XYSeriesCollection();
 		XYSeries stomachSeries = getModel().generateSeries(this.seriesToGenerate, this.unitDefault);
@@ -570,7 +594,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	public void drawFit() {
 		this.clearFits();
 
-		this.data.addSeries(this.request.getFit().generateFittedSeries(getModel().getTimes()));
+		this.data.addSeries(this.request.getFit().generateFittedSeries(getModel().generateTime()));
 	}
 
 	/**
