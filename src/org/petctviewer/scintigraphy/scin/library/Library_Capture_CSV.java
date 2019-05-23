@@ -571,8 +571,8 @@ public class Library_Capture_CSV {
 			for (int i = 0; i < rois2.length; i++)
 				tab[i] = i;
 			roiManager.setSelectedIndexes(tab);
-			roiManager.runCommand("Save", pathFinal.toString() + File.separator + nomFichier + ".zip");
-
+//			roiManager.runCommand("Save", pathFinal.toString() + File.separator + nomFichier + ".zip");
+			Library_Roi.saveRois(roiManager, pathFinal.toString() + File.separator + nomFichier + ".zip");
 			
 //			List<Roi> roiList = new ArrayList<>();
 //			for(Roi r : rois2)
@@ -599,7 +599,7 @@ public class Library_Capture_CSV {
 
 	/********** Private static Getter *********/
 	// [0] : nom, [1] : id, [2] : date
-	private static String[] getInfoPatient(ImagePlus imp) {
+	public static String[] getInfoPatient(ImagePlus imp) {
 		String[] infoPatient = new String[3];
 
 		// On recupere le Patient Name de l'ImagePlus

@@ -24,6 +24,7 @@ import javax.swing.JTextField;
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.FenApplicationSecondHepaticDyn;
 import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.controller.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.ImagePlus;
@@ -264,8 +265,12 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 			public void actionPerformed(ActionEvent e) {
 				FenApplicationSecondHepaticDyn.importRoiList(FenApplication.this,
 						FenApplication.this.controleur.getModel(), FenApplication.this.controleur);
+				((ControllerWorkflow) FenApplication.this.controleur).loadWorkflows();
 				FenApplication.this.getImagePlus()
 						.setRoi(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
+				FenApplication.this.getImagePlus().getRoi().setStrokeColor(Color.RED);
+				
+				System.out.println(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
 			}
 		});
 

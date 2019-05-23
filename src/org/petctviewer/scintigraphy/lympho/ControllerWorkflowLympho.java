@@ -58,17 +58,19 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 			this.workflows[i].addInstruction(dri_3);
 			this.workflows[i].addInstruction(dri_4);
 			this.workflows[i].addInstruction(dri_capture_2);
+			System.out.println("i : "+i);
 
 			// Update view
-			getVue().setNbInstructions(this.allInputInstructions().size());
+			
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
+		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	@Override
 	public void end() {
 		super.end();
-
+//		this.saveWorkflow();
 		// Compute model
 		int firstSlice = 1;
 		int secondSlice = 2;

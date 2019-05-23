@@ -235,7 +235,7 @@ public class Library_Roi {
 	 */
 	public static boolean saveRois(RoiManager roiManager, String path) {
 		
-		ArrayList rois = (ArrayList) Arrays.asList(roiManager.getRoisAsArray());
+		List<Roi> rois = Arrays.asList(roiManager.getRoisAsArray());
 		
 		int nbRoi = roiManager.getCount();
 		
@@ -267,6 +267,8 @@ public class Library_Roi {
 					IJ.log("saveMultiple: " + i + "  " + label + "  " + roi);
 				if (roi == null)
 					continue;
+				
+				roi.setName(label);
 				if (!label.endsWith(".roi"))
 					label += ".roi";
 				zos.putNextEntry(new ZipEntry(label));
@@ -293,16 +295,8 @@ public class Library_Roi {
 	}
 	
 	
-	public static boolean saveRois(RoiManager roiManager, String path, ControllerWorkflow controller) {
-		
-		
-		
-		return true;
-	}
-	
-	
 	private static String getUniqueName(String[] names,int  i) {
-		return null;
+		return i+"_"+names[i];
 	}
 
 }

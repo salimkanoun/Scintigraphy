@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.scin.instructions.drawing;
 
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.instructions.Instruction.DrawInstructionType;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
@@ -9,9 +10,11 @@ import ij.gui.Roi;
 
 public class DrawRoiBackground extends DrawRoiInstruction {
 	
-	private DrawRoiInstruction dri_1;
+	private DrawInstructionType InstructionType = DrawInstructionType.DRAW_ROI_BACKGROUND;
 	
-	private ModeleScin model;
+	private transient DrawRoiInstruction dri_1;
+	
+	private transient ModeleScin model;
 
 	/**
 	 * Instantiates a new instruction to draw a background ROI.

@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.scin.instructions;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -18,14 +19,15 @@ import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruc
  * @author Titouan QUÉMA
  *
  */
-public class Workflow {
+public class Workflow implements Serializable{
 
+	private static final long serialVersionUID = 1L;
 	private List<Instruction> instructions;
-	private ListIterator<Instruction> iterator;
-	private Instruction current;
+	private transient ListIterator<Instruction> iterator;
+	private transient Instruction current;
 
-	private ControllerWorkflow controller;
-	private ImageSelection imageAssociated;
+	private transient ControllerWorkflow controller;
+	private transient ImageSelection imageAssociated;
 
 	/**
 	 * Creates a new workflow. A workflow is based on a ImageSelection and is linked
@@ -221,6 +223,10 @@ public class Workflow {
 	
 	public List<Instruction> getInstructions(){
 		return this.instructions;
+	}
+	
+	public void removeInstructionWithIterator(Instruction instruction) {
+		this.iterator.remove();
 	}
 
 }

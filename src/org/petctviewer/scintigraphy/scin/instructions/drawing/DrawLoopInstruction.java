@@ -8,11 +8,15 @@ import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruc
 
 public class DrawLoopInstruction extends DefaultGenerator {
 
+	private static final long serialVersionUID = 1L;
+
+	protected DrawInstructionType InstructionType;
+
 	private int indexRoiToDisplay;
 
-	private ImageState state;
+	private transient ImageState state;
 
-	private String RoiName;
+	protected String RoiName;
 
 	private String suffixe;
 
@@ -30,7 +34,7 @@ public class DrawLoopInstruction extends DefaultGenerator {
 			this.state = parent.getImageState();
 		else
 			this.state = state;
-		
+		this.InstructionType  = DrawInstructionType.DRAW_LOOP;
 	}
 
 	@Override

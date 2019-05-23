@@ -169,7 +169,7 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 			// on relance le mode decontamination, cette fois ci pour la deuxieme slice
 			this.finContSlice1 = true;
 			this.setSlice(2);
-			((FenApplication_Cardiac) this.getScin().getFenApplication()).startContaminationMode();
+//			((FenApplication_Cardiac) this.getScin().getFenApplication()).startContaminationMode();
 
 		} else { // on a trait� toutes les contaminations
 			this.finContSlice2 = true;

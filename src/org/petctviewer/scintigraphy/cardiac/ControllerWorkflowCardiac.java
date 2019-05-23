@@ -20,6 +20,10 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 	/**
@@ -32,8 +36,10 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	// private int nbConta1;
 	// private int nbConta2;
 
-	private boolean finContSlice1;
+	private boolean finContSlice1;	
 	private String[] organes = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
+
+	private boolean finContSlice2;
 
 	public ControllerWorkflowCardiac(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
 		super(main, vue, model);
@@ -48,7 +54,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		// this.nbConta2 = 0;
 
 		this.generateInstructions();
-		((FenApplication_Cardiac) this.main.getFenApplication()).startContaminationMode();
+//		((FenApplication_Cardiac) this.main.getFenApplication()).startContaminationMode();
 		this.start();
 	}
 
@@ -112,30 +118,42 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	}
 
 	private void clicNewCont() {
-
-		if (this.position % 2 != 0) {
-			FenApplication_Cardiac fac = (FenApplication_Cardiac) this.main.getFenApplication();
-			fac.getBtn_continue().setEnabled(true);
-			fac.getBtn_newCont().setLabel("Next");
-		} else {
-			FenApplication_Cardiac fac = (FenApplication_Cardiac) this.main.getFenApplication();
-			fac.getBtn_continue().setEnabled(false);
-			fac.getBtn_newCont().setLabel("Save");
+		
+		if(this.getVue().getImagePlus().getRoi() != null && !this.finContSlice2) {
+			if (this.position % 2 != 0) {
+				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.main.getFenApplication();
+				fac.getBtn_continue().setEnabled(true);
+				fac.getBtn_suivant().setLabel("Next");
+			} else {
+				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.main.getFenApplication();
+				fac.getBtn_continue().setEnabled(false);
+				fac.getBtn_suivant().setLabel("Save");
+			}
 		}
 
-		this.clicSuivant();
 	}
 
 	private void clicEndCont() {
+		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
+				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
+//		System.out.println("-------------------------- Avant --------------------------");
+//		System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n");
 		// on set la slice
 		if ((this.model.getImageSelection()[0].getImagePlus().getCurrentSlice() == 1
 				&& this.model.getImageSelection()[0].getImagePlus().getImageStackSize() > 1)) {
 			// on relance le mode decontamination, cette fois ci pour la deuxieme slice
 			this.finContSlice1 = true;
-			((FenApplication_Cardiac) this.main.getFenApplication()).startContaminationMode();
+
 			// TODO demander confirmation à Titouan
-			this.position--;
 			((DrawSymmetricalLoopInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
+			this.workflows[this.indexCurrentWorkflow].removeInstructionWithIterator(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
+
+
+			
+			
+//			System.out.println("-------------------------- Pendant --------------------------");
+//			System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n");
+			
 			this.clicSuivant();
 
 		} else { // on a trait� toutes les contaminations
@@ -148,11 +166,16 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			// l'indexRoi
 			this.setOrganes((String[]) ArrayUtils.addAll(conts, this.getOrganes()));
 			((DrawSymmetricalLoopInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
+			this.workflows[this.indexCurrentWorkflow].removeInstructionWithIterator(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
+			this.finContSlice2 = true;
+			
+//			this.workflows[this.indexCurrentWorkflow].previous();
 			this.clicSuivant();
-			this.position = 0;
-			this.vue.getBtn_precedent().setEnabled(false);
 		}
+		this.position--;
 		this.vue.pack();
+//		System.out.println("-------------------------- Après --------------------------");
+//		System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n\n");
 
 	}
 
@@ -166,17 +189,23 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		super.actionPerformed(arg0);
+		
+		System.out.println(this.position);
+		
 		Button b = (Button) arg0.getSource();
-		if (b == ((FenApplication_Cardiac) this.main.getFenApplication()).getBtn_newCont()) {
+		if (b == ((FenApplication_Cardiac) this.main.getFenApplication()).getBtn_suivant()) {
 			this.clicNewCont();
 		} else if (b == ((FenApplication_Cardiac) this.main.getFenApplication()).getBtn_continue()) {
 			this.clicEndCont();
 		}
+		super.actionPerformed(arg0);
+		System.out.println(this.position);
 	}
 
 	@Override
 	public void end() {
+		
+//		this.saveWorkflow();
 
 		((Modele_Cardiac) this.model).getResults();
 		((Modele_Cardiac) this.model).calculerResultats();

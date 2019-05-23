@@ -19,10 +19,10 @@ public class ScreenShotInstruction extends ExecutionInstruction {
 
 	public static final int DEFAULT_CAPTURE_WIDTH = 512;
 
-	private List<ImagePlus> captures;
+	private transient List<ImagePlus> captures;
 	private int captureIndex;
 
-	private FenApplication fen;
+	private transient FenApplication fen;
 
 	private int captureHeight, captureWidht;
 

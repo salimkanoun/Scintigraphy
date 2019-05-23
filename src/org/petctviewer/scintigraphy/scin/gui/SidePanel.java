@@ -9,6 +9,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.HashMap;
 
 import javax.swing.Box;
@@ -20,10 +21,12 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.IJ;
 import ij.ImagePlus;
+import ij.Prefs;
 
 /**
  * creer une box avec titre du programme et son identification patient
@@ -179,6 +182,16 @@ public class SidePanel extends JPanel {
 							Library_Capture_CSV.exportAll(resultats, tab.getParent().getModel().getRoiManager(),
 									tab.getParent().getModel().getStudyName(), imp,
 									additionalInfo == null ? "" : additionalInfo);
+							
+							
+							String addInfo = additionalInfo == null ? "" : additionalInfo;
+							String nomFichier = Library_Capture_CSV.getInfoPatient(imp)[1] + "_" + Library_Capture_CSV.getInfoPatient(imp)[2] + addInfo;
+							String path = Prefs.get("dir.preferred", null) + File.separator + tab.getParent().getModel().getStudyName() + File.separator + Library_Capture_CSV.getInfoPatient(imp)[1];
+							String pathFinal = path + File.separator + nomFichier + ".zip";
+							System.out.println(path);
+							System.out.println(pathFinal);
+							
+							((ControllerWorkflow)tab.getParent().getController()).saveWorkflow(path);
 
 							imp.killRoi();
 						} catch (Exception e1) {

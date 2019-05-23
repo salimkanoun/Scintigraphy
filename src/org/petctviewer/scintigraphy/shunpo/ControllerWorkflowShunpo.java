@@ -167,7 +167,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
 	private class DrawRoiInMiddle extends DrawRoiInstruction {
 
-		private DrawRoiInstruction dri_1, dri_2;
+		private transient DrawRoiInstruction dri_1, dri_2;
 
 		public DrawRoiInMiddle(String organToDelimit, ImageState state, DrawRoiInstruction roi1,
 				DrawRoiInstruction roi2) {

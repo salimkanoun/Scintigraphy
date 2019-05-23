@@ -16,6 +16,7 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import ij.ImagePlus;
+import ij.gui.Roi;
 
 public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 
@@ -84,6 +85,9 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 		this.resultTab.reloadDisplay();
 
 		this.vue.dispose();
+		
+		for(Roi roi : modele.getRoiManager().getRoisAsArray())
+			this.resultTab.getParent().getModel().getRoiManager().addRoi(roi);
 	}
 
 	public ModeleScin getModel() {

@@ -5,6 +5,7 @@ import java.awt.Color;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
+import org.petctviewer.scintigraphy.scin.instructions.Instruction.DrawInstructionType;
 import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import ij.gui.Roi;
@@ -12,17 +13,15 @@ import ij.plugin.RoiScaler;
 
 public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 
-	private Instruction dri_1;
+	private transient Instruction dri_1;
 
-	private ModeleScin model;
+	private transient ModeleScin model;
 
 	public enum Organ {
 		DEMIE, QUART
 	};
 
-	private Organ organ;
-
-	private String organToDelimit;
+	private transient Organ organ;
 
 	public DrawSymmetricalRoiInstruction(String organToDelimit, ImageState state, Instruction instructionToCopy,
 			String roiName, ModeleScin model, Organ organ) {
@@ -31,6 +30,8 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 		this.organ = organ;
 		this.dri_1 = instructionToCopy;
 		this.organToDelimit = organToDelimit;
+		
+		this.InstructionType = DrawInstructionType.DRAW_SYMMETRICAL;
 	}
 
 	@Override
@@ -43,6 +44,9 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 		String name = this.organToDelimit;
 
 		Roi thisRoi = (Roi) this.getImageState().getImage().getImagePlus().getRoi();
+		if(thisRoi == null)
+			return this.organToDelimit;
+		
 		boolean OrganPost = thisRoi.getXBase() > this.getImageState().getImage().getImagePlus().getWidth() / 2;
 
 		if (OrganPost)

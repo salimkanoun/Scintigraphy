@@ -7,27 +7,42 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.swing.JOptionPane;
 
-
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
+import org.petctviewer.scintigraphy.scin.instructions.Instruction.DrawInstructionType;
 import org.petctviewer.scintigraphy.scin.instructions.LastInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
+import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawLoopInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoopInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
 import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
-
-
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  * This controller is used when working with a flow of instructions.<br>
@@ -70,9 +85,12 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	private boolean skipInstruction;
 
 	/**
-	 * @param main  Reference to the main class
-	 * @param vue   View of the MVC pattern
-	 * @param model Model of the MVC pattern
+	 * @param main
+	 *            Reference to the main class
+	 * @param vue
+	 *            View of the MVC pattern
+	 * @param model
+	 *            Model of the MVC pattern
 	 */
 	public ControllerWorkflow(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
 		super(main, vue, model);
@@ -95,21 +113,23 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	 */
 	protected abstract void generateInstructions();
 
-//	private void DEBUG(String s) {
-//		System.out.println("=== " + s + " ===");
-//		System.out.println("Current position: " + this.position);
-//		System.out.println("Current image: " + this.indexCurrentImage);
-//		String currentInstruction = "-No instruction-";
-//		if (this.indexCurrentImage >= 0 && this.indexCurrentImage < this.workflows.length) {
-//			Instruction i = this.workflows[this.indexCurrentImage].getCurrentInstruction();
-//			if (i != null)
-//				currentInstruction = i.getMessage();
-//			else
-//				currentInstruction = "-No Message-";
-//		}
-//		System.out.println("Current instruction: " + currentInstruction);
-//		System.out.println();
-//	}
+	// private void DEBUG(String s) {
+	// System.out.println("=== " + s + " ===");
+	// System.out.println("Current position: " + this.position);
+	// System.out.println("Current image: " + this.indexCurrentImage);
+	// String currentInstruction = "-No instruction-";
+	// if (this.indexCurrentImage >= 0 && this.indexCurrentImage <
+	// this.workflows.length) {
+	// Instruction i =
+	// this.workflows[this.indexCurrentImage].getCurrentInstruction();
+	// if (i != null)
+	// currentInstruction = i.getMessage();
+	// else
+	// currentInstruction = "-No Message-";
+	// }
+	// System.out.println("Current instruction: " + currentInstruction);
+	// System.out.println();
+	// }
 
 	/**
 	 * This method displays the ROI to edit (if necessary).
@@ -254,7 +274,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		// Change slice only if different than the previous
 		if (this.currentState.getSlice() != this.vue.getImagePlus().getCurrentSlice()) {
 			this.vue.getImagePlus().setSlice(this.currentState.getSlice());
-//			resetOverlay = true;
+			// resetOverlay = true;
 		}
 
 		// == LATERALISATION ==
@@ -310,7 +330,8 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	/**
 	 * Finds the workflow matching the specified image.
 	 * 
-	 * @param ims Image to find
+	 * @param ims
+	 *            Image to find
 	 * @return Workflow associated with the image or null if not found
 	 */
 	protected Workflow getWorkflowAssociatedWithImage(ImageSelection ims) {
@@ -350,7 +371,8 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	/**
 	 * Prepares the ImagePlus with the specified state and updates the currentState.
 	 * 
-	 * @param imageState State the ImagePlus must complies
+	 * @param imageState
+	 *            State the ImagePlus must complies
 	 */
 	protected void prepareImage(ImageState imageState) {
 		this.prepareImage(imageState, this.indexCurrentWorkflow);
@@ -388,7 +410,8 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			this.getVue().currentInstruction(indexInstruction);
 
 		if (previousInstruction instanceof LastInstruction && currentInstruction != null
-				&& currentInstruction instanceof GeneratorInstruction) {
+				&& currentInstruction instanceof GeneratorInstruction
+				&& !(previousInstruction instanceof DrawSymmetricalLoopInstruction)) {
 			((GeneratorInstruction) currentInstruction).activate();
 		}
 
@@ -427,7 +450,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			this.clicPrecedent();
 		}
 
-//		DEBUG("PREVIOUS");
+		// DEBUG("PREVIOUS");
 	}
 
 	@Override
@@ -464,7 +487,11 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			// == Generate next instruction if necessary ==
 			if (previousInstruction instanceof GeneratorInstruction) {
 				GeneratorInstruction generatorInstruction = (GeneratorInstruction) previousInstruction;
-				this.workflows[indexPreviousImage].addInstructionOnTheFly(generatorInstruction.generate());
+				if (previousInstruction instanceof DefaultGenerator)
+					if (!((DefaultGenerator) previousInstruction).isStopped())
+						this.workflows[indexPreviousImage].addInstructionOnTheFly(generatorInstruction.generate());
+					else
+						this.workflows[indexPreviousImage].addInstructionOnTheFly(generatorInstruction.generate());
 			}
 
 			// == Go to the next instruction ==
@@ -516,7 +543,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			this.clicSuivant();
 		}
 
-//		DEBUG("NEXT");
+		// DEBUG("NEXT");
 	}
 
 	@Override
@@ -554,19 +581,193 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			this.getVue().currentInstruction(value);
 		}
 	}
-	
-	
-	
-	
-	public Gson saveWorkflow(String path) {
-		this.getRoiManager();
+
+	public boolean saveWorkflow(String path) {
+
+		// Pretty print
+		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
+				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
+
+		// Formal data sending
+		// Gson gsonTest = new
+		// GsonBuilder().setPrettyPrinting().serializeNulls().setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
+
+		JsonObject workflowsObject = new JsonObject();
+		JsonArray workflowsArray = new JsonArray();
+
+		for (Workflow workflow : this.workflows) {
+			JsonObject currentWorkflow = new JsonObject();
+			JsonArray instructionsArray = new JsonArray();
+			for (Instruction instruction : workflow.getInstructions()) {
+				if (instruction.saveRoi() || instruction.isRoiVisible()) {
+					JsonObject currentInstruction = new JsonObject();
+					currentInstruction.addProperty("InstructionType", instruction.getClass().getSimpleName());
+					currentInstruction.addProperty("IndexRoiToEdit", instruction.roiToDisplay());
+					// instructionsArray.add((JsonObject) gson.toJsonTree(instruction));
+					instructionsArray.add((JsonObject) gson.toJsonTree(currentInstruction));
+				}
+			}
+			currentWorkflow.add("Intructions", instructionsArray);
+			workflowsArray.add(currentWorkflow);
+		}
+
+		workflowsObject.add("Workflows", workflowsArray);
+		System.out.println("\n\n\n --------------------------- TEST --------------------------- \n");
+		System.out.println(gson.toJson(workflowsObject));
+		System.out.println("\n --------------------------- Supposed --------------------------- \n");
+		System.out.println(gson.toJson(this.workflows));
+		System.out.println("\n\n\n");
+		try (FileWriter writer = new FileWriter(path)) {
+			gson.toJson(workflowsObject, writer);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
-		Gson gson = new Gson();
-		
-		
-		
-		return gson;
+//		try (ZipOutputStream zip = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(path)));
+//				Writer writer = new OutputStreamWriter(zip);) {
+//			zip.putNextEntry(new ZipEntry("workflow.json"));
+//			gson.toJson(workflowsObject, writer);
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
+		// this.loadWorkflow(path);
+
+		return true;
 	}
 
+	public boolean loadWorkflows() {
+		String path = "D:\\Bureau\\IUT\\Oncopole\\workflow.json";
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		WorkflowsFromGson workflowsFromGson = null;
+
+		try (Reader reader = new FileReader(path)) {
+
+			// Convert JSON to WorkflowsFromGson
+			workflowsFromGson = gson.fromJson(reader, WorkflowsFromGson.class);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if (workflowsFromGson != null) {
+			if (workflowsFromGson.getWorkflows().size() != this.workflows.length) {
+				System.out.println("NOMBRE DE WORKFLOW DIFFERENT, IMPOSSIBLE DE CHARGER LA SAUVEGARDE");
+				return false;
+			}
+
+			// int nbDrawInstruction = 0;
+			// for (Workflow workflow : this.workflows)
+			// for(Instruction instruction : workflow.getInstructions())
+			// if(instruction.saveRoi() || instruction.isRoiVisible())
+			// nbDrawInstruction++;
+			//
+			// if (nbDrawInstruction != workflowsFromGson.Workflows.size()) {
+			// System.out.println("NOMBRE D'INSTRUCTION DIFFERENTE, IMPOSSIBLE DE CHARGER LA
+			// SAUVEGARDE");
+			// return false;
+			// }
+
+			for (int index = 0; index < this.workflows.length; index++) {
+				int specialIndex = 0;
+				for (int j = 0; j < this.workflows[index].getInstructions().size(); j++) {
+					if (this.workflows[index].getInstructionAt(j).saveRoi()) {
+
+						IntructionFromGson intructionFromGson = workflowsFromGson.getWorkflowAt(index)
+								.getInstructionAt(specialIndex);
+						String typeOfIntructionFromGson = intructionFromGson.getInstructionType();
+
+						if (!this.workflows[index].getInstructionAt(j).getClass().getSimpleName().toString()
+								.equals(typeOfIntructionFromGson)) {
+							System.out.println(
+									"LES INSTRUCTION NE SONT PAS LES MÊMES, IMPOSSIBLE DE CHARGER LA SAUVEGARDE");
+							System.out.println(this.workflows[index].getInstructionAt(j).getClass().getSimpleName());
+							System.out.println(typeOfIntructionFromGson);
+							return false;
+						}
+
+						if ((typeOfIntructionFromGson.equals(DrawInstructionType.DRAW_LOOP.getName()))
+								|| typeOfIntructionFromGson
+										.equals(DrawInstructionType.DRAW_SYMMETRICAL_LOOP.getName())) {
+							if (workflowsFromGson.getWorkflowAt(index).getInstructions().size() > specialIndex + 1) {
+								IntructionFromGson nextIntructionFromGson = workflowsFromGson.getWorkflowAt(index)
+										.getInstructionAt(specialIndex + 1);
+								String typeOfNextIntructionFromGson = nextIntructionFromGson.getInstructionType()
+										.toString();
+
+								if (typeOfNextIntructionFromGson.equals(DrawInstructionType.DRAW_LOOP.getName()))
+									this.workflows[index].getInstructions().add(j + 1,
+											((DrawLoopInstruction) this.workflows[index].getInstructionAt(j))
+													.generate());
+
+								else if (typeOfNextIntructionFromGson
+										.equals(DrawInstructionType.DRAW_SYMMETRICAL_LOOP.getName()))
+									this.workflows[index].getInstructions().add(j + 1,
+											((DrawSymmetricalLoopInstruction) this.workflows[index].getInstructionAt(j))
+													.generate());
+								else
+									((DefaultGenerator) this.workflows[index].getInstructionAt(j)).stop();
+							}
+						}
+
+						this.workflows[index].getInstructionAt(j).setRoi(intructionFromGson.getIndexRoiToEdit());
+
+						specialIndex++;
+					}
+				}
+			}
+
+			String jsonInString = gson.toJson(workflowsFromGson);
+			System.out.println(jsonInString);
+
+			String workflowIsString = gson.toJson(this.workflows);
+			System.out.println(workflowIsString);
+
+		}
+
+		return true;
+	}
+
+	private class WorkflowsFromGson {
+		List<WorkflowFromGson> Workflows;
+
+		public List<WorkflowFromGson> getWorkflows() {
+			return this.Workflows;
+		}
+
+		public WorkflowFromGson getWorkflowAt(int index) {
+			return this.Workflows.get(index);
+		}
+
+	}
+
+	private class WorkflowFromGson {
+		List<IntructionFromGson> Intructions;
+
+		public List<IntructionFromGson> getInstructions() {
+			return this.Intructions;
+		}
+
+		public IntructionFromGson getInstructionAt(int index) {
+			return this.Intructions.get(index);
+		}
+	}
+
+	private class IntructionFromGson {
+
+		private String InstructionType;
+
+		private int IndexRoiToEdit;
+
+		public int getIndexRoiToEdit() {
+			return this.IndexRoiToEdit;
+		}
+
+		public String getInstructionType() {
+			return this.InstructionType;
+		}
+	}
 
 }
