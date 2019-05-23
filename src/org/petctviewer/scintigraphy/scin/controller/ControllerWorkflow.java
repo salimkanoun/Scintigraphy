@@ -92,22 +92,22 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	 */
 	protected abstract void generateInstructions();
 
-	private void DEBUG(String s) {
-		System.out.println("=== " + s + " ===");
-		System.out.println("Current position: " + this.position);
-		System.out.println("Current workflow: " + this.indexCurrentWorkflow);
-		String currentInstruction = "-No instruction-";
-		if (this.indexCurrentWorkflow >= 0 && this.indexCurrentWorkflow < this.workflows.length) {
-			Instruction i = this.workflows[this.indexCurrentWorkflow].getCurrentInstruction();
-			if (i != null)
-				currentInstruction = i.getMessage();
-			else
-				currentInstruction = "-No Message-";
-		}
-		System.out.println("Current instruction: " + currentInstruction);
-		System.out.println("Index ROI: " + this.indexRoi);
-		System.out.println();
-	}
+//	private void DEBUG(String s) {
+//		System.out.println("=== " + s + " ===");
+//		System.out.println("Current position: " + this.position);
+//		System.out.println("Current workflow: " + this.indexCurrentWorkflow);
+//		String currentInstruction = "-No instruction-";
+//		if (this.indexCurrentWorkflow >= 0 && this.indexCurrentWorkflow < this.workflows.length) {
+//			Instruction i = this.workflows[this.indexCurrentWorkflow].getCurrentInstruction();
+//			if (i != null)
+//				currentInstruction = i.getMessage();
+//			else
+//				currentInstruction = "-No Message-";
+//		}
+//		System.out.println("Current instruction: " + currentInstruction);
+//		System.out.println("Index ROI: " + this.indexRoi);
+//		System.out.println();
+//	}
 
 	/**
 	 * This method displays the ROI to edit (if necessary).
@@ -514,7 +514,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			this.clicSuivant();
 		}
 
-		DEBUG("NEXT");
+//		DEBUG("NEXT");
 	}
 
 	@Override
@@ -524,6 +524,16 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		// Synchronize visualization with workflow
+		int indexScrollForCurrentInstruction = this.allInputInstructions()
+				.indexOf(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
+		if (getVue().getInstructionDisplayed() != indexScrollForCurrentInstruction) {
+			// Update view
+			this.updateScrollbar(indexScrollForCurrentInstruction);
+			getVue().currentInstruction(indexScrollForCurrentInstruction);
+			return; // Do nothing more
+		}
+
 		super.actionPerformed(e);
 
 		if (!(e.getSource() instanceof Button))
