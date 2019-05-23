@@ -13,16 +13,16 @@ import javax.swing.JOptionPane;
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabMainHepaticDyn;
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabCurves;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-public class ControllerHepaticDynamic extends ControleurScin implements MouseListener, ActionListener {
+public class ControllerHepaticDynamic extends ControllerScin implements MouseListener, ActionListener {
 
 	public static final String COMMAND_END = "command.end";
 
-	public ControllerHepaticDynamic(Scintigraphy main, FenApplication vue, ModeleScin model) {
+	public ControllerHepaticDynamic(Scintigraphy main, FenApplication vue, ModelScin model) {
 		super(main, main.getFenApplication(), model);
 	}
 

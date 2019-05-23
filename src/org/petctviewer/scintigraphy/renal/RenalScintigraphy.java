@@ -11,7 +11,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
-import org.petctviewer.scintigraphy.scin.model.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -80,7 +80,7 @@ public class RenalScintigraphy extends Scintigraphy {
 		ImageStack stack = impProjetee.getImagePlus().getStack();
 
 		// deux premieres minutes
-		int fin = ModeleScinDyn.getSliceIndexByTime(2 * 60 * 1000, frameDurations);
+		int fin = ModelScinDyn.getSliceIndexByTime(2 * 60 * 1000, frameDurations);
 		ImageSelection impPostFirstMin = Library_Dicom.project(impPostCountPerSec, 0, fin, "avg");
 		stack.addSlice(impPostFirstMin.getImagePlus().getProcessor());
 
@@ -142,10 +142,10 @@ public class RenalScintigraphy extends Scintigraphy {
 
 		this.setFenApplication(new FenApplication_Renal(selectedImages[0], this.getStudyName(), this));
 		selectedImages[0].getImagePlus().setOverlay(overlay);
-//		this.getFenApplication().setControleur(new Controleur_Renal(this, selectedImages, "Renal scintigraphy"));
+//		this.getFenApplication().setControleur(new Controller_Renal(this, selectedImages, "Renal scintigraphy"));
 		((FenApplicationWorkflow) this.getFenApplication())
 				.setControleur(new ControllerWorkflowRenal(this, (FenApplicationWorkflow) this.getFenApplication(),
-						new Modele_Renal(this.frameDurations, selectedImages, "Renal scintigraphy")));
+						new Model_Renal(this.frameDurations, selectedImages, "Renal scintigraphy")));
 	}
 
 	public int[] getFrameDurations() {

@@ -6,10 +6,10 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.gui.Roi;
 
@@ -23,7 +23,7 @@ public class FenApplicationSecondHepaticDyn extends FenApplicationWorkflow {
 
 	}
 
-	public static void importRoiList(Frame frame, ModeleScin modele, ControleurScin controller) {
+	public static void importRoiList(Frame frame, ModelScin modele, ControllerScin controller) {
 
 		List<Roi> rois = Library_Roi.getRoiFromZipWithWindow(frame);
 

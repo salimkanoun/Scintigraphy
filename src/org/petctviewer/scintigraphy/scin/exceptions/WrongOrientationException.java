@@ -6,9 +6,9 @@ import org.petctviewer.scintigraphy.scin.Orientation;
 
 /**
  * Thrown to indicate that the orientation is not supported.
- * 
- * @author Titouan QUÉMA
  *
+ * @author Titouan QUÉMA
+ * @see WrongColumnException.OrientationColumn
  */
 public class WrongOrientationException extends WrongInputException {
 	private static final long serialVersionUID = 1L;
@@ -30,7 +30,7 @@ public class WrongOrientationException extends WrongInputException {
 	/**
 	 * It is preferable to use
 	 * {@link #WrongOrientationException(Orientation, Orientation[])}.
-	 * 
+	 *
 	 * @param badProvided Orientation that is not supported
 	 */
 	public WrongOrientationException(Orientation badProvided) {
@@ -42,7 +42,7 @@ public class WrongOrientationException extends WrongInputException {
 	 * This method is not recommended.<br>
 	 * Please use {@link #WrongOrientationException(Orientation, Orientation[])}
 	 * instead.
-	 * 
+	 *
 	 * @param msg Detail message
 	 */
 	public WrongOrientationException(String msg) {
@@ -58,7 +58,7 @@ public class WrongOrientationException extends WrongInputException {
 
 	/**
 	 * @return bad orientation that threw this exception or null if none were
-	 *         provided
+	 * provided
 	 */
 	public Orientation getBadOrientationProvided() {
 		return this.badOrientation;

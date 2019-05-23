@@ -44,7 +44,7 @@ public class DrawLoopInstruction extends DefaultGenerator {
 
 	@Override
 	public String getMessage() {
-		return this.workflow.getController().getModel().getRoiManager().getRoi(this.roiToDisplay()) != null
+		return this.workflow.getController().getModel().getRoiManager().getRoi(this.getRoiIndex()) != null
 				? this.RoiName
 				: "Draw your Roi";
 
@@ -83,7 +83,7 @@ public class DrawLoopInstruction extends DefaultGenerator {
 	}
 
 	@Override
-	public int roiToDisplay() {
+	public int getRoiIndex() {
 		return this.indexRoiToDisplay;
 	}
 

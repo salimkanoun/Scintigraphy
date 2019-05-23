@@ -24,7 +24,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 	public ControllerWorkflow_ScinStatic(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages,
 			String studyName) {
-		super(main, vue, new ModeleScinStatic(selectedImages, studyName));
+		super(main, vue, new ModelScinStatic(selectedImages, studyName));
 
 		ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
 		setOverlay(statePost);
@@ -78,7 +78,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		for (int i = 0; i < this.model.getRoiManager().getCount(); i++) {
 			Roi roi = this.model.getRoiManager().getRoi(i);
 			imp.setRoi(roi);
-			((ModeleScinStatic) this.model).enregistrerMesureAnt(roi.getName(), imp);
+			((ModelScinStatic) this.model).enregistrerMesureAnt(roi.getName(), imp);
 		}
 
 		// pour la post
@@ -87,7 +87,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		for (int i = 0; i < this.model.getRoiManager().getCount(); i++) {
 			Roi roi = this.model.getRoiManager().getRoi(i);
 			imp.setRoi(roi);
-			((ModeleScinStatic) this.model).enregistrerMesurePost(roi.getName(), imp);
+			((ModelScinStatic) this.model).enregistrerMesurePost(roi.getName(), imp);
 		}
 
 		Thread t = new DoubleImageThread("test", this.main, this.model);

@@ -16,7 +16,7 @@ import java.awt.event.MouseWheelEvent;
 
 import org.petctviewer.scintigraphy.gastric.InstructionTooltip;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 
 import ij.IJ;
@@ -299,7 +299,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	}
 
 	@Override
-	public void setControleur(ControleurScin controller) {
+	public void setControleur(ControllerScin controller) {
 		if (!(controller instanceof ControllerWorkflow)) {
 			throw new IllegalArgumentException("The controller must be an instance of ControllerWorkflow");
 		}

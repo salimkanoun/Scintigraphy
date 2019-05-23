@@ -14,9 +14,8 @@ import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruc
  * {@link ControllerWorkflow}.<br>
  * Only the last workflow of a controller MUST end with the
  * {@link LastInstruction}.
- * 
- * @author Titouan QUÉMA
  *
+ * @author Titouan QUÉMA
  */
 public class Workflow {
 
@@ -26,6 +25,9 @@ public class Workflow {
 
 	private ControllerWorkflow controller;
 	private ImageSelection imageAssociated;
+
+	// TODO: allow only 1 workflow per controller (this mean to decouple the image from the workflow and only use
+	//  ImageState)
 
 	/**
 	 * Creates a new workflow. A workflow is based on a ImageSelection and is linked
@@ -38,17 +40,23 @@ public class Workflow {
 		this.restart();
 	}
 
+	/**
+	 * @return image associated with this workflow
+	 */
 	public ImageSelection getImageAssociated() {
 		return this.imageAssociated;
 	}
 
+	/**
+	 * @return controller associated with this workflow
+	 */
 	public ControllerWorkflow getController() {
 		return this.controller;
 	}
 
 	/**
 	 * @return current instruction on this workflow or null if it hasn't been
-	 *         started
+	 * started
 	 */
 	public Instruction getCurrentInstruction() {
 		return this.current;
@@ -59,8 +67,8 @@ public class Workflow {
 	 * workflow, so a call to {@link #next()} will return the first instruction.<br>
 	 * Adding a null instruction restart this workflow but the instruction is
 	 * ignored.
-	 * 
-	 * @param instruction Instruction to add in the workflow
+	 *
+	 * @param instruction Instruction to add in the workflow (null accepted)
 	 */
 	public void addInstruction(Instruction instruction) {
 		if (instruction != null)
@@ -75,9 +83,9 @@ public class Workflow {
 	 * Adding a null instruction does nothing.<br>
 	 * If the current instruction is null (meaning the workflow has not been
 	 * started) then this function is equivalent to
-	 * {@link #addInstruction(Instruction)}.<br>
-	 * This method is meant to be used by the {@link GeneratorInstruction} class.
-	 * 
+	 * {@link #addInstruction(Instruction)} (and though the workflow is restarted).<br>
+	 * This method is meant to be used by the {@link GeneratorInstruction} class only.
+	 *
 	 * @param instruction Instruction to add after the current instruction.
 	 */
 	public void addInstructionOnTheFly(Instruction instruction) {
@@ -90,6 +98,9 @@ public class Workflow {
 	}
 
 	/**
+	 * Retrieves the next instruction of this workflow and move on to this instruction.<br>
+	 * After a call to this method, a call to the {@link #getCurrentInstruction()} will return the same instruction.
+	 *
 	 * @return next instruction of this workflow or null if none
 	 */
 	public Instruction next() {
@@ -103,6 +114,9 @@ public class Workflow {
 	}
 
 	/**
+	 * Retrieves the previous instruction of this workflow and move on to this instruction.<br>
+	 * After a call to this method, a call to the {@link #getCurrentInstruction()} will return the same instruction.
+	 *
 	 * @return previous instruction of this workflow or null if none
 	 */
 	public Instruction previous() {
@@ -120,8 +134,9 @@ public class Workflow {
 	}
 
 	/**
-	 * Restarts the workflow. This method reset this workflow's state for the one
-	 * that it had at its initialization.
+	 * Restarts the workflow.<br>
+	 * After a call to this method, a call to the {@link #next()} method will return the next instruction (if
+	 * any) and a call to the {@link #previous()} instruction will return null.
 	 */
 	public void restart() {
 		this.iterator = this.instructions.listIterator();
@@ -129,17 +144,21 @@ public class Workflow {
 	}
 
 	/**
+	 * Checks if this workflow is at the last instruction.
+	 *
 	 * @return TRUE if this workflow no longer have a next instruction and FALSE if
-	 *         there is an next instruction
+	 * there is an next instruction
 	 */
 	public boolean isOver() {
 		return !this.iterator.hasNext();
 	}
 
 	/**
-	 * Counts the number of ROIs that will be created in this workflow. This is a
-	 * planned value.
-	 * 
+	 * Counts the number of ROIs that will be created by this workflow. This is a
+	 * planned value.<br>
+	 * Be careful when using this method, it cannot predict the number of ROI created by generated instructions.<br>
+	 * This method should only be used when this workflow doesn't contain any instruction generator.
+	 *
 	 * @return number of ROIs created
 	 */
 	public int countRoisCreated() {
@@ -151,8 +170,12 @@ public class Workflow {
 	}
 
 	/**
-	 * This method should not be used since it violates the encapsulation.
-	 * 
+	 * Retrieves the instruction at the specified index.<br>
+	 * This method should not be abused since it violates the encapsulation.<br>
+	 * The specified index must be in range of 0 to the max number of instructions. If the index is incorrect, an
+	 * exception will be thrown.
+	 *
+	 * @param index Index of the instruction to retrieve
 	 * @return Instruction at the index position of this workflow
 	 */
 	public Instruction getInstructionAt(int index) {
@@ -163,12 +186,12 @@ public class Workflow {
 	 * This method will look through all instructions to search for any instruction
 	 * matching the same facingOrientation specified. If an instruction has no
 	 * state, or its facingOrientation's state is null ; this instruction will be
-	 * returned.
-	 * 
-	 * @param facingOrientation Facing orientation to search (if null, then all
-	 *                          instructions saving a ROI are returned)
+	 * returned.<br>
+	 * This method only gets the instructions with a <u>visible</u> ROI to save.
+	 *
+	 * @param facingOrientation Facing orientation to search (null accepted)
 	 * @return all the instructions with a ROI to display matching the specified
-	 *         orientation, including the instructions with no state
+	 * orientation, including the instructions with no state
 	 */
 	public Instruction[] getInstructionsWithOrientation(Orientation facingOrientation) {
 		List<Instruction> instructions = new LinkedList<>();
@@ -178,9 +201,14 @@ public class Workflow {
 			if (i.saveRoi() && i.isRoiVisible() && (facingOrientation == null || i.getImageState() == null
 					|| i.getImageState().getFacingOrientation() == facingOrientation))
 				instructions.add(i);
-		return instructions.toArray(new Instruction[instructions.size()]);
+		return instructions.toArray(new Instruction[0]);
 	}
 
+	/**
+	 * Used for debug only.
+	 *
+	 * @return debug string of this workflow
+	 */
 	@Override
 	public String toString() {
 		StringBuilder s = new StringBuilder();
@@ -202,9 +230,9 @@ public class Workflow {
 
 			if (ins instanceof GeneratorInstruction) {
 				GeneratorInstruction gi = (GeneratorInstruction) ins;
-				s.append(" -index:" + gi.getIndex());
+				s.append(" -index:").append(gi.getIndex());
 				if (gi.getParent() != null)
-					s.append("- Parent: " + gi.getParent().getIndex());
+					s.append("- Parent: ").append(gi.getParent().getIndex());
 				else
 					s.append("- ROOT_INSTRUCTION");
 			}
@@ -218,8 +246,8 @@ public class Workflow {
 
 		return s.toString();
 	}
-	
-	public List<Instruction> getInstructions(){
+
+	public List<Instruction> getInstructions() {
 		return this.instructions;
 	}
 

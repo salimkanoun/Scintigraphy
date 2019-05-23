@@ -32,7 +32,7 @@ public class TabAntPost extends TabResult {
 
 	@Override
 	public JPanel getResultContent() {
-		Modele_GeneralDyn modele = (Modele_GeneralDyn) this.parent.getModel();
+		Model_GeneralDyn modele = (Model_GeneralDyn) this.parent.getModel();
 		int cols = (modele.getNbRoi() + 1) / 2;
 		JPanel grid = new JPanel(new GridLayout(2, cols));
 

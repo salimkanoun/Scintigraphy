@@ -6,7 +6,7 @@ import java.awt.Label;
 import java.awt.Panel;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 
@@ -44,7 +44,7 @@ public class FenApplication_ScinStatic extends FenApplicationWorkflow {
 	}
 
 	@Override
-	public void setControleur(ControleurScin ctrl) {
+	public void setControleur(ControllerScin ctrl) {
 		super.setControleur(ctrl);
 		this.btn_finish.addActionListener(ctrl);
 	}

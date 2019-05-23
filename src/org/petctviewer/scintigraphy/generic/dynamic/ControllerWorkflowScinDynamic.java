@@ -18,7 +18,7 @@ import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.gui.Roi;
 
@@ -31,7 +31,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 	// private ImagePlus impProjetee;
 	private int indexRoi;
 
-	public ControllerWorkflowScinDynamic(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
+	public ControllerWorkflowScinDynamic(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
 		super(main, vue, model);
 
 		this.generateInstructions();
@@ -47,9 +47,9 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		this.workflows = new Workflow[1];
 		DefaultGenerator dri_1 = null;
 		ImageState state; 
-		if(((Modele_GeneralDyn) model).getImpAnt() != null) {
+		if(((Model_GeneralDyn) model).getImpAnt() != null) {
 			state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
-			if(((Modele_GeneralDyn) model).getImpPost() != null)
+			if(((Model_GeneralDyn) model).getImpPost() != null)
 				Library_Gui.setOverlayTitle("Inverted Post", this.vue.getImagePlus(), Color.yellow, 2);
 		}
 		else
@@ -70,13 +70,13 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 	@Override
 	public void end() {
 		// on sauvegarde l'imp projetee pour la reafficher par la suite
-		// this.impProjetee = ((Modele_GeneralDyn)
+		// this.impProjetee = ((Model_GeneralDyn)
 		// this.model).getImpProjetee().getImagePlus();
 
 		Library_Gui.initOverlay(this.vue.getImagePlus());
-		if(((Modele_GeneralDyn) model).getImpAnt() != null) {
+		if(((Model_GeneralDyn) model).getImpAnt() != null) {
 			Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus(), Color.yellow, 1);
-			if(((Modele_GeneralDyn) model).getImpPost() != null)
+			if(((Model_GeneralDyn) model).getImpPost() != null)
 				Library_Gui.setOverlayTitle("Inverted Post", this.vue.getImagePlus(), Color.yellow, 2);
 			
 		}
@@ -95,7 +95,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
 		BufferedImage capture;
 
-		String[] roiNames = ((Modele_GeneralDyn) this.model).getRoiNames();
+		String[] roiNames = ((Model_GeneralDyn) this.model).getRoiNames();
 
 		FenGroup_GeneralDyn fenGroup = new FenGroup_GeneralDyn(roiNames);
 		fenGroup.setModal(true);
@@ -109,7 +109,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 			this.vue.getImagePlus().setSlice(1);
 			this.vue.getImagePlus().setOverlay(this.vue.getOverlay());
 			capture = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 512, 0).getBufferedImage();
-			((Modele_GeneralDyn) this.model).saveValues(((Modele_GeneralDyn) this.model).getImpAnt().getImagePlus());
+			((Model_GeneralDyn) this.model).saveValues(((Model_GeneralDyn) this.model).getImpAnt().getImagePlus());
 			this.fenResult.addTab(new TabAntPost(capture, "Ant", this.fenResult));
 		}
 
@@ -120,7 +120,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
 			BufferedImage c = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 512, 0).getBufferedImage();
 
-			((Modele_GeneralDyn) this.model).saveValues(((Modele_GeneralDyn) this.model).getImpPost().getImagePlus());
+			((Model_GeneralDyn) this.model).saveValues(((Model_GeneralDyn) this.model).getImpPost().getImagePlus());
 			ControllerWorkflowScinDynamic.this.fenResult
 					.addTab(new TabAntPost(c, "Post", ControllerWorkflowScinDynamic.this.fenResult));
 

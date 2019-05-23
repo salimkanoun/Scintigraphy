@@ -88,7 +88,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 		// Cree controller
 		((FenApplicationWorkflow) this.getFenApplication())
 				.setControleur(new ControllerWorkflowCardiac(this, (FenApplicationWorkflow) this.getFenApplication(),
-						new Modele_Cardiac(this, selectedImages, "Cardiac")));
+						new Model_Cardiac(this, selectedImages, "Cardiac")));
 
 	}
 

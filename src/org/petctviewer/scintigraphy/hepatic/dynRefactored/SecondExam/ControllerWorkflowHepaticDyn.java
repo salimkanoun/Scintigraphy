@@ -13,7 +13,7 @@ import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.ImagePlus;
 
@@ -23,7 +23,7 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 
 	private TabResult resultTab;
 
-	public ControllerWorkflowHepaticDyn(FenApplicationWorkflow vue, ModeleScin model, TabResult resultTab) {
+	public ControllerWorkflowHepaticDyn(FenApplicationWorkflow vue, ModelScin model, TabResult resultTab) {
 		super(null, vue, model);
 
 		// TODO Auto-generated constructor stub
@@ -86,7 +86,7 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 		this.vue.dispose();
 	}
 
-	public ModeleScin getModel() {
+	public ModelScin getModel() {
 		return this.model;
 	}
 

@@ -13,7 +13,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 
 /**
  * This class represents a dialog prompt for a time (hours, minutes, seconds) in
@@ -37,7 +37,7 @@ public class PromptTime extends PromptDialog {
 	/**
 	 * @param timeToPrompt String representing the time prompted (used for display)
 	 */
-	public PromptTime(ControleurScin controller, String timeToPrompt) {
+	public PromptTime(ControllerScin controller, String timeToPrompt) {
 		this(controller, timeToPrompt, null, null);
 	}
 
@@ -46,7 +46,7 @@ public class PromptTime extends PromptDialog {
 	 * @param message      Message shown to the user (can be set later using the
 	 *                     panCenter panel)
 	 */
-	public PromptTime(ControleurScin controller, String timeToPrompt, String message) {
+	public PromptTime(ControllerScin controller, String timeToPrompt, String message) {
 		this(controller, timeToPrompt, message, null);
 	}
 
@@ -55,7 +55,7 @@ public class PromptTime extends PromptDialog {
 	 * @param autofillDate Time autofilled on the combo box
 	 * @throws IllegalArgumentException if the controller is null
 	 */
-	public PromptTime(ControleurScin controller, String timeToPrompt, Date autofillDate) {
+	public PromptTime(ControllerScin controller, String timeToPrompt, Date autofillDate) {
 		this(controller, timeToPrompt, null, autofillDate);
 	}
 
@@ -66,7 +66,7 @@ public class PromptTime extends PromptDialog {
 	 * @param autofillDate Time autofilled on the combo box
 	 * @throws IllegalArgumentException if the controller is null
 	 */
-	public PromptTime(ControleurScin controller, String timeToPrompt, String message, Date autofillDate)
+	public PromptTime(ControllerScin controller, String timeToPrompt, String message, Date autofillDate)
 			throws IllegalArgumentException {
 		if (controller == null)
 			throw new IllegalArgumentException("The controller must not be null");

@@ -21,7 +21,7 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.CheckIntersectio
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
@@ -30,7 +30,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
 	private FenResults fenResults;
 
-	public ControllerWorkflow_DynGastric(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model,
+	public ControllerWorkflow_DynGastric(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
 			ImageSelection[] selectedImages, FenResults fenResults) {
 		super(main, vue, model);
 		this.getRoiManager().reset();
@@ -69,7 +69,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		Instruction instructionSelected = workflowOfFirstImage.getInstructionAt(0);
 
 		getModel().setBkgNoise(Model_Gastric.REGION_STOMACH, bkgState,
-				getRoiManager().getRoi(instructionSelected.roiToDisplay()));
+				getRoiManager().getRoi(instructionSelected.getRoiIndex()));
 
 		final int NB_ROI_PER_IMAGE = 3;
 		ImageState previousState = null;
@@ -95,7 +95,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 					getModel().getImageSelection().length);
 			previousState = state;
 		}
-		getModel().calculerResultats();
+		getModel().calculateResults();
 	}
 
 	private void fitBest(String command) {

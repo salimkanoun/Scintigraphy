@@ -6,12 +6,12 @@ import java.awt.GridLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.lympho.ModeleLympho;
+import org.petctviewer.scintigraphy.lympho.ModelLympho;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -19,11 +19,11 @@ import ij.plugin.MontageMaker;
 
 public class TabPrincipalLympho extends TabResult {
 
-	ModeleScin model;
+	ModelScin model;
 
 	ImagePlus montage;
 
-	public TabPrincipalLympho(FenResults parent, String title, ModeleScin model, ImagePlus[] captures) {
+	public TabPrincipalLympho(FenResults parent, String title, ModelScin model, ImagePlus[] captures) {
 		super(parent, title);
 
 		System.out.println("TabPrincipalLympho : " + model != null);
@@ -40,7 +40,7 @@ public class TabPrincipalLympho extends TabResult {
 	@Override
 	public Component getSidePanelContent() {
 		System.out.println(model != null);
-		String[] result = ((ModeleLympho) parent.getModel()).getResult();
+		String[] result = ((ModelLympho) parent.getModel()).getResult();
 		JPanel res = new JPanel(new GridLayout(result.length, 1));
 		for (String s : result)
 			res.add(new JLabel(s));

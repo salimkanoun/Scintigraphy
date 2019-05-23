@@ -22,8 +22,8 @@ import java.util.List;
 import javax.swing.JTextField;
 
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.FenApplicationSecondHepaticDyn;
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
-import org.petctviewer.scintigraphy.scin.controller.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
+import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.ImagePlus;
@@ -58,7 +58,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	Button btn_precedent;
 	Button btn_suivant;
 
-	private ControleurScin controleur;
+	private ControllerScin controleur;
 
 	private Panel panelPrincipal;
 	Panel panelContainer;
@@ -206,7 +206,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		return this.getImagePlus().getOverlay();
 	}
 
-	public ControleurScin getControleur() {
+	public ControllerScin getControleur() {
 		return this.controleur;
 	}
 
@@ -232,12 +232,12 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	}
 
 	/************* Setter *************/
-	public void setControleur(ControleurScin ctrl) {
+	public void setControleur(ControllerScin ctrl) {
 		this.controleur = ctrl;
 
 		// on affiche la premiere instruction
-		if (ctrl instanceof Controleur_OrganeFixe)
-			((Controleur_OrganeFixe) ctrl).setInstructionsDelimit(0);
+		if (ctrl instanceof Controller_OrganeFixe)
+			((Controller_OrganeFixe) ctrl).setInstructionsDelimit(0);
 
 		// on ajoute le controleur a tous les boutons
 		this.btn_contrast.addActionListener(ctrl);

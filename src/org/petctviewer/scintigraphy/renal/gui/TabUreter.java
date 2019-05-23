@@ -7,7 +7,7 @@ import javax.swing.JPanel;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
-import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -29,7 +29,7 @@ class TabUreter extends TabResult {
 	@Override
 	public JPanel getResultContent() {
 		String[][] asso = new String[][] { { "L. Ureter", "R. Ureter" } };
-		List<XYSeries> series = ((Modele_Renal) parent.getModel()).getSeries();
+		List<XYSeries> series = ((Model_Renal) parent.getModel()).getSeries();
 		ChartPanel[] cPanels = Library_JFreeChart.associateSeries(asso, series);
 
 		cPanels[0].getChart().setTitle("Ureters");

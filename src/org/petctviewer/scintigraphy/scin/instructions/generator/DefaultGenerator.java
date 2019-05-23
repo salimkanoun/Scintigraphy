@@ -78,7 +78,7 @@ public abstract class DefaultGenerator implements GeneratorInstruction {
 	}
 
 	@Override
-	public int roiToDisplay() {
+	public int getRoiIndex() {
 		return -1;
 	}
 

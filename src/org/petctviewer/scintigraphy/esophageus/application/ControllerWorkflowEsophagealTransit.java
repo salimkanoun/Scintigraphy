@@ -9,11 +9,11 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 public class ControllerWorkflowEsophagealTransit extends ControllerWorkflow {
 
-	public ControllerWorkflowEsophagealTransit(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
+	public ControllerWorkflowEsophagealTransit(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
 		super(main, vue, model);
 
 		this.generateInstructions();
@@ -45,10 +45,10 @@ public class ControllerWorkflowEsophagealTransit extends ControllerWorkflow {
 
 	@Override
 	public void end() {
-		model.calculerResultats();
+		model.calculateResults();
 		FenResultats_EsophagealTransit fen = new FenResultats_EsophagealTransit(
-				((Modele_EsophagealTransit) model).getExamenMean(), ((Modele_EsophagealTransit) model).getDicomRoi(),
-				((Modele_EsophagealTransit) model), "Esophageal Transit", this);
+				((Model_EsophagealTransit) model).getExamenMean(), ((Model_EsophagealTransit) model).getDicomRoi(),
+				((Model_EsophagealTransit) model), "Esophageal Transit", this);
 		fen.pack();
 		fen.setLocationRelativeTo(null);
 		fen.setVisible(true);

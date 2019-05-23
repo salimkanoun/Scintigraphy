@@ -26,7 +26,7 @@ import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
-import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
@@ -44,13 +44,13 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 	private JComboBox combo;
 	
 	private JValueSetter valueSetter;
-	private Modele_Renal modele;
+	private Model_Renal modele;
 	private double debutG, debutD, finG, finD;
 	private Selector debut, fin;
 	private XYSeries lkPatlak, rkPatlak;
 	private double[] regG, regD;
 	
-	public FenPatlak(Modele_Renal modele) {
+	public FenPatlak(Model_Renal modele) {
 		this.modele = modele;
 		JFreeChart patlakChart = this.createPatlakChart(modele);
 		XYPlot plot = patlakChart.getXYPlot();
@@ -133,7 +133,7 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		return sl;
 	}
 
-	private JFreeChart createPatlakChart(Modele_Renal modele) {
+	private JFreeChart createPatlakChart(Model_Renal modele) {
 		XYSeries bpl = modele.getSerie("BP norm L");
 		XYSeries bpr = modele.getSerie("BP norm R");
 		XYSeries lk = modele.getSerie("Final KL");

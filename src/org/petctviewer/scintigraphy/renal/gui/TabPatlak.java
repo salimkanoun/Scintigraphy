@@ -9,7 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -34,7 +34,7 @@ class TabPatlak extends TabResult {
 		pnl_sep.add(lbl_L);
 		pnl_sep.add(lbl_R);
 
-		double[] patlak = ((Modele_Renal) this.getParent().getModel()).getPatlakPente();
+		double[] patlak = ((Model_Renal) this.getParent().getModel()).getPatlakPente();
 		pnl_sep.add(new JLabel("patlak"));
 		JLabel lbl_pd = new JLabel(patlak[0] + " %");
 		lbl_pd.setHorizontalAlignment(SwingConstants.CENTER);
@@ -54,7 +54,7 @@ class TabPatlak extends TabResult {
 
 	@Override
 	public JPanel getResultContent() {
-		return ((Modele_Renal) this.parent.getModel()).getPatlakChart();
+		return ((Model_Renal) this.parent.getModel()).getPatlakChart();
 	}
 
 }

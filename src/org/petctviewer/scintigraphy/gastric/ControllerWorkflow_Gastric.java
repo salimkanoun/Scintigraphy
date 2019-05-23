@@ -76,7 +76,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 			getModel().computeStaticData(antState, postState);
 		}
-		this.model.calculerResultats();
+		this.model.calculateResults();
 	}
 
 	private void computeBothMethods() {
@@ -115,7 +115,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			getModel().computeStaticData(state, previousState);
 			previousState = state;
 		}
-		this.model.calculerResultats();
+		this.model.calculateResults();
 	}
 
 	// TODO: remove this method and compute the model during the process

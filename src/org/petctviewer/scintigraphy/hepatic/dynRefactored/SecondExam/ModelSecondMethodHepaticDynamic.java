@@ -9,12 +9,12 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
 
-public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
+public class ModelSecondMethodHepaticDynamic extends ModelScinDyn {
 
 	private Double tDemiFoieDFit, tDemiFoieGFit, tDemiVascFit, tDemiFoieDObs, tDemiFoieGObs, tDemiVascObs;
 	private Double maxFoieD, maxFoieG, finPicD, finPicG, pctVasc;
@@ -36,7 +36,7 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 	}
 
 	@Override
-	public void calculerResultats() {
+	public void calculateResults() {
 		
 		for (String k : this.getData().keySet()) {
 			List<Double> data = this.getData().get(k);
@@ -162,7 +162,7 @@ public class ModelSecondMethodHepaticDynamic extends ModeleScinDyn {
 
 		// set data to the model
 		this.setData(mapData);
-		this.calculerResultats();
+		this.calculateResults();
 
 	}
 

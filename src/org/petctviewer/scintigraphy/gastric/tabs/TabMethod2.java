@@ -40,7 +40,7 @@ import org.petctviewer.scintigraphy.gastric.gui.Fit;
 import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -66,7 +66,7 @@ public class TabMethod2 extends TabResult implements ItemListener, ChartMouseLis
 
 	private Unit unitDefault, unitTime;
 
-	public TabMethod2(FenResults parent, ImagePlus capture, ControleurScin controller) {
+	public TabMethod2(FenResults parent, ImagePlus capture, ControllerScin controller) {
 		super(parent, "Gastric Only", true);
 
 		// Initialize attributes

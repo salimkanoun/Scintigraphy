@@ -51,7 +51,7 @@ public class TestScintyy extends Scintigraphy {
 		// .setControleur(new ControleurLympho(this, this.getFenApplication(), "Lympho
 		// Scinti", selectedImages));
 		// test.setControleur(new ControllerWorkflowLympho(this,
-		// this.getFenApplication(), new ModeleLympho(selectedImages, "Test Scinti")));
+		// this.getFenApplication(), new ModelLympho(selectedImages, "Test Scinti")));
 		test.setVisible(true);
 
 	}

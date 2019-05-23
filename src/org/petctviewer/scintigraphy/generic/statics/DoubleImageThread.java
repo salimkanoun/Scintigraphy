@@ -2,7 +2,7 @@ package org.petctviewer.scintigraphy.generic.statics;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -11,9 +11,9 @@ import ij.plugin.MontageMaker;
 public class DoubleImageThread extends Thread{
 	
 	Scintigraphy scin;
-	private ModeleScin model;
+	private ModelScin model;
 	
-	public DoubleImageThread(String name,Scintigraphy scin, ModeleScin model) {
+	public DoubleImageThread(String name,Scintigraphy scin, ModelScin model) {
 		super(name);
 		this.scin = scin;
 		this.model = model;

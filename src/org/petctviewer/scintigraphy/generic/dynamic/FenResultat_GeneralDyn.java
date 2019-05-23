@@ -1,6 +1,6 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 
 public class FenResultat_GeneralDyn extends FenResults {
@@ -9,7 +9,7 @@ public class FenResultat_GeneralDyn extends FenResults {
 
 	private String[][] asso;
 
-	public FenResultat_GeneralDyn(ControleurScin controller, String[][] asso) {
+	public FenResultat_GeneralDyn(ControllerScin controller, String[][] asso) {
 		super(controller);
 		this.asso = asso;
 

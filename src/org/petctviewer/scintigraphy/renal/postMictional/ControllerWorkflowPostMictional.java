@@ -18,7 +18,7 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.ImagePlus;
 import ij.Prefs;
@@ -30,7 +30,7 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 
 	private boolean[] kidneys;
 
-	public ControllerWorkflowPostMictional(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model,
+	public ControllerWorkflowPostMictional(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
 			boolean[] kidneys) {
 		super(main, vue, model);
 
@@ -98,10 +98,10 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 			imp.setRoi(this.model.getRoiManager().getRoi(indexRoi));
 			hm.put(this.organeListe[indexRoi], Library_Quantif.getCounts(imp));
 		}
-		((Modele_PostMictional) this.model).setData(hm);
+		((Model_PostMictional) this.model).setData(hm);
 		this.main.getFenApplication().dispose();
 		((PostMictional) this.main).getResultFrame().setExamDone(true);
-		((PostMictional) this.main).getResultFrame().setModelPostMictional((Modele_PostMictional) this.model);
+		((PostMictional) this.main).getResultFrame().setModelPostMictional((Model_PostMictional) this.model);
 		((PostMictional) this.main).getResultFrame().reloadDisplay();
 
 	}

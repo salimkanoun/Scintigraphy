@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
 
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -97,7 +97,7 @@ public class Library_Capture_CSV {
 	 * <br>
 	 * See also : <br>
 	 * {@link Library_Capture_CSV#genererDicomTagsPartie1(ImagePlus, String)} <br>
-	 * {@link ModeleScin#genererDicomTagsPartie1SameUID(ImagePlus, String)}
+	 * {@link ModelScin#genererDicomTagsPartie1SameUID(ImagePlus, String)}
 	 * 
 	 * @param imp
 	 * @param nomProgramme

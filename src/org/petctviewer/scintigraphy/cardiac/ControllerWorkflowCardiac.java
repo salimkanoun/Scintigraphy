@@ -18,7 +18,7 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoi
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
@@ -35,14 +35,14 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	private boolean finContSlice1;
 	private String[] organes = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
 
-	public ControllerWorkflowCardiac(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
+	public ControllerWorkflowCardiac(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
 		super(main, vue, model);
 
 		// on declare si il y a deux prises
-		((Modele_Cardiac) this.model)
+		((Model_Cardiac) this.model)
 				.setDeuxPrise(this.model.getImageSelection()[0].getImagePlus().getImageStackSize() > 1);
 
-		((Modele_Cardiac) this.model).calculerMoyGeomTotale();
+		((Model_Cardiac) this.model).calculerMoyGeomTotale();
 
 		// this.nbConta1 = 0;
 		// this.nbConta2 = 0;
@@ -178,9 +178,9 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	@Override
 	public void end() {
 
-		((Modele_Cardiac) this.model).getResults();
-		((Modele_Cardiac) this.model).calculerResultats();
-		// ((Modele_Cardiac) this.model).setNbConta(new int[] {this.nbConta1,
+		((Model_Cardiac) this.model).getResults();
+		((Model_Cardiac) this.model).calculateResults();
+		// ((Model_Cardiac) this.model).setNbConta(new int[] {this.nbConta1,
 		// this.nbConta2});
 
 		BufferedImage capture = Library_Capture_CSV.captureImage(this.main.getFenApplication().getImagePlus(), 512, 0)

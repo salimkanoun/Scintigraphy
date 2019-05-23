@@ -185,7 +185,7 @@ public class EsophagealTransit extends Scintigraphy {
 			radioButton[i].addItemListener(new ItemListener() {
 				@Override
 				public void itemStateChanged(ItemEvent e) {
-					fen.setImage(sauvegardeImagesSelectDicom[0][num].getImagePlus());
+					fen.setImage(sauvegardeImagesSelectDicom[0][num]);
 				}
 			});
 			buttonGroup.add(radioButton[i]);
@@ -218,7 +218,7 @@ public class EsophagealTransit extends Scintigraphy {
 
 				ControllerWorkflowEsophagealTransit cet = new ControllerWorkflowEsophagealTransit(
 						EsophagealTransit.this, (FenApplicationWorkflow) EsophagealTransit.this.getFenApplication(),
-						new Modele_EsophagealTransit(sauvegardeImagesSelectDicom, "Esophageal Transit",
+						new Model_EsophagealTransit(sauvegardeImagesSelectDicom, "Esophageal Transit",
 								EsophagealTransit.this));
 				((FenApplicationWorkflow) EsophagealTransit.this.getFenApplication()).setControleur(cet);
 

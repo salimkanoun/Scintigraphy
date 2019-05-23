@@ -100,7 +100,7 @@ public class DrawRoiInstruction implements Instruction {
 	}
 
 	@Override
-	public int roiToDisplay() {
+	public int getRoiIndex() {
 		if (this.indexRoiToEdit != -1)
 			return this.indexRoiToEdit;
 		else if (this.instructionToCopy != null)

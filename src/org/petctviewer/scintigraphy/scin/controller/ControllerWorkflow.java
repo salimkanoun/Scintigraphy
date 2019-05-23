@@ -4,14 +4,13 @@ import com.google.gson.Gson;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.LastInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,7 +27,7 @@ import java.util.List;
  *
  * @author Titouan QUÉMA
  */
-public abstract class ControllerWorkflow extends ControleurScin implements AdjustmentListener, MouseWheelListener {
+public abstract class ControllerWorkflow extends ControllerScin implements AdjustmentListener, MouseWheelListener {
 
 	/**
 	 * This command signals that the instruction should not generate a next
@@ -63,7 +62,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	 * @param vue   View of the MVC pattern
 	 * @param model Model of the MVC pattern
 	 */
-	public ControllerWorkflow(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
+	public ControllerWorkflow(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
 		super(main, vue, model);
 
 		this.skipInstruction = false;
@@ -119,12 +118,12 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	private int[] roisToDisplay(int indexWorkflow, ImageState state, int indexRoi) {
 		List<Instruction> dris = new ArrayList<>();
 		for (Instruction i : this.workflows[indexWorkflow].getInstructionsWithOrientation(state.getFacingOrientation()))
-			if (i.roiToDisplay() >= 0 && i.roiToDisplay() < indexRoi) {
+			if (i.getRoiIndex() >= 0 && i.getRoiIndex() < indexRoi) {
 				dris.add(i);
 			}
 		int[] array = new int[dris.size()];
 		for (int i = 0; i < dris.size(); i++)
-			array[i] = dris.get(i).roiToDisplay();
+			array[i] = dris.get(i).getRoiIndex();
 		return array;
 	}
 
@@ -133,7 +132,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		Instruction[] instructions = this.workflows[indexWorkflow]
 				.getInstructionsWithOrientation(state.getFacingOrientation());
 		for (Instruction i : instructions) {
-			if (i.roiToDisplay() >= 0) {
+			if (i.getRoiIndex() >= 0) {
 				dris.add(i);
 			}
 			if (i == last) {
@@ -142,7 +141,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		}
 		int[] array = new int[dris.size()];
 		for (int i = 0; i < dris.size(); i++)
-			array[i] = dris.get(i).roiToDisplay();
+			array[i] = dris.get(i).getRoiIndex();
 		return array;
 	}
 
@@ -385,7 +384,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			this.displayRois(this.currentRoisToDisplay());
 
 			if (currentInstruction.saveRoi()) {
-				this.editOrgan(currentInstruction.roiToDisplay());
+				this.editOrgan(currentInstruction.getRoiIndex());
 			}
 
 			currentInstruction.afterPrevious(this);
@@ -467,7 +466,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 				this.prepareImage(nextInstruction.getImageState());
 
 				if (nextInstruction.saveRoi())
-					this.editOrgan(nextInstruction.roiToDisplay());
+					this.editOrgan(nextInstruction.getRoiIndex());
 
 				nextInstruction.afterNext(this);
 			} else {

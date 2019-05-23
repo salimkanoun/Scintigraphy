@@ -9,11 +9,11 @@ import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabCurves;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.model.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
 import ij.ImagePlus;
 
-public class ModelHepaticDynamic extends ModeleScinDyn {
+public class ModelHepaticDynamic extends ModelScinDyn {
 
 	private TabResult resutlTab;
 
@@ -161,7 +161,7 @@ public class ModelHepaticDynamic extends ModeleScinDyn {
 	}
 
 	@Override
-	public void calculerResultats() {
+	public void calculateResults() {
 		// TODO Auto-generated method stub
 
 	}

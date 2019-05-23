@@ -38,7 +38,7 @@ public abstract class ExecutionInstruction implements Instruction {
 	}
 
 	@Override
-	public int roiToDisplay() {
+	public int getRoiIndex() {
 		return -1;
 	}
 

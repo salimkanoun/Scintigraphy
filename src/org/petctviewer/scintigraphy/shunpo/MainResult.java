@@ -24,7 +24,7 @@ public class MainResult extends TabResult {
 
 	@Override
 	public Component getSidePanelContent() {
-		String[] result = ((ModeleShunpo) this.parent.getModel()).getResult();
+		String[] result = ((ModelShunpo) this.parent.getModel()).getResult();
 		JPanel res = new JPanel(new GridLayout(result.length, 1));
 		for (String s : result)
 			res.add(new JLabel(s));
