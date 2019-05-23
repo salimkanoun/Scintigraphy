@@ -39,7 +39,8 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			COMMAND_FIT_BEST_ALL = "cfb_all";
 
 	private FenResults fenResults;
-	private TabMethod1 tabMain;
+//	private TabMethod1 tabMain;
+	private TabMainResult tabMain;
 	private TabMethod2_bis tabOnlyGastric;
 
 	private List<ImagePlus> captures;
@@ -139,7 +140,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	private void generateInstructionsOnlyGastric() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 
-		DrawRoiInstruction dri_1 = null, dri_2 = null;
+		DrawRoiInstruction dri_1, dri_2 = null;
 
 		this.captures = new ArrayList<>(1);
 
@@ -163,7 +164,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	private void generateInstructionsBothMethods() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 
-		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null;
+		DrawRoiInstruction dri_1, dri_2, dri_3 = null, dri_4 = null;
 
 		this.captures = new ArrayList<>(2);
 
@@ -237,7 +238,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 		if (!DO_ONLY_GASTRIC) {
 //			this.tabMain = new TabMainResult(this.fenResults, this.captures.get(1), this);
-			this.tabMain = new TabMethod1(this.fenResults, this.captures.get(1), this);
+			this.tabMain = new TabMainResult(this.fenResults, this.captures.get(1), this);
 			this.tabMain.displayTimeIngestion(getModel().getTimeIngestion());
 			this.fenResults.addTab(tabMain);
 			// Select best fit

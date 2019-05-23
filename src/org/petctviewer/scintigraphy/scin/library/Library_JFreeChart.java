@@ -71,39 +71,11 @@ public class Library_JFreeChart {
 		return getAbsMaxY(((XYSeriesCollection) ds).getSeries(series));
 	}
 
-	/*
-	 * return the linearaly interpolated X for a given Y value
+	/**
+	 * @return linearly interpolated Y for a given X value
+	 * @deprecated Please use {@link #getY(double[], double[], double)} instead!
 	 */
-	public static Double getInterpolatedX(XYSeries serie, Double pointYRecherche) {
-
-		for (int i = 0; i < serie.getItemCount(); i++) {
-			// si on a deja le point
-			if (serie.getY(i) == pointYRecherche) {
-				return (Double) serie.getX(i);
-			}
-
-			// si on a pas le point on fait un feat entre le point juste avant de dépacer et
-			// celui apres
-			if ((Double) serie.getY(i) > pointYRecherche) {
-				double[][] m = new double[2][2];
-
-				m[0][0] = (Double) serie.getX(i - 1);
-				m[0][1] = (Double) serie.getY(i - 1);
-				m[1][0] = (Double) serie.getX(i);
-				m[1][1] = (Double) serie.getY(i);
-
-				double fit[] = Regression.getOLSRegression(m);
-
-				return (fit[0] + fit[1] * pointYRecherche);
-			}
-		}
-
-		return Double.NaN;
-	}
-
-	/*
-	 * return the linearaly interpolated Y for a given X value
-	 */
+	@Deprecated
 	public static Double getInterpolatedY(XYSeries serie, Double pointXRecherche) {
 
 		for (int i = 0; i < serie.getItemCount(); i++) {
@@ -184,7 +156,7 @@ public class Library_JFreeChart {
 	/**
 	 * renvoie la liste des ordonnees de la serie passee en parametre
 	 * 
-	 * @param la serie
+	 * @param s la serie
 	 * @return liste des ordonnees
 	 */
 	public static List<Double> seriesToList(XYSeries s) {
@@ -293,6 +265,7 @@ public class Library_JFreeChart {
 	 * 
 	 * @param toInvert Array to invert
 	 * @return Array where columns are rows
+	 * @author Titouan QUÉMA
 	 */
 	public static double[][] invertArray(double[][] toInvert) {
 		double[][] res = new double[toInvert[0].length][2];
@@ -343,7 +316,7 @@ public class Library_JFreeChart {
 	/**
 	 * Generates a dataset of 1 series with the specified arguments.<br>
 	 * This is a convenience method for
-	 * {@link #createDataset(double[][], double[][], String)}.
+	 * {@link #createDataset(double[], double[][], String[])}.
 	 * 
 	 * @param resX  Values of the points for the X axis
 	 * @param resY  Values of the points for the Y axis
