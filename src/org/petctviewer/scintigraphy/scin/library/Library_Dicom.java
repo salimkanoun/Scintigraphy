@@ -175,6 +175,42 @@ public class Library_Dicom {
 
 		return detecteur1;
 	}
+	
+	private static int getCameraNumberUniqueFrame(ImagePlus imp) throws ReadTagException {
+		// On repere le num de camera dans l'imp courante
+		String tagVector = DicomTools.getTag(imp, "0054,0020");
+		if (!StringUtils.isEmpty(tagVector))
+			tagVector = tagVector.trim();
+		else {
+			throw new ReadTagException("Camera Number not found");
+		}
+		return Integer.parseInt(tagVector);
+	}
+	
+	private static int[] getCameraNumberArrayMultiFrame(ImagePlus imp) throws ReadTagException{
+		
+		// On recupere la chaine de detecteurER
+		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
+		if (!StringUtils.isEmpty(tagDetecteur)) {
+			tagDetecteur = tagDetecteur.trim();
+			//For orthanc replace \ by space for uniformity with IJ
+			tagDetecteur=tagDetecteur.replaceAll("\\\\", " ");
+			String delims = "[ ]+";
+			String[] sequenceDeteceur = tagDetecteur.split(delims);
+			int[] detectorArray=new int[sequenceDeteceur.length];
+			for(int i=0; i<sequenceDeteceur.length ; i++) {
+				detectorArray[i]=Integer.parseInt(sequenceDeteceur[i]);
+				System.out.println(detectorArray[i]);
+				
+			}
+			return detectorArray;
+			
+		}else {
+			throw new ReadTagException("Camera Number not found");
+		}
+		
+		
+	}
 
 	/**
 	 * Permet de tester si l'image est anterieure pour une unique frame, ne teste
@@ -184,9 +220,10 @@ public class Library_Dicom {
 	 * 
 	 * @param imp : ImagePlus a tester
 	 * @return boolean vrai si anterieur
+	 * @throws ReadTagException 
 	 */
 	@Deprecated
-	public static Boolean isAnterieurUniqueFrame(ImagePlus imp) {
+	public static boolean isAnterieurUniqueFrame(ImagePlus imp) throws ReadTagException {
 		imp.setSlice(1);
 
 		// Recupere le private tag qui peut contenir des informations de localisation
@@ -194,6 +231,8 @@ public class Library_Dicom {
 		String tag = DicomTools.getTag(imp, "0011,1012");
 
 		// On repere le num de camera
+		int cameraNumber=Library_Dicom.getCameraNumberUniqueFrame(imp);
+
 		String tagVector = DicomTools.getTag(imp, "0054,0020");
 		if (!StringUtils.isEmpty(tagVector))
 			tagVector = tagVector.trim();
@@ -202,49 +241,36 @@ public class Library_Dicom {
 		// l'info
 		if (!StringUtils.isEmpty(DicomTools.getTag(imp, "0011,1030")))
 			tag += DicomTools.getTag(imp, "0011,1030");
-		Boolean anterieur = null;
+		boolean anterieur = false;
+		// Si on a le private tag on le traite
+		if (!StringUtils.isEmpty(tag)) {
 
-		if (!StringUtils.isEmpty(tagVector) || !StringUtils.isEmpty(tag)) {
-
-			// Si on a le private tag on le traite
-			if (!StringUtils.isEmpty(tag)) {
-
-				if (tag.contains("ANT") || tag.contains("_E")) {
-					anterieur = true;
-				}
-
-				else if (tag.contains("POS") || tag.contains("_F")) {
-					anterieur = false;
-				}
-
-				else {
-					System.out.println("Orientation not reckognized");
-				}
+			if (tag.contains("ANT") || tag.contains("_E")) {
+				anterieur = true;
 			}
 
-			// Si pas de private tag on fait avec le numero de la camera
-			else if (!StringUtils.isEmpty(tagVector)) {
-
-				if (imp.getStackSize() == 2) {
-					// SK FAUDRA RECONNAITRE LES IMAGE D/G ET LES DIFFERENCIER //Utilisation de
-					// l'angle ??
-					if (tagVector.equals("1"))
-						anterieur = true;
-					if (tagVector.equals("2"))
-						anterieur = false;
-					System.out.println("Orientation Not reckgnized, assuming vector 1 is anterior");
-				}
-				// le Boolean reste null et on informe l'user
-				else {
-					System.out.println("Orientation not reckognized");
-				}
+			else if (tag.contains("POS") || tag.contains("_F")) {
+				anterieur = false;
 			}
 
+			else {
+				System.out.println("Orientation not reckognized");
+			}
 		}
-
-		// Si aucun des deux echec du reperage
+		// Si pas de private tag on fait avec le numero de la camera
 		else {
-			System.out.println("Orientation not reckognized");
+			//If 2 static image assume camera 1 is anterior and two is posterior
+			if (imp.getStackSize() == 2) {
+				if (cameraNumber==1)
+					anterieur = true;
+				if (cameraNumber==2)
+					anterieur = false;
+				System.out.println("Orientation Not reckgnized, assuming vector 1 is anterior");
+			}
+			// le Boolean reste null et on informe l'user
+			else {
+				System.out.println("Orientation not reckognized");
+			}
 		}
 
 		return anterieur;
@@ -258,9 +284,12 @@ public class Library_Dicom {
 	 * 
 	 * @param imp : ImagePlus a tester
 	 * @return boolean vrai si anterieur
+	 * @throws ReadTagException 
 	 */
+	
+	//SK REFACTORISATION POSSIBLE
 	@Deprecated
-	public static Boolean isAnterieurMultiframe(ImagePlus imp) {
+	public static boolean isAnterieurMultiframe(ImagePlus imp) throws ReadTagException {
 		// On ne traite que l'image 1
 		imp.setSlice(1);
 		String tag = DicomTools.getTag(imp, "0011,1012");
@@ -269,8 +298,7 @@ public class Library_Dicom {
 		if (!StringUtils.isEmpty(DicomTools.getTag(imp, "0011,1030")))
 			tag += DicomTools.getTag(imp, "0011,1030");
 
-		// On set le Boolean a null
-		Boolean anterieur = null;
+		boolean anterieur = false;
 		if (!StringUtils.isEmpty(tag)) {
 			/// On recupere le 1er separateur de chaque vue dans le champ des orientation
 			int separateur = tag.indexOf("\\");
@@ -289,17 +317,30 @@ public class Library_Dicom {
 				anterieur = false;
 			}
 
-			// Si on ne trouve pas de tag le booelan reste null et on notifie l'utilisateur
-			else if (!tag.substring(0, separateur).contains("POS") && !tag.substring(0, separateur).contains("_F")
-					&& !tag.substring(0, separateur).contains("ANT") && !tag.substring(0, separateur).contains("_E")) {
-				// le Boolean reste null et on informe l'user
-				System.out.println("Information not reckognized");
+			// if can't found orientation tag assume camera vector 1 is anterior and 2 is posterior
+			else {
+				int vectorCamera0=Library_Dicom.getCameraNumberArrayMultiFrame(imp)[0];
+				System.out.println("vector0"+vectorCamera0);
+				if( vectorCamera0== 1) {
+					anterieur = true;
+				}else if(vectorCamera0==2);{
+					anterieur = false;
+				}
+				System.out.println("No localization information assuming vector 1 is Ant and 2 Post");
 
 			}
 		} else {
-			System.out.println("No localization information");
+			int vectorCamera0=Library_Dicom.getCameraNumberArrayMultiFrame(imp)[0];
+			System.out.println("vector0"+vectorCamera0);
+			if( vectorCamera0==1) {
+				anterieur = true;
+			}else if(vectorCamera0==2){
+				anterieur = false;
+			}
+			System.out.println("No localization information assuming vector 1 is Ant and 2 Post");
 		}
 
+		System.out.println(anterieur);
 		return anterieur;
 	}
 
@@ -308,17 +349,17 @@ public class Library_Dicom {
 	 * 
 	 * @param imp : ImagePlus a tester
 	 * @return booleen vrai si image anterieure
+	 * @throws ReadTagException 
 	 */
-	public static Boolean isAnterieur(ImagePlus imp) {
-		Boolean anterieur = null;
-
+	public static boolean isAnterieur(ImagePlus imp) throws ReadTagException {
+		
 		if (Library_Dicom.isMultiFrame(imp)) {
-			anterieur = isAnterieurMultiframe(imp);
+			return isAnterieurMultiframe(imp);
 		}
-		if (!Library_Dicom.isMultiFrame(imp)) {
-			anterieur = isAnterieurUniqueFrame(imp);
+		else {
+			return isAnterieurUniqueFrame(imp);
 		}
-		return anterieur;
+
 	}
 
 	/**
@@ -400,8 +441,9 @@ public class Library_Dicom {
 	 * 
 	 * @param imp : ImagePlus a trier
 	 * @return Retourne l'ImagePlus avec les images posterieures inversees
+	 * @throws ReadTagException 
 	 */
-	public static ImagePlus sortImageAntPost(ImagePlus imp) {
+	public static ImagePlus sortImageAntPost(ImagePlus imp) throws ReadTagException {
 		return isMultiFrame(imp) ? Library_Dicom.sortAntPostMultiFrame(imp) : Library_Dicom.sortAntPostUniqueFrame(imp);
 	}
 
@@ -413,9 +455,10 @@ public class Library_Dicom {
 	 * 
 	 * @param imp0 : ImagePlus a trier
 	 * @return Retourne l'ImagePlus triee
+	 * @throws ReadTagException 
 	 */
 	@Deprecated
-	public static ImagePlus sortAntPostMultiFrame(ImagePlus imp0) {
+	public static ImagePlus sortAntPostMultiFrame(ImagePlus imp0) throws ReadTagException {
 		// On duplique pour faire les modifs dans l'image dupliqu锟絜
 		ImagePlus imp = imp0.duplicate();
 
@@ -431,15 +474,11 @@ public class Library_Dicom {
 		// Si pas de tag
 		if (StringUtils.isEmpty(tag))
 			tag = "no tag";
+		
 		// On recupere la chaine de detecteurER
-		String tagDetecteur = DicomTools.getTag(imp, "0054,0020");
-		if (!StringUtils.isEmpty(tagDetecteur)) {
-			tagDetecteur = tagDetecteur.trim();
-		}
-		//For orthanc replace \ by space for uniformity with IJ
-		tagDetecteur=tagDetecteur.replaceAll("\\\\", " ");
-		String delims = "[ ]+";
-		String[] sequenceDeteceur = tagDetecteur.split(delims);
+		int[] tagDetecteurArray=Library_Dicom.getCameraNumberArrayMultiFrame(imp);
+
+	
 
 		/// On recupere le 1er separateur de chaque vue dans le champ des orientation
 		int separateur = tag.indexOf("\\");
@@ -451,11 +490,11 @@ public class Library_Dicom {
 		// Si la 1ere image est labelisee anterieure
 		if (tag.substring(0, separateur).contains("ANT") || tag.substring(0, separateur).contains("_E")) {
 			// On recupere le numero du detecteur
-			int detecteurAnterieur = Integer.parseInt(sequenceDeteceur[0]);
+			int detecteurAnterieur = tagDetecteurArray[0];
 			// On parcours la sequence de detecteur et on flip 锟� chaque fois que ce
 			// n'est pas le numero de ce deteceur
-			for (int j = 0; j < sequenceDeteceur.length; j++) {
-				int detecteur = Integer.parseInt(sequenceDeteceur[j]);
+			for (int j = 0; j < tagDetecteurArray.length; j++) {
+				int detecteur = tagDetecteurArray[j];
 				if (detecteur != detecteurAnterieur) {
 					imp.getStack().getProcessor(j + 1).flipHorizontal();
 				}
@@ -465,11 +504,11 @@ public class Library_Dicom {
 		// Si la 1ere image est labelisee posterieurs
 		if (tag.substring(0, separateur).contains("POS") || tag.substring(0, separateur).contains("_F")) {
 			// on recupere le numero du detecteur posterieur
-			int detecteurPosterieur = Integer.parseInt(sequenceDeteceur[0]);
+			int detecteurPosterieur = tagDetecteurArray[0];
 			// On parcours la sequence de detecteur et on flip 锟� chaque fois que ca
 			// correspond a ce deteceur
-			for (int j = 0; j < sequenceDeteceur.length; j++) {
-				int detecteur = Integer.parseInt(sequenceDeteceur[j]);
+			for (int j = 0; j < tagDetecteurArray.length; j++) {
+				int detecteur = tagDetecteurArray[j];
 				if (detecteur == detecteurPosterieur) {
 					imp.getStack().getProcessor(j + 1).flipHorizontal();
 				}
@@ -482,8 +521,8 @@ public class Library_Dicom {
 				&& !tag.substring(0, separateur).contains("ANT") && !tag.substring(0, separateur).contains("_E")) {
 			System.out.println(
 					"No Orientation tag found, assuming detector 2 is posterior. Please Notify Salim.Kanoun@gmail.com");
-			for (int j = 0; j < sequenceDeteceur.length; j++) {
-				int detecteur = Integer.parseInt(sequenceDeteceur[j]);
+			for (int j = 0; j < tagDetecteurArray.length; j++) {
+				int detecteur = tagDetecteurArray[j];
 				if (detecteur == 2) {
 					imp.getStack().getProcessor(j + 1).flipHorizontal();
 				}
@@ -516,9 +555,10 @@ public class Library_Dicom {
 	 * 
 	 * @param imp0 : ImagePlus a trier
 	 * @return retourne l'ImagePlus trier
+	 * @throws ReadTagException 
 	 */
 	@Deprecated
-	public static ImagePlus sortAntPostUniqueFrame(ImagePlus imp0) {
+	public static ImagePlus sortAntPostUniqueFrame(ImagePlus imp0) throws ReadTagException {
 		// On copie dans une nouvelle image qu'on va renvoyer
 		ImagePlus imp = imp0.duplicate();
 
@@ -532,10 +572,8 @@ public class Library_Dicom {
 			// EMPTY STRING
 			// if (!StringUtils.isEmpty(tagStartAngle)) tagStartAngle=tagStartAngle.trim();
 
-			String tagVector = DicomTools.getTag(imp, "0054,0020");
-			if (!StringUtils.isEmpty(tagVector))
-				tagVector = tagVector.trim();
-
+			int tagVector= Library_Dicom.getCameraNumberUniqueFrame(imp);
+			
 			if (!StringUtils.isEmpty(tag)) {
 				tag = tag.trim();
 				if (StringUtils.contains(tag, "POS") || StringUtils.contains(tag, "_F")) {
@@ -553,7 +591,7 @@ public class Library_Dicom {
 			}
 
 			else {
-				if (imp.getStackSize() == 2 && StringUtils.equals(tagVector, "2")) {
+				if (imp.getStackSize() == 2 && tagVector==2) {
 					System.out.println(
 							"No Orientation found assuming Image 2 is posterior, please send image sample to Salim.kanoun@gmail.com if wrong");
 					imp.getProcessor().flipHorizontal();

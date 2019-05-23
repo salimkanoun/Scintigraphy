@@ -34,6 +34,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+import org.petctviewer.scintigraphy.scin.library.ReadTagException;
 
 import ij.IJ;
 import ij.ImageListener;
@@ -314,29 +315,35 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 */
 	private Orientation determineImageOrientation(ImagePlus imp) {
 		boolean sameCameraMultiFrame = Library_Dicom.isSameCameraMultiFrame(imp);
-		Boolean firstImageAnt = Library_Dicom.isAnterieur(imp);
+		Boolean firstImageAnt;
+		try {
+			firstImageAnt = Library_Dicom.isAnterieur(imp);
+		} catch (ReadTagException e) {
+			e.printStackTrace();
+			return Orientation.UNKNOWN;
+		}
 
-		if (imp.getStackSize() == 1 && firstImageAnt != null) {
+		if (imp.getStackSize() == 1) {
 			if (firstImageAnt) {
 				return Orientation.ANT;
 			} else {
 				return Orientation.POST;
 			}
 
-		} else if (imp.getStackSize() == 2 && firstImageAnt != null) {
+		} else if (imp.getStackSize() == 2) {
 			if (firstImageAnt) {
 				return Orientation.ANT_POST;
 			} else {
 				return Orientation.POST_ANT;
 			}
 
-		} else if (imp.getStackSize() > 2 && sameCameraMultiFrame && firstImageAnt != null) {
+		} else if (imp.getStackSize() > 2 && sameCameraMultiFrame ) {
 			if (firstImageAnt) {
 				return Orientation.DYNAMIC_ANT;
 			} else if (!firstImageAnt) {
 				return Orientation.DYNAMIC_POST;
 			}
-		} else if (imp.getStackSize() > 2 && !sameCameraMultiFrame && firstImageAnt != null) {
+		} else if (imp.getStackSize() > 2 && !sameCameraMultiFrame) {
 			if (firstImageAnt) {
 				return Orientation.DYNAMIC_ANT_POST;
 			} else if (!firstImageAnt) {
@@ -344,6 +351,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			}
 		}
 		return Orientation.UNKNOWN;
+		
 	}
 
 	/**
