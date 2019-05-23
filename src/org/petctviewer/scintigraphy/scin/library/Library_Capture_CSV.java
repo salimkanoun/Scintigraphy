@@ -178,7 +178,9 @@ public class Library_Capture_CSV {
 	 * Creates a capture of the specified image (this includes the overlay of the
 	 * ImagePlus). The image is then resized with the specified dimensions (width,
 	 * height).<br>
-	 * If width <b>or</b> height is set to 0, then the ratio is kept.
+	 * If width <b>or</b> height is set to 0, then the ratio is kept.<br>
+	 * If <b>both</b> width and height are set to 0, then the original dimensions
+	 * are used.
 	 * 
 	 * @param imp    ImagePlus to take a capture from
 	 * @param width  Width of the output capture
@@ -573,7 +575,6 @@ public class Library_Capture_CSV {
 			roiManager.setSelectedIndexes(tab);
 			roiManager.runCommand("Save", pathFinal.toString() + File.separator + nomFichier + ".zip");
 
-			
 //			List<Roi> roiList = new ArrayList<>();
 //			for(Roi r : rois2)
 //				roiList.add(r);
@@ -588,9 +589,7 @@ public class Library_Capture_CSV {
 //			} catch (IOException e1) {
 //				e1.printStackTrace();
 //			}
-			
-			
-			
+
 			// On sauve l'image en jpeg
 			IJ.saveAs(imp, "Jpeg", pathFinal.toString() + File.separator + nomFichier + ".jpg");
 
