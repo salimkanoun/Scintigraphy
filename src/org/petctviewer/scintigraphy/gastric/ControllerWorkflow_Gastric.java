@@ -1,11 +1,7 @@
 package org.petctviewer.scintigraphy.gastric;
 
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JButton;
-
+import ij.ImagePlus;
+import ij.Prefs;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2_bis;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -26,27 +22,28 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 import org.petctviewer.scintigraphy.scin.preferences.PrefsTabGastric;
 
-import ij.ImagePlus;
-import ij.Prefs;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
-	private static final int SLICE_ANT = 1, SLICE_POST = 2;
-
 	public static final String COMMAND_FIT_BEST_1 = "cfb_method1", COMMAND_FIT_BEST_2 = "cfb_method2",
 			COMMAND_FIT_BEST_ALL = "cfb_all";
-
+	private static final int SLICE_ANT = 1, SLICE_POST = 2;
+	private final boolean DO_ONLY_GASTRIC;
+	// TODO: clean this, it's awful
+	public Date specifiedTimeIngestion;
 	private FenResults fenResults;
 	private TabMethod1 tabMain;
-//	private TabMainResult tabMain;
+	//	private TabMainResult tabMain;
 	private TabMethod2_bis tabOnlyGastric;
-
 	private List<ImagePlus> captures;
 
-	private final boolean DO_ONLY_GASTRIC;
-
 	public ControllerWorkflow_Gastric(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages,
-			String studyName) {
+									  String studyName) {
 		super(main, vue, new Model_Gastric(selectedImages, studyName));
 
 		getModel().setFirstImage(selectedImages[0]);
@@ -169,8 +166,10 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		// First instruction to get the acquisition time for the starting point
 		PromptIngestionTime promptIngestionTime = new PromptIngestionTime(this);
 		PromptInstruction promptTimeAcquisition = new PromptInstruction(promptIngestionTime);
-		if (promptIngestionTime.isInputValid())
-			this.getModel().setTimeIngestion(promptIngestionTime.getResult());
+		if (promptIngestionTime.isInputValid()) {
+			specifiedTimeIngestion = promptIngestionTime.getResult();
+			this.getModel().setTimeIngestion(specifiedTimeIngestion);
+		}
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
 			this.workflows[i] = new Workflow(this, this.getModel().getImageSelection()[i]);
@@ -236,7 +235,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 		if (!DO_ONLY_GASTRIC) {
 //			this.tabMain = new TabMainResult(this.fenResults, this.captures.get(1), this);
-			this.tabMain = new TabMethod1(this.fenResults, this.captures.get(1), this);
+			this.tabMain = new TabMethod1(this.fenResults, this.captures.get(1));
 			this.tabMain.displayTimeIngestion(getModel().getTimeIngestion());
 			this.fenResults.addTab(tabMain);
 			// Select best fit
@@ -244,7 +243,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		}
 
 //		this.tabOnlyGastric = new TabMethod2(this.fenResults, this.captures.get(0), this);
-		this.tabOnlyGastric = new TabMethod2_bis(this.fenResults, this.captures.get(0), this);
+		this.tabOnlyGastric = new TabMethod2_bis(this.fenResults, this.captures.get(0));
 		this.fenResults.addTab(tabOnlyGastric);
 		// Set the best fit
 		this.fitBest(COMMAND_FIT_BEST_2);
@@ -260,7 +259,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		} else {
 			this.generateInstructionsBothMethods();
 		}
-		
+
 		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 

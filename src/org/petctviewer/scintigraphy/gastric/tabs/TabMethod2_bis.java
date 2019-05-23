@@ -2,7 +2,6 @@ package org.petctviewer.scintigraphy.gastric.tabs;
 
 import ij.ImagePlus;
 import ij.Prefs;
-import org.petctviewer.scintigraphy.gastric.ControllerWorkflow_Gastric;
 import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric.Result;
 import org.petctviewer.scintigraphy.gastric.Unit;
@@ -15,8 +14,8 @@ import java.awt.*;
 public class TabMethod2_bis extends TabResultDefault {
 
 
-	public TabMethod2_bis(FenResults parent, ImagePlus capture, ControllerWorkflow_Gastric controller) {
-		super(parent, capture, controller, "Gastric Only", Unit.valueOf(Prefs.get(PrefsTabGastric.PREF_UNIT_USED,
+	public TabMethod2_bis(FenResults parent, ImagePlus capture) {
+		super(parent, capture, "Gastric Only", Unit.valueOf(Prefs.get(PrefsTabGastric.PREF_UNIT_USED,
 				Unit.COUNTS.name())), Unit.TIME, Model_Gastric.SERIES_DECAY_FUNCTION);
 	}
 

@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.gastric.tabs;
 
 import ij.ImagePlus;
-import org.petctviewer.scintigraphy.gastric.ControllerWorkflow_Gastric;
 import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric.Result;
 import org.petctviewer.scintigraphy.gastric.Unit;
@@ -13,8 +12,8 @@ import java.awt.*;
 public class TabMethod1 extends TabResultDefault {
 
 
-	public TabMethod1(FenResults parent, ImagePlus capture, ControllerWorkflow_Gastric controller) {
-		super(parent, capture, controller, "Intragastric Distribution", Unit.PERCENTAGE, Unit.TIME,
+	public TabMethod1(FenResults parent, ImagePlus capture) {
+		super(parent, capture, "Intragastric Distribution", Unit.PERCENTAGE, Unit.TIME,
 				Model_Gastric.SERIES_STOMACH_PERCENTAGE);
 	}
 

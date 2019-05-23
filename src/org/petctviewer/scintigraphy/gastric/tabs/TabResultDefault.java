@@ -46,7 +46,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	private ResultRequest request;
 	private int seriesToGenerate;
 
-	TabResultDefault(FenResults parent, ImagePlus capture, ControllerWorkflow_Gastric controller, String title,
+	TabResultDefault(FenResults parent, ImagePlus capture, String title,
 					 Unit unitDefault, Unit unitTime, int seriesToGenerate) {
 		super(parent, title);
 
@@ -73,7 +73,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 		// - Button to auto-fit the graph
 		btnAutoFit = new JButton("Auto-fit");
-		btnAutoFit.addActionListener(controller);
+		btnAutoFit.addActionListener(parent.getController());
 
 		// Set variables
 		this.capture = capture;
@@ -94,10 +94,13 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 */
 	protected JTable tablesResultats(Result[] results, Unit[] unitsUsed) {
 		// Prepare model
-		if(this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE)
+		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
 			getModel().activateTime0();
-		else
+			getModel().setTimeIngestion(((ControllerWorkflow_Gastric)parent.getController()).specifiedTimeIngestion);
+		} else {
 			getModel().deactivateTime0();
+			getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
+		}
 
 		// Create table
 		JTable table = new JTable(0, results.length);
@@ -327,7 +330,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		try {
 			// Create fit
 			XYSeries series = ((XYSeriesCollection) this.getValueSetter().retrieveValuesInSpan()).getSeries(0);
-			this.request.setFit(Fit.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray()), unitDefault));
+			this.request.setFit(Fit.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray()),
+					unitDefault));
 
 			this.drawFit();
 			this.setErrorMessage(null);
@@ -372,6 +376,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	private JPanel createPanelResults() {
 		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
 			getModel().activateTime0();
+			getModel().setTimeIngestion(((ControllerWorkflow_Gastric)parent.getController()).specifiedTimeIngestion);
 
 			JPanel panel = new JPanel(new GridLayout(2, 2));
 
@@ -383,6 +388,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 			return panel;
 		} else if (this.seriesToGenerate == Model_Gastric.SERIES_DECAY_FUNCTION) {
 			getModel().deactivateTime0();
+			getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
 
 			JPanel panel = new JPanel(new GridLayout(2, 1));
 
@@ -442,10 +448,11 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 					// Prepare model
 					if (seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
 						getModel().activateTime0();
+						getModel().setTimeIngestion(((ControllerWorkflow_Gastric)parent.getController()).specifiedTimeIngestion);
 						request.changeResultOn(Model_Gastric.RETENTION_PERCENTAGE);
-					}
-					else {
+					} else {
 						getModel().deactivateTime0();
+						getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
 						request.changeResultOn(Model_Gastric.RETENTION_GEOAVG);
 					}
 
@@ -525,10 +532,14 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 */
 	public void createGraph() {
 		// Prepare model
-		if (seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE)
+		if (seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
 			getModel().activateTime0();
-		else
+			getModel().setTimeIngestion(((ControllerWorkflow_Gastric) parent.getController()).specifiedTimeIngestion);
+		}
+		else {
 			getModel().deactivateTime0();
+			getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
+		}
 
 		// Create chart
 		this.data = new XYSeriesCollection();
