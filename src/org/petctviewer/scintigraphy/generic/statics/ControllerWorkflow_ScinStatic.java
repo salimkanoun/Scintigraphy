@@ -41,6 +41,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		Roi roi = getRoiManager().getRoi(indexRoi);
 		if (roi != null) {
 			getVue().getBtn_suivant().setLabel(FenApplication_ScinStatic.BTN_TEXT_NEXT);
+			System.out.println("changed name");
 		} else {
 			getVue().getBtn_suivant().setLabel(FenApplication_ScinStatic.BTN_TEXT_NEW_ROI);
 		}
@@ -70,6 +71,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 	}
 
 	public void end() {
+		System.out.println("End");
 		ImagePlus imp = this.model.getImagePlus();
 
 		// pour la ant
@@ -97,16 +99,19 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 	@Override
 	public void clickNext() {
+		// Update view
+		getVue().setNbInstructions(this.allInputInstructions().size());
+
 		boolean sameName = false;
 		for (Instruction instruction : this.workflows[this.indexCurrentWorkflow].getInstructions())
 			if (instruction instanceof DrawLoopInstruction)
-				if (((DrawLoopInstruction) instruction) != this.workflows[this.indexCurrentWorkflow]
+				if (instruction != this.workflows[this.indexCurrentWorkflow]
 						.getCurrentInstruction())
 					if (this.workflows[this.indexCurrentWorkflow].getController().getVue().getTextfield_instructions()
 							.getText().equals(((DrawLoopInstruction) instruction).getInstructionRoiName()))
 						sameName = true;
 		if (sameName) {
-			int retour = JOptionPane.OK_OPTION;
+			int retour;
 			retour = JOptionPane.showConfirmDialog(getVue(), "A Roi already have this name. Do you want to continue ?",
 					"Duplicate Roi Name", JOptionPane.YES_NO_CANCEL_OPTION);
 
@@ -114,9 +119,9 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 				return;
 		}
 
-		super.clickNext();
-
 		this.updateButtonLabel(this.indexRoi);
+
+		super.clickNext();
 	}
 
 	@Override
