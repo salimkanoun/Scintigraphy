@@ -729,7 +729,7 @@ public class Model_Gastric extends ModelWorkflow {
 		return times;
 	}
 
-	public double[] generateDerivatedTime() {
+	public double[] generateDerivedTime() {
 		return ArrayUtils.remove(this.generateTime(), 0);
 	}
 
@@ -1051,7 +1051,7 @@ public class Model_Gastric extends ModelWorkflow {
 	public ChartPanel createGraph_2() {
 		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_DERIVATIVE, Unit.PERCENTAGE);
 		return Library_JFreeChart.createGraph("% meal in the interval", new Color[]{Color.RED}, "",
-				Library_JFreeChart.createDataset(this.generateDerivatedTime(), result, "Gastrointestinal flow"), 50.0);
+				Library_JFreeChart.createDataset(this.generateDerivedTime(), result, "Gastrointestinal flow"), 50.0);
 	}
 
 	/**
@@ -1133,19 +1133,15 @@ public class Model_Gastric extends ModelWorkflow {
 			yValues = generateDecayFunctionValues(request.getFit().getYUnit());
 		}
 
-		System.out.println("Retention");
 		Double res = Library_JFreeChart.getY(this.generateTime(), yValues, time);
-		System.out.println("Found: " + res);
 		boolean isExtrapolated = false;
 		if (res == null) {
 			res = Library_JFreeChart.extrapolateY(time, request.getFit());
-			System.out.println("Extrapolated: " + res);
 			isExtrapolated = true;
 		}
+
 		// Percentage of res
-//			res = res * 100. / Library_JFreeChart.getY(this.generateTime(), yValues, 0.);
 		res = res * 100. / yValues[0];
-		System.out.println("Percentage: " + res);
 
 		return new ResultValue(request, res, Unit.PERCENTAGE, isExtrapolated);
 	}
@@ -1171,26 +1167,28 @@ public class Model_Gastric extends ModelWorkflow {
 		else if (result == LAG_PHASE_PERCENTAGE || result == LAG_PHASE_GEOAVG) {
 			double[] yValues;
 			if (result == LAG_PHASE_PERCENTAGE)
-				yValues = generateStomachValues(Unit.PERCENTAGE);
+				yValues = generateStomachValues(fit.getYUnit());
 			else
-				yValues = generateDecayFunctionValues(Unit.COUNTS);
+				yValues = generateDecayFunctionValues(fit.getYUnit());
 
-			Double valX = Library_JFreeChart.getX(this.generateTime(), yValues, 95.);
+			// Assumption: the first value is the highest (maybe do not assume that...?)
+			double yValue = .95 * yValues[0];
+			Double valX = Library_JFreeChart.getX(this.generateTime(), yValues, yValue);
 			boolean isExtrapolated = false;
 			if (valX == null) {
 				// Extrapolate
-				valX = Library_JFreeChart.extrapolateX(95., fit);
+				valX = Library_JFreeChart.extrapolateX(yValue, fit);
 				isExtrapolated = true;
 			}
 			return new ResultValue(request, valX, Unit.TIME, isExtrapolated);
 		} else if (result == T_HALF_PERCENTAGE || result == T_HALF_GEOAVG) {
 			double[] yValues;
 			if (result == T_HALF_PERCENTAGE)
-				yValues = generateStomachValues(Unit.PERCENTAGE);
+				yValues = generateStomachValues(fit.getYUnit());
 			else
-				yValues = generateDecayFunctionValues(Unit.COUNTS);
+				yValues = generateDecayFunctionValues(fit.getYUnit());
 
-			// Assumption: the first value is the highest (maybe do not assume that...)
+			// Assumption: the first value is the highest (maybe do not assume that...?)
 			double half = yValues[0] / 2.;
 			boolean isExtrapolated = false;
 			Double valX = Library_JFreeChart.getX(this.generateTime(), yValues, half);

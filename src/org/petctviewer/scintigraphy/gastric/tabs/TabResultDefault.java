@@ -212,7 +212,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		JLabel l1, l2;
 		if (value < 11.) {
 			l1 = new JLabel("--");
-			l2 = new JLabel("Result is OK");
+			l2 = new JLabel("Result normal");
 
 			l1.setForeground(Color.GREEN);
 			l2.setForeground(Color.GREEN);
