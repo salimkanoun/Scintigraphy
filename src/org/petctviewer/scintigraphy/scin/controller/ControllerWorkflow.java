@@ -501,13 +501,15 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// Synchronize visualization with workflow
-		int indexScrollForCurrentInstruction = this.allInputInstructions()
-				.indexOf(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
-		if (getVue().getInstructionDisplayed() != indexScrollForCurrentInstruction) {
-			// Update view
-			this.updateScrollbar(indexScrollForCurrentInstruction);
-			getVue().currentInstruction(indexScrollForCurrentInstruction);
-			return; // Do nothing more
+		if(e.getSource() == getVue().getBtn_suivant() || e.getSource() == getVue().getBtn_precedent()) {
+			int indexScrollForCurrentInstruction = this.allInputInstructions()
+					.indexOf(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
+			if (getVue().getInstructionDisplayed() != indexScrollForCurrentInstruction) {
+				// Update view
+				this.updateScrollbar(indexScrollForCurrentInstruction);
+				getVue().currentInstruction(indexScrollForCurrentInstruction);
+				return; // Do nothing more
+			}
 		}
 
 		super.actionPerformed(e);
