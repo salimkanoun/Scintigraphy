@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.hepatic.dynRefactored;
+package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.awt.Color;
 

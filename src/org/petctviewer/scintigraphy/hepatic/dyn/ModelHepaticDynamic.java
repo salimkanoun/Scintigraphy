@@ -1,11 +1,11 @@
-package org.petctviewer.scintigraphy.hepatic.dynRefactored;
+package org.petctviewer.scintigraphy.hepatic.dyn;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ControllerWorkflowHepaticDyn;
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ModelSecondMethodHepaticDynamic;
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabCurves;
+import org.petctviewer.scintigraphy.hepatic.dyn.SecondExam.ControllerWorkflowHepaticDyn;
+import org.petctviewer.scintigraphy.hepatic.dyn.SecondExam.ModelSecondMethodHepaticDynamic;
+import org.petctviewer.scintigraphy.hepatic.dyn.tab.TabCurves;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;

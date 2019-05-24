@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.hepatic.dynRefactored.tab;
+package org.petctviewer.scintigraphy.hepatic.dyn.tab;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -18,10 +18,10 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.ModelHepaticDynamic;
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ControllerWorkflowHepaticDyn;
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.FenApplicationSecondHepaticDyn;
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ModelSecondMethodHepaticDynamic;
+import org.petctviewer.scintigraphy.hepatic.dyn.ModelHepaticDynamic;
+import org.petctviewer.scintigraphy.hepatic.dyn.SecondExam.ControllerWorkflowHepaticDyn;
+import org.petctviewer.scintigraphy.hepatic.dyn.SecondExam.FenApplicationSecondHepaticDyn;
+import org.petctviewer.scintigraphy.hepatic.dyn.SecondExam.ModelSecondMethodHepaticDynamic;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;

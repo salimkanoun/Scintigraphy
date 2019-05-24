@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.hepatic.dynRefactored.tab;
+package org.petctviewer.scintigraphy.hepatic.dyn.tab;
 
 import java.awt.BorderLayout;
 
@@ -8,7 +8,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ModelSecondMethodHepaticDynamic;
+import org.petctviewer.scintigraphy.hepatic.dyn.SecondExam.ModelSecondMethodHepaticDynamic;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
@@ -51,7 +51,7 @@ public class TabThreeAsOne {
 
 		ChartPanel chartpanel = new ChartPanel(chart);
 
-//		chartpanel.setPreferredSize(new Dimension(1000, 650));
+		// chartpanel.setPreferredSize(new Dimension(1000, 650));
 
 		return chartpanel;
 	}

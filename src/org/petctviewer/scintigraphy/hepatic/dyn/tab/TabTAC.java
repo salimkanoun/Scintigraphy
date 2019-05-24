@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.hepatic.dynRefactored.tab;
+package org.petctviewer.scintigraphy.hepatic.dyn.tab;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -14,7 +14,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ModelSecondMethodHepaticDynamic;
+import org.petctviewer.scintigraphy.hepatic.dyn.SecondExam.ModelSecondMethodHepaticDynamic;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
@@ -75,32 +75,30 @@ public class TabTAC {
 
 			grid.add(new DynamicImage(this.montage.getBufferedImage()));
 
-
-
 			List<XYSeries> series = modele.getSeries();
 			ChartPanel chartDuodenom = Library_JFreeChart.associateSeries(new String[] { "Duodenom" }, series);
 			JValueSetter setterDuodenom = new JValueSetter(chartDuodenom.getChart());
 			setterDuodenom.addSelector(new Selector("start", 10, -1, RectangleAnchor.BOTTOM_RIGHT), "start");
 
-
 			ChartPanel chartCBD = Library_JFreeChart.associateSeries(new String[] { "CBD" }, series);
-
 
 			ChartPanel chartHilium = Library_JFreeChart.associateSeries(new String[] { "Hilium" }, series);
 			JValueSetter setterHilium = new JValueSetter(chartHilium.getChart());
 			setterHilium.addSelector(new Selector("start", 10, -1, RectangleAnchor.BOTTOM_RIGHT), "start");
 
-
-//			chartDuodenom.setPreferredSize(new Dimension(parent.getWidth() / 2, parent.getHeight() / 2));
+			// chartDuodenom.setPreferredSize(new Dimension(parent.getWidth() / 2,
+			// parent.getHeight() / 2));
 			grid.add(chartDuodenom);
 
-//			chartCBD.setPreferredSize(new Dimension(parent.getWidth() / 2, parent.getHeight() / 2));
+			// chartCBD.setPreferredSize(new Dimension(parent.getWidth() / 2,
+			// parent.getHeight() / 2));
 			grid.add(chartCBD);
 
-//			chartHilium.setPreferredSize(new Dimension(parent.getWidth() / 2, parent.getHeight() / 2));
+			// chartHilium.setPreferredSize(new Dimension(parent.getWidth() / 2,
+			// parent.getHeight() / 2));
 			grid.add(chartHilium);
 
-//			grid.setPreferredSize(new Dimension(1000, 650));
+			// grid.setPreferredSize(new Dimension(1000, 650));
 
 			return grid;
 		} else {

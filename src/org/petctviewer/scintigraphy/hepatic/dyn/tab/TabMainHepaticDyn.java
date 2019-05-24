@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.hepatic.dynRefactored.tab;
+package org.petctviewer.scintigraphy.hepatic.dyn.tab;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -7,7 +7,7 @@ import java.awt.GridLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.ModelHepaticDynamic;
+import org.petctviewer.scintigraphy.hepatic.dyn.ModelHepaticDynamic;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;

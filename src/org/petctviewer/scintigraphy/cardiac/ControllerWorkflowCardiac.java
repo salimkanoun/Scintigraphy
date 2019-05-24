@@ -11,6 +11,7 @@ import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
+import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackground;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoopInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoiInstruction;
@@ -73,6 +74,8 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 		DrawRoiInstruction dri_3 = null, dri_4 = null, dri_5 = null, dri_6 = null, dri_7 = null, dri_8 = null,
 				dri_9 = null, dri_10 = null, dri_11 = null, dri_12 = null;
+		
+		DrawRoiBackground driBackground_1 = null, driBackground_2 = null, driBackground_3 = null, driBackground_4 = null, driBackground_5 = null, driBackground_6 = null;
 
 		state_1 = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
 		state_1.specifieImage(this.workflows[0].getImageAssociated());
@@ -88,13 +91,19 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 		// Organs to delimit
 		dri_3 = new DrawSymmetricalRoiInstruction("Bladder", state_2, null, null, model, Organ.DEMIE);
+		driBackground_1 = new DrawRoiBackground("Bladder Background", state_2, dri_3, model);
 		dri_4 = new DrawSymmetricalRoiInstruction("Bladder", state_2, dri_3, null, model, Organ.DEMIE);
+		driBackground_2 = new DrawRoiBackground("Bladder Background", state_2, dri_4, model);
 
 		dri_5 = new DrawSymmetricalRoiInstruction("Kidney R", state_2, null, null, model, Organ.DEMIE);
+		driBackground_2 = new DrawRoiBackground("Kidney R Background", state_2, dri_5, model);
 		dri_6 = new DrawSymmetricalRoiInstruction("Kidney R", state_2, dri_5, null, model, Organ.DEMIE);
+		driBackground_4 = new DrawRoiBackground("Kidney R Background", state_2, dri_6, model);
 
 		dri_7 = new DrawSymmetricalRoiInstruction("Kidney L", state_2, null, null, model, Organ.DEMIE);
+		driBackground_5 = new DrawRoiBackground("Kidney L Background", state_2, dri_7, model);
 		dri_8 = new DrawSymmetricalRoiInstruction("Kidney L", state_2, dri_7, null, model, Organ.DEMIE);
+		driBackground_6 = new DrawRoiBackground("Kidney L Background", state_2, dri_8, model);
 
 		dri_9 = new DrawSymmetricalRoiInstruction("Heart", state_2, null, null, model, Organ.DEMIE);
 		dri_10 = new DrawSymmetricalRoiInstruction("Heart", state_2, dri_9, null, model, Organ.DEMIE);

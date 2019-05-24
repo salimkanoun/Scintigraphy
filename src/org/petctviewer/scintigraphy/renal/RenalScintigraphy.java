@@ -133,16 +133,16 @@ public class RenalScintigraphy extends Scintigraphy {
 
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
-		Overlay overlay = Library_Gui.initOverlay(impProjetee.getImagePlus(), 12);
-		Library_Gui.setOverlayTitle("Post", impProjetee.getImagePlus(), Color.yellow, 1);
-		Library_Gui.setOverlayTitle("2 first min posterior", impProjetee.getImagePlus(), Color.YELLOW, 2);
-		Library_Gui.setOverlayTitle("MIP", impProjetee.getImagePlus(), Color.YELLOW, 3);
-		if (this.impAnt != null) {
-			Library_Gui.setOverlayTitle("Ant", impProjetee.getImagePlus(), Color.yellow, 4);
-		}
+//		Overlay overlay = Library_Gui.initOverlay(impProjetee.getImagePlus(), 12);
+//		Library_Gui.setOverlayTitle("Post", impProjetee.getImagePlus(), Color.yellow, 1);
+//		Library_Gui.setOverlayTitle("2 first min posterior", impProjetee.getImagePlus(), Color.YELLOW, 2);
+//		Library_Gui.setOverlayTitle("MIP", impProjetee.getImagePlus(), Color.YELLOW, 3);
+//		if (this.impAnt != null) {
+//			Library_Gui.setOverlayTitle("Ant", impProjetee.getImagePlus(), Color.yellow, 4);
+//		}
 
 		this.setFenApplication(new FenApplication_Renal(selectedImages[0], this.getStudyName(), this));
-		selectedImages[0].getImagePlus().setOverlay(overlay);
+//		selectedImages[0].getImagePlus().setOverlay(overlay);
 //		this.getFenApplication().setControleur(new Controller_Renal(this, selectedImages, "Renal scintigraphy"));
 		((FenApplicationWorkflow) this.getFenApplication())
 				.setControleur(new ControllerWorkflowRenal(this, (FenApplicationWorkflow) this.getFenApplication(),

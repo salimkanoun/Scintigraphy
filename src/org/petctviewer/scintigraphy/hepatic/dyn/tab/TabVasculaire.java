@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.hepatic.dynRefactored.tab;
+package org.petctviewer.scintigraphy.hepatic.dyn.tab;
 
 import java.awt.BorderLayout;
 import java.util.List;
@@ -7,7 +7,7 @@ import javax.swing.JPanel;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ModelSecondMethodHepaticDynamic;
+import org.petctviewer.scintigraphy.hepatic.dyn.SecondExam.ModelSecondMethodHepaticDynamic;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
@@ -25,7 +25,7 @@ public class TabVasculaire {
 
 	public TabVasculaire(FenResults parent, TabResult tab) {
 
-		this.title = "Vascular";
+		this.title = "Liver";
 		this.parent = parent;
 		this.result = new JPanel();
 
@@ -41,7 +41,7 @@ public class TabVasculaire {
 		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
 				.getFenApplication().getControleur().getModel();
 		List<XYSeries> series = modele.getSeries();
-		ChartPanel chartVasculaire = Library_JFreeChart.associateSeries(new String[] { "Blood pool" }, series);
+		ChartPanel chartVasculaire = Library_JFreeChart.associateSeries(new String[] { "Blood pool", "Right Liver", "Left Liver" }, series);
 
 //		chartVasculaire.setPreferredSize(new Dimension(1000, 650));
 

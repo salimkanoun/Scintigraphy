@@ -55,7 +55,7 @@ public class DmsaScintigraphy extends Scintigraphy {
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.yellow);
 
-		FenApplication fen = new FenApplication(selectedImages[0].getImagePlus(), this.getStudyName());
+		FenApplication fen = new FenApplicationWorkflow(selectedImages[0], this.getStudyName());
 		this.setFenApplication(fen);
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 		IJ.setTool(Toolbar.POLYGON);

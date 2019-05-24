@@ -135,7 +135,7 @@ public class SidePanel extends JPanel {
 
 		// capture button
 		CaptureButton captureButton = new CaptureButton(BTN_TXT_CAPTURE, tab, lbl_credits);
-		captureButton.addActionListener((ControllerWorkflow)tab.getParent().getController());
+		captureButton.addActionListener(tab.getParent().getController());
 
 		captureButton.setHorizontalAlignment(JButton.CENTER);
 		captureButton.setEnabled(true);
