@@ -3,11 +3,7 @@ package org.petctviewer.scintigraphy.cardiac;
 import java.awt.Button;
 import java.awt.GridLayout;
 import java.awt.Panel;
-import java.awt.event.ActionEvent;
 
-import javax.swing.JButton;
-
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.FenApplicationSecondHepaticDyn;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -22,13 +18,12 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 	// boutons mode decontamination
 	private Button btn_newCont;
 	private Button btn_continue;
-	JButton buttonTest;
 
 	public FenApplication_Cardiac(ImageSelection ims, String nom) {
 		super(ims, nom);
 		this.btn_continue = new Button("End");
 		this.btn_newCont = new Button("Next");
-		
+
 		this.getPanel_Instructions_btns_droite().remove(1);
 
 		// mise en place des boutons
@@ -71,14 +66,6 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 
 	public Button getBtn_continue() {
 		return this.btn_continue;
-	}
-	
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if((JButton)e.getSource() == this.buttonTest) {
-			FenApplicationSecondHepaticDyn.importRoiList(this, this.getControleur().getModel(), this.getControleur());
-//			((ControllerWorkflowCardiac)this.getControleur()).end();
-		}
 	}
 
 }

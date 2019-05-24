@@ -57,7 +57,8 @@ public class TabCondense extends TabResult implements ChangeListener {
 		this.modeleApp = model;
 		this.nbAcquisition = nbAcquisition;
 
-		this.createCaptureButton("Condense");
+//		this.createCaptureButton("Condense");
+		this.setadditionalInfo("Condense");
 
 		this.reloadDisplay();
 

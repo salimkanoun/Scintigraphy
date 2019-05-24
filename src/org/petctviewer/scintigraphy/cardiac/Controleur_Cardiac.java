@@ -44,7 +44,7 @@ public class Controleur_Cardiac extends Controleur_OrganeFixe {
 		this.setOrganes(organesAntPost.toArray(new String[0]));
 
 		// on lance le mode decontamination
-		((FenApplication_Cardiac) this.getScin().getFenApplication()).startContaminationMode();
+//		((FenApplication_Cardiac) this.getScin().getFenApplication()).startContaminationMode();
 	}
 
 	@Override

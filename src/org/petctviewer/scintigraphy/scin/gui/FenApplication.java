@@ -19,12 +19,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.FenApplicationSecondHepaticDyn;
 import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
 import org.petctviewer.scintigraphy.scin.controller.Controleur_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.ImagePlus;
@@ -263,9 +265,14 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		loadRois.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				FenApplicationSecondHepaticDyn.importRoiList(FenApplication.this,
-						FenApplication.this.controleur.getModel(), FenApplication.this.controleur);
-				((ControllerWorkflow) FenApplication.this.controleur).loadWorkflows();
+				try {
+					FenApplicationSecondHepaticDyn.importRoiList(FenApplication.this,
+							FenApplication.this.controleur.getModel(), (ControllerWorkflow)FenApplication.this.controleur);
+				} catch (UnauthorizedRoiLoadException e1) {
+					JOptionPane.showMessageDialog(FenApplication.this, "Error while loading ROIs:\n" + e1.getMessage(), "Selection error",
+							JOptionPane.ERROR_MESSAGE);
+//					e1.printStackTrace();
+				}
 				FenApplication.this.getImagePlus()
 						.setRoi(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
 				FenApplication.this.getImagePlus().getRoi().setStrokeColor(Color.RED);

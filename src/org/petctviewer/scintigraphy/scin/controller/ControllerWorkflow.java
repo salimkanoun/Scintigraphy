@@ -2,31 +2,28 @@ package org.petctviewer.scintigraphy.scin.controller;
 
 import java.awt.Button;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.io.BufferedOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
+import org.petctviewer.scintigraphy.scin.gui.CaptureButton;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction.DrawInstructionType;
@@ -36,13 +33,19 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawLoopInstructio
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoopInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import ij.IJ;
+import ij.ImagePlus;
+import ij.Prefs;
 
 /**
  * This controller is used when working with a flow of instructions.<br>
@@ -554,17 +557,18 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		super.actionPerformed(e);
-
-		if (!(e.getSource() instanceof Button))
-			return;
-
-		Button source = (Button) e.getSource();
-		if (source.getActionCommand().contentEquals(COMMAND_END)) {
-			if (this.workflows[this.indexCurrentWorkflow].getCurrentInstruction() instanceof GeneratorInstruction) {
-				((GeneratorInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
-				this.clicSuivant();
+		System.out.println("click");
+		if ((e.getSource() instanceof Button)) {
+			Button source = (Button) e.getSource();
+			if (source.getActionCommand().contentEquals(COMMAND_END)) {
+				if (this.workflows[this.indexCurrentWorkflow].getCurrentInstruction() instanceof GeneratorInstruction) {
+					((GeneratorInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
+					this.clicSuivant();
+				}
 			}
-		}
+		} else if (e.getSource() instanceof CaptureButton)
+			actionCaptureButton((CaptureButton) e.getSource());
+
 	}
 
 	@Override
@@ -582,19 +586,21 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		}
 	}
 
-	public boolean saveWorkflow(String path) {
+	public JsonElement saveWorkflowToJson(String[] label) {
+		
 
 		// Pretty print
-		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
-				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
+		// Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
+		// .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
 
 		// Formal data sending
-		// Gson gsonTest = new
-		// GsonBuilder().setPrettyPrinting().serializeNulls().setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
+		Gson gson = new GsonBuilder().serializeNulls().setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+				.create();
 
 		JsonObject workflowsObject = new JsonObject();
 		JsonArray workflowsArray = new JsonArray();
-
+		
+		int indexNames = 0;
 		for (Workflow workflow : this.workflows) {
 			JsonObject currentWorkflow = new JsonObject();
 			JsonArray instructionsArray = new JsonArray();
@@ -603,8 +609,13 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 					JsonObject currentInstruction = new JsonObject();
 					currentInstruction.addProperty("InstructionType", instruction.getClass().getSimpleName());
 					currentInstruction.addProperty("IndexRoiToEdit", instruction.roiToDisplay());
+					currentInstruction.addProperty("NameOfRoi", this.getModel().getRoiManager().getRoi(instruction.roiToDisplay()).getName());
+					if(label[indexNames].endsWith(".roi"))
+						label[indexNames] = label[indexNames].substring(0, label[indexNames].length() - 4);
+					currentInstruction.addProperty("NameOfRoiFile", label[indexNames]);
 					// instructionsArray.add((JsonObject) gson.toJsonTree(instruction));
 					instructionsArray.add((JsonObject) gson.toJsonTree(currentInstruction));
+					indexNames++;
 				}
 			}
 			currentWorkflow.add("Intructions", instructionsArray);
@@ -612,50 +623,59 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		}
 
 		workflowsObject.add("Workflows", workflowsArray);
-		System.out.println("\n\n\n --------------------------- TEST --------------------------- \n");
-		System.out.println(gson.toJson(workflowsObject));
-		System.out.println("\n --------------------------- Supposed --------------------------- \n");
-		System.out.println(gson.toJson(this.workflows));
-		System.out.println("\n\n\n");
-		try (FileWriter writer = new FileWriter(path)) {
-			gson.toJson(workflowsObject, writer);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-//		try (ZipOutputStream zip = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(path)));
-//				Writer writer = new OutputStreamWriter(zip);) {
-//			zip.putNextEntry(new ZipEntry("workflow.json"));
-//			gson.toJson(workflowsObject, writer);
-//		} catch (FileNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		// System.out.println("\n\n\n --------------------------- TEST
+		// --------------------------- \n");
+		// System.out.println(gson.toJson(workflowsObject));
+		// System.out.println("\n --------------------------- Supposed
+		// --------------------------- \n");
+		// System.out.println(gson.toJson(this.workflows));
+		// System.out.println("\n\n\n");
+
+		// try (FileWriter writer = new FileWriter(path)) {
+		// gson.toJson(workflowsObject, writer);
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// }
+		//
+		// try (ZipOutputStream zip = new ZipOutputStream(new BufferedOutputStream(new
+		// FileOutputStream(path)));
+		// Writer writer = new OutputStreamWriter(zip);) {
+		// zip.putNextEntry(new ZipEntry("workflow.json"));
+		// gson.toJson(workflowsObject, writer);
+		// } catch (FileNotFoundException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// } catch (IOException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 
 		// this.loadWorkflow(path);
 
-		return true;
+		return workflowsObject;
 	}
 
-	public boolean loadWorkflows() {
-		String path = "D:\\Bureau\\IUT\\Oncopole\\workflow.json";
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+	public WorkflowsFromGson loadWorkflows(String string) {
+
+		Gson gson = new GsonBuilder().serializeNulls().setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+				.create();
 		WorkflowsFromGson workflowsFromGson = null;
 
-		try (Reader reader = new FileReader(path)) {
+		// String path = "D:\\Bureau\\IUT\\Oncopole\\workflow.json";
+		// try (Reader reader = new FileReader(path)) {
+		//
+		// // Convert JSON to WorkflowsFromGson
+		// workflowsFromGson = gson.fromJson(reader, WorkflowsFromGson.class);
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// }
 
-			// Convert JSON to WorkflowsFromGson
-			workflowsFromGson = gson.fromJson(reader, WorkflowsFromGson.class);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		workflowsFromGson = gson.fromJson(string, WorkflowsFromGson.class);
+
 		if (workflowsFromGson != null) {
 			if (workflowsFromGson.getWorkflows().size() != this.workflows.length) {
-				System.out.println("NOMBRE DE WORKFLOW DIFFERENT, IMPOSSIBLE DE CHARGER LA SAUVEGARDE");
-				return false;
+				System.out.println("LE NOMBRE DE WORKFLOW EST DIFFERENT, IMPOSSIBLE DE CHARGER LA SAUVEGARDE");
+				return null;
 			}
 
 			// int nbDrawInstruction = 0;
@@ -675,24 +695,34 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 				for (int j = 0; j < this.workflows[index].getInstructions().size(); j++) {
 					if (this.workflows[index].getInstructionAt(j).saveRoi()) {
 
-						IntructionFromGson intructionFromGson = workflowsFromGson.getWorkflowAt(index)
+						InstructionFromGson intructionFromGson = workflowsFromGson.getWorkflowAt(index)
 								.getInstructionAt(specialIndex);
 						String typeOfIntructionFromGson = intructionFromGson.getInstructionType();
 
 						if (!this.workflows[index].getInstructionAt(j).getClass().getSimpleName().toString()
 								.equals(typeOfIntructionFromGson)) {
 							System.out.println(
-									"LES INSTRUCTION NE SONT PAS LES MÊMES, IMPOSSIBLE DE CHARGER LA SAUVEGARDE");
+									"LES INSTRUCTIONs NE SONT PAS LES MÊMES, IMPOSSIBLE DE CHARGER LA SAUVEGARDE");
 							System.out.println(this.workflows[index].getInstructionAt(j).getClass().getSimpleName());
 							System.out.println(typeOfIntructionFromGson);
-							return false;
+							return null;
 						}
+						
+//						if (!this.getModel().getRoiManager().getRoi(this.workflows[index].getInstructionAt(j).roiToDisplay()).getName()
+//								.equals(intructionFromGson.getNameOfRoi())) {
+//							System.out.println(
+//									"LES INSTRUCTIONs NE SONT PAS DU MÊME TYPE, IMPOSSIBLE DE CHARGER LA SAUVEGARDE");
+//							System.out.println(this.workflows[index].getInstructionAt(j).getClass().getSimpleName());
+//							System.out.println(typeOfIntructionFromGson);
+//							return null;
+//						}
+
 
 						if ((typeOfIntructionFromGson.equals(DrawInstructionType.DRAW_LOOP.getName()))
 								|| typeOfIntructionFromGson
 										.equals(DrawInstructionType.DRAW_SYMMETRICAL_LOOP.getName())) {
 							if (workflowsFromGson.getWorkflowAt(index).getInstructions().size() > specialIndex + 1) {
-								IntructionFromGson nextIntructionFromGson = workflowsFromGson.getWorkflowAt(index)
+								InstructionFromGson nextIntructionFromGson = workflowsFromGson.getWorkflowAt(index)
 										.getInstructionAt(specialIndex + 1);
 								String typeOfNextIntructionFromGson = nextIntructionFromGson.getInstructionType()
 										.toString();
@@ -722,15 +752,17 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			String jsonInString = gson.toJson(workflowsFromGson);
 			System.out.println(jsonInString);
 
+			System.out.println("\n\n\n\nWorkflow : ");
 			String workflowIsString = gson.toJson(this.workflows);
 			System.out.println(workflowIsString);
+			System.out.println("\n\n\n");
 
 		}
 
-		return true;
+		return workflowsFromGson;
 	}
 
-	private class WorkflowsFromGson {
+	public class WorkflowsFromGson {
 		List<WorkflowFromGson> Workflows;
 
 		public List<WorkflowFromGson> getWorkflows() {
@@ -740,26 +772,67 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		public WorkflowFromGson getWorkflowAt(int index) {
 			return this.Workflows.get(index);
 		}
+		
+		public int getNbROIs() {
+			int nbROIs = 0;
+			for(WorkflowFromGson workflowFromGson : this.Workflows)
+				for(InstructionFromGson instructionFromGson : workflowFromGson.getInstructions())
+					nbROIs++;
+			return nbROIs;
+		}
+		
+		public InstructionFromGson getInstructionFromGson(int indexWorkflow, int indexInstruction) {
+			return this.Workflows.get(indexWorkflow).getInstructionAt(indexInstruction);
+		}
+		
+		public InstructionFromGson getInstructionFromGson(String nameOfRoiFile) {
+			
+			for(WorkflowFromGson workflowFromGson : this.Workflows)
+				for(InstructionFromGson instructionFromGson : workflowFromGson.getInstructions())
+					if(nameOfRoiFile.equals(instructionFromGson.getNameOfRoiFile()))
+						return instructionFromGson;
+			
+			return null;
+		}
+		
+		public int getIndexRoiOfInstructionFromGson(String nameOfRoiFile) {
+			System.out.println("nameOfRoiFile to found on Controller : "+nameOfRoiFile);
+			for(WorkflowFromGson workflowFromGson : this.Workflows)
+				for(InstructionFromGson instructionFromGson : workflowFromGson.getInstructions()) {
+					System.out.println("\tName of Instruction : "+instructionFromGson.getNameOfRoiFile());
+					if(nameOfRoiFile.equals(instructionFromGson.getNameOfRoiFile())) {
+						System.out.println("\t Matchs !");
+						return instructionFromGson.getIndexRoiToEdit();
+					}
+				}
+			
+			return -1;
+		}
 
 	}
 
 	private class WorkflowFromGson {
-		List<IntructionFromGson> Intructions;
+		List<InstructionFromGson> Intructions;
 
-		public List<IntructionFromGson> getInstructions() {
+		public List<InstructionFromGson> getInstructions() {
 			return this.Intructions;
 		}
 
-		public IntructionFromGson getInstructionAt(int index) {
+		public InstructionFromGson getInstructionAt(int index) {
 			return this.Intructions.get(index);
 		}
 	}
 
-	private class IntructionFromGson {
+	private class InstructionFromGson {
 
 		private String InstructionType;
-
+		
 		private int IndexRoiToEdit;
+		
+		private String NameOfRoi;
+		
+		private String NameOfRoiFile;
+		
 
 		public int getIndexRoiToEdit() {
 			return this.IndexRoiToEdit;
@@ -768,6 +841,108 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		public String getInstructionType() {
 			return this.InstructionType;
 		}
+		
+		public String getNameOfRoi() {
+			return this.NameOfRoi;
+		}
+		
+		public String getNameOfRoiFile() {
+			return this.NameOfRoiFile;
+		}
+	}
+
+	public void actionCaptureButton(CaptureButton captureButton) {
+
+		TabResult tab = captureButton.getTabResult();
+		JLabel lbl_credits = captureButton.getLabelCredits();
+		Component[] hide = tab.getComponentToHide();
+		Component[] show = tab.getComponentToShow();
+		String additionalInfo = tab.getAdditionalInfo();
+
+		// generation du tag info
+		String info = Library_Capture_CSV.genererDicomTagsPartie1(tab.getParent().getModel().getImagePlus(),
+				tab.getParent().getModel().getStudyName(), tab.getParent().getModel().getUID6digits())
+				+ Library_Capture_CSV.genererDicomTagsPartie2(tab.getParent().getModel().getImagePlus());
+
+		// on ajoute le listener sur le bouton capture
+		captureButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				captureButton.setVisible(false);
+				for (Component comp : hide)
+					comp.setVisible(false);
+
+				lbl_credits.setVisible(true);
+				for (Component comp : show)
+					comp.setVisible(true);
+
+				SwingUtilities.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						// Capture, nouvelle methode a utiliser sur le reste des programmes
+						BufferedImage capture = new BufferedImage(tab.getPanel().getWidth(), tab.getPanel().getHeight(),
+								BufferedImage.TYPE_INT_ARGB);
+						tab.getPanel().paint(capture.getGraphics());
+						ImagePlus imp = new ImagePlus("capture", capture);
+
+						captureButton.setVisible(true);
+						for (Component comp : hide)
+							comp.setVisible(true);
+
+						lbl_credits.setVisible(false);
+						for (Component comp : show)
+							comp.setVisible(false);
+
+						// on passe a la capture les infos de la dicom
+						imp.setProperty("Info", info);
+						// on affiche la capture
+						imp.show();
+
+						// on change l'outil
+						IJ.setTool("hand");
+
+						// generation du csv
+						String resultats = tab.getParent().getModel().toString();
+
+						try {
+							Library_Capture_CSV.exportAll(resultats, tab.getParent().getModel().getRoiManager(),
+									tab.getParent().getModel().getStudyName(), imp, additionalInfo,
+									ControllerWorkflow.this);
+
+							String addInfo = additionalInfo == null ? "" : additionalInfo;
+							String nomFichier = Library_Capture_CSV.getInfoPatient(imp)[1] + "_"
+									+ Library_Capture_CSV.getInfoPatient(imp)[2] + addInfo;
+							String path = Prefs.get("dir.preferred", null) + File.separator
+									+ tab.getParent().getModel().getStudyName() + File.separator
+									+ Library_Capture_CSV.getInfoPatient(imp)[1];
+							String pathFinal = path + File.separator + nomFichier + ".zip";
+							System.out.println(path);
+							System.out.println(pathFinal);
+
+							// ((ControllerWorkflow) tab.getParent().getController()).saveWorkflow(path);
+
+							imp.killRoi();
+						} catch (Exception e1) {
+							e1.printStackTrace();
+						}
+
+						// Execution du plugin myDicom
+						try {
+							IJ.run("myDicom...");
+						} catch (Exception e1) {
+							e1.printStackTrace();
+						}
+
+						System.gc();
+					}
+				});
+
+			}
+		});
+
 	}
 
 }

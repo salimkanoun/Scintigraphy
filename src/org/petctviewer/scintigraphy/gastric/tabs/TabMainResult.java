@@ -120,7 +120,9 @@ public class TabMainResult extends TabResult implements ItemListener, ChartMouse
 
 		Component[] hide = new Component[] { fitsChoices, btnAutoFit };
 		Component[] show = new Component[] { this.labelInterpolation };
-		this.createCaptureButton(hide, show, null);
+//		this.createCaptureButton(hide, show, null);
+		this.setComponentToHide(hide);
+		this.setComponentToShow(show);
 
 		this.reloadDisplay();
 	}

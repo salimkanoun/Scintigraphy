@@ -9,7 +9,9 @@ import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 import ij.gui.Roi;
 
 public class DrawRoiBackground extends DrawRoiInstruction {
-	
+
+	private static final long serialVersionUID = 1L;
+
 	private DrawInstructionType InstructionType = DrawInstructionType.DRAW_ROI_BACKGROUND;
 	
 	private transient DrawRoiInstruction dri_1;

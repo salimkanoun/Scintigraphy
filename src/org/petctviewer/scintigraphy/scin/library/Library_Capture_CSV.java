@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
 
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.model.ModeleScin;
 
 import ij.IJ;
@@ -344,7 +345,7 @@ public class Library_Capture_CSV {
 	 * @throws FileNotFoundException : en cas d'erreur d'ecriture
 	 */
 	public static void exportAll(String[] resultats, int nombreColonne, RoiManager roiManager, String nomProgramme,
-			ImagePlus imp) throws FileNotFoundException {
+			ImagePlus imp, ControllerWorkflow controller) throws FileNotFoundException {
 
 		String[] infoPatient = Library_Capture_CSV.getInfoPatient(imp);
 		StringBuilder content = Library_Capture_CSV.initCSVHorizontal(infoPatient);
@@ -362,7 +363,7 @@ public class Library_Capture_CSV {
 		}
 		content.append('\n');
 
-		Library_Capture_CSV.saveFiles(imp, roiManager, content, nomProgramme, infoPatient, "");
+		Library_Capture_CSV.saveFiles(imp, roiManager, content, nomProgramme, infoPatient, "", controller);
 	}
 
 	/**
@@ -378,7 +379,7 @@ public class Library_Capture_CSV {
 	 *                     recuperer le nom, l'ID et la date d'examen
 	 * @throws FileNotFoundException : en cas d'erreur d'ecriture
 	 */
-	public static void exportAll(String resultats, RoiManager roiManager, String nomProgramme, ImagePlus imp)
+	public static void exportAll(String resultats, RoiManager roiManager, String nomProgramme, ImagePlus imp, ControllerWorkflow controller)
 			throws FileNotFoundException {
 
 		String[] infoPatient = Library_Capture_CSV.getInfoPatient(imp);
@@ -386,7 +387,7 @@ public class Library_Capture_CSV {
 
 		content.append(resultats);
 
-		Library_Capture_CSV.saveFiles(imp, roiManager, content, nomProgramme, infoPatient, "");
+		Library_Capture_CSV.saveFiles(imp, roiManager, content, nomProgramme, infoPatient, "", controller);
 	}
 
 	/**
@@ -404,14 +405,14 @@ public class Library_Capture_CSV {
 	 * @throws FileNotFoundException : en cas d'erreur d'ecriture
 	 */
 	public static void exportAll(String resultats, RoiManager roiManager, String nomProgramme, ImagePlus imp,
-			String additionalInfo) throws FileNotFoundException {
+			String additionalInfo, ControllerWorkflow controller) throws FileNotFoundException {
 
 		String[] infoPatient = Library_Capture_CSV.getInfoPatient(imp);
 		StringBuilder content = Library_Capture_CSV.initCSVVertical(infoPatient);
 
 		content.append(resultats);
 
-		Library_Capture_CSV.saveFiles(imp, roiManager, content, nomProgramme, infoPatient, additionalInfo);
+		Library_Capture_CSV.saveFiles(imp, roiManager, content, nomProgramme, infoPatient, additionalInfo, controller);
 	}
 
 	/**
@@ -526,7 +527,7 @@ public class Library_Capture_CSV {
 	 * @param additionalInfo :String qui sera rajoutée à la fin du nom du fichier
 	 */
 	private static void saveFiles(ImagePlus imp, RoiManager roiManager, StringBuilder csv, String nomProgramme,
-			String[] infoPatient, String additionalInfo) {
+			String[] infoPatient, String additionalInfo, ControllerWorkflow controller) {
 
 		StringBuilder content = csv;
 
@@ -572,7 +573,7 @@ public class Library_Capture_CSV {
 				tab[i] = i;
 			roiManager.setSelectedIndexes(tab);
 //			roiManager.runCommand("Save", pathFinal.toString() + File.separator + nomFichier + ".zip");
-			Library_Roi.saveRois(roiManager, pathFinal.toString() + File.separator + nomFichier + ".zip");
+			Library_Roi.saveRois(roiManager, controller, pathFinal.toString() + File.separator + nomFichier + ".zip");
 			
 //			List<Roi> roiList = new ArrayList<>();
 //			for(Roi r : rois2)

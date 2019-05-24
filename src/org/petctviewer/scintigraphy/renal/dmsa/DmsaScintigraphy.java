@@ -12,7 +12,9 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
+import ij.IJ;
 import ij.gui.Overlay;
+import ij.gui.Toolbar;
 import ij.plugin.StackReverser;
 
 public class DmsaScintigraphy extends Scintigraphy {
@@ -56,6 +58,7 @@ public class DmsaScintigraphy extends Scintigraphy {
 		FenApplication fen = new FenApplication(selectedImages[0].getImagePlus(), this.getStudyName());
 		this.setFenApplication(fen);
 		selectedImages[0].getImagePlus().setOverlay(overlay);
+		IJ.setTool(Toolbar.POLYGON);
 
 //		fen.setControleur(new Controleur_Dmsa(this, selectedImages, "dmsa"));
 		((FenApplicationWorkflow) fen).setControleur(new ControllerWorkflowDMSA(this,
