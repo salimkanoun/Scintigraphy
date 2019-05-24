@@ -1,18 +1,18 @@
-package org.petctviewer.scintigraphy.hepatic.dyn.tab;
+package org.petctviewer.scintigraphy.hepatic.tab;
 
 import java.awt.BorderLayout;
+import java.util.List;
 
 import javax.swing.JPanel;
 
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.hepatic.dyn.SecondExam.ModelSecondMethodHepaticDynamic;
+import org.jfree.data.xy.XYSeries;
+import org.petctviewer.scintigraphy.hepatic.SecondExam.ModelSecondMethodHepaticDynamic;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
-public class TabThreeAsOne {
+public class TabVasculaire {
 
 	private String title;
 	protected FenResults parent;
@@ -23,9 +23,9 @@ public class TabThreeAsOne {
 
 	private TabResult tab;
 
-	public TabThreeAsOne(FenResults parent, TabResult tab) {
+	public TabVasculaire(FenResults parent, TabResult tab) {
 
-		this.title = "ThreeAsOne";
+		this.title = "Liver";
 		this.parent = parent;
 		this.result = new JPanel();
 
@@ -35,25 +35,17 @@ public class TabThreeAsOne {
 		this.tab = tab;
 
 		this.reloadDisplay();
-
 	}
 
 	public JPanel getResultContent() {
 		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
 				.getFenApplication().getControleur().getModel();
+		List<XYSeries> series = modele.getSeries();
+		ChartPanel chartVasculaire = Library_JFreeChart.associateSeries(new String[] { "Blood pool", "Right Liver", "Left Liver" }, series);
 
-		XYSeriesCollection data = new XYSeriesCollection();
-		data.addSeries(modele.getSerie("Duodenom"));
-		data.addSeries(modele.getSerie("CBD"));
-		data.addSeries(modele.getSerie("Hilium"));
+//		chartVasculaire.setPreferredSize(new Dimension(1000, 650));
 
-		JFreeChart chart = ChartFactory.createXYLineChart("", "min", "counts/sec", data);
-
-		ChartPanel chartpanel = new ChartPanel(chart);
-
-		// chartpanel.setPreferredSize(new Dimension(1000, 650));
-
-		return chartpanel;
+		return chartVasculaire;
 	}
 
 	public String getTitle() {

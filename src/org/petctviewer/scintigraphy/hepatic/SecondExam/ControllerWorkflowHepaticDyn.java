@@ -1,9 +1,9 @@
-package org.petctviewer.scintigraphy.hepatic.dyn.SecondExam;
+package org.petctviewer.scintigraphy.hepatic.SecondExam;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.petctviewer.scintigraphy.hepatic.dyn.tab.TabCurves;
+import org.petctviewer.scintigraphy.hepatic.tab.TabCurves;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;

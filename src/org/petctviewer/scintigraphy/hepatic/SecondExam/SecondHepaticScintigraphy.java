@@ -1,8 +1,8 @@
-package org.petctviewer.scintigraphy.hepatic.dyn.SecondExam;
+package org.petctviewer.scintigraphy.hepatic.SecondExam;
 
 import java.awt.Color;
 
-import org.petctviewer.scintigraphy.hepatic.dyn.ModelHepaticDynamic;
+import org.petctviewer.scintigraphy.hepatic.ModelHepaticDynamic;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;

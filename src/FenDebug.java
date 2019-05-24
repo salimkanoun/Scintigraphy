@@ -14,7 +14,7 @@ import org.petctviewer.scintigraphy.esophageus.application.EsophagealTransit;
 import org.petctviewer.scintigraphy.gastric.GastricScintigraphy;
 import org.petctviewer.scintigraphy.generic.dynamic.GeneralDynamicScintigraphy;
 import org.petctviewer.scintigraphy.generic.statics.StaticScintigraphy;
-import org.petctviewer.scintigraphy.hepatic.dyn.HepaticDynScintigraphy;
+import org.petctviewer.scintigraphy.hepatic.HepaticDynScintigraphy;
 import org.petctviewer.scintigraphy.lympho.LymphoSintigraphy;
 import org.petctviewer.scintigraphy.os.OsScintigraphy;
 import org.petctviewer.scintigraphy.platelet.View_Platelet;

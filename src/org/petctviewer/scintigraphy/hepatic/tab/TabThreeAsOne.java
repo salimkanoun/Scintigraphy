@@ -1,18 +1,18 @@
-package org.petctviewer.scintigraphy.hepatic.dyn.tab;
+package org.petctviewer.scintigraphy.hepatic.tab;
 
 import java.awt.BorderLayout;
-import java.util.List;
 
 import javax.swing.JPanel;
 
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
-import org.jfree.data.xy.XYSeries;
-import org.petctviewer.scintigraphy.hepatic.dyn.SecondExam.ModelSecondMethodHepaticDynamic;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.hepatic.SecondExam.ModelSecondMethodHepaticDynamic;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
-import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
-public class TabVasculaire {
+public class TabThreeAsOne {
 
 	private String title;
 	protected FenResults parent;
@@ -23,9 +23,9 @@ public class TabVasculaire {
 
 	private TabResult tab;
 
-	public TabVasculaire(FenResults parent, TabResult tab) {
+	public TabThreeAsOne(FenResults parent, TabResult tab) {
 
-		this.title = "Liver";
+		this.title = "ThreeAsOne";
 		this.parent = parent;
 		this.result = new JPanel();
 
@@ -35,17 +35,25 @@ public class TabVasculaire {
 		this.tab = tab;
 
 		this.reloadDisplay();
+
 	}
 
 	public JPanel getResultContent() {
 		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
 				.getFenApplication().getControleur().getModel();
-		List<XYSeries> series = modele.getSeries();
-		ChartPanel chartVasculaire = Library_JFreeChart.associateSeries(new String[] { "Blood pool", "Right Liver", "Left Liver" }, series);
 
-//		chartVasculaire.setPreferredSize(new Dimension(1000, 650));
+		XYSeriesCollection data = new XYSeriesCollection();
+		data.addSeries(modele.getSerie("Duodenom"));
+		data.addSeries(modele.getSerie("CBD"));
+		data.addSeries(modele.getSerie("Hilium"));
 
-		return chartVasculaire;
+		JFreeChart chart = ChartFactory.createXYLineChart("", "min", "counts/sec", data);
+
+		ChartPanel chartpanel = new ChartPanel(chart);
+
+		// chartpanel.setPreferredSize(new Dimension(1000, 650));
+
+		return chartpanel;
 	}
 
 	public String getTitle() {

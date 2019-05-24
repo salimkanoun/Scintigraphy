@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.hepatic.dyn;
+package org.petctviewer.scintigraphy.hepatic;
 
 import java.awt.Button;
 import java.awt.Color;

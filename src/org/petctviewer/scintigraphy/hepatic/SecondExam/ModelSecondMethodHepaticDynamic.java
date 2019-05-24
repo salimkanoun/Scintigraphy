@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.hepatic.dyn.SecondExam;
+package org.petctviewer.scintigraphy.hepatic.SecondExam;
 
 import java.util.ArrayList;
 import java.util.HashMap;
