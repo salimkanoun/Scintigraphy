@@ -314,15 +314,11 @@ public class Library_Dicom {
 		return result;
 	}
 
-	//SK REFACTORISATION A CONTINUER A PARTIR D ICI
-
 	/**
-	 * Permet de trier les image Anterieure et posterieure et retourne les images
-	 * posterieures pour garder la meme lateralisation (la droite est a gauche de
-	 * l'image comme une image de face)
-	 *
-	 * @param imp : ImagePlus a trier
-	 * @return Retourne l'ImagePlus avec les images posterieures inversees
+	 * Reckognize and inverse posterior images
+	 * @param imp
+	 * @return
+	 * @throws ReadTagException
 	 */
 	public static ImagePlus sortImageAntPost(ImagePlus imp) throws ReadTagException {
 		return isMultiFrame(imp) ? Library_Dicom.sortAntPostMultiFrame(imp) :
@@ -424,31 +420,20 @@ public class Library_Dicom {
 			imp.setSlice(i);
 			String tag = Library_Dicom.getOrientationString(imp);
 
-			int tagVector = Library_Dicom.getCameraNumberUniqueFrame(imp);
-
-			if (!StringUtils.isEmpty(tag)) {
-				tag = tag.trim();
-				if (StringUtils.contains(tag, "POS") || StringUtils.contains(tag, "_F")) {
-					imp.getProcessor().flipHorizontal();
-					imp.setTitle("Post" + i);
-				} else if (StringUtils.contains(tag, "ANT") || StringUtils.contains(tag, "_E")) {
-					imp.setTitle("Ant" + i);// On ne fait rien
-				} else {
-					if (imp.getStackSize() == 2) {
-						System.out.println(
-								"No Orientation found assuming Image 2 is posterior, please send image sample to " +
-										"Salim" +
-										".kanoun@gmail.com if wrong");
+			
+			if (StringUtils.contains(tag, "POS") || StringUtils.contains(tag, "_F")) {
+				imp.getProcessor().flipHorizontal();
+				imp.setTitle("Post" + i);
+			} else if (StringUtils.contains(tag, "ANT") || StringUtils.contains(tag, "_E")) {
+				imp.setTitle("Ant" + i);// On ne fait rien
+			} else {
+					System.out.println( "No Orientation found assuming Camera 2 is posterior, please send image sample to " +
+									"Salim.kanoun@gmail.com if wrong");
+					int tagVector = Library_Dicom.getCameraNumberUniqueFrame(imp);
+					if(tagVector==2) {
 						imp.getProcessor().flipHorizontal();
 					}
-				}
-			} else {
-				if (imp.getStackSize() == 2 && tagVector == 2) {
-					System.out.println(
-							"No Orientation found assuming Image 2 is posterior, please send image sample to Salim" +
-									".kanoun@gmail.com if wrong");
-					imp.getProcessor().flipHorizontal();
-				}
+
 			}
 
 		}
@@ -558,6 +543,7 @@ public class Library_Dicom {
 	 * @param type       : "avg" or "max" or "sum"
 	 * @return projected imageplus (of all slice)
 	 */
+	@Deprecated
 	public static ImagePlus projeter(ImagePlus imp, int startSlice, int stopSlice, String type) {
 		ImagePlus pj = ZProjector.run(imp, type, startSlice, stopSlice);
 		pj.setProperty("Info", imp.getInfoProperty());

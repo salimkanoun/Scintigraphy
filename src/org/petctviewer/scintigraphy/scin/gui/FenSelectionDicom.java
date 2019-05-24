@@ -187,18 +187,12 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 * @param imp Image to analyze
 	 * @return Orientation of the image (UNKNOWN if the orientation could not be
 	 * determined)
+	 * @throws ReadTagException 
 	 */
-	private Orientation determineImageOrientation(ImagePlus imp) {
-		boolean sameCameraMultiFrame;
-		boolean firstImageAnt;
-
-		try {
-			sameCameraMultiFrame = Library_Dicom.isSameCameraMultiFrame(imp);
-			firstImageAnt = Library_Dicom.isAnterior(imp);
-		} catch (ReadTagException e) {
-			e.printStackTrace();
-			return Orientation.UNKNOWN;
-		}
+	private Orientation determineImageOrientation(ImagePlus imp) throws ReadTagException {
+		
+		boolean sameCameraMultiFrame = Library_Dicom.isSameCameraMultiFrame(imp);
+		boolean firstImageAnt = Library_Dicom.isAnterior(imp);
 
 		if (imp.getStackSize() == 1) {
 			if (firstImageAnt) {
