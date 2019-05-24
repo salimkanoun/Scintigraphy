@@ -10,7 +10,7 @@ import java.util.GregorianCalendar;
 
 import javax.swing.JLabel;
 
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptTime;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
@@ -27,7 +27,7 @@ public class PromptIngestionTime extends PromptTime {
 
 	private Date acquisitionTime;
 
-	public PromptIngestionTime(ControleurScin controller) {
+	public PromptIngestionTime(ControllerScin controller) {
 		super(controller, "Ingestion",
 				generateSupposedIngestionTime(Library_Dicom.getDateAcquisition(controller.getModel().getImagePlus())));
 

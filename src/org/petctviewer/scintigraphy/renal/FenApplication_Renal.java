@@ -13,7 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -38,6 +38,19 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 		// Keep default visualisation
 		this.setVisualizationEnable(false);
 		
+		this.vue = vue;
+		
+
+		Overlay overlay = Library_Gui.initOverlay(this.getImagePlus(), 12);
+		this.getImagePlus().setOverlay(overlay);
+		Library_Gui.setOverlayGD(this.getImagePlus(), Color.YELLOW);
+		Library_Gui.setOverlayTitle("Post", this.getImagePlus(), Color.yellow, 1);
+		Library_Gui.setOverlayTitle("2 first min posterior", this.getImagePlus(), Color.YELLOW, 2);
+		Library_Gui.setOverlayTitle("MIP", this.getImagePlus(), Color.YELLOW, 3);
+		if (this.vue.getImpAnt() != null) {
+			Library_Gui.setOverlayTitle("Ant", this.getImagePlus(), Color.yellow, 4);
+		}
+		
 		// Ajout du boutton dynamic au panel de gauche
 		btn_dyn = new Button("Dynamic");
 		btn_dyn.addActionListener(this);
@@ -60,13 +73,15 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 
 		this.setDefaultSize();
 
-		this.vue = vue;
+		
 		this.impProj = imp;
+		
+		this.pack();
 
 	}
 
 	@Override
-	public void setControleur(ControleurScin ctrl) {
+	public void setControleur(ControllerScin ctrl) {
 		super.setControleur(ctrl);
 		this.setText_instructions("Click to start the exam");
 	}
@@ -83,6 +98,7 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 
 				imp = vue.getImpPost().getImagePlus();
 				Library_Gui.setCustomLut(imp);
+				this.getImagePlus().getOverlay().clear();
 				Overlay overlay = Library_Gui.initOverlay(imp);
 				imp.setOverlay(overlay);
 				Library_Gui.setOverlayGD(imp);
@@ -90,12 +106,21 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 				setImage(imp);
 				resizeCanvas();
 				updateSliceSelector();
+				Library_Gui.setOverlayGD(imp, Color.YELLOW);
 				this.btn_dyn.setBackground(Color.LIGHT_GRAY);
 
 			} else {
 				imp = this.impProj;
 				Library_Gui.setCustomLut(imp);
 				this.btn_dyn.setBackground(null);
+				
+				Library_Gui.setOverlayGD(imp, Color.YELLOW);
+				Library_Gui.setOverlayTitle("Post", imp, Color.yellow, 1);
+				Library_Gui.setOverlayTitle("2 first min posterior", imp, Color.YELLOW, 2);
+				Library_Gui.setOverlayTitle("MIP", imp, Color.YELLOW, 3);
+				if (this.vue.getImpAnt() != null) {
+					Library_Gui.setOverlayTitle("Ant", imp, Color.yellow, 4);
+				}
 
 				revalidate();
 				setImage(imp);
@@ -114,9 +139,9 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 			this.dyn = !this.dyn;
 
 			// Mode debut du programme apres visualisation.
-		} else if (e.getSource() == btn_start) {
+		} else if (e.getSource() == btn_start) {	
 			btn_dyn.setEnabled(false);
-			;
+			
 			// TODO move elsewhere
 			Fen_NbRein fen = new Fen_NbRein();
 			fen.setLocationRelativeTo(this);
@@ -124,14 +149,14 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 			fen.setVisible(true);
 			fen.setAlwaysOnTop(true);
 			fen.setLocationRelativeTo(this);
-			// ((Controleur_Renal) this.getControleur()).setKidneys(fen.getKidneys());
+			// ((Controller_Renal) this.getControleur()).setKidneys(fen.getKidneys());
 			((ControllerWorkflowRenal) this.getControleur()).setKidneys(fen.getKidneys());
 
 			this.getBtn_contrast().setEnabled(true);
 
 			this.getPanel_bttns_droit().removeAll();
 			this.getPanel_bttns_droit().add(this.createPanelInstructionsBtns());
-			// ((Controleur_OrganeFixe)this.getControleur()).setInstructionsDelimit(0);
+			// ((Controller_OrganeFixe)this.getControleur()).setInstructionsDelimit(0);
 			this.getBtn_drawROI().setEnabled(true);
 			IJ.setTool(Toolbar.POLYGON);
 			this.setImage(impProj);

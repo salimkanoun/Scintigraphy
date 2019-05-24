@@ -13,7 +13,7 @@ import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
@@ -24,7 +24,7 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 
 	private List<ImagePlus> captures;
 
-	public ControllerWorkflowLympho(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
+	public ControllerWorkflowLympho(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
 		super(main, vue, model);
 		
 		this.generateInstructions();
@@ -58,17 +58,19 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 			this.workflows[i].addInstruction(dri_3);
 			this.workflows[i].addInstruction(dri_4);
 			this.workflows[i].addInstruction(dri_capture_2);
+			System.out.println("i : "+i);
 
 			// Update view
-			getVue().setNbInstructions(this.allInputInstructions().size());
+			
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
+		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	@Override
 	public void end() {
 		super.end();
-
+//		this.saveWorkflow();
 		// Compute model
 		int firstSlice = 1;
 		int secondSlice = 2;
@@ -97,11 +99,11 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 			}
 
 			img.setRoi(r);
-			((ModeleLympho) this.model).calculerCoups(organ, img);
+			((ModelLympho) this.model).calculerCoups(organ, img);
 			organ++;
 
 		}
-		this.model.calculerResultats();
+		this.model.calculateResults();
 		new FenResultatsLympho(this, captures.toArray(new ImagePlus[captures.size()]));
 
 	}

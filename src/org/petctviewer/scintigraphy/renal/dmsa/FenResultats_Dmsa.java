@@ -10,7 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -20,7 +20,7 @@ public class FenResultats_Dmsa extends FenResults {
 
 	private static final long serialVersionUID = 8836086131939302449L;
 
-	public FenResultats_Dmsa(BufferedImage capture, ControleurScin controller) {
+	public FenResultats_Dmsa(BufferedImage capture, ControllerScin controller) {
 		super(controller);
 		this.addTab(new TabMain(this, "DMSA", true, capture));
 	}
@@ -39,7 +39,7 @@ public class FenResultats_Dmsa extends FenResults {
 
 		@Override
 		public Component getSidePanelContent() {
-			Modele_Dmsa modele = (Modele_Dmsa) this.parent.getController().getModel();
+			Model_Dmsa modele = (Model_Dmsa) this.parent.getController().getModel();
 			Double pctL = modele.getPct()[0] * 100;
 			Double pctR = modele.getPct()[1] * 100;
 

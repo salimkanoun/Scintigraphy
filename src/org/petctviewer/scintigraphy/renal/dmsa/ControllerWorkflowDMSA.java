@@ -15,7 +15,7 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
@@ -25,7 +25,7 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 	private List<ImagePlus> captures;
 	private boolean antPost;
 
-	public ControllerWorkflowDMSA(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
+	public ControllerWorkflowDMSA(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
 		super(main, vue, model);
 
 		this.antPost = this.model.getImagePlus().getNSlices() == 2;
@@ -76,7 +76,7 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 	@Override
 	public void end() {
 		// Clear the result hashmap in case of a second validation
-		((Modele_Dmsa) this.model).data.clear();
+		((Model_Dmsa) this.model).data.clear();
 
 		int indexRoi = 0;
 		BufferedImage capture = Library_Capture_CSV.captureImage(this.model.getImagePlus(), 512, 0).getBufferedImage();
@@ -87,15 +87,15 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 			String nom = ((DrawRoiInstruction) this.workflows[0].getInstructionAt(indexRoi)).getOrganToDelimit();
 			// String nom = roi.getName();
 			this.model.getImagePlus().setSlice(1);
-			((Modele_Dmsa) this.model).enregistrerMesure(nom + " P0", this.model.getImagePlus());
+			((Model_Dmsa) this.model).enregistrerMesure(nom + " P0", this.model.getImagePlus());
 			if (this.antPost) {
 				this.model.getImagePlus().setSlice(2);
-				((Modele_Dmsa) this.model).enregistrerMesure(nom + " A0", this.model.getImagePlus());
+				((Model_Dmsa) this.model).enregistrerMesure(nom + " A0", this.model.getImagePlus());
 			}
 			indexRoi++;
 		}
 
-		this.model.calculerResultats();
+		this.model.calculateResults();
 
 		new FenResultats_Dmsa(capture, this);
 	}

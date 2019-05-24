@@ -6,9 +6,8 @@ import org.petctviewer.scintigraphy.scin.Orientation;
 /**
  * Represents a state of an ImagePlus.<br>
  * The interpretation of the fields is left to the classes that uses this state.
- * 
- * @author Titouan QUÉMA
  *
+ * @author Titouan QUÉMA
  */
 public class ImageState {
 	/**
@@ -90,7 +89,7 @@ public class ImageState {
 
 	/**
 	 * Instantiates a state for an image.
-	 * 
+	 *
 	 * @param facingOrientation Facing orientation of the image (Ant or Post only)
 	 * @param slice             Number of the slice to display (if multiple slices)
 	 * @param lateralisation    TRUE for a Right-Left lateralisation and FALSE for a
@@ -112,7 +111,7 @@ public class ImageState {
 	 * If the image to be used is not in the model, then this method should return
 	 * {@link #ID_CUSTOM_IMAGE} and the {@link #getImage()} method should be used to
 	 * know which image to use.
-	 * 
+	 *
 	 * @return ID of the image to be used (the image is taken from the model)
 	 */
 	public int getIdImage() {
@@ -136,7 +135,7 @@ public class ImageState {
 
 	/**
 	 * @return TRUE if the lateralisation is Right-Left and FALSE if the
-	 *         lateralisation is Left-Right
+	 * lateralisation is Left-Right
 	 */
 	public boolean isLateralisationRL() {
 		return lateralisation;
@@ -144,7 +143,7 @@ public class ImageState {
 
 	/**
 	 * @return TRUE if the lateralisation is Left-Right and FALSE if the
-	 *         lateralisation is Right-Left
+	 * lateralisation is Right-Left
 	 */
 	public boolean isLateralisationLR() {
 		return !this.lateralisation;
@@ -163,7 +162,7 @@ public class ImageState {
 
 	/**
 	 * Specifies an image to be used.
-	 * 
+	 *
 	 * @param image Image to use
 	 */
 	public void specifieImage(ImageSelection image) {
@@ -236,11 +235,14 @@ public class ImageState {
 			return false;
 		if (lateralisation != other.lateralisation)
 			return false;
-		if (slice != other.slice)
-			return false;
-		return true;
+		return slice == other.slice;
 	}
 
+	/**
+	 * Used for debug only.
+	 *
+	 * @return debug string of this image state
+	 */
 	@Override
 	public String toString() {
 		String idImage;

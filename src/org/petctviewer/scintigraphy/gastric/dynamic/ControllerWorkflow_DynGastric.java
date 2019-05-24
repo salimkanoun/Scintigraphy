@@ -5,8 +5,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.JButton;
 
 import org.petctviewer.scintigraphy.gastric.Model_Gastric;
-import org.petctviewer.scintigraphy.gastric.tabs.TabMainResult;
-import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2;
+import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
+import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2_bis;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -21,7 +21,7 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.CheckIntersectio
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
@@ -30,7 +30,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
 	private FenResults fenResults;
 
-	public ControllerWorkflow_DynGastric(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model,
+	public ControllerWorkflow_DynGastric(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
 			ImageSelection[] selectedImages, FenResults fenResults) {
 		super(main, vue, model);
 		this.getRoiManager().reset();
@@ -69,7 +69,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		Instruction instructionSelected = workflowOfFirstImage.getInstructionAt(0);
 
 		getModel().setBkgNoise(Model_Gastric.REGION_STOMACH, bkgState,
-				getRoiManager().getRoi(instructionSelected.roiToDisplay()));
+				getRoiManager().getRoi(instructionSelected.getRoiIndex()));
 
 		final int NB_ROI_PER_IMAGE = 3;
 		ImageState previousState = null;
@@ -95,11 +95,11 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 					getModel().getImageSelection().length);
 			previousState = state;
 		}
-		getModel().calculerResultats();
+		getModel().calculateResults();
 	}
 
 	private void fitBest(String command) {
-		TabMethod2 tab = (TabMethod2) this.fenResults.getTab(1);
+		TabMethod2_bis tab = (TabMethod2_bis) this.fenResults.getTab(1);
 		if (command.equals(COMMAND_FIT_BEST_2) || command.equals(COMMAND_FIT_BEST_ALL))
 			tab.selectFit(tab.findBestFit());
 	}
@@ -112,7 +112,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		this.computeModel();
 
 		// Update results
-		TabMainResult tabMain = (TabMainResult) this.fenResults.getMainTab();
+		TabMethod1 tabMain = (TabMethod1) this.fenResults.getMainTab();
 
 		tabMain.displayTimeIngestion(getModel().getTimeIngestion());
 		tabMain.createGraph();

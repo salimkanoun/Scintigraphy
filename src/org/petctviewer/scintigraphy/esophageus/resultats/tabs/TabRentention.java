@@ -21,7 +21,7 @@ import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
-import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
+import org.petctviewer.scintigraphy.esophageus.resultats.Model_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -40,16 +40,17 @@ public class TabRentention extends TabResult {
 	private JLabel[] retention10sLabel;
 	private static int numAcquisitionRetention = 0;
 
-	private Modele_Resultats_EsophagealTransit modeleApp;
+	private Model_Resultats_EsophagealTransit modeleApp;
 
 	private Integer nbAcquisition;
 
-	public TabRentention(int nbAcquisition, FenResults parent, Modele_Resultats_EsophagealTransit model) {
+	public TabRentention(int nbAcquisition, FenResults parent, Model_Resultats_EsophagealTransit model) {
 		super(parent, "Retention");
 		this.modeleApp = model;
 		this.nbAcquisition = nbAcquisition;
 
-		this.createCaptureButton("Retention");
+//		this.createCaptureButton("Retention");
+		this.setadditionalInfo("Retention");
 
 		this.reloadDisplay();
 	}
@@ -110,7 +111,7 @@ public class TabRentention extends TabResult {
 		retentionResultPanel.setLayout(new GridLayout(nbAcquisition + 1, 1));
 
 		retentionResultPanel.add(new JLabel("Decrease 10s after peak"));
-		double[] retention10s = ((Modele_Resultats_EsophagealTransit) modeleApp).retentionAllPoucentage();
+		double[] retention10s = ((Model_Resultats_EsophagealTransit) modeleApp).retentionAllPoucentage();
 		retention10sLabel = new JLabel[nbAcquisition];
 		for (int i = 0; i < retention10s.length; i++) {
 			retention10sLabel[i] = new JLabel("Acquisition " + (i + 1) + " : " + (retention10s[i]) + "%");
@@ -133,7 +134,7 @@ public class TabRentention extends TabResult {
 		// graph center
 		graphRetention = ChartFactory.createXYLineChart("Retention", "s", "Count/s", null);
 
-		graphRetention.getXYPlot().setDataset(((Modele_Resultats_EsophagealTransit) modeleApp).retentionForGraph());
+		graphRetention.getXYPlot().setDataset(((Model_Resultats_EsophagealTransit) modeleApp).retentionForGraph());
 
 		XYLineAndShapeRenderer rendererTransit = new XYLineAndShapeRenderer();
 		// monter les formes des points
@@ -148,7 +149,7 @@ public class TabRentention extends TabResult {
 		this.graphRetention.getXYPlot().setRangeGridlinePaint(Color.black);
 		this.graphRetention.getXYPlot().setDomainGridlinePaint(Color.black);
 
-		selectorRetentionValue = ((Modele_Resultats_EsophagealTransit) modeleApp).retentionAllX();
+		selectorRetentionValue = ((Model_Resultats_EsophagealTransit) modeleApp).retentionAllX();
 
 		JValueSetter valueSetterRetention = new JValueSetter(graphRetention);
 		valueSetterRetention.addChartMouseListener(new ChartMouseListener() {
@@ -164,13 +165,13 @@ public class TabRentention extends TabResult {
 				TabRentention tab = TabRentention.this;
 				tab.selectorRetentionValue[numAcquisitionRetention] = tab.selectorRentention.getXValue();
 
-				double retention = ((Modele_Resultats_EsophagealTransit) modeleApp)
+				double retention = ((Model_Resultats_EsophagealTransit) modeleApp)
 						.retentionPoucentage(tab.selectorRentention.getXValue(), numAcquisitionRetention);
 				retention10sLabel[numAcquisitionRetention]
 						.setText("Acquisition " + (numAcquisitionRetention + 1) + " : " + retention + "%");
 
 				// on l'envoi au modele pour le csv
-				((Modele_Resultats_EsophagealTransit) modeleApp).setRetentionDecrease(numAcquisitionRetention,
+				((Model_Resultats_EsophagealTransit) modeleApp).setRetentionDecrease(numAcquisitionRetention,
 						retention);
 			}
 		});

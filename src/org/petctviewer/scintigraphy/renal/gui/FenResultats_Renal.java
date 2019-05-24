@@ -5,9 +5,9 @@ import java.awt.image.BufferedImage;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 
 import ij.Prefs;
@@ -17,7 +17,7 @@ public class FenResultats_Renal extends FenResults {
 
 	private final int width = 1000, height = 800;
 
-	public FenResultats_Renal(RenalScintigraphy vue, BufferedImage capture, ControleurScin controller) {
+	public FenResultats_Renal(RenalScintigraphy vue, BufferedImage capture, ControllerScin controller) {
 		super(controller);
 		this.addTab(new TabPrincipal(vue, capture, this));
 		this.addTab(new TabROE(vue, this));
@@ -29,7 +29,7 @@ public class FenResultats_Renal extends FenResults {
 		this.addTab(new TabZoomed(vue, this));
 		this.addTab(new TabOther(vue, this));
 		this.addTab(new TabPostMict(vue, this));
-		if (((Modele_Renal) controller.getModel()).getPatlakChart() != null) {
+		if (((Model_Renal) controller.getModel()).getPatlakChart() != null) {
 			this.addTab(new TabPatlak(vue, this));
 		}
 		if (Prefs.get("petctviewer.scin.experimental", false))

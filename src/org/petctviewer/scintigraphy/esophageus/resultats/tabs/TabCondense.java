@@ -22,7 +22,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
+import org.petctviewer.scintigraphy.esophageus.resultats.Model_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -48,16 +48,17 @@ public class TabCondense extends TabResult implements ChangeListener {
 
 	private static int numAcquisitionCondense = 0;
 
-	private Modele_Resultats_EsophagealTransit modeleApp;
+	private Model_Resultats_EsophagealTransit modeleApp;
 
 	private Integer nbAcquisition;
 
-	public TabCondense(int nbAcquisition, FenResults parent, Modele_Resultats_EsophagealTransit model) {
+	public TabCondense(int nbAcquisition, FenResults parent, Model_Resultats_EsophagealTransit model) {
 		super(parent, "Condensed Dynamic images");
 		this.modeleApp = model;
 		this.nbAcquisition = nbAcquisition;
 
-		this.createCaptureButton("Condense");
+//		this.createCaptureButton("Condense");
+		this.setadditionalInfo("Condense");
 
 		this.reloadDisplay();
 
@@ -65,7 +66,7 @@ public class TabCondense extends TabResult implements ChangeListener {
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		Modele_Resultats_EsophagealTransit modele = (Modele_Resultats_EsophagealTransit) modeleApp;
+		Model_Resultats_EsophagealTransit modele = (Model_Resultats_EsophagealTransit) modeleApp;
 
 		if (e.getSource() instanceof JSpinner) {
 			JSpinner spinner = (JSpinner) e.getSource();
@@ -107,7 +108,7 @@ public class TabCondense extends TabResult implements ChangeListener {
 
 		this.getResultContent();
 
-		Modele_Resultats_EsophagealTransit modele = (Modele_Resultats_EsophagealTransit) modeleApp;
+		Model_Resultats_EsophagealTransit modele = (Model_Resultats_EsophagealTransit) modeleApp;
 
 		JPanel spinnerPanel = new JPanel();
 		spinnerPanel.add(new JLabel("Left side"));
@@ -247,7 +248,7 @@ public class TabCondense extends TabResult implements ChangeListener {
 
 	@Override
 	public JPanel getResultContent() {
-		Modele_Resultats_EsophagealTransit modele = (Modele_Resultats_EsophagealTransit) modeleApp;
+		Model_Resultats_EsophagealTransit modele = (Model_Resultats_EsophagealTransit) modeleApp;
 
 		this.rightRognageValue = new int[nbAcquisition];
 		this.leftRognageValue = new int[nbAcquisition];
@@ -256,7 +257,7 @@ public class TabCondense extends TabResult implements ChangeListener {
 			contrastValue[i] = 4;
 		}
 
-		((Modele_Resultats_EsophagealTransit) modeleApp).calculAllCondense();
+		((Model_Resultats_EsophagealTransit) modeleApp).calculAllCondense();
 
 		JPanel titleAndCondensePanel = new JPanel();
 		titleAndCondensePanel.setLayout(new BorderLayout());

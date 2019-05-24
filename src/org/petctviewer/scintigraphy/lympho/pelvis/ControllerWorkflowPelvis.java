@@ -15,7 +15,7 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -30,7 +30,7 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 
 	private TabResult resultTab;
 
-	public ControllerWorkflowPelvis(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model,
+	public ControllerWorkflowPelvis(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
 			TabResult resultTab) {
 		super(main, vue, model);
 
@@ -102,18 +102,18 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 			}
 
 			img.setRoi(r);
-			((ModelePelvis) this.model).calculerCoups(organ, img);
+			((ModelPelvis) this.model).calculerCoups(organ, img);
 			organ++;
 
 		}
-		this.model.calculerResultats();
+		this.model.calculateResults();
 
 		// Save captures
 		ImageStack stackCapture = Library_Capture_CSV
 				.captureToStack(this.captures.toArray(new ImagePlus[this.captures.size()]));
 		ImagePlus montage = this.montage2Images(stackCapture);
 
-		((ModelePelvis) this.model).setPelvisMontage(montage);
+		((ModelPelvis) this.model).setPelvisMontage(montage);
 		((TabPelvis) this.resultTab).setExamDone(true);
 		((TabPelvis) this.resultTab).reloadDisplay();
 
@@ -136,7 +136,7 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 		return imp;
 	}
 
-	public ModeleScin getModel() {
+	public ModelScin getModel() {
 		return this.model;
 	}
 

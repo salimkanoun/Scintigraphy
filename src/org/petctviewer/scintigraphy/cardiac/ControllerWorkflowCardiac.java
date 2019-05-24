@@ -11,6 +11,7 @@ import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
+import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackground;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoopInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoiInstruction;
@@ -18,7 +19,11 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoi
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
+
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
@@ -35,20 +40,24 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	private boolean finContSlice1;
 	private String[] organes = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
 
-	public ControllerWorkflowCardiac(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
+	private boolean finContSlice2;
+
+	public ControllerWorkflowCardiac(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
+
 		super(main, vue, model);
 
 		// on declare si il y a deux prises
-		((Modele_Cardiac) this.model)
+		((Model_Cardiac) this.model)
 				.setDeuxPrise(this.model.getImageSelection()[0].getImagePlus().getImageStackSize() > 1);
 
-		((Modele_Cardiac) this.model).calculerMoyGeomTotale();
+		((Model_Cardiac) this.model).calculerMoyGeomTotale();
 
 		// this.nbConta1 = 0;
 		// this.nbConta2 = 0;
 
 		this.generateInstructions();
-		((FenApplication_Cardiac) this.main.getFenApplication()).startContaminationMode();
+		// ((FenApplication_Cardiac)
+		// this.main.getFenApplication()).startContaminationMode();
 		this.start();
 	}
 
@@ -65,6 +74,8 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 		DrawRoiInstruction dri_3 = null, dri_4 = null, dri_5 = null, dri_6 = null, dri_7 = null, dri_8 = null,
 				dri_9 = null, dri_10 = null, dri_11 = null, dri_12 = null;
+		
+		DrawRoiBackground driBackground_1 = null, driBackground_2 = null, driBackground_3 = null, driBackground_4 = null, driBackground_5 = null, driBackground_6 = null;
 
 		state_1 = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
 		state_1.specifieImage(this.workflows[0].getImageAssociated());
@@ -80,13 +91,19 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 		// Organs to delimit
 		dri_3 = new DrawSymmetricalRoiInstruction("Bladder", state_2, null, null, model, Organ.DEMIE);
+		driBackground_1 = new DrawRoiBackground("Bladder Background", state_2, dri_3, model);
 		dri_4 = new DrawSymmetricalRoiInstruction("Bladder", state_2, dri_3, null, model, Organ.DEMIE);
+		driBackground_2 = new DrawRoiBackground("Bladder Background", state_2, dri_4, model);
 
 		dri_5 = new DrawSymmetricalRoiInstruction("Kidney R", state_2, null, null, model, Organ.DEMIE);
+		driBackground_2 = new DrawRoiBackground("Kidney R Background", state_2, dri_5, model);
 		dri_6 = new DrawSymmetricalRoiInstruction("Kidney R", state_2, dri_5, null, model, Organ.DEMIE);
+		driBackground_4 = new DrawRoiBackground("Kidney R Background", state_2, dri_6, model);
 
 		dri_7 = new DrawSymmetricalRoiInstruction("Kidney L", state_2, null, null, model, Organ.DEMIE);
+		driBackground_5 = new DrawRoiBackground("Kidney L Background", state_2, dri_7, model);
 		dri_8 = new DrawSymmetricalRoiInstruction("Kidney L", state_2, dri_7, null, model, Organ.DEMIE);
+		driBackground_6 = new DrawRoiBackground("Kidney L Background", state_2, dri_8, model);
 
 		dri_9 = new DrawSymmetricalRoiInstruction("Heart", state_2, null, null, model, Organ.DEMIE);
 		dri_10 = new DrawSymmetricalRoiInstruction("Heart", state_2, dri_9, null, model, Organ.DEMIE);
@@ -113,30 +130,38 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 	private void clicNewCont() {
 
-		if (this.position % 2 != 0) {
-			FenApplication_Cardiac fac = (FenApplication_Cardiac) this.main.getFenApplication();
-			fac.getBtn_continue().setEnabled(true);
-			fac.getBtn_newCont().setLabel("Next");
-		} else {
-			FenApplication_Cardiac fac = (FenApplication_Cardiac) this.main.getFenApplication();
-			fac.getBtn_continue().setEnabled(false);
-			fac.getBtn_newCont().setLabel("Save");
+		if (this.getVue().getImagePlus().getRoi() != null && !this.finContSlice2) {
+			if (this.position % 2 != 0) {
+				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.main.getFenApplication();
+				fac.getBtn_continue().setEnabled(true);
+				fac.getBtn_suivant().setLabel("Next");
+			} else {
+				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.main.getFenApplication();
+				fac.getBtn_continue().setEnabled(false);
+				fac.getBtn_suivant().setLabel("Save");
+			}
 		}
-
-		this.clicSuivant();
 	}
 
 	private void clicEndCont() {
+		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
+				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
+		// System.out.println("-------------------------- Avant
+		// --------------------------");
+		// System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n");
 		// on set la slice
 		if ((this.model.getImageSelection()[0].getImagePlus().getCurrentSlice() == 1
 				&& this.model.getImageSelection()[0].getImagePlus().getImageStackSize() > 1)) {
 			// on relance le mode decontamination, cette fois ci pour la deuxieme slice
 			this.finContSlice1 = true;
-			((FenApplication_Cardiac) this.main.getFenApplication()).startContaminationMode();
+
 			// TODO demander confirmation à Titouan
-			this.position--;
 			((DrawSymmetricalLoopInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
-			this.clicSuivant();
+
+			this.workflows[this.indexCurrentWorkflow]
+					.removeInstructionWithIterator(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
+
+			this.clickNext();
 
 		} else { // on a trait� toutes les contaminations
 			((FenApplication_Cardiac) this.main.getFenApplication()).stopContaminationMode();
@@ -148,11 +173,19 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			// l'indexRoi
 			this.setOrganes((String[]) ArrayUtils.addAll(conts, this.getOrganes()));
 			((DrawSymmetricalLoopInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
-			this.clicSuivant();
-			this.position = 0;
-			this.vue.getBtn_precedent().setEnabled(false);
+
+			this.workflows[this.indexCurrentWorkflow]
+					.removeInstructionWithIterator(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
+			this.finContSlice2 = true;
+
+			this.clickNext();
+
 		}
+		this.position--;
 		this.vue.pack();
+		// System.out.println("-------------------------- Après
+		// --------------------------");
+		// System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n\n");
 
 	}
 
@@ -166,21 +199,27 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		super.actionPerformed(arg0);
+
+		System.out.println(this.position);
+
 		Button b = (Button) arg0.getSource();
-		if (b == ((FenApplication_Cardiac) this.main.getFenApplication()).getBtn_newCont()) {
+		if (b == ((FenApplication_Cardiac) this.main.getFenApplication()).getBtn_suivant()) {
 			this.clicNewCont();
 		} else if (b == ((FenApplication_Cardiac) this.main.getFenApplication()).getBtn_continue()) {
 			this.clicEndCont();
 		}
+		super.actionPerformed(arg0);
+		System.out.println(this.position);
 	}
 
 	@Override
 	public void end() {
 
-		((Modele_Cardiac) this.model).getResults();
-		((Modele_Cardiac) this.model).calculerResultats();
-		// ((Modele_Cardiac) this.model).setNbConta(new int[] {this.nbConta1,
+		// this.saveWorkflow();
+
+		((Model_Cardiac) this.model).getResults();
+		((Model_Cardiac) this.model).calculateResults();
+		// ((Model_Cardiac) this.model).setNbConta(new int[] {this.nbConta1,
 		// this.nbConta2});
 
 		BufferedImage capture = Library_Capture_CSV.captureImage(this.main.getFenApplication().getImagePlus(), 512, 0)

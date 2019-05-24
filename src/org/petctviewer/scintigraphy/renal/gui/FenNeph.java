@@ -17,7 +17,7 @@ import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
-import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
@@ -31,10 +31,10 @@ public class FenNeph extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private JButton btn_patlak, btn_ok;
 	private JValueSetter jvaluesetter;
-	private Modele_Renal modele;
+	private Model_Renal modele;
 	private JValueSetter patlakChart;
 
-	public FenNeph(ChartPanel cp, Component parentComponent, Modele_Renal modele) {
+	public FenNeph(ChartPanel cp, Component parentComponent, Model_Renal modele) {
 		super();
 		this.modele = modele;
 

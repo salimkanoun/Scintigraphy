@@ -97,7 +97,7 @@ public class PromptInstruction implements Instruction {
 	}
 
 	@Override
-	public int roiToDisplay() {
+	public int getRoiIndex() {
 		return -1;
 	}
 

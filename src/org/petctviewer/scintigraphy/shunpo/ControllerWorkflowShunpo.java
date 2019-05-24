@@ -14,7 +14,7 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -34,7 +34,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
 	private final int[] NBORGANE = { 5, 1 };
 
-	public ControllerWorkflowShunpo(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
+	public ControllerWorkflowShunpo(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
 		super(main, vue, model);
 
 		this.generateInstructions();
@@ -149,9 +149,9 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 			}
 
 			img.setRoi(r);
-			((ModeleShunpo) this.model).calculerCoups(organ, img);
+			((ModelShunpo) this.model).calculerCoups(organ, img);
 		}
-		this.model.calculerResultats();
+		this.model.calculateResults();
 
 		// Save captures
 		ImageStack stackCapture = Library_Capture_CSV
@@ -167,7 +167,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
 	private class DrawRoiInMiddle extends DrawRoiInstruction {
 
-		private DrawRoiInstruction dri_1, dri_2;
+		private transient DrawRoiInstruction dri_1, dri_2;
 
 		public DrawRoiInMiddle(String organToDelimit, ImageState state, DrawRoiInstruction roi1,
 				DrawRoiInstruction roi2) {
@@ -179,8 +179,8 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		@Override
 		public void afterNext(ControllerWorkflow controller) {
 			super.afterNext(controller);
-			Roi r1 = getRoiManager().getRoi(this.dri_1.roiToDisplay());
-			Roi r2 = getRoiManager().getRoi(this.dri_2.roiToDisplay());
+			Roi r1 = getRoiManager().getRoi(this.dri_1.getRoiIndex());
+			Roi r2 = getRoiManager().getRoi(this.dri_2.getRoiIndex());
 			controller.getModel().getImageSelection()[controller.getCurrentImageState().getIdImage()].getImagePlus()
 					.setRoi(roiBetween(r1, r2));
 		}

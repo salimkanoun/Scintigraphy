@@ -1,10 +1,12 @@
 package org.petctviewer.scintigraphy.scin.instructions.execution;
 
+import java.io.Serializable;
+
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 
-public abstract class ExecutionInstruction implements Instruction {
+public abstract class ExecutionInstruction implements Instruction, Serializable {
 
 	@Override
 	public void prepareAsNext() {
@@ -38,7 +40,7 @@ public abstract class ExecutionInstruction implements Instruction {
 	}
 
 	@Override
-	public int roiToDisplay() {
+	public int getRoiIndex() {
 		return -1;
 	}
 

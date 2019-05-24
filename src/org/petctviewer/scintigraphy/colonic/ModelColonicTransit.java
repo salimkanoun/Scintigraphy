@@ -8,11 +8,11 @@ import java.util.Map;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.gui.Roi;
 
-public class ModelColonicTransit extends ModeleScin {
+public class ModelColonicTransit extends ModelScin {
 
 	private HashMap<String, Double> dataImage1;
 
@@ -32,7 +32,7 @@ public class ModelColonicTransit extends ModeleScin {
 	}
 
 	@Override
-	public void calculerResultats() {
+	public void calculateResults() {
 		// TODO Auto-generated method stub
 
 	}

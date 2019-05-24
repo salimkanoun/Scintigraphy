@@ -19,7 +19,8 @@ public class TabAntPost extends TabResult {
 
 	public TabAntPost(BufferedImage capture, String antOrPost, FenResults parent) {
 		super(parent, antOrPost);
-		this.createCaptureButton("_" + antOrPost);
+//		this.createCaptureButton("_" + antOrPost);
+		this.setadditionalInfo("_" + antOrPost);
 		this.capture = capture;
 		
 		this.reloadDisplay();
@@ -32,7 +33,7 @@ public class TabAntPost extends TabResult {
 
 	@Override
 	public JPanel getResultContent() {
-		Modele_GeneralDyn modele = (Modele_GeneralDyn) this.parent.getModel();
+		Model_GeneralDyn modele = (Model_GeneralDyn) this.parent.getModel();
 		int cols = (modele.getNbRoi() + 1) / 2;
 		JPanel grid = new JPanel(new GridLayout(2, cols));
 

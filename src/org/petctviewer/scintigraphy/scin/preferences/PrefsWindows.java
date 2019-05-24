@@ -25,7 +25,7 @@ import ij.plugin.PlugIn;
 
 public class PrefsWindows extends WindowAdapter implements PlugIn {
 
-	public static final int DURATION_SHORT = 2000, DURATION_LONG = 3500;
+	public static final int DURATION_SHORT = 2000;
 
 	private Container main, renal, bone, gastric;
 
@@ -118,19 +118,16 @@ public class PrefsWindows extends WindowAdapter implements PlugIn {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// Fade out
-				new Timer(80, new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						alpha -= increment;
-						if (alpha <= 0) {
-							alpha = 0;
-							((Timer) e.getSource()).stop();
-							status.setText(null);
-							status.setForeground(Color.BLACK);
-						} else
-							status.setForeground(new Color(status.getForeground().getRed(),
-									status.getForeground().getGreen(), status.getForeground().getBlue(), alpha));
-					}
+				new Timer(80, e1 -> {
+					alpha -= increment;
+					if (alpha <= 0) {
+						alpha = 0;
+						((Timer) e1.getSource()).stop();
+						status.setText(null);
+						status.setForeground(Color.BLACK);
+					} else
+						status.setForeground(new Color(status.getForeground().getRed(),
+								status.getForeground().getGreen(), status.getForeground().getBlue(), alpha));
 				}).start();
 			}
 		});

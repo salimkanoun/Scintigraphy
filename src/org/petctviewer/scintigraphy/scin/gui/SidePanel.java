@@ -6,9 +6,6 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 import javax.swing.Box;
@@ -17,12 +14,10 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
-import ij.IJ;
 import ij.ImagePlus;
 
 /**
@@ -34,6 +29,9 @@ import ij.ImagePlus;
 public class SidePanel extends JPanel {
 
 	private static final long serialVersionUID = 6151539441728624822L;
+	
+	public static final String BTN_TXT_CAPTURE =  "Capture";
+	
 	private Box box;
 	private Component sidePanelContent;
 	private JPanel panSouth;
@@ -119,85 +117,17 @@ public class SidePanel extends JPanel {
 	}
 
 	public void createCaptureButton(TabResult tab, Component[] hide, Component[] show, String additionalInfo) {
-		// capture button
-		JButton captureButton = new JButton("Capture");
+		
+		
 
 		// label de credits
 		JLabel lbl_credits = new JLabel("Provided by petctviewer.org");
 		lbl_credits.setVisible(false);
 		this.panSouth.add(lbl_credits);
 
-		// generation du tag info
-		String info = Library_Capture_CSV.genererDicomTagsPartie1(tab.getParent().getModel().getImagePlus(),
-				tab.getParent().getModel().getStudyName(), tab.getParent().getModel().getUID6digits())
-				+ Library_Capture_CSV.genererDicomTagsPartie2(tab.getParent().getModel().getImagePlus());
-
-		// on ajoute le listener sur le bouton capture
-		captureButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				captureButton.setVisible(false);
-				for (Component comp : hide)
-					comp.setVisible(false);
-
-				lbl_credits.setVisible(true);
-				for (Component comp : show)
-					comp.setVisible(true);
-
-				SwingUtilities.invokeLater(new Runnable() {
-
-					@Override
-					public void run() {
-						// Capture, nouvelle methode a utiliser sur le reste des programmes
-						BufferedImage capture = new BufferedImage(tab.getPanel().getWidth(), tab.getPanel().getHeight(),
-								BufferedImage.TYPE_INT_ARGB);
-						tab.getPanel().paint(capture.getGraphics());
-						ImagePlus imp = new ImagePlus("capture", capture);
-
-						captureButton.setVisible(true);
-						for (Component comp : hide)
-							comp.setVisible(true);
-
-						lbl_credits.setVisible(false);
-						for (Component comp : show)
-							comp.setVisible(false);
-
-						// on passe a la capture les infos de la dicom
-						imp.setProperty("Info", info);
-						// on affiche la capture
-						imp.show();
-
-						// on change l'outil
-						IJ.setTool("hand");
-
-						// generation du csv
-						String resultats = tab.getParent().getModel().toString();
-
-						try {
-							Library_Capture_CSV.exportAll(resultats, tab.getParent().getModel().getRoiManager(),
-									tab.getParent().getModel().getStudyName(), imp,
-									additionalInfo == null ? "" : additionalInfo);
-
-							imp.killRoi();
-						} catch (Exception e1) {
-							e1.printStackTrace();
-						}
-
-						// Execution du plugin myDicom
-						try {
-							IJ.run("myDicom...");
-						} catch (Exception e1) {
-							e1.printStackTrace();
-						}
-
-						System.gc();
-					}
-				});
-
-			}
-		});
+		// capture button
+		CaptureButton captureButton = new CaptureButton(BTN_TXT_CAPTURE, tab, lbl_credits);
+		captureButton.addActionListener(tab.getParent().getController());
 
 		captureButton.setHorizontalAlignment(JButton.CENTER);
 		captureButton.setEnabled(true);

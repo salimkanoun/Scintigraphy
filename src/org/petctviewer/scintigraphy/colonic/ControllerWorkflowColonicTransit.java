@@ -83,7 +83,7 @@ public class ControllerWorkflowColonicTransit extends ControllerWorkflow {
 	public void end() {
 
 		((ModelColonicTransit) this.model).getResults();
-		((ModelColonicTransit) this.model).calculerResultats();
+		((ModelColonicTransit) this.model).calculateResults();
 
 		int[] times = new int[this.getModel().getImageSelection().length];
 		for (int index = 1; index < this.getModel().getImageSelection().length; index++) {
@@ -97,11 +97,11 @@ public class ControllerWorkflowColonicTransit extends ControllerWorkflow {
 	}
 
 	@Override
-	public void clicSuivant() {
-		super.clicSuivant();
+	public void clickNext() {
+		super.clickNext();
 		int currentSlice = this.vue.getImagePlus().getCurrentSlice();
 		this.vue.getImagePlus().setSlice(((currentSlice % 2) + 1));
-		this.displayRoi(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction().roiToDisplay());
+		this.displayRoi(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction().getRoiIndex());
 		this.vue.getImagePlus().setSlice((currentSlice));
 	}
 }

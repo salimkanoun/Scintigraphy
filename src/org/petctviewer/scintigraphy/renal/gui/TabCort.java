@@ -13,7 +13,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
-import org.petctviewer.scintigraphy.scin.model.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
 class TabCort extends TabResult {
 
@@ -30,7 +30,7 @@ class TabCort extends TabResult {
 
 	@Override
 	public JPanel getResultContent() {
-		ModeleScinDyn modele = (ModeleScinDyn) parent.getModel();
+		ModelScinDyn modele = (ModelScinDyn) parent.getModel();
 
 		List<XYSeries> listSeries = modele.getSeries();
 		// recuperation des chart panel avec association

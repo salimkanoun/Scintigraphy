@@ -9,7 +9,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -30,7 +30,7 @@ class TabZoomed extends TabResult {
 
 	@Override
 	public JPanel getResultContent() {
-		Modele_Renal modele = ((Modele_Renal) parent.getModel());
+		Model_Renal modele = ((Model_Renal) parent.getModel());
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		boolean[] kidneys = modele.getKidneys();
 		if (kidneys[0]) {

@@ -1,11 +1,15 @@
 package org.petctviewer.scintigraphy.scin.instructions.messages;
 
+import java.io.Serializable;
+
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 
-public class MessageInstruction implements Instruction {
+public class MessageInstruction implements Instruction, Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	private String message;
 
 	public MessageInstruction(String message) {
@@ -46,7 +50,7 @@ public class MessageInstruction implements Instruction {
 	}
 
 	@Override
-	public int roiToDisplay() {
+	public int getRoiIndex() {
 		return -1;
 	}
 

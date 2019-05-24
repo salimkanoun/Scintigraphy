@@ -2,7 +2,7 @@ package org.petctviewer.scintigraphy.renal.postMictional;
 
 import java.awt.image.BufferedImage;
 
-import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.gui.TabPostMict;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -60,12 +60,12 @@ public class PostMictional extends Scintigraphy {
 		// this.getFenApplication().setControleur(ctrl);
 		((FenApplicationWorkflow) this.getFenApplication()).setControleur(
 				new ControllerWorkflowPostMictional(this, (FenApplicationWorkflow) this.getFenApplication(),
-						new Modele_PostMictional(selectedImages, "Post-mictional"),
-						((Modele_Renal) this.resultFrame.getParent().getModel()).getKidneys()));
+						new Model_PostMictional(selectedImages, "Post-mictional"),
+						((Model_Renal) this.resultFrame.getParent().getModel()).getKidneys()));
 	}
 
 	// public HashMap<String, Double> getData() {
-	// return ((Modele_PostMictional) this.getModele()).getData();
+	// return ((Model_PostMictional) this.getModele()).getData();
 	// }
 
 	public BufferedImage getCapture() {

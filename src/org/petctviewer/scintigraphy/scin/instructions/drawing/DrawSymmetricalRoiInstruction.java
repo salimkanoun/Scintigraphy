@@ -5,32 +5,32 @@ import java.awt.Color;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.gui.Roi;
 import ij.plugin.RoiScaler;
 
 public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 
-	private Instruction dri_1;
+	private transient Instruction dri_1;
 
-	private ModeleScin model;
+	private transient ModelScin model;
 
 	public enum Organ {
 		DEMIE, QUART
 	};
 
-	private Organ organ;
-
-	private String organToDelimit;
+	private transient Organ organ;
 
 	public DrawSymmetricalRoiInstruction(String organToDelimit, ImageState state, Instruction instructionToCopy,
-			String roiName, ModeleScin model, Organ organ) {
+                                         String roiName, ModelScin model, Organ organ) {
 		super(organToDelimit, state, null, roiName);
 		this.model = model;
 		this.organ = organ;
 		this.dri_1 = instructionToCopy;
 		this.organToDelimit = organToDelimit;
+		
+		this.InstructionType = DrawInstructionType.DRAW_SYMMETRICAL;
 	}
 
 	@Override
@@ -43,6 +43,9 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 		String name = this.organToDelimit;
 
 		Roi thisRoi = (Roi) this.getImageState().getImage().getImagePlus().getRoi();
+		if(thisRoi == null)
+			return this.organToDelimit;
+		
 		boolean OrganPost = thisRoi.getXBase() > this.getImageState().getImage().getImagePlus().getWidth() / 2;
 
 		if (OrganPost)
@@ -59,7 +62,7 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 		if (this.dri_1 != null) {
 			// symetrique du coeur
 			if (this.dri_1 != null && this.organ == Organ.QUART) {
-				Roi roi = (Roi) this.model.getRoiManager().getRoi(dri_1.roiToDisplay()).clone();
+				Roi roi = (Roi) this.model.getRoiManager().getRoi(dri_1.getRoiIndex()).clone();
 
 				// on fait le symetrique de la roi
 				roi = RoiScaler.scale(roi, -1, 1, true);
@@ -75,7 +78,7 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 			}
 
 			// recupere la roi de l'organe symetrique
-			Roi lastOrgan = (Roi) this.model.getRoiManager().getRoi(dri_1.roiToDisplay());
+			Roi lastOrgan = (Roi) this.model.getRoiManager().getRoi(dri_1.getRoiIndex());
 			if (lastOrgan == null) { // si elle n'existe pas, on renvoie null
 				return;
 			}

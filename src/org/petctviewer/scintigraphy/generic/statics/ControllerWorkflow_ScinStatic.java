@@ -22,11 +22,9 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 	private FenResults fenResult;
 
-	private int indexRoi;
-
 	public ControllerWorkflow_ScinStatic(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages,
 			String studyName) {
-		super(main, vue, new ModeleScinStatic(selectedImages, studyName));
+		super(main, vue, new ModelScinStatic(selectedImages, studyName));
 
 		ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
 		setOverlay(statePost);
@@ -36,6 +34,17 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 		this.fenResult = new FenResults(this);
 		this.fenResult.setVisible(false);
+	}
+
+	private void updateButtonLabel(int indexRoi) {
+		// Check ROI is present
+		Roi roi = getRoiManager().getRoi(indexRoi);
+		if (roi != null) {
+			getVue().getBtn_suivant().setLabel(FenApplication_ScinStatic.BTN_TEXT_NEXT);
+			System.out.println("changed name");
+		} else {
+			getVue().getBtn_suivant().setLabel(FenApplication_ScinStatic.BTN_TEXT_NEW_ROI);
+		}
 	}
 
 	public String getNomOrgane(int index) {
@@ -62,6 +71,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 	}
 
 	public void end() {
+		System.out.println("End");
 		ImagePlus imp = this.model.getImagePlus();
 
 		// pour la ant
@@ -70,7 +80,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		for (int i = 0; i < this.model.getRoiManager().getCount(); i++) {
 			Roi roi = this.model.getRoiManager().getRoi(i);
 			imp.setRoi(roi);
-			((ModeleScinStatic) this.model).enregistrerMesureAnt(roi.getName(), imp);
+			((ModelScinStatic) this.model).enregistrerMesureAnt(roi.getName(), imp);
 		}
 
 		// pour la post
@@ -79,7 +89,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		for (int i = 0; i < this.model.getRoiManager().getCount(); i++) {
 			Roi roi = this.model.getRoiManager().getRoi(i);
 			imp.setRoi(roi);
-			((ModeleScinStatic) this.model).enregistrerMesurePost(roi.getName(), imp);
+			((ModelScinStatic) this.model).enregistrerMesurePost(roi.getName(), imp);
 		}
 
 		Thread t = new DoubleImageThread("test", this.main, this.model);
@@ -88,29 +98,37 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 	}
 
 	@Override
-	public void clicSuivant() {
+	public void clickNext() {
+		// Update view
+		getVue().setNbInstructions(this.allInputInstructions().size());
+
 		boolean sameName = false;
 		for (Instruction instruction : this.workflows[this.indexCurrentWorkflow].getInstructions())
 			if (instruction instanceof DrawLoopInstruction)
-				if (((DrawLoopInstruction) instruction) != this.workflows[this.indexCurrentWorkflow]
+				if (instruction != this.workflows[this.indexCurrentWorkflow]
 						.getCurrentInstruction())
 					if (this.workflows[this.indexCurrentWorkflow].getController().getVue().getTextfield_instructions()
 							.getText().equals(((DrawLoopInstruction) instruction).getInstructionRoiName()))
 						sameName = true;
 		if (sameName) {
-			int retour = JOptionPane.OK_OPTION;
-			if (this.model.getRoiManager()
-					.getRoi(indexRoi) != null /* && indexRoiToSave > this.model.getRoiManager().getCount() */) {
-				retour = JOptionPane.showConfirmDialog(getVue(),
-						"A Roi already have this name. Do you want to continue ?", "Duplicate Roi Name",
-						JOptionPane.YES_NO_CANCEL_OPTION);
-			}
+			int retour;
+			retour = JOptionPane.showConfirmDialog(getVue(), "A Roi already have this name. Do you want to continue ?",
+					"Duplicate Roi Name", JOptionPane.YES_NO_CANCEL_OPTION);
+
 			if (retour != JOptionPane.OK_OPTION)
 				return;
 		}
 
-		super.clicSuivant();
-		System.out.println(this.model.getRoiManager().getRoi(indexRoi).getName());
+		this.updateButtonLabel(this.indexRoi);
+
+		super.clickNext();
+	}
+
+	@Override
+	public void clicPrecedent() {
+		super.clicPrecedent();
+
+		this.updateButtonLabel(this.indexRoi);
 	}
 
 }

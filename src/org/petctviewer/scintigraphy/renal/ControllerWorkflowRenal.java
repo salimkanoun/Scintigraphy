@@ -22,7 +22,7 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.ImagePlus;
 import ij.Prefs;
@@ -33,7 +33,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 	private List<ImagePlus> captures;
 
-	public ControllerWorkflowRenal(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
+	public ControllerWorkflowRenal(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
 		super(main, vue, model);
 		// TODO Auto-generated constructor stub
 
@@ -60,7 +60,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 		dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), 0);
 
-		if (((Modele_Renal) this.model).getKidneys()[0]) {
+		if (((Model_Renal) this.model).getKidneys()[0]) {
 
 			dri_1 = new DrawRoiInstruction("L. Kidney", statePost);
 			this.workflows[0].addInstruction(dri_1);
@@ -78,7 +78,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 		}
 
-		if (((Modele_Renal) this.model).getKidneys()[1]) {
+		if (((Model_Renal) this.model).getKidneys()[1]) {
 			dri_3 = new DrawRoiInstruction("R. Kidney", statePost);
 			this.workflows[0].addInstruction(dri_3);
 			organes.add("R. Kidney");
@@ -106,13 +106,13 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		}
 
 		if (Prefs.get("renal.ureter.preferred", true)) {
-			if (((Modele_Renal) this.model).getKidneys()[0]) {
+			if (((Model_Renal) this.model).getKidneys()[0]) {
 				dri_7 = new DrawRoiInstruction("L. Ureter", statePost);
 				this.workflows[0].addInstruction(dri_7);
 				organes.add("L. Ureter");
 			}
 
-			if (((Modele_Renal) this.model).getKidneys()[1]) {
+			if (((Model_Renal) this.model).getKidneys()[1]) {
 				dri_8 = new DrawRoiInstruction("R. Ureter", statePost);
 				this.workflows[0].addInstruction(dri_8);
 				organes.add("R. Ureter");
@@ -135,7 +135,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 		// on recupere la vue, le modele et l'imp
 		RenalScintigraphy scinRenal = (RenalScintigraphy) this.main;
-		Modele_Renal modele = (Modele_Renal) this.model;
+		Model_Renal modele = (Model_Renal) this.model;
 
 		// Remet les data du modele a zero (en cas de relance)
 		modele.getData().clear();
@@ -163,7 +163,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		}
 
 		// on calcule les resultats
-		modele.calculerResultats();
+		modele.calculateResults();
 
 		// on recupere les chartPanels avec l'association
 		List<XYSeries> series = modele.getSeries();
@@ -174,8 +174,8 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		fan.setModal(true);
 		fan.setVisible(true);
 
-		((Modele_Renal) model).setNephrogramChart(fan.getValueSetter());
-		((Modele_Renal) model).setPatlakChart(fan.getPatlakChart());
+		((Model_Renal) model).setNephrogramChart(fan.getValueSetter());
+		((Model_Renal) model).setPatlakChart(fan.getPatlakChart());
 
 		// on passe les valeurs ajustees au modele
 		modele.setAdjustedValues(fan.getValueSetter().getValues());
@@ -184,7 +184,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		modele.fitVasculaire();
 
 		// on affiche la fenetre de resultats principale
-		((Modele_Renal) model).setNephrogramChart(fan.getValueSetter());
+		((Model_Renal) model).setNephrogramChart(fan.getValueSetter());
 		new FenResultats_Renal(scinRenal, capture, this);
 
 		// SK On rebloque le modele pour la prochaine generation
@@ -200,7 +200,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 	 *            Boolean array to specify the kidneys
 	 */
 	public void setKidneys(boolean[] kidneys) {
-		((Modele_Renal) this.model).setKidneys(kidneys);
+		((Model_Renal) this.model).setKidneys(kidneys);
 		this.generateInstructions();
 		this.start();
 	}
