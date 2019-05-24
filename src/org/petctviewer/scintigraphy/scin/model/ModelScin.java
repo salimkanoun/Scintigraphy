@@ -93,29 +93,6 @@ public abstract class ModelScin {
         this.selectedImages = newImages;
     }
 
-    // ============================== OLD CLASS ========================
-
-    /*
-     * calcule la decay fraction (countsCorrected=counts/decayedFraction)
-     *
-     * @param delaySeconds
-     * @param halLifeSeconds
-     * @return
-     */
-
-    /**
-     * @deprecated Please consider using static method in
-	 * {@link org.petctviewer.scintigraphy.scin.library.Library_Quantif}
-     */
-    @Deprecated
-    public static double getDecayFraction(int delaySeconds, int halLifeSeconds) {
-        double tcLambdaSeconds = (Math.log(2) / (halLifeSeconds));
-        // Decayed fraction est la fraction de la radioactivit� qui a disparu
-        // Pour avoir les coups corrige de la decroissance
-        // countsCorrected=counts/decayedFraction
-        return Math.pow(Math.E, (tcLambdaSeconds * delaySeconds * (-1)));
-    }
-
     public String getUID6digits() {
         if (this.uid == null) {
             this.uid = (int) (Math.random() * 1000000.);
