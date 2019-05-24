@@ -117,7 +117,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 	private int[] roisToDisplay(int indexWorkflow, ImageState state, int indexRoi) {
 		List<Instruction> dris = new ArrayList<>();
-		for (Instruction i : this.workflows[indexWorkflow].getInstructionsWithOrientation(state.getFacingOrientation()))
+		for (Instruction i :
+				this.workflows[indexWorkflow].getInstructionsWithOrientation(state.getFacingOrientation()))
 			if (i.getRoiIndex() >= 0 && i.getRoiIndex() < indexRoi) {
 				dris.add(i);
 			}
@@ -182,8 +183,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		else if (indexInstruction == indexCurrentInstruction) {
 			color = Color.YELLOW;
 			btnNextTxt = FenApplicationWorkflow.BTN_TXT_NEXT;
-		}
-		else
+		} else
 			color = Color.WHITE;
 
 		// Display title of Instruction
@@ -501,7 +501,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// Synchronize visualization with workflow
-		if(e.getSource() == getVue().getBtn_suivant() || e.getSource() == getVue().getBtn_precedent()) {
+		if ((e.getSource() == getVue().getBtn_suivant() || e.getSource() == getVue().getBtn_precedent()) && getVue().isVisualizationEnabled()) {
 			int indexScrollForCurrentInstruction = this.allInputInstructions()
 					.indexOf(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
 			if (getVue().getInstructionDisplayed() != indexScrollForCurrentInstruction) {
