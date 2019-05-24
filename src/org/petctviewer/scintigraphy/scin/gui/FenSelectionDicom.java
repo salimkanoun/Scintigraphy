@@ -22,6 +22,8 @@ import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.List;
 import java.util.*;
 
@@ -31,7 +33,7 @@ import java.util.*;
  *
  * @author Titouan QUÉMA
  */
-public class FenSelectionDicom extends JFrame implements ActionListener, ImageListener {
+public class FenSelectionDicom extends JFrame implements ActionListener, ImageListener, WindowListener {
 	private static final long serialVersionUID = 6706629497515318270L;
 
 	// TODO: make a column invisible to add data
@@ -353,12 +355,10 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 */
 	private void startExam(ImageSelection[] selectedImages) {
 		try {
-			ImagePlus.removeImageListener(this);
 			ImageSelection[] userSelection = this.scin.preparerImp(selectedImages);
 			if (userSelection != null) {
 				this.dispose();
 				this.scin.lancerProgramme(userSelection);
-				return;
 			}
 		} catch (WrongInputException e) {
 			JOptionPane.showMessageDialog(this, "Error while selecting images:\n" + e.getMessage(), "Selection error",
@@ -369,7 +369,6 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 							"could" +
 							" not be found.\n" + e.getMessage());
 		}
-		ImagePlus.addImageListener(this);
 	}
 
 	private void updateTable() {
@@ -394,6 +393,40 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 	@Override
 	public void imageUpdated(ImagePlus imp) {
+	}
+
+	@Override
+	public void windowOpened(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+	}
+
+	@Override
+	public void windowClosed(WindowEvent e) {
+		ImagePlus.removeImageListener(this);
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowActivated(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+
 	}
 
 	/**
