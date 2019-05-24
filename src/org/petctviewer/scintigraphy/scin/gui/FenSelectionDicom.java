@@ -170,7 +170,6 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 					data.add(imageData);
 				} catch (Exception e) {
 					countErrors++;
-					IJ.handleException(e);
 				}
 			}
 			if (countErrors > 0)
