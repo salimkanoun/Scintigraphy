@@ -185,11 +185,11 @@ public class Model_Cardiac extends ModelScin {
 			long timeLate = Library_Dicom.getDateAcquisition(this.selectedImages[0].getImagePlus()).getTime();
 
 			int delaySeconds = (int) (timeEarly - timeLate) / 1000;
-			Double facDecroissance = ModelScin.getDecayFraction(delaySeconds, (int) (6.02 * 3600));
 
-			this.retCardiaque = (this.fixCoeurL * facDecroissance) / this.finalEarly;
-			this.retCe = ((this.totLate - (this.fixReinDL + this.fixVessieL + this.sumContL)) * facDecroissance)
-					/ this.finalEarly;
+			this.retCardiaque = Library_Quantif.applyDecayFraction(delaySeconds*1000, this.fixCoeurL, Library_Quantif.Isotope.TECHNETIUM_99) / this.finalEarly;
+			
+			double sum=this.fixReinDL + this.fixVessieL + this.sumContL;		
+			this.retCe = (this.totLate - Library_Quantif.applyDecayFraction(delaySeconds*1000, sum, Library_Quantif.Isotope.TECHNETIUM_99)) / this.finalEarly;
 		}
 
 	}

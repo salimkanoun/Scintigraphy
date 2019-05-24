@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.petctviewer.scintigraphy.lympho.gui.TabPelvis;
-import org.petctviewer.scintigraphy.lympho.pelvis.ControllerWorkflowPelvis;
 import org.petctviewer.scintigraphy.lympho.pelvis.ModelPelvis;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;

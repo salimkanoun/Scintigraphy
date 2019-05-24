@@ -22,7 +22,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-import org.petctviewer.scintigraphy.hepatic.dyn.SecondExam.FenApplicationSecondHepaticDyn;
+import org.petctviewer.scintigraphy.hepatic.SecondExam.FenApplicationSecondHepaticDyn;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
@@ -270,16 +270,17 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 			public void actionPerformed(ActionEvent e) {
 				try {
 					FenApplicationSecondHepaticDyn.importRoiList(FenApplication.this,
-							FenApplication.this.controleur.getModel(), (ControllerWorkflow)FenApplication.this.controleur);
+							FenApplication.this.controleur.getModel(),
+							(ControllerWorkflow) FenApplication.this.controleur);
 				} catch (UnauthorizedRoiLoadException e1) {
-					JOptionPane.showMessageDialog(FenApplication.this, "Error while loading ROIs:\n" + e1.getMessage(), "Selection error",
-							JOptionPane.ERROR_MESSAGE);
-//					e1.printStackTrace();
+					JOptionPane.showMessageDialog(FenApplication.this, "Error while loading ROIs:\n" + e1.getMessage(),
+							"Selection error", JOptionPane.ERROR_MESSAGE);
+					// e1.printStackTrace();
 				}
 				FenApplication.this.getImagePlus()
 						.setRoi(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
 				FenApplication.this.getImagePlus().getRoi().setStrokeColor(Color.RED);
-				
+
 				System.out.println(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
 			}
 		});

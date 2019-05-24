@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.hepatic.dyn.tab;
+package org.petctviewer.scintigraphy.hepatic.tab;
 
 import java.awt.BorderLayout;
 import java.util.List;
@@ -7,7 +7,7 @@ import javax.swing.JPanel;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
-import org.petctviewer.scintigraphy.hepatic.dyn.SecondExam.ModelSecondMethodHepaticDynamic;
+import org.petctviewer.scintigraphy.hepatic.SecondExam.ModelSecondMethodHepaticDynamic;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;

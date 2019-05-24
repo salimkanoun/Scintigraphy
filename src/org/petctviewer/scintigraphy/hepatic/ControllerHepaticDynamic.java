@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.hepatic.dyn;
+package org.petctviewer.scintigraphy.hepatic;
 
 import java.awt.Button;
 import java.awt.Color;
@@ -10,8 +10,8 @@ import java.awt.event.MouseListener;
 
 import javax.swing.JOptionPane;
 
-import org.petctviewer.scintigraphy.hepatic.dyn.tab.TabMainHepaticDyn;
-import org.petctviewer.scintigraphy.hepatic.dyn.tab.TabCurves;
+import org.petctviewer.scintigraphy.hepatic.tab.TabCurves;
+import org.petctviewer.scintigraphy.hepatic.tab.TabMainHepaticDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;

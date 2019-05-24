@@ -6,10 +6,6 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.HashMap;
 
 import javax.swing.Box;
@@ -18,15 +14,11 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
-import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
-import ij.IJ;
 import ij.ImagePlus;
-import ij.Prefs;
 
 /**
  * creer une box avec titre du programme et son identification patient
