@@ -1227,7 +1227,7 @@ public class Model_Gastric extends ModelWorkflow {
 
 	@Override
 	public void calculateResults() {
-		this.generateTimes();
+		this.generateTime();
 	}
 
 	/**
