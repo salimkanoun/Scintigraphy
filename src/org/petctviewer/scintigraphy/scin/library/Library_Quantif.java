@@ -1,5 +1,13 @@
 package org.petctviewer.scintigraphy.scin.library;
 
+import ij.ImagePlus;
+import ij.gui.Roi;
+import ij.measure.Measurements;
+import ij.measure.ResultsTable;
+import ij.plugin.filter.Analyzer;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.math3.util.MathArrays;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -7,72 +15,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.math3.util.MathArrays;
-
-import ij.ImagePlus;
-import ij.gui.Roi;
-import ij.measure.Measurements;
-import ij.measure.ResultsTable;
-import ij.plugin.filter.Analyzer;
-
 public class Library_Quantif {
 
 	/**
-	 * Enumeration of isotopes, with the associated halflife Current isotope :
-	 * 
-	 * <p>
-	 * <table border=1 >
-	 * <tr>
-	 * <th>Isotope</th>
-	 * <th>&nbsp; Half Life (miliseconds) &nbsp;</th>
-	 * </tr>
-	 * <tr align=center>
-	 * <td>INDIUM_111</td>
-	 * <td>242330000</td>
-	 * </tr>
-	 * <tr align=center>
-	 * <td>&nbsp; TECHNETIUM_99 &nbsp;</td>
-	 * <td>21620880</td>
-	 * </tr>
-	 * <tr align=center>
-	 * <td>CHROME_51</td>
-	 * <td>2393500000</td>
-	 * </tr>
-	 * </table>
-	 * </p>
-	 */
-	public enum Isotope {
-		// http://dicom.nema.org/medical/Dicom/2015b/output/chtml/part16/sect_CID_18.html
-		INDIUM_111(242330000l, "C-145A4"), TECHNICIUM_99(21620880l, "C-163A8"), CHROME_51(2393500000l, "C-129A2");
-
-		private long halfLifeMS;
-		private String code;
-
-		private Isotope(long isotope, String code) {
-			this.halfLifeMS = isotope;
-			this.code = code;
-		}
-
-		public static Isotope getIsotopeFromCode(String code) {
-			for (Isotope i : Isotope.values())
-				if (i.code.equals(code))
-					return i;
-			return null;
-		}
-
-		public String getCode() {
-			return this.code;
-		}
-
-		public long getHalLifeMS() {
-			return this.halfLifeMS;
-		}
-	}
-
-	/**
 	 * arrondi la valeur
-	 * 
+	 *
 	 * @param value  valeur a arrondir
 	 * @param places nb de chiffre apres la virgule
 	 * @return valeur arrondie
@@ -92,11 +39,9 @@ public class Library_Quantif {
 		return bd.doubleValue();
 	}
 
-	/********** Public Static ********/
-
 	/**
 	 * renvoie la moyenne geometrique
-	 * 
+	 *
 	 * @param a chiffre a
 	 * @param b chiffre b
 	 * @return moyenne geometrique
@@ -112,11 +57,9 @@ public class Library_Quantif {
 		return moyGeom;
 	}
 
-	/********** Public Static Getter ********/
-
 	/**
 	 * Renvoie le nombre de coups sur la roi presente dans l'image plus
-	 * 
+	 *
 	 * @param imp l'imp
 	 * @return nombre de coups
 	 */
@@ -130,7 +73,7 @@ public class Library_Quantif {
 
 	/**
 	 * renvoie le nombre de coups moyens de la roi presente sur l'imp
-	 * 
+	 *
 	 * @param imp l'imp
 	 * @return nombre moyen de coups
 	 */
@@ -139,14 +82,13 @@ public class Library_Quantif {
 	}
 
 	public static int getPixelNumber(ImagePlus imp) {
-		int area = imp.getStatistics().pixelCount;
-		return area;
+		return imp.getStatistics().pixelCount;
 	}
 
 	/**
 	 * Calculate the counts/pixels mean of the Background , and subtract to the Roi
 	 * count this mean applied to the Roi pixels
-	 * 
+	 *
 	 * @param imp        ImagePlus to apply the Roi and Background
 	 * @param roi        Roi to correct
 	 * @param background Roi used to correct
@@ -162,7 +104,7 @@ public class Library_Quantif {
 	/**
 	 * Subtract to the Roi count the background counts/pixels mean applied to the
 	 * Roi pixels
-	 * 
+	 *
 	 * @param imp                 ImagePlus to apply the Roi and Background
 	 * @param roi                 Roi to correct
 	 * @param meanCountBackground The mean count to use
@@ -175,7 +117,7 @@ public class Library_Quantif {
 
 	/**
 	 * Returns the corrected counts of the radioactive decay
-	 * 
+	 *
 	 * @param delayMs      Delay between the 2 images, in miliseconds
 	 * @param mesuredCount Current count of the image
 	 * @param isotope      Isotope used in this exam ({@link Isotope})
@@ -184,14 +126,13 @@ public class Library_Quantif {
 	public static double calculer_countCorrected(int delayMs, double mesuredCount, Isotope isotope) {
 
 		double decayedFraction = Math.pow(Math.E, ((Math.log(2) / isotope.getHalLifeMS()) * delayMs * (-1)));
-		double correctedCount = mesuredCount / (decayedFraction);
 
-		return correctedCount;
+		return mesuredCount / (decayedFraction);
 	}
 
 	/**
 	 * Return the corrected counts of the second image.
-	 * 
+	 *
 	 * @param firstImage  Image of the first acquisition, used to take our reference
 	 *                    time
 	 * @param secondImage Image on which we want to correct counts
@@ -208,12 +149,11 @@ public class Library_Quantif {
 				(int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime()),
 				Library_Quantif.getCounts(secondImage), isotope);
 	}
-	
-	
+
 	/**
 	 * Returns the counts with th radioactive decay applied.
-	 * 
-	 * @param Delay between the 2 images, in miliseconds
+	 *
+	 * @param delayMs        between the 2 images, in miliseconds
 	 * @param mesuredCount Current count of the image
 	 * @param isotope      Isotope used in this exam ({@link Isotope})
 	 * @return The corrected count
@@ -221,25 +161,24 @@ public class Library_Quantif {
 	public static double applyDecayFraction(int delayMs, double mesuredCount, Isotope isotope) {
 
 		double decayedFraction = Math.pow(Math.E, ((Math.log(2) / isotope.getHalLifeMS()) * delayMs * (-1)));
-		double correctedCount = mesuredCount * (decayedFraction);
 
-		return correctedCount;
+		return mesuredCount * (decayedFraction);
 	}
-	
+
 	/**
 	 * Returns the counts of the second Image, with the radioactive decay applied.
-	 * 
-	 * @param firstImage	Image representing the time delay
-	 * @param secondImage	Image to apply decay
-	 * @param isotope		Isotope used
-	 * @return				Count of the second image, with decay applied
+	 *
+	 * @param firstImage  Image representing the time delay
+	 * @param secondImage Image to apply decay
+	 * @param isotope     Isotope used
+	 * @return Count of the second image, with decay applied
 	 */
 	public static double applyDecayFraction(ImagePlus firstImage, ImagePlus secondImage, Isotope isotope) {
 		Date firstAcquisitionTime = Library_Dicom.getDateAcquisition(firstImage);
 		Date SecondAcquisitionTime = Library_Dicom.getDateAcquisition(secondImage);
 		System.out.println("Difference de temps : "
 				+ Math.abs((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime())));
-		
+
 		return Library_Quantif.applyDecayFraction(
 				Math.abs((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime())),
 				Library_Quantif.getCounts(secondImage), isotope);
@@ -247,7 +186,7 @@ public class Library_Quantif {
 
 	/**
 	 * Convolve n times an array of double, using a kernel.
-	 * 
+	 *
 	 * @param values    The array ou double to convolve
 	 * @param kernel    The kernel used in the convolution
 	 * @param nbConvolv The number of convolution to apply
@@ -274,7 +213,7 @@ public class Library_Quantif {
 
 	/**
 	 * Convolve n times an array of double, using a kernel.
-	 * 
+	 *
 	 * @param values    The array ou double to convolve
 	 * @param kernel    The kernel used in the convolution
 	 * @param nbConvolv The number of convolution to apply
@@ -287,42 +226,39 @@ public class Library_Quantif {
 
 	/**
 	 * Convolve n times an array of double, using a kernel.
-	 * 
+	 *
 	 * @param values    The array ou double to convolve
 	 * @param kernel    The kernel used in the convolution
 	 * @param nbConvolv The number of convolution to apply
 	 * @return The convolved array
 	 */
 	public static Double[] processNConvolv(List<Double> values, Double[] kernel, int nbConvolv) {
-		return processNConvolv(values.toArray(new Double[values.size()]), kernel, nbConvolv);
+		return processNConvolv(values.toArray(new Double[0]), kernel, nbConvolv);
 	}
 
 	/**
 	 * Create the deconvolution of the liver by the blood pool.
-	 * 
-	 * @deprecated => Work when you used convolved array. =======
-	 * 
-	 *             /** Convolve n times an array of double, using a kernel.
+	 *
 	 * @param values    The array ou double to convolve
 	 * @param kernel    The kernel used in the convolution
 	 * @param nbConvolv The number of convolution to apply
 	 * @return The convolved array
+	 * @deprecated => Work when you used convolved array. =======
+	 * <p>
+	 * /** Convolve n times an array of double, using a kernel.
 	 */
 	public static List<Double> processNConvolv(List<Double> values, List<Double> kernel, int nbConvolv) {
-		return Arrays.asList(processNConvolv(values.toArray(new Double[values.size()]),
-				kernel.toArray(new Double[kernel.size()]), nbConvolv));
+		return Arrays.asList(processNConvolv(values.toArray(new Double[0]),
+				kernel.toArray(new Double[0]), nbConvolv));
 	}
 
 	/**
 	 * Create the deconvolution of the liver by the blood pool.
-	 * 
+	 *
 	 * @deprecated => Work when you used convolved array (actually, working with a
-	 *             6times convolved array) See
-	 *             {@link org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabDeconvolv}
-	 *             or {@link org.petctviewer.scintigraphy.renal.gui.TabDeconvolve}.
-	 * @param blood
-	 * @param liver
-	 * @return
+	 * 6times convolved array) See
+	 * {@link org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabDeconvolv}
+	 * or {@link org.petctviewer.scintigraphy.renal.gui.TabDeconvolve}.
 	 */
 	public static List<Double> deconvolv(Double[] blood, Double[] liver, int init) {
 
@@ -333,13 +269,10 @@ public class Library_Quantif {
 //		System.out.println(Arrays.asList(liver));
 //		System.out.println("\n\n");
 
-		List<Double> h = new ArrayList<Double>();
+		List<Double> h = new ArrayList<>();
 
 		for (int i = 0; i < init; i++) {
-
-			if (i < init) {
-				h.add(0.0d);
-			}
+			h.add(0.0d);
 		}
 
 		for (int i = init; i < blood.length; i++) {
@@ -362,17 +295,67 @@ public class Library_Quantif {
 
 	/**
 	 * Create the deconvolution of the liver by the blood pool.
-	 * 
+	 *
 	 * @deprecated => Work when you used convolved array (actually, working with a
-	 *             6times convolved array) See
-	 *             {@link org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabDeconvolv}
-	 *             or {@link org.petctviewer.scintigraphy.renal.gui.TabDeconvolve}.
-	 * @param blood
-	 * @param liver
-	 * @return
+	 * 6times convolved array) See
+	 * {@link org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabDeconvolv}
+	 * or {@link org.petctviewer.scintigraphy.renal.gui.TabDeconvolve}.
 	 */
 	public static List<Double> deconvolv(List<Double> blood, List<Double> liver, int init) {
-		return deconvolv(blood.toArray(new Double[blood.size()]), liver.toArray(new Double[liver.size()]), init);
+		return deconvolv(blood.toArray(new Double[0]), liver.toArray(new Double[0]), init);
+	}
+
+	/**
+	 * Enumeration of isotopes, with the associated half-life.<br>
+	 * Each isotope is represented by a code in the DICOM file. See
+	 * <a href="http://dicom.nema.org/medical/Dicom/2015b/output/chtml/part16/sect_CID_18.html">http://dicom.nema
+	 * .org/medical/Dicom/2015b/output/chtml/part16/sect_CID_18.html</a>.
+	 * Current isotope :
+	 * <table border=1 >
+	 * <tr>
+	 * <th>Isotope</th>
+	 * <th>&nbsp; Half Life (miliseconds) &nbsp;</th>
+	 * </tr>
+	 * <tr align=center>
+	 * <td>INDIUM_111</td>
+	 * <td>242330000</td>
+	 * </tr>
+	 * <tr align=center>
+	 * <td>&nbsp; TECHNETIUM_99 &nbsp;</td>
+	 * <td>21620880</td>
+	 * </tr>
+	 * <tr align=center>
+	 * <td>CHROME_51</td>
+	 * <td>2393500000</td>
+	 * </tr>
+	 * </table>
+	 * </p>
+	 */
+	public enum Isotope {
+		INDIUM_111(242330000L, "C-145A4"), TECHNETIUM_99(21620880L, "C-163A8"), CHROME_51(2393500000L, "C-129A2");
+
+		private long halfLifeMS;
+		private String code;
+
+		Isotope(long isotope, String code) {
+			this.halfLifeMS = isotope;
+			this.code = code;
+		}
+
+		public static Isotope getIsotopeFromCode(String code) {
+			for (Isotope i : Isotope.values())
+				if (i.code.equals(code))
+					return i;
+			return null;
+		}
+
+		public String getCode() {
+			return this.code;
+		}
+
+		public long getHalLifeMS() {
+			return this.halfLifeMS;
+		}
 	}
 
 }

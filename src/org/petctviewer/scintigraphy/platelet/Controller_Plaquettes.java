@@ -38,7 +38,7 @@ public class Controller_Plaquettes extends Controller_OrganeFixe {
 	private boolean antPost;
 
 	// Sert au restart
-	protected Controller_Plaquettes(Vue_Plaquettes vue, Date dateDebut, ImageSelection[] selectedImages, String studyName) {
+	protected Controller_Plaquettes(View_Platelet vue, Date dateDebut, ImageSelection[] selectedImages, String studyName) {
 		super(vue, new Model_Plaquettes(dateDebut, selectedImages, studyName));
 		
 		this.antPost = vue.antPost;
@@ -53,17 +53,14 @@ public class Controller_Plaquettes extends Controller_OrganeFixe {
 	@Override
 	public void end() {	
 		
-		Thread captureThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-				    Thread.sleep(200);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				
-				
+		Thread captureThread = new Thread(() -> {
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
+
+
 		});
 		captureThread.start();
 		
@@ -81,14 +78,14 @@ public class Controller_Plaquettes extends Controller_OrganeFixe {
 
 		ImageStack stack = new ImageStack(640, 512);
 		stack.addSlice(capture.getProcessor());
-		for (int i = 0; i < courbes.length; i++) {
-			stack.addSlice(courbes[i].getProcessor());
+		for (ImagePlus courbe : courbes) {
+			stack.addSlice(courbe.getProcessor());
 		}
 
 		ImagePlus courbesStackImagePlus = new ImagePlus();
 		courbesStackImagePlus.setStack(stack);
 
-		ImagePlus courbesFinale = new ImagePlus();
+		ImagePlus courbesFinale;
 
 		MontageMaker mm = new MontageMaker();
 		courbesFinale = mm.makeMontage2(courbesStackImagePlus, 2, 2, 1, 1, courbesStackImagePlus.getStackSize(), 1, 0,
