@@ -172,6 +172,7 @@ public class EsophagealTransit extends Scintigraphy {
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.yellow);
 
 		FenApplicationWorkflow fen = new FenApplicationWorkflow(selectedImages[0], "Oesophageus");
+		fen.setVisualizationEnable(false);
 		fen.getPanel_btns_gauche().remove(fen.getBtn_drawROI());
 		fen.getPanel_Instructions_btns_droite().removeAll();
 
@@ -204,6 +205,7 @@ public class EsophagealTransit extends Scintigraphy {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				fen.setVisualizationEnable(true);
 				// passage a la phase 2
 				fen.getPanel_btns_gauche().add(fen.getBtn_drawROI());
 				fen.getPanelPrincipal().remove(startQuantificationButton);

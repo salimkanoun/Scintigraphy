@@ -74,7 +74,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	 * @param state if TRUE the scrollbar for the visualization is displayed and if
 	 *              set to FALSE, then the scrollbar displayed is the one of IJ
 	 */
-	protected void setVisualizationEnable(boolean state) {
+	public void setVisualizationEnable(boolean state) {
 		if (state) {
 			// Create tooltip
 			this.tooltip = new InstructionTooltip(this);
