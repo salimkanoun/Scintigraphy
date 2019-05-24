@@ -360,11 +360,12 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 */
 	private void startExam(ImageSelection[] selectedImages) {
 		try {
+			ImagePlus.removeImageListener(this);
 			ImageSelection[] userSelection = this.scin.preparerImp(selectedImages);
 			if (userSelection != null) {
-				ImagePlus.removeImageListener(this);
 				this.dispose();
 				this.scin.lancerProgramme(userSelection);
+				return;
 			}
 		} catch (WrongInputException e) {
 			JOptionPane.showMessageDialog(this, "Error while selecting images:\n" + e.getMessage(), "Selection error",
@@ -375,7 +376,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 							"could" +
 							" not be found.\n" + e.getMessage());
 		}
-
+		ImagePlus.addImageListener(this);
 	}
 
 	private void updateTable() {
