@@ -6,12 +6,12 @@ import java.util.List;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
 
-public class Modele_GeneralDyn extends ModeleScinDyn {
+public class Model_GeneralDyn extends ModelScinDyn {
 
 	private ImageSelection impAnt, impPost, impProjetee, impProjeteeAnt, impProjeteePost;
 
@@ -19,7 +19,7 @@ public class Modele_GeneralDyn extends ModeleScinDyn {
 
 	private int nbOrganes;
 
-	public Modele_GeneralDyn(ImageSelection[] selectedImages, String studyName, int[] frameDuration) {
+	public Model_GeneralDyn(ImageSelection[] selectedImages, String studyName, int[] frameDuration) {
 		super(selectedImages, studyName, frameDuration);
 
 		this.impProjetee = selectedImages[0];
@@ -30,7 +30,7 @@ public class Modele_GeneralDyn extends ModeleScinDyn {
 	}
 
 	@Override
-	public void calculerResultats() {
+	public void calculateResults() {
 		for (String k : this.getData().keySet()) {
 			List<Double> data = this.getData().get(k);
 			this.getData().put(k, this.adjustValues(data));
@@ -78,7 +78,7 @@ public class Modele_GeneralDyn extends ModeleScinDyn {
 		}
 		// set data to the model
 		this.setData(mapData);
-		this.calculerResultats();
+		this.calculateResults();
 
 	}
 

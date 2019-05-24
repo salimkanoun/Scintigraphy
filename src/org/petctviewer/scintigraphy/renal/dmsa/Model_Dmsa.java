@@ -4,17 +4,17 @@ import java.util.HashMap;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.ImagePlus;
 
-public class Modele_Dmsa extends ModeleScin {
+public class Model_Dmsa extends ModelScin {
 
 	HashMap<String, Double> data = new HashMap<>();
 	HashMap<String, Integer> areas = new HashMap<>();
 	double[] pct = new double[2];
 	
-	public Modele_Dmsa(ImageSelection[] selectedImages, String studyName) {
+	public Model_Dmsa(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
 	}
 
@@ -33,7 +33,7 @@ public class Modele_Dmsa extends ModeleScin {
 	}
 
 	@Override
-	public void calculerResultats() {
+	public void calculateResults() {
 		
 		System.out.println("Datas : ");
 		for(String s : data.keySet())

@@ -6,11 +6,11 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.gui.Roi;
 
-public class Modele_Cardiac extends ModeleScin {
+public class Model_Cardiac extends ModelScin {
 
 	private HashMap<String, Double[]> data;
 
@@ -31,7 +31,7 @@ public class Modele_Cardiac extends ModeleScin {
 
 	private Scintigraphy scin;
 
-	// private Controleur_Cardiac controler;
+	// private Controller_Cardiac controler;
 
 	private ControllerWorkflowCardiac controler;
 
@@ -39,7 +39,7 @@ public class Modele_Cardiac extends ModeleScin {
 
 	// private int[] nbConta;
 
-	public Modele_Cardiac(Scintigraphy scin, ImageSelection[] selectedImages, String studyName) {
+	public Model_Cardiac(Scintigraphy scin, ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
 		this.scin = scin;
 		this.resultats = new HashMap<>();
@@ -47,7 +47,7 @@ public class Modele_Cardiac extends ModeleScin {
 	}
 
 	public void getResults() {
-		// controler=(Controleur_Cardiac) scin.getFenApplication().getControleur();
+		// controler=(Controller_Cardiac) scin.getFenApplication().getControleur();
 		controler = (ControllerWorkflowCardiac) scin.getFenApplication().getControleur();
 
 		// for (int i : controler.getNomRois().keySet()) {
@@ -84,7 +84,7 @@ public class Modele_Cardiac extends ModeleScin {
 	}
 
 	@Override
-	public void calculerResultats() {
+	public void calculateResults() {
 
 		// Avg background value of ant and post images
 		Double meanBdfAnt = this.data.get("Bkg noise A")[1];
@@ -172,7 +172,7 @@ public class Modele_Cardiac extends ModeleScin {
 			long timeLate = Library_Dicom.getDateAcquisition(this.selectedImages[0].getImagePlus()).getTime();
 
 			int delaySeconds = (int) (timeEarly - timeLate) / 1000;
-			Double facDecroissance = ModeleScin.getDecayFraction(delaySeconds, (int) (6.02 * 3600));
+			Double facDecroissance = ModelScin.getDecayFraction(delaySeconds, (int) (6.02 * 3600));
 
 			this.retCardiaque = (this.fixCoeurL * facDecroissance) / this.finalEarly;
 			this.retCe = ((this.totLate - (this.fixReinDL + this.fixVessieL + this.sumContL)) * facDecroissance)

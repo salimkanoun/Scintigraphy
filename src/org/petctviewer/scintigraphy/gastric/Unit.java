@@ -29,15 +29,17 @@ public enum Unit {
 
 		switch (this) {
 		case COUNTS:
-			if (unit == KCOUNTS)
+			switch (unit) {
+			case KCOUNTS:
 				return value / 1000.;
-			else
-				throw new UnsupportedOperationException("This unit cannot be converted to " + unit);
+			}
+			break;
 		case KCOUNTS:
-			if (unit == COUNTS)
+			switch (unit) {
+			case COUNTS:
 				return value * 1000.;
-			else
-				throw new UnsupportedOperationException("This unit cannot be converted to " + unit);
+			}
+			break;
 		case COUNTS_PER_MINUTE:
 			switch (unit) {
 			case COUNTS_PER_SECOND:
@@ -47,6 +49,7 @@ public enum Unit {
 			case KCOUNTS_PER_SECOND:
 				return value / 1000. / 60.;
 			}
+			break;
 		case COUNTS_PER_SECOND:
 			switch (unit) {
 			case COUNTS_PER_MINUTE:
@@ -56,6 +59,7 @@ public enum Unit {
 			case KCOUNTS_PER_SECOND:
 				return value / 1000.;
 			}
+			break;
 		case KCOUNTS_PER_MINUTE:
 			switch (unit) {
 			case COUNTS_PER_MINUTE:
@@ -65,6 +69,7 @@ public enum Unit {
 			case KCOUNTS_PER_SECOND:
 				return value * 60.;
 			}
+			break;
 		case KCOUNTS_PER_SECOND:
 			switch (unit) {
 			case COUNTS_PER_MINUTE:
@@ -74,19 +79,21 @@ public enum Unit {
 			case KCOUNTS_PER_MINUTE:
 				return value / 60.;
 			}
+			break;
 		case COUNTS_PER_PIXEL:
 			switch (unit) {
 			case KCOUNTS_PER_PIXEL:
 				return value / 1000.;
 			}
+			break;
 		case KCOUNTS_PER_PIXEL:
 			switch (unit) {
 			case COUNTS_PER_PIXEL:
 				return value * 1000.;
 			}
-		default:
-			throw new UnsupportedOperationException("This unit (" + this + ") cannot be converted to " + unit);
+			break;
 		}
+		throw new UnsupportedOperationException("This unit (" + this + ") cannot be converted to " + unit);
 	}
 
 	@Override

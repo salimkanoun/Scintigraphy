@@ -50,7 +50,7 @@ public class MessageInstruction implements Instruction, Serializable {
 	}
 
 	@Override
-	public int roiToDisplay() {
+	public int getRoiIndex() {
 		return -1;
 	}
 

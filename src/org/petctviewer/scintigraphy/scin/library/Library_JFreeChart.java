@@ -21,6 +21,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric.Unit;
+import org.petctviewer.scintigraphy.gastric.gui.Fit;
 
 public class Library_JFreeChart {
 
@@ -70,39 +71,11 @@ public class Library_JFreeChart {
 		return getAbsMaxY(((XYSeriesCollection) ds).getSeries(series));
 	}
 
-	/*
-	 * return the linearaly interpolated X for a given Y value
+	/**
+	 * @return linearly interpolated Y for a given X value
+	 * @deprecated Please use {@link #getY(double[], double[], double)} instead!
 	 */
-	public static Double getInterpolatedX(XYSeries serie, Double pointYRecherche) {
-
-		for (int i = 0; i < serie.getItemCount(); i++) {
-			// si on a deja le point
-			if (serie.getY(i) == pointYRecherche) {
-				return (Double) serie.getX(i);
-			}
-
-			// si on a pas le point on fait un feat entre le point juste avant de dépacer et
-			// celui apres
-			if ((Double) serie.getY(i) > pointYRecherche) {
-				double[][] m = new double[2][2];
-
-				m[0][0] = (Double) serie.getX(i - 1);
-				m[0][1] = (Double) serie.getY(i - 1);
-				m[1][0] = (Double) serie.getX(i);
-				m[1][1] = (Double) serie.getY(i);
-
-				double fit[] = Regression.getOLSRegression(m);
-
-				return (fit[0] + fit[1] * pointYRecherche);
-			}
-		}
-
-		return Double.NaN;
-	}
-
-	/*
-	 * return the linearaly interpolated Y for a given X value
-	 */
+	@Deprecated
 	public static Double getInterpolatedY(XYSeries serie, Double pointXRecherche) {
 
 		for (int i = 0; i < serie.getItemCount(); i++) {
@@ -183,7 +156,7 @@ public class Library_JFreeChart {
 	/**
 	 * renvoie la liste des ordonnees de la serie passee en parametre
 	 * 
-	 * @param la serie
+	 * @param s la serie
 	 * @return liste des ordonnees
 	 */
 	public static List<Double> seriesToList(XYSeries s) {
@@ -292,6 +265,7 @@ public class Library_JFreeChart {
 	 * 
 	 * @param toInvert Array to invert
 	 * @return Array where columns are rows
+	 * @author Titouan QUÉMA
 	 */
 	public static double[][] invertArray(double[][] toInvert) {
 		double[][] res = new double[toInvert[0].length][2];
@@ -302,39 +276,71 @@ public class Library_JFreeChart {
 	}
 
 	/**
-	 * Generates a dataset of 1 series with the specified arguments.
+	 * Generates a dataset of <code>i</code> series with the specified
+	 * arguments.<br>
+	 * Arrays of Y values are in the form <code>[i][j]</code> where <code>i</code>
+	 * is the number of the series and <code>j</code> is the value of each point.
+	 * 
+	 * @param resX  Values of the points for the X axis (null no accepted)
+	 * @param resY  Values of the points for the Y axis for each series (null not
+	 *              accepted)
+	 * @param title Titles of the series (cannot be null)
+	 * @return generated dataset with <code>i</code> series
+	 */
+	public static XYSeriesCollection createDataset(double[] resX, double[][] resY, String[] title) {
+		// Check null
+		if (resX == null || resY == null || title == null)
+			throw new NullPointerException("Parameters cannot be null");
+
+		XYSeriesCollection dataset = new XYSeriesCollection();
+		for (int i = 0; i < resY.length; i++) {
+			// Check null
+			if (resY[i] == null || title[i] == null)
+				throw new NullPointerException("Parameters cannot be null");
+
+			// Check length
+			if (resX.length != resY[i].length)
+				throw new IllegalArgumentException(
+						"The two arrays must have the same length (" + resX.length + " != " + resY[i].length + ")");
+
+			// Create series
+			XYSeries series = new XYSeries(title[i]);
+			for (int j = 0; j < resX.length; j++)
+				series.add(resX[j], Math.max(0, resY[i][j]));
+			dataset.addSeries(series);
+		}
+
+		return dataset;
+	}
+
+	/**
+	 * Generates a dataset of 1 series with the specified arguments.<br>
+	 * This is a convenience method for
+	 * {@link #createDataset(double[], double[][], String[])}.
 	 * 
 	 * @param resX  Values of the points for the X axis
 	 * @param resY  Values of the points for the Y axis
-	 * @param titre Title of the series
+	 * @param title Title of the series
 	 * @return generated dataset with 1 series
 	 */
-	private static XYSeriesCollection createDatasetUn(double[] resX, double[] resY, String titre) {
-		if (resX.length != resY.length)
-			throw new IllegalArgumentException(
-					"The two arrays must have the same length (" + resX.length + " != " + resY.length + ")");
-
-		XYSeries courbe = new XYSeries(titre);
-		for (int i = 0; i < resX.length; i++)
-			courbe.add(resX[i], Math.max(0, resY[i]));
-		return new XYSeriesCollection(courbe);
+	public static XYSeriesCollection createDataset(double[] resX, double[] resY, String title) {
+		return createDataset(resX, new double[][] { resY }, new String[] { title });
 	}
 
 	/**
 	 * Generates a graphic image with the specified arguments.
 	 * 
 	 * @param yAxisLabel Label of the Y axis
-	 * @param color      Color of the line
-	 * @param titre      Title of the graph
-	 * @param resX       Values of the points for the X axis
-	 * @param resY       Values of the points for the Y axis
+	 * @param color      Color of each series
+	 * @param title      Title of the graph
+	 * @param dataset    Dataset used to plot the points
 	 * @param upperBound The upper axis limit
 	 * @return ImagePlus containing the graphic
 	 */
-	public static ChartPanel createGraph(String yAxisLabel, Color color, String titre, double[] resX, double[] resY,
+	public static ChartPanel createGraph(String yAxisLabel, Color[] color, String title, XYDataset dataset,
 			double upperBound) {
-		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", yAxisLabel,
-				createDatasetUn(resX, resY, titre), PlotOrientation.VERTICAL, true, true, true);
+		JFreeChart xylineChart = ChartFactory.createXYLineChart(title, "min", yAxisLabel, dataset,
+				PlotOrientation.VERTICAL, true, true, true);
 
 		XYPlot plot = (XYPlot) xylineChart.getPlot();
 		// Background
@@ -344,10 +350,12 @@ public class Library_JFreeChart {
 		// reference:
 		// https://stackoverflow.com/questions/28428991/setting-series-line-style-and-legend-size-in-jfreechart
 		XYLineAndShapeRenderer lineAndShapeRenderer = new XYLineAndShapeRenderer();
-		lineAndShapeRenderer.setSeriesPaint(0, color);
-		lineAndShapeRenderer.setSeriesStroke(0, new BasicStroke(2.0F));
-		plot.setRenderer(lineAndShapeRenderer);
+		for (int series = 0; series < dataset.getSeriesCount(); series++) {
+			lineAndShapeRenderer.setSeriesPaint(series, color[series]);
+			lineAndShapeRenderer.setSeriesStroke(series, new BasicStroke(2.0F));
+		}
 		lineAndShapeRenderer.setDefaultLegendTextFont(new Font("", Font.BOLD, 16));
+		plot.setRenderer(lineAndShapeRenderer);
 		// XAxis
 		NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
 		domainAxis.setRange(0.00, 360.00);
@@ -363,7 +371,7 @@ public class Library_JFreeChart {
 		rangeAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
 		// Grid
 		plot.setDomainGridlinesVisible(false);
-		
+
 		return new ChartPanel(xylineChart);
 	}
 
@@ -375,6 +383,7 @@ public class Library_JFreeChart {
 	 * @param previousUnit Unit the values are
 	 * @param newUnit      Unit the values will be convert to
 	 * @return new array with the converted values
+	 * @author Titouan QUÉMA
 	 */
 	public static double[] convert(double[] values, Unit previousUnit, Unit newUnit) {
 		double[] result = new double[values.length];
@@ -386,7 +395,20 @@ public class Library_JFreeChart {
 		return result;
 	}
 
+	/**
+	 * Finds the maximum value of an array.<br>
+	 * The elements of the array must implement the Comparable interface.<br>
+	 * If the input array is null or empty, then the result is null.
+	 * 
+	 * @param <T>   Class implementing the Comparable interface
+	 * @param array Elements to get the max from
+	 * @return first maximum value found or null if array is null
+	 * @author Titouan QUÉMA
+	 */
 	public static <T extends Comparable> T maxValue(T[] array) {
+		if (array == null || array.length == 0)
+			return null;
+
 		T max = array[0];
 		for (T val : array)
 			if (val.compareTo(max) > 0)
@@ -394,12 +416,154 @@ public class Library_JFreeChart {
 		return max;
 	}
 
+	/**
+	 * Finds the maximum value of an array.<br>
+	 * If the input is null or empty, then the result is 0.
+	 * 
+	 * @param array Elements to get the max from
+	 * @return maximum value found
+	 * @author Titouan QUÉMA
+	 */
 	public static double maxValue(double[] array) {
+		if (array == null || array.length == 0)
+			return 0.;
+
 		double max = array[0];
 		for (double val : array)
 			if (val > max)
 				max = val;
 		return max;
+	}
+
+	/**
+	 * Gets the X value based upon the specified Y value.<br>
+	 * The value X returned is calculated with a linear interpolation as the point
+	 * between x1 and x2 with <code>x1 <= X <= x2</code>.<br>
+	 * If x1 or x2 could not be found, then the result is null.<br>
+	 * 
+	 * @param xValues Array containing the X values of the graph
+	 * @param yValues Array containing the Y values of the graph
+	 * @param valueY  Y value to find
+	 * @return X value or null if not found
+	 * @see #extrapolateX
+	 * @author Titouan QUÉMA
+	 */
+	public static Double getX(double[] xValues, double[] yValues, double valueY) {
+		for (int i = 1; i < xValues.length; i++) {
+			// Prevent from overflow
+			if (i >= yValues.length)
+				return null;
+
+			// Exact value
+			if (yValues[i] == valueY)
+				return xValues[i];
+
+			// Approximate value
+			if (yValues[i] < valueY) {
+				double x1 = xValues[i - 1];
+				double x2 = xValues[i];
+				double y1 = yValues[i - 1];
+				double y2 = yValues[i];
+				return ((valueY - y1) * (x2 - x1)) / (y2 - y1) + x1;
+			}
+		}
+
+		// Not found
+		return null;
+	}
+
+	/**
+	 * Extrapolates the X value based upon the specified Y value of the graph.<br>
+	 * The value X returned is extrapolated with the specified fit.
+	 * 
+	 * @param valueY Y value
+	 * @param fit    Fit the interpolation must rely on
+	 * @return X value extrapolated
+	 * @see #getX
+	 * @author Titouan QUÉMA
+	 */
+	public static double extrapolateX(double valueY, Fit fit) {
+		return fit.extrapolateX(valueY);
+	}
+
+	/**
+	 * Gets the Y value based upon the specified X value.<br>
+	 * The value Y returned is calculated with a linear interpolation as the point
+	 * between y1 and y2 with <code>y1 <= Y <= y2</code>. If y1 or y2 could not be
+	 * found, then the result is null.<br>
+	 * 
+	 * @param xValues Array containing the X values of the graph
+	 * @param yValues Array containing the Y values of the graph
+	 * @param valueX  X value to find
+	 * @return Y value or null if not found
+	 * @see #extrapolateY
+	 * @author Titouan QUÉMA
+	 */
+	public static Double getY(double[] xValues, double[] yValues, double valueX) {
+		for (int i = 0; i < xValues.length; i++) {
+			// Prevent from overflow
+			if (i >= yValues.length)
+				return null;
+
+			// Exact value
+			if (xValues[i] == valueX)
+				return yValues[i];
+
+			// Approximate value
+			if (xValues[i] > valueX) {
+				if(i == 0) {
+					// Point is before first point of the graph
+					return  null; // Not found
+				}
+				double x1 = xValues[i - 1];
+				double x2 = xValues[i];
+				double y1 = yValues[i - 1];
+				double y2 = yValues[i];
+
+				return y2 - (x2 - valueX) * ((y2 - y1) / (x2 - x1));
+			}
+		}
+
+		// Not found
+		return null;
+	}
+
+	/**
+	 * Extrapolates the Y value based upon the specified X value.<br>
+	 * The value Y returned is extrapolated with the specified fit.
+	 * 
+	 * @param valueX X value
+	 * @param fit    Fit the interpolation must rely on
+	 * @return Y value extrapolated
+	 * @author Titouan QUÉMA
+	 */
+	public static double extrapolateY(double valueX, Fit fit) {
+		return fit.extrapolateY(valueX);
+	}
+
+	/**
+	 * Given two dataset of Y values, this method will add the square of the result
+	 * of the subtraction of each point.<br>
+	 * For instance, given two points <code>A(x, 4) A'(x, 5)</code> and
+	 * <code>B(x, 3) B'(x, 1)</code> the result will be calculate like this:<br>
+	 * <code>(4-5)² + (3-1)²</code><br>
+	 * This is used to calculate the accuracy of a fit.
+	 * 
+	 * @param yValues       First dataset
+	 * @param yFittedValues Second dataset
+	 * @return least square of the two dataset
+	 * @author Titouan QUÉMA
+	 */
+	public static double computeLeastSquares(double[] yValues, double[] yFittedValues) {
+		if (yValues.length != yFittedValues.length)
+			throw new IllegalArgumentException("The lengths of the arrays must be equals (" + yValues.length + " != "
+					+ yFittedValues.length + ")");
+
+		double result = 0.;
+		for (int i = 0; i < yValues.length; i++) {
+			result += Math.pow(yValues[i] - yFittedValues[i], 2);
+		}
+		return result;
 	}
 
 }

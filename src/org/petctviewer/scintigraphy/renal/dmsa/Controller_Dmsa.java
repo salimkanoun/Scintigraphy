@@ -6,14 +6,14 @@ import java.awt.image.BufferedImage;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.controller.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 
 import ij.gui.Overlay;
 import ij.gui.Roi;
 
-public class Controleur_Dmsa extends Controleur_OrganeFixe {
+public class Controller_Dmsa extends Controller_OrganeFixe {
 
 	public static String[] ORGANES = { "L. Kidney", "L. bkg", "R. Kidney", "R. bkg" };
 	private int maxIndexRoi = 0;
@@ -21,8 +21,8 @@ public class Controleur_Dmsa extends Controleur_OrganeFixe {
 	private boolean antPost;
 	private boolean over;
 
-	protected Controleur_Dmsa(Scintigraphy scin, ImageSelection[] selectedImages, String studyName) {
-		super(scin, new Modele_Dmsa(selectedImages, studyName));
+	protected Controller_Dmsa(Scintigraphy scin, ImageSelection[] selectedImages, String studyName) {
+		super(scin, new Model_Dmsa(selectedImages, studyName));
 
 		this.antPost = this.model.getImagePlus().getNSlices() == 2;
 		if (antPost) {
@@ -45,7 +45,7 @@ public class Controleur_Dmsa extends Controleur_OrganeFixe {
 	public void end() {
 		this.over = true;
 		// Clear the result hashmap in case of a second validation
-		((Modele_Dmsa) this.model).data.clear();
+		((Model_Dmsa) this.model).data.clear();
 		this.nomRois.clear();
 
 		indexRoi = 0;
@@ -57,16 +57,16 @@ public class Controleur_Dmsa extends Controleur_OrganeFixe {
 			this.model.getImagePlus().setRoi(roi);
 			String nom = getNomOrgane(indexRoi);
 			this.setSlice(1);
-			((Modele_Dmsa) this.model).enregistrerMesure(this.addTag(nom), this.model.getImagePlus());
+			((Model_Dmsa) this.model).enregistrerMesure(this.addTag(nom), this.model.getImagePlus());
 			if (this.antPost) {
 				this.setSlice(2);
-				((Modele_Dmsa) this.model).enregistrerMesure(this.addTag(nom), this.model.getImagePlus());
+				((Model_Dmsa) this.model).enregistrerMesure(this.addTag(nom), this.model.getImagePlus());
 
 			}
 
 		}
 
-		this.model.calculerResultats();
+		this.model.calculateResults();
 
 		new FenResultats_Dmsa(capture, this);
 

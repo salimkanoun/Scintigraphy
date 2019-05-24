@@ -40,7 +40,7 @@ public abstract class ExecutionInstruction implements Instruction, Serializable 
 	}
 
 	@Override
-	public int roiToDisplay() {
+	public int getRoiIndex() {
 		return -1;
 	}
 

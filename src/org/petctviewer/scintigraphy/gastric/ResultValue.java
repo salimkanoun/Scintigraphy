@@ -14,60 +14,64 @@ import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
  * <li><b><code>1.98E30</code></b>: the value</li>
  * <li><b><code>kg</code></b>: the unit</li>
  * </ul>
- * In almost all cases, the value is linearly interpolated between two known
- * points of the graph. If one of the points is missing, the the value is
- * extrapolated (see {@link #isExtrapolated()}).
- * 
- * @author Titouan QUÉMA
+ * In most cases, the value is linearly interpolated between two known points of
+ * the graph. If one of the points is missing, the the value is extrapolated
+ * (see {@link #isExtrapolated()}).
  *
+ * @author Titouan QUÉMA
  */
 public class ResultValue {
-	private Result type;
+	private ResultRequest request;
 	private double value;
+	private boolean isExtrapolated;
 	private Unit unit;
-	private FitType extrapolation;
 
 	/**
 	 * Instantiates a new result.<br>
 	 * This constructor should be used when the extrapolation of the value needs to
 	 * be specified.
 	 *
-	 * @see #ResultValue(Result, double, Unit)
-	 * @param type          Result type
-	 * @param value         Value of the result
-	 * @param unit          Unit of the value
-	 * @param extrapolation type of the extrapolation (null means no extrapolation)
+	 * @param request        Request this result answers to
+	 * @param value          Value of the result
+	 * @param isExtrapolated if TRUE then this result has an extrapolated value and
+	 *                       if set to FALSE, this value is interpolated or exact
+	 * @see #ResultValue(ResultRequest, double)
 	 */
-	public ResultValue(Result type, double value, Unit unit, FitType extrapolation) {
-		if (type == null)
-			throw new IllegalArgumentException("Result type cannot be null");
-		if (unit == null)
-			throw new IllegalArgumentException("Unit cannot be null");
-		this.type = type;
+	public ResultValue(ResultRequest request, double value, Unit unit, boolean isExtrapolated) {
+		if (request == null)
+			throw new IllegalArgumentException("Associated request cannot be null");
+
+		this.request = request;
 		this.value = value;
-		this.extrapolation = extrapolation;
+		this.isExtrapolated = isExtrapolated;
+
 		this.unit = unit;
 	}
 
 	/**
-	 * Instantiates a new result with no extrapolation.
-	 * 
-	 * @param type  Result type
-	 * @param value Value of the result
-	 * @param unit  Unit of the value
+	 * Instantiates a new result not extrapolated.<br>
+	 * This constructor is a convenience for
+	 * {@link #ResultValue(ResultRequest, double, boolean)}.
+	 *
+	 * @param request Request this result answers to
+	 * @param value   Value of the result
 	 */
-	public ResultValue(Result type, double value, Unit unit) {
-		this(type, value, unit, null);
+	public ResultValue(ResultRequest request, double value, Unit unit) {
+		this(request, value, unit, false);
 	}
 
 	/**
 	 * Converts this result to a new unit.
-	 * 
+	 *
 	 * @param newUnit Unit to convert this result to
 	 */
 	public void convert(Unit newUnit) {
-		this.value = this.unit.convertTo(this.value, newUnit);
-		this.unit = newUnit;
+		try {
+			this.value = this.unit.convertTo(this.value, newUnit);
+			this.unit = newUnit;
+		} catch (UnsupportedOperationException e) {
+			throw new UnsupportedOperationException("For result " + this.request.getResultOn().getName() + ": " + e.getMessage());
+		}
 	}
 
 	/**
@@ -81,25 +85,27 @@ public class ResultValue {
 	 * @return type of the result
 	 */
 	public Result getResultType() {
-		return this.type;
+		return this.request.getResultOn();
 	}
 
 	/**
 	 * If no extrapolation is defined, then this method returns null.
-	 * 
+	 *
 	 * @return type of the extrapolation of this value (null if none)
 	 */
 	public FitType getExtrapolation() {
-		return this.extrapolation;
+		if (this.isExtrapolated)
+			return this.request.getFit().getType();
+		return null;
 	}
 
 	/**
 	 * @return TRUE if the value is extrapolated from a fit (see
-	 *         {@link #getExtrapolation()} to know which fit is used) and FALSE if
-	 *         the value is linearly extrapolated between two known points
+	 * {@link #getExtrapolation()} to know which fit is used) and FALSE if
+	 * the value is linearly extrapolated between two known points or exact
 	 */
 	public boolean isExtrapolated() {
-		return this.extrapolation != null;
+		return this.isExtrapolated;
 	}
 
 	/**
@@ -114,7 +120,7 @@ public class ResultValue {
 	 * <p>
 	 * If this result is extrapolated, then a star '(*)' is added at the end of the
 	 * result.
-	 * 
+	 *
 	 * @return formatted value for this result
 	 */
 	public String formatValue() {
@@ -122,7 +128,7 @@ public class ResultValue {
 			return this.displayAsTime();
 		return this.notNegative();
 	}
-	
+
 	public double getValue() {
 		return this.value;
 	}
@@ -132,9 +138,9 @@ public class ResultValue {
 	 * negative.<br>
 	 * If this result is extrapolated, then a star '(*)' is added at the end of the
 	 * result.
-	 * 
+	 *
 	 * @return rounded value for this result (2 decimals) restrained to 0 if
-	 *         negative
+	 * negative
 	 */
 	public String notNegative() {
 		return BigDecimal.valueOf(Math.max(0, value)).setScale(2, RoundingMode.HALF_UP).toString()
@@ -145,7 +151,7 @@ public class ResultValue {
 	 * Returns the value of this result rounded at 2 decimals.<br>
 	 * If this result is extrapolated, then a star '(*)' is added at the end of the
 	 * result.
-	 * 
+	 *
 	 * @return rounded value for this result (2 decimals)
 	 */
 	public String roundedValue() {
@@ -153,12 +159,13 @@ public class ResultValue {
 	}
 
 	// TODO: do not assume the time is in minutes
+
 	/**
 	 * Returns the value of this result as a time considering the value in
 	 * minutes.<br>
 	 * If this result is extrapolated, then a star '(*)' is added at the end of the
 	 * result.
-	 * 
+	 *
 	 * @return value of this result formatted as time: <code>HH:mm:ss</code>
 	 */
 	public String displayAsTime() {

@@ -7,12 +7,12 @@ import java.util.HashMap;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
 import ij.gui.Roi;
 import ij.plugin.frame.RoiManager;
 
-public class Modele_EsophagealTransit  extends ModeleScinDyn{
+public class Model_EsophagealTransit extends ModelScinDyn {
 	
 	// sauvegarde des imageplus de depart avec tous leur stack chacun : pour pouvoir faire les calculs de mean dans le temps//trié 
 	private ImageSelection [][] sauvegardeImagesSelectDicom;
@@ -27,7 +27,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	
 	public EsophagealTransit esoPlugIn;
 	
-	public Modele_EsophagealTransit( ImageSelection [][] sauvegardeImagesSelectDicom, String studyName, EsophagealTransit esoPlugIn) {
+	public Model_EsophagealTransit(ImageSelection [][] sauvegardeImagesSelectDicom, String studyName, EsophagealTransit esoPlugIn) {
 		super(sauvegardeImagesSelectDicom[0], studyName, esoPlugIn.getFrameDurations());
 		this.sauvegardeImagesSelectDicom = sauvegardeImagesSelectDicom;
 		
@@ -44,7 +44,7 @@ public class Modele_EsophagealTransit  extends ModeleScinDyn{
 	
 	//vas ordorner les imageplus pour les envoyer au model fenettre resultats pour les calculs
 	@Override
-	public void calculerResultats() {
+	public void calculateResults() {
 		
 		// pour etre sur quon a le meme nombre de roi que d'image plus
 		if(sauvegardeImagesSelectDicom[0].length != this.roiManager.getCount()) {

@@ -5,7 +5,7 @@ import java.awt.GridLayout;
 import java.awt.Panel;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 
 import ij.IJ;
@@ -53,7 +53,7 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 	}
 
 	@Override
-	public void setControleur(ControleurScin ctrl) {
+	public void setControleur(ControllerScin ctrl) {
 		super.setControleur(ctrl);
 		this.btn_continue.addActionListener(ctrl);
 		this.btn_newCont.addActionListener(ctrl);

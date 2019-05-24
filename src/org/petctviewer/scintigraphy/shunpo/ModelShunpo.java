@@ -9,11 +9,11 @@ import java.util.Map;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.ImagePlus;
 
-public class ModeleShunpo extends ModeleScin {
+public class ModelShunpo extends ModelScin {
 
 	private Map<Integer, Double> coups;
 	// TODO: those values are never set ??????? !!!!!!!!
@@ -33,7 +33,7 @@ public class ModeleShunpo extends ModeleScin {
 			RESULT_KIDNEY_LEFT = 3, RESULT_BRAIN = 4, RESULT_TOTAL_AVG = 5, RESULT_TOTAL_SHUNT = 6, RESULT_SYSTEMIC = 7,
 			RESULT_PULMONARY_SHUNT = 8;
 
-	public ModeleShunpo(ImageSelection[] selectedImages, String studyName) {
+	public ModelShunpo(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
 		this.coups = new HashMap<>();
 		this.geometricalAverage = new HashMap<>();
@@ -44,7 +44,7 @@ public class ModeleShunpo extends ModeleScin {
 	protected void calculerCoups(int organ, ImagePlus imp) {
 		double counts = Library_Quantif.getCounts(imp);
 		this.coups.put(organ, counts);
-		System.out.println("Calculations for " + organ + "[" + ModeleShunpo.convertOrgan(organ) + "] -> " + counts);
+		System.out.println("Calculations for " + organ + "[" + ModelShunpo.convertOrgan(organ) + "] -> " + counts);
 	}
 
 	// Retrait du BDF aux reins
@@ -110,7 +110,7 @@ public class ModeleShunpo extends ModeleScin {
 	}
 
 	@Override
-	public void calculerResultats() {
+	public void calculateResults() {
 		this.retour = new String[9];
 		coupsReins();
 		// Les 5 MGs

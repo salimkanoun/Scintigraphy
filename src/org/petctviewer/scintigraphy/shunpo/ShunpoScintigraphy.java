@@ -79,7 +79,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 		// Start program
 		this.setFenApplication(new FenApplication_Shunpo(this, selectedImages[0]));
 		((FenApplicationWorkflow) this.getFenApplication()).setControleur(new ControllerWorkflowShunpo(this,
-				(FenApplicationWorkflow) getFenApplication(), new ModeleShunpo(selectedImages, "Pulmonary Shunt")));
+				(FenApplicationWorkflow) getFenApplication(), new ModelShunpo(selectedImages, "Pulmonary Shunt")));
 		this.getFenApplication().setVisible(true);
 	}
 

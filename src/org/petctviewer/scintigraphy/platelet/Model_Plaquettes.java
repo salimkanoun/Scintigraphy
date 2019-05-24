@@ -40,14 +40,14 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.measure.Measurements;
 import ij.measure.ResultsTable;
 
-public class Modele_Plaquettes extends ModeleScin {
+public class Model_Plaquettes extends ModelScin {
 
 	// Stockage des objets mesures, chaque image est identifee par sa date
 	// d'aqcisition
@@ -56,7 +56,7 @@ public class Modele_Plaquettes extends ModeleScin {
 	HashMap<Date, MesureImage> mesures = new HashMap<>();
 	private Date dateHeureDebut;
 
-	public Modele_Plaquettes(Date dateHeureDebut, ImageSelection[] selectedImages, String studyName) {
+	public Model_Plaquettes(Date dateHeureDebut, ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
 		this.dateHeureDebut = dateHeureDebut;
 	}
@@ -132,7 +132,7 @@ public class Modele_Plaquettes extends ModeleScin {
 
 		}
 
-		if (Controleur_Plaquettes.showLog) {
+		if (Controller_Plaquettes.showLog) {
 			IJ.log(roi + "counts= " + String.valueOf(counts));
 			IJ.log(roi + "mean= " + String.valueOf(mean));
 		}
@@ -293,7 +293,7 @@ public class Modele_Plaquettes extends ModeleScin {
 	}
 
 	@Override
-	public void calculerResultats() {
+	public void calculateResults() {
 		//todo TODO calculer resultats plaquettes
 	}
 

@@ -10,7 +10,7 @@ import java.awt.Label;
 import java.awt.Panel;
 import java.awt.event.MouseListener;
 
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -173,7 +173,7 @@ public class FenApplicationHepaticDynamic extends FenApplication {
 	}
 
 	@Override
-	public void setControleur(ControleurScin ctrl) {
+	public void setControleur(ControllerScin ctrl) {
 		super.setControleur(ctrl);
 		buttonSlice1.addMouseListener((MouseListener) ctrl);
 		buttonSlice2.addMouseListener((MouseListener) ctrl);

@@ -34,7 +34,7 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoo
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -53,11 +53,10 @@ import ij.Prefs;
  * {@link #generateInstructions()} method to create the workflow.<br>
  * Then, the constructor must call the {@link #generateInstructions()} and the
  * {@link #start()} methods (in that order).
- * 
- * @author Titouan QUÉMA
  *
+ * @author Titouan QUÉMA
  */
-public abstract class ControllerWorkflow extends ControleurScin implements AdjustmentListener, MouseWheelListener {
+public abstract class ControllerWorkflow extends ControllerScin implements AdjustmentListener, MouseWheelListener {
 
 	/**
 	 * This command signals that the instruction should not generate a next
@@ -83,19 +82,16 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	/**
 	 * Index of the ROI to store in the RoiManager.
 	 */
-	private int indexRoi;
+	protected int indexRoi;
 
 	private boolean skipInstruction;
 
 	/**
-	 * @param main
-	 *            Reference to the main class
-	 * @param vue
-	 *            View of the MVC pattern
-	 * @param model
-	 *            Model of the MVC pattern
+	 * @param main  Reference to the main class
+	 * @param vue   View of the MVC pattern
+	 * @param model Model of the MVC pattern
 	 */
-	public ControllerWorkflow(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
+	public ControllerWorkflow(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
 		super(main, vue, model);
 
 		this.skipInstruction = false;
@@ -105,34 +101,33 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	 * This method must instantiate the workflow and fill it with the instructions
 	 * for this model.<br>
 	 * Typically, this will look like a repetition of:<br>
-	 * 
+	 *
 	 * <pre>
 	 * this.workflow[0].addInstruction(new DrawRoiInstruction(...));
 	 * ...
 	 * this.workflow[0].addInstruction(new EndInstruction());
 	 * </pre>
-	 * 
+	 * <p>
 	 * Only the last workflow generated MUST end with a {@link LastInstruction}.
 	 */
 	protected abstract void generateInstructions();
 
-	// private void DEBUG(String s) {
-	// System.out.println("=== " + s + " ===");
-	// System.out.println("Current position: " + this.position);
-	// System.out.println("Current image: " + this.indexCurrentImage);
-	// String currentInstruction = "-No instruction-";
-	// if (this.indexCurrentImage >= 0 && this.indexCurrentImage <
-	// this.workflows.length) {
-	// Instruction i =
-	// this.workflows[this.indexCurrentImage].getCurrentInstruction();
-	// if (i != null)
-	// currentInstruction = i.getMessage();
-	// else
-	// currentInstruction = "-No Message-";
-	// }
-	// System.out.println("Current instruction: " + currentInstruction);
-	// System.out.println();
-	// }
+//	private void DEBUG(String s) {
+//		System.out.println("=== " + s + " ===");
+//		System.out.println("Current position: " + this.position);
+//		System.out.println("Current workflow: " + this.indexCurrentWorkflow);
+//		String currentInstruction = "-No instruction-";
+//		if (this.indexCurrentWorkflow >= 0 && this.indexCurrentWorkflow < this.workflows.length) {
+//			Instruction i = this.workflows[this.indexCurrentWorkflow].getCurrentInstruction();
+//			if (i != null)
+//				currentInstruction = i.getMessage();
+//			else
+//				currentInstruction = "-No Message-";
+//		}
+//		System.out.println("Current instruction: " + currentInstruction);
+//		System.out.println("Index ROI: " + this.indexRoi);
+//		System.out.println();
+//	}
 
 	/**
 	 * This method displays the ROI to edit (if necessary).
@@ -151,13 +146,14 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 
 	private int[] roisToDisplay(int indexWorkflow, ImageState state, int indexRoi) {
 		List<Instruction> dris = new ArrayList<>();
-		for (Instruction i : this.workflows[indexWorkflow].getInstructionsWithOrientation(state.getFacingOrientation()))
-			if (i.roiToDisplay() >= 0 && i.roiToDisplay() < indexRoi) {
+		for (Instruction i :
+				this.workflows[indexWorkflow].getInstructionsWithOrientation(state.getFacingOrientation()))
+			if (i.getRoiIndex() >= 0 && i.getRoiIndex() < indexRoi) {
 				dris.add(i);
 			}
 		int[] array = new int[dris.size()];
 		for (int i = 0; i < dris.size(); i++)
-			array[i] = dris.get(i).roiToDisplay();
+			array[i] = dris.get(i).getRoiIndex();
 		return array;
 	}
 
@@ -166,7 +162,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		Instruction[] instructions = this.workflows[indexWorkflow]
 				.getInstructionsWithOrientation(state.getFacingOrientation());
 		for (Instruction i : instructions) {
-			if (i.roiToDisplay() >= 0) {
+			if (i.getRoiIndex() >= 0) {
 				dris.add(i);
 			}
 			if (i == last) {
@@ -175,7 +171,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		}
 		int[] array = new int[dris.size()];
 		for (int i = 0; i < dris.size(); i++)
-			array[i] = dris.get(i).roiToDisplay();
+			array[i] = dris.get(i).getRoiIndex();
 		return array;
 	}
 
@@ -183,7 +179,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	 * private ImageSelection imageFromInstruction(Instruction instruction) { //
 	 * Find workflow associated with instruction Workflow workflow =
 	 * this.getWorkflowAssociatedWithInstruction(instruction);
-	 * 
+	 *
 	 * ImageState state = instruction.getImageState(); if (state != null) { if
 	 * (state.getIdImage() == ImageState.ID_WORKFLOW) return
 	 * workflow.getImageAssociated(); } return this.imageFrom(state); }
@@ -207,13 +203,16 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		int indexCurrentInstruction = allInstructions
 				.indexOf(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
 
-		// Find color to display
+		// Color to display
 		Color color;
+		String btnNextTxt = FenApplicationWorkflow.BTN_TXT_RESUME;
+
 		if (indexInstruction < indexCurrentInstruction)
 			color = Color.GREEN;
-		else if (indexInstruction == indexCurrentInstruction)
+		else if (indexInstruction == indexCurrentInstruction) {
 			color = Color.YELLOW;
-		else
+			btnNextTxt = FenApplicationWorkflow.BTN_TXT_NEXT;
+		} else
 			color = Color.WHITE;
 
 		// Display title of Instruction
@@ -227,6 +226,9 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			this.setOverlay(instruction.getImageState());
 			this.displayRois(roisToDisplay);
 		}
+
+		// Change next button label
+		this.getVue().getBtn_suivant().setLabel(btnNextTxt);
 	}
 
 	private void prepareImage(ImageState imageState, int indexWorkflow) {
@@ -277,7 +279,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		// Change slice only if different than the previous
 		if (this.currentState.getSlice() != this.vue.getImagePlus().getCurrentSlice()) {
 			this.vue.getImagePlus().setSlice(this.currentState.getSlice());
-			// resetOverlay = true;
+//			resetOverlay = true;
 		}
 
 		// == LATERALISATION ==
@@ -302,7 +304,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		return instructions;
 	}
 
-	protected List<Instruction> allInstructions() {
+	private List<Instruction> allInstructions() {
 		List<Instruction> instructions = new ArrayList<>();
 		for (Workflow w : this.workflows)
 			instructions.addAll(w.getInstructions());
@@ -332,9 +334,8 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 
 	/**
 	 * Finds the workflow matching the specified image.
-	 * 
-	 * @param ims
-	 *            Image to find
+	 *
+	 * @param ims Image to find
 	 * @return Workflow associated with the image or null if not found
 	 */
 	protected Workflow getWorkflowAssociatedWithImage(ImageSelection ims) {
@@ -351,33 +352,12 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		return this.workflows[index];
 	}
 
-	protected ImageSelection imageFrom(ImageState imageState) {
-		if (imageState == null)
-			return null;
-
-		if (imageState.getIdImage() == ImageState.ID_CUSTOM_IMAGE) {
-			if (imageState.getImage() == null)
-				throw new IllegalStateException(
-						"The state specifies that a custom image should be used but no image has been set!");
-			return imageState.getImage();
-		} else {
-			if (imageState.getIdImage() == ImageState.ID_NONE || imageState.getIdImage() == ImageState.ID_WORKFLOW) {
-				return this.workflows[this.indexCurrentWorkflow].getImageAssociated();
-			} else if (imageState.getIdImage() >= 0) {
-				return this.workflows[imageState.getIdImage()].getImageAssociated();
-			}
-			// else, don't touch the previous id
-			return this.workflows[this.currentState.getIdImage()].getImageAssociated();
-		}
-	}
-
 	/**
 	 * Prepares the ImagePlus with the specified state and updates the currentState.
-	 * 
-	 * @param imageState
-	 *            State the ImagePlus must complies
+	 *
+	 * @param imageState State the ImagePlus must complies
 	 */
-	protected void prepareImage(ImageState imageState) {
+	private void prepareImage(ImageState imageState) {
 		this.prepareImage(imageState, this.indexCurrentWorkflow);
 	}
 
@@ -412,9 +392,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		if (indexInstruction != -1)
 			this.getVue().currentInstruction(indexInstruction);
 
-		if (previousInstruction instanceof LastInstruction && currentInstruction != null
-				&& currentInstruction instanceof GeneratorInstruction
-				&& !(previousInstruction instanceof DrawSymmetricalLoopInstruction)) {
+		if (previousInstruction instanceof LastInstruction && currentInstruction instanceof GeneratorInstruction) {
 			((GeneratorInstruction) currentInstruction).activate();
 		}
 
@@ -435,7 +413,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			this.displayRois(this.currentRoisToDisplay());
 
 			if (currentInstruction.saveRoi()) {
-				this.editOrgan(currentInstruction.roiToDisplay());
+				this.editOrgan(currentInstruction.getRoiIndex());
 			}
 
 			currentInstruction.afterPrevious(this);
@@ -453,7 +431,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			this.clicPrecedent();
 		}
 
-		// DEBUG("PREVIOUS");
+//		DEBUG("PREVIOUS");
 	}
 
 	@Override
@@ -462,7 +440,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 	}
 
 	@Override
-	public void clicSuivant() {
+	public void clickNext() {
 		Instruction previousInstruction = this.workflows[this.indexCurrentWorkflow].getCurrentInstruction();
 
 		// Only execute 'Next' if the instruction is not cancelled
@@ -472,7 +450,7 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			int indexPreviousImage = this.indexCurrentWorkflow;
 
 			// === Draw ROI of the previous instruction ===
-			if (previousInstruction != null && previousInstruction.saveRoi()) {
+			if (previousInstruction.saveRoi()) {
 				try {
 					this.saveRoiAtIndex(previousInstruction.getRoiName(), this.indexRoi);
 					previousInstruction.setRoi(this.indexRoi);
@@ -490,15 +468,11 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 			// == Generate next instruction if necessary ==
 			if (previousInstruction instanceof GeneratorInstruction) {
 				GeneratorInstruction generatorInstruction = (GeneratorInstruction) previousInstruction;
-				if (previousInstruction instanceof DefaultGenerator)
-					if (!((DefaultGenerator) previousInstruction).isStopped())
-						this.workflows[indexPreviousImage].addInstructionOnTheFly(generatorInstruction.generate());
-					else
-						this.workflows[indexPreviousImage].addInstructionOnTheFly(generatorInstruction.generate());
+				this.workflows[indexPreviousImage].addInstructionOnTheFly(generatorInstruction.generate());
 			}
 
 			// == Go to the next instruction ==
-			super.clicSuivant();
+			super.clickNext();
 
 			if (this.workflows[this.indexCurrentWorkflow].isOver()) {
 				this.indexCurrentWorkflow++;
@@ -521,15 +495,14 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 				this.prepareImage(nextInstruction.getImageState());
 
 				if (nextInstruction.saveRoi())
-					this.editOrgan(nextInstruction.roiToDisplay());
+					this.editOrgan(nextInstruction.getRoiIndex());
 
 				nextInstruction.afterNext(this);
 			} else {
-				// TODO: might be a problem if the workflow is over: this code should not
-				// execute
+				// TODO: might be a problem if the workflow is over: this code should not execute
 				// If not displayable, go directly to the next instruction
 				nextInstruction.afterNext(this);
-				this.clicSuivant();
+				this.clickNext();
 			}
 		} else {
 			// Execution cancelled
@@ -543,10 +516,10 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		// == Skip instruction if requested ==
 		if (this.skipInstruction) {
 			this.skipInstruction = false;
-			this.clicSuivant();
+			this.clickNext();
 		}
 
-		// DEBUG("NEXT");
+//		DEBUG("NEXT");
 	}
 
 	@Override
@@ -556,19 +529,30 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		if ((e.getSource() == getVue().getBtn_suivant() || e.getSource() == getVue().getBtn_precedent()) && getVue().isVisualizationEnabled()) {
+			int indexScrollForCurrentInstruction = this.allInputInstructions()
+					.indexOf(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
+			if(indexScrollForCurrentInstruction == 0)
+				indexScrollForCurrentInstruction = 1;
+			if (getVue().getInstructionDisplayed() != indexScrollForCurrentInstruction) {
+				// Update view
+				this.updateScrollbar(indexScrollForCurrentInstruction);
+				getVue().currentInstruction(indexScrollForCurrentInstruction);
+				return; // Do nothing more
+			}
+		}
+		
 		super.actionPerformed(e);
-		System.out.println("click");
 		if ((e.getSource() instanceof Button)) {
 			Button source = (Button) e.getSource();
 			if (source.getActionCommand().contentEquals(COMMAND_END)) {
 				if (this.workflows[this.indexCurrentWorkflow].getCurrentInstruction() instanceof GeneratorInstruction) {
 					((GeneratorInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
-					this.clicSuivant();
+					this.clickNext();
 				}
 			}
 		} else if (e.getSource() instanceof CaptureButton)
 			actionCaptureButton((CaptureButton) e.getSource());
-
 	}
 
 	@Override
@@ -586,7 +570,15 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		}
 	}
 
-	public JsonElement saveWorkflowToJson(String[] label) {
+	public Gson saveWorkflow(String path) {
+		this.getRoiManager();
+
+		Gson gson = new Gson();
+
+		return gson;
+	}
+
+public JsonElement saveWorkflowToJson(String[] label) {
 		
 
 		// Pretty print
@@ -608,8 +600,8 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 				if (instruction.saveRoi() || instruction.isRoiVisible()) {
 					JsonObject currentInstruction = new JsonObject();
 					currentInstruction.addProperty("InstructionType", instruction.getClass().getSimpleName());
-					currentInstruction.addProperty("IndexRoiToEdit", instruction.roiToDisplay());
-					currentInstruction.addProperty("NameOfRoi", this.getModel().getRoiManager().getRoi(instruction.roiToDisplay()).getName());
+					currentInstruction.addProperty("IndexRoiToEdit", instruction.getRoiIndex());
+					currentInstruction.addProperty("NameOfRoi", this.getModel().getRoiManager().getRoi(instruction.getRoiIndex()).getName());
 					if(label[indexNames].endsWith(".roi"))
 						label[indexNames] = label[indexNames].substring(0, label[indexNames].length() - 4);
 					currentInstruction.addProperty("NameOfRoiFile", label[indexNames]);
@@ -944,5 +936,4 @@ public abstract class ControllerWorkflow extends ControleurScin implements Adjus
 		});
 
 	}
-
 }

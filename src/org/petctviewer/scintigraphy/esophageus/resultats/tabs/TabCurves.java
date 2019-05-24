@@ -21,7 +21,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.calibration.resultats.JTableCheckBox;
-import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
+import org.petctviewer.scintigraphy.esophageus.resultats.Model_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -30,19 +30,19 @@ import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 public class TabCurves extends TabResult {
 
 	private JFreeChart graphMain;
-	private Modele_Resultats_EsophagealTransit modeleApp;
+	private Model_Resultats_EsophagealTransit modeleApp;
 	private Integer nbAcquisition;
 
 	private XYSeries[][] datasetModele;
 	private String[] titleRows;
 
-	public TabCurves(int nbAcquisition, FenResults parent, Modele_Resultats_EsophagealTransit modeleApp) {
+	public TabCurves(int nbAcquisition, FenResults parent, Model_Resultats_EsophagealTransit modeleApp) {
 		super(parent, "Curves");
 		this.modeleApp = modeleApp;
 		this.nbAcquisition = nbAcquisition;
 
 		// set les data du graph
-		datasetModele = ((Modele_Resultats_EsophagealTransit) modeleApp).getDataSetMain();
+		datasetModele = ((Model_Resultats_EsophagealTransit) modeleApp).getDataSetMain();
 		titleRows = new String[datasetModele.length];
 
 //		this.createCaptureButton("Curves");
@@ -96,7 +96,7 @@ public class TabCurves extends TabResult {
 		JPanel longeurEsophageResultPanel = new JPanel();
 		longeurEsophageResultPanel.setLayout(new GridLayout(nbAcquisition + 1, 1));
 		longeurEsophageResultPanel.add(new JLabel("Esophageal height"));
-		double[] longueurEsophage = ((Modele_Resultats_EsophagealTransit) modeleApp).calculLongeurEsophage();
+		double[] longueurEsophage = ((Model_Resultats_EsophagealTransit) modeleApp).calculLongeurEsophage();
 		for (int i = 0; i < longueurEsophage.length; i++) {
 			longeurEsophageResultPanel.add(new JLabel(
 					"Acquisition " + (i + 1) + " : " + (Library_Quantif.round(longueurEsophage[i], 2)) + " cm"));

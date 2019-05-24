@@ -11,7 +11,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -29,7 +29,7 @@ import ij.plugin.frame.RoiManager;
  * @author Titouan QUÉMA
  *
  */
-public abstract class ControleurScin implements ActionListener {
+public abstract class ControllerScin implements ActionListener {
 
 	/**
 	 * View of the MVC pattern
@@ -45,9 +45,9 @@ public abstract class ControleurScin implements ActionListener {
 
 	protected Scintigraphy main;
 
-	protected ModeleScin model;
+	protected ModelScin model;
 
-	public ControleurScin(Scintigraphy main, FenApplication vue, ModeleScin model) {
+	public ControllerScin(Scintigraphy main, FenApplication vue, ModelScin model) {
 		this.vue = vue;
 		this.position = 0;
 		this.main = main;
@@ -73,7 +73,7 @@ public abstract class ControleurScin implements ActionListener {
 	/**
 	 * @return model of the MVC pattern
 	 */
-	public ModeleScin getModel() {
+	public ModelScin getModel() {
 		return this.model;
 	}
 
@@ -112,7 +112,7 @@ public abstract class ControleurScin implements ActionListener {
 	 * This method is called when the 'Next' button is pressed. It will increment
 	 * the position by 1.
 	 */
-	public void clicSuivant() {
+	public void clickNext() {
 		this.position++;
 		this.vue.getBtn_precedent().setEnabled(true);
 	}
@@ -361,7 +361,7 @@ public abstract class ControleurScin implements ActionListener {
 		Button b = (Button) e.getSource();
 
 		if (b == this.vue.getBtn_suivant()) {
-			this.clicSuivant();
+			this.clickNext();
 
 		} else if (b == this.vue.getBtn_precedent()) {
 			this.clicPrecedent();

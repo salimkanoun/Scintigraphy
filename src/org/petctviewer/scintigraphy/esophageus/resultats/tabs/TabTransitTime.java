@@ -21,7 +21,7 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.esophageus.resultats.Modele_Resultats_EsophagealTransit;
+import org.petctviewer.scintigraphy.esophageus.resultats.Model_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -47,9 +47,9 @@ public class TabTransitTime extends TabResult {
 
 	private Integer nbAcquisition;
 
-	private Modele_Resultats_EsophagealTransit modeleApp;
+	private Model_Resultats_EsophagealTransit modeleApp;
 
-	public TabTransitTime(int nbAcquisition, FenResults parent, Modele_Resultats_EsophagealTransit model) {
+	public TabTransitTime(int nbAcquisition, FenResults parent, Model_Resultats_EsophagealTransit model) {
 		super(parent, "Transit Time");
 		this.modeleApp = model;
 		this.nbAcquisition = nbAcquisition;
@@ -154,7 +154,7 @@ public class TabTransitTime extends TabResult {
 		graphTransitTime.getXYPlot().setRangeGridlinePaint(Color.black);
 		graphTransitTime.getXYPlot().setDomainGridlinePaint(Color.black);
 
-		XYSeries[][] datasetModele = ((Modele_Resultats_EsophagealTransit) modeleApp).getDataSetTransitTime();
+		XYSeries[][] datasetModele = ((Model_Resultats_EsophagealTransit) modeleApp).getDataSetTransitTime();
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		for (int i = 0; i < datasetModele.length; i++) {
 			for (int j = 0; j < datasetModele[i].length; j++) {
@@ -199,7 +199,7 @@ public class TabTransitTime extends TabResult {
 						"Acquisition " + (numSeriesSelectors + 1) + " : " + Library_Quantif.round(delta, 2) + " sec");
 
 				// on l'envoi au modele pour le csv
-				((Modele_Resultats_EsophagealTransit) modeleApp).setTimeMeasure(numSeriesSelectors, delta);
+				((Model_Resultats_EsophagealTransit) modeleApp).setTimeMeasure(numSeriesSelectors, delta);
 			}
 		});
 

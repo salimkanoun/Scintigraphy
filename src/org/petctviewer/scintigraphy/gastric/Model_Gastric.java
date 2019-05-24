@@ -1,47 +1,13 @@
 package org.petctviewer.scintigraphy.gastric;
 
-/**
-Copyright (C) 2017 PING Xie and KANOUN Salim
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public v.3 License as published by
-the Free Software Foundation;
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- */
-
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
+import ij.ImagePlus;
+import ij.Prefs;
+import ij.gui.Roi;
 import org.apache.commons.lang.ArrayUtils;
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.NumberTickUnit;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric.gui.Fit;
-import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
@@ -50,349 +16,50 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.Prefs;
-import ij.gui.Roi;
-import ij.plugin.MontageMaker;
+import java.awt.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.*;
 
 /**
  * Model of the Gastric Scintigraphy.
- * 
+ *
  * @author Xie PING
  * @author Titouan QUÉMA - refactoring, JavaDoc
- *
  */
-public class Model_Gastric extends ModeleScin {
-	public static Font italic = new Font("Arial", Font.ITALIC, 8);
+public class Model_Gastric extends ModelWorkflow {
+
+	public static final int SERIES_STOMACH_PERCENTAGE = 0, SERIES_DECAY_FUNCTION = 1;
 
 	public static final Result RES_TIME = new Result("Time"), RES_STOMACH = new Result("Stomach"),
 			RES_FUNDUS = new Result("Fundus"), RES_ANTRUM = new Result("Antrum"),
 			RES_STOMACH_COUNTS = new Result("Stomach"), START_ANTRUM = new Result("Start antrum"),
-			START_INTESTINE = new Result("Start intestine"), LAG_PHASE = new Result("Lag phase"),
-			T_HALF = new Result("T 1/2"), RETENTION = new Result("Retention");
+			START_INTESTINE = new Result("Start intestine"), LAG_PHASE_PERCENTAGE = new Result("Lag phase"),
+			LAG_PHASE_GEOAVG = new Result("Lag phase"), T_HALF_PERCENTAGE = new Result("T 1/2"),
+			T_HALF_GEOAVG = new Result("T 1/2"), RETENTION_PERCENTAGE = new Result("Retention"),
+			RETENTION_GEOAVG = new Result("Retention");
 
 	public static final String REGION_STOMACH = "Stomach", REGION_ANTRE = "Antre", REGION_FUNDUS = "Fundus",
 			REGION_INTESTINE = "Intestine", REGION_ALL = "Total";
 
-	public static final int DATA_ANT_COUNTS = 0, DATA_POST_COUNTS = 1, DATA_GEO_AVERAGE = 2, DATA_PERCENTAGE = 3,
+	private static final int DATA_ANT_COUNTS = 0, DATA_POST_COUNTS = 1, DATA_GEO_AVERAGE = 2, DATA_PERCENTAGE = 3,
 			DATA_DERIVATIVE = 4, DATA_CORRELATION = 5, DATA_PIXEL_COUNTS = 6, DATA_BKG_NOISE = 7,
 			DATA_DECAY_CORRECTED = 8, DATA_TOTAL_FIELDS = 9;
 
-	/**
-	 * This class stores the data measured or calculated for each region of the
-	 * model.<br>
-	 * The natural order of this class depends of the chronological order of the
-	 * images.
-	 * 
-	 * @author Titouan QUÉMA
-	 *
-	 */
-	private class Data implements Comparable<Data> {
-		private Map<String, Region> regionsAnt, regionsPost;
-
-		private double time;
-		private ImageSelection associatedImage;
-
-		/**
-		 * Instantiates a new data. The image should be unique (for this model).<br>
-		 * 
-		 * @param associatedImage Unique image for this data (null allowed only for the
-		 *                        time 0)
-		 * @param time            Time in minutes after the ingestion time
-		 */
-		public Data(ImageSelection associatedImage, double time) {
-			this.associatedImage = associatedImage;
-			this.regionsAnt = new HashMap<>();
-			this.regionsPost = new HashMap<>();
-			this.time = time;
-		}
-
-		/**
-		 * Generates a string with the regions contained in this data for the specified
-		 * orientation.
-		 * 
-		 * @param orientation Ant or Post orientation to get the regions
-		 * @return string with the list of the region
-		 */
-		private String listRegions(Orientation orientation) {
-			StringBuilder res = new StringBuilder();
-			if (orientation == Orientation.ANT) {
-				res.append(Library_Debug.subtitle("ANT REGIONS"));
-				res.append('\n');
-
-				if (this.regionsAnt.size() == 0)
-					res.append("// NO REGION //\n");
-				else
-					for (Region region : this.regionsAnt.values())
-						res.append(region + "\n");
-			} else {
-				res.append(Library_Debug.subtitle("POST REGIONS"));
-				res.append('\n');
-
-				if (this.regionsPost.size() == 0)
-					res.append("// NO REGION //\n");
-				else
-					for (Region region : this.regionsPost.values())
-						res.append(region + "\n");
-			}
-			return res.toString();
-		}
-
-		/**
-		 * @return all regions stored by this data
-		 */
-		public Region[] getRegions() {
-			return (Region[]) ArrayUtils.addAll(this.regionsAnt.values().toArray(new Region[this.regionsAnt.size()]),
-					this.regionsPost.values().toArray(new Region[this.regionsPost.size()]));
-		}
-
-		/**
-		 * Sets the time for this data. The times in minutes represents the duration
-		 * since the ingestion of the food.
-		 * 
-		 * @param time Time elapsed in minutes since the ingestion
-		 */
-		public void setTime(double time) {
-			this.time = time;
-		}
-
-		/**
-		 * @return time in minutes for this data
-		 */
-		public double getMinutes() {
-			return this.time;
-		}
-
-		/**
-		 * Adds information on the specified region. If the region doesn't exist, then
-		 * it will be created. When creating the region, the orientation of the image
-		 * state will be used to determine if the region is Ant or Post.
-		 * 
-		 * @param regionName Region on which the informations will be added
-		 * @param state      State of the image for the region
-		 * @param roi        ROI associated with the region
-		 */
-		public void inflateRegion(String regionName, ImageState state, Roi roi) {
-			Region storedRegion = this.regionsAnt.get(regionName);
-			if (storedRegion == null) {
-				storedRegion = this.regionsPost.get(regionName);
-
-				if (storedRegion == null) {
-					// Create region
-					storedRegion = new Region(regionName, Model_Gastric.this);
-					storedRegion.inflate(state, roi);
-					if (state.getFacingOrientation() == Orientation.ANT)
-						this.regionsAnt.put(regionName, storedRegion);
-					else
-						this.regionsPost.put(regionName, storedRegion);
-				}
-			}
-
-			storedRegion.inflate(state, roi);
-		}
-
-		/**
-		 * Sets the key value to the specified region. This method will try to determine
-		 * if the region is Ant or Post.<br>
-		 * If the key contains 'Post' keyword, then the value will be added in the Post
-		 * region. For any other key, then the value will be added in the Ant
-		 * region.<br>
-		 * If the region could not be found in the Ant or Post, then it will be created.
-		 * 
-		 * @param regionName Region on which the value will be set
-		 * @param key        Key of the value
-		 * @param value      Value to set
-		 */
-		public void setValue(String regionName, int key, double value) {
-			if (key == DATA_POST_COUNTS)
-				this.setPostValue(regionName, key, value);
-
-			this.setAntValue(regionName, key, value);
-		}
-
-		/**
-		 * Sets the key value to the specified region. The region will be search in the
-		 * Ant regions.<br>
-		 * If the region could not be found, then the region will be created.
-		 * 
-		 * @param regionName Region on which the value will be set
-		 * @param key        Key of the value
-		 * @param value      Value to set
-		 */
-		public void setAntValue(String regionName, int key, double value) {
-			Region region = this.regionsAnt.get(regionName);
-			if (region == null) {
-				// Create region
-				region = new Region(regionName, Model_Gastric.this);
-				this.regionsAnt.put(regionName, region);
-			}
-
-			// Set value
-			region.setValue(key, Math.max(0, value));
-		}
-
-		/**
-		 * Sets the key value to the specified region. The region will be search in the
-		 * Post regions.<br>
-		 * If the region could not be found, then the region will be created.
-		 * 
-		 * @param regionName Region on which the value will be set
-		 * @param key        Key of the value
-		 * @param value      Value to set
-		 */
-		public void setPostValue(String regionName, int key, double value) {
-			Region region = this.regionsPost.get(regionName);
-			if (region == null) {
-				// Create region
-				region = new Region(regionName, Model_Gastric.this);
-				this.regionsPost.put(regionName, region);
-			}
-
-			// Set value
-			region.setValue(key, Math.max(0, value));
-		}
-
-		/**
-		 * Gets the value associated with the specified key. This method will try to
-		 * determine if the region is Ant or Post.<br>
-		 * If the key contains 'Post' keyword, then the value will be searched in the
-		 * Post regions. For any other key, then the value will be searched in the Ant
-		 * regions.<br>
-		 * If the region could not be found in the Ant or Post, then this method returns
-		 * null.
-		 * 
-		 * 
-		 * @param region Region for which the value will be retrieved
-		 * @param key    Key of the value to get
-		 * @return value associated with the key for the region or null if not found
-		 */
-		public Double getValue(String region, int key) {
-			if (key == DATA_POST_COUNTS)
-				return this.getPostValue(region, key);
-
-			return this.getAntValue(region, key);
-		}
-
-		/**
-		 * Gets the unit used to store the values of the specified key.
-		 * 
-		 * @param key Key to know the unit
-		 * @return unit of the key
-		 */
-		public Unit unitForKey(int key) {
-			switch (key) {
-			case DATA_ANT_COUNTS:
-			case DATA_POST_COUNTS:
-			case DATA_GEO_AVERAGE:
-				return Unit.COUNTS;
-			case DATA_DECAY_CORRECTED:
-				return Unit.COUNTS;
-			case DATA_PERCENTAGE:
-				return Unit.PERCENTAGE;
-			case DATA_CORRELATION:
-				return Unit.PERCENTAGE;
-			case DATA_PIXEL_COUNTS:
-				return Unit.COUNTS;
-			case DATA_BKG_NOISE:
-				return Unit.COUNTS;
-			case DATA_DERIVATIVE:
-				return Unit.PERCENTAGE;
-			default:
-				return null;
-			}
-		}
-
-		/**
-		 * Gets the value associated with the specified key. The region will be searched
-		 * in the Ant regions.<br>
-		 * If the region could not be found, then returns null.
-		 * 
-		 * @param region Region for which the value will be retrieved
-		 * @param key    Key of the value to get
-		 * @return value associated with the key for the region or null if not found
-		 */
-		public Double getAntValue(String region, int key) throws NullPointerException {
-			try {
-				return this.regionsAnt.get(region).getValue(key);
-			} catch (NullPointerException e) {
-				return null;
-			}
-		}
-
-		/**
-		 * Gets the value associated with the specified key. The region will be searched
-		 * in the Post regions.<br>
-		 * If the region could not be found, then returns null.
-		 * 
-		 * @param region Region for which the value will be retrieved
-		 * @param key    Key of the value to get
-		 * @return value associated with the key for the region or null if not found
-		 */
-		public Double getPostValue(String region, int key) {
-			try {
-				return this.regionsPost.get(region).getValue(key);
-			} catch (NullPointerException e) {
-				return null;
-			}
-		}
-
-		public ImageSelection getAssociatedImage() {
-			return this.associatedImage;
-		}
-
-		public boolean hasRegion(String region) {
-			return this.regionsAnt.containsKey(region) || this.regionsPost.containsKey(region);
-		}
-
-		@Override
-		public int compareTo(Data o) {
-			double res = this.time - o.time;
-			if (res > 0)
-				return 1;
-			if (res < 0)
-				return -1;
-			return 0;
-		}
-
-		@Override
-		public String toString() {
-			String s = Library_Debug.separator(0);
-			String imageTitle = (this.associatedImage == null ? "// NO-IMAGE //"
-					: this.associatedImage.getImagePlus().getTitle());
-			s += Library_Debug.title("Data");
-			s += "\n";
-			s += Library_Debug.title(imageTitle);
-			s += "\n";
-			s += this.listRegions(Orientation.ANT);
-			s += this.listRegions(Orientation.POST);
-			s += Library_Debug.separator(0);
-			return s;
-		}
-	}
-
 	private ImageSelection firstImage;
-
 	private Map<Integer, Data> results;
-
 	/**
 	 * Fictional data representing the first acquisition.
 	 */
 	private Data time0;
-
 	/**
 	 * Time when the ingestion started.
 	 */
 	private Date timeIngestion;
-
 	private Isotope isotope;
-
-	/**
-	 * Times calculated.
-	 */
-	private double[] times, timesDerivative;
 
 	private Region bkgNoise_antre, bkgNoise_intestine, bkgNoise_stomach, bkgNoise_fundus;
 
@@ -406,7 +73,7 @@ public class Model_Gastric extends ModeleScin {
 	/**
 	 * Retrieves the image described by the specified image state.<br>
 	 * The image can be retrieved from this model or from this image state.
-	 * 
+	 *
 	 * @param state State describing a data
 	 * @return image retrieved from the specified state (null can be returned)
 	 * @throws IllegalArgumentException if the ID of the ImageState is different
@@ -425,7 +92,7 @@ public class Model_Gastric extends ModeleScin {
 
 	/**
 	 * Creates a hash from the specified ImageState.
-	 * 
+	 *
 	 * @param state ImageState to hash
 	 * @return hash of the state
 	 */
@@ -433,22 +100,28 @@ public class Model_Gastric extends ModeleScin {
 		return state.getImage().hashCode();
 	}
 
+	/**
+	 * Computes the geometrical average of the region stored in the specified
+	 * data.<br>
+	 * The Ant and Post counts values are used for this operation.
+	 *
+	 * @param data   Data where the values are taken from
+	 * @param region Region on which to apply the calculation
+	 */
 	private void computeAverage(Data data, String region) {
 		if (data.hasRegion(region)) {
 			Double valueAnt = data.getValue(region, DATA_ANT_COUNTS);
 			Double valuePost = data.getValue(region, DATA_POST_COUNTS);
 			if (valueAnt != null && valuePost != null) {
 				data.setValue(region, DATA_GEO_AVERAGE, Library_Quantif.moyGeom(valueAnt, valuePost));
-			} else {
-
 			}
 		}
 	}
 
 	/**
 	 * Computes the geometrical average of each region of the data found.<br>
-	 * The average is made with the {@link Data#ANT_COUNTS} and the
-	 * {@link Data#POST_COUNTS} data and will generate the {@link Data#GEO_AVEREAGE}
+	 * The average is made with the {@link Data#DATA_ANT_COUNTS} and the
+	 * {@link Data#DATA_POST_COUNTS} data and will generate the {@link Data#DATA_GEO_AVERAGE}
 	 * for every region.
 	 * <p>
 	 * So the data ANT_COUNTS and POST_COUNTS <b>must</b> be defined for all regions
@@ -456,7 +129,7 @@ public class Model_Gastric extends ModeleScin {
 	 * </p>
 	 * Be careful: this method assumes that the specified state is correct and will
 	 * not throw any exception
-	 * 
+	 *
 	 * @param state ImageState from which the data will be retrieved
 	 * @throws NoSuchElementException if no data is linked to the specified state
 	 */
@@ -475,7 +148,7 @@ public class Model_Gastric extends ModeleScin {
 		// Stomach
 		Double valueFundus = data.getValue(REGION_FUNDUS, DATA_GEO_AVERAGE);
 		Double valueAntre = data.getValue(REGION_ANTRE, DATA_GEO_AVERAGE);
-		Double geoStomach = null;
+		Double geoStomach;
 		if (valueFundus != null && valueAntre != null) {
 			geoStomach = valueFundus + valueAntre;
 			data.setValue(REGION_STOMACH, DATA_GEO_AVERAGE, geoStomach);
@@ -491,41 +164,8 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * Generates a dataset of 3 series with the specified arguments.
-	 * 
-	 * @param resX   Values of the points for the X axis for all series
-	 * @param resY1  Values of the points for the Y axis of the first series
-	 * @param titre1 Title of the first series
-	 * @param resY2  Values of the points for the Y axis of the second series
-	 * @param titre2 Title of the second series
-	 * @param resY3  Values of the points for the Y axis of the third series
-	 * @param titre3 Title of the thrid series
-	 * @return generated dataset with the 3 series
-	 */
-	private XYSeriesCollection createDatasetTrois(double[] resX, double[] resY1, String titre1, double[] resY2,
-			String titre2, double[] resY3, String titre3) {
-		// On initialise les 3 series avec un titre
-		XYSeries courbe1 = new XYSeries(titre1);
-		XYSeries courbe2 = new XYSeries(titre2);
-		XYSeries courbe3 = new XYSeries(titre3);
-		// On initialise un dataset
-		XYSeriesCollection dataset = new XYSeriesCollection();
-		// Pour chaque serie on ajouter les valeurs une a une
-		for (int i = 0; i < resX.length; i++) {
-			courbe1.add(resX[i], resY1[i]);
-			courbe2.add(resX[i], resY2[i]);
-			courbe3.add(resX[i], resY3[i]);
-		}
-		// On ajoute les 3 series dans le dataset
-		dataset.addSeries(courbe1);
-		dataset.addSeries(courbe2);
-		dataset.addSeries(courbe3);
-		return dataset;
-	}
-
-	/**
 	 * Finds the starting time for the Antre or Intestine region (only).
-	 * 
+	 *
 	 * @param region Region to find the starting time
 	 * @return starting time for the region
 	 * @throws IllegalArgumentException if the region is different than ANTRE or
@@ -545,101 +185,9 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * Gets the X value based upon the specified Y value of the graph.<br>
-	 * The value X returned is calculated with a linear interpolation as the point
-	 * between x1 and x2 with <code>x1 <= X <= x2</code>.<br>
-	 * If x1 or x2 could not be found, then the result is null.<br>
-	 * 
-	 * @return X value or null if none found
-	 * @see #extrapolateX(double, Fit)
-	 */
-	private Double getX(double[] yValues, double valueY) {
-		for (int i = 1; i < times.length; i++) {
-			// Prevent from overflow
-			if (i >= yValues.length)
-				return null;
-
-			// Exact value
-			if (yValues[i] == valueY)
-				return times[i];
-
-			// Approximate value
-			if (yValues[i] < valueY) {
-				double x1 = times[i - 1];
-				double x2 = times[i];
-				double y1 = yValues[i - 1];
-				double y2 = yValues[i];
-//				return x2 - (y2 - valueY) * ((x2 - x1) / (y2 - y1));
-				return ((valueY - y1) * (x2 - x1)) / (y2 - y1) + x1;
-			}
-		}
-
-		// Not found
-		return null;
-	}
-
-	/**
-	 * Extrapolates the X value based upon the specified Y value of the graph.<br>
-	 * The value X returned is extrapolated with the specified fit.
-	 * 
-	 * @param valueY Y value
-	 * @param fit    Fit the interpolation must rely on
-	 * @return X value interpolated
-	 */
-	private Double extrapolateX(double valueY, Fit fit) {
-		return fit.extrapolateX(valueY);
-	}
-
-	/**
-	 * Gets the Y value based upon the specified X value of the graph.<br>
-	 * The value Y returned is calculated with a linear interpolation as the point
-	 * between y1 and y2 with <code>y1 <= Y <= y2</code>. If y1 or y2 could not be
-	 * found, then the result is null.<br>
-	 * 
-	 * @return Y value or null if none found
-	 * @see #extrapolateY(double, Fit)
-	 */
-	private Double getY(double[] yValues, double valueX) {
-		for (int i = 0; i < times.length; i++) {
-			// Prevent from overflow
-			if (i >= yValues.length)
-				return null;
-
-			// Exact value
-			if (times[i] == valueX)
-				return yValues[i];
-
-			// Approximate value
-			if (times[i] > valueX) {
-				double x1 = times[i - 1];
-				double x2 = times[i];
-				double y1 = yValues[i - 1];
-				double y2 = yValues[i];
-
-				return y2 - (x2 - valueX) * ((y2 - y1) / (x2 - x1));
-			}
-		}
-
-		// Not found
-		return null;
-	}
-
-	/**
-	 * Extrapolates the Y value based upon the specified X value of the graph.<br>
-	 * The value Y returned is extrapolated with the specified fit.
-	 * 
-	 * @param valueX X value
-	 * @param fit    Fit the interpolation must rely on
-	 * @return Y value interpolated
-	 */
-	private Double extrapolateY(double valueX, Fit fit) {
-		return fit.extrapolateY(valueX);
-	}
-
-	/**
 	 * Generates a list of all data from this model ordered by time.<br>
 	 * This method also includes the fictional time 0 if necessary.
-	 * 
+	 *
 	 * @return all data ordered by time
 	 */
 	private List<Data> generatesDataOrdered() {
@@ -653,7 +201,7 @@ public class Model_Gastric extends ModeleScin {
 	/**
 	 * Creates an array with all of the requested results ordered chronologically.
 	 * The array may contain NaN values if no value was found for a data.
-	 * 
+	 *
 	 * @param regionName Region to get the result from
 	 * @param key        Key of the results to place in the array
 	 * @param unit       Unit of the output
@@ -685,7 +233,7 @@ public class Model_Gastric extends ModeleScin {
 
 	/**
 	 * Creates an array with all of the requested results ordered chronologically.
-	 * 
+	 *
 	 * @param regionName Region to get the result from
 	 * @param key        Key of the results to place in the array
 	 * @param unit       Unit of output
@@ -696,16 +244,16 @@ public class Model_Gastric extends ModeleScin {
 		double[] results = getAllResultsAsArray(regionName, key, unit);
 
 		// Count results to ignore
-		int resultsIgnored = (int) Arrays.stream(results).filter(d -> Double.isNaN(d)).count();
+		int resultsIgnored = (int) Arrays.stream(results).filter(Double::isNaN).count();
 
 		// Create array with right dimensions
 		double[] goodResults = new double[this.nbAcquisitions() - resultsIgnored];
 
 		// Fill array
 		int j = 0;
-		for (int i = 0; i < results.length; i++) {
-			if (!Double.isNaN(results[i])) {
-				goodResults[j] = results[i];
+		for (double result : results) {
+			if (!Double.isNaN(result)) {
+				goodResults[j] = result;
 				j++;
 			}
 		}
@@ -716,7 +264,7 @@ public class Model_Gastric extends ModeleScin {
 	/**
 	 * Calculates the difference between the time of the data associated with the
 	 * specified state and the ingestion's time of this model.
-	 * 
+	 *
 	 * @param state State associated with the data to retrieve
 	 * @return difference of time expressed in minutes
 	 * @see #calculateDeltaTime(Date)
@@ -727,10 +275,10 @@ public class Model_Gastric extends ModeleScin {
 
 	/**
 	 * Calculates the time between the specified time and the ingestion's time.
-	 * 
+	 *
 	 * @param time Time to calculate the difference with
 	 * @return difference of time expressed in minutes (negative value if the
-	 *         specified time is before the ingestion's time)
+	 * specified time is before the ingestion's time)
 	 */
 	private double calculateDeltaTime(Date time) {
 		return (time.getTime() - this.timeIngestion.getTime()) / 1000. / 60.;
@@ -740,7 +288,7 @@ public class Model_Gastric extends ModeleScin {
 	 * Change a data value.<br>
 	 * This method is designed to be used by public methods to allow controlled
 	 * modifications of the data.
-	 * 
+	 *
 	 * @param region Region to edit
 	 * @param key    Key of the value to set
 	 * @param value  Value to force
@@ -755,7 +303,7 @@ public class Model_Gastric extends ModeleScin {
 	/**
 	 * Calculates the percentage of the specified region for the specified data
 	 * using the values responding to the specified key.
-	 * 
+	 *
 	 * @return percentage using key values
 	 */
 	private Double calculatePercentage(Data data, String region, int key) {
@@ -769,7 +317,7 @@ public class Model_Gastric extends ModeleScin {
 	/**
 	 * Gets the data with the specified image state. If no data could be retrieved
 	 * with this image state, then the data is created.
-	 * 
+	 *
 	 * @param state Image state associated with the data
 	 * @return data created or retrieved (always not null)
 	 */
@@ -787,25 +335,20 @@ public class Model_Gastric extends ModeleScin {
 		if (data == null) {
 			data = new Data(state.getImage(), this.calculateDeltaTime(state));
 			this.results.put(hashState(state), data);
-//			System.out.println("Created data for image " + state.getImage().getImagePlus().getTitle());
 		}
-
-//		System.out.println(this.nbAcquisitions() + " data stored:");
-//		for(Data d : this.results.values())
-//			System.out.println(d);
 
 		return data;
 	}
 
 	/**
 	 * Calculates the DATA_DERIVATIVE of the REGION_STOMACH if necessary.
-	 * 
+	 *
 	 * @param data          Data on which the derivative will be added
 	 * @param state         State of the image analyzed
 	 * @param previousState State of the image before the image analyzed
 	 */
 	private void computeDerivative(Data data, ImageState state, ImageState previousState) {
-		Data previousData = null, dataToInflate = null;
+		Data previousData, dataToInflate;
 		if (previousState == null) {
 			previousData = this.time0;
 		} else
@@ -822,7 +365,7 @@ public class Model_Gastric extends ModeleScin {
 			if (prevPercentageStomach != null && percentageStomach != null) {
 				double stomachDerivative = (prevPercentageStomach - percentageStomach)
 						/ (this.calculateDeltaTime(Library_Dicom.getDateAcquisition(state.getImage().getImagePlus()))
-								- previousData.getMinutes())
+						- previousData.getMinutes())
 						* 30.;
 				dataToInflate.setValue(REGION_STOMACH, DATA_DERIVATIVE, stomachDerivative);
 			}
@@ -833,7 +376,7 @@ public class Model_Gastric extends ModeleScin {
 
 	/**
 	 * Generates the decay function for the specified data.
-	 * 
+	 *
 	 * @param data Data for which the decay function will be calculated
 	 */
 	private void computeDecayFunction(Data data) {
@@ -848,7 +391,7 @@ public class Model_Gastric extends ModeleScin {
 	/**
 	 * Calculates the number of counts of the specified region from the given image
 	 * state.
-	 * 
+	 *
 	 * @param regionName Region for which the counts will be calculated
 	 * @param state      State of the image to do the calculations on
 	 * @param roi        ROI on the image where the calculations will be made
@@ -882,7 +425,7 @@ public class Model_Gastric extends ModeleScin {
 	 * Calculates the number of counts for the specified region using existing
 	 * data.<br>
 	 * This method must only be called when all of the data required are available.
-	 * 
+	 *
 	 * @param regionName Region for which the counts will be calculated
 	 * @param state      State of the image to retrieved the data
 	 */
@@ -919,30 +462,31 @@ public class Model_Gastric extends ModeleScin {
 
 	/**
 	 * Generates the dataset for the graph of the stomach retention.
-	 * 
+	 *
 	 * @param unit Unit of the Y axis
 	 * @return array in the form:
-	 *         <ul>
-	 *         <li><code>[i][0] -> x</code></li>
-	 *         <li><code>[i][1] -> y</code></li>
-	 *         </ul>
+	 * <ul>
+	 * <li><code>[i][0] -> x</code></li>
+	 * <li><code>[i][1] -> y</code></li>
+	 * </ul>
 	 */
 	private double[][] generateStomachDataset(Unit unit) {
-		return this.generateDatasetFromKey(REGION_STOMACH, DATA_PERCENTAGE, false, unit);
+		// TODO: add time 0
+		return this.generateDatasetFromKey(REGION_STOMACH, DATA_PERCENTAGE, unit);
 	}
 
 	/**
 	 * Generates the dataset for the graph of the decay function.
-	 * 
+	 *
 	 * @return array in the form:
-	 *         <ul>
-	 *         <li><code>[i][0] -> x</code></li>
-	 *         <li><code>[i][1] -> y</code></li>
-	 *         </ul>
+	 * <ul>
+	 * <li><code>[i][0] -> x</code></li>
+	 * <li><code>[i][1] -> y</code></li>
+	 * </ul>
 	 */
 	private double[][] generateDecayFunctionDataset(Unit unit) {
-		double[][] dataset = this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED, true, unit);
-		return dataset;
+		// TODO: remove time 0
+		return this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED, unit);
 	}
 
 	/**
@@ -952,15 +496,14 @@ public class Model_Gastric extends ModeleScin {
 	 * <li><code>[i][0] = x</code></li>
 	 * <li><code>[i][1] = y</code></li>
 	 * </ul>
-	 * 
+	 *
 	 * @param seriesName Name of the series to generate (used for display)
 	 * @param dataset    Data to generate the series
 	 * @return Series based on the dataset
 	 */
 	private XYSeries generateSeriesFromDataset(String seriesName, double[][] dataset) {
 		XYSeries series = new XYSeries(seriesName);
-		for (int i = 0; i < dataset.length; i++)
-			series.add(dataset[i][0], dataset[i][1]);
+		for (double[] doubles : dataset) series.add(doubles[0], doubles[1]);
 		return series;
 	}
 
@@ -971,7 +514,7 @@ public class Model_Gastric extends ModeleScin {
 	 * <li><code>[i][0] = x</code></li>
 	 * <li><code>[i][1] = y</code></li>
 	 * </ul>
-	 * 
+	 *
 	 * @param dataset Data to retrieve the Y values
 	 * @return array containing only the Y values
 	 */
@@ -986,26 +529,24 @@ public class Model_Gastric extends ModeleScin {
 	/**
 	 * Generates the dataset with the values of the data for the specified key.<br>
 	 * All data that have not the requested value will be ignored.
-	 * 
-	 * @param regionName  Region on which the data will be retrieved
-	 * @param key         Key of the values to retrieve
-	 * @param ignoreTime0 If TRUE, then the time 0 will not be used. If FALSE, then
-	 *                    the time 0 will be used if existing
-	 * @param unit        Unit of the output result for the Y axis
+	 *
+	 * @param regionName Region on which the data will be retrieved
+	 * @param key        Key of the values to retrieve
+	 * @param unit       Unit of the output result for the Y axis
 	 * @return dataset with the values from the data associated with the region
 	 */
-	private double[][] generateDatasetFromKey(String regionName, int key, boolean ignoreTime0, Unit unit) {
+	private double[][] generateDatasetFromKey(String regionName, int key, Unit unit) {
 		// Get all Y points
 		double[] yPoints = this.getAllResultsAsArray(regionName, key, unit);
 
 		// Count results to ignore
-		int nbResultsToIgnore = (int) Arrays.stream(yPoints).filter(d -> Double.isNaN(d)).count();
+		int nbResultsToIgnore = (int) Arrays.stream(yPoints).filter(Double::isNaN).count();
 
 		// Create dataset with right dimensions
 		double[][] dataset = new double[yPoints.length - nbResultsToIgnore][2];
 
 		// Get times
-		double[] times = getTimes();
+		double[] times = this.generateTime();
 
 		// Check dimensions
 		if (times.length != yPoints.length)
@@ -1016,11 +557,9 @@ public class Model_Gastric extends ModeleScin {
 		int j = 0;
 		for (int i = 0; i < yPoints.length; i++) {
 			if (!Double.isNaN(yPoints[i])) {
-				if (i != 0 || !ignoreTime0 || time0 == null) {
-					dataset[j][0] = times[i];
-					dataset[j][1] = yPoints[i];
-					j++;
-				}
+				dataset[j][0] = times[i];
+				dataset[j][1] = yPoints[i];
+				j++;
 			}
 		}
 
@@ -1029,29 +568,20 @@ public class Model_Gastric extends ModeleScin {
 
 	/**
 	 * Adjusts the percentage with the ratio of eggs in the body.
-	 * 
-	 * @param region
-	 * @param percentage
-	 * @param numActualImage
-	 * @param nbTotalImages
-	 * @return
+	 *
+	 * @param region         Region where the adjustment will be made
+	 * @param percentage     Percentage calculated that will be adjusted
+	 * @param numActualImage Number of the image to be adjusted
+	 * @param nbTotalImages  Total number of images (total number of eggs ingested)
+	 * @return percentage adjusted with the eggs ratio
 	 */
 	private double adjustPercentageWithEggsRatio(String region, double percentage, int numActualImage,
-			int nbTotalImages) {
-//		System.out.println("Inputs: region=" + region + ", percentage=" + percentage + ", image=" + numActualImage
-//				+ ", totImgs=" + nbTotalImages);
+												 int nbTotalImages) {
 		double ratioEggsInBody = (double) numActualImage / (double) nbTotalImages;
-//		System.out.println("Ratio eggs in body: " + (double)numActualImage + " / " + (double)nbTotalImages + " = " + ratioEggsInBody);
 		double percentEggsNotInBody = 100. - ratioEggsInBody * 100.;
-//		System.out.println("Percent eggs not in body: 100 - " + ratioEggsInBody + " * 100 = " + percentEggsNotInBody);
 
-		if (region == REGION_FUNDUS) {
-//			System.out.println("Returned value: " + percentEggsNotInBody + " + " + percentage + " * " + ratioEggsInBody
-//					+ " = " + (percentEggsNotInBody + percentage * ratioEggsInBody));
-			return percentEggsNotInBody + percentage * ratioEggsInBody;
-		}
-//		System.out.println(
-//				"Returned value: " + percentage + " * " + ratioEggsInBody + " = " + (percentage * ratioEggsInBody));
+		if (region == REGION_FUNDUS) return percentEggsNotInBody + percentage * ratioEggsInBody;
+
 		return percentage * ratioEggsInBody;
 	}
 
@@ -1061,14 +591,14 @@ public class Model_Gastric extends ModeleScin {
 	 * This method takes care of all necessary operations to do on the ImagePlus or
 	 * the RoiManager.<br>
 	 * This method will create a new data for each new ImageSelection encountered.
-	 * 
+	 *
 	 * @param regionName Region to calculate
 	 * @throws IllegalArgumentException if the region is not part of the requested
 	 *                                  regions for this model
 	 */
 	public void calculateCounts(String regionName, ImageState state, Roi roi) throws IllegalArgumentException {
 		// Check region is part of requested regions for this model
-		if (!Arrays.stream(this.getAllRegionsName()).anyMatch(r -> r.equals(regionName)))
+		if (!Arrays.asList(this.getAllRegionsName()).contains(regionName))
 			throw new IllegalArgumentException("The region (" + regionName
 					+ ") is not requested in this model\nValid regions: " + Arrays.toString(this.getAllRegionsName()));
 
@@ -1086,7 +616,7 @@ public class Model_Gastric extends ModeleScin {
 	 * The orientation accepted is only Ant or Post. If any other orientation is
 	 * passed, then the result will be returned as if it was a Post orientation.<br>
 	 * To use this method, data must be previously entered in this model.
-	 * 
+	 *
 	 * @param region      Region to get the counts from
 	 * @param orientation Orientation for the counts
 	 * @return value of the counts for the specified region and orientation
@@ -1105,7 +635,7 @@ public class Model_Gastric extends ModeleScin {
 	/**
 	 * Force the insertion of a percentage value in the data for the specified
 	 * region.
-	 * 
+	 *
 	 * @param region Region to set this value on
 	 * @param value  Value to force
 	 */
@@ -1116,7 +646,7 @@ public class Model_Gastric extends ModeleScin {
 	/**
 	 * Force the insertion of a correlation value in the data for the specified
 	 * region.
-	 * 
+	 *
 	 * @param region Region to set this value on
 	 * @param value  Value to force
 	 */
@@ -1127,7 +657,7 @@ public class Model_Gastric extends ModeleScin {
 	/**
 	 * Force the insertion of the number of counts in the data for the specified
 	 * region.
-	 * 
+	 *
 	 * @param region Region to set this value on
 	 * @param value  Value to force
 	 */
@@ -1140,7 +670,7 @@ public class Model_Gastric extends ModeleScin {
 	/**
 	 * Sets the background noise for the specified region with the given image and
 	 * ROI.
-	 * 
+	 *
 	 * @param regionName Region on which the background will be set
 	 * @param state      State the image should be when taking the noise
 	 * @param roi        ROI where to take the noise
@@ -1157,91 +687,105 @@ public class Model_Gastric extends ModeleScin {
 		region.setValue(DATA_ANT_COUNTS, Library_Quantif.getCounts(imp));
 		region.setValue(DATA_PIXEL_COUNTS, Library_Quantif.getPixelNumber(imp));
 
-		if (regionName.equals(REGION_ANTRE)) {
-			this.bkgNoise_antre = region;
-		} else if (regionName.equals(REGION_INTESTINE)) {
-			this.bkgNoise_intestine = region;
-		} else if (regionName.equals(REGION_STOMACH)) {
-			this.bkgNoise_stomach = region;
-			double countsFundus = bkgNoise_stomach.getValue(DATA_ANT_COUNTS) - bkgNoise_antre.getValue(DATA_ANT_COUNTS);
-			double pixelsFundus = bkgNoise_stomach.getValue(DATA_PIXEL_COUNTS)
-					- bkgNoise_antre.getValue(DATA_PIXEL_COUNTS);
+		switch (regionName) {
+			case REGION_ANTRE:
+				this.bkgNoise_antre = region;
+				break;
+			case REGION_INTESTINE:
+				this.bkgNoise_intestine = region;
+				break;
+			case REGION_STOMACH:
+				this.bkgNoise_stomach = region;
+				double countsFundus =
+						bkgNoise_stomach.getValue(DATA_ANT_COUNTS) - bkgNoise_antre.getValue(DATA_ANT_COUNTS);
+				double pixelsFundus = bkgNoise_stomach.getValue(DATA_PIXEL_COUNTS)
+						- bkgNoise_antre.getValue(DATA_PIXEL_COUNTS);
 
-			this.bkgNoise_fundus = region.clone();
-			this.bkgNoise_fundus.setValue(DATA_ANT_COUNTS, countsFundus);
-			this.bkgNoise_fundus.setValue(DATA_PIXEL_COUNTS, pixelsFundus);
-			this.bkgNoise_fundus.setValue(DATA_BKG_NOISE, countsFundus / pixelsFundus);
-		} else
-			throw new IllegalArgumentException("The region (" + region + ") is not a background noise");
-	}
-
-	/**
-	 * Generates arrays of times used by the graphs.<br>
-	 * This method must be called before generating datasets for the graphs.
-	 */
-	public void generatesTimes() {
-		this.times = new double[this.nbAcquisitions()];
-		this.timesDerivative = new double[this.nbAcquisitions() - 1];
-
-		int i = 0;
-		for (Data data : this.generatesDataOrdered()) {
-			times[i] = data.getMinutes();
-			if (i > 0)
-				this.timesDerivative[i - 1] = times[i];
-			i++;
+				this.bkgNoise_fundus = region.clone();
+				this.bkgNoise_fundus.setValue(DATA_ANT_COUNTS, countsFundus);
+				this.bkgNoise_fundus.setValue(DATA_PIXEL_COUNTS, pixelsFundus);
+				this.bkgNoise_fundus.setValue(DATA_BKG_NOISE, countsFundus / pixelsFundus);
+				break;
+			default:
+				throw new IllegalArgumentException("The region (" + region + ") is not a background noise");
 		}
 	}
 
 	/**
-	 * @return all times, including time 0 if existing
+	 * Generates an array of durations for each data from the current time of ingestion.
 	 */
-	public double[] getTimes() {
-		return this.times;
+	public double[] generateTime() {
+		double[] times = new double[this.nbAcquisitions()];
+
+		int i = 0;
+		for (Data data : this.generatesDataOrdered()) {
+			if (data == time0)
+				times[i] = 0.;
+			else
+				times[i] = this.calculateDeltaTime(data.associatedImage.getDateAcquisition());
+			i++;
+		}
+
+		return times;
 	}
 
-	/**
-	 * @return times, except fictional time 0
-	 */
-	public double[] getRealTimes() {
-		if (time0 != null)
-			return ArrayUtils.remove(times, 0);
-		return times;
+	public double[] generateDerivedTime() {
+		return ArrayUtils.remove(this.generateTime(), 0);
 	}
 
 	/**
 	 * Converts the specified key into a readable name.
-	 * 
+	 *
 	 * @param key Key to convert
 	 * @return string representing the key
 	 */
-	public String nameOfDataField(int key) {
+	String nameOfDataField(int key) {
 		switch (key) {
-		case DATA_ANT_COUNTS:
-			return "Nb Ant-counts";
-		case DATA_POST_COUNTS:
-			return "Nb Post-counts";
-		case DATA_GEO_AVERAGE:
-			return "Geo-avg";
-		case DATA_PERCENTAGE:
-			return "Percentage";
-		case DATA_DERIVATIVE:
-			return "Derivative";
-		case DATA_CORRELATION:
-			return "Correlation";
-		case DATA_PIXEL_COUNTS:
-			return "Pixel counts";
-		case DATA_BKG_NOISE:
-			return "Background Noise";
-		default:
-			return "???";
+			case DATA_ANT_COUNTS:
+				return "Nb Ant-counts";
+			case DATA_POST_COUNTS:
+				return "Nb Post-counts";
+			case DATA_GEO_AVERAGE:
+				return "Geo-avg";
+			case DATA_PERCENTAGE:
+				return "Percentage";
+			case DATA_DERIVATIVE:
+				return "Derivative";
+			case DATA_CORRELATION:
+				return "Correlation";
+			case DATA_PIXEL_COUNTS:
+				return "Pixel counts";
+			case DATA_BKG_NOISE:
+				return "Background Noise";
+			default:
+				return "???";
 		}
 	}
 
 	/**
 	 * @return all regions required by this model
 	 */
-	public String[] getAllRegionsName() {
-		return new String[] { REGION_STOMACH, REGION_ANTRE, REGION_FUNDUS, REGION_INTESTINE };
+	private String[] getAllRegionsName() {
+		return new String[]{REGION_STOMACH, REGION_ANTRE, REGION_FUNDUS, REGION_INTESTINE};
+	}
+
+	/**
+	 * Generates the series with the specified ID. The ID must be one of {@link #SERIES_DECAY_FUNCTION} or
+	 * {@link #SERIES_STOMACH_PERCENTAGE}.
+	 *
+	 * @param seriesId ID of the series to generate
+	 * @param unit     Unit of the Y axis
+	 * @return series for the specified ID
+	 */
+	public XYSeries generateSeries(int seriesId, Unit unit) {
+		switch (seriesId) {
+			case SERIES_DECAY_FUNCTION:
+				return this.generateDecayFunction(unit);
+			case SERIES_STOMACH_PERCENTAGE:
+				return this.generateStomachSeries(unit);
+			default:
+				return null;
+		}
 	}
 
 	/**
@@ -1256,7 +800,7 @@ public class Model_Gastric extends ModeleScin {
 	 * @param unit Unit of the Y axis
 	 * @return Y values for the stomach
 	 */
-	public double[] generateStomachValues(Unit unit) {
+	private double[] generateStomachValues(Unit unit) {
 		return this.generateYValuesFromDataset(generateStomachDataset(unit));
 	}
 
@@ -1270,14 +814,14 @@ public class Model_Gastric extends ModeleScin {
 	/**
 	 * @return Y values for the decay function
 	 */
-	public double[] generateDecayFunctionValues(Unit unit) {
+	private double[] generateDecayFunctionValues(Unit unit) {
 		return this.generateYValuesFromDataset(generateDecayFunctionDataset(unit));
 	}
 
 	/**
 	 * This method returns the number of data this model possesses. If a fictional
 	 * time 0 has been activated, then it will be counted as an acquisition.
-	 * 
+	 *
 	 * @return number of data of this model
 	 */
 	public int nbAcquisitions() {
@@ -1287,23 +831,14 @@ public class Model_Gastric extends ModeleScin {
 
 	/**
 	 * Sets the isotope used in this study
-	 * 
+	 *
 	 * @param isotope Isotope to use (cannot be null)
 	 */
-	public void setIsotope(Isotope isotope) {
+	void setIsotope(Isotope isotope) {
 		if (isotope == null)
 			throw new IllegalArgumentException("The isotope cannot be null");
 
 		this.isotope = isotope;
-	}
-
-	/**
-	 * Sets the dynamic image corresponding to the first image of the model.
-	 * 
-	 * @param firstImage First image acquired (time 0)
-	 */
-	public void setFirstImage(ImageSelection firstImage) {
-		this.firstImage = firstImage;
 	}
 
 	/**
@@ -1314,8 +849,24 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
+	 * Sets the dynamic image corresponding to the first image of the model.
+	 *
+	 * @param firstImage First image acquired (time 0)
+	 */
+	public void setFirstImage(ImageSelection firstImage) {
+		this.firstImage = firstImage;
+	}
+
+	/**
+	 * @return time when the patient ingested the food
+	 */
+	public Date getTimeIngestion() {
+		return this.timeIngestion;
+	}
+
+	/**
 	 * Sets the time when the patient ingested the food.
-	 * 
+	 *
 	 * @param timeIngestion Time of ingestion
 	 */
 	public void setTimeIngestion(Date timeIngestion) {
@@ -1329,28 +880,21 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * @return time when the patient ingested the food
-	 */
-	public Date getTimeIngestion() {
-		return this.timeIngestion;
-	}
-
-	/**
 	 * Computes the data retrieved from the specified state. This method calculates
 	 * the percentages for each region. This method should be used when the static
 	 * acquisition has been made.<br>
-	 * The {@link Data#GEO_AVEREAGE} <b>must</b> be defined in every region (except
+	 * The {@link Data#DATA_GEO_AVERAGE} <b>must</b> be defined in every region (except
 	 * REGION_ALL).<br>
 	 * If the previous state is not null, then the derivative is calculated for the
 	 * stomach.
-	 * 
+	 *
 	 * @param state         State of the data to retrieve
 	 * @param previousState State of the previous data to retrieve (in chronological
 	 *                      order)
 	 * @throws NoSuchElementException if no data could be retrieved from the
 	 *                                specified state
 	 */
-	public void computeStaticData(ImageState state, ImageState previousState) {
+	void computeStaticData(ImageState state, ImageState previousState) {
 		Data data = this.results.get(hashState(state));
 		if (data == null)
 			throw new NoSuchElementException(
@@ -1399,11 +943,11 @@ public class Model_Gastric extends ModeleScin {
 	 * Computes the data retrieved from the specified state. This method calculates
 	 * the percentages for each region. This method should be used when the dynamic
 	 * acquisition has been made.<br>
-	 * The {@link Data#ANT_COUNTS} <b>must</b> be defined in every region (except
+	 * The {@link Data#DATA_ANT_COUNTS} <b>must</b> be defined in every region (except
 	 * REGION_ALL).<br>
 	 * If the previous state is not null, then the derivative is calculated for the
 	 * stomach.
-	 * 
+	 *
 	 * @param state          State of the data to retrieve
 	 * @param previousState  State of the previous data to retrieve (in
 	 *                       chronological order)
@@ -1431,29 +975,27 @@ public class Model_Gastric extends ModeleScin {
 				continue;
 
 			Double bkgNoise = null;
-			if (region.getName().equals(REGION_ANTRE)) {
-				bkgNoise = this.bkgNoise_antre.getValue(DATA_BKG_NOISE);
-			} else if (region.getName().equals(REGION_INTESTINE)) {
-				bkgNoise = this.bkgNoise_intestine.getValue(DATA_BKG_NOISE);
-			} else if (region.getName().equals(REGION_STOMACH)) {
-				bkgNoise = this.bkgNoise_stomach.getValue(DATA_BKG_NOISE);
-			} else if (region.getName().equals(REGION_FUNDUS)) {
-				bkgNoise = this.bkgNoise_fundus.getValue(DATA_BKG_NOISE);
-			} else
-				// TODO: correct with a bkg noise
-				System.err.println("Warning: The region (" + region + ") is not corrected with a background noise!");
+			switch (region.getName()) {
+				case REGION_ANTRE:
+					bkgNoise = this.bkgNoise_antre.getValue(DATA_BKG_NOISE);
+					break;
+				case REGION_INTESTINE:
+					bkgNoise = this.bkgNoise_intestine.getValue(DATA_BKG_NOISE);
+					break;
+				case REGION_STOMACH:
+					bkgNoise = this.bkgNoise_stomach.getValue(DATA_BKG_NOISE);
+					break;
+				case REGION_FUNDUS:
+					bkgNoise = this.bkgNoise_fundus.getValue(DATA_BKG_NOISE);
+					break;
+				default:
+					// TODO: correct with a bkg noise
+					System.err.println("Warning: The region (" + region + ") is not corrected with a background " +
+							"noise!");
+					break;
+			}
 
 			if (bkgNoise != null) {
-//				System.out.println("=== Adjusting region " + region.getName() + " with background noise ===");
-//				System.out.println("Background noise found: " + bkgNoise);
-//				System.out.println("Pixels count of the region: " + data.getValue(region.getName(), DATA_PIXEL_COUNTS));
-//				System.out.println(
-//						"Adjusting value " + data.getValue(region.getName(), key) + " with background noise (- "
-//								+ (bkgNoise * data.getValue(region.getName(), DATA_PIXEL_COUNTS) + ") = "
-//										+ (data.getValue(region.getName(), key)
-//												- (bkgNoise * data.getValue(region.getName(), DATA_PIXEL_COUNTS)))));
-//				System.out.println();
-
 				data.setValue(region.getName(), key, data.getValue(region.getName(), key)
 						- (bkgNoise * data.getValue(region.getName(), DATA_PIXEL_COUNTS)));
 				if (bkgNoise == 0.)
@@ -1464,9 +1006,6 @@ public class Model_Gastric extends ModeleScin {
 		// Calculate total
 		data.setValue(REGION_ALL, DATA_ANT_COUNTS,
 				data.getValue(REGION_STOMACH, DATA_ANT_COUNTS) + data.getValue(REGION_INTESTINE, DATA_ANT_COUNTS));
-
-//		System.out.println();
-//		System.out.println("AFTER ADJUSTING BKG\n" + data);
 
 		// Adjust percentages with eggs ratio
 		double percentage = this.adjustPercentageWithEggsRatio(REGION_FUNDUS,
@@ -1489,218 +1028,61 @@ public class Model_Gastric extends ModeleScin {
 
 		// Compute derivative
 		this.computeDerivative(data, state, previousState);
-
-//		System.out.println();
-//		System.out.println("AFTER ADJUSTING PERCENTAGES\n" + data);
-//		System.out.println();
-//		System.out.println();
 	}
 
-	/**
-	 * Delivers the requested result.<br>
-	 * This method can only be used for the results that are calculated for all of
-	 * the images (meaning START_ANTRUM, START_INTESTINE, LAG_PHASE and T_HALF). Any
-	 * other request will throw an UnsupportedOperationException<br>
-	 * If you need a result for a specific image, use
-	 * {@link #getImageResult(int, int)} instead.<br>
-	 * This method must be called only when all of the data was incorporated in this
-	 * model.<br>
-	 * 
-	 * @param result Result to get
-	 * @return ResultValue containing the result requested
-	 * @see Model_Gastric#getImageResult(Result, int)
-	 * @throws UnsupportedOperationException if the requested result is different
-	 *                                       than START_ANTRUM or START_INTESTINE or
-	 *                                       LAG_PHASE or T_HALF
-	 */
-	public ResultValue getResult(double[] yValues, Result result, Fit fit) throws UnsupportedOperationException {
-		FitType extrapolationType = null;
-
-		if (result == START_ANTRUM)
-			return new ResultValue(result, this.getDebut(REGION_ANTRE), Unit.TIME);
-		if (result == START_INTESTINE)
-			return new ResultValue(result, this.getDebut(REGION_INTESTINE), Unit.TIME);
-		if (result == LAG_PHASE) {
-			extrapolationType = null;
-			Double valX = this.getX(yValues, 95.);
-			if (valX == null) {
-				// Extrapolate
-				valX = this.extrapolateX(95., fit);
-				extrapolationType = fit.getType();
-			}
-			return new ResultValue(result, valX, Unit.TIME, extrapolationType);
-		}
-		if (result == T_HALF) {
-			// Assumption: the first value is the highest (maybe do not assume that...)
-			double half = yValues[0] / 2.;
-			extrapolationType = null;
-			Double valX = this.getX(yValues, half);
-			if (valX == null) {
-				// Extrapolate
-				valX = this.extrapolateX(half, fit);
-				extrapolationType = fit.getType();
-			}
-			return new ResultValue(result, valX, Unit.TIME, extrapolationType);
-		} else
-			throw new UnsupportedOperationException("The result " + result + " is not available here!");
-	}
-
-	/**
-	 * Delivers the requested result for the specified image
-	 * 
-	 * @param result     Result to get, it must be one of RES_TIME, RES_STOMACH,
-	 *                   RES_FUNDUS, RES_ANTRUM
-	 * @param indexImage Index of the image (in chronological order) to get the
-	 *                   result from
-	 * @return result found or null if no data was found
-	 * @see Model_Gastric#getResult(Result)
-	 * @throws UnsupportedOperationException if the requested result is different
-	 *                                       than RES_TIME or RES_STOMACH or
-	 *                                       RES_FUNDU or RES_ANTRUM
-	 */
-	public ResultValue getImageResult(Result result, int indexImage) throws UnsupportedOperationException {
-		Data data = this.generatesDataOrdered().get(indexImage);
-
-		try {
-			if (result == RES_TIME)
-				return new ResultValue(result,
-						BigDecimal.valueOf(data.time).setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.TIME);
-			if (result == RES_STOMACH)
-				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
-						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
-			if (result == RES_FUNDUS)
-				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_FUNDUS, DATA_PERCENTAGE))
-						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
-			if (result == RES_ANTRUM)
-				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_ANTRE, DATA_PERCENTAGE))
-						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
-			if (result == RES_STOMACH_COUNTS) {
-				return new ResultValue(result, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE))
-						.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.COUNTS);
-			} else
-				throw new UnsupportedOperationException("The result " + result + " is not available here!");
-		} catch (NullPointerException e) {
-			// Exception = data not found
-			return null;
-		}
-	}
-
-	/**
-	 * Returns the retention percentage at the specified time.<br>
-	 * The result might be interpolated.
-	 * 
-	 * @param time Time to observe in minutes
-	 * @return retention time
-	 */
-	public ResultValue retentionAt(double[] yValues, double time, Fit fit) {
-		Double res = this.getY(yValues, time);
-		FitType extrapolated = null;
-		if (res == null) {
-			res = this.extrapolateY(time, fit);
-			extrapolated = fit.getType();
-		}
-
-		// Percentage of res
-		res = res * 100. / this.getY(yValues, 0.);
-
-		return new ResultValue(RETENTION, res, Unit.PERCENTAGE, extrapolated);
-	}
-
-	// TODO: change this method, the model should not decide for rendering
 	/**
 	 * Creates the graphic for the Intragastric Distribution.
-	 * 
-	 * @return Intragastric distribution graph as an image
+	 *
+	 * @return Intragastric distribution graph
 	 */
 	public ChartPanel createGraph_1() {
-		return Library_JFreeChart.createGraph("Fundus/Stomach (%)", new Color(0, 100, 0), "Intragastric Distribution",
-				times, this.getResultAsArray(REGION_FUNDUS, DATA_CORRELATION, Unit.PERCENTAGE), 100.0);
+		return Library_JFreeChart.createGraph("Fundus/Stomach (%)", new Color[]{new Color(0, 100, 0)}, "",
+				Library_JFreeChart.createDataset(this.generateTime(),
+						this.getResultAsArray(REGION_FUNDUS, DATA_CORRELATION, Unit.PERCENTAGE),
+						"Intragastric Distribution"),
+				100.0);
 	}
 
-	// TODO: change this method, the model should not decide for rendering
 	/**
 	 * Creates the graphic for the Gastrointestinal flow.
-	 * 
-	 * @return Gastrointestinal flow graph as an image
+	 *
+	 * @return Gastrointestinal flow graph
 	 */
 	public ChartPanel createGraph_2() {
 		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_DERIVATIVE, Unit.PERCENTAGE);
-//		System.out.println("Result for Gastrointestinal flow:");
-//		System.out.println(Arrays.toString(timesDerivative));
-//		System.out.println(Arrays.toString(result));
-		return Library_JFreeChart.createGraph("% meal in the interval", Color.RED, "Gastrointestinal flow",
-				timesDerivative, result, 50.0);
+		return Library_JFreeChart.createGraph("% meal in the interval", new Color[]{Color.RED}, "",
+				Library_JFreeChart.createDataset(this.generateDerivedTime(), result, "Gastrointestinal flow"), 50.0);
 	}
 
 	/**
 	 * Creates the graphic for the Stomach, Fundus and Antrum percentages.
-	 * 
-	 * @return graph as an image
+	 *
+	 * @return graph
 	 */
 	public ChartPanel createGraph_3() {
-		// On cree un dataset qui contient les 3 series
-		XYSeriesCollection dataset = createDatasetTrois(times,
-				this.getResultAsArray(REGION_STOMACH, DATA_PERCENTAGE, Unit.PERCENTAGE), "Stomach",
-				this.getResultAsArray(REGION_FUNDUS, DATA_PERCENTAGE, Unit.PERCENTAGE), "Fundus",
-				this.getResultAsArray(REGION_ANTRE, DATA_PERCENTAGE, Unit.PERCENTAGE), "Antrum");
-		// On cree le graphique
-		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "Retention (% meal)", dataset,
-				PlotOrientation.VERTICAL, true, true, false);
-		// Parametres de l'affichage
-		XYPlot plot = (XYPlot) xylineChart.getPlot();
-		// choix du Background
-		plot.setBackgroundPaint(Color.WHITE);
+		double[][] ySeries = new double[][]{this.getResultAsArray(REGION_STOMACH, DATA_PERCENTAGE, Unit.PERCENTAGE),
+				this.getResultAsArray(REGION_FUNDUS, DATA_PERCENTAGE, Unit.PERCENTAGE),
+				this.getResultAsArray(REGION_ANTRE, DATA_PERCENTAGE, Unit.PERCENTAGE)};
+		String[] titles = new String[]{"Stomach", "Fundus", "Antrum"};
+		Color[] colors = new Color[]{Color.RED, new Color(0, 255, 0), Color.BLUE};
 
-		// XYLineAndShapeRenderer
-		// reference:
-		// https://stackoverflow.com/questions/28428991/setting-series-line-style-and-legend-size-in-jfreechart
-		XYLineAndShapeRenderer lineAndShapeRenderer = new XYLineAndShapeRenderer();
-		// on set le renderer dans le plot
-		plot.setRenderer(lineAndShapeRenderer);
-		// On definit les parametre du renderer
-		lineAndShapeRenderer.setDefaultLegendTextFont(new Font("", Font.BOLD, 16));
-		lineAndShapeRenderer.setSeriesPaint(0, Color.RED);
-		lineAndShapeRenderer.setSeriesPaint(1, new Color(0, 100, 0));
-		lineAndShapeRenderer.setSeriesPaint(2, Color.BLUE);
-		// Defini la taille de la courbes (epaisseur du trait)
-		lineAndShapeRenderer.setSeriesStroke(0, new BasicStroke(2.0F));
-		lineAndShapeRenderer.setSeriesStroke(1, new BasicStroke(2.0F));
-		lineAndShapeRenderer.setSeriesStroke(2, new BasicStroke(2.0F));
+		XYSeriesCollection dataset = Library_JFreeChart.createDataset(this.generateTime(), ySeries, titles);
 
-		// XAxis
-		NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
-		// Limites de l'axe X
-		domainAxis.setRange(0.00, 360.00);
-		// Pas de l'axe X
-		domainAxis.setTickUnit(new NumberTickUnit(30.00));
-		domainAxis.setTickMarkStroke(new BasicStroke(2.5F));
-		domainAxis.setLabelFont(new Font("", Font.BOLD, 16));
-		domainAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
-
-		// YAxis
-		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-		rangeAxis.setRange(0.00, 100.00);
-		rangeAxis.setTickUnit(new NumberTickUnit(10.00));
-		rangeAxis.setTickMarkStroke(new BasicStroke(2.5F));
-		rangeAxis.setLabelFont(new Font("", Font.BOLD, 16));
-		rangeAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
-
-		// Grid
-		// On ne met pas de grille sur la courbe
-		plot.setDomainGridlinesVisible(false);
-
-		return new ChartPanel(xylineChart);
+		return Library_JFreeChart.createGraph("Retention (% meal)", colors, "", dataset, 100.);
 	}
 
-	// TODO: change this method, the model should not decide for rendering
+	/**
+	 * Creates the graphic for the Stomach geometrical average.
+	 *
+	 * @return graph
+	 */
 	public ChartPanel createGraph_4(Unit unit) {
 		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_GEO_AVERAGE, unit);
 
-		double[] xValues = times;
-		if (this.time0 != null)
-			xValues = ArrayUtils.remove(times, 0);
+		XYSeriesCollection dataset = Library_JFreeChart.createDataset(this.generateTime(), result, "Stomach " +
+				"retention");
 
-		return Library_JFreeChart.createGraph(unit.abrev(), Color.GREEN, "Stomach retention", xValues, result,
+		return Library_JFreeChart.createGraph(unit.abrev(), new Color[]{Color.GREEN}, "", dataset,
 				Library_JFreeChart.maxValue(result) * 1.1);
 	}
 
@@ -1723,7 +1105,7 @@ public class Model_Gastric extends ModeleScin {
 	 * Deactivates the fictional time 0.<br>
 	 * The ingestion time should now be set to the time of the first dynamic
 	 * acquisition.
-	 * 
+	 *
 	 * @see #setTimeIngestion
 	 */
 	public void deactivateTime0() {
@@ -1731,47 +1113,414 @@ public class Model_Gastric extends ModeleScin {
 	}
 
 	/**
-	 * Given two dataset of Y values, this method will add the square of the result
-	 * of the subtraction of each point.<br>
-	 * For instance, given two points <code>A(x, 4) A'(x, 5)</code> and
-	 * <code>B(x, 3) B'(x, 1)</code> the result will be calculate like this:<br>
-	 * <code>(4-5)² + (3-1)²</code>
-	 * 
-	 * @param yValues       First dataset
-	 * @param yFittedValues Second dataset
-	 * @return least square of the two dataset
+	 * Delivers the retention percentage at the specified time.<br>
+	 * The result might be interpolated.
+	 *
+	 * @param request Request for the result (only {@link #RETENTION_GEOAVG} or
+	 *                {@link #RETENTION_PERCENTAGE} allowed)
+	 * @param time    Time to observe in minutes
+	 * @return retention percentage
 	 */
-	public double computeLeastSquares(double[] yValues, double[] yFittedValues) {
-		if (yValues.length != yFittedValues.length)
-			throw new IllegalArgumentException("The lengths of the arrays must be equals (" + yValues.length + " != "
-					+ yFittedValues.length + ")");
+	public ResultValue getRetentionResult(ResultRequest request, double time) {
+		Result result = request.getResultOn();
+		if (result != RETENTION_GEOAVG && result != RETENTION_PERCENTAGE)
+			throw new IllegalArgumentException("The result " + result + " not supported here!");
 
-		double result = 0.;
-		for (int i = 0; i < yValues.length; i++) {
-			result += Math.pow(yValues[i] - yFittedValues[i], 2);
+		double[] yValues;
+		if (result == RETENTION_PERCENTAGE) {
+			yValues = generateStomachValues(request.getFit().getYUnit());
+		} else {
+			yValues = generateDecayFunctionValues(request.getFit().getYUnit());
 		}
-		return result;
+
+		Double res = Library_JFreeChart.getY(this.generateTime(), yValues, time);
+		boolean isExtrapolated = false;
+		if (res == null) {
+			res = Library_JFreeChart.extrapolateY(time, request.getFit());
+			isExtrapolated = true;
+		}
+
+		// Percentage of res
+		res = res * 100. / yValues[0];
+
+		return new ResultValue(request, res, Unit.PERCENTAGE, isExtrapolated);
 	}
 
 	/**
-	 * Makes a montage from the specified stack.
-	 * 
-	 * @param stack Stack to make the image from
-	 * @return image created from the specified stack
+	 * Delivers the requested result.<br>
+	 * This method must be called only when all of the data was incorporated in this
+	 * model.<br>
+	 *
+	 * @param request Request for a result
+	 * @return ResultValue containing the requested result or null if the result
 	 */
-	public ImagePlus montage(ImageStack stack) {
-		MontageMaker mm = new MontageMaker();
-		ImagePlus imp = new ImagePlus("Resultats Vidange Gastrique", stack);
-		if (stack.size() == 4)
-			imp = mm.makeMontage2(imp, 2, 2, 0.5, 1, 4, 1, 10, false);
-		else if (stack.size() == 2)
-			imp = mm.makeMontage2(imp, 2, 1, .5, 1, 2, 1, 10, false);
-		imp.setTitle("Resultats " + this.studyName);
-		return imp;
+	@Override
+	public ResultValue getResult(ResultRequest request) {
+		Data data = this.generatesDataOrdered().get(request.getIndexImage());
+		Result result = request.getResultOn();
+		Fit fit = request.getFit();
+
+		if (result == START_ANTRUM)
+			return new ResultValue(request, this.getDebut(REGION_ANTRE), Unit.TIME);
+		else if (result == START_INTESTINE)
+			return new ResultValue(request, this.getDebut(REGION_INTESTINE), Unit.TIME);
+		else if (result == LAG_PHASE_PERCENTAGE || result == LAG_PHASE_GEOAVG) {
+			double[] yValues;
+			if (result == LAG_PHASE_PERCENTAGE)
+				yValues = generateStomachValues(fit.getYUnit());
+			else
+				yValues = generateDecayFunctionValues(fit.getYUnit());
+
+			// Assumption: the first value is the highest (maybe do not assume that...?)
+			double yValue = .95 * yValues[0];
+			Double valX = Library_JFreeChart.getX(this.generateTime(), yValues, yValue);
+			boolean isExtrapolated = false;
+			if (valX == null) {
+				// Extrapolate
+				valX = Library_JFreeChart.extrapolateX(yValue, fit);
+				isExtrapolated = true;
+			}
+			return new ResultValue(request, valX, Unit.TIME, isExtrapolated);
+		} else if (result == T_HALF_PERCENTAGE || result == T_HALF_GEOAVG) {
+			double[] yValues;
+			if (result == T_HALF_PERCENTAGE)
+				yValues = generateStomachValues(fit.getYUnit());
+			else
+				yValues = generateDecayFunctionValues(fit.getYUnit());
+
+			// Assumption: the first value is the highest (maybe do not assume that...?)
+			double half = yValues[0] / 2.;
+			boolean isExtrapolated = false;
+			Double valX = Library_JFreeChart.getX(this.generateTime(), yValues, half);
+			if (valX == null) {
+				// Extrapolate
+				valX = Library_JFreeChart.extrapolateX(half, fit);
+				isExtrapolated = true;
+			}
+			return new ResultValue(request, valX, Unit.TIME, isExtrapolated);
+		} else {
+			try {
+				if (result == RES_TIME)
+					return new ResultValue(request,
+							BigDecimal.valueOf(data.time).setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.TIME);
+				if (result == RES_STOMACH)
+					return new ResultValue(request, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
+							.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+				if (result == RES_FUNDUS)
+					return new ResultValue(request, BigDecimal.valueOf(data.getValue(REGION_FUNDUS, DATA_PERCENTAGE))
+							.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+				if (result == RES_ANTRUM)
+					return new ResultValue(request, BigDecimal.valueOf(data.getValue(REGION_ANTRE, DATA_PERCENTAGE))
+							.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+				if (result == RES_STOMACH_COUNTS) {
+					return new ResultValue(request, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE))
+							.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.COUNTS);
+				} else {
+					throw new IllegalArgumentException("Result " + result + " not supported here!");
+				}
+			} catch (NullPointerException e) {
+				// Exception = data not found
+				return null;
+			}
+		}
 	}
 
 	@Override
-	public void calculerResultats() {
-		this.generatesTimes();
+	public void calculateResults() {
+		this.generateTime();
+	}
+
+	/**
+	 * This class stores the data measured or calculated for each region of the
+	 * model.<br>
+	 * The natural order of this class depends of the chronological order of the
+	 * images.
+	 *
+	 * @author Titouan QUÉMA
+	 */
+	private class Data implements Comparable<Data> {
+		private Map<String, Region> regionsAnt, regionsPost;
+
+		private double time;
+		private ImageSelection associatedImage;
+
+		/**
+		 * Instantiates a new data. The image should be unique (for this model).<br>
+		 *
+		 * @param associatedImage Unique image for this data (null allowed only for the
+		 *                        time 0)
+		 * @param time            Time in minutes after the ingestion time
+		 */
+		Data(ImageSelection associatedImage, double time) {
+			this.associatedImage = associatedImage;
+			this.regionsAnt = new HashMap<>();
+			this.regionsPost = new HashMap<>();
+			this.time = time;
+		}
+
+		/**
+		 * Generates a string with the regions contained in this data for the specified
+		 * orientation.
+		 *
+		 * @param orientation Ant or Post orientation to get the regions
+		 * @return string with the list of the region
+		 */
+		private String listRegions(Orientation orientation) {
+			StringBuilder res = new StringBuilder();
+			if (orientation == Orientation.ANT) {
+				res.append(Library_Debug.subtitle("ANT REGIONS"));
+				res.append('\n');
+
+				if (this.regionsAnt.size() == 0)
+					res.append("// NO REGION //\n");
+				else
+					for (Region region : this.regionsAnt.values()) {
+						res.append(region);
+						res.append('\n');
+					}
+			} else {
+				res.append(Library_Debug.subtitle("POST REGIONS"));
+				res.append('\n');
+
+				if (this.regionsPost.size() == 0)
+					res.append("// NO REGION //\n");
+				else
+					for (Region region : this.regionsPost.values()) {
+						res.append(region);
+						res.append('\n');
+					}
+			}
+			return res.toString();
+		}
+
+		/**
+		 * @return all regions stored by this data
+		 */
+		Region[] getRegions() {
+			return (Region[]) ArrayUtils.addAll(this.regionsAnt.values().toArray(new Region[0]),
+					this.regionsPost.values().toArray(new Region[0]));
+		}
+
+		/**
+		 * Sets the time for this data. The times in minutes represents the duration
+		 * since the ingestion of the food.
+		 *
+		 * @param time Time elapsed in minutes since the ingestion
+		 */
+		public void setTime(double time) {
+			this.time = time;
+		}
+
+		/**
+		 * @return time in minutes for this data
+		 */
+		public double getMinutes() {
+			return this.time;
+		}
+
+		/**
+		 * Adds information on the specified region. If the region doesn't exist, then
+		 * it will be created. When creating the region, the orientation of the image
+		 * state will be used to determine if the region is Ant or Post.
+		 *
+		 * @param regionName Region on which the informations will be added
+		 * @param state      State of the image for the region
+		 * @param roi        ROI associated with the region
+		 */
+		void inflateRegion(String regionName, ImageState state, Roi roi) {
+			Region storedRegion = this.regionsAnt.get(regionName);
+			if (storedRegion == null) {
+				storedRegion = this.regionsPost.get(regionName);
+
+				if (storedRegion == null) {
+					// Create region
+					storedRegion = new Region(regionName, Model_Gastric.this);
+					storedRegion.inflate(state, roi);
+					if (state.getFacingOrientation() == Orientation.ANT)
+						this.regionsAnt.put(regionName, storedRegion);
+					else
+						this.regionsPost.put(regionName, storedRegion);
+				}
+			}
+
+			storedRegion.inflate(state, roi);
+		}
+
+		/**
+		 * Sets the key value to the specified region. This method will try to determine
+		 * if the region is Ant or Post.<br>
+		 * If the key contains 'Post' keyword, then the value will be added in the Post
+		 * region. For any other key, then the value will be added in the Ant
+		 * region.<br>
+		 * If the region could not be found in the Ant or Post, then it will be created.
+		 *
+		 * @param regionName Region on which the value will be set
+		 * @param key        Key of the value
+		 * @param value      Value to set
+		 */
+		void setValue(String regionName, int key, double value) {
+			if (key == DATA_POST_COUNTS)
+				this.setPostValue(regionName, key, value);
+
+			this.setAntValue(regionName, key, value);
+		}
+
+		/**
+		 * Sets the key value to the specified region. The region will be search in the
+		 * Ant regions.<br>
+		 * If the region could not be found, then the region will be created.
+		 *
+		 * @param regionName Region on which the value will be set
+		 * @param key        Key of the value
+		 * @param value      Value to set
+		 */
+		void setAntValue(String regionName, int key, double value) {
+			Region region = this.regionsAnt.get(regionName);
+			if (region == null) {
+				// Create region
+				region = new Region(regionName, Model_Gastric.this);
+				this.regionsAnt.put(regionName, region);
+			}
+
+			// Set value
+			region.setValue(key, Math.max(0, value));
+		}
+
+		/**
+		 * Sets the key value to the specified region. The region will be search in the
+		 * Post regions.<br>
+		 * If the region could not be found, then the region will be created.
+		 *
+		 * @param regionName Region on which the value will be set
+		 * @param key        Key of the value
+		 * @param value      Value to set
+		 */
+		void setPostValue(String regionName, int key, double value) {
+			Region region = this.regionsPost.get(regionName);
+			if (region == null) {
+				// Create region
+				region = new Region(regionName, Model_Gastric.this);
+				this.regionsPost.put(regionName, region);
+			}
+
+			// Set value
+			region.setValue(key, Math.max(0, value));
+		}
+
+		/**
+		 * Gets the value associated with the specified key. This method will try to
+		 * determine if the region is Ant or Post.<br>
+		 * If the key contains 'Post' keyword, then the value will be searched in the
+		 * Post regions. For any other key, then the value will be searched in the Ant
+		 * regions.<br>
+		 * If the region could not be found in the Ant or Post, then this method returns
+		 * null.
+		 *
+		 * @param region Region for which the value will be retrieved
+		 * @param key    Key of the value to get
+		 * @return value associated with the key for the region or null if not found
+		 */
+		public Double getValue(String region, int key) {
+			if (key == DATA_POST_COUNTS)
+				return this.getPostValue(region, key);
+
+			return this.getAntValue(region, key);
+		}
+
+		/**
+		 * Gets the unit used to store the values of the specified key.
+		 *
+		 * @param key Key to know the unit
+		 * @return unit of the key
+		 */
+		Unit unitForKey(int key) {
+			switch (key) {
+				case DATA_ANT_COUNTS:
+				case DATA_POST_COUNTS:
+				case DATA_GEO_AVERAGE:
+					return Unit.COUNTS;
+				case DATA_DECAY_CORRECTED:
+					return Unit.COUNTS;
+				case DATA_PERCENTAGE:
+					return Unit.PERCENTAGE;
+				case DATA_CORRELATION:
+					return Unit.PERCENTAGE;
+				case DATA_PIXEL_COUNTS:
+					return Unit.COUNTS;
+				case DATA_BKG_NOISE:
+					return Unit.COUNTS;
+				case DATA_DERIVATIVE:
+					return Unit.PERCENTAGE;
+				default:
+					return null;
+			}
+		}
+
+		/**
+		 * Gets the value associated with the specified key. The region will be searched
+		 * in the Ant regions.<br>
+		 * If the region could not be found, then returns null.
+		 *
+		 * @param region Region for which the value will be retrieved
+		 * @param key    Key of the value to get
+		 * @return value associated with the key for the region or null if not found
+		 */
+		Double getAntValue(String region, int key) throws NullPointerException {
+			try {
+				return this.regionsAnt.get(region).getValue(key);
+			} catch (NullPointerException e) {
+				return null;
+			}
+		}
+
+		/**
+		 * Gets the value associated with the specified key. The region will be searched
+		 * in the Post regions.<br>
+		 * If the region could not be found, then returns null.
+		 *
+		 * @param region Region for which the value will be retrieved
+		 * @param key    Key of the value to get
+		 * @return value associated with the key for the region or null if not found
+		 */
+		Double getPostValue(String region, int key) {
+			try {
+				return this.regionsPost.get(region).getValue(key);
+			} catch (NullPointerException e) {
+				return null;
+			}
+		}
+
+		ImageSelection getAssociatedImage() {
+			return this.associatedImage;
+		}
+
+		boolean hasRegion(String region) {
+			return this.regionsAnt.containsKey(region) || this.regionsPost.containsKey(region);
+		}
+
+		@Override
+		public int compareTo(Data o) {
+			double res = this.time - o.time;
+			if (res > 0)
+				return 1;
+			if (res < 0)
+				return -1;
+			return 0;
+		}
+
+		@Override
+		public String toString() {
+			String s = Library_Debug.separator(0);
+			String imageTitle = (this.associatedImage == null ? "// NO-IMAGE //"
+					: this.associatedImage.getImagePlus().getTitle());
+			s += Library_Debug.title("Data");
+			s += "\n";
+			s += Library_Debug.title(imageTitle);
+			s += "\n";
+			s += this.listRegions(Orientation.ANT);
+			s += this.listRegions(Orientation.POST);
+			s += Library_Debug.separator(0);
+			return s;
+		}
 	}
 }

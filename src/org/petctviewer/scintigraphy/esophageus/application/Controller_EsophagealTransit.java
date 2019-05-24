@@ -2,18 +2,18 @@ package org.petctviewer.scintigraphy.esophageus.application;
 
 import org.petctviewer.scintigraphy.esophageus.resultats.FenResultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.controller.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
 
 import ij.gui.Roi;
 import ij.gui.Toolbar;
 
-public class Controleur_EsophagealTransit extends Controleur_OrganeFixe {
+public class Controller_EsophagealTransit extends Controller_OrganeFixe {
 
 	public static String[] ORGANES = { "Esophage" };
 
-	public Controleur_EsophagealTransit(EsophagealTransit esoPlugin, ImageSelection[][] sauvegardeImagesSelectDicom,
-			String studyName) {
-		super(esoPlugin, new Modele_EsophagealTransit(sauvegardeImagesSelectDicom, studyName, esoPlugin));
+	public Controller_EsophagealTransit(EsophagealTransit esoPlugin, ImageSelection[][] sauvegardeImagesSelectDicom,
+	                                    String studyName) {
+		super(esoPlugin, new Model_EsophagealTransit(sauvegardeImagesSelectDicom, studyName, esoPlugin));
 		this.setOrganes(ORGANES);
 		this.tools = Toolbar.RECTANGLE;
 	}
@@ -25,10 +25,10 @@ public class Controleur_EsophagealTransit extends Controleur_OrganeFixe {
 
 	@Override
 	public void end() {
-		model.calculerResultats();
+		model.calculateResults();
 		FenResultats_EsophagealTransit fen = new FenResultats_EsophagealTransit(
-				((Modele_EsophagealTransit) model).getExamenMean(), ((Modele_EsophagealTransit) model).getDicomRoi(),
-				((Modele_EsophagealTransit) model), "Esophageal Transit", this);
+				((Model_EsophagealTransit) model).getExamenMean(), ((Model_EsophagealTransit) model).getDicomRoi(),
+				((Model_EsophagealTransit) model), "Esophageal Transit", this);
 		fen.pack();
 		fen.setLocationRelativeTo(null);
 		fen.setVisible(true);

@@ -9,16 +9,16 @@ import java.util.Map;
 
 import org.petctviewer.scintigraphy.lympho.gui.TabPelvis;
 import org.petctviewer.scintigraphy.lympho.pelvis.ControllerWorkflowPelvis;
-import org.petctviewer.scintigraphy.lympho.pelvis.ModelePelvis;
+import org.petctviewer.scintigraphy.lympho.pelvis.ModelPelvis;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.ImagePlus;
 
-public class ModeleLympho extends ModeleScin {
+public class ModelLympho extends ModelScin {
 
 	private double injectionRatio;
 
@@ -41,7 +41,7 @@ public class ModeleLympho extends ModeleScin {
 
 	private List<Double> results;
 
-	public ModeleLympho(ImageSelection[] selectedImages, String studyName) {
+	public ModelLympho(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
 
 		this.coups = new HashMap<>();
@@ -56,9 +56,6 @@ public class ModeleLympho extends ModeleScin {
 		return locked;
 	}
 
-	/************** Getter *************/
-
-	/************** Setter *************/
 	public void setLocked(boolean locked) {
 		this.locked = locked;
 	}
@@ -72,8 +69,8 @@ public class ModeleLympho extends ModeleScin {
 		double correctedRadioactiveDecrease;
 		if (!(imp == getImagePlus())) {
 //			correctedRadioactiveDecrease = Library_Quantif.calculer_countCorrected(18902000,
-//					Library_Quantif.getCounts(imp), Isotope.TECHNICIUM_99);
-			correctedRadioactiveDecrease = Library_Quantif.calculer_countCorrected(getImagePlus(), imp,Isotope.TECHNICIUM_99);
+//					Library_Quantif.getCounts(imp), Isotope.TECHNETIUM_99);
+			correctedRadioactiveDecrease = Library_Quantif.calculer_countCorrected(getImagePlus(), imp,Isotope.TECHNETIUM_99);
 		} else {
 			correctedRadioactiveDecrease = Library_Quantif.getCounts(imp);
 		}
@@ -81,7 +78,7 @@ public class ModeleLympho extends ModeleScin {
 //		System.out.println("\t\tAprès correction : " + correctedRadioactiveDecrease);
 		this.coups.put(organ, correctedRadioactiveDecrease);
 		// System.out.println("Calculations for " + organ + " [" +
-		// ModeleLympho.convertOrgan(organ) + "] -> "
+		// ModelLympho.convertOrgan(organ) + "] -> "
 		// + correctedRadioactiveDecrease);
 	}
 
@@ -111,7 +108,7 @@ public class ModeleLympho extends ModeleScin {
 	private void computeGeometricalAverage() {
 		System.out.println("\n\n\n\n\n\n----------------------------\n\n\n\n\n\n");
 		System.out.println("nbCounts : " + this.coups.size());
-		for (Double count : this.coups.values().toArray(new Double[this.coups.size()])) {
+		for (Double count : this.coups.values().toArray(new Double[0])) {
 			System.out.println("Counts : " + count);
 		}
 		this.moyenneGeo(FOOT_RIGHT_ANT_FIRST);
@@ -124,14 +121,14 @@ public class ModeleLympho extends ModeleScin {
 	// Si abv = PD alors on calculera la MG pour le poumon droit
 	private void moyenneGeo(int organ) {
 		geometricalAverage.put(organ, (int) Library_Quantif.moyGeom(this.coups.get(organ), this.coups.get(organ + 2)));
-		System.out.println("MG " + organ + " [" + ModeleLympho.convertOrgan(organ) + "/ "
-				+ ModeleLympho.convertOrgan(organ + 2) + "] --- [" + this.coups.get(organ) + "/"
+		System.out.println("MG " + organ + " [" + ModelLympho.convertOrgan(organ) + "/ "
+				+ ModelLympho.convertOrgan(organ + 2) + "] --- [" + this.coups.get(organ) + "/"
 				+ this.coups.get(organ + 2) + "] -> " + geometricalAverage.get(organ));
 
 	}
 
 	@Override
-	public void calculerResultats() {
+	public void calculateResults() {
 		this.retour = new String[9];
 
 		// Les 5 MGs
@@ -222,10 +219,10 @@ public class ModeleLympho extends ModeleScin {
 		s += "Delta Drainage," + this.results.get(3) + "\n";
 //		s += "L < R of :," + this.results.get(4) + "\n\n\n";
 
-		if (((TabPelvis) this.resutlTab) != null)
+		if (this.resutlTab != null)
 			if (((TabPelvis) this.resutlTab).getVueBasic() != null)
-				s += ((ModelePelvis) ((ControllerWorkflowPelvis) ((TabPelvis) this.resutlTab).getVueBasic().getFenApplication()
-						.getControleur()).getModel()).toCSV();
+				s += ((ModelPelvis) ((TabPelvis) this.resutlTab).getVueBasic().getFenApplication()
+						.getControleur().getModel()).toCSV();
 
 		s += super.toString();
 

@@ -23,7 +23,7 @@ public abstract class Fit {
 		NONE("No Fit"), LINEAR("Linear"), EXPONENTIAL("Exponential");
 		private String s;
 
-		private FitType(String s) {
+		FitType(String s) {
 			this.s = s;
 		}
 
@@ -34,7 +34,6 @@ public abstract class Fit {
 	}
 
 	private FitType type;
-
 	private Unit unit;
 
 	public Fit(FitType type, Unit unit) {
@@ -52,9 +51,9 @@ public abstract class Fit {
 	public static Fit createFit(FitType type, double[][] dataset, Unit unit) {
 		switch (type) {
 		case LINEAR:
-			return new LinearFit(unit, dataset);
+			return new LinearFit(dataset, unit);
 		case EXPONENTIAL:
-			return new ExponentialFit(unit, dataset);
+			return new ExponentialFit(dataset, unit);
 		default:
 			return new NoFit(unit);
 		}
@@ -78,7 +77,7 @@ public abstract class Fit {
 	 */
 	public abstract double extrapolateY(double valueX);
 
-	public Unit getUnit() {
+	public Unit getYUnit() {
 		return this.unit;
 	}
 
@@ -92,7 +91,7 @@ public abstract class Fit {
 	/**
 	 * @return series for the selected fit of the graph
 	 */
-	public XYSeries getFittedSeries(double[] xValues) {
+	public XYSeries generateFittedSeries(double[] xValues) {
 		double[] y = this.generateOrdinates(xValues);
 		XYSeries fittedSeries = new XYSeries(this.toString());
 		for (int i = 0; i < xValues.length; i++)
@@ -124,7 +123,7 @@ public abstract class Fit {
 
 		private double[] coefs;
 
-		public LinearFit(Unit unit, double[][] dataset) {
+		public LinearFit(double[][] dataset, Unit unit) {
 			super(FitType.LINEAR, unit);
 			this.coefs = Regression.getOLSRegression(dataset);
 		}
@@ -140,6 +139,17 @@ public abstract class Fit {
 			double res = coefs[1] * valueX + coefs[0];
 			return res;
 		}
+		
+		@Override
+		public String toString() {
+			String s = super.toString() + "(";
+			for(int i = 0; i<this.coefs.length; i++) {
+				s += this.coefs[i];
+				if(i < this.coefs.length-1)
+					s += ";";
+			}
+			return s + ")";
+		}
 
 	}
 
@@ -154,7 +164,7 @@ public abstract class Fit {
 
 		private double[] coefs;
 
-		public ExponentialFit(Unit unit, double[][] dataset) {
+		public ExponentialFit(double[][] dataset, Unit unit) {
 			super(FitType.EXPONENTIAL, unit);
 			double[][] lnSeries = new double[dataset.length][2];
 			for (int i = 0; i < dataset.length; i++) {
@@ -174,6 +184,17 @@ public abstract class Fit {
 		public double extrapolateY(double valueX) {
 			double res = coefs[0] * Math.exp(coefs[1] * valueX);
 			return res;
+		}
+		
+		@Override
+		public String toString() {
+			String s = super.toString() + "(";
+			for(int i = 0; i<this.coefs.length; i++) {
+				s += this.coefs[i];
+				if(i < this.coefs.length-1)
+					s += ";";
+			}
+			return s + ")";
 		}
 
 	}

@@ -8,7 +8,7 @@ import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -19,7 +19,7 @@ public class FenResultsColonicTransit extends FenResults {
 
 	private static final long serialVersionUID = -8587906502937827065L;
 
-	public FenResultsColonicTransit(ControleurScin controller, List<ImagePlus> captures, int[] times) {
+	public FenResultsColonicTransit(ControllerScin controller, List<ImagePlus> captures, int[] times) {
 		super(controller);
 		// TODO Auto-generated constructor stub
 
@@ -34,11 +34,11 @@ public class FenResultsColonicTransit extends FenResults {
 
 	private class TabMain extends TabResult {
 
-		private ControleurScin controller;
+		private ControllerScin controller;
 		private int time;
 		private ImagePlus capture;
 
-		public TabMain(FenResults parent, String title, ControleurScin controller, int time, ImagePlus capture) {
+		public TabMain(FenResults parent, String title, ControllerScin controller, int time, ImagePlus capture) {
 			super(parent, title, true);
 			// TODO Auto-generated constructor stub
 

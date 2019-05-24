@@ -19,7 +19,7 @@ import java.util.Date;
 import javax.swing.JTable;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.controller.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
@@ -29,17 +29,17 @@ import ij.plugin.CanvasResizer;
 import ij.plugin.MontageMaker;
 import ij.process.ImageProcessor;
 
-public class Controleur_Plaquettes extends Controleur_OrganeFixe {
+public class Controller_Plaquettes extends Controller_OrganeFixe {
 
 	protected static boolean showLog;
-	private Modele_Plaquettes leModele;
+	private Model_Plaquettes leModele;
 	private String[] organes = { "Spleen", "Liver", "Heart" };
 	private String[] organesAntPost = { "Spleen Post", "Liver Post", "Heart Post", "Spleen Ant", "Liver Ant", "Heart Ant" };
 	private boolean antPost;
 
 	// Sert au restart
-	protected Controleur_Plaquettes(Vue_Plaquettes vue, Date dateDebut, ImageSelection[] selectedImages, String studyName) {
-		super(vue, new Modele_Plaquettes(dateDebut, selectedImages, studyName));
+	protected Controller_Plaquettes(View_Platelet vue, Date dateDebut, ImageSelection[] selectedImages, String studyName) {
+		super(vue, new Model_Plaquettes(dateDebut, selectedImages, studyName));
 		
 		this.antPost = vue.antPost;
 		
@@ -53,17 +53,14 @@ public class Controleur_Plaquettes extends Controleur_OrganeFixe {
 	@Override
 	public void end() {	
 		
-		Thread captureThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-				    Thread.sleep(200);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				
-				
+		Thread captureThread = new Thread(() -> {
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
+
+
 		});
 		captureThread.start();
 		
@@ -81,14 +78,14 @@ public class Controleur_Plaquettes extends Controleur_OrganeFixe {
 
 		ImageStack stack = new ImageStack(640, 512);
 		stack.addSlice(capture.getProcessor());
-		for (int i = 0; i < courbes.length; i++) {
-			stack.addSlice(courbes[i].getProcessor());
+		for (ImagePlus courbe : courbes) {
+			stack.addSlice(courbe.getProcessor());
 		}
 
 		ImagePlus courbesStackImagePlus = new ImagePlus();
 		courbesStackImagePlus.setStack(stack);
 
-		ImagePlus courbesFinale = new ImagePlus();
+		ImagePlus courbesFinale;
 
 		MontageMaker mm = new MontageMaker();
 		courbesFinale = mm.makeMontage2(courbesStackImagePlus, 2, 2, 1, 1, courbesStackImagePlus.getStackSize(), 1, 0,

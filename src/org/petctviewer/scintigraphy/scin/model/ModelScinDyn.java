@@ -9,7 +9,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 
-public abstract class ModeleScinDyn extends ModeleScin {
+public abstract class ModelScinDyn extends ModelScin {
 
 	private HashMap<String, List<Double>> data;
 	private int[] frameduration;
@@ -21,7 +21,7 @@ public abstract class ModeleScinDyn extends ModeleScin {
 	 * @param frameDuration
 	 *            duree de chaque frame en ms
 	 */
-	public ModeleScinDyn(ImageSelection[] selectedImages, String studyName, int[] frameDuration) {
+	public ModelScinDyn(ImageSelection[] selectedImages, String studyName, int[] frameDuration) {
 		super(selectedImages, studyName);
 		this.data = new HashMap<>();
 		this.frameduration = frameDuration;

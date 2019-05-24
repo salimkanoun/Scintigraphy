@@ -2,7 +2,7 @@ package org.petctviewer.scintigraphy.scin.instructions.execution;
 
 import javax.swing.JOptionPane;
 
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction.DrawInstructionType;
 
@@ -16,8 +16,10 @@ public class CheckIntersectionInstruction extends ExecutionInstruction {
 	
 	private DrawInstructionType InstructionType = DrawInstructionType.CHECK_INTERSECTION;
 
+
 	private transient Instruction previous_1, previous_2;
-	private transient ControleurScin controller;
+	private transient ControllerScin controller;
+
 	private String nameIntersection;
 
 	/**
@@ -27,8 +29,8 @@ public class CheckIntersectionInstruction extends ExecutionInstruction {
 	 *                         be computed
 	 * @param nameIntersection Name of the intersection (for display purposes)
 	 */
-	public CheckIntersectionInstruction(ControleurScin controller, Instruction intersection1, Instruction intersection2,
-			String nameIntersection) {
+	public CheckIntersectionInstruction(ControllerScin controller, Instruction intersection1, Instruction intersection2,
+	                                    String nameIntersection) {
 		this.controller = controller;
 		this.previous_1 = intersection1;
 		this.previous_2 = intersection2;
@@ -41,7 +43,7 @@ public class CheckIntersectionInstruction extends ExecutionInstruction {
 	 */
 	private boolean checkIntersectionBetweenRois() {
 		this.controller.getRoiManager()
-				.setSelectedIndexes(new int[] { this.previous_1.roiToDisplay(), this.previous_2.roiToDisplay() });
+				.setSelectedIndexes(new int[] { this.previous_1.getRoiIndex(), this.previous_2.getRoiIndex() });
 		this.controller.getRoiManager().runCommand("AND");
 		this.controller.getRoiManager().runCommand("Deselect");
 		this.controller.getRoiManager().deselect();

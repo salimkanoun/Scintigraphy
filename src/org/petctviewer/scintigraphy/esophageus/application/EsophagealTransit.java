@@ -20,6 +20,7 @@ import javax.swing.JRadioButton;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
@@ -61,7 +62,7 @@ public class EsophagealTransit extends Scintigraphy {
 
 	// possible de refactorier le trie des images....
 	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException, ReadTagException {
 		// Check number
 		if (selectedImages.length == 0)
 			throw new WrongNumberImagesException(selectedImages.length, 1, Integer.MAX_VALUE);
@@ -171,6 +172,7 @@ public class EsophagealTransit extends Scintigraphy {
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.yellow);
 
 		FenApplicationWorkflow fen = new FenApplicationWorkflow(selectedImages[0], "Oesophageus");
+		fen.setVisualizationEnable(false);
 		fen.getPanel_btns_gauche().remove(fen.getBtn_drawROI());
 		fen.getPanel_Instructions_btns_droite().removeAll();
 
@@ -185,7 +187,7 @@ public class EsophagealTransit extends Scintigraphy {
 			radioButton[i].addItemListener(new ItemListener() {
 				@Override
 				public void itemStateChanged(ItemEvent e) {
-					fen.setImage(sauvegardeImagesSelectDicom[0][num].getImagePlus());
+					fen.setImage(sauvegardeImagesSelectDicom[0][num]);
 				}
 			});
 			buttonGroup.add(radioButton[i]);
@@ -203,6 +205,7 @@ public class EsophagealTransit extends Scintigraphy {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				fen.setVisualizationEnable(true);
 				// passage a la phase 2
 				fen.getPanel_btns_gauche().add(fen.getBtn_drawROI());
 				fen.getPanelPrincipal().remove(startQuantificationButton);
@@ -218,7 +221,7 @@ public class EsophagealTransit extends Scintigraphy {
 
 				ControllerWorkflowEsophagealTransit cet = new ControllerWorkflowEsophagealTransit(
 						EsophagealTransit.this, (FenApplicationWorkflow) EsophagealTransit.this.getFenApplication(),
-						new Modele_EsophagealTransit(sauvegardeImagesSelectDicom, "Esophageal Transit",
+						new Model_EsophagealTransit(sauvegardeImagesSelectDicom, "Esophageal Transit",
 								EsophagealTransit.this));
 				((FenApplicationWorkflow) EsophagealTransit.this.getFenApplication()).setControleur(cet);
 

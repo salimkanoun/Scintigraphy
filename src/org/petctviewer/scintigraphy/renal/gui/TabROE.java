@@ -21,7 +21,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.xy.XYSeries;
-import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -45,7 +45,7 @@ class TabROE extends TabResult implements ActionListener {
 		Double[] mins = new Double[10];
 		for (int i = 0; i < mins.length; i++) {
 			mins[i] = Library_Quantif.round(
-					(((Modele_Renal) this.parent.getModel()).getSerie("Blood Pool").getMaxX() / (mins.length * 1.0)) * i
+					(((Model_Renal) this.parent.getModel()).getSerie("Blood Pool").getMaxX() / (mins.length * 1.0)) * i
 							+ 1,
 					1);
 		}
@@ -63,16 +63,16 @@ class TabROE extends TabResult implements ActionListener {
 			JLabel lbl_min = new JLabel(mins[i] + "  min");
 			pnl_roe.add(lbl_min);
 
-			if (((Modele_Renal) this.parent.getModel()).getKidneys()[0]) {
-				JLabel lbl_g = new JLabel(((Modele_Renal) this.parent.getModel()).getROE(mins[i], "L") + " %");
+			if (((Model_Renal) this.parent.getModel()).getKidneys()[0]) {
+				JLabel lbl_g = new JLabel(((Model_Renal) this.parent.getModel()).getROE(mins[i], "L") + " %");
 				lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
 				pnl_roe.add(lbl_g);
 			} else {
 				pnl_roe.add(new JLabel("N/A"));
 			}
 
-			if (((Modele_Renal) this.parent.getModel()).getKidneys()[1]) {
-				JLabel lbl_d = new JLabel(((Modele_Renal) this.parent.getModel()).getROE(mins[i], "R") + " %");
+			if (((Model_Renal) this.parent.getModel()).getKidneys()[1]) {
+				JLabel lbl_d = new JLabel(((Model_Renal) this.parent.getModel()).getROE(mins[i], "R") + " %");
 				lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
 				pnl_roe.add(lbl_d);
 			} else {
@@ -100,7 +100,7 @@ class TabROE extends TabResult implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		JFrame frameBPI = new JFrame();
 		frameBPI.add(Library_JFreeChart.associateSeries(new String[] { "BPI", "Blood pool fitted" },
-				((Modele_Renal) this.parent.getModel()).getSeries()));
+				((Model_Renal) this.parent.getModel()).getSeries()));
 		frameBPI.setLocationRelativeTo(parent);
 		frameBPI.setSize(new Dimension(512, 512));
 		frameBPI.setVisible(true);
@@ -108,7 +108,7 @@ class TabROE extends TabResult implements ActionListener {
 
 	@Override
 	public JPanel getResultContent() {// on recupere le modele et les series
-		Modele_Renal modele = (Modele_Renal) parent.getModel();
+		Model_Renal modele = (Model_Renal) parent.getModel();
 		List<XYSeries> series = modele.getSeries();
 
 		// recuperation des chart panel avec association

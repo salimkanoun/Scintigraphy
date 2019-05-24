@@ -25,7 +25,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.IJ;
 import ij.ImageListener;
@@ -35,7 +35,7 @@ import ij.gui.Roi;
 import ij.gui.Toolbar;
 import ij.plugin.frame.RoiManager;
 
-public abstract class Controleur_OrganeFixe extends ControleurScin {
+public abstract class Controller_OrganeFixe extends ControllerScin {
 
 	// TODO: supprimer cette référence pour découpler le controleur de scintigraphy
 	protected Scintigraphy scin;
@@ -56,7 +56,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	 * Classe abstraite permettant de controler les programmes de scintigraphie
 	 * declarer le modele ainsi que la liste d'organes
 	 */
-	protected Controleur_OrganeFixe(Scintigraphy scin, ModeleScin model) {
+	protected Controller_OrganeFixe(Scintigraphy scin, ModelScin model) {
 		super(scin, scin.getFenApplication(), model);
 		this.scin = scin;
 
@@ -66,7 +66,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 		this.overlay = Library_Gui.duplicateOverlay(this.model.getImagePlus().getOverlay());
 
 		// this.addImageListener
-		this.ctrlImg = new ControleurImp(this);
+		this.ctrlImg = new ControllerImp(this);
 		ImagePlus.addImageListener(this.ctrlImg);
 
 		this.indexRoi = 0;
@@ -82,7 +82,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 
 		// on execute des action selon quel bouton a ete clique
 		if (b == fen.getBtn_suivant()) {
-			this.clicSuivant();
+			this.clickNext();
 
 		} else if (b == fen.getBtn_precedent()) {
 			this.clicPrecedent();
@@ -166,7 +166,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	}
 
 	@Override
-	public void clicSuivant() {
+	public void clickNext() {
 		// sauvegarde du ROI actuel
 		try {
 			this.saveRoiAtIndex(this.getNomOrgane(this.indexRoi), this.indexRoi);
@@ -283,7 +283,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	}
 
 	public void addImpListener() {
-		this.ctrlImg = new ControleurImp(this);
+		this.ctrlImg = new ControllerImp(this);
 		ImagePlus.addImageListener(this.ctrlImg);
 	}
 
@@ -328,7 +328,7 @@ public abstract class Controleur_OrganeFixe extends ControleurScin {
 	}
 
 	/*
-	 * public ModeleScin getModele() { return this.modele; }
+	 * public ModelScin getModele() { return this.modele; }
 	 */
 
 	public String getNomOrgane(int index) {

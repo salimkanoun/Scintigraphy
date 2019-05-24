@@ -6,6 +6,7 @@ import org.petctviewer.scintigraphy.hepatic.dynRefactored.ModelHepaticDynamic;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -30,7 +31,7 @@ public class SecondHepaticScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] openedImages) throws WrongInputException {
+	public ImageSelection[] preparerImp(ImageSelection[] openedImages) throws WrongInputException, ReadTagException {
 		if (openedImages.length > 2) {
 			IJ.log("Please open a dicom containing both ant and post or two separated dicoms");
 		}

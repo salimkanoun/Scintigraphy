@@ -11,7 +11,7 @@ import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.gui.FenNeph;
 import org.petctviewer.scintigraphy.renal.gui.FenResultats_Renal;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.controller.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
@@ -21,7 +21,7 @@ import ij.Prefs;
 import ij.gui.Overlay;
 import ij.gui.Roi;
 
-public class Controleur_Renal extends Controleur_OrganeFixe {
+public class Controller_Renal extends Controller_OrganeFixe {
 
 	public static String[] ORGANES = { "L. Kidney", "L. bkg", "R. Kidney", "R. bkg", "Blood Pool" };
 
@@ -30,15 +30,15 @@ public class Controleur_Renal extends Controleur_OrganeFixe {
 	 * 
 	 * @param renalScinti la vue
 	 */
-	protected Controleur_Renal(RenalScintigraphy renalScinti, ImageSelection[] selectedImages, String studyName) {
-		super(renalScinti, new Modele_Renal(renalScinti.getFrameDurations(), selectedImages, studyName));
+	protected Controller_Renal(RenalScintigraphy renalScinti, ImageSelection[] selectedImages, String studyName) {
+		super(renalScinti, new Model_Renal(renalScinti.getFrameDurations(), selectedImages, studyName));
 		
-		((Modele_Renal)this.model).setKidneys(new boolean[2]);
+		((Model_Renal)this.model).setKidneys(new boolean[2]);
 
 		this.setOrganes(ORGANES);
 
 		// on bloque le modele pour ne pas enregistrer les valeurs de la projection
-		((Modele_Renal) model).setLocked(true);
+		((Model_Renal) model).setLocked(true);
 	}
 
 	/************ Setter ***********/
@@ -54,7 +54,7 @@ public class Controleur_Renal extends Controleur_OrganeFixe {
 	}
 
 	public void setKidneys(boolean[] kidneys) {
-		((Modele_Renal) this.model).setKidneys(kidneys);
+		((Model_Renal) this.model).setKidneys(kidneys);
 		this.adjustOrgans();
 	}
 
@@ -104,14 +104,14 @@ public class Controleur_Renal extends Controleur_OrganeFixe {
 	private void adjustOrgans() {
 
 		// on rajoute les organes selon les preferences
-		ArrayList<String> organes = new ArrayList<>(Arrays.asList(Controleur_Renal.ORGANES));
+		ArrayList<String> organes = new ArrayList<>(Arrays.asList(Controller_Renal.ORGANES));
 
-		if (!((Modele_Renal)this.model).getKidneys()[0]) {
+		if (!((Model_Renal)this.model).getKidneys()[0]) {
 			organes.remove("L. Kidney");
 			organes.remove("L. bkg");
 		}
 
-		if (!((Modele_Renal)this.model).getKidneys()[1]) {
+		if (!((Model_Renal)this.model).getKidneys()[1]) {
 			organes.remove("R. Kidney");
 			organes.remove("R. bkg");
 		}
@@ -121,21 +121,21 @@ public class Controleur_Renal extends Controleur_OrganeFixe {
 		}
 
 		if (Prefs.get("renal.pelvis.preferred", true)) {
-			if (((Modele_Renal)this.model).getKidneys()[0]) {
+			if (((Model_Renal)this.model).getKidneys()[0]) {
 				organes.add(organes.indexOf("L. Kidney") + 1, "L. Pelvis");
 			}
 
-			if (((Modele_Renal)this.model).getKidneys()[1]) {
+			if (((Model_Renal)this.model).getKidneys()[1]) {
 				organes.add(organes.indexOf("R. Kidney") + 1, "R. Pelvis");
 			}
 		}
 
 		if (Prefs.get("renal.ureter.preferred", true)) {
-			if (((Modele_Renal)this.model).getKidneys()[0]) {
+			if (((Model_Renal)this.model).getKidneys()[0]) {
 				organes.add("L. Ureter");
 			}
 
-			if (((Modele_Renal)this.model).getKidneys()[1]) {
+			if (((Model_Renal)this.model).getKidneys()[1]) {
 				organes.add("R. Ureter");
 			}
 		}
@@ -154,7 +154,7 @@ public class Controleur_Renal extends Controleur_OrganeFixe {
 
 		// on recupere la vue, le modele et l'imp
 		RenalScintigraphy scinRenal = (RenalScintigraphy) this.getScin();
-		Modele_Renal modele = (Modele_Renal) this.model;
+		Model_Renal modele = (Model_Renal) this.model;
 
 		// Remet les data du modele a zero (en cas de relance)
 		modele.getData().clear();
@@ -181,7 +181,7 @@ public class Controleur_Renal extends Controleur_OrganeFixe {
 		}
 
 		// on calcule les resultats
-		modele.calculerResultats();
+		modele.calculateResults();
 
 		// on recupere les chartPanels avec l'association
 		List<XYSeries> series = modele.getSeries();
@@ -192,8 +192,8 @@ public class Controleur_Renal extends Controleur_OrganeFixe {
 		fan.setModal(true);
 		fan.setVisible(true);
 
-		((Modele_Renal)model).setNephrogramChart(fan.getValueSetter());
-		((Modele_Renal)model).setPatlakChart(fan.getPatlakChart());
+		((Model_Renal)model).setNephrogramChart(fan.getValueSetter());
+		((Model_Renal)model).setPatlakChart(fan.getPatlakChart());
 
 		// on passe les valeurs ajustees au modele
 		modele.setAdjustedValues(fan.getValueSetter().getValues());
@@ -202,7 +202,7 @@ public class Controleur_Renal extends Controleur_OrganeFixe {
 		modele.fitVasculaire();
 
 		// on affiche la fenetre de resultats principale
-		((Modele_Renal)model).setNephrogramChart(fan.getValueSetter());
+		((Model_Renal)model).setNephrogramChart(fan.getValueSetter());
 		new FenResultats_Renal(scinRenal, capture, this);
 
 		// SK On rebloque le modele pour la prochaine generation

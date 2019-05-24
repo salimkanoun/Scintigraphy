@@ -13,7 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -66,7 +66,7 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 	}
 
 	@Override
-	public void setControleur(ControleurScin ctrl) {
+	public void setControleur(ControllerScin ctrl) {
 		super.setControleur(ctrl);
 		this.setText_instructions("Click to start the exam");
 	}
@@ -124,14 +124,14 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 			fen.setVisible(true);
 			fen.setAlwaysOnTop(true);
 			fen.setLocationRelativeTo(this);
-			// ((Controleur_Renal) this.getControleur()).setKidneys(fen.getKidneys());
+			// ((Controller_Renal) this.getControleur()).setKidneys(fen.getKidneys());
 			((ControllerWorkflowRenal) this.getControleur()).setKidneys(fen.getKidneys());
 
 			this.getBtn_contrast().setEnabled(true);
 
 			this.getPanel_bttns_droit().removeAll();
 			this.getPanel_bttns_droit().add(this.createPanelInstructionsBtns());
-			// ((Controleur_OrganeFixe)this.getControleur()).setInstructionsDelimit(0);
+			// ((Controller_OrganeFixe)this.getControleur()).setInstructionsDelimit(0);
 			this.getBtn_drawROI().setEnabled(true);
 			IJ.setTool(Toolbar.POLYGON);
 			this.setImage(impProj);

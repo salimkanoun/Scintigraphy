@@ -82,7 +82,7 @@ public abstract class DefaultGenerator implements GeneratorInstruction, Serializ
 	}
 
 	@Override
-	public int roiToDisplay() {
+	public int getRoiIndex() {
 		return -1;
 	}
 

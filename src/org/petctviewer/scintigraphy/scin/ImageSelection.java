@@ -141,10 +141,7 @@ public class ImageSelection implements Cloneable {
 		} else if (!columnsValues.equals(other.columnsValues))
 			return false;
 		if (imp == null) {
-			if (other.imp != null)
-				return false;
-		} else if (!imp.equals(other.imp))
-			return false;
-		return true;
+			return other.imp == null;
+		} else return imp.equals(other.imp);
 	}
 }

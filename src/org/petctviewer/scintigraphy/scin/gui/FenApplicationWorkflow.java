@@ -1,27 +1,18 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Event;
-import java.awt.MouseInfo;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Scrollbar;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.gui.ScrollbarWithLabel;
+import org.petctviewer.scintigraphy.gastric.InstructionTooltip;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
-
-import org.petctviewer.scintigraphy.gastric.InstructionTooltip;
-import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
-import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
-
-import ij.IJ;
-import ij.ImagePlus;
-import ij.gui.ScrollbarWithLabel;
 
 /**
  * This class is the main window of the program and handles all of the inputs
@@ -33,26 +24,20 @@ import ij.gui.ScrollbarWithLabel;
  * {@link #setVisualizationEnable(boolean)} and setting it to FALSE.<br>
  * If you want this functionality, then you need to call the
  * {@link #setNbInstructions(int)} method to correctly initialize the scrollbar.
- * 
- * @author Titouan QUÉMA
  *
+ * @author Titouan QUÉMA
  */
 public class FenApplicationWorkflow extends FenApplication implements MouseMotionListener, MouseListener {
+	public static final String BTN_TXT_RESUME = "Resume";
 	private static final long serialVersionUID = -6280620624574294247L;
-
 	private Scrollbar scroll;
 	private InstructionTooltip tooltip;
-
-	public enum UI_Element {
-		BUTTON_NEXT, BUTTON_PREVIOUS, BUTTON_DRAW_ROI, BUTTON_QUIT, BUTTON_CONTRAST;
-	}
-
 	private ImageSelection imageSelection;
 
 	/**
 	 * Instantiates a new application window. This constructor enables by default
 	 * the scrollbar visualization of the workflow.
-	 * 
+	 *
 	 * @param ims       Image displayed in this application
 	 * @param studyName Name of the study
 	 */
@@ -85,7 +70,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 	/**
 	 * Enables or disables the visualization functionality.
-	 * 
+	 *
 	 * @param state if TRUE the scrollbar for the visualization is displayed and if
 	 *              set to FALSE, then the scrollbar displayed is the one of IJ
 	 */
@@ -132,8 +117,15 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	}
 
 	/**
+	 * @return TRUE if the visualization scroll bar is enabled and FALSE if the default IJ scroll is left
+	 */
+	public boolean isVisualizationEnabled() {
+		return this.tooltip != null;
+	}
+
+	/**
 	 * Sets the number of instructions the scrollbar can go through.
-	 * 
+	 *
 	 * @param nbInstructions Number of instructions
 	 */
 	public void setNbInstructions(int nbInstructions) {
@@ -142,7 +134,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 	/**
 	 * Gets the current instruction selected by the scrollbar.
-	 * 
+	 *
 	 * @return index of the instruction
 	 */
 	public int getInstructionDisplayed() {
@@ -152,7 +144,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	/**
 	 * Sets the current instruction selected by the scrollbar. The value should be
 	 * less or equals than the maximum value.
-	 * 
+	 *
 	 * @param value Index of the instruction
 	 */
 	public void currentInstruction(int value) {
@@ -161,7 +153,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 	/**
 	 * Gets the maximum of instructions displayed by the scrollbar.
-	 * 
+	 *
 	 * @return maximum value
 	 */
 	public int getMaxInstruction() {
@@ -181,7 +173,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 	/**
 	 * Changes the current instruction message for the user.
-	 * 
+	 *
 	 * @param message Message for the user
 	 */
 	public void setMessageInstruction(String message) {
@@ -191,7 +183,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 	/**
 	 * Enables or disables the 'Next' button.
-	 * 
+	 *
 	 * @param state if TRUE the 'Next' button can be clicked on and if set to FALSE,
 	 *              then the button cannot be clicked
 	 */
@@ -201,7 +193,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 	/**
 	 * Enables or disables the 'Previous' button.
-	 * 
+	 *
 	 * @param state if TRUE the 'Previous' button can be clicked on and if set to
 	 *              FALSE, then the button cannot be clicked
 	 */
@@ -211,7 +203,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 	/**
 	 * Gets the image displayed by this view.
-	 * 
+	 *
 	 * @return image currently displayed
 	 */
 	public ImageSelection getImage() {
@@ -220,71 +212,12 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 	/**
 	 * Sets the current image displayed by this view.
-	 * 
+	 *
 	 * @param image New image to display
 	 */
 	public void setImage(ImageSelection image) {
 		this.imageSelection = image;
 		this.setImage(image.getImagePlus());
-	}
-
-	/**
-	 * Checks if the specified button is the 'Next' button of this view.
-	 * 
-	 * @param btn Button to check
-	 * @return TRUE if this is the 'Next' button and FALSE otherwise
-	 */
-	public boolean isButtonNext(Button btn) {
-		return this.matchComponent(btn, UI_Element.BUTTON_NEXT);
-	}
-
-	/**
-	 * Checks if the specified button is the 'Previous' button of this view.
-	 * 
-	 * @param btn Button to check
-	 * @return TRUE if this is the 'Previous' button and FALSE otherwise
-	 */
-	public boolean isButtonPrevious(Button btn) {
-		return this.matchComponent(btn, UI_Element.BUTTON_PREVIOUS);
-	}
-
-	/**
-	 * Checks if the specified component matches the specified element of this view.
-	 * 
-	 * @param component Component to check
-	 * @param element   Element the component should be equal
-	 * @return TRUE if the specified component is the element in this view and FALSE
-	 *         otherwise
-	 */
-	public boolean matchComponent(Component component, UI_Element element) {
-		Button btn = this.getButton(element);
-		if (btn != null)
-			return btn == component;
-		return false;
-	}
-
-	/**
-	 * Gets the button of this view represented by the specified element.<br>
-	 * If the element is not a button, then null is returned.
-	 * 
-	 * @param element Button to get
-	 * @return button represented by the element or null if element is not a button
-	 */
-	public Button getButton(UI_Element element) {
-		switch (element) {
-		case BUTTON_CONTRAST:
-			return this.btn_contrast;
-		case BUTTON_DRAW_ROI:
-			return this.btn_drawROI;
-		case BUTTON_NEXT:
-			return this.btn_suivant;
-		case BUTTON_PREVIOUS:
-			return this.btn_precedent;
-		case BUTTON_QUIT:
-			return this.btn_quitter;
-		default:
-			return null;
-		}
 	}
 
 	/**
@@ -296,8 +229,67 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 		super.setImage(imp);
 	}
 
+	/**
+	 * Checks if the specified button is the 'Next' button of this view.
+	 *
+	 * @param btn Button to check
+	 * @return TRUE if this is the 'Next' button and FALSE otherwise
+	 */
+	public boolean isButtonNext(Button btn) {
+		return this.matchComponent(btn, UI_Element.BUTTON_NEXT);
+	}
+
+	/**
+	 * Checks if the specified button is the 'Previous' button of this view.
+	 *
+	 * @param btn Button to check
+	 * @return TRUE if this is the 'Previous' button and FALSE otherwise
+	 */
+	public boolean isButtonPrevious(Button btn) {
+		return this.matchComponent(btn, UI_Element.BUTTON_PREVIOUS);
+	}
+
+	/**
+	 * Checks if the specified component matches the specified element of this view.
+	 *
+	 * @param component Component to check
+	 * @param element   Element the component should be equal
+	 * @return TRUE if the specified component is the element in this view and FALSE
+	 * otherwise
+	 */
+	private boolean matchComponent(Component component, UI_Element element) {
+		Button btn = this.getButton(element);
+		if (btn != null)
+			return btn == component;
+		return false;
+	}
+
+	/**
+	 * Gets the button of this view represented by the specified element.<br>
+	 * If the element is not a button, then null is returned.
+	 *
+	 * @param element Button to get
+	 * @return button represented by the element or null if element is not a button
+	 */
+	private Button getButton(UI_Element element) {
+		switch (element) {
+			case BUTTON_CONTRAST:
+				return this.btn_contrast;
+			case BUTTON_DRAW_ROI:
+				return this.btn_drawROI;
+			case BUTTON_NEXT:
+				return this.btn_suivant;
+			case BUTTON_PREVIOUS:
+				return this.btn_precedent;
+			case BUTTON_QUIT:
+				return this.btn_quitter;
+			default:
+				return null;
+		}
+	}
+
 	@Override
-	public void setControleur(ControleurScin controller) {
+	public void setControleur(ControllerScin controller) {
 		if (!(controller instanceof ControllerWorkflow)) {
 			throw new IllegalArgumentException("The controller must be an instance of ControllerWorkflow");
 		}
@@ -363,8 +355,11 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 				ic.zoomIn(x, y);
 			else
 				ic.zoomOut(x, y);
-			return;
 		}
+	}
+
+	public enum UI_Element {
+		BUTTON_NEXT, BUTTON_PREVIOUS, BUTTON_DRAW_ROI, BUTTON_QUIT, BUTTON_CONTRAST
 	}
 
 }

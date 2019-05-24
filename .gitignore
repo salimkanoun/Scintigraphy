@@ -9,3 +9,6 @@
 /jars/
 /.project
 
+.idea/
+Scintigraphy.eml
+Scintigraphy.iml

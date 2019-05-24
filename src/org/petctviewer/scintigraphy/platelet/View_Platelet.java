@@ -1,4 +1,4 @@
-/**
+/*
 Copyright (C) 2017 KANOUN Salim
 
 This program is free software; you can redistribute it and/or modify
@@ -22,6 +22,7 @@ import java.util.Date;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
@@ -36,7 +37,7 @@ import ij.plugin.Concatenator;
 import ij.plugin.HyperStackConverter;
 import ij.plugin.StackReverser;
 
-public class Vue_Plaquettes extends Scintigraphy {
+public class View_Platelet extends Scintigraphy {
 
 	// Si acquisition antPost
 	protected Boolean antPost = false;
@@ -45,39 +46,39 @@ public class Vue_Plaquettes extends Scintigraphy {
 	// Nombre de series disponibles a l'ouverture
 	protected int nombreAcquisitions;
 
-	public Vue_Plaquettes() {
+	public View_Platelet() {
 		super("Platelet");
 	}
 
 	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException, ReadTagException {
 		// Check number of images
 		if (selectedImages.length == 0)
 			throw new WrongNumberImagesException(selectedImages.length, 1, Integer.MAX_VALUE);
 
 		ArrayList<ImagePlus> series = new ArrayList<>();
 
-		for (int i = 0; i < selectedImages.length; i++) {
+		for (ImageSelection selectedImage : selectedImages) {
 
-			ImagePlus imp = selectedImages[i].getImagePlus().duplicate();
-			selectedImages[i].getImagePlus().close();
+			ImagePlus imp = selectedImage.getImagePlus().duplicate();
+			selectedImage.getImagePlus().close();
 
-			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST) {
+			if (selectedImage.getImageOrientation() == Orientation.ANT_POST) {
 				// On inverse pour avoir l'image post en 1er
 				StackReverser reverser = new StackReverser();
 				reverser.flipStack(imp);
 				series.add(Library_Dicom.sortImageAntPost(imp));
-			} else if (selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
+			} else if (selectedImage.getImageOrientation() == Orientation.POST_ANT) {
 				series.add(Library_Dicom.sortImageAntPost(imp));
 
-			} else if (selectedImages[i].getImageOrientation() == Orientation.POST) {
+			} else if (selectedImage.getImageOrientation() == Orientation.POST) {
 				imp.getProcessor().flipHorizontal();
 				series.add(imp);
 
 			} else {
-				throw new WrongColumnException.OrientationColumn(selectedImages[i].getRow(),
-						selectedImages[i].getImageOrientation(),
-						new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT, Orientation.POST });
+				throw new WrongColumnException.OrientationColumn(selectedImage.getRow(),
+						selectedImage.getImageOrientation(),
+						new Orientation[]{Orientation.ANT_POST, Orientation.POST_ANT, Orientation.POST});
 			}
 
 		}
@@ -115,7 +116,7 @@ public class Vue_Plaquettes extends Scintigraphy {
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 
-		Controleur_Plaquettes ctrl = new Controleur_Plaquettes(this, this.getDateDebut(), selectedImages, "Platelet");
+		Controller_Plaquettes ctrl = new Controller_Plaquettes(this, this.getDateDebut(), selectedImages, "Platelet");
 		this.getFenApplication().setControleur(ctrl);
 		this.getFenApplication().getImagePlus().getCanvas().setScaleToFit(true);
 		this.getFenApplication().getImagePlus().getCanvas().setSize(512, 512);

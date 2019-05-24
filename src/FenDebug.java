@@ -17,7 +17,7 @@ import org.petctviewer.scintigraphy.generic.statics.StaticScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.dynRefactored.HepaticDynScintigraphy;
 import org.petctviewer.scintigraphy.lympho.LymphoSintigraphy;
 import org.petctviewer.scintigraphy.os.OsScintigraphy;
-import org.petctviewer.scintigraphy.platelet.Vue_Plaquettes;
+import org.petctviewer.scintigraphy.platelet.View_Platelet;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.renal.dmsa.DmsaScintigraphy;
 import org.petctviewer.scintigraphy.renal.followup.FollowUp;
@@ -39,12 +39,7 @@ public class FenDebug extends JFrame {
 			vue = program.newInstance();
 			JButton btn = new JButton(
 					(vue instanceof Scintigraphy ? ((Scintigraphy) vue).getStudyName() : program.getSimpleName()));
-			btn.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					vue.run("");
-				}
-			});
+			btn.addActionListener(e -> vue.run(""));
 			return btn;
 		} catch (InstantiationException | IllegalAccessException e1) {
 			e1.printStackTrace();
@@ -65,7 +60,7 @@ public class FenDebug extends JFrame {
 		this.panel = new JPanel(new GridLayout(0, 3));
 
 		this.registerNewProgram(CardiacScintigraphy.class);
-		this.registerNewProgram(Vue_Plaquettes.class);
+		this.registerNewProgram(View_Platelet.class);
 		this.registerNewProgram(GeneralDynamicScintigraphy.class);
 		this.registerNewProgram(RenalScintigraphy.class);
 		this.registerNewProgram(DmsaScintigraphy.class);

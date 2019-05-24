@@ -10,9 +10,9 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.lympho.ModeleLympho;
+import org.petctviewer.scintigraphy.lympho.ModelLympho;
 import org.petctviewer.scintigraphy.lympho.pelvis.ControllerWorkflowPelvis;
-import org.petctviewer.scintigraphy.lympho.pelvis.ModelePelvis;
+import org.petctviewer.scintigraphy.lympho.pelvis.ModelPelvis;
 import org.petctviewer.scintigraphy.lympho.pelvis.PelvisScintigraphy;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
@@ -31,7 +31,7 @@ public class TabPelvis extends TabResult implements ActionListener {
 		super(parent, title, captureBtn);
 		// TODO Auto-generated constructor stub
 		this.setSidePanelTitle("Pelvis Scintigraphy");
-		((ModeleLympho) this.parent.getModel()).setResultTab(this);
+		((ModelLympho) this.parent.getModel()).setResultTab(this);
 		
 		this.reloadDisplay();
 	}
@@ -41,7 +41,7 @@ public class TabPelvis extends TabResult implements ActionListener {
 		if (!this.examDone) {
 			return null;
 		} else {
-			String[] result = ((ModelePelvis) ((ControllerWorkflowPelvis) this.vueBasic.getFenApplication().getControleur())
+			String[] result = ((ModelPelvis) ((ControllerWorkflowPelvis) this.vueBasic.getFenApplication().getControleur())
 					.getModel()).getResult();
 			JPanel res = new JPanel(new GridLayout(result.length, 1));
 			for (String s : result)
@@ -67,7 +67,7 @@ public class TabPelvis extends TabResult implements ActionListener {
 
 		} else {
 			DynamicImage pelvis = new DynamicImage(
-					((ModelePelvis) ((ControllerWorkflowPelvis) this.vueBasic.getFenApplication().getControleur()).getModel())
+					((ModelPelvis) ((ControllerWorkflowPelvis) this.vueBasic.getFenApplication().getControleur()).getModel())
 							.getPelvisMontage().getImage());
 			return pelvis;
 		}

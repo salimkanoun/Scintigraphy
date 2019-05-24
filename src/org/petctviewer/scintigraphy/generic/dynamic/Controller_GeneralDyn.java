@@ -11,18 +11,18 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.controller.Controleur_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.ZProjector;
 
-public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
+public class Controller_GeneralDyn extends Controller_OrganeFixe {
 
 	public static int MAXROI = 100;
 	private int nbOrganes = 0;
@@ -30,9 +30,9 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 	private ImagePlus impProjetee;
 	private FenResults fenResult;
 
-	protected Controleur_GeneralDyn(GeneralDynamicScintigraphy scin, String studyName,
-			ImageSelection[] selectedImages) {
-		super(scin, new Modele_GeneralDyn(selectedImages, studyName, scin.getFrameDurations()));
+	protected Controller_GeneralDyn(GeneralDynamicScintigraphy scin, String studyName,
+	                                ImageSelection[] selectedImages) {
+		super(scin, new Model_GeneralDyn(selectedImages, studyName, scin.getFrameDurations()));
 		this.setOrganes(new String[MAXROI]);
 
 		this.over = false;
@@ -52,7 +52,7 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				if (arg0.getKeyCode() == KeyEvent.VK_ENTER) {
-					Controleur_GeneralDyn.this.clicSuivant();
+					Controller_GeneralDyn.this.clickNext();
 				}
 			}
 		});
@@ -76,7 +76,7 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 		FenApplication_GeneralDyn fen = (FenApplication_GeneralDyn) this.getScin().getFenApplication();
 
 		if (b == fen.getBtn_finish()) {
-			this.clicSuivant();
+			this.clickNext();
 			this.end();
 		}
 
@@ -149,10 +149,10 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 					BufferedImage c = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
 
 					saveValues(scindyn.getImpPost());
-					Controleur_GeneralDyn.this.fenResult
-							.addTab(new TabAntPost(c, "Post", Controleur_GeneralDyn.this.fenResult));
+					Controller_GeneralDyn.this.fenResult
+							.addTab(new TabAntPost(c, "Post", Controller_GeneralDyn.this.fenResult));
 
-					Controleur_GeneralDyn.this.finishDrawingResultWindow();
+					Controller_GeneralDyn.this.finishDrawingResultWindow();
 				}
 			});
 			th.start();
@@ -205,8 +205,8 @@ public class Controleur_GeneralDyn extends Controleur_OrganeFixe {
 			}
 		}
 		// set data to the model
-		((ModeleScinDyn) this.model).setData(mapData);
-		this.model.calculerResultats();
+		((ModelScinDyn) this.model).setData(mapData);
+		this.model.calculateResults();
 
 	}
 

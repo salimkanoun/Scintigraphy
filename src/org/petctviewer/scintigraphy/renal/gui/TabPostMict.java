@@ -15,8 +15,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.petctviewer.scintigraphy.renal.Modele_Renal;
-import org.petctviewer.scintigraphy.renal.postMictional.Modele_PostMictional;
+import org.petctviewer.scintigraphy.renal.Model_Renal;
+import org.petctviewer.scintigraphy.renal.postMictional.Model_PostMictional;
 import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -42,7 +42,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 
 	private JPanel panel_excr, panel_bladder;
 	private boolean examDone;
-	private Modele_PostMictional modelPostMictional;
+	private Model_PostMictional modelPostMictional;
 
 	public TabPostMict(Scintigraphy vue, FenResults parent) {
 		super("Post Mictional", vue, "postmict", parent);
@@ -161,7 +161,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 	}
 
 	private String[] createOrgans() {
-		Modele_Renal modele = (Modele_Renal) this.parent.getModel();
+		Model_Renal modele = (Model_Renal) this.parent.getModel();
 
 		// ajout des organes a delimiter selon le nombre de rein du patient
 		List<String> organes = new ArrayList<String>();
@@ -181,8 +181,8 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 		return organes.toArray(new String[0]);
 	}
 
-	public JPanel updateResultFrame(Modele_PostMictional model) {
-		Modele_Renal modele = (Modele_Renal) this.parent.getModel();
+	public JPanel updateResultFrame(Model_PostMictional model) {
+		Model_Renal modele = (Model_Renal) this.parent.getModel();
 
 		HashMap<String, Double> data = model.getData();
 		this.setOnlyImp(this.parent.getModel().getImagePlus());
@@ -234,7 +234,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 	}
 
 	private void inflatePanelExcr(Double rg, Double rd) {
-		Modele_Renal modele = (Modele_Renal) this.parent.getModel();
+		Model_Renal modele = (Model_Renal) this.parent.getModel();
 		Double[][] excr = modele.getExcrPM(rg, rd);
 
 		// elements du tableau
@@ -266,7 +266,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 		this.examDone = boobool;
 	}
 
-	public void setModelPostMictional(Modele_PostMictional model) {
+	public void setModelPostMictional(Model_PostMictional model) {
 		this.modelPostMictional = model;
 	}
 

@@ -20,7 +20,7 @@ public enum Orientation {
 
 	private String s;
 
-	private Orientation(String s) {
+	Orientation(String s) {
 		this.s = s;
 	}
 
@@ -83,7 +83,7 @@ public enum Orientation {
 	 *         dynamic or Unknown
 	 */
 	public boolean isStatic() {
-		return Arrays.stream(staticOrientations()).anyMatch(o -> o.equals(this));
+		return Arrays.asList(staticOrientations()).contains(this);
 	}
 
 	/**
@@ -108,7 +108,7 @@ public enum Orientation {
 	 *         static
 	 */
 	public boolean isDynamic() {
-		return Arrays.stream(dynamicOrientations()).anyMatch(o -> o.equals(this));
+		return Arrays.asList(dynamicOrientations()).contains(this);
 	}
 
 	/**

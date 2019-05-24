@@ -4,16 +4,16 @@ import java.util.HashMap;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.ImagePlus;
 
-public class ModeleScinStatic  extends ModeleScin{
+public class ModelScinStatic extends ModelScin {
 	
 	private HashMap<String, Object[]> roisAnt;
 	private HashMap<String, Object[]> roisPost;
 	
-	public ModeleScinStatic(ImageSelection[] selectedImages, String studyName) {
+	public ModelScinStatic(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
 		this.roisAnt = new HashMap<>();
 		this.roisPost = new HashMap<>();
@@ -52,7 +52,7 @@ public class ModeleScinStatic  extends ModeleScin{
 }
 	
 	@Override
-	public void calculerResultats() {
+	public void calculateResults() {
 		
 	
 	}

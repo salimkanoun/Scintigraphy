@@ -7,15 +7,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.petctviewer.scintigraphy.lympho.ModeleLympho;
+import org.petctviewer.scintigraphy.lympho.ModelLympho;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.ImagePlus;
 
-public class ModelePelvis extends ModeleScin {
+public class ModelPelvis extends ModelScin {
 
 	public static final int RIGHT_PELVIS_ANT = 0, LEFT_PELVIS_ANT = 1, BACKGROUND_ANT = 2, RIGHT_PELVIS_POST = 3,
 			LEFT_PELVIS_POST = 4, BACKGROUND_POST = 5, TOTAL_ORGANS = 6;
@@ -34,7 +34,7 @@ public class ModelePelvis extends ModeleScin {
 
 	private List<Double> results;
 
-	public ModelePelvis(ImageSelection[] selectedImages, String studyName, TabResult resultTab) {
+	public ModelPelvis(ImageSelection[] selectedImages, String studyName, TabResult resultTab) {
 		super(selectedImages, studyName);
 
 		this.coups = new HashMap<>();
@@ -72,7 +72,7 @@ public class ModelePelvis extends ModeleScin {
 					this.roiManager.getRoi(organ), this.roiManager.getRoi(((organ / 3) * 3) + 2));
 		}
 		this.coups.put(organ, correctedRadioactiveDecrease);
-		System.out.println("Calculations for " + organ + " [" + ModelePelvis.convertOrgan(organ) + "] -> "
+		System.out.println("Calculations for " + organ + " [" + ModelPelvis.convertOrgan(organ) + "] -> "
 				+ correctedRadioactiveDecrease + "\n\n");
 	}
 
@@ -111,14 +111,14 @@ public class ModelePelvis extends ModeleScin {
 		Library_Quantif.getCountCorrectedBackground(this.selectedImages[organ / 3].getImagePlus(),
 				this.roiManager.getRoi(organ), this.roiManager.getRoi((organ / 3) + 3));
 		geometricalAverage.put(organ, (int) Library_Quantif.moyGeom(this.coups.get(organ), this.coups.get(organ + 3)));
-		System.out.println("MG " + organ + " [" + ModeleLympho.convertOrgan(organ) + "/ "
-				+ ModeleLympho.convertOrgan(organ + 3) + "] --- [" + this.coups.get(organ) + "/"
+		System.out.println("MG " + organ + " [" + ModelLympho.convertOrgan(organ) + "/ "
+				+ ModelLympho.convertOrgan(organ + 3) + "] --- [" + this.coups.get(organ) + "/"
 				+ this.coups.get(organ + 3) + "] -> " + geometricalAverage.get(organ));
 
 	}
 
 	@Override
-	public void calculerResultats() {
+	public void calculateResults() {
 		this.retour = new String[9];
 
 		// Permet de definir le nombre de chiffre apr猫s la virgule et mettre la
@@ -146,7 +146,7 @@ public class ModelePelvis extends ModeleScin {
 		double RightLeftGradient = ((GeometricAverageLeft - GeometricAverageRight) / GeometricAverageRight) * 100;
 		retour[3] += " " + us.format(RightLeftGradient) + "%";
 
-		((ModeleLympho) resutlTab.getParent().getModel()).getInjectionRatio();
+		((ModelLympho) resutlTab.getParent().getModel()).getInjectionRatio();
 
 		this.results.add(Double.valueOf(us.format(GeometricAverageRight)));
 		this.results.add(Double.valueOf(us.format(GeometricAverageLeft)));

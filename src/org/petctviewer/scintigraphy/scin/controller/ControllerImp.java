@@ -3,9 +3,9 @@ package org.petctviewer.scintigraphy.scin.controller;
 import ij.ImageListener;
 import ij.ImagePlus;
 
-public class ControleurImp implements ImageListener {
+public class ControllerImp implements ImageListener {
 	
-	private Controleur_OrganeFixe ctrlScin;
+	private Controller_OrganeFixe ctrlScin;
 	private int lastSlice = 1;
 	private boolean lockUpdate = false;
 	
@@ -13,7 +13,7 @@ public class ControleurImp implements ImageListener {
 	 * met a jour l'overlay de l'imp si elle est modifiee
 	 * @param ctrlScin
 	 */
-	public ControleurImp(Controleur_OrganeFixe ctrlScin) {
+	public ControllerImp(Controller_OrganeFixe ctrlScin) {
 		this.ctrlScin = ctrlScin;
 	}
 	

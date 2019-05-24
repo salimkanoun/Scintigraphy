@@ -23,7 +23,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
-import org.petctviewer.scintigraphy.renal.Modele_Renal;
+import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.YSelector;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -74,7 +74,7 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 
 	@Override
 	public JPanel getResultContent() {
-		Modele_Renal modele = (Modele_Renal) this.parent.getModel();
+		Model_Renal modele = (Model_Renal) this.parent.getModel();
 
 		if (modele.getKidneys()[0] && modele.getKidneys()[1]) {
 
@@ -234,7 +234,7 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 		this.reloadDisplay();
 	}
 
-	public List<Double> getAVGPixelCounts(Modele_Renal modele, String name) {
+	public List<Double> getAVGPixelCounts(Model_Renal modele, String name) {
 
 		List<Double> values = modele.getData(name);
 

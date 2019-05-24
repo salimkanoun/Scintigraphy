@@ -3,18 +3,18 @@ package org.petctviewer.scintigraphy.renal.postMictional;
 import java.util.HashMap;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-public class Modele_PostMictional extends ModeleScin {
+public class Model_PostMictional extends ModelScin {
 
 	private HashMap<String, Double> hm;
 
-	public Modele_PostMictional(ImageSelection[] selectedImages,String studyName) {
+	public Model_PostMictional(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
 	}
 
 	@Override
-	public void calculerResultats() {
+	public void calculateResults() {
 		// pas de calcul
 	}
 

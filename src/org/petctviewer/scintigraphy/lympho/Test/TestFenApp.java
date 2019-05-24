@@ -27,7 +27,7 @@ import javax.swing.event.ChangeListener;
 
 import org.petctviewer.scintigraphy.lympho.FenApplicationLympho;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.controller.ControleurScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -41,7 +41,7 @@ public class TestFenApp extends JFrame implements ActionListener, ChangeListener
 	private static final long serialVersionUID = -7721675828264590938L;
 
 	private FenApplication fenApplication;
-	ControleurScin controller;
+	ControllerScin controller;
 
 	private JSlider slider;
 	private JLabel sliderLabel;
@@ -211,7 +211,7 @@ public class TestFenApp extends JFrame implements ActionListener, ChangeListener
 
 	}
 
-	public void setControleur(ControleurScin controllerWorkflowLympho) {
+	public void setControleur(ControllerScin controllerWorkflowLympho) {
 		this.controller = controllerWorkflowLympho;
 
 	}

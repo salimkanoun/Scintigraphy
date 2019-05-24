@@ -10,14 +10,14 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
 import ij.ImagePlus;
 import ij.Prefs;
 import ij.gui.Roi;
 import ij.util.DicomTools;
 
-public class Modele_Renal extends ModeleScinDyn {
+public class Model_Renal extends ModelScinDyn {
 
 	private HashMap<String, Roi> organRois;
 	private HashMap<Comparable, Double> adjustedValues;
@@ -36,7 +36,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	 * @param frameDuration
 	 *            duree de chaque frame en ms
 	 */
-	public Modele_Renal(int[] frameDuration, ImageSelection[] selectedImages, String studyName) {
+	public Model_Renal(int[] frameDuration, ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName, frameDuration);
 		this.organRois = new HashMap<>();
 //		this.impProjetee = selectedImages[0];
@@ -352,7 +352,7 @@ public class Modele_Renal extends ModeleScinDyn {
 	}
 
 	@Override
-	public void calculerResultats() {
+	public void calculateResults() {
 
 		// construction du tableau representant chaque rein
 		this.kidneysLR = new ArrayList<>();
@@ -416,7 +416,7 @@ public class Modele_Renal extends ModeleScinDyn {
 
 	/* Contenu qui sera present lors de l'exprotation du CSV
 	 * (non-Javadoc)
-	 * @see org.petctviewer.scintigraphy.scin.ModeleScinDyn#toString()
+	 * @see org.petctviewer.scintigraphy.scin.ModelScinDyn#toString()
 	 */
 	@Override
 	public String toString() {

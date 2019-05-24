@@ -27,8 +27,8 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
-import org.petctviewer.scintigraphy.scin.model.ModeleScinDyn;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
 import ij.Prefs;
 import ij.gui.Overlay;
@@ -134,7 +134,7 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 		JButton button = (JButton) arg0.getSource();
 		if (button == btn_addImp) {
 
-			ModeleScin model = TabCurves.this.parent.getModel();
+			ModelScin model = TabCurves.this.parent.getModel();
 			ImageSelection[] ims = model.getImageSelection();
 			ImageSelection[] selectedImages = new ImageSelection[] { ims[1], ims[2], ims[3], ims[4] };
 			Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
@@ -142,9 +142,11 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 
 			this.vueBasic = new FenApplicationSecondHepaticDyn(selectedImages[0], model.getStudyName());
 			selectedImages[0].getImagePlus().setOverlay(overlay);
+
 			this.vueBasic.setControleur(
 					new ControllerWorkflowHepaticDyn(this.vueBasic, new ModelSecondMethodHepaticDynamic(selectedImages,
-							model.getStudyName(), ((ModeleScinDyn) model).getFrameduration()), this));
+							model.getStudyName(), ((ModelScinDyn) model).getFrameduration()), this));
+
 		} else if (button == buttonSwitchGraph) {
 			this.tabTAC.switchGraph(this.buttonSwitchGraph);
 		}
@@ -221,9 +223,9 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 
 	public JPanel sidePanelTabTAC() {
 		if (this.sidePanelTAC == null) {
-			
+
 			JPanel resultPane = this.sidePanelClassical();
-			
+
 			resultPane.add(new JLabel(""));
 			this.buttonSwitchGraph = new JButton("Single Graph");
 			this.buttonSwitchGraph.addActionListener(this);
@@ -239,9 +241,8 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 		JPanel resultPane = new JPanel(new GridLayout(0, 2));
 		HashMap<String, String> results = ((ModelSecondMethodHepaticDynamic) this.vueBasic.getControleur().getModel())
 				.getResultsHashMap();
-		String[] keys = { "T1/2 Righ Liver", "", "Maximum Right Liver", "end/max Ratio Right",
-				"T1/2 Left Liver", "", "Maximum Left Liver", "end/max Ratio Left", "T1/2 Blood pool",
-				"", "Blood pool ratio 20mn/5mn" };
+		String[] keys = { "T1/2 Righ Liver", "", "Maximum Right Liver", "end/max Ratio Right", "T1/2 Left Liver", "",
+				"Maximum Left Liver", "end/max Ratio Left", "T1/2 Blood pool", "", "Blood pool ratio 20mn/5mn" };
 		for (String s : keys) {
 			if (s.equals(""))
 				resultPane.add(new JLabel(""));

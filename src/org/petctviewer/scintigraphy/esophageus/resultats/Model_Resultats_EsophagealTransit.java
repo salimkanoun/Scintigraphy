@@ -14,13 +14,13 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.measure.Calibration;
 
-public class Modele_Resultats_EsophagealTransit extends ModeleScin {
+public class Model_Resultats_EsophagealTransit extends ModelScin {
 
 	private XYSeries[][] datasetMain;
 	private XYSeries[][] datasetTransitTime;
@@ -39,9 +39,9 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin {
 
 	public EsophagealTransit esoPlugIn;
 
-	public Modele_Resultats_EsophagealTransit(ArrayList<HashMap<String, ArrayList<Double>>> arrayList,
-			ArrayList<Object[]> dicomRoi, String studyName, EsophagealTransit esoPlugIn,
-			ImageSelection[] selectedImages) {
+	public Model_Resultats_EsophagealTransit(ArrayList<HashMap<String, ArrayList<Double>>> arrayList,
+											 ArrayList<Object[]> dicomRoi, String studyName, EsophagealTransit esoPlugIn,
+											 ImageSelection[] selectedImages) {
 		super(selectedImages, studyName);
 
 		// pr csv
@@ -407,7 +407,7 @@ public class Modele_Resultats_EsophagealTransit extends ModeleScin {
 	}
 
 	@Override
-	public void calculerResultats() {
+	public void calculateResults() {
 		// TODO Auto-generated method stub
 
 	}

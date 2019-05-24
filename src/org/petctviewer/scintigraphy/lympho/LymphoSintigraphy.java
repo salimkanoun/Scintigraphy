@@ -1,21 +1,17 @@
 package org.petctviewer.scintigraphy.lympho;
 
-import java.util.Arrays;
-
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
-import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
-import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
-import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
+import org.petctviewer.scintigraphy.scin.exceptions.*;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.ImageStack;
+import java.util.Arrays;
 
 public class LymphoSintigraphy extends Scintigraphy {
 
@@ -24,7 +20,7 @@ public class LymphoSintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
+	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException, ReadTagException {
 		// Check number of images
 		if (selectedImages.length != 2)
 			throw new WrongNumberImagesException(selectedImages.length, 2);
@@ -48,7 +44,7 @@ public class LymphoSintigraphy extends Scintigraphy {
 			} else {
 				throw new WrongColumnException.OrientationColumn(selectedImages[i].getRow(),
 						selectedImages[i].getImageOrientation(),
-						new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT, Orientation.DYNAMIC_ANT_POST });
+						new Orientation[]{Orientation.ANT_POST, Orientation.POST_ANT, Orientation.DYNAMIC_ANT_POST});
 			}
 
 			impsSortedAntPost[i] = impSorted;
@@ -77,7 +73,8 @@ public class LymphoSintigraphy extends Scintigraphy {
 			// On ramène sur 1 minute
 			IJ.run(staticImage.getImagePlus(), "Multiply...", "value=" + (60000f / acquisitionTimeDynamic) + " stack");
 			// On ramène sur 1 minute
-			IJ.run(dynamicImage.getImagePlus(), "Multiply...", "value=" + (60000f / acquisitionTimeDynamic) + " stack");
+			IJ.run(dynamicImage.getImagePlus(), "Multiply...", "value=" + (60000f / acquisitionTimeDynamic) + " " +
+					"stack");
 
 			// On augmente le contraste (uniquement visuel, n'impacte pas les données)
 			dynamicImage.getImagePlus().getProcessor().setMinAndMax(0,
@@ -122,29 +119,24 @@ public class LymphoSintigraphy extends Scintigraphy {
 		// .setControleur(new ControleurLympho(this, this.getFenApplication(), "Lympho
 		// Scinti", selectedImages));
 		((FenApplicationWorkflow) this.getFenApplication()).setControleur(new ControllerWorkflowLympho(this,
-				(FenApplicationWorkflow) this.getFenApplication(), new ModeleLympho(selectedImages, "Lympho Scinti")));
+				(FenApplicationWorkflow) this.getFenApplication(), new ModelLympho(selectedImages, "Lympho Scinti")));
 		this.getFenApplication().setVisible(true);
 
 	}
 
 	/**
-	 * 
 	 * This method return the projection of a Dynamic {@link ImagePlus} to a Static
 	 * {@link ImagePlus}, using the avg.<br/>
-	 * 
+	 *
 	 * @param imp : Dynamic ImagePlus you want to transform
 	 * @return The static {@link ImagePlus}
 	 * @throws IllegalArgumentException
 	 * @throws WrongOrientationException
-	 * 
-	 * @see
-	 *      <ul>
-	 *      <li>{@link Library_Dicom#splitDynamicAntPost(ImagePlus)}</li>
-	 *      <li>{@link Library_Dicom#project(ImageSelection, int, int, String)}</li>
-	 *      </ul>
+	 * @see Library_Dicom#splitDynamicAntPost(ImageSelection)
+	 * @see Library_Dicom#project(ImageSelection, int, int, String)
 	 */
 	public ImageSelection dynamicToStaticAntPost(ImageSelection imp)
-			throws WrongOrientationException, IllegalArgumentException {
+			throws WrongOrientationException, IllegalArgumentException, ReadTagException {
 		ImageSelection[] Ant_Post = Library_Dicom.splitDynamicAntPost(imp);
 
 		ImageSelection Ant = Library_Dicom.project(Ant_Post[0], 1, Ant_Post[0].getImagePlus().getStackSize(), "sum");

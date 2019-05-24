@@ -8,7 +8,7 @@ import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoiInstruction.Organ;
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.gui.Roi;
 
@@ -18,14 +18,17 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 
 	private transient Instruction dri_1;
 
-	private transient ModeleScin model;
+	private transient ModelScin model;
 
 	private transient Organ organ;
 
 	private boolean drawRoi;
+	
+	private String RoiName;
 
 	public DrawSymmetricalLoopInstruction(Workflow workflow, GeneratorInstruction parent, ImageState state,
-			ModeleScin model, Organ organ, String RoiName) {
+			ModelScin model, Organ organ, String RoiName) {
+
 		super(workflow, parent, state);
 
 		this.model = model;
@@ -88,7 +91,7 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 		super.afterNext(controller);
 		if (this.indexLoop % 2 != 0) {
 			// recupere la roi de l'organe symetrique
-			Roi lastOrgan = (Roi) this.model.getRoiManager().getRoi(dri_1.roiToDisplay());
+			Roi lastOrgan = (Roi) this.model.getRoiManager().getRoi(dri_1.getRoiIndex());
 			if (lastOrgan == null) { // si elle n'existe pas, on renvoie null
 				return;
 			}

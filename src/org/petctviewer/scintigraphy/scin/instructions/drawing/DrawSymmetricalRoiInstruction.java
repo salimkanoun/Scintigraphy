@@ -5,8 +5,7 @@ import java.awt.Color;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
-import org.petctviewer.scintigraphy.scin.instructions.Instruction.DrawInstructionType;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.gui.Roi;
 import ij.plugin.RoiScaler;
@@ -15,7 +14,7 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 
 	private transient Instruction dri_1;
 
-	private transient ModeleScin model;
+	private transient ModelScin model;
 
 	public enum Organ {
 		DEMIE, QUART
@@ -24,7 +23,7 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 	private transient Organ organ;
 
 	public DrawSymmetricalRoiInstruction(String organToDelimit, ImageState state, Instruction instructionToCopy,
-			String roiName, ModeleScin model, Organ organ) {
+                                         String roiName, ModelScin model, Organ organ) {
 		super(organToDelimit, state, null, roiName);
 		this.model = model;
 		this.organ = organ;
@@ -63,7 +62,7 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 		if (this.dri_1 != null) {
 			// symetrique du coeur
 			if (this.dri_1 != null && this.organ == Organ.QUART) {
-				Roi roi = (Roi) this.model.getRoiManager().getRoi(dri_1.roiToDisplay()).clone();
+				Roi roi = (Roi) this.model.getRoiManager().getRoi(dri_1.getRoiIndex()).clone();
 
 				// on fait le symetrique de la roi
 				roi = RoiScaler.scale(roi, -1, 1, true);
@@ -79,7 +78,7 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 			}
 
 			// recupere la roi de l'organe symetrique
-			Roi lastOrgan = (Roi) this.model.getRoiManager().getRoi(dri_1.roiToDisplay());
+			Roi lastOrgan = (Roi) this.model.getRoiManager().getRoi(dri_1.getRoiIndex());
 			if (lastOrgan == null) { // si elle n'existe pas, on renvoie null
 				return;
 			}

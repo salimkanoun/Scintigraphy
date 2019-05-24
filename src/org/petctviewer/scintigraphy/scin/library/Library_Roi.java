@@ -45,7 +45,6 @@ public class Library_Roi {
 	public static Roi createBkgRoi(Roi roi, ImagePlus imp, int organ) {
 		Roi bkg = null;
 		RoiManager rm = new RoiManager(true);
-		rm.setVisible(true);
 
 		switch (organ) {
 		case Library_Roi.KIDNEY:

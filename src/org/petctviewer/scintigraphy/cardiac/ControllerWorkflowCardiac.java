@@ -18,7 +18,7 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoi
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.model.ModeleScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -36,25 +36,27 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	// private int nbConta1;
 	// private int nbConta2;
 
-	private boolean finContSlice1;	
+	private boolean finContSlice1;
 	private String[] organes = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
 
 	private boolean finContSlice2;
 
-	public ControllerWorkflowCardiac(Scintigraphy main, FenApplicationWorkflow vue, ModeleScin model) {
+	public ControllerWorkflowCardiac(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
+
 		super(main, vue, model);
 
 		// on declare si il y a deux prises
-		((Modele_Cardiac) this.model)
+		((Model_Cardiac) this.model)
 				.setDeuxPrise(this.model.getImageSelection()[0].getImagePlus().getImageStackSize() > 1);
 
-		((Modele_Cardiac) this.model).calculerMoyGeomTotale();
+		((Model_Cardiac) this.model).calculerMoyGeomTotale();
 
 		// this.nbConta1 = 0;
 		// this.nbConta2 = 0;
 
 		this.generateInstructions();
-//		((FenApplication_Cardiac) this.main.getFenApplication()).startContaminationMode();
+		// ((FenApplication_Cardiac)
+		// this.main.getFenApplication()).startContaminationMode();
 		this.start();
 	}
 
@@ -118,8 +120,8 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	}
 
 	private void clicNewCont() {
-		
-		if(this.getVue().getImagePlus().getRoi() != null && !this.finContSlice2) {
+
+		if (this.getVue().getImagePlus().getRoi() != null && !this.finContSlice2) {
 			if (this.position % 2 != 0) {
 				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.main.getFenApplication();
 				fac.getBtn_continue().setEnabled(true);
@@ -130,14 +132,14 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 				fac.getBtn_suivant().setLabel("Save");
 			}
 		}
-
 	}
 
 	private void clicEndCont() {
 		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
 				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
-//		System.out.println("-------------------------- Avant --------------------------");
-//		System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n");
+		// System.out.println("-------------------------- Avant
+		// --------------------------");
+		// System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n");
 		// on set la slice
 		if ((this.model.getImageSelection()[0].getImagePlus().getCurrentSlice() == 1
 				&& this.model.getImageSelection()[0].getImagePlus().getImageStackSize() > 1)) {
@@ -146,15 +148,11 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 			// TODO demander confirmation à Titouan
 			((DrawSymmetricalLoopInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
-			this.workflows[this.indexCurrentWorkflow].removeInstructionWithIterator(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
 
+			this.workflows[this.indexCurrentWorkflow]
+					.removeInstructionWithIterator(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
 
-			
-			
-//			System.out.println("-------------------------- Pendant --------------------------");
-//			System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n");
-			
-			this.clicSuivant();
+			this.clickNext();
 
 		} else { // on a trait� toutes les contaminations
 			((FenApplication_Cardiac) this.main.getFenApplication()).stopContaminationMode();
@@ -166,16 +164,19 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			// l'indexRoi
 			this.setOrganes((String[]) ArrayUtils.addAll(conts, this.getOrganes()));
 			((DrawSymmetricalLoopInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
-			this.workflows[this.indexCurrentWorkflow].removeInstructionWithIterator(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
+
+			this.workflows[this.indexCurrentWorkflow]
+					.removeInstructionWithIterator(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
 			this.finContSlice2 = true;
-			
-//			this.workflows[this.indexCurrentWorkflow].previous();
-			this.clicSuivant();
+
+			this.clickNext();
+
 		}
 		this.position--;
 		this.vue.pack();
-//		System.out.println("-------------------------- Après --------------------------");
-//		System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n\n");
+		// System.out.println("-------------------------- Après
+		// --------------------------");
+		// System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n\n");
 
 	}
 
@@ -189,9 +190,9 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		
+
 		System.out.println(this.position);
-		
+
 		Button b = (Button) arg0.getSource();
 		if (b == ((FenApplication_Cardiac) this.main.getFenApplication()).getBtn_suivant()) {
 			this.clicNewCont();
@@ -204,12 +205,12 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 	@Override
 	public void end() {
-		
-//		this.saveWorkflow();
 
-		((Modele_Cardiac) this.model).getResults();
-		((Modele_Cardiac) this.model).calculerResultats();
-		// ((Modele_Cardiac) this.model).setNbConta(new int[] {this.nbConta1,
+		// this.saveWorkflow();
+
+		((Model_Cardiac) this.model).getResults();
+		((Model_Cardiac) this.model).calculateResults();
+		// ((Model_Cardiac) this.model).setNbConta(new int[] {this.nbConta1,
 		// this.nbConta2});
 
 		BufferedImage capture = Library_Capture_CSV.captureImage(this.main.getFenApplication().getImagePlus(), 512, 0)
