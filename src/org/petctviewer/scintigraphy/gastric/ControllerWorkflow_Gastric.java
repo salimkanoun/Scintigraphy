@@ -2,8 +2,9 @@ package org.petctviewer.scintigraphy.gastric;
 
 import ij.ImagePlus;
 import ij.Prefs;
+import org.petctviewer.scintigraphy.gastric.tabs.TabLiquidPhase;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
-import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2_bis;
+import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -33,13 +34,17 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	public static final String COMMAND_FIT_BEST_1 = "cfb_method1", COMMAND_FIT_BEST_2 = "cfb_method2",
 			COMMAND_FIT_BEST_ALL = "cfb_all";
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
-	private final boolean DO_ONLY_GASTRIC;
+
+	private final boolean DO_ONLY_GASTRIC, DO_LIQUID_PHASE;
+
 	// TODO: clean this, it's awful
 	public Date specifiedTimeIngestion;
+
 	private FenResults fenResults;
 	private TabMethod1 tabMain;
 	//	private TabMainResult tabMain;
-	private TabMethod2_bis tabOnlyGastric;
+	private TabMethod2 tabOnlyGastric;
+
 	private List<ImagePlus> captures;
 
 	public ControllerWorkflow_Gastric(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages,
@@ -48,8 +53,9 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 		getModel().setFirstImage(selectedImages[0]);
 
-		// Check do only gastric (from Prefs)
+		// Set final fields
 		DO_ONLY_GASTRIC = Prefs.get(PrefsTabGastric.PREF_SIMPLE_METHOD, false);
+		DO_LIQUID_PHASE = Prefs.get(PrefsTabGastric.PREF_LIQUID_PHASE, false);
 
 		this.generateInstructions();
 		this.start();
@@ -150,8 +156,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 			this.workflows[i].addInstruction(dri_1);
 			this.workflows[i].addInstruction(dri_2);
-			if (i == 0)
-				this.workflows[i].addInstruction(new ScreenShotInstruction(captures, vue, 0, 640, 512));
+			if (i == 0) this.workflows[i].addInstruction(new ScreenShotInstruction(captures, vue, 0, 640, 512));
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}
@@ -182,20 +187,17 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			dri_3 = new DrawRoiInstruction("Stomach", statePost, dri_1);
 			dri_4 = new DrawRoiInstruction("Intestine", statePost, dri_2);
 
-			if (i == 0)
-				this.workflows[i].addInstruction(promptTimeAcquisition);
+			if (i == 0) this.workflows[i].addInstruction(promptTimeAcquisition);
 			this.workflows[i].addInstruction(dri_1);
 			this.workflows[i].addInstruction(dri_2);
 			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_1, dri_2, "Antre"));
 			this.workflows[i].addInstruction(dri_3);
 			// Capture 1: only stomach, for method 2
-			if (i == 0)
-				this.workflows[i].addInstruction(new ScreenShotInstruction(captures, vue, 0, 0, 0));
+			if (i == 0) this.workflows[i].addInstruction(new ScreenShotInstruction(captures, vue, 0, 0, 0));
 			this.workflows[i].addInstruction(dri_4);
 			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_3, dri_4, "Antre"));
 			// Capture 2: stomach and intestine, for method 1
-			if (i == 0)
-				this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 1, 0, 0));
+			if (i == 0) this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 1, 0, 0));
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}
@@ -233,6 +235,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		// Display results
 		this.fenResults.clearTabs();
 
+		// TAB METHOD 1
 		if (!DO_ONLY_GASTRIC) {
 //			this.tabMain = new TabMainResult(this.fenResults, this.captures.get(1), this);
 			this.tabMain = new TabMethod1(this.fenResults, this.captures.get(1));
@@ -242,11 +245,19 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			this.fitBest(COMMAND_FIT_BEST_1);
 		}
 
+		// TAB METHOD 2
 //		this.tabOnlyGastric = new TabMethod2(this.fenResults, this.captures.get(0), this);
-		this.tabOnlyGastric = new TabMethod2_bis(this.fenResults, this.captures.get(0));
+		this.tabOnlyGastric = new TabMethod2(this.fenResults, this.captures.get(0));
 		this.fenResults.addTab(tabOnlyGastric);
 		// Set the best fit
 		this.fitBest(COMMAND_FIT_BEST_2);
+
+		// TAB METHOD 3
+		if (DO_LIQUID_PHASE) {
+			TabLiquidPhase tabLiquidPhase = new TabLiquidPhase(this.fenResults, this.captures.get(0),
+					Model_Gastric.SERIES_STOMACH_PERCENTAGE);
+			this.fenResults.addTab(tabLiquidPhase);
+		}
 
 		this.fenResults.pack();
 		this.fenResults.setVisible(true);

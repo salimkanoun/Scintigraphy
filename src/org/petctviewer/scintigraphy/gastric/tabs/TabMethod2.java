@@ -11,10 +11,10 @@ import org.petctviewer.scintigraphy.scin.preferences.PrefsTabGastric;
 import javax.swing.*;
 import java.awt.*;
 
-public class TabMethod2_bis extends TabResultDefault {
+public class TabMethod2 extends TabResultDefault {
 
 
-	public TabMethod2_bis(FenResults parent, ImagePlus capture) {
+	public TabMethod2(FenResults parent, ImagePlus capture) {
 		super(parent, capture, "Gastric Only", Unit.valueOf(Prefs.get(PrefsTabGastric.PREF_UNIT_USED,
 				Unit.COUNTS.name())), Unit.TIME, Model_Gastric.SERIES_DECAY_FUNCTION);
 	}
