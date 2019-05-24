@@ -112,7 +112,7 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 			JPanel panelDeFin = new JPanel();
 			this.tabPane = new JTabbedPane();
 			this.tabTAC = new TabTAC(this.getParent(), this);
-			TabVasculaire tabVasculaire = new TabVasculaire(this.getParent(), this);
+			TabLiver tabVasculaire = new TabLiver(this.getParent(), this);
 
 			this.tabPane.addTab(this.tabTAC.getTitle(), this.tabTAC.getPanel());
 			this.tabPane.addTab(tabVasculaire.getTitle(), tabVasculaire.getPanel());

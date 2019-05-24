@@ -12,7 +12,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
-public class TabVasculaire {
+public class TabLiver {
 
 	private String title;
 	protected FenResults parent;
@@ -23,9 +23,9 @@ public class TabVasculaire {
 
 	private TabResult tab;
 
-	public TabVasculaire(FenResults parent, TabResult tab) {
+	public TabLiver(FenResults parent, TabResult tab) {
 
-		this.title = "Liver";
+		this.title = "Liver curves";
 		this.parent = parent;
 		this.result = new JPanel();
 

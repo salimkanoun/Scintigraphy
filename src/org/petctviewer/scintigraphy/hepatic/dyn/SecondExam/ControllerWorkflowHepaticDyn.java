@@ -64,6 +64,8 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 		this.workflows[0].addInstruction(dri_capture);
 
 		this.workflows[0].addInstruction(new EndInstruction());
+		
+		getVue().setNbInstructions(this.allInputInstructions().size());
 
 	}
 
