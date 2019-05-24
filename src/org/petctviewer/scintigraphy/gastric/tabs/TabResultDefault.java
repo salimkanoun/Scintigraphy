@@ -1,29 +1,7 @@
 package org.petctviewer.scintigraphy.gastric.tabs;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.border.MatteBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.table.DefaultTableModel;
-
+import com.itextpdf.text.Font;
+import ij.ImagePlus;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -34,12 +12,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.gastric.ControllerWorkflow_Gastric;
-import org.petctviewer.scintigraphy.gastric.Model_Gastric;
-import org.petctviewer.scintigraphy.gastric.Result;
-import org.petctviewer.scintigraphy.gastric.ResultRequest;
-import org.petctviewer.scintigraphy.gastric.ResultValue;
-import org.petctviewer.scintigraphy.gastric.Unit;
+import org.petctviewer.scintigraphy.gastric.*;
 import org.petctviewer.scintigraphy.gastric.gui.Fit;
 import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
@@ -49,36 +22,42 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
-import com.itextpdf.text.Font;
-
-import ij.ImagePlus;
+import javax.swing.*;
+import javax.swing.border.MatteBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public abstract class TabResultDefault extends TabResult implements ItemListener, ChartMouseListener {
 
+	Unit unitDefault, unitTime;
 	private ImagePlus capture;
 	private Date timeIngestion;
-
 	private XYSeriesCollection data;
 	private JValueSetter valueSetter;
-
 	private JComboBox<FitType> fitsChoices;
 	private JLabel labelInterpolation, labelError;
 	private JButton btnAutoFit;
-
 	private ResultRequest request;
+	private int seriesToGenerate;
 
-	protected Unit unitDefault, unitTime;
-
-	public TabResultDefault(FenResults parent, ImagePlus capture, ControllerWorkflow_Gastric controller, String title) {
+	TabResultDefault(FenResults parent, ImagePlus capture, String title,
+					 Unit unitDefault, Unit unitTime, int seriesToGenerate) {
 		super(parent, title);
 
 		// Declare attributes
-		this.unitDefault = Unit.PERCENTAGE;
-		this.unitTime = Unit.TIME;
+		this.unitDefault = unitDefault;
+		this.unitTime = unitTime;
+		this.seriesToGenerate = seriesToGenerate;
 
 		// Prepare request
 		this.request = new ResultRequest(null);
-		this.request.setFit(new Fit.NoFit());
+		this.request.setFit(new Fit.NoFit(unitDefault));
 
 		// Instantiate components
 		fitsChoices = new JComboBox<>(FitType.values());
@@ -94,15 +73,15 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 		// - Button to auto-fit the graph
 		btnAutoFit = new JButton("Auto-fit");
-		btnAutoFit.addActionListener(controller);
+		btnAutoFit.addActionListener(parent.getController());
 
 		// Set variables
 		this.capture = capture;
 
 		this.createGraph();
 
-		Component[] hide = new Component[] { fitsChoices, btnAutoFit };
-		Component[] show = new Component[] { this.labelInterpolation };
+		Component[] hide = new Component[]{fitsChoices, btnAutoFit};
+		Component[] show = new Component[]{this.labelInterpolation};
 		this.createCaptureButton(hide, show, null);
 
 		this.reloadDisplay();
@@ -110,11 +89,18 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 	/**
 	 * Generates the table with all of the results to display for this scintigraphy.
-	 * 
+	 *
 	 * @return table containing the results
 	 */
 	protected JTable tablesResultats(Result[] results, Unit[] unitsUsed) {
-		Model_Gastric model = (Model_Gastric) this.parent.getModel();
+		// Prepare model
+		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
+			getModel().activateTime0();
+			getModel().setTimeIngestion(((ControllerWorkflow_Gastric)parent.getController()).specifiedTimeIngestion);
+		} else {
+			getModel().deactivateTime0();
+			getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
+		}
 
 		// Create table
 		JTable table = new JTable(0, results.length);
@@ -131,7 +117,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 				ResultRequest request = new ResultRequest(results[j]);
 				request.setUnit(unitsUsed[j]);
 				request.setIndexImage(i);
-				ResultValue res = model.getResult(request);
+				ResultValue res = getModel().getResult(request);
 				if (res == null)
 					arr[j] = "--";
 				else {
@@ -152,7 +138,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 	/**
 	 * Utility method to print on the panel the specified result.
-	 * 
+	 *
 	 * @param infoRes Panel on which to place the result in
 	 * @param result  Result of the model to display
 	 */
@@ -169,7 +155,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 * The <i>normal</i> value is based upon <code>tech.snmjournals.org</code>.<br>
 	 * The only times accepted are <code>30min</code>, <code>60min</code>,
 	 * <code>120min</code>, <code>180min</code> and <code>240min</code>.
-	 * 
+	 *
 	 * @param time  Time for retention in <i>minutes</i>
 	 * @param value Value obtained in <i>percentage</i>
 	 * @return TRUE if the result is normal and FALSE if the result is abnormal
@@ -195,7 +181,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 * The <i>normal</i> value is based upon <code>tech.snmjournals.org</code>.<br>
 	 * The only times accepted are <code>30min</code>, <code>60min</code>,
 	 * <code>120min</code>, <code>180min</code> and <code>240min</code>.
-	 * 
+	 *
 	 * @param time Time for retention in minutes
 	 * @return readable string indicating the normal range
 	 */
@@ -217,16 +203,16 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	/**
 	 * Returns a string indicating the grade of the retention values after 4h.<br>
 	 * Based upon <code>tech.snmjournals.org</code>.
-	 * 
+	 *
 	 * @param value Value of the retention after 4h in <i>percentage</i>
 	 * @return <code>string[0]</code> = grade and <code>string[1]</code> = readable
-	 *         value
+	 * value
 	 */
 	private JLabel[] gradeOfRetention(double value) {
 		JLabel l1, l2;
 		if (value < 11.) {
 			l1 = new JLabel("--");
-			l2 = new JLabel("Result is OK");
+			l2 = new JLabel("Result normal");
 
 			l1.setForeground(Color.GREEN);
 			l2.setForeground(Color.GREEN);
@@ -252,12 +238,12 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		l1.setFont(l1.getFont().deriveFont(Font.BOLD));
 		l2.setFont(l2.getFont().deriveFont(12f));
 
-		return new JLabel[] { l1, l2 };
+		return new JLabel[]{l1, l2};
 	}
 
 	/**
 	 * Utility method to print the result for the retention at a certain time.
-	 * 
+	 *
 	 * @param infoRes Panel on which to place the result in
 	 * @param time    Time of the retention in minutes
 	 * @param result  Result of the model to display
@@ -286,7 +272,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	/**
 	 * Utility method that generates a panel containing all of the results needed
 	 * for that scintigraphy.
-	 * 
+	 *
 	 * @return panel containing the results
 	 */
 	protected JPanel infoResultats(Result[] resultsRequested, Unit[] unitsRequested) {
@@ -297,7 +283,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		JPanel infoRes = new JPanel();
 		infoRes.setLayout(new GridLayout(0, 2));
 
-		for (int i = 0; i < resultsRequested.length; i++) {
+		for (int i = 0; i < resultsRequested.length - 1; i++) {
 			request.changeResultOn(resultsRequested[i]);
 			request.setUnit(unitsRequested[i]);
 
@@ -307,8 +293,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		}
 
 		// Retention 30min
-		request.changeResultOn(Model_Gastric.RETENTION_PERCENTAGE);
-		request.setUnit(Unit.PERCENTAGE);
+		request.changeResultOn(resultsRequested[resultsRequested.length - 1]);
+		request.setUnit(unitsRequested[unitsRequested.length - 1]);
 		ResultValue result = getModel().getRetentionResult(request, 30.);
 		hasExtrapolatedValue = result.isExtrapolated();
 		this.displayRetentionResult(infoRes, 30., result);
@@ -344,13 +330,13 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		try {
 			// Create fit
 			XYSeries series = ((XYSeriesCollection) this.getValueSetter().retrieveValuesInSpan()).getSeries(0);
-			this.request.setFit(Fit.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray())));
+			this.request.setFit(Fit.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray()),
+					unitDefault));
 
 			this.drawFit();
 			this.setErrorMessage(null);
 			this.reloadSidePanelContent();
 		} catch (IllegalArgumentException error) {
-			System.err.println("Not enough data");
 			this.setErrorMessage("Not enough data to fit the graph");
 		}
 	}
@@ -358,7 +344,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	/**
 	 * Displays additional results on the tab like time of ingestion or button to
 	 * launch dynamic acquisition...
-	 * 
+	 *
 	 * @return panel containing the additional results
 	 */
 	protected JPanel additionalResults() {
@@ -388,14 +374,32 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 * Creates the panel with the images of the graphs
 	 */
 	private JPanel createPanelResults() {
-		JPanel panel = new JPanel(new GridLayout(2, 2));
+		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
+			getModel().activateTime0();
+			getModel().setTimeIngestion(((ControllerWorkflow_Gastric)parent.getController()).specifiedTimeIngestion);
 
-		panel.add(new DynamicImage(capture.getImage()));
-		panel.add(getModel().createGraph_3());
-		panel.add(getModel().createGraph_1());
-		panel.add(getModel().createGraph_2());
+			JPanel panel = new JPanel(new GridLayout(2, 2));
 
-		return panel;
+			panel.add(new DynamicImage(capture.getImage()));
+			panel.add(getModel().createGraph_3());
+			panel.add(getModel().createGraph_1());
+			panel.add(getModel().createGraph_2());
+
+			return panel;
+		} else if (this.seriesToGenerate == Model_Gastric.SERIES_DECAY_FUNCTION) {
+			getModel().deactivateTime0();
+			getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
+
+			JPanel panel = new JPanel(new GridLayout(2, 1));
+
+			panel.add(new DynamicImage(capture.getImage()));
+			panel.add(getModel().createGraph_4(this.unitDefault));
+
+			return panel;
+		}
+
+		// Empty
+		return new JPanel();
 	}
 
 	/**
@@ -441,8 +445,19 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 			public void updateResult() {
 				// Calculate result
 				try {
-					request.changeResultOn(Model_Gastric.RETENTION_PERCENTAGE);
+					// Prepare model
+					if (seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
+						getModel().activateTime0();
+						getModel().setTimeIngestion(((ControllerWorkflow_Gastric)parent.getController()).specifiedTimeIngestion);
+						request.changeResultOn(Model_Gastric.RETENTION_PERCENTAGE);
+					} else {
+						getModel().deactivateTime0();
+						getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
+						request.changeResultOn(Model_Gastric.RETENTION_GEOAVG);
+					}
+
 					request.setUnit(Unit.PERCENTAGE);
+
 					ResultValue result = getModel().getRetentionResult(request,
 							Double.parseDouble(fieldCustomRetention.getText()));
 					// Update result
@@ -471,7 +486,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 * Finds the best fit matching the graph. Only the values in the area specified
 	 * by the user are taken into account.<br>
 	 * The best fit is determined by the method of least squares.
-	 * 
+	 *
 	 * @return best fit for this graph
 	 */
 	public FitType findBestFit() {
@@ -482,7 +497,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 			try {
 				// Create fit
-				Fit fit = Fit.createFit(type, Library_JFreeChart.invertArray(dataset));
+				Fit fit = Fit.createFit(type, Library_JFreeChart.invertArray(dataset), unitDefault);
 
 				// Get Y points
 				double[] yPoints = dataset[1];
@@ -505,7 +520,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 	/**
 	 * Selects the specified type for the fit.
-	 * 
+	 *
 	 * @param type Type of fit to select
 	 */
 	public void selectFit(FitType type) {
@@ -516,9 +531,19 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 * Generates the graph for the fit of this tab.
 	 */
 	public void createGraph() {
+		// Prepare model
+		if (seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
+			getModel().activateTime0();
+			getModel().setTimeIngestion(((ControllerWorkflow_Gastric) parent.getController()).specifiedTimeIngestion);
+		}
+		else {
+			getModel().deactivateTime0();
+			getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
+		}
+
 		// Create chart
 		this.data = new XYSeriesCollection();
-		XYSeries stomachSeries = getModel().generateStomachSeries(this.unitDefault);
+		XYSeries stomachSeries = getModel().generateSeries(this.seriesToGenerate, this.unitDefault);
 		this.data.addSeries(stomachSeries);
 
 		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (" + this.unitTime.abrev() + ")",
@@ -554,7 +579,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	/**
 	 * Sets the time of ingestion to display. If set to null, then deletes the
 	 * previous time displayed.
-	 * 
+	 *
 	 * @param timeIngestion Time of ingestion to display
 	 */
 	public void displayTimeIngestion(Date timeIngestion) {
@@ -564,7 +589,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 	/**
 	 * Gets the fit selected by the user with the combo box.
-	 * 
+	 *
 	 * @return type of the fit selected by the user
 	 */
 	public FitType getSelectedFit() {
@@ -574,18 +599,18 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	/**
 	 * Displays the fit selected by the user and removes the previous fit if
 	 * existing.
-	 * 
+	 *
 	 * @see #getSelectedFit()
 	 */
 	public void drawFit() {
 		this.clearFits();
 
-		this.data.addSeries(this.request.getFit().generateFittedSeries(getModel().getTimes()));
+		this.data.addSeries(this.request.getFit().generateFittedSeries(getModel().generateTime()));
 	}
 
 	/**
 	 * Changes the text of the extrapolation name (used for capture).
-	 * 
+	 *
 	 * @param labelName New name of the extrapolation
 	 */
 	public void changeLabelInterpolation(String labelName) {
@@ -596,7 +621,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	/**
 	 * Changes the error message. This message is displayed in red. If null is
 	 * passed, then the previous message is erased.
-	 * 
+	 *
 	 * @param msg message to show or null to erase the last message
 	 */
 	public void setErrorMessage(String msg) {

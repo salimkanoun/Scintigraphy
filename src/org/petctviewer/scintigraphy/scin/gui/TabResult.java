@@ -43,7 +43,7 @@ public abstract class TabResult {
 	 * <i><b>Be careful:</b></i> This method do NOT call the
 	 * {@link #getResultContent()} and {@link #getSidePanelContent()} methods. You
 	 * need to call the {@link #reloadDisplay()} when you are ready to display them.
-	 * 
+	 *
 	 * @param parent FenResults where this tab is placed on
 	 * @param title  Title of this tab, displayed on the JTabbedPane's title bar
 	 */
