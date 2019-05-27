@@ -243,6 +243,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 		// TAB METHOD 2
 		this.tabOnlyGastric = new TabMethod2(this.fenResults, this.captures.get(0));
+		this.tabOnlyGastric.displayTimeIngestion(getModel().getFirstImage().getDateAcquisition());
 		this.fenResults.addTab(tabOnlyGastric);
 		// Set the best fit
 		this.fitBest(COMMAND_FIT_BEST_2);
