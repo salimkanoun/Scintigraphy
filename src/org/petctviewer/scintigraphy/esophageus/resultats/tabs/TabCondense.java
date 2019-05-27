@@ -16,8 +16,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
+import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -223,11 +225,35 @@ public class TabCondense extends TabResult implements ChangeListener {
 			public void actionPerformed(ActionEvent e) {
 				int[] temps = modele.getTime(numAcquisitionCondense);
 				JFrame timeFen = new JFrame();
-				timeFen.setLayout(new GridLayout(temps.length, 2));
+				JPanel panel = new JPanel(new BorderLayout());
+//				timeFen.setLayout(new GridLayout(temps.length, 2));
+//				for (int i = 0; i < temps.length; i++) {
+//					timeFen.add(new JLabel("Image :" + i));
+//					timeFen.add(new JLabel("Time :" + temps[i] + ""));
+//				}
+				
+				Object[][] times = new Object[temps.length][4];
+				
+				int totalTime = 0;
 				for (int i = 0; i < temps.length; i++) {
-					timeFen.add(new JLabel("Image :" + i));
-					timeFen.add(new JLabel("Time :" + temps[i] + ""));
+					totalTime +=temps[i];
+					times[i][0] = i;
+					times[i][1] = temps[i];
+					times[i][2] = totalTime;
+					times[i][3] = totalTime/1000;
 				}
+				
+				
+				String[] head = {"Images", "Times", "Total time (miliseconds)", "Total time (seconds)"};
+				
+				JTable table = new JTable(times, head);
+				
+				JScrollPane scollableTable = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+				table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+				
+				panel.add(table.getTableHeader(), BorderLayout.NORTH);
+				panel.add(scollableTable, BorderLayout.CENTER);
+				timeFen.add(panel);
 				timeFen.pack();
 				timeFen.setVisible(true);
 

@@ -11,11 +11,16 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Date;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -24,6 +29,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.CaptureButton;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.gui.WindowDifferentPatient;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction.DrawInstructionType;
@@ -615,6 +621,24 @@ public JsonElement saveWorkflowToJson(String[] label) {
 		}
 
 		workflowsObject.add("Workflows", workflowsArray);
+		
+		
+		JsonObject patientObject = new JsonObject();
+		
+		String[] infoPatient = Library_Capture_CSV.getInfoPatient(this.getModel().getImagePlus());
+		HashMap<String, String> patientInfo = Library_Capture_CSV.getPatientInfo(this.getModel().getImagePlus());
+		
+		patientObject.addProperty("Name", infoPatient[0]);
+		patientObject.addProperty("ID", infoPatient[1]);
+		patientObject.addProperty("Date", infoPatient[2]);
+		patientObject.addProperty("AccessionNumber", infoPatient[3]);
+		
+//		patientObject.addProperty("Name", patientInfo.get(Library_Capture_CSV.PATIENT_INFO_NAME));
+//		patientObject.addProperty("ID", patientInfo.get(Library_Capture_CSV.PATIENT_INFO_ID));
+//		patientObject.addProperty("Date", patientInfo.get(Library_Capture_CSV.PATIENT_INFO_DATE));
+//		patientObject.addProperty("AccessionNumber", patientInfo.get(Library_Capture_CSV.PATIENT_INFO_ACCESSION_NUMBER));
+		
+		workflowsObject.add("Patient", patientObject);
 		// System.out.println("\n\n\n --------------------------- TEST
 		// --------------------------- \n");
 		// System.out.println(gson.toJson(workflowsObject));
@@ -668,6 +692,63 @@ public JsonElement saveWorkflowToJson(String[] label) {
 			if (workflowsFromGson.getWorkflows().size() != this.workflows.length) {
 				System.out.println("LE NOMBRE DE WORKFLOW EST DIFFERENT, IMPOSSIBLE DE CHARGER LA SAUVEGARDE");
 				return null;
+			}
+			
+			PatientFromGson patientFromGson = workflowsFromGson.getPatient();
+			String[] currentPatient = Library_Capture_CSV.getInfoPatient(this.getModel().getImagePlus());
+			
+			Date currentPatientDate = null;
+			try {
+				currentPatientDate = new SimpleDateFormat("yyyyMMdd").parse(currentPatient[2]);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			int differenceNumber = 0;
+			
+			if(!patientFromGson.getAccessionNumber().equals(currentPatient[3])) 
+				differenceNumber++;
+			if(!patientFromGson.getName().equals(currentPatient[0])) 
+				differenceNumber++;
+			if(!patientFromGson.getID().equals(currentPatient[1])) 
+				differenceNumber++;
+			if(!patientFromGson.getDate().toString().equals(currentPatientDate.toString())) 
+				differenceNumber++;
+			
+			Object[][] difference = new Object[differenceNumber][3];
+			
+			int indexDifference = 0;
+			if(!patientFromGson.getAccessionNumber().equals(currentPatient[3])) {
+				difference[indexDifference] = new String[] {"Accession Number",""+patientFromGson.getAccessionNumber(),""+currentPatient[3]};
+				indexDifference++;
+			}
+			if(!patientFromGson.getName().equals(currentPatient[0])) {
+				difference[indexDifference] = new String[] {"Name",""+patientFromGson.getName(),""+currentPatient[0]};
+				indexDifference++;
+			}
+			if(!patientFromGson.getID().equals(currentPatient[1])) {
+				difference[indexDifference] = new String[] {"ID",""+patientFromGson.getID(),""+currentPatient[1]};
+				indexDifference++;
+			}
+			
+			
+			if(!patientFromGson.getDate().toString().equals(currentPatientDate.toString())) {
+				difference[indexDifference] = new String[] {"Date",""+patientFromGson.getDate(),""+currentPatientDate};
+				indexDifference++;
+			}
+			
+			
+				
+			JTable differences = new JTable(difference, new String[] {"Conflict","From Json, Current patient"});
+			
+			if(differenceNumber != 0) {
+				WindowDifferentPatient fen = new WindowDifferentPatient(difference);
+				fen.setModal(true);
+				fen.setVisible(true);
+				fen.setAlwaysOnTop(true);
+				fen.setLocationRelativeTo(null);
 			}
 
 			// int nbDrawInstruction = 0;
@@ -756,6 +837,7 @@ public JsonElement saveWorkflowToJson(String[] label) {
 
 	public class WorkflowsFromGson {
 		List<WorkflowFromGson> Workflows;
+		PatientFromGson Patient;
 
 		public List<WorkflowFromGson> getWorkflows() {
 			return this.Workflows;
@@ -800,6 +882,10 @@ public JsonElement saveWorkflowToJson(String[] label) {
 			
 			return -1;
 		}
+		
+		public PatientFromGson getPatient () {
+			return this.Patient;
+		}
 
 	}
 
@@ -840,6 +926,39 @@ public JsonElement saveWorkflowToJson(String[] label) {
 		
 		public String getNameOfRoiFile() {
 			return this.NameOfRoiFile;
+		}
+	}
+	
+	public class PatientFromGson {
+
+		private String Name;
+		
+		private String ID;
+		
+		private Date Date;
+		
+		private String AccessionNumber;
+		
+
+		public String getName() {
+			return this.Name;
+		}
+
+		public String getID() {
+			return this.ID;
+		}
+		
+		public Date getDate() {
+			return this.Date;
+		}
+		
+		public String getAccessionNumber() {
+			return this.AccessionNumber;
+		}
+		
+		@Override
+		public String toString() {
+			return "Bonjour, mon nom est  "+this.Name+", j'ai pour ID "+this.ID+" car j'ai été admis le "+this.Date+" ce qui donne comme accessionNumber : "+this.AccessionNumber;
 		}
 	}
 
