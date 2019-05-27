@@ -31,7 +31,7 @@ public class TabMethod1 extends TabResultDefault {
 		final Result[] results = new Result[]{Model_Gastric.RES_TIME, Model_Gastric.RES_STOMACH,
 				Model_Gastric.RES_FUNDUS,
 				Model_Gastric.RES_ANTRUM};
-		final Unit[] units = new Unit[]{this.unitTime, this.unitDefault, this.unitDefault, this.unitDefault};
+		final Unit[] units = new Unit[]{Unit.MINUTES, this.unitDefault, this.unitDefault, this.unitDefault};
 		JPanel panTable = new JPanel(new BorderLayout());
 		JTable table = tablesResultats(results, units);
 		panTable.add(table.getTableHeader(), BorderLayout.PAGE_START);
