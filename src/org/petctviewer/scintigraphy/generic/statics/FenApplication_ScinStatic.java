@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.generic.statics;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 
 import java.awt.*;
@@ -44,5 +45,17 @@ public class FenApplication_ScinStatic extends FenApplicationWorkflow {
 	public void setController(ControllerScin ctrl) {
 		super.setController(ctrl);
 		this.btn_finish.addActionListener(ctrl);
+	}
+
+	@Override
+	protected DocumentationDialog createDocumentation() {
+		DocumentationDialog doc = super.createDocumentation();
+
+		doc.setDesigner("Esteban BAICHOO");
+		doc.setDeveloper("Titouan QUEMA");
+		doc.setReference("Salim KANOUN");
+		doc.setYoutube("https://www.youtube.com/watch?v=GzteARkk6as&feature=youtu.be");
+
+		return doc;
 	}
 }

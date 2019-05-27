@@ -50,26 +50,26 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	private Panel panelPrincipal;
 	Panel panelContainer;
 
-	protected String nom;
+	protected String studyName;
 
 	private int canvasW, canvasH;
 
 	private MenuBar menuBar;
+	protected DocumentationDialog documentation;
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
 	 * 
 	 * @param imp
 	 *            ImagePlus a traiter
-	 * @param nom
+	 * @param studyName
 	 *            Nom du type de scintigraphie
 	 */
-	public FenApplication(ImagePlus imp, String nom) {
-		this(imp, nom, new ImageCanvas(imp));
-
+	public FenApplication(ImagePlus imp, String studyName) {
+		this(imp, studyName, new ImageCanvas(imp));
 	}
 
-	public FenApplication(ImagePlus imp, String nom, ImageCanvas canvas) {
+	public FenApplication(ImagePlus imp, String studyName, ImageCanvas canvas) {
 		super(imp, canvas);
 		// on set la lut des preferences
 		Library_Gui.setCustomLut(imp);
@@ -78,11 +78,11 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		 * UIManager.getCrossPlatformLookAndFeelClassName() ); } catch (Exception e) {
 		 * e.printStackTrace(); }
 		 */
-		this.nom = nom;
+		this.studyName = studyName;
 
 		String tagSerie = DicomTools.getTag(this.imp, "0008,103E");
 		String tagNom = DicomTools.getTag(this.imp, "0010,0010");
-		String titre = this.nom + " - " + tagNom + " - " + tagSerie;
+		String titre = this.studyName + " - " + tagNom + " - " + tagSerie;
 		setTitle(titre);// frame title
 		this.imp.setTitle(titre);// imp title
 
@@ -121,13 +121,22 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		panelContainer.add(this.panelPrincipal, BorderLayout.CENTER);
 		this.add(panelContainer);
 
+		this.documentation = this.createDocumentation();
+		// Menu bar
 		this.menuBar = new MenuBar();
-
 		this.createMenuBar();
 
 		this.setDefaultSize();
 		this.addComponentListener(this);
 		this.setResizable(false);
+	}
+
+	protected DocumentationDialog createDocumentation() {
+		return new DocumentationDialog(this);
+	}
+
+	public String getStudyName() {
+		return this.studyName;
 	}
 
 	public void resizeCanvas() {
@@ -270,8 +279,9 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		});
 
 		Menu help = new Menu("Help");
-		MenuItem documentation = new MenuItem("Documentation");
-		help.add(documentation);
+		MenuItem doc = new MenuItem("Documentation");
+		doc.addActionListener((event) -> documentation.setVisible(true));
+		help.add(doc);
 
 		options.add(loadRois);
 		this.menuBar.add(options);

@@ -1,12 +1,11 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
-import java.util.HashMap;
-
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
+import java.util.HashMap;
 
 public class ModelScinStatic extends ModelScin {
 	
@@ -21,7 +20,7 @@ public class ModelScinStatic extends ModelScin {
 	}
 
 	public void enregistrerMesureAnt(String nomRoi, ImagePlus imp) {
-			// on garde uniquement le nom de la roi sans le tag
+			// on garde uniquement le studyName de la roi sans le tag
 //			nomRoi = nomRoi.substring(0,nomRoi.lastIndexOf(" "));
 			// si la roi n'existe pas, on la crée 
 			
@@ -36,7 +35,7 @@ public class ModelScinStatic extends ModelScin {
 	}
 	
 	public void enregistrerMesurePost(String nomRoi, ImagePlus imp) {
-		// on garde uniquement le nom de la roi sans le tag
+		// on garde uniquement le studyName de la roi sans le tag
 //		nomRoi = nomRoi.substring(0,nomRoi.lastIndexOf(" "));
 		// si la roi n'existe pas, on la crée 
 		

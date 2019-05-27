@@ -203,7 +203,7 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 	/**
 	 * Sauvegarde la roi dans le roi manager et dans le modele
 	 * 
-	 * @param nomRoi : nom de la roi a sauvegarder
+	 * @param nomRoi : studyName de la roi a sauvegarder
 	 * @return true si la sauvegarde est reussie, false si elle ne l'est pas
 	 */
 	public void saveRoiAtIndex(String nomRoi, int indexRoi) throws NoDataException {
@@ -231,10 +231,10 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 			// precise la postion en z
 			this.model.getRoiManager().getRoi(indexRoi).setPosition(this.getSliceNumberByRoiIndex(indexRoi));
 
-			// changement de nom
+			// changement de studyName
 			this.model.getRoiManager().rename(indexRoi, nomRoi);
 
-			// on ajoute le nom de la roi a la liste
+			// on ajoute le studyName de la roi a la liste
 			this.nomRois.put(indexRoi, addTag(nomRoi));
 		} else {
 
@@ -252,16 +252,16 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 	}
 
 	/**
-	 * Rajoute au nom de l'organe son type de prise (A pour Ant / P pour Post) ainsi
+	 * Rajoute au studyName de l'organe son type de prise (A pour Ant / P pour Post) ainsi
 	 * qu'un numero pour eviter les doublons
 	 * 
-	 * @param nomOrgane nom de l'organe
-	 * @return nouveau nom
+	 * @param nomOrgane studyName de l'organe
+	 * @return nouveau studyName
 	 */
 	public String addTag(String nomOrgane) {
 		String nom = nomOrgane;
 
-		// on ajoute au nom P ou A pour Post ou Ant
+		// on ajoute au studyName P ou A pour Post ou Ant
 		if (this.isPost()) {
 			nom += " P";
 		} else {
@@ -361,11 +361,11 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 	public abstract Roi getOrganRoi(int lastRoi);
 
 	/**
-	 * Renvoie le nombre de roi avec le meme nom ayant deja ete enregistrees
+	 * Renvoie le nombre de roi avec le meme studyName ayant deja ete enregistrees
 	 * 
-	 * @param nomRoi : nom de la roi
+	 * @param nomRoi : studyName de la roi
 	 * 
-	 * @return nombre de roi avec le meme nom
+	 * @return nombre de roi avec le meme studyName
 	 */
 	public String getSameNameRoiCount(String nomRoi) {
 		int count = 0;

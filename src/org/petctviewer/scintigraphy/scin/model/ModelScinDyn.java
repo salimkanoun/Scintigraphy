@@ -1,13 +1,13 @@
 package org.petctviewer.scintigraphy.scin.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import org.jfree.data.general.DatasetUtils;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public abstract class ModelScinDyn extends ModelScin {
 
@@ -51,7 +51,7 @@ public abstract class ModelScinDyn extends ModelScin {
 	 * @param l
 	 *            liste de points ajustes
 	 * @param nom
-	 *            nom de la serie
+	 *            studyName de la serie
 	 * @return la serie
 	 */
 	public XYSeries createSerie(List<Double> l, String nom) {
@@ -117,8 +117,7 @@ public abstract class ModelScinDyn extends ModelScin {
 	/**
 	 * Renvoie le numero de la slice correspondant au temps passe en parametre (en
 	 * ms)
-	 * 
-	 * @param debut
+	 *
 	 * @return numero de la slice
 	 */
 	public static int getSliceIndexByTime(double time, int[] frameduration) {
@@ -173,7 +172,7 @@ public abstract class ModelScinDyn extends ModelScin {
 	/**
 	 * renvoie l'image de la serie en x
 	 * 
-	 * @param abscisses de la serie
+	 * @param points abscisses de la serie
 	 * @param x abscisse
 	 * @return ordonnee
 	 */
