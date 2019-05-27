@@ -6,6 +6,7 @@ import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackground;
@@ -96,7 +97,8 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
 		this.model.calculateResults();
 
-		new FenResultats_Dmsa(capture, this);
+		FenResults fenResults = new FenResultats_Dmsa(capture, this);
+		fenResults.setVisible(true);
 	}
 
 }

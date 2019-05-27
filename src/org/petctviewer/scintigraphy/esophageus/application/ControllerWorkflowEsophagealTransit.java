@@ -49,8 +49,6 @@ public class ControllerWorkflowEsophagealTransit extends ControllerWorkflow {
 		FenResultats_EsophagealTransit fen = new FenResultats_EsophagealTransit(
 				((Model_EsophagealTransit) model).getExamenMean(), ((Model_EsophagealTransit) model).getDicomRoi(),
 				((Model_EsophagealTransit) model), "Esophageal Transit", this);
-		fen.pack();
-		fen.setLocationRelativeTo(null);
 		fen.setVisible(true);
 	}
 

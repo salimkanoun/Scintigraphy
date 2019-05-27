@@ -1,14 +1,14 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import java.awt.Button;
-import java.awt.event.ActionEvent;
-import java.awt.image.BufferedImage;
-
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackground;
@@ -21,9 +21,9 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 
 public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
@@ -224,7 +224,8 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 		BufferedImage capture = Library_Capture_CSV.captureImage(this.main.getFenApplication().getImagePlus(), 512, 0)
 				.getBufferedImage();
-		new FenResultat_Cardiac(this.main, capture, this);
+		FenResults fenResults = new FenResultat_Cardiac(this.main, capture, this);
+		fenResults.setVisible(true);
 	}
 
 	public int getSliceNumberByRoiIndex() {

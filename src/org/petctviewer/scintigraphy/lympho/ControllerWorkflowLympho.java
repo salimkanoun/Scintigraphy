@@ -1,13 +1,13 @@
 package org.petctviewer.scintigraphy.lympho;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.lympho.gui.FenResultatsLympho;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
@@ -15,8 +15,8 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflowLympho extends ControllerWorkflow {
 
@@ -104,7 +104,8 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 
 		}
 		this.model.calculateResults();
-		new FenResultatsLympho(this, captures.toArray(new ImagePlus[captures.size()]));
+		FenResults fenResults = new FenResultatsLympho(this, captures.toArray(new ImagePlus[0]));
+		fenResults.setVisible(true);
 
 	}
 

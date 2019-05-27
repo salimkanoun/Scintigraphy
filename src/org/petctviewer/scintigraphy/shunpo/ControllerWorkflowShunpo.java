@@ -1,8 +1,8 @@
 package org.petctviewer.scintigraphy.shunpo;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -16,9 +16,8 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.gui.Roi;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
@@ -42,7 +41,6 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
 		this.FIRST_ORIENTATION_POST = true;
 		this.fenResults = new FenResults(this);
-		this.fenResults.setVisible(false);
 	}
 
 	// TODO: refactor this method
@@ -155,7 +153,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
 		// Save captures
 		ImageStack stackCapture = Library_Capture_CSV
-				.captureToStack(this.captures.toArray(new ImagePlus[this.captures.size()]));
+				.captureToStack(this.captures.toArray(new ImagePlus[0]));
 		ImagePlus montage = this.montage(stackCapture);
 
 		// Display result

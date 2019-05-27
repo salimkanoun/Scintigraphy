@@ -7,7 +7,6 @@ import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
-import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
@@ -19,8 +18,6 @@ import javax.swing.*;
 
 public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
-	private FenResults fenResult;
-
 	public ControllerWorkflow_ScinStatic(Scintigraphy main, FenApplicationWorkflow vue,
 	                                     ImageSelection[] selectedImages,
 	                                     String studyName) {
@@ -31,9 +28,6 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 		this.generateInstructions();
 		this.start();
-
-		this.fenResult = new FenResults(this);
-		this.fenResult.setVisible(false);
 	}
 
 	private void updateButtonLabel(int indexRoi) {

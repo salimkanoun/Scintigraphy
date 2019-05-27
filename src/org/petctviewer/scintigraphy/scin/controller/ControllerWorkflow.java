@@ -508,7 +508,9 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 			if (this.isOver()) {
 				nextInstruction.afterNext(this);
+				getVue().setCursor(new Cursor(Cursor.WAIT_CURSOR));
 				this.end();
+				getVue().setCursor(Cursor.getDefaultCursor());
 			}
 
 			// == Display instruction for the user ==
