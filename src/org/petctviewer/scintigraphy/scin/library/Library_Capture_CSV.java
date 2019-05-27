@@ -28,7 +28,7 @@ import java.util.*;
 
 public class Library_Capture_CSV {
 
-	public static final String PATIENT_INFO_NAME = "name", PATIENT_INFO_ID = "id", PATIENT_INFO_DATE = "date";
+	public static final String PATIENT_INFO_NAME = "name", PATIENT_INFO_ID = "id", PATIENT_INFO_DATE = "date", PATIENT_INFO_ACCESSION_NUMBER = "accessionNumber";
 
 	/**
 	 * renvoie une hasmap contenant les informations du patient selon le tag info de
@@ -42,19 +42,19 @@ public class Library_Capture_CSV {
 
 		// ajout du studyName, si il n'existe pas on ajoute une string vide
 		String tagName = DicomTools.getTag(imp, "0010,0010");
-		if (tagName != null) {
+		if (tagName != null) 
 			hm.put(PATIENT_INFO_NAME, tagName.trim().replace("^", " "));
-		} else {
+		 else 
 			hm.put(PATIENT_INFO_NAME, "");
-		}
+		
 
 		// ajout de l'id, si il n'existe pas on ajoute une string vide
 		String tagId = DicomTools.getTag(imp, "0010,0020");
-		if (tagId != null) {
+		if (tagId != null) 
 			hm.put(PATIENT_INFO_ID, tagId.trim());
-		} else {
+		 else 
 			hm.put(PATIENT_INFO_ID, "");
-		}
+		
 
 		// ajout de la date studyName, si il n'existe pas on ajoute une string vide
 		String tagDate = DicomTools.getTag(imp, "0008,0022");
@@ -71,9 +71,17 @@ public class Library_Capture_CSV {
 			String r = new SimpleDateFormat(Prefs.get("dateformat.preferred", "MM/dd/yyyy")).format(result);
 			hm.put(PATIENT_INFO_DATE, r);
 
-		} else {
+		} else
 			hm.put(PATIENT_INFO_DATE, "");
-		}
+		
+		// ajout de l'accesionNumber, si il n'existe pas on ajoute une string vide
+				String tagAccessionNumber = DicomTools.getTag(imp, "0008,0050");
+				if (tagId != null) 
+					hm.put(PATIENT_INFO_ACCESSION_NUMBER, tagId.trim());
+				else 
+					hm.put(PATIENT_INFO_ACCESSION_NUMBER, "");
+				
+		
 		return hm;
 	}
 
@@ -584,7 +592,7 @@ public class Library_Capture_CSV {
 	/********** Private static Getter *********/
 	// [0] : studyName, [1] : id, [2] : date
 	public static String[] getInfoPatient(ImagePlus imp) {
-		String[] infoPatient = new String[3];
+		String[] infoPatient = new String[4];
 
 		// On recupere le Patient Name de l'ImagePlus
 		String patientName = new String();
@@ -603,10 +611,17 @@ public class Library_Capture_CSV {
 		date = DicomTools.getTag(imp, "0008,0020");
 		if (date != null && !date.isEmpty())
 			date = date.trim();
+		
+		// We get the AccessionNumber
+		String accessionNumber = new String();
+		accessionNumber = DicomTools.getTag(imp, "0008,0050");
+		if (accessionNumber != null && !accessionNumber.isEmpty())
+			accessionNumber = patientID.trim();
 
 		infoPatient[0] = patientName;
 		infoPatient[1] = patientID;
 		infoPatient[2] = date;
+		infoPatient[3] = accessionNumber;
 
 		return infoPatient;
 	}
