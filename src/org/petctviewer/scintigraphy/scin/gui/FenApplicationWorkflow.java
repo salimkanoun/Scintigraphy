@@ -289,12 +289,12 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	}
 
 	@Override
-	public void setControleur(ControllerScin controller) {
+	public void setController(ControllerScin controller) {
 		if (!(controller instanceof ControllerWorkflow)) {
 			throw new IllegalArgumentException("The controller must be an instance of ControllerWorkflow");
 		}
 
-		super.setControleur(controller);
+		super.setController(controller);
 		this.addControllerListeners();
 	}
 

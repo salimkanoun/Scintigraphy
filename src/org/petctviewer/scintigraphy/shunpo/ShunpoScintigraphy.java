@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.shunpo;
 
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -10,8 +11,6 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-
-import ij.ImagePlus;
 
 public class ShunpoScintigraphy extends Scintigraphy {
 
@@ -78,7 +77,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		// Start program
 		this.setFenApplication(new FenApplication_Shunpo(this, selectedImages[0]));
-		((FenApplicationWorkflow) this.getFenApplication()).setControleur(new ControllerWorkflowShunpo(this,
+		((FenApplicationWorkflow) this.getFenApplication()).setController(new ControllerWorkflowShunpo(this,
 				(FenApplicationWorkflow) getFenApplication(), new ModelShunpo(selectedImages, "Pulmonary Shunt")));
 		this.getFenApplication().setVisible(true);
 	}

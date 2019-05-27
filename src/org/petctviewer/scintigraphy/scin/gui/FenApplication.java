@@ -1,27 +1,10 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
-import java.awt.Panel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseWheelListener;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-
+import ij.ImagePlus;
+import ij.gui.ImageCanvas;
+import ij.gui.Overlay;
+import ij.gui.StackWindow;
+import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.hepatic.SecondExam.FenApplicationSecondHepaticDyn;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -29,11 +12,12 @@ import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.ImagePlus;
-import ij.gui.ImageCanvas;
-import ij.gui.Overlay;
-import ij.gui.StackWindow;
-import ij.util.DicomTools;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Interface graphique principale de quantification dans imageJ
@@ -235,7 +219,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	}
 
 	/************* Setter *************/
-	public void setControleur(ControllerScin ctrl) {
+	public void setController(ControllerScin ctrl) {
 		this.controleur = ctrl;
 
 		// on affiche la premiere instruction

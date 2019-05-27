@@ -1,14 +1,11 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
-import java.awt.Button;
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.Panel;
-
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+
+import java.awt.*;
 
 public class FenApplication_ScinStatic extends FenApplicationWorkflow {
 	private static final long serialVersionUID = 1L;
@@ -44,8 +41,8 @@ public class FenApplication_ScinStatic extends FenApplicationWorkflow {
 	}
 
 	@Override
-	public void setControleur(ControllerScin ctrl) {
-		super.setControleur(ctrl);
+	public void setController(ControllerScin ctrl) {
+		super.setController(ctrl);
 		this.btn_finish.addActionListener(ctrl);
 	}
 }

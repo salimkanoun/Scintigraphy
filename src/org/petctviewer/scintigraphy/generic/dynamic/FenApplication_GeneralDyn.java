@@ -1,10 +1,7 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
-import java.awt.Button;
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.Panel;
-
+import ij.IJ;
+import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
@@ -12,8 +9,7 @@ import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
-import ij.gui.Toolbar;
+import java.awt.*;
 
 public class FenApplication_GeneralDyn extends FenApplicationWorkflow {
 
@@ -52,8 +48,8 @@ public class FenApplication_GeneralDyn extends FenApplicationWorkflow {
 	}
 
 	@Override
-	public void setControleur(ControllerScin ctrl) {
-		super.setControleur(ctrl);
+	public void setController(ControllerScin ctrl) {
+		super.setController(ctrl);
 		this.btn_finish.addActionListener(ctrl);
 	}
 }

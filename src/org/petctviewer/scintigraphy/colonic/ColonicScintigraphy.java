@@ -1,7 +1,5 @@
 package org.petctviewer.scintigraphy.colonic;
 
-import java.util.Arrays;
-
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -10,6 +8,8 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+
+import java.util.Arrays;
 
 public class ColonicScintigraphy extends Scintigraphy {
 
@@ -48,7 +48,7 @@ public class ColonicScintigraphy extends Scintigraphy {
 		// TODO Auto-generated method stub
 
 		this.setFenApplication(new FenApplicationColonicTransit(selectedImages[0], this.getStudyName()));
-		((FenApplicationColonicTransit) this.getFenApplication()).setControleur(new ControllerWorkflowColonicTransit(
+		((FenApplicationColonicTransit) this.getFenApplication()).setController(new ControllerWorkflowColonicTransit(
 				this, (FenApplicationColonicTransit) this.getFenApplication(), selectedImages));
 	}
 

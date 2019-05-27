@@ -1,7 +1,7 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
-import javax.swing.JOptionPane;
-
+import ij.ImagePlus;
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -15,18 +15,18 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawLoopInstructio
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
+import javax.swing.*;
 
 public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 	private FenResults fenResult;
 
-	public ControllerWorkflow_ScinStatic(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages,
-			String studyName) {
+	public ControllerWorkflow_ScinStatic(Scintigraphy main, FenApplicationWorkflow vue,
+	                                     ImageSelection[] selectedImages,
+	                                     String studyName) {
 		super(main, vue, new ModelScinStatic(selectedImages, studyName));
 
-		ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
+		ImageState statePost = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, ImageState.ID_WORKFLOW);
 		setOverlay(statePost);
 
 		this.generateInstructions();
@@ -41,7 +41,6 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		Roi roi = getRoiManager().getRoi(indexRoi);
 		if (roi != null) {
 			getVue().getBtn_suivant().setLabel(FenApplication_ScinStatic.BTN_TEXT_NEXT);
-			System.out.println("changed name");
 		} else {
 			getVue().getBtn_suivant().setLabel(FenApplication_ScinStatic.BTN_TEXT_NEW_ROI);
 		}
@@ -54,7 +53,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 	@Override
 	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
-		DefaultGenerator dri_1 = null;
+		DefaultGenerator dri_1;
 
 		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
 
@@ -71,7 +70,6 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 	}
 
 	public void end() {
-		System.out.println("End");
 		ImagePlus imp = this.model.getImagePlus();
 
 		// pour la ant
@@ -99,34 +97,34 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 	@Override
 	public void clickNext() {
-		// Update view
-		getVue().setNbInstructions(this.allInputInstructions().size());
-
 		boolean sameName = false;
 		for (Instruction instruction : this.workflows[this.indexCurrentWorkflow].getInstructions())
 			if (instruction instanceof DrawLoopInstruction)
-				if (instruction != this.workflows[this.indexCurrentWorkflow]
-						.getCurrentInstruction())
+				if (instruction != this.workflows[this.indexCurrentWorkflow].getCurrentInstruction())
 					if (this.workflows[this.indexCurrentWorkflow].getController().getVue().getTextfield_instructions()
 							.getText().equals(((DrawLoopInstruction) instruction).getInstructionRoiName()))
 						sameName = true;
-		if (sameName) {
-			int retour;
-			retour = JOptionPane.showConfirmDialog(getVue(), "A Roi already have this name. Do you want to continue ?",
+		if (sameName && getVue().getImage().getImagePlus().getRoi() != null) {
+			int result;
+			result = JOptionPane.showConfirmDialog(getVue(), "A Roi already have this name. Do you want to continue ?",
 					"Duplicate Roi Name", JOptionPane.YES_NO_CANCEL_OPTION);
 
-			if (retour != JOptionPane.OK_OPTION)
-				return;
+			if (result != JOptionPane.OK_OPTION) return;
 		}
 
 		this.updateButtonLabel(this.indexRoi);
 
 		super.clickNext();
+
+		// Update view
+		int indexScroll = this.getVue().getInstructionDisplayed();
+		getVue().setNbInstructions(this.allInputInstructions().size());
+		this.updateScrollbar(indexScroll + 1);
 	}
 
 	@Override
-	public void clicPrecedent() {
-		super.clicPrecedent();
+	public void clickPrevious() {
+		super.clickPrevious();
 
 		this.updateButtonLabel(this.indexRoi);
 	}

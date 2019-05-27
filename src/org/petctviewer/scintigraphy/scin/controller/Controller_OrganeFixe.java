@@ -14,19 +14,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.util.HashMap;
-
-import javax.swing.JOptionPane;
-
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
-
 import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
@@ -34,6 +21,16 @@ import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.gui.Toolbar;
 import ij.plugin.frame.RoiManager;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.HashMap;
 
 public abstract class Controller_OrganeFixe extends ControllerScin {
 
@@ -85,7 +82,7 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 			this.clickNext();
 
 		} else if (b == fen.getBtn_precedent()) {
-			this.clicPrecedent();
+			this.clickPrevious();
 
 		} else if (b == fen.getBtn_drawROI()) {
 			Button btn = fen.getBtn_drawROI();
@@ -145,7 +142,7 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 	}
 
 	@Override
-	public void clicPrecedent() {
+	public void clickPrevious() {
 		// Si boutton suivant desactive car on est arrive a la fin du programme, on le
 		// reactive quand on a clique sur precedent
 		if (!scin.getFenApplication().getBtn_suivant().isEnabled())
@@ -354,7 +351,7 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 	/**
 	 * Renvoie la roi qui sera utilisée dans la methode preparerRoi, appellée lors
 	 * du clic sur les boutons <précédent et suivant <br>
-	 * See also {@link #preparerRoi()}
+	 * See also {@link #preparerRoi(int)}
 	 * 
 	 * @param lastRoi
 	 * 

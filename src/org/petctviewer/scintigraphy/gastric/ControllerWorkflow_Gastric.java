@@ -264,8 +264,8 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	}
 
 	@Override
-	public void clicPrecedent() {
-		super.clicPrecedent();
+	public void clickPrevious() {
+		super.clickPrevious();
 		this.fenResults.setVisible(false);
 	}
 

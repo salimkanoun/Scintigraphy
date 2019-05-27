@@ -1,5 +1,9 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -9,11 +13,6 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-
-import ij.IJ;
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.gui.Toolbar;
 
 public class GeneralDynamicScintigraphy extends Scintigraphy {
 
@@ -27,7 +26,7 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		this.setFenApplication(new FenApplication_GeneralDyn(selectedImages[0], this.getStudyName(), this));
-		((FenApplicationWorkflow) this.getFenApplication()).setControleur(
+		((FenApplicationWorkflow) this.getFenApplication()).setController(
 				new ControllerWorkflowScinDynamic(this, (FenApplicationWorkflow) this.getFenApplication(),
 						new Model_GeneralDyn(selectedImages, "General Dynamic", this.getFrameDurations())));
 		IJ.setTool(Toolbar.POLYGON);
