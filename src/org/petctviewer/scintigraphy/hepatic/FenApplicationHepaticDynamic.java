@@ -13,8 +13,13 @@ import java.awt.event.MouseListener;
 public class FenApplicationHepaticDynamic extends FenApplication {
 
 	private static final long serialVersionUID = 784076354714330098L;
-	private Button btn_finish, labelSlice1, labelSlice2, labelSlice3;
-	private Label buttonSlice1, buttonSlice2, buttonSlice3;
+	private final Button btn_finish;
+	private final Button labelSlice1;
+	private final Button labelSlice2;
+	private final Button labelSlice3;
+	private final Label buttonSlice1;
+	private final Label buttonSlice2;
+	private final Label buttonSlice3;
 
 	public FenApplicationHepaticDynamic(ImagePlus imp, String nom) {
 		super(imp, nom);

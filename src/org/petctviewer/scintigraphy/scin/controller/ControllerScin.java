@@ -31,7 +31,7 @@ public abstract class ControllerScin implements ActionListener {
 	/**
 	 * View of the MVC pattern
 	 */
-	protected FenApplication vue;
+	protected final FenApplication vue;
 	/**
 	 * Position in the flow of the controller.<br>
 	 * Increments when 'Next' button is pressed.<br>
@@ -40,9 +40,9 @@ public abstract class ControllerScin implements ActionListener {
 	 */
 	protected int position;
 
-	protected Scintigraphy main;
+	protected final Scintigraphy main;
 
-	protected ModelScin model;
+	protected final ModelScin model;
 
 	public ControllerScin(Scintigraphy main, FenApplication vue, ModelScin model) {
 		this.vue = vue;
@@ -225,8 +225,6 @@ public abstract class ControllerScin implements ActionListener {
 	/**
 	 * Displays all of the existing ROIs that have an index < to the specified
 	 * index.<br>
-	 * 
-	 * @param index
 	 */
 	public void displayRoisUpTo(int index) {
 		this.displayRois(0, index);
@@ -268,17 +266,13 @@ public abstract class ControllerScin implements ActionListener {
 	 * editable.
 	 * 
 	 * @param index Index of the ROI to clone and edit
-	 * @return TRUE if the ROI already existed and could be retrieved and FALSE if
-	 *         not
 	 */
-	public boolean editCopyRoi(int index) {
+	public void editCopyRoi(int index) {
 		Roi roiToEdit = this.model.getRoiManager().getRoi(index);
 		if (roiToEdit != null) {
 			this.vue.getImagePlus().setRoi((Roi) roiToEdit.clone());
 			this.vue.getImagePlus().getRoi().setStrokeColor(Color.RED);
-			return true;
 		}
-		return false;
 	}
 
 	/**
@@ -338,9 +332,7 @@ public abstract class ControllerScin implements ActionListener {
 	/**
 	 * Creates a rectangle between the two ROIs specified.<br>
 	 * TODO: move this method in Library_Roi
-	 * 
-	 * @param r1
-	 * @param r2
+	 *
 	 * @return Rectangle at the center of the ROIs specified
 	 */
 	protected Rectangle roiBetween(Roi r1, Roi r2) {
@@ -393,7 +385,6 @@ public abstract class ControllerScin implements ActionListener {
 
 		} else if (b == this.vue.getBtn_quitter()) {
 			this.vue.close();
-			return;
 		}
 	}
 

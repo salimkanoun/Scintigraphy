@@ -1,19 +1,9 @@
 package org.petctviewer.scintigraphy.calibration.chargement;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
+import java.util.ArrayList;
 
 public class FenChargementCalibration extends JFrame {
 
@@ -25,18 +15,16 @@ public class FenChargementCalibration extends JFrame {
 	// list of couple of image path and mask path
 	// 1,2,3,4,5,6 rois for each sphere and 7 for background (noise)
 	// [0] brut [1] mask
-	private ArrayList<String[]> examList;
-
-	private ControleurChargementCalibration ccc;
+	private final ArrayList<String[]> examList;
 
 	private JPanel fen;
 
-	private JLabel examText;
-	private JLabel sphereText;
+	private final JLabel examText;
+	private final JLabel sphereText;
 	
 	public FenChargementCalibration() {
 
-		this.examList = new ArrayList<String[]>();
+		this.examList = new ArrayList<>();
 
 		this.setTitle("Image selection");
 		this.setLayout(new BorderLayout());
@@ -45,7 +33,7 @@ public class FenChargementCalibration extends JFrame {
 		this.add(fen, BorderLayout.CENTER);
 
 		JButton lancer = new JButton("Run analysis");
-		ccc = new ControleurChargementCalibration(this);
+		ControleurChargementCalibration ccc = new ControleurChargementCalibration(this);
 		lancer.addActionListener(ccc);
 
 		JPanel south = new JPanel();
@@ -110,19 +98,16 @@ public class FenChargementCalibration extends JFrame {
 
 	private JButton addImageChooserButton() {
 		JButton addImageFileButton = new JButton("Add image file");
-		addImageFileButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser fc = new JFileChooser();
-				fc.setDialogTitle("Select Image File");
+		addImageFileButton.addActionListener(e -> {
+			JFileChooser fc = new JFileChooser();
+			fc.setDialogTitle("Select Image File");
 
-				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				fc.addChoosableFileFilter(new FileNameExtensionFilter("nii documents", "nii"));
-				fc.setAcceptAllFileFilterUsed(true);
+			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			fc.addChoosableFileFilter(new FileNameExtensionFilter("nii documents", "nii"));
+			fc.setAcceptAllFileFilterUsed(true);
 
-				if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-					addPathBrut(fc.getSelectedFile().getAbsolutePath());
-				}
+			if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+				addPathBrut(fc.getSelectedFile().getAbsolutePath());
 			}
 		});
 		return addImageFileButton;
@@ -131,19 +116,16 @@ public class FenChargementCalibration extends JFrame {
 	private JButton addImageChooserButton(int indice) {
 
 		JButton addImageFileButton = new JButton("Add image file");
-		addImageFileButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser fc = new JFileChooser();
-				fc.setDialogTitle("Select Image File");
+		addImageFileButton.addActionListener(e -> {
+			JFileChooser fc = new JFileChooser();
+			fc.setDialogTitle("Select Image File");
 
-				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				fc.addChoosableFileFilter(new FileNameExtensionFilter("nii documents", "nii"));
-				fc.setAcceptAllFileFilterUsed(true);
+			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			fc.addChoosableFileFilter(new FileNameExtensionFilter("nii documents", "nii"));
+			fc.setAcceptAllFileFilterUsed(true);
 
-				if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-					addPathBrut(fc.getSelectedFile().getAbsolutePath(), indice);
-				}
+			if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+				addPathBrut(fc.getSelectedFile().getAbsolutePath(), indice);
 			}
 		});
 		return addImageFileButton;
@@ -151,20 +133,16 @@ public class FenChargementCalibration extends JFrame {
 
 	private JButton addMaskChooserButton() {
 		JButton addMaskFileButton = new JButton("Add Mask file");
-		addMaskFileButton.addActionListener(new ActionListener() {
+		addMaskFileButton.addActionListener(e -> {
+			JFileChooser fc = new JFileChooser();
+			fc.setDialogTitle("Select Image File");
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser fc = new JFileChooser();
-				fc.setDialogTitle("Select Image File");
+			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			fc.addChoosableFileFilter(new FileNameExtensionFilter("nii documents", "nii"));
+			fc.setAcceptAllFileFilterUsed(true);
 
-				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				fc.addChoosableFileFilter(new FileNameExtensionFilter("nii documents", "nii"));
-				fc.setAcceptAllFileFilterUsed(true);
-
-				if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-					addPathMask(fc.getSelectedFile().getAbsolutePath());
-				}
+			if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+				addPathMask(fc.getSelectedFile().getAbsolutePath());
 			}
 		});
 		return addMaskFileButton;
@@ -172,20 +150,16 @@ public class FenChargementCalibration extends JFrame {
 
 	private JButton addMaskChooserButton(int indice) {
 		JButton addMaskFileButton = new JButton("Add Mask file");
-		addMaskFileButton.addActionListener(new ActionListener() {
+		addMaskFileButton.addActionListener(e -> {
+			JFileChooser fc = new JFileChooser();
+			fc.setDialogTitle("Select Image File");
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser fc = new JFileChooser();
-				fc.setDialogTitle("Select Image File");
+			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			fc.addChoosableFileFilter(new FileNameExtensionFilter("nii documents", "nii"));
+			fc.setAcceptAllFileFilterUsed(true);
 
-				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				fc.addChoosableFileFilter(new FileNameExtensionFilter("nii documents", "nii"));
-				fc.setAcceptAllFileFilterUsed(true);
-
-				if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-					addPathMask(fc.getSelectedFile().getAbsolutePath(), indice);
-				}
+			if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+				addPathMask(fc.getSelectedFile().getAbsolutePath(), indice);
 			}
 		});
 		return addMaskFileButton;
@@ -263,7 +237,7 @@ public class FenChargementCalibration extends JFrame {
 	}
 	
 	public void setSphereText(String text) {
-		sphereText.setText(text);;
+		sphereText.setText(text);
 		sphereText.revalidate();
 	}
 

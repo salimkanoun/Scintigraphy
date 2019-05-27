@@ -1,9 +1,9 @@
 package org.petctviewer.scintigraphy.gastric;
 
+import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
-import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
 
 /**
  * This class represents a result returned by a model.<br>
@@ -51,7 +51,7 @@ public class ResultValue {
 	/**
 	 * Instantiates a new result not extrapolated.<br>
 	 * This constructor is a convenience for
-	 * {@link #ResultValue(ResultRequest, double, Unit)}.
+	 * {@link #ResultValue(ResultRequest, double, Unit, boolean)}.
 	 *
 	 * @param request Request this result answers to
 	 * @param value   Value of the result

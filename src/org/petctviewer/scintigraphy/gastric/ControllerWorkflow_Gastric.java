@@ -2,7 +2,6 @@ package org.petctviewer.scintigraphy.gastric;
 
 import ij.ImagePlus;
 import ij.Prefs;
-import org.petctviewer.scintigraphy.gastric.tabs.TabLiquidPhase;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -35,12 +34,12 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			COMMAND_FIT_BEST_ALL = "cfb_all";
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 
-	private final boolean DO_ONLY_GASTRIC, DO_LIQUID_PHASE;
+	private final boolean DO_ONLY_GASTRIC;
 
 	// TODO: clean this, it's awful
 	public Date specifiedTimeIngestion;
 
-	private FenResults fenResults;
+	private final FenResults fenResults;
 	private TabMethod1 tabMain;
 	//	private TabMainResult tabMain;
 	private TabMethod2 tabOnlyGastric;
@@ -55,7 +54,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 		// Set final fields
 		DO_ONLY_GASTRIC = Prefs.get(PrefsTabGastric.PREF_SIMPLE_METHOD, false);
-		DO_LIQUID_PHASE = Prefs.get(PrefsTabGastric.PREF_LIQUID_PHASE, false);
 
 		this.generateInstructions();
 		this.start();
@@ -248,13 +246,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.fenResults.addTab(tabOnlyGastric);
 		// Set the best fit
 		this.fitBest(COMMAND_FIT_BEST_2);
-
-		// TAB METHOD 3
-		if (DO_LIQUID_PHASE) {
-			TabLiquidPhase tabLiquidPhase = new TabLiquidPhase(this.fenResults, this.captures.get(0),
-					Model_Gastric.SERIES_STOMACH_PERCENTAGE);
-			this.fenResults.addTab(tabLiquidPhase);
-		}
 
 		this.fenResults.pack();
 		this.fenResults.setVisible(true);

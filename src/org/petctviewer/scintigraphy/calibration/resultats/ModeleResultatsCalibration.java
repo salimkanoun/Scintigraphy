@@ -1,26 +1,25 @@
 package org.petctviewer.scintigraphy.calibration.resultats;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
+import ij.IJ;
+import ij.ImagePlus;
+import ij.process.StackStatistics;
 import org.jfree.data.statistics.Regression;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.process.StackStatistics;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ModeleResultatsCalibration {
 
-	private  Doublet[][] dataInitial=null;
-	private  Doublet[][] dataCurrent=null;
+	private final Doublet[][] dataInitial;
+	private final Doublet[][] dataCurrent;
 	
 	private Double a = null;
 	private Double b = null;
 	
-	private ArrayList<ArrayList<HashMap<String, Object>>> donneesCharge;
+	private final ArrayList<ArrayList<HashMap<String, Object>>> donneesCharge;
 	
 	private ArrayList<Double[][]> listTableauFinal;
 	
@@ -46,8 +45,8 @@ public class ModeleResultatsCalibration {
 	//actualise les data depuis la tableau de checkbox
 	 public void actualiserDatasetFromCheckbox(int x, int y, boolean visiblity) {
 		 if(visiblity) {
-			 this.dataCurrent[x][y].setA( (Double)this.dataInitial[x][y].getA() );
-			 this.dataCurrent[x][y].setB( (Double)this.dataInitial[x][y].getB() );
+			 this.dataCurrent[x][y].setA(this.dataInitial[x][y].getA());
+			 this.dataCurrent[x][y].setB(this.dataInitial[x][y].getB());
 		 }else {
 			 this.dataCurrent[x][y]=new Doublet(Double.NaN, Double.NaN);
 		 }
@@ -77,7 +76,6 @@ public class ModeleResultatsCalibration {
 	 }
 	 
 	 /**
-	  * @param data
 	  * @return un doublet avec a et b, les paramètres recherches
 	  */
 	 private Doublet fitCalcul (Doublet[][] data) {
@@ -91,14 +89,13 @@ public class ModeleResultatsCalibration {
 		 
 		 //passage dans un xyseries
   		XYSeries serikke = new XYSeries("ff ");
-	  	for(int i=0;i<m.length;i++) {
-	  		for(int j=0; j<m[i].length;j++) {
-				if( !m[i][j].getA().equals(Double.NaN) && !m[i][j].getB().equals(Double.NaN) ) {
-					serikke.add(m[i][j].getA(), m[i][j].getB());
-				}
-	  		}
-  		}
-	  ;
+		 for (Doublet[] doublets : m) {
+			 for (int j = 0; j < doublets.length; j++) {
+				 if (!doublets[j].getA().equals(Double.NaN) && !doublets[j].getB().equals(Double.NaN)) {
+					 serikke.add(doublets[j].getA(), doublets[j].getB());
+				 }
+			 }
+		 }
 		 //feat calcul
 	  	 double[] resultRegression = new double[2];
 	  	try {
@@ -121,17 +118,13 @@ public class ModeleResultatsCalibration {
 	 
 	 //tracage du feat
 	 private XYSeries featSeries(Double a, Double b, int max) {
-		 if( a.equals(null) && b.equals(null)) {
-			 return new XYSeries("");
-		 }else {
-			//tracage du feat
-			 XYSeries feat = new XYSeries("feat");
-			 for(double i=0.1D; i< max ;i+=0.1D) {
-					 feat.add(i,(a/i)+b);
-			 }
-			 return feat;
+		 //tracage du feat
+		 XYSeries feat = new XYSeries("feat");
+		 for(double i=0.1D; i< max ;i+=0.1D) {
+				 feat.add(i,(a/i)+b);
 		 }
-		 
+		 return feat;
+
 	 }
 
 	public Double geta() {
@@ -143,24 +136,24 @@ public class ModeleResultatsCalibration {
 	}
 	
 	public void runCalculDetails() {
-		for(int i =0; i<this.donneesCharge.size() ;i++) {
-			for(int j=0; j<this.donneesCharge.get(i).size() ;j++) {
+		for (ArrayList<HashMap<String, Object>> hashMaps : this.donneesCharge) {
+			for (int j = 0; j < hashMaps.size(); j++) {
 				//Double suvMax = (Double)this.donneesCharge.get(i).get(j).get("SUVmax");
-				Double suv70 = (Double)this.donneesCharge.get(i).get(j).get("MEAN70");
-				Double bg = (Double)this.donneesCharge.get(i).get(j).get("BG");
-				
-				Double TS = this.a * suv70 +this.b* bg;
+				Double suv70 = (Double) hashMaps.get(j).get("MEAN70");
+				Double bg = (Double) hashMaps.get(j).get("BG");
 
-				ImagePlus im = ((ImagePlus)this.donneesCharge.get(i).get(j).get("image")).duplicate();
+				double TS = this.a * suv70 + this.b * bg;
+
+				ImagePlus im = ((ImagePlus) hashMaps.get(j).get("image")).duplicate();
 				StackStatistics ss = new StackStatistics(im);
-	
-				IJ.run(im	,"Macro...", "code=[if(v<"+TS+") v=NaN] stack");
+
+				IJ.run(im, "Macro...", "code=[if(v<" + TS + ") v=NaN] stack");
 //im.show();
 				ss = new StackStatistics(im);
 				//mesuré
-				Double volumeCalculated = ss.pixelCount * (Double)this.donneesCharge.get(i).get(j).get("VolumeVoxel");
-		
-				this.donneesCharge.get(i).get(j).put("VolumeCalculated", volumeCalculated);
+				Double volumeCalculated = ss.pixelCount * (Double) hashMaps.get(j).get("VolumeVoxel");
+
+				hashMaps.get(j).put("VolumeCalculated", volumeCalculated);
 			}
 		}
 	}
@@ -195,23 +188,24 @@ public class ModeleResultatsCalibration {
 	public ArrayList<Double> getMoyenneDifferenceDetails() {
 		ArrayList<Double> listMoyenneDifferencePourcentage = new ArrayList<>();
 	   //each roi
-		for(int i = 0 ;i< this.listTableauFinal.size(); i++) {
+		for (Double[][] doubles : this.listTableauFinal) {
 			//pour la moyenne des difference de pourcentage
 			ArrayList<Double> listDifferencePourcentage = new ArrayList<>();
 			//each variable
-			for(int j = 0; j < this.listTableauFinal.get(i).length ; j++){
-				listDifferencePourcentage.add(Math.abs(this.listTableauFinal.get(i)[j][5]));
+			for (int j = 0; j < doubles.length; j++) {
+				listDifferencePourcentage.add(Math.abs(doubles[j][5]));
 			}
-			listMoyenneDifferencePourcentage.add(Library_Quantif.round(mean(listDifferencePourcentage.toArray(new Double[listDifferencePourcentage.size()] )),2));
+			listMoyenneDifferencePourcentage
+					.add(Library_Quantif.round(mean(listDifferencePourcentage.toArray(new Double[0])), 2));
 		}
 		return listMoyenneDifferencePourcentage;
 	}
 
 	public static double mean(Double[] m) {
 	    Double sum = 0.0D;
-	    for (int i = 0; i < m.length; i++) {
-	        sum += m[i];
-	    }
+		for (Double aDouble : m) {
+			sum += aDouble;
+		}
 	    return sum / m.length;
 	}
 

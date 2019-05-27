@@ -1,29 +1,22 @@
 package org.petctviewer.scintigraphy.os;
 
-import java.awt.Color;
-import java.awt.Component;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.Prefs;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.List;
-
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-
-import ij.IJ;
-import ij.ImagePlus;
-import ij.Prefs;
 
 /**
  * DISCLAIMER : Dans cette application, il a été fait comme choix d'initialiser
@@ -32,12 +25,12 @@ import ij.Prefs;
  */
 public class Controleur_Os implements ActionListener, ChangeListener, MouseListener {
 
-	Modele_Os modele;
-	FenApplication_Os vue;
+	final Modele_Os modele;
+	final FenApplication_Os vue;
 
-	ImageSelection imp;
+	final ImageSelection imp;
 
-	public Controleur_Os(ImageSelection[] imps, OsScintigraphy scin) {
+	public Controleur_Os(ImageSelection[] imps) {
 
 		this.modele = new Modele_Os(imps);
 		this.imp = imps[0];
@@ -49,14 +42,10 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 	/**
 	 * Listener permmettant d'inverser la LUT de chaque image, et donc son
 	 * contraste.
-	 * 
-	 * @param arg0
-	 * 
-	 * @return
 	 */
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		if (((JButton) arg0.getSource()) == this.vue.getReverseButton()) {
+		if (arg0.getSource() == this.vue.getReverseButton()) {
 			this.modele.inverser();
 			rafraichir();
 		}
@@ -68,7 +57,6 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 	 * 
 	 * @param e
 	 *            Origine de l'évènement
-	 * @return
 	 */
 	@Override
 	public void stateChanged(ChangeEvent e) {
@@ -91,10 +79,6 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 
 	/**
 	 * Listener permmettant de selectionner les images.
-	 * 
-	 * @param arg0
-	 * 
-	 * @return
 	 */
 	@Override
 	public void mousePressed(MouseEvent arg0) {
@@ -172,7 +156,7 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 				this.vue.cadrer(i * 2 + j, modele.isSelected(i, j));
 	}
 
-	public void createCaptureButton(SidePanel sidePanel, Component[] hide, Component[] show, String additionalInfo) {
+	public void createCaptureButton(SidePanel sidePanel, Component[] hide, Component[] show) {
 		// capture button
 		JButton captureButton = new JButton("Capture");
 
@@ -187,71 +171,49 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 				+ Library_Capture_CSV.genererDicomTagsPartie2(this.modele.getImagePlus());
 
 		// on ajoute le listener sur le bouton capture
-		captureButton.addActionListener(new ActionListener() {
+		captureButton.addActionListener(e -> {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			captureButton.setVisible(false);
+			for (Component comp : hide)
+				comp.setVisible(false);
 
-				captureButton.setVisible(false);
+			lbl_credits.setVisible(true);
+			for (Component comp : show)
+				comp.setVisible(true);
+
+			SwingUtilities.invokeLater(() -> {
+				// Capture, nouvelle methode a utiliser sur le reste des programmes
+				BufferedImage capture = new BufferedImage(Controleur_Os.this.vue.getWidth(),
+						Controleur_Os.this.vue.getHeight(), BufferedImage.TYPE_INT_ARGB);
+				Controleur_Os.this.vue.paint(capture.getGraphics());
+				ImagePlus imp = new ImagePlus("capture", capture);
+
+				captureButton.setVisible(true);
 				for (Component comp : hide)
-					comp.setVisible(false);
-
-				lbl_credits.setVisible(true);
-				for (Component comp : show)
 					comp.setVisible(true);
 
-				SwingUtilities.invokeLater(new Runnable() {
+				lbl_credits.setVisible(false);
+				for (Component comp : show)
+					comp.setVisible(false);
 
-					@Override
-					public void run() {
-						// Capture, nouvelle methode a utiliser sur le reste des programmes
-						BufferedImage capture = new BufferedImage(Controleur_Os.this.vue.getWidth(),
-								Controleur_Os.this.vue.getHeight(), BufferedImage.TYPE_INT_ARGB);
-						Controleur_Os.this.vue.paint(capture.getGraphics());
-						ImagePlus imp = new ImagePlus("capture", capture);
+				// on passe a la capture les infos de la dicom
+				imp.setProperty("Info", info);
+				// on affiche la capture
+				imp.show();
 
-						captureButton.setVisible(true);
-						for (Component comp : hide)
-							comp.setVisible(true);
+				// on change l'outil
+				IJ.setTool("hand");
 
-						lbl_credits.setVisible(false);
-						for (Component comp : show)
-							comp.setVisible(false);
+				// Execution du plugin myDicom
+				try {
+					IJ.run("myDicom...");
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 
-						// on passe a la capture les infos de la dicom
-						imp.setProperty("Info", info);
-						// on affiche la capture
-						imp.show();
+				System.gc();
+			});
 
-						// on change l'outil
-						IJ.setTool("hand");
-
-						// generation du csv
-						// String resultats = Controleur_Os.this.modele.toString();
-
-						// try {
-						// Library_Capture_CSV.exportAll(resultats,
-						// Controleur_Os.this.modele.getRoiManager(),
-						// Controleur_Os.this.modele.getStudyName(), imp,
-						// additionalInfo == null ? "" : additionalInfo);
-						//
-						// imp.killRoi();
-						// } catch (Exception e1) {
-						// e1.printStackTrace();
-						// }
-
-						// Execution du plugin myDicom
-						try {
-							IJ.run("myDicom...");
-						} catch (Exception e1) {
-							e1.printStackTrace();
-						}
-
-						System.gc();
-					}
-				});
-
-			}
 		});
 
 		captureButton.setHorizontalAlignment(JButton.CENTER);

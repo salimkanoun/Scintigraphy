@@ -609,9 +609,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	public Gson saveWorkflow(String path) {
 		this.getRoiManager();
 
-		Gson gson = new Gson();
-
-		return gson;
+		return new Gson();
 	}
 
 	public JsonElement saveWorkflowToJson(String[] label) {
@@ -1007,83 +1005,72 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 				.genererDicomTagsPartie2(tab.getParent().getModel().getImagePlus());
 
 		// on ajoute le listener sur le bouton capture
-		captureButton.addActionListener(new ActionListener() {
+		captureButton.addActionListener(e -> {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			captureButton.setVisible(false);
+			for (Component comp : hide)
+				comp.setVisible(false);
 
-				captureButton.setVisible(false);
+			lbl_credits.setVisible(true);
+			for (Component comp : show)
+				comp.setVisible(true);
+
+			SwingUtilities.invokeLater(() -> {
+				// Capture, nouvelle methode a utiliser sur le reste des programmes
+				BufferedImage capture = new BufferedImage(tab.getPanel().getWidth(), tab.getPanel().getHeight(),
+						BufferedImage.TYPE_INT_ARGB);
+				tab.getPanel().paint(capture.getGraphics());
+				ImagePlus imp = new ImagePlus("capture", capture);
+
+				captureButton.setVisible(true);
 				for (Component comp : hide)
-					comp.setVisible(false);
-
-				lbl_credits.setVisible(true);
-				for (Component comp : show)
 					comp.setVisible(true);
 
-				SwingUtilities.invokeLater(new Runnable() {
+				lbl_credits.setVisible(false);
+				for (Component comp : show)
+					comp.setVisible(false);
 
-					@Override
-					public void run() {
-						// Capture, nouvelle methode a utiliser sur le reste des programmes
-						BufferedImage capture = new BufferedImage(tab.getPanel().getWidth(),
-								tab.getPanel().getHeight(),
-								BufferedImage.TYPE_INT_ARGB);
-						tab.getPanel().paint(capture.getGraphics());
-						ImagePlus imp = new ImagePlus("capture", capture);
+				// on passe a la capture les infos de la dicom
+				imp.setProperty("Info", info);
+				// on affiche la capture
+				imp.show();
 
-						captureButton.setVisible(true);
-						for (Component comp : hide)
-							comp.setVisible(true);
+				// on change l'outil
+				IJ.setTool("hand");
 
-						lbl_credits.setVisible(false);
-						for (Component comp : show)
-							comp.setVisible(false);
+				// generation du csv
+				String resultats = tab.getParent().getModel().toString();
 
-						// on passe a la capture les infos de la dicom
-						imp.setProperty("Info", info);
-						// on affiche la capture
-						imp.show();
+				try {
+					Library_Capture_CSV.exportAll(resultats, tab.getParent().getModel().getRoiManager(),
+							tab.getParent().getModel().getStudyName(), imp, additionalInfo, ControllerWorkflow.this);
 
-						// on change l'outil
-						IJ.setTool("hand");
+					String addInfo = additionalInfo == null ? "" : additionalInfo;
+					String nomFichier = Library_Capture_CSV.getInfoPatient(imp)[1] + "_" + Library_Capture_CSV
+							.getInfoPatient(imp)[2] + addInfo;
+					String path = Prefs.get("dir.preferred", null) + File.separator + tab.getParent().getModel()
+							.getStudyName() + File.separator + Library_Capture_CSV.getInfoPatient(imp)[1];
+					String pathFinal = path + File.separator + nomFichier + ".zip";
+					System.out.println(path);
+					System.out.println(pathFinal);
 
-						// generation du csv
-						String resultats = tab.getParent().getModel().toString();
+					// ((ControllerWorkflow) tab.getParent().getController()).saveWorkflow(path);
 
-						try {
-							Library_Capture_CSV.exportAll(resultats, tab.getParent().getModel().getRoiManager(),
-									tab.getParent().getModel().getStudyName(), imp, additionalInfo,
-									ControllerWorkflow.this);
+					imp.killRoi();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 
-							String addInfo = additionalInfo == null ? "" : additionalInfo;
-							String nomFichier = Library_Capture_CSV.getInfoPatient(imp)[1] + "_" + Library_Capture_CSV
-									.getInfoPatient(imp)[2] + addInfo;
-							String path =
-									Prefs.get("dir.preferred", null) + File.separator + tab.getParent().getModel()
-									.getStudyName() + File.separator + Library_Capture_CSV.getInfoPatient(imp)[1];
-							String pathFinal = path + File.separator + nomFichier + ".zip";
-							System.out.println(path);
-							System.out.println(pathFinal);
+				// Execution du plugin myDicom
+				try {
+					IJ.run("myDicom...");
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 
-							// ((ControllerWorkflow) tab.getParent().getController()).saveWorkflow(path);
+				System.gc();
+			});
 
-							imp.killRoi();
-						} catch (Exception e1) {
-							e1.printStackTrace();
-						}
-
-						// Execution du plugin myDicom
-						try {
-							IJ.run("myDicom...");
-						} catch (Exception e1) {
-							e1.printStackTrace();
-						}
-
-						System.gc();
-					}
-				});
-
-			}
 		});
 
 	}

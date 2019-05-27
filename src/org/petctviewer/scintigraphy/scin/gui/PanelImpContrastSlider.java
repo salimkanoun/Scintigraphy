@@ -1,20 +1,13 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.Component;
-import java.awt.image.BufferedImage;
-
-import javax.swing.Box;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 
-import ij.ImagePlus;
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 /**
  * affichage imaage plus avec reglage contraste 
  * SK algo contraste à revoir
@@ -25,12 +18,13 @@ public abstract class PanelImpContrastSlider extends TabResult implements Change
 	private ImagePlus imp;
 	private DynamicImage dynamicImp;
 
-	private Scintigraphy scin;
-	private JLabel sliderLabel;
+	private final Scintigraphy scin;
+	private final JLabel sliderLabel;
 	private JSlider slider;
 	protected Box boxSlider;
 	
-	String additionalInfo, nomFen;
+	final String additionalInfo;
+	final String nomFen;
 
 	public PanelImpContrastSlider(String nomFen, Scintigraphy scin, String additionalInfo, FenResults parent) {
 		super(parent, nomFen, true);
@@ -101,13 +95,9 @@ public abstract class PanelImpContrastSlider extends TabResult implements Change
 	private void setContrast(int sliderValue) {
 		imp.getProcessor().setMinAndMax(0, (slider.getModel().getMaximum() - sliderValue)+1);
 		
-		SwingUtilities.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				dynamicImp.setImage(imp.getBufferedImage());
-				dynamicImp.repaint();
-			}
+		SwingUtilities.invokeLater(() -> {
+			dynamicImp.setImage(imp.getBufferedImage());
+			dynamicImp.repaint();
 		});
 
 	}

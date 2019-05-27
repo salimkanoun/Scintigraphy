@@ -61,15 +61,11 @@ public class CardiacScintigraphy extends Scintigraphy {
 
 		ImageSelection impStacked = mountedSorted[0].clone();
 		// si la prise est early/late
-		if (selectedImages.length == 2) {
-			impStacked.setImagePlus(Library_Dicom.concatenate(mountedSorted, false));
-			// si il y a plus de 3 minutes de diff�rence entre les deux prises
-			if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {
-				IJ.log("Warning, frame duration differ by "
-						+ Math.abs(frameDuration[0] - frameDuration[1]) / (1000 * 60) + " minutes");
-			}
-		} else {
-			impStacked = mountedSorted[0];
+		impStacked.setImagePlus(Library_Dicom.concatenate(mountedSorted, false));
+		// si il y a plus de 3 minutes de diff�rence entre les deux prises
+		if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {
+			IJ.log("Warning, frame duration differ by "
+					+ Math.abs(frameDuration[0] - frameDuration[1]) / (1000 * 60) + " minutes");
 		}
 
 		return new ImageSelection[] { impStacked };
@@ -85,7 +81,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 
 		// Cree controller
-		((FenApplicationWorkflow) this.getFenApplication())
+		this.getFenApplication()
 				.setController(new ControllerWorkflowCardiac(this, (FenApplicationWorkflow) this.getFenApplication(),
 						new Model_Cardiac(this, selectedImages, "Cardiac")));
 

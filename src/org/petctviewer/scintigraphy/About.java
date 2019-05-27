@@ -1,4 +1,4 @@
-/**
+/*
 Copyright (C) 2017 MOHAND Mathis and KANOUN Salim
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public v.3 License as published by
@@ -14,60 +14,20 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 package org.petctviewer.scintigraphy;
 
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.RenderingHints;
-
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
-
 import ij.plugin.PlugIn;
 
-import javax.swing.JTextField;
-import java.awt.event.ActionListener;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.awt.event.ActionEvent;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-
-import javax.swing.JScrollPane;
-import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
-import javax.swing.JTextPane;
-import java.awt.FlowLayout;
-import java.awt.BorderLayout;
 
 public class About extends JDialog implements PlugIn {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JPanel panel;
-	private JPanel PanelBas;
-	private JButton btnOk;
-	private JTextField txtAbout;
-	private JScrollPane scrollPane_1;
-	private JTable table;
-	private JPanel About;
-	private JPanel Logo;
-	private JPanel CHUToulouse;
-	private JPanel IUTInformatique;
-	private JPanel ImageJ;
-	private JPanel Oncopole;
-	private JTextPane txtpnGeneralPublicLicence;
-	private JTextPane txtpnGeneralPublicLicence_1;
-	private JPanel panel_1;
-	private JPanel panel_2;
-	private JTextPane txtpnProjectLeaders;
-	private JTextPane txtpnGerardVictorPierre;
 
 	public static void main(String[] args) {
 		try {
@@ -89,18 +49,18 @@ public class About extends JDialog implements PlugIn {
 		setBounds(100, 100, 545, 402);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		{
-			panel = new JPanel();
+			JPanel panel = new JPanel();
 			getContentPane().add(panel, BorderLayout.NORTH);
 			panel.setLayout(new BorderLayout(0, 0));
 			{
-				About = new JPanel();
-				panel.add(About, BorderLayout.NORTH);
-				About.setLayout(new GridLayout(0, 1, 0, 0));
+				JPanel about = new JPanel();
+				panel.add(about, BorderLayout.NORTH);
+				about.setLayout(new GridLayout(0, 1, 0, 0));
 				{
-					txtAbout = new JTextField();
+					JTextField txtAbout = new JTextField();
 					txtAbout.setFont(new Font("Tahoma", Font.BOLD, 16));
 					txtAbout.setEditable(false);
-					About.add(txtAbout);
+					about.add(txtAbout);
 					txtAbout.setBackground(Color.LIGHT_GRAY);
 					txtAbout.setHorizontalAlignment(SwingConstants.CENTER);
 					txtAbout.setText("About us...");
@@ -108,10 +68,10 @@ public class About extends JDialog implements PlugIn {
 				}
 			}
 			{
-				Logo = new JPanel();
-				panel.add(Logo);
+				JPanel logo = new JPanel();
+				panel.add(logo);
 				{
-					CHUToulouse = new JPanel();
+					JPanel CHUToulouse = new JPanel();
 					BufferedImage myPicture;
 					try {
 						myPicture = ImageIO.read(getClass().getResource("/logos/logo_chu_toulouse.jpeg"));
@@ -121,12 +81,12 @@ public class About extends JDialog implements PlugIn {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					Logo.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+					logo.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 					
-					Logo.add(CHUToulouse);
+					logo.add(CHUToulouse);
 				}
 				{
-					IUTInformatique = new JPanel();
+					JPanel IUTInformatique = new JPanel();
 					BufferedImage myPicture;
 					try {
 						myPicture = ImageIO.read(getClass().getResource("/logos/IUT_Toulouse.jpg"));
@@ -136,38 +96,38 @@ public class About extends JDialog implements PlugIn {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					Logo.add(IUTInformatique);
+					logo.add(IUTInformatique);
 				}
 				{
-					Oncopole = new JPanel();
+					JPanel oncopole = new JPanel();
 					BufferedImage myPicture;
 					try {
 						myPicture = ImageIO.read(getClass().getResource("/logos/Institut-Claudius-Regaud.jpg"));
 						BufferedImage myPicture2=(BufferedImage) this.scale(myPicture, 187, 64);
 						JLabel picLabel = new JLabel(new ImageIcon(myPicture2));
-						Oncopole.add(picLabel);
+						oncopole.add(picLabel);
 					} catch (IOException e) {e.printStackTrace();}
-					Logo.add(Oncopole);
+					logo.add(oncopole);
 				}
 				{
-					ImageJ = new JPanel();
+					JPanel imageJ = new JPanel();
 					BufferedImage myPicture;
 					try {
 						myPicture = ImageIO.read(getClass().getResource("/logos/ImageJ.png"));
 						BufferedImage myPicture2=(BufferedImage) this.scale(myPicture, 64, 64);
 						JLabel picLabel = new JLabel(new ImageIcon(myPicture2));
-						ImageJ.add(picLabel);
+						imageJ.add(picLabel);
 					} catch (IOException e) {e.printStackTrace();}
-					Logo.add(ImageJ);
+					logo.add(imageJ);
 				}
 				
 			}
 		}
 		{
-			scrollPane_1 = new JScrollPane();
+			JScrollPane scrollPane_1 = new JScrollPane();
 			getContentPane().add(scrollPane_1, BorderLayout.CENTER);
 			{
-				table = new JTable();
+				JTable table = new JTable();
 				table.setModel(new DefaultTableModel(
 					new Object[][] {
 						{"Pulmonary Shunt", "Gerard Victor", "Titouan Quema, Mathis Mohand", "CHU Toulouse"},
@@ -194,52 +154,47 @@ public class About extends JDialog implements PlugIn {
 			}
 		}
 		{
-			PanelBas = new JPanel();
-			getContentPane().add(PanelBas, BorderLayout.SOUTH);
-			PanelBas.setLayout(new GridLayout(3, 1, 0, 0));
+			JPanel panelBas = new JPanel();
+			getContentPane().add(panelBas, BorderLayout.SOUTH);
+			panelBas.setLayout(new GridLayout(3, 1, 0, 0));
 			{
-				panel_2 = new JPanel();
-				PanelBas.add(panel_2);
+				JPanel panel_2 = new JPanel();
+				panelBas.add(panel_2);
 				panel_2.setLayout(new GridLayout(0, 2, 0, 0));
 				{
-					txtpnProjectLeaders = new JTextPane();
+					JTextPane txtpnProjectLeaders = new JTextPane();
 					txtpnProjectLeaders.setBackground(Color.LIGHT_GRAY);
 					panel_2.add(txtpnProjectLeaders);
 					txtpnProjectLeaders.setText("Project Leaders :");
 				}
 				{
-					txtpnGeneralPublicLicence_1 = new JTextPane();
+					JTextPane txtpnGeneralPublicLicence_1 = new JTextPane();
 					panel_2.add(txtpnGeneralPublicLicence_1);
 					txtpnGeneralPublicLicence_1.setBackground(Color.LIGHT_GRAY);
 					txtpnGeneralPublicLicence_1.setText("General Public Licence v.3");
 				}
 			}
-			btnOk = new JButton("OK");
-			btnOk.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent arg0) {
-					dispose();
-				}
-			});
+			JButton btnOk = new JButton("OK");
+			btnOk.addActionListener(arg0 -> dispose());
 			{
-				panel_1 = new JPanel();
-				PanelBas.add(panel_1);
+				JPanel panel_1 = new JPanel();
+				panelBas.add(panel_1);
 				panel_1.setLayout(new GridLayout(0, 2, 0, 0));
 				{
-					txtpnGerardVictorPierre = new JTextPane();
+					JTextPane txtpnGerardVictorPierre = new JTextPane();
 					txtpnGerardVictorPierre.setBackground(Color.LIGHT_GRAY);
 					panel_1.add(txtpnGerardVictorPierre);
 					txtpnGerardVictorPierre.setText("Salim Kanoun, Gerard Victor, Pierre Pascal,\r\nAlina Berriolo-Riedinger, Olivier Morel, Ilan Tal");
 				}
 				{
-					txtpnGeneralPublicLicence = new JTextPane();
+					JTextPane txtpnGeneralPublicLicence = new JTextPane();
 					panel_1.add(txtpnGeneralPublicLicence);
 					txtpnGeneralPublicLicence.setFont(new Font("Tahoma", Font.BOLD, 15));
 					txtpnGeneralPublicLicence.setBackground(Color.LIGHT_GRAY);
 					txtpnGeneralPublicLicence.setText(" http://petctviewer.org\r\n");
 				}
 			}
-			PanelBas.add(btnOk);
+			panelBas.add(btnOk);
 		}
 	}
 	

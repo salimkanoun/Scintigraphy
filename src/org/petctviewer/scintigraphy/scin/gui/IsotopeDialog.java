@@ -1,18 +1,9 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Dialog;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * This dialog is used to prompt the isotope used for an acquisition to the
@@ -25,7 +16,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 public class IsotopeDialog extends Dialog {
 	private static final long serialVersionUID = 1L;
 
-	private JComboBox<Isotope> comboBox;
+	private final JComboBox<Isotope> comboBox;
 
 	/**
 	 * Instantiates the dialog. This is used to prompt the isotope.
@@ -43,12 +34,7 @@ public class IsotopeDialog extends Dialog {
 		panel.add(comboBox);
 
 		JButton okBtn = new JButton("Validate");
-		okBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				dispose();
-			}
-		});
+		okBtn.addActionListener(e -> dispose());
 
 		this.setLayout(new BorderLayout());
 		this.add(panel, BorderLayout.CENTER);
@@ -60,28 +46,22 @@ public class IsotopeDialog extends Dialog {
 
 	/**
 	 * Instantiates the dialog.
-	 * 
-	 * @param parent
-	 * @param codeFound
+	 *
+	 * @param codeFound Code found in the DICOM header
 	 */
 	public IsotopeDialog(Frame parent, String codeFound) {
 		super(parent, "Choose isotope", true);
 
 		JPanel panel = new JPanel(new GridLayout(0, 1));
 
-		panel.add(new JLabel("The code " + codeFound + " was found but is not regognized as a Isotope Code."));
+		panel.add(new JLabel("The code " + codeFound + " was found but is not recognized as an Isotope Code."));
 		panel.add(new JLabel("Please enter the Isotope used for this acquisition:"));
 
 		comboBox = new JComboBox<>(Isotope.values());
 		panel.add(comboBox);
 
 		JButton okBtn = new JButton("Validate");
-		okBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				dispose();
-			}
-		});
+		okBtn.addActionListener(e -> dispose());
 
 		this.setLayout(new BorderLayout());
 		this.add(panel, BorderLayout.CENTER);

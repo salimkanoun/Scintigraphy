@@ -1,18 +1,17 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
-import java.util.HashMap;
-
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
+import java.util.HashMap;
 
 public class Model_Dmsa extends ModelScin {
 
-	HashMap<String, Double> data = new HashMap<>();
-	HashMap<String, Integer> areas = new HashMap<>();
-	double[] pct = new double[2];
+	final HashMap<String, Double> data = new HashMap<>();
+	final HashMap<String, Integer> areas = new HashMap<>();
+	final double[] pct = new double[2];
 	
 	public Model_Dmsa(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
@@ -75,26 +74,26 @@ public class Model_Dmsa extends ModelScin {
 	
 	@Override
 	public String toString() {
-		String s = "\n";
+		StringBuilder s = new StringBuilder("\n");
 	
 		//ajoute tous les coups
 		for(String k : this.data.keySet()) {
-			s += "count " + k + "," + this.data.get(k) + "\n";
+			s.append("count ").append(k).append(",").append(this.data.get(k)).append("\n");
 		}
 		
-		s += "\n";
+		s.append("\n");
 		
 		//ajoute toutes les aires
 		for(String k : this.areas.keySet()) {
-			s += "areas " + k + " (px)," + this.areas.get(k) + "\n";
+			s.append("areas ").append(k).append(" (px),").append(this.areas.get(k)).append("\n");
 		}
 		
-		s += "\n";
+		s.append("\n");
 		
-		s += "Excretion ratio Left Kidney," + this.pct[0] + "\n";
-		s += "Excretion ratio Right Kidney," + this.pct[1] + "\n";
+		s.append("Excretion ratio Left Kidney,").append(this.pct[0]).append("\n");
+		s.append("Excretion ratio Right Kidney,").append(this.pct[1]).append("\n");
 		
-		return s;
+		return s.toString();
 	}
 
 	public double[] getPct() {

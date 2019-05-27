@@ -1,9 +1,5 @@
 package org.petctviewer.scintigraphy.gastric.dynamic;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.JButton;
-
 import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2;
@@ -23,12 +19,15 @@ import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+
 public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
 	public static final String COMMAND_FIT_BEST_1 = "cfb_method1", COMMAND_FIT_BEST_2 = "cfb_method2",
 			COMMAND_FIT_BEST_ALL = "cfb_all";
 
-	private FenResults fenResults;
+	private final FenResults fenResults;
 
 	public ControllerWorkflow_DynGastric(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
 			ImageSelection[] selectedImages, FenResults fenResults) {

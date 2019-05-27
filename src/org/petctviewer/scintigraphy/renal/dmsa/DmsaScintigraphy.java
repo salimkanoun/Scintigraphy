@@ -60,7 +60,7 @@ public class DmsaScintigraphy extends Scintigraphy {
 		IJ.setTool(Toolbar.POLYGON);
 
 //		fen.setController(new Controleur_Dmsa(this, selectedImages, "dmsa"));
-		((FenApplicationWorkflow) fen).setController(new ControllerWorkflowDMSA(this,
+		fen.setController(new ControllerWorkflowDMSA(this,
 				(FenApplicationWorkflow) this.getFenApplication(), new Model_Dmsa(selectedImages, "dmsa")));
 	}
 

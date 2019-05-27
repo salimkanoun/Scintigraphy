@@ -334,8 +334,8 @@ public class Library_Quantif {
 	public enum Isotope {
 		INDIUM_111(242330000L, "C-145A4"), TECHNETIUM_99(21620880L, "C-163A8"), CHROME_51(2393500000L, "C-129A2");
 
-		private long halfLifeMS;
-		private String code;
+		private final long halfLifeMS;
+		private final String code;
 
 		Isotope(long isotope, String code) {
 			this.halfLifeMS = isotope;

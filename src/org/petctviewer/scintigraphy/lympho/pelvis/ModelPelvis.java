@@ -1,19 +1,18 @@
 package org.petctviewer.scintigraphy.lympho.pelvis;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.lympho.ModelLympho;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ModelPelvis extends ModelScin {
 
@@ -22,17 +21,17 @@ public class ModelPelvis extends ModelScin {
 
 	private boolean locked;
 
-	private Map<Integer, Double> coups;
+	private final Map<Integer, Double> coups;
 
-	private Map<Integer, Integer> geometricalAverage;
+	private final Map<Integer, Integer> geometricalAverage;
 
 	private String[] retour;
 
-	TabResult resutlTab;
+	final TabResult resutlTab;
 
 	private ImagePlus pelvisMontage;
 
-	private List<Double> results;
+	private final List<Double> results;
 
 	public ModelPelvis(ImageSelection[] selectedImages, String studyName, TabResult resultTab) {
 		super(selectedImages, studyName);
@@ -51,9 +50,6 @@ public class ModelPelvis extends ModelScin {
 		return locked;
 	}
 
-	/************** Getter *************/
-
-	/************** Setter *************/
 	public void setLocked(boolean locked) {
 		this.locked = locked;
 	}
@@ -98,7 +94,7 @@ public class ModelPelvis extends ModelScin {
 	private void computeGeometricalAverage() {
 		System.out.println("\n\n\n\n\n\n----------------------------\n\n\n\n\n\n");
 		System.out.println("nbCounts : " + this.coups.size());
-		for (Double count : this.coups.values().toArray(new Double[this.coups.size()])) {
+		for (Double count : this.coups.values().toArray(new Double[0])) {
 			System.out.println("Counts : " + count);
 		}
 		this.moyenneGeo(RIGHT_PELVIS_ANT);

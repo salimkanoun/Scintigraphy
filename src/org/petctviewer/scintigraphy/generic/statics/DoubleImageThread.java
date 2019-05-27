@@ -10,8 +10,8 @@ import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 public class DoubleImageThread extends Thread{
 	
-	Scintigraphy scin;
-	private ModelScin model;
+	final Scintigraphy scin;
+	private final ModelScin model;
 	
 	public DoubleImageThread(String name,Scintigraphy scin, ModelScin model) {
 		super(name);

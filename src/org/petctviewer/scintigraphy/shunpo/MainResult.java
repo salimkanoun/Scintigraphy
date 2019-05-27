@@ -1,20 +1,16 @@
 package org.petctviewer.scintigraphy.shunpo;
 
-import java.awt.Component;
-import java.awt.GridLayout;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
-import ij.ImagePlus;
+import javax.swing.*;
+import java.awt.*;
 
 public class MainResult extends TabResult {
 	
-	private ImagePlus montage;
+	private final ImagePlus montage;
 
 	public MainResult(FenResults parent, ImagePlus montage) {
 		super(parent, "Result", true);

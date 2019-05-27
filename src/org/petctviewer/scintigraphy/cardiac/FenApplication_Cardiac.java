@@ -13,8 +13,8 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 	private static final long serialVersionUID = -8986173550839545500L;
 
 	// boutons mode decontamination
-	private Button btn_newCont;
-	private Button btn_continue;
+	private final Button btn_newCont;
+	private final Button btn_continue;
 
 	public FenApplication_Cardiac(ImageSelection ims, String nom) {
 		super(ims, nom);

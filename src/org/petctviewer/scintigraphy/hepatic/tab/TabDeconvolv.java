@@ -1,13 +1,5 @@
 package org.petctviewer.scintigraphy.hepatic.tab;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.swing.JPanel;
-
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -22,20 +14,26 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Tab showing the deconvolve of Right liver, using the Blood Pool values.
  *
  */
 public class TabDeconvolv {
 
-	private String title;
-	protected FenResults parent;
+	private final String title;
+	protected final FenResults parent;
 
-	private JPanel panel;
+	private final JPanel panel;
 
 	private JPanel result;
 
-	private TabResult tab;
+	private final TabResult tab;
 	private int deconvolve;
 	private int convolve;
 
@@ -178,7 +176,7 @@ public class TabDeconvolv {
 
 	public List<Double> normalizeToOne(List<Double> values) {
 
-		Double maxValue = new Double(0.0d);
+		Double maxValue = 0.0d;
 		for (Double doubles : values)
 			if (doubles > maxValue)
 				maxValue = doubles;

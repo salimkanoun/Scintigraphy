@@ -1,23 +1,18 @@
 package org.petctviewer.scintigraphy.os;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.swing.JSlider;
-import javax.swing.SwingUtilities;
-
+import ij.ImagePlus;
+import ij.Prefs;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.ImagePlus;
-import ij.Prefs;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * DISCLAIMER : Dans cette application, il a été fait comme choix d'initialiser
@@ -27,20 +22,20 @@ import ij.Prefs;
 public class Modele_Os {
 
 	// Tableau permettant de savoir quel DynamicImage sont selectionnées
-	boolean[][] selected;
+	final boolean[][] selected;
 
 	// Tableau à double dimension contenant les ImagePlus liées aux DynamicImage
 	// de(s) Scintigraphie(s) Osseuse(s)
-	private ImageSelection[][] imps;
+	private final ImageSelection[][] imps;
 
 	// Tableau à double dimension contenant les ImagePlus liées aux DynamicImage
 	// de(s) Scintigraphie(s) Osseuse(s)
-	private ImageSelection imp;
+	private final ImageSelection imp;
 
 	// Tableau à double dimension contenant les DynamicImage liées aux ImagePlus
 	// de(s) Scintigraphie(s) Osseuse(s)
-	DynamicImage[][] dynamicImps;
-	private int nbScinty;
+	final DynamicImage[][] dynamicImps;
+	private final int nbScinty;
 	private boolean reversed;
 	
 	private Integer uid;
@@ -110,12 +105,9 @@ public class Modele_Os {
 
 	/**
 	 * Permmet d'inverser la LUT de chaque image, et donc son contraste.
-	 * 
-	 * @param arg0
-	 * 
-	 * @return
+	 *
 	 */
-	public DynamicImage[][] inverser() {
+	public void inverser() {
 		// Pour toutes les images
 		for (int i = 0; i < nbScinty; i++) {
 			for (int j = 0; j < 2; j++) {
@@ -137,7 +129,6 @@ public class Modele_Os {
 		this.reversed = !this.reversed;
 		Prefs.set("bone.defaultInverse.preferred", reversed);
 		Prefs.savePreferences();
-		return dynamicImps;
 	}
 
 	/**
@@ -153,7 +144,6 @@ public class Modele_Os {
 	 * @param j
 	 *            int représentant la position de l'image du patient (0=ANT |
 	 *            1=POST).
-	 * @return
 	 */
 	public void displayInformations(DynamicImage dyn, int i, int j) {
 		ImagePlus impCurrent = imps[i][j].getImagePlus();
@@ -195,22 +185,33 @@ public class Modele_Os {
 	/**
 	 * On change le contraste pour toutes les DynamicImage selectionnée, en
 	 * parcourant toutes les ImagePlus, en changeant leur LUT, puis en ré affichant
-	 * les DynamicImage correspondantes.<br/>
-	 * 
-	 * @param sliderValue
-	 *            valeur en int du contraste
-	 * @return
+	 * les DynamicImage correspondantes.
 	 */
 	void setContrast(JSlider slider) {
 
 		if (this.noImageSelected()) {
-			SwingUtilities.invokeLater(new Runnable() {
+			SwingUtilities.invokeLater(() -> {
+				// Pour toutes les DynamicImage
+				for (int i = 0; i < nbScinty; i++)
+					for (int j = 0; j < 2; j++) {
+						imps[i][j].getImagePlus().getProcessor().setMinAndMax(0,
+								(slider.getModel().getMaximum() - slider.getValue()) + 1);
+						// On récupère l'ImagePlus associée
+						dynamicImps[i][j].setImage(imps[i][j].getImagePlus().getBufferedImage());
+						// On l'actualise
+						dynamicImps[i][j].repaint();
+						// On affiche les informations (sinon elles disparaissent)
+						displayInformations(dynamicImps[i][j], i, j);
+					}
+			});
 
-				@Override
-				public void run() {
-					// Pour toutes les DynamicImage
-					for (int i = 0; i < nbScinty; i++)
-						for (int j = 0; j < 2; j++) {
+		} else {
+			// Lancement en tache de fond, pour ne pas bloquer le thread principal
+			SwingUtilities.invokeLater(() -> {
+				// Pour toutes les DynamicImage
+				for (int i = 0; i < nbScinty; i++)
+					for (int j = 0; j < 2; j++)
+						if (isSelected(dynamicImps[i][j])) {
 							imps[i][j].getImagePlus().getProcessor().setMinAndMax(0,
 									(slider.getModel().getMaximum() - slider.getValue()) + 1);
 							// On récupère l'ImagePlus associée
@@ -220,29 +221,6 @@ public class Modele_Os {
 							// On affiche les informations (sinon elles disparaissent)
 							displayInformations(dynamicImps[i][j], i, j);
 						}
-				}
-			});
-
-		} else {
-			// Lancement en tache de fond, pour ne pas bloquer le thread principal
-			SwingUtilities.invokeLater(new Runnable() {
-
-				@Override
-				public void run() {
-					// Pour toutes les DynamicImage
-					for (int i = 0; i < nbScinty; i++)
-						for (int j = 0; j < 2; j++)
-							if (isSelected(dynamicImps[i][j])) {
-								imps[i][j].getImagePlus().getProcessor().setMinAndMax(0,
-										(slider.getModel().getMaximum() - slider.getValue()) + 1);
-								// On récupère l'ImagePlus associée
-								dynamicImps[i][j].setImage(imps[i][j].getImagePlus().getBufferedImage());
-								// On l'actualise
-								dynamicImps[i][j].repaint();
-								// On affiche les informations (sinon elles disparaissent)
-								displayInformations(dynamicImps[i][j], i, j);
-							}
-				}
 			});
 		}
 	}
@@ -259,7 +237,6 @@ public class Modele_Os {
 	 * @param j
 	 *            int représentant la position de l'image du patient (0=ANT |
 	 *            1=POST).
-	 * @return
 	 */
 	public void perform(int i, int j) {
 		selected[i][j] = !selected[i][j];
@@ -287,12 +264,6 @@ public class Modele_Os {
 	 * 
 	 * @param dyn
 	 *            DynamicImage dont il faut retourner la position.
-	 * @param i
-	 *            int représentant la position du patient dans le tableau de
-	 *            DynamicImage
-	 * @param j
-	 *            int représentant la position de l'image du patient (0=ANT |
-	 *            1=POST).
 	 * @return boolean
 	 */
 	public boolean isSelected(DynamicImage dyn) {
@@ -348,16 +319,6 @@ public class Modele_Os {
 		return true;
 	}
 
-	/**
-	 * Retourne si l'index passé en paramètre identifie une DynamicImage
-	 * selectionnée.
-	 *
-	 * @param i
-	 *            int représentant la position du patient dans le tableau de
-	 *            ImagePlus
-	 *
-	 * @return boolean
-	 */
 	public List<Integer> getSelected() {
 		List<Integer> selectionnes = new ArrayList<>();
 		for (int i = 0; i < this.selected.length * this.selected[0].length; i++) {

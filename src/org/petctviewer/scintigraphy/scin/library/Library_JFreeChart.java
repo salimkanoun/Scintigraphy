@@ -1,11 +1,5 @@
 package org.petctviewer.scintigraphy.scin.library;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -22,6 +16,10 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric.Unit;
 import org.petctviewer.scintigraphy.gastric.gui.Fit;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Library_JFreeChart {
 
@@ -80,7 +78,7 @@ public class Library_JFreeChart {
 
 		for (int i = 0; i < serie.getItemCount(); i++) {
 			// si on a deja le point
-			if (serie.getX(i) == pointXRecherche) {
+			if (serie.getX(i).equals(pointXRecherche)) {
 				return (Double) serie.getY(i);
 			}
 
@@ -94,7 +92,7 @@ public class Library_JFreeChart {
 				m[1][0] = (Double) serie.getX(i);
 				m[1][1] = (Double) serie.getY(i);
 
-				double fit[] = Regression.getOLSRegression(m);
+				double[] fit = Regression.getOLSRegression(m);
 
 				return (fit[0] + fit[1] * pointXRecherche);
 			}
@@ -102,8 +100,6 @@ public class Library_JFreeChart {
 
 		return Double.NaN;
 	}
-
-	/************* Public Static Getter ********/
 	/**
 	 * Renvoie la valeur de T1/2 observee
 	 * 
@@ -172,10 +168,10 @@ public class Library_JFreeChart {
 		XYSeriesCollection dataset = new XYSeriesCollection();
 
 		for (String j : asso) { // pour chaque cle de l'association
-			for (int k = 0; k < series.size(); k++) { // pour chaque element de la serie
+			for (XYSeries xySeries : series) { // pour chaque element de la serie
 				// si la cle correspond, on l'ajout au dataset
-				if (series.get(k).getKey().equals(j)) {
-					dataset.addSeries(series.get(k));
+				if (xySeries.getKey().equals(j)) {
+					dataset.addSeries(xySeries);
 				}
 			}
 		}
@@ -405,7 +401,7 @@ public class Library_JFreeChart {
 	 * @return first maximum value found or null if array is null
 	 * @author Titouan QUÉMA
 	 */
-	public static <T extends Comparable> T maxValue(T[] array) {
+	public static <T extends Comparable<T>> T maxValue(T[] array) {
 		if (array == null || array.length == 0)
 			return null;
 

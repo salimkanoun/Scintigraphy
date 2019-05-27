@@ -316,9 +316,6 @@ public class Library_Dicom {
 
 	/**
 	 * Reckognize and inverse posterior images
-	 * @param imp
-	 * @return
-	 * @throws ReadTagException
 	 */
 	public static ImagePlus sortImageAntPost(ImagePlus imp) throws ReadTagException {
 		return isMultiFrame(imp) ? Library_Dicom.sortAntPostMultiFrame(imp) :

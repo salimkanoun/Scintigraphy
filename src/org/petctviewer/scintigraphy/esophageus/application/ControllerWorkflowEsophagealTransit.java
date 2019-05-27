@@ -26,7 +26,7 @@ public class ControllerWorkflowEsophagealTransit extends ControllerWorkflow {
 		this.workflows = new Workflow[1];
 		this.workflows[0] = new Workflow(this, ((EsophagealTransit) this.main).getImgPrjtAllAcqui());
 
-		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null;
+		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4;
 
 		dri_1 = new DrawRoiInstruction("Esophageal", new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE));
 		dri_2 = new DrawRoiInstruction("Esophageal", new ImageState(Orientation.ANT, 2, true, ImageState.ID_NONE), dri_1);

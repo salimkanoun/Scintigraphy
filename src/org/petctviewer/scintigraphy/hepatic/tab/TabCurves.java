@@ -134,7 +134,7 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 
 			this.vueBasic.setController(
 					new ControllerWorkflowHepaticDyn(this.vueBasic, new ModelSecondMethodHepaticDynamic(selectedImages,
-							model.getStudyName(), ((ModelScinDyn) model).getFrameduration()), this));
+							model.getStudyName(), ((ModelScinDyn) model).getFrameDuration()), this));
 
 		} else if (button == buttonSwitchGraph) {
 			this.tabTAC.switchGraph(this.buttonSwitchGraph);
@@ -168,7 +168,7 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 			this.deconvolvGraph.reloadDisplay();
 
 		} else {
-			int index = -1;
+			int index;
 			switch (this.tabPane.getSelectedIndex()) {
 			case 0:
 				this.currentSidePanel = TabCurves.TABTAC_SIDE_PANEL;

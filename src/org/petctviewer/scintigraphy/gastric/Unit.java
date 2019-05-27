@@ -12,9 +12,9 @@ public enum Unit {
 	COUNTS_PER_PIXEL("counts/pixel"),
 	KCOUNTS_PER_PIXEL("kcounts/pixel");
 
-	private String s;
+	private final String s;
 
-	private Unit(String s) {
+	Unit(String s) {
 		this.s = s;
 	}
 
@@ -29,14 +29,12 @@ public enum Unit {
 
 		switch (this) {
 		case COUNTS:
-			switch (unit) {
-			case KCOUNTS:
+			if (unit == Unit.KCOUNTS) {
 				return value / 1000.;
 			}
 			break;
 		case KCOUNTS:
-			switch (unit) {
-			case COUNTS:
+			if (unit == Unit.COUNTS) {
 				return value * 1000.;
 			}
 			break;
@@ -81,14 +79,12 @@ public enum Unit {
 			}
 			break;
 		case COUNTS_PER_PIXEL:
-			switch (unit) {
-			case KCOUNTS_PER_PIXEL:
+			if (unit == Unit.KCOUNTS_PER_PIXEL) {
 				return value / 1000.;
 			}
 			break;
 		case KCOUNTS_PER_PIXEL:
-			switch (unit) {
-			case COUNTS_PER_PIXEL:
+			if (unit == Unit.COUNTS_PER_PIXEL) {
 				return value * 1000.;
 			}
 			break;

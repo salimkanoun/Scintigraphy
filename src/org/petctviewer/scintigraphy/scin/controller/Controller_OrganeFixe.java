@@ -40,12 +40,12 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 	private String[] organes;
 	protected int indexRoi;
 
-	protected HashMap<Integer, String> nomRois = new HashMap<>();
+	protected final HashMap<Integer, String> nomRois = new HashMap<>();
 	private ImageListener ctrlImg;
 
-	protected Color STROKECOLOR = Color.RED;// couleur de la roi
+	protected final Color STROKECOLOR = Color.RED;// couleur de la roi
 
-	private Overlay overlay;
+	private final Overlay overlay;
 
 	protected int tools = Toolbar.POLYGON;
 
@@ -115,7 +115,6 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 		} else if (b == fen.getBtn_quitter()) {
 			// this.scin.getFenApplication().getBtn_quitter()
 			fen.close();
-			return;
 		}
 
 	}
@@ -177,16 +176,13 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 				scin.getFenApplication().getBtn_suivant().setEnabled(false);
 				// thread de capture, permet de laisser le temps de charger l'image plus dans le
 				// thread principal
-				Thread captureThread = new Thread(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							Thread.sleep(200);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						end();
+				Thread captureThread = new Thread(() -> {
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
+					end();
 				});
 				captureThread.start();
 
@@ -204,7 +200,6 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 	 * Sauvegarde la roi dans le roi manager et dans le modele
 	 * 
 	 * @param nomRoi : studyName de la roi a sauvegarder
-	 * @return true si la sauvegarde est reussie, false si elle ne l'est pas
 	 */
 	public void saveRoiAtIndex(String nomRoi, int indexRoi) throws NoDataException {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
@@ -284,8 +279,6 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 		ImagePlus.addImageListener(this.ctrlImg);
 	}
 
-	/******** Abstract *****/
-
 	/**
 	 * permet de savoir si toutes les rois necessaires ont ete enregistrees
 	 * 
@@ -299,8 +292,6 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 	 * @return true si la roi d'index indexRoi est post, false si elle est ant
 	 */
 	public abstract boolean isPost();
-
-	/*********** Getter *******/
 
 	/**
 	 * Renvoie la roi de l'image plus
@@ -352,8 +343,6 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 	 * Renvoie la roi qui sera utilisée dans la methode preparerRoi, appellée lors
 	 * du clic sur les boutons <précédent et suivant <br>
 	 * See also {@link #preparerRoi(int)}
-	 * 
-	 * @param lastRoi
 	 * 
 	 * @return la roi utilisée dans la methode preparerRoi, null si il n'y en a pas
 	 * 

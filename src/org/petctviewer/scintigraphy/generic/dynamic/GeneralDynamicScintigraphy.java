@@ -25,8 +25,8 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
-		this.setFenApplication(new FenApplication_GeneralDyn(selectedImages[0], this.getStudyName(), this));
-		((FenApplicationWorkflow) this.getFenApplication()).setController(
+		this.setFenApplication(new FenApplication_GeneralDyn(selectedImages[0], this.getStudyName()));
+		this.getFenApplication().setController(
 				new ControllerWorkflowScinDynamic(this, (FenApplicationWorkflow) this.getFenApplication(),
 						new Model_GeneralDyn(selectedImages, "General Dynamic", this.getFrameDurations())));
 		IJ.setTool(Toolbar.POLYGON);
@@ -103,10 +103,10 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 
 		ImageSelection[] selection = new ImageSelection[5];
 		selection[0] = impProjetee;
-		selection[1] = impAnt != null ? impAnt : null;
-		selection[2] = impPost != null ? impPost : null;
-		selection[3] = impProjeteeAnt != null ? impProjeteeAnt : null;
-		selection[4] = impProjeteePost != null ? impProjeteePost : null;
+		selection[1] = impAnt;
+		selection[2] = impPost;
+		selection[3] = impProjeteeAnt;
+		selection[4] = impProjeteePost;
 		return selection;
 	}
 
@@ -119,7 +119,7 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 	}
 
 	public int[] getFrameDurations() {
-		return frameDurations != null ? frameDurations : null;
+		return frameDurations;
 	}
 
 }

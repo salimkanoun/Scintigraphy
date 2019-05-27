@@ -27,7 +27,7 @@ public class StaticScintigraphy extends Scintigraphy {
 		if (selectedImages.length != 1) {
 			throw new WrongNumberImagesException(selectedImages.length, 1);
 		}
-		ImageSelection imp = null;
+		ImageSelection imp;
 		// SK ETENDRE A SEULEMENT UNE INCIDENCE ??
 		// SK PAS SUR QUE POST ANT SOIT BIEN PRIS EN COMPTE DANS LE FLIP / Ordre du
 		// stack
@@ -55,7 +55,7 @@ public class StaticScintigraphy extends Scintigraphy {
 		this.setFenApplication(new FenApplication_ScinStatic(selectedImages[0], this.getStudyName()));
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 
-		((FenApplicationWorkflow) this.getFenApplication()).setController(new ControllerWorkflow_ScinStatic(this,
+		this.getFenApplication().setController(new ControllerWorkflow_ScinStatic(this,
 				(FenApplicationWorkflow) getFenApplication(), selectedImages, getStudyName()));
 		IJ.setTool(Toolbar.POLYGON);
 	}

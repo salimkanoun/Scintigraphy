@@ -11,7 +11,6 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
-import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackground;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoopInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoiInstruction;
@@ -69,13 +68,11 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[0]);
 		this.workflows[2] = new Workflow(this, this.model.getImageSelection()[0]);
 
-		DefaultGenerator dri_1 = null, dri_2 = null;
+		DefaultGenerator dri_1, dri_2;
 		ImageState state_1, state_2;
 
-		DrawRoiInstruction dri_3 = null, dri_4 = null, dri_5 = null, dri_6 = null, dri_7 = null, dri_8 = null,
-				dri_9 = null, dri_10 = null, dri_11 = null, dri_12 = null;
-		
-		DrawRoiBackground driBackground_1 = null, driBackground_2 = null, driBackground_3 = null, driBackground_4 = null, driBackground_5 = null, driBackground_6 = null;
+		DrawRoiInstruction dri_3, dri_4, dri_5, dri_6, dri_7, dri_8,
+				dri_9, dri_10, dri_11, dri_12;
 
 		state_1 = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
 		state_1.specifieImage(this.workflows[0].getImageAssociated());
@@ -91,19 +88,13 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 		// Organs to delimit
 		dri_3 = new DrawSymmetricalRoiInstruction("Bladder", state_2, null, null, model, Organ.DEMIE);
-		driBackground_1 = new DrawRoiBackground("Bladder Background", state_2, dri_3, model);
 		dri_4 = new DrawSymmetricalRoiInstruction("Bladder", state_2, dri_3, null, model, Organ.DEMIE);
-		driBackground_2 = new DrawRoiBackground("Bladder Background", state_2, dri_4, model);
 
 		dri_5 = new DrawSymmetricalRoiInstruction("Kidney R", state_2, null, null, model, Organ.DEMIE);
-		driBackground_2 = new DrawRoiBackground("Kidney R Background", state_2, dri_5, model);
 		dri_6 = new DrawSymmetricalRoiInstruction("Kidney R", state_2, dri_5, null, model, Organ.DEMIE);
-		driBackground_4 = new DrawRoiBackground("Kidney R Background", state_2, dri_6, model);
 
 		dri_7 = new DrawSymmetricalRoiInstruction("Kidney L", state_2, null, null, model, Organ.DEMIE);
-		driBackground_5 = new DrawRoiBackground("Kidney L Background", state_2, dri_7, model);
 		dri_8 = new DrawSymmetricalRoiInstruction("Kidney L", state_2, dri_7, null, model, Organ.DEMIE);
-		driBackground_6 = new DrawRoiBackground("Kidney L Background", state_2, dri_8, model);
 
 		dri_9 = new DrawSymmetricalRoiInstruction("Heart", state_2, null, null, model, Organ.DEMIE);
 		dri_10 = new DrawSymmetricalRoiInstruction("Heart", state_2, dri_9, null, model, Organ.DEMIE);
@@ -203,7 +194,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		System.out.println(this.position);
 
 		Button b = (Button) arg0.getSource();
-		if (b == ((FenApplication_Cardiac) this.main.getFenApplication()).getBtn_suivant()) {
+		if (b == this.main.getFenApplication().getBtn_suivant()) {
 			this.clicNewCont();
 		} else if (b == ((FenApplication_Cardiac) this.main.getFenApplication()).getBtn_continue()) {
 			this.clicEndCont();
@@ -218,13 +209,13 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		// this.saveWorkflow();
 
 		((Model_Cardiac) this.model).getResults();
-		((Model_Cardiac) this.model).calculateResults();
+		this.model.calculateResults();
 		// ((Model_Cardiac) this.model).setNbConta(new int[] {this.nbConta1,
 		// this.nbConta2});
 
 		BufferedImage capture = Library_Capture_CSV.captureImage(this.main.getFenApplication().getImagePlus(), 512, 0)
 				.getBufferedImage();
-		FenResults fenResults = new FenResultat_Cardiac(this.main, capture, this);
+		FenResults fenResults = new FenResultat_Cardiac(capture, this);
 		fenResults.setVisible(true);
 	}
 

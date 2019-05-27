@@ -9,8 +9,8 @@ import java.util.HashMap;
 
 public class ModelScinStatic extends ModelScin {
 	
-	private HashMap<String, Object[]> roisAnt;
-	private HashMap<String, Object[]> roisPost;
+	private final HashMap<String, Object[]> roisAnt;
+	private final HashMap<String, Object[]> roisPost;
 	
 	public ModelScinStatic(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
@@ -100,18 +100,21 @@ public class ModelScinStatic extends ModelScin {
 	
 	@Override
 	public String toString() {
-		String res = "name, count ant, avg ant , std ant, count post, avg post, std post, geom mean \n";
+		StringBuilder res = new StringBuilder(
+				"name, count ant, avg ant , std ant, count post, avg post, std post, geom mean \n");
 				for(String s: this.roisAnt.keySet()) {
-					res+= s+", "+roisAnt.get(s)[0]+","+roisAnt.get(s)[1]+","+roisAnt.get(s)[2]+","
-							+roisPost.get(s)[0]+","+roisPost.get(s)[1]+","+roisPost.get(s)[2]+","
-							+Library_Quantif.round(Library_Quantif.moyGeom((Double)this.roisAnt.get(s)[0],(Double)this.roisPost.get(s)[0] ),3)
-							+"\n";
+					res.append(s).append(", ").append(roisAnt.get(s)[0]).append(",").append(roisAnt.get(s)[1])
+							.append(",").append(roisAnt.get(s)[2]).append(",").append(roisPost.get(s)[0]).append(",")
+							.append(roisPost.get(s)[1]).append(",").append(roisPost.get(s)[2]).append(",")
+							.append(Library_Quantif.round(Library_Quantif
+									.moyGeom((Double) this.roisAnt.get(s)[0], (Double) this.roisPost.get(s)[0]), 3))
+							.append("\n");
 				}
 				//round 
 				//taille fenetre
 				
 				
-		return res;//csv
+		return res.toString();//csv
 	}
 
 }

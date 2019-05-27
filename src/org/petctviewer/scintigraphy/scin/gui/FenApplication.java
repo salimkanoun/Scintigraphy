@@ -14,7 +14,10 @@ import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseWheelListener;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,28 +37,28 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	private Panel panel_Instructions_btns_droite;
 
 	// Panel avec boutons quit, draw roi, contrast
-	private Panel panel_btns_gauche;
-	private Panel panel_btns_droite;
+	private final Panel panel_btns_gauche;
+	private final Panel panel_btns_droite;
 
-	JTextField textfield_instructions;
+	final JTextField textfield_instructions;
 
-	Button btn_quitter;
-	Button btn_drawROI;
-	Button btn_contrast;
-	Button btn_precedent;
-	Button btn_suivant;
+	final Button btn_quitter;
+	final Button btn_drawROI;
+	final Button btn_contrast;
+	final Button btn_precedent;
+	final Button btn_suivant;
 
 	private ControllerScin controleur;
 
-	private Panel panelPrincipal;
-	Panel panelContainer;
+	private final Panel panelPrincipal;
+	final Panel panelContainer;
 
-	protected String studyName;
+	protected final String studyName;
 
 	private int canvasW, canvasH;
 
-	private MenuBar menuBar;
-	protected DocumentationDialog documentation;
+	private final MenuBar menuBar;
+	protected final DocumentationDialog documentation;
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
@@ -258,24 +261,21 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	private void createMenuBar() {
 		Menu options = new Menu("Options");
 		MenuItem loadRois = new MenuItem("Load ROIs from .zip");
-		loadRois.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				try {
-					FenApplicationSecondHepaticDyn.importRoiList(FenApplication.this,
-							FenApplication.this.controleur.getModel(),
-							(ControllerWorkflow) FenApplication.this.controleur);
-				} catch (UnauthorizedRoiLoadException e1) {
-					JOptionPane.showMessageDialog(FenApplication.this, "Error while loading ROIs:\n" + e1.getMessage(),
-							"Selection error", JOptionPane.ERROR_MESSAGE);
-					// e1.printStackTrace();
-				}
-				FenApplication.this.getImagePlus()
-						.setRoi(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
-				FenApplication.this.getImagePlus().getRoi().setStrokeColor(Color.RED);
-
-				System.out.println(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
+		loadRois.addActionListener(e -> {
+			try {
+				FenApplicationSecondHepaticDyn.importRoiList(FenApplication.this,
+						FenApplication.this.controleur.getModel(),
+						(ControllerWorkflow) FenApplication.this.controleur);
+			} catch (UnauthorizedRoiLoadException e1) {
+				JOptionPane.showMessageDialog(FenApplication.this, "Error while loading ROIs:\n" + e1.getMessage(),
+						"Selection error", JOptionPane.ERROR_MESSAGE);
+				// e1.printStackTrace();
 			}
+			FenApplication.this.getImagePlus()
+					.setRoi(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
+			FenApplication.this.getImagePlus().getRoi().setStrokeColor(Color.RED);
+
+			System.out.println(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
 		});
 
 		Menu help = new Menu("Help");
@@ -305,17 +305,15 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	/**
 	 * redimension de la canvas selon la largeur voulue et aux dimensions de
 	 * l'imageplus affichee
-	 * 
-	 * @param width
 	 */
 	protected void setPreferredCanvasSize(int width) {
 		int w = this.getImagePlus().getWidth();
 		int h = this.getImagePlus().getHeight();
-		Double ratioImagePlus = w * 1.0 / h * 1.0;
+		double ratioImagePlus = w * 1.0 / h * 1.0;
 
 		if (ratioImagePlus < 1) {
 			canvasW = (int) (width * ratioImagePlus);
-			canvasH = (int) (width);
+			canvasH = width;
 
 		} else {
 			canvasW = width;

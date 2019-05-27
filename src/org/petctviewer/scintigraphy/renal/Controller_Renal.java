@@ -1,11 +1,9 @@
 package org.petctviewer.scintigraphy.renal;
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.Prefs;
+import ij.gui.Overlay;
+import ij.gui.Roi;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.gui.FenNeph;
@@ -16,14 +14,15 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 
-import ij.ImagePlus;
-import ij.Prefs;
-import ij.gui.Overlay;
-import ij.gui.Roi;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Controller_Renal extends Controller_OrganeFixe {
 
-	public static String[] ORGANES = { "L. Kidney", "L. bkg", "R. Kidney", "R. bkg", "Blood Pool" };
+	public static final String[] ORGANES = {"L. Kidney", "L. bkg", "R. Kidney", "R. bkg", "Blood Pool" };
 
 	/**
 	 * Controle l'execution du programme renal

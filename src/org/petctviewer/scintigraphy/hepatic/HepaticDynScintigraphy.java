@@ -17,7 +17,8 @@ import java.awt.*;
 public class HepaticDynScintigraphy extends Scintigraphy {
 
 	private int[] frameDurations;
-	private ImageSelection impAnt, impPost, impProjeteeAnt, impProjeteePost;
+	private ImageSelection impPost;
+	private ImageSelection impProjeteePost;
 
 	public HepaticDynScintigraphy() {
 		super("Biliary scintigraphy");
@@ -32,12 +33,13 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 		if (selectedImages.length != 1) throw new WrongNumberImagesException(selectedImages.length, 1);
 
 		ImageSelection impSelect = selectedImages[0];
+		ImageSelection impAnt;
 		if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_ANT) {
-			this.impAnt = impSelect.clone();
+			impAnt = impSelect.clone();
 		} else if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_ANT_POST || selectedImages[0]
 				.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
 			ImageSelection[] imps = Library_Dicom.splitDynamicAntPost(impSelect);
-			this.impAnt = imps[0];
+			impAnt = imps[0];
 			this.impPost = imps[1];
 		} else {
 			throw new WrongColumnException.OrientationColumn(selectedImages[0].getRow(),
@@ -46,7 +48,7 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 					                  Orientation.DYNAMIC_POST_ANT});
 		}
 
-		IJ.run(this.impAnt.getImagePlus(), "32-bit", "");
+		IJ.run(impAnt.getImagePlus(), "32-bit", "");
 
 		if (this.impPost != null) {
 			IJ.run(this.impPost.getImagePlus(), "32-bit", "");
@@ -55,22 +57,20 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 			}
 		}
 
-		if (this.impAnt != null) {
-			impProjeteeAnt = this.impAnt.clone();
-			Library_Dicom.normalizeToCountPerSecond(impProjeteeAnt);
-			impProjeteeAnt = Library_Dicom
-					.project(this.impProjeteeAnt, 0, impProjeteeAnt.getImagePlus().getStackSize(), "avg");
+		ImageSelection impProjeteeAnt = impAnt.clone();
+		Library_Dicom.normalizeToCountPerSecond(impProjeteeAnt);
+		impProjeteeAnt = Library_Dicom
+				.project(impProjeteeAnt, 0, impProjeteeAnt.getImagePlus().getStackSize(), "avg");
 
-		}
 		if (this.impPost != null) {
 			impProjeteePost = Library_Dicom.project(this.impPost, 0, impPost.getImagePlus().getStackSize(), "avg");
 		}
 
 		selectedImages[0].getImagePlus().close();
 
-		this.frameDurations = Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus());
+		this.frameDurations = Library_Dicom.buildFrameDurations(impAnt.getImagePlus());
 
-		ImageSelection impAntNormalized = this.impAnt.clone();
+		ImageSelection impAntNormalized = impAnt.clone();
 
 		Library_Dicom.normalizeToCountPerSecond(impAntNormalized);
 
@@ -80,7 +80,7 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 		// In this array, the only used image is the first one, for the forst exam. All
 		// th others are needed in the second exam, but we process it here to avoid a
 		// second selection of the same image
-		return new ImageSelection[]{impAntNormalized, this.impProjeteeAnt, this.impAnt, this.impPost,
+		return new ImageSelection[]{impAntNormalized, impProjeteeAnt, impAnt, this.impPost,
 		                            this.impProjeteePost};
 	}
 

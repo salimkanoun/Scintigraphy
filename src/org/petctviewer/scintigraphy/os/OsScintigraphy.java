@@ -1,21 +1,5 @@
 package org.petctviewer.scintigraphy.os;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -26,6 +10,14 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.ReversedChronologicalAcquisitionComparator;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * DISCLAIMER : Dans cette application, il a été fait comme choix d'initialiser
@@ -43,9 +35,6 @@ public class OsScintigraphy extends Scintigraphy {
 	/**
 	 * Lance la FenSelectionDicom qui permet de selectionner les images qui seront
 	 * traité par ce plug-in.
-	 * 
-	 * @param selectedImages liste des images transmises depuis FenSelectionDicom
-	 * @return
 	 */
 	@Override
 	public void run(String arg) {
@@ -72,19 +61,17 @@ public class OsScintigraphy extends Scintigraphy {
 	 * POST du patient.<br/>
 	 * 
 	 * @param selectedImages liste des images transmises depuis FenSelectionDicom
-	 * @return
 	 */
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 
 		if (selectedImages.length > 3)
 			throw new WrongNumberImagesException(selectedImages.length, 1, 3);
 
-		ImageSelection impSorted = null;
+		ImageSelection impSorted;
 		ImageSelection[] impsSortedAntPost = new ImageSelection[selectedImages.length];
 
 		for (int i = 0; i < selectedImages.length; i++) { // Modifie l'ImagePlus pour mettre ANT en slice 1 et POST en
 															// slice 2
-			impSorted = null;
 			ImageSelection imp = selectedImages[i];
 			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST) {
 				impSorted = Library_Dicom.ensureAntPostFlipped(imp);
@@ -152,15 +139,13 @@ public class OsScintigraphy extends Scintigraphy {
 	 * Chaque ligne est un patient. <br/>
 	 * La colonne 0 : l'ImagePlus ANT du patient --/-- la colonne 1 : l'ImagePlus
 	 * POST du patient.<br/>
-	 * 
-	 * @return
 	 */
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 
 		if (process) {
 			// FenApplication_Os fen = new FenApplication_Os(this, buffer);
 
-			Controleur_Os controleur_os = new Controleur_Os(selectedImages, this);
+			Controleur_Os controleur_os = new Controleur_Os(selectedImages);
 			FenApplication_Os fen = controleur_os.getFenApplicatio_Os();
 			fen.setVisible(true);
 
@@ -178,7 +163,8 @@ public class OsScintigraphy extends Scintigraphy {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private JButton btn_y, btn_n;
+		private final JButton btn_y;
+		private final JButton btn_n;
 
 		public Fen_MultiplPatient(ArrayList<String> patientID, ArrayList<String> patientName) {
 

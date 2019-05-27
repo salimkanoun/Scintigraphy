@@ -1,9 +1,6 @@
 package org.petctviewer.scintigraphy.hepatic;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.petctviewer.scintigraphy.hepatic.SecondExam.ControllerWorkflowHepaticDyn;
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.hepatic.SecondExam.ModelSecondMethodHepaticDynamic;
 import org.petctviewer.scintigraphy.hepatic.tab.TabCurves;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -11,17 +8,18 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
-import ij.ImagePlus;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ModelHepaticDynamic extends ModelScinDyn {
 
 	private TabResult resutlTab;
 
-	private int[] frames;
+	private final int[] frames;
 
-	private int[] times;
+	private final int[] times;
 
-	private ImagePlus[] captures;
+	private final ImagePlus[] captures;
 
 	private ImageSelection[] impSecondMethod;
 
@@ -31,7 +29,7 @@ public class ModelHepaticDynamic extends ModelScinDyn {
 
 	boolean examDone;
 
-	private List<Double> results;
+	private final List<Double> results;
 
 	public ModelHepaticDynamic(ImageSelection[] selectedImages, String studyName, int[] frameDuration) {
 		super(selectedImages, studyName, frameDuration);
@@ -46,7 +44,7 @@ public class ModelHepaticDynamic extends ModelScinDyn {
 		this.frames[1] = label2;
 		this.frames[2] = label3;
 
-		int frameDuration[] = this.getFrameduration();
+		int[] frameDuration = this.getFrameDuration();
 
 		int time1 = 0;
 		int time2 = 0;
@@ -152,8 +150,8 @@ public class ModelHepaticDynamic extends ModelScinDyn {
 		s += "Delay difference," + this.results.get(6) + "," + results.get(7) + "," + results.get(8) + "\n\n";
 
 		if (examDone)
-			s += ((ModelSecondMethodHepaticDynamic) ((ControllerWorkflowHepaticDyn) ((TabCurves) this.resutlTab)
-					.getFenApplication().getControleur()).getModel()).toCSV();
+			s += ((ModelSecondMethodHepaticDynamic) ((TabCurves) this.resutlTab)
+					.getFenApplication().getControleur().getModel()).toCSV();
 
 		s += super.toString();
 

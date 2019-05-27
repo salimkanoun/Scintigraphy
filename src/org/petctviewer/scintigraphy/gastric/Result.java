@@ -14,7 +14,7 @@ package org.petctviewer.scintigraphy.gastric;
  */
 public class Result {
 
-	private String name;
+	private final String name;
 
 	/**
 	 * Instantiates a new result with the specified name.<br>

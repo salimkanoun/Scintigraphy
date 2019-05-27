@@ -21,7 +21,7 @@ public abstract class ModelScin {
     protected RoiManager roiManager;
     protected ImageSelection[] selectedImages;
 
-    protected String studyName;
+    protected final String studyName;
 
     public ModelScin(ImageSelection[] selectedImages, String studyName) {
         this.roiManager = new RoiManager(false);

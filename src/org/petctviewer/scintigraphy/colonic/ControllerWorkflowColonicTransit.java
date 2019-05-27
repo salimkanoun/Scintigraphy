@@ -21,7 +21,7 @@ import java.util.List;
 
 public class ControllerWorkflowColonicTransit extends ControllerWorkflow {
 
-	private List<ImagePlus> captures;
+	private final List<ImagePlus> captures;
 
 	public ControllerWorkflowColonicTransit(Scintigraphy main, FenApplicationWorkflow vue,
 			ImageSelection[] selectedImages) {
@@ -45,9 +45,9 @@ public class ControllerWorkflowColonicTransit extends ControllerWorkflow {
 	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length - 1];
 		
-		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null, dri_5 = null, dri_6 = null;
+		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4, dri_5, dri_6;
 		ImageState state_1;
-		ScreenShotInstruction dri_capture_1 = null;
+		ScreenShotInstruction dri_capture_1;
 
 		for (int i = 0; i < this.workflows.length; i++) {
 			// The first image (index = 0) is used to calculated, but without interactions.
@@ -83,11 +83,11 @@ public class ControllerWorkflowColonicTransit extends ControllerWorkflow {
 	public void end() {
 
 		((ModelColonicTransit) this.model).getResults();
-		((ModelColonicTransit) this.model).calculateResults();
+		this.model.calculateResults();
 
 		int[] times = new int[this.getModel().getImageSelection().length];
 		for (int index = 1; index < this.getModel().getImageSelection().length; index++) {
-			times[index] = (int) Math.round((Library_Dicom
+			times[index] = Math.round((Library_Dicom
 					.getDateAcquisition(this.getModel().getImageSelection()[index].getImagePlus()).getTime()
 					- Library_Dicom.getDateAcquisition(this.getModel().getImageSelection()[0].getImagePlus()).getTime())
 					/ 1000 / 3600);

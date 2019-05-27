@@ -16,10 +16,10 @@ import java.util.List;
 public class FenResults extends JFrame {
 	private static final long serialVersionUID = 1L;
 
-	private JTabbedPane tabPane;
-	private List<TabResult> tabsResult;
+	private final JTabbedPane tabPane;
+	private final List<TabResult> tabsResult;
 
-	private ControllerScin controller;
+	private final ControllerScin controller;
 
 	public FenResults(ControllerScin controller) {
 		this.setTitle("Result for " + controller.getModel().getStudyName());

@@ -31,8 +31,6 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 	public String[] organeListe;
 
-	private List<ImagePlus> captures;
-
 	public ControllerWorkflowRenal(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
 		super(main, vue, model);
 		// TODO Auto-generated constructor stub
@@ -48,11 +46,11 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		List<String> organes = new LinkedList<>();
 
 		this.workflows = new Workflow[1];
-		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null, dri_5 = null, dri_6 = null,
-				dri_7 = null, dri_8 = null;
-		DrawRoiBackground dri_Background_1 = null, dri_Background_2 = null;
-		ScreenShotInstruction dri_capture_1 = null;
-		this.captures = new ArrayList<>();
+		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4, dri_5, dri_6,
+				dri_7, dri_8;
+		DrawRoiBackground dri_Background_1, dri_Background_2;
+		ScreenShotInstruction dri_capture_1;
+		List<ImagePlus> captures = new ArrayList<>();
 
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
@@ -120,7 +118,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 		}
 
-		this.organeListe = organes.toArray(new String[organes.size()]);
+		this.organeListe = organes.toArray(new String[0]);
 
 		this.workflows[0].addInstruction(dri_capture_1);
 

@@ -18,7 +18,7 @@ public enum Orientation {
 	DYNAMIC_POST_ANT("Dynamic P/A"),
 	UNKNOWN("Unknown");
 
-	private String s;
+	private final String s;
 
 	Orientation(String s) {
 		this.s = s;

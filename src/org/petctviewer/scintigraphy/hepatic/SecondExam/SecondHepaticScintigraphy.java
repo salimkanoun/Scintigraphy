@@ -19,8 +19,8 @@ import java.awt.*;
 public class SecondHepaticScintigraphy extends Scintigraphy {
 
 	private ImageSelection impAnt, impPost, impProjeteeAnt, impProjeteePost;
-	private ModelHepaticDynamic model;
-	private TabResult tab;
+	private final ModelHepaticDynamic model;
+	private final TabResult tab;
 	private int[] frameDurations;
 
 	public SecondHepaticScintigraphy(TabResult tab, ModelHepaticDynamic model) {
@@ -93,7 +93,7 @@ public class SecondHepaticScintigraphy extends Scintigraphy {
 		this.setFenApplication(new FenApplicationSecondHepaticDyn(impProjeteeAnt, this.getStudyName()));
 		impProjeteeAnt.getImagePlus().setOverlay(overlay);
 
-		((FenApplicationWorkflow) this.getFenApplication())
+		this.getFenApplication()
 				.setController(new ControllerWorkflowHepaticDyn((FenApplicationWorkflow) this.getFenApplication(),
 						new ModelSecondMethodHepaticDynamic(selectedImages, this.getStudyName(), this.frameDurations),
 						this.tab));

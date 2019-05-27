@@ -22,21 +22,19 @@ public class LymphoSintigraphy extends Scintigraphy {
 	@Override
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException, ReadTagException {
 		// Check number of images
-		if (selectedImages.length != 2)
-			throw new WrongNumberImagesException(selectedImages.length, 2);
+		if (selectedImages.length != 2) throw new WrongNumberImagesException(selectedImages.length, 2);
 
 		Arrays.parallelSort(selectedImages, new ChronologicalAcquisitionComparator());
 
-		ImageSelection impSorted = null;
+		ImageSelection impSorted;
 		ImageSelection[] impsSortedAntPost = new ImageSelection[selectedImages.length];
 		int DynamicPosition = -1;
 
 		for (int i = 0; i < selectedImages.length; i++) {
 
-			impSorted = null;
 			ImageSelection imp = selectedImages[i];
-			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST
-					|| selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
+			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST || selectedImages[i]
+					.getImageOrientation() == Orientation.POST_ANT) {
 				impSorted = Library_Dicom.ensureAntPostFlipped(imp);
 			} else if (selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
 				impSorted = imp.clone();
@@ -73,15 +71,15 @@ public class LymphoSintigraphy extends Scintigraphy {
 			// On ramène sur 1 minute
 			IJ.run(staticImage.getImagePlus(), "Multiply...", "value=" + (60000f / acquisitionTimeDynamic) + " stack");
 			// On ramène sur 1 minute
-			IJ.run(dynamicImage.getImagePlus(), "Multiply...", "value=" + (60000f / acquisitionTimeDynamic) + " " +
-					"stack");
+			IJ.run(dynamicImage.getImagePlus(), "Multiply...",
+					"value=" + (60000f / acquisitionTimeDynamic) + " " + "stack");
 
 			// On augmente le contraste (uniquement visuel, n'impacte pas les données)
-			dynamicImage.getImagePlus().getProcessor().setMinAndMax(0,
-					dynamicImage.getImagePlus().getStatistics().max * ratio);
+			dynamicImage.getImagePlus().getProcessor()
+					.setMinAndMax(0, dynamicImage.getImagePlus().getStatistics().max * ratio);
 			// On augmente le contraste (uniquement visuel, n'impacte pas les données)
-			staticImage.getImagePlus().getProcessor().setMinAndMax(0,
-					staticImage.getImagePlus().getStatistics().max * ratio);
+			staticImage.getImagePlus().getProcessor()
+					.setMinAndMax(0, staticImage.getImagePlus().getStatistics().max * ratio);
 
 			impsCorrectedByTime[Math.abs((DynamicPosition - 1))] = staticImage;
 			selectedImages[DynamicPosition] = dynamicImage;
@@ -99,11 +97,11 @@ public class LymphoSintigraphy extends Scintigraphy {
 			IJ.run(impsSortedAntPost[1].getImagePlus(), "Multiply...", "value=" + (60000f / timeStatic2) + " stack");
 
 			// On augmente le contraste (uniquement visuel, n'impacte pas les données)
-			impsSortedAntPost[0].getImagePlus().getProcessor().setMinAndMax(0,
-					impsSortedAntPost[0].getImagePlus().getStatistics().max * ratio);
+			impsSortedAntPost[0].getImagePlus().getProcessor()
+					.setMinAndMax(0, impsSortedAntPost[0].getImagePlus().getStatistics().max * ratio);
 			// On augmente le contraste (uniquement visuel, n'impacte pas les données)
-			impsSortedAntPost[1].getImagePlus().getProcessor().setMinAndMax(0,
-					impsSortedAntPost[1].getImagePlus().getStatistics().max * ratio);
+			impsSortedAntPost[1].getImagePlus().getProcessor()
+					.setMinAndMax(0, impsSortedAntPost[1].getImagePlus().getStatistics().max * ratio);
 
 			selectedImages = impsSortedAntPost;
 		}
@@ -118,8 +116,9 @@ public class LymphoSintigraphy extends Scintigraphy {
 		// this.getFenApplication()
 		// .setController(new ControleurLympho(this, this.getFenApplication(), "Lympho
 		// Scinti", selectedImages));
-		((FenApplicationWorkflow) this.getFenApplication()).setController(new ControllerWorkflowLympho(this,
-				(FenApplicationWorkflow) this.getFenApplication(), new ModelLympho(selectedImages, "Lympho Scinti")));
+		this.getFenApplication().setController(
+				new ControllerWorkflowLympho(this, (FenApplicationWorkflow) this.getFenApplication(),
+						new ModelLympho(selectedImages, "Lympho Scinti")));
 		this.getFenApplication().setVisible(true);
 
 	}
@@ -130,13 +129,13 @@ public class LymphoSintigraphy extends Scintigraphy {
 	 *
 	 * @param imp : Dynamic ImagePlus you want to transform
 	 * @return The static {@link ImagePlus}
-	 * @throws IllegalArgumentException
-	 * @throws WrongOrientationException
+	 * @throws WrongOrientationException if {@link Orientation#isDynamic()} returns FALSE
+	 * @throws ReadTagException          if a DICOM tag could not be retrieved and was necessary to split the image
 	 * @see Library_Dicom#splitDynamicAntPost(ImageSelection)
 	 * @see Library_Dicom#project(ImageSelection, int, int, String)
 	 */
 	public ImageSelection dynamicToStaticAntPost(ImageSelection imp)
-			throws WrongOrientationException, IllegalArgumentException, ReadTagException {
+			throws WrongOrientationException, ReadTagException {
 		ImageSelection[] Ant_Post = Library_Dicom.splitDynamicAntPost(imp);
 
 		ImageSelection Ant = Library_Dicom.project(Ant_Post[0], 1, Ant_Post[0].getImagePlus().getStackSize(), "sum");

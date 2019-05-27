@@ -13,8 +13,8 @@ public class DocumentationDialog extends JDialog {
 	public final static String FIELD_DESIGNER = "designer", FIELD_DEVELOPER = "developer", FIELD_REFERENCE =
 			"reference", FIELD_DOC = "documentation", FIELD_YOUTUBE = "youtube";
 
-	private Map<String, JComponent[]> fields;
-	private JPanel panel;
+	private final Map<String, JComponent[]> fields;
+	private final JPanel panel;
 
 	public DocumentationDialog(FenApplication parent) {
 		super(parent, "Documentation of " + parent.getStudyName(), false);
@@ -143,7 +143,7 @@ public class DocumentationDialog extends JDialog {
 	}
 
 	public enum FieldType {
-		TEXT, LINK;
+		TEXT, LINK
 	}
 
 }

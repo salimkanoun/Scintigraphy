@@ -1,12 +1,5 @@
 package org.petctviewer.scintigraphy.calibration.chargement;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-
-import org.petctviewer.scintigraphy.calibration.resultats.Doublet;
-
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Roi;
@@ -16,24 +9,26 @@ import ij.process.StackStatistics;
 import loci.formats.FormatException;
 import loci.plugins.BF;
 import loci.plugins.in.ImporterOptions;
+import org.petctviewer.scintigraphy.calibration.resultats.Doublet;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
 public class ModeleChargementCalibration {
 
-	private RoiManager rm;
-	
 	private static final int NB_SPHERE = 7;
-	
+
 	// en 0 la sphere la plus grande
-	public static final Double VOLUME_FANTOME_REF[] = {0.0D,26521.84878D,11494.04032D,5575.279763D,2572.440785D,1150.34651D,523.5987756D};
-	
-	//list des analyse / Liste des rois / map du SUV, TS et BG(calculé une seule fois)
-	private ArrayList<ArrayList<HashMap<String,Object>>> paramResult;
+	public static final Double[] VOLUME_FANTOME_REF = {0.0D, 26521.84878D, 11494.04032D, 5575.279763D, 2572.440785D,
+	                                                   1150.34651D, 523.5987756D};
 
 	private ArrayList<ArrayList<HashMap<String,Object>>> paramResult2;
 
 	private Doublet[][] resultData;
 	
-	private FenChargementCalibration fenCharg;
+	private final FenChargementCalibration fenCharg;
 	
 	public ModeleChargementCalibration(FenChargementCalibration fenCharg) {
 		this.fenCharg = fenCharg;
@@ -42,8 +37,9 @@ public class ModeleChargementCalibration {
 	public void runCalcul() {
 		ArrayList<String[]> examList = fenCharg.getExamList();
 
-		rm = new RoiManager(false);
-		paramResult = new ArrayList<>();
+		RoiManager rm = new RoiManager(false);
+		//list des analyse / Liste des rois / map du SUV, TS et BG(calculé une seule fois)
+		ArrayList<ArrayList<HashMap<String, Object>>> paramResult = new ArrayList<>();
 		
 
 		/*for each exam*/
@@ -68,9 +64,9 @@ public class ModeleChargementCalibration {
 				fenCharg.setSphereText("Sphere "+i+"/"+NB_SPHERE);
 
 				HashMap<String, Object> paramResultUnExamElements = new HashMap<>();
-				
-				
-				/*********sur mask*******/
+
+
+				//*********sur mask*******/
 	
 				//dublication
 				ImagePlus impMaskDuplicated = impMaskPropre.duplicate();
@@ -116,7 +112,7 @@ public class ModeleChargementCalibration {
 				IJ.run(impMaskDuplicated ,"Crop", "");
 				
 				
-				/*********sur float*******/
+				//*********sur float*******/
 				
 				//dublication
 				ImagePlus impFloatDuplicated =impFloatPropre.duplicate();
@@ -192,31 +188,31 @@ public class ModeleChargementCalibration {
 		
 		//test de la list de list de map
 		// oblige de le faire apres car le background est releve en dernier
-	
-		for(int  i =0; i< paramResult.size(); i++) {
-			ArrayList<HashMap<String,Object>> paramResultUnExam2 = new ArrayList<>();
 
-			 Double BG = (Double) paramResult.get(i).get(paramResult.get(i).size()-1).get("BG");
-	
-			for(int j=0; j < paramResult.get(i).size(); j++) {
+		for (ArrayList<HashMap<String, Object>> hashMaps : paramResult) {
+			ArrayList<HashMap<String, Object>> paramResultUnExam2 = new ArrayList<>();
+
+			Double BG = (Double) hashMaps.get(hashMaps.size() - 1).get("BG");
+
+			for (int j = 0; j < hashMaps.size(); j++) {
 				HashMap<String, Object> paramResultUnExamElements2 = new HashMap<>();
 
-				if(j!=6) {
-					 
-					 Double TS = (Double) paramResult.get(i).get(j).get("TS");	 
-					 Double SUV = (Double) paramResult.get(i).get(j).get("SUV");				 
-					
-					 paramResultUnExamElements2.put("TS",paramResult.get(i).get(j).get("TS"));
-					 paramResultUnExamElements2.put("SUV",paramResult.get(i).get(j).get("SUV"));
-					 paramResultUnExamElements2.put("SUVmax",paramResult.get(i).get(j).get("SUVmax"));
-					 paramResultUnExamElements2.put("BG",BG);
-					 paramResultUnExamElements2.put("MEAN70",paramResult.get(i).get(j).get("MEAN70"));
-					 paramResultUnExamElements2.put("image",paramResult.get(i).get(j).get("image"));
-					 paramResultUnExamElements2.put("VolumeVoxel",paramResult.get(i).get(j).get("VolumeVoxel"));
-					 paramResultUnExamElements2.put("TrueSphereVolume",VOLUME_FANTOME_REF[j+1] );
-					 
-					 paramResultUnExamElements2.put("x",((SUV-BG)/BG));
-					 paramResultUnExamElements2.put("y",(TS/(SUV-BG)));
+				if (j != 6) {
+
+					Double TS = (Double) hashMaps.get(j).get("TS");
+					Double SUV = (Double) hashMaps.get(j).get("SUV");
+
+					paramResultUnExamElements2.put("TS", hashMaps.get(j).get("TS"));
+					paramResultUnExamElements2.put("SUV", hashMaps.get(j).get("SUV"));
+					paramResultUnExamElements2.put("SUVmax", hashMaps.get(j).get("SUVmax"));
+					paramResultUnExamElements2.put("BG", BG);
+					paramResultUnExamElements2.put("MEAN70", hashMaps.get(j).get("MEAN70"));
+					paramResultUnExamElements2.put("image", hashMaps.get(j).get("image"));
+					paramResultUnExamElements2.put("VolumeVoxel", hashMaps.get(j).get("VolumeVoxel"));
+					paramResultUnExamElements2.put("TrueSphereVolume", VOLUME_FANTOME_REF[j + 1]);
+
+					paramResultUnExamElements2.put("x", ((SUV - BG) / BG));
+					paramResultUnExamElements2.put("y", (TS / (SUV - BG)));
 
 					paramResultUnExam2.add(paramResultUnExamElements2);
 				}

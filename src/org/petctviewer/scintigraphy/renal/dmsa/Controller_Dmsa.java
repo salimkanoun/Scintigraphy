@@ -1,24 +1,23 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.image.BufferedImage;
-
+import ij.gui.Overlay;
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 
-import ij.gui.Overlay;
-import ij.gui.Roi;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 
 public class Controller_Dmsa extends Controller_OrganeFixe {
 
-	public static String[] ORGANES = { "L. Kidney", "L. bkg", "R. Kidney", "R. bkg" };
+	public static final String[] ORGANES = {"L. Kidney", "L. bkg", "R. Kidney", "R. bkg" };
 	private int maxIndexRoi = 0;
 
-	private boolean antPost;
+	private final boolean antPost;
 	private boolean over;
 
 	protected Controller_Dmsa(Scintigraphy scin, ImageSelection[] selectedImages, String studyName) {

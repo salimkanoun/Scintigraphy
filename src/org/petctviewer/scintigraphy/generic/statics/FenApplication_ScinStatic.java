@@ -13,7 +13,7 @@ public class FenApplication_ScinStatic extends FenApplicationWorkflow {
 
 	public static final String BTN_TEXT_NEW_ROI = "Validate/New Roi", BTN_TEXT_NEXT = "Next";
 
-	private Button btn_finish;
+	private final Button btn_finish;
 
 	public FenApplication_ScinStatic(ImageSelection ims, String nom) {
 		super(ims, nom);

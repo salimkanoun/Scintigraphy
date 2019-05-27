@@ -1,5 +1,10 @@
 package org.petctviewer.scintigraphy.shunpo;
 
+import ij.ImagePlus;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -7,23 +12,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
-
-import ij.ImagePlus;
-
 public class ModelShunpo extends ModelScin {
 
-	private Map<Integer, Double> coups;
+	private final Map<Integer, Double> coups;
 	// TODO: those values are never set ??????? !!!!!!!!
 	private int pixrdp;
 	private int pixrgp;
 	private int pixrda;
 	private int pixrga;
-	private Map<Integer, Integer> geometricalAverage;
+	private final Map<Integer, Integer> geometricalAverage;
 	private String[] retour;
-	private List<Double> results;
+	private final List<Double> results;
 
 	public static final int LUNG_RIGHT_ANT = 0, LUNG_RIGHT_POST = 1, LUNG_LEFT_ANT = 2, LUNG_LEFT_POST = 3,
 			KIDNEY_RIGHT_ANT = 4, KIDNEY_RIGHT_POST = 5, KIDNEY_LEFT_ANT = 6, KIDNEY_LEFT_POST = 7,

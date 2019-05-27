@@ -1,18 +1,5 @@
 package org.petctviewer.scintigraphy.renal;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Font;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
-
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
@@ -27,6 +14,15 @@ import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.xy.XYDataset;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
+import java.awt.*;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
+
 public class JValueSetter extends ChartPanel implements ChartMouseListener, MouseWheelListener {
 
 	/**
@@ -34,9 +30,9 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 	 */
 	private static final long serialVersionUID = 1L;
 	// ordre de priorite des selecteurs
-	private List<Selector> selectors;
+	private final List<Selector> selectors;
 	private Selector current;
-	private HashMap<Comparable, Area> areas;
+	private final HashMap<Comparable, Area> areas;
 
 	public JValueSetter(JFreeChart chart) {
 		super(chart);
@@ -44,7 +40,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 		this.addMouseWheelListener(this);
 
 		this.selectors = new ArrayList<>();
-		this.areas = new HashMap<Comparable, Area>();
+		this.areas = new HashMap<>();
 
 		// desactive le zoom
 		this.setDomainZoomable(false);
@@ -54,8 +50,6 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 	/**
 	 * permet de gerer plusieurs selecteurs sur le meme chartPanel en conservant
 	 * l'ordre en Z
-	 * 
-	 * @param chartPanel
 	 */
 	@Override
 	public void chartMouseClicked(ChartMouseEvent event) {
@@ -176,7 +170,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 		this.selectors.add(v);
 
 		// on ajoute la couleur selon la courbe
-		Color c = null;
+		Color c;
 		if (v.getSeries() == 1) {
 			c = new Color(85, 85, 255);
 		} else if (v.getSeries() == 0) {
@@ -193,7 +187,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 	/**
 	 * supprime le selecteur d'un index donne de l'overlay
 	 * 
-	 * @param index index du selecteur
+	 * @param key index du selecteur
 	 */
 	public void removeSelector(Comparable key) {
 		Selector v = this.getSelector(key);
@@ -261,10 +255,6 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 
 	/**
 	 * Returns the values of the graph between the 'start' and the 'end' selectors.
-	 * 
-	 * @param start
-	 * @param end
-	 * @return
 	 */
 	public XYDataset retrieveValuesInSpan() {
 		return Library_JFreeChart.cropDataset(this.getChart().getXYPlot().getDataset(),
@@ -276,7 +266,9 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 	}
 
 	private class Area {
-		private Selector start, end, middle;
+		private final Selector start;
+		private final Selector end;
+		private final Selector middle;
 		private Color color;
 		private double boundsDistToCenter;
 
@@ -287,8 +279,6 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 
 			if (color == null) {
 				this.color = new Color(225, 244, 50, 120);// jaune
-			} else {
-				this.color = color;
 			}
 
 			middle = new Selector("<>", 2, -1, RectangleAnchor.CENTER);
@@ -308,8 +298,8 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 		}
 
 		private void fillInterval() {
-			Double start = this.start.getXValue();
-			Double end = this.end.getXValue();
+			double start = this.start.getXValue();
+			double end = this.end.getXValue();
 			double debut = Math.min(start, end);
 			double fin = Math.max(start, end);
 
@@ -318,7 +308,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 
 			bst.setLabelAnchor(RectangleAnchor.TOP_RIGHT);
 			bst.setLabelOffset(new RectangleInsets(15, 0, 0, 5));
-			bst.setLabelFont(new Font("SansSerif", 0, 12));
+			bst.setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
 			bst.setLabelTextAnchor(TextAnchor.BASELINE_RIGHT);
 			plot.addDomainMarker(bst);
 		}
@@ -336,7 +326,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 						if (e.getWheelRotation() < 0)
 							ySelector.setCurrentLabelVisible(0);
 						else
-							ySelector.setCurrentLabelVisible(((YSelector) ySelector).getCrossXs().size() - 1);
+							ySelector.setCurrentLabelVisible(ySelector.getCrossXs().size() - 1);
 					}else {
 						int currentLabel = ySelector.getCurrentLabelVisible();
 						if (e.getWheelRotation() < 0) {

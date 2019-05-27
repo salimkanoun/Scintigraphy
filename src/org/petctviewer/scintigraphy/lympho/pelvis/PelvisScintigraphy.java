@@ -12,7 +12,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 public class PelvisScintigraphy extends Scintigraphy {
 
-	TabResult resultTab;
+	final TabResult resultTab;
 
 	public PelvisScintigraphy(String studyName, TabResult tab) {
 		super("Post Scintigraphy");
@@ -26,12 +26,11 @@ public class PelvisScintigraphy extends Scintigraphy {
 		if (selectedImages.length != 1)
 			throw new WrongNumberImagesException(selectedImages.length, 1);
 
-		ImageSelection impSorted = null;
+		ImageSelection impSorted;
 		ImageSelection[] impsSortedAntPost = new ImageSelection[selectedImages.length];
 
 		for (int i = 0; i < selectedImages.length; i++) {
 
-			impSorted = null;
 			ImageSelection imp = selectedImages[i];
 			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST
 					|| selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
@@ -61,7 +60,7 @@ public class PelvisScintigraphy extends Scintigraphy {
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 
 		this.setFenApplication(new FenApplicationPelvis(selectedImages[0], this.getStudyName()));
-		((FenApplicationWorkflow) this.getFenApplication())
+		this.getFenApplication()
 				.setController(new ControllerWorkflowPelvis(this, (FenApplicationWorkflow) this.getFenApplication(),
 						new ModelPelvis(selectedImages, "Pelvis Scinty", this.resultTab), this.resultTab));
 		this.getFenApplication().setVisible(true);

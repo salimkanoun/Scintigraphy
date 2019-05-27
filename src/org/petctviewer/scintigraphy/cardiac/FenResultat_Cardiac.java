@@ -1,56 +1,31 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import javax.swing.Box;
-import javax.swing.DefaultRowSorter;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JTable;
-import javax.swing.RowSorter;
-import javax.swing.RowSorter.SortKey;
-import javax.swing.SortOrder;
-import javax.swing.border.LineBorder;
-import javax.swing.table.DefaultTableModel;
-
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
+import javax.swing.*;
+import javax.swing.RowSorter.SortKey;
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class FenResultat_Cardiac extends FenResults {
 
 	private static final long serialVersionUID = -5261203439330504164L;
 
-	public FenResultat_Cardiac(Scintigraphy scin, BufferedImage capture, ControllerScin controller) {
+	public FenResultat_Cardiac(BufferedImage capture, ControllerScin controller) {
 		super(controller);
-		// this.setLayout(new BorderLayout());
+
 		HashMap<String, String> resultats = ((Model_Cardiac) controller.getModel()).getResultsHashMap();
-		// SidePanel side = new SidePanel(getSidePanelContent(resultats), "DPD Quant",
-		// model.getImagesPlus()[0]);
-		// side.addCaptureBtn(scin, "", model);
+
 		this.setMainTab(new TabMainCardiac(this, "DPD Quant", true, resultats, capture));
-		// this.add(new DynamicImage(capture), BorderLayout.CENTER);
-		// this.add(side, BorderLayout.EAST);
 
 		this.setTitle("DPD Quant results");
-		// this.pack();
-		// this.setMinimumSize(side.getSize());
-		// this.setLocationRelativeTo(scin.getFenApplication());
-		// this.setVisible(true);
-
 	}
 
 	public Component getSidePanelContent(HashMap<String, String> resultats) {
@@ -144,15 +119,7 @@ public class FenResultat_Cardiac extends FenResults {
 		JPopupMenu popMenuHide = new JPopupMenu();
 		JMenuItem hide = new JMenuItem("Hide");
 		popMenuHide.add(hide);
-		hide.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				tabRes.setVisible(false);
-
-			}
-
-		});
+		hide.addActionListener(arg0 -> tabRes.setVisible(false));
 		tabRes.setComponentPopupMenu(popMenuHide);
 		// Add to the main panel
 		returnBox.add(tabRes);
@@ -170,9 +137,9 @@ public class FenResultat_Cardiac extends FenResults {
 
 	private class TabMainCardiac extends TabResult {
 
-		private HashMap<String, String> resultats;
+		private final HashMap<String, String> resultats;
 
-		private BufferedImage capture;
+		private final BufferedImage capture;
 
 		public TabMainCardiac(FenResults parent, String title, boolean captureBtn, HashMap<String, String> resultats,
 				BufferedImage capture) {

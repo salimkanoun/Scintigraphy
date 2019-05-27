@@ -50,7 +50,7 @@ public class Model_Gastric extends ModelWorkflow {
 			DATA_DECAY_CORRECTED = 8, DATA_TOTAL_FIELDS = 9;
 
 	private ImageSelection firstImage;
-	private Map<Integer, Data> results;
+	private final Map<Integer, Data> results;
 	/**
 	 * Fictional data representing the first acquisition.
 	 */
@@ -575,6 +575,7 @@ public class Model_Gastric extends ModelWorkflow {
 	 * @param nbTotalImages  Total number of images (total number of eggs ingested)
 	 * @return percentage adjusted with the eggs ratio
 	 */
+	@SuppressWarnings("StringEquality")
 	private double adjustPercentageWithEggsRatio(String region, double percentage, int numActualImage,
 												 int nbTotalImages) {
 		double ratioEggsInBody = (double) numActualImage / (double) nbTotalImages;
@@ -1239,10 +1240,11 @@ public class Model_Gastric extends ModelWorkflow {
 	 * @author Titouan QUÉMA
 	 */
 	private class Data implements Comparable<Data> {
-		private Map<String, Region> regionsAnt, regionsPost;
+		private final Map<String, Region> regionsAnt;
+		private final Map<String, Region> regionsPost;
 
 		private double time;
-		private ImageSelection associatedImage;
+		private final ImageSelection associatedImage;
 
 		/**
 		 * Instantiates a new data. The image should be unique (for this model).<br>
@@ -1438,18 +1440,13 @@ public class Model_Gastric extends ModelWorkflow {
 				case DATA_ANT_COUNTS:
 				case DATA_POST_COUNTS:
 				case DATA_GEO_AVERAGE:
-					return Unit.COUNTS;
+				case DATA_BKG_NOISE:
+				case DATA_PIXEL_COUNTS:
 				case DATA_DECAY_CORRECTED:
 					return Unit.COUNTS;
 				case DATA_PERCENTAGE:
-					return Unit.PERCENTAGE;
-				case DATA_CORRELATION:
-					return Unit.PERCENTAGE;
-				case DATA_PIXEL_COUNTS:
-					return Unit.COUNTS;
-				case DATA_BKG_NOISE:
-					return Unit.COUNTS;
 				case DATA_DERIVATIVE:
+				case DATA_CORRELATION:
 					return Unit.PERCENTAGE;
 				default:
 					return null;
@@ -1510,7 +1507,7 @@ public class Model_Gastric extends ModelWorkflow {
 
 		@Override
 		public String toString() {
-			String s = Library_Debug.separator(0);
+			String s = Library_Debug.separator();
 			String imageTitle = (this.associatedImage == null ? "// NO-IMAGE //"
 					: this.associatedImage.getImagePlus().getTitle());
 			s += Library_Debug.title("Data");
@@ -1519,7 +1516,7 @@ public class Model_Gastric extends ModelWorkflow {
 			s += "\n";
 			s += this.listRegions(Orientation.ANT);
 			s += this.listRegions(Orientation.POST);
-			s += Library_Debug.separator(0);
+			s += Library_Debug.separator();
 			return s;
 		}
 	}

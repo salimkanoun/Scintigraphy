@@ -1,27 +1,17 @@
 package org.petctviewer.scintigraphy.scin.preferences;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
+import ij.Prefs;
+import ij.plugin.PlugIn;
+
+import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
-import javax.swing.Timer;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-
-import ij.Prefs;
-import ij.plugin.PlugIn;
 
 public class PrefsWindows extends WindowAdapter implements PlugIn {
 
@@ -113,7 +103,7 @@ public class PrefsWindows extends WindowAdapter implements PlugIn {
 
 		this.timer = new Timer(2000, new ActionListener() {
 			int alpha = 255;
-			int increment = 10;
+			final int increment = 10;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {

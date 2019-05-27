@@ -16,7 +16,7 @@ public class PrefsTabGastric extends JPanel implements ActionListener, ItemListe
 			".liquid.enabled", PREF_LIQUID_PHASE_UNIT = "petctviewer.scin.gastric.liquid.unit";
 	private static final long serialVersionUID = 1L;
 
-	private PrefsWindows parent;
+	private final PrefsWindows parent;
 	private final JPanel panelLiquidOptions;
 
 	public PrefsTabGastric(PrefsWindows parent) {
@@ -103,6 +103,7 @@ public class PrefsTabGastric extends JPanel implements ActionListener, ItemListe
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getStateChange() == ItemEvent.SELECTED) {
 			if (e.getSource() instanceof JComboBox) {
+				@SuppressWarnings("unchecked")
 				JComboBox<Unit> source = (JComboBox<Unit>) e.getSource();
 				// Save new unit
 				Prefs.set(source.getActionCommand(), ((Unit) e.getItem()).name());

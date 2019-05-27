@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.gastric.tabs;
 
-import com.itextpdf.text.Font;
 import ij.ImagePlus;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
@@ -35,16 +34,18 @@ import java.util.Date;
 
 public abstract class TabResultDefault extends TabResult implements ItemListener, ChartMouseListener {
 
-	Unit unitDefault, unitTime;
-	private ImagePlus capture;
+	final Unit unitDefault;
+	final Unit unitTime;
+	private final ImagePlus capture;
 	private Date timeIngestion;
 	private XYSeriesCollection data;
 	private JValueSetter valueSetter;
-	private JComboBox<FitType> fitsChoices;
-	private JLabel labelInterpolation, labelError;
-	private JButton btnAutoFit;
-	private ResultRequest request;
-	private int seriesToGenerate;
+	private final JComboBox<FitType> fitsChoices;
+	private final JLabel labelInterpolation;
+	private final JLabel labelError;
+	private final JButton btnAutoFit;
+	private final ResultRequest request;
+	private final int seriesToGenerate;
 
 	TabResultDefault(FenResults parent, ImagePlus capture, String title,
 					 Unit unitDefault, Unit unitTime, int seriesToGenerate) {
@@ -278,7 +279,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	protected JPanel infoResultats(Result[] resultsRequested, Unit[] unitsRequested) {
 		JPanel panel = new JPanel(new BorderLayout());
 
-		boolean hasExtrapolatedValue = false;
+		boolean hasExtrapolatedValue;
 
 		JPanel infoRes = new JPanel();
 		infoRes.setLayout(new GridLayout(0, 2));
@@ -311,7 +312,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 		panel.add(infoRes, BorderLayout.CENTER);
 		if (hasExtrapolatedValue) {
-			JLabel l = null;
+			JLabel l;
 			if (getSelectedFit() == FitType.NONE) {
 				l = new JLabel("(*) No fit has been selected to extrapolate the values!");
 				l.setForeground(Color.RED);

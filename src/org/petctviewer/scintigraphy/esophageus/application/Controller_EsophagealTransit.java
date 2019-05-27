@@ -1,15 +1,14 @@
 package org.petctviewer.scintigraphy.esophageus.application;
 
+import ij.gui.Roi;
+import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.esophageus.resultats.FenResultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
 
-import ij.gui.Roi;
-import ij.gui.Toolbar;
-
 public class Controller_EsophagealTransit extends Controller_OrganeFixe {
 
-	public static String[] ORGANES = { "Esophage" };
+	public static final String[] ORGANES = {"Esophage" };
 
 	public Controller_EsophagealTransit(EsophagealTransit esoPlugin, ImageSelection[][] sauvegardeImagesSelectDicom,
 	                                    String studyName) {

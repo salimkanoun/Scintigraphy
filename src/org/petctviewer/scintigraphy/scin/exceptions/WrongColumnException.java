@@ -1,15 +1,15 @@
 package org.petctviewer.scintigraphy.scin.exceptions;
 
-import java.util.Arrays;
-
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
+
+import java.util.Arrays;
 
 public class WrongColumnException extends WrongInputException {
 	private static final long serialVersionUID = 1L;
 
-	private Column columnError;
-	private int rowError;
+	private final Column columnError;
+	private final int rowError;
 
 	/**
 	 * @param columnError Column of the error

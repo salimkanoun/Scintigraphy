@@ -1,13 +1,12 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
+import javax.swing.*;
 
 public class CaptureButton extends JButton {
 	
 	private static final long serialVersionUID = 1L;
-	private TabResult tabResult;
-	private JLabel lbl_credits;
+	private final TabResult tabResult;
+	private final JLabel lbl_credits;
 
 	public CaptureButton(String name, TabResult tab, JLabel lbl_credits) {
 		super(name == null ? "" : name);

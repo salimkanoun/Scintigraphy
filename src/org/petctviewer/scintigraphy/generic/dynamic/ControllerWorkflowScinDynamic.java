@@ -41,7 +41,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 	@Override
 	protected void generateInstructions() {
 		this.workflows = new Workflow[1];
-		DefaultGenerator dri_1 = null;
+		DefaultGenerator dri_1;
 		ImageState state; 
 		if(((Model_GeneralDyn) model).getImpAnt() != null) {
 			state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
@@ -148,7 +148,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		boolean sameName = false;
 		for (Instruction instruction : this.workflows[this.indexCurrentWorkflow].getInstructions())
 			if (instruction instanceof DrawLoopInstruction)
-				if (((DrawLoopInstruction) instruction) != this.workflows[this.indexCurrentWorkflow]
+				if (instruction != this.workflows[this.indexCurrentWorkflow]
 						.getCurrentInstruction())
 					if (this.workflows[this.indexCurrentWorkflow].getController().getVue().getTextfield_instructions()
 							.getText().equals(((DrawLoopInstruction) instruction).getInstructionRoiName()))

@@ -1,21 +1,20 @@
 package org.petctviewer.scintigraphy.esophageus.application;
 
-import java.awt.Point;
-import java.util.ArrayList;
-import java.util.HashMap;
-
+import ij.gui.Roi;
+import ij.plugin.frame.RoiManager;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
-import ij.gui.Roi;
-import ij.plugin.frame.RoiManager;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Model_EsophagealTransit extends ModelScinDyn {
 	
 	// sauvegarde des imageplus de depart avec tous leur stack chacun : pour pouvoir faire les calculs de mean dans le temps//trié 
-	private ImageSelection [][] sauvegardeImagesSelectDicom;
+	private final ImageSelection [][] sauvegardeImagesSelectDicom;
 
 	// list : liste des examen
 	// list->map : map des 4 roi ( entier, premier tier, deuxieme tier et troisieme tier)
@@ -25,7 +24,7 @@ public class Model_EsophagealTransit extends ModelScinDyn {
 	//pour le condensé dynamique
 	ArrayList<Object[]> dicomRoi;
 	
-	public EsophagealTransit esoPlugIn;
+	public final EsophagealTransit esoPlugIn;
 	
 	public Model_EsophagealTransit(ImageSelection [][] sauvegardeImagesSelectDicom, String studyName, EsophagealTransit esoPlugIn) {
 		super(sauvegardeImagesSelectDicom[0], studyName, esoPlugIn.getFrameDurations());
@@ -67,7 +66,7 @@ public class Model_EsophagealTransit extends ModelScinDyn {
 			
 			
 			ArrayList<Double> temps = new ArrayList<>();
-			Double memtemps = 0.0;
+			double memtemps = 0.0;
 			for(int j =0; j< tempsSeconde.length; j++) {
 				memtemps += tempsSeconde[i];
 				temps.add(memtemps);
@@ -79,8 +78,8 @@ public class Model_EsophagealTransit extends ModelScinDyn {
 			Roi premiereRoi = this.roiManager.getRoi(i);
 			
 			Point pointOrigine = premiereRoi.getContainedPoints()[0];
-			Double largeurRef = premiereRoi.getBounds().getWidth();
-			Double hauteurRef = premiereRoi.getBounds().getHeight();
+			double largeurRef = premiereRoi.getBounds().getWidth();
+			double hauteurRef = premiereRoi.getBounds().getHeight();
 			
 			int tierHauteurRoiRef = (int) Math.round(hauteurRef/3);
 			

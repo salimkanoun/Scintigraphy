@@ -20,10 +20,11 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private RenalScintigraphy vue;
+	private final RenalScintigraphy vue;
 	private boolean dyn;
-	private ImagePlus impProj;
-	private Button btn_dyn, btn_start;
+	private final ImagePlus impProj;
+	private final Button btn_dyn;
+	private final Button btn_start;
 
 	public FenApplication_Renal(ImageSelection ims, String nom, RenalScintigraphy vue) {
 		super(ims, nom);
@@ -164,8 +165,10 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private boolean[] kidneys = new boolean[2];
-		private JButton btn_l, btn_r, btn_lr;
+		private final boolean[] kidneys = new boolean[2];
+		private final JButton btn_l;
+		private final JButton btn_r;
+		private final JButton btn_lr;
 
 		public Fen_NbRein() {
 			this.setLayout(new GridLayout(2, 1));
@@ -209,9 +212,6 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 		}
 
 		public boolean[] getKidneys() {
-			if (this.kidneys == null) {
-				return new boolean[] { true, true };
-			}
 
 			return this.kidneys;
 		}

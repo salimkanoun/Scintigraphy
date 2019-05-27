@@ -22,8 +22,7 @@ import java.util.List;
 
 public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
-	private List<ImagePlus> captures;
-	private boolean antPost;
+	private final boolean antPost;
 
 	public ControllerWorkflowDMSA(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
 		super(main, vue, model);
@@ -41,13 +40,13 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 		this.workflows = new Workflow[1];
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
-		DrawRoiInstruction dri_1 = null, dri_2 = null;
+		DrawRoiInstruction dri_1, dri_2;
 
-		DrawRoiBackground dri_Background_1 = null, dri_Background_2 = null;
+		DrawRoiBackground dri_Background_1, dri_Background_2;
 
-		ScreenShotInstruction dri_capture_1 = null;
+		ScreenShotInstruction dri_capture_1;
 
-		this.captures = new ArrayList<>();
+		List<ImagePlus> captures = new ArrayList<>();
 
 		ImageState statePost = new ImageState(Orientation.POST, 1, ImageState.LAT_LR, ImageState.ID_NONE);
 		dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), 0);

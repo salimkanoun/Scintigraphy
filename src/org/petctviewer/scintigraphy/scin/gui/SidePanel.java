@@ -1,24 +1,12 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.util.HashMap;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
-
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
-import ij.ImagePlus;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.util.HashMap;
 
 /**
  * creer une box avec titre du programme et son identification patient
@@ -32,9 +20,9 @@ public class SidePanel extends JPanel {
 	
 	public static final String BTN_TXT_CAPTURE =  "Capture";
 	
-	private Box box;
+	private final Box box;
 	private Component sidePanelContent;
-	private JPanel panSouth;
+	private final JPanel panSouth;
 	private JLabel titreFen;
 
 	public SidePanel(Component sidePanelContent, String titre, ImagePlus imp) {

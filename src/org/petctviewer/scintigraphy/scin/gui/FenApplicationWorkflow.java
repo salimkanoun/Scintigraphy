@@ -30,7 +30,7 @@ import java.awt.event.MouseWheelEvent;
 public class FenApplicationWorkflow extends FenApplication implements MouseMotionListener, MouseListener {
 	public static final String BTN_TXT_RESUME = "Resume";
 	private static final long serialVersionUID = -6280620624574294247L;
-	private Scrollbar scroll;
+	private final Scrollbar scroll;
 	private InstructionTooltip tooltip;
 	private ImageSelection imageSelection;
 

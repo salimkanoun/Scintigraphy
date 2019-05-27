@@ -1,32 +1,23 @@
 package org.petctviewer.scintigraphy.gastric.dynamic;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.UIManager;
-
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptDialog;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class PromptBkgNoise extends PromptDialog {
 	private static final long serialVersionUID = 1L;
 
-	private JRadioButton rbAntre_yes, rbAntre_no, rbIntestine_yes, rbIntestine_no;
-
-	private JPanel panCenter;
-	private JPanel panAntre, panIntestine;
+	private final JRadioButton rbAntre_yes;
+	private final JRadioButton rbAntre_no;
+	private final JRadioButton rbIntestine_yes;
+	private final JRadioButton rbIntestine_no;
 
 	private int indexState;
 	private boolean forward;
-	private boolean[][] states;
-	private boolean[] newlySelected;
+	private final boolean[][] states;
+	private final boolean[] newlySelected;
 
 	public PromptBkgNoise(ControllerWorkflow controller, int nbAppearances) {
 		this.states = new boolean[nbAppearances + 1][2];
@@ -39,8 +30,8 @@ public class PromptBkgNoise extends PromptDialog {
 
 		JPanel panel = new JPanel(new BorderLayout());
 
-		panCenter = new JPanel(new GridLayout(0, 1));
-		panAntre = new JPanel();
+		JPanel panCenter = new JPanel(new GridLayout(0, 1));
+		JPanel panAntre = new JPanel();
 		JLabel lAntre = new JLabel("Is Antre region a background noise?");
 		panAntre.add(lAntre);
 		ButtonGroup bgAntre = new ButtonGroup();
@@ -53,7 +44,7 @@ public class PromptBkgNoise extends PromptDialog {
 		panAntre.add(this.rbAntre_yes);
 		panCenter.add(panAntre);
 
-		panIntestine = new JPanel();
+		JPanel panIntestine = new JPanel();
 		JLabel lIntestine = new JLabel("Is Intestine region a background noise?");
 		panIntestine.add(lIntestine);
 		ButtonGroup bgIntestine = new ButtonGroup();
@@ -67,13 +58,10 @@ public class PromptBkgNoise extends PromptDialog {
 		panCenter.add(panIntestine);
 
 		JButton okBtn = new JButton("Validate");
-		okBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setVisible(false);
-				saveState();
-				updateIndex();
-			}
+		okBtn.addActionListener(e -> {
+			setVisible(false);
+			saveState();
+			updateIndex();
 		});
 
 		panel.add(panCenter, BorderLayout.CENTER);
@@ -86,22 +74,14 @@ public class PromptBkgNoise extends PromptDialog {
 	}
 
 	private void updateIndex() {
-		if (this.forward) {
-			this.indexState++;
-		} else {
-//			this.indexState--;
-		}
-
-//		this.DEBUG("Update index");
+		if (this.forward) this.indexState++;
 	}
 
 	@Override
 	public boolean shouldBeDisplayed() {
 		boolean[] state = this.states[this.indexState];
-		if (this.forward && state[0] && state[1])
-			return false;
+		return !this.forward || !state[0] || !state[1];
 
-		return true;
 	}
 
 	/**

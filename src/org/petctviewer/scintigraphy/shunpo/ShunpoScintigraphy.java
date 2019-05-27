@@ -43,6 +43,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	}
 
 	@Override
+	@SuppressWarnings("StringEquality")
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 		// Check that number of images is correct
 		if (selectedImages.length != 2)
@@ -77,7 +78,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		// Start program
 		this.setFenApplication(new FenApplication_Shunpo(this, selectedImages[0]));
-		((FenApplicationWorkflow) this.getFenApplication()).setController(new ControllerWorkflowShunpo(this,
+		this.getFenApplication().setController(new ControllerWorkflowShunpo(this,
 				(FenApplicationWorkflow) getFenApplication(), new ModelShunpo(selectedImages, "Pulmonary Shunt")));
 		this.getFenApplication().setVisible(true);
 	}

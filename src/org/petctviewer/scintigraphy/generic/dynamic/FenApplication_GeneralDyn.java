@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.generic.dynamic;
 import ij.IJ;
 import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -15,9 +14,9 @@ public class FenApplication_GeneralDyn extends FenApplicationWorkflow {
 
 	private static final long serialVersionUID = 2588688323462231144L;
 
-	private Button btn_finish;
+	private final Button btn_finish;
 
-	public FenApplication_GeneralDyn(ImageSelection ims, String nom, Scintigraphy vue) {
+	public FenApplication_GeneralDyn(ImageSelection ims, String nom) {
 		super(ims, nom);
 		this.getTextfield_instructions().setEditable(true);
 		this.btn_finish = new Button("Finish");

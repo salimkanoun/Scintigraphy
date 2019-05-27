@@ -1,21 +1,20 @@
 package org.petctviewer.scintigraphy.scin.instructions.drawing;
 
-import java.io.Serializable;
-
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
-import org.petctviewer.scintigraphy.scin.instructions.Instruction.DrawInstructionType;
+
+import java.io.Serializable;
 
 public class DrawRoiInstruction implements Instruction, Serializable {
 	
 	protected DrawInstructionType InstructionType;
 
 	protected String organToDelimit;
-	private String roiName;
+	private final String roiName;
 	private boolean isAdjusting;
-	private transient ImageState state;
-	private transient DrawRoiInstruction instructionToCopy;
+	private final transient ImageState state;
+	private final transient DrawRoiInstruction instructionToCopy;
 	private int indexRoiToEdit;
 
 	/**
@@ -94,8 +93,6 @@ public class DrawRoiInstruction implements Instruction, Serializable {
 	 * This method return the name of the organ delimited by the ROI. This name
 	 * could be different of the RoiName because, for background, you don't want to
 	 * display the RoiName, and you have to specify it to "".
-	 * 
-	 * @return
 	 */
 	public String getOrganToDelimit() {
 		return this.organToDelimit;

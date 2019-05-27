@@ -1,11 +1,8 @@
 package org.petctviewer.scintigraphy.lympho.gui;
 
-import java.awt.Component;
-import java.awt.GridLayout;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.plugin.MontageMaker;
 import org.petctviewer.scintigraphy.lympho.ModelLympho;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -13,20 +10,18 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.plugin.MontageMaker;
+import javax.swing.*;
+import java.awt.*;
 
 public class TabPrincipalLympho extends TabResult {
 
-	ModelScin model;
+	final ModelScin model;
 
-	ImagePlus montage;
+	final ImagePlus montage;
 
 	public TabPrincipalLympho(FenResults parent, String title, ModelScin model, ImagePlus[] captures) {
 		super(parent, title);
 
-		System.out.println("TabPrincipalLympho : " + model != null);
 		this.model = model;
 		ImageStack stackCapture = Library_Capture_CSV.captureToStack(captures);
 		this.montage = this.montage(stackCapture);

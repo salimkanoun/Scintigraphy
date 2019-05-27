@@ -48,7 +48,7 @@ public class ColonicScintigraphy extends Scintigraphy {
 		// TODO Auto-generated method stub
 
 		this.setFenApplication(new FenApplicationColonicTransit(selectedImages[0], this.getStudyName()));
-		((FenApplicationColonicTransit) this.getFenApplication()).setController(new ControllerWorkflowColonicTransit(
+		this.getFenApplication().setController(new ControllerWorkflowColonicTransit(
 				this, (FenApplicationColonicTransit) this.getFenApplication(), selectedImages));
 	}
 

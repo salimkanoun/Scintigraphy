@@ -5,13 +5,12 @@ import ij.ImagePlus;
 
 public class ControllerImp implements ImageListener {
 	
-	private Controller_OrganeFixe ctrlScin;
+	private final Controller_OrganeFixe ctrlScin;
 	private int lastSlice = 1;
 	private boolean lockUpdate = false;
 	
 	/**
 	 * met a jour l'overlay de l'imp si elle est modifiee
-	 * @param ctrlScin
 	 */
 	public ControllerImp(Controller_OrganeFixe ctrlScin) {
 		this.ctrlScin = ctrlScin;

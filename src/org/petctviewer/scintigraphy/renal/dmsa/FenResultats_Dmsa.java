@@ -1,20 +1,14 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.GridLayout;
-import java.awt.image.BufferedImage;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class FenResultats_Dmsa extends FenResults {
 
@@ -27,7 +21,7 @@ public class FenResultats_Dmsa extends FenResults {
 
 	private class TabMain extends TabResult {
 
-		BufferedImage capture;
+		final BufferedImage capture;
 
 		public TabMain(FenResults parent, String title, boolean captureBtn, BufferedImage capture) {
 			super(parent, title, captureBtn);

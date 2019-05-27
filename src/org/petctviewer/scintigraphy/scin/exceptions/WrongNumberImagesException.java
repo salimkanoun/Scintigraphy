@@ -3,7 +3,9 @@ package org.petctviewer.scintigraphy.scin.exceptions;
 public class WrongNumberImagesException extends WrongInputException {
 	private static final long serialVersionUID = 1L;
 
-	private int provided, minRequired, maxRequired;
+	private final int provided;
+	private final int minRequired;
+	private int maxRequired;
 
 	/**
 	 * @param provided Number of images provided

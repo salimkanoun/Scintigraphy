@@ -1,11 +1,8 @@
 package org.petctviewer.scintigraphy.renal.postMictional;
 
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.Prefs;
+import ij.gui.Overlay;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -20,15 +17,17 @@ import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
-import ij.Prefs;
-import ij.gui.Overlay;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 
 	public String[] organeListe;
 
-	private boolean[] kidneys;
+	private final boolean[] kidneys;
 
 	public ControllerWorkflowPostMictional(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
 			boolean[] kidneys) {
@@ -46,9 +45,9 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 		List<String> organes = new LinkedList<>();
 
 		this.workflows = new Workflow[1];
-		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null;
+		DrawRoiInstruction dri_1, dri_2, dri_3;
 
-		DrawRoiBackground dri_Background_1 = null, dri_Background_2 = null;
+		DrawRoiBackground dri_Background_1, dri_Background_2;
 
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
@@ -80,7 +79,7 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 			organes.add("Bladder");
 		}
 
-		this.organeListe = organes.toArray(new String[organes.size()]);
+		this.organeListe = organes.toArray(new String[0]);
 
 		this.workflows[0].addInstruction(new EndInstruction());
 
@@ -90,7 +89,7 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 
 	@Override
 	public void end() {
-		HashMap<String, Double> hm = new HashMap<String, Double>();
+		HashMap<String, Double> hm = new HashMap<>();
 		ImagePlus imp = this.model.getImagePlus().duplicate();
 		// Normalizing to compare to the previous values, from the original exam.
 		Library_Dicom.normalizeToCountPerSecond(imp);
