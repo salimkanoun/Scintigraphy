@@ -277,7 +277,7 @@ public class Library_JFreeChart {
 	 * Arrays of Y values are in the form <code>[i][j]</code> where <code>i</code>
 	 * is the number of the series and <code>j</code> is the value of each point.
 	 * 
-	 * @param resX  Values of the points for the X axis (null no accepted)
+	 * @param resX  Values of the points for the X axis (null not accepted)
 	 * @param resY  Values of the points for the Y axis for each series (null not
 	 *              accepted)
 	 * @param title Titles of the series (cannot be null)

@@ -260,6 +260,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			this.generateInstructionsBothMethods();
 		}
 
+		// Update view
 		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 

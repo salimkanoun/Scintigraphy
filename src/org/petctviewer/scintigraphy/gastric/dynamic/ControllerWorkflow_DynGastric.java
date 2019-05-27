@@ -117,7 +117,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		tabMain.createGraph();
 
 		// Set the best fit by default
-		this.fitBest(COMMAND_FIT_BEST_ALL);
+		this.fitBest(COMMAND_FIT_BEST_1);
 
 		// Do not reload the method 2
 		tabMain.reloadDisplay();
@@ -148,6 +148,9 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 			this.workflows[i].addInstruction(new BkgNoiseInstruction(promptBkgNoise));
 		}
 		this.workflows[this.workflows.length - 1].addInstruction(new EndInstruction());
+
+		// Update view
+		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	@Override

@@ -79,6 +79,8 @@ public class PromptBkgNoise extends PromptDialog {
 
 	@Override
 	public boolean shouldBeDisplayed() {
+		if(this.indexState >= this.states.length)
+			return false;
 		boolean[] state = this.states[this.indexState];
 		return !this.forward || !state[0] || !state[1];
 

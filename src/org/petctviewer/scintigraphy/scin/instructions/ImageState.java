@@ -284,14 +284,10 @@ public class ImageState {
 	}
 
 	@Override
+	@SuppressWarnings("CloneDoesntCallSuperClone")
 	public ImageState clone() {
-		ImageState clone = null;
-		try {
-			clone = (ImageState) super.clone();
-			clone.specifieImage(image);
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
+		ImageState clone = new ImageState(this.facingOrientation, this.slice, this.lateralisation, this.idImage);
+		clone.specifieImage(this.image);
 		return clone;
 	}
 }
