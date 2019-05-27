@@ -1,18 +1,5 @@
 package org.petctviewer.scintigraphy.scin.controller;
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
-import org.petctviewer.scintigraphy.scin.instructions.ImageState;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
-
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -20,6 +7,16 @@ import ij.gui.Roi;
 import ij.gui.Toolbar;
 import ij.plugin.MontageMaker;
 import ij.plugin.frame.RoiManager;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * This class represents the Controller in the MVC pattern.<br>
@@ -100,7 +97,7 @@ public abstract class ControllerScin implements ActionListener {
 	 * This method is called when the 'Previous' button is pressed. It will
 	 * decrement the position by 1.
 	 */
-	public void clicPrecedent() {
+	public void clickPrevious() {
 		this.position--;
 		if (this.position == 0) {
 			this.vue.getBtn_precedent().setEnabled(false);
@@ -288,7 +285,7 @@ public abstract class ControllerScin implements ActionListener {
 	 * Displays a clone of the specified ROI and make it editable.<br>
 	 * If the ROI is null, this method does nothing.
 	 * 
-	 * @param index Index of the ROI to clone and edit
+	 * @param roi ROI to clone and edit
 	 */
 	public void editCopyRoi(Roi roi) {
 		if (roi != null) {
@@ -364,7 +361,7 @@ public abstract class ControllerScin implements ActionListener {
 			this.clickNext();
 
 		} else if (b == this.vue.getBtn_precedent()) {
-			this.clicPrecedent();
+			this.clickPrevious();
 
 		} else if (b == this.vue.getBtn_drawROI()) {
 			Button btn = this.vue.getBtn_drawROI();

@@ -1,15 +1,8 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.gui.Roi;
+import ij.plugin.ZProjector;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
@@ -18,9 +11,14 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
-import ij.plugin.ZProjector;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class Controller_GeneralDyn extends Controller_OrganeFixe {
 
@@ -193,7 +191,7 @@ public class Controller_GeneralDyn extends Controller_OrganeFixe {
 				imp.setRoi(getOrganRoi(this.indexRoi));
 				String name = this.getNomOrgane(this.indexRoi);
 
-				// String name = nom.substring(0, nom.lastIndexOf(" "));
+				// String name = studyName.substring(0, studyName.lastIndexOf(" "));
 				// on cree la liste si elle n'existe pas
 				if (mapData.get(name) == null) {
 					mapData.put(name, new ArrayList<Double>());
@@ -260,7 +258,7 @@ public class Controller_GeneralDyn extends Controller_OrganeFixe {
 			// precise la postion en z
 			this.model.getRoiManager().getRoi(indexRoi).setPosition(this.getSliceNumberByRoiIndex(indexRoi));
 
-			// changement de nom
+			// changement de studyName
 			this.model.getRoiManager().rename(indexRoi, nomRoi);
 		} else {
 			throw new NoDataException("No ROI selected");

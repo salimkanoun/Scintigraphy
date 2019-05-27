@@ -1,7 +1,8 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
-import java.awt.Color;
-
+import ij.IJ;
+import ij.gui.Overlay;
+import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -12,9 +13,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
-import ij.gui.Overlay;
-import ij.gui.Toolbar;
+import java.awt.*;
 
 public class StaticScintigraphy extends Scintigraphy {
 
@@ -56,7 +55,7 @@ public class StaticScintigraphy extends Scintigraphy {
 		this.setFenApplication(new FenApplication_ScinStatic(selectedImages[0], this.getStudyName()));
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 
-		((FenApplicationWorkflow) this.getFenApplication()).setControleur(new ControllerWorkflow_ScinStatic(this,
+		((FenApplicationWorkflow) this.getFenApplication()).setController(new ControllerWorkflow_ScinStatic(this,
 				(FenApplicationWorkflow) getFenApplication(), selectedImages, getStudyName()));
 		IJ.setTool(Toolbar.POLYGON);
 	}

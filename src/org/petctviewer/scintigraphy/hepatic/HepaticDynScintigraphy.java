@@ -1,7 +1,7 @@
 package org.petctviewer.scintigraphy.hepatic;
 
-import java.awt.Color;
-
+import ij.IJ;
+import ij.gui.Overlay;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -12,8 +12,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
-import ij.gui.Overlay;
+import java.awt.*;
 
 public class HepaticDynScintigraphy extends Scintigraphy {
 
@@ -92,7 +91,7 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 		this.setFenApplication(new FenApplicationHepaticDynamic(selectedImages[0].getImagePlus(), this.getStudyName()));
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 		((FenApplicationHepaticDynamic) this.getFenApplication())
-				.setControleur(new ControllerHepaticDynamic(this, this.getFenApplication(),
+				.setController(new ControllerHepaticDynamic(this, this.getFenApplication(),
 						new ModelHepaticDynamic(selectedImages, this.getStudyName(), this.frameDurations)));
 	}
 

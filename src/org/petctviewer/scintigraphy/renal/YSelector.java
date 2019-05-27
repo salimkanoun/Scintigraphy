@@ -1,11 +1,5 @@
 package org.petctviewer.scintigraphy.renal;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Paint;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.axis.ValueAxis;
@@ -15,6 +9,10 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.xy.XYDataset;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An horizontal selector, showing the X coordinate associated to the Y step.
@@ -41,8 +39,8 @@ public class YSelector extends Selector implements ChartMouseListener {
 	 * Permet de creer un selecteur deplacable sur un courbe
 	 * 
 	 * @param nom
-	 *            nom du selecteur (null accepte)
-	 * @param startX
+	 *            studyName du selecteur (null accepte)
+	 * @param startY
 	 *            position de depart du selecteur
 	 * @param series
 	 *            series observee (-1 si aucune)
@@ -62,7 +60,7 @@ public class YSelector extends Selector implements ChartMouseListener {
 		// on place le label a l'endroit demande
 		this.crossY.setLabelOutlineVisible(false);
 
-		// on rend le label invisible si le nom est null ou si c'est un espace
+		// on rend le label invisible si le studyName est null ou si c'est un espace
 		this.crossY.setLabelGenerator(new CrosshairLabelGenerator() {
 			@Override
 			public String generateLabel(Crosshair crosshair) {

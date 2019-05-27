@@ -1,9 +1,7 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -17,8 +15,9 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
@@ -85,7 +84,7 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
 			this.model.getImagePlus().setRoi(roi);
 			String nom = ((DrawRoiInstruction) this.workflows[0].getInstructionAt(indexRoi)).getOrganToDelimit();
-			// String nom = roi.getName();
+			// String studyName = roi.getName();
 			this.model.getImagePlus().setSlice(1);
 			((Model_Dmsa) this.model).enregistrerMesure(nom + " P0", this.model.getImagePlus());
 			if (this.antPost) {

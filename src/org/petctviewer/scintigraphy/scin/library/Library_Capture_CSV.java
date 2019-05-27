@@ -1,30 +1,5 @@
 package org.petctviewer.scintigraphy.scin.library;
 
-import java.awt.AWTException;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Robot;
-import java.awt.Window;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Random;
-
-import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
-
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -38,6 +13,18 @@ import ij.plugin.ZProjector;
 import ij.plugin.frame.RoiManager;
 import ij.process.ImageProcessor;
 import ij.util.DicomTools;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class Library_Capture_CSV {
 
@@ -53,7 +40,7 @@ public class Library_Capture_CSV {
 	public static HashMap<String, String> getPatientInfo(ImagePlus imp) {
 		HashMap<String, String> hm = new HashMap<>();
 
-		// ajout du nom, si il n'existe pas on ajoute une string vide
+		// ajout du studyName, si il n'existe pas on ajoute une string vide
 		String tagName = DicomTools.getTag(imp, "0010,0010");
 		if (tagName != null) 
 			hm.put(PATIENT_INFO_NAME, tagName.trim().replace("^", " "));
@@ -69,7 +56,7 @@ public class Library_Capture_CSV {
 			hm.put(PATIENT_INFO_ID, "");
 		
 
-		// ajout de la date nom, si il n'existe pas on ajoute une string vide
+		// ajout de la date studyName, si il n'existe pas on ajoute une string vide
 		String tagDate = DicomTools.getTag(imp, "0008,0022");
 		if (tagDate != null) {
 			String dateStr = tagDate.trim();
@@ -107,11 +94,6 @@ public class Library_Capture_CSV {
 	 * See also : <br>
 	 * {@link Library_Capture_CSV#genererDicomTagsPartie1(ImagePlus, String)} <br>
 	 * {@link ModelScin#genererDicomTagsPartie1SameUID(ImagePlus, String)}
-	 * 
-	 * @param imp
-	 * @param nomProgramme
-	 * @param uid
-	 * @return
 	 */
 	public static String getTagPartie1(HashMap tags, String nomProgramme, String uid) {
 		String sopID = Library_Capture_CSV.generateSOPInstanceUID(new Date());
@@ -279,8 +261,8 @@ public class Library_Capture_CSV {
 	 * l'iud est genere aleatoirement a chauqe appel de la fonction
 	 * 
 	 * @param imp          : imageplus originale (pour recuperer des elements du
-	 *                     Header tels que le nom du patient...)
-	 * @param nomProgramme : nom du programme qui l'utilise si par exemple
+	 *                     Header tels que le studyName du patient...)
+	 * @param nomProgramme : studyName du programme qui l'utilise si par exemple
 	 *                     "pulmonary shunt" la capture sera appelee "Capture
 	 *                     Pulmonary Shunt"
 	 * @return retourne la premi�re partie du header en string auquelle on ajoutera
@@ -336,7 +318,7 @@ public class Library_Capture_CSV {
 	}
 
 	// Permet la sauvegarde finale a partir du string builder contenant le
-	// tableau de resultat, ROI manager, nom programme et imageplus finale pour
+	// tableau de resultat, ROI manager, studyName programme et imageplus finale pour
 	// recuperer ID et date examen
 	/**
 	 * Permet de realiser l'export du fichier CSV et des ROI contenues dans l'export
@@ -347,11 +329,11 @@ public class Library_Capture_CSV {
 	 * @param nombreColonne : Nombre de colonne avant de passer � la seconde ligne
 	 *                      (si 4 colonne mettre 4)
 	 * @param roiManager    : le ROI manager utilise dans le programme
-	 * @param nomProgramme  : le nom du programme (sera utilise comme sous
+	 * @param nomProgramme  : le studyName du programme (sera utilise comme sous
 	 *                      repertoire)
 	 * @param imp           : l'ImagePlus d'une image originale ou de la capture
 	 *                      secondaire auquel on a ajoute le header, permet de
-	 *                      recuperer le nom, l'ID et la date d'examen
+	 *                      recuperer le studyName, l'ID et la date d'examen
 	 * @throws FileNotFoundException : en cas d'erreur d'ecriture
 	 */
 	public static void exportAll(String[] resultats, int nombreColonne, RoiManager roiManager, String nomProgramme,
@@ -382,11 +364,11 @@ public class Library_Capture_CSV {
 	 * 
 	 * @param resultats    : Resultats a exporter (utiliser le format csv)
 	 * @param roiManager   : le ROI manager utilise dans le programme
-	 * @param nomProgramme : le nom du programme (sera utilise comme sous
+	 * @param nomProgramme : le studyName du programme (sera utilise comme sous
 	 *                     repertoire)
 	 * @param imp          : l'ImagePlus d'une image originale ou de la capture
 	 *                     secondaire auquel on a ajoute le header, permet de
-	 *                     recuperer le nom, l'ID et la date d'examen
+	 *                     recuperer le studyName, l'ID et la date d'examen
 	 * @throws FileNotFoundException : en cas d'erreur d'ecriture
 	 */
 	public static void exportAll(String resultats, RoiManager roiManager, String nomProgramme, ImagePlus imp, ControllerWorkflow controller)
@@ -406,12 +388,12 @@ public class Library_Capture_CSV {
 	 * 
 	 * @param resultats      : Resultats a exporter (utiliser le format csv)
 	 * @param roiManager     : le ROI manager utilise dans le programme
-	 * @param nomProgramme   : le nom du programme (sera utilise comme sous
+	 * @param nomProgramme   : le studyName du programme (sera utilise comme sous
 	 *                       repertoire)
 	 * @param imp            : l'ImagePlus d'une image originale ou de la capture
 	 *                       secondaire auquel on a ajoute le header, permet de
-	 *                       recuperer le nom, l'ID et la date d'examen
-	 * @param additionalInfo :String qui sera rajoutée à la fin du nom du fichier
+	 *                       recuperer le studyName, l'ID et la date d'examen
+	 * @param additionalInfo :String qui sera rajoutée à la fin du studyName du fichier
 	 * @throws FileNotFoundException : en cas d'erreur d'ecriture
 	 */
 	public static void exportAll(String resultats, RoiManager roiManager, String nomProgramme, ImagePlus imp,
@@ -431,9 +413,9 @@ public class Library_Capture_CSV {
 	 * seront trait�s par un autre logiciel par exemple)
 	 * 
 	 * @param Roi          : Le ROI manager utilise dans le programme
-	 * @param nomProgramme : Le nom du programme (creation d'un sous repertoire)
+	 * @param nomProgramme : Le studyName du programme (creation d'un sous repertoire)
 	 * @param imp          : Une ImagePlus originale ou de capture secondaire avec
-	 *                     le header pour recuperer nom, ID, date d'examen.
+	 *                     le header pour recuperer studyName, ID, date d'examen.
 	 */
 	public static void exportRoiManager(RoiManager Roi, String nomProgramme, ImagePlus imp) {
 
@@ -465,7 +447,7 @@ public class Library_Capture_CSV {
 		}
 
 		if (path != null && testEcriture == true) {
-			// On construit le sous repertoire avecle nom du programme et l'ID du
+			// On construit le sous repertoire avecle studyName du programme et l'ID du
 			// Patient
 			String pathFinal = path + File.separator + nomProgramme + File.separator + patientID;
 			File subDirectory = new File(pathFinal);
@@ -534,7 +516,7 @@ public class Library_Capture_CSV {
 	}
 
 	/*
-	 * @param additionalInfo :String qui sera rajoutée à la fin du nom du fichier
+	 * @param additionalInfo :String qui sera rajoutée à la fin du studyName du fichier
 	 */
 	private static void saveFiles(ImagePlus imp, RoiManager roiManager, StringBuilder csv, String nomProgramme,
 			String[] infoPatient, String additionalInfo, ControllerWorkflow controller) {
@@ -556,7 +538,7 @@ public class Library_Capture_CSV {
 			IJ.showMessage("CSV Path not writable, CSV/ZIP export has failed");
 		}
 		if (path != null && testEcriture == true) {
-			// On construit le sous repertoire avecle nom du programme et l'ID du
+			// On construit le sous repertoire avecle studyName du programme et l'ID du
 			// Patient
 			String pathFinal = path + File.separator + nomProgramme + File.separator + infoPatient[1];
 			File subDirectory = new File(pathFinal);
@@ -608,7 +590,7 @@ public class Library_Capture_CSV {
 	}
 
 	/********** Private static Getter *********/
-	// [0] : nom, [1] : id, [2] : date
+	// [0] : studyName, [1] : id, [2] : date
 	public static String[] getInfoPatient(ImagePlus imp) {
 		String[] infoPatient = new String[4];
 

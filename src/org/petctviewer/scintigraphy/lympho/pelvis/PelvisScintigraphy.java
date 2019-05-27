@@ -62,7 +62,7 @@ public class PelvisScintigraphy extends Scintigraphy {
 
 		this.setFenApplication(new FenApplicationPelvis(selectedImages[0], this.getStudyName()));
 		((FenApplicationWorkflow) this.getFenApplication())
-				.setControleur(new ControllerWorkflowPelvis(this, (FenApplicationWorkflow) this.getFenApplication(),
+				.setController(new ControllerWorkflowPelvis(this, (FenApplicationWorkflow) this.getFenApplication(),
 						new ModelPelvis(selectedImages, "Pelvis Scinty", this.resultTab), this.resultTab));
 		this.getFenApplication().setVisible(true);
 

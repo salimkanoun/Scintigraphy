@@ -1,27 +1,10 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
-import java.awt.Panel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseWheelListener;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-
+import ij.ImagePlus;
+import ij.gui.ImageCanvas;
+import ij.gui.Overlay;
+import ij.gui.StackWindow;
+import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.hepatic.SecondExam.FenApplicationSecondHepaticDyn;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -29,11 +12,12 @@ import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.ImagePlus;
-import ij.gui.ImageCanvas;
-import ij.gui.Overlay;
-import ij.gui.StackWindow;
-import ij.util.DicomTools;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Interface graphique principale de quantification dans imageJ
@@ -66,26 +50,26 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	private Panel panelPrincipal;
 	Panel panelContainer;
 
-	protected String nom;
+	protected String studyName;
 
 	private int canvasW, canvasH;
 
 	private MenuBar menuBar;
+	protected DocumentationDialog documentation;
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
 	 * 
 	 * @param imp
 	 *            ImagePlus a traiter
-	 * @param nom
+	 * @param studyName
 	 *            Nom du type de scintigraphie
 	 */
-	public FenApplication(ImagePlus imp, String nom) {
-		this(imp, nom, new ImageCanvas(imp));
-
+	public FenApplication(ImagePlus imp, String studyName) {
+		this(imp, studyName, new ImageCanvas(imp));
 	}
 
-	public FenApplication(ImagePlus imp, String nom, ImageCanvas canvas) {
+	public FenApplication(ImagePlus imp, String studyName, ImageCanvas canvas) {
 		super(imp, canvas);
 		// on set la lut des preferences
 		Library_Gui.setCustomLut(imp);
@@ -94,11 +78,11 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		 * UIManager.getCrossPlatformLookAndFeelClassName() ); } catch (Exception e) {
 		 * e.printStackTrace(); }
 		 */
-		this.nom = nom;
+		this.studyName = studyName;
 
 		String tagSerie = DicomTools.getTag(this.imp, "0008,103E");
 		String tagNom = DicomTools.getTag(this.imp, "0010,0010");
-		String titre = this.nom + " - " + tagNom + " - " + tagSerie;
+		String titre = this.studyName + " - " + tagNom + " - " + tagSerie;
 		setTitle(titre);// frame title
 		this.imp.setTitle(titre);// imp title
 
@@ -137,13 +121,22 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		panelContainer.add(this.panelPrincipal, BorderLayout.CENTER);
 		this.add(panelContainer);
 
+		this.documentation = this.createDocumentation();
+		// Menu bar
 		this.menuBar = new MenuBar();
-
 		this.createMenuBar();
 
 		this.setDefaultSize();
 		this.addComponentListener(this);
 		this.setResizable(false);
+	}
+
+	protected DocumentationDialog createDocumentation() {
+		return new DocumentationDialog(this);
+	}
+
+	public String getStudyName() {
+		return this.studyName;
 	}
 
 	public void resizeCanvas() {
@@ -235,7 +228,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	}
 
 	/************* Setter *************/
-	public void setControleur(ControllerScin ctrl) {
+	public void setController(ControllerScin ctrl) {
 		this.controleur = ctrl;
 
 		// on affiche la premiere instruction
@@ -286,8 +279,9 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		});
 
 		Menu help = new Menu("Help");
-		MenuItem documentation = new MenuItem("Documentation");
-		help.add(documentation);
+		MenuItem doc = new MenuItem("Documentation");
+		doc.addActionListener((event) -> documentation.setVisible(true));
+		help.add(doc);
 
 		options.add(loadRois);
 		this.menuBar.add(options);
