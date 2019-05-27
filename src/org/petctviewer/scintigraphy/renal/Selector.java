@@ -1,9 +1,5 @@
 package org.petctviewer.scintigraphy.renal;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Paint;
-
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.axis.ValueAxis;
@@ -14,6 +10,8 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.general.DatasetUtils;
+
+import java.awt.*;
 
 public class Selector extends CrosshairOverlay implements ChartMouseListener {
 
@@ -32,7 +30,7 @@ public class Selector extends CrosshairOverlay implements ChartMouseListener {
 	/**
 	 * Permet de creer un selecteur deplacable sur un courbe
 	 * 
-	 * @param nom    nom du selecteur (null accepte)
+	 * @param nom    studyName du selecteur (null accepte)
 	 * @param startX position de depart du selecteur
 	 * @param series series observee (-1 si aucune)
 	 * @param anchor position du label
@@ -53,7 +51,7 @@ public class Selector extends CrosshairOverlay implements ChartMouseListener {
 			this.crossX.setLabelAnchor(RectangleAnchor.BOTTOM);
 		}
 
-		// on rend le label invisible si le nom est null ou si c'est un espace
+		// on rend le label invisible si le studyName est null ou si c'est un espace
 		this.crossX.setLabelGenerator(new CrosshairLabelGenerator() {
 			@Override
 			public String generateLabel(Crosshair crosshair) {

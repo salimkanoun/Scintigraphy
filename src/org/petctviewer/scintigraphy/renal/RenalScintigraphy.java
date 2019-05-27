@@ -1,7 +1,8 @@
 package org.petctviewer.scintigraphy.renal;
 
-import java.awt.Color;
-
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.plugin.ZProjector;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -11,13 +12,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
-
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.gui.Overlay;
-import ij.plugin.ZProjector;
 
 public class RenalScintigraphy extends Scintigraphy {
 
@@ -133,19 +128,19 @@ public class RenalScintigraphy extends Scintigraphy {
 
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
-		Overlay overlay = Library_Gui.initOverlay(impProjetee.getImagePlus(), 12);
-		Library_Gui.setOverlayTitle("Post", impProjetee.getImagePlus(), Color.yellow, 1);
-		Library_Gui.setOverlayTitle("2 first min posterior", impProjetee.getImagePlus(), Color.YELLOW, 2);
-		Library_Gui.setOverlayTitle("MIP", impProjetee.getImagePlus(), Color.YELLOW, 3);
-		if (this.impAnt != null) {
-			Library_Gui.setOverlayTitle("Ant", impProjetee.getImagePlus(), Color.yellow, 4);
-		}
+//		Overlay overlay = Library_Gui.initOverlay(impProjetee.getImagePlus(), 12);
+//		Library_Gui.setOverlayTitle("Post", impProjetee.getImagePlus(), Color.yellow, 1);
+//		Library_Gui.setOverlayTitle("2 first min posterior", impProjetee.getImagePlus(), Color.YELLOW, 2);
+//		Library_Gui.setOverlayTitle("MIP", impProjetee.getImagePlus(), Color.YELLOW, 3);
+//		if (this.impAnt != null) {
+//			Library_Gui.setOverlayTitle("Ant", impProjetee.getImagePlus(), Color.yellow, 4);
+//		}
 
 		this.setFenApplication(new FenApplication_Renal(selectedImages[0], this.getStudyName(), this));
-		selectedImages[0].getImagePlus().setOverlay(overlay);
-//		this.getFenApplication().setControleur(new Controller_Renal(this, selectedImages, "Renal scintigraphy"));
+//		selectedImages[0].getImagePlus().setOverlay(overlay);
+//		this.getFenApplication().setController(new Controller_Renal(this, selectedImages, "Renal scintigraphy"));
 		((FenApplicationWorkflow) this.getFenApplication())
-				.setControleur(new ControllerWorkflowRenal(this, (FenApplicationWorkflow) this.getFenApplication(),
+				.setController(new ControllerWorkflowRenal(this, (FenApplicationWorkflow) this.getFenApplication(),
 						new Model_Renal(this.frameDurations, selectedImages, "Renal scintigraphy")));
 	}
 

@@ -17,6 +17,9 @@ public abstract class TabResult {
 
 	private SidePanel sidePanel;
 	private Container result;
+	private Component[] componentToHide;
+	private Component[] componentToShow;
+	private String additionalInfo;
 
 	/**
 	 * Instantiate a new tab.<br>
@@ -25,10 +28,13 @@ public abstract class TabResult {
 	 * {@link #getResultContent()} and {@link #getSidePanelContent()} methods. You
 	 * need to call the {@link #reloadDisplay()} when you are ready to display them.
 	 * 
-	 * @param parent     FenResults where this tab is placed on
-	 * @param title      Title of this tab, displayed on the JTabbedPane's title bar
-	 * @param captureBtn TRUE to create a default capture button and FALSE to create
-	 *                   a tab without a capture button
+	 * @param parent
+	 *            FenResults where this tab is placed on
+	 * @param title
+	 *            Title of this tab, displayed on the JTabbedPane's title bar
+	 * @param captureBtn
+	 *            TRUE to create a default capture button and FALSE to create a tab
+	 *            without a capture button
 	 */
 	public TabResult(FenResults parent, String title, boolean captureBtn) {
 		this(parent, title);
@@ -43,14 +49,19 @@ public abstract class TabResult {
 	 * <i><b>Be careful:</b></i> This method do NOT call the
 	 * {@link #getResultContent()} and {@link #getSidePanelContent()} methods. You
 	 * need to call the {@link #reloadDisplay()} when you are ready to display them.
-	 *
-	 * @param parent FenResults where this tab is placed on
-	 * @param title  Title of this tab, displayed on the JTabbedPane's title bar
+	 * 
+	 * @param parent
+	 *            FenResults where this tab is placed on
+	 * @param title
+	 *            Title of this tab, displayed on the JTabbedPane's title bar
 	 */
 	public TabResult(FenResults parent, String title) {
 		this.title = title;
 		this.parent = parent;
 		this.result = new JPanel();
+		this.componentToHide = new Component[0];
+		this.componentToShow = new Component[0];
+		this.additionalInfo = "";
 
 		this.sidePanel = new SidePanel(null, parent.getModel().getStudyName(), parent.getModel().getImagePlus());
 
@@ -101,27 +112,30 @@ public abstract class TabResult {
 		this.sidePanel.createCaptureButton(this);
 	}
 
-	/**
-	 * Creates the button to take a capture of this tab.
-	 * 
-	 * @param additionalInfo String that will be added to the end of the backup file
-	 */
-	public void createCaptureButton(String additionalInfo) {
-		this.sidePanel.createCaptureButton(this, additionalInfo);
-	}
-
-	/**
-	 * Creates the button to take a capture of this tab.
-	 * 
-	 * @param hide           Components that will be hidden during the capture and
-	 *                       set visible after
-	 * @param show           Component that will be revealed during the capture and
-	 *                       set invisible after
-	 * @param additionalInfo String that will be added to the end of the backup file
-	 */
-	public void createCaptureButton(Component[] hide, Component[] show, String additionalInfo) {
-		this.sidePanel.createCaptureButton(this, hide, show, additionalInfo);
-	}
+	// /**
+	// * Creates the button to take a capture of this tab.
+	// *
+	// * @param additionalInfo String that will be added to the end of the backup
+	// file
+	// */
+	// public void createCaptureButton(String additionalInfo) {
+	// this.sidePanel.createCaptureButton(this, additionalInfo);
+	// }
+	//
+	// /**
+	// * Creates the button to take a capture of this tab.
+	// *
+	// * @param hide Components that will be hidden during the capture and
+	// * set visible after
+	// * @param show Component that will be revealed during the capture and
+	// * set invisible after
+	// * @param additionalInfo String that will be added to the end of the backup
+	// file
+	// */
+	// public void createCaptureButton(Component[] hide, Component[] show, String
+	// additionalInfo) {
+	// this.sidePanel.createCaptureButton(this, hide, show, additionalInfo);
+	// }
 
 	/**
 	 * Do not use this method to change directly the content of the panel.<br>
@@ -175,7 +189,7 @@ public abstract class TabResult {
 
 		// Remove previous result and add new one
 		this.split.setLeftComponent(this.result);
-		
+
 		// Respect ratio
 		this.result.setPreferredSize(new Dimension(1024, 768));
 	}
@@ -183,10 +197,77 @@ public abstract class TabResult {
 	/**
 	 * Changes the title of the side panel.
 	 * 
-	 * @param sidePanelTitle New title to display
+	 * @param sidePanelTitle
+	 *            New title to display
 	 */
 	public void setSidePanelTitle(String sidePanelTitle) {
 		this.sidePanel.setTitle(sidePanelTitle);
+	}
+
+	/**
+	 * Return the component to hide in the TabResult on the capture
+	 * 
+	 * @return
+	 * 
+	 * @see CaptureButton
+	 */
+	public Component[] getComponentToHide() {
+		return this.componentToHide;
+	}
+
+	/**
+	 * Return the component to show in the TabResult on the capture
+	 * 
+	 * @return
+	 * 
+	 * @see CaptureButton
+	 */
+	public Component[] getComponentToShow() {
+		return this.componentToShow;
+	}
+
+	/**
+	 * Set the components to hide on the capture
+	 * 
+	 * @param componentToHide
+	 * 
+	 * @see CaptureButton
+	 */
+	public void setComponentToHide(Component[] componentToHide) {
+		this.componentToHide = componentToHide;
+	}
+
+	/**
+	 * Set the components to show on the capture
+	 * 
+	 * @param componentToShow
+	 * 
+	 * @see CaptureButton
+	 */
+	public void setComponentToShow(Component[] componentToShow) {
+		this.componentToShow = componentToShow;
+	}
+
+	/**
+	 * Get the additionalInfo for the capture
+	 * 
+	 * @return
+	 * 
+	 * @see CaptureButton
+	 */
+	public String getAdditionalInfo() {
+		return this.additionalInfo;
+	}
+
+	/**
+	 * Set the additionalInfo for the capture
+	 * 
+	 * @return
+	 * 
+	 * @see CaptureButton
+	 */
+	public void setadditionalInfo(String additionalInfo) {
+		this.additionalInfo = additionalInfo;
 	}
 
 }

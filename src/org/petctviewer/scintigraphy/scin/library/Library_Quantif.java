@@ -257,7 +257,7 @@ public class Library_Quantif {
 	 *
 	 * @deprecated => Work when you used convolved array (actually, working with a
 	 * 6times convolved array) See
-	 * {@link org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabDeconvolv}
+	 * {@link org.petctviewer.scintigraphy.hepatic.tab.TabDeconvolv}
 	 * or {@link org.petctviewer.scintigraphy.renal.gui.TabDeconvolve}.
 	 */
 	public static List<Double> deconvolv(Double[] blood, Double[] liver, int init) {
@@ -298,7 +298,7 @@ public class Library_Quantif {
 	 *
 	 * @deprecated => Work when you used convolved array (actually, working with a
 	 * 6times convolved array) See
-	 * {@link org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabDeconvolv}
+	 * {@link org.petctviewer.scintigraphy.hepatic.tab.TabDeconvolv}
 	 * or {@link org.petctviewer.scintigraphy.renal.gui.TabDeconvolve}.
 	 */
 	public static List<Double> deconvolv(List<Double> blood, List<Double> liver, int init) {

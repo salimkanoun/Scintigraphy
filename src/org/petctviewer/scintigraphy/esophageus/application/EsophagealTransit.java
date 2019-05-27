@@ -1,22 +1,9 @@
 package org.petctviewer.scintigraphy.esophageus.application;
 
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-
+import ij.IJ;
+import ij.ImagePlus;
+import ij.gui.Overlay;
+import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -30,10 +17,16 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.gui.Overlay;
-import ij.gui.Toolbar;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class EsophagealTransit extends Scintigraphy {
 	/*
@@ -172,6 +165,7 @@ public class EsophagealTransit extends Scintigraphy {
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.yellow);
 
 		FenApplicationWorkflow fen = new FenApplicationWorkflow(selectedImages[0], "Oesophageus");
+		fen.setVisualizationEnable(false);
 		fen.getPanel_btns_gauche().remove(fen.getBtn_drawROI());
 		fen.getPanel_Instructions_btns_droite().removeAll();
 
@@ -204,6 +198,7 @@ public class EsophagealTransit extends Scintigraphy {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				fen.setVisualizationEnable(true);
 				// passage a la phase 2
 				fen.getPanel_btns_gauche().add(fen.getBtn_drawROI());
 				fen.getPanelPrincipal().remove(startQuantificationButton);
@@ -221,7 +216,7 @@ public class EsophagealTransit extends Scintigraphy {
 						EsophagealTransit.this, (FenApplicationWorkflow) EsophagealTransit.this.getFenApplication(),
 						new Model_EsophagealTransit(sauvegardeImagesSelectDicom, "Esophageal Transit",
 								EsophagealTransit.this));
-				((FenApplicationWorkflow) EsophagealTransit.this.getFenApplication()).setControleur(cet);
+				((FenApplicationWorkflow) EsophagealTransit.this.getFenApplication()).setController(cet);
 
 			}
 		});

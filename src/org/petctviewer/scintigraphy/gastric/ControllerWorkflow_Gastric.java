@@ -61,7 +61,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.start();
 
 		this.fenResults = new FenResults(this);
-		this.fenResults.setVisible(false);
 	}
 
 	private void computeOnlyGastric() {
@@ -237,7 +236,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 		// TAB METHOD 1
 		if (!DO_ONLY_GASTRIC) {
-//			this.tabMain = new TabMainResult(this.fenResults, this.captures.get(1), this);
 			this.tabMain = new TabMethod1(this.fenResults, this.captures.get(1));
 			this.tabMain.displayTimeIngestion(getModel().getTimeIngestion());
 			this.fenResults.addTab(tabMain);
@@ -246,7 +244,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		}
 
 		// TAB METHOD 2
-//		this.tabOnlyGastric = new TabMethod2(this.fenResults, this.captures.get(0), this);
 		this.tabOnlyGastric = new TabMethod2(this.fenResults, this.captures.get(0));
 		this.fenResults.addTab(tabOnlyGastric);
 		// Set the best fit
@@ -275,8 +272,8 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	}
 
 	@Override
-	public void clicPrecedent() {
-		super.clicPrecedent();
+	public void clickPrevious() {
+		super.clickPrevious();
 		this.fenResults.setVisible(false);
 	}
 

@@ -1,10 +1,6 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-
-import javax.swing.JOptionPane;
-
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -20,7 +16,9 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.gui.Roi;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
@@ -38,8 +36,6 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		this.start();
 
 		this.fenResult = new FenResults(this);
-
-		this.fenResult.setVisible(false);
 	}
 
 	@Override
@@ -127,6 +123,8 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 			// ControllerWorkflowScinDynamic.this.finishDrawingResultWindow();
 
 		}
+
+		this.fenResult.setVisible(true);
 
 		// if (!postExists) {
 		// this.finishDrawingResultWindow();

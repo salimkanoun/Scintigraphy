@@ -1,7 +1,5 @@
 package org.petctviewer.scintigraphy.gastric.dynamic;
 
-import java.util.Arrays;
-
 import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -15,6 +13,8 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.ReversedChronologicalAcquisitionComparator;
+
+import java.util.Arrays;
 
 public class DynGastricScintigraphy extends Scintigraphy {
 
@@ -75,7 +75,7 @@ public class DynGastricScintigraphy extends Scintigraphy {
 //		System.out.println("-- Starting dynamic acquisition --");
 		this.setFenApplication(
 				new FenApplication_DynGastric(selectedImages[0].getImagePlus(), "Dynamic Gastric Scintigraphy"));
-		((FenApplicationWorkflow) this.getFenApplication()).setControleur(new ControllerWorkflow_DynGastric(this,
+		((FenApplicationWorkflow) this.getFenApplication()).setController(new ControllerWorkflow_DynGastric(this,
 				(FenApplicationWorkflow) this.getFenApplication(), this.model, selectedImages, fenResults));
 		this.getFenApplication().setVisible(true);
 	}

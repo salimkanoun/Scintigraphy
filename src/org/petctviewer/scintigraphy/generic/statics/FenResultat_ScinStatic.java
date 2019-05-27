@@ -50,7 +50,8 @@ public class FenResultat_ScinStatic extends FenResults {
 
 		public Tab(FenResults parent, String title) {
 			super(parent, title);
-			this.createCaptureButton("cc");
+//			this.createCaptureButton("cc");
+			this.setadditionalInfo("cc");
 
 			this.reloadDisplay();
 		}

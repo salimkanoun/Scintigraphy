@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.lympho.gui;
+
 
 import java.awt.Graphics;
 import java.awt.Image;
@@ -19,12 +19,12 @@ import javax.swing.JPanel;
 import ij.ImagePlus;
 import ij.io.Opener;
 
-public class TabTest2 extends JPanel {
+public class SalimTryingInjectImage extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
 	Image image2;
 	
-	public TabTest2() throws IOException {
+	public SalimTryingInjectImage() throws IOException {
 		
 	}
 	private void testprint() throws IOException {
@@ -111,7 +111,7 @@ public class TabTest2 extends JPanel {
 	}
 	
 	public static void main(String[] arg) throws IOException {
-		TabTest2 tab=new TabTest2();
+		SalimTryingInjectImage tab=new SalimTryingInjectImage();
 		JFrame frame=new JFrame();
 		frame.add(tab);
 		frame.setVisible(true);

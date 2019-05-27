@@ -49,7 +49,8 @@ public class TabRentention extends TabResult {
 		this.modeleApp = model;
 		this.nbAcquisition = nbAcquisition;
 
-		this.createCaptureButton("Retention");
+//		this.createCaptureButton("Retention");
+		this.setadditionalInfo("Retention");
 
 		this.reloadDisplay();
 	}

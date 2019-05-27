@@ -86,28 +86,41 @@ public class Model_Cardiac extends ModelScin {
 	@Override
 	public void calculateResults() {
 
-		// Avg background value of ant and post images
-		Double meanBdfAnt = this.data.get("Bkg noise A")[1];
-		Double meanBdfPost = this.data.get("Bkg noise P")[1];
+		// Avg background value of ant and post images for Heart
+		Double meanBdfAntHeart = this.data.get("Bkg noise A")[1];
+		Double meanBdfPostHeart = this.data.get("Bkg noise P")[1];
+		
+		// Avg background value of ant and post images for Bladder
+		Double meanBdfAntBladder = this.data.get("Bladder Background A")[1];
+		Double meanBdfPostBladder = this.data.get("Bladder Background P")[1];
+		
+		// Avg background value of ant and post images for Kidney R
+		Double meanBdfAntKidneyR = this.data.get("Kidney R A")[1];
+		Double meanBdfPostKidneyR = this.data.get("Kidney R P")[1];
+		
+		// Avg background value of ant and post images for Kidney L
+		Double meanBdfAntKidneyL = this.data.get("Kidney L A")[1];
+		Double meanBdfPostKidneyL = this.data.get("Kidney L P")[1];
+		
 
 		// calculation of corrected heart uptake
-		Double correctedHeartAnt = this.data.get("Heart A")[0] - (meanBdfAnt * this.data.get("Heart A")[2]);
-		Double correctedHeartPost = this.data.get("Heart P")[0] - (meanBdfPost * this.data.get("Heart P")[2]);
+		Double correctedHeartAnt = this.data.get("Heart A")[0] - (meanBdfAntHeart * this.data.get("Heart A")[2]);
+		Double correctedHeartPost = this.data.get("Heart P")[0] - (meanBdfPostHeart * this.data.get("Heart P")[2]);
 
 		// Calculation of corrected Left Renal uptake
-		Double correctedKLAnt = this.data.get("Kidney L A")[0] - (meanBdfAnt * this.data.get("Kidney L A")[2]);
-		Double correctedKLPost = this.data.get("Kidney L P")[0] - (meanBdfPost * this.data.get("Kidney L P")[2]);
+		Double correctedKLAnt = this.data.get("Kidney L A")[0] - (meanBdfAntKidneyL * this.data.get("Kidney L A")[2]);
+		Double correctedKLPost = this.data.get("Kidney L P")[0] - (meanBdfPostKidneyL * this.data.get("Kidney L P")[2]);
 
 		// Calculation of corrected Right Renal uptake
-		Double correctedKRAnt = this.data.get("Kidney R A")[0] - (meanBdfAnt * this.data.get("Kidney R A")[2]);
-		Double correctedKRPost = this.data.get("Kidney R P")[0] - (meanBdfPost * this.data.get("Kidney R P")[2]);
+		Double correctedKRAnt = this.data.get("Kidney R A")[0] - (meanBdfAntKidneyR * this.data.get("Kidney R A")[2]);
+		Double correctedKRPost = this.data.get("Kidney R P")[0] - (meanBdfPostKidneyR * this.data.get("Kidney R P")[2]);
 
 		// Calculation of corrected Blader uptake
-		Double correctedBladAnt = this.data.get("Bladder A")[0] - (meanBdfAnt * this.data.get("Bladder A")[2]);
-		Double correctedBladPost = this.data.get("Bladder P")[0] - (meanBdfPost * this.data.get("Bladder P")[2]);
+		Double correctedBladAnt = this.data.get("Bladder A")[0] - (meanBdfAntBladder * this.data.get("Bladder A")[2]);
+		Double correctedBladPost = this.data.get("Bladder P")[0] - (meanBdfPostBladder * this.data.get("Bladder P")[2]);
 
-		this.fixBkgNoiseA = meanBdfAnt;
-		this.fixBkgNoiseP = meanBdfPost;
+		this.fixBkgNoiseA = meanBdfAntHeart;
+		this.fixBkgNoiseP = meanBdfPostHeart;
 
 		// on fait les moyennes geometriques de chaque ROI Late
 		this.fixCoeurL = Library_Quantif.moyGeom(correctedHeartAnt, correctedHeartPost);
@@ -172,11 +185,11 @@ public class Model_Cardiac extends ModelScin {
 			long timeLate = Library_Dicom.getDateAcquisition(this.selectedImages[0].getImagePlus()).getTime();
 
 			int delaySeconds = (int) (timeEarly - timeLate) / 1000;
-			Double facDecroissance = ModelScin.getDecayFraction(delaySeconds, (int) (6.02 * 3600));
 
-			this.retCardiaque = (this.fixCoeurL * facDecroissance) / this.finalEarly;
-			this.retCe = ((this.totLate - (this.fixReinDL + this.fixVessieL + this.sumContL)) * facDecroissance)
-					/ this.finalEarly;
+			this.retCardiaque = Library_Quantif.applyDecayFraction(delaySeconds*1000, this.fixCoeurL, Library_Quantif.Isotope.TECHNETIUM_99) / this.finalEarly;
+			
+			double sum=this.fixReinDL + this.fixVessieL + this.sumContL;		
+			this.retCe = (this.totLate - Library_Quantif.applyDecayFraction(delaySeconds*1000, sum, Library_Quantif.Isotope.TECHNETIUM_99)) / this.finalEarly;
 		}
 
 	}

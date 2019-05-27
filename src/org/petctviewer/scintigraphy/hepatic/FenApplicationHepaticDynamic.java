@@ -1,22 +1,14 @@
-package org.petctviewer.scintigraphy.hepatic.dynRefactored;
-
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.Label;
-import java.awt.Panel;
-import java.awt.event.MouseListener;
-
-import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+package org.petctviewer.scintigraphy.hepatic;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Toolbar;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+
+import java.awt.*;
+import java.awt.event.MouseListener;
 
 public class FenApplicationHepaticDynamic extends FenApplication {
 
@@ -173,8 +165,8 @@ public class FenApplicationHepaticDynamic extends FenApplication {
 	}
 
 	@Override
-	public void setControleur(ControllerScin ctrl) {
-		super.setControleur(ctrl);
+	public void setController(ControllerScin ctrl) {
+		super.setController(ctrl);
 		buttonSlice1.addMouseListener((MouseListener) ctrl);
 		buttonSlice2.addMouseListener((MouseListener) ctrl);
 		buttonSlice3.addMouseListener((MouseListener) ctrl);

@@ -4,6 +4,7 @@ import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
+import org.petctviewer.scintigraphy.scin.instructions.Instruction.DrawInstructionType;
 
 /**
  * Instruction to check if two ROIs are intersecting.
@@ -12,9 +13,13 @@ import org.petctviewer.scintigraphy.scin.instructions.Instruction;
  *
  */
 public class CheckIntersectionInstruction extends ExecutionInstruction {
+	
+	private DrawInstructionType InstructionType = DrawInstructionType.CHECK_INTERSECTION;
 
-	private Instruction previous_1, previous_2;
-	private ControllerScin controller;
+
+	private transient Instruction previous_1, previous_2;
+	private transient ControllerScin controller;
+
 	private String nameIntersection;
 
 	/**

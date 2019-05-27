@@ -54,7 +54,8 @@ public class TabTransitTime extends TabResult {
 		this.modeleApp = model;
 		this.nbAcquisition = nbAcquisition;
 
-		this.createCaptureButton("TransitTimes");
+//		this.createCaptureButton("TransitTimes");
+		this.setadditionalInfo("TransitTimes");
 
 		this.reloadDisplay();
 	}

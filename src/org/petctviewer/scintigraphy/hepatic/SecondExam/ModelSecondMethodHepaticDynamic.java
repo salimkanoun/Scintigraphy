@@ -1,9 +1,7 @@
-package org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam;
+package org.petctviewer.scintigraphy.hepatic.SecondExam;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.gui.Roi;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -11,8 +9,9 @@ import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class ModelSecondMethodHepaticDynamic extends ModelScinDyn {
 
@@ -114,7 +113,7 @@ public class ModelSecondMethodHepaticDynamic extends ModelScinDyn {
 			imp.setSlice(i);
 			for (this.indexRoi = 0; this.indexRoi < this.nbOrganes; this.indexRoi++) {
 				imp.setRoi(getOrganRoi(this.indexRoi));
-				// On récupère seulement le nom de l'organe (usually 0_organNameA => 0 for the number of image, A for Ant or Post)
+				// On récupère seulement le studyName de l'organe (usually 0_organNameA => 0 for the number of image, A for Ant or Post)
 				String name = this.organNames[this.indexRoi];
 				// on cree la liste si elle n'existe pas
 				if (mapData.get(name) == null) {

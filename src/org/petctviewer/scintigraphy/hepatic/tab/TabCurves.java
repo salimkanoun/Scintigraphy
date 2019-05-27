@@ -1,27 +1,11 @@
-package org.petctviewer.scintigraphy.hepatic.dynRefactored.tab;
+package org.petctviewer.scintigraphy.hepatic.tab;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.HashMap;
-
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JTabbedPane;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.ModelHepaticDynamic;
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ControllerWorkflowHepaticDyn;
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.FenApplicationSecondHepaticDyn;
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam.ModelSecondMethodHepaticDynamic;
+import ij.Prefs;
+import ij.gui.Overlay;
+import org.petctviewer.scintigraphy.hepatic.ModelHepaticDynamic;
+import org.petctviewer.scintigraphy.hepatic.SecondExam.ControllerWorkflowHepaticDyn;
+import org.petctviewer.scintigraphy.hepatic.SecondExam.FenApplicationSecondHepaticDyn;
+import org.petctviewer.scintigraphy.hepatic.SecondExam.ModelSecondMethodHepaticDynamic;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -30,8 +14,13 @@ import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
-import ij.Prefs;
-import ij.gui.Overlay;
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
 
 public class TabCurves extends TabResult implements ActionListener, ChangeListener {
 
@@ -112,7 +101,7 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 			JPanel panelDeFin = new JPanel();
 			this.tabPane = new JTabbedPane();
 			this.tabTAC = new TabTAC(this.getParent(), this);
-			TabVasculaire tabVasculaire = new TabVasculaire(this.getParent(), this);
+			TabLiver tabVasculaire = new TabLiver(this.getParent(), this);
 
 			this.tabPane.addTab(this.tabTAC.getTitle(), this.tabTAC.getPanel());
 			this.tabPane.addTab(tabVasculaire.getTitle(), tabVasculaire.getPanel());
@@ -140,22 +129,23 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 			Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
 			Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
 
-			this.vueBasic = new FenApplicationSecondHepaticDyn(selectedImages[0],
-					model.getStudyName());
+			this.vueBasic = new FenApplicationSecondHepaticDyn(selectedImages[0], model.getStudyName());
 			selectedImages[0].getImagePlus().setOverlay(overlay);
-			this.vueBasic.setControleur(new ControllerWorkflowHepaticDyn(this.vueBasic, new ModelSecondMethodHepaticDynamic(selectedImages,
-					model.getStudyName(), ((ModelScinDyn) model).getFrameduration()), this));
+
+			this.vueBasic.setController(
+					new ControllerWorkflowHepaticDyn(this.vueBasic, new ModelSecondMethodHepaticDynamic(selectedImages,
+							model.getStudyName(), ((ModelScinDyn) model).getFrameduration()), this));
+
 		} else if (button == buttonSwitchGraph) {
 			this.tabTAC.switchGraph(this.buttonSwitchGraph);
 		}
-		
+
 	}
 
 	public void setExamDone(boolean boobool) {
 		this.examDone = boobool;
 		((ModelHepaticDynamic) this.parent.getModel()).setExamDone(boobool);
 	}
-
 
 	public JTabbedPane getTabPane() {
 		return this.tabPane;
@@ -222,14 +212,8 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 
 	public JPanel sidePanelTabTAC() {
 		if (this.sidePanelTAC == null) {
-			JPanel resultPane = new JPanel(new GridLayout(0, 2));
-			HashMap<String, String> results = ((ModelSecondMethodHepaticDynamic) this.vueBasic.getControleur()
-					.getModel()).getResultsHashMap();
-			String[] keys = { "T1/2 Righ Liver", "T1/2 Righ Liver *", "Maximum Right Liver", "end/max Ratio Right",
-					"T1/2 Left Liver", "T1/2 Left Liver *", "Maximum Left Liver", "end/max Ratio Left",
-					"T1/2 Blood pool", "T1/2 Blood pool *", "Blood pool ratio 20mn/5mn" };
-			for (String s : keys)
-				resultPane.add(new JLabel(s + " : " + results.get(s)));
+
+			JPanel resultPane = this.sidePanelClassical();
 
 			resultPane.add(new JLabel(""));
 			this.buttonSwitchGraph = new JButton("Single Graph");
@@ -246,11 +230,14 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 		JPanel resultPane = new JPanel(new GridLayout(0, 2));
 		HashMap<String, String> results = ((ModelSecondMethodHepaticDynamic) this.vueBasic.getControleur().getModel())
 				.getResultsHashMap();
-		String[] keys = { "T1/2 Righ Liver", "T1/2 Righ Liver *", "Maximum Right Liver", "end/max Ratio Right",
-				"T1/2 Left Liver", "T1/2 Left Liver *", "Maximum Left Liver", "end/max Ratio Left", "T1/2 Blood pool",
-				"T1/2 Blood pool *", "Blood pool ratio 20mn/5mn" };
-		for (String s : keys)
-			resultPane.add(new JLabel(s + " : " + results.get(s)));
+		String[] keys = { "T1/2 Righ Liver", "", "Maximum Right Liver", "end/max Ratio Right", "T1/2 Left Liver", "",
+				"Maximum Left Liver", "end/max Ratio Left", "T1/2 Blood pool", "", "Blood pool ratio 20mn/5mn" };
+		for (String s : keys) {
+			if (s.equals(""))
+				resultPane.add(new JLabel(""));
+			else
+				resultPane.add(new JLabel(s + " : " + results.get(s)));
+		}
 
 		return resultPane;
 	}

@@ -1,15 +1,14 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class Model_GeneralDyn extends ModelScinDyn {
 
@@ -67,7 +66,7 @@ public class Model_GeneralDyn extends ModelScinDyn {
 				imp.setRoi(getOrganRoi(this.indexRoi));
 				String name = this.getNomOrgane(this.indexRoi);
 
-				// String name = nom.substring(0, nom.lastIndexOf(" "));
+				// String name = studyName.substring(0, studyName.lastIndexOf(" "));
 				// on cree la liste si elle n'existe pas
 				if (mapData.get(name) == null) {
 					mapData.put(name, new ArrayList<Double>());

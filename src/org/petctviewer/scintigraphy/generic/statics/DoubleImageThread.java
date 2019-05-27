@@ -1,12 +1,12 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
-
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.plugin.MontageMaker;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 public class DoubleImageThread extends Thread{
 	
@@ -50,8 +50,9 @@ public class DoubleImageThread extends Thread{
 				);
 		
 		//ouverture de la fenetre de resultat
-		new FenResultat_ScinStatic(impRes.getBufferedImage(), this.scin.getFenApplication().getControleur());
-		
+		FenResults fenResults = new FenResultat_ScinStatic(impRes.getBufferedImage(),
+				this.scin.getFenApplication().getControleur());
+		fenResults.setVisible(true);
 	}
 	
 	

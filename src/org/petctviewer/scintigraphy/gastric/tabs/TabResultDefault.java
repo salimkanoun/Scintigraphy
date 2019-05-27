@@ -80,9 +80,9 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 		this.createGraph();
 
-		Component[] hide = new Component[]{fitsChoices, btnAutoFit};
-		Component[] show = new Component[]{this.labelInterpolation};
-		this.createCaptureButton(hide, show, null);
+		this.setComponentToHide(new Component[]{fitsChoices, btnAutoFit});
+		this.setComponentToShow(new Component[]{this.labelInterpolation});
+		this.createCaptureButton();
 
 		this.reloadDisplay();
 	}

@@ -1,13 +1,12 @@
 package org.petctviewer.scintigraphy.colonic;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.IsotopeDialog;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
@@ -17,7 +16,8 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 
-import ij.ImagePlus;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflowColonicTransit extends ControllerWorkflow {
 
@@ -93,7 +93,8 @@ public class ControllerWorkflowColonicTransit extends ControllerWorkflow {
 					/ 1000 / 3600);
 		}
 
-		new FenResultsColonicTransit(this, this.captures, times);
+		FenResults fenResults = new FenResultsColonicTransit(this, this.captures, times);
+		fenResults.setVisible(true);
 	}
 
 	@Override

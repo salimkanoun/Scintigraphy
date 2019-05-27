@@ -1,14 +1,18 @@
 package org.petctviewer.scintigraphy.scin.instructions.generator;
 
+import java.io.Serializable;
+
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 
-public abstract class DefaultGenerator implements GeneratorInstruction {
+public abstract class DefaultGenerator implements GeneratorInstruction, Serializable {
 
-	protected Workflow workflow;
+	private static final long serialVersionUID = 1L;
 
-	protected GeneratorInstruction parent;
+	protected transient Workflow workflow;
+
+	protected transient GeneratorInstruction parent;
 	protected int indexLoop;
 
 	protected boolean isStopped;
@@ -104,6 +108,10 @@ public abstract class DefaultGenerator implements GeneratorInstruction {
 	@Override
 	public int getIndex() {
 		return this.indexLoop;
+	}
+	
+	public boolean isStopped() {
+		return this.isStopped;
 	}
 
 }

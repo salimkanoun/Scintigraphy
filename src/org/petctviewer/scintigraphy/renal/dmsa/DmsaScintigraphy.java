@@ -1,7 +1,9 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
-import java.awt.Color;
-
+import ij.IJ;
+import ij.gui.Overlay;
+import ij.gui.Toolbar;
+import ij.plugin.StackReverser;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -12,8 +14,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.gui.Overlay;
-import ij.plugin.StackReverser;
+import java.awt.*;
 
 public class DmsaScintigraphy extends Scintigraphy {
 
@@ -53,12 +54,13 @@ public class DmsaScintigraphy extends Scintigraphy {
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.yellow);
 
-		FenApplication fen = new FenApplication(selectedImages[0].getImagePlus(), this.getStudyName());
+		FenApplication fen = new FenApplicationWorkflow(selectedImages[0], this.getStudyName());
 		this.setFenApplication(fen);
 		selectedImages[0].getImagePlus().setOverlay(overlay);
+		IJ.setTool(Toolbar.POLYGON);
 
-//		fen.setControleur(new Controller_Dmsa(this, selectedImages, "dmsa"));
-		((FenApplicationWorkflow) fen).setControleur(new ControllerWorkflowDMSA(this,
+//		fen.setController(new Controleur_Dmsa(this, selectedImages, "dmsa"));
+		((FenApplicationWorkflow) fen).setController(new ControllerWorkflowDMSA(this,
 				(FenApplicationWorkflow) this.getFenApplication(), new Model_Dmsa(selectedImages, "dmsa")));
 	}
 

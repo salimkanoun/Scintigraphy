@@ -1,7 +1,8 @@
 package org.petctviewer.scintigraphy.renal.followup;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -9,14 +10,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FenCSVChoice extends JFrame {
 
@@ -119,7 +112,7 @@ public class FenCSVChoice extends JFrame {
 			File file = new File(chemin);
 			FileReader fr = new FileReader(file);
 			BufferedReader br = new BufferedReader(fr);
-			br.readLine();// lecture ligne 1 : nom
+			br.readLine();// lecture ligne 1 : studyName
 			
 			//lecture ligne 2 : id
 			res = br.readLine().split(",")[1]; 

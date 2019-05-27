@@ -1,8 +1,9 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import java.awt.Color;
-import java.util.ArrayList;
-
+import ij.IJ;
+import ij.gui.Overlay;
+import ij.plugin.MontageMaker;
+import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -14,10 +15,8 @@ import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionCompara
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
-import ij.gui.Overlay;
-import ij.plugin.MontageMaker;
-import ij.util.DicomTools;
+import java.awt.*;
+import java.util.ArrayList;
 
 public class CardiacScintigraphy extends Scintigraphy {
 
@@ -87,7 +86,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 
 		// Cree controller
 		((FenApplicationWorkflow) this.getFenApplication())
-				.setControleur(new ControllerWorkflowCardiac(this, (FenApplicationWorkflow) this.getFenApplication(),
+				.setController(new ControllerWorkflowCardiac(this, (FenApplicationWorkflow) this.getFenApplication(),
 						new Model_Cardiac(this, selectedImages, "Cardiac")));
 
 	}

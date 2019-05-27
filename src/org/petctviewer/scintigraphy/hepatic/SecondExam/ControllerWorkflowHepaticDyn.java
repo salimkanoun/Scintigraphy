@@ -1,9 +1,9 @@
-package org.petctviewer.scintigraphy.hepatic.dynRefactored.SecondExam;
+package org.petctviewer.scintigraphy.hepatic.SecondExam;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabCurves;
+import org.petctviewer.scintigraphy.hepatic.tab.TabCurves;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -16,6 +16,7 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.ImagePlus;
+import ij.gui.Roi;
 
 public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 
@@ -63,6 +64,8 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 		this.workflows[0].addInstruction(dri_capture);
 
 		this.workflows[0].addInstruction(new EndInstruction());
+		
+		getVue().setNbInstructions(this.allInputInstructions().size());
 
 	}
 
@@ -84,6 +87,9 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 		this.resultTab.reloadDisplay();
 
 		this.vue.dispose();
+		
+		for(Roi roi : modele.getRoiManager().getRoisAsArray())
+			this.resultTab.getParent().getModel().getRoiManager().addRoi(roi);
 	}
 
 	public ModelScin getModel() {

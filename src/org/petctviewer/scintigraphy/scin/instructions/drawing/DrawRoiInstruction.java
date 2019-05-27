@@ -1,16 +1,21 @@
 package org.petctviewer.scintigraphy.scin.instructions.drawing;
 
+import java.io.Serializable;
+
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
+import org.petctviewer.scintigraphy.scin.instructions.Instruction.DrawInstructionType;
 
-public class DrawRoiInstruction implements Instruction {
+public class DrawRoiInstruction implements Instruction, Serializable {
+	
+	protected DrawInstructionType InstructionType;
 
-	private String organToDelimit;
+	protected String organToDelimit;
 	private String roiName;
 	private boolean isAdjusting;
-	private ImageState state;
-	private DrawRoiInstruction instructionToCopy;
+	private transient ImageState state;
+	private transient DrawRoiInstruction instructionToCopy;
 	private int indexRoiToEdit;
 
 	/**
@@ -34,6 +39,8 @@ public class DrawRoiInstruction implements Instruction {
 		this.instructionToCopy = instructionToCopy;
 		this.indexRoiToEdit = -1;
 		this.roiName = roiName == null ? organToDelimit : roiName;
+		
+		this.InstructionType = DrawInstructionType.DRAW_ROI;
 	}
 
 	/**

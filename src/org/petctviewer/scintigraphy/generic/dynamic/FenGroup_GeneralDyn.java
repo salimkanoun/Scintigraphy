@@ -1,19 +1,11 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JList;
-import javax.swing.JPanel;
 
 public class FenGroup_GeneralDyn extends JDialog {
 
@@ -25,7 +17,7 @@ public class FenGroup_GeneralDyn extends JDialog {
 
 	/**
 	 * Cette fenetre permet de choisir comment organiser ses courbes dans les differents graphiques, elle genere un tableau de String d'association
-	 * @param roiNames nom des courbes a placer dans les graphiques
+	 * @param roiNames studyName des courbes a placer dans les graphiques
 	 */
 	public FenGroup_GeneralDyn(String[] roiNames) {
 		this.cgs = new ArrayList<>();

@@ -1,10 +1,34 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import ij.IJ;
-import ij.ImageListener;
-import ij.ImagePlus;
-import ij.WindowManager;
-import ij.util.DicomTools;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -14,16 +38,10 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
-import java.util.*;
+import ij.ImageListener;
+import ij.ImagePlus;
+import ij.WindowManager;
+import ij.util.DicomTools;
 
 /**
  * Window to select DICOM files. The list of DICOM files can add informations on
@@ -31,7 +49,7 @@ import java.util.*;
  *
  * @author Titouan QUÉMA
  */
-public class FenSelectionDicom extends JFrame implements ActionListener, ImageListener {
+public class FenSelectionDicom extends JFrame implements ActionListener, ImageListener, WindowListener {
 	private static final long serialVersionUID = 6706629497515318270L;
 
 	// TODO: make a column invisible to add data
@@ -170,7 +188,6 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 					data.add(imageData);
 				} catch (Exception e) {
 					countErrors++;
-					IJ.handleException(e);
 				}
 			}
 			if (countErrors > 0)
@@ -187,18 +204,12 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 * @param imp Image to analyze
 	 * @return Orientation of the image (UNKNOWN if the orientation could not be
 	 * determined)
+	 * @throws ReadTagException 
 	 */
-	private Orientation determineImageOrientation(ImagePlus imp) {
-		boolean sameCameraMultiFrame;
-		boolean firstImageAnt;
-
-		try {
-			sameCameraMultiFrame = Library_Dicom.isSameCameraMultiFrame(imp);
-			firstImageAnt = Library_Dicom.isAnterior(imp);
-		} catch (ReadTagException e) {
-			e.printStackTrace();
-			return Orientation.UNKNOWN;
-		}
+	private Orientation determineImageOrientation(ImagePlus imp) throws ReadTagException {
+		
+		boolean sameCameraMultiFrame = Library_Dicom.isSameCameraMultiFrame(imp);
+		boolean firstImageAnt = Library_Dicom.isAnterior(imp);
 
 		if (imp.getStackSize() == 1) {
 			if (firstImageAnt) {
@@ -362,8 +373,8 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		try {
 			ImageSelection[] userSelection = this.scin.preparerImp(selectedImages);
 			if (userSelection != null) {
-				ImagePlus.removeImageListener(this);
 				this.dispose();
+				ImagePlus.removeImageListener(this);
 				this.scin.lancerProgramme(userSelection);
 			}
 		} catch (WrongInputException e) {
@@ -375,7 +386,6 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 							"could" +
 							" not be found.\n" + e.getMessage());
 		}
-
 	}
 
 	private void updateTable() {
@@ -400,6 +410,40 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 	@Override
 	public void imageUpdated(ImagePlus imp) {
+	}
+
+	@Override
+	public void windowOpened(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+	}
+
+	@Override
+	public void windowClosed(WindowEvent e) {
+		ImagePlus.removeImageListener(this);
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowActivated(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+
 	}
 
 	/**

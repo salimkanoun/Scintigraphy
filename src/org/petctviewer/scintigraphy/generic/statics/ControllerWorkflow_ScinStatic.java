@@ -1,13 +1,12 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
-import javax.swing.JOptionPane;
-
+import ij.ImagePlus;
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
-import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
@@ -15,25 +14,20 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawLoopInstructio
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
+import javax.swing.*;
 
 public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
-	private FenResults fenResult;
-
-	public ControllerWorkflow_ScinStatic(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages,
-			String studyName) {
+	public ControllerWorkflow_ScinStatic(Scintigraphy main, FenApplicationWorkflow vue,
+	                                     ImageSelection[] selectedImages,
+	                                     String studyName) {
 		super(main, vue, new ModelScinStatic(selectedImages, studyName));
 
-		ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
+		ImageState statePost = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, ImageState.ID_WORKFLOW);
 		setOverlay(statePost);
 
 		this.generateInstructions();
 		this.start();
-
-		this.fenResult = new FenResults(this);
-		this.fenResult.setVisible(false);
 	}
 
 	private void updateButtonLabel(int indexRoi) {
@@ -53,7 +47,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 	@Override
 	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
-		DefaultGenerator dri_1 = null;
+		DefaultGenerator dri_1;
 
 		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
 
@@ -100,28 +94,31 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		boolean sameName = false;
 		for (Instruction instruction : this.workflows[this.indexCurrentWorkflow].getInstructions())
 			if (instruction instanceof DrawLoopInstruction)
-				if (((DrawLoopInstruction) instruction) != this.workflows[this.indexCurrentWorkflow]
-						.getCurrentInstruction())
+				if (instruction != this.workflows[this.indexCurrentWorkflow].getCurrentInstruction())
 					if (this.workflows[this.indexCurrentWorkflow].getController().getVue().getTextfield_instructions()
 							.getText().equals(((DrawLoopInstruction) instruction).getInstructionRoiName()))
 						sameName = true;
-		if (sameName) {
-			int retour = JOptionPane.OK_OPTION;
-			retour = JOptionPane.showConfirmDialog(getVue(), "A Roi already have this name. Do you want to continue ?",
+		if (sameName && getVue().getImage().getImagePlus().getRoi() != null) {
+			int result;
+			result = JOptionPane.showConfirmDialog(getVue(), "A Roi already have this name. Do you want to continue ?",
 					"Duplicate Roi Name", JOptionPane.YES_NO_CANCEL_OPTION);
 
-			if (retour != JOptionPane.OK_OPTION)
-				return;
+			if (result != JOptionPane.OK_OPTION) return;
 		}
+
+		this.updateButtonLabel(this.indexRoi);
 
 		super.clickNext();
 
-		this.updateButtonLabel(this.indexRoi);
+		// Update view
+		int indexScroll = this.getVue().getInstructionDisplayed();
+		getVue().setNbInstructions(this.allInputInstructions().size());
+		this.updateScrollbar(indexScroll + 1);
 	}
 
 	@Override
-	public void clicPrecedent() {
-		super.clicPrecedent();
+	public void clickPrevious() {
+		super.clickPrevious();
 
 		this.updateButtonLabel(this.indexRoi);
 	}

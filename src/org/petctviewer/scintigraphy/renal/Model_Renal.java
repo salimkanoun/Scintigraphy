@@ -72,8 +72,6 @@ public class Model_Renal extends ModelScinDyn {
 	 * 
 	 * @param min
 	 *            minute a laquelle on veut comparer
-	 * @param output
-	 *            sortie du rein
 	 * @param lr
 	 *            "L" ou "R"
 	 * @return le pourcentage

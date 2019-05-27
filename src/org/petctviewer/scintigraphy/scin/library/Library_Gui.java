@@ -1,17 +1,16 @@
 package org.petctviewer.scintigraphy.scin.library;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.font.FontRenderContext;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-
 import ij.ImagePlus;
 import ij.Prefs;
 import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.gui.TextRoi;
 import ij.process.LUT;
+
+import java.awt.*;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 
 public class Library_Gui {
 
@@ -21,7 +20,7 @@ public class Library_Gui {
 	public static final int DEFAULT_FONT_SIZE = 12;
 
 	/**
-	 *  Change le nom et la couleur de l'overlay
+	 *  Change le studyName et la couleur de l'overlay
 	 * @param ov
 	 * @param oldName
 	 * @param newName

@@ -12,17 +12,15 @@ import ij.plugin.RoiScaler;
 
 public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 
-	private Instruction dri_1;
+	private transient Instruction dri_1;
 
-	private ModelScin model;
+	private transient ModelScin model;
 
 	public enum Organ {
 		DEMIE, QUART
 	};
 
-	private Organ organ;
-
-	private String organToDelimit;
+	private transient Organ organ;
 
 	public DrawSymmetricalRoiInstruction(String organToDelimit, ImageState state, Instruction instructionToCopy,
                                          String roiName, ModelScin model, Organ organ) {
@@ -31,6 +29,8 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 		this.organ = organ;
 		this.dri_1 = instructionToCopy;
 		this.organToDelimit = organToDelimit;
+		
+		this.InstructionType = DrawInstructionType.DRAW_SYMMETRICAL;
 	}
 
 	@Override
@@ -43,6 +43,9 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 		String name = this.organToDelimit;
 
 		Roi thisRoi = (Roi) this.getImageState().getImage().getImagePlus().getRoi();
+		if(thisRoi == null)
+			return this.organToDelimit;
+		
 		boolean OrganPost = thisRoi.getXBase() > this.getImageState().getImage().getImagePlus().getWidth() / 2;
 
 		if (OrganPost)

@@ -8,6 +8,31 @@ import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
  * @author Titouan QUÉMA
  */
 public interface Instruction {
+	
+	
+	/**
+	 * This enum is use to save and load instructions that draw ROI.
+	 *
+	 */
+	public enum DrawInstructionType {
+		
+		DRAW_ROI("DrawRoiInstruction"), 
+		DRAW_LOOP("DrawLoopInstruction"), 
+		DRAW_ROI_BACKGROUND("DrawRoiBackground"), 
+		DRAW_SYMMETRICAL("DrawSymmetricalRoiInstruction"), 
+		DRAW_SYMMETRICAL_LOOP("DrawSymmetricalLoopInstruction"),
+		CHECK_INTERSECTION("CheckIntersectionInstruction");
+		
+		private String name;
+		
+		private DrawInstructionType(String name) {
+			this.name = name;
+		}
+		
+		public String getName() {
+			return this.name;
+		}
+	}
 
 	/**
 	 * This method is called when this instruction is displayed in response to a

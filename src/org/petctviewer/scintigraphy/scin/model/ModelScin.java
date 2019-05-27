@@ -1,16 +1,14 @@
 package org.petctviewer.scintigraphy.scin.model;
 
-import java.util.HashMap;
-
-import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import ij.ImagePlus;
 import ij.plugin.frame.RoiManager;
 import ij.util.DicomTools;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+
+import java.util.HashMap;
 
 /**
  * Represents the model in the MVC pattern.
@@ -93,29 +91,6 @@ public abstract class ModelScin {
         this.selectedImages = newImages;
     }
 
-    // ============================== OLD CLASS ========================
-
-    /*
-     * calcule la decay fraction (countsCorrected=counts/decayedFraction)
-     *
-     * @param delaySeconds
-     * @param halLifeSeconds
-     * @return
-     */
-
-    /**
-     * @deprecated Please consider using static method in
-	 * {@link org.petctviewer.scintigraphy.scin.library.Library_Quantif}
-     */
-    @Deprecated
-    public static double getDecayFraction(int delaySeconds, int halLifeSeconds) {
-        double tcLambdaSeconds = (Math.log(2) / (halLifeSeconds));
-        // Decayed fraction est la fraction de la radioactivit� qui a disparu
-        // Pour avoir les coups corrige de la decroissance
-        // countsCorrected=counts/decayedFraction
-        return Math.pow(Math.E, (tcLambdaSeconds * delaySeconds * (-1)));
-    }
-
     public String getUID6digits() {
         if (this.uid == null) {
             this.uid = (int) (Math.random() * 1000000.);
@@ -129,8 +104,8 @@ public abstract class ModelScin {
      * meme pour tout le modele
      *
      * @param imp          : imageplus originale (pour recuperer des elements du
-     *                     Header tels que le nom du patient...)
-     * @param nomProgramme : nom du programme qui l'utilise si par exemple
+     *                     Header tels que le studyName du patient...)
+     * @param nomProgramme : studyName du programme qui l'utilise si par exemple
      *                     "pulmonary shunt" la capture sera appelee "Capture
      *                     Pulmonary Shunt"
      * @return retourne la premi�re partie du header en string auquelle on ajoutera

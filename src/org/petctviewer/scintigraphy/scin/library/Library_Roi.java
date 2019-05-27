@@ -22,6 +22,11 @@ import javax.swing.JFileChooser;
 import javax.swing.JList;
 
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow.WorkflowsFromGson;
+import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -40,7 +45,6 @@ public class Library_Roi {
 	public static Roi createBkgRoi(Roi roi, ImagePlus imp, int organ) {
 		Roi bkg = null;
 		RoiManager rm = new RoiManager(true);
-		rm.setVisible(true);
 
 		switch (organ) {
 		case Library_Roi.KIDNEY:
@@ -145,8 +149,10 @@ public class Library_Roi {
 	 * @param path
 	 *            the system-dependent file name.
 	 * @return A list of ROIs, contained in the zip file.
+	 * @throws UnauthorizedRoiLoadException
 	 */
-	public static List<Roi> getRoiFromZip(String path) {
+	public static List<Roi> getRoiFromZip(String path, ControllerWorkflow controller)
+			throws UnauthorizedRoiLoadException {
 
 		JList list;
 		list = new JList();
@@ -158,6 +164,45 @@ public class Library_Roi {
 		ByteArrayOutputStream out = null;
 		rois.clear();
 		int nRois = 0;
+		WorkflowsFromGson workflowsFromGson = null;
+
+		try {
+			in = new ZipInputStream(new FileInputStream(path));
+			ZipEntry entry = in.getNextEntry();
+			while (entry != null) {
+				String name = entry.getName();
+				if (name.endsWith(".json")) {
+
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					int b = in.read();
+
+					while (b >= 0) {
+						baos.write(b);
+						b = in.read();
+					}
+					workflowsFromGson = controller.loadWorkflows(baos.toString());
+				}
+				
+				entry = in.getNextEntry();
+			}
+			in.close();
+		} catch (IOException e) {
+			System.out.println(e.toString());
+		} finally {
+			if (in != null)
+				try {
+					in.close();
+				} catch (IOException e) {
+				}
+			if (out != null)
+				try {
+					out.close();
+				} catch (IOException e) {
+				}
+		}
+
+		Roi[] ROIsArray = new Roi[workflowsFromGson.getNbROIs()];
+
 		try {
 			in = new ZipInputStream(new FileInputStream(path));
 			byte[] buf = new byte[1024];
@@ -176,13 +221,21 @@ public class Library_Roi {
 					if (roi != null) {
 						name = name.substring(0, name.length() - 4);
 						listModel.addElement(name);
-						rois.add(roi);
+
+						int indexRoi = workflowsFromGson.getIndexRoiOfInstructionFromGson(name);
+						if (indexRoi == -1)
+							throw new UnauthorizedRoiLoadException(roi, name);
+
+						ROIsArray[indexRoi] = roi;
+						// rois.add(roi);
 						nRois++;
 					}
 				}
+
 				entry = in.getNextEntry();
 			}
 			in.close();
+
 		} catch (IOException e) {
 			System.out.println(e.toString());
 		} finally {
@@ -197,6 +250,12 @@ public class Library_Roi {
 				} catch (IOException e) {
 				}
 		}
+
+		for (Roi roi : ROIsArray) {
+			rois.add(roi);
+			System.out.println(roi.getName());
+		}
+
 		if (nRois == 0)
 			System.out.println("This ZIP archive does not appear to contain \".roi\" files");
 
@@ -210,35 +269,42 @@ public class Library_Roi {
 	 * @param frame
 	 *            - the parent component of the dialog, can be null ;
 	 * @return A list of ROIs.
+	 * @throws UnauthorizedRoiLoadException
 	 * 
-	 * @see {@link Library_Roi#getRoiFromZip(String)}
+	 * @see {@link Library_Roi#getRoiFromZip(String, ControllerWorkflow)}
 	 */
-	public static List<Roi> getRoiFromZipWithWindow(Component frame) {
+	public static List<Roi> getRoiFromZipWithWindow(Component frame, ControllerWorkflow controller)
+			throws UnauthorizedRoiLoadException {
 
 		JFileChooser fc = new JFileChooser();
 		fc.setCurrentDirectory(new File("./"));
 		fc.setDialogTitle("Choose .zip containing rois");
 		int returnVal = fc.showOpenDialog(frame);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			return Library_Roi.getRoiFromZip(fc.getSelectedFile().getPath());
+			return Library_Roi.getRoiFromZip(fc.getSelectedFile().getPath(), controller);
 		}
 		return null;
 	}
 
-	
-	
 	/**
-	 * Save the ROIs from a RoiManager.
-	 * @param model
+	 * Save the ROIs from a RoiManager. Do the same than the macro, but associate
+	 * name to respect the initial order of the RoiManager, to be able to get them
+	 * back in the same order. Will be saved in a .zip, with the workflow.json.
+	 * 
+	 * @param roiManager
+	 *            RoiManager to extract ROIs
+	 * @param controller
+	 *            Associated ControllerWorkflow, to save the workflow in Json format
 	 * @param path
+	 *            Path to save the .zip
 	 * @return
 	 */
-	public static boolean saveRois(RoiManager roiManager, String path) {
-		
-		ArrayList rois = (ArrayList) Arrays.asList(roiManager.getRoisAsArray());
-		
+	public static boolean saveRois(RoiManager roiManager, ControllerWorkflow controller, String path) {
+
+		List<Roi> rois = Arrays.asList(roiManager.getRoisAsArray());
+
 		int nbRoi = roiManager.getCount();
-		
+
 		if (path == null) {
 			SaveDialog sd = new SaveDialog("Save ROIs...", "RoiSet", ".zip");
 			String name = sd.getFileName();
@@ -253,7 +319,8 @@ public class Library_Roi {
 		IJ.showStatus("Saving " + nbRoi + " ROIs " + " to " + path);
 		long t0 = System.currentTimeMillis();
 		String[] names = new String[roiManager.getCount()];
-		for (int i = 0; i < roiManager.getCount() ; i++)
+		String[] label = new String[names.length];
+		for (int i = 0; i < roiManager.getCount(); i++)
 			names[i] = (String) roiManager.getRoi(i).getName();
 		try {
 			ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(path)));
@@ -261,18 +328,29 @@ public class Library_Roi {
 			RoiEncoder re = new RoiEncoder(out);
 			for (int i = 0; i < nbRoi; i++) {
 				IJ.showProgress(i, nbRoi);
-				String label = getUniqueName(names, i);
+				label[i] = getUniqueName(names, i);
 				Roi roi = (Roi) rois.get(i);
 				if (IJ.debugMode)
 					IJ.log("saveMultiple: " + i + "  " + label + "  " + roi);
 				if (roi == null)
 					continue;
-				if (!label.endsWith(".roi"))
-					label += ".roi";
-				zos.putNextEntry(new ZipEntry(label));
+
+				// roi.setName(label[i]);
+				if (!label[i].endsWith(".roi"))
+					label[i] += ".roi";
+				zos.putNextEntry(new ZipEntry(label[i]));
 				re.write(roi);
 				out.flush();
 			}
+
+			Gson gson = new GsonBuilder().create();
+
+			zos.putNextEntry(new ZipEntry("workflow.json"));
+			System.out.println("Json sauvegardé : ");
+			System.out.println(gson.toJson(controller.saveWorkflowToJson(label)));
+			out.writeBytes(gson.toJson(controller.saveWorkflowToJson(label)));
+			out.flush();
+
 			out.close();
 		} catch (IOException e) {
 			System.out.println("" + e);
@@ -291,18 +369,9 @@ public class Library_Roi {
 			Recorder.record("roiManager", "Save", path);
 		return true;
 	}
-	
-	
-	public static boolean saveRois(RoiManager roiManager, String path, ControllerWorkflow controller) {
-		
-		
-		
-		return true;
-	}
-	
-	
-	private static String getUniqueName(String[] names,int  i) {
-		return null;
+
+	private static String getUniqueName(String[] names, int i) {
+		return i + "_" + names[i];
 	}
 
 }

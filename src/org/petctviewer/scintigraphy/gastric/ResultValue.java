@@ -35,7 +35,7 @@ public class ResultValue {
 	 * @param value          Value of the result
 	 * @param isExtrapolated if TRUE then this result has an extrapolated value and
 	 *                       if set to FALSE, this value is interpolated or exact
-	 * @see #ResultValue(ResultRequest, double)
+	 * @see #ResultValue(ResultRequest, double, Unit, boolean)
 	 */
 	public ResultValue(ResultRequest request, double value, Unit unit, boolean isExtrapolated) {
 		if (request == null)
@@ -51,7 +51,7 @@ public class ResultValue {
 	/**
 	 * Instantiates a new result not extrapolated.<br>
 	 * This constructor is a convenience for
-	 * {@link #ResultValue(ResultRequest, double, boolean)}.
+	 * {@link #ResultValue(ResultRequest, double, Unit)}.
 	 *
 	 * @param request Request this result answers to
 	 * @param value   Value of the result

@@ -45,7 +45,8 @@ public class TabCurves extends TabResult {
 		datasetModele = ((Model_Resultats_EsophagealTransit) modeleApp).getDataSetMain();
 		titleRows = new String[datasetModele.length];
 
-		this.createCaptureButton("Curves");
+//		this.createCaptureButton("Curves");
+		this.setadditionalInfo("Curves");
 
 		this.reloadDisplay();
 	}
