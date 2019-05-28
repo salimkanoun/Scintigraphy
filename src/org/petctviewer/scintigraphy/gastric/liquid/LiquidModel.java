@@ -3,11 +3,14 @@ package org.petctviewer.scintigraphy.gastric.liquid;
 import ij.gui.Roi;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeries;
+import org.petctviewer.scintigraphy.gastric.Result;
 import org.petctviewer.scintigraphy.gastric.ResultRequest;
 import org.petctviewer.scintigraphy.gastric.ResultValue;
+import org.petctviewer.scintigraphy.gastric.Unit;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 
@@ -15,6 +18,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class LiquidModel extends ModelWorkflow {
+
+	public static final Result RES_T_HALF = new Result("T 1/2");
 
 	private List<XYDataItem> antCounts, postCounts;
 
@@ -25,6 +30,20 @@ public class LiquidModel extends ModelWorkflow {
 		this.postCounts = new LinkedList<>();
 	}
 
+	private double[] generateXValues() {
+		double[] xValues = new double[this.antCounts.size()];
+		for(int i = 0; i < this.antCounts.size(); i++)
+			xValues[i] = this.antCounts.get(i).getXValue();
+		return xValues;
+	}
+
+	private double[] generateYValues() {
+		double[] yValues = new double[this.antCounts.size()];
+		for(int i = 0; i < this.antCounts.size(); i++)
+			yValues[i] = this.antCounts.get(i).getYValue();
+		return yValues;
+	}
+
 	public void calculateCounts(ImageState state, Roi roi) {
 		// Set image on state
 		if (state.getIdImage() != ImageState.ID_CUSTOM_IMAGE)
@@ -33,7 +52,6 @@ public class LiquidModel extends ModelWorkflow {
 		// Calculate delay with first image
 		int delayFirstImage = (int) (state.getImage().getDateAcquisition()
 				.getTime() - this.selectedImages[0].getDateAcquisition().getTime());
-		System.out.println("Delay = " + delayFirstImage);
 		assert delayFirstImage >= 0 : "Order of images incorrect";
 
 		// Prepare image
@@ -65,6 +83,18 @@ public class LiquidModel extends ModelWorkflow {
 
 	@Override
 	public ResultValue getResult(ResultRequest request) {
+		if(request.getResultOn() == RES_T_HALF) {
+			// Calculate t 1/2
+			double half = this.antCounts.get(0).getYValue() / 2.;
+			Double result = Library_JFreeChart.getX(this.generateXValues(), this.generateYValues(), half);
+			boolean isExtrapolated = false;
+			if(result == null) {
+				// Extrapolate
+				result = 0.;
+				isExtrapolated = true;
+			}
+			return new ResultValue(request, result, Unit.TIME, isExtrapolated);
+		}
 		return null;
 	}
 

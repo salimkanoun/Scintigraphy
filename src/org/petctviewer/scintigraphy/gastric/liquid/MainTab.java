@@ -2,12 +2,13 @@ package org.petctviewer.scintigraphy.gastric.liquid;
 
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.gastric.ResultRequest;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
+import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
 
 public class MainTab extends TabResult {
 
@@ -22,14 +23,19 @@ public class MainTab extends TabResult {
 
 	@Override
 	public Component getSidePanelContent() {
-		return null;
+		JPanel panel = new JPanel(new BorderLayout());
+		JPanel panCenter = new JPanel(new GridLayout(0, 2));
+		// T1/2
+		panCenter.add(new JLabel("T 1/2"));
+		panCenter.add(new JLabel(getModel().getResult(new ResultRequest(LiquidModel.RES_T_HALF)).formatValue()));
+		panel.add(panCenter, BorderLayout.CENTER);
+
+		return panel;
 	}
 
 	@Override
 	public Container getResultContent() {
 		XYSeries series = getModel().createSeries();
-		for(double[] v : series.toArray())
-			System.out.println(Arrays.toString(v));
 		XYSeriesCollection dataset = new XYSeriesCollection(series);
 		return Library_JFreeChart.createGraph("Stomach retention (liquid)", new Color[]{Color.BLUE}, "", dataset,
 				series.getMaxY() * 1.1);
