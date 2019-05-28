@@ -169,6 +169,15 @@ public class ResultValue {
 	 * @return value of this result formatted as time: <code>HH:mm:ss</code>
 	 */
 	public String displayAsTime() {
+		StringBuilder s = new StringBuilder(displayAsTime(this.value));
+
+		if (this.isExtrapolated())
+			s.append("(*)");
+
+		return s.toString();
+	}
+
+	public static String displayAsTime(double value) {
 		int seconds = (int) ((value - (double) ((int) value)) * 60.);
 		int minutes = (int) (value % 60.);
 		int hours = (int) (value / 60.);
@@ -190,9 +199,6 @@ public class ResultValue {
 		if (seconds < 10)
 			s.append(0);
 		s.append(seconds);
-
-		if (this.isExtrapolated())
-			s.append("(*)");
 
 		return s.toString();
 	}
