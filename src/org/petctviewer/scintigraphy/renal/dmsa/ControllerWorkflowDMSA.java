@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
 import ij.ImagePlus;
+import ij.gui.Overlay;
 import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -13,10 +14,8 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackground;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,7 +77,8 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 		((Model_Dmsa) this.model).data.clear();
 
 		int indexRoi = 0;
-		BufferedImage capture = Library_Capture_CSV.captureImage(this.model.getImagePlus(), 512, 0).getBufferedImage();
+		ImagePlus imageCaptured = getModel().getImagePlus();
+		Overlay overlay = getModel().getImagePlus().getOverlay().duplicate();
 
 		for (Roi roi : this.model.getRoiManager().getRoisAsArray()) {
 
@@ -96,7 +96,8 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
 		this.model.calculateResults();
 
-		FenResults fenResults = new FenResultats_Dmsa(capture, this);
+		FenResults fenResults = new FenResults(this);
+		fenResults.addTab(new MainTab(fenResults, imageCaptured, overlay));
 		fenResults.setVisible(true);
 	}
 
