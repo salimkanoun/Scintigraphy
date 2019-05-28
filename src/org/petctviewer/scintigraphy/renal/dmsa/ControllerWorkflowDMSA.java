@@ -39,31 +39,19 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 		this.workflows = new Workflow[1];
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
-		DrawRoiInstruction dri_1, dri_2;
-
-		DrawRoiBackground dri_Background_1, dri_Background_2;
-
-		ScreenShotInstruction dri_capture_1;
-
 		List<ImagePlus> captures = new ArrayList<>();
+		ImageState statePost = new ImageState(Orientation.POST, 1, ImageState.LAT_LR, ImageState.ID_WORKFLOW);
 
-		ImageState statePost = new ImageState(Orientation.POST, 1, ImageState.LAT_LR, ImageState.ID_NONE);
-		dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), 0);
+		DrawRoiInstruction dri_1 = new DrawRoiInstruction("L. Kidney", statePost);
 
-		dri_1 = new DrawRoiInstruction("L. Kidney", statePost);
-
-		dri_Background_1 = new DrawRoiBackground("L. Background", statePost, dri_1, this.model, "");
-
-		dri_2 = new DrawRoiInstruction("R. Kidney", statePost);
-
-		dri_Background_2 = new DrawRoiBackground("R. Background", statePost, dri_2, this.model, "");
+		DrawRoiInstruction dri_2 = new DrawRoiInstruction("R. Kidney", statePost);
 
 		this.workflows[0].addInstruction(dri_1);
-		this.workflows[0].addInstruction(dri_Background_1);
+		this.workflows[0].addInstruction(new DrawRoiBackground("L. Background", statePost, dri_1, this.model, ""));
 		this.workflows[0].addInstruction(dri_2);
-		this.workflows[0].addInstruction(dri_Background_2);
+		this.workflows[0].addInstruction(new DrawRoiBackground("R. Background", statePost, dri_2, this.model, ""));
 
-		this.workflows[0].addInstruction(dri_capture_1);
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
 
 		this.workflows[0].addInstruction(new EndInstruction());
 
@@ -97,9 +85,9 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 		this.model.calculateResults();
 
 		// Display results
-		FenResults fenResults = new FenResults(this);
-		fenResults.addTab(new MainTab(fenResults, imageCaptured, overlay));
-		fenResults.setVisible(true);
+		this.setFenResults(new FenResults(this));
+		this.fenResults.addTab(new MainTab(fenResults, imageCaptured, overlay));
+		this.fenResults.setVisible(true);
 	}
 
 }

@@ -8,10 +8,7 @@ import ij.Prefs;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
-import org.petctviewer.scintigraphy.scin.gui.CaptureButton;
-import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
-import org.petctviewer.scintigraphy.scin.gui.TabResult;
-import org.petctviewer.scintigraphy.scin.gui.WindowDifferentPatient;
+import org.petctviewer.scintigraphy.scin.gui.*;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction.DrawInstructionType;
@@ -81,6 +78,11 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 * If set to TRUE then the next call to {@link #clickNext()} or {@link #clickPrevious()} will be repeated.
 	 */
 	private boolean skipInstruction;
+
+	/**
+	 * Window used to display the results.
+	 */
+	protected FenResults fenResults;
 
 	/**
 	 * @param main  Reference to the main class
@@ -199,6 +201,24 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		for (int i = 0; i < this.workflows.length; i++)
 			if (workflows[i].getInstructions().contains(instruction)) return i;
 		return -1;
+	}
+
+	/**
+	 * Changes the window for the results. This method should only be called once.
+	 *
+	 * @param fenResults Window for the results
+	 */
+	protected void setFenResults(FenResults fenResults) {
+		this.fenResults = fenResults;
+	}
+
+	/**
+	 * Returns the window used to display the results of this study.
+	 *
+	 * @return window for the results or null if no window was set yet
+	 */
+	protected FenResults getFenResults() {
+		return this.fenResults;
 	}
 
 	/**
@@ -414,6 +434,10 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	@Override
 	public void clickPrevious() {
 		super.clickPrevious();
+
+		// Hide result window
+		if(this.fenResults != null)
+			this.fenResults.setVisible(false);
 
 		Instruction previousInstruction = this.workflows[this.indexCurrentWorkflow].getCurrentInstruction();
 
@@ -665,7 +689,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 //		patientObject.addProperty("Name", patientInfo.get(Library_Capture_CSV.PATIENT_INFO_NAME));
 //		patientObject.addProperty("ID", patientInfo.get(Library_Capture_CSV.PATIENT_INFO_ID));
 //		patientObject.addProperty("Date", patientInfo.get(Library_Capture_CSV.PATIENT_INFO_DATE));
-//		patientObject.addProperty("AccessionNumber", patientInfo.get(Library_Capture_CSV.PATIENT_INFO_ACCESSION_NUMBER));
+//		patientObject.addProperty("AccessionNumber", patientInfo.get(Library_Capture_CSV
+//		.PATIENT_INFO_ACCESSION_NUMBER));
 
 		workflowsObject.add("Patient", patientObject);
 		// System.out.println("\n\n\n --------------------------- TEST
@@ -737,42 +762,41 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 			int differenceNumber = 0;
 
-			if(!patientFromGson.getAccessionNumber().equals(currentPatient[3]))
-				differenceNumber++;
-			if(!patientFromGson.getName().equals(currentPatient[0]))
-				differenceNumber++;
-			if(!patientFromGson.getID().equals(currentPatient[1]))
-				differenceNumber++;
-			if(!patientFromGson.getDate().toString().equals(currentPatientDate.toString()))
-				differenceNumber++;
+			if (!patientFromGson.getAccessionNumber().equals(currentPatient[3])) differenceNumber++;
+			if (!patientFromGson.getName().equals(currentPatient[0])) differenceNumber++;
+			if (!patientFromGson.getID().equals(currentPatient[1])) differenceNumber++;
+			if (!patientFromGson.getDate().toString().equals(currentPatientDate.toString())) differenceNumber++;
 
 			Object[][] difference = new Object[differenceNumber][3];
 
 			int indexDifference = 0;
-			if(!patientFromGson.getAccessionNumber().equals(currentPatient[3])) {
-				difference[indexDifference] = new String[] {"Accession Number",""+patientFromGson.getAccessionNumber(),""+currentPatient[3]};
+			if (!patientFromGson.getAccessionNumber().equals(currentPatient[3])) {
+				difference[indexDifference] = new String[]{"Accession Number",
+				                                           "" + patientFromGson.getAccessionNumber(),
+				                                           "" + currentPatient[3]};
 				indexDifference++;
 			}
-			if(!patientFromGson.getName().equals(currentPatient[0])) {
-				difference[indexDifference] = new String[] {"Name",""+patientFromGson.getName(),""+currentPatient[0]};
+			if (!patientFromGson.getName().equals(currentPatient[0])) {
+				difference[indexDifference] = new String[]{"Name", "" + patientFromGson.getName(),
+				                                           "" + currentPatient[0]};
 				indexDifference++;
 			}
-			if(!patientFromGson.getID().equals(currentPatient[1])) {
-				difference[indexDifference] = new String[] {"ID",""+patientFromGson.getID(),""+currentPatient[1]};
-				indexDifference++;
-			}
-
-
-			if(!patientFromGson.getDate().toString().equals(currentPatientDate.toString())) {
-				difference[indexDifference] = new String[] {"Date",""+patientFromGson.getDate(),""+currentPatientDate};
+			if (!patientFromGson.getID().equals(currentPatient[1])) {
+				difference[indexDifference] = new String[]{"ID", "" + patientFromGson.getID(), "" + currentPatient[1]};
 				indexDifference++;
 			}
 
 
+			if (!patientFromGson.getDate().toString().equals(currentPatientDate.toString())) {
+				difference[indexDifference] = new String[]{"Date", "" + patientFromGson.getDate(),
+				                                           "" + currentPatientDate};
+				indexDifference++;
+			}
 
-			JTable differences = new JTable(difference, new String[] {"Conflict","From Json, Current patient"});
 
-			if(differenceNumber != 0) {
+			JTable differences = new JTable(difference, new String[]{"Conflict", "From Json, Current patient"});
+
+			if (differenceNumber != 0) {
 				WindowDifferentPatient fen = new WindowDifferentPatient(difference);
 				fen.setModal(true);
 				fen.setVisible(true);
@@ -911,7 +935,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 			return -1;
 		}
 
-		public PatientFromGson getPatient () {
+		public PatientFromGson getPatient() {
 			return this.Patient;
 		}
 
@@ -986,7 +1010,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 		@Override
 		public String toString() {
-			return "Bonjour, mon nom est  "+this.Name+", j'ai pour ID "+this.ID+" car j'ai été admis le "+this.Date+" ce qui donne comme accessionNumber : "+this.AccessionNumber;
+			return "Bonjour, mon nom est  " + this.Name + ", j'ai pour ID " + this.ID + " car j'ai été admis le " + this.Date + " ce qui donne comme accessionNumber : " + this.AccessionNumber;
 		}
 	}
 
