@@ -61,6 +61,8 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
 	@Override
 	public void end() {
+		super.end();
+
 		// Clear the result hashmap in case of a second validation
 		((Model_Dmsa) this.model).data.clear();
 

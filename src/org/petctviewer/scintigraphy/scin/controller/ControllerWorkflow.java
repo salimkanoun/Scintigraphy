@@ -582,18 +582,19 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if ((e.getSource() == getVue().getBtn_suivant() || e.getSource() == getVue().getBtn_precedent()) && getVue()
-				.isVisualizationEnabled()) {
-			int indexScrollForCurrentInstruction = this.allInputInstructions()
-					.indexOf(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
-			if (indexScrollForCurrentInstruction == 0) indexScrollForCurrentInstruction = 1;
-			if (getVue().getInstructionDisplayed() != indexScrollForCurrentInstruction) {
-				// Update view
-				this.updateScrollbar(indexScrollForCurrentInstruction);
-				getVue().currentInstruction(indexScrollForCurrentInstruction);
-				return; // Do nothing more
-			}
-		}
+		// TODO: code not working
+//		if ((e.getSource() == getVue().getBtn_suivant() || e.getSource() == getVue().getBtn_precedent()) && getVue()
+//				.isVisualizationEnabled()) {
+//			int indexScrollForCurrentInstruction = this.allInputInstructions()
+//					.indexOf(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
+//			if (indexScrollForCurrentInstruction == 0) indexScrollForCurrentInstruction = 1;
+//			if (getVue().getInstructionDisplayed() != indexScrollForCurrentInstruction) {
+//				// Update view
+//				this.updateScrollbar(indexScrollForCurrentInstruction);
+//				getVue().currentInstruction(indexScrollForCurrentInstruction);
+//				return; // Do nothing more
+//			}
+//		}
 
 		super.actionPerformed(e);
 
