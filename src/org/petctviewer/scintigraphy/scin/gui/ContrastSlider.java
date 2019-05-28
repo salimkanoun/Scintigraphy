@@ -37,6 +37,6 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 		reference.getProcessor().setMinAndMax(0, this.getMaximum() - this.getValue() + 1);
 		// Update image overlay
 		this.reference.setOverlay(this.overlay);
-		this.result.setImage(this.reference.getBufferedImage());
+		this.result.setImage(reference.getBufferedImage());
 	}
 }

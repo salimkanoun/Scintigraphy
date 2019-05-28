@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.renal.dmsa;
 import ij.ImagePlus;
 import ij.gui.Overlay;
 import ij.gui.Roi;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -14,7 +15,6 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackground;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +23,8 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
 	private final boolean antPost;
 
-	public ControllerWorkflowDMSA(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
-		super(main, vue, model);
+	public ControllerWorkflowDMSA(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
+		super(main, vue, new Model_Dmsa(selectedImages, main.getStudyName()));
 
 		this.antPost = this.model.getImagePlus().getNSlices() == 2;
 
@@ -76,10 +76,10 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 		// Clear the result hashmap in case of a second validation
 		((Model_Dmsa) this.model).data.clear();
 
-		int indexRoi = 0;
-		ImagePlus imageCaptured = getModel().getImagePlus();
+		ImagePlus imageCaptured = getModel().getImagePlus().duplicate();
 		Overlay overlay = getModel().getImagePlus().getOverlay().duplicate();
 
+		int indexRoi = 0;
 		for (Roi roi : this.model.getRoiManager().getRoisAsArray()) {
 
 			this.model.getImagePlus().setRoi(roi);
@@ -96,6 +96,7 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
 		this.model.calculateResults();
 
+		// Display results
 		FenResults fenResults = new FenResults(this);
 		fenResults.addTab(new MainTab(fenResults, imageCaptured, overlay));
 		fenResults.setVisible(true);
