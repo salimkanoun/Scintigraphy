@@ -63,10 +63,6 @@ public class DynGastricScintigraphy extends Scintigraphy {
 		// Order image by time (reversed)
 		Arrays.parallelSort(selection, new ReversedChronologicalAcquisitionComparator());
 
-//		// Create projection for each image
-//		for (int i = 0; i < selection.length; i++)
-//			selection[i] = Library_Dicom.project(selection[i], 1, 10, "sum");
-
 		return selection;
 	}
 

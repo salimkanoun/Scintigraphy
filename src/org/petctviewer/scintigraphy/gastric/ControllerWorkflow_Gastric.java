@@ -10,7 +10,6 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
-import org.petctviewer.scintigraphy.scin.gui.IsotopeDialog;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
@@ -19,7 +18,6 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 import org.petctviewer.scintigraphy.scin.preferences.PrefsTabGastric;
 
 import javax.swing.*;
@@ -145,8 +143,8 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
 			this.workflows[i] = new Workflow(this, this.getModel().getImageSelection()[i]);
 
-			ImageState stateAnt = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_NONE);
-			ImageState statePost = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, ImageState.ID_NONE);
+			ImageState stateAnt = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_WORKFLOW);
+			ImageState statePost = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, ImageState.ID_WORKFLOW);
 
 			dri_1 = new DrawRoiInstruction("Stomach", stateAnt, dri_2);
 			dri_2 = new DrawRoiInstruction("Stomach", statePost, dri_1);
@@ -201,23 +199,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 	@Override
 	protected void start() {
-		// Find isotope
-		String isotopeCode = Library_Dicom.findIsotopeCode(getModel().getImagePlus());
-		if (isotopeCode == null) {
-			// No code
-			// Ask user for isotope
-			IsotopeDialog isotopeDialog = new IsotopeDialog(vue);
-			isotopeDialog.setVisible(true);
-		}
-		Isotope isotope = Isotope.getIsotopeFromCode(isotopeCode);
-		if (isotope == null) {
-			// Code unknown
-			// Ask user for isotope
-			IsotopeDialog isotopeDialog = new IsotopeDialog(vue, isotopeCode);
-			isotopeDialog.setVisible(true);
-			isotope = isotopeDialog.getIsotope();
-		}
-		getModel().setIsotope(isotope);
+		getModel().setIsotope(Library_Dicom.getIsotope(getModel().getImagePlus(), this.vue));
 
 		super.start();
 	}

@@ -12,6 +12,8 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.IsotopeDialog;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 
 import java.text.ParseException;
@@ -38,8 +40,7 @@ public class Library_Dicom {
 
 		// On enleve les milisec qui sont inconstantes
 		int separateurPoint = dateInput.indexOf(".");
-		if (separateurPoint != -1)
-			dateInput = dateInput.substring(0, separateurPoint);
+		if (separateurPoint != -1) dateInput = dateInput.substring(0, separateurPoint);
 
 		SimpleDateFormat parser = new SimpleDateFormat("yyyyMMddHHmmss");
 		Date dateAcquisition = null;
@@ -60,7 +61,8 @@ public class Library_Dicom {
 	 * @return Array ImagePlus Anterior in position 0 and Posterior in position 1
 	 * @throws ReadTagException if a DICOM tag could not be retrieve
 	 */
-	private static ImagePlus[] splitCameraMultiFrame(ImagePlus imp, boolean anteriorFirstImage) throws ReadTagException {
+	private static ImagePlus[] splitCameraMultiFrame(ImagePlus imp, boolean anteriorFirstImage)
+			throws ReadTagException {
 		int[] sequenceDetector = Library_Dicom.getCameraNumberArrayMultiFrame(imp);
 
 		// Instantiate header that will receive pixels
@@ -121,8 +123,7 @@ public class Library_Dicom {
 	private static int getCameraNumberUniqueFrame(ImagePlus imp) throws ReadTagException {
 		// Find the camera number in the current image
 		String tagVector = DicomTools.getTag(imp, "0054,0020");
-		if (!StringUtils.isEmpty(tagVector))
-			tagVector = tagVector.trim();
+		if (!StringUtils.isEmpty(tagVector)) tagVector = tagVector.trim();
 		else {
 			throw new ReadTagException("Camera Number not found");
 		}
@@ -161,8 +162,7 @@ public class Library_Dicom {
 		if (!StringUtils.isEmpty(DicomTools.getTag(imp, "0011,1012"))) {
 			tag += DicomTools.getTag(imp, "0011,1012");
 		}
-		if (!StringUtils.isEmpty(DicomTools.getTag(imp, "0011,1030")))
-			tag += DicomTools.getTag(imp, "0011,1030");
+		if (!StringUtils.isEmpty(DicomTools.getTag(imp, "0011,1030"))) tag += DicomTools.getTag(imp, "0011,1030");
 
 		return tag;
 
@@ -186,10 +186,8 @@ public class Library_Dicom {
 		//If no data presume detector 1 is anterior
 		int cameraNumber = Library_Dicom.getCameraNumberUniqueFrame(imp);
 		System.out.println("Orientation Not recognized, assuming vector 1 is anterior");
-		if (cameraNumber == 1)
-			return true;
-		if (cameraNumber == 2)
-			return false;
+		if (cameraNumber == 1) return true;
+		if (cameraNumber == 2) return false;
 
 		return false;
 
@@ -293,14 +291,14 @@ public class Library_Dicom {
 	public static ImageSelection[] splitDynamicAntPost(ImageSelection image)
 			throws WrongOrientationException, IllegalArgumentException, ReadTagException {
 		Orientation[] expectedOrientations = new Orientation[]{Orientation.DYNAMIC_ANT_POST,
-				Orientation.DYNAMIC_POST_ANT};
+		                                                       Orientation.DYNAMIC_POST_ANT};
 		ImagePlus imagePlus = image.getImagePlus();
 		if (Arrays.stream(expectedOrientations).noneMatch(i -> i.equals(image.getImageOrientation())))
 			throw new WrongOrientationException(image.getImageOrientation(), expectedOrientations);
 
-		if (!isMultiFrame(imagePlus) || isSameCameraMultiFrame(imagePlus))
-			throw new IllegalArgumentException("The image's tag are incorrect and cannot be detected as an "
-					+ Arrays.toString(Orientation.dynamicOrientations()) + " image!");
+		if (!isMultiFrame(imagePlus) || isSameCameraMultiFrame(imagePlus)) throw new IllegalArgumentException(
+				"The image's tag are incorrect and cannot be detected as an " + Arrays
+						.toString(Orientation.dynamicOrientations()) + " image!");
 
 		ImageSelection[] result = new ImageSelection[2];
 		for (int i = 0; i < result.length; i++)
@@ -374,8 +372,8 @@ public class Library_Dicom {
 
 		// Si on ne trouve pas de tag on flip toute detecteur 2 et on notifie
 		// l'utilisateur
-		if (!tag.substring(0, separateur).contains("POS") && !tag.substring(0, separateur).contains("_F")
-				&& !tag.substring(0, separateur).contains("ANT") && !tag.substring(0, separateur).contains("_E")) {
+		if (!tag.substring(0, separateur).contains("POS") && !tag.substring(0, separateur).contains("_F") && !tag
+				.substring(0, separateur).contains("ANT") && !tag.substring(0, separateur).contains("_E")) {
 			System.out.println(
 					"No Orientation tag found, assuming detector 2 is posterior. Please Notify Salim.Kanoun@gmail" +
 							".com");
@@ -417,19 +415,19 @@ public class Library_Dicom {
 			imp.setSlice(i);
 			String tag = Library_Dicom.getOrientationString(imp);
 
-			
+
 			if (StringUtils.contains(tag, "POS") || StringUtils.contains(tag, "_F")) {
 				imp.getProcessor().flipHorizontal();
 				imp.setTitle("Post" + i);
 			} else if (StringUtils.contains(tag, "ANT") || StringUtils.contains(tag, "_E")) {
 				imp.setTitle("Ant" + i);// On ne fait rien
 			} else {
-					System.out.println( "No Orientation found assuming Camera 2 is posterior, please send image sample to " +
-									"Salim.kanoun@gmail.com if wrong");
-					int tagVector = Library_Dicom.getCameraNumberUniqueFrame(imp);
-					if(tagVector==2) {
-						imp.getProcessor().flipHorizontal();
-					}
+				System.out.println(
+						"No Orientation found assuming Camera 2 is posterior, please send image sample to " + "Salim" + ".kanoun@gmail.com if wrong");
+				int tagVector = Library_Dicom.getCameraNumberUniqueFrame(imp);
+				if (tagVector == 2) {
+					imp.getProcessor().flipHorizontal();
+				}
 
 			}
 
@@ -469,8 +467,7 @@ public class Library_Dicom {
 		int nbPhase;
 		if (DicomTools.getTag(imp, "0054,0031") != null) {
 			nbPhase = Integer.parseInt(DicomTools.getTag(imp, "0054,0031").trim());
-		} else
-			nbPhase = 1;
+		} else nbPhase = 1;
 
 		if (nbPhase == 1) {
 			int duration = getFrameDuration(imp);
@@ -569,9 +566,8 @@ public class Library_Dicom {
 		} else if (ims.getImageOrientation() == Orientation.ANT_POST) {
 			// Flip
 			result.getImagePlus().getStack().getProcessor(2).flipHorizontal();
-		} else
-			throw new WrongOrientationException(ims.getImageOrientation(),
-					new Orientation[]{Orientation.ANT_POST, Orientation.POST_ANT});
+		} else throw new WrongOrientationException(ims.getImageOrientation(),
+				new Orientation[]{Orientation.ANT_POST, Orientation.POST_ANT});
 		return result;
 	}
 
@@ -582,7 +578,7 @@ public class Library_Dicom {
 	 * bit image. Otherwise, the count are only ineter, and we lose many
 	 * informations.
 	 *
-	 * @param imp           ImagePlus to normalize
+	 * @param imp            ImagePlus to normalize
 	 * @param frameDurations int[] of the ImagePlus duration frames
 	 */
 	public static void normalizeToCountPerSecond(ImagePlus imp, int[] frameDurations) {
@@ -638,6 +634,13 @@ public class Library_Dicom {
 		return enchainer.concatenate(images, keepIms);
 	}
 
+	/**
+	 * Finds the isotope code in the DICOM header of the specified image. If the code could not be found, then this
+	 * method returns null.
+	 *
+	 * @param imp Image to search the isotope code from
+	 * @return string with the isotope code or null if not found
+	 */
 	public static String findIsotopeCode(ImagePlus imp) {
 		String infoProperty = imp.getInfoProperty();
 		if (infoProperty != null) {
@@ -650,7 +653,42 @@ public class Library_Dicom {
 		return null;
 	}
 
+	/**
+	 * Finds the isotope in the DICOM header of the specified image. If the code could not be found, then this method
+	 * returns null. If the code could be found but doesn't match any known Isotope, then this method returns null.
+	 *
+	 * @param imp Image to search the isotope from
+	 * @return Isotope found or null if not found or unknown
+	 */
 	public static Isotope findIsotope(ImagePlus imp) {
 		return Isotope.getIsotopeFromCode(findIsotopeCode(imp));
+	}
+
+	/**
+	 * Finds the isotope in the DICOM header of the specified image. If the isotope could not be found (because the
+	 * code was not found or unknown) then this method asks the user to enter a valid isotope. So this method will
+	 * always return a valid isotope.
+	 *
+	 * @param imp Image to search the isotope from
+	 * @return Isotope found or entered by the user (never null)
+	 */
+	public static Isotope getIsotope(ImagePlus imp, FenApplication view) {
+		// Find isotope
+		String isotopeCode = Library_Dicom.findIsotopeCode(imp);
+		if (isotopeCode == null) {
+			// No code
+			// Ask user for isotope
+			IsotopeDialog isotopeDialog = new IsotopeDialog(view);
+			isotopeDialog.setVisible(true);
+		}
+		Isotope isotope = Isotope.getIsotopeFromCode(isotopeCode);
+		if (isotope == null) {
+			// Code unknown
+			// Ask user for isotope
+			IsotopeDialog isotopeDialog = new IsotopeDialog(view, isotopeCode);
+			isotopeDialog.setVisible(true);
+			isotope = isotopeDialog.getIsotope();
+		}
+		return isotope;
 	}
 }

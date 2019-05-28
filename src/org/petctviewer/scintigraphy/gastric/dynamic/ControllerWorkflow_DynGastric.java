@@ -134,7 +134,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		for (int i = 0; i < this.workflows.length; i++) {
 			this.workflows[i] = new Workflow(this, getModel().getImageSelection()[i]);
 
-			ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
+			ImageState state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_CUSTOM_IMAGE);
 			state.specifieImage(this.workflows[i].getImageAssociated());
 
 			dri_antre = new DrawRoiInstruction("Stomach", state, dri_antre);

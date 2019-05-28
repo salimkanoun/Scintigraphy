@@ -3,10 +3,12 @@ package org.petctviewer.scintigraphy.scin.gui;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.ScrollbarWithLabel;
+import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.gastric.InstructionTooltip;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -58,6 +60,11 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 		// Enable visualization by default
 		this.setVisualizationEnable(true);
+
+		// Prepare overlay
+		IJ.setTool(Toolbar.POLYGON);
+		Library_Gui.initOverlay(ims.getImagePlus());
+		Library_Gui.setOverlayDG(ims.getImagePlus());
 	}
 
 	private void addControllerListeners() {
