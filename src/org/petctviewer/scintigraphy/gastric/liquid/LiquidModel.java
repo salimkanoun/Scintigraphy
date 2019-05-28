@@ -30,14 +30,14 @@ public class LiquidModel extends ModelWorkflow {
 		this.postCounts = new LinkedList<>();
 	}
 
-	private double[] generateXValues() {
+	public double[] generateXValues() {
 		double[] xValues = new double[this.antCounts.size()];
 		for(int i = 0; i < this.antCounts.size(); i++)
 			xValues[i] = this.antCounts.get(i).getXValue();
 		return xValues;
 	}
 
-	private double[] generateYValues() {
+	public double[] generateYValues() {
 		double[] yValues = new double[this.antCounts.size()];
 		for(int i = 0; i < this.antCounts.size(); i++)
 			yValues[i] = this.antCounts.get(i).getYValue();
@@ -90,7 +90,7 @@ public class LiquidModel extends ModelWorkflow {
 			boolean isExtrapolated = false;
 			if(result == null) {
 				// Extrapolate
-				result = 0.;
+				result = request.getFit().extrapolateX(half);
 				isExtrapolated = true;
 			}
 			return new ResultValue(request, result, Unit.TIME, isExtrapolated);

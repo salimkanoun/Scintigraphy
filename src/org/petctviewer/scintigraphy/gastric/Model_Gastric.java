@@ -1002,8 +1002,8 @@ public class Model_Gastric extends ModelWorkflow {
 	 * @return Intragastric distribution graph
 	 */
 	public ChartPanel createGraph_1() {
-		return Library_JFreeChart.createGraph("Fundus/Stomach (%)", new Color[]{new Color(0, 100, 0)}, "",
-				Library_JFreeChart.createDataset(this.generateTime(),
+		return Library_JFreeChart.createGraph("Time (" + Unit.MINUTES.abrev() + ")", "Fundus/Stomach (%)",
+				new Color[]{new Color(0, 100, 0)}, "", Library_JFreeChart.createDataset(this.generateTime(),
 						this.getResultAsArray(REGION_FUNDUS, DATA_CORRELATION, Unit.PERCENTAGE),
 						"Intragastric Distribution"), 100.0);
 	}
@@ -1015,8 +1015,11 @@ public class Model_Gastric extends ModelWorkflow {
 	 */
 	public ChartPanel createGraph_2() {
 		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_DERIVATIVE, Unit.PERCENTAGE);
-		return Library_JFreeChart.createGraph("% meal in the interval", new Color[]{Color.RED}, "",
-				Library_JFreeChart.createDataset(this.generateDerivedTime(), result, "Gastrointestinal flow"), 50.0);
+		return Library_JFreeChart
+				.createGraph("Time (" + Unit.MINUTES.abrev() + ")", "% meal in the interval", new Color[]{Color.RED},
+						"",
+						Library_JFreeChart.createDataset(this.generateDerivedTime(), result, "Gastrointestinal flow"),
+						50.0);
 	}
 
 	/**
@@ -1033,7 +1036,8 @@ public class Model_Gastric extends ModelWorkflow {
 
 		XYSeriesCollection dataset = Library_JFreeChart.createDataset(this.generateTime(), ySeries, titles);
 
-		return Library_JFreeChart.createGraph("Retention (% meal)", colors, "", dataset, 100.);
+		return Library_JFreeChart
+				.createGraph("Time (" + Unit.MINUTES.abrev() + ")", "Retention (% meal)", colors, "", dataset, 100.);
 	}
 
 	/**
@@ -1044,10 +1048,11 @@ public class Model_Gastric extends ModelWorkflow {
 	public ChartPanel createGraph_4(Unit unit) {
 		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_GEO_AVERAGE, unit);
 
-		XYSeriesCollection dataset = Library_JFreeChart
-				.createDataset(this.generateTime(), result, "Stomach " + "retention");
+		XYSeriesCollection dataset = Library_JFreeChart.createDataset(this.generateTime(), result, "Stomach " +
+				"retention");
 
-		return Library_JFreeChart.createGraph(unit.abrev(), new Color[]{Color.GREEN}, "", dataset,
+		return Library_JFreeChart.createGraph(Unit.MINUTES.abrev(), unit.abrev(), new Color[]{Color.GREEN}, "",
+				dataset,
 				Library_JFreeChart.maxValue(result) * 1.1);
 	}
 

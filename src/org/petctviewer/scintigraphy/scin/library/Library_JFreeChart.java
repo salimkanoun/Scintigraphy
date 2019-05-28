@@ -25,7 +25,7 @@ public class Library_JFreeChart {
 
 	/**
 	 * renvoie l'image de la serie en x
-	 * 
+	 *
 	 * @param series serie a traite
 	 * @param x      abscisse
 	 * @return ordonnee
@@ -38,7 +38,7 @@ public class Library_JFreeChart {
 	/**
 	 * renvoie la valeur de l'abscisse correspondant a l'ordonnee maximale de la
 	 * serie
-	 * 
+	 *
 	 * @param series la serie
 	 * @return valeur de l'abscisse
 	 */
@@ -58,7 +58,7 @@ public class Library_JFreeChart {
 	/**
 	 * renvoie la valeur de l'abscisse correspondant a l'ordonnee maximale de la
 	 * serie
-	 * 
+	 *
 	 * @param ds     le dataset
 	 * @param series numero de la serie
 	 * @return valeur de l'abscisse
@@ -100,9 +100,10 @@ public class Library_JFreeChart {
 
 		return Double.NaN;
 	}
+
 	/**
 	 * Renvoie la valeur de T1/2 observee
-	 * 
+	 *
 	 * @param series serie a traiter
 	 * @param startX depart en x
 	 * @return abscisse du point T1/2
@@ -115,8 +116,7 @@ public class Library_JFreeChart {
 		for (int i = 1; i < series.getItemCount(); i++) {
 			if (series.getY(i - 1).doubleValue() >= yDemi && series.getY(i).doubleValue() <= yDemi) {
 				Double x = (series.getX(i - 1).doubleValue() + series.getX(i).doubleValue()) / 2;
-				if (x >= startX)
-					return x;
+				if (x >= startX) return x;
 			}
 		}
 		return Double.NaN;
@@ -134,8 +134,9 @@ public class Library_JFreeChart {
 		Double airePt1 = croppedSeries.getX(0).doubleValue() * croppedSeries.getY(0).doubleValue() / 2;
 		integrale.add(airePt1);
 		for (int i = 0; i < croppedSeries.getItemCount() - 1; i++) {
-			Double aire = ((croppedSeries.getX(i + 1).doubleValue() - croppedSeries.getX(i).doubleValue())
-					* (croppedSeries.getY(i).doubleValue() + croppedSeries.getY(i + 1).doubleValue())) / 2;
+			Double aire = ((croppedSeries.getX(i + 1).doubleValue() - croppedSeries.getX(i)
+					.doubleValue()) * (croppedSeries.getY(i).doubleValue() + croppedSeries.getY(i + 1)
+					.doubleValue())) / 2;
 			integrale.add(aire);
 		}
 
@@ -151,7 +152,7 @@ public class Library_JFreeChart {
 
 	/**
 	 * renvoie la liste des ordonnees de la serie passee en parametre
-	 * 
+	 *
 	 * @param s la serie
 	 * @return liste des ordonnees
 	 */
@@ -177,8 +178,8 @@ public class Library_JFreeChart {
 		}
 
 		// on cree un jfreehart avec lle datasert precedemment construit
-		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "counts/sec", dataset,
-				PlotOrientation.VERTICAL, true, true, true);
+		JFreeChart xylineChart = ChartFactory
+				.createXYLineChart("", "min", "counts/sec", dataset, PlotOrientation.VERTICAL, true, true, true);
 
 		final XYPlot plot = xylineChart.getXYPlot();
 
@@ -223,9 +224,10 @@ public class Library_JFreeChart {
 	}
 
 	// TODO renvoyer un seul chartpanel, passer un tableau de string a une dimension
+
 	/**
 	 * renvoie des chartPanels avec les series associees
-	 * 
+	 *
 	 * @param asso   association des series selon leur cle ( ex : {{"S1", "S2"},
 	 *               {"S1", "S3"}} )
 	 * @param series liste des series
@@ -246,19 +248,19 @@ public class Library_JFreeChart {
 
 	/**
 	 * From an array of the form:
-	 * 
+	 *
 	 * <pre>
 	 * [0][i] = x
 	 * [1][i] = y
 	 * </pre>
-	 * 
+	 * <p>
 	 * inverts it to the form:
-	 * 
+	 *
 	 * <pre>
 	 * [i][0] = x
 	 * [i][1] = y
 	 * </pre>
-	 * 
+	 *
 	 * @param toInvert Array to invert
 	 * @return Array where columns are rows
 	 * @author Titouan QUÉMA
@@ -276,7 +278,7 @@ public class Library_JFreeChart {
 	 * arguments.<br>
 	 * Arrays of Y values are in the form <code>[i][j]</code> where <code>i</code>
 	 * is the number of the series and <code>j</code> is the value of each point.
-	 * 
+	 *
 	 * @param resX  Values of the points for the X axis (null not accepted)
 	 * @param resY  Values of the points for the Y axis for each series (null not
 	 *              accepted)
@@ -285,19 +287,16 @@ public class Library_JFreeChart {
 	 */
 	public static XYSeriesCollection createDataset(double[] resX, double[][] resY, String[] title) {
 		// Check null
-		if (resX == null || resY == null || title == null)
-			throw new NullPointerException("Parameters cannot be null");
+		if (resX == null || resY == null || title == null) throw new NullPointerException("Parameters cannot be null");
 
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		for (int i = 0; i < resY.length; i++) {
 			// Check null
-			if (resY[i] == null || title[i] == null)
-				throw new NullPointerException("Parameters cannot be null");
+			if (resY[i] == null || title[i] == null) throw new NullPointerException("Parameters cannot be null");
 
 			// Check length
-			if (resX.length != resY[i].length)
-				throw new IllegalArgumentException(
-						"The two arrays must have the same length (" + resX.length + " != " + resY[i].length + ")");
+			if (resX.length != resY[i].length) throw new IllegalArgumentException(
+					"The two arrays must have the same length (" + resX.length + " != " + resY[i].length + ")");
 
 			// Create series
 			XYSeries series = new XYSeries(title[i]);
@@ -313,19 +312,20 @@ public class Library_JFreeChart {
 	 * Generates a dataset of 1 series with the specified arguments.<br>
 	 * This is a convenience method for
 	 * {@link #createDataset(double[], double[][], String[])}.
-	 * 
+	 *
 	 * @param resX  Values of the points for the X axis
 	 * @param resY  Values of the points for the Y axis
 	 * @param title Title of the series
 	 * @return generated dataset with 1 series
 	 */
 	public static XYSeriesCollection createDataset(double[] resX, double[] resY, String title) {
-		return createDataset(resX, new double[][] { resY }, new String[] { title });
+		return createDataset(resX, new double[][]{resY}, new String[]{title});
 	}
 
 	/**
 	 * Generates a graphic image with the specified arguments.
-	 * 
+	 *
+	 * @param xAxisLabel Label of the X axis
 	 * @param yAxisLabel Label of the Y axis
 	 * @param color      Color of each series
 	 * @param title      Title of the graph
@@ -333,10 +333,10 @@ public class Library_JFreeChart {
 	 * @param upperBound The upper axis limit
 	 * @return ImagePlus containing the graphic
 	 */
-	public static ChartPanel createGraph(String yAxisLabel, Color[] color, String title, XYDataset dataset,
-			double upperBound) {
-		JFreeChart xylineChart = ChartFactory.createXYLineChart(title, "min", yAxisLabel, dataset,
-				PlotOrientation.VERTICAL, true, true, true);
+	public static ChartPanel createGraph(String xAxisLabel, String yAxisLabel, Color[] color, String title,
+	                                     XYDataset dataset, double upperBound) {
+		JFreeChart xylineChart = ChartFactory
+				.createXYLineChart(title, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL, true, true, true);
 
 		XYPlot plot = (XYPlot) xylineChart.getPlot();
 		// Background
@@ -374,7 +374,7 @@ public class Library_JFreeChart {
 	/**
 	 * Converts an array of values from one unit to another.<br>
 	 * The array returned is a new instance.
-	 * 
+	 *
 	 * @param values       Values to convert
 	 * @param previousUnit Unit the values are
 	 * @param newUnit      Unit the values will be convert to
@@ -395,39 +395,35 @@ public class Library_JFreeChart {
 	 * Finds the maximum value of an array.<br>
 	 * The elements of the array must implement the Comparable interface.<br>
 	 * If the input array is null or empty, then the result is null.
-	 * 
+	 *
 	 * @param <T>   Class implementing the Comparable interface
 	 * @param array Elements to get the max from
 	 * @return first maximum value found or null if array is null
 	 * @author Titouan QUÉMA
 	 */
 	public static <T extends Comparable<T>> T maxValue(T[] array) {
-		if (array == null || array.length == 0)
-			return null;
+		if (array == null || array.length == 0) return null;
 
 		T max = array[0];
 		for (T val : array)
-			if (val.compareTo(max) > 0)
-				max = val;
+			if (val.compareTo(max) > 0) max = val;
 		return max;
 	}
 
 	/**
 	 * Finds the maximum value of an array.<br>
 	 * If the input is null or empty, then the result is 0.
-	 * 
+	 *
 	 * @param array Elements to get the max from
 	 * @return maximum value found
 	 * @author Titouan QUÉMA
 	 */
 	public static double maxValue(double[] array) {
-		if (array == null || array.length == 0)
-			return 0.;
+		if (array == null || array.length == 0) return 0.;
 
 		double max = array[0];
 		for (double val : array)
-			if (val > max)
-				max = val;
+			if (val > max) max = val;
 		return max;
 	}
 
@@ -436,23 +432,21 @@ public class Library_JFreeChart {
 	 * The value X returned is calculated with a linear interpolation as the point
 	 * between x1 and x2 with <code>x1 <= X <= x2</code>.<br>
 	 * If x1 or x2 could not be found, then the result is null.<br>
-	 * 
+	 *
 	 * @param xValues Array containing the X values of the graph
 	 * @param yValues Array containing the Y values of the graph
 	 * @param valueY  Y value to find
 	 * @return X value or null if not found
-	 * @see #extrapolateX
 	 * @author Titouan QUÉMA
+	 * @see #extrapolateX
 	 */
 	public static Double getX(double[] xValues, double[] yValues, double valueY) {
 		for (int i = 1; i < xValues.length; i++) {
 			// Prevent from overflow
-			if (i >= yValues.length)
-				return null;
+			if (i >= yValues.length) return null;
 
 			// Exact value
-			if (yValues[i] == valueY)
-				return xValues[i];
+			if (yValues[i] == valueY) return xValues[i];
 
 			// Approximate value
 			if (yValues[i] < valueY) {
@@ -471,12 +465,12 @@ public class Library_JFreeChart {
 	/**
 	 * Extrapolates the X value based upon the specified Y value of the graph.<br>
 	 * The value X returned is extrapolated with the specified fit.
-	 * 
+	 *
 	 * @param valueY Y value
 	 * @param fit    Fit the interpolation must rely on
 	 * @return X value extrapolated
-	 * @see #getX
 	 * @author Titouan QUÉMA
+	 * @see #getX
 	 */
 	public static double extrapolateX(double valueY, Fit fit) {
 		return fit.extrapolateX(valueY);
@@ -487,29 +481,27 @@ public class Library_JFreeChart {
 	 * The value Y returned is calculated with a linear interpolation as the point
 	 * between y1 and y2 with <code>y1 <= Y <= y2</code>. If y1 or y2 could not be
 	 * found, then the result is null.<br>
-	 * 
+	 *
 	 * @param xValues Array containing the X values of the graph
 	 * @param yValues Array containing the Y values of the graph
 	 * @param valueX  X value to find
 	 * @return Y value or null if not found
-	 * @see #extrapolateY
 	 * @author Titouan QUÉMA
+	 * @see #extrapolateY
 	 */
 	public static Double getY(double[] xValues, double[] yValues, double valueX) {
 		for (int i = 0; i < xValues.length; i++) {
 			// Prevent from overflow
-			if (i >= yValues.length)
-				return null;
+			if (i >= yValues.length) return null;
 
 			// Exact value
-			if (xValues[i] == valueX)
-				return yValues[i];
+			if (xValues[i] == valueX) return yValues[i];
 
 			// Approximate value
 			if (xValues[i] > valueX) {
-				if(i == 0) {
+				if (i == 0) {
 					// Point is before first point of the graph
-					return  null; // Not found
+					return null; // Not found
 				}
 				double x1 = xValues[i - 1];
 				double x2 = xValues[i];
@@ -527,7 +519,7 @@ public class Library_JFreeChart {
 	/**
 	 * Extrapolates the Y value based upon the specified X value.<br>
 	 * The value Y returned is extrapolated with the specified fit.
-	 * 
+	 *
 	 * @param valueX X value
 	 * @param fit    Fit the interpolation must rely on
 	 * @return Y value extrapolated
@@ -544,16 +536,15 @@ public class Library_JFreeChart {
 	 * <code>B(x, 3) B'(x, 1)</code> the result will be calculate like this:<br>
 	 * <code>(4-5)² + (3-1)²</code><br>
 	 * This is used to calculate the accuracy of a fit.
-	 * 
+	 *
 	 * @param yValues       First dataset
 	 * @param yFittedValues Second dataset
 	 * @return least square of the two dataset
 	 * @author Titouan QUÉMA
 	 */
 	public static double computeLeastSquares(double[] yValues, double[] yFittedValues) {
-		if (yValues.length != yFittedValues.length)
-			throw new IllegalArgumentException("The lengths of the arrays must be equals (" + yValues.length + " != "
-					+ yFittedValues.length + ")");
+		if (yValues.length != yFittedValues.length) throw new IllegalArgumentException(
+				"The lengths of the arrays must be equals (" + yValues.length + " != " + yFittedValues.length + ")");
 
 		double result = 0.;
 		for (int i = 0; i < yValues.length; i++) {
