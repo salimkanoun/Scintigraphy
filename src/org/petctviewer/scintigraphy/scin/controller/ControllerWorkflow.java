@@ -620,7 +620,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		int rotation = e.getWheelRotation();
 		int value = this.getVue().getInstructionDisplayed() + rotation;
-		if (value < this.getVue().getMaxInstruction()) {
+		if (value < this.getVue().getMaxInstruction() && value >= 0) {
 			this.updateScrollbar(value);
 			this.getVue().currentInstruction(value);
 		}
