@@ -41,8 +41,15 @@ public class WrongColumnException extends WrongInputException {
 		private static final long serialVersionUID = 1L;
 
 		public OrientationColumn(int rowError, Orientation badProvided, Orientation[] expected) {
-			super(Column.ORIENTATION, rowError, "[" + badProvided + "] is not supported. Please use "
-					+ (expected.length > 1 ? "one of" : "") + ":\n" + Arrays.toString(expected));
+			super(Column.ORIENTATION, rowError,
+					"[" + badProvided + "] is not supported. Please use " + (expected.length > 1 ? "one of" : "") +
+							":\n" + Arrays.toString(expected));
+		}
+
+		public OrientationColumn(int rowError, Orientation badProvided, Orientation[] expected, String hintForUser) {
+			super(Column.ORIENTATION, rowError,
+					"[" + badProvided + "] is not supported. Please use " + (expected.length > 1 ? "one of" : "") +
+							":\n" + Arrays.toString(expected) + "\nHint: " + hintForUser);
 		}
 
 	}

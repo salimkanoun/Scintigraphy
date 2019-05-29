@@ -296,7 +296,7 @@ public class Library_Dicom {
 		if (Arrays.stream(expectedOrientations).noneMatch(i -> i.equals(image.getImageOrientation())))
 			throw new WrongOrientationException(image.getImageOrientation(), expectedOrientations);
 
-		if (!isMultiFrame(imagePlus) || isSameCameraMultiFrame(imagePlus)) throw new IllegalArgumentException(
+		if (!isMultiFrame(imagePlus) || isSameCameraMultiFrame(imagePlus)) throw new WrongOrientationException(
 				"The image's tag are incorrect and cannot be detected as an " + Arrays
 						.toString(Orientation.dynamicOrientations()) + " image!");
 
