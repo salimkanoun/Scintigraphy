@@ -100,7 +100,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 						sameName = true;
 		if (sameName && getVue().getImage().getImagePlus().getRoi() != null) {
 			int result;
-			result = JOptionPane.showConfirmDialog(getVue(), "A Roi already have this name. Do you want to continue ?",
+			result = JOptionPane.showConfirmDialog(getVue(), "A Roi already have this name. Do you want to continue?",
 					"Duplicate Roi Name", JOptionPane.YES_NO_CANCEL_OPTION);
 
 			if (result != JOptionPane.OK_OPTION) return;
@@ -113,7 +113,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		// Update view
 		int indexScroll = this.getVue().getInstructionDisplayed();
 		getVue().setNbInstructions(this.allInputInstructions().size());
-		this.updateScrollbar(indexScroll);
+		getVue().currentInstruction(indexScroll);
 	}
 
 	@Override

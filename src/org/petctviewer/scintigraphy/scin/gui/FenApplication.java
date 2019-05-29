@@ -37,13 +37,13 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	private final Panel panel_btns_gauche;
 	private final Panel panel_btns_droite;
 
-	final JTextField textfield_instructions;
+	protected final JTextField textfield_instructions;
 
 	final Button btn_quitter;
 	final Button btn_drawROI;
 	final Button btn_contrast;
 	final Button btn_precedent;
-	final Button btn_suivant;
+	protected final Button btn_suivant;
 
 	private ControllerScin controleur;
 
@@ -73,11 +73,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		super(imp, canvas);
 		// on set la lut des preferences
 		Library_Gui.setCustomLut(imp);
-		/*
-		 * try { UIManager.setLookAndFeel(
-		 * UIManager.getCrossPlatformLookAndFeelClassName() ); } catch (Exception e) {
-		 * e.printStackTrace(); }
-		 */
+
 		this.studyName = studyName;
 
 		String tagSerie = DicomTools.getTag(this.imp, "0008,103E");
@@ -126,17 +122,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.menuBar = new MenuBar();
 		this.createMenuBar();
 
-		// Set default button (when pressing enter)
-		this.textfield_instructions.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-					ActionEvent click = new ActionEvent(btn_suivant, ActionEvent.ACTION_PERFORMED, "");
-					btn_suivant.dispatchEvent(click);
-				}
-			}
-		});
-
 		this.setDefaultSize();
 		this.addComponentListener(this);
 		this.setResizable(false);
@@ -153,7 +138,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	public void resizeCanvas() {
 		ImagePlus imp = this.getImagePlus();
 
-		// this.getCanvas().setBounds(0,0,canvasW,canvasH);
 		this.getCanvas().setSize(canvasW, canvasH);
 
 		// on calcule le facteur de magnification
@@ -165,9 +149,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 		this.getCanvas().setMagnification(magnification);
 
-		// this.revalidate(); // This may cause some trouble for the resizing.
 		this.pack();
-
 	}
 
 	// Close la fenetre
@@ -179,7 +161,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		return super.close();
 	}
 
-	/************ Private Method *********/
 	public Panel createPanelInstructionsBtns() {
 		Panel btns_instru = new Panel();
 		btns_instru.setLayout(new GridLayout(1, 2));
@@ -188,7 +169,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		return btns_instru;
 	}
 
-	/*************** Getter ******/
 	public Button getBtn_quitter() {
 		return this.btn_quitter;
 	}
@@ -238,7 +218,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		return panelPrincipal;
 	}
 
-	/************* Setter *************/
 	public void setController(ControllerScin ctrl) {
 		this.controleur = ctrl;
 
@@ -331,16 +310,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		resizeCanvas();
 	}
 
-	// // affiche l'overlay Droite/Gauche
-	// private void setOverlay() {
-	// // On initialise l'overlay avec les label DG
-	// Overlay overlay = VueScin.initOverlay(this.imp, 7);
-	// VueScin.setOverlayDG(overlay, imp);
-	// // On met sur l'image
-	// this.getImagePlus().setOverlay(overlay);
-	// }
-
-	/************ Component ***********/
 	@Override
 	public void windowClosing(WindowEvent we) {
 		close();
@@ -363,8 +332,4 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	@Override
 	public void componentHidden(ComponentEvent e) {
 	}
-	// @Override
-	// public synchronized void mouseWheelMoved(MouseWheelEvent e) {
-	//
-	// }
 }

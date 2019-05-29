@@ -258,6 +258,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 			this.vue.getOverlay().clear();
 			this.setOverlay(instruction.getImageState());
 			this.displayRois(roisToDisplay);
+			// Refresh display
+			this.getVue().repaint();
 		}
 
 		// Change next button label
@@ -432,6 +434,11 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	}
 
 	@Override
+	public FenApplicationWorkflow getVue() {
+		return (FenApplicationWorkflow) super.getVue();
+	}
+
+	@Override
 	public void clickPrevious() {
 		super.clickPrevious();
 
@@ -486,11 +493,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		}
 
 //		DEBUG("PREVIOUS");
-	}
-
-	@Override
-	public FenApplicationWorkflow getVue() {
-		return (FenApplicationWorkflow) super.getVue();
 	}
 
 	@Override
@@ -582,19 +584,17 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO: code not working
-//		if ((e.getSource() == getVue().getBtn_suivant() || e.getSource() == getVue().getBtn_precedent()) && getVue()
-//				.isVisualizationEnabled()) {
-//			int indexScrollForCurrentInstruction = this.allInputInstructions()
-//					.indexOf(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
-//			if (indexScrollForCurrentInstruction == 0) indexScrollForCurrentInstruction = 1;
-//			if (getVue().getInstructionDisplayed() != indexScrollForCurrentInstruction) {
-//				// Update view
-//				this.updateScrollbar(indexScrollForCurrentInstruction);
-//				getVue().currentInstruction(indexScrollForCurrentInstruction);
-//				return; // Do nothing more
-//			}
-//		}
+		if ((e.getSource() == getVue().getBtn_suivant() || e.getSource() == getVue().getBtn_precedent()) && getVue()
+				.isVisualizationEnabled()) {
+			int indexScrollForCurrentInstruction = this.allInputInstructions()
+					.indexOf(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
+			if (getVue().getInstructionDisplayed() != indexScrollForCurrentInstruction) {
+				// Update view
+				this.updateScrollbar(indexScrollForCurrentInstruction);
+				getVue().currentInstruction(indexScrollForCurrentInstruction);
+				return; // Do nothing more
+			}
+		}
 
 		super.actionPerformed(e);
 

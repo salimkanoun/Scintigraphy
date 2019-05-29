@@ -136,7 +136,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	 * @param nbInstructions Number of instructions
 	 */
 	public void setNbInstructions(int nbInstructions) {
-		this.scroll.setValues(1, 1, 1, nbInstructions);
+		this.scroll.setValues(0, 1, 0, nbInstructions);
 	}
 
 	/**

@@ -65,10 +65,6 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
 	@Override
 	public void end() {
-		// on sauvegarde l'imp projetee pour la reafficher par la suite
-		// this.impProjetee = ((Model_GeneralDyn)
-		// this.model).getImpProjetee().getImagePlus();
-
 		Library_Gui.initOverlay(this.vue.getImagePlus());
 		if(((Model_GeneralDyn) model).getImpAnt() != null) {
 			Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus(), Color.yellow, 1);
@@ -86,7 +82,6 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 			this.vue.getImagePlus().getOverlay().add(roi);
 		}
 
-		// this.nbOrganes = this.model.getRoiManager().getCount();
 		GeneralDynamicScintigraphy scindyn = (GeneralDynamicScintigraphy) this.main;
 
 		BufferedImage capture;
@@ -125,23 +120,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		}
 
 		this.fenResult.setVisible(true);
-
-		// if (!postExists) {
-		// this.finishDrawingResultWindow();
-		// }
-
 	}
-
-	// private void finishDrawingResultWindow() {
-	// GeneralDynamicScintigraphy vue = (GeneralDynamicScintigraphy) this.main;
-	// this.indexRoi = this.nbOrganes;
-	//
-	// vue.getFenApplication().setImage(this.impProjetee);
-	// // vue.setImp(this.impProjetee);
-	// this.model.getImagesPlus()[0] = this.impProjetee;
-	//
-	// vue.getFenApplication().resizeCanvas();
-	// }
 
 	@Override
 	public void clickNext() {
@@ -158,7 +137,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 			if (this.model.getRoiManager()
 					.getRoi(indexRoi) != null /* && indexRoiToSave > this.model.getRoiManager().getCount() */) {
 				retour = JOptionPane.showConfirmDialog(getVue(),
-						"A Roi already have this name. Do you want to continue ?", "Duplicate Roi Name",
+						"A Roi already have this name. Do you want to continue?", "Duplicate Roi Name",
 						JOptionPane.YES_NO_OPTION);
 			}
 			if (retour != JOptionPane.OK_OPTION)
@@ -166,6 +145,11 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		}
 
 		super.clickNext();
+
+		// Update view
+		int indexScroll = this.getVue().getInstructionDisplayed();
+		getVue().setNbInstructions(this.allInputInstructions().size());
+		getVue().currentInstruction(indexScroll);
 	}
 
 }

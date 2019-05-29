@@ -9,6 +9,9 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class FenApplication_GeneralDyn extends FenApplicationWorkflow {
 
@@ -36,9 +39,28 @@ public class FenApplication_GeneralDyn extends FenApplicationWorkflow {
 		this.getPanel_Instructions_btns_droite().add(btns_instru);
 
 		this.setDefaultSize();
-		
-		IJ.setTool(Toolbar.RECTANGLE);
-		this.imp.setOverlay(Library_Gui.initOverlay(getImagePlus()));
+
+		// Set default button (when pressing enter)
+		this.textfield_instructions.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ENTER && !e.isShiftDown()) {
+					ActionEvent click = new ActionEvent(btn_suivant, ActionEvent.ACTION_PERFORMED, "");
+					btn_suivant.dispatchEvent(click);
+				}
+			}
+		});
+		// Set default button (when pressing Shift + Enter)
+		this.textfield_instructions.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ENTER && e.isShiftDown()) {
+					ActionEvent click = new ActionEvent(btn_finish, ActionEvent.ACTION_PERFORMED, "");
+					btn_finish.dispatchEvent(click);
+				}
+			}
+		});
+
 		this.pack();	
 	}
 
