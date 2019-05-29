@@ -98,7 +98,8 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 		} else {
 			// Destroy tooltip
 			this.tooltip = null;
-			this.panelContainer.remove(scroll);
+			// TODO: this line resets the alignment of the panel to the left. Why???
+//			this.panelContainer.remove(scroll);
 
 			// Remove listeners
 			if (this.getControleur() != null) {
