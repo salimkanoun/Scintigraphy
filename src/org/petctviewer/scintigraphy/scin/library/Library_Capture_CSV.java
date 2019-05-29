@@ -77,7 +77,7 @@ public class Library_Capture_CSV {
 		// ajout de l'accesionNumber, si il n'existe pas on ajoute une string vide
 				String tagAccessionNumber = DicomTools.getTag(imp, "0008,0050");
 				if (tagId != null) 
-					hm.put(PATIENT_INFO_ACCESSION_NUMBER, tagId.trim());
+					hm.put(PATIENT_INFO_ACCESSION_NUMBER, tagAccessionNumber.trim());
 				else 
 					hm.put(PATIENT_INFO_ACCESSION_NUMBER, "");
 				

@@ -445,5 +445,10 @@ public class Modele_Os {
 		}
 		return this.uid.toString();
 	}
+	
+	@Override
+	public String toString() {
+		return "";
+	}
 
 }

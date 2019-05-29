@@ -13,6 +13,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
 /**
@@ -52,14 +53,22 @@ public abstract class PanelImpContrastSlider extends TabResult implements Change
 		boxSlider.add(this.sliderLabel);
 		boxSlider.add(this.slider);
 
-		BufferedImage img = this.imp.getBufferedImage();
-		if (this.dynamicImp == null) {
-			this.dynamicImp = new DynamicImage(img);
-			this.setContrast(this.slider.getValue());
-//			this.add(dynamicImp, BorderLayout.CENTER);
+		BufferedImage img;
+		if(this.imp.getCanvas() == null)
+			img = this.imp.getBufferedImage();
+		else {
+			img = Library_Capture_CSV.captureImage(this.imp, 512, 0).getBufferedImage();
+			System.out.println("captureImage");
 		}
-
-		this.setContrast(slider.getValue());
+		
+		this.imp.duplicate().show();
+		if(this.dynamicImp == null)
+			this.dynamicImp = new DynamicImage(img);
+		else
+			this.dynamicImp.setImage(img);
+		
+		this.setContrast(this.slider.getValue());
+//		this.add(dynamicImp, BorderLayout.CENTER);
 		
 //		sidePanel.add(boxSlider);
 //		this.parent.setSidePanelContent(boxSlider);

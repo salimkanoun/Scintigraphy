@@ -36,10 +36,13 @@ public class FenResultat_ScinStatic extends FenResults {
 		this.panAnt = new JPanel();
 		this.panPost = new JPanel();
 		this.panAvgGeo = new JPanel();
-
-		this.addAntTab(((ModelScinStatic) controller.getModel()).calculerTableauAnt());
-		this.addPostTab(((ModelScinStatic) controller.getModel()).calculerTableauPost());
-		this.addMoyGeomTab(((ModelScinStatic) controller.getModel()).calculerTaleauMayGeom());
+		
+		if(!((ModelScinStatic) this.getModel()).getIsSingleSlide() || ((ModelScinStatic) this.getModel()).getIsAnt())
+			this.addAntTab(((ModelScinStatic) controller.getModel()).calculerTableauAnt());
+		if( !((ModelScinStatic) this.getModel()).getIsSingleSlide() || !((ModelScinStatic) this.getModel()).getIsAnt())
+			this.addPostTab(((ModelScinStatic) controller.getModel()).calculerTableauPost());
+		if(!((ModelScinStatic) this.getModel()).getIsSingleSlide())
+			this.addMoyGeomTab(((ModelScinStatic) controller.getModel()).calculerTaleauMayGeom());
 
 		this.addTab(tab);
 

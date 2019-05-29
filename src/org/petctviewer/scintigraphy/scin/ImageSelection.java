@@ -144,4 +144,8 @@ public class ImageSelection implements Cloneable {
 			return other.imp == null;
 		} else return imp.equals(other.imp);
 	}
+	
+	public void close() {
+		this.getImagePlus().close();
+	}
 }

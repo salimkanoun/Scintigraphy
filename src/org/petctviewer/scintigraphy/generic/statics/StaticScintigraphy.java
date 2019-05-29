@@ -16,9 +16,15 @@ import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import java.awt.*;
 
 public class StaticScintigraphy extends Scintigraphy {
+	
+	private boolean isSingleSlice;
+	private boolean isAnt;
 
 	public StaticScintigraphy() {
 		super("General static scintigraphy");
+		
+		this.isSingleSlice = true;
+		this.isAnt = true;
 	}
 
 	@Override
@@ -34,13 +40,18 @@ public class StaticScintigraphy extends Scintigraphy {
 		if (selectedImages[0].getImageOrientation() == Orientation.ANT_POST
 				|| selectedImages[0].getImageOrientation() == Orientation.POST_ANT) {
 			imp = Library_Dicom.ensureAntPostFlipped(selectedImages[0]);
-			selectedImages[0].getImagePlus().close();
+			this.isSingleSlice = false;
+		}else if (selectedImages[0].getImageOrientation() == Orientation.ANT){
+			imp = selectedImages[0];
+		}else if(selectedImages[0].getImageOrientation() == Orientation.POST) {
+			imp = selectedImages[0];
+			this.isAnt = false;
 		} else {
 			throw new WrongColumnException.OrientationColumn(selectedImages[0].getRow(),
 					selectedImages[0].getImageOrientation(),
 					new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT });
 		}
-
+		selectedImages[0].getImagePlus().close();
 		ImageSelection[] selection = new ImageSelection[1];
 		selection[0] = imp;
 		return selection;
@@ -57,6 +68,9 @@ public class StaticScintigraphy extends Scintigraphy {
 
 		((FenApplicationWorkflow) this.getFenApplication()).setController(new ControllerWorkflow_ScinStatic(this,
 				(FenApplicationWorkflow) getFenApplication(), selectedImages, getStudyName()));
+
+		((ModelScinStatic) this.getFenApplication().getControleur().getModel()).setIsSingleSlide(this.isSingleSlice);
+		((ModelScinStatic) this.getFenApplication().getControleur().getModel()).setIsAnt(this.isAnt);
 		IJ.setTool(Toolbar.POLYGON);
 	}
 

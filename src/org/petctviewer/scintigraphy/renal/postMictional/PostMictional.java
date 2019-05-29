@@ -40,6 +40,8 @@ public class PostMictional extends Scintigraphy {
 		} else if (selectedImages[0].getImageOrientation() == Orientation.POST) {
 			impSorted = selectedImages[0].clone();
 		}
+		
+		selectedImages[0].close();
 
 		ImageSelection[] selection = new ImageSelection[1];
 		selection[0] = impSorted;

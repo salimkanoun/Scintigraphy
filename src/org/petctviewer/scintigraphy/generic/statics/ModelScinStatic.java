@@ -1,17 +1,21 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
-import ij.ImagePlus;
+import java.util.HashMap;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import java.util.HashMap;
+import ij.ImagePlus;
 
 public class ModelScinStatic extends ModelScin {
-	
+
+	private boolean isSingleSlice;
+	private boolean isAnt;
+
 	private HashMap<String, Object[]> roisAnt;
 	private HashMap<String, Object[]> roisPost;
-	
+
 	public ModelScinStatic(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
 		this.roisAnt = new HashMap<>();
@@ -20,62 +24,60 @@ public class ModelScinStatic extends ModelScin {
 	}
 
 	public void enregistrerMesureAnt(String nomRoi, ImagePlus imp) {
-			// on garde uniquement le studyName de la roi sans le tag
-//			nomRoi = nomRoi.substring(0,nomRoi.lastIndexOf(" "));
-			// si la roi n'existe pas, on la crée 
-			
-				Object[] o = { 	Library_Quantif.round(Library_Quantif.getCounts(imp),3),
-						Library_Quantif.round(imp.getRoi().getStatistics().mean,3),
-						Library_Quantif.round(imp.getRoi().getStatistics().stdDev,3)};
-			if(this.roisAnt.get(nomRoi)==null) 
-				this.roisAnt.put(nomRoi,o);
-			else
+		// on garde uniquement le studyName de la roi sans le tag
+		// nomRoi = nomRoi.substring(0,nomRoi.lastIndexOf(" "));
+		// si la roi n'existe pas, on la crée
+
+		Object[] o = { Library_Quantif.round(Library_Quantif.getCounts(imp), 3),
+				Library_Quantif.round(imp.getRoi().getStatistics().mean, 3),
+				Library_Quantif.round(imp.getRoi().getStatistics().stdDev, 3) };
+		if (this.roisAnt.get(nomRoi) == null)
+			this.roisAnt.put(nomRoi, o);
+		else
 			this.roisAnt.replace(nomRoi, o);
-			
+
 	}
-	
+
 	public void enregistrerMesurePost(String nomRoi, ImagePlus imp) {
 		// on garde uniquement le studyName de la roi sans le tag
-//		nomRoi = nomRoi.substring(0,nomRoi.lastIndexOf(" "));
-		// si la roi n'existe pas, on la crée 
-		
-			Object[] o = { 	Library_Quantif.round(Library_Quantif.getCounts(imp),3),
-							Library_Quantif.round(imp.getRoi().getStatistics().mean,3),
-							Library_Quantif.round(imp.getRoi().getStatistics().stdDev,3)};
-			if(this.roisPost.get(nomRoi)==null) 
-				this.roisPost.put(nomRoi,o);
-			else
-				this.roisPost.replace(nomRoi, o);
-		
-		
-}
-	
+		// nomRoi = nomRoi.substring(0,nomRoi.lastIndexOf(" "));
+		// si la roi n'existe pas, on la crée
+
+		Object[] o = { Library_Quantif.round(Library_Quantif.getCounts(imp), 3),
+				Library_Quantif.round(imp.getRoi().getStatistics().mean, 3),
+				Library_Quantif.round(imp.getRoi().getStatistics().stdDev, 3) };
+		if (this.roisPost.get(nomRoi) == null)
+			this.roisPost.put(nomRoi, o);
+		else
+			this.roisPost.replace(nomRoi, o);
+
+	}
+
 	@Override
 	public void calculateResults() {
-		
-	
+
 	}
-	
-	public Object[][] calculerTableauAnt(){
+
+	public Object[][] calculerTableauAnt() {
 		Object[][] res = new Object[this.roisAnt.size()][4];
 
-			int i =0;
-			for(String s: this.roisAnt.keySet()) {
-				res[i][0] = s;
-				res[i][1] = this.roisAnt.get(s)[0];
-				res[i][2] = this.roisAnt.get(s)[1];
-				res[i][3] = this.roisAnt.get(s)[2];
-				i++;
-			}
-			return res;
+		int i = 0;
+		for (String s : this.roisAnt.keySet()) {
+			res[i][0] = s;
+			res[i][1] = this.roisAnt.get(s)[0];
+			res[i][2] = this.roisAnt.get(s)[1];
+			res[i][3] = this.roisAnt.get(s)[2];
+			i++;
+		}
+		return res;
 
 	}
-	
-	public Object[][] calculerTableauPost(){
+
+	public Object[][] calculerTableauPost() {
 		Object[][] res = new Object[this.roisPost.size()][4];
 
-		int i =0;
-		for(String s: this.roisPost.keySet()) {
+		int i = 0;
+		for (String s : this.roisPost.keySet()) {
 			res[i][0] = s;
 			res[i][1] = this.roisPost.get(s)[0];
 			res[i][2] = this.roisPost.get(s)[1];
@@ -83,35 +85,92 @@ public class ModelScinStatic extends ModelScin {
 			i++;
 		}
 		return res;
-	}	
-	
-	public Object[][] calculerTaleauMayGeom(){
-		
+	}
+
+	public Object[][] calculerTaleauMayGeom() {
+
 		Object[][] res = new Object[this.roisPost.size()][4];
 
-		int i =0;
-		for(String s: this.roisPost.keySet()) {
-			res[i][0] = s;
-			res[i][1] = Library_Quantif.round(Library_Quantif.moyGeom((Double)this.roisAnt.get(s)[0],(Double)this.roisPost.get(s)[0] ),3);
-			i++;
+		// Multiple Slice (ANT/POST)
+		if (!this.getIsSingleSlide()) {
+			int i = 0;
+			for (String s : this.roisPost.keySet()) {
+				res[i][0] = s;
+				res[i][1] = Library_Quantif.round(
+						Library_Quantif.moyGeom((Double) this.roisAnt.get(s)[0], (Double) this.roisPost.get(s)[0]), 3);
+				i++;
+			}
 		}
+		// Only ANT
+		else if (this.getIsAnt()) {
+			int i = 0;
+			for (String s : this.roisPost.keySet()) {
+				res[i][0] = s;
+				res[i][1] = Library_Quantif.round((Double) this.roisAnt.get(s)[0], 3);
+				i++;
+			}
+		}
+		// Only POST
+		else {
+			int i = 0;
+			for (String s : this.roisPost.keySet()) {
+				res[i][0] = s;
+				res[i][1] = Library_Quantif.round((Double) this.roisPost.get(s)[0], 3);
+				i++;
+			}
+		}
+
 		return res;
 	}
-	
+
 	@Override
 	public String toString() {
-		String res = "name, count ant, avg ant , std ant, count post, avg post, std post, geom mean \n";
-				for(String s: this.roisAnt.keySet()) {
-					res+= s+", "+roisAnt.get(s)[0]+","+roisAnt.get(s)[1]+","+roisAnt.get(s)[2]+","
-							+roisPost.get(s)[0]+","+roisPost.get(s)[1]+","+roisPost.get(s)[2]+","
-							+Library_Quantif.round(Library_Quantif.moyGeom((Double)this.roisAnt.get(s)[0],(Double)this.roisPost.get(s)[0] ),3)
-							+"\n";
-				}
-				//round 
-				//taille fenetre
-				
-				
-		return res;//csv
+		String res;
+		// Multiple Slice (ANT/POST)
+		if (!this.getIsSingleSlide()) {
+			res = "name, count ant, avg ant , std ant, count post, avg post, std post, geom mean \n";
+			for (String s : this.roisAnt.keySet()) {
+				res += s + ", " + roisAnt.get(s)[0] + "," + roisAnt.get(s)[1] + "," + roisAnt.get(s)[2] + ","
+						+ roisPost.get(s)[0] + "," + roisPost.get(s)[1] + "," + roisPost.get(s)[2] + ","
+						+ Library_Quantif.round(Library_Quantif.moyGeom((Double) this.roisAnt.get(s)[0],
+								(Double) this.roisPost.get(s)[0]), 3)
+						+ "\n";
+			}
+			// round
+			// taille fenetre
+		}
+		// Only ANT
+		else if (this.getIsAnt()) {
+			res = "name, count ant, avg ant , std ant,\n";
+			for (String s : this.roisAnt.keySet()) {
+				res += s + ", " + roisAnt.get(s)[0] + "," + roisAnt.get(s)[1] + "," + roisAnt.get(s)[2] + "\n";
+			}
+		}
+		// Only POST
+		else {
+			res = "name, count post, avg post, std post\n";
+			for (String s : this.roisAnt.keySet()) {
+				res += s + "," + roisPost.get(s)[0] + "," + roisPost.get(s)[1] + "," + roisPost.get(s)[2] + "\n";
+			}
+		}
+
+		return res;// csv
+	}
+
+	public void setIsSingleSlide(boolean isSingleSlice) {
+		this.isSingleSlice = isSingleSlice;
+	}
+
+	public void setIsAnt(boolean isAnt) {
+		this.isAnt = isAnt;
+	}
+
+	public boolean getIsSingleSlide() {
+		return this.isSingleSlice;
+	}
+
+	public boolean getIsAnt() {
+		return this.isAnt;
 	}
 
 }

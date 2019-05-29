@@ -122,6 +122,8 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 							|| selectedImages[0].getImageOrientation() == Orientation.POST) {
 						// SK A GERER RECUPERER SEULE L IMAGE POST SI STATIC A/P ?
 						ImageSelection imp = selectedImages[0].clone();
+						
+						selectedImages[0].close();
 
 //						Library_Dicom.normalizeToCountPerSecond(imp);
 

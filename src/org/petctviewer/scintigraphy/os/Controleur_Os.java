@@ -18,12 +18,14 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.Prefs;
+import ij.plugin.frame.RoiManager;
 
 /**
  * DISCLAIMER : Dans cette application, il a été fait comme choix d'initialiser
@@ -227,18 +229,21 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 						IJ.setTool("hand");
 
 						// generation du csv
-						// String resultats = Controleur_Os.this.modele.toString();
+						String resultats = Controleur_Os.this.modele.toString();
+						ControllerWorkflow controller = new ControllerWorkflow(null, null, null) {
+							@Override
+							protected void generateInstructions() {
+							}
+						};
 
-						// try {
-						// Library_Capture_CSV.exportAll(resultats,
-						// Controleur_Os.this.modele.getRoiManager(),
-						// Controleur_Os.this.modele.getStudyName(), imp,
-						// additionalInfo == null ? "" : additionalInfo);
-						//
-						// imp.killRoi();
-						// } catch (Exception e1) {
-						// e1.printStackTrace();
-						// }
+						try {
+							Library_Capture_CSV.exportAll(resultats, new RoiManager(),
+									Controleur_Os.this.modele.getStudyName(), imp, "", controller);
+
+							imp.killRoi();
+						} catch (Exception e1) {
+							e1.printStackTrace();
+						}
 
 						// Execution du plugin myDicom
 						try {

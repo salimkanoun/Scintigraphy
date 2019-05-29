@@ -16,12 +16,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -673,7 +671,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		JsonObject patientObject = new JsonObject();
 		
 		String[] infoPatient = Library_Capture_CSV.getInfoPatient(this.getModel().getImagePlus());
-		HashMap<String, String> patientInfo = Library_Capture_CSV.getPatientInfo(this.getModel().getImagePlus());
+//		HashMap<String, String> patientInfo = Library_Capture_CSV.getPatientInfo(this.getModel().getImagePlus());
 		
 		patientObject.addProperty("Name", infoPatient[0]);
 		patientObject.addProperty("ID", infoPatient[1]);
@@ -785,10 +783,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 				difference[indexDifference] = new String[] {"Date",""+patientFromGson.getDate(),""+currentPatientDate};
 				indexDifference++;
 			}
-			
-			
-				
-			JTable differences = new JTable(difference, new String[] {"Conflict","From Json, Current patient"});
 			
 			if(differenceNumber != 0) {
 				WindowDifferentPatient fen = new WindowDifferentPatient(difference);
