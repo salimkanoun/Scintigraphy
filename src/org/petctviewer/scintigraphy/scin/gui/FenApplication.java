@@ -14,10 +14,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseWheelListener;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -128,6 +125,17 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		// Menu bar
 		this.menuBar = new MenuBar();
 		this.createMenuBar();
+
+		// Set default button (when pressing enter)
+		this.textfield_instructions.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+					ActionEvent click = new ActionEvent(btn_suivant, ActionEvent.ACTION_PERFORMED, "");
+					btn_suivant.dispatchEvent(click);
+				}
+			}
+		});
 
 		this.setDefaultSize();
 		this.addComponentListener(this);
