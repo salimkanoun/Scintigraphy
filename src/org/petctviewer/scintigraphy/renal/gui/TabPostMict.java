@@ -187,7 +187,20 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 		Model_Renal modele = (Model_Renal) this.parent.getModel();
 
 		HashMap<String, Double> data = model.getData();
-		this.setOnlyImp(this.parent.getModel().getImagePlus());
+		
+		
+		
+//		ImagePlus newImagePlus = this.getImagePlus().duplicate();
+//		Library_Gui.initOverlay(newImagePlus);
+//		newImagePlus.getOverlay().clear();
+//		for(Roi roi: this.modelPostMictional.getRoiManager().getRoisAsArray())
+//			newImagePlus.getOverlay().add(roi);
+//		newImagePlus.show();
+//		this.setOnlyImp(newImagePlus);
+//		this.getResultContent().repaint();
+		
+		
+		
 
 		Double rg = null, rd = null;
 		int duration = Integer.parseInt(DicomTools.getTag(this.getImagePlus(), "0018,1242").trim());

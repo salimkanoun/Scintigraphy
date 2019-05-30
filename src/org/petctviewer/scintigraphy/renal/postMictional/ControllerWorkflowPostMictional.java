@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.petctviewer.scintigraphy.renal.gui.TabPostMict;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -32,7 +31,7 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 	public String[] organeListe;
 
 	private boolean[] kidneys;
-	
+
 	private List<ImagePlus> captures;
 
 	public ControllerWorkflowPostMictional(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
@@ -40,7 +39,7 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 		super(main, vue, model);
 
 		this.kidneys = kidneys;
-		
+
 		this.captures = new ArrayList<>();
 
 		this.generateInstructions();
@@ -56,9 +55,9 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null;
 
 		DrawRoiBackground dri_Background_1 = null, dri_Background_2 = null;
-		
+
 		ScreenShotInstruction dri_capture_1 = null;
-		
+
 		dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), 0);
 
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
@@ -92,7 +91,7 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 		}
 
 		this.organeListe = organes.toArray(new String[organes.size()]);
-		
+
 		this.workflows[0].addInstruction(dri_capture_1);
 
 		this.workflows[0].addInstruction(new EndInstruction());
@@ -112,13 +111,15 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 			hm.put(this.organeListe[indexRoi], Library_Quantif.getCounts(imp));
 		}
 		((Model_PostMictional) this.model).setData(hm);
-		
+
 		((PostMictional) this.main).getResultFrame().setExamDone(true);
 		((PostMictional) this.main).getResultFrame().setModelPostMictional((Model_PostMictional) this.model);
-//		((PostMictional) this.main).getResultFrame().reloadDisplay();
-		((PostMictional) this.main).getResultFrame().setImp(this.main.getFenApplication().getImagePlus());
-//		captures.get(0).show();
-//		this.main.getFenApplication().dispose();
+		// ((PostMictional) this.main).getResultFrame().reloadDisplay();
+		((PostMictional) this.main).getResultFrame().setImp(this.vue.getImagePlus());
+		// ((PostMictional)
+		// this.main).getResultFrame().getImagePlus().duplicate().show();
+		// captures.get(0).show();
+		// this.main.getFenApplication().dispose();
 	}
 
 	@Override
