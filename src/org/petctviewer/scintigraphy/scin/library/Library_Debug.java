@@ -8,12 +8,8 @@ public class Library_Debug {
 
 	public static final String[] PATTERNS_SEPARATOR = { ".oOo" };
 
-	public static String separator(int id, int width, int height) {
+	public static String separator(int width, int height) {
 		int patternId = 0;
-		switch (id) {
-		default:
-			patternId = 0;
-		}
 
 		String pattern = PATTERNS_SEPARATOR[patternId];
 		StringBuilder result = new StringBuilder();
@@ -29,11 +25,8 @@ public class Library_Debug {
 		return result.toString();
 	}
 
-	public static String separator(int id) {
-		switch (id) {
-		default:
-			return separator(id, 60, 1);
-		}
+	public static String separator() {
+		return separator(60, 1);
 	}
 
 	public static String title(String title) {

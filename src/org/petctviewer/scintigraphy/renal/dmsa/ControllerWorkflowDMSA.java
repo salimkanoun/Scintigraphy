@@ -1,31 +1,30 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
 import ij.ImagePlus;
+import ij.gui.Overlay;
 import ij.gui.Roi;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackground;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
-	private List<ImagePlus> captures;
-	private boolean antPost;
+	private final boolean antPost;
 
-	public ControllerWorkflowDMSA(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
-		super(main, vue, model);
+	public ControllerWorkflowDMSA(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
+		super(main, vue, new Model_Dmsa(selectedImages, main.getStudyName()));
 
 		this.antPost = this.model.getImagePlus().getNSlices() == 2;
 
@@ -40,31 +39,19 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 		this.workflows = new Workflow[1];
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
-		DrawRoiInstruction dri_1 = null, dri_2 = null;
+		List<ImagePlus> captures = new ArrayList<>();
+		ImageState statePost = new ImageState(Orientation.POST, 1, ImageState.LAT_LR, ImageState.ID_WORKFLOW);
 
-		DrawRoiBackground dri_Background_1 = null, dri_Background_2 = null;
+		DrawRoiInstruction dri_1 = new DrawRoiInstruction("L. Kidney", statePost);
 
-		ScreenShotInstruction dri_capture_1 = null;
-
-		this.captures = new ArrayList<>();
-
-		ImageState statePost = new ImageState(Orientation.POST, 1, ImageState.LAT_LR, ImageState.ID_NONE);
-		dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), 0);
-
-		dri_1 = new DrawRoiInstruction("L. Kidney", statePost);
-
-		dri_Background_1 = new DrawRoiBackground("L. Background", statePost, dri_1, this.model, "");
-
-		dri_2 = new DrawRoiInstruction("R. Kidney", statePost);
-
-		dri_Background_2 = new DrawRoiBackground("R. Background", statePost, dri_2, this.model, "");
+		DrawRoiInstruction dri_2 = new DrawRoiInstruction("R. Kidney", statePost);
 
 		this.workflows[0].addInstruction(dri_1);
-		this.workflows[0].addInstruction(dri_Background_1);
+		this.workflows[0].addInstruction(new DrawRoiBackground("L. Background", statePost, dri_1, this.model, ""));
 		this.workflows[0].addInstruction(dri_2);
-		this.workflows[0].addInstruction(dri_Background_2);
+		this.workflows[0].addInstruction(new DrawRoiBackground("R. Background", statePost, dri_2, this.model, ""));
 
-		this.workflows[0].addInstruction(dri_capture_1);
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
 
 		this.workflows[0].addInstruction(new EndInstruction());
 
@@ -74,12 +61,15 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
 	@Override
 	public void end() {
+		super.end();
+
 		// Clear the result hashmap in case of a second validation
 		((Model_Dmsa) this.model).data.clear();
 
-		int indexRoi = 0;
-		BufferedImage capture = Library_Capture_CSV.captureImage(this.model.getImagePlus(), 512, 0).getBufferedImage();
+		ImagePlus imageCaptured = getModel().getImagePlus().duplicate();
+		Overlay overlay = getModel().getImagePlus().getOverlay().duplicate();
 
+		int indexRoi = 0;
 		for (Roi roi : this.model.getRoiManager().getRoisAsArray()) {
 
 			this.model.getImagePlus().setRoi(roi);
@@ -96,7 +86,10 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
 		this.model.calculateResults();
 
-		new FenResultats_Dmsa(capture, this);
+		// Display results
+		this.setFenResults(new FenResults(this));
+		this.fenResults.addTab(new MainTab(fenResults, imageCaptured, overlay));
+		this.fenResults.setVisible(true);
 	}
 
 }

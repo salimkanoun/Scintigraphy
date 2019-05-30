@@ -1,22 +1,5 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleEdge;
@@ -27,6 +10,12 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
 
 class TabROE extends TabResult implements ActionListener {
 
@@ -58,13 +47,13 @@ class TabROE extends TabResult implements ActionListener {
 		pnl_roe.add(lbl_L);
 		pnl_roe.add(lbl_R);
 
-		for (int i = 0; i < mins.length; i++) {
+		for (Double min : mins) {
 			// aligne a droite
-			JLabel lbl_min = new JLabel(mins[i] + "  min");
+			JLabel lbl_min = new JLabel(min + "  min");
 			pnl_roe.add(lbl_min);
 
 			if (((Model_Renal) this.parent.getModel()).getKidneys()[0]) {
-				JLabel lbl_g = new JLabel(((Model_Renal) this.parent.getModel()).getROE(mins[i], "L") + " %");
+				JLabel lbl_g = new JLabel(((Model_Renal) this.parent.getModel()).getROE(min, "L") + " %");
 				lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
 				pnl_roe.add(lbl_g);
 			} else {
@@ -72,7 +61,7 @@ class TabROE extends TabResult implements ActionListener {
 			}
 
 			if (((Model_Renal) this.parent.getModel()).getKidneys()[1]) {
-				JLabel lbl_d = new JLabel(((Model_Renal) this.parent.getModel()).getROE(mins[i], "R") + " %");
+				JLabel lbl_d = new JLabel(((Model_Renal) this.parent.getModel()).getROE(min, "R") + " %");
 				lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
 				pnl_roe.add(lbl_d);
 			} else {

@@ -1,18 +1,5 @@
 package org.petctviewer.scintigraphy.esophageus.resultats.tabs;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-
-import javax.swing.Box;
-import javax.swing.ButtonGroup;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -28,21 +15,24 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
+import javax.swing.*;
+import java.awt.*;
+
 public class TabRentention extends TabResult {
 
 	private JFreeChart graphRetention;
 
 	private Selector selectorRentention;
-	private double selectorRetentionValue[];
+	private double[] selectorRetentionValue;
 
 	private JRadioButton[] radioButtonRetention;
 
 	private JLabel[] retention10sLabel;
 	private static int numAcquisitionRetention = 0;
 
-	private Model_Resultats_EsophagealTransit modeleApp;
+	private final Model_Resultats_EsophagealTransit modeleApp;
 
-	private Integer nbAcquisition;
+	private final Integer nbAcquisition;
 
 	public TabRentention(int nbAcquisition, FenResults parent, Model_Resultats_EsophagealTransit model) {
 		super(parent, "Retention");
@@ -77,19 +67,16 @@ public class TabRentention extends TabResult {
 		radioButtonRetention = new JRadioButton[nbAcquisition];
 		for (int i = 0; i < nbAcquisition; i++) {
 			radioButtonRetention[i] = new JRadioButton("Acquisition " + (i + 1));
-			radioButtonRetention[i].addItemListener(new ItemListener() {
-				@Override
-				public void itemStateChanged(ItemEvent e) {
-					TabRentention tab = TabRentention.this;
-					for (int i = 0; i < tab.radioButtonRetention.length; i++) {
-						if (((JRadioButton) e.getSource()).equals(radioButtonRetention[i])) {
-							tab.setVisibilitySeriesGraph(tab.graphRetention, i, true);
-							numAcquisitionRetention = i;
-							tab.selectorRentention.setXValue(selectorRetentionValue[i]);
+			radioButtonRetention[i].addItemListener(e -> {
+				TabRentention tab = TabRentention.this;
+				for (int i1 = 0; i1 < tab.radioButtonRetention.length; i1++) {
+					if (e.getSource().equals(radioButtonRetention[i1])) {
+						tab.setVisibilitySeriesGraph(tab.graphRetention, i1, true);
+						numAcquisitionRetention = i1;
+						tab.selectorRentention.setXValue(selectorRetentionValue[i1]);
 
-						} else {
-							tab.setVisibilitySeriesGraph(tab.graphRetention, i, false);
-						}
+					} else {
+						tab.setVisibilitySeriesGraph(tab.graphRetention, i1, false);
 					}
 				}
 			});
@@ -111,7 +98,7 @@ public class TabRentention extends TabResult {
 		retentionResultPanel.setLayout(new GridLayout(nbAcquisition + 1, 1));
 
 		retentionResultPanel.add(new JLabel("Decrease 10s after peak"));
-		double[] retention10s = ((Model_Resultats_EsophagealTransit) modeleApp).retentionAllPoucentage();
+		double[] retention10s = modeleApp.retentionAllPoucentage();
 		retention10sLabel = new JLabel[nbAcquisition];
 		for (int i = 0; i < retention10s.length; i++) {
 			retention10sLabel[i] = new JLabel("Acquisition " + (i + 1) + " : " + (retention10s[i]) + "%");
@@ -134,7 +121,7 @@ public class TabRentention extends TabResult {
 		// graph center
 		graphRetention = ChartFactory.createXYLineChart("Retention", "s", "Count/s", null);
 
-		graphRetention.getXYPlot().setDataset(((Model_Resultats_EsophagealTransit) modeleApp).retentionForGraph());
+		graphRetention.getXYPlot().setDataset(modeleApp.retentionForGraph());
 
 		XYLineAndShapeRenderer rendererTransit = new XYLineAndShapeRenderer();
 		// monter les formes des points
@@ -149,7 +136,7 @@ public class TabRentention extends TabResult {
 		this.graphRetention.getXYPlot().setRangeGridlinePaint(Color.black);
 		this.graphRetention.getXYPlot().setDomainGridlinePaint(Color.black);
 
-		selectorRetentionValue = ((Model_Resultats_EsophagealTransit) modeleApp).retentionAllX();
+		selectorRetentionValue = modeleApp.retentionAllX();
 
 		JValueSetter valueSetterRetention = new JValueSetter(graphRetention);
 		valueSetterRetention.addChartMouseListener(new ChartMouseListener() {
@@ -165,13 +152,13 @@ public class TabRentention extends TabResult {
 				TabRentention tab = TabRentention.this;
 				tab.selectorRetentionValue[numAcquisitionRetention] = tab.selectorRentention.getXValue();
 
-				double retention = ((Model_Resultats_EsophagealTransit) modeleApp)
+				double retention = modeleApp
 						.retentionPoucentage(tab.selectorRentention.getXValue(), numAcquisitionRetention);
 				retention10sLabel[numAcquisitionRetention]
 						.setText("Acquisition " + (numAcquisitionRetention + 1) + " : " + retention + "%");
 
 				// on l'envoi au modele pour le csv
-				((Model_Resultats_EsophagealTransit) modeleApp).setRetentionDecrease(numAcquisitionRetention,
+				modeleApp.setRetentionDecrease(numAcquisitionRetention,
 						retention);
 			}
 		});

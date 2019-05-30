@@ -1,7 +1,8 @@
+
 package org.petctviewer.scintigraphy.generic.statics;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
+import javax.swing.JOptionPane;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -15,15 +16,15 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawLoopInstructio
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 
-import javax.swing.*;
+import ij.ImagePlus;
+import ij.gui.Roi;
 
 public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 	private FenResults fenResult;
 
-	public ControllerWorkflow_ScinStatic(Scintigraphy main, FenApplicationWorkflow vue,
-	                                     ImageSelection[] selectedImages,
-	                                     String studyName) {
+	public ControllerWorkflow_ScinStatic(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages,
+			String studyName) {
 		super(main, vue, new ModelScinStatic(selectedImages, studyName));
 
 		ImageState statePost = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, ImageState.ID_WORKFLOW);
@@ -54,13 +55,13 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 	protected void generateInstructions() {
 		this.workflows = new Workflow[1];
 		DefaultGenerator dri_1;
-		
+
 		ImageState state;
-		if(((ModelScinStatic) this.getModel()).getIsAnt())
+		if (((ModelScinStatic) this.getModel()).getIsAnt())
 			state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
 		else
 			state = new ImageState(Orientation.POST, 1, false, ImageState.ID_NONE);
-		
+
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
 		dri_1 = new DrawLoopInstruction(this.workflows[0], state);
@@ -79,7 +80,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		// pour la ant
 		imp.setSlice(1);
 
-		if(!((ModelScinStatic) this.getModel()).getIsSingleSlide() || ((ModelScinStatic) this.getModel()).getIsAnt()) {
+		if (!((ModelScinStatic) this.getModel()).getIsSingleSlide() || ((ModelScinStatic) this.getModel()).getIsAnt()) {
 			for (int i = 0; i < this.model.getRoiManager().getCount(); i++) {
 				Roi roi = this.model.getRoiManager().getRoi(i);
 				imp.setRoi(roi);
@@ -87,10 +88,11 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 			}
 		}
 		// pour la post
-		if(!((ModelScinStatic) this.getModel()).getIsSingleSlide()) 
+		if (!((ModelScinStatic) this.getModel()).getIsSingleSlide())
 			imp.setSlice(2);
 
-		if(!((ModelScinStatic) this.getModel()).getIsSingleSlide() || !((ModelScinStatic) this.getModel()).getIsAnt()) {
+		if (!((ModelScinStatic) this.getModel()).getIsSingleSlide()
+				|| !((ModelScinStatic) this.getModel()).getIsAnt()) {
 			for (int i = 0; i < this.model.getRoiManager().getCount(); i++) {
 				Roi roi = this.model.getRoiManager().getRoi(i);
 				imp.setRoi(roi);
@@ -117,7 +119,8 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 			result = JOptionPane.showConfirmDialog(getVue(), "A Roi already have this name. Do you want to continue ?",
 					"Duplicate Roi Name", JOptionPane.YES_NO_CANCEL_OPTION);
 
-			if (result != JOptionPane.OK_OPTION) return;
+			if (result != JOptionPane.OK_OPTION)
+				return;
 		}
 
 		this.updateButtonLabel(this.indexRoi);
@@ -127,7 +130,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		// Update view
 		int indexScroll = this.getVue().getInstructionDisplayed();
 		getVue().setNbInstructions(this.allInputInstructions().size());
-		this.updateScrollbar(indexScroll + 1);
+		getVue().currentInstruction(indexScroll);
 	}
 
 	@Override

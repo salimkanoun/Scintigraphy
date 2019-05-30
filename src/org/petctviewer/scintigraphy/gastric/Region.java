@@ -1,12 +1,11 @@
 package org.petctviewer.scintigraphy.gastric;
 
+import ij.gui.Roi;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.petctviewer.scintigraphy.scin.instructions.ImageState;
-
-import ij.gui.Roi;
 
 /**
  * This class represents a area in an image. Data resulting of calculations can
@@ -18,12 +17,12 @@ import ij.gui.Roi;
 public class Region {
 
 	private ImageState state;
-	private String name;
+	private final String name;
 	private Roi roi;
 
 	private Map<Integer, Double> data;
 
-	private Model_Gastric model;
+	private final Model_Gastric model;
 
 	/**
 	 * Instantiates a new region with the specified name and the associated model.
@@ -109,11 +108,12 @@ public class Region {
 	public String toString() {
 		StringBuilder s = new StringBuilder();
 
-		s.append("Region [" + this.name + "]\n");
-		s.append("| ImageState: " + this.state + " |\n");
+		s.append("Region [").append(this.name).append("]\n");
+		s.append("| ImageState: ").append(this.state).append(" |\n");
 		s.append("| Stored values:\n");
 		for (Entry<Integer, Double> entry : this.data.entrySet())
-			s.append("\t- " + this.model.nameOfDataField(entry.getKey()) + " => " + entry.getValue() + "\n");
+			s.append("\t- ").append(this.model.nameOfDataField(entry.getKey())).append(" => ").append(entry.getValue())
+					.append("\n");
 
 		return s.toString();
 	}
@@ -136,11 +136,8 @@ public class Region {
 			return false;
 		Region other = (Region) obj;
 		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		return true;
+			return other.name == null;
+		} else return name.equals(other.name);
 	}
 
 	@Override

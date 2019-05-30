@@ -1,15 +1,15 @@
 package org.petctviewer.scintigraphy.scin.exceptions;
 
-import java.util.Arrays;
-
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
+
+import java.util.Arrays;
 
 public class WrongColumnException extends WrongInputException {
 	private static final long serialVersionUID = 1L;
 
-	private Column columnError;
-	private int rowError;
+	private final Column columnError;
+	private final int rowError;
 
 	/**
 	 * @param columnError Column of the error
@@ -41,8 +41,15 @@ public class WrongColumnException extends WrongInputException {
 		private static final long serialVersionUID = 1L;
 
 		public OrientationColumn(int rowError, Orientation badProvided, Orientation[] expected) {
-			super(Column.ORIENTATION, rowError, "[" + badProvided + "] is not supported. Please use "
-					+ (expected.length > 1 ? "one of" : "") + ":\n" + Arrays.toString(expected));
+			super(Column.ORIENTATION, rowError,
+					"[" + badProvided + "] is not supported. Please use " + (expected.length > 1 ? "one of" : "") +
+							":\n" + Arrays.toString(expected));
+		}
+
+		public OrientationColumn(int rowError, Orientation badProvided, Orientation[] expected, String hintForUser) {
+			super(Column.ORIENTATION, rowError,
+					"[" + badProvided + "] is not supported. Please use " + (expected.length > 1 ? "one of" : "") +
+							":\n" + Arrays.toString(expected) + "\nHint: " + hintForUser);
 		}
 
 	}

@@ -1,21 +1,16 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
+import javax.swing.*;
+import java.awt.*;
 
 public abstract class TabResult {
 
 	private String title;
 	protected FenResults parent;
 
-	private JSplitPane split;
+	private final JSplitPane split;
 
-	private SidePanel sidePanel;
+	private final SidePanel sidePanel;
 	private Container result;
 	private Component[] componentToHide;
 	private Component[] componentToShow;
@@ -207,8 +202,6 @@ public abstract class TabResult {
 	/**
 	 * Return the component to hide in the TabResult on the capture
 	 * 
-	 * @return
-	 * 
 	 * @see CaptureButton
 	 */
 	public Component[] getComponentToHide() {
@@ -217,8 +210,6 @@ public abstract class TabResult {
 
 	/**
 	 * Return the component to show in the TabResult on the capture
-	 * 
-	 * @return
 	 * 
 	 * @see CaptureButton
 	 */
@@ -229,8 +220,6 @@ public abstract class TabResult {
 	/**
 	 * Set the components to hide on the capture
 	 * 
-	 * @param componentToHide
-	 * 
 	 * @see CaptureButton
 	 */
 	public void setComponentToHide(Component[] componentToHide) {
@@ -239,8 +228,6 @@ public abstract class TabResult {
 
 	/**
 	 * Set the components to show on the capture
-	 * 
-	 * @param componentToShow
 	 * 
 	 * @see CaptureButton
 	 */
@@ -251,8 +238,6 @@ public abstract class TabResult {
 	/**
 	 * Get the additionalInfo for the capture
 	 * 
-	 * @return
-	 * 
 	 * @see CaptureButton
 	 */
 	public String getAdditionalInfo() {
@@ -261,8 +246,6 @@ public abstract class TabResult {
 
 	/**
 	 * Set the additionalInfo for the capture
-	 * 
-	 * @return
 	 * 
 	 * @see CaptureButton
 	 */

@@ -4,6 +4,7 @@ import ij.ImagePlus;
 import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric.Result;
 import org.petctviewer.scintigraphy.gastric.Unit;
+import org.petctviewer.scintigraphy.gastric.dynamic.DynGastricScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 
 import javax.swing.*;
@@ -22,7 +23,15 @@ public class TabMethod1 extends TabResultDefault {
 		JPanel panel = new JPanel(new BorderLayout());
 
 		// North
-		panel.add(this.additionalResults(), BorderLayout.NORTH);
+		JPanel additionalResults = this.additionalResults();
+		JButton btnDynAcquisition = new JButton("Start dynamic acquisition");
+		btnDynAcquisition.addActionListener((event) -> {
+			parent.getController().getVue().setVisible(false);
+			// Launch dynamic acquisition
+			new DynGastricScintigraphy((Model_Gastric) parent.getModel(), parent);
+		});
+		additionalResults.add(btnDynAcquisition);
+		panel.add(additionalResults, BorderLayout.NORTH);
 
 		// Center
 		JPanel panCenter = new JPanel(new BorderLayout());
@@ -31,7 +40,7 @@ public class TabMethod1 extends TabResultDefault {
 		final Result[] results = new Result[]{Model_Gastric.RES_TIME, Model_Gastric.RES_STOMACH,
 				Model_Gastric.RES_FUNDUS,
 				Model_Gastric.RES_ANTRUM};
-		final Unit[] units = new Unit[]{this.unitTime, this.unitDefault, this.unitDefault, this.unitDefault};
+		final Unit[] units = new Unit[]{Unit.MINUTES, this.unitDefault, this.unitDefault, this.unitDefault};
 		JPanel panTable = new JPanel(new BorderLayout());
 		JTable table = tablesResultats(results, units);
 		panTable.add(table.getTableHeader(), BorderLayout.PAGE_START);
@@ -39,6 +48,7 @@ public class TabMethod1 extends TabResultDefault {
 		panCenter.add(panTable, BorderLayout.CENTER);
 
 
+		// Display start antrum and intestine only if dynamic has been made
 		final Result[] resultsRequested = new Result[]{Model_Gastric.START_ANTRUM, Model_Gastric.START_INTESTINE,
 				Model_Gastric.LAG_PHASE_PERCENTAGE, Model_Gastric.T_HALF_PERCENTAGE,
 				Model_Gastric.RETENTION_PERCENTAGE};

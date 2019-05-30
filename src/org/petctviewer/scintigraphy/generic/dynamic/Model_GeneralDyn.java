@@ -12,7 +12,11 @@ import java.util.List;
 
 public class Model_GeneralDyn extends ModelScinDyn {
 
-	private ImageSelection impAnt, impPost, impProjetee, impProjeteeAnt, impProjeteePost;
+	private final ImageSelection impAnt;
+	private final ImageSelection impPost;
+	private final ImageSelection impProjetee;
+	private final ImageSelection impProjeteeAnt;
+	private final ImageSelection impProjeteePost;
 
 	private int indexRoi;
 
@@ -39,17 +43,17 @@ public class Model_GeneralDyn extends ModelScinDyn {
 
 	@Override
 	public String toString() {
-		String s = "\n";
+		StringBuilder s = new StringBuilder("\n");
 
 		for (String k : this.getData().keySet()) {
-			s += k;
+			s.append(k);
 			for (Double d : this.getData().get(k)) {
-				s += "," + d;
+				s.append(",").append(d);
 			}
-			s += "\n";
+			s.append("\n");
 		}
 
-		return s;
+		return s.toString();
 	}
 
 	void saveValues(ImagePlus imp) {
@@ -57,7 +61,7 @@ public class Model_GeneralDyn extends ModelScinDyn {
 		// this.getScin().setImp(imp);
 		this.indexRoi = 0;
 		this.nbOrganes = this.getRoiManager().getCount();
-		HashMap<String, List<Double>> mapData = new HashMap<String, List<Double>>();
+		HashMap<String, List<Double>> mapData = new HashMap<>();
 		// on copie les roi sur toutes les slices
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
@@ -68,9 +72,7 @@ public class Model_GeneralDyn extends ModelScinDyn {
 
 				// String name = studyName.substring(0, studyName.lastIndexOf(" "));
 				// on cree la liste si elle n'existe pas
-				if (mapData.get(name) == null) {
-					mapData.put(name, new ArrayList<Double>());
-				}
+				mapData.computeIfAbsent(name, k -> new ArrayList<>());
 				// on y ajoute le nombre de coups
 				mapData.get(name).add(Library_Quantif.getCounts(imp));
 			}

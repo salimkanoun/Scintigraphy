@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.renal;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.plugin.ZProjector;
+import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -14,9 +15,12 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
+import java.util.Arrays;
+
 public class RenalScintigraphy extends Scintigraphy {
 
-	private ImageSelection impAnt, impPost, impProjetee;
+	private ImageSelection impAnt;
+	private ImageSelection impPost;
 	private int[] frameDurations;
 
 	public RenalScintigraphy() {
@@ -29,50 +33,66 @@ public class RenalScintigraphy extends Scintigraphy {
 		if (selectedImages.length != 1 && selectedImages.length != 2)
 			throw new WrongNumberImagesException(selectedImages.length, 1, 2);
 
-		// Prepare the final ImagePlus array, position 0 for anterior dynamic and
-		// position 1 for posterior dynamic.
-		ImageSelection[] imps = new ImageSelection[2];
-
-		for (int i = 0; i < selectedImages.length; i++) {
-			if (selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_ANT) {
-				if (imps[0] != null)
-					throw new WrongInputException("Multiple dynamic Antorior Image");
-				imps[0] = selectedImages[i].clone();
-			} else if (selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_POST) {
-				if (imps[1] != null)
-					throw new WrongInputException("Multiple dynamic Posterior Image");
-				imps[1] = selectedImages[i].clone();
-			} else if (selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
-				if (imps[1] != null || imps[0] != null)
-					throw new WrongInputException("Multiple dynamic Image");
-				imps = Library_Dicom.splitDynamicAntPost(selectedImages[i]);
-			} else {
-				throw new WrongColumnException.OrientationColumn(selectedImages[i].getRow(),
-						selectedImages[i].getImageOrientation(), new Orientation[] { Orientation.DYNAMIC_ANT,
-								Orientation.DYNAMIC_POST, Orientation.DYNAMIC_ANT_POST });
-			}
-
-			selectedImages[i].getImagePlus().close();
-		}
-
-		if (imps[0] != null) {
+		// Check orientations
+		// With 1 image
+		if (selectedImages.length == 1) {
+			if (selectedImages[0].getImageOrientation() != Orientation.DYNAMIC_ANT_POST)
+				throw new WrongColumnException.OrientationColumn(selectedImages[0].getRow(),
+						selectedImages[0].getImageOrientation(), new Orientation[]{Orientation.DYNAMIC_ANT_POST}, "You"
+						+ " can also use 2 dynamics (Ant and Post)");
+			// Set images
+			ImageSelection[] imps = Library_Dicom.splitDynamicAntPost(selectedImages[0]);
 			this.impAnt = imps[0];
-			for (int i = 1; i <= this.impAnt.getImagePlus().getStackSize(); i++) {
-				this.impAnt.getImagePlus().getStack().getProcessor(i).flipHorizontal();
+			this.impPost = imps[1];
+		}
+		// With 2 images
+		else {
+			Orientation[] acceptedOrientations = new Orientation[]{Orientation.DYNAMIC_POST, Orientation.DYNAMIC_ANT};
+			String hint = "You can also use only 1 dynamic (Ant_Post)";
+
+			// Image 0 must be Dyn Ant or Post
+			if (Arrays.stream(acceptedOrientations).noneMatch(o -> o == selectedImages[0].getImageOrientation()))
+				throw new WrongColumnException.OrientationColumn(selectedImages[0].getRow(),
+						selectedImages[0].getImageOrientation(), acceptedOrientations);
+			// Image 1 must be the invert of image 0
+			if (selectedImages[1].getImageOrientation() != selectedImages[0].getImageOrientation().invert())
+				throw new WrongColumnException.OrientationColumn(selectedImages[1].getRow(),
+						selectedImages[1].getImageOrientation(),
+						new Orientation[]{selectedImages[0].getImageOrientation().invert()});
+
+			// Set images
+			if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_ANT) {
+				this.impAnt = selectedImages[0].clone();
+				this.impPost = selectedImages[1].clone();
+			} else {
+				this.impAnt = selectedImages[1].clone();
+				this.impPost = selectedImages[0].clone();
 			}
-			this.frameDurations = Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus());
 		}
 
-		if (imps[1] != null) {
-			this.impPost = imps[1];
-			this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost.getImagePlus());
+		// Close images
+		for(ImageSelection ims : selectedImages)
+			ims.getImagePlus().close();
+
+		// Flip Ant
+		for (int i = 1; i <= this.impAnt.getImagePlus().getStackSize(); i++) {
+			this.impAnt.getImagePlus().getStack().getProcessor(i).flipHorizontal();
 		}
+
+		// Build frame duration
+		this.frameDurations = Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus());
+		if (!ArrayUtils.isEquals(this.frameDurations, Library_Dicom.buildFrameDurations(this.impPost.getImagePlus())))
+			throw new WrongInputException("Frame durations are not the same for Ant and Post!");
+
+		// TODO: from this part, still no refactored @noa
+		// \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/
+
 
 		ImageSelection impPostCountPerSec = this.impPost.clone();
 		Library_Dicom.normalizeToCountPerSecond(impPostCountPerSec);
 
-		impProjetee = Library_Dicom.project(impPostCountPerSec, 0, impPostCountPerSec.getImagePlus().getStackSize(),
-				"avg");
+		ImageSelection impProjetee = Library_Dicom.project(impPostCountPerSec, 0,
+				impPostCountPerSec.getImagePlus().getStackSize(), "avg");
 		ImageStack stack = impProjetee.getImagePlus().getStack();
 
 		// deux premieres minutes
@@ -86,36 +106,29 @@ public class RenalScintigraphy extends Scintigraphy {
 		stack.addSlice(pj.getProcessor());
 
 		// ajout de la prise ant si elle existe
-		if (imps[0] != null) {
 
-			ImageSelection impAntCountPerSec = this.impAnt.clone();
-			Library_Dicom.normalizeToCountPerSecond(impAntCountPerSec);
+		ImageSelection impAntCountPerSec = this.impAnt.clone();
+		Library_Dicom.normalizeToCountPerSecond(impAntCountPerSec);
 
-			ImageSelection impProjAnt = Library_Dicom.project(impAntCountPerSec, 0,
-					impAntCountPerSec.getImagePlus().getStackSize(), "avg");
-			impProjAnt.getImagePlus().getProcessor().flipHorizontal();
-			impAnt = impProjAnt;
-			stack.addSlice(impProjAnt.getImagePlus().getProcessor());
-		}
+		ImageSelection impProjAnt = Library_Dicom.project(impAntCountPerSec, 0,
+				impAntCountPerSec.getImagePlus().getStackSize(), "avg");
+		impProjAnt.getImagePlus().getProcessor().flipHorizontal();
+		impAnt = impProjAnt;
+		stack.addSlice(impProjAnt.getImagePlus().getProcessor());
 
 		// ajout du stack a l'imp
 		impProjetee.getImagePlus().setStack(stack);
 		int nbImage = 0;
-		if (impPost != null)
-			nbImage++;
-		if (impProjetee != null)
-			nbImage++;
-		if (impAnt != null)
-			nbImage++;
+		if (impPost != null) nbImage++;
+		nbImage++;
+		if (impAnt != null) nbImage++;
 
 		ImageSelection[] selection = new ImageSelection[nbImage];
 
 		nbImage = 0;
 
-		if (impProjetee != null) {
-			selection[nbImage] = impProjetee;
-			nbImage++;
-		}
+		selection[nbImage] = impProjetee;
+		nbImage++;
 		if (impPost != null) {
 			selection[nbImage] = impPost;
 			nbImage++;
@@ -128,20 +141,11 @@ public class RenalScintigraphy extends Scintigraphy {
 
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
-//		Overlay overlay = Library_Gui.initOverlay(impProjetee.getImagePlus(), 12);
-//		Library_Gui.setOverlayTitle("Post", impProjetee.getImagePlus(), Color.yellow, 1);
-//		Library_Gui.setOverlayTitle("2 first min posterior", impProjetee.getImagePlus(), Color.YELLOW, 2);
-//		Library_Gui.setOverlayTitle("MIP", impProjetee.getImagePlus(), Color.YELLOW, 3);
-//		if (this.impAnt != null) {
-//			Library_Gui.setOverlayTitle("Ant", impProjetee.getImagePlus(), Color.yellow, 4);
-//		}
 
 		this.setFenApplication(new FenApplication_Renal(selectedImages[0], this.getStudyName(), this));
-//		selectedImages[0].getImagePlus().setOverlay(overlay);
-//		this.getFenApplication().setController(new Controller_Renal(this, selectedImages, "Renal scintigraphy"));
-		((FenApplicationWorkflow) this.getFenApplication())
-				.setController(new ControllerWorkflowRenal(this, (FenApplicationWorkflow) this.getFenApplication(),
-						new Model_Renal(this.frameDurations, selectedImages, "Renal scintigraphy")));
+		this.getFenApplication().setController(new ControllerWorkflowRenal(this,
+				(FenApplicationWorkflow) this.getFenApplication(), new Model_Renal(this.frameDurations, selectedImages
+				, "Renal scintigraphy")));
 	}
 
 	public int[] getFrameDurations() {

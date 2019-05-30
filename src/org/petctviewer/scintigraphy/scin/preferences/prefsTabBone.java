@@ -1,27 +1,22 @@
 package org.petctviewer.scintigraphy.scin.preferences;
 
-import java.awt.BorderLayout;
+import ij.IJ;
+import ij.Prefs;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
-import ij.IJ;
-import ij.Prefs;
-
 public class prefsTabBone extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
-	private JLabel lut;
-	private JButton btn_choixLut, btn_displut;
+	private final JLabel lut;
+	private final JButton btn_choixLut;
+	private final JButton btn_displut;
 	private JFileChooser fc;
-	private JCheckBox ckb_lut;
+	private final JCheckBox ckb_lut;
 
 	public prefsTabBone() {
 		this.setLayout(new BorderLayout());

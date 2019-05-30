@@ -22,7 +22,7 @@ import java.util.List;
 
 public class Controller_GeneralDyn extends Controller_OrganeFixe {
 
-	public static int MAXROI = 100;
+	public static final int MAXROI = 100;
 	private int nbOrganes = 0;
 	private boolean over;
 	private ImagePlus impProjetee;
@@ -135,23 +135,20 @@ public class Controller_GeneralDyn extends Controller_OrganeFixe {
 			scindyn.getFenApplication().resizeCanvas();
 			scindyn.getFenApplication().toFront();
 
-			Thread th = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						Thread.sleep(300);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-
-					BufferedImage c = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
-
-					saveValues(scindyn.getImpPost());
-					Controller_GeneralDyn.this.fenResult
-							.addTab(new TabAntPost(c, "Post", Controller_GeneralDyn.this.fenResult));
-
-					Controller_GeneralDyn.this.finishDrawingResultWindow();
+			Thread th = new Thread(() -> {
+				try {
+					Thread.sleep(300);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
+
+				BufferedImage c = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
+
+				saveValues(scindyn.getImpPost());
+				Controller_GeneralDyn.this.fenResult
+						.addTab(new TabAntPost(c, "Post", Controller_GeneralDyn.this.fenResult));
+
+				Controller_GeneralDyn.this.finishDrawingResultWindow();
 			});
 			th.start();
 		}
@@ -183,7 +180,7 @@ public class Controller_GeneralDyn extends Controller_OrganeFixe {
 		// this.getScin().setImp(imp);
 		this.indexRoi = 0;
 
-		HashMap<String, List<Double>> mapData = new HashMap<String, List<Double>>();
+		HashMap<String, List<Double>> mapData = new HashMap<>();
 		// on copie les roi sur toutes les slices
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
@@ -193,9 +190,7 @@ public class Controller_GeneralDyn extends Controller_OrganeFixe {
 
 				// String name = studyName.substring(0, studyName.lastIndexOf(" "));
 				// on cree la liste si elle n'existe pas
-				if (mapData.get(name) == null) {
-					mapData.put(name, new ArrayList<Double>());
-				}
+				mapData.computeIfAbsent(name, k -> new ArrayList<>());
 				// on y ajoute le nombre de coups
 				mapData.get(name).add(Library_Quantif.getCounts(imp));
 

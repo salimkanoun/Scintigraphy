@@ -18,8 +18,8 @@ import java.util.Arrays;
 
 public class DynGastricScintigraphy extends Scintigraphy {
 
-	private Model_Gastric model;
-	private FenResults fenResults;
+	private final Model_Gastric model;
+	private final FenResults fenResults;
 
 	public DynGastricScintigraphy(Model_Gastric model, FenResults fenResults) {
 		super("Dynamic Gastric Scintigraphy");
@@ -42,7 +42,7 @@ public class DynGastricScintigraphy extends Scintigraphy {
 		ImageSelection[] selection = new ImageSelection[openedImages.length];
 		for (int i = 0; i < openedImages.length; i++) {
 			ImageSelection ims = openedImages[i];
-			if (!Arrays.stream(acceptedOrientations).anyMatch(o -> o.equals(ims.getImageOrientation()))) {
+			if (Arrays.stream(acceptedOrientations).noneMatch(o -> o.equals(ims.getImageOrientation()))) {
 				throw new WrongColumnException.OrientationColumn(ims.getRow(), ims.getImageOrientation(),
 						acceptedOrientations);
 			}
@@ -63,10 +63,6 @@ public class DynGastricScintigraphy extends Scintigraphy {
 		// Order image by time (reversed)
 		Arrays.parallelSort(selection, new ReversedChronologicalAcquisitionComparator());
 
-//		// Create projection for each image
-//		for (int i = 0; i < selection.length; i++)
-//			selection[i] = Library_Dicom.project(selection[i], 1, 10, "sum");
-
 		return selection;
 	}
 
@@ -74,8 +70,8 @@ public class DynGastricScintigraphy extends Scintigraphy {
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 //		System.out.println("-- Starting dynamic acquisition --");
 		this.setFenApplication(
-				new FenApplication_DynGastric(selectedImages[0].getImagePlus(), "Dynamic Gastric Scintigraphy"));
-		((FenApplicationWorkflow) this.getFenApplication()).setController(new ControllerWorkflow_DynGastric(this,
+				new FenApplication_DynGastric(selectedImages[0], "Dynamic Gastric Scintigraphy"));
+		this.getFenApplication().setController(new ControllerWorkflow_DynGastric(this,
 				(FenApplicationWorkflow) this.getFenApplication(), this.model, selectedImages, fenResults));
 		this.getFenApplication().setVisible(true);
 	}

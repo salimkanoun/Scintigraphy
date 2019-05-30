@@ -1,8 +1,6 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.Dimension;
-import java.awt.image.BufferedImage;
-
+import ij.Prefs;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.Model_Renal;
@@ -10,16 +8,15 @@ import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 
-import ij.Prefs;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class FenResultats_Renal extends FenResults {
 	private static final long serialVersionUID = 1L;
 
-	private final int width = 1000, height = 800;
-
 	public FenResultats_Renal(RenalScintigraphy vue, BufferedImage capture, ControllerScin controller) {
 		super(controller);
-		this.addTab(new TabPrincipal(vue, capture, this));
+		this.addTab(new TabPrincipal(capture, this));
 		this.addTab(new TabROE(vue, this));
 		this.addTab(new TabTimedImage(vue, 4, 5, this));
 		if (Prefs.get("renal.pelvis.preferred", true))
@@ -36,6 +33,8 @@ public class FenResultats_Renal extends FenResults {
 			this.addTab(new TabDeconvolve(this, "Deconvolve"));
 
 		this.setTitle("Results Renal Exam");
+		int height = 800;
+		int width = 1000;
 		this.setPreferredSize(new Dimension(width, height));
 		this.setLocationRelativeTo(vue.getFenApplication());
 	}

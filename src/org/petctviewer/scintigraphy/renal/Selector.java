@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.renal;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.labels.CrosshairLabelGenerator;
 import org.jfree.chart.panel.CrosshairOverlay;
 import org.jfree.chart.plot.Crosshair;
 import org.jfree.chart.plot.XYPlot;
@@ -16,13 +15,14 @@ import java.awt.*;
 public class Selector extends CrosshairOverlay implements ChartMouseListener {
 
 	private static final long serialVersionUID = 6794595703667698248L;
-	private Crosshair crossX, crossY;
+	private final Crosshair crossX;
+	private final Crosshair crossY;
 
 	// si le selecteur n'est pas selectionne
 	private boolean xLocked;
 
 	// serie sur laquelle se situe le selecteur
-	private int series;
+	private final int series;
 
 	private Comparable key;
 	private JValueSetter jValueSetter;
@@ -52,14 +52,11 @@ public class Selector extends CrosshairOverlay implements ChartMouseListener {
 		}
 
 		// on rend le label invisible si le studyName est null ou si c'est un espace
-		this.crossX.setLabelGenerator(new CrosshairLabelGenerator() {
-			@Override
-			public String generateLabel(Crosshair crosshair) {
-				if (nom == null || nom.trim().equals("")) {
-					Selector.this.crossX.setLabelVisible(false);
-				}
-				return nom;
+		this.crossX.setLabelGenerator(crosshair -> {
+			if (nom == null || nom.trim().equals("")) {
+				Selector.this.crossX.setLabelVisible(false);
 			}
+			return nom;
 		});
 
 		// le selecteur vertical n'est pour l'instant pas affiche

@@ -1,19 +1,14 @@
 package org.petctviewer.scintigraphy.colonic;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.GridLayout;
-import java.util.List;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
-import ij.ImagePlus;
+import javax.swing.*;
+import java.awt.*;
+import java.util.List;
 
 public class FenResultsColonicTransit extends FenResults {
 
@@ -34,9 +29,9 @@ public class FenResultsColonicTransit extends FenResults {
 
 	private class TabMain extends TabResult {
 
-		private ControllerScin controller;
-		private int time;
-		private ImagePlus capture;
+		private final ControllerScin controller;
+		private final int time;
+		private final ImagePlus capture;
 
 		public TabMain(FenResults parent, String title, ControllerScin controller, int time, ImagePlus capture) {
 			super(parent, title, true);

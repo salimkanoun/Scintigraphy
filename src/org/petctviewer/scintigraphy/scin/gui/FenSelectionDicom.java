@@ -1,34 +1,9 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.swing.DefaultCellEditor;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
-
+import ij.ImageListener;
+import ij.ImagePlus;
+import ij.WindowManager;
+import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -38,10 +13,18 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
-import ij.ImageListener;
-import ij.ImagePlus;
-import ij.WindowManager;
-import ij.util.DicomTools;
+import javax.swing.*;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.util.List;
+import java.util.*;
 
 /**
  * Window to select DICOM files. The list of DICOM files can add informations on
@@ -53,9 +36,9 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	private static final long serialVersionUID = 6706629497515318270L;
 
 	// TODO: make a column invisible to add data
-	protected JTable table;
-	private JButton btn_select, btn_selectAll;
-	private Scintigraphy scin;
+	protected final JTable table;
+	private final JButton btn_selectAll;
+	private final Scintigraphy scin;
 	private DefaultTableModel dataModel;
 	private List<Column> columns;
 
@@ -91,8 +74,8 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 		JPanel jp = new JPanel();
 
-		this.btn_select = new JButton("Select");
-		this.btn_select.addActionListener(this);
+		JButton btn_select = new JButton("Select");
+		btn_select.addActionListener(this);
 
 		this.btn_selectAll = new JButton("Select All");
 		this.btn_selectAll.addActionListener(this);
@@ -101,7 +84,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 		panel.add(new JLabel("Select the dicoms for " + examType), BorderLayout.NORTH);
 
-		jp.add(this.btn_select);
+		jp.add(btn_select);
 		jp.add(this.btn_selectAll);
 
 		panel.add(jp, BorderLayout.SOUTH);
@@ -204,7 +187,6 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 * @param imp Image to analyze
 	 * @return Orientation of the image (UNKNOWN if the orientation could not be
 	 * determined)
-	 * @throws ReadTagException 
 	 */
 	private Orientation determineImageOrientation(ImagePlus imp) throws ReadTagException {
 		

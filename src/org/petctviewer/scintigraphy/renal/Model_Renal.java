@@ -1,34 +1,34 @@
  package org.petctviewer.scintigraphy.renal;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+ import ij.ImagePlus;
+ import ij.Prefs;
+ import ij.gui.Roi;
+ import ij.util.DicomTools;
+ import org.jfree.data.statistics.Regression;
+ import org.jfree.data.xy.XYSeries;
+ import org.jfree.data.xy.XYSeriesCollection;
+ import org.petctviewer.scintigraphy.scin.ImageSelection;
+ import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+ import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+ import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
-import org.jfree.data.statistics.Regression;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
-import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
-
-import ij.ImagePlus;
-import ij.Prefs;
-import ij.gui.Roi;
-import ij.util.DicomTools;
+ import java.util.ArrayList;
+ import java.util.HashMap;
+ import java.util.List;
 
 public class Model_Renal extends ModelScinDyn {
 
-	private HashMap<String, Roi> organRois;
+	private final HashMap<String, Roi> organRois;
 	private HashMap<Comparable, Double> adjustedValues;
 	private boolean[] kidneys;
 	private double[] patlakPente;
 	private ArrayList<String> kidneysLR;
 	private JValueSetter nephrogramChart;
 	private JValueSetter patlakChart;
-	private ImageSelection impAnt, impPost/*, impProjetee*/;
+	private ImageSelection impAnt;
+	private final ImageSelection impPost/*, impProjetee*/;
 	private int[] frameDurations;
-	private HashMap<String, Integer> pixelCounts;
+	private final HashMap<String, Integer> pixelCounts;
 
 	/**
 	 * recupere les valeurs et calcule les resultats de l'examen renal
@@ -72,8 +72,6 @@ public class Model_Renal extends ModelScinDyn {
 	 * 
 	 * @param min
 	 *            minute a laquelle on veut comparer
-	 * @param output
-	 *            sortie du rein
 	 * @param lr
 	 *            "L" ou "R"
 	 * @return le pourcentage
@@ -83,9 +81,9 @@ public class Model_Renal extends ModelScinDyn {
 		try {
 			XYSeries output = this.getSerie("Output K" + lr);
 			XYSeries serieBPF = this.getSerie("Blood pool fitted " + lr);
-			 perct = (int) (Library_JFreeChart.getY(output, min).doubleValue()
-					/ Library_JFreeChart.getY(serieBPF, min).doubleValue() * 100);
-		} catch (IllegalArgumentException e) {
+			 perct = (int) (Library_JFreeChart.getY(output, min)
+					/ Library_JFreeChart.getY(serieBPF, min) * 100);
+		} catch (IllegalArgumentException ignored) {
 		}
 		
 		return perct;
@@ -136,7 +134,7 @@ public class Model_Renal extends ModelScinDyn {
 		// tableau de retour avec les resultats
 		Double[][] res = new Double[2][2];
 
-		Double xLasilixM1 = this.adjustedValues.get("lasilix") - 1;
+		double xLasilixM1 = this.adjustedValues.get("lasilix") - 1;
 
 		// si il y a un rein gauche
 		if (this.kidneys[0]) {
@@ -172,11 +170,11 @@ public class Model_Renal extends ModelScinDyn {
 
 		for (String lr : this.kidneysLR) {
 			XYSeries kidney = this.getSerie("Final K" + lr);
-			Double max = kidney.getMaxY();
+			double max = kidney.getMaxY();
 
 			// change l'index sur lequel ecrire le resultat dans le tableau
 			int index = 1;
-			if (lr == "R")
+			if (lr.equals("R"))
 				index = 2;
 
 			// calcul Excr rein gauche
@@ -204,7 +202,7 @@ public class Model_Renal extends ModelScinDyn {
 
 			// change l'index sur lequel ecrire le resultat dans le tableau
 			int index = 1;
-			if (lr == "R")
+			if (lr.equals("R"))
 				index = 2;
 
 			// calcul nora rein gauche
@@ -270,8 +268,6 @@ public class Model_Renal extends ModelScinDyn {
 
 	/**
 	 * Renvoie la hauteur des reins en cm, index 0 : rein gauche, 1 : rein droit
-	 * 
-	 * @return
 	 */
 	public Double[] getSize() {
 		int heightLK=0;
@@ -288,7 +284,7 @@ public class Model_Renal extends ModelScinDyn {
 		//Double pixelHeight=calibration.pixelHeight;
 		///System.out.println(pixelHeight);
 		String pixelHeightString = DicomTools.getTag(this.getImagePlus(), "0028,0030").trim().split("\\\\")[1];
-		Double pixelHeight = Double.parseDouble(pixelHeightString);
+		double pixelHeight = Double.parseDouble(pixelHeightString);
 		Double[] kidneyHeight = new Double[2];
 
 		// convvertion des pixel en mm
@@ -302,49 +298,48 @@ public class Model_Renal extends ModelScinDyn {
 		return kidneysLR;
 	}
 
-	
-	/******* Private Getter *********/
 	private String getDataString(Comparable key, String name) {
 		if(this.getData().containsKey(key)) {
 			List<Double> values = this.getData().get(key);
+			StringBuilder nameBuilder = new StringBuilder(name);
 			for(Double d : values) {
-				name += "," + d;
+				nameBuilder.append(",").append(d);
 			}
+			name = nameBuilder.toString();
 		}
 		name += "\n";
 		return name;
 	}
 
 	private String getROEString() {
-		String s = "Time ROE";
+		StringBuilder s = new StringBuilder("Time ROE");
 		Double[] mins = new Double[10];
 		for (int i = 0; i < mins.length; i++) {
 			mins[i] = Library_Quantif.round((getSerie("Blood Pool").getMaxX() / (mins.length * 1.0)) * i + 1, 1);
-			s += ", " + mins[i];
+			s.append(", ").append(mins[i]);
 		}
-		s += "\n";
+		s.append("\n");
 
 		// on recupere les series
 		for (String lr : this.kidneysLR) {
-			s += lr + ". kidney";
-			for (int i = 0; i < mins.length; i++) {
-				s += "," + this.getROE(mins[i], lr);
+			s.append(lr).append(". kidney");
+			for (Double min : mins) {
+				s.append(",").append(this.getROE(min, lr));
 			}
-			s += "\n";
+			s.append("\n");
 		}
 		
-		return s;
+		return s.toString();
 	}
 	
 	
 	/********** Public *********/
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
-		if (!this.isLocked()) {
+		if (this.isUnlocked()) {
 
 			this.organRois.put(nomRoi, imp.getRoi());
-			
-			if (this.getData().get(nomRoi) == null) 
-				this.getData().put(nomRoi, new ArrayList<Double>());
+
+			this.getData().computeIfAbsent(nomRoi, k -> new ArrayList<>());
 			
 			// on y ajoute le nombre de coups
 			this.getData().get(nomRoi).add(Math.max(Library_Quantif.getCounts(imp),1.0d) );
@@ -426,36 +421,38 @@ public class Model_Renal extends ModelScinDyn {
 		double[] patlak = this.getPatlakPente();
 		Double[][] timing = this.getTiming();
 
-		String s = super.toString();
+		StringBuilder s = new StringBuilder(super.toString());
 		
-		s += "\n";
+		s.append("\n");
 		
-		s += getDataString("Final KL", "Corrected Left Kidney");
-		s += getDataString("Final KR", "Corrected Right Kidney");
-		s += getDataString("Blood Pool", "Blood Pool");
+		s.append(getDataString("Final KL", "Corrected Left Kidney"));
+		s.append(getDataString("Final KR", "Corrected Right Kidney"));
+		s.append(getDataString("Blood Pool", "Blood Pool"));
 
-		s += "\n";
-		s+=getROEString();
-		s+="\n";
-		s += ",time, left kidney, right kidney \n";
+		s.append("\n");
+		s.append(getROEString());
+		s.append("\n");
+		s.append(",time, left kidney, right kidney \n");
 		for (int i = 0; i < nora.length; i++) {
-			s += "NORA ," + nora[0][i] + "," + nora[1][i] + "," + nora[2][i] + "\n";
+			s.append("NORA ,").append(nora[0][i]).append(",").append(nora[1][i]).append(",").append(nora[2][i])
+					.append("\n");
 		}
 
 		for (int i = 0; i < nora.length; i++) {
-			s += "Excretion ratio," + excr[0][i] + "," + excr[1][i] + "," + excr[2][i] + "\n";
+			s.append("Excretion ratio,").append(excr[0][i]).append(",").append(excr[1][i]).append(",")
+					.append(excr[2][i]).append("\n");
 		}
 
-		s += "Separated function integral , ," + sep[0] + "," + sep[1] + "\n";
+		s.append("Separated function integral , ,").append(sep[0]).append(",").append(sep[1]).append("\n");
 		
 		if(patlak != null) {
-			s += "Separated function patlak , ," + patlak[0] + "," + patlak[1] + "\n";
+			s.append("Separated function patlak , ,").append(patlak[0]).append(",").append(patlak[1]).append("\n");
 		}
 		
-		s += "Timing tmax , ," + timing[0][0] + "," + timing[0][1] + "\n";
-		s += "Timing t1/2 , ," + timing[1][0] + "," + timing[1][1] + "\n";
+		s.append("Timing tmax , ,").append(timing[0][0]).append(",").append(timing[0][1]).append("\n");
+		s.append("Timing t1/2 , ,").append(timing[1][0]).append(",").append(timing[1][1]).append("\n");
 		
-		s += "\n";
+		s.append("\n");
 		
 		
 		
@@ -464,12 +461,14 @@ public class Model_Renal extends ModelScinDyn {
 		Double[] time = {Library_Quantif.round(xLasilix - 1, 1),
 				Library_Quantif.round(xLasilix + 2, 1), 
 				Library_Quantif.round(this.getSerie("Blood Pool").getMaxX(), 1)};
-		s += "Time ROE (min), "+ time[0]+","+this.getROE(time[0], "L")+","+this.getROE(time[0], "R")+"\n"
-			+"Time ROE (min), "+ time[1]+","+this.getROE(time[1], "L")+","+this.getROE(time[1], "R")+"\n"
-			+"Time ROE (min), "+ time[2]+","+this.getROE(time[2], "L")+","+this.getROE(time[2], "R")+"\n";
+		s.append("Time ROE (min), ").append(time[0]).append(",").append(this.getROE(time[0], "L")).append(",")
+				.append(this.getROE(time[0], "R")).append("\n").append("Time ROE (min), ").append(time[1]).append(",")
+				.append(this.getROE(time[1], "L")).append(",").append(this.getROE(time[1], "R")).append("\n")
+				.append("Time ROE (min), ").append(time[2]).append(",").append(this.getROE(time[2], "L")).append(",")
+				.append(this.getROE(time[2], "R")).append("\n");
 		
-		s+= s += super.toString();
-		return s;
+		s.append(s.append(super.toString()));
+		return s.toString();
 
 	}
 	
@@ -554,7 +553,7 @@ public class Model_Renal extends ModelScinDyn {
 			// on calcule le coup moyen de la roi, on l'ajuste avec le bdf et on l'applique
 			// sur toute la roi pour chaque rein afin d'ajuster la valeur brute pour les
 			// deux reins
-			for (int i = 0; i < this.getFrameduration().length; i++) {
+			for (int i = 0; i < this.getFrameDuration().length; i++) {
 				Double countRein = lk.get(i);
 				Double countBkg = lbkg.get(i);
 
@@ -578,7 +577,7 @@ public class Model_Renal extends ModelScinDyn {
 		// pour chaque rein on ajoute la valeur normalisee de la vasculaire
 		for (String lr : this.kidneysLR) {
 			List<Double> bpNorm = new ArrayList<>();
-			Integer aire = this.organRois.get(lr + ". Kidney").getStatistics().pixelCount;
+			int aire = this.organRois.get(lr + ". Kidney").getStatistics().pixelCount;
 			for (Double d : bp) {
 				bpNorm.add((d / aireBP) * aire);
 			}

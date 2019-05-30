@@ -14,28 +14,24 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 package org.petctviewer.scintigraphy.platelet;
 
-import java.util.Date;
-
-import javax.swing.JTable;
-
-import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
 import ij.plugin.CanvasResizer;
 import ij.plugin.MontageMaker;
 import ij.process.ImageProcessor;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+
+import javax.swing.*;
+import java.util.Date;
 
 public class Controller_Plaquettes extends Controller_OrganeFixe {
 
 	protected static boolean showLog;
 	private Model_Plaquettes leModele;
-	private String[] organes = { "Spleen", "Liver", "Heart" };
-	private String[] organesAntPost = { "Spleen Post", "Liver Post", "Heart Post", "Spleen Ant", "Liver Ant", "Heart Ant" };
-	private boolean antPost;
+	private final boolean antPost;
 
 	// Sert au restart
 	protected Controller_Plaquettes(View_Platelet vue, Date dateDebut, ImageSelection[] selectedImages, String studyName) {
@@ -44,9 +40,12 @@ public class Controller_Plaquettes extends Controller_OrganeFixe {
 		this.antPost = vue.antPost;
 		
 		if (vue.antPost) {
-			this.setOrganes(this.organesAntPost);
+			String[] organesAntPost = {"Spleen Post", "Liver Post", "Heart Post", "Spleen Ant", "Liver Ant",
+			                           "Heart Ant"};
+			this.setOrganes(organesAntPost);
 		} else {
-			this.setOrganes(this.organes);
+			String[] organes = {"Spleen", "Liver", "Heart"};
+			this.setOrganes(organes);
 		}
 	}
 

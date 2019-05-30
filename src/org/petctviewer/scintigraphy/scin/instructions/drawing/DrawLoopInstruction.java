@@ -14,7 +14,7 @@ public class DrawLoopInstruction extends DefaultGenerator {
 
 	private int indexRoiToDisplay;
 
-	private transient ImageState state;
+	private final transient ImageState state;
 
 	protected String RoiName;
 

@@ -1,18 +1,17 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import java.util.HashMap;
-
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.gui.Roi;
+import java.util.HashMap;
 
 public class Model_Cardiac extends ModelScin {
 
-	private HashMap<String, Double[]> data;
+	private final HashMap<String, Double[]> data;
 
 	/** Valeurs mesur�es **/
 	// valeurs de la prise late
@@ -22,20 +21,15 @@ public class Model_Cardiac extends ModelScin {
 	// valeurs totales
 	private Double totEarly, totLate;
 
-	/** Valeurs calcul�es **/
-	// valeurs finales
-	private Double finalEarly;
 	private Double hwb, retCardiaque, retCe;
 
 	private Boolean deuxPrises;
 
-	private Scintigraphy scin;
+	private final Scintigraphy scin;
 
 	// private Controller_Cardiac controler;
 
-	private ControllerWorkflowCardiac controler;
-
-	private HashMap<String, String> resultats;
+	private final HashMap<String, String> resultats;
 
 	// private int[] nbConta;
 
@@ -48,7 +42,7 @@ public class Model_Cardiac extends ModelScin {
 
 	public void getResults() {
 		// controler=(Controller_Cardiac) scin.getFenApplication().getControleur();
-		controler = (ControllerWorkflowCardiac) scin.getFenApplication().getControleur();
+		ControllerWorkflowCardiac controler = (ControllerWorkflowCardiac) scin.getFenApplication().getControleur();
 
 		// for (int i : controler.getNomRois().keySet()) {
 		// this.selectedImages[0].getImagePlus().setSlice(controler.getSliceNumberByRoiIndex(i));
@@ -177,7 +171,9 @@ public class Model_Cardiac extends ModelScin {
 		// calcul des retentions
 		if (this.deuxPrises) {
 
-			this.finalEarly = this.totEarly - this.sumContE;
+			/* Valeurs calcul�es */
+			// valeurs finales
+			double finalEarly = this.totEarly - this.sumContE;
 
 			this.selectedImages[0].getImagePlus().setSlice(1);
 			long timeEarly = Library_Dicom.getDateAcquisition(this.selectedImages[0].getImagePlus()).getTime();
@@ -186,10 +182,10 @@ public class Model_Cardiac extends ModelScin {
 
 			int delaySeconds = (int) (timeEarly - timeLate) / 1000;
 
-			this.retCardiaque = Library_Quantif.applyDecayFraction(delaySeconds*1000, this.fixCoeurL, Library_Quantif.Isotope.TECHNETIUM_99) / this.finalEarly;
+			this.retCardiaque = Library_Quantif.applyDecayFraction(delaySeconds*1000, this.fixCoeurL, Library_Quantif.Isotope.TECHNETIUM_99) / finalEarly;
 			
 			double sum=this.fixReinDL + this.fixVessieL + this.sumContL;		
-			this.retCe = (this.totLate - Library_Quantif.applyDecayFraction(delaySeconds*1000, sum, Library_Quantif.Isotope.TECHNETIUM_99)) / this.finalEarly;
+			this.retCe = (this.totLate - Library_Quantif.applyDecayFraction(delaySeconds*1000, sum, Library_Quantif.Isotope.TECHNETIUM_99)) / finalEarly;
 		}
 
 	}

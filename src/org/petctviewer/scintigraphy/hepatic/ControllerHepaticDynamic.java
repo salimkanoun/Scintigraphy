@@ -1,15 +1,5 @@
 package org.petctviewer.scintigraphy.hepatic;
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.Label;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
-import javax.swing.JOptionPane;
-
 import org.petctviewer.scintigraphy.hepatic.tab.TabCurves;
 import org.petctviewer.scintigraphy.hepatic.tab.TabMainHepaticDyn;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -17,6 +7,13 @@ import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class ControllerHepaticDynamic extends ControllerScin implements MouseListener, ActionListener {
 
@@ -31,11 +28,12 @@ public class ControllerHepaticDynamic extends ControllerScin implements MouseLis
 		return false;
 	}
 
+	@Override
 	public void end() {
 		String value1 = ((FenApplicationHepaticDynamic) this.vue).getTextLabel1();
 		String value2 = ((FenApplicationHepaticDynamic) this.vue).getTextLabel2();
 		String value3 = ((FenApplicationHepaticDynamic) this.vue).getTextLabel3();
-		if (value1 == "" || value2 == "" || value3 == "") {
+		if (value1.isEmpty() || value2.isEmpty() || value3.isEmpty()) {
 			JOptionPane.showConfirmDialog(getVue(), "You have to select a slice for each time", "Missing a time",
 					JOptionPane.DEFAULT_OPTION);
 			return;
@@ -45,12 +43,13 @@ public class ControllerHepaticDynamic extends ControllerScin implements MouseLis
 		FenResults fenResult = new FenResults(this);
 		fenResult.setMainTab(new TabMainHepaticDyn(fenResult, ((ModelHepaticDynamic) this.model)));
 		fenResult.addTab(new TabCurves(fenResult, "Curves second method"));
+		fenResult.setVisible(true);
 	}
 
 	public void mouseClicked(MouseEvent e) {
 		if (e.getSource() instanceof Label) {
 			Label label = (Label) e.getSource();
-			this.vue.getImagePlus().setSlice(Integer.valueOf(label.getText() != "" ? label.getText() : "1"));
+			this.vue.getImagePlus().setSlice(Integer.valueOf(!label.getText().isEmpty() ? label.getText() : "1"));
 		}
 
 	}
@@ -58,7 +57,7 @@ public class ControllerHepaticDynamic extends ControllerScin implements MouseLis
 	public void mousePressed(MouseEvent e) {
 		if (e.getSource() instanceof Label) {
 			Label label = (Label) e.getSource();
-			if (label.getText() == "")
+			if (label.getText().isEmpty())
 				label.setBackground(new Color(229, 77, 77));
 			else
 				label.setBackground(new Color(124, 118, 218));
@@ -76,7 +75,7 @@ public class ControllerHepaticDynamic extends ControllerScin implements MouseLis
 	public void mouseReleased(MouseEvent e) {
 		if (e.getSource() instanceof Label) {
 			Label label = (Label) e.getSource();
-			if (label.getText() == "")
+			if (label.getText().isEmpty())
 				label.setBackground(new Color(233, 118, 118));
 			else
 				label.setBackground(new Color(147, 142, 222));

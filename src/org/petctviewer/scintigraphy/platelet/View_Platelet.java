@@ -39,7 +39,7 @@ import java.util.Date;
 public class View_Platelet extends Scintigraphy {
 
 	// Si acquisition antPost
-	protected Boolean antPost = false;
+	protected final Boolean antPost = false;
 	private Date dateHeureDebut;
 
 	// Nombre de series disponibles a l'ouverture

@@ -21,11 +21,6 @@ public class Library_Gui {
 
 	/**
 	 *  Change le studyName et la couleur de l'overlay
-	 * @param ov
-	 * @param oldName
-	 * @param newName
-	 * @param c
-	 * 
 	 */
 	public static void editLabelOverlay(Overlay ov, String oldName, String newName, Color c) {
 		Roi roi = ov.get(ov.getIndex(oldName));
@@ -64,7 +59,7 @@ public class Library_Gui {
 		// On defini la police et la propriete des Overlays
 		int width = imp.getWidth();
 		// On normalise Taille 12 a 256 pour avoir une taille stable pour toute image
-		Float facteurConversion = (float) ((width * 1.0) / 256);
+		float facteurConversion = (float) ((width * 1.0) / 256);
 		Font font = new Font("Arial", Font.PLAIN, Math.round(taillePolice * facteurConversion));
 		overlay.setLabelFont(font, true);
 		overlay.drawLabels(true);
@@ -85,8 +80,6 @@ public class Library_Gui {
 	public static Overlay initOverlay(ImagePlus imp) {
 		return initOverlay(imp, DEFAULT_FONT_SIZE);
 	}
-
-	/**************** Public Static Setter ***************************/
 	
 	/** 
 	 * Affiche D et G en overlay sur l'image, L a gauche et R a droite

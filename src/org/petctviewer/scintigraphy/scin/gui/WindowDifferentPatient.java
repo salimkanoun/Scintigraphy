@@ -1,22 +1,13 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTable;
 
 public class WindowDifferentPatient extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
-
-	private JButton btn_y, btn_n;
 
 	public WindowDifferentPatient(Object[][] difference) {
 
@@ -38,11 +29,11 @@ public class WindowDifferentPatient extends JDialog implements ActionListener {
 		flow.add(this.add(new JLabel("Do you want to still process the exam ?")));
 
 		JPanel radio = new JPanel();
-		this.btn_y = new JButton("Yes");
-		this.btn_y.addActionListener(this);
+		JButton btn_y = new JButton("Yes");
+		btn_y.addActionListener(this);
 		radio.add(btn_y);
-		this.btn_n = new JButton("No");
-		this.btn_n.addActionListener(this);
+		JButton btn_n = new JButton("No");
+		btn_n.addActionListener(this);
 		radio.add(btn_n);
 
 		flow.add(radio);

@@ -1,12 +1,8 @@
 package org.petctviewer.scintigraphy.hepatic.tab;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.plugin.MontageMaker;
 import org.petctviewer.scintigraphy.hepatic.ModelHepaticDynamic;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
@@ -15,17 +11,14 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.plugin.MontageMaker;
+import javax.swing.*;
+import java.awt.*;
 
 public class TabMainHepaticDyn extends TabResult {
 
-	private ImagePlus[] captures;
+	final ImagePlus montage;
 
-	ImagePlus montage;
-
-	ModelHepaticDynamic model;
+	final ModelHepaticDynamic model;
 
 	public TabMainHepaticDyn(FenResults parent, ModelHepaticDynamic model) {
 		super(parent, "Main", true);
@@ -39,7 +32,7 @@ public class TabMainHepaticDyn extends TabResult {
 		this.model.setCapture(this.getParent().getController().getVue().getImagePlus(), 3);
 		this.getParent().getController().getVue().setImage(currentImage);
 
-		this.captures = model.getCaptures();
+		ImagePlus[] captures = model.getCaptures();
 
 		ImageStack stackCapture = Library_Capture_CSV.captureToStack(captures);
 		this.montage = this.montage(stackCapture);
@@ -60,9 +53,8 @@ public class TabMainHepaticDyn extends TabResult {
 
 	@Override
 	public JPanel getResultContent() {
-		DynamicImage dynamic = new DynamicImage(montage.getImage());
-//		dynamic.setPreferredSize(new Dimension((int) (this.parent.getWidth() * 0.75), dynamic.getHeight()));
-		return dynamic;
+		//		dynamic.setPreferredSize(new Dimension((int) (this.parent.getWidth() * 0.75), dynamic.getHeight()));
+		return new DynamicImage(montage.getImage());
 	}
 
 	protected ImagePlus montage(ImageStack captures) {

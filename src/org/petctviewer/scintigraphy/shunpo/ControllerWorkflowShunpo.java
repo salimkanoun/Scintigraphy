@@ -1,8 +1,8 @@
 package org.petctviewer.scintigraphy.shunpo;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -16,13 +16,12 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.gui.Roi;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
-	private FenResults fenResults;
+	private final FenResults fenResults;
 
 	private List<ImagePlus> captures;
 
@@ -42,7 +41,6 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
 		this.FIRST_ORIENTATION_POST = true;
 		this.fenResults = new FenResults(this);
-		this.fenResults.setVisible(false);
 	}
 
 	// TODO: refactor this method
@@ -50,9 +48,9 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 
-		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null, dri_5 = null, dri_6 = null,
-				dri_7 = null, dri_8 = null, dri_9 = null, dri_10 = null, dri_11 = null, dri_12 = null;
-		ScreenShotInstruction dri_capture_1 = null, dri_capture_2, dri_capture_3, dri_capture_4;
+		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4, dri_5, dri_6,
+				dri_7, dri_8, dri_9, dri_10, dri_11, dri_12;
+		ScreenShotInstruction dri_capture_1, dri_capture_2, dri_capture_3, dri_capture_4;
 		this.captures = new ArrayList<>();
 
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
@@ -111,12 +109,12 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		// Compute model
 		int firstSlice = (this.FIRST_ORIENTATION_POST ? SLICE_POST : SLICE_ANT);
 		int secondSlice = firstSlice % 2 + 1;
-		ImagePlus img = this.model.getImageSelection()[STEP_KIDNEY_LUNG].getImagePlus();
+		ImagePlus img;
 		this.model.getImageSelection()[STEP_KIDNEY_LUNG].getImagePlus().setSlice(firstSlice);
 		this.model.getImageSelection()[STEP_BRAIN].getImagePlus().setSlice(firstSlice);
 		for (int i = 0; i < this.model.getRoiManager().getRoisAsArray().length; i++) {
 			Roi r = this.model.getRoiManager().getRoisAsArray()[i];
-			int organ = 0;
+			int organ;
 
 			if (i < this.NBORGANE[STEP_KIDNEY_LUNG]) {
 				img = this.model.getImageSelection()[STEP_KIDNEY_LUNG].getImagePlus();
@@ -155,7 +153,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
 		// Save captures
 		ImageStack stackCapture = Library_Capture_CSV
-				.captureToStack(this.captures.toArray(new ImagePlus[this.captures.size()]));
+				.captureToStack(this.captures.toArray(new ImagePlus[0]));
 		ImagePlus montage = this.montage(stackCapture);
 
 		// Display result
@@ -167,7 +165,8 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
 	private class DrawRoiInMiddle extends DrawRoiInstruction {
 
-		private transient DrawRoiInstruction dri_1, dri_2;
+		private final transient DrawRoiInstruction dri_1;
+		private final transient DrawRoiInstruction dri_2;
 
 		public DrawRoiInMiddle(String organToDelimit, ImageState state, DrawRoiInstruction roi1,
 				DrawRoiInstruction roi2) {

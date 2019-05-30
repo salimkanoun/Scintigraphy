@@ -1,12 +1,8 @@
 package org.petctviewer.scintigraphy.gastric.dynamic;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.JButton;
-
 import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
-import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2_bis;
+import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -23,12 +19,15 @@ import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+
 public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
 	public static final String COMMAND_FIT_BEST_1 = "cfb_method1", COMMAND_FIT_BEST_2 = "cfb_method2",
 			COMMAND_FIT_BEST_ALL = "cfb_all";
 
-	private FenResults fenResults;
+	private final FenResults fenResults;
 
 	public ControllerWorkflow_DynGastric(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
 			ImageSelection[] selectedImages, FenResults fenResults) {
@@ -99,7 +98,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 	}
 
 	private void fitBest(String command) {
-		TabMethod2_bis tab = (TabMethod2_bis) this.fenResults.getTab(1);
+		TabMethod2 tab = (TabMethod2) this.fenResults.getTab(1);
 		if (command.equals(COMMAND_FIT_BEST_2) || command.equals(COMMAND_FIT_BEST_ALL))
 			tab.selectFit(tab.findBestFit());
 	}
@@ -118,7 +117,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		tabMain.createGraph();
 
 		// Set the best fit by default
-		this.fitBest(COMMAND_FIT_BEST_ALL);
+		this.fitBest(COMMAND_FIT_BEST_1);
 
 		// Do not reload the method 2
 		tabMain.reloadDisplay();
@@ -135,7 +134,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		for (int i = 0; i < this.workflows.length; i++) {
 			this.workflows[i] = new Workflow(this, getModel().getImageSelection()[i]);
 
-			ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
+			ImageState state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_CUSTOM_IMAGE);
 			state.specifieImage(this.workflows[i].getImageAssociated());
 
 			dri_antre = new DrawRoiInstruction("Stomach", state, dri_antre);
@@ -149,6 +148,9 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 			this.workflows[i].addInstruction(new BkgNoiseInstruction(promptBkgNoise));
 		}
 		this.workflows[this.workflows.length - 1].addInstruction(new EndInstruction());
+
+		// Update view
+		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	@Override

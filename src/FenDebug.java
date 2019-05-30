@@ -1,17 +1,10 @@
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-
+import ij.plugin.PlugIn;
 import org.petctviewer.scintigraphy.calibration.Calibration;
 import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
 import org.petctviewer.scintigraphy.colonic.ColonicScintigraphy;
 import org.petctviewer.scintigraphy.esophageus.application.EsophagealTransit;
 import org.petctviewer.scintigraphy.gastric.GastricScintigraphy;
+import org.petctviewer.scintigraphy.gastric.liquid.LiquidScintigraphy;
 import org.petctviewer.scintigraphy.generic.dynamic.GeneralDynamicScintigraphy;
 import org.petctviewer.scintigraphy.generic.statics.StaticScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.HepaticDynScintigraphy;
@@ -25,13 +18,14 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.preferences.PrefsWindows;
 import org.petctviewer.scintigraphy.shunpo.ShunpoScintigraphy;
 
-import ij.plugin.PlugIn;
+import javax.swing.*;
+import java.awt.*;
 
 public class FenDebug extends JFrame {
 
 	private static final long serialVersionUID = -902779990950720955L;
 
-	private JPanel panel;
+	private final JPanel panel;
 
 	private JButton getProgramButton(Class<? extends PlugIn> program) {
 		PlugIn vue;
@@ -74,6 +68,7 @@ public class FenDebug extends JFrame {
 		this.registerNewProgram(LymphoSintigraphy.class);
 		this.registerNewProgram(HepaticDynScintigraphy.class);
 		this.registerNewProgram(ColonicScintigraphy.class);
+		this.registerNewProgram(LiquidScintigraphy.class);
 
 		this.add(this.panel, BorderLayout.CENTER);
 		this.add(pnl_pref, BorderLayout.NORTH);

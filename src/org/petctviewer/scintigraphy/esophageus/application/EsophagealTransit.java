@@ -19,13 +19,8 @@ import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class EsophagealTransit extends Scintigraphy {
@@ -76,12 +71,12 @@ public class EsophagealTransit extends Scintigraphy {
 		List<ImageSelection> imagePourTriePost = new ArrayList<>();
 
 		// poour chaque acquisition
-		for (int i = 0; i < selectedImages.length; i++) {
-			if (selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_ANT_POST
-					|| selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
+		for (ImageSelection selectedImage : selectedImages) {
+			if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT_POST || selectedImage
+					.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
 				// on ne sauvegarde que la ant
 				// null == pas d'image ant et/ou une image post et != une image post en [0]
-				ImageSelection[] splited = Library_Dicom.splitDynamicAntPost(selectedImages[i]);
+				ImageSelection[] splited = Library_Dicom.splitDynamicAntPost(selectedImage);
 				if (splited[0] != null) {
 					imagePourTrieAnt.add(splited[0]);
 				}
@@ -93,13 +88,13 @@ public class EsophagealTransit extends Scintigraphy {
 					Library_Dicom.flipStackHorizontal(ims);
 					imagePourTriePost.add(ims);
 				}
-			} else if (selectedImages[i].getImageOrientation() == Orientation.DYNAMIC_ANT)
-				imagePourTrieAnt.add(selectedImages[i].clone());
-			else
-				throw new WrongColumnException.OrientationColumn(selectedImages[i].getRow(),
-						selectedImages[i].getImageOrientation(), new Orientation[] { Orientation.DYNAMIC_ANT,
-								Orientation.DYNAMIC_ANT_POST, Orientation.DYNAMIC_POST_ANT });
-			selectedImages[i].getImagePlus().close();
+			} else if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT)
+				imagePourTrieAnt.add(selectedImage.clone());
+			else throw new WrongColumnException.OrientationColumn(selectedImage.getRow(),
+						selectedImage.getImageOrientation(),
+						new Orientation[]{Orientation.DYNAMIC_ANT, Orientation.DYNAMIC_ANT_POST,
+						                  Orientation.DYNAMIC_POST_ANT});
+			selectedImage.getImagePlus().close();
 
 		}
 
@@ -107,11 +102,11 @@ public class EsophagealTransit extends Scintigraphy {
 		ChronologicalAcquisitionComparator chronologicalOrder = new ChronologicalAcquisitionComparator();
 		// on met les imageplus (ANT) dans cette fonction pour les trier, ensuite on
 		// stock le tout dans le tableau en [0]
-		Collections.sort(imagePourTrieAnt, chronologicalOrder);
-		sauvegardeImagesSelectDicom[0] = imagePourTrieAnt.toArray(new ImageSelection[imagePourTrieAnt.size()]);
+		imagePourTrieAnt.sort(chronologicalOrder);
+		sauvegardeImagesSelectDicom[0] = imagePourTrieAnt.toArray(new ImageSelection[0]);
 		// Pareil pour la post
-		Collections.sort(imagePourTriePost, chronologicalOrder);
-		sauvegardeImagesSelectDicom[1] = imagePourTriePost.toArray(new ImageSelection[imagePourTriePost.size()]);
+		imagePourTriePost.sort(chronologicalOrder);
+		sauvegardeImagesSelectDicom[1] = imagePourTriePost.toArray(new ImageSelection[0]);
 
 		// test de verification de la taille des stack
 		if (sauvegardeImagesSelectDicom[0].length != sauvegardeImagesSelectDicom[1].length) {
@@ -177,12 +172,7 @@ public class EsophagealTransit extends Scintigraphy {
 		for (int i = 0; i < nbAcquisition; i++) {
 			int num = i;
 			radioButton[i] = new JRadioButton("Acquisition " + (i + 1));
-			radioButton[i].addItemListener(new ItemListener() {
-				@Override
-				public void itemStateChanged(ItemEvent e) {
-					fen.setImage(sauvegardeImagesSelectDicom[0][num]);
-				}
-			});
+			radioButton[i].addItemListener(e -> fen.setImage(sauvegardeImagesSelectDicom[0][num]));
 			buttonGroup.add(radioButton[i]);
 			radioButtonPanel.add(radioButton[i]);
 			radioButton[i].setSelected(false);
@@ -194,31 +184,27 @@ public class EsophagealTransit extends Scintigraphy {
 		radioButtonPanelFlow.add(radioButtonPanel);
 
 		JButton startQuantificationButton = new JButton("Start Quantification");
-		startQuantificationButton.addActionListener(new ActionListener() {
+		startQuantificationButton.addActionListener(e -> {
+			fen.setVisualizationEnable(true);
+			// passage a la phase 2
+			fen.getPanel_btns_gauche().add(fen.getBtn_drawROI());
+			fen.getPanelPrincipal().remove(startQuantificationButton);
+			fen.getPanelPrincipal().remove(radioButtonPanelFlow);
+			fen.getPanel_Instructions_btns_droite().add(fen.getTextfield_instructions());
+			fen.getPanel_Instructions_btns_droite().add(fen.createPanelInstructionsBtns());
+			fen.revalidate();
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				fen.setVisualizationEnable(true);
-				// passage a la phase 2
-				fen.getPanel_btns_gauche().add(fen.getBtn_drawROI());
-				fen.getPanelPrincipal().remove(startQuantificationButton);
-				fen.getPanelPrincipal().remove(radioButtonPanelFlow);
-				fen.getPanel_Instructions_btns_droite().add(fen.getTextfield_instructions());
-				fen.getPanel_Instructions_btns_droite().add(fen.createPanelInstructionsBtns());
-				fen.revalidate();
+			fen.setImage(impProjeteAllAcqui);
+			fen.getImagePlus().setSlice(1);
+			fen.updateSliceSelector();
+			IJ.setTool(Toolbar.RECTANGLE);
 
-				fen.setImage(impProjeteAllAcqui);
-				fen.getImagePlus().setSlice(1);
-				fen.updateSliceSelector();
-				IJ.setTool(Toolbar.RECTANGLE);
+			ControllerWorkflowEsophagealTransit cet = new ControllerWorkflowEsophagealTransit(
+					EsophagealTransit.this, (FenApplicationWorkflow) EsophagealTransit.this.getFenApplication(),
+					new Model_EsophagealTransit(sauvegardeImagesSelectDicom, "Esophageal Transit",
+							EsophagealTransit.this));
+			EsophagealTransit.this.getFenApplication().setController(cet);
 
-				ControllerWorkflowEsophagealTransit cet = new ControllerWorkflowEsophagealTransit(
-						EsophagealTransit.this, (FenApplicationWorkflow) EsophagealTransit.this.getFenApplication(),
-						new Model_EsophagealTransit(sauvegardeImagesSelectDicom, "Esophageal Transit",
-								EsophagealTransit.this));
-				((FenApplicationWorkflow) EsophagealTransit.this.getFenApplication()).setController(cet);
-
-			}
 		});
 
 		fen.getPanelPrincipal().add(radioButtonPanelFlow);

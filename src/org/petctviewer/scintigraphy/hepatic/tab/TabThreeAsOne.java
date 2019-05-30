@@ -1,9 +1,5 @@
 package org.petctviewer.scintigraphy.hepatic.tab;
 
-import java.awt.BorderLayout;
-
-import javax.swing.JPanel;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -12,16 +8,19 @@ import org.petctviewer.scintigraphy.hepatic.SecondExam.ModelSecondMethodHepaticD
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
+import javax.swing.*;
+import java.awt.*;
+
 public class TabThreeAsOne {
 
-	private String title;
-	protected FenResults parent;
+	private final String title;
+	protected final FenResults parent;
 
-	private JPanel panel;
+	private final JPanel panel;
 
 	private JPanel result;
 
-	private TabResult tab;
+	private final TabResult tab;
 
 	public TabThreeAsOne(FenResults parent, TabResult tab) {
 
@@ -49,11 +48,9 @@ public class TabThreeAsOne {
 
 		JFreeChart chart = ChartFactory.createXYLineChart("", "min", "counts/sec", data);
 
-		ChartPanel chartpanel = new ChartPanel(chart);
-
 		// chartpanel.setPreferredSize(new Dimension(1000, 650));
 
-		return chartpanel;
+		return new ChartPanel(chart);
 	}
 
 	public String getTitle() {

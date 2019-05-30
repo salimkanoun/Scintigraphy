@@ -29,8 +29,8 @@ public class Library_Quantif {
 			throw new IllegalArgumentException("place doit etre superieur ou egal a zero");
 		}
 
-		if (value.equals(Double.NaN) || value.equals(Double.NEGATIVE_INFINITY)
-				|| value.equals(Double.POSITIVE_INFINITY)) {
+		if (value.equals(Double.NaN) || value.equals(Double.NEGATIVE_INFINITY) || value
+				.equals(Double.POSITIVE_INFINITY)) {
 			return value;
 		}
 
@@ -143,17 +143,17 @@ public class Library_Quantif {
 	public static double calculer_countCorrected(ImagePlus firstImage, ImagePlus secondImage, Isotope isotope) {
 		Date firstAcquisitionTime = Library_Dicom.getDateAcquisition(firstImage);
 		Date SecondAcquisitionTime = Library_Dicom.getDateAcquisition(secondImage);
-		System.out.println("Difference de temps : "
-				+ (int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime()));
-		return Library_Quantif.calculer_countCorrected(
-				(int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime()),
-				Library_Quantif.getCounts(secondImage), isotope);
+		System.out.println(
+				"Difference de temps : " + (int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime()));
+		return Library_Quantif
+				.calculer_countCorrected((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime()),
+						Library_Quantif.getCounts(secondImage), isotope);
 	}
 
 	/**
 	 * Returns the counts with th radioactive decay applied.
 	 *
-	 * @param delayMs        between the 2 images, in miliseconds
+	 * @param delayMs      between the 2 images, in miliseconds
 	 * @param mesuredCount Current count of the image
 	 * @param isotope      Isotope used in this exam ({@link Isotope})
 	 * @return The corrected count
@@ -176,12 +176,12 @@ public class Library_Quantif {
 	public static double applyDecayFraction(ImagePlus firstImage, ImagePlus secondImage, Isotope isotope) {
 		Date firstAcquisitionTime = Library_Dicom.getDateAcquisition(firstImage);
 		Date SecondAcquisitionTime = Library_Dicom.getDateAcquisition(secondImage);
-		System.out.println("Difference de temps : "
-				+ Math.abs((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime())));
+		System.out.println("Difference de temps : " + Math
+				.abs((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime())));
 
-		return Library_Quantif.applyDecayFraction(
-				Math.abs((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime())),
-				Library_Quantif.getCounts(secondImage), isotope);
+		return Library_Quantif
+				.applyDecayFraction(Math.abs((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime())),
+						Library_Quantif.getCounts(secondImage), isotope);
 	}
 
 	/**
@@ -248,8 +248,7 @@ public class Library_Quantif {
 	 * /** Convolve n times an array of double, using a kernel.
 	 */
 	public static List<Double> processNConvolv(List<Double> values, List<Double> kernel, int nbConvolv) {
-		return Arrays.asList(processNConvolv(values.toArray(new Double[0]),
-				kernel.toArray(new Double[0]), nbConvolv));
+		return Arrays.asList(processNConvolv(values.toArray(new Double[0]), kernel.toArray(new Double[0]), nbConvolv));
 	}
 
 	/**
@@ -257,7 +256,7 @@ public class Library_Quantif {
 	 *
 	 * @deprecated => Work when you used convolved array (actually, working with a
 	 * 6times convolved array) See
-	 * {@link org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabDeconvolv}
+	 * {@link org.petctviewer.scintigraphy.hepatic.tab.TabDeconvolv}
 	 * or {@link org.petctviewer.scintigraphy.renal.gui.TabDeconvolve}.
 	 */
 	public static List<Double> deconvolv(Double[] blood, Double[] liver, int init) {
@@ -298,11 +297,23 @@ public class Library_Quantif {
 	 *
 	 * @deprecated => Work when you used convolved array (actually, working with a
 	 * 6times convolved array) See
-	 * {@link org.petctviewer.scintigraphy.hepatic.dynRefactored.tab.TabDeconvolv}
+	 * {@link org.petctviewer.scintigraphy.hepatic.tab.TabDeconvolv}
 	 * or {@link org.petctviewer.scintigraphy.renal.gui.TabDeconvolve}.
 	 */
 	public static List<Double> deconvolv(List<Double> blood, List<Double> liver, int init) {
 		return deconvolv(blood.toArray(new Double[0]), liver.toArray(new Double[0]), init);
+	}
+
+	/**
+	 * Calculates the time between the specified times.
+	 *
+	 * @param time0 First time
+	 * @param time Time to calculate the difference with
+	 * @return difference of time expressed in minutes (negative value if the
+	 * specified time is before the ingestion's time)
+	 */
+	public static double calculateDeltaTime(Date time0, Date time) {
+		return (time.getTime() - time0.getTime()) / 1000. / 60.;
 	}
 
 	/**
@@ -334,8 +345,8 @@ public class Library_Quantif {
 	public enum Isotope {
 		INDIUM_111(242330000L, "C-145A4"), TECHNETIUM_99(21620880L, "C-163A8"), CHROME_51(2393500000L, "C-129A2");
 
-		private long halfLifeMS;
-		private String code;
+		private final long halfLifeMS;
+		private final String code;
 
 		Isotope(long isotope, String code) {
 			this.halfLifeMS = isotope;
@@ -344,8 +355,7 @@ public class Library_Quantif {
 
 		public static Isotope getIsotopeFromCode(String code) {
 			for (Isotope i : Isotope.values())
-				if (i.code.equals(code))
-					return i;
+				if (i.code.equals(code)) return i;
 			return null;
 		}
 

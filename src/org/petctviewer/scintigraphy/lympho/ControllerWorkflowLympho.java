@@ -1,13 +1,13 @@
 package org.petctviewer.scintigraphy.lympho;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.lympho.gui.FenResultatsLympho;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
@@ -15,12 +15,10 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflowLympho extends ControllerWorkflow {
-
-	private final int NBORGAN = 2;
 
 	private List<ImagePlus> captures;
 
@@ -35,8 +33,8 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 	protected void generateInstructions() {
 		
 		this.workflows = new Workflow[this.model.getImageSelection().length];
-		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null;
-		ScreenShotInstruction dri_capture_1 = null, dri_capture_2 = null;
+		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4;
+		ScreenShotInstruction dri_capture_1, dri_capture_2;
 		this.captures = new ArrayList<>();
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
@@ -74,7 +72,7 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 		// Compute model
 		int firstSlice = 1;
 		int secondSlice = 2;
-		ImagePlus img = this.model.getImageSelection()[0].getImagePlus();
+		ImagePlus img;
 		this.model.getImageSelection()[0].getImagePlus().setSlice(firstSlice);
 		this.model.getImageSelection()[1].getImagePlus().setSlice(firstSlice);
 		int organ = 0;
@@ -82,14 +80,15 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 
 			Roi r = this.model.getRoiManager().getRoisAsArray()[i];
 
-			if (i < this.NBORGAN) {
+			int NBORGAN = 2;
+			if (i < NBORGAN) {
 				img = this.model.getImageSelection()[0].getImagePlus();
 				img.setSlice(firstSlice);
 
-			} else if (i < 2 * this.NBORGAN) {
+			} else if (i < 2 * NBORGAN) {
 				img = this.model.getImageSelection()[0].getImagePlus();
 				img.setSlice(secondSlice);
-			} else if (i < 3 * this.NBORGAN) {
+			} else if (i < 3 * NBORGAN) {
 				img = this.model.getImageSelection()[1].getImagePlus();
 				img.setSlice(firstSlice);
 			} else {
@@ -104,7 +103,8 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 
 		}
 		this.model.calculateResults();
-		new FenResultatsLympho(this, captures.toArray(new ImagePlus[captures.size()]));
+		FenResults fenResults = new FenResultatsLympho(this, captures.toArray(new ImagePlus[0]));
+		fenResults.setVisible(true);
 
 	}
 

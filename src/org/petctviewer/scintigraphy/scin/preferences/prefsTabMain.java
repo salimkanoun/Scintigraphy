@@ -1,30 +1,26 @@
 package org.petctviewer.scintigraphy.scin.preferences;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
+import ij.IJ;
+import ij.Prefs;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
-import ij.IJ;
-import ij.Prefs;
-
 public class prefsTabMain extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
-	private JLabel lut, dir;
-	private JButton btn_choixLut, btn_dir, btn_displut;
+	private final JLabel lut;
+	private final JLabel dir;
+	private final JButton btn_choixLut;
+	private final JButton btn_dir;
+	private final JButton btn_displut;
 	private JFileChooser fc;
-	private JComboBox comboDate;
-	private PrefsWindows parent;
-	private JCheckBox experimentalMode;
+	private final JComboBox comboDate;
+	private final PrefsWindows parent;
+	private final JCheckBox experimentalMode;
 
 	public prefsTabMain(PrefsWindows parent) {
 		
@@ -66,7 +62,7 @@ public class prefsTabMain extends JPanel implements ActionListener {
 
 		JPanel pnl_formatDate = new JPanel();
 		pnl_formatDate.add(new JLabel("Date format :"));
-		this.comboDate = new JComboBox(new String[] { "MM/dd/yyyy", "dd/MM/yyyy" });
+		this.comboDate = new JComboBox<>(new String[] { "MM/dd/yyyy", "dd/MM/yyyy" });
 		this.comboDate.setSelectedItem(Prefs.get("dateformat.preferred", "MM/dd/yyyy"));
 		this.comboDate.addActionListener(this);
 		pnl_formatDate.add(comboDate);

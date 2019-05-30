@@ -34,28 +34,28 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	private Panel panel_Instructions_btns_droite;
 
 	// Panel avec boutons quit, draw roi, contrast
-	private Panel panel_btns_gauche;
-	private Panel panel_btns_droite;
+	private final Panel panel_btns_gauche;
+	private final Panel panel_btns_droite;
 
-	JTextField textfield_instructions;
+	protected final JTextField textfield_instructions;
 
-	Button btn_quitter;
-	Button btn_drawROI;
-	Button btn_contrast;
-	Button btn_precedent;
-	Button btn_suivant;
+	final Button btn_quitter;
+	final Button btn_drawROI;
+	final Button btn_contrast;
+	final Button btn_precedent;
+	protected final Button btn_suivant;
 
 	private ControllerScin controleur;
 
-	private Panel panelPrincipal;
-	Panel panelContainer;
+	private final Panel panelPrincipal;
+	final Panel panelContainer;
 
-	protected String studyName;
+	protected final String studyName;
 
 	private int canvasW, canvasH;
 
-	private MenuBar menuBar;
-	protected DocumentationDialog documentation;
+	private final MenuBar menuBar;
+	protected final DocumentationDialog documentation;
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
@@ -73,11 +73,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		super(imp, canvas);
 		// on set la lut des preferences
 		Library_Gui.setCustomLut(imp);
-		/*
-		 * try { UIManager.setLookAndFeel(
-		 * UIManager.getCrossPlatformLookAndFeelClassName() ); } catch (Exception e) {
-		 * e.printStackTrace(); }
-		 */
+
 		this.studyName = studyName;
 
 		String tagSerie = DicomTools.getTag(this.imp, "0008,103E");
@@ -142,7 +138,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	public void resizeCanvas() {
 		ImagePlus imp = this.getImagePlus();
 
-		// this.getCanvas().setBounds(0,0,canvasW,canvasH);
 		this.getCanvas().setSize(canvasW, canvasH);
 
 		// on calcule le facteur de magnification
@@ -154,9 +149,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 		this.getCanvas().setMagnification(magnification);
 
-		// this.revalidate(); // This may cause some trouble for the resizing.
 		this.pack();
-
 	}
 
 	// Close la fenetre
@@ -168,7 +161,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		return super.close();
 	}
 
-	/************ Private Method *********/
 	public Panel createPanelInstructionsBtns() {
 		Panel btns_instru = new Panel();
 		btns_instru.setLayout(new GridLayout(1, 2));
@@ -177,7 +169,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		return btns_instru;
 	}
 
-	/*************** Getter ******/
 	public Button getBtn_quitter() {
 		return this.btn_quitter;
 	}
@@ -227,7 +218,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		return panelPrincipal;
 	}
 
-	/************* Setter *************/
 	public void setController(ControllerScin ctrl) {
 		this.controleur = ctrl;
 
@@ -258,24 +248,21 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	private void createMenuBar() {
 		Menu options = new Menu("Options");
 		MenuItem loadRois = new MenuItem("Load ROIs from .zip");
-		loadRois.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				try {
-					FenApplicationSecondHepaticDyn.importRoiList(FenApplication.this,
-							FenApplication.this.controleur.getModel(),
-							(ControllerWorkflow) FenApplication.this.controleur);
-				} catch (UnauthorizedRoiLoadException e1) {
-					JOptionPane.showMessageDialog(FenApplication.this, "Error while loading ROIs:\n" + e1.getMessage(),
-							"Selection error", JOptionPane.ERROR_MESSAGE);
-					// e1.printStackTrace();
-				}
-				FenApplication.this.getImagePlus()
-						.setRoi(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
-				FenApplication.this.getImagePlus().getRoi().setStrokeColor(Color.RED);
-
-				System.out.println(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
+		loadRois.addActionListener(e -> {
+			try {
+				FenApplicationSecondHepaticDyn.importRoiList(FenApplication.this,
+						FenApplication.this.controleur.getModel(),
+						(ControllerWorkflow) FenApplication.this.controleur);
+			} catch (UnauthorizedRoiLoadException e1) {
+				JOptionPane.showMessageDialog(FenApplication.this, "Error while loading ROIs:\n" + e1.getMessage(),
+						"Selection error", JOptionPane.ERROR_MESSAGE);
+				// e1.printStackTrace();
 			}
+			FenApplication.this.getImagePlus()
+					.setRoi(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
+			FenApplication.this.getImagePlus().getRoi().setStrokeColor(Color.RED);
+
+			System.out.println(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
 		});
 
 		Menu help = new Menu("Help");
@@ -305,17 +292,15 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	/**
 	 * redimension de la canvas selon la largeur voulue et aux dimensions de
 	 * l'imageplus affichee
-	 * 
-	 * @param width
 	 */
 	protected void setPreferredCanvasSize(int width) {
 		int w = this.getImagePlus().getWidth();
 		int h = this.getImagePlus().getHeight();
-		Double ratioImagePlus = w * 1.0 / h * 1.0;
+		double ratioImagePlus = w * 1.0 / h * 1.0;
 
 		if (ratioImagePlus < 1) {
 			canvasW = (int) (width * ratioImagePlus);
-			canvasH = (int) (width);
+			canvasH = width;
 
 		} else {
 			canvasW = width;
@@ -325,16 +310,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		resizeCanvas();
 	}
 
-	// // affiche l'overlay Droite/Gauche
-	// private void setOverlay() {
-	// // On initialise l'overlay avec les label DG
-	// Overlay overlay = VueScin.initOverlay(this.imp, 7);
-	// VueScin.setOverlayDG(overlay, imp);
-	// // On met sur l'image
-	// this.getImagePlus().setOverlay(overlay);
-	// }
-
-	/************ Component ***********/
 	@Override
 	public void windowClosing(WindowEvent we) {
 		close();
@@ -357,8 +332,4 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	@Override
 	public void componentHidden(ComponentEvent e) {
 	}
-	// @Override
-	// public synchronized void mouseWheelMoved(MouseWheelEvent e) {
-	//
-	// }
 }

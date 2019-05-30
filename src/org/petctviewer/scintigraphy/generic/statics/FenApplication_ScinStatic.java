@@ -7,13 +7,16 @@ import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class FenApplication_ScinStatic extends FenApplicationWorkflow {
 	private static final long serialVersionUID = 1L;
 
 	public static final String BTN_TEXT_NEW_ROI = "Validate/New Roi", BTN_TEXT_NEXT = "Next";
 
-	private Button btn_finish;
+	private final Button btn_finish;
 
 	public FenApplication_ScinStatic(ImageSelection ims, String nom) {
 		super(ims, nom);
@@ -33,6 +36,27 @@ public class FenApplication_ScinStatic extends FenApplicationWorkflow {
 		this.getBtn_suivant().setLabel(BTN_TEXT_NEW_ROI);
 		btns_instru.add(this.getBtn_suivant());
 		this.getPanel_Instructions_btns_droite().add(btns_instru);
+
+		// Set default button (when pressing enter)
+		this.textfield_instructions.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ENTER && !e.isShiftDown()) {
+					ActionEvent click = new ActionEvent(btn_suivant, ActionEvent.ACTION_PERFORMED, "");
+					btn_suivant.dispatchEvent(click);
+				}
+			}
+		});
+		// Set default button (when pressing Shift + Enter)
+		this.textfield_instructions.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ENTER && e.isShiftDown()) {
+					ActionEvent click = new ActionEvent(btn_finish, ActionEvent.ACTION_PERFORMED, "");
+					btn_finish.dispatchEvent(click);
+				}
+			}
+		});
 
 		this.setDefaultSize();
 	}

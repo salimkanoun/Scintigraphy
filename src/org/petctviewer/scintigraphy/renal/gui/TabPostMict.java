@@ -1,20 +1,7 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
+import ij.Prefs;
+import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.postMictional.Model_PostMictional;
 import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
@@ -29,13 +16,17 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
-import ij.Prefs;
-import ij.util.DicomTools;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class TabPostMict extends PanelImpContrastSlider implements ActionListener {
-	private PostMictional vueBasic;
 	private JButton btn_addImp, btn_quantify;
-	private boolean bladder;
+	private final boolean bladder;
 
 	private boolean imgSelected;
 	private ImageSelection[] images;
@@ -151,9 +142,9 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 
 		} else if (arg0.getSource().equals(this.btn_quantify)) {
 			// SK A REVOIR
-			this.vueBasic = new PostMictional(createOrgans(), this);
+			PostMictional vueBasic = new PostMictional(createOrgans(), this);
 			try {
-				this.vueBasic.lancerProgramme(this.vueBasic.preparerImp(TabPostMict.this.images));
+				vueBasic.lancerProgramme(vueBasic.preparerImp(TabPostMict.this.images));
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -166,7 +157,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 		Model_Renal modele = (Model_Renal) this.parent.getModel();
 
 		// ajout des organes a delimiter selon le nombre de rein du patient
-		List<String> organes = new ArrayList<String>();
+		List<String> organes = new ArrayList<>();
 		if (modele.getKidneys()[0]) {
 			organes.add("L. Kidney");
 			organes.add("L. bkg");

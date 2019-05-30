@@ -21,7 +21,7 @@ public abstract class Fit {
 	 */
 	public enum FitType {
 		NONE("No Fit"), LINEAR("Linear"), EXPONENTIAL("Exponential");
-		private String s;
+		private final String s;
 
 		FitType(String s) {
 			this.s = s;
@@ -33,8 +33,8 @@ public abstract class Fit {
 		}
 	}
 
-	private FitType type;
-	private Unit unit;
+	private final FitType type;
+	private final Unit unit;
 
 	public Fit(FitType type, Unit unit) {
 		this.type = type;
@@ -121,7 +121,7 @@ public abstract class Fit {
 	 */
 	public static class LinearFit extends Fit {
 
-		private double[] coefs;
+		private final double[] coefs;
 
 		public LinearFit(double[][] dataset, Unit unit) {
 			super(FitType.LINEAR, unit);
@@ -130,23 +130,21 @@ public abstract class Fit {
 
 		@Override
 		public double extrapolateX(double valueY) {
-			double res = (valueY - coefs[0]) / coefs[1];
-			return res;
+			return (valueY - coefs[0]) / coefs[1];
 		}
 
 		@Override
 		public double extrapolateY(double valueX) {
-			double res = coefs[1] * valueX + coefs[0];
-			return res;
+			return coefs[1] * valueX + coefs[0];
 		}
 		
 		@Override
 		public String toString() {
-			String s = super.toString() + "(";
+			StringBuilder s = new StringBuilder(super.toString() + "(");
 			for(int i = 0; i<this.coefs.length; i++) {
-				s += this.coefs[i];
+				s.append(this.coefs[i]);
 				if(i < this.coefs.length-1)
-					s += ";";
+					s.append(";");
 			}
 			return s + ")";
 		}
@@ -162,7 +160,7 @@ public abstract class Fit {
 	 */
 	public static class ExponentialFit extends Fit {
 
-		private double[] coefs;
+		private final double[] coefs;
 
 		public ExponentialFit(double[][] dataset, Unit unit) {
 			super(FitType.EXPONENTIAL, unit);
@@ -182,17 +180,16 @@ public abstract class Fit {
 
 		@Override
 		public double extrapolateY(double valueX) {
-			double res = coefs[0] * Math.exp(coefs[1] * valueX);
-			return res;
+			return coefs[0] * Math.exp(coefs[1] * valueX);
 		}
 		
 		@Override
 		public String toString() {
-			String s = super.toString() + "(";
+			StringBuilder s = new StringBuilder(super.toString() + "(");
 			for(int i = 0; i<this.coefs.length; i++) {
-				s += this.coefs[i];
+				s.append(this.coefs[i]);
 				if(i < this.coefs.length-1)
-					s += ";";
+					s.append(";");
 			}
 			return s + ")";
 		}

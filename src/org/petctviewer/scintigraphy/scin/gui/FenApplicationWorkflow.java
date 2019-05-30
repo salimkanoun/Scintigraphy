@@ -3,10 +3,12 @@ package org.petctviewer.scintigraphy.scin.gui;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.ScrollbarWithLabel;
+import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.gastric.InstructionTooltip;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -30,7 +32,7 @@ import java.awt.event.MouseWheelEvent;
 public class FenApplicationWorkflow extends FenApplication implements MouseMotionListener, MouseListener {
 	public static final String BTN_TXT_RESUME = "Resume";
 	private static final long serialVersionUID = -6280620624574294247L;
-	private Scrollbar scroll;
+	private final Scrollbar scroll;
 	private InstructionTooltip tooltip;
 	private ImageSelection imageSelection;
 
@@ -52,19 +54,23 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 		this.scroll.setBlockIncrement(1);
 		this.scroll.setUnitIncrement(1);
 		this.scroll.setValues(1, 1, 1, 1);
-		this.panelContainer.add(scroll, BorderLayout.NORTH);
 
-		this.addMouseWheelListener(this);
+//		this.addMouseWheelListener(this);
 
 		// Enable visualization by default
 		this.setVisualizationEnable(true);
+
+		// Prepare overlay
+		IJ.setTool(Toolbar.POLYGON);
+		Library_Gui.initOverlay(ims.getImagePlus());
+		Library_Gui.setOverlayDG(ims.getImagePlus());
 	}
 
 	private void addControllerListeners() {
 		if (this.getControleur() != null) {
 			ControllerWorkflow controller = (ControllerWorkflow) this.getControleur();
 			this.scroll.addAdjustmentListener(controller);
-			this.addMouseWheelListener(controller);
+			if (this.isVisualizationEnabled()) this.addMouseWheelListener(controller);
 		}
 	}
 
@@ -78,25 +84,22 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 		if (state) {
 			// Create tooltip
 			this.tooltip = new InstructionTooltip(this);
-			this.scroll.setVisible(true);
+			this.panelContainer.add(scroll, BorderLayout.NORTH);
 
 			// Add listeners
 			this.addControllerListeners();
 			this.scroll.addMouseMotionListener(this);
 			this.scroll.addMouseListener(this);
 
-			// Remove listeners
-			this.removeMouseWheelListener(this);
-
 			// Remove slider of fiji
-			if (this.getComponents()[1] instanceof ScrollbarWithLabel)
-				this.getComponents()[1].setVisible(false);
+			// TODO: change this code when the new version of fiji will allow access to the slider
+			if (this.getComponents()[1] instanceof ScrollbarWithLabel) this.getComponents()[1].setVisible(false);
 
 		} else {
-
 			// Destroy tooltip
 			this.tooltip = null;
-			this.scroll.setVisible(false);
+			// TODO: this line resets the alignment of the panel to the left. Why???
+//			this.panelContainer.remove(scroll);
 
 			// Remove listeners
 			if (this.getControleur() != null) {
@@ -107,12 +110,9 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 			this.scroll.removeMouseListener(this);
 			this.scroll.removeMouseMotionListener(this);
 
-			// Remove listeners
-			this.removeMouseWheelListener(this);
-
 			// Replace slider of fiji
-			if (this.getComponents()[1] instanceof ScrollbarWithLabel)
-				this.getComponents()[1].setVisible(true);
+			// TODO: change this code when the new version of fiji will allow access to the slider
+			if (this.getComponents()[1] instanceof ScrollbarWithLabel) this.getComponents()[1].setVisible(true);
 		}
 	}
 
@@ -129,7 +129,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	 * @param nbInstructions Number of instructions
 	 */
 	public void setNbInstructions(int nbInstructions) {
-		this.scroll.setValues(1, 1, 1, nbInstructions);
+		this.scroll.setValues(0, 1, 0, nbInstructions);
 	}
 
 	/**
@@ -259,8 +259,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	 */
 	private boolean matchComponent(Component component, UI_Element element) {
 		Button btn = this.getButton(element);
-		if (btn != null)
-			return btn == component;
+		if (btn != null) return btn == component;
 		return false;
 	}
 
@@ -343,18 +342,20 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		// This code comes from IJ, it was paste here to keep the zoom functionality
-		// available
-		int rotation = e.getWheelRotation();
-		boolean ctrl = (e.getModifiers() & Event.CTRL_MASK) != 0;
-		if ((ctrl || IJ.shiftKeyDown()) && ic != null) {
-			Point loc = ic.getCursorLoc();
-			int x = ic.screenX(loc.x);
-			int y = ic.screenY(loc.y);
-			if (rotation < 0)
-				ic.zoomIn(x, y);
-			else
-				ic.zoomOut(x, y);
+		if(this.isVisualizationEnabled()) {
+			// This code comes from IJ, it was paste here to keep the zoom functionality
+			// available
+			int rotation = e.getWheelRotation();
+			boolean ctrl = (e.getModifiers() & Event.CTRL_MASK) != 0;
+			if ((ctrl || IJ.shiftKeyDown()) && ic != null) {
+				Point loc = ic.getCursorLoc();
+				int x = ic.screenX(loc.x);
+				int y = ic.screenY(loc.y);
+				if (rotation < 0) ic.zoomIn(x, y);
+				else ic.zoomOut(x, y);
+			}
+		} else {
+			super.mouseWheelMoved(e);
 		}
 	}
 

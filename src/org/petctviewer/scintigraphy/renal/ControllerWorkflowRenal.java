@@ -1,10 +1,7 @@
 package org.petctviewer.scintigraphy.renal;
 
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.Prefs;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.gui.FenNeph;
@@ -13,6 +10,7 @@ import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackground;
@@ -24,14 +22,14 @@ import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
-import ij.Prefs;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 	public String[] organeListe;
-
-	private List<ImagePlus> captures;
 
 	public ControllerWorkflowRenal(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
 		super(main, vue, model);
@@ -48,11 +46,11 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		List<String> organes = new LinkedList<>();
 
 		this.workflows = new Workflow[1];
-		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null, dri_5 = null, dri_6 = null,
-				dri_7 = null, dri_8 = null;
-		DrawRoiBackground dri_Background_1 = null, dri_Background_2 = null;
-		ScreenShotInstruction dri_capture_1 = null;
-		this.captures = new ArrayList<>();
+		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4, dri_5, dri_6,
+				dri_7, dri_8;
+		DrawRoiBackground dri_Background_1, dri_Background_2;
+		ScreenShotInstruction dri_capture_1;
+		List<ImagePlus> captures = new ArrayList<>();
 
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
@@ -120,7 +118,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 		}
 
-		this.organeListe = organes.toArray(new String[organes.size()]);
+		this.organeListe = organes.toArray(new String[0]);
 
 		this.workflows[0].addInstruction(dri_capture_1);
 
@@ -185,7 +183,8 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 		// on affiche la fenetre de resultats principale
 		((Model_Renal) model).setNephrogramChart(fan.getValueSetter());
-		new FenResultats_Renal(scinRenal, capture, this);
+		FenResults fenResults = new FenResultats_Renal(scinRenal, capture, this);
+		fenResults.setVisible(true);
 
 		// SK On rebloque le modele pour la prochaine generation
 		modele.setLocked(true);

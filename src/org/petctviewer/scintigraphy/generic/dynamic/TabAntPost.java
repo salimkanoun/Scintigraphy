@@ -1,21 +1,18 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.image.BufferedImage;
-
-import javax.swing.JPanel;
-
 import org.jfree.chart.ChartPanel;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+
 public class TabAntPost extends TabResult {
 
-	private BufferedImage capture;
+	private final BufferedImage capture;
 
 	public TabAntPost(BufferedImage capture, String antOrPost, FenResults parent) {
 		super(parent, antOrPost);
@@ -42,7 +39,7 @@ public class TabAntPost extends TabResult {
 		ChartPanel[] cPanels = Library_JFreeChart.associateSeries(((FenResultat_GeneralDyn) parent).getAsso(),
 				modele.getSeries());
 		for (ChartPanel c : cPanels) {
-			c.setPreferredSize(new Dimension(capture.getWidth() + 1 / 3 * capture.getWidth(), capture.getHeight()));
+			c.setPreferredSize(new Dimension(capture.getWidth(), capture.getHeight()));
 			grid.add(c);
 		}
 		return grid;

@@ -15,7 +15,6 @@ import org.petctviewer.scintigraphy.scin.library.Library_Debug;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 
 import java.awt.*;
@@ -34,13 +33,13 @@ public class Model_Gastric extends ModelWorkflow {
 
 	public static final int SERIES_STOMACH_PERCENTAGE = 0, SERIES_DECAY_FUNCTION = 1;
 
-	public static final Result RES_TIME = new Result("Time"), RES_STOMACH = new Result("Stomach"),
-			RES_FUNDUS = new Result("Fundus"), RES_ANTRUM = new Result("Antrum"),
-			RES_STOMACH_COUNTS = new Result("Stomach"), START_ANTRUM = new Result("Start antrum"),
-			START_INTESTINE = new Result("Start intestine"), LAG_PHASE_PERCENTAGE = new Result("Lag phase"),
-			LAG_PHASE_GEOAVG = new Result("Lag phase"), T_HALF_PERCENTAGE = new Result("T 1/2"),
-			T_HALF_GEOAVG = new Result("T 1/2"), RETENTION_PERCENTAGE = new Result("Retention"),
-			RETENTION_GEOAVG = new Result("Retention");
+	public static final Result RES_TIME = new Result("Time"), RES_STOMACH = new Result(
+			"Stomach"), RES_FUNDUS = new Result("Fundus"), RES_ANTRUM = new Result(
+			"Antrum"), RES_STOMACH_COUNTS = new Result("Stomach"), START_ANTRUM = new Result(
+			"Start antrum"), START_INTESTINE = new Result("Start intestine"), LAG_PHASE_PERCENTAGE = new Result(
+			"Lag phase"), LAG_PHASE_GEOAVG = new Result("Lag phase"), T_HALF_PERCENTAGE = new Result(
+			"T 1/2"), T_HALF_GEOAVG = new Result("T 1/2"), RETENTION_PERCENTAGE = new Result(
+			"Retention"), RETENTION_GEOAVG = new Result("Retention");
 
 	public static final String REGION_STOMACH = "Stomach", REGION_ANTRE = "Antre", REGION_FUNDUS = "Fundus",
 			REGION_INTESTINE = "Intestine", REGION_ALL = "Total";
@@ -50,7 +49,7 @@ public class Model_Gastric extends ModelWorkflow {
 			DATA_DECAY_CORRECTED = 8, DATA_TOTAL_FIELDS = 9;
 
 	private ImageSelection firstImage;
-	private Map<Integer, Data> results;
+	private final Map<Integer, Data> results;
 	/**
 	 * Fictional data representing the first acquisition.
 	 */
@@ -59,7 +58,6 @@ public class Model_Gastric extends ModelWorkflow {
 	 * Time when the ingestion started.
 	 */
 	private Date timeIngestion;
-	private Isotope isotope;
 
 	private Region bkgNoise_antre, bkgNoise_intestine, bkgNoise_stomach, bkgNoise_fundus;
 
@@ -81,11 +79,9 @@ public class Model_Gastric extends ModelWorkflow {
 	 *                                  positive value
 	 */
 	private ImageSelection imageFromState(ImageState state) {
-		if (state.getIdImage() == ImageState.ID_CUSTOM_IMAGE)
-			return state.getImage();
+		if (state.getIdImage() == ImageState.ID_CUSTOM_IMAGE) return state.getImage();
 
-		if (state.getIdImage() >= 0)
-			return this.selectedImages[state.getIdImage()];
+		if (state.getIdImage() >= 0) return this.selectedImages[state.getIdImage()];
 
 		throw new IllegalArgumentException("ID " + state.getIdImage() + " is not applicable here");
 	}
@@ -178,8 +174,7 @@ public class Model_Gastric extends ModelWorkflow {
 			throw new IllegalArgumentException("The region " + region + " is not supported here!");
 
 		for (Data data : this.generatesDataOrdered())
-			if (data.getValue(region, DATA_PERCENTAGE) > 0)
-				return data.time;
+			if (data.getValue(region, DATA_PERCENTAGE) > 0) return data.time;
 
 		throw new NoSuchElementException("No data found, please first use the calculateCounts method before!");
 	}
@@ -193,8 +188,7 @@ public class Model_Gastric extends ModelWorkflow {
 	private List<Data> generatesDataOrdered() {
 		List<Data> orderedData = new ArrayList<>(this.results.values());
 		Collections.sort(orderedData);
-		if (time0 != null)
-			orderedData.add(0, time0);
+		if (time0 != null) orderedData.add(0, time0);
 		return orderedData;
 	}
 
@@ -281,7 +275,7 @@ public class Model_Gastric extends ModelWorkflow {
 	 * specified time is before the ingestion's time)
 	 */
 	private double calculateDeltaTime(Date time) {
-		return (time.getTime() - this.timeIngestion.getTime()) / 1000. / 60.;
+		return Library_Quantif.calculateDeltaTime(this.timeIngestion, time);
 	}
 
 	/**
@@ -309,8 +303,7 @@ public class Model_Gastric extends ModelWorkflow {
 	private Double calculatePercentage(Data data, String region, int key) {
 		Double valueRegion = data.getValue(region, key);
 		Double valueAll = data.getValue(REGION_ALL, key);
-		if (valueRegion != null && valueAll != null)
-			return valueRegion / valueAll * 100.;
+		if (valueRegion != null && valueAll != null) return valueRegion / valueAll * 100.;
 		return null;
 	}
 
@@ -351,22 +344,18 @@ public class Model_Gastric extends ModelWorkflow {
 		Data previousData, dataToInflate;
 		if (previousState == null) {
 			previousData = this.time0;
-		} else
-			previousData = this.results.get(hashState(previousState));
+		} else previousData = this.results.get(hashState(previousState));
 
-		if (data.associatedImage.getImageOrientation().isDynamic())
-			dataToInflate = previousData;
-		else
-			dataToInflate = data;
+		if (data.associatedImage.getImageOrientation().isDynamic()) dataToInflate = previousData;
+		else dataToInflate = data;
 
 		if (previousData != null) {
 			Double prevPercentageStomach = previousData.getValue(REGION_STOMACH, DATA_PERCENTAGE);
 			Double percentageStomach = data.getValue(REGION_STOMACH, DATA_PERCENTAGE);
 			if (prevPercentageStomach != null && percentageStomach != null) {
-				double stomachDerivative = (prevPercentageStomach - percentageStomach)
-						/ (this.calculateDeltaTime(Library_Dicom.getDateAcquisition(state.getImage().getImagePlus()))
-						- previousData.getMinutes())
-						* 30.;
+				double stomachDerivative = (prevPercentageStomach - percentageStomach) / (this.calculateDeltaTime(
+						Library_Dicom.getDateAcquisition(state.getImage().getImagePlus())) - previousData
+						.getMinutes()) * 30.;
 				dataToInflate.setValue(REGION_STOMACH, DATA_DERIVATIVE, stomachDerivative);
 			}
 		} else {
@@ -435,10 +424,8 @@ public class Model_Gastric extends ModelWorkflow {
 
 		// Find orientation (ant or post)
 		int key;
-		if (state.getFacingOrientation() == Orientation.ANT)
-			key = DATA_ANT_COUNTS;
-		else
-			key = DATA_POST_COUNTS;
+		if (state.getFacingOrientation() == Orientation.ANT) key = DATA_ANT_COUNTS;
+		else key = DATA_POST_COUNTS;
 
 		// Calculate value
 		double counts, pixels;
@@ -447,10 +434,9 @@ public class Model_Gastric extends ModelWorkflow {
 			pixels = data.getValue(REGION_STOMACH, DATA_PIXEL_COUNTS) - data.getValue(REGION_ANTRE, DATA_PIXEL_COUNTS);
 		} else if (regionName.equals(REGION_INTESTINE)) {
 			counts = data.getValue(REGION_INTESTINE, key) - data.getValue(REGION_ANTRE, key);
-			pixels = data.getValue(REGION_INTESTINE, DATA_PIXEL_COUNTS)
-					- data.getValue(REGION_ANTRE, DATA_PIXEL_COUNTS);
-		} else
-			throw new UnsupportedOperationException("The region " + regionName + " is not supported here!");
+			pixels = data.getValue(REGION_INTESTINE, DATA_PIXEL_COUNTS) - data
+					.getValue(REGION_ANTRE, DATA_PIXEL_COUNTS);
+		} else throw new UnsupportedOperationException("The region " + regionName + " is not supported here!");
 
 		// Save value
 		data.setValue(regionName, key, Math.max(0, counts));
@@ -549,9 +535,8 @@ public class Model_Gastric extends ModelWorkflow {
 		double[] times = this.generateTime();
 
 		// Check dimensions
-		if (times.length != yPoints.length)
-			throw new IllegalStateException("The length of the datas (" + yPoints.length
-					+ ") is different than the length of the times (" + times.length + ")");
+		if (times.length != yPoints.length) throw new IllegalStateException(
+				"The length of the datas (" + yPoints.length + ") is different than the length of the times (" + times.length + ")");
 
 		// Fill dataset
 		int j = 0;
@@ -575,8 +560,9 @@ public class Model_Gastric extends ModelWorkflow {
 	 * @param nbTotalImages  Total number of images (total number of eggs ingested)
 	 * @return percentage adjusted with the eggs ratio
 	 */
+	@SuppressWarnings("StringEquality")
 	private double adjustPercentageWithEggsRatio(String region, double percentage, int numActualImage,
-												 int nbTotalImages) {
+	                                             int nbTotalImages) {
 		double ratioEggsInBody = (double) numActualImage / (double) nbTotalImages;
 		double percentEggsNotInBody = 100. - ratioEggsInBody * 100.;
 
@@ -598,12 +584,12 @@ public class Model_Gastric extends ModelWorkflow {
 	 */
 	public void calculateCounts(String regionName, ImageState state, Roi roi) throws IllegalArgumentException {
 		// Check region is part of requested regions for this model
-		if (!Arrays.asList(this.getAllRegionsName()).contains(regionName))
-			throw new IllegalArgumentException("The region (" + regionName
-					+ ") is not requested in this model\nValid regions: " + Arrays.toString(this.getAllRegionsName()));
+		if (!Arrays.asList(this.getAllRegionsName()).contains(regionName)) throw new IllegalArgumentException(
+				"The region (" + regionName + ") is not requested in this model\nValid regions: " + Arrays
+						.toString(this.getAllRegionsName()));
 
-		if (regionName.equals(REGION_STOMACH) || regionName.equals(REGION_ANTRE)
-				|| regionName.equals(REGION_INTESTINE)) {
+		if (regionName.equals(REGION_STOMACH) || regionName.equals(REGION_ANTRE) || regionName
+				.equals(REGION_INTESTINE)) {
 			this.calculateCountsFromImage(regionName, state, roi);
 		}
 		if (regionName.equals(REGION_FUNDUS) || regionName.equals(REGION_INTESTINE)) {
@@ -625,9 +611,9 @@ public class Model_Gastric extends ModelWorkflow {
 	 */
 	public double getCounts(Region region, Orientation orientation) throws NoSuchElementException {
 		Data data = this.results.get(hashState(region.getState()));
-		if (data == null)
-			throw new NoSuchElementException("No data has been set for this image ("
-					+ region.getState().getImage().getImagePlus().getTitle() + ")");
+		if (data == null) throw new NoSuchElementException(
+				"No data has been set for this image (" + region.getState().getImage().getImagePlus().getTitle() +
+						")");
 
 		return data.getValue(region.getName(), orientation == Orientation.ANT ? DATA_ANT_COUNTS : DATA_POST_COUNTS);
 	}
@@ -696,10 +682,10 @@ public class Model_Gastric extends ModelWorkflow {
 				break;
 			case REGION_STOMACH:
 				this.bkgNoise_stomach = region;
-				double countsFundus =
-						bkgNoise_stomach.getValue(DATA_ANT_COUNTS) - bkgNoise_antre.getValue(DATA_ANT_COUNTS);
-				double pixelsFundus = bkgNoise_stomach.getValue(DATA_PIXEL_COUNTS)
-						- bkgNoise_antre.getValue(DATA_PIXEL_COUNTS);
+				double countsFundus = bkgNoise_stomach.getValue(DATA_ANT_COUNTS) - bkgNoise_antre
+						.getValue(DATA_ANT_COUNTS);
+				double pixelsFundus = bkgNoise_stomach.getValue(DATA_PIXEL_COUNTS) - bkgNoise_antre
+						.getValue(DATA_PIXEL_COUNTS);
 
 				this.bkgNoise_fundus = region.clone();
 				this.bkgNoise_fundus.setValue(DATA_ANT_COUNTS, countsFundus);
@@ -719,10 +705,8 @@ public class Model_Gastric extends ModelWorkflow {
 
 		int i = 0;
 		for (Data data : this.generatesDataOrdered()) {
-			if (data == time0)
-				times[i] = 0.;
-			else
-				times[i] = this.calculateDeltaTime(data.associatedImage.getDateAcquisition());
+			if (data == time0) times[i] = 0.;
+			else times[i] = this.calculateDeltaTime(data.associatedImage.getDateAcquisition());
 			i++;
 		}
 
@@ -830,18 +814,6 @@ public class Model_Gastric extends ModelWorkflow {
 	}
 
 	/**
-	 * Sets the isotope used in this study
-	 *
-	 * @param isotope Isotope to use (cannot be null)
-	 */
-	void setIsotope(Isotope isotope) {
-		if (isotope == null)
-			throw new IllegalArgumentException("The isotope cannot be null");
-
-		this.isotope = isotope;
-	}
-
-	/**
 	 * @return first image acquired (dynamic image)
 	 */
 	public ImageSelection getFirstImage() {
@@ -874,8 +846,8 @@ public class Model_Gastric extends ModelWorkflow {
 
 		// Refresh all data times
 		for (Data data : this.results.values()) {
-			data.setTime(this
-					.calculateDeltaTime(Library_Dicom.getDateAcquisition(data.getAssociatedImage().getImagePlus())));
+			data.setTime(this.calculateDeltaTime(
+					Library_Dicom.getDateAcquisition(data.getAssociatedImage().getImagePlus())));
 		}
 	}
 
@@ -896,22 +868,19 @@ public class Model_Gastric extends ModelWorkflow {
 	 */
 	void computeStaticData(ImageState state, ImageState previousState) {
 		Data data = this.results.get(hashState(state));
-		if (data == null)
-			throw new NoSuchElementException(
-					"No data has been set for this image (" + state.getImage().getImagePlus().getTitle() + ")");
+		if (data == null) throw new NoSuchElementException(
+				"No data has been set for this image (" + state.getImage().getImagePlus().getTitle() + ")");
 
 		this.computeGeometricalAverages(state);
 
 		// Calculate percentages
 		// - Fundus
 		Double percentageFundus = calculatePercentage(data, REGION_FUNDUS, DATA_GEO_AVERAGE);
-		if (percentageFundus != null)
-			data.setValue(REGION_FUNDUS, DATA_PERCENTAGE, percentageFundus);
+		if (percentageFundus != null) data.setValue(REGION_FUNDUS, DATA_PERCENTAGE, percentageFundus);
 
 		// - Antre
 		Double percentageAntre = calculatePercentage(data, REGION_ANTRE, DATA_GEO_AVERAGE);
-		if (percentageAntre != null)
-			data.setValue(REGION_ANTRE, DATA_PERCENTAGE, percentageAntre);
+		if (percentageAntre != null) data.setValue(REGION_ANTRE, DATA_PERCENTAGE, percentageAntre);
 
 		// - Stomach
 		Double percentageStomach = null;
@@ -921,8 +890,7 @@ public class Model_Gastric extends ModelWorkflow {
 		}
 
 		// - Intestine
-		if (percentageStomach != null)
-			data.setValue(REGION_INTESTINE, DATA_PERCENTAGE, 100. - percentageStomach);
+		if (percentageStomach != null) data.setValue(REGION_INTESTINE, DATA_PERCENTAGE, 100. - percentageStomach);
 
 		// Calculate correlation
 		if (percentageFundus != null && percentageStomach != null) {
@@ -960,9 +928,8 @@ public class Model_Gastric extends ModelWorkflow {
 	 */
 	public void computeDynamicData(ImageState state, ImageState previousState, int numActualImage, int nbTotalImages) {
 		Data data = this.results.get(hashState(state));
-		if (data == null)
-			throw new NoSuchElementException(
-					"No data has been set for this image (" + state.getImage().getImagePlus().getTitle() + ")");
+		if (data == null) throw new NoSuchElementException(
+				"No data has been set for this image (" + state.getImage().getImagePlus().getTitle() + ")");
 
 		int key = DATA_ANT_COUNTS;
 
@@ -971,8 +938,7 @@ public class Model_Gastric extends ModelWorkflow {
 
 		// Adjust counts with background
 		for (Region region : data.getRegions()) {
-			if (region.getName().equals(REGION_ALL))
-				continue;
+			if (region.getName().equals(REGION_ALL)) continue;
 
 			Double bkgNoise = null;
 			switch (region.getName()) {
@@ -990,16 +956,15 @@ public class Model_Gastric extends ModelWorkflow {
 					break;
 				default:
 					// TODO: correct with a bkg noise
-					System.err.println("Warning: The region (" + region + ") is not corrected with a background " +
-							"noise!");
+					System.err.println(
+							"Warning: The region (" + region + ") is not corrected with a background " + "noise!");
 					break;
 			}
 
 			if (bkgNoise != null) {
-				data.setValue(region.getName(), key, data.getValue(region.getName(), key)
-						- (bkgNoise * data.getValue(region.getName(), DATA_PIXEL_COUNTS)));
-				if (bkgNoise == 0.)
-					System.err.println("Warning: The background noise " + region + " is 0.");
+				data.setValue(region.getName(), key, data.getValue(region.getName(), key) - (bkgNoise * data
+						.getValue(region.getName(), DATA_PIXEL_COUNTS)));
+				if (bkgNoise == 0.) System.err.println("Warning: The background noise " + region + " is 0.");
 			}
 		}
 
@@ -1008,8 +973,9 @@ public class Model_Gastric extends ModelWorkflow {
 				data.getValue(REGION_STOMACH, DATA_ANT_COUNTS) + data.getValue(REGION_INTESTINE, DATA_ANT_COUNTS));
 
 		// Adjust percentages with eggs ratio
-		double percentage = this.adjustPercentageWithEggsRatio(REGION_FUNDUS,
-				calculatePercentage(data, REGION_FUNDUS, key), numActualImage, nbTotalImages);
+		double percentage = this
+				.adjustPercentageWithEggsRatio(REGION_FUNDUS, calculatePercentage(data, REGION_FUNDUS, key),
+						numActualImage, nbTotalImages);
 		data.setValue(REGION_FUNDUS, DATA_PERCENTAGE, percentage);
 
 		percentage = this.adjustPercentageWithEggsRatio(REGION_ANTRE, calculatePercentage(data, REGION_ANTRE, key),
@@ -1022,8 +988,8 @@ public class Model_Gastric extends ModelWorkflow {
 		percentage = 100. - data.getValue(REGION_STOMACH, DATA_PERCENTAGE);
 		data.setValue(REGION_INTESTINE, DATA_PERCENTAGE, percentage);
 
-		double fundusDerivative = data.getValue(REGION_FUNDUS, DATA_PERCENTAGE)
-				/ data.getValue(REGION_STOMACH, DATA_PERCENTAGE) * 100.;
+		double fundusDerivative = data.getValue(REGION_FUNDUS, DATA_PERCENTAGE) / data
+				.getValue(REGION_STOMACH, DATA_PERCENTAGE) * 100.;
 		data.setValue(REGION_FUNDUS, DATA_CORRELATION, fundusDerivative);
 
 		// Compute derivative
@@ -1036,11 +1002,10 @@ public class Model_Gastric extends ModelWorkflow {
 	 * @return Intragastric distribution graph
 	 */
 	public ChartPanel createGraph_1() {
-		return Library_JFreeChart.createGraph("Fundus/Stomach (%)", new Color[]{new Color(0, 100, 0)}, "",
-				Library_JFreeChart.createDataset(this.generateTime(),
+		return Library_JFreeChart.createGraph("Time (" + Unit.MINUTES.abrev() + ")", "Fundus/Stomach (%)",
+				new Color[]{new Color(0, 100, 0)}, "", Library_JFreeChart.createDataset(this.generateTime(),
 						this.getResultAsArray(REGION_FUNDUS, DATA_CORRELATION, Unit.PERCENTAGE),
-						"Intragastric Distribution"),
-				100.0);
+						"Intragastric Distribution"), 100.0);
 	}
 
 	/**
@@ -1050,8 +1015,11 @@ public class Model_Gastric extends ModelWorkflow {
 	 */
 	public ChartPanel createGraph_2() {
 		double[] result = this.getResultAsArray(REGION_STOMACH, DATA_DERIVATIVE, Unit.PERCENTAGE);
-		return Library_JFreeChart.createGraph("% meal in the interval", new Color[]{Color.RED}, "",
-				Library_JFreeChart.createDataset(this.generateDerivedTime(), result, "Gastrointestinal flow"), 50.0);
+		return Library_JFreeChart
+				.createGraph("Time (" + Unit.MINUTES.abrev() + ")", "% meal in the interval", new Color[]{Color.RED},
+						"",
+						Library_JFreeChart.createDataset(this.generateDerivedTime(), result, "Gastrointestinal flow"),
+						50.0);
 	}
 
 	/**
@@ -1061,14 +1029,15 @@ public class Model_Gastric extends ModelWorkflow {
 	 */
 	public ChartPanel createGraph_3() {
 		double[][] ySeries = new double[][]{this.getResultAsArray(REGION_STOMACH, DATA_PERCENTAGE, Unit.PERCENTAGE),
-				this.getResultAsArray(REGION_FUNDUS, DATA_PERCENTAGE, Unit.PERCENTAGE),
-				this.getResultAsArray(REGION_ANTRE, DATA_PERCENTAGE, Unit.PERCENTAGE)};
+		                                    this.getResultAsArray(REGION_FUNDUS, DATA_PERCENTAGE, Unit.PERCENTAGE),
+		                                    this.getResultAsArray(REGION_ANTRE, DATA_PERCENTAGE, Unit.PERCENTAGE)};
 		String[] titles = new String[]{"Stomach", "Fundus", "Antrum"};
 		Color[] colors = new Color[]{Color.RED, new Color(0, 255, 0), Color.BLUE};
 
 		XYSeriesCollection dataset = Library_JFreeChart.createDataset(this.generateTime(), ySeries, titles);
 
-		return Library_JFreeChart.createGraph("Retention (% meal)", colors, "", dataset, 100.);
+		return Library_JFreeChart
+				.createGraph("Time (" + Unit.MINUTES.abrev() + ")", "Retention (% meal)", colors, "", dataset, 100.);
 	}
 
 	/**
@@ -1082,7 +1051,8 @@ public class Model_Gastric extends ModelWorkflow {
 		XYSeriesCollection dataset = Library_JFreeChart.createDataset(this.generateTime(), result, "Stomach " +
 				"retention");
 
-		return Library_JFreeChart.createGraph(unit.abrev(), new Color[]{Color.GREEN}, "", dataset,
+		return Library_JFreeChart.createGraph(Unit.MINUTES.abrev(), unit.abrev(), new Color[]{Color.GREEN}, "",
+				dataset,
 				Library_JFreeChart.maxValue(result) * 1.1);
 	}
 
@@ -1160,16 +1130,13 @@ public class Model_Gastric extends ModelWorkflow {
 		Result result = request.getResultOn();
 		Fit fit = request.getFit();
 
-		if (result == START_ANTRUM)
-			return new ResultValue(request, this.getDebut(REGION_ANTRE), Unit.TIME);
-		else if (result == START_INTESTINE)
-			return new ResultValue(request, this.getDebut(REGION_INTESTINE), Unit.TIME);
+		if (result == START_ANTRUM) return new ResultValue(request, this.getDebut(REGION_ANTRE), Unit.TIME);
+		else if (result == START_INTESTINE) return new ResultValue(request, this.getDebut(REGION_INTESTINE),
+				Unit.TIME);
 		else if (result == LAG_PHASE_PERCENTAGE || result == LAG_PHASE_GEOAVG) {
 			double[] yValues;
-			if (result == LAG_PHASE_PERCENTAGE)
-				yValues = generateStomachValues(fit.getYUnit());
-			else
-				yValues = generateDecayFunctionValues(fit.getYUnit());
+			if (result == LAG_PHASE_PERCENTAGE) yValues = generateStomachValues(fit.getYUnit());
+			else yValues = generateDecayFunctionValues(fit.getYUnit());
 
 			// Assumption: the first value is the highest (maybe do not assume that...?)
 			double yValue = .95 * yValues[0];
@@ -1183,10 +1150,8 @@ public class Model_Gastric extends ModelWorkflow {
 			return new ResultValue(request, valX, Unit.TIME, isExtrapolated);
 		} else if (result == T_HALF_PERCENTAGE || result == T_HALF_GEOAVG) {
 			double[] yValues;
-			if (result == T_HALF_PERCENTAGE)
-				yValues = generateStomachValues(fit.getYUnit());
-			else
-				yValues = generateDecayFunctionValues(fit.getYUnit());
+			if (result == T_HALF_PERCENTAGE) yValues = generateStomachValues(fit.getYUnit());
+			else yValues = generateDecayFunctionValues(fit.getYUnit());
 
 			// Assumption: the first value is the highest (maybe do not assume that...?)
 			double half = yValues[0] / 2.;
@@ -1200,18 +1165,17 @@ public class Model_Gastric extends ModelWorkflow {
 			return new ResultValue(request, valX, Unit.TIME, isExtrapolated);
 		} else {
 			try {
-				if (result == RES_TIME)
-					return new ResultValue(request,
-							BigDecimal.valueOf(data.time).setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.TIME);
-				if (result == RES_STOMACH)
-					return new ResultValue(request, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
-							.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
-				if (result == RES_FUNDUS)
-					return new ResultValue(request, BigDecimal.valueOf(data.getValue(REGION_FUNDUS, DATA_PERCENTAGE))
-							.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
-				if (result == RES_ANTRUM)
-					return new ResultValue(request, BigDecimal.valueOf(data.getValue(REGION_ANTRE, DATA_PERCENTAGE))
-							.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+				if (result == RES_TIME) return new ResultValue(request,
+						BigDecimal.valueOf(data.time).setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.TIME);
+				if (result == RES_STOMACH) return new ResultValue(request,
+						BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_PERCENTAGE))
+								.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+				if (result == RES_FUNDUS) return new ResultValue(request,
+						BigDecimal.valueOf(data.getValue(REGION_FUNDUS, DATA_PERCENTAGE))
+								.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+				if (result == RES_ANTRUM) return new ResultValue(request,
+						BigDecimal.valueOf(data.getValue(REGION_ANTRE, DATA_PERCENTAGE))
+								.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
 				if (result == RES_STOMACH_COUNTS) {
 					return new ResultValue(request, BigDecimal.valueOf(data.getValue(REGION_STOMACH, DATA_GEO_AVERAGE))
 							.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.COUNTS);
@@ -1239,10 +1203,11 @@ public class Model_Gastric extends ModelWorkflow {
 	 * @author Titouan QUÉMA
 	 */
 	private class Data implements Comparable<Data> {
-		private Map<String, Region> regionsAnt, regionsPost;
+		private final Map<String, Region> regionsAnt;
+		private final Map<String, Region> regionsPost;
 
 		private double time;
-		private ImageSelection associatedImage;
+		private final ImageSelection associatedImage;
 
 		/**
 		 * Instantiates a new data. The image should be unique (for this model).<br>
@@ -1271,24 +1236,20 @@ public class Model_Gastric extends ModelWorkflow {
 				res.append(Library_Debug.subtitle("ANT REGIONS"));
 				res.append('\n');
 
-				if (this.regionsAnt.size() == 0)
-					res.append("// NO REGION //\n");
-				else
-					for (Region region : this.regionsAnt.values()) {
-						res.append(region);
-						res.append('\n');
-					}
+				if (this.regionsAnt.size() == 0) res.append("// NO REGION //\n");
+				else for (Region region : this.regionsAnt.values()) {
+					res.append(region);
+					res.append('\n');
+				}
 			} else {
 				res.append(Library_Debug.subtitle("POST REGIONS"));
 				res.append('\n');
 
-				if (this.regionsPost.size() == 0)
-					res.append("// NO REGION //\n");
-				else
-					for (Region region : this.regionsPost.values()) {
-						res.append(region);
-						res.append('\n');
-					}
+				if (this.regionsPost.size() == 0) res.append("// NO REGION //\n");
+				else for (Region region : this.regionsPost.values()) {
+					res.append(region);
+					res.append('\n');
+				}
 			}
 			return res.toString();
 		}
@@ -1336,10 +1297,8 @@ public class Model_Gastric extends ModelWorkflow {
 					// Create region
 					storedRegion = new Region(regionName, Model_Gastric.this);
 					storedRegion.inflate(state, roi);
-					if (state.getFacingOrientation() == Orientation.ANT)
-						this.regionsAnt.put(regionName, storedRegion);
-					else
-						this.regionsPost.put(regionName, storedRegion);
+					if (state.getFacingOrientation() == Orientation.ANT) this.regionsAnt.put(regionName, storedRegion);
+					else this.regionsPost.put(regionName, storedRegion);
 				}
 			}
 
@@ -1359,8 +1318,7 @@ public class Model_Gastric extends ModelWorkflow {
 		 * @param value      Value to set
 		 */
 		void setValue(String regionName, int key, double value) {
-			if (key == DATA_POST_COUNTS)
-				this.setPostValue(regionName, key, value);
+			if (key == DATA_POST_COUNTS) this.setPostValue(regionName, key, value);
 
 			this.setAntValue(regionName, key, value);
 		}
@@ -1421,8 +1379,7 @@ public class Model_Gastric extends ModelWorkflow {
 		 * @return value associated with the key for the region or null if not found
 		 */
 		public Double getValue(String region, int key) {
-			if (key == DATA_POST_COUNTS)
-				return this.getPostValue(region, key);
+			if (key == DATA_POST_COUNTS) return this.getPostValue(region, key);
 
 			return this.getAntValue(region, key);
 		}
@@ -1438,18 +1395,13 @@ public class Model_Gastric extends ModelWorkflow {
 				case DATA_ANT_COUNTS:
 				case DATA_POST_COUNTS:
 				case DATA_GEO_AVERAGE:
-					return Unit.COUNTS;
+				case DATA_BKG_NOISE:
+				case DATA_PIXEL_COUNTS:
 				case DATA_DECAY_CORRECTED:
 					return Unit.COUNTS;
 				case DATA_PERCENTAGE:
-					return Unit.PERCENTAGE;
-				case DATA_CORRELATION:
-					return Unit.PERCENTAGE;
-				case DATA_PIXEL_COUNTS:
-					return Unit.COUNTS;
-				case DATA_BKG_NOISE:
-					return Unit.COUNTS;
 				case DATA_DERIVATIVE:
+				case DATA_CORRELATION:
 					return Unit.PERCENTAGE;
 				default:
 					return null;
@@ -1501,25 +1453,23 @@ public class Model_Gastric extends ModelWorkflow {
 		@Override
 		public int compareTo(Data o) {
 			double res = this.time - o.time;
-			if (res > 0)
-				return 1;
-			if (res < 0)
-				return -1;
+			if (res > 0) return 1;
+			if (res < 0) return -1;
 			return 0;
 		}
 
 		@Override
 		public String toString() {
-			String s = Library_Debug.separator(0);
-			String imageTitle = (this.associatedImage == null ? "// NO-IMAGE //"
-					: this.associatedImage.getImagePlus().getTitle());
+			String s = Library_Debug.separator();
+			String imageTitle = (this.associatedImage == null ? "// NO-IMAGE //" : this.associatedImage.getImagePlus()
+					.getTitle());
 			s += Library_Debug.title("Data");
 			s += "\n";
 			s += Library_Debug.title(imageTitle);
 			s += "\n";
 			s += this.listRegions(Orientation.ANT);
 			s += this.listRegions(Orientation.POST);
-			s += Library_Debug.separator(0);
+			s += Library_Debug.separator();
 			return s;
 		}
 	}

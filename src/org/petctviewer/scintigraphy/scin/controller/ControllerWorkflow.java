@@ -1,11 +1,10 @@
 package org.petctviewer.scintigraphy.scin.controller;
 
-
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseWheelEvent;
@@ -16,10 +15,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -27,6 +28,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.CaptureButton;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.gui.WindowDifferentPatient;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
@@ -67,10 +69,10 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 * This command signals that the instruction should not generate a next
 	 * instruction.<br>
 	 * This is only used for {@link GeneratorInstruction}.<br>
-	 * To use this command on a button, use the {@link Button#setActionCommand(String)} method on the desired
-	 * button.
-	 * This command should not be used on the 'Next' button present by default in the view since it will
-	 * duplicate calls to {@link #clickNext()}.
+	 * To use this command on a button, use the
+	 * {@link Button#setActionCommand(String)} method on the desired button. This
+	 * command should not be used on the 'Next' button present by default in the
+	 * view since it will duplicate calls to {@link #clickNext()}.
 	 */
 	public static final String COMMAND_END = "command.end";
 
@@ -94,14 +96,23 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	protected int indexRoi;
 
 	/**
-	 * If set to TRUE then the next call to {@link #clickNext()} or {@link #clickPrevious()} will be repeated.
+	 * If set to TRUE then the next call to {@link #clickNext()} or
+	 * {@link #clickPrevious()} will be repeated.
 	 */
 	private boolean skipInstruction;
 
 	/**
-	 * @param main  Reference to the main class
-	 * @param vue   View of the MVC pattern
-	 * @param model Model of the MVC pattern
+	 * Window used to display the results.
+	 */
+	protected FenResults fenResults;
+
+	/**
+	 * @param main
+	 *            Reference to the main class
+	 * @param vue
+	 *            View of the MVC pattern
+	 * @param model
+	 *            Model of the MVC pattern
 	 */
 	public ControllerWorkflow(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
 		super(main, vue, model);
@@ -124,28 +135,31 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 */
 	protected abstract void generateInstructions();
 
-//	private void DEBUG(String s) {
-//		System.out.println("=== " + s + " ===");
-//		System.out.println("Current position: " + this.position);
-//		System.out.println("Current workflow: " + this.indexCurrentWorkflow);
-//		String currentInstruction = "-No instruction-";
-//		if (this.indexCurrentWorkflow >= 0 && this.indexCurrentWorkflow < this.workflows.length) {
-//			Instruction i = this.workflows[this.indexCurrentWorkflow].getCurrentInstruction();
-//			if (i != null)
-//				currentInstruction = i.getMessage();
-//			else
-//				currentInstruction = "-No Message-";
-//		}
-//		System.out.println("Current instruction: " + currentInstruction);
-//		System.out.println("Index ROI: " + this.indexRoi);
-//		System.out.println();
-//	}
+	// private void DEBUG(String s) {
+	// System.out.println("=== " + s + " ===");
+	// System.out.println("Current position: " + this.position);
+	// System.out.println("Current workflow: " + this.indexCurrentWorkflow);
+	// String currentInstruction = "-No instruction-";
+	// if (this.indexCurrentWorkflow >= 0 && this.indexCurrentWorkflow <
+	// this.workflows.length) {
+	// Instruction i =
+	// this.workflows[this.indexCurrentWorkflow].getCurrentInstruction();
+	// if (i != null)
+	// currentInstruction = i.getMessage();
+	// else
+	// currentInstruction = "-No Message-";
+	// }
+	// System.out.println("Current instruction: " + currentInstruction);
+	// System.out.println("Index ROI: " + this.indexRoi);
+	// System.out.println();
+	// }
 
 	/**
 	 * This method displays the ROI to edit (if necessary).
 	 */
 	private void editOrgan(int roiToCopy) {
-		if (!this.editRoi(this.indexRoi)) this.editCopyRoi(roiToCopy);
+		if (!this.editRoi(this.indexRoi))
+			this.editCopyRoi(roiToCopy);
 	}
 
 	/**
@@ -156,18 +170,21 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	}
 
 	/**
-	 * Returns an array containing all indexes of the ROIs to display for a specified state until a certain index. The
-	 * array may then be passed to the {@link #displayRois(int[])} method.
+	 * Returns an array containing all indexes of the ROIs to display for a
+	 * specified state until a certain index. The array may then be passed to the
+	 * {@link #displayRois(int[])} method.
 	 *
-	 * @param indexWorkflow Index of the workflow of the ROIs
-	 * @param state         State the image is in (used for orientation)
-	 * @param indexRoi      Index of the last ROI to save (not included)
+	 * @param indexWorkflow
+	 *            Index of the workflow of the ROIs
+	 * @param state
+	 *            State the image is in (used for orientation)
+	 * @param indexRoi
+	 *            Index of the last ROI to save (not included)
 	 * @return array of indexes of ROIs to display
 	 */
 	private int[] roisToDisplay(int indexWorkflow, ImageState state, int indexRoi) {
 		List<Instruction> dris = new ArrayList<>();
-		for (Instruction i :
-				this.workflows[indexWorkflow].getInstructionsWithOrientation(state.getFacingOrientation()))
+		for (Instruction i : this.workflows[indexWorkflow].getInstructionsWithOrientation(state.getFacingOrientation()))
 			if (i.getRoiIndex() >= 0 && i.getRoiIndex() < indexRoi) {
 				dris.add(i);
 			}
@@ -178,12 +195,16 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	}
 
 	/**
-	 * Returns an array containing all indexes of the ROIs to display for a specified state until a certain
-	 * instruction. The array may then be passed to the {@link #displayRois(int[])} method.
+	 * Returns an array containing all indexes of the ROIs to display for a
+	 * specified state until a certain instruction. The array may then be passed to
+	 * the {@link #displayRois(int[])} method.
 	 *
-	 * @param indexWorkflow Index of the workflow of the ROIs
-	 * @param state         State the image is in (used for orientation)
-	 * @param last          Instruction of the last ROI to save (included)
+	 * @param indexWorkflow
+	 *            Index of the workflow of the ROIs
+	 * @param state
+	 *            State the image is in (used for orientation)
+	 * @param last
+	 *            Instruction of the last ROI to save (included)
 	 * @return array of indexes of ROIs to display
 	 */
 	private int[] roisToDisplay(int indexWorkflow, ImageState state, Instruction last) {
@@ -205,23 +226,46 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	}
 
 	/**
-	 * Finds the index of the workflow where the specified instruction is in. If the instruction doesn't belong to
-	 * any of the workflows of this controller, then this method returns -1.
+	 * Finds the index of the workflow where the specified instruction is in. If the
+	 * instruction doesn't belong to any of the workflows of this controller, then
+	 * this method returns -1.
 	 *
-	 * @param instruction Instruction to search through the workflows
+	 * @param instruction
+	 *            Instruction to search through the workflows
 	 * @return index of the workflow or -1 if not found
 	 */
 	private int indexWorkflowFromInstruction(Instruction instruction) {
 		for (int i = 0; i < this.workflows.length; i++)
-			if (workflows[i].getInstructions().contains(instruction)) return i;
+			if (workflows[i].getInstructions().contains(instruction))
+				return i;
 		return -1;
+	}
+
+	/**
+	 * Changes the window for the results. This method should only be called once.
+	 *
+	 * @param fenResults
+	 *            Window for the results
+	 */
+	protected void setFenResults(FenResults fenResults) {
+		this.fenResults = fenResults;
+	}
+
+	/**
+	 * Returns the window used to display the results of this study.
+	 *
+	 * @return window for the results or null if no window was set yet
+	 */
+	protected FenResults getFenResults() {
+		return this.fenResults;
 	}
 
 	/**
 	 * Updates the scroll bar in the view. This method should only be called if the
 	 * {@link FenApplicationWorkflow#isVisualizationEnabled()} is set to TRUE.
 	 *
-	 * @param value New position for the scroll bar
+	 * @param value
+	 *            New position for the scroll bar
 	 */
 	protected void updateScrollbar(int value) {
 		List<Instruction> allInstructions = this.allInstructions();
@@ -238,11 +282,13 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		Color color;
 		String btnNextTxt = FenApplicationWorkflow.BTN_TXT_RESUME;
 
-		if (indexInstruction < indexCurrentInstruction) color = Color.GREEN;
+		if (indexInstruction < indexCurrentInstruction)
+			color = Color.GREEN;
 		else if (indexInstruction == indexCurrentInstruction) {
 			color = Color.YELLOW;
 			btnNextTxt = FenApplicationWorkflow.BTN_TXT_NEXT;
-		} else color = Color.WHITE;
+		} else
+			color = Color.WHITE;
 
 		// Display title of Instruction
 		getVue().displayScrollToolTip("[" + value + "] " + instruction.getMessage(), color);
@@ -254,6 +300,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 			this.vue.getOverlay().clear();
 			this.setOverlay(instruction.getImageState());
 			this.displayRois(roisToDisplay);
+			// Refresh display
+			this.getVue().repaint();
 		}
 
 		// Change next button label
@@ -261,29 +309,34 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	}
 
 	/**
-	 * Prepares the image of the view to respect the specified state. This method only change the image if necessary
-	 * (meaning if this method is called with the same arguments, it will not regenerate the image every time).<br>
+	 * Prepares the image of the view to respect the specified state. This method
+	 * only change the image if necessary (meaning if this method is called with the
+	 * same arguments, it will not regenerate the image every time).<br>
 	 * This method will also update the current state of the controller.
 	 *
-	 * @param imageState    State the image will be set to
-	 * @param indexWorkflow Index of the workflow as reference
+	 * @param imageState
+	 *            State the image will be set to
+	 * @param indexWorkflow
+	 *            Index of the workflow as reference
 	 */
 	private void prepareImage(ImageState imageState, int indexWorkflow) {
-		if (imageState == null) return;
+		if (imageState == null)
+			return;
 
 		boolean resetOverlay = false;
 
 		// == FACING ORIENTATION ==
-		if (imageState.getFacingOrientation() != null && imageState.getFacingOrientation() != this.currentState
-				.getFacingOrientation()) {
+		if (imageState.getFacingOrientation() != null
+				&& imageState.getFacingOrientation() != this.currentState.getFacingOrientation()) {
 			this.currentState.setFacingOrientation(imageState.getFacingOrientation());
 			resetOverlay = true;
 		}
 
 		// == ID IMAGE ==
 		if (imageState.getIdImage() == ImageState.ID_CUSTOM_IMAGE) {
-			if (imageState.getImage() == null) throw new IllegalStateException(
-					"The state specifies that a custom image should be used but no image " + "has been set!");
+			if (imageState.getImage() == null)
+				throw new IllegalStateException(
+						"The state specifies that a custom image should be used but no image " + "has been set!");
 			// Use image specified in the image state
 			this.currentState.setIdImage(ImageState.ID_CUSTOM_IMAGE);
 			this.currentState.specifieImage(imageState.getImage());
@@ -314,7 +367,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		// Change slice only if different than the previous
 		if (this.currentState.getSlice() != this.vue.getImagePlus().getCurrentSlice()) {
 			this.vue.getImagePlus().setSlice(this.currentState.getSlice());
-//			resetOverlay = true;
+			// resetOverlay = true;
 		}
 
 		// == LATERALISATION ==
@@ -330,7 +383,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	}
 
 	/**
-	 * Generates a list of all the instructions of every workflow of this controller that require a user input.
+	 * Generates a list of all the instructions of every workflow of this controller
+	 * that require a user input.
 	 *
 	 * @return list of instruction expecting a user input
 	 */
@@ -338,13 +392,15 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		List<Instruction> instructions = new ArrayList<>();
 		for (Workflow w : this.workflows) {
 			for (Instruction i : w.getInstructions())
-				if (i.isExpectingUserInput()) instructions.add(i);
+				if (i.isExpectingUserInput())
+					instructions.add(i);
 		}
 		return instructions;
 	}
 
 	/**
-	 * Generates a list of all the instructions of every workflow of this controller.
+	 * Generates a list of all the instructions of every workflow of this
+	 * controller.
 	 *
 	 * @return list of all instructions
 	 */
@@ -379,31 +435,36 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	/**
 	 * Finds the workflow matching the specified image.
 	 *
-	 * @param ims Image to find
+	 * @param ims
+	 *            Image to find
 	 * @return Workflow associated with the image or null if not found
 	 */
 	protected Workflow getWorkflowAssociatedWithImage(ImageSelection ims) {
 		for (Workflow workflow : this.workflows)
-			if (workflow.getImageAssociated() == ims) return workflow;
+			if (workflow.getImageAssociated() == ims)
+				return workflow;
 		return null;
 	}
 
 	/**
 	 * Finds the workflow containing the specified instruction.
 	 *
-	 * @param instruction Instruction to search
+	 * @param instruction
+	 *            Instruction to search
 	 * @return Workflow containing the instruction
 	 */
 	protected Workflow getWorkflowAssociatedWithInstruction(Instruction instruction) {
 		int index = this.indexWorkflowFromInstruction(instruction);
-		if (index == -1) return null;
+		if (index == -1)
+			return null;
 		return this.workflows[index];
 	}
 
 	/**
 	 * Prepares the ImagePlus with the specified state and updates the currentState.
 	 *
-	 * @param imageState State the ImagePlus must complies
+	 * @param imageState
+	 *            State the ImagePlus must complies
 	 */
 	private void prepareImage(ImageState imageState) {
 		this.prepareImage(imageState, this.indexCurrentWorkflow);
@@ -428,8 +489,17 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	}
 
 	@Override
+	public FenApplicationWorkflow getVue() {
+		return (FenApplicationWorkflow) super.getVue();
+	}
+
+	@Override
 	public void clickPrevious() {
 		super.clickPrevious();
+
+		// Hide result window
+		if (this.fenResults != null)
+			this.fenResults.setVisible(false);
 
 		Instruction previousInstruction = this.workflows[this.indexCurrentWorkflow].getCurrentInstruction();
 
@@ -437,7 +507,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 		// Update view
 		int indexInstruction = this.allInputInstructions().indexOf(currentInstruction);
-		if (indexInstruction != -1) this.getVue().currentInstruction(indexInstruction);
+		if (indexInstruction != -1)
+			this.getVue().currentInstruction(indexInstruction);
 
 		if (previousInstruction instanceof LastInstruction && currentInstruction instanceof GeneratorInstruction) {
 			((GeneratorInstruction) currentInstruction).activate();
@@ -455,7 +526,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 			this.setOverlay(this.currentState);
 			this.prepareImage(currentInstruction.getImageState());
 
-			if (currentInstruction.saveRoi()) this.indexRoi--;
+			if (currentInstruction.saveRoi())
+				this.indexRoi--;
 			this.displayRois(this.currentRoisToDisplay());
 
 			if (currentInstruction.saveRoi()) {
@@ -477,12 +549,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 			this.clickPrevious();
 		}
 
-//		DEBUG("PREVIOUS");
-	}
-
-	@Override
-	public FenApplicationWorkflow getVue() {
-		return (FenApplicationWorkflow) super.getVue();
+		// DEBUG("PREVIOUS");
 	}
 
 	@Override
@@ -501,7 +568,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 					this.saveRoiAtIndex(previousInstruction.getRoiName(), this.indexRoi);
 					previousInstruction.setRoi(this.indexRoi);
 
-					if (previousInstruction.isRoiVisible()) this.displayRoi(this.indexRoi);
+					if (previousInstruction.isRoiVisible())
+						this.displayRoi(this.indexRoi);
 
 					this.indexRoi++;
 				} catch (NoDataException e) {
@@ -526,11 +594,14 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 			// Update view
 			int indexInstruction = this.allInputInstructions().indexOf(nextInstruction);
-			if (indexInstruction != -1) this.getVue().currentInstruction(indexInstruction);
+			if (indexInstruction != -1)
+				this.getVue().currentInstruction(indexInstruction);
 
 			if (this.isOver()) {
 				nextInstruction.afterNext(this);
+				getVue().setCursor(new Cursor(Cursor.WAIT_CURSOR));
 				this.end();
+				getVue().setCursor(Cursor.getDefaultCursor());
 			}
 
 			// == Display instruction for the user ==
@@ -538,11 +609,13 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 				this.displayInstruction(nextInstruction.getMessage());
 				this.prepareImage(nextInstruction.getImageState());
 
-				if (nextInstruction.saveRoi()) this.editOrgan(nextInstruction.getRoiIndex());
+				if (nextInstruction.saveRoi())
+					this.editOrgan(nextInstruction.getRoiIndex());
 
 				nextInstruction.afterNext(this);
 			} else {
-				// TODO: might be a problem if the workflow is over: this code should not execute
+				// TODO: might be a problem if the workflow is over: this code should not
+				// execute
 				// If not displayable, go directly to the next instruction
 				nextInstruction.afterNext(this);
 				this.clickNext();
@@ -562,7 +635,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 			this.clickNext();
 		}
 
-//		DEBUG("NEXT");
+		// DEBUG("NEXT");
 	}
 
 	@Override
@@ -572,11 +645,10 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if ((e.getSource() == getVue().getBtn_suivant() || e.getSource() == getVue().getBtn_precedent()) && getVue()
-				.isVisualizationEnabled()) {
+		if ((e.getSource() == getVue().getBtn_suivant() || e.getSource() == getVue().getBtn_precedent())
+				&& getVue().isVisualizationEnabled()) {
 			int indexScrollForCurrentInstruction = this.allInputInstructions()
 					.indexOf(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
-			if (indexScrollForCurrentInstruction == 0) indexScrollForCurrentInstruction = 1;
 			if (getVue().getInstructionDisplayed() != indexScrollForCurrentInstruction) {
 				// Update view
 				this.updateScrollbar(indexScrollForCurrentInstruction);
@@ -590,14 +662,14 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		if ((e.getSource() instanceof Button)) {
 			Button source = (Button) e.getSource();
 			if (source.getActionCommand().contentEquals(COMMAND_END)) {
-				if (this.workflows[this.indexCurrentWorkflow]
-						.getCurrentInstruction() instanceof GeneratorInstruction && getVue().getImagePlus()
-						.getRoi() != null) {
+				if (this.workflows[this.indexCurrentWorkflow].getCurrentInstruction() instanceof GeneratorInstruction
+						&& getVue().getImagePlus().getRoi() != null) {
 					((GeneratorInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
 				}
 				this.clickNext();
 			}
-		} else if (e.getSource() instanceof CaptureButton) actionCaptureButton((CaptureButton) e.getSource());
+		} else if (e.getSource() instanceof CaptureButton)
+			actionCaptureButton((CaptureButton) e.getSource());
 	}
 
 	@Override
@@ -609,12 +681,11 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		int rotation = e.getWheelRotation();
 		int value = this.getVue().getInstructionDisplayed() + rotation;
-		if (value < this.getVue().getMaxInstruction()) {
+		if (value < this.getVue().getMaxInstruction() && value >= 0) {
 			this.updateScrollbar(value);
 			this.getVue().currentInstruction(value);
 		}
 	}
-
 
 	// -------------------------------------
 	// TODO: move all json to another class!
@@ -623,13 +694,10 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	public Gson saveWorkflow(String path) {
 		this.getRoiManager();
 
-		Gson gson = new Gson();
-
-		return gson;
+		return new Gson();
 	}
 
 	public JsonElement saveWorkflowToJson(String[] label) {
-
 
 		// Pretty print
 		// Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
@@ -666,23 +734,27 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		}
 
 		workflowsObject.add("Workflows", workflowsArray);
-		
-		
+
 		JsonObject patientObject = new JsonObject();
-		
+
 		String[] infoPatient = Library_Capture_CSV.getInfoPatient(this.getModel().getImagePlus());
 //		HashMap<String, String> patientInfo = Library_Capture_CSV.getPatientInfo(this.getModel().getImagePlus());
-		
+
 		patientObject.addProperty("Name", infoPatient[0]);
 		patientObject.addProperty("ID", infoPatient[1]);
 		patientObject.addProperty("Date", infoPatient[2]);
 		patientObject.addProperty("AccessionNumber", infoPatient[3]);
-		
-//		patientObject.addProperty("Name", patientInfo.get(Library_Capture_CSV.PATIENT_INFO_NAME));
-//		patientObject.addProperty("ID", patientInfo.get(Library_Capture_CSV.PATIENT_INFO_ID));
-//		patientObject.addProperty("Date", patientInfo.get(Library_Capture_CSV.PATIENT_INFO_DATE));
-//		patientObject.addProperty("AccessionNumber", patientInfo.get(Library_Capture_CSV.PATIENT_INFO_ACCESSION_NUMBER));
-		
+
+		// patientObject.addProperty("Name",
+		// patientInfo.get(Library_Capture_CSV.PATIENT_INFO_NAME));
+		// patientObject.addProperty("ID",
+		// patientInfo.get(Library_Capture_CSV.PATIENT_INFO_ID));
+		// patientObject.addProperty("Date",
+		// patientInfo.get(Library_Capture_CSV.PATIENT_INFO_DATE));
+		// patientObject.addProperty("AccessionNumber",
+		// patientInfo.get(Library_Capture_CSV
+		// .PATIENT_INFO_ACCESSION_NUMBER));
+
 		workflowsObject.add("Patient", patientObject);
 		// System.out.println("\n\n\n --------------------------- TEST
 		// --------------------------- \n");
@@ -738,10 +810,10 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 				System.out.println("LE NOMBRE DE WORKFLOW EST DIFFERENT, IMPOSSIBLE DE CHARGER LA SAUVEGARDE");
 				return null;
 			}
-			
+
 			PatientFromGson patientFromGson = workflowsFromGson.getPatient();
 			String[] currentPatient = Library_Capture_CSV.getInfoPatient(this.getModel().getImagePlus());
-			
+
 			Date currentPatientDate = null;
 			try {
 				currentPatientDate = new SimpleDateFormat("yyyyMMdd").parse(currentPatient[2]);
@@ -749,42 +821,44 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			
+
 			int differenceNumber = 0;
-			
-			if(!patientFromGson.getAccessionNumber().equals(currentPatient[3])) 
+
+			if (!patientFromGson.getAccessionNumber().equals(currentPatient[3]))
 				differenceNumber++;
-			if(!patientFromGson.getName().equals(currentPatient[0])) 
+			if (!patientFromGson.getName().equals(currentPatient[0]))
 				differenceNumber++;
-			if(!patientFromGson.getID().equals(currentPatient[1])) 
+			if (!patientFromGson.getID().equals(currentPatient[1]))
 				differenceNumber++;
-			if(!patientFromGson.getDate().toString().equals(currentPatientDate.toString())) 
+			if (!patientFromGson.getDate().toString().equals(currentPatientDate.toString()))
 				differenceNumber++;
-			
+
 			Object[][] difference = new Object[differenceNumber][3];
-			
+
 			int indexDifference = 0;
-			if(!patientFromGson.getAccessionNumber().equals(currentPatient[3])) {
-				difference[indexDifference] = new String[] {"Accession Number",""+patientFromGson.getAccessionNumber(),""+currentPatient[3]};
+			if (!patientFromGson.getAccessionNumber().equals(currentPatient[3])) {
+				difference[indexDifference] = new String[] { "Accession Number",
+						"" + patientFromGson.getAccessionNumber(), "" + currentPatient[3] };
 				indexDifference++;
 			}
-			if(!patientFromGson.getName().equals(currentPatient[0])) {
-				difference[indexDifference] = new String[] {"Name",""+patientFromGson.getName(),""+currentPatient[0]};
+			if (!patientFromGson.getName().equals(currentPatient[0])) {
+				difference[indexDifference] = new String[] { "Name", "" + patientFromGson.getName(),
+						"" + currentPatient[0] };
 				indexDifference++;
 			}
-			if(!patientFromGson.getID().equals(currentPatient[1])) {
-				difference[indexDifference] = new String[] {"ID",""+patientFromGson.getID(),""+currentPatient[1]};
+			if (!patientFromGson.getID().equals(currentPatient[1])) {
+				difference[indexDifference] = new String[] { "ID", "" + patientFromGson.getID(),
+						"" + currentPatient[1] };
 				indexDifference++;
 			}
-			
-			
-			if(!patientFromGson.getDate().toString().equals(currentPatientDate.toString())) {
-				difference[indexDifference] = new String[] {"Date",""+patientFromGson.getDate(),""+currentPatientDate};
+
+			if (!patientFromGson.getDate().toString().equals(currentPatientDate.toString())) {
+				difference[indexDifference] = new String[] { "Date", "" + patientFromGson.getDate(),
+						"" + currentPatientDate };
 				indexDifference++;
 			}
-			
-			if(differenceNumber != 0) {
+
+			if (differenceNumber != 0) {
 				WindowDifferentPatient fen = new WindowDifferentPatient(difference);
 				fen.setModal(true);
 				fen.setVisible(true);
@@ -816,27 +890,27 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 						if (!this.workflows[index].getInstructionAt(j).getClass().getSimpleName()
 								.equals(typeOfIntructionFromGson)) {
 							System.out.println(
-									"LES INSTRUCTIONs NE SONT PAS LES MÊMES, IMPOSSIBLE DE CHARGER LA " +
-											"SAUVEGARDE");
+									"LES INSTRUCTIONs NE SONT PAS LES MÊMES, IMPOSSIBLE DE CHARGER LA " + "SAUVEGARDE");
 							System.out.println(this.workflows[index].getInstructionAt(j).getClass().getSimpleName());
 							System.out.println(typeOfIntructionFromGson);
 							return null;
 						}
 
-//						if (!this.getModel().getRoiManager().getRoi(this.workflows[index].getInstructionAt(j)
-//						.roiToDisplay()).getName()
-//								.equals(intructionFromGson.getNameOfRoi())) {
-//							System.out.println(
-//									"LES INSTRUCTIONs NE SONT PAS DU MÊME TYPE, IMPOSSIBLE DE CHARGER LA SAUVEGARDE");
-//							System.out.println(this.workflows[index].getInstructionAt(j).getClass().getSimpleName());
-//							System.out.println(typeOfIntructionFromGson);
-//							return null;
-//						}
+						// if
+						// (!this.getModel().getRoiManager().getRoi(this.workflows[index].getInstructionAt(j)
+						// .roiToDisplay()).getName()
+						// .equals(intructionFromGson.getNameOfRoi())) {
+						// System.out.println(
+						// "LES INSTRUCTIONs NE SONT PAS DU MÊME TYPE, IMPOSSIBLE DE CHARGER LA
+						// SAUVEGARDE");
+						// System.out.println(this.workflows[index].getInstructionAt(j).getClass().getSimpleName());
+						// System.out.println(typeOfIntructionFromGson);
+						// return null;
+						// }
 
-
-						if ((typeOfIntructionFromGson
-								.equals(DrawInstructionType.DRAW_LOOP.getName())) || typeOfIntructionFromGson
-								.equals(DrawInstructionType.DRAW_SYMMETRICAL_LOOP.getName())) {
+						if ((typeOfIntructionFromGson.equals(DrawInstructionType.DRAW_LOOP.getName()))
+								|| typeOfIntructionFromGson
+										.equals(DrawInstructionType.DRAW_SYMMETRICAL_LOOP.getName())) {
 							if (workflowsFromGson.getWorkflowAt(index).getInstructions().size() > specialIndex + 1) {
 								InstructionFromGson nextIntructionFromGson = workflowsFromGson.getWorkflowAt(index)
 										.getInstructionAt(specialIndex + 1);
@@ -852,7 +926,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 									this.workflows[index].getInstructions().add(j + 1,
 											((DrawSymmetricalLoopInstruction) this.workflows[index].getInstructionAt(j))
 													.generate());
-								else ((DefaultGenerator) this.workflows[index].getInstructionAt(j)).stop();
+								else
+									((DefaultGenerator) this.workflows[index].getInstructionAt(j)).stop();
 							}
 						}
 
@@ -904,7 +979,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 			for (WorkflowFromGson workflowFromGson : this.Workflows)
 				for (InstructionFromGson instructionFromGson : workflowFromGson.getInstructions())
-					if (nameOfRoiFile.equals(instructionFromGson.getNameOfRoiFile())) return instructionFromGson;
+					if (nameOfRoiFile.equals(instructionFromGson.getNameOfRoiFile()))
+						return instructionFromGson;
 
 			return null;
 		}
@@ -922,8 +998,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 			return -1;
 		}
-		
-		public PatientFromGson getPatient () {
+
+		public PatientFromGson getPatient() {
 			return this.Patient;
 		}
 
@@ -951,7 +1027,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 		private String NameOfRoiFile;
 
-
 		public int getIndexRoiToEdit() {
 			return this.IndexRoiToEdit;
 		}
@@ -968,17 +1043,16 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 			return this.NameOfRoiFile;
 		}
 	}
-	
+
 	public class PatientFromGson {
 
 		private String Name;
-		
+
 		private String ID;
-		
+
 		private Date Date;
-		
+
 		private String AccessionNumber;
-		
 
 		public String getName() {
 			return this.Name;
@@ -987,18 +1061,19 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		public String getID() {
 			return this.ID;
 		}
-		
+
 		public Date getDate() {
 			return this.Date;
 		}
-		
+
 		public String getAccessionNumber() {
 			return this.AccessionNumber;
 		}
-		
+
 		@Override
 		public String toString() {
-			return "Bonjour, mon nom est  "+this.Name+", j'ai pour ID "+this.ID+" car j'ai été admis le "+this.Date+" ce qui donne comme accessionNumber : "+this.AccessionNumber;
+			return "Bonjour, mon nom est  " + this.Name + ", j'ai pour ID " + this.ID + " car j'ai été admis le "
+					+ this.Date + " ce qui donne comme accessionNumber : " + this.AccessionNumber;
 		}
 	}
 
@@ -1012,88 +1087,77 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 		// generation du tag info
 		String info = Library_Capture_CSV.genererDicomTagsPartie1(tab.getParent().getModel().getImagePlus(),
-				tab.getParent().getModel().getStudyName(),
-				tab.getParent().getModel().getUID6digits()) + Library_Capture_CSV
-				.genererDicomTagsPartie2(tab.getParent().getModel().getImagePlus());
+				tab.getParent().getModel().getStudyName(), tab.getParent().getModel().getUID6digits())
+				+ Library_Capture_CSV.genererDicomTagsPartie2(tab.getParent().getModel().getImagePlus());
 
 		// on ajoute le listener sur le bouton capture
-		captureButton.addActionListener(new ActionListener() {
+		captureButton.addActionListener(e -> {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			captureButton.setVisible(false);
+			for (Component comp : hide)
+				comp.setVisible(false);
 
-				captureButton.setVisible(false);
+			lbl_credits.setVisible(true);
+			for (Component comp : show)
+				comp.setVisible(true);
+
+			SwingUtilities.invokeLater(() -> {
+				// Capture, nouvelle methode a utiliser sur le reste des programmes
+				BufferedImage capture = new BufferedImage(tab.getPanel().getWidth(), tab.getPanel().getHeight(),
+						BufferedImage.TYPE_INT_ARGB);
+				tab.getPanel().paint(capture.getGraphics());
+				ImagePlus imp = new ImagePlus("capture", capture);
+
+				captureButton.setVisible(true);
 				for (Component comp : hide)
-					comp.setVisible(false);
-
-				lbl_credits.setVisible(true);
-				for (Component comp : show)
 					comp.setVisible(true);
 
-				SwingUtilities.invokeLater(new Runnable() {
+				lbl_credits.setVisible(false);
+				for (Component comp : show)
+					comp.setVisible(false);
 
-					@Override
-					public void run() {
-						// Capture, nouvelle methode a utiliser sur le reste des programmes
-						BufferedImage capture = new BufferedImage(tab.getPanel().getWidth(),
-								tab.getPanel().getHeight(),
-								BufferedImage.TYPE_INT_ARGB);
-						tab.getPanel().paint(capture.getGraphics());
-						ImagePlus imp = new ImagePlus("capture", capture);
+				// on passe a la capture les infos de la dicom
+				imp.setProperty("Info", info);
+				// on affiche la capture
+				imp.show();
 
-						captureButton.setVisible(true);
-						for (Component comp : hide)
-							comp.setVisible(true);
+				// on change l'outil
+				IJ.setTool("hand");
 
-						lbl_credits.setVisible(false);
-						for (Component comp : show)
-							comp.setVisible(false);
+				// generation du csv
+				String resultats = tab.getParent().getModel().toString();
 
-						// on passe a la capture les infos de la dicom
-						imp.setProperty("Info", info);
-						// on affiche la capture
-						imp.show();
+				try {
+					Library_Capture_CSV.exportAll(resultats, tab.getParent().getModel().getRoiManager(),
+							tab.getParent().getModel().getStudyName(), imp, additionalInfo, ControllerWorkflow.this);
 
-						// on change l'outil
-						IJ.setTool("hand");
+					String addInfo = additionalInfo == null ? "" : additionalInfo;
+					String nomFichier = Library_Capture_CSV.getInfoPatient(imp)[1] + "_"
+							+ Library_Capture_CSV.getInfoPatient(imp)[2] + addInfo;
+					String path = Prefs.get("dir.preferred", null) + File.separator
+							+ tab.getParent().getModel().getStudyName() + File.separator
+							+ Library_Capture_CSV.getInfoPatient(imp)[1];
+					String pathFinal = path + File.separator + nomFichier + ".zip";
+					System.out.println(path);
+					System.out.println(pathFinal);
 
-						// generation du csv
-						String resultats = tab.getParent().getModel().toString();
+					// ((ControllerWorkflow) tab.getParent().getController()).saveWorkflow(path);
 
-						try {
-							Library_Capture_CSV.exportAll(resultats, tab.getParent().getModel().getRoiManager(),
-									tab.getParent().getModel().getStudyName(), imp, additionalInfo,
-									ControllerWorkflow.this);
+					imp.killRoi();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 
-							String addInfo = additionalInfo == null ? "" : additionalInfo;
-							String nomFichier = Library_Capture_CSV.getInfoPatient(imp)[1] + "_" + Library_Capture_CSV
-									.getInfoPatient(imp)[2] + addInfo;
-							String path =
-									Prefs.get("dir.preferred", null) + File.separator + tab.getParent().getModel()
-									.getStudyName() + File.separator + Library_Capture_CSV.getInfoPatient(imp)[1];
-							String pathFinal = path + File.separator + nomFichier + ".zip";
-							System.out.println(path);
-							System.out.println(pathFinal);
+				// Execution du plugin myDicom
+				try {
+					IJ.run("myDicom...");
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 
-							// ((ControllerWorkflow) tab.getParent().getController()).saveWorkflow(path);
+				System.gc();
+			});
 
-							imp.killRoi();
-						} catch (Exception e1) {
-							e1.printStackTrace();
-						}
-
-						// Execution du plugin myDicom
-						try {
-							IJ.run("myDicom...");
-						} catch (Exception e1) {
-							e1.printStackTrace();
-						}
-
-						System.gc();
-					}
-				});
-
-			}
 		});
 
 	}

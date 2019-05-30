@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.renal.postMictional;
 
+
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 
 	public String[] organeListe;
 
-	private boolean[] kidneys;
+	private final boolean[] kidneys;
 
 	private List<ImagePlus> captures;
 
@@ -52,9 +53,9 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 		List<String> organes = new LinkedList<>();
 
 		this.workflows = new Workflow[1];
-		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null;
+		DrawRoiInstruction dri_1, dri_2, dri_3;
 
-		DrawRoiBackground dri_Background_1 = null, dri_Background_2 = null;
+		DrawRoiBackground dri_Background_1, dri_Background_2;
 
 		ScreenShotInstruction dri_capture_1 = null;
 
@@ -90,7 +91,7 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 			organes.add("Bladder");
 		}
 
-		this.organeListe = organes.toArray(new String[organes.size()]);
+		this.organeListe = organes.toArray(new String[0]);
 
 		this.workflows[0].addInstruction(dri_capture_1);
 
@@ -102,7 +103,7 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 
 	@Override
 	public void end() {
-		HashMap<String, Double> hm = new HashMap<String, Double>();
+		HashMap<String, Double> hm = new HashMap<>();
 		ImagePlus imp = this.model.getImagePlus().duplicate();
 		// Normalizing to compare to the previous values, from the original exam.
 		Library_Dicom.normalizeToCountPerSecond(imp);

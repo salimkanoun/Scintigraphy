@@ -21,7 +21,7 @@ public class ModelSecondMethodHepaticDynamic extends ModelScinDyn {
 	private TabResult resutlTab;
 	
 	// This organ names and order shall be the same  that the controller organs
-	private String[] organNames = {"Right Liver","Left Liver","Hilium","CBD","Duodenom","Blood pool"};
+	private final String[] organNames = {"Right Liver", "Left Liver", "Hilium", "CBD", "Duodenom", "Blood pool"};
 
 	int indexRoi;
 
@@ -90,14 +90,12 @@ public class ModelSecondMethodHepaticDynamic extends ModelScinDyn {
 
 	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
 		// si le modele n'est pas bloque
-		if (!this.isLocked()) {
+		if (this.isUnlocked()) {
 			// recupere la phrase sans le dernier mot (tag)
 
 			String name = nomRoi.substring(nomRoi.lastIndexOf("_"), nomRoi.length() - 1);
 			// on cree la liste si elle n'existe pas
-			if (this.getData().get(name) == null) {
-				this.getData().put(name, new ArrayList<Double>());
-			}
+			this.getData().computeIfAbsent(name, k -> new ArrayList<>());
 			// on y ajoute le nombre de coups
 			this.getData().get(name).add(Library_Quantif.getCounts(imp) != 0.0d ? Library_Quantif.getCounts(imp) : 1);
 		}
@@ -107,7 +105,7 @@ public class ModelSecondMethodHepaticDynamic extends ModelScinDyn {
 		ImagePlus imp = this.selectedImages[1].getImagePlus();
 		this.indexRoi = 0;
 		this.nbOrganes = this.getRoiManager().getCount();
-		HashMap<String, List<Double>> mapData = new HashMap<String, List<Double>>();
+		HashMap<String, List<Double>> mapData = new HashMap<>();
 		// For every slice, we calculate the number of count
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
@@ -116,9 +114,7 @@ public class ModelSecondMethodHepaticDynamic extends ModelScinDyn {
 				// On récupère seulement le studyName de l'organe (usually 0_organNameA => 0 for the number of image, A for Ant or Post)
 				String name = this.organNames[this.indexRoi];
 				// on cree la liste si elle n'existe pas
-				if (mapData.get(name) == null) {
-					mapData.put(name, new ArrayList<Double>());
-				}
+				mapData.computeIfAbsent(name, k -> new ArrayList<>());
 				// on y ajoute le nombre de coups
 				// For Hillium, we correct by Right Liver as Background
 				if (name.equals("Hilium")) {
@@ -151,9 +147,7 @@ public class ModelSecondMethodHepaticDynamic extends ModelScinDyn {
 				// String name = this.getNomOrgane(this.indexRoi);
 				String name = organAVGCount[orgAVG];
 				// on cree la liste si elle n'existe pas
-				if (mapData.get(name) == null) {
-					mapData.put(name, new ArrayList<Double>());
-				}
+				mapData.computeIfAbsent(name, k -> new ArrayList<>());
 				mapData.get(name)
 						.add(Library_Quantif.getAvgCounts(imp) != 0.0d ? Library_Quantif.getAvgCounts(imp) : 1);
 			}
@@ -196,46 +190,46 @@ public class ModelSecondMethodHepaticDynamic extends ModelScinDyn {
 		XYSeries liverR = this.getSerie("Right Liver");
 		XYSeries bloodPool = this.getSerie("Blood pool");
 
-		String s = "";
-		s += "Time (mn),";
+		StringBuilder s = new StringBuilder();
+		s.append("Time (mn),");
 		for (int i = 0; i < bloodPool.getItemCount(); i++) {
-			s += Library_Quantif.round(bloodPool.getX(i).doubleValue(), 2) + ",";
+			s.append(Library_Quantif.round(bloodPool.getX(i).doubleValue(), 2)).append(",");
 		}
-		s += "\n";
+		s.append("\n");
 
-		s += "Blood Pool (counts/sec),";
+		s.append("Blood Pool (counts/sec),");
 		for (int i = 0; i < bloodPool.getItemCount(); i++) {
-			s += Library_Quantif.round(bloodPool.getY(i).doubleValue(), 2) + ",";
+			s.append(Library_Quantif.round(bloodPool.getY(i).doubleValue(), 2)).append(",");
 		}
-		s += "\n";
+		s.append("\n");
 
-		s += "Right Liver (counts/sec),";
+		s.append("Right Liver (counts/sec),");
 		for (int i = 0; i < liverR.getItemCount(); i++) {
-			s += Library_Quantif.round(liverR.getY(i).doubleValue(), 2) + ",";
+			s.append(Library_Quantif.round(liverR.getY(i).doubleValue(), 2)).append(",");
 		}
-		s += "\n";
+		s.append("\n");
 
-		s += "Left Liver (counts/sec),";
+		s.append("Left Liver (counts/sec),");
 		for (int i = 0; i < liverL.getItemCount(); i++) {
-			s += Library_Quantif.round(liverL.getY(i).doubleValue(), 2) + ",";
+			s.append(Library_Quantif.round(liverL.getY(i).doubleValue(), 2)).append(",");
 		}
-		s += "\n";
+		s.append("\n");
 
-		s += "T1/2 Right Liver Obs," + this.tDemiFoieDObs + "mn" + "\n";
-		s += "T1/2 Right Liver Fit," + this.tDemiFoieDFit + "mn" + "\n";
-		s += "Maximum Right Liver," + this.maxFoieD + "mn" + "\n";
-		s += "END/MAX Ratio Right," + (int) (this.finPicD * 100) + "%" + "\n";
+		s.append("T1/2 Right Liver Obs,").append(this.tDemiFoieDObs).append("mn").append("\n");
+		s.append("T1/2 Right Liver Fit,").append(this.tDemiFoieDFit).append("mn").append("\n");
+		s.append("Maximum Right Liver,").append(this.maxFoieD).append("mn").append("\n");
+		s.append("END/MAX Ratio Right,").append((int) (this.finPicD * 100)).append("%").append("\n");
 
-		s += "T1/2 Left Liver Obs," + this.tDemiFoieGObs + "mn" + "\n";
-		s += "T1/2 Left Liver Fit," + this.tDemiFoieGFit + "mn" + "\n";
-		s += "Maximum Left Liver," + this.maxFoieG + "mn" + "\n";
-		s += "END/MAX Ratio Left," + (int) (this.finPicG * 100) + "%" + "\n";
+		s.append("T1/2 Left Liver Obs,").append(this.tDemiFoieGObs).append("mn").append("\n");
+		s.append("T1/2 Left Liver Fit,").append(this.tDemiFoieGFit).append("mn").append("\n");
+		s.append("Maximum Left Liver,").append(this.maxFoieG).append("mn").append("\n");
+		s.append("END/MAX Ratio Left,").append((int) (this.finPicG * 100)).append("%").append("\n");
 
-		s += "Blood pool ratio 20mn/5mn," + (int) (this.pctVasc * 100) + "%" + "\n";
-		s += "T1/2 Blood pool Obs," + this.tDemiVascObs + "mn" + "\n";
-		s += "T1/2 Blood pool Fit," + this.tDemiVascFit + "mn" + "\n";
+		s.append("Blood pool ratio 20mn/5mn,").append((int) (this.pctVasc * 100)).append("%").append("\n");
+		s.append("T1/2 Blood pool Obs,").append(this.tDemiVascObs).append("mn").append("\n");
+		s.append("T1/2 Blood pool Fit,").append(this.tDemiVascFit).append("mn").append("\n");
 
-		return s;
+		return s.toString();
 	}
 
 }

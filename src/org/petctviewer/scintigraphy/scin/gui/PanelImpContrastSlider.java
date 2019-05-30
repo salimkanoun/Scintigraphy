@@ -27,12 +27,13 @@ public abstract class PanelImpContrastSlider extends TabResult implements Change
 	private ImagePlus imp;
 	private DynamicImage dynamicImp;
 
-	private Scintigraphy scin;
-	private JLabel sliderLabel;
+	private final Scintigraphy scin;
+	private final JLabel sliderLabel;
 	private JSlider slider;
 	protected Box boxSlider;
 
-	String additionalInfo, nomFen;
+	final String additionalInfo;
+	final String nomFen;
 
 	public PanelImpContrastSlider(String nomFen, Scintigraphy scin, String additionalInfo, FenResults parent) {
 		super(parent, nomFen, true);
@@ -111,15 +112,13 @@ public abstract class PanelImpContrastSlider extends TabResult implements Change
 	}
 
 	private void setContrast(int sliderValue) {
+
 		imp.getProcessor().setMinAndMax(0, (slider.getModel().getMaximum() - sliderValue) + 1);
 
-		SwingUtilities.invokeLater(new Runnable() {
+		SwingUtilities.invokeLater(() -> {
+			dynamicImp.setImage(imp.getBufferedImage());
+			dynamicImp.repaint();
 
-			@Override
-			public void run() {
-				dynamicImp.setImage(Library_Capture_CSV.captureImage(imp, 512, 0).getBufferedImage());
-				dynamicImp.repaint();
-			}
 		});
 
 	}

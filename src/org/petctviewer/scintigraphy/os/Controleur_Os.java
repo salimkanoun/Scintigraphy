@@ -27,6 +27,7 @@ import ij.ImagePlus;
 import ij.Prefs;
 import ij.plugin.frame.RoiManager;
 
+
 /**
  * DISCLAIMER : Dans cette application, il a été fait comme choix d'initialiser
  * le module par le biais du Contrôleur, qui va ensuite créer la vue et le
@@ -34,12 +35,12 @@ import ij.plugin.frame.RoiManager;
  */
 public class Controleur_Os implements ActionListener, ChangeListener, MouseListener {
 
-	Modele_Os modele;
-	FenApplication_Os vue;
+	final Modele_Os modele;
+	final FenApplication_Os vue;
 
-	ImageSelection imp;
+	final ImageSelection imp;
 
-	public Controleur_Os(ImageSelection[] imps, OsScintigraphy scin) {
+	public Controleur_Os(ImageSelection[] imps) {
 
 		this.modele = new Modele_Os(imps);
 		this.imp = imps[0];
@@ -51,14 +52,10 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 	/**
 	 * Listener permmettant d'inverser la LUT de chaque image, et donc son
 	 * contraste.
-	 * 
-	 * @param arg0
-	 * 
-	 * @return
 	 */
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		if (((JButton) arg0.getSource()) == this.vue.getReverseButton()) {
+		if (arg0.getSource() == this.vue.getReverseButton()) {
 			this.modele.inverser();
 			rafraichir();
 		}
@@ -70,7 +67,6 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 	 * 
 	 * @param e
 	 *            Origine de l'évènement
-	 * @return
 	 */
 	@Override
 	public void stateChanged(ChangeEvent e) {
@@ -93,10 +89,6 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 
 	/**
 	 * Listener permmettant de selectionner les images.
-	 * 
-	 * @param arg0
-	 * 
-	 * @return
 	 */
 	@Override
 	public void mousePressed(MouseEvent arg0) {
@@ -174,7 +166,7 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 				this.vue.cadrer(i * 2 + j, modele.isSelected(i, j));
 	}
 
-	public void createCaptureButton(SidePanel sidePanel, Component[] hide, Component[] show, String additionalInfo) {
+	public void createCaptureButton(SidePanel sidePanel, Component[] hide, Component[] show) {
 		// capture button
 		JButton captureButton = new JButton("Capture");
 
@@ -189,18 +181,15 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 				+ Library_Capture_CSV.genererDicomTagsPartie2(this.modele.getImagePlus());
 
 		// on ajoute le listener sur le bouton capture
-		captureButton.addActionListener(new ActionListener() {
+		captureButton.addActionListener(e -> {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			captureButton.setVisible(false);
+			for (Component comp : hide)
+				comp.setVisible(false);
 
-				captureButton.setVisible(false);
-				for (Component comp : hide)
-					comp.setVisible(false);
-
-				lbl_credits.setVisible(true);
-				for (Component comp : show)
-					comp.setVisible(true);
+			lbl_credits.setVisible(true);
+			for (Component comp : show)
+				comp.setVisible(true);
 
 				SwingUtilities.invokeLater(new Runnable() {
 
@@ -256,7 +245,6 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 					}
 				});
 
-			}
 		});
 
 		captureButton.setHorizontalAlignment(JButton.CENTER);

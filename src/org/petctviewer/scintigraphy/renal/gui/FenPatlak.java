@@ -1,19 +1,5 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Stroke;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -31,20 +17,25 @@ import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 public class FenPatlak extends JDialog implements ActionListener, ChartMouseListener {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JButton btn_ok;
-	private Box pnl_equations;
-	private JLabel lbl_eqR, lbl_eqL;
+	private final JButton btn_ok;
+	private final JLabel lbl_eqR;
+	private final JLabel lbl_eqL;
 	private int lastIndex;
-	private JComboBox combo;
+	private final JComboBox combo;
 	
-	private JValueSetter valueSetter;
-	private Model_Renal modele;
+	private final JValueSetter valueSetter;
+	private final Model_Renal modele;
 	private double debutG, debutD, finG, finD;
 	private Selector debut, fin;
 	private XYSeries lkPatlak, rkPatlak;
@@ -71,25 +62,25 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		btn_ok.addActionListener(this);
 
 		// panel de resulats
-		pnl_equations = Box.createVerticalBox();
+		Box pnl_equations = Box.createVerticalBox();
 
 		// combo de selection
-		this.combo = new JComboBox(new String[] { "Left kidney", "Right kidney" });
+		this.combo = new JComboBox<>(new String[] { "Left kidney", "Right kidney" });
 		this.lastIndex = 0;
 		combo.setSelectedIndex(lastIndex);
 		combo.addActionListener(this);
 
 		// bord droit de la fenetre
 		Box rightBox = Box.createVerticalBox();
-		rightBox.add(this.pnl_equations);
-		this.pnl_equations.add(new JLabel("Patlak fit :"));
-		this.pnl_equations.add(lbl_eqL);
-		this.pnl_equations.add(lbl_eqR);
+		rightBox.add(pnl_equations);
+		pnl_equations.add(new JLabel("Patlak fit :"));
+		pnl_equations.add(lbl_eqL);
+		pnl_equations.add(lbl_eqR);
 
 		rightBox.add(Box.createVerticalStrut(100));
 
 		JPanel wrap_eq = new JPanel();
-		wrap_eq.add(this.pnl_equations);
+		wrap_eq.add(pnl_equations);
 		rightBox.add(wrap_eq);
 
 		rightBox.add(Box.createVerticalGlue());
@@ -161,10 +152,8 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		this.lkPatlak = lkPatlak;
 		this.rkPatlak = rkPatlak;
 
-		JFreeChart chart = ChartFactory.createXYLineChart("Patlak", "x", "y", data, PlotOrientation.VERTICAL, true, true,
+		return ChartFactory.createXYLineChart("Patlak", "x", "y", data, PlotOrientation.VERTICAL, true, true,
 				true);
-
-		return chart;
 	}
 
 	private void fitPatlak() {
@@ -186,14 +175,12 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 
 		// calcul de la regression du rein gauche si il y a assez de points 
 		if (lkCropped.getItemCount() >= 2) {
-			double[] regG = Regression.getOLSRegression(data, 0);
-			this.regG = regG;
+			this.regG = Regression.getOLSRegression(data, 0);
 		}
 
 		// calcul de la regression du rein droit si il y a assez de points 
 		if (rkCropped.getItemCount() >= 2) {
-			double[] regD = Regression.getOLSRegression(data, 1);
-			this.regD = regD;
+			this.regD = Regression.getOLSRegression(data, 1);
 		}
 
 		// mise a jour des equations de droite

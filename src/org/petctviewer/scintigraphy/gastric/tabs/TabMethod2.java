@@ -11,10 +11,10 @@ import org.petctviewer.scintigraphy.scin.preferences.PrefsTabGastric;
 import javax.swing.*;
 import java.awt.*;
 
-public class TabMethod2_bis extends TabResultDefault {
+public class TabMethod2 extends TabResultDefault {
 
 
-	public TabMethod2_bis(FenResults parent, ImagePlus capture) {
+	public TabMethod2(FenResults parent, ImagePlus capture) {
 		super(parent, capture, "Gastric Only", Unit.valueOf(Prefs.get(PrefsTabGastric.PREF_UNIT_USED,
 				Unit.COUNTS.name())), Unit.TIME, Model_Gastric.SERIES_DECAY_FUNCTION);
 	}
@@ -31,7 +31,7 @@ public class TabMethod2_bis extends TabResultDefault {
 
 		// - Table
 		final Result[] results = new Result[]{Model_Gastric.RES_TIME, Model_Gastric.RES_STOMACH_COUNTS};
-		final Unit[] units = new Unit[]{this.unitTime, this.unitDefault};
+		final Unit[] units = new Unit[]{Unit.MINUTES, this.unitDefault};
 		JPanel panTable = new JPanel(new BorderLayout());
 		JTable table = tablesResultats(results, units);
 		panTable.add(table.getTableHeader(), BorderLayout.PAGE_START);
