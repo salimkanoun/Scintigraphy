@@ -13,6 +13,7 @@ import ij.plugin.frame.RoiManager;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow.WorkflowsFromGson;
 import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
+import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -136,9 +137,10 @@ public class Library_Roi {
 	 * @param path
 	 *            the system-dependent file name.
 	 * @return A list of ROIs, contained in the zip file.
+	 * @throws UnloadRoiException 
 	 */
 	public static List<Roi> getRoiFromZip(String path, ControllerWorkflow controller)
-			throws UnauthorizedRoiLoadException {
+			throws UnauthorizedRoiLoadException, UnloadRoiException {
 
 		JList<String> list;
 		list = new JList<>();
@@ -249,11 +251,12 @@ public class Library_Roi {
 	 * @param frame
 	 *            - the parent component of the dialog, can be null ;
 	 * @return A list of ROIs.
+	 * @throws UnloadRoiException 
 	 * 
 	 * @see Library_Roi#getRoiFromZip(String, ControllerWorkflow)
 	 */
 	public static List<Roi> getRoiFromZipWithWindow(Component frame, ControllerWorkflow controller)
-			throws UnauthorizedRoiLoadException {
+			throws UnauthorizedRoiLoadException, UnloadRoiException {
 
 		JFileChooser fc = new JFileChooser();
 		fc.setCurrentDirectory(new File("./"));

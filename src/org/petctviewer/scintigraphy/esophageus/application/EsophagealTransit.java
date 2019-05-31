@@ -1,9 +1,17 @@
 package org.petctviewer.scintigraphy.esophageus.application;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.gui.Overlay;
-import ij.gui.Toolbar;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -17,11 +25,10 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.gui.Overlay;
+import ij.gui.Toolbar;
 
 public class EsophagealTransit extends Scintigraphy {
 	/*
@@ -72,8 +79,8 @@ public class EsophagealTransit extends Scintigraphy {
 
 		// poour chaque acquisition
 		for (ImageSelection selectedImage : selectedImages) {
-			if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT_POST || selectedImage
-					.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
+			if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT_POST
+					|| selectedImage.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
 				// on ne sauvegarde que la ant
 				// null == pas d'image ant et/ou une image post et != une image post en [0]
 				ImageSelection[] splited = Library_Dicom.splitDynamicAntPost(selectedImage);
@@ -90,10 +97,10 @@ public class EsophagealTransit extends Scintigraphy {
 				}
 			} else if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT)
 				imagePourTrieAnt.add(selectedImage.clone());
-			else throw new WrongColumnException.OrientationColumn(selectedImage.getRow(),
-						selectedImage.getImageOrientation(),
-						new Orientation[]{Orientation.DYNAMIC_ANT, Orientation.DYNAMIC_ANT_POST,
-						                  Orientation.DYNAMIC_POST_ANT});
+			else
+				throw new WrongColumnException.OrientationColumn(selectedImage.getRow(),
+						selectedImage.getImageOrientation(), new Orientation[] { Orientation.DYNAMIC_ANT,
+								Orientation.DYNAMIC_ANT_POST, Orientation.DYNAMIC_POST_ANT });
 			selectedImage.getImagePlus().close();
 
 		}
@@ -146,9 +153,10 @@ public class EsophagealTransit extends Scintigraphy {
 		// phase 1
 		// on retourne la stack de la 1ere acquisition
 		ImageSelection[] selection = new ImageSelection[1];
-//		ImageSelection imsProjeteAllAcqui = sauvegardeImagesSelectDicom[0][0].clone();
-//		imsProjeteAllAcqui.setImagePlus(impProjeteAllAcqui);
-//		selection[0] = imsProjeteAllAcqui;
+		// ImageSelection imsProjeteAllAcqui =
+		// sauvegardeImagesSelectDicom[0][0].clone();
+		// imsProjeteAllAcqui.setImagePlus(impProjeteAllAcqui);
+		// selection[0] = imsProjeteAllAcqui;
 		selection[0] = sauvegardeImagesSelectDicom[0][0];
 		return selection;
 	}
@@ -199,10 +207,9 @@ public class EsophagealTransit extends Scintigraphy {
 			fen.updateSliceSelector();
 			IJ.setTool(Toolbar.RECTANGLE);
 
-			ControllerWorkflowEsophagealTransit cet = new ControllerWorkflowEsophagealTransit(
-					EsophagealTransit.this, (FenApplicationWorkflow) EsophagealTransit.this.getFenApplication(),
-					new Model_EsophagealTransit(sauvegardeImagesSelectDicom, "Esophageal Transit",
-							EsophagealTransit.this));
+			ControllerWorkflowEsophagealTransit cet = new ControllerWorkflowEsophagealTransit(EsophagealTransit.this,
+					(FenApplicationWorkflow) EsophagealTransit.this.getFenApplication(), new Model_EsophagealTransit(
+							sauvegardeImagesSelectDicom, "Esophageal Transit", EsophagealTransit.this));
 			EsophagealTransit.this.getFenApplication().setController(cet);
 
 		});

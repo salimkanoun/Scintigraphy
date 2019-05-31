@@ -1,23 +1,39 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import ij.ImagePlus;
-import ij.gui.ImageCanvas;
-import ij.gui.Overlay;
-import ij.gui.StackWindow;
-import ij.util.DicomTools;
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.Menu;
+import java.awt.MenuBar;
+import java.awt.MenuItem;
+import java.awt.Panel;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseWheelListener;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+
 import org.petctviewer.scintigraphy.hepatic.SecondExam.FenApplicationSecondHepaticDyn;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
+import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.gui.ImageCanvas;
+import ij.gui.Overlay;
+import ij.gui.StackWindow;
+import ij.util.DicomTools;
 
 /**
  * Interface graphique principale de quantification dans imageJ
@@ -251,18 +267,22 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		loadRois.addActionListener(e -> {
 			try {
 				FenApplicationSecondHepaticDyn.importRoiList(FenApplication.this,
-						FenApplication.this.controleur.getModel(),
-						(ControllerWorkflow) FenApplication.this.controleur);
+						FenApplication.this.controleur.getModel(), (ControllerWorkflow) FenApplication.this.controleur);
+
+				FenApplication.this.getImagePlus()
+						.setRoi(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
+				FenApplication.this.getImagePlus().getRoi().setStrokeColor(Color.RED);
+
+				System.out.println(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
+
 			} catch (UnauthorizedRoiLoadException e1) {
 				JOptionPane.showMessageDialog(FenApplication.this, "Error while loading ROIs:\n" + e1.getMessage(),
 						"Selection error", JOptionPane.ERROR_MESSAGE);
 				// e1.printStackTrace();
+			} catch (UnloadRoiException e1) {
+				IJ.log("ROIs not loaded");
 			}
-			FenApplication.this.getImagePlus()
-					.setRoi(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
-			FenApplication.this.getImagePlus().getRoi().setStrokeColor(Color.RED);
 
-			System.out.println(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
 		});
 
 		Menu help = new Menu("Help");

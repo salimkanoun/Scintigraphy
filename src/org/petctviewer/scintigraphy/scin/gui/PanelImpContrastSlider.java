@@ -114,6 +114,8 @@ public abstract class PanelImpContrastSlider extends TabResult implements Change
 	private void setContrast(int sliderValue) {
 
 		imp.getProcessor().setMinAndMax(0, (slider.getModel().getMaximum() - sliderValue) + 1);
+		imp.repaintWindow();
+		imp.updateAndDraw();
 
 		SwingUtilities.invokeLater(() -> {
 			dynamicImp.setImage(imp.getBufferedImage());

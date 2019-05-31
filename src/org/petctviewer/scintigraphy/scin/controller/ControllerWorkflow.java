@@ -1,9 +1,11 @@
 package org.petctviewer.scintigraphy.scin.controller;
 
+import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
@@ -18,14 +20,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
+import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
 import org.petctviewer.scintigraphy.scin.gui.CaptureButton;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -788,7 +794,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		return workflowsObject;
 	}
 
-	public WorkflowsFromGson loadWorkflows(String string) {
+	public WorkflowsFromGson loadWorkflows(String string) throws UnloadRoiException {
 
 		Gson gson = new GsonBuilder().serializeNulls().setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
 				.create();
@@ -859,11 +865,30 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 			}
 
 			if (differenceNumber != 0) {
-				WindowDifferentPatient fen = new WindowDifferentPatient(difference);
-				fen.setModal(true);
-				fen.setVisible(true);
-				fen.setAlwaysOnTop(true);
-				fen.setLocationRelativeTo(null);
+				
+				JPanel flow = new JPanel(new GridLayout(4, 1));
+
+				flow.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+				flow.add(new JLabel("There is more than one patient ID"));
+
+				JPanel panel = new JPanel(new BorderLayout());
+
+				JTable differences = new JTable(difference, new String[] { "Conflict", "From Json"," Current patient" });
+
+				panel.add(differences.getTableHeader(), BorderLayout.NORTH);
+				panel.add(differences, BorderLayout.CENTER);
+				flow.add(panel);
+
+				flow.add(new JLabel("Do you want to still process the exam ?"));
+//				WindowDifferentPatient fen = new WindowDifferentPatient(difference);
+//				fen.setModal(true);
+//				fen.setVisible(true);
+//				fen.setAlwaysOnTop(true);
+//				fen.setLocationRelativeTo(null);
+				int result = JOptionPane.showConfirmDialog(null, flow, "My custom dialog", JOptionPane.YES_NO_OPTION);
+				if (result == JOptionPane.NO_OPTION) {
+					throw new UnloadRoiException();
+				}
 			}
 
 			// int nbDrawInstruction = 0;
