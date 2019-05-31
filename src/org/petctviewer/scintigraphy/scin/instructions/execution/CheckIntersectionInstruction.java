@@ -13,7 +13,10 @@ import javax.swing.*;
  */
 public class CheckIntersectionInstruction extends ExecutionInstruction {
 	
-	private DrawInstructionType InstructionType = DrawInstructionType.CHECK_INTERSECTION;
+	private static final long serialVersionUID = 1L;
+
+
+	protected DrawInstructionType InstructionType = DrawInstructionType.CHECK_INTERSECTION;
 
 
 	private final transient Instruction previous_1;

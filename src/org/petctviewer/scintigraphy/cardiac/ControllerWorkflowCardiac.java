@@ -1,8 +1,9 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import java.awt.Button;
+import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -19,10 +20,6 @@ import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
-
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.image.BufferedImage;
 
 public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
@@ -135,8 +132,8 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	}
 
 	private void clicEndCont() {
-		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
-				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
+//		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
+//				.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
 		// System.out.println("-------------------------- Avant
 		// --------------------------");
 		// System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n");

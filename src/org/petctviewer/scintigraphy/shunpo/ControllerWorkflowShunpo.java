@@ -165,6 +165,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
 	private class DrawRoiInMiddle extends DrawRoiInstruction {
 
+		private static final long serialVersionUID = 1L;
 		private final transient DrawRoiInstruction dri_1;
 		private final transient DrawRoiInstruction dri_2;
 

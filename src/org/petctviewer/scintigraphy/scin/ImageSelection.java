@@ -102,7 +102,6 @@ public class ImageSelection implements Cloneable {
 	}
 
 	@Override
-	@SuppressWarnings("CloneDoesntCallSuperClone")
 	public ImageSelection clone() {
 		ImageSelection img = new ImageSelection(this.imp.duplicate(), null, null);
 		// Deep copy of all values in the map

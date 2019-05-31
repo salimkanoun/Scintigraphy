@@ -96,6 +96,7 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 			// Kidney convolved"));
 			// dataLeft.addSeries(modele.createSerie(Arrays.asList(convolvedBP), "Blood Pool
 			// convolved"));
+			@SuppressWarnings("unused")
 			JFreeChart chartLeft = ChartFactory.createXYLineChart("", "min", "counts/sec", dataLeft);
 			// ChartPanel chartpanelLeft = new ChartPanel(chartLeft);
 
@@ -139,6 +140,7 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 			// Kidney convolved"));
 			// dataRight.addSeries(modele.createSerie(Arrays.asList(convolvedBP), "Blood
 			// Pool convolved"));
+			@SuppressWarnings("unused")
 			JFreeChart chartRight = ChartFactory.createXYLineChart("", "min", "counts/sec", dataRight);
 			// ChartPanel chartpanelRight = new ChartPanel(chartRight);
 

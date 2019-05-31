@@ -161,6 +161,7 @@ public class EsophagealTransit extends Scintigraphy {
 		return selection;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		// phase 1

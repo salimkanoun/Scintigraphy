@@ -8,6 +8,8 @@ import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 
 public abstract class ExecutionInstruction implements Instruction, Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	@Override
 	public void prepareAsNext() {
 	}

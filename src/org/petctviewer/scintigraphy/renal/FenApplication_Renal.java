@@ -74,6 +74,7 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 		this.setText_instructions("Click to start the exam");
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// clic sur le bouton dynamique

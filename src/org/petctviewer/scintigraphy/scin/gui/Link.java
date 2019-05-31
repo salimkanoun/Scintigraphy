@@ -7,6 +7,8 @@ import java.net.URI;
 
 public class Link extends JButton {
 
+	private static final long serialVersionUID = 1L;
+
 	public Link(String text, URI uri) {
 		super("<html><font color=\"#000099\"><u>" + text + "</u></font></html>");
 		this.setHorizontalAlignment(SwingConstants.LEFT);

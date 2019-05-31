@@ -98,6 +98,7 @@ public class Model_Resultats_EsophagealTransit extends ModelScin {
 
 			double ymax = serie.getMaxY();
 			double x = Library_JFreeChart.getAbsMaxY(serie);
+			@SuppressWarnings("deprecation")
 			double ycalc = Library_JFreeChart.getInterpolatedY(serie, x + 10);
 			double fractionDecrease = (ycalc / ymax) * 100;
 
@@ -132,8 +133,10 @@ public class Model_Resultats_EsophagealTransit extends ModelScin {
 		XYSeries serie = datasetTransitTime[numeroSerie][0];
 
 		// recherche du x le plus proche
+		@SuppressWarnings("deprecation")
 		double ymax = Library_JFreeChart.getInterpolatedY(serie, xForYMax);
 
+		@SuppressWarnings("deprecation")
 		double ycalc = Library_JFreeChart.getInterpolatedY(serie, xForYMax + 10);
 		double fractionDecrease = (ycalc / ymax) * 100;
 

@@ -7,8 +7,10 @@ import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import java.io.Serializable;
 
 public class DrawRoiInstruction implements Instruction, Serializable {
-	
-	protected DrawInstructionType InstructionType;
+
+	private static final long serialVersionUID = 1L;
+
+	protected DrawInstructionType InstructionType = DrawInstructionType.DRAW_ROI;
 
 	protected String organToDelimit;
 	private final String roiName;
@@ -39,7 +41,6 @@ public class DrawRoiInstruction implements Instruction, Serializable {
 		this.indexRoiToEdit = -1;
 		this.roiName = roiName == null ? organToDelimit : roiName;
 		
-		this.InstructionType = DrawInstructionType.DRAW_ROI;
 	}
 
 	/**

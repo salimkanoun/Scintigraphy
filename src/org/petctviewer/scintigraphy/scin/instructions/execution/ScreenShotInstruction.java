@@ -16,6 +16,8 @@ import java.util.List;
  */
 public class ScreenShotInstruction extends ExecutionInstruction {
 
+	private static final long serialVersionUID = 1L;
+
 	public static final int DEFAULT_CAPTURE_WIDTH = 512;
 
 	private final transient List<ImagePlus> captures;

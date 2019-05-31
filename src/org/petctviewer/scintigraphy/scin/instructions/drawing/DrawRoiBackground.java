@@ -10,8 +10,6 @@ public class DrawRoiBackground extends DrawRoiInstruction {
 
 	private static final long serialVersionUID = 1L;
 
-	private DrawInstructionType InstructionType = DrawInstructionType.DRAW_ROI_BACKGROUND;
-
 	private final transient DrawRoiInstruction dri_1;
 
 	private final transient ModelScin model;
@@ -34,6 +32,8 @@ public class DrawRoiBackground extends DrawRoiInstruction {
 		super(organToDelimit, state);
 		this.dri_1 = roi1;
 		this.model = model;
+		
+		this.InstructionType = DrawInstructionType.DRAW_ROI_BACKGROUND;
 	}
 
 	/**
