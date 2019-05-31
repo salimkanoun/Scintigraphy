@@ -117,7 +117,11 @@ public abstract class PanelImpContrastSlider extends TabResult implements Change
 		imp.updateAndDraw();
 
 		SwingUtilities.invokeLater(() -> {
-			dynamicImp.setImage(Library_Capture_CSV.captureImage(this.imp, 512, 0).getBufferedImage());
+			if (this.imp.getCanvas() == null)
+				dynamicImp.setImage(imp.getBufferedImage());
+			else
+				dynamicImp.setImage(Library_Capture_CSV.captureImage(this.imp, 512, 0).getBufferedImage());
+			
 			dynamicImp.repaint();
 
 		});
