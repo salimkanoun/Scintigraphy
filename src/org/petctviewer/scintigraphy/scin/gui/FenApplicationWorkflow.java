@@ -4,7 +4,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.ScrollbarWithLabel;
 import ij.gui.Toolbar;
-import org.petctviewer.scintigraphy.gastric.InstructionTooltip;
+import org.petctviewer.scintigraphy.gastric.gui.InstructionTooltip;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -99,7 +99,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 			// Destroy tooltip
 			this.tooltip = null;
 			// TODO: this line resets the alignment of the panel to the left. Why???
-//			this.panelContainer.remove(scroll);
+			this.panelContainer.remove(scroll);
 
 			// Remove listeners
 			if (this.getControleur() != null) {

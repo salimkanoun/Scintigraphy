@@ -11,7 +11,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric.ResultRequest;
 import org.petctviewer.scintigraphy.gastric.ResultValue;
 import org.petctviewer.scintigraphy.gastric.Unit;
-import org.petctviewer.scintigraphy.gastric.gui.Fit;
+import org.petctviewer.scintigraphy.gastric.Fit;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;

@@ -43,14 +43,11 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		this.fenResults = new FenResults(this);
 	}
 
-	// TODO: refactor this method
 	@Override
 	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 
-		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4, dri_5, dri_6,
-				dri_7, dri_8, dri_9, dri_10, dri_11, dri_12;
-		ScreenShotInstruction dri_capture_1, dri_capture_2, dri_capture_3, dri_capture_4;
+		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4, dri_8, dri_9, dri_11;
 		this.captures = new ArrayList<>();
 
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
@@ -62,40 +59,29 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		dri_2 = new DrawRoiInstruction("Left lung", statePost);
 		dri_3 = new DrawRoiInstruction("Right kidney", statePost);
 		dri_4 = new DrawRoiInstruction("Left kidney", statePost);
-		dri_5 = new DrawRoiInMiddle("Background", statePost, dri_3, dri_4);
-
-		dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), 0);
-		dri_6 = new DrawRoiInstruction("Right lung", stateAnt, dri_1);
-		dri_7 = new DrawRoiInstruction("Left lung", stateAnt, dri_2);
 		dri_8 = new DrawRoiInstruction("Right kidney", stateAnt, dri_3);
 		dri_9 = new DrawRoiInstruction("Left kidney", stateAnt, dri_4);
-		dri_10 = new DrawRoiInMiddle("Background", stateAnt, dri_8, dri_9);
-		dri_capture_2 = new ScreenShotInstruction(captures, this.getVue(), 1);
-		dri_capture_3 = new ScreenShotInstruction(captures, this.getVue(), 2);
-		dri_capture_4 = new ScreenShotInstruction(captures, this.getVue(), 3);
+		dri_11 = new DrawRoiInstruction("Brain", statePost);
 
 		this.workflows[0].addInstruction(dri_1);
 		this.workflows[0].addInstruction(dri_2);
 		this.workflows[0].addInstruction(dri_3);
 		this.workflows[0].addInstruction(dri_4);
-		this.workflows[0].addInstruction(dri_5);
-		this.workflows[0].addInstruction(dri_capture_1);
-		this.workflows[0].addInstruction(dri_6);
-		this.workflows[0].addInstruction(dri_7);
+		this.workflows[0].addInstruction(new DrawRoiInMiddle("Background", statePost, dri_3, dri_4));
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
+		this.workflows[0].addInstruction(new DrawRoiInstruction("Right lung", stateAnt, dri_1));
+		this.workflows[0].addInstruction(new DrawRoiInstruction("Left lung", stateAnt, dri_2));
 		this.workflows[0].addInstruction(dri_8);
 		this.workflows[0].addInstruction(dri_9);
-		this.workflows[0].addInstruction(dri_10);
-		this.workflows[0].addInstruction(dri_capture_2);
+		this.workflows[0].addInstruction(new DrawRoiInMiddle("Background", stateAnt, dri_8, dri_9));
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
+
 
 		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
-		dri_11 = new DrawRoiInstruction("Brain", statePost);
-		dri_12 = new DrawRoiInstruction("Brain", stateAnt, dri_11);
-
 		this.workflows[1].addInstruction(dri_11);
-		this.workflows[1].addInstruction(dri_capture_3);
-		this.workflows[1].addInstruction(dri_12);
-		this.workflows[1].addInstruction(dri_capture_4);
-
+		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 2));
+		this.workflows[1].addInstruction(new DrawRoiInstruction("Brain", stateAnt, dri_11));
+		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 3));
 		this.workflows[1].addInstruction(new EndInstruction());
 
 		// Update view
@@ -164,8 +150,8 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 	}
 
 	private class DrawRoiInMiddle extends DrawRoiInstruction {
-
 		private static final long serialVersionUID = 1L;
+
 		private final transient DrawRoiInstruction dri_1;
 		private final transient DrawRoiInstruction dri_2;
 

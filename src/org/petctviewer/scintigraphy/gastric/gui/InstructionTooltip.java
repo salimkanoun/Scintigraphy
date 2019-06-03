@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.gastric;
+package org.petctviewer.scintigraphy.gastric.gui;
 
 import java.awt.*;
 

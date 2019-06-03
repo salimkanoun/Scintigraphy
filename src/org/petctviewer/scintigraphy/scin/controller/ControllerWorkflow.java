@@ -1,31 +1,9 @@
 package org.petctviewer.scintigraphy.scin.controller;
 
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.SwingUtilities;
-
+import com.google.gson.*;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.Prefs;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
@@ -47,16 +25,16 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import ij.IJ;
-import ij.ImagePlus;
-import ij.Prefs;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * This controller is used when working with a flow of instructions.<br>
@@ -98,17 +76,15 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 * Index of the ROI to store in the RoiManager.
 	 */
 	protected int indexRoi;
-
+	/**
+	 * Window used to display the results.
+	 */
+	protected FenResults fenResults;
 	/**
 	 * If set to TRUE then the next call to {@link #clickNext()} or
 	 * {@link #clickPrevious()} will be repeated.
 	 */
 	private boolean skipInstruction;
-
-	/**
-	 * Window used to display the results.
-	 */
-	protected FenResults fenResults;
 
 	/**
 	 * @param main
@@ -246,6 +222,15 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	}
 
 	/**
+	 * Returns the window used to display the results of this study.
+	 *
+	 * @return window for the results or null if no window was set yet
+	 */
+	protected FenResults getFenResults() {
+		return this.fenResults;
+	}
+
+	/**
 	 * Changes the window for the results. This method should only be called once.
 	 *
 	 * @param fenResults
@@ -253,15 +238,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 */
 	protected void setFenResults(FenResults fenResults) {
 		this.fenResults = fenResults;
-	}
-
-	/**
-	 * Returns the window used to display the results of this study.
-	 *
-	 * @return window for the results or null if no window was set yet
-	 */
-	protected FenResults getFenResults() {
-		return this.fenResults;
 	}
 
 	/**
@@ -692,7 +668,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	}
 
 	// -------------------------------------
-	// TODO: move all json to another class!
+	// TODO: move all json to another class!!!
 	// -------------------------------------
 
 	public Gson saveWorkflow(String path) {
@@ -708,8 +684,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 * It's a {@link WorkflowsFromGson} object, containing a list of
 	 * {@link WorkflowFromGson} objects, each containing a list of
 	 * {@link InstructionFromGson} objects, in the form of a Json file.<br/>
-	 * Add at the end the information about the patient, as a {@link PatientFromGson}, to be able to do an
-	 * integrity test.
+	 * Add at the end the information about the patient, as a
+	 * {@link PatientFromGson}, to be able to do an integrity test.
 	 * 
 	 * @param label
 	 *            They are the name of the ROIs to save. Usefeull when you want to
@@ -797,10 +773,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		// zip.putNextEntry(new ZipEntry("workflow.json"));
 		// gson.toJson(workflowsObject, writer);
 		// } catch (FileNotFoundException e) {
-		// // TODO Auto-generated catch block
 		// e.printStackTrace();
 		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
 		// e.printStackTrace();
 		// }
 
@@ -814,7 +788,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 * {@link WorkflowsFromGson} object, containing a list of
 	 * {@link WorkflowFromGson} objects, each containing a list of
 	 * {@link InstructionFromGson} objects.<br/>
-	 * It also do an integrity test with the current patient, and the {@link PatientFromGson} in the Json.<br/>
+	 * It also do an integrity test with the current patient, and the
+	 * {@link PatientFromGson} in the Json.<br/>
 	 * <br/>
 	 * This method check InstructionType differences, patient information
 	 * differences, and auto-increment the DrawLoop and DrawSymmetricalLoop
@@ -844,18 +819,17 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 		if (workflowsFromGson != null) {
 			if (workflowsFromGson.getWorkflows().size() != this.workflows.length) {
-				System.out.println("LE NOMBRE DE WORKFLOW EST DIFFERENT, IMPOSSIBLE DE CHARGER LA SAUVEGARDE");
+				System.out.println("DIFFERENT NUMBER OF WORKFLOWS, CANNOT LOAD BACKUP");
 				return null;
 			}
 
 			PatientFromGson patientFromGson = workflowsFromGson.getPatient();
 			String[] currentPatient = Library_Capture_CSV.getInfoPatient(this.getModel().getImagePlus());
 
-			Date currentPatientDate = null;
+			String currentPatientDate = "";
 			try {
-				currentPatientDate = new SimpleDateFormat("yyyyMMdd").parse(currentPatient[2]);
+				currentPatientDate = new SimpleDateFormat("yyyyMMdd").parse(currentPatient[2]).toString();
 			} catch (ParseException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -867,7 +841,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 				differenceNumber++;
 			if (!patientFromGson.getID().equals(currentPatient[1]))
 				differenceNumber++;
-			if (!patientFromGson.getDate().toString().equals(currentPatientDate.toString()))
+			if (!patientFromGson.getDate().toString().equals(currentPatientDate))
 				differenceNumber++;
 
 			Object[][] difference = new Object[differenceNumber][3];
@@ -889,11 +863,9 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 				indexDifference++;
 			}
 
-			if (!patientFromGson.getDate().toString().equals(currentPatientDate.toString())) {
+			if (!patientFromGson.getDate().toString().equals(currentPatientDate))
 				difference[indexDifference] = new String[] { "Date", "" + patientFromGson.getDate(),
 						"" + currentPatientDate };
-				indexDifference++;
-			}
 
 			if (differenceNumber != 0) {
 
@@ -1008,167 +980,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		return workflowsFromGson;
 	}
 
-	/**
-	 * A custom list of Workflow, used to get a Workflow list ({@link Workflow}) from a Json file
-	 * <br/>
-	 * This class contains the {@link WorkflowFromGson} list, and the {@link PatientFromGson}.
-	 * <br/><br/>
-	 * Used in {@link ControllerWorkflow#loadWorkflows(String)} and {@link Library_Roi#getRoiFromZip(String, ControllerWorkflow)}
-	 *
-	 */
-	public class WorkflowsFromGson {
-		List<WorkflowFromGson> Workflows;
-		PatientFromGson Patient;
-
-		public List<WorkflowFromGson> getWorkflows() {
-			return this.Workflows;
-		}
-
-		public WorkflowFromGson getWorkflowAt(int index) {
-			return this.Workflows.get(index);
-		}
-
-		public int getNbROIs() {
-			int nbROIs = 0;
-			for (WorkflowFromGson workflowFromGson : this.Workflows)
-				for (@SuppressWarnings("unused")
-				InstructionFromGson instructionFromGson : workflowFromGson.getInstructions())
-					nbROIs++;
-			return nbROIs;
-		}
-
-		public InstructionFromGson getInstructionFromGson(int indexWorkflow, int indexInstruction) {
-			return this.Workflows.get(indexWorkflow).getInstructionAt(indexInstruction);
-		}
-
-		public InstructionFromGson getInstructionFromGson(String nameOfRoiFile) {
-
-			for (WorkflowFromGson workflowFromGson : this.Workflows)
-				for (InstructionFromGson instructionFromGson : workflowFromGson.getInstructions())
-					if (nameOfRoiFile.equals(instructionFromGson.getNameOfRoiFile()))
-						return instructionFromGson;
-
-			return null;
-		}
-
-		public int getIndexRoiOfInstructionFromGson(String nameOfRoiFile) {
-			System.out.println("nameOfRoiFile to found on Controller : " + nameOfRoiFile);
-			for (WorkflowFromGson workflowFromGson : this.Workflows)
-				for (InstructionFromGson instructionFromGson : workflowFromGson.getInstructions()) {
-					System.out.println("\tName of Instruction : " + instructionFromGson.getNameOfRoiFile());
-					if (nameOfRoiFile.equals(instructionFromGson.getNameOfRoiFile())) {
-						System.out.println("\t Matchs !");
-						return instructionFromGson.getIndexRoiToEdit();
-					}
-				}
-
-			return -1;
-		}
-
-		public PatientFromGson getPatient() {
-			return this.Patient;
-		}
-
-	}
-
-	/**
-	 * This class represent a {@link Workflow}, as saved in a Json file.
-	 * <br/>
-	 * Contains a list of {@link InstructionFromGson}.
-	 *
-	 */
-	private class WorkflowFromGson {
-		List<InstructionFromGson> Intructions;
-
-		public List<InstructionFromGson> getInstructions() {
-			return this.Intructions;
-		}
-
-		public InstructionFromGson getInstructionAt(int index) {
-			return this.Intructions.get(index);
-		}
-	}
-
-	/**
-	 * This class represent an {@link Instruction}, as saved in a Json file.<br/>
-	 * Contains :<br/>
-	 * &emsp;&emsp; - InstructionType<br/>
-	 * &emsp;&emsp; - IndexRoiToEdit<br/>
-	 * &emsp;&emsp; - NameOfRoi<br/>
-	 * &emsp;&emsp; - NameOfRoiFile
-	 *
-	 */
-	private class InstructionFromGson {
-
-		private String InstructionType;
-
-		private int IndexRoiToEdit;
-
-		private String NameOfRoi;
-
-		private String NameOfRoiFile;
-
-		public int getIndexRoiToEdit() {
-			return this.IndexRoiToEdit;
-		}
-
-		public String getInstructionType() {
-			return this.InstructionType;
-		}
-
-		@SuppressWarnings("unused")
-		public String getNameOfRoi() {
-			return this.NameOfRoi;
-		}
-
-		public String getNameOfRoiFile() {
-			return this.NameOfRoiFile;
-		}
-	}
-
-	
-	/**
-	 * This class represent an Patient, as saved in a Json file.<br/>
-	 * Contains :<br/>
-	 * &emsp;&emsp; - Name<br/>
-	 * &emsp;&emsp; - ID<br/>
-	 * &emsp;&emsp; - Date<br/>
-	 * &emsp;&emsp; - AccessionNumber
-	 *
-	 */
-	public class PatientFromGson {
-
-		private String Name;
-
-		private String ID;
-
-		private Date Date;
-
-		private String AccessionNumber;
-
-		public String getName() {
-			return this.Name;
-		}
-
-		public String getID() {
-			return this.ID;
-		}
-
-		public Date getDate() {
-			return this.Date;
-		}
-
-		public String getAccessionNumber() {
-			return this.AccessionNumber;
-		}
-
-		@Override
-		public String toString() {
-			return "Bonjour, mon nom est  " + this.Name + ", j'ai pour ID " + this.ID + " car j'ai été admis le "
-					+ this.Date + " ce qui donne comme accessionNumber : " + this.AccessionNumber;
-		}
-	}
-
 	public void actionCaptureButton(CaptureButton captureButton) {
 
 		TabResult tab = captureButton.getTabResult();
@@ -1252,5 +1063,164 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 		});
 
+	}
+
+	/**
+	 * A custom list of Workflow, used to get a Workflow list ({@link Workflow})
+	 * from a Json file <br/>
+	 * This class contains the {@link WorkflowFromGson} list, and the
+	 * {@link PatientFromGson}. <br/>
+	 * <br/>
+	 * Used in {@link ControllerWorkflow#loadWorkflows(String)} and
+	 * {@link Library_Roi#getRoiFromZip(String, ControllerWorkflow)}
+	 *
+	 */
+	public class WorkflowsFromGson {
+		List<WorkflowFromGson> Workflows;
+		PatientFromGson Patient;
+
+		public List<WorkflowFromGson> getWorkflows() {
+			return this.Workflows;
+		}
+
+		public WorkflowFromGson getWorkflowAt(int index) {
+			return this.Workflows.get(index);
+		}
+
+		public int getNbROIs() {
+			int nbROIs = 0;
+			for (WorkflowFromGson workflowFromGson : this.Workflows)
+				nbROIs += workflowFromGson.getInstructions().size();
+			return nbROIs;
+		}
+
+		public InstructionFromGson getInstructionFromGson(int indexWorkflow, int indexInstruction) {
+			return this.Workflows.get(indexWorkflow).getInstructionAt(indexInstruction);
+		}
+
+		public InstructionFromGson getInstructionFromGson(String nameOfRoiFile) {
+
+			for (WorkflowFromGson workflowFromGson : this.Workflows)
+				for (InstructionFromGson instructionFromGson : workflowFromGson.getInstructions())
+					if (nameOfRoiFile.equals(instructionFromGson.getNameOfRoiFile()))
+						return instructionFromGson;
+
+			return null;
+		}
+
+		public int getIndexRoiOfInstructionFromGson(String nameOfRoiFile) {
+			System.out.println("nameOfRoiFile to found on Controller : " + nameOfRoiFile);
+			for (WorkflowFromGson workflowFromGson : this.Workflows)
+				for (InstructionFromGson instructionFromGson : workflowFromGson.getInstructions()) {
+					System.out.println("\tName of Instruction : " + instructionFromGson.getNameOfRoiFile());
+					if (nameOfRoiFile.equals(instructionFromGson.getNameOfRoiFile())) {
+						System.out.println("\t Matchs !");
+						return instructionFromGson.getIndexRoiToEdit();
+					}
+				}
+
+			return -1;
+		}
+
+		public PatientFromGson getPatient() {
+			return this.Patient;
+		}
+
+	}
+
+	/**
+	 * This class represent a {@link Workflow}, as saved in a Json file. <br/>
+	 * Contains a list of {@link InstructionFromGson}.
+	 *
+	 */
+	private class WorkflowFromGson {
+		List<InstructionFromGson> Intructions;
+
+		public List<InstructionFromGson> getInstructions() {
+			return this.Intructions;
+		}
+
+		public InstructionFromGson getInstructionAt(int index) {
+			return this.Intructions.get(index);
+		}
+	}
+
+	/**
+	 * This class represent an {@link Instruction}, as saved in a Json file.<br/>
+	 * Contains :<br/>
+	 * &emsp;&emsp; - InstructionType<br/>
+	 * &emsp;&emsp; - IndexRoiToEdit<br/>
+	 * &emsp;&emsp; - NameOfRoi<br/>
+	 * &emsp;&emsp; - NameOfRoiFile
+	 *
+	 */
+	private class InstructionFromGson {
+
+		private String InstructionType;
+
+		private int IndexRoiToEdit;
+
+		private String NameOfRoi;
+
+		private String NameOfRoiFile;
+
+		public int getIndexRoiToEdit() {
+			return this.IndexRoiToEdit;
+		}
+
+		public String getInstructionType() {
+			return this.InstructionType;
+		}
+
+		@SuppressWarnings("unused")
+		public String getNameOfRoi() {
+			return this.NameOfRoi;
+		}
+
+		public String getNameOfRoiFile() {
+			return this.NameOfRoiFile;
+		}
+	}
+
+	/**
+	 * This class represent an Patient, as saved in a Json file.<br/>
+	 * Contains :<br/>
+	 * &emsp;&emsp; - Name<br/>
+	 * &emsp;&emsp; - ID<br/>
+	 * &emsp;&emsp; - Date<br/>
+	 * &emsp;&emsp; - AccessionNumber
+	 *
+	 */
+	public class PatientFromGson {
+
+		private String Name;
+
+		private String ID;
+
+		private Date Date;
+
+		private String AccessionNumber;
+
+		public String getName() {
+			return this.Name;
+		}
+
+		public String getID() {
+			return this.ID;
+		}
+
+		public Date getDate() {
+			return this.Date;
+		}
+
+		public String getAccessionNumber() {
+			return this.AccessionNumber;
+		}
+
+		@Override
+		public String toString() {
+			return "Bonjour, mon nom est  " + this.Name + ", j'ai pour ID " + this.ID + " car j'ai été admis le "
+					+ this.Date + " ce qui donne comme accessionNumber : " + this.AccessionNumber;
+		}
 	}
 }

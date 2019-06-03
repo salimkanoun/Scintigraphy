@@ -2,6 +2,8 @@ package org.petctviewer.scintigraphy.gastric;
 
 import ij.ImagePlus;
 import ij.Prefs;
+import org.petctviewer.scintigraphy.gastric.dynamic.DynGastricScintigraphy;
+import org.petctviewer.scintigraphy.gastric.gui.PromptIngestionTime;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -33,11 +35,10 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 
 	private final boolean DO_ONLY_GASTRIC;
-
+	private final FenResults fenResults;
 	// TODO: clean this, it's awful
 	public Date specifiedTimeIngestion;
-
-	private final FenResults fenResults;
+	private boolean isDynamicStarted;
 	private TabMethod1 tabMain;
 	//	private TabMainResult tabMain;
 	private TabMethod2 tabOnlyGastric;
@@ -52,6 +53,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 		// Set final fields
 		DO_ONLY_GASTRIC = Prefs.get(PrefsTabGastric.PREF_SIMPLE_METHOD, false);
+		this.isDynamicStarted = false;
 
 		this.generateInstructions();
 		this.start();
@@ -195,6 +197,17 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			if (i == 0) this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 1, 0, 0));
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
+	}
+
+	public void startDynamic() {
+		this.isDynamicStarted = true;
+		this.vue.setVisible(false);
+		// Launch dynamic acquisition
+		new DynGastricScintigraphy(getModel(), this.fenResults);
+	}
+
+	public boolean isDynamicStarted() {
+		return this.isDynamicStarted;
 	}
 
 	@Override

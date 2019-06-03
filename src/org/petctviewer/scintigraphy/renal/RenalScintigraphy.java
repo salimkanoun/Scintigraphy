@@ -12,6 +12,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.library.Library_Debug;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
@@ -36,14 +37,18 @@ public class RenalScintigraphy extends Scintigraphy {
 		// Check orientations
 		// With 1 image
 		if (selectedImages.length == 1) {
-			if (selectedImages[0].getImageOrientation() != Orientation.DYNAMIC_ANT_POST)
+			if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
+				// Set images
+				ImageSelection[] imps = Library_Dicom.splitDynamicAntPost(selectedImages[0]);
+				this.impAnt = imps[0];
+				this.impPost = imps[1];
+			} else if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_POST) {
+				// Only Dyn Post
+				this.impPost = selectedImages[0].clone();
+			} else
 				throw new WrongColumnException.OrientationColumn(selectedImages[0].getRow(),
-						selectedImages[0].getImageOrientation(), new Orientation[]{Orientation.DYNAMIC_ANT_POST}, "You"
-						+ " can also use 2 dynamics (Ant and Post)");
-			// Set images
-			ImageSelection[] imps = Library_Dicom.splitDynamicAntPost(selectedImages[0]);
-			this.impAnt = imps[0];
-			this.impPost = imps[1];
+						selectedImages[0].getImageOrientation(), new Orientation[]{Orientation.DYNAMIC_POST,
+						Orientation.DYNAMIC_ANT_POST}, "You" + " can also use 2 dynamics (Ant and Post)");
 		}
 		// With 2 images
 		else {
@@ -71,18 +76,23 @@ public class RenalScintigraphy extends Scintigraphy {
 		}
 
 		// Close images
-		for(ImageSelection ims : selectedImages)
+		for (ImageSelection ims : selectedImages)
 			ims.getImagePlus().close();
 
-		// Flip Ant
-		for (int i = 1; i <= this.impAnt.getImagePlus().getStackSize(); i++) {
-			this.impAnt.getImagePlus().getStack().getProcessor(i).flipHorizontal();
-		}
-
 		// Build frame duration
-		this.frameDurations = Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus());
-		if (!ArrayUtils.isEquals(this.frameDurations, Library_Dicom.buildFrameDurations(this.impPost.getImagePlus())))
-			throw new WrongInputException("Frame durations are not the same for Ant and Post!");
+		this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost.getImagePlus());
+
+		// Ant processing
+		if (this.impAnt != null) {
+			// Check frame duration identical
+			if (!ArrayUtils.isEquals(this.frameDurations, Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus())))
+				throw new WrongInputException("Frame durations are not the same for Ant and Post!");
+
+			// Flip Ant
+			for (int i = 1; i <= this.impAnt.getImagePlus().getStackSize(); i++) {
+				this.impAnt.getImagePlus().getStack().getProcessor(i).flipHorizontal();
+			}
+		}
 
 		// TODO: from this part, still no refactored @noa
 		// \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/
@@ -106,15 +116,16 @@ public class RenalScintigraphy extends Scintigraphy {
 		stack.addSlice(pj.getProcessor());
 
 		// ajout de la prise ant si elle existe
+		if(this.impAnt != null) {
+			ImageSelection impAntCountPerSec = this.impAnt.clone();
+			Library_Dicom.normalizeToCountPerSecond(impAntCountPerSec);
 
-		ImageSelection impAntCountPerSec = this.impAnt.clone();
-		Library_Dicom.normalizeToCountPerSecond(impAntCountPerSec);
-
-		ImageSelection impProjAnt = Library_Dicom.project(impAntCountPerSec, 0,
-				impAntCountPerSec.getImagePlus().getStackSize(), "avg");
-		impProjAnt.getImagePlus().getProcessor().flipHorizontal();
-		impAnt = impProjAnt;
-		stack.addSlice(impProjAnt.getImagePlus().getProcessor());
+			ImageSelection impProjAnt =
+					Library_Dicom.project(impAntCountPerSec, 0, impAntCountPerSec.getImagePlus().getStackSize(), "avg");
+			impProjAnt.getImagePlus().getProcessor().flipHorizontal();
+			impAnt = impProjAnt;
+			stack.addSlice(impProjAnt.getImagePlus().getProcessor());
+		}
 
 		// ajout du stack a l'imp
 		impProjetee.getImagePlus().setStack(stack);
