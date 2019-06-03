@@ -29,6 +29,8 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 
 		this.reference.show();
 		this.reference.getWindow().setVisible(false);
+
+		this.stateChanged(null);
 	}
 
 	@Override

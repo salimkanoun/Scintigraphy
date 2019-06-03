@@ -25,7 +25,6 @@ public class MainTab extends TabResult {
 
 		capture.setOverlay(overlay);
 		this.slider = new ContrastSlider(ContrastSlider.HORIZONTAL, capture, this.result);
-		this.slider.stateChanged(new ChangeEvent(this.slider));
 
 		this.reloadDisplay();
 	}
