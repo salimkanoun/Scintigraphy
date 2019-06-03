@@ -457,7 +457,6 @@ public class Model_Gastric extends ModelWorkflow {
 	 * </ul>
 	 */
 	private double[][] generateStomachDataset(Unit unit) {
-		// TODO: add time 0
 		return this.generateDatasetFromKey(REGION_STOMACH, DATA_PERCENTAGE, unit);
 	}
 
@@ -471,7 +470,6 @@ public class Model_Gastric extends ModelWorkflow {
 	 * </ul>
 	 */
 	private double[][] generateDecayFunctionDataset(Unit unit) {
-		// TODO: remove time 0
 		return this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED, unit);
 	}
 
@@ -955,7 +953,6 @@ public class Model_Gastric extends ModelWorkflow {
 					bkgNoise = this.bkgNoise_fundus.getValue(DATA_BKG_NOISE);
 					break;
 				default:
-					// TODO: correct with a bkg noise
 					System.err.println(
 							"Warning: The region (" + region + ") is not corrected with a background " + "noise!");
 					break;

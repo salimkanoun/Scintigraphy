@@ -37,4 +37,19 @@ public class Library_Debug {
 		return "-=> " + subtitle + " <=-";
 	}
 
+	/**
+	 * Replaces a null or empty string with 'N/A' annotation.
+	 * <p>
+	 *
+	 * @param s String to replace
+	 * @return 'N/A' if the string is null or empty otherwise returns the string
+	 * unchanged
+	 */
+	public static String replaceNull(String s) {
+		if (s == null || s.equals("")) {
+			return "N/A";
+		}
+		return s;
+	}
+
 }

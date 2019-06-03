@@ -11,6 +11,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Debug;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 import javax.swing.*;
@@ -95,22 +96,6 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		this.setLocationRelativeTo(null);
 	}
 
-	/**
-	 * Replaces a null or empty string with 'N/A' annotation.
-	 * <p>
-	 * TODO: Maybe move this method in a library???
-	 *
-	 * @param s String to replace
-	 * @return 'N/A' if the string is null or empty otherwise returns the string
-	 * unchanged
-	 */
-	private static String replaceNull(String s) {
-		if (s == null || s.equals("")) {
-			return "N/A";
-		}
-		return s;
-	}
-
 	public void declareColumns(Column[] columns) {
 		this.columns = Arrays.asList(columns);
 		String[] columnsName = new String[this.columns.size()];
@@ -133,8 +118,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		resizeColumnWidth(table);
 	}
 
-	// TODO: Do not assume that index of rows matches the ID of the image in the
-	// WindowManager!
+	// TODO: Do not assume that index of rows matches the ID of the image in the WindowManager!
 	private List<String[]> getTableData() {
 		List<String[]> data = new ArrayList<>(WindowManager.getImageCount());
 
@@ -153,11 +137,11 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 						if (c == Column.PATIENT) {
 							imageData[i] = infosPatient.get("name");
 						} else if (c == Column.STUDY) {
-							imageData[i] = replaceNull(DicomTools.getTag(imp, "0008,1030")).trim();
+							imageData[i] = Library_Debug.replaceNull(DicomTools.getTag(imp, "0008,1030")).trim();
 						} else if (c == Column.DATE) {
-							imageData[i] = replaceNull(infosPatient.get("date"));
+							imageData[i] = Library_Debug.replaceNull(infosPatient.get("date"));
 						} else if (c == Column.SERIES) {
-							imageData[i] = replaceNull(DicomTools.getTag(imp, "0008,103E")).trim();
+							imageData[i] = Library_Debug.replaceNull(DicomTools.getTag(imp, "0008,103E")).trim();
 						} else if (c == Column.DIMENSIONS) {
 							imageData[i] = imp.getDimensions()[0] + "x" + imp.getDimensions()[1];
 						} else if (c == Column.STACK_SIZE) {
@@ -173,8 +157,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 					countErrors++;
 				}
 			}
-			if (countErrors > 0)
-				System.err.println(countErrors + " images could not be opened");
+			if (countErrors > 0) System.err.println(countErrors + " images could not be opened");
 		}
 		return data;
 	}
@@ -182,14 +165,13 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	/**
 	 * Determines the orientation of an ImagePlus.
 	 * <p>
-	 * TODO: Maybe move this method in a library???
 	 *
 	 * @param imp Image to analyze
 	 * @return Orientation of the image (UNKNOWN if the orientation could not be
 	 * determined)
 	 */
 	private Orientation determineImageOrientation(ImagePlus imp) throws ReadTagException {
-		
+
 		boolean sameCameraMultiFrame = Library_Dicom.isSameCameraMultiFrame(imp);
 		boolean firstImageAnt = Library_Dicom.isAnterior(imp);
 
@@ -235,8 +217,9 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			TableCellRenderer renderer;
 			for (int row = 0; row < table.getRowCount(); row++) {
 				renderer = table.getCellRenderer(row, col);
-				Component component = renderer.getTableCellRendererComponent(table, table.getValueAt(row, col), false,
-						false, row, col);
+				Component component =
+						renderer.getTableCellRendererComponent(table, table.getValueAt(row, col), false, false, row,
+								col);
 				width = Math.max(width, component.getPreferredSize().width);
 			}
 			column.setPreferredWidth(width + 2);
@@ -277,9 +260,9 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		for (ImageSelection ims : selectedImages) {
 			for (Column column : this.columns) {
 				String value = ims.getValue(column.getName());
-				if (!column.isAuthorizedValue(value))
-					throw new WrongColumnException(column, ims.getRow(), "The value " + value
-							+ " is incorrect, it must be one of: " + Arrays.toString(column.getAuthorizedValues()));
+				if (!column.isAuthorizedValue(value)) throw new WrongColumnException(column, ims.getRow(),
+						"The value " + value + " is incorrect, it must be one of: " +
+								Arrays.toString(column.getAuthorizedValues()));
 			}
 		}
 	}
@@ -303,14 +286,13 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 		int result = JOptionPane.YES_OPTION;
 		if (patientIds.size() > 1 || patientNames.size() > 1) {
-			String message = "Selected images might belong to different patient:\nDifferent IDs: " + patientIds
-					+ "\nDifferent Names: " + patientNames + "\n\nWould you like to continue?";
+			String message = "Selected images might belong to different patient:\nDifferent IDs: " + patientIds +
+					"\nDifferent Names: " + patientNames + "\n\nWould you like to continue?";
 			result = JOptionPane.showConfirmDialog(this, message, "Multiple patient found", JOptionPane.YES_NO_OPTION,
 					JOptionPane.WARNING_MESSAGE);
 		}
 
-		if (result != JOptionPane.YES_OPTION)
-			throw new WrongInputException("Images belong to multiple patients");
+		if (result != JOptionPane.YES_OPTION) throw new WrongInputException("Images belong to multiple patients");
 	}
 
 	/**
@@ -335,8 +317,8 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			String[] columns = new String[this.columns.size()];
 			for (int idCol = 0; idCol < columns.length; idCol++)
 				columns[idCol] = this.columns.get(idCol).getName();
-			selectedImages[i] = new ImageSelection(WindowManager.getImage(WindowManager.getIDList()[row]), columns,
-					values);
+			selectedImages[i] =
+					new ImageSelection(WindowManager.getImage(WindowManager.getIDList()[row]), columns, values);
 			// TODO: do not add row here, use the invisible columns
 			selectedImages[i].setRow(row + 1);
 		}
@@ -365,8 +347,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		} catch (ReadTagException e) {
 			JOptionPane.showMessageDialog(this,
 					"Error while preparing images.\nThe tag for " + e.getTagName() + " [" + e.getTagCode() + "] " +
-							"could" +
-							" not be found.\n" + e.getMessage());
+							"could" + " not be found.\n" + e.getMessage());
 		}
 	}
 
@@ -432,9 +413,9 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 * Represents a column for the selection table.
 	 */
 	public static class Column {
-		public static final Column PATIENT = new Column("Patient"), STUDY = new Column("Study"),
-				DATE = new Column("Date"), SERIES = new Column("Series"), DIMENSIONS = new Column("Dimensions"),
-				STACK_SIZE = new Column("Stack Size"), ORIENTATION, ROW = new Column("Index", null, false);
+		public static final Column PATIENT = new Column("Patient"), STUDY = new Column("Study"), DATE =
+				new Column("Date"), SERIES = new Column("Series"), DIMENSIONS = new Column("Dimensions"), STACK_SIZE =
+				new Column("Stack Size"), ORIENTATION, ROW = new Column("Index", null, false);
 
 		static {
 			String[] s = Orientation.allOrientations();
@@ -510,11 +491,9 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		 * is no authorized value defined and FALSE otherwise
 		 */
 		public boolean isAuthorizedValue(String value) {
-			if (this.authorizedValues == null)
-				return true;
+			if (this.authorizedValues == null) return true;
 			for (String s : this.authorizedValues)
-				if (s.equals(value))
-					return true;
+				if (s.equals(value)) return true;
 			return false;
 		}
 
