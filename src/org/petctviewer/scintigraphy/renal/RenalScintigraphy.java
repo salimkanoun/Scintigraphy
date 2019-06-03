@@ -115,15 +115,16 @@ public class RenalScintigraphy extends Scintigraphy {
 		stack.addSlice(pj.getProcessor());
 
 		// ajout de la prise ant si elle existe
+		if(this.impAnt != null) {
+			ImageSelection impAntCountPerSec = this.impAnt.clone();
+			Library_Dicom.normalizeToCountPerSecond(impAntCountPerSec);
 
-		ImageSelection impAntCountPerSec = this.impAnt.clone();
-		Library_Dicom.normalizeToCountPerSecond(impAntCountPerSec);
-
-		ImageSelection impProjAnt = Library_Dicom.project(impAntCountPerSec, 0,
-				impAntCountPerSec.getImagePlus().getStackSize(), "avg");
-		impProjAnt.getImagePlus().getProcessor().flipHorizontal();
-		impAnt = impProjAnt;
-		stack.addSlice(impProjAnt.getImagePlus().getProcessor());
+			ImageSelection impProjAnt =
+					Library_Dicom.project(impAntCountPerSec, 0, impAntCountPerSec.getImagePlus().getStackSize(), "avg");
+			impProjAnt.getImagePlus().getProcessor().flipHorizontal();
+			impAnt = impProjAnt;
+			stack.addSlice(impProjAnt.getImagePlus().getProcessor());
+		}
 
 		// ajout du stack a l'imp
 		impProjetee.getImagePlus().setStack(stack);
