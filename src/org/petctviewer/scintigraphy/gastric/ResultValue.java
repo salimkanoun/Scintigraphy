@@ -1,6 +1,6 @@
 package org.petctviewer.scintigraphy.gastric;
 
-import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
+import org.petctviewer.scintigraphy.gastric.Fit.FitType;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

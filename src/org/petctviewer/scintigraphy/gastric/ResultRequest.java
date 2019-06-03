@@ -1,7 +1,5 @@
 package org.petctviewer.scintigraphy.gastric;
 
-import org.petctviewer.scintigraphy.gastric.gui.Fit;
-
 /**
  * This class represents a request for a result in a model.
  * 

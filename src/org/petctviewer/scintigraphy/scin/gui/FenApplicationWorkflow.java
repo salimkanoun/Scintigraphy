@@ -4,7 +4,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.ScrollbarWithLabel;
 import ij.gui.Toolbar;
-import org.petctviewer.scintigraphy.gastric.InstructionTooltip;
+import org.petctviewer.scintigraphy.gastric.gui.InstructionTooltip;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;

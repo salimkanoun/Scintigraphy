@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.gastric;
 import ij.ImagePlus;
 import ij.Prefs;
 import org.petctviewer.scintigraphy.gastric.dynamic.DynGastricScintigraphy;
+import org.petctviewer.scintigraphy.gastric.gui.PromptIngestionTime;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
