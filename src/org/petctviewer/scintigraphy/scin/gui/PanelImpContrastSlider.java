@@ -12,7 +12,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
@@ -27,16 +26,14 @@ public abstract class PanelImpContrastSlider extends TabResult {
 	private ImagePlus imp;
 	private DynamicImage dynamicImp;
 
-	private final Scintigraphy scin;
 	private final JLabel sliderLabel;
 	protected Box boxSlider;
 
 	final String additionalInfo;
 	final String nomFen;
 
-	public PanelImpContrastSlider(String nomFen, Scintigraphy scin, String additionalInfo, FenResults parent) {
+	public PanelImpContrastSlider(String nomFen, String additionalInfo, FenResults parent) {
 		super(parent, nomFen, true);
-		this.scin = scin;
 		this.additionalInfo = additionalInfo;
 		this.nomFen = nomFen;
 		this.parent = parent;
@@ -53,10 +50,6 @@ public abstract class PanelImpContrastSlider extends TabResult {
 		boxSlider = Box.createVerticalBox();
 		boxSlider.add(this.sliderLabel);
 		boxSlider.add(slider);
-	}
-
-	public Scintigraphy getScin() {
-		return scin;
 	}
 
 	public void setImp(ImagePlus imp) {
