@@ -44,6 +44,7 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoo
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import com.google.gson.FieldNamingPolicy;
@@ -700,6 +701,22 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		return new Gson();
 	}
 
+	/**
+	 * This method creats a .json file. It scans every existing instructions of
+	 * every existing workflow, take only instructions using a ROI, and add them to
+	 * the Json.<br/>
+	 * It's a {@link WorkflowsFromGson} object, containing a list of
+	 * {@link WorkflowFromGson} objects, each containing a list of
+	 * {@link InstructionFromGson} objects, in the form of a Json file.<br/>
+	 * Add at the end the information about the patient, as a {@link PatientFromGson}, to be able to do an
+	 * integrity test.
+	 * 
+	 * @param label
+	 *            They are the name of the ROIs to save. Usefeull when you want to
+	 *            give special names to your Intruction list.
+	 * @return JsonElement containing a tree of every Workflow, and every
+	 *         Instruction drawing a ROI
+	 */
 	public JsonElement saveWorkflowToJson(String[] label) {
 
 		// Pretty print
@@ -741,7 +758,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		JsonObject patientObject = new JsonObject();
 
 		String[] infoPatient = Library_Capture_CSV.getInfoPatient(this.getModel().getImagePlus());
-//		HashMap<String, String> patientInfo = Library_Capture_CSV.getPatientInfo(this.getModel().getImagePlus());
+		// HashMap<String, String> patientInfo =
+		// Library_Capture_CSV.getPatientInfo(this.getModel().getImagePlus());
 
 		patientObject.addProperty("Name", infoPatient[0]);
 		patientObject.addProperty("ID", infoPatient[1]);
@@ -791,6 +809,22 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		return workflowsObject;
 	}
 
+	/**
+	 * Take a Json file representing a Workflow array, and transform it to a
+	 * {@link WorkflowsFromGson} object, containing a list of
+	 * {@link WorkflowFromGson} objects, each containing a list of
+	 * {@link InstructionFromGson} objects.<br/>
+	 * It also do an integrity test with the current patient, and the {@link PatientFromGson} in the Json.<br/>
+	 * <br/>
+	 * This method check InstructionType differences, patient information
+	 * differences, and auto-increment the DrawLoop and DrawSymmetricalLoop
+	 * instructions.
+	 * 
+	 * @param string
+	 *            The String object representing the Json file.
+	 * @return The {@link WorkflowsFromGson} object.
+	 * @throws UnloadRoiException
+	 */
 	public WorkflowsFromGson loadWorkflows(String string) throws UnloadRoiException {
 
 		Gson gson = new GsonBuilder().serializeNulls().setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
@@ -862,7 +896,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 			}
 
 			if (differenceNumber != 0) {
-				
+
 				JPanel flow = new JPanel(new GridLayout(4, 1));
 
 				flow.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -870,18 +904,19 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 				JPanel panel = new JPanel(new BorderLayout());
 
-				JTable differences = new JTable(difference, new String[] { "Conflict", "From Json"," Current patient" });
+				JTable differences = new JTable(difference,
+						new String[] { "Conflict", "From Json", " Current patient" });
 
 				panel.add(differences.getTableHeader(), BorderLayout.NORTH);
 				panel.add(differences, BorderLayout.CENTER);
 				flow.add(panel);
 
 				flow.add(new JLabel("Do you want to still process the exam ?"));
-//				WindowDifferentPatient fen = new WindowDifferentPatient(difference);
-//				fen.setModal(true);
-//				fen.setVisible(true);
-//				fen.setAlwaysOnTop(true);
-//				fen.setLocationRelativeTo(null);
+				// WindowDifferentPatient fen = new WindowDifferentPatient(difference);
+				// fen.setModal(true);
+				// fen.setVisible(true);
+				// fen.setAlwaysOnTop(true);
+				// fen.setLocationRelativeTo(null);
 				int result = JOptionPane.showConfirmDialog(null, flow, "My custom dialog", JOptionPane.YES_NO_OPTION);
 				if (result == JOptionPane.NO_OPTION) {
 					throw new UnloadRoiException();
@@ -973,6 +1008,14 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		return workflowsFromGson;
 	}
 
+	/**
+	 * A custom list of Workflow, used to get a Workflow list ({@link Workflow}) from a Json file
+	 * <br/>
+	 * This class contains the {@link WorkflowFromGson} list, and the {@link PatientFromGson}.
+	 * <br/><br/>
+	 * Used in {@link ControllerWorkflow#loadWorkflows(String)} and {@link Library_Roi#getRoiFromZip(String, ControllerWorkflow)}
+	 *
+	 */
 	public class WorkflowsFromGson {
 		List<WorkflowFromGson> Workflows;
 		PatientFromGson Patient;
@@ -988,7 +1031,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		public int getNbROIs() {
 			int nbROIs = 0;
 			for (WorkflowFromGson workflowFromGson : this.Workflows)
-				for (@SuppressWarnings("unused") InstructionFromGson instructionFromGson : workflowFromGson.getInstructions())
+				for (@SuppressWarnings("unused")
+				InstructionFromGson instructionFromGson : workflowFromGson.getInstructions())
 					nbROIs++;
 			return nbROIs;
 		}
@@ -1027,6 +1071,12 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 	}
 
+	/**
+	 * This class represent a {@link Workflow}, as saved in a Json file.
+	 * <br/>
+	 * Contains a list of {@link InstructionFromGson}.
+	 *
+	 */
 	private class WorkflowFromGson {
 		List<InstructionFromGson> Intructions;
 
@@ -1039,6 +1089,15 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		}
 	}
 
+	/**
+	 * This class represent an {@link Instruction}, as saved in a Json file.<br/>
+	 * Contains :<br/>
+	 * &emsp;&emsp; - InstructionType<br/>
+	 * &emsp;&emsp; - IndexRoiToEdit<br/>
+	 * &emsp;&emsp; - NameOfRoi<br/>
+	 * &emsp;&emsp; - NameOfRoiFile
+	 *
+	 */
 	private class InstructionFromGson {
 
 		private String InstructionType;
@@ -1067,6 +1126,16 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		}
 	}
 
+	
+	/**
+	 * This class represent an Patient, as saved in a Json file.<br/>
+	 * Contains :<br/>
+	 * &emsp;&emsp; - Name<br/>
+	 * &emsp;&emsp; - ID<br/>
+	 * &emsp;&emsp; - Date<br/>
+	 * &emsp;&emsp; - AccessionNumber
+	 *
+	 */
 	public class PatientFromGson {
 
 		private String Name;

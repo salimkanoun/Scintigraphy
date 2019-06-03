@@ -132,12 +132,16 @@ public class Library_Roi {
 	/**
 	 * Open a zip file and return all the .roi files inside as a List<Roi>, using
 	 * {@link ZipInputStream}, {@link ByteArrayOutputStream} and {@link RoiDecoder}
-	 * to process.
+	 * to process.<br/>
+	 * This method needs, from the same .zip file, to find the associated .json file.<br/>
+	 * This file will be needed to get the order of ROIs saved in the .zip file.
 	 * 
-	 * @param path
-	 *            the system-dependent file name.
-	 * @return A list of ROIs, contained in the zip file.
-	 * @throws UnloadRoiException 
+	 * @see {@link ControllerWorkflow#loadWorkflows(String)}
+	 * 
+	 * 
+	 * @param path		The system-dependent file name.
+	 * @return 			A list of ROIs, contained in the zip file.
+	 * @throws			UnloadRoiException 
 	 */
 	public static List<Roi> getRoiFromZip(String path, ControllerWorkflow controller)
 			throws UnauthorizedRoiLoadException, UnloadRoiException {

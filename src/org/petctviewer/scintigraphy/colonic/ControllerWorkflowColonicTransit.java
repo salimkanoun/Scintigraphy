@@ -81,6 +81,7 @@ public class ControllerWorkflowColonicTransit extends ControllerWorkflow {
 
 	@Override
 	public void end() {
+		super.end();
 
 		((ModelColonicTransit) this.model).getResults();
 		this.model.calculateResults();
