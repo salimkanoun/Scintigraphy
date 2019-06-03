@@ -12,6 +12,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.library.Library_Debug;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
@@ -43,7 +44,7 @@ public class RenalScintigraphy extends Scintigraphy {
 				this.impPost = imps[1];
 			} else if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_POST) {
 				// Only Dyn Post
-				this.impPost = selectedImages[0];
+				this.impPost = selectedImages[0].clone();
 			} else
 				throw new WrongColumnException.OrientationColumn(selectedImages[0].getRow(),
 						selectedImages[0].getImageOrientation(), new Orientation[]{Orientation.DYNAMIC_POST,
@@ -115,15 +116,16 @@ public class RenalScintigraphy extends Scintigraphy {
 		stack.addSlice(pj.getProcessor());
 
 		// ajout de la prise ant si elle existe
+		if(this.impAnt != null) {
+			ImageSelection impAntCountPerSec = this.impAnt.clone();
+			Library_Dicom.normalizeToCountPerSecond(impAntCountPerSec);
 
-		ImageSelection impAntCountPerSec = this.impAnt.clone();
-		Library_Dicom.normalizeToCountPerSecond(impAntCountPerSec);
-
-		ImageSelection impProjAnt = Library_Dicom.project(impAntCountPerSec, 0,
-				impAntCountPerSec.getImagePlus().getStackSize(), "avg");
-		impProjAnt.getImagePlus().getProcessor().flipHorizontal();
-		impAnt = impProjAnt;
-		stack.addSlice(impProjAnt.getImagePlus().getProcessor());
+			ImageSelection impProjAnt =
+					Library_Dicom.project(impAntCountPerSec, 0, impAntCountPerSec.getImagePlus().getStackSize(), "avg");
+			impProjAnt.getImagePlus().getProcessor().flipHorizontal();
+			impAnt = impProjAnt;
+			stack.addSlice(impProjAnt.getImagePlus().getProcessor());
+		}
 
 		// ajout du stack a l'imp
 		impProjetee.getImagePlus().setStack(stack);
