@@ -10,20 +10,17 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public class ContrastSlider extends JSlider implements ChangeListener {
-
 	private static final long serialVersionUID = 1L;
+
 	private ImagePlus reference;
-	private Overlay overlay;
 	private DynamicImage result;
 
 	public ContrastSlider(int orientation, ImagePlus reference, DynamicImage result) {
 		super(orientation);
 
 		this.reference = reference;
-		this.overlay = reference.getOverlay().duplicate();
 		this.result = result;
 
-		reference.killRoi();
 		this.setMaximum((int) reference.getStatistics().max);
 		this.setMinimum((int) reference.getStatistics().min);
 		this.setValue((int) reference.getStatistics().min);
@@ -34,15 +31,10 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 		this.reference.getWindow().setVisible(false);
 	}
 
-	public ImagePlus getReference() {
-		return this.reference;
-	}
-
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		reference.getProcessor().setMinAndMax(0, this.getMaximum() - this.getValue() + 1);
 		// Update image overlay
-		this.reference.setOverlay(this.overlay);
 		this.reference.updateAndDraw();
 		this.result.setImage(Library_Capture_CSV.captureImage(this.reference, 0, 0).getBufferedImage());
 	}
