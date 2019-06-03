@@ -1,28 +1,25 @@
 package org.petctviewer.scintigraphy.hepatic;
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.Label;
-import java.awt.Panel;
-import java.awt.event.MouseListener;
-
+import ij.IJ;
+import ij.ImagePlus;
+import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.gui.Toolbar;
+import java.awt.*;
+import java.awt.event.MouseListener;
 
 public class FenApplicationHepaticDynamic extends FenApplication {
 
 	private static final long serialVersionUID = 784076354714330098L;
-	private Button btn_finish, labelSlice1, labelSlice2, labelSlice3;
-	private Label buttonSlice1, buttonSlice2, buttonSlice3;
+	private final Button btn_finish;
+	private final Button labelSlice1;
+	private final Button labelSlice2;
+	private final Button labelSlice3;
+	private final Label buttonSlice1;
+	private final Label buttonSlice2;
+	private final Label buttonSlice3;
 
 	public FenApplicationHepaticDynamic(ImagePlus imp, String nom) {
 		super(imp, nom);
@@ -173,8 +170,8 @@ public class FenApplicationHepaticDynamic extends FenApplication {
 	}
 
 	@Override
-	public void setControleur(ControllerScin ctrl) {
-		super.setControleur(ctrl);
+	public void setController(ControllerScin ctrl) {
+		super.setController(ctrl);
 		buttonSlice1.addMouseListener((MouseListener) ctrl);
 		buttonSlice2.addMouseListener((MouseListener) ctrl);
 		buttonSlice3.addMouseListener((MouseListener) ctrl);

@@ -1,19 +1,5 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.GridLayout;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -29,6 +15,14 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Tab showing the deconvolve of Left, Right or both kidney, depending of the
  * initial choice, using the Blood Pool values.
@@ -40,9 +34,9 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 
 	private int convolve;
 
-	private JSpinner spinnerDeconvolve;
+	private final JSpinner spinnerDeconvolve;
 
-	private JSpinner spinnerConvolve;
+	private final JSpinner spinnerConvolve;
 
 	public TabDeconvolve(FenResults parent, String title) {
 		super(parent, title);
@@ -102,6 +96,7 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 			// Kidney convolved"));
 			// dataLeft.addSeries(modele.createSerie(Arrays.asList(convolvedBP), "Blood Pool
 			// convolved"));
+			@SuppressWarnings("unused")
 			JFreeChart chartLeft = ChartFactory.createXYLineChart("", "min", "counts/sec", dataLeft);
 			// ChartPanel chartpanelLeft = new ChartPanel(chartLeft);
 
@@ -145,6 +140,7 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 			// Kidney convolved"));
 			// dataRight.addSeries(modele.createSerie(Arrays.asList(convolvedBP), "Blood
 			// Pool convolved"));
+			@SuppressWarnings("unused")
 			JFreeChart chartRight = ChartFactory.createXYLineChart("", "min", "counts/sec", dataRight);
 			// ChartPanel chartpanelRight = new ChartPanel(chartRight);
 
@@ -260,7 +256,7 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 
 	public List<Double> normalizeToOne(List<Double> values) {
 
-		Double maxValue = new Double(0.0d);
+		Double maxValue = 0.0d;
 		for (Double doubles : values)
 			if (doubles > maxValue)
 				maxValue = doubles;

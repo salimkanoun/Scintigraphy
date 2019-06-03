@@ -7,7 +7,7 @@ public class FenResultat_GeneralDyn extends FenResults {
 
 	private static final long serialVersionUID = -6949646596222162929L;
 
-	private String[][] asso;
+	private final String[][] asso;
 
 	public FenResultat_GeneralDyn(ControllerScin controller, String[][] asso) {
 		super(controller);

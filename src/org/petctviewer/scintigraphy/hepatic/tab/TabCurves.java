@@ -1,23 +1,7 @@
 package org.petctviewer.scintigraphy.hepatic.tab;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.HashMap;
-
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JTabbedPane;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
+import ij.Prefs;
+import ij.gui.Overlay;
 import org.petctviewer.scintigraphy.hepatic.ModelHepaticDynamic;
 import org.petctviewer.scintigraphy.hepatic.SecondExam.ControllerWorkflowHepaticDyn;
 import org.petctviewer.scintigraphy.hepatic.SecondExam.FenApplicationSecondHepaticDyn;
@@ -30,8 +14,13 @@ import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
-import ij.Prefs;
-import ij.gui.Overlay;
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
 
 public class TabCurves extends TabResult implements ActionListener, ChangeListener {
 
@@ -143,9 +132,9 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 			this.vueBasic = new FenApplicationSecondHepaticDyn(selectedImages[0], model.getStudyName());
 			selectedImages[0].getImagePlus().setOverlay(overlay);
 
-			this.vueBasic.setControleur(
+			this.vueBasic.setController(
 					new ControllerWorkflowHepaticDyn(this.vueBasic, new ModelSecondMethodHepaticDynamic(selectedImages,
-							model.getStudyName(), ((ModelScinDyn) model).getFrameduration()), this));
+							model.getStudyName(), ((ModelScinDyn) model).getFrameDuration()), this));
 
 		} else if (button == buttonSwitchGraph) {
 			this.tabTAC.switchGraph(this.buttonSwitchGraph);
@@ -179,7 +168,7 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 			this.deconvolvGraph.reloadDisplay();
 
 		} else {
-			int index = -1;
+			int index;
 			switch (this.tabPane.getSelectedIndex()) {
 			case 0:
 				this.currentSidePanel = TabCurves.TABTAC_SIDE_PANEL;

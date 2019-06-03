@@ -1,15 +1,8 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.gui.Roi;
+import ij.plugin.ZProjector;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
@@ -18,13 +11,18 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
-import ij.plugin.ZProjector;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class Controller_GeneralDyn extends Controller_OrganeFixe {
 
-	public static int MAXROI = 100;
+	public static final int MAXROI = 100;
 	private int nbOrganes = 0;
 	private boolean over;
 	private ImagePlus impProjetee;
@@ -137,23 +135,20 @@ public class Controller_GeneralDyn extends Controller_OrganeFixe {
 			scindyn.getFenApplication().resizeCanvas();
 			scindyn.getFenApplication().toFront();
 
-			Thread th = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						Thread.sleep(300);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-
-					BufferedImage c = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
-
-					saveValues(scindyn.getImpPost());
-					Controller_GeneralDyn.this.fenResult
-							.addTab(new TabAntPost(c, "Post", Controller_GeneralDyn.this.fenResult));
-
-					Controller_GeneralDyn.this.finishDrawingResultWindow();
+			Thread th = new Thread(() -> {
+				try {
+					Thread.sleep(300);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
+
+				BufferedImage c = Library_Capture_CSV.captureImage(imp, 300, 300).getBufferedImage();
+
+				saveValues(scindyn.getImpPost());
+				Controller_GeneralDyn.this.fenResult
+						.addTab(new TabAntPost(c, "Post", Controller_GeneralDyn.this.fenResult));
+
+				Controller_GeneralDyn.this.finishDrawingResultWindow();
 			});
 			th.start();
 		}
@@ -185,7 +180,7 @@ public class Controller_GeneralDyn extends Controller_OrganeFixe {
 		// this.getScin().setImp(imp);
 		this.indexRoi = 0;
 
-		HashMap<String, List<Double>> mapData = new HashMap<String, List<Double>>();
+		HashMap<String, List<Double>> mapData = new HashMap<>();
 		// on copie les roi sur toutes les slices
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
@@ -193,11 +188,9 @@ public class Controller_GeneralDyn extends Controller_OrganeFixe {
 				imp.setRoi(getOrganRoi(this.indexRoi));
 				String name = this.getNomOrgane(this.indexRoi);
 
-				// String name = nom.substring(0, nom.lastIndexOf(" "));
+				// String name = studyName.substring(0, studyName.lastIndexOf(" "));
 				// on cree la liste si elle n'existe pas
-				if (mapData.get(name) == null) {
-					mapData.put(name, new ArrayList<Double>());
-				}
+				mapData.computeIfAbsent(name, k -> new ArrayList<>());
 				// on y ajoute le nombre de coups
 				mapData.get(name).add(Library_Quantif.getCounts(imp));
 
@@ -260,7 +253,7 @@ public class Controller_GeneralDyn extends Controller_OrganeFixe {
 			// precise la postion en z
 			this.model.getRoiManager().getRoi(indexRoi).setPosition(this.getSliceNumberByRoiIndex(indexRoi));
 
-			// changement de nom
+			// changement de studyName
 			this.model.getRoiManager().rename(indexRoi, nomRoi);
 		} else {
 			throw new NoDataException("No ROI selected");

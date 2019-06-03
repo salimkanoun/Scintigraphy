@@ -1,32 +1,6 @@
 package org.petctviewer.scintigraphy.calibration.resultats;
 
-import java.awt.AWTException;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Robot;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.SwingConstants;
-
+import ij.ImagePlus;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -35,7 +9,12 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
-import ij.ImagePlus;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class FenResultatsCalibration extends JFrame{
 	
@@ -43,19 +22,17 @@ public class FenResultatsCalibration extends JFrame{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JPanel east ;
-	private ControleurResultatsCalibration crc;
-	
-	private JFreeChart graph;
+
+	private final JFreeChart graph;
 	 
-	private JLabel aLabel;
-	private JLabel bLabel;
+	private final JLabel aLabel;
+	private final JLabel bLabel;
 	
-	private JPanel tabDetails;
+	private final JPanel tabDetails;
 
 	public FenResultatsCalibration(ArrayList<ArrayList<HashMap<String, Object>>> arrayList) {
 			
-		/**tab1 **/
+		/*tab1 */
 		JPanel tabGraphics = new JPanel();
 		tabGraphics.setLayout(new BorderLayout());
 
@@ -95,13 +72,13 @@ public class FenResultatsCalibration extends JFrame{
 		sphereTitle[i] = "Sphere "+(i+1);
 		}
 
-		crc = new ControleurResultatsCalibration(this, arrayList);
-		JTableCheckBox jtcb = new JTableCheckBox(acquiTitle,sphereTitle,crc);
-	    
-	    east = new JPanel();
+		ControleurResultatsCalibration crc = new ControleurResultatsCalibration(this, arrayList);
+		JTableCheckBox jtcb = new JTableCheckBox(acquiTitle,sphereTitle, crc);
+
+		JPanel east = new JPanel();
 	    east.setLayout(new BoxLayout(east, BoxLayout.Y_AXIS));
-	    this.east.add(jtcb);
-	    this.east.add(coef);
+	    east.add(jtcb);
+	    east.add(coef);
 	    
 	    JFrame frame = this;
 	    
@@ -111,7 +88,7 @@ public class FenResultatsCalibration extends JFrame{
 	    tabGraphics.add(east,BorderLayout.EAST);
 
 	    
-	    /**tab2**/
+	    /*tab2*/
 	    //tab details
 	     tabDetails = new JPanel();
 	    String[] title = {"Num Acqui ", "SUVmax","True Sphere Volume (ml)","Measured spahere Volume (ml)","Difference (ml)","Difference (%)","a"};
@@ -121,7 +98,7 @@ public class FenResultatsCalibration extends JFrame{
 	    
 	    tabDetails.add(new JScrollPane(table));
 	   
-		/**fenetre**/
+		/*fenetre*/
 		this.setTitle("Résultats Calibration");
 		this.setLayout(new BorderLayout());		
 			
@@ -137,53 +114,47 @@ public class FenResultatsCalibration extends JFrame{
 	    
 	    
 	    
-	    capture.addActionListener(new ActionListener() {	
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Point loc = frame.getLocation();
-				Rectangle bounds = frame.getBounds();
-				BufferedImage buff = null;
-				try {
-					Rectangle rec = new Rectangle(loc.x, loc.y, bounds.width, bounds.height);
-					buff = new Robot().createScreenCapture(rec);
-				} catch (AWTException e1) {
-					e1.printStackTrace();
-				}			
-				
-				ImagePlus[] im = new ImagePlus[2];
-				im[0] = new  ImagePlus("Capture Calibration",buff);
-				
-				tabbedPane.setSelectedIndex(1);						
+	    capture.addActionListener(e -> {
+		    Point loc = frame.getLocation();
+		    Rectangle bounds = frame.getBounds();
+		    BufferedImage buff = null;
+		    try {
+			    Rectangle rec = new Rectangle(loc.x, loc.y, bounds.width, bounds.height);
+			    buff = new Robot().createScreenCapture(rec);
+		    } catch (AWTException e1) {
+			    e1.printStackTrace();
+		    }
 
-				Thread t = new Thread(new Runnable() {
-				@Override
-					public void run() {
-						try {
-							
-							try {
-								Thread.sleep(100);
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							Rectangle rec = new Rectangle(loc.x, loc.y, bounds.width, bounds.height);
-							BufferedImage buff = new Robot().createScreenCapture(rec);
-							
-							im[1] = new  ImagePlus("Capture Calibration",buff);
-							
-							tabbedPane.setSelectedIndex(0);
-							ImagePlus imageplus = new ImagePlus( );
-							imageplus.setStack(Library_Capture_CSV.captureToStack(im));
-							imageplus.show();
-						} catch (AWTException e1) {
-							e1.printStackTrace();
-						}							
-					}
-				});
-				t.start();
-		
-			}
-		});
+		    ImagePlus[] im = new ImagePlus[2];
+		    im[0] = new  ImagePlus("Capture Calibration",buff);
+
+		    tabbedPane.setSelectedIndex(1);
+
+		    Thread t = new Thread(() -> {
+			    try {
+
+				    try {
+					    Thread.sleep(100);
+				    } catch (InterruptedException e12) {
+					    // TODO Auto-generated catch block
+					    e12.printStackTrace();
+				    }
+				    Rectangle rec = new Rectangle(loc.x, loc.y, bounds.width, bounds.height);
+				    BufferedImage buff1 = new Robot().createScreenCapture(rec);
+
+				    im[1] = new ImagePlus("Capture Calibration", buff1);
+
+				    tabbedPane.setSelectedIndex(0);
+				    ImagePlus imageplus = new ImagePlus();
+				    imageplus.setStack(Library_Capture_CSV.captureToStack(im));
+				    imageplus.show();
+			    } catch (AWTException e1) {
+				    e1.printStackTrace();
+			    }
+		    });
+		    t.start();
+
+	    });
 	}
 	 
 	 public void setCoef(Double a, Double b) {
@@ -196,8 +167,8 @@ public class FenResultatsCalibration extends JFrame{
 			 aLabel.setFont(new Font("", Font.PLAIN, 20));
 			 bLabel.setFont(new Font("", Font.PLAIN, 20));
 			 
-			 aLabel.setText("a = "+df.format((Double)a));
-			 bLabel.setText("b = "+df.format((Double)b));
+			 aLabel.setText("a = "+df.format(a));
+			 bLabel.setText("b = "+df.format(b));
 		 }
 		 
 		

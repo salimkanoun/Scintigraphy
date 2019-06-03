@@ -1,4 +1,4 @@
-/**
+/*
 Copyright (C) 2017 KANOUN Salim
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public v.3 License as published by
@@ -18,23 +18,23 @@ import ij.IJ;
 import ij.Menus;
 import ij.gui.Toolbar;
 import ij.plugin.tool.PlugInTool;
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 
 public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
-	
-	
-		private final int OFFSET = 0;
-		PopupMenu general;
+
+
+	PopupMenu general;
 		
 		
 		@Override
 		public void showPopupMenu(MouseEvent e, Toolbar par) {
 			addPopupMenu(par);
-			general.show(e.getComponent(), e.getX()+OFFSET, e.getY()+OFFSET);
+			int OFFSET = 0;
+			general.show(e.getComponent(), e.getX()+ OFFSET, e.getY()+ OFFSET);
 		}
 		
 		void addPopupMenu(Toolbar par) {
@@ -53,7 +53,8 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			
 			if (Menus.getFontSize()!=0) general.setFont(Menus.getFont());
 			
-			MenuItem gastricEmptying = new MenuItem("Gastric Emptying");
+			MenuItem gastricEmptyingSolid = new MenuItem("Gastric Emptying Solid");
+			MenuItem gastricEmptyingLiquid = new MenuItem("Gastric Emptying Liquid");
 			MenuItem esophagealTransit = new MenuItem("Esophageal Transit");
 			
 			
@@ -93,7 +94,8 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			
 			//Ajout des listeners
 			boneScintigraphy.addActionListener(this);
-			gastricEmptying.addActionListener(this);
+			gastricEmptyingSolid.addActionListener(this);
+			gastricEmptyingLiquid.addActionListener(this);
 			esophagealTransit.addActionListener(this);
 			plumonaryShunt.addActionListener(this);
 			dpdQuant.addActionListener(this);
@@ -110,7 +112,9 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			
 			
 			bone.add(boneScintigraphy);
-			gastric.add(gastricEmptying);
+			
+			gastric.add(gastricEmptyingSolid);
+			gastric.add(gastricEmptyingLiquid);
 			gastric.add(esophagealTransit);
 			
 			pulmonary.add(plumonaryShunt);
@@ -148,48 +152,51 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String cmd = e.getActionCommand();
-			if (cmd=="DPD Quant") {
+			if (cmd.equals("DPD Quant")) {
 				IJ.run("DPD Quant");
-			}if (cmd=="Colon Transit") {
+			}if (cmd.equals("Colon Transit")) {
 				IJ.run("Colon Transit");
 			}
-			if(cmd=="Bone Scintigrahy") {
+			if(cmd.equals("Bone Scintigrahy")) {
 				IJ.run("Bone Scintigraphy");
 				
 			}
-			if (cmd=="Biliary Scintigraphy") {
+			if (cmd.equals("Biliary Scintigraphy")) {
 				IJ.run("Biliary Scintigraphy");
 			}
-			if (cmd=="Gastric Emptying") {
-				IJ.run("Gastric Emptying Scintigraphy");
+			if (cmd.equals("Gastric Emptying Solid")) {
+				IJ.run("Gastric Emptying Solid");
 			}
-			if (cmd=="Esophageal Transit") {
+			if (cmd.equals("Gastric Emptying Liquid")) {
+				IJ.run("Gastric Emptying Liquid");
+			}
+			if (cmd.equals("Esophageal Transit")) {
 				IJ.run("Esophageal Transit");
 			}
-			if (cmd=="Pulmonary Shunt") {
+			if (cmd.equals("Pulmonary Shunt")) {
 				IJ.run("Pulmonary Shunt");
 			}
-			if (cmd=="Dynamic Quantification") {
+			if (cmd.equals("Dynamic Quantification")) {
 				IJ.run("Dynamic Quantification");
 			}
-			if (cmd=="Static Quantification") {
+			if (cmd.equals("Static Quantification")) {
 				IJ.run("Static Quantification");
 			}
-			if (cmd=="Renogram") {
+			if (cmd.equals("Renogram")) {
 				IJ.run("Renogram");
 			}
-			if (cmd=="DMSA") {
+			if (cmd.equals("DMSA")) {
 				IJ.run("DMSA");
-			}if(cmd=="Lymphoscintigraphy") {
+			}if(cmd.equals("Lymphoscintigraphy")) {
 				IJ.run("LymphoScintigraphy");
 			}
-			if (cmd=="Renogram Follow-Up") {
+			if (cmd.equals("Renogram Follow-Up")) {
 				IJ.run("Renogram Follow-Up");
 			}
-			if (cmd=="About") {
+			if (cmd.equals("About")) {
 				IJ.run("About");
 			}
-			if (cmd=="Preferences") {
+			if (cmd.equals("Preferences")) {
 				IJ.run("Preferences");
 			}
 			

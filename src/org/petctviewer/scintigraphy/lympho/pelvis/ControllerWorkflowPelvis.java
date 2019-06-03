@@ -1,8 +1,9 @@
 package org.petctviewer.scintigraphy.lympho.pelvis;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.gui.Roi;
+import ij.plugin.MontageMaker;
 import org.petctviewer.scintigraphy.lympho.gui.TabPelvis;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -17,18 +18,14 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.gui.Roi;
-import ij.plugin.MontageMaker;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflowPelvis extends ControllerWorkflow {
 
-	private final int NBORGAN = 3;
-
 	private List<ImagePlus> captures;
 
-	private TabResult resultTab;
+	private final TabResult resultTab;
 
 	public ControllerWorkflowPelvis(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
 			TabResult resultTab) {
@@ -43,8 +40,8 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 	@Override
 	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
-		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null, dri_5 = null, dri_6 = null;
-		ScreenShotInstruction dri_capture_1 = null, dri_capture_2 = null;
+		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4, dri_5, dri_6;
+		ScreenShotInstruction dri_capture_1, dri_capture_2;
 		this.captures = new ArrayList<>();
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
@@ -92,6 +89,7 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 
 			Roi r = this.model.getRoiManager().getRoisAsArray()[i];
 
+			int NBORGAN = 3;
 			if (i < NBORGAN) {
 				img = this.model.getImageSelection()[0].getImagePlus();
 				img.setSlice(firstSlice);
@@ -110,12 +108,12 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 
 		// Save captures
 		ImageStack stackCapture = Library_Capture_CSV
-				.captureToStack(this.captures.toArray(new ImagePlus[this.captures.size()]));
+				.captureToStack(this.captures.toArray(new ImagePlus[0]));
 		ImagePlus montage = this.montage2Images(stackCapture);
 
 		((ModelPelvis) this.model).setPelvisMontage(montage);
 		((TabPelvis) this.resultTab).setExamDone(true);
-		((TabPelvis) this.resultTab).reloadDisplay();
+		this.resultTab.reloadDisplay();
 
 		this.vue.close();
 

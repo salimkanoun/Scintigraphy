@@ -1,8 +1,9 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import java.awt.Color;
-import java.util.ArrayList;
-
+import ij.IJ;
+import ij.gui.Overlay;
+import ij.plugin.MontageMaker;
+import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -14,10 +15,8 @@ import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionCompara
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
-import ij.gui.Overlay;
-import ij.plugin.MontageMaker;
-import ij.util.DicomTools;
+import java.awt.*;
+import java.util.ArrayList;
 
 public class CardiacScintigraphy extends Scintigraphy {
 
@@ -62,15 +61,11 @@ public class CardiacScintigraphy extends Scintigraphy {
 
 		ImageSelection impStacked = mountedSorted[0].clone();
 		// si la prise est early/late
-		if (selectedImages.length == 2) {
-			impStacked.setImagePlus(Library_Dicom.concatenate(mountedSorted, false));
-			// si il y a plus de 3 minutes de diff�rence entre les deux prises
-			if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {
-				IJ.log("Warning, frame duration differ by "
-						+ Math.abs(frameDuration[0] - frameDuration[1]) / (1000 * 60) + " minutes");
-			}
-		} else {
-			impStacked = mountedSorted[0];
+		impStacked.setImagePlus(Library_Dicom.concatenate(mountedSorted, false));
+		// si il y a plus de 3 minutes de diff�rence entre les deux prises
+		if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {
+			IJ.log("Warning, frame duration differ by "
+					+ Math.abs(frameDuration[0] - frameDuration[1]) / (1000 * 60) + " minutes");
 		}
 
 		return new ImageSelection[] { impStacked };
@@ -86,8 +81,8 @@ public class CardiacScintigraphy extends Scintigraphy {
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 
 		// Cree controller
-		((FenApplicationWorkflow) this.getFenApplication())
-				.setControleur(new ControllerWorkflowCardiac(this, (FenApplicationWorkflow) this.getFenApplication(),
+		this.getFenApplication()
+				.setController(new ControllerWorkflowCardiac(this, (FenApplicationWorkflow) this.getFenApplication(),
 						new Model_Cardiac(this, selectedImages, "Cardiac")));
 
 	}

@@ -1,7 +1,9 @@
 package org.petctviewer.scintigraphy.renal.postMictional;
 
+
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +16,7 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackground;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -28,13 +31,17 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 
 	public String[] organeListe;
 
-	private boolean[] kidneys;
+	private final boolean[] kidneys;
+
+	private List<ImagePlus> captures;
 
 	public ControllerWorkflowPostMictional(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
 			boolean[] kidneys) {
 		super(main, vue, model);
 
 		this.kidneys = kidneys;
+
+		this.captures = new ArrayList<>();
 
 		this.generateInstructions();
 		this.start();
@@ -46,9 +53,13 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 		List<String> organes = new LinkedList<>();
 
 		this.workflows = new Workflow[1];
-		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null;
+		DrawRoiInstruction dri_1, dri_2, dri_3;
 
-		DrawRoiBackground dri_Background_1 = null, dri_Background_2 = null;
+		DrawRoiBackground dri_Background_1, dri_Background_2;
+
+		ScreenShotInstruction dri_capture_1 = null;
+
+		dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), 0);
 
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
@@ -80,7 +91,9 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 			organes.add("Bladder");
 		}
 
-		this.organeListe = organes.toArray(new String[organes.size()]);
+		this.organeListe = organes.toArray(new String[0]);
+
+		this.workflows[0].addInstruction(dri_capture_1);
 
 		this.workflows[0].addInstruction(new EndInstruction());
 
@@ -90,7 +103,7 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 
 	@Override
 	public void end() {
-		HashMap<String, Double> hm = new HashMap<String, Double>();
+		HashMap<String, Double> hm = new HashMap<>();
 		ImagePlus imp = this.model.getImagePlus().duplicate();
 		// Normalizing to compare to the previous values, from the original exam.
 		Library_Dicom.normalizeToCountPerSecond(imp);
@@ -99,11 +112,15 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 			hm.put(this.organeListe[indexRoi], Library_Quantif.getCounts(imp));
 		}
 		((Model_PostMictional) this.model).setData(hm);
-		this.main.getFenApplication().dispose();
+
 		((PostMictional) this.main).getResultFrame().setExamDone(true);
 		((PostMictional) this.main).getResultFrame().setModelPostMictional((Model_PostMictional) this.model);
-		((PostMictional) this.main).getResultFrame().reloadDisplay();
-
+		// ((PostMictional) this.main).getResultFrame().reloadDisplay();
+		((PostMictional) this.main).getResultFrame().setImp(this.vue.getImagePlus());
+		// ((PostMictional)
+		// this.main).getResultFrame().getImagePlus().duplicate().show();
+		// captures.get(0).show();
+		// this.main.getFenApplication().dispose();
 	}
 
 	@Override

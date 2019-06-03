@@ -1,7 +1,7 @@
 package org.petctviewer.scintigraphy.hepatic.SecondExam;
 
-import java.awt.Color;
-
+import ij.IJ;
+import ij.gui.Overlay;
 import org.petctviewer.scintigraphy.hepatic.ModelHepaticDynamic;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -14,14 +14,13 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
-import ij.gui.Overlay;
+import java.awt.*;
 
 public class SecondHepaticScintigraphy extends Scintigraphy {
 
 	private ImageSelection impAnt, impPost, impProjeteeAnt, impProjeteePost;
-	private ModelHepaticDynamic model;
-	private TabResult tab;
+	private final ModelHepaticDynamic model;
+	private final TabResult tab;
 	private int[] frameDurations;
 
 	public SecondHepaticScintigraphy(TabResult tab, ModelHepaticDynamic model) {
@@ -94,8 +93,8 @@ public class SecondHepaticScintigraphy extends Scintigraphy {
 		this.setFenApplication(new FenApplicationSecondHepaticDyn(impProjeteeAnt, this.getStudyName()));
 		impProjeteeAnt.getImagePlus().setOverlay(overlay);
 
-		((FenApplicationWorkflow) this.getFenApplication())
-				.setControleur(new ControllerWorkflowHepaticDyn((FenApplicationWorkflow) this.getFenApplication(),
+		this.getFenApplication()
+				.setController(new ControllerWorkflowHepaticDyn((FenApplicationWorkflow) this.getFenApplication(),
 						new ModelSecondMethodHepaticDynamic(selectedImages, this.getStudyName(), this.frameDurations),
 						this.tab));
 

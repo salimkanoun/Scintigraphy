@@ -1,8 +1,5 @@
 package org.petctviewer.scintigraphy.esophageus.resultats;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.petctviewer.scintigraphy.esophageus.application.Model_EsophagealTransit;
 import org.petctviewer.scintigraphy.esophageus.resultats.tabs.TabCondense;
 import org.petctviewer.scintigraphy.esophageus.resultats.tabs.TabCurves;
@@ -11,10 +8,14 @@ import org.petctviewer.scintigraphy.esophageus.resultats.tabs.TabTransitTime;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 
-@SuppressWarnings("serial")
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class FenResultats_EsophagealTransit extends FenResults {
 
 	// private Model_Resultats_EsophagealTransit modele ;
+
+	private static final long serialVersionUID = 1L;
 
 	/*
 	 * un partie main avec graph main et un jtablecheckbox main un partie transit

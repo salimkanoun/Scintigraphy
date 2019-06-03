@@ -1,13 +1,12 @@
 package org.petctviewer.scintigraphy.scin;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map.Entry;
-
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
-import ij.ImagePlus;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 /**
  * Represents an image selected by the user.<br>
@@ -18,7 +17,7 @@ import ij.ImagePlus;
  */
 public class ImageSelection implements Cloneable {
 	private ImagePlus imp;
-	private HashMap<String, String> columnsValues;
+	private final HashMap<String, String> columnsValues;
 
 	/**
 	 * Creates a selected image.<br>
@@ -143,5 +142,9 @@ public class ImageSelection implements Cloneable {
 		if (imp == null) {
 			return other.imp == null;
 		} else return imp.equals(other.imp);
+	}
+	
+	public void close() {
+		this.getImagePlus().close();
 	}
 }

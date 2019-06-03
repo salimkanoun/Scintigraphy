@@ -1,11 +1,8 @@
 package org.petctviewer.scintigraphy.esophageus.resultats;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
+import ij.IJ;
+import ij.ImagePlus;
+import ij.measure.Calibration;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.esophageus.application.EsophagealTransit;
@@ -16,28 +13,29 @@ import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.measure.Calibration;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class Model_Resultats_EsophagealTransit extends ModelScin {
 
-	private XYSeries[][] datasetMain;
-	private XYSeries[][] datasetTransitTime;
+	private final XYSeries[][] datasetMain;
+	private final XYSeries[][] datasetTransitTime;
 
 	// 0: imageplus, 1: la roi
-	private ArrayList<Object[]> dicomRoi;
+	private final ArrayList<Object[]> dicomRoi;
 
-	private ImagePlus[] condense;
-	private ImagePlus[] imageplusAndRoi;
+	private final ImagePlus[] condense;
+	private final ImagePlus[] imageplusAndRoi;
 
 	// pour le csv
-	private ArrayList<HashMap<String, ArrayList<Double>>> arrayList;
+	private final ArrayList<HashMap<String, ArrayList<Double>>> arrayList;
 	private double[] longueurEsophage;
-	private double[] tempsMesureTransitTime;
-	private double[] retentionDecrease;
+	private final double[] tempsMesureTransitTime;
+	private final double[] retentionDecrease;
 
-	public EsophagealTransit esoPlugIn;
+	public final EsophagealTransit esoPlugIn;
 
 	public Model_Resultats_EsophagealTransit(ArrayList<HashMap<String, ArrayList<Double>>> arrayList,
 											 ArrayList<Object[]> dicomRoi, String studyName, EsophagealTransit esoPlugIn,
@@ -100,6 +98,7 @@ public class Model_Resultats_EsophagealTransit extends ModelScin {
 
 			double ymax = serie.getMaxY();
 			double x = Library_JFreeChart.getAbsMaxY(serie);
+			@SuppressWarnings("deprecation")
 			double ycalc = Library_JFreeChart.getInterpolatedY(serie, x + 10);
 			double fractionDecrease = (ycalc / ymax) * 100;
 
@@ -120,7 +119,6 @@ public class Model_Resultats_EsophagealTransit extends ModelScin {
 			XYSeries serie = datasetTransitTime[i][0];
 
 			double x = Library_JFreeChart.getAbsMaxY(serie);
-			;
 			res[i] = x;
 		}
 		return res;
@@ -135,8 +133,10 @@ public class Model_Resultats_EsophagealTransit extends ModelScin {
 		XYSeries serie = datasetTransitTime[numeroSerie][0];
 
 		// recherche du x le plus proche
+		@SuppressWarnings("deprecation")
 		double ymax = Library_JFreeChart.getInterpolatedY(serie, xForYMax);
 
+		@SuppressWarnings("deprecation")
 		double ycalc = Library_JFreeChart.getInterpolatedY(serie, xForYMax + 10);
 		double fractionDecrease = (ycalc / ymax) * 100;
 
@@ -272,7 +272,7 @@ public class Model_Resultats_EsophagealTransit extends ModelScin {
 			imp.setSlice(i + 1);
 			Rectangle imageShift = new Rectangle();
 			imageShift.setBounds((int) Math.round(roi.getX()), 0, (int) Math.round(imp.getWidth() - roi.getX()),
-					(int) imp.getHeight());
+					imp.getHeight());
 
 			imp.setRoi(imageShift);
 			// On copie cette zone
@@ -336,74 +336,74 @@ public class Model_Resultats_EsophagealTransit extends ModelScin {
 	}
 
 	public String toString() {
-		String res = "\n";
+		StringBuilder res = new StringBuilder("\n");
 
 		// for each acqui
 		for (int i = 0; i < arrayList.size(); i++) {
-			res += "Acquisition n" + i;
-			res += "\n";
+			res.append("Acquisition n").append(i);
+			res.append("\n");
 
 			// le temps
-			String time = "Time,";
+			StringBuilder time = new StringBuilder("Time,");
 			for (int j = 0; j < arrayList.get(i).get("temps").size(); j++) {
-				time += arrayList.get(i).get("temps").get(j) + ",";
+				time.append(arrayList.get(i).get("temps").get(j)).append(",");
 			}
-			time += "\n";
+			time.append("\n");
 
-			String unTier = "Upper,";
+			StringBuilder unTier = new StringBuilder("Upper,");
 			for (int j = 0; j < arrayList.get(i).get("unTier").size(); j++) {
-				unTier += arrayList.get(i).get("unTier").get(j) + ",";
+				unTier.append(arrayList.get(i).get("unTier").get(j)).append(",");
 			}
-			unTier += "\n";
+			unTier.append("\n");
 
-			String deuxTier = "Middle,";
+			StringBuilder deuxTier = new StringBuilder("Middle,");
 			for (int j = 0; j < arrayList.get(i).get("deuxTier").size(); j++) {
-				deuxTier += arrayList.get(i).get("deuxTier").get(j) + ",";
+				deuxTier.append(arrayList.get(i).get("deuxTier").get(j)).append(",");
 			}
-			deuxTier += "\n";
+			deuxTier.append("\n");
 
-			String troisTier = "Lower,";
+			StringBuilder troisTier = new StringBuilder("Lower,");
 			for (int j = 0; j < arrayList.get(i).get("troisTier").size(); j++) {
-				troisTier += arrayList.get(i).get("troisTier").get(j) + ",";
+				troisTier.append(arrayList.get(i).get("troisTier").get(j)).append(",");
 			}
-			troisTier += "\n";
+			troisTier.append("\n");
 
-			res += time + unTier + deuxTier + troisTier;
+			res.append(time).append(unTier).append(deuxTier).append(troisTier);
 
-			res += "\n";
+			res.append("\n");
 		}
-		res += "\n";
+		res.append("\n");
 
 		// organisation en colonne
 		// tete de colonne (numero acquisition)
-		res += "Acquisition,";
+		res.append("Acquisition,");
 		for (int i = 0; i < arrayList.size(); i++) {
-			res += "Acqui " + i + ",";
+			res.append("Acqui ").append(i).append(",");
 		}
-		res += "\n";
+		res.append("\n");
 
 		// longueur esophage
-		res += "Esophage Height,";
-		for (int i = 0; i < longueurEsophage.length; i++) {
-			res += longueurEsophage[i] + ",";
+		res.append("Esophage Height,");
+		for (double item : longueurEsophage) {
+			res.append(item).append(",");
 		}
-		res += "\n";
+		res.append("\n");
 
 		// mesure de temps
-		res += "Transit Time,";
-		for (int i = 0; i < tempsMesureTransitTime.length; i++) {
-			res += tempsMesureTransitTime[i] + ",";
+		res.append("Transit Time,");
+		for (double value : tempsMesureTransitTime) {
+			res.append(value).append(",");
 		}
-		res += "\n";
+		res.append("\n");
 
 		// rentention decrease
-		res += "Retention 10s peak,";
-		for (int i = 0; i < retentionDecrease.length; i++) {
-			res += retentionDecrease[i] + ",";
+		res.append("Retention 10s peak,");
+		for (double v : retentionDecrease) {
+			res.append(v).append(",");
 		}
-		res += "\n";
+		res.append("\n");
 
-		return res;
+		return res.toString();
 	}
 
 	@Override

@@ -1,10 +1,9 @@
 package org.petctviewer.scintigraphy.scin.instructions.execution;
 
-import javax.swing.JOptionPane;
-
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
-import org.petctviewer.scintigraphy.scin.instructions.Instruction.DrawInstructionType;
+
+import javax.swing.*;
 
 /**
  * Instruction to check if two ROIs are intersecting.
@@ -14,13 +13,17 @@ import org.petctviewer.scintigraphy.scin.instructions.Instruction.DrawInstructio
  */
 public class CheckIntersectionInstruction extends ExecutionInstruction {
 	
-	private DrawInstructionType InstructionType = DrawInstructionType.CHECK_INTERSECTION;
+	private static final long serialVersionUID = 1L;
 
 
-	private transient Instruction previous_1, previous_2;
-	private transient ControllerScin controller;
+	protected DrawInstructionType InstructionType = DrawInstructionType.CHECK_INTERSECTION;
 
-	private String nameIntersection;
+
+	private final transient Instruction previous_1;
+	private final transient Instruction previous_2;
+	private final transient ControllerScin controller;
+
+	private final String nameIntersection;
 
 	/**
 	 * @param intersection1    First instruction from which the intersection must be

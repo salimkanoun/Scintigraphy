@@ -1,19 +1,18 @@
 package org.petctviewer.scintigraphy.gastric.dynamic;
 
-import java.awt.Color;
-
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import ij.IJ;
+import ij.gui.Toolbar;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.gui.Toolbar;
+import java.awt.*;
 
-public class FenApplication_DynGastric extends FenApplication {
+public class FenApplication_DynGastric extends FenApplicationWorkflow {
 	private static final long serialVersionUID = 1L;
 
-	public FenApplication_DynGastric(ImagePlus imp, String nom) {
-		super(imp, nom);
+	public FenApplication_DynGastric(ImageSelection ims, String nom) {
+		super(ims, nom);
 		
 		IJ.setTool(Toolbar.POLYGON);
 		Library_Gui.initOverlay(getImagePlus());

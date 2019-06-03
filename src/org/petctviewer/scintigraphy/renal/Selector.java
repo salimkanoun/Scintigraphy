@@ -1,13 +1,8 @@
 package org.petctviewer.scintigraphy.renal;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Paint;
-
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.labels.CrosshairLabelGenerator;
 import org.jfree.chart.panel.CrosshairOverlay;
 import org.jfree.chart.plot.Crosshair;
 import org.jfree.chart.plot.XYPlot;
@@ -15,16 +10,19 @@ import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.general.DatasetUtils;
 
+import java.awt.*;
+
 public class Selector extends CrosshairOverlay implements ChartMouseListener {
 
 	private static final long serialVersionUID = 6794595703667698248L;
-	private Crosshair crossX, crossY;
+	private final Crosshair crossX;
+	private final Crosshair crossY;
 
 	// si le selecteur n'est pas selectionne
 	private boolean xLocked;
 
 	// serie sur laquelle se situe le selecteur
-	private int series;
+	private final int series;
 
 	private Comparable key;
 	private JValueSetter jValueSetter;
@@ -32,7 +30,7 @@ public class Selector extends CrosshairOverlay implements ChartMouseListener {
 	/**
 	 * Permet de creer un selecteur deplacable sur un courbe
 	 * 
-	 * @param nom    nom du selecteur (null accepte)
+	 * @param nom    studyName du selecteur (null accepte)
 	 * @param startX position de depart du selecteur
 	 * @param series series observee (-1 si aucune)
 	 * @param anchor position du label
@@ -53,15 +51,12 @@ public class Selector extends CrosshairOverlay implements ChartMouseListener {
 			this.crossX.setLabelAnchor(RectangleAnchor.BOTTOM);
 		}
 
-		// on rend le label invisible si le nom est null ou si c'est un espace
-		this.crossX.setLabelGenerator(new CrosshairLabelGenerator() {
-			@Override
-			public String generateLabel(Crosshair crosshair) {
-				if (nom == null || nom.trim().equals("")) {
-					Selector.this.crossX.setLabelVisible(false);
-				}
-				return nom;
+		// on rend le label invisible si le studyName est null ou si c'est un espace
+		this.crossX.setLabelGenerator(crosshair -> {
+			if (nom == null || nom.trim().equals("")) {
+				Selector.this.crossX.setLabelVisible(false);
 			}
+			return nom;
 		});
 
 		// le selecteur vertical n'est pour l'instant pas affiche

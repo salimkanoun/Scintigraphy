@@ -1,9 +1,9 @@
 package org.petctviewer.scintigraphy.gastric;
 
+import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
-import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
 
 /**
  * This class represents a result returned by a model.<br>
@@ -35,7 +35,7 @@ public class ResultValue {
 	 * @param value          Value of the result
 	 * @param isExtrapolated if TRUE then this result has an extrapolated value and
 	 *                       if set to FALSE, this value is interpolated or exact
-	 * @see #ResultValue(ResultRequest, double)
+	 * @see #ResultValue(ResultRequest, double, Unit, boolean)
 	 */
 	public ResultValue(ResultRequest request, double value, Unit unit, boolean isExtrapolated) {
 		if (request == null)
@@ -51,7 +51,7 @@ public class ResultValue {
 	/**
 	 * Instantiates a new result not extrapolated.<br>
 	 * This constructor is a convenience for
-	 * {@link #ResultValue(ResultRequest, double, boolean)}.
+	 * {@link #ResultValue(ResultRequest, double, Unit, boolean)}.
 	 *
 	 * @param request Request this result answers to
 	 * @param value   Value of the result
@@ -169,6 +169,15 @@ public class ResultValue {
 	 * @return value of this result formatted as time: <code>HH:mm:ss</code>
 	 */
 	public String displayAsTime() {
+		StringBuilder s = new StringBuilder(displayAsTime(this.value));
+
+		if (this.isExtrapolated())
+			s.append("(*)");
+
+		return s.toString();
+	}
+
+	public static String displayAsTime(double value) {
 		int seconds = (int) ((value - (double) ((int) value)) * 60.);
 		int minutes = (int) (value % 60.);
 		int hours = (int) (value / 60.);
@@ -190,9 +199,6 @@ public class ResultValue {
 		if (seconds < 10)
 			s.append(0);
 		s.append(seconds);
-
-		if (this.isExtrapolated())
-			s.append("(*)");
 
 		return s.toString();
 	}

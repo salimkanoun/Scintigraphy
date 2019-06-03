@@ -14,19 +14,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.util.HashMap;
-
-import javax.swing.JOptionPane;
-
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
-
 import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
@@ -34,6 +21,16 @@ import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.gui.Toolbar;
 import ij.plugin.frame.RoiManager;
+import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.HashMap;
 
 public abstract class Controller_OrganeFixe extends ControllerScin {
 
@@ -43,12 +40,12 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 	private String[] organes;
 	protected int indexRoi;
 
-	protected HashMap<Integer, String> nomRois = new HashMap<>();
+	protected final HashMap<Integer, String> nomRois = new HashMap<>();
 	private ImageListener ctrlImg;
 
-	protected Color STROKECOLOR = Color.RED;// couleur de la roi
+	protected final Color STROKECOLOR = Color.RED;// couleur de la roi
 
-	private Overlay overlay;
+	private final Overlay overlay;
 
 	protected int tools = Toolbar.POLYGON;
 
@@ -85,7 +82,7 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 			this.clickNext();
 
 		} else if (b == fen.getBtn_precedent()) {
-			this.clicPrecedent();
+			this.clickPrevious();
 
 		} else if (b == fen.getBtn_drawROI()) {
 			Button btn = fen.getBtn_drawROI();
@@ -118,7 +115,6 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 		} else if (b == fen.getBtn_quitter()) {
 			// this.scin.getFenApplication().getBtn_quitter()
 			fen.close();
-			return;
 		}
 
 	}
@@ -145,7 +141,7 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 	}
 
 	@Override
-	public void clicPrecedent() {
+	public void clickPrevious() {
 		// Si boutton suivant desactive car on est arrive a la fin du programme, on le
 		// reactive quand on a clique sur precedent
 		if (!scin.getFenApplication().getBtn_suivant().isEnabled())
@@ -180,16 +176,13 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 				scin.getFenApplication().getBtn_suivant().setEnabled(false);
 				// thread de capture, permet de laisser le temps de charger l'image plus dans le
 				// thread principal
-				Thread captureThread = new Thread(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							Thread.sleep(200);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						end();
+				Thread captureThread = new Thread(() -> {
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
+					end();
 				});
 				captureThread.start();
 
@@ -206,8 +199,7 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 	/**
 	 * Sauvegarde la roi dans le roi manager et dans le modele
 	 * 
-	 * @param nomRoi : nom de la roi a sauvegarder
-	 * @return true si la sauvegarde est reussie, false si elle ne l'est pas
+	 * @param nomRoi : studyName de la roi a sauvegarder
 	 */
 	public void saveRoiAtIndex(String nomRoi, int indexRoi) throws NoDataException {
 		if (this.getSelectedRoi() != null) { // si il y a une roi sur l'image plus
@@ -234,10 +226,10 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 			// precise la postion en z
 			this.model.getRoiManager().getRoi(indexRoi).setPosition(this.getSliceNumberByRoiIndex(indexRoi));
 
-			// changement de nom
+			// changement de studyName
 			this.model.getRoiManager().rename(indexRoi, nomRoi);
 
-			// on ajoute le nom de la roi a la liste
+			// on ajoute le studyName de la roi a la liste
 			this.nomRois.put(indexRoi, addTag(nomRoi));
 		} else {
 
@@ -255,16 +247,16 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 	}
 
 	/**
-	 * Rajoute au nom de l'organe son type de prise (A pour Ant / P pour Post) ainsi
+	 * Rajoute au studyName de l'organe son type de prise (A pour Ant / P pour Post) ainsi
 	 * qu'un numero pour eviter les doublons
 	 * 
-	 * @param nomOrgane nom de l'organe
-	 * @return nouveau nom
+	 * @param nomOrgane studyName de l'organe
+	 * @return nouveau studyName
 	 */
 	public String addTag(String nomOrgane) {
 		String nom = nomOrgane;
 
-		// on ajoute au nom P ou A pour Post ou Ant
+		// on ajoute au studyName P ou A pour Post ou Ant
 		if (this.isPost()) {
 			nom += " P";
 		} else {
@@ -287,8 +279,6 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 		ImagePlus.addImageListener(this.ctrlImg);
 	}
 
-	/******** Abstract *****/
-
 	/**
 	 * permet de savoir si toutes les rois necessaires ont ete enregistrees
 	 * 
@@ -302,8 +292,6 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 	 * @return true si la roi d'index indexRoi est post, false si elle est ant
 	 */
 	public abstract boolean isPost();
-
-	/*********** Getter *******/
 
 	/**
 	 * Renvoie la roi de l'image plus
@@ -354,9 +342,7 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 	/**
 	 * Renvoie la roi qui sera utilisée dans la methode preparerRoi, appellée lors
 	 * du clic sur les boutons <précédent et suivant <br>
-	 * See also {@link #preparerRoi()}
-	 * 
-	 * @param lastRoi
+	 * See also {@link #preparerRoi(int)}
 	 * 
 	 * @return la roi utilisée dans la methode preparerRoi, null si il n'y en a pas
 	 * 
@@ -364,11 +350,11 @@ public abstract class Controller_OrganeFixe extends ControllerScin {
 	public abstract Roi getOrganRoi(int lastRoi);
 
 	/**
-	 * Renvoie le nombre de roi avec le meme nom ayant deja ete enregistrees
+	 * Renvoie le nombre de roi avec le meme studyName ayant deja ete enregistrees
 	 * 
-	 * @param nomRoi : nom de la roi
+	 * @param nomRoi : studyName de la roi
 	 * 
-	 * @return nombre de roi avec le meme nom
+	 * @return nombre de roi avec le meme studyName
 	 */
 	public String getSameNameRoiCount(String nomRoi) {
 		int count = 0;

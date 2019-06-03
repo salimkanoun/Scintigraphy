@@ -18,12 +18,15 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.Prefs;
+import ij.plugin.frame.RoiManager;
+
 
 /**
  * DISCLAIMER : Dans cette application, il a été fait comme choix d'initialiser
@@ -32,12 +35,12 @@ import ij.Prefs;
  */
 public class Controleur_Os implements ActionListener, ChangeListener, MouseListener {
 
-	Modele_Os modele;
-	FenApplication_Os vue;
+	final Modele_Os modele;
+	final FenApplication_Os vue;
 
-	ImageSelection imp;
+	final ImageSelection imp;
 
-	public Controleur_Os(ImageSelection[] imps, OsScintigraphy scin) {
+	public Controleur_Os(ImageSelection[] imps) {
 
 		this.modele = new Modele_Os(imps);
 		this.imp = imps[0];
@@ -49,14 +52,10 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 	/**
 	 * Listener permmettant d'inverser la LUT de chaque image, et donc son
 	 * contraste.
-	 * 
-	 * @param arg0
-	 * 
-	 * @return
 	 */
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		if (((JButton) arg0.getSource()) == this.vue.getReverseButton()) {
+		if (arg0.getSource() == this.vue.getReverseButton()) {
 			this.modele.inverser();
 			rafraichir();
 		}
@@ -68,7 +67,6 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 	 * 
 	 * @param e
 	 *            Origine de l'évènement
-	 * @return
 	 */
 	@Override
 	public void stateChanged(ChangeEvent e) {
@@ -91,10 +89,6 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 
 	/**
 	 * Listener permmettant de selectionner les images.
-	 * 
-	 * @param arg0
-	 * 
-	 * @return
 	 */
 	@Override
 	public void mousePressed(MouseEvent arg0) {
@@ -172,7 +166,7 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 				this.vue.cadrer(i * 2 + j, modele.isSelected(i, j));
 	}
 
-	public void createCaptureButton(SidePanel sidePanel, Component[] hide, Component[] show, String additionalInfo) {
+	public void createCaptureButton(SidePanel sidePanel, Component[] hide, Component[] show) {
 		// capture button
 		JButton captureButton = new JButton("Capture");
 
@@ -187,18 +181,15 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 				+ Library_Capture_CSV.genererDicomTagsPartie2(this.modele.getImagePlus());
 
 		// on ajoute le listener sur le bouton capture
-		captureButton.addActionListener(new ActionListener() {
+		captureButton.addActionListener(e -> {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			captureButton.setVisible(false);
+			for (Component comp : hide)
+				comp.setVisible(false);
 
-				captureButton.setVisible(false);
-				for (Component comp : hide)
-					comp.setVisible(false);
-
-				lbl_credits.setVisible(true);
-				for (Component comp : show)
-					comp.setVisible(true);
+			lbl_credits.setVisible(true);
+			for (Component comp : show)
+				comp.setVisible(true);
 
 				SwingUtilities.invokeLater(new Runnable() {
 
@@ -227,18 +218,21 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 						IJ.setTool("hand");
 
 						// generation du csv
-						// String resultats = Controleur_Os.this.modele.toString();
+						String resultats = Controleur_Os.this.modele.toString();
+						ControllerWorkflow controller = new ControllerWorkflow(null, null, null) {
+							@Override
+							protected void generateInstructions() {
+							}
+						};
 
-						// try {
-						// Library_Capture_CSV.exportAll(resultats,
-						// Controleur_Os.this.modele.getRoiManager(),
-						// Controleur_Os.this.modele.getStudyName(), imp,
-						// additionalInfo == null ? "" : additionalInfo);
-						//
-						// imp.killRoi();
-						// } catch (Exception e1) {
-						// e1.printStackTrace();
-						// }
+						try {
+							Library_Capture_CSV.exportAll(resultats, new RoiManager(),
+									Controleur_Os.this.modele.getStudyName(), imp, "", controller);
+
+							imp.killRoi();
+						} catch (Exception e1) {
+							e1.printStackTrace();
+						}
 
 						// Execution du plugin myDicom
 						try {
@@ -251,7 +245,6 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 					}
 				});
 
-			}
 		});
 
 		captureButton.setHorizontalAlignment(JButton.CENTER);

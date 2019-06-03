@@ -1,21 +1,18 @@
 package org.petctviewer.scintigraphy.scin.instructions.drawing;
 
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.gui.Roi;
-
 public class DrawRoiBackground extends DrawRoiInstruction {
 
 	private static final long serialVersionUID = 1L;
 
-	private DrawInstructionType InstructionType = DrawInstructionType.DRAW_ROI_BACKGROUND;
+	private final transient DrawRoiInstruction dri_1;
 
-	private transient DrawRoiInstruction dri_1;
-
-	private transient ModelScin model;
+	private final transient ModelScin model;
 
 	/**
 	 * Instantiates a new instruction to draw a background ROI. This special Roi
@@ -35,6 +32,8 @@ public class DrawRoiBackground extends DrawRoiInstruction {
 		super(organToDelimit, state);
 		this.dri_1 = roi1;
 		this.model = model;
+		
+		this.InstructionType = DrawInstructionType.DRAW_ROI_BACKGROUND;
 	}
 
 	/**

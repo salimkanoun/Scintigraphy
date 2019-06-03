@@ -1,17 +1,5 @@
 package org.petctviewer.scintigraphy.esophageus.resultats.tabs;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-
-import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -27,14 +15,17 @@ import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
+import javax.swing.*;
+import java.awt.*;
+
 public class TabCurves extends TabResult {
 
 	private JFreeChart graphMain;
-	private Model_Resultats_EsophagealTransit modeleApp;
-	private Integer nbAcquisition;
+	private final Model_Resultats_EsophagealTransit modeleApp;
+	private final Integer nbAcquisition;
 
-	private XYSeries[][] datasetModele;
-	private String[] titleRows;
+	private final XYSeries[][] datasetModele;
+	private final String[] titleRows;
 
 	public TabCurves(int nbAcquisition, FenResults parent, Model_Resultats_EsophagealTransit modeleApp) {
 		super(parent, "Curves");
@@ -42,7 +33,7 @@ public class TabCurves extends TabResult {
 		this.nbAcquisition = nbAcquisition;
 
 		// set les data du graph
-		datasetModele = ((Model_Resultats_EsophagealTransit) modeleApp).getDataSetMain();
+		datasetModele = modeleApp.getDataSetMain();
 		titleRows = new String[datasetModele.length];
 
 //		this.createCaptureButton("Curves");
@@ -68,17 +59,13 @@ public class TabCurves extends TabResult {
 		String[] titleCols = { "Full", "Upper", "Middle", "Lower" };
 
 		// table de checkbox
-		JTableCheckBox tableCheckbox = new JTableCheckBox(titleRows, titleCols, new ChangeListener() {
+		JTableCheckBox tableCheckbox = new JTableCheckBox(titleRows, titleCols, e -> {
 
-			@Override
-			public void stateChanged(ChangeEvent e) {
+			TabCurves tab = TabCurves.this;
+			JCheckBox selected = (JCheckBox) e.getSource();
 
-				TabCurves tab = TabCurves.this;
-				JCheckBox selected = (JCheckBox) e.getSource();
-
-				tab.setVisibilitySeriesMain(Integer.parseInt(selected.getName().split("\\|")[0]),
-						Integer.parseInt(selected.getName().split("\\|")[1]), selected.isSelected());
-			}
+			tab.setVisibilitySeriesMain(Integer.parseInt(selected.getName().split("\\|")[0]),
+					Integer.parseInt(selected.getName().split("\\|")[1]), selected.isSelected());
 		});
 
 		// active uniquement la premiere colonne
@@ -96,7 +83,7 @@ public class TabCurves extends TabResult {
 		JPanel longeurEsophageResultPanel = new JPanel();
 		longeurEsophageResultPanel.setLayout(new GridLayout(nbAcquisition + 1, 1));
 		longeurEsophageResultPanel.add(new JLabel("Esophageal height"));
-		double[] longueurEsophage = ((Model_Resultats_EsophagealTransit) modeleApp).calculLongeurEsophage();
+		double[] longueurEsophage = modeleApp.calculLongeurEsophage();
 		for (int i = 0; i < longueurEsophage.length; i++) {
 			longeurEsophageResultPanel.add(new JLabel(
 					"Acquisition " + (i + 1) + " : " + (Library_Quantif.round(longueurEsophage[i], 2)) + " cm"));
@@ -142,8 +129,7 @@ public class TabCurves extends TabResult {
 		}
 		this.graphMain.getXYPlot().setDataset(dataset);
 
-		ChartPanel chartPanel = new ChartPanel(graphMain);
-		return chartPanel;
+		return new ChartPanel(graphMain);
 	}
 
 }

@@ -1,23 +1,20 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import java.awt.Button;
-import java.awt.GridLayout;
-import java.awt.Panel;
-
+import ij.IJ;
+import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 
-import ij.IJ;
-import ij.gui.Toolbar;
+import java.awt.*;
 
 public class FenApplication_Cardiac extends FenApplicationWorkflow {
 
 	private static final long serialVersionUID = -8986173550839545500L;
 
 	// boutons mode decontamination
-	private Button btn_newCont;
-	private Button btn_continue;
+	private final Button btn_newCont;
+	private final Button btn_continue;
 
 	public FenApplication_Cardiac(ImageSelection ims, String nom) {
 		super(ims, nom);
@@ -53,8 +50,8 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 	}
 
 	@Override
-	public void setControleur(ControllerScin ctrl) {
-		super.setControleur(ctrl);
+	public void setController(ControllerScin ctrl) {
+		super.setController(ctrl);
 		this.btn_continue.addActionListener(ctrl);
 		this.btn_newCont.addActionListener(ctrl);
 		this.setText_instructions("Delimit a new contamination");

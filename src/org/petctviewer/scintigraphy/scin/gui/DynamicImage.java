@@ -1,20 +1,7 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.Paint;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JViewport;
+import javax.swing.*;
+import java.awt.*;
 
 /*
  *  Support custom painting on a panel in the form of
@@ -43,7 +30,7 @@ public class DynamicImage extends JPanel {
 	private boolean isTransparentAdd = true;
 	
 
-	/*
+	/**
 	 * Set image as the background with the SCALED style
 	 */
 	public DynamicImage(Image image) {
@@ -54,7 +41,7 @@ public class DynamicImage extends JPanel {
 		this.interpolation = interpolation;
 	}
 
-	/*
+	/**
 	 * Set image as the background with the specified style
 	 */
 	public DynamicImage(Image image, int style) {
@@ -63,8 +50,8 @@ public class DynamicImage extends JPanel {
 		setLayout(new BorderLayout());
 	}
 
-	/*
-	 * Set image as the backround with the specified style and alignment
+	/**
+	 * Set image as the background with the specified style and alignment
 	 */
 	public DynamicImage(Image image, int style, float alignmentX, float alignmentY) {
 		setImage(image);
@@ -74,7 +61,7 @@ public class DynamicImage extends JPanel {
 		setLayout(new BorderLayout());
 	}
 
-	/*
+	/**
 	 * Use the Paint interface to paint a background
 	 */
 	public DynamicImage(Paint painter) {
@@ -82,7 +69,7 @@ public class DynamicImage extends JPanel {
 		setLayout(new BorderLayout());
 	}
 
-	/*
+	/**
 	 * Set the image used as the background
 	 */
 	public void setImage(Image image) {
@@ -90,14 +77,14 @@ public class DynamicImage extends JPanel {
 		repaint();
 	}
 
-	/*
+	/**
 	 * Get Image of this panel to refresh
 	 */
 	public Image getImage() {
 		return this.image;
 	}
 	
-	/*
+	/**
 	 * Set the style used to paint the background image
 	 */
 	public void setStyle(int style) {
@@ -105,7 +92,7 @@ public class DynamicImage extends JPanel {
 		repaint();
 	}
 
-	/*
+	/**
 	 * Set the Paint object used to paint the background
 	 */
 	public void setPaint(Paint painter) {
@@ -113,7 +100,7 @@ public class DynamicImage extends JPanel {
 		repaint();
 	}
 
-	/*
+	/**
 	 * Specify the horizontal alignment of the image when using ACTUAL style
 	 */
 	public void setImageAlignmentX(float alignmentX) {
@@ -121,7 +108,7 @@ public class DynamicImage extends JPanel {
 		repaint();
 	}
 
-	/*
+	/**
 	 * Specify the horizontal alignment of the image when using ACTUAL style
 	 */
 	public void setImageAlignmentY(float alignmentY) {
@@ -129,14 +116,14 @@ public class DynamicImage extends JPanel {
 		repaint();
 	}
 
-	/*
+	/**
 	 * Override method so we can make the component transparent
 	 */
 	public void add(JComponent component) {
 		add(component, null);
 	}
 
-	/*
+	/**
 	 * Override to provide a preferred size equal to the image size
 	 */
 	@Override
@@ -147,7 +134,7 @@ public class DynamicImage extends JPanel {
 			return new Dimension(image.getWidth(null), image.getHeight(null));
 	}
 
-	/*
+	/**
 	 * Override method so we can make the component transparent
 	 */
 	public void add(JComponent component, Object constraints) {
@@ -158,7 +145,7 @@ public class DynamicImage extends JPanel {
 		super.add(component, constraints);
 	}
 
-	/*
+	/**
 	 * Controls whether components added to this panel should automatically be made
 	 * transparent. That is, setOpaque(false) will be invoked. The default is set to
 	 * true.
@@ -167,7 +154,7 @@ public class DynamicImage extends JPanel {
 		this.isTransparentAdd = isTransparentAdd;
 	}
 
-	/*
+	/**
 	 * Try to make the component transparent. For components that use renderers,
 	 * like JTable, you will also need to change the renderer to be transparent. An
 	 * easy way to do this it to set the background of the table to a Color using an
@@ -188,7 +175,7 @@ public class DynamicImage extends JPanel {
 		}
 	}
 
-	/*
+	/**
 	 * Add custom painting
 	 */
 	@Override
@@ -212,11 +199,8 @@ public class DynamicImage extends JPanel {
 			return;
 
 		switch (style) {
-		case SCALED:
-			drawScaled(g);
-			break;
 
-		case TILED:
+			case TILED:
 			drawTiled(g);
 			break;
 
@@ -248,7 +232,7 @@ public class DynamicImage extends JPanel {
 		}		
 	}
 
-	/*
+	/**
 	 * Custom painting code for drawing a SCALED image as the background
 	 */
 	private void drawScaled(Graphics g) {
@@ -256,7 +240,7 @@ public class DynamicImage extends JPanel {
 		g.drawImage(image, 0, 0, d.width, d.height, null);
 	}
 
-	/*
+	/**
 	 * Custom painting code for drawing TILED images as the background
 	 */
 	private void drawTiled(Graphics g) {
@@ -271,7 +255,7 @@ public class DynamicImage extends JPanel {
 		}
 	}
 
-	/*
+	/**
 	 * Custom painting code for drawing the ACTUAL image as the background. The
 	 * image is positioned in the panel based on the horizontal and vertical
 	 * alignments specified.

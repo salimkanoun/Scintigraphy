@@ -1,5 +1,12 @@
 package org.petctviewer.scintigraphy.renal.followup;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import ij.Prefs;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -10,27 +17,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import ij.Prefs;
-
 public class Modele_FollowUp {
 	
-	private ArrayList<ArrayList<String>> allLines ;
+	private final ArrayList<ArrayList<String>> allLines ;
 	
-	private HashMap<String, HashMap<String,Object>>allExamens;
+	private final HashMap<String, HashMap<String,Object>>allExamens;
 	
 	public Modele_FollowUp(ArrayList<String> chemins)  {
 		
 		allLines = readAllCsvContent(chemins);
 	
 		//Tous les tableaux du patient avec cle = date de l'examen
-		allExamens = new HashMap();
+		allExamens = new HashMap<>();
 		// for each examen
 		for(int i =0; i< allLines.size(); i++) {
 			//map contenant tout les tableaux pour un seul examen
@@ -53,18 +51,18 @@ public class Modele_FollowUp {
 	private ArrayList<ArrayList<String>>  readAllCsvContent(ArrayList<String> chemins) {
 		ArrayList<ArrayList<String>> allLines = new ArrayList<>();
 		// for each path
-		for(int i = 0; i<chemins.size(); i++) {
+		for (String chemin : chemins) {
 			//contenu d'une ligne
-			ArrayList<String >lines = null ;
+			ArrayList<String> lines = null;
 			//to read CSV file
 			try {
-				File file = new File(chemins.get(i));
+				File file = new File(chemin);
 				FileReader fr = new FileReader(file);
 				BufferedReader br = new BufferedReader(fr);
-				
+
 				//add CSV file content in lines
 				lines = new ArrayList<>();
-				for(String line = br.readLine(); line != null; line = br.readLine()) {
+				for (String line = br.readLine(); line != null; line = br.readLine()) {
 					lines.add(line);
 				}
 				br.close();
@@ -72,7 +70,7 @@ public class Modele_FollowUp {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			allLines.add( lines);
+			allLines.add(lines);
 		}
 		return allLines;
 	}
@@ -241,7 +239,7 @@ public class Modele_FollowUp {
 		int ligneDansCsv = rechercheLineContains(indiceExamen, "tags");
 		String tag = this.allLines.get(indiceExamen).get(ligneDansCsv);
 		
-		String json=tag.substring(5, tag.length());
+		String json=tag.substring(5);
 	
 		//System.out.println( "exam="+indiceExamen);
 		//System.out.println(json);
@@ -250,9 +248,8 @@ public class Modele_FollowUp {
 				json, new TypeToken<HashMap<String, String>>() {}.getType()
 				);
 
-		String partie=Library_Capture_CSV.getTagPartie1(mapObj, "Renal Follow-Up", String.valueOf(Math.random() * 1000000D));
 		//System.out.println(partie);
-		return partie;
+		return Library_Capture_CSV.getTagPartie1(mapObj, "Renal Follow-Up", String.valueOf(Math.random() * 1000000D));
 	}
 	
 	/************ Private Methods to debug ***********/
@@ -275,9 +272,9 @@ public class Modele_FollowUp {
 	
 	@SuppressWarnings("unused")
 	private static void printDoubleTab2Dim(Double[][] d) {
-		for(int i=0;i<d.length;i++) {
-			for(int j=0;j<d[i].length;j++) {
-				System.out.print(d[i][0]+ " ");
+		for (Double[] doubles : d) {
+			for (int j = 0; j < doubles.length; j++) {
+				System.out.print(doubles[0] + " ");
 			}
 			System.out.println();
 		}

@@ -1,17 +1,15 @@
 package org.petctviewer.scintigraphy.calibration.resultats;
 
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.swing.JCheckBox;
-import javax.swing.JTabbedPane;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 public class ControleurResultatsCalibration implements ChangeListener {
 	
-	private FenResultatsCalibration fen;
-	private ModeleResultatsCalibration modele;
+	private final FenResultatsCalibration fen;
+	private final ModeleResultatsCalibration modele;
 	
 	public ControleurResultatsCalibration(FenResultatsCalibration fen, ArrayList<ArrayList<HashMap<String, Object>>> arrayList) {
 		this.fen = fen;

@@ -1,18 +1,18 @@
 package org.petctviewer.scintigraphy.scin.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import org.jfree.data.general.DatasetUtils;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 public abstract class ModelScinDyn extends ModelScin {
 
 	private HashMap<String, List<Double>> data;
-	private int[] frameduration;
+	private final int[] frameduration;
 	private boolean locked;
 	
 	/**
@@ -26,24 +26,6 @@ public abstract class ModelScinDyn extends ModelScin {
 		this.data = new HashMap<>();
 		this.frameduration = frameDuration;
 	}
-
-	
-	/**************** Public *******************/
-	//SK METHODE A EVITER POUR DISSOCIER MODELE ET CONTROLER
-	/*
-	public void enregistrerMesure(String nomRoi, ImagePlus imp) {
-		// si le modele n'est pas bloque
-		if (!this.isLocked()) {
-			//recupere la phrase sans le dernier mot (tag)
-			String name = nomRoi.substring(0, nomRoi.lastIndexOf(" "));
-			// on cree la liste si elle n'existe pas
-			if (this.data.get(name) == null) {
-				this.data.put(name, new ArrayList<Double>());
-			}
-			// on y ajoute le nombre de coups
-			this.data.get(name).add(Library_Quantif.getCounts(imp));
-		}
-	}*/
 	
 	/**
 	 * renvoie une serie avec les ordonnees en coups / sec
@@ -51,7 +33,7 @@ public abstract class ModelScinDyn extends ModelScin {
 	 * @param l
 	 *            liste de points ajustes
 	 * @param nom
-	 *            nom de la serie
+	 *            studyName de la serie
 	 * @return la serie
 	 */
 	public XYSeries createSerie(List<Double> l, String nom) {
@@ -77,48 +59,44 @@ public abstract class ModelScinDyn extends ModelScin {
 	
 	/**
 	 * ajuste les valeurs en coups/sec
-	 * 
-	 * @param values
-	 * @return
 	 */
 	public List<Double> adjustValues(List<Double> values) {
 		List<Double> valuesAdjusted = new ArrayList<>();
 
 		for (int i = 0; i < values.size(); i++) {
 			// calcul de la prise en secondes
-			Double dureePrise = frameduration[i] / 1000.0;
+			double dureePrise = frameduration[i] / 1000.0;
 			valuesAdjusted.add(values.get(i) / (dureePrise));
 		}
 
 		return valuesAdjusted;
 	}
 
-	public boolean isLocked() {
-		return locked;
+	public boolean isUnlocked() {
+		return !locked;
 	}
 	
 	@Override
 	public String toString() {
-		String s = "\n";
+		StringBuilder s = new StringBuilder("\n");
 		
-		s += "time (s)";
-		Double sum = 0.0;
-		for(int i = 0; i < this.getFrameduration().length; i++) {
-			sum += this.getFrameduration()[i] / 1000;
-			s += "," + sum;
+		s.append("time (s)");
+		double sum = 0.0;
+		for(int i = 0; i < this.getFrameDuration().length; i++) {
+			sum += this.getFrameDuration()[i] / 1000;
+			s.append(",").append(sum);
 		}
 		
-		s+=super.toString();
+		s.append(super.toString());
 		
-		return s;
+		return s.toString();
 	}
 
 
 	/**
 	 * Renvoie le numero de la slice correspondant au temps passe en parametre (en
 	 * ms)
-	 * 
-	 * @param debut
+	 *
 	 * @return numero de la slice
 	 */
 	public static int getSliceIndexByTime(double time, int[] frameduration) {
@@ -173,7 +151,7 @@ public abstract class ModelScinDyn extends ModelScin {
 	/**
 	 * renvoie l'image de la serie en x
 	 * 
-	 * @param abscisses de la serie
+	 * @param points abscisses de la serie
 	 * @param x abscisse
 	 * @return ordonnee
 	 */
@@ -195,7 +173,7 @@ public abstract class ModelScinDyn extends ModelScin {
 		return this.data.get(key);
 	}
 
-	public int[] getFrameduration() {
+	public int[] getFrameDuration() {
 		return frameduration;
 	}
 	

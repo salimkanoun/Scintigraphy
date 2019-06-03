@@ -13,11 +13,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.ImagePlus;
+
 /**
- * affichage imaage plus avec reglage contraste 
- * SK algo contraste à revoir
+ * affichage imaage plus avec reglage contraste SK algo contraste à revoir
+ * 
  * @author diego
  *
  */
@@ -25,16 +27,17 @@ public abstract class PanelImpContrastSlider extends TabResult implements Change
 	private ImagePlus imp;
 	private DynamicImage dynamicImp;
 
-	private Scintigraphy scin;
-	private JLabel sliderLabel;
+	private final Scintigraphy scin;
+	private final JLabel sliderLabel;
 	private JSlider slider;
 	protected Box boxSlider;
-	
-	String additionalInfo, nomFen;
+
+	final String additionalInfo;
+	final String nomFen;
 
 	public PanelImpContrastSlider(String nomFen, Scintigraphy scin, String additionalInfo, FenResults parent) {
 		super(parent, nomFen, true);
-		this.scin=scin;
+		this.scin = scin;
 		this.additionalInfo = additionalInfo;
 		this.nomFen = nomFen;
 		this.parent = parent;
@@ -47,31 +50,41 @@ public abstract class PanelImpContrastSlider extends TabResult implements Change
 		System.out.println(imp.getStatistics().max);
 		slider = new JSlider(SwingConstants.HORIZONTAL, 0, (int) imp.getStatistics().max, 4);
 		slider.addChangeListener(this);
-		
+
 		boxSlider = Box.createVerticalBox();
 		boxSlider.add(this.sliderLabel);
 		boxSlider.add(this.slider);
 
-		BufferedImage img = this.imp.getBufferedImage();
-		if (this.dynamicImp == null) {
-			this.dynamicImp = new DynamicImage(img);
-			this.setContrast(this.slider.getValue());
-//			this.add(dynamicImp, BorderLayout.CENTER);
+		BufferedImage img;
+		// this.imp.show();
+		if (this.imp.getCanvas() == null)
+			img = this.imp.getBufferedImage();
+		else {
+			img = Library_Capture_CSV.captureImage(this.imp, 512, 0).getBufferedImage();
+			System.out.println("captureImage");
 		}
 
-		this.setContrast(slider.getValue());
-		
-//		sidePanel.add(boxSlider);
-//		this.parent.setSidePanelContent(boxSlider);
+		// this.imp.duplicate().show();
+		if (this.dynamicImp == null)
+			this.dynamicImp = new DynamicImage(img);
+		else
+			this.dynamicImp.setImage(img);
 
-//		sidePanel.addCaptureBtn(getScin(), this.additionalInfo, new Component[] { this.slider }, model);
-//		this.parent.createCaptureButton();
+		// this.setContrast(this.slider.getValue());
+		// this.add(dynamicImp, BorderLayout.CENTER);
 
-//		this.add(sidePanel, BorderLayout.EAST);
+		// sidePanel.add(boxSlider);
+		// this.parent.setSidePanelContent(boxSlider);
+
+		// sidePanel.addCaptureBtn(getScin(), this.additionalInfo, new Component[] {
+		// this.slider }, model);
+		// this.parent.createCaptureButton();
+
+		// this.add(sidePanel, BorderLayout.EAST);
 	}
 
 	@Override
-	public void stateChanged(ChangeEvent e) {	
+	public void stateChanged(ChangeEvent e) {
 		JSlider slider = (JSlider) e.getSource();
 		this.setContrast(slider.getValue());
 	}
@@ -93,21 +106,24 @@ public abstract class PanelImpContrastSlider extends TabResult implements Change
 		this.finishBuildingWindow();
 		this.reloadDisplay();
 	}
-	
+
 	public ImagePlus getImagePlus() {
 		return this.imp;
 	}
 
 	private void setContrast(int sliderValue) {
-		imp.getProcessor().setMinAndMax(0, (slider.getModel().getMaximum() - sliderValue)+1);
-		
-		SwingUtilities.invokeLater(new Runnable() {
 
-			@Override
-			public void run() {
+		imp.getProcessor().setMinAndMax(0, (slider.getModel().getMaximum() - sliderValue) + 1);
+		imp.updateAndDraw();
+
+		SwingUtilities.invokeLater(() -> {
+			if (this.imp.getCanvas() == null)
 				dynamicImp.setImage(imp.getBufferedImage());
-				dynamicImp.repaint();
-			}
+			else
+				dynamicImp.setImage(Library_Capture_CSV.captureImage(this.imp, 512, 0).getBufferedImage());
+			
+			dynamicImp.repaint();
+
 		});
 
 	}
@@ -119,12 +135,12 @@ public abstract class PanelImpContrastSlider extends TabResult implements Change
 
 	@Override
 	public JPanel getResultContent() {
-		if(this.imp == null)
+		if (this.imp == null)
 			return null;
 		return this.dynamicImp;
 	}
-	
-	public void setOnlyImp(ImagePlus imp){
+
+	public void setOnlyImp(ImagePlus imp) {
 		this.imp = imp;
 	}
 }

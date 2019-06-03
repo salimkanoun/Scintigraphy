@@ -15,10 +15,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 package org.petctviewer.scintigraphy.platelet;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Date;
-
+import ij.ImagePlus;
+import ij.gui.Overlay;
+import ij.plugin.Concatenator;
+import ij.plugin.HyperStackConverter;
+import ij.plugin.StackReverser;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -31,16 +32,14 @@ import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionCompara
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.ImagePlus;
-import ij.gui.Overlay;
-import ij.plugin.Concatenator;
-import ij.plugin.HyperStackConverter;
-import ij.plugin.StackReverser;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Date;
 
 public class View_Platelet extends Scintigraphy {
 
 	// Si acquisition antPost
-	protected Boolean antPost = false;
+	protected final Boolean antPost = false;
 	private Date dateHeureDebut;
 
 	// Nombre de series disponibles a l'ouverture
@@ -117,7 +116,7 @@ public class View_Platelet extends Scintigraphy {
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 
 		Controller_Plaquettes ctrl = new Controller_Plaquettes(this, this.getDateDebut(), selectedImages, "Platelet");
-		this.getFenApplication().setControleur(ctrl);
+		this.getFenApplication().setController(ctrl);
 		this.getFenApplication().getImagePlus().getCanvas().setScaleToFit(true);
 		this.getFenApplication().getImagePlus().getCanvas().setSize(512, 512);
 		this.getFenApplication().pack();

@@ -1,17 +1,16 @@
 package org.petctviewer.scintigraphy.scin.library;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.font.FontRenderContext;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-
 import ij.ImagePlus;
 import ij.Prefs;
 import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.gui.TextRoi;
 import ij.process.LUT;
+
+import java.awt.*;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 
 public class Library_Gui {
 
@@ -21,12 +20,7 @@ public class Library_Gui {
 	public static final int DEFAULT_FONT_SIZE = 12;
 
 	/**
-	 *  Change le nom et la couleur de l'overlay
-	 * @param ov
-	 * @param oldName
-	 * @param newName
-	 * @param c
-	 * 
+	 *  Change le studyName et la couleur de l'overlay
 	 */
 	public static void editLabelOverlay(Overlay ov, String oldName, String newName, Color c) {
 		Roi roi = ov.get(ov.getIndex(oldName));
@@ -65,7 +59,7 @@ public class Library_Gui {
 		// On defini la police et la propriete des Overlays
 		int width = imp.getWidth();
 		// On normalise Taille 12 a 256 pour avoir une taille stable pour toute image
-		Float facteurConversion = (float) ((width * 1.0) / 256);
+		float facteurConversion = (float) ((width * 1.0) / 256);
 		Font font = new Font("Arial", Font.PLAIN, Math.round(taillePolice * facteurConversion));
 		overlay.setLabelFont(font, true);
 		overlay.drawLabels(true);
@@ -86,8 +80,6 @@ public class Library_Gui {
 	public static Overlay initOverlay(ImagePlus imp) {
 		return initOverlay(imp, DEFAULT_FONT_SIZE);
 	}
-
-	/**************** Public Static Setter ***************************/
 	
 	/** 
 	 * Affiche D et G en overlay sur l'image, L a gauche et R a droite

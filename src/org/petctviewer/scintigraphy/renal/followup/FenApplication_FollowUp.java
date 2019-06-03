@@ -1,29 +1,7 @@
 package org.petctviewer.scintigraphy.renal.followup;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
-
+import ij.IJ;
+import ij.ImagePlus;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -33,13 +11,17 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
-import ij.IJ;
-import ij.ImagePlus;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
 
 public class FenApplication_FollowUp extends JFrame{
 
-	private static Color[] color = {Color.RED, Color.BLUE, Color.GREEN};
+	private static final Color[] color = {Color.RED, Color.BLUE, Color.GREEN};
 	
 	/**
 	 * 
@@ -60,9 +42,9 @@ public class FenApplication_FollowUp extends JFrame{
 	// false : standard axis
 	private boolean axisType;
 
-	private JButton graphButton;
+	private final JButton graphButton;
 	
-	public FenApplication_FollowUp(ArrayList<String> chemins) throws IOException {
+	public FenApplication_FollowUp(ArrayList<String> chemins) {
 		
 		new Controleur_FollowUp(this, chemins);
 		
@@ -70,7 +52,7 @@ public class FenApplication_FollowUp extends JFrame{
 		getContentPane().setLayout(new BorderLayout());
 		this.setSize(700,500);
 		
-		/**Tab Main**/
+		/*Tab Main*/
 		JPanel tabMain = new JPanel();
 		tabMain.setLayout(new BorderLayout());
 
@@ -107,8 +89,8 @@ public class FenApplication_FollowUp extends JFrame{
 		//tabs with excretion ratio
 		Box excretionTabFlow = Box.createVerticalBox();
 		//for each date
-		for(int i =0; i< cleAllExamens.size(); i++) {
-			excretionTabFlow.add(setExcretionRatioTab((Double[][])allExamens.get(cleAllExamens.get(i)).get("excretion")));
+		for (String allExamen : cleAllExamens) {
+			excretionTabFlow.add(setExcretionRatioTab((Double[][]) allExamens.get(allExamen).get("excretion")));
 		}
 		sideBox.add(excretionTabFlow);
 	
@@ -117,24 +99,20 @@ public class FenApplication_FollowUp extends JFrame{
 		
 		this.axisType = false;
 		 graphButton = new JButton("standard axis");
-		graphButton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				FenApplication_FollowUp fen = FenApplication_FollowUp.this;
-				if(fen.axisType == false) {
-					FenApplication_FollowUp.this.graphButton.setText("normalized axis");
-					FenApplication_FollowUp.this.setNormalizedAxis(leftKidneyGraph);
-					FenApplication_FollowUp.this.setNormalizedAxis(rightKidneyGraph);
-					fen.axisType = true;
-				}else {
-					FenApplication_FollowUp.this.graphButton.setText("standard axis");
-					FenApplication_FollowUp.this.setStandardAxis(leftKidneyGraph);
-					FenApplication_FollowUp.this.setStandardAxis(rightKidneyGraph);
-					fen.axisType = false;
-				}
-				
+		graphButton.addActionListener(e -> {
+			FenApplication_FollowUp fen = FenApplication_FollowUp.this;
+			if(!fen.axisType) {
+				FenApplication_FollowUp.this.graphButton.setText("normalized axis");
+				FenApplication_FollowUp.this.setNormalizedAxis(leftKidneyGraph);
+				FenApplication_FollowUp.this.setNormalizedAxis(rightKidneyGraph);
+				fen.axisType = true;
+			}else {
+				FenApplication_FollowUp.this.graphButton.setText("standard axis");
+				FenApplication_FollowUp.this.setStandardAxis(leftKidneyGraph);
+				FenApplication_FollowUp.this.setStandardAxis(rightKidneyGraph);
+				fen.axisType = false;
 			}
+
 		});
 		sideBox.add(graphButton);
 		sideBox.add(setCaptureButton());
@@ -148,34 +126,34 @@ public class FenApplication_FollowUp extends JFrame{
 		
 		Box allResultats = Box.createHorizontalBox();
 		//for each date 
-		for(int i=0; i<cleAllExamens.size(); i++) {
-			
-			Box resultats =  Box.createVerticalBox();
-			JLabel date = new JLabel(cleAllExamens.get(i));
-	        date.setAlignmentX(CENTER_ALIGNMENT);
-			
+		for (String cleAllExamen : cleAllExamens) {
+
+			Box resultats = Box.createVerticalBox();
+			JLabel date = new JLabel(cleAllExamen);
+			date.setAlignmentX(CENTER_ALIGNMENT);
+
 			date.setFont(new Font("Helvetica", Font.PLAIN, 18));
 			resultats.add(date);
 			resultats.add(Box.createRigidArea(new Dimension(0, 30)));// add space
 
-			resultats.add(setIntegralTab((Double[][])allExamens.get(cleAllExamens.get(i)).get("integral")));
+			resultats.add(setIntegralTab((Double[][]) allExamens.get(cleAllExamen).get("integral")));
 			resultats.add(Box.createRigidArea(new Dimension(0, 30)));
 
-			resultats.add(setTimingTab((Double[][])allExamens.get(cleAllExamens.get(i)).get("timing")));
-			resultats.add(Box.createRigidArea(new Dimension(0, 30)));
-			
-			resultats.add(setExcretionRatioTab((Double[][])allExamens.get(cleAllExamens.get(i)).get("excretion")));
+			resultats.add(setTimingTab((Double[][]) allExamens.get(cleAllExamen).get("timing")));
 			resultats.add(Box.createRigidArea(new Dimension(0, 30)));
 
-			resultats.add(setRoeTab((Double[][])allExamens.get(cleAllExamens.get(i)).get("roe")));
+			resultats.add(setExcretionRatioTab((Double[][]) allExamens.get(cleAllExamen).get("excretion")));
 			resultats.add(Box.createRigidArea(new Dimension(0, 30)));
 
-			resultats.add(setNoraTab((Double[][])allExamens.get(cleAllExamens.get(i)).get("nora")));
-			
+			resultats.add(setRoeTab((Double[][]) allExamens.get(cleAllExamen).get("roe")));
+			resultats.add(Box.createRigidArea(new Dimension(0, 30)));
+
+			resultats.add(setNoraTab((Double[][]) allExamens.get(cleAllExamen).get("nora")));
+
 			//pour que tableau ne soit pas etalé sur toute la fenetre
 			JPanel jp = new JPanel(new FlowLayout());
 			jp.add(resultats);
-			
+
 			allResultats.add(jp);
 		}
 		
@@ -251,7 +229,7 @@ public class FenApplication_FollowUp extends JFrame{
 	
 	public void setStandardAxis(JFreeChart graph) {
 		XYPlot plot = graph.getXYPlot();
-		XYSeriesCollection collectionMemoire [] = new XYSeriesCollection[plot.getDatasetCount()];
+		XYSeriesCollection[] collectionMemoire = new XYSeriesCollection[plot.getDatasetCount()];
 		
 		//on memorise les dataset
 		for(int i=0; i< collectionMemoire.length; i++) {
@@ -311,14 +289,14 @@ public class FenApplication_FollowUp extends JFrame{
 		JLabel rightLabel = new JLabel("R");
 		rightLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		noraTabPanel.add(rightLabel);
-		
-		for (int i = 0; i < nora.length; i++) {
 
-			noraTabPanel.add(new JLabel(nora[i][0] + "  min"));
+		for (Double[] doubles : nora) {
 
-			for (int j = 1; j < nora[i].length; j++) {
-				if (nora[i][j] != null) {
-					JLabel lbl_g = new JLabel(nora[i][j] + " %");
+			noraTabPanel.add(new JLabel(doubles[0] + "  min"));
+
+			for (int j = 1; j < doubles.length; j++) {
+				if (doubles[j] != null) {
+					JLabel lbl_g = new JLabel(doubles[j] + " %");
 					lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
 					noraTabPanel.add(lbl_g);
 				} else {
@@ -357,14 +335,14 @@ public class FenApplication_FollowUp extends JFrame{
 		JLabel rightLabel = new JLabel("R");
 		rightLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		excrTabPanel.add(rightLabel);
-		
-		for (int i = 0; i < excr.length; i++) {
 
-			excrTabPanel.add(new JLabel(excr[i][0] + "  min"));
+		for (Double[] doubles : excr) {
 
-			for (int j = 1; j < excr[i].length; j++) {
-				if (excr[i][j] != null) {
-					JLabel lbl_g = new JLabel(excr[i][j] + " %");
+			excrTabPanel.add(new JLabel(doubles[0] + "  min"));
+
+			for (int j = 1; j < doubles.length; j++) {
+				if (doubles[j] != null) {
+					JLabel lbl_g = new JLabel(doubles[j] + " %");
 					lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
 					excrTabPanel.add(lbl_g);
 				} else {
@@ -454,15 +432,15 @@ public class FenApplication_FollowUp extends JFrame{
 		JLabel rightLabel = new JLabel("R");
 		rightLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		roeTabPanel.add(rightLabel);
-		
 
-		for (int i = 0; i < roe.length; i++) {
 
-			roeTabPanel.add(new JLabel(roe[i][0] + "  min"));
+		for (Double[] doubles : roe) {
 
-			for (int j = 1; j < roe[i].length; j++) {
-				if (roe[i][j] != null) {
-					JLabel lbl_g = new JLabel(roe[i][j] + " %");
+			roeTabPanel.add(new JLabel(doubles[0] + "  min"));
+
+			for (int j = 1; j < doubles.length; j++) {
+				if (doubles[j] != null) {
+					JLabel lbl_g = new JLabel(doubles[j] + " %");
 					lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
 					roeTabPanel.add(lbl_g);
 				} else {
@@ -533,32 +511,29 @@ public class FenApplication_FollowUp extends JFrame{
 
 	private JButton setCaptureButton() {
 		JButton captureButton = new JButton("Capture");
-		captureButton.addActionListener(new ActionListener() {	
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				String partie1 = (String)allExamens.get(Collections.max(allExamens.keySet())).get("tags");
-				Container root =  Library_Capture_CSV.getRootContainer(captureButton);
-				
-				captureButton.setVisible(false);
-			
-				// Capture, nouvelle methode a utiliser sur le reste des programmes
-				BufferedImage capture = new BufferedImage(root.getWidth(), root.getHeight(),BufferedImage.TYPE_INT_ARGB);
-				root.paint(capture.getGraphics());	
-				ImagePlus imp = new ImagePlus("capture", capture);
-				String partie2=Library_Capture_CSV.genererDicomTagsPartie2(imp);
-				imp.setProperty("Info", partie1+partie2);
-				imp.show();
-				imp.getWindow().toFront();
-				
-				captureButton.setVisible(true);
-				
-				//On propose de sauver la capture en DICOM
-				IJ.run("myDicom...");
-				
-				
-			}
-		});		
+		captureButton.addActionListener(e -> {
+
+			String partie1 = (String)allExamens.get(Collections.max(allExamens.keySet())).get("tags");
+			Container root =  Library_Capture_CSV.getRootContainer(captureButton);
+
+			captureButton.setVisible(false);
+
+			// Capture, nouvelle methode a utiliser sur le reste des programmes
+			BufferedImage capture = new BufferedImage(root.getWidth(), root.getHeight(),BufferedImage.TYPE_INT_ARGB);
+			root.paint(capture.getGraphics());
+			ImagePlus imp = new ImagePlus("capture", capture);
+			String partie2=Library_Capture_CSV.genererDicomTagsPartie2(imp);
+			imp.setProperty("Info", partie1+partie2);
+			imp.show();
+			imp.getWindow().toFront();
+
+			captureButton.setVisible(true);
+
+			//On propose de sauver la capture en DICOM
+			IJ.run("myDicom...");
+
+
+		});
 		return captureButton;
 	}
 

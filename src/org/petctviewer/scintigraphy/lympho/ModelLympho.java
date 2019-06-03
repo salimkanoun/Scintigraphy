@@ -1,12 +1,6 @@
 package org.petctviewer.scintigraphy.lympho;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.lympho.gui.TabPelvis;
 import org.petctviewer.scintigraphy.lympho.pelvis.ModelPelvis;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -15,11 +9,14 @@ import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ModelLympho extends ModelScin {
-
-	private double injectionRatio;
 
 	public static final int FOOT_RIGHT_ANT_FIRST = 0, FOOT_LEFT_ANT_FIRST = 1, FOOT_RIGHT_POST_FIRST = 2,
 			FOOT_LEFT_POST_FIRST = 3, FOOT_RIGHT_ANT_SECOND = 4, FOOT_LEFT_ANT_SECOND = 5, FOOT_RIGHT_POST_SECOND = 6,
@@ -30,15 +27,15 @@ public class ModelLympho extends ModelScin {
 
 	private boolean locked;
 
-	private Map<Integer, Double> coups;
+	private final Map<Integer, Double> coups;
 
-	private Map<Integer, Integer> geometricalAverage;
+	private final Map<Integer, Integer> geometricalAverage;
 
 	private String[] retour;
 
 	private TabResult resutlTab;
 
-	private List<Double> results;
+	private final List<Double> results;
 
 	public ModelLympho(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
@@ -188,7 +185,6 @@ public class ModelLympho extends ModelScin {
 		retour[6] = "<html><span style=\"color:deeppink\">Injection ratio of MG Left/Right:   ";
 		double injectionRatio = this.coups.get(1) / this.coups.get(0);
 		retour[6] += " " + us.format(injectionRatio) + "  </span></html>";
-		this.injectionRatio = injectionRatio;
 
 		this.results.add(Double.valueOf(us.format(injectionRatio)));
 		this.results.add(Double.valueOf(us.format(drainedPercentageRight)));
@@ -198,8 +194,7 @@ public class ModelLympho extends ModelScin {
 
 	}
 
-	public double getInjectionRatio() {
-		return this.injectionRatio;
+	public void getInjectionRatio() {
 	}
 
 	public void setResultTab(TabResult resultTab) {

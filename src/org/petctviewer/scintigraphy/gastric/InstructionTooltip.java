@@ -1,15 +1,11 @@
 package org.petctviewer.scintigraphy.gastric;
 
-import java.awt.Color;
-import java.awt.Frame;
-import java.awt.HeadlessException;
-import java.awt.Label;
-import java.awt.Window;
+import java.awt.*;
 
 public class InstructionTooltip extends Window {
 	private static final long serialVersionUID = 1L;
 
-	private Label label;
+	private final Label label;
 	
 	public InstructionTooltip(Frame parent) throws HeadlessException {
 		super(parent);

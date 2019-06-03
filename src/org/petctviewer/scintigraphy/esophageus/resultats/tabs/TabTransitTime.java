@@ -1,18 +1,5 @@
 package org.petctviewer.scintigraphy.esophageus.resultats.tabs;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-
-import javax.swing.Box;
-import javax.swing.ButtonGroup;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -28,6 +15,9 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class TabTransitTime extends TabResult {
 
@@ -45,9 +35,9 @@ public class TabTransitTime extends TabResult {
 
 	private static int numSeriesSelectors = 0;
 
-	private Integer nbAcquisition;
+	private final Integer nbAcquisition;
 
-	private Model_Resultats_EsophagealTransit modeleApp;
+	private final Model_Resultats_EsophagealTransit modeleApp;
 
 	public TabTransitTime(int nbAcquisition, FenResults parent, Model_Resultats_EsophagealTransit model) {
 		super(parent, "Transit Time");
@@ -85,22 +75,19 @@ public class TabTransitTime extends TabResult {
 			un.setLayout(new FlowLayout());
 
 			radioButtonTransitTime[i] = new JRadioButton("Acquisition " + (i + 1));
-			radioButtonTransitTime[i].addItemListener(new ItemListener() {
-				@Override
-				public void itemStateChanged(ItemEvent e) {
-					TabTransitTime tab = TabTransitTime.this;
+			radioButtonTransitTime[i].addItemListener(e -> {
+				TabTransitTime tab = TabTransitTime.this;
 
-					for (int i = 0; i < tab.radioButtonTransitTime.length; i++) {
-						if (((JRadioButton) e.getSource()).equals(radioButtonTransitTime[i])) {
-							tab.setVisibilitySeriesGraph(tab.graphTransitTime, i, true);
-							numSeriesSelectors = i;
-							tab.startSelector.setXValue(selectorsTransitValue[i][0]);
-							tab.endSelector.setXValue(selectorsTransitValue[i][1]);
-							tab.valueSetterTransit.updateAreas();
+				for (int i1 = 0; i1 < tab.radioButtonTransitTime.length; i1++) {
+					if (e.getSource().equals(radioButtonTransitTime[i1])) {
+						tab.setVisibilitySeriesGraph(tab.graphTransitTime, i1, true);
+						numSeriesSelectors = i1;
+						tab.startSelector.setXValue(selectorsTransitValue[i1][0]);
+						tab.endSelector.setXValue(selectorsTransitValue[i1][1]);
+						tab.valueSetterTransit.updateAreas();
 
-						} else {
-							tab.setVisibilitySeriesGraph(tab.graphTransitTime, i, false);
-						}
+					} else {
+						tab.setVisibilitySeriesGraph(tab.graphTransitTime, i1, false);
 					}
 				}
 			});
@@ -154,11 +141,11 @@ public class TabTransitTime extends TabResult {
 		graphTransitTime.getXYPlot().setRangeGridlinePaint(Color.black);
 		graphTransitTime.getXYPlot().setDomainGridlinePaint(Color.black);
 
-		XYSeries[][] datasetModele = ((Model_Resultats_EsophagealTransit) modeleApp).getDataSetTransitTime();
+		XYSeries[][] datasetModele = modeleApp.getDataSetTransitTime();
 		XYSeriesCollection dataset = new XYSeriesCollection();
-		for (int i = 0; i < datasetModele.length; i++) {
-			for (int j = 0; j < datasetModele[i].length; j++) {
-				dataset.addSeries(datasetModele[i][j]);
+		for (XYSeries[] xySeries : datasetModele) {
+			for (int j = 0; j < xySeries.length; j++) {
+				dataset.addSeries(xySeries[j]);
 			}
 		}
 		// Changes background color
@@ -199,7 +186,7 @@ public class TabTransitTime extends TabResult {
 						"Acquisition " + (numSeriesSelectors + 1) + " : " + Library_Quantif.round(delta, 2) + " sec");
 
 				// on l'envoi au modele pour le csv
-				((Model_Resultats_EsophagealTransit) modeleApp).setTimeMeasure(numSeriesSelectors, delta);
+				modeleApp.setTimeMeasure(numSeriesSelectors, delta);
 			}
 		});
 

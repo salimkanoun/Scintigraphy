@@ -10,11 +10,11 @@ public class DrawLoopInstruction extends DefaultGenerator {
 
 	private static final long serialVersionUID = 1L;
 
-	protected DrawInstructionType InstructionType;
+	protected DrawInstructionType InstructionType = DrawInstructionType.DRAW_LOOP;
 
 	private int indexRoiToDisplay;
 
-	private transient ImageState state;
+	private final transient ImageState state;
 
 	protected String RoiName;
 
@@ -34,7 +34,6 @@ public class DrawLoopInstruction extends DefaultGenerator {
 			this.state = parent.getImageState();
 		else
 			this.state = state;
-		this.InstructionType  = DrawInstructionType.DRAW_LOOP;
 	}
 
 	@Override

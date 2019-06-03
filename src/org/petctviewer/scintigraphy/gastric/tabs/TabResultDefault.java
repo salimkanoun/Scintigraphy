@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.gastric.tabs;
 
-import com.itextpdf.text.Font;
 import ij.ImagePlus;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
@@ -35,19 +34,22 @@ import java.util.Date;
 
 public abstract class TabResultDefault extends TabResult implements ItemListener, ChartMouseListener {
 
-	Unit unitDefault, unitTime;
-	private ImagePlus capture;
+	final Unit unitDefault;
+	final Unit unitTime;
+	private final ImagePlus capture;
 	private Date timeIngestion;
 	private XYSeriesCollection data;
 	private JValueSetter valueSetter;
-	private JComboBox<FitType> fitsChoices;
-	private JLabel labelInterpolation, labelError;
-	private JButton btnAutoFit;
-	private ResultRequest request;
-	private int seriesToGenerate;
+	private final JComboBox<FitType> fitsChoices;
+	private final JLabel labelInterpolation;
+	private final JLabel labelError;
+	private final JButton btnAutoFit;
+	private final ResultRequest request;
+	private final int seriesToGenerate;
+	private JLabel lagPhaseValue;
 
-	TabResultDefault(FenResults parent, ImagePlus capture, String title,
-					 Unit unitDefault, Unit unitTime, int seriesToGenerate) {
+	TabResultDefault(FenResults parent, ImagePlus capture, String title, Unit unitDefault, Unit unitTime,
+	                 int seriesToGenerate) {
 		super(parent, title);
 
 		// Declare attributes
@@ -96,7 +98,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		// Prepare model
 		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
 			getModel().activateTime0();
-			getModel().setTimeIngestion(((ControllerWorkflow_Gastric)parent.getController()).specifiedTimeIngestion);
+			getModel().setTimeIngestion(((ControllerWorkflow_Gastric) parent.getController()).specifiedTimeIngestion);
 		} else {
 			getModel().deactivateTime0();
 			getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
@@ -118,8 +120,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 				request.setUnit(unitsUsed[j]);
 				request.setIndexImage(i);
 				ResultValue res = getModel().getResult(request);
-				if (res == null)
-					arr[j] = "--";
+				if (res == null) arr[j] = "--";
 				else {
 					res.convert(unitsUsed[j]);
 					arr[j] = res.formatValue();
@@ -145,9 +146,13 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	private void displayResult(JPanel infoRes, ResultValue result) {
 		infoRes.add(new JLabel(result.getResultType().getName() + ":"));
 		JLabel lRes = new JLabel(result.formatValue() + " " + result.getUnit());
-		if (result.getExtrapolation() == FitType.NONE)
-			lRes.setForeground(Color.RED);
+		if (result.getExtrapolation() == FitType.NONE) lRes.setForeground(Color.RED);
 		infoRes.add(lRes);
+
+		if (result.getResultType() == Model_Gastric.LAG_PHASE_PERCENTAGE || result
+				.getResultType() == Model_Gastric.LAG_PHASE_GEOAVG) {
+			this.lagPhaseValue = lRes;
+		}
 	}
 
 	/**
@@ -161,16 +166,11 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 * @return TRUE if the result is normal and FALSE if the result is abnormal
 	 */
 	private boolean isRetentionNormal(double time, double value) {
-		if (time == 30.)
-			return value >= 70.;
-		if (time == 60.)
-			return value >= 30. && value <= 90.;
-		if (time == 120.)
-			return value <= 60.;
-		if (time == 180.)
-			return value <= 30.;
-		if (time == 240.)
-			return value <= 10.;
+		if (time == 30.) return value >= 70.;
+		if (time == 60.) return value >= 30. && value <= 90.;
+		if (time == 120.) return value <= 60.;
+		if (time == 180.) return value <= 30.;
+		if (time == 240.) return value <= 10.;
 
 		throw new IllegalArgumentException("No information for this time (" + time + ")");
 	}
@@ -186,16 +186,11 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 * @return readable string indicating the normal range
 	 */
 	private String retentionNormalArea(double time) {
-		if (time == 30.)
-			return ">= 70%";
-		if (time == 60.)
-			return ">= 30% and <= 90%";
-		if (time == 120.)
-			return "<= 60%";
-		if (time == 180.)
-			return "<= 30%";
-		if (time == 240.)
-			return "<= 10%";
+		if (time == 30.) return ">= 70%";
+		if (time == 60.) return ">= 30% and <= 90%";
+		if (time == 120.) return "<= 60%";
+		if (time == 180.) return "<= 30%";
+		if (time == 240.) return "<= 10%";
 
 		throw new IllegalArgumentException("No information for this time (" + time + ")");
 	}
@@ -251,10 +246,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	private void displayRetentionResult(JPanel infoRes, double time, ResultValue result) {
 		// Format time string
 		String timeString;
-		if (time < 60.)
-			timeString = (int) time + "min";
-		else
-			timeString = (int) (time / 60) + "h";
+		if (time < 60.) timeString = (int) time + "min";
+		else timeString = (int) (time / 60) + "h";
 
 		infoRes.add(new JLabel(result.getResultType().getName() + " at " + timeString + ":"));
 
@@ -288,7 +281,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 			request.setUnit(unitsRequested[i]);
 
 			ResultValue result = getModel().getResult(request);
-			hasExtrapolatedValue = result.isExtrapolated();
+			hasExtrapolatedValue = result.isExtrapolated() || hasExtrapolatedValue;
 			this.displayResult(infoRes, result);
 		}
 
@@ -296,12 +289,12 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		request.changeResultOn(resultsRequested[resultsRequested.length - 1]);
 		request.setUnit(unitsRequested[unitsRequested.length - 1]);
 		ResultValue result = getModel().getRetentionResult(request, 30.);
-		hasExtrapolatedValue = result.isExtrapolated();
+		hasExtrapolatedValue = result.isExtrapolated() || hasExtrapolatedValue;
 		this.displayRetentionResult(infoRes, 30., result);
 		// Retention from 1h to 4h
 		for (double time = 60.; time <= 240.; time += 60.) {
 			result = getModel().getRetentionResult(request, time);
-			hasExtrapolatedValue = result.isExtrapolated();
+			hasExtrapolatedValue = result.isExtrapolated() || hasExtrapolatedValue;
 			this.displayRetentionResult(infoRes, time, result);
 		}
 		// Grade of retention at 4h
@@ -311,7 +304,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 		panel.add(infoRes, BorderLayout.CENTER);
 		if (hasExtrapolatedValue) {
-			JLabel l = null;
+			JLabel l;
 			if (getSelectedFit() == FitType.NONE) {
 				l = new JLabel("(*) No fit has been selected to extrapolate the values!");
 				l.setForeground(Color.RED);
@@ -330,8 +323,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		try {
 			// Create fit
 			XYSeries series = ((XYSeriesCollection) this.getValueSetter().retrieveValuesInSpan()).getSeries(0);
-			this.request.setFit(Fit.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray()),
-					unitDefault));
+			this.request.setFit(Fit
+					.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray()), unitDefault));
 
 			this.drawFit();
 			this.setErrorMessage(null);
@@ -376,13 +369,16 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	private JPanel createPanelResults() {
 		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
 			getModel().activateTime0();
-			getModel().setTimeIngestion(((ControllerWorkflow_Gastric)parent.getController()).specifiedTimeIngestion);
+			getModel().setTimeIngestion(((ControllerWorkflow_Gastric) parent.getController()).specifiedTimeIngestion);
 
 			JPanel panel = new JPanel(new GridLayout(2, 2));
 
 			panel.add(new DynamicImage(capture.getImage()));
 			panel.add(getModel().createGraph_3());
 			panel.add(getModel().createGraph_1());
+
+			if(((ControllerWorkflow_Gastric)parent.getController()).isDynamicStarted())
+				getModel().deactivateTime0();
 			panel.add(getModel().createGraph_2());
 
 			return panel;
@@ -423,6 +419,40 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		return panel;
 	}
 
+	/**
+	 * Creates the panel with the selector for the lag phase.
+	 */
+	private Component createPanelLagPhase() {
+		JPanel panel = new JPanel(new BorderLayout());
+
+		JValueSetter valueSetter = new JValueSetter(this.valueSetter.getChart());
+		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE)
+			this.request.changeResultOn(Model_Gastric.LAG_PHASE_PERCENTAGE);
+		else this.request.changeResultOn(Model_Gastric.LAG_PHASE_GEOAVG);
+
+		Selector selector = new Selector("Lag Phase", getModel().getResult(request).getValue(), 0,
+				RectangleAnchor.BOTTOM_LEFT);
+		valueSetter.addSelector(selector, "lag_phase");
+
+		valueSetter.addChartMouseListener(new ChartMouseListener() {
+			@Override
+			public void chartMouseClicked(ChartMouseEvent event) {
+			}
+
+			@Override
+			public void chartMouseMoved(ChartMouseEvent event) {
+				if(valueSetter.getGrabbedSelector() != null) {
+					// Update lag phase
+					lagPhaseValue.setText(ResultValue.displayAsTime(selector.getXValue()));
+				}
+			}
+		});
+
+		panel.add(valueSetter, BorderLayout.CENTER);
+
+		return panel;
+	}
+
 	protected JPanel createPanelCustomRetention() {
 		JTextField fieldCustomRetention = new JTextField(3);
 		JLabel resultRetention = new JLabel("--");
@@ -448,7 +478,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 					// Prepare model
 					if (seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
 						getModel().activateTime0();
-						getModel().setTimeIngestion(((ControllerWorkflow_Gastric)parent.getController()).specifiedTimeIngestion);
+						getModel().setTimeIngestion(
+								((ControllerWorkflow_Gastric) parent.getController()).specifiedTimeIngestion);
 						request.changeResultOn(Model_Gastric.RETENTION_PERCENTAGE);
 					} else {
 						getModel().deactivateTime0();
@@ -458,8 +489,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 					request.setUnit(Unit.PERCENTAGE);
 
-					ResultValue result = getModel().getRetentionResult(request,
-							Double.parseDouble(fieldCustomRetention.getText()));
+					ResultValue result = getModel()
+							.getRetentionResult(request, Double.parseDouble(fieldCustomRetention.getText()));
 					// Update result
 					resultRetention.setText(result.formatValue() + result.getUnit().abrev());
 				} catch (NumberFormatException exception) {
@@ -535,8 +566,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		if (seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
 			getModel().activateTime0();
 			getModel().setTimeIngestion(((ControllerWorkflow_Gastric) parent.getController()).specifiedTimeIngestion);
-		}
-		else {
+		} else {
 			getModel().deactivateTime0();
 			getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
 		}
@@ -637,6 +667,9 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 		// Fit
 		tab.add("Fit", this.createPanelFit());
+
+		// Lag phase
+		tab.add("Lag phase", this.createPanelLagPhase());
 
 		return tab;
 	}

@@ -6,6 +6,7 @@ import java.util.List;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
+import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
@@ -24,14 +25,18 @@ public class FenApplicationSecondHepaticDyn extends FenApplicationWorkflow {
 
 	}
 
-	public static void importRoiList(Frame frame, ModelScin modele, ControllerWorkflow controller)
-			throws UnauthorizedRoiLoadException {
+	public static boolean importRoiList(Frame frame, ModelScin modele, ControllerWorkflow controller)
+			throws UnauthorizedRoiLoadException, UnloadRoiException {
 
 		List<Roi> rois = Library_Roi.getRoiFromZipWithWindow(frame, controller);
+		if(rois == null)
+			return false;
 		modele.getRoiManager().removeAll();
 
 		for (Roi roi : rois)
 			modele.getRoiManager().addRoi(roi);
+		
+		return true;
 
 	}
 }

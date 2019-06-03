@@ -1,13 +1,8 @@
 package org.petctviewer.scintigraphy.hepatic.tab;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.util.List;
-
-import javax.swing.JButton;
-import javax.swing.JPanel;
-
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.plugin.MontageMaker;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -23,24 +18,22 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.plugin.MontageMaker;
+import javax.swing.*;
+import java.awt.*;
+import java.util.List;
 
 public class TabTAC {
 
-	private String title;
-	protected FenResults parent;
+	private final String title;
+	protected final FenResults parent;
 
-	private JPanel panel;
+	private final JPanel panel;
 
 	private JPanel result;
 
-	private TabResult tab;
+	private final TabResult tab;
 
-	private ImagePlus montage;
-
-	private String studyName;
+	private final String studyName;
 	private boolean singleGraph;
 
 	public TabTAC(FenResults parent, TabResult tab) {
@@ -69,11 +62,11 @@ public class TabTAC {
 
 			ImageStack stackCapture = Library_Capture_CSV
 					.captureToStack(new ImagePlus[] { Library_Capture_CSV.captureImage(modele.getCapture(), 512, 0) });
-			this.montage = this.montage(stackCapture);
+			ImagePlus montage = this.montage(stackCapture);
 
 			// BufferedImage capture = fenApplication.getImagePlus().getBufferedImage();
 
-			grid.add(new DynamicImage(this.montage.getBufferedImage()));
+			grid.add(new DynamicImage(montage.getBufferedImage()));
 
 			List<XYSeries> series = modele.getSeries();
 			ChartPanel chartDuodenom = Library_JFreeChart.associateSeries(new String[] { "Duodenom" }, series);
@@ -153,7 +146,7 @@ public class TabTAC {
 
 	public void switchGraph(JButton buttonSwitchGraph) {
 		this.singleGraph = !singleGraph;
-		if (this.singleGraph == true)
+		if (this.singleGraph)
 			buttonSwitchGraph.setText("Multiple graphs");
 		else
 			buttonSwitchGraph.setText("Sinlgle graph");

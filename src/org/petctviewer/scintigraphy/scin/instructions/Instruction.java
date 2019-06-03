@@ -14,7 +14,7 @@ public interface Instruction {
 	 * This enum is use to save and load instructions that draw ROI.
 	 *
 	 */
-	public enum DrawInstructionType {
+	enum DrawInstructionType {
 		
 		DRAW_ROI("DrawRoiInstruction"), 
 		DRAW_LOOP("DrawLoopInstruction"), 
@@ -23,9 +23,9 @@ public interface Instruction {
 		DRAW_SYMMETRICAL_LOOP("DrawSymmetricalLoopInstruction"),
 		CHECK_INTERSECTION("CheckIntersectionInstruction");
 		
-		private String name;
+		private final String name;
 		
-		private DrawInstructionType(String name) {
+		DrawInstructionType(String name) {
 			this.name = name;
 		}
 		

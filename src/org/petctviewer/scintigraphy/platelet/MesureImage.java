@@ -19,7 +19,7 @@ import java.util.HashMap;
 
 public class MesureImage {
 	
-	Date mesureTime;
+	final Date mesureTime;
 	private double[] spleen=new double[2];
 	private double[] liver=new double[2];
 	private double[] heart=new double[2];
@@ -28,7 +28,7 @@ public class MesureImage {
 	private double[] heartAnt=new double[2];
 	private Boolean antPost=false;
 	private double delayFromStart=0;
-	private HashMap<String, Double> resultats = new HashMap<>();
+	private final HashMap<String, Double> resultats = new HashMap<>();
 	
 	public MesureImage(Date dateAcquisition) {
 		this.mesureTime=dateAcquisition;
@@ -125,13 +125,6 @@ public class MesureImage {
 		}
 		
 		return this.resultats;
-	}
-	
-	/**
-	 * @param firstImage  
-	 */
-	public void corrigerDecroissance(Date firstImage){
-		//vide
 	}
 	
 	

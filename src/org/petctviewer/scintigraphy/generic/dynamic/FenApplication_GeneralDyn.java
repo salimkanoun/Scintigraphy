@@ -4,24 +4,22 @@ import java.awt.Button;
 import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Panel;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
-
-import ij.IJ;
-import ij.gui.Toolbar;
 
 public class FenApplication_GeneralDyn extends FenApplicationWorkflow {
 
 	private static final long serialVersionUID = 2588688323462231144L;
 
-	private Button btn_finish;
+	private final Button btn_finish;
 
-	public FenApplication_GeneralDyn(ImageSelection ims, String nom, Scintigraphy vue) {
+	public FenApplication_GeneralDyn(ImageSelection ims, String nom) {
 		super(ims, nom);
 		this.getTextfield_instructions().setEditable(true);
 		this.btn_finish = new Button("Finish");
@@ -41,9 +39,28 @@ public class FenApplication_GeneralDyn extends FenApplicationWorkflow {
 		this.getPanel_Instructions_btns_droite().add(btns_instru);
 
 		this.setDefaultSize();
-		
-		IJ.setTool(Toolbar.RECTANGLE);
-		this.imp.setOverlay(Library_Gui.initOverlay(getImagePlus()));
+
+		// Set default button (when pressing enter)
+		this.textfield_instructions.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ENTER && !e.isShiftDown()) {
+					ActionEvent click = new ActionEvent(btn_suivant, ActionEvent.ACTION_PERFORMED, "");
+					btn_suivant.dispatchEvent(click);
+				}
+			}
+		});
+		// Set default button (when pressing Shift + Enter)
+		this.textfield_instructions.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ENTER && e.isShiftDown()) {
+					ActionEvent click = new ActionEvent(btn_finish, ActionEvent.ACTION_PERFORMED, "");
+					btn_finish.dispatchEvent(click);
+				}
+			}
+		});
+
 		this.pack();	
 	}
 
@@ -52,8 +69,8 @@ public class FenApplication_GeneralDyn extends FenApplicationWorkflow {
 	}
 
 	@Override
-	public void setControleur(ControllerScin ctrl) {
-		super.setControleur(ctrl);
+	public void setController(ControllerScin ctrl) {
+		super.setController(ctrl);
 		this.btn_finish.addActionListener(ctrl);
 	}
 }

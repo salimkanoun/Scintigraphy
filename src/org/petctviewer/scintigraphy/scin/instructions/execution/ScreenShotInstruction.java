@@ -1,11 +1,10 @@
 package org.petctviewer.scintigraphy.scin.instructions.execution;
 
-import java.util.List;
-
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
-import ij.ImagePlus;
+import java.util.List;
 
 /**
  * Instruction to take a capture of the image in the FenApplication when this
@@ -17,14 +16,17 @@ import ij.ImagePlus;
  */
 public class ScreenShotInstruction extends ExecutionInstruction {
 
+	private static final long serialVersionUID = 1L;
+
 	public static final int DEFAULT_CAPTURE_WIDTH = 512;
 
-	private transient List<ImagePlus> captures;
-	private int captureIndex;
+	private final transient List<ImagePlus> captures;
+	private final int captureIndex;
 
-	private transient FenApplication fen;
+	private final transient FenApplication fen;
 
-	private int captureHeight, captureWidht;
+	private final int captureHeight;
+	private final int captureWidht;
 
 	/**
 	 * If the width or the height is set to 0, then the ratio is kept.

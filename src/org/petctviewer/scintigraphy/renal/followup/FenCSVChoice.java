@@ -1,22 +1,13 @@
 package org.petctviewer.scintigraphy.renal.followup;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class FenCSVChoice extends JFrame {
 
@@ -24,10 +15,9 @@ public class FenCSVChoice extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private ArrayList<String> chemins;
-	private JPanel affichageChemin;
-	private static int NBMAXCSV = 3;
-			
+	private final ArrayList<String> chemins;
+	private final JPanel affichageChemin;
+
 	public FenCSVChoice() {
 
 		this.chemins = new ArrayList<>();
@@ -39,22 +29,19 @@ public class FenCSVChoice extends JFrame {
 		this.setResizable(false);
 		
 		JButton ajout = new JButton("Add CSV file");
-		ajout.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser fc = new JFileChooser();
-				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				fc.setDialogTitle("Select CSV File");
-				fc.addChoosableFileFilter(new FileNameExtensionFilter("CSV Documents", "csv"));
-				fc.setAcceptAllFileFilterUsed(true);
-				
-				if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
-		    	{	
-					if(ajouterChemin(fc.getSelectedFile().getAbsolutePath())) {
-						ajouterLabelChemin(fc.getSelectedFile().getAbsolutePath());
-					}
-		    	}
-			}
+		ajout.addActionListener(e -> {
+			JFileChooser fc = new JFileChooser();
+			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			fc.setDialogTitle("Select CSV File");
+			fc.addChoosableFileFilter(new FileNameExtensionFilter("CSV Documents", "csv"));
+			fc.setAcceptAllFileFilterUsed(true);
+
+			if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
+		    {
+				if(ajouterChemin(fc.getSelectedFile().getAbsolutePath())) {
+					ajouterLabelChemin(fc.getSelectedFile().getAbsolutePath());
+				}
+		    }
 		});
 		
 		this.affichageChemin =  new JPanel();
@@ -63,17 +50,10 @@ public class FenCSVChoice extends JFrame {
 		this.add(affichageChemin,BorderLayout.CENTER);
 		
 		JButton tracer = new JButton("Draw");	
-		tracer.addActionListener(new ActionListener() {	
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				FenApplication_FollowUp fenCSV;
-				try {
-					fenCSV = new FenApplication_FollowUp(getChemins());
-					fenCSV.setVisible(true);				
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			}
+		tracer.addActionListener(e -> {
+			FenApplication_FollowUp fenCSV;
+			fenCSV = new FenApplication_FollowUp(getChemins());
+			fenCSV.setVisible(true);
 		});
 		this.add(tracer, BorderLayout.SOUTH);
 
@@ -94,8 +74,9 @@ public class FenCSVChoice extends JFrame {
 	private boolean ajouterChemin(String chemin) {
 		boolean res = false;
 		// controle : qu'il n'y ait pas plus de NBMAXCSV = 3 CSV
+		int NBMAXCSV = 3;
 		if(this.chemins.size() >= NBMAXCSV) {
-			JOptionPane.showMessageDialog(null,"Ajout de fichier CSV limité à "+NBMAXCSV);
+			JOptionPane.showMessageDialog(null,"Ajout de fichier CSV limité à "+ NBMAXCSV);
 		}else {
 			//controle : que l'id du patient soit le meme (non bloquant : choix)
 			if(this.chemins.size() != 0 && !getIdPatient(this.chemins.get(this.chemins.size()-1)).equals(getIdPatient(chemin)) ) {
@@ -119,7 +100,7 @@ public class FenCSVChoice extends JFrame {
 			File file = new File(chemin);
 			FileReader fr = new FileReader(file);
 			BufferedReader br = new BufferedReader(fr);
-			br.readLine();// lecture ligne 1 : nom
+			br.readLine();// lecture ligne 1 : studyName
 			
 			//lecture ligne 2 : id
 			res = br.readLine().split(",")[1]; 

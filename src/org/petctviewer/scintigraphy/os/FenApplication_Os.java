@@ -1,29 +1,13 @@
 package org.petctviewer.scintigraphy.os;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GraphicsEnvironment;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.Rectangle;
+import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
+import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.LineBorder;
-
-import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
-import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import java.awt.*;
 
 /**
  * DISCLAIMER : Dans cette application, il a été fait comme choix d'initialiser
@@ -37,14 +21,15 @@ public class FenApplication_Os extends JPanel {
 	 */
 	private static final long serialVersionUID = 7121587802669948009L;
 	private JSlider slider;
-	private JLabel sliderLabel;
+	private final JLabel sliderLabel;
 	protected Box boxSlider;
 	protected JButton reverseButton;
 
-	private JPanel grid; // Panneau central contenant les DynamicImage de la Scintigrapjie Osseuse
+	private final JPanel grid; // Panneau central contenant les DynamicImage de la Scintigrapjie Osseuse
 
-	protected SidePanel sidePanel;
-	String additionalInfo, nomFen;
+	protected final SidePanel sidePanel;
+	final String additionalInfo;
+	final String nomFen;
 
 	/**
 	 * Constructeur de la fenêtre permettant de visualiser la scintigraphie
@@ -58,14 +43,9 @@ public class FenApplication_Os extends JPanel {
 	 * 
 	 * Crée un sidePanel, qui affiche quelques informations du patient.<br/>
 	 * Appelle finishBuildingWindow() à la fin de l'execution.<br/>
-	 * 
-	 * @param selectedImages
-	 *            liste des images transmises depuis FenSelectionDicom
-	 * @param scin
-	 *            On ne sait pas. C'était dans l'ancien modèle.
+	 *
 	 * @param controleur_os
 	 *            Contrôleur permettant de réagir au click.
-	 * @return
 	 */
 	public FenApplication_Os(Controleur_Os controleur_os) {
 		super(new BorderLayout());
@@ -97,10 +77,6 @@ public class FenApplication_Os extends JPanel {
 	 * Enregistre la valeure macimale du slider, qui permet de gérer le
 	 * contraste.<br/>
 	 * Crée un gridLayout et ajoute dedans les DynamicImage créés.<br/>
-	 * 
-	 * @param img
-	 *            Tableau à double dimension des images transmises
-	 * @return
 	 */
 	public void finishBuildingWindow(Controleur_Os controleur_Os) {
 
@@ -126,7 +102,7 @@ public class FenApplication_Os extends JPanel {
 
 		sidePanel.addContent(gbl);
 
-		controleur_Os.createCaptureButton(sidePanel, new Component[] { this.slider, this.sliderLabel, this.reverseButton }, new Component[] {}, null);
+		controleur_Os.createCaptureButton(sidePanel, new Component[] { this.slider, this.sliderLabel, this.reverseButton }, new Component[] {});
 
 		// sidePanel.addCaptureBtn(getScin(), this.additionalInfo, new Component[] {
 		// this.slider });

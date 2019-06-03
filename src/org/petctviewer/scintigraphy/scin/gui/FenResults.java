@@ -1,13 +1,11 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
-
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
+
+import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class that represent a result window for a study.
@@ -18,10 +16,10 @@ import org.petctviewer.scintigraphy.scin.model.ModelScin;
 public class FenResults extends JFrame {
 	private static final long serialVersionUID = 1L;
 
-	private JTabbedPane tabPane;
-	private List<TabResult> tabsResult;
+	private final JTabbedPane tabPane;
+	private final List<TabResult> tabsResult;
 
-	private ControllerScin controller;
+	private final ControllerScin controller;
 
 	public FenResults(ControllerScin controller) {
 		this.setTitle("Result for " + controller.getModel().getStudyName());
@@ -33,8 +31,6 @@ public class FenResults extends JFrame {
 		this.tabsResult = new ArrayList<>();
 
 		this.add(tabPane);
-
-		this.setVisible(true);
 	}
 
 	public ModelScin getModel() {

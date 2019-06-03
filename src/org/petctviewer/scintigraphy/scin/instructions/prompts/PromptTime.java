@@ -1,19 +1,12 @@
 package org.petctviewer.scintigraphy.scin.instructions.prompts;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
+
+import javax.swing.*;
+import java.awt.*;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
-import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 
 /**
  * This class represents a dialog prompt for a time (hours, minutes, seconds) in
@@ -109,13 +102,10 @@ public class PromptTime extends PromptDialog {
 		panel.add(panCenter, BorderLayout.CENTER);
 
 		JButton btnOk = new JButton("Validate");
-		btnOk.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (isInputValid()) {
-					dispose();
-					controller.clickNext();
-				}
+		btnOk.addActionListener(e -> {
+			if (isInputValid()) {
+				dispose();
+				controller.clickNext();
 			}
 		});
 		panel.add(btnOk, BorderLayout.SOUTH);

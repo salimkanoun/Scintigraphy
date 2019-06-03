@@ -1,16 +1,16 @@
 package org.petctviewer.scintigraphy.scin.instructions.messages;
 
-import java.io.Serializable;
-
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
+
+import java.io.Serializable;
 
 public class MessageInstruction implements Instruction, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	private String message;
+	private final String message;
 
 	public MessageInstruction(String message) {
 		this.message = message;

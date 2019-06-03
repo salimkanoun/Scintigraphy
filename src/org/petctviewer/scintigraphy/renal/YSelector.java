@@ -1,20 +1,17 @@
 package org.petctviewer.scintigraphy.renal;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Paint;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.labels.CrosshairLabelGenerator;
 import org.jfree.chart.plot.Crosshair;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.xy.XYDataset;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An horizontal selector, showing the X coordinate associated to the Y step.
@@ -23,16 +20,15 @@ import org.jfree.data.xy.XYDataset;
  */
 public class YSelector extends Selector implements ChartMouseListener {
 	private static final long serialVersionUID = 6794595703667698248L;
-	private Crosshair crossY;
-	private List<Crosshair> crossXs;
-	private Crosshair crossDemieX;
+	private final Crosshair crossY;
+	private final List<Crosshair> crossXs;
 	private int currentLabelVisible;
 
 	// si le selecteur n'est pas selectionne
 	private boolean yLocked;
 
 	// serie sur laquelle se situe le selecteur
-	private int series;
+	private final int series;
 
 	private Comparable key;
 	private JValueSetter jValueSetter;
@@ -41,8 +37,8 @@ public class YSelector extends Selector implements ChartMouseListener {
 	 * Permet de creer un selecteur deplacable sur un courbe
 	 * 
 	 * @param nom
-	 *            nom du selecteur (null accepte)
-	 * @param startX
+	 *            studyName du selecteur (null accepte)
+	 * @param startY
 	 *            position de depart du selecteur
 	 * @param series
 	 *            series observee (-1 si aucune)
@@ -62,15 +58,12 @@ public class YSelector extends Selector implements ChartMouseListener {
 		// on place le label a l'endroit demande
 		this.crossY.setLabelOutlineVisible(false);
 
-		// on rend le label invisible si le nom est null ou si c'est un espace
-		this.crossY.setLabelGenerator(new CrosshairLabelGenerator() {
-			@Override
-			public String generateLabel(Crosshair crosshair) {
-				if (nom == null || nom.trim().equals("")) {
-					YSelector.this.crossY.setLabelVisible(false);
-				}
-				return nom;
+		// on rend le label invisible si le studyName est null ou si c'est un espace
+		this.crossY.setLabelGenerator(crosshair -> {
+			if (nom == null || nom.trim().equals("")) {
+				YSelector.this.crossY.setLabelVisible(false);
 			}
+			return nom;
 		});
 
 		// le selecteur vertical n'est pour l'instant pas affiche
@@ -112,7 +105,7 @@ public class YSelector extends Selector implements ChartMouseListener {
 
 			// For every y of the graph
 			for (int itemIndex = 0; itemIndex < plot.getDataset().getItemCount(this.series); itemIndex++) {
-				Number yValue = (double) plot.getDataset().getY(this.series, itemIndex);
+				Number yValue = plot.getDataset().getY(this.series, itemIndex);
 				if ((((double) yValue) <= y && y <= previousYValue)) {
 					lastIndex = itemIndex - 1;
 				}
@@ -133,13 +126,14 @@ public class YSelector extends Selector implements ChartMouseListener {
 				}
 				previousYValue = (double) yValue;
 			}
-			this.crossDemieX = new Crosshair(Double.NaN, Color.GRAY, new BasicStroke(0f));
-			this.crossDemieX.setValue(xValue.doubleValue());
-			this.crossDemieX.setLabelVisible(true);
-			this.addDomainCrosshair(this.crossDemieX);
+			Crosshair crossDemieX = new Crosshair(Double.NaN, Color.GRAY, new BasicStroke(0f));
+			crossDemieX.setValue(xValue.doubleValue());
+			crossDemieX.setLabelVisible(true);
+			this.addDomainCrosshair(crossDemieX);
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public void chartMouseMoved(ChartMouseEvent event) {
 		XYPlot plot = (XYPlot) event.getChart().getPlot();
@@ -167,7 +161,7 @@ public class YSelector extends Selector implements ChartMouseListener {
 				// FOr every y point of our value
 				for (int itemIndex = 0; itemIndex < plot.getDataset().getItemCount(this.series); itemIndex++) {
 					// The actual y value of the selector, on the graph.
-					Number yValue = (double) plot.getDataset().getY(this.series, itemIndex);
+					Number yValue = plot.getDataset().getY(this.series, itemIndex);
 					// If the value of the selector match the current value of the graph
 					if (((double) yValue) == y || y == previousYValue || (((double) yValue) <= y && y <= previousYValue)
 							|| (((double) yValue) >= y && y >= previousYValue)) {

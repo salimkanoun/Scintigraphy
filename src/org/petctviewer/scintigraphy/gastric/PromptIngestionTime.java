@@ -1,18 +1,17 @@
 package org.petctviewer.scintigraphy.gastric;
 
-import java.awt.Color;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
+import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptTime;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-
-import javax.swing.JLabel;
-
-import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
-import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptTime;
-import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 /**
  * This class represents a dialog prompt for the ingestion time.
@@ -23,9 +22,9 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 public class PromptIngestionTime extends PromptTime {
 	private static final long serialVersionUID = 1L;
 
-	private JLabel lError;
+	private final JLabel lError;
 
-	private Date acquisitionTime;
+	private final Date acquisitionTime;
 
 	public PromptIngestionTime(ControllerScin controller) {
 		super(controller, "Ingestion",

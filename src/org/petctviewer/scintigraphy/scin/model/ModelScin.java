@@ -1,16 +1,14 @@
 package org.petctviewer.scintigraphy.scin.model;
 
-import java.util.HashMap;
-
-import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import ij.ImagePlus;
 import ij.plugin.frame.RoiManager;
 import ij.util.DicomTools;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+
+import java.util.HashMap;
 
 /**
  * Represents the model in the MVC pattern.
@@ -23,7 +21,7 @@ public abstract class ModelScin {
     protected RoiManager roiManager;
     protected ImageSelection[] selectedImages;
 
-    protected String studyName;
+    protected final String studyName;
 
     public ModelScin(ImageSelection[] selectedImages, String studyName) {
         this.roiManager = new RoiManager(false);
@@ -106,8 +104,8 @@ public abstract class ModelScin {
      * meme pour tout le modele
      *
      * @param imp          : imageplus originale (pour recuperer des elements du
-     *                     Header tels que le nom du patient...)
-     * @param nomProgramme : nom du programme qui l'utilise si par exemple
+     *                     Header tels que le studyName du patient...)
+     * @param nomProgramme : studyName du programme qui l'utilise si par exemple
      *                     "pulmonary shunt" la capture sera appelee "Capture
      *                     Pulmonary Shunt"
      * @return retourne la premi�re partie du header en string auquelle on ajoutera

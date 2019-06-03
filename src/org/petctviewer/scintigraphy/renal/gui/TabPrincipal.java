@@ -1,21 +1,10 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.image.BufferedImage;
-import java.util.HashMap;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-
+import ij.ImagePlus;
+import ij.plugin.ZProjector;
+import ij.process.ImageProcessor;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Model_Renal;
-import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
@@ -23,25 +12,22 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
-import ij.ImagePlus;
-import ij.plugin.ZProjector;
-import ij.process.ImageProcessor;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
 class TabPrincipal extends TabResult {
 
-	private BufferedImage capture;
+	private final BufferedImage capture;
 
 	/**
 	 * affiche les resultats de l'examen renal
-	 * 
-	 * @param vueScin
-	 *            la vue
+	 *
 	 * @param capture
 	 *            capture du rein projetee
-	 * @param chartPanel
-	 *            chartpanel avec l'overlay d'ajustation
 	 */
-	public TabPrincipal(RenalScintigraphy vue, BufferedImage capture, FenResults parent) {
+	public TabPrincipal(BufferedImage capture, FenResults parent) {
 		super(parent, "Main", true);
 		this.capture = capture;
 
@@ -133,7 +119,7 @@ class TabPrincipal extends TabResult {
 			JLabel lbl_min = new JLabel(mins[i] + "  min");
 			pnl_roe.add(lbl_min);
 
-			JLabel lbl_g = null;
+			JLabel lbl_g;
 			if (kidneys[0]) {
 				lbl_g = new JLabel(((Model_Renal) this.parent.getModel()).getROE(mins[i], "L") + " %");
 			} else {
@@ -142,7 +128,7 @@ class TabPrincipal extends TabResult {
 			lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
 			pnl_roe.add(lbl_g);
 
-			JLabel lbl_d = null;
+			JLabel lbl_d;
 			if (kidneys[1]) {
 				lbl_d = new JLabel(((Model_Renal) this.parent.getModel()).getROE(mins[i], "R") + " %");
 			} else {
@@ -321,13 +307,13 @@ class TabPrincipal extends TabResult {
 		// l'intervalle est defini par l'utilisateur
 		Double x1 = adjusted.get("start");
 		Double x2 = adjusted.get("end");
-		Double debut = Math.min(x1, x2);
-		Double fin = Math.max(x1, x2);
+		double debut = Math.min(x1, x2);
+		double fin = Math.max(x1, x2);
 
 		int slice1 = ModelScinDyn.getSliceIndexByTime(debut * 60 * 1000,
-				((Model_Renal) this.parent.getModel()).getFrameduration());
+				((Model_Renal) this.parent.getModel()).getFrameDuration());
 		int slice2 = ModelScinDyn.getSliceIndexByTime(fin * 60 * 1000,
-				((Model_Renal) this.parent.getModel()).getFrameduration());
+				((Model_Renal) this.parent.getModel()).getFrameDuration());
 		JValueSetter chartNephrogram = ((Model_Renal) this.parent.getModel()).getNephrogramChart();
 		ImagePlus proj = ZProjector.run(parent.getModel().getImagePlus(), "sum", slice1, slice2);
 		proj.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);

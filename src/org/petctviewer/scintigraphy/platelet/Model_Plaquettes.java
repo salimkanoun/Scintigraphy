@@ -1,4 +1,4 @@
-/**
+/*
 Copyright (C) 2017 KANOUN Salim
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public v.3 License as published by
@@ -14,21 +14,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 package org.petctviewer.scintigraphy.platelet;
 
+import ij.IJ;
+import ij.ImagePlus;
+import ij.measure.Measurements;
+import ij.measure.ResultsTable;
 import ij.plugin.filter.Analyzer;
-
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.image.BufferedImage;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.swing.JTable;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -42,10 +32,12 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.measure.Measurements;
-import ij.measure.ResultsTable;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.text.DecimalFormat;
+import java.util.List;
+import java.util.*;
 
 public class Model_Plaquettes extends ModelScin {
 
@@ -53,8 +45,8 @@ public class Model_Plaquettes extends ModelScin {
 	// d'aqcisition
 	// et l'objet contient toutes les mesusres realisee sur image ant(si presente)
 	// et post
-	HashMap<Date, MesureImage> mesures = new HashMap<>();
-	private Date dateHeureDebut;
+	final HashMap<Date, MesureImage> mesures = new HashMap<>();
+	private final Date dateHeureDebut;
 
 	public Model_Plaquettes(Date dateHeureDebut, ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
@@ -133,8 +125,8 @@ public class Model_Plaquettes extends ModelScin {
 		}
 
 		if (Controller_Plaquettes.showLog) {
-			IJ.log(roi + "counts= " + String.valueOf(counts));
-			IJ.log(roi + "mean= " + String.valueOf(mean));
+			IJ.log(roi + "counts= " + counts);
+			IJ.log(roi + "mean= " + mean);
 		}
 	}
 
@@ -189,17 +181,13 @@ public class Model_Plaquettes extends ModelScin {
 
 		}
 
-		JTable table = new JTable(data, titreColonne);
-		return table;
+		return new JTable(data, titreColonne);
 
 	}
 
 	/**
 	 * collecte les valeurs, appelle la methode de creation de courbes et renvoie
 	 * les courbes dans un tableau d'ImagePlus
-	 * 
-	 * @param table
-	 * @return
 	 */
 	protected ImagePlus[] createDataset(JTable table) {
 		XYSeriesCollection datasetPost = new XYSeriesCollection();
@@ -213,7 +201,7 @@ public class Model_Plaquettes extends ModelScin {
 
 			// On ajoute les valeurs
 			for (int j = 1; j < table.getColumnCount(); j++) {
-				double x = Double.parseDouble(table.getColumnName(j).toString().replaceAll(",", "."));
+				double x = Double.parseDouble(table.getColumnName(j).replaceAll(",", "."));
 				double y = Double.parseDouble(table.getValueAt(i, j).toString().replaceAll(",", "."));
 				courbe.add(x, y);
 			}
@@ -249,10 +237,6 @@ public class Model_Plaquettes extends ModelScin {
 	/**
 	 * Cree les courbes en une image de 640*512 � partir d'un dataset de valeur (un
 	 * ou plusieurs courbes)
-	 * 
-	 * @param dataset
-	 * @param title
-	 * @return
 	 */
 	private static ImagePlus makeGraph(XYSeriesCollection dataset, String title) {
 		JFreeChart xylineChart = ChartFactory.createXYLineChart(title, "Hours", "Value", dataset,
@@ -288,8 +272,7 @@ public class Model_Plaquettes extends ModelScin {
 		// Grid
 		plot.setDomainGridlinesVisible(false);
 		BufferedImage buff = xylineChart.createBufferedImage(640, 512);
-		ImagePlus courbe = new ImagePlus(title, buff);
-		return courbe;
+		return new ImagePlus(title, buff);
 	}
 
 	@Override

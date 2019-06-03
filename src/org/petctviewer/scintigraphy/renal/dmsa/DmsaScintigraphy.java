@@ -1,7 +1,9 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
-import java.awt.Color;
-
+import ij.IJ;
+import ij.gui.Overlay;
+import ij.gui.Toolbar;
+import ij.plugin.StackReverser;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -12,10 +14,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
-import ij.gui.Overlay;
-import ij.gui.Toolbar;
-import ij.plugin.StackReverser;
+import java.awt.*;
 
 public class DmsaScintigraphy extends Scintigraphy {
 
@@ -25,8 +24,7 @@ public class DmsaScintigraphy extends Scintigraphy {
 
 	@Override
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
-		if (selectedImages.length > 1)
-			throw new WrongNumberImagesException(selectedImages.length, 1);
+		if (selectedImages.length > 1) throw new WrongNumberImagesException(selectedImages.length, 1);
 
 		ImageSelection imp = selectedImages[0].clone();
 
@@ -42,7 +40,7 @@ public class DmsaScintigraphy extends Scintigraphy {
 
 		} else {
 			throw new WrongOrientationException(selectedImages[0].getImageOrientation(),
-					new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT, Orientation.POST });
+					new Orientation[]{Orientation.ANT_POST, Orientation.POST_ANT, Orientation.POST});
 		}
 
 		ImageSelection[] selection = new ImageSelection[1];
@@ -60,9 +58,8 @@ public class DmsaScintigraphy extends Scintigraphy {
 		selectedImages[0].getImagePlus().setOverlay(overlay);
 		IJ.setTool(Toolbar.POLYGON);
 
-//		fen.setControleur(new Controleur_Dmsa(this, selectedImages, "dmsa"));
-		((FenApplicationWorkflow) fen).setControleur(new ControllerWorkflowDMSA(this,
-				(FenApplicationWorkflow) this.getFenApplication(), new Model_Dmsa(selectedImages, "dmsa")));
+		fen.setController(
+				new ControllerWorkflowDMSA(this, (FenApplicationWorkflow) this.getFenApplication(), selectedImages));
 	}
 
 }

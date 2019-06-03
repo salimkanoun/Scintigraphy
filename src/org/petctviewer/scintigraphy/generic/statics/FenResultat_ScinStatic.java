@@ -1,20 +1,13 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.image.BufferedImage;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class FenResultat_ScinStatic extends FenResults {
 
@@ -23,10 +16,12 @@ public class FenResultat_ScinStatic extends FenResults {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private JPanel panAnt, panPost, panAvgGeo;
-	private BufferedImage capture;
+	private final JPanel panAnt;
+	private final JPanel panPost;
+	private final JPanel panAvgGeo;
+	private final BufferedImage capture;
 
-	private TabResult tab;
+	private final TabResult tab;
 
 	public FenResultat_ScinStatic(BufferedImage capture, ControllerScin controller) {
 		super(controller);
@@ -36,10 +31,13 @@ public class FenResultat_ScinStatic extends FenResults {
 		this.panAnt = new JPanel();
 		this.panPost = new JPanel();
 		this.panAvgGeo = new JPanel();
-
-		this.addAntTab(((ModelScinStatic) controller.getModel()).calculerTableauAnt());
-		this.addPostTab(((ModelScinStatic) controller.getModel()).calculerTableauPost());
-		this.addMoyGeomTab(((ModelScinStatic) controller.getModel()).calculerTaleauMayGeom());
+		
+		if(!((ModelScinStatic) this.getModel()).getIsSingleSlide() || ((ModelScinStatic) this.getModel()).getIsAnt())
+			this.addAntTab(((ModelScinStatic) controller.getModel()).calculerTableauAnt());
+		if( !((ModelScinStatic) this.getModel()).getIsSingleSlide() || !((ModelScinStatic) this.getModel()).getIsAnt())
+			this.addPostTab(((ModelScinStatic) controller.getModel()).calculerTableauPost());
+		if(!((ModelScinStatic) this.getModel()).getIsSingleSlide())
+			this.addMoyGeomTab(((ModelScinStatic) controller.getModel()).calculerTaleauMayGeom());
 
 		this.addTab(tab);
 

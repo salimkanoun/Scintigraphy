@@ -1,16 +1,6 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.HashMap;
-
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-
+import ij.Prefs;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
@@ -21,7 +11,11 @@ import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
-import ij.Prefs;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
 
 public class FenNeph extends JDialog implements ActionListener {
 
@@ -29,9 +23,9 @@ public class FenNeph extends JDialog implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JButton btn_patlak, btn_ok;
-	private JValueSetter jvaluesetter;
-	private Model_Renal modele;
+	private final JButton btn_ok;
+	private final JValueSetter jvaluesetter;
+	private final Model_Renal modele;
 	private JValueSetter patlakChart;
 
 	public FenNeph(ChartPanel cp, Component parentComponent, Model_Renal modele) {
@@ -39,8 +33,8 @@ public class FenNeph extends JDialog implements ActionListener {
 		this.modele = modele;
 
 		// creation du panel du bas
-		this.btn_patlak = new JButton("Patlak");
-		this.btn_patlak.addActionListener(this);
+		JButton btn_patlak = new JButton("Patlak");
+		btn_patlak.addActionListener(this);
 		this.btn_ok = new JButton("Ok");
 		this.btn_ok.addActionListener(this);
 
@@ -154,7 +148,7 @@ public class FenNeph extends JDialog implements ActionListener {
 		for (int i = 1; i < dataCropped.getItemCount(0); i++) {
 			Double N1 = (dataCropped.getYValue(0, i) / dataCropped.getYValue(1, i));
 			Double N = (dataCropped.getYValue(0, i - 1) / dataCropped.getYValue(1, i - 1));
-			Double ecart = Math.abs(1 - N1 / N);
+			double ecart = Math.abs(1 - N1 / N);
 			if (ecart > 0.05) {
 				return false;
 			}

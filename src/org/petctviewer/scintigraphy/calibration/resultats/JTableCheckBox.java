@@ -1,18 +1,10 @@
 package org.petctviewer.scintigraphy.calibration.resultats;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javax.swing.*;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-
-import javax.swing.BorderFactory;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.event.ChangeListener;
 
 public class JTableCheckBox extends JPanel {
 	/**
@@ -20,16 +12,12 @@ public class JTableCheckBox extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private JPanel tab;
-	
 	// checkbox à l'interieur du tableau
-	private JCheckBox[][] checkboxInterior ;
+	private final JCheckBox[][] checkboxInterior ;
 	
-	private JCheckBox[] checkboxHeadRows;
-	private JCheckBox[] checkboxHeadCols;
-	
-	private Component[][] tableauEntier ;
-	
+	private final JCheckBox[] checkboxHeadRows;
+	private final JCheckBox[] checkboxHeadCols;
+
 	public JTableCheckBox(String[] titleRows, String[] titleCols, ChangeListener listener) {
 			
 		
@@ -50,35 +38,19 @@ public class JTableCheckBox extends JPanel {
 						
 						//controle que toute la ligne est deselectionnee
 						boolean testLigne = true;
-						for(int i =0; i< JTableCheckBox.this.checkboxInterior[posX].length; i++) {
-							if(JTableCheckBox.this.checkboxInterior[posX][i].isSelected()) {
-								testLigne = testLigne && true;
-							}else {
-								testLigne = testLigne && false;
-							}
-						}
-						if(testLigne) {
-							JTableCheckBox.this.checkboxHeadRows[posX].setSelected(true);
-						}else {
-							JTableCheckBox.this.checkboxHeadRows[posX].setSelected(false);
-						}
+						for(int i =0; i< JTableCheckBox.this.checkboxInterior[posX].length; i++)
+							if (!JTableCheckBox.this.checkboxInterior[posX][i].isSelected()) testLigne = false;
+						if(testLigne) JTableCheckBox.this.checkboxHeadRows[posX].setSelected(true);
+						else JTableCheckBox.this.checkboxHeadRows[posX].setSelected(false);
 						
 						
 						
 						//controle que toute la colonne est deselectionnee
 						boolean testColonne = true;
-						for(int i =0; i< JTableCheckBox.this.checkboxInterior.length; i++) {
-							if(JTableCheckBox.this.checkboxInterior[i][posY].isSelected()) {
-								testColonne = testColonne && true;
-							}else {
-								testColonne = testColonne && false;
-							}
-						}
-						if(testColonne) {
-							JTableCheckBox.this.checkboxHeadCols[posY].setSelected(true);
-						}else {
-							JTableCheckBox.this.checkboxHeadCols[posY].setSelected(false);
-						}
+						for (JCheckBox[] jCheckBoxes : JTableCheckBox.this.checkboxInterior)
+							if (!jCheckBoxes[posY].isSelected()) testColonne = false;
+						if(testColonne) JTableCheckBox.this.checkboxHeadCols[posY].setSelected(true);
+						else JTableCheckBox.this.checkboxHeadCols[posY].setSelected(false);
 						
 					}
 				});
@@ -94,15 +66,12 @@ public class JTableCheckBox extends JPanel {
 		for(int i=0; i< checkboxHeadCols.length; i++) {
 			JCheckBox ch = new JCheckBox("", true);
 			ch.setName(i+"");
-			ch.addActionListener(new ActionListener() {	
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					JCheckBox selected = (JCheckBox)e.getSource();
-					if(selected.isSelected()) {
-						setStateCheckboxHeadCols(Integer.parseInt(selected.getName()), true);
-					}else {
-						setStateCheckboxHeadCols(Integer.parseInt(selected.getName()), false);
-					}
+			ch.addActionListener(e -> {
+				JCheckBox selected = (JCheckBox)e.getSource();
+				if(selected.isSelected()) {
+					setStateCheckboxHeadCols(Integer.parseInt(selected.getName()), true);
+				}else {
+					setStateCheckboxHeadCols(Integer.parseInt(selected.getName()), false);
 				}
 			});
 			checkboxHeadCols[i] = ch;
@@ -113,22 +82,18 @@ public class JTableCheckBox extends JPanel {
 		for(int i=0; i< checkboxHeadRows.length; i++) {
 			JCheckBox ch =  new JCheckBox("", true);
 			ch.setName(i+"");
-			ch.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					JCheckBox selected = (JCheckBox)e.getSource();
-					if(selected.isSelected()){
-						setStateCheckboxHeadRows(Integer.parseInt(selected.getName()), true);
-						/*
-						for(int j =0; j< checkboxHeadRows.length;j++) {
-							if(checkboxHeadRows[j].equals(e.getSource())) {
-								setStateCheckboxHeadRows(j,true);
-							}
-						}*/
-					}else{ 
-						setStateCheckboxHeadRows(Integer.parseInt(selected.getName()), false);
-					}
+			ch.addActionListener(e -> {
+				JCheckBox selected = (JCheckBox)e.getSource();
+				if(selected.isSelected()){
+					setStateCheckboxHeadRows(Integer.parseInt(selected.getName()), true);
+					/*
+					for(int j =0; j< checkboxHeadRows.length;j++) {
+						if(checkboxHeadRows[j].equals(e.getSource())) {
+							setStateCheckboxHeadRows(j,true);
+						}
+					}*/
+				}else{
+					setStateCheckboxHeadRows(Integer.parseInt(selected.getName()), false);
 				}
 			});
 			checkboxHeadRows[i] =ch;
@@ -137,7 +102,7 @@ public class JTableCheckBox extends JPanel {
 				
 	
 		//le tableau contenant tout (head col, head row , title row, title col, tableau interieur)
-		tableauEntier = new Component[titleRows.length+2][titleCols.length+2];
+		Component[][] tableauEntier = new Component[titleRows.length + 2][titleCols.length + 2];
 		tableauEntier[0][0] = new JLabel("");
 		tableauEntier[0][1] = new JLabel("");
 		tableauEntier[1][0] = new JLabel("");
@@ -149,9 +114,7 @@ public class JTableCheckBox extends JPanel {
 			tableauEntier[i+2][0] = checkboxHeadRows[i]; 
 		}
 		//checkbox entete des colonnes
-		for(int i =0 ;i< checkboxHeadCols.length; i++) {
-			tableauEntier[0][i+2] = checkboxHeadCols[i]; 
-		}
+		System.arraycopy(checkboxHeadCols, 0, tableauEntier[0], 2, checkboxHeadCols.length);
 		//titre des lignes
 		for(int i=0; i< titleRows.length; i++) {
 			JLabel m = new JLabel(titleRows[i]);
@@ -170,23 +133,21 @@ public class JTableCheckBox extends JPanel {
 		}
 		//checkbox l'interieur du tableau
 		for(int i =2; i< titleRows.length+2; i++) {
-			for(int j =2; j< titleCols.length+2; j++) {
-				tableauEntier[i][j] = checkboxInterior[i-2][j-2];
-			}
+			System.arraycopy(checkboxInterior[i - 2], 0, tableauEntier[i], 2, titleCols.length + 2 - 2);
 		}
 		
 		
 		// add finale 
-		tab = new JPanel(new GridLayout(tableauEntier.length,tableauEntier[0].length));
+		JPanel tab = new JPanel(new GridLayout(tableauEntier.length, tableauEntier[0].length));
 
 		tab.setBorder(BorderFactory.createLineBorder(Color.black,1));
-		
-		for(int i =0; i< tableauEntier.length; i++) {
-			for(int j =0; j< tableauEntier[i].length; j++) {
-				if(tableauEntier[i][j] == null) {
+
+		for (Component[] components : tableauEntier) {
+			for (int j = 0; j < components.length; j++) {
+				if (components[j] == null) {
 					tab.add(new JLabel("null"));
-				}else {
-					tab.add(tableauEntier[i][j]);
+				} else {
+					tab.add(components[j]);
 				}
 			}
 		}
@@ -200,8 +161,8 @@ public class JTableCheckBox extends JPanel {
 	}
 	
 	private void setStateCheckboxHeadCols(int ligne, boolean state) {
-		for(int i =0; i< checkboxInterior.length; i++) {
-			checkboxInterior[i][ligne].setSelected(state);
+		for (JCheckBox[] jCheckBoxes : checkboxInterior) {
+			jCheckBoxes[ligne].setSelected(state);
 		}
 	}
 
@@ -218,12 +179,10 @@ public class JTableCheckBox extends JPanel {
 	}
 
 	public void setFirstColumn() {
-		for(int i =0; i< checkboxInterior.length; i++){
-			for(int j =0; j< checkboxInterior[i].length; j++) {
-				if(j==0)
-					checkboxInterior[i][j].setSelected(true);
-				else
-					checkboxInterior[i][j].setSelected(false);
+		for (JCheckBox[] jCheckBoxes : checkboxInterior) {
+			for (int j = 0; j < jCheckBoxes.length; j++) {
+				if (j == 0) jCheckBoxes[j].setSelected(true);
+				else jCheckBoxes[j].setSelected(false);
 			}
 		}
 	}

@@ -10,6 +10,7 @@ import org.petctviewer.scintigraphy.scin.Orientation;
  * @author Titouan QUÉMA
  */
 public class ImageState {
+	// == STATIC CONSTANTS ==
 	/**
 	 * Specifies that no id is defined.<br>
 	 * The interpretation can vary, please refer to the method or the class that use
@@ -48,6 +49,8 @@ public class ImageState {
 	 */
 	public static final boolean LAT_LR = false;
 
+
+	// == FIELDS ==
 	/**
 	 * Id of the image: if there is multiple images, then this ID is used to
 	 * differentiate each image
@@ -282,8 +285,8 @@ public class ImageState {
 
 	@Override
 	public ImageState clone() {
-		ImageState clone = new ImageState(facingOrientation, SLICE_PREVIOUS, lateralisation, idImage);
-		clone.specifieImage(image);
+		ImageState clone = new ImageState(this.facingOrientation, this.slice, this.lateralisation, this.idImage);
+		clone.specifieImage(this.image);
 		return clone;
 	}
 }

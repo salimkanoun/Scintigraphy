@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.scin.instructions.drawing;
 
-import java.awt.Color;
-
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
@@ -10,21 +9,21 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoi
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.gui.Roi;
+import java.awt.*;
 
 public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 
 	private static final long serialVersionUID = 1L;
 
-	private transient Instruction dri_1;
+	private final transient Instruction dri_1;
 
-	private transient ModelScin model;
+	private final transient ModelScin model;
 
-	private transient Organ organ;
+	private final transient Organ organ;
 
 	private boolean drawRoi;
 	
-	private String RoiName;
+	private final String RoiName;
 
 	public DrawSymmetricalLoopInstruction(Workflow workflow, GeneratorInstruction parent, ImageState state,
 			ModelScin model, Organ organ, String RoiName) {
@@ -59,7 +58,7 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 	public String getRoiName() {
 		String name = this.RoiName;
 
-		Roi thisRoi = (Roi) this.getImageState().getImage().getImagePlus().getRoi();
+		Roi thisRoi = this.getImageState().getImage().getImagePlus().getRoi();
 		if (thisRoi == null)
 			return this.RoiName;
 
@@ -91,7 +90,7 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 		super.afterNext(controller);
 		if (this.indexLoop % 2 != 0) {
 			// recupere la roi de l'organe symetrique
-			Roi lastOrgan = (Roi) this.model.getRoiManager().getRoi(dri_1.getRoiIndex());
+			Roi lastOrgan = this.model.getRoiManager().getRoi(dri_1.getRoiIndex());
 			if (lastOrgan == null) { // si elle n'existe pas, on renvoie null
 				return;
 			}
@@ -101,22 +100,19 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 			boolean OrganPost = lastOrgan.getXBase() > this.getImageState().getImage().getImagePlus().getWidth() / 2;
 
 			// si on doit faire le symetrique et que l'on a appuye sur next
-			if (this.dri_1 != null) {
 
-				if (OrganPost) { // si la prise est ant, on decale l'organe precedent vers la droite
-					lastOrgan.setLocation(
-							lastOrgan.getXBase() - (this.getImageState().getImage().getImagePlus().getWidth() / 2),
-							lastOrgan.getYBase());
-				} else { // sinon vers la gauche
-					lastOrgan.setLocation(
-							lastOrgan.getXBase() + (this.getImageState().getImage().getImagePlus().getWidth() / 2),
-							lastOrgan.getYBase());
-				}
-				if (this.indexLoop % 2 != 0)
-					lastOrgan.setStrokeColor(Color.RED);
-				controller.getCurrentImageState().getImage().getImagePlus().setRoi(lastOrgan);
-				return;
+			if (OrganPost) { // si la prise est ant, on decale l'organe precedent vers la droite
+				lastOrgan.setLocation(
+						lastOrgan.getXBase() - (this.getImageState().getImage().getImagePlus().getWidth() / 2),
+						lastOrgan.getYBase());
+			} else { // sinon vers la gauche
+				lastOrgan.setLocation(
+						lastOrgan.getXBase() + (this.getImageState().getImage().getImagePlus().getWidth() / 2),
+						lastOrgan.getYBase());
 			}
+			if (this.indexLoop % 2 != 0)
+				lastOrgan.setStrokeColor(Color.RED);
+			controller.getCurrentImageState().getImage().getImagePlus().setRoi(lastOrgan);
 		}
 	}
 

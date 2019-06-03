@@ -1,31 +1,23 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JList;
-import javax.swing.JPanel;
-
 public class FenGroup_GeneralDyn extends JDialog {
 
 	private static final long serialVersionUID = 145239677437316066L;
 	
-	private List<ChartGroup> cgs;
-	private JList<String> listDroite;
-	private String[] roiNames;
+	private final List<ChartGroup> cgs;
+	private final JList<String> listDroite;
+	private final String[] roiNames;
 
 	/**
 	 * Cette fenetre permet de choisir comment organiser ses courbes dans les differents graphiques, elle genere un tableau de String d'association
-	 * @param roiNames nom des courbes a placer dans les graphiques
+	 * @param roiNames studyName des courbes a placer dans les graphiques
 	 */
 	public FenGroup_GeneralDyn(String[] roiNames) {
 		this.cgs = new ArrayList<>();
@@ -69,12 +61,7 @@ public class FenGroup_GeneralDyn extends JDialog {
 		this.add(gridGauche, BorderLayout.EAST);
 
 		JButton valider = new JButton("Ok");
-		valider.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				FenGroup_GeneralDyn.this.dispose();
-			}
-		});
+		valider.addActionListener(e -> FenGroup_GeneralDyn.this.dispose());
 		JPanel wrapValider = new JPanel();
 		wrapValider.add(valider);
 		this.add(wrapValider, BorderLayout.SOUTH);
@@ -84,9 +71,10 @@ public class FenGroup_GeneralDyn extends JDialog {
 	}
 
 	private class ChartGroup {
-		private JButton btn_plus, btn_moins;
-		private JList<String> list;
-		private DefaultListModel<String> model;
+		private final JButton btn_plus;
+		private final JButton btn_moins;
+		private final JList<String> list;
+		private final DefaultListModel<String> model;
 
 		public ChartGroup(int id) {
 			this.btn_plus = new JButton("+");
@@ -102,7 +90,7 @@ public class FenGroup_GeneralDyn extends JDialog {
 
 	private class CtrlChartGroup implements ActionListener {
 
-		private int id;
+		private final int id;
 
 		public CtrlChartGroup(int id) {
 			this.id = id;

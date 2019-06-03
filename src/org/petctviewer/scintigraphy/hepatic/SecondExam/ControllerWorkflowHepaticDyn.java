@@ -1,8 +1,7 @@
 package org.petctviewer.scintigraphy.hepatic.SecondExam;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.hepatic.tab.TabCurves;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -15,14 +14,12 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 
-	private List<ImagePlus> captures;
-
-	private TabResult resultTab;
+	private final TabResult resultTab;
 
 	public ControllerWorkflowHepaticDyn(FenApplicationWorkflow vue, ModelScin model, TabResult resultTab) {
 		super(null, vue, model);
@@ -39,11 +36,11 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 
 		this.workflows = new Workflow[1];
 
-		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null, dri_5 = null, dri_6 = null;
-		ScreenShotInstruction dri_capture = null;
-		this.captures = new ArrayList<>();
+		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4, dri_5, dri_6;
+		ScreenShotInstruction dri_capture;
+		List<ImagePlus> captures = new ArrayList<>();
 
-		this.workflows[0] = new Workflow(this, ((ModelSecondMethodHepaticDynamic) this.model).getImageSelection()[0]);
+		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
 		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
 

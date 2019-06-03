@@ -1,30 +1,30 @@
 package org.petctviewer.scintigraphy.colonic;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.HashMap;
-import java.util.Map;
-
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.gui.Roi;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ModelColonicTransit extends ModelScin {
 
-	private HashMap<String, Double> dataImage1;
+	private final HashMap<String, Double> dataImage1;
 
-	private HashMap<String, Double> dataImage2;
+	private final HashMap<String, Double> dataImage2;
 
-	private HashMap<String, Double> dataImage3;
+	private final HashMap<String, Double> dataImage3;
 
 	private Isotope isotope;
 
 	public ModelColonicTransit(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
-		// TODO Auto-generated method stub
 
 		this.dataImage1 = new HashMap<>();
 		this.dataImage2 = new HashMap<>();
@@ -33,20 +33,20 @@ public class ModelColonicTransit extends ModelScin {
 
 	@Override
 	public void calculateResults() {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void getResults() {
-		// TODO Auto-generated method stub
-
 		ImageSelection imageReference = this.selectedImages[0];
 
-		Map<String, Double>[] datas = new HashMap[] { dataImage1, dataImage2, dataImage3 };
+		List<HashMap<String, Double>> datas = new ArrayList<>();
+		datas.add(dataImage1);
+		datas.add(dataImage2);
+		datas.add(dataImage3);
 
+		// TODO: this code is making a lot of assumptions... maybe refactor that
 		for (int i = 1; i < this.selectedImages.length; i++) {
 			ImageSelection imageForCalculation = this.selectedImages[i];
-			this.calculateResults(imageReference, imageForCalculation, (HashMap<String, Double>) datas[i-1]);
+			this.calculateResults(imageReference, imageForCalculation, datas.get(i-1));
 		}
 
 	}

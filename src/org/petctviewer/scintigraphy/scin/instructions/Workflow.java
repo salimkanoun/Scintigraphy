@@ -1,14 +1,14 @@
 package org.petctviewer.scintigraphy.scin.instructions;
 
-import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
+
+import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  * This class represents a flow of instructions used by the
@@ -21,12 +21,12 @@ import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruc
 public class Workflow implements Serializable{
 
 	private static final long serialVersionUID = 1L;
-	private List<Instruction> instructions;
+	private final List<Instruction> instructions;
 	private transient ListIterator<Instruction> iterator;
 	private transient Instruction current;
 
-	private transient ControllerWorkflow controller;
-	private transient ImageSelection imageAssociated;
+	private final transient ControllerWorkflow controller;
+	private final transient ImageSelection imageAssociated;
 
 	// TODO: allow only 1 workflow per controller (this mean to decouple the image from the workflow and only use
 	//  ImageState)
