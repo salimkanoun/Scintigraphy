@@ -20,8 +20,7 @@ public class TabMethod1 extends TabResultDefault {
 	}
 
 	public void deactivateDynamicAcquisition() {
-		if(this.btnDynAcquisition != null)
-			this.btnDynAcquisition.setEnabled(false);
+		if (this.btnDynAcquisition != null) this.btnDynAcquisition.setEnabled(false);
 	}
 
 	@Override
@@ -52,9 +51,15 @@ public class TabMethod1 extends TabResultDefault {
 
 
 		// Display start antrum and intestine only if dynamic has been made
-		final Result[] resultsRequested = new Result[]{Model_Gastric.START_ANTRUM, Model_Gastric.START_INTESTINE,
-				Model_Gastric.LAG_PHASE_PERCENTAGE, Model_Gastric.T_HALF_PERCENTAGE,
-				Model_Gastric.RETENTION_PERCENTAGE};
+		final Result[] resultsRequested;
+		if (((ControllerWorkflow_Gastric) parent.getController()).isDynamicStarted()) {
+			resultsRequested = new Result[]{Model_Gastric.START_ANTRUM, Model_Gastric.START_INTESTINE,
+					Model_Gastric.LAG_PHASE_PERCENTAGE, Model_Gastric.T_HALF_PERCENTAGE,
+					Model_Gastric.RETENTION_PERCENTAGE};
+		} else {
+			resultsRequested = new Result[]{Model_Gastric.LAG_PHASE_PERCENTAGE, Model_Gastric.T_HALF_PERCENTAGE,
+					Model_Gastric.RETENTION_PERCENTAGE};
+		}
 		final Unit[] unitsRequested =
 				new Unit[]{this.unitDefault, this.unitDefault, this.unitTime, this.unitTime, Unit.PERCENTAGE};
 		panCenter.add(this.infoResultats(resultsRequested, unitsRequested), BorderLayout.SOUTH);
