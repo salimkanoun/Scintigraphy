@@ -10,6 +10,8 @@ import java.util.Map;
 
 public class DocumentationDialog extends JDialog {
 
+	private static final long serialVersionUID = 1L;
+
 	public final static String FIELD_DESIGNER = "designer", FIELD_DEVELOPER = "developer", FIELD_REFERENCE =
 			"reference", FIELD_DOC = "documentation", FIELD_YOUTUBE = "youtube";
 

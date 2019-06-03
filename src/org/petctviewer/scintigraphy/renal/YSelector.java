@@ -133,6 +133,7 @@ public class YSelector extends Selector implements ChartMouseListener {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public void chartMouseMoved(ChartMouseEvent event) {
 		XYPlot plot = (XYPlot) event.getChart().getPlot();

@@ -18,6 +18,7 @@ public class SalimTryingInjectImage extends JPanel {
 		
 	}
 	private void testprint() throws IOException {
+		@SuppressWarnings("unused")
 		byte[] bytesPixel=extractBytes(null);
 		
 		 // open image
@@ -25,6 +26,7 @@ public class SalimTryingInjectImage extends JPanel {
 		opener.setSilentMode(true);
 		ImagePlus imp=opener.openImage("C:\\Users\\kanoun_s\\ownCloud2\\IUT-Informatique\\Images scinti2\\Exemples Dicoms\\DPD\\ANT3h001_DS.dcm");
 		imp.show();
+		@SuppressWarnings("unused")
 		int depth= imp.getProcessor().getBitDepth();
 		
 		short[] pixels;

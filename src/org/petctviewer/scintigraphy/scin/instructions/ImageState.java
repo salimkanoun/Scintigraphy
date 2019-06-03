@@ -284,7 +284,6 @@ public class ImageState {
 	}
 
 	@Override
-	@SuppressWarnings("CloneDoesntCallSuperClone")
 	public ImageState clone() {
 		ImageState clone = new ImageState(this.facingOrientation, this.slice, this.lateralisation, this.idImage);
 		clone.specifieImage(this.image);

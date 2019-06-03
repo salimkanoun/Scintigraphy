@@ -11,6 +11,8 @@ import java.awt.*;
 
 public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 
+	private static final long serialVersionUID = 1L;
+
 	private final transient Instruction dri_1;
 
 	private final transient ModelScin model;

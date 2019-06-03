@@ -17,11 +17,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -36,7 +34,6 @@ import org.petctviewer.scintigraphy.scin.gui.CaptureButton;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
-import org.petctviewer.scintigraphy.scin.gui.WindowDifferentPatient;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction.DrawInstructionType;
@@ -991,7 +988,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		public int getNbROIs() {
 			int nbROIs = 0;
 			for (WorkflowFromGson workflowFromGson : this.Workflows)
-				for (InstructionFromGson instructionFromGson : workflowFromGson.getInstructions())
+				for (@SuppressWarnings("unused") InstructionFromGson instructionFromGson : workflowFromGson.getInstructions())
 					nbROIs++;
 			return nbROIs;
 		}
@@ -1060,6 +1057,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 			return this.InstructionType;
 		}
 
+		@SuppressWarnings("unused")
 		public String getNameOfRoi() {
 			return this.NameOfRoi;
 		}

@@ -9,6 +9,7 @@ import javax.swing.event.ChangeListener;
 
 public class ContrastSlider extends JSlider implements ChangeListener {
 
+	private static final long serialVersionUID = 1L;
 	private ImagePlus reference;
 	private Overlay overlay;
 	private DynamicImage result;

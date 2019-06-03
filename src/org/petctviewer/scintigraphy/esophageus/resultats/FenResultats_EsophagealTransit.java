@@ -15,6 +15,8 @@ public class FenResultats_EsophagealTransit extends FenResults {
 
 	// private Model_Resultats_EsophagealTransit modele ;
 
+	private static final long serialVersionUID = 1L;
+
 	/*
 	 * un partie main avec graph main et un jtablecheckbox main un partie transit
 	 * time avec hraph , jvalue stter, checkbox (1 collonnne pour les acqui entier)
