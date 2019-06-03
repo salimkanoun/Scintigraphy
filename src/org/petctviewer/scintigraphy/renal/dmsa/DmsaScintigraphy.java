@@ -45,6 +45,10 @@ public class DmsaScintigraphy extends Scintigraphy {
 
 		ImageSelection[] selection = new ImageSelection[1];
 		selection[0] = imp;
+
+		for(ImageSelection ims : selectedImages)
+			ims.close();
+
 		return selection;
 	}
 

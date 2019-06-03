@@ -2,6 +2,8 @@ package org.petctviewer.scintigraphy.scin.gui;
 
 import ij.ImagePlus;
 import ij.gui.Overlay;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -27,6 +29,9 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 		this.setValue((int) reference.getStatistics().min);
 
 		this.addChangeListener(this);
+
+		this.reference.show();
+		this.reference.getWindow().setVisible(false);
 	}
 
 	public ImagePlus getReference() {
@@ -38,6 +43,7 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 		reference.getProcessor().setMinAndMax(0, this.getMaximum() - this.getValue() + 1);
 		// Update image overlay
 		this.reference.setOverlay(this.overlay);
-		this.result.setImage(reference.getBufferedImage());
+		this.reference.updateAndDraw();
+		this.result.setImage(Library_Capture_CSV.captureImage(this.reference, 0, 0).getBufferedImage());
 	}
 }

@@ -7,8 +7,10 @@ import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import sun.security.util.SecurityConstants;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import java.awt.*;
 
 public class MainTab extends TabResult {
@@ -23,6 +25,7 @@ public class MainTab extends TabResult {
 
 		capture.setOverlay(overlay);
 		this.slider = new ContrastSlider(ContrastSlider.HORIZONTAL, capture, this.result);
+		this.slider.stateChanged(new ChangeEvent(this.slider));
 
 		this.reloadDisplay();
 	}
