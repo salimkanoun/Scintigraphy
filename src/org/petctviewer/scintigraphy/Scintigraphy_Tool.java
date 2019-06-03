@@ -53,7 +53,8 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			
 			if (Menus.getFontSize()!=0) general.setFont(Menus.getFont());
 			
-			MenuItem gastricEmptying = new MenuItem("Gastric Emptying");
+			MenuItem gastricEmptyingSolid = new MenuItem("Gastric Emptying Solid");
+			MenuItem gastricEmptyingLiquid = new MenuItem("Gastric Emptying Liquid");
 			MenuItem esophagealTransit = new MenuItem("Esophageal Transit");
 			
 			
@@ -93,7 +94,8 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			
 			//Ajout des listeners
 			boneScintigraphy.addActionListener(this);
-			gastricEmptying.addActionListener(this);
+			gastricEmptyingSolid.addActionListener(this);
+			gastricEmptyingLiquid.addActionListener(this);
 			esophagealTransit.addActionListener(this);
 			plumonaryShunt.addActionListener(this);
 			dpdQuant.addActionListener(this);
@@ -110,7 +112,9 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			
 			
 			bone.add(boneScintigraphy);
-			gastric.add(gastricEmptying);
+			
+			gastric.add(gastricEmptyingSolid);
+			gastric.add(gastricEmptyingLiquid);
 			gastric.add(esophagealTransit);
 			
 			pulmonary.add(plumonaryShunt);
@@ -160,8 +164,11 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			if (cmd.equals("Biliary Scintigraphy")) {
 				IJ.run("Biliary Scintigraphy");
 			}
-			if (cmd.equals("Gastric Emptying")) {
-				IJ.run("Gastric Emptying Scintigraphy");
+			if (cmd.equals("Gastric Emptying Solid")) {
+				IJ.run("Gastric Emptying Solid");
+			}
+			if (cmd.equals("Gastric Emptying Liquid")) {
+				IJ.run("Gastric Emptying Liquid");
 			}
 			if (cmd.equals("Esophageal Transit")) {
 				IJ.run("Esophageal Transit");
