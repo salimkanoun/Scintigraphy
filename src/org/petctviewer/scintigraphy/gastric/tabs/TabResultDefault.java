@@ -271,7 +271,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	protected JPanel infoResultats(Result[] resultsRequested, Unit[] unitsRequested) {
 		JPanel panel = new JPanel(new BorderLayout());
 
-		boolean hasExtrapolatedValue;
+		boolean hasExtrapolatedValue = false;
 
 		JPanel infoRes = new JPanel();
 		infoRes.setLayout(new GridLayout(0, 2));
@@ -281,7 +281,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 			request.setUnit(unitsRequested[i]);
 
 			ResultValue result = getModel().getResult(request);
-			hasExtrapolatedValue = result.isExtrapolated();
+			hasExtrapolatedValue = result.isExtrapolated() || hasExtrapolatedValue;
 			this.displayResult(infoRes, result);
 		}
 
@@ -289,12 +289,12 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		request.changeResultOn(resultsRequested[resultsRequested.length - 1]);
 		request.setUnit(unitsRequested[unitsRequested.length - 1]);
 		ResultValue result = getModel().getRetentionResult(request, 30.);
-		hasExtrapolatedValue = result.isExtrapolated();
+		hasExtrapolatedValue = result.isExtrapolated() || hasExtrapolatedValue;
 		this.displayRetentionResult(infoRes, 30., result);
 		// Retention from 1h to 4h
 		for (double time = 60.; time <= 240.; time += 60.) {
 			result = getModel().getRetentionResult(request, time);
-			hasExtrapolatedValue = result.isExtrapolated();
+			hasExtrapolatedValue = result.isExtrapolated() || hasExtrapolatedValue;
 			this.displayRetentionResult(infoRes, time, result);
 		}
 		// Grade of retention at 4h
@@ -376,6 +376,9 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 			panel.add(new DynamicImage(capture.getImage()));
 			panel.add(getModel().createGraph_3());
 			panel.add(getModel().createGraph_1());
+
+			if(((ControllerWorkflow_Gastric)parent.getController()).isDynamicStarted())
+				getModel().deactivateTime0();
 			panel.add(getModel().createGraph_2());
 
 			return panel;

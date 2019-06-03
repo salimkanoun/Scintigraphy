@@ -121,6 +121,8 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
 		// Do not reload the method 2
 		tabMain.reloadDisplay();
+
+		tabMain.deactivateDynamicAcquisition();
 	}
 
 	@Override
