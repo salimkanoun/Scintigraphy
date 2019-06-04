@@ -344,17 +344,20 @@ public class Library_JFreeChart {
 
 		// Find lower and upper bounds
 		double upperBoundX = 0., upperBoundY = 0., lowerBoundX = 0., lowerBoundY = 0.;
-		for(XYSeries series : (List<XYSeries>) (((XYSeriesCollection) dataset).getSeries())) {
+		for (XYSeries series : (List<XYSeries>) (((XYSeriesCollection) dataset).getSeries())) {
 			double maxX = series.getMaxX() * 1.1;
 			double minX = series.getMinX();
 			double maxY = series.getMaxY() * 1.1;
 			double minY = series.getMinY();
 
-			if(maxX > upperBoundX) upperBoundX = maxX;
-			if(minX < lowerBoundX) lowerBoundX = minX * 1.1;
-			if(maxY > upperBoundY) upperBoundY = maxY;
-			if(minY < lowerBoundY) lowerBoundY = minY * 1.1;
+			if (maxX > upperBoundX) upperBoundX = maxX;
+			if (minX < lowerBoundX) lowerBoundX = minX * 1.1;
+			if (maxY > upperBoundY) upperBoundY = maxY;
+			if (minY < lowerBoundY) lowerBoundY = minY * 1.1;
 		}
+		// At least 1 of range
+		if (upperBoundX == lowerBoundX) upperBoundX += 1.;
+		if (upperBoundY == lowerBoundY) upperBoundY += 1.;
 
 		// XYLineAndShapeRenderer
 		// reference:

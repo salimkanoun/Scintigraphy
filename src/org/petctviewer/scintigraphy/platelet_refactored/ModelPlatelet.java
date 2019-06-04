@@ -4,31 +4,22 @@ import ij.ImagePlus;
 import ij.gui.Roi;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.gastric.Region;
-import org.petctviewer.scintigraphy.gastric.Result;
 import org.petctviewer.scintigraphy.gastric.ResultRequest;
 import org.petctviewer.scintigraphy.gastric.ResultValue;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.library.Library_Debug;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ModelPlatelet extends ModelWorkflow {
 
 	public static final String REGION_SPLEEN = "Spleen", REGION_LIVER = "Liver", REGION_HEART = "Heart";
 
 	public static final int DATA_ANT_COUNTS = 0, DATA_POST_COUNTS = 1, DATA_GEO_AVG = 2;
-
-	public static final Result RES_RATIO_SPLEEN_HEART = new Result("Ratio Spleen / Heart"), RES_RATIO_LIVER_HEART =
-			new Result("Ratio Liver / Heart"), RES_RATIO_SPLEEN_LIVER = new Result("Ratio Spleen / Liver"),
-			RES_SPLEEN_CORRECTED = new Result("Spleen Corrected"), RES_RATIO_GEO_SPLEEN_HEART =
-			new Result("Ratio GM Spleen / Heart"), RES_RATIO_GEO_LIVER_HEART = new Result("Ratio GM Liver / Heart"),
-			RES_RATIO_GEO_SPLEEN_LIVER = new Result("Ratio GM Spleen / Liver");
 
 	private List<Data> datas;
 
@@ -45,14 +36,19 @@ public class ModelPlatelet extends ModelWorkflow {
 		this.datas = new ArrayList<>(length);
 	}
 
-	private double calculateDeltaTime(ImageSelection ims) {
-		if (this.datas.size() > 0) return ims.getDateAcquisition().getTime() / 1000. / 60. - this.datas.get(0).time;
-		return 0;
-	}
-
-	private Data createOrRetrieveData(ImageSelection ims) {
-		return this.datas.stream().filter(d -> d.associatedImage == ims).findFirst()
-				.orElse(new Data(ims, this.calculateDeltaTime(ims)));
+	private Data createOrRetrieveData(ImageState state) {
+		Data data = this.datas.stream().filter(d -> d.getAssociatedImage() == state.getImage()).findFirst().orElse(
+				null);
+		if (data == null) {
+			Date time0 = (this.datas.size() > 0 ? this.datas.get(0).getAssociatedImage().getDateAcquisition() :
+					state.getImage().getDateAcquisition());
+			System.out.println("Creating new Data, time = " + Library_Quantif.calculateDeltaTime(time0,
+																								 state.getImage().getDateAcquisition()));
+			data = new Data(state, Library_Quantif.calculateDeltaTime(time0, state.getImage().getDateAcquisition()));
+		} else {
+			System.out.println("Found previous data");
+		}
+		return data;
 	}
 
 	private String[] allRegions() {
@@ -78,31 +74,24 @@ public class ModelPlatelet extends ModelWorkflow {
 		imp.setSlice(state.getSlice());
 		imp.setRoi(roi);
 		double value = Library_Quantif.getCounts(imp);
+		System.out.println("Value: " + value);
 
 		Data data;
 		if (state.getFacingOrientation() == Orientation.ANT) {
-			data = createOrRetrieveData(state.getImage());
+			data = createOrRetrieveData(state);
 			data.setValue(regionName, DATA_ANT_COUNTS, value, state, roi);
 		} else {
-			data = createOrRetrieveData(state.getImage());
+			data = createOrRetrieveData(state);
 			data.setValue(regionName, DATA_POST_COUNTS, value, state, roi);
 		}
 		this.datas.add(data);
 	}
 
-	private XYSeries series(String name, String regionName, int key) {
-		XYSeries series = new XYSeries(name);
-		for (Data data : this.datas) {
-			series.add(data.time, data.getValue(regionName, key));
-		}
-		return series;
-	}
-
 	public XYSeries seriesSpleenHeart() {
 		XYSeries series = new XYSeries("Mean Ratio Spleen / Heart Post");
 		for (Data data : this.datas) {
-			double value =
-					data.getValue(REGION_SPLEEN, DATA_POST_COUNTS) / data.getValue(REGION_HEART, DATA_POST_COUNTS);
+			double value = data.getValue(REGION_SPLEEN, DATA_POST_COUNTS) / data.getValue(REGION_HEART,
+																						  DATA_POST_COUNTS);
 			series.add(data.time, value);
 		}
 		return series;
@@ -111,8 +100,8 @@ public class ModelPlatelet extends ModelWorkflow {
 	public XYSeries seriesLiverHeart() {
 		XYSeries series = new XYSeries("Mean Ratio Liver / Heart Post");
 		for (Data data : this.datas) {
-			double value =
-					data.getValue(REGION_LIVER, DATA_POST_COUNTS) / data.getValue(REGION_HEART, DATA_POST_COUNTS);
+			double value = data.getValue(REGION_LIVER, DATA_POST_COUNTS) / data.getValue(REGION_HEART,
+																						 DATA_POST_COUNTS);
 			series.add(data.time, value);
 		}
 		return series;
@@ -121,8 +110,8 @@ public class ModelPlatelet extends ModelWorkflow {
 	public XYSeries seriesSpleenLiver() {
 		XYSeries series = new XYSeries("Mean Ratio Spleen / Liver Post");
 		for (Data data : this.datas) {
-			double value =
-					data.getValue(REGION_SPLEEN, DATA_POST_COUNTS) / data.getValue(REGION_LIVER, DATA_POST_COUNTS);
+			double value = data.getValue(REGION_SPLEEN, DATA_POST_COUNTS) / data.getValue(REGION_LIVER,
+																						  DATA_POST_COUNTS);
 			series.add(data.time, value);
 		}
 		return series;
@@ -131,10 +120,9 @@ public class ModelPlatelet extends ModelWorkflow {
 	public XYSeries seriesSpleenPost() {
 		XYSeries series = new XYSeries("Corrected Spleen Posterior");
 		for (Data data : this.datas) {
-			double value = Library_Quantif
-					.applyDecayFraction((int) (data.time * 1000. * 60.), data.getValue(REGION_SPLEEN,
-							DATA_POST_COUNTS),
-							this.isotope);
+			double value = Library_Quantif.applyDecayFraction((int) (data.time * 1000. * 60.),
+															  data.getValue(REGION_SPLEEN, DATA_POST_COUNTS),
+															  this.isotope);
 			series.add(data.time, value);
 		}
 		return series;
@@ -194,7 +182,7 @@ public class ModelPlatelet extends ModelWorkflow {
 				for (String regionName : this.allRegions()) {
 					// Average
 					double avg = Library_Quantif.moyGeom(data.getValue(regionName, DATA_ANT_COUNTS),
-							data.getValue(regionName, DATA_POST_COUNTS));
+														 data.getValue(regionName, DATA_POST_COUNTS));
 					data.setValue(regionName, DATA_GEO_AVG, avg);
 				}
 			}
@@ -211,11 +199,11 @@ public class ModelPlatelet extends ModelWorkflow {
 		private final Map<String, Region> regionsAnt;
 		private final Map<String, Region> regionsPost;
 
-		private ImageSelection associatedImage;
+		private ImageState state;
 		private double time;
 
-		Data(ImageSelection associatedImage, double time) {
-			this.associatedImage = associatedImage;
+		Data(ImageState state, double time) {
+			this.state = state;
 			this.time = time;
 			this.regionsAnt = new HashMap<>();
 			this.regionsPost = new HashMap<>();
@@ -234,10 +222,8 @@ public class ModelPlatelet extends ModelWorkflow {
 		public void setValue(String regionName, int key, double value) throws IllegalArgumentException {
 			// Find region
 			Region region;
-			if(key == DATA_ANT_COUNTS)
-				region = this.regionsAnt.get(regionName);
-			else
-				region = this.regionsPost.get(regionName);
+			if (key == DATA_ANT_COUNTS) region = this.regionsAnt.get(regionName);
+			else region = this.regionsPost.get(regionName);
 			if (region == null) throw new IllegalArgumentException("The region (" + regionName + ") doesn't exist");
 
 			// Set value
@@ -256,17 +242,22 @@ public class ModelPlatelet extends ModelWorkflow {
 		public void setValue(String regionName, int key, double value, ImageState state, Roi roi) {
 			// Find region
 			Region region;
-			if(key == DATA_ANT_COUNTS)
+			if (key == DATA_ANT_COUNTS) {
 				region = this.regionsAnt.get(regionName);
-			else
+				if (region == null) {
+					// Create region
+					region = new Region(regionName, ModelPlatelet.this);
+					region.inflate(state, roi);
+					this.regionsAnt.put(regionName, region);
+				}
+			} else {
 				region = this.regionsPost.get(regionName);
-			if (region == null) {
-				// Create region
-				region = new Region(regionName, ModelPlatelet.this);
-				region.inflate(state, roi);
-				// Add region in maps (default in Post)
-				if (key == DATA_ANT_COUNTS) this.regionsAnt.put(regionName, region);
-				else this.regionsPost.put(regionName, region);
+				if (region == null) {
+					// Create region
+					region = new Region(regionName, ModelPlatelet.this);
+					region.inflate(state, roi);
+					this.regionsPost.put(regionName, region);
+				}
 			}
 
 			// Set value
@@ -319,6 +310,60 @@ public class ModelPlatelet extends ModelWorkflow {
 		public Double getValue(String regionName, int key) {
 			if (key == DATA_ANT_COUNTS) return this.getAntValue(regionName, key);
 			return this.getPostValue(regionName, key);
+		}
+
+		public int getHash() {
+			return this.state.hashCode();
+		}
+
+		public ImageSelection getAssociatedImage() {
+			return this.state.getImage();
+		}
+
+		/**
+		 * Generates a string with the regions contained in this data for the specified
+		 * orientation.
+		 *
+		 * @param orientation Ant or Post orientation to get the regions
+		 * @return string with the list of the region
+		 */
+		private String listRegions(Orientation orientation) {
+			StringBuilder res = new StringBuilder();
+			if (orientation == Orientation.ANT) {
+				res.append(Library_Debug.subtitle("ANT REGIONS"));
+				res.append('\n');
+
+				if (this.regionsAnt.size() == 0) res.append("// NO REGION //\n");
+				else for (Region region : this.regionsAnt.values()) {
+					res.append(region);
+					res.append('\n');
+				}
+			} else {
+				res.append(Library_Debug.subtitle("POST REGIONS"));
+				res.append('\n');
+
+				if (this.regionsPost.size() == 0) res.append("// NO REGION //\n");
+				else for (Region region : this.regionsPost.values()) {
+					res.append(region);
+					res.append('\n');
+				}
+			}
+			return res.toString();
+		}
+
+		@Override
+		public String toString() {
+			String s = Library_Debug.separator();
+			String imageTitle = (this.getAssociatedImage() == null ? "// NO-IMAGE //" :
+					this.getAssociatedImage().getImagePlus().getTitle());
+			s += Library_Debug.title("Data");
+			s += "\n";
+			s += Library_Debug.title(imageTitle);
+			s += "\n";
+			s += this.listRegions(Orientation.ANT);
+			s += this.listRegions(Orientation.POST);
+			s += Library_Debug.separator();
+			return s;
 		}
 	}
 }

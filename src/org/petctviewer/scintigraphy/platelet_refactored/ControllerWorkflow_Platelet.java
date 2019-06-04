@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.platelet_refactored;
 
 import ij.ImagePlus;
-import ij.gui.Roi;
 import org.petctviewer.scintigraphy.platelet_refactored.tabs.MainTab;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -41,30 +40,35 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 	private void computeModel() {
 		final int ROI_PER_IMAGE = (((PlateletScintigraphy) this.main).isAntPost() ? 6 : 3);
 
-		int index = 0;
-		for (Roi roi : getRoiManager().getRoisAsArray()) {
+		for (int i = 0; i < getRoiManager().getRoisAsArray().length; i += ROI_PER_IMAGE) {
 			// Post
 			// - Spleen
-			ImageState state = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, index / ROI_PER_IMAGE);
-			((ModelPlatelet) getModel()).addData(ModelPlatelet.REGION_SPLEEN, state, roi);
+			ImageState state = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, i / ROI_PER_IMAGE);
+			((ModelPlatelet) getModel()).addData(ModelPlatelet.REGION_SPLEEN, state,
+												 getRoiManager().getRoisAsArray()[i]);
 			// - Liver
-			state = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, (index + 1) / ROI_PER_IMAGE);
-			((ModelPlatelet) getModel()).addData(ModelPlatelet.REGION_LIVER, state, roi);
+			state = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, i / ROI_PER_IMAGE);
+			((ModelPlatelet) getModel()).addData(ModelPlatelet.REGION_LIVER, state,
+												 getRoiManager().getRoisAsArray()[i + 1]);
 			// - Heart
-			state = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, (index + 2) / ROI_PER_IMAGE);
-			((ModelPlatelet) getModel()).addData(ModelPlatelet.REGION_HEART, state, roi);
+			state = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, i / ROI_PER_IMAGE);
+			((ModelPlatelet) getModel()).addData(ModelPlatelet.REGION_HEART, state,
+												 getRoiManager().getRoisAsArray()[i + 2]);
 
 			// Ant
 			if (((PlateletScintigraphy) this.main).isAntPost()) {
 				// - Spleen
-				state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, (index + 3) / ROI_PER_IMAGE);
-				((ModelPlatelet) getModel()).addData(ModelPlatelet.REGION_SPLEEN, state, roi);
+				state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, i / ROI_PER_IMAGE);
+				((ModelPlatelet) getModel()).addData(ModelPlatelet.REGION_SPLEEN, state,
+													 getRoiManager().getRoisAsArray()[i + 3]);
 				// - Liver
-				state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, (index + 4) / ROI_PER_IMAGE);
-				((ModelPlatelet) getModel()).addData(ModelPlatelet.REGION_LIVER, state, roi);
+				state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, i / ROI_PER_IMAGE);
+				((ModelPlatelet) getModel()).addData(ModelPlatelet.REGION_LIVER, state,
+													 getRoiManager().getRoisAsArray()[i + 4]);
 				// - Heart
-				state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, (index + 5) / ROI_PER_IMAGE);
-				((ModelPlatelet) getModel()).addData(ModelPlatelet.REGION_HEART, state, roi);
+				state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, i / ROI_PER_IMAGE);
+				((ModelPlatelet) getModel()).addData(ModelPlatelet.REGION_HEART, state,
+													 getRoiManager().getRoisAsArray()[i + 5]);
 			}
 		}
 
