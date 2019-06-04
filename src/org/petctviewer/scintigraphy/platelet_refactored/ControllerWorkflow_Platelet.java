@@ -1,17 +1,26 @@
 package org.petctviewer.scintigraphy.platelet_refactored;
 
+import ij.ImagePlus;
 import ij.gui.Roi;
+import org.petctviewer.scintigraphy.platelet_refactored.tabs.MainTab;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 
+import java.util.List;
+
 public class ControllerWorkflow_Platelet extends ControllerWorkflow {
+
+	private List<ImagePlus> captures;
 
 	/**
 	 * @param main           Reference to the main class
@@ -65,6 +74,13 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 	}
 
 	@Override
+	protected void start() {
+		getModel().setIsotope(Library_Dicom.getIsotope(getModel().getImagePlus(), this.vue));
+
+		super.start();
+	}
+
+	@Override
 	protected void end() {
 		super.end();
 
@@ -72,6 +88,8 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 		this.computeModel();
 
 		// Display results
+		this.fenResults = new FenResults(this);
+		this.fenResults.setMainTab(new MainTab(this.fenResults, this.captures.get(0)));
 	}
 
 	@Override
@@ -106,6 +124,8 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 				this.workflows[i].addInstruction(dri_heart_ant);
 			}
 		}
+		this.workflows[this.workflows.length - 1].addInstruction(
+				new ScreenShotInstruction(this.captures, this.vue, 0, 0, 0));
 		this.workflows[this.workflows.length - 1].addInstruction(new EndInstruction());
 	}
 }
