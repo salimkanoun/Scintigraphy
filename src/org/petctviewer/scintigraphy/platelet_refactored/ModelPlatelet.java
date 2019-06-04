@@ -155,6 +155,26 @@ public class ModelPlatelet extends ModelWorkflow {
 		return series;
 	}
 
+	public XYSeries seriesSpleenRatio(boolean geoAvg) {
+		XYSeries series = new XYSeries("Spleen Jx / J0");
+		for (Data data : this.datas) {
+			double value = data.getValue(REGION_SPLEEN, geoAvg ? DATA_GEO_AVG : DATA_POST_COUNTS) / datas.get(
+					0).getValue(REGION_SPLEEN, geoAvg ? DATA_GEO_AVG : DATA_POST_COUNTS);
+			series.add(data.time / 60., value);
+		}
+		return series;
+	}
+
+	public XYSeries seriesLiverRatio(boolean geoAvg) {
+		XYSeries series = new XYSeries("Liver Jx / J0");
+		for (Data data : this.datas) {
+			double value = data.getValue(REGION_LIVER, geoAvg ? DATA_GEO_AVG : DATA_POST_COUNTS) / datas.get(
+					0).getValue(REGION_LIVER, geoAvg ? DATA_GEO_AVG : DATA_POST_COUNTS);
+			series.add(data.time / 60., value);
+		}
+		return series;
+	}
+
 	@Override
 	public ResultValue getResult(ResultRequest request) {
 		return null;

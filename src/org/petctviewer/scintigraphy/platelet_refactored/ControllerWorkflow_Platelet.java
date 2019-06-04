@@ -1,20 +1,25 @@
 package org.petctviewer.scintigraphy.platelet_refactored;
 
 import ij.ImagePlus;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.platelet_refactored.tabs.MainTab;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,9 +99,32 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 		// Compute model
 		this.computeModel();
 
+		// Choose from geo avg or counts
+		boolean geoAvg = ((PlateletScintigraphy)ControllerWorkflow_Platelet.this.main).isAntPost();
+
 		// Display results
 		this.fenResults = new FenResults(this);
-		this.fenResults.setMainTab(new MainTab(this.fenResults, this.captures.get(0)));
+		this.fenResults.setMainTab(new MainTab(this.fenResults, this.captures.get(0), geoAvg));
+		this.fenResults.addTab(new TabResult(this.fenResults, "More graphs") {
+			@Override
+			public Component getSidePanelContent() {
+				return null;
+			}
+
+			@Override
+			public Container getResultContent() {
+				JPanel panel = new JPanel(new GridLayout(0, 2));
+
+				XYSeriesCollection datasetRatio = new XYSeriesCollection();
+				datasetRatio.addSeries(((ModelPlatelet) getModel()).seriesSpleenRatio(geoAvg));
+				datasetRatio.addSeries(((ModelPlatelet) getModel()).seriesLiverRatio(geoAvg));
+
+				panel.add(Library_JFreeChart.createGraph("Hours", "Values", new Color[]{Color.RED, Color.BLUE},
+														 "Ratio from J0", datasetRatio));
+
+				return panel;
+			}
+		});
 		this.fenResults.reloadAllTabs();
 		this.fenResults.setVisible(true);
 	}

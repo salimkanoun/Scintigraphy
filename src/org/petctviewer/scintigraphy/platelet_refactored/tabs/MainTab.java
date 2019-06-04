@@ -14,10 +14,12 @@ import java.awt.*;
 public class MainTab extends TabResult {
 
 	private ImagePlus capture;
+	private boolean geoAvg;
 
-	public MainTab(FenResults parent, ImagePlus capture) {
+	public MainTab(FenResults parent, ImagePlus capture, boolean geoAvg) {
 		super(parent, "Results");
 		this.capture = capture;
+		this.geoAvg = geoAvg;
 	}
 
 	private ModelPlatelet getModel() {
@@ -33,25 +35,33 @@ public class MainTab extends TabResult {
 	public Container getResultContent() {
 		JPanel panel = new JPanel(new GridLayout(2, 2));
 
+		// Posterior
 		XYSeriesCollection datasetPosterior = new XYSeriesCollection();
 		datasetPosterior.addSeries(getModel().seriesSpleenHeart());
 		datasetPosterior.addSeries(getModel().seriesLiverHeart());
 		datasetPosterior.addSeries(getModel().seriesSpleenLiver());
 
-		XYSeriesCollection datasetJORatio = new XYSeriesCollection(getModel().seriesSpleenPost());
-
-		XYSeriesCollection datasetGM = new XYSeriesCollection();
-		datasetGM.addSeries(getModel().seriesGMSpleenHeart());
-		datasetGM.addSeries(getModel().seriesGMLiverHeart());
-		datasetGM.addSeries(getModel().seriesGMSpleenLiver());
-
 		panel.add(new DynamicImage(capture.getBufferedImage()));
-		panel.add(Library_JFreeChart.createGraph("Hours", "Counts", new Color[]{Color.RED, Color.GREEN, Color.BLUE},
+		panel.add(Library_JFreeChart.createGraph("Hours", "Values", new Color[]{Color.RED, Color.GREEN, Color.BLUE},
 												 "Posterior", datasetPosterior));
-		panel.add(Library_JFreeChart.createGraph("Hours", "Counts", new Color[]{Color.RED}, "JO Ratio",
-												 datasetJORatio));
-		panel.add(Library_JFreeChart.createGraph("Hours", "Counts", new Color[]{Color.RED, Color.GREEN, Color.BLUE},
-												 "Geometrical Mean", datasetGM));
+
+		// Corrected Spleen Posterior
+		XYSeriesCollection datasetJORatio = new XYSeriesCollection(getModel().seriesSpleenPost());
+		panel.add(
+				Library_JFreeChart.createGraph("Hours", "Values", new Color[]{Color.RED}, "Corrected Spleen Posterior",
+											   datasetJORatio));
+
+		// Geometrical means
+		if (this.geoAvg) {
+			XYSeriesCollection datasetGM = new XYSeriesCollection();
+			datasetGM.addSeries(getModel().seriesGMSpleenHeart());
+			datasetGM.addSeries(getModel().seriesGMLiverHeart());
+			datasetGM.addSeries(getModel().seriesGMSpleenLiver());
+
+			panel.add(Library_JFreeChart.createGraph("Hours", "Values", new Color[]{Color.RED, Color.GREEN,
+															 Color.BLUE},
+													 "Geometrical Mean", datasetGM));
+		}
 
 		return panel;
 	}
