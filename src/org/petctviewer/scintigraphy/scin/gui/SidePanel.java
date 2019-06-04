@@ -55,13 +55,10 @@ public class SidePanel extends JPanel {
 
 		// ajout des informations du patient
 		HashMap<String, String> infoPatient = Library_Capture_CSV.getPatientInfo(imp);
-		JPanel patientInfo = new JPanel(new GridLayout(3, 2, 10, 10));
-		patientInfo.add(new JLabel("Patient name: "));
-		patientInfo.add(new JLabel(infoPatient.get("name")));
-		patientInfo.add(new JLabel("Patient id: "));
-		patientInfo.add(new JLabel(infoPatient.get("id")));
-		patientInfo.add(new JLabel("Aquisition date: "));
-		patientInfo.add(new JLabel(infoPatient.get("date")));
+		JPanel patientInfo = new JPanel(new GridLayout(0, 1, 10, 10));
+		patientInfo.add(new JLabel("Patient name: " + infoPatient.get(Library_Capture_CSV.PATIENT_INFO_NAME)));
+		patientInfo.add(new JLabel("Patient id: " + infoPatient.get(Library_Capture_CSV.PATIENT_INFO_ID)));
+		patientInfo.add(new JLabel("Acquisition date: " + infoPatient.get(Library_Capture_CSV.PATIENT_INFO_DATE)));
 
 		SidePanel.setFontAllJLabels(patientInfo, new Font("Calibri", Font.BOLD, 16));
 
