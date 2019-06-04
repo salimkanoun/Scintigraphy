@@ -12,6 +12,7 @@ import org.petctviewer.scintigraphy.lympho.LymphoSintigraphy;
 import org.petctviewer.scintigraphy.mibg.MIBGScintigraphy;
 import org.petctviewer.scintigraphy.os.OsScintigraphy;
 import org.petctviewer.scintigraphy.platelet.View_Platelet;
+import org.petctviewer.scintigraphy.platelet_refactored.PlateletScintigraphy;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.renal.dmsa.DmsaScintigraphy;
 import org.petctviewer.scintigraphy.renal.followup.FollowUp;
@@ -71,6 +72,7 @@ public class FenDebug extends JFrame {
 		this.registerNewProgram(ColonicScintigraphy.class);
 		this.registerNewProgram(LiquidScintigraphy.class);
 		this.registerNewProgram(MIBGScintigraphy.class);
+		this.registerNewProgram(PlateletScintigraphy.class);
 
 		this.add(this.panel, BorderLayout.CENTER);
 		this.add(pnl_pref, BorderLayout.NORTH);

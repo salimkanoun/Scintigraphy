@@ -410,6 +410,9 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 			this.prepareImage(i.getImageState());
 			i.afterNext(this);
 		}
+
+		// Update view
+		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	/**

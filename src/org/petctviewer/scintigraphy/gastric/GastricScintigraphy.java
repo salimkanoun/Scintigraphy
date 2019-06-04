@@ -55,7 +55,7 @@ public class GastricScintigraphy extends Scintigraphy {
 
 
 		// Close all images
-		Arrays.stream(openedImages).forEach(ims -> ims.getImagePlus().close());
+		Arrays.stream(openedImages).forEach(ImageSelection::close);
 
 		// Order images by time
 		Arrays.parallelSort(selection, new ChronologicalAcquisitionComparator());

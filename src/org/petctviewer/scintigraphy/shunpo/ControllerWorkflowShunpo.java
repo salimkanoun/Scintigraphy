@@ -83,9 +83,6 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		this.workflows[1].addInstruction(new DrawRoiInstruction("Brain", stateAnt, dri_11));
 		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 3));
 		this.workflows[1].addInstruction(new EndInstruction());
-
-		// Update view
-		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	@Override

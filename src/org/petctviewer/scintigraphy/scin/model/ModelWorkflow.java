@@ -12,6 +12,10 @@ public abstract class ModelWorkflow extends ModelScin {
 
     protected Isotope isotope;
 
+    /**
+     * @param selectedImages Images needed for this study (generally those images are used in the workflows)
+     * @param studyName Name of the study (used for display)
+     */
     public ModelWorkflow(ImageSelection[] selectedImages, String studyName) {
         super(selectedImages, studyName);
     }

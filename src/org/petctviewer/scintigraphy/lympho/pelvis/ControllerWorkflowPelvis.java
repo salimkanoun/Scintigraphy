@@ -70,9 +70,6 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
-
-		// Update view
-		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	@Override

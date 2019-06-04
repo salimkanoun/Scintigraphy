@@ -54,9 +54,6 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
 
 		this.workflows[0].addInstruction(new EndInstruction());
-
-		// Update view
-		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	@Override

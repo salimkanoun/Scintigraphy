@@ -254,9 +254,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		} else {
 			this.generateInstructionsBothMethods();
 		}
-
-		// Update view
-		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	@Override

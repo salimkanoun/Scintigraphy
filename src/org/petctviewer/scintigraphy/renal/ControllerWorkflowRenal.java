@@ -33,7 +33,6 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 	public ControllerWorkflowRenal(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
 		super(main, vue, model);
-		// TODO Auto-generated constructor stub
 
 		// Those method (generateInstructions() and start()) are called in setKidneys,
 		// to avoid problems, because you need to
@@ -123,9 +122,6 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		this.workflows[0].addInstruction(dri_capture_1);
 
 		this.workflows[0].addInstruction(new EndInstruction());
-
-		// Update view
-		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	@Override

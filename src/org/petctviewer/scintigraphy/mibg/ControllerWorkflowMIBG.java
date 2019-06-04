@@ -1,8 +1,6 @@
 package org.petctviewer.scintigraphy.mibg;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.mibg.tabResults.TabContrastMIBG;
 import org.petctviewer.scintigraphy.mibg.tabResults.TabMainMIBG;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -16,7 +14,8 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 
-import ij.ImagePlus;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflowMIBG extends ControllerWorkflow {
 
@@ -52,9 +51,6 @@ public class ControllerWorkflowMIBG extends ControllerWorkflow {
 			this.workflows[i].addInstruction(new ScreenShotInstruction(captures, this.getVue(), i));
 		}
 		this.workflows[this.workflows.length - 1].addInstruction(new EndInstruction());
-
-		// Update view
-		this.getVue().setNbInstructions(this.allInputInstructions().size());
 
 	}
 

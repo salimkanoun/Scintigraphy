@@ -1,9 +1,5 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import java.awt.Button;
-import java.awt.event.ActionEvent;
-import java.awt.image.BufferedImage;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -20,6 +16,10 @@ import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 
 public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
@@ -111,9 +111,6 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		this.workflows[2].addInstruction(dri_12);
 
 		this.workflows[2].addInstruction(new EndInstruction());
-
-		// Update view
-		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	private void clicNewCont() {
