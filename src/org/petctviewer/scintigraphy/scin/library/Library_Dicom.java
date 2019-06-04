@@ -675,12 +675,15 @@ public class Library_Dicom {
 	public static Isotope getIsotope(ImagePlus imp, FenApplication view) {
 		// Find isotope
 		String isotopeCode = Library_Dicom.findIsotopeCode(imp);
+
 		if (isotopeCode == null) {
 			// No code
 			// Ask user for isotope
 			IsotopeDialog isotopeDialog = new IsotopeDialog(view);
 			isotopeDialog.setVisible(true);
+			return isotopeDialog.getIsotope();
 		}
+
 		Isotope isotope = Isotope.getIsotopeFromCode(isotopeCode);
 		if (isotope == null) {
 			// Code unknown
