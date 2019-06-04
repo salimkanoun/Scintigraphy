@@ -107,31 +107,6 @@ public abstract class TabResult {
 		this.sidePanel.createCaptureButton(this);
 	}
 
-	// /**
-	// * Creates the button to take a capture of this tab.
-	// *
-	// * @param additionalInfo String that will be added to the end of the backup
-	// file
-	// */
-	// public void createCaptureButton(String additionalInfo) {
-	// this.sidePanel.createCaptureButton(this, additionalInfo);
-	// }
-	//
-	// /**
-	// * Creates the button to take a capture of this tab.
-	// *
-	// * @param hide Components that will be hidden during the capture and
-	// * set visible after
-	// * @param show Component that will be revealed during the capture and
-	// * set invisible after
-	// * @param additionalInfo String that will be added to the end of the backup
-	// file
-	// */
-	// public void createCaptureButton(Component[] hide, Component[] show, String
-	// additionalInfo) {
-	// this.sidePanel.createCaptureButton(this, hide, show, additionalInfo);
-	// }
-
 	/**
 	 * Do not use this method to change directly the content of the panel.<br>
 	 * If you need to change the content of any panel, please do that in the

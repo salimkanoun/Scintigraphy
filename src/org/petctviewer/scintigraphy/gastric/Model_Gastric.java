@@ -954,7 +954,7 @@ public class Model_Gastric extends ModelWorkflow {
 		return Library_JFreeChart.createGraph("Time (" + Unit.MINUTES.abrev() + ")", "Fundus/Stomach (%)",
 				new Color[]{new Color(0, 100, 0)}, "", Library_JFreeChart.createDataset(this.generateTime(),
 						this.getResultAsArray(REGION_FUNDUS, DATA_CORRELATION, Unit.PERCENTAGE),
-						"Intragastric Distribution"), 100.0);
+						"Intragastric Distribution"));
 	}
 
 	/**
@@ -967,8 +967,7 @@ public class Model_Gastric extends ModelWorkflow {
 		return Library_JFreeChart
 				.createGraph("Time (" + Unit.MINUTES.abrev() + ")", "% meal in the interval", new Color[]{Color.RED},
 						"",
-						Library_JFreeChart.createDataset(this.generateDerivedTime(), result, "Gastrointestinal flow"),
-						50.0);
+						Library_JFreeChart.createDataset(this.generateDerivedTime(), result, "Gastrointestinal flow"));
 	}
 
 	/**
@@ -986,7 +985,7 @@ public class Model_Gastric extends ModelWorkflow {
 		XYSeriesCollection dataset = Library_JFreeChart.createDataset(this.generateTime(), ySeries, titles);
 
 		return Library_JFreeChart
-				.createGraph("Time (" + Unit.MINUTES.abrev() + ")", "Retention (% meal)", colors, "", dataset, 100.);
+				.createGraph("Time (" + Unit.MINUTES.abrev() + ")", "Retention (% meal)", colors, "", dataset);
 	}
 
 	/**
@@ -1001,8 +1000,7 @@ public class Model_Gastric extends ModelWorkflow {
 				"retention");
 
 		return Library_JFreeChart.createGraph(Unit.MINUTES.abrev(), unit.abrev(), new Color[]{Color.GREEN}, "",
-				dataset,
-				Library_JFreeChart.maxValue(result) * 1.1);
+				dataset);
 	}
 
 	/**

@@ -38,7 +38,7 @@ public class MainTab extends TabResult {
 		datasetPosterior.addSeries(getModel().seriesLiverHeart());
 		datasetPosterior.addSeries(getModel().seriesSpleenLiver());
 
-		XYSeriesCollection datatsetJORatio = new XYSeriesCollection(getModel().seriesSpleenPost());
+		XYSeriesCollection datasetJORatio = new XYSeriesCollection(getModel().seriesSpleenPost());
 
 		XYSeriesCollection datasetGM = new XYSeriesCollection();
 		datasetGM.addSeries(getModel().seriesGMSpleenHeart());
@@ -47,12 +47,11 @@ public class MainTab extends TabResult {
 
 		panel.add(new DynamicImage(capture.getBufferedImage()));
 		panel.add(Library_JFreeChart.createGraph("Hours", "Counts", new Color[]{Color.RED, Color.GREEN, Color.BLUE},
-												 "Posterior", datasetPosterior, 100.));
+												 "Posterior", datasetPosterior));
 		panel.add(Library_JFreeChart.createGraph("Hours", "Counts", new Color[]{Color.RED}, "JO Ratio",
-												 datatsetJORatio,
-												 100.));
+												 datasetJORatio));
 		panel.add(Library_JFreeChart.createGraph("Hours", "Counts", new Color[]{Color.RED, Color.GREEN, Color.BLUE},
-												 "Geometrical Mean", datasetGM, 100.));
+												 "Geometrical Mean", datasetGM));
 
 		return panel;
 	}

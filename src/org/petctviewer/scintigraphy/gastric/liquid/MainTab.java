@@ -8,10 +8,10 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.gastric.Fit;
 import org.petctviewer.scintigraphy.gastric.ResultRequest;
 import org.petctviewer.scintigraphy.gastric.ResultValue;
 import org.petctviewer.scintigraphy.gastric.Unit;
-import org.petctviewer.scintigraphy.gastric.Fit;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -92,7 +92,7 @@ public class MainTab extends TabResult implements ChartMouseListener {
 			chartPanel = valueSetter;
 		} else {
 			chartPanel = Library_JFreeChart
-					.createGraph(xLabel, yLabel, new Color[]{Color.BLUE}, graphTitle, data, series.getMaxY() * 1.1);
+					.createGraph(xLabel, yLabel, new Color[]{Color.BLUE}, graphTitle, data);
 		}
 	}
 
