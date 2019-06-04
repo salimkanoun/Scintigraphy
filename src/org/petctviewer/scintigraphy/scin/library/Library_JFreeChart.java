@@ -4,7 +4,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
@@ -372,7 +371,6 @@ public class Library_JFreeChart {
 		// XAxis
 		NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
 		domainAxis.setRange(lowerBoundX, upperBoundX);
-		domainAxis.setTickUnit(new NumberTickUnit(30.00));
 		domainAxis.setTickMarkStroke(new BasicStroke(2.5F));
 		domainAxis.setLabelFont(new Font("", Font.BOLD, 16));
 		domainAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
