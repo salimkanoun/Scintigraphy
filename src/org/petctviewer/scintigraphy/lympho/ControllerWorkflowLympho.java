@@ -36,7 +36,6 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4;
 		ScreenShotInstruction dri_capture_1, dri_capture_2;
 		this.captures = new ArrayList<>();
-
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
 			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i]);
 			
@@ -57,7 +56,7 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 			this.workflows[i].addInstruction(dri_4);
 			this.workflows[i].addInstruction(dri_capture_2);
 		}
-		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
+		this.workflows[this.workflows.length - 1].addInstruction(new EndInstruction());
 	}
 
 	@Override

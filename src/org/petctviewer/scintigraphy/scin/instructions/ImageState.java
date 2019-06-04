@@ -78,8 +78,8 @@ public class ImageState {
 	 */
 	private Orientation facingOrientation;
 	/**
-	 * Right-Left or Left-Right lateralisation. If <code>TRUE</code>: Right-Left
-	 * lateralisation. If <code>FALSE</code>: Left-Right lateralisation.
+	 * Right-Left or Left-Right lateralisation.<br/> If <code>TRUE</code>: Right-Left
+	 * lateralisation.<br/> If <code>FALSE</code>: Left-Right lateralisation.
 	 * <ul>
 	 * <li>default is <code>TRUE</code></li>
 	 * </ul>

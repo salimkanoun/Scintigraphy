@@ -1,8 +1,7 @@
 package org.petctviewer.scintigraphy.renal;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.plugin.ZProjector;
+import java.util.Arrays;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -12,11 +11,12 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
-import org.petctviewer.scintigraphy.scin.library.Library_Debug;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
-import java.util.Arrays;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.plugin.ZProjector;
 
 public class RenalScintigraphy extends Scintigraphy {
 
@@ -53,7 +53,7 @@ public class RenalScintigraphy extends Scintigraphy {
 		// With 2 images
 		else {
 			Orientation[] acceptedOrientations = new Orientation[]{Orientation.DYNAMIC_POST, Orientation.DYNAMIC_ANT};
-			String hint = "You can also use only 1 dynamic (Ant_Post)";
+//			String hint = "You can also use only 1 dynamic (Ant_Post)";
 
 			// Image 0 must be Dyn Ant or Post
 			if (Arrays.stream(acceptedOrientations).noneMatch(o -> o == selectedImages[0].getImageOrientation()))
