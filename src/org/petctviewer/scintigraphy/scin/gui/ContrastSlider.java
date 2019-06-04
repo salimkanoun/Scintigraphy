@@ -1,13 +1,12 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import ij.ImagePlus;
-import ij.gui.Overlay;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-
-import javax.swing.*;
+import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+
+import ij.ImagePlus;
 
 public class ContrastSlider extends JSlider implements ChangeListener {
 	private static final long serialVersionUID = 1L;

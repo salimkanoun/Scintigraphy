@@ -43,7 +43,6 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	@SuppressWarnings("StringEquality")
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 		// Check that number of images is correct
 		if (selectedImages.length != 2)

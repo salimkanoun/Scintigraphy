@@ -1,17 +1,24 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
-import ij.ImagePlus;
-import ij.gui.Overlay;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.GridLayout;
+
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
 import org.petctviewer.scintigraphy.scin.gui.ContrastSlider;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import sun.security.util.SecurityConstants;
 
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import java.awt.*;
+import ij.ImagePlus;
+import ij.gui.Overlay;
 
 public class MainTab extends TabResult {
 
