@@ -92,7 +92,7 @@ public class ModelPlatelet extends ModelWorkflow {
 		for (Data data : this.datas) {
 			double value = data.getValue(REGION_SPLEEN, DATA_POST_COUNTS) / data.getValue(REGION_HEART,
 																						  DATA_POST_COUNTS);
-			series.add(data.time, value);
+			series.add(data.time / 60., value);
 		}
 		return series;
 	}
@@ -102,7 +102,7 @@ public class ModelPlatelet extends ModelWorkflow {
 		for (Data data : this.datas) {
 			double value = data.getValue(REGION_LIVER, DATA_POST_COUNTS) / data.getValue(REGION_HEART,
 																						 DATA_POST_COUNTS);
-			series.add(data.time, value);
+			series.add(data.time / 60., value);
 		}
 		return series;
 	}
@@ -112,7 +112,7 @@ public class ModelPlatelet extends ModelWorkflow {
 		for (Data data : this.datas) {
 			double value = data.getValue(REGION_SPLEEN, DATA_POST_COUNTS) / data.getValue(REGION_LIVER,
 																						  DATA_POST_COUNTS);
-			series.add(data.time, value);
+			series.add(data.time / 60., value);
 		}
 		return series;
 	}
@@ -123,7 +123,7 @@ public class ModelPlatelet extends ModelWorkflow {
 			double value = Library_Quantif.applyDecayFraction((int) (data.time * 1000. * 60.),
 															  data.getValue(REGION_SPLEEN, DATA_POST_COUNTS),
 															  this.isotope);
-			series.add(data.time, value);
+			series.add(data.time / 60., value);
 		}
 		return series;
 	}
@@ -132,7 +132,7 @@ public class ModelPlatelet extends ModelWorkflow {
 		XYSeries series = new XYSeries("Ratio GM Spleen / Heart Post");
 		for (Data data : this.datas) {
 			double value = data.getValue(REGION_SPLEEN, DATA_GEO_AVG) / data.getValue(REGION_HEART, DATA_GEO_AVG);
-			series.add(data.time, value);
+			series.add(data.time / 60., value);
 		}
 		return series;
 	}
@@ -141,7 +141,7 @@ public class ModelPlatelet extends ModelWorkflow {
 		XYSeries series = new XYSeries("Ratio GM Liver / Heart Post");
 		for (Data data : this.datas) {
 			double value = data.getValue(REGION_LIVER, DATA_GEO_AVG) / data.getValue(REGION_HEART, DATA_GEO_AVG);
-			series.add(data.time, value);
+			series.add(data.time / 60., value);
 		}
 		return series;
 	}
@@ -150,7 +150,7 @@ public class ModelPlatelet extends ModelWorkflow {
 		XYSeries series = new XYSeries("Ratio GM Spleen / Liver Post");
 		for (Data data : this.datas) {
 			double value = data.getValue(REGION_SPLEEN, DATA_GEO_AVG) / data.getValue(REGION_LIVER, DATA_GEO_AVG);
-			series.add(data.time, value);
+			series.add(data.time / 60., value);
 		}
 		return series;
 	}
