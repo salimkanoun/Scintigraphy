@@ -96,6 +96,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	}
 
 	public void declareColumns(Column[] columns) {
+		this.columns.clear();
 		this.columns.add(Column.ID);
 		this.columns.addAll(Arrays.asList(columns));
 		String[] columnsName = new String[this.columns.size()];

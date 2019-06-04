@@ -21,16 +21,13 @@ import ij.plugin.MontageMaker;
 public class TabMainMIBG extends TabResult {
 
 	private final ControllerScin controller;
-	private final List<ImagePlus> captures;
 	final ImagePlus montage;
 
 	public TabMainMIBG(FenResults parent, String title, List<ImagePlus> captures) {
 		super(parent, title, true);
-		// TODO Auto-generated constructor stub
 		this.controller = this.parent.getController();
-		this.captures = captures;
 
-		ImageStack stackCapture = Library_Capture_CSV.captureToStack(this.captures .toArray(new ImagePlus[0]));
+		ImageStack stackCapture = Library_Capture_CSV.captureToStack(captures.toArray(new ImagePlus[0]));
 		this.montage = this.montage(stackCapture);
 
 		this.reloadDisplay();
@@ -51,16 +48,12 @@ public class TabMainMIBG extends TabResult {
 
 	@Override
 	public JPanel getResultContent() {
-		// dynamic.setPreferredSize(new Dimension((int) (this.parent.getWidth() * 0.75),
-		// dynamic.getHeight()));
 		return new DynamicImage(montage.getImage());
 	}
 
 	private ImagePlus montage(ImageStack captures) {
 		MontageMaker mm = new MontageMaker();
-		// TODO: patient ID
-		String patientID = "NO_ID_FOUND";
-		ImagePlus imp = new ImagePlus("Results MIBG  -" + patientID, captures);
+		ImagePlus imp = new ImagePlus("Results MIBG", captures);
 		imp = mm.makeMontage2(imp, 1, 2, 0.50, 1, 2, 1, 10, false);
 		return imp;
 	}
