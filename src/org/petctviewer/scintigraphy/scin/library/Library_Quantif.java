@@ -143,8 +143,8 @@ public class Library_Quantif {
 	public static double calculer_countCorrected(ImagePlus firstImage, ImagePlus secondImage, Isotope isotope) {
 		Date firstAcquisitionTime = Library_Dicom.getDateAcquisition(firstImage);
 		Date SecondAcquisitionTime = Library_Dicom.getDateAcquisition(secondImage);
-		System.out.println(
-				"Difference de temps : " + (int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime()));
+//		System.out.println(
+//				"Difference de temps : " + (int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime()));
 		return Library_Quantif
 				.calculer_countCorrected((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime()),
 						Library_Quantif.getCounts(secondImage), isotope);
@@ -176,8 +176,8 @@ public class Library_Quantif {
 	public static double applyDecayFraction(ImagePlus firstImage, ImagePlus secondImage, Isotope isotope) {
 		Date firstAcquisitionTime = Library_Dicom.getDateAcquisition(firstImage);
 		Date SecondAcquisitionTime = Library_Dicom.getDateAcquisition(secondImage);
-		System.out.println("Difference de temps : " + Math
-				.abs((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime())));
+//		System.out.println("Difference de temps : " + Math
+//				.abs((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime())));
 
 		return Library_Quantif
 				.applyDecayFraction(Math.abs((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime())),

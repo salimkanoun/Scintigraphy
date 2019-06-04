@@ -43,8 +43,10 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 	public Instruction generate() {
 		if (!this.isStopped) {
 			this.stop();
+			this.workflow.getController().getVue().setNbInstructions(this.workflow.getController().allInputInstructions().size() + 1);
 			return new DrawSymmetricalLoopInstruction(this.workflow, this, this.getImageState(), model, organ,
 					this.RoiName);
+			
 		}
 		return null;
 	}

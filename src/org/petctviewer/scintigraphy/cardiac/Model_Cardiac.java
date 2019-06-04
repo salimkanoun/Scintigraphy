@@ -72,6 +72,7 @@ public class Model_Cardiac extends ModelScin {
 			counts[2] = (double) Library_Quantif.getPixelNumber(this.selectedImages[0].getImagePlus());
 
 			this.data.put(roi.getName(), counts);
+			System.out.println("this.data.put("+roi.getName()+", "+counts+")");
 
 		}
 
@@ -89,12 +90,12 @@ public class Model_Cardiac extends ModelScin {
 		Double meanBdfPostBladder = this.data.get("Bladder Background P")[1];
 		
 		// Avg background value of ant and post images for Kidney R
-		Double meanBdfAntKidneyR = this.data.get("Kidney R A")[1];
-		Double meanBdfPostKidneyR = this.data.get("Kidney R P")[1];
+		Double meanBdfAntKidneyR = this.data.get("Kidney R Background A")[1];
+		Double meanBdfPostKidneyR = this.data.get("Kidney R Background P")[1];
 		
 		// Avg background value of ant and post images for Kidney L
-		Double meanBdfAntKidneyL = this.data.get("Kidney L A")[1];
-		Double meanBdfPostKidneyL = this.data.get("Kidney L P")[1];
+		Double meanBdfAntKidneyL = this.data.get("Kidney L Background A")[1];
+		Double meanBdfPostKidneyL = this.data.get("Kidney L Background P")[1];
 		
 
 		// calculation of corrected heart uptake

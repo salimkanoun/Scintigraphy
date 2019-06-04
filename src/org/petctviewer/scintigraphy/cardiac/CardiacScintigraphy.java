@@ -27,8 +27,8 @@ public class CardiacScintigraphy extends Scintigraphy {
 	@Override
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 		// Check number
-		if(selectedImages.length != 2)
-			throw new WrongNumberImagesException(selectedImages.length, 2);
+		if(selectedImages.length > 2 || selectedImages.length < 1)
+			throw new WrongNumberImagesException(selectedImages.length, 1, 2);
 
 		ArrayList<ImageSelection> mountedImages = new ArrayList<>();
 

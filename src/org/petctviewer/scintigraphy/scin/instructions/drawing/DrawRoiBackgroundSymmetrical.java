@@ -1,19 +1,17 @@
 package org.petctviewer.scintigraphy.scin.instructions.drawing;
 
-import ij.gui.Roi;
-import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
-import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-public class DrawRoiBackground extends DrawRoiInstruction {
+import ij.gui.Roi;
+
+public class DrawRoiBackgroundSymmetrical extends DrawRoiBackground {
+
 
 	private static final long serialVersionUID = 1L;
 
-	private final transient DrawRoiInstruction dri_reference;
-
-	private final transient ModelScin model;
-
+	
+	
 	/**
 	 * Instantiates a new instruction to draw a background ROI. This special Roi
 	 * will automatically draw two other Roi around the specified Roi, folowing the
@@ -28,14 +26,13 @@ public class DrawRoiBackground extends DrawRoiInstruction {
 	 * @param model
 	 *            Model, to get the Roi manager and the ImagePlus
 	 */
-	public DrawRoiBackground(String organToDelimit, ImageState state, DrawRoiInstruction roi1, ModelScin model) {
-		super(organToDelimit, state);
-		this.dri_reference = roi1;
-		this.model = model;
-		
-		this.InstructionType = DrawInstructionType.DRAW_ROI_BACKGROUND;
+	public DrawRoiBackgroundSymmetrical(String organToDelimit, ImageState state, DrawRoiInstruction roi1,
+			ModelScin model) {
+		super(organToDelimit, state, roi1, model);
+		// TODO Auto-generated constructor stub
 	}
-
+	
+	
 	/**
 	 * Instantiates a new instruction to draw a background ROI. This special Roi
 	 * will automatically draw two other Roi around the specified Roi, folowing the
@@ -52,19 +49,27 @@ public class DrawRoiBackground extends DrawRoiInstruction {
 	 * @param roiName
 	 *            Name of the Roi (displayed name)
 	 */
-	public DrawRoiBackground(String organToDelimit, ImageState state, DrawRoiInstruction roi1, ModelScin model,
+	public DrawRoiBackgroundSymmetrical(String organToDelimit, ImageState state, DrawRoiInstruction roi1, ModelScin model,
 			String roiName) {
-		super(organToDelimit, state, roiName);
-		this.dri_reference = roi1;
-		this.model = model;
+		super(organToDelimit, state, roi1, model, roiName);
 	}
-
+	
 	@Override
-	public void afterNext(ControllerWorkflow controller) {
-		super.afterNext(controller);
-		Roi r1 = this.model.getRoiManager().getRoi(this.dri_reference.getRoiIndex());
-		controller.getCurrentImageState().getImage().getImagePlus()
-				.setRoi(Library_Roi.createBkgRoi(r1, controller.getCurrentImageState().getImage().getImagePlus(), Library_Roi.KIDNEY));
+	public String getRoiName() {
+		String name = this.organToDelimit;
+
+		Roi thisRoi = this.getImageState().getImage().getImagePlus().getRoi();
+		if(thisRoi == null)
+			return this.organToDelimit;
+		
+		boolean OrganPost = thisRoi.getXBase() > this.getImageState().getImage().getImagePlus().getWidth() / 2;
+
+		if (OrganPost)
+			name += " P";
+		else
+			name += " A";
+
+		return name;
 	}
 
 }
