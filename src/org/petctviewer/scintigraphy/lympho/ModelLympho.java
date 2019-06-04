@@ -102,11 +102,11 @@ public class ModelLympho extends ModelScin {
 	}
 
 	private void computeGeometricalAverage() {
-		System.out.println("\n\n\n\n\n\n----------------------------\n\n\n\n\n\n");
-		System.out.println("nbCounts : " + this.coups.size());
-		for (Double count : this.coups.values().toArray(new Double[0])) {
-			System.out.println("Counts : " + count);
-		}
+//		System.out.println("\n\n\n\n\n\n----------------------------\n\n\n\n\n\n");
+//		System.out.println("nbCounts : " + this.coups.size());
+//		for (Double count : this.coups.values().toArray(new Double[0])) {
+//			System.out.println("Counts : " + count);
+//		}
 		this.moyenneGeo(FOOT_RIGHT_ANT_FIRST);
 		this.moyenneGeo(FOOT_LEFT_ANT_FIRST);
 		this.moyenneGeo(FOOT_RIGHT_ANT_SECOND);
@@ -117,9 +117,9 @@ public class ModelLympho extends ModelScin {
 	// Si abv = PD alors on calculera la MG pour le poumon droit
 	private void moyenneGeo(int organ) {
 		geometricalAverage.put(organ, (int) Library_Quantif.moyGeom(this.coups.get(organ), this.coups.get(organ + 2)));
-		System.out.println("MG " + organ + " [" + ModelLympho.convertOrgan(organ) + "/ "
-				+ ModelLympho.convertOrgan(organ + 2) + "] --- [" + this.coups.get(organ) + "/"
-				+ this.coups.get(organ + 2) + "] -> " + geometricalAverage.get(organ));
+//		System.out.println("MG " + organ + " [" + ModelLympho.convertOrgan(organ) + "/ "
+//				+ ModelLympho.convertOrgan(organ + 2) + "] --- [" + this.coups.get(organ) + "/"
+//				+ this.coups.get(organ + 2) + "] -> " + geometricalAverage.get(organ));
 
 	}
 

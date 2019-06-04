@@ -19,6 +19,8 @@ public class TabPrincipalLympho extends TabResult {
 
 	final ImagePlus montage;
 
+	private JLabel visualGradation;
+
 	public TabPrincipalLympho(FenResults parent, String title, ModelScin model, ImagePlus[] captures) {
 		super(parent, title);
 
@@ -36,9 +38,18 @@ public class TabPrincipalLympho extends TabResult {
 	public Component getSidePanelContent() {
 		System.out.println(model != null);
 		String[] result = ((ModelLympho) parent.getModel()).getResult();
-		JPanel res = new JPanel(new GridLayout(result.length, 1));
+		
+		JPanel res = new JPanel(new GridLayout(result.length + 2, 1));
+		
+		this.visualGradation = new JLabel();
+		res.add(this.visualGradation);
+		
+		res.add(new JLabel());
+		
+		
 		for (String s : result)
 			res.add(new JLabel(s));
+		
 		return res;
 	}
 
@@ -58,5 +69,11 @@ public class TabPrincipalLympho extends TabResult {
 		imp = mm.makeMontage2(imp, 2, 2, 0.50, 1, 4, 1, 10, false);
 		return imp;
 	}
+
+	public void updateVisualGradation(String gradation) {
+		// TODO Auto-generated method stub
+		this.visualGradation.setText(gradation);
+	}
+
 
 }

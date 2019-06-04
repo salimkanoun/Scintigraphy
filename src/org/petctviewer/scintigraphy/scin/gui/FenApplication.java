@@ -73,6 +73,10 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	private final MenuBar menuBar;
 	protected final DocumentationDialog documentation;
 
+	private Menu options;
+
+	private Menu help;
+
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
 	 * 
@@ -260,9 +264,17 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	public MenuBar getMenuBar() {
 		return this.menuBar;
 	}
+	
+	public Menu getMenuBarOptions() {
+		return this.options;
+	}
+	
+	public Menu getMenuBarHelp() {
+		return this.help;
+	}
 
 	private void createMenuBar() {
-		Menu options = new Menu("Options");
+		this.options = new Menu("Options");
 		MenuItem loadRois = new MenuItem("Load ROIs from .zip");
 		loadRois.addActionListener(e -> {
 			try {
@@ -285,7 +297,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 		});
 
-		Menu help = new Menu("Help");
+		this.help = new Menu("Help");
 		MenuItem doc = new MenuItem("Documentation");
 		doc.addActionListener((event) -> documentation.setVisible(true));
 		help.add(doc);

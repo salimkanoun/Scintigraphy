@@ -125,7 +125,7 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 
 			ModelScin model = TabCurves.this.parent.getModel();
 			ImageSelection[] ims = model.getImageSelection();
-			ImageSelection[] selectedImages = new ImageSelection[] { ims[1], ims[2], ims[3], ims[4] };
+			ImageSelection[] selectedImages = new ImageSelection[] { ims[1].clone(), ims[2].clone(), ims[3].clone(), ims[4].clone() };
 			Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
 			Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
 
