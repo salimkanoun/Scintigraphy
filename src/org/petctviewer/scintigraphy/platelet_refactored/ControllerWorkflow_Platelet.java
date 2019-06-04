@@ -16,6 +16,7 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ControllerWorkflow_Platelet extends ControllerWorkflow {
@@ -30,6 +31,8 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 	public ControllerWorkflow_Platelet(PlateletScintigraphy main, FenApplicationWorkflow vue,
 									   ImageSelection[] selectedImages) {
 		super(main, vue, new ModelPlatelet(selectedImages, main.getStudyName()));
+
+		this.captures = new ArrayList<>(1);
 
 		this.generateInstructions();
 		this.start();
@@ -90,6 +93,8 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 		// Display results
 		this.fenResults = new FenResults(this);
 		this.fenResults.setMainTab(new MainTab(this.fenResults, this.captures.get(0)));
+		this.fenResults.reloadAllTabs();
+		this.fenResults.setVisible(true);
 	}
 
 	@Override
@@ -114,6 +119,10 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 
 			if (((PlateletScintigraphy) this.main).isAntPost()) {
 				ImageState stateAnt = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_WORKFLOW);
+
+				if (dri_spleen_ant == null) dri_spleen_ant = dri_spleen;
+				if (dri_liver_ant == null) dri_liver_ant = dri_liver;
+				if (dri_heart_ant == null) dri_heart_ant = dri_heart;
 
 				dri_spleen_ant = new DrawRoiInstruction("Spleen", stateAnt, dri_spleen_ant);
 				dri_liver_ant = new DrawRoiInstruction("Liver", stateAnt, dri_liver_ant);

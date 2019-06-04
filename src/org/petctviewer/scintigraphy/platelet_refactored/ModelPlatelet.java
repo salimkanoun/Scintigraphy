@@ -233,8 +233,11 @@ public class ModelPlatelet extends ModelWorkflow {
 		 */
 		public void setValue(String regionName, int key, double value) throws IllegalArgumentException {
 			// Find region
-			Region region = this.regionsPost.get(regionName);
-			if (region == null) region = this.regionsAnt.get(regionName);
+			Region region;
+			if(key == DATA_ANT_COUNTS)
+				region = this.regionsAnt.get(regionName);
+			else
+				region = this.regionsPost.get(regionName);
 			if (region == null) throw new IllegalArgumentException("The region (" + regionName + ") doesn't exist");
 
 			// Set value
@@ -252,8 +255,11 @@ public class ModelPlatelet extends ModelWorkflow {
 		 */
 		public void setValue(String regionName, int key, double value, ImageState state, Roi roi) {
 			// Find region
-			Region region = this.regionsPost.get(regionName);
-			if (region == null) region = this.regionsAnt.get(regionName);
+			Region region;
+			if(key == DATA_ANT_COUNTS)
+				region = this.regionsAnt.get(regionName);
+			else
+				region = this.regionsPost.get(regionName);
 			if (region == null) {
 				// Create region
 				region = new Region(regionName, ModelPlatelet.this);
