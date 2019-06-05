@@ -20,12 +20,12 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-import org.petctviewer.scintigraphy.hepatic.SecondExam.FenApplicationSecondHepaticDyn;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
 import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
+import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
@@ -279,7 +279,8 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		MenuItem loadRois = new MenuItem("Load ROIs from .zip");
 		loadRois.addActionListener(e -> {
 			try {
-				FenApplicationSecondHepaticDyn.importRoiList(FenApplication.this,
+				SaveAndLoad saveAndLoad = new SaveAndLoad();
+				saveAndLoad.importRoiList(FenApplication.this,
 						FenApplication.this.controleur.getModel(), (ControllerWorkflow) FenApplication.this.controleur);
 
 				FenApplication.this.getImagePlus()
