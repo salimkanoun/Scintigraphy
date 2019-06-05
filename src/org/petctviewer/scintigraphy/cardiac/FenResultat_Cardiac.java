@@ -78,7 +78,7 @@ public class FenResultat_Cardiac extends FenResults {
 
 		JPanel flowRef = new JPanel();
 		JPanel gridRef = new JPanel(new GridLayout(0, 1));
-		JLabel value = new JLabel("H/WB if >7.5 is associated with higher risk of cardiac event");
+		JLabel value = new JLabel("H/WB > 7.5% is associated with higher risk of cardiac event");
 		value.setHorizontalAlignment(JLabel.CENTER);
 		JLabel ref = new JLabel("Rapezzi et al. JACC 2011");
 		ref.setHorizontalAlignment(JLabel.CENTER);

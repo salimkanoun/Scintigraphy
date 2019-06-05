@@ -46,12 +46,14 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 		// on declare si il y a deux prises
 		((Model_Cardiac) this.model)
-				.setDeuxPrise(this.model.getImageSelection()[0].getImagePlus().getImageStackSize() > 1);
+				.setDeuxPrise(this.model.getImageSelection().length > 1);
 
 		((Model_Cardiac) this.model).calculerMoyGeomTotale();
 
 		// this.nbConta1 = 0;
 		// this.nbConta2 = 0;
+		
+		this.finContSlice1 = false;
 
 		this.generateInstructions();
 		// ((FenApplication_Cardiac)
@@ -61,16 +63,18 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 	@Override
 	protected void generateInstructions() {
-		this.workflows = new Workflow[this.model.getImageSelection()[0].getImagePlus().getImageStackSize() + 1];
+		this.workflows = new Workflow[this.getModel().getImageSelection().length + 1];
 
 		int index = 1;
 
-		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
-		if (this.model.getImageSelection()[0].getImagePlus().getImageStackSize() > 1) {
+		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[index - 1]);
+		if (this.model.getImageSelection().length > 1) {
+			this.model.getImageSelection()[index - 1].clone().getImagePlus().show();
 			index++;
-			this.workflows[1] = new Workflow(this, this.model.getImageSelection()[0]);
+			this.workflows[1] = new Workflow(this, this.model.getImageSelection()[index - 1]);
+			this.model.getImageSelection()[index - 1].clone().getImagePlus().show();
 		}
-		this.workflows[index] = new Workflow(this, this.model.getImageSelection()[0]);
+		this.workflows[index] = new Workflow(this, this.model.getImageSelection()[index - 1]);
 
 		DefaultGenerator dri_1 = null, dri_2 = null;
 		ImageState state_1, state_2;
@@ -84,14 +88,14 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		state_1 = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
 		state_1.specifieImage(this.workflows[0].getImageAssociated());
 
-		state_2 = new ImageState(Orientation.ANT, 2, true, ImageState.ID_CUSTOM_IMAGE);
-		state_2.specifieImage(this.workflows[0].getImageAssociated());
+		state_2 = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
+		state_2.specifieImage(this.workflows[1].getImageAssociated());
 
 		dri_1 = new DrawSymmetricalLoopInstruction(this.workflows[0], null, state_1, model, null, "ContE");
 		dri_2 = new DrawSymmetricalLoopInstruction(this.workflows[0], null, state_2, model, null, "ContL");
 
 		this.workflows[0].addInstructionOnTheFly(dri_1);
-		if (this.model.getImageSelection()[0].getImagePlus().getImageStackSize() > 1)
+		if (this.getModel().getImageSelection().length > 1)
 			this.workflows[1].addInstructionOnTheFly(dri_2);
 
 		// Organs to delimit
@@ -161,8 +165,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		// --------------------------");
 		// System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n");
 		// on set la slice
-		if ((this.model.getImageSelection()[0].getImagePlus().getCurrentSlice() == 1
-				&& this.model.getImageSelection()[0].getImagePlus().getImageStackSize() > 1)) {
+		if ((this.getModel().getImageSelection().length > 1 && !finContSlice1)) {
 			// on relance le mode decontamination, cette fois ci pour la deuxieme slice
 			this.finContSlice1 = true;
 
@@ -171,8 +174,6 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 			this.workflows[this.indexCurrentWorkflow]
 					.removeInstructionWithIterator(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
-
-			this.clickNext();
 
 		} else { // on a trait� toutes les contaminations
 			((FenApplication_Cardiac) this.main.getFenApplication()).stopContaminationMode();
@@ -188,10 +189,10 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			this.workflows[this.indexCurrentWorkflow]
 					.removeInstructionWithIterator(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
 			this.finContSlice2 = true;
-
-			this.clickNext();
-
 		}
+		
+		this.clickNext();
+		
 		this.position--;
 		this.vue.pack();
 		// System.out.println("-------------------------- Après
@@ -238,14 +239,14 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		fen.setVisible(true);
 	}
 
-	public int getSliceNumberByRoiIndex() {
+	public int getImageNumberByRoiIndex() {
 		// changement de slice si la prise contient une precoce
-		if (this.model.getImageSelection()[0].getImagePlus().getImageStackSize() > 1) {
+		if (this.getModel().getImageSelection().length > 1) {
 			if (this.finContSlice1) {
-				return 2;
+				return 1;
 			}
 		}
-		return 1;
+		return 0;
 	}
 	
 	@Override

@@ -1,13 +1,15 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import ij.gui.Roi;
+import java.util.HashMap;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import java.util.HashMap;
+import ij.ImagePlus;
+import ij.gui.Roi;
 
 public class Model_Cardiac extends ModelScin {
 
@@ -69,14 +71,14 @@ public class Model_Cardiac extends ModelScin {
 		// }
 
 		for (Roi roi : this.getRoiManager().getRoisAsArray()) {
-			this.selectedImages[0].getImagePlus().setSlice(controler.getSliceNumberByRoiIndex());
-			this.selectedImages[0].getImagePlus().setRoi((Roi) roi.clone());
+			ImagePlus selectedImage = this.selectedImages[controler.getImageNumberByRoiIndex()].getImagePlus(); 
+			selectedImage.setRoi((Roi) roi.clone());
 
 			// Array of Double, in 0 raw count, in 1 average count, in 2 number of pixels
 			Double[] counts = new Double[3];
-			counts[0] = Library_Quantif.getCounts(this.selectedImages[0].getImagePlus());
-			counts[1] = Library_Quantif.getAvgCounts(this.selectedImages[0].getImagePlus());
-			counts[2] = (double) Library_Quantif.getPixelNumber(this.selectedImages[0].getImagePlus());
+			counts[0] = Library_Quantif.getCounts(selectedImage);
+			counts[1] = Library_Quantif.getAvgCounts(selectedImage );
+			counts[2] = (double) Library_Quantif.getPixelNumber(selectedImage);
 
 			this.data.put(roi.getName(), counts);
 			System.out.println("this.data.put(" + roi.getName() + ", " + counts + ")");
