@@ -69,13 +69,11 @@ public class ModelPlatelet extends ModelWorkflow {
 		imp.setRoi(roi);
 		double value = Library_Quantif.getCounts(imp);
 
-		Data data;
+		Data data = createOrRetrieveData(state);
 		if (state.getFacingOrientation() == Orientation.ANT) {
-			data = createOrRetrieveData(state);
 			data.setAntValue(regionName, Data.DATA_ANT_COUNTS, value, state, roi);
 			data.setAntValue(regionName, Data.DATA_MEAN_ANT_COUNTS, Library_Quantif.getAvgCounts(imp));
 		} else {
-			data = createOrRetrieveData(state);
 			data.setPostValue(regionName, Data.DATA_POST_COUNTS, value, state, roi);
 			data.setPostValue(regionName, Data.DATA_MEAN_POST_COUNTS, Library_Quantif.getAvgCounts(imp));
 		}

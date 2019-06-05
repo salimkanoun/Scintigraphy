@@ -1,5 +1,7 @@
 package org.petctviewer.scintigraphy.gastric;
 
+import java.util.Objects;
+
 /**
  * This class represents a result returned by a model.<br>
  * Each model should present to the controller a group of results that are
@@ -38,4 +40,16 @@ public class Result {
 		return getName();
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Result result = (Result) o;
+		return Objects.equals(name, result.name);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(name);
+	}
 }

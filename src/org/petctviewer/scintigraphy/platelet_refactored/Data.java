@@ -260,8 +260,7 @@ public class Data {
 	 * @param key Key to know the unit
 	 * @return unit of the key
 	 */
-	public Unit unitForKey(int key) {
-		// TODO!
+	public static Unit unitForKey(int key) {
 		switch (key) {
 			case DATA_ANT_COUNTS:
 			case DATA_POST_COUNTS:
@@ -269,6 +268,9 @@ public class Data {
 			case DATA_BKG_NOISE:
 			case DATA_PIXEL_COUNTS:
 			case DATA_DECAY_CORRECTED:
+			case DATA_MEAN_ANT_COUNTS:
+			case DATA_MEAN_POST_COUNTS:
+			case DATA_MEAN_GEO_AVG:
 				return Unit.COUNTS;
 			case DATA_PERCENTAGE:
 			case DATA_DERIVATIVE:
