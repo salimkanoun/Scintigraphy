@@ -167,11 +167,16 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 		// First instruction to get the acquisition time for the starting point
 		PromptIngestionTime promptIngestionTime = new PromptIngestionTime(this);
-		PromptInstruction promptTimeAcquisition = new PromptInstruction(promptIngestionTime);
-		if (promptIngestionTime.isInputValid()) {
-			specifiedTimeIngestion = promptIngestionTime.getResult();
-			this.getModel().setTimeIngestion(specifiedTimeIngestion);
-		}
+		PromptInstruction promptTimeAcquisition = new PromptInstruction(promptIngestionTime) {
+			@Override
+			public void afterNext(ControllerWorkflow controller) {
+				super.afterNext(controller);
+				if (promptIngestionTime.isInputValid()) {
+					specifiedTimeIngestion = promptIngestionTime.getResult();
+					getModel().setTimeIngestion(specifiedTimeIngestion);
+				}
+			}
+		};
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
 			this.workflows[i] = new Workflow(this, this.getModel().getImageSelection()[i]);

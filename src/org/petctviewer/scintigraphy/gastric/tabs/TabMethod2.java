@@ -20,11 +20,18 @@ public class TabMethod2 extends TabResultDefault {
 	}
 
 	@Override
+	protected JPanel additionalResults() {
+		// Not used
+		return null;
+	}
+
+	@Override
 	public Component getSidePanelContent() {
 		JPanel panel = new JPanel(new BorderLayout());
 
 		// North
-		panel.add(this.additionalResults(), BorderLayout.NORTH);
+		// Not used
+//		panel.add(this.additionalResults(), BorderLayout.NORTH);
 
 		// Center
 		JPanel panCenter = new JPanel(new BorderLayout());

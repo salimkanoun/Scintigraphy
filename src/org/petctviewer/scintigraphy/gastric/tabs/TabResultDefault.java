@@ -28,7 +28,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public abstract class TabResultDefault extends TabResult implements ItemListener, ChartMouseListener {
@@ -42,7 +41,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	private final JButton btnAutoFit;
 	private final ResultRequest request;
 	private final int seriesToGenerate;
-	private Date timeIngestion;
+	protected Date timeIngestion;
 	private XYSeriesCollection data;
 	private JValueSetter valueSetter;
 	private JLabel lagPhaseValue;
@@ -87,6 +86,14 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 		this.reloadDisplay();
 	}
+
+	/**
+	 * Displays additional results on the tab like time of ingestion or button to
+	 * launch dynamic acquisition...
+	 *
+	 * @return panel containing the additional results
+	 */
+	protected abstract JPanel additionalResults();
 
 	/**
 	 * Generates the table with all of the results to display for this scintigraphy.
@@ -331,23 +338,6 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		} catch (IllegalArgumentException error) {
 			this.setErrorMessage("Not enough data to fit the graph");
 		}
-	}
-
-	/**
-	 * Displays additional results on the tab like time of ingestion or button to
-	 * launch dynamic acquisition...
-	 *
-	 * @return panel containing the additional results
-	 */
-	protected JPanel additionalResults() {
-		JPanel panel = new JPanel(new GridLayout(0, 1));
-
-		// Time of ingestion
-		if (this.timeIngestion != null) {
-			panel.add(new JLabel("Ingestion Time: " + new SimpleDateFormat("HH:mm:ss").format(timeIngestion)));
-		}
-
-		return panel;
 	}
 
 	/**

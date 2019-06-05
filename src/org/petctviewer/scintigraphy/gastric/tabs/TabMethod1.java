@@ -9,6 +9,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 
 import javax.swing.*;
 import java.awt.*;
+import java.text.SimpleDateFormat;
 
 public class TabMethod1 extends TabResultDefault {
 
@@ -24,16 +25,29 @@ public class TabMethod1 extends TabResultDefault {
 	}
 
 	@Override
+	protected JPanel additionalResults() {
+		JPanel panel = new JPanel(new GridLayout(0, 1));
+
+		// Time of ingestion
+		if (this.timeIngestion != null) {
+			panel.add(new JLabel("Ingestion Time: " + new SimpleDateFormat("HH:mm:ss").format(timeIngestion)));
+		}
+
+		// Btn dynamic acquisition
+		btnDynAcquisition = new JButton("Start dynamic acquisition");
+		btnDynAcquisition
+				.addActionListener((event) -> ((ControllerWorkflow_Gastric) parent.getController()).startDynamic());
+		panel.add(btnDynAcquisition);
+
+		return panel;
+	}
+
+	@Override
 	public Component getSidePanelContent() {
 		JPanel panel = new JPanel(new BorderLayout());
 
 		// North
-		JPanel additionalResults = this.additionalResults();
-		btnDynAcquisition = new JButton("Start dynamic acquisition");
-		btnDynAcquisition
-				.addActionListener((event) -> ((ControllerWorkflow_Gastric) parent.getController()).startDynamic());
-		additionalResults.add(btnDynAcquisition);
-		panel.add(additionalResults, BorderLayout.NORTH);
+		panel.add(this.additionalResults(), BorderLayout.NORTH);
 
 		// Center
 		JPanel panCenter = new JPanel(new BorderLayout());
