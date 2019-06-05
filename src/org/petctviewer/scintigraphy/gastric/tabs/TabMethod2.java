@@ -6,6 +6,7 @@ import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric.Result;
 import org.petctviewer.scintigraphy.gastric.Unit;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 import org.petctviewer.scintigraphy.scin.preferences.PrefsTabGastric;
 
 import javax.swing.*;
@@ -17,6 +18,13 @@ public class TabMethod2 extends TabResultDefault {
 	public TabMethod2(FenResults parent, ImagePlus capture) {
 		super(parent, capture, "Gastric Only", Unit.valueOf(Prefs.get(PrefsTabGastric.PREF_UNIT_USED,
 				Unit.COUNTS.name())), Unit.TIME, Model_Gastric.SERIES_DECAY_FUNCTION);
+	}
+
+	@Override
+	protected JPanel additionalResults() {
+		JPanel panel = new JPanel();
+		panel.add(new JLabel("Corrected with " + ((ModelWorkflow) this.parent.getModel()).getIsotope()));
+		return panel;
 	}
 
 	@Override
@@ -41,7 +49,7 @@ public class TabMethod2 extends TabResultDefault {
 
 		final Result[] resultsRequested = new Result[]{Model_Gastric.LAG_PHASE_GEOAVG, Model_Gastric.T_HALF_GEOAVG,
 				Model_Gastric.RETENTION_GEOAVG};
-		final Unit[] unitsRequested = new Unit[]{unitTime, unitTime, Unit.PERCENTAGE};
+		final Unit[] unitsRequested = new Unit[]{Unit.MINUTES, Unit.MINUTES, Unit.PERCENTAGE};
 		panCenter.add(this.infoResultats(resultsRequested, unitsRequested), BorderLayout.SOUTH);
 		panel.add(panCenter, BorderLayout.CENTER);
 

@@ -29,8 +29,8 @@ public class Library_Quantif {
 			throw new IllegalArgumentException("place doit etre superieur ou egal a zero");
 		}
 
-		if (value.equals(Double.NaN) || value.equals(Double.NEGATIVE_INFINITY) || value
-				.equals(Double.POSITIVE_INFINITY)) {
+		if (value.equals(Double.NaN) || value.equals(Double.NEGATIVE_INFINITY) || value.equals(
+				Double.POSITIVE_INFINITY)) {
 			return value;
 		}
 
@@ -143,8 +143,6 @@ public class Library_Quantif {
 	public static double calculer_countCorrected(ImagePlus firstImage, ImagePlus secondImage, Isotope isotope) {
 		Date firstAcquisitionTime = Library_Dicom.getDateAcquisition(firstImage);
 		Date SecondAcquisitionTime = Library_Dicom.getDateAcquisition(secondImage);
-//		System.out.println(
-//				"Difference de temps : " + (int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime()));
 		return Library_Quantif
 				.calculer_countCorrected((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime()),
 						Library_Quantif.getCounts(secondImage), isotope);
@@ -176,12 +174,10 @@ public class Library_Quantif {
 	public static double applyDecayFraction(ImagePlus firstImage, ImagePlus secondImage, Isotope isotope) {
 		Date firstAcquisitionTime = Library_Dicom.getDateAcquisition(firstImage);
 		Date SecondAcquisitionTime = Library_Dicom.getDateAcquisition(secondImage);
-//		System.out.println("Difference de temps : " + Math
-//				.abs((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime())));
 
-		return Library_Quantif
-				.applyDecayFraction(Math.abs((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime())),
-						Library_Quantif.getCounts(secondImage), isotope);
+		return Library_Quantif.applyDecayFraction(
+				Math.abs((int) (firstAcquisitionTime.getTime() - SecondAcquisitionTime.getTime())),
+				Library_Quantif.getCounts(secondImage), isotope);
 	}
 
 	/**
@@ -220,8 +216,8 @@ public class Library_Quantif {
 	 * @return The convolved array
 	 */
 	public static Double[] processNConvolv(Double[] values, Double[] kernel, int nbConvolv) {
-		return ArrayUtils
-				.toObject(processNConvolv(ArrayUtils.toPrimitive(values), ArrayUtils.toPrimitive(kernel), nbConvolv));
+		return ArrayUtils.toObject(
+				processNConvolv(ArrayUtils.toPrimitive(values), ArrayUtils.toPrimitive(kernel), nbConvolv));
 	}
 
 	/**
@@ -308,7 +304,7 @@ public class Library_Quantif {
 	 * Calculates the time between the specified times.
 	 *
 	 * @param time0 First time
-	 * @param time Time to calculate the difference with
+	 * @param time  Time to calculate the difference with
 	 * @return difference of time expressed in minutes (negative value if the
 	 * specified time is before the ingestion's time)
 	 */
@@ -365,6 +361,20 @@ public class Library_Quantif {
 
 		public long getHalLifeMS() {
 			return this.halfLifeMS;
+		}
+
+
+		@Override
+		public String toString() {
+			switch (this) {
+				case INDIUM_111:
+					return "Indium (111)";
+				case TECHNETIUM_99:
+					return "Technetium (99)";
+				case CHROME_51:
+					return "Chrome (51)";
+			}
+			return super.toString();
 		}
 	}
 

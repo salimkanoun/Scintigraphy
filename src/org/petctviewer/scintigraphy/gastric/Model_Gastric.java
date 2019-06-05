@@ -1094,7 +1094,11 @@ public class Model_Gastric extends ModelWorkflow {
 				valX = Library_JFreeChart.extrapolateX(yValue, fit);
 				isExtrapolated = true;
 			}
-			return new ResultValue(request, valX, Unit.TIME, isExtrapolated);
+
+			// Convert to requested unit
+			valX = Unit.TIME.convertTo(valX, request.getUnit());
+
+			return new ResultValue(request, valX, request.getUnit(), isExtrapolated);
 		} else if (result == T_HALF_PERCENTAGE || result == T_HALF_GEOAVG) {
 			double[] yValues;
 			if (result == T_HALF_PERCENTAGE) yValues = generateStomachValues(fit.getYUnit());
@@ -1109,7 +1113,11 @@ public class Model_Gastric extends ModelWorkflow {
 				valX = Library_JFreeChart.extrapolateX(half, fit);
 				isExtrapolated = true;
 			}
-			return new ResultValue(request, valX, Unit.TIME, isExtrapolated);
+
+			// Convert to requested unit
+			valX = Unit.TIME.convertTo(valX, request.getUnit());
+
+			return new ResultValue(request, valX, request.getUnit(), isExtrapolated);
 		} else {
 			try {
 				if (result == RES_TIME) return new ResultValue(request,

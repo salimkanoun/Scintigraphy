@@ -9,6 +9,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 
 import javax.swing.*;
 import java.awt.*;
+import java.text.SimpleDateFormat;
 
 public class TabMethod1 extends TabResultDefault {
 
@@ -16,7 +17,7 @@ public class TabMethod1 extends TabResultDefault {
 
 	public TabMethod1(FenResults parent, ImagePlus capture) {
 		super(parent, capture, "Intragastric Distribution", Unit.PERCENTAGE, Unit.TIME,
-				Model_Gastric.SERIES_STOMACH_PERCENTAGE);
+			  Model_Gastric.SERIES_STOMACH_PERCENTAGE);
 	}
 
 	public void deactivateDynamicAcquisition() {
@@ -24,16 +25,29 @@ public class TabMethod1 extends TabResultDefault {
 	}
 
 	@Override
+	protected JPanel additionalResults() {
+		JPanel panel = new JPanel(new GridLayout(0, 1));
+
+		// Time of ingestion
+		if (this.timeIngestion != null) {
+			panel.add(new JLabel("Ingestion Time: " + new SimpleDateFormat("HH:mm:ss").format(timeIngestion)));
+		}
+
+		// Btn dynamic acquisition
+		btnDynAcquisition = new JButton("Start dynamic acquisition");
+		btnDynAcquisition.addActionListener(
+				(event) -> ((ControllerWorkflow_Gastric) parent.getController()).startDynamic());
+		panel.add(btnDynAcquisition);
+
+		return panel;
+	}
+
+	@Override
 	public Component getSidePanelContent() {
 		JPanel panel = new JPanel(new BorderLayout());
 
 		// North
-		JPanel additionalResults = this.additionalResults();
-		btnDynAcquisition = new JButton("Start dynamic acquisition");
-		btnDynAcquisition
-				.addActionListener((event) -> ((ControllerWorkflow_Gastric) parent.getController()).startDynamic());
-		additionalResults.add(btnDynAcquisition);
-		panel.add(additionalResults, BorderLayout.NORTH);
+		panel.add(this.additionalResults(), BorderLayout.NORTH);
 
 		// Center
 		JPanel panCenter = new JPanel(new BorderLayout());
@@ -52,16 +66,18 @@ public class TabMethod1 extends TabResultDefault {
 
 		// Display start antrum and intestine only if dynamic has been made
 		final Result[] resultsRequested;
+		final Unit[] unitsRequested;
 		if (((ControllerWorkflow_Gastric) parent.getController()).isDynamicStarted()) {
 			resultsRequested = new Result[]{Model_Gastric.START_ANTRUM, Model_Gastric.START_INTESTINE,
 					Model_Gastric.LAG_PHASE_PERCENTAGE, Model_Gastric.T_HALF_PERCENTAGE,
 					Model_Gastric.RETENTION_PERCENTAGE};
+			unitsRequested =
+					new Unit[]{this.unitDefault, this.unitDefault, Unit.MINUTES, Unit.MINUTES, Unit.PERCENTAGE};
 		} else {
 			resultsRequested = new Result[]{Model_Gastric.LAG_PHASE_PERCENTAGE, Model_Gastric.T_HALF_PERCENTAGE,
 					Model_Gastric.RETENTION_PERCENTAGE};
+			unitsRequested = new Unit[]{Unit.MINUTES, Unit.MINUTES, Unit.PERCENTAGE};
 		}
-		final Unit[] unitsRequested =
-				new Unit[]{this.unitDefault, this.unitDefault, this.unitTime, this.unitTime, Unit.PERCENTAGE};
 		panCenter.add(this.infoResultats(resultsRequested, unitsRequested), BorderLayout.SOUTH);
 		panel.add(panCenter, BorderLayout.CENTER);
 

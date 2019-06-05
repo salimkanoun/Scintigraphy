@@ -33,6 +33,15 @@ public abstract class ModelWorkflow extends ModelScin {
 	public abstract ResultValue getResult(ResultRequest request);
 
 	/**
+	 * Gets the isotope selected for this model. If no isotope were selected, then this method will return null.
+	 *
+	 * @return isotope used in this model
+	 */
+	public Isotope getIsotope() {
+		return this.isotope;
+	}
+
+	/**
 	 * Sets the isotope used in this study
 	 *
 	 * @param isotope Isotope to use

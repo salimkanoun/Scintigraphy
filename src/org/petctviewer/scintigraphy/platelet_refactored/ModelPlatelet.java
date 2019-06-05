@@ -19,7 +19,8 @@ public class ModelPlatelet extends ModelWorkflow {
 
 	public static final String REGION_SPLEEN = "Spleen", REGION_LIVER = "Liver", REGION_HEART = "Heart";
 
-	public static final int DATA_ANT_COUNTS = 0, DATA_POST_COUNTS = 1, DATA_GEO_AVG = 2;
+	public static final int DATA_ANT_COUNTS = 0, DATA_POST_COUNTS = 1, DATA_GEO_AVG = 2, DATA_MEAN_ANT_COUNTS = 3,
+			DATA_MEAN_POST_COUNTS = 4, DATA_MEAN_GEO_AVG = 5;
 
 	private List<Data> datas;
 
@@ -42,11 +43,7 @@ public class ModelPlatelet extends ModelWorkflow {
 		if (data == null) {
 			Date time0 = (this.datas.size() > 0 ? this.datas.get(0).getAssociatedImage().getDateAcquisition() :
 					state.getImage().getDateAcquisition());
-			System.out.println("Creating new Data, time = " + Library_Quantif.calculateDeltaTime(time0,
-																								 state.getImage().getDateAcquisition()));
 			data = new Data(state, Library_Quantif.calculateDeltaTime(time0, state.getImage().getDateAcquisition()));
-		} else {
-			System.out.println("Found previous data");
 		}
 		return data;
 	}
@@ -74,102 +71,176 @@ public class ModelPlatelet extends ModelWorkflow {
 		imp.setSlice(state.getSlice());
 		imp.setRoi(roi);
 		double value = Library_Quantif.getCounts(imp);
-		System.out.println("Value: " + value);
 
 		Data data;
 		if (state.getFacingOrientation() == Orientation.ANT) {
 			data = createOrRetrieveData(state);
 			data.setValue(regionName, DATA_ANT_COUNTS, value, state, roi);
+			data.setValue(regionName, DATA_MEAN_ANT_COUNTS, Library_Quantif.getAvgCounts(imp));
 		} else {
 			data = createOrRetrieveData(state);
 			data.setValue(regionName, DATA_POST_COUNTS, value, state, roi);
+			data.setValue(regionName, DATA_MEAN_POST_COUNTS, Library_Quantif.getAvgCounts(imp));
 		}
 		this.datas.add(data);
 	}
 
-	public XYSeries seriesSpleenHeart() {
-		XYSeries series = new XYSeries("Mean Ratio Spleen / Heart Post");
+	public XYSeries seriesSpleenHeart(boolean mean) {
+		int type;
+		String title = "Ratio Spleen / Heart Post";
+		if (mean) {
+			type = DATA_MEAN_POST_COUNTS;
+			title = "Mean " + title;
+		} else type = DATA_POST_COUNTS;
+
+		XYSeries series = new XYSeries(title);
 		for (Data data : this.datas) {
-			double value = data.getValue(REGION_SPLEEN, DATA_POST_COUNTS) / data.getValue(REGION_HEART,
-																						  DATA_POST_COUNTS);
+			double value = data.getValue(REGION_SPLEEN, type) / data.getValue(REGION_HEART, type);
 			series.add(data.time / 60., value);
 		}
 		return series;
 	}
 
-	public XYSeries seriesLiverHeart() {
-		XYSeries series = new XYSeries("Mean Ratio Liver / Heart Post");
+	public XYSeries seriesLiverHeart(boolean mean) {
+		int type;
+		String title = "Ratio Liver / Heart Post";
+		if (mean) {
+			type = DATA_MEAN_POST_COUNTS;
+			title = "Mean " + title;
+		} else type = DATA_POST_COUNTS;
+
+		XYSeries series = new XYSeries(title);
 		for (Data data : this.datas) {
-			double value = data.getValue(REGION_LIVER, DATA_POST_COUNTS) / data.getValue(REGION_HEART,
-																						 DATA_POST_COUNTS);
+			double value = data.getValue(REGION_LIVER, type) / data.getValue(REGION_HEART, type);
 			series.add(data.time / 60., value);
 		}
 		return series;
 	}
 
-	public XYSeries seriesSpleenLiver() {
-		XYSeries series = new XYSeries("Mean Ratio Spleen / Liver Post");
+	public XYSeries seriesSpleenLiver(boolean mean) {
+		int type;
+		String title = "Ratio Spleen / Liver Post";
+		if (mean) {
+			type = DATA_MEAN_POST_COUNTS;
+			title = "Mean " + title;
+		} else type = DATA_POST_COUNTS;
+
+		XYSeries series = new XYSeries(title);
 		for (Data data : this.datas) {
-			double value = data.getValue(REGION_SPLEEN, DATA_POST_COUNTS) / data.getValue(REGION_LIVER,
-																						  DATA_POST_COUNTS);
+			double value = data.getValue(REGION_SPLEEN, type) / data.getValue(REGION_LIVER, type);
 			series.add(data.time / 60., value);
 		}
 		return series;
 	}
 
-	public XYSeries seriesSpleenPost() {
-		XYSeries series = new XYSeries("Corrected Spleen Posterior");
+	public XYSeries seriesSpleenPost(boolean mean) {
+		int type;
+		String title = "Decay Corrected Spleen Posterior";
+		if (mean) {
+			type = DATA_MEAN_POST_COUNTS;
+			title += " - Mean";
+		} else {
+			type = DATA_POST_COUNTS;
+		}
+
+		XYSeries series = new XYSeries(title);
 		for (Data data : this.datas) {
 			double value = Library_Quantif.applyDecayFraction((int) (data.time * 1000. * 60.),
-															  data.getValue(REGION_SPLEEN, DATA_POST_COUNTS),
-															  this.isotope);
+															  data.getValue(REGION_SPLEEN, type), this.isotope);
 			series.add(data.time / 60., value);
 		}
 		return series;
 	}
 
-	public XYSeries seriesGMSpleenHeart() {
-		XYSeries series = new XYSeries("Ratio GM Spleen / Heart Post");
+	public XYSeries seriesGMSpleenHeart(boolean mean) {
+		int type;
+		String title = "Ratio GM Spleen / Heart";
+		if (mean) {
+			type = DATA_MEAN_GEO_AVG;
+			title = "Mean " + title;
+		} else {
+			type = DATA_GEO_AVG;
+		}
+
+		XYSeries series = new XYSeries(title);
 		for (Data data : this.datas) {
-			double value = data.getValue(REGION_SPLEEN, DATA_GEO_AVG) / data.getValue(REGION_HEART, DATA_GEO_AVG);
+			double value = data.getValue(REGION_SPLEEN, type) / data.getValue(REGION_HEART, type);
 			series.add(data.time / 60., value);
 		}
 		return series;
 	}
 
-	public XYSeries seriesGMLiverHeart() {
-		XYSeries series = new XYSeries("Ratio GM Liver / Heart Post");
+	public XYSeries seriesGMLiverHeart(boolean mean) {
+		int type;
+		String title = "Ratio GM Liver / Heart";
+		if (mean) {
+			type = DATA_MEAN_GEO_AVG;
+			title = "Mean " + title;
+		} else {
+			type = DATA_GEO_AVG;
+		}
+
+		XYSeries series = new XYSeries(title);
 		for (Data data : this.datas) {
-			double value = data.getValue(REGION_LIVER, DATA_GEO_AVG) / data.getValue(REGION_HEART, DATA_GEO_AVG);
+			double value = data.getValue(REGION_LIVER, type) / data.getValue(REGION_HEART, type);
 			series.add(data.time / 60., value);
 		}
 		return series;
 	}
 
-	public XYSeries seriesGMSpleenLiver() {
-		XYSeries series = new XYSeries("Ratio GM Spleen / Liver Post");
+	public XYSeries seriesGMSpleenLiver(boolean mean) {
+		int type;
+		String title = "Ratio GM Spleen / Liver";
+		if (mean) {
+			type = DATA_MEAN_GEO_AVG;
+			title = "Mean " + title;
+		} else {
+			type = DATA_GEO_AVG;
+		}
+
+		XYSeries series = new XYSeries(title);
 		for (Data data : this.datas) {
-			double value = data.getValue(REGION_SPLEEN, DATA_GEO_AVG) / data.getValue(REGION_LIVER, DATA_GEO_AVG);
+			double value = data.getValue(REGION_SPLEEN, type) / data.getValue(REGION_LIVER, type);
 			series.add(data.time / 60., value);
 		}
 		return series;
 	}
 
-	public XYSeries seriesSpleenRatio(boolean geoAvg) {
-		XYSeries series = new XYSeries("Spleen Jx / J0");
+	public XYSeries seriesSpleenRatio(boolean geoAvg, boolean mean) {
+		int type;
+		String title = "Spleen Jx / J0";
+		if (mean) {
+			if (geoAvg) type = DATA_MEAN_GEO_AVG;
+			else type = DATA_MEAN_POST_COUNTS;
+			title += " - Mean";
+		} else {
+			if (geoAvg) type = DATA_GEO_AVG;
+			else type = DATA_POST_COUNTS;
+		}
+
+		XYSeries series = new XYSeries(title);
 		for (Data data : this.datas) {
-			double value = data.getValue(REGION_SPLEEN, geoAvg ? DATA_GEO_AVG : DATA_POST_COUNTS) / datas.get(
-					0).getValue(REGION_SPLEEN, geoAvg ? DATA_GEO_AVG : DATA_POST_COUNTS);
+			double value = data.getValue(REGION_SPLEEN, type) / datas.get(0).getValue(REGION_SPLEEN, type);
 			series.add(data.time / 60., value);
 		}
 		return series;
 	}
 
-	public XYSeries seriesLiverRatio(boolean geoAvg) {
-		XYSeries series = new XYSeries("Liver Jx / J0");
+	public XYSeries seriesLiverRatio(boolean geoAvg, boolean mean) {
+		int type;
+		String title = "Liver Jx / J0";
+		if (mean) {
+			if (geoAvg) type = DATA_MEAN_GEO_AVG;
+			else type = DATA_MEAN_POST_COUNTS;
+			title += " - Mean";
+		} else {
+			if (geoAvg) type = DATA_GEO_AVG;
+			else type = DATA_POST_COUNTS;
+		}
+
+		XYSeries series = new XYSeries(title);
 		for (Data data : this.datas) {
-			double value = data.getValue(REGION_LIVER, geoAvg ? DATA_GEO_AVG : DATA_POST_COUNTS) / datas.get(
-					0).getValue(REGION_LIVER, geoAvg ? DATA_GEO_AVG : DATA_POST_COUNTS);
+			double value = data.getValue(REGION_LIVER, type) / datas.get(0).getValue(REGION_LIVER, type);
 			series.add(data.time / 60., value);
 		}
 		return series;
@@ -203,7 +274,10 @@ public class ModelPlatelet extends ModelWorkflow {
 					// Average
 					double avg = Library_Quantif.moyGeom(data.getValue(regionName, DATA_ANT_COUNTS),
 														 data.getValue(regionName, DATA_POST_COUNTS));
+					double meanAvg = Library_Quantif.moyGeom(data.getValue(regionName, DATA_MEAN_ANT_COUNTS),
+															 data.getValue(regionName, DATA_MEAN_POST_COUNTS));
 					data.setValue(regionName, DATA_GEO_AVG, avg);
+					data.setValue(regionName, DATA_MEAN_GEO_AVG, meanAvg);
 				}
 			}
 		}

@@ -151,8 +151,7 @@ public abstract class TabResult {
 		// Remove previous result and add new one
 		this.split.setLeftComponent(this.result);
 
-		// Respect ratio
-		this.result.setPreferredSize(new Dimension(1024, 768));
+		this.split.setMaximumSize(new Dimension(1024, 768));
 	}
 
 	/**
