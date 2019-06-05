@@ -102,6 +102,7 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 		this.fenResults = new FenResults(this);
 		this.fenResults.setMainTab(new MainTab(this.fenResults, this.captures.get(0), geoAvg));
 		this.fenResults.addTab(new GraphsTab(this.fenResults, geoAvg));
+		this.fenResults.pack();
 		this.fenResults.setVisible(true);
 	}
 

@@ -12,7 +12,6 @@ import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gastric.*;
-import org.petctviewer.scintigraphy.gastric.Fit;
 import org.petctviewer.scintigraphy.gastric.Fit.FitType;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
@@ -37,19 +36,19 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	final Unit unitDefault;
 	final Unit unitTime;
 	private final ImagePlus capture;
-	private Date timeIngestion;
-	private XYSeriesCollection data;
-	private JValueSetter valueSetter;
 	private final JComboBox<FitType> fitsChoices;
 	private final JLabel labelInterpolation;
 	private final JLabel labelError;
 	private final JButton btnAutoFit;
 	private final ResultRequest request;
 	private final int seriesToGenerate;
+	private Date timeIngestion;
+	private XYSeriesCollection data;
+	private JValueSetter valueSetter;
 	private JLabel lagPhaseValue;
 
 	TabResultDefault(FenResults parent, ImagePlus capture, String title, Unit unitDefault, Unit unitTime,
-	                 int seriesToGenerate) {
+					 int seriesToGenerate) {
 		super(parent, title);
 
 		// Declare attributes
@@ -149,8 +148,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		if (result.getExtrapolation() == FitType.NONE) lRes.setForeground(Color.RED);
 		infoRes.add(lRes);
 
-		if (result.getResultType() == Model_Gastric.LAG_PHASE_PERCENTAGE || result
-				.getResultType() == Model_Gastric.LAG_PHASE_GEOAVG) {
+		if (result.getResultType() == Model_Gastric.LAG_PHASE_PERCENTAGE ||
+				result.getResultType() == Model_Gastric.LAG_PHASE_GEOAVG) {
 			this.lagPhaseValue = lRes;
 		}
 	}
@@ -323,8 +322,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		try {
 			// Create fit
 			XYSeries series = ((XYSeriesCollection) this.getValueSetter().retrieveValuesInSpan()).getSeries(0);
-			this.request.setFit(Fit
-					.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray()), unitDefault));
+			this.request.setFit(
+					Fit.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray()), unitDefault));
 
 			this.drawFit();
 			this.setErrorMessage(null);
@@ -377,8 +376,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 			panel.add(getModel().createGraph_3());
 			panel.add(getModel().createGraph_1());
 
-			if(((ControllerWorkflow_Gastric)parent.getController()).isDynamicStarted())
-				getModel().deactivateTime0();
+			if (((ControllerWorkflow_Gastric) parent.getController()).isDynamicStarted()) getModel().deactivateTime0();
 			panel.add(getModel().createGraph_2());
 
 			return panel;
@@ -426,12 +424,12 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		JPanel panel = new JPanel(new BorderLayout());
 
 		JValueSetter valueSetter = new JValueSetter(this.valueSetter.getChart());
-		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE)
-			this.request.changeResultOn(Model_Gastric.LAG_PHASE_PERCENTAGE);
+		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) this.request.changeResultOn(
+				Model_Gastric.LAG_PHASE_PERCENTAGE);
 		else this.request.changeResultOn(Model_Gastric.LAG_PHASE_GEOAVG);
 
 		Selector selector = new Selector("Lag Phase", getModel().getResult(request).getValue(), 0,
-				RectangleAnchor.BOTTOM_LEFT);
+										 RectangleAnchor.BOTTOM_LEFT);
 		valueSetter.addSelector(selector, "lag_phase");
 
 		valueSetter.addChartMouseListener(new ChartMouseListener() {
@@ -441,7 +439,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 			@Override
 			public void chartMouseMoved(ChartMouseEvent event) {
-				if(valueSetter.getGrabbedSelector() != null) {
+				if (valueSetter.getGrabbedSelector() != null) {
 					// Update lag phase
 					lagPhaseValue.setText(ResultValue.displayAsTime(selector.getXValue()));
 				}
@@ -489,8 +487,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 					request.setUnit(Unit.PERCENTAGE);
 
-					ResultValue result = getModel()
-							.getRetentionResult(request, Double.parseDouble(fieldCustomRetention.getText()));
+					ResultValue result = getModel().getRetentionResult(request, Double.parseDouble(
+							fieldCustomRetention.getText()));
 					// Update result
 					resultRetention.setText(result.formatValue() + result.getUnit().abrev());
 				} catch (NumberFormatException exception) {
@@ -577,8 +575,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		this.data.addSeries(stomachSeries);
 
 		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (" + this.unitTime.abrev() + ")",
-				"Stomach retention (" + this.unitDefault.abrev() + ")", data, PlotOrientation.VERTICAL, true, true,
-				true);
+														  "Stomach retention (" + this.unitDefault.abrev() + ")", data,
+														  PlotOrientation.VERTICAL, true, true, true);
 
 		// Set bounds
 		XYPlot plot = chart.getXYPlot();
@@ -656,6 +654,16 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 */
 	public void setErrorMessage(String msg) {
 		this.labelError.setText(msg);
+	}
+
+	/**
+	 * Checks if the specified button is the auto-fit button of this view.
+	 *
+	 * @param btn Button to check
+	 * @return TRUE if the button is the auto-fit button and FALSE otherwise
+	 */
+	public boolean isButtonAutoFit(JButton btn) {
+		return this.btnAutoFit == btn;
 	}
 
 	@Override
