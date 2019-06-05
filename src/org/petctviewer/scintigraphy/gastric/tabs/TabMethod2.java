@@ -48,7 +48,7 @@ public class TabMethod2 extends TabResultDefault {
 
 		final Result[] resultsRequested = new Result[]{Model_Gastric.LAG_PHASE_GEOAVG, Model_Gastric.T_HALF_GEOAVG,
 				Model_Gastric.RETENTION_GEOAVG};
-		final Unit[] unitsRequested = new Unit[]{unitTime, unitTime, Unit.PERCENTAGE};
+		final Unit[] unitsRequested = new Unit[]{Unit.MINUTES, Unit.MINUTES, Unit.PERCENTAGE};
 		panCenter.add(this.infoResultats(resultsRequested, unitsRequested), BorderLayout.SOUTH);
 		panel.add(panCenter, BorderLayout.CENTER);
 

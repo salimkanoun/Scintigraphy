@@ -275,6 +275,9 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 * @return panel containing the results
 	 */
 	protected JPanel infoResultats(Result[] resultsRequested, Unit[] unitsRequested) {
+		if (resultsRequested.length != unitsRequested.length) throw new IllegalArgumentException(
+				"Array length must be equals");
+
 		JPanel panel = new JPanel(new BorderLayout());
 
 		boolean hasExtrapolatedValue = false;
@@ -417,6 +420,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) this.request.changeResultOn(
 				Model_Gastric.LAG_PHASE_PERCENTAGE);
 		else this.request.changeResultOn(Model_Gastric.LAG_PHASE_GEOAVG);
+		this.request.setUnit(Unit.MINUTES);
 
 		Selector selector = new Selector("Lag Phase", getModel().getResult(request).getValue(), 0,
 										 RectangleAnchor.BOTTOM_LEFT);
@@ -431,7 +435,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 			public void chartMouseMoved(ChartMouseEvent event) {
 				if (valueSetter.getGrabbedSelector() != null) {
 					// Update lag phase
-					lagPhaseValue.setText(ResultValue.displayAsTime(selector.getXValue()));
+					lagPhaseValue.setText(ResultValue.notNegative(selector.getXValue()));
 				}
 			}
 		});
