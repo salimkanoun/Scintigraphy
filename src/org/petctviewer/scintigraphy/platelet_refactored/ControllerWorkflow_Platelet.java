@@ -1,8 +1,8 @@
 package org.petctviewer.scintigraphy.platelet_refactored;
 
 import ij.ImagePlus;
-import org.petctviewer.scintigraphy.platelet_refactored.tabs.GraphsTab;
-import org.petctviewer.scintigraphy.platelet_refactored.tabs.MainTab;
+import org.petctviewer.scintigraphy.platelet_refactored.tabs.CountsTab;
+import org.petctviewer.scintigraphy.platelet_refactored.tabs.MeansTab;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -31,8 +31,6 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 	public ControllerWorkflow_Platelet(PlateletScintigraphy main, FenApplicationWorkflow vue,
 									   ImageSelection[] selectedImages) {
 		super(main, vue, new ModelPlatelet(selectedImages, main.getStudyName()));
-
-		this.captures = new ArrayList<>(1);
 
 		this.generateInstructions();
 		this.start();
@@ -96,12 +94,12 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 		this.computeModel();
 
 		// Choose from geo avg or counts
-		boolean geoAvg = ((PlateletScintigraphy)ControllerWorkflow_Platelet.this.main).isAntPost();
+		boolean geoAvg = ((PlateletScintigraphy) ControllerWorkflow_Platelet.this.main).isAntPost();
 
 		// Display results
 		this.fenResults = new FenResults(this);
-		this.fenResults.setMainTab(new MainTab(this.fenResults, this.captures.get(0), geoAvg));
-		this.fenResults.addTab(new GraphsTab(this.fenResults, geoAvg));
+		this.fenResults.setMainTab(new CountsTab(this.fenResults, this.captures, geoAvg));
+		this.fenResults.addTab(new MeansTab(this.fenResults, this.captures, geoAvg));
 		this.fenResults.pack();
 		this.fenResults.setVisible(true);
 	}
@@ -109,6 +107,8 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 	@Override
 	protected void generateInstructions() {
 		this.workflows = new Workflow[getModel().getImageSelection().length];
+
+		this.captures = new ArrayList<>(2);
 
 		DrawRoiInstruction dri_spleen = null, dri_liver = null, dri_heart = null;
 		DrawRoiInstruction dri_spleen_ant = null, dri_liver_ant = null, dri_heart_ant = null;
@@ -125,6 +125,7 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 			this.workflows[i].addInstruction(dri_spleen);
 			this.workflows[i].addInstruction(dri_liver);
 			this.workflows[i].addInstruction(dri_heart);
+			this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 0, 0, 0));
 
 			if (((PlateletScintigraphy) this.main).isAntPost()) {
 				ImageState stateAnt = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_WORKFLOW);
@@ -140,10 +141,10 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 				this.workflows[i].addInstruction(dri_spleen_ant);
 				this.workflows[i].addInstruction(dri_liver_ant);
 				this.workflows[i].addInstruction(dri_heart_ant);
+
+				this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 1, 0, 0));
 			}
 		}
-		this.workflows[this.workflows.length - 1].addInstruction(
-				new ScreenShotInstruction(this.captures, this.vue, 0, 0, 0));
 		this.workflows[this.workflows.length - 1].addInstruction(new EndInstruction());
 	}
 }

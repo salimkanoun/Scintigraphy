@@ -7,7 +7,6 @@ import ij.gui.Roi;
 import ij.gui.Toolbar;
 import ij.plugin.MontageMaker;
 import ij.plugin.frame.RoiManager;
-
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
@@ -270,8 +269,8 @@ public abstract class ControllerScin implements ActionListener {
 		else
 			Library_Gui.setOverlayGD(this.vue.getImagePlus(), Color.YELLOW);
 
-		String title = state.getFacingOrientation() == Orientation.POST && state.getLateralisation() ? "Inverted POST"
-				: state.getFacingOrientation() == Orientation.ANT && !state.getLateralisation() ? "Inverted ANT"
+		String title = state.getFacingOrientation() == Orientation.POST && state.isLateralisationRL() ? "Inverted Post"
+				: state.getFacingOrientation() == Orientation.ANT && state.isLateralisationLR() ? "Inverted Ant"
 						: state.getFacingOrientation().toString();
 
 		Library_Gui.setOverlayTitle(title, this.vue.getImagePlus(), Color.YELLOW, state.getSlice());
