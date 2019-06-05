@@ -9,7 +9,6 @@ import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.Panel;
-import java.awt.Toolkit;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseWheelListener;
@@ -148,7 +147,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.addComponentListener(this);
 		this.setResizable(false);
 		
-		this.setIconImage(Toolkit.getDefaultToolkit().getImage("./src/images/icons/frameIconBis.png"));
 	}
 
 	protected DocumentationDialog createDocumentation() {
