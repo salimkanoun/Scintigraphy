@@ -316,7 +316,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		if (imageState.getIdImage() == ImageState.ID_CUSTOM_IMAGE) {
 			if (imageState.getImage() == null)
 				throw new IllegalStateException(
-						"The state specifies that a custom image should be used but no image " + "has been set!");
+						"The state specifies that a custom image should be used but no image has been set!");
 			// Use image specified in the image state
 			this.currentState.setIdImage(ImageState.ID_CUSTOM_IMAGE);
 			this.currentState.specifieImage(imageState.getImage());
@@ -657,16 +657,19 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 	@Override
 	public void adjustmentValueChanged(AdjustmentEvent e) {
+		System.out.println("Value changed for " + e.getValue());
 		this.updateScrollbar(e.getValue());
 	}
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		int rotation = e.getWheelRotation();
-		int value = this.getVue().getInstructionDisplayed() + rotation;
-		if (value < this.getVue().getMaxInstruction() && value >= 0) {
-			this.updateScrollbar(value);
-			this.getVue().currentInstruction(value);
+		if(!e.isControlDown()) {
+			int rotation = e.getWheelRotation();
+			int value = this.getVue().getInstructionDisplayed() + rotation;
+			if (value < this.getVue().getMaxInstruction() && value >= 0) {
+				this.updateScrollbar(value);
+				this.getVue().currentInstruction(value);
+			}
 		}
 	}
 
@@ -689,7 +692,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 * {@link InstructionFromGson} objects, in the form of a Json file.<br/>
 	 * Add at the end the information about the patient, as a
 	 * {@link PatientFromGson}, to be able to do an integrity test.
-	 * 
+	 *
 	 * @param label
 	 *            They are the name of the ROIs to save. Usefeull when you want to
 	 *            give special names to your Intruction list.
@@ -797,7 +800,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 * This method check InstructionType differences, patient information
 	 * differences, and auto-increment the DrawLoop and DrawSymmetricalLoop
 	 * instructions.
-	 * 
+	 *
 	 * @param string
 	 *            The String object representing the Json file.
 	 * @return The {@link WorkflowsFromGson} object.
