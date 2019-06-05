@@ -51,14 +51,6 @@ public abstract class ModelWorkflow extends ModelScin {
 	}
 
 	/**
-	 * Converts the key of the data field into a readable name.
-	 *
-	 * @param key Key of the data field
-	 * @return readable string of the key
-	 */
-	public abstract String nameOfDataField(int key);
-
-	/**
 	 * Retrieves the image described by the specified image state.<br>
 	 * The image can be retrieved from this model or from this image state.
 	 *

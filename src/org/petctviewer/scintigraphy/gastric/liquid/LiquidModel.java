@@ -99,11 +99,6 @@ public class LiquidModel extends ModelWorkflow {
 	}
 
 	@Override
-	public String nameOfDataField(int key) {
-		return "???";
-	}
-
-	@Override
 	public void calculateResults() {
 		if (!postCounts.isEmpty()) {
 			// Compute geometrical average
