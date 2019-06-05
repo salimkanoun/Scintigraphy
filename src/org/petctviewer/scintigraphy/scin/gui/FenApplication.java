@@ -148,7 +148,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.addComponentListener(this);
 		this.setResizable(false);
 		
-		this.setIconImage(Toolkit.getDefaultToolkit().getImage("./src/images/icons/frameIconBis.png"));
+		this.setIconImage(Toolkit.getDefaultToolkit().getImage("/images/icons/frameIconBis.png"));
 	}
 
 	protected DocumentationDialog createDocumentation() {
