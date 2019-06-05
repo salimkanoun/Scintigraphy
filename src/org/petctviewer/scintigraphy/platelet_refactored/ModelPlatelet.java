@@ -42,11 +42,8 @@ public class ModelPlatelet extends ModelWorkflow {
 		if (data == null) {
 			Date time0 = (this.datas.size() > 0 ? this.datas.get(0).getAssociatedImage().getDateAcquisition() :
 					state.getImage().getDateAcquisition());
-			System.out.println("Creating new Data, time = " + Library_Quantif.calculateDeltaTime(time0,
-																								 state.getImage().getDateAcquisition()));
 			data = new Data(state, Library_Quantif.calculateDeltaTime(time0, state.getImage().getDateAcquisition()));
 		} else {
-			System.out.println("Found previous data");
 		}
 		return data;
 	}
@@ -74,7 +71,6 @@ public class ModelPlatelet extends ModelWorkflow {
 		imp.setSlice(state.getSlice());
 		imp.setRoi(roi);
 		double value = Library_Quantif.getCounts(imp);
-		System.out.println("Value: " + value);
 
 		Data data;
 		if (state.getFacingOrientation() == Orientation.ANT) {
@@ -129,7 +125,7 @@ public class ModelPlatelet extends ModelWorkflow {
 	}
 
 	public XYSeries seriesGMSpleenHeart() {
-		XYSeries series = new XYSeries("Ratio GM Spleen / Heart Post");
+		XYSeries series = new XYSeries("Ratio GM Spleen / Heart");
 		for (Data data : this.datas) {
 			double value = data.getValue(REGION_SPLEEN, DATA_GEO_AVG) / data.getValue(REGION_HEART, DATA_GEO_AVG);
 			series.add(data.time / 60., value);
@@ -138,7 +134,7 @@ public class ModelPlatelet extends ModelWorkflow {
 	}
 
 	public XYSeries seriesGMLiverHeart() {
-		XYSeries series = new XYSeries("Ratio GM Liver / Heart Post");
+		XYSeries series = new XYSeries("Ratio GM Liver / Heart");
 		for (Data data : this.datas) {
 			double value = data.getValue(REGION_LIVER, DATA_GEO_AVG) / data.getValue(REGION_HEART, DATA_GEO_AVG);
 			series.add(data.time / 60., value);
@@ -147,7 +143,7 @@ public class ModelPlatelet extends ModelWorkflow {
 	}
 
 	public XYSeries seriesGMSpleenLiver() {
-		XYSeries series = new XYSeries("Ratio GM Spleen / Liver Post");
+		XYSeries series = new XYSeries("Ratio GM Spleen / Liver");
 		for (Data data : this.datas) {
 			double value = data.getValue(REGION_SPLEEN, DATA_GEO_AVG) / data.getValue(REGION_LIVER, DATA_GEO_AVG);
 			series.add(data.time / 60., value);

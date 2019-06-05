@@ -383,7 +383,9 @@ public class Library_JFreeChart {
 		// Grid
 		plot.setDomainGridlinesVisible(false);
 
-		return new ChartPanel(xylineChart);
+		ChartPanel chartPanel = new ChartPanel(xylineChart);
+		chartPanel.setPreferredSize(new Dimension(200, 200));
+		return chartPanel;
 	}
 
 	/**

@@ -20,6 +20,7 @@ public class MainTab extends TabResult {
 		super(parent, "Results");
 		this.capture = capture;
 		this.geoAvg = geoAvg;
+		this.reloadResultContent();
 	}
 
 	private ModelPlatelet getModel() {
