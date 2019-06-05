@@ -5,6 +5,7 @@ import java.awt.Button;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
@@ -147,6 +149,9 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.addComponentListener(this);
 		this.setResizable(false);
 		
+
+		Image icon = new ImageIcon(ClassLoader.getSystemResource("images/icons/frameIconBis.png")).getImage();
+		this.setIconImage(icon);
 	}
 
 	protected DocumentationDialog createDocumentation() {
