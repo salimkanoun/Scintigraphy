@@ -9,6 +9,7 @@ import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.Panel;
+import java.awt.Toolkit;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseWheelListener;
@@ -92,7 +93,8 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	public FenApplication(ImagePlus imp, String studyName, ImageCanvas canvas) {
 		super(imp, canvas);
 		// on set la lut des preferences
-
+		Library_Gui.setCustomLut(imp);
+		
 		this.studyName = studyName;
 
 		String tagSerie = DicomTools.getTag(this.imp, "0008,103E");
@@ -101,7 +103,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		setTitle(titre);// frame title
 		this.imp.setTitle(titre);// imp title
 		
-		Library_Gui.setCustomLut(imp);
 
 		panelContainer = new Panel(new BorderLayout());
 		this.panelPrincipal = new Panel(new FlowLayout());
@@ -146,6 +147,8 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.setDefaultSize();
 		this.addComponentListener(this);
 		this.setResizable(false);
+		
+		this.setIconImage(Toolkit.getDefaultToolkit().getImage("./src/images/icons/frameIconBis.png"));
 	}
 
 	protected DocumentationDialog createDocumentation() {
