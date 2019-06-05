@@ -1,9 +1,8 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import ij.IJ;
-import ij.gui.Overlay;
-import ij.plugin.MontageMaker;
-import ij.util.DicomTools;
+import java.awt.Color;
+import java.util.ArrayList;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -15,8 +14,10 @@ import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionCompara
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import java.awt.*;
-import java.util.ArrayList;
+import ij.IJ;
+import ij.gui.Overlay;
+import ij.plugin.MontageMaker;
+import ij.util.DicomTools;
 
 public class CardiacScintigraphy extends Scintigraphy {
 
@@ -59,16 +60,14 @@ public class CardiacScintigraphy extends Scintigraphy {
 		mountedImages.sort(new ChronologicalAcquisitionComparator());
 		mountedSorted = mountedImages.toArray(mountedSorted);
 
-		ImageSelection impStacked = mountedSorted[0].clone();
-		// si la prise est early/late
-		impStacked.setImagePlus(Library_Dicom.concatenate(mountedSorted, false));
+
 		// si il y a plus de 3 minutes de diff�rence entre les deux prises
 		if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {
 			IJ.log("Warning, frame duration differ by "
 					+ Math.abs(frameDuration[0] - frameDuration[1]) / (1000 * 60) + " minutes");
 		}
 
-		return new ImageSelection[] { impStacked };
+		return mountedSorted;
 	}
 
 	@Override

@@ -118,7 +118,7 @@ public class EsophagealTransit extends Scintigraphy {
 		// test de verification de la taille des stack
 		if (sauvegardeImagesSelectDicom[0].length != sauvegardeImagesSelectDicom[1].length) {
 			System.err.println(
-					"(EsophagealTransit) Le nombre de slice ant est différent du nombre de slice post -> seules les ant seront pris en comptes");
+					"(EsophagealTransit) The number of ANT slices is different from the number of POST slices -> only the ANTs will be taken into account");
 			sauvegardeImagesSelectDicom[1] = new ImageSelection[0];
 		}
 

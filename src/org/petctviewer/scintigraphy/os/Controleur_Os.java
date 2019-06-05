@@ -18,15 +18,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
+import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.Prefs;
-import ij.plugin.frame.RoiManager;
-
 
 /**
  * DISCLAIMER : Dans cette application, il a été fait comme choix d'initialiser
@@ -191,59 +189,54 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 			for (Component comp : show)
 				comp.setVisible(true);
 
-				SwingUtilities.invokeLater(new Runnable() {
+			SwingUtilities.invokeLater(new Runnable() {
 
-					@Override
-					public void run() {
-						// Capture, nouvelle methode a utiliser sur le reste des programmes
-						BufferedImage capture = new BufferedImage(Controleur_Os.this.vue.getWidth(),
-								Controleur_Os.this.vue.getHeight(), BufferedImage.TYPE_INT_ARGB);
-						Controleur_Os.this.vue.paint(capture.getGraphics());
-						ImagePlus imp = new ImagePlus("capture", capture);
+				@Override
+				public void run() {
+					// Capture, nouvelle methode a utiliser sur le reste des programmes
+					BufferedImage capture = new BufferedImage(Controleur_Os.this.vue.getWidth(),
+							Controleur_Os.this.vue.getHeight(), BufferedImage.TYPE_INT_ARGB);
+					Controleur_Os.this.vue.paint(capture.getGraphics());
+					ImagePlus imp = new ImagePlus("capture", capture);
 
-						captureButton.setVisible(true);
-						for (Component comp : hide)
-							comp.setVisible(true);
+					captureButton.setVisible(true);
+					for (Component comp : hide)
+						comp.setVisible(true);
 
-						lbl_credits.setVisible(false);
-						for (Component comp : show)
-							comp.setVisible(false);
+					lbl_credits.setVisible(false);
+					for (Component comp : show)
+						comp.setVisible(false);
 
-						// on passe a la capture les infos de la dicom
-						imp.setProperty("Info", info);
-						// on affiche la capture
-						imp.show();
+					// on passe a la capture les infos de la dicom
+					imp.setProperty("Info", info);
+					// on affiche la capture
+					imp.show();
 
-						// on change l'outil
-						IJ.setTool("hand");
+					// on change l'outil
+					IJ.setTool("hand");
 
-						// generation du csv
-						String resultats = Controleur_Os.this.modele.toString();
-						ControllerWorkflow controller = new ControllerWorkflow(null, null, null) {
-							@Override
-							protected void generateInstructions() {
-							}
-						};
+					// generation du csv
+					String resultats = Controleur_Os.this.modele.toString();
 
-						try {
-							Library_Capture_CSV.exportAll(resultats, new RoiManager(),
-									Controleur_Os.this.modele.getStudyName(), imp, "", controller);
+					try {
+						SaveAndLoad saveAndLoad = new SaveAndLoad();
+						saveAndLoad.exportAllWithoutWorkflow(resultats, Controleur_Os.this.modele.getStudyName(), imp, "");
 
-							imp.killRoi();
-						} catch (Exception e1) {
-							e1.printStackTrace();
-						}
-
-						// Execution du plugin myDicom
-						try {
-							IJ.run("myDicom...");
-						} catch (Exception e1) {
-							e1.printStackTrace();
-						}
-
-						System.gc();
+						imp.killRoi();
+					} catch (Exception e1) {
+						e1.printStackTrace();
 					}
-				});
+
+					// Execution du plugin myDicom
+					try {
+						IJ.run("myDicom...");
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+
+					System.gc();
+				}
+			});
 
 		});
 

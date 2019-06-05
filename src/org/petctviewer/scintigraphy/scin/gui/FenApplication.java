@@ -5,6 +5,7 @@ import java.awt.Button;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
@@ -17,15 +18,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-import org.petctviewer.scintigraphy.hepatic.SecondExam.FenApplicationSecondHepaticDyn;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
 import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
+import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.IJ;
@@ -92,7 +94,8 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	public FenApplication(ImagePlus imp, String studyName, ImageCanvas canvas) {
 		super(imp, canvas);
 		// on set la lut des preferences
-
+		Library_Gui.setCustomLut(imp);
+		
 		this.studyName = studyName;
 
 		String tagSerie = DicomTools.getTag(this.imp, "0008,103E");
@@ -101,7 +104,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		setTitle(titre);// frame title
 		this.imp.setTitle(titre);// imp title
 		
-		Library_Gui.setCustomLut(imp);
 
 		panelContainer = new Panel(new BorderLayout());
 		this.panelPrincipal = new Panel(new FlowLayout());
@@ -146,6 +148,10 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.setDefaultSize();
 		this.addComponentListener(this);
 		this.setResizable(false);
+		
+
+		Image icon = new ImageIcon(ClassLoader.getSystemResource("images/icons/frameIconBis.png")).getImage();
+		this.setIconImage(icon);
 	}
 
 	protected DocumentationDialog createDocumentation() {
@@ -279,7 +285,8 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		MenuItem loadRois = new MenuItem("Load ROIs from .zip");
 		loadRois.addActionListener(e -> {
 			try {
-				FenApplicationSecondHepaticDyn.importRoiList(FenApplication.this,
+				SaveAndLoad saveAndLoad = new SaveAndLoad();
+				saveAndLoad.importRoiList(FenApplication.this,
 						FenApplication.this.controleur.getModel(), (ControllerWorkflow) FenApplication.this.controleur);
 
 				FenApplication.this.getImagePlus()
