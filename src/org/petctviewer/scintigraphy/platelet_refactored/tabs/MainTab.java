@@ -20,7 +20,7 @@ public class MainTab extends TabResult {
 		super(parent, "Results");
 		this.capture = capture;
 		this.geoAvg = geoAvg;
-		this.reloadResultContent();
+		this.reloadDisplay();
 	}
 
 	private ModelPlatelet getModel() {
@@ -29,7 +29,9 @@ public class MainTab extends TabResult {
 
 	@Override
 	public Component getSidePanelContent() {
-		return null;
+		JPanel panel = new JPanel();
+		panel.add(new JLabel("Corrected with " + getModel().getIsotope()));
+		return panel;
 	}
 
 	@Override

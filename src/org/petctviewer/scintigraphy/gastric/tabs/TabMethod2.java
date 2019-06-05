@@ -6,6 +6,7 @@ import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric.Result;
 import org.petctviewer.scintigraphy.gastric.Unit;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 import org.petctviewer.scintigraphy.scin.preferences.PrefsTabGastric;
 
 import javax.swing.*;
@@ -21,8 +22,9 @@ public class TabMethod2 extends TabResultDefault {
 
 	@Override
 	protected JPanel additionalResults() {
-		// Not used
-		return null;
+		JPanel panel = new JPanel();
+		panel.add(new JLabel("Corrected with " + ((ModelWorkflow) this.parent.getModel()).getIsotope()));
+		return panel;
 	}
 
 	@Override
@@ -30,8 +32,7 @@ public class TabMethod2 extends TabResultDefault {
 		JPanel panel = new JPanel(new BorderLayout());
 
 		// North
-		// Not used
-//		panel.add(this.additionalResults(), BorderLayout.NORTH);
+		panel.add(this.additionalResults(), BorderLayout.NORTH);
 
 		// Center
 		JPanel panCenter = new JPanel(new BorderLayout());
