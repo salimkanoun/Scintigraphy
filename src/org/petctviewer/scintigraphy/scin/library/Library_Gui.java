@@ -208,5 +208,29 @@ public class Library_Gui {
 			imp.setLut(lut);
 		}
 	}
+	
+	
+	/**
+	 * Creating a basic TextRoi, but save some lines in programs
+	 * @param label 		The label of the TextRoi
+	 * @param xPosition		The x position of the TextRoi
+	 * @param yPosition		The y position of the TextRoi
+	 * @param slice			The slice to apply the TextRoi
+	 * @param color			The color of the TextRoi (can be null)
+	 * @param font			The font of the TextRoi (can be null)
+	 * @return				The TextRoi
+	 */
+	public static TextRoi createTextRoi(String label, double xPosition, double yPosition, int slice, Color color, Font font) {
+		
+		TextRoi result = new TextRoi(xPosition, yPosition, label);
+		result.setPosition(slice);
+		
+		if(color != null)
+			result.setStrokeColor(color);
+		if(font != null)
+			result.setCurrentFont(font);
+		
+		return result;
+	}
 
 }

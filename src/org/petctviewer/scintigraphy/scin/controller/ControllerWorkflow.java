@@ -368,7 +368,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 *
 	 * @return list of instruction expecting a user input
 	 */
-	protected List<Instruction> allInputInstructions() {
+	public List<Instruction> allInputInstructions() {
 		List<Instruction> instructions = new ArrayList<>();
 		for (Workflow w : this.workflows) {
 			for (Instruction i : w.getInstructions())
