@@ -92,7 +92,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	public FenApplication(ImagePlus imp, String studyName, ImageCanvas canvas) {
 		super(imp, canvas);
 		// on set la lut des preferences
-		Library_Gui.setCustomLut(imp);
 
 		this.studyName = studyName;
 
@@ -101,6 +100,8 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		String titre = this.studyName + " - " + tagNom + " - " + tagSerie;
 		setTitle(titre);// frame title
 		this.imp.setTitle(titre);// imp title
+		
+		Library_Gui.setCustomLut(imp);
 
 		panelContainer = new Panel(new BorderLayout());
 		this.panelPrincipal = new Panel(new FlowLayout());

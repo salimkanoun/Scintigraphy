@@ -33,11 +33,18 @@ public class Model_Cardiac extends ModelScin {
 
 	// private int[] nbConta;
 
-	public Model_Cardiac(Scintigraphy scin, ImageSelection[] selectedImages, String studyName) {
+	public Model_Cardiac(Scintigraphy scin, ImageSelection[] selectedImages, String studyName,
+			String[] infoOfAllImages) {
 		super(selectedImages, studyName);
 		this.scin = scin;
 		this.resultats = new HashMap<>();
 		this.data = new HashMap<>();
+
+		// Because info are deleted in the setLut of the FenApplication, probably
+		// because of the concatenate
+		// (behavior only on this exam), but we don't know why.
+		for (int indexImage = 0; indexImage < this.getImageSelection().length; indexImage++)
+			this.getImageSelection()[indexImage].getImagePlus().setProperty("Info", infoOfAllImages[indexImage]);
 	}
 
 	public void getResults() {
@@ -72,7 +79,7 @@ public class Model_Cardiac extends ModelScin {
 			counts[2] = (double) Library_Quantif.getPixelNumber(this.selectedImages[0].getImagePlus());
 
 			this.data.put(roi.getName(), counts);
-			System.out.println("this.data.put("+roi.getName()+", "+counts+")");
+			System.out.println("this.data.put(" + roi.getName() + ", " + counts + ")");
 
 		}
 
@@ -84,19 +91,18 @@ public class Model_Cardiac extends ModelScin {
 		// Avg background value of ant and post images for Heart
 		Double meanBdfAntHeart = this.data.get("Bkg noise A")[1];
 		Double meanBdfPostHeart = this.data.get("Bkg noise P")[1];
-		
+
 		// Avg background value of ant and post images for Bladder
 		Double meanBdfAntBladder = this.data.get("Bladder Background A")[1];
 		Double meanBdfPostBladder = this.data.get("Bladder Background P")[1];
-		
+
 		// Avg background value of ant and post images for Kidney R
 		Double meanBdfAntKidneyR = this.data.get("Kidney R Background A")[1];
 		Double meanBdfPostKidneyR = this.data.get("Kidney R Background P")[1];
-		
+
 		// Avg background value of ant and post images for Kidney L
 		Double meanBdfAntKidneyL = this.data.get("Kidney L Background A")[1];
 		Double meanBdfPostKidneyL = this.data.get("Kidney L Background P")[1];
-		
 
 		// calculation of corrected heart uptake
 		Double correctedHeartAnt = this.data.get("Heart A")[0] - (meanBdfAntHeart * this.data.get("Heart A")[2]);
@@ -183,10 +189,12 @@ public class Model_Cardiac extends ModelScin {
 
 			int delaySeconds = (int) (timeEarly - timeLate) / 1000;
 
-			this.retCardiaque = Library_Quantif.applyDecayFraction(delaySeconds*1000, this.fixCoeurL, Library_Quantif.Isotope.TECHNETIUM_99) / finalEarly;
-			
-			double sum=this.fixReinDL + this.fixVessieL + this.sumContL;		
-			this.retCe = (this.totLate - Library_Quantif.applyDecayFraction(delaySeconds*1000, sum, Library_Quantif.Isotope.TECHNETIUM_99)) / finalEarly;
+			this.retCardiaque = Library_Quantif.applyDecayFraction(delaySeconds * 1000, this.fixCoeurL,
+					Library_Quantif.Isotope.TECHNETIUM_99) / finalEarly;
+
+			double sum = this.fixReinDL + this.fixVessieL + this.sumContL;
+			this.retCe = (this.totLate - Library_Quantif.applyDecayFraction(delaySeconds * 1000, sum,
+					Library_Quantif.Isotope.TECHNETIUM_99)) / finalEarly;
 		}
 
 	}

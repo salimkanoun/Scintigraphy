@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.cardiac;
 
 import java.awt.Button;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 
@@ -19,6 +20,7 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoi
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 public class ControllerWorkflowCardiac extends ControllerWorkflow {
@@ -209,7 +211,6 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 
-		System.out.println(this.position);
 		if(arg0.getSource() instanceof Button) {
 			Button b = (Button) arg0.getSource();
 			if (b == ((FenApplication_Cardiac) this.main.getFenApplication()).getBtn_suivant()) {
@@ -219,7 +220,6 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			}
 		}
 		super.actionPerformed(arg0);
-		System.out.println(this.position);
 	}
 
 	@Override
@@ -246,5 +246,17 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			}
 		}
 		return 1;
+	}
+	
+	@Override
+	public void setOverlay(ImageState state) throws IllegalArgumentException {
+		
+		if (state.isLateralisationRL())
+			Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
+		else
+			Library_Gui.setOverlayGD(this.vue.getImagePlus(), Color.YELLOW);
+		
+		((FenApplication_Cardiac)this.getVue()).setMultipleTitle(Color.yellow, state.getSlice());
+		
 	}
 }

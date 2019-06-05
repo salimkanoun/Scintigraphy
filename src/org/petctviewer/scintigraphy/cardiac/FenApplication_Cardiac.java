@@ -1,12 +1,22 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import ij.IJ;
-import ij.gui.Toolbar;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.GridLayout;
+import java.awt.Panel;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import java.awt.*;
+import ij.IJ;
+import ij.gui.Overlay;
+import ij.gui.TextRoi;
+import ij.gui.Toolbar;
 
 public class FenApplication_Cardiac extends FenApplicationWorkflow {
 
@@ -18,6 +28,7 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 
 	public FenApplication_Cardiac(ImageSelection ims, String nom) {
 		super(ims, nom);
+	
 		this.btn_continue = new Button("End");
 		this.btn_newCont = new Button("Next");
 
@@ -64,5 +75,31 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 	public Button getBtn_continue() {
 		return this.btn_continue;
 	}
+	
+	public void setMultipleTitle(Color color, int slice) {
+		Overlay overlay = this.getImagePlus().getOverlay();
+		
+		int w = this.getImagePlus().getWidth();
+	
+		AffineTransform affinetransform = new AffineTransform();
+		FontRenderContext frc = new FontRenderContext(affinetransform, true, true);
+	
+		Rectangle2D bounds = overlay.getLabelFont().getStringBounds("Ant", frc);
+		//double textHeight = bounds.getHeight();
+		double textWidth = bounds.getWidth();
+		
+		TextRoi Ant = Library_Gui.createTextRoi("Ant", (w / 4) - (textWidth / 4), 0 , 1, Color.YELLOW, overlay.getLabelFont());
+		TextRoi invertedPost = Library_Gui.createTextRoi("Inverted Post", (3*w / 4) - (3*textWidth / 4), 0 , 1, Color.YELLOW, overlay.getLabelFont());
+		TextRoi AntSlice2 = Library_Gui.createTextRoi("Ant", (w / 4) - (textWidth / 4), 0 , 2, Color.YELLOW, overlay.getLabelFont());
+		TextRoi invertedPostSlice2 = Library_Gui.createTextRoi("Inverted Post", (3*w / 4) - (3*textWidth / 4), 0 , 2, Color.YELLOW, overlay.getLabelFont());
+		
+		
+		overlay.add(Ant);
+		overlay.add(invertedPost);
+		overlay.add(AntSlice2);
+		overlay.add(invertedPostSlice2);
+	}
+	
+	
 
 }
