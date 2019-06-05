@@ -18,15 +18,12 @@ public class ModelMIBG extends ModelScin {
 
 	public ModelMIBG(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
-		// TODO Auto-generated constructor stub
 		
 		this.dataImage = new HashMap<>();
 	}
 
 	@Override
 	public void calculateResults() {
-		// TODO Auto-generated method stub
-
 		for (int indexImage = 0; indexImage < 2; indexImage++) {
 			ImageSelection ims = this.selectedImages[indexImage];
 			for (int indexRoi = 0; indexRoi < 2; indexRoi++) {

@@ -9,6 +9,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
@@ -18,7 +19,6 @@ public class MIBGScintigraphy extends Scintigraphy {
 
 	public MIBGScintigraphy() {
 		super("MIBG Scintigraphy");
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -40,10 +40,10 @@ public class MIBGScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] openedImages) throws WrongInputException, ReadTagException {
+	public ImageSelection[] preparerImp(ImageSelection[] openedImages) throws WrongInputException {
 		// Check number
 		if (openedImages.length != 2)
-			throw new WrongNumberImagesException(openedImages.length, 2, 2);
+			throw new WrongNumberImagesException(openedImages.length, 2);
 
 		ImageSelection[] impSelect = new ImageSelection[openedImages.length];
 		for (int i = 0; i < openedImages.length; i++) {
@@ -57,22 +57,23 @@ public class MIBGScintigraphy extends Scintigraphy {
 						openedImages[i].getImageOrientation(),
 						new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT, Orientation.ANT });
 			}
-			openedImages[i].getImagePlus().close();
 		}
 
 		// Order images by time
 		Arrays.parallelSort(impSelect, new ChronologicalAcquisitionComparator());
+
+		// Close images
+		for(ImageSelection ims : openedImages)
+			ims.close();
 
 		return impSelect;
 	}
 
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
-		// TODO Auto-generated method stub
-
-		this.setFenApplication(new FenApplicationMIBG(selectedImages[0], this.getStudyName()));
+		this.setFenApplication(new FenApplicationWorkflow(selectedImages[0], this.getStudyName()));
 		this.getFenApplication().setController(new ControllerWorkflowMIBG("MIBG Scintigraphy",
-				(FenApplicationMIBG) this.getFenApplication(), selectedImages));
+				(FenApplicationWorkflow) this.getFenApplication(), selectedImages));
 
 	}
 

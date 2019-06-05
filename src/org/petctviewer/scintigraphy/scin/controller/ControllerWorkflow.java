@@ -368,7 +368,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 *
 	 * @return list of instruction expecting a user input
 	 */
-	public List<Instruction> allInputInstructions() {
+	protected List<Instruction> allInputInstructions() {
 		List<Instruction> instructions = new ArrayList<>();
 		for (Workflow w : this.workflows) {
 			for (Instruction i : w.getInstructions())
@@ -410,6 +410,9 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 			this.prepareImage(i.getImageState());
 			i.afterNext(this);
 		}
+
+		// Update view
+		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	/**

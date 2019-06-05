@@ -23,6 +23,10 @@ public abstract class ModelScin {
 
     protected final String studyName;
 
+    /**
+     * @param selectedImages Images needed for this study
+     * @param studyName Name of the study (used for display)
+     */
     public ModelScin(ImageSelection[] selectedImages, String studyName) {
         this.roiManager = new RoiManager(false);
         this.selectedImages = selectedImages;

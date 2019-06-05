@@ -1,8 +1,8 @@
 package org.petctviewer.scintigraphy.mibg;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
+import org.petctviewer.scintigraphy.mibg.tabResults.TabContrastMIBG;
+import org.petctviewer.scintigraphy.mibg.tabResults.TabMainMIBG;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -14,7 +14,8 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 
-import ij.ImagePlus;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflowMIBG extends ControllerWorkflow {
 
@@ -22,7 +23,6 @@ public class ControllerWorkflowMIBG extends ControllerWorkflow {
 
 	public ControllerWorkflowMIBG(String studyName, FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
 		super(null, vue, new ModelMIBG(selectedImages, studyName));
-		// TODO Auto-generated constructor stub
 
 		this.captures = new ArrayList<>();
 
@@ -32,38 +32,25 @@ public class ControllerWorkflowMIBG extends ControllerWorkflow {
 
 	@Override
 	protected void generateInstructions() {
-		// TODO Auto-generated method stub
-
 		this.workflows = new Workflow[this.model.getImageSelection().length];
-		this.workflows[0] = new Workflow(this, this.getModel().getImageSelection()[0]);
-		this.workflows[1] = new Workflow(this, this.getModel().getImageSelection()[1]);
 
-		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null;
-		ScreenShotInstruction dri_capture_1 = null, dri_capture_2 = null;
-		ImageState stateFirstImage = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
-		stateFirstImage.specifieImage(this.getModel().getImageSelection()[0]);
-		ImageState stateSecondImage = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
-		stateSecondImage.specifieImage(this.getModel().getImageSelection()[1]);
+		DrawRoiInstruction dri_heart = null, dri_mediastinum = null;
 
-		dri_1 = new DrawRoiInstruction("Heart", stateFirstImage);
-		dri_2 = new DrawRoiInstruction("Mediastinum", stateFirstImage);
-		dri_3 = new DrawRoiInstruction("Heart", stateSecondImage, dri_1);
-		dri_4 = new DrawRoiInstruction("Mediastinum", stateSecondImage, dri_2);
+		for(int i = 0; i<2; i++) {
+			this.workflows[i] = new Workflow(this, this.getModel().getImageSelection()[i]);
 
-		dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), 0);
-		dri_capture_2 = new ScreenShotInstruction(captures, this.getVue(), 1);
 
-		this.workflows[0].addInstruction(dri_1);
-		this.workflows[0].addInstruction(dri_2);
-		this.workflows[0].addInstruction(dri_capture_1);
-		this.workflows[1].addInstruction(dri_3);
-		this.workflows[1].addInstruction(dri_4);
-		this.workflows[1].addInstruction(dri_capture_2);
+			ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
+			state.specifieImage(this.getModel().getImageSelection()[i]);
 
-		this.workflows[1].addInstruction(new EndInstruction());
+			dri_heart = new DrawRoiInstruction("Heart", state, dri_heart);
+			dri_mediastinum = new DrawRoiInstruction("Mediastinum", state, dri_mediastinum);
 
-		// Update view
-		this.getVue().setNbInstructions(this.allInputInstructions().size());
+			this.workflows[i].addInstruction(dri_heart);
+			this.workflows[i].addInstruction(dri_mediastinum);
+			this.workflows[i].addInstruction(new ScreenShotInstruction(captures, this.getVue(), i));
+		}
+		this.workflows[this.workflows.length - 1].addInstruction(new EndInstruction());
 
 	}
 
@@ -73,7 +60,9 @@ public class ControllerWorkflowMIBG extends ControllerWorkflow {
 
 		this.model.calculateResults();
 
-		FenResults fenResults = new FenResultsMIBG(this, this.captures);
+		FenResults fenResults = new FenResults(this);
+		fenResults.setMainTab(new TabMainMIBG(fenResults, "Main", captures));
+		fenResults.addTab(new TabContrastMIBG("Contrast", "timed", fenResults, captures));
 		fenResults.setVisible(true);
 	}
 

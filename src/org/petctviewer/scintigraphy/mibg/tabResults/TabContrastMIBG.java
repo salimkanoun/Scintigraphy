@@ -20,15 +20,9 @@ public class TabContrastMIBG extends PanelImpContrastSlider {
 		ImageStack stackCapture = Library_Capture_CSV.captureToStack(parent.getModel().getImagesPlus());
 
 		MontageMaker mm = new MontageMaker();
-		// TODO: patient ID
-		String patientID = "NO_ID_FOUND";
-		ImagePlus montage = new ImagePlus("Results MIBG  -" + patientID, stackCapture);
+		ImagePlus montage = new ImagePlus("Results MIBG", stackCapture);
 		montage = mm.makeMontage2(montage, 1, 2, 1, 1, 2, 1, 10, false);
 
-		// ImagePlus montage =
-		// Library_Capture_CSV.creerMontage(scin.getFrameDurations(),
-		// scin.getImpPost().getImagePlus(), 200, 1,
-		// 2);
 		montage.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
 
 		this.setImp(montage);

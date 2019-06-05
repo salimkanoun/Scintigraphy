@@ -1,3 +1,4 @@
+
 package org.petctviewer.scintigraphy.generic.dynamic;
 
 import ij.gui.Roi;
@@ -23,11 +24,6 @@ import java.awt.image.BufferedImage;
 public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
 	private FenResults fenResult;
-
-	// private int nbOrganes = 0;
-	//
-	// private ImagePlus impProjetee;
-	private int indexRoi;
 
 	public ControllerWorkflowScinDynamic(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
 		super(main, vue, model);
@@ -58,9 +54,6 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		this.workflows[0].addInstructionOnTheFly(dri_1);
 
 		this.workflows[0].addInstruction(new EndInstruction());
-
-		// Update view
-		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	@Override
