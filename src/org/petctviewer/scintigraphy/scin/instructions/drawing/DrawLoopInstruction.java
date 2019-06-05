@@ -40,6 +40,7 @@ public class DrawLoopInstruction extends DefaultGenerator {
 	public Instruction generate() {
 		if (!this.isStopped) {
 			this.stop();
+			this.workflow.getController().getVue().setNbInstructions(this.workflow.getController().allInputInstructions().size() + 1);
 			return new DrawLoopInstruction(this.workflow, this, null);
 		}
 		return null;

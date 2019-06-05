@@ -7,7 +7,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.gastric.gui.Fit;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
@@ -66,24 +65,6 @@ public class Model_Gastric extends ModelWorkflow {
 		Prefs.useNamesAsLabels = true;
 
 		this.results = new HashMap<>();
-	}
-
-	/**
-	 * Retrieves the image described by the specified image state.<br>
-	 * The image can be retrieved from this model or from this image state.
-	 *
-	 * @param state State describing a data
-	 * @return image retrieved from the specified state (null can be returned)
-	 * @throws IllegalArgumentException if the ID of the ImageState is different
-	 *                                  than {@link ImageState#ID_CUSTOM_IMAGE} or a
-	 *                                  positive value
-	 */
-	private ImageSelection imageFromState(ImageState state) {
-		if (state.getIdImage() == ImageState.ID_CUSTOM_IMAGE) return state.getImage();
-
-		if (state.getIdImage() >= 0) return this.selectedImages[state.getIdImage()];
-
-		throw new IllegalArgumentException("ID " + state.getIdImage() + " is not applicable here");
 	}
 
 	/**
@@ -457,7 +438,6 @@ public class Model_Gastric extends ModelWorkflow {
 	 * </ul>
 	 */
 	private double[][] generateStomachDataset(Unit unit) {
-		// TODO: add time 0
 		return this.generateDatasetFromKey(REGION_STOMACH, DATA_PERCENTAGE, unit);
 	}
 
@@ -471,7 +451,6 @@ public class Model_Gastric extends ModelWorkflow {
 	 * </ul>
 	 */
 	private double[][] generateDecayFunctionDataset(Unit unit) {
-		// TODO: remove time 0
 		return this.generateDatasetFromKey(REGION_STOMACH, DATA_DECAY_CORRECTED, unit);
 	}
 
@@ -718,35 +697,6 @@ public class Model_Gastric extends ModelWorkflow {
 	}
 
 	/**
-	 * Converts the specified key into a readable name.
-	 *
-	 * @param key Key to convert
-	 * @return string representing the key
-	 */
-	String nameOfDataField(int key) {
-		switch (key) {
-			case DATA_ANT_COUNTS:
-				return "Nb Ant-counts";
-			case DATA_POST_COUNTS:
-				return "Nb Post-counts";
-			case DATA_GEO_AVERAGE:
-				return "Geo-avg";
-			case DATA_PERCENTAGE:
-				return "Percentage";
-			case DATA_DERIVATIVE:
-				return "Derivative";
-			case DATA_CORRELATION:
-				return "Correlation";
-			case DATA_PIXEL_COUNTS:
-				return "Pixel counts";
-			case DATA_BKG_NOISE:
-				return "Background Noise";
-			default:
-				return "???";
-		}
-	}
-
-	/**
 	 * @return all regions required by this model
 	 */
 	private String[] getAllRegionsName() {
@@ -955,7 +905,6 @@ public class Model_Gastric extends ModelWorkflow {
 					bkgNoise = this.bkgNoise_fundus.getValue(DATA_BKG_NOISE);
 					break;
 				default:
-					// TODO: correct with a bkg noise
 					System.err.println(
 							"Warning: The region (" + region + ") is not corrected with a background " + "noise!");
 					break;
@@ -1005,7 +954,7 @@ public class Model_Gastric extends ModelWorkflow {
 		return Library_JFreeChart.createGraph("Time (" + Unit.MINUTES.abrev() + ")", "Fundus/Stomach (%)",
 				new Color[]{new Color(0, 100, 0)}, "", Library_JFreeChart.createDataset(this.generateTime(),
 						this.getResultAsArray(REGION_FUNDUS, DATA_CORRELATION, Unit.PERCENTAGE),
-						"Intragastric Distribution"), 100.0);
+						"Intragastric Distribution"));
 	}
 
 	/**
@@ -1018,8 +967,7 @@ public class Model_Gastric extends ModelWorkflow {
 		return Library_JFreeChart
 				.createGraph("Time (" + Unit.MINUTES.abrev() + ")", "% meal in the interval", new Color[]{Color.RED},
 						"",
-						Library_JFreeChart.createDataset(this.generateDerivedTime(), result, "Gastrointestinal flow"),
-						50.0);
+						Library_JFreeChart.createDataset(this.generateDerivedTime(), result, "Gastrointestinal flow"));
 	}
 
 	/**
@@ -1037,7 +985,7 @@ public class Model_Gastric extends ModelWorkflow {
 		XYSeriesCollection dataset = Library_JFreeChart.createDataset(this.generateTime(), ySeries, titles);
 
 		return Library_JFreeChart
-				.createGraph("Time (" + Unit.MINUTES.abrev() + ")", "Retention (% meal)", colors, "", dataset, 100.);
+				.createGraph("Time (" + Unit.MINUTES.abrev() + ")", "Retention (% meal)", colors, "", dataset);
 	}
 
 	/**
@@ -1052,8 +1000,7 @@ public class Model_Gastric extends ModelWorkflow {
 				"retention");
 
 		return Library_JFreeChart.createGraph(Unit.MINUTES.abrev(), unit.abrev(), new Color[]{Color.GREEN}, "",
-				dataset,
-				Library_JFreeChart.maxValue(result) * 1.1);
+				dataset);
 	}
 
 	/**
@@ -1147,7 +1094,11 @@ public class Model_Gastric extends ModelWorkflow {
 				valX = Library_JFreeChart.extrapolateX(yValue, fit);
 				isExtrapolated = true;
 			}
-			return new ResultValue(request, valX, Unit.TIME, isExtrapolated);
+
+			// Convert to requested unit
+			valX = Unit.TIME.convertTo(valX, request.getUnit());
+
+			return new ResultValue(request, valX, request.getUnit(), isExtrapolated);
 		} else if (result == T_HALF_PERCENTAGE || result == T_HALF_GEOAVG) {
 			double[] yValues;
 			if (result == T_HALF_PERCENTAGE) yValues = generateStomachValues(fit.getYUnit());
@@ -1162,7 +1113,11 @@ public class Model_Gastric extends ModelWorkflow {
 				valX = Library_JFreeChart.extrapolateX(half, fit);
 				isExtrapolated = true;
 			}
-			return new ResultValue(request, valX, Unit.TIME, isExtrapolated);
+
+			// Convert to requested unit
+			valX = Unit.TIME.convertTo(valX, request.getUnit());
+
+			return new ResultValue(request, valX, request.getUnit(), isExtrapolated);
 		} else {
 			try {
 				if (result == RES_TIME) return new ResultValue(request,
@@ -1192,6 +1147,30 @@ public class Model_Gastric extends ModelWorkflow {
 	@Override
 	public void calculateResults() {
 		this.generateTime();
+	}
+
+	@Override
+	public String nameOfDataField(int key) {
+		switch (key) {
+			case DATA_ANT_COUNTS:
+				return "Nb Ant-counts";
+			case DATA_POST_COUNTS:
+				return "Nb Post-counts";
+			case DATA_GEO_AVERAGE:
+				return "Geo-avg";
+			case DATA_PERCENTAGE:
+				return "Percentage";
+			case DATA_DERIVATIVE:
+				return "Derivative";
+			case DATA_CORRELATION:
+				return "Correlation";
+			case DATA_PIXEL_COUNTS:
+				return "Pixel counts";
+			case DATA_BKG_NOISE:
+				return "Background Noise";
+			default:
+				return "???";
+		}
 	}
 
 	/**

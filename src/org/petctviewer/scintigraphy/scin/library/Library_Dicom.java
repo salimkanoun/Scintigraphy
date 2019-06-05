@@ -617,24 +617,6 @@ public class Library_Dicom {
 	}
 
 	/**
-	 * Use the methode concatenate of a Concatenator.
-	 * This method hide the complexity of this call, for ImageSelection.
-	 *
-	 * @return The concatenate ImagePlus
-	 * @see Concatenator
-	 * @see Concatenator#concatenate(ImagePlus[], boolean)
-	 */
-	public static ImagePlus concatenate(ImageSelection[] imageSelection, boolean keepIms) {
-		Concatenator enchainer = new Concatenator();
-
-		ImagePlus[] images = new ImagePlus[imageSelection.length];
-		for (int i = 0; i < imageSelection.length; i++)
-			images[i] = imageSelection[i].getImagePlus();
-
-		return enchainer.concatenate(images, keepIms);
-	}
-
-	/**
 	 * Finds the isotope code in the DICOM header of the specified image. If the code could not be found, then this
 	 * method returns null.
 	 *
@@ -675,12 +657,15 @@ public class Library_Dicom {
 	public static Isotope getIsotope(ImagePlus imp, FenApplication view) {
 		// Find isotope
 		String isotopeCode = Library_Dicom.findIsotopeCode(imp);
+
 		if (isotopeCode == null) {
 			// No code
 			// Ask user for isotope
 			IsotopeDialog isotopeDialog = new IsotopeDialog(view);
 			isotopeDialog.setVisible(true);
+			return isotopeDialog.getIsotope();
 		}
+
 		Isotope isotope = Isotope.getIsotopeFromCode(isotopeCode);
 		if (isotope == null) {
 			// Code unknown

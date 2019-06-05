@@ -129,7 +129,6 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 		// Update view
 		int indexScroll = this.getVue().getInstructionDisplayed();
-		getVue().setNbInstructions(this.allInputInstructions().size());
 		getVue().currentInstruction(indexScroll);
 	}
 

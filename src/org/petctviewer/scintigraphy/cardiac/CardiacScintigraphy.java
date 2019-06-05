@@ -1,9 +1,8 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import ij.IJ;
-import ij.gui.Overlay;
-import ij.plugin.MontageMaker;
-import ij.util.DicomTools;
+import java.awt.Color;
+import java.util.ArrayList;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -15,8 +14,10 @@ import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionCompara
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import java.awt.*;
-import java.util.ArrayList;
+import ij.IJ;
+import ij.gui.Overlay;
+import ij.plugin.MontageMaker;
+import ij.util.DicomTools;
 
 public class CardiacScintigraphy extends Scintigraphy {
 
@@ -27,8 +28,8 @@ public class CardiacScintigraphy extends Scintigraphy {
 	@Override
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 		// Check number
-		if(selectedImages.length != 2)
-			throw new WrongNumberImagesException(selectedImages.length, 2);
+		if(selectedImages.length > 2 || selectedImages.length < 1)
+			throw new WrongNumberImagesException(selectedImages.length, 1, 2);
 
 		ArrayList<ImageSelection> mountedImages = new ArrayList<>();
 
@@ -59,22 +60,25 @@ public class CardiacScintigraphy extends Scintigraphy {
 		mountedImages.sort(new ChronologicalAcquisitionComparator());
 		mountedSorted = mountedImages.toArray(mountedSorted);
 
-		ImageSelection impStacked = mountedSorted[0].clone();
-		// si la prise est early/late
-		impStacked.setImagePlus(Library_Dicom.concatenate(mountedSorted, false));
+
 		// si il y a plus de 3 minutes de diff�rence entre les deux prises
 		if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {
 			IJ.log("Warning, frame duration differ by "
 					+ Math.abs(frameDuration[0] - frameDuration[1]) / (1000 * 60) + " minutes");
 		}
 
-		return new ImageSelection[] { impStacked };
+		return mountedSorted;
 	}
 
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 7);
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
+		
+		String[] infoOfAllImages = new String[selectedImages.length];
+		for(int indexImage = 0 ; indexImage < selectedImages.length ; indexImage++)
+			infoOfAllImages[indexImage] = selectedImages[indexImage].getImagePlus().duplicate().getInfoProperty();
+		
 
 		// fenetre de l'application
 		this.setFenApplication(new FenApplication_Cardiac(selectedImages[0], this.getStudyName()));
@@ -83,7 +87,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 		// Cree controller
 		this.getFenApplication()
 				.setController(new ControllerWorkflowCardiac(this, (FenApplicationWorkflow) this.getFenApplication(),
-						new Model_Cardiac(this, selectedImages, "Cardiac")));
+						new Model_Cardiac(this, selectedImages, "Cardiac", infoOfAllImages)));
 
 	}
 

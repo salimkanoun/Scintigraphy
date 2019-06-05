@@ -1,6 +1,6 @@
 package org.petctviewer.scintigraphy.gastric;
 
-import org.petctviewer.scintigraphy.gastric.gui.Fit.FitType;
+import org.petctviewer.scintigraphy.gastric.Fit.FitType;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -38,8 +38,7 @@ public class ResultValue {
 	 * @see #ResultValue(ResultRequest, double, Unit, boolean)
 	 */
 	public ResultValue(ResultRequest request, double value, Unit unit, boolean isExtrapolated) {
-		if (request == null)
-			throw new IllegalArgumentException("Associated request cannot be null");
+		if (request == null) throw new IllegalArgumentException("Associated request cannot be null");
 
 		this.request = request;
 		this.value = value;
@@ -50,14 +49,52 @@ public class ResultValue {
 
 	/**
 	 * Instantiates a new result not extrapolated.<br>
-	 * This constructor is a convenience for
-	 * {@link #ResultValue(ResultRequest, double, Unit, boolean)}.
+	 * This constructor is a convenience for {@link #ResultValue(ResultRequest, double, Unit, boolean)}.
 	 *
 	 * @param request Request this result answers to
 	 * @param value   Value of the result
 	 */
 	public ResultValue(ResultRequest request, double value, Unit unit) {
 		this(request, value, unit, false);
+	}
+
+	/**
+	 * Returns the specified value rounded at 2 decimals and set to 0 if negative.
+	 *
+	 * @param value Value to format
+	 * @return rounded value for this result (2 decimals) restrained to 0 if negative
+	 */
+	public static String notNegative(double value) {
+		return BigDecimal.valueOf(Math.max(0, value)).setScale(2, RoundingMode.HALF_UP).toString();
+	}
+
+	/**
+	 * Returns the specified value as a time considering the value in minutes.
+	 *
+	 * @param value Value to format
+	 * @return value of this result formatted as time: <code>HH:mm:ss</code>
+	 */
+	public static String displayAsTime(double value) {
+		int seconds = (int) ((value - (double) ((int) value)) * 60.);
+		int minutes = (int) (value % 60.);
+		int hours = (int) (value / 60.);
+
+		StringBuilder s = new StringBuilder();
+		// Hours
+		if (hours < 10) s.append(0);
+		s.append(hours);
+		s.append(':');
+
+		// Minutes
+		if (minutes < 10) s.append(0);
+		s.append(minutes);
+		s.append(':');
+
+		// Seconds
+		if (seconds < 10) s.append(0);
+		s.append(seconds);
+
+		return s.toString();
 	}
 
 	/**
@@ -70,7 +107,8 @@ public class ResultValue {
 			this.value = this.unit.convertTo(this.value, newUnit);
 			this.unit = newUnit;
 		} catch (UnsupportedOperationException e) {
-			throw new UnsupportedOperationException("For result " + this.request.getResultOn().getName() + ": " + e.getMessage());
+			throw new UnsupportedOperationException(
+					"For result " + this.request.getResultOn().getName() + ": " + e.getMessage());
 		}
 	}
 
@@ -94,8 +132,7 @@ public class ResultValue {
 	 * @return type of the extrapolation of this value (null if none)
 	 */
 	public FitType getExtrapolation() {
-		if (this.isExtrapolated)
-			return this.request.getFit().getType();
+		if (this.isExtrapolated) return this.request.getFit().getType();
 		return null;
 	}
 
@@ -124,8 +161,7 @@ public class ResultValue {
 	 * @return formatted value for this result
 	 */
 	public String formatValue() {
-		if (this.unit == Unit.TIME)
-			return this.displayAsTime();
+		if (this.unit == Unit.TIME) return this.displayAsTime();
 		return this.notNegative();
 	}
 
@@ -143,8 +179,9 @@ public class ResultValue {
 	 * negative
 	 */
 	public String notNegative() {
-		return BigDecimal.valueOf(Math.max(0, value)).setScale(2, RoundingMode.HALF_UP).toString()
-				+ (isExtrapolated() ? "(*)" : "");
+		StringBuilder s = new StringBuilder(notNegative(this.value));
+		if (this.isExtrapolated) s.append("(*)");
+		return s.toString();
 	}
 
 	/**
@@ -155,10 +192,9 @@ public class ResultValue {
 	 * @return rounded value for this result (2 decimals)
 	 */
 	public String roundedValue() {
-		return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).toString() + (isExtrapolated() ? "(*)" : "");
+		return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).toString() + (isExtrapolated() ? "(*)" :
+				"");
 	}
-
-	// TODO: do not assume the time is in minutes
 
 	/**
 	 * Returns the value of this result as a time considering the value in
@@ -171,34 +207,7 @@ public class ResultValue {
 	public String displayAsTime() {
 		StringBuilder s = new StringBuilder(displayAsTime(this.value));
 
-		if (this.isExtrapolated())
-			s.append("(*)");
-
-		return s.toString();
-	}
-
-	public static String displayAsTime(double value) {
-		int seconds = (int) ((value - (double) ((int) value)) * 60.);
-		int minutes = (int) (value % 60.);
-		int hours = (int) (value / 60.);
-
-		StringBuilder s = new StringBuilder();
-		// Hours
-		if (hours < 10)
-			s.append(0);
-		s.append(hours);
-		s.append(':');
-
-		// Minutes
-		if (minutes < 10)
-			s.append(0);
-		s.append(minutes);
-		s.append(':');
-
-		// Seconds
-		if (seconds < 10)
-			s.append(0);
-		s.append(seconds);
+		if (this.isExtrapolated()) s.append("(*)");
 
 		return s.toString();
 	}

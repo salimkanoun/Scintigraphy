@@ -11,8 +11,6 @@ import java.awt.Robot;
 import java.awt.Window;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -21,7 +19,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
 
-import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.IJ;
@@ -68,22 +65,20 @@ public class Library_Capture_CSV {
 		String tagDate = DicomTools.getTag(imp, "0008,0022");
 		if (tagDate != null) {
 			String dateStr = tagDate.trim();
-			Date result = null;
-			// TODO: do not leave result null after try catch -> will generate
-			// NullPointerException
+			Date result;
 			try {
 				result = new SimpleDateFormat("yyyyMMdd").parse(dateStr);
+				String r = new SimpleDateFormat(Prefs.get("dateformat.preferred", "MM/dd/yyyy")).format(result);
+				hm.put(PATIENT_INFO_DATE, r);
 			} catch (ParseException e) {
+				hm.put(PATIENT_INFO_DATE, "");
 				e.printStackTrace();
 			}
-			String r = new SimpleDateFormat(Prefs.get("dateformat.preferred", "MM/dd/yyyy")).format(result);
-			hm.put(PATIENT_INFO_DATE, r);
 
 		} else
 			hm.put(PATIENT_INFO_DATE, "");
 
 		// ajout de l'accesionNumber, si il n'existe pas on ajoute une string vide
-
 		String tagAccessionNumber = DicomTools.getTag(imp, "0008,0050");
 		if (tagAccessionNumber != null)
 			hm.put(PATIENT_INFO_ACCESSION_NUMBER, tagAccessionNumber.trim());
@@ -91,8 +86,6 @@ public class Library_Capture_CSV {
 			hm.put(PATIENT_INFO_ACCESSION_NUMBER, "");
 		return hm;
 	}
-
-	// Parse de la date et heure d'acquisition
 
 	/**
 	 * prepare la premiere partie des tags du header du dicom avec l'iud passe en
@@ -157,7 +150,6 @@ public class Library_Capture_CSV {
 
 			dimensionCapture[i] = tableauImagePlus[i].getDimensions();
 			if (!Arrays.equals(dimensionCapture[i], tableauImagePlus[0].getDimensions())) {
-				// TODO: throw exception instead of showing message
 				IJ.showMessage("Error Capture have different dimension");
 			}
 		}
@@ -330,106 +322,6 @@ public class Library_Capture_CSV {
 				+ "0102 High Bit: 7" + "\n" + "0028,0103 Pixel Representation: 0 \n";
 	}
 
-	// Permet la sauvegarde finale a partir du string builder contenant le
-	// tableau de resultat, ROI manager, studyName programme et imageplus finale
-	// pour
-	// recuperer ID et date examen
-
-	/**
-	 * Permet de realiser l'export du fichier CSV et des ROI contenues dans l'export
-	 * Manager vers le repertoire d'export defini dans les options
-	 *
-	 * @param resultats
-	 *            : Tableau contenant les resultats a exporter (doit contenir les
-	 *            titres de colonnes)
-	 * @param nombreColonne
-	 *            : Nombre de colonne avant de passer � la seconde ligne (si 4
-	 *            colonne mettre 4)
-	 * @param roiManager
-	 *            : le ROI manager utilise dans le programme
-	 * @param nomProgramme
-	 *            : le studyName du programme (sera utilise comme sous repertoire)
-	 * @param imp
-	 *            : l'ImagePlus d'une image originale ou de la capture secondaire
-	 *            auquel on a ajoute le header, permet de recuperer le studyName,
-	 *            l'ID et la date d'examen
-	 */
-	public static void exportAll(String[] resultats, int nombreColonne, RoiManager roiManager, String nomProgramme,
-			ImagePlus imp, ControllerWorkflow controller) {
-
-		String[] infoPatient = Library_Capture_CSV.getInfoPatient(imp);
-		StringBuilder content = Library_Capture_CSV.initCSVHorizontal(infoPatient);
-
-		for (int i = 0; i < resultats.length; i++) {
-			// Si multiple de n (nombre de valeur par ligne) on fait retour à la ligne
-			// sinon
-			// on met une virgule
-			if (i % nombreColonne == 0) {
-				content.append('\n');
-			} else {
-				content.append(',');
-			}
-			content.append(resultats[i]);
-		}
-		content.append('\n');
-
-		Library_Capture_CSV.saveFiles(imp, roiManager, content, nomProgramme, infoPatient, "", controller);
-	}
-
-	/**
-	 * Permet de realiser l'export du fichier CSV et des ROI contenues dans l'export
-	 * Manager vers le repertoire d'export defini dans les options
-	 *
-	 * @param resultats
-	 *            : Resultats a exporter (utiliser le format csv)
-	 * @param roiManager
-	 *            : le ROI manager utilise dans le programme
-	 * @param nomProgramme
-	 *            : le studyName du programme (sera utilise comme sous repertoire)
-	 * @param imp
-	 *            : l'ImagePlus d'une image originale ou de la capture secondaire
-	 *            auquel on a ajoute le header, permet de recuperer le studyName,
-	 *            l'ID et la date d'examen
-	 */
-	public static void exportAll(String resultats, RoiManager roiManager, String nomProgramme, ImagePlus imp,
-			ControllerWorkflow controller) {
-
-		String[] infoPatient = Library_Capture_CSV.getInfoPatient(imp);
-		StringBuilder content = Library_Capture_CSV.initCSVVertical(infoPatient);
-
-		content.append(resultats);
-
-		Library_Capture_CSV.saveFiles(imp, roiManager, content, nomProgramme, infoPatient, "", controller);
-	}
-
-	/**
-	 * Permet de realiser l'export du fichier CSV et des ROI contenues dans l'export
-	 * Manager vers le repertoire d'export defini dans les options
-	 *
-	 * @param resultats
-	 *            : Resultats a exporter (utiliser le format csv)
-	 * @param roiManager
-	 *            : le ROI manager utilise dans le programme
-	 * @param nomProgramme
-	 *            : le studyName du programme (sera utilise comme sous repertoire)
-	 * @param imp
-	 *            : l'ImagePlus d'une image originale ou de la capture secondaire
-	 *            auquel on a ajoute le header, permet de recuperer le studyName,
-	 *            l'ID et la date d'examen
-	 * @param additionalInfo
-	 *            :String qui sera rajoutée à la fin du studyName du fichier
-	 */
-	public static void exportAll(String resultats, RoiManager roiManager, String nomProgramme, ImagePlus imp,
-			String additionalInfo, ControllerWorkflow controller) {
-
-		String[] infoPatient = Library_Capture_CSV.getInfoPatient(imp);
-		StringBuilder content = Library_Capture_CSV.initCSVVertical(infoPatient);
-
-		content.append(resultats);
-
-		Library_Capture_CSV.saveFiles(imp, roiManager, content, nomProgramme, infoPatient, additionalInfo, controller);
-	}
-
 	/**
 	 * Permet d'exporter le ROI manager uniquement dans un zip contenant les ROI
 	 * (dans le cadre d'un logiciel ne generant pas de resultat utile a sauver qui
@@ -500,126 +392,6 @@ public class Library_Capture_CSV {
 			dt1 = new Date();
 		SimpleDateFormat df1 = new SimpleDateFormat("2.16.840.1.113664.3.yyyyMMdd.HHmmss", Locale.US);
 		return df1.format(dt1);
-	}
-
-	private static StringBuilder initCSVHorizontal(String[] infoPatient) {
-		// Realisation du string builder qui sera ecrit en CSV
-		StringBuilder content = new StringBuilder();
-		// Ajout titre colonne
-		content.append("Patient's Name");
-		content.append(',');
-		content.append("Patient's ID");
-		content.append(',');
-		content.append("Study Date");
-		content.append('\n');
-		// Ajouts des valeurs
-		content.append(infoPatient[0]);
-		content.append(',');
-		content.append(infoPatient[1]);
-		content.append(',');
-		content.append(infoPatient[2]);
-
-		return content;
-	}
-
-	private static StringBuilder initCSVVertical(String[] infoPatient) {
-		// Realisation du string builder qui sera ecrit en CSV
-		StringBuilder content = new StringBuilder();
-		// Ajout titre colonne
-		content.append("Patient's Name");
-		content.append(',');
-		content.append(infoPatient[0]);
-		content.append('\n');
-
-		content.append("Patient's ID");
-		content.append(',');
-		content.append(infoPatient[1]);
-		content.append('\n');
-
-		content.append("Study Date");
-		content.append(',');
-		content.append(infoPatient[2]);
-		content.append('\n');
-
-		return content;
-	}
-
-	/*
-	 * @param additionalInfo :String qui sera rajoutée à la fin du studyName du
-	 * fichier
-	 */
-	private static void saveFiles(ImagePlus imp, RoiManager roiManager, StringBuilder csv, String nomProgramme,
-			String[] infoPatient, String additionalInfo, ControllerWorkflow controller) {
-
-		// On recupere le path de sauvegarde
-		String path = Prefs.get("dir.preferred", null);
-		boolean testEcriture = false;
-
-		// On verifie que le path est writable si il existe
-		if (path != null) {
-			File testPath = new File(path);
-			testEcriture = testPath.canWrite();
-		}
-
-		if (path != null && !testEcriture) {
-			// Si pas de repertoire defini on notifie l'utilisateur
-			IJ.showMessage("CSV Path not writable, CSV/ZIP export has failed");
-		}
-		if (path != null && testEcriture) {
-			// On construit le sous repertoire avecle studyName du programme et l'ID du
-			// Patient
-			String pathFinal = path + File.separator + nomProgramme + File.separator + infoPatient[1];
-			File subDirectory = new File(pathFinal);
-			if (subDirectory.mkdirs()) {
-
-				String nomFichier = infoPatient[1] + "_" + infoPatient[2] + additionalInfo;
-
-				File f = new File(subDirectory + File.separator + nomFichier + ".csv");
-
-				// On ecrit les CSV
-				PrintWriter pw;
-				try {
-					pw = new PrintWriter(f);
-					pw.write(csv.toString());
-					pw.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-				// On ecrit le ZIP contenant la sauvegarde des ROIs
-				Roi[] rois2 = roiManager.getRoisAsArray();
-				int[] tab = new int[rois2.length];
-				for (int i = 0; i < rois2.length; i++)
-					tab[i] = i;
-				roiManager.setSelectedIndexes(tab);
-
-				// roiManager.runCommand("Save", pathFinal.toString() + File.separator +
-				// nomFichier + ".zip");
-				Library_Roi.saveRois(roiManager, controller, pathFinal + File.separator + nomFichier + ".zip");
-
-				// List<Roi> roiList = new ArrayList<>();
-				// for(Roi r : rois2)
-				// roiList.add(r);
-				//
-				// FileOutputStream fos = null;
-				// ObjectOutputStream oos = null;
-				// try {
-				// fos = new FileOutputStream(pathFinal.toString() + File.separator +
-				// nomFichier);
-				// oos = new ObjectOutputStream(fos);
-				// oos.writeObject(roiList);
-				// oos.close();
-				// } catch (IOException e1) {
-				// e1.printStackTrace();
-				// }
-
-				// On sauve l'image en jpeg
-				IJ.saveAs(imp, "Jpeg", pathFinal + File.separator + nomFichier + ".jpg");
-			} else {
-				System.err.println("An error occurred while trying to create the directories for the path: " + pathFinal
-						+ ". Aborting creation of CSV, ZIP and JPEG.");
-			}
-		}
 	}
 
 	// [0] : studyName, [1] : id, [2] : date

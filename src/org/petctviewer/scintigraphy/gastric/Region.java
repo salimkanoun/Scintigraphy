@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.gastric;
 
 import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class Region {
 
 	private Map<Integer, Double> data;
 
-	private final Model_Gastric model;
+	private final ModelWorkflow model;
 
 	/**
 	 * Instantiates a new region with the specified name and the associated model.
@@ -31,7 +32,7 @@ public class Region {
 	 *              recommended)
 	 * @param model Model associated with this region
 	 */
-	public Region(String name, Model_Gastric model) {
+	public Region(String name, ModelWorkflow model) {
 		this.name = name;
 		this.data = new HashMap<>();
 		this.state = null;
@@ -42,7 +43,7 @@ public class Region {
 	/**
 	 * Adds a ROI along with the state the image should have to get informations.
 	 * 
-	 * @param state State the image should be in to get informations from the ROI
+	 * @param state State the image should be in to get information from the ROI
 	 * @param roi   ROI of the region
 	 */
 	public void inflate(ImageState state, Roi roi) {

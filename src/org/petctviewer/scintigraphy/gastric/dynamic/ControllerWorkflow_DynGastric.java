@@ -2,13 +2,11 @@ package org.petctviewer.scintigraphy.gastric.dynamic;
 
 import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
-import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
-import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
@@ -24,13 +22,10 @@ import java.awt.event.ActionEvent;
 
 public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
-	public static final String COMMAND_FIT_BEST_1 = "cfb_method1", COMMAND_FIT_BEST_2 = "cfb_method2",
-			COMMAND_FIT_BEST_ALL = "cfb_all";
-
-	private final FenResults fenResults;
+	private final TabMethod1 tabResult;
 
 	public ControllerWorkflow_DynGastric(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
-			ImageSelection[] selectedImages, FenResults fenResults) {
+										 ImageSelection[] selectedImages, TabMethod1 tabResult) {
 		super(main, vue, model);
 		this.getRoiManager().reset();
 
@@ -43,7 +38,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		// Set first image
 		getModel().setFirstImage(selectedImages[selectedImages.length - 1]);
 
-		this.fenResults = fenResults;
+		this.tabResult = tabResult;
 
 		this.generateInstructions();
 		this.start();
@@ -97,12 +92,6 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		getModel().calculateResults();
 	}
 
-	private void fitBest(String command) {
-		TabMethod2 tab = (TabMethod2) this.fenResults.getTab(1);
-		if (command.equals(COMMAND_FIT_BEST_2) || command.equals(COMMAND_FIT_BEST_ALL))
-			tab.selectFit(tab.findBestFit());
-	}
-
 	@Override
 	protected void end() {
 		super.end();
@@ -111,18 +100,17 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		this.computeModel();
 
 		// Update results
-		TabMethod1 tabMain = (TabMethod1) this.fenResults.getMainTab();
-
-		tabMain.displayTimeIngestion(getModel().getTimeIngestion());
-		tabMain.createGraph();
+		this.tabResult.displayTimeIngestion(getModel().getTimeIngestion());
+		this.tabResult.createGraph();
 
 		// Set the best fit by default
-		this.fitBest(COMMAND_FIT_BEST_1);
+		this.tabResult.selectFit(this.tabResult.findBestFit());
 
 		// Do not reload the method 2
-		tabMain.reloadDisplay();
+		this.tabResult.reloadDisplay();
 
-		tabMain.deactivateDynamicAcquisition();
+		this.tabResult.deactivateDynamicAcquisition();
+		this.tabResult.getParent().requestFocus();
 	}
 
 	@Override
@@ -165,9 +153,8 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		super.actionPerformed(e);
 
 		// Auto-fit
-		if (e.getSource() instanceof JButton) {
-			JButton source = (JButton) e.getSource();
-			this.fitBest(source.getActionCommand());
+		if (e.getSource() instanceof JButton && this.tabResult.isButtonAutoFit((JButton) e.getSource())) {
+			this.tabResult.selectFit(this.tabResult.findBestFit());
 		}
 	}
 

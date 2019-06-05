@@ -90,22 +90,16 @@ public class ModelHepaticDynamic extends ModelScinDyn {
 		String[] retour = new String[9];
 
 		retour[0] = "Delay before : ";
-		retour[1] = "\t Hilium (frame n°" + this.frames[0] + ") : " + (this.times[0] / 1000 / 60) + " min "
-				+ ((this.times[0] / 1000) - ((this.times[0] / 1000 / 60) * 60)) + " sec";
-		retour[2] = "\t Duodenum (frame n°" + this.frames[1] + ") : " + (this.times[1] / 1000 / 60) + " min "
-				+ ((this.times[1] / 1000) - ((this.times[1] / 1000 / 60) * 60)) + " sec";
-		retour[3] = "\t Intestine (frame n°" + this.frames[2] + ") : " + (this.times[2] / 1000 / 60) + " min "
-				+ ((this.times[2] / 1000) - ((this.times[2] / 1000 / 60) * 60)) + " sec ";
+		retour[1] = "\t Hilium (frame n°" + this.frames[0] + ") : " + Math.round(((double)this.times[0] / 1000.0d / 60.0d)) + " min";
+		retour[2] = "\t Duodenum (frame n°" + this.frames[1] + ") : " + Math.round(((double)this.times[1] / 1000.0d / 60.0d)) + " min";
+		retour[3] = "\t Intestine (frame n°" + this.frames[2] + ") : " + Math.round(((double)this.times[2] / 1000.0d / 60.0d)) + " min";
 
 		retour[4] = "";
 
 		retour[5] = "Delay difference : ";
-		retour[6] = "\t Hilium to Duodenum : " + (this.times[3] / 1000 / 60) + " min & "
-				+ ((this.times[3] / 1000) - ((this.times[3] / 1000 / 60) * 60)) + " sec";
-		retour[7] = "\t Duodenum to Intestine : " + (this.times[4] / 1000 / 60) + " min & "
-				+ ((this.times[4] / 1000) - ((this.times[4] / 1000 / 60) * 60)) + " sec";
-		retour[8] = "\t Hilium to Intestine : " + (this.times[5] / 1000 / 60) + " min & "
-				+ ((this.times[5] / 1000) - ((this.times[5] / 1000 / 60) * 60)) + " sec";
+		retour[6] = "\t Hilium to Duodenum : " + Math.round((this.times[3] / 1000.0d / 60.0d)) + " min";
+		retour[7] = "\t Duodenum to Intestine : " + Math.round((this.times[4] / 1000.0d / 60.0d)) + " min";
+		retour[8] = "\t Hilium to Intestine : " + Math.round((this.times[5] / 1000.0d / 60.0d)) + " min";
 
 		this.results.add((double) this.frames[0]);
 		this.results.add((double) this.times[0]);

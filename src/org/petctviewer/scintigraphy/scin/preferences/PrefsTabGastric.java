@@ -4,6 +4,8 @@ import ij.Prefs;
 import org.petctviewer.scintigraphy.gastric.Unit;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,11 +13,11 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 public class PrefsTabGastric extends JPanel implements ActionListener, ItemListener {
-	public static final String PREF_SIMPLE_METHOD = "petctviewer.scin.gastric.simple_method",
-			PREF_UNIT_USED = "petctviewer.scin.gastric.unit_used", PREF_LIQUID_PHASE = "petctviewer.scin.gastric" +
-			".liquid.enabled", PREF_LIQUID_PHASE_UNIT = "petctviewer.scin.gastric.liquid.unit";
+	public static final String PREF_SIMPLE_METHOD = "petctviewer.scin.gastric.simple_method", PREF_UNIT_USED =
+			"petctviewer.scin.gastric.unit_used", PREF_LIQUID_PHASE = "petctviewer.scin.gastric" + ".liquid.enabled",
+			PREF_LIQUID_PHASE_UNIT = "petctviewer.scin.gastric.liquid.unit", PREF_FRAME_DURATION_TOLERANCE =
+			"petctviewer.scin.gastric.frame_duration_tolerance";
 	private static final long serialVersionUID = 1L;
-
 	private final PrefsWindows parent;
 	private final JPanel panelLiquidOptions;
 
@@ -37,6 +39,10 @@ public class PrefsTabGastric extends JPanel implements ActionListener, ItemListe
 		// Unit used for simple method
 		panel.add(this.createUnitChooser(PREF_UNIT_USED, new Unit[]{Unit.COUNTS, Unit.KCOUNTS}));
 
+		// Time tolerance
+		panel.add(this.createTextInput(PREF_FRAME_DURATION_TOLERANCE, "Frame durations delta tolerance: ", "sec", 3));
+
+		// TODO: remove liquid prefs, not used anymore
 		// Liquid phase
 		JPanel panelLiquid = new JPanel();
 		panelLiquid.setLayout(new BoxLayout(panelLiquid, BoxLayout.Y_AXIS));
@@ -47,8 +53,9 @@ public class PrefsTabGastric extends JPanel implements ActionListener, ItemListe
 		// Liquid options
 		panelLiquidOptions = new JPanel();
 		panelLiquidOptions.setLayout(new BoxLayout(panelLiquidOptions, BoxLayout.Y_AXIS));
-		panelLiquidOptions.add(this.createUnitChooser(PREF_LIQUID_PHASE_UNIT, new Unit[]{Unit.COUNTS_PER_SECOND,
-				Unit.KCOUNTS_PER_SECOND, Unit.COUNTS_PER_MINUTE, Unit.KCOUNTS_PER_MINUTE}));
+		panelLiquidOptions.add(this.createUnitChooser(PREF_LIQUID_PHASE_UNIT,
+				new Unit[]{Unit.COUNTS_PER_SECOND, Unit.KCOUNTS_PER_SECOND, Unit.COUNTS_PER_MINUTE,
+						Unit.KCOUNTS_PER_MINUTE}));
 		panelLiquidOptions.setVisible(checkLiquidPhase.isSelected());
 		panelLiquid.add(panelLiquidOptions);
 		panel.add(panelLiquid);
@@ -80,6 +87,48 @@ public class PrefsTabGastric extends JPanel implements ActionListener, ItemListe
 		return panUnit;
 	}
 
+	private JPanel createTextInput(String prefName, String text, String afterText, int length) {
+		JPanel panel = new JPanel();
+
+		String defaultValue = Integer.toString((int) Prefs.get(PREF_FRAME_DURATION_TOLERANCE, 1));
+
+		JLabel label = new JLabel(text);
+		panel.add(label);
+
+		JTextField textField = new JTextField(defaultValue, length);
+		textField.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				savePref();
+			}
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				savePref();
+			}
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				savePref();
+			}
+			private void savePref() {
+				try {
+					Prefs.set(PREF_FRAME_DURATION_TOLERANCE, Integer.parseInt(textField.getText()));
+					parent.displayMessage(null);
+				} catch(NumberFormatException e) {
+					Prefs.set(PREF_FRAME_DURATION_TOLERANCE, 1);
+					parent.displayMessage("Cannot save (" + textField.getText() + ") -> not a number");
+				}
+			}
+		});
+		panel.add(textField);
+
+		if (afterText != null) {
+			JLabel afterLabel = new JLabel(afterText);
+			panel.add(afterLabel);
+		}
+
+		return panel;
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() instanceof JCheckBox) {
@@ -93,8 +142,7 @@ public class PrefsTabGastric extends JPanel implements ActionListener, ItemListe
 				if (check.isSelected()) {
 					// Display further options
 					this.panelLiquidOptions.setVisible(true);
-				} else
-					this.panelLiquidOptions.setVisible(false);
+				} else this.panelLiquidOptions.setVisible(false);
 			}
 		}
 	}
@@ -103,12 +151,12 @@ public class PrefsTabGastric extends JPanel implements ActionListener, ItemListe
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getStateChange() == ItemEvent.SELECTED) {
 			if (e.getSource() instanceof JComboBox) {
-				@SuppressWarnings("unchecked")
-				JComboBox<Unit> source = (JComboBox<Unit>) e.getSource();
+				@SuppressWarnings("unchecked") JComboBox<Unit> source = (JComboBox<Unit>) e.getSource();
 				// Save new unit
 				Prefs.set(source.getActionCommand(), ((Unit) e.getItem()).name());
-				this.parent.displayMessage("Please close the window to save the preferences",
-						PrefsWindows.DURATION_SHORT);
+				this.parent
+						.displayMessage("Please close the window to save the preferences",
+								PrefsWindows.DURATION_SHORT);
 			}
 		}
 	}

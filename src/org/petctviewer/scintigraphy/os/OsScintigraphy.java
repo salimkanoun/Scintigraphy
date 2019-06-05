@@ -91,22 +91,6 @@ public class OsScintigraphy extends Scintigraphy {
 
 		Arrays.parallelSort(impsSortedAntPost, new ReversedChronologicalAcquisitionComparator());
 
-//		for (int i = 0; i < impsSortedAntPost.length; i++) {
-//			for (int j = 0; j < 2; j++) {
-//				
-//				
-//				ImageSelection Ant = impsSortedAntPost[i].clone();
-//				Ant.setImagePlus(new ImagePlus("Ant", impsSortedAntPost[i].getImagePlus().getStack().getProcessor(1)));
-//				Ant.getImagePlus().setProperty("Info", impsSortedAntPost[i].getImagePlus().getStack().getSliceLabel(1));
-//				buffer[i][0] = Ant;
-//				
-//				ImageSelection Post = impsSortedAntPost[i].clone();
-//				Post.setImagePlus(new ImagePlus("Post", impsSortedAntPost[i].getImagePlus().getStack().getProcessor(2)));
-//				Post.getImagePlus().setProperty("Info", impsSortedAntPost[i].getImagePlus().getStack().getSliceLabel(2));
-//				buffer[i][1] = Post;
-//			}
-//		}
-
 		ArrayList<String> patientID = new ArrayList<>();
 		ArrayList<String> patientName = new ArrayList<>();
 		for (ImageSelection slctd : impsSortedAntPost) {

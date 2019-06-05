@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.gastric;
 import ij.ImagePlus;
 import ij.Prefs;
 import org.petctviewer.scintigraphy.gastric.dynamic.DynGastricScintigraphy;
+import org.petctviewer.scintigraphy.gastric.gui.PromptIngestionTime;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -166,11 +167,16 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 		// First instruction to get the acquisition time for the starting point
 		PromptIngestionTime promptIngestionTime = new PromptIngestionTime(this);
-		PromptInstruction promptTimeAcquisition = new PromptInstruction(promptIngestionTime);
-		if (promptIngestionTime.isInputValid()) {
-			specifiedTimeIngestion = promptIngestionTime.getResult();
-			this.getModel().setTimeIngestion(specifiedTimeIngestion);
-		}
+		PromptInstruction promptTimeAcquisition = new PromptInstruction(promptIngestionTime) {
+			@Override
+			public void afterNext(ControllerWorkflow controller) {
+				super.afterNext(controller);
+				if (promptIngestionTime.isInputValid()) {
+					specifiedTimeIngestion = promptIngestionTime.getResult();
+					getModel().setTimeIngestion(specifiedTimeIngestion);
+				}
+			}
+		};
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
 			this.workflows[i] = new Workflow(this, this.getModel().getImageSelection()[i]);
@@ -202,7 +208,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.isDynamicStarted = true;
 		this.vue.setVisible(false);
 		// Launch dynamic acquisition
-		new DynGastricScintigraphy(getModel(), this.fenResults);
+		new DynGastricScintigraphy(getModel(), this.tabMain);
 	}
 
 	public boolean isDynamicStarted() {
@@ -226,6 +232,13 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		// Display results
 		this.fenResults.clearTabs();
 
+		// TAB METHOD 2
+		this.tabOnlyGastric = new TabMethod2(this.fenResults, this.captures.get(0));
+		this.tabOnlyGastric.displayTimeIngestion(getModel().getFirstImage().getDateAcquisition());
+		this.fenResults.addTab(tabOnlyGastric);
+		// Set the best fit
+		this.fitBest(COMMAND_FIT_BEST_2);
+
 		// TAB METHOD 1
 		if (!DO_ONLY_GASTRIC) {
 			this.tabMain = new TabMethod1(this.fenResults, this.captures.get(1));
@@ -234,13 +247,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			// Select best fit
 			this.fitBest(COMMAND_FIT_BEST_1);
 		}
-
-		// TAB METHOD 2
-		this.tabOnlyGastric = new TabMethod2(this.fenResults, this.captures.get(0));
-		this.tabOnlyGastric.displayTimeIngestion(getModel().getFirstImage().getDateAcquisition());
-		this.fenResults.addTab(tabOnlyGastric);
-		// Set the best fit
-		this.fitBest(COMMAND_FIT_BEST_2);
 
 		this.fenResults.pack();
 		this.fenResults.setVisible(true);
@@ -253,9 +259,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		} else {
 			this.generateInstructionsBothMethods();
 		}
-
-		// Update view
-		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	@Override

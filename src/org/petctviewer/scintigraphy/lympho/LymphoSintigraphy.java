@@ -46,8 +46,10 @@ public class LymphoSintigraphy extends Scintigraphy {
 			}
 
 			impsSortedAntPost[i] = impSorted;
-			selectedImages[i].getImagePlus().close();
 		}
+		
+		for(ImageSelection selected : selectedImages)
+			selected.close();
 
 		ImageSelection[] impsCorrectedByTime = new ImageSelection[impsSortedAntPost.length];
 		if (DynamicPosition != -1) {

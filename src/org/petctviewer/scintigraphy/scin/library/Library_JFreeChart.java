@@ -4,7 +4,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
@@ -14,8 +13,8 @@ import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.gastric.Fit;
 import org.petctviewer.scintigraphy.gastric.Unit;
-import org.petctviewer.scintigraphy.gastric.gui.Fit;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -134,9 +133,8 @@ public class Library_JFreeChart {
 		Double airePt1 = croppedSeries.getX(0).doubleValue() * croppedSeries.getY(0).doubleValue() / 2;
 		integrale.add(airePt1);
 		for (int i = 0; i < croppedSeries.getItemCount() - 1; i++) {
-			Double aire = ((croppedSeries.getX(i + 1).doubleValue() - croppedSeries.getX(i)
-					.doubleValue()) * (croppedSeries.getY(i).doubleValue() + croppedSeries.getY(i + 1)
-					.doubleValue())) / 2;
+			Double aire = ((croppedSeries.getX(i + 1).doubleValue() - croppedSeries.getX(i).doubleValue()) *
+					(croppedSeries.getY(i).doubleValue() + croppedSeries.getY(i + 1).doubleValue())) / 2;
 			integrale.add(aire);
 		}
 
@@ -178,8 +176,8 @@ public class Library_JFreeChart {
 		}
 
 		// on cree un jfreehart avec lle datasert precedemment construit
-		JFreeChart xylineChart = ChartFactory
-				.createXYLineChart("", "min", "counts/sec", dataset, PlotOrientation.VERTICAL, true, true, true);
+		JFreeChart xylineChart = ChartFactory.createXYLineChart("", "min", "counts/sec", dataset,
+																PlotOrientation.VERTICAL, true, true, true);
 
 		final XYPlot plot = xylineChart.getXYPlot();
 
@@ -330,17 +328,35 @@ public class Library_JFreeChart {
 	 * @param color      Color of each series
 	 * @param title      Title of the graph
 	 * @param dataset    Dataset used to plot the points
-	 * @param upperBound The upper axis limit
 	 * @return ImagePlus containing the graphic
 	 */
+	@SuppressWarnings("unchecked")
 	public static ChartPanel createGraph(String xAxisLabel, String yAxisLabel, Color[] color, String title,
-	                                     XYDataset dataset, double upperBound) {
-		JFreeChart xylineChart = ChartFactory
-				.createXYLineChart(title, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL, true, true, true);
+										 XYDataset dataset) {
+		JFreeChart xylineChart = ChartFactory.createXYLineChart(title, xAxisLabel, yAxisLabel, dataset,
+																PlotOrientation.VERTICAL, true, true, true);
 
 		XYPlot plot = (XYPlot) xylineChart.getPlot();
 		// Background
 		plot.setBackgroundPaint(Color.WHITE);
+
+
+		// Find lower and upper bounds
+		double upperBoundX = 0., upperBoundY = 0., lowerBoundX = 0., lowerBoundY = 0.;
+		for (XYSeries series : (List<XYSeries>) (((XYSeriesCollection) dataset).getSeries())) {
+			double maxX = series.getMaxX() * 1.1;
+			double minX = series.getMinX();
+			double maxY = series.getMaxY() * 1.1;
+			double minY = series.getMinY();
+
+			if (maxX > upperBoundX) upperBoundX = maxX;
+			if (minX < lowerBoundX) lowerBoundX = minX * 1.1;
+			if (maxY > upperBoundY) upperBoundY = maxY;
+			if (minY < lowerBoundY) lowerBoundY = minY * 1.1;
+		}
+		// At least 1 of range
+		if (upperBoundX == lowerBoundX) upperBoundX += 1.;
+		if (upperBoundY == lowerBoundY) upperBoundY += 1.;
 
 		// XYLineAndShapeRenderer
 		// reference:
@@ -354,21 +370,22 @@ public class Library_JFreeChart {
 		plot.setRenderer(lineAndShapeRenderer);
 		// XAxis
 		NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
-		domainAxis.setRange(0.00, 360.00);
-		domainAxis.setTickUnit(new NumberTickUnit(30.00));
+		domainAxis.setRange(lowerBoundX, upperBoundX);
 		domainAxis.setTickMarkStroke(new BasicStroke(2.5F));
 		domainAxis.setLabelFont(new Font("", Font.BOLD, 16));
 		domainAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
 		// YAxis
 		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-		rangeAxis.setRange(0.00, upperBound);
+		rangeAxis.setRange(lowerBoundY, upperBoundY);
 		rangeAxis.setTickMarkStroke(new BasicStroke(2.5F));
 		rangeAxis.setLabelFont(new Font("", Font.BOLD, 16));
 		rangeAxis.setTickLabelFont(new Font("", Font.BOLD, 12));
 		// Grid
 		plot.setDomainGridlinesVisible(false);
 
-		return new ChartPanel(xylineChart);
+		ChartPanel chartPanel = new ChartPanel(xylineChart);
+		chartPanel.setPreferredSize(new Dimension(200, 200));
+		return chartPanel;
 	}
 
 	/**

@@ -10,7 +10,7 @@ public class DrawRoiBackground extends DrawRoiInstruction {
 
 	private static final long serialVersionUID = 1L;
 
-	private final transient DrawRoiInstruction dri_1;
+	private final transient DrawRoiInstruction dri_reference;
 
 	private final transient ModelScin model;
 
@@ -30,7 +30,7 @@ public class DrawRoiBackground extends DrawRoiInstruction {
 	 */
 	public DrawRoiBackground(String organToDelimit, ImageState state, DrawRoiInstruction roi1, ModelScin model) {
 		super(organToDelimit, state);
-		this.dri_1 = roi1;
+		this.dri_reference = roi1;
 		this.model = model;
 		
 		this.InstructionType = DrawInstructionType.DRAW_ROI_BACKGROUND;
@@ -55,16 +55,16 @@ public class DrawRoiBackground extends DrawRoiInstruction {
 	public DrawRoiBackground(String organToDelimit, ImageState state, DrawRoiInstruction roi1, ModelScin model,
 			String roiName) {
 		super(organToDelimit, state, roiName);
-		this.dri_1 = roi1;
+		this.dri_reference = roi1;
 		this.model = model;
 	}
 
 	@Override
 	public void afterNext(ControllerWorkflow controller) {
 		super.afterNext(controller);
-		Roi r1 = this.model.getRoiManager().getRoi(this.dri_1.getRoiIndex());
-		controller.getModel().getImageSelection()[controller.getCurrentImageState().getIdImage()].getImagePlus()
-				.setRoi(Library_Roi.createBkgRoi(r1, this.model.getImagePlus(), Library_Roi.KIDNEY));
+		Roi r1 = this.model.getRoiManager().getRoi(this.dri_reference.getRoiIndex());
+		controller.getCurrentImageState().getImage().getImagePlus()
+				.setRoi(Library_Roi.createBkgRoi(r1, controller.getCurrentImageState().getImage().getImagePlus(), Library_Roi.KIDNEY));
 	}
 
 }

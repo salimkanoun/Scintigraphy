@@ -24,7 +24,6 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 	public ControllerWorkflowHepaticDyn(FenApplicationWorkflow vue, ModelScin model, TabResult resultTab) {
 		super(null, vue, model);
 
-		// TODO Auto-generated constructor stub
 		this.resultTab = resultTab;
 
 		this.generateInstructions();
@@ -61,8 +60,6 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 		this.workflows[0].addInstruction(dri_capture);
 
 		this.workflows[0].addInstruction(new EndInstruction());
-		
-		getVue().setNbInstructions(this.allInputInstructions().size());
 
 	}
 

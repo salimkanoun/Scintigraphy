@@ -36,7 +36,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 	private Model_PostMictional modelPostMictional;
 
 	public TabPostMict(Scintigraphy vue, FenResults parent) {
-		super("Post Mictional", vue, "postmict", parent);
+		super("Post Mictional", "postmict", parent);
 		this.bladder = Prefs.get("renal.bladder.preferred", true);
 		this.imgSelected = false;
 		this.examDone = false;
@@ -102,7 +102,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 
 			// Open DICOM dialog Selection to select post mictional image
 			// SK A REFACTORISER
-			FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", new Scintigraphy("") {
+			FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", new Scintigraphy("Post-mictional") {
 				@Override
 				public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 					if (selectedImages.length > 1) {
@@ -178,20 +178,6 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 		Model_Renal modele = (Model_Renal) this.parent.getModel();
 
 		HashMap<String, Double> data = model.getData();
-		
-		
-		
-//		ImagePlus newImagePlus = this.getImagePlus().duplicate();
-//		Library_Gui.initOverlay(newImagePlus);
-//		newImagePlus.getOverlay().clear();
-//		for(Roi roi: this.modelPostMictional.getRoiManager().getRoisAsArray())
-//			newImagePlus.getOverlay().add(roi);
-//		newImagePlus.show();
-//		this.setOnlyImp(newImagePlus);
-//		this.getResultContent().repaint();
-		
-		
-		
 
 		Double rg = null, rd = null;
 		int duration = Integer.parseInt(DicomTools.getTag(this.getImagePlus(), "0018,1242").trim());

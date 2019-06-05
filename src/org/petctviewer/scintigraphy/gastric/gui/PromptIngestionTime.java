@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.gastric;
+package org.petctviewer.scintigraphy.gastric.gui;
 
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptTime;
