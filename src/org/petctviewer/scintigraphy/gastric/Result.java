@@ -34,7 +34,7 @@ public class Result {
 	 */
 	public Result(String name, int methodNumber) {
 		this.name = name;
-		this.methodNumber = 1;
+		this.methodNumber = methodNumber;
 	}
 
 	/**
@@ -42,6 +42,11 @@ public class Result {
 	 */
 	public String getName() {
 		return this.name;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(name, methodNumber);
 	}
 
 	@Override
@@ -53,8 +58,8 @@ public class Result {
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(name, methodNumber);
+	public String toString() {
+		return getName();
 	}
 
 	/**
@@ -62,11 +67,6 @@ public class Result {
 	 */
 	public int getMethodNumber() {
 		return this.methodNumber;
-	}
-
-	@Override
-	public String toString() {
-		return getName();
 	}
 
 }

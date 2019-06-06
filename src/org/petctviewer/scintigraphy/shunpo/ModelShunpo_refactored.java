@@ -138,14 +138,15 @@ public class ModelShunpo_refactored extends ModelWorkflow {
 
 		// Pulmonary shunt
 		double pulmonaryShunt = (sumShunt * 100.) / (sumAvg * .38);
+		System.out.println("SumShunt=" + sumShunt + ";SumAvg=" + sumAvg + ";Result=" + pulmonaryShunt);
 		this.results.put(RES_PULMONARY_SHUNT.hashCode(), pulmonaryShunt);
+		System.out.println("Put(" + RES_PULMONARY_SHUNT.hashCode() + "," + pulmonaryShunt + ")");
 
 		// Pulmonary shunt - method 2
 		double lungAnt = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_RIGHT_LUNG, Data.DATA_ANT_COUNTS) + datas.get(
 				IMAGE_KIDNEY_LUNG).getAntValue(REGION_LEFT_LUNG, Data.DATA_ANT_COUNTS);
-		double lungPost =
-				datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_RIGHT_LUNG, Data.DATA_POST_COUNTS) + datas.get(
-				IMAGE_KIDNEY_LUNG).getPostValue(REGION_LEFT_LUNG, Data.DATA_POST_COUNTS);
+		double lungPost = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_RIGHT_LUNG, Data.DATA_POST_COUNTS) +
+				datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_LEFT_LUNG, Data.DATA_POST_COUNTS);
 		double lungGeo = Library_Quantif.moyGeom(lungAnt, lungPost);
 
 		double brainAnt = datas.get(IMAGE_BRAIN).getAntValue(REGION_BRAIN, Data.DATA_ANT_COUNTS);
@@ -153,6 +154,8 @@ public class ModelShunpo_refactored extends ModelWorkflow {
 		double brainGeo = Library_Quantif.moyGeom(brainAnt, brainPost);
 
 		double shunt = (brainGeo / .13) / ((brainGeo / .13) + lungGeo) * 100.;
+		System.out.println("BrainGeo=" + brainGeo + ";LungGeo=" + lungGeo + ";Result=" + shunt);
 		this.results.put(RES_PULMONARY_SHUNT_2.hashCode(), shunt);
+		System.out.println("Put(" + RES_PULMONARY_SHUNT_2.hashCode() + "," + shunt + ")");
 	}
 }
