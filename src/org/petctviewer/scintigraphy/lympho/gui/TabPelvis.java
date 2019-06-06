@@ -33,7 +33,7 @@ public class TabPelvis extends TabResult implements ActionListener {
 		if (!this.examDone) {
 			return null;
 		} else {
-			String[] result = ((ModelPelvis) this.vueBasic.getFenApplication().getControleur()
+			String[] result = ((ModelPelvis) this.vueBasic.getFenApplication().getController()
 					.getModel()).getResult();
 			JPanel res = new JPanel(new GridLayout(result.length, 1));
 			for (String s : result)
@@ -59,7 +59,7 @@ public class TabPelvis extends TabResult implements ActionListener {
 
 		} else {
 			return new DynamicImage(
-					((ModelPelvis) this.vueBasic.getFenApplication().getControleur().getModel())
+					((ModelPelvis) this.vueBasic.getFenApplication().getController().getModel())
 							.getPelvisMontage().getImage());
 		}
 

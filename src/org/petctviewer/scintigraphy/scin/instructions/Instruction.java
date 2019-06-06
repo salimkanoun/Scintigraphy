@@ -3,48 +3,23 @@ package org.petctviewer.scintigraphy.scin.instructions;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 
 /**
- * Represents an instruction in the workflow.
+ * Represents an instruction in the workflow.<br> An instruction is a brick used to build a program. Each instruction is
+ * an action made by the user or by the program.
  *
  * @author Titouan QUÉMA
  */
 public interface Instruction {
-	
-	
-	/**
-	 * This enum is use to save and load instructions that draw ROI.
-	 *
-	 */
-	enum DrawInstructionType {
-		
-		DRAW_ROI("DrawRoiInstruction"), 
-		DRAW_LOOP("DrawLoopInstruction"), 
-		DRAW_ROI_BACKGROUND("DrawRoiBackground"), 
-		DRAW_SYMMETRICAL("DrawSymmetricalRoiInstruction"), 
-		DRAW_SYMMETRICAL_LOOP("DrawSymmetricalLoopInstruction"),
-		CHECK_INTERSECTION("CheckIntersectionInstruction");
-		
-		private final String name;
-		
-		DrawInstructionType(String name) {
-			this.name = name;
-		}
-		
-		public String getName() {
-			return this.name;
-		}
-	}
+
 
 	/**
-	 * This method is called when this instruction is displayed in response to a
-	 * 'Next' click. <br>
-	 * At this stage, the controller has not yet started its work.
+	 * This method is called when this instruction is displayed in response to a 'Next' click. <br> At this stage, the
+	 * controller has not yet started its work.
 	 */
 	void prepareAsNext();
 
 	/**
-	 * This method is called when this instruction is displayed in response to a
-	 * 'Previous' click. <br>
-	 * At this stage, the controller has not yet started its work.
+	 * This method is called when this instruction is displayed in response to a 'Previous' click. <br> At this stage,
+	 * the controller has not yet started its work.
 	 */
 	void prepareAsPrevious();
 
@@ -58,9 +33,8 @@ public interface Instruction {
 	String getMessage();
 
 	/**
-	 * This method should return the name of the ROI that will be stored in the RoiManager.<br>
-	 * For example, if this Instruction delimit the brain, then this method should
-	 * return "Brain". <p>
+	 * This method should return the name of the ROI that will be stored in the RoiManager.<br> For example, if this
+	 * Instruction delimit the brain, then this method should return "Brain". <p>
 	 * <i>Ignored if {@link #saveRoi()} is FALSE</i><br>
 	 * If {@link #saveRoi()} is TRUE, this method <b>cannot</b> return null.
 	 * </p>
@@ -70,9 +44,9 @@ public interface Instruction {
 	String getRoiName();
 
 	/**
-	 * If an instruction expects an input from the user, then it will remain on this instruction util the user clicks
-	 * on the 'Next' button.<br>
-	 * If an instruction is not displayed to the user, then it will automatically go to the next
+	 * If an instruction expects an input from the user, then it will remain on this instruction util the user
+	 * clicks on
+	 * the 'Next' button.<br> If an instruction is not displayed to the user, then it will automatically go to the next
 	 * instruction without the user intervention.
 	 * <p>
 	 * <i>Ignored if {@link #isCancelled()} is TRUE</i>
@@ -98,8 +72,7 @@ public interface Instruction {
 
 	/**
 	 * If an instruction is cancelled, then the 'Next' button is not executed and the workflow stays on the same
-	 * instruction.<br>
-	 * When returning TRUE, please be careful to always leave a way out for the user.
+	 * instruction.<br> When returning TRUE, please be careful to always leave a way out for the user.
 	 *
 	 * @return TRUE if this instruction is cancelled and FALSE otherwise
 	 */
@@ -119,15 +92,14 @@ public interface Instruction {
 	 * <br>
 	 * <i>Ignored if {@link #saveRoi()} is FALSE</i>
 	 *
-	 * @return TRUE if the ROI saved by this instruction should be visible on the
-	 * overlay and FALSE otherwise
+	 * @return TRUE if the ROI saved by this instruction should be visible on the overlay and FALSE otherwise
 	 */
 	boolean isRoiVisible();
 
 	/**
-	 * State in which the ImagePlus must be on the screen when this instruction is displayed.<br>
-	 * If this method returns null, then the image will be in the state of the previous instruction (it is preferable
-	 * not to return null).<br>
+	 * State in which the ImagePlus must be on the screen when this instruction is displayed.<br> If this method
+	 * returns
+	 * null, then the image will be in the state of the previous instruction (it is preferable not to return null).<br>
 	 * If this instruction is the first of the workflow, then this method <b>cannot</b> return null!<br>
 	 * <i>Ignored if {@link #isCancelled()} is TRUE</i>
 	 *
@@ -136,23 +108,20 @@ public interface Instruction {
 	ImageState getImageState();
 
 	/**
-	 * This method is called after the 'Next' button has been clicked.<br>
-	 * At this stage, the controller has done its work. This is the last method called before waiting for another
-	 * user input.
+	 * This method is called after the 'Next' button has been clicked.<br> At this stage, the controller has done its
+	 * work. This is the last method called before waiting for another user input.
 	 */
 	void afterNext(ControllerWorkflow controller);
 
 	/**
-	 * This method is called after the 'Previous' button has been clicked.<br>
-	 * At this stage, the controller has done its work. This is the last method called before waiting for another
-	 * user input.
+	 * This method is called after the 'Previous' button has been clicked.<br> At this stage, the controller has done
+	 * its work. This is the last method called before waiting for another user input.
 	 */
 	void afterPrevious(ControllerWorkflow controller);
 
 	/**
 	 * Gets the ROI index of this instruction. This method must always be in coherence with the {@link #setRoi(int)}
-	 * method.<br>
-	 * You cannot assume the ROI index is a constant since the controller of the workflow can evolve.
+	 * method.<br> You cannot assume the ROI index is a constant since the controller of the workflow can evolve.
 	 * <i>Ignored if {@link #saveRoi()} is FALSE</i>
 	 *
 	 * @return index of the ROI to display or <0 if none

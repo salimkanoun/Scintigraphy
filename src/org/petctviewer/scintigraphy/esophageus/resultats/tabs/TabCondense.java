@@ -40,7 +40,7 @@ public class TabCondense extends TabResult implements ChangeListener {
 		this.nbAcquisition = nbAcquisition;
 
 //		this.createCaptureButton("Condense");
-		this.setadditionalInfo("Condense");
+		this.setAdditionalInfo("Condense");
 
 		this.reloadDisplay();
 

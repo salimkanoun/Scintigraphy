@@ -3,7 +3,7 @@ package org.petctviewer.scintigraphy.scin.gui;
 import javax.swing.*;
 import java.awt.*;
 
-/*
+/**
  *  Support custom painting on a panel in the form of
  *
  *  a) images - that can be scaled, tiled or painted at original size
@@ -13,9 +13,6 @@ import java.awt.*;
  *  non-opaque so that the custom painting can show through.
  */
 public class DynamicImage extends JPanel {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	public static final int SCALED = 0, SCALED_KEEPRATIO = 3, TILED = 1, ACTUAL = 2; //affichage
@@ -35,10 +32,6 @@ public class DynamicImage extends JPanel {
 	 */
 	public DynamicImage(Image image) {
 		this(image, SCALED_KEEPRATIO);
-	}
-	
-	public void setInterpolation(Object interpolation) {
-		this.interpolation = interpolation;
 	}
 
 	/**

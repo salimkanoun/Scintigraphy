@@ -7,6 +7,7 @@ import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoiInstruction.Organ;
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
+import org.petctviewer.scintigraphy.scin.json.InstructionFromGson;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import java.awt.*;
@@ -36,7 +37,7 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 		this.RoiName = RoiName == null ? "" : RoiName;
 		this.drawRoi = true;
 
-		this.InstructionType = DrawInstructionType.DRAW_SYMMETRICAL_LOOP;
+		this.InstructionType = InstructionFromGson.DrawInstructionType.DRAW_SYMMETRICAL_LOOP;
 	}
 
 	@Override

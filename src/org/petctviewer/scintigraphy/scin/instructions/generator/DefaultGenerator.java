@@ -6,8 +6,12 @@ import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 
 import java.io.Serializable;
 
+/**
+ * This class is a default implementation of the {@link GeneratorInstruction} interface.
+ *
+ * @author Titouan QUÉMA
+ */
 public abstract class DefaultGenerator implements GeneratorInstruction, Serializable {
-
 	private static final long serialVersionUID = 1L;
 
 	protected final transient Workflow workflow;
@@ -17,16 +21,24 @@ public abstract class DefaultGenerator implements GeneratorInstruction, Serializ
 
 	protected boolean isStopped;
 
+	/**
+	 * This constructor can only be used if this is the first instruction of the generator.
+	 *
+	 * @param workflow Workflow where this instruction is inserted
+	 */
 	public DefaultGenerator(Workflow workflow) {
 		this(workflow, null);
 	}
 
+	/**
+	 * @param workflow Workflow where this instruction is inserted
+	 * @param parent   Parent of this generated instruction (or null if this is the first instruction)
+	 */
 	public DefaultGenerator(Workflow workflow, GeneratorInstruction parent) {
 		this.workflow = workflow;
 		this.isStopped = false;
 
-		if (parent != null)
-			this.indexLoop = parent.getIndex() + 1;
+		if (parent != null) this.indexLoop = parent.getIndex() + 1;
 		this.parent = parent;
 	}
 
@@ -91,6 +103,11 @@ public abstract class DefaultGenerator implements GeneratorInstruction, Serializ
 	}
 
 	@Override
+	public int getIndex() {
+		return this.indexLoop;
+	}
+
+	@Override
 	public GeneratorInstruction getParent() {
 		return this.parent;
 	}
@@ -103,15 +120,6 @@ public abstract class DefaultGenerator implements GeneratorInstruction, Serializ
 	@Override
 	public void activate() {
 		this.isStopped = false;
-	}
-
-	@Override
-	public int getIndex() {
-		return this.indexLoop;
-	}
-	
-	public boolean isStopped() {
-		return this.isStopped;
 	}
 
 }

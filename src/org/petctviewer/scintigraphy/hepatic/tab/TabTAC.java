@@ -47,7 +47,7 @@ public class TabTAC {
 
 		this.tab = tab;
 
-		this.studyName = ((TabCurves) this.tab).getFenApplication().getControleur().getModel().getStudyName();
+		this.studyName = ((TabCurves) this.tab).getFenApplication().getController().getModel().getStudyName();
 
 		this.reloadDisplay();
 
@@ -56,7 +56,7 @@ public class TabTAC {
 	public JPanel getResultContent() {
 		if (!singleGraph) {
 			ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
-					.getFenApplication().getControleur().getModel();
+					.getFenApplication().getController().getModel();
 
 			JPanel grid = new JPanel(new GridLayout(2, 2));
 
@@ -96,7 +96,7 @@ public class TabTAC {
 			return grid;
 		} else {
 			ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
-					.getFenApplication().getControleur().getModel();
+					.getFenApplication().getController().getModel();
 
 			XYSeriesCollection data = new XYSeriesCollection();
 			data.addSeries(modele.getSerie("Duodenom"));

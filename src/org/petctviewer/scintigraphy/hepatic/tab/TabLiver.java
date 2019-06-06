@@ -37,7 +37,7 @@ public class TabLiver {
 
 	public JPanel getResultContent() {
 		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
-				.getFenApplication().getControleur().getModel();
+				.getFenApplication().getController().getModel();
 		List<XYSeries> series = modele.getSeries();
 
 //		chartVasculaire.setPreferredSize(new Dimension(1000, 650));

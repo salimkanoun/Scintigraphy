@@ -5,6 +5,7 @@ import ij.plugin.RoiScaler;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
+import org.petctviewer.scintigraphy.scin.json.InstructionFromGson;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import java.awt.*;
@@ -31,7 +32,7 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 		this.dri_1 = instructionToCopy;
 		this.organToDelimit = organToDelimit;
 		
-		this.InstructionType = DrawInstructionType.DRAW_SYMMETRICAL;
+		this.InstructionType = InstructionFromGson.DrawInstructionType.DRAW_SYMMETRICAL;
 	}
 
 	@Override

@@ -17,15 +17,10 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 
 /**
- * This class is the main window of the program and handles all of the inputs
- * from the user. It extends the FenApplication.<br>
- * This class adds a scrollbar under the image to navigate through all of the
- * visible instructions of the workflow.<br>
- * If you do not want to use this functionality but still need to use a
- * workflow, then you can disable it by calling
- * {@link #setVisualizationEnable(boolean)} and setting it to FALSE.<br>
- * If you want this functionality, then you need to call the
- * {@link #setNbInstructions(int)} method to correctly initialize the scrollbar.
+ * This class is the main window of the program and handles all of the inputs from the user. It extends the
+ * FenApplication.<br> This class adds a scrollbar under the image to navigate through all of the visible instructions
+ * of the workflow.<br> If you do not want to use this functionality but still need to use a workflow, then you can
+ * disable it by calling {@link #setVisualizationEnable(boolean)} and setting it to FALSE.
  *
  * @author Titouan QUÉMA
  */
@@ -37,8 +32,8 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	private ImageSelection imageSelection;
 
 	/**
-	 * Instantiates a new application window. This constructor enables by default
-	 * the scrollbar visualization of the workflow.
+	 * Instantiates a new application window. This constructor enables by default the scrollbar visualization of the
+	 * workflow.
 	 *
 	 * @param ims       Image displayed in this application
 	 * @param studyName Name of the study
@@ -55,8 +50,6 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 		this.scroll.setUnitIncrement(1);
 		this.scroll.setValues(1, 1, 1, 1);
 
-//		this.addMouseWheelListener(this);
-
 		// Enable visualization by default
 		this.setVisualizationEnable(true);
 
@@ -67,8 +60,8 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	}
 
 	private void addControllerListeners() {
-		if (this.getControleur() != null) {
-			ControllerWorkflow controller = (ControllerWorkflow) this.getControleur();
+		if (this.getController() != null) {
+			ControllerWorkflow controller = (ControllerWorkflow) this.getController();
 			this.scroll.addAdjustmentListener(controller);
 			if (this.isVisualizationEnabled()) this.addMouseWheelListener(controller);
 		}
@@ -77,8 +70,8 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	/**
 	 * Enables or disables the visualization functionality.
 	 *
-	 * @param state if TRUE the scrollbar for the visualization is displayed and if
-	 *              set to FALSE, then the scrollbar displayed is the one of IJ
+	 * @param state if TRUE the scrollbar for the visualization is displayed and if set to FALSE, then the scrollbar
+	 *              displayed is the one of IJ
 	 */
 	public void setVisualizationEnable(boolean state) {
 		if (state) {
@@ -102,8 +95,8 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 			this.panelContainer.remove(scroll);
 
 			// Remove listeners
-			if (this.getControleur() != null) {
-				ControllerWorkflow controller = (ControllerWorkflow) this.getControleur();
+			if (this.getController() != null) {
+				ControllerWorkflow controller = (ControllerWorkflow) this.getController();
 				this.scroll.removeAdjustmentListener(controller);
 				this.removeMouseWheelListener(controller);
 			}
@@ -142,8 +135,8 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	}
 
 	/**
-	 * Sets the current instruction selected by the scrollbar. The value should be
-	 * less or equals than the maximum value.
+	 * Sets the current instruction selected by the scrollbar. The value should be less or equals than the maximum
+	 * value.
 	 *
 	 * @param value Index of the instruction
 	 */
@@ -161,8 +154,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	}
 
 	/**
-	 * Actualize the message and color of the tool tip displayed when moving the
-	 * scroll.
+	 * Actualize the message and color of the tool tip displayed when moving the scroll.
 	 */
 	public void displayScrollToolTip(String message, Color color) {
 		// Change message
@@ -184,8 +176,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	/**
 	 * Enables or disables the 'Next' button.
 	 *
-	 * @param state if TRUE the 'Next' button can be clicked on and if set to FALSE,
-	 *              then the button cannot be clicked
+	 * @param state if TRUE the 'Next' button can be clicked on and if set to FALSE, then the button cannot be clicked
 	 */
 	public void setEnableNext(boolean state) {
 		this.btn_suivant.setEnabled(state);
@@ -194,8 +185,8 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	/**
 	 * Enables or disables the 'Previous' button.
 	 *
-	 * @param state if TRUE the 'Previous' button can be clicked on and if set to
-	 *              FALSE, then the button cannot be clicked
+	 * @param state if TRUE the 'Previous' button can be clicked on and if set to FALSE, then the button cannot be
+	 *              clicked
 	 */
 	public void setEnablePrevious(boolean state) {
 		this.btn_precedent.setEnabled(state);
@@ -229,62 +220,9 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 		super.setImage(imp);
 	}
 
-	/**
-	 * Checks if the specified button is the 'Next' button of this view.
-	 *
-	 * @param btn Button to check
-	 * @return TRUE if this is the 'Next' button and FALSE otherwise
-	 */
-	public boolean isButtonNext(Button btn) {
-		return this.matchComponent(btn, UI_Element.BUTTON_NEXT);
-	}
-
-	/**
-	 * Checks if the specified button is the 'Previous' button of this view.
-	 *
-	 * @param btn Button to check
-	 * @return TRUE if this is the 'Previous' button and FALSE otherwise
-	 */
-	public boolean isButtonPrevious(Button btn) {
-		return this.matchComponent(btn, UI_Element.BUTTON_PREVIOUS);
-	}
-
-	/**
-	 * Checks if the specified component matches the specified element of this view.
-	 *
-	 * @param component Component to check
-	 * @param element   Element the component should be equal
-	 * @return TRUE if the specified component is the element in this view and FALSE
-	 * otherwise
-	 */
-	private boolean matchComponent(Component component, UI_Element element) {
-		Button btn = this.getButton(element);
-		if (btn != null) return btn == component;
-		return false;
-	}
-
-	/**
-	 * Gets the button of this view represented by the specified element.<br>
-	 * If the element is not a button, then null is returned.
-	 *
-	 * @param element Button to get
-	 * @return button represented by the element or null if element is not a button
-	 */
-	private Button getButton(UI_Element element) {
-		switch (element) {
-			case BUTTON_CONTRAST:
-				return this.btn_contrast;
-			case BUTTON_DRAW_ROI:
-				return this.btn_drawROI;
-			case BUTTON_NEXT:
-				return this.btn_suivant;
-			case BUTTON_PREVIOUS:
-				return this.btn_precedent;
-			case BUTTON_QUIT:
-				return this.btn_quitter;
-			default:
-				return null;
-		}
+	@Override
+	public ControllerWorkflow getController() {
+		return (ControllerWorkflow) super.getController();
 	}
 
 	@Override
@@ -311,14 +249,10 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	}
 
 	@Override
-	public void mouseMoved(MouseEvent e) {
-
-	}
+	public void mouseMoved(MouseEvent e) {}
 
 	@Override
-	public void mouseClicked(MouseEvent e) {
-
-	}
+	public void mouseClicked(MouseEvent e) {}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
@@ -331,20 +265,15 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	}
 
 	@Override
-	public void mouseEntered(MouseEvent e) {
-
-	}
+	public void mouseEntered(MouseEvent e) {}
 
 	@Override
-	public void mouseExited(MouseEvent e) {
-
-	}
+	public void mouseExited(MouseEvent e) {}
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		if(this.isVisualizationEnabled()) {
-			// This code comes from IJ, it was paste here to keep the zoom functionality
-			// available
+		if (this.isVisualizationEnabled()) {
+			// This code comes from IJ, it was paste here to keep only the zoom functionality available
 			int rotation = e.getWheelRotation();
 			boolean ctrl = (e.getModifiers() & Event.CTRL_MASK) != 0;
 			if ((ctrl || IJ.shiftKeyDown()) && ic != null) {
@@ -357,10 +286,6 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 		} else {
 			super.mouseWheelMoved(e);
 		}
-	}
-
-	public enum UI_Element {
-		BUTTON_NEXT, BUTTON_PREVIOUS, BUTTON_DRAW_ROI, BUTTON_QUIT, BUTTON_CONTRAST
 	}
 
 }

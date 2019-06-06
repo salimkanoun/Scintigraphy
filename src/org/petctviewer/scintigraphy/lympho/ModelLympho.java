@@ -216,7 +216,7 @@ public class ModelLympho extends ModelScin {
 		if (this.resutlTab != null)
 			if (((TabPelvis) this.resutlTab).getVueBasic() != null)
 				s += ((ModelPelvis) ((TabPelvis) this.resutlTab).getVueBasic().getFenApplication()
-						.getControleur().getModel()).toCSV();
+						.getController().getModel()).toCSV();
 
 		s += super.toString();
 

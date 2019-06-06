@@ -8,13 +8,19 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class is used to display all the information needed for the documentation. Some pre-defined fields have been
+ * defined, like the designer, the developer of the application or links to the online documentation and youtube
+ * demonstration.<br> If needed, other fields can be created using the {@link #createField(FieldType, String, String,
+ * String)} method.
+ *
+ * @author Titouan QUÉMA
+ */
 public class DocumentationDialog extends JDialog {
-
-	private static final long serialVersionUID = 1L;
 
 	public final static String FIELD_DESIGNER = "designer", FIELD_DEVELOPER = "developer", FIELD_REFERENCE =
 			"reference", FIELD_DOC = "documentation", FIELD_YOUTUBE = "youtube";
-
+	private static final long serialVersionUID = 1L;
 	private final Map<String, JComponent[]> fields;
 	private final JPanel panel;
 
@@ -89,10 +95,11 @@ public class DocumentationDialog extends JDialog {
 	}
 
 	/**
-	 * Creates a field with the specified ID.<br>
-	 * A field is composed of a label and a value. For instance: "<i>Designed by:</i> <b>Jack</b>"<br>
-	 * If the value is null or empty, then this method is equal to {@link #removeField(String)}.<br>
-	 * This method should be used if the default fields are not enough for the documentation.
+	 * Creates a field with the specified ID.<br> A field is composed of a label and a value. For instance:
+	 * "<i>Designed
+	 * by:</i> <b>Jack</b>"<br> If the value is null or empty, then this method is equal to {@link
+	 * #removeField(String)}.<br> This method should be used if the default fields are not enough for the
+	 * documentation.
 	 *
 	 * @param type    Type of the field to create
 	 * @param fieldId ID of the field (unique)
@@ -115,7 +122,7 @@ public class DocumentationDialog extends JDialog {
 		} else if (type == FieldType.LINK) {
 			try {
 				val = new Link(value, new URI(value));
-			} catch(URISyntaxException e) {
+			} catch (URISyntaxException e) {
 				System.err.println("URI is wrong");
 				val = new JLabel(value);
 			}
@@ -144,6 +151,13 @@ public class DocumentationDialog extends JDialog {
 		}
 	}
 
+	/**
+	 * Types of field that can be used for the documentation.<br>
+	 * <ul>
+	 * <li>TEXT field is equivalent to JLabel</li>
+	 * <li>LINK field is equivalent to Link button</li>
+	 * </ul>
+	 */
 	public enum FieldType {
 		TEXT, LINK
 	}

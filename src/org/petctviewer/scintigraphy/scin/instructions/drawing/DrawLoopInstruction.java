@@ -5,12 +5,13 @@ import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
+import org.petctviewer.scintigraphy.scin.json.InstructionFromGson;
 
 public class DrawLoopInstruction extends DefaultGenerator {
 
 	private static final long serialVersionUID = 1L;
 
-	protected DrawInstructionType InstructionType = DrawInstructionType.DRAW_LOOP;
+	protected InstructionFromGson.DrawInstructionType InstructionType = InstructionFromGson.DrawInstructionType.DRAW_LOOP;
 
 	private int indexRoiToDisplay;
 

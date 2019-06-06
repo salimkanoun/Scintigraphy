@@ -145,7 +145,7 @@ public class ModelHepaticDynamic extends ModelScinDyn {
 
 		if (examDone)
 			s += ((ModelSecondMethodHepaticDynamic) ((TabCurves) this.resutlTab)
-					.getFenApplication().getControleur().getModel()).toCSV();
+					.getFenApplication().getController().getModel()).toCSV();
 
 		s += super.toString();
 

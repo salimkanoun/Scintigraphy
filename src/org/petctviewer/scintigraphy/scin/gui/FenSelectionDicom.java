@@ -28,10 +28,9 @@ import java.util.List;
 import java.util.*;
 
 /**
- * Window to select DICOM files. The list of DICOM files can add informations on
- * the files to be selected.
+ * Window to select DICOM files. The list of DICOM files can add information on the files to be selected.
  *
- * @author Titouan QUÉMA
+ * @author Titouan QUÉMA - Restructuration and amerlioration of the code
  */
 public class FenSelectionDicom extends JFrame implements ActionListener, ImageListener, WindowListener {
 	private static final long serialVersionUID = 6706629497515318270L;
@@ -43,13 +42,10 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	private List<Column> columns;
 
 	/**
-	 * Permet de selectionner les dicom utilisees par le plugin
-	 *
-	 * @param examType : type d'examen
-	 * @param scin     : scintigraphie a demarrer quand les dicoms sont selectionnes
+	 * @param main Program to launch once the images are selected
 	 */
-	public FenSelectionDicom(String examType, Scintigraphy scin) {
-		this.scin = scin;
+	public FenSelectionDicom(Scintigraphy main) {
+		this.scin = main;
 		ImagePlus.addImageListener(this);
 		this.columns = new ArrayList<>();
 
@@ -82,7 +78,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 		panel.add(tablePane, BorderLayout.CENTER);
 
-		panel.add(new JLabel("Select the dicoms for " + examType), BorderLayout.NORTH);
+		panel.add(new JLabel("Select the DICOMs for " + main.getStudyName()), BorderLayout.NORTH);
 
 		jp.add(btn_select);
 		jp.add(this.btn_selectAll);
@@ -116,7 +112,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 				manifacturer.setCellEditor(celleditor);
 			}
 			// TODO: remove this and use TableModel to do it properly
-			if(!col.isVisible()) {
+			if (!col.isVisible()) {
 				this.table.getColumnModel().getColumn(0).setMinWidth(0);
 				this.table.getColumnModel().getColumn(0).setMaxWidth(0);
 			}
@@ -124,11 +120,6 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		resizeColumnWidth(table);
 	}
 
-	public int countVisibleColumns() {
-		return (int) this.columns.stream().filter(c -> c.visible).count();
-	}
-
-	// TODO: Do not assume that index of rows matches the ID of the image in the WindowManager!
 	private List<String[]> getTableData() {
 		List<String[]> data = new ArrayList<>(WindowManager.getImageCount());
 
@@ -180,8 +171,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 * <p>
 	 *
 	 * @param imp Image to analyze
-	 * @return Orientation of the image (UNKNOWN if the orientation could not be
-	 * determined)
+	 * @return Orientation of the image (UNKNOWN if the orientation could not be determined)
 	 */
 	private Orientation determineImageOrientation(ImagePlus imp) throws ReadTagException {
 
@@ -230,9 +220,8 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			TableCellRenderer renderer;
 			for (int row = 0; row < table.getRowCount(); row++) {
 				renderer = table.getCellRenderer(row, col);
-				Component component =
-						renderer.getTableCellRendererComponent(table, table.getValueAt(row, col), false, false, row,
-								col);
+				Component component = renderer.getTableCellRendererComponent(table, table.getValueAt(row, col), false,
+																			 false, row, col);
 				width = Math.max(width, component.getPreferredSize().width);
 			}
 			column.setPreferredWidth(width + 2);
@@ -274,18 +263,22 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			for (Column column : this.columns) {
 				String value = ims.getValue(column.getName());
 				if (!column.isAuthorizedValue(value)) throw new WrongColumnException(column, ims.getRow(),
-						"The value " + value + " is incorrect, it must be one of: " +
-								Arrays.toString(column.getAuthorizedValues()));
+																					 "The value " + value +
+																							 " is incorrect, it must" +
+																							 " " +
+																							 "be one of: " +
+																							 Arrays.toString(
+																									 column.getAuthorizedValues()));
 			}
 		}
 	}
 
 	/**
-	 * Checks that all selected images are for the same patient (id and name). If
-	 * not, the user can override the process.
+	 * Checks that all selected images are for the same patient (id and name). If not, the user can override the
+	 * process.
 	 *
-	 * @throws WrongInputException if selected images belong to multiple patient and
-	 *                             the user do not override the process
+	 * @throws WrongInputException if selected images belong to multiple patient and the user do not override the
+	 *                             process
 	 */
 	private void checkSamePatient(ImageSelection[] selectedImages) throws WrongInputException {
 		Set<String> patientIds = new HashSet<>();
@@ -302,7 +295,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			String message = "Selected images might belong to different patient:\nDifferent IDs: " + patientIds +
 					"\nDifferent Names: " + patientNames + "\n\nWould you like to continue?";
 			result = JOptionPane.showConfirmDialog(this, message, "Multiple patient found", JOptionPane.YES_NO_OPTION,
-					JOptionPane.WARNING_MESSAGE);
+												   JOptionPane.WARNING_MESSAGE);
 		}
 
 		if (result != JOptionPane.YES_OPTION) throw new WrongInputException("Images belong to multiple patients");
@@ -328,8 +321,8 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			String[] columns = new String[this.columns.size()];
 			for (int idCol = 0; idCol < columns.length; idCol++)
 				columns[idCol] = this.columns.get(idCol).getName();
-			selectedImages[i] =
-					new ImageSelection(WindowManager.getImage(Integer.parseInt(values[0])), columns, values);
+			selectedImages[i] = new ImageSelection(WindowManager.getImage(Integer.parseInt(values[0])), columns,
+												   values);
 			// TODO: do not add row here, use the invisible columns
 			selectedImages[i].setRow(row + 1);
 		}
@@ -338,11 +331,10 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	}
 
 	/**
-	 * This method starts the exam by calling the <code>lancerProgramme()</code>
-	 * method on {@link Scintigraphy}.
+	 * This method starts the exam by calling the <code>lancerProgramme()</code> method on {@link Scintigraphy}.
 	 *
-	 * @param selectedImages Images selected by the user (at this point, they are
-	 *                       not conform to the Controller's requirements)
+	 * @param selectedImages Images selected by the user (at this point, they are not conform to the Controller's
+	 *                       requirements)
 	 */
 	private void startExam(ImageSelection[] selectedImages) {
 		try {
@@ -354,11 +346,10 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			}
 		} catch (WrongInputException e) {
 			JOptionPane.showMessageDialog(this, "Error while selecting images:\n" + e.getMessage(), "Selection error",
-					JOptionPane.ERROR_MESSAGE);
+										  JOptionPane.ERROR_MESSAGE);
 		} catch (ReadTagException e) {
-			JOptionPane.showMessageDialog(this,
-					"Error while preparing images.\nThe tag for " + e.getTagName() + " [" + e.getTagCode() + "] " +
-							"could" + " not be found.\n" + e.getMessage());
+			JOptionPane.showMessageDialog(this, "Error while preparing images.\nThe tag for " + e.getTagName() + " [" +
+					e.getTagCode() + "] " + "could" + " not be found.\n" + e.getMessage());
 		}
 	}
 
@@ -424,10 +415,9 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 * Represents a column for the selection table.
 	 */
 	public static class Column {
-		public static final Column PATIENT = new Column("Patient"), STUDY = new Column("Study"), DATE =
-				new Column("Date"), SERIES = new Column("Series"), DIMENSIONS = new Column("Dimensions"), STACK_SIZE =
-				new Column("Stack Size"), ORIENTATION, ROW = new Column("Index", null, false), ID = new Column("ID",
-				null, false);
+		public static final Column PATIENT = new Column("Patient"), STUDY = new Column("Study"), DATE = new Column(
+				"Date"), SERIES = new Column("Series"), DIMENSIONS = new Column("Dimensions"), STACK_SIZE = new Column(
+				"Stack Size"), ORIENTATION, ROW = new Column("Index", null, false), ID = new Column("ID", null, false);
 
 		static {
 			String[] s = Orientation.allOrientations();
@@ -439,17 +429,15 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		private boolean visible;
 
 		/**
-		 * Creates a new column with the specified name. The authorized values are
-		 * displayed as a list for the user to choose from. <br>
-		 * If the authorized value is empty, then no value will be authorized. If the
-		 * authorized value is null, then all values will be authorized.
+		 * Creates a new column with the specified name. The authorized values are displayed as a list for the user to
+		 * choose from. <br> If the authorized value is empty, then no value will be authorized. If the authorized
+		 * value
+		 * is null, then all values will be authorized.
 		 *
 		 * @param name             Name of the column (shown in the header of the table)
-		 * @param authorizedValues Possible values for the user to choose from. Null
-		 *                         means all values authorized. Empty means no values
-		 *                         authorized
-		 * @param visible          TRUE if the column should be visible and FALSE if the
-		 *                         column should be hidden
+		 * @param authorizedValues Possible values for the user to choose from. Null means all values authorized. Empty
+		 *                         means no values authorized
+		 * @param visible          TRUE if the column should be visible and FALSE if the column should be hidden
 		 */
 		public Column(String name, String[] authorizedValues, boolean visible) {
 			this.name = name;
@@ -458,15 +446,14 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		}
 
 		/**
-		 * Creates a new column with the specified name. The authorized values are
-		 * displayed as a list for the user to choose from. <br>
-		 * If the authorized value is empty, then no value will be authorized. If the
-		 * authorized value is null, then all values will be authorized.
+		 * Creates a new column with the specified name. The authorized values are displayed as a list for the user to
+		 * choose from. <br> If the authorized value is empty, then no value will be authorized. If the authorized
+		 * value
+		 * is null, then all values will be authorized.
 		 *
 		 * @param name             Name of the column (shown in the header of the table)
-		 * @param authorizedValues Possible values for the user to choose from. Null
-		 *                         means all values authorized. Empty means no values
-		 *                         authorized
+		 * @param authorizedValues Possible values for the user to choose from. Null means all values authorized. Empty
+		 *                         means no values authorized
 		 */
 		public Column(String name, String[] authorizedValues) {
 			this(name, authorizedValues, true);
@@ -494,13 +481,12 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		}
 
 		/**
-		 * Checks if the specified value matches any of the authorized value defined by
-		 * the column. If no authorized values are defined, then this method will always
-		 * return TRUE.
+		 * Checks if the specified value matches any of the authorized value defined by the column. If no authorized
+		 * values are defined, then this method will always return TRUE.
 		 *
 		 * @param value Value to check
-		 * @return TRUE if the value matches at least one authorized value or if there
-		 * is no authorized value defined and FALSE otherwise
+		 * @return TRUE if the value matches at least one authorized value or if there is no authorized value defined
+		 * and FALSE otherwise
 		 */
 		public boolean isAuthorizedValue(String value) {
 			if (this.authorizedValues == null) return true;
@@ -519,8 +505,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		}
 
 		/**
-		 * @return array of authorized values (this method can return null if there is
-		 * no restriction on the values)
+		 * @return array of authorized values (this method can return null if there is no restriction on the values)
 		 */
 		public String[] getAuthorizedValues() {
 			return this.authorizedValues;

@@ -51,7 +51,7 @@ public class DoubleImageThread extends Thread{
 		
 		//ouverture de la fenetre de resultat
 		FenResults fenResults = new FenResultat_ScinStatic(impRes.getBufferedImage(),
-				this.scin.getFenApplication().getControleur());
+				this.scin.getFenApplication().getController());
 		fenResults.setVisible(true);
 	}
 	

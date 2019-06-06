@@ -228,7 +228,7 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 
 	public JPanel sidePanelClassical() {
 		JPanel resultPane = new JPanel(new GridLayout(0, 2));
-		HashMap<String, String> results = ((ModelSecondMethodHepaticDynamic) this.vueBasic.getControleur().getModel())
+		HashMap<String, String> results = ((ModelSecondMethodHepaticDynamic) this.vueBasic.getController().getModel())
 				.getResultsHashMap();
 		String[] keys = { "T1/2 Righ Liver", "", "Maximum Right Liver", "end/max Ratio Right", "T1/2 Left Liver", "",
 				"Maximum Left Liver", "end/max Ratio Left", "T1/2 Blood pool", "", "Blood pool ratio 20mn/5mn" };

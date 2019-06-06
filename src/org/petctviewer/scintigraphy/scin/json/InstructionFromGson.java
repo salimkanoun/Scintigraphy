@@ -37,4 +37,24 @@ public class InstructionFromGson {
 	public String getNameOfRoiFile() {
 		return this.NameOfRoiFile;
 	}
+
+	/**
+	 * This enum is use to save and load instructions that draw ROI.
+	 */
+	public enum DrawInstructionType {
+
+		DRAW_ROI("DrawRoiInstruction"), DRAW_LOOP("DrawLoopInstruction"), DRAW_ROI_BACKGROUND("DrawRoiBackground"),
+		DRAW_SYMMETRICAL("DrawSymmetricalRoiInstruction"), DRAW_SYMMETRICAL_LOOP("DrawSymmetricalLoopInstruction"),
+		CHECK_INTERSECTION("CheckIntersectionInstruction");
+
+		private final String name;
+
+		DrawInstructionType(String name) {
+			this.name = name;
+		}
+
+		public String getName() {
+			return this.name;
+		}
+	}
 }

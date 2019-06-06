@@ -213,7 +213,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		return this.getImagePlus().getOverlay();
 	}
 
-	public ControllerScin getControleur() {
+	public ControllerScin getController() {
 		return this.controleur;
 	}
 

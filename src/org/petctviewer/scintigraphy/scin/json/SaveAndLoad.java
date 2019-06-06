@@ -1,55 +1,6 @@
 package org.petctviewer.scintigraphy.scin.json;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
-
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-
-import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
-import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
-import org.petctviewer.scintigraphy.scin.instructions.Instruction;
-import org.petctviewer.scintigraphy.scin.instructions.Instruction.DrawInstructionType;
-import org.petctviewer.scintigraphy.scin.instructions.Workflow;
-import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawLoopInstruction;
-import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoopInstruction;
-import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.library.Library_Roi;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
-
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
+import com.google.gson.*;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.Prefs;
@@ -59,6 +10,28 @@ import ij.io.RoiEncoder;
 import ij.io.SaveDialog;
 import ij.plugin.frame.Recorder;
 import ij.plugin.frame.RoiManager;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
+import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
+import org.petctviewer.scintigraphy.scin.instructions.Instruction;
+import org.petctviewer.scintigraphy.scin.instructions.Workflow;
+import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawLoopInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoopInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * This class put together all saving method created for every exams.
@@ -592,21 +565,21 @@ public class SaveAndLoad {
 						// return null;
 						// }
 
-						if ((typeOfIntructionFromGson.equals(DrawInstructionType.DRAW_LOOP.getName()))
+						if ((typeOfIntructionFromGson.equals(InstructionFromGson.DrawInstructionType.DRAW_LOOP.getName()))
 								|| typeOfIntructionFromGson
-										.equals(DrawInstructionType.DRAW_SYMMETRICAL_LOOP.getName())) {
+										.equals(InstructionFromGson.DrawInstructionType.DRAW_SYMMETRICAL_LOOP.getName())) {
 							if (workflowsFromGson.getWorkflowAt(index).getInstructions().size() > specialIndex + 1) {
 								InstructionFromGson nextIntructionFromGson = workflowsFromGson.getWorkflowAt(index)
 										.getInstructionAt(specialIndex + 1);
 								String typeOfNextIntructionFromGson = nextIntructionFromGson.getInstructionType();
 
-								if (typeOfNextIntructionFromGson.equals(DrawInstructionType.DRAW_LOOP.getName()))
+								if (typeOfNextIntructionFromGson.equals(InstructionFromGson.DrawInstructionType.DRAW_LOOP.getName()))
 									controller.getWorkflows()[index].getInstructions().add(j + 1,
 											((DrawLoopInstruction) controller.getWorkflows()[index].getInstructionAt(j))
 													.generate());
 
 								else if (typeOfNextIntructionFromGson
-										.equals(DrawInstructionType.DRAW_SYMMETRICAL_LOOP.getName()))
+										.equals(InstructionFromGson.DrawInstructionType.DRAW_SYMMETRICAL_LOOP.getName()))
 									controller.getWorkflows()[index].getInstructions().add(j + 1,
 											((DrawSymmetricalLoopInstruction) controller.getWorkflows()[index]
 													.getInstructionAt(j)).generate());
@@ -665,8 +638,6 @@ public class SaveAndLoad {
 	 * to process.<br/>
 	 * This method needs, from the same .zip file, to find the associated .json file.<br/>
 	 * This file will be needed to get the order of ROIs saved in the .zip file.
-	 * 
-	 * @see {@link ControllerWorkflow#loadWorkflows(String)}
 	 * 
 	 * 
 	 * @param path		The system-dependent file name.
@@ -786,9 +757,7 @@ public class SaveAndLoad {
 	 * @param frame
 	 *            - the parent component of the dialog, can be null ;
 	 * @return A list of ROIs.
-	 * @throws UnloadRoiException 
-	 * 
-	 * @see Library_Roi#getRoiFromZip(String, ControllerWorkflow)
+	 * @throws UnloadRoiException
 	 */
 	public List<Roi> getRoiFromZipWithWindow(Component frame, ControllerWorkflow controller)
 			throws UnauthorizedRoiLoadException, UnloadRoiException {

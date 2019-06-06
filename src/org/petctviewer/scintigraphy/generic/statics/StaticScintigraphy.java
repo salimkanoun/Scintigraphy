@@ -69,8 +69,8 @@ public class StaticScintigraphy extends Scintigraphy {
 		this.getFenApplication().setController(new ControllerWorkflow_ScinStatic(this,
 				(FenApplicationWorkflow) getFenApplication(), selectedImages, getStudyName()));
 
-		((ModelScinStatic) this.getFenApplication().getControleur().getModel()).setIsSingleSlide(this.isSingleSlice);
-		((ModelScinStatic) this.getFenApplication().getControleur().getModel()).setIsAnt(this.isAnt);
+		((ModelScinStatic) this.getFenApplication().getController().getModel()).setIsSingleSlide(this.isSingleSlice);
+		((ModelScinStatic) this.getFenApplication().getController().getModel()).setIsAnt(this.isAnt);
 		IJ.setTool(Toolbar.POLYGON);
 	}
 

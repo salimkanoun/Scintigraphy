@@ -39,7 +39,7 @@ public class TabThreeAsOne {
 
 	public JPanel getResultContent() {
 		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
-				.getFenApplication().getControleur().getModel();
+				.getFenApplication().getController().getModel();
 
 		XYSeriesCollection data = new XYSeriesCollection();
 		data.addSeries(modele.getSerie("Duodenom"));
