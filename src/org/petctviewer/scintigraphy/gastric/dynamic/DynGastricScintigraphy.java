@@ -14,56 +14,23 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.ReversedChronologicalAcquisitionComparator;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class DynGastricScintigraphy extends Scintigraphy {
 
+	public static final String STUDY_NAME = "Dynamic Gastric Scintigraphy";
 	private final Model_Gastric model;
 	private final TabMethod1 tabResult;
 
 	public DynGastricScintigraphy(Model_Gastric model, TabMethod1 tabResult) {
-		super("Dynamic Gastric Scintigraphy");
+		super(STUDY_NAME);
 		this.model = model;
 		this.tabResult = tabResult;
 
 		FenSelectionDicom fsd = new FenSelectionDicom(this);
 		fsd.setVisible(true);
-	}
-
-	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] openedImages) throws WrongInputException, ReadTagException {
-		// Check number of images
-		if (openedImages.length == 0)
-			throw new WrongNumberImagesException(openedImages.length, 1, Integer.MAX_VALUE);
-
-		// Check orientation
-		Orientation[] acceptedOrientations = new Orientation[] { Orientation.DYNAMIC_ANT_POST,
-				Orientation.DYNAMIC_POST_ANT, Orientation.DYNAMIC_ANT };
-		ImageSelection[] selection = new ImageSelection[openedImages.length];
-		for (int i = 0; i < openedImages.length; i++) {
-			ImageSelection ims = openedImages[i];
-			if (Arrays.stream(acceptedOrientations).noneMatch(o -> o.equals(ims.getImageOrientation()))) {
-				throw new WrongColumnException.OrientationColumn(ims.getRow(), ims.getImageOrientation(),
-						acceptedOrientations);
-			}
-
-			// Sort orientation to always have Ant
-			if (ims.getImageOrientation() == Orientation.DYNAMIC_ANT_POST
-					|| ims.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
-				ImageSelection[] dyn = Library_Dicom.splitDynamicAntPost(ims);
-				selection[i] = Library_Dicom.project(dyn[0], 1, 10, "sum");
-			} else {
-				selection[i] = ims.clone();
-			}
-		}
-
-		// Close other images
-		Arrays.stream(openedImages).forEach(ims -> ims.getImagePlus().close());
-
-		// Order image by time (reversed)
-		Arrays.parallelSort(selection, new ReversedChronologicalAcquisitionComparator());
-
-		return selection;
 	}
 
 	@Override
@@ -76,4 +43,49 @@ public class DynGastricScintigraphy extends Scintigraphy {
 		this.getFenApplication().setVisible(true);
 	}
 
+	@Override
+	public String getName() {
+		return STUDY_NAME;
+	}
+
+	@Override
+	public FenSelectionDicom.Column[] getColumns() {
+		return FenSelectionDicom.Column.getDefaultColumns();
+	}
+
+	@Override
+	public List<ImageSelection> prepareImages(List<ImageSelection> openedImages) throws WrongInputException,
+			ReadTagException {
+		// Check number of images
+		if (openedImages.size() == 0)
+			throw new WrongNumberImagesException(openedImages.size(), 1, Integer.MAX_VALUE);
+
+		// Check orientation
+		Orientation[] acceptedOrientations = new Orientation[] { Orientation.DYNAMIC_ANT_POST,
+																 Orientation.DYNAMIC_POST_ANT, Orientation.DYNAMIC_ANT };
+		List<ImageSelection> selection = new ArrayList<>();
+		for (ImageSelection ims : openedImages) {
+			if (Arrays.stream(acceptedOrientations).noneMatch(o -> o.equals(ims.getImageOrientation()))) {
+				throw new WrongColumnException.OrientationColumn(ims.getRow(), ims.getImageOrientation(),
+																 acceptedOrientations);
+			}
+
+			// Sort orientation to always have Ant
+			if (ims.getImageOrientation() == Orientation.DYNAMIC_ANT_POST ||
+					ims.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
+				ImageSelection[] dyn = Library_Dicom.splitDynamicAntPost(ims);
+				selection.add(Library_Dicom.project(dyn[0], 1, 10, "sum"));
+			} else {
+				selection.add(ims.clone());
+			}
+		}
+
+		// Close other images
+		openedImages.forEach(ImageSelection::close);
+
+		// Order image by time (reversed)
+		selection.sort(new ReversedChronologicalAcquisitionComparator());
+
+		return selection;
+	}
 }

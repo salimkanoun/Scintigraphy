@@ -6,41 +6,19 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ColonicScintigraphy extends Scintigraphy {
 
+	public static final String STUDY_NAME = "Colonic Scintigraphy";
+
 	public ColonicScintigraphy() {
-		super("ColonicScintigraphy");
-		// TODO Auto-generated constructor stub
-	}
-
-	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] openedImages) throws WrongInputException {
-		// Check number
-		if (openedImages.length < 2 || openedImages.length > 4)
-			throw new WrongNumberImagesException(openedImages.length, 2, 4);
-
-		ImageSelection[] impSelect = new ImageSelection[openedImages.length];
-		for (int i = 0; i < openedImages.length; i++) {
-			if (openedImages.get(i).getImageOrientation() == Orientation.ANT_POST
-					|| openedImages.get(i).getImageOrientation() == Orientation.POST_ANT) {
-				impSelect[i] = Library_Dicom.ensureAntPostFlipped(openedImages.get(i));
-			} else {
-				throw new WrongColumnException.OrientationColumn(openedImages.get(i).getRow(),
-						openedImages.get(i).getImageOrientation(),
-						new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT });
-			}
-			openedImages.get(i).getImagePlus().close();
-		}
-
-		// Order images by time
-		Arrays.parallelSort(impSelect, new ChronologicalAcquisitionComparator());
-
-		return impSelect;
+		super(STUDY_NAME);
 	}
 
 	@Override
@@ -48,8 +26,46 @@ public class ColonicScintigraphy extends Scintigraphy {
 		// TODO Auto-generated method stub
 
 		this.setFenApplication(new FenApplicationColonicTransit(selectedImages[0], this.getStudyName()));
-		this.getFenApplication().setController(new ControllerWorkflowColonicTransit(
-				this, (FenApplicationColonicTransit) this.getFenApplication(), selectedImages));
+		this.getFenApplication().setController(
+				new ControllerWorkflowColonicTransit(this, (FenApplicationColonicTransit) this.getFenApplication(),
+													 selectedImages));
 	}
 
+	@Override
+	public String getName() {
+		//TODO: auto-generated code
+		return null;
+	}
+
+	@Override
+	public FenSelectionDicom.Column[] getColumns() {
+		//TODO: auto-generated code
+		return new FenSelectionDicom.Column[0];
+	}
+
+	@Override
+	public List<ImageSelection> prepareImages(List<ImageSelection> openedImages) throws WrongInputException {
+		// Check number
+		if (openedImages.size() < 2 || openedImages.size() > 4) throw new WrongNumberImagesException(
+				openedImages.size(), 2, 4);
+
+		List<ImageSelection> impSelect = new ArrayList<>();
+		for (ImageSelection openedImage : openedImages) {
+			if (openedImage.getImageOrientation() == Orientation.ANT_POST ||
+					openedImage.getImageOrientation() == Orientation.POST_ANT) {
+				impSelect.add(Library_Dicom.ensureAntPostFlipped(openedImage));
+			} else {
+				throw new WrongColumnException.OrientationColumn(openedImage.getRow(),
+																 openedImage.getImageOrientation(),
+																 new Orientation[]{Orientation.ANT_POST,
+																				   Orientation.POST_ANT});
+			}
+			openedImage.getImagePlus().close();
+		}
+
+		// Order images by time
+		impSelect.sort(new ChronologicalAcquisitionComparator());
+
+		return impSelect;
+	}
 }

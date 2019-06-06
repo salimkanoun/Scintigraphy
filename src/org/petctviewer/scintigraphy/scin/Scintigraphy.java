@@ -7,19 +7,13 @@ import org.petctviewer.scintigraphy.scin.library.Library_Debug;
 
 import java.util.List;
 
-public abstract class Scintigraphy implements PlugIn {
+public abstract class Scintigraphy implements PlugIn, ImagePreparator {
 
 	private String studyName;
 	private FenApplication fen_application;
 
-	private ImagePreparator preparator;
-
 	public Scintigraphy(String studyName) {
 		this.studyName = Library_Debug.replaceNull(studyName);
-	}
-
-	public void setImagePreparator(ImagePreparator preparator) {
-		this.preparator = preparator;
 	}
 
 	/**
@@ -27,7 +21,7 @@ public abstract class Scintigraphy implements PlugIn {
 	 */
 	@Override
 	public void run(String arg) {
-		FenSelectionDicom fen = new FenSelectionDicom(this.preparator);
+		FenSelectionDicom fen = new FenSelectionDicom(this);
 		fen.setVisible(true);
 		List<ImageSelection> selectedImages = fen.retrieveSelectedImages();
 		this.lancerProgramme(selectedImages.toArray(new ImageSelection[0]));
