@@ -1,5 +1,8 @@
 package org.petctviewer.scintigraphy.gastric;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This class represents a request for a result in a model. A request for a value will contain at least the Result on
  * which the request is made for.<br> All other field embedded in the request are optional and therefor, you should not
@@ -16,8 +19,12 @@ public class ResultRequest {
 	private int indexImage;
 	private Unit unit;
 
+	// Values from 0 -> 1000 are reserved for this class. Any other value can be used by programs
+	private Map<Integer, Object> payload;
+
 	public ResultRequest(Result resultOn) {
 		this.changeResultOn(resultOn);
+		this.payload = new HashMap<>();
 	}
 
 	/**
@@ -74,6 +81,42 @@ public class ResultRequest {
 	 */
 	public void setUnit(Unit unit) {
 		this.unit = unit;
+	}
+
+	/**
+	 * Adds some data to this request. Data can be of any type. Keys from 0 to 1000 are reserved for this class, but
+	 * any
+	 * other value can be used freely by any program.
+	 *
+	 * @param key   Key of the value to embed
+	 * @param value Value to embed
+	 */
+	public void addEmbeddedData(int key, Object value) {
+		this.payload.put(key, value);
+	}
+
+	/**
+	 * Retrieves the embedded data with the specified key. If no data is present for this key, then null is returned.
+	 *
+	 * @param key Key of the value to retrieve
+	 * @return value previously embedded in this request or null if not found
+	 * @see #retrieveData(int, Object)
+	 */
+	public Object retrieveData(int key) {
+		return this.payload.get(key);
+	}
+
+	/**
+	 * Retrives the embedded data with the specified key. If no data is present for this key, then the default value is
+	 * returned.
+	 *
+	 * @param key          Key of the value to retrieve
+	 * @param defaultValue Default value to return if no value was found
+	 * @return value previously embedded in this request or default value if not found
+	 * @see #retrieveData(int)
+	 */
+	public Object retrieveData(int key, Object defaultValue) {
+		return this.payload.getOrDefault(key, defaultValue);
 	}
 
 	@Override

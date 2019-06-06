@@ -3,12 +3,15 @@ package org.petctviewer.scintigraphy.shunpo;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
+import org.petctviewer.scintigraphy.gastric.ResultRequest;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
@@ -16,6 +19,8 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -130,49 +135,6 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 	protected void end() {
 		super.end();
 
-		// Compute model
-//		int firstSlice = (this.FIRST_ORIENTATION_POST ? SLICE_POST : SLICE_ANT);
-//		int secondSlice = firstSlice % 2 + 1;
-//		ImagePlus img;
-//		this.model.getImageSelection()[STEP_KIDNEY_LUNG].getImagePlus().setSlice(firstSlice);
-//		this.model.getImageSelection()[STEP_BRAIN].getImagePlus().setSlice(firstSlice);
-//		for (int i = 0; i < this.model.getRoiManager().getRoisAsArray().length; i++) {
-//			Roi r = this.model.getRoiManager().getRoisAsArray()[i];
-//			int organ;
-//
-//			if (i < this.NBORGANE[STEP_KIDNEY_LUNG]) {
-//				img = this.model.getImageSelection()[STEP_KIDNEY_LUNG].getImagePlus();
-//				img.setSlice(firstSlice);
-//				if (this.FIRST_ORIENTATION_POST)
-//					organ = i * 2 + 1;
-//				else
-//					organ = i * 2;
-//			} else if (i < 2 * this.NBORGANE[STEP_KIDNEY_LUNG]) {
-//				img = this.model.getImageSelection()[STEP_KIDNEY_LUNG].getImagePlus();
-//				img.setSlice(secondSlice);
-//				if (this.FIRST_ORIENTATION_POST)
-//					organ = (i - this.NBORGANE[STEP_KIDNEY_LUNG]) * 2;
-//				else
-//					organ = (i - this.NBORGANE[STEP_KIDNEY_LUNG]) * 2 + 1;
-//			} else if (i - 2 * this.NBORGANE[STEP_KIDNEY_LUNG] < this.NBORGANE[STEP_BRAIN]) {
-//				img = this.model.getImageSelection()[STEP_BRAIN].getImagePlus();
-//				img.setSlice(firstSlice);
-//				if (this.FIRST_ORIENTATION_POST)
-//					organ = i + 1;
-//				else
-//					organ = i;
-//			} else {
-//				img = this.model.getImageSelection()[STEP_BRAIN].getImagePlus();
-//				img.setSlice(secondSlice);
-//				if (this.FIRST_ORIENTATION_POST)
-//					organ = i - 1;
-//				else
-//					organ = i;
-//			}
-//
-//			img.setRoi(r);
-//			((ModelShunpo) this.model).calculerCoups(organ, img);
-//		}
 		this.computeModel();
 		this.model.calculateResults();
 
@@ -181,7 +143,23 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		ImagePlus montage = this.montage(stackCapture);
 
 		// Display result
+		this.fenResults.clearTabs();
 		this.fenResults.setMainTab(new MainResult(this.fenResults, montage));
+		this.fenResults.addTab(new TabResult(this.fenResults, "Other results") {
+			@Override
+			public Component getSidePanelContent() {
+				JPanel panel = new JPanel(new GridLayout(0, 1));
+				ResultRequest request = new ResultRequest(ModelShunpo_refactored.RES_PULMONARY_SHUNT_2);
+				panel.add(new JLabel(getModel().getResult(request).toString()));
+				return panel;
+			}
+
+			@Override
+			public Container getResultContent() {
+				return new DynamicImage(montage.getBufferedImage());
+			}
+		});
+		this.fenResults.getTab(1).reloadDisplay();
 		this.fenResults.pack();
 		this.fenResults.setVisible(true);
 
