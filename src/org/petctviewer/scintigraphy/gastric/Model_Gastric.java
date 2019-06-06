@@ -7,7 +7,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.platelet_refactored.Data;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;

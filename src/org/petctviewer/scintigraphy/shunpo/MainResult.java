@@ -20,8 +20,8 @@ public class MainResult extends TabResult {
 		this.reloadDisplay();
 	}
 
-	private ModelShunpo_refactored getModel() {
-		return (ModelShunpo_refactored) this.parent.getModel();
+	private ModelShunpo getModel() {
+		return (ModelShunpo) this.parent.getModel();
 	}
 
 	private void displayResult(ResultValue result, Container container) {
@@ -34,15 +34,15 @@ public class MainResult extends TabResult {
 		JPanel res = new JPanel(new GridLayout(0, 1));
 
 		// Lung ratio
-		ResultRequest request = new ResultRequest(ModelShunpo_refactored.RES_RATIO_RIGHT_LUNG);
+		ResultRequest request = new ResultRequest(ModelShunpo.RES_RATIO_RIGHT_LUNG);
 		this.displayResult(getModel().getResult(request), res);
-		request.changeResultOn(ModelShunpo_refactored.RES_RATIO_LEFT_LUNG);
+		request.changeResultOn(ModelShunpo.RES_RATIO_LEFT_LUNG);
 		this.displayResult(getModel().getResult(request), res);
 		// Shunt systemic
-		request.changeResultOn(ModelShunpo_refactored.RES_SHUNT_SYST);
+		request.changeResultOn(ModelShunpo.RES_SHUNT_SYST);
 		this.displayResult(getModel().getResult(request), res);
 		// Pulmonary shunt
-		request.changeResultOn(ModelShunpo_refactored.RES_PULMONARY_SHUNT);
+		request.changeResultOn(ModelShunpo.RES_PULMONARY_SHUNT);
 		this.displayResult(getModel().getResult(request), res);
 
 		return res;

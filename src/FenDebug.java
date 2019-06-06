@@ -11,8 +11,7 @@ import org.petctviewer.scintigraphy.hepatic.HepaticDynScintigraphy;
 import org.petctviewer.scintigraphy.lympho.LymphoSintigraphy;
 import org.petctviewer.scintigraphy.mibg.MIBGScintigraphy;
 import org.petctviewer.scintigraphy.os.OsScintigraphy;
-import org.petctviewer.scintigraphy.platelet.View_Platelet;
-import org.petctviewer.scintigraphy.platelet_refactored.PlateletScintigraphy;
+import org.petctviewer.scintigraphy.platelet.PlateletScintigraphy;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.renal.dmsa.DmsaScintigraphy;
 import org.petctviewer.scintigraphy.renal.followup.FollowUp;
@@ -29,24 +28,6 @@ public class FenDebug extends JFrame {
 
 	private final JPanel panel;
 
-	private JButton getProgramButton(Class<? extends PlugIn> program) {
-		PlugIn vue;
-		try {
-			vue = program.newInstance();
-			JButton btn = new JButton(
-					(vue instanceof Scintigraphy ? ((Scintigraphy) vue).getStudyName() : program.getSimpleName()));
-			btn.addActionListener(e -> vue.run(""));
-			return btn;
-		} catch (InstantiationException | IllegalAccessException e1) {
-			e1.printStackTrace();
-		}
-		return null;
-	}
-
-	private void registerNewProgram(Class<? extends PlugIn> program) {
-		this.panel.add(this.getProgramButton(program));
-	}
-
 	public FenDebug() {
 		this.setLayout(new BorderLayout());
 
@@ -56,7 +37,6 @@ public class FenDebug extends JFrame {
 		this.panel = new JPanel(new GridLayout(0, 3));
 
 		this.registerNewProgram(CardiacScintigraphy.class);
-		this.registerNewProgram(View_Platelet.class);
 		this.registerNewProgram(GeneralDynamicScintigraphy.class);
 		this.registerNewProgram(RenalScintigraphy.class);
 		this.registerNewProgram(DmsaScintigraphy.class);
@@ -80,6 +60,24 @@ public class FenDebug extends JFrame {
 		this.pack();
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
+	}
+
+	private JButton getProgramButton(Class<? extends PlugIn> program) {
+		PlugIn vue;
+		try {
+			vue = program.newInstance();
+			JButton btn = new JButton(
+					(vue instanceof Scintigraphy ? ((Scintigraphy) vue).getStudyName() : program.getSimpleName()));
+			btn.addActionListener(e -> vue.run(""));
+			return btn;
+		} catch (InstantiationException | IllegalAccessException e1) {
+			e1.printStackTrace();
+		}
+		return null;
+	}
+
+	private void registerNewProgram(Class<? extends PlugIn> program) {
+		this.panel.add(this.getProgramButton(program));
 	}
 
 }

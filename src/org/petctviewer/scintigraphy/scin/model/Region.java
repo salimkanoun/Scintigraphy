@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.scin.model;
 
 import ij.gui.Roi;
-import org.petctviewer.scintigraphy.platelet_refactored.Data;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 
 import java.util.HashMap;

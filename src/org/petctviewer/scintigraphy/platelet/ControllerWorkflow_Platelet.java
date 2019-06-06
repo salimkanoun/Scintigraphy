@@ -1,8 +1,8 @@
-package org.petctviewer.scintigraphy.platelet_refactored;
+package org.petctviewer.scintigraphy.platelet;
 
 import ij.ImagePlus;
-import org.petctviewer.scintigraphy.platelet_refactored.tabs.CountsTab;
-import org.petctviewer.scintigraphy.platelet_refactored.tabs.MeansTab;
+import org.petctviewer.scintigraphy.platelet.tabs.CountsTab;
+import org.petctviewer.scintigraphy.platelet.tabs.MeansTab;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;

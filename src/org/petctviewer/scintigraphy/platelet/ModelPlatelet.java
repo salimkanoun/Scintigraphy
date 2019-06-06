@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.platelet_refactored;
+package org.petctviewer.scintigraphy.platelet;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
@@ -7,6 +7,7 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.model.Data;
 import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 import org.petctviewer.scintigraphy.scin.model.ResultRequest;
 import org.petctviewer.scintigraphy.scin.model.ResultValue;

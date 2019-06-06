@@ -1,185 +1,156 @@
 package org.petctviewer.scintigraphy.shunpo;
 
 import ij.ImagePlus;
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.Orientation;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
+import org.petctviewer.scintigraphy.scin.model.*;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class ModelShunpo extends ModelScin {
+public class ModelShunpo extends ModelWorkflow {
 
-	private final Map<Integer, Double> coups;
-	// TODO: those values are never set ??????? !!!!!!!!
-	private int pixrdp;
-	private int pixrgp;
-	private int pixrda;
-	private int pixrga;
-	private final Map<Integer, Integer> geometricalAverage;
-	private String[] retour;
-	private final List<Double> results;
+	public static final String REGION_RIGHT_LUNG = "Right Lung", REGION_LEFT_LUNG = "Left Lung", REGION_BACKGROUND =
+			"Background", REGION_RIGHT_KIDNEY = "Right Kidney", REGION_LEFT_KIDNEY = "Left Kidney", REGION_BRAIN =
+			"Brain";
 
-	public static final int LUNG_RIGHT_ANT = 0, LUNG_RIGHT_POST = 1, LUNG_LEFT_ANT = 2, LUNG_LEFT_POST = 3,
-			KIDNEY_RIGHT_ANT = 4, KIDNEY_RIGHT_POST = 5, KIDNEY_LEFT_ANT = 6, KIDNEY_LEFT_POST = 7,
-			BACKGROUND_NOISE_ANT = 8, BACKGROUND_NOISE_POST = 9, BRAIN_ANT = 10, BRAIN_POST = 11, TOTAL_ORGANS = 12;
+	public static final Result RES_RATIO_RIGHT_LUNG = new Result("Right Lung Ratio"), RES_RATIO_LEFT_LUNG = new Result(
+			"Left Lung Ratio"), RES_SHUNT_SYST = new Result("Shunt Systemic"), RES_PULMONARY_SHUNT = new Result(
+			"Pulmonary Shunt"), RES_PULMONARY_SHUNT_2 = new Result("Pulmonary Shunt", 2);
 
-	private static final int RESULT_LUNG_RIGHT = 0, RESULT_LUNG_LEFT = 1, RESULT_KIDNEY_RIGHT = 2,
-			RESULT_KIDNEY_LEFT = 3, RESULT_BRAIN = 4, RESULT_TOTAL_AVG = 5, RESULT_TOTAL_SHUNT = 6, RESULT_SYSTEMIC = 7,
-			RESULT_PULMONARY_SHUNT = 8;
+	public static final int IMAGE_KIDNEY_LUNG = 0, IMAGE_BRAIN = 1;
 
+	private List<Data> datas;
+	private Map<Integer, Double> results;
+
+	/**
+	 * @param selectedImages Images needed for this study (generally those images are used in the workflows)
+	 * @param studyName      Name of the study (used for display)
+	 */
 	public ModelShunpo(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
-		this.coups = new HashMap<>();
-		this.geometricalAverage = new HashMap<>();
-		this.retour = new String[9];
-		this.results = new ArrayList<>();
+		this.datas = new LinkedList<>();
+		this.results = new HashMap<>();
 	}
 
-	protected void calculerCoups(int organ, ImagePlus imp) {
-		double counts = Library_Quantif.getCounts(imp);
-		this.coups.put(organ, counts);
-		System.out.println("Calculations for " + organ + "[" + ModelShunpo.convertOrgan(organ) + "] -> " + counts);
+	private static Unit unitFromResult(Result res) {
+		return Unit.PERCENTAGE;
 	}
 
-	// Retrait du BDF aux reins
-	private void coupsReins() {
-		double rdp = coups.get(KIDNEY_RIGHT_POST);
-		double rgp = coups.get(KIDNEY_LEFT_POST);
-		double bdfp = coups.get(BACKGROUND_NOISE_POST);
-		coups.put(KIDNEY_RIGHT_POST, rdp - (bdfp * pixrdp));
-		coups.put(KIDNEY_LEFT_POST, rgp - (bdfp * pixrgp));
-		double rda = coups.get(KIDNEY_RIGHT_ANT);
-		double rga = coups.get(KIDNEY_LEFT_ANT);
-		double bdfa = coups.get(BACKGROUND_NOISE_ANT);
-		coups.put(KIDNEY_RIGHT_ANT, rda - (bdfa * pixrda));
-		coups.put(KIDNEY_LEFT_ANT, rga - (bdfa * pixrga));
-
-		coups.remove(BACKGROUND_NOISE_ANT);
-		coups.remove(BACKGROUND_NOISE_POST);
-	}
-
-	private void computeGeometricalAverage() {
-		this.moyenneGeo(LUNG_RIGHT_ANT);
-		this.moyenneGeo(LUNG_LEFT_ANT);
-		this.moyenneGeo(KIDNEY_RIGHT_ANT);
-		this.moyenneGeo(KIDNEY_LEFT_ANT);
-		this.moyenneGeo(BRAIN_ANT);
-	}
-
-	// Calcule la moyenne g茅om茅trique pour un organe sp茅cifique
-	// Si abv = PD alors on calculera la MG pour le poumon droit
-	private void moyenneGeo(int organ) {
-		if (organ % 2 == 0)
-			geometricalAverage.put(organ,
-					(int) Library_Quantif.moyGeom(this.coups.get(organ), this.coups.get(organ + 1)));
-		else
-			geometricalAverage.put(organ,
-					(int) Library_Quantif.moyGeom(this.coups.get(organ - 1), this.coups.get(organ)));
-	}
-
-	public static String convertOrgan(int organ) {
-		switch (organ) {
-		case LUNG_RIGHT_ANT:
-		case LUNG_RIGHT_POST:
-			return "Right Lung: ";
-		case LUNG_LEFT_ANT:
-		case LUNG_LEFT_POST:
-			return "Left Lung: ";
-		case KIDNEY_RIGHT_ANT:
-		case KIDNEY_RIGHT_POST:
-			return "Right Kidney: ";
-		case KIDNEY_LEFT_ANT:
-		case KIDNEY_LEFT_POST:
-			return "Left Kidney: ";
-		case BRAIN_ANT:
-		case BRAIN_POST:
-			return "Brain: ";
-		default:
-			return "Unknown Organ (" + organ + "): ";
+	private Data createOrRetrieveData(ImageState state) {
+		Data data = this.datas.stream().filter(d -> d.getAssociatedImage() == state.getImage()).findFirst().orElse(
+				null);
+		if (data == null) {
+			Date time0 = (this.datas.size() > 0 ? this.datas.get(0).getAssociatedImage().getDateAcquisition() :
+					state.getImage().getDateAcquisition());
+			data = new Data(state, Library_Quantif.calculateDeltaTime(time0, state.getImage().getDateAcquisition()));
 		}
+		return data;
 	}
 
-	public String[] getResult() {
-		return this.retour;
+	private String[] allRegions() {
+		return new String[]{REGION_RIGHT_LUNG, REGION_LEFT_LUNG, REGION_RIGHT_KIDNEY, REGION_LEFT_KIDNEY,
+				REGION_BACKGROUND, REGION_BRAIN};
+	}
+
+	private String[] regionsKidneyLung() {
+		return new String[]{REGION_RIGHT_LUNG, REGION_LEFT_LUNG, REGION_RIGHT_KIDNEY, REGION_LEFT_KIDNEY,
+				REGION_BACKGROUND};
+	}
+
+	/**
+	 * This method takes care of all necessary operations to do on the ImagePlus or the RoiManager. This requires the
+	 * state to contain all of the required data.
+	 *
+	 * @param regionName Region to calculate
+	 * @param state      State the image must be to do the calculations
+	 * @param roi        Region where the calculates must be made
+	 */
+	public void addData(String regionName, ImageState state, Roi roi) {
+		// Save the image in the state
+		state.specifieImage(this.imageFromState(state));
+		state.setIdImage(ImageState.ID_CUSTOM_IMAGE);
+
+		ImagePlus imp = state.getImage().getImagePlus();
+
+		// Prepare image
+		imp.setSlice(state.getSlice());
+		imp.setRoi(roi);
+
+		// Calculate counts
+		double counts = Library_Quantif.getCounts(imp);
+
+		Data data = this.createOrRetrieveData(state);
+		if (state.getFacingOrientation() == Orientation.ANT) {
+			data.setAntValue(regionName, Data.DATA_ANT_COUNTS, counts, state, roi);
+		} else {
+			data.setPostValue(regionName, Data.DATA_POST_COUNTS, counts, state, roi);
+		}
+		this.datas.add(data);
+	}
+
+	@Override
+	public ResultValue getResult(ResultRequest request) {
+		Double value = this.results.get(request.getResultOn().hashCode());
+		if (value == null) return null;
+		// Convert result to requested unit
+		Unit conversion = (request.getUnit() == null ? unitFromResult(request.getResultOn()) : request.getUnit());
+		value = unitFromResult(request.getResultOn()).convertTo(value, conversion);
+		return new ResultValue(request, value, conversion);
 	}
 
 	@Override
 	public void calculateResults() {
-		this.retour = new String[9];
-		coupsReins();
-		// Les 5 MGs
-		computeGeometricalAverage();
-		retour[RESULT_LUNG_RIGHT] = convertOrgan(LUNG_RIGHT_ANT) + geometricalAverage.get(LUNG_RIGHT_ANT) + " counts";
-		retour[RESULT_LUNG_LEFT] = convertOrgan(LUNG_LEFT_ANT) + geometricalAverage.get(LUNG_LEFT_ANT) + " counts";
-		retour[RESULT_KIDNEY_RIGHT] = convertOrgan(KIDNEY_RIGHT_ANT) + geometricalAverage.get(KIDNEY_RIGHT_ANT)
-				+ " counts";
-		retour[RESULT_KIDNEY_LEFT] = convertOrgan(KIDNEY_LEFT_ANT) + geometricalAverage.get(KIDNEY_LEFT_ANT)
-				+ " counts";
-		retour[RESULT_BRAIN] = convertOrgan(BRAIN_ANT) + geometricalAverage.get(BRAIN_ANT) + " counts";
-		// Permet de definir le nombre de chiffre apr猫s la virgule et mettre la
-		// virgue en system US avec un .
-		DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance();
-		sym.setDecimalSeparator('.');
-		DecimalFormat us = new DecimalFormat("##.##");
-		us.setDecimalFormatSymbols(sym);
-		// Calculs
-		double percPD = (geometricalAverage.get(LUNG_RIGHT_ANT)
-				/ (1.0 * geometricalAverage.get(LUNG_RIGHT_ANT) + geometricalAverage.get(LUNG_LEFT_ANT))) * 100;
-		retour[RESULT_LUNG_RIGHT] += " (" + us.format(percPD) + "%)";
-		double percPG = (geometricalAverage.get(LUNG_LEFT_ANT)
-				/ (1.0 * geometricalAverage.get(LUNG_RIGHT_ANT) + geometricalAverage.get(LUNG_LEFT_ANT))) * 100;
-		retour[RESULT_LUNG_LEFT] += " (" + us.format(percPG) + "%)";
-		int totmg = geometricalAverage.get(LUNG_RIGHT_ANT) + geometricalAverage.get(LUNG_LEFT_ANT);
-		retour[RESULT_TOTAL_AVG] = "Total MG : " + totmg + " counts";
-		int totshunt = geometricalAverage.get(KIDNEY_RIGHT_ANT) + geometricalAverage.get(KIDNEY_LEFT_ANT)
-				+ geometricalAverage.get(BRAIN_ANT);
-		retour[RESULT_TOTAL_SHUNT] = "Total Shunt : " + totshunt + " counts";
-		double percSyst = (100.0 * totshunt) / totmg;
-		retour[RESULT_SYSTEMIC] = "% Systemic : " + us.format(percSyst) + "%";
-		double shunt = ((totshunt * 100.0) / (totmg * 0.38));
-		retour[RESULT_PULMONARY_SHUNT] = "Pulmonary Shunt : " + us.format(shunt) + "% (total blood Flow)";
+		// Compute geometrical averages
+		// == KIDNEY-LUNG ==
+		Data data = datas.get(IMAGE_KIDNEY_LUNG);
+		for (String regionName : this.regionsKidneyLung()) {
+			double geoAvg = Library_Quantif.moyGeom(data.getAntValue(regionName, Data.DATA_ANT_COUNTS),
+													data.getPostValue(regionName, Data.DATA_POST_COUNTS));
+			data.setAntValue(regionName, Data.DATA_GEO_AVG, geoAvg);
+		}
+		// Percentage
+		double sumAvg = data.getAntValue(REGION_RIGHT_LUNG, Data.DATA_GEO_AVG) + data.getAntValue(REGION_LEFT_LUNG,
+																								  Data.DATA_GEO_AVG);
+		this.results.put(RES_RATIO_RIGHT_LUNG.hashCode(),
+						 data.getAntValue(REGION_RIGHT_LUNG, Data.DATA_GEO_AVG) / sumAvg * 100.);
+		this.results.put(RES_RATIO_LEFT_LUNG.hashCode(),
+						 data.getAntValue(REGION_LEFT_LUNG, Data.DATA_GEO_AVG) / sumAvg * 100.);
 
-		this.results.add(Double.valueOf(us.format(geometricalAverage.get(LUNG_RIGHT_ANT))));
-		this.results.add(Double.valueOf(us.format(percPD)));
-		this.results.add(Double.valueOf(us.format(geometricalAverage.get(LUNG_LEFT_ANT))));
-		this.results.add(Double.valueOf(us.format(percPG)));
-		this.results.add(Double.valueOf(us.format(geometricalAverage.get(KIDNEY_RIGHT_ANT))));
-		this.results.add(Double.valueOf(us.format(geometricalAverage.get(KIDNEY_LEFT_ANT))));
-		this.results.add(Double.valueOf(us.format(geometricalAverage.get(BRAIN_ANT))));
-		this.results.add(Double.valueOf(us.format(totmg)));
-		this.results.add(Double.valueOf(us.format(totshunt)));
-		this.results.add(Double.valueOf(us.format(percSyst)));
-		this.results.add(Double.valueOf(us.format(shunt)));
+		// == BRAIN ==
+		data = datas.get(IMAGE_BRAIN);
+		double mgBrain = Library_Quantif.moyGeom(data.getAntValue(REGION_BRAIN, Data.DATA_ANT_COUNTS),
+												 data.getPostValue(REGION_BRAIN, Data.DATA_POST_COUNTS));
+		data.setAntValue(REGION_BRAIN, Data.DATA_GEO_AVG, mgBrain);
 
+		// Percentage shunt systemic
+		double sumShunt = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_RIGHT_KIDNEY, Data.DATA_GEO_AVG) + datas.get(
+				IMAGE_KIDNEY_LUNG).getAntValue(REGION_LEFT_KIDNEY, Data.DATA_GEO_AVG) + datas.get(
+				IMAGE_BRAIN).getAntValue(REGION_BRAIN, Data.DATA_GEO_AVG);
+		this.results.put(RES_SHUNT_SYST.hashCode(), 100. * sumShunt / sumAvg);
+
+		// Pulmonary shunt
+		double pulmonaryShunt = (sumShunt * 100.) / (sumAvg * .38);
+		System.out.println("SumShunt=" + sumShunt + ";SumAvg=" + sumAvg + ";Result=" + pulmonaryShunt);
+		this.results.put(RES_PULMONARY_SHUNT.hashCode(), pulmonaryShunt);
+		System.out.println("Put(" + RES_PULMONARY_SHUNT.hashCode() + "," + pulmonaryShunt + ")");
+
+		// Pulmonary shunt - method 2
+		double lungAnt = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_RIGHT_LUNG, Data.DATA_ANT_COUNTS) + datas.get(
+				IMAGE_KIDNEY_LUNG).getAntValue(REGION_LEFT_LUNG, Data.DATA_ANT_COUNTS);
+		double lungPost = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_RIGHT_LUNG, Data.DATA_POST_COUNTS) +
+				datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_LEFT_LUNG, Data.DATA_POST_COUNTS);
+		double lungGeo = Library_Quantif.moyGeom(lungAnt, lungPost);
+
+		double brainAnt = datas.get(IMAGE_BRAIN).getAntValue(REGION_BRAIN, Data.DATA_ANT_COUNTS);
+		double brainPost = datas.get(IMAGE_BRAIN).getPostValue(REGION_BRAIN, Data.DATA_POST_COUNTS);
+		double brainGeo = Library_Quantif.moyGeom(brainAnt, brainPost);
+
+		double shunt = (brainGeo / .13) / ((brainGeo / .13) + lungGeo) * 100.;
+		System.out.println("BrainGeo=" + brainGeo + ";LungGeo=" + lungGeo + ";Result=" + shunt);
+		this.results.put(RES_PULMONARY_SHUNT_2.hashCode(), shunt);
+		System.out.println("Put(" + RES_PULMONARY_SHUNT_2.hashCode() + "," + shunt + ")");
 	}
-
-	public String toString() {
-		String s = "\n";
-
-		s += ",Right,Left\n";
-		s += "Geometric Mean," + this.results.get(0) + "," + results.get(2) + "\n";
-		s += "Percentage Geometric Mean," + this.results.get(1) + "," + results.get(3) + "\n";
-		s += "Kidneys," + this.results.get(4) + "," + results.get(5) + "\n\n";
-
-		s += "Brain," + this.results.get(6) + "\n\n";
-
-		s += "Total Geometric Mean :," + this.results.get(7) + "\n\n";
-
-		s += "\nTotal Shunt," + this.results.get(8) + "\n\n";
-
-		s += "\nSystemic Pencentage ," + this.results.get(9) + "\n\n";
-
-		s += "\nPulmonary Shunt Percentage (total blood flow) ," + this.results.get(10) + "\n\n";
-
-		s += super.toString();
-
-		return s;
-
-	}
-
 }
