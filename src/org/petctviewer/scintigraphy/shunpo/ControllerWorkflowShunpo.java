@@ -40,6 +40,8 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
 	// TODO: remove this method and do this in the instructions
 	private void computeModel() {
+		for(Roi r : getRoiManager().getRoisAsArray())
+			System.out.println(r.getName());
 		ImageState stateAnt = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, 0), statePost = new ImageState(
 				Orientation.POST, 2, ImageState.LAT_RL, 0);
 		final int NB_ROI_PER_IMAGE = 7;

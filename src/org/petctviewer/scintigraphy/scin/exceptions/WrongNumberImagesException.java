@@ -37,7 +37,7 @@ public class WrongNumberImagesException extends WrongInputException {
 	 * @param provided Number of images provided
 	 */
 	public WrongNumberImagesException(int provided) {
-		super("Cannot accept " + provided + " images");
+		super("Cannot accept " + provided + "images");
 		this.provided = provided;
 		this.minRequired = -1;
 		this.maxRequired = -1;
