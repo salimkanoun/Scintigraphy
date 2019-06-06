@@ -1,22 +1,14 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.gui.ImageCanvas;
-import ij.gui.Overlay;
-import ij.gui.StackWindow;
-import ij.util.DicomTools;
-import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
-import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
-import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
-import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
-import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.Menu;
+import java.awt.MenuBar;
+import java.awt.MenuItem;
+import java.awt.Panel;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseWheelListener;
@@ -27,12 +19,32 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
+import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
+import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
+import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+
+import ij.IJ;
+import ij.ImagePlus;
+import ij.gui.ImageCanvas;
+import ij.gui.Overlay;
+import ij.gui.StackWindow;
+import ij.util.DicomTools;
+
 /**
  * Interface graphique principale de quantification dans imageJ
  * 
  * @author diego
  *
  */
+@SuppressWarnings("deprecation")
 public class FenApplication extends StackWindow implements ComponentListener, MouseWheelListener {
 	private static final long serialVersionUID = -6280620624574294247L;
 
@@ -85,7 +97,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		super(imp, canvas);
 		// on set la lut des preferences
 		Library_Gui.setCustomLut(imp);
-		
+
 		this.studyName = studyName;
 
 		String tagSerie = DicomTools.getTag(this.imp, "0008,103E");
@@ -93,7 +105,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		String titre = this.studyName + " - " + tagNom + " - " + tagSerie;
 		setTitle(titre);// frame title
 		this.imp.setTitle(titre);// imp title
-		
 
 		panelContainer = new Panel(new BorderLayout());
 		this.panelPrincipal = new Panel(new FlowLayout());
@@ -138,7 +149,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.setDefaultSize();
 		this.addComponentListener(this);
 		this.setResizable(false);
-		
 
 		try {
 			this.setIconImage(ImageIO.read(new File("images/icons/frameIconBis.png")));
@@ -264,11 +274,11 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	public MenuBar getMenuBar() {
 		return this.menuBar;
 	}
-	
+
 	public Menu getMenuBarOptions() {
 		return this.options;
 	}
-	
+
 	public Menu getMenuBarHelp() {
 		return this.help;
 	}
@@ -279,8 +289,8 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		loadRois.addActionListener(e -> {
 			try {
 				SaveAndLoad saveAndLoad = new SaveAndLoad();
-				saveAndLoad.importRoiList(FenApplication.this,
-						FenApplication.this.controleur.getModel(), (ControllerWorkflow) FenApplication.this.controleur);
+				saveAndLoad.importRoiList(FenApplication.this, FenApplication.this.controleur.getModel(),
+						(ControllerWorkflow) FenApplication.this.controleur);
 
 				FenApplication.this.getImagePlus()
 						.setRoi(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));

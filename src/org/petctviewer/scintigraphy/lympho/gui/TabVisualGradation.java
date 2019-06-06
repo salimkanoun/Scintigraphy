@@ -16,6 +16,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 
 public class TabVisualGradation extends TabResult implements ActionListener {
@@ -193,52 +194,54 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 			
 //			Image icon = new ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" + limb + "/L0.jpg")).getImage();
 			BufferedImage image;
-			image = ImageIO.read(TabVisualGradation.class.getResourceAsStream(
-					"/images/lympho/visualgradation/" + limb + "/L0.jpg"));
+			image = ImageIO.read(new File(
+					"images/lympho/visualgradation/" + limb + "/L0.jpg"));
 			l0.add(new DynamicImage(image));
 
 			p1 = new JPanel(new BorderLayout());
 			p1.add(new JLabel("P1", SwingConstants.CENTER), BorderLayout.NORTH);
 //			icon = new ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" + limb + "/P1.jpg")).getImage();
-			image = (BufferedImage) ImageIO.read(TabVisualGradation.class.getResourceAsStream(
-					"/images/lympho/visualgradation/" + limb + "/P1.jpg"));
+			image = (BufferedImage) ImageIO.read(new File(
+					"images/lympho/visualgradation/" + limb + "/P1.jpg"));
 			DynamicImage dyna1 = new DynamicImage(image);
 			p1.add(dyna1);
 
 			p2 = new JPanel(new BorderLayout());
 			p2.add(new JLabel("P2", SwingConstants.CENTER), BorderLayout.NORTH);
 //			icon = new ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" + limb + "/P2.jpg")).getImage();
-			image = (BufferedImage) ImageIO.read(TabVisualGradation.class.getResourceAsStream(
-					"/images/lympho/visualgradation/" + limb + "/P2.jpg"));
+			image = (BufferedImage) ImageIO.read(new File(
+					"images/lympho/visualgradation/" + limb + "/P2.jpg"));
 			DynamicImage dyna2 = new DynamicImage(image);
 			p2.add(dyna2);
 
 			p3 = new JPanel(new BorderLayout());
 			p3.add(new JLabel("P3", SwingConstants.CENTER), BorderLayout.NORTH);
 //			icon = new ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" + limb + "/P3.jpg")).getImage();
-			image = (BufferedImage) ImageIO.read(TabVisualGradation.class.getResourceAsStream(
-					"/images/lympho/visualgradation/" + limb + "/P3.jpg"));
+			image = (BufferedImage) ImageIO.read(new File(
+					"images/lympho/visualgradation/" + limb + "/P3.jpg"));
 			p3.add(new DynamicImage(image));
 
 			t4 = new JPanel(new BorderLayout());
 			t4.add(new JLabel("T4", SwingConstants.CENTER), BorderLayout.NORTH);
 //			icon = new ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" + limb + "/T4.jpg")).getImage();
-			image = (BufferedImage) ImageIO.read(TabVisualGradation.class.getResourceAsStream(
-					"/images/lympho/visualgradation/" + limb + "/T4.jpg"));
+			image = (BufferedImage) ImageIO.read(new File(
+					"images/lympho/visualgradation/" + limb + "/T4.jpg"));
 			t4.add(new DynamicImage(image));
 
 			t5 = new JPanel(new BorderLayout());
 			t5.add(new JLabel("T5", SwingConstants.CENTER), BorderLayout.NORTH);
 //			icon = new ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" + limb + "/T5.jpg")).getImage();
-			image = (BufferedImage) ImageIO.read(TabVisualGradation.class.getResourceAsStream(
-					"/images/lympho/visualgradation/" + limb + "/T5.jpg"));
+			image = (BufferedImage) ImageIO.read(new File(
+					"images/lympho/visualgradation/" + limb + "/T5.jpg"));
 			t5.add(new DynamicImage(image));
 
 			t6 = new JPanel(new BorderLayout());
 			t6.add(new JLabel("T6", SwingConstants.CENTER), BorderLayout.NORTH);
 //			icon = new ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" + limb + "/T6.jpg")).getImage();
-			image = (BufferedImage) ImageIO.read(TabVisualGradation.class.getResourceAsStream(
-					"/images/lympho/visualgradation/" + limb + "/T6.jpg"));
+//			image = (BufferedImage) ImageIO.read(TabVisualGradation.class.getResourceAsStream(
+//					"/images/lympho/visualgradation/" + limb + "/T6.jpg"));
+			image = (BufferedImage) ImageIO.read(new File(
+					"images/lympho/visualgradation/" + limb + "/T6.jpg"));
 			t6.add(new DynamicImage(image));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
