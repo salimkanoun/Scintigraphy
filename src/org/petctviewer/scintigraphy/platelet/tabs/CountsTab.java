@@ -1,8 +1,8 @@
-package org.petctviewer.scintigraphy.platelet_refactored.tabs;
+package org.petctviewer.scintigraphy.platelet.tabs;
 
 import ij.ImagePlus;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.platelet_refactored.ModelPlatelet;
+import org.petctviewer.scintigraphy.platelet.ModelPlatelet;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;

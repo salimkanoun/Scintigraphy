@@ -40,7 +40,7 @@ public class TabRentention extends TabResult {
 		this.nbAcquisition = nbAcquisition;
 
 //		this.createCaptureButton("Retention");
-		this.setadditionalInfo("Retention");
+		this.setAdditionalInfo("Retention");
 
 		this.reloadDisplay();
 	}

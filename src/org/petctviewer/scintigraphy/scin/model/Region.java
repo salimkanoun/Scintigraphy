@@ -1,8 +1,7 @@
-package org.petctviewer.scintigraphy.gastric;
+package org.petctviewer.scintigraphy.scin.model;
 
 import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
-import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,23 +20,19 @@ public class Region {
 	private final String name;
 	private Roi roi;
 
-	private Map<Integer, Double> data;
-
-	private final ModelWorkflow model;
+	private Map<Integer, Double> values;
 
 	/**
 	 * Instantiates a new region with the specified name and the associated model.
 	 * 
 	 * @param name  Name of the region (names can be identical though it is not
 	 *              recommended)
-	 * @param model Model associated with this region
 	 */
-	public Region(String name, ModelWorkflow model) {
+	public Region(String name) {
 		this.name = name;
-		this.data = new HashMap<>();
+		this.values = new HashMap<>();
 		this.state = null;
 		this.roi = null;
-		this.model = model;
 	}
 
 	/**
@@ -58,7 +53,7 @@ public class Region {
 	 * @param value Value to set
 	 */
 	public void setValue(int key, double value) {
-		this.data.put(key, value);
+		this.values.put(key, value);
 	}
 
 	/**
@@ -68,7 +63,7 @@ public class Region {
 	 * @param key Key of the value to remove
 	 */
 	public void removeValue(int key) {
-		this.data.remove(key);
+		this.values.remove(key);
 	}
 
 	/**
@@ -78,7 +73,7 @@ public class Region {
 	 * @return value associated with the key or null if none
 	 */
 	public Double getValue(int key) {
-		return this.data.get(key);
+		return this.values.get(key);
 	}
 
 	/**
@@ -112,8 +107,8 @@ public class Region {
 		s.append("Region [").append(this.name).append("]\n");
 		s.append("| ImageState: ").append(this.state).append(" |\n");
 		s.append("| Stored values:\n");
-		for (Entry<Integer, Double> entry : this.data.entrySet())
-			s.append("\t- ").append(this.model.nameOfDataField(entry.getKey())).append(" => ").append(entry.getValue())
+		for (Entry<Integer, Double> entry : this.values.entrySet())
+			s.append("\t- ").append(Data.nameOfDataField(entry.getKey())).append(" => ").append(entry.getValue())
 					.append("\n");
 
 		return s.toString();
@@ -143,11 +138,11 @@ public class Region {
 
 	@Override
 	public Region clone() {
-		Region clone = new Region(name, model);
+		Region clone = new Region(name);
 		clone.inflate(state.clone(), roi);
-		clone.data = new HashMap<>();
-		for (Entry<Integer, Double> entry : this.data.entrySet())
-			clone.data.put(entry.getKey(), entry.getValue());
+		clone.values = new HashMap<>();
+		for (Entry<Integer, Double> entry : this.values.entrySet())
+			clone.values.put(entry.getKey(), entry.getValue());
 		return clone;
 	}
 

@@ -40,7 +40,7 @@ public class TabLiver {
 
 	public JPanel getResultContent() {
 		ModelHepaticDynamic modele = (ModelHepaticDynamic) ((TabCurves) this.tab)
-				.getFenApplication().getControleur().getModel();
+				.getFenApplication().getController().getModel();
 		List<XYSeries> series = modele.getSeries();
 		ChartPanel chart = Library_JFreeChart.associateSeries(new String[] {"Blood pool", "Right Liver", "Left Liver" }, series);
 		chart.setPreferredSize(new Dimension(200, 140));

@@ -1,8 +1,8 @@
 
 package org.petctviewer.scintigraphy.generic.statics;
 
-import javax.swing.JOptionPane;
-
+import ij.ImagePlus;
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -16,8 +16,7 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawLoopInstructio
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
+import javax.swing.*;
 
 public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
@@ -127,6 +126,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 		super.clickNext();
 
+		// TODO: still useful?
 		// Update view
 		int indexScroll = this.getVue().getInstructionDisplayed();
 		getVue().currentInstruction(indexScroll);

@@ -139,6 +139,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
 		super.clickNext();
 
+		// TODO: still useful?
 		// Update view
 		int indexScroll = this.getVue().getInstructionDisplayed();
 		getVue().currentInstruction(indexScroll);

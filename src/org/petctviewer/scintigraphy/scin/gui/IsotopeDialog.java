@@ -47,6 +47,7 @@ public class IsotopeDialog extends Dialog {
 	/**
 	 * Instantiates the dialog.
 	 *
+	 * @param parent Frame where this dialog will be placed relative to
 	 * @param codeFound Code found in the DICOM header
 	 */
 	public IsotopeDialog(Frame parent, String codeFound) {

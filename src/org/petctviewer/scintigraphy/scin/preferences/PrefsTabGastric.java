@@ -1,7 +1,7 @@
 package org.petctviewer.scintigraphy.scin.preferences;
 
 import ij.Prefs;
-import org.petctviewer.scintigraphy.gastric.Unit;
+import org.petctviewer.scintigraphy.scin.model.Unit;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

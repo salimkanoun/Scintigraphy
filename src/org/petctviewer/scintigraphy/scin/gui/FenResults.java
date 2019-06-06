@@ -11,10 +11,10 @@ import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 /**
- * Class that represent a result window for a study.
- * 
- * @author Titouan QUÉMA
+ * Class that represent a result window for a study.<br> The result window is composed of one or several {@link
+ * TabResult}.
  *
+ * @author Titouan QUÉMA
  */
 public class FenResults extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -45,9 +45,11 @@ public class FenResults extends JFrame {
 	}
 
 	/**
-	 * Adds a new tab to be displayed.
-	 * 
+	 * Adds a new tab to be displayed. The tab is added at the end of the current displayed tabs. If this is the first
+	 * time a tab is inserted in this window, then this method is equivalent to {@link #setMainTab(TabResult)}.
+	 *
 	 * @param tab Tab to add
+	 * @see #setMainTab(TabResult)
 	 */
 	public void addTab(TabResult tab) {
 		this.tabPane.addTab(tab.getTitle(), tab.getPanel());
@@ -57,35 +59,33 @@ public class FenResults extends JFrame {
 	}
 
 	/**
-	 * @param index Index of the tab to get
-	 * @return TabResult at the specified index
+	 * Gets the tab at the specified index. If the index is invalid, then this method returns null.
+	 *
+	 * @param index Index of the tab to get (0 based index)
+	 * @return TabResult at the specified index or null if the index is invalid
 	 */
 	public TabResult getTab(int index) {
-		if (index < 0 || index >= this.tabsResult.size())
-			return null;
+		if (index < 0 || index >= this.tabsResult.size()) return null;
 		return this.tabsResult.get(index);
 	}
 
 	/**
 	 * The main tab is the first tab displayed.
-	 * 
+	 *
 	 * @return first tab
 	 */
 	public TabResult getMainTab() {
-		if (this.tabsResult.size() == 0)
-			return null;
+		if (this.tabsResult.size() == 0) return null;
 		return this.tabsResult.get(0);
 	}
 
 	/**
-	 * The main tab is the first tab displayed. This method replaces the main tab
-	 * with the specified tab.
-	 * 
+	 * The main tab is the first tab displayed. This method replaces the main tab with the specified tab.
+	 *
 	 * @param tab Tab to be displayed first
 	 */
 	public void setMainTab(TabResult tab) {
-		if (this.tabsResult.size() == 0)
-			this.tabsResult.add(tab);
+		if (this.tabsResult.size() == 0) this.tabsResult.add(tab);
 		else {
 			this.tabsResult.set(0, tab);
 			this.tabPane.removeTabAt(0);
@@ -97,7 +97,7 @@ public class FenResults extends JFrame {
 
 	/**
 	 * Removes the specified tab. If the tab doesn't exist, nothing happen.
-	 * 
+	 *
 	 * @param tabToRemove Tab to remove
 	 */
 	public void removeTab(TabResult tabToRemove) {
@@ -126,7 +126,7 @@ public class FenResults extends JFrame {
 	
 	public void setNewControllerForCaptureButton(ControllerScin controller) {
 		for(TabResult tab : this.tabsResult) {
-			for( ActionListener al : tab.getCaptureButton().getActionListeners() )
+			for (ActionListener al : tab.getCaptureButton().getActionListeners())
 				tab.getCaptureButton().removeActionListener( al );
 		    
 			tab.getCaptureButton().addActionListener(controller);

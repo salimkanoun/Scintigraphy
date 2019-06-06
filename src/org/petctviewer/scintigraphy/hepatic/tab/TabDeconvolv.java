@@ -61,7 +61,7 @@ public class TabDeconvolv {
 	public JPanel getResultContent() {
 
 		ModelHepaticDynamic modele = (ModelHepaticDynamic) ((TabCurves) this.tab)
-				.getFenApplication().getControleur().getModel();
+				.getFenApplication().getController().getModel();
 
 		List<Double> bp = modele.getData("Blood Pool AVG");
 		List<Double> rliver = modele.getData("Right Liver AVG");

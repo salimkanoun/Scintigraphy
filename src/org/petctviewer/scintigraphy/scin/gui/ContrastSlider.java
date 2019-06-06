@@ -1,13 +1,17 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import javax.swing.JSlider;
+import ij.ImagePlus;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-
-import ij.ImagePlus;
-
+/**
+ * This component is a slider used to modify the contrast of an ImagePlus.
+ *
+ * @author Titouan QUÉMA
+ */
 public class ContrastSlider extends JSlider implements ChangeListener {
 	private static final long serialVersionUID = 1L;
 

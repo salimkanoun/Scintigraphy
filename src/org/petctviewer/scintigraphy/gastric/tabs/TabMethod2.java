@@ -3,10 +3,10 @@ package org.petctviewer.scintigraphy.gastric.tabs;
 import ij.ImagePlus;
 import ij.Prefs;
 import org.petctviewer.scintigraphy.gastric.Model_Gastric;
-import org.petctviewer.scintigraphy.gastric.Result;
-import org.petctviewer.scintigraphy.gastric.Unit;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
+import org.petctviewer.scintigraphy.scin.model.Result;
+import org.petctviewer.scintigraphy.scin.model.Unit;
 import org.petctviewer.scintigraphy.scin.preferences.PrefsTabGastric;
 
 import javax.swing.*;

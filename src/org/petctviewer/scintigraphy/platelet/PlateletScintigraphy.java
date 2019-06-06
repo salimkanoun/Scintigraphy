@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.platelet_refactored;
+package org.petctviewer.scintigraphy.platelet;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;

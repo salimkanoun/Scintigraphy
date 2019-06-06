@@ -1,7 +1,5 @@
 package org.petctviewer.scintigraphy.scin.model;
 
-import org.petctviewer.scintigraphy.gastric.ResultRequest;
-import org.petctviewer.scintigraphy.gastric.ResultValue;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
@@ -49,14 +47,6 @@ public abstract class ModelWorkflow extends ModelScin {
 	public void setIsotope(Isotope isotope) {
 		this.isotope = isotope;
 	}
-
-	/**
-	 * Converts the key of the data field into a readable name.
-	 *
-	 * @param key Key of the data field
-	 * @return readable string of the key
-	 */
-	public abstract String nameOfDataField(int key);
 
 	/**
 	 * Retrieves the image described by the specified image state.<br>

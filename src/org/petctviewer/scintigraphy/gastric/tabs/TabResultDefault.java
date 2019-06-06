@@ -11,14 +11,16 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.gastric.*;
-import org.petctviewer.scintigraphy.gastric.Fit.FitType;
+import org.petctviewer.scintigraphy.gastric.ControllerWorkflow_Gastric;
+import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+import org.petctviewer.scintigraphy.scin.model.*;
+import org.petctviewer.scintigraphy.scin.model.Fit.FitType;
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
@@ -484,7 +486,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 					ResultValue result = getModel().getRetentionResult(request, Double.parseDouble(
 							fieldCustomRetention.getText()));
 					// Update result
-					resultRetention.setText(result.formatValue() + result.getUnit().abrev());
+					resultRetention.setText(result.formatValue() + result.getUnit().abbrev());
 				} catch (NumberFormatException exception) {
 					resultRetention.setText("--");
 				}
@@ -568,8 +570,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		XYSeries stomachSeries = getModel().generateSeries(this.seriesToGenerate, this.unitDefault);
 		this.data.addSeries(stomachSeries);
 
-		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (" + this.unitTime.abrev() + ")",
-														  "Stomach retention (" + this.unitDefault.abrev() + ")", data,
+		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (" + this.unitTime.abbrev() + ")",
+														  "Stomach retention (" + this.unitDefault.abbrev() + ")", data,
 														  PlotOrientation.VERTICAL, true, true, true);
 
 		// Set bounds
