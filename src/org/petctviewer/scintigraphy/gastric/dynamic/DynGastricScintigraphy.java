@@ -26,7 +26,7 @@ public class DynGastricScintigraphy extends Scintigraphy {
 		this.model = model;
 		this.tabResult = tabResult;
 
-		FenSelectionDicom fsd = new FenSelectionDicom(this.getStudyName(), this);
+		FenSelectionDicom fsd = new FenSelectionDicom(this);
 		fsd.setVisible(true);
 	}
 

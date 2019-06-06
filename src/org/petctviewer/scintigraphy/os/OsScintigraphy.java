@@ -38,7 +38,7 @@ public class OsScintigraphy extends Scintigraphy {
 	 */
 	@Override
 	public void run(String arg) {
-		FenSelectionDicom fen = new FenSelectionDicom(this.getStudyName(), this);
+		FenSelectionDicom fen = new FenSelectionDicom(this);
 		fen.setVisible(true);
 		fen.pack();
 	}

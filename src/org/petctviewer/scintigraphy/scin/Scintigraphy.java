@@ -22,7 +22,7 @@ public abstract class Scintigraphy implements PlugIn {
 	@Override
 	public void run(String arg) {
 		// SK FAIRE DANS UN AUTRE THREAD ?
-		FenSelectionDicom fen = new FenSelectionDicom(this.getStudyName(), this);
+		FenSelectionDicom fen = new FenSelectionDicom(this);
 		fen.setVisible(true);
 	}
 
