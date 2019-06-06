@@ -97,6 +97,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	public ControllerWorkflow(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
 		super(main, vue, model);
 
+		this.getModel().addController(this);
 		this.skipInstruction = false;
 	}
 
@@ -696,9 +697,10 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 			try {
 				SaveAndLoad saveAndLoad = new SaveAndLoad();
-				saveAndLoad.exportAllWithWorkflow(resultats, tab.getParent().getModel().getRoiManager(),
-												  tab.getParent().getModel().getStudyName(), imp, additionalInfo,
-												  ControllerWorkflow.this);
+
+				saveAndLoad.exportAllWithWorkflow(resultats, tab.getParent().getModel().getStudyName(), imp,
+						additionalInfo, this.getModel().getControllers());
+
 
 				imp.killRoi();
 			} catch (Exception e1) {

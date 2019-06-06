@@ -1,9 +1,9 @@
 package org.petctviewer.scintigraphy.lympho.pelvis;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.gui.Roi;
-import ij.plugin.MontageMaker;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.petctviewer.scintigraphy.lympho.ModelLympho;
 import org.petctviewer.scintigraphy.lympho.gui.TabPelvis;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -18,8 +18,10 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import java.util.ArrayList;
-import java.util.List;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.gui.Roi;
+import ij.plugin.MontageMaker;
 
 public class ControllerWorkflowPelvis extends ControllerWorkflow {
 
@@ -35,41 +37,46 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 
 		this.generateInstructions();
 		this.start();
+		this.indexRoi = ((ModelLympho)this.getModel()).getNbRoiLympho();
 	}
 
 	@Override
 	protected void generateInstructions() {
-		this.workflows = new Workflow[this.model.getImageSelection().length];
+		this.workflows = new Workflow[1];
 		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4, dri_5, dri_6;
 		ScreenShotInstruction dri_capture_1, dri_capture_2;
 		this.captures = new ArrayList<>();
+		
+//		this.position = ((ModelLympho)this.getModel()).getNbRoiLympho();
+		
+		System.out.println("indexRoi : "+indexRoi);
 
-		for (int i = 0; i < this.model.getImageSelection().length; i++) {
-			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i]);
+		
+		this.workflows[0] = new Workflow(this, ((ModelLympho) this.getModel()).getImagePelvis());
 
-			ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
-			ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
+		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_WORKFLOW);
+		ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_WORKFLOW);
 
-			dri_1 = new DrawRoiInstruction("Right Pelvis", stateAnt);
-			dri_2 = new DrawRoiInstruction("Left Pelvis", stateAnt);
-			dri_3 = new DrawRoiInstruction("Background", stateAnt);
-			dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), i);
-			dri_4 = new DrawRoiInstruction("Right Pelvis", statePost, dri_1);
-			dri_5 = new DrawRoiInstruction("Left Pelvis", statePost, dri_2);
-			dri_6 = new DrawRoiInstruction("Background", statePost, dri_3);
-			dri_capture_2 = new ScreenShotInstruction(captures, this.getVue(), (i * 2) + 1);
+		dri_1 = new DrawRoiInstruction("Right Pelvis", stateAnt);
+		dri_2 = new DrawRoiInstruction("Left Pelvis", stateAnt);
+		dri_3 = new DrawRoiInstruction("Background", stateAnt);
+		dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), 0);
+		dri_4 = new DrawRoiInstruction("Right Pelvis", statePost, dri_1);
+		dri_5 = new DrawRoiInstruction("Left Pelvis", statePost, dri_2);
+		dri_6 = new DrawRoiInstruction("Background", statePost, dri_3);
+		dri_capture_2 = new ScreenShotInstruction(captures, this.getVue(), 1);
 
-			this.workflows[i].addInstruction(dri_1);
-			this.workflows[i].addInstruction(dri_2);
-			this.workflows[i].addInstruction(dri_3);
-			this.workflows[i].addInstruction(dri_capture_1);
-			this.workflows[i].addInstruction(dri_4);
-			this.workflows[i].addInstruction(dri_5);
-			this.workflows[i].addInstruction(dri_6);
-			this.workflows[i].addInstruction(dri_capture_2);
+		this.workflows[0].addInstruction(dri_1);
+		this.workflows[0].addInstruction(dri_2);
+		this.workflows[0].addInstruction(dri_3);
+		this.workflows[0].addInstruction(dri_capture_1);
+		this.workflows[0].addInstruction(dri_4);
+		this.workflows[0].addInstruction(dri_5);
+		this.workflows[0].addInstruction(dri_6);
+		this.workflows[0].addInstruction(dri_capture_2);
 
-		}
-		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
+		
+		this.workflows[0].addInstruction(new EndInstruction());
 	}
 
 	@Override
@@ -79,36 +86,35 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 		// Compute model
 		int firstSlice = 1;
 		int secondSlice = 2;
-		ImagePlus img = this.model.getImageSelection()[0].getImagePlus();
-		this.model.getImageSelection()[0].getImagePlus().setSlice(firstSlice);
+		ImagePlus img = ((ModelLympho)this.getModel()).getImagePelvis().getImagePlus();
+		img.setSlice(firstSlice);
 		int organ = 0;
-		for (int i = 0; i < this.model.getRoiManager().getRoisAsArray().length; i++) {
+		for (int i = 0 ; i < this.model.getRoiManager().getRoisAsArray().length - ((ModelLympho) this.getModel()).getNbRoiLympho(); i++) {
 
-			Roi r = this.model.getRoiManager().getRoisAsArray()[i];
+			Roi roi = this.model.getRoiManager().getRoisAsArray()[i + ((ModelLympho) this.getModel()).getNbRoiLympho()];
+			System.out.println("\t"+roi+" | "+roi.getName());
 
 			int NBORGAN = 3;
 			if (i < NBORGAN) {
-				img = this.model.getImageSelection()[0].getImagePlus();
 				img.setSlice(firstSlice);
 
 			} else if (i < 2 * NBORGAN) {
-				img = this.model.getImageSelection()[0].getImagePlus();
 				img.setSlice(secondSlice);
 			}
 
-			img.setRoi(r);
-			((ModelPelvis) this.model).calculerCoups(organ, img);
+			img.setRoi(roi);
+			((ModelLympho) this.model).calculerCoupsPelvis(organ, img);
 			organ++;
 
 		}
-		this.model.calculateResults();
+		((ModelLympho)this.model).calculateResultsPelvis();
 
 		// Save captures
 		ImageStack stackCapture = Library_Capture_CSV
 				.captureToStack(this.captures.toArray(new ImagePlus[0]));
 		ImagePlus montage = this.montage2Images(stackCapture);
 
-		((ModelPelvis) this.model).setPelvisMontage(montage);
+		((ModelLympho) this.model).setPelvisMontage(montage);
 		((TabPelvis) this.resultTab).setExamDone(true);
 		this.resultTab.reloadDisplay();
 

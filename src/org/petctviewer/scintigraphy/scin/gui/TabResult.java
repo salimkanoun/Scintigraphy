@@ -228,5 +228,10 @@ public abstract class TabResult {
 	public void setAdditionalInfo(String additionalInfo) {
 		this.additionalInfo = additionalInfo;
 	}
+	
+	public CaptureButton getCaptureButton() {
+		return this.sidePanel.getCaptureButton();
+	}
 
 }
+

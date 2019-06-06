@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.lympho.pelvis;
 
+import org.petctviewer.scintigraphy.lympho.ModelLympho;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -31,7 +32,7 @@ public class PelvisScintigraphy extends Scintigraphy {
 
 		for (int i = 0; i < selectedImages.length; i++) {
 
-			ImageSelection imp = selectedImages[i];
+			ImageSelection imp = selectedImages[i].clone();
 			if (selectedImages[i].getImageOrientation() == Orientation.ANT_POST
 					|| selectedImages[i].getImageOrientation() == Orientation.POST_ANT) {
 				impSorted = Library_Dicom.ensureAntPostFlipped(imp);
@@ -46,8 +47,11 @@ public class PelvisScintigraphy extends Scintigraphy {
 					impSorted.getImagePlus().getStatistics().max * (1.0d / ratio));
 
 			impsSortedAntPost[i] = impSorted;
-			selectedImages[i].getImagePlus().close();
+			
 		}
+		
+		for(ImageSelection selected : selectedImages)
+			selected.close();
 
 		ImageSelection[] selection = new ImageSelection[impsSortedAntPost.length];
 		for (int i = 0; i < impsSortedAntPost.length; i++) {
@@ -58,11 +62,14 @@ public class PelvisScintigraphy extends Scintigraphy {
 
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
+		
+		((ModelLympho) this.resultTab.getParent().getModel()).setImagePelvis(selectedImages[0]);
 
-		this.setFenApplication(new FenApplicationPelvis(selectedImages[0], this.getStudyName()));
+		this.setFenApplication(new FenApplicationPelvis(((ModelLympho)this.resultTab.getParent().getModel()).getImagePelvis(), this.getStudyName()));
 		this.getFenApplication()
 				.setController(new ControllerWorkflowPelvis(this, (FenApplicationWorkflow) this.getFenApplication(),
-						new ModelPelvis(selectedImages, "Pelvis Scinty", this.resultTab), this.resultTab));
+						this.resultTab.getParent().getModel(), this.resultTab));
+		
 		this.getFenApplication().setVisible(true);
 
 	}

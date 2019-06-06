@@ -99,6 +99,8 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 		this.model.calculateResults();
 		FenResults fenResults = new FenResultatsLympho(this, captures.toArray(new ImagePlus[0]));
 		fenResults.setVisible(true);
+		
+		((ModelLympho)this.getModel()).setNbRoiLympho(this.getModel().getRoiManager().getCount());
 
 	}
 

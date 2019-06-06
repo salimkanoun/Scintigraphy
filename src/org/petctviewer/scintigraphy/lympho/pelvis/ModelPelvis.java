@@ -1,21 +1,15 @@
 package org.petctviewer.scintigraphy.lympho.pelvis;
 
-import ij.ImagePlus;
-import org.petctviewer.scintigraphy.lympho.ModelLympho;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.gui.TabResult;
-import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
-
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ModelPelvis extends ModelScin {
 
+	public ModelPelvis(ImageSelection[] selectedImages, String studyName) {
+		super(selectedImages, studyName);
+		// TODO Auto-generated constructor stub
+	}
+/*
 	public static final int RIGHT_PELVIS_ANT = 0, LEFT_PELVIS_ANT = 1, BACKGROUND_ANT = 2, RIGHT_PELVIS_POST = 3,
 			LEFT_PELVIS_POST = 4, BACKGROUND_POST = 5, TOTAL_ORGANS = 6;
 
@@ -174,5 +168,11 @@ public class ModelPelvis extends ModelScin {
 
 		return s;
 	}
+*/
 
+	@Override
+	public void calculateResults() {
+		// TODO Auto-generated method stub
+		
+	}
 }

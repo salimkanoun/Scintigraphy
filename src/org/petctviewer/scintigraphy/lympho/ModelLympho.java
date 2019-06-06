@@ -1,20 +1,20 @@
 package org.petctviewer.scintigraphy.lympho;
 
-import ij.ImagePlus;
-import org.petctviewer.scintigraphy.lympho.gui.TabPelvis;
-import org.petctviewer.scintigraphy.lympho.pelvis.ModelPelvis;
-import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.gui.TabResult;
-import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.petctviewer.scintigraphy.lympho.gui.TabPelvis;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
+
+import ij.ImagePlus;
 
 public class ModelLympho extends ModelScin {
 
@@ -24,6 +24,9 @@ public class ModelLympho extends ModelScin {
 
 	private static final int RESULT_FOOT_RIGHT_FIRST = 0, RESULT_FOOT_LEFT_FIRST = 1, RESULT_FOOT_RIGHT_SECOND = 2,
 			RESULT_FOOT_LEFT_SECOND = 3;
+	
+	public static final int RIGHT_PELVIS_ANT = 0, LEFT_PELVIS_ANT = 1, BACKGROUND_ANT = 2, RIGHT_PELVIS_POST = 3,
+			LEFT_PELVIS_POST = 4, BACKGROUND_POST = 5, TOTAL_ORGANS_PELVIS = 6;
 
 	private boolean locked;
 
@@ -37,6 +40,20 @@ public class ModelLympho extends ModelScin {
 
 	private final List<Double> results;
 
+	private int idImagePelvis;
+	
+	private ImagePlus pelvisMontage;
+	
+	private String[] retourPelvis;
+	
+	private final List<Double> resultsPelvis;
+
+	private final Map<Integer, Double> coupsPelvis;
+	
+	private final Map<Integer, Integer> geometricalAveragePelvis;
+	
+	private int nbRoiLympho;
+	
 	public ModelLympho(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
 
@@ -46,6 +63,10 @@ public class ModelLympho extends ModelScin {
 		this.retour = new String[9];
 
 		this.results = new ArrayList<>();
+		
+		this.resultsPelvis = new ArrayList<>();
+		this.coupsPelvis = new HashMap<>();
+		this.geometricalAveragePelvis = new HashMap<>();
 	}
 
 	public boolean isLocked() {
@@ -215,12 +236,160 @@ public class ModelLympho extends ModelScin {
 
 		if (this.resutlTab != null)
 			if (((TabPelvis) this.resutlTab).getVueBasic() != null)
-				s += ((ModelPelvis) ((TabPelvis) this.resutlTab).getVueBasic().getFenApplication()
-						.getController().getModel()).toCSV();
+				s += this.toCSVPelvis();
 
 		s += super.toString();
 
 		return s;
 	}
+	
+	public void setImagePelvis(ImageSelection imagePelvis) {
+		ImageSelection[] newBoundsOfImages = new ImageSelection[this.getImageSelection().length + 1];
+		for(int i = 0 ; i < this.getImageSelection().length ; i++)
+			newBoundsOfImages[i] = this.getImageSelection()[i];
+		
+		newBoundsOfImages[newBoundsOfImages.length - 1] = imagePelvis;
+		
+		this.setImages(newBoundsOfImages);
+		this.idImagePelvis = newBoundsOfImages.length - 1;
+		System.out.println("this.getImageSelection().length : "+this.getImageSelection().length);
+		System.out.println("newBoundsOfImages.length : "+newBoundsOfImages.length);
+	}
 
+	public ImageSelection getImagePelvis() {
+		System.out.println("this.idImagePelvis : "+this.idImagePelvis);
+		return this.getImageSelection()[this.idImagePelvis];
+	}
+
+
+	public String[] getResultPelvis() {
+		return this.retourPelvis;
+	}
+
+	public void calculerCoupsPelvis(int organ, ImagePlus imp) {
+		double correctedRadioactiveDecrease;
+		if (organ % 3 == 2) {
+			correctedRadioactiveDecrease = Library_Quantif.getCounts(imp);
+		} else {
+//			System.out.println("\n\n\tAvant correction : " + Library_Quantif.getCounts(imp));
+			correctedRadioactiveDecrease = Library_Quantif.getCountCorrectedBackground(imp,
+					this.roiManager.getRoi(organ + this.nbRoiLympho), this.roiManager.getRoi(((organ / 3) * 3) + 2 + this.nbRoiLympho));
+		}
+		this.coupsPelvis.put(organ, correctedRadioactiveDecrease);
+//		System.out.println("Calculations for " + organ + " [" + this.convertOrganPelvis(organ) + "] -> "
+//				+ correctedRadioactiveDecrease + "\n\n");
+	}
+
+	public String convertOrganPelvis(int organ) {
+		switch (organ) {
+		case RIGHT_PELVIS_ANT:
+			return "Right Pelvis First Image ANT: ";
+		case RIGHT_PELVIS_POST:
+			return "Right Pelvis First Image POST: ";
+		case LEFT_PELVIS_ANT:
+			return "Left Pelvis First Image ANT: ";
+		case LEFT_PELVIS_POST:
+			return "Left Pelvis First Image POST: ";
+		case BACKGROUND_ANT:
+			return "Background ANT: ";
+		case BACKGROUND_POST:
+			return "Background POST: ";
+		default:
+			return "Unknown Organ (" + organ + "): ";
+		}
+	}
+
+	private void computeGeometricalAveragePelvis() {
+		System.out.println("\n\n\n\n\n\n----------------------------\n\n\n\n\n\n");
+		System.out.println("nbCounts : " + this.coups.size());
+		for (Double count : this.coups.values().toArray(new Double[0])) {
+			System.out.println("Counts : " + count);
+		}
+		this.moyenneGeoPelvis(RIGHT_PELVIS_ANT);
+		this.moyenneGeoPelvis(LEFT_PELVIS_ANT);
+	}
+
+	// Calcule la moyenne g茅om茅trique pour un organe sp茅cifique
+	// Si abv = PD alors on calculera la MG pour le poumon droit
+	private void moyenneGeoPelvis(int organ) {
+		Library_Quantif.getCountCorrectedBackground(this.selectedImages[organ / 3].getImagePlus(),
+				this.roiManager.getRoi(organ + this.nbRoiLympho), this.roiManager.getRoi((organ / 3) + 3 + this.nbRoiLympho));
+		geometricalAveragePelvis.put(organ, (int) Library_Quantif.moyGeom(this.coups.get(organ), this.coups.get(organ + 3)));
+		System.out.println("MG " + organ + " [" + ModelLympho.convertOrgan(organ) + "/ "
+				+ ModelLympho.convertOrgan(organ + 3) + "] --- [" + this.coups.get(organ) + "/"
+				+ this.coups.get(organ + 3) + "] -> " + geometricalAverage.get(organ));
+
+	}
+
+	public void calculateResultsPelvis() {
+		this.retourPelvis = new String[9];
+
+		// Permet de definir le nombre de chiffre apr猫s la virgule et mettre la
+		// virgue en system US avec un .
+		DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance();
+		sym.setDecimalSeparator('.');
+		DecimalFormat us = new DecimalFormat("##.##");
+		us.setDecimalFormatSymbols(sym);
+
+		// Les 5 MGs
+		computeGeometricalAveragePelvis();
+		retourPelvis[0] = "Geometric Average Drainage RIGHT : ";
+		double GeometricAverageRight = geometricalAveragePelvis.get(RIGHT_PELVIS_ANT);
+		retourPelvis[0] += " " + us.format(GeometricAverageRight) + "";
+
+		retourPelvis[1] = "Geometric Average Drainage LEFT : ";
+		double GeometricAverageLeft = geometricalAveragePelvis.get(LEFT_PELVIS_ANT);
+		retourPelvis[1] += " " + us.format(GeometricAverageLeft) + "";
+
+		retourPelvis[2] = "Gradient Right/Left : ";
+		double LeftRightGradient = ((GeometricAverageRight - GeometricAverageLeft) / GeometricAverageLeft) * 100;
+		retourPelvis[2] += " " + us.format(LeftRightGradient) + "%";
+
+		retourPelvis[3] = "Gradient Left/Right : ";
+		double RightLeftGradient = ((GeometricAverageLeft - GeometricAverageRight) / GeometricAverageRight) * 100;
+		retourPelvis[3] += " " + us.format(RightLeftGradient) + "%";
+
+		this.getInjectionRatio();
+
+		this.resultsPelvis.add(Double.valueOf(us.format(GeometricAverageRight)));
+		this.resultsPelvis.add(Double.valueOf(us.format(GeometricAverageLeft)));
+		this.resultsPelvis.add(Double.valueOf(us.format(LeftRightGradient)));
+		this.resultsPelvis.add(Double.valueOf(us.format(RightLeftGradient)));
+
+	}
+
+	public ImagePlus getPelvisMontage() {
+		return this.pelvisMontage;
+	}
+
+	public void setPelvisMontage(ImagePlus pelvisMontage) {
+		this.pelvisMontage = pelvisMontage;
+	}
+	
+	public String toCSVPelvis() {
+		String s = "";
+
+		s += ",Right,Left\n";
+		s += "Geometric Average Drainage," + this.results.get(0) + "," + results.get(1) + "\n\n";
+		s += "Gradient Right/Left," + this.results.get(2) + "\n";
+		s += "Gradient Left/Right," + this.results.get(3) + "\n\n";
+
+		return s;
+	}
+	
+	
+	
+	public void setNbRoiLympho (int nbRoiLympho){
+		this.nbRoiLympho = nbRoiLympho;
+	}
+	
+	public int getNbRoiLympho() {
+		return this.nbRoiLympho;
+	}
+	
+	
+	
+	
+	
+	
 }

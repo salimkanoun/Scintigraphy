@@ -1,11 +1,14 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
-
-import javax.swing.*;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JFrame;
+import javax.swing.JTabbedPane;
+
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 /**
  * Class that represent a result window for a study.<br> The result window is composed of one or several {@link
@@ -119,6 +122,15 @@ public class FenResults extends JFrame {
 	public void reloadAllTabs() {
 		for (TabResult tab : this.tabsResult)
 			tab.reloadDisplay();
+	}
+	
+	public void setNewControllerForCaptureButton(ControllerScin controller) {
+		for(TabResult tab : this.tabsResult) {
+			for (ActionListener al : tab.getCaptureButton().getActionListeners())
+				tab.getCaptureButton().removeActionListener( al );
+		    
+			tab.getCaptureButton().addActionListener(controller);
+		}
 	}
 
 }

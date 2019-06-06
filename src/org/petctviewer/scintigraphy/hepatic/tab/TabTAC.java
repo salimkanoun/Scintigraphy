@@ -1,15 +1,20 @@
 package org.petctviewer.scintigraphy.hepatic.tab;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.plugin.MontageMaker;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.hepatic.SecondExam.ModelSecondMethodHepaticDynamic;
+import org.petctviewer.scintigraphy.hepatic.ModelHepaticDynamic;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
@@ -18,9 +23,9 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.List;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.plugin.MontageMaker;
 
 public class TabTAC {
 
@@ -55,18 +60,18 @@ public class TabTAC {
 
 	public JPanel getResultContent() {
 		if (!singleGraph) {
-			ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
+			ModelHepaticDynamic modele = (ModelHepaticDynamic) ((TabCurves) this.tab)
 					.getFenApplication().getController().getModel();
 
 			JPanel grid = new JPanel(new GridLayout(2, 2));
 
 			ImageStack stackCapture = Library_Capture_CSV
-					.captureToStack(new ImagePlus[] { Library_Capture_CSV.captureImage(modele.getCapture(), 512, 0) });
+					.captureToStack(new ImagePlus[] { Library_Capture_CSV.captureImage(modele.getCapture(), 0, 0) });
 			ImagePlus montage = this.montage(stackCapture);
 
 			// BufferedImage capture = fenApplication.getImagePlus().getBufferedImage();
-
-			grid.add(new DynamicImage(montage.getBufferedImage()));
+			DynamicImage image = new DynamicImage(montage.getBufferedImage());
+			
 
 			List<XYSeries> series = modele.getSeries();
 			ChartPanel chartDuodenom = Library_JFreeChart.associateSeries(new String[] { "Duodenom" }, series);
@@ -79,23 +84,22 @@ public class TabTAC {
 			JValueSetter setterHilium = new JValueSetter(chartHilium.getChart());
 			setterHilium.addSelector(new Selector("start", 10, -1, RectangleAnchor.BOTTOM_RIGHT), "start");
 
-			// chartDuodenom.setPreferredSize(new Dimension(parent.getWidth() / 2,
-			// parent.getHeight() / 2));
+
+			chartDuodenom.setPreferredSize(new Dimension(100, 70));
+			chartCBD.setPreferredSize(new Dimension(100, 70));
+			chartHilium.setPreferredSize(new Dimension(100, 70));
+			image.setPreferredSize(new Dimension(100, 70));
+			
+			
+			grid.add(image);
 			grid.add(chartDuodenom);
-
-			// chartCBD.setPreferredSize(new Dimension(parent.getWidth() / 2,
-			// parent.getHeight() / 2));
 			grid.add(chartCBD);
-
-			// chartHilium.setPreferredSize(new Dimension(parent.getWidth() / 2,
-			// parent.getHeight() / 2));
 			grid.add(chartHilium);
 
-			// grid.setPreferredSize(new Dimension(1000, 650));
 
 			return grid;
 		} else {
-			ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
+			ModelHepaticDynamic modele = (ModelHepaticDynamic) ((TabCurves) this.tab)
 					.getFenApplication().getController().getModel();
 
 			XYSeriesCollection data = new XYSeriesCollection();
@@ -104,11 +108,8 @@ public class TabTAC {
 			data.addSeries(modele.getSerie("Hilium"));
 
 			JFreeChart chart = ChartFactory.createXYLineChart("", "min", "counts/sec", data);
-
+			
 			ChartPanel chartpanel = new ChartPanel(chart);
-
-			chartpanel.setPreferredSize(new Dimension(1000, 650));
-
 			return chartpanel;
 		}
 	}
@@ -131,8 +132,7 @@ public class TabTAC {
 		this.result = this.getResultContent() == null ? new JPanel() : this.getResultContent();
 		this.panel.add(this.result, BorderLayout.CENTER);
 		this.parent.repaint();
-		this.parent.revalidate();
-		this.parent.pack();
+;
 	}
 
 	protected ImagePlus montage(ImageStack captures) {
