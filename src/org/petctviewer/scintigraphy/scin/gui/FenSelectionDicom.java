@@ -32,7 +32,7 @@ import java.util.*;
  *
  * @author Titouan QUÉMA - Restructuration and amerlioration of the code
  */
-public class FenSelectionDicom extends JFrame implements ActionListener, ImageListener, WindowListener {
+public class FenSelectionDicom extends JDialog implements ActionListener, ImageListener, WindowListener {
 	private static final long serialVersionUID = 6706629497515318270L;
 
 	protected final JTable table;
@@ -47,6 +47,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 * @param preparator Module to prepare the images of this selection window
 	 */
 	public FenSelectionDicom(ImagePreparator preparator) {
+		super((JFrame) null, true);
 		this.preparator = preparator;
 		ImagePlus.addImageListener(this);
 		this.columns = new ArrayList<>();

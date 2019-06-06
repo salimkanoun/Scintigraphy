@@ -22,7 +22,6 @@ public class MIBGScintigraphy extends Scintigraphy implements ImagePreparator {
 
 	public MIBGScintigraphy() {
 		super(STUDY_NAME);
-		this.setImagePreparator(this);
 	}
 
 	@Override
