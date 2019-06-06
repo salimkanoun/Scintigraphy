@@ -25,7 +25,7 @@ public class ModelShunpo_refactored extends ModelWorkflow {
 			"Left Lung Ratio"), RES_SHUNT_SYST = new Result("Shunt Systemic"), RES_PULMONARY_SHUNT = new Result(
 			"Pulmonary Shunt"), RES_PULMONARY_SHUNT_2 = new Result("Pulmonary Shunt", 2);
 
-	private static final int IMAGE_KIDNEY_LUNG = 0, IMAGE_BRAIN = 1;
+	public static final int IMAGE_KIDNEY_LUNG = 0, IMAGE_BRAIN = 1;
 
 	private List<Data> datas;
 	private Map<Integer, Double> results;
