@@ -26,15 +26,15 @@ public class ColonicScintigraphy extends Scintigraphy {
 
 		ImageSelection[] impSelect = new ImageSelection[openedImages.length];
 		for (int i = 0; i < openedImages.length; i++) {
-			if (openedImages[i].getImageOrientation() == Orientation.ANT_POST
-					|| openedImages[i].getImageOrientation() == Orientation.POST_ANT) {
-				impSelect[i] = Library_Dicom.ensureAntPostFlipped(openedImages[i]);
+			if (openedImages.get(i).getImageOrientation() == Orientation.ANT_POST
+					|| openedImages.get(i).getImageOrientation() == Orientation.POST_ANT) {
+				impSelect[i] = Library_Dicom.ensureAntPostFlipped(openedImages.get(i));
 			} else {
-				throw new WrongColumnException.OrientationColumn(openedImages[i].getRow(),
-						openedImages[i].getImageOrientation(),
+				throw new WrongColumnException.OrientationColumn(openedImages.get(i).getRow(),
+						openedImages.get(i).getImageOrientation(),
 						new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT });
 			}
-			openedImages[i].getImagePlus().close();
+			openedImages.get(i).getImagePlus().close();
 		}
 
 		// Order images by time
