@@ -3,13 +3,13 @@ package org.petctviewer.scintigraphy.platelet_refactored;
 import ij.ImagePlus;
 import ij.gui.Roi;
 import org.jfree.data.xy.XYSeries;
-import org.petctviewer.scintigraphy.gastric.ResultRequest;
-import org.petctviewer.scintigraphy.gastric.ResultValue;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
+import org.petctviewer.scintigraphy.scin.model.ResultRequest;
+import org.petctviewer.scintigraphy.scin.model.ResultValue;
 
 import java.util.ArrayList;
 import java.util.Date;

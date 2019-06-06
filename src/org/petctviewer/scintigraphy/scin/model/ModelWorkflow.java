@@ -1,7 +1,5 @@
 package org.petctviewer.scintigraphy.scin.model;
 
-import org.petctviewer.scintigraphy.gastric.ResultRequest;
-import org.petctviewer.scintigraphy.gastric.ResultValue;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;

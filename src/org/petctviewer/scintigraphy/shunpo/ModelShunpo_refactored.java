@@ -2,16 +2,12 @@ package org.petctviewer.scintigraphy.shunpo;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
-import org.petctviewer.scintigraphy.gastric.Result;
-import org.petctviewer.scintigraphy.gastric.ResultRequest;
-import org.petctviewer.scintigraphy.gastric.ResultValue;
-import org.petctviewer.scintigraphy.gastric.Unit;
 import org.petctviewer.scintigraphy.platelet_refactored.Data;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
+import org.petctviewer.scintigraphy.scin.model.*;
 
 import java.util.*;
 

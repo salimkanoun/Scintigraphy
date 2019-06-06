@@ -14,7 +14,7 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
+import org.petctviewer.scintigraphy.scin.model.*;
 
 import java.awt.*;
 import java.math.BigDecimal;
@@ -937,7 +937,7 @@ public class Model_Gastric extends ModelWorkflow {
 	 * @return Intragastric distribution graph
 	 */
 	public ChartPanel createGraph_1() {
-		return Library_JFreeChart.createGraph("Time (" + Unit.MINUTES.abrev() + ")", "Fundus/Stomach (%)",
+		return Library_JFreeChart.createGraph("Time (" + Unit.MINUTES.abbrev() + ")", "Fundus/Stomach (%)",
 											  new Color[]{new Color(0, 100, 0)}, "",
 											  Library_JFreeChart.createDataset(this.generateTime(),
 																			   this.getResultAsArray(REGION_FUNDUS,
@@ -953,7 +953,7 @@ public class Model_Gastric extends ModelWorkflow {
 	 */
 	public ChartPanel createGraph_2() {
 		double[] result = this.getResultAsArray(REGION_STOMACH, Data.DATA_DERIVATIVE, Unit.PERCENTAGE);
-		return Library_JFreeChart.createGraph("Time (" + Unit.MINUTES.abrev() + ")", "% meal in the interval",
+		return Library_JFreeChart.createGraph("Time (" + Unit.MINUTES.abbrev() + ")", "% meal in the interval",
 											  new Color[]{Color.RED}, "",
 											  Library_JFreeChart.createDataset(this.generateDerivedTime(), result,
 																			   "Gastrointestinal flow"));
@@ -976,7 +976,7 @@ public class Model_Gastric extends ModelWorkflow {
 
 		XYSeriesCollection dataset = Library_JFreeChart.createDataset(this.generateTime(), ySeries, titles);
 
-		return Library_JFreeChart.createGraph("Time (" + Unit.MINUTES.abrev() + ")", "Retention (% meal)", colors, "",
+		return Library_JFreeChart.createGraph("Time (" + Unit.MINUTES.abbrev() + ")", "Retention (% meal)", colors, "",
 											  dataset);
 	}
 
@@ -991,7 +991,7 @@ public class Model_Gastric extends ModelWorkflow {
 		XYSeriesCollection dataset = Library_JFreeChart.createDataset(this.generateTime(), result,
 																	  "Stomach " + "retention");
 
-		return Library_JFreeChart.createGraph(Unit.MINUTES.abrev(), unit.abrev(), new Color[]{Color.GREEN}, "",
+		return Library_JFreeChart.createGraph(Unit.MINUTES.abbrev(), unit.abbrev(), new Color[]{Color.GREEN}, "",
 											  dataset);
 	}
 

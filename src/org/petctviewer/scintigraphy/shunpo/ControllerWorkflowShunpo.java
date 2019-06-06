@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.shunpo;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
-import org.petctviewer.scintigraphy.gastric.ResultRequest;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -18,6 +17,7 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.model.ResultRequest;
 
 import javax.swing.*;
 import java.awt.*;

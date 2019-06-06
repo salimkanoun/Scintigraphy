@@ -3,12 +3,12 @@ package org.petctviewer.scintigraphy.platelet_refactored;
 
 import ij.gui.Roi;
 import org.apache.commons.lang.ArrayUtils;
-import org.petctviewer.scintigraphy.gastric.Region;
-import org.petctviewer.scintigraphy.gastric.Unit;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Debug;
+import org.petctviewer.scintigraphy.scin.model.Region;
+import org.petctviewer.scintigraphy.scin.model.Unit;
 
 import java.util.HashMap;
 import java.util.Map;

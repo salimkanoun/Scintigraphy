@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.gastric;
+package org.petctviewer.scintigraphy.scin.model;
 
 import ij.gui.Roi;
 import org.petctviewer.scintigraphy.platelet_refactored.Data;

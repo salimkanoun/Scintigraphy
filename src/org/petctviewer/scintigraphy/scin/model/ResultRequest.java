@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.gastric;
+package org.petctviewer.scintigraphy.scin.model;
 
 import java.util.HashMap;
 import java.util.Map;

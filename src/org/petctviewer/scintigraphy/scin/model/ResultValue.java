@@ -1,6 +1,6 @@
-package org.petctviewer.scintigraphy.gastric;
+package org.petctviewer.scintigraphy.scin.model;
 
-import org.petctviewer.scintigraphy.gastric.Fit.FitType;
+import org.petctviewer.scintigraphy.scin.model.Fit.FitType;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -209,6 +209,6 @@ public class ResultValue {
 	 */
 	@Override
 	public String toString() {
-		return this.getResultType().getName() + " = " + this.formatValue() + this.getUnit().abrev();
+		return this.getResultType().getName() + " = " + this.formatValue() + this.getUnit().abbrev();
 	}
 }

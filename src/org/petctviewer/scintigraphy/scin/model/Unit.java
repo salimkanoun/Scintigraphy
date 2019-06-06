@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.gastric;
+package org.petctviewer.scintigraphy.scin.model;
 
 public enum Unit {
 	PERCENTAGE("%"), TIME("h:m:s"), MINUTES("min"), COUNTS("counts"), COUNTS_PER_SECOND("counts/sec"),
@@ -11,7 +11,10 @@ public enum Unit {
 		this.abbreviation = abbreviation;
 	}
 
-	public String abrev() {
+	/**
+	 * @return abbreviation of this unit (used for display)
+	 */
+	public String abbrev() {
 		return abbreviation;
 	}
 
@@ -98,6 +101,9 @@ public enum Unit {
 		throw new UnsupportedOperationException("This unit (" + this + ") cannot be converted to " + unit);
 	}
 
+	/**
+	 * @see #abbrev()
+	 */
 	@Override
 	public String toString() {
 		return this.abbreviation;

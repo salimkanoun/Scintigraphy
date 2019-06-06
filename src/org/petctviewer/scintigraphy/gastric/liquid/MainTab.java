@@ -8,15 +8,15 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.gastric.Fit;
-import org.petctviewer.scintigraphy.gastric.ResultRequest;
-import org.petctviewer.scintigraphy.gastric.ResultValue;
-import org.petctviewer.scintigraphy.gastric.Unit;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+import org.petctviewer.scintigraphy.scin.model.Fit;
+import org.petctviewer.scintigraphy.scin.model.ResultRequest;
+import org.petctviewer.scintigraphy.scin.model.ResultValue;
+import org.petctviewer.scintigraphy.scin.model.Unit;
 
 import javax.swing.*;
 import java.awt.*;
@@ -79,8 +79,8 @@ public class MainTab extends TabResult implements ChartMouseListener {
 		data = new XYSeriesCollection(series);
 
 		final String graphTitle = "Stomach retention - Liquid phase";
-		final String xLabel = "Time (" + Unit.MINUTES.abrev() + ")";
-		final String yLabel = "Stomach retention (" + Unit.COUNTS.abrev() + ")";
+		final String xLabel = "Time (" + Unit.MINUTES.abbrev() + ")";
+		final String yLabel = "Stomach retention (" + Unit.COUNTS.abbrev() + ")";
 
 		if (this.displayFit) {
 			JValueSetter valueSetter = new JValueSetter(ChartFactory
