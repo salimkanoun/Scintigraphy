@@ -1,7 +1,9 @@
 package org.petctviewer.scintigraphy.hepatic.SecondExam;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.petctviewer.scintigraphy.hepatic.ModelHepaticDynamic;
 import org.petctviewer.scintigraphy.hepatic.tab.TabCurves;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -14,8 +16,7 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import java.util.ArrayList;
-import java.util.List;
+import ij.ImagePlus;
 
 public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 
@@ -39,7 +40,7 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 		ScreenShotInstruction dri_capture;
 		List<ImagePlus> captures = new ArrayList<>();
 
-		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
+		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[1]);
 
 		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
 
@@ -66,7 +67,7 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 	@Override
 	public void end() {
 
-		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) this.model;
+		ModelHepaticDynamic modele = (ModelHepaticDynamic) this.model;
 
 		modele.setCapture(this.vue.getImagePlus());
 
@@ -79,11 +80,13 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 		((TabCurves) this.resultTab).setExamDone(true);
 
 		this.resultTab.reloadDisplay();
+		this.resultTab.getParent().pack();
 
 		this.vue.dispose();
 		
-		for(Roi roi : modele.getRoiManager().getRoisAsArray())
-			this.resultTab.getParent().getModel().getRoiManager().addRoi(roi);
+//		for(Roi roi : modele.getRoiManager().getRoisAsArray())
+//			this.resultTab.getParent().getModel().getRoiManager().addRoi(roi);
+		this.resultTab.getParent().setNewControllerForCaptureButton(this);
 	}
 
 	public ModelScin getModel() {

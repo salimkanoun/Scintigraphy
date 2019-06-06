@@ -1,5 +1,14 @@
 package org.petctviewer.scintigraphy.hepatic.tab;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.swing.JPanel;
+
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -7,18 +16,12 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.hepatic.SecondExam.ModelSecondMethodHepaticDynamic;
+import org.petctviewer.scintigraphy.hepatic.ModelHepaticDynamic;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.YSelector;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Tab showing the deconvolve of Right liver, using the Blood Pool values.
@@ -57,7 +60,7 @@ public class TabDeconvolv {
 
 	public JPanel getResultContent() {
 
-		ModelSecondMethodHepaticDynamic modele = (ModelSecondMethodHepaticDynamic) ((TabCurves) this.tab)
+		ModelHepaticDynamic modele = (ModelHepaticDynamic) ((TabCurves) this.tab)
 				.getFenApplication().getControleur().getModel();
 
 		List<Double> bp = modele.getData("Blood Pool AVG");
@@ -121,16 +124,16 @@ public class TabDeconvolv {
 		// generate the chart
 		JFreeChart chart2 = new JFreeChart("Not convolved curves", null, plotRight, true);
 		ChartPanel chartpanelRight = new ChartPanel(chart2);
+		
+		chartpanel.setPreferredSize(new Dimension(200, 70));
+		chartpanelRight.setPreferredSize(new Dimension(200, 70));
 
 		JPanel grid = new JPanel(new GridLayout(2, 1));
 		grid.add(prepareValueSetter(chartpanel));
 		grid.add(prepareValueSetter(chartpanelRight));
 
-//		grid.setPreferredSize(new Dimension(1000, 650));
-
 		return grid;
 
-		// chartpanel.setPreferredSize(new Dimension(1000, 650));
 		// return chartpanel;
 	}
 
@@ -152,8 +155,7 @@ public class TabDeconvolv {
 		this.result = this.getResultContent() == null ? new JPanel() : this.getResultContent();
 		this.panel.add(this.result, BorderLayout.CENTER);
 		this.parent.repaint();
-		this.parent.revalidate();
-		this.parent.pack();
+
 	}
 
 	public void setDeconvolvFactor(int deconvolv) {
