@@ -113,7 +113,7 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 
 				CustomScintigraphy scin = new CustomScintigraphy(this);
 
-				FenSelectionDicom fen = new FenSelectionDicom("Visual Gradation", scin);
+				FenSelectionDicom fen = new FenSelectionDicom( scin);
 				fen.setVisible(true);
 
 			} else if (button == btn_switchLimb) {
@@ -316,5 +316,4 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 		this.getParent().toFront();
 
 	}
-
 }

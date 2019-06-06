@@ -1,7 +1,5 @@
 package org.petctviewer.scintigraphy.mibg;
 
-import java.util.Arrays;
-
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -14,6 +12,8 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
+import java.util.Arrays;
+
 public class MIBGScintigraphy extends Scintigraphy {
 
 	public MIBGScintigraphy() {
@@ -23,7 +23,7 @@ public class MIBGScintigraphy extends Scintigraphy {
 	@Override
 	public void run(String arg) {
 		// Override to use custom dicom selection window
-		FenSelectionDicom fen = new FenSelectionDicom(this.getStudyName(), this);
+		FenSelectionDicom fen = new FenSelectionDicom(this);
 
 		// Orientation column
 		String[] orientationValues = { Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString(),

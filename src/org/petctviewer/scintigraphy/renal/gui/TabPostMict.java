@@ -102,7 +102,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 
 			// Open DICOM dialog Selection to select post mictional image
 			// SK A REFACTORISER
-			FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", new Scintigraphy("Post-mictional") {
+			FenSelectionDicom fen = new FenSelectionDicom(new Scintigraphy("Post-mictional") {
 				@Override
 				public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 					if (selectedImages.length > 1) {

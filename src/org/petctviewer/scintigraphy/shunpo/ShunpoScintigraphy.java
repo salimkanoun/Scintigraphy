@@ -24,7 +24,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	@Override
 	public void run(String arg) {
 		// Override to use custom dicom selection window
-		FenSelectionDicom fen = new FenSelectionDicom(this.getStudyName(), this);
+		FenSelectionDicom fen = new FenSelectionDicom(this);
 
 		// Orientation column
 		String[] orientationValues = {Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString()};
