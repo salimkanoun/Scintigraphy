@@ -97,8 +97,9 @@ public class ModelShunpo_refactored extends ModelWorkflow {
 		Double value = this.results.get(request.getResultOn().hashCode());
 		if (value == null) return null;
 		// Convert result to requested unit
-		value = Unit.PERCENTAGE.convertTo(value, request.getUnit());
-		return new ResultValue(request, value, request.getUnit());
+		Unit conversion = (request.getUnit() == null ? Unit.PERCENTAGE : request.getUnit());
+		value = Unit.PERCENTAGE.convertTo(value, conversion);
+		return new ResultValue(request, value, conversion);
 	}
 
 	@Override

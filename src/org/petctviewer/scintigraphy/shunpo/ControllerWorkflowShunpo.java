@@ -40,11 +40,9 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
 	// TODO: remove this method and do this in the instructions
 	private void computeModel() {
-		for(Roi r : getRoiManager().getRoisAsArray())
-			System.out.println(r.getName());
 		ImageState stateAnt = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, 0), statePost = new ImageState(
 				Orientation.POST, 2, ImageState.LAT_RL, 0);
-		final int NB_ROI_PER_IMAGE = 7;
+		final int NB_ROI_PER_IMAGE = 5;
 		// Post then Ant
 		for (int i = 0; i < 2; i++) {
 			ImageState state;
@@ -65,12 +63,6 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 			// - Background
 			getModel().addData(ModelShunpo_refactored.REGION_BACKGROUND, state,
 							   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i + 4]);
-			// - Right Lung
-			getModel().addData(ModelShunpo_refactored.REGION_RIGHT_LUNG, state,
-							   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i + 5]);
-			// - Left Lung
-			getModel().addData(ModelShunpo_refactored.REGION_LEFT_LUNG, state,
-							   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i + 6]);
 		}
 
 		// - Brain Post

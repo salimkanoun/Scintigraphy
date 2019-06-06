@@ -1,6 +1,8 @@
 package org.petctviewer.scintigraphy.shunpo;
 
 import ij.ImagePlus;
+import org.petctviewer.scintigraphy.gastric.ResultRequest;
+import org.petctviewer.scintigraphy.gastric.ResultValue;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -9,7 +11,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MainResult extends TabResult {
-	
+
 	private final ImagePlus montage;
 
 	public MainResult(FenResults parent, ImagePlus montage) {
@@ -18,12 +20,31 @@ public class MainResult extends TabResult {
 		this.reloadDisplay();
 	}
 
+	private ModelShunpo_refactored getModel() {
+		return (ModelShunpo_refactored) this.parent.getModel();
+	}
+
+	private void displayResult(ResultValue result, Container container) {
+		JLabel label = new JLabel(result.toString());
+		container.add(label);
+	}
+
 	@Override
 	public Component getSidePanelContent() {
-		String[] result = ((ModelShunpo) this.parent.getModel()).getResult();
-		JPanel res = new JPanel(new GridLayout(result.length, 1));
-		for (String s : result)
-			res.add(new JLabel(s));
+		JPanel res = new JPanel(new GridLayout(0, 1));
+
+		// Lung ratio
+		ResultRequest request = new ResultRequest(ModelShunpo_refactored.RES_RATIO_RIGHT_LUNG);
+		this.displayResult(getModel().getResult(request), res);
+		request.changeResultOn(ModelShunpo_refactored.RES_RATIO_LEFT_LUNG);
+		this.displayResult(getModel().getResult(request), res);
+		// Shunt systemic
+		request.changeResultOn(ModelShunpo_refactored.RES_SHUNT_SYST);
+		this.displayResult(getModel().getResult(request), res);
+		// Pulmonary shunt
+		request.changeResultOn(ModelShunpo_refactored.RES_PULMONARY_SHUNT);
+		this.displayResult(getModel().getResult(request), res);
+
 		return res;
 	}
 
