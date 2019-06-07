@@ -4,13 +4,12 @@ import ij.IJ;
 import ij.Prefs;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
 public class PrefTabBone extends PrefTab {
 	public static final String PREF_HEADER = PrefWindow.PREF_HEADER + ".bone", PREF_LUT = PREF_HEADER + ".lut",
-			PREF_DEFAULT_LUT = PREF_HEADER + ".default_lut";
+			PREF_USE_CUSTOM_LUT = PREF_HEADER + ".default_lut";
 
 	private static final String TXT_SELECT_LUT = "Select a LUT";
 
@@ -37,27 +36,20 @@ public class PrefTabBone extends PrefTab {
 		this.btn_displut = new JButton("Show LUTs");
 		this.btn_displut.addActionListener(this);
 
-		JPanel pan_lut = new JPanel();
-		pan_lut.add(this.lut);
-		pan_lut.add(this.btn_choixLut);
-		pan_lut.add(this.btn_displut);
-		this.mainPanel.add(pan_lut);
-
 		// Checkbox default lut
-		this.checkBoxDefaultLut = this.createCheckbox(PREF_DEFAULT_LUT, "Use the default LUT?", true);
+		this.checkBoxDefaultLut = this.createCheckbox(PREF_USE_CUSTOM_LUT, "Use custom LUT", false);
 		this.checkBoxDefaultLut.addActionListener(e -> {
-			if (this.checkBoxDefaultLut.isSelected()) {
-				this.lut.setText(Prefs.get(PrefTabMain.PREF_LUT, TXT_SELECT_LUT));
-				this.btn_choixLut.setEnabled(false);
-			} else {
-				this.lut.setText(Prefs.get(PREF_LUT, TXT_SELECT_LUT));
-				this.btn_choixLut.setEnabled(true);
-			}
+			this.lut.setVisible(this.checkBoxDefaultLut.isSelected());
+			this.btn_choixLut.setVisible(this.checkBoxDefaultLut.isSelected());
 		});
-		this.checkBoxDefaultLut.setMaximumSize(
-				new Dimension(this.checkBoxDefaultLut.getMaximumSize().width, Short.MAX_VALUE));
-		this.btn_choixLut.setEnabled(!this.checkBoxDefaultLut.isSelected());
 		this.mainPanel.add(this.checkBoxDefaultLut);
+
+		this.mainPanel.add(this.btn_displut);
+		this.mainPanel.add(this.lut);
+		this.mainPanel.add(this.btn_choixLut);
+
+		this.lut.setVisible(this.checkBoxDefaultLut.isSelected());
+		this.btn_choixLut.setVisible(this.checkBoxDefaultLut.isSelected());
 	}
 
 	@Override
