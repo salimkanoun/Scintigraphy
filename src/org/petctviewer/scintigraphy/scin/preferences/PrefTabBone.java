@@ -43,7 +43,7 @@ public class PrefTabBone extends PrefTab {
 		this.mainPanel.add(pan_lut);
 
 		// Checkbox default lut
-		this.checkBoxDefaultLut = this.createCheckbox(PREF_DEFAULT_LUT, "Use the default Lut ?", true);
+		this.checkBoxDefaultLut = this.createCheckbox(PREF_DEFAULT_LUT, "Use the default LUT?", true);
 		this.checkBoxDefaultLut.addActionListener(e -> {
 			if (this.checkBoxDefaultLut.isSelected()) {
 				this.lut.setText(Prefs.get(PrefTabMain.PREF_LUT, TXT_SELECT_LUT));
