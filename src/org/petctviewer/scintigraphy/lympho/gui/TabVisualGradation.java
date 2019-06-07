@@ -1,5 +1,25 @@
 package org.petctviewer.scintigraphy.lympho.gui;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.imageio.ImageIO;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.SwingConstants;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
@@ -8,15 +28,8 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 public class TabVisualGradation extends TabResult implements ActionListener {
 
@@ -277,15 +290,15 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 		}
 
 		@Override
-		public ImageSelection[] preparerImp(ImageSelection[] openedImages)
+		public List<ImageSelection> prepareImages(List<ImageSelection> openedImages)
 				throws WrongInputException, ReadTagException {
 			// TODO Auto-generated method stub
-			if (openedImages.length != 1)
-				throw new WrongNumberImagesException(openedImages.length, 1);
+			if (openedImages.size() != 1)
+				throw new WrongNumberImagesException(openedImages.size(), 1);
 			
-			ImageSelection[] selectedImages = new ImageSelection[openedImages.length];
-			for(int i = 0 ; i < openedImages.length ; i++) 
-				selectedImages[i] = openedImages[i].clone();
+			List<ImageSelection> selectedImages = new ArrayList<>();
+			for(int i = 0 ; i < openedImages.size() ; i++) 
+				selectedImages.add(openedImages.get(i).clone());
 			
 			for(ImageSelection selected : openedImages)
 				selected.close();
@@ -300,6 +313,18 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 			this.openedImages = selectedImages;
 
 			tab.update(this.openedImages[0]);
+		}
+
+		@Override
+		public String getName() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Column[] getColumns() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 	}

@@ -1,6 +1,9 @@
 package org.petctviewer.scintigraphy.renal.postMictional;
 
-import ij.gui.Overlay;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.gui.TabPostMict;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -8,10 +11,11 @@ import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import java.awt.image.BufferedImage;
+import ij.gui.Overlay;
 
 public class PostMictional extends Scintigraphy {
 
@@ -24,23 +28,23 @@ public class PostMictional extends Scintigraphy {
 	}
 
 	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
+	public List<ImageSelection> prepareImages(List<ImageSelection>  selectedImages) throws WrongInputException {
 
 		ImageSelection impSorted = null;
-		if (selectedImages[0].getImageOrientation() == Orientation.ANT_POST) {
-			impSorted = Library_Dicom.ensureAntPostFlipped(selectedImages[0]);
+		if (selectedImages.get(0).getImageOrientation() == Orientation.ANT_POST) {
+			impSorted = Library_Dicom.ensureAntPostFlipped(selectedImages.get(0));
 
-		} else if (selectedImages[0].getImageOrientation() == Orientation.POST_ANT) {
-			impSorted = selectedImages[0].clone();
+		} else if (selectedImages.get(0).getImageOrientation() == Orientation.POST_ANT) {
+			impSorted = selectedImages.get(0).clone();
 
-		} else if (selectedImages[0].getImageOrientation() == Orientation.POST) {
-			impSorted = selectedImages[0].clone();
+		} else if (selectedImages.get(0).getImageOrientation() == Orientation.POST) {
+			impSorted = selectedImages.get(0).clone();
 		}
 		
-		selectedImages[0].close();
+		selectedImages.get(0).close();
 
-		ImageSelection[] selection = new ImageSelection[1];
-		selection[0] = impSorted;
+		List<ImageSelection> selection = new ArrayList<>();
+		selection.add(impSorted);
 		return selection;
 	}
 
@@ -72,6 +76,18 @@ public class PostMictional extends Scintigraphy {
 	public TabPostMict getResultFrame() {
 		return resultFrame;
 
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Column[] getColumns() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

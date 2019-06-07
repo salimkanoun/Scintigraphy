@@ -1,4 +1,10 @@
-import ij.plugin.PlugIn;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 import org.petctviewer.scintigraphy.calibration.Calibration;
 import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
 import org.petctviewer.scintigraphy.colonic.ColonicScintigraphy;
@@ -19,8 +25,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.preferences.PrefsWindows;
 import org.petctviewer.scintigraphy.shunpo.ShunpoScintigraphy;
 
-import javax.swing.*;
-import java.awt.*;
+import ij.plugin.PlugIn;
 
 public class FenDebug extends JFrame {
 

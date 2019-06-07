@@ -13,6 +13,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
@@ -21,6 +22,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -104,28 +106,28 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 			// SK A REFACTORISER
 			FenSelectionDicom fen = new FenSelectionDicom(new Scintigraphy("Post-mictional") {
 				@Override
-				public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
-					if (selectedImages.length > 1) {
-						throw new WrongNumberImagesException(selectedImages.length, 1);
+				public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException {
+					if (selectedImages.size() > 1) {
+						throw new WrongNumberImagesException(selectedImages.size(), 1);
 					}
-					if (selectedImages[0].getImageOrientation() == Orientation.ANT_POST
-							|| selectedImages[0].getImageOrientation() == Orientation.POST_ANT
-							|| selectedImages[0].getImageOrientation() == Orientation.POST) {
+					if (selectedImages.get(0).getImageOrientation() == Orientation.ANT_POST
+							|| selectedImages.get(0).getImageOrientation() == Orientation.POST_ANT
+							|| selectedImages.get(0).getImageOrientation() == Orientation.POST) {
 						// SK A GERER RECUPERER SEULE L IMAGE POST SI STATIC A/P ?
-						ImageSelection imp = selectedImages[0].clone();
+						ImageSelection imp = selectedImages.get(0).clone();
 						
-						selectedImages[0].close();
+						selectedImages.get(0).close();
 
 //						Library_Dicom.normalizeToCountPerSecond(imp);
 
 						TabPostMict.this.imgSelected = true;
 						TabPostMict.this.setImp(imp.getImagePlus());
 
-						ImageSelection[] selection = new ImageSelection[1];
-						selection[0] = imp;
+						List<ImageSelection> selection = new ArrayList<>();
+						selection.add(imp);
 						return selection;
 					} else {
-						throw new WrongOrientationException(selectedImages[0].getImageOrientation(),
+						throw new WrongOrientationException(selectedImages.get(0).getImageOrientation(),
 								new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT, Orientation.POST });
 					}
 
@@ -136,6 +138,18 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 					// TabPostMict.this.reloadDisplay();
 					TabPostMict.this.images = selectedImages;
 				}
+
+				@Override
+				public String getName() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public Column[] getColumns() {
+					// TODO Auto-generated method stub
+					return null;
+				}
 			});
 
 			fen.setVisible(true);
@@ -144,7 +158,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 			// SK A REVOIR
 			PostMictional vueBasic = new PostMictional(createOrgans(), this);
 			try {
-				vueBasic.lancerProgramme(vueBasic.preparerImp(TabPostMict.this.images));
+				vueBasic.lancerProgramme(vueBasic.prepareImages(Arrays.asList(TabPostMict.this.images)).toArray(new ImageSelection[0]));
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

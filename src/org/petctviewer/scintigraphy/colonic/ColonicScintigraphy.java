@@ -34,7 +34,7 @@ public class ColonicScintigraphy extends Scintigraphy {
 	@Override
 	public String getName() {
 		//TODO: auto-generated code
-		return null;
+		return STUDY_NAME;
 	}
 
 	@Override

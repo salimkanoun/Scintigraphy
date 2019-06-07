@@ -1,6 +1,8 @@
 package org.petctviewer.scintigraphy.renal;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -11,6 +13,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
@@ -29,25 +32,25 @@ public class RenalScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException, ReadTagException {
+	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException, ReadTagException {
 		// Check number of images
-		if (selectedImages.length != 1 && selectedImages.length != 2)
-			throw new WrongNumberImagesException(selectedImages.length, 1, 2);
+		if (selectedImages.size() != 1 && selectedImages.size() != 2)
+			throw new WrongNumberImagesException(selectedImages.size(), 1, 2);
 
 		// Check orientations
 		// With 1 image
-		if (selectedImages.length == 1) {
-			if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
+		if (selectedImages.size() == 1) {
+			if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
 				// Set images
-				ImageSelection[] imps = Library_Dicom.splitDynamicAntPost(selectedImages[0]);
+				ImageSelection[] imps = Library_Dicom.splitDynamicAntPost(selectedImages.get(0));
 				this.impAnt = imps[0];
 				this.impPost = imps[1];
-			} else if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_POST) {
+			} else if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_POST) {
 				// Only Dyn Post
-				this.impPost = selectedImages[0].clone();
+				this.impPost = selectedImages.get(0).clone();
 			} else
-				throw new WrongColumnException.OrientationColumn(selectedImages[0].getRow(),
-						selectedImages[0].getImageOrientation(), new Orientation[]{Orientation.DYNAMIC_POST,
+				throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
+						selectedImages.get(0).getImageOrientation(), new Orientation[]{Orientation.DYNAMIC_POST,
 						Orientation.DYNAMIC_ANT_POST}, "You" + " can also use 2 dynamics (Ant and Post)");
 		}
 		// With 2 images
@@ -56,22 +59,22 @@ public class RenalScintigraphy extends Scintigraphy {
 //			String hint = "You can also use only 1 dynamic (Ant_Post)";
 
 			// Image 0 must be Dyn Ant or Post
-			if (Arrays.stream(acceptedOrientations).noneMatch(o -> o == selectedImages[0].getImageOrientation()))
-				throw new WrongColumnException.OrientationColumn(selectedImages[0].getRow(),
-						selectedImages[0].getImageOrientation(), acceptedOrientations);
+			if (Arrays.stream(acceptedOrientations).noneMatch(o -> o == selectedImages.get(0).getImageOrientation()))
+				throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
+						selectedImages.get(0).getImageOrientation(), acceptedOrientations);
 			// Image 1 must be the invert of image 0
-			if (selectedImages[1].getImageOrientation() != selectedImages[0].getImageOrientation().invert())
-				throw new WrongColumnException.OrientationColumn(selectedImages[1].getRow(),
-						selectedImages[1].getImageOrientation(),
-						new Orientation[]{selectedImages[0].getImageOrientation().invert()});
+			if (selectedImages.get(1).getImageOrientation() != selectedImages.get(0).getImageOrientation().invert())
+				throw new WrongColumnException.OrientationColumn(selectedImages.get(1).getRow(),
+						selectedImages.get(1).getImageOrientation(),
+						new Orientation[]{selectedImages.get(0).getImageOrientation().invert()});
 
 			// Set images
-			if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_ANT) {
-				this.impAnt = selectedImages[0].clone();
-				this.impPost = selectedImages[1].clone();
+			if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_ANT) {
+				this.impAnt = selectedImages.get(0).clone();
+				this.impPost = selectedImages.get(1).clone();
 			} else {
-				this.impAnt = selectedImages[1].clone();
-				this.impPost = selectedImages[0].clone();
+				this.impAnt = selectedImages.get(1).clone();
+				this.impPost = selectedImages.get(0).clone();
 			}
 		}
 
@@ -134,18 +137,18 @@ public class RenalScintigraphy extends Scintigraphy {
 		nbImage++;
 		if (impAnt != null) nbImage++;
 
-		ImageSelection[] selection = new ImageSelection[nbImage];
+		List<ImageSelection> selection = new ArrayList<>();
 
 		nbImage = 0;
 
-		selection[nbImage] = impProjetee;
+		selection.set(nbImage, impProjetee);
 		nbImage++;
 		if (impPost != null) {
-			selection[nbImage] = impPost;
+			selection.set(nbImage, impPost);
 			nbImage++;
 		}
 		if (impAnt != null) {
-			selection[nbImage] = impAnt;
+			selection.set(nbImage, impAnt);
 		}
 		return selection;
 	}
@@ -169,6 +172,18 @@ public class RenalScintigraphy extends Scintigraphy {
 
 	public ImageSelection getImpPost() {
 		return impPost;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Column[] getColumns() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

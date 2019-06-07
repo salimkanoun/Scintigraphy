@@ -1,9 +1,9 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
-import ij.IJ;
-import ij.gui.Overlay;
-import ij.gui.Toolbar;
-import ij.plugin.StackReverser;
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -12,9 +12,13 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import java.awt.*;
+import ij.IJ;
+import ij.gui.Overlay;
+import ij.gui.Toolbar;
+import ij.plugin.StackReverser;
 
 public class DmsaScintigraphy extends Scintigraphy {
 
@@ -23,28 +27,28 @@ public class DmsaScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
-		if (selectedImages.length > 1) throw new WrongNumberImagesException(selectedImages.length, 1);
+	public List<ImageSelection> prepareImages(List<ImageSelection>  selectedImages) throws WrongInputException {
+		if (selectedImages.size()> 1) throw new WrongNumberImagesException(selectedImages.size(), 1);
 
-		ImageSelection imp = selectedImages[0].clone();
+		ImageSelection imp = selectedImages.get(0).clone();
 
-		if (selectedImages[0].getImageOrientation() == Orientation.ANT_POST) {
+		if (selectedImages.get(0).getImageOrientation() == Orientation.ANT_POST) {
 			imp.getImagePlus().getStack().getProcessor(1).flipHorizontal();
 			// SK REVERSE DES METADATA A VERIFIER !!!!
 			StackReverser reverser = new StackReverser();
 			reverser.flipStack(imp.getImagePlus());
 			imp.getImagePlus().getStack().getProcessor(2).flipHorizontal();
-		} else if (selectedImages[0].getImageOrientation() == Orientation.POST_ANT) {
+		} else if (selectedImages.get(0).getImageOrientation() == Orientation.POST_ANT) {
 			imp.getImagePlus().getStack().getProcessor(2).flipHorizontal();
-		} else if (selectedImages[0].getImageOrientation() == Orientation.POST) {
+		} else if (selectedImages.get(0).getImageOrientation() == Orientation.POST) {
 
 		} else {
-			throw new WrongOrientationException(selectedImages[0].getImageOrientation(),
+			throw new WrongOrientationException(selectedImages.get(0).getImageOrientation(),
 					new Orientation[]{Orientation.ANT_POST, Orientation.POST_ANT, Orientation.POST});
 		}
 
-		ImageSelection[] selection = new ImageSelection[1];
-		selection[0] = imp;
+		List<ImageSelection> selection = new ArrayList<>();
+		selection.add(imp);
 
 		for(ImageSelection ims : selectedImages)
 			ims.close();
@@ -64,6 +68,18 @@ public class DmsaScintigraphy extends Scintigraphy {
 
 		fen.setController(
 				new ControllerWorkflowDMSA(this, (FenApplicationWorkflow) this.getFenApplication(), selectedImages));
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Column[] getColumns() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
