@@ -80,4 +80,9 @@ public class ShunpoScintigraphy extends Scintigraphy {
 
 		return result;
 	}
+
+	@Override
+	public String instructions() {
+		return "2 images in Ant-Post or Post-Ant orientation";
+	}
 }

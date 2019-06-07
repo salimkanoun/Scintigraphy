@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.mibg;
 
-import org.petctviewer.scintigraphy.scin.ImagePreparator;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -16,7 +15,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MIBGScintigraphy extends Scintigraphy implements ImagePreparator {
+public class MIBGScintigraphy extends Scintigraphy {
 
 	public static final String STUDY_NAME = "MIBG Scintigraphy";
 
@@ -91,5 +90,10 @@ public class MIBGScintigraphy extends Scintigraphy implements ImagePreparator {
 			ims.close();
 
 		return impSelect;
+	}
+
+	@Override
+	public String instructions() {
+		return "2 images. Ant-Post / Post-Ant or Ant orientations accepted.";
 	}
 }

@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.gastric.liquid;
 
-import org.petctviewer.scintigraphy.scin.ImagePreparator;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -16,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class LiquidScintigraphy extends Scintigraphy implements ImagePreparator {
+public class LiquidScintigraphy extends Scintigraphy {
 
 	public static final String STUDY_NAME = "Liquid Scintigraphy";
 
@@ -68,5 +67,10 @@ public class LiquidScintigraphy extends Scintigraphy implements ImagePreparator 
 		selection.sort(new ChronologicalAcquisitionComparator());
 
 		return selection;
+	}
+
+	@Override
+	public String instructions() {
+		return "Minimum 2 images. Ant-Post / Post-Ant / Ant images accepted.";
 	}
 }

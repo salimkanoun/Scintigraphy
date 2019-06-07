@@ -48,4 +48,12 @@ public interface ImagePreparator {
 	 */
 	List<ImageSelection> prepareImages(List<ImageSelection> openedImages) throws WrongInputException, ReadTagException;
 
+	/**
+	 * This method returns a string describing the images needed for this preparator. This message is intended to the
+	 * user.
+	 *
+	 * @return instructions of the requested images
+	 */
+	String instructions();
+
 }

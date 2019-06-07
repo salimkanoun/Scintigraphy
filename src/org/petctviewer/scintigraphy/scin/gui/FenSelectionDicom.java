@@ -53,12 +53,10 @@ public class FenSelectionDicom extends JDialog implements ActionListener, ImageL
 		this.columns = new ArrayList<>();
 
 		// on ajoute le titre a la fenetre
-		this.setTitle("Select Series");
+		this.setTitle("Select the DICOMs for " + preparator.getName());
 
 		// creation du tableau
 		table = new JTable();
-		// use default columns
-//		this.declareColumns(Column.getDefaultColumns());
 		this.declareColumns(preparator.getColumns());
 
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -82,7 +80,10 @@ public class FenSelectionDicom extends JDialog implements ActionListener, ImageL
 
 		panel.add(tablePane, BorderLayout.CENTER);
 
-		panel.add(new JLabel("Select the DICOMs for " + preparator.getName()), BorderLayout.NORTH);
+		JLabel instructions = new JLabel("Requirements: " + preparator.instructions());
+		instructions.setMaximumSize(new Dimension(200, instructions.getMaximumSize().height));
+		instructions.setFont(instructions.getFont().deriveFont(14f));
+		panel.add(instructions, BorderLayout.NORTH);
 
 		jp.add(btn_select);
 		jp.add(this.btn_selectAll);

@@ -104,4 +104,9 @@ public class CardiacScintigraphy extends Scintigraphy {
 
 		return mountedImages;
 	}
+
+	@Override
+	public String instructions() {
+		return "1 or 2 images. Ant-Post or Post-Ant orientations accepted.";
+	}
 }

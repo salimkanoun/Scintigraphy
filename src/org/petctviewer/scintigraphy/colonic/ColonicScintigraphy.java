@@ -23,7 +23,6 @@ public class ColonicScintigraphy extends Scintigraphy {
 
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
-		// TODO Auto-generated method stub
 
 		this.setFenApplication(new FenApplicationColonicTransit(selectedImages[0], this.getStudyName()));
 		this.getFenApplication().setController(
@@ -33,13 +32,11 @@ public class ColonicScintigraphy extends Scintigraphy {
 
 	@Override
 	public String getName() {
-		//TODO: auto-generated code
 		return null;
 	}
 
 	@Override
 	public FenSelectionDicom.Column[] getColumns() {
-		//TODO: auto-generated code
 		return new FenSelectionDicom.Column[0];
 	}
 
@@ -67,5 +64,10 @@ public class ColonicScintigraphy extends Scintigraphy {
 		impSelect.sort(new ChronologicalAcquisitionComparator());
 
 		return impSelect;
+	}
+
+	@Override
+	public String instructions() {
+		return "2 to 4 images. Ant-Post or Post-Ant orientations accepted.";
 	}
 }

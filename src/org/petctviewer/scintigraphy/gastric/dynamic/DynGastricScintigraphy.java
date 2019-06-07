@@ -88,4 +88,9 @@ public class DynGastricScintigraphy extends Scintigraphy {
 
 		return selection;
 	}
+
+	@Override
+	public String instructions() {
+		return "Minimum 1 image. Dynamic Ant-Post, Post-Ant or Ant orientations accepted.";
+	}
 }

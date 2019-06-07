@@ -236,4 +236,9 @@ public class EsophagealTransit extends Scintigraphy {
 		selection.add(sauvegardeImagesSelectDicom[0][0]);
 		return selection;
 	}
+
+	@Override
+	public String instructions() {
+		return "Minimum 1 image.";
+	}
 }

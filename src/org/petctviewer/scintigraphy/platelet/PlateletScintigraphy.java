@@ -88,4 +88,9 @@ public class PlateletScintigraphy extends Scintigraphy {
 
 		return selections;
 	}
+
+	@Override
+	public String instructions() {
+		return "Minimum 2 images in Ant-Post, Post-Ant or Post orientation";
+	}
 }

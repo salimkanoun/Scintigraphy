@@ -87,4 +87,9 @@ public class GastricScintigraphy extends Scintigraphy {
 
 		return selection;
 	}
+
+	@Override
+	public String instructions() {
+		return "Minimum 2 images in Ant-Post or Post-Ant orientation.";
+	}
 }
