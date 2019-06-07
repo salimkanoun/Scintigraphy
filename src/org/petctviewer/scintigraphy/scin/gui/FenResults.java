@@ -6,6 +6,7 @@ import org.petctviewer.scintigraphy.scin.model.ModelScin;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,9 +35,8 @@ public class FenResults extends JFrame {
 
 		this.add(tabPane);
 
-
-		this.setIconImage(Toolkit.getDefaultToolkit().getImage(
-				this.getClass().getClassLoader().getResource("images/icons/frameIconBis.png")));
+		URL res = this.getClass().getClassLoader().getResource("images/icons/frameIconBis.png");
+		if (res != null) this.setIconImage(Toolkit.getDefaultToolkit().getImage(res));
 	}
 
 	public ModelScin getModel() {
