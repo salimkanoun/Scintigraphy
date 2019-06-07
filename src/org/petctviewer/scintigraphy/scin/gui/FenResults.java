@@ -1,9 +1,12 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 
@@ -34,6 +37,12 @@ public class FenResults extends JFrame {
 		this.tabsResult = new ArrayList<>();
 
 		this.add(tabPane);
+		
+		try {
+			this.setIconImage(ImageIO.read(new File("images/icons/frameIconBis.png")));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public ModelScin getModel() {

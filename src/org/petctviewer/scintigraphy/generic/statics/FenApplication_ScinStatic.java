@@ -20,6 +20,10 @@ public class FenApplication_ScinStatic extends FenApplicationWorkflow {
 
 	public FenApplication_ScinStatic(ImageSelection ims, String nom) {
 		super(ims, nom);
+		
+		// Keep default visualisation
+		this.setVisualizationEnable(false);
+		
 		this.getTextfield_instructions().setEditable(true);
 		this.btn_finish = new Button("Finish");
 		this.btn_finish.setActionCommand(ControllerWorkflow.COMMAND_END);

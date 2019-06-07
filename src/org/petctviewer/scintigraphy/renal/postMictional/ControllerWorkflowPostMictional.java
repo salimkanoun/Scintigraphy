@@ -1,9 +1,13 @@
 package org.petctviewer.scintigraphy.renal.postMictional;
 
 
-import ij.ImagePlus;
-import ij.Prefs;
-import ij.gui.Overlay;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -20,12 +24,9 @@ import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import ij.ImagePlus;
+import ij.Prefs;
+import ij.gui.Overlay;
 
 public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 
@@ -117,7 +118,7 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 		// ((PostMictional)
 		// this.main).getResultFrame().getImagePlus().duplicate().show();
 		// captures.get(0).show();
-		// this.main.getFenApplication().dispose();
+		 this.main.getFenApplication().dispose();
 	}
 
 	@Override

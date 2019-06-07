@@ -92,7 +92,7 @@ public class ModelScinStatic extends ModelScin {
 		Object[][] res = new Object[this.roisPost.size()][4];
 
 		// Multiple Slice (ANT/POST)
-		if (!this.getIsSingleSlide()) {
+		if (!this.isSingleSlice()) {
 			int i = 0;
 			for (String s : this.roisPost.keySet()) {
 				res[i][0] = s;
@@ -102,7 +102,7 @@ public class ModelScinStatic extends ModelScin {
 			}
 		}
 		// Only ANT
-		else if (this.getIsAnt()) {
+		else if (this.isAnt()) {
 			int i = 0;
 			for (String s : this.roisPost.keySet()) {
 				res[i][0] = s;
@@ -127,7 +127,7 @@ public class ModelScinStatic extends ModelScin {
 	public String toString() {
 		String res;
 		// Multiple Slice (ANT/POST)
-		if (!this.getIsSingleSlide()) {
+		if (!this.isSingleSlice()) {
 			res = "name, count ant, avg ant , std ant, count post, avg post, std post, geom mean \n";
 			for (String s : this.roisAnt.keySet()) {
 				res += s + ", " + roisAnt.get(s)[0] + "," + roisAnt.get(s)[1] + "," + roisAnt.get(s)[2] + ","
@@ -140,7 +140,7 @@ public class ModelScinStatic extends ModelScin {
 			// taille fenetre
 		}
 		// Only ANT
-		else if (this.getIsAnt()) {
+		else if (this.isAnt()) {
 			res = "name, count ant, avg ant , std ant,\n";
 			for (String s : this.roisAnt.keySet()) {
 				res += s + ", " + roisAnt.get(s)[0] + "," + roisAnt.get(s)[1] + "," + roisAnt.get(s)[2] + "\n";
@@ -165,12 +165,12 @@ public class ModelScinStatic extends ModelScin {
 		this.isAnt = isAnt;
 	}
 
-	public boolean getIsSingleSlide() {
-		return this.isSingleSlice;
+	public boolean isSingleSlice() {
+		return isSingleSlice;
 	}
 
-	public boolean getIsAnt() {
-		return this.isAnt;
+	public boolean isAnt() {
+		return isAnt;
 	}
 
 }

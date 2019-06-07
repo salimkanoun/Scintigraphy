@@ -11,10 +11,13 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.ReversedChronologicalAcquisitionComparator;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,7 +31,7 @@ public class OsScintigraphy extends Scintigraphy {
 	private boolean process;
 
 	public OsScintigraphy() {
-		super("Scinti Os");
+		super("Bone Scintigraphy");
 		this.process = true;
 	}
 
@@ -139,6 +142,11 @@ public class OsScintigraphy extends Scintigraphy {
 			frame.setVisible(true);
 			frame.setResizable(true);
 			frame.setLocationRelativeTo(null);
+			try {
+				frame.setIconImage(ImageIO.read(new File("images/icons/frameIconBis.png")));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

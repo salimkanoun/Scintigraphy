@@ -103,7 +103,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 			organes.add("Bladder");
 		}
 
-		if (Prefs.get(PrefTabRenal.PREF_PELVIS, true)) {
+		if (Prefs.get(PrefTabRenal.PREF_URETER, true)) {
 			if (((Model_Renal) this.model).getKidneys()[0]) {
 				dri_7 = new DrawRoiInstruction("L. Ureter", statePost);
 				this.workflows[0].addInstruction(dri_7);
@@ -181,7 +181,9 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		// on affiche la fenetre de resultats principale
 		((Model_Renal) model).setNephrogramChart(fan.getValueSetter());
 		FenResults fenResults = new FenResultats_Renal(scinRenal, capture, this);
+		fenResults.toFront();
 		fenResults.setVisible(true);
+		
 
 		// SK On rebloque le modele pour la prochaine generation
 		modele.setLocked(true);
