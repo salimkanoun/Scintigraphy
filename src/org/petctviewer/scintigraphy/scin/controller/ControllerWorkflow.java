@@ -378,6 +378,9 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		this.indexCurrentWorkflow = 0;
 		this.indexRoi = 0;
 
+		// Update view
+		getVue().setNbInstructions(this.allInputInstructions().size());
+
 		Instruction i = this.workflows[0].next();
 		if (i != null) {
 			this.currentState = new ImageState(
@@ -389,9 +392,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 			this.prepareImage(i.getImageState());
 			i.afterNext(this);
 		}
-
-		// Update view
-		getVue().setNbInstructions(this.allInputInstructions().size());
 	}
 
 	/**
