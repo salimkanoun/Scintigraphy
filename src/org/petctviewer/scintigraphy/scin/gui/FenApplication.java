@@ -1,30 +1,11 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
-import java.awt.Panel;
-import java.awt.Toolkit;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseWheelListener;
-import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-
+import ij.IJ;
+import ij.ImagePlus;
+import ij.gui.ImageCanvas;
+import ij.gui.Overlay;
+import ij.gui.StackWindow;
+import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
@@ -33,16 +14,19 @@ import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
 import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.gui.ImageCanvas;
-import ij.gui.Overlay;
-import ij.gui.StackWindow;
-import ij.util.DicomTools;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseWheelListener;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Interface graphique principale de quantification dans imageJ
- * 
+ *
  * @author diego
  *
  */
@@ -85,7 +69,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
-	 * 
+	 *
 	 * @param imp
 	 *            ImagePlus a traiter
 	 * @param studyName
@@ -152,8 +136,8 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.addComponentListener(this);
 		this.setResizable(false);
 
-		Image image=Toolkit.getDefaultToolkit().getImage(this.getClass().getClassLoader().getResource("images/icons/frameIconBis.png"));
-		this.setIconImage(image);
+		this.setIconImage(Toolkit.getDefaultToolkit().getImage(
+				this.getClass().getClassLoader().getResource("images" + "/icons/frameIconBis.png")));
 	}
 
 	protected DocumentationDialog createDocumentation() {

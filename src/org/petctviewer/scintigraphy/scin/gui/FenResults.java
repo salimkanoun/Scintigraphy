@@ -1,17 +1,13 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
-
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class that represent a result window for a study.<br> The result window is composed of one or several {@link
@@ -37,12 +33,10 @@ public class FenResults extends JFrame {
 		this.tabsResult = new ArrayList<>();
 
 		this.add(tabPane);
-		
-		try {
-			this.setIconImage(ImageIO.read(new File("images/icons/frameIconBis.png")));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+
+
+		this.setIconImage(Toolkit.getDefaultToolkit().getImage(
+				this.getClass().getClassLoader().getResource("images/icons/frameIconBis.png")));
 	}
 
 	public ModelScin getModel() {
@@ -132,12 +126,12 @@ public class FenResults extends JFrame {
 		for (TabResult tab : this.tabsResult)
 			tab.reloadDisplay();
 	}
-	
+
 	public void setNewControllerForCaptureButton(ControllerScin controller) {
-		for(TabResult tab : this.tabsResult) {
+		for (TabResult tab : this.tabsResult) {
 			for (ActionListener al : tab.getCaptureButton().getActionListeners())
-				tab.getCaptureButton().removeActionListener( al );
-		    
+				tab.getCaptureButton().removeActionListener(al);
+
 			tab.getCaptureButton().addActionListener(controller);
 		}
 	}
