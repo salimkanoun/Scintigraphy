@@ -41,7 +41,7 @@ public class TabMethod2 extends TabResultDefault {
 		final Result[] results = new Result[]{Model_Gastric.RES_TIME, Model_Gastric.RES_STOMACH_COUNTS};
 		final Unit[] units = new Unit[]{Unit.MINUTES, this.unitDefault};
 		JPanel panTable = new JPanel(new BorderLayout());
-		JTable table = tablesResultats(results, units);
+		JTable table = tableResults(results, units);
 		panTable.add(table.getTableHeader(), BorderLayout.PAGE_START);
 		panTable.add(table, BorderLayout.CENTER);
 		panCenter.add(panTable, BorderLayout.CENTER);
@@ -50,7 +50,7 @@ public class TabMethod2 extends TabResultDefault {
 		final Result[] resultsRequested = new Result[]{Model_Gastric.LAG_PHASE_GEOAVG, Model_Gastric.T_HALF_GEOAVG,
 				Model_Gastric.RETENTION_GEOAVG};
 		final Unit[] unitsRequested = new Unit[]{Unit.MINUTES, Unit.MINUTES, Unit.PERCENTAGE};
-		panCenter.add(this.infoResultats(resultsRequested, unitsRequested), BorderLayout.SOUTH);
+		panCenter.add(this.infoResults(resultsRequested, unitsRequested), BorderLayout.SOUTH);
 		panel.add(panCenter, BorderLayout.CENTER);
 
 		// - Custom retention
