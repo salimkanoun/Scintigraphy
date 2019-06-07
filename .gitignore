@@ -1,14 +1,16 @@
-/target/
-/bin/
+target/
+bin/
 
 # mac
 *.DS_Store
 
-/.settings/
+# Eclipse
+.settings/
 .classpath
-/jars/
-/.project
+jars/
+.project
 
+# IntelliJ
 .idea/
 Scintigraphy.eml
 Scintigraphy.iml
