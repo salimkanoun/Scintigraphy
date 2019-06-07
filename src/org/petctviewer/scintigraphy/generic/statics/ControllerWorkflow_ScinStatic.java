@@ -1,6 +1,8 @@
 
 package org.petctviewer.scintigraphy.generic.statics;
 
+import java.awt.Color;
+
 import javax.swing.JOptionPane;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -15,9 +17,13 @@ import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawLoopInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.ImagePlus;
+import ij.ImageStack;
 import ij.gui.Roi;
+import ij.plugin.MontageMaker;
 
 public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
@@ -32,6 +38,18 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 		this.generateInstructions();
 		this.start();
+
+		vue.getImagePlus().getOverlay().clear();
+
+		if (!((ModelScinStatic) model).isSingleSlice()) {
+			Library_Gui.setOverlayTitle("Ant", vue.getImagePlus(), Color.YELLOW, 1);
+			Library_Gui.setOverlayTitle("Inverted Post", vue.getImagePlus(), Color.YELLOW, 2);
+		} else if (((ModelScinStatic) model).isAnt())
+			Library_Gui.setOverlayTitle("Ant", vue.getImagePlus(), Color.YELLOW, 1);
+		else
+			Library_Gui.setOverlayTitle("Post", vue.getImagePlus(), Color.YELLOW, 1);
+		
+		Library_Gui.setOverlayDG(vue.getImagePlus(), Color.yellow);
 
 		this.fenResult = new FenResults(this);
 		this.fenResult.setVisible(false);
@@ -57,7 +75,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		DefaultGenerator dri_1;
 
 		ImageState state;
-		if (((ModelScinStatic) this.getModel()).getIsAnt())
+		if (((ModelScinStatic) this.getModel()).isAnt())
 			state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
 		else
 			state = new ImageState(Orientation.POST, 1, false, ImageState.ID_NONE);
@@ -75,12 +93,13 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 	}
 
 	public void end() {
+		super.end();
 		ImagePlus imp = this.model.getImagePlus();
 
 		// pour la ant
 		imp.setSlice(1);
 
-		if (!((ModelScinStatic) this.getModel()).getIsSingleSlide() || ((ModelScinStatic) this.getModel()).getIsAnt()) {
+		if (!((ModelScinStatic) this.getModel()).isSingleSlice() || ((ModelScinStatic) this.getModel()).isAnt()) {
 			for (int i = 0; i < this.model.getRoiManager().getCount(); i++) {
 				Roi roi = this.model.getRoiManager().getRoi(i);
 				imp.setRoi(roi);
@@ -88,11 +107,10 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 			}
 		}
 		// pour la post
-		if (!((ModelScinStatic) this.getModel()).getIsSingleSlide())
+		if (!((ModelScinStatic) this.getModel()).isSingleSlice())
 			imp.setSlice(2);
 
-		if (!((ModelScinStatic) this.getModel()).getIsSingleSlide()
-				|| !((ModelScinStatic) this.getModel()).getIsAnt()) {
+		if (!((ModelScinStatic) this.getModel()).isSingleSlice() || !((ModelScinStatic) this.getModel()).isAnt()) {
 			for (int i = 0; i < this.model.getRoiManager().getCount(); i++) {
 				Roi roi = this.model.getRoiManager().getRoi(i);
 				imp.setRoi(roi);
@@ -100,8 +118,8 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 			}
 		}
 
-		Thread t = new DoubleImageThread("test", this.main, this.model);
-		t.start();
+		FenResults fenResults = new FenResultat_ScinStatic(this.takeCapture().getBufferedImage(), this);
+		fenResults.setVisible(true);
 
 	}
 
@@ -117,7 +135,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		if (sameName && getVue().getImage().getImagePlus().getRoi() != null) {
 			int result;
 			result = JOptionPane.showConfirmDialog(getVue(), "A Roi already have this name. Do you want to continue ?",
-					"Duplicate Roi Name", JOptionPane.YES_NO_CANCEL_OPTION);
+					"Duplicate Roi Name", JOptionPane.YES_NO_OPTION);
 
 			if (result != JOptionPane.OK_OPTION)
 				return;
@@ -127,9 +145,15 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 		super.clickNext();
 
+		for (Roi roi : this.model.getRoiManager().getRoisAsArray()) {
+			roi.setPosition(0);
+			this.getVue().getImagePlus().getOverlay().add(roi);
+		}
+
+		// TODO: still useful?
 		// Update view
-		int indexScroll = this.getVue().getInstructionDisplayed();
-		getVue().currentInstruction(indexScroll);
+		 int indexScroll = this.getVue().getInstructionDisplayed();
+		 getVue().currentInstruction(indexScroll);
 	}
 
 	@Override
@@ -137,6 +161,60 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		super.clickPrevious();
 
 		this.updateButtonLabel(this.indexRoi);
+	}
+
+	/**
+	 * Hide the verbose. Just take capture of slice 1 & 2 image if it's an ANT/POST,
+	 * or slice 1
+	 * 
+	 * @return The montage.
+	 */
+	public ImagePlus takeCapture() {
+		int width = 512;
+
+		double ratioCapture = this.main.getFenApplication().getImagePlus().getWidth() * 1.0
+				/ this.main.getFenApplication().getImagePlus().getHeight() * 1.0;
+
+		ImagePlus[] captures;
+
+		if (!((ModelScinStatic) model).isSingleSlice()) {
+
+			captures = new ImagePlus[2];
+
+			this.getVue().getImagePlus().setSlice(1);
+			captures[0] = Library_Capture_CSV.captureImage(this.getVue().getImagePlus(), width,
+					(int) (width / ratioCapture));
+
+			/*
+			 * Roi to second slice
+			 */
+
+			this.getVue().getImagePlus().setSlice(2);
+
+			for (Roi roi : this.getModel().getRoiManager().getRoisAsArray()) {
+				this.getVue().getImagePlus().getOverlay().add(roi);
+			}
+
+			captures[1] = Library_Capture_CSV.captureImage(this.getVue().getImagePlus(), width,
+					(int) (width / ratioCapture));
+		} else {
+			captures = new ImagePlus[1];
+			this.getVue().getImagePlus().setSlice(1);
+			captures[0] = Library_Capture_CSV.captureImage(this.getVue().getImagePlus(), width,
+					(int) (width / ratioCapture));
+		}
+
+		ImageStack stackCapture = Library_Capture_CSV.captureToStack(captures);
+		return this.montage(stackCapture, captures.length);
+	}
+
+	private ImagePlus montage(ImageStack captures, int nbCapture) {
+		MontageMaker mm = new MontageMaker();
+		// TODO: patient ID
+		String patientID = "NO_ID_FOUND";
+		ImagePlus imp = new ImagePlus("Results Pelvis -" + this.model.getStudyName() + " -" + patientID, captures);
+		imp = mm.makeMontage2(imp, 1, nbCapture, 0.50, 1, nbCapture, 1, 10, false);
+		return imp;
 	}
 
 }

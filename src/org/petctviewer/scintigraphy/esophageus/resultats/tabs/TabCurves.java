@@ -37,7 +37,7 @@ public class TabCurves extends TabResult {
 		titleRows = new String[datasetModele.length];
 
 //		this.createCaptureButton("Curves");
-		this.setadditionalInfo("Curves");
+		this.setAdditionalInfo("Curves");
 
 		this.reloadDisplay();
 	}

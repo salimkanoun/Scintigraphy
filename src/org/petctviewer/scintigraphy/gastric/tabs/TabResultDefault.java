@@ -11,14 +11,16 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.gastric.*;
-import org.petctviewer.scintigraphy.gastric.Fit.FitType;
+import org.petctviewer.scintigraphy.gastric.ControllerWorkflow_Gastric;
+import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+import org.petctviewer.scintigraphy.scin.model.*;
+import org.petctviewer.scintigraphy.scin.model.Fit.FitType;
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
@@ -43,7 +45,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	private final int seriesToGenerate;
 	protected Date timeIngestion;
 	private XYSeriesCollection data;
-	private JValueSetter valueSetter;
+	private JValueSetter valueSetterFit, valueSetterLagPhase;
 	private JLabel lagPhaseValue;
 
 	TabResultDefault(FenResults parent, ImagePlus capture, String title, Unit unitDefault, Unit unitTime,
@@ -73,7 +75,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 		// - Button to auto-fit the graph
 		btnAutoFit = new JButton("Auto-fit");
-		btnAutoFit.addActionListener(parent.getController());
+		btnAutoFit.addActionListener(e -> this.selectFit(this.findBestFit()));
 
 		// Set variables
 		this.capture = capture;
@@ -88,8 +90,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	}
 
 	/**
-	 * Displays additional results on the tab like time of ingestion or button to
-	 * launch dynamic acquisition...
+	 * Displays additional results on the tab like time of ingestion or button to launch dynamic acquisition...
 	 *
 	 * @return panel containing the additional results
 	 */
@@ -100,7 +101,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 *
 	 * @return table containing the results
 	 */
-	protected JTable tablesResultats(Result[] results, Unit[] unitsUsed) {
+	protected JTable tableResults(Result[] results, Unit[] unitsUsed) {
 		// Prepare model
 		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
 			getModel().activateTime0();
@@ -162,9 +163,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	}
 
 	/**
-	 * Checks if the value obtained for the specified time is a normal value.<br>
-	 * The <i>normal</i> value is based upon <code>tech.snmjournals.org</code>.<br>
-	 * The only times accepted are <code>30min</code>, <code>60min</code>,
+	 * Checks if the value obtained for the specified time is a normal value.<br> The <i>normal</i> value is based upon
+	 * <code>tech.snmjournals.org</code>.<br> The only times accepted are <code>30min</code>, <code>60min</code>,
 	 * <code>120min</code>, <code>180min</code> and <code>240min</code>.
 	 *
 	 * @param time  Time for retention in <i>minutes</i>
@@ -182,10 +182,10 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	}
 
 	/**
-	 * Returns a string indicating the range of the normal values for the specified
-	 * time.<br>
-	 * The <i>normal</i> value is based upon <code>tech.snmjournals.org</code>.<br>
-	 * The only times accepted are <code>30min</code>, <code>60min</code>,
+	 * Returns a string indicating the range of the normal values for the specified time.<br> The <i>normal</i>
+	 * value is
+	 * based upon <code>tech.snmjournals.org</code>.<br> The only times accepted are <code>30min</code>,
+	 * <code>60min</code>,
 	 * <code>120min</code>, <code>180min</code> and <code>240min</code>.
 	 *
 	 * @param time Time for retention in minutes
@@ -202,8 +202,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	}
 
 	/**
-	 * Returns a string indicating the grade of the retention values after 4h.<br>
-	 * Based upon <code>tech.snmjournals.org</code>.
+	 * Returns a string indicating the grade of the retention values after 4h.<br> Based upon
+	 * <code>tech.snmjournals.org</code>.
 	 *
 	 * @param value Value of the retention after 4h in <i>percentage</i>
 	 * @return <code>string[0]</code> = grade and <code>string[1]</code> = readable
@@ -269,12 +269,11 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	}
 
 	/**
-	 * Utility method that generates a panel containing all of the results needed
-	 * for that scintigraphy.
+	 * Utility method that generates a panel containing all of the results needed for that scintigraphy.
 	 *
 	 * @return panel containing the results
 	 */
-	protected JPanel infoResultats(Result[] resultsRequested, Unit[] unitsRequested) {
+	protected JPanel infoResults(Result[] resultsRequested, Unit[] unitsRequested) {
 		if (resultsRequested.length != unitsRequested.length) throw new IllegalArgumentException(
 				"Array length must be equals");
 
@@ -331,7 +330,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	private void reloadFit() {
 		try {
 			// Create fit
-			XYSeries series = ((XYSeriesCollection) this.getValueSetter().retrieveValuesInSpan()).getSeries(0);
+			XYSeries series = ((XYSeriesCollection) this.getValueSetterFit().retrieveValuesInSpan()).getSeries(0);
 			this.request.setFit(
 					Fit.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray()), unitDefault));
 
@@ -395,7 +394,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	private JPanel createPanelFit() {
 		JPanel panel = new JPanel(new BorderLayout());
 
-		panel.add(this.valueSetter, BorderLayout.CENTER);
+		panel.add(this.valueSetterFit, BorderLayout.CENTER);
 
 		JPanel panSouth = new JPanel();
 		panSouth.setLayout(new BoxLayout(panSouth, BoxLayout.LINE_AXIS));
@@ -416,7 +415,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	private Component createPanelLagPhase() {
 		JPanel panel = new JPanel(new BorderLayout());
 
-		JValueSetter valueSetter = new JValueSetter(this.valueSetter.getChart());
+		valueSetterLagPhase = new JValueSetter(this.valueSetterFit.getChart());
 		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) this.request.changeResultOn(
 				Model_Gastric.LAG_PHASE_PERCENTAGE);
 		else this.request.changeResultOn(Model_Gastric.LAG_PHASE_GEOAVG);
@@ -424,23 +423,23 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 		Selector selector = new Selector("Lag Phase", getModel().getResult(request).getValue(), 0,
 										 RectangleAnchor.BOTTOM_LEFT);
-		valueSetter.addSelector(selector, "lag_phase");
+		valueSetterLagPhase.addSelector(selector, "lag_phase");
 
-		valueSetter.addChartMouseListener(new ChartMouseListener() {
+		valueSetterLagPhase.addChartMouseListener(new ChartMouseListener() {
 			@Override
 			public void chartMouseClicked(ChartMouseEvent event) {
 			}
 
 			@Override
 			public void chartMouseMoved(ChartMouseEvent event) {
-				if (valueSetter.getGrabbedSelector() != null) {
+				if (valueSetterLagPhase.getGrabbedSelector() != null) {
 					// Update lag phase
-					lagPhaseValue.setText(ResultValue.notNegative(selector.getXValue()));
+					lagPhaseValue.setText(ResultValue.notNegative(selector.getXValue()) + " " + Unit.MINUTES.abbrev());
 				}
 			}
 		});
 
-		panel.add(valueSetter, BorderLayout.CENTER);
+		panel.add(valueSetterLagPhase, BorderLayout.CENTER);
 
 		return panel;
 	}
@@ -450,12 +449,12 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		JLabel resultRetention = new JLabel("--");
 		fieldCustomRetention.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
-			public void removeUpdate(DocumentEvent e) {
+			public void insertUpdate(DocumentEvent e) {
 				updateResult();
 			}
 
 			@Override
-			public void insertUpdate(DocumentEvent e) {
+			public void removeUpdate(DocumentEvent e) {
 				updateResult();
 			}
 
@@ -484,7 +483,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 					ResultValue result = getModel().getRetentionResult(request, Double.parseDouble(
 							fieldCustomRetention.getText()));
 					// Update result
-					resultRetention.setText(result.formatValue() + result.getUnit().abrev());
+					resultRetention.setText(result.formatValue() + result.getUnit().abbrev());
 				} catch (NumberFormatException exception) {
 					resultRetention.setText("--");
 				}
@@ -506,9 +505,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	}
 
 	/**
-	 * Finds the best fit matching the graph. Only the values in the area specified
-	 * by the user are taken into account.<br>
-	 * The best fit is determined by the method of least squares.
+	 * Finds the best fit matching the graph. Only the values in the area specified by the user are taken into
+	 * account.<br> The best fit is determined by the method of least squares.
 	 *
 	 * @return best fit for this graph
 	 */
@@ -516,7 +514,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		double bestScore = Double.MAX_VALUE;
 		FitType bestFit = null;
 		for (FitType type : FitType.values()) {
-			double[][] dataset = ((XYSeriesCollection) this.valueSetter.retrieveValuesInSpan()).getSeries(0).toArray();
+			double[][] dataset = ((XYSeriesCollection) this.valueSetterFit.retrieveValuesInSpan()).getSeries(
+					0).toArray();
 
 			try {
 				// Create fit
@@ -551,6 +550,15 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	}
 
 	/**
+	 * Selects the best fit for the current graph.
+	 *
+	 * @see #findBestFit()
+	 */
+	public void selectBestFit() {
+		this.fitsChoices.setSelectedItem(this.findBestFit());
+	}
+
+	/**
 	 * Generates the graph for the fit of this tab.
 	 */
 	public void createGraph() {
@@ -568,8 +576,9 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		XYSeries stomachSeries = getModel().generateSeries(this.seriesToGenerate, this.unitDefault);
 		this.data.addSeries(stomachSeries);
 
-		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (" + this.unitTime.abrev() + ")",
-														  "Stomach retention (" + this.unitDefault.abrev() + ")", data,
+		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (" + this.unitTime.abbrev() + ")",
+														  "Stomach retention (" + this.unitDefault.abbrev() + ")",
+														  data,
 														  PlotOrientation.VERTICAL, true, true, true);
 
 		// Set bounds
@@ -584,23 +593,22 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		// Create value setter
 		double startX = stomachSeries.getMinX() + .1 * (stomachSeries.getMaxX() - stomachSeries.getMinX());
 		double endX = stomachSeries.getMinX() + .7 * (stomachSeries.getMaxX() - stomachSeries.getMinX());
-		valueSetter = new JValueSetter(chart);
-		valueSetter.addSelector(new Selector(" ", startX, -1, RectangleAnchor.TOP_LEFT), "start");
-		valueSetter.addSelector(new Selector(" ", endX, -1, RectangleAnchor.TOP_LEFT), "end");
-		valueSetter.addArea("start", "end", "area", null);
-		valueSetter.addChartMouseListener(this);
+		valueSetterFit = new JValueSetter(chart);
+		valueSetterFit.addSelector(new Selector(" ", startX, -1, RectangleAnchor.TOP_LEFT), "start");
+		valueSetterFit.addSelector(new Selector(" ", endX, -1, RectangleAnchor.TOP_LEFT), "end");
+		valueSetterFit.addArea("start", "end", "area", null);
+		valueSetterFit.addChartMouseListener(this);
 	}
 
 	/**
 	 * @return value setter containing the graph of this tab
 	 */
-	public JValueSetter getValueSetter() {
-		return this.valueSetter;
+	public JValueSetter getValueSetterFit() {
+		return this.valueSetterFit;
 	}
 
 	/**
-	 * Sets the time of ingestion to display. If set to null, then deletes the
-	 * previous time displayed.
+	 * Sets the time of ingestion to display. If set to null, then deletes the previous time displayed.
 	 *
 	 * @param timeIngestion Time of ingestion to display
 	 */
@@ -619,8 +627,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	}
 
 	/**
-	 * Displays the fit selected by the user and removes the previous fit if
-	 * existing.
+	 * Displays the fit selected by the user and removes the previous fit if existing.
 	 *
 	 * @see #getSelectedFit()
 	 */
@@ -641,8 +648,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	}
 
 	/**
-	 * Changes the error message. This message is displayed in red. If null is
-	 * passed, then the previous message is erased.
+	 * Changes the error message. This message is displayed in red. If null is passed, then the previous message is
+	 * erased.
 	 *
 	 * @param msg message to show or null to erase the last message
 	 */
@@ -673,6 +680,11 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		// Lag phase
 		tab.add("Lag phase", this.createPanelLagPhase());
 
+		tab.addChangeListener(e -> {
+			valueSetterFit.updateAreas();
+			valueSetterLagPhase.revalidate();
+		});
+
 		return tab;
 	}
 
@@ -692,7 +704,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 	@Override
 	public void chartMouseMoved(ChartMouseEvent event) {
-		if (this.getValueSetter().getGrabbedSelector() != null) {
+		if (this.getValueSetterFit().getGrabbedSelector() != null) {
 			this.reloadFit();
 		}
 	}

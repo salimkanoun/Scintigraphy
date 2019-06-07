@@ -32,6 +32,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
 
+/**
+ * @deprecated The {@link ControllerWorkflow} should be used instead
+ */
+@Deprecated
 public abstract class Controller_OrganeFixe extends ControllerScin {
 
 	// TODO: supprimer cette référence pour découpler le controleur de scintigraphy

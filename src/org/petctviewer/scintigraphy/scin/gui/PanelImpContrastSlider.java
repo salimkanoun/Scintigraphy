@@ -7,6 +7,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+
 import ij.ImagePlus;
 
 /**
@@ -24,12 +26,20 @@ public abstract class PanelImpContrastSlider extends TabResult {
 
 	final String additionalInfo;
 	final String nomFen;
-
+	private String titleOverlay;
+	private Boolean lateralisationRL;
+	
 	public PanelImpContrastSlider(String nomFen, String additionalInfo, FenResults parent) {
+		this(nomFen, additionalInfo, parent, null, null);
+	}
+
+	public PanelImpContrastSlider(String nomFen, String additionalInfo, FenResults parent, String titleOverlay, Boolean lateralisationRL) {
 		super(parent, nomFen, true);
 		this.additionalInfo = additionalInfo;
 		this.nomFen = nomFen;
 		this.parent = parent;
+		this.titleOverlay = titleOverlay;
+		this.lateralisationRL = lateralisationRL;
 
 		this.sliderLabel = new JLabel("Contrast", SwingConstants.CENTER);
 		sliderLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -38,7 +48,7 @@ public abstract class PanelImpContrastSlider extends TabResult {
 	public void finishBuildingWindow() {
 		this.dynamicImp = new DynamicImage(this.imp.getBufferedImage());
 
-		ContrastSlider slider = new ContrastSlider(SwingConstants.HORIZONTAL, imp.duplicate(), this.dynamicImp);
+		ContrastSlider slider = new ContrastSlider(SwingConstants.HORIZONTAL, imp.duplicate(), this.dynamicImp, this.titleOverlay, this.lateralisationRL);
 
 		boxSlider = Box.createVerticalBox();
 		boxSlider.add(this.sliderLabel);
@@ -47,6 +57,7 @@ public abstract class PanelImpContrastSlider extends TabResult {
 
 	public void setImp(ImagePlus imp) {
 		this.imp = imp;
+		Library_Gui.setCustomLut(imp);
 		this.finishBuildingWindow();
 		this.reloadDisplay();
 	}

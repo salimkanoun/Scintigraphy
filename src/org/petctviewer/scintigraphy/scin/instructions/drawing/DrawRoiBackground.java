@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.scin.instructions.drawing;
 import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.json.InstructionFromGson;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
@@ -33,7 +34,7 @@ public class DrawRoiBackground extends DrawRoiInstruction {
 		this.dri_reference = roi1;
 		this.model = model;
 		
-		this.InstructionType = DrawInstructionType.DRAW_ROI_BACKGROUND;
+		this.InstructionType = InstructionFromGson.DrawInstructionType.DRAW_ROI_BACKGROUND;
 	}
 
 	/**

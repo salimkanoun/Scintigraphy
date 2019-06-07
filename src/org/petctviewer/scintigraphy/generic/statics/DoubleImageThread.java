@@ -26,11 +26,11 @@ public class DoubleImageThread extends Thread{
 		ImageStack capture = new ImageStack(width, (int) (width/ratioCapture));
 		
 		this.model.getImagePlus().setSlice(1);
-		capture.addSlice( Library_Capture_CSV.captureImage(this.model.getImagePlus(), width, 0 ).getProcessor());
+		capture.addSlice(Library_Capture_CSV.captureImage(this.model.getImagePlus(), width, 0 ).getProcessor());
 		capture.setSliceLabel("ant", 1);
 		this.model.getImagePlus().setSlice(2);
 
-		capture.addSlice( Library_Capture_CSV.captureImage(this.model.getImagePlus(), width, 0 ).getProcessor());
+		capture.addSlice(Library_Capture_CSV.captureImage(this.model.getImagePlus(), width, 0 ).getProcessor());
 		capture.setSliceLabel("post", 2);
 		
 		impRes.setStack(capture);
@@ -51,7 +51,7 @@ public class DoubleImageThread extends Thread{
 		
 		//ouverture de la fenetre de resultat
 		FenResults fenResults = new FenResultat_ScinStatic(impRes.getBufferedImage(),
-				this.scin.getFenApplication().getControleur());
+				this.scin.getFenApplication().getController());
 		fenResults.setVisible(true);
 	}
 	

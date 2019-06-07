@@ -1,8 +1,7 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
-import ij.IJ;
-import ij.gui.Overlay;
-import ij.gui.Toolbar;
+import java.awt.Color;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -13,16 +12,18 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import java.awt.*;
+import ij.IJ;
+import ij.gui.Overlay;
+import ij.gui.Toolbar;
 
 public class StaticScintigraphy extends Scintigraphy {
-	
+
 	private boolean isSingleSlice;
 	private boolean isAnt;
 
 	public StaticScintigraphy() {
 		super("General static scintigraphy");
-		
+
 		this.isSingleSlice = true;
 		this.isAnt = true;
 	}
@@ -41,9 +42,9 @@ public class StaticScintigraphy extends Scintigraphy {
 				|| selectedImages[0].getImageOrientation() == Orientation.POST_ANT) {
 			imp = Library_Dicom.ensureAntPostFlipped(selectedImages[0]);
 			this.isSingleSlice = false;
-		}else if (selectedImages[0].getImageOrientation() == Orientation.ANT){
+		} else if (selectedImages[0].getImageOrientation() == Orientation.ANT) {
 			imp = selectedImages[0];
-		}else if(selectedImages[0].getImageOrientation() == Orientation.POST) {
+		} else if (selectedImages[0].getImageOrientation() == Orientation.POST) {
 			imp = selectedImages[0];
 			this.isAnt = false;
 		} else {
@@ -62,6 +63,7 @@ public class StaticScintigraphy extends Scintigraphy {
 
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.white);
+		
 
 		this.setFenApplication(new FenApplication_ScinStatic(selectedImages[0], this.getStudyName()));
 		selectedImages[0].getImagePlus().setOverlay(overlay);
@@ -69,8 +71,8 @@ public class StaticScintigraphy extends Scintigraphy {
 		this.getFenApplication().setController(new ControllerWorkflow_ScinStatic(this,
 				(FenApplicationWorkflow) getFenApplication(), selectedImages, getStudyName()));
 
-		((ModelScinStatic) this.getFenApplication().getControleur().getModel()).setIsSingleSlide(this.isSingleSlice);
-		((ModelScinStatic) this.getFenApplication().getControleur().getModel()).setIsAnt(this.isAnt);
+		((ModelScinStatic) this.getFenApplication().getController().getModel()).setIsSingleSlide(this.isSingleSlice);
+		((ModelScinStatic) this.getFenApplication().getController().getModel()).setIsAnt(this.isAnt);
 		IJ.setTool(Toolbar.POLYGON);
 	}
 

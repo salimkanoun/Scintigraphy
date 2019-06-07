@@ -1,8 +1,8 @@
-package org.petctviewer.scintigraphy.platelet_refactored;
+package org.petctviewer.scintigraphy.platelet;
 
 import ij.ImagePlus;
-import org.petctviewer.scintigraphy.platelet_refactored.tabs.CountsTab;
-import org.petctviewer.scintigraphy.platelet_refactored.tabs.MeansTab;
+import org.petctviewer.scintigraphy.platelet.tabs.CountsTab;
+import org.petctviewer.scintigraphy.platelet.tabs.MeansTab;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -34,6 +34,8 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 
 		this.generateInstructions();
 		this.start();
+
+		this.fenResults = new FenResults(this);
 	}
 
 	private void computeModel() {
@@ -97,7 +99,7 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 		boolean geoAvg = ((PlateletScintigraphy) ControllerWorkflow_Platelet.this.main).isAntPost();
 
 		// Display results
-		this.fenResults = new FenResults(this);
+		this.fenResults.clearTabs();
 		this.fenResults.setMainTab(new CountsTab(this.fenResults, this.captures, geoAvg));
 		this.fenResults.addTab(new MeansTab(this.fenResults, this.captures, geoAvg));
 		this.fenResults.pack();

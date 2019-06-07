@@ -5,6 +5,7 @@ import ij.ImagePlus;
 
 public class ControllerImp implements ImageListener {
 	
+	@SuppressWarnings("deprecation")
 	private final Controller_OrganeFixe ctrlScin;
 	private int lastSlice = 1;
 	private boolean lockUpdate = false;
@@ -12,10 +13,12 @@ public class ControllerImp implements ImageListener {
 	/**
 	 * met a jour l'overlay de l'imp si elle est modifiee
 	 */
+	@SuppressWarnings("deprecation")
 	public ControllerImp(Controller_OrganeFixe ctrlScin) {
 		this.ctrlScin = ctrlScin;
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public void imageUpdated(ImagePlus imp) {
 		if(!this.lockUpdate) {

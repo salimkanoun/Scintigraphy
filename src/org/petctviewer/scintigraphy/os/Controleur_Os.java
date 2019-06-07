@@ -188,6 +188,8 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 			lbl_credits.setVisible(true);
 			for (Component comp : show)
 				comp.setVisible(true);
+			
+			this.deselectAll();
 
 			SwingUtilities.invokeLater(new Runnable() {
 

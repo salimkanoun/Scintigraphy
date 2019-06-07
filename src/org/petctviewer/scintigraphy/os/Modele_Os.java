@@ -6,6 +6,7 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabBone;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,7 +38,7 @@ public class Modele_Os {
 	final DynamicImage[][] dynamicImps;
 	private final int nbScinty;
 	private boolean reversed;
-	
+
 	private Integer uid;
 
 	public Modele_Os(ImageSelection[] imps) {
@@ -73,10 +74,10 @@ public class Modele_Os {
 		// images). Si il faut appliquer une Lut particulière
 		// Appelle de la méthode permettant d'appliquer la Lut si on applique pas la Lut
 		// par défaut.
-		if (!Prefs.get("bone.defaultlut.preferred", true)) {
+		if (!Prefs.get(PrefTabBone.PREF_DEFAULT_LUT, true)) {
 			for (ImageSelection[] imgs : this.imps)
 				for (ImageSelection img : imgs)
-					Library_Gui.setCustomLut(img.getImagePlus(), "lut.preferredforbone");
+					Library_Gui.setCustomLut(img.getImagePlus(), PrefTabBone.PREF_LUT);
 		}
 
 		// For every Scintigraphy
@@ -136,7 +137,7 @@ public class Modele_Os {
 	 * 1 - Récupère les information de l'image correspondante.<br/>
 	 * 2 - Charge un Object Graphique, associé à l'ImageDynamic<br/>
 	 * 3 - Ecrit un rectangle et la date sur l'Objet Graphique créé<br/>
-	 * 
+	 *
 	 * @param dyn
 	 *            DynamicImage sur laquelle écrire.
 	 * @param i
@@ -245,7 +246,7 @@ public class Modele_Os {
 	/**
 	 * Retourne si la imp est selectionnée ou non, grâce à sa position passée en
 	 * paramètre.
-	 * 
+	 *
 	 * @param i
 	 *            int représentant la position du patient dans le tableau de
 	 *            ImagePlus
@@ -261,7 +262,7 @@ public class Modele_Os {
 	/**
 	 * Retourne si la DynamicImage passée en paramètre est selectionnée ou non.<br/>
 	 * Récupère d'abord la position via position(DynamicImage)
-	 * 
+	 *
 	 * @param dyn
 	 *            DynamicImage dont il faut retourner la position.
 	 * @return boolean
@@ -273,7 +274,7 @@ public class Modele_Os {
 
 	/**
 	 * Retourne si la DynamicImage passée en paramètre est selectionnée ou non.
-	 * 
+	 *
 	 * @param dyn
 	 *            DynamicImage dont il faut retourner la position.
 	 * @return boolean
@@ -285,7 +286,7 @@ public class Modele_Os {
 	/**
 	 * Retourne si la ImagePlus passée en paramètre est selectionnée ou non.<br/>
 	 * Récupère d'abord la position via position(ImagePlus)
-	 * 
+	 *
 	 * @param imp
 	 *            ImagePlus dont il faut retourner la position.
 	 * @return boolean
@@ -296,7 +297,7 @@ public class Modele_Os {
 
 	/**
 	 * Retourne si la imp passée en paramètre est selectionnée ou non.
-	 * 
+	 *
 	 * @param imp
 	 *            ImagePlus dont il faut retourner la position.
 	 * @param i
@@ -333,7 +334,7 @@ public class Modele_Os {
 	/**
 	 * Parcours le tableau stockant les DynamixImage et retourne la position de la
 	 * DynamicImage passée en paramètre.
-	 * 
+	 *
 	 * @param dyn
 	 *            DynamicImage dont il faut retourner la position dans le tableau
 	 *            stockant les DynamicImage.
@@ -356,7 +357,7 @@ public class Modele_Os {
 	/**
 	 * Parcours le tableau stockant les ImagePlus et retourne la position de la
 	 * ImagePlus passée en paramètre.
-	 * 
+	 *
 	 * @param image
 	 *            ImagePlus dont il faut retourner la position dans le tableau
 	 *            stockant les ImagePlus.
@@ -390,23 +391,23 @@ public class Modele_Os {
 				this.selected[i][j] = false;
 			}
 	}
-	
-	
+
+
 	public String getStudyName() {
 		return "Bone Scintigraphy";
 	}
-	
+
 	public ImagePlus getImagePlus() {
 		return this.imp.getImagePlus();
 	}
-	
+
 	public String getUID6digits() {
 		if (this.uid == null) {
 			this.uid = (int) (Math.random() * 1000000.);
 		}
 		return this.uid.toString();
 	}
-	
+
 	@Override
 	public String toString() {
 		return "";

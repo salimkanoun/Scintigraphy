@@ -1,28 +1,11 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
-import java.awt.Panel;
-import java.awt.Toolkit;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseWheelListener;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-
+import ij.IJ;
+import ij.ImagePlus;
+import ij.gui.ImageCanvas;
+import ij.gui.Overlay;
+import ij.gui.StackWindow;
+import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
@@ -31,62 +14,53 @@ import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
 import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.gui.ImageCanvas;
-import ij.gui.Overlay;
-import ij.gui.StackWindow;
-import ij.util.DicomTools;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseWheelListener;
+import java.awt.event.WindowEvent;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Interface graphique principale de quantification dans imageJ
- * 
- * @author diego
  *
+ * @author diego
  */
+@SuppressWarnings("deprecation")
 public class FenApplication extends StackWindow implements ComponentListener, MouseWheelListener {
-	private static final long serialVersionUID = -6280620624574294247L;
-
 	public static final String BTN_TXT_NEXT = "Next";
-
-	// Panel d'instruction avec le textfield et boutons precedent et suivant
-	private Panel panel_Instructions_btns_droite;
-
-	// Panel avec boutons quit, draw roi, contrast
-	private final Panel panel_btns_gauche;
-	private final Panel panel_btns_droite;
-
+	private static final long serialVersionUID = -6280620624574294247L;
 	protected final JTextField textfield_instructions;
-
+	protected final Button btn_suivant;
+	protected final String studyName;
+	protected final DocumentationDialog documentation;
 	final Button btn_quitter;
 	final Button btn_drawROI;
 	final Button btn_contrast;
 	final Button btn_precedent;
-	protected final Button btn_suivant;
-
-	private ControllerScin controleur;
-
-	private final Panel panelPrincipal;
 	final Panel panelContainer;
-
-	protected final String studyName;
-
-	private int canvasW, canvasH;
-
+	// Panel avec boutons quit, draw roi, contrast
+	private final Panel panel_btns_gauche;
+	private final Panel panel_btns_droite;
+	private final Panel panelPrincipal;
 	private final MenuBar menuBar;
-	protected final DocumentationDialog documentation;
-
+	// Panel d'instruction avec le textfield et boutons precedent et suivant
+	private Panel panel_Instructions_btns_droite;
+	private ControllerScin controleur;
+	private int canvasW, canvasH;
 	private Menu options;
 
 	private Menu help;
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
-	 * 
-	 * @param imp
-	 *            ImagePlus a traiter
-	 * @param studyName
-	 *            Nom du type de scintigraphie
+	 *
+	 * @param imp       ImagePlus a traiter
+	 * @param studyName Nom du type de scintigraphie
 	 */
 	public FenApplication(ImagePlus imp, String studyName) {
 		this(imp, studyName, new ImageCanvas(imp));
@@ -96,7 +70,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		super(imp, canvas);
 		// on set la lut des preferences
 		Library_Gui.setCustomLut(imp);
-		
+
 		this.studyName = studyName;
 
 		String tagSerie = DicomTools.getTag(this.imp, "0008,103E");
@@ -104,7 +78,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		String titre = this.studyName + " - " + tagNom + " - " + tagSerie;
 		setTitle(titre);// frame title
 		this.imp.setTitle(titre);// imp title
-		
 
 		panelContainer = new Panel(new BorderLayout());
 		this.panelPrincipal = new Panel(new FlowLayout());
@@ -149,13 +122,45 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.setDefaultSize();
 		this.addComponentListener(this);
 		this.setResizable(false);
-		
-		Image icon=new ImageIcon(ClassLoader.getSystemResource("images/icons/frameIconBis.png")).getImage();
-		this.setIconImage(icon);
+
+		URL res = this.getClass().getClassLoader().getResource("images/icons/frameIconBis.png");
+		if (res != null) this.setIconImage(Toolkit.getDefaultToolkit().getImage(res));
 	}
 
-	protected DocumentationDialog createDocumentation() {
-		return new DocumentationDialog(this);
+	private void createMenuBar() {
+		this.options = new Menu("Options");
+		MenuItem loadRois = new MenuItem("Load ROIs from .zip");
+		loadRois.addActionListener(e -> {
+			try {
+				SaveAndLoad saveAndLoad = new SaveAndLoad();
+				saveAndLoad.importRoiList(FenApplication.this, FenApplication.this.controleur.getModel(),
+										  (ControllerWorkflow) FenApplication.this.controleur);
+
+				FenApplication.this.getImagePlus().setRoi(
+						FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
+				FenApplication.this.getImagePlus().getRoi().setStrokeColor(Color.RED);
+
+				System.out.println(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
+
+			} catch (UnauthorizedRoiLoadException e1) {
+				JOptionPane.showMessageDialog(FenApplication.this, "Error while loading ROIs:\n" + e1.getMessage(),
+											  "Selection error", JOptionPane.ERROR_MESSAGE);
+				// e1.printStackTrace();
+			} catch (UnloadRoiException e1) {
+				IJ.log("ROIs not loaded");
+			}
+
+		});
+
+		this.help = new Menu("Help");
+		MenuItem doc = new MenuItem("Documentation");
+		doc.addActionListener((event) -> documentation.setVisible(true));
+		help.add(doc);
+
+		options.add(loadRois);
+		this.menuBar.add(options);
+		this.menuBar.add(help);
+		this.setMenuBar(this.menuBar);
 	}
 
 	public String getStudyName() {
@@ -220,8 +225,22 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		return this.getImagePlus().getOverlay();
 	}
 
-	public ControllerScin getControleur() {
+	public ControllerScin getController() {
 		return this.controleur;
+	}
+
+	public void setController(ControllerScin ctrl) {
+		this.controleur = ctrl;
+
+		// on affiche la premiere instruction
+		if (ctrl instanceof Controller_OrganeFixe) ((Controller_OrganeFixe) ctrl).setInstructionsDelimit(0);
+
+		// on ajoute le controleur a tous les boutons
+		this.btn_contrast.addActionListener(ctrl);
+		this.btn_drawROI.addActionListener(ctrl);
+		this.btn_precedent.addActionListener(ctrl);
+		this.btn_quitter.addActionListener(ctrl);
+		this.btn_suivant.addActionListener(ctrl);
 	}
 
 	public Panel getPanel_Instructions_btns_droite() {
@@ -245,79 +264,20 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		return panelPrincipal;
 	}
 
-	public void setController(ControllerScin ctrl) {
-		this.controleur = ctrl;
-
-		// on affiche la premiere instruction
-		if (ctrl instanceof Controller_OrganeFixe)
-			((Controller_OrganeFixe) ctrl).setInstructionsDelimit(0);
-
-		// on ajoute le controleur a tous les boutons
-		this.btn_contrast.addActionListener(ctrl);
-		this.btn_drawROI.addActionListener(ctrl);
-		this.btn_precedent.addActionListener(ctrl);
-		this.btn_quitter.addActionListener(ctrl);
-		this.btn_suivant.addActionListener(ctrl);
-	}
-
 	public void setpanel_Instructions_btns_droite(Panel instru) {
 		this.panel_Instructions_btns_droite = instru;
-	}
-
-	protected Panel getPanel_bttns_droit() {
-		return panel_btns_droite;
 	}
 
 	public MenuBar getMenuBar() {
 		return this.menuBar;
 	}
-	
+
 	public Menu getMenuBarOptions() {
 		return this.options;
 	}
-	
+
 	public Menu getMenuBarHelp() {
 		return this.help;
-	}
-
-	private void createMenuBar() {
-		this.options = new Menu("Options");
-		MenuItem loadRois = new MenuItem("Load ROIs from .zip");
-		loadRois.addActionListener(e -> {
-			try {
-				SaveAndLoad saveAndLoad = new SaveAndLoad();
-				saveAndLoad.importRoiList(FenApplication.this,
-						FenApplication.this.controleur.getModel(), (ControllerWorkflow) FenApplication.this.controleur);
-
-				FenApplication.this.getImagePlus()
-						.setRoi(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
-				FenApplication.this.getImagePlus().getRoi().setStrokeColor(Color.RED);
-
-				System.out.println(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
-
-			} catch (UnauthorizedRoiLoadException e1) {
-				JOptionPane.showMessageDialog(FenApplication.this, "Error while loading ROIs:\n" + e1.getMessage(),
-						"Selection error", JOptionPane.ERROR_MESSAGE);
-				// e1.printStackTrace();
-			} catch (UnloadRoiException e1) {
-				IJ.log("ROIs not loaded");
-			}
-
-		});
-
-		this.help = new Menu("Help");
-		MenuItem doc = new MenuItem("Documentation");
-		doc.addActionListener((event) -> documentation.setVisible(true));
-		help.add(doc);
-
-		options.add(loadRois);
-		this.menuBar.add(options);
-		this.menuBar.add(help);
-		this.setMenuBar(this.menuBar);
-	}
-
-	protected void setDefaultSize() {
-		this.setPreferredCanvasSize(512);
 	}
 
 	@Override
@@ -327,27 +287,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.imp = imp;
 		this.revalidate();
 		this.resizeCanvas();
-	}
-
-	/**
-	 * redimension de la canvas selon la largeur voulue et aux dimensions de
-	 * l'imageplus affichee
-	 */
-	protected void setPreferredCanvasSize(int width) {
-		int w = this.getImagePlus().getWidth();
-		int h = this.getImagePlus().getHeight();
-		double ratioImagePlus = w * 1.0 / h * 1.0;
-
-		if (ratioImagePlus < 1) {
-			canvasW = (int) (width * ratioImagePlus);
-			canvasH = width;
-
-		} else {
-			canvasW = width;
-			canvasH = (int) (width / ratioImagePlus);
-		}
-
-		resizeCanvas();
 	}
 
 	@Override
@@ -371,5 +310,37 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 	@Override
 	public void componentHidden(ComponentEvent e) {
+	}
+
+	protected DocumentationDialog createDocumentation() {
+		return new DocumentationDialog(this);
+	}
+
+	protected Panel getPanel_bttns_droit() {
+		return panel_btns_droite;
+	}
+
+	protected void setDefaultSize() {
+		this.setPreferredCanvasSize(512);
+	}
+
+	/**
+	 * redimension de la canvas selon la largeur voulue et aux dimensions de l'imageplus affichee
+	 */
+	protected void setPreferredCanvasSize(int width) {
+		int w = this.getImagePlus().getWidth();
+		int h = this.getImagePlus().getHeight();
+		double ratioImagePlus = w * 1.0 / h * 1.0;
+
+		if (ratioImagePlus < 1) {
+			canvasW = (int) (width * ratioImagePlus);
+			canvasH = width;
+
+		} else {
+			canvasW = width;
+			canvasH = (int) (width / ratioImagePlus);
+		}
+
+		resizeCanvas();
 	}
 }

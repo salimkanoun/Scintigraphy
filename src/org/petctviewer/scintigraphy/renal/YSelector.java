@@ -30,6 +30,7 @@ public class YSelector extends Selector implements ChartMouseListener {
 	// serie sur laquelle se situe le selecteur
 	private final int series;
 
+	@SuppressWarnings("rawtypes")
 	private Comparable key;
 	private JValueSetter jValueSetter;
 
@@ -204,10 +205,12 @@ public class YSelector extends Selector implements ChartMouseListener {
 
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Comparable getKey() {
 		return this.key;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void setKey(Comparable key) {
 		this.key = key;
 	}

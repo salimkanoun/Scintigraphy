@@ -30,18 +30,20 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 
+import org.apache.commons.io.FileUtils;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
 import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
-import org.petctviewer.scintigraphy.scin.instructions.Instruction.DrawInstructionType;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawLoopInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoopInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
+import org.petctviewer.scintigraphy.scin.json.InstructionFromGson.DrawInstructionType;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -86,15 +88,15 @@ public class SaveAndLoad {
 	 * @param additionalInfo
 	 *            :String qui sera rajoutée à la fin du studyName du fichier
 	 */
-	public void exportAllWithWorkflow(String resultats, RoiManager roiManager, String nomProgramme, ImagePlus imp,
-			String additionalInfo, ControllerWorkflow controller) {
+	public void exportAllWithWorkflow(String resultats, String nomProgramme, ImagePlus imp,
+			String additionalInfo, List<ControllerWorkflow> controller) {
 
 		String[] infoPatient = Library_Capture_CSV.getInfoPatient(imp);
 		StringBuilder content = this.initCSVVertical(infoPatient);
 
 		content.append(resultats);
 
-		this.saveFiles(imp, roiManager, content, nomProgramme, infoPatient, additionalInfo, controller);
+		this.saveFiles(imp, content, nomProgramme, infoPatient, additionalInfo, controller);
 	}
 
 	/**
@@ -114,11 +116,13 @@ public class SaveAndLoad {
 	 * 
 	 * @see {@link SaveAndLoad#saveRois(RoiManager, ControllerWorkflow, String)}
 	 */
-	public void saveFiles(ImagePlus imp, RoiManager roiManager, StringBuilder csv, String programName,
-			String[] infoPatient, String additionalInfo, ControllerWorkflow controller) {
+	public void saveFiles(ImagePlus imp, StringBuilder csv, String programName,
+			String[] infoPatient, String additionalInfo, List<ControllerWorkflow> controller) {
+		
+		RoiManager roiManager = controller.get(0).getRoiManager();
 
 		// On recupere le path de sauvegarde
-		String path = Prefs.get("dir.preferred", null);
+		String path = Prefs.get(PrefTabMain.PREF_SAVE_DIRECTORY, null);
 		boolean testEcriture = false;
 
 		// On verifie que le path est writable si il existe
@@ -136,6 +140,14 @@ public class SaveAndLoad {
 			// Patient
 			String pathFinal = path + File.separator + programName + File.separator + infoPatient[1];
 			File subDirectory = new File(pathFinal);
+			if (subDirectory.isDirectory()) {
+				try {
+		            FileUtils.cleanDirectory(subDirectory); //clean out directory (this is optional -- but good know)
+		            FileUtils.forceDelete(subDirectory); //delete directory
+		        } catch (IOException e) {
+		            e.printStackTrace();
+		        } 
+			}
 			if (subDirectory.mkdirs()) {
 
 				String nomFichier = infoPatient[1] + "_" + infoPatient[2] + additionalInfo;
@@ -159,7 +171,8 @@ public class SaveAndLoad {
 					tab[i] = i;
 				roiManager.setSelectedIndexes(tab);
 
-				this.saveRois(roiManager, controller, pathFinal + File.separator + nomFichier + ".zip");
+				for(int indexController = 0 ; indexController < controller.size() ; indexController++)
+					this.saveRois(controller.get(indexController), pathFinal + File.separator + nomFichier + "_"+indexController+".zip");
 
 				// On sauve l'image en jpeg
 				IJ.saveAs(imp, "Jpeg", pathFinal + File.separator + nomFichier + ".jpg");
@@ -193,7 +206,7 @@ public class SaveAndLoad {
 		csv.append(resultats);
 
 		// On recupere le path de sauvegarde
-		String path = Prefs.get("dir.preferred", null);
+		String path = Prefs.get(PrefTabMain.PREF_SAVE_DIRECTORY, null);
 		boolean testEcriture = false;
 
 		// On verifie que le path est writable si il existe
@@ -248,7 +261,9 @@ public class SaveAndLoad {
 	 * @param path
 	 *            Path to save the .zip
 	 */
-	public void saveRois(RoiManager roiManager, ControllerWorkflow controller, String path) {
+	public void saveRois(ControllerWorkflow controller, String path) {
+		
+		RoiManager roiManager = controller.getRoiManager();
 
 		List<Roi> rois = Arrays.asList(roiManager.getRoisAsArray());
 
@@ -299,7 +314,8 @@ public class SaveAndLoad {
 			System.out.println(gson.toJson(this.saveWorkflowToJson(controller, label)));
 			out.writeBytes(gson.toJson(this.saveWorkflowToJson(controller, label)));
 			out.flush();
-
+			zos.closeEntry();
+			zos.close();
 			out.close();
 		} catch (IOException e) {
 			System.out.println("" + e);
@@ -360,7 +376,6 @@ public class SaveAndLoad {
 		JsonObject workflowsObject = new JsonObject();
 		JsonArray workflowsArray = new JsonArray();
 
-		int indexNames = 0;
 		for (Workflow workflow : controller.getWorkflows()) {
 			JsonObject currentWorkflow = new JsonObject();
 			JsonArray instructionsArray = new JsonArray();
@@ -371,12 +386,11 @@ public class SaveAndLoad {
 					currentInstruction.addProperty("IndexRoiToEdit", instruction.getRoiIndex());
 					currentInstruction.addProperty("NameOfRoi",
 							controller.getModel().getRoiManager().getRoi(instruction.getRoiIndex()).getName());
-					if (label[indexNames].endsWith(".roi"))
-						label[indexNames] = label[indexNames].substring(0, label[indexNames].length() - 4);
-					currentInstruction.addProperty("NameOfRoiFile", label[indexNames]);
+					if (label[instruction.getRoiIndex()].endsWith(".roi"))
+						label[instruction.getRoiIndex()] = label[instruction.getRoiIndex()].substring(0, label[instruction.getRoiIndex()].length() - 4);
+					currentInstruction.addProperty("NameOfRoiFile", label[instruction.getRoiIndex()]);
 					// instructionsArray.add((JsonObject) gson.toJsonTree(instruction));
 					instructionsArray.add(gson.toJsonTree(currentInstruction));
-					indexNames++;
 				}
 			}
 			currentWorkflow.add("Intructions", instructionsArray);

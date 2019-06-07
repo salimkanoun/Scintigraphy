@@ -23,6 +23,8 @@ public class FenApplicationHepaticDynamic extends FenApplication {
 
 	public FenApplicationHepaticDynamic(ImagePlus imp, String nom) {
 		super(imp, nom);
+		
+		this.getBtn_drawROI().setEnabled(false);
 
 		this.imp.setSlice(1);
 		
@@ -34,19 +36,19 @@ public class FenApplicationHepaticDynamic extends FenApplication {
 		Panel instru = new Panel(gridbag);
 
 		this.labelSlice1 = new Button("Hilium");
-		labelSlice1.addMouseListener((ControllerHepaticDynamic) this.getControleur());
+		labelSlice1.addMouseListener((ControllerHepaticDynamic) this.getController());
 		labelSlice1.addActionListener(this);
 		gridbag.setConstraints(labelSlice1, c);
 		instru.add(labelSlice1);
 
 		this.labelSlice2 = new Button("Duodenum");
-		labelSlice2.addMouseListener((ControllerHepaticDynamic) this.getControleur());
+		labelSlice2.addMouseListener((ControllerHepaticDynamic) this.getController());
 		gridbag.setConstraints(labelSlice2, c);
 		instru.add(labelSlice2);
 
 		c.gridwidth = GridBagConstraints.REMAINDER; // end row
 		this.labelSlice3 = new Button("Intestine");
-		labelSlice3.addMouseListener((ControllerHepaticDynamic) this.getControleur());
+		labelSlice3.addMouseListener((ControllerHepaticDynamic) this.getController());
 		gridbag.setConstraints(labelSlice3, c);
 		instru.add(labelSlice3);
 
@@ -55,18 +57,18 @@ public class FenApplicationHepaticDynamic extends FenApplication {
 		this.buttonSlice1 = new Label("");
 		buttonSlice1.setBackground(new Color(233, 118, 118));
 		gridbag.setConstraints(buttonSlice1, c);
-		buttonSlice1.addMouseListener((ControllerHepaticDynamic) this.getControleur());
+		buttonSlice1.addMouseListener((ControllerHepaticDynamic) this.getController());
 		instru.add(buttonSlice1);
 
 		this.buttonSlice2 = new Label("");
 		buttonSlice2.setBackground(new Color(233, 118, 118));
 		gridbag.setConstraints(buttonSlice2, c);
-		buttonSlice2.addMouseListener((ControllerHepaticDynamic) this.getControleur());
+		buttonSlice2.addMouseListener((ControllerHepaticDynamic) this.getController());
 		instru.add(buttonSlice2);
 
 		this.buttonSlice3 = new Label("");
 		buttonSlice3.setBackground(new Color(233, 118, 118));
-		buttonSlice3.addMouseListener((ControllerHepaticDynamic) this.getControleur());
+		buttonSlice3.addMouseListener((ControllerHepaticDynamic) this.getController());
 		gridbag.setConstraints(buttonSlice3, c);
 		instru.add(buttonSlice3);
 

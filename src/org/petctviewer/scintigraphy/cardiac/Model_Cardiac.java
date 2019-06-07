@@ -1,15 +1,14 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import java.util.HashMap;
-
+import ij.ImagePlus;
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
+import java.util.HashMap;
 
 public class Model_Cardiac extends ModelScin {
 
@@ -50,8 +49,8 @@ public class Model_Cardiac extends ModelScin {
 	}
 
 	public void getResults() {
-		// controler=(Controller_Cardiac) scin.getFenApplication().getControleur();
-		ControllerWorkflowCardiac controler = (ControllerWorkflowCardiac) scin.getFenApplication().getControleur();
+		// controler=(Controller_Cardiac) scin.getFenApplication().getController();
+		ControllerWorkflowCardiac controler = (ControllerWorkflowCardiac) scin.getFenApplication().getController();
 
 		// for (int i : controler.getNomRois().keySet()) {
 		// this.selectedImages[0].getImagePlus().setSlice(controler.getSliceNumberByRoiIndex(i));

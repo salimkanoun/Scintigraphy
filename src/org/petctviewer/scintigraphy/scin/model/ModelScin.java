@@ -1,14 +1,19 @@
 package org.petctviewer.scintigraphy.scin.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import ij.ImagePlus;
 import ij.plugin.frame.RoiManager;
 import ij.util.DicomTools;
-import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-
-import java.util.HashMap;
 
 /**
  * Represents the model in the MVC pattern.
@@ -22,6 +27,8 @@ public abstract class ModelScin {
     protected ImageSelection[] selectedImages;
 
     protected final String studyName;
+    
+    private List<ControllerWorkflow> controllers;
 
     /**
      * @param selectedImages Images needed for this study
@@ -31,6 +38,7 @@ public abstract class ModelScin {
         this.roiManager = new RoiManager(false);
         this.selectedImages = selectedImages;
         this.studyName = studyName;
+        this.controllers = new ArrayList<>();
     }
 
     /**
@@ -159,6 +167,14 @@ public abstract class ModelScin {
         s += "\n" + "tags," + tags;
 
         return s;
+    }
+    
+    public void addController(ControllerWorkflow controller) {
+    	this.controllers.add(controller);
+    }
+    
+    public List<ControllerWorkflow> getControllers(){
+    	return this.controllers;
     }
 
 }

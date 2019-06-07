@@ -14,8 +14,8 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 public class ShunpoScintigraphy extends Scintigraphy {
 
-	private Column orgranColumn;
 	private static final String ORGAN_KIDNEY_PULMON = "KIDNEY-PULMON", ORGAN_BRAIN = "BRAIN";
+	private Column orgranColumn;
 
 	public ShunpoScintigraphy() {
 		super("Pulmonary Shunt");
@@ -24,19 +24,20 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	@Override
 	public void run(String arg) {
 		// Override to use custom dicom selection window
-		FenSelectionDicom fen = new FenSelectionDicom(this.getStudyName(), this);
+		FenSelectionDicom fen = new FenSelectionDicom(this);
 
 		// Orientation column
-		String[] orientationValues = { Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString() };
+		String[] orientationValues = {Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString()};
 		Column orientation = new Column(Column.ORIENTATION.getName(), orientationValues);
 
 		// Organ column
-		String[] organValues = { ORGAN_KIDNEY_PULMON, ORGAN_BRAIN };
+		String[] organValues = {ORGAN_KIDNEY_PULMON, ORGAN_BRAIN};
 		this.orgranColumn = new Column("Organ", organValues);
 
 		// Choose columns to display
-		Column[] cols = { Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
-				Column.STACK_SIZE, orientation, this.orgranColumn };
+		Column[] cols = {Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
+				Column.STACK_SIZE,
+				orientation, this.orgranColumn};
 		fen.declareColumns(cols);
 
 		fen.setVisible(true);
@@ -45,13 +46,12 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	@Override
 	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 		// Check that number of images is correct
-		if (selectedImages.length != 2)
-			throw new WrongNumberImagesException(selectedImages.length, 2);
+		if (selectedImages.length != 2) throw new WrongNumberImagesException(selectedImages.length, 2);
 
-		if (selectedImages[0].getValue(this.orgranColumn.getName()) == selectedImages[1]
-				.getValue(this.orgranColumn.getName()))
-			throw new WrongColumnException(orgranColumn, selectedImages[0].getRow(),
-					"expecting " + ORGAN_KIDNEY_PULMON + " and " + ORGAN_BRAIN);
+		if (selectedImages[0].getValue(this.orgranColumn.getName()) == selectedImages[1].getValue(
+				this.orgranColumn.getName())) throw new WrongColumnException(orgranColumn, selectedImages[0].getRow(),
+																			 "expecting " + ORGAN_KIDNEY_PULMON +
+																					 " and " + ORGAN_BRAIN);
 
 		// Order selectedImages: 1st KIDNEY-PULMON; 2nd BRAIN
 		ImageSelection tmp;
@@ -76,9 +76,9 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	@Override
 	public void lancerProgramme(ImageSelection[] selectedImages) {
 		// Start program
-		this.setFenApplication(new FenApplication_Shunpo(this, selectedImages[0]));
-		this.getFenApplication().setController(new ControllerWorkflowShunpo(this,
-				(FenApplicationWorkflow) getFenApplication(), new ModelShunpo(selectedImages, "Pulmonary Shunt")));
+		this.setFenApplication(new FenApplicationWorkflow(selectedImages[0], this.getStudyName()));
+		this.getFenApplication().setController(
+				new ControllerWorkflowShunpo(this, (FenApplicationWorkflow) getFenApplication(), selectedImages));
 		this.getFenApplication().setVisible(true);
 	}
 

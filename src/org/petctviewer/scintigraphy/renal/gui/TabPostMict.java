@@ -1,7 +1,20 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import ij.Prefs;
-import ij.util.DicomTools;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.postMictional.Model_PostMictional;
 import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
@@ -14,15 +27,12 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import ij.Prefs;
+import ij.util.DicomTools;
 
 public class TabPostMict extends PanelImpContrastSlider implements ActionListener {
 	private JButton btn_addImp, btn_quantify;
@@ -36,8 +46,8 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 	private Model_PostMictional modelPostMictional;
 
 	public TabPostMict(Scintigraphy vue, FenResults parent) {
-		super("Post Mictional", "postmict", parent);
-		this.bladder = Prefs.get("renal.bladder.preferred", true);
+		super("Post Mictional", "postmict", parent, "Post", false);
+		this.bladder = Prefs.get(PrefTabRenal.PREF_BLADDER, true);
 		this.imgSelected = false;
 		this.examDone = false;
 
@@ -102,7 +112,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 
 			// Open DICOM dialog Selection to select post mictional image
 			// SK A REFACTORISER
-			FenSelectionDicom fen = new FenSelectionDicom("Post-mictional", new Scintigraphy("Post-mictional") {
+			FenSelectionDicom fen = new FenSelectionDicom(new Scintigraphy("Post-mictional") {
 				@Override
 				public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
 					if (selectedImages.length > 1) {
@@ -119,6 +129,9 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 //						Library_Dicom.normalizeToCountPerSecond(imp);
 
 						TabPostMict.this.imgSelected = true;
+						Library_Gui.initOverlay(imp.getImagePlus());
+						Library_Gui.setOverlayTitle("Post", imp.getImagePlus(), Color.YELLOW, 1);
+						Library_Gui.setOverlayGD(imp.getImagePlus());
 						TabPostMict.this.setImp(imp.getImagePlus());
 
 						ImageSelection[] selection = new ImageSelection[1];

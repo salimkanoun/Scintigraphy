@@ -10,20 +10,21 @@ import java.util.HashMap;
 
 /**
  * creer une box avec titre du programme et son identification patient
- * 
- * @author diego
  *
+ * @author diego - Original Idea
+ * @author Esteban BAICHOO - Refactoring
+ * @author Titouan QUÉMA - Refactoring
  */
 public class SidePanel extends JPanel {
 
+	public static final String BTN_TXT_CAPTURE = "Capture";
 	private static final long serialVersionUID = 6151539441728624822L;
-	
-	public static final String BTN_TXT_CAPTURE =  "Capture";
-	
 	private final Box box;
-	private Component sidePanelContent;
 	private final JPanel panSouth;
+	private Component sidePanelContent;
 	private JLabel titreFen;
+	
+	private CaptureButton captureButton;
 
 	public SidePanel(Component sidePanelContent, String titre, ImagePlus imp) {
 		super(new BorderLayout());
@@ -41,6 +42,16 @@ public class SidePanel extends JPanel {
 		this.add(this.box, BorderLayout.CENTER);
 		this.add(this.panSouth, BorderLayout.SOUTH);
 
+	}
+
+	public static void setFontAllJLabels(Container container, Font font) {
+		if (container instanceof JLabel) container.setFont(font);
+
+		for (Component c : container.getComponents()) {
+			if (c instanceof Container) {
+				setFontAllJLabels((Container) c, font);
+			}
+		}
 	}
 
 	private void fillbox(String titre, ImagePlus imp) {
@@ -67,13 +78,6 @@ public class SidePanel extends JPanel {
 		this.box.add(flow1);
 	}
 
-	public void setSidePanelContent(Component sidePanelContent) {
-		if (this.sidePanelContent != null)
-			this.box.remove(this.sidePanelContent);
-		this.sidePanelContent = sidePanelContent;
-		this.box.add(sidePanelContent);
-	}
-
 	public void addContent(Component component) {
 		this.box.add(component);
 	}
@@ -82,15 +86,10 @@ public class SidePanel extends JPanel {
 		return this.sidePanelContent;
 	}
 
-	public static void setFontAllJLabels(Container container, Font font) {
-		if (container instanceof JLabel)
-			container.setFont(font);
-
-		for (Component c : container.getComponents()) {
-			if (c instanceof Container) {
-				setFontAllJLabels((Container) c, font);
-			}
-		}
+	public void setSidePanelContent(Component sidePanelContent) {
+		if (this.sidePanelContent != null) this.box.remove(this.sidePanelContent);
+		this.sidePanelContent = sidePanelContent;
+		this.box.add(sidePanelContent);
 	}
 
 	public void createCaptureButton(TabResult tab) {
@@ -102,16 +101,13 @@ public class SidePanel extends JPanel {
 	}
 
 	public void createCaptureButton(TabResult tab, Component[] hide, Component[] show, String additionalInfo) {
-		
-		
-
 		// label de credits
 		JLabel lbl_credits = new JLabel("Provided by petctviewer.org");
 		lbl_credits.setVisible(false);
 		this.panSouth.add(lbl_credits);
 
 		// capture button
-		CaptureButton captureButton = new CaptureButton(BTN_TXT_CAPTURE, tab, lbl_credits);
+		this.captureButton = new CaptureButton(BTN_TXT_CAPTURE, tab, lbl_credits);
 		captureButton.addActionListener(tab.getParent().getController());
 
 		captureButton.setHorizontalAlignment(JButton.CENTER);
@@ -122,5 +118,10 @@ public class SidePanel extends JPanel {
 	public void setTitle(String title) {
 		titreFen.setText("<html><h1>" + title + "</h1><html>");
 	}
+	
+	public CaptureButton getCaptureButton() {
+		return this.captureButton;
+	}
 
 }
+

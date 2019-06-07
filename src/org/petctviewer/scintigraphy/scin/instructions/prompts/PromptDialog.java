@@ -1,8 +1,8 @@
 package org.petctviewer.scintigraphy.scin.instructions.prompts;
 
-import javax.swing.JDialog;
-
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
+
+import javax.swing.*;
 
 /**
  * This class represents a dialog prompting an information to the user.
@@ -11,7 +11,6 @@ import org.petctviewer.scintigraphy.scin.instructions.Instruction;
  *
  */
 public abstract class PromptDialog extends JDialog {
-
 	private static final long serialVersionUID = 1L;
 
 	/**

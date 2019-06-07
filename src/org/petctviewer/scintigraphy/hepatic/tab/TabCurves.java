@@ -5,14 +5,14 @@ import ij.gui.Overlay;
 import org.petctviewer.scintigraphy.hepatic.ModelHepaticDynamic;
 import org.petctviewer.scintigraphy.hepatic.SecondExam.ControllerWorkflowHepaticDyn;
 import org.petctviewer.scintigraphy.hepatic.SecondExam.FenApplicationSecondHepaticDyn;
-import org.petctviewer.scintigraphy.hepatic.SecondExam.ModelSecondMethodHepaticDynamic;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
-import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -54,7 +54,6 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 		super(parent, title, true);
 		// TODO Auto-generated constructor stub
 		this.setSidePanelTitle("Curves");
-		((ModelHepaticDynamic) this.parent.getModel()).setResultTab(this);
 
 		this.tabPane = new JTabbedPane();
 		// this.tabsResult = new ArrayList<>();
@@ -62,8 +61,12 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 		this.getResultContent().add(tabPane);
 
 		this.currentSidePanel = 1;
+		
+//		((JSplitPane)this.getPanel()).setDividerLocation(0.67);
 
 		this.reloadDisplay();
+		
+		
 	}
 
 	@Override
@@ -94,7 +97,7 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 			box.add(Box.createHorizontalGlue());
 
 			pan.add(box);
-			// pan.setPreferredSize(new Dimension(1050, 700));
+
 			return pan;
 
 		} else {
@@ -105,7 +108,7 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 
 			this.tabPane.addTab(this.tabTAC.getTitle(), this.tabTAC.getPanel());
 			this.tabPane.addTab(tabVasculaire.getTitle(), tabVasculaire.getPanel());
-			if (Prefs.get("petctviewer.scin.experimental", false)) {
+			if (Prefs.get(PrefTabMain.PREF_EXPERIMENTS, false)) {
 				this.deconvolvGraph = new TabDeconvolv(this.getParent(), this);
 				this.tabPane.addTab(deconvolvGraph.getTitle(), deconvolvGraph.getPanel());
 			}
@@ -113,7 +116,7 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 			this.tabPane.addChangeListener(this);
 
 			panelDeFin.add(this.tabPane);
-			// panelDeFin.setPreferredSize(new Dimension(1050, 700));
+
 			return tabPane;
 		}
 	}
@@ -131,10 +134,13 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 
 			this.vueBasic = new FenApplicationSecondHepaticDyn(selectedImages[0], model.getStudyName());
 			selectedImages[0].getImagePlus().setOverlay(overlay);
-
+			
+			int[] frameDurations = Library_Dicom.buildFrameDurations(selectedImages[2].getImagePlus());
+			
+			((ModelHepaticDynamic)this.parent.getModel()).setFramesDuration(frameDurations);
+			
 			this.vueBasic.setController(
-					new ControllerWorkflowHepaticDyn(this.vueBasic, new ModelSecondMethodHepaticDynamic(selectedImages,
-							model.getStudyName(), ((ModelScinDyn) model).getFrameDuration()), this));
+					new ControllerWorkflowHepaticDyn(this.vueBasic, this.parent.getModel(), this));
 
 		} else if (button == buttonSwitchGraph) {
 			this.tabTAC.switchGraph(this.buttonSwitchGraph);
@@ -183,8 +189,6 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 			index = this.tabPane.getSelectedIndex();
 			this.reloadSidePanelContent();
 			this.parent.repaint();
-			this.parent.revalidate();
-			this.parent.pack();
 			this.tabPane.setSelectedIndex(index);
 		}
 	}
@@ -192,18 +196,27 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 	public JPanel sidePanelTabDeconvolve() {
 
 		if (this.sidePanelDeconvolve == null) {
-			JPanel resultPane = new JPanel(new GridLayout(0, 2));
+			JPanel resultPane = new JPanel(new GridLayout(0, 1));
 
 			this.spinnerDeconvolve = new JSpinner(new SpinnerNumberModel(10, 1, 100, 1));
 			spinnerDeconvolve.addChangeListener(this);
-
+			JPanel panelDeconvolve = new JPanel();
+//			panelDeconvolve.add(new JLabel("Initial value of the deconvolution : "));
+			panelDeconvolve.add(spinnerDeconvolve);
+			spinnerDeconvolve.setPreferredSize(new Dimension(55,45));
+			
 			this.spinnerConvolve = new JSpinner(new SpinnerNumberModel(6, 1, 100, 1));
 			spinnerConvolve.addChangeListener(this);
+			JPanel panelConvolve = new JPanel();
+//			panelConvolve.add(new JLabel("Number of convolution : "));
+			panelConvolve.add(spinnerConvolve);
+			spinnerConvolve.setPreferredSize(new Dimension(65,45));
 
 			resultPane.add(new JLabel("Number of convolution : "));
-			resultPane.add(spinnerConvolve);
+			resultPane.add(panelConvolve);
+			resultPane.add(new JLabel(""));
 			resultPane.add(new JLabel("Initial value of the deconvolution : "));
-			resultPane.add(spinnerDeconvolve);
+			resultPane.add(panelDeconvolve);
 			this.sidePanelDeconvolve = resultPane;
 		}
 
@@ -227,17 +240,37 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 	}
 
 	public JPanel sidePanelClassical() {
-		JPanel resultPane = new JPanel(new GridLayout(0, 2));
-		HashMap<String, String> results = ((ModelSecondMethodHepaticDynamic) this.vueBasic.getControleur().getModel())
+		JPanel resultPane = new JPanel(new GridLayout(0, 1));
+		HashMap<String, String> results = ((ModelHepaticDynamic) this.vueBasic.getController().getModel())
 				.getResultsHashMap();
-		String[] keys = { "T1/2 Righ Liver", "", "Maximum Right Liver", "end/max Ratio Right", "T1/2 Left Liver", "",
-				"Maximum Left Liver", "end/max Ratio Left", "T1/2 Blood pool", "", "Blood pool ratio 20mn/5mn" };
-		for (String s : keys) {
-			if (s.equals(""))
-				resultPane.add(new JLabel(""));
-			else
-				resultPane.add(new JLabel(s + " : " + results.get(s)));
-		}
+//		String[] keys = { "T1/2 Righ Liver", "", "Maximum Right Liver", "end/max Ratio Right", "T1/2 Left Liver", "",
+//				"Maximum Left Liver", "end/max Ratio Left", "T1/2 Blood pool", "", "Blood pool ratio 20mn/5mn" };
+//		for (String s : keys) {
+//			if (results.get(s) == null)
+//				resultPane.add(new JLabel(s));
+//			else
+//				resultPane.add(new JLabel(s + " : " + results.get(s)));
+//		}
+		
+		resultPane.add(new JLabel("Righ Liver :"));
+		resultPane.add(new JLabel("T1/2 :" + " : " + results.get("T1/2 Righ Liver")));
+		resultPane.add(new JLabel("Maximum :" + " : " + results.get("Maximum Right Liver")));
+		resultPane.add(new JLabel("end/max Ratio :" + " : " + results.get("end/max Ratio Right")));
+		
+		resultPane.add(new JLabel(""));
+		
+		resultPane.add(new JLabel("Left Liver :"));
+		resultPane.add(new JLabel("T1/2 :" + " : " + results.get("T1/2 Left Liver")));
+		resultPane.add(new JLabel("Maximum :" + " : " + results.get("Maximum Left Liver")));
+		resultPane.add(new JLabel("end/max Ratio :" + " : " + results.get("end/max Ratio Left")));
+		
+		resultPane.add(new JLabel(""));
+		
+		resultPane.add(new JLabel("Blood pool :"));
+		resultPane.add(new JLabel("T1/2 :" + " : " + results.get("T1/2 Blood pool")));
+		resultPane.add(new JLabel("ratio 20mn/5mn :" + " : " + results.get("Blood pool ratio 20mn/5mn")));
+		
+		
 
 		return resultPane;
 	}

@@ -1,17 +1,9 @@
-package org.petctviewer.scintigraphy.gastric;
+package org.petctviewer.scintigraphy.scin.model;
 
 public enum Unit {
-	PERCENTAGE("%"),
-	TIME("h:m:s"),
-	MINUTES("min"),
-	COUNTS("counts"),
-	COUNTS_PER_SECOND("counts/sec"),
-	COUNTS_PER_MINUTE("counts/min"),
-	KCOUNTS("kcounts"),
-	KCOUNTS_PER_SECOND("kcounts/sec"),
-	KCOUNTS_PER_MINUTE("kcounts/min"),
-	COUNTS_PER_PIXEL("counts/pixel"),
-	KCOUNTS_PER_PIXEL("kcounts/pixel");
+	PERCENTAGE("%"), TIME("h:m:s"), MINUTES("min"), COUNTS("counts"), COUNTS_PER_SECOND("counts/sec"),
+	COUNTS_PER_MINUTE("counts/min"), KCOUNTS("kcounts"), KCOUNTS_PER_SECOND("kcounts/sec"), KCOUNTS_PER_MINUTE(
+			"kcounts/min"), COUNTS_PER_PIXEL("counts/pixel"), KCOUNTS_PER_PIXEL("kcounts/pixel");
 
 	private final String abbreviation;
 
@@ -19,12 +11,26 @@ public enum Unit {
 		this.abbreviation = abbreviation;
 	}
 
-	public String abrev() {
+	/**
+	 * @return abbreviation of this unit (used for display)
+	 */
+	public String abbrev() {
 		return abbreviation;
 	}
 
+	/**
+	 * Converts the specified value from this current unit to the desired unit.<br> If the desired unit is the same as
+	 * the current unit, or if the desired unit is null, then the value is returned unchanged.<br> Otherwise, the
+	 * conversion will be made if possible. If the conversion is not possible (for instance, converting {@link
+	 * #PERCENTAGE} to {@link #COUNTS} is impossible), then an exception is thrown.
+	 *
+	 * @param value Value to convert
+	 * @param unit  Unit to convert the value to
+	 * @return converted value from this current unit to the desired unit
+	 * @throws UnsupportedOperationException if the conversion is impossible
+	 */
 	public double convertTo(double value, Unit unit) {
-		if (this == unit) return value;
+		if (this == unit || unit == null) return value;
 
 		switch (this) {
 			case COUNTS:
@@ -95,6 +101,9 @@ public enum Unit {
 		throw new UnsupportedOperationException("This unit (" + this + ") cannot be converted to " + unit);
 	}
 
+	/**
+	 * @see #abbrev()
+	 */
 	@Override
 	public String toString() {
 		return this.abbreviation;

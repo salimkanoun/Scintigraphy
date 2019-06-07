@@ -32,11 +32,11 @@ public class FenResultat_ScinStatic extends FenResults {
 		this.panPost = new JPanel();
 		this.panAvgGeo = new JPanel();
 		
-		if(!((ModelScinStatic) this.getModel()).getIsSingleSlide() || ((ModelScinStatic) this.getModel()).getIsAnt())
+		if(!((ModelScinStatic) this.getModel()).isSingleSlice() || ((ModelScinStatic) this.getModel()).isAnt())
 			this.addAntTab(((ModelScinStatic) controller.getModel()).calculerTableauAnt());
-		if( !((ModelScinStatic) this.getModel()).getIsSingleSlide() || !((ModelScinStatic) this.getModel()).getIsAnt())
+		if( !((ModelScinStatic) this.getModel()).isSingleSlice() || !((ModelScinStatic) this.getModel()).isAnt())
 			this.addPostTab(((ModelScinStatic) controller.getModel()).calculerTableauPost());
-		if(!((ModelScinStatic) this.getModel()).getIsSingleSlide())
+		if(!((ModelScinStatic) this.getModel()).isSingleSlice())
 			this.addMoyGeomTab(((ModelScinStatic) controller.getModel()).calculerTaleauMayGeom());
 
 		this.addTab(tab);
@@ -49,7 +49,7 @@ public class FenResultat_ScinStatic extends FenResults {
 		public Tab(FenResults parent, String title) {
 			super(parent, title);
 //			this.createCaptureButton("cc");
-			this.setadditionalInfo("cc");
+			this.setAdditionalInfo("cc");
 
 			this.reloadDisplay();
 		}
