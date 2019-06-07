@@ -155,7 +155,7 @@ public class Model_Gastric extends ModelWorkflow {
 	 */
 	private List<Data> generatesDataOrdered() {
 		List<Data> orderedData = new ArrayList<>(this.results.values());
-		Collections.sort(orderedData, Comparator.comparing(o -> o.getAssociatedImage().getDateAcquisition()));
+		orderedData.sort(Comparator.comparing(o -> o.getAssociatedImage().getDateAcquisition()));
 		if (time0 != null) orderedData.add(0, time0);
 		return orderedData;
 	}
@@ -174,19 +174,17 @@ public class Model_Gastric extends ModelWorkflow {
 		double[] results = new double[this.nbAcquisitions()];
 		Iterator<Data> it = this.generatesDataOrdered().iterator();
 		int i = 0;
-//		int resultsIgnored = 0;
 		while (it.hasNext()) {
 			Data data = it.next();
 			try {
 				double value;
 				if (key == Data.DATA_POST_COUNTS) value = data.getPostValue(regionName, key);
 				else value = data.getAntValue(regionName, key);
-				Unit unitValue = data.unitForKey(key);
+				Unit unitValue = Data.unitForKey(key);
+				assert unitValue != null;
 				results[i] = unitValue.convertTo(value, unit);
 			} catch (NullPointerException e) {
 				// No data found for this point
-				// Ignore value
-//				resultsIgnored++;
 				results[i] = Double.NaN;
 			}
 			i++;
@@ -902,7 +900,7 @@ public class Model_Gastric extends ModelWorkflow {
 
 		// Calculate total
 		data.setAntValue(REGION_ALL, Data.DATA_ANT_COUNTS, data.getAntValue(REGION_STOMACH, Data.DATA_ANT_COUNTS) +
-				data.getAntValue(REGION_INTESTINE, Data.DATA_ANT_COUNTS));
+				data.getAntValue(REGION_INTESTINE, Data.DATA_ANT_COUNTS), null, null);
 
 		// Adjust percentages with eggs ratio
 		double percentage = this.adjustPercentageWithEggsRatio(REGION_FUNDUS, calculatePercentage(data, REGION_FUNDUS,
