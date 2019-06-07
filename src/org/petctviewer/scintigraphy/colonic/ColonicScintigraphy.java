@@ -32,7 +32,7 @@ public class ColonicScintigraphy extends Scintigraphy {
 
 	@Override
 	public String getName() {
-		return null;
+		return STUDY_NAME;
 	}
 
 	@Override

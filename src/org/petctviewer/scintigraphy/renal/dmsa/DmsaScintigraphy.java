@@ -12,9 +12,12 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DmsaScintigraphy extends Scintigraphy {
 
@@ -23,33 +26,9 @@ public class DmsaScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
-		if (selectedImages.length > 1) throw new WrongNumberImagesException(selectedImages.length, 1);
-
-		ImageSelection imp = selectedImages[0].clone();
-
-		if (selectedImages[0].getImageOrientation() == Orientation.ANT_POST) {
-			imp.getImagePlus().getStack().getProcessor(1).flipHorizontal();
-			// SK REVERSE DES METADATA A VERIFIER !!!!
-			StackReverser reverser = new StackReverser();
-			reverser.flipStack(imp.getImagePlus());
-			imp.getImagePlus().getStack().getProcessor(2).flipHorizontal();
-		} else if (selectedImages[0].getImageOrientation() == Orientation.POST_ANT) {
-			imp.getImagePlus().getStack().getProcessor(2).flipHorizontal();
-		} else if (selectedImages[0].getImageOrientation() == Orientation.POST) {
-
-		} else {
-			throw new WrongOrientationException(selectedImages[0].getImageOrientation(),
-					new Orientation[]{Orientation.ANT_POST, Orientation.POST_ANT, Orientation.POST});
-		}
-
-		ImageSelection[] selection = new ImageSelection[1];
-		selection[0] = imp;
-
-		for(ImageSelection ims : selectedImages)
-			ims.close();
-
-		return selection;
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -64,6 +43,42 @@ public class DmsaScintigraphy extends Scintigraphy {
 
 		fen.setController(
 				new ControllerWorkflowDMSA(this, (FenApplicationWorkflow) this.getFenApplication(), selectedImages));
+	}
+
+	@Override
+	public Column[] getColumns() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException {
+		if (selectedImages.size() > 1) throw new WrongNumberImagesException(selectedImages.size(), 1);
+
+		ImageSelection imp = selectedImages.get(0).clone();
+
+		if (selectedImages.get(0).getImageOrientation() == Orientation.ANT_POST) {
+			imp.getImagePlus().getStack().getProcessor(1).flipHorizontal();
+			// SK REVERSE DES METADATA A VERIFIER !!!!
+			StackReverser reverser = new StackReverser();
+			reverser.flipStack(imp.getImagePlus());
+			imp.getImagePlus().getStack().getProcessor(2).flipHorizontal();
+		} else if (selectedImages.get(0).getImageOrientation() == Orientation.POST_ANT) {
+			imp.getImagePlus().getStack().getProcessor(2).flipHorizontal();
+		} else if (selectedImages.get(0).getImageOrientation() == Orientation.POST) {
+
+		} else {
+			throw new WrongOrientationException(selectedImages.get(0).getImageOrientation(),
+												new Orientation[]{Orientation.ANT_POST, Orientation.POST_ANT, Orientation.POST});
+		}
+
+		List<ImageSelection> selection = new ArrayList<>();
+		selection.add(imp);
+
+		for(ImageSelection ims : selectedImages)
+			ims.close();
+
+		return selection;
 	}
 
 }

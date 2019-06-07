@@ -12,7 +12,11 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GeneralDynamicScintigraphy extends Scintigraphy {
 
@@ -32,33 +36,58 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 		IJ.setTool(Toolbar.POLYGON);
 	}
 
-	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException, ReadTagException {
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public ImagePlus getImpAnt() {
+		return impAnt != null ? impAnt.getImagePlus() : null;
+	}
+
+	public ImagePlus getImpPost() {
+		return impPost != null ? impPost.getImagePlus() : null;
+	}
+
+	public int[] getFrameDurations() {
+		return frameDurations;
+	}
+
+	@Override
+	public Column[] getColumns() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException,
+			ReadTagException {
 		// Check number images
-		if (selectedImages.length != 1)
-			throw new WrongNumberImagesException(selectedImages.length, 1);
+		if (selectedImages.size() != 1) throw new WrongNumberImagesException(selectedImages.size(), 1);
 
 		ImageSelection[] imps = new ImageSelection[2];
 
-		if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_ANT) {
+		if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_ANT) {
 			if (imps[0] != null)
 				throw new WrongInputException("Multiple dynamic Antorior Image");
-			imps[0] = selectedImages[0].clone();
-		} else if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_POST) {
+			imps[0] = selectedImages.get(0).clone();
+		} else if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_POST) {
 			if (imps[1] != null)
 				throw new WrongInputException("Multiple dynamic Posterior Image");
-			imps[1] = selectedImages[0].clone();
-		} else if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
+			imps[1] = selectedImages.get(0).clone();
+		} else if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
 			if (imps[1] != null || imps[0] != null)
 				throw new WrongInputException("Multiple dynamic Image");
-			imps[0] = Library_Dicom.splitDynamicAntPost(selectedImages[0])[0];
-			imps[1] = Library_Dicom.splitDynamicAntPost(selectedImages[0])[1];
+			imps[0] = Library_Dicom.splitDynamicAntPost(selectedImages.get(0))[0];
+			imps[1] = Library_Dicom.splitDynamicAntPost(selectedImages.get(0))[1];
 		} else {
-			throw new WrongColumnException.OrientationColumn(selectedImages[0].getRow(),
-					selectedImages[0].getImageOrientation(), new Orientation[] { Orientation.DYNAMIC_ANT,
+			throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
+															 selectedImages.get(0).getImageOrientation(),
+															 new Orientation[]{Orientation.DYNAMIC_ANT,
 							Orientation.DYNAMIC_POST, Orientation.DYNAMIC_ANT_POST });
 		}
 
-		selectedImages[0].getImagePlus().close();
+		selectedImages.get(0).getImagePlus().close();
 
 		if (imps[0] != null) {
 			this.impAnt = imps[0];
@@ -101,25 +130,14 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 		impProjetee.getImagePlus().getProcessor().setMinAndMax(0,
 				impProjetee.getImagePlus().getStatistics().max * 1f / 1f);
 
-		ImageSelection[] selection = new ImageSelection[5];
-		selection[0] = impProjetee;
-		selection[1] = impAnt;
-		selection[2] = impPost;
-		selection[3] = impProjeteeAnt;
-		selection[4] = impProjeteePost;
+		List<ImageSelection> selection = new ArrayList<>();
+		selection.add(impProjetee);
+		selection.add(impAnt);
+		selection.add(impPost);
+		selection.add(impProjeteeAnt);
+		selection.add(impProjeteePost);
 		return selection;
 	}
 
-	public ImagePlus getImpAnt() {
-		return impAnt != null ? impAnt.getImagePlus() : null;
-	}
-
-	public ImagePlus getImpPost() {
-		return impPost != null ? impPost.getImagePlus() : null;
-	}
-
-	public int[] getFrameDurations() {
-		return frameDurations;
-	}
 
 }
