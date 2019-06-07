@@ -28,7 +28,7 @@ public class PrefTabMain extends PrefTab {
 
 		this.setTitle("Main settings");
 
-		String plut = Prefs.get(PREF_LUT, null) == null ? "Preferred LUT" : Prefs.get(PREF_LUT, null);
+		String plut = Prefs.get(PREF_LUT, "Preferred LUT");
 		this.lut = new JLabel(plut);
 		this.lut.setEnabled(false);
 		this.btn_choixLut = new JButton("Open...");
@@ -37,8 +37,7 @@ public class PrefTabMain extends PrefTab {
 		this.btn_displut = new JButton("Show LUTs");
 		this.btn_displut.addActionListener(this);
 
-		String pdir = Prefs.get(PREF_SAVE_DIRECTORY, "") == null ? "Save Directory" : Prefs.get(PREF_SAVE_DIRECTORY,
-																								"");
+		String pdir = Prefs.get(PREF_SAVE_DIRECTORY, "Save Directory");
 		this.dir = new JLabel(pdir);
 		this.dir.setEnabled(false);
 		this.btn_dir = new JButton("Browse");
@@ -78,7 +77,8 @@ public class PrefTabMain extends PrefTab {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == this.btn_choixLut) {
-			this.fc.setCurrentDirectory(new File("./luts"));
+			String path = Prefs.get(PREF_LUT, "./luts");
+			this.fc.setCurrentDirectory(new File(path));
 			this.fc.setDialogTitle("Choose Preferred LUT");
 			int returnVal = fc.showOpenDialog(PrefTabMain.this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
