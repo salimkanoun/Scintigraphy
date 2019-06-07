@@ -13,13 +13,12 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 public class PrefsTabGastric extends JPanel implements ActionListener, ItemListener {
-	public static final String PREF_SIMPLE_METHOD = "petctviewer.scin.gastric.simple_method", PREF_UNIT_USED =
-			"petctviewer.scin.gastric.unit_used", PREF_LIQUID_PHASE = "petctviewer.scin.gastric" + ".liquid.enabled",
-			PREF_LIQUID_PHASE_UNIT = "petctviewer.scin.gastric.liquid.unit", PREF_FRAME_DURATION_TOLERANCE =
-			"petctviewer.scin.gastric.frame_duration_tolerance";
 	private static final long serialVersionUID = 1L;
+
+	public static final String PREF_HEADER = PrefsWindows.PREF_HEADER + ".gastric";
+	public static final String PREF_SIMPLE_METHOD = PREF_HEADER + ".simple_method", PREF_UNIT_USED =
+			PREF_HEADER + "unit_used", PREF_FRAME_DURATION_TOLERANCE = PREF_HEADER + ".frame_duration_tolerance";
 	private final PrefsWindows parent;
-	private final JPanel panelLiquidOptions;
 
 	public PrefsTabGastric(PrefsWindows parent) {
 		// Set variable
@@ -27,7 +26,7 @@ public class PrefsTabGastric extends JPanel implements ActionListener, ItemListe
 
 		this.setLayout(new BorderLayout());
 		JPanel pnl_titre = new JPanel();
-		pnl_titre.add(new JLabel("<html><h3>Gastric Scinthigraphy settings</h3></html>"));
+		pnl_titre.add(new JLabel("<html><h3>Gastric Scintigraphy settings</h3></html>"));
 		this.add(pnl_titre, BorderLayout.NORTH);
 
 		JPanel panel = new JPanel();
@@ -41,24 +40,6 @@ public class PrefsTabGastric extends JPanel implements ActionListener, ItemListe
 
 		// Time tolerance
 		panel.add(this.createTextInput(PREF_FRAME_DURATION_TOLERANCE, "Frame durations delta tolerance: ", "sec", 3));
-
-		// TODO: remove liquid prefs, not used anymore
-		// Liquid phase
-		JPanel panelLiquid = new JPanel();
-		panelLiquid.setLayout(new BoxLayout(panelLiquid, BoxLayout.Y_AXIS));
-		panelLiquid.setBorder(BorderFactory.createTitledBorder("Liquid Phase"));
-		// Activate liquid phase
-		JCheckBox checkLiquidPhase = this.createCheckbox(PREF_LIQUID_PHASE, "Enable liquid phase acquisition", false);
-		panelLiquid.add(checkLiquidPhase);
-		// Liquid options
-		panelLiquidOptions = new JPanel();
-		panelLiquidOptions.setLayout(new BoxLayout(panelLiquidOptions, BoxLayout.Y_AXIS));
-		panelLiquidOptions.add(this.createUnitChooser(PREF_LIQUID_PHASE_UNIT,
-				new Unit[]{Unit.COUNTS_PER_SECOND, Unit.KCOUNTS_PER_SECOND, Unit.COUNTS_PER_MINUTE,
-						Unit.KCOUNTS_PER_MINUTE}));
-		panelLiquidOptions.setVisible(checkLiquidPhase.isSelected());
-		panelLiquid.add(panelLiquidOptions);
-		panel.add(panelLiquid);
 
 		this.add(panel, BorderLayout.CENTER);
 	}
@@ -101,19 +82,22 @@ public class PrefsTabGastric extends JPanel implements ActionListener, ItemListe
 			public void insertUpdate(DocumentEvent e) {
 				savePref();
 			}
+
 			@Override
 			public void removeUpdate(DocumentEvent e) {
 				savePref();
 			}
+
 			@Override
 			public void changedUpdate(DocumentEvent e) {
 				savePref();
 			}
+
 			private void savePref() {
 				try {
 					Prefs.set(PREF_FRAME_DURATION_TOLERANCE, Integer.parseInt(textField.getText()));
 					parent.displayMessage(null);
-				} catch(NumberFormatException e) {
+				} catch (NumberFormatException e) {
 					Prefs.set(PREF_FRAME_DURATION_TOLERANCE, 1);
 					parent.displayMessage("Cannot save (" + textField.getText() + ") -> not a number");
 				}
@@ -136,14 +120,6 @@ public class PrefsTabGastric extends JPanel implements ActionListener, ItemListe
 			// Save value in prefs
 			Prefs.set(check.getActionCommand(), check.isSelected());
 			this.parent.displayMessage("Please close the window to save the preferences", PrefsWindows.DURATION_SHORT);
-
-			// Liquid phase
-			if (check.getActionCommand().equals(PREF_LIQUID_PHASE)) {
-				if (check.isSelected()) {
-					// Display further options
-					this.panelLiquidOptions.setVisible(true);
-				} else this.panelLiquidOptions.setVisible(false);
-			}
 		}
 	}
 
@@ -154,9 +130,8 @@ public class PrefsTabGastric extends JPanel implements ActionListener, ItemListe
 				@SuppressWarnings("unchecked") JComboBox<Unit> source = (JComboBox<Unit>) e.getSource();
 				// Save new unit
 				Prefs.set(source.getActionCommand(), ((Unit) e.getItem()).name());
-				this.parent
-						.displayMessage("Please close the window to save the preferences",
-								PrefsWindows.DURATION_SHORT);
+				this.parent.displayMessage("Please close the window to save the preferences",
+										   PrefsWindows.DURATION_SHORT);
 			}
 		}
 	}

@@ -14,6 +14,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class PrefsWindows extends WindowAdapter implements PlugIn {
+	public static final String PREF_HEADER = "petctviewer.scin";
 
 	public static final int DURATION_SHORT = 2000;
 
