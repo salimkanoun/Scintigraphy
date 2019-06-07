@@ -4,6 +4,7 @@ import ij.IJ;
 import ij.Prefs;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
@@ -53,6 +54,8 @@ public class PrefTabBone extends PrefTab {
 				this.btn_choixLut.setEnabled(true);
 			}
 		});
+		this.checkBoxDefaultLut.setMaximumSize(
+				new Dimension(this.checkBoxDefaultLut.getMaximumSize().width, Short.MAX_VALUE));
 		this.btn_choixLut.setEnabled(!this.checkBoxDefaultLut.isSelected());
 		this.mainPanel.add(this.checkBoxDefaultLut);
 	}

@@ -27,7 +27,7 @@ public abstract class PrefTab extends JPanel implements ActionListener {
 		this.add(pnl_titre, BorderLayout.NORTH);
 
 		mainPanel = new JPanel();
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
 
 		this.add(mainPanel, BorderLayout.CENTER);
 	}
