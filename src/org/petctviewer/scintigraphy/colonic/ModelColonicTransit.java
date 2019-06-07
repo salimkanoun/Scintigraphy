@@ -102,6 +102,7 @@ public class ModelColonicTransit extends ModelScin {
 	}
 
 	public String[] getResults(int i) {
+		@SuppressWarnings("unchecked")
 		Map<String, Double>[] datas = new HashMap[] { dataImage1, dataImage2, dataImage3 };
 
 		String[] results = new String[datas[i].size()];

@@ -27,6 +27,7 @@ import java.util.List;
 public class ControllerWorkflowShunpo extends ControllerWorkflow {
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 	private final FenResults fenResults;
+	@SuppressWarnings("unused")
 	private final boolean FIRST_ORIENTATION_POST;
 	private List<ImagePlus> captures;
 

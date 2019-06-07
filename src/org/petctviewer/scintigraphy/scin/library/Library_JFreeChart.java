@@ -41,6 +41,7 @@ public class Library_JFreeChart {
 	 * @param series la serie
 	 * @return valeur de l'abscisse
 	 */
+	@SuppressWarnings("unchecked")
 	public static Double getAbsMaxY(XYSeries series) {
 		Number maxY = series.getMaxY();
 

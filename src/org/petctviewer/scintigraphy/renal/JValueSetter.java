@@ -32,6 +32,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 	// ordre de priorite des selecteurs
 	private final List<Selector> selectors;
 	private Selector current;
+	@SuppressWarnings("rawtypes")
 	private final HashMap<Comparable, Area> areas;
 
 	public JValueSetter(JFreeChart chart) {
@@ -110,6 +111,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	private Selector getSelector(Comparable key) {
 		for (Selector s : this.selectors) {
 			if (s.getKey() == key) {
@@ -146,6 +148,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 		return null;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void updateAreas() {
 		XYPlot plot = this.getChart().getXYPlot();
 		plot.clearDomainMarkers();
@@ -161,6 +164,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 	 * @param v   le selecteur
 	 * @param key cle du selecteur
 	 */
+	@SuppressWarnings("rawtypes")
 	public void addSelector(Selector v, Comparable key) {
 		// on passe la cle au selecteur
 		v.setJValueSetter(this);
@@ -189,6 +193,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 	 * 
 	 * @param key index du selecteur
 	 */
+	@SuppressWarnings("rawtypes")
 	public void removeSelector(Comparable key) {
 		Selector v = this.getSelector(key);
 
@@ -226,6 +231,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void addArea(Comparable startKey, Comparable endKey, Comparable areaKey, Color color) {
 		Selector start = this.getSelector(startKey);
 		Selector end = this.getSelector(endKey);
@@ -243,6 +249,7 @@ public class JValueSetter extends ChartPanel implements ChartMouseListener, Mous
 		return this.selectors;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public HashMap<Comparable, Double> getValues() {
 		HashMap<Comparable, Double> hm = new HashMap<>();
 

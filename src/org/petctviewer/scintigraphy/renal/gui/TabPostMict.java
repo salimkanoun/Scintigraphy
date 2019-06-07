@@ -27,6 +27,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
@@ -128,6 +129,9 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 //						Library_Dicom.normalizeToCountPerSecond(imp);
 
 						TabPostMict.this.imgSelected = true;
+						Library_Gui.initOverlay(imp.getImagePlus());
+						Library_Gui.setOverlayTitle("Post", imp.getImagePlus(), Color.YELLOW, 1);
+						Library_Gui.setOverlayGD(imp.getImagePlus());
 						TabPostMict.this.setImp(imp.getImagePlus());
 
 						ImageSelection[] selection = new ImageSelection[1];

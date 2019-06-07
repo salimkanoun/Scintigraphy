@@ -50,6 +50,7 @@ public class ModelShunpo extends ModelWorkflow {
 		return data;
 	}
 
+	@SuppressWarnings("unused")
 	private String[] allRegions() {
 		return new String[]{REGION_RIGHT_LUNG, REGION_LEFT_LUNG, REGION_RIGHT_KIDNEY, REGION_LEFT_KIDNEY,
 				REGION_BACKGROUND, REGION_BRAIN};

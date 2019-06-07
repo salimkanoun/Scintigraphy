@@ -32,6 +32,7 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 	private final JLabel lbl_eqR;
 	private final JLabel lbl_eqL;
 	private int lastIndex;
+	@SuppressWarnings("rawtypes")
 	private final JComboBox combo;
 	
 	private final JValueSetter valueSetter;
@@ -202,6 +203,7 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 	/*
 	 * Methode pour les listener des selector
 	 */
+	@SuppressWarnings("rawtypes")
 	private void comboUpdated(ActionEvent e) {
 		JComboBox cb = (JComboBox) e.getSource();
 		int indexCombo = cb.getSelectedIndex();

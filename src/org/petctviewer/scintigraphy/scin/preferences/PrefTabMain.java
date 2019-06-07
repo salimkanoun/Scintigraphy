@@ -21,6 +21,7 @@ public class PrefTabMain extends PrefTab {
 	private final JButton btn_dir;
 	private final JButton btn_displut;
 	private JFileChooser fc;
+	@SuppressWarnings("rawtypes")
 	private final JComboBox comboDate;
 
 	public PrefTabMain(PrefWindow parent) {

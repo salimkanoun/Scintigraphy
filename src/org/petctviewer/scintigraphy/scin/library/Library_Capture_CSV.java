@@ -83,6 +83,7 @@ public class Library_Capture_CSV {
 	 * {@link Library_Capture_CSV#genererDicomTagsPartie1(ImagePlus, String)} <br>
 	 * {@link ModelScin#genererDicomTagsPartie1SameUID(ImagePlus, String)}
 	 */
+	@SuppressWarnings("rawtypes")
 	public static String getTagPartie1(HashMap tags, String nomProgramme, String uid) {
 		String sopID = Library_Capture_CSV.generateSOPInstanceUID(new Date());
 		String tag = "0002,0002 Media Storage SOP Class UID: " + "1.2.840.10008.5.1.4.1.1.7" + "\n" + "0002,0003 Media"

@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 
 public abstract class PrefTab extends JPanel implements ActionListener {
 
+	private static final long serialVersionUID = 1L;
 	protected final JPanel mainPanel;
 	protected final PrefWindow parent;
 	private final JPanel pnl_titre;
