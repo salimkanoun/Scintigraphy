@@ -18,6 +18,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -84,7 +85,7 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 			organes.add("R. bkg");
 		}
 
-		if (Prefs.get("renal.bladder.preferred", true)) {
+		if (Prefs.get(PrefTabRenal.PREF_BLADDER, true)) {
 			dri_3 = new DrawRoiInstruction("Bladder", statePost);
 			this.workflows[0].addInstruction(dri_3);
 			organes.add("Bladder");

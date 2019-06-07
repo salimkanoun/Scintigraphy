@@ -11,6 +11,7 @@
  import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
  import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
  import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
+ import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
  import java.util.ArrayList;
  import java.util.HashMap;
@@ -359,7 +360,7 @@ public class Model_Renal extends ModelScinDyn {
 		normalizeBP();
 
 		// on calcule les corticales si elle sont demandees
-		if (Prefs.get("renal.pelvis.preferred", true)) {
+		if (Prefs.get(PrefTabRenal.PREF_PELVIS, true)) {
 			this.calculCortical();
 		}
 

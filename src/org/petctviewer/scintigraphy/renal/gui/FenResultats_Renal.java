@@ -7,6 +7,8 @@ import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -19,9 +21,9 @@ public class FenResultats_Renal extends FenResults {
 		this.addTab(new TabPrincipal(capture, this));
 		this.addTab(new TabROE(vue, this));
 		this.addTab(new TabTimedImage(vue, 4, 5, this));
-		if (Prefs.get("renal.pelvis.preferred", true))
+		if (Prefs.get(PrefTabRenal.PREF_PELVIS, true))
 			this.addTab(new TabCort(vue, this));
-		if (Prefs.get("renal.ureter.preferred", true))
+		if (Prefs.get(PrefTabRenal.PREF_PELVIS, true))
 			this.addTab(new TabUreter(vue, this));
 		this.addTab(new TabZoomed(vue, this));
 		this.addTab(new TabOther(vue, this));
@@ -29,7 +31,7 @@ public class FenResultats_Renal extends FenResults {
 		if (((Model_Renal) controller.getModel()).getPatlakChart() != null) {
 			this.addTab(new TabPatlak(vue, this));
 		}
-		if (Prefs.get("petctviewer.scin.experimental", false))
+		if (Prefs.get(PrefTabMain.PREF_EXPERIMENTS, false))
 			this.addTab(new TabDeconvolve(this, "Deconvolve"));
 
 		this.setTitle("Results Renal Exam");

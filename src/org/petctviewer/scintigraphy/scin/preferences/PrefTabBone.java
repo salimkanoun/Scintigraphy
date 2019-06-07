@@ -9,13 +9,14 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 
 public class PrefTabBone extends PrefTab {
+	public static final String PREF_HEADER = PrefWindow.PREF_HEADER + ".bone", PREF_LUT = PREF_HEADER + ".lut",
+			PREF_DEFAULT_LUT = PREF_HEADER + ".default_lut";
 
 	private static final long serialVersionUID = 1L;
 	private final JLabel lut;
 	private final JButton btn_choixLut;
 	private final JButton btn_displut;
 	private JFileChooser fc;
-	private final JCheckBox ckb_lut;
 
 	public PrefTabBone(PrefWindow parent) {
 		super(parent, "Bone");
@@ -25,7 +26,8 @@ public class PrefTabBone extends PrefTab {
 		this.fc = new JFileChooser();
 		JPanel pan = new JPanel();
 
-		String plut = Prefs.get("lut.preferred", null) == null ? "Preferred LUT" : Prefs.get("lut.preferred", null);
+		String plut = Prefs.get(PrefTabMain.PREF_LUT, null) == null ? "Preferred LUT" : Prefs.get(PrefTabMain.PREF_LUT,
+																								  null);
 		this.lut = new JLabel(plut);
 		this.lut.setEnabled(false);
 		this.btn_choixLut = new JButton("Open...");
@@ -41,34 +43,28 @@ public class PrefTabBone extends PrefTab {
 		pan.add(pan_lut);
 
 		Box boxLeft = Box.createVerticalBox();
-		ckb_lut = new JCheckBox("Use the default Lut ?");
-		ckb_lut.setSelected(true);
-		ckb_lut.setEnabled(true);
-		boxLeft.add(ckb_lut);
+		boxLeft.add(this.createCheckbox(PREF_DEFAULT_LUT, "Use the default Lut ?", true));
 
 		pan.add(boxLeft);
 		this.add(pan, BorderLayout.CENTER);
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		if (arg0.getSource() == this.btn_choixLut) {
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == this.btn_choixLut) {
 			this.fc.setCurrentDirectory(new File("./luts"));
 			this.fc.setDialogTitle("Choose Preferred LUT for Bone Scintigraphy");
 			int returnVal = fc.showOpenDialog(PrefTabBone.this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
 				this.lut.setText(file.getPath());
-				Prefs.set("lut.preferredforbone", this.lut.getText() + "");
+				Prefs.set(PREF_LUT, this.lut.getText() + "");
 				this.fc = new JFileChooser();
 			}
-		} else if (arg0.getSource() == this.btn_displut) {
+		} else if (e.getSource() == this.btn_displut) {
 			IJ.run("Display LUTs");
 			this.fc = new JFileChooser();
-		} else if (arg0.getSource() == ckb_lut) {
-			Prefs.set("bone.defaultlut.preferred", this.ckb_lut.isSelected());
-			Prefs.savePreferences();
-		}
+		} else super.actionPerformed(e);
 
 	}
 

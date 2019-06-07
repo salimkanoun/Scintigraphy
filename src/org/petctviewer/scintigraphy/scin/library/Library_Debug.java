@@ -2,11 +2,11 @@ package org.petctviewer.scintigraphy.scin.library;
 
 public class Library_Debug {
 
+	public static final String[] PATTERNS_SEPARATOR = {".oOo"};
+
 	public static void checkNull(String objectName, Object o) {
 		System.out.println(objectName + " is " + (o == null ? "NULL" : "ok"));
 	}
-
-	public static final String[] PATTERNS_SEPARATOR = { ".oOo" };
 
 	public static String separator(int width, int height) {
 		int patternId = 0;
@@ -18,8 +18,7 @@ public class Library_Debug {
 			for (int w = 0; w < width; w += pattern.length()) {
 				result.append(pattern);
 			}
-			if (h != height - 1)
-				result.append('\n');
+			if (h != height - 1) result.append('\n');
 		}
 
 		return result.toString();
@@ -39,16 +38,25 @@ public class Library_Debug {
 
 	/**
 	 * Replaces a null or empty string with 'N/A' annotation.
-	 * <p>
 	 *
 	 * @param s String to replace
-	 * @return 'N/A' if the string is null or empty otherwise returns the string
-	 * unchanged
+	 * @return 'N/A' if the string is null or empty otherwise returns the string unchanged
 	 */
 	public static String replaceNull(String s) {
 		if (s == null || s.equals("")) {
 			return "N/A";
 		}
+		return s;
+	}
+
+	/**
+	 * Replaces a null string with an empty one.
+	 *
+	 * @param s String to replace
+	 * @return empty string if the specified string is null otherwise returns the string unchanged
+	 */
+	public static String preventNull(String s) {
+		if (s == null) return "";
 		return s;
 	}
 

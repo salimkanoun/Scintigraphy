@@ -1,24 +1,7 @@
 package org.petctviewer.scintigraphy.hepatic.tab;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.HashMap;
-
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JTabbedPane;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
+import ij.Prefs;
+import ij.gui.Overlay;
 import org.petctviewer.scintigraphy.hepatic.ModelHepaticDynamic;
 import org.petctviewer.scintigraphy.hepatic.SecondExam.ControllerWorkflowHepaticDyn;
 import org.petctviewer.scintigraphy.hepatic.SecondExam.FenApplicationSecondHepaticDyn;
@@ -29,9 +12,15 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
 
-import ij.Prefs;
-import ij.gui.Overlay;
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
 
 public class TabCurves extends TabResult implements ActionListener, ChangeListener {
 
@@ -119,7 +108,7 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 
 			this.tabPane.addTab(this.tabTAC.getTitle(), this.tabTAC.getPanel());
 			this.tabPane.addTab(tabVasculaire.getTitle(), tabVasculaire.getPanel());
-			if (Prefs.get("petctviewer.scin.experimental", false)) {
+			if (Prefs.get(PrefTabMain.PREF_EXPERIMENTS, false)) {
 				this.deconvolvGraph = new TabDeconvolv(this.getParent(), this);
 				this.tabPane.addTab(deconvolvGraph.getTitle(), deconvolvGraph.getPanel());
 			}

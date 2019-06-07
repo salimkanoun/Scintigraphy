@@ -4,18 +4,20 @@ import ij.Prefs;
 import org.petctviewer.scintigraphy.scin.model.Unit;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-public class PrefTabGastric extends PrefTab implements ActionListener, ItemListener {
-	private static final long serialVersionUID = 1L;
-
+public class PrefTabGastric extends PrefTab implements ActionListener, ItemListener, DocumentListener {
 	public static final String PREF_HEADER = PrefWindow.PREF_HEADER + ".gastric";
 	public static final String PREF_SIMPLE_METHOD = PREF_HEADER + ".simple_method", PREF_UNIT_USED =
 			PREF_HEADER + "unit_used", PREF_FRAME_DURATION_TOLERANCE = PREF_HEADER + ".frame_duration_tolerance";
+	private static final long serialVersionUID = 1L;
+
+	private JTextField textField;
 
 	public PrefTabGastric(PrefWindow parent) {
 		super(parent, "Gastric");
@@ -29,7 +31,13 @@ public class PrefTabGastric extends PrefTab implements ActionListener, ItemListe
 		this.mainPanel.add(this.createUnitChooser(PREF_UNIT_USED, new Unit[]{Unit.COUNTS, Unit.KCOUNTS}));
 
 		// Time tolerance
-		this.mainPanel.add(this.createTextInput(PREF_FRAME_DURATION_TOLERANCE, "Frame durations delta tolerance: ", "sec", 3));
+		JPanel pan = new JPanel();
+		this.textField = new JTextField(Prefs.get(PREF_FRAME_DURATION_TOLERANCE, "1"), 3);
+		this.textField.getDocument().addDocumentListener(this);
+		this.add(new JLabel("Frame durations delta tolerance:"));
+		this.add(this.textField);
+		this.add(new JLabel("sec"));
+		this.mainPanel.add(pan);
 
 		this.add(this.mainPanel, BorderLayout.CENTER);
 	}
@@ -49,16 +57,6 @@ public class PrefTabGastric extends PrefTab implements ActionListener, ItemListe
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() instanceof JCheckBox) {
-			JCheckBox check = (JCheckBox) e.getSource();
-			// Save value in prefs
-			Prefs.set(check.getActionCommand(), check.isSelected());
-			this.parent.displayMessage("Please close the window to save the preferences", PrefWindow.DURATION_SHORT);
-		}
-	}
-
-	@Override
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getStateChange() == ItemEvent.SELECTED) {
 			if (e.getSource() instanceof JComboBox) {
@@ -68,6 +66,31 @@ public class PrefTabGastric extends PrefTab implements ActionListener, ItemListe
 				this.parent.displayMessage("Please close the window to save the preferences",
 										   PrefWindow.DURATION_SHORT);
 			}
+		}
+	}
+
+	@Override
+	public void insertUpdate(DocumentEvent e) {
+		savePref();
+	}
+
+	@Override
+	public void removeUpdate(DocumentEvent e) {
+		savePref();
+	}
+
+	@Override
+	public void changedUpdate(DocumentEvent e) {
+		savePref();
+	}
+
+	private void savePref() {
+		try {
+			Prefs.set(PREF_FRAME_DURATION_TOLERANCE, Integer.parseInt(textField.getText()));
+			parent.displayMessage(null);
+		} catch (NumberFormatException e) {
+			Prefs.set(PREF_FRAME_DURATION_TOLERANCE, 1);
+			parent.displayMessage("Cannot save (" + textField.getText() + ") -> not a number");
 		}
 	}
 

@@ -1,26 +1,5 @@
 package org.petctviewer.scintigraphy.scin.library;
 
-import java.awt.AWTException;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Robot;
-import java.awt.Window;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Random;
-
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
-
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -34,6 +13,15 @@ import ij.plugin.ZProjector;
 import ij.plugin.frame.RoiManager;
 import ij.process.ImageProcessor;
 import ij.util.DicomTools;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class Library_Capture_CSV {
 
@@ -68,7 +56,7 @@ public class Library_Capture_CSV {
 			Date result;
 			try {
 				result = new SimpleDateFormat("yyyyMMdd").parse(dateStr);
-				String r = new SimpleDateFormat(Prefs.get("dateformat.preferred", "MM/dd/yyyy")).format(result);
+				String r = new SimpleDateFormat(Prefs.get(PrefTabMain.PREF_DATE_FORMAT, "MM/dd/yyyy")).format(result);
 				hm.put(PATIENT_INFO_DATE, r);
 			} catch (ParseException e) {
 				hm.put(PATIENT_INFO_DATE, "");
@@ -350,7 +338,7 @@ public class Library_Capture_CSV {
 			date = date.trim();
 
 		// On recupere le path de sauvegarde
-		String path = Prefs.get("dir.preferred", null);
+		String path = Prefs.get(PrefTabMain.PREF_SAVE_DIRECTORY, null);
 		boolean testEcriture = false;
 
 		// On verifie que le path est writable si il existe

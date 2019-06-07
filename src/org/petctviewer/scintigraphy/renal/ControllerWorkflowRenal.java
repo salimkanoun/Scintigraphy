@@ -21,6 +21,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 			this.workflows[0].addInstruction(dri_1);
 			organes.add("L. Kidney");
 
-			if (Prefs.get("renal.pelvis.preferred", true)) {
+			if (Prefs.get(PrefTabRenal.PREF_PELVIS, true)) {
 				dri_2 = new DrawRoiInstruction("L. Pelvis", statePost);
 				this.workflows[0].addInstruction(dri_2);
 				organes.add("L. Pelvis");
@@ -80,7 +81,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 			this.workflows[0].addInstruction(dri_3);
 			organes.add("R. Kidney");
 
-			if (Prefs.get("renal.pelvis.preferred", true)) {
+			if (Prefs.get(PrefTabRenal.PREF_PELVIS, true)) {
 				dri_4 = new DrawRoiInstruction("R. Pelvis", statePost);
 				this.workflows[0].addInstruction(dri_4);
 				organes.add("R. Pelvis");
@@ -96,13 +97,13 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		this.workflows[0].addInstruction(dri_5);
 		organes.add("Blood Pool");
 
-		if (Prefs.get("renal.bladder.preferred", true)) {
+		if (Prefs.get(PrefTabRenal.PREF_BLADDER, true)) {
 			dri_6 = new DrawRoiInstruction("Bladder", statePost);
 			this.workflows[0].addInstruction(dri_6);
 			organes.add("Bladder");
 		}
 
-		if (Prefs.get("renal.ureter.preferred", true)) {
+		if (Prefs.get(PrefTabRenal.PREF_PELVIS, true)) {
 			if (((Model_Renal) this.model).getKidneys()[0]) {
 				dri_7 = new DrawRoiInstruction("L. Ureter", statePost);
 				this.workflows[0].addInstruction(dri_7);

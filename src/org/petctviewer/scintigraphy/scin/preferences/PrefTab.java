@@ -1,11 +1,11 @@
 package org.petctviewer.scintigraphy.scin.preferences;
 
 import ij.Prefs;
+import org.petctviewer.scintigraphy.scin.library.Library_Debug;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public abstract class PrefTab extends JPanel implements ActionListener {
@@ -43,8 +43,17 @@ public abstract class PrefTab extends JPanel implements ActionListener {
 		this.title.setText("<html><h3>" + title + "</h3></html>");
 	}
 
+	/**
+	 * Creates a checkbox. When using this method, any change on this checkbox will be save in the preferences
+	 * automatically.
+	 *
+	 * @param prefName     String of the preference (cannot be null)
+	 * @param text         Text displayed for the user on the checkbox (null accepted)
+	 * @param defaultValue Default value if the preference doesn't exist
+	 * @return JCheckBox created
+	 */
 	public JCheckBox createCheckbox(String prefName, String text, boolean defaultValue) {
-		JCheckBox checkBox = new JCheckBox(text);
+		JCheckBox checkBox = new JCheckBox(Library_Debug.preventNull(text));
 		checkBox.setActionCommand(prefName);
 		checkBox.addActionListener(this);
 		// Get state
@@ -53,49 +62,13 @@ public abstract class PrefTab extends JPanel implements ActionListener {
 		return checkBox;
 	}
 
-	public JPanel createTextInput(String prefName, String text, String afterText, int length) {
-		JPanel panel = new JPanel();
-
-		String defaultValue = Integer.toString((int) Prefs.get(prefName, 1));
-
-		JLabel label = new JLabel(text);
-		panel.add(label);
-
-		JTextField textField = new JTextField(defaultValue, length);
-		textField.getDocument().addDocumentListener(new DocumentListener() {
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				savePref();
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				savePref();
-			}
-
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				savePref();
-			}
-
-			private void savePref() {
-				try {
-					Prefs.set(prefName, Integer.parseInt(textField.getText()));
-					parent.displayMessage(null);
-				} catch (NumberFormatException e) {
-					Prefs.set(prefName, 1);
-					parent.displayMessage("Cannot save (" + textField.getText() + ") -> not a number");
-				}
-			}
-		});
-		panel.add(textField);
-
-		if (afterText != null) {
-			JLabel afterLabel = new JLabel(afterText);
-			panel.add(afterLabel);
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() instanceof JCheckBox) {
+			JCheckBox check = (JCheckBox) e.getSource();
+			// Save value in prefs
+			Prefs.set(check.getActionCommand(), check.isSelected());
+			this.parent.displayMessage("Please close the window to save the preferences", PrefWindow.DURATION_SHORT);
 		}
-
-		return panel;
 	}
-
 }

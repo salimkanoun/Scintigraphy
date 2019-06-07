@@ -15,6 +15,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,7 +38,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 
 	public TabPostMict(Scintigraphy vue, FenResults parent) {
 		super("Post Mictional", "postmict", parent);
-		this.bladder = Prefs.get("renal.bladder.preferred", true);
+		this.bladder = Prefs.get(PrefTabRenal.PREF_BLADDER, true);
 		this.imgSelected = false;
 		this.examDone = false;
 

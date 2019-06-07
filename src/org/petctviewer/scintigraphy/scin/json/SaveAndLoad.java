@@ -1,35 +1,15 @@
 package org.petctviewer.scintigraphy.scin.json;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
-
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-
+import com.google.gson.*;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.Prefs;
+import ij.gui.Roi;
+import ij.io.RoiDecoder;
+import ij.io.RoiEncoder;
+import ij.io.SaveDialog;
+import ij.plugin.frame.Recorder;
+import ij.plugin.frame.RoiManager;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
 import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
@@ -40,25 +20,20 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoo
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.json.InstructionFromGson.DrawInstructionType;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
 
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import ij.IJ;
-import ij.ImagePlus;
-import ij.Prefs;
-import ij.gui.Roi;
-import ij.io.RoiDecoder;
-import ij.io.RoiEncoder;
-import ij.io.SaveDialog;
-import ij.plugin.frame.Recorder;
-import ij.plugin.frame.RoiManager;
+import javax.swing.*;
+import java.awt.*;
+import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * This class put together all saving method created for every exams.
@@ -75,8 +50,6 @@ public class SaveAndLoad {
 	 *
 	 * @param resultats
 	 *            : Resultats a exporter (utiliser le format csv)
-	 * @param roiManager
-	 *            : le ROI manager utilise dans le programme
 	 * @param nomProgramme
 	 *            : le studyName du programme (sera utilise comme sous repertoire)
 	 * @param imp
@@ -102,8 +75,6 @@ public class SaveAndLoad {
 	 * 
 	 * @param imp
 	 *            ImagePlus to be saved as .jpg
-	 * @param roiManager
-	 *            RoiManager, to extract ROIs
 	 * @param csv
 	 *            CSV to be saved
 	 * @param programName
@@ -111,8 +82,6 @@ public class SaveAndLoad {
 	 * @param additionalInfo
 	 * @param controller
 	 *            Controller to be transformed as Json
-	 * 
-	 * @see {@link SaveAndLoad#saveRois(RoiManager, ControllerWorkflow, String)}
 	 */
 	public void saveFiles(ImagePlus imp, StringBuilder csv, String programName,
 			String[] infoPatient, String additionalInfo, List<ControllerWorkflow> controller) {
@@ -120,7 +89,7 @@ public class SaveAndLoad {
 		RoiManager roiManager = controller.get(0).getRoiManager();
 
 		// On recupere le path de sauvegarde
-		String path = Prefs.get("dir.preferred", null);
+		String path = Prefs.get(PrefTabMain.PREF_SAVE_DIRECTORY, null);
 		boolean testEcriture = false;
 
 		// On verifie que le path est writable si il existe
@@ -196,7 +165,7 @@ public class SaveAndLoad {
 		csv.append(resultats);
 
 		// On recupere le path de sauvegarde
-		String path = Prefs.get("dir.preferred", null);
+		String path = Prefs.get(PrefTabMain.PREF_SAVE_DIRECTORY, null);
 		boolean testEcriture = false;
 
 		// On verifie que le path est writable si il existe
@@ -243,9 +212,7 @@ public class SaveAndLoad {
 	 * Save the ROIs from a RoiManager. Do the same than the macro, but associate
 	 * name to respect the initial order of the RoiManager, to be able to get them
 	 * back in the same order. Will be saved in a .zip, with the workflow.json.
-	 * 
-	 * @param roiManager
-	 *            RoiManager to extract ROIs
+	 *
 	 * @param controller
 	 *            Associated ControllerWorkflow, to save the workflow in Json format
 	 * @param path
@@ -669,8 +636,6 @@ public class SaveAndLoad {
 	 * This method needs, from the same .zip file, to find the associated .json file.<br/>
 	 * This file will be needed to get the order of ROIs saved in the .zip file.
 	 * 
-	 * @see {@link ControllerWorkflow#loadWorkflows(String)}
-	 * 
 	 * 
 	 * @param path		The system-dependent file name.
 	 * @return 			A list of ROIs, contained in the zip file.
@@ -789,9 +754,7 @@ public class SaveAndLoad {
 	 * @param frame
 	 *            - the parent component of the dialog, can be null ;
 	 * @return A list of ROIs.
-	 * @throws UnloadRoiException 
-	 * 
-	 * @see Library_Roi#getRoiFromZip(String, ControllerWorkflow)
+	 * @throws UnloadRoiException
 	 */
 	public List<Roi> getRoiFromZipWithWindow(Component frame, ControllerWorkflow controller)
 			throws UnauthorizedRoiLoadException, UnloadRoiException {

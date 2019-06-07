@@ -10,6 +10,7 @@ import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
 import javax.swing.*;
 import java.awt.*;
@@ -85,8 +86,8 @@ public class FenNeph extends JDialog implements ActionListener {
 
 		Selector start = new Selector(" ", 1, -1, RectangleAnchor.TOP_LEFT);
 		Selector end = new Selector(" ", 3, -1, RectangleAnchor.BOTTOM_RIGHT);
-		Selector lasilix = new Selector("Lasilix", Prefs.get("renal.lasilix.preferred", 20.0), -1,
-				RectangleAnchor.BOTTOM_LEFT);
+		Selector lasilix = new Selector("Lasilix", Prefs.get(PrefTabRenal.PREF_LASILIX_INJECT_TIME, 20.0), -1,
+										RectangleAnchor.BOTTOM_LEFT);
 
 		jvs.addSelector(start, "start");
 		jvs.addSelector(end, "end");
