@@ -5,10 +5,12 @@ import java.awt.Button;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.Panel;
+import java.awt.Toolkit;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseWheelListener;
@@ -150,11 +152,8 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.addComponentListener(this);
 		this.setResizable(false);
 
-		try {
-			this.setIconImage(ImageIO.read(new File("images/icons/frameIconBis.png")));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		Image image=Toolkit.getDefaultToolkit().getImage(this.getClass().getClassLoader().getResource("images/icons/frameIconBis.png"));
+		this.setIconImage(image);
 	}
 
 	protected DocumentationDialog createDocumentation() {
