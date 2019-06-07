@@ -11,6 +11,7 @@
  import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
  import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
  import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
+ import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
  import java.util.ArrayList;
  import java.util.HashMap;
@@ -19,6 +20,7 @@
 public class Model_Renal extends ModelScinDyn {
 
 	private final HashMap<String, Roi> organRois;
+	@SuppressWarnings("rawtypes")
 	private HashMap<Comparable, Double> adjustedValues;
 	private boolean[] kidneys;
 	private double[] patlakPente;
@@ -53,6 +55,7 @@ public class Model_Renal extends ModelScinDyn {
 		this.kidneys = kidneys;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void setAdjustedValues(HashMap<Comparable, Double> hashMap) {
 		this.adjustedValues = hashMap;
 	}
@@ -214,6 +217,7 @@ public class Model_Renal extends ModelScinDyn {
 		return res;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public HashMap<Comparable, Double> getAdjustedValues() {
 		return this.adjustedValues;
 	}
@@ -298,6 +302,7 @@ public class Model_Renal extends ModelScinDyn {
 		return kidneysLR;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private String getDataString(Comparable key, String name) {
 		if(this.getData().containsKey(key)) {
 			List<Double> values = this.getData().get(key);
@@ -359,7 +364,7 @@ public class Model_Renal extends ModelScinDyn {
 		normalizeBP();
 
 		// on calcule les corticales si elle sont demandees
-		if (Prefs.get("renal.pelvis.preferred", true)) {
+		if (Prefs.get(PrefTabRenal.PREF_PELVIS, true)) {
 			this.calculCortical();
 		}
 

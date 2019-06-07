@@ -1,6 +1,16 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import ij.Prefs;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
@@ -10,12 +20,9 @@ import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.HashMap;
+import ij.Prefs;
 
 public class FenNeph extends JDialog implements ActionListener {
 
@@ -89,7 +96,7 @@ public class FenNeph extends JDialog implements ActionListener {
 
 		Selector start = new Selector(" ", 1, -1, RectangleAnchor.TOP_LEFT);
 		Selector end = new Selector(" ", 3, -1, RectangleAnchor.BOTTOM_RIGHT);
-		Selector lasilix = new Selector("Lasilix", Prefs.get("renal.lasilix.preferred", 20.0), -1,
+		Selector lasilix = new Selector("Lasilix", Prefs.get(PrefTabRenal.PREF_LASILIX_INJECT_TIME, 20.0), -1,
 				RectangleAnchor.BOTTOM_LEFT);
 
 		jvs.addSelector(start, "start");
@@ -142,6 +149,8 @@ public class FenNeph extends JDialog implements ActionListener {
 	private boolean checkOffset(JValueSetter sl) {
 		XYDataset data = sl.getChart().getXYPlot().getDataset();
 
+
+		@SuppressWarnings("rawtypes")
 		HashMap<Comparable, Double> values = sl.getValues();
 
 		Double debut = Math.min(values.get("start"), values.get("end"));

@@ -161,7 +161,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 					countErrors++;
 				}
 			}
-			if (countErrors > 0) System.err.println(countErrors + " images could not be opened");
+			if (countErrors > 0) System.out.println(countErrors + " images could not be opened");
 		}
 		return data;
 	}

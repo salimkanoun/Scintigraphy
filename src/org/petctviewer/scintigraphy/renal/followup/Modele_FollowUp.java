@@ -6,6 +6,7 @@ import ij.Prefs;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -153,7 +154,7 @@ public class Modele_FollowUp {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		datePatient = new SimpleDateFormat(Prefs.get("dateformat.preferred", "MM/dd/yyyy")).format(result);
+		datePatient = new SimpleDateFormat(Prefs.get(PrefTabMain.PREF_DATE_FORMAT, "MM/dd/yyyy")).format(result);
 		
 		return datePatient;
 	}

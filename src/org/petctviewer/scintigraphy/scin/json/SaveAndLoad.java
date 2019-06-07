@@ -43,6 +43,7 @@ import org.petctviewer.scintigraphy.scin.json.InstructionFromGson.DrawInstructio
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -121,7 +122,7 @@ public class SaveAndLoad {
 		RoiManager roiManager = controller.get(0).getRoiManager();
 
 		// On recupere le path de sauvegarde
-		String path = Prefs.get("dir.preferred", null);
+		String path = Prefs.get(PrefTabMain.PREF_SAVE_DIRECTORY, null);
 		boolean testEcriture = false;
 
 		// On verifie que le path est writable si il existe
@@ -205,7 +206,7 @@ public class SaveAndLoad {
 		csv.append(resultats);
 
 		// On recupere le path de sauvegarde
-		String path = Prefs.get("dir.preferred", null);
+		String path = Prefs.get(PrefTabMain.PREF_SAVE_DIRECTORY, null);
 		boolean testEcriture = false;
 
 		// On verifie que le path est writable si il existe

@@ -303,6 +303,7 @@ class TabPrincipal extends TabResult {
 
 	@Override
 	public JPanel getResultContent() {
+		@SuppressWarnings("rawtypes")
 		HashMap<Comparable, Double> adjusted = ((Model_Renal) parent.getModel()).getAdjustedValues();
 		// l'intervalle est defini par l'utilisateur
 		Double x1 = adjusted.get("start");

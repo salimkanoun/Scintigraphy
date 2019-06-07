@@ -10,7 +10,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-import org.petctviewer.scintigraphy.scin.preferences.PrefsTabGastric;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabGastric;
 
 import javax.swing.*;
 import java.util.Arrays;
@@ -37,7 +37,7 @@ public class GastricScintigraphy extends Scintigraphy {
 		}
 
 		// Check images have same duration
-		int tolerance = Math.max((int) Prefs.get(PrefsTabGastric.PREF_FRAME_DURATION_TOLERANCE, 1) * 1000, 1);
+		int tolerance = Math.max((int) Prefs.get(PrefTabGastric.PREF_FRAME_DURATION_TOLERANCE, 1) * 1000, 1);
 		int frameDuration = Library_Dicom.getFrameDuration(selection[0].getImagePlus());
 		boolean frameDurationDifferent = false;
 		float deltaSeconds = 0;

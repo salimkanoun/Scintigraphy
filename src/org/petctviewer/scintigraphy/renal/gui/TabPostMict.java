@@ -1,7 +1,20 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import ij.Prefs;
-import ij.util.DicomTools;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.postMictional.Model_PostMictional;
 import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
@@ -15,14 +28,10 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import ij.Prefs;
+import ij.util.DicomTools;
 
 public class TabPostMict extends PanelImpContrastSlider implements ActionListener {
 	private JButton btn_addImp, btn_quantify;
@@ -37,7 +46,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 
 	public TabPostMict(Scintigraphy vue, FenResults parent) {
 		super("Post Mictional", "postmict", parent, "Post", false);
-		this.bladder = Prefs.get("renal.bladder.preferred", true);
+		this.bladder = Prefs.get(PrefTabRenal.PREF_BLADDER, true);
 		this.imgSelected = false;
 		this.examDone = false;
 
