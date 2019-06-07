@@ -7,7 +7,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 import org.petctviewer.scintigraphy.scin.model.Result;
 import org.petctviewer.scintigraphy.scin.model.Unit;
-import org.petctviewer.scintigraphy.scin.preferences.PrefsTabGastric;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabGastric;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,8 +16,8 @@ public class TabMethod2 extends TabResultDefault {
 
 
 	public TabMethod2(FenResults parent, ImagePlus capture) {
-		super(parent, capture, "Gastric Only", Unit.valueOf(Prefs.get(PrefsTabGastric.PREF_UNIT_USED,
-				Unit.COUNTS.name())), Unit.TIME, Model_Gastric.SERIES_DECAY_FUNCTION);
+		super(parent, capture, "Gastric Only", Unit.valueOf(Prefs.get(PrefTabGastric.PREF_UNIT_USED,
+																	  Unit.COUNTS.name())), Unit.TIME, Model_Gastric.SERIES_DECAY_FUNCTION);
 	}
 
 	@Override

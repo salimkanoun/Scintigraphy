@@ -28,7 +28,7 @@ public class PrefsWindows extends WindowAdapter implements PlugIn {
 		this.main = new prefsTabMain(this);
 		this.renal = new prefsTabRenal();
 		this.bone = new prefsTabBone();
-		this.gastric = new PrefsTabGastric(this);
+		this.gastric = new PrefTabGastric(this);
 		showGUI();
 	}
 

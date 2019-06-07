@@ -20,7 +20,7 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-import org.petctviewer.scintigraphy.scin.preferences.PrefsTabGastric;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabGastric;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,7 +45,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		getModel().setFirstImage(selectedImages[0]);
 
 		// Set final fields
-		DO_ONLY_GASTRIC = Prefs.get(PrefsTabGastric.PREF_SIMPLE_METHOD, false);
+		DO_ONLY_GASTRIC = Prefs.get(PrefTabGastric.PREF_SIMPLE_METHOD, false);
 		this.isDynamicStarted = false;
 
 		this.generateInstructions();
