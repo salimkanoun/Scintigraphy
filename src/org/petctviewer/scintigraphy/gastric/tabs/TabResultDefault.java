@@ -75,7 +75,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 		// - Button to auto-fit the graph
 		btnAutoFit = new JButton("Auto-fit");
-		btnAutoFit.addActionListener(parent.getController());
+		btnAutoFit.addActionListener(e -> this.selectFit(this.findBestFit()));
 
 		// Set variables
 		this.capture = capture;
@@ -547,6 +547,15 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	 */
 	public void selectFit(FitType type) {
 		this.fitsChoices.setSelectedItem(type);
+	}
+
+	/**
+	 * Selects the best fit for the current graph.
+	 *
+	 * @see #findBestFit()
+	 */
+	public void selectBestFit() {
+		this.fitsChoices.setSelectedItem(this.findBestFit());
 	}
 
 	/**

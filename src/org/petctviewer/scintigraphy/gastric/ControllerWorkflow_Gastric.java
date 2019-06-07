@@ -22,16 +22,11 @@ import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.preferences.PrefsTabGastric;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class ControllerWorkflow_Gastric extends ControllerWorkflow {
-
-	public static final String COMMAND_FIT_BEST_1 = "cfb_method1", COMMAND_FIT_BEST_2 = "cfb_method2",
-			COMMAND_FIT_BEST_ALL = "cfb_all";
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 
 	private final boolean DO_ONLY_GASTRIC;
@@ -40,8 +35,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	public Date specifiedTimeIngestion;
 	private boolean isDynamicStarted;
 	private TabMethod1 tabMain;
-	//	private TabMainResult tabMain;
-	private TabMethod2 tabOnlyGastric;
 
 	private List<ImagePlus> captures;
 
@@ -71,9 +64,9 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 			// - Stomach
 			getModel().calculateCounts(Model_Gastric.REGION_STOMACH, antState,
-					this.getRoiManager().getRoisAsArray()[i]);
+									   this.getRoiManager().getRoisAsArray()[i]);
 			getModel().calculateCounts(Model_Gastric.REGION_STOMACH, postState,
-					this.getRoiManager().getRoisAsArray()[i + 1]);
+									   this.getRoiManager().getRoisAsArray()[i + 1]);
 
 			getModel().computeStaticData(antState, postState);
 		}
@@ -99,18 +92,18 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 				// - Stomach
 				getModel().calculateCounts(Model_Gastric.REGION_STOMACH, state,
-						this.getRoiManager().getRoisAsArray()[i + indexIncrementPost]);
+										   this.getRoiManager().getRoisAsArray()[i + indexIncrementPost]);
 
 				// - Antre
 				getModel().calculateCounts(Model_Gastric.REGION_ANTRE, state,
-						this.getRoiManager().getRoisAsArray()[i + 2 + indexIncrementPost]);
+										   this.getRoiManager().getRoisAsArray()[i + 2 + indexIncrementPost]);
 
 				// - Fundus
 				getModel().calculateCounts(Model_Gastric.REGION_FUNDUS, state, null);
 
 				// - Intestine
 				getModel().calculateCounts(Model_Gastric.REGION_INTESTINE, state,
-						this.getRoiManager().getRoisAsArray()[i + 1 + indexIncrementPost]);
+										   this.getRoiManager().getRoisAsArray()[i + 1 + indexIncrementPost]);
 			}
 
 			getModel().computeStaticData(state, previousState);
@@ -126,13 +119,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		} else {
 			this.computeBothMethods();
 		}
-	}
-
-	private void fitBest(String command) {
-		if (command.equals(COMMAND_FIT_BEST_1) || command.equals(COMMAND_FIT_BEST_ALL))
-			this.tabMain.selectFit(this.tabMain.findBestFit());
-		if (command.equals(COMMAND_FIT_BEST_2) || command.equals(COMMAND_FIT_BEST_ALL))
-			this.tabOnlyGastric.selectFit(this.tabOnlyGastric.findBestFit());
 	}
 
 	private void generateInstructionsOnlyGastric() {
@@ -216,49 +202,19 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	}
 
 	@Override
-	protected void start() {
-		getModel().setIsotope(Library_Dicom.getIsotope(getModel().getImagePlus(), this.vue));
-
-		super.start();
-	}
-
-	@Override
-	protected void end() {
-		super.end();
-
-		// Compute model
-		this.computeModel();
-
-		// Display results
-		this.fenResults.clearTabs();
-
-		// TAB METHOD 2
-		this.tabOnlyGastric = new TabMethod2(this.fenResults, this.captures.get(0));
-		this.tabOnlyGastric.displayTimeIngestion(getModel().getFirstImage().getDateAcquisition());
-		this.fenResults.addTab(tabOnlyGastric);
-		// Set the best fit
-		this.fitBest(COMMAND_FIT_BEST_2);
-
-		// TAB METHOD 1
-		if (!DO_ONLY_GASTRIC) {
-			this.tabMain = new TabMethod1(this.fenResults, this.captures.get(1));
-			this.tabMain.displayTimeIngestion(getModel().getTimeIngestion());
-			this.fenResults.addTab(tabMain);
-			// Select best fit
-			this.fitBest(COMMAND_FIT_BEST_1);
-		}
-
-		this.fenResults.pack();
-		this.fenResults.setVisible(true);
-	}
-
-	@Override
 	protected void generateInstructions() {
 		if (DO_ONLY_GASTRIC) {
 			this.generateInstructionsOnlyGastric();
 		} else {
 			this.generateInstructionsBothMethods();
 		}
+	}
+
+	@Override
+	protected void start() {
+		getModel().setIsotope(Library_Dicom.getIsotope(getModel().getImagePlus(), this.vue));
+
+		super.start();
 	}
 
 	@Override
@@ -273,14 +229,34 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		super.actionPerformed(e);
+	protected void end() {
+		super.end();
 
-		// Auto-fit
-		if (e.getSource() instanceof JButton) {
-			JButton source = (JButton) e.getSource();
-			this.fitBest(source.getActionCommand());
+		// Compute model
+		this.computeModel();
+
+		// Display results
+		this.fenResults.clearTabs();
+
+		// TAB METHOD 2
+		//	private TabMainResult tabMain;
+		TabMethod2 tabOnlyGastric = new TabMethod2(this.fenResults, this.captures.get(0));
+		tabOnlyGastric.displayTimeIngestion(getModel().getFirstImage().getDateAcquisition());
+		// Set the best fit
+		tabOnlyGastric.selectBestFit();
+		this.fenResults.addTab(tabOnlyGastric);
+
+		// TAB METHOD 1
+		if (!DO_ONLY_GASTRIC) {
+			this.tabMain = new TabMethod1(this.fenResults, this.captures.get(1));
+			this.tabMain.displayTimeIngestion(getModel().getTimeIngestion());
+			// Select best fit
+			this.tabMain.selectBestFit();
+			this.fenResults.addTab(tabMain);
 		}
+
+		this.fenResults.pack();
+		this.fenResults.setVisible(true);
 	}
 
 }
