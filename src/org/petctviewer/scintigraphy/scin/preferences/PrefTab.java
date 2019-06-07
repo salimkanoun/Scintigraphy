@@ -11,12 +11,14 @@ import java.awt.event.ActionListener;
 public abstract class PrefTab extends JPanel implements ActionListener {
 
 	protected final JPanel mainPanel;
-	protected final PrefsWindows parent;
+	protected final PrefWindow parent;
 	private final JPanel pnl_titre;
+	private String prefTabName;
 	private JLabel title;
 
-	public PrefTab(PrefsWindows parent) {
+	public PrefTab(PrefWindow parent, String tabName) {
 		// Set variable
+		this.prefTabName = tabName;
 		this.parent = parent;
 
 		this.setLayout(new BorderLayout());
@@ -29,8 +31,12 @@ public abstract class PrefTab extends JPanel implements ActionListener {
 		this.add(mainPanel, BorderLayout.CENTER);
 	}
 
+	public String getTabName() {
+		return this.prefTabName;
+	}
+
 	public void setTitle(String title) {
-		if (title == null) {
+		if (this.title == null) {
 			this.title = new JLabel();
 			this.pnl_titre.add(this.title);
 		}

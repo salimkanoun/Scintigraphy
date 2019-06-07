@@ -16,7 +16,7 @@ import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.renal.dmsa.DmsaScintigraphy;
 import org.petctviewer.scintigraphy.renal.followup.FollowUp;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.preferences.PrefsWindows;
+import org.petctviewer.scintigraphy.scin.preferences.PrefWindow;
 import org.petctviewer.scintigraphy.shunpo.ShunpoScintigraphy;
 
 import javax.swing.*;
@@ -32,7 +32,7 @@ public class FenDebug extends JFrame {
 		this.setLayout(new BorderLayout());
 
 		JPanel pnl_pref = new JPanel();
-		pnl_pref.add(this.getProgramButton(PrefsWindows.class));
+		pnl_pref.add(this.getProgramButton(PrefWindow.class));
 
 		this.panel = new JPanel(new GridLayout(0, 3));
 

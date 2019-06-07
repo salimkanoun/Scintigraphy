@@ -13,12 +13,12 @@ import java.awt.event.ItemListener;
 public class PrefTabGastric extends PrefTab implements ActionListener, ItemListener {
 	private static final long serialVersionUID = 1L;
 
-	public static final String PREF_HEADER = PrefsWindows.PREF_HEADER + ".gastric";
+	public static final String PREF_HEADER = PrefWindow.PREF_HEADER + ".gastric";
 	public static final String PREF_SIMPLE_METHOD = PREF_HEADER + ".simple_method", PREF_UNIT_USED =
 			PREF_HEADER + "unit_used", PREF_FRAME_DURATION_TOLERANCE = PREF_HEADER + ".frame_duration_tolerance";
 
-	public PrefTabGastric(PrefsWindows parent) {
-		super(parent);
+	public PrefTabGastric(PrefWindow parent) {
+		super(parent, "Gastric");
 
 		this.setTitle("Gastric Scintigraphy settings");
 
@@ -54,7 +54,7 @@ public class PrefTabGastric extends PrefTab implements ActionListener, ItemListe
 			JCheckBox check = (JCheckBox) e.getSource();
 			// Save value in prefs
 			Prefs.set(check.getActionCommand(), check.isSelected());
-			this.parent.displayMessage("Please close the window to save the preferences", PrefsWindows.DURATION_SHORT);
+			this.parent.displayMessage("Please close the window to save the preferences", PrefWindow.DURATION_SHORT);
 		}
 	}
 
@@ -66,7 +66,7 @@ public class PrefTabGastric extends PrefTab implements ActionListener, ItemListe
 				// Save new unit
 				Prefs.set(source.getActionCommand(), ((Unit) e.getItem()).name());
 				this.parent.displayMessage("Please close the window to save the preferences",
-										   PrefsWindows.DURATION_SHORT);
+										   PrefWindow.DURATION_SHORT);
 			}
 		}
 	}
