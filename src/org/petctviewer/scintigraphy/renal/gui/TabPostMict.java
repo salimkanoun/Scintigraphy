@@ -36,7 +36,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 	private Model_PostMictional modelPostMictional;
 
 	public TabPostMict(Scintigraphy vue, FenResults parent) {
-		super("Post Mictional", "postmict", parent);
+		super("Post Mictional", "postmict", parent, "Post", false);
 		this.bladder = Prefs.get("renal.bladder.preferred", true);
 		this.imgSelected = false;
 		this.examDone = false;

@@ -30,6 +30,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 
+import org.apache.commons.io.FileUtils;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
 import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
@@ -138,6 +139,14 @@ public class SaveAndLoad {
 			// Patient
 			String pathFinal = path + File.separator + programName + File.separator + infoPatient[1];
 			File subDirectory = new File(pathFinal);
+			if (subDirectory.isDirectory()) {
+				try {
+		            FileUtils.cleanDirectory(subDirectory); //clean out directory (this is optional -- but good know)
+		            FileUtils.forceDelete(subDirectory); //delete directory
+		        } catch (IOException e) {
+		            e.printStackTrace();
+		        } 
+			}
 			if (subDirectory.mkdirs()) {
 
 				String nomFichier = infoPatient[1] + "_" + infoPatient[2] + additionalInfo;
@@ -304,7 +313,8 @@ public class SaveAndLoad {
 			System.out.println(gson.toJson(this.saveWorkflowToJson(controller, label)));
 			out.writeBytes(gson.toJson(this.saveWorkflowToJson(controller, label)));
 			out.flush();
-
+			zos.closeEntry();
+			zos.close();
 			out.close();
 		} catch (IOException e) {
 			System.out.println("" + e);

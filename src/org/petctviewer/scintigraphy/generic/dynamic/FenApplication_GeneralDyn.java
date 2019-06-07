@@ -21,6 +21,8 @@ public class FenApplication_GeneralDyn extends FenApplicationWorkflow {
 
 	public FenApplication_GeneralDyn(ImageSelection ims, String nom) {
 		super(ims, nom);
+		
+		this.setVisualizationEnable(false);
 		this.getTextfield_instructions().setEditable(true);
 		this.btn_finish = new Button("Finish");
 		btn_finish.setActionCommand(ControllerWorkflow.COMMAND_END);

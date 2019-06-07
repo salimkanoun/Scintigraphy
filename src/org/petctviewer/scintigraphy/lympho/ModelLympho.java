@@ -243,6 +243,20 @@ public class ModelLympho extends ModelScin {
 		return s;
 	}
 	
+	
+	/*
+	 * 
+	 * 
+	 *  ------------------------
+	 * |                         |
+	 * |      *************      |
+	 * |      *Pelvis Part*      |
+	 * |      *************      |
+	 * |                         |
+	 *  ------------------------
+	 * 
+	 */
+	
 	public void setImagePelvis(ImageSelection imagePelvis) {
 		ImageSelection[] newBoundsOfImages = new ImageSelection[this.getImageSelection().length + 1];
 		for(int i = 0 ; i < this.getImageSelection().length ; i++)
@@ -300,11 +314,11 @@ public class ModelLympho extends ModelScin {
 	}
 
 	private void computeGeometricalAveragePelvis() {
-		System.out.println("\n\n\n\n\n\n----------------------------\n\n\n\n\n\n");
-		System.out.println("nbCounts : " + this.coups.size());
-		for (Double count : this.coups.values().toArray(new Double[0])) {
-			System.out.println("Counts : " + count);
-		}
+//		System.out.println("\n\n\n\n\n\n----------------------------\n\n\n\n\n\n");
+//		System.out.println("nbCounts : " + this.coups.size());
+//		for (Double count : this.coups.values().toArray(new Double[0])) {
+//			System.out.println("Counts : " + count);
+//		}
 		this.moyenneGeoPelvis(RIGHT_PELVIS_ANT);
 		this.moyenneGeoPelvis(LEFT_PELVIS_ANT);
 	}
@@ -315,9 +329,9 @@ public class ModelLympho extends ModelScin {
 		Library_Quantif.getCountCorrectedBackground(this.selectedImages[organ / 3].getImagePlus(),
 				this.roiManager.getRoi(organ + this.nbRoiLympho), this.roiManager.getRoi((organ / 3) + 3 + this.nbRoiLympho));
 		geometricalAveragePelvis.put(organ, (int) Library_Quantif.moyGeom(this.coups.get(organ), this.coups.get(organ + 3)));
-		System.out.println("MG " + organ + " [" + ModelLympho.convertOrgan(organ) + "/ "
-				+ ModelLympho.convertOrgan(organ + 3) + "] --- [" + this.coups.get(organ) + "/"
-				+ this.coups.get(organ + 3) + "] -> " + geometricalAverage.get(organ));
+//		System.out.println("MG " + organ + " [" + ModelLympho.convertOrgan(organ) + "/ "
+//				+ ModelLympho.convertOrgan(organ + 3) + "] --- [" + this.coups.get(organ) + "/"
+//				+ this.coups.get(organ + 3) + "] -> " + geometricalAverage.get(organ));
 
 	}
 
@@ -370,9 +384,9 @@ public class ModelLympho extends ModelScin {
 		String s = "";
 
 		s += ",Right,Left\n";
-		s += "Geometric Average Drainage," + this.results.get(0) + "," + results.get(1) + "\n\n";
-		s += "Gradient Right/Left," + this.results.get(2) + "\n";
-		s += "Gradient Left/Right," + this.results.get(3) + "\n\n";
+		s += "Geometric Average Drainage," + this.resultsPelvis.get(0) + "," + resultsPelvis.get(1) + "\n\n";
+		s += "Gradient Right/Left," + this.resultsPelvis.get(2) + "\n";
+		s += "Gradient Left/Right," + this.resultsPelvis.get(3) + "\n\n";
 
 		return s;
 	}

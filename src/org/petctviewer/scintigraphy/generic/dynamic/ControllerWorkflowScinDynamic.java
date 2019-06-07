@@ -32,6 +32,8 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		this.start();
 
 		this.fenResult = new FenResults(this);
+		
+		
 	}
 
 	@Override
@@ -138,6 +140,11 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		}
 
 		super.clickNext();
+		
+		for (Roi roi : this.model.getRoiManager().getRoisAsArray()) {
+			roi.setPosition(0);
+			this.getVue().getImagePlus().getOverlay().add(roi);
+		}
 
 		// TODO: still useful?
 		// Update view

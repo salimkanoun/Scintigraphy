@@ -25,23 +25,27 @@ public class FenNeph extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private final JButton btn_ok;
 	private final JValueSetter jvaluesetter;
-	private final Model_Renal modele;
+	private final Model_Renal model;
 	private JValueSetter patlakChart;
 
-	public FenNeph(ChartPanel cp, Component parentComponent, Model_Renal modele) {
+	public FenNeph(ChartPanel cp, Component parentComponent, Model_Renal model) {
 		super();
-		this.modele = modele;
+		this.model = model;
 
 		// creation du panel du bas
 		JButton btn_patlak = new JButton("Patlak");
 		btn_patlak.addActionListener(this);
 		this.btn_ok = new JButton("Ok");
 		this.btn_ok.addActionListener(this);
+		
 
 		JPanel bottomPanel = new JPanel(new BorderLayout());
 		bottomPanel.add(wrapComponent(btn_ok), BorderLayout.CENTER);
 		bottomPanel.add(wrapComponent(btn_patlak), BorderLayout.WEST);
-
+		if(!(model.getKidneys()[0] && model.getKidneys()[1])) {
+			btn_patlak.setEnabled(false);
+			btn_patlak.setToolTipText("Only available with 2 kidneys");
+		}
 		this.setLayout(new BorderLayout());
 
 		this.setTitle("Please adjust the nephrogram values");
@@ -63,7 +67,7 @@ public class FenNeph extends JDialog implements ActionListener {
 		JValueSetter jvs = new JValueSetter(chart.getChart());
 
 		// si il y a un rein gauche
-		if (modele.getKidneys()[0]) {
+		if (model.getKidneys()[0]) {
 			// on cree toutes les valueSelector que l'on va utiliser
 			Selector tmaxl = new Selector("TMax L", Library_JFreeChart.getAbsMaxY(plot.getDataset(), 0), 0, 
 					RectangleAnchor.BOTTOM_LEFT);
@@ -71,10 +75,10 @@ public class FenNeph extends JDialog implements ActionListener {
 		}
 
 		// si il y a un rein droit
-		if (modele.getKidneys()[1]) {
+		if (model.getKidneys()[1]) {
 			//si il y a le rein, gauche, l'index du rein droit est 1
 			int index = 0;
-			if(modele.getKidneys()[0]) {
+			if(model.getKidneys()[0]) {
 				index = 1;
 			}
 			
@@ -95,17 +99,17 @@ public class FenNeph extends JDialog implements ActionListener {
 
 		// renomme les series du chart pour que l'interface soit plus comprehensible
 		XYSeriesCollection dataset = ((XYSeriesCollection) chart.getChart().getXYPlot().getDataset());
-		if (modele.getKidneys()[0])
+		if (model.getKidneys()[0])
 			dataset.getSeries("Final KL").setKey("Left Kidney");
 
-		if (modele.getKidneys()[1])
+		if (model.getKidneys()[1])
 			dataset.getSeries("Final KR").setKey("Right Kidney");
 
 		return jvs;
 	}
 
 	private void clicPatlak() {
-		FenPatlak fpt = new FenPatlak(modele);
+		FenPatlak fpt = new FenPatlak(model);
 		
 		//fpt.pack();
 		fpt.setLocationRelativeTo(null);
@@ -116,7 +120,7 @@ public class FenNeph extends JDialog implements ActionListener {
 	}
 
 	private void clickOk() {
-		if(!(this.modele.getKidneys()[0] && this.modele.getKidneys()[1])) {
+		if(!(this.model.getKidneys()[0] && this.model.getKidneys()[1])) {
 			this.dispose();
 			return;
 		}

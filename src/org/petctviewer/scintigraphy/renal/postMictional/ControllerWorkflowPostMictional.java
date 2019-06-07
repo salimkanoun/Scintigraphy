@@ -116,7 +116,7 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 		// ((PostMictional)
 		// this.main).getResultFrame().getImagePlus().duplicate().show();
 		// captures.get(0).show();
-		// this.main.getFenApplication().dispose();
+		 this.main.getFenApplication().dispose();
 	}
 
 	@Override

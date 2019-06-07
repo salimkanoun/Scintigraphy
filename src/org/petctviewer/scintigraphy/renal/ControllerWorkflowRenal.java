@@ -180,7 +180,9 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		// on affiche la fenetre de resultats principale
 		((Model_Renal) model).setNephrogramChart(fan.getValueSetter());
 		FenResults fenResults = new FenResultats_Renal(scinRenal, capture, this);
+		fenResults.toFront();
 		fenResults.setVisible(true);
+		
 
 		// SK On rebloque le modele pour la prochaine generation
 		modele.setLocked(true);
