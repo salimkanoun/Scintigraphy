@@ -23,6 +23,8 @@ public class FenApplicationHepaticDynamic extends FenApplication {
 
 	public FenApplicationHepaticDynamic(ImagePlus imp, String nom) {
 		super(imp, nom);
+		
+		this.getBtn_drawROI().setEnabled(false);
 
 		this.imp.setSlice(1);
 		

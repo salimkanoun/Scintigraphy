@@ -4,13 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.net.URL;
 
-import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -197,15 +196,18 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 		JPanel pan = new JPanel(new GridLayout(1, 7));
 
 		JPanel l0 = null, p1 = null, p2 = null, p3 = null, t4 = null, t5 = null, t6 = null;
-		try {
+
+		URL res = this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/L0.jpg");
+		if (res != null) {
 			l0 = new JPanel(new BorderLayout());
 			l0.add(new JLabel("L0", SwingConstants.CENTER), BorderLayout.NORTH);
 
 			// Image icon = new
 			// ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" +
 			// limb + "/L0.jpg")).getImage();
-			BufferedImage image;
-			image = ImageIO.read(new File("images/lympho/visualgradation/" + limb + "/L0.jpg"));
+			Image image;
+			image = Toolkit.getDefaultToolkit().getImage(
+					this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/L0.jpg"));
 			l0.add(new DynamicImage(image));
 
 			p1 = new JPanel(new BorderLayout());
@@ -213,7 +215,8 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 			// icon = new
 			// ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" +
 			// limb + "/P1.jpg")).getImage();
-			image = (BufferedImage) ImageIO.read(new File("images/lympho/visualgradation/" + limb + "/P1.jpg"));
+			image = Toolkit.getDefaultToolkit().getImage(
+					this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/P1.jpg"));
 			DynamicImage dyna1 = new DynamicImage(image);
 			p1.add(dyna1);
 
@@ -222,7 +225,8 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 			// icon = new
 			// ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" +
 			// limb + "/P2.jpg")).getImage();
-			image = (BufferedImage) ImageIO.read(new File("images/lympho/visualgradation/" + limb + "/P2.jpg"));
+			image = Toolkit.getDefaultToolkit().getImage(
+					this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/P2.jpg"));
 			DynamicImage dyna2 = new DynamicImage(image);
 			p2.add(dyna2);
 
@@ -231,7 +235,8 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 			// icon = new
 			// ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" +
 			// limb + "/P3.jpg")).getImage();
-			image = (BufferedImage) ImageIO.read(new File("images/lympho/visualgradation/" + limb + "/P3.jpg"));
+			image = Toolkit.getDefaultToolkit().getImage(
+					this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/P3.jpg"));
 			p3.add(new DynamicImage(image));
 
 			t4 = new JPanel(new BorderLayout());
@@ -239,7 +244,8 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 			// icon = new
 			// ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" +
 			// limb + "/T4.jpg")).getImage();
-			image = (BufferedImage) ImageIO.read(new File("images/lympho/visualgradation/" + limb + "/T4.jpg"));
+			image = Toolkit.getDefaultToolkit().getImage(
+					this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/T4.jpg"));
 			t4.add(new DynamicImage(image));
 
 			t5 = new JPanel(new BorderLayout());
@@ -247,7 +253,8 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 			// icon = new
 			// ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" +
 			// limb + "/T5.jpg")).getImage();
-			image = (BufferedImage) ImageIO.read(new File("images/lympho/visualgradation/" + limb + "/T5.jpg"));
+			image = Toolkit.getDefaultToolkit().getImage(
+					this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/T5.jpg"));
 			t5.add(new DynamicImage(image));
 
 			t6 = new JPanel(new BorderLayout());
@@ -258,11 +265,9 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 			// image = (BufferedImage)
 			// ImageIO.read(TabVisualGradation.class.getResourceAsStream(
 			// "/images/lympho/visualgradation/" + limb + "/T6.jpg"));
-			image = (BufferedImage) ImageIO.read(new File("images/lympho/visualgradation/" + limb + "/T6.jpg"));
+			image = Toolkit.getDefaultToolkit().getImage(
+					this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/T6.jpg"));
 			t6.add(new DynamicImage(image));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 
 		globalPane.add(new DynamicImage(this.img.getImagePlus().getBufferedImage()), BorderLayout.CENTER);
@@ -286,7 +291,6 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 	 */
 	private class CustomScintigraphy extends Scintigraphy {
 
-		private ImageSelection[] openedImages;
 		private TabVisualGradation tab;
 
 		public CustomScintigraphy(TabVisualGradation tab) {
@@ -316,9 +320,8 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 		@Override
 		public void lancerProgramme(ImageSelection[] selectedImages) {
 			// TODO Auto-generated method stub
-			this.openedImages = selectedImages;
 
-			tab.update(this.openedImages[0]);
+			tab.update(selectedImages[0]);
 		}
 
 	}

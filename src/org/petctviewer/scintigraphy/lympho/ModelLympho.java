@@ -184,16 +184,22 @@ public class ModelLympho extends ModelScin {
 		else
 			retour[2] += " " + us.format(drainedPercentageLeft) + "%";
 		
-		retour[3] = "Delta Drainage : ";
-		double drainedDelta = (drainedPercentageRight - drainedPercentageLeft);
-		retour[3] += " " + us.format(drainedDelta) + "";
+		
+		double drainedDelta = Math.abs(((Math.abs(drainedPercentageRight) - Math.abs(drainedPercentageLeft))));
+		if(drainedPercentageRight < 0 || drainedPercentageLeft < 0) 
+			retour[3] = "";
+		else
+			retour[3] = "Delta Drainage : "+" " + us.format(drainedDelta) + "";
 		
 		retour[4] = "";
 
 //		retour[3] = "L < R of : ";
 //		double relativeDeltaToRight = (drainedDelta / drainedPercentageRight) * 100;
 //		retour[3] += " " + us.format(relativeDeltaToRight) + "%";
-		if (drainedDelta < 0.25 * ((int) (drainedPercentageRight + drainedPercentageLeft) / 2)) {
+		if(drainedPercentageRight < 0 || drainedPercentageLeft < 0) {
+			retour[5] = "<html><span style=\"color:red\">NEGATIVE DRAINAGE, ANY RESULT WOULD BE ABSURD. </span></html>";
+		}
+		else if (drainedDelta < 0.25 * ((int) (drainedPercentageRight + drainedPercentageLeft) / 2)) {
 			retour[5] = "<html><span style=\"color:green\">Non significant dissymetry because delta &lsaquo; 0.25 MG  ";
 			double quartOfMG = 0.25 * ((int) (drainedPercentageRight + drainedPercentageLeft) / 2);
 			retour[5] += " (" + us.format(quartOfMG) + " ) </span></html>";
