@@ -434,7 +434,7 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 			public void chartMouseMoved(ChartMouseEvent event) {
 				if (valueSetterLagPhase.getGrabbedSelector() != null) {
 					// Update lag phase
-					lagPhaseValue.setText(ResultValue.notNegative(selector.getXValue()));
+					lagPhaseValue.setText(ResultValue.notNegative(selector.getXValue()) + " " + Unit.MINUTES.abbrev());
 				}
 			}
 		});
