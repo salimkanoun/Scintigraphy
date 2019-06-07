@@ -10,12 +10,12 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PrefWindow extends WindowAdapter implements PlugIn {
+public class PrefWindow extends JFrame implements PlugIn, WindowListener {
 	public static final String PREF_HEADER = "petctviewer.scin";
 
 	public static final int DURATION_SHORT = 2000;
@@ -25,8 +25,8 @@ public class PrefWindow extends WindowAdapter implements PlugIn {
 	private JLabel status;
 	private Timer timer;
 
-	@Override
-	public void run(String arg) {
+	public PrefWindow() {
+		super("Preferences");
 		this.tabs = new ArrayList<>();
 
 		this.addTab(new PrefTabMain(this));
@@ -34,29 +34,9 @@ public class PrefWindow extends WindowAdapter implements PlugIn {
 		this.addTab(new PrefTabBone(this));
 		this.addTab(new PrefTabGastric(this));
 
-		showGUI();
-	}
-
-	@Override
-	public void windowClosed(WindowEvent e) {
-		super.windowClosed(e);
-		Prefs.savePreferences();
-	}
-
-	/**
-	 * Adds the specified preference tab to this window.
-	 *
-	 * @param tab Tab to add
-	 */
-	private void addTab(PrefTab tab) {
-		this.tabs.add(tab);
-	}
-
-	private void showGUI() {
 		// Create and set up the window.
-		JFrame frame = new JFrame("Preferences");
-		frame.addWindowListener(this);
-		frame.getContentPane().setLayout(new GridLayout(1, 1));
+		this.addWindowListener(this);
+		this.getContentPane().setLayout(new GridLayout(1, 1));
 
 		JPanel panel = new JPanel(new BorderLayout());
 
@@ -74,13 +54,21 @@ public class PrefWindow extends WindowAdapter implements PlugIn {
 		statusBar.add(this.status);
 		panel.add(statusBar, BorderLayout.SOUTH);
 
-		frame.getContentPane().add(panel);
+		this.getContentPane().add(panel);
 
 		// Display the window
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.setVisible(true);
+		this.pack();
+		this.setLocationRelativeTo(null);
+		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+	}
+
+	/**
+	 * Adds the specified preference tab to this window.
+	 *
+	 * @param tab Tab to add
+	 */
+	private void addTab(PrefTab tab) {
+		this.tabs.add(tab);
 	}
 
 	/**
@@ -131,6 +119,47 @@ public class PrefWindow extends WindowAdapter implements PlugIn {
 		});
 		timer.setRepeats(false);
 		timer.start();
+	}
+
+	@Override
+	public void run(String arg) {
+		this.pack();
+		this.setVisible(true);
+	}
+
+	@Override
+	public void windowOpened(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowClosed(WindowEvent e) {
+		Prefs.savePreferences();
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowActivated(WindowEvent e) {
+
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+
 	}
 
 }
