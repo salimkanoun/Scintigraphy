@@ -45,30 +45,6 @@ public class OsScintigraphy extends Scintigraphy {
 		fen.pack();
 	}
 
-	/**
-	 * Créé un JFrame et la fenêtre qui traitera les images de scinty osseuse<br/> Cette fenêtre prend en paramètre la
-	 * classe actuelle (dérivée de Scinty), et le buffer d'images.<br/> Le buffer enregistré est un tableau à double
-	 * dimension possédant 2 colonnes et n ligne (n = nombre de patient)<br/> Chaque ligne est un patient. <br/> La
-	 * colonne 0 : l'ImagePlus ANT du patient --/-- la colonne 1 : l'ImagePlus POST du patient.<br/>
-	 */
-	public void lancerProgramme(ImageSelection[] selectedImages) {
-
-		if (process) {
-			// FenApplication_Os fen = new FenApplication_Os(this, buffer);
-
-			Controleur_Os controleur_os = new Controleur_Os(selectedImages);
-			FenApplication_Os fen = controleur_os.getFenApplicatio_Os();
-			fen.setVisible(true);
-
-			JFrame frame = new JFrame("Bone Scinthigraphy");
-			frame.add(fen);
-			frame.pack();
-			frame.setVisible(true);
-			frame.setResizable(true);
-			frame.setLocationRelativeTo(null);
-		}
-	}
-
 	@Override
 	public String getName() {
 		return STUDY_NAME;
@@ -146,7 +122,6 @@ public class OsScintigraphy extends Scintigraphy {
 	 * POST du patient.<br/>
 	 */
 	public void lancerProgramme(ImageSelection[] selectedImages) {
-
 		if (process) {
 			// FenApplication_Os fen = new FenApplication_Os(this, buffer);
 

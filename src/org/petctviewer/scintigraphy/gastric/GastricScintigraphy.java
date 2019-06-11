@@ -4,7 +4,6 @@ import ij.Prefs;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
@@ -46,8 +45,7 @@ public class GastricScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public List<ImageSelection> prepareImages(List<ImageSelection> openedImages) throws WrongInputException,
-			ReadTagException {
+	public List<ImageSelection> prepareImages(List<ImageSelection> openedImages) throws WrongInputException {
 		// Check number
 		if (openedImages.size() < 2) throw new WrongNumberImagesException(openedImages.size(), 2, Integer.MAX_VALUE);
 
@@ -61,7 +59,7 @@ public class GastricScintigraphy extends Scintigraphy {
 		}
 
 		// Check images have same duration
-		int tolerance = Math.max((int) Prefs.get(PrefsTabGastric.PREF_FRAME_DURATION_TOLERANCE, 1) * 1000, 1);
+		int tolerance = Math.max((int) Prefs.get(PrefTabGastric.PREF_FRAME_DURATION_TOLERANCE, 1) * 1000, 1);
 		int frameDuration = Library_Dicom.getFrameDuration(selection.get(0).getImagePlus());
 		boolean frameDurationDifferent = false;
 		float deltaSeconds = 0;
