@@ -1,13 +1,9 @@
 package org.petctviewer.scintigraphy.renal.postMictional;
 
 
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.Prefs;
+import ij.gui.Overlay;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -24,9 +20,12 @@ import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
-import ij.ImagePlus;
-import ij.Prefs;
-import ij.gui.Overlay;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 
@@ -49,6 +48,28 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 	}
 
 	@Override
+	public void end() {
+		HashMap<String, Double> hm = new HashMap<>();
+		ImagePlus imp = this.model.getImagePlus().duplicate();
+		// Normalizing to compare to the previous values, from the original exam.
+		Library_Dicom.normalizeToCountPerSecond(imp);
+		for (int indexRoi = 0; indexRoi < this.organeListe.length; indexRoi++) {
+			imp.setRoi(this.model.getRoiManager().getRoi(indexRoi));
+			hm.put(this.organeListe[indexRoi], Library_Quantif.getCounts(imp));
+		}
+		((Model_PostMictional) this.model).setData(hm);
+
+		((PostMictional) this.main).getResultFrame().setExamDone(true);
+		((PostMictional) this.main).getResultFrame().setModelPostMictional((Model_PostMictional) this.model);
+		// ((PostMictional) this.main).getResultFrame().reloadDisplay();
+		((PostMictional) this.main).getResultFrame().setImage(this.vue.getImagePlus());
+		// ((PostMictional)
+		// this.main).getResultFrame().getImagePlus().duplicate().show();
+		// captures.get(0).show();
+		this.main.getFenApplication().dispose();
+	}
+
+	@Override
 	protected void generateInstructions() {
 
 		List<String> organes = new LinkedList<>();
@@ -57,10 +78,6 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 		DrawRoiInstruction dri_1, dri_2, dri_3;
 
 		DrawRoiBackground dri_Background_1, dri_Background_2;
-
-		ScreenShotInstruction dri_capture_1 = null;
-
-		dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), 0);
 
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
@@ -94,36 +111,15 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 
 		this.organeListe = organes.toArray(new String[0]);
 
-		this.workflows[0].addInstruction(dri_capture_1);
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
 
 		this.workflows[0].addInstruction(new EndInstruction());
 	}
 
 	@Override
-	public void end() {
-		HashMap<String, Double> hm = new HashMap<>();
-		ImagePlus imp = this.model.getImagePlus().duplicate();
-		// Normalizing to compare to the previous values, from the original exam.
-		Library_Dicom.normalizeToCountPerSecond(imp);
-		for (int indexRoi = 0; indexRoi < this.organeListe.length; indexRoi++) {
-			imp.setRoi(this.model.getRoiManager().getRoi(indexRoi));
-			hm.put(this.organeListe[indexRoi], Library_Quantif.getCounts(imp));
-		}
-		((Model_PostMictional) this.model).setData(hm);
-
-		((PostMictional) this.main).getResultFrame().setExamDone(true);
-		((PostMictional) this.main).getResultFrame().setModelPostMictional((Model_PostMictional) this.model);
-		// ((PostMictional) this.main).getResultFrame().reloadDisplay();
-		((PostMictional) this.main).getResultFrame().setImp(this.vue.getImagePlus());
-		// ((PostMictional)
-		// this.main).getResultFrame().getImagePlus().duplicate().show();
-		// captures.get(0).show();
-		 this.main.getFenApplication().dispose();
-	}
-
-	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		super.actionPerformed(arg0);
+		// TODO: ??
 		Overlay ov = this.model.getImagePlus().getOverlay();
 
 		if (ov.getIndex("L. bkg") != -1)

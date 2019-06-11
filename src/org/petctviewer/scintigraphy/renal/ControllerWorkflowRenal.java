@@ -127,6 +127,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 	@Override
 	public void end() {
+		super.end();
 
 		// on recupere la vue, le modele et l'imp
 		RenalScintigraphy scinRenal = (RenalScintigraphy) this.main;

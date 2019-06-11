@@ -76,27 +76,27 @@ public class PrefTabMain extends PrefTab {
 		// Capture LUT
 		this.createLabel(panelLuts, "Capture LUT");
 
-		JCheckBox checkBoxCaptureLut = new JCheckBox("Use preferred LUT");
-		checkBoxCaptureLut.setSelected(Prefs.get(PREF_LUT_CAPTURE, null) == null);
+		JCheckBox checkBoxCaptureLut = new JCheckBox("Use custom LUT");
+		checkBoxCaptureLut.setSelected(Prefs.get(PREF_LUT_CAPTURE, null) != null);
 		panelLuts.add(checkBoxCaptureLut);
 
 		lCaptureLut = new JLabel(Prefs.get(PREF_LUT_CAPTURE, TXT_NO_LUT));
 		lCaptureLut.setEnabled(false);
-		lCaptureLut.setVisible(!checkBoxCaptureLut.isSelected());
+		lCaptureLut.setVisible(checkBoxCaptureLut.isSelected());
 		panelLuts.add(lCaptureLut);
 
 		this.btnCaptureLut = new JButton("Choose capture LUT...");
-		this.btnCaptureLut.setVisible(!checkBoxCaptureLut.isSelected());
+		this.btnCaptureLut.setVisible(checkBoxCaptureLut.isSelected());
 		this.btnCaptureLut.addActionListener(this);
 		panelLuts.add(this.btnCaptureLut);
 
 		checkBoxCaptureLut.addActionListener(e -> {
-			if (checkBoxCaptureLut.isSelected()) {
+			if (!checkBoxCaptureLut.isSelected()) {
 				Prefs.set(PREF_LUT_CAPTURE, null);
 				this.lCaptureLut.setText(TXT_NO_LUT);
 			}
-			this.lCaptureLut.setVisible(!checkBoxCaptureLut.isSelected());
-			this.btnCaptureLut.setVisible(!checkBoxCaptureLut.isSelected());
+			this.lCaptureLut.setVisible(checkBoxCaptureLut.isSelected());
+			this.btnCaptureLut.setVisible(checkBoxCaptureLut.isSelected());
 			this.parent.pack();
 		});
 		// -
@@ -145,7 +145,7 @@ public class PrefTabMain extends PrefTab {
 				Prefs.set(PREF_LUT, this.lut.getText());
 			}
 		} else if (e.getSource() == this.btnCaptureLut) {
-			String path = Prefs.get(PREF_LUT_CAPTURE, "./luts");
+			String path = Prefs.get(PREF_LUT_CAPTURE, Prefs.get(PREF_LUT, "./luts"));
 			JFileChooser chooser = new JFileChooser(new File(path));
 			chooser.setDialogTitle("Choose Capture LUT");
 			if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {

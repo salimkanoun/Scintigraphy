@@ -15,7 +15,7 @@ public class MainResult extends TabResult {
 	private final ImagePlus montage;
 
 	public MainResult(FenResults parent, ImagePlus montage) {
-		super(parent, "Result", true);
+		super(parent, "Result With Kidney", true);
 		this.montage = montage;
 		this.reloadDisplay();
 	}

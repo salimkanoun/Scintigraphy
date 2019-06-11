@@ -1,23 +1,11 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
+import ij.Prefs;
+import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.postMictional.Model_PostMictional;
 import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
+import org.petctviewer.scintigraphy.scin.ImagePreparator;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -26,15 +14,22 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
-import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
+import org.petctviewer.scintigraphy.scin.gui.TabContrastModifier;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
-import ij.Prefs;
-import ij.util.DicomTools;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
-public class TabPostMict extends PanelImpContrastSlider implements ActionListener {
+public class TabPostMict extends TabContrastModifier implements ActionListener {
 	private JButton btn_addImp, btn_quantify;
 	private final boolean bladder;
 
@@ -46,7 +41,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 	private Model_PostMictional modelPostMictional;
 
 	public TabPostMict(Scintigraphy vue, FenResults parent) {
-		super("Post Mictional", "postmict", parent, "Post", false);
+		super(parent, "Post Mictional");
 		this.bladder = Prefs.get(PrefTabRenal.PREF_BLADDER, true);
 		this.imgSelected = false;
 		this.examDone = false;
@@ -110,56 +105,62 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getSource() == this.btn_addImp) {
 
-			// Open DICOM dialog Selection to select post mictional image
-			// SK A REFACTORISER
-			FenSelectionDicom fen = new FenSelectionDicom(new Scintigraphy("Post-mictional") {
+			FenSelectionDicom fen = new FenSelectionDicom(new ImagePreparator() {
 				@Override
-				public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
-					if (selectedImages.length > 1) {
-						throw new WrongNumberImagesException(selectedImages.length, 1);
-					}
-					if (selectedImages[0].getImageOrientation() == Orientation.ANT_POST
-							|| selectedImages[0].getImageOrientation() == Orientation.POST_ANT
-							|| selectedImages[0].getImageOrientation() == Orientation.POST) {
-						// SK A GERER RECUPERER SEULE L IMAGE POST SI STATIC A/P ?
-						ImageSelection imp = selectedImages[0].clone();
-						
-						selectedImages[0].close();
+				public String getName() {
+					return "Post-mictional";
+				}
 
-//						Library_Dicom.normalizeToCountPerSecond(imp);
+				@Override
+				public Column[] getColumns() {
+					return Column.getDefaultColumns();
+				}
+
+				@Override
+				public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws
+						WrongInputException {
+					if (selectedImages.size() != 1) {
+						throw new WrongNumberImagesException(selectedImages.size(), 1);
+					}
+					if (selectedImages.get(0).getImageOrientation() == Orientation.ANT_POST || selectedImages.get(
+							0).getImageOrientation() == Orientation.POST_ANT || selectedImages.get(0).getImageOrientation() == Orientation.POST) {
+						// SK A GERER RECUPERER SEULE L IMAGE POST SI STATIC A/P ?
+						ImageSelection imp = selectedImages.get(0).clone();
+
+						selectedImages.get(0).close();
 
 						TabPostMict.this.imgSelected = true;
 						Library_Gui.initOverlay(imp.getImagePlus());
 						Library_Gui.setOverlayTitle("Post", imp.getImagePlus(), Color.YELLOW, 1);
-						Library_Gui.setOverlayGD(imp.getImagePlus());
-						TabPostMict.this.setImp(imp.getImagePlus());
+						Library_Gui.setOverlayGD(imp.getImagePlus(), Color.YELLOW);
+						TabPostMict.this.setImage(imp.getImagePlus());
 
-						ImageSelection[] selection = new ImageSelection[1];
-						selection[0] = imp;
+						List<ImageSelection> selection = new ArrayList<>();
+						selection.add(imp);
 						return selection;
 					} else {
-						throw new WrongOrientationException(selectedImages[0].getImageOrientation(),
-								new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT, Orientation.POST });
+						throw new WrongOrientationException(selectedImages.get(0).getImageOrientation(),
+															new Orientation[]{Orientation.ANT_POST,
+																			  Orientation.POST_ANT, Orientation.POST});
 					}
-
 				}
 
 				@Override
-				public void lancerProgramme(ImageSelection[] selectedImages) {
-					// TabPostMict.this.reloadDisplay();
-					TabPostMict.this.images = selectedImages;
+				public String instructions() {
+					return "1 image in Ant-Post (or Post-Ant) or Post orientation";
 				}
 			});
-
 			fen.setVisible(true);
+
+			this.images = fen.retrieveSelectedImages().toArray(new ImageSelection[0]);
 
 		} else if (arg0.getSource().equals(this.btn_quantify)) {
 			// SK A REVOIR
 			PostMictional vueBasic = new PostMictional(createOrgans(), this);
 			try {
-				vueBasic.lancerProgramme(vueBasic.preparerImp(TabPostMict.this.images));
+				vueBasic.lancerProgramme(
+						vueBasic.prepareImages(Arrays.asList(TabPostMict.this.images)).toArray(new ImageSelection[0]));
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -193,16 +194,16 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 		HashMap<String, Double> data = model.getData();
 
 		Double rg = null, rd = null;
-		int duration = Integer.parseInt(DicomTools.getTag(this.getImagePlus(), "0018,1242").trim());
+		int duration = Integer.parseInt(DicomTools.getTag(this.getAssociatedImage(), "0018,1242").trim());
 		if (modele.getKidneys()[0]) {
 			rg = data.get("L. Kidney") - data.get("L. bkg");
 			// on calcule les valeurs en coups/sec
-			rg /= (duration / 1000);
+			rg /= (duration / 1000); // TODO: rg is double but (duration / 1000) is int??????
 		}
 		if (modele.getKidneys()[1]) {
 			rd = data.get("R. Kidney") - data.get("R. bkg");
 			// on calcule les valeurs en coups/sec
-			rd /= (duration / 1000);
+			rd /= (duration / 1000); // TODO: rg is double but (duration / 1000) is int??????
 		}
 
 		// creation du panel excr rein gauche et droit
@@ -211,30 +212,16 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 		// ajout de la vessie dans la liste d'organes si elle est selectionnee
 		if (bladder) {
 			Double bld = data.get("Bladder");
-			bld /= (duration / 1000);
+			bld /= (duration / 1000); // TODO: rg is double but (duration / 1000) is int??????
 			this.panel_bladder
 					.add(new JLabel("Bladder : " + Library_Quantif.round(modele.getExcrBladder(bld), 2) + " %"));
 		}
-
-		// this.remove(this.sidePanel);
 
 		JPanel flow = new JPanel(new GridLayout(3, 1));
 		flow.add(panel_excr);
 		// Equivalent to a \n
 		flow.add(new JLabel(""));
 		flow.add(super.getSidePanelContent());
-		// this.parent.getPanel().setSidePanelContent(flow);
-		// this.reloadDisplay();
-
-		// sidePanel = new SidePanel(flow, "Renal Scintigraphy2", this.getImagePlus());
-		// sidePanel.addCaptureBtn(vueBasic, "_PostMict", new Component[] {
-		// this.getSlider() }, model);
-		// this.parent.createCaptureButton("_PostMict");
-		// this.createCaptureButton(new Component[] { this.getSlider() }, null,
-		// "_PostMict");
-		// this.add(sidePanel,BorderLayout.EAST);
-		// this.revalidate();
-		// this.repaint();
 		return flow;
 	}
 

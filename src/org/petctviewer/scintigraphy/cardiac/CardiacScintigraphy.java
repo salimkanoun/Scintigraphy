@@ -57,7 +57,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException {
+	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException {
 
 		this.fullBodyImages = new ArrayList<>();
 		this.onlyThoraxImage = new ArrayList<>();
@@ -65,18 +65,18 @@ public class CardiacScintigraphy extends Scintigraphy {
 		// Check number
 		for (ImageSelection selected : selectedImages) {
 			if (selected.getValue(this.imageTypeColumn.getName()) == FULL_BODY_IMAGE) {
-				if(fullBodyImages.size() == 2)
+				if (fullBodyImages.size() == 2)
 					throw new WrongNumberImagesException(fullBodyImages.size(), 1, 2);
 				fullBodyImages.add(selected);
 			}
 			if (selected.getValue(this.imageTypeColumn.getName()) == ONLY_THORAX_IMAGE) {
-				if(onlyThoraxImage.size() == 1)
+				if (onlyThoraxImage.size() == 1)
 					throw new WrongNumberImagesException(fullBodyImages.size(), 1);
 				onlyThoraxImage.add(selected);
 			}
 		}
 
-		if(onlyThoraxImage.size() == 0 && fullBodyImages.size() == 0)
+		if (onlyThoraxImage.size() == 0 && fullBodyImages.size() == 0)
 			throw new WrongNumberImagesException(0, 1, 3);
 
 		ArrayList<ImageSelection> mountedImages = new ArrayList<>();
@@ -117,7 +117,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 		if (this.onlyThoraxImage.size() != 0)
 			mountedSorted.add(onlyThoraxImage.get(0));
 
-		return mountedSorted.toArray(new ImageSelection[0]);
+		return mountedSorted;
 	}
 
 	@Override
@@ -143,6 +143,35 @@ public class CardiacScintigraphy extends Scintigraphy {
 		// ((ControllerWorkflowCardiac)this.getFenApplication().getController()).setFullBodyImages(this.fullBodyImages.size());
 		// ((ControllerWorkflowCardiac)this.getFenApplication().getController()).setOnlyThoraxImage(this.onlyThoraxImage.size());
 
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return "Cardiac Scintigraphy";
+	}
+
+	@Override
+	public Column[] getColumns() {
+
+		// Orientation column
+		String[] orientationValues = { Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString() };
+		Column orientation = new Column(Column.ORIENTATION.getName(), orientationValues);
+
+		// Organ column
+		String[] typesValues = { FULL_BODY_IMAGE, ONLY_THORAX_IMAGE };
+		this.imageTypeColumn = new Column(COLUMN_TYPE_TITLE, typesValues);
+
+		// Choose columns to display
+		Column[] cols = { Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
+				Column.STACK_SIZE, orientation, this.imageTypeColumn };
+		return cols;
+	}
+
+	@Override
+	public String instructions() {
+		// TODO Auto-generated method stub
+		return "You should open 1 or 2 full body images, or/and 1 thorax image.";
 	}
 
 }

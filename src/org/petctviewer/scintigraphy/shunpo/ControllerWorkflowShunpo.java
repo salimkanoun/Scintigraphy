@@ -107,7 +107,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		// Display result
 		this.fenResults.clearTabs();
 		this.fenResults.setMainTab(new MainResult(this.fenResults, montage1));
-		this.fenResults.addTab(new TabResult(this.fenResults, "Other results") {
+		this.fenResults.addTab(new TabResult(this.fenResults, "Without Kidneys") {
 			@Override
 			public Component getSidePanelContent() {
 				JPanel panel = new JPanel(new GridLayout(0, 1));

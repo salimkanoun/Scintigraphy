@@ -63,7 +63,6 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 		// Clear the result hashmap in case of a second validation
 		((Model_Dmsa) this.model).data.clear();
 
-		ImagePlus imageCaptured = getModel().getImagePlus().duplicate();
 		Overlay overlay = getModel().getImagePlus().getOverlay().duplicate();
 
 		int indexRoi = 0;
@@ -85,7 +84,7 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
 		// Display results
 		this.setFenResults(new FenResults(this));
-		this.fenResults.addTab(new MainTab(fenResults, imageCaptured, overlay));
+		this.fenResults.addTab(new MainTab(fenResults, getModel().getImageSelection()[0].clone(), overlay));
 		this.fenResults.setVisible(true);
 	}
 

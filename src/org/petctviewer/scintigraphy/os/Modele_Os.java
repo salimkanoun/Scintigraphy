@@ -74,7 +74,7 @@ public class Modele_Os {
 		// images). Si il faut appliquer une Lut particulière
 		// Appelle de la méthode permettant d'appliquer la Lut si on applique pas la Lut
 		// par défaut.
-		if (!Prefs.get(PrefTabBone.PREF_DEFAULT_LUT, true)) {
+		if (Prefs.get(PrefTabBone.PREF_USE_CUSTOM_LUT, false)) {
 			for (ImageSelection[] imgs : this.imps)
 				for (ImageSelection img : imgs)
 					Library_Gui.setCustomLut(img.getImagePlus(), PrefTabBone.PREF_LUT);
