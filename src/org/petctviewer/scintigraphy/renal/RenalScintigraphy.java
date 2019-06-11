@@ -60,8 +60,7 @@ public class RenalScintigraphy extends Scintigraphy {
 
 	@Override
 	public Column[] getColumns() {
-		// TODO Auto-generated method stub
-		return null;
+		return Column.getDefaultColumns();
 	}
 
 	@Override
@@ -171,16 +170,10 @@ public class RenalScintigraphy extends Scintigraphy {
 		int nbImage = 0;
 
 		List<ImageSelection> selection = new ArrayList<>();
+		selection.add(impProjetee);
+		selection.add(impPost);
+		selection.add(impAnt);
 
-		selection.set(nbImage, impProjetee);
-		nbImage++;
-		if (impPost != null) {
-			selection.set(nbImage, impPost);
-			nbImage++;
-		}
-		if (impAnt != null) {
-			selection.set(nbImage, impAnt);
-		}
 		return selection;
 	}
 

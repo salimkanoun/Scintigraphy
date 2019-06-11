@@ -1,16 +1,12 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
 import ij.ImagePlus;
-import ij.gui.Roi;
-import ij.plugin.RoiScaler;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.*;
 
 /**
  * This component is a slider used to modify the contrast of an ImagePlus.
@@ -45,28 +41,28 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 		if (state.getIdImage() != ImageState.ID_CUSTOM_IMAGE) throw new IllegalArgumentException(
 				"The image of the state must be set");
 
-		if (this.reference.getOverlay() != null) {
-			int oldWidth = this.reference.getProcessor().getWidth();
-			this.reference.setProcessor(this.reference.getProcessor().resize(512));
-			Roi[] rois = this.reference.getOverlay().toArray();
-			this.reference.getOverlay().clear();
-
-			Font font = new Font("Arial", Font.PLAIN, Math.round(15));
-			this.reference.getOverlay().setLabelFont(font, true);
-
-			Library_Gui.setOverlayTitle(state.title(), this.reference, Color.YELLOW, 1);
-			if (state.isLateralisationRL()) Library_Gui.setOverlayDG(this.reference, Color.YELLOW);
-			else Library_Gui.setOverlayGD(this.reference, Color.YELLOW);
-
-			for (Roi roi : rois) {
-				if (roi.getName() != null) {
-					Roi newRoi = RoiScaler.scale(roi, 512 / oldWidth, 512 / oldWidth, false);
-					newRoi.setName(roi.getName());
-					newRoi.setStrokeColor(Color.YELLOW);
-					this.reference.getOverlay().add(newRoi);
-				}
-			}
-		}
+//		if (this.reference.getOverlay() != null) {
+//			int oldWidth = this.reference.getProcessor().getWidth();
+//			this.reference.setProcessor(this.reference.getProcessor().resize(512));
+//			Roi[] rois = this.reference.getOverlay().toArray();
+//			this.reference.getOverlay().clear();
+//
+//			Font font = new Font("Arial", Font.PLAIN, Math.round(15));
+//			this.reference.getOverlay().setLabelFont(font, true);
+//
+//			Library_Gui.setOverlayTitle(state.title(), this.reference, Color.YELLOW, 1);
+//			if (state.isLateralisationRL()) Library_Gui.setOverlayDG(this.reference, Color.YELLOW);
+//			else Library_Gui.setOverlayGD(this.reference, Color.YELLOW);
+//
+//			for (Roi roi : rois) {
+//				if (roi.getName() != null) {
+//					Roi newRoi = RoiScaler.scale(roi, 512 / oldWidth, 512 / oldWidth, false);
+//					newRoi.setName(roi.getName());
+//					newRoi.setStrokeColor(Color.YELLOW);
+//					this.reference.getOverlay().add(newRoi);
+//				}
+//			}
+//		}
 
 		this.stateChanged(null);
 	}
