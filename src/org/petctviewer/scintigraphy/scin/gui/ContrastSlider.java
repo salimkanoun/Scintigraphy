@@ -1,18 +1,16 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.Color;
-import java.awt.Font;
-
-import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
-
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.RoiScaler;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 
 /**
  * This component is a slider used to modify the contrast of an ImagePlus.
@@ -25,57 +23,61 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 	private ImagePlus reference;
 	private DynamicImage result;
 
+	public ContrastSlider(ImagePlus image, DynamicImage result) {
+		super(JSlider.HORIZONTAL);
+		if (image == null) throw new IllegalArgumentException("Image cannot be null");
 
-	
-	public ContrastSlider(int orientation, ImagePlus reference, DynamicImage result) {
-		this(orientation, reference, result, null, null);
-	}
-
-	public ContrastSlider(int orientation, ImagePlus reference, DynamicImage result, String titleOverlay, Boolean lateralisationRL) {
-		super(orientation);
-
-		this.reference = reference;
+		this.reference = image;
 		this.result = result;
 
-		this.setMaximum((int) reference.getStatistics().max);
-		this.setMinimum((int) reference.getStatistics().min);
-		this.setValue((int) reference.getStatistics().min);
+		this.setMaximum((int) image.getStatistics().max);
+		this.setMinimum((int) image.getStatistics().min);
+		this.setValue((int) image.getStatistics().min);
 
 		this.addChangeListener(this);
 
-		this.reference.show();
-		if(this.reference.getOverlay() != null) {
+		image.show();
+		image.getWindow().setVisible(false);
+	}
+
+	public ContrastSlider(ImageState state, DynamicImage result) {
+		this(state.getImage().getImagePlus(), result);
+		if (state.getIdImage() != ImageState.ID_CUSTOM_IMAGE) throw new IllegalArgumentException(
+				"The image of the state must be set");
+
+		if (this.reference.getOverlay() != null) {
 			int oldWidth = this.reference.getProcessor().getWidth();
 			this.reference.setProcessor(this.reference.getProcessor().resize(512));
 			Roi[] rois = this.reference.getOverlay().toArray();
 			this.reference.getOverlay().clear();
-			
+
 			Font font = new Font("Arial", Font.PLAIN, Math.round(15));
 			this.reference.getOverlay().setLabelFont(font, true);
-			
-			Library_Gui.setOverlayTitle(titleOverlay, this.reference, Color.YELLOW, 1);
-			if(lateralisationRL)
-				Library_Gui.setOverlayDG(this.reference, Color.YELLOW);
-			else
-				Library_Gui.setOverlayGD(this.reference, Color.YELLOW);
-			
-			for(Roi roi : rois) {
-				if(roi.getName() != null) {
-					Roi newRoi = RoiScaler.scale(roi, 512/oldWidth, 512/oldWidth, false);
+
+			Library_Gui.setOverlayTitle(state.title(), this.reference, Color.YELLOW, 1);
+			if (state.isLateralisationRL()) Library_Gui.setOverlayDG(this.reference, Color.YELLOW);
+			else Library_Gui.setOverlayGD(this.reference, Color.YELLOW);
+
+			for (Roi roi : rois) {
+				if (roi.getName() != null) {
+					Roi newRoi = RoiScaler.scale(roi, 512 / oldWidth, 512 / oldWidth, false);
 					newRoi.setName(roi.getName());
 					newRoi.setStrokeColor(Color.YELLOW);
 					this.reference.getOverlay().add(newRoi);
 				}
 			}
 		}
-		
-		this.reference.getWindow().setVisible(false);
+
 		this.stateChanged(null);
+	}
+
+	public ImagePlus getAssociatedImage() {
+		return this.reference;
 	}
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		reference.getProcessor().setMinAndMax(0, this.getMaximum() - this.getValue() + 1);
+		this.reference.getProcessor().setMinAndMax(0, this.getMaximum() - this.getValue() + 1);
 		// Update image overlay
 		this.reference.updateAndDraw();
 		this.result.setImage(Library_Capture_CSV.captureImage(this.reference, 0, 0).getBufferedImage());

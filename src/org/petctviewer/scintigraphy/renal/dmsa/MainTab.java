@@ -1,37 +1,30 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.GridLayout;
-
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-
+import ij.gui.Overlay;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.gui.ContrastSlider;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
-import ij.ImagePlus;
-import ij.gui.Overlay;
+import javax.swing.*;
+import java.awt.*;
 
 public class MainTab extends TabResult {
 
 	private ContrastSlider slider;
 	private DynamicImage result;
 
-	public MainTab(FenResults parent, ImagePlus capture, Overlay overlay) {
+	public MainTab(FenResults parent, ImageSelection capture, Overlay overlay) {
 		super(parent, "DMSA");
 
-		this.result = new DynamicImage(capture.getBufferedImage());
+		this.result = new DynamicImage(capture.getImagePlus().getBufferedImage());
 
-		capture.setOverlay(overlay);
-		this.slider = new ContrastSlider(ContrastSlider.HORIZONTAL, capture, this.result);
+		capture.getImagePlus().setOverlay(overlay);
+		this.slider = new ContrastSlider(new ImageState(Orientation.POST, 2, ImageState.LAT_RL, capture), this.result);
 
 		this.reloadDisplay();
 	}

@@ -40,6 +40,8 @@ public class MIBGScintigraphy extends Scintigraphy {
 		fen.declareColumns(cols);
 
 		fen.setVisible(true);
+
+		this.lancerProgramme(fen.retrieveSelectedImages().toArray(new ImageSelection[0]));
 	}
 
 	@Override

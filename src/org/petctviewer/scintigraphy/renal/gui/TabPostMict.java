@@ -1,20 +1,7 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
+import ij.Prefs;
+import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.postMictional.Model_PostMictional;
 import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
@@ -28,7 +15,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
-import org.petctviewer.scintigraphy.scin.gui.PanelImpContrastSlider;
+import org.petctviewer.scintigraphy.scin.gui.TabContrastModifier;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
@@ -41,10 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import ij.Prefs;
-import ij.util.DicomTools;
 
-public class TabPostMict extends PanelImpContrastSlider implements ActionListener {
+public class TabPostMict extends TabContrastModifier implements ActionListener {
 	private JButton btn_addImp, btn_quantify;
 	private final boolean bladder;
 
@@ -56,7 +41,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 	private Model_PostMictional modelPostMictional;
 
 	public TabPostMict(Scintigraphy vue, FenResults parent) {
-		super("Post Mictional", "postmict", parent, "Post", false);
+		super(parent, "Post Mictional");
 		this.bladder = Prefs.get(PrefTabRenal.PREF_BLADDER, true);
 		this.imgSelected = false;
 		this.examDone = false;
@@ -148,7 +133,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 						Library_Gui.initOverlay(imp.getImagePlus());
 						Library_Gui.setOverlayTitle("Post", imp.getImagePlus(), Color.YELLOW, 1);
 						Library_Gui.setOverlayGD(imp.getImagePlus());
-						TabPostMict.this.setImp(imp.getImagePlus());
+						TabPostMict.this.setImage(imp.getImagePlus());
 
 						List<ImageSelection> selection = new ArrayList<>();
 						selection.add(imp);
@@ -209,7 +194,7 @@ public class TabPostMict extends PanelImpContrastSlider implements ActionListene
 		HashMap<String, Double> data = model.getData();
 
 		Double rg = null, rd = null;
-		int duration = Integer.parseInt(DicomTools.getTag(this.getImagePlus(), "0018,1242").trim());
+		int duration = Integer.parseInt(DicomTools.getTag(this.getAssociatedImage(), "0018,1242").trim());
 		if (modele.getKidneys()[0]) {
 			rg = data.get("L. Kidney") - data.get("L. bkg");
 			// on calcule les valeurs en coups/sec

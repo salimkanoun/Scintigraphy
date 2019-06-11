@@ -104,6 +104,21 @@ public class ImageState {
 	}
 
 	/**
+	 * Instantiates a state for the specified image.
+	 *
+	 * @param facingOrientation Facing orientation of the image (Ant or Post only)
+	 * @param slice             Number of the slice to display (if multiple slices)
+	 * @param lateralisation    TRUE for a Right-Left lateralisation and FALSE for a Left-Right lateralisation
+	 * @param image             Image to display
+	 * @throws IllegalArgumentException if the facingOrientation is different than Ant or Post
+	 */
+	public ImageState(Orientation facingOrientation, int slice, boolean lateralisation, ImageSelection image) throws
+			IllegalArgumentException {
+		this(facingOrientation, slice, lateralisation, ImageState.ID_CUSTOM_IMAGE);
+		this.specifieImage(image);
+	}
+
+	/**
 	 * If the image to be used is not in the model, then this method should return {@link #ID_CUSTOM_IMAGE} and the
 	 * {@link #getImage()} method should be used to know which image to use.
 	 *
@@ -196,6 +211,18 @@ public class ImageState {
 	 */
 	public void specifieImage(ImageSelection image) {
 		this.image = image;
+	}
+
+	/**
+	 * Returns a readable title for the image represented by this state. The title is created from the facing
+	 * orientation.
+	 *
+	 * @return title of the image
+	 */
+	public String title() {
+		if (getFacingOrientation() == Orientation.POST && isLateralisationRL()) return "Inverted Post";
+		if (getFacingOrientation() == Orientation.ANT && isLateralisationLR()) return "Inverted Ant";
+		return getFacingOrientation().toString();
 	}
 
 	@Override
