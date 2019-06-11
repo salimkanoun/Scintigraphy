@@ -47,7 +47,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	private final Panel panel_btns_gauche;
 	private final Panel panel_btns_droite;
 	private final Panel panelPrincipal;
-	private final MenuBar menuBar;
+	private MenuBar menuBar;
 	// Panel d'instruction avec le textfield et boutons precedent et suivant
 	private Panel panel_Instructions_btns_droite;
 	private ControllerScin controleur;
@@ -116,7 +116,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 		this.documentation = this.createDocumentation();
 		// Menu bar
-		this.menuBar = new MenuBar();
 		this.createMenuBar();
 
 		this.setDefaultSize();
@@ -128,6 +127,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	}
 
 	private void createMenuBar() {
+		this.menuBar = new MenuBar();
 		this.options = new Menu("Options");
 		MenuItem loadRois = new MenuItem("Load ROIs from .zip");
 		loadRois.addActionListener(e -> {
@@ -139,13 +139,9 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 				FenApplication.this.getImagePlus().setRoi(
 						FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
 				FenApplication.this.getImagePlus().getRoi().setStrokeColor(Color.RED);
-
-				System.out.println(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
-
 			} catch (UnauthorizedRoiLoadException e1) {
 				JOptionPane.showMessageDialog(FenApplication.this, "Error while loading ROIs:\n" + e1.getMessage(),
 											  "Selection error", JOptionPane.ERROR_MESSAGE);
-				// e1.printStackTrace();
 			} catch (UnloadRoiException e1) {
 				IJ.log("ROIs not loaded");
 			}
@@ -264,20 +260,8 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		return panelPrincipal;
 	}
 
-	public void setpanel_Instructions_btns_droite(Panel instru) {
-		this.panel_Instructions_btns_droite = instru;
-	}
-
 	public MenuBar getMenuBar() {
 		return this.menuBar;
-	}
-
-	public Menu getMenuBarOptions() {
-		return this.options;
-	}
-
-	public Menu getMenuBarHelp() {
-		return this.help;
 	}
 
 	@Override
