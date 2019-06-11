@@ -78,7 +78,8 @@ public class OsScintigraphy extends Scintigraphy {
 
 	@Override
 	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException {
-		if (selectedImages.size() > 3) throw new WrongNumberImagesException(selectedImages.size(), 1, 3);
+		if (selectedImages.size() < 1 || selectedImages.size() > 3) throw new WrongNumberImagesException(
+				selectedImages.size(), 1, 3);
 
 		ImageSelection impSorted;
 		List<ImageSelection> impsSortedAntPost = new ArrayList<>();
@@ -116,7 +117,7 @@ public class OsScintigraphy extends Scintigraphy {
 
 		if (patientID.size() > 1) {
 			process = false;
-			Fen_MultiplPatient fen = new Fen_MultiplPatient(patientID, patientName);
+			Fen_MultiplePatient fen = new Fen_MultiplePatient(patientID, patientName);
 			fen.setModal(true);
 			fen.setVisible(true);
 			fen.setAlwaysOnTop(true);
@@ -126,15 +127,17 @@ public class OsScintigraphy extends Scintigraphy {
 		return impsSortedAntPost;
 	}
 
-	private class Fen_MultiplPatient extends JDialog implements ActionListener {
-		/**
-		 *
-		 */
+	@Override
+	public String instructions() {
+		return "1 to 3 images in Ant-Post (or Post-Ant) or Post orientation";
+	}
+
+	private class Fen_MultiplePatient extends JDialog implements ActionListener {
 		private static final long serialVersionUID = 1L;
 		private final JButton btn_y;
 		private final JButton btn_n;
 
-		public Fen_MultiplPatient(ArrayList<String> patientID, ArrayList<String> patientName) {
+		public Fen_MultiplePatient(ArrayList<String> patientID, ArrayList<String> patientName) {
 
 			JPanel flow = new JPanel(new GridLayout(4, 1));
 

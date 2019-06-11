@@ -90,4 +90,9 @@ public class StaticScintigraphy extends Scintigraphy {
 
 		return selections;
 	}
+
+	@Override
+	public String instructions() {
+		return "1 image oriented Ant-Post, Ant or Post";
+	}
 }

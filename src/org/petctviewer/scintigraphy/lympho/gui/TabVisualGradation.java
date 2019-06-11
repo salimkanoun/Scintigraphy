@@ -1,8 +1,7 @@
 package org.petctviewer.scintigraphy.lympho.gui;
 
+import org.petctviewer.scintigraphy.scin.ImagePreparator;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
@@ -23,9 +22,9 @@ import java.util.List;
 
 public class TabVisualGradation extends TabResult implements ActionListener {
 
-	private JRadioButton l0 = new JRadioButton("L0"), p1 = new JRadioButton("P1"), p2 = new JRadioButton("P2"),
-			p3 = new JRadioButton("P3"), t4 = new JRadioButton("T4"), t5 = new JRadioButton("T5"),
-			t6 = new JRadioButton("T6");
+	private JRadioButton l0 = new JRadioButton("L0"), p1 = new JRadioButton("P1"), p2 = new JRadioButton("P2"), p3 =
+			new JRadioButton("P3"), t4 = new JRadioButton("T4"), t5 = new JRadioButton("T5"), t6 = new JRadioButton(
+			"T6");
 
 	private ButtonGroup radio = new ButtonGroup();
 
@@ -41,7 +40,6 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 
 	public TabVisualGradation(FenResults parent, String title) {
 		super(parent, title, true);
-		// TODO Auto-generated constructor stub
 
 		this.imgSelected = false;
 
@@ -66,17 +64,13 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 
 	@Override
 	public Component getSidePanelContent() {
-		// TODO Auto-generated method stub
 
-		if (!this.imgSelected)
-			return null;
+		if (!this.imgSelected) return null;
 		else {
 
 			JPanel globalPane = new JPanel();
 			globalPane.setLayout(new BoxLayout(globalPane, BoxLayout.Y_AXIS));
-			JPanel pan = new JPanel(new BorderLayout());
-
-			pan = this.getRadio();
+			JPanel pan = this.getRadio();
 
 			this.btn_switchLimb = new JButton(this.upperLimb ? "Change to lower limbs" : "Change to upper limbs");
 			this.btn_switchLimb.addActionListener(this);
@@ -94,7 +88,6 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 
 	@Override
 	public Container getResultContent() {
-		// TODO Auto-generated method stub
 
 		JPanel pan = new JPanel();
 
@@ -102,8 +95,7 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 			this.btn_addImp = new JButton("Start Visual Gradiation");
 			this.btn_addImp.addActionListener(this);
 			pan.add(btn_addImp);
-		} else
-			pan = this.getImages(this.upperLimb);
+		} else pan = this.getImages(this.upperLimb);
 
 		return pan;
 	}
@@ -114,10 +106,38 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 			JButton button = (JButton) arg0.getSource();
 			if (button == btn_addImp) {
 
-				CustomScintigraphy scin = new CustomScintigraphy(this);
+				FenSelectionDicom fen = new FenSelectionDicom(new ImagePreparator() {
+					@Override
+					public String getName() {
+						return "Visual Gradation";
+					}
 
-				FenSelectionDicom fen = new FenSelectionDicom(scin);
+					@Override
+					public Column[] getColumns() {
+						return Column.getDefaultColumns();
+					}
+
+					@Override
+					public List<ImageSelection> prepareImages(List<ImageSelection> openedImages) throws
+							WrongInputException {
+						if (openedImages.size() != 1) throw new WrongNumberImagesException(openedImages.size(), 1);
+
+						List<ImageSelection> selectedImages = new ArrayList<>();
+						for (ImageSelection openedImage : openedImages) selectedImages.add(openedImage.clone());
+
+						openedImages.forEach(ImageSelection::close);
+
+						return selectedImages;
+					}
+
+					@Override
+					public String instructions() {
+						return "1 image needed.";
+					}
+				});
 				fen.setVisible(true);
+
+				this.update(fen.retrieveSelectedImages().get(0));
 
 			} else if (button == btn_switchLimb) {
 				this.switchLimb(this.btn_switchLimb);
@@ -125,22 +145,15 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 		} else if (arg0.getSource() instanceof JRadioButton) {
 			JRadioButton radioButton = (JRadioButton) arg0.getSource();
 			String gradation = null;
-			if(radioButton.getText().contains("0")) 
-				gradation = "Normal";
-			else if(radioButton.getText().contains("1"))
-				gradation = "Partial obstruction - Score 1";
-			else if(radioButton.getText().contains("2"))
-				gradation = "Partial obstruction - Score 2";
-			else if(radioButton.getText().contains("3"))
-				gradation = "Partial obstruction - Score 3";
-			else if(radioButton.getText().contains("4"))
-				gradation = "Total obstruction - Score 4";
-			else if(radioButton.getText().contains("5"))
-				gradation = "Total obstruction - Score 5";
-			else if(radioButton.getText().contains("6"))
-				gradation = "Total obstruction - Score 6";
-			
-			
+			if (radioButton.getText().contains("0")) gradation = "Normal";
+			else if (radioButton.getText().contains("1")) gradation = "Partial obstruction - Score 1";
+			else if (radioButton.getText().contains("2")) gradation = "Partial obstruction - Score 2";
+			else if (radioButton.getText().contains("3")) gradation = "Partial obstruction - Score 3";
+			else if (radioButton.getText().contains("4")) gradation = "Total obstruction - Score 4";
+			else if (radioButton.getText().contains("5")) gradation = "Total obstruction - Score 5";
+			else if (radioButton.getText().contains("6")) gradation = "Total obstruction - Score 6";
+
+
 			((FenResultatsLympho) this.parent).updateVisualGradation("Visual Gradation : " + gradation);
 		}
 
@@ -186,65 +199,56 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 
 		String limb = upperLimb ? "upper" : "lower";
 
-		// JPanel pan = new JPanel(new FlowLayout(FlowLayout.LEADING));
 		JPanel pan = new JPanel(new GridLayout(1, 7));
 
 		JPanel l0 = null, p1 = null, p2 = null, p3 = null, t4 = null, t5 = null, t6 = null;
 		try {
 			l0 = new JPanel(new BorderLayout());
 			l0.add(new JLabel("L0", SwingConstants.CENTER), BorderLayout.NORTH);
-			
-//			Image icon = new ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" + limb + "/L0.jpg")).getImage();
+
 			BufferedImage image;
 			image = ImageIO.read(TabVisualGradation.class.getResourceAsStream(
-					"/images/lympho/visualgradation/" + limb + "/L0.jpg"));
+					"/images/lympho/visualgradation/" + limb + "/L0" + ".jpg"));
 			l0.add(new DynamicImage(image));
 
 			p1 = new JPanel(new BorderLayout());
 			p1.add(new JLabel("P1", SwingConstants.CENTER), BorderLayout.NORTH);
-//			icon = new ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" + limb + "/P1.jpg")).getImage();
-			image = (BufferedImage) ImageIO.read(TabVisualGradation.class.getResourceAsStream(
-					"/images/lympho/visualgradation/" + limb + "/P1.jpg"));
+			image = ImageIO.read(TabVisualGradation.class.getResourceAsStream(
+					"/images/lympho/visualgradation/" + limb + "/P1" + ".jpg"));
 			DynamicImage dyna1 = new DynamicImage(image);
 			p1.add(dyna1);
 
 			p2 = new JPanel(new BorderLayout());
 			p2.add(new JLabel("P2", SwingConstants.CENTER), BorderLayout.NORTH);
-//			icon = new ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" + limb + "/P2.jpg")).getImage();
-			image = (BufferedImage) ImageIO.read(TabVisualGradation.class.getResourceAsStream(
-					"/images/lympho/visualgradation/" + limb + "/P2.jpg"));
+			image = ImageIO.read(TabVisualGradation.class.getResourceAsStream(
+					"/images/lympho/visualgradation/" + limb + "/P2" + ".jpg"));
 			DynamicImage dyna2 = new DynamicImage(image);
 			p2.add(dyna2);
 
 			p3 = new JPanel(new BorderLayout());
 			p3.add(new JLabel("P3", SwingConstants.CENTER), BorderLayout.NORTH);
-//			icon = new ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" + limb + "/P3.jpg")).getImage();
-			image = (BufferedImage) ImageIO.read(TabVisualGradation.class.getResourceAsStream(
-					"/images/lympho/visualgradation/" + limb + "/P3.jpg"));
+			image = ImageIO.read(TabVisualGradation.class.getResourceAsStream(
+					"/images/lympho/visualgradation/" + limb + "/P3" + ".jpg"));
 			p3.add(new DynamicImage(image));
 
 			t4 = new JPanel(new BorderLayout());
 			t4.add(new JLabel("T4", SwingConstants.CENTER), BorderLayout.NORTH);
-//			icon = new ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" + limb + "/T4.jpg")).getImage();
-			image = (BufferedImage) ImageIO.read(TabVisualGradation.class.getResourceAsStream(
-					"/images/lympho/visualgradation/" + limb + "/T4.jpg"));
+			image = ImageIO.read(TabVisualGradation.class.getResourceAsStream(
+					"/images/lympho/visualgradation/" + limb + "/T4" + ".jpg"));
 			t4.add(new DynamicImage(image));
 
 			t5 = new JPanel(new BorderLayout());
 			t5.add(new JLabel("T5", SwingConstants.CENTER), BorderLayout.NORTH);
-//			icon = new ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" + limb + "/T5.jpg")).getImage();
-			image = (BufferedImage) ImageIO.read(TabVisualGradation.class.getResourceAsStream(
-					"/images/lympho/visualgradation/" + limb + "/T5.jpg"));
+			image = ImageIO.read(TabVisualGradation.class.getResourceAsStream(
+					"/images/lympho/visualgradation/" + limb + "/T5" + ".jpg"));
 			t5.add(new DynamicImage(image));
 
 			t6 = new JPanel(new BorderLayout());
 			t6.add(new JLabel("T6", SwingConstants.CENTER), BorderLayout.NORTH);
-//			icon = new ImageIcon(ClassLoader.getSystemResource("images/lympho/visualgradation/" + limb + "/T6.jpg")).getImage();
-			image = (BufferedImage) ImageIO.read(TabVisualGradation.class.getResourceAsStream(
-					"/images/lympho/visualgradation/" + limb + "/T6.jpg"));
+			image = ImageIO.read(TabVisualGradation.class.getResourceAsStream(
+					"/images/lympho/visualgradation/" + limb + "/T6" + ".jpg"));
 			t6.add(new DynamicImage(image));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -263,70 +267,13 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 		return globalPane;
 	}
 
-	/**
-	 * Because we want to access to a FenSelectionDicom
-	 *
-	 */
-	private class CustomScintigraphy extends Scintigraphy {
-
-		private ImageSelection[] openedImages;
-		private TabVisualGradation tab;
-
-		public CustomScintigraphy(TabVisualGradation tab) {
-			super("Visual Gradation");
-			// TODO Auto-generated constructor stub
-
-			this.tab = tab;
-		}
-
-		@Override
-		public String getName() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public void lancerProgramme(ImageSelection[] selectedImages) {
-			// TODO Auto-generated method stub
-			this.openedImages = selectedImages;
-
-			tab.update(this.openedImages[0]);
-		}
-
-		@Override
-		public Column[] getColumns() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public List<ImageSelection> prepareImages(List<ImageSelection> openedImages) throws WrongInputException,
-				ReadTagException {
-			// TODO Auto-generated method stub
-			if (openedImages.size() != 1) throw new WrongNumberImagesException(openedImages.size(), 1);
-
-			List<ImageSelection> selectedImages = new ArrayList<>();
-			for (int i = 0; i < openedImages.size(); i++)
-				selectedImages.add(openedImages.get(i).clone());
-
-			for (ImageSelection selected : openedImages)
-				selected.close();
-
-
-			return selectedImages;
-		}
-
-	}
-
 	public void update(ImageSelection imageSelection) {
-		// TODO Auto-generated method stub
-
 		this.img = imageSelection;
 
 		this.imgSelected = true;
 
 		this.reloadDisplay();
-		
+
 		this.getParent().toFront();
 
 	}

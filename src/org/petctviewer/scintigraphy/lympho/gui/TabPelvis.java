@@ -67,7 +67,7 @@ public class TabPelvis extends TabResult implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		this.vueBasic = new PelvisScintigraphy("Post Scinty", this);
+		this.vueBasic = new PelvisScintigraphy(this);
 		try {
 			this.vueBasic.run("");
 		} catch (Exception e) {

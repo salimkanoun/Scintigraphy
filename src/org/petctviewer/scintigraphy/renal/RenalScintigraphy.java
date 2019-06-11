@@ -22,18 +22,18 @@ import java.util.List;
 
 public class RenalScintigraphy extends Scintigraphy {
 
+	public static final String STUDY_NAME = "Renal scintigraphy";
 	private ImageSelection impAnt;
 	private ImageSelection impPost;
 	private int[] frameDurations;
 
 	public RenalScintigraphy() {
-		super("Renal scintigraphy");
+		super(STUDY_NAME);
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return STUDY_NAME;
 	}
 
 	@Override
@@ -85,24 +85,25 @@ public class RenalScintigraphy extends Scintigraphy {
 			} else throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
 																	selectedImages.get(0).getImageOrientation(),
 																	new Orientation[]{Orientation.DYNAMIC_POST,
-						Orientation.DYNAMIC_ANT_POST}, "You" + " can also use 2 dynamics (Ant and Post)");
+																					  Orientation.DYNAMIC_ANT_POST},
+																	"You can also use 2 dynamics (Ant and Post)");
 		}
 		// With 2 images
 		else {
 			Orientation[] acceptedOrientations = new Orientation[]{Orientation.DYNAMIC_POST, Orientation.DYNAMIC_ANT};
-//			String hint = "You can also use only 1 dynamic (Ant_Post)";
+			String hint = "You can also use only 1 dynamic (Ant_Post)";
 
 			// Image 0 must be Dyn Ant or Post
 			if (Arrays.stream(acceptedOrientations).noneMatch(o -> o == selectedImages.get(0).getImageOrientation()))
 				throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
 																 selectedImages.get(0).getImageOrientation(),
-																 acceptedOrientations);
+																 acceptedOrientations, hint);
 			// Image 1 must be the invert of image 0
 			if (selectedImages.get(1).getImageOrientation() != selectedImages.get(0).getImageOrientation().invert())
 				throw new WrongColumnException.OrientationColumn(selectedImages.get(1).getRow(),
 																 selectedImages.get(1).getImageOrientation(),
 																 new Orientation[]{selectedImages.get(
-																		 0).getImageOrientation().invert()});
+																		 0).getImageOrientation().invert()}, hint);
 
 			// Set images
 			if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_ANT) {
@@ -115,8 +116,7 @@ public class RenalScintigraphy extends Scintigraphy {
 		}
 
 		// Close images
-		for (ImageSelection ims : selectedImages)
-			ims.getImagePlus().close();
+		selectedImages.forEach(ImageSelection::close);
 
 		// Build frame duration
 		this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost.getImagePlus());
@@ -169,13 +169,8 @@ public class RenalScintigraphy extends Scintigraphy {
 		// ajout du stack a l'imp
 		impProjetee.getImagePlus().setStack(stack);
 		int nbImage = 0;
-		if (impPost != null) nbImage++;
-		nbImage++;
-		if (impAnt != null) nbImage++;
 
 		List<ImageSelection> selection = new ArrayList<>();
-
-		nbImage = 0;
 
 		selection.set(nbImage, impProjetee);
 		nbImage++;
@@ -187,6 +182,11 @@ public class RenalScintigraphy extends Scintigraphy {
 			selection.set(nbImage, impAnt);
 		}
 		return selection;
+	}
+
+	@Override
+	public String instructions() {
+		return "1 dynamic image Ant-Post or Post or 2 static images Ant and Post";
 	}
 
 }

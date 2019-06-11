@@ -21,14 +21,15 @@ import java.util.List;
 
 public class DmsaScintigraphy extends Scintigraphy {
 
+	public static final String STUDY_NAME = "dmsa";
+
 	public DmsaScintigraphy() {
-		super("dmsa");
+		super(STUDY_NAME);
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return STUDY_NAME;
 	}
 
 	@Override
@@ -47,8 +48,7 @@ public class DmsaScintigraphy extends Scintigraphy {
 
 	@Override
 	public Column[] getColumns() {
-		// TODO Auto-generated method stub
-		return null;
+		return Column.getDefaultColumns();
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class DmsaScintigraphy extends Scintigraphy {
 		} else if (selectedImages.get(0).getImageOrientation() == Orientation.POST_ANT) {
 			imp.getImagePlus().getStack().getProcessor(2).flipHorizontal();
 		} else if (selectedImages.get(0).getImageOrientation() == Orientation.POST) {
-
+			// TODO: is this normal, having nothing in this case???
 		} else {
 			throw new WrongOrientationException(selectedImages.get(0).getImageOrientation(),
 												new Orientation[]{Orientation.ANT_POST, Orientation.POST_ANT, Orientation.POST});
@@ -79,6 +79,11 @@ public class DmsaScintigraphy extends Scintigraphy {
 			ims.close();
 
 		return selection;
+	}
+
+	@Override
+	public String instructions() {
+		return "Minimum 1 image in Ant-Post, Post-Ant or Post orientation";
 	}
 
 }

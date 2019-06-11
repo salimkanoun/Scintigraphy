@@ -32,7 +32,8 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 		this.setFenApplication(new FenApplication_GeneralDyn(selectedImages[0], this.getStudyName()));
 		this.getFenApplication().setController(
 				new ControllerWorkflowScinDynamic(this, (FenApplicationWorkflow) this.getFenApplication(),
-						new Model_GeneralDyn(selectedImages, "General Dynamic", this.getFrameDurations())));
+												  new Model_GeneralDyn(selectedImages, "General Dynamic",
+																	   this.getFrameDurations())));
 		IJ.setTool(Toolbar.POLYGON);
 	}
 
@@ -40,18 +41,6 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 	public String getName() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	public ImagePlus getImpAnt() {
-		return impAnt != null ? impAnt.getImagePlus() : null;
-	}
-
-	public ImagePlus getImpPost() {
-		return impPost != null ? impPost.getImagePlus() : null;
-	}
-
-	public int[] getFrameDurations() {
-		return frameDurations;
 	}
 
 	@Override
@@ -68,23 +57,21 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 		ImageSelection[] imps = new ImageSelection[2];
 
 		if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_ANT) {
-			if (imps[0] != null)
-				throw new WrongInputException("Multiple dynamic Antorior Image");
+			if (imps[0] != null) throw new WrongInputException("Multiple dynamic Antorior Image");
 			imps[0] = selectedImages.get(0).clone();
 		} else if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_POST) {
-			if (imps[1] != null)
-				throw new WrongInputException("Multiple dynamic Posterior Image");
+			if (imps[1] != null) throw new WrongInputException("Multiple dynamic Posterior Image");
 			imps[1] = selectedImages.get(0).clone();
 		} else if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
-			if (imps[1] != null || imps[0] != null)
-				throw new WrongInputException("Multiple dynamic Image");
+			if (imps[1] != null || imps[0] != null) throw new WrongInputException("Multiple dynamic Image");
 			imps[0] = Library_Dicom.splitDynamicAntPost(selectedImages.get(0))[0];
 			imps[1] = Library_Dicom.splitDynamicAntPost(selectedImages.get(0))[1];
 		} else {
 			throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
 															 selectedImages.get(0).getImageOrientation(),
 															 new Orientation[]{Orientation.DYNAMIC_ANT,
-							Orientation.DYNAMIC_POST, Orientation.DYNAMIC_ANT_POST });
+																			   Orientation.DYNAMIC_POST,
+																			   Orientation.DYNAMIC_ANT_POST});
 		}
 
 		selectedImages.get(0).getImagePlus().close();
@@ -127,8 +114,8 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 			impProjetee.setImagePlus(ImageRetour);
 		}
 
-		impProjetee.getImagePlus().getProcessor().setMinAndMax(0,
-				impProjetee.getImagePlus().getStatistics().max * 1f / 1f);
+		impProjetee.getImagePlus().getProcessor().setMinAndMax(0, impProjetee.getImagePlus().getStatistics().max * 1f /
+				1f);
 
 		List<ImageSelection> selection = new ArrayList<>();
 		selection.add(impProjetee);
@@ -137,6 +124,24 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 		selection.add(impProjeteeAnt);
 		selection.add(impProjeteePost);
 		return selection;
+	}
+
+	@Override
+	public String instructions() {
+		return "1 dynamic image Ant-Post (or Post-Ant) or 2 dynamic images Ant and Post (or Post and Ant) or 1 " +
+				"dynamic image Post";
+	}
+
+	public ImagePlus getImpAnt() {
+		return impAnt != null ? impAnt.getImagePlus() : null;
+	}
+
+	public ImagePlus getImpPost() {
+		return impPost != null ? impPost.getImagePlus() : null;
+	}
+
+	public int[] getFrameDurations() {
+		return frameDurations;
 	}
 
 

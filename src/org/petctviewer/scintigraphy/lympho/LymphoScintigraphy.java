@@ -15,16 +15,17 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LymphoSintigraphy extends Scintigraphy {
+public class LymphoScintigraphy extends Scintigraphy {
 
-	public LymphoSintigraphy() {
-		super("Lympho Scintigraphy");
+	public static final String STUDY_NAME = "Lympho Scintigraphy";
+
+	public LymphoScintigraphy() {
+		super(STUDY_NAME);
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return STUDY_NAME;
 	}
 
 	@Override
@@ -76,8 +77,7 @@ public class LymphoSintigraphy extends Scintigraphy {
 
 	@Override
 	public Column[] getColumns() {
-		// TODO Auto-generated method stub
-		return null;
+		return Column.getDefaultColumns();
 	}
 
 	@Override
@@ -171,6 +171,11 @@ public class LymphoSintigraphy extends Scintigraphy {
 		}
 
 		return selectedImages;
+	}
+
+	@Override
+	public String instructions() {
+		return "2 images Ant-Post or Post-Ant or dynamic Ant-Post";
 	}
 
 }

@@ -7,6 +7,7 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -18,40 +19,24 @@ import java.util.List;
 
 public class PostMictional extends Scintigraphy {
 
+	public static final String STUDY_NAME = "Post-mictional";
 	private final TabPostMict resultFrame;
 
 	public PostMictional(String[] organes, TabPostMict resultFrame) {
-		super("Post-mictional");
+		super(STUDY_NAME);
 
 		this.resultFrame = resultFrame;
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return STUDY_NAME;
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
-		Overlay ov = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
-
-		FenApplicationWorkflow fen = new FenApplicationWorkflow(selectedImages[0], this.getStudyName());
-		fen.setVisible(true);
-		this.setFenApplication(fen);
-		selectedImages[0].getImagePlus().setOverlay(ov);
-		// Controleur_PostMictional ctrl = new Controleur_PostMictional(this,
-		// this.organes, "Post-mictional");
-		// this.getFenApplication().setController(ctrl);
-		this.getFenApplication().setController(
-				new ControllerWorkflowPostMictional(this, (FenApplicationWorkflow) this.getFenApplication(),
-						new Model_PostMictional(selectedImages, "Post-mictional"),
-						((Model_Renal) this.resultFrame.getParent().getModel()).getKidneys()));
+	public Column[] getColumns() {
+		return Column.getDefaultColumns();
 	}
-
-	// public HashMap<String, Double> getData() {
-	// return ((Model_PostMictional) this.getModele()).getData();
-	// }
 
 	public BufferedImage getCapture() {
 		return null;
@@ -63,13 +48,9 @@ public class PostMictional extends Scintigraphy {
 	}
 
 	@Override
-	public Column[] getColumns() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException {
+		// Check number of images
+		if (selectedImages.size() != 1) throw new WrongNumberImagesException(selectedImages.size(), 1);
 
 		ImageSelection impSorted = null;
 		if (selectedImages.get(0).getImageOrientation() == Orientation.ANT_POST) {
@@ -87,6 +68,25 @@ public class PostMictional extends Scintigraphy {
 		List<ImageSelection> selection = new ArrayList<>();
 		selection.add(impSorted);
 		return selection;
+	}
+
+	@Override
+	public String instructions() {
+		return "1 image in Ant-Post (or Post-Ant) or Post orientation";
+	}
+
+	@Override
+	public void lancerProgramme(ImageSelection[] selectedImages) {
+		Overlay ov = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
+
+		FenApplicationWorkflow fen = new FenApplicationWorkflow(selectedImages[0], this.getStudyName());
+		fen.setVisible(true);
+		this.setFenApplication(fen);
+		selectedImages[0].getImagePlus().setOverlay(ov);
+		this.getFenApplication().setController(
+				new ControllerWorkflowPostMictional(this, (FenApplicationWorkflow) this.getFenApplication(),
+													new Model_PostMictional(selectedImages, this.getStudyName()),
+													((Model_Renal) this.resultFrame.getParent().getModel()).getKidneys()));
 	}
 
 }

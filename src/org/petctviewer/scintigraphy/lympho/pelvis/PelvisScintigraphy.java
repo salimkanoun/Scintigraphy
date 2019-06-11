@@ -16,36 +16,23 @@ import java.util.List;
 
 public class PelvisScintigraphy extends Scintigraphy {
 
+	public static final String STUDY_NAME = "Post Scintigraphy";
 	final TabResult resultTab;
 
-	public PelvisScintigraphy(String studyName, TabResult tab) {
-		super("Post Scintigraphy");
+	public PelvisScintigraphy(TabResult tab) {
+		super(STUDY_NAME);
 
 		this.resultTab = tab;
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
-
-		this.setFenApplication(new FenApplicationPelvis(selectedImages[0], this.getStudyName()));
-		this.getFenApplication().setController(
-				new ControllerWorkflowPelvis(this, (FenApplicationWorkflow) this.getFenApplication(),
-											 new ModelPelvis(selectedImages, "Pelvis Scinty", this.resultTab),
-											 this.resultTab));
-		this.getFenApplication().setVisible(true);
-
+		return STUDY_NAME;
 	}
 
 	@Override
 	public Column[] getColumns() {
-		// TODO Auto-generated method stub
-		return null;
+		return Column.getDefaultColumns();
 	}
 
 	@Override
@@ -56,31 +43,47 @@ public class PelvisScintigraphy extends Scintigraphy {
 		ImageSelection impSorted;
 		List<ImageSelection> impsSortedAntPost = new ArrayList<>();
 
-		for (int index = 0; index < selectedImages.size(); index++) {
+		for (ImageSelection imp : selectedImages) {
 
-			ImageSelection imp = selectedImages.get(index);
-			if (selectedImages.get(index).getImageOrientation() == Orientation.ANT_POST || selectedImages.get(
-					index).getImageOrientation() == Orientation.POST_ANT) {
+			if (imp.getImageOrientation() == Orientation.ANT_POST ||
+					imp.getImageOrientation() == Orientation.POST_ANT) {
 				impSorted = Library_Dicom.ensureAntPostFlipped(imp);
 			} else {
-				throw new WrongColumnException.OrientationColumn(selectedImages.get(index).getRow(),
-																 selectedImages.get(index).getImageOrientation(),
-																 new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT });
+				throw new WrongColumnException.OrientationColumn(imp.getRow(), imp.getImageOrientation(),
+																 new Orientation[]{Orientation.ANT_POST,
+																				   Orientation.POST_ANT});
 			}
 			int ratio = (int) (25000 / impSorted.getImagePlus().getStatistics().max);
 			// On augmente le contraste(uniquement visuel, n'impacte pas les données)
-			impSorted.getImagePlus().getProcessor().setMinAndMax(0,
-					impSorted.getImagePlus().getStatistics().max * (1.0d / ratio));
+			impSorted.getImagePlus().getProcessor().setMinAndMax(0, impSorted.getImagePlus().getStatistics().max *
+					(1.0d / ratio));
 
 			impsSortedAntPost.add(impSorted);
-			selectedImages.get(index).getImagePlus().close();
+			imp.getImagePlus().close();
 		}
 
 		List<ImageSelection> selection = new ArrayList<>();
-		for (int i = 0; i < impsSortedAntPost.size(); i++) {
-			selection.add(impsSortedAntPost.get(i).clone());
+		for (ImageSelection imageSelection : impsSortedAntPost) {
+			selection.add(imageSelection.clone());
 		}
 		return selection;
+	}
+
+	@Override
+	public String instructions() {
+		return "1 image Ant-Post or Post-Ant";
+	}
+
+	@Override
+	public void lancerProgramme(ImageSelection[] selectedImages) {
+
+		this.setFenApplication(new FenApplicationPelvis(selectedImages[0], this.getStudyName()));
+		this.getFenApplication().setController(
+				new ControllerWorkflowPelvis(this, (FenApplicationWorkflow) this.getFenApplication(),
+											 new ModelPelvis(selectedImages, this.getStudyName(), this.resultTab),
+											 this.resultTab));
+		this.getFenApplication().setVisible(true);
+
 	}
 
 }

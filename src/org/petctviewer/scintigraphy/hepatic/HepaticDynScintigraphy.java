@@ -51,7 +51,6 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 
 	@Override
 	public FenSelectionDicom.Column[] getColumns() {
-		//TODO: auto-generated code
 		return new FenSelectionDicom.Column[0];
 	}
 
@@ -116,5 +115,10 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 		result.add(this.impPost);
 		result.add(this.impProjeteePost);
 		return result;
+	}
+
+	@Override
+	public String instructions() {
+		return "1 image in Ant, Ant-Post or Post-Ant orientation";
 	}
 }
