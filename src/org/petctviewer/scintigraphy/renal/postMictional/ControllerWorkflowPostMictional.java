@@ -119,6 +119,7 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		super.actionPerformed(arg0);
+		// TODO: ??
 		Overlay ov = this.model.getImagePlus().getOverlay();
 
 		if (ov.getIndex("L. bkg") != -1)

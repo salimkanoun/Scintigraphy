@@ -132,7 +132,7 @@ public class TabPostMict extends TabContrastModifier implements ActionListener {
 						TabPostMict.this.imgSelected = true;
 						Library_Gui.initOverlay(imp.getImagePlus());
 						Library_Gui.setOverlayTitle("Post", imp.getImagePlus(), Color.YELLOW, 1);
-						Library_Gui.setOverlayGD(imp.getImagePlus());
+						Library_Gui.setOverlayGD(imp.getImagePlus(), Color.YELLOW);
 						TabPostMict.this.setImage(imp.getImagePlus());
 
 						List<ImageSelection> selection = new ArrayList<>();

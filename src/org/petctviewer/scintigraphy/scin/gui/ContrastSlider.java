@@ -34,6 +34,8 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 
 		image.show();
 		image.getWindow().setVisible(false);
+
+		this.stateChanged(null);
 	}
 
 	public ContrastSlider(ImageState state, DynamicImage result) {
