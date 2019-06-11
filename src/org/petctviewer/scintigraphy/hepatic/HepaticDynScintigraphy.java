@@ -9,43 +9,71 @@ import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HepaticDynScintigraphy extends Scintigraphy {
 
+	public static final String STUDY_NAME = "Biliary scintigraphy";
 	private int[] frameDurations;
 	private ImageSelection impPost;
 	private ImageSelection impProjeteePost;
 
 	public HepaticDynScintigraphy() {
-		super("Biliary scintigraphy");
+		super(STUDY_NAME);
 	}
 
-	/**
-	 * Also prepare the images for the second exam.
-	 */
 	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException, ReadTagException {
-		// Check number of images
-		if (selectedImages.length != 1) throw new WrongNumberImagesException(selectedImages.length, 1);
+	public void lancerProgramme(ImageSelection[] selectedImages) {
 
-		ImageSelection impSelect = selectedImages[0];
+		selectedImages[0].getImagePlus().changes = false;
+
+		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
+		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
+		this.setFenApplication(new FenApplicationHepaticDynamic(selectedImages[0].getImagePlus(),
+																this.getStudyName()));
+		selectedImages[0].getImagePlus().setOverlay(overlay);
+		this.getFenApplication().setController(new ControllerHepaticDynamic(this, this.getFenApplication(),
+																			new ModelHepaticDynamic(selectedImages,
+																									this.getStudyName(),
+																									this.frameDurations)));
+	}
+
+	@Override
+	public String getName() {
+		return STUDY_NAME;
+	}
+
+	@Override
+	public FenSelectionDicom.Column[] getColumns() {
+		return new FenSelectionDicom.Column[0];
+	}
+
+	@Override
+	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException,
+			ReadTagException {
+		// Check number of images
+		if (selectedImages.size() != 1) throw new WrongNumberImagesException(selectedImages.size(), 1);
+
+		ImageSelection impSelect = selectedImages.get(0);
 		ImageSelection impAnt;
-		if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_ANT) {
+		if (impSelect.getImageOrientation() == Orientation.DYNAMIC_ANT) {
 			impAnt = impSelect.clone();
-		} else if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_ANT_POST || selectedImages[0]
-				.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
+		} else if (impSelect.getImageOrientation() == Orientation.DYNAMIC_ANT_POST ||
+				impSelect.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
 			ImageSelection[] imps = Library_Dicom.splitDynamicAntPost(impSelect);
 			impAnt = imps[0];
 			this.impPost = imps[1];
 		} else {
-			throw new WrongColumnException.OrientationColumn(selectedImages[0].getRow(),
-					selectedImages[0].getImageOrientation(),
-					new Orientation[]{Orientation.DYNAMIC_ANT, Orientation.DYNAMIC_ANT_POST,
-					                  Orientation.DYNAMIC_POST_ANT});
+			throw new WrongColumnException.OrientationColumn(impSelect.getRow(), impSelect.getImageOrientation(),
+															 new Orientation[]{Orientation.DYNAMIC_ANT,
+																			   Orientation.DYNAMIC_ANT_POST,
+																			   Orientation.DYNAMIC_POST_ANT});
 		}
 
 		IJ.run(impAnt.getImagePlus(), "32-bit", "");
@@ -59,14 +87,13 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 
 		ImageSelection impProjeteeAnt = impAnt.clone();
 		Library_Dicom.normalizeToCountPerSecond(impProjeteeAnt);
-		impProjeteeAnt = Library_Dicom
-				.project(impProjeteeAnt, 0, impProjeteeAnt.getImagePlus().getStackSize(), "avg");
+		impProjeteeAnt = Library_Dicom.project(impProjeteeAnt, 0, impProjeteeAnt.getImagePlus().getStackSize(), "avg");
 
 		if (this.impPost != null) {
 			impProjeteePost = Library_Dicom.project(this.impPost, 0, impPost.getImagePlus().getStackSize(), "avg");
 		}
 
-		selectedImages[0].getImagePlus().close();
+		impSelect.getImagePlus().close();
 
 		this.frameDurations = Library_Dicom.buildFrameDurations(impAnt.getImagePlus());
 
@@ -74,28 +101,24 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 
 		Library_Dicom.normalizeToCountPerSecond(impAntNormalized);
 
-		impAntNormalized.getImagePlus().getProcessor()
-				.setMinAndMax(0, impAntNormalized.getImagePlus().getStatistics().max * 1f / 1f);
+		impAntNormalized.getImagePlus().getProcessor().setMinAndMax(0,
+																	impAntNormalized.getImagePlus().getStatistics().max *
+																			1f / 1f);
 
 		// In this array, the only used image is the first one, for the forst exam. All
 		// th others are needed in the second exam, but we process it here to avoid a
 		// second selection of the same image
-		return new ImageSelection[]{impAntNormalized, impProjeteeAnt, impAnt, this.impPost,
-		                            this.impProjeteePost};
+		List<ImageSelection> result = new ArrayList<>();
+		result.add(impAntNormalized);
+		result.add(impProjeteeAnt);
+		result.add(impAnt);
+		result.add(this.impPost);
+		result.add(this.impProjeteePost);
+		return result;
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
-		
-		selectedImages[0].getImagePlus().changes = false;
-		
-		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
-		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
-		this.setFenApplication(new FenApplicationHepaticDynamic(selectedImages[0].getImagePlus(),
-				this.getStudyName()));
-		selectedImages[0].getImagePlus().setOverlay(overlay);
-		this.getFenApplication().setController(new ControllerHepaticDynamic(this, this.getFenApplication(),
-				new ModelHepaticDynamic(selectedImages, this.getStudyName(), this.frameDurations)));
+	public String instructions() {
+		return "1 image in Ant, Ant-Post or Post-Ant orientation";
 	}
-
 }
