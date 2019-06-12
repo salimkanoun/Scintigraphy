@@ -636,7 +636,6 @@ public class Library_Dicom {
 	 * @param frameDurations int[] of the ImagePlus duration frames
 	 */
 	public static void normalizeToCountPerSecond(ImagePlus imp, int[] frameDurations) {
-		IJ.run(imp, "32-bit", "");
 		for (int i = 1; i <= imp.getStackSize(); i++) {
 			imp.setSlice(i);
 			imp.getImageStack().getProcessor(i).multiply(1000d / (double) frameDurations[i - 1]);
