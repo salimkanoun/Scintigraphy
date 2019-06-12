@@ -20,11 +20,12 @@ import java.util.List;
 
 public class GeneralDynamicScintigraphy extends Scintigraphy {
 
+	public static final String STUDY_NAME = "Dynamic scintigraphy";
 	private ImageSelection impAnt, impPost, impProjetee, impProjeteeAnt, impProjeteePost;
 	private int[] frameDurations;
 
 	public GeneralDynamicScintigraphy() {
-		super("Dynamic scintigraphy");
+		super(STUDY_NAME);
 	}
 
 	@Override
@@ -38,15 +39,8 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Column[] getColumns() {
-		// TODO Auto-generated method stub
-		return null;
+		return Column.getDefaultColumns();
 	}
 
 	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException,

@@ -9,6 +9,7 @@ import org.petctviewer.scintigraphy.scin.ImagePreparator;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
@@ -16,6 +17,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.gui.TabContrastModifier;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
@@ -107,7 +109,7 @@ public class TabPostMict extends TabContrastModifier implements ActionListener {
 
 			FenSelectionDicom fen = new FenSelectionDicom(new ImagePreparator() {
 				@Override
-				public String getName() {
+				public String getStudyName() {
 					return "Post-mictional";
 				}
 
@@ -118,31 +120,35 @@ public class TabPostMict extends TabContrastModifier implements ActionListener {
 
 				@Override
 				public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws
-						WrongInputException {
+						WrongInputException, ReadTagException {
+					// Check number of images
 					if (selectedImages.size() != 1) {
 						throw new WrongNumberImagesException(selectedImages.size(), 1);
 					}
+
+					List<ImageSelection> selections = new ArrayList<>();
+					ImageSelection imsPost;
+					// Check orientation and prepare image
 					if (selectedImages.get(0).getImageOrientation() == Orientation.ANT_POST || selectedImages.get(
-							0).getImageOrientation() == Orientation.POST_ANT || selectedImages.get(0).getImageOrientation() == Orientation.POST) {
-						// SK A GERER RECUPERER SEULE L IMAGE POST SI STATIC A/P ?
-						ImageSelection imp = selectedImages.get(0).clone();
-
-						selectedImages.get(0).close();
-
-						TabPostMict.this.imgSelected = true;
-						Library_Gui.initOverlay(imp.getImagePlus());
-						Library_Gui.setOverlayTitle("Post", imp.getImagePlus(), Color.YELLOW, 1);
-						Library_Gui.setOverlayGD(imp.getImagePlus(), Color.YELLOW);
-						TabPostMict.this.setImage(imp.getImagePlus());
-
-						List<ImageSelection> selection = new ArrayList<>();
-						selection.add(imp);
-						return selection;
+							0).getImageOrientation() == Orientation.POST_ANT) {
+						selections.add(Library_Dicom.splitAntPost(selectedImages.get(0))[1]);
+					} else if (selectedImages.get(0).getImageOrientation() == Orientation.POST) {
+						selections.add(selectedImages.get(0).clone());
 					} else {
 						throw new WrongOrientationException(selectedImages.get(0).getImageOrientation(),
 															new Orientation[]{Orientation.ANT_POST,
 																			  Orientation.POST_ANT, Orientation.POST});
 					}
+
+					selectedImages.get(0).close();
+
+					TabPostMict.this.imgSelected = true;
+					Library_Gui.initOverlay(selections.get(0).getImagePlus());
+					Library_Gui.setOverlayTitle("Post", selections.get(0).getImagePlus(), Color.YELLOW, 1);
+					Library_Gui.setOverlayGD(selections.get(0).getImagePlus(), Color.YELLOW);
+					TabPostMict.this.setImage(selections.get(0).getImagePlus());
+
+					return selections;
 				}
 
 				@Override

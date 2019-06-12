@@ -54,6 +54,13 @@ public class FenDebug extends JFrame {
 		this.registerNewProgram(MIBGScintigraphy.class);
 		this.registerNewProgram(PlateletScintigraphy.class);
 
+		// == TESTING ==
+		try {
+			this.registerNewProgram(
+					(Class<Scintigraphy>) Class.forName("org.petctviewer.scintigraphy.testing" + ".TestScinti"));
+		} catch (ClassNotFoundException e) {
+		}
+
 		this.add(this.panel, BorderLayout.CENTER);
 		this.add(pnl_pref, BorderLayout.NORTH);
 

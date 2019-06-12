@@ -105,7 +105,7 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 
 				FenSelectionDicom fen = new FenSelectionDicom(new ImagePreparator() {
 					@Override
-					public String getName() {
+					public String getStudyName() {
 						return "Visual Gradation";
 					}
 

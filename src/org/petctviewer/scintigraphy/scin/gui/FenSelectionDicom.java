@@ -54,7 +54,7 @@ public class FenSelectionDicom extends JDialog implements ActionListener, ImageL
 		this.columns = new ArrayList<>();
 
 		// on ajoute le titre a la fenetre
-		this.setTitle("Select the DICOMs for " + preparator.getName());
+		this.setTitle("Select the DICOMs for " + preparator.getStudyName());
 
 		// creation du tableau
 		table = new JTable();

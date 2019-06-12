@@ -49,11 +49,6 @@ public static final String STUDY_NAME = "General static scintigraphy";
 	}
 
 	@Override
-	public String getName() {
-		return STUDY_NAME;
-	}
-
-	@Override
 	public FenSelectionDicom.Column[] getColumns() {
 		return FenSelectionDicom.Column.getDefaultColumns();
 	}

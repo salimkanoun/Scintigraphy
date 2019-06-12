@@ -32,11 +32,6 @@ public class RenalScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public String getName() {
-		return STUDY_NAME;
-	}
-
-	@Override
 	public void start(ImageSelection[] selectedImages) {
 
 		this.setFenApplication(new FenApplication_Renal(selectedImages[0], this.getStudyName(), this));

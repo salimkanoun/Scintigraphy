@@ -53,16 +53,16 @@ public class Library_Dicom {
 	}
 
 	/**
-	 * Cut an anterior/posterior (or P/A) Image Plus into a Anterior Stack and Posterior Stack
-	 * A new Image is created distinct than the original one
+	 * Cut an anterior/posterior (or P/A) Image Plus into a Anterior Stack and Posterior Stack A new Image is created
+	 * distinct than the original one
 	 *
 	 * @param imp                Image to split
 	 * @param anteriorFirstImage is first image Anterior (shall be tested before splitting)
 	 * @return Array ImagePlus Anterior in position 0 and Posterior in position 1
 	 * @throws ReadTagException if a DICOM tag could not be retrieve
 	 */
-	private static ImagePlus[] splitCameraMultiFrame(ImagePlus imp, boolean anteriorFirstImage)
-			throws ReadTagException {
+	private static ImagePlus[] splitCameraMultiFrame(ImagePlus imp, boolean anteriorFirstImage) throws
+			ReadTagException {
 		int[] sequenceDetector = Library_Dicom.getCameraNumberArrayMultiFrame(imp);
 
 		// Instantiate header that will receive pixels
@@ -154,8 +154,8 @@ public class Library_Dicom {
 	}
 
 	/**
-	 * Return concatenation of two tag that may contain orientation data (E/F/Ant/Post)
-	 * If Tag not available return an empty string (no exception)
+	 * Return concatenation of two tag that may contain orientation data (E/F/Ant/Post) If Tag not available return an
+	 * empty string (no exception)
 	 */
 	private static String getOrientationString(ImagePlus imp) {
 		String tag = "";
@@ -275,37 +275,36 @@ public class Library_Dicom {
 	 * <li>[0]-><code>ANT</code></li>
 	 * <li>[1]-><code>POST</code>.</li>
 	 * </ul>
-	 * The returned images are clones of the input image, and their orientation is
-	 * updated.
+	 * The returned images are clones of the input image, and their orientation is updated.
 	 *
 	 * @param image Dynamic image in DynP/A or DynA/P orientation
 	 * @return array of ImageSelection
-	 * @throws WrongOrientationException if the image has an orientation different
-	 *                                   than DYNAMIC_ANT_POST and DYNAMIC_POST_ANT
-	 * @throws IllegalArgumentException  if the image's tag indicates the camera is
-	 *                                   the same or if it indicates it's not a
-	 *                                   dynamic image
+	 * @throws WrongOrientationException if the image has an orientation different than DYNAMIC_ANT_POST and
+	 *                                   DYNAMIC_POST_ANT
+	 * @throws IllegalArgumentException  if the image's tag indicates the camera is the same or if it indicates it's
+	 * not
+	 *                                   a dynamic image
 	 * @throws ReadTagException          if the DICOM tags of the image could not be retrieved
 	 * @author Titouan QUÉMA
 	 */
-	public static ImageSelection[] splitDynamicAntPost(ImageSelection image)
-			throws WrongOrientationException, IllegalArgumentException, ReadTagException {
-		Orientation[] expectedOrientations = new Orientation[]{Orientation.DYNAMIC_ANT_POST,
-		                                                       Orientation.DYNAMIC_POST_ANT};
+	public static ImageSelection[] splitDynamicAntPost(ImageSelection image) throws WrongOrientationException,
+			IllegalArgumentException, ReadTagException {
+		Orientation[] expectedOrientations =
+				new Orientation[]{Orientation.DYNAMIC_ANT_POST, Orientation.DYNAMIC_POST_ANT};
 		ImagePlus imagePlus = image.getImagePlus();
 		if (Arrays.stream(expectedOrientations).noneMatch(i -> i.equals(image.getImageOrientation())))
 			throw new WrongOrientationException(image.getImageOrientation(), expectedOrientations);
 
 		if (!isMultiFrame(imagePlus) || isSameCameraMultiFrame(imagePlus)) throw new WrongOrientationException(
-				"The image's tag are incorrect and cannot be detected as an " + Arrays
-						.toString(Orientation.dynamicOrientations()) + " image!");
+				"The image's tag are incorrect and cannot be detected as an " +
+						Arrays.toString(Orientation.dynamicOrientations()) + " image!");
 
 		ImageSelection[] result = new ImageSelection[2];
 		for (int i = 0; i < result.length; i++)
 			result[i] = image.clone();
 
 		ImagePlus[] imageSplit = splitCameraMultiFrame(imagePlus,
-				image.getImageOrientation() == Orientation.DYNAMIC_ANT_POST);
+													   image.getImageOrientation() == Orientation.DYNAMIC_ANT_POST);
 		result[0].setImagePlus(imageSplit[0]);
 		result[1].setImagePlus(imageSplit[1]);
 
@@ -313,7 +312,63 @@ public class Library_Dicom {
 	}
 
 	/**
-	 * Reckognize and inverse posterior images
+	 * Splits the specified image into an array of ImageSelection such as
+	 * <ul>
+	 * <li>[0]-><code>ANT</code></li>
+	 * <li>[1]-><code>POST</code></li>
+	 * </ul>
+	 * The returned images are clones of the input image, and their orientations are updated.<br> If the input image is
+	 * a dynamic, then is method is equivalent to {@link #splitDynamicAntPost(ImageSelection)}.
+	 *
+	 * @param ims Image to split in A/P, P/A or DynA/P, DynP/A orientation
+	 * @return array of ImageSelection [0]=ANT [1]=POST
+	 * @throws WrongOrientationException if the image has an orientation different than ANT_POST, POST_ANT,
+	 *                                   DYNAMIC_ANT_POST, DYNAMIC_POST_ANT
+	 * @throws ReadTagException          if the image tags could not be retrieved
+	 * @author Titouan QUÉMA
+	 */
+	public static ImageSelection[] splitAntPost(ImageSelection ims) throws WrongOrientationException,
+			ReadTagException {
+		if (ims.getImageOrientation().isDynamic()) return splitDynamicAntPost(ims);
+
+		ImagePlus imp = ims.getImagePlus();
+		ImageStack imageAnt = new ImageStack(imp.getWidth(), imp.getHeight()), imagePost = new ImageStack(
+				imp.getWidth(), imp.getHeight());
+
+
+		if (ims.getImageOrientation() == Orientation.ANT_POST) {
+			imp.setSlice(1);
+			imageAnt.addSlice(imp.getProcessor());
+			imp.setSlice(2);
+			imagePost.addSlice(imp.getProcessor());
+		} else if (ims.getImageOrientation() == Orientation.POST_ANT) {
+			imp.setSlice(2);
+			imageAnt.addSlice(imp.getProcessor());
+			imp.setSlice(1);
+			imagePost.addSlice(imp.getProcessor());
+		} else throw new WrongOrientationException(ims.getImageOrientation(),
+												   new Orientation[]{Orientation.ANT_POST, Orientation.POST_ANT,
+																	 Orientation.DYNAMIC_ANT_POST,
+																	 Orientation.DYNAMIC_POST_ANT});
+
+
+		ImagePlus impAnt = imp.createImagePlus();
+		impAnt.setStack(imageAnt);
+		impAnt.getProcessor().convertToFloatProcessor();
+		ImageSelection ant = ims.clone(Orientation.ANT);
+		ant.setImagePlus(impAnt);
+
+		ImagePlus impPost = imp.createImagePlus();
+		impPost.setStack(imagePost);
+		impPost.getProcessor().convertToFloatProcessor();
+		ImageSelection post = ims.clone(Orientation.POST);
+		post.setImagePlus(impPost);
+
+		return new ImageSelection[]{ant, post};
+	}
+
+	/**
+	 * Recognize and inverse posterior images
 	 */
 	public static ImagePlus sortImageAntPost(ImagePlus imp) throws ReadTagException {
 		return isMultiFrame(imp) ? Library_Dicom.sortAntPostMultiFrame(imp) :
@@ -372,8 +427,8 @@ public class Library_Dicom {
 
 		// Si on ne trouve pas de tag on flip toute detecteur 2 et on notifie
 		// l'utilisateur
-		if (!tag.substring(0, separateur).contains("POS") && !tag.substring(0, separateur).contains("_F") && !tag
-				.substring(0, separateur).contains("ANT") && !tag.substring(0, separateur).contains("_E")) {
+		if (!tag.substring(0, separateur).contains("POS") && !tag.substring(0, separateur).contains("_F") &&
+				!tag.substring(0, separateur).contains("ANT") && !tag.substring(0, separateur).contains("_E")) {
 			System.out.println(
 					"No Orientation tag found, assuming detector 2 is posterior. Please Notify Salim.Kanoun@gmail" +
 							".com");
@@ -423,7 +478,8 @@ public class Library_Dicom {
 				imp.setTitle("Ant" + i);// On ne fait rien
 			} else {
 				System.out.println(
-						"No Orientation found assuming Camera 2 is posterior, please send image sample to " + "Salim" + ".kanoun@gmail.com if wrong");
+						"No Orientation found assuming Camera 2 is posterior, please send image sample to " + "Salim" +
+								".kanoun@gmail.com if wrong");
 				int tagVector = Library_Dicom.getCameraNumberUniqueFrame(imp);
 				if (tagVector == 2) {
 					imp.getProcessor().flipHorizontal();
@@ -437,8 +493,9 @@ public class Library_Dicom {
 	}
 
 	/**
-	 * return frame Duration as this tag is stored in sequence tag that are ignored
-	 * by dicomTools (if multiple the first one is sent)
+	 * return frame Duration as this tag is stored in sequence tag that are ignored by dicomTools (if multiple the
+	 * first
+	 * one is sent)
 	 */
 	public static int getFrameDuration(ImagePlus imp) {
 		String property = imp.getInfoProperty();
@@ -509,8 +566,7 @@ public class Library_Dicom {
 	}
 
 	/**
-	 * Make a projection of an image.<br>
-	 * This method returns a clone of the specified image.
+	 * Make a projection of an image.<br> This method returns a clone of the specified image.
 	 *
 	 * @param ims        Image to project
 	 * @param startSlice Index of slice to project from
@@ -545,15 +601,13 @@ public class Library_Dicom {
 	}
 
 	/**
-	 * This method will always return a clone of the specified ImageSelection in
-	 * Ant/Post orientation with the Post image flipped. This ensure the image is in
-	 * the right lateralisation.<br>
-	 * This method can only be used with Ant/Post or Post/Ant images.
+	 * This method will always return a clone of the specified ImageSelection in Ant/Post orientation with the Post
+	 * image flipped. This ensure the image is in the right lateralisation.<br> This method can only be used with
+	 * Ant/Post or Post/Ant images.
 	 *
 	 * @param ims ImageSelection to compute
 	 * @return ImageSelection in Ant/Post with Post flipped
-	 * @throws WrongOrientationException if the orientation of the image is
-	 *                                   different than Ant/Post or Post/Ant
+	 * @throws WrongOrientationException if the orientation of the image is different than Ant/Post or Post/Ant
 	 * @author Titouan QUÉMA
 	 */
 	public static ImageSelection ensureAntPostFlipped(ImageSelection ims) throws WrongOrientationException {
@@ -567,16 +621,16 @@ public class Library_Dicom {
 			// Flip
 			result.getImagePlus().getStack().getProcessor(2).flipHorizontal();
 		} else throw new WrongOrientationException(ims.getImageOrientation(),
-				new Orientation[]{Orientation.ANT_POST, Orientation.POST_ANT});
+												   new Orientation[]{Orientation.ANT_POST, Orientation.POST_ANT});
 		return result;
 	}
 
 	/**
 	 * Normalize to have on each frame, the count/second number.
 	 * <p>
-	 * To avoid a loss of information, we recommand to do this normalization on a 32
-	 * bit image. Otherwise, the count are only ineter, and we lose many
-	 * informations.
+	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image. Otherwise, the count
+	 * are
+	 * only ineter, and we lose many informations.
 	 *
 	 * @param imp            ImagePlus to normalize
 	 * @param frameDurations int[] of the ImagePlus duration frames
@@ -592,9 +646,9 @@ public class Library_Dicom {
 	/**
 	 * Normalize to have on each frame, the count/second number.
 	 * <p>
-	 * To avoid a loss of information, we recommand to do this normalization on a 32
-	 * bit image. Otherwise, the count are only ineter, and we lose many
-	 * informations.
+	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image. Otherwise, the count
+	 * are
+	 * only ineter, and we lose many informations.
 	 *
 	 * @param imp ImagePlus to normalize
 	 */
@@ -606,9 +660,9 @@ public class Library_Dicom {
 	/**
 	 * Normalize to have on each frame, the count/second number.
 	 * <p>
-	 * To avoid a loss of information, we recommand to do this normalization on a 32
-	 * bit image. Otherwise, the count are only ineter, and we lose many
-	 * informations.
+	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image. Otherwise, the count
+	 * are
+	 * only ineter, and we lose many informations.
 	 *
 	 * @param imp ImageSelection to normalize
 	 */
@@ -648,8 +702,9 @@ public class Library_Dicom {
 
 	/**
 	 * Finds the isotope in the DICOM header of the specified image. If the isotope could not be found (because the
-	 * code was not found or unknown) then this method asks the user to enter a valid isotope. So this method will
-	 * always return a valid isotope.
+	 * code
+	 * was not found or unknown) then this method asks the user to enter a valid isotope. So this method will always
+	 * return a valid isotope.
 	 *
 	 * @param imp Image to search the isotope from
 	 * @return Isotope found or entered by the user (never null)

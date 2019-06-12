@@ -24,11 +24,6 @@ public class LymphoScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public String getName() {
-		return STUDY_NAME;
-	}
-
-	@Override
 	public void start(ImageSelection[] selectedImages) {
 
 		this.setFenApplication(new FenApplicationLympho(selectedImages[0], this.getStudyName()));

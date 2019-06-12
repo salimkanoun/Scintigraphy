@@ -31,11 +31,6 @@ public class LiquidScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public String getName() {
-		return STUDY_NAME;
-	}
-
-	@Override
 	public FenSelectionDicom.Column[] getColumns() {
 		return FenSelectionDicom.Column.getDefaultColumns();
 	}

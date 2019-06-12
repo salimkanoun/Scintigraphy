@@ -45,11 +45,6 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public String getName() {
-		return STUDY_NAME;
-	}
-
-	@Override
 	public FenSelectionDicom.Column[] getColumns() {
 		return new FenSelectionDicom.Column[0];
 	}

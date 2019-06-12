@@ -8,6 +8,18 @@ public class WrongNumberImagesException extends WrongInputException {
 	private int maxRequired;
 
 	/**
+	 * @param provided    Number of images provided
+	 * @param required    Exact number of images required
+	 * @param hintForUser String giving information to the user about what he can do to correct this error
+	 */
+	public WrongNumberImagesException(int provided, int required, String hintForUser) {
+		super("Can only accept " + required + " images. (" + provided + " provided)\nHint: " + hintForUser);
+		this.provided = provided;
+		this.minRequired = required;
+		this.maxRequired = required;
+	}
+
+	/**
 	 * @param provided Number of images provided
 	 * @param required Exact number of images required
 	 */
@@ -22,18 +34,34 @@ public class WrongNumberImagesException extends WrongInputException {
 	 * @param provided    Number of images provided
 	 * @param minRequired Minimum number of images required
 	 * @param maxRequired Maximum number of images required
+	 * @param hintForUser String giving information to the user about what he can do to correct this error
 	 */
-	public WrongNumberImagesException(int provided, int minRequired, int maxRequired) {
-		super("Can only accept " + minRequired + " to " + (maxRequired == Integer.MAX_VALUE ? "Infinity" : maxRequired)
-				+ " images. (" + provided + " provided)");
+	public WrongNumberImagesException(int provided, int minRequired, int maxRequired, String hintForUser) {
+		super("Can only accept " + minRequired + " to " +
+					  (maxRequired == Integer.MAX_VALUE ? "Infinity" : maxRequired) + " images. (" + provided +
+					  " provided)\nHint: " + hintForUser);
 		this.provided = provided;
 		this.maxRequired = maxRequired;
 		this.minRequired = minRequired;
 	}
 
 	/**
-	 * It is preferable to use {@link #WrongNumberImagesException(int, int)}.
-	 * 
+	 * @param provided    Number of images provided
+	 * @param minRequired Minimum number of images required
+	 * @param maxRequired Maximum number of images required
+	 */
+	public WrongNumberImagesException(int provided, int minRequired, int maxRequired) {
+		super("Can only accept " + minRequired + " to " +
+					  (maxRequired == Integer.MAX_VALUE ? "Infinity" : maxRequired) + " images. (" + provided +
+					  " provided)");
+		this.provided = provided;
+		this.maxRequired = maxRequired;
+		this.minRequired = minRequired;
+	}
+
+	/**
+	 * It is preferable to use {@link #WrongNumberImagesException(int, int, String)}.
+	 *
 	 * @param provided Number of images provided
 	 */
 	public WrongNumberImagesException(int provided) {
@@ -44,9 +72,8 @@ public class WrongNumberImagesException extends WrongInputException {
 	}
 
 	/**
-	 * This method is not recommended.<br>
-	 * Please use {@link #WrongNumberImagesException(int, int)} instead.
-	 * 
+	 * This method is not recommended.<br> Please use {@link #WrongNumberImagesException(int, int, String)} instead.
+	 *
 	 * @param message Detail message
 	 */
 	public WrongNumberImagesException(String message) {
@@ -70,8 +97,7 @@ public class WrongNumberImagesException extends WrongInputException {
 	}
 
 	/**
-	 * @return number of images provided that causes this exception to be thrown or
-	 *         -1 if none provided
+	 * @return number of images provided that causes this exception to be thrown or -1 if none provided
 	 */
 	public int getNumberProvided() {
 		return this.provided;

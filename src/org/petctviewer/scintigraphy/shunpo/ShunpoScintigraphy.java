@@ -35,11 +35,6 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public String getName() {
-		return STUDY_NAME;
-	}
-
-	@Override
 	public Column[] getColumns() {
 		// Orientation column
 		String[] orientationValues = {Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString()};

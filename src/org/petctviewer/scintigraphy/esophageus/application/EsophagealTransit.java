@@ -124,15 +124,8 @@ public class EsophagealTransit extends Scintigraphy {
 	}
 
 	@Override
-	public String getName() {
-		//TODO: auto-generated code
-		return null;
-	}
-
-	@Override
 	public FenSelectionDicom.Column[] getColumns() {
-		//TODO: auto-generated code
-		return new FenSelectionDicom.Column[0];
+		return FenSelectionDicom.Column.getDefaultColumns();
 	}
 
 	@Override

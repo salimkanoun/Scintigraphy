@@ -28,11 +28,6 @@ public class DmsaScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public String getName() {
-		return STUDY_NAME;
-	}
-
-	@Override
 	public void start(ImageSelection[] selectedImages) {
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.yellow);

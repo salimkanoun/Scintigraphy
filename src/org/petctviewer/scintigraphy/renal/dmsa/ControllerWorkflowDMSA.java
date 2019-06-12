@@ -70,7 +70,7 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
 			this.model.getImagePlus().setRoi(roi);
 			String nom = ((DrawRoiInstruction) this.workflows[0].getInstructionAt(indexRoi)).getOrganToDelimit();
-			// String studyName = roi.getName();
+			// String studyName = roi.getStudyName();
 			this.model.getImagePlus().setSlice(1);
 			((Model_Dmsa) this.model).enregistrerMesure(nom + " P0", this.model.getImagePlus());
 			if (this.antPost) {

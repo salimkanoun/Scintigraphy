@@ -57,9 +57,9 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 //			else Library_Gui.setOverlayGD(this.reference, Color.YELLOW);
 //
 //			for (Roi roi : rois) {
-//				if (roi.getName() != null) {
+//				if (roi.getStudyName() != null) {
 //					Roi newRoi = RoiScaler.scale(roi, 512 / oldWidth, 512 / oldWidth, false);
-//					newRoi.setName(roi.getName());
+//					newRoi.setName(roi.getStudyName());
 //					newRoi.setStrokeColor(Color.YELLOW);
 //					this.reference.getOverlay().add(newRoi);
 //				}

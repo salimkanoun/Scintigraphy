@@ -27,11 +27,6 @@ public class PelvisScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public String getName() {
-		return STUDY_NAME;
-	}
-
-	@Override
 	public Column[] getColumns() {
 		return Column.getDefaultColumns();
 	}
