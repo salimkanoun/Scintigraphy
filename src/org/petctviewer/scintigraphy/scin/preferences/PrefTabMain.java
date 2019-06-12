@@ -23,13 +23,15 @@ public class PrefTabMain extends PrefTab {
 	private final JButton btn_choixLut, btnCaptureLut;
 	private final JButton btn_dir;
 	private final JButton btn_displut;
-	@SuppressWarnings("rawtypes")
 	private final JComboBox comboDate;
 	private final JLabel lCaptureLut;
 	private JFileChooser fc;
+	private final JFrame parent;
 
-	public PrefTabMain(PrefWindow parent) {
-		super(parent, "Main");
+	public PrefTabMain(JFrame parent) {
+		super("Main");
+		if (parent instanceof PrefWindow) this.setParent((PrefWindow) parent);
+		this.parent = parent;
 
 		this.setTitle("Main settings");
 

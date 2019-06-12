@@ -17,7 +17,7 @@ public class PrefTabRenal extends PrefTab implements DocumentListener {
 	private JTextField textField;
 
 	public PrefTabRenal(PrefWindow parent) {
-		super(parent, "Renal");
+		super("Renal", parent);
 
 		this.setTitle("Renal scintigraphy settings");
 

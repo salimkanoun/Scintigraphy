@@ -21,7 +21,7 @@ public class PrefTabBone extends PrefTab {
 	private JCheckBox checkBoxDefaultLut;
 
 	public PrefTabBone(PrefWindow parent) {
-		super(parent, "Bone");
+		super("Bone", parent);
 
 		this.setTitle("Bone Scintigraphy settings");
 

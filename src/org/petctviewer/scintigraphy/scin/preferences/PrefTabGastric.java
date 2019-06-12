@@ -20,7 +20,7 @@ public class PrefTabGastric extends PrefTab implements ActionListener, ItemListe
 	private JTextField textField;
 
 	public PrefTabGastric(PrefWindow parent) {
-		super(parent, "Gastric");
+		super("Gastric", parent);
 
 		this.setTitle("Gastric Scintigraphy settings");
 

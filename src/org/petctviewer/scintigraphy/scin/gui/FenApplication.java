@@ -12,6 +12,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException
 import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
 import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTab;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,7 +37,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	protected final JTextField textfield_instructions;
 	protected final Button btn_suivant;
 	protected final String studyName;
-	protected final DocumentationDialog documentation;
 	final Button btn_quitter;
 	final Button btn_drawROI;
 	final Button btn_contrast;
@@ -46,14 +46,14 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	private final Panel panel_btns_gauche;
 	private final Panel panel_btns_droite;
 	private final Panel panelPrincipal;
+	private DocumentationDialog documentation;
 	private MenuBar menuBar;
 	// Panel d'instruction avec le textfield et boutons precedent et suivant
 	private Panel panel_Instructions_btns_droite;
 	private ControllerScin controleur;
 	private int canvasW, canvasH;
+	private PrefTab preferences;
 	private Menu options;
-
-	private Menu help;
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
@@ -113,7 +113,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		panelContainer.add(this.panelPrincipal, BorderLayout.CENTER);
 		this.add(panelContainer);
 
-		this.documentation = this.createDocumentation();
 		// Menu bar
 		this.createMenuBar();
 
@@ -127,7 +126,8 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 	private void createMenuBar() {
 		this.menuBar = new MenuBar();
-		this.options = new Menu("Options");
+		options = new Menu("Options");
+		// Load ROIs
 		MenuItem loadRois = new MenuItem("Load ROIs from .zip");
 		loadRois.addActionListener(e -> {
 			try {
@@ -146,10 +146,14 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 			}
 
 		});
+		// Open Preferences
+		MenuItem mi_preferences = new MenuItem("Preferences");
 
-		this.help = new Menu("Help");
+		Menu help = new Menu("Help");
 		MenuItem doc = new MenuItem("Documentation");
-		doc.addActionListener((event) -> documentation.setVisible(true));
+		doc.addActionListener((event) -> {
+			if (documentation != null) documentation.setVisible(true);
+		});
 		help.add(doc);
 
 		options.add(loadRois);
@@ -291,8 +295,22 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	public void componentHidden(ComponentEvent e) {
 	}
 
-	protected DocumentationDialog createDocumentation() {
-		return new DocumentationDialog(this);
+	protected void setDocumentation(DocumentationDialog documentation) {
+		this.documentation = documentation;
+	}
+
+	/**
+	 * Sets the preference tab for this application. When a preference tab is set, it will be accessible in the menu
+	 * bar.<br> If null is passed, it will remove the previous preference set (if any).
+	 *
+	 * @param preferences Preference tab associated with this application
+	 */
+	protected void setPreferences(PrefTab preferences) {
+		if (preferences == null) {
+			// Remove menu item
+			this.options.remove(this.preferences);
+		}
+		this.preferences = preferences;
 	}
 
 	protected Panel getPanel_bttns_droit() {
