@@ -541,7 +541,6 @@ public class Model_Gastric extends ModelWorkflow {
 	 * @param nbTotalImages  Total number of images (total number of eggs ingested)
 	 * @return percentage adjusted with the eggs ratio
 	 */
-	@SuppressWarnings("StringEquality")
 	private double adjustPercentageWithEggsRatio(String region, double percentage, int numActualImage,
 												 int nbTotalImages) {
 		double ratioEggsInBody = (double) numActualImage / (double) nbTotalImages;

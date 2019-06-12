@@ -1,22 +1,18 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.GridLayout;
-import java.awt.Panel;
-import java.awt.font.FontRenderContext;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-
+import ij.IJ;
+import ij.gui.Overlay;
+import ij.gui.TextRoi;
+import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
-import ij.gui.Overlay;
-import ij.gui.TextRoi;
-import ij.gui.Toolbar;
+import java.awt.*;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 
 public class FenApplication_Cardiac extends FenApplicationWorkflow {
 
@@ -26,21 +22,23 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 	private final Button btn_newCont;
 	private final Button btn_continue;
 
-	public FenApplication_Cardiac(ImageSelection ims, String nom) {
+	public FenApplication_Cardiac(ImageSelection ims, String nom, boolean fullBodyImages, boolean onlyThoraxImage) {
 		super(ims, nom);
 	
 		this.btn_continue = new Button("End");
 		this.btn_newCont = new Button("Next");
 
-		this.getPanel_Instructions_btns_droite().remove(1);
+		if (fullBodyImages) {
+			this.getPanel_Instructions_btns_droite().remove(1);
 
-		// mise en place des boutons
-		Panel btns_instru = new Panel();
-		btns_instru.setLayout(new GridLayout(1, 3));
-		btns_instru.add(this.getBtn_precedent());
-		btns_instru.add(this.getBtn_suivant());
-		btns_instru.add(this.btn_continue);
-		this.getPanel_Instructions_btns_droite().add(btns_instru);
+			// mise en place des boutons
+			Panel btns_instru = new Panel();
+			btns_instru.setLayout(new GridLayout(1, 3));
+			btns_instru.add(this.getBtn_precedent());
+			btns_instru.add(this.getBtn_suivant());
+			btns_instru.add(this.btn_continue);
+			this.getPanel_Instructions_btns_droite().add(btns_instru);
+		}
 
 		this.setPreferredCanvasSize(600);
 		this.setLocationRelativeTo(null);
