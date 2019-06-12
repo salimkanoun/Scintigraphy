@@ -14,6 +14,8 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.ReversedChronologicalAcquisitionComparator;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +38,12 @@ public class DynGastricScintigraphy extends Scintigraphy {
 		this.getFenApplication().setController(
 				new ControllerWorkflow_DynGastric(this, (FenApplicationWorkflow) this.getFenApplication(), this.model,
 												  preparedImages.toArray(new ImageSelection[0]), tabResult));
+		this.getFenApplication().addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				tabResult.enableDynamicAcquisition(true);
+			}
+		});
 		this.getFenApplication().setVisible(true);
 	}
 
