@@ -142,7 +142,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 			this.workflows[i].addInstruction(dri_1);
 			this.workflows[i].addInstruction(dri_2);
-			if (i == 0) this.workflows[i].addInstruction(new ScreenShotInstruction(captures, vue, 0, 640, 512));
+			if (i == 0) this.workflows[i].addInstruction(new ScreenShotInstruction(captures, vue, 0, 0, 0));
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}
