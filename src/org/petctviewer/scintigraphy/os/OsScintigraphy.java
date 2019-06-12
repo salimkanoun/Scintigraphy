@@ -121,7 +121,7 @@ public class OsScintigraphy extends Scintigraphy {
 	 * La colonne 0 : l'ImagePlus ANT du patient --/-- la colonne 1 : l'ImagePlus
 	 * POST du patient.<br/>
 	 */
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(ImageSelection[] selectedImages) {
 		if (process) {
 			// FenApplication_Os fen = new FenApplication_Os(this, buffer);
 

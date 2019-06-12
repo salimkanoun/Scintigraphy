@@ -25,7 +25,7 @@ public class PlateletScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(ImageSelection[] selectedImages) {
 		this.setFenApplication(new FenApplicationWorkflow(selectedImages[0], getStudyName()));
 		this.getFenApplication().setController(
 				new ControllerWorkflow_Platelet(this, (FenApplicationWorkflow) this.getFenApplication(),

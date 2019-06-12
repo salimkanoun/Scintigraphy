@@ -79,7 +79,7 @@ public class PelvisScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(ImageSelection[] selectedImages) {
 
 		((ModelLympho) this.resultTab.getParent().getModel()).setImagePelvis(selectedImages[0]);
 

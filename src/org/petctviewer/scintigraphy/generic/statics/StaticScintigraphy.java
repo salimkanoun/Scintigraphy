@@ -1,7 +1,8 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
-import java.awt.Color;
-
+import ij.IJ;
+import ij.gui.Overlay;
+import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -17,9 +18,6 @@ import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import ij.IJ;
-import ij.gui.Overlay;
-import ij.gui.Toolbar;
 
 public class StaticScintigraphy extends Scintigraphy {
 public static final String STUDY_NAME = "General static scintigraphy";
@@ -33,7 +31,7 @@ public static final String STUDY_NAME = "General static scintigraphy";
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(ImageSelection[] selectedImages) {
 
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.white);

@@ -26,7 +26,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(ImageSelection[] selectedImages) {
 		// Start program
 		this.setFenApplication(new FenApplicationWorkflow(selectedImages[0], this.getStudyName()));
 		this.getFenApplication().setController(

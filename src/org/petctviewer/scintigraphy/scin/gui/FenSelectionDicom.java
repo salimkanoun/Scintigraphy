@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
+import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
 import ij.WindowManager;
@@ -349,6 +350,9 @@ public class FenSelectionDicom extends JDialog implements ActionListener, ImageL
 	 *                       requirements)
 	 */
 	private void prepareImages(List<ImageSelection> selectedImages) {
+		// Apply marco to convert images to 32bit
+		selectedImages.forEach(ims -> IJ.run(ims.getImagePlus(), "32-bit", ""));
+
 		try {
 			List<ImageSelection> userSelection = this.preparator.prepareImages(selectedImages);
 			if (userSelection != null) {

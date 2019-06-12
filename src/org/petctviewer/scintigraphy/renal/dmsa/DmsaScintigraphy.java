@@ -33,7 +33,7 @@ public class DmsaScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(ImageSelection[] selectedImages) {
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.yellow);
 

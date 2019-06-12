@@ -28,7 +28,7 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(ImageSelection[] selectedImages) {
 		this.setFenApplication(new FenApplication_GeneralDyn(selectedImages[0], this.getStudyName()));
 		this.getFenApplication().setController(
 				new ControllerWorkflowScinDynamic(this, (FenApplicationWorkflow) this.getFenApplication(),

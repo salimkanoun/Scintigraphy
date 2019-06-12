@@ -51,7 +51,7 @@ public class EsophagealTransit extends Scintigraphy {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(ImageSelection[] selectedImages) {
 		// phase 1
 		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
 		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.yellow);

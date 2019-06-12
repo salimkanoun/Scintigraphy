@@ -29,7 +29,7 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(ImageSelection[] selectedImages) {
 
 		selectedImages[0].getImagePlus().changes = false;
 

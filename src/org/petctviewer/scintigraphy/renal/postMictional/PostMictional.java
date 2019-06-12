@@ -76,7 +76,7 @@ public class PostMictional extends Scintigraphy {
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(ImageSelection[] selectedImages) {
 		Overlay ov = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
 
 		FenApplicationWorkflow fen = new FenApplicationWorkflow(selectedImages[0], this.getStudyName());

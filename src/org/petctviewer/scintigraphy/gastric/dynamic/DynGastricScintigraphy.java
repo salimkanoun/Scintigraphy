@@ -32,11 +32,11 @@ public class DynGastricScintigraphy extends Scintigraphy {
 		FenSelectionDicom fsd = new FenSelectionDicom(this);
 		fsd.setVisible(true);
 
-		this.lancerProgramme(fsd.retrieveSelectedImages().toArray(new ImageSelection[0]));
+		this.start(fsd.retrieveSelectedImages().toArray(new ImageSelection[0]));
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(ImageSelection[] selectedImages) {
 		this.setFenApplication(
 				new FenApplication_DynGastric(selectedImages[0], "Dynamic Gastric Scintigraphy"));
 		this.getFenApplication().setController(new ControllerWorkflow_DynGastric(this,

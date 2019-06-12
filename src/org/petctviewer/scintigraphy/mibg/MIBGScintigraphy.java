@@ -41,11 +41,11 @@ public class MIBGScintigraphy extends Scintigraphy {
 
 		fen.setVisible(true);
 
-		this.lancerProgramme(fen.retrieveSelectedImages().toArray(new ImageSelection[0]));
+		this.start(fen.retrieveSelectedImages().toArray(new ImageSelection[0]));
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(ImageSelection[] selectedImages) {
 		this.setFenApplication(new FenApplicationWorkflow(selectedImages[0], this.getStudyName()));
 		this.getFenApplication().setController(
 				new ControllerWorkflowMIBG("MIBG Scintigraphy", (FenApplicationWorkflow) this.getFenApplication(),

@@ -29,7 +29,7 @@ public class LymphoScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(ImageSelection[] selectedImages) {
 
 		this.setFenApplication(new FenApplicationLympho(selectedImages[0], this.getStudyName()));
 		// this.getFenApplication()

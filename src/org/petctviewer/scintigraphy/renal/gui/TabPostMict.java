@@ -158,7 +158,7 @@ public class TabPostMict extends TabContrastModifier implements ActionListener {
 			// SK A REVOIR
 			PostMictional vueBasic = new PostMictional(createOrgans(), this);
 			try {
-				vueBasic.lancerProgramme(
+				vueBasic.start(
 						vueBasic.prepareImages(Arrays.asList(TabPostMict.this.images)).toArray(new ImageSelection[0]));
 			} catch (Exception e) {
 				e.printStackTrace();

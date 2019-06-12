@@ -37,7 +37,7 @@ public class RenalScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(ImageSelection[] selectedImages) {
 
 		this.setFenApplication(new FenApplication_Renal(selectedImages[0], this.getStudyName(), this));
 		this.getFenApplication().setController(

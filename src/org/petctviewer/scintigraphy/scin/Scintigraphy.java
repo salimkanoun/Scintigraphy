@@ -24,7 +24,7 @@ public abstract class Scintigraphy implements PlugIn, ImagePreparator {
 		FenSelectionDicom fen = new FenSelectionDicom(this);
 		fen.setVisible(true);
 		List<ImageSelection> selectedImages = fen.retrieveSelectedImages();
-		this.lancerProgramme(selectedImages.toArray(new ImageSelection[0]));
+		this.start(selectedImages.toArray(new ImageSelection[0]));
 	}
 
 	/**
@@ -35,7 +35,7 @@ public abstract class Scintigraphy implements PlugIn, ImagePreparator {
 	 * @param selectedImages Images that the program will use. This images must be well formatted according to this
 	 *                       program specification.
 	 */
-	public abstract void lancerProgramme(ImageSelection[] selectedImages);
+	public abstract void start(ImageSelection[] selectedImages);
 
 	public String getStudyName() {
 		return this.studyName;

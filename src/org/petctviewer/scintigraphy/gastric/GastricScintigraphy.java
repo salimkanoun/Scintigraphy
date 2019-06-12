@@ -26,7 +26,7 @@ public class GastricScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(ImageSelection[] selectedImages) {
 		this.setFenApplication(new FenApplicationWorkflow(selectedImages[0], getStudyName()));
 		this.getFenApplication().setController(
 				new ControllerWorkflow_Gastric(this, (FenApplicationWorkflow) this.getFenApplication(), selectedImages,
