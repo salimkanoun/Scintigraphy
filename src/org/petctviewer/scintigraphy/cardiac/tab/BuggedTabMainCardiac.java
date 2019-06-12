@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.cardiac.tab;
 
+import java.awt.Button;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -17,7 +18,6 @@ import java.util.HashMap;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultRowSorter;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -35,21 +35,44 @@ import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
-public class TabMainCardiac extends TabResult implements ActionListener, WindowListener {
+
+/**
+ * This implementation has a strange behavior : <br/>
+ * 
+ * When clicking the (Visual Gradation) Button, the Button and the ComboBox next to it disapear.<br/>
+ * 
+ * This behavior disapears when Button and ComboBoxs are not class attributes.<br/><br/>
+ * See {@link TabMainCardiac} for desired (normal ?) behavior.
+ * @author Esteban
+ *
+ */
+public class BuggedTabMainCardiac extends TabResult implements ActionListener, WindowListener {
 
 	private final HashMap<String, String> resultats;
 
 	private final BufferedImage capture;
 
+	private Button btn_VisualGradation;
+
 	private popupVisualCalibration popup;
 
-	public TabMainCardiac(FenResults parent, String title, HashMap<String, String> resultats, BufferedImage capture,
+	private JPanel comboBox;
+
+	private JComboBox<Integer> gradeList;
+
+	public BuggedTabMainCardiac(FenResults parent, String title, HashMap<String, String> resultats, BufferedImage capture,
 			int fullBodyImages) {
 		super(parent, title, true);
 
 		this.resultats = resultats;
 
 		this.capture = capture;
+
+		this.btn_VisualGradation = new Button("Visual Gradation");
+		this.btn_VisualGradation.addActionListener(this);
+
+		this.comboBox = this.getCombo();
+
 
 		this.reloadDisplay();
 	}
@@ -58,7 +81,7 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 	public Component getSidePanelContent() {
 		Box returnBox = Box.createVerticalBox();
 
-		JPanel resultRouge = new JPanel(new GridLayout(4, 1, 10, 10));
+		JPanel resultRouge = new JPanel(new GridLayout(3, 1, 10, 10));
 
 		String key = "Ratio H/WB %";
 		JLabel lbl_hwb = new JLabel(key + " : " + resultats.get(key));
@@ -79,14 +102,6 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 
 		// resultats.remove(key);
 		resultRouge.add(lbl_hwb);
-
-		key = "Heart to contralateral";
-		if (resultats.containsKey(key)) {
-			JLabel lbl = new JLabel(key + " : " + resultats.get(key));
-			lbl.setHorizontalAlignment(JLabel.CENTER);
-			lbl.setForeground(new Color(128, 51, 0));
-			resultRouge.add(lbl);
-		}
 
 		// on ajoute le pourcentage de retention cardiaque si il existe
 		key = "Cardiac retention %";
@@ -110,20 +125,6 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 		JPanel flow2 = new JPanel(new FlowLayout());
 		flow2.add(resultRouge);
 		returnBox.add(flow2);
-
-		// Button and ComboBox for visualGradation
-		JPanel visualGradation = new JPanel(new GridLayout(0, 1));
-		JPanel labelCombo = new JPanel();
-		labelCombo.add(new JLabel("Visual Gradation : "));
-		labelCombo.add(this.getCombo());
-		visualGradation.add(labelCombo);
-		JPanel panelButton = new JPanel();
-		JButton btn_VisualGradation = new JButton("Visual Gradation info");
-		btn_VisualGradation.addActionListener(this);
-		panelButton.add(btn_VisualGradation);
-		visualGradation.add(panelButton);
-
-		returnBox.add(visualGradation);
 
 		JPanel flowRef = new JPanel();
 		JPanel gridRef = new JPanel(new GridLayout(0, 1));
@@ -171,7 +172,16 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 		hide.addActionListener(arg0 -> tabRes.setVisible(false));
 		tabRes.setComponentPopupMenu(popMenuHide);
 		// Add to the main panel
-		// returnBox.add(tabRes);
+		returnBox.add(tabRes);
+
+		// Button and ComboBox for visualGradation
+		JPanel visualGradation = new JPanel(new GridLayout(1, 2));
+		JPanel panelButton = new JPanel();
+		panelButton.add(this.btn_VisualGradation);
+		visualGradation.add(panelButton);
+		visualGradation.add(this.comboBox);
+
+		returnBox.add(visualGradation);
 
 		return returnBox;
 	}
@@ -192,7 +202,8 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		if (e.getSource() instanceof JButton) {
+		if (e.getSource() == this.btn_VisualGradation) {
+			System.out.println("Click sur bouton");
 			if (this.popup == null) {
 				this.popup = new popupVisualCalibration();
 				this.popup.setLocationRelativeTo(this.getSidePanelContent());
@@ -202,14 +213,9 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 				this.popup.pack();
 			} else
 				this.popup.requestFocus();
+		}else if (e.getSource() == this.gradeList) {
+			System.out.println(this.btn_VisualGradation == null);
 		}
-		// if(e.getSource() instanceof JComboBox)
-		// System.out.println((this.btn_VisualGradation == null)+",
-		// "+this.btn_VisualGradation.getLabel());
-
-		// else if (e.getSource() == this.gradeList) {
-		// System.out.println(this.btn_VisualGradation == null);
-		// }
 	}
 
 	public JPanel getCombo() {
@@ -219,14 +225,14 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 
 		Integer[] gradeString = { 0, 1, 2, 3 };
 
-		JComboBox<Integer> gradeList = new JComboBox<>(gradeString);
+		this.gradeList = new JComboBox<>(gradeString);
 		gradeList.setSelectedIndex(0);
 		JPanel comboContainer = new JPanel();
 		comboContainer.add(gradeList);
 		comboContainer.setPreferredSize(new Dimension(45, 25));
 
 		gradeList.addActionListener(this);
-
+		
 		globalPane.add(comboContainer);
 
 		return globalPane;
@@ -237,6 +243,7 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 		private static final long serialVersionUID = 1L;
 
 		public popupVisualCalibration() {
+			System.out.println("Objet créé");
 
 			JPanel listPane = new JPanel();
 			listPane.setLayout(new GridLayout(2, 2));
@@ -265,15 +272,16 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 
 	@Override
 	public void windowClosed(WindowEvent arg0) {
-		/* TODO Auto-generated method stub */}
-
-	@Override
-	public void windowClosing(WindowEvent arg0) {
-		/* TODO Auto-generated method stub */
+		// TODO Auto-generated method stub
 		if (arg0.getSource() == this.popup) {
+			System.out.println("fermeture popup");
 			this.popup = null;
 		}
 	}
+
+	@Override
+	public void windowClosing(WindowEvent arg0) {
+		/* TODO Auto-generated method stub */}
 
 	@Override
 	public void windowDeactivated(WindowEvent arg0) {

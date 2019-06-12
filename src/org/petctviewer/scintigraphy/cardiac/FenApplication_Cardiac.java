@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.cardiac;
 
 import java.awt.Button;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Panel;
 import java.awt.font.FontRenderContext;
@@ -43,6 +44,8 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 			btns_instru.add(this.btn_continue);
 			this.getPanel_Instructions_btns_droite().add(btns_instru);
 		}
+		
+		this.getTextfield_instructions().setPreferredSize(new Dimension(200,this.getTextfield_instructions().getHeight()));
 
 		this.setPreferredCanvasSize(600);
 		this.setLocationRelativeTo(null);

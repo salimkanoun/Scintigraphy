@@ -10,6 +10,7 @@ import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -61,7 +62,7 @@ public class TabVisualGradationCardiac extends TabResult{
 		JPanel globalPane = new JPanel();
 		globalPane.setLayout(new BoxLayout(globalPane, BoxLayout.Y_AXIS));
 		
-		JLabel heartToContralateral = new JLabel("Heart to contralatearl : " + resultsThorax.get("Heart to contralatearl"));
+		JLabel heartToContralateral = new JLabel("Heart to contralateral : " + resultsThorax.get("Heart to contralateral"));
 		heartToContralateral.setFont(new Font("Arial", Font.BOLD, 20));
 		heartToContralateral.setHorizontalAlignment(JLabel.CENTER);
 		heartToContralateral.setForeground(new Color(128, 51, 0));
@@ -83,14 +84,15 @@ public class TabVisualGradationCardiac extends TabResult{
 		JPanel globalPane = new JPanel(new BorderLayout());
 		globalPane.add(new DynamicImage(this.capture), BorderLayout.CENTER);
 
-		listPane.setLayout(new BoxLayout(listPane, BoxLayout.PAGE_AXIS));
+		listPane.setLayout(new GridLayout(2, 2));
+		listPane.setBorder(BorderFactory.createTitledBorder("Visual Gradation"));
 
 		String grade0 = "No myocardial uptake";
 		String grade1 = "Myocardial uptake &lsaquo; bone uptake";
 		String grade2 = "Myocardial uptake equal to bone uptake";
 		String grade3 = "Myocardal uptake &rsaquo; bone uptake (with attenuatuon of bone uptake on whole body images";
 
-		listPane.setLayout(new GridLayout(2, 2));
+		
 		listPane.add( new JLabel("<html> &nbsp; Grade 0 : " + grade0+"</html>"));
 		listPane.add(new JLabel("<html>  Grade 1 : " + grade1+"</html>"));
 		listPane.add(new JLabel("<html> &nbsp; Grade 2 : " + grade2+"</html>"));

@@ -96,8 +96,8 @@ public class Model_Cardiac extends ModelScin {
 			counts[2] = (double) Library_Quantif.getPixelNumber(selectedImage);
 
 			this.data.put(roi.getName(), counts);
-			System.out.println("this.dataVisualGradation.put(" + roi.getName() + "( " + counts[0] + ", " + counts[1]
-					+ ", " + counts[2] + "))");
+//			System.out.println("this.dataVisualGradation.put(" + roi.getName() + "( " + counts[0] + ", " + counts[1]
+//					+ ", " + counts[2] + "))");
 
 		}
 
@@ -132,6 +132,12 @@ public class Model_Cardiac extends ModelScin {
 					- (meanBdfAntKidneyL * this.data.get("Kidney L A")[2]);
 			Double correctedKLPost = this.data.get("Kidney L P")[0]
 					- (meanBdfPostKidneyL * this.data.get("Kidney L P")[2]);
+			System.out.println("correctedKLAnt => "+correctedKLAnt+" = "+this.data.get("Kidney L A")[0]+" - ("+meanBdfAntKidneyL+"*" +this.data.get("Kidney L A")[2]+")");
+
+			System.out.println("correctedKLAnt => "+correctedKLAnt+" = "+this.data.get("Kidney L A")[0]+" - "+(meanBdfAntKidneyL*this.data.get("Kidney L A")[2]));
+			
+			Double test = (this.data.get("Kidney L A")[1] - meanBdfAntKidneyL) * this.data.get("Kidney L A")[2];
+			System.out.println("test => "+test+" = ("+this.data.get("Kidney L A")[1]+" - "+(meanBdfAntKidneyL+" )"+" * "+this.data.get("Kidney L A")[2]));
 
 			// Calculation of corrected Right Renal uptake
 			Double correctedKRAnt = this.data.get("Kidney R A")[0]
@@ -158,12 +164,12 @@ public class Model_Cardiac extends ModelScin {
 
 			HashMap<Integer, Double[]> contE = new HashMap<>();
 			HashMap<Integer, Double[]> contL = new HashMap<>();
-			System.out.println("this.data.keySet() contient : ");
+//			System.out.println("this.data.keySet() contient : ");
 			for (String s : this.data.keySet()) {
-				System.out.println("\t" + s);
+//				System.out.println("\t" + s);
 				if (s.startsWith("Cont")) {
 					String label = s.substring(s.indexOf(" ") + 2);
-					System.out.println("Label : ");
+//					System.out.println("Label : ");
 					int number = Integer.parseInt(label);
 
 					if (s.startsWith("ContE")) {
@@ -313,7 +319,7 @@ public class Model_Cardiac extends ModelScin {
 
 		this.resultats.put("Ratio H/WB %", "" + Library_Quantif.round(this.hwb * 100, 2));
 
-		this.resultats.put("Heart to contralatearl", "" + Library_Quantif.round(this.heartToContralateral, 2));
+		this.resultats.put("Heart to contralateral", "" + Library_Quantif.round(this.heartToContralateral, 2));
 
 		return this.resultats;
 	}
@@ -344,8 +350,8 @@ public class Model_Cardiac extends ModelScin {
 			counts[2] = (double) Library_Quantif.getPixelNumber(selectedImage);
 
 			this.dataVisualGradation.put(roi.getName(), counts);
-			System.out.println("this.dataVisualGradation.put(" + roi.getName() + "[ " + counts[0] + ", " + counts[1]
-					+ ", " + counts[2] + "])");
+//			System.out.println("this.dataVisualGradation.put(" + roi.getName() + "[ " + counts[0] + ", " + counts[1]
+//					+ ", " + counts[2] + "])");
 
 		}
 
@@ -360,7 +366,7 @@ public class Model_Cardiac extends ModelScin {
 
 		this.resultatsVisualGradation.put("Heart", "" + Library_Quantif.round(this.heartThorax, 2));
 
-		this.resultatsVisualGradation.put("Heart to contralatearl",
+		this.resultatsVisualGradation.put("Heart to contralateral",
 				"" + Library_Quantif.round(this.heartToContralateralThorax, 2));
 
 		return this.resultatsVisualGradation;
