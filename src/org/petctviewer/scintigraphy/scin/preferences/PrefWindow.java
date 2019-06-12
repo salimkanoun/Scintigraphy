@@ -1,13 +1,9 @@
 package org.petctviewer.scintigraphy.scin.preferences;
 
-import ij.Prefs;
-import ij.plugin.PlugIn;
-
-import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -15,7 +11,23 @@ import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
+import javax.swing.Timer;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+
+import ij.Prefs;
+import ij.plugin.PlugIn;
+
 public class PrefWindow extends JFrame implements PlugIn, WindowListener {
+
+	private static final long serialVersionUID = 1L;
+
 	public static final String PREF_HEADER = "petctviewer.scin";
 
 	public static final int DURATION_SHORT = 2000;

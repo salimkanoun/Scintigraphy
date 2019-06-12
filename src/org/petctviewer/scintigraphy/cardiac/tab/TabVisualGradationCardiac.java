@@ -7,16 +7,13 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -24,10 +21,10 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
 public class TabVisualGradationCardiac extends TabResult{
 
-	private JRadioButton grade0 = new JRadioButton("Grade 0"), grade1 = new JRadioButton("Grade 1"),
-			grade2 = new JRadioButton("Grade 2"), grade3 = new JRadioButton("Grade 3");
+//	private JRadioButton grade0 = new JRadioButton("Grade 0"), grade1 = new JRadioButton("Grade 1"),
+//			grade2 = new JRadioButton("Grade 2"), grade3 = new JRadioButton("Grade 3");
 
-	private ButtonGroup radio;
+//	private ButtonGroup radio;
 	
 	private BufferedImage capture;
 
@@ -38,7 +35,7 @@ public class TabVisualGradationCardiac extends TabResult{
 		super(parent, title, true);
 		// TODO Auto-generated constructor stub
 
-		radio = new ButtonGroup();
+//		radio = new ButtonGroup();
 
 //		grade0.addActionListener(this);
 //		grade1.addActionListener(this);
@@ -95,8 +92,8 @@ public class TabVisualGradationCardiac extends TabResult{
 
 		listPane.setLayout(new GridLayout(2, 2));
 		listPane.add( new JLabel("<html> &nbsp; Grade 0 : " + grade0+"</html>"));
-		listPane.add(new JLabel("<html> &nbsp; Grade 1 : " + grade1+"</html>"));
-		listPane.add(new JLabel("<html>  Grade 2 : " + grade2+"</html>"));
+		listPane.add(new JLabel("<html>  Grade 1 : " + grade1+"</html>"));
+		listPane.add(new JLabel("<html> &nbsp; Grade 2 : " + grade2+"</html>"));
 		listPane.add(new JLabel("<html>  Grade 3 : " + grade3+"</html>"));
 
 		listPane.setPreferredSize(new Dimension(200, 150));

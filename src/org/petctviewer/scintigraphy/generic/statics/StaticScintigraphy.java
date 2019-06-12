@@ -1,6 +1,8 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -14,9 +16,6 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 import ij.IJ;
 import ij.gui.Overlay;
 import ij.gui.Toolbar;

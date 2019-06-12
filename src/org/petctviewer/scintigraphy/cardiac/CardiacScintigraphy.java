@@ -11,7 +11,6 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
-import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -35,26 +34,26 @@ public class CardiacScintigraphy extends Scintigraphy {
 		super("Cardiac");
 	}
 
-	@Override
-	public void run(String arg) {
-		// Override to use custom dicom selection window
-		FenSelectionDicom fen = new FenSelectionDicom(this);
-
-		// Orientation column
-		String[] orientationValues = { Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString() };
-		Column orientation = new Column(Column.ORIENTATION.getName(), orientationValues);
-
-		// Organ column
-		String[] typesValues = { FULL_BODY_IMAGE, ONLY_THORAX_IMAGE };
-		this.imageTypeColumn = new Column(COLUMN_TYPE_TITLE, typesValues);
-
-		// Choose columns to display
-		Column[] cols = { Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
-				Column.STACK_SIZE, orientation, this.imageTypeColumn };
-		fen.declareColumns(cols);
-
-		fen.setVisible(true);
-	}
+//	@Override
+//	public void run(String arg) {
+//		// Override to use custom dicom selection window
+//		FenSelectionDicom fen = new FenSelectionDicom(this);
+//
+//		// Orientation column
+//		String[] orientationValues = { Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString() };
+//		Column orientation = new Column(Column.ORIENTATION.getName(), orientationValues);
+//
+//		// Organ column
+//		String[] typesValues = { FULL_BODY_IMAGE, ONLY_THORAX_IMAGE };
+//		this.imageTypeColumn = new Column(COLUMN_TYPE_TITLE, typesValues);
+//
+//		// Choose columns to display
+//		Column[] cols = { Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
+//				Column.STACK_SIZE, orientation, this.imageTypeColumn };
+//		fen.declareColumns(cols);
+//
+//		fen.setVisible(true);
+//	}
 
 	@Override
 	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException {
@@ -101,7 +100,6 @@ public class CardiacScintigraphy extends Scintigraphy {
 						fullBodyImages.get(i).getImageOrientation(),
 						new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT });
 			}
-			fullBodyImages.get(i).getImagePlus().close();
 		}
 
 		List<ImageSelection> mountedSorted = new ArrayList<>();
@@ -115,7 +113,10 @@ public class CardiacScintigraphy extends Scintigraphy {
 		}
 
 		if (this.onlyThoraxImage.size() != 0)
-			mountedSorted.add(onlyThoraxImage.get(0));
+			mountedSorted.add(onlyThoraxImage.get(0).clone());
+		
+		for(ImageSelection selected : selectedImages)
+			selected.close();
 
 		return mountedSorted;
 	}

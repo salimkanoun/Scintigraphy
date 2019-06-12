@@ -220,8 +220,8 @@ public class TabMainCardiac extends TabResult implements ActionListener {
 
 			listPane.setLayout(new GridLayout(2, 2));
 			listPane.add(new JLabel("<html> &nbsp; Grade 0 : " + grade0 + "</html>"));
-			listPane.add(new JLabel("<html> &nbsp; Grade 1 : " + grade1 + "</html>"));
-			listPane.add(new JLabel("<html>  Grade 2 : " + grade2 + "</html>"));
+			listPane.add(new JLabel("<html>  Grade 1 : " + grade1 + "</html>"));
+			listPane.add(new JLabel("<html> &nbsp; Grade 2 : " + grade2 + "</html>"));
 			listPane.add(new JLabel("<html>  Grade 3 : " + grade3 + "</html>"));
 
 			listPane.setPreferredSize(new Dimension(600, 200));

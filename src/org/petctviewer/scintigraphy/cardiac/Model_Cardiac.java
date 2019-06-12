@@ -222,14 +222,14 @@ public class Model_Cardiac extends ModelScin {
 						Library_Quantif.Isotope.TECHNETIUM_99)) / finalEarly;
 			}
 
-			this.heartToContralateral = this.data.get("Heart A")[0] / this.data.get("Bkg noise A")[1];
+			this.heartToContralateral = this.data.get("Heart A")[1] / this.data.get("Bkg noise A")[1];
 
 		}
 		if (this.onlyThoaxImage != 0) {
 			// calculation of corrected heart uptake
-			Double heartThoraxAnt = this.data.get("Heart Thorax A")[0];
+			Double heartThoraxAnt = this.data.get("Heart Thorax A")[1];
 
-			Double contralateralThoraxAnt = this.data.get("CL Thorax A")[0];
+			Double contralateralThoraxAnt = this.data.get("CL Thorax A")[1];
 
 			// Calcul heart/ bg heart
 			this.heartThorax = heartThoraxAnt;
@@ -313,7 +313,7 @@ public class Model_Cardiac extends ModelScin {
 
 		this.resultats.put("Ratio H/WB %", "" + Library_Quantif.round(this.hwb * 100, 2));
 
-		this.resultats.put("Heart to contralatearl", "" + Library_Quantif.round(this.heartToContralateral * 100, 2));
+		this.resultats.put("Heart to contralatearl", "" + Library_Quantif.round(this.heartToContralateral, 2));
 
 		return this.resultats;
 	}

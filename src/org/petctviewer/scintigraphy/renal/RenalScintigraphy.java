@@ -167,7 +167,6 @@ public class RenalScintigraphy extends Scintigraphy {
 
 		// ajout du stack a l'imp
 		impProjetee.getImagePlus().setStack(stack);
-		int nbImage = 0;
 
 		List<ImageSelection> selection = new ArrayList<>();
 		selection.add(impProjetee);
