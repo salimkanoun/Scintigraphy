@@ -23,19 +23,10 @@ public abstract class Scintigraphy implements PlugIn, ImagePreparator {
 	public void run(String arg) {
 		FenSelectionDicom fen = new FenSelectionDicom(this);
 		fen.setVisible(true);
-		List<ImageSelection> selectedImages = fen.retrieveSelectedImages();
-		this.start(selectedImages.toArray(new ImageSelection[0]));
 	}
 
-	/**
-	 * Launches the program with the specified images. This method implies that the selectedImages are well formatted
-	 * for this program specification.<br> For instance, if this program needs 2 images in an Ant/Post orientation in a
-	 * specific order, then the selectedImages must complies to that specification.
-	 *
-	 * @param selectedImages Images that the program will use. This images must be well formatted according to this
-	 *                       program specification.
-	 */
-	public abstract void start(ImageSelection[] selectedImages);
+	@Override
+	public abstract void start(List<ImageSelection> preparedImages);
 
 	public String getStudyName() {
 		return this.studyName;

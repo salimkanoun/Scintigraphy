@@ -116,11 +116,12 @@ public class OsScintigraphy extends Scintigraphy {
 	 * La colonne 0 : l'ImagePlus ANT du patient --/-- la colonne 1 : l'ImagePlus
 	 * POST du patient.<br/>
 	 */
-	public void start(ImageSelection[] selectedImages) {
+	@Override
+	public void start(List<ImageSelection> preparedImages) {
 		if (process) {
 			// FenApplication_Os fen = new FenApplication_Os(this, buffer);
 
-			Controleur_Os controleur_os = new Controleur_Os(selectedImages);
+			Controleur_Os controleur_os = new Controleur_Os(preparedImages.toArray(new ImageSelection[0]));
 			FenApplication_Os fen = controleur_os.getFenApplicatio_Os();
 			fen.setVisible(true);
 

@@ -24,15 +24,16 @@ public class LymphoScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void start(ImageSelection[] selectedImages) {
+	public void start(List<ImageSelection> preparedImages) {
 
-		this.setFenApplication(new FenApplicationLympho(selectedImages[0], this.getStudyName()));
+		this.setFenApplication(new FenApplicationLympho(preparedImages.get(0), this.getStudyName()));
 		// this.getFenApplication()
 		// .setController(new ControleurLympho(this, this.getFenApplication(), "Lympho
 		// Scinti", selectedImages));
 		this.getFenApplication().setController(
 				new ControllerWorkflowLympho(this, (FenApplicationWorkflow) this.getFenApplication(),
-											 new ModelLympho(selectedImages, "Lympho Scinti")));
+											 new ModelLympho(preparedImages.toArray(new ImageSelection[0]),
+															 STUDY_NAME)));
 		this.getFenApplication().setVisible(true);
 
 	}
@@ -90,21 +91,24 @@ public class LymphoScintigraphy extends Scintigraphy {
 		for (int i = 0; i < selectedImages.size(); i++) {
 
 			ImageSelection imp = selectedImages.get(i);
-			if (selectedImages.get(i).getImageOrientation() == Orientation.ANT_POST || selectedImages.get(i)
-					.getImageOrientation() == Orientation.POST_ANT) {
+			if (selectedImages.get(i).getImageOrientation() == Orientation.ANT_POST || selectedImages.get(
+					i).getImageOrientation() == Orientation.POST_ANT) {
 				impSorted = Library_Dicom.ensureAntPostFlipped(imp);
 			} else if (selectedImages.get(i).getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
 				impSorted = imp.clone();
 				DynamicPosition = i;
 			} else {
-				throw new WrongColumnException.OrientationColumn(selectedImages.get(i).getRow(), selectedImages.get(i).getImageOrientation(),
-						new Orientation[]{Orientation.ANT_POST, Orientation.POST_ANT, Orientation.DYNAMIC_ANT_POST});
+				throw new WrongColumnException.OrientationColumn(selectedImages.get(i).getRow(),
+																 selectedImages.get(i).getImageOrientation(),
+																 new Orientation[]{Orientation.ANT_POST,
+																				   Orientation.POST_ANT,
+																				   Orientation.DYNAMIC_ANT_POST});
 			}
 
 			impsSortedAntPost.add(impSorted);
 		}
 
-		for(ImageSelection selected : selectedImages)
+		for (ImageSelection selected : selectedImages)
 			selected.close();
 
 		List<ImageSelection> impsCorrectedByTime = new ArrayList<>();
@@ -130,14 +134,15 @@ public class LymphoScintigraphy extends Scintigraphy {
 			IJ.run(staticImage.getImagePlus(), "Multiply...", "value=" + (60000f / acquisitionTimeDynamic) + " stack");
 			// On ramène sur 1 minute
 			IJ.run(dynamicImage.getImagePlus(), "Multiply...",
-					"value=" + (60000f / acquisitionTimeDynamic) + " " + "stack");
+				   "value=" + (60000f / acquisitionTimeDynamic) + " " + "stack");
 
 			// On augmente le contraste (uniquement visuel, n'impacte pas les données)
-			dynamicImage.getImagePlus().getProcessor()
-					.setMinAndMax(0, dynamicImage.getImagePlus().getStatistics().max * ratio);
+			dynamicImage.getImagePlus().getProcessor().setMinAndMax(0,
+																	dynamicImage.getImagePlus().getStatistics().max *
+					ratio);
 			// On augmente le contraste (uniquement visuel, n'impacte pas les données)
-			staticImage.getImagePlus().getProcessor()
-					.setMinAndMax(0, staticImage.getImagePlus().getStatistics().max * ratio);
+			staticImage.getImagePlus().getProcessor().setMinAndMax(0, staticImage.getImagePlus().getStatistics().max *
+					ratio);
 
 			impsCorrectedByTime.set(Math.abs((DynamicPosition - 1)), staticImage);
 			selectedImages.set(DynamicPosition, dynamicImage);
@@ -150,10 +155,11 @@ public class LymphoScintigraphy extends Scintigraphy {
 			// On passe les deux static sur le même temps théorique
 			IJ.run(impsSortedAntPost.get(0).getImagePlus(), "Multiply...", "value=" + (1f / ratio) + " stack");
 			// On ramène sur 1 minute
-			IJ.run(impsSortedAntPost.get(0).getImagePlus(), "Multiply...", "value=" + (60000f / timeStatic2) +
-					" stack");
+			IJ.run(impsSortedAntPost.get(0).getImagePlus(), "Multiply...",
+				   "value=" + (60000f / timeStatic2) + " stack");
 			// On ramène sur 1 minute
-			IJ.run(impsSortedAntPost.get(1).getImagePlus(), "Multiply...", "value=" + (60000f / timeStatic2) + " stack");
+			IJ.run(impsSortedAntPost.get(1).getImagePlus(), "Multiply...",
+				   "value=" + (60000f / timeStatic2) + " stack");
 
 			// On augmente le contraste (uniquement visuel, n'impacte pas les données)
 			impsSortedAntPost.get(0).getImagePlus().getProcessor().setMinAndMax(0, impsSortedAntPost.get(

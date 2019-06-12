@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.shunpo;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
@@ -17,8 +16,8 @@ import java.util.List;
 
 public class ShunpoScintigraphy extends Scintigraphy {
 
-	private static final String ORGAN_KIDNEY_PULMON = "KIDNEY-PULMON", ORGAN_BRAIN = "BRAIN";
 	public static final String STUDY_NAME = "Pulmonary Shunt";
+	private static final String ORGAN_KIDNEY_PULMON = "KIDNEY-PULMON", ORGAN_BRAIN = "BRAIN";
 	private Column orgranColumn;
 
 	public ShunpoScintigraphy() {
@@ -26,11 +25,12 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void start(ImageSelection[] selectedImages) {
+	public void start(List<ImageSelection> preparedImages) {
 		// Start program
-		this.setFenApplication(new FenApplicationWorkflow(selectedImages[0], this.getStudyName()));
+		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(
-				new ControllerWorkflowShunpo(this, (FenApplicationWorkflow) getFenApplication(), selectedImages));
+				new ControllerWorkflowShunpo(this, (FenApplicationWorkflow) getFenApplication(),
+											 preparedImages.toArray(new ImageSelection[0])));
 		this.getFenApplication().setVisible(true);
 	}
 
@@ -46,18 +46,17 @@ public class ShunpoScintigraphy extends Scintigraphy {
 
 		// Choose columns to display
 		return new Column[]{Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
-							Column.STACK_SIZE,
-							orientation, this.orgranColumn};
+							Column.STACK_SIZE, orientation, this.orgranColumn};
 	}
 
 	@Override
-	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException,
-			ReadTagException {
+	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException {
 		// Check that number of images is correct
 		if (selectedImages.size() != 2) throw new WrongNumberImagesException(selectedImages.size(), 2);
 
 		if (selectedImages.get(0).getValue(this.orgranColumn.getName()) == selectedImages.get(1).getValue(
-				this.orgranColumn.getName())) throw new WrongColumnException(orgranColumn, selectedImages.get(0).getRow(),
+				this.orgranColumn.getName())) throw new WrongColumnException(orgranColumn,
+																			 selectedImages.get(0).getRow(),
 																			 "expecting " + ORGAN_KIDNEY_PULMON +
 																					 " and " + ORGAN_BRAIN);
 
@@ -68,7 +67,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 
 		// Check orientation
 		List<ImageSelection> result = new ArrayList<>();
-		for(ImageSelection ims : selectedImages) {
+		for (ImageSelection ims : selectedImages) {
 			result.add(Library_Dicom.ensureAntPostFlipped(ims));
 			ims.close();
 		}

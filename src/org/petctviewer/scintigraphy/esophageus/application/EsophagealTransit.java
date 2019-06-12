@@ -51,12 +51,12 @@ public class EsophagealTransit extends Scintigraphy {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void start(ImageSelection[] selectedImages) {
+	public void start(List<ImageSelection> preparedImages) {
 		// phase 1
-		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
-		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.yellow);
+		Overlay overlay = Library_Gui.initOverlay(preparedImages.get(0).getImagePlus(), 12);
+		Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.yellow);
 
-		FenApplicationWorkflow fen = new FenApplicationWorkflow(selectedImages[0], "Oesophageus");
+		FenApplicationWorkflow fen = new FenApplicationWorkflow(preparedImages.get(0), "Oesophageus");
 		fen.setVisualizationEnable(false);
 		fen.getPanel_btns_gauche().remove(fen.getBtn_drawROI());
 		fen.getPanel_Instructions_btns_droite().removeAll();
@@ -106,7 +106,7 @@ public class EsophagealTransit extends Scintigraphy {
 		fen.getPanelPrincipal().add(radioButtonPanelFlow);
 		fen.getPanelPrincipal().add(startQuantificationButton);
 		this.setFenApplication(fen);
-		selectedImages[0].getImagePlus().setOverlay(overlay);
+		preparedImages.get(0).getImagePlus().setOverlay(overlay);
 
 		this.getFenApplication().setVisible(true);
 

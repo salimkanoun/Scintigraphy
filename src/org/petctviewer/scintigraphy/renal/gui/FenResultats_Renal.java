@@ -35,7 +35,7 @@ public class FenResultats_Renal extends FenResults {
 			this.addTab(new TabUreter(vue, this));
 		this.addTab(new TabZoomed(vue, this));
 		this.addTab(new TabOther(vue, this));
-		this.addTab(new TabPostMict(vue, this));
+		this.addTab(new TabPostMict(this));
 		if (((Model_Renal) controller.getModel()).getPatlakChart() != null) {
 			this.addTab(new TabPatlak(vue, this));
 		}

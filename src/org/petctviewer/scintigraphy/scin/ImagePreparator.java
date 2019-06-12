@@ -56,4 +56,11 @@ public interface ImagePreparator {
 	 */
 	String instructions();
 
+	/**
+	 * Launches the program with the specified images.
+	 *
+	 * @param preparedImages Image prepared
+	 */
+	void start(List<ImageSelection> preparedImages);
+
 }

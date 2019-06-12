@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.platelet;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
@@ -25,11 +24,11 @@ public class PlateletScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void start(ImageSelection[] selectedImages) {
-		this.setFenApplication(new FenApplicationWorkflow(selectedImages[0], getStudyName()));
+	public void start(List<ImageSelection> preparedImages) {
+		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), getStudyName()));
 		this.getFenApplication().setController(
 				new ControllerWorkflow_Platelet(this, (FenApplicationWorkflow) this.getFenApplication(),
-												selectedImages));
+												preparedImages.toArray(new ImageSelection[0])));
 		this.getFenApplication().setVisible(true);
 	}
 
@@ -43,8 +42,7 @@ public class PlateletScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public List<ImageSelection> prepareImages(List<ImageSelection> openedImages) throws WrongInputException,
-			ReadTagException {
+	public List<ImageSelection> prepareImages(List<ImageSelection> openedImages) throws WrongInputException {
 		// Check number
 		if (openedImages.size() < 2) throw new WrongNumberImagesException(openedImages.size(), 2, Integer.MAX_VALUE);
 

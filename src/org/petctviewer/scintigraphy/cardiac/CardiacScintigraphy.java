@@ -6,7 +6,6 @@ import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
@@ -30,23 +29,24 @@ public class CardiacScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void start(ImageSelection[] selectedImages) {
-		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 7);
-		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.YELLOW);
+	public void start(List<ImageSelection> preparedImages) {
+		Overlay overlay = Library_Gui.initOverlay(preparedImages.get(0).getImagePlus(), 7);
+		Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.YELLOW);
 
-		String[] infoOfAllImages = new String[selectedImages.length];
-		for (int indexImage = 0; indexImage < selectedImages.length; indexImage++)
-			infoOfAllImages[indexImage] = selectedImages[indexImage].getImagePlus().duplicate().getInfoProperty();
+		String[] infoOfAllImages = new String[preparedImages.size()];
+		for (int indexImage = 0; indexImage < preparedImages.size(); indexImage++)
+			infoOfAllImages[indexImage] = preparedImages.get(indexImage).getImagePlus().duplicate().getInfoProperty();
 
 
 		// fenetre de l'application
-		this.setFenApplication(new FenApplication_Cardiac(selectedImages[0], this.getStudyName()));
-		selectedImages[0].getImagePlus().setOverlay(overlay);
+		this.setFenApplication(new FenApplication_Cardiac(preparedImages.get(0), this.getStudyName()));
+		preparedImages.get(0).getImagePlus().setOverlay(overlay);
 
 		// Cree controller
 		this.getFenApplication().setController(
 				new ControllerWorkflowCardiac(this, (FenApplicationWorkflow) this.getFenApplication(),
-											  new Model_Cardiac(this, selectedImages, "Cardiac", infoOfAllImages)));
+											  new Model_Cardiac(this, preparedImages.toArray(new ImageSelection[0]),
+																"Cardiac", infoOfAllImages)));
 
 	}
 
@@ -56,8 +56,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException,
-			ReadTagException {
+	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException {
 		// Check number
 		if (selectedImages.size() > 2 || selectedImages.size() < 1) throw new WrongNumberImagesException(
 				selectedImages.size(), 1, 2);

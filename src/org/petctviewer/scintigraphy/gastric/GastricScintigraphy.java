@@ -26,11 +26,11 @@ public class GastricScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void start(ImageSelection[] selectedImages) {
-		this.setFenApplication(new FenApplicationWorkflow(selectedImages[0], getStudyName()));
+	public void start(List<ImageSelection> preparedImages) {
+		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), getStudyName()));
 		this.getFenApplication().setController(
-				new ControllerWorkflow_Gastric(this, (FenApplicationWorkflow) this.getFenApplication(), selectedImages,
-											   "Gastric Scintigraphy"));
+				new ControllerWorkflow_Gastric(this, (FenApplicationWorkflow) this.getFenApplication(),
+											   preparedImages.toArray(new ImageSelection[0]), STUDY_NAME));
 		this.getFenApplication().setVisible(true);
 	}
 
@@ -66,9 +66,11 @@ public class GastricScintigraphy extends Scintigraphy {
 										Math.abs((float) frameDuration / 1000f - (float) fDuration / 1000f));
 			}
 		}
-		if (frameDurationDifferent) JOptionPane.showMessageDialog(this.getFenApplication(), "Frame durations are not" +
-																		  " " +
-																		  "identical for every image.\nMax delta is: " + deltaSeconds + " seconds.", "Frame durations different",
+		if (frameDurationDifferent) JOptionPane.showMessageDialog(this.getFenApplication(),
+																  "Frame durations are not" + " " +
+																		  "identical for every image.\nMax delta is:" +
+																		  " " + deltaSeconds + " seconds.",
+																  "Frame durations different",
 																  JOptionPane.WARNING_MESSAGE);
 
 

@@ -48,7 +48,7 @@ public class FenSelectionDicom extends JDialog implements ActionListener, ImageL
 	 * @param preparator Module to prepare the images of this selection window
 	 */
 	public FenSelectionDicom(ImagePreparator preparator) {
-		super((JFrame) null, true);
+		super((JFrame) null, false);
 		this.preparator = preparator;
 		ImagePlus.addImageListener(this);
 		this.columns = new ArrayList<>();
@@ -358,6 +358,7 @@ public class FenSelectionDicom extends JDialog implements ActionListener, ImageL
 			if (userSelection != null) {
 				ImagePlus.removeImageListener(this);
 				this.selectedImages = userSelection;
+				this.preparator.start(this.selectedImages);
 				this.dispose();
 			}
 		} catch (WrongInputException e) {
