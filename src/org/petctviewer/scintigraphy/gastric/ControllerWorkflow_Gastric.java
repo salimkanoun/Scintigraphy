@@ -54,6 +54,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.generateInstructions();
 		this.start();
 
+		// Result window
 		this.fenResults = new FenResults(this);
 	}
 

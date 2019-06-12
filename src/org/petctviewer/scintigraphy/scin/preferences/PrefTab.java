@@ -12,11 +12,11 @@ public abstract class PrefTab extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	protected final JPanel mainPanel;
+	private final JPanel pnl_titre;
 	/**
 	 * Preference window where this tab is linked to.<br> Can be null!
 	 */
-	protected PrefWindow parent;
-	private final JPanel pnl_titre;
+	protected JFrame parent;
 	private String prefTabName;
 	private JLabel title;
 
@@ -33,9 +33,9 @@ public abstract class PrefTab extends JPanel implements ActionListener {
 	 * Instantiates a new preference tab.
 	 *
 	 * @param tabName Name of the tab (used for display)
-	 * @param parent  Preference window (can be null if no parent)
+	 * @param parent  Window this tab is linked to (can be null if no parent)
 	 */
-	public PrefTab(String tabName, PrefWindow parent) {
+	public PrefTab(String tabName, JFrame parent) {
 		// Set variable
 		this.prefTabName = tabName;
 		this.parent = parent;
@@ -107,8 +107,8 @@ public abstract class PrefTab extends JPanel implements ActionListener {
 			JCheckBox check = (JCheckBox) e.getSource();
 			// Save value in prefs
 			Prefs.set(check.getActionCommand(), check.isSelected());
-			if (this.parent != null) this.parent.displayMessage("Please close the window to save the preferences",
-																PrefWindow.DURATION_SHORT);
+			if (this.parent != null && this.parent instanceof PrefWindow) ((PrefWindow) this.parent).displayMessage(
+					"Please close the window to save the preferences", PrefWindow.DURATION_SHORT);
 		}
 	}
 }

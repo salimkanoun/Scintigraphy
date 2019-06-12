@@ -51,6 +51,17 @@ public class PrefTabRenal extends PrefTab implements DocumentListener {
 		this.mainPanel.add(boxRight);
 	}
 
+	private void savePref() {
+		try {
+			Prefs.set(PREF_LASILIX_INJECT_TIME, Double.parseDouble(textField.getText()));
+			if (this.parent != null && this.parent instanceof PrefWindow) ((PrefWindow) parent).displayMessage(null);
+		} catch (NumberFormatException e) {
+			Prefs.set(PREF_LASILIX_INJECT_TIME, 1.);
+			if (this.parent != null && this.parent instanceof PrefWindow) ((PrefWindow) parent).displayMessage(
+					"Cannot save (" + textField.getText() + ") -> not a number");
+		}
+	}
+
 	@Override
 	public void insertUpdate(DocumentEvent e) {
 		savePref();
@@ -64,15 +75,5 @@ public class PrefTabRenal extends PrefTab implements DocumentListener {
 	@Override
 	public void changedUpdate(DocumentEvent e) {
 		savePref();
-	}
-
-	private void savePref() {
-		try {
-			Prefs.set(PREF_LASILIX_INJECT_TIME, Double.parseDouble(textField.getText()));
-			parent.displayMessage(null);
-		} catch (NumberFormatException e) {
-			Prefs.set(PREF_LASILIX_INJECT_TIME, 1.);
-			parent.displayMessage("Cannot save (" + textField.getText() + ") -> not a number");
-		}
 	}
 }

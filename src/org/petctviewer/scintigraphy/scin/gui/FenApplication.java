@@ -52,8 +52,9 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	private Panel panel_Instructions_btns_droite;
 	private ControllerScin controleur;
 	private int canvasW, canvasH;
-	private PrefTab preferences;
+	private JDialog preferences;
 	private Menu options;
+	private MenuItem menuItem_preferences;
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
@@ -146,8 +147,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 			}
 
 		});
-		// Open Preferences
-		MenuItem mi_preferences = new MenuItem("Preferences");
 
 		Menu help = new Menu("Help");
 		MenuItem doc = new MenuItem("Documentation");
@@ -305,12 +304,25 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	 *
 	 * @param preferences Preference tab associated with this application
 	 */
-	protected void setPreferences(PrefTab preferences) {
+	public void setPreferences(PrefTab preferences) {
 		if (preferences == null) {
 			// Remove menu item
-			this.options.remove(this.preferences);
+			if (this.menuItem_preferences != null) this.options.remove(this.menuItem_preferences);
+			this.preferences = null;
+		} else {
+			// Create preferences
+			this.preferences = new JDialog(this, "Preferences - " + preferences.getTabName(), true);
+			this.preferences.add(preferences);
+
+			this.menuItem_preferences = new MenuItem("Preferences");
+			this.menuItem_preferences.addActionListener(e -> {
+				this.preferences.pack();
+				this.preferences.setLocationRelativeTo(this);
+				this.preferences.setVisible(true);
+			});
+
+			this.options.add(this.menuItem_preferences);
 		}
-		this.preferences = preferences;
 	}
 
 	protected Panel getPanel_bttns_droit() {

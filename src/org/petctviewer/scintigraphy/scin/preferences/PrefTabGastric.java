@@ -19,7 +19,7 @@ public class PrefTabGastric extends PrefTab implements ActionListener, ItemListe
 
 	private JTextField textField;
 
-	public PrefTabGastric(PrefWindow parent) {
+	public PrefTabGastric(JFrame parent) {
 		super("Gastric", parent);
 
 		this.setTitle("Gastric Scintigraphy settings");
@@ -56,6 +56,18 @@ public class PrefTabGastric extends PrefTab implements ActionListener, ItemListe
 		return panUnit;
 	}
 
+	private void savePref() {
+		try {
+			Prefs.set(PREF_FRAME_DURATION_TOLERANCE, Integer.parseInt(textField.getText()));
+			if (this.parent != null && this.parent instanceof PrefWindow) ((PrefWindow) this.parent).displayMessage(
+					null);
+		} catch (NumberFormatException e) {
+			Prefs.set(PREF_FRAME_DURATION_TOLERANCE, 1);
+			if (this.parent != null && this.parent instanceof PrefWindow) ((PrefWindow) this.parent).displayMessage(
+					"Cannot save (" + textField.getText() + ") -> not a number");
+		}
+	}
+
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -63,8 +75,8 @@ public class PrefTabGastric extends PrefTab implements ActionListener, ItemListe
 				@SuppressWarnings("unchecked") JComboBox<Unit> source = (JComboBox<Unit>) e.getSource();
 				// Save new unit
 				Prefs.set(source.getActionCommand(), ((Unit) e.getItem()).name());
-				this.parent.displayMessage("Please close the window to save the preferences",
-										   PrefWindow.DURATION_SHORT);
+				if (this.parent != null && this.parent instanceof PrefWindow) ((PrefWindow) this.parent).displayMessage(
+						"Please close the window to save the preferences", PrefWindow.DURATION_SHORT);
 			}
 		}
 	}
@@ -82,16 +94,6 @@ public class PrefTabGastric extends PrefTab implements ActionListener, ItemListe
 	@Override
 	public void changedUpdate(DocumentEvent e) {
 		savePref();
-	}
-
-	private void savePref() {
-		try {
-			Prefs.set(PREF_FRAME_DURATION_TOLERANCE, Integer.parseInt(textField.getText()));
-			parent.displayMessage(null);
-		} catch (NumberFormatException e) {
-			Prefs.set(PREF_FRAME_DURATION_TOLERANCE, 1);
-			parent.displayMessage("Cannot save (" + textField.getText() + ") -> not a number");
-		}
 	}
 
 }
