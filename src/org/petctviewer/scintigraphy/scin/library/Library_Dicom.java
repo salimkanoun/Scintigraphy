@@ -601,6 +601,27 @@ public class Library_Dicom {
 	}
 
 	/**
+	 * This method will always return a clone of the specified ImageSelection in Ant/Post orientation.<br> This method
+	 * can only be used with Ant/Post or Post/Ant images.
+	 *
+	 * @param ims ImageSelection to compute
+	 * @return ImageSelection in Ant/Post
+	 * @throws WrongOrientationException if the orientation of the image is different than Ant/Post or Post/Ant
+	 * @author Titouan QUÉMA
+	 */
+	public static ImageSelection ensureAntPost(ImageSelection ims) throws WrongOrientationException {
+		ImageSelection result = ims.clone();
+		if (ims.getImageOrientation() == Orientation.POST_ANT) {
+			// Reverse
+			IJ.run(result.getImagePlus(), "Reverse", "");
+		} else if (ims.getImageOrientation() != Orientation.ANT_POST) {
+			throw new WrongOrientationException(ims.getImageOrientation(),
+												new Orientation[]{Orientation.ANT_POST, Orientation.POST_ANT});
+		}
+		return result;
+	}
+
+	/**
 	 * This method will always return a clone of the specified ImageSelection in Ant/Post orientation with the Post
 	 * image flipped. This ensure the image is in the right lateralisation.<br> This method can only be used with
 	 * Ant/Post or Post/Ant images.
