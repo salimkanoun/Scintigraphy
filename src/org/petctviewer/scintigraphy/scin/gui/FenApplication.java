@@ -269,7 +269,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		super.setImage(imp);
 		Library_Gui.setCustomLut(imp);
 		this.imp = imp;
-		this.revalidate();
 		this.resizeCanvas();
 	}
 
