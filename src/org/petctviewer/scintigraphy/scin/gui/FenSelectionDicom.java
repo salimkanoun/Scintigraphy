@@ -302,10 +302,10 @@ public class FenSelectionDicom extends JDialog implements ActionListener, ImageL
 		try {
 			List<ImageSelection> userSelection = this.preparator.prepareImages(selectedImages);
 			if (userSelection != null) {
+				this.dispose();
 				ImagePlus.removeImageListener(this);
 				this.selectedImages = userSelection;
 				this.preparator.start(this.selectedImages);
-				this.dispose();
 			}
 		} catch (WrongInputException e) {
 			JOptionPane.showMessageDialog(this, "Error while selecting images:\n" + e.getMessage(), "Selection error",
