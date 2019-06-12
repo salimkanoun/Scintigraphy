@@ -72,11 +72,11 @@ public class ModelPlatelet extends ModelWorkflow {
 
 		Data data = createOrRetrieveData(state);
 		if (state.getFacingOrientation() == Orientation.ANT) {
-			data.setAntValue(regionName, Data.DATA_ANT_COUNTS, value, state, roi);
-			data.setAntValue(regionName, Data.DATA_MEAN_ANT_COUNTS, Library_Quantif.getAvgCounts(imp));
+			data.setAntValue(regionName, Data.DATA_COUNTS, value, state, roi);
+			data.setAntValue(regionName, Data.DATA_MEAN_COUNTS, Library_Quantif.getAvgCounts(imp));
 		} else {
-			data.setPostValue(regionName, Data.DATA_POST_COUNTS, value, state, roi);
-			data.setPostValue(regionName, Data.DATA_MEAN_POST_COUNTS, Library_Quantif.getAvgCounts(imp));
+			data.setPostValue(regionName, Data.DATA_COUNTS, value, state, roi);
+			data.setPostValue(regionName, Data.DATA_MEAN_COUNTS, Library_Quantif.getAvgCounts(imp));
 		}
 		this.datas.add(data);
 	}
@@ -85,9 +85,9 @@ public class ModelPlatelet extends ModelWorkflow {
 		int type;
 		String title = "Ratio Spleen / Heart Post";
 		if (mean) {
-			type = Data.DATA_MEAN_POST_COUNTS;
+			type = Data.DATA_MEAN_COUNTS;
 			title = "Mean " + title;
-		} else type = Data.DATA_POST_COUNTS;
+		} else type = Data.DATA_COUNTS;
 
 		XYSeries series = new XYSeries(title);
 		for (Data data : this.datas) {
@@ -101,9 +101,9 @@ public class ModelPlatelet extends ModelWorkflow {
 		int type;
 		String title = "Ratio Liver / Heart Post";
 		if (mean) {
-			type = Data.DATA_MEAN_POST_COUNTS;
+			type = Data.DATA_MEAN_COUNTS;
 			title = "Mean " + title;
-		} else type = Data.DATA_POST_COUNTS;
+		} else type = Data.DATA_COUNTS;
 
 		XYSeries series = new XYSeries(title);
 		for (Data data : this.datas) {
@@ -117,9 +117,9 @@ public class ModelPlatelet extends ModelWorkflow {
 		int type;
 		String title = "Ratio Spleen / Liver Post";
 		if (mean) {
-			type = Data.DATA_MEAN_POST_COUNTS;
+			type = Data.DATA_MEAN_COUNTS;
 			title = "Mean " + title;
-		} else type = Data.DATA_POST_COUNTS;
+		} else type = Data.DATA_COUNTS;
 
 		XYSeries series = new XYSeries(title);
 		for (Data data : this.datas) {
@@ -133,10 +133,10 @@ public class ModelPlatelet extends ModelWorkflow {
 		int type;
 		String title = "Decay Corrected Spleen Posterior";
 		if (mean) {
-			type = Data.DATA_MEAN_POST_COUNTS;
+			type = Data.DATA_MEAN_COUNTS;
 			title += " - Mean";
 		} else {
-			type = Data.DATA_POST_COUNTS;
+			type = Data.DATA_COUNTS;
 		}
 
 		XYSeries series = new XYSeries(title);
@@ -207,11 +207,11 @@ public class ModelPlatelet extends ModelWorkflow {
 		String title = "Spleen Jx / J0";
 		if (mean) {
 			if (geoAvg) type = Data.DATA_MEAN_GEO_AVG;
-			else type = Data.DATA_MEAN_POST_COUNTS;
+			else type = Data.DATA_MEAN_COUNTS;
 			title += " - Mean";
 		} else {
 			if (geoAvg) type = Data.DATA_GEO_AVG;
-			else type = Data.DATA_POST_COUNTS;
+			else type = Data.DATA_COUNTS;
 		}
 
 		XYSeries series = new XYSeries(title);
@@ -227,11 +227,11 @@ public class ModelPlatelet extends ModelWorkflow {
 		String title = "Liver Jx / J0";
 		if (mean) {
 			if (geoAvg) type = Data.DATA_MEAN_GEO_AVG;
-			else type = Data.DATA_MEAN_POST_COUNTS;
+			else type = Data.DATA_MEAN_COUNTS;
 			title += " - Mean";
 		} else {
 			if (geoAvg) type = Data.DATA_GEO_AVG;
-			else type = Data.DATA_POST_COUNTS;
+			else type = Data.DATA_COUNTS;
 		}
 
 		XYSeries series = new XYSeries(title);
@@ -254,11 +254,10 @@ public class ModelPlatelet extends ModelWorkflow {
 			for (Data data : this.datas) {
 				for (String regionName : this.allRegions()) {
 					// Average
-					double avg = Library_Quantif.moyGeom(data.getAntValue(regionName, Data.DATA_ANT_COUNTS),
-														 data.getPostValue(regionName, Data.DATA_POST_COUNTS));
-					double meanAvg = Library_Quantif.moyGeom(data.getAntValue(regionName, Data.DATA_MEAN_ANT_COUNTS),
-															 data.getPostValue(regionName,
-																			   Data.DATA_MEAN_POST_COUNTS));
+					double avg = Library_Quantif.moyGeom(data.getAntValue(regionName, Data.DATA_COUNTS),
+														 data.getPostValue(regionName, Data.DATA_COUNTS));
+					double meanAvg = Library_Quantif.moyGeom(data.getAntValue(regionName, Data.DATA_MEAN_COUNTS),
+															 data.getPostValue(regionName, Data.DATA_MEAN_COUNTS));
 					data.setPostValue(regionName, Data.DATA_GEO_AVG, avg);
 					data.setPostValue(regionName, Data.DATA_MEAN_GEO_AVG, meanAvg);
 				}

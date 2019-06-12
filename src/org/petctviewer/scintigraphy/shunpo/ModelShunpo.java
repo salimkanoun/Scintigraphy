@@ -35,10 +35,6 @@ public class ModelShunpo extends ModelWorkflow {
 		this.results = new HashMap<>();
 	}
 
-	private static Unit unitFromResult(Result res) {
-		return Unit.PERCENTAGE;
-	}
-
 	private Data createOrRetrieveData(ImageState state) {
 		Data data = this.datas.stream().filter(d -> d.getAssociatedImage() == state.getImage()).findFirst().orElse(
 				null);
@@ -85,9 +81,13 @@ public class ModelShunpo extends ModelWorkflow {
 
 		Data data = this.createOrRetrieveData(state);
 		if (state.getFacingOrientation() == Orientation.ANT) {
-			data.setAntValue(regionName, Data.DATA_ANT_COUNTS, counts, state, roi);
+			data.setAntValue(regionName, Data.DATA_COUNTS, counts, state, roi);
+			data.setAntValue(regionName, Data.DATA_MEAN_COUNTS, Library_Quantif.getAvgCounts(imp));
+			data.setAntValue(regionName, Data.DATA_PIXEL_COUNTS, Library_Quantif.getPixelNumber(imp));
 		} else {
-			data.setPostValue(regionName, Data.DATA_POST_COUNTS, counts, state, roi);
+			data.setPostValue(regionName, Data.DATA_COUNTS, counts, state, roi);
+			data.setPostValue(regionName, Data.DATA_MEAN_COUNTS, Library_Quantif.getAvgCounts(imp));
+			data.setPostValue(regionName, Data.DATA_PIXEL_COUNTS, Library_Quantif.getPixelNumber(imp));
 		}
 		this.datas.add(data);
 	}
@@ -97,39 +97,78 @@ public class ModelShunpo extends ModelWorkflow {
 		Double value = this.results.get(request.getResultOn().hashCode());
 		if (value == null) return null;
 		// Convert result to requested unit
-		Unit conversion = (request.getUnit() == null ? unitFromResult(request.getResultOn()) : request.getUnit());
-		value = unitFromResult(request.getResultOn()).convertTo(value, conversion);
+		Unit conversion = (request.getUnit() == null ? Unit.PERCENTAGE : request.getUnit());
+		value = Unit.PERCENTAGE.convertTo(value, conversion);
 		return new ResultValue(request, value, conversion);
 	}
 
 	@Override
 	public void calculateResults() {
+		// Correct kidneys with background
+		// -- Ant
+		// --- Right
+		double counts = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_RIGHT_KIDNEY, Data.DATA_COUNTS);
+		double meanBkg = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_BACKGROUND, Data.DATA_MEAN_COUNTS);
+		double pixels = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_RIGHT_KIDNEY, Data.DATA_PIXEL_COUNTS);
+		double value = counts - meanBkg * pixels;
+		datas.get(IMAGE_KIDNEY_LUNG).setAntValue(REGION_RIGHT_KIDNEY, Data.DATA_COUNTS_CORRECTED, value);
+		// --- Left
+		counts = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_LEFT_KIDNEY, Data.DATA_COUNTS);
+		meanBkg = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_BACKGROUND, Data.DATA_MEAN_COUNTS);
+		pixels = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_LEFT_KIDNEY, Data.DATA_PIXEL_COUNTS);
+		value = counts - meanBkg * pixels;
+		datas.get(IMAGE_KIDNEY_LUNG).setAntValue(REGION_LEFT_KIDNEY, Data.DATA_COUNTS_CORRECTED, value);
+		// -- Post
+		// --- Right
+		counts = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_RIGHT_KIDNEY, Data.DATA_COUNTS);
+		meanBkg = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_BACKGROUND, Data.DATA_MEAN_COUNTS);
+		pixels = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_RIGHT_KIDNEY, Data.DATA_PIXEL_COUNTS);
+		value = counts - meanBkg * pixels;
+		datas.get(IMAGE_KIDNEY_LUNG).setPostValue(REGION_RIGHT_KIDNEY, Data.DATA_COUNTS_CORRECTED, value);
+		// --- Left
+		counts = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_LEFT_KIDNEY, Data.DATA_COUNTS);
+		meanBkg = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_BACKGROUND, Data.DATA_MEAN_COUNTS);
+		pixels = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_LEFT_KIDNEY, Data.DATA_PIXEL_COUNTS);
+		value = counts - meanBkg * pixels;
+		datas.get(IMAGE_KIDNEY_LUNG).setPostValue(REGION_LEFT_KIDNEY, Data.DATA_COUNTS_CORRECTED, value);
+
 		// Compute geometrical averages
 		// == KIDNEY-LUNG ==
 		Data data = datas.get(IMAGE_KIDNEY_LUNG);
 		for (String regionName : this.regionsKidneyLung()) {
-			double geoAvg = Library_Quantif.moyGeom(data.getAntValue(regionName, Data.DATA_ANT_COUNTS),
-													data.getPostValue(regionName, Data.DATA_POST_COUNTS));
+			double geoAvg = Library_Quantif.moyGeom(data.getAntValue(regionName, Data.DATA_COUNTS),
+													data.getPostValue(regionName, Data.DATA_COUNTS));
 			data.setAntValue(regionName, Data.DATA_GEO_AVG, geoAvg);
 		}
 		// Percentage
-		double sumAvg = data.getAntValue(REGION_RIGHT_LUNG, Data.DATA_GEO_AVG) + data.getAntValue(REGION_LEFT_LUNG,
-																								  Data.DATA_GEO_AVG);
+		double totalLung = data.getAntValue(REGION_RIGHT_LUNG, Data.DATA_GEO_AVG) + data.getAntValue(REGION_LEFT_LUNG,
+																									 Data.DATA_GEO_AVG);
 		this.results.put(RES_RATIO_RIGHT_LUNG.hashCode(),
-						 data.getAntValue(REGION_RIGHT_LUNG, Data.DATA_GEO_AVG) / sumAvg * 100.);
+						 data.getAntValue(REGION_RIGHT_LUNG, Data.DATA_GEO_AVG) / totalLung * 100.);
 		this.results.put(RES_RATIO_LEFT_LUNG.hashCode(),
-						 data.getAntValue(REGION_LEFT_LUNG, Data.DATA_GEO_AVG) / sumAvg * 100.);
+						 data.getAntValue(REGION_LEFT_LUNG, Data.DATA_GEO_AVG) / totalLung * 100.);
 
-		// == BRAIN ==
-		data = datas.get(IMAGE_BRAIN);
-		double mgBrain = Library_Quantif.moyGeom(data.getAntValue(REGION_BRAIN, Data.DATA_ANT_COUNTS),
-												 data.getPostValue(REGION_BRAIN, Data.DATA_POST_COUNTS));
-		data.setAntValue(REGION_BRAIN, Data.DATA_GEO_AVG, mgBrain);
+		// Calculate sum shunt
+		double kidneyRight = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_RIGHT_KIDNEY, Data.DATA_COUNTS_CORRECTED);
+		double kidneyLeft = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_LEFT_KIDNEY, Data.DATA_COUNTS_CORRECTED);
+		double brain = datas.get(IMAGE_BRAIN).getAntValue(REGION_BRAIN, Data.DATA_COUNTS);
+		double ant = kidneyRight + kidneyLeft + brain;
+		kidneyRight = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_RIGHT_KIDNEY, Data.DATA_COUNTS_CORRECTED);
+		kidneyLeft = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_LEFT_KIDNEY, Data.DATA_COUNTS_CORRECTED);
+		brain = datas.get(IMAGE_BRAIN).getPostValue(REGION_BRAIN, Data.DATA_COUNTS);
+		double post = kidneyRight + kidneyLeft + brain;
+		double sumShunt = Library_Quantif.moyGeom(ant, post);
+
+		// Calculate sum average
+		double lungRight = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_RIGHT_LUNG, Data.DATA_COUNTS);
+		double lungLeft = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_LEFT_LUNG, Data.DATA_COUNTS);
+		ant = lungRight + lungLeft;
+		lungRight = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_RIGHT_LUNG, Data.DATA_COUNTS);
+		lungLeft = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_LEFT_LUNG, Data.DATA_COUNTS);
+		post = lungRight + lungLeft;
+		double sumAvg = ant + post;
 
 		// Percentage shunt systemic
-		double sumShunt = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_RIGHT_KIDNEY, Data.DATA_GEO_AVG) + datas.get(
-				IMAGE_KIDNEY_LUNG).getAntValue(REGION_LEFT_KIDNEY, Data.DATA_GEO_AVG) + datas.get(
-				IMAGE_BRAIN).getAntValue(REGION_BRAIN, Data.DATA_GEO_AVG);
 		this.results.put(RES_SHUNT_SYST.hashCode(), 100. * sumShunt / sumAvg);
 
 		// Pulmonary shunt
@@ -139,14 +178,14 @@ public class ModelShunpo extends ModelWorkflow {
 		System.out.println("Put(" + RES_PULMONARY_SHUNT.hashCode() + "," + pulmonaryShunt + ")");
 
 		// Pulmonary shunt - method 2
-		double lungAnt = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_RIGHT_LUNG, Data.DATA_ANT_COUNTS) + datas.get(
-				IMAGE_KIDNEY_LUNG).getAntValue(REGION_LEFT_LUNG, Data.DATA_ANT_COUNTS);
-		double lungPost = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_RIGHT_LUNG, Data.DATA_POST_COUNTS) +
-				datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_LEFT_LUNG, Data.DATA_POST_COUNTS);
+		double lungAnt = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_RIGHT_LUNG, Data.DATA_COUNTS) + datas.get(
+				IMAGE_KIDNEY_LUNG).getAntValue(REGION_LEFT_LUNG, Data.DATA_COUNTS);
+		double lungPost = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_RIGHT_LUNG, Data.DATA_COUNTS) + datas.get(
+				IMAGE_KIDNEY_LUNG).getPostValue(REGION_LEFT_LUNG, Data.DATA_COUNTS);
 		double lungGeo = Library_Quantif.moyGeom(lungAnt, lungPost);
 
-		double brainAnt = datas.get(IMAGE_BRAIN).getAntValue(REGION_BRAIN, Data.DATA_ANT_COUNTS);
-		double brainPost = datas.get(IMAGE_BRAIN).getPostValue(REGION_BRAIN, Data.DATA_POST_COUNTS);
+		double brainAnt = datas.get(IMAGE_BRAIN).getAntValue(REGION_BRAIN, Data.DATA_COUNTS);
+		double brainPost = datas.get(IMAGE_BRAIN).getPostValue(REGION_BRAIN, Data.DATA_COUNTS);
 		double brainGeo = Library_Quantif.moyGeom(brainAnt, brainPost);
 
 		double shunt = (brainGeo / .13) / ((brainGeo / .13) + lungGeo) * 100.;
