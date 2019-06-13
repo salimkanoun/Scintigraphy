@@ -42,7 +42,8 @@ public class ModelShunpo extends ModelWorkflow {
 	 * @return data previously saved or new data
 	 */
 	private Data createOrRetrieveData(ImageState state) {
-		Data data = this.datas.stream().filter(d -> d.getAssociatedImage() == state.getImage()).findFirst().orElse(null);
+		Data data = this.datas.stream().filter(d -> d.getAssociatedImage() == state.getImage()).findFirst().orElse(
+				null);
 		if (data == null) {
 			Date time0 = (this.datas.size() > 0 ? this.datas.get(0).getAssociatedImage().getDateAcquisition() :
 					state.getImage().getDateAcquisition());
@@ -91,14 +92,20 @@ public class ModelShunpo extends ModelWorkflow {
 	 * @return <code>GeoMean( (R-KIDNEY + L-KIDNEY + BRAIN)ant ; (R-KIDNEY + L-KIDNEY + BRAIN)post )</code>
 	 */
 	private double calculateSumShunts() {
+		System.out.println("Sum Shunts: MG(right_kidney_ant + left_kidney_ant + brain_ant ; right_kidney_post + " +
+								   "left_kidney_post + brain_post)");
 		double kidneyRight = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_RIGHT_KIDNEY, Data.DATA_COUNTS_CORRECTED);
 		double kidneyLeft = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_LEFT_KIDNEY, Data.DATA_COUNTS_CORRECTED);
 		double brain = datas.get(IMAGE_BRAIN).getAntValue(REGION_BRAIN, Data.DATA_COUNTS);
 		double ant = kidneyRight + kidneyLeft + brain;
+		System.out.print("Sum Shunts: MG(" + kidneyRight + " + " + kidneyLeft + " + " + brain + " ; ");
 		kidneyRight = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_RIGHT_KIDNEY, Data.DATA_COUNTS_CORRECTED);
 		kidneyLeft = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_LEFT_KIDNEY, Data.DATA_COUNTS_CORRECTED);
 		brain = datas.get(IMAGE_BRAIN).getPostValue(REGION_BRAIN, Data.DATA_COUNTS);
 		double post = kidneyRight + kidneyLeft + brain;
+		System.out.println(kidneyRight + " + " + kidneyLeft + " + " + brain + ")");
+		System.out.println("Sum Shunts: MG(" + ant + " ; " + post + ")");
+		System.out.println("Sum Shunts = " + Library_Quantif.moyGeom(ant, post));
 		return Library_Quantif.moyGeom(ant, post);
 	}
 
@@ -110,13 +117,18 @@ public class ModelShunpo extends ModelWorkflow {
 	 * @return <code>GeoMean( (R-LUNG + L-LUNG)ant ; (R-LUNG + L-LUNG)post )</code>
 	 */
 	private double calculateSumLungs() {
+		System.out.println("Sum Lungs: MG(right_lung_ant + left_lung_ant ; right_lung_post + left_lung_post)");
 		double lungRight = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_RIGHT_LUNG, Data.DATA_COUNTS);
 		double lungLeft = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_LEFT_LUNG, Data.DATA_COUNTS);
 		double ant = lungRight + lungLeft;
+		System.out.print("Sum Lungs: MG(" + lungRight + " + " + lungLeft + " ; ");
 		lungRight = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_RIGHT_LUNG, Data.DATA_COUNTS);
 		lungLeft = datas.get(IMAGE_KIDNEY_LUNG).getPostValue(REGION_LEFT_LUNG, Data.DATA_COUNTS);
 		double post = lungRight + lungLeft;
-		return ant + post;
+		System.out.println(lungRight + " + " + lungLeft + ")");
+		System.out.println("Sum Lungs: MG(" + ant + " ; " + post + ")");
+		System.out.println("Sum Lungs = " + Library_Quantif.moyGeom(ant, post));
+		return Library_Quantif.moyGeom(ant, post);
 	}
 
 	/**
@@ -204,6 +216,10 @@ public class ModelShunpo extends ModelWorkflow {
 		// Pulmonary shunt
 		double pulmonaryShunt = (sumShunts * 100.) / (sumLungs * .38);
 		this.results.put(RES_PULMONARY_SHUNT.hashCode(), pulmonaryShunt);
+		System.out.println(
+				"Pulmonary Shunt: \n(sumShunt * 100.) / (sumAvg * .38)\n(" + sumShunts + " * 100.) / (" + sumLungs +
+						" * .38)");
+		System.out.println("Pulmonary Shunt = " + pulmonaryShunt);
 
 		// Pulmonary shunt - method 2
 		double lungAnt = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_RIGHT_LUNG, Data.DATA_COUNTS) + datas.get(
@@ -217,8 +233,6 @@ public class ModelShunpo extends ModelWorkflow {
 		double brainGeo = Library_Quantif.moyGeom(brainAnt, brainPost);
 
 		double shunt = (brainGeo / .13) / ((brainGeo / .13) + lungGeo) * 100.;
-		System.out.println("BrainGeo=" + brainGeo + ";LungGeo=" + lungGeo + ";Result=" + shunt);
 		this.results.put(RES_PULMONARY_SHUNT_2.hashCode(), shunt);
-		System.out.println("Put(" + RES_PULMONARY_SHUNT_2.hashCode() + "," + shunt + ")");
 	}
 }

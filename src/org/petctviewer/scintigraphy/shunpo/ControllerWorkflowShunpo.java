@@ -18,6 +18,7 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ResultRequest;
+import org.petctviewer.scintigraphy.scin.model.ResultValue;
 
 import javax.swing.*;
 import java.awt.*;
@@ -107,12 +108,19 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		// Display result
 		this.fenResults.clearTabs();
 		this.fenResults.setMainTab(new MainResult(this.fenResults, montage1));
-		this.fenResults.addTab(new TabResult(this.fenResults, "Without Kidneys") {
+		this.fenResults.addTab(new TabResult(this.fenResults, "Without Kidneys", true) {
 			@Override
 			public Component getSidePanelContent() {
 				JPanel panel = new JPanel(new GridLayout(0, 1));
 				ResultRequest request = new ResultRequest(ModelShunpo.RES_PULMONARY_SHUNT_2);
-				panel.add(new JLabel(getModel().getResult(request).toString()));
+				ResultValue result = getModel().getResult(request);
+
+				JLabel label = new JLabel(result.toString());
+				// Color result
+				if (result.getValue() < 6.) label.setForeground(Color.GREEN);
+				else label.setForeground(Color.RED);
+				panel.add(label);
+
 				return panel;
 			}
 
