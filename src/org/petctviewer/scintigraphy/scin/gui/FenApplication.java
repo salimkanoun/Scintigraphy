@@ -11,6 +11,7 @@ import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
 import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
 import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTab;
 
 import javax.swing.*;
@@ -67,6 +68,8 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 	public FenApplication(ImagePlus imp, String studyName, ImageCanvas canvas) {
 		super(imp, canvas);
+
+		Library_Gui.setCustomLut(this.imp);
 
 		this.studyName = studyName;
 
@@ -291,7 +294,13 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	public void componentHidden(ComponentEvent e) {
 	}
 
-	protected void setDocumentation(DocumentationDialog documentation) {
+	/**
+	 * Sets the documentation dialog for this application. When a preference tab is set, it will be accessible in the
+	 * menu bar.<br> If null is passed, it will remove the previous documentation set (if any).
+	 *
+	 * @param documentation Documentation dialog associated with this application
+	 */
+	public void setDocumentation(DocumentationDialog documentation) {
 		this.documentation = documentation;
 	}
 
