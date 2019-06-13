@@ -770,7 +770,7 @@ public class SaveAndLoad {
 			throws UnauthorizedRoiLoadException, UnloadRoiException {
 
 		JFileChooser fc = new JFileChooser();
-		fc.setCurrentDirectory(new File("./"));
+		fc.setCurrentDirectory(new File(Prefs.get(PrefTabMain.PREF_SAVE_DIRECTORY, "./")));
 		fc.setDialogTitle("Choose .zip containing rois");
 		int returnVal = fc.showOpenDialog(frame);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
