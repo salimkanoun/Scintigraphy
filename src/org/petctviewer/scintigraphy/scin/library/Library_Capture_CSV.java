@@ -12,6 +12,7 @@ import ij.plugin.MontageMaker;
 import ij.plugin.ZProjector;
 import ij.plugin.frame.RoiManager;
 import ij.process.ImageProcessor;
+import ij.process.LUT;
 import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
@@ -154,6 +155,7 @@ public class Library_Capture_CSV {
 		if (width < 0 || height < 0) throw new IllegalArgumentException("Width and height cannot be negative");
 
 		// Change LUT of the capture according to pref
+		LUT backupLut = imp.getProcessor().getLut();
 		Library_Gui.setCustomLut(imp, PrefTabMain.PREF_LUT_CAPTURE);
 
 		ImageCanvas canvas = imp.getCanvas();
@@ -172,7 +174,7 @@ public class Library_Capture_CSV {
 		}
 
 		// Reset LUT
-		Library_Gui.setCustomLut(imp);
+		imp.setLut(backupLut);
 
 		return new ImagePlus("Capture of " + imp.getShortTitle(), img);
 	}

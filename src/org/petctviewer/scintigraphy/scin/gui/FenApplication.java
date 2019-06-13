@@ -265,9 +265,9 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 	@Override
 	public void setImage(ImagePlus imp) {
+		// Use previous image LUT
+		imp.setLut(this.imp.getProcessor().getLut());
 		super.setImage(imp);
-		Library_Gui.setCustomLut(imp);
-		this.imp = imp;
 		this.resizeCanvas();
 	}
 

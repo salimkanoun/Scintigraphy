@@ -185,11 +185,7 @@ public class Library_Gui {
 	 * @param imp : L'ImagePlus sur laquelle on va appliquer la LUT des preferences
 	 */
 	public static void setCustomLut(ImagePlus imp) {
-		String lalut = Prefs.get(PrefTabMain.PREF_LUT, null);
-		if (lalut != null) {
-			LUT lut = ij.plugin.LutLoader.openLut(lalut);
-			imp.setLut(lut);
-		}
+		setCustomLut(imp, PrefTabMain.PREF_LUT);
 	}
 
 	/**
