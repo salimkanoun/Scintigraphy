@@ -8,7 +8,6 @@ import ij.gui.StackWindow;
 import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
 import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
 import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
@@ -227,9 +226,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 	public void setController(ControllerScin ctrl) {
 		this.controleur = ctrl;
-
-		// on affiche la premiere instruction
-		if (ctrl instanceof Controller_OrganeFixe) ((Controller_OrganeFixe) ctrl).setInstructionsDelimit(0);
 
 		// on ajoute le controleur a tous les boutons
 		this.btn_contrast.addActionListener(ctrl);

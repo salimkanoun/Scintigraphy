@@ -261,7 +261,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		}
 
 		if (resetOverlay) {
-			this.vue.getOverlay().clear();
+			this.vue.getImagePlus().getOverlay().clear();
 			this.setOverlay(this.currentState);
 		}
 	}
@@ -359,7 +359,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 		if (currentInstruction.isExpectingUserInput()) {
 			this.displayInstruction(currentInstruction.getMessage());
-			this.vue.getOverlay().clear();
+			this.vue.getImagePlus().getOverlay().clear();
 			this.setOverlay(this.currentState);
 			this.prepareImage(currentInstruction.getImageState());
 
@@ -659,7 +659,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		if (instruction.getImageState() != null) {
 			this.prepareImage(instruction.getImageState(), indexWorkflow);
 			int[] roisToDisplay = this.roisToDisplay(indexWorkflow, instruction.getImageState(), instruction);
-			this.vue.getOverlay().clear();
+			this.vue.getImagePlus().getOverlay().clear();
 			this.setOverlay(instruction.getImageState());
 			this.displayRois(roisToDisplay);
 			// Refresh display

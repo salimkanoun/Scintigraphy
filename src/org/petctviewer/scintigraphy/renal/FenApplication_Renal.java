@@ -143,7 +143,6 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 
 			this.getPanel_bttns_droit().removeAll();
 			this.getPanel_bttns_droit().add(this.createPanelInstructionsBtns());
-			// ((Controller_OrganeFixe)this.getController()).setInstructionsDelimit(0);
 			this.getBtn_drawROI().setEnabled(true);
 			IJ.setTool(Toolbar.POLYGON);
 			this.setImage(impProj);
