@@ -41,13 +41,89 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 	}
 
 	@Override
+	public void end() {
+		super.end();
+
+		// on recupere la vue, le modele et l'imp
+		RenalScintigraphy scinRenal = (RenalScintigraphy) this.main;
+		Model_Renal modele = (Model_Renal) this.model;
+
+		// Remet les data du modele a zero (en cas de relance)
+		modele.getData().clear();
+
+		// On recupere l'image Post dynamique sur laquelle on fait les quantifications
+		ImagePlus imp = modele.getImpPost().getImagePlus();
+
+		// on debloque le modele pour avoir l'enregistrement des mesures
+		modele.setLocked(false);
+
+		// capture de l'imageplus ainsi que de l'overlay
+		BufferedImage capture = Library_Capture_CSV.captureImage(this.model.getImagePlus(), 512, 0).getBufferedImage();
+
+		// on enregistre la mesure pour chaque slice
+		for (int indexSlice = 1; indexSlice <= imp.getStackSize(); indexSlice++) {
+			imp.setSlice(indexSlice);
+			for (int indexRoi = 0; indexRoi < this.organeListe.length; indexRoi++) {
+				imp.setRoi(this.model.getRoiManager().getRoi(indexRoi));
+				String nom = this.organeListe[indexRoi];
+				modele.enregistrerMesure(nom, imp);
+
+				if (indexSlice == 1) modele.enregistrerPixelRoi(nom, Library_Quantif.getPixelNumber(imp));
+			}
+		}
+
+		// on calcule les resultats
+		modele.calculateResults();
+
+		// on recupere les chartPanels avec l'association
+		List<XYSeries> series = modele.getSeries();
+		String[][] asso = new String[][]{{"Final KL", "Final KR"}};
+		ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
+
+		FenNeph fan = new FenNeph(cp[0], this.main.getFenApplication(), modele);
+		fan.setModal(true);
+		fan.setVisible(true);
+
+		((Model_Renal) model).setNephrogramChart(fan.getValueSetter());
+		((Model_Renal) model).setPatlakChart(fan.getPatlakChart());
+
+		// on passe les valeurs ajustees au modele
+		modele.setAdjustedValues(fan.getValueSetter().getValues());
+
+		// on fait le fit vasculaire avec les donnees collectees
+		modele.fitVasculaire();
+
+		// on affiche la fenetre de resultats principale
+		((Model_Renal) model).setNephrogramChart(fan.getValueSetter());
+		FenResults fenResults = new FenResultats_Renal(scinRenal, capture, this);
+		fenResults.toFront();
+		fenResults.setVisible(true);
+
+
+		// SK On rebloque le modele pour la prochaine generation
+		modele.setLocked(true);
+
+	}
+
+	/**
+	 * This method is called to construct and start the controller, because we need to specifie the number of kidney
+	 * before.
+	 *
+	 * @param kidneys Boolean array to specify the kidneys
+	 */
+	public void setKidneys(boolean[] kidneys) {
+		((Model_Renal) this.model).setKidneys(kidneys);
+		this.generateInstructions();
+		this.start();
+	}
+
+	@Override
 	protected void generateInstructions() {
 
 		List<String> organes = new LinkedList<>();
 
 		this.workflows = new Workflow[1];
-		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4, dri_5, dri_6,
-				dri_7, dri_8;
+		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4, dri_5, dri_6, dri_7, dri_8;
 		DrawRoiBackground dri_Background_1, dri_Background_2;
 		ScreenShotInstruction dri_capture_1;
 		List<ImagePlus> captures = new ArrayList<>();
@@ -70,7 +146,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 				organes.add("L. Pelvis");
 			}
 
-			dri_Background_1 = new DrawRoiBackground("L. Background", statePost, dri_1, this.model, "");
+			dri_Background_1 = new DrawRoiBackground("L. Background", statePost, dri_1, this.workflows[0], "");
 			this.workflows[0].addInstruction(dri_Background_1);
 			organes.add("L. bkg");
 
@@ -87,7 +163,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 				organes.add("R. Pelvis");
 			}
 
-			dri_Background_2 = new DrawRoiBackground("R. Background", statePost, dri_3, this.model, "");
+			dri_Background_2 = new DrawRoiBackground("R. Background", statePost, dri_3, this.workflows[0], "");
 			this.workflows[0].addInstruction(dri_Background_2);
 			organes.add("R. bkg");
 
@@ -123,85 +199,6 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		this.workflows[0].addInstruction(dri_capture_1);
 
 		this.workflows[0].addInstruction(new EndInstruction());
-	}
-
-	@Override
-	public void end() {
-		super.end();
-
-		// on recupere la vue, le modele et l'imp
-		RenalScintigraphy scinRenal = (RenalScintigraphy) this.main;
-		Model_Renal modele = (Model_Renal) this.model;
-
-		// Remet les data du modele a zero (en cas de relance)
-		modele.getData().clear();
-
-		// On recupere l'image Post dynamique sur laquelle on fait les quantifications
-		ImagePlus imp = modele.getImpPost().getImagePlus();
-
-		// on debloque le modele pour avoir l'enregistrement des mesures
-		modele.setLocked(false);
-
-		// capture de l'imageplus ainsi que de l'overlay
-		BufferedImage capture = Library_Capture_CSV.captureImage(this.model.getImagePlus(), 512, 0).getBufferedImage();
-
-		// on enregistre la mesure pour chaque slice
-		for (int indexSlice = 1; indexSlice <= imp.getStackSize(); indexSlice++) {
-			imp.setSlice(indexSlice);
-			for (int indexRoi = 0; indexRoi < this.organeListe.length; indexRoi++) {
-				imp.setRoi(this.model.getRoiManager().getRoi(indexRoi));
-				String nom = this.organeListe[indexRoi];
-				modele.enregistrerMesure(nom, imp);
-
-				if (indexSlice == 1)
-					modele.enregistrerPixelRoi(nom, Library_Quantif.getPixelNumber(imp));
-			}
-		}
-
-		// on calcule les resultats
-		modele.calculateResults();
-
-		// on recupere les chartPanels avec l'association
-		List<XYSeries> series = modele.getSeries();
-		String[][] asso = new String[][] { { "Final KL", "Final KR" } };
-		ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
-
-		FenNeph fan = new FenNeph(cp[0], this.main.getFenApplication(), modele);
-		fan.setModal(true);
-		fan.setVisible(true);
-
-		((Model_Renal) model).setNephrogramChart(fan.getValueSetter());
-		((Model_Renal) model).setPatlakChart(fan.getPatlakChart());
-
-		// on passe les valeurs ajustees au modele
-		modele.setAdjustedValues(fan.getValueSetter().getValues());
-
-		// on fait le fit vasculaire avec les donnees collectees
-		modele.fitVasculaire();
-
-		// on affiche la fenetre de resultats principale
-		((Model_Renal) model).setNephrogramChart(fan.getValueSetter());
-		FenResults fenResults = new FenResultats_Renal(scinRenal, capture, this);
-		fenResults.toFront();
-		fenResults.setVisible(true);
-		
-
-		// SK On rebloque le modele pour la prochaine generation
-		modele.setLocked(true);
-
-	}
-
-	/**
-	 * This method is called to construct and start the controller, because we need
-	 * to specifie the number of kidney before.
-	 * 
-	 * @param kidneys
-	 *            Boolean array to specify the kidneys
-	 */
-	public void setKidneys(boolean[] kidneys) {
-		((Model_Renal) this.model).setKidneys(kidneys);
-		this.generateInstructions();
-		this.start();
 	}
 
 }

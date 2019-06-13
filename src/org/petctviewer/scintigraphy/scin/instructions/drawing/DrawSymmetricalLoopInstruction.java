@@ -61,11 +61,11 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 	public String getRoiName() {
 		String name = this.RoiName;
 
-		Roi thisRoi = this.getImageState().getImage().getImagePlus().getRoi();
+		Roi thisRoi = this.workflow.getController().getVue().getImagePlus().getRoi();
 		if (thisRoi == null)
 			return this.RoiName;
 
-		boolean OrganPost = thisRoi.getXBase() > this.getImageState().getImage().getImagePlus().getWidth() / 2;
+		boolean OrganPost = thisRoi.getXBase() > this.workflow.getController().getVue().getImagePlus().getWidth() / 2.;
 
 		if (OrganPost)
 			name += " P";
@@ -80,7 +80,6 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 	@Override
 	public void stop() {
 		super.stop();
-		this.drawRoi = false;
 	}
 
 	@Override
@@ -100,17 +99,18 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 			lastOrgan = (Roi) lastOrgan.clone();
 
 			// si la derniere roi etait post ou ant
-			boolean OrganPost = lastOrgan.getXBase() > this.getImageState().getImage().getImagePlus().getWidth() / 2;
+			boolean OrganPost =
+					lastOrgan.getXBase() > this.workflow.getController().getVue().getImagePlus().getWidth() / 2.;
 
 			// si on doit faire le symetrique et que l'on a appuye sur next
 
 			if (OrganPost) { // si la prise est ant, on decale l'organe precedent vers la droite
 				lastOrgan.setLocation(
-						lastOrgan.getXBase() - (this.getImageState().getImage().getImagePlus().getWidth() / 2),
+						lastOrgan.getXBase() - (this.workflow.getController().getVue().getImagePlus().getWidth() / 2.),
 						lastOrgan.getYBase());
 			} else { // sinon vers la gauche
 				lastOrgan.setLocation(
-						lastOrgan.getXBase() + (this.getImageState().getImage().getImagePlus().getWidth() / 2),
+						lastOrgan.getXBase() + (this.workflow.getController().getVue().getImagePlus().getWidth() / 2.),
 						lastOrgan.getYBase());
 			}
 			if (this.indexLoop % 2 != 0)

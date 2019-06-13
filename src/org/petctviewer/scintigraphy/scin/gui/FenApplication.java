@@ -11,7 +11,6 @@ import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
 import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
 import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTab;
 
 import javax.swing.*;
@@ -68,8 +67,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 	public FenApplication(ImagePlus imp, String studyName, ImageCanvas canvas) {
 		super(imp, canvas);
-		// on set la lut des preferences
-		Library_Gui.setCustomLut(imp);
 
 		this.studyName = studyName;
 

@@ -29,14 +29,12 @@ import java.util.List;
 
 public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 
-	public String[] organeListe;
-
 	private final boolean[] kidneys;
-
+	public String[] organeListe;
 	private List<ImagePlus> captures;
 
 	public ControllerWorkflowPostMictional(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
-			boolean[] kidneys) {
+										   boolean[] kidneys) {
 		super(main, vue, model);
 
 		this.kidneys = kidneys;
@@ -70,6 +68,17 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 	}
 
 	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		super.actionPerformed(arg0);
+		// TODO: ??
+		Overlay ov = this.model.getImagePlus().getOverlay();
+
+		if (ov.getIndex("L. bkg") != -1) Library_Gui.editLabelOverlay(ov, "L. bkg", "", Color.GRAY);
+
+		if (ov.getIndex("R. bkg") != -1) Library_Gui.editLabelOverlay(ov, "R. bkg", "", Color.GRAY);
+	}
+
+	@Override
 	protected void generateInstructions() {
 
 		List<String> organes = new LinkedList<>();
@@ -88,7 +97,7 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 			this.workflows[0].addInstruction(dri_1);
 			organes.add("L. Kidney");
 
-			dri_Background_1 = new DrawRoiBackground("L. Background", statePost, dri_1, this.model, " ");
+			dri_Background_1 = new DrawRoiBackground("L. Background", statePost, dri_1, this.workflows[0], " ");
 			this.workflows[0].addInstruction(dri_Background_1);
 			organes.add("L. bkg");
 		}
@@ -98,7 +107,7 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 			this.workflows[0].addInstruction(dri_2);
 			organes.add("R. Kidney");
 
-			dri_Background_2 = new DrawRoiBackground("R. Background", statePost, dri_2, this.model, " ");
+			dri_Background_2 = new DrawRoiBackground("R. Background", statePost, dri_2, this.workflows[0], " ");
 			this.workflows[0].addInstruction(dri_Background_2);
 			organes.add("R. bkg");
 		}
@@ -114,19 +123,6 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
 
 		this.workflows[0].addInstruction(new EndInstruction());
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		super.actionPerformed(arg0);
-		// TODO: ??
-		Overlay ov = this.model.getImagePlus().getOverlay();
-
-		if (ov.getIndex("L. bkg") != -1)
-			Library_Gui.editLabelOverlay(ov, "L. bkg", "", Color.GRAY);
-
-		if (ov.getIndex("R. bkg") != -1)
-			Library_Gui.editLabelOverlay(ov, "R. bkg", "", Color.GRAY);
 	}
 
 }

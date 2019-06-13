@@ -5,8 +5,8 @@ import ij.plugin.RoiScaler;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
+import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.json.InstructionFromGson;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import java.awt.*;
 
@@ -16,7 +16,7 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 
 	private final transient Instruction dri_1;
 
-	private final transient ModelScin model;
+	private final transient Workflow workflow;
 
 	public enum Organ {
 		DEMIE, QUART
@@ -25,9 +25,9 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 	private final transient Organ organ;
 
 	public DrawSymmetricalRoiInstruction(String organToDelimit, ImageState state, Instruction instructionToCopy,
-                                         String roiName, ModelScin model, Organ organ) {
+										 String roiName, Workflow workflow, Organ organ) {
 		super(organToDelimit, state, null, roiName);
-		this.model = model;
+		this.workflow = workflow;
 		this.organ = organ;
 		this.dri_1 = instructionToCopy;
 		this.organToDelimit = organToDelimit;
@@ -44,11 +44,11 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 	public String getRoiName() {
 		String name = this.organToDelimit;
 
-		Roi thisRoi = this.getImageState().getImage().getImagePlus().getRoi();
+		Roi thisRoi = this.workflow.getController().getVue().getImagePlus().getRoi();
 		if(thisRoi == null)
 			return this.organToDelimit;
-		
-		boolean OrganPost = thisRoi.getXBase() > this.getImageState().getImage().getImagePlus().getWidth() / 2;
+
+		boolean OrganPost = thisRoi.getXBase() > this.workflow.getController().getVue().getImagePlus().getWidth() / 2.;
 
 		if (OrganPost)
 			name += " P";
@@ -64,12 +64,12 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 		if (this.dri_1 != null) {
 			// symetrique du coeur
 			if (this.organ == Organ.QUART) {
-				Roi roi = (Roi) this.model.getRoiManager().getRoi(dri_1.getRoiIndex()).clone();
+				Roi roi = (Roi) this.workflow.getController().getRoiManager().getRoi(dri_1.getRoiIndex()).clone();
 
 				// on fait le symetrique de la roi
 				roi = RoiScaler.scale(roi, -1, 1, true);
 
-				int quart = (this.getImageState().getImage().getImagePlus().getWidth() / 4);
+				int quart = (this.workflow.getController().getVue().getImagePlus().getWidth() / 4);
 				int newX = (int) (roi.getXBase() - Math.abs(2 * (roi.getXBase() - quart) % quart)
 						- roi.getFloatWidth());
 				roi.setLocation(newX, roi.getYBase());
@@ -80,24 +80,25 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 			}
 
 			// recupere la roi de l'organe symetrique
-			Roi lastOrgan = this.model.getRoiManager().getRoi(dri_1.getRoiIndex());
+			Roi lastOrgan = this.workflow.getController().getRoiManager().getRoi(dri_1.getRoiIndex());
 			if (lastOrgan == null) { // si elle n'existe pas, on renvoie null
 				return;
 			}
 			lastOrgan = (Roi) lastOrgan.clone();
 
 			// si la derniere roi etait post ou ant
-			boolean OrganPost = lastOrgan.getXBase() > this.getImageState().getImage().getImagePlus().getWidth() / 2;
+			boolean OrganPost =
+					lastOrgan.getXBase() > this.workflow.getController().getVue().getImagePlus().getWidth() / 2.;
 
 			// si on doit faire le symetrique et que l'on a appuye sur next
 
 			if (OrganPost) { // si la prise est ant, on decale l'organe precedent vers la droite
 				lastOrgan.setLocation(
-						lastOrgan.getXBase() - (this.getImageState().getImage().getImagePlus().getWidth() / 2),
+						lastOrgan.getXBase() - (this.workflow.getController().getVue().getImagePlus().getWidth() / 2.),
 						lastOrgan.getYBase());
 			} else { // sinon vers la gauche
 				lastOrgan.setLocation(
-						lastOrgan.getXBase() + (this.getImageState().getImage().getImagePlus().getWidth() / 2),
+						lastOrgan.getXBase() + (this.workflow.getController().getVue().getImagePlus().getWidth() / 2.),
 						lastOrgan.getYBase());
 			}
 
