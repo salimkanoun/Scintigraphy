@@ -34,9 +34,9 @@ public class PrefTabGastric extends PrefTab implements ActionListener, ItemListe
 		JPanel pan = new JPanel();
 		this.textField = new JTextField(Prefs.get(PREF_FRAME_DURATION_TOLERANCE, "1"), 3);
 		this.textField.getDocument().addDocumentListener(this);
-		this.add(new JLabel("Frame durations delta tolerance:"));
-		this.add(this.textField);
-		this.add(new JLabel("sec"));
+		pan.add(new JLabel("Frame durations delta tolerance:"));
+		pan.add(this.textField);
+		pan.add(new JLabel("sec"));
 		this.mainPanel.add(pan);
 
 		this.add(this.mainPanel, BorderLayout.CENTER);

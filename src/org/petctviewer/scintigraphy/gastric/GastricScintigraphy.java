@@ -15,6 +15,7 @@ import org.petctviewer.scintigraphy.scin.preferences.PrefTabGastric;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class GastricScintigraphy extends Scintigraphy {
@@ -56,24 +57,21 @@ public class GastricScintigraphy extends Scintigraphy {
 		}
 
 		// Check images have same duration
-		int tolerance = Math.max((int) Prefs.get(PrefTabGastric.PREF_FRAME_DURATION_TOLERANCE, 1) * 1000, 1);
-		int frameDuration = Library_Dicom.getFrameDuration(selection.get(0).getImagePlus());
-		boolean frameDurationDifferent = false;
-		float deltaSeconds = 0;
-		for (int i = 1; i < selection.size(); i++) {
-			int fDuration = Library_Dicom.getFrameDuration(selection.get(i).getImagePlus());
-			if (frameDuration / tolerance != fDuration / tolerance) {
-				frameDurationDifferent = true;
-				deltaSeconds = Math.max(deltaSeconds,
-										Math.abs((float) frameDuration / 1000f - (float) fDuration / 1000f));
-			}
+		// Find min and max durations
+		int min = selection.stream().map(ims -> Library_Dicom.getFrameDuration(ims.getImagePlus())).min(
+				Comparator.naturalOrder()).orElse(0);
+		int max = selection.stream().map(ims -> Library_Dicom.getFrameDuration(ims.getImagePlus())).max(
+				Comparator.naturalOrder()).orElse(0);
+		// Delta
+		int delta = Math.abs(max - min) / 1000;
+		// Tolerance
+		int tolerance = Math.max((int) Prefs.get(PrefTabGastric.PREF_FRAME_DURATION_TOLERANCE, 1), 1);
+		if (delta > tolerance) {
+			JOptionPane.showMessageDialog(this.getFenApplication(),
+										  "Frame durations are not identical for every image" + ".\nMax delta is: " +
+												  delta + " seconds.", "Frame durations different",
+										  JOptionPane.WARNING_MESSAGE);
 		}
-		if (frameDurationDifferent) JOptionPane.showMessageDialog(this.getFenApplication(),
-																  "Frame durations are not" + " " +
-																		  "identical for every image.\nMax delta is:" +
-																		  " " + deltaSeconds + " seconds.",
-																  "Frame durations different",
-																  JOptionPane.WARNING_MESSAGE);
 
 
 		// Close all images
