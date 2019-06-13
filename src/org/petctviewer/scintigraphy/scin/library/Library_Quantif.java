@@ -149,7 +149,7 @@ public class Library_Quantif {
 	}
 
 	/**
-	 * Returns the counts with th radioactive decay applied.
+	 * Returns the counts with the radioactive decay applied.
 	 *
 	 * @param delayMs      between the 2 images, in miliseconds
 	 * @param mesuredCount Current count of the image

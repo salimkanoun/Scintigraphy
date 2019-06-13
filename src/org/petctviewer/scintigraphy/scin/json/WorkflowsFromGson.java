@@ -1,10 +1,8 @@
 package org.petctviewer.scintigraphy.scin.json;
 
-import java.util.List;
-
-import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
-import org.petctviewer.scintigraphy.scin.library.Library_Roi;
+
+import java.util.List;
 
 /**
  * A custom list of Workflow, used to get a Workflow list ({@link Workflow})
@@ -12,8 +10,6 @@ import org.petctviewer.scintigraphy.scin.library.Library_Roi;
  * This class contains the {@link WorkflowFromGson} list, and the
  * {@link PatientFromGson}. <br/>
  * <br/>
- * Used in {@link ControllerWorkflow#loadWorkflows(String)} and
- * {@link Library_Roi#getRoiFromZip(String, ControllerWorkflow)}
  *
  */
 public class WorkflowsFromGson {
@@ -31,7 +27,8 @@ public class WorkflowsFromGson {
 	public int getNbROIs() {
 		int nbROIs = 0;
 		for (WorkflowFromGson workflowFromGson : this.Workflows)
-			nbROIs += workflowFromGson.getInstructions().size();
+			for (InstructionFromGson instruction : workflowFromGson.getInstructions())
+				if (instruction.getIndexRoiToEdit() != -1) nbROIs++;
 		return nbROIs;
 	}
 
@@ -50,12 +47,12 @@ public class WorkflowsFromGson {
 	}
 
 	public int getIndexRoiOfInstructionFromGson(String nameOfRoiFile) {
-		System.out.println("nameOfRoiFile to found on Controller : " + nameOfRoiFile);
+//		System.out.println("nameOfRoiFile to found on Controller : " + nameOfRoiFile);
 		for (WorkflowFromGson workflowFromGson : this.Workflows)
 			for (InstructionFromGson instructionFromGson : workflowFromGson.getInstructions()) {
-				System.out.println("\tName of Instruction : " + instructionFromGson.getNameOfRoiFile());
+//				System.out.println("\tName of Instruction : " + instructionFromGson.getNameOfRoiFile());
 				if (nameOfRoiFile.equals(instructionFromGson.getNameOfRoiFile())) {
-					System.out.println("\t Matchs !");
+//					System.out.println("\t Matchs !");
 					return instructionFromGson.getIndexRoiToEdit();
 				}
 			}

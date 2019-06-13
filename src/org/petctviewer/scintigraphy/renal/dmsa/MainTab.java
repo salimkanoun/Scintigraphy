@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.renal.dmsa;
 import ij.gui.Overlay;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.ContrastSlider;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -24,7 +25,9 @@ public class MainTab extends TabResult {
 		this.result = new DynamicImage(capture.getImagePlus().getBufferedImage());
 
 		capture.getImagePlus().setOverlay(overlay);
-		this.slider = new ContrastSlider(new ImageState(Orientation.POST, 2, ImageState.LAT_RL, capture), this.result);
+		this.slider = new ContrastSlider(new ImageState(Orientation.POST, 2,
+														((ControllerWorkflow) this.parent.getController()).getCurrentImageState().getLateralisation(),
+														capture), this.result);
 
 		this.reloadDisplay();
 	}

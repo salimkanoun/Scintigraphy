@@ -1,12 +1,17 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
+import ij.IJ;
 import ij.ImagePlus;
+import ij.gui.Roi;
+import ij.plugin.RoiScaler;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.awt.*;
 
 /**
  * This component is a slider used to modify the contrast of an ImagePlus.
@@ -18,6 +23,8 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 
 	private ImagePlus reference;
 	private DynamicImage result;
+
+	private static int IMG_WIDTH = 512;
 
 	public ContrastSlider(ImagePlus image, DynamicImage result) {
 		super(JSlider.HORIZONTAL);
@@ -43,28 +50,43 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 		if (state.getIdImage() != ImageState.ID_CUSTOM_IMAGE) throw new IllegalArgumentException(
 				"The image of the state must be set");
 
-//		if (this.reference.getOverlay() != null) {
-//			int oldWidth = this.reference.getProcessor().getWidth();
-//			this.reference.setProcessor(this.reference.getProcessor().resize(512));
-//			Roi[] rois = this.reference.getOverlay().toArray();
-//			this.reference.getOverlay().clear();
-//
-//			Font font = new Font("Arial", Font.PLAIN, Math.round(15));
-//			this.reference.getOverlay().setLabelFont(font, true);
-//
-//			Library_Gui.setOverlayTitle(state.title(), this.reference, Color.YELLOW, 1);
-//			if (state.isLateralisationRL()) Library_Gui.setOverlayDG(this.reference, Color.YELLOW);
-//			else Library_Gui.setOverlayGD(this.reference, Color.YELLOW);
-//
-//			for (Roi roi : rois) {
-//				if (roi.getStudyName() != null) {
-//					Roi newRoi = RoiScaler.scale(roi, 512 / oldWidth, 512 / oldWidth, false);
-//					newRoi.setName(roi.getStudyName());
-//					newRoi.setStrokeColor(Color.YELLOW);
-//					this.reference.getOverlay().add(newRoi);
-//				}
+		if (this.reference.getOverlay() != null) {
+			int oldWidth = this.reference.getProcessor().getWidth();
+//			for(int i = 1 ; i <= this.reference.getStack().size() ; i++) {
+////				this.reference.getStack().setProcessor(this.reference.getStack().getProcessor(i).resize(IMG_WIDTH)
+// , i);
+//				this.reference.getStack().getProcessor(i).resize(IMG_WIDTH);
 //			}
-//		}
+
+			// The macro delete the Overlay, so we save data before
+			Roi[] rois = this.reference.getOverlay().toArray();
+
+			IJ.run(this.reference, "Size...",
+				   "width=" + IMG_WIDTH + " height=" + IMG_WIDTH + " depth=2 constrain average " +
+						   "interpolation=Bilinear");
+
+			// In case they change the behavior
+			if (this.reference.getOverlay() != null) this.reference.getOverlay().clear();
+			else Library_Gui.initOverlay(this.reference);
+
+			Font font = new Font("Arial", Font.PLAIN, Math.round(15));
+			this.reference.getOverlay().setLabelFont(font, true);
+
+			Library_Gui.setOverlayTitle(state.title(), this.reference, Color.YELLOW, 1);
+			if (state.isLateralisationRL()) Library_Gui.setOverlayDG(this.reference, Color.YELLOW);
+			else Library_Gui.setOverlayGD(this.reference, Color.YELLOW);
+
+			// Applying the saved Overlay
+			for (Roi roi : rois) {
+				if (roi.getName() != null) {
+					Roi newRoi = RoiScaler.scale(roi, IMG_WIDTH / oldWidth, IMG_WIDTH / oldWidth, false);
+					newRoi.setPosition(0);
+					newRoi.setName(roi.getName());
+					newRoi.setStrokeColor(Color.YELLOW);
+					this.reference.getOverlay().add(newRoi);
+				}
+			}
+		}
 
 		this.stateChanged(null);
 	}

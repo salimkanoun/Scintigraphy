@@ -15,6 +15,7 @@ public class Model_Cardiac extends ModelScin {
 	private final HashMap<String, Double[]> data;
 
 	private final HashMap<String, Double[]> dataVisualGradation;
+
 	private final HashMap<String, String> resultatsVisualGradation;
 	// valeurs des contamination
 	private Double sumContE = 0.0, sumContL = 0.0;
@@ -35,6 +36,7 @@ public class Model_Cardiac extends ModelScin {
 	 **/
 	// valeurs de la prise late
 	private Double fixCoeurL, fixReinGL, fixReinDL, fixVessieL, fixBkgNoiseA, fixBkgNoiseP, heartToContralateral;
+
 	private ImageSelection imageVisualGradation;
 
 	private int fullBodyImages;
@@ -43,6 +45,11 @@ public class Model_Cardiac extends ModelScin {
 
 	// Value of Only_Thorax image
 	private Double heartThorax, contralateralThorax, heartToContralateralThorax;
+	private double wholeBodyRetention;
+
+	private double heartRetention;
+
+	private double heartToWholeBody;
 
 	// private int[] nbConta;
 
@@ -94,9 +101,8 @@ public class Model_Cardiac extends ModelScin {
 			counts[2] = (double) Library_Quantif.getPixelNumber(selectedImage);
 
 			this.data.put(roi.getName(), counts);
-			System.out.println(
-					"this.dataVisualGradation.put(" + roi.getName() + "( " + counts[0] + ", " + counts[1] + ", " +
-							counts[2] + "))");
+//			System.out.println("this.dataVisualGradation.put(" + roi.getName() + "( " + counts[0] + ", " + counts[1]
+//					+ ", " + counts[2] + "))");
 
 		}
 
@@ -131,6 +137,16 @@ public class Model_Cardiac extends ModelScin {
 					"Kidney L A")[2]);
 			Double correctedKLPost = this.data.get("Kidney L P")[0] - (meanBdfPostKidneyL * this.data.get(
 					"Kidney L P")[2]);
+			System.out.println(
+					"correctedKLAnt => " + correctedKLAnt + " = " + this.data.get("Kidney L A")[0] + " - " + "(" +
+							meanBdfAntKidneyL + "*" + this.data.get("Kidney L A")[2] + ")");
+
+			System.out.println("correctedKLAnt => " + correctedKLAnt + " = " + this.data.get("Kidney L A")[0] + " - " +
+									   (meanBdfAntKidneyL * this.data.get("Kidney L A")[2]));
+
+			Double test = (this.data.get("Kidney L A")[1] - meanBdfAntKidneyL) * this.data.get("Kidney L A")[2];
+			System.out.println("test => " + test + " = (" + this.data.get("Kidney L A")[1] + " - " +
+									   (meanBdfAntKidneyL + " )" + " * " + this.data.get("Kidney L A")[2]));
 
 			// Calculation of corrected Right Renal uptake
 			Double correctedKRAnt = this.data.get("Kidney R A")[0] - (meanBdfAntKidneyR * this.data.get(
@@ -157,12 +173,12 @@ public class Model_Cardiac extends ModelScin {
 
 			HashMap<Integer, Double[]> contE = new HashMap<>();
 			HashMap<Integer, Double[]> contL = new HashMap<>();
-			System.out.println("this.data.keySet() contient : ");
+//			System.out.println("this.data.keySet() contient : ");
 			for (String s : this.data.keySet()) {
-				System.out.println("\t" + s);
+//				System.out.println("\t" + s);
 				if (s.startsWith("Cont")) {
 					String label = s.substring(s.indexOf(" ") + 2);
-					System.out.println("Label : ");
+//					System.out.println("Label : ");
 					int number = Integer.parseInt(label);
 
 					if (s.startsWith("ContE")) {
@@ -181,13 +197,23 @@ public class Model_Cardiac extends ModelScin {
 				}
 			}
 
+			Double[] nonGeomSumCountE = new Double[]{0.0d, 0.0d};
 			for (Integer i : contE.keySet()) {
-				this.sumContE += Library_Quantif.moyGeom(contE.get(i)[0], contE.get(i)[1]);
+				nonGeomSumCountE[0] += contE.get(i)[0];
+				nonGeomSumCountE[1] += contE.get(i)[1];
+//				this.sumContE += Library_Quantif.moyGeom(contE.get(i)[0], contE.get(i)[1]);
 			}
+			this.sumContE = Library_Quantif.moyGeom(nonGeomSumCountE[0], nonGeomSumCountE[1]);
 
+			Double[] nonGeomSumCountL = new Double[]{0.0d, 0.0d};
 			for (Integer i : contL.keySet()) {
-				this.sumContL += Library_Quantif.moyGeom(contL.get(i)[0], contL.get(i)[1]);
+				nonGeomSumCountL[0] += contE.get(i)[0];
+				nonGeomSumCountL[1] += contE.get(i)[1];
+//				this.sumContL += Library_Quantif.moyGeom(contL.get(i)[0], contL.get(i)[1]);
 			}
+			this.sumContL = Library_Quantif.moyGeom(nonGeomSumCountL[0], nonGeomSumCountL[1]);
+			
+			
 
 			// calcul heart/whole body
 			this.hwb = (this.fixCoeurL) /
@@ -198,23 +224,36 @@ public class Model_Cardiac extends ModelScin {
 
 				/* Valeurs calcul�es */
 				// valeurs finales
-				double finalEarly = this.totEarly - this.sumContE;
-
-				this.selectedImages[0].getImagePlus().setSlice(1);
 				long timeEarly = Library_Dicom.getDateAcquisition(this.selectedImages[0].getImagePlus()).getTime();
-				this.selectedImages[0].getImagePlus().setSlice(2);
-				long timeLate = Library_Dicom.getDateAcquisition(this.selectedImages[0].getImagePlus()).getTime();
+				long timeLate = Library_Dicom.getDateAcquisition(this.selectedImages[1].getImagePlus()).getTime();
 
-				int delaySeconds = (int) (timeEarly - timeLate) / 1000;
+				int delaySeconds = (int) (timeEarly - timeLate);
 
-				this.retCardiaque = Library_Quantif.applyDecayFraction(delaySeconds * 1000, this.fixCoeurL,
+
+				double wholeBodyCountEarly = this.totEarly - this.sumContE;
+
+				double wholeBodyCountLate = this.totLate - sumContL;
+
+				double summ = (wholeBodyCountLate - this.fixReinDL - this.fixVessieL);
+
+				double earlyDecayed = Library_Quantif.applyDecayFraction(delaySeconds, wholeBodyCountEarly,
+																		 Library_Quantif.Isotope.TECHNETIUM_99);
+
+				this.wholeBodyRetention = summ / earlyDecayed;
+
+				this.heartRetention = fixCoeurL / earlyDecayed;
+
+				this.heartToWholeBody = fixCoeurL / wholeBodyCountLate;
+
+
+				this.retCardiaque = Library_Quantif.applyDecayFraction(delaySeconds, this.fixCoeurL,
 																	   Library_Quantif.Isotope.TECHNETIUM_99) /
-						finalEarly;
+						wholeBodyCountEarly;
 
 				double sum = this.fixReinDL + this.fixVessieL + this.sumContL;
-				this.retCe = (this.totLate - Library_Quantif.applyDecayFraction(delaySeconds * 1000, sum,
+				this.retCe = (this.totLate - Library_Quantif.applyDecayFraction(delaySeconds, sum,
 																				Library_Quantif.Isotope.TECHNETIUM_99)) /
-						finalEarly;
+						wholeBodyCountEarly;
 			}
 
 			this.heartToContralateral = this.data.get("Heart A")[1] / this.data.get("Bkg noise A")[1];
@@ -248,24 +287,6 @@ public class Model_Cardiac extends ModelScin {
 		return Library_Quantif.moyGeom(countAnt, countPost);
 	}
 
-	public void calculerMoyGeomTotale() {
-		this.selectedImages[0].getImagePlus().setSlice(1);
-		if (this.deuxPrises) {
-			this.totEarly = getGlobalCountAvg();
-			this.selectedImages[0].getImagePlus().setSlice(2);
-			this.totLate = getGlobalCountAvg();
-		} else {
-			this.totLate = getGlobalCountAvg();
-		}
-
-		this.selectedImages[0].getImagePlus().killRoi();
-		this.selectedImages[0].getImagePlus().setSlice(1);
-	}
-
-	public void setDeuxPrise(Boolean b) {
-		this.deuxPrises = b;
-	}
-
 	@Override
 	public String toString() {
 		String s = "";
@@ -290,6 +311,24 @@ public class Model_Cardiac extends ModelScin {
 		return s;
 	}
 
+	public void setDeuxPrise(Boolean b) {
+		this.deuxPrises = b;
+	}
+
+	public void calculerMoyGeomTotale() {
+		this.selectedImages[0].getImagePlus();
+		if (this.deuxPrises) {
+			this.totEarly = getGlobalCountAvg();
+			this.selectedImages[1].getImagePlus();
+			this.totLate = getGlobalCountAvg();
+		} else {
+			this.totLate = getGlobalCountAvg();
+		}
+
+		this.selectedImages[0].getImagePlus().killRoi();
+		this.selectedImages[0].getImagePlus().setSlice(1);
+	}
+
 	public HashMap<String, String> getResultsHashMap() {
 		if (this.deuxPrises) {
 			this.resultats.put("WB early (5mn)", "" + Library_Quantif.round(this.totEarly, 2));
@@ -307,7 +346,11 @@ public class Model_Cardiac extends ModelScin {
 
 		this.resultats.put("Ratio H/WB %", "" + Library_Quantif.round(this.hwb * 100, 2));
 
-		this.resultats.put("Heart to contralatearl", "" + Library_Quantif.round(this.heartToContralateral, 2));
+		this.resultats.put("Heart to contralateral", "" + Library_Quantif.round(this.heartToContralateral, 2));
+
+		this.resultats.put("wholeBodyRetention", "" + Library_Quantif.round(this.wholeBodyRetention * 100, 2));
+		this.resultats.put("heartRetention", "" + Library_Quantif.round(this.heartToContralateral * 100, 2));
+		this.resultats.put("heartToWholeBody", "" + Library_Quantif.round(this.heartToWholeBody * 100, 2));
 
 		return this.resultats;
 	}
@@ -338,9 +381,8 @@ public class Model_Cardiac extends ModelScin {
 			counts[2] = (double) Library_Quantif.getPixelNumber(selectedImage);
 
 			this.dataVisualGradation.put(roi.getName(), counts);
-			System.out.println(
-					"this.dataVisualGradation.put(" + roi.getName() + "[ " + counts[0] + ", " + counts[1] + ", " +
-							counts[2] + "])");
+//			System.out.println("this.dataVisualGradation.put(" + roi.getName() + "[ " + counts[0] + ", " + counts[1]
+//					+ ", " + counts[2] + "])");
 
 		}
 
@@ -355,7 +397,7 @@ public class Model_Cardiac extends ModelScin {
 
 		this.resultatsVisualGradation.put("Heart", "" + Library_Quantif.round(this.heartThorax, 2));
 
-		this.resultatsVisualGradation.put("Heart to contralatearl",
+		this.resultatsVisualGradation.put("Heart to contralateral",
 										  "" + Library_Quantif.round(this.heartToContralateralThorax, 2));
 
 		return this.resultatsVisualGradation;

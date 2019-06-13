@@ -257,4 +257,8 @@ public class Workflow implements Serializable {
 		this.current = iterator.next();
 	}
 
+
+	public void setCurrent(Instruction instru) {
+		this.current = instru;
+	}
 }

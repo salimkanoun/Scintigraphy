@@ -13,13 +13,16 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoopInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoiInstruction.Organ;
+import org.petctviewer.scintigraphy.scin.instructions.execution.ExecutionInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,10 +41,12 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	private String[] organes = {"Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise"};
 	private boolean finContSlice2;
 	private int onlyThoraxImage;
+
 	private int fullBodyImages;
 
-	public ControllerWorkflowCardiac(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
-									 int fullBodyImages,
+	private int indexPreviousWorkflow;
+
+	public ControllerWorkflowCardiac(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model, int fullBodyImages,
 									 int onlyThoraxImage) {
 		super(main, vue, model);
 
@@ -135,6 +140,53 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	}
 
 	@Override
+	public void end() {
+		super.end();
+		// this.saveWorkflow();
+
+		((Model_Cardiac) this.model).getResults();
+		this.model.calculateResults();
+		// ((Model_Cardiac) this.model).setNbConta(new int[] {this.nbConta1,
+		// this.nbConta2});
+
+		FenResultat_Cardiac fen = new FenResultat_Cardiac(captures, this, this.fullBodyImages, this.onlyThoraxImage);
+		fen.setVisible(true);
+	}
+
+	@Override
+	public void setOverlay(ImageState state) throws IllegalArgumentException {
+
+		if (this.indexCurrentWorkflow < this.fullBodyImages) {
+			if (state.isLateralisationRL()) Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
+			else Library_Gui.setOverlayGD(this.vue.getImagePlus(), Color.YELLOW);
+
+			((FenApplication_Cardiac) this.getVue()).setMultipleTitle(Color.yellow, state.getSlice());
+		} else {
+			Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
+			Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus(), Color.YELLOW, 1);
+		}
+
+	}
+
+	public String[] getOrganes() {
+		return this.organes;
+	}
+
+	public void setOrganes(String[] organes) {
+		this.organes = organes;
+	}
+
+	public int getImageNumberByRoiIndex() {
+		// changement de slice si la prise contient une precoce
+		if (this.fullBodyImages > 1) {
+			if (this.finContSlice1) {
+				return 1;
+			}
+		}
+		return 0;
+	}
+
+	@Override
 	protected void generateInstructions() {
 		int nbWorkflow = this.getModel().getImageSelection().length + 1;
 		if (this.fullBodyImages == 0) nbWorkflow = 1;
@@ -196,10 +248,8 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			DrawRoiInstruction dri_10 = new DrawSymmetricalRoiInstruction("Heart", state, dri_9, null,
 																		  this.workflows[index], Organ.DEMIE);
 
-			DrawRoiInstruction dri_11 = new DrawSymmetricalRoiInstruction("Bkg noise", state, dri_9, null,
-																		  this.workflows[index], Organ.QUART);
-			DrawRoiInstruction dri_12 = new DrawSymmetricalRoiInstruction("Bkg noise", state, dri_10, null,
-																		  this.workflows[index], Organ.QUART);
+			DrawRoiInstruction dri_11 = new DrawSymmetricalRoiInstruction("Bkg noise", state, dri_9, null, this.workflows[index], Organ.QUART);
+			DrawRoiInstruction dri_12 = new DrawSymmetricalRoiInstruction("Bkg noise", state, dri_10, null, this.workflows[index], Organ.QUART);
 
 			this.workflows[index].addInstruction(dri_3);
 			this.workflows[index].addInstruction(driBackground_1);
@@ -243,53 +293,6 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		this.workflows[this.workflows.length - 1].addInstruction(new EndInstruction());
 	}
 
-	public String[] getOrganes() {
-		return this.organes;
-	}
-
-	public void setOrganes(String[] organes) {
-		this.organes = organes;
-	}
-
-	@Override
-	public void end() {
-		super.end();
-		// this.saveWorkflow();
-
-		((Model_Cardiac) this.model).getResults();
-		((Model_Cardiac) this.model).calculateResults();
-		// ((Model_Cardiac) this.model).setNbConta(new int[] {this.nbConta1,
-		// this.nbConta2});
-
-		FenResultat_Cardiac fen = new FenResultat_Cardiac(captures, this, this.fullBodyImages, this.onlyThoraxImage);
-		fen.setVisible(true);
-	}
-
-	@Override
-	public void setOverlay(ImageState state) throws IllegalArgumentException {
-
-		if (this.indexCurrentWorkflow < this.fullBodyImages) {
-			if (state.isLateralisationRL()) Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
-			else Library_Gui.setOverlayGD(this.vue.getImagePlus(), Color.YELLOW);
-
-			((FenApplication_Cardiac) this.getVue()).setMultipleTitle(Color.yellow, state.getSlice());
-		} else {
-			Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
-			Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus(), Color.YELLOW, 1);
-		}
-
-	}
-
-	public int getImageNumberByRoiIndex() {
-		// changement de slice si la prise contient une precoce
-		if (this.fullBodyImages > 1) {
-			if (this.finContSlice1) {
-				return 1;
-			}
-		}
-		return 0;
-	}
-
 	public void setFullBodyImages(int fullBodyImages) {
 		// TODO Auto-generated method stub
 		this.fullBodyImages = fullBodyImages;
@@ -298,5 +301,68 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	public void setOnlyThoraxImage(int onlyThoraxImage) {
 		// TODO Auto-generated method stub
 		this.onlyThoraxImage = onlyThoraxImage;
+	}
+
+	private class ContaminationAskInstruction extends ExecutionInstruction implements ActionListener {
+
+		private ControllerWorkflow controller;
+
+		private Button btn_yes, btn_no;
+
+		private Workflow workflow;
+
+		private ImageState state;
+
+		private String nameInstructionDrawLoop;
+
+		private boolean instructionFlying;
+
+		public ContaminationAskInstruction(ControllerWorkflow controller, Workflow workflow, ImageState state,
+										   String nameInstructionDrawLoop) {
+
+			this.state = state;
+			this.nameInstructionDrawLoop = nameInstructionDrawLoop;
+
+			this.controller = controller;
+			this.workflow = workflow;
+			this.instructionFlying = false;
+		}
+
+		private void createPanel() {
+			this.controller.getVue().getPanel_Instructions_btns_droite().removeAll();
+			JPanel panel = new JPanel();
+			panel.add(this.btn_yes);
+			this.btn_yes.addActionListener(this);
+			panel.add(this.btn_no);
+			this.btn_no.addActionListener(this);
+		}
+
+		@Override
+		public void prepareAsNext() {
+			this.createPanel();
+		}
+
+		@Override
+		public void prepareAsPrevious() {
+			this.createPanel();
+		}
+
+		@Override
+		public boolean isExpectingUserInput() {
+			return !this.instructionFlying;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			if (arg0.getSource() == this.btn_yes) {
+				this.workflow.addInstructionOnTheFly(
+						new DrawSymmetricalLoopInstruction(this.workflow, null, this.state, model, null,
+														   this.nameInstructionDrawLoop));
+				this.instructionFlying = true;
+			}
+
+			this.workflow.getController().clickNext();
+		}
+
 	}
 }
