@@ -19,8 +19,8 @@ public class PrefTabGastric extends PrefTab implements ActionListener, ItemListe
 
 	private JTextField textField;
 
-	public PrefTabGastric(PrefWindow parent) {
-		super(parent, "Gastric");
+	public PrefTabGastric(JFrame parent) {
+		super("Gastric", parent);
 
 		this.setTitle("Gastric Scintigraphy settings");
 
@@ -34,9 +34,9 @@ public class PrefTabGastric extends PrefTab implements ActionListener, ItemListe
 		JPanel pan = new JPanel();
 		this.textField = new JTextField(Prefs.get(PREF_FRAME_DURATION_TOLERANCE, "1"), 3);
 		this.textField.getDocument().addDocumentListener(this);
-		this.add(new JLabel("Frame durations delta tolerance:"));
-		this.add(this.textField);
-		this.add(new JLabel("sec"));
+		pan.add(new JLabel("Frame durations delta tolerance:"));
+		pan.add(this.textField);
+		pan.add(new JLabel("sec"));
 		this.mainPanel.add(pan);
 
 		this.add(this.mainPanel, BorderLayout.CENTER);
@@ -56,6 +56,18 @@ public class PrefTabGastric extends PrefTab implements ActionListener, ItemListe
 		return panUnit;
 	}
 
+	private void savePref() {
+		try {
+			Prefs.set(PREF_FRAME_DURATION_TOLERANCE, Integer.parseInt(textField.getText()));
+			if (this.parent != null && this.parent instanceof PrefWindow) ((PrefWindow) this.parent).displayMessage(
+					null);
+		} catch (NumberFormatException e) {
+			Prefs.set(PREF_FRAME_DURATION_TOLERANCE, 1);
+			if (this.parent != null && this.parent instanceof PrefWindow) ((PrefWindow) this.parent).displayMessage(
+					"Cannot save (" + textField.getText() + ") -> not a number");
+		}
+	}
+
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -63,8 +75,8 @@ public class PrefTabGastric extends PrefTab implements ActionListener, ItemListe
 				@SuppressWarnings("unchecked") JComboBox<Unit> source = (JComboBox<Unit>) e.getSource();
 				// Save new unit
 				Prefs.set(source.getActionCommand(), ((Unit) e.getItem()).name());
-				this.parent.displayMessage("Please close the window to save the preferences",
-										   PrefWindow.DURATION_SHORT);
+				if (this.parent != null && this.parent instanceof PrefWindow) ((PrefWindow) this.parent).displayMessage(
+						"Please close the window to save the preferences", PrefWindow.DURATION_SHORT);
 			}
 		}
 	}
@@ -82,16 +94,6 @@ public class PrefTabGastric extends PrefTab implements ActionListener, ItemListe
 	@Override
 	public void changedUpdate(DocumentEvent e) {
 		savePref();
-	}
-
-	private void savePref() {
-		try {
-			Prefs.set(PREF_FRAME_DURATION_TOLERANCE, Integer.parseInt(textField.getText()));
-			parent.displayMessage(null);
-		} catch (NumberFormatException e) {
-			Prefs.set(PREF_FRAME_DURATION_TOLERANCE, 1);
-			parent.displayMessage("Cannot save (" + textField.getText() + ") -> not a number");
-		}
 	}
 
 }

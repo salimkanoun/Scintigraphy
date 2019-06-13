@@ -19,7 +19,7 @@ public interface ImagePreparator {
 	 *
 	 * @return name of this preparator
 	 */
-	String getName();
+	String getStudyName();
 
 	/**
 	 * This method returns an array of columns that will be used in the window.
@@ -55,5 +55,12 @@ public interface ImagePreparator {
 	 * @return instructions of the requested images
 	 */
 	String instructions();
+
+	/**
+	 * Launches the program with the specified images.
+	 *
+	 * @param preparedImages Image prepared
+	 */
+	void start(List<ImageSelection> preparedImages);
 
 }

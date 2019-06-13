@@ -20,26 +20,8 @@ public class TabMethod1 extends TabResultDefault {
 			  Model_Gastric.SERIES_STOMACH_PERCENTAGE);
 	}
 
-	public void deactivateDynamicAcquisition() {
-		if (this.btnDynAcquisition != null) this.btnDynAcquisition.setEnabled(false);
-	}
-
-	@Override
-	protected JPanel additionalResults() {
-		JPanel panel = new JPanel(new GridLayout(0, 1));
-
-		// Time of ingestion
-		if (this.timeIngestion != null) {
-			panel.add(new JLabel("Ingestion Time: " + new SimpleDateFormat("HH:mm:ss").format(timeIngestion)));
-		}
-
-		// Btn dynamic acquisition
-		btnDynAcquisition = new JButton("Start dynamic acquisition");
-		btnDynAcquisition.addActionListener(
-				(event) -> ((ControllerWorkflow_Gastric) parent.getController()).startDynamic());
-		panel.add(btnDynAcquisition);
-
-		return panel;
+	public void enableDynamicAcquisition(boolean state) {
+		if (this.btnDynAcquisition != null) this.btnDynAcquisition.setEnabled(state);
 	}
 
 	@Override
@@ -53,9 +35,8 @@ public class TabMethod1 extends TabResultDefault {
 		JPanel panCenter = new JPanel(new BorderLayout());
 
 		// - Table
-		final Result[] results =
-				new Result[]{Model_Gastric.RES_TIME, Model_Gastric.RES_STOMACH, Model_Gastric.RES_FUNDUS,
-						Model_Gastric.RES_ANTRUM};
+		final Result[] results = new Result[]{Model_Gastric.RES_TIME, Model_Gastric.RES_STOMACH, Model_Gastric.RES_FUNDUS,
+											  Model_Gastric.RES_ANTRUM};
 		final Unit[] units = new Unit[]{Unit.MINUTES, this.unitDefault, this.unitDefault, this.unitDefault};
 		JPanel panTable = new JPanel(new BorderLayout());
 		JTable table = tableResults(results, units);
@@ -69,13 +50,12 @@ public class TabMethod1 extends TabResultDefault {
 		final Unit[] unitsRequested;
 		if (((ControllerWorkflow_Gastric) parent.getController()).isDynamicStarted()) {
 			resultsRequested = new Result[]{Model_Gastric.START_ANTRUM, Model_Gastric.START_INTESTINE,
-					Model_Gastric.LAG_PHASE_PERCENTAGE, Model_Gastric.T_HALF_PERCENTAGE,
-					Model_Gastric.RETENTION_PERCENTAGE};
-			unitsRequested =
-					new Unit[]{this.unitDefault, this.unitDefault, Unit.MINUTES, Unit.MINUTES, Unit.PERCENTAGE};
+											Model_Gastric.LAG_PHASE_PERCENTAGE, Model_Gastric.T_HALF_PERCENTAGE,
+											Model_Gastric.RETENTION_PERCENTAGE};
+			unitsRequested = new Unit[]{this.unitDefault, this.unitDefault, Unit.MINUTES, Unit.MINUTES, Unit.PERCENTAGE};
 		} else {
 			resultsRequested = new Result[]{Model_Gastric.LAG_PHASE_PERCENTAGE, Model_Gastric.T_HALF_PERCENTAGE,
-					Model_Gastric.RETENTION_PERCENTAGE};
+											Model_Gastric.RETENTION_PERCENTAGE};
 			unitsRequested = new Unit[]{Unit.MINUTES, Unit.MINUTES, Unit.PERCENTAGE};
 		}
 		panCenter.add(this.infoResults(resultsRequested, unitsRequested), BorderLayout.SOUTH);
@@ -84,6 +64,26 @@ public class TabMethod1 extends TabResultDefault {
 		// - Custom retention
 		JPanel panCustomRetention = this.createPanelCustomRetention();
 		panel.add(panCustomRetention, BorderLayout.SOUTH);
+
+		return panel;
+	}
+
+	@Override
+	protected JPanel additionalResults() {
+		JPanel panel = new JPanel(new GridLayout(0, 1));
+
+		// Time of ingestion
+		if (this.timeIngestion != null) {
+			panel.add(new JLabel("Ingestion Time: " + new SimpleDateFormat("HH:mm:ss").format(timeIngestion)));
+		}
+
+		// Btn dynamic acquisition
+		btnDynAcquisition = new JButton("Start dynamic acquisition");
+		btnDynAcquisition.addActionListener((event) -> {
+			btnDynAcquisition.setEnabled(false);
+			((ControllerWorkflow_Gastric) parent.getController()).startDynamic();
+		});
+		panel.add(btnDynAcquisition);
 
 		return panel;
 	}

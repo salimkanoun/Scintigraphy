@@ -26,6 +26,14 @@ public class MainResult extends TabResult {
 
 	private void displayResult(ResultValue result, Container container) {
 		JLabel label = new JLabel(result.toString());
+
+		// Color for pulmonary shunt
+		if (result.getResultType() == ModelShunpo.RES_PULMONARY_SHUNT) {
+			if (result.getValue() < 2.) label.setForeground(Color.GREEN);
+			else if (result.getValue() < 5.) label.setForeground(Color.ORANGE);
+			else label.setForeground(Color.RED);
+		}
+
 		container.add(label);
 	}
 

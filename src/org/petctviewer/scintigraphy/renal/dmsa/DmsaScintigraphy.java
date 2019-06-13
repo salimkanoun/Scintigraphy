@@ -28,22 +28,17 @@ public class DmsaScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public String getName() {
-		return STUDY_NAME;
-	}
+	public void start(List<ImageSelection> preparedImages) {
+		Overlay overlay = Library_Gui.initOverlay(preparedImages.get(0).getImagePlus());
+		Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.yellow);
 
-	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
-		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
-		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.yellow);
-
-		FenApplication fen = new FenApplicationWorkflow(selectedImages[0], this.getStudyName());
+		FenApplication fen = new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName());
 		this.setFenApplication(fen);
-		selectedImages[0].getImagePlus().setOverlay(overlay);
+		preparedImages.get(0).getImagePlus().setOverlay(overlay);
 		IJ.setTool(Toolbar.POLYGON);
 
-		fen.setController(
-				new ControllerWorkflowDMSA(this, (FenApplicationWorkflow) this.getFenApplication(), selectedImages));
+		fen.setController(new ControllerWorkflowDMSA(this, (FenApplicationWorkflow) this.getFenApplication(),
+													 preparedImages.toArray(new ImageSelection[0])));
 	}
 
 	@Override
@@ -69,13 +64,14 @@ public class DmsaScintigraphy extends Scintigraphy {
 			// TODO: is this normal, having nothing in this case???
 		} else {
 			throw new WrongOrientationException(selectedImages.get(0).getImageOrientation(),
-												new Orientation[]{Orientation.ANT_POST, Orientation.POST_ANT, Orientation.POST});
+												new Orientation[]{Orientation.ANT_POST, Orientation.POST_ANT,
+																  Orientation.POST});
 		}
 
 		List<ImageSelection> selection = new ArrayList<>();
 		selection.add(imp);
 
-		for(ImageSelection ims : selectedImages)
+		for (ImageSelection ims : selectedImages)
 			ims.close();
 
 		return selection;

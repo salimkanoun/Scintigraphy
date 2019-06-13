@@ -1,13 +1,11 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.IJ;
+import ij.gui.Overlay;
+import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
@@ -16,12 +14,12 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
-import ij.gui.Overlay;
-import ij.gui.Toolbar;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class StaticScintigraphy extends Scintigraphy {
-public static final String STUDY_NAME = "General static scintigraphy";
+	public static final String STUDY_NAME = "General static scintigraphy";
 	private boolean isSingleSlice;
 	private boolean isAnt;
 
@@ -32,26 +30,21 @@ public static final String STUDY_NAME = "General static scintigraphy";
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(List<ImageSelection> preparedImages) {
 
-		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
-		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.white);
+		Overlay overlay = Library_Gui.initOverlay(preparedImages.get(0).getImagePlus(), 12);
+		Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.white);
 
-		this.setFenApplication(new FenApplication_ScinStatic(selectedImages[0], this.getStudyName()));
-		selectedImages[0].getImagePlus().setOverlay(overlay);
+		this.setFenApplication(new FenApplication_ScinStatic(preparedImages.get(0), this.getStudyName()));
+		preparedImages.get(0).getImagePlus().setOverlay(overlay);
 
 		this.getFenApplication().setController(
-				new ControllerWorkflow_ScinStatic(this, (FenApplicationWorkflow) getFenApplication(), selectedImages,
-												  getStudyName()));
+				new ControllerWorkflow_ScinStatic(this, (FenApplicationWorkflow) getFenApplication(),
+												  preparedImages.toArray(new ImageSelection[0]), getStudyName()));
 
 		((ModelScinStatic) this.getFenApplication().getController().getModel()).setIsSingleSlide(this.isSingleSlice);
 		((ModelScinStatic) this.getFenApplication().getController().getModel()).setIsAnt(this.isAnt);
 		IJ.setTool(Toolbar.POLYGON);
-	}
-
-	@Override
-	public String getName() {
-		return STUDY_NAME;
 	}
 
 	@Override
@@ -60,8 +53,7 @@ public static final String STUDY_NAME = "General static scintigraphy";
 	}
 
 	@Override
-	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException,
-			ReadTagException {
+	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException {
 		// Check number
 		if (selectedImages.size() != 1) {
 			throw new WrongNumberImagesException(selectedImages.size(), 1);

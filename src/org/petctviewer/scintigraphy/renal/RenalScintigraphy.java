@@ -32,18 +32,14 @@ public class RenalScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public String getName() {
-		return STUDY_NAME;
-	}
+	public void start(List<ImageSelection> preparedImages) {
 
-	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
-
-		this.setFenApplication(new FenApplication_Renal(selectedImages[0], this.getStudyName(), this));
+		this.setFenApplication(new FenApplication_Renal(preparedImages.get(0), this.getStudyName(), this));
 		this.getFenApplication().setController(
 				new ControllerWorkflowRenal(this, (FenApplicationWorkflow) this.getFenApplication(),
-											new Model_Renal(this.frameDurations, selectedImages,
-															"Renal scintigraphy")));
+											new Model_Renal(this.frameDurations,
+															preparedImages.toArray(new ImageSelection[0]),
+															STUDY_NAME)));
 	}
 
 	public int[] getFrameDurations() {
@@ -123,7 +119,8 @@ public class RenalScintigraphy extends Scintigraphy {
 		// Ant processing
 		if (this.impAnt != null) {
 			// Check frame duration identical
-			if (!ArrayUtils.isEquals(this.frameDurations, Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus())))
+			if (!ArrayUtils.isEquals(this.frameDurations,
+									 Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus())))
 				throw new WrongInputException("Frame durations are not the same for Ant and Post!");
 
 			// Flip Ant
@@ -140,7 +137,7 @@ public class RenalScintigraphy extends Scintigraphy {
 		Library_Dicom.normalizeToCountPerSecond(impPostCountPerSec);
 
 		ImageSelection impProjetee = Library_Dicom.project(impPostCountPerSec, 0,
-				impPostCountPerSec.getImagePlus().getStackSize(), "avg");
+														   impPostCountPerSec.getImagePlus().getStackSize(), "avg");
 		ImageStack stack = impProjetee.getImagePlus().getStack();
 
 		// deux premieres minutes
@@ -150,16 +147,16 @@ public class RenalScintigraphy extends Scintigraphy {
 
 		// MIP
 		ImagePlus pj = ZProjector.run(impPostCountPerSec.getImagePlus(), "max", 0,
-				impPostCountPerSec.getImagePlus().getNSlices());
+									  impPostCountPerSec.getImagePlus().getNSlices());
 		stack.addSlice(pj.getProcessor());
 
 		// ajout de la prise ant si elle existe
-		if(this.impAnt != null) {
+		if (this.impAnt != null) {
 			ImageSelection impAntCountPerSec = this.impAnt.clone();
 			Library_Dicom.normalizeToCountPerSecond(impAntCountPerSec);
 
-			ImageSelection impProjAnt =
-					Library_Dicom.project(impAntCountPerSec, 0, impAntCountPerSec.getImagePlus().getStackSize(), "avg");
+			ImageSelection impProjAnt = Library_Dicom.project(impAntCountPerSec, 0,
+															  impAntCountPerSec.getImagePlus().getStackSize(), "avg");
 			impProjAnt.getImagePlus().getProcessor().flipHorizontal();
 			impAnt = impProjAnt;
 			stack.addSlice(impProjAnt.getImagePlus().getProcessor());

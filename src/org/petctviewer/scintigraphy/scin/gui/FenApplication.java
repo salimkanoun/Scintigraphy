@@ -8,11 +8,11 @@ import ij.gui.StackWindow;
 import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.controller.Controller_OrganeFixe;
 import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
 import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
 import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTab;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,7 +37,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	protected final JTextField textfield_instructions;
 	protected final Button btn_suivant;
 	protected final String studyName;
-	protected final DocumentationDialog documentation;
 	final Button btn_quitter;
 	final Button btn_drawROI;
 	final Button btn_contrast;
@@ -47,14 +46,15 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	private final Panel panel_btns_gauche;
 	private final Panel panel_btns_droite;
 	private final Panel panelPrincipal;
+	private DocumentationDialog documentation;
 	private MenuBar menuBar;
 	// Panel d'instruction avec le textfield et boutons precedent et suivant
 	private Panel panel_Instructions_btns_droite;
 	private ControllerScin controleur;
 	private int canvasW, canvasH;
+	private JDialog preferences;
 	private Menu options;
-
-	private Menu help;
+	private MenuItem menuItem_preferences;
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
@@ -114,7 +114,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		panelContainer.add(this.panelPrincipal, BorderLayout.CENTER);
 		this.add(panelContainer);
 
-		this.documentation = this.createDocumentation();
 		// Menu bar
 		this.createMenuBar();
 
@@ -128,7 +127,8 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 	private void createMenuBar() {
 		this.menuBar = new MenuBar();
-		this.options = new Menu("Options");
+		options = new Menu("Options");
+		// Load ROIs
 		MenuItem loadRois = new MenuItem("Load ROIs from .zip");
 		loadRois.addActionListener(e -> {
 			try {
@@ -139,9 +139,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 				FenApplication.this.getImagePlus().setRoi(
 						FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
 				FenApplication.this.getImagePlus().getRoi().setStrokeColor(Color.RED);
-				FenApplication.this.controleur.clickNext();
-				((ControllerWorkflow)this.controleur).setPosition(0);
-				System.out.println("Position after import : "+FenApplication.this.controleur.getPosition());
 			} catch (UnauthorizedRoiLoadException e1) {
 				JOptionPane.showMessageDialog(FenApplication.this, "Error while loading ROIs:\n" + e1.getMessage(),
 											  "Selection error", JOptionPane.ERROR_MESSAGE);
@@ -151,9 +148,11 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 		});
 
-		this.help = new Menu("Help");
+		Menu help = new Menu("Help");
 		MenuItem doc = new MenuItem("Documentation");
-		doc.addActionListener((event) -> documentation.setVisible(true));
+		doc.addActionListener((event) -> {
+			if (documentation != null) documentation.setVisible(true);
+		});
 		help.add(doc);
 
 		options.add(loadRois);
@@ -231,9 +230,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	public void setController(ControllerScin ctrl) {
 		this.controleur = ctrl;
 
-		// on affiche la premiere instruction
-		if (ctrl instanceof Controller_OrganeFixe) ((Controller_OrganeFixe) ctrl).setInstructionsDelimit(0);
-
 		// on ajoute le controleur a tous les boutons
 		this.btn_contrast.addActionListener(ctrl);
 		this.btn_drawROI.addActionListener(ctrl);
@@ -272,7 +268,6 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		super.setImage(imp);
 		Library_Gui.setCustomLut(imp);
 		this.imp = imp;
-		this.revalidate();
 		this.resizeCanvas();
 	}
 
@@ -299,8 +294,35 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	public void componentHidden(ComponentEvent e) {
 	}
 
-	protected DocumentationDialog createDocumentation() {
-		return new DocumentationDialog(this);
+	protected void setDocumentation(DocumentationDialog documentation) {
+		this.documentation = documentation;
+	}
+
+	/**
+	 * Sets the preference tab for this application. When a preference tab is set, it will be accessible in the menu
+	 * bar.<br> If null is passed, it will remove the previous preference set (if any).
+	 *
+	 * @param preferences Preference tab associated with this application
+	 */
+	public void setPreferences(PrefTab preferences) {
+		if (preferences == null) {
+			// Remove menu item
+			if (this.menuItem_preferences != null) this.options.remove(this.menuItem_preferences);
+			this.preferences = null;
+		} else {
+			// Create preferences
+			this.preferences = new JDialog(this, "Preferences - " + preferences.getTabName(), true);
+			this.preferences.add(preferences);
+
+			this.menuItem_preferences = new MenuItem("Preferences");
+			this.menuItem_preferences.addActionListener(e -> {
+				this.preferences.pack();
+				this.preferences.setLocationRelativeTo(this);
+				this.preferences.setVisible(true);
+			});
+
+			this.options.add(this.menuItem_preferences);
+		}
 	}
 
 	protected Panel getPanel_bttns_droit() {

@@ -27,11 +27,6 @@ public class PelvisScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public String getName() {
-		return STUDY_NAME;
-	}
-
-	@Override
 	public Column[] getColumns() {
 		return Column.getDefaultColumns();
 	}
@@ -63,7 +58,7 @@ public class PelvisScintigraphy extends Scintigraphy {
 			imp.getImagePlus().close();
 		}
 
-		for(ImageSelection selected : selectedImages)
+		for (ImageSelection selected : selectedImages)
 			selected.close();
 
 		List<ImageSelection> selection = new ArrayList<>();
@@ -79,14 +74,16 @@ public class PelvisScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(List<ImageSelection> preparedImages) {
 
-		((ModelLympho) this.resultTab.getParent().getModel()).setImagePelvis(selectedImages[0]);
+		((ModelLympho) this.resultTab.getParent().getModel()).setImagePelvis(preparedImages.get(0));
 
-		this.setFenApplication(new FenApplicationPelvis(((ModelLympho)this.resultTab.getParent().getModel()).getImagePelvis(), this.getStudyName()));
-		this.getFenApplication()
-				.setController(new ControllerWorkflowPelvis(this, (FenApplicationWorkflow) this.getFenApplication(),
-						this.resultTab.getParent().getModel(), this.resultTab));
+		this.setFenApplication(
+				new FenApplicationPelvis(((ModelLympho) this.resultTab.getParent().getModel()).getImagePelvis(),
+										 this.getStudyName()));
+		this.getFenApplication().setController(
+				new ControllerWorkflowPelvis(this, (FenApplicationWorkflow) this.getFenApplication(),
+											 this.resultTab.getParent().getModel(), this.resultTab));
 
 		this.getFenApplication().setVisible(true);
 

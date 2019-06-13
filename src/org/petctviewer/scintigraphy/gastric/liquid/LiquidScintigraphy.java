@@ -24,15 +24,11 @@ public class LiquidScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
-		this.setFenApplication(new FenApplicationWorkflow(selectedImages[0], this.getStudyName()));
+	public void start(List<ImageSelection> preparedImages) {
+		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(
-				new LiquidController(this, (FenApplicationWorkflow) this.getFenApplication(), selectedImages));
-	}
-
-	@Override
-	public String getName() {
-		return STUDY_NAME;
+				new LiquidController(this, (FenApplicationWorkflow) this.getFenApplication(),
+									 preparedImages.toArray(new ImageSelection[0])));
 	}
 
 	@Override

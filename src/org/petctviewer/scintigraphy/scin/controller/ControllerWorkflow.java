@@ -1,23 +1,7 @@
 package org.petctviewer.scintigraphy.scin.controller;
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.event.ActionEvent;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-
-import org.petctviewer.scintigraphy.scin.ImageSelection;
+import ij.IJ;
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.CaptureButton;
@@ -33,12 +17,12 @@ import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import ij.IJ;
-import ij.ImagePlus;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This controller is used when working with a flow of instructions.<br> In order to use this type of controller, you
@@ -117,18 +101,11 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	}
 
 	/**
-	 * This method must instantiate the workflow and fill it with the instructions for this model.<br> Typically, this
-	 * will look like a repetition of:<br>
-	 *
-	 * <pre>
-	 * this.workflow[0].addInstruction(new DrawRoiInstruction(...));
-	 * ...
-	 * this.workflow[0].addInstruction(new EndInstruction());
-	 * </pre>
-	 * <p>
-	 * Only the last workflow generated MUST end with a {@link LastInstruction}.
+	 * This method displays the ROI to edit (if necessary).
 	 */
-	protected abstract void generateInstructions();
+	private void editOrgan(int roiToCopy) {
+		if (!this.editRoi(this.indexRoi)) this.editCopyRoi(roiToCopy);
+	}
 
 	// private void DEBUG(String s) {
 	// System.out.println("=== " + s + " ===");
@@ -148,13 +125,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	// System.out.println("Index ROI: " + this.indexRoi);
 	// System.out.println();
 	// }
-
-	/**
-	 * This method displays the ROI to edit (if necessary).
-	 */
-	private void editOrgan(int roiToCopy) {
-		if (!this.editRoi(this.indexRoi)) this.editCopyRoi(roiToCopy);
-	}
 
 	/**
 	 * @return array of ROI indexes to display for the current instruction
@@ -227,69 +197,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	}
 
 	/**
-	 * Returns the window used to display the results of this study.
-	 *
-	 * @return window for the results or null if no window was set yet
-	 */
-	protected FenResults getFenResults() {
-		return this.fenResults;
-	}
-
-	/**
-	 * Changes the window for the results. This method should only be called once.
-	 *
-	 * @param fenResults Window for the results
-	 */
-	protected void setFenResults(FenResults fenResults) {
-		this.fenResults = fenResults;
-	}
-
-	/**
-	 * Updates the scroll bar in the view. This method should only be called if the {@link
-	 * FenApplicationWorkflow#isVisualizationEnabled()} is set to TRUE.
-	 *
-	 * @param value New position for the scroll bar
-	 */
-	protected void updateScrollbar(int value) {
-		List<Instruction> allInstructions = this.allInstructions();
-		List<Instruction> instructions = this.allInputInstructions();
-		Instruction instruction = instructions.get(value);
-		int indexWorkflow = this.indexWorkflowFromInstruction(instruction);
-
-		// Index of instructions
-		int indexInstruction = allInstructions.indexOf(instruction);
-		int indexCurrentInstruction = allInstructions.indexOf(
-				this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
-
-		// Color to display
-		Color color;
-		String btnNextTxt = FenApplicationWorkflow.BTN_TXT_RESUME;
-
-		if (indexInstruction < indexCurrentInstruction) color = Color.GREEN;
-		else if (indexInstruction == indexCurrentInstruction) {
-			color = Color.YELLOW;
-			btnNextTxt = FenApplicationWorkflow.BTN_TXT_NEXT;
-		} else color = Color.WHITE;
-
-		// Display title of Instruction
-		getVue().displayScrollToolTip("[" + value + "] " + instruction.getMessage(), color);
-
-		// Change to prepare image
-		if (instruction.getImageState() != null) {
-			this.prepareImage(instruction.getImageState(), indexWorkflow);
-			int[] roisToDisplay = this.roisToDisplay(indexWorkflow, instruction.getImageState(), instruction);
-			this.vue.getOverlay().clear();
-			this.setOverlay(instruction.getImageState());
-			this.displayRois(roisToDisplay);
-			// Refresh display
-			this.getVue().repaint();
-		}
-
-		// Change next button label
-		this.getVue().getBtn_suivant().setLabel(btnNextTxt);
-	}
-
-	/**
 	 * Prepares the image of the view to respect the specified state. This method only change the image if necessary
 	 * (meaning if this method is called with the same arguments, it will not regenerate the image every time).<br>
 	 *     This
@@ -354,23 +261,9 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		}
 
 		if (resetOverlay) {
-			this.vue.getOverlay().clear();
+			this.vue.getImagePlus().getOverlay().clear();
 			this.setOverlay(this.currentState);
 		}
-	}
-
-	/**
-	 * Generates a list of all the instructions of every workflow of this controller that require a user input.
-	 *
-	 * @return list of instruction expecting a user input
-	 */
-	public List<Instruction> allInputInstructions() {
-		List<Instruction> instructions = new ArrayList<>();
-		for (Workflow w : this.workflows) {
-			for (Instruction i : w.getInstructions())
-				if (i.isExpectingUserInput()) instructions.add(i);
-		}
-		return instructions;
 	}
 
 	/**
@@ -386,60 +279,26 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	}
 
 	/**
-	 * This method initializes the controller. It must be called <b>after</b> the {@link #generateInstructions()}
-	 * method.
-	 */
-	protected void start() {
-		this.indexCurrentWorkflow = 0;
-		this.indexRoi = 0;
-
-		// Update view
-		getVue().setNbInstructions(this.allInputInstructions().size());
-
-		Instruction i = this.workflows[0].next();
-		if (i != null) {
-			this.currentState = new ImageState(
-					this.workflows[0].getImageAssociated().getImageOrientation().getFacingOrientation(), 1,
-					ImageState.LAT_RL, ImageState.ID_NONE);
-			this.setOverlay(currentState);
-
-			this.displayInstruction(i.getMessage());
-			this.prepareImage(i.getImageState());
-			i.afterNext(this);
-		}
-	}
-
-	/**
-	 * Finds the workflow matching the specified image.
-	 *
-	 * @param ims Image to find
-	 * @return Workflow associated with the image or null if not found
-	 */
-	protected Workflow getWorkflowAssociatedWithImage(ImageSelection ims) {
-		for (Workflow workflow : this.workflows)
-			if (workflow.getImageAssociated() == ims) return workflow;
-		return null;
-	}
-
-	/**
-	 * Finds the workflow containing the specified instruction.
-	 *
-	 * @param instruction Instruction to search
-	 * @return Workflow containing the instruction
-	 */
-	protected Workflow getWorkflowAssociatedWithInstruction(Instruction instruction) {
-		int index = this.indexWorkflowFromInstruction(instruction);
-		if (index == -1) return null;
-		return this.workflows[index];
-	}
-
-	/**
 	 * Prepares the ImagePlus with the specified state and updates the currentState.
 	 *
 	 * @param imageState State the ImagePlus must complies
 	 */
 	private void prepareImage(ImageState imageState) {
 		this.prepareImage(imageState, this.indexCurrentWorkflow);
+	}
+
+	/**
+	 * Generates a list of all the instructions of every workflow of this controller that require a user input.
+	 *
+	 * @return list of instruction expecting a user input
+	 */
+	public List<Instruction> allInputInstructions() {
+		List<Instruction> instructions = new ArrayList<>();
+		for (Workflow w : this.workflows) {
+			for (Instruction i : w.getInstructions())
+				if (i.isExpectingUserInput()) instructions.add(i);
+		}
+		return instructions;
 	}
 
 	/**
@@ -488,9 +347,9 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		int indexInstruction = this.allInputInstructions().indexOf(currentInstruction);
 		if (indexInstruction != -1) this.getVue().currentInstruction(indexInstruction);
 
-		if (previousInstruction instanceof LastInstruction && currentInstruction instanceof GeneratorInstruction) 
+		if (previousInstruction instanceof LastInstruction && currentInstruction instanceof GeneratorInstruction) {
 			((GeneratorInstruction) currentInstruction).activate();
-		
+		}
 
 		if (currentInstruction == null) {
 			this.indexCurrentWorkflow--;
@@ -500,7 +359,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 		if (currentInstruction.isExpectingUserInput()) {
 			this.displayInstruction(currentInstruction.getMessage());
-			this.vue.getOverlay().clear();
+			this.vue.getImagePlus().getOverlay().clear();
 			this.setOverlay(this.currentState);
 			this.prepareImage(currentInstruction.getImageState());
 
@@ -544,12 +403,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 				try {
 					this.saveRoiAtIndex(previousInstruction.getRoiName(), this.indexRoi);
 					previousInstruction.setRoi(this.indexRoi);
-					
-					 Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
-					 .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
-					 System.out.println("Roi actuelle : ");
-					 System.out.println("\t"+gson.toJson(previousInstruction));
-					 System.out.println("\t"+this.getRoiManager().getRoi(this.indexRoi).getName()+" : "+this.getRoiManager().getRoi(this.indexRoi));
 
 					if (previousInstruction.isRoiVisible()) this.displayRoi(this.indexRoi);
 
@@ -622,10 +475,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	public void actionPerformed(ActionEvent e) {
 		if ((e.getSource() == getVue().getBtn_suivant() || e.getSource() == getVue().getBtn_precedent()) &&
 				getVue().isVisualizationEnabled()) {
-//			for(Instruction instru : this.allInputInstructions())
-//				System.out.println("\t"+instru);
-			
-//			System.out.println(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
 			int indexScrollForCurrentInstruction = this.allInputInstructions().indexOf(
 					this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
 			if (getVue().getInstructionDisplayed() != indexScrollForCurrentInstruction) {
@@ -670,10 +519,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 	public Workflow[] getWorkflows() {
 		return this.workflows;
-	}
-	
-	public void setPosition(int position) {
-		this.position = position;
 	}
 
 	public void actionCaptureButton(CaptureButton captureButton) {
@@ -728,7 +573,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 				SaveAndLoad saveAndLoad = new SaveAndLoad();
 
 				saveAndLoad.exportAllWithWorkflow(resultats, tab.getParent().getModel().getStudyName(), imp,
-						additionalInfo, this.getModel().getControllers());
+												  additionalInfo, this.getModel().getControllers());
 
 
 				imp.killRoi();
@@ -747,5 +592,130 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		});
 
 	}
+
+	/**
+	 * This method must instantiate the workflow and fill it with the instructions for this model.<br> Typically, this
+	 * will look like a repetition of:<br>
+	 *
+	 * <pre>
+	 * this.workflow[0].addInstruction(new DrawRoiInstruction(...));
+	 * ...
+	 * this.workflow[0].addInstruction(new EndInstruction());
+	 * </pre>
+	 * <p>
+	 * Only the last workflow generated MUST end with a {@link LastInstruction}.
+	 */
+	protected abstract void generateInstructions();
+
+	/**
+	 * Returns the window used to display the results of this study.
+	 *
+	 * @return window for the results or null if no window was set yet
+	 */
+	protected FenResults getFenResults() {
+		return this.fenResults;
+	}
+
+	/**
+	 * Changes the window for the results. This method should only be called once.
+	 *
+	 * @param fenResults Window for the results
+	 */
+	protected void setFenResults(FenResults fenResults) {
+		this.fenResults = fenResults;
+	}
+
+	/**
+	 * Updates the scroll bar in the view. This method should only be called if the {@link
+	 * FenApplicationWorkflow#isVisualizationEnabled()} is set to TRUE.
+	 *
+	 * @param value New position for the scroll bar
+	 */
+	protected void updateScrollbar(int value) {
+		List<Instruction> allInstructions = this.allInstructions();
+		List<Instruction> instructions = this.allInputInstructions();
+		Instruction instruction = instructions.get(value);
+		int indexWorkflow = this.indexWorkflowFromInstruction(instruction);
+
+		// Index of instructions
+		int indexInstruction = allInstructions.indexOf(instruction);
+		int indexCurrentInstruction = allInstructions.indexOf(
+				this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
+
+		// Color to display
+		Color color;
+		String btnNextTxt = FenApplicationWorkflow.BTN_TXT_RESUME;
+
+		if (indexInstruction < indexCurrentInstruction) color = Color.GREEN;
+		else if (indexInstruction == indexCurrentInstruction) {
+			color = Color.YELLOW;
+			btnNextTxt = FenApplicationWorkflow.BTN_TXT_NEXT;
+		} else color = Color.WHITE;
+
+		// Display title of Instruction
+		getVue().displayScrollToolTip("[" + value + "] " + instruction.getMessage(), color);
+
+		// Change to prepare image
+		if (instruction.getImageState() != null) {
+			this.prepareImage(instruction.getImageState(), indexWorkflow);
+			int[] roisToDisplay = this.roisToDisplay(indexWorkflow, instruction.getImageState(), instruction);
+			this.vue.getImagePlus().getOverlay().clear();
+			this.setOverlay(instruction.getImageState());
+			this.displayRois(roisToDisplay);
+			// Refresh display
+			this.getVue().repaint();
+		}
+
+		// Change next button label
+		this.getVue().getBtn_suivant().setLabel(btnNextTxt);
+	}
+
+	/**
+	 * This method initializes the controller. It must be called <b>after</b> the {@link #generateInstructions()}
+	 * method.
+	 */
+	protected void start() {
+		this.indexCurrentWorkflow = 0;
+		this.indexRoi = 0;
+
+		// Update view
+		getVue().setNbInstructions(this.allInputInstructions().size());
+
+		Instruction i = this.workflows[0].next();
+		if (i != null) {
+			this.currentState = new ImageState(
+					this.workflows[0].getImageAssociated().getImageOrientation().getFacingOrientation(), 1,
+					ImageState.LAT_RL, ImageState.ID_NONE);
+			this.setOverlay(currentState);
+
+			this.displayInstruction(i.getMessage());
+			this.prepareImage(i.getImageState());
+			i.afterNext(this);
+		}
+	}
+
+//	/**
+//	 * Finds the workflow matching the specified image.
+//	 *
+//	 * @param ims Image to find
+//	 * @return Workflow associated with the image or null if not found
+//	 */
+//	protected Workflow getWorkflowAssociatedWithImage(ImageSelection ims) {
+//		for (Workflow workflow : this.workflows)
+//			if (workflow.getImageAssociated() == ims) return workflow;
+//		return null;
+//	}
+
+//	/**
+//	 * Finds the workflow containing the specified instruction.
+//	 *
+//	 * @param instruction Instruction to search
+//	 * @return Workflow containing the instruction
+//	 */
+//	protected Workflow getWorkflowAssociatedWithInstruction(Instruction instruction) {
+//		int index = this.indexWorkflowFromInstruction(instruction);
+//		if (index == -1) return null;
+//		return this.workflows[index];
+//	}
 
 }

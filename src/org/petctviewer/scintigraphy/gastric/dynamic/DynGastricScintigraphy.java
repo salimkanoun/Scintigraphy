@@ -14,6 +14,8 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.ReversedChronologicalAcquisitionComparator;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,25 +30,21 @@ public class DynGastricScintigraphy extends Scintigraphy {
 		super(STUDY_NAME);
 		this.model = model;
 		this.tabResult = tabResult;
-
-		FenSelectionDicom fsd = new FenSelectionDicom(this);
-		fsd.setVisible(true);
-
-		this.lancerProgramme(fsd.retrieveSelectedImages().toArray(new ImageSelection[0]));
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
-		this.setFenApplication(
-				new FenApplication_DynGastric(selectedImages[0], "Dynamic Gastric Scintigraphy"));
-		this.getFenApplication().setController(new ControllerWorkflow_DynGastric(this,
-				(FenApplicationWorkflow) this.getFenApplication(), this.model, selectedImages, tabResult));
+	public void start(List<ImageSelection> preparedImages) {
+		this.setFenApplication(new FenApplication_DynGastric(preparedImages.get(0), "Dynamic Gastric Scintigraphy"));
+		this.getFenApplication().setController(
+				new ControllerWorkflow_DynGastric(this, (FenApplicationWorkflow) this.getFenApplication(), this.model,
+												  preparedImages.toArray(new ImageSelection[0]), tabResult));
+		this.getFenApplication().addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				tabResult.enableDynamicAcquisition(true);
+			}
+		});
 		this.getFenApplication().setVisible(true);
-	}
-
-	@Override
-	public String getName() {
-		return STUDY_NAME;
 	}
 
 	@Override
@@ -58,12 +56,11 @@ public class DynGastricScintigraphy extends Scintigraphy {
 	public List<ImageSelection> prepareImages(List<ImageSelection> openedImages) throws WrongInputException,
 			ReadTagException {
 		// Check number of images
-		if (openedImages.size() == 0)
-			throw new WrongNumberImagesException(openedImages.size(), 1, Integer.MAX_VALUE);
+		if (openedImages.size() == 0) throw new WrongNumberImagesException(openedImages.size(), 1, Integer.MAX_VALUE);
 
 		// Check orientation
-		Orientation[] acceptedOrientations = new Orientation[] { Orientation.DYNAMIC_ANT_POST,
-																 Orientation.DYNAMIC_POST_ANT, Orientation.DYNAMIC_ANT };
+		Orientation[] acceptedOrientations =
+				new Orientation[]{Orientation.DYNAMIC_ANT_POST, Orientation.DYNAMIC_POST_ANT, Orientation.DYNAMIC_ANT};
 		List<ImageSelection> selection = new ArrayList<>();
 		for (ImageSelection ims : openedImages) {
 			if (Arrays.stream(acceptedOrientations).noneMatch(o -> o.equals(ims.getImageOrientation()))) {

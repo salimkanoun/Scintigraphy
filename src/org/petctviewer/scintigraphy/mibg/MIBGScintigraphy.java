@@ -7,7 +7,6 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
-import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -24,43 +23,24 @@ public class MIBGScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void run(String arg) {
-		// Override to use custom dicom selection window
-		FenSelectionDicom fen = new FenSelectionDicom(this);
+	public void start(List<ImageSelection> preparedImages) {
+		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
+		this.getFenApplication().setController(
+				new ControllerWorkflowMIBG(STUDY_NAME, (FenApplicationWorkflow) this.getFenApplication(),
+										   preparedImages.toArray(new ImageSelection[0])));
 
+	}
+
+	@Override
+	public Column[] getColumns() {
 		// Orientation column
 		String[] orientationValues =
 				{Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString(), Orientation.ANT.toString()};
 		Column orientation = new Column(Column.ORIENTATION.getName(), orientationValues);
 
 		// Choose columns to display
-		Column[] cols = {Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
-						 Column.STACK_SIZE,
-						 orientation};
-		fen.declareColumns(cols);
-
-		fen.setVisible(true);
-
-		this.lancerProgramme(fen.retrieveSelectedImages().toArray(new ImageSelection[0]));
-	}
-
-	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
-		this.setFenApplication(new FenApplicationWorkflow(selectedImages[0], this.getStudyName()));
-		this.getFenApplication().setController(
-				new ControllerWorkflowMIBG("MIBG Scintigraphy", (FenApplicationWorkflow) this.getFenApplication(),
-										   selectedImages));
-
-	}
-
-	@Override
-	public String getName() {
-		return STUDY_NAME;
-	}
-
-	@Override
-	public Column[] getColumns() {
-		return Column.getDefaultColumns();
+		return new Column[]{Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
+							Column.STACK_SIZE, orientation};
 	}
 
 	@Override

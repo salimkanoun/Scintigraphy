@@ -22,17 +22,12 @@ public class ColonicScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(List<ImageSelection> preparedImages) {
 
-		this.setFenApplication(new FenApplicationColonicTransit(selectedImages[0], this.getStudyName()));
+		this.setFenApplication(new FenApplicationColonicTransit(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(
 				new ControllerWorkflowColonicTransit(this, (FenApplicationColonicTransit) this.getFenApplication(),
-													 selectedImages));
-	}
-
-	@Override
-	public String getName() {
-		return STUDY_NAME;
+													 preparedImages.toArray(new ImageSelection[0])));
 	}
 
 	@Override

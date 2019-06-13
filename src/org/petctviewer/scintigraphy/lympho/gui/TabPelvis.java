@@ -1,21 +1,16 @@
 package org.petctviewer.scintigraphy.lympho.gui;
 
-import java.awt.Component;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import org.petctviewer.scintigraphy.lympho.ModelLympho;
 import org.petctviewer.scintigraphy.lympho.pelvis.PelvisScintigraphy;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class TabPelvis extends TabResult implements ActionListener {
 

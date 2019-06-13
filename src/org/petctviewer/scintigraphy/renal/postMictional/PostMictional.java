@@ -29,22 +29,8 @@ public class PostMictional extends Scintigraphy {
 	}
 
 	@Override
-	public String getName() {
-		return STUDY_NAME;
-	}
-
-	@Override
 	public Column[] getColumns() {
 		return Column.getDefaultColumns();
-	}
-
-	public BufferedImage getCapture() {
-		return null;
-	}
-
-	public TabPostMict getResultFrame() {
-		return resultFrame;
-
 	}
 
 	@Override
@@ -75,17 +61,28 @@ public class PostMictional extends Scintigraphy {
 		return "1 image in Ant-Post (or Post-Ant) or Post orientation";
 	}
 
-	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
-		Overlay ov = Library_Gui.initOverlay(selectedImages[0].getImagePlus());
+	public BufferedImage getCapture() {
+		return null;
+	}
 
-		FenApplicationWorkflow fen = new FenApplicationWorkflow(selectedImages[0], this.getStudyName());
+	public TabPostMict getResultFrame() {
+		return resultFrame;
+
+	}
+
+	@Override
+	public void start(List<ImageSelection> preparedImages) {
+		Overlay ov = Library_Gui.initOverlay(preparedImages.get(0).getImagePlus());
+
+		FenApplicationWorkflow fen = new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName());
 		fen.setVisible(true);
 		this.setFenApplication(fen);
-		selectedImages[0].getImagePlus().setOverlay(ov);
+		preparedImages.get(0).getImagePlus().setOverlay(ov);
 		this.getFenApplication().setController(
 				new ControllerWorkflowPostMictional(this, (FenApplicationWorkflow) this.getFenApplication(),
-													new Model_PostMictional(selectedImages, this.getStudyName()),
+													new Model_PostMictional(
+															preparedImages.toArray(new ImageSelection[0]),
+															this.getStudyName()),
 													((Model_Renal) this.resultFrame.getParent().getModel()).getKidneys()));
 	}
 

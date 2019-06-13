@@ -21,7 +21,7 @@ public class PrefTabBone extends PrefTab {
 	private JCheckBox checkBoxDefaultLut;
 
 	public PrefTabBone(PrefWindow parent) {
-		super(parent, "Bone");
+		super("Bone", parent);
 
 		this.setTitle("Bone Scintigraphy settings");
 
@@ -55,7 +55,7 @@ public class PrefTabBone extends PrefTab {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == this.btn_choixLut) {
-			String path = Prefs.get(PREF_LUT, "./luts");
+			String path = Prefs.get(PREF_LUT, Prefs.get(PrefTabMain.PREF_LUT, "./luts"));
 			this.fc.setCurrentDirectory(new File(path));
 			this.fc.setDialogTitle("Choose Preferred LUT for Bone Scintigraphy");
 			int returnVal = fc.showOpenDialog(PrefTabBone.this);

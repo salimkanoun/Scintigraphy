@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.generic.statics;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 
 import java.awt.*;
@@ -12,18 +11,16 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class FenApplication_ScinStatic extends FenApplicationWorkflow {
-	private static final long serialVersionUID = 1L;
-
 	public static final String BTN_TEXT_NEW_ROI = "Validate/New Roi", BTN_TEXT_NEXT = "Next";
-
+	private static final long serialVersionUID = 1L;
 	private final Button btn_finish;
 
 	public FenApplication_ScinStatic(ImageSelection ims, String nom) {
 		super(ims, nom);
-		
+
 		// Keep default visualisation
 		this.setVisualizationEnable(false);
-		
+
 		this.getTextfield_instructions().setEditable(true);
 		this.btn_finish = new Button("Finish");
 		this.btn_finish.setActionCommand(ControllerWorkflow.COMMAND_END);
@@ -45,7 +42,7 @@ public class FenApplication_ScinStatic extends FenApplicationWorkflow {
 		this.textfield_instructions.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if(e.getKeyCode() == KeyEvent.VK_ENTER && !e.isShiftDown()) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER && !e.isShiftDown()) {
 					ActionEvent click = new ActionEvent(btn_suivant, ActionEvent.ACTION_PERFORMED, "");
 					btn_suivant.dispatchEvent(click);
 				}
@@ -55,7 +52,7 @@ public class FenApplication_ScinStatic extends FenApplicationWorkflow {
 		this.textfield_instructions.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if(e.getKeyCode() == KeyEvent.VK_ENTER && e.isShiftDown()) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER && e.isShiftDown()) {
 					ActionEvent click = new ActionEvent(btn_finish, ActionEvent.ACTION_PERFORMED, "");
 					btn_finish.dispatchEvent(click);
 				}
@@ -65,25 +62,9 @@ public class FenApplication_ScinStatic extends FenApplicationWorkflow {
 		this.setDefaultSize();
 	}
 
-	public Button getBtn_finish() {
-		return this.btn_finish;
-	}
-
 	@Override
 	public void setController(ControllerScin ctrl) {
 		super.setController(ctrl);
 		this.btn_finish.addActionListener(ctrl);
-	}
-
-	@Override
-	protected DocumentationDialog createDocumentation() {
-		DocumentationDialog doc = super.createDocumentation();
-
-		doc.setDesigner("Esteban BAICHOO");
-		doc.setDeveloper("Titouan QUEMA");
-		doc.setReference("Salim KANOUN");
-		doc.setYoutube("https://www.youtube.com/watch?v=GzteARkk6as&feature=youtu.be");
-
-		return doc;
 	}
 }

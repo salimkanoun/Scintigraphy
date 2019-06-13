@@ -23,8 +23,6 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 			new JRadioButton("P3"), t4 = new JRadioButton("T4"), t5 = new JRadioButton("T5"), t6 = new JRadioButton(
 			"T6");
 
-	private ButtonGroup radio = new ButtonGroup();
-
 	private boolean imgSelected;
 
 	private JButton btn_addImp;
@@ -48,6 +46,7 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 		t5.addActionListener(this);
 		t6.addActionListener(this);
 
+		ButtonGroup radio = new ButtonGroup();
 		radio.add(this.l0);
 		radio.add(this.p1);
 		radio.add(this.p2);
@@ -105,7 +104,7 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 
 				FenSelectionDicom fen = new FenSelectionDicom(new ImagePreparator() {
 					@Override
-					public String getName() {
+					public String getStudyName() {
 						return "Visual Gradation";
 					}
 
@@ -131,10 +130,13 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 					public String instructions() {
 						return "1 image needed.";
 					}
+
+					@Override
+					public void start(List<ImageSelection> preparedImages) {
+						update(preparedImages.get(0));
+					}
 				});
 				fen.setVisible(true);
-
-				this.update(fen.retrieveSelectedImages().get(0));
 
 			} else if (button == btn_switchLimb) {
 				this.switchLimb(this.btn_switchLimb);
@@ -152,10 +154,6 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 			((FenResultatsLympho) this.parent).updateVisualGradation("Visual Gradation : " + gradation);
 		}
 
-	}
-
-	public void setimgSelected(boolean boobool) {
-		this.imgSelected = boobool;
 	}
 
 	public void switchLimb(JButton limbButton) {

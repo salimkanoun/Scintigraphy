@@ -12,18 +12,38 @@ public abstract class PrefTab extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	protected final JPanel mainPanel;
-	protected final PrefWindow parent;
 	private final JPanel pnl_titre;
+	/**
+	 * Preference window where this tab is linked to.<br> Can be null!
+	 */
+	protected JFrame parent;
 	private String prefTabName;
 	private JLabel title;
 
-	public PrefTab(PrefWindow parent, String tabName) {
+	/**
+	 * Instantiates a new preference tab not linked to any preference window.
+	 *
+	 * @param tabName Name of the tab (used for display)
+	 */
+	public PrefTab(String tabName) {
+		this(tabName, null);
+	}
+
+	/**
+	 * Instantiates a new preference tab.
+	 *
+	 * @param tabName Name of the tab (used for display)
+	 * @param parent  Window this tab is linked to (can be null if no parent)
+	 */
+	public PrefTab(String tabName, JFrame parent) {
 		// Set variable
 		this.prefTabName = tabName;
 		this.parent = parent;
 
 		this.setLayout(new BorderLayout());
 		pnl_titre = new JPanel();
+		this.title = new JLabel(tabName);
+		pnl_titre.add(title);
 		this.add(pnl_titre, BorderLayout.NORTH);
 
 		mainPanel = new JPanel();
@@ -32,16 +52,34 @@ public abstract class PrefTab extends JPanel implements ActionListener {
 		this.add(mainPanel, BorderLayout.CENTER);
 	}
 
+	/**
+	 * Changes the preference window of this tab.<br> This method is used to delay the instantiation of the tab.
+	 *
+	 * @param parent Preference window this tab is linked to
+	 */
+	public void setParent(PrefWindow parent) {
+		this.parent = parent;
+	}
+
+	/**
+	 * @return name of this tab
+	 */
 	public String getTabName() {
 		return this.prefTabName;
 	}
 
+	/**
+	 * Sets the title on the tab. The title is different than the name. The title is displayed on the panel. By
+	 * default,
+	 * the title is set with the name of the tab. If you want to remove the title, then pass null to this method.
+	 *
+	 * @param title Title for the tab (null removes title)
+	 */
 	public void setTitle(String title) {
-		if (this.title == null) {
-			this.title = new JLabel();
-			this.pnl_titre.add(this.title);
-		}
-		this.title.setText("<html><h3>" + title + "</h3></html>");
+		if (title == null)
+			// Remove title
+			this.pnl_titre.remove(this.title);
+		else this.title.setText("<html><h3>" + title + "</h3></html>");
 	}
 
 	/**
@@ -69,7 +107,8 @@ public abstract class PrefTab extends JPanel implements ActionListener {
 			JCheckBox check = (JCheckBox) e.getSource();
 			// Save value in prefs
 			Prefs.set(check.getActionCommand(), check.isSelected());
-			this.parent.displayMessage("Please close the window to save the preferences", PrefWindow.DURATION_SHORT);
+			if (this.parent != null && this.parent instanceof PrefWindow) ((PrefWindow) this.parent).displayMessage(
+					"Please close the window to save the preferences", PrefWindow.DURATION_SHORT);
 		}
 	}
 }
