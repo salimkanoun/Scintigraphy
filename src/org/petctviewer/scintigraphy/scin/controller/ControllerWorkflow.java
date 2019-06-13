@@ -1,7 +1,22 @@
 package org.petctviewer.scintigraphy.scin.controller;
 
-import ij.IJ;
-import ij.ImagePlus;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.event.ActionEvent;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
@@ -18,12 +33,12 @@ import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import ij.IJ;
+import ij.ImagePlus;
 
 /**
  * This controller is used when working with a flow of instructions.<br> In order to use this type of controller, you
@@ -473,9 +488,9 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		int indexInstruction = this.allInputInstructions().indexOf(currentInstruction);
 		if (indexInstruction != -1) this.getVue().currentInstruction(indexInstruction);
 
-		if (previousInstruction instanceof LastInstruction && currentInstruction instanceof GeneratorInstruction) {
+		if (previousInstruction instanceof LastInstruction && currentInstruction instanceof GeneratorInstruction) 
 			((GeneratorInstruction) currentInstruction).activate();
-		}
+		
 
 		if (currentInstruction == null) {
 			this.indexCurrentWorkflow--;
@@ -529,6 +544,12 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 				try {
 					this.saveRoiAtIndex(previousInstruction.getRoiName(), this.indexRoi);
 					previousInstruction.setRoi(this.indexRoi);
+					
+					 Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
+					 .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
+					 System.out.println("Roi actuelle : ");
+					 System.out.println("\t"+gson.toJson(previousInstruction));
+					 System.out.println("\t"+this.getRoiManager().getRoi(this.indexRoi).getName()+" : "+this.getRoiManager().getRoi(this.indexRoi));
 
 					if (previousInstruction.isRoiVisible()) this.displayRoi(this.indexRoi);
 
@@ -601,6 +622,10 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	public void actionPerformed(ActionEvent e) {
 		if ((e.getSource() == getVue().getBtn_suivant() || e.getSource() == getVue().getBtn_precedent()) &&
 				getVue().isVisualizationEnabled()) {
+//			for(Instruction instru : this.allInputInstructions())
+//				System.out.println("\t"+instru);
+			
+//			System.out.println(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
 			int indexScrollForCurrentInstruction = this.allInputInstructions().indexOf(
 					this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
 			if (getVue().getInstructionDisplayed() != indexScrollForCurrentInstruction) {
@@ -645,6 +670,10 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 	public Workflow[] getWorkflows() {
 		return this.workflows;
+	}
+	
+	public void setPosition(int position) {
+		this.position = position;
 	}
 
 	public void actionCaptureButton(CaptureButton captureButton) {

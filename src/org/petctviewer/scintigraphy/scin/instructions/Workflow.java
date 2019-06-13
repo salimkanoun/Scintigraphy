@@ -250,8 +250,12 @@ public class Workflow implements Serializable {
 		return this.instructions;
 	}
 
-	public void removeInstructionWithIterator(Instruction instruction) {
+	public void removeInstructionWithIterator() {
 		this.iterator.remove();
 	}
 
+	
+	public void setCurrent(Instruction instru) {
+		this.current = instru;
+	}
 }

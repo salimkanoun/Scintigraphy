@@ -45,6 +45,12 @@ public class Model_Cardiac extends ModelScin {
 
 	// Value of Only_Thorax image
 	private Double heartThorax, contralateralThorax, heartToContralateralThorax;
+	
+	private double wholeBodyRetention;
+	
+	private double heartRetention;
+	
+	private double heartToWholeBody;
 
 	// private int[] nbConta;
 
@@ -194,13 +200,23 @@ public class Model_Cardiac extends ModelScin {
 				}
 			}
 
+			Double[] nonGeomSumCountE = new Double[] {0.0d, 0.0d};
 			for (Integer i : contE.keySet()) {
-				this.sumContE += Library_Quantif.moyGeom(contE.get(i)[0], contE.get(i)[1]);
+				nonGeomSumCountE[0] += contE.get(i)[0];
+				nonGeomSumCountE[1] += contE.get(i)[1];
+//				this.sumContE += Library_Quantif.moyGeom(contE.get(i)[0], contE.get(i)[1]);
 			}
+			this.sumContE = Library_Quantif.moyGeom(nonGeomSumCountE[0], nonGeomSumCountE[1]);
 
+			Double[] nonGeomSumCountL = new Double[] {0.0d, 0.0d};
 			for (Integer i : contL.keySet()) {
-				this.sumContL += Library_Quantif.moyGeom(contL.get(i)[0], contL.get(i)[1]);
+				nonGeomSumCountL[0] += contE.get(i)[0];
+				nonGeomSumCountL[1] += contE.get(i)[1];
+//				this.sumContL += Library_Quantif.moyGeom(contL.get(i)[0], contL.get(i)[1]);
 			}
+			this.sumContL = Library_Quantif.moyGeom(nonGeomSumCountL[0], nonGeomSumCountL[1]);
+			
+			
 
 			// calcul heart/whole body
 			this.hwb = (this.fixCoeurL)
@@ -211,21 +227,37 @@ public class Model_Cardiac extends ModelScin {
 
 				/* Valeurs calcul�es */
 				// valeurs finales
-				double finalEarly = this.totEarly - this.sumContE;
-
-				this.selectedImages[0].getImagePlus().setSlice(1);
 				long timeEarly = Library_Dicom.getDateAcquisition(this.selectedImages[0].getImagePlus()).getTime();
-				this.selectedImages[0].getImagePlus().setSlice(2);
-				long timeLate = Library_Dicom.getDateAcquisition(this.selectedImages[0].getImagePlus()).getTime();
+				long timeLate = Library_Dicom.getDateAcquisition(this.selectedImages[1].getImagePlus()).getTime();
+				
+				int delaySeconds = (int) (timeEarly - timeLate);
+				
+				
+				double wholeBodyCountEarly = this.totEarly - this.sumContE;
+				
+				double wholeBodyCountLate = this.totLate - sumContL;
+				
+				double summ = (wholeBodyCountLate - this.fixReinDL - this.fixVessieL);
+				
+				double earlyDecayed = Library_Quantif.applyDecayFraction(delaySeconds, wholeBodyCountEarly,
+						Library_Quantif.Isotope.TECHNETIUM_99);
+				
+				this.wholeBodyRetention = summ / earlyDecayed;
+				
+				this.heartRetention = fixCoeurL / earlyDecayed;
+				
+				this.heartToWholeBody = fixCoeurL/wholeBodyCountLate;
 
-				int delaySeconds = (int) (timeEarly - timeLate) / 1000;
+				
 
-				this.retCardiaque = Library_Quantif.applyDecayFraction(delaySeconds * 1000, this.fixCoeurL,
-						Library_Quantif.Isotope.TECHNETIUM_99) / finalEarly;
+				
+
+				this.retCardiaque = Library_Quantif.applyDecayFraction(delaySeconds, this.fixCoeurL,
+						Library_Quantif.Isotope.TECHNETIUM_99) / wholeBodyCountEarly;
 
 				double sum = this.fixReinDL + this.fixVessieL + this.sumContL;
-				this.retCe = (this.totLate - Library_Quantif.applyDecayFraction(delaySeconds * 1000, sum,
-						Library_Quantif.Isotope.TECHNETIUM_99)) / finalEarly;
+				this.retCe = (this.totLate - Library_Quantif.applyDecayFraction(delaySeconds, sum,
+						Library_Quantif.Isotope.TECHNETIUM_99)) / wholeBodyCountEarly;
 			}
 
 			this.heartToContralateral = this.data.get("Heart A")[1] / this.data.get("Bkg noise A")[1];
@@ -260,10 +292,10 @@ public class Model_Cardiac extends ModelScin {
 	}
 
 	public void calculerMoyGeomTotale() {
-		this.selectedImages[0].getImagePlus().setSlice(1);
+		this.selectedImages[0].getImagePlus();
 		if (this.deuxPrises) {
 			this.totEarly = getGlobalCountAvg();
-			this.selectedImages[0].getImagePlus().setSlice(2);
+			this.selectedImages[1].getImagePlus();
 			this.totLate = getGlobalCountAvg();
 		} else {
 			this.totLate = getGlobalCountAvg();
@@ -320,6 +352,10 @@ public class Model_Cardiac extends ModelScin {
 		this.resultats.put("Ratio H/WB %", "" + Library_Quantif.round(this.hwb * 100, 2));
 
 		this.resultats.put("Heart to contralateral", "" + Library_Quantif.round(this.heartToContralateral, 2));
+		
+		this.resultats.put("wholeBodyRetention", "" + Library_Quantif.round(this.wholeBodyRetention * 100, 2));
+		this.resultats.put("heartRetention", "" + Library_Quantif.round(this.heartToContralateral * 100, 2));
+		this.resultats.put("heartToWholeBody", "" + Library_Quantif.round(this.heartToWholeBody * 100, 2));
 
 		return this.resultats;
 	}

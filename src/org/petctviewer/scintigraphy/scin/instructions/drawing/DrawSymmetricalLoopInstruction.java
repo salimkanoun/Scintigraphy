@@ -23,8 +23,6 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 	private final transient Organ organ;
 
 	private boolean drawRoi;
-	
-	private final String RoiName;
 
 	public DrawSymmetricalLoopInstruction(Workflow workflow, GeneratorInstruction parent, ImageState state,
 			ModelScin model, Organ organ, String RoiName) {
@@ -80,7 +78,6 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 	@Override
 	public void stop() {
 		super.stop();
-		this.drawRoi = false;
 	}
 
 	@Override
@@ -117,6 +114,11 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 				lastOrgan.setStrokeColor(Color.RED);
 			controller.getCurrentImageState().getImage().getImagePlus().setRoi(lastOrgan);
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return "DrawSymmetricalLoopInstruction [ isRoiVisible :"+this.isRoiVisible()+", RoiName"+this.getRoiName()+"]";
 	}
 
 }

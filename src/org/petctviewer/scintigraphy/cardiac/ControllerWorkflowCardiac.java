@@ -3,8 +3,11 @@ package org.petctviewer.scintigraphy.cardiac;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JPanel;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -12,12 +15,14 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackgroundSymmetrical;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoopInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoiInstruction.Organ;
+import org.petctviewer.scintigraphy.scin.instructions.execution.ExecutionInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
@@ -50,6 +55,8 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	private DrawRoiInstruction dri_onlyThorax1 = null, dri_onlyThorax2 = null;
 
 	public List<ImagePlus> captures;
+
+	private int indexPreviousWorkflow;
 
 	public ControllerWorkflowCardiac(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model, int fullBodyImages,
 			int onlyThoraxImage) {
@@ -88,10 +95,8 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 			this.workflows[0] = new Workflow(this, this.model.getImageSelection()[index - 1]);
 			if (this.fullBodyImages > 1) {
-				this.model.getImageSelection()[index - 1].clone().getImagePlus().show();
 				index++;
 				this.workflows[1] = new Workflow(this, this.model.getImageSelection()[index - 1]);
-				this.model.getImageSelection()[index - 1].clone().getImagePlus().show();
 			}
 			this.workflows[index] = new Workflow(this, this.model.getImageSelection()[index - 1]);
 
@@ -164,7 +169,8 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 			int currentIndex = this.fullBodyImages == 0 ? 0 : this.fullBodyImages + 1;
 
-			this.workflows[currentIndex] = new Workflow(this, this.model.getImageSelection()[this.fullBodyImages == 0 ? 0 : this.fullBodyImages]);
+			this.workflows[currentIndex] = new Workflow(this,
+					this.model.getImageSelection()[this.fullBodyImages == 0 ? 0 : this.fullBodyImages]);
 
 			ScreenShotInstruction captureThorax = new ScreenShotInstruction(this.captures, this.getVue(),
 					this.fullBodyImages == 0 ? 0 : 1);
@@ -191,7 +197,6 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	}
 
 	private void clicNewCont() {
-
 		if (this.getVue().getImagePlus().getRoi() != null && !this.finContSlice2) {
 			if (this.position % 2 != 0) {
 				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.main.getFenApplication();
@@ -206,6 +211,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	}
 
 	private void clicEndCont() {
+//		System.out.println("EndCont");
 		// Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
 		// .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
 		// System.out.println("-------------------------- Avant
@@ -213,16 +219,24 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		// System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n");
 		// on set la slice
 		if ((this.fullBodyImages > 1 && !finContSlice1)) {
+//			System.out.println("First End");
 			// on relance le mode decontamination, cette fois ci pour la deuxieme slice
 			this.finContSlice1 = true;
+			for(Instruction instruction : this.workflows[this.indexCurrentWorkflow].getInstructions())
+				((DefaultGenerator)instruction).stop();
 
 			// TODO demander confirmation Ã  Titouan
-			((DrawSymmetricalLoopInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
+//			((DrawSymmetricalLoopInstruction) this.workflows[this.indexPreviousWorkflow].getCurrentInstruction()).stop();
 
-			this.workflows[this.indexCurrentWorkflow]
-					.removeInstructionWithIterator(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
+			// Si ce n'est pas la première instruction du workflow
+//			if (!(this.workflows[this.indexPreviousWorkflow].getInstructions()
+//					.get(0) == this.workflows[this.indexPreviousWorkflow].getCurrentInstruction()))
+				// Si aucune Roi n'a été sauvegardée, on supprime.
+//				if (this.workflows[this.indexPreviousWorkflow].getCurrentInstruction().getRoiIndex() == 1)
+//					this.workflows[this.indexPreviousWorkflow].removeInstructionWithIterator();
 
 		} else { // on a traitï¿½ toutes les contaminations
+//			System.out.println("Final End");
 			((FenApplication_Cardiac) this.main.getFenApplication()).stopContaminationMode();
 			String[] conts = new String[this.position];
 			for (int i = 0; i < conts.length; i++) {
@@ -231,15 +245,20 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			// on ajoute de nouvelles cases dans le tableau organes pour ne pas modifier
 			// l'indexRoi
 			this.setOrganes((String[]) ArrayUtils.addAll(conts, this.getOrganes()));
-			((DrawSymmetricalLoopInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
+			
+			for(Instruction instruction : this.workflows[this.indexCurrentWorkflow].getInstructions())
+				((DefaultGenerator)instruction).stop();
+//			((DrawSymmetricalLoopInstruction) this.workflows[this.indexCurrentWorkflow - 1].getCurrentInstruction()).stop();
 
-			this.workflows[this.indexCurrentWorkflow]
-					.removeInstructionWithIterator(this.workflows[this.indexCurrentWorkflow].getCurrentInstruction());
+			// To avoid deleting of the first Intruction if no contaminations
+//			if (!(this.workflows[this.indexPreviousWorkflow].getInstructions()
+//					.get(0) == this.workflows[this.indexPreviousWorkflow].getCurrentInstruction()))
+//				if (this.workflows[this.indexPreviousWorkflow].getCurrentInstruction().getRoiIndex() == 1)
+//					this.workflows[this.indexPreviousWorkflow].removeInstructionWithIterator();
 			this.finContSlice2 = true;
 		}
 
 		this.clickNext();
-
 		this.position--;
 		this.vue.pack();
 		// System.out.println("-------------------------- AprÃ¨s
@@ -258,16 +277,45 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
+//		 Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
+//				 .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
+//		 System.out.println("-------------------------- Avant--------------------------");
+//		 System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n");
+		
+		boolean needManualIncrement = false;
+		 
+		if(this.workflows[indexCurrentWorkflow].getCurrentInstruction().isRoiVisible() && !this.workflows[indexCurrentWorkflow].getCurrentInstruction().saveRoi()) 
+			needManualIncrement = true;
+		
+		super.actionPerformed(arg0);
+		
+		if(needManualIncrement)
+			this.indexRoi++;
+		
+//		System.out.println(" Index du workflow précédent : "+this.indexPreviousWorkflow);
+//		System.out.println(" Index du workflow actuel : "+this.indexCurrentWorkflow);
+		
+		
+//		if(indexPreviousWorkflow != indexCurrentWorkflow)
+//			System.out.println("Changing workflow : indexPreviousWorkflow : "+indexPreviousWorkflow+" => indexCurrentWorkflow : "+indexCurrentWorkflow);
 
 		if (arg0.getSource() instanceof Button) {
 			Button b = (Button) arg0.getSource();
-			if (b == ((FenApplication_Cardiac) this.main.getFenApplication()).getBtn_suivant()) {
-				this.clicNewCont();
-			} else if (b == ((FenApplication_Cardiac) this.main.getFenApplication()).getBtn_continue()) {
+			if (b == ((FenApplication_Cardiac) this.main.getFenApplication()).getBtn_continue())
 				this.clicEndCont();
-			}
+			else if (b == ((FenApplication_Cardiac) this.main.getFenApplication()).getBtn_suivant())
+				this.clicNewCont();
 		}
-		super.actionPerformed(arg0);
+//		if (this.workflows[indexCurrentWorkflow].getCurrentInstruction().getRoiIndex() != -1)
+//			System.out.println(this.getRoiManager()
+//					.getRoi(this.workflows[indexCurrentWorkflow].getCurrentInstruction().getRoiIndex()).getName()
+//					+ " : " + this.getRoiManager()
+//							.getRoi(this.workflows[indexCurrentWorkflow].getCurrentInstruction().getRoiIndex()));
+		
+		
+//		this.indexPreviousWorkflow = this.indexCurrentWorkflow;
+
+		
 	}
 
 	@Override
@@ -304,7 +352,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 				Library_Gui.setOverlayGD(this.vue.getImagePlus(), Color.YELLOW);
 
 			((FenApplication_Cardiac) this.getVue()).setMultipleTitle(Color.yellow, state.getSlice());
-		} else{
+		} else {
 			Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
 			Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus(), Color.YELLOW, 1);
 		}
@@ -319,5 +367,65 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	public void setOnlyThoraxImage(int onlyThoraxImage) {
 		// TODO Auto-generated method stub
 		this.onlyThoraxImage = onlyThoraxImage;
+	}
+	
+	private class ContaminationAskInstruction extends ExecutionInstruction implements ActionListener {
+		
+		private ControllerWorkflow controller;
+		
+		private Button btn_yes, btn_no;
+		
+		private Workflow workflow;
+
+		private ImageState state;
+
+		private String nameInstructionDrawLoop;
+		
+		private boolean instructionFlying;
+		
+		public ContaminationAskInstruction(ControllerWorkflow controller, Workflow workflow, ImageState state, String nameInstructionDrawLoop) {
+			
+			this.state = state;
+			this.nameInstructionDrawLoop = nameInstructionDrawLoop;
+			
+			this.controller = controller;
+			this.workflow = workflow;
+			this.instructionFlying = false;
+		}
+		
+		@Override
+		public void prepareAsNext() {
+			this.createPanel();
+		}
+		
+		@Override
+		public void prepareAsPrevious() {
+			this.createPanel();
+		}
+		
+		@Override
+		public boolean isExpectingUserInput() {
+			return !this.instructionFlying;
+		}
+		
+		private void createPanel() {
+			this.controller.getVue().getPanel_Instructions_btns_droite().removeAll();
+			JPanel panel = new JPanel();
+			panel.add(this.btn_yes);
+			this.btn_yes.addActionListener(this);
+			panel.add(this.btn_no);
+			this.btn_no.addActionListener(this);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			if(arg0.getSource() == this.btn_yes) {
+				this.workflow.addInstructionOnTheFly(new DrawSymmetricalLoopInstruction(this.workflow, null, this.state, model, null, this.nameInstructionDrawLoop));
+				this.instructionFlying = true;
+			}
+			
+			this.workflow.getController().clickNext();
+		}
+		
 	}
 }

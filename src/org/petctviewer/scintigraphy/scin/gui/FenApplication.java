@@ -139,6 +139,9 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 				FenApplication.this.getImagePlus().setRoi(
 						FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
 				FenApplication.this.getImagePlus().getRoi().setStrokeColor(Color.RED);
+				FenApplication.this.controleur.clickNext();
+				((ControllerWorkflow)this.controleur).setPosition(0);
+				System.out.println("Position after import : "+FenApplication.this.controleur.getPosition());
 			} catch (UnauthorizedRoiLoadException e1) {
 				JOptionPane.showMessageDialog(FenApplication.this, "Error while loading ROIs:\n" + e1.getMessage(),
 											  "Selection error", JOptionPane.ERROR_MESSAGE);

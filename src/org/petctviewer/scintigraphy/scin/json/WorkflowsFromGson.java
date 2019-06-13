@@ -31,7 +31,9 @@ public class WorkflowsFromGson {
 	public int getNbROIs() {
 		int nbROIs = 0;
 		for (WorkflowFromGson workflowFromGson : this.Workflows)
-			nbROIs += workflowFromGson.getInstructions().size();
+			for(InstructionFromGson instruction : workflowFromGson.getInstructions())
+				if(instruction.getIndexRoiToEdit() != -1)
+					nbROIs ++;
 		return nbROIs;
 	}
 
@@ -50,12 +52,12 @@ public class WorkflowsFromGson {
 	}
 
 	public int getIndexRoiOfInstructionFromGson(String nameOfRoiFile) {
-		System.out.println("nameOfRoiFile to found on Controller : " + nameOfRoiFile);
+//		System.out.println("nameOfRoiFile to found on Controller : " + nameOfRoiFile);
 		for (WorkflowFromGson workflowFromGson : this.Workflows)
 			for (InstructionFromGson instructionFromGson : workflowFromGson.getInstructions()) {
-				System.out.println("\tName of Instruction : " + instructionFromGson.getNameOfRoiFile());
+//				System.out.println("\tName of Instruction : " + instructionFromGson.getNameOfRoiFile());
 				if (nameOfRoiFile.equals(instructionFromGson.getNameOfRoiFile())) {
-					System.out.println("\t Matchs !");
+//					System.out.println("\t Matchs !");
 					return instructionFromGson.getIndexRoiToEdit();
 				}
 			}

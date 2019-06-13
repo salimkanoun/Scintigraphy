@@ -58,7 +58,7 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 	public Component getSidePanelContent() {
 		Box returnBox = Box.createVerticalBox();
 
-		JPanel resultRouge = new JPanel(new GridLayout(4, 1, 10, 10));
+		JPanel resultRouge = new JPanel(new GridLayout(0, 1, 10, 10));
 
 		String key = "Ratio H/WB %";
 		JLabel lbl_hwb = new JLabel(key + " : " + resultats.get(key));
@@ -99,6 +99,30 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 
 		// idem pour la retention du corps entier
 		key = "WB retention %";
+		if (resultats.containsKey(key)) {
+			JLabel lbl = new JLabel(key + " : " + resultats.get(key));
+			lbl.setHorizontalAlignment(JLabel.CENTER);
+			lbl.setForeground(new Color(128, 51, 0));
+			resultRouge.add(lbl);
+		}
+		
+		
+		key = "wholeBodyRetention";
+		lbl_hwb = new JLabel(key + " : " + resultats.get(key));
+		lbl_hwb.setFont(new Font("Arial", Font.BOLD, 20));
+		lbl_hwb.setHorizontalAlignment(JLabel.CENTER);
+		
+		
+		key = "heartRetention";
+		if (resultats.containsKey(key)) {
+			JLabel lbl = new JLabel(key + " : " + resultats.get(key));
+			lbl.setHorizontalAlignment(JLabel.CENTER);
+			lbl.setForeground(new Color(128, 51, 0));
+			resultRouge.add(lbl);
+		}
+
+		// idem pour la retention du corps entier
+		key = "heartToWholeBody";
 		if (resultats.containsKey(key)) {
 			JLabel lbl = new JLabel(key + " : " + resultats.get(key));
 			lbl.setHorizontalAlignment(JLabel.CENTER);
