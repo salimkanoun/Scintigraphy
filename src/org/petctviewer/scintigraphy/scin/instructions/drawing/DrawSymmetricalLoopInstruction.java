@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.scin.instructions.drawing;
 
-import ij.gui.Roi;
+import java.awt.Color;
+
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
@@ -8,9 +9,8 @@ import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoiInstruction.Organ;
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
 import org.petctviewer.scintigraphy.scin.json.InstructionFromGson;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import java.awt.*;
+import ij.gui.Roi;
 
 public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 
@@ -18,24 +18,23 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 
 	private final transient Instruction dri_1;
 
-	private final transient ModelScin model;
-
 	private final transient Organ organ;
 
 	private boolean drawRoi;
+	
+	private boolean expectingUserInput;
 
-	public DrawSymmetricalLoopInstruction(Workflow workflow, GeneratorInstruction parent, ImageState state,
-			ModelScin model, Organ organ, String RoiName) {
+	public DrawSymmetricalLoopInstruction(Workflow workflow, GeneratorInstruction parent, ImageState state, Organ organ, String RoiName) {
 
 		super(workflow, parent, state);
 
-		this.model = model;
 		this.organ = organ;
 		this.dri_1 = parent;
 		this.RoiName = RoiName == null ? "" : RoiName;
 		this.drawRoi = true;
 
 		this.InstructionType = InstructionFromGson.DrawInstructionType.DRAW_SYMMETRICAL_LOOP;
+		this.expectingUserInput = true;
 	}
 
 	@Override
@@ -43,7 +42,7 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 		if (!this.isStopped) {
 			this.stop();
 			this.workflow.getController().getVue().setNbInstructions(this.workflow.getController().allInputInstructions().size() + 1);
-			return new DrawSymmetricalLoopInstruction(this.workflow, this, this.getImageState(), model, organ,
+			return new DrawSymmetricalLoopInstruction(this.workflow, this, this.getImageState(), organ,
 					this.RoiName);
 			
 		}
@@ -84,13 +83,22 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 	public boolean saveRoi() {
 		return this.drawRoi;
 	}
+	
+	public void setExpectingUserInput(boolean expectingUserInput) {
+		this.expectingUserInput = expectingUserInput;
+	}
+	
+	@Override
+	public boolean isExpectingUserInput() {
+		return this.expectingUserInput;
+	}
 
 	@Override
 	public void afterNext(ControllerWorkflow controller) {
 		super.afterNext(controller);
 		if (this.indexLoop % 2 != 0) {
 			// recupere la roi de l'organe symetrique
-			Roi lastOrgan = this.model.getRoiManager().getRoi(dri_1.getRoiIndex());
+			Roi lastOrgan = this.workflow.getController().getModel().getRoiManager().getRoi(dri_1.getRoiIndex());
 			if (lastOrgan == null) { // si elle n'existe pas, on renvoie null
 				return;
 			}
@@ -120,7 +128,7 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 	@Override
 	public String toString() {
 		return "DrawSymmetricalLoopInstruction [ isRoiVisible :" + this.isRoiVisible() + ", RoiName" +
-				this.getRoiName() + "]";
+				this.getRoiName() + ", isStopped : "+this.isStopped+"]";
 	}
 
 }

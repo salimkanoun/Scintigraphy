@@ -207,8 +207,8 @@ public class Model_Cardiac extends ModelScin {
 
 			Double[] nonGeomSumCountL = new Double[]{0.0d, 0.0d};
 			for (Integer i : contL.keySet()) {
-				nonGeomSumCountL[0] += contE.get(i)[0];
-				nonGeomSumCountL[1] += contE.get(i)[1];
+				nonGeomSumCountL[0] += contL.get(i)[0];
+				nonGeomSumCountL[1] += contL.get(i)[1];
 //				this.sumContL += Library_Quantif.moyGeom(contL.get(i)[0], contL.get(i)[1]);
 			}
 			this.sumContL = Library_Quantif.moyGeom(nonGeomSumCountL[0], nonGeomSumCountL[1]);

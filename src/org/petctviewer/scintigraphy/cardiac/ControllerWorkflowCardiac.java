@@ -1,6 +1,15 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import ij.ImagePlus;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JPanel;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -19,12 +28,11 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import ij.ImagePlus;
 
 public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
@@ -43,8 +51,6 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	private int onlyThoraxImage;
 
 	private int fullBodyImages;
-
-	private int indexPreviousWorkflow;
 
 	public ControllerWorkflowCardiac(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model, int fullBodyImages,
 									 int onlyThoraxImage) {
@@ -70,20 +76,15 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	}
 
 	private void clicEndCont() {
-		// Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
-		// .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
-		// System.out.println("-------------------------- Avant
-		// --------------------------");
-		// System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n");
+//		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
+//				 .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
+//		System.out.println("-------------------------- Avant--------------------------");
+//		System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n");
+		 
 		// on set la slice
 		if ((this.fullBodyImages > 1 && !finContSlice1)) {
 			// on relance le mode decontamination, cette fois ci pour la deuxieme slice
 			this.finContSlice1 = true;
-
-			// TODO demander confirmation à Titouan
-			((DrawSymmetricalLoopInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
-
-			this.workflows[this.indexCurrentWorkflow].removeInstructionWithIterator();
 
 		} else { // on a trait� toutes les contaminations
 			((FenApplication_Cardiac) this.main.getFenApplication()).stopContaminationMode();
@@ -94,32 +95,40 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			// on ajoute de nouvelles cases dans le tableau organes pour ne pas modifier
 			// l'indexRoi
 			this.setOrganes((String[]) ArrayUtils.addAll(conts, this.getOrganes()));
-			((DrawSymmetricalLoopInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
-
-			this.workflows[this.indexCurrentWorkflow].removeInstructionWithIterator();
 			this.finContSlice2 = true;
 		}
+		
+//		System.out.println("In da clicEndCont : "+this.workflows[indexCurrentWorkflow].getCurrentInstruction());
+		if(this.workflows[indexCurrentWorkflow].getCurrentInstruction() instanceof DrawSymmetricalLoopInstruction) {
+			((DrawSymmetricalLoopInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
+//			((DrawSymmetricalLoopInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).setExpectingUserInput(false);
+//			this.position++;
+		}
 
+		
+		
+		this.getVue().getBtn_suivant().setLabel("Next");
 		this.clickNext();
+		
 
-		this.position--;
+		
 		this.vue.pack();
-		// System.out.println("-------------------------- Après
-		// --------------------------");
-		// System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n\n");
+		
+//		 System.out.println("-------------------------- Apres --------------------------");
+//		 System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n\n");
 
 	}
 
 	private void clicNewCont() {
 
 		if (this.getVue().getImagePlus().getRoi() != null && !this.finContSlice2) {
-			if (this.position % 2 != 0) {
+			if (((DrawSymmetricalLoopInstruction)this.workflows[indexCurrentWorkflow].getCurrentInstruction()).getIndex() % 2 != 0) {
 				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.main.getFenApplication();
-				fac.getBtn_continue().setEnabled(true);
+				fac.getBtn_continue().setEnabled(false);
 				fac.getBtn_suivant().setLabel("Next");
 			} else {
 				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.main.getFenApplication();
-				fac.getBtn_continue().setEnabled(false);
+				fac.getBtn_continue().setEnabled(true);
 				fac.getBtn_suivant().setLabel("Save");
 			}
 		}
@@ -127,6 +136,13 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
+		
+		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
+				 .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
+		
+		System.out.println(this.position);
+		System.out.println("-------------------------- Current --------------------------");
+		System.out.println("In da ActionPerformed"+gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n");
 
 		if (arg0.getSource() instanceof Button) {
 			Button b = (Button) arg0.getSource();
@@ -136,7 +152,15 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 				this.clicEndCont();
 			}
 		}
+//		System.out.println(this.workflows[indexCurrentWorkflow].getCurrentInstruction());
 		super.actionPerformed(arg0);
+		System.out.println(this.position);
+//		System.out.println(this.workflows[indexCurrentWorkflow].getCurrentInstruction());
+		if(this.indexCurrentWorkflow - 1 >= 0) {
+			System.out.println(this.workflows[indexCurrentWorkflow - 1].getCurrentInstruction());
+			System.out.println("-------------------------- Previous --------------------------");
+			System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow - 1])+"\n\n");
+		}
 	}
 
 	@Override
@@ -201,14 +225,14 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			this.workflows = new Workflow[this.getModel().getImageSelection().length + 1];
 			this.workflows[index] = new Workflow(this, this.model.getImageSelection()[index]);
 			this.workflows[index].addInstruction(
-					new DrawSymmetricalLoopInstruction(this.workflows[index], null, state, model, null, "ContE"));
+					new ContaminationAskInstruction(this.workflows[index] , state, "ContE"));
 			index++;
 
 
 			if (this.fullBodyImages > 1) {
 				this.workflows[index] = new Workflow(this, this.model.getImageSelection()[index]);
 				this.workflows[index].addInstruction(
-						new DrawSymmetricalLoopInstruction(this.workflows[index], null, state, model, null, "ContE"));
+						new ContaminationAskInstruction(this.workflows[index], state, "ContL"));
 				index++;
 			}
 
@@ -302,39 +326,51 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		// TODO Auto-generated method stub
 		this.onlyThoraxImage = onlyThoraxImage;
 	}
+	
+	public void setPosition(int position) {
+		this.position = position;
+	}
 
 	private class ContaminationAskInstruction extends ExecutionInstruction implements ActionListener {
 
-		private ControllerWorkflow controller;
+		private static final long serialVersionUID = 1L;
 
-		private Button btn_yes, btn_no;
+		private transient Button btn_yes, btn_no;
 
-		private Workflow workflow;
+		private transient Workflow workflow;
 
-		private ImageState state;
+		private transient ImageState state;
 
 		private String nameInstructionDrawLoop;
 
 		private boolean instructionFlying;
 
-		public ContaminationAskInstruction(ControllerWorkflow controller, Workflow workflow, ImageState state,
+		public ContaminationAskInstruction(Workflow workflow, ImageState state,
 										   String nameInstructionDrawLoop) {
 
 			this.state = state;
 			this.nameInstructionDrawLoop = nameInstructionDrawLoop;
 
-			this.controller = controller;
 			this.workflow = workflow;
 			this.instructionFlying = false;
 		}
 
 		private void createPanel() {
-			this.controller.getVue().getPanel_Instructions_btns_droite().removeAll();
-			JPanel panel = new JPanel();
+			
+			this.workflow.getController().getVue().getPanel_Instructions_btns_droite().remove(1);
+			
+			JPanel panel = new JPanel(new GridLayout(1,3));
+			
+			panel.add(this.workflow.getController().getVue().getBtn_precedent());
+			this.btn_yes = new Button("Yes");
 			panel.add(this.btn_yes);
 			this.btn_yes.addActionListener(this);
+			this.btn_no = new Button("No");
 			panel.add(this.btn_no);
 			this.btn_no.addActionListener(this);
+			
+			this.workflow.getController().getVue().getPanel_Instructions_btns_droite().add(panel);
+			this.workflow.getController().getVue().getTextfield_instructions().setText("Do you want to perform Contamination ?");
 		}
 
 		@Override
@@ -351,17 +387,31 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		public boolean isExpectingUserInput() {
 			return !this.instructionFlying;
 		}
+		
+		@Override
+		public String getMessage() {
+			return "Contamination Ask";
+		}
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
+			System.out.println("\n"+this);
 			if (arg0.getSource() == this.btn_yes) {
-				this.workflow.addInstructionOnTheFly(
-						new DrawSymmetricalLoopInstruction(this.workflow, null, this.state, model, null,
-														   this.nameInstructionDrawLoop));
 				this.instructionFlying = true;
+				this.workflow.addInstructionOnTheFly(
+						new DrawSymmetricalLoopInstruction(this.workflow, null, this.state, null,
+														   this.nameInstructionDrawLoop));
+				((FenApplication_Cardiac)this.workflow.getController().getVue()).startContaminationMode();
+				this.workflow.getController().clickNext();
+			}else {
+				((ControllerWorkflowCardiac)this.workflow.getController()).clicEndCont();
 			}
-
-			this.workflow.getController().clickNext();
+			System.out.println(this+"\n");
+		}
+		
+		@Override
+		public String toString() {
+			return "ContaminationAskInstruction  [ isFlying : "+this.instructionFlying+", isExpectingUserInput : "+this.isExpectingUserInput()+"]";
 		}
 
 	}
