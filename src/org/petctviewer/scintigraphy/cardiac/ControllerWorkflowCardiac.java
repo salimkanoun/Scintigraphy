@@ -137,30 +137,34 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		
-		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
-				 .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
-		
-		System.out.println(this.position);
-		System.out.println("-------------------------- Current --------------------------");
-		System.out.println("In da ActionPerformed"+gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n");
+//		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
+//				 .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
+//		
+//		System.out.println(this.position);
+//		System.out.println("-------------------------- Current --------------------------");
+//		System.out.println("In da ActionPerformed"+gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n");
 
 		if (arg0.getSource() instanceof Button) {
 			Button b = (Button) arg0.getSource();
-			if (b == this.main.getFenApplication().getBtn_suivant()) {
+			if (b == this.getVue().getBtn_suivant()) 
 				this.clicNewCont();
-			} else if (b == ((FenApplication_Cardiac) this.main.getFenApplication()).getBtn_continue()) {
+			 else if (b == ((FenApplication_Cardiac) this.getVue()).getBtn_continue()) 
 				this.clicEndCont();
-			}
+			 else if (b == this.getVue().getBtn_precedent())
+				 if(this.workflows[indexCurrentWorkflow].getCurrentInstruction() instanceof ContaminationAskInstruction) {
+					this.getVue().getPanel_Instructions_btns_droite().remove(1);
+					this.getVue().getPanel_Instructions_btns_droite().add(this.getVue().createPanelInstructionsBtns());
+					this.getVue().pack();
+				 }
+					 
 		}
-//		System.out.println(this.workflows[indexCurrentWorkflow].getCurrentInstruction());
 		super.actionPerformed(arg0);
-		System.out.println(this.position);
-//		System.out.println(this.workflows[indexCurrentWorkflow].getCurrentInstruction());
-		if(this.indexCurrentWorkflow - 1 >= 0) {
-			System.out.println(this.workflows[indexCurrentWorkflow - 1].getCurrentInstruction());
-			System.out.println("-------------------------- Previous --------------------------");
-			System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow - 1])+"\n\n");
-		}
+//		System.out.println(this.position);
+//		if(this.indexCurrentWorkflow - 1 >= 0) {
+//			System.out.println(this.workflows[indexCurrentWorkflow - 1].getCurrentInstruction());
+//			System.out.println("-------------------------- Previous --------------------------");
+//			System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow - 1])+"\n\n");
+//		}
 	}
 
 	@Override
@@ -394,6 +398,11 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		public String getMessage() {
 			return "Contamination Ask";
 		}
+		
+		@Override
+		public ImageState getImageState() {
+			return this.state;
+		}
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -405,10 +414,9 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 														   this.nameInstructionDrawLoop));
 				((FenApplication_Cardiac)this.workflow.getController().getVue()).startContaminationMode();
 				this.workflow.getController().clickNext();
-			}else {
+			}else 
 				((ControllerWorkflowCardiac)this.workflow.getController()).clicEndCont();
-			}
-			System.out.println(this+"\n");
+			
 		}
 		
 		@Override
