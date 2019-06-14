@@ -17,6 +17,7 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.CheckIntersectionInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.execution.ExecutionInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
@@ -166,6 +167,11 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 					getModel().setTimeIngestion(specifiedTimeIngestion);
 				}
 			}
+
+			@Override
+			public String toString() {
+				return "Instruction Prompt";
+			}
 		};
 
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
@@ -179,6 +185,13 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			dri_3 = new DrawRoiInstruction("Stomach", statePost, dri_1);
 			dri_4 = new DrawRoiInstruction("Intestine", statePost, dri_2);
 
+			if (i == 0) this.workflows[i].addInstruction(new ExecutionInstruction() {
+				@Override
+				public boolean isExpectingUserInput() {
+					System.out.println("Do not expect user input");
+					return false;
+				}
+			});
 			if (i == 0) this.workflows[i].addInstruction(promptTimeAcquisition);
 			this.workflows[i].addInstruction(dri_1);
 			this.workflows[i].addInstruction(dri_2);
