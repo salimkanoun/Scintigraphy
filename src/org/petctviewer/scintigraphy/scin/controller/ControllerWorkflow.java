@@ -288,6 +288,23 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	}
 
 	/**
+	 * Locks the 'Previous' button if there is no instruction expecting a user input before the current one.
+	 *
+	 * @param currentInstruction Current instruction from which the search will be made
+	 */
+	private void lockPreviousButton(Instruction currentInstruction) {
+		boolean blockPrevious = true;
+		for (int i = this.workflows[this.indexCurrentWorkflow].getInstructions().indexOf(currentInstruction) - 1;
+			 i >= 0; i--) {
+			if (this.workflows[this.indexCurrentWorkflow].getInstructionAt(i).isExpectingUserInput()) {
+				blockPrevious = false;
+				break;
+			}
+		}
+		if (blockPrevious) this.getVue().setEnablePrevious(false);
+	}
+
+	/**
 	 * Generates a list of all the instructions of every workflow of this controller that require a user input.
 	 *
 	 * @return list of instruction expecting a user input
@@ -345,15 +362,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 		// Ensure that there is a previous instruction expecting a user input
 		// Otherwise, the previous will go to a null instruction
-		boolean blockPrevious = true;
-		for (int i = this.workflows[this.indexCurrentWorkflow].getInstructions().indexOf(currentInstruction) - 1;
-			 i >= 0; i--) {
-			if (this.workflows[this.indexCurrentWorkflow].getInstructionAt(i).isExpectingUserInput()) {
-				blockPrevious = false;
-				break;
-			}
-		}
-		if (blockPrevious) this.getVue().setEnablePrevious(false);
+		this.lockPreviousButton(currentInstruction);
 
 		// Update view
 		int indexInstruction = this.allInputInstructions().indexOf(currentInstruction);
@@ -438,6 +447,10 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 				this.indexCurrentWorkflow++;
 			}
 			Instruction nextInstruction = this.workflows[this.indexCurrentWorkflow].next();
+
+			// Ensure that there is a previous instruction expecting a user input
+			// Otherwise, the previous will go to a null instruction
+			this.lockPreviousButton(nextInstruction);
 
 			// Update view
 			int indexInstruction = this.allInputInstructions().indexOf(nextInstruction);
