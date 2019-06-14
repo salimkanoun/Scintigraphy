@@ -375,12 +375,14 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 		@Override
 		public void prepareAsNext() {
-			this.createPanel();
+			if(!this.instructionFlying)
+				this.createPanel();
 		}
 
 		@Override
 		public void prepareAsPrevious() {
-			this.createPanel();
+			if(!this.instructionFlying)
+				this.createPanel();
 		}
 
 		@Override

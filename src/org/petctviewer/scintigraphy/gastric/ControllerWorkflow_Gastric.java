@@ -276,5 +276,4 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.fenResults.pack();
 		this.fenResults.setVisible(true);
 	}
-
 }
