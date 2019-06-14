@@ -700,7 +700,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 * This method initializes the controller. It must be called <b>after</b> the {@link #generateInstructions()}
 	 * method.
 	 */
-	protected void start() {
+	public void start() {
 		this.indexCurrentWorkflow = 0;
 		this.indexRoi = 0;
 
