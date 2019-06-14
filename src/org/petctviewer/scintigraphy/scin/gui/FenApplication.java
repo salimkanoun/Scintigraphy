@@ -68,6 +68,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	private JDialog preferences;
 	private Menu options;
 	private MenuItem menuItem_preferences;
+	private MenuItem loadRois;
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
@@ -145,7 +146,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.menuBar = new MenuBar();
 		options = new Menu("Options");
 		// Load ROIs
-		MenuItem loadRois = new MenuItem("Load ROIs from .zip");
+		this.loadRois = new MenuItem("Load ROIs from .zip");
 		loadRois.addActionListener(e -> {
 			try {
 				SaveAndLoad saveAndLoad = new SaveAndLoad();
@@ -166,6 +167,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 			}
 
 		});
+		this.loadRois.setEnabled(false);
 
 		Menu help = new Menu("Help");
 		MenuItem doc = new MenuItem("Documentation");
@@ -383,5 +385,9 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		}
 
 		resizeCanvas();
+	}
+	
+	public MenuItem getLoadRoisMenuItem() {
+		return this.loadRois;
 	}
 }
