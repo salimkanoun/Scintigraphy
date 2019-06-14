@@ -1,21 +1,15 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.gui.ImageCanvas;
-import ij.gui.Overlay;
-import ij.gui.StackWindow;
-import ij.util.DicomTools;
-import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
-import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
-import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
-import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
-import org.petctviewer.scintigraphy.scin.preferences.PrefTab;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.Menu;
+import java.awt.MenuBar;
+import java.awt.MenuItem;
+import java.awt.Panel;
+import java.awt.Toolkit;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseWheelListener;
@@ -24,6 +18,26 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+
+import org.petctviewer.scintigraphy.cardiac.ControllerWorkflowCardiac;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
+import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
+import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTab;
+
+import ij.IJ;
+import ij.ImagePlus;
+import ij.gui.ImageCanvas;
+import ij.gui.Overlay;
+import ij.gui.StackWindow;
+import ij.util.DicomTools;
 
 /**
  * Interface graphique principale de quantification dans imageJ
@@ -136,8 +150,10 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 				saveAndLoad.importRoiList(FenApplication.this, FenApplication.this.controleur.getModel(),
 										  (ControllerWorkflow) FenApplication.this.controleur);
 
-				FenApplication.this.getImagePlus().setRoi(
-						FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
+//				FenApplication.this.getImagePlus().setRoi(
+//						FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
+				if(this.controleur instanceof ControllerWorkflowCardiac)
+					((ControllerWorkflowCardiac)this.controleur).start();
 				FenApplication.this.getImagePlus().getRoi().setStrokeColor(Color.RED);
 			} catch (UnauthorizedRoiLoadException e1) {
 				JOptionPane.showMessageDialog(FenApplication.this, "Error while loading ROIs:\n" + e1.getMessage(),

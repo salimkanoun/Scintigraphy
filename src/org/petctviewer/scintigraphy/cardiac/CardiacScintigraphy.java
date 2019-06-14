@@ -24,8 +24,8 @@ public class CardiacScintigraphy extends Scintigraphy {
 
 	public static final String STUDY_NAME = "Cardiac";
 
-	public static final String FULL_BODY_IMAGE = "FULL_BODY", ONLY_THORAX_IMAGE = "ONLY_THORAX", COLUMN_TYPE_TITLE =
-			"Image Type";
+	public static final String FULL_BODY_IMAGE = "FULL_BODY", ONLY_THORAX_IMAGE = "ONLY_THORAX",
+			COLUMN_TYPE_TITLE = "Image Type";
 	List<ImageSelection> fullBodyImages;
 	List<ImageSelection> onlyThoraxImage;
 	private Column imageTypeColumn;
@@ -43,20 +43,17 @@ public class CardiacScintigraphy extends Scintigraphy {
 		for (int indexImage = 0; indexImage < preparedImages.size(); indexImage++)
 			infoOfAllImages[indexImage] = preparedImages.get(indexImage).getImagePlus().duplicate().getInfoProperty();
 
-
 		// fenetre de l'application
-		this.setFenApplication(
-				new FenApplication_Cardiac(preparedImages.get(0), this.getStudyName(), this.fullBodyImages.size() > 0,
-										   this.onlyThoraxImage.size() > 0));
+		this.setFenApplication(new FenApplication_Cardiac(preparedImages.get(0), this.getStudyName(),
+				this.fullBodyImages.size() > 0, this.onlyThoraxImage.size() > 0));
 		preparedImages.get(0).getImagePlus().setOverlay(overlay);
 
 		// Cree controller
-		this.getFenApplication().setController(
-				new ControllerWorkflowCardiac(this, (FenApplicationWorkflow) this.getFenApplication(),
-											  new Model_Cardiac(this, preparedImages.toArray(new ImageSelection[0]),
-																"Cardiac", infoOfAllImages),
-											  this.fullBodyImages.size(),
-											  this.onlyThoraxImage.size()));
+		this.getFenApplication()
+				.setController(new ControllerWorkflowCardiac(
+						this, (FenApplicationWorkflow) this.getFenApplication(), new Model_Cardiac(this,
+								preparedImages.toArray(new ImageSelection[0]), "Cardiac", infoOfAllImages),
+						this.fullBodyImages.size(), this.onlyThoraxImage.size()));
 
 	}
 
@@ -64,16 +61,16 @@ public class CardiacScintigraphy extends Scintigraphy {
 	public Column[] getColumns() {
 
 		// Orientation column
-		String[] orientationValues = {Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString()};
+		String[] orientationValues = { Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString() };
 		Column orientation = new Column(Column.ORIENTATION.getName(), orientationValues);
 
 		// Organ column
-		String[] typesValues = {FULL_BODY_IMAGE, ONLY_THORAX_IMAGE};
+		String[] typesValues = { FULL_BODY_IMAGE, ONLY_THORAX_IMAGE };
 		this.imageTypeColumn = new Column(COLUMN_TYPE_TITLE, typesValues);
 
 		// Choose columns to display
-		return new Column[]{Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
-							Column.STACK_SIZE, orientation, this.imageTypeColumn};
+		return new Column[] { Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
+				Column.STACK_SIZE, orientation, this.imageTypeColumn };
 	}
 
 	@Override
@@ -84,16 +81,19 @@ public class CardiacScintigraphy extends Scintigraphy {
 		// Check number
 		for (ImageSelection selected : selectedImages) {
 			if (selected.getValue(this.imageTypeColumn.getName()) == FULL_BODY_IMAGE) {
-				if (fullBodyImages.size() == 2) throw new WrongNumberImagesException(fullBodyImages.size(), 1, 2);
+				if (fullBodyImages.size() == 2)
+					throw new WrongNumberImagesException(fullBodyImages.size(), 1, 2);
 				fullBodyImages.add(selected);
 			}
 			if (selected.getValue(this.imageTypeColumn.getName()) == ONLY_THORAX_IMAGE) {
-				if (onlyThoraxImage.size() == 1) throw new WrongNumberImagesException(fullBodyImages.size(), 1);
+				if (onlyThoraxImage.size() == 1)
+					throw new WrongNumberImagesException(fullBodyImages.size(), 1);
 				onlyThoraxImage.add(selected);
 			}
 		}
 
-		if (onlyThoraxImage.size() == 0 && fullBodyImages.size() == 0) throw new WrongNumberImagesException(0, 1, 3);
+		if (onlyThoraxImage.size() == 0 && fullBodyImages.size() == 0)
+			throw new WrongNumberImagesException(0, 1, 3);
 
 		ArrayList<ImageSelection> mountedImages = new ArrayList<>();
 
@@ -101,8 +101,8 @@ public class CardiacScintigraphy extends Scintigraphy {
 
 		for (int i = 0; i < fullBodyImages.size(); i++) {
 
-			if (fullBodyImages.get(i).getImageOrientation() == Orientation.ANT_POST || fullBodyImages.get(
-					i).getImageOrientation() == Orientation.POST_ANT) {
+			if (fullBodyImages.get(i).getImageOrientation() == Orientation.ANT_POST
+					|| fullBodyImages.get(i).getImageOrientation() == Orientation.POST_ANT) {
 				ImageSelection imp = fullBodyImages.get(i);
 				String info = imp.getImagePlus().getInfoProperty();
 				ImageSelection impReversed = Library_Dicom.ensureAntPostFlipped(imp);
@@ -114,9 +114,8 @@ public class CardiacScintigraphy extends Scintigraphy {
 				mountedImages.add(montageImage);
 			} else {
 				throw new WrongColumnException.OrientationColumn(fullBodyImages.get(i).getRow(),
-																 fullBodyImages.get(i).getImageOrientation(),
-																 new Orientation[]{Orientation.ANT_POST,
-																				   Orientation.POST_ANT});
+						fullBodyImages.get(i).getImageOrientation(),
+						new Orientation[] { Orientation.ANT_POST, Orientation.POST_ANT });
 			}
 		}
 
@@ -124,11 +123,12 @@ public class CardiacScintigraphy extends Scintigraphy {
 
 		// si il y a plus de 3 minutes de diff�rence entre les deux prises
 		if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {
-			IJ.log("Warning, frame duration differ by " + Math.abs(frameDuration[0] - frameDuration[1]) / (1000 * 60) +
-						   " minutes");
+			IJ.log("Warning, frame duration differ by " + Math.abs(frameDuration[0] - frameDuration[1]) / (1000 * 60)
+					+ " minutes");
 		}
 
-		if (this.onlyThoraxImage.size() != 0) mountedImages.add(onlyThoraxImage.get(0).clone());
+		if (this.onlyThoraxImage.size() != 0)
+			mountedImages.add(onlyThoraxImage.get(0).clone());
 
 		for (ImageSelection selected : selectedImages)
 			selected.close();

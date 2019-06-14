@@ -20,6 +20,8 @@ public class PatientFromGson {
 	private Date Date;
 
 	private String AccessionNumber;
+	
+	private String ControllerName;
 
 	public String getName() {
 		return this.Name;
@@ -36,10 +38,14 @@ public class PatientFromGson {
 	public String getAccessionNumber() {
 		return this.AccessionNumber;
 	}
+	
+	public String getControllerName() {
+		return this.ControllerName;
+	}
 
 	@Override
 	public String toString() {
 		return "Bonjour, mon nom est  " + this.Name + ", j'ai pour ID " + this.ID + " car j'ai été admis le "
-				+ this.Date + " ce qui donne comme accessionNumber : " + this.AccessionNumber;
+				+ this.Date + " ce qui donne comme accessionNumber : " + this.AccessionNumber+". Mon examen est un "+this.ControllerName;
 	}
 }
