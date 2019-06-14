@@ -294,9 +294,9 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 */
 	private void lockPreviousButton(Instruction currentInstruction) {
 		boolean blockPrevious = true;
-		for (int i = this.workflows[this.indexCurrentWorkflow].getInstructions().indexOf(currentInstruction) - 1;
+		for (int i = this.workflows[0].getInstructions().indexOf(currentInstruction) - 1;
 			 i >= 0; i--) {
-			if (this.workflows[this.indexCurrentWorkflow].getInstructionAt(i).isExpectingUserInput()) {
+			if (this.workflows[0].getInstructionAt(i).isExpectingUserInput()) {
 				blockPrevious = false;
 				break;
 			}
