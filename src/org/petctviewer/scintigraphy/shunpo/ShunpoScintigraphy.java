@@ -6,6 +6,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -24,6 +25,19 @@ public class ShunpoScintigraphy extends Scintigraphy {
 		super(STUDY_NAME);
 	}
 
+	private void createDocumentation() {
+		DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
+		doc.setDeveloper("Someone");
+		doc.addReference(DocumentationDialog.Field.createTextField("With Kidney", "VILLANEUEVA-MEYER Clinical " +
+				"Nuclear Medecine 1986"));
+		doc.addReference(
+				DocumentationDialog.Field.createLinkField("Brain alone", "KROWKA Chest 2000", "http://google" + ".fr"
+				));
+		doc.setYoutube("");
+		doc.setOnlineDoc("");
+		this.getFenApplication().setDocumentation(doc);
+	}
+
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
 		// Start program
@@ -31,6 +45,9 @@ public class ShunpoScintigraphy extends Scintigraphy {
 		this.getFenApplication().setController(
 				new ControllerWorkflowShunpo(this, (FenApplicationWorkflow) getFenApplication(),
 											 preparedImages.toArray(new ImageSelection[0])));
+
+		this.createDocumentation();
+
 		this.getFenApplication().setVisible(true);
 	}
 

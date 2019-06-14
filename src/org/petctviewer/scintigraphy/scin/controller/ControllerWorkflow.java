@@ -371,6 +371,18 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 			}
 
 			currentInstruction.afterPrevious(this);
+
+			// Ensure that there is a previous instruction expecting a user input
+			// Otherwise, the previous will go to a null instruction
+			boolean blockPrevious = true;
+			for (int i = this.workflows[this.indexCurrentWorkflow].getInstructions().indexOf(currentInstruction);
+				 i >= 0; i--) {
+				if (this.workflows[this.indexCurrentWorkflow].getInstructionAt(i).isExpectingUserInput()) {
+					blockPrevious = false;
+					break;
+				}
+			}
+			if (blockPrevious) this.getVue().setEnablePrevious(false);
 		} else {
 			if (currentInstruction.saveRoi() && !currentInstruction.isRoiVisible()) {
 				this.indexRoi--;
