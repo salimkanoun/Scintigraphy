@@ -28,6 +28,7 @@ public abstract class Scintigraphy implements PlugIn, ImagePreparator {
 	@Override
 	public abstract void start(List<ImageSelection> preparedImages);
 
+	@Override
 	public String getStudyName() {
 		return this.studyName;
 	}

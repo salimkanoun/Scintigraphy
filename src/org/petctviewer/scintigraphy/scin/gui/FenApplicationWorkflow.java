@@ -164,35 +164,6 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	}
 
 	/**
-	 * Changes the current instruction message for the user.
-	 *
-	 * @param message Message for the user
-	 */
-	public void setMessageInstruction(String message) {
-		textfield_instructions.setText(message);
-		this.pack();
-	}
-
-	/**
-	 * Enables or disables the 'Next' button.
-	 *
-	 * @param state if TRUE the 'Next' button can be clicked on and if set to FALSE, then the button cannot be clicked
-	 */
-	public void setEnableNext(boolean state) {
-		this.btn_suivant.setEnabled(state);
-	}
-
-	/**
-	 * Enables or disables the 'Previous' button.
-	 *
-	 * @param state if TRUE the 'Previous' button can be clicked on and if set to FALSE, then the button cannot be
-	 *              clicked
-	 */
-	public void setEnablePrevious(boolean state) {
-		this.btn_precedent.setEnabled(state);
-	}
-
-	/**
 	 * Gets the image displayed by this view.
 	 *
 	 * @return image currently displayed

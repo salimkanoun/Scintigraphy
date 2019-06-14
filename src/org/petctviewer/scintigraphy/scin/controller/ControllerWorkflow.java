@@ -302,7 +302,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 				break;
 			}
 		}
-		if (blockPrevious && i0 >= 0) this.getVue().setEnablePrevious(false);
+		if (blockPrevious && i0 >= 0) this.getVue().getBtn_precedent().setEnabled(false);
 	}
 
 	/**
