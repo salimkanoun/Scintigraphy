@@ -97,6 +97,7 @@ public abstract class ControllerScin implements ActionListener {
 	 * This method is called when the 'Previous' button is pressed. It will decrement the position by 1.
 	 */
 	public void clickPrevious() {
+		// TODO: this might be useless
 		this.position--;
 		if (this.position == 0) {
 			this.vue.getBtn_precedent().setEnabled(false);
