@@ -20,9 +20,22 @@ import java.util.Map;
 public class Data {
 
 	// Keys from 0 -> 1000 are reserved for this class, keys from 1000 are available for each program
-	public static final int DATA_ANT_COUNTS = 0, DATA_POST_COUNTS = 1, DATA_GEO_AVG = 2, DATA_MEAN_ANT_COUNTS = 3,
-			DATA_MEAN_POST_COUNTS = 4, DATA_MEAN_GEO_AVG = 5, DATA_BKG_NOISE = 7, DATA_PIXEL_COUNTS = 8,
-			DATA_DECAY_CORRECTED = 9, DATA_PERCENTAGE = 10, DATA_DERIVATIVE = 11, DATA_CORRELATION = 12;
+	public static final int DATA_COUNTS = 0;
+	public static final int DATA_COUNTS_CORRECTED = 1;
+	public static final int DATA_GEO_AVG = 2;
+
+	public static final int DATA_MEAN_COUNTS = 3;
+	public static final int DATA_MEAN_GEO_AVG = 4;
+
+	public static final int DATA_BKG_NOISE = 5;
+
+	public static final int DATA_PIXEL_COUNTS = 6;
+	public static final int DATA_DECAY_CORRECTED = 7;
+
+	public static final int DATA_PERCENTAGE = 8;
+	public static final int DATA_DERIVATIVE = 9;
+	public static final int DATA_CORRELATION = 10;
+
 	public static final int DATA_MAX_VALUE = 1000;
 
 	private final Map<String, Region> regionsAnt;
@@ -46,10 +59,12 @@ public class Data {
 	 */
 	public static String nameOfDataField(int key) {
 		switch (key) {
-			case Data.DATA_ANT_COUNTS:
-				return "Nb Ant-counts";
-			case Data.DATA_POST_COUNTS:
-				return "Nb Post-counts";
+			case Data.DATA_COUNTS:
+				return "Nb counts";
+			case DATA_COUNTS_CORRECTED:
+				return "Nb counts (corrected with background noise)";
+			case DATA_MEAN_COUNTS:
+				return "Mean counts";
 			case Data.DATA_GEO_AVG:
 				return "Geo-avg";
 			case Data.DATA_PERCENTAGE:
@@ -260,14 +275,13 @@ public class Data {
 	 */
 	public static Unit unitForKey(int key) {
 		switch (key) {
-			case DATA_ANT_COUNTS:
-			case DATA_POST_COUNTS:
+			case DATA_COUNTS:
+			case DATA_COUNTS_CORRECTED:
 			case DATA_GEO_AVG:
 			case DATA_BKG_NOISE:
 			case DATA_PIXEL_COUNTS:
 			case DATA_DECAY_CORRECTED:
-			case DATA_MEAN_ANT_COUNTS:
-			case DATA_MEAN_POST_COUNTS:
+			case DATA_MEAN_COUNTS:
 			case DATA_MEAN_GEO_AVG:
 				return Unit.COUNTS;
 			case DATA_PERCENTAGE:

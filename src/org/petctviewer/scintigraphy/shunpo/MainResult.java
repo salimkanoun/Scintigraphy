@@ -15,7 +15,7 @@ public class MainResult extends TabResult {
 	private final ImagePlus montage;
 
 	public MainResult(FenResults parent, ImagePlus montage) {
-		super(parent, "Result", true);
+		super(parent, "Result With Kidney", true);
 		this.montage = montage;
 		this.reloadDisplay();
 	}
@@ -26,6 +26,14 @@ public class MainResult extends TabResult {
 
 	private void displayResult(ResultValue result, Container container) {
 		JLabel label = new JLabel(result.toString());
+
+		// Color for pulmonary shunt
+		if (result.getResultType() == ModelShunpo.RES_PULMONARY_SHUNT) {
+			if (result.getValue() < 2.) label.setForeground(Color.GREEN);
+			else if (result.getValue() < 5.) label.setForeground(Color.ORANGE);
+			else label.setForeground(Color.RED);
+		}
+
 		container.add(label);
 	}
 

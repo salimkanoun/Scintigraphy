@@ -79,8 +79,8 @@ public class Model_Gastric extends ModelWorkflow {
 	 */
 	private void computeAverage(Data data, String region) {
 		if (data.hasRegion(region)) {
-			Double valueAnt = data.getAntValue(region, Data.DATA_ANT_COUNTS);
-			Double valuePost = data.getPostValue(region, Data.DATA_POST_COUNTS);
+			Double valueAnt = data.getAntValue(region, Data.DATA_COUNTS);
+			Double valuePost = data.getPostValue(region, Data.DATA_COUNTS);
 			if (valueAnt != null && valuePost != null) {
 				data.setAntValue(region, Data.DATA_GEO_AVG, Library_Quantif.moyGeom(valueAnt, valuePost));
 			}
@@ -89,7 +89,7 @@ public class Model_Gastric extends ModelWorkflow {
 
 	/**
 	 * Computes the geometrical average of each region of the data found.<br> The average is made with the {@link
-	 * Data#DATA_ANT_COUNTS} and the {@link Data#DATA_POST_COUNTS} data and will generate the {@link Data#DATA_GEO_AVG}
+	 * Data#DATA_COUNTS} and the {@link Data#DATA_COUNTS} data and will generate the {@link Data#DATA_GEO_AVG}
 	 * for every region.
 	 * <p>
 	 * So the data ANT_COUNTS and POST_COUNTS <b>must</b> be defined for all regions (except REGION_ALL).
@@ -178,7 +178,7 @@ public class Model_Gastric extends ModelWorkflow {
 			Data data = it.next();
 			try {
 				double value;
-				if (key == Data.DATA_POST_COUNTS) value = data.getPostValue(regionName, key);
+				if (key == Data.DATA_COUNTS) value = data.getPostValue(regionName, key);
 				else value = data.getAntValue(regionName, key);
 				Unit unitValue = Data.unitForKey(key);
 				assert unitValue != null;
@@ -258,7 +258,7 @@ public class Model_Gastric extends ModelWorkflow {
 		ImageState state = region.getState();
 		Data data = this.createOrRetrieveData(state);
 
-		if (key == Data.DATA_POST_COUNTS) data.setPostValue(region.getName(), key, value);
+		if (key == Data.DATA_COUNTS) data.setPostValue(region.getName(), key, value);
 		else data.setAntValue(region.getName(), key, value);
 	}
 
@@ -270,7 +270,7 @@ public class Model_Gastric extends ModelWorkflow {
 	 */
 	private Double calculatePercentage(Data data, String region, int key) {
 		Double valueRegion, valueAll;
-		if (key == Data.DATA_POST_COUNTS) {
+		if (key == Data.DATA_COUNTS) {
 			valueRegion = data.getPostValue(region, key);
 			valueAll = data.getPostValue(REGION_ALL, key);
 		} else {
@@ -369,11 +369,11 @@ public class Model_Gastric extends ModelWorkflow {
 		imp.setSlice(state.getSlice());
 		imp.setRoi(roi);
 		if (state.getFacingOrientation() == Orientation.ANT) {
-			data.setAntValue(regionName, Data.DATA_ANT_COUNTS, Math.max(0, Library_Quantif.getCounts(imp)), state,
+			data.setAntValue(regionName, Data.DATA_COUNTS, Math.max(0, Library_Quantif.getCounts(imp)), state,
 							 roi);
 			data.setAntValue(regionName, Data.DATA_PIXEL_COUNTS, imp.getStatistics().pixelCount);
 		} else {
-			data.setPostValue(regionName, Data.DATA_POST_COUNTS, Math.max(0, Library_Quantif.getCounts(imp)), state,
+			data.setPostValue(regionName, Data.DATA_COUNTS, Math.max(0, Library_Quantif.getCounts(imp)), state,
 							  roi);
 			data.setPostValue(regionName, Data.DATA_PIXEL_COUNTS, imp.getStatistics().pixelCount);
 		}
@@ -395,25 +395,25 @@ public class Model_Gastric extends ModelWorkflow {
 		double counts, pixels;
 		if (regionName.equals(REGION_FUNDUS)) {
 			if (state.getFacingOrientation() == Orientation.ANT) {
-				counts = data.getAntValue(REGION_STOMACH, Data.DATA_ANT_COUNTS) - data.getAntValue(REGION_ANTRE,
-																								   Data.DATA_ANT_COUNTS);
+				counts = data.getAntValue(REGION_STOMACH, Data.DATA_COUNTS) - data.getAntValue(REGION_ANTRE,
+																							   Data.DATA_COUNTS);
 				pixels = data.getAntValue(REGION_STOMACH, Data.DATA_PIXEL_COUNTS) - data.getAntValue(REGION_ANTRE,
 																									 Data.DATA_PIXEL_COUNTS);
 			} else {
-				counts = data.getPostValue(REGION_STOMACH, Data.DATA_POST_COUNTS) - data.getPostValue(REGION_ANTRE,
-																									  Data.DATA_POST_COUNTS);
+				counts = data.getPostValue(REGION_STOMACH, Data.DATA_COUNTS) - data.getPostValue(REGION_ANTRE,
+																								 Data.DATA_COUNTS);
 				pixels = data.getPostValue(REGION_STOMACH, Data.DATA_PIXEL_COUNTS) - data.getPostValue(REGION_ANTRE,
 																									   Data.DATA_PIXEL_COUNTS);
 			}
 		} else if (regionName.equals(REGION_INTESTINE)) {
 			if (state.getFacingOrientation() == Orientation.ANT) {
-				counts = data.getAntValue(REGION_INTESTINE, Data.DATA_ANT_COUNTS) - data.getAntValue(REGION_ANTRE,
-																									 Data.DATA_ANT_COUNTS);
+				counts = data.getAntValue(REGION_INTESTINE, Data.DATA_COUNTS) - data.getAntValue(REGION_ANTRE,
+																								 Data.DATA_COUNTS);
 				pixels = data.getAntValue(REGION_INTESTINE, Data.DATA_PIXEL_COUNTS) - data.getAntValue(REGION_ANTRE,
 																									   Data.DATA_PIXEL_COUNTS);
 			} else {
-				counts = data.getPostValue(REGION_INTESTINE, Data.DATA_POST_COUNTS) - data.getPostValue(REGION_ANTRE,
-																										Data.DATA_POST_COUNTS);
+				counts = data.getPostValue(REGION_INTESTINE, Data.DATA_COUNTS) - data.getPostValue(REGION_ANTRE,
+																								   Data.DATA_COUNTS);
 				pixels = data.getPostValue(REGION_INTESTINE, Data.DATA_PIXEL_COUNTS) - data.getPostValue(REGION_ANTRE,
 																										 Data.DATA_PIXEL_COUNTS);
 			}
@@ -421,10 +421,10 @@ public class Model_Gastric extends ModelWorkflow {
 
 		// Save value
 		if (state.getFacingOrientation() == Orientation.ANT) {
-			data.setAntValue(regionName, Data.DATA_ANT_COUNTS, Math.max(0, counts), state, null);
+			data.setAntValue(regionName, Data.DATA_COUNTS, Math.max(0, counts), state, null);
 			data.setAntValue(regionName, Data.DATA_PIXEL_COUNTS, pixels);
 		} else {
-			data.setPostValue(regionName, Data.DATA_POST_COUNTS, Math.max(0, counts), state, null);
+			data.setPostValue(regionName, Data.DATA_COUNTS, Math.max(0, counts), state, null);
 			data.setPostValue(regionName, Data.DATA_PIXEL_COUNTS, pixels);
 		}
 	}
@@ -541,7 +541,6 @@ public class Model_Gastric extends ModelWorkflow {
 	 * @param nbTotalImages  Total number of images (total number of eggs ingested)
 	 * @return percentage adjusted with the eggs ratio
 	 */
-	@SuppressWarnings("StringEquality")
 	private double adjustPercentageWithEggsRatio(String region, double percentage, int numActualImage,
 												 int nbTotalImages) {
 		double ratioEggsInBody = (double) numActualImage / (double) nbTotalImages;
@@ -592,8 +591,8 @@ public class Model_Gastric extends ModelWorkflow {
 				"No data has been set for this image (" + region.getState().getImage().getImagePlus().getTitle() +
 						")");
 
-		if (orientation == Orientation.ANT) return data.getAntValue(region.getName(), Data.DATA_ANT_COUNTS);
-		else return data.getPostValue(region.getName(), Data.DATA_POST_COUNTS);
+		if (orientation == Orientation.ANT) return data.getAntValue(region.getName(), Data.DATA_COUNTS);
+		else return data.getPostValue(region.getName(), Data.DATA_COUNTS);
 	}
 
 	/**
@@ -623,9 +622,8 @@ public class Model_Gastric extends ModelWorkflow {
 	 * @param value  Value to force
 	 */
 	public void forceCountsDataValue(Region region, double value) {
-		this.forceDataValue(region, region.getState().getFacingOrientation() == Orientation.ANT ?
-				Data.DATA_ANT_COUNTS :
-				Data.DATA_POST_COUNTS, Math.max(0, value));
+		this.forceDataValue(region, region.getState().getFacingOrientation() == Orientation.ANT ? Data.DATA_COUNTS :
+				Data.DATA_COUNTS, Math.max(0, value));
 	}
 
 	/**
@@ -644,7 +642,7 @@ public class Model_Gastric extends ModelWorkflow {
 		Region region = new Region("Background Noise " + regionName);
 		region.inflate(state, roi);
 		region.setValue(Data.DATA_BKG_NOISE, bkgNoise);
-		region.setValue(Data.DATA_ANT_COUNTS, Library_Quantif.getCounts(imp));
+		region.setValue(Data.DATA_COUNTS, Library_Quantif.getCounts(imp));
 		region.setValue(Data.DATA_PIXEL_COUNTS, Library_Quantif.getPixelNumber(imp));
 
 		switch (regionName) {
@@ -656,13 +654,13 @@ public class Model_Gastric extends ModelWorkflow {
 				break;
 			case REGION_STOMACH:
 				this.bkgNoise_stomach = region;
-				double countsFundus = bkgNoise_stomach.getValue(Data.DATA_ANT_COUNTS) - bkgNoise_antre.getValue(
-						Data.DATA_ANT_COUNTS);
+				double countsFundus = bkgNoise_stomach.getValue(Data.DATA_COUNTS) - bkgNoise_antre.getValue(
+						Data.DATA_COUNTS);
 				double pixelsFundus = bkgNoise_stomach.getValue(Data.DATA_PIXEL_COUNTS) - bkgNoise_antre.getValue(
 						Data.DATA_PIXEL_COUNTS);
 
 				this.bkgNoise_fundus = region.clone();
-				this.bkgNoise_fundus.setValue(Data.DATA_ANT_COUNTS, countsFundus);
+				this.bkgNoise_fundus.setValue(Data.DATA_COUNTS, countsFundus);
 				this.bkgNoise_fundus.setValue(Data.DATA_PIXEL_COUNTS, pixelsFundus);
 				this.bkgNoise_fundus.setValue(Data.DATA_BKG_NOISE, countsFundus / pixelsFundus);
 				break;
@@ -850,7 +848,7 @@ public class Model_Gastric extends ModelWorkflow {
 
 	/**
 	 * Computes the data retrieved from the specified state. This method calculates the percentages for each region.
-	 * This method should be used when the dynamic acquisition has been made.<br> The {@link Data#DATA_ANT_COUNTS}
+	 * This method should be used when the dynamic acquisition has been made.<br> The {@link Data#DATA_COUNTS}
 	 * <b>must</b> be defined in every region (except REGION_ALL).<br> If the previous state is not null, then the
 	 * derivative is calculated for the stomach.
 	 *
@@ -891,25 +889,25 @@ public class Model_Gastric extends ModelWorkflow {
 			}
 
 			if (bkgNoise != null) {
-				data.setAntValue(region.getName(), Data.DATA_ANT_COUNTS,
-								 data.getAntValue(region.getName(), Data.DATA_ANT_COUNTS) -
+				data.setAntValue(region.getName(), Data.DATA_COUNTS,
+								 data.getAntValue(region.getName(), Data.DATA_COUNTS) -
 										 (bkgNoise * data.getAntValue(region.getName(), Data.DATA_PIXEL_COUNTS)));
 				if (bkgNoise == 0.) System.err.println("Warning: The background noise " + region + " is 0.");
 			}
 		}
 
 		// Calculate total
-		data.setAntValue(REGION_ALL, Data.DATA_ANT_COUNTS, data.getAntValue(REGION_STOMACH, Data.DATA_ANT_COUNTS) +
-				data.getAntValue(REGION_INTESTINE, Data.DATA_ANT_COUNTS), null, null);
+		data.setAntValue(REGION_ALL, Data.DATA_COUNTS, data.getAntValue(REGION_STOMACH, Data.DATA_COUNTS) +
+				data.getAntValue(REGION_INTESTINE, Data.DATA_COUNTS), null, null);
 
 		// Adjust percentages with eggs ratio
 		double percentage = this.adjustPercentageWithEggsRatio(REGION_FUNDUS, calculatePercentage(data, REGION_FUNDUS,
-																								  Data.DATA_ANT_COUNTS),
+																								  Data.DATA_COUNTS),
 															   numActualImage, nbTotalImages);
 		data.setAntValue(REGION_FUNDUS, Data.DATA_PERCENTAGE, percentage);
 
 		percentage = this.adjustPercentageWithEggsRatio(REGION_ANTRE,
-														calculatePercentage(data, REGION_ANTRE, Data.DATA_ANT_COUNTS),
+														calculatePercentage(data, REGION_ANTRE, Data.DATA_COUNTS),
 														numActualImage, nbTotalImages);
 		data.setAntValue(REGION_ANTRE, Data.DATA_PERCENTAGE, percentage);
 

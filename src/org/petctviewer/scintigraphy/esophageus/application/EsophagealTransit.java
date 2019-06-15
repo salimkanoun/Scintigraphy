@@ -1,17 +1,9 @@
 package org.petctviewer.scintigraphy.esophageus.application;
 
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-
+import ij.IJ;
+import ij.ImagePlus;
+import ij.gui.Overlay;
+import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -20,15 +12,17 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.gui.Overlay;
-import ij.gui.Toolbar;
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class EsophagealTransit extends Scintigraphy {
 	/*
@@ -55,120 +49,14 @@ public class EsophagealTransit extends Scintigraphy {
 		super("Esophageal Transit");
 	}
 
-	// possible de refactorier le trie des images....
-	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException, ReadTagException {
-		// Check number
-		if (selectedImages.length == 0)
-			throw new WrongNumberImagesException(selectedImages.length, 1, Integer.MAX_VALUE);
-
-		// entrée : tableau de toutes les images passées envoyé par la selecteur de
-		// dicom
-
-		// sauvegarde des images pour le modele
-		sauvegardeImagesSelectDicom = new ImageSelection[2][selectedImages.length];
-
-		// oblige de faire duplicate sinon probleme
-
-		// trier les images par date et que avec les ant
-		// on creer une liste avec toutes les images plus
-		List<ImageSelection> imagePourTrieAnt = new ArrayList<>();
-
-		// la meme chose pour la ant
-		List<ImageSelection> imagePourTriePost = new ArrayList<>();
-
-		// poour chaque acquisition
-		for (ImageSelection selectedImage : selectedImages) {
-			if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT_POST
-					|| selectedImage.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
-				// on ne sauvegarde que la ant
-				// null == pas d'image ant et/ou une image post et != une image post en [0]
-				ImageSelection[] splited = Library_Dicom.splitDynamicAntPost(selectedImage);
-				if (splited[0] != null) {
-					imagePourTrieAnt.add(splited[0]);
-				}
-				// [1] : c'est la post
-				// si null : pas dimage post
-				if (splited[1] != null) {
-					// trie + inversement de la post
-					ImageSelection ims = splited[1];
-					Library_Dicom.flipStackHorizontal(ims);
-					imagePourTriePost.add(ims);
-				}
-			} else if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT)
-				imagePourTrieAnt.add(selectedImage.clone());
-			else
-				throw new WrongColumnException.OrientationColumn(selectedImage.getRow(),
-						selectedImage.getImageOrientation(), new Orientation[] { Orientation.DYNAMIC_ANT,
-								Orientation.DYNAMIC_ANT_POST, Orientation.DYNAMIC_POST_ANT });
-			selectedImage.getImagePlus().close();
-
-		}
-
-		// on appelle la fonction de trie
-		ChronologicalAcquisitionComparator chronologicalOrder = new ChronologicalAcquisitionComparator();
-		// on met les imageplus (ANT) dans cette fonction pour les trier, ensuite on
-		// stock le tout dans le tableau en [0]
-		imagePourTrieAnt.sort(chronologicalOrder);
-		sauvegardeImagesSelectDicom[0] = imagePourTrieAnt.toArray(new ImageSelection[0]);
-		// Pareil pour la post
-		imagePourTriePost.sort(chronologicalOrder);
-		sauvegardeImagesSelectDicom[1] = imagePourTriePost.toArray(new ImageSelection[0]);
-
-		// test de verification de la taille des stack
-		if (sauvegardeImagesSelectDicom[0].length != sauvegardeImagesSelectDicom[1].length) {
-			System.err.println(
-					"(EsophagealTransit) The number of ANT slices is different from the number of POST slices -> only the ANTs will be taken into account");
-			sauvegardeImagesSelectDicom[1] = new ImageSelection[0];
-		}
-
-		nbAcquisition = sauvegardeImagesSelectDicom[0].length;
-
-		// preparetion de l'image plus la 2eme phase
-		// image plus du projet de chaque acquisiton avec sur chaque slice une
-		// acquistion
-		impProjeteAllAcqui = null;
-		if (imagePourTrieAnt.size() > 0) {
-			ImageSelection[] imagesAnt = new ImageSelection[imagePourTrieAnt.size()];
-			for (int i = 0; i < imagePourTrieAnt.size(); i++) {
-				// null == pas d'image ant et/ou une image post et != une image post en [0]
-				imagesAnt[i] = Library_Dicom.project(imagePourTrieAnt.get(i), 0,
-						imagePourTrieAnt.get(i).getImagePlus().getStackSize(), "max");
-			}
-			// renvoi un stack trié des projection des images
-			// orderby ... renvoi un tableau d'imp trie par ordre chrono, avec en paramètre
-			// la liste des imp Ant
-			// captureTo.. renvoi un stack avec sur chaque slice une imp du tableau passé en
-			// param ( un image trié, projeté et ant)
-			// ImagePlus[] tabProj = Scintigraphy.orderImagesByAcquisitionTime(imagesAnt);
-			Arrays.parallelSort(imagesAnt, chronologicalOrder);
-			ImagePlus[] impsAnt = new ImagePlus[imagesAnt.length];
-			for (int i = 0; i < imagesAnt.length; i++)
-				impsAnt[i] = imagesAnt[i].getImagePlus();
-			impProjeteAllAcqui = new ImagePlus("EsoStack", Library_Capture_CSV.captureToStack(impsAnt));
-			// SK VOIR METHODE POUR GARDER LES METADATA ORIGINALE DANS LE STACK GENEREs
-			impProjeteAllAcqui.setProperty("Info", sauvegardeImagesSelectDicom[0][0].getImagePlus().getInfoProperty());
-		}
-
-		// phase 1
-		// on retourne la stack de la 1ere acquisition
-		ImageSelection[] selection = new ImageSelection[1];
-		// ImageSelection imsProjeteAllAcqui =
-		// sauvegardeImagesSelectDicom[0][0].clone();
-		// imsProjeteAllAcqui.setImagePlus(impProjeteAllAcqui);
-		// selection[0] = imsProjeteAllAcqui;
-		selection[0] = sauvegardeImagesSelectDicom[0][0];
-		return selection;
-	}
-
 	@SuppressWarnings("deprecation")
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
+	public void start(List<ImageSelection> preparedImages) {
 		// phase 1
-		Overlay overlay = Library_Gui.initOverlay(selectedImages[0].getImagePlus(), 12);
-		Library_Gui.setOverlayDG(selectedImages[0].getImagePlus(), Color.yellow);
+		Overlay overlay = Library_Gui.initOverlay(preparedImages.get(0).getImagePlus(), 12);
+		Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.yellow);
 
-		FenApplicationWorkflow fen = new FenApplicationWorkflow(selectedImages[0], "Oesophageus");
+		FenApplicationWorkflow fen = new FenApplicationWorkflow(preparedImages.get(0), "Oesophageus");
 		fen.setVisualizationEnable(false);
 		fen.getPanel_btns_gauche().remove(fen.getBtn_drawROI());
 		fen.getPanel_Instructions_btns_droite().removeAll();
@@ -218,7 +106,7 @@ public class EsophagealTransit extends Scintigraphy {
 		fen.getPanelPrincipal().add(radioButtonPanelFlow);
 		fen.getPanelPrincipal().add(startQuantificationButton);
 		this.setFenApplication(fen);
-		selectedImages[0].getImagePlus().setOverlay(overlay);
+		preparedImages.get(0).getImagePlus().setOverlay(overlay);
 
 		this.getFenApplication().setVisible(true);
 
@@ -235,4 +123,115 @@ public class EsophagealTransit extends Scintigraphy {
 		return returned;
 	}
 
+	@Override
+	public FenSelectionDicom.Column[] getColumns() {
+		return FenSelectionDicom.Column.getDefaultColumns();
+	}
+
+	@Override
+	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException,
+			ReadTagException {
+		// Check number
+		if (selectedImages.size() == 0)
+			throw new WrongNumberImagesException(selectedImages.size(), 1, Integer.MAX_VALUE);
+
+		// entrée : tableau de toutes les images passées envoyé par la selecteur de
+		// dicom
+
+		// sauvegarde des images pour le modele
+		sauvegardeImagesSelectDicom = new ImageSelection[2][selectedImages.size()];
+
+		// oblige de faire duplicate sinon probleme
+
+		// trier les images par date et que avec les ant
+		// on creer une liste avec toutes les images plus
+		List<ImageSelection> imagePourTrieAnt = new ArrayList<>();
+
+		// la meme chose pour la ant
+		List<ImageSelection> imagePourTriePost = new ArrayList<>();
+
+		// poour chaque acquisition
+		for (ImageSelection selectedImage : selectedImages) {
+			if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT_POST
+					|| selectedImage.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
+				// on ne sauvegarde que la ant
+				// null == pas d'image ant et/ou une image post et != une image post en [0]
+				ImageSelection[] splited = Library_Dicom.splitDynamicAntPost(selectedImage);
+				if (splited[0] != null) {
+					imagePourTrieAnt.add(splited[0]);
+				}
+				// [1] : c'est la post
+				// si null : pas dimage post
+				if (splited[1] != null) {
+					// trie + inversement de la post
+					ImageSelection ims = splited[1];
+					Library_Dicom.flipStackHorizontal(ims);
+					imagePourTriePost.add(ims);
+				}
+			} else if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT)
+				imagePourTrieAnt.add(selectedImage.clone());
+			else
+				throw new WrongColumnException.OrientationColumn(selectedImage.getRow(),
+																 selectedImage.getImageOrientation(), new Orientation[] { Orientation.DYNAMIC_ANT,
+																														  Orientation.DYNAMIC_ANT_POST, Orientation.DYNAMIC_POST_ANT });
+			selectedImage.getImagePlus().close();
+
+		}
+
+		// on appelle la fonction de trie
+		ChronologicalAcquisitionComparator chronologicalOrder = new ChronologicalAcquisitionComparator();
+		// on met les imageplus (ANT) dans cette fonction pour les trier, ensuite on
+		// stock le tout dans le tableau en [0]
+		imagePourTrieAnt.sort(chronologicalOrder);
+		sauvegardeImagesSelectDicom[0] = imagePourTrieAnt.toArray(new ImageSelection[0]);
+		// Pareil pour la post
+		imagePourTriePost.sort(chronologicalOrder);
+		sauvegardeImagesSelectDicom[1] = imagePourTriePost.toArray(new ImageSelection[0]);
+
+		// test de verification de la taille des stack
+		if (sauvegardeImagesSelectDicom[0].length != sauvegardeImagesSelectDicom[1].length) {
+			System.err.println(
+					"(EsophagealTransit) The number of ANT slices is different from the number of POST slices -> only the ANTs will be taken into account");
+			sauvegardeImagesSelectDicom[1] = new ImageSelection[0];
+		}
+
+		nbAcquisition = sauvegardeImagesSelectDicom[0].length;
+
+		// preparetion de l'image plus la 2eme phase
+		// image plus du projet de chaque acquisiton avec sur chaque slice une
+		// acquistion
+		impProjeteAllAcqui = null;
+		if (imagePourTrieAnt.size() > 0) {
+			ImageSelection[] imagesAnt = new ImageSelection[imagePourTrieAnt.size()];
+			for (int i = 0; i < imagePourTrieAnt.size(); i++) {
+				// null == pas d'image ant et/ou une image post et != une image post en [0]
+				imagesAnt[i] = Library_Dicom.project(imagePourTrieAnt.get(i), 0,
+													 imagePourTrieAnt.get(i).getImagePlus().getStackSize(), "max");
+			}
+			// renvoi un stack trié des projection des images
+			// orderby ... renvoi un tableau d'imp trie par ordre chrono, avec en paramètre
+			// la liste des imp Ant
+			// captureTo.. renvoi un stack avec sur chaque slice une imp du tableau passé en
+			// param ( un image trié, projeté et ant)
+			// ImagePlus[] tabProj = Scintigraphy.orderImagesByAcquisitionTime(imagesAnt);
+			Arrays.parallelSort(imagesAnt, chronologicalOrder);
+			ImagePlus[] impsAnt = new ImagePlus[imagesAnt.length];
+			for (int i = 0; i < imagesAnt.length; i++)
+				impsAnt[i] = imagesAnt[i].getImagePlus();
+			impProjeteAllAcqui = new ImagePlus("EsoStack", Library_Capture_CSV.captureToStack(impsAnt));
+			// SK VOIR METHODE POUR GARDER LES METADATA ORIGINALE DANS LE STACK GENEREs
+			impProjeteAllAcqui.setProperty("Info", sauvegardeImagesSelectDicom[0][0].getImagePlus().getInfoProperty());
+		}
+
+		// phase 1
+		// on retourne la stack de la 1ere acquisition
+		List<ImageSelection> selection = new ArrayList<>();
+		selection.add(sauvegardeImagesSelectDicom[0][0]);
+		return selection;
+	}
+
+	@Override
+	public String instructions() {
+		return "Minimum 1 image.";
+	}
 }

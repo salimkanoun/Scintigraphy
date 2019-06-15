@@ -109,7 +109,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		// Do not reload the method 2
 		this.tabResult.reloadDisplay();
 
-		this.tabResult.deactivateDynamicAcquisition();
+		this.tabResult.enableDynamicAcquisition(false);
 		this.tabResult.getParent().requestFocus();
 	}
 

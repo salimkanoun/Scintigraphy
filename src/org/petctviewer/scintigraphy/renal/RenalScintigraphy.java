@@ -1,7 +1,8 @@
 package org.petctviewer.scintigraphy.renal;
 
-import java.util.Arrays;
-
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.plugin.ZProjector;
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -11,73 +12,106 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.plugin.ZProjector;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class RenalScintigraphy extends Scintigraphy {
 
+	public static final String STUDY_NAME = "Renal scintigraphy";
 	private ImageSelection impAnt;
 	private ImageSelection impPost;
 	private int[] frameDurations;
 
 	public RenalScintigraphy() {
-		super("Renal scintigraphy");
+		super(STUDY_NAME);
 	}
 
 	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] selectedImages) throws WrongInputException, ReadTagException {
+	public void start(List<ImageSelection> preparedImages) {
+
+		this.setFenApplication(new FenApplication_Renal(preparedImages.get(0), this.getStudyName(), this));
+		this.getFenApplication().setController(
+				new ControllerWorkflowRenal(this, (FenApplicationWorkflow) this.getFenApplication(),
+											new Model_Renal(this.frameDurations,
+															preparedImages.toArray(new ImageSelection[0]),
+															STUDY_NAME)));
+	}
+
+	public int[] getFrameDurations() {
+		return frameDurations;
+	}
+
+	public ImageSelection getImpAnt() {
+		return impAnt;
+	}
+
+	public ImageSelection getImpPost() {
+		return impPost;
+	}
+
+	@Override
+	public Column[] getColumns() {
+		return Column.getDefaultColumns();
+	}
+
+	@Override
+	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException,
+			ReadTagException {
 		// Check number of images
-		if (selectedImages.length != 1 && selectedImages.length != 2)
-			throw new WrongNumberImagesException(selectedImages.length, 1, 2);
+		if (selectedImages.size() != 1 && selectedImages.size() != 2) throw new WrongNumberImagesException(
+				selectedImages.size(), 1, 2);
 
 		// Check orientations
 		// With 1 image
-		if (selectedImages.length == 1) {
-			if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
+		if (selectedImages.size() == 1) {
+			if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
 				// Set images
-				ImageSelection[] imps = Library_Dicom.splitDynamicAntPost(selectedImages[0]);
+				ImageSelection[] imps = Library_Dicom.splitDynamicAntPost(selectedImages.get(0));
 				this.impAnt = imps[0];
 				this.impPost = imps[1];
-			} else if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_POST) {
+			} else if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_POST) {
 				// Only Dyn Post
-				this.impPost = selectedImages[0].clone();
-			} else
-				throw new WrongColumnException.OrientationColumn(selectedImages[0].getRow(),
-						selectedImages[0].getImageOrientation(), new Orientation[]{Orientation.DYNAMIC_POST,
-						Orientation.DYNAMIC_ANT_POST}, "You" + " can also use 2 dynamics (Ant and Post)");
+				this.impPost = selectedImages.get(0).clone();
+			} else throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
+																	selectedImages.get(0).getImageOrientation(),
+																	new Orientation[]{Orientation.DYNAMIC_POST,
+																					  Orientation.DYNAMIC_ANT_POST},
+																	"You can also use 2 dynamics (Ant and Post)");
 		}
 		// With 2 images
 		else {
 			Orientation[] acceptedOrientations = new Orientation[]{Orientation.DYNAMIC_POST, Orientation.DYNAMIC_ANT};
-//			String hint = "You can also use only 1 dynamic (Ant_Post)";
+			String hint = "You can also use only 1 dynamic (Ant_Post)";
 
 			// Image 0 must be Dyn Ant or Post
-			if (Arrays.stream(acceptedOrientations).noneMatch(o -> o == selectedImages[0].getImageOrientation()))
-				throw new WrongColumnException.OrientationColumn(selectedImages[0].getRow(),
-						selectedImages[0].getImageOrientation(), acceptedOrientations);
+			if (Arrays.stream(acceptedOrientations).noneMatch(o -> o == selectedImages.get(0).getImageOrientation()))
+				throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
+																 selectedImages.get(0).getImageOrientation(),
+																 acceptedOrientations, hint);
 			// Image 1 must be the invert of image 0
-			if (selectedImages[1].getImageOrientation() != selectedImages[0].getImageOrientation().invert())
-				throw new WrongColumnException.OrientationColumn(selectedImages[1].getRow(),
-						selectedImages[1].getImageOrientation(),
-						new Orientation[]{selectedImages[0].getImageOrientation().invert()});
+			if (selectedImages.get(1).getImageOrientation() != selectedImages.get(0).getImageOrientation().invert())
+				throw new WrongColumnException.OrientationColumn(selectedImages.get(1).getRow(),
+																 selectedImages.get(1).getImageOrientation(),
+																 new Orientation[]{selectedImages.get(
+																		 0).getImageOrientation().invert()}, hint);
 
 			// Set images
-			if (selectedImages[0].getImageOrientation() == Orientation.DYNAMIC_ANT) {
-				this.impAnt = selectedImages[0].clone();
-				this.impPost = selectedImages[1].clone();
+			if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_ANT) {
+				this.impAnt = selectedImages.get(0).clone();
+				this.impPost = selectedImages.get(1).clone();
 			} else {
-				this.impAnt = selectedImages[1].clone();
-				this.impPost = selectedImages[0].clone();
+				this.impAnt = selectedImages.get(1).clone();
+				this.impPost = selectedImages.get(0).clone();
 			}
 		}
 
 		// Close images
-		for (ImageSelection ims : selectedImages)
-			ims.getImagePlus().close();
+		selectedImages.forEach(ImageSelection::close);
 
 		// Build frame duration
 		this.frameDurations = Library_Dicom.buildFrameDurations(this.impPost.getImagePlus());
@@ -85,7 +119,8 @@ public class RenalScintigraphy extends Scintigraphy {
 		// Ant processing
 		if (this.impAnt != null) {
 			// Check frame duration identical
-			if (!ArrayUtils.isEquals(this.frameDurations, Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus())))
+			if (!ArrayUtils.isEquals(this.frameDurations,
+									 Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus())))
 				throw new WrongInputException("Frame durations are not the same for Ant and Post!");
 
 			// Flip Ant
@@ -102,7 +137,7 @@ public class RenalScintigraphy extends Scintigraphy {
 		Library_Dicom.normalizeToCountPerSecond(impPostCountPerSec);
 
 		ImageSelection impProjetee = Library_Dicom.project(impPostCountPerSec, 0,
-				impPostCountPerSec.getImagePlus().getStackSize(), "avg");
+														   impPostCountPerSec.getImagePlus().getStackSize(), "avg");
 		ImageStack stack = impProjetee.getImagePlus().getStack();
 
 		// deux premieres minutes
@@ -112,16 +147,16 @@ public class RenalScintigraphy extends Scintigraphy {
 
 		// MIP
 		ImagePlus pj = ZProjector.run(impPostCountPerSec.getImagePlus(), "max", 0,
-				impPostCountPerSec.getImagePlus().getNSlices());
+									  impPostCountPerSec.getImagePlus().getNSlices());
 		stack.addSlice(pj.getProcessor());
 
 		// ajout de la prise ant si elle existe
-		if(this.impAnt != null) {
+		if (this.impAnt != null) {
 			ImageSelection impAntCountPerSec = this.impAnt.clone();
 			Library_Dicom.normalizeToCountPerSecond(impAntCountPerSec);
 
-			ImageSelection impProjAnt =
-					Library_Dicom.project(impAntCountPerSec, 0, impAntCountPerSec.getImagePlus().getStackSize(), "avg");
+			ImageSelection impProjAnt = Library_Dicom.project(impAntCountPerSec, 0,
+															  impAntCountPerSec.getImagePlus().getStackSize(), "avg");
 			impProjAnt.getImagePlus().getProcessor().flipHorizontal();
 			impAnt = impProjAnt;
 			stack.addSlice(impProjAnt.getImagePlus().getProcessor());
@@ -129,46 +164,18 @@ public class RenalScintigraphy extends Scintigraphy {
 
 		// ajout du stack a l'imp
 		impProjetee.getImagePlus().setStack(stack);
-		int nbImage = 0;
-		if (impPost != null) nbImage++;
-		nbImage++;
-		if (impAnt != null) nbImage++;
 
-		ImageSelection[] selection = new ImageSelection[nbImage];
+		List<ImageSelection> selection = new ArrayList<>();
+		selection.add(impProjetee);
+		selection.add(impPost);
+		selection.add(impAnt);
 
-		nbImage = 0;
-
-		selection[nbImage] = impProjetee;
-		nbImage++;
-		if (impPost != null) {
-			selection[nbImage] = impPost;
-			nbImage++;
-		}
-		if (impAnt != null) {
-			selection[nbImage] = impAnt;
-		}
 		return selection;
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
-
-		this.setFenApplication(new FenApplication_Renal(selectedImages[0], this.getStudyName(), this));
-		this.getFenApplication().setController(new ControllerWorkflowRenal(this,
-				(FenApplicationWorkflow) this.getFenApplication(), new Model_Renal(this.frameDurations, selectedImages
-				, "Renal scintigraphy")));
-	}
-
-	public int[] getFrameDurations() {
-		return frameDurations;
-	}
-
-	public ImageSelection getImpAnt() {
-		return impAnt;
-	}
-
-	public ImageSelection getImpPost() {
-		return impPost;
+	public String instructions() {
+		return "1 dynamic image Ant-Post or Post or 2 static images Ant and Post";
 	}
 
 }

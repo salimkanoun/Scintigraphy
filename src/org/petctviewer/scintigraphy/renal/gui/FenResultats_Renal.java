@@ -1,12 +1,16 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
+import ij.ImagePlus;
 import ij.Prefs;
+import ij.process.ImageProcessor;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.TabContrastModifier;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
@@ -20,14 +24,18 @@ public class FenResultats_Renal extends FenResults {
 		super(controller);
 		this.addTab(new TabPrincipal(capture, this));
 		this.addTab(new TabROE(vue, this));
-		this.addTab(new TabTimedImage(vue, 4, 5, this));
+		// Prepare image for tab
+		ImagePlus montage = Library_Capture_CSV.creerMontage(vue.getFrameDurations(), vue.getImpPost().getImagePlus(),
+															 200, 4, 5);
+		montage.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
+		this.addTab(new TabContrastModifier(this, "Timed Image", montage));
 		if (Prefs.get(PrefTabRenal.PREF_PELVIS, true))
 			this.addTab(new TabCort(vue, this));
 		if (Prefs.get(PrefTabRenal.PREF_PELVIS, true))
 			this.addTab(new TabUreter(vue, this));
 		this.addTab(new TabZoomed(vue, this));
 		this.addTab(new TabOther(vue, this));
-		this.addTab(new TabPostMict(vue, this));
+		this.addTab(new TabPostMict(this));
 		if (((Model_Renal) controller.getModel()).getPatlakChart() != null) {
 			this.addTab(new TabPatlak(vue, this));
 		}

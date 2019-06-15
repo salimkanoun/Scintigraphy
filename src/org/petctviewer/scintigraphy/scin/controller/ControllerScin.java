@@ -7,7 +7,6 @@ import ij.gui.Roi;
 import ij.gui.Toolbar;
 import ij.plugin.MontageMaker;
 import ij.plugin.frame.RoiManager;
-import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
@@ -98,6 +97,7 @@ public abstract class ControllerScin implements ActionListener {
 	 * This method is called when the 'Previous' button is pressed. It will decrement the position by 1.
 	 */
 	public void clickPrevious() {
+		// TODO: this might be useless
 		this.position--;
 		if (this.position == 0) {
 			this.vue.getBtn_precedent().setEnabled(false);
@@ -242,13 +242,7 @@ public abstract class ControllerScin implements ActionListener {
 		if (state.isLateralisationRL()) Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
 		else Library_Gui.setOverlayGD(this.vue.getImagePlus(), Color.YELLOW);
 
-		String title =
-				state.getFacingOrientation() == Orientation.POST && state.isLateralisationRL() ? "Inverted Post" :
-						state.getFacingOrientation() == Orientation.ANT && state.isLateralisationLR() ? "Inverted " +
-								"Ant" :
-								state.getFacingOrientation().toString();
-
-		Library_Gui.setOverlayTitle(title, this.vue.getImagePlus(), Color.YELLOW, state.getSlice());
+		Library_Gui.setOverlayTitle(state.title(), this.vue.getImagePlus(), Color.YELLOW, state.getSlice());
 	}
 
 	/**

@@ -1,57 +1,6 @@
 package org.petctviewer.scintigraphy.scin.json;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
-
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-
-import org.apache.commons.io.FileUtils;
-import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
-import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
-import org.petctviewer.scintigraphy.scin.instructions.Instruction;
-import org.petctviewer.scintigraphy.scin.instructions.Workflow;
-import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawLoopInstruction;
-import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoopInstruction;
-import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
-import org.petctviewer.scintigraphy.scin.json.InstructionFromGson.DrawInstructionType;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.library.Library_Roi;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
-import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
-
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
+import com.google.gson.*;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.Prefs;
@@ -61,6 +10,33 @@ import ij.io.RoiEncoder;
 import ij.io.SaveDialog;
 import ij.plugin.frame.Recorder;
 import ij.plugin.frame.RoiManager;
+import org.apache.commons.io.FileUtils;
+import org.petctviewer.scintigraphy.cardiac.ControllerWorkflowCardiac;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
+import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
+import org.petctviewer.scintigraphy.scin.instructions.Instruction;
+import org.petctviewer.scintigraphy.scin.instructions.Workflow;
+import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawLoopInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoopInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.execution.ContaminationAskInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.generator.DefaultGenerator;
+import org.petctviewer.scintigraphy.scin.json.InstructionFromGson.DrawInstructionType;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * This class put together all saving method created for every exams.
@@ -77,8 +53,6 @@ public class SaveAndLoad {
 	 *
 	 * @param resultats
 	 *            : Resultats a exporter (utiliser le format csv)
-	 * @param roiManager
-	 *            : le ROI manager utilise dans le programme
 	 * @param nomProgramme
 	 *            : le studyName du programme (sera utilise comme sous repertoire)
 	 * @param imp
@@ -88,8 +62,8 @@ public class SaveAndLoad {
 	 * @param additionalInfo
 	 *            :String qui sera rajoutée à la fin du studyName du fichier
 	 */
-	public void exportAllWithWorkflow(String resultats, String nomProgramme, ImagePlus imp,
-			String additionalInfo, List<ControllerWorkflow> controller) {
+	public void exportAllWithWorkflow(String resultats, String nomProgramme, ImagePlus imp, String additionalInfo,
+			List<ControllerWorkflow> controller) {
 
 		String[] infoPatient = Library_Capture_CSV.getInfoPatient(imp);
 		StringBuilder content = this.initCSVVertical(infoPatient);
@@ -104,8 +78,6 @@ public class SaveAndLoad {
 	 * 
 	 * @param imp
 	 *            ImagePlus to be saved as .jpg
-	 * @param roiManager
-	 *            RoiManager, to extract ROIs
 	 * @param csv
 	 *            CSV to be saved
 	 * @param programName
@@ -113,12 +85,10 @@ public class SaveAndLoad {
 	 * @param additionalInfo
 	 * @param controller
 	 *            Controller to be transformed as Json
-	 * 
-	 * @see {@link SaveAndLoad#saveRois(RoiManager, ControllerWorkflow, String)}
 	 */
-	public void saveFiles(ImagePlus imp, StringBuilder csv, String programName,
-			String[] infoPatient, String additionalInfo, List<ControllerWorkflow> controller) {
-		
+	public void saveFiles(ImagePlus imp, StringBuilder csv, String programName, String[] infoPatient,
+			String additionalInfo, List<ControllerWorkflow> controller) {
+
 		RoiManager roiManager = controller.get(0).getRoiManager();
 
 		// On recupere le path de sauvegarde
@@ -142,11 +112,11 @@ public class SaveAndLoad {
 			File subDirectory = new File(pathFinal);
 			if (subDirectory.isDirectory()) {
 				try {
-		            FileUtils.cleanDirectory(subDirectory); //clean out directory (this is optional -- but good know)
-		            FileUtils.forceDelete(subDirectory); //delete directory
-		        } catch (IOException e) {
-		            e.printStackTrace();
-		        } 
+					FileUtils.cleanDirectory(subDirectory); // clean out directory (this is optional -- but good know)
+					FileUtils.forceDelete(subDirectory); // delete directory
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 			if (subDirectory.mkdirs()) {
 
@@ -171,8 +141,9 @@ public class SaveAndLoad {
 					tab[i] = i;
 				roiManager.setSelectedIndexes(tab);
 
-				for(int indexController = 0 ; indexController < controller.size() ; indexController++)
-					this.saveRois(controller.get(indexController), pathFinal + File.separator + nomFichier + "_"+indexController+".zip");
+				for (int indexController = 0; indexController < controller.size(); indexController++)
+					this.saveRois(controller.get(indexController),
+							pathFinal + File.separator + nomFichier + "_" + indexController + ".zip");
 
 				// On sauve l'image en jpeg
 				IJ.saveAs(imp, "Jpeg", pathFinal + File.separator + nomFichier + ".jpg");
@@ -253,16 +224,14 @@ public class SaveAndLoad {
 	 * Save the ROIs from a RoiManager. Do the same than the macro, but associate
 	 * name to respect the initial order of the RoiManager, to be able to get them
 	 * back in the same order. Will be saved in a .zip, with the workflow.json.
-	 * 
-	 * @param roiManager
-	 *            RoiManager to extract ROIs
+	 *
 	 * @param controller
 	 *            Associated ControllerWorkflow, to save the workflow in Json format
 	 * @param path
 	 *            Path to save the .zip
 	 */
 	public void saveRois(ControllerWorkflow controller, String path) {
-		
+
 		RoiManager roiManager = controller.getRoiManager();
 
 		List<Roi> rois = Arrays.asList(roiManager.getRoisAsArray());
@@ -310,8 +279,8 @@ public class SaveAndLoad {
 			Gson gson = new GsonBuilder().create();
 
 			zos.putNextEntry(new ZipEntry("workflow.json"));
-			System.out.println("Json sauvegardé : ");
-			System.out.println(gson.toJson(this.saveWorkflowToJson(controller, label)));
+			System.out.println("Json sauvegarde : ");
+			// System.out.println(gson.toJson(this.saveWorkflowToJson(controller, label)));
 			out.writeBytes(gson.toJson(this.saveWorkflowToJson(controller, label)));
 			out.flush();
 			zos.closeEntry();
@@ -384,11 +353,19 @@ public class SaveAndLoad {
 					JsonObject currentInstruction = new JsonObject();
 					currentInstruction.addProperty("InstructionType", instruction.getClass().getSimpleName());
 					currentInstruction.addProperty("IndexRoiToEdit", instruction.getRoiIndex());
-					currentInstruction.addProperty("NameOfRoi",
-							controller.getModel().getRoiManager().getRoi(instruction.getRoiIndex()).getName());
-					if (label[instruction.getRoiIndex()].endsWith(".roi"))
-						label[instruction.getRoiIndex()] = label[instruction.getRoiIndex()].substring(0, label[instruction.getRoiIndex()].length() - 4);
-					currentInstruction.addProperty("NameOfRoiFile", label[instruction.getRoiIndex()]);
+
+					if (controller.getModel().getRoiManager().getRoi(instruction.getRoiIndex()) != null)
+						currentInstruction.addProperty("NameOfRoi",
+								controller.getModel().getRoiManager().getRoi(instruction.getRoiIndex()).getName());
+					else
+						currentInstruction.addProperty("NameOfRoi", instruction.getRoiName());
+					if (instruction.getRoiIndex() != -1) {
+						if (label[instruction.getRoiIndex()].endsWith(".roi"))
+							label[instruction.getRoiIndex()] = label[instruction.getRoiIndex()].substring(0,
+									label[instruction.getRoiIndex()].length() - 4);
+						currentInstruction.addProperty("NameOfRoiFile", label[instruction.getRoiIndex()]);
+					} else
+						currentInstruction.addProperty("NameOfRoiFile", "null");
 					// instructionsArray.add((JsonObject) gson.toJsonTree(instruction));
 					instructionsArray.add(gson.toJsonTree(currentInstruction));
 				}
@@ -409,6 +386,7 @@ public class SaveAndLoad {
 		patientObject.addProperty("ID", infoPatient[1]);
 		patientObject.addProperty("Date", infoPatient[2]);
 		patientObject.addProperty("AccessionNumber", infoPatient[3]);
+		patientObject.addProperty("ControllerName", controller.getClass().getSimpleName());
 
 		// patientObject.addProperty("Name",
 		// patientInfo.get(Library_Capture_CSV.PATIENT_INFO_NAME));
@@ -471,7 +449,7 @@ public class SaveAndLoad {
 	public WorkflowsFromGson loadWorkflows(ControllerWorkflow controller, String string) throws UnloadRoiException {
 
 		Gson gson = new GsonBuilder().serializeNulls().setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-				.create();
+				.setPrettyPrinting().create();
 		WorkflowsFromGson workflowsFromGson;
 
 		// String path = "D:\\Bureau\\IUT\\Oncopole\\workflow.json";
@@ -484,6 +462,7 @@ public class SaveAndLoad {
 		// }
 
 		workflowsFromGson = gson.fromJson(string, WorkflowsFromGson.class);
+		PatientFromGson patientFromGson = workflowsFromGson.getPatient();
 
 		if (workflowsFromGson != null) {
 			if (workflowsFromGson.getWorkflows().size() != controller.getWorkflows().length) {
@@ -491,7 +470,6 @@ public class SaveAndLoad {
 				return null;
 			}
 
-			PatientFromGson patientFromGson = workflowsFromGson.getPatient();
 			String[] currentPatient = Library_Capture_CSV.getInfoPatient(controller.getModel().getImagePlus());
 
 			String currentPatientDate = "";
@@ -577,79 +555,113 @@ public class SaveAndLoad {
 
 			for (int index = 0; index < controller.getWorkflows().length; index++) {
 				int specialIndex = 0;
+
+				/*
+				 * Because Cardiac has special behavior. In fact, the DrawLoop doesn't exist at
+				 * start, but you choose to create one. With this << if >>, I sumilate this
+				 * creation if necessary.
+				 */
+				if (patientFromGson.getControllerName().toString().equals(ControllerWorkflowCardiac.simpleName)
+						&& controller.getWorkflows()[index]
+								.getInstructionAt(0) instanceof ContaminationAskInstruction) {
+					if (controller.getWorkflows()[index].getInstructions().size() > 1)
+						controller.getWorkflows()[index].addInstruction(
+								((ContaminationAskInstruction) controller.getWorkflows()[index].getInstructionAt(0))
+										.getInstructionToGenerate());
+					((ContaminationAskInstruction) controller.getWorkflows()[index].getInstructionAt(0))
+							.setInstructionValidated();
+				}
+
 				for (int j = 0; j < controller.getWorkflows()[index].getInstructions().size(); j++) {
 					if (controller.getWorkflows()[index].getInstructionAt(j).saveRoi()) {
+						// System.out.println(" j : " + j);
+						// System.out.println("specialIndex" + specialIndex);
+						if (workflowsFromGson.getWorkflowAt(index).getInstructions().size() != 0) {
+							InstructionFromGson intructionFromGson = workflowsFromGson.getWorkflowAt(index)
+									.getInstructionAt(specialIndex);
+							String typeOfIntructionFromGson = intructionFromGson.getInstructionType();
 
-						InstructionFromGson intructionFromGson = workflowsFromGson.getWorkflowAt(index)
-								.getInstructionAt(specialIndex);
-						String typeOfIntructionFromGson = intructionFromGson.getInstructionType();
-
-						if (!controller.getWorkflows()[index].getInstructionAt(j).getClass().getSimpleName()
-								.equals(typeOfIntructionFromGson)) {
-							System.out.println(
-									"LES INSTRUCTIONs NE SONT PAS LES MÊMES, IMPOSSIBLE DE CHARGER LA " + "SAUVEGARDE");
-							System.out.println(
-									controller.getWorkflows()[index].getInstructionAt(j).getClass().getSimpleName());
-							System.out.println(typeOfIntructionFromGson);
-							return null;
-						}
-
-						// if
-						// (!this.getModel().getRoiManager().getRoi(controller.getWorkflows()[index].getInstructionAt(j)
-						// .roiToDisplay()).getName()
-						// .equals(intructionFromGson.getNameOfRoi())) {
-						// System.out.println(
-						// "LES INSTRUCTIONs NE SONT PAS DU MÊME TYPE, IMPOSSIBLE DE CHARGER LA
-						// SAUVEGARDE");
-						// System.out.println(controller.getWorkflows()[index].getInstructionAt(j).getClass().getSimpleName());
-						// System.out.println(typeOfIntructionFromGson);
-						// return null;
-						// }
-
-						if ((typeOfIntructionFromGson.equals(DrawInstructionType.DRAW_LOOP.getName()))
-								|| typeOfIntructionFromGson
-										.equals(DrawInstructionType.DRAW_SYMMETRICAL_LOOP.getName())) {
-							if (workflowsFromGson.getWorkflowAt(index).getInstructions().size() > specialIndex + 1) {
-								InstructionFromGson nextIntructionFromGson = workflowsFromGson.getWorkflowAt(index)
-										.getInstructionAt(specialIndex + 1);
-								String typeOfNextIntructionFromGson = nextIntructionFromGson.getInstructionType();
-
-								if (typeOfNextIntructionFromGson.equals(DrawInstructionType.DRAW_LOOP.getName()))
-									controller.getWorkflows()[index].getInstructions().add(j + 1,
-											((DrawLoopInstruction) controller.getWorkflows()[index].getInstructionAt(j))
-													.generate());
-
-								else if (typeOfNextIntructionFromGson
-										.equals(DrawInstructionType.DRAW_SYMMETRICAL_LOOP.getName()))
-									controller.getWorkflows()[index].getInstructions().add(j + 1,
-											((DrawSymmetricalLoopInstruction) controller.getWorkflows()[index]
-													.getInstructionAt(j)).generate());
-								else
-									((DefaultGenerator) controller.getWorkflows()[index].getInstructionAt(j)).stop();
+							if (!controller.getWorkflows()[index].getInstructionAt(j).getClass().getSimpleName()
+									.equals(typeOfIntructionFromGson)) {
+								System.out
+										.println("LES INSTRUCTIONS NE SONT PAS LES MÊMES, IMPOSSIBLE DE CHARGER LA"
+												+ " " + "SAUVEGARDE (" + controller.getWorkflows()[index]
+														.getInstructionAt(j).getClass().getSimpleName()
+												+ ", " + typeOfIntructionFromGson + ")");
+								return null;
 							}
+
+							// if
+							// (!this.getModel().getRoiManager().getRoi(controller.getWorkflows()[index]
+							// .getInstructionAt(j)
+							// .roiToDisplay()).getName()
+							// .equals(intructionFromGson.getNameOfRoi())) {
+							// System.out.println(
+							// "LES INSTRUCTIONs NE SONT PAS DU MÊME TYPE, IMPOSSIBLE DE CHARGER LA
+							// SAUVEGARDE");
+							// System.out.println(controller.getWorkflows()[index].getInstructionAt(j).getClass()
+							// .getSimpleName());
+							// System.out.println(typeOfIntructionFromGson);
+							// return null;
+							// }
+
+							// If it's a DrawLoop
+							if ((typeOfIntructionFromGson.equals(DrawInstructionType.DRAW_LOOP.getName()))
+									|| typeOfIntructionFromGson
+											.equals(DrawInstructionType.DRAW_SYMMETRICAL_LOOP.getName())) {
+								// If this DrawLoop is not the last
+								if (workflowsFromGson.getWorkflowAt(index).getInstructions().size() > specialIndex
+										+ 1) {
+									InstructionFromGson nextIntructionFromGson = workflowsFromGson.getWorkflowAt(index)
+											.getInstructionAt(specialIndex + 1);
+									String typeOfNextIntructionFromGson = nextIntructionFromGson.getInstructionType();
+
+									// Generate next DrawLoop
+									if (typeOfNextIntructionFromGson.equals(DrawInstructionType.DRAW_LOOP.getName()))
+										controller.getWorkflows()[index].getInstructions().add(j + 1,
+												((DrawLoopInstruction) controller.getWorkflows()[index]
+														.getInstructionAt(j)).generate());
+
+									else if (typeOfNextIntructionFromGson
+											.equals(DrawInstructionType.DRAW_SYMMETRICAL_LOOP.getName()))
+										controller.getWorkflows()[index].getInstructions().add(j + 1,
+												((DrawSymmetricalLoopInstruction) controller.getWorkflows()[index]
+														.getInstructionAt(j)).generate());
+								}
+								// In any case, we stop the current DrawLoop
+								((DefaultGenerator) controller.getWorkflows()[index].getInstructionAt(j)).stop();
+							}
+
+							controller.getWorkflows()[index].getInstructionAt(j)
+									.setRoi(intructionFromGson.getIndexRoiToEdit());
+
+							specialIndex++;
+
 						}
-
-						controller.getWorkflows()[index].getInstructionAt(j)
-								.setRoi(intructionFromGson.getIndexRoiToEdit());
-
-						specialIndex++;
 					}
 				}
 			}
 
+			for (Workflow workflow : controller.getWorkflows())
+				workflow.restart();
+			controller.getWorkflows()[0].setCurrent(controller.getWorkflows()[0].getInstructionAt(0));
+
+			controller.getVue().setNbInstructions(controller.allInputInstructions().size());
+
 			String jsonInString = gson.toJson(workflowsFromGson);
 			System.out.println(jsonInString);
+			//
+			//
+			String workflowInString = gson.toJson(controller.getWorkflows());
+			System.out.println(workflowInString);
 
-			System.out.println("\n\n\n\nWorkflow : ");
-			String workflowIsString = gson.toJson(controller.getWorkflows());
-			System.out.println(workflowIsString);
-			System.out.println("\n\n\n");
+			// System.out.println("\n\n\n");
 
 		}
 
 		return workflowsFromGson;
-	}
 
+	}
 
 	public StringBuilder initCSVVertical(String[] infoPatient) {
 		// Realisation du string builder qui sera ecrit en CSV
@@ -672,28 +684,23 @@ public class SaveAndLoad {
 
 		return content;
 	}
-	
+
 	/**
 	 * Open a zip file and return all the .roi files inside as a List<Roi>, using
 	 * {@link ZipInputStream}, {@link ByteArrayOutputStream} and {@link RoiDecoder}
 	 * to process.<br/>
-	 * This method needs, from the same .zip file, to find the associated .json file.<br/>
+	 * This method needs, from the same .zip file, to find the associated .json
+	 * file.<br/>
 	 * This file will be needed to get the order of ROIs saved in the .zip file.
-	 * 
-	 * @see {@link ControllerWorkflow#loadWorkflows(String)}
-	 * 
-	 * 
-	 * @param path		The system-dependent file name.
-	 * @return 			A list of ROIs, contained in the zip file.
-	 * @throws			UnloadRoiException 
+	 *
+	 *
+	 * @param path
+	 *            The system-dependent file name.
+	 * @return A list of ROIs, contained in the zip file.
+	 * @throws UnloadRoiException
 	 */
 	public List<Roi> getRoiFromZip(String path, ControllerWorkflow controller)
 			throws UnauthorizedRoiLoadException, UnloadRoiException {
-
-		JList<String> list;
-		list = new JList<>();
-		DefaultListModel<String> listModel = new DefaultListModel<>();
-		list.setModel(listModel);
 
 		List<Roi> rois = new ArrayList<>();
 		ZipInputStream in = null;
@@ -718,7 +725,7 @@ public class SaveAndLoad {
 					SaveAndLoad saveAndLoad = new SaveAndLoad();
 					workflowsFromGson = saveAndLoad.loadWorkflows(controller, baos.toString());
 				}
-				
+
 				entry = in.getNextEntry();
 			}
 			in.close();
@@ -751,7 +758,6 @@ public class SaveAndLoad {
 					Roi roi = rd.getRoi();
 					if (roi != null) {
 						name = name.substring(0, name.length() - 4);
-						listModel.addElement(name);
 
 						int indexRoi = workflowsFromGson.getIndexRoiOfInstructionFromGson(name);
 						if (indexRoi == -1)
@@ -784,7 +790,8 @@ public class SaveAndLoad {
 
 		for (Roi roi : ROIsArray) {
 			rois.add(roi);
-			System.out.println(roi.getName());
+			// System.out.println(roi);
+			// System.out.println(roi.getName() + "\n");
 		}
 
 		if (nRois == 0)
@@ -792,7 +799,7 @@ public class SaveAndLoad {
 
 		return rois;
 	}
-	
+
 	/**
 	 * This method open a JFileChooser to select a .zip contening ROI files, and
 	 * return the ROIs as a list.
@@ -800,15 +807,13 @@ public class SaveAndLoad {
 	 * @param frame
 	 *            - the parent component of the dialog, can be null ;
 	 * @return A list of ROIs.
-	 * @throws UnloadRoiException 
-	 * 
-	 * @see Library_Roi#getRoiFromZip(String, ControllerWorkflow)
+	 * @throws UnloadRoiException
 	 */
 	public List<Roi> getRoiFromZipWithWindow(Component frame, ControllerWorkflow controller)
 			throws UnauthorizedRoiLoadException, UnloadRoiException {
 
 		JFileChooser fc = new JFileChooser();
-		fc.setCurrentDirectory(new File("./"));
+		fc.setCurrentDirectory(new File(Prefs.get(PrefTabMain.PREF_SAVE_DIRECTORY, "./")));
 		fc.setDialogTitle("Choose .zip containing rois");
 		int returnVal = fc.showOpenDialog(frame);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -816,13 +821,16 @@ public class SaveAndLoad {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Import the ROIs list from a .json file
-	 * 
-	 * @param frame							Frame in order to take reference for the JFileChooser
-	 * @param model							Model to put ROIs in
-	 * @param controller					Controller to update
+	 *
+	 * @param frame
+	 *            Frame in order to take reference for the JFileChooser
+	 * @param model
+	 *            Model to put ROIs in
+	 * @param controller
+	 *            Controller to update
 	 * @return
 	 * @throws UnauthorizedRoiLoadException
 	 * @throws UnloadRoiException
@@ -831,15 +839,21 @@ public class SaveAndLoad {
 			throws UnauthorizedRoiLoadException, UnloadRoiException {
 
 		List<Roi> rois = this.getRoiFromZipWithWindow(frame, controller);
-		if(rois == null)
+		if (rois == null)
 			return false;
 		model.getRoiManager().removeAll();
 
 		for (Roi roi : rois)
 			model.getRoiManager().addRoi(roi);
-		
+
+		for (Workflow workflow : controller.getWorkflows())
+			for (Instruction instruction : workflow.getInstructions())
+				if (instruction.getRoiIndex() != -1)
+					System.out.println(controller.getRoiManager().getRoi(instruction.getRoiIndex()).getName() + " : "
+							+ controller.getRoiManager().getRoi(instruction.getRoiIndex()));
+		System.out.println("\n\n");
+
 		return true;
 
 	}
-
 }

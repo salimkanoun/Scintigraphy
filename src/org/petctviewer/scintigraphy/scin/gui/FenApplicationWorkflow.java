@@ -42,7 +42,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 		super(ims.getImagePlus(), studyName);
 		this.imageSelection = ims;
 
-		this.setResizable(true);
+		this.setResizable(false);
 
 		// Scrollbar
 		this.scroll = new Scrollbar(Scrollbar.HORIZONTAL);
@@ -52,6 +52,8 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 		// Enable visualization by default
 		this.setVisualizationEnable(true);
+		
+		this.getLoadRoisMenuItem().setEnabled(true);
 
 		// Prepare overlay
 		IJ.setTool(Toolbar.POLYGON);
@@ -161,35 +163,6 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 		this.tooltip.setText(message);
 		this.tooltip.setBackground(color);
 		this.tooltip.pack();
-	}
-
-	/**
-	 * Changes the current instruction message for the user.
-	 *
-	 * @param message Message for the user
-	 */
-	public void setMessageInstruction(String message) {
-		textfield_instructions.setText(message);
-		this.pack();
-	}
-
-	/**
-	 * Enables or disables the 'Next' button.
-	 *
-	 * @param state if TRUE the 'Next' button can be clicked on and if set to FALSE, then the button cannot be clicked
-	 */
-	public void setEnableNext(boolean state) {
-		this.btn_suivant.setEnabled(state);
-	}
-
-	/**
-	 * Enables or disables the 'Previous' button.
-	 *
-	 * @param state if TRUE the 'Previous' button can be clicked on and if set to FALSE, then the button cannot be
-	 *              clicked
-	 */
-	public void setEnablePrevious(boolean state) {
-		this.btn_precedent.setEnabled(state);
 	}
 
 	/**

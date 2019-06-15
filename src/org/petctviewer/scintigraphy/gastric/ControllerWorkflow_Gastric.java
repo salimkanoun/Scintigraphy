@@ -12,6 +12,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
@@ -22,6 +23,8 @@ import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabGastric;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -51,6 +54,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.generateInstructions();
 		this.start();
 
+		// Result window
 		this.fenResults = new FenResults(this);
 	}
 
@@ -139,7 +143,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 			this.workflows[i].addInstruction(dri_1);
 			this.workflows[i].addInstruction(dri_2);
-			if (i == 0) this.workflows[i].addInstruction(new ScreenShotInstruction(captures, vue, 0, 640, 512));
+			if (i == 0) this.workflows[i].addInstruction(new ScreenShotInstruction(captures, vue, 0, 0, 0));
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}
@@ -161,6 +165,11 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 					specifiedTimeIngestion = promptIngestionTime.getResult();
 					getModel().setTimeIngestion(specifiedTimeIngestion);
 				}
+			}
+
+			@Override
+			public String toString() {
+				return "Instruction Prompt";
 			}
 		};
 
@@ -194,7 +203,16 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.isDynamicStarted = true;
 		this.vue.setVisible(false);
 		// Launch dynamic acquisition
-		new DynGastricScintigraphy(getModel(), this.tabMain);
+		FenSelectionDicom fenDicom = new FenSelectionDicom(new DynGastricScintigraphy(getModel(), this.tabMain));
+		tabMain.enableDynamicAcquisition(false);
+		fenDicom.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				System.out.println("ok");
+				tabMain.enableDynamicAcquisition(true);
+			}
+		});
+		fenDicom.setVisible(true);
 	}
 
 	public boolean isDynamicStarted() {
@@ -211,7 +229,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	}
 
 	@Override
-	protected void start() {
+	public void start() {
 		getModel().setIsotope(Library_Dicom.getIsotope(getModel().getImagePlus(), this.vue));
 
 		super.start();
@@ -258,5 +276,4 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.fenResults.pack();
 		this.fenResults.setVisible(true);
 	}
-
 }

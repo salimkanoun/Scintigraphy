@@ -93,7 +93,6 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
 		if (scindyn.getImpAnt() != null) {
 			this.vue.getImagePlus().setSlice(1);
-			this.vue.getImagePlus().setOverlay(this.vue.getOverlay());
 			capture = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 512, 0).getBufferedImage();
 			((Model_GeneralDyn) this.model).saveValues(((Model_GeneralDyn) this.model).getImpAnt().getImagePlus());
 			this.fenResult.addTab(new TabAntPost(capture, "Ant", this.fenResult));
@@ -102,7 +101,6 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		if (scindyn.getImpPost() != null) {
 
 			this.vue.getImagePlus().setSlice(2);
-			this.vue.getImagePlus().setOverlay(this.vue.getOverlay());
 
 			BufferedImage c = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 512, 0).getBufferedImage();
 

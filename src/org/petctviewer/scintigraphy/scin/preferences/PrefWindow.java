@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PrefWindow extends JFrame implements PlugIn, WindowListener {
+
+	private static final long serialVersionUID = 1L;
+
 	public static final String PREF_HEADER = "petctviewer.scin";
 
 	public static final int DURATION_SHORT = 2000;

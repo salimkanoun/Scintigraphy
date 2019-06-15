@@ -8,68 +8,83 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabGastric;
 
 import javax.swing.*;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class GastricScintigraphy extends Scintigraphy {
 
+	public static final String STUDY_NAME = "Gastric Scintigraphy";
+
 	public GastricScintigraphy() {
-		super("Gastric Scintigraphy");
+		super(STUDY_NAME);
 	}
 
 	@Override
-	public ImageSelection[] preparerImp(ImageSelection[] openedImages) throws WrongInputException {
+	public void start(List<ImageSelection> preparedImages) {
+		// Create application window
+		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), getStudyName()));
+		this.getFenApplication().setController(
+				new ControllerWorkflow_Gastric(this, (FenApplicationWorkflow) this.getFenApplication(),
+											   preparedImages.toArray(new ImageSelection[0]), STUDY_NAME));
+		this.getFenApplication().setPreferences(new PrefTabGastric(null));
+		this.getFenApplication().setVisible(true);
+	}
+
+	@Override
+	public FenSelectionDicom.Column[] getColumns() {
+		return FenSelectionDicom.Column.getDefaultColumns();
+	}
+
+	@Override
+	public List<ImageSelection> prepareImages(List<ImageSelection> openedImages) throws WrongInputException {
 		// Check number
-		if (openedImages.length < 2) throw new WrongNumberImagesException(openedImages.length, 2, Integer.MAX_VALUE);
+		if (openedImages.size() < 2) throw new WrongNumberImagesException(openedImages.size(), 2, Integer.MAX_VALUE);
 
 		// Check orientation
-		ImageSelection[] selection = new ImageSelection[openedImages.length];
-		for (int i = 0; i < openedImages.length; i++) {
-			ImageSelection ims = openedImages[i];
+		List<ImageSelection> selection = new ArrayList<>();
+		for (ImageSelection ims : openedImages) {
 			if (ims.getImageOrientation() != Orientation.ANT_POST && ims.getImageOrientation() != Orientation.POST_ANT)
 				throw new WrongColumnException.OrientationColumn(ims.getRow(), ims.getImageOrientation(),
-						new Orientation[]{Orientation.ANT_POST});
-			selection[i] = Library_Dicom.ensureAntPostFlipped(ims);
+																 new Orientation[]{Orientation.ANT_POST});
+			selection.add(Library_Dicom.ensureAntPostFlipped(ims));
 		}
 
 		// Check images have same duration
-		int tolerance = Math.max((int) Prefs.get(PrefTabGastric.PREF_FRAME_DURATION_TOLERANCE, 1) * 1000, 1);
-		int frameDuration = Library_Dicom.getFrameDuration(selection[0].getImagePlus());
-		boolean frameDurationDifferent = false;
-		float deltaSeconds = 0;
-		for (int i = 1; i < selection.length; i++) {
-			int fDuration = Library_Dicom.getFrameDuration(selection[i].getImagePlus());
-			if (frameDuration / tolerance != fDuration / tolerance) {
-				frameDurationDifferent = true;
-				deltaSeconds = Math.max(deltaSeconds,
-						Math.abs((float) frameDuration / 1000f - (float) fDuration / 1000f));
-			}
+		// Find min and max durations
+		int min = selection.stream().map(ims -> Library_Dicom.getFrameDuration(ims.getImagePlus())).min(
+				Comparator.naturalOrder()).orElse(0);
+		int max = selection.stream().map(ims -> Library_Dicom.getFrameDuration(ims.getImagePlus())).max(
+				Comparator.naturalOrder()).orElse(0);
+		// Delta
+		int delta = Math.abs(max - min) / 1000;
+		// Tolerance
+		int tolerance = Math.max((int) Prefs.get(PrefTabGastric.PREF_FRAME_DURATION_TOLERANCE, 1), 1);
+		if (delta > tolerance) {
+			JOptionPane.showMessageDialog(this.getFenApplication(),
+										  "Frame durations are not identical for every image" + ".\nMax delta is: " +
+												  delta + " seconds.", "Frame durations different",
+										  JOptionPane.WARNING_MESSAGE);
 		}
-		if (frameDurationDifferent) JOptionPane.showMessageDialog(this.getFenApplication(),
-				"Frame durations are not " + "identical for every image.\nMax delta is: " + deltaSeconds + " seconds.",
-				"Frame durations different", JOptionPane.WARNING_MESSAGE);
 
 
 		// Close all images
-		Arrays.stream(openedImages).forEach(ImageSelection::close);
+		openedImages.forEach(ImageSelection::close);
 
 		// Order images by time
-		Arrays.parallelSort(selection, new ChronologicalAcquisitionComparator());
+		selection.sort(new ChronologicalAcquisitionComparator());
 
 		return selection;
 	}
 
 	@Override
-	public void lancerProgramme(ImageSelection[] selectedImages) {
-		this.setFenApplication(new FenApplicationWorkflow(selectedImages[0], getStudyName()));
-		this.getFenApplication().setController(
-				new ControllerWorkflow_Gastric(this, (FenApplicationWorkflow) this.getFenApplication(), selectedImages,
-						"Gastric Scintigraphy"));
-		this.getFenApplication().setVisible(true);
+	public String instructions() {
+		return "Minimum 2 images in Ant-Post or Post-Ant orientation.";
 	}
-
 }

@@ -34,36 +34,12 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 	}
 
 	@Override
-	protected void generateInstructions() {
-
-		this.workflows = new Workflow[1];
-		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
-
-		List<ImagePlus> captures = new ArrayList<>();
-		ImageState statePost = new ImageState(Orientation.POST, 1, ImageState.LAT_LR, ImageState.ID_WORKFLOW);
-
-		DrawRoiInstruction dri_1 = new DrawRoiInstruction("L. Kidney", statePost);
-
-		DrawRoiInstruction dri_2 = new DrawRoiInstruction("R. Kidney", statePost);
-
-		this.workflows[0].addInstruction(dri_1);
-		this.workflows[0].addInstruction(new DrawRoiBackground("L. Background", statePost, dri_1, this.model, ""));
-		this.workflows[0].addInstruction(dri_2);
-		this.workflows[0].addInstruction(new DrawRoiBackground("R. Background", statePost, dri_2, this.model, ""));
-
-		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
-
-		this.workflows[0].addInstruction(new EndInstruction());
-	}
-
-	@Override
 	public void end() {
 		super.end();
 
 		// Clear the result hashmap in case of a second validation
 		((Model_Dmsa) this.model).data.clear();
 
-		ImagePlus imageCaptured = getModel().getImagePlus().duplicate();
 		Overlay overlay = getModel().getImagePlus().getOverlay().duplicate();
 
 		int indexRoi = 0;
@@ -71,7 +47,7 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
 			this.model.getImagePlus().setRoi(roi);
 			String nom = ((DrawRoiInstruction) this.workflows[0].getInstructionAt(indexRoi)).getOrganToDelimit();
-			// String studyName = roi.getName();
+			// String studyName = roi.getStudyName();
 			this.model.getImagePlus().setSlice(1);
 			((Model_Dmsa) this.model).enregistrerMesure(nom + " P0", this.model.getImagePlus());
 			if (this.antPost) {
@@ -85,8 +61,33 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
 		// Display results
 		this.setFenResults(new FenResults(this));
-		this.fenResults.addTab(new MainTab(fenResults, imageCaptured, overlay));
+		this.fenResults.addTab(new MainTab(fenResults, getModel().getImageSelection()[0].clone(), overlay));
 		this.fenResults.setVisible(true);
+	}
+
+	@Override
+	protected void generateInstructions() {
+
+		this.workflows = new Workflow[1];
+		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
+
+		List<ImagePlus> captures = new ArrayList<>();
+		ImageState statePost = new ImageState(Orientation.POST, 1, ImageState.LAT_LR, ImageState.ID_WORKFLOW);
+
+		DrawRoiInstruction dri_1 = new DrawRoiInstruction("L. Kidney", statePost);
+
+		DrawRoiInstruction dri_2 = new DrawRoiInstruction("R. Kidney", statePost);
+
+		this.workflows[0].addInstruction(dri_1);
+		this.workflows[0].addInstruction(
+				new DrawRoiBackground("L. Background", statePost, dri_1, this.workflows[0], ""));
+		this.workflows[0].addInstruction(dri_2);
+		this.workflows[0].addInstruction(
+				new DrawRoiBackground("R. Background", statePost, dri_2, this.workflows[0], ""));
+
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
+
+		this.workflows[0].addInstruction(new EndInstruction());
 	}
 
 }

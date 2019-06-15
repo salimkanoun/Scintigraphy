@@ -12,6 +12,7 @@ import ij.plugin.MontageMaker;
 import ij.plugin.ZProjector;
 import ij.plugin.frame.RoiManager;
 import ij.process.ImageProcessor;
+import ij.process.LUT;
 import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
@@ -154,6 +155,7 @@ public class Library_Capture_CSV {
 		if (width < 0 || height < 0) throw new IllegalArgumentException("Width and height cannot be negative");
 
 		// Change LUT of the capture according to pref
+		LUT backupLut = imp.getProcessor().getLut();
 		Library_Gui.setCustomLut(imp, PrefTabMain.PREF_LUT_CAPTURE);
 
 		ImageCanvas canvas = imp.getCanvas();
@@ -164,14 +166,15 @@ public class Library_Capture_CSV {
 		// Calculate ratio
 		Image img;
 		if (width == 0 && height == 0) img = buf;
-		else if (width == 0) img = buf.getScaledInstance(canvas.getWidth() * height / canvas.getHeight(), height,
-														 Image.SCALE_DEFAULT);
-		else if (height == 0) img = buf.getScaledInstance(width, canvas.getHeight() * width / canvas.getWidth(),
-														  Image.SCALE_DEFAULT);
-		else img = buf.getScaledInstance(width, height, Image.SCALE_DEFAULT);
+		else {
+			if (width == 0) width = canvas.getWidth() * height / canvas.getHeight();
+			else if (height == 0) height = canvas.getHeight() * width / canvas.getWidth();
+
+			img = buf.getScaledInstance(width, height, Image.SCALE_DEFAULT);
+		}
 
 		// Reset LUT
-		Library_Gui.setCustomLut(imp);
+		imp.setLut(backupLut);
 
 		return new ImagePlus("Capture of " + imp.getShortTitle(), img);
 	}

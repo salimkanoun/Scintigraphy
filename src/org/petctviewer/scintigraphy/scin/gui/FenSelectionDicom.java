@@ -1,12 +1,13 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
+import ij.IJ;
 import ij.ImageListener;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.util.DicomTools;
+import org.petctviewer.scintigraphy.scin.ImagePreparator;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
@@ -32,30 +33,32 @@ import java.util.*;
  *
  * @author Titouan QUÉMA - Restructuration and amerlioration of the code
  */
-public class FenSelectionDicom extends JFrame implements ActionListener, ImageListener, WindowListener {
+public class FenSelectionDicom extends JDialog implements ActionListener, ImageListener, WindowListener {
 	private static final long serialVersionUID = 6706629497515318270L;
 
 	protected final JTable table;
 	private final JButton btn_selectAll;
-	private final Scintigraphy scin;
 	private DefaultTableModel dataModel;
 	private List<Column> columns;
 
+	private ImagePreparator preparator;
+	private List<ImageSelection> selectedImages;
+
 	/**
-	 * @param main Program to launch once the images are selected
+	 * @param preparator Module to prepare the images of this selection window
 	 */
-	public FenSelectionDicom(Scintigraphy main) {
-		this.scin = main;
+	public FenSelectionDicom(ImagePreparator preparator) {
+		super((JFrame) null, false);
+		this.preparator = preparator;
 		ImagePlus.addImageListener(this);
 		this.columns = new ArrayList<>();
 
 		// on ajoute le titre a la fenetre
-		this.setTitle("Select Series");
+		this.setTitle("Select the DICOMs for " + preparator.getStudyName());
 
 		// creation du tableau
 		table = new JTable();
-		// use default columns
-		this.declareColumns(Column.getDefaultColumns());
+		this.declareColumns(preparator.getColumns());
 
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -78,7 +81,10 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 
 		panel.add(tablePane, BorderLayout.CENTER);
 
-		panel.add(new JLabel("Select the DICOMs for " + main.getStudyName()), BorderLayout.NORTH);
+		JLabel instructions = new JLabel("Requirements: " + preparator.instructions());
+		instructions.setMaximumSize(new Dimension(200, instructions.getMaximumSize().height));
+		instructions.setFont(instructions.getFont().deriveFont(14f));
+		panel.add(instructions, BorderLayout.NORTH);
 
 		jp.add(btn_select);
 		jp.add(this.btn_selectAll);
@@ -91,35 +97,6 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		this.setLocationRelativeTo(null);
 	}
 
-	public void declareColumns(Column[] columns) {
-		this.columns.clear();
-		this.columns.add(Column.ID);
-		this.columns.addAll(Arrays.asList(columns));
-		String[] columnsName = new String[this.columns.size()];
-
-		// Create model
-		this.dataModel = new DefaultTableModel(columnsName, 0);
-		this.updateTable();
-		this.table.setModel(this.dataModel);
-
-		for (int i = 0; i < this.columns.size(); i++) {
-			Column col = this.columns.get(i);
-			columnsName[i] = col.getName();
-			TableColumn manifacturer = this.table.getColumnModel().getColumn(i);
-			manifacturer.setHeaderValue(columnsName[i]);
-			if (col.hasAuthorizedValues()) {
-				DefaultCellEditor celleditor = new DefaultCellEditor(new JComboBox<>(col.authorizedValues));
-				manifacturer.setCellEditor(celleditor);
-			}
-			// TODO: remove this and use TableModel to do it properly
-			if (!col.isVisible()) {
-				this.table.getColumnModel().getColumn(0).setMinWidth(0);
-				this.table.getColumnModel().getColumn(0).setMaxWidth(0);
-			}
-		}
-		resizeColumnWidth(table);
-	}
-
 	private List<String[]> getTableData() {
 		List<String[]> data = new ArrayList<>(WindowManager.getImageCount());
 
@@ -128,6 +105,10 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			int countErrors = 0;
 			for (int idImgOpen : idList) {
 				ImagePlus imp = WindowManager.getImage(idImgOpen);
+
+				// Do not show image of FenApplication
+				if (imp.getWindow() instanceof FenApplication) continue;
+
 				HashMap<String, String> infosPatient = Library_Capture_CSV.getPatientInfo(imp);
 
 				String[] imageData = new String[this.columns.size()];
@@ -228,45 +209,19 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		}
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent event) {
-		JButton b = (JButton) event.getSource();
-
-		if (b == this.btn_selectAll) {
-			// on selectionne toutes les fenetres
-			table.selectAll();
-		}
-
-		ImageSelection[] selectedImages = this.getSelectedImages();
-
-		try {
-
-			this.checkForUnauthorizedValues(selectedImages);
-			this.checkSamePatient(selectedImages);
-			this.startExam(selectedImages);
-
-		} catch (WrongColumnException e) {
-			JOptionPane.showMessageDialog(this, e.getMessage(), "", JOptionPane.ERROR_MESSAGE);
-		} catch (WrongInputException e) {
-			JOptionPane.showMessageDialog(this, "Selection aborted", "", JOptionPane.INFORMATION_MESSAGE);
-		}
-
-	}
-
 	/**
 	 * Checks that all selected rows have authorized value in all columns.
 	 *
 	 * @throws WrongColumnException if a column has an unauthorized value
 	 */
-	private void checkForUnauthorizedValues(ImageSelection[] selectedImages) throws WrongColumnException {
+	private void checkForUnauthorizedValues(List<ImageSelection> selectedImages) throws WrongColumnException {
 		for (ImageSelection ims : selectedImages) {
 			for (Column column : this.columns) {
 				String value = ims.getValue(column.getName());
 				if (!column.isAuthorizedValue(value)) throw new WrongColumnException(column, ims.getRow(),
 																					 "The value " + value +
 																							 " is incorrect, it must" +
-																							 " " +
-																							 "be one of: " +
+																							 " " + "be one of: " +
 																							 Arrays.toString(
 																									 column.getAuthorizedValues()));
 			}
@@ -280,7 +235,7 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 * @throws WrongInputException if selected images belong to multiple patient and the user do not override the
 	 *                             process
 	 */
-	private void checkSamePatient(ImageSelection[] selectedImages) throws WrongInputException {
+	private void checkSamePatient(List<ImageSelection> selectedImages) throws WrongInputException {
 		Set<String> patientIds = new HashSet<>();
 		Set<String> patientNames = new HashSet<>();
 
@@ -306,12 +261,11 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 	 *
 	 * @return images selected by the user
 	 */
-	private ImageSelection[] getSelectedImages() {
+	private List<ImageSelection> getSelectedImages() {
 		int[] rows = this.table.getSelectedRows();
-		ImageSelection[] selectedImages = new ImageSelection[rows.length];
+		List<ImageSelection> selectedImages = new ArrayList<>(rows.length);
 
-		for (int i = 0; i < rows.length; i++) {
-			int row = rows[i];
+		for (int row : rows) {
 			// Generate values for the selection
 			String[] values = new String[this.columns.size()];
 			for (int col = 0; col < values.length; col++) {
@@ -321,28 +275,37 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 			String[] columns = new String[this.columns.size()];
 			for (int idCol = 0; idCol < columns.length; idCol++)
 				columns[idCol] = this.columns.get(idCol).getName();
-			selectedImages[i] = new ImageSelection(WindowManager.getImage(Integer.parseInt(values[0])), columns,
-												   values);
+			ImageSelection imageSelected = new ImageSelection(WindowManager.getImage(Integer.parseInt(values[0])),
+															  columns, values);
+			selectedImages.add(imageSelected);
 			// TODO: do not add row here, use the invisible columns
-			selectedImages[i].setRow(row + 1);
+			imageSelected.setRow(row + 1);
 		}
 
 		return selectedImages;
 	}
 
 	/**
-	 * This method starts the exam by calling the <code>lancerProgramme()</code> method on {@link Scintigraphy}.
+	 * This method prepares the images. Once this method has been called, the scintigraphy can retrieve the images.
 	 *
 	 * @param selectedImages Images selected by the user (at this point, they are not conform to the Controller's
 	 *                       requirements)
 	 */
-	private void startExam(ImageSelection[] selectedImages) {
+	private void prepareImages(List<ImageSelection> selectedImages) {
+		// Apply marco to convert images to 32bit
+		selectedImages.forEach(ims -> {
+			IJ.run(ims.getImagePlus(), "32-bit", "");
+			ims.getImagePlus().changes = false;
+		});
+
+
 		try {
-			ImageSelection[] userSelection = this.scin.preparerImp(selectedImages);
+			List<ImageSelection> userSelection = this.preparator.prepareImages(selectedImages);
 			if (userSelection != null) {
 				this.dispose();
 				ImagePlus.removeImageListener(this);
-				this.scin.lancerProgramme(userSelection);
+				this.selectedImages = userSelection;
+				this.preparator.start(this.selectedImages);
 			}
 		} catch (WrongInputException e) {
 			JOptionPane.showMessageDialog(this, "Error while selecting images:\n" + e.getMessage(), "Selection error",
@@ -358,6 +321,64 @@ public class FenSelectionDicom extends JFrame implements ActionListener, ImageLi
 		this.dataModel.setRowCount(0);
 		for (String[] s : this.getTableData()) {
 			this.dataModel.addRow(s);
+		}
+
+	}
+
+	public void declareColumns(Column[] columns) {
+		this.columns.clear();
+		this.columns.add(Column.ID);
+		this.columns.addAll(Arrays.asList(columns));
+		String[] columnsName = new String[this.columns.size()];
+
+		// Create model
+		this.dataModel = new DefaultTableModel(columnsName, 0);
+		this.updateTable();
+		this.table.setModel(this.dataModel);
+
+		for (int i = 0; i < this.columns.size(); i++) {
+			Column col = this.columns.get(i);
+			columnsName[i] = col.getName();
+			TableColumn manifacturer = this.table.getColumnModel().getColumn(i);
+			manifacturer.setHeaderValue(columnsName[i]);
+			if (col.hasAuthorizedValues()) {
+				DefaultCellEditor celleditor = new DefaultCellEditor(new JComboBox<>(col.authorizedValues));
+				manifacturer.setCellEditor(celleditor);
+			}
+			// TODO: remove this and use TableModel to do it properly
+			if (!col.isVisible()) {
+				this.table.getColumnModel().getColumn(0).setMinWidth(0);
+				this.table.getColumnModel().getColumn(0).setMaxWidth(0);
+			}
+		}
+		resizeColumnWidth(table);
+	}
+
+	public List<ImageSelection> retrieveSelectedImages() {
+		return this.selectedImages;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent event) {
+		JButton b = (JButton) event.getSource();
+
+		if (b == this.btn_selectAll) {
+			// on selectionne toutes les fenetres
+			table.selectAll();
+		}
+
+		List<ImageSelection> selectedImages = this.getSelectedImages();
+
+		try {
+
+			this.checkForUnauthorizedValues(selectedImages);
+			this.checkSamePatient(selectedImages);
+			this.prepareImages(selectedImages);
+
+		} catch (WrongColumnException e) {
+			JOptionPane.showMessageDialog(this, e.getMessage(), "", JOptionPane.ERROR_MESSAGE);
+		} catch (WrongInputException e) {
+			JOptionPane.showMessageDialog(this, "Selection aborted", "", JOptionPane.INFORMATION_MESSAGE);
 		}
 
 	}

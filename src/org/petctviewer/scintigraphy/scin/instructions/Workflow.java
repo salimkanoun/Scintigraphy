@@ -130,9 +130,9 @@ public class Workflow implements Serializable {
 	 */
 	public Instruction previous() {
 		if (this.iterator.hasPrevious()) {
-			Instruction previous = this.iterator.previous();
+			this.iterator.previous();
 			if (this.iterator.hasPrevious()) {
-				previous = this.iterator.previous();
+				Instruction previous = this.iterator.previous();
 				previous.prepareAsPrevious();
 				this.iterator.next();
 				this.current = previous;
@@ -250,8 +250,15 @@ public class Workflow implements Serializable {
 		return this.instructions;
 	}
 
-	public void removeInstructionWithIterator(Instruction instruction) {
-		this.iterator.remove();
+	public void removeInstructionWithIterator() {
+		this.current = iterator.previous();
+		iterator.remove();
+		iterator.previous();
+		this.current = iterator.next();
 	}
 
+
+	public void setCurrent(Instruction instru) {
+		this.current = instru;
+	}
 }
