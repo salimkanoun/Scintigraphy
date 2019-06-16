@@ -1,17 +1,17 @@
 package org.petctviewer.scintigraphy.colonic;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
-import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ColonicScintigraphy extends Scintigraphy {
 
@@ -31,8 +31,8 @@ public class ColonicScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public FenSelectionDicom.Column[] getColumns() {
-		return new FenSelectionDicom.Column[0];
+	public Column[] getColumns() {
+		return Column.getDefaultColumns();
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class ColonicScintigraphy extends Scintigraphy {
 
 		// Order images by time
 		impSelect.sort(new ChronologicalAcquisitionComparator());
-
+		impSelect.get(0).getImagePlus().duplicate().show();
 		return impSelect;
 	}
 
