@@ -59,6 +59,7 @@ public class EsophagealTransit extends Scintigraphy {
 		FenApplicationWorkflow fen = new FenApplicationWorkflow(preparedImages.get(0), "Oesophageus");
 		fen.setVisualizationEnable(false);
 		fen.getPanel_btns_gauche().remove(fen.getBtn_drawROI());
+		fen.getBtn_contrast().addActionListener(fen);
 		fen.getPanel_Instructions_btns_droite().removeAll();
 
 		JPanel radioButtonPanel = new JPanel();
@@ -96,10 +97,7 @@ public class EsophagealTransit extends Scintigraphy {
 			fen.updateSliceSelector();
 			IJ.setTool(Toolbar.RECTANGLE);
 
-			ControllerWorkflowEsophagealTransit cet = new ControllerWorkflowEsophagealTransit(EsophagealTransit.this,
-					(FenApplicationWorkflow) EsophagealTransit.this.getFenApplication(), new Model_EsophagealTransit(
-							sauvegardeImagesSelectDicom, "Esophageal Transit", EsophagealTransit.this));
-			EsophagealTransit.this.getFenApplication().setController(cet);
+			
 
 		});
 
@@ -111,6 +109,11 @@ public class EsophagealTransit extends Scintigraphy {
 		this.getFenApplication().setVisible(true);
 
 		fen.resizeCanvas();
+		
+		ControllerWorkflowEsophagealTransit cet = new ControllerWorkflowEsophagealTransit(EsophagealTransit.this,
+				(FenApplicationWorkflow) EsophagealTransit.this.getFenApplication(), new Model_EsophagealTransit(
+						sauvegardeImagesSelectDicom, "Esophageal Transit", EsophagealTransit.this));
+		this.getFenApplication().setController(cet);
 	}
 
 	public int[] getFrameDurations() {
