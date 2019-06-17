@@ -28,7 +28,7 @@ public class TabCurves extends TabResult {
 	private final String[] titleRows;
 
 	public TabCurves(int nbAcquisition, FenResults parent, Model_Resultats_EsophagealTransit modeleApp) {
-		super(parent, "Curves");
+		super(parent, "Curves", true);
 		this.modeleApp = modeleApp;
 		this.nbAcquisition = nbAcquisition;
 

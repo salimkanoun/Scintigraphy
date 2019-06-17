@@ -35,7 +35,7 @@ public class TabRentention extends TabResult {
 	private final Integer nbAcquisition;
 
 	public TabRentention(int nbAcquisition, FenResults parent, Model_Resultats_EsophagealTransit model) {
-		super(parent, "Retention");
+		super(parent, "Retention", true);
 		this.modeleApp = model;
 		this.nbAcquisition = nbAcquisition;
 
