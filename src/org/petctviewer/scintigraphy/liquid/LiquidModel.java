@@ -1,90 +1,57 @@
 package org.petctviewer.scintigraphy.liquid;
 
-import ij.gui.Roi;
+import ij.ImagePlus;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.*;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class LiquidModel extends ModelWorkflow {
 
 	public static final Result RES_T_HALF = new Result("T 1/2");
 
-	private List<XYDataItem> antCounts, postCounts;
+	private XYSeries counts;
 
 	public LiquidModel(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
 
-		this.antCounts = new LinkedList<>();
-		this.postCounts = new LinkedList<>();
+		this.counts = new XYSeries("Stomach");
 	}
 
 	public double[] generateXValues() {
-		double[] xValues = new double[this.antCounts.size()];
-		for(int i = 0; i < this.antCounts.size(); i++)
-			xValues[i] = this.antCounts.get(i).getXValue();
-		return xValues;
+		List<XYDataItem> items = counts.getItems();
+		return items.stream().mapToDouble(XYDataItem::getXValue).toArray();
 	}
 
 	public double[] generateYValues() {
-		double[] yValues = new double[this.antCounts.size()];
-		for(int i = 0; i < this.antCounts.size(); i++)
-			yValues[i] = this.antCounts.get(i).getYValue();
-		return yValues;
+		List<XYDataItem> items = counts.getItems();
+		return items.stream().mapToDouble(XYDataItem::getYValue).toArray();
 	}
 
-	public void calculateCounts(ImageState state, Roi roi) {
-		// Set image on state
-		if (state.getIdImage() != ImageState.ID_CUSTOM_IMAGE)
-			state.specifieImage(this.selectedImages[state.getIdImage()]);
-
-		// Calculate delay with first image
-		int delayFirstImage = (int) (state.getImage().getDateAcquisition()
-				.getTime() - this.selectedImages[0].getDateAcquisition().getTime());
-		assert delayFirstImage >= 0 : "Order of images incorrect";
-
-		// Prepare image
-		state.getImage().getImagePlus().setSlice(state.getSlice());
-		state.getImage().getImagePlus().setRoi(roi);
-
+	public void calculateCounts(ImagePlus image, int duration) {
 		// Calculate value
-		double value = Library_Quantif
-				.applyDecayFraction(delayFirstImage, Library_Quantif.getCounts(state.getImage().getImagePlus()),
-						this.isotope);
+		double value = Library_Quantif.applyDecayFraction(duration, Library_Quantif.getCounts(image), this.isotope);
 
 		// Save value
-		if (state.getFacingOrientation() == Orientation.ANT) {
-			this.antCounts.add(new XYDataItem(delayFirstImage / 1000. / 60., value));
-		} else {
-			this.postCounts.add(new XYDataItem(delayFirstImage / 1000. / 60., value));
-		}
+		this.counts.add(new XYDataItem(duration / 1000. / 60., value));
 	}
 
-	public XYSeries createSeries() {
-		XYSeries series = new XYSeries("Stomach");
-
-		// Add data
-		for (XYDataItem item : this.antCounts)
-			series.add(item);
-
-		return series;
+	public XYSeries getSeries() {
+		return counts;
 	}
 
 	@Override
 	public ResultValue getResult(ResultRequest request) {
-		if(request.getResultOn() == RES_T_HALF) {
+		if (request.getResultOn() == RES_T_HALF) {
 			// Calculate t 1/2
-			double half = this.antCounts.get(0).getYValue() / 2.;
+			double half = this.counts.getDataItem(0).getYValue() / 2.;
 			Double result = Library_JFreeChart.getX(this.generateXValues(), this.generateYValues(), half);
 			boolean isExtrapolated = false;
-			if(result == null) {
+			if (result == null) {
 				// Extrapolate
 				result = request.getFit().extrapolateX(half);
 				isExtrapolated = true;
@@ -96,13 +63,5 @@ public class LiquidModel extends ModelWorkflow {
 
 	@Override
 	public void calculateResults() {
-		if (!postCounts.isEmpty()) {
-			// Compute geometrical average
-			for (int i = 0; i < this.postCounts.size(); i++) {
-				double avg = Library_Quantif
-						.moyGeom(this.antCounts.get(i).getYValue(), this.postCounts.get(i).getYValue());
-				this.antCounts.get(i).setY(avg);
-			}
-		}
 	}
 }
