@@ -1,9 +1,7 @@
 package org.petctviewer.scintigraphy.esophageus.application;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Overlay;
-import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -104,7 +102,6 @@ public class EsophagealTransit extends Scintigraphy {
 			fen.setImage(impProjeteAllAcqui);
 			fen.getImagePlus().setSlice(1);
 			fen.updateSliceSelector();
-			IJ.setTool(Toolbar.RECTANGLE);
 		});
 
 		fen.getPanelPrincipal().add(radioButtonPanelFlow);

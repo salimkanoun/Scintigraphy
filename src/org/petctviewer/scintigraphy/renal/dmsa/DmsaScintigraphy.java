@@ -1,8 +1,6 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
-import ij.IJ;
 import ij.gui.Overlay;
-import ij.gui.Toolbar;
 import ij.plugin.StackReverser;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -35,7 +33,6 @@ public class DmsaScintigraphy extends Scintigraphy {
 		FenApplication fen = new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName());
 		this.setFenApplication(fen);
 		preparedImages.get(0).getImagePlus().setOverlay(overlay);
-		IJ.setTool(Toolbar.POLYGON);
 
 		fen.setController(new ControllerWorkflowDMSA(this, (FenApplicationWorkflow) this.getFenApplication(),
 													 preparedImages.toArray(new ImageSelection[0])));

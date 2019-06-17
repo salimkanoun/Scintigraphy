@@ -1,18 +1,21 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import ij.IJ;
-import ij.gui.Overlay;
-import ij.gui.TextRoi;
-import ij.gui.Toolbar;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Panel;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import java.awt.*;
-import java.awt.font.FontRenderContext;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
+import ij.gui.Overlay;
+import ij.gui.TextRoi;
 
 public class FenApplication_Cardiac extends FenApplicationWorkflow {
 
@@ -34,7 +37,6 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 
 		this.setPreferredCanvasSize(600);
 		this.setLocationRelativeTo(null);
-		IJ.setTool(Toolbar.POLYGON);
 
 		this.pack();
 	}
@@ -46,7 +48,6 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 	public void stopContaminationMode() {
 		this.getPanel_Instructions_btns_droite().remove(1);
 		this.getPanel_Instructions_btns_droite().add(this.createPanelInstructionsBtns());
-		IJ.setTool(Toolbar.POLYGON);
 		this.pack();
 	}
 	
@@ -104,7 +105,4 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 		overlay.add(AntSlice2);
 		overlay.add(invertedPostSlice2);
 	}
-	
-	
-
 }

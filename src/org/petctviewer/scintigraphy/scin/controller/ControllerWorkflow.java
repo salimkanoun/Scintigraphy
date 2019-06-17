@@ -6,7 +6,6 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.CaptureButton;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
-import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
@@ -79,10 +78,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 * Index of the ROI to store in the RoiManager.
 	 */
 	protected int indexRoi;
-	/**
-	 * Window used to display the results.
-	 */
-	protected FenResults fenResults;
 	/**
 	 * If set to TRUE then the next call to {@link #clickNext()} or {@link #clickPrevious()} will be repeated.
 	 */
@@ -353,9 +348,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	@Override
 	public void clickPrevious() {
 		super.clickPrevious();
-
-		// Hide result window
-		if (this.fenResults != null) this.fenResults.setVisible(false);
 
 		Instruction previousInstruction = this.workflows[this.indexCurrentWorkflow].getCurrentInstruction();
 
@@ -632,24 +624,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 * Only the last workflow generated MUST end with a {@link LastInstruction}.
 	 */
 	protected abstract void generateInstructions();
-
-	/**
-	 * Returns the window used to display the results of this study.
-	 *
-	 * @return window for the results or null if no window was set yet
-	 */
-	protected FenResults getFenResults() {
-		return this.fenResults;
-	}
-
-	/**
-	 * Changes the window for the results. This method should only be called once.
-	 *
-	 * @param fenResults Window for the results
-	 */
-	protected void setFenResults(FenResults fenResults) {
-		this.fenResults = fenResults;
-	}
 
 	/**
 	 * Updates the scroll bar in the view. This method should only be called if the {@link
