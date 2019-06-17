@@ -69,7 +69,8 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 		super.setController(ctrl);
 		this.btn_continue.addActionListener(ctrl);
 		this.btn_newCont.addActionListener(ctrl);
-		this.setText_instructions("Delimit a new contamination");
+		if(((ControllerWorkflowCardiac)this.getController()).getFullBodyImagesCount() > 0)
+			this.setText_instructions("Delimit a new contamination");
 	}
 
 	public Button getBtn_newCont() {

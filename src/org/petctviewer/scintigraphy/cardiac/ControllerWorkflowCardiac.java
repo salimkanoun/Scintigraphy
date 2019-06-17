@@ -116,7 +116,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 	private void clicNewCont() {
 
-		if (this.getVue().getImagePlus().getRoi() != null && !this.finContSlice2) {
+		if (this.getVue().getImagePlus().getRoi() != null && !this.finContSlice2 && this.fullBodyImages > 0) {
 			if (((DrawSymmetricalLoopInstruction) this.workflows[indexCurrentWorkflow].getCurrentInstruction())
 					.getIndex() % 2 != 0) {
 				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.main.getFenApplication();
@@ -340,10 +340,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		this.finContSlice2 = true;
 	}
 
-	@Override
-	public void start() {
-		super.start();
-		
+	public int getFullBodyImagesCount() {
+		return this.fullBodyImages;
 	}
-
 }
