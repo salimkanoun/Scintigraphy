@@ -9,7 +9,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
-import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
@@ -31,8 +31,8 @@ public class ColonicScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public Column[] getColumns() {
-		return Column.getDefaultColumns();
+	public FenSelectionDicom.Column[] getColumns() {
+		return FenSelectionDicom.Column.getDefaultColumns();
 	}
 
 	@Override
