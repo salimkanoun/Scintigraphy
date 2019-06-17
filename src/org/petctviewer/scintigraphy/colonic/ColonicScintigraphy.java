@@ -9,7 +9,9 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
@@ -21,6 +23,15 @@ public class ColonicScintigraphy extends Scintigraphy {
 		super(STUDY_NAME);
 	}
 
+	private void createDocumentation() {
+		DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
+		doc.addReference(DocumentationDialog.Field.createLinkField("", "Maurer JNM 2013",
+																   "https://www.ncbi.nlm.nih.gov/pubmed/24092937"));
+		doc.setYoutube("");
+		doc.setOnlineDoc("");
+		this.getFenApplication().setDocumentation(doc);
+	}
+
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
 
@@ -28,11 +39,12 @@ public class ColonicScintigraphy extends Scintigraphy {
 		this.getFenApplication().setController(
 				new ControllerWorkflowColonicTransit(this, (FenApplicationColonicTransit) this.getFenApplication(),
 													 preparedImages.toArray(new ImageSelection[0])));
+		this.createDocumentation();
 	}
 
 	@Override
-	public FenSelectionDicom.Column[] getColumns() {
-		return FenSelectionDicom.Column.getDefaultColumns();
+	public Column[] getColumns() {
+		return Column.getDefaultColumns();
 	}
 
 	@Override

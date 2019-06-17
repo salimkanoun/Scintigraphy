@@ -10,6 +10,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
@@ -34,6 +35,17 @@ public class CardiacScintigraphy extends Scintigraphy {
 		super(STUDY_NAME);
 	}
 
+	private void createDocumentation() {
+		DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
+		doc.addReference(DocumentationDialog.Field.createLinkField("With Kidney", "RAPEZZI Jacc 2011",
+																   "https://www.ncbi.nlm.nih.gov/pubmed/21679902"));
+		doc.addReference(DocumentationDialog.Field.createLinkField("Thorax alone", "SINGH J Nucl Cardiol 2018",
+																   "https://www.ncbi.nlm.nih.gov/pubmed/30569412"));
+		doc.setYoutube("");
+		doc.setOnlineDoc("");
+		this.getFenApplication().setDocumentation(doc);
+	}
+
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
 		Overlay overlay = Library_Gui.initOverlay(preparedImages.get(0).getImagePlus(), 7);
@@ -54,6 +66,8 @@ public class CardiacScintigraphy extends Scintigraphy {
 						this, (FenApplicationWorkflow) this.getFenApplication(), new Model_Cardiac(this,
 								preparedImages.toArray(new ImageSelection[0]), "Cardiac", infoOfAllImages),
 						this.fullBodyImages.size(), this.onlyThoraxImage.size()));
+
+		this.createDocumentation();
 
 	}
 
