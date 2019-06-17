@@ -1,9 +1,7 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import ij.IJ;
 import ij.gui.Overlay;
 import ij.gui.TextRoi;
-import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -34,7 +32,6 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 
 		this.setPreferredCanvasSize(600);
 		this.setLocationRelativeTo(null);
-		IJ.setTool(Toolbar.POLYGON);
 
 		this.pack();
 	}
@@ -46,7 +43,6 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 	public void stopContaminationMode() {
 		this.getPanel_Instructions_btns_droite().remove(1);
 		this.getPanel_Instructions_btns_droite().add(this.createPanelInstructionsBtns());
-		IJ.setTool(Toolbar.POLYGON);
 		this.pack();
 	}
 	

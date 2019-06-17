@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.generic.dynamic;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -35,7 +34,6 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 				new ControllerWorkflowScinDynamic(this, (FenApplicationWorkflow) this.getFenApplication(),
 												  new Model_GeneralDyn(preparedImages.toArray(new ImageSelection[0]),
 																	   STUDY_NAME, this.getFrameDurations())));
-		IJ.setTool(Toolbar.POLYGON);
 	}
 
 	@Override

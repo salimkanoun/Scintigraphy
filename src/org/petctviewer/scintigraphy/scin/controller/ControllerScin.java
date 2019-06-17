@@ -4,7 +4,6 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
-import ij.gui.Toolbar;
 import ij.plugin.MontageMaker;
 import ij.plugin.frame.RoiManager;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -344,8 +343,6 @@ public abstract class ControllerScin implements ActionListener {
 
 			// on deselectionne le bouton contraste
 			this.vue.getBtn_contrast().setBackground(null);
-
-			IJ.setTool(Toolbar.POLYGON);
 
 		} else if (b == this.vue.getBtn_contrast()) {
 			// on change la couleur du bouton

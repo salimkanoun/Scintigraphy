@@ -1,7 +1,5 @@
 package org.petctviewer.scintigraphy.gastric.dynamic;
 
-import ij.IJ;
-import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -13,8 +11,7 @@ public class FenApplication_DynGastric extends FenApplicationWorkflow {
 
 	public FenApplication_DynGastric(ImageSelection ims, String nom) {
 		super(ims, nom);
-		
-		IJ.setTool(Toolbar.POLYGON);
+
 		Library_Gui.initOverlay(getImagePlus());
 		Library_Gui.setOverlayDG(getImagePlus(), Color.YELLOW);
 	}

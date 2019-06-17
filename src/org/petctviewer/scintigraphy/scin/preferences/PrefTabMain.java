@@ -2,10 +2,12 @@ package org.petctviewer.scintigraphy.scin.preferences;
 
 import ij.IJ;
 import ij.Prefs;
+import ij.gui.Toolbar;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
 import java.io.File;
 
 public class PrefTabMain extends PrefTab {
@@ -13,7 +15,7 @@ public class PrefTabMain extends PrefTab {
 	public static final String PREF_HEADER = PrefWindow.PREF_HEADER + ".main", PREF_EXPERIMENTS =
 			PREF_HEADER + ".experimental", PREF_LUT = PREF_HEADER + ".lut", PREF_SAVE_DIRECTORY =
 			PREF_HEADER + ".save_directory", PREF_DATE_FORMAT = PREF_HEADER + ".date_format", PREF_LUT_CAPTURE =
-			PREF_HEADER + ".lut_capture";
+			PREF_HEADER + ".lut_capture", PREF_TOOL_ROI = PREF_HEADER + ".toolRoi";
 
 	public static final String TXT_NO_LUT = "No LUT selected";
 
@@ -25,8 +27,8 @@ public class PrefTabMain extends PrefTab {
 	private final JButton btn_displut;
 	private final JComboBox comboDate;
 	private final JLabel lCaptureLut;
-	private JFileChooser fc;
 	private final JFrame parent;
+	private JFileChooser fc;
 
 	public PrefTabMain(JFrame parent) {
 		super("Main");
@@ -116,6 +118,27 @@ public class PrefTabMain extends PrefTab {
 		this.mainPanel.add(pnl_formatDate);
 		// -
 
+		// Fiji tool to draw ROIs
+		String[] possibleTools = new String[]{"Polygone", "Freeroi"};
+		JPanel panCombo = new JPanel();
+		JComboBox<String> tools = new JComboBox<>(possibleTools);
+		tools.setActionCommand(PREF_TOOL_ROI);
+		// Get state
+		String prefValue = Prefs.get(PREF_TOOL_ROI, possibleTools[0]);
+		tools.setSelectedItem(prefValue);
+		tools.addItemListener(e -> {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				// Save new unit
+				Prefs.set(PREF_TOOL_ROI, (String) tools.getSelectedItem());
+				if (this.parent != null && this.parent instanceof PrefWindow) ((PrefWindow) this.parent).displayMessage(
+						"Please close the window to save the preferences", PrefWindow.DURATION_SHORT);
+			}
+		});
+		panCombo.add(new JLabel("Tool used: "));
+		panCombo.add(tools);
+		this.mainPanel.add(panCombo);
+		// -
+
 		// Check box simple method
 		JCheckBox experimentalMode = this.createCheckbox(PREF_EXPERIMENTS, "Try experimental methods", false);
 		experimentalMode.setToolTipText("This methods are currently : { Deconvolution }");
@@ -123,6 +146,15 @@ public class PrefTabMain extends PrefTab {
 		// -
 
 		this.add(this.mainPanel, BorderLayout.CENTER);
+	}
+
+	public static int toolFromString(String str) {
+		switch (str) {
+			case "Freeroi":
+				return Toolbar.FREEROI;
+			default:
+				return Toolbar.POLYGON;
+		}
 	}
 
 	private JLabel createLabel(Container container, String text) {

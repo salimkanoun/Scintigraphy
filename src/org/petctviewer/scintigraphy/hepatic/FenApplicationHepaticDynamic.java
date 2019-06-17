@@ -1,8 +1,6 @@
 package org.petctviewer.scintigraphy.hepatic;
 
-import ij.IJ;
 import ij.ImagePlus;
-import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -103,7 +101,6 @@ public class FenApplicationHepaticDynamic extends FenApplication {
 
 		this.setDefaultSize();
 
-		IJ.setTool(Toolbar.RECTANGLE);
 		this.imp.setOverlay(Library_Gui.initOverlay(getImagePlus()));
 		this.pack();
 	}
