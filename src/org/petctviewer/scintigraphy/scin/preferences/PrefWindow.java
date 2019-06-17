@@ -48,12 +48,11 @@ public class PrefWindow extends JFrame implements PlugIn, WindowListener {
 		panel.add(tabbedPane, BorderLayout.CENTER);
 
 		// Status bar
-		JPanel statusBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		statusBar.setBorder(new CompoundBorder(new LineBorder(Color.DARK_GRAY), new EmptyBorder(4, 4, 4, 4)));
 		this.status = new JLabel();
 		this.status.setFont(this.status.getFont().deriveFont(12f));
-		statusBar.add(this.status);
-		panel.add(statusBar, BorderLayout.SOUTH);
+		this.status.setBorder(new CompoundBorder(new LineBorder(Color.DARK_GRAY), new EmptyBorder(4, 4, 4, 4)));
+		this.status.setPreferredSize(new Dimension(100, 16));
+		panel.add(this.status, BorderLayout.SOUTH);
 
 		this.getContentPane().add(panel);
 
