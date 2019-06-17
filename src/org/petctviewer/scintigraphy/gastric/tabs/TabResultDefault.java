@@ -90,61 +90,6 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	}
 
 	/**
-	 * Displays additional results on the tab like time of ingestion or button to launch dynamic acquisition...
-	 *
-	 * @return panel containing the additional results
-	 */
-	protected abstract JPanel additionalResults();
-
-	/**
-	 * Generates the table with all of the results to display for this scintigraphy.
-	 *
-	 * @return table containing the results
-	 */
-	protected JTable tableResults(Result[] results, Unit[] unitsUsed) {
-		// Prepare model
-		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
-			getModel().activateTime0();
-			getModel().setTimeIngestion(((ControllerWorkflow_Gastric) parent.getController()).specifiedTimeIngestion);
-		} else {
-			getModel().deactivateTime0();
-			getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
-		}
-
-		// Create table
-		JTable table = new JTable(0, results.length);
-		DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
-		String[] arr = new String[tableModel.getColumnCount()];
-
-		// Change column titles
-		for (int i = 0; i < tableModel.getColumnCount(); i++)
-			table.getColumnModel().getColumn(i).setHeaderValue(results[i].getName() + " (" + unitsUsed[i] + ")");
-
-		// Fill table with data
-		for (int i = 0; i < ((Model_Gastric) this.parent.getModel()).nbAcquisitions(); i++) {
-			for (int j = 0; j < tableModel.getColumnCount(); j++) {
-				ResultRequest request = new ResultRequest(results[j]);
-				request.setUnit(unitsUsed[j]);
-				request.setIndexImage(i);
-				ResultValue res = getModel().getResult(request);
-				if (res == null) arr[j] = "--";
-				else {
-					res.convert(unitsUsed[j]);
-					arr[j] = res.formatValue();
-				}
-			}
-			tableModel.addRow(arr);
-		}
-
-		// Customize table
-		table.setRowHeight(30);
-		MatteBorder border = new MatteBorder(1, 1, 1, 1, Color.BLACK);
-		table.setBorder(border);
-
-		return table;
-	}
-
-	/**
 	 * Utility method to print on the panel the specified result.
 	 *
 	 * @param infoRes Panel on which to place the result in
@@ -269,62 +214,6 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	}
 
 	/**
-	 * Utility method that generates a panel containing all of the results needed for that scintigraphy.
-	 *
-	 * @return panel containing the results
-	 */
-	protected JPanel infoResults(Result[] resultsRequested, Unit[] unitsRequested) {
-		if (resultsRequested.length != unitsRequested.length) throw new IllegalArgumentException(
-				"Array length must be equals");
-
-		JPanel panel = new JPanel(new BorderLayout());
-
-		boolean hasExtrapolatedValue = false;
-
-		JPanel infoRes = new JPanel();
-		infoRes.setLayout(new GridLayout(0, 2));
-
-		for (int i = 0; i < resultsRequested.length - 1; i++) {
-			request.changeResultOn(resultsRequested[i]);
-			request.setUnit(unitsRequested[i]);
-
-			ResultValue result = getModel().getResult(request);
-			hasExtrapolatedValue = result.isExtrapolated() || hasExtrapolatedValue;
-			this.displayResult(infoRes, result);
-		}
-
-		// Retention 30min
-		request.changeResultOn(resultsRequested[resultsRequested.length - 1]);
-		request.setUnit(unitsRequested[unitsRequested.length - 1]);
-		ResultValue result = getModel().getRetentionResult(request, 30.);
-		hasExtrapolatedValue = result.isExtrapolated() || hasExtrapolatedValue;
-		this.displayRetentionResult(infoRes, 30., result);
-		// Retention from 1h to 4h
-		for (double time = 60.; time <= 240.; time += 60.) {
-			result = getModel().getRetentionResult(request, time);
-			hasExtrapolatedValue = result.isExtrapolated() || hasExtrapolatedValue;
-			this.displayRetentionResult(infoRes, time, result);
-		}
-		// Grade of retention at 4h
-		JLabel[] grade = this.gradeOfRetention(result.getValue());
-		infoRes.add(grade[0]);
-		infoRes.add(grade[1]);
-
-		panel.add(infoRes, BorderLayout.CENTER);
-		if (hasExtrapolatedValue) {
-			JLabel l;
-			if (getSelectedFit() == FitType.NONE) {
-				l = new JLabel("(*) No fit has been selected to extrapolate the values!");
-				l.setForeground(Color.RED);
-			} else {
-				l = new JLabel("(*) The results are calculated with a " + getSelectedFit() + " extrapolation");
-			}
-			panel.add(l, BorderLayout.SOUTH);
-		}
-		return panel;
-	}
-
-	/**
 	 * Detects the fit selected by the combo box and draw the fit on the tab.
 	 */
 	private void reloadFit() {
@@ -442,66 +331,6 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		panel.add(valueSetterLagPhase, BorderLayout.CENTER);
 
 		return panel;
-	}
-
-	protected JPanel createPanelCustomRetention() {
-		JTextField fieldCustomRetention = new JTextField(3);
-		JLabel resultRetention = new JLabel("--");
-		fieldCustomRetention.getDocument().addDocumentListener(new DocumentListener() {
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				updateResult();
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				updateResult();
-			}
-
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				updateResult();
-			}
-
-			public void updateResult() {
-				// Calculate result
-				try {
-					// Prepare model
-					if (seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
-						getModel().activateTime0();
-						getModel().setTimeIngestion(
-								((ControllerWorkflow_Gastric) parent.getController()).specifiedTimeIngestion);
-						request.changeResultOn(Model_Gastric.RETENTION_PERCENTAGE);
-					} else {
-						getModel().deactivateTime0();
-						getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
-						request.changeResultOn(Model_Gastric.RETENTION_GEOAVG);
-					}
-
-					request.setUnit(Unit.PERCENTAGE);
-
-					ResultValue result = getModel().getRetentionResult(request, Double.parseDouble(
-							fieldCustomRetention.getText()));
-					// Update result
-					resultRetention.setText(result.formatValue() + result.getUnit().abbrev());
-				} catch (NumberFormatException exception) {
-					resultRetention.setText("--");
-				}
-			}
-		});
-
-		JPanel panRetention = new JPanel(new GridLayout(1, 2));
-
-		JPanel panWest = new JPanel(new FlowLayout());
-		panWest.add(new JLabel("Calculate retention at"));
-		panWest.add(fieldCustomRetention);
-		panWest.add(new JLabel("min"));
-		panWest.add(new JLabel(" ="));
-		panRetention.add(panWest);
-
-		panRetention.add(resultRetention);
-
-		return panRetention;
 	}
 
 	/**
@@ -681,8 +510,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		tab.add("Lag phase", this.createPanelLagPhase());
 
 		tab.addChangeListener(e -> {
-			valueSetterFit.updateAreas();
-			valueSetterLagPhase.revalidate();
+			if (tab.getSelectedIndex() == 2) valueSetterLagPhase.updateAreas();
+			else valueSetterFit.updateAreas();
 		});
 
 		return tab;
@@ -707,6 +536,177 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		if (this.getValueSetterFit().getGrabbedSelector() != null) {
 			this.reloadFit();
 		}
+	}
+
+	/**
+	 * Displays additional results on the tab like time of ingestion or button to launch dynamic acquisition...
+	 *
+	 * @return panel containing the additional results
+	 */
+	protected abstract JPanel additionalResults();
+
+	/**
+	 * Generates the table with all of the results to display for this scintigraphy.
+	 *
+	 * @return table containing the results
+	 */
+	protected JTable tableResults(Result[] results, Unit[] unitsUsed) {
+		// Prepare model
+		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
+			getModel().activateTime0();
+			getModel().setTimeIngestion(((ControllerWorkflow_Gastric) parent.getController()).specifiedTimeIngestion);
+		} else {
+			getModel().deactivateTime0();
+			getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
+		}
+
+		// Create table
+		JTable table = new JTable(0, results.length);
+		DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
+		String[] arr = new String[tableModel.getColumnCount()];
+
+		// Change column titles
+		for (int i = 0; i < tableModel.getColumnCount(); i++)
+			table.getColumnModel().getColumn(i).setHeaderValue(results[i].getName() + " (" + unitsUsed[i] + ")");
+
+		// Fill table with data
+		for (int i = 0; i < ((Model_Gastric) this.parent.getModel()).nbAcquisitions(); i++) {
+			for (int j = 0; j < tableModel.getColumnCount(); j++) {
+				ResultRequest request = new ResultRequest(results[j]);
+				request.setUnit(unitsUsed[j]);
+				request.setIndexImage(i);
+				ResultValue res = getModel().getResult(request);
+				if (res == null) arr[j] = "--";
+				else {
+					res.convert(unitsUsed[j]);
+					arr[j] = res.formatValue();
+				}
+			}
+			tableModel.addRow(arr);
+		}
+
+		// Customize table
+		table.setRowHeight(30);
+		MatteBorder border = new MatteBorder(1, 1, 1, 1, Color.BLACK);
+		table.setBorder(border);
+
+		return table;
+	}
+
+	/**
+	 * Utility method that generates a panel containing all of the results needed for that scintigraphy.
+	 *
+	 * @return panel containing the results
+	 */
+	protected JPanel infoResults(Result[] resultsRequested, Unit[] unitsRequested) {
+		if (resultsRequested.length != unitsRequested.length) throw new IllegalArgumentException(
+				"Array length must be equals");
+
+		JPanel panel = new JPanel(new BorderLayout());
+
+		boolean hasExtrapolatedValue = false;
+
+		JPanel infoRes = new JPanel();
+		infoRes.setLayout(new GridLayout(0, 2));
+
+		for (int i = 0; i < resultsRequested.length - 1; i++) {
+			request.changeResultOn(resultsRequested[i]);
+			request.setUnit(unitsRequested[i]);
+
+			ResultValue result = getModel().getResult(request);
+			hasExtrapolatedValue = result.isExtrapolated() || hasExtrapolatedValue;
+			this.displayResult(infoRes, result);
+		}
+
+		// Retention 30min
+		request.changeResultOn(resultsRequested[resultsRequested.length - 1]);
+		request.setUnit(unitsRequested[unitsRequested.length - 1]);
+		ResultValue result = getModel().getRetentionResult(request, 30.);
+		hasExtrapolatedValue = result.isExtrapolated() || hasExtrapolatedValue;
+		this.displayRetentionResult(infoRes, 30., result);
+		// Retention from 1h to 4h
+		for (double time = 60.; time <= 240.; time += 60.) {
+			result = getModel().getRetentionResult(request, time);
+			hasExtrapolatedValue = result.isExtrapolated() || hasExtrapolatedValue;
+			this.displayRetentionResult(infoRes, time, result);
+		}
+		// Grade of retention at 4h
+		JLabel[] grade = this.gradeOfRetention(result.getValue());
+		infoRes.add(grade[0]);
+		infoRes.add(grade[1]);
+
+		panel.add(infoRes, BorderLayout.CENTER);
+		if (hasExtrapolatedValue) {
+			JLabel l;
+			if (getSelectedFit() == FitType.NONE) {
+				l = new JLabel("(*) No fit has been selected to extrapolate the values!");
+				l.setForeground(Color.RED);
+			} else {
+				l = new JLabel("(*) The results are calculated with a " + getSelectedFit() + " extrapolation");
+			}
+			panel.add(l, BorderLayout.SOUTH);
+		}
+		return panel;
+	}
+
+	protected JPanel createPanelCustomRetention() {
+		JTextField fieldCustomRetention = new JTextField(3);
+		JLabel resultRetention = new JLabel("--");
+		fieldCustomRetention.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				updateResult();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				updateResult();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				updateResult();
+			}
+
+			public void updateResult() {
+				// Calculate result
+				try {
+					// Prepare model
+					if (seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
+						getModel().activateTime0();
+						getModel().setTimeIngestion(
+								((ControllerWorkflow_Gastric) parent.getController()).specifiedTimeIngestion);
+						request.changeResultOn(Model_Gastric.RETENTION_PERCENTAGE);
+					} else {
+						getModel().deactivateTime0();
+						getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
+						request.changeResultOn(Model_Gastric.RETENTION_GEOAVG);
+					}
+
+					request.setUnit(Unit.PERCENTAGE);
+
+					ResultValue result = getModel().getRetentionResult(request, Double.parseDouble(
+							fieldCustomRetention.getText()));
+					// Update result
+					resultRetention.setText(result.formatValue() + result.getUnit().abbrev());
+				} catch (NumberFormatException exception) {
+					resultRetention.setText("--");
+				}
+			}
+		});
+
+		JPanel panRetention = new JPanel(new GridLayout(1, 2));
+
+		JPanel panWest = new JPanel(new FlowLayout());
+		panWest.add(new JLabel("Calculate retention at"));
+		panWest.add(fieldCustomRetention);
+		panWest.add(new JLabel("min"));
+		panWest.add(new JLabel(" ="));
+		panRetention.add(panWest);
+
+		panRetention.add(resultRetention);
+
+		return panRetention;
 	}
 
 }

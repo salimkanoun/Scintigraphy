@@ -1040,13 +1040,8 @@ public class Model_Gastric extends ModelWorkflow {
 		if (res == null) {
 			// If duration from last point in the graph to the requested time is less or equal than the preference
 			// TIME_LAST_POINT, then the result is the last point
-			System.out.println("Time: " + time);
-			System.out.println("xValues[last]: " + xValues[xValues.length - 1]);
-			System.out.println("Pref: " + Prefs.get(PrefTabGastric.PREF_TIME_LAST_POINT, 15));
-			System.out.println("DELTA: " + (time - xValues[xValues.length - 1]));
 			if (time - xValues[xValues.length - 1] <= Prefs.get(PrefTabGastric.PREF_TIME_LAST_POINT, 15)) {
 				res = yValues[xValues.length - 1];
-				System.out.println("Last point");
 			}
 			// Else, extrapolate
 			else {
