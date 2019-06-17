@@ -15,8 +15,6 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 public class LiquidController extends ControllerWorkflow {
 
-	private final boolean HAS_POST_IMAGES;
-
 	/**
 	 * @param main Reference to the main class
 	 * @param vue  View of the MVC pattern
@@ -24,30 +22,26 @@ public class LiquidController extends ControllerWorkflow {
 	public LiquidController(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
 		super(main, vue, new LiquidModel(selectedImages, main.getStudyName()));
 
-		this.HAS_POST_IMAGES = selectedImages[0].getImageOrientation().hasBothFacingOrientations();
-
 		this.generateInstructions();
 		this.start();
 	}
 
 	private void computeModel() {
-		Roi[] rois = getModel().getRoiManager().getRoisAsArray();
+		Roi roi = getRoiManager().getRoisAsArray()[0];
 
-		int increment = 1;
-		if (HAS_POST_IMAGES) increment = 2;
+		ImageSelection image = getModel().getImageSelection()[0];
 
-		for (int i = 0; i < rois.length; i += increment) {
-			ImageState stateAnt = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, i / 2);
+		// Create durations array
+		int[] durations = Library_Dicom.buildFrameDurations(image.getImagePlus());
+		for (int i = 1; i < durations.length; i++)
+			durations[i] = durations[i] + durations[i - 1];
 
-			// - Stomach
-			getModel().calculateCounts(stateAnt, rois[i]);
-
-			if (HAS_POST_IMAGES) {
-				ImageState statePost = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, i / 2);
-
-				// - Stomach
-				getModel().calculateCounts(statePost, rois[i]);
-			}
+		// Save results in series
+		for (int i = 0; i < image.getImagePlus().getStackSize(); i++) {
+			// Apply ROI
+			image.getImagePlus().setRoi(roi);
+			image.getImagePlus().setSlice(i);
+			getModel().calculateCounts(image.getImagePlus(), durations[i]);
 		}
 
 		getModel().calculateResults();
@@ -59,18 +53,10 @@ public class LiquidController extends ControllerWorkflow {
 	}
 
 	@Override
-	public void start() {
-		// Get isotope
-		getModel().setIsotope(Library_Dicom.getIsotope(getModel().getImagePlus(), this.vue));
-
-		super.start();
-	}
-
-	@Override
 	protected void end() {
 		super.end();
 
-		// Compute model
+		// Compute series
 		this.computeModel();
 
 		// Display results
@@ -81,32 +67,28 @@ public class LiquidController extends ControllerWorkflow {
 
 	@Override
 	protected void generateInstructions() {
-		this.workflows = new Workflow[getModel().getImageSelection().length];
+		this.workflows = new Workflow[1];
+		this.workflows[0] = new Workflow(this, getModel().getImageSelection()[0]);
 
-		DrawRoiInstruction dri_ant = null, dri_post;
-		for (int i = 0; i < this.workflows.length; i++) {
-			this.workflows[i] = new Workflow(this, getModel().getImageSelection()[i]);
+		// Ant
+		ImageState stateAnt = new ImageState(Orientation.ANT, 0, ImageState.LAT_RL, ImageState.ID_CUSTOM_IMAGE);
+		System.out.println(getModel().getImageSelection()[0]);
+		ImageSelection image = getModel().getImageSelection()[0].clone();
+		image.setImagePlus(Library_Dicom.projeter(image.getImagePlus(), 0, image.getImagePlus().getStackSize(), "avg"
+		));
+		stateAnt.specifieImage(image);
 
-			// Ant
-			ImageState stateAnt = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_WORKFLOW);
 
-			dri_ant = new DrawRoiInstruction("Stomach", stateAnt, dri_ant);
+		this.workflows[0].addInstruction(new DrawRoiInstruction("Stomach", stateAnt));
 
-			this.workflows[i].addInstruction(dri_ant);
+		this.workflows[0].addInstruction(new EndInstruction());
+	}
 
-			// Post
-			if (HAS_POST_IMAGES) {
-				ImageState statePost = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, ImageState.ID_WORKFLOW);
+	@Override
+	public void start() {
+		super.start();
 
-				dri_post = new DrawRoiInstruction("Stomach", statePost, dri_ant);
-
-				this.workflows[i].addInstruction(dri_post);
-			}
-		}
-
-		this.workflows[this.workflows.length - 1].addInstruction(new EndInstruction());
-
-		// Update view
-		this.getVue().setNbInstructions(this.allInputInstructions().size());
+		// Get isotope
+		getModel().setIsotope(Library_Dicom.getIsotope(getModel().getImagePlus(), this.vue));
 	}
 }

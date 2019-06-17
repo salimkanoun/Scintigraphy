@@ -147,4 +147,19 @@ public class ImageSelection implements Cloneable {
 	public void close() {
 		this.getImagePlus().close();
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder s = new StringBuilder("Image: ");
+		s.append(imp.getTitle());
+		s.append('\n');
+		for (Entry<String, String> entry : this.columnsValues.entrySet()) {
+			s.append("[");
+			s.append(entry.getKey());
+			s.append("] --> ");
+			s.append(entry.getValue());
+			s.append('\n');
+		}
+		return s.toString();
+	}
 }
