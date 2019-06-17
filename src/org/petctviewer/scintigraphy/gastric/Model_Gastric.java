@@ -14,6 +14,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.*;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabGastric;
 
 import java.awt.*;
 import java.math.BigDecimal;
@@ -1033,11 +1034,25 @@ public class Model_Gastric extends ModelWorkflow {
 			yValues = generateDecayFunctionValues(request.getFit().getYUnit());
 		}
 
-		Double res = Library_JFreeChart.getY(this.generateTime(), yValues, time);
+		double[] xValues = this.generateTime();
+		Double res = Library_JFreeChart.getY(xValues, yValues, time);
 		boolean isExtrapolated = false;
 		if (res == null) {
-			res = Library_JFreeChart.extrapolateY(time, request.getFit());
-			isExtrapolated = true;
+			// If duration from last point in the graph to the requested time is less or equal than the preference
+			// TIME_LAST_POINT, then the result is the last point
+			System.out.println("Time: " + time);
+			System.out.println("xValues[last]: " + xValues[xValues.length - 1]);
+			System.out.println("Pref: " + Prefs.get(PrefTabGastric.PREF_TIME_LAST_POINT, 15));
+			System.out.println("DELTA: " + (time - xValues[xValues.length - 1]));
+			if (time - xValues[xValues.length - 1] <= Prefs.get(PrefTabGastric.PREF_TIME_LAST_POINT, 15)) {
+				res = yValues[xValues.length - 1];
+				System.out.println("Last point");
+			}
+			// Else, extrapolate
+			else {
+				res = Library_JFreeChart.extrapolateY(time, request.getFit());
+				isExtrapolated = true;
+			}
 		}
 
 		// Percentage of res
