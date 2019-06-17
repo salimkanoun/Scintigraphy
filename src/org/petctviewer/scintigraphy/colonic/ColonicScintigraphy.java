@@ -10,7 +10,6 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
-import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
