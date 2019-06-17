@@ -11,6 +11,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
@@ -30,7 +31,7 @@ public class EsophagealTransit extends Scintigraphy {
 	 * pour chaque acquisition, avec la possiblité de changer d'acqui. On aura un
 	 * selecteur d'acquisiton pour pouvoir changer le stack (acqui) affiché A
 	 * l'appuie sur "start exam", on lance la phase 2
-	 * 
+	 *
 	 * Phase 2 : affichage du projet de chaque acquistion dans 1 stack avec 1
 	 * acquisition par slice vec selection de la roi pour chaque acqui
 	 */
@@ -47,6 +48,15 @@ public class EsophagealTransit extends Scintigraphy {
 
 	public EsophagealTransit() {
 		super("Esophageal Transit");
+	}
+
+	private void createDocumentation() {
+		DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
+		doc.addReference(DocumentationDialog.Field.createLinkField("", "Maurer JNM 2015",
+																   "https://www.ncbi.nlm.nih.gov/pubmed/26025963"));
+		doc.setYoutube("");
+		doc.setOnlineDoc("");
+		this.getFenApplication().setDocumentation(doc);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -97,8 +107,12 @@ public class EsophagealTransit extends Scintigraphy {
 			IJ.setTool(Toolbar.RECTANGLE);
 
 			ControllerWorkflowEsophagealTransit cet = new ControllerWorkflowEsophagealTransit(EsophagealTransit.this,
-					(FenApplicationWorkflow) EsophagealTransit.this.getFenApplication(), new Model_EsophagealTransit(
-							sauvegardeImagesSelectDicom, "Esophageal Transit", EsophagealTransit.this));
+																							  (FenApplicationWorkflow) EsophagealTransit.this.getFenApplication(),
+																							  new Model_EsophagealTransit(
+																									  sauvegardeImagesSelectDicom,
+																									  "Esophageal " +
+																											  "Transit",
+																									  EsophagealTransit.this));
 			EsophagealTransit.this.getFenApplication().setController(cet);
 
 		});
@@ -109,6 +123,8 @@ public class EsophagealTransit extends Scintigraphy {
 		preparedImages.get(0).getImagePlus().setOverlay(overlay);
 
 		this.getFenApplication().setVisible(true);
+
+		this.createDocumentation();
 
 		fen.resizeCanvas();
 	}
@@ -132,8 +148,8 @@ public class EsophagealTransit extends Scintigraphy {
 	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException,
 			ReadTagException {
 		// Check number
-		if (selectedImages.size() == 0)
-			throw new WrongNumberImagesException(selectedImages.size(), 1, Integer.MAX_VALUE);
+		if (selectedImages.size() == 0) throw new WrongNumberImagesException(selectedImages.size(), 1,
+																			 Integer.MAX_VALUE);
 
 		// entrée : tableau de toutes les images passées envoyé par la selecteur de
 		// dicom
@@ -152,8 +168,8 @@ public class EsophagealTransit extends Scintigraphy {
 
 		// poour chaque acquisition
 		for (ImageSelection selectedImage : selectedImages) {
-			if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT_POST
-					|| selectedImage.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
+			if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT_POST ||
+					selectedImage.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
 				// on ne sauvegarde que la ant
 				// null == pas d'image ant et/ou une image post et != une image post en [0]
 				ImageSelection[] splited = Library_Dicom.splitDynamicAntPost(selectedImage);
@@ -168,12 +184,13 @@ public class EsophagealTransit extends Scintigraphy {
 					Library_Dicom.flipStackHorizontal(ims);
 					imagePourTriePost.add(ims);
 				}
-			} else if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT)
-				imagePourTrieAnt.add(selectedImage.clone());
-			else
-				throw new WrongColumnException.OrientationColumn(selectedImage.getRow(),
-																 selectedImage.getImageOrientation(), new Orientation[] { Orientation.DYNAMIC_ANT,
-																														  Orientation.DYNAMIC_ANT_POST, Orientation.DYNAMIC_POST_ANT });
+			} else if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT) imagePourTrieAnt.add(
+					selectedImage.clone());
+			else throw new WrongColumnException.OrientationColumn(selectedImage.getRow(),
+																  selectedImage.getImageOrientation(),
+																  new Orientation[]{Orientation.DYNAMIC_ANT,
+																					Orientation.DYNAMIC_ANT_POST,
+																					Orientation.DYNAMIC_POST_ANT});
 			selectedImage.getImagePlus().close();
 
 		}
@@ -191,7 +208,9 @@ public class EsophagealTransit extends Scintigraphy {
 		// test de verification de la taille des stack
 		if (sauvegardeImagesSelectDicom[0].length != sauvegardeImagesSelectDicom[1].length) {
 			System.err.println(
-					"(EsophagealTransit) The number of ANT slices is different from the number of POST slices -> only the ANTs will be taken into account");
+					"(EsophagealTransit) The number of ANT slices is different from the number of POST slices -> " +
+							"only" +
+							" " + "the ANTs will be taken into account");
 			sauvegardeImagesSelectDicom[1] = new ImageSelection[0];
 		}
 
@@ -205,8 +224,8 @@ public class EsophagealTransit extends Scintigraphy {
 			ImageSelection[] imagesAnt = new ImageSelection[imagePourTrieAnt.size()];
 			for (int i = 0; i < imagePourTrieAnt.size(); i++) {
 				// null == pas d'image ant et/ou une image post et != une image post en [0]
-				imagesAnt[i] = Library_Dicom.project(imagePourTrieAnt.get(i), 0,
-													 imagePourTrieAnt.get(i).getImagePlus().getStackSize(), "max");
+				imagesAnt[i] = Library_Dicom.project(imagePourTrieAnt.get(i), 0, imagePourTrieAnt.get(
+						i).getImagePlus().getStackSize(), "max");
 			}
 			// renvoi un stack trié des projection des images
 			// orderby ... renvoi un tableau d'imp trie par ordre chrono, avec en paramètre
