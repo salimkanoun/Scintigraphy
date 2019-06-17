@@ -21,10 +21,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.event.*;
 import java.util.List;
 import java.util.*;
 
@@ -90,6 +87,14 @@ public class FenSelectionDicom extends JDialog implements ActionListener, ImageL
 		jp.add(this.btn_selectAll);
 
 		panel.add(jp, BorderLayout.SOUTH);
+
+		// Actions for bindings
+		Action quitAction = new QuitAction();
+
+		// Set key bindings
+		panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+																 "quit");
+		panel.getActionMap().put("quit", quitAction);
 
 		this.add(panel);
 		this.setPreferredSize(new Dimension(700, 300));
@@ -544,6 +549,13 @@ public class FenSelectionDicom extends JDialog implements ActionListener, ImageL
 		 */
 		public boolean isVisible() {
 			return this.visible;
+		}
+	}
+
+	private class QuitAction extends AbstractAction {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			FenSelectionDicom.this.dispose();
 		}
 	}
 }
