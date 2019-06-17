@@ -59,7 +59,7 @@ public class LiquidController extends ControllerWorkflow {
 	}
 
 	@Override
-	protected void start() {
+	public void start() {
 		// Get isotope
 		getModel().setIsotope(Library_Dicom.getIsotope(getModel().getImagePlus(), this.vue));
 

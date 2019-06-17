@@ -229,7 +229,7 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	}
 
 	@Override
-	protected void start() {
+	public void start() {
 		getModel().setIsotope(Library_Dicom.getIsotope(getModel().getImagePlus(), this.vue));
 
 		super.start();

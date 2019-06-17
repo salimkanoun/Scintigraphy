@@ -52,6 +52,8 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 		// Enable visualization by default
 		this.setVisualizationEnable(true);
+		
+		this.getLoadRoisMenuItem().setEnabled(true);
 
 		// Prepare overlay
 		IJ.setTool(Toolbar.POLYGON);

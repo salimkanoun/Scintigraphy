@@ -1,7 +1,9 @@
 package org.petctviewer.scintigraphy.hepatic;
 
-import ij.IJ;
-import ij.gui.Overlay;
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -9,13 +11,12 @@ import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
-import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+import ij.IJ;
+import ij.gui.Overlay;
 
 public class HepaticDynScintigraphy extends Scintigraphy {
 
@@ -47,8 +48,8 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 	}
 
 	@Override
-	public FenSelectionDicom.Column[] getColumns() {
-		return new FenSelectionDicom.Column[0];
+	public Column[] getColumns() {
+		return Column.getDefaultColumns();
 	}
 
 	@Override
