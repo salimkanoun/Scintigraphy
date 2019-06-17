@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
+import ij.IJ;
 import ij.Prefs;
 import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.renal.Model_Renal;
@@ -190,6 +191,11 @@ public class TabPostMict extends TabContrastModifier implements ActionListener {
 					selectedImages.get(0).close();
 
 					TabPostMict.this.imgSelected = true;
+					
+					IJ.run(selections.get(0).getImagePlus(), "Size...",
+							   "width=" + 512 + " height=" + 512 + " depth=2 constrain average " +
+									   "interpolation=Bilinear");
+					
 					Library_Gui.initOverlay(selections.get(0).getImagePlus());
 					Library_Gui.setOverlayTitle("Post", selections.get(0).getImagePlus(), Color.YELLOW, 1);
 					Library_Gui.setOverlayGD(selections.get(0).getImagePlus(), Color.YELLOW);

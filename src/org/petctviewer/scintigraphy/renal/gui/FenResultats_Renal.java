@@ -47,6 +47,8 @@ public class FenResultats_Renal extends FenResults {
 		int width = 1000;
 		this.setPreferredSize(new Dimension(width, height));
 		this.setLocationRelativeTo(vue.getFenApplication());
+		
+		this.requestFocus();
 	}
 
 	// renomme la serie

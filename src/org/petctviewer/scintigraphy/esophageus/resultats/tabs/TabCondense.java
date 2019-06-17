@@ -35,7 +35,7 @@ public class TabCondense extends TabResult implements ChangeListener {
 	private final Integer nbAcquisition;
 
 	public TabCondense(int nbAcquisition, FenResults parent, Model_Resultats_EsophagealTransit model) {
-		super(parent, "Condensed Dynamic images");
+		super(parent, "Condensed Dynamic images", true);
 		this.modeleApp = model;
 		this.nbAcquisition = nbAcquisition;
 

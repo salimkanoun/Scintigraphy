@@ -40,7 +40,7 @@ public class TabTransitTime extends TabResult {
 	private final Model_Resultats_EsophagealTransit modeleApp;
 
 	public TabTransitTime(int nbAcquisition, FenResults parent, Model_Resultats_EsophagealTransit model) {
-		super(parent, "Transit Time");
+		super(parent, "Transit Time", true);
 		this.modeleApp = model;
 		this.nbAcquisition = nbAcquisition;
 
