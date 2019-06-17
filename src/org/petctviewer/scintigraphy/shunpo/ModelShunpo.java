@@ -1,12 +1,14 @@
 package org.petctviewer.scintigraphy.shunpo;
 
 import ij.ImagePlus;
+import ij.Prefs;
 import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.*;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabShunpo;
 
 import java.util.*;
 
@@ -176,8 +178,7 @@ public class ModelShunpo extends ModelWorkflow {
 		return new ResultValue(request, value, conversion);
 	}
 
-	@Override
-	public void calculateResults() {
+	private void calculateResultsWithKidneys() {
 		// Correct kidneys with background
 		datas.get(IMAGE_KIDNEY_LUNG).setAntValue(REGION_RIGHT_KIDNEY, Data.DATA_COUNTS_CORRECTED,
 												 correctValueWithBkgNoise(REGION_RIGHT_KIDNEY, false));
@@ -216,11 +217,9 @@ public class ModelShunpo extends ModelWorkflow {
 		// Pulmonary shunt
 		double pulmonaryShunt = (sumShunts * 100.) / (sumLungs * .38);
 		this.results.put(RES_PULMONARY_SHUNT.hashCode(), pulmonaryShunt);
-		System.out.println(
-				"Pulmonary Shunt: \n(sumShunt * 100.) / (sumAvg * .38)\n(" + sumShunts + " * 100.) / (" + sumLungs +
-						" * .38)");
-		System.out.println("Pulmonary Shunt = " + pulmonaryShunt);
+	}
 
+	private void calculateResultsWithoutKidneys() {
 		// Pulmonary shunt - method 2
 		double lungAnt = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_RIGHT_LUNG, Data.DATA_COUNTS) + datas.get(
 				IMAGE_KIDNEY_LUNG).getAntValue(REGION_LEFT_LUNG, Data.DATA_COUNTS);
@@ -234,5 +233,14 @@ public class ModelShunpo extends ModelWorkflow {
 
 		double shunt = (brainGeo / .13) / ((brainGeo / .13) + lungGeo) * 100.;
 		this.results.put(RES_PULMONARY_SHUNT_2.hashCode(), shunt);
+	}
+
+	@Override
+	public void calculateResults() {
+		if (Prefs.get(PrefTabShunpo.PREF_WITH_KIDNEYS, true)) {
+			this.calculateResultsWithKidneys();
+		} else {
+			this.calculateResultsWithoutKidneys();
+		}
 	}
 }

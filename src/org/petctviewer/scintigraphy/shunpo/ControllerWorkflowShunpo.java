@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.shunpo;
 
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.Prefs;
 import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -19,6 +20,7 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ResultRequest;
 import org.petctviewer.scintigraphy.scin.model.ResultValue;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabShunpo;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,18 +30,18 @@ import java.util.List;
 public class ControllerWorkflowShunpo extends ControllerWorkflow {
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 	private final FenResults fenResults;
-	@SuppressWarnings("unused")
-	private final boolean FIRST_ORIENTATION_POST;
+	private final boolean WITH_KIDNEYS;
 	private List<ImagePlus> captures;
 
 	public ControllerWorkflowShunpo(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
 		super(main, vue, new ModelShunpo(selectedImages, main.getStudyName()));
 
+		// Initialize variables
+		this.WITH_KIDNEYS = Prefs.get(PrefTabShunpo.PREF_WITH_KIDNEYS, true);
+		this.fenResults = new FenResults(this);
+
 		this.generateInstructions();
 		this.start();
-
-		this.FIRST_ORIENTATION_POST = true;
-		this.fenResults = new FenResults(this);
 	}
 
 	// TODO: remove this method and do this in the instructions
@@ -47,7 +49,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL,
 											 ModelShunpo.IMAGE_KIDNEY_LUNG), statePost = new ImageState(
 				Orientation.POST, SLICE_POST, ImageState.LAT_RL, ModelShunpo.IMAGE_KIDNEY_LUNG);
-		final int NB_ROI_PER_IMAGE = 5;
+		final int NB_ROI_PER_IMAGE = WITH_KIDNEYS ? 5 : 2;
 		// Post then Ant
 		for (int i = 0; i < 2; i++) {
 			ImageState state;
@@ -59,15 +61,18 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 			// - Left lung
 			getModel().addData(ModelShunpo.REGION_LEFT_LUNG, state,
 							   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i + 1]);
-			// - Right Kidney
-			getModel().addData(ModelShunpo.REGION_RIGHT_KIDNEY, state,
-							   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i + 2]);
-			// - Left Kidney
-			getModel().addData(ModelShunpo.REGION_LEFT_KIDNEY, state,
-							   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i + 3]);
-			// - Background
-			getModel().addData(ModelShunpo.REGION_BACKGROUND, state,
-							   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i + 4]);
+
+			if (WITH_KIDNEYS) {
+				// - Right Kidney
+				getModel().addData(ModelShunpo.REGION_RIGHT_KIDNEY, state,
+								   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i + 2]);
+				// - Left Kidney
+				getModel().addData(ModelShunpo.REGION_LEFT_KIDNEY, state,
+								   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i + 3]);
+				// - Background
+				getModel().addData(ModelShunpo.REGION_BACKGROUND, state,
+								   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i + 4]);
+			}
 		}
 
 		// - Brain Post
@@ -82,6 +87,86 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
 	public ModelShunpo getModel() {
 		return (ModelShunpo) super.getModel();
+	}
+
+	private void generateInstructionsWithKidneys() {
+		this.workflows = new Workflow[this.model.getImageSelection().length];
+
+		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4, dri_8, dri_9, dri_11;
+		this.captures = new ArrayList<>(6);
+
+		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
+
+		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
+		ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
+
+		dri_1 = new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_LUNG, statePost);
+		dri_2 = new DrawRoiInstruction(ModelShunpo.REGION_LEFT_LUNG, statePost);
+		dri_3 = new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_KIDNEY, statePost);
+		dri_4 = new DrawRoiInstruction(ModelShunpo.REGION_LEFT_KIDNEY, statePost);
+		dri_8 = new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_KIDNEY, stateAnt, dri_3);
+		dri_9 = new DrawRoiInstruction(ModelShunpo.REGION_LEFT_KIDNEY, stateAnt, dri_4);
+		dri_11 = new DrawRoiInstruction(ModelShunpo.REGION_BRAIN, statePost);
+
+		// Image Lung-Kidney
+		this.workflows[0].addInstruction(dri_1);
+		this.workflows[0].addInstruction(dri_2);
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
+		this.workflows[0].addInstruction(dri_3);
+		this.workflows[0].addInstruction(dri_4);
+		this.workflows[0].addInstruction(new DrawRoiInMiddle(ModelShunpo.REGION_BACKGROUND, statePost, dri_3, dri_4));
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
+		this.workflows[0].addInstruction(new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_LUNG, stateAnt, dri_1));
+		this.workflows[0].addInstruction(new DrawRoiInstruction(ModelShunpo.REGION_LEFT_LUNG, stateAnt, dri_2));
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 2));
+		this.workflows[0].addInstruction(dri_8);
+		this.workflows[0].addInstruction(dri_9);
+		this.workflows[0].addInstruction(new DrawRoiInMiddle(ModelShunpo.REGION_BACKGROUND, stateAnt, dri_8, dri_9));
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 3));
+
+
+		// Image Brain
+		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
+		this.workflows[1].addInstruction(dri_11);
+		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 4));
+		this.workflows[1].addInstruction(new DrawRoiInstruction(ModelShunpo.REGION_BRAIN, stateAnt, dri_11));
+		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 5));
+		this.workflows[1].addInstruction(new EndInstruction());
+	}
+
+	private void generateInstructionsWithoutKidneys() {
+		this.workflows = new Workflow[this.model.getImageSelection().length];
+
+		DrawRoiInstruction dri_1, dri_2, dri_11;
+		this.captures = new ArrayList<>(6);
+
+		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
+
+		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
+		ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
+
+		dri_1 = new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_LUNG, statePost);
+		dri_2 = new DrawRoiInstruction(ModelShunpo.REGION_LEFT_LUNG, statePost);
+		dri_11 = new DrawRoiInstruction(ModelShunpo.REGION_BRAIN, statePost);
+
+		// Image Lung-Kidney
+		this.workflows[0].addInstruction(dri_1);
+		this.workflows[0].addInstruction(dri_2);
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
+		this.workflows[0].addInstruction(new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_LUNG, stateAnt, dri_1));
+		this.workflows[0].addInstruction(new DrawRoiInstruction(ModelShunpo.REGION_LEFT_LUNG, stateAnt, dri_2));
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 2));
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 3));
+
+
+		// Image Brain
+		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
+		this.workflows[1].addInstruction(dri_11);
+		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 4));
+		this.workflows[1].addInstruction(new DrawRoiInstruction(ModelShunpo.REGION_BRAIN, stateAnt, dri_11));
+		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 5));
+		this.workflows[1].addInstruction(new EndInstruction());
 	}
 
 	@Override
@@ -107,29 +192,31 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
 		// Display result
 		this.fenResults.clearTabs();
-		this.fenResults.setMainTab(new MainResult(this.fenResults, montage1));
-		this.fenResults.addTab(new TabResult(this.fenResults, "Without Kidneys", true) {
-			@Override
-			public Component getSidePanelContent() {
-				JPanel panel = new JPanel(new GridLayout(0, 1));
-				ResultRequest request = new ResultRequest(ModelShunpo.RES_PULMONARY_SHUNT_2);
-				ResultValue result = getModel().getResult(request);
+		if (WITH_KIDNEYS) this.fenResults.setMainTab(new MainResult(this.fenResults, montage1));
+		else {
+			this.fenResults.setMainTab(new TabResult(this.fenResults, "Without Kidneys", true) {
+				@Override
+				public Component getSidePanelContent() {
+					JPanel panel = new JPanel(new GridLayout(0, 1));
+					ResultRequest request = new ResultRequest(ModelShunpo.RES_PULMONARY_SHUNT_2);
+					ResultValue result = getModel().getResult(request);
 
-				JLabel label = new JLabel(result.toString());
-				// Color result
-				if (result.getValue() < 6.) label.setForeground(Color.GREEN);
-				else label.setForeground(Color.RED);
-				panel.add(label);
+					JLabel label = new JLabel(result.toString());
+					// Color result
+					if (result.getValue() < 6.) label.setForeground(Color.GREEN);
+					else label.setForeground(Color.RED);
+					panel.add(label);
 
-				return panel;
-			}
+					return panel;
+				}
 
-			@Override
-			public Container getResultContent() {
-				return new DynamicImage(montage2.getBufferedImage());
-			}
-		});
-		this.fenResults.getTab(1).reloadDisplay();
+				@Override
+				public Container getResultContent() {
+					return new DynamicImage(montage2.getBufferedImage());
+				}
+			});
+			this.fenResults.getMainTab().reloadDisplay();
+		}
 		this.fenResults.pack();
 		this.fenResults.setVisible(true);
 
@@ -137,53 +224,11 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 
 	@Override
 	protected void generateInstructions() {
-		this.workflows = new Workflow[this.model.getImageSelection().length];
-
-		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4, dri_8, dri_9, dri_11;
-		this.captures = new ArrayList<>(6);
-
-		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
-
-		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
-		ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
-
-		dri_1 = new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_LUNG, statePost);
-		dri_2 = new DrawRoiInstruction(ModelShunpo.REGION_LEFT_LUNG, statePost);
-		dri_3 = new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_KIDNEY, statePost);
-		dri_4 = new DrawRoiInstruction(ModelShunpo.REGION_LEFT_KIDNEY, statePost);
-		dri_8 = new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_KIDNEY, stateAnt, dri_3);
-		dri_9 = new DrawRoiInstruction(ModelShunpo.REGION_LEFT_KIDNEY, stateAnt, dri_4);
-		dri_11 = new DrawRoiInstruction(ModelShunpo.REGION_BRAIN, statePost);
-
-		// Image Lung-Kidney
-		this.workflows[0].addInstruction(dri_1);
-		this.workflows[0].addInstruction(dri_2);
-		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
-		this.workflows[0].addInstruction(dri_3);
-		this.workflows[0].addInstruction(dri_4);
-		this.workflows[0].addInstruction(
-				new DrawRoiInMiddle(ModelShunpo.REGION_BACKGROUND, statePost, dri_3, dri_4));
-		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
-		this.workflows[0].addInstruction(
-				new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_LUNG, stateAnt, dri_1));
-		this.workflows[0].addInstruction(
-				new DrawRoiInstruction(ModelShunpo.REGION_LEFT_LUNG, stateAnt, dri_2));
-		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 2));
-		this.workflows[0].addInstruction(dri_8);
-		this.workflows[0].addInstruction(dri_9);
-		this.workflows[0].addInstruction(
-				new DrawRoiInMiddle(ModelShunpo.REGION_BACKGROUND, stateAnt, dri_8, dri_9));
-		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 3));
-
-
-		// Image Brain
-		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
-		this.workflows[1].addInstruction(dri_11);
-		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 4));
-		this.workflows[1].addInstruction(new DrawRoiInstruction(ModelShunpo.REGION_BRAIN, stateAnt,
-																dri_11));
-		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 5));
-		this.workflows[1].addInstruction(new EndInstruction());
+		if (WITH_KIDNEYS) {
+			this.generateInstructionsWithKidneys();
+		} else {
+			this.generateInstructionsWithoutKidneys();
+		}
 	}
 
 	private class DrawRoiInMiddle extends DrawRoiInstruction {
