@@ -60,9 +60,9 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 		this.model.calculateResults();
 
 		// Display results
-		this.setFenResults(new FenResults(this));
-		this.fenResults.addTab(new MainTab(fenResults, getModel().getImageSelection()[0].clone(), overlay));
-		this.fenResults.setVisible(true);
+		FenResults fenResults = new FenResults(this);
+		fenResults.addTab(new MainTab(fenResults, getModel().getImageSelection()[0].clone(), overlay));
+		fenResults.setVisible(true);
 	}
 
 	@Override

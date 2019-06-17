@@ -34,8 +34,6 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 
 		this.generateInstructions();
 		this.start();
-
-		this.fenResults = new FenResults(this);
 	}
 
 	private void computeModel() {
@@ -99,11 +97,11 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 		boolean geoAvg = ((PlateletScintigraphy) ControllerWorkflow_Platelet.this.main).isAntPost();
 
 		// Display results
-		this.fenResults.clearTabs();
-		this.fenResults.setMainTab(new CountsTab(this.fenResults, this.captures, geoAvg));
-		this.fenResults.addTab(new MeansTab(this.fenResults, this.captures, geoAvg));
-		this.fenResults.pack();
-		this.fenResults.setVisible(true);
+		FenResults fenResults = new FenResults(this);
+		fenResults.setMainTab(new CountsTab(fenResults, this.captures, geoAvg));
+		fenResults.addTab(new MeansTab(fenResults, this.captures, geoAvg));
+		fenResults.pack();
+		fenResults.setVisible(true);
 	}
 
 	@Override
