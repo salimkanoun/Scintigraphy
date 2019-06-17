@@ -25,23 +25,25 @@ public class ControllerWorkflowEsophagealTransit extends ControllerWorkflow {
 
 		this.workflows = new Workflow[1];
 		this.workflows[0] = new Workflow(this, ((EsophagealTransit) this.main).getImgPrjtAllAcqui());
+		
+		for (int indexInstruction = 0; indexInstruction < this.getModel()
+				.getImageSelection().length; indexInstruction++) {
+			
 
-		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4;
-
-		dri_1 = new DrawRoiInstruction("Esophageal", new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE));
-		dri_2 = new DrawRoiInstruction("Esophageal", new ImageState(Orientation.ANT, 2, true, ImageState.ID_NONE), dri_1);
-		dri_3 = new DrawRoiInstruction("Esophageal", new ImageState(Orientation.ANT, 3, true, ImageState.ID_NONE), dri_2);
-		dri_4 = new DrawRoiInstruction("Esophageal", new ImageState(Orientation.ANT, 4, true, ImageState.ID_NONE), dri_3);
-
-		this.workflows[0].addInstruction(dri_1);
-		this.workflows[0].addInstruction(dri_2);
-		this.workflows[0].addInstruction(dri_3);
-		this.workflows[0].addInstruction(dri_4);
+			
+			ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
+			state.specifieImage(this.getModel().getImageSelection()[indexInstruction]);
+			DrawRoiInstruction dri_1 = null;
+			DrawRoiInstruction dri_previous =  indexInstruction != 0 ? (DrawRoiInstruction) this.workflows[0].getInstructions().get(indexInstruction - 1) : null;
+			dri_1 = new DrawRoiInstruction("Esophageal", state, dri_previous);
+			this.workflows[0].addInstruction(dri_1);
+		}
 		this.workflows[0].addInstruction(new EndInstruction());
 	}
 
 	@Override
 	public void end() {
+		super.end();
 		model.calculateResults();
 		FenResultats_EsophagealTransit fen = new FenResultats_EsophagealTransit(
 				((Model_EsophagealTransit) model).getExamenMean(), ((Model_EsophagealTransit) model).getDicomRoi(),

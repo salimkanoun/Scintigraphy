@@ -33,23 +33,10 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 			String studyName) {
 		super(main, vue, new ModelScinStatic(selectedImages, studyName));
 
-		ImageState statePost = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, ImageState.ID_WORKFLOW);
-		setOverlay(statePost);
-
 		this.generateInstructions();
 		this.start();
 
-		vue.getImagePlus().getOverlay().clear();
-
-		if (!((ModelScinStatic) model).isSingleSlice()) {
-			Library_Gui.setOverlayTitle("Ant", vue.getImagePlus(), Color.YELLOW, 1);
-			Library_Gui.setOverlayTitle("Inverted Post", vue.getImagePlus(), Color.YELLOW, 2);
-		} else if (((ModelScinStatic) model).isAnt())
-			Library_Gui.setOverlayTitle("Ant", vue.getImagePlus(), Color.YELLOW, 1);
-		else
-			Library_Gui.setOverlayTitle("Post", vue.getImagePlus(), Color.YELLOW, 1);
-		
-		Library_Gui.setOverlayDG(vue.getImagePlus(), Color.yellow);
+		this.setOverlayTitleLaterisationAndRoi();
 
 		this.fenResult = new FenResults(this);
 		this.fenResult.setVisible(false);
@@ -141,14 +128,13 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 				return;
 		}
 
-		this.updateButtonLabel(this.indexRoi);
-
 		super.clickNext();
+		
+		this.updateButtonLabel(this.indexRoi);
+		
+		this.setOverlayTitleLaterisationAndRoi();
 
-		for (Roi roi : this.model.getRoiManager().getRoisAsArray()) {
-			roi.setPosition(0);
-			this.getVue().getImagePlus().getOverlay().add(roi);
-		}
+		
 
 		// TODO: still useful?
 		// Update view
@@ -159,6 +145,8 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 	@Override
 	public void clickPrevious() {
 		super.clickPrevious();
+		
+		this.setOverlayTitleLaterisationAndRoi();
 
 		this.updateButtonLabel(this.indexRoi);
 	}
@@ -216,5 +204,26 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		imp = mm.makeMontage2(imp, 1, nbCapture, 0.50, 1, nbCapture, 1, 10, false);
 		return imp;
 	}
+	
+	private void setOverlayTitleLaterisationAndRoi() {
+		vue.getImagePlus().getOverlay().clear();
+
+		if (!((ModelScinStatic) model).isSingleSlice()) {
+			Library_Gui.setOverlayTitle("Ant", vue.getImagePlus(), Color.YELLOW, 1);
+			Library_Gui.setOverlayTitle("Inverted Post", vue.getImagePlus(), Color.YELLOW, 2);
+		} else if (((ModelScinStatic) model).isAnt())
+			Library_Gui.setOverlayTitle("Ant", vue.getImagePlus(), Color.YELLOW, 1);
+		else
+			Library_Gui.setOverlayTitle("Post", vue.getImagePlus(), Color.YELLOW, 1);
+		
+		Library_Gui.setOverlayDG(vue.getImagePlus(), Color.yellow);
+		
+		for (int indexCurrentRoi = 0; indexCurrentRoi < this.indexRoi ; indexCurrentRoi++) {
+			Roi roi = this.getRoiManager().getRoi(indexCurrentRoi);
+			roi.setPosition(0);
+			this.getVue().getImagePlus().getOverlay().add(roi);
+		}
+	}
+	
 
 }

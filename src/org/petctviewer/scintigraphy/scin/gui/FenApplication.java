@@ -135,7 +135,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 		this.setDefaultSize();
 		this.addComponentListener(this);
-		this.setResizable(false);
+		this.setResizable(true);
 
 		URL res = this.getClass().getClassLoader().getResource("images/icons/frameIconBis.png");
 		if (res != null)

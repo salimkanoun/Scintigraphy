@@ -226,6 +226,7 @@ public class TabCondense extends TabResult implements ChangeListener {
 			timeFen.add(panel);
 			timeFen.pack();
 			timeFen.setVisible(true);
+			timeFen.setLocationRelativeTo(TabCondense.this.getParent());
 
 		});
 

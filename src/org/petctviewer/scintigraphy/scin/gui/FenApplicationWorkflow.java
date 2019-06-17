@@ -42,7 +42,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 		super(ims.getImagePlus(), studyName);
 		this.imageSelection = ims;
 
-		this.setResizable(false);
+		this.setResizable(true);
 
 		// Scrollbar
 		this.scroll = new Scrollbar(Scrollbar.HORIZONTAL);

@@ -31,12 +31,14 @@ public class FenApplication_ScinStatic extends FenApplicationWorkflow {
 		instru.add(this.getTextfield_instructions());
 		this.getPanel_Instructions_btns_droite().add(instru);
 
-		Panel btns_instru = new Panel(new GridLayout(1, 3));
+		Panel btns_instru = new Panel(new GridBagLayout());
 		btns_instru.add(this.btn_finish);
 		btns_instru.add(this.getBtn_precedent());
 		this.getBtn_suivant().setLabel(BTN_TEXT_NEW_ROI);
 		btns_instru.add(this.getBtn_suivant());
 		this.getPanel_Instructions_btns_droite().add(btns_instru);
+		this.btn_finish.setPreferredSize(this.getBtn_precedent().getSize());
+		this.getBtn_suivant().setPreferredSize(new Dimension(115, this.getBtn_precedent().getHeight()));
 
 		// Set default button (when pressing enter)
 		this.textfield_instructions.addKeyListener(new KeyAdapter() {
