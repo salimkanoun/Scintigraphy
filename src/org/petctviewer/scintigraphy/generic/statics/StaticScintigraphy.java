@@ -1,8 +1,6 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
-import ij.IJ;
 import ij.gui.Overlay;
-import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -44,7 +42,6 @@ public class StaticScintigraphy extends Scintigraphy {
 
 		((ModelScinStatic) this.getFenApplication().getController().getModel()).setIsSingleSlide(this.isSingleSlice);
 		((ModelScinStatic) this.getFenApplication().getController().getModel()).setIsAnt(this.isAnt);
-		IJ.setTool(Toolbar.POLYGON);
 	}
 
 	@Override

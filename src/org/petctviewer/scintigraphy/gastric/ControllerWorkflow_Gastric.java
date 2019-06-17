@@ -33,7 +33,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 
 	private final boolean DO_ONLY_GASTRIC;
-	private final FenResults fenResults;
 	// TODO: clean this, it's awful
 	public Date specifiedTimeIngestion;
 	private boolean isDynamicStarted;
@@ -53,9 +52,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 		this.generateInstructions();
 		this.start();
-
-		// Result window
-		this.fenResults = new FenResults(this);
 	}
 
 	private void computeOnlyGastric() {
@@ -238,7 +234,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	@Override
 	public void clickPrevious() {
 		super.clickPrevious();
-		this.fenResults.setVisible(false);
 	}
 
 	@Override
@@ -254,26 +249,26 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		this.computeModel();
 
 		// Display results
-		this.fenResults.clearTabs();
+		FenResults fenResults = new FenResults(this);
 
 		// TAB METHOD 2
 		//	private TabMainResult tabMain;
-		TabMethod2 tabOnlyGastric = new TabMethod2(this.fenResults, this.captures.get(0));
+		TabMethod2 tabOnlyGastric = new TabMethod2(fenResults, this.captures.get(0));
 		tabOnlyGastric.displayTimeIngestion(getModel().getFirstImage().getDateAcquisition());
 		// Set the best fit
 		tabOnlyGastric.selectBestFit();
-		this.fenResults.addTab(tabOnlyGastric);
+		fenResults.addTab(tabOnlyGastric);
 
 		// TAB METHOD 1
 		if (!DO_ONLY_GASTRIC) {
-			this.tabMain = new TabMethod1(this.fenResults, this.captures.get(1));
+			this.tabMain = new TabMethod1(fenResults, this.captures.get(1));
 			this.tabMain.displayTimeIngestion(getModel().getTimeIngestion());
 			// Select best fit
 			this.tabMain.selectBestFit();
-			this.fenResults.addTab(tabMain);
+			fenResults.addTab(tabMain);
 		}
 
-		this.fenResults.pack();
-		this.fenResults.setVisible(true);
+		fenResults.pack();
+		fenResults.setVisible(true);
 	}
 }

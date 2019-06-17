@@ -144,23 +144,6 @@ public abstract class Fit {
 			return coefs[1] * valueX + coefs[0];
 		}
 
-		/**
-		 * Representation of this fit, of the form:
-		 * <p>
-		 * <code>FIT_TYPE(COEF;COEF;...)</code>
-		 * </p>
-		 * where the capitalized words are replaced with their value.
-		 */
-		@Override
-		public String toString() {
-			StringBuilder s = new StringBuilder(super.toString() + "(");
-			for (int i = 0; i < this.coefs.length; i++) {
-				s.append(this.coefs[i]);
-				if (i < this.coefs.length - 1) s.append(";");
-			}
-			return s + ")";
-		}
-
 	}
 
 	/**
@@ -192,23 +175,6 @@ public abstract class Fit {
 		@Override
 		public double extrapolateY(double valueX) {
 			return coefs[0] * Math.exp(coefs[1] * valueX);
-		}
-
-		/**
-		 * Representation of this fit, of the form:
-		 * <p>
-		 * <code>FIT_TYPE(COEF;COEF;...)</code>
-		 * </p>
-		 * where the capitalized words are replaced with their value.
-		 */
-		@Override
-		public String toString() {
-			StringBuilder s = new StringBuilder(super.toString() + "(");
-			for (int i = 0; i < this.coefs.length; i++) {
-				s.append(this.coefs[i]);
-				if (i < this.coefs.length - 1) s.append(";");
-			}
-			return s + ")";
 		}
 
 	}

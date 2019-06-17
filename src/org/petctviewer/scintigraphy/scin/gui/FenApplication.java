@@ -136,6 +136,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.setDefaultSize();
 		this.addComponentListener(this);
 		this.setResizable(false);
+		this.pack();
 
 		URL res = this.getClass().getClassLoader().getResource("images/icons/frameIconBis.png");
 		if (res != null)
@@ -386,7 +387,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 		resizeCanvas();
 	}
-	
+
 	public MenuItem getLoadRoisMenuItem() {
 		return this.loadRois;
 	}

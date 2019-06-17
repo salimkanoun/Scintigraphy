@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.gastric.liquid;
+package org.petctviewer.scintigraphy.liquid;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
@@ -33,7 +33,7 @@ public class MainTab extends TabResult implements ChartMouseListener {
 	public MainTab(FenResults parent) {
 		super(parent, "Liquid Phase");
 
-		this.fit = Fit.createFit(Fit.FitType.LINEAR, getModel().createSeries().toArray(), Unit.COUNTS);
+		this.fit = Fit.createFit(Fit.FitType.LINEAR, getModel().getSeries().toArray(), Unit.COUNTS);
 
 		this.labelErrors = new JLabel();
 		this.labelErrors.setForeground(Color.RED);
@@ -75,7 +75,7 @@ public class MainTab extends TabResult implements ChartMouseListener {
 	}
 
 	private void createGraph() {
-		XYSeries series = getModel().createSeries();
+		XYSeries series = getModel().getSeries();
 		data = new XYSeriesCollection(series);
 
 		final String graphTitle = "Stomach retention - Liquid phase";

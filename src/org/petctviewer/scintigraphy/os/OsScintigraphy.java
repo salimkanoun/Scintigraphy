@@ -1,5 +1,23 @@
 package org.petctviewer.scintigraphy.os;
 
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -10,17 +28,6 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.ReversedChronologicalAcquisitionComparator;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * DISCLAIMER : Dans cette application, il a été fait comme choix d'initialiser le module par le biais du Contrôleur,
@@ -132,11 +139,9 @@ public class OsScintigraphy extends Scintigraphy {
 			frame.setResizable(true);
 			frame.setLocationRelativeTo(null);
 
-			try {
-				frame.setIconImage(ImageIO.read(new File("images/icons/frameIconBis.png")));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			URL res = this.getClass().getClassLoader().getResource("images/icons/frameIconBis.png");
+			if (res != null)
+				frame.setIconImage(Toolkit.getDefaultToolkit().getImage(res));
 		}
 	}
 

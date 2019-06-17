@@ -48,7 +48,7 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 		dri_2 = new DrawRoiInstruction("Left Liver", stateAnt);
 		dri_3 = new DrawRoiInstruction("Hilium", stateAnt);
 		dri_4 = new DrawRoiInstruction("CBD", stateAnt);
-		dri_5 = new DrawRoiInstruction("Duodenom", stateAnt);
+		dri_5 = new DrawRoiInstruction("Duodenum", stateAnt);
 		dri_6 = new DrawRoiInstruction("Blood pool", stateAnt);
 		dri_capture = new ScreenShotInstruction(captures, this.getVue(), 0);
 

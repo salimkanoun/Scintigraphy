@@ -18,12 +18,11 @@ public class FenResultsColonicTransit extends FenResults {
 		super(controller);
 		// TODO Auto-generated constructor stub
 
-		System.out.println("this.getController().getModel().getImageSelection().length : "+this.getController().getModel().getImageSelection().length);
-		this.setMainTab(new TabMain(this, ""+times[0], controller, 0, captures.get(0)));
+		this.setMainTab(new TabMain(this, ""+times[0]+"h", controller, 0, captures.get(0)));
 		if (this.getController().getModel().getImageSelection().length > 2)
-			this.addTab(new TabMain(this, ""+times[1], controller, 1, captures.get(1)));
+			this.addTab(new TabMain(this, ""+times[1]+"h", controller, 1, captures.get(1)));
 		if (this.getController().getModel().getImageSelection().length > 3)
-			this.addTab(new TabMain(this, ""+times[2], controller, 2, captures.get(2)));
+			this.addTab(new TabMain(this, ""+times[2]+"h", controller, 2, captures.get(2)));
 
 	}
 

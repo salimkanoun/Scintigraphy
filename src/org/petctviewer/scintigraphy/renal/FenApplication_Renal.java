@@ -1,9 +1,7 @@
 package org.petctviewer.scintigraphy.renal;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Overlay;
-import ij.gui.Toolbar;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -144,7 +142,6 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 			this.getPanel_bttns_droit().removeAll();
 			this.getPanel_bttns_droit().add(this.createPanelInstructionsBtns());
 			this.getBtn_drawROI().setEnabled(true);
-			IJ.setTool(Toolbar.POLYGON);
 			this.setImage(impProj);
 			this.updateSliceSelector();
 			resizeCanvas();

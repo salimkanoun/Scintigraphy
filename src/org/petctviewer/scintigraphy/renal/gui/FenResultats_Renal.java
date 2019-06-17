@@ -47,6 +47,13 @@ public class FenResultats_Renal extends FenResults {
 		int width = 1000;
 		this.setPreferredSize(new Dimension(width, height));
 		this.setLocationRelativeTo(vue.getFenApplication());
+
+		// TODO: remove, it's awful
+		//myFrame is object of Window or JFrame
+		java.awt.EventQueue.invokeLater(() -> {
+			FenResultats_Renal.this.toFront();
+			FenResultats_Renal.this.repaint();
+		});
 	}
 
 	// renomme la serie

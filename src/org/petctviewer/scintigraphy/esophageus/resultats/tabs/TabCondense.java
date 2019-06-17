@@ -35,7 +35,7 @@ public class TabCondense extends TabResult implements ChangeListener {
 	private final Integer nbAcquisition;
 
 	public TabCondense(int nbAcquisition, FenResults parent, Model_Resultats_EsophagealTransit model) {
-		super(parent, "Condensed Dynamic images");
+		super(parent, "Condensed Dynamic images", true);
 		this.modeleApp = model;
 		this.nbAcquisition = nbAcquisition;
 
@@ -226,6 +226,7 @@ public class TabCondense extends TabResult implements ChangeListener {
 			timeFen.add(panel);
 			timeFen.pack();
 			timeFen.setVisible(true);
+			timeFen.setLocationRelativeTo(TabCondense.this.getParent());
 
 		});
 
