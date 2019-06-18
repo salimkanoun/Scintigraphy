@@ -108,7 +108,8 @@ public class SaveAndLoad {
 		if (path != null && testEcriture) {
 			// On construit le sous repertoire avecle studyName du programme et l'ID du
 			// Patient
-			String pathFinal = path + File.separator + programName + File.separator + infoPatient[1] + File.separator + infoPatient[2];
+			String pathFinal = path + File.separator + programName + File.separator + infoPatient[1] + File.separator
+					+ infoPatient[2];
 			String nomFichier = infoPatient[1] + "_" + infoPatient[2] + additionalInfo;
 			File subDirectory = new File(pathFinal);
 			if (subDirectory.isDirectory()) {
@@ -120,8 +121,6 @@ public class SaveAndLoad {
 				}
 			}
 			if (subDirectory.mkdirs()) {
-
-				
 
 				File f = new File(subDirectory + File.separator + nomFichier + ".csv");
 
@@ -142,9 +141,9 @@ public class SaveAndLoad {
 					tab[i] = i;
 				roiManager.setSelectedIndexes(tab);
 
-				for (int indexController = 0; indexController < controller.size(); indexController++)
-					this.saveRois(controller.get(indexController),
-							pathFinal + File.separator + nomFichier + "_" + indexController + ".zip");
+				for (ControllerWorkflow currentController : controller)
+					this.saveRois(currentController, pathFinal + File.separator + nomFichier + "_"
+							+ currentController.getClass().getSimpleName() + ".zip");
 
 				// On sauve l'image en jpeg
 				IJ.saveAs(imp, "Jpeg", pathFinal + File.separator + nomFichier + ".jpg");
@@ -305,7 +304,7 @@ public class SaveAndLoad {
 	}
 
 	/**
-	 * Add ""+i+"_" to the begining of names[i]
+	 * Add ""+i+"_" to the begining of names[i]. This method is used to get different name for every Roi.
 	 * 
 	 * @param names
 	 *            Array of name
