@@ -10,10 +10,13 @@ import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+import org.petctviewer.scintigraphy.shunpo.ControllerWorkflowShunpo.DisplayState;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.List;
+import java.util.*;
 
 public class ShunpoScintigraphy extends Scintigraphy {
 
@@ -38,6 +41,31 @@ public class ShunpoScintigraphy extends Scintigraphy {
 		this.getFenApplication().setDocumentation(doc);
 	}
 
+	private void inflateMenuBar(ItemListener listener) {
+		// Menu change labels
+		Menu menu = new Menu("Display");
+		RadioGroup group = new RadioGroup();
+
+		CheckboxMenuItem itemChangeLabelRL = new CheckboxMenuItem(DisplayState.RIGHT_LEFT.label);
+		group.addRadioItem(itemChangeLabelRL);
+		menu.add(itemChangeLabelRL);
+
+		CheckboxMenuItem itemChangeLabelLR = new CheckboxMenuItem(DisplayState.LEFT_RIGHT.label);
+		group.addRadioItem(itemChangeLabelLR);
+		menu.add(itemChangeLabelLR);
+
+		CheckboxMenuItem itemChangeLabelAP = new CheckboxMenuItem(DisplayState.ANT_POST.label, true); // default
+		group.addRadioItem(itemChangeLabelAP);
+		menu.add(itemChangeLabelAP);
+
+		// Add listeners
+		itemChangeLabelRL.addItemListener(listener);
+		itemChangeLabelLR.addItemListener(listener);
+		itemChangeLabelAP.addItemListener(listener);
+
+		this.getFenApplication().getMenuBar().add(menu);
+	}
+
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
 		// Start program
@@ -47,6 +75,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 											 preparedImages.toArray(new ImageSelection[0])));
 
 		this.createDocumentation();
+		this.inflateMenuBar((ControllerWorkflowShunpo) this.getFenApplication().getController());
 
 		this.getFenApplication().setVisible(true);
 	}
@@ -95,5 +124,29 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	@Override
 	public String instructions() {
 		return "2 images in Ant-Post or Post-Ant orientation";
+	}
+
+	private class RadioGroup implements ItemListener {
+
+		private Set<CheckboxMenuItem> items;
+
+		public RadioGroup() {
+			this.items = new HashSet<>();
+		}
+
+		public void addRadioItem(CheckboxMenuItem item) {
+			this.items.add(item);
+			item.addItemListener(this);
+		}
+
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				// Uncheck all
+				this.items.forEach(i -> i.setState(false));
+			}
+			// Activate only source
+			((CheckboxMenuItem) e.getSource()).setState(true);
+		}
 	}
 }

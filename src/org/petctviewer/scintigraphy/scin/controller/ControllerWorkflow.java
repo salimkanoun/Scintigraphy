@@ -278,7 +278,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 *
 	 * @param imageState State the ImagePlus must complies
 	 */
-	private void prepareImage(ImageState imageState) {
+	protected void prepareImage(ImageState imageState) {
 		this.prepareImage(imageState, this.indexCurrentWorkflow);
 	}
 

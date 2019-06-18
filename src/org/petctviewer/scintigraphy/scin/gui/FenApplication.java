@@ -33,6 +33,7 @@ import java.util.List;
 @SuppressWarnings("deprecation")
 public class FenApplication extends StackWindow implements ComponentListener, MouseWheelListener {
 	public static final String BTN_TXT_NEXT = "Next";
+	public static final int MENU_OPTION = 0, MENU_HELP = 1;
 	private static final long serialVersionUID = -6280620624574294247L;
 	protected final JTextField textfield_instructions;
 	protected final Button btn_suivant;
@@ -60,10 +61,8 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
 	 *
-	 * @param imp
-	 *            ImagePlus a traiter
-	 * @param studyName
-	 *            Nom du type de scintigraphie
+	 * @param imp       ImagePlus a traiter
+	 * @param studyName Nom du type de scintigraphie
 	 */
 	public FenApplication(ImagePlus imp, String studyName) {
 		this(imp, studyName, new ImageCanvas(imp));
@@ -126,8 +125,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.pack();
 
 		URL res = this.getClass().getClassLoader().getResource("images/icons/frameIconBis.png");
-		if (res != null)
-			this.setIconImage(Toolkit.getDefaultToolkit().getImage(res));
+		if (res != null) this.setIconImage(Toolkit.getDefaultToolkit().getImage(res));
 	}
 
 	private void createMenuBar() {
@@ -139,17 +137,17 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 			try {
 				SaveAndLoad saveAndLoad = new SaveAndLoad();
 				saveAndLoad.importRoiList(FenApplication.this, FenApplication.this.controleur.getModel(),
-						(ControllerWorkflow) FenApplication.this.controleur);
+										  (ControllerWorkflow) FenApplication.this.controleur);
 
 				((ControllerWorkflow) this.controleur).start();
 
-				FenApplication.this.getImagePlus()
-						.setRoi(FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
+				FenApplication.this.getImagePlus().setRoi(
+						FenApplication.this.controleur.getModel().getRoiManager().getRoi(0));
 
 				FenApplication.this.getImagePlus().getRoi().setStrokeColor(Color.RED);
 			} catch (UnauthorizedRoiLoadException e1) {
 				JOptionPane.showMessageDialog(FenApplication.this, "Error while loading ROIs:\n" + e1.getMessage(),
-						"Selection error", JOptionPane.ERROR_MESSAGE);
+											  "Selection error", JOptionPane.ERROR_MESSAGE);
 			} catch (UnloadRoiException e1) {
 				IJ.log("ROIs not loaded");
 			}
@@ -160,8 +158,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		Menu help = new Menu("Help");
 		MenuItem doc = new MenuItem("Documentation");
 		doc.addActionListener((event) -> {
-			if (documentation != null)
-				documentation.setVisible(true);
+			if (documentation != null) documentation.setVisible(true);
 		});
 		help.add(doc);
 
@@ -305,30 +302,25 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	}
 
 	/**
-	 * Sets the documentation dialog for this application. When a preference tab is
-	 * set, it will be accessible in the menu bar.<br>
-	 * If null is passed, it will remove the previous documentation set (if any).
+	 * Sets the documentation dialog for this application. When a preference tab is set, it will be accessible in the
+	 * menu bar.<br> If null is passed, it will remove the previous documentation set (if any).
 	 *
-	 * @param documentation
-	 *            Documentation dialog associated with this application
+	 * @param documentation Documentation dialog associated with this application
 	 */
 	public void setDocumentation(DocumentationDialog documentation) {
 		this.documentation = documentation;
 	}
 
 	/**
-	 * Sets the preference tab for this application. When a preference tab is set,
-	 * it will be accessible in the menu bar.<br>
-	 * If null is passed, it will remove the previous preference set (if any).
+	 * Sets the preference tab for this application. When a preference tab is set, it will be accessible in the menu
+	 * bar.<br> If null is passed, it will remove the previous preference set (if any).
 	 *
-	 * @param preferences
-	 *            Preference tab associated with this application
+	 * @param preferences Preference tab associated with this application
 	 */
 	public void setPreferences(PrefTab preferences) {
 		if (preferences == null) {
 			// Remove menu item
-			if (this.menuItem_preferences != null)
-				this.options.remove(this.menuItem_preferences);
+			if (this.menuItem_preferences != null) this.options.remove(this.menuItem_preferences);
 			this.preferences = null;
 		} else {
 			// Create preferences
@@ -346,6 +338,10 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		}
 	}
 
+	public MenuItem getLoadRoisMenuItem() {
+		return this.loadRois;
+	}
+
 	protected Panel getPanel_bttns_droit() {
 		return panel_btns_droite;
 	}
@@ -355,8 +351,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	}
 
 	/**
-	 * redimension de la canvas selon la largeur voulue et aux dimensions de
-	 * l'imageplus affichee
+	 * redimension de la canvas selon la largeur voulue et aux dimensions de l'imageplus affichee
 	 */
 	protected void setPreferredCanvasSize(int width) {
 		int w = this.getImagePlus().getWidth();
@@ -373,9 +368,5 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		}
 
 		resizeCanvas();
-	}
-	
-	public MenuItem getLoadRoisMenuItem() {
-		return this.loadRois;
 	}
 }
