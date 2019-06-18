@@ -74,6 +74,9 @@ public class ResultValue {
 	 * @return value of this result formatted as time: <code>HH:mm:ss</code>
 	 */
 	public static String displayAsTime(double value) {
+		// Do not display negative value
+		if (value < 0) return "00:00:00";
+
 		int seconds = (int) ((value - (double) ((int) value)) * 60.);
 		int minutes = (int) (value % 60.);
 		int hours = (int) (value / 60.);
