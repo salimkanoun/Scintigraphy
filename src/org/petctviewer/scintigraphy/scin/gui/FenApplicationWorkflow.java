@@ -1,17 +1,9 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Event;
-import java.awt.MouseInfo;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Scrollbar;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-
+import ij.IJ;
+import ij.ImagePlus;
+import ij.Prefs;
+import ij.gui.ScrollbarWithLabel;
 import org.petctviewer.scintigraphy.gastric.gui.InstructionTooltip;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
@@ -19,10 +11,11 @@ import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.Prefs;
-import ij.gui.ScrollbarWithLabel;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
 
 /**
  * This class is the main window of the program and handles all of the inputs
@@ -74,10 +67,9 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 	private void addControllerListeners() {
 		if (this.getController() != null) {
-			ControllerWorkflow controller = (ControllerWorkflow) this.getController();
+			ControllerWorkflow controller = this.getController();
 			this.scroll.addAdjustmentListener(controller);
-			if (this.isVisualizationEnabled())
-				this.addMouseWheelListener(controller);
+			if (this.isVisualizationEnabled()) this.addMouseWheelListener(controller);
 		}
 	}
 
@@ -102,8 +94,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 			// Remove slider of fiji
 			// TODO: change this code when the new version of fiji will allow access to the
 			// slider
-			if (this.getComponents()[1] instanceof ScrollbarWithLabel)
-				this.getComponents()[1].setVisible(false);
+			if (this.getComponents()[1] instanceof ScrollbarWithLabel) this.getComponents()[1].setVisible(false);
 
 		} else {
 			// Destroy tooltip
@@ -123,8 +114,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 			// Replace slider of fiji
 			// TODO: change this code when the new version of fiji will allow access to the
 			// slider
-			if (this.getComponents()[1] instanceof ScrollbarWithLabel)
-				this.getComponents()[1].setVisible(true);
+			if (this.getComponents()[1] instanceof ScrollbarWithLabel) this.getComponents()[1].setVisible(true);
 		}
 	}
 
@@ -280,10 +270,8 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 				Point loc = ic.getCursorLoc();
 				int x = ic.screenX(loc.x);
 				int y = ic.screenY(loc.y);
-				if (rotation < 0)
-					ic.zoomIn(x, y);
-				else
-					ic.zoomOut(x, y);
+				if (rotation < 0) ic.zoomIn(x, y);
+				else ic.zoomOut(x, y);
 			}
 		} else {
 			super.mouseWheelMoved(e);

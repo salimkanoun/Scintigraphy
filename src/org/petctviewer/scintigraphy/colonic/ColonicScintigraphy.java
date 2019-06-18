@@ -1,8 +1,5 @@
 package org.petctviewer.scintigraphy.colonic;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -13,6 +10,9 @@ import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ColonicScintigraphy extends Scintigraphy {
 

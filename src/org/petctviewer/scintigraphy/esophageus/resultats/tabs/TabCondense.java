@@ -1,31 +1,15 @@
 package org.petctviewer.scintigraphy.esophageus.resultats.tabs;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JSpinner;
-import javax.swing.JTable;
-import javax.swing.SwingConstants;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
+import ij.process.ImageStatistics;
 import org.petctviewer.scintigraphy.esophageus.resultats.Model_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
-import ij.process.ImageStatistics;
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 
 public class TabCondense extends TabResult implements ChangeListener {
 
@@ -228,16 +212,17 @@ public class TabCondense extends TabResult implements ChangeListener {
 				times[i][3] = totalTime / 1000;
 			}
 
-			String[] head = { "Images", "Times", "Total time (miliseconds)", "Total time (seconds)" };
+			String[] head = {"Images", "Times", "Total time (miliseconds)", "Total time (seconds)"};
 
 			JTable table = new JTable(times, head);
 
 			JScrollPane scrollableTable = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-					JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+														  JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 			table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 			panel.add(table.getTableHeader(), BorderLayout.NORTH);
 			panel.add(scrollableTable, BorderLayout.CENTER);
-			scrollableTable.setPreferredSize(new Dimension((int)table.getPreferredSize().getWidth(), (int)table.getPreferredSize().getHeight()/3));
+			scrollableTable.setPreferredSize(new Dimension((int) table.getPreferredSize().getWidth(),
+														   (int) table.getPreferredSize().getHeight() / 3));
 			timeFen.add(panel);
 			timeFen.pack();
 			timeFen.setVisible(true);

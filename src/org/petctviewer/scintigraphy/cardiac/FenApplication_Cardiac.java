@@ -1,21 +1,16 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Panel;
-import java.awt.font.FontRenderContext;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-
+import ij.gui.Overlay;
+import ij.gui.TextRoi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.gui.Overlay;
-import ij.gui.TextRoi;
+import java.awt.*;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 
 public class FenApplication_Cardiac extends FenApplicationWorkflow {
 
@@ -70,8 +65,8 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 		super.setController(ctrl);
 		this.btn_continue.addActionListener(ctrl);
 		this.btn_newCont.addActionListener(ctrl);
-		if(((ControllerWorkflowCardiac)this.getController()).getFullBodyImagesCount() > 0)
-			this.setText_instructions("Delimit a new contamination");
+		if (((ControllerWorkflowCardiac) this.getController()).getFullBodyImagesCount() > 0) this.setText_instructions(
+				"Delimit a new contamination");
 	}
 
 	public Button getBtn_newCont() {
