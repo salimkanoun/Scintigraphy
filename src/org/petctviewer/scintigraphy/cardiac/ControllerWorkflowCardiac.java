@@ -1,11 +1,6 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -24,7 +19,10 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
@@ -116,7 +114,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 	private void clicNewCont() {
 
-		if (this.getVue().getImagePlus().getRoi() != null && !this.finContSlice2) {
+		if (this.getVue().getImagePlus().getRoi() != null && !this.finContSlice2 && this.fullBodyImages > 0) {
 			if (((DrawSymmetricalLoopInstruction) this.workflows[indexCurrentWorkflow].getCurrentInstruction())
 					.getIndex() % 2 != 0) {
 				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.main.getFenApplication();
@@ -340,10 +338,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		this.finContSlice2 = true;
 	}
 
-	@Override
-	public void start() {
-		super.start();
-		
+	public int getFullBodyImagesCount() {
+		return this.fullBodyImages;
 	}
-
 }

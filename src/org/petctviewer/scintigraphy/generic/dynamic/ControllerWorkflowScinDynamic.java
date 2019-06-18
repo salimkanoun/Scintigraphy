@@ -2,6 +2,7 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
 import ij.gui.Roi;
+import org.petctviewer.scintigraphy.generic.statics.FenApplication_ScinStatic;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -115,6 +116,45 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		this.fenResult.setVisible(true);
 	}
 
+	private void setOverlayTitleLaterisationAndRoi() {
+		vue.getImagePlus().getOverlay().clear();
+
+		if (((Model_GeneralDyn) model).getImpAnt() != null && ((Model_GeneralDyn) model).getImpPost() != null) {
+			Library_Gui.setOverlayTitle("Ant", vue.getImagePlus(), Color.YELLOW, 1);
+			Library_Gui.setOverlayTitle("Inverted Post", vue.getImagePlus(), Color.YELLOW, 2);
+		} else if (((Model_GeneralDyn) model).getImpAnt() != null) Library_Gui.setOverlayTitle("Ant",
+																							   vue.getImagePlus(),
+																							   Color.YELLOW, 1);
+		else Library_Gui.setOverlayTitle("Post", vue.getImagePlus(), Color.YELLOW, 1);
+
+		Library_Gui.setOverlayDG(vue.getImagePlus(), Color.yellow);
+
+		for (int indexCurrentRoi = 0; indexCurrentRoi < this.indexRoi; indexCurrentRoi++) {
+			Roi roi = this.getRoiManager().getRoi(indexCurrentRoi);
+			roi.setPosition(0);
+			this.getVue().getImagePlus().getOverlay().add(roi);
+		}
+	}
+
+	private void updateButtonLabel(int indexRoi) {
+		// Check ROI is present
+		Roi roi = getRoiManager().getRoi(indexRoi);
+		if (roi != null) {
+			getVue().getBtn_suivant().setLabel(FenApplication_ScinStatic.BTN_TEXT_NEXT);
+		} else {
+			getVue().getBtn_suivant().setLabel(FenApplication_ScinStatic.BTN_TEXT_NEW_ROI);
+		}
+	}
+
+	@Override
+	public void clickPrevious() {
+		super.clickPrevious();
+
+		this.setOverlayTitleLaterisationAndRoi();
+
+		this.updateButtonLabel(this.indexRoi);
+	}
+	
 	@Override
 	public void clickNext() {
 		boolean sameName = false;
@@ -138,12 +178,10 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		}
 
 		super.clickNext();
-		
-		for (Roi roi : this.model.getRoiManager().getRoisAsArray()) {
-			roi.setPosition(0);
-			this.getVue().getImagePlus().getOverlay().add(roi);
-		}
 
+		this.setOverlayTitleLaterisationAndRoi();
+
+		this.updateButtonLabel(this.indexRoi);
 		// TODO: still useful?
 		// Update view
 		int indexScroll = this.getVue().getInstructionDisplayed();

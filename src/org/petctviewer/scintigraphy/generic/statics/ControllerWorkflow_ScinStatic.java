@@ -1,10 +1,10 @@
 
 package org.petctviewer.scintigraphy.generic.statics;
 
-import java.awt.Color;
-
-import javax.swing.JOptionPane;
-
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.gui.Roi;
+import ij.plugin.MontageMaker;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -20,10 +20,8 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.gui.Roi;
-import ij.plugin.MontageMaker;
+import javax.swing.*;
+import java.awt.*;
 
 public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
@@ -33,23 +31,10 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 			String studyName) {
 		super(main, vue, new ModelScinStatic(selectedImages, studyName));
 
-		ImageState statePost = new ImageState(Orientation.POST, 2, ImageState.LAT_RL, ImageState.ID_WORKFLOW);
-		setOverlay(statePost);
-
 		this.generateInstructions();
 		this.start();
 
-		vue.getImagePlus().getOverlay().clear();
-
-		if (!((ModelScinStatic) model).isSingleSlice()) {
-			Library_Gui.setOverlayTitle("Ant", vue.getImagePlus(), Color.YELLOW, 1);
-			Library_Gui.setOverlayTitle("Inverted Post", vue.getImagePlus(), Color.YELLOW, 2);
-		} else if (((ModelScinStatic) model).isAnt())
-			Library_Gui.setOverlayTitle("Ant", vue.getImagePlus(), Color.YELLOW, 1);
-		else
-			Library_Gui.setOverlayTitle("Post", vue.getImagePlus(), Color.YELLOW, 1);
-		
-		Library_Gui.setOverlayDG(vue.getImagePlus(), Color.yellow);
+		this.setOverlayTitleLaterisationAndRoi();
 
 		this.fenResult = new FenResults(this);
 		this.fenResult.setVisible(false);
@@ -123,42 +108,30 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 	}
 
-	@Override
-	public void clickNext() {
-		boolean sameName = false;
-		for (Instruction instruction : this.workflows[this.indexCurrentWorkflow].getInstructions())
-			if (instruction instanceof DrawLoopInstruction)
-				if (instruction != this.workflows[this.indexCurrentWorkflow].getCurrentInstruction())
-					if (this.workflows[this.indexCurrentWorkflow].getController().getVue().getTextfield_instructions()
-							.getText().equals(((DrawLoopInstruction) instruction).getInstructionRoiName()))
-						sameName = true;
-		if (sameName && getVue().getImage().getImagePlus().getRoi() != null) {
-			int result;
-			result = JOptionPane.showConfirmDialog(getVue(), "A Roi already have this name. Do you want to continue ?",
-					"Duplicate Roi Name", JOptionPane.YES_NO_OPTION);
+	private void setOverlayTitleLaterisationAndRoi() {
+		vue.getImagePlus().getOverlay().clear();
 
-			if (result != JOptionPane.OK_OPTION)
-				return;
-		}
+		if (!((ModelScinStatic) model).isSingleSlice()) {
+			Library_Gui.setOverlayTitle("Ant", vue.getImagePlus(), Color.YELLOW, 1);
+			Library_Gui.setOverlayTitle("Inverted Post", vue.getImagePlus(), Color.YELLOW, 2);
+		} else if (((ModelScinStatic) model).isAnt()) Library_Gui.setOverlayTitle("Ant", vue.getImagePlus(),
+																				  Color.YELLOW, 1);
+		else Library_Gui.setOverlayTitle("Post", vue.getImagePlus(), Color.YELLOW, 1);
 
-		this.updateButtonLabel(this.indexRoi);
+		Library_Gui.setOverlayDG(vue.getImagePlus(), Color.yellow);
 
-		super.clickNext();
-
-		for (Roi roi : this.model.getRoiManager().getRoisAsArray()) {
+		for (int indexCurrentRoi = 0; indexCurrentRoi < this.indexRoi; indexCurrentRoi++) {
+			Roi roi = this.getRoiManager().getRoi(indexCurrentRoi);
 			roi.setPosition(0);
 			this.getVue().getImagePlus().getOverlay().add(roi);
 		}
-
-		// TODO: still useful?
-		// Update view
-		 int indexScroll = this.getVue().getInstructionDisplayed();
-		 getVue().currentInstruction(indexScroll);
 	}
 
 	@Override
 	public void clickPrevious() {
 		super.clickPrevious();
+
+		this.setOverlayTitleLaterisationAndRoi();
 
 		this.updateButtonLabel(this.indexRoi);
 	}
@@ -216,5 +189,35 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		imp = mm.makeMontage2(imp, 1, nbCapture, 0.50, 1, nbCapture, 1, 10, false);
 		return imp;
 	}
+
+	@Override
+	public void clickNext() {
+		boolean sameName = false;
+		for (Instruction instruction : this.workflows[this.indexCurrentWorkflow].getInstructions())
+			if (instruction instanceof DrawLoopInstruction)
+				if (instruction != this.workflows[this.indexCurrentWorkflow].getCurrentInstruction())
+					if (this.workflows[this.indexCurrentWorkflow].getController().getVue().getTextfield_instructions().getText().equals(
+							((DrawLoopInstruction) instruction).getInstructionRoiName())) sameName = true;
+		if (sameName && getVue().getImage().getImagePlus().getRoi() != null) {
+			int result;
+			result = JOptionPane.showConfirmDialog(getVue(), "A Roi already have this name. Do you want to continue ?",
+												   "Duplicate Roi Name", JOptionPane.YES_NO_OPTION);
+
+			if (result != JOptionPane.OK_OPTION) return;
+		}
+
+		super.clickNext();
+
+		this.updateButtonLabel(this.indexRoi);
+
+		this.setOverlayTitleLaterisationAndRoi();
+
+
+		// TODO: still useful?
+		// Update view
+		int indexScroll = this.getVue().getInstructionDisplayed();
+		getVue().currentInstruction(indexScroll);
+	}
+	
 
 }

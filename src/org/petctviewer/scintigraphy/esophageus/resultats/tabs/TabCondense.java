@@ -39,7 +39,7 @@ public class TabCondense extends TabResult implements ChangeListener {
 		this.modeleApp = model;
 		this.nbAcquisition = nbAcquisition;
 
-//		this.createCaptureButton("Condense");
+		// this.createCaptureButton("Condense");
 		this.setAdditionalInfo("Condense");
 
 		this.reloadDisplay();
@@ -166,8 +166,7 @@ public class TabCondense extends TabResult implements ChangeListener {
 				// creation du contraste
 				modele.getImagePlusAndRoi(numAcquisitionCondense).getProcessor().setMinAndMax(0,
 						(max - ((JSlider) e.getSource()).getValue()) + 1);
-				imageProjeterEtRoiPanel
-						.setImage(modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
+				imageProjeterEtRoiPanel.setImage(modele.getImagePlusAndRoi(numAcquisitionCondense).getBufferedImage());
 
 				modele.getCondense(numAcquisitionCondense).getProcessor().setMinAndMax(0,
 						(max - ((JSlider) e.getSource()).getValue()) + 1);
@@ -196,36 +195,38 @@ public class TabCondense extends TabResult implements ChangeListener {
 			int[] temps = modele.getTime(numAcquisitionCondense);
 			JFrame timeFen = new JFrame();
 			JPanel panel = new JPanel(new BorderLayout());
-//				timeFen.setLayout(new GridLayout(temps.length, 2));
-//				for (int i = 0; i < temps.length; i++) {
-//					timeFen.add(new JLabel("Image :" + i));
-//					timeFen.add(new JLabel("Time :" + temps[i] + ""));
-//				}
+			// timeFen.setLayout(new GridLayout(temps.length, 2));
+			// for (int i = 0; i < temps.length; i++) {
+			// timeFen.add(new JLabel("Image :" + i));
+			// timeFen.add(new JLabel("Time :" + temps[i] + ""));
+			// }
 
 			Object[][] times = new Object[temps.length][4];
 
 			int totalTime = 0;
 			for (int i = 0; i < temps.length; i++) {
-				totalTime +=temps[i];
+				totalTime += temps[i];
 				times[i][0] = i;
 				times[i][1] = temps[i];
 				times[i][2] = totalTime;
-				times[i][3] = totalTime/1000;
+				times[i][3] = totalTime / 1000;
 			}
-
 
 			String[] head = {"Images", "Times", "Total time (miliseconds)", "Total time (seconds)"};
 
 			JTable table = new JTable(times, head);
 
-			JScrollPane scollableTable = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
+			JScrollPane scrollableTable = new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+														  JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 			panel.add(table.getTableHeader(), BorderLayout.NORTH);
-			panel.add(scollableTable, BorderLayout.CENTER);
+			panel.add(scrollableTable, BorderLayout.CENTER);
+			scrollableTable.setPreferredSize(new Dimension((int) table.getPreferredSize().getWidth(),
+														   (int) table.getPreferredSize().getHeight() / 3));
 			timeFen.add(panel);
 			timeFen.pack();
 			timeFen.setVisible(true);
+			timeFen.setLocationRelativeTo(TabCondense.this.getParent());
 
 		});
 

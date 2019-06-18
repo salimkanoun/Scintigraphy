@@ -1,19 +1,18 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
-import java.awt.Button;
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.Panel;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
 public class FenApplication_GeneralDyn extends FenApplicationWorkflow {
+
+	public static final String BTN_TEXT_NEW_ROI = "Validate/New Roi", BTN_TEXT_NEXT = "Next";
 
 	private static final long serialVersionUID = 2588688323462231144L;
 
@@ -33,12 +32,15 @@ public class FenApplication_GeneralDyn extends FenApplicationWorkflow {
 		instru.add(this.getTextfield_instructions());
 		this.getPanel_Instructions_btns_droite().add(instru);
 
-		Panel btns_instru = new Panel(new GridLayout(1, 3));
+		Panel btns_instru = new Panel(new GridBagLayout());
 		btns_instru.add(this.btn_finish);
 		btns_instru.add(this.getBtn_precedent());
-		this.getBtn_suivant().setLabel("Create a new Roi");
+		this.getBtn_suivant().setLabel(BTN_TEXT_NEW_ROI);
 		btns_instru.add(this.getBtn_suivant());
 		this.getPanel_Instructions_btns_droite().add(btns_instru);
+
+		this.btn_finish.setPreferredSize(this.getBtn_precedent().getSize());
+		this.getBtn_suivant().setPreferredSize(new Dimension(115, this.getBtn_precedent().getHeight()));
 
 		this.setDefaultSize();
 

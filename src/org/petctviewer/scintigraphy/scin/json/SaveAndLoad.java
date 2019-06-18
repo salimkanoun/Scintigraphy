@@ -108,7 +108,9 @@ public class SaveAndLoad {
 		if (path != null && testEcriture) {
 			// On construit le sous repertoire avecle studyName du programme et l'ID du
 			// Patient
-			String pathFinal = path + File.separator + programName + File.separator + infoPatient[1];
+			String pathFinal = path + File.separator + programName + File.separator + infoPatient[1] + File.separator +
+					infoPatient[2];
+			String nomFichier = infoPatient[1] + "_" + infoPatient[2] + additionalInfo;
 			File subDirectory = new File(pathFinal);
 			if (subDirectory.isDirectory()) {
 				try {
@@ -120,7 +122,6 @@ public class SaveAndLoad {
 			}
 			if (subDirectory.mkdirs()) {
 
-				String nomFichier = infoPatient[1] + "_" + infoPatient[2] + additionalInfo;
 
 				File f = new File(subDirectory + File.separator + nomFichier + ".csv");
 

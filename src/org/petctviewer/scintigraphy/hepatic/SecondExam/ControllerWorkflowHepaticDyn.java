@@ -1,8 +1,6 @@
 package org.petctviewer.scintigraphy.hepatic.SecondExam;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.hepatic.ModelHepaticDynamic;
 import org.petctviewer.scintigraphy.hepatic.tab.TabCurves;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -16,7 +14,8 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 
@@ -48,7 +47,7 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 		dri_2 = new DrawRoiInstruction("Left Liver", stateAnt);
 		dri_3 = new DrawRoiInstruction("Hilium", stateAnt);
 		dri_4 = new DrawRoiInstruction("CBD", stateAnt);
-		dri_5 = new DrawRoiInstruction("Duodenom", stateAnt);
+		dri_5 = new DrawRoiInstruction("Duodenum", stateAnt);
 		dri_6 = new DrawRoiInstruction("Blood pool", stateAnt);
 		dri_capture = new ScreenShotInstruction(captures, this.getVue(), 0);
 

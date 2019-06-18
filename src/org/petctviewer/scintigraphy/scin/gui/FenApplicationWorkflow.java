@@ -18,10 +18,13 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 
 /**
- * This class is the main window of the program and handles all of the inputs from the user. It extends the
- * FenApplication.<br> This class adds a scrollbar under the image to navigate through all of the visible instructions
- * of the workflow.<br> If you do not want to use this functionality but still need to use a workflow, then you can
- * disable it by calling {@link #setVisualizationEnable(boolean)} and setting it to FALSE.
+ * This class is the main window of the program and handles all of the inputs
+ * from the user. It extends the FenApplication.<br>
+ * This class adds a scrollbar under the image to navigate through all of the
+ * visible instructions of the workflow.<br>
+ * If you do not want to use this functionality but still need to use a
+ * workflow, then you can disable it by calling
+ * {@link #setVisualizationEnable(boolean)} and setting it to FALSE.
  *
  * @author Titouan QUÉMA
  */
@@ -33,11 +36,13 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	private ImageSelection imageSelection;
 
 	/**
-	 * Instantiates a new application window. This constructor enables by default the scrollbar visualization of the
-	 * workflow.
+	 * Instantiates a new application window. This constructor enables by default
+	 * the scrollbar visualization of the workflow.
 	 *
-	 * @param ims       Image displayed in this application
-	 * @param studyName Name of the study
+	 * @param ims
+	 *            Image displayed in this application
+	 * @param studyName
+	 *            Name of the study
 	 */
 	public FenApplicationWorkflow(ImageSelection ims, String studyName) {
 		super(ims.getImagePlus(), studyName);
@@ -51,7 +56,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 		// Enable visualization by default
 		this.setVisualizationEnable(true);
-		
+
 		this.getLoadRoisMenuItem().setEnabled(true);
 
 		// Prepare overlay
@@ -71,8 +76,9 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	/**
 	 * Enables or disables the visualization functionality.
 	 *
-	 * @param state if TRUE the scrollbar for the visualization is displayed and if set to FALSE, then the scrollbar
-	 *              displayed is the one of IJ
+	 * @param state
+	 *            if TRUE the scrollbar for the visualization is displayed and if
+	 *            set to FALSE, then the scrollbar displayed is the one of IJ
 	 */
 	public void setVisualizationEnable(boolean state) {
 		if (state) {
@@ -86,7 +92,8 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 			this.scroll.addMouseListener(this);
 
 			// Remove slider of fiji
-			// TODO: change this code when the new version of fiji will allow access to the slider
+			// TODO: change this code when the new version of fiji will allow access to the
+			// slider
 			if (this.getComponents()[1] instanceof ScrollbarWithLabel) this.getComponents()[1].setVisible(false);
 
 		} else {
@@ -105,13 +112,15 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 			this.scroll.removeMouseMotionListener(this);
 
 			// Replace slider of fiji
-			// TODO: change this code when the new version of fiji will allow access to the slider
+			// TODO: change this code when the new version of fiji will allow access to the
+			// slider
 			if (this.getComponents()[1] instanceof ScrollbarWithLabel) this.getComponents()[1].setVisible(true);
 		}
 	}
 
 	/**
-	 * @return TRUE if the visualization scroll bar is enabled and FALSE if the default IJ scroll is left
+	 * @return TRUE if the visualization scroll bar is enabled and FALSE if the
+	 *         default IJ scroll is left
 	 */
 	public boolean isVisualizationEnabled() {
 		return this.tooltip != null;
@@ -120,7 +129,8 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	/**
 	 * Sets the number of instructions the scrollbar can go through.
 	 *
-	 * @param nbInstructions Number of instructions
+	 * @param nbInstructions
+	 *            Number of instructions
 	 */
 	public void setNbInstructions(int nbInstructions) {
 		this.scroll.setValues(0, 1, 0, nbInstructions);
@@ -136,10 +146,11 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	}
 
 	/**
-	 * Sets the current instruction selected by the scrollbar. The value should be less or equals than the maximum
-	 * value.
+	 * Sets the current instruction selected by the scrollbar. The value should be
+	 * less or equals than the maximum value.
 	 *
-	 * @param value Index of the instruction
+	 * @param value
+	 *            Index of the instruction
 	 */
 	public void currentInstruction(int value) {
 		this.scroll.setValue(value);
@@ -155,7 +166,8 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	}
 
 	/**
-	 * Actualize the message and color of the tool tip displayed when moving the scroll.
+	 * Actualize the message and color of the tool tip displayed when moving the
+	 * scroll.
 	 */
 	public void displayScrollToolTip(String message, Color color) {
 		// Change message
@@ -176,7 +188,8 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	/**
 	 * Sets the current image displayed by this view.
 	 *
-	 * @param image New image to display
+	 * @param image
+	 *            New image to display
 	 */
 	public void setImage(ImageSelection image) {
 		this.imageSelection = image;
@@ -221,10 +234,12 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	}
 
 	@Override
-	public void mouseMoved(MouseEvent e) {}
+	public void mouseMoved(MouseEvent e) {
+	}
 
 	@Override
-	public void mouseClicked(MouseEvent e) {}
+	public void mouseClicked(MouseEvent e) {
+	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
@@ -237,15 +252,18 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 	}
 
 	@Override
-	public void mouseEntered(MouseEvent e) {}
+	public void mouseEntered(MouseEvent e) {
+	}
 
 	@Override
-	public void mouseExited(MouseEvent e) {}
+	public void mouseExited(MouseEvent e) {
+	}
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		if (this.isVisualizationEnabled()) {
-			// This code comes from IJ, it was paste here to keep only the zoom functionality available
+			// This code comes from IJ, it was paste here to keep only the zoom
+			// functionality available
 			int rotation = e.getWheelRotation();
 			boolean ctrl = (e.getModifiers() & Event.CTRL_MASK) != 0;
 			if ((ctrl || IJ.shiftKeyDown()) && ic != null) {
