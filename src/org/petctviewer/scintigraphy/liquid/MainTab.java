@@ -1,9 +1,6 @@
 package org.petctviewer.scintigraphy.liquid;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartMouseEvent;
-import org.jfree.chart.ChartMouseListener;
-import org.jfree.chart.ChartPanel;
+import org.jfree.chart.*;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
@@ -61,10 +58,9 @@ public class MainTab extends TabResult implements ChartMouseListener {
 	private void reloadFit() {
 		try {
 			// Create fit
-			XYSeries series = ((XYSeriesCollection) ((JValueSetter) this.chartPanel).retrieveValuesInSpan())
-					.getSeries(0);
-			this.fit = Fit.createFit(Fit.FitType.LINEAR, Library_JFreeChart.invertArray(series.toArray()),
-					Unit.COUNTS);
+			XYSeries series = ((XYSeriesCollection) ((JValueSetter) this.chartPanel).retrieveValuesInSpan()).getSeries(
+					0);
+			this.fit = Fit.createFit(Fit.FitType.LINEAR, Library_JFreeChart.invertArray(series.toArray()), Unit.COUNTS);
 
 			this.drawFit();
 			this.setErrorMessage(null);
@@ -83,16 +79,18 @@ public class MainTab extends TabResult implements ChartMouseListener {
 		final String yLabel = "Stomach retention (" + Unit.COUNTS.abbrev() + ")";
 
 		if (this.displayFit) {
-			JValueSetter valueSetter = new JValueSetter(ChartFactory
-					.createXYLineChart(graphTitle, xLabel, yLabel, data, PlotOrientation.VERTICAL, true, true, true));
+			JFreeChart chart = ChartFactory.createXYLineChart(graphTitle, xLabel, yLabel, data,
+															  PlotOrientation.VERTICAL, true, true, true);
+			chart.getXYPlot().getDomainAxis().setAutoRange(false);
+			chart.getXYPlot().getRangeAxis().setAutoRange(false);
+			JValueSetter valueSetter = new JValueSetter(chart);
 			valueSetter.addSelector(new Selector(" ", series.getMinX(), -1, RectangleAnchor.TOP_LEFT), "start");
 			valueSetter.addSelector(new Selector(" ", series.getMaxX(), -1, RectangleAnchor.TOP_LEFT), "end");
 			valueSetter.addArea("start", "end", "area", null);
 			valueSetter.addChartMouseListener(this);
 			chartPanel = valueSetter;
 		} else {
-			chartPanel = Library_JFreeChart
-					.createGraph(xLabel, yLabel, new Color[]{Color.BLUE}, graphTitle, data);
+			chartPanel = Library_JFreeChart.createGraph(xLabel, yLabel, new Color[]{Color.BLUE}, graphTitle, data);
 		}
 	}
 
@@ -114,7 +112,7 @@ public class MainTab extends TabResult implements ChartMouseListener {
 		if (resTHalf.isExtrapolated()) {
 			this.displayFit = true;
 			panel.add(new JLabel("(*) The results are calculated with a " + this.fit.getType() + " extrapolation"),
-					BorderLayout.SOUTH);
+					  BorderLayout.SOUTH);
 		}
 
 		return panel;
