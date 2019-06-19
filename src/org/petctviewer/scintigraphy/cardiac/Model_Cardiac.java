@@ -1,14 +1,15 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
+import java.util.HashMap;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import java.util.HashMap;
+import ij.ImagePlus;
+import ij.gui.Roi;
 
 public class Model_Cardiac extends ModelScin {
 
@@ -51,6 +52,9 @@ public class Model_Cardiac extends ModelScin {
 	private double heartRetention;
 
 	private double heartToWholeBody;
+
+	private Integer onlyThoraxGradation;
+	private Integer fullBodyGradation;
 
 	// private int[] nbConta;
 
@@ -297,7 +301,7 @@ public class Model_Cardiac extends ModelScin {
 		String s = "";
 
 		if (this.fullBodyImages != 0) {
-			
+			s+="Values for full body images"+"\n";
 			s += "Heart," + Library_Quantif.round(this.fixCoeurL, 2) + "\n";
 			s += "Left Kidney," + Library_Quantif.round(this.fixReinGL, 2) + "\n";
 			s += "Right Kidney," + Library_Quantif.round(this.fixReinDL, 2) + "\n";
@@ -314,14 +318,17 @@ public class Model_Cardiac extends ModelScin {
 				s += "WB retention %," + Library_Quantif.round(this.wholeBodyRetention * 100, 2) + "\n";
 
 			}
+			s+= "Visual gradation,"+(this.fullBodyGradation == null ? "No selection" : this.fullBodyGradation)+"\n";
 		}
 		if(this.onlyThoaxImage != 0) {
-			s+="Values for only thorax images" + "\n";
+			s+="\n" + "Values for only thorax images" + "\n";
 			s+="Heart,"+Library_Quantif.round(this.heartThorax, 2)+"\n";
 			s+="Contralateral,"+Library_Quantif.round(this.contralateralThorax, 2)+"\n";
 			s+="Heart to contralateral,"+Library_Quantif.round(this.heartToContralateralThorax, 2)+"\n";
-			
+			s+="Visual gradation,"+(this.onlyThoraxGradation == null ? "No selection" : this.onlyThoraxGradation)+"\n";
 		}
+		
+		s += super.toString();
 
 		return s;
 	}
@@ -426,6 +433,16 @@ public class Model_Cardiac extends ModelScin {
 	public void setOnlyThoraxImage(int onlyThoraxImage) {
 		// TODO Auto-generated method stub
 		this.onlyThoaxImage = onlyThoraxImage;
+	}
+
+	public void setOnlyThoraxGradation(Integer selectedItem) {
+		// TODO Auto-generated method stub
+		this.onlyThoraxGradation = selectedItem;
+	}
+	
+	public void setFullBodyGradation(Integer selectedItem) {
+		// TODO Auto-generated method stub
+		this.fullBodyGradation = selectedItem;
 	}
 
 	// public void setNbConta(int[] is) {
