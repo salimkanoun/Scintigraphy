@@ -30,6 +30,8 @@ public class FitPanel extends JPanel implements ChartMouseListener, ItemListener
 	private final JComboBox<Fit.FitType> fitsChoices;
 	private final JLabel labelInterpolation;
 	private final JLabel labelError;
+	private final JLabel labelFit;
+	private final JButton btnAutoFit;
 	private JValueSetter valueSetterFit;
 	private XYSeriesCollection data;
 	private Fit fit;
@@ -43,13 +45,18 @@ public class FitPanel extends JPanel implements ChartMouseListener, ItemListener
 		JPanel panSouth = new JPanel();
 		panSouth.setLayout(new BoxLayout(panSouth, BoxLayout.LINE_AXIS));
 
+		// Fit label (used to replace the combo box during capture)
+		this.labelFit = new JLabel();
+		this.labelFit.setVisible(false);
+		panSouth.add(this.labelFit);
+
 		// Fit choices
 		this.fitsChoices = new JComboBox<>(Fit.FitType.values());
 		this.fitsChoices.addItemListener(this);
 		panSouth.add(this.fitsChoices);
 
 		// Auto fit
-		JButton btnAutoFit = new JButton("Auto-fit");
+		btnAutoFit = new JButton("Auto-fit");
 		btnAutoFit.addActionListener(e -> this.selectBestFit());
 		panSouth.add(btnAutoFit);
 
@@ -60,6 +67,7 @@ public class FitPanel extends JPanel implements ChartMouseListener, ItemListener
 
 		// Error label
 		this.labelError = new JLabel();
+		this.labelError.setForeground(Color.RED);
 		panSouth.add(this.labelError);
 
 		this.add(panSouth, BorderLayout.SOUTH);
@@ -80,6 +88,9 @@ public class FitPanel extends JPanel implements ChartMouseListener, ItemListener
 
 			this.drawFit();
 			this.setErrorMessage(null);
+
+			// Update extrapolation label
+			this.labelFit.setText("-- " + this.fit.getType() + " extrapolation --");
 
 			// Notify listeners
 			for (ChangeListener listener : this.fitChangeListeners)
@@ -188,19 +199,23 @@ public class FitPanel extends JPanel implements ChartMouseListener, ItemListener
 		// Set bounds
 		XYPlot plot = chart.getXYPlot();
 		final boolean includeInterval = false;
+		double minX = 0, minY = 0;
 		double upperBoundX = series.getDomainUpperBound(includeInterval) * 1.1;
 		double lowerBoundX = series.getDomainLowerBound(includeInterval);
 		double upperBoundY = series.getRangeUpperBound(includeInterval) * 1.1;
 		double lowerBoundY = series.getRangeLowerBound(includeInterval);
+
+		if (minX > lowerBoundX) minX = lowerBoundX * 1.1;
+		if (minY > lowerBoundY) minY = lowerBoundY * 1.1;
 		// At least 1 of range
 		if (upperBoundX == lowerBoundX) upperBoundX += 1.;
 		if (upperBoundY == lowerBoundY) upperBoundY += 1.;
 		// X axis
 		NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();
-		xAxis.setRange(lowerBoundX, upperBoundX);
+		xAxis.setRange(minX, upperBoundX);
 		// Y axis
 		NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
-		yAxis.setRange(lowerBoundY, upperBoundY);
+		yAxis.setRange(minY, upperBoundY);
 
 		// Create value setter
 		double startX = lowerBoundX + .1 * (upperBoundX - lowerBoundX);
@@ -248,6 +263,14 @@ public class FitPanel extends JPanel implements ChartMouseListener, ItemListener
 	 */
 	public FitType getSelectedFit() {
 		return (FitType) this.fitsChoices.getSelectedItem();
+	}
+
+	public Component[] getComponentsToHide() {
+		return new Component[]{this.fitsChoices, this.btnAutoFit};
+	}
+
+	public Component[] getComponentsToShow() {
+		return new Component[]{this.labelFit};
 	}
 
 	@Override

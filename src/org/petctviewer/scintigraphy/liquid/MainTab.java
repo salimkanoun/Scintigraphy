@@ -39,8 +39,9 @@ public class MainTab extends TabResult implements ChangeListener {
 
 		this.createGraph();
 
-		this.reloadSidePanelContent();
-		this.reloadResultContent();
+		this.setComponentToHide(this.fitPanel.getComponentsToHide());
+		this.setComponentToShow(this.fitPanel.getComponentsToShow());
+		this.reloadDisplay();
 	}
 
 	private LiquidModel getModel() {
