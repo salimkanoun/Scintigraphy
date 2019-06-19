@@ -397,10 +397,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	@Override
 	public void clickNext() {
 		Instruction previousInstruction = this.workflows[this.indexCurrentWorkflow].getCurrentInstruction();
-		System.out.println("Click next !");
 		// Only execute 'Next' if the instruction is not cancelled
 		if (!previousInstruction.isCancelled()) {
-System.out.println("Not cancelled !");
 			// Prepare next instruction
 			int indexPreviousImage = this.indexCurrentWorkflow;
 
@@ -435,8 +433,6 @@ System.out.println("Not cancelled !");
 
 			// Ensure that there is a previous instruction expecting a user input
 			// Otherwise, the previous will go to a null instruction
-			
-			System.out.println("\t Attention aux locks !");
 			this.lockPreviousButton(nextInstruction);
 
 			// Update view
@@ -513,7 +509,6 @@ System.out.println("Not cancelled !");
 
 	@Override
 	public void adjustmentValueChanged(AdjustmentEvent e) {
-		System.out.println("Value changed for " + e.getValue());
 		this.updateScrollbar(e.getValue());
 	}
 
