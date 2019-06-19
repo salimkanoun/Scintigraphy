@@ -133,51 +133,6 @@ public class ModelShunpo extends ModelWorkflow {
 		return Library_Quantif.moyGeom(ant, post);
 	}
 
-	/**
-	 * This method takes care of all necessary operations to do on the ImagePlus or the RoiManager. This requires the
-	 * state to contain all of the required data.
-	 *
-	 * @param regionName Region to calculate
-	 * @param state      State the image must be to do the calculations
-	 * @param roi        Region where the calculates must be made
-	 */
-	public void addData(String regionName, ImageState state, Roi roi) {
-		// Save the image in the state
-		state.specifieImage(this.imageFromState(state));
-		state.setIdImage(ImageState.ID_CUSTOM_IMAGE);
-
-		ImagePlus imp = state.getImage().getImagePlus();
-
-		// Prepare image
-		imp.setSlice(state.getSlice());
-		imp.setRoi(roi);
-
-		// Calculate counts
-		double counts = Library_Quantif.getCounts(imp);
-
-		Data data = this.createOrRetrieveData(state);
-		if (state.getFacingOrientation() == Orientation.ANT) {
-			data.setAntValue(regionName, Data.DATA_COUNTS, counts, state, roi);
-			data.setAntValue(regionName, Data.DATA_MEAN_COUNTS, Library_Quantif.getAvgCounts(imp));
-			data.setAntValue(regionName, Data.DATA_PIXEL_COUNTS, Library_Quantif.getPixelNumber(imp));
-		} else {
-			data.setPostValue(regionName, Data.DATA_COUNTS, counts, state, roi);
-			data.setPostValue(regionName, Data.DATA_MEAN_COUNTS, Library_Quantif.getAvgCounts(imp));
-			data.setPostValue(regionName, Data.DATA_PIXEL_COUNTS, Library_Quantif.getPixelNumber(imp));
-		}
-		this.datas.add(data);
-	}
-
-	@Override
-	public ResultValue getResult(ResultRequest request) {
-		Double value = this.results.get(request.getResultOn().hashCode());
-		if (value == null) return null;
-		// Convert result to requested unit
-		Unit conversion = (request.getUnit() == null ? Unit.PERCENTAGE : request.getUnit());
-		value = Unit.PERCENTAGE.convertTo(value, conversion);
-		return new ResultValue(request, value, conversion);
-	}
-
 	private void calculateResultsWithKidneys() {
 		// Correct kidneys with background
 		datas.get(IMAGE_KIDNEY_LUNG).setAntValue(REGION_RIGHT_KIDNEY, Data.DATA_COUNTS_CORRECTED,
@@ -235,6 +190,66 @@ public class ModelShunpo extends ModelWorkflow {
 		this.results.put(RES_PULMONARY_SHUNT_2.hashCode(), shunt);
 	}
 
+	private String unitForResult(Result result) {
+		return Unit.PERCENTAGE.abbrev();
+	}
+
+	private String resultToCsvLine(Result res) {
+		return res + "," + this.results.get(res.hashCode()) + "," + this.unitForResult(res) + "\n";
+	}
+
+	private String csvResult() {
+		if (Prefs.get(PrefTabShunpo.PREF_WITH_KIDNEYS, true)) {
+			return this.studyName + "\n\n" + resultToCsvLine(RES_RATIO_RIGHT_LUNG) + resultToCsvLine(
+					RES_RATIO_LEFT_LUNG) + resultToCsvLine(RES_SHUNT_SYST) + resultToCsvLine(RES_PULMONARY_SHUNT);
+		} else return this.studyName + "\n\n" + resultToCsvLine(RES_PULMONARY_SHUNT_2);
+	}
+
+	/**
+	 * This method takes care of all necessary operations to do on the ImagePlus or the RoiManager. This requires the
+	 * state to contain all of the required data.
+	 *
+	 * @param regionName Region to calculate
+	 * @param state      State the image must be to do the calculations
+	 * @param roi        Region where the calculates must be made
+	 */
+	public void addData(String regionName, ImageState state, Roi roi) {
+		// Save the image in the state
+		state.specifieImage(this.imageFromState(state));
+		state.setIdImage(ImageState.ID_CUSTOM_IMAGE);
+
+		ImagePlus imp = state.getImage().getImagePlus();
+
+		// Prepare image
+		imp.setSlice(state.getSlice());
+		imp.setRoi(roi);
+
+		// Calculate counts
+		double counts = Library_Quantif.getCounts(imp);
+
+		Data data = this.createOrRetrieveData(state);
+		if (state.getFacingOrientation() == Orientation.ANT) {
+			data.setAntValue(regionName, Data.DATA_COUNTS, counts, state, roi);
+			data.setAntValue(regionName, Data.DATA_MEAN_COUNTS, Library_Quantif.getAvgCounts(imp));
+			data.setAntValue(regionName, Data.DATA_PIXEL_COUNTS, Library_Quantif.getPixelNumber(imp));
+		} else {
+			data.setPostValue(regionName, Data.DATA_COUNTS, counts, state, roi);
+			data.setPostValue(regionName, Data.DATA_MEAN_COUNTS, Library_Quantif.getAvgCounts(imp));
+			data.setPostValue(regionName, Data.DATA_PIXEL_COUNTS, Library_Quantif.getPixelNumber(imp));
+		}
+		this.datas.add(data);
+	}
+
+	@Override
+	public ResultValue getResult(ResultRequest request) {
+		Double value = this.results.get(request.getResultOn().hashCode());
+		if (value == null) return null;
+		// Convert result to requested unit
+		Unit conversion = (request.getUnit() == null ? Unit.PERCENTAGE : request.getUnit());
+		value = Unit.PERCENTAGE.convertTo(value, conversion);
+		return new ResultValue(request, value, conversion);
+	}
+
 	@Override
 	public void calculateResults() {
 		if (Prefs.get(PrefTabShunpo.PREF_WITH_KIDNEYS, true)) {
@@ -242,5 +257,10 @@ public class ModelShunpo extends ModelWorkflow {
 		} else {
 			this.calculateResultsWithoutKidneys();
 		}
+	}
+
+	@Override
+	public String toString() {
+		return this.csvResult();
 	}
 }
