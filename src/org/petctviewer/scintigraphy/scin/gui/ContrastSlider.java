@@ -24,8 +24,6 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 	private ImagePlus reference;
 	private DynamicImage result;
 
-	private static int IMG_WIDTH = 512;
-
 	public ContrastSlider(ImagePlus image, DynamicImage result) {
 		super(JSlider.HORIZONTAL);
 		if (image == null) throw new IllegalArgumentException("Image cannot be null");
@@ -61,6 +59,7 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 			// The macro delete the Overlay, so we save data before
 			Roi[] rois = this.reference.getOverlay().toArray();
 
+			final int IMG_WIDTH = 512;
 			IJ.run(this.reference, "Size...",
 				   "width=" + IMG_WIDTH + " height=" + IMG_WIDTH + " depth=2 constrain average " +
 						   "interpolation=Bilinear");
