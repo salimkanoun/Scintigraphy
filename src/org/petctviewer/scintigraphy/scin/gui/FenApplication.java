@@ -34,6 +34,7 @@ import org.petctviewer.scintigraphy.scin.preferences.PrefTab;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.ImageCanvas;
+import ij.gui.ImageLayout;
 import ij.gui.Overlay;
 import ij.gui.StackWindow;
 import ij.util.DicomTools;
@@ -95,6 +96,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.imp.setTitle(titre);// imp title
 
 		panelContainer = new Panel(new BorderLayout());
+		
 		this.panelPrincipal = new Panel(new FlowLayout());
 
 		// construit tous les boutons
@@ -126,13 +128,17 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 		panelPrincipal.add(this.panel_Instructions_btns_droite);
 
+		
 		panelContainer.add(this.panelPrincipal, BorderLayout.CENTER);
 		this.add(panelContainer);
 
+//		panelContainer.setPreferredSize(new Dimension(512, (int) panelContainer.getPreferredSize().getHeight()));
 		// Menu bar
 		this.createMenuBar();
-
+		((ImageLayout)this.getLayout()).layoutContainer(panelContainer);
+		
 		this.setDefaultSize();
+//		this.setSize(new Dimension(512, (int)this.getPreferredSize().getHeight()));
 		this.addComponentListener(this);
 		this.setResizable(false);
 		this.pack();

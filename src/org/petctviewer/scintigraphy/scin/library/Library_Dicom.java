@@ -649,10 +649,7 @@ public class Library_Dicom {
 
 	/**
 	 * Normalize to have on each frame, the count/second number.
-	 * <p>
-	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image. Otherwise, the count
-	 * are
-	 * only ineter, and we lose many informations.
+	 * 
 	 *
 	 * @param imp            ImagePlus to normalize
 	 * @param frameDurations int[] of the ImagePlus duration frames
@@ -666,10 +663,7 @@ public class Library_Dicom {
 
 	/**
 	 * Normalize to have on each frame, the count/second number.
-	 * <p>
-	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image. Otherwise, the count
-	 * are
-	 * only ineter, and we lose many informations.
+	 * 
 	 *
 	 * @param imp ImagePlus to normalize
 	 */
@@ -680,10 +674,7 @@ public class Library_Dicom {
 
 	/**
 	 * Normalize to have on each frame, the count/second number.
-	 * <p>
-	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image. Otherwise, the count
-	 * are
-	 * only ineter, and we lose many informations.
+	 * 
 	 *
 	 * @param imp ImageSelection to normalize
 	 */

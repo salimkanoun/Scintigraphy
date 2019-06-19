@@ -27,9 +27,6 @@ public class LymphoScintigraphy extends Scintigraphy {
 	public void start(List<ImageSelection> preparedImages) {
 
 		this.setFenApplication(new FenApplicationLympho(preparedImages.get(0), this.getStudyName()));
-		// this.getFenApplication()
-		// .setController(new ControleurLympho(this, this.getFenApplication(), "Lympho
-		// Scinti", selectedImages));
 		this.getFenApplication().setController(
 				new ControllerWorkflowLympho(this, (FenApplicationWorkflow) this.getFenApplication(),
 											 new ModelLympho(preparedImages.toArray(new ImageSelection[0]),

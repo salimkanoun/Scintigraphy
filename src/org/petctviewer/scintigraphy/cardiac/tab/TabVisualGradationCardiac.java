@@ -133,7 +133,7 @@ public class TabVisualGradationCardiac extends TabResult implements ActionListen
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if(arg0.getSource() instanceof JComboBox)
-			((Model_Cardiac)this.parent.getModel()).setOnlyThoraxGradation((Integer)((JComboBox)arg0.getSource()).getSelectedItem());
+			((Model_Cardiac)this.parent.getModel()).setOnlyThoraxGradation((Integer)((JComboBox<?>)arg0.getSource()).getSelectedItem());
 	}
 
 }

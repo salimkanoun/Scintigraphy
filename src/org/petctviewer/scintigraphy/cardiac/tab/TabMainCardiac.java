@@ -205,7 +205,7 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 		}
 		
 		if(e.getSource() instanceof JComboBox)
-			((Model_Cardiac)this.getParent().getModel()).setFullBodyGradation((Integer)((JComboBox)e.getSource()).getSelectedItem());
+			((Model_Cardiac)this.getParent().getModel()).setFullBodyGradation((Integer)((JComboBox<?>)e.getSource()).getSelectedItem());
 		// if(e.getSource() instanceof JComboBox)
 		// System.out.println((this.btn_VisualGradation == null)+",
 		// "+this.btn_VisualGradation.getLabel());
