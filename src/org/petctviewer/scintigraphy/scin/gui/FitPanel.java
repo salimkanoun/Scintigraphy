@@ -27,6 +27,7 @@ import java.util.List;
 
 public class FitPanel extends JPanel implements ChartMouseListener, ItemListener {
 
+	private static final long serialVersionUID = 1L;
 	private final JComboBox<Fit.FitType> fitsChoices;
 	private final JLabel labelInterpolation;
 	private final JLabel labelError;
