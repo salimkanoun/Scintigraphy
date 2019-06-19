@@ -288,16 +288,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 * @param currentInstruction Current instruction from which the search will be made
 	 */
 	private void lockPreviousButton(Instruction currentInstruction) {
-		boolean blockPrevious = true;
-		int i0 = this.workflows[0].getInstructions().indexOf(currentInstruction) - 1;
-		for (int i = i0;
-			 i >= 0; i--) {
-			if (this.workflows[0].getInstructionAt(i).isExpectingUserInput()) {
-				blockPrevious = false;
-				break;
-			}
-		}
-		if (blockPrevious && i0 >= 0) this.getVue().getBtn_precedent().setEnabled(false);
+		if(this.allInputInstructions().indexOf(currentInstruction) == 0)
+			this.getVue().getBtn_precedent().setEnabled(false);
 	}
 
 	/**
@@ -405,10 +397,10 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	@Override
 	public void clickNext() {
 		Instruction previousInstruction = this.workflows[this.indexCurrentWorkflow].getCurrentInstruction();
-
+		System.out.println("Click next !");
 		// Only execute 'Next' if the instruction is not cancelled
 		if (!previousInstruction.isCancelled()) {
-
+System.out.println("Not cancelled !");
 			// Prepare next instruction
 			int indexPreviousImage = this.indexCurrentWorkflow;
 
@@ -443,6 +435,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 			// Ensure that there is a previous instruction expecting a user input
 			// Otherwise, the previous will go to a null instruction
+			
+			System.out.println("\t Attention aux locks !");
 			this.lockPreviousButton(nextInstruction);
 
 			// Update view
