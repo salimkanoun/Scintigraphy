@@ -3,11 +3,13 @@ package org.petctviewer.scintigraphy.gastric.tabs;
 import ij.ImagePlus;
 import org.petctviewer.scintigraphy.gastric.ControllerWorkflow_Gastric;
 import org.petctviewer.scintigraphy.gastric.Model_Gastric;
+import org.petctviewer.scintigraphy.scin.events.FitChangeEvent;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.model.Result;
 import org.petctviewer.scintigraphy.scin.model.Unit;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import java.awt.*;
 import java.text.SimpleDateFormat;
 
@@ -22,6 +24,12 @@ public class TabMethod1 extends TabResultDefault {
 
 	public void enableDynamicAcquisition(boolean state) {
 		if (this.btnDynAcquisition != null) this.btnDynAcquisition.setEnabled(state);
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		super.stateChanged(e);
+		if (e instanceof FitChangeEvent) getModel().setFitMethod(1, ((FitChangeEvent) e).getChangedFit());
 	}
 
 	@Override

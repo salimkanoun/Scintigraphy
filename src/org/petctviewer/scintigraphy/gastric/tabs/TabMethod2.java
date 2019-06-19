@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.gastric.tabs;
 import ij.ImagePlus;
 import ij.Prefs;
 import org.petctviewer.scintigraphy.gastric.Model_Gastric;
+import org.petctviewer.scintigraphy.scin.events.FitChangeEvent;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 import org.petctviewer.scintigraphy.scin.model.Result;
@@ -10,6 +11,7 @@ import org.petctviewer.scintigraphy.scin.model.Unit;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabGastric;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import java.awt.*;
 
 public class TabMethod2 extends TabResultDefault {
@@ -18,6 +20,12 @@ public class TabMethod2 extends TabResultDefault {
 	public TabMethod2(FenResults parent, ImagePlus capture) {
 		super(parent, capture, "Gastric Only", Unit.valueOf(Prefs.get(PrefTabGastric.PREF_UNIT_USED,
 																	  Unit.COUNTS.name())), Unit.TIME, Model_Gastric.SERIES_DECAY_FUNCTION);
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		super.stateChanged(e);
+		if (e instanceof FitChangeEvent) getModel().setFitMethod(2, ((FitChangeEvent) e).getChangedFit());
 	}
 
 	@Override
