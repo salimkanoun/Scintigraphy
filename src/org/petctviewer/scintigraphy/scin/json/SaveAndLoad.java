@@ -193,7 +193,7 @@ public class SaveAndLoad {
 		if (path != null && testEcriture) {
 			// On construit le sous repertoire avecle studyName du programme et l'ID du
 			// Patient
-			String pathFinal = path + File.separator + nomProgramme + File.separator + infoPatient[1];
+			String pathFinal = path + File.separator + nomProgramme + File.separator + infoPatient[1] + File.separator + infoPatient[2];
 			File subDirectory = new File(pathFinal);
 			if (subDirectory.mkdirs()) {
 
