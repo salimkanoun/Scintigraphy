@@ -49,7 +49,7 @@ public class PostMictional extends Scintigraphy {
 			impSorted = selectedImages.get(0).clone();
 		}
 
-		selectedImages.get(0).close();
+//		selectedImages.get(0).close();
 
 		List<ImageSelection> selection = new ArrayList<>();
 		selection.add(impSorted);

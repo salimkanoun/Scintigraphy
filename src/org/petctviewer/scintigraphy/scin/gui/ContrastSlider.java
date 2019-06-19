@@ -9,14 +9,12 @@ import javax.swing.event.ChangeListener;
 
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
 import ij.ImagePlus;
-import ij.ImageStack;
 import ij.gui.Roi;
 import ij.plugin.RoiScaler;
-import ij.process.ImageProcessor;
 
 /**
  * This component is a slider used to modify the contrast of an ImagePlus.
@@ -71,11 +69,12 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 			// (IMG_WIDTH * this.reference.getHeight()/this.reference.getWidth()) + "
 			// depth=2 constrain average " + "interpolation=Bilinear");
 
-			ImagePlus temp = this.resize(this.reference, IMG_WIDTH, IMG_WIDTH);
+			ImagePlus temp = Library_Dicom.resize(this.reference, IMG_WIDTH, IMG_WIDTH);
 
 			this.reference.close();
 			this.reference = temp;
 			this.reference.show();
+//			Library_Gui.setCustomLut(this.reference);
 			this.reference.getWindow().setVisible(false);
 
 			// In case they change the behavior
@@ -119,44 +118,4 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 		this.reference.updateAndDraw();
 		this.result.setImage(Library_Capture_CSV.captureImage(this.reference, 0, 0).getBufferedImage());
 	}
-
-	public ImagePlus resize(ImagePlus imagePlus, int newWidth, int newHeight) {
-
-		ImageStack stack = imagePlus.getStack();
-		ImageProcessor ip = imagePlus.getProcessor();
-
-		int nSlices = stack.getSize();
-
-		ImageStack stack2 = new ImageStack(newWidth, newHeight);
-		ImageProcessor ip2 = null;
-		// Rectangle roi = ip != null ? ip.getRoi() : null;
-		if (ip == null)
-			ip = stack.getProcessor(1).duplicate();
-		try {
-			for (int i = 1; i <= nSlices; i++) {
-				// showStatus("Resize: ",i,nSlices);
-				ip.setPixels(stack.getPixels(1));
-				String label = stack.getSliceLabel(1);
-				stack.deleteSlice(1);
-				ip2 = ip.resize(newWidth, newHeight, true);
-				if (ip2 != null)
-					stack2.addSlice(label, ip2);
-				IJ.showProgress((double) i / nSlices);
-			}
-			IJ.showProgress(1.0);
-		} catch (OutOfMemoryError o) {
-			while (stack.getSize() > 1)
-				stack.deleteLastSlice();
-			IJ.outOfMemory("StackProcessor.resize");
-			IJ.showProgress(1.0);
-		}
-
-		ImagePlus newImagePlus = new ImagePlus();
-		newImagePlus.setStack(stack2);
-		newImagePlus.setProcessor(ip2);
-		newImagePlus.setProperty("Info", imagePlus.getProperty("Info"));
-
-		return newImagePlus;
-	}
-
 }

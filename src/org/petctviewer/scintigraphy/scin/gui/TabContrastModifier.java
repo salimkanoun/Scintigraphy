@@ -125,4 +125,9 @@ public class TabContrastModifier extends TabResult {
 	public JPanel getResultContent() {
 		return this.dynamicImp;
 	}
+	
+	@SuppressWarnings("deprecation")
+	public void setSliderEnable(boolean boo) {
+		this.slider.enable(boo);
+	}
 }
