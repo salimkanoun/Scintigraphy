@@ -1,11 +1,12 @@
 package org.petctviewer.scintigraphy.scin.controller;
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.Prefs;
+import ij.gui.Roi;
+import ij.plugin.MontageMaker;
+import ij.plugin.frame.RoiManager;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
@@ -14,13 +15,9 @@ import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.Prefs;
-import ij.gui.Roi;
-import ij.plugin.MontageMaker;
-import ij.plugin.frame.RoiManager;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * This class represents the Controller in the MVC pattern.<br> This abstract class is only a provider for functions
@@ -348,7 +345,7 @@ public abstract class ControllerScin implements ActionListener {
 
 			// on deselectionne le bouton contraste
 			this.vue.getBtn_contrast().setBackground(null);
-			
+
 			IJ.setTool(PrefTabMain.toolFromString(Prefs.get(PrefTabMain.PREF_TOOL_ROI, "Polygone")));
 
 		} else if (b == this.vue.getBtn_contrast()) {

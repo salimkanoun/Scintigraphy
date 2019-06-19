@@ -17,9 +17,6 @@ import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-
 public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
 	private final TabMethod1 tabResult;
@@ -104,7 +101,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		this.tabResult.createGraph();
 
 		// Set the best fit by default
-		this.tabResult.selectFit(this.tabResult.findBestFit());
+		this.tabResult.selectBestFit();
 
 		// Do not reload the method 2
 		this.tabResult.reloadDisplay();
@@ -146,16 +143,6 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 	@Override
 	public Model_Gastric getModel() {
 		return (Model_Gastric) super.getModel();
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		super.actionPerformed(e);
-
-		// Auto-fit
-		if (e.getSource() instanceof JButton && this.tabResult.isButtonAutoFit((JButton) e.getSource())) {
-			this.tabResult.selectFit(this.tabResult.findBestFit());
-		}
 	}
 
 	private class BkgNoiseInstruction extends PromptInstruction {

@@ -27,8 +27,6 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 	private ImagePlus reference;
 	private DynamicImage result;
 
-	private static int IMG_WIDTH = 512;
-
 	public ContrastSlider(ImagePlus image, DynamicImage result) {
 		super(JSlider.HORIZONTAL);
 		if (image == null)
@@ -69,7 +67,8 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 			// (IMG_WIDTH * this.reference.getHeight()/this.reference.getWidth()) + "
 			// depth=2 constrain average " + "interpolation=Bilinear");
 
-			ImagePlus temp = Library_Dicom.resize(this.reference, IMG_WIDTH, IMG_WIDTH);
+			final int IMG_WIDTH = 512;
+			ImagePlus temp = Library_Dicom.resize(this.reference, IMG_WIDTH, IMG_WIDTH * this.reference.getHeight() / this.reference.getWidth());
 
 			this.reference.close();
 			this.reference = temp;
