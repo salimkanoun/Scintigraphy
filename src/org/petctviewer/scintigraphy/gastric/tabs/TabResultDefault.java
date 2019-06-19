@@ -241,9 +241,11 @@ public abstract class TabResultDefault extends TabResult implements ChangeListen
 		JPanel panel = new JPanel(new BorderLayout());
 
 		// Chart
+		XYSeriesCollection collection = new XYSeriesCollection(
+				getModel().generateSeries(this.seriesToGenerate, this.unitDefault));
 		JFreeChart chart = ChartFactory.createXYLineChart(TITLE, X_AXIS_LABEL + " (" + this.unitTime.abbrev() + ")",
-														  Y_AXIS_LABEL + " (" + this.unitDefault.abbrev() + ")", data,
-														  PlotOrientation.VERTICAL, true, true, true);
+														  Y_AXIS_LABEL + " (" + this.unitDefault.abbrev() + ")",
+														  collection, PlotOrientation.VERTICAL, true, true, true);
 
 		valueSetterLagPhase = new JValueSetter(chart);
 		ResultRequest request;
