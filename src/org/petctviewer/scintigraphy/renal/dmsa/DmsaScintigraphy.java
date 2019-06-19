@@ -19,7 +19,7 @@ import java.util.List;
 
 public class DmsaScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "dmsa";
+	public static final String STUDY_NAME = "DMSA";
 
 	public DmsaScintigraphy() {
 		super(STUDY_NAME);

@@ -20,7 +20,7 @@ public class MainTab extends TabResult {
 	private DynamicImage result;
 
 	public MainTab(FenResults parent, ImageSelection capture, Overlay overlay) {
-		super(parent, "DMSA");
+		super(parent, "DMSA", true);
 
 		this.result = new DynamicImage(capture.getImagePlus().getBufferedImage());
 

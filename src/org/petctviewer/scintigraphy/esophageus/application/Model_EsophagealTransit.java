@@ -2,6 +2,8 @@ package org.petctviewer.scintigraphy.esophageus.application;
 
 import ij.gui.Roi;
 import ij.plugin.frame.RoiManager;
+
+import org.petctviewer.scintigraphy.esophageus.resultats.Model_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
@@ -25,6 +27,8 @@ public class Model_EsophagealTransit extends ModelScinDyn {
 	ArrayList<Object[]> dicomRoi;
 	
 	public final EsophagealTransit esoPlugIn;
+
+	private Model_Resultats_EsophagealTransit modelResults;
 	
 	public Model_EsophagealTransit(ImageSelection [][] sauvegardeImagesSelectDicom, String studyName, EsophagealTransit esoPlugIn) {
 		super(sauvegardeImagesSelectDicom[0], studyName, esoPlugIn.getFrameDurations());
@@ -190,6 +194,15 @@ public class Model_EsophagealTransit extends ModelScinDyn {
 
 	public ArrayList<Object[]> getDicomRoi() {
 		return this.dicomRoi;
+	}
+
+	public void setModelResults(Model_Resultats_EsophagealTransit model) {
+		// TODO Auto-generated method stub
+		this.modelResults = model;
+	}
+	
+	public String toString() {
+		return this.modelResults.toString();
 	}
 	
 }

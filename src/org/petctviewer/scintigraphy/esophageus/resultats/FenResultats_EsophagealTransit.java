@@ -29,6 +29,8 @@ public class FenResultats_EsophagealTransit extends FenResults {
 
 		Model_Resultats_EsophagealTransit model = new Model_Resultats_EsophagealTransit(arrayList, dicomRoi,
 				studyName, modeleApp.esoPlugIn, modeleApp.getImageSelection());
+		
+		modeleApp.setModelResults(model);
 
 		this.addTab(new TabCurves(arrayList.size(), this, model));
 		this.addTab(new TabTransitTime(arrayList.size(), this, model));
