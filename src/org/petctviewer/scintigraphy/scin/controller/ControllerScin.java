@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.scin.controller;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.Prefs;
 import ij.gui.Roi;
 import ij.plugin.MontageMaker;
 import ij.plugin.frame.RoiManager;
@@ -12,6 +13,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -343,6 +345,8 @@ public abstract class ControllerScin implements ActionListener {
 
 			// on deselectionne le bouton contraste
 			this.vue.getBtn_contrast().setBackground(null);
+
+			IJ.setTool(PrefTabMain.toolFromString(Prefs.get(PrefTabMain.PREF_TOOL_ROI, "Polygone")));
 
 		} else if (b == this.vue.getBtn_contrast()) {
 			// on change la couleur du bouton
