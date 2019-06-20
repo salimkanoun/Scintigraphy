@@ -69,9 +69,9 @@ public class ContaminationAskInstruction extends ExecutionInstruction implements
 			this.workflow.getController().getVue().getPanel_Instructions_btns_droite().remove(1);
 			this.workflow.getController().getVue().getPanel_Instructions_btns_droite().add(this.workflow.getController().getVue().createPanelInstructionsBtns());
 			this.workflow.getController().getVue().pack();
-			if(this.workflow.getController() instanceof ControllerWorkflowCardiac) {
-				((ControllerWorkflowCardiac)this.workflow.getController()).endContamination();
-			}
+//			if(this.workflow.getController() instanceof ControllerWorkflowCardiac) 
+//				((ControllerWorkflowCardiac)this.workflow.getController()).endContamination();
+			
 		}
 	}
 
@@ -112,7 +112,8 @@ public class ContaminationAskInstruction extends ExecutionInstruction implements
 			this.workflow.addInstructionOnTheFly(this.getInstructionToGenerate());
 			((FenApplication_Cardiac)this.workflow.getController().getVue()).startContaminationMode();
 			this.workflow.getController().clickNext();
-		}else 
+		}
+		else 
 			((ControllerWorkflowCardiac)this.workflow.getController()).clicEndCont();	
 	}
 	
