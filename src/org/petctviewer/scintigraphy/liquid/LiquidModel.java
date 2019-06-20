@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.liquid;
 
 import ij.ImagePlus;
+import org.apache.commons.lang.ArrayUtils;
 import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -23,12 +24,12 @@ public class LiquidModel extends ModelWorkflow {
 	}
 
 	public double[] generateXValues() {
-		List<XYDataItem> items = counts.getItems();
+		@SuppressWarnings("unchecked") List<XYDataItem> items = counts.getItems();
 		return items.stream().mapToDouble(XYDataItem::getXValue).toArray();
 	}
 
 	public double[] generateYValues() {
-		List<XYDataItem> items = counts.getItems();
+		@SuppressWarnings("unchecked") List<XYDataItem> items = counts.getItems();
 		return items.stream().mapToDouble(XYDataItem::getYValue).toArray();
 	}
 
@@ -47,9 +48,16 @@ public class LiquidModel extends ModelWorkflow {
 	@Override
 	public ResultValue getResult(ResultRequest request) {
 		if (request.getResultOn() == RES_T_HALF) {
+			double[] xValues = this.generateXValues();
+			double[] yValues = this.generateYValues();
 			// Calculate t 1/2
-			double half = this.counts.getDataItem(0).getYValue() / 2.;
-			Double result = Library_JFreeChart.getX(this.generateXValues(), this.generateYValues(), half);
+			// Find max
+			double max = Library_JFreeChart.maxValue(yValues);
+			int cutAt = ArrayUtils.indexOf(yValues, max);
+			yValues = ArrayUtils.subarray(yValues, cutAt, yValues.length);
+			xValues = ArrayUtils.subarray(xValues, cutAt, xValues.length);
+			double half = max / 2.;
+			Double result = Library_JFreeChart.getX(xValues, yValues, half);
 			boolean isExtrapolated = false;
 			if (result == null) {
 				// Extrapolate
