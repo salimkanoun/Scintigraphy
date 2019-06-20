@@ -18,6 +18,7 @@ public class MainTab extends TabResult {
 
 	private ContrastSlider slider;
 	private DynamicImage result;
+	private JLabel contrastSliderLabel;
 
 	public MainTab(FenResults parent, ImageSelection capture, Overlay overlay) {
 		super(parent, "DMSA", true);
@@ -28,6 +29,9 @@ public class MainTab extends TabResult {
 		this.slider = new ContrastSlider(new ImageState(Orientation.POST, 2,
 														((ControllerWorkflow) this.parent.getController()).getCurrentImageState().getLateralisation(),
 														capture), this.result);
+		this.contrastSliderLabel = new JLabel("Contrast");
+		
+		this.setComponentToHide(new Component[] {slider, contrastSliderLabel});
 
 		this.reloadDisplay();
 	}
@@ -68,7 +72,7 @@ public class MainTab extends TabResult {
 		// Slider
 		JPanel panSlider = new JPanel();
 		panSlider.setLayout(new BoxLayout(panSlider, BoxLayout.Y_AXIS));
-		panSlider.add(new JLabel("Contrast"));
+		panSlider.add(this.contrastSliderLabel);
 		panSlider.add(this.slider);
 
 		JPanel panel = new JPanel(new BorderLayout());
