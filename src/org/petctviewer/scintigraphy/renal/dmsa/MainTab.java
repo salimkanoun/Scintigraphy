@@ -1,6 +1,18 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
-import ij.gui.Overlay;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -11,10 +23,7 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import ij.gui.Overlay;
 
 public class MainTab extends TabResult {
 
@@ -30,7 +39,7 @@ public class MainTab extends TabResult {
 		capture.getImagePlus().setOverlay(overlay);
 		this.slider = new ContrastSlider(new ImageState(Orientation.POST, 2,
 														((ControllerWorkflow) this.parent.getController()).getCurrentImageState().getLateralisation(),
-														capture), this.result);
+														capture), this.result, this.parent);
 		this.contrastSliderLabel = new JLabel("Contrast");
 		
 		this.setComponentToHide(new ArrayList<>(Arrays.asList(new Component[] {slider, contrastSliderLabel})));

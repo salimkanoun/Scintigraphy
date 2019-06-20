@@ -1,12 +1,17 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import ij.ImagePlus;
-import org.petctviewer.scintigraphy.scin.instructions.ImageState;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import javax.swing.Box;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+
+import ij.ImagePlus;
 
 /**
  * affichage imaage plus avec reglage contraste SK algo contraste à revoir
@@ -75,9 +80,10 @@ public class TabContrastModifier extends TabResult {
 
 		this.dynamicImp = new DynamicImage(image.getBufferedImage());
 
-		slider = new ContrastSlider(image, this.dynamicImp);
+		slider = new ContrastSlider(image, this.dynamicImp, this.parent);
 		
 		this.setComponentToHide(new ArrayList<>(Arrays.asList(new Component[] {slider, sliderLabel})));
+
 		boxSlider = Box.createVerticalBox();
 		boxSlider.add(sliderLabel);
 		boxSlider.add(slider);
@@ -102,9 +108,10 @@ public class TabContrastModifier extends TabResult {
 
 		this.dynamicImp = new DynamicImage(state.getImage().getImagePlus().getBufferedImage());
 
-		slider = new ContrastSlider(state, this.dynamicImp);
-	
+		slider = new ContrastSlider(state, this.dynamicImp, this.parent);
+		
 		this.setComponentToHide(new ArrayList<>(Arrays.asList(new Component[] {slider, sliderLabel})));
+
 		boxSlider = Box.createVerticalBox();
 		boxSlider.add(sliderLabel);
 		boxSlider.add(slider);

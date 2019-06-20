@@ -113,6 +113,8 @@ public class FenSelectionDicom extends JDialog implements ActionListener, ImageL
 
 				// Do not show image of FenApplication
 				if (imp.getWindow() instanceof FenApplication) continue;
+				// Do not show image invisible
+				if (!imp.isVisible()) continue;
 
 				HashMap<String, String> infosPatient = Library_Capture_CSV.getPatientInfo(imp);
 
