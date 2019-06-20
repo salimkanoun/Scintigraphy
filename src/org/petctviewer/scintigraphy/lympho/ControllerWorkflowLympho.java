@@ -1,8 +1,7 @@
 package org.petctviewer.scintigraphy.lympho;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.lympho.gui.FenResultatsLympho;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -15,8 +14,8 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflowLympho extends ControllerWorkflow {
 

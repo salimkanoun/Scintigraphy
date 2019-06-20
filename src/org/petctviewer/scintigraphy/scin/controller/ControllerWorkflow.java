@@ -1,22 +1,7 @@
 package org.petctviewer.scintigraphy.scin.controller;
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.event.ActionEvent;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-
+import ij.IJ;
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.CaptureButton;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -30,8 +15,12 @@ import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.IJ;
-import ij.ImagePlus;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This controller is used when working with a flow of instructions.<br> In order to use this type of controller, you
@@ -94,7 +83,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	private boolean skipInstruction;
 
 	/**
-	 * @param main  Reference to the main class
 	 * @param vue   View of the MVC pattern
 	 * @param model Model of the MVC pattern
 	 */

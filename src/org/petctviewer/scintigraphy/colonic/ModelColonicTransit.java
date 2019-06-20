@@ -1,18 +1,17 @@
 package org.petctviewer.scintigraphy.colonic;
 
+import ij.gui.Roi;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
-
-import ij.gui.Roi;
 
 public class ModelColonicTransit extends ModelScin {
 

@@ -1,8 +1,6 @@
 package org.petctviewer.scintigraphy.colonic;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -17,14 +15,14 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 
-import ij.ImagePlus;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflowColonicTransit extends ControllerWorkflow {
 
 	private final List<ImagePlus> captures;
 
-	public ControllerWorkflowColonicTransit(FenApplicationWorkflow vue,
-			ImageSelection[] selectedImages) {
+	public ControllerWorkflowColonicTransit(FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
 		super(vue, new ModelColonicTransit(selectedImages, vue.getStudyName()));
 
 		this.captures = new ArrayList<>();
@@ -44,8 +42,8 @@ public class ControllerWorkflowColonicTransit extends ControllerWorkflow {
 	@Override
 	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length - 1];
-		
-		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null , dri_5 = null, dri_6 = null;
+
+		DrawRoiInstruction dri_1 = null, dri_2 = null, dri_3 = null, dri_4 = null, dri_5 = null, dri_6 = null;
 		ImageState state_1;
 		ScreenShotInstruction dri_capture_1;
 

@@ -1,10 +1,10 @@
 
 package org.petctviewer.scintigraphy.generic.statics;
 
-import java.awt.Color;
-
-import javax.swing.JOptionPane;
-
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.gui.Roi;
+import ij.plugin.MontageMaker;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -19,17 +19,15 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.gui.Roi;
-import ij.plugin.MontageMaker;
+import javax.swing.*;
+import java.awt.*;
 
 public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 	private FenResults fenResult;
 
 	public ControllerWorkflow_ScinStatic(FenApplicationWorkflow vue, ImageSelection[] selectedImages,
-			String studyName) {
+										 String studyName) {
 		super(vue, new ModelScinStatic(selectedImages, studyName));
 
 		this.generateInstructions();
@@ -146,8 +144,8 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 	public ImagePlus takeCapture() {
 		int width = 512;
 
-		double ratioCapture = this.getVue().getImagePlus().getWidth() * 1.0
-				/ this.getVue().getImagePlus().getHeight() * 1.0;
+		double ratioCapture =
+				this.getVue().getImagePlus().getWidth() * 1.0 / this.getVue().getImagePlus().getHeight() * 1.0;
 
 		ImagePlus[] captures;
 

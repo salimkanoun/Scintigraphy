@@ -1,11 +1,7 @@
 package org.petctviewer.scintigraphy.gastric;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.Prefs;
 import org.petctviewer.scintigraphy.gastric.dynamic.DynGastricScintigraphy;
 import org.petctviewer.scintigraphy.gastric.gui.PromptIngestionTime;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
@@ -26,8 +22,11 @@ import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabGastric;
 
-import ij.ImagePlus;
-import ij.Prefs;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;

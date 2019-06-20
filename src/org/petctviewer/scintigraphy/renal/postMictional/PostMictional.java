@@ -1,9 +1,6 @@
 package org.petctviewer.scintigraphy.renal.postMictional;
 
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.gui.Overlay;
 import org.petctviewer.scintigraphy.renal.gui.TabPostMict;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -15,7 +12,9 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.gui.Overlay;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PostMictional extends Scintigraphy {
 
@@ -82,8 +81,7 @@ public class PostMictional extends Scintigraphy {
 				new ControllerWorkflowPostMictional((FenApplicationWorkflow) this.getFenApplication(),
 													new Model_PostMictional(
 															preparedImages.toArray(new ImageSelection[0]),
-															this.getStudyName()),
-													this.resultFrame));
+															this.getStudyName()), this.resultFrame));
 	}
 
 }

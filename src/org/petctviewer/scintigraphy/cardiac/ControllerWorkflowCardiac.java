@@ -1,11 +1,6 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -23,7 +18,10 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
@@ -46,7 +44,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	public static String simpleName = "ControllerWorkflowCardiac";
 
 	public ControllerWorkflowCardiac(FenApplicationWorkflow vue, ModelScin model, int fullBodyImages,
-			int onlyThoraxImage) {
+									 int onlyThoraxImage) {
 		super(vue, model);
 
 		this.fullBodyImages = fullBodyImages;
@@ -66,6 +64,41 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 		this.generateInstructions();
 		this.start();
+	}
+
+	private void clicNewCont() {
+
+		if (this.getVue().getImagePlus().getRoi() != null && !this.finContSlice2 && this.fullBodyImages > 0) {
+			System.out.println(
+					((DrawSymmetricalLoopInstruction) this.workflows[indexCurrentWorkflow].getCurrentInstruction()).getIndex());
+			if (((DrawSymmetricalLoopInstruction) this.workflows[indexCurrentWorkflow].getCurrentInstruction()).getIndex() %
+					2 != 0) {
+				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getVue();
+				fac.getBtn_continue().setEnabled(false);
+				fac.getBtn_suivant().setLabel("Next");
+			} else {
+				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getVue();
+				fac.getBtn_continue().setEnabled(true);
+				fac.getBtn_suivant().setLabel("Save");
+			}
+		}
+	}
+
+	private void checkPanelInstruction_BtnRight() {
+		// TODO Auto-generated method stub
+		// if (this.workflows[indexCurrentWorkflow].getCurrentInstruction() ==
+		// this.workflows[indexCurrentWorkflow]
+		// .getInstructions().get(0))
+		if (this.workflows[indexCurrentWorkflow].getInstructions().get(0) instanceof ContaminationAskInstruction)
+			if (this.workflows[indexCurrentWorkflow].getInstructions().size() > 1)
+				if (((DrawSymmetricalLoopInstruction) this.workflows[indexCurrentWorkflow].getInstructionAt(
+						this.workflows[indexCurrentWorkflow].getInstructions().size() - 1)).isStopped()) {
+					((FenApplication_Cardiac) this.getVue()).stopContaminationMode();
+				} else if (this.workflows[indexCurrentWorkflow].getInstructions().size() > 2)
+					if (this.workflows[indexCurrentWorkflow].getCurrentInstruction() ==
+							this.workflows[indexCurrentWorkflow].getInstructions().get(2))
+						((FenApplication_Cardiac) this.getVue()).startContaminationMode();
+
 	}
 
 	public void clicEndCont() {
@@ -96,25 +129,6 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		this.vue.pack();
 	}
 
-	private void clicNewCont() {
-
-		if (this.getVue().getImagePlus().getRoi() != null && !this.finContSlice2 && this.fullBodyImages > 0) {
-			System.out.println(
-					((DrawSymmetricalLoopInstruction) this.workflows[indexCurrentWorkflow].getCurrentInstruction())
-							.getIndex());
-			if (((DrawSymmetricalLoopInstruction) this.workflows[indexCurrentWorkflow].getCurrentInstruction())
-					.getIndex() % 2 != 0) {
-				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getVue();
-				fac.getBtn_continue().setEnabled(false);
-				fac.getBtn_suivant().setLabel("Next");
-			} else {
-				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getVue();
-				fac.getBtn_continue().setEnabled(true);
-				fac.getBtn_suivant().setLabel("Save");
-			}
-		}
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		System.out.println("finContSlice1 : " + this.finContSlice1);
@@ -128,31 +142,12 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			} else if (b == ((FenApplication_Cardiac) this.getVue()).getBtn_continue())
 				this.clicEndCont();
 			else if (b == this.getVue().getBtn_precedent())
-				if (this.workflows[indexCurrentWorkflow]
-						.getCurrentInstruction() instanceof DrawSymmetricalLoopInstruction) {
+				if (this.workflows[indexCurrentWorkflow].getCurrentInstruction() instanceof DrawSymmetricalLoopInstruction) {
 					this.checkPanelInstruction_BtnRight();
 				}
 
 		}
 		super.actionPerformed(arg0);
-	}
-
-	private void checkPanelInstruction_BtnRight() {
-		// TODO Auto-generated method stub
-		// if (this.workflows[indexCurrentWorkflow].getCurrentInstruction() ==
-		// this.workflows[indexCurrentWorkflow]
-		// .getInstructions().get(0))
-		if (this.workflows[indexCurrentWorkflow].getInstructions().get(0) instanceof ContaminationAskInstruction)
-			if (this.workflows[indexCurrentWorkflow].getInstructions().size() > 1)
-				if (((DrawSymmetricalLoopInstruction) this.workflows[indexCurrentWorkflow]
-						.getInstructionAt(this.workflows[indexCurrentWorkflow].getInstructions().size() - 1))
-								.isStopped()) {
-					((FenApplication_Cardiac) this.getVue()).stopContaminationMode();
-				} else if (this.workflows[indexCurrentWorkflow].getInstructions().size() > 2)
-					if (this.workflows[indexCurrentWorkflow]
-							.getCurrentInstruction() == this.workflows[indexCurrentWorkflow].getInstructions().get(2)) 
-						((FenApplication_Cardiac) this.getVue()).startContaminationMode();
-					
 	}
 
 	@Override
@@ -309,8 +304,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	}
 
 	public void endContamination() {
-		if (this.finContSlice1)
-			this.finContSlice2 = true;
+		if (this.finContSlice1) this.finContSlice2 = true;
 		this.finContSlice1 = true;
 
 	}

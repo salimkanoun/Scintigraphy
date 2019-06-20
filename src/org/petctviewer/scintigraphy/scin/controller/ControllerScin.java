@@ -1,18 +1,5 @@
 package org.petctviewer.scintigraphy.scin.controller;
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
-import org.petctviewer.scintigraphy.scin.instructions.ImageState;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
-import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
-
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -20,6 +7,16 @@ import ij.Prefs;
 import ij.gui.Roi;
 import ij.plugin.MontageMaker;
 import ij.plugin.frame.RoiManager;
+import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * This class represents the Controller in the MVC pattern.<br> This abstract class is only a provider for functions

@@ -1,11 +1,6 @@
 package org.petctviewer.scintigraphy.gastric;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
-import javax.swing.JOptionPane;
-
+import ij.Prefs;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -18,7 +13,10 @@ import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionCompara
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabGastric;
 
-import ij.Prefs;
+import javax.swing.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class GastricScintigraphy extends Scintigraphy {
 

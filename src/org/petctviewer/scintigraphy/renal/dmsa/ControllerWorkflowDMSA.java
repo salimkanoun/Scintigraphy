@@ -1,8 +1,8 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.gui.Overlay;
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -15,9 +15,8 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 
-import ij.ImagePlus;
-import ij.gui.Overlay;
-import ij.gui.Roi;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflowDMSA extends ControllerWorkflow {
 

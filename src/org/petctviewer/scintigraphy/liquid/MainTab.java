@@ -28,7 +28,7 @@ public class MainTab extends TabResult implements ChangeListener {
 	private final JLabel labelTHalfResult;
 
 	public MainTab(FenResults parent) {
-		super(parent, "Liquid Phase");
+		super(parent, "Liquid Phase", true);
 
 		// Init variables
 		this.fitPanel = new FitPanel();
@@ -64,12 +64,15 @@ public class MainTab extends TabResult implements ChangeListener {
 		request.setFit(fit);
 
 		ResultValue resTHalf = getModel().getResult(request);
-		this.labelTHalfResult.setText(resTHalf.formatValue());
+		this.labelTHalfResult.setText(resTHalf.formatValue() + " " + resTHalf.getUnit().abbrev());
 
 
 		this.labelExtrapolation.setText("(*) The results are calculated with a " + fit.getType() + " extrapolation");
 
 		this.parent.pack();
+
+		// Update model
+		getModel().setCurrentFit(fit);
 	}
 
 	@Override

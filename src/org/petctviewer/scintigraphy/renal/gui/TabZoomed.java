@@ -1,9 +1,5 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.Component;
-
-import javax.swing.JPanel;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -13,6 +9,9 @@ import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+
+import javax.swing.*;
+import java.awt.*;
 
 class TabZoomed extends TabResult {
 

@@ -1,27 +1,5 @@
 package org.petctviewer.scintigraphy.scin.library;
 
-import java.awt.AWTException;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Robot;
-import java.awt.Window;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Random;
-
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
-import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
-
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -36,6 +14,15 @@ import ij.plugin.frame.RoiManager;
 import ij.process.ImageProcessor;
 import ij.process.LUT;
 import ij.util.DicomTools;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class Library_Capture_CSV {
 

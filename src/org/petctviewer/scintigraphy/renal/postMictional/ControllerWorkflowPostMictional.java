@@ -1,13 +1,9 @@
 package org.petctviewer.scintigraphy.renal.postMictional;
 
 
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.Prefs;
+import ij.gui.Overlay;
 import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.gui.TabPostMict;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -25,9 +21,12 @@ import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
-import ij.ImagePlus;
-import ij.Prefs;
-import ij.gui.Overlay;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 
@@ -36,16 +35,14 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 	private List<ImagePlus> captures;
 	private TabPostMict resultFrame;
 
-	public ControllerWorkflowPostMictional(FenApplicationWorkflow vue, ModelScin model,
-			TabPostMict resultFrame) {
+	public ControllerWorkflowPostMictional(FenApplicationWorkflow vue, ModelScin model, TabPostMict resultFrame) {
 		super(vue, model);
-		
+
 		this.resultFrame = resultFrame;
 		this.kidneys = ((Model_Renal) this.resultFrame.getParent().getModel()).getKidneys();
 
 		this.captures = new ArrayList<>();
-		
-		
+
 
 		this.generateInstructions();
 		this.start();

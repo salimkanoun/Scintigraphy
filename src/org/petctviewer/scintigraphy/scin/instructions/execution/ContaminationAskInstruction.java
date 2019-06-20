@@ -1,12 +1,5 @@
 package org.petctviewer.scintigraphy.scin.instructions.execution;
 
-import java.awt.Button;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JPanel;
-
 import org.petctviewer.scintigraphy.cardiac.ControllerWorkflowCardiac;
 import org.petctviewer.scintigraphy.cardiac.FenApplication_Cardiac;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -14,6 +7,11 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoopInstruction;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class ContaminationAskInstruction extends ExecutionInstruction implements ActionListener {
 
@@ -112,8 +110,7 @@ public class ContaminationAskInstruction extends ExecutionInstruction implements
 			this.workflow.addInstructionOnTheFly(this.getInstructionToGenerate());
 			((FenApplication_Cardiac)this.workflow.getController().getVue()).startContaminationMode();
 			this.workflow.getController().clickNext();
-		}
-		else 
+		} else
 			((ControllerWorkflowCardiac)this.workflow.getController()).clicEndCont();	
 	}
 	

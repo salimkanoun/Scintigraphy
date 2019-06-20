@@ -1,11 +1,7 @@
 
 package org.petctviewer.scintigraphy.generic.dynamic;
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-
-import javax.swing.JOptionPane;
-
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.generic.statics.FenApplication_ScinStatic;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -21,7 +17,9 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.gui.Roi;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
@@ -78,7 +76,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 			roi.setPosition(0);
 			this.vue.getImagePlus().getOverlay().add(roi);
 		}
-		
+
 		Model_GeneralDyn model = (Model_GeneralDyn) this.getModel();
 
 		BufferedImage capture;

@@ -1,8 +1,8 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.Dimension;
-import java.awt.image.BufferedImage;
-
+import ij.ImagePlus;
+import ij.Prefs;
+import ij.process.ImageProcessor;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.Model_Renal;
@@ -13,9 +13,8 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
-import ij.ImagePlus;
-import ij.Prefs;
-import ij.process.ImageProcessor;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class FenResultats_Renal extends FenResults {
 	private static final long serialVersionUID = 1L;
@@ -26,14 +25,13 @@ public class FenResultats_Renal extends FenResults {
 		this.addTab(new TabROE(this));
 		// Prepare image for tab
 		Model_Renal model = (Model_Renal) controller.getModel();
-		ImagePlus montage = Library_Capture_CSV.creerMontage(model.getFrameDurations(), model.getImpPost().getImagePlus(),
+		ImagePlus montage = Library_Capture_CSV.creerMontage(model.getFrameDurations(),
+															 model.getImpPost().getImagePlus(),
 															 200, 4, 5);
 		montage.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
 		this.addTab(new TabContrastModifier(this, "Timed Image", montage));
-		if (Prefs.get(PrefTabRenal.PREF_PELVIS, true))
-			this.addTab(new TabCort(this));
-		if (Prefs.get(PrefTabRenal.PREF_PELVIS, true))
-			this.addTab(new TabUreter(this));
+		if (Prefs.get(PrefTabRenal.PREF_PELVIS, true)) this.addTab(new TabCort(this));
+		if (Prefs.get(PrefTabRenal.PREF_PELVIS, true)) this.addTab(new TabUreter(this));
 		this.addTab(new TabZoomed(this));
 		this.addTab(new TabOther(this));
 		this.addTab(new TabPostMict(this));

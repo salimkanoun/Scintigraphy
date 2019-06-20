@@ -1,8 +1,6 @@
 package org.petctviewer.scintigraphy.platelet;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.platelet.tabs.CountsTab;
 import org.petctviewer.scintigraphy.platelet.tabs.MeansTab;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -18,7 +16,8 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 
-import ij.ImagePlus;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 
@@ -26,14 +25,13 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 	private boolean isAntPost;
 
 	/**
-	 * @param main           Reference to the main class
 	 * @param vue            View of the MVC pattern
 	 * @param selectedImages Images used for this study
 	 */
-	public ControllerWorkflow_Platelet(FenApplicationWorkflow vue,
-									   ImageSelection[] selectedImages, boolean isAntPost) {
+	public ControllerWorkflow_Platelet(FenApplicationWorkflow vue, ImageSelection[] selectedImages,
+									   boolean isAntPost) {
 		super(vue, new ModelPlatelet(selectedImages, vue.getStudyName()));
-		
+
 		this.isAntPost = isAntPost;
 
 		this.generateInstructions();

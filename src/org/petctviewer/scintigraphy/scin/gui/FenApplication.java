@@ -1,15 +1,21 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
-import java.awt.Panel;
-import java.awt.Toolkit;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.gui.ImageCanvas;
+import ij.gui.Overlay;
+import ij.gui.StackWindow;
+import ij.util.DicomTools;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
+import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
+import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTab;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseWheelListener;
@@ -19,34 +25,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-
-import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
-import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
-import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
-import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
-import org.petctviewer.scintigraphy.scin.preferences.PrefTab;
-
-import ij.IJ;
-import ij.ImagePlus;
-import ij.gui.ImageCanvas;
-import ij.gui.Overlay;
-import ij.gui.StackWindow;
-import ij.util.DicomTools;
-
 /**
  * Interface graphique principale de quantification dans imageJ
  *
  * @author diego
  */
-@SuppressWarnings("deprecation")
 public class FenApplication extends StackWindow implements ComponentListener, MouseWheelListener {
 	public static final String BTN_TXT_NEXT = "Next";
-	public static final int MENU_OPTION = 0, MENU_HELP = 1;
 	private static final long serialVersionUID = -6280620624574294247L;
 	protected final JTextField textfield_instructions;
 	protected final Button btn_suivant;
@@ -95,7 +80,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		this.imp.setTitle(titre);// imp title
 
 		panelContainer = new Panel(new BorderLayout());
-		
+
 		this.panelPrincipal = new Panel(new FlowLayout());
 
 		// construit tous les boutons
@@ -127,15 +112,15 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 		panelPrincipal.add(this.panel_Instructions_btns_droite);
 
-		
+
 		panelContainer.add(this.panelPrincipal, BorderLayout.CENTER);
 		this.add(panelContainer);
 
 //		panelContainer.setPreferredSize(new Dimension(512, (int) panelContainer.getPreferredSize().getHeight()));
 		// Menu bar
 		this.createMenuBar();
-//		((ImageLayout)this.getLayout()).layoutContainer(panelContainer);
-		
+		this.getLayout().layoutContainer(panelContainer);
+
 		this.setDefaultSize();
 //		this.setSize(new Dimension(512, (int)this.getPreferredSize().getHeight()));
 		this.addComponentListener(this);

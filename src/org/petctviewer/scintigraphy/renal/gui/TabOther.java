@@ -1,12 +1,6 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.GridLayout;
-import java.util.List;
-
-import javax.swing.JPanel;
-
+import ij.Prefs;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Model_Renal;
@@ -15,7 +9,9 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
-import ij.Prefs;
+import javax.swing.*;
+import java.awt.*;
+import java.util.List;
 
 class TabOther extends TabResult {
 

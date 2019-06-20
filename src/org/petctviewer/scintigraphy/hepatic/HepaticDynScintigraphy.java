@@ -1,9 +1,7 @@
 package org.petctviewer.scintigraphy.hepatic;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.IJ;
+import ij.gui.Overlay;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -15,8 +13,9 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.IJ;
-import ij.gui.Overlay;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HepaticDynScintigraphy extends Scintigraphy {
 

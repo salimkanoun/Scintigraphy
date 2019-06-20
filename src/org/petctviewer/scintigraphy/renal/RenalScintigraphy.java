@@ -1,9 +1,8 @@
 package org.petctviewer.scintigraphy.renal;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.plugin.ZProjector;
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -18,9 +17,9 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.plugin.ZProjector;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class RenalScintigraphy extends Scintigraphy {
 

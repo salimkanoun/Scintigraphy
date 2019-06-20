@@ -1,10 +1,7 @@
 package org.petctviewer.scintigraphy.renal;
 
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.Prefs;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.gui.FenNeph;
@@ -25,8 +22,10 @@ import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
-import ij.ImagePlus;
-import ij.Prefs;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ControllerWorkflowRenal extends ControllerWorkflow {
 

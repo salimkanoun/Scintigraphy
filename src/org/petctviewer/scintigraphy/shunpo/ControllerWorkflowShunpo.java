@@ -1,18 +1,9 @@
 package org.petctviewer.scintigraphy.shunpo;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.GridLayout;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.Prefs;
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -31,10 +22,13 @@ import org.petctviewer.scintigraphy.scin.model.ResultRequest;
 import org.petctviewer.scintigraphy.scin.model.ResultValue;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabShunpo;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.Prefs;
-import ij.gui.Roi;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class ControllerWorkflowShunpo extends ControllerWorkflow implements ItemListener {
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
