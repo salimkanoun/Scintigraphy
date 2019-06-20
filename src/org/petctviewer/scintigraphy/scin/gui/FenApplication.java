@@ -34,7 +34,6 @@ import org.petctviewer.scintigraphy.scin.preferences.PrefTab;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.ImageCanvas;
-import ij.gui.ImageLayout;
 import ij.gui.Overlay;
 import ij.gui.StackWindow;
 import ij.util.DicomTools;

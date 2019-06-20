@@ -5,6 +5,7 @@ import java.awt.*;
 
 public class PrefTabShunpo extends PrefTab {
 
+	private static final long serialVersionUID = 1L;
 	public static final String PREF_HEADER = PrefWindow.PREF_HEADER + ".shunpo";
 	public static final String PREF_WITH_KIDNEYS = PREF_HEADER + ".withKidneys";
 
