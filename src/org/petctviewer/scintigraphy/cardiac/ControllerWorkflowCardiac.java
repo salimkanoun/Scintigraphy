@@ -35,9 +35,8 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	// private int nbConta1;
 	// private int nbConta2;
 	public List<ImagePlus> captures;
-	private boolean finContSlice1;
+	private boolean finContSlice1, finContSlice2;
 	private String[] organes = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
-	private boolean finContSlice2;
 	private int onlyThoraxImage;
 
 	private int fullBodyImages;
@@ -70,6 +69,8 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	private void clicNewCont() {
 
 		if (this.getVue().getImagePlus().getRoi() != null && !this.finContSlice2 && this.fullBodyImages > 0) {
+			System.out.println(
+					((DrawSymmetricalLoopInstruction) this.workflows[indexCurrentWorkflow].getCurrentInstruction()).getIndex());
 			if (((DrawSymmetricalLoopInstruction) this.workflows[indexCurrentWorkflow].getCurrentInstruction()).getIndex() %
 					2 != 0) {
 				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getVue();
@@ -83,98 +84,78 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		}
 	}
 
+	private void checkPanelInstruction_BtnRight() {
+		// TODO Auto-generated method stub
+		// if (this.workflows[indexCurrentWorkflow].getCurrentInstruction() ==
+		// this.workflows[indexCurrentWorkflow]
+		// .getInstructions().get(0))
+		if (this.workflows[indexCurrentWorkflow].getInstructions().get(0) instanceof ContaminationAskInstruction)
+			if (this.workflows[indexCurrentWorkflow].getInstructions().size() > 1)
+				if (((DrawSymmetricalLoopInstruction) this.workflows[indexCurrentWorkflow].getInstructionAt(
+						this.workflows[indexCurrentWorkflow].getInstructions().size() - 1)).isStopped()) {
+					((FenApplication_Cardiac) this.getVue()).stopContaminationMode();
+				} else if (this.workflows[indexCurrentWorkflow].getInstructions().size() > 2)
+					if (this.workflows[indexCurrentWorkflow].getCurrentInstruction() ==
+							this.workflows[indexCurrentWorkflow].getInstructions().get(2))
+						((FenApplication_Cardiac) this.getVue()).startContaminationMode();
+
+	}
+
 	public void clicEndCont() {
-		// Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
-		// .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
-		// System.out.println("--------------------------
-		// Avant--------------------------");
-		// System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n");
 
 		// on set la slice
-		if ((this.fullBodyImages > 1 && !finContSlice1)) {
-			// on relance le mode decontamination, cette fois ci pour la deuxieme slice
+		if ((this.fullBodyImages > 1 && !finContSlice1))
 			this.finContSlice1 = true;
 
-		} else { // on a trait� toutes les contaminations
+		else if (this.fullBodyImages > 1 && finContSlice1) {
+			// on a trait� toutes les contaminations
 			((FenApplication_Cardiac) this.getVue()).stopContaminationMode();
 			String[] conts = new String[this.position];
-			for (int i = 0; i < conts.length; i++) {
+			for (int i = 0; i < conts.length; i++)
 				conts[i] = "Cont";
-			}
+
 			// on ajoute de nouvelles cases dans le tableau organes pour ne pas modifier
 			// l'indexRoi
 			this.setOrganes((String[]) ArrayUtils.addAll(conts, this.getOrganes()));
 			this.endContamination();
 		}
 
-		// System.out.println("In da clicEndCont :
-		// "+this.workflows[indexCurrentWorkflow].getCurrentInstruction());
-		if (this.workflows[indexCurrentWorkflow].getCurrentInstruction() instanceof DrawSymmetricalLoopInstruction) {
+		if (this.workflows[indexCurrentWorkflow].getCurrentInstruction() instanceof DrawSymmetricalLoopInstruction)
 			((DrawSymmetricalLoopInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
-			// ((DrawSymmetricalLoopInstruction)
-			// this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).setExpectingUserInput(false);
-			// this.position++;
-		}
 
 		this.getVue().getBtn_suivant().setLabel("Next");
 		this.clickNext();
 
 		this.vue.pack();
-
-		// System.out.println("-------------------------- Apres
-		// --------------------------");
-		// System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n\n");
-
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-
-		// Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls()
-		// .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
-		//
-		// System.out.println(this.position);
-		// System.out.println("-------------------------- Current
-		// --------------------------");
-		// System.out.println("In da
-		// ActionPerformed"+gson.toJson(this.workflows[this.indexCurrentWorkflow])+"\n\n");
+		System.out.println("finContSlice1 : " + this.finContSlice1);
+		System.out.println("finContSlice2 : " + this.finContSlice2);
 
 		if (arg0.getSource() instanceof Button) {
 			Button b = (Button) arg0.getSource();
-			if (b == this.getVue().getBtn_suivant())
+			if (b == this.getVue().getBtn_suivant()) {
 				this.clicNewCont();
-			else if (b == ((FenApplication_Cardiac) this.getVue()).getBtn_continue())
+				this.checkPanelInstruction_BtnRight();
+			} else if (b == ((FenApplication_Cardiac) this.getVue()).getBtn_continue())
 				this.clicEndCont();
 			else if (b == this.getVue().getBtn_precedent())
-				if (this.workflows[indexCurrentWorkflow]
-						.getCurrentInstruction() instanceof ContaminationAskInstruction) {
-					this.getVue().getPanel_Instructions_btns_droite().remove(1);
-					this.getVue().getPanel_Instructions_btns_droite().add(this.getVue().createPanelInstructionsBtns());
-					this.getVue().pack();
+				if (this.workflows[indexCurrentWorkflow].getCurrentInstruction() instanceof DrawSymmetricalLoopInstruction) {
+					this.checkPanelInstruction_BtnRight();
 				}
 
 		}
 		super.actionPerformed(arg0);
-		// System.out.println(this.position);
-		// if(this.indexCurrentWorkflow - 1 >= 0) {
-		// System.out.println(this.workflows[indexCurrentWorkflow -
-		// 1].getCurrentInstruction());
-		// System.out.println("-------------------------- Previous
-		// --------------------------");
-		// System.out.println(gson.toJson(this.workflows[this.indexCurrentWorkflow -
-		// 1])+"\n\n");
-		// }
 	}
 
 	@Override
 	public void end() {
 		super.end();
-		// this.saveWorkflow();
 
 		((Model_Cardiac) this.model).getResults();
 		this.model.calculateResults();
-		// ((Model_Cardiac) this.model).setNbConta(new int[] {this.nbConta1,
-		// this.nbConta2});
 
 		FenResultat_Cardiac fen = new FenResultat_Cardiac(captures, this, this.fullBodyImages, this.onlyThoraxImage);
 		fen.setVisible(true);
@@ -322,19 +303,10 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		this.workflows[this.workflows.length - 1].addInstruction(new EndInstruction());
 	}
 
-	public void setFullBodyImages(int fullBodyImages) {
-		// TODO Auto-generated method stub
-		this.fullBodyImages = fullBodyImages;
-	}
-
-	public void setOnlyThoraxImage(int onlyThoraxImage) {
-		// TODO Auto-generated method stub
-		this.onlyThoraxImage = onlyThoraxImage;
-	}
-
 	public void endContamination() {
+		if (this.finContSlice1) this.finContSlice2 = true;
 		this.finContSlice1 = true;
-		this.finContSlice2 = true;
+
 	}
 
 	public int getFullBodyImagesCount() {
