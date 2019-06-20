@@ -6,7 +6,6 @@ import ij.Prefs;
 import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -18,27 +17,31 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ResultRequest;
 import org.petctviewer.scintigraphy.scin.model.ResultValue;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabShunpo;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class ControllerWorkflowShunpo extends ControllerWorkflow {
+public class ControllerWorkflowShunpo extends ControllerWorkflow implements ItemListener {
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
-	private final FenResults fenResults;
 	private final boolean WITH_KIDNEYS;
 	private List<ImagePlus> captures;
+	private DisplayState display;
 
-	public ControllerWorkflowShunpo(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
-		super(main, vue, new ModelShunpo(selectedImages, main.getStudyName()));
+	public ControllerWorkflowShunpo(FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
+		super(vue, new ModelShunpo(selectedImages, vue.getStudyName()));
 
 		// Initialize variables
 		this.WITH_KIDNEYS = Prefs.get(PrefTabShunpo.PREF_WITH_KIDNEYS, true);
-		this.fenResults = new FenResults(this);
+		this.display = DisplayState.ANT_POST;
 
 		this.generateInstructions();
 		this.start();
@@ -83,10 +86,6 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		stateAnt.setIdImage(ModelShunpo.IMAGE_BRAIN);
 		getModel().addData(ModelShunpo.REGION_BRAIN, stateAnt,
 						   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * 2 + 1]);
-	}
-
-	public ModelShunpo getModel() {
-		return (ModelShunpo) super.getModel();
 	}
 
 	private void generateInstructionsWithKidneys() {
@@ -169,6 +168,10 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		this.workflows[1].addInstruction(new EndInstruction());
 	}
 
+	public ModelShunpo getModel() {
+		return (ModelShunpo) super.getModel();
+	}
+
 	@Override
 	protected void end() {
 		super.end();
@@ -191,10 +194,10 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 		ImagePlus montage2 = this.montage(stackCapture);
 
 		// Display result
-		this.fenResults.clearTabs();
-		if (WITH_KIDNEYS) this.fenResults.setMainTab(new MainResult(this.fenResults, montage1));
+		FenResults fenResults = new FenResults(this);
+		if (WITH_KIDNEYS) fenResults.setMainTab(new MainResult(fenResults, montage1));
 		else {
-			this.fenResults.setMainTab(new TabResult(this.fenResults, "Without Kidneys", true) {
+			fenResults.setMainTab(new TabResult(fenResults, "Without Kidneys", true) {
 				@Override
 				public Component getSidePanelContent() {
 					JPanel panel = new JPanel(new GridLayout(0, 1));
@@ -215,11 +218,57 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 					return new DynamicImage(montage2.getBufferedImage());
 				}
 			});
-			this.fenResults.getMainTab().reloadDisplay();
+			fenResults.getMainTab().reloadDisplay();
 		}
-		this.fenResults.pack();
-		this.fenResults.setVisible(true);
+		fenResults.pack();
+		fenResults.setVisible(true);
 
+	}
+
+	@Override
+	public void setOverlay(ImageState state) throws IllegalArgumentException {
+		if (state == null) throw new IllegalArgumentException("The state cannot be null");
+		if (state.getFacingOrientation() == null) throw new IllegalArgumentException(
+				"The state misses the required data: -facingOrientation=" + state.getFacingOrientation() + "; " +
+						state.getSlice());
+		if (state.getSlice() <= ImageState.SLICE_PREVIOUS) throw new IllegalArgumentException("The slice is invalid");
+
+		if (state.isLateralisationRL()) {
+			if (state.getFacingOrientation() == Orientation.ANT) {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
+											state.getSlice());
+				Library_Gui.setOverlayTitle(display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
+											state.getSlice());
+			} else {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
+											state.getSlice());
+				Library_Gui.setOverlayTitle("Inverted " + display.getTitlePost(), this.vue.getImagePlus(),
+											Color.YELLOW,
+											state.getSlice());
+			}
+		} else {
+			if (state.getFacingOrientation() == Orientation.ANT) {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,
+											state.getSlice());
+				Library_Gui.setOverlayTitle("Inverted " + display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
+											state.getSlice());
+			} else {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,
+											state.getSlice());
+				Library_Gui.setOverlayTitle(display.getTitlePost(), this.vue.getImagePlus(), Color.YELLOW,
+											state.getSlice());
+			}
+		}
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getStateChange() == ItemEvent.SELECTED) {
+			this.display = DisplayState.stateFromLabel((String) e.getItem());
+			this.getVue().getImagePlus().getOverlay().clear();
+			this.setOverlay(this.currentState);
+			this.getVue().getImagePlus().updateAndDraw();
+		}
 	}
 
 	@Override
@@ -228,6 +277,42 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow {
 			this.generateInstructionsWithKidneys();
 		} else {
 			this.generateInstructionsWithoutKidneys();
+		}
+	}
+
+	public enum DisplayState {
+		RIGHT_LEFT("Label ANT as RIGHT", "P", "A", "Right-Left"),
+		LEFT_RIGHT("Label ANT as LEFT", "A", "P", "Left-Right"),
+		ANT_POST("Label ANT as ANT", "R", "L", "Ant-Post");
+
+		public String label, textL, textR;
+		private String title;
+
+		DisplayState(String label, String textL, String textR, String titleAP) {
+			this.label = label;
+			this.textL = textL;
+			this.textR = textR;
+			this.title = titleAP;
+		}
+
+		/**
+		 * Finds the state associated with the specified label. If not state matches this label, then the ANT_POST
+		 * state
+		 * is returned.
+		 *
+		 * @param label Label of the state to retrieve
+		 * @return state corresponding to the specified label or ANT_POST if no state matches
+		 */
+		public static DisplayState stateFromLabel(String label) {
+			return Arrays.stream(values()).filter(state -> state.label.equals(label)).findFirst().orElse(ANT_POST);
+		}
+
+		public String getTitleAnt() {
+			return this.title.split("-")[0];
+		}
+
+		public String getTitlePost() {
+			return this.title.split("-")[1];
 		}
 	}
 

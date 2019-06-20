@@ -4,7 +4,6 @@ import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
@@ -17,16 +16,13 @@ import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-
 public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
 	private final TabMethod1 tabResult;
 
-	public ControllerWorkflow_DynGastric(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
+	public ControllerWorkflow_DynGastric(FenApplicationWorkflow vue, ModelScin model,
 										 ImageSelection[] selectedImages, TabMethod1 tabResult) {
-		super(main, vue, model);
+		super(vue, model);
 		this.getRoiManager().reset();
 
 		// Create projection for each image
@@ -104,7 +100,7 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		this.tabResult.createGraph();
 
 		// Set the best fit by default
-		this.tabResult.selectFit(this.tabResult.findBestFit());
+		this.tabResult.selectBestFit();
 
 		// Do not reload the method 2
 		this.tabResult.reloadDisplay();
@@ -146,16 +142,6 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 	@Override
 	public Model_Gastric getModel() {
 		return (Model_Gastric) super.getModel();
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		super.actionPerformed(e);
-
-		// Auto-fit
-		if (e.getSource() instanceof JButton && this.tabResult.isButtonAutoFit((JButton) e.getSource())) {
-			this.tabResult.selectFit(this.tabResult.findBestFit());
-		}
 	}
 
 	private class BkgNoiseInstruction extends PromptInstruction {

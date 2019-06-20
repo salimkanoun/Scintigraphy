@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.scin.instructions.drawing;
 
 import ij.gui.Roi;
 import ij.plugin.RoiScaler;
+import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
@@ -24,14 +25,25 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 
 	private final transient Organ organ;
 
-	public DrawSymmetricalRoiInstruction(String organToDelimit, ImageState state, Instruction instructionToCopy,
-										 String roiName, Workflow workflow, Organ organ) {
+	/**
+	 * This Instruction draw a roi symmetrically from the width/2 or width/4 of the image.<br/> It take exemple from
+	 * the
+	 * ROI of the given Instruction.<br/> This Instruction was designed for the {@link CardiacScintigraphy}.
+	 *
+	 * @param organToDelimit    Name of organ. This will automatically add A for ANT and P for POST when the ROI is
+	 *                          validated
+	 * @param state             State of the image
+	 * @param instructionToCopy Instruction to get the ROI from.
+	 * @param workflow          Workflow where this instruction is inserted
+	 * @param organ             If you want to draw symmetrically from width/2(DEMIE) or width/4(QUART)
+	 */
+	public DrawSymmetricalRoiInstruction(String organToDelimit, ImageState state, Instruction instructionToCopy, String roiName, Workflow workflow, Organ organ) {
 		super(organToDelimit, state, null, roiName);
 		this.workflow = workflow;
 		this.organ = organ;
 		this.dri_1 = instructionToCopy;
 		this.organToDelimit = organToDelimit;
-		
+
 		this.InstructionType = InstructionFromGson.DrawInstructionType.DRAW_SYMMETRICAL;
 	}
 

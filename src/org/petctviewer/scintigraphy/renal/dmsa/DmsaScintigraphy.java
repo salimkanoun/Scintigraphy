@@ -19,7 +19,7 @@ import java.util.List;
 
 public class DmsaScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "dmsa";
+	public static final String STUDY_NAME = "DMSA";
 
 	public DmsaScintigraphy() {
 		super(STUDY_NAME);
@@ -34,7 +34,7 @@ public class DmsaScintigraphy extends Scintigraphy {
 		this.setFenApplication(fen);
 		preparedImages.get(0).getImagePlus().setOverlay(overlay);
 
-		fen.setController(new ControllerWorkflowDMSA(this, (FenApplicationWorkflow) this.getFenApplication(),
+		fen.setController(new ControllerWorkflowDMSA((FenApplicationWorkflow) this.getFenApplication(),
 													 preparedImages.toArray(new ImageSelection[0])));
 	}
 

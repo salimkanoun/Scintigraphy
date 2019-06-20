@@ -122,4 +122,8 @@ public abstract class DefaultGenerator implements GeneratorInstruction, Serializ
 		this.isStopped = false;
 	}
 
+	public boolean isStopped() {
+		return this.isStopped;
+	}
+
 }

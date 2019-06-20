@@ -15,7 +15,7 @@ public class TabAntPost extends TabResult {
 	private final BufferedImage capture;
 
 	public TabAntPost(BufferedImage capture, String antOrPost, FenResults parent) {
-		super(parent, antOrPost);
+		super(parent, antOrPost, true);
 //		this.createCaptureButton("_" + antOrPost);
 		this.setAdditionalInfo("_" + antOrPost);
 		this.capture = capture;

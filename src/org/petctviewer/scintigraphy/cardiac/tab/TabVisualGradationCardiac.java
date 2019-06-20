@@ -1,15 +1,29 @@
 package org.petctviewer.scintigraphy.cardiac.tab;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import org.petctviewer.scintigraphy.cardiac.Model_Cardiac;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.util.HashMap;
-
-public class TabVisualGradationCardiac extends TabResult {
+public class TabVisualGradationCardiac extends TabResult implements ActionListener {
 
 //	private JRadioButton grade0 = new JRadioButton("Grade 0"), grade1 = new JRadioButton("Grade 1"),
 //			grade2 = new JRadioButton("Grade 2"), grade3 = new JRadioButton("Grade 3");
@@ -110,8 +124,16 @@ public class TabVisualGradationCardiac extends TabResult {
 		comboContainer.add(gradeList);
 
 		globalPane.add(comboContainer);
+		
+		gradeList.addActionListener(this);
 
 		return globalPane;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		if(arg0.getSource() instanceof JComboBox)
+			((Model_Cardiac)this.parent.getModel()).setOnlyThoraxGradation((Integer)((JComboBox<?>)arg0.getSource()).getSelectedItem());
 	}
 
 }

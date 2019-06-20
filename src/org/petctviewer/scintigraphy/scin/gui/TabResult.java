@@ -1,7 +1,13 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.util.ArrayList;
+
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 
 /**
  * This class represents a Tab containing the results for any study.<br> The tab follow this schema:<br>
@@ -28,8 +34,8 @@ public abstract class TabResult {
 	protected FenResults parent;
 	private String title;
 	private Container result;
-	private Component[] componentToHide;
-	private Component[] componentToShow;
+	private ArrayList<Component> componentToHide;
+	private ArrayList<Component> componentToShow;
 	private String additionalInfo;
 
 	/**
@@ -62,8 +68,8 @@ public abstract class TabResult {
 		this.title = title;
 		this.parent = parent;
 		this.result = new JPanel();
-		this.componentToHide = new Component[0];
-		this.componentToShow = new Component[0];
+		this.componentToHide = new ArrayList<>();
+		this.componentToShow = new ArrayList<>();
 		this.additionalInfo = "";
 
 		this.sidePanel = new SidePanel(null, parent.getModel().getStudyName(), parent.getModel().getImagePlus());
@@ -181,7 +187,7 @@ public abstract class TabResult {
 	 *
 	 * @see CaptureButton
 	 */
-	public Component[] getComponentToHide() {
+	public ArrayList<Component> getComponentToHide() {
 		return this.componentToHide;
 	}
 
@@ -190,8 +196,8 @@ public abstract class TabResult {
 	 *
 	 * @see CaptureButton
 	 */
-	public void setComponentToHide(Component[] componentToHide) {
-		this.componentToHide = componentToHide;
+	public void setComponentToHide(ArrayList<Component> componentToHide) {
+		this.componentToHide.addAll(componentToHide);
 	}
 
 	/**
@@ -199,7 +205,7 @@ public abstract class TabResult {
 	 *
 	 * @see CaptureButton
 	 */
-	public Component[] getComponentToShow() {
+	public ArrayList<Component> getComponentToShow() {
 		return this.componentToShow;
 	}
 
@@ -208,8 +214,8 @@ public abstract class TabResult {
 	 *
 	 * @see CaptureButton
 	 */
-	public void setComponentToShow(Component[] componentToShow) {
-		this.componentToShow = componentToShow;
+	public void setComponentToShow(ArrayList<Component> componentToShow) {
+		this.componentToShow.addAll(componentToShow);
 	}
 
 	/**

@@ -27,7 +27,7 @@ public class ControllerWorkflowMIBG extends ControllerWorkflow {
 	private final List<ImagePlus> captures;
 
 	public ControllerWorkflowMIBG(String studyName, FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
-		super(null, vue, new ModelMIBG(selectedImages, studyName));
+		super(vue, new ModelMIBG(selectedImages, studyName));
 
 		this.captures = new ArrayList<>();
 

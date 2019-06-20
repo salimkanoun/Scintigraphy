@@ -5,7 +5,6 @@ import ij.gui.Overlay;
 import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -23,8 +22,8 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
 	private final boolean antPost;
 
-	public ControllerWorkflowDMSA(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
-		super(main, vue, new Model_Dmsa(selectedImages, main.getStudyName()));
+	public ControllerWorkflowDMSA(FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
+		super(vue, new Model_Dmsa(selectedImages, vue.getStudyName()));
 
 		this.antPost = this.model.getImagePlus().getNSlices() == 2;
 

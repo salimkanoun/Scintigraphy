@@ -54,6 +54,8 @@ public class Model_Gastric extends ModelWorkflow {
 
 	private Region bkgNoise_antre, bkgNoise_intestine, bkgNoise_stomach, bkgNoise_fundus;
 
+	private Fit fitMethod1, fitMethod2;
+
 	public Model_Gastric(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
 		Prefs.useNamesAsLabels = true;
@@ -90,8 +92,9 @@ public class Model_Gastric extends ModelWorkflow {
 
 	/**
 	 * Computes the geometrical average of each region of the data found.<br> The average is made with the {@link
-	 * Data#DATA_COUNTS} and the {@link Data#DATA_COUNTS} data and will generate the {@link Data#DATA_GEO_AVG}
-	 * for every region.
+	 * Data#DATA_COUNTS} and the {@link Data#DATA_COUNTS} data and will generate the {@link Data#DATA_GEO_AVG} for
+	 * every
+	 * region.
 	 * <p>
 	 * So the data ANT_COUNTS and POST_COUNTS <b>must</b> be defined for all regions (except REGION_ALL).
 	 * </p>
@@ -271,13 +274,8 @@ public class Model_Gastric extends ModelWorkflow {
 	 */
 	private Double calculatePercentage(Data data, String region, int key) {
 		Double valueRegion, valueAll;
-		if (key == Data.DATA_COUNTS) {
-			valueRegion = data.getPostValue(region, key);
-			valueAll = data.getPostValue(REGION_ALL, key);
-		} else {
-			valueRegion = data.getAntValue(region, key);
-			valueAll = data.getAntValue(REGION_ALL, key);
-		}
+		valueRegion = data.getAntValue(region, key);
+		valueAll = data.getAntValue(REGION_ALL, key);
 		if (valueRegion != null && valueAll != null) return valueRegion / valueAll * 100.;
 		return null;
 	}
@@ -334,7 +332,7 @@ public class Model_Gastric extends ModelWorkflow {
 				dataToInflate.setAntValue(REGION_STOMACH, Data.DATA_DERIVATIVE, stomachDerivative);
 			}
 		} else {
-			System.err.println("Warning: no data found");
+			System.out.println("Warning: no data found");
 		}
 	}
 
@@ -370,12 +368,10 @@ public class Model_Gastric extends ModelWorkflow {
 		imp.setSlice(state.getSlice());
 		imp.setRoi(roi);
 		if (state.getFacingOrientation() == Orientation.ANT) {
-			data.setAntValue(regionName, Data.DATA_COUNTS, Math.max(0, Library_Quantif.getCounts(imp)), state,
-							 roi);
+			data.setAntValue(regionName, Data.DATA_COUNTS, Math.max(0, Library_Quantif.getCounts(imp)), state, roi);
 			data.setAntValue(regionName, Data.DATA_PIXEL_COUNTS, imp.getStatistics().pixelCount);
 		} else {
-			data.setPostValue(regionName, Data.DATA_COUNTS, Math.max(0, Library_Quantif.getCounts(imp)), state,
-							  roi);
+			data.setPostValue(regionName, Data.DATA_COUNTS, Math.max(0, Library_Quantif.getCounts(imp)), state, roi);
 			data.setPostValue(regionName, Data.DATA_PIXEL_COUNTS, imp.getStatistics().pixelCount);
 		}
 	}
@@ -553,6 +549,111 @@ public class Model_Gastric extends ModelWorkflow {
 	}
 
 	/**
+	 * @return all regions required by this model
+	 */
+	private String[] getAllRegionsName() {
+		return new String[]{REGION_STOMACH, REGION_ANTRE, REGION_FUNDUS, REGION_INTESTINE};
+	}
+
+	/**
+	 * @param unit Unit of the Y axis
+	 * @return Y values for the stomach
+	 */
+	private double[] generateStomachValues(Unit unit) {
+		return this.generateYValuesFromDataset(generateStomachDataset(unit));
+	}
+
+	/**
+	 * @return Y values for the decay function
+	 */
+	private double[] generateDecayFunctionValues(Unit unit) {
+		return this.generateYValuesFromDataset(generateDecayFunctionDataset(unit));
+	}
+
+	private String resultToCsvLine(Result res, int method) {
+		ResultRequest request = new ResultRequest(res);
+		if (method == 1) request.setFit(fitMethod1);
+		else request.setFit(fitMethod2);
+
+		ResultValue result = getResult(request);
+		String value, unit;
+		if (result != null) {
+			value = Double.toString(result.getValue());
+			unit = result.getUnit().abbrev();
+		} else {
+			value = "n/a";
+			unit = "?";
+		}
+		return res + "," + value + "," + unit + "\n";
+	}
+
+	private String retentionResultToCsvLine(ResultRequest request, double time) {
+		ResultValue result = getRetentionResult(request, time);
+		String value, unit;
+		if (result != null) {
+			value = Double.toString(result.getValue());
+			unit = result.getUnit().abbrev();
+		} else {
+			value = "n/a";
+			unit = "?";
+		}
+		return request.getResultOn().getName() + "_" + (int) time + "," + value + "," + unit + "\n";
+	}
+
+	private String retentionResultToCsv(int method) {
+		ResultRequest request = new ResultRequest(RETENTION_PERCENTAGE);
+		if (method == 1) request.setFit(fitMethod1);
+		else request.setFit(fitMethod2);
+
+		return retentionResultToCsvLine(request, 30.) + retentionResultToCsvLine(request, 60.) +
+				retentionResultToCsvLine(request, 120.) + retentionResultToCsvLine(request, 180.) +
+				retentionResultToCsvLine(request, 240.);
+	}
+
+	private String csvTable(int method) {
+		StringBuilder builder = new StringBuilder();
+		builder.append(RES_TIME);
+		builder.append(",");
+		builder.append(RES_STOMACH);
+		builder.append(",");
+		builder.append(RES_FUNDUS);
+		builder.append(",");
+		builder.append(RES_ANTRUM);
+		builder.append("\n");
+
+		for (Data data : this.generatesDataOrdered()) {
+			builder.append(data.getMinutes());
+			builder.append(",");
+			if (method == 1) {
+				builder.append(data.getAntValue(REGION_STOMACH, Data.DATA_PERCENTAGE));
+			} else {
+				builder.append(data.getAntValue(REGION_STOMACH, Data.DATA_GEO_AVG));
+			}
+			builder.append(",");
+			builder.append(data.getAntValue(REGION_FUNDUS, Data.DATA_PERCENTAGE));
+			builder.append(",");
+			builder.append(data.getAntValue(REGION_ANTRE, Data.DATA_PERCENTAGE));
+			builder.append("\n");
+		}
+
+		return builder.toString();
+	}
+
+	private String csvResult() {
+		int method;
+		if (Prefs.get(PrefTabGastric.PREF_SIMPLE_METHOD, false)) method = 2;
+		else method = 1;
+
+		return this.studyName + "\n\n" + this.csvTable(method) + "\n" + resultToCsvLine(LAG_PHASE_PERCENTAGE, method) +
+				resultToCsvLine(T_HALF_PERCENTAGE, method) + retentionResultToCsv(method);
+	}
+
+	public void setFitMethod(int method, Fit fit) {
+		if (method == 1) this.fitMethod1 = fit;
+		else if (method == 2) this.fitMethod2 = fit;
+	}
+
+	/**
 	 * Calculates the counts of the specified region.<br> The region must be previously inflated with the correct
 	 * state.<br> This method takes care of all necessary operations to do on the ImagePlus or the RoiManager.<br> This
 	 * method will create a new data for each new ImageSelection encountered.
@@ -691,13 +792,6 @@ public class Model_Gastric extends ModelWorkflow {
 	}
 
 	/**
-	 * @return all regions required by this model
-	 */
-	private String[] getAllRegionsName() {
-		return new String[]{REGION_STOMACH, REGION_ANTRE, REGION_FUNDUS, REGION_INTESTINE};
-	}
-
-	/**
 	 * Generates the series with the specified ID. The ID must be one of {@link #SERIES_DECAY_FUNCTION} or {@link
 	 * #SERIES_STOMACH_PERCENTAGE}.
 	 *
@@ -725,25 +819,10 @@ public class Model_Gastric extends ModelWorkflow {
 	}
 
 	/**
-	 * @param unit Unit of the Y axis
-	 * @return Y values for the stomach
-	 */
-	private double[] generateStomachValues(Unit unit) {
-		return this.generateYValuesFromDataset(generateStomachDataset(unit));
-	}
-
-	/**
 	 * @return series for the decay function
 	 */
 	public XYSeries generateDecayFunction(Unit unit) {
 		return this.generateSeriesFromDataset("Stomach", this.generateDecayFunctionDataset(unit));
-	}
-
-	/**
-	 * @return Y values for the decay function
-	 */
-	private double[] generateDecayFunctionValues(Unit unit) {
-		return this.generateYValuesFromDataset(generateDecayFunctionDataset(unit));
 	}
 
 	/**
@@ -792,58 +871,6 @@ public class Model_Gastric extends ModelWorkflow {
 		for (Data data : this.results.values()) {
 			data.setTime(this.calculateDeltaTime(
 					Library_Dicom.getDateAcquisition(data.getAssociatedImage().getImagePlus())));
-		}
-	}
-
-	/**
-	 * Computes the data retrieved from the specified state. This method calculates the percentages for each region.
-	 * This method should be used when the static acquisition has been made.<br> The {@link Data#DATA_GEO_AVG}
-	 * <b>must</b> be defined in every region (except REGION_ALL).<br> If the previous state is not null, then the
-	 * derivative is calculated for the stomach.
-	 *
-	 * @param state         State of the data to retrieve
-	 * @param previousState State of the previous data to retrieve (in chronological order)
-	 * @throws NoSuchElementException if no data could be retrieved from the specified state
-	 */
-	void computeStaticData(ImageState state, ImageState previousState) {
-		Data data = this.results.get(hashState(state));
-		if (data == null) throw new NoSuchElementException(
-				"No data has been set for this image (" + state.getImage().getImagePlus().getTitle() + ")");
-
-		this.computeGeometricalAverages(state);
-
-		// Calculate percentages
-		// - Fundus
-		Double percentageFundus = calculatePercentage(data, REGION_FUNDUS, Data.DATA_GEO_AVG);
-		if (percentageFundus != null) data.setAntValue(REGION_FUNDUS, Data.DATA_PERCENTAGE, percentageFundus);
-
-		// - Antre
-		Double percentageAntre = calculatePercentage(data, REGION_ANTRE, Data.DATA_GEO_AVG);
-		if (percentageAntre != null) data.setAntValue(REGION_ANTRE, Data.DATA_PERCENTAGE, percentageAntre);
-
-		// - Stomach
-		Double percentageStomach = null;
-		if (percentageAntre != null && percentageFundus != null) {
-			percentageStomach = percentageFundus + percentageAntre;
-			data.setAntValue(REGION_STOMACH, Data.DATA_PERCENTAGE, percentageStomach);
-		}
-
-		// - Intestine
-		if (percentageStomach != null) data.setAntValue(REGION_INTESTINE, Data.DATA_PERCENTAGE,
-														100. - percentageStomach);
-
-		// Calculate correlation
-		if (percentageFundus != null && percentageStomach != null) {
-			double fundusCorrelation = percentageFundus / percentageStomach * 100.;
-			data.setAntValue(REGION_FUNDUS, Data.DATA_CORRELATION, fundusCorrelation);
-		}
-
-		try {
-			this.computeDerivative(data, state, previousState);
-
-			this.computeDecayFunction(data);
-		} catch (NullPointerException e) {
-			// Data missing, the derivative or decay function could not be calculated
 		}
 	}
 
@@ -963,10 +990,11 @@ public class Model_Gastric extends ModelWorkflow {
 	public ChartPanel createGraph_3() {
 		double[][] ySeries = new double[][]{this.getResultAsArray(REGION_STOMACH, Data.DATA_PERCENTAGE,
 																  Unit.PERCENTAGE),
-				this.getResultAsArray(REGION_FUNDUS,
+											this.getResultAsArray(REGION_FUNDUS,
 																										  Data.DATA_PERCENTAGE,
 																										  Unit.PERCENTAGE),
-				this.getResultAsArray(REGION_ANTRE, Data.DATA_PERCENTAGE, Unit.PERCENTAGE)};
+											this.getResultAsArray(REGION_ANTRE, Data.DATA_PERCENTAGE,
+																  Unit.PERCENTAGE)};
 		String[] titles = new String[]{"Stomach", "Fundus", "Antrum"};
 		Color[] colors = new Color[]{Color.RED, new Color(0, 255, 0), Color.BLUE};
 
@@ -1027,6 +1055,8 @@ public class Model_Gastric extends ModelWorkflow {
 		if (result != RETENTION_GEOAVG && result != RETENTION_PERCENTAGE) throw new IllegalArgumentException(
 				"The result " + result + " not supported here!");
 
+		if (request.getFit() == null) return null;
+
 		double[] yValues;
 		if (result == RETENTION_PERCENTAGE) {
 			yValues = generateStomachValues(request.getFit().getYUnit());
@@ -1073,6 +1103,8 @@ public class Model_Gastric extends ModelWorkflow {
 		else if (result == START_INTESTINE) return new ResultValue(request, this.getDebut(REGION_INTESTINE),
 																   Unit.TIME);
 		else if (result == LAG_PHASE_PERCENTAGE || result == LAG_PHASE_GEOAVG) {
+			if (fit == null) return null;
+
 			double[] yValues;
 			if (result == LAG_PHASE_PERCENTAGE) yValues = generateStomachValues(fit.getYUnit());
 			else yValues = generateDecayFunctionValues(fit.getYUnit());
@@ -1088,10 +1120,16 @@ public class Model_Gastric extends ModelWorkflow {
 			}
 
 			// Convert to requested unit
-			valX = Unit.TIME.convertTo(valX, request.getUnit());
+			Unit resultUnit = Unit.MINUTES;
+			if (request.getUnit() != null) {
+				valX = resultUnit.convertTo(valX, request.getUnit());
+				resultUnit = request.getUnit();
+			}
 
-			return new ResultValue(request, valX, request.getUnit(), isExtrapolated);
+			return new ResultValue(request, valX, resultUnit, isExtrapolated);
 		} else if (result == T_HALF_PERCENTAGE || result == T_HALF_GEOAVG) {
+			if (fit == null) return null;
+
 			double[] yValues;
 			if (result == T_HALF_PERCENTAGE) yValues = generateStomachValues(fit.getYUnit());
 			else yValues = generateDecayFunctionValues(fit.getYUnit());
@@ -1107,9 +1145,13 @@ public class Model_Gastric extends ModelWorkflow {
 			}
 
 			// Convert to requested unit
-			valX = Unit.TIME.convertTo(valX, request.getUnit());
+			Unit resultUnit = Unit.MINUTES;
+			if (request.getUnit() != null) {
+				valX = resultUnit.convertTo(valX, request.getUnit());
+				resultUnit = request.getUnit();
+			}
 
-			return new ResultValue(request, valX, request.getUnit(), isExtrapolated);
+			return new ResultValue(request, valX, resultUnit, isExtrapolated);
 		} else {
 			try {
 				if (result == RES_TIME) return new ResultValue(request, BigDecimal.valueOf(data.getMinutes()).setScale(
@@ -1144,5 +1186,62 @@ public class Model_Gastric extends ModelWorkflow {
 	@Override
 	public void calculateResults() {
 		this.generateTime();
+	}
+
+	@Override
+	public String toString() {
+		return this.csvResult();
+	}
+
+	/**
+	 * Computes the data retrieved from the specified state. This method calculates the percentages for each region.
+	 * This method should be used when the static acquisition has been made.<br> The {@link Data#DATA_GEO_AVG}
+	 * <b>must</b> be defined in every region (except REGION_ALL).<br> If the previous state is not null, then the
+	 * derivative is calculated for the stomach.
+	 *
+	 * @param state         State of the data to retrieve
+	 * @param previousState State of the previous data to retrieve (in chronological order)
+	 * @throws NoSuchElementException if no data could be retrieved from the specified state
+	 */
+	void computeStaticData(ImageState state, ImageState previousState) {
+		Data data = this.results.get(hashState(state));
+		if (data == null) throw new NoSuchElementException(
+				"No data has been set for this image (" + state.getImage().getImagePlus().getTitle() + ")");
+
+		this.computeGeometricalAverages(state);
+
+		// Calculate percentages
+		// - Fundus
+		Double percentageFundus = calculatePercentage(data, REGION_FUNDUS, Data.DATA_GEO_AVG);
+		if (percentageFundus != null) data.setAntValue(REGION_FUNDUS, Data.DATA_PERCENTAGE, percentageFundus);
+
+		// - Antre
+		Double percentageAntre = calculatePercentage(data, REGION_ANTRE, Data.DATA_GEO_AVG);
+		if (percentageAntre != null) data.setAntValue(REGION_ANTRE, Data.DATA_PERCENTAGE, percentageAntre);
+
+		// - Stomach
+		Double percentageStomach = null;
+		if (percentageAntre != null && percentageFundus != null) {
+			percentageStomach = percentageFundus + percentageAntre;
+			data.setAntValue(REGION_STOMACH, Data.DATA_PERCENTAGE, percentageStomach);
+		}
+
+		// - Intestine
+		if (percentageStomach != null) data.setAntValue(REGION_INTESTINE, Data.DATA_PERCENTAGE,
+														100. - percentageStomach);
+
+		// Calculate correlation
+		if (percentageFundus != null && percentageStomach != null) {
+			double fundusCorrelation = percentageFundus / percentageStomach * 100.;
+			data.setAntValue(REGION_FUNDUS, Data.DATA_CORRELATION, fundusCorrelation);
+		}
+
+		try {
+			this.computeDerivative(data, state, previousState);
+
+			this.computeDecayFunction(data);
+		} catch (NullPointerException e) {
+			// Data missing, the derivative or decay function could not be calculated
+		}
 	}
 }

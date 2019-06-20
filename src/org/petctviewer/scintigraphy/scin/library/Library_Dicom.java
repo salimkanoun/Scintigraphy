@@ -5,6 +5,7 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.plugin.Concatenator;
 import ij.plugin.ZProjector;
+import ij.process.ImageProcessor;
 import ij.process.StackProcessor;
 import ij.util.DicomTools;
 import org.apache.commons.lang.StringUtils;
@@ -648,10 +649,7 @@ public class Library_Dicom {
 
 	/**
 	 * Normalize to have on each frame, the count/second number.
-	 * <p>
-	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image. Otherwise, the count
-	 * are
-	 * only ineter, and we lose many informations.
+	 * 
 	 *
 	 * @param imp            ImagePlus to normalize
 	 * @param frameDurations int[] of the ImagePlus duration frames
@@ -665,10 +663,7 @@ public class Library_Dicom {
 
 	/**
 	 * Normalize to have on each frame, the count/second number.
-	 * <p>
-	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image. Otherwise, the count
-	 * are
-	 * only ineter, and we lose many informations.
+	 * 
 	 *
 	 * @param imp ImagePlus to normalize
 	 */
@@ -679,15 +674,59 @@ public class Library_Dicom {
 
 	/**
 	 * Normalize to have on each frame, the count/second number.
-	 * <p>
-	 * To avoid a loss of information, we recommand to do this normalization on a 32 bit image. Otherwise, the count
-	 * are
-	 * only ineter, and we lose many informations.
+	 * 
 	 *
 	 * @param imp ImageSelection to normalize
 	 */
 	public static void normalizeToCountPerSecond(ImageSelection imp) {
 		normalizeToCountPerSecond(imp.getImagePlus());
+	}
+	
+	
+	/**
+	 * Create a copy of the ImagePlus and resize it, by resizing every slice of the ImageStack thanks to the ImageProcessor.
+	 * @param imagePlus		ImagePlus to resize
+	 * @param newWidth		New Width for the resize
+	 * @param newHeight		New height for the resize
+	 * @return				A <b>new</b> ImagePlus
+	 */
+	public static ImagePlus resize(ImagePlus imagePlus, int newWidth, int newHeight) {
+
+		ImageStack stack = imagePlus.getStack();
+		ImageProcessor ip = imagePlus.getProcessor();
+
+		int nSlices = stack.getSize();
+
+		ImageStack stack2 = new ImageStack(newWidth, newHeight);
+		ImageProcessor ip2 = null;
+		// Rectangle roi = ip != null ? ip.getRoi() : null;
+		if (ip == null)
+			ip = stack.getProcessor(1).duplicate();
+		try {
+			for (int i = 1; i <= nSlices; i++) {
+				// showStatus("Resize: ",i,nSlices);
+				ip.setPixels(stack.getPixels(1));
+				String label = stack.getSliceLabel(1);
+				stack.deleteSlice(1);
+				ip2 = ip.resize(newWidth, newHeight, true);
+				if (ip2 != null)
+					stack2.addSlice(label, ip2);
+				IJ.showProgress((double) i / nSlices);
+			}
+			IJ.showProgress(1.0);
+		} catch (OutOfMemoryError o) {
+			while (stack.getSize() > 1)
+				stack.deleteLastSlice();
+			IJ.outOfMemory("StackProcessor.resize");
+			IJ.showProgress(1.0);
+		}
+
+		ImagePlus newImagePlus = new ImagePlus();
+		newImagePlus.setStack(stack2);
+		newImagePlus.setProcessor(ip2);
+		newImagePlus.setProperty("Info", imagePlus.getProperty("Info"));
+
+		return newImagePlus;
 	}
 
 	/**

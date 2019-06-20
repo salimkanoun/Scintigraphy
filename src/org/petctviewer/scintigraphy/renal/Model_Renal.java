@@ -45,6 +45,8 @@ public class Model_Renal extends ModelScinDyn {
 		this.impPost = selectedImages[1];
 		if(selectedImages.length > 2)
 			this.impAnt = selectedImages[2];
+
+		this.frameDurations = frameDuration;
 		
 		this.pixelCounts = new HashMap<>();
 	}

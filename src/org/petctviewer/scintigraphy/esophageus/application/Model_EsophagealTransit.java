@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.esophageus.application;
 
 import ij.gui.Roi;
 import ij.plugin.frame.RoiManager;
+import org.petctviewer.scintigraphy.esophageus.resultats.Model_Resultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
@@ -25,12 +26,19 @@ public class Model_EsophagealTransit extends ModelScinDyn {
 	ArrayList<Object[]> dicomRoi;
 	
 	public final EsophagealTransit esoPlugIn;
-	
-	public Model_EsophagealTransit(ImageSelection [][] sauvegardeImagesSelectDicom, String studyName, EsophagealTransit esoPlugIn) {
+
+	private Model_Resultats_EsophagealTransit modelResults;
+
+	private ImageSelection impProjeteeAllAcqui;
+
+	public Model_EsophagealTransit(ImageSelection[][] sauvegardeImagesSelectDicom, String studyName,
+								   EsophagealTransit esoPlugIn, ImageSelection impProjeteeAllAcqui) {
 		super(sauvegardeImagesSelectDicom[0], studyName, esoPlugIn.getFrameDurations());
 		this.sauvegardeImagesSelectDicom = sauvegardeImagesSelectDicom;
 		
 		examenMean = new ArrayList<>();
+
+		this.impProjeteeAllAcqui = impProjeteeAllAcqui;
 		
 		this.esoPlugIn = esoPlugIn;
 	}
@@ -190,6 +198,30 @@ public class Model_EsophagealTransit extends ModelScinDyn {
 
 	public ArrayList<Object[]> getDicomRoi() {
 		return this.dicomRoi;
+	}
+
+	public void setModelResults(Model_Resultats_EsophagealTransit model) {
+		// TODO Auto-generated method stub
+		this.modelResults = model;
+	}
+	
+	public String toString() {
+		return this.modelResults.toString();
+	}
+
+
+	/**
+	 * In order to get the Scinti out of all programms.
+	 */
+	public void setImpProjeteeAllAcqui(ImageSelection impProjeteeAllAcqui) {
+		this.impProjeteeAllAcqui = impProjeteeAllAcqui;
+	}
+
+	/**
+	 * In order to get the Scinti out of all programms.
+	 */
+	public ImageSelection getImgPrjtAllAcqui() {
+		return this.impProjeteeAllAcqui;
 	}
 	
 }

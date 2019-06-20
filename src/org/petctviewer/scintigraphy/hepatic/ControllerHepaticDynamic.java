@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -17,7 +18,6 @@ import javax.swing.SwingUtilities;
 
 import org.petctviewer.scintigraphy.hepatic.tab.TabCurves;
 import org.petctviewer.scintigraphy.hepatic.tab.TabMainHepaticDyn;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.CaptureButton;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
@@ -34,8 +34,8 @@ public class ControllerHepaticDynamic extends ControllerScin implements MouseLis
 
 	public static final String COMMAND_END = "command.end";
 
-	public ControllerHepaticDynamic(Scintigraphy main, FenApplication vue, ModelScin model) {
-		super(main, main.getFenApplication(), model);
+	public ControllerHepaticDynamic(FenApplication vue, ModelScin model) {
+		super(vue, model);
 	}
 
 	@Override
@@ -126,8 +126,8 @@ public class ControllerHepaticDynamic extends ControllerScin implements MouseLis
 
 		TabResult tab = captureButton.getTabResult();
 		JLabel lbl_credits = captureButton.getLabelCredits();
-		Component[] hide = tab.getComponentToHide();
-		Component[] show = tab.getComponentToShow();
+		ArrayList<Component> hide = tab.getComponentToHide();
+		ArrayList<Component> show = tab.getComponentToShow();
 		String additionalInfo = tab.getAdditionalInfo();
 
 		// generation du tag info

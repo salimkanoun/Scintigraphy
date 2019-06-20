@@ -1,14 +1,9 @@
 
 package org.petctviewer.scintigraphy.generic.dynamic;
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-
-import javax.swing.JOptionPane;
-
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.generic.statics.FenApplication_ScinStatic;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -22,14 +17,16 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.gui.Roi;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
 	private FenResults fenResult;
 
-	public ControllerWorkflowScinDynamic(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
-		super(main, vue, model);
+	public ControllerWorkflowScinDynamic(FenApplicationWorkflow vue, ModelScin model) {
+		super(vue, model);
 
 		this.generateInstructions();
 		this.start();
@@ -80,7 +77,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 			this.vue.getImagePlus().getOverlay().add(roi);
 		}
 
-		GeneralDynamicScintigraphy scindyn = (GeneralDynamicScintigraphy) this.main;
+		Model_GeneralDyn model = (Model_GeneralDyn) this.getModel();
 
 		BufferedImage capture;
 
@@ -94,14 +91,14 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 
 		this.fenResult = new FenResultat_GeneralDyn(this, asso);
 
-		if (scindyn.getImpAnt() != null) {
+		if (model.getImpAnt() != null) {
 			this.vue.getImagePlus().setSlice(1);
 			capture = Library_Capture_CSV.captureImage(this.vue.getImagePlus(), 512, 0).getBufferedImage();
 			((Model_GeneralDyn) this.model).saveValues(((Model_GeneralDyn) this.model).getImpAnt().getImagePlus());
 			this.fenResult.addTab(new TabAntPost(capture, "Ant", this.fenResult));
 		}
 
-		if (scindyn.getImpPost() != null) {
+		if (model.getImpPost() != null) {
 
 			this.vue.getImagePlus().setSlice(2);
 
@@ -118,6 +115,45 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		this.fenResult.setVisible(true);
 	}
 
+	private void setOverlayTitleLaterisationAndRoi() {
+		vue.getImagePlus().getOverlay().clear();
+
+		if (((Model_GeneralDyn) model).getImpAnt() != null && ((Model_GeneralDyn) model).getImpPost() != null) {
+			Library_Gui.setOverlayTitle("Ant", vue.getImagePlus(), Color.YELLOW, 1);
+			Library_Gui.setOverlayTitle("Inverted Post", vue.getImagePlus(), Color.YELLOW, 2);
+		} else if (((Model_GeneralDyn) model).getImpAnt() != null) Library_Gui.setOverlayTitle("Ant",
+																							   vue.getImagePlus(),
+																							   Color.YELLOW, 1);
+		else Library_Gui.setOverlayTitle("Post", vue.getImagePlus(), Color.YELLOW, 1);
+
+		Library_Gui.setOverlayDG(vue.getImagePlus(), Color.yellow);
+
+		for (int indexCurrentRoi = 0; indexCurrentRoi < this.indexRoi; indexCurrentRoi++) {
+			Roi roi = this.getRoiManager().getRoi(indexCurrentRoi);
+			roi.setPosition(0);
+			this.getVue().getImagePlus().getOverlay().add(roi);
+		}
+	}
+
+	private void updateButtonLabel(int indexRoi) {
+		// Check ROI is present
+		Roi roi = getRoiManager().getRoi(indexRoi);
+		if (roi != null) {
+			getVue().getBtn_suivant().setLabel(FenApplication_ScinStatic.BTN_TEXT_NEXT);
+		} else {
+			getVue().getBtn_suivant().setLabel(FenApplication_ScinStatic.BTN_TEXT_NEW_ROI);
+		}
+	}
+
+	@Override
+	public void clickPrevious() {
+		super.clickPrevious();
+
+		this.setOverlayTitleLaterisationAndRoi();
+
+		this.updateButtonLabel(this.indexRoi);
+	}
+	
 	@Override
 	public void clickNext() {
 		boolean sameName = false;
@@ -141,7 +177,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		}
 
 		super.clickNext();
-		
+
 		this.setOverlayTitleLaterisationAndRoi();
 
 		this.updateButtonLabel(this.indexRoi);
@@ -149,45 +185,6 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		// Update view
 		int indexScroll = this.getVue().getInstructionDisplayed();
 		getVue().currentInstruction(indexScroll);
-	}
-	
-	@Override
-	public void clickPrevious() {
-		super.clickPrevious();
-		
-		this.setOverlayTitleLaterisationAndRoi();
-
-		this.updateButtonLabel(this.indexRoi);
-	}
-	
-	private void setOverlayTitleLaterisationAndRoi() {
-		vue.getImagePlus().getOverlay().clear();
-
-		if (((Model_GeneralDyn) model).getImpAnt() != null && ((Model_GeneralDyn) model).getImpPost() != null) {
-			Library_Gui.setOverlayTitle("Ant", vue.getImagePlus(), Color.YELLOW, 1);
-			Library_Gui.setOverlayTitle("Inverted Post", vue.getImagePlus(), Color.YELLOW, 2);
-		} else if (((Model_GeneralDyn) model).getImpAnt() != null)
-			Library_Gui.setOverlayTitle("Ant", vue.getImagePlus(), Color.YELLOW, 1);
-		else
-			Library_Gui.setOverlayTitle("Post", vue.getImagePlus(), Color.YELLOW, 1);
-		
-		Library_Gui.setOverlayDG(vue.getImagePlus(), Color.yellow);
-		
-		for (int indexCurrentRoi = 0; indexCurrentRoi < this.indexRoi ; indexCurrentRoi++) {
-			Roi roi = this.getRoiManager().getRoi(indexCurrentRoi);
-			roi.setPosition(0);
-			this.getVue().getImagePlus().getOverlay().add(roi);
-		}
-	}
-	
-	private void updateButtonLabel(int indexRoi) {
-		// Check ROI is present
-		Roi roi = getRoiManager().getRoi(indexRoi);
-		if (roi != null) {
-			getVue().getBtn_suivant().setLabel(FenApplication_ScinStatic.BTN_TEXT_NEXT);
-		} else {
-			getVue().getBtn_suivant().setLabel(FenApplication_ScinStatic.BTN_TEXT_NEW_ROI);
-		}
 	}
 
 }

@@ -26,7 +26,7 @@ public class WindowDifferentPatient extends JDialog implements ActionListener {
 		panel.add(differences, BorderLayout.CENTER);
 		flow.add(panel);
 
-		flow.add(this.add(new JLabel("Do you want to still process the exam ?")));
+		flow.add(this.add(new JLabel("Do you want to still process the exam?")));
 
 		JPanel radio = new JPanel();
 		JButton btn_y = new JButton("Yes");

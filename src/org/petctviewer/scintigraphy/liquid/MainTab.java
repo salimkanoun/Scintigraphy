@@ -1,99 +1,80 @@
 package org.petctviewer.scintigraphy.liquid;
 
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartMouseEvent;
-import org.jfree.chart.ChartMouseListener;
-import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.renal.JValueSetter;
-import org.petctviewer.scintigraphy.renal.Selector;
+import org.petctviewer.scintigraphy.scin.events.FitChangeEvent;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.FitPanel;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
-import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.model.Fit;
 import org.petctviewer.scintigraphy.scin.model.ResultRequest;
 import org.petctviewer.scintigraphy.scin.model.ResultValue;
 import org.petctviewer.scintigraphy.scin.model.Unit;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
-public class MainTab extends TabResult implements ChartMouseListener {
+public class MainTab extends TabResult implements ChangeListener {
+	private final String xLabel = "Time (" + Unit.MINUTES.abbrev() + ")";
+	private final String yLabel = "Stomach retention (" + Unit.COUNTS.abbrev() + ")";
 
-	private boolean displayFit;
-	private Fit fit;
-	private ChartPanel chartPanel;
-	private XYSeriesCollection data;
-
-	private JLabel labelErrors;
+	private final FitPanel fitPanel;
+	private final JLabel labelExtrapolation;
+	private final JLabel labelTHalfResult;
 
 	public MainTab(FenResults parent) {
-		super(parent, "Liquid Phase");
+		super(parent, "Liquid Phase", true);
 
-		this.fit = Fit.createFit(Fit.FitType.LINEAR, getModel().getSeries().toArray(), Unit.COUNTS);
+		// Init variables
+		this.fitPanel = new FitPanel();
+		this.fitPanel.addChangeListener(this);
 
-		this.labelErrors = new JLabel();
-		this.labelErrors.setForeground(Color.RED);
+		this.labelExtrapolation = new JLabel();
+		this.labelTHalfResult = new JLabel();
 
-		this.reloadSidePanelContent();
 		this.createGraph();
-		this.reloadResultContent();
+
+		this.setComponentToHide(new ArrayList<>(Arrays.asList(this.fitPanel.getComponentsToHide())));
+		this.setComponentToShow(new ArrayList<>( Arrays.asList(this.fitPanel.getComponentsToShow())));
+		this.reloadDisplay();
 	}
 
 	private LiquidModel getModel() {
 		return (LiquidModel) parent.getModel();
 	}
 
-	private void drawFit() {
-		// Remove previous fit
-		if (data.getSeriesCount() > 1) data.removeSeries(1);
-
-		data.addSeries(this.fit.generateFittedSeries(getModel().generateXValues()));
-	}
-
-	private void setErrorMessage(String message) {
-		this.labelErrors.setText(message);
-	}
-
-	private void reloadFit() {
-		try {
-			// Create fit
-			XYSeries series = ((XYSeriesCollection) ((JValueSetter) this.chartPanel).retrieveValuesInSpan())
-					.getSeries(0);
-			this.fit = Fit.createFit(Fit.FitType.LINEAR, Library_JFreeChart.invertArray(series.toArray()),
-					Unit.COUNTS);
-
-			this.drawFit();
-			this.setErrorMessage(null);
-			this.reloadSidePanelContent();
-		} catch (IllegalArgumentException error) {
-			this.setErrorMessage("Cannot fit data: " + error.getMessage());
-		}
-	}
-
 	private void createGraph() {
 		XYSeries series = getModel().getSeries();
-		data = new XYSeriesCollection(series);
+		XYSeriesCollection data = new XYSeriesCollection(series);
 
-		final String graphTitle = "Stomach retention - Liquid phase";
-		final String xLabel = "Time (" + Unit.MINUTES.abbrev() + ")";
-		final String yLabel = "Stomach retention (" + Unit.COUNTS.abbrev() + ")";
+		String graphTitle = "Stomach retention - Liquid phase";
+		JFreeChart chart = ChartFactory.createXYLineChart(graphTitle, xLabel, yLabel, data, PlotOrientation.VERTICAL,
+														  true, true, true);
+		this.fitPanel.createGraph(chart, data, Unit.COUNTS);
+	}
 
-		if (this.displayFit) {
-			JValueSetter valueSetter = new JValueSetter(ChartFactory
-					.createXYLineChart(graphTitle, xLabel, yLabel, data, PlotOrientation.VERTICAL, true, true, true));
-			valueSetter.addSelector(new Selector(" ", series.getMinX(), -1, RectangleAnchor.TOP_LEFT), "start");
-			valueSetter.addSelector(new Selector(" ", series.getMaxX(), -1, RectangleAnchor.TOP_LEFT), "end");
-			valueSetter.addArea("start", "end", "area", null);
-			valueSetter.addChartMouseListener(this);
-			chartPanel = valueSetter;
-		} else {
-			chartPanel = Library_JFreeChart
-					.createGraph(xLabel, yLabel, new Color[]{Color.BLUE}, graphTitle, data);
-		}
+	private void updateSidePanelContent(Fit fit) {
+		// T1/2
+		ResultRequest request = new ResultRequest(LiquidModel.RES_T_HALF);
+		request.setFit(fit);
+
+		ResultValue resTHalf = getModel().getResult(request);
+		this.labelTHalfResult.setText(resTHalf.formatValue() + " " + resTHalf.getUnit().abbrev());
+
+
+		this.labelExtrapolation.setText("(*) The results are calculated with a " + fit.getType() + " extrapolation");
+
+		this.parent.pack();
+
+		// Update model
+		getModel().setCurrentFit(fit);
 	}
 
 	@Override
@@ -102,41 +83,24 @@ public class MainTab extends TabResult implements ChartMouseListener {
 
 		JPanel panCenter = new JPanel(new GridLayout(0, 2));
 
-		// T1/2
-		ResultRequest request = new ResultRequest(LiquidModel.RES_T_HALF);
-		request.setFit(this.fit);
-
-		ResultValue resTHalf = getModel().getResult(request);
 		panCenter.add(new JLabel("T 1/2"));
-		panCenter.add(new JLabel(resTHalf.formatValue()));
+		panCenter.add(this.labelTHalfResult);
 		panel.add(panCenter, BorderLayout.CENTER);
 
-		if (resTHalf.isExtrapolated()) {
-			this.displayFit = true;
-			panel.add(new JLabel("(*) The results are calculated with a " + this.fit.getType() + " extrapolation"),
-					BorderLayout.SOUTH);
-		}
+		panel.add(this.labelExtrapolation, BorderLayout.SOUTH);
 
 		return panel;
 	}
 
 	@Override
 	public Container getResultContent() {
-		JPanel panel = new JPanel(new BorderLayout());
-		panel.add(this.chartPanel, BorderLayout.CENTER);
-		panel.add(this.labelErrors, BorderLayout.SOUTH);
-		return panel;
+		return this.fitPanel;
 	}
 
 	@Override
-	public void chartMouseClicked(ChartMouseEvent event) {
-		// Does nothing
-	}
-
-	@Override
-	public void chartMouseMoved(ChartMouseEvent event) {
-		if (((JValueSetter) this.chartPanel).getGrabbedSelector() != null) {
-			this.reloadFit();
+	public void stateChanged(ChangeEvent e) {
+		if (e instanceof FitChangeEvent) {
+			this.updateSidePanelContent(((FitChangeEvent) e).getChangedFit());
 		}
 	}
 }

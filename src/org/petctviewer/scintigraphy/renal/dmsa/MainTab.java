@@ -1,6 +1,18 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
-import ij.gui.Overlay;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -11,23 +23,26 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
-import javax.swing.*;
-import java.awt.*;
+import ij.gui.Overlay;
 
 public class MainTab extends TabResult {
 
 	private ContrastSlider slider;
 	private DynamicImage result;
+	private JLabel contrastSliderLabel;
 
 	public MainTab(FenResults parent, ImageSelection capture, Overlay overlay) {
-		super(parent, "DMSA");
+		super(parent, "DMSA", true);
 
 		this.result = new DynamicImage(capture.getImagePlus().getBufferedImage());
 
 		capture.getImagePlus().setOverlay(overlay);
 		this.slider = new ContrastSlider(new ImageState(Orientation.POST, 2,
 														((ControllerWorkflow) this.parent.getController()).getCurrentImageState().getLateralisation(),
-														capture), this.result);
+														capture), this.result, this.parent);
+		this.contrastSliderLabel = new JLabel("Contrast");
+		
+		this.setComponentToHide(new ArrayList<>(Arrays.asList(new Component[] {slider, contrastSliderLabel})));
 
 		this.reloadDisplay();
 	}
@@ -68,7 +83,7 @@ public class MainTab extends TabResult {
 		// Slider
 		JPanel panSlider = new JPanel();
 		panSlider.setLayout(new BoxLayout(panSlider, BoxLayout.Y_AXIS));
-		panSlider.add(new JLabel("Contrast"));
+		panSlider.add(this.contrastSliderLabel);
 		panSlider.add(this.slider);
 
 		JPanel panel = new JPanel(new BorderLayout());

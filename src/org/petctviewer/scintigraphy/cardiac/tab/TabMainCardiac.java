@@ -1,14 +1,11 @@
 package org.petctviewer.scintigraphy.cardiac.tab;
 
-import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
-import org.petctviewer.scintigraphy.scin.gui.FenResults;
-import org.petctviewer.scintigraphy.scin.gui.TabResult;
-
-import javax.swing.*;
-import javax.swing.RowSorter.SortKey;
-import javax.swing.border.LineBorder;
-import javax.swing.table.DefaultTableModel;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -16,6 +13,28 @@ import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.DefaultRowSorter;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.RowSorter.SortKey;
+import javax.swing.SortOrder;
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
+
+import org.petctviewer.scintigraphy.cardiac.Model_Cardiac;
+import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
 public class TabMainCardiac extends TabResult implements ActionListener, WindowListener {
 
@@ -184,6 +203,9 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 				this.popup.pack();
 			} else this.popup.requestFocus();
 		}
+		
+		if(e.getSource() instanceof JComboBox)
+			((Model_Cardiac)this.getParent().getModel()).setFullBodyGradation((Integer)((JComboBox<?>)e.getSource()).getSelectedItem());
 		// if(e.getSource() instanceof JComboBox)
 		// System.out.println((this.btn_VisualGradation == null)+",
 		// "+this.btn_VisualGradation.getLabel());
@@ -206,9 +228,9 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 		comboContainer.add(gradeList);
 		comboContainer.setPreferredSize(new Dimension(45, 25));
 
-		gradeList.addActionListener(this);
-
 		globalPane.add(comboContainer);
+		
+		gradeList.addActionListener(this);
 
 		return globalPane;
 	}

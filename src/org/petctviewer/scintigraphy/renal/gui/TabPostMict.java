@@ -1,8 +1,21 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import ij.IJ;
-import ij.Prefs;
-import ij.util.DicomTools;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.renal.postMictional.Model_PostMictional;
 import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
@@ -22,14 +35,9 @@ import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import ij.ImagePlus;
+import ij.Prefs;
+import ij.util.DicomTools;
 
 public class TabPostMict extends TabContrastModifier implements ActionListener {
 	private final boolean bladder;
@@ -115,6 +123,8 @@ public class TabPostMict extends TabContrastModifier implements ActionListener {
 		this.btn_quantify = new JButton("Quantify");
 		this.btn_quantify.addActionListener(this);
 		side.add(btn_quantify);
+		
+		this.setComponentToHide((new ArrayList<> (Arrays.asList(new Component[] {btn_quantify}))));
 
 		// Simulate a \n
 		side.add(new JLabel(""));
@@ -192,9 +202,15 @@ public class TabPostMict extends TabContrastModifier implements ActionListener {
 
 					TabPostMict.this.imgSelected = true;
 					
-					IJ.run(selections.get(0).getImagePlus(), "Size...",
-							   "width=" + 512 + " height=" + 512 + " depth=2 constrain average " +
-									   "interpolation=Bilinear");
+//					IJ.run(selections.get(0).getImagePlus(), "Size...",
+//							   "width=" + 512 + " height=" + 512 + " depth=2 constrain average " +
+//									   "interpolation=Bilinear");
+					
+					
+					ImagePlus temp = Library_Dicom.resize(selections.get(0).getImagePlus(), 512, 512);
+					selections.get(0).getImagePlus().close();
+					selections.get(0).setImagePlus(temp);
+					Library_Gui.setCustomLut(selections.get(0).getImagePlus());
 					
 					Library_Gui.initOverlay(selections.get(0).getImagePlus());
 					Library_Gui.setOverlayTitle("Post", selections.get(0).getImagePlus(), Color.YELLOW, 1);

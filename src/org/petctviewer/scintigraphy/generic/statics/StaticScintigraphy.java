@@ -37,7 +37,7 @@ public class StaticScintigraphy extends Scintigraphy {
 		preparedImages.get(0).getImagePlus().setOverlay(overlay);
 
 		this.getFenApplication().setController(
-				new ControllerWorkflow_ScinStatic(this, (FenApplicationWorkflow) getFenApplication(),
+				new ControllerWorkflow_ScinStatic((FenApplicationWorkflow) getFenApplication(),
 												  preparedImages.toArray(new ImageSelection[0]), getStudyName()));
 
 		((ModelScinStatic) this.getFenApplication().getController().getModel()).setIsSingleSlide(this.isSingleSlice);

@@ -5,9 +5,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -15,37 +13,42 @@ import org.petctviewer.scintigraphy.gastric.ControllerWorkflow_Gastric;
 import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
+import org.petctviewer.scintigraphy.scin.events.FitChangeEvent;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.FitPanel;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
-import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
-import org.petctviewer.scintigraphy.scin.model.*;
 import org.petctviewer.scintigraphy.scin.model.Fit.FitType;
+import org.petctviewer.scintigraphy.scin.model.Result;
+import org.petctviewer.scintigraphy.scin.model.ResultRequest;
+import org.petctviewer.scintigraphy.scin.model.ResultValue;
+import org.petctviewer.scintigraphy.scin.model.Unit;
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
-public abstract class TabResultDefault extends TabResult implements ItemListener, ChartMouseListener {
+public abstract class TabResultDefault extends TabResult implements ChangeListener {
 
+	private static final String Y_AXIS_LABEL = "Stomach retention";
+	private static final String TITLE = Y_AXIS_LABEL;
+	private static final String X_AXIS_LABEL = "Time";
 	final Unit unitDefault;
 	final Unit unitTime;
 	private final ImagePlus capture;
-	private final JComboBox<FitType> fitsChoices;
-	private final JLabel labelInterpolation;
-	private final JLabel labelError;
-	private final JButton btnAutoFit;
-	private final ResultRequest request;
 	private final int seriesToGenerate;
+	private final FitPanel fitPanel;
 	protected Date timeIngestion;
 	private XYSeriesCollection data;
-	private JValueSetter valueSetterFit, valueSetterLagPhase;
+	private JValueSetter valueSetterLagPhase;
 	private JLabel lagPhaseValue;
 
 	TabResultDefault(FenResults parent, ImagePlus capture, String title, Unit unitDefault, Unit unitTime,
@@ -57,33 +60,15 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		this.unitTime = unitTime;
 		this.seriesToGenerate = seriesToGenerate;
 
-		// Prepare request
-		this.request = new ResultRequest(null);
-		this.request.setFit(new Fit.NoFit(unitDefault));
-
-		// Instantiate components
-		fitsChoices = new JComboBox<>(FitType.values());
-		fitsChoices.addItemListener(this);
-
-		// - Label interpolation
-		this.labelInterpolation = new JLabel();
-		this.labelInterpolation.setVisible(false);
-
-		// - Label error
-		this.labelError = new JLabel();
-		this.labelError.setForeground(Color.RED);
-
-		// - Button to auto-fit the graph
-		btnAutoFit = new JButton("Auto-fit");
-		btnAutoFit.addActionListener(e -> this.selectFit(this.findBestFit()));
-
 		// Set variables
 		this.capture = capture;
+		this.fitPanel = new FitPanel();
+		this.fitPanel.addChangeListener(this);
 
 		this.createGraph();
 
-		this.setComponentToHide(new Component[]{fitsChoices, btnAutoFit});
-		this.setComponentToShow(new Component[]{this.labelInterpolation});
+		this.setComponentToHide(new ArrayList<>(Arrays.asList(this.fitPanel.getComponentsToHide())));
+		this.setComponentToShow(new ArrayList<>(Arrays.asList(this.fitPanel.getComponentsToShow())));
 		this.createCaptureButton();
 
 		this.reloadDisplay();
@@ -213,34 +198,11 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		infoRes.add(lRes);
 	}
 
-	/**
-	 * Detects the fit selected by the combo box and draw the fit on the tab.
-	 */
-	private void reloadFit() {
-		try {
-			// Create fit
-			XYSeries series = ((XYSeriesCollection) this.getValueSetterFit().retrieveValuesInSpan()).getSeries(0);
-			this.request.setFit(
-					Fit.createFit(getSelectedFit(), Library_JFreeChart.invertArray(series.toArray()), unitDefault));
-
-			this.drawFit();
-			this.setErrorMessage(null);
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		if (e instanceof FitChangeEvent) {
 			this.reloadSidePanelContent();
-		} catch (IllegalArgumentException error) {
-			this.setErrorMessage("Not enough data to fit the graph");
 		}
-	}
-
-	/**
-	 * Removes all previous fits.
-	 */
-	private void clearFits() {
-		for (int i = 1; i < this.data.getSeriesCount(); i++)
-			this.data.removeSeries(i);
-	}
-
-	private Model_Gastric getModel() {
-		return (Model_Gastric) this.parent.getModel();
 	}
 
 	/**
@@ -278,37 +240,25 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 	}
 
 	/**
-	 * Creates the panel with the graph fitted.
-	 */
-	private JPanel createPanelFit() {
-		JPanel panel = new JPanel(new BorderLayout());
-
-		panel.add(this.valueSetterFit, BorderLayout.CENTER);
-
-		JPanel panSouth = new JPanel();
-		panSouth.setLayout(new BoxLayout(panSouth, BoxLayout.LINE_AXIS));
-
-		panSouth.add(this.fitsChoices);
-		panSouth.add(this.btnAutoFit);
-		panSouth.add(this.labelInterpolation);
-		panSouth.add(this.labelError);
-
-		panel.add(panSouth, BorderLayout.SOUTH);
-
-		return panel;
-	}
-
-	/**
 	 * Creates the panel with the selector for the lag phase.
 	 */
 	private Component createPanelLagPhase() {
 		JPanel panel = new JPanel(new BorderLayout());
 
-		valueSetterLagPhase = new JValueSetter(this.valueSetterFit.getChart());
-		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) this.request.changeResultOn(
+		// Chart
+		XYSeriesCollection collection = new XYSeriesCollection(
+				getModel().generateSeries(this.seriesToGenerate, this.unitDefault));
+		JFreeChart chart = ChartFactory.createXYLineChart(TITLE, X_AXIS_LABEL + " (" + this.unitTime.abbrev() + ")",
+														  Y_AXIS_LABEL + " (" + this.unitDefault.abbrev() + ")",
+														  collection, PlotOrientation.VERTICAL, true, true, true);
+
+		valueSetterLagPhase = new JValueSetter(chart);
+		ResultRequest request;
+		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) request = new ResultRequest(
 				Model_Gastric.LAG_PHASE_PERCENTAGE);
-		else this.request.changeResultOn(Model_Gastric.LAG_PHASE_GEOAVG);
-		this.request.setUnit(Unit.MINUTES);
+		else request = new ResultRequest(Model_Gastric.LAG_PHASE_GEOAVG);
+		request.setUnit(Unit.MINUTES);
+		request.setFit(this.fitPanel.getFit());
 
 		Selector selector = new Selector("Lag Phase", getModel().getResult(request).getValue(), 0,
 										 RectangleAnchor.BOTTOM_LEFT);
@@ -333,58 +283,8 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		return panel;
 	}
 
-	/**
-	 * Finds the best fit matching the graph. Only the values in the area specified by the user are taken into
-	 * account.<br> The best fit is determined by the method of least squares.
-	 *
-	 * @return best fit for this graph
-	 */
-	public FitType findBestFit() {
-		double bestScore = Double.MAX_VALUE;
-		FitType bestFit = null;
-		for (FitType type : FitType.values()) {
-			double[][] dataset = ((XYSeriesCollection) this.valueSetterFit.retrieveValuesInSpan()).getSeries(
-					0).toArray();
-
-			try {
-				// Create fit
-				Fit fit = Fit.createFit(type, Library_JFreeChart.invertArray(dataset), unitDefault);
-
-				// Get Y points
-				double[] yPoints = dataset[1];
-				double[] yFittedPoints = fit.generateOrdinates(dataset[0]);
-
-				// Compute score
-				double score = Library_JFreeChart.computeLeastSquares(yPoints, yFittedPoints);
-
-				if (score < bestScore) {
-					bestScore = score;
-					bestFit = type;
-				}
-			} catch (IllegalArgumentException e) {
-				// Not enough data selected in the area
-			}
-		}
-
-		return bestFit;
-	}
-
-	/**
-	 * Selects the specified type for the fit.
-	 *
-	 * @param type Type of fit to select
-	 */
-	public void selectFit(FitType type) {
-		this.fitsChoices.setSelectedItem(type);
-	}
-
-	/**
-	 * Selects the best fit for the current graph.
-	 *
-	 * @see #findBestFit()
-	 */
 	public void selectBestFit() {
-		this.fitsChoices.setSelectedItem(this.findBestFit());
+		this.fitPanel.selectBestFit();
 	}
 
 	/**
@@ -405,35 +305,11 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		XYSeries stomachSeries = getModel().generateSeries(this.seriesToGenerate, this.unitDefault);
 		this.data.addSeries(stomachSeries);
 
-		JFreeChart chart = ChartFactory.createXYLineChart("Stomach retention", "Time (" + this.unitTime.abbrev() + ")",
-														  "Stomach retention (" + this.unitDefault.abbrev() + ")",
-														  data,
+		JFreeChart chart = ChartFactory.createXYLineChart(TITLE, X_AXIS_LABEL + " (" + this.unitTime.abbrev() + ")",
+														  Y_AXIS_LABEL + " (" + this.unitDefault.abbrev() + ")", data,
 														  PlotOrientation.VERTICAL, true, true, true);
 
-		// Set bounds
-		XYPlot plot = chart.getXYPlot();
-		// X axis
-		NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();
-		xAxis.setRange(-10., stomachSeries.getMaxX() + 10.);
-		// Y axis
-		NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
-		yAxis.setRange(-10., stomachSeries.getMaxY() + 10.);
-
-		// Create value setter
-		double startX = stomachSeries.getMinX() + .1 * (stomachSeries.getMaxX() - stomachSeries.getMinX());
-		double endX = stomachSeries.getMinX() + .7 * (stomachSeries.getMaxX() - stomachSeries.getMinX());
-		valueSetterFit = new JValueSetter(chart);
-		valueSetterFit.addSelector(new Selector(" ", startX, -1, RectangleAnchor.TOP_LEFT), "start");
-		valueSetterFit.addSelector(new Selector(" ", endX, -1, RectangleAnchor.TOP_LEFT), "end");
-		valueSetterFit.addArea("start", "end", "area", null);
-		valueSetterFit.addChartMouseListener(this);
-	}
-
-	/**
-	 * @return value setter containing the graph of this tab
-	 */
-	public JValueSetter getValueSetterFit() {
-		return this.valueSetterFit;
+		this.fitPanel.createGraph(chart, data, this.unitDefault);
 	}
 
 	/**
@@ -446,56 +322,6 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		this.reloadSidePanelContent();
 	}
 
-	/**
-	 * Gets the fit selected by the user with the combo box.
-	 *
-	 * @return type of the fit selected by the user
-	 */
-	public FitType getSelectedFit() {
-		return (FitType) this.fitsChoices.getSelectedItem();
-	}
-
-	/**
-	 * Displays the fit selected by the user and removes the previous fit if existing.
-	 *
-	 * @see #getSelectedFit()
-	 */
-	public void drawFit() {
-		this.clearFits();
-
-		this.data.addSeries(this.request.getFit().generateFittedSeries(getModel().generateTime()));
-	}
-
-	/**
-	 * Changes the text of the extrapolation name (used for capture).
-	 *
-	 * @param labelName New name of the extrapolation
-	 */
-	public void changeLabelInterpolation(String labelName) {
-		// Change label interpolation text (for capture)
-		this.labelInterpolation.setText("-- " + labelName + " --");
-	}
-
-	/**
-	 * Changes the error message. This message is displayed in red. If null is passed, then the previous message is
-	 * erased.
-	 *
-	 * @param msg message to show or null to erase the last message
-	 */
-	public void setErrorMessage(String msg) {
-		this.labelError.setText(msg);
-	}
-
-	/**
-	 * Checks if the specified button is the auto-fit button of this view.
-	 *
-	 * @param btn Button to check
-	 * @return TRUE if the button is the auto-fit button and FALSE otherwise
-	 */
-	public boolean isButtonAutoFit(JButton btn) {
-		return this.btnAutoFit == btn;
-	}
-
 	@Override
 	public Container getResultContent() {
 		JTabbedPane tab = new JTabbedPane(JTabbedPane.LEFT);
@@ -504,38 +330,21 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		tab.add("Results", this.createPanelResults());
 
 		// Fit
-		tab.add("Fit", this.createPanelFit());
+		tab.add("Fit", this.fitPanel);
 
 		// Lag phase
 		tab.add("Lag phase", this.createPanelLagPhase());
 
-		tab.addChangeListener(e -> {
-			if (tab.getSelectedIndex() == 2) valueSetterLagPhase.updateAreas();
-			else valueSetterFit.updateAreas();
-		});
+//		tab.addChangeListener(e -> {
+//			if (tab.getSelectedIndex() == 2) valueSetterLagPhase.updateAreas();
+//			else valueSetterFit.updateAreas();
+//		});
 
 		return tab;
 	}
 
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			this.reloadFit();
-
-			this.changeLabelInterpolation(e.getItem().toString() + " extrapolation");
-		}
-	}
-
-	@Override
-	public void chartMouseClicked(ChartMouseEvent event) {
-		// Does nothing
-	}
-
-	@Override
-	public void chartMouseMoved(ChartMouseEvent event) {
-		if (this.getValueSetterFit().getGrabbedSelector() != null) {
-			this.reloadFit();
-		}
+	protected Model_Gastric getModel() {
+		return (Model_Gastric) this.parent.getModel();
 	}
 
 	/**
@@ -610,8 +419,9 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		infoRes.setLayout(new GridLayout(0, 2));
 
 		for (int i = 0; i < resultsRequested.length - 1; i++) {
-			request.changeResultOn(resultsRequested[i]);
+			ResultRequest request = new ResultRequest(resultsRequested[i]);
 			request.setUnit(unitsRequested[i]);
+			request.setFit(this.fitPanel.getFit());
 
 			ResultValue result = getModel().getResult(request);
 			hasExtrapolatedValue = result.isExtrapolated() || hasExtrapolatedValue;
@@ -619,8 +429,9 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		}
 
 		// Retention 30min
-		request.changeResultOn(resultsRequested[resultsRequested.length - 1]);
+		ResultRequest request = new ResultRequest(resultsRequested[resultsRequested.length - 1]);
 		request.setUnit(unitsRequested[unitsRequested.length - 1]);
+		request.setFit(this.fitPanel.getFit());
 		ResultValue result = getModel().getRetentionResult(request, 30.);
 		hasExtrapolatedValue = result.isExtrapolated() || hasExtrapolatedValue;
 		this.displayRetentionResult(infoRes, 30., result);
@@ -636,15 +447,16 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 		infoRes.add(grade[1]);
 
 		panel.add(infoRes, BorderLayout.CENTER);
-		if (hasExtrapolatedValue) {
-			JLabel l;
-			if (getSelectedFit() == FitType.NONE) {
-				l = new JLabel("(*) No fit has been selected to extrapolate the values!");
-				l.setForeground(Color.RED);
+		if (result.isExtrapolated()) {
+			JLabel labelExtrapolation;
+			if (this.fitPanel.getSelectedFit() == FitType.NONE) {
+				labelExtrapolation = new JLabel("(*) No fit has been selected to extrapolate the values!");
+				labelExtrapolation.setForeground(Color.RED);
 			} else {
-				l = new JLabel("(*) The results are calculated with a " + getSelectedFit() + " extrapolation");
+				labelExtrapolation = new JLabel(
+						"(*) The results are calculated with a " + this.fitPanel.getSelectedFit() + " extrapolation");
 			}
-			panel.add(l, BorderLayout.SOUTH);
+			panel.add(labelExtrapolation, BorderLayout.SOUTH);
 		}
 		return panel;
 	}
@@ -672,18 +484,19 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 				// Calculate result
 				try {
 					// Prepare model
+					ResultRequest request;
 					if (seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
 						getModel().activateTime0();
 						getModel().setTimeIngestion(
 								((ControllerWorkflow_Gastric) parent.getController()).specifiedTimeIngestion);
-						request.changeResultOn(Model_Gastric.RETENTION_PERCENTAGE);
+						request = new ResultRequest(Model_Gastric.RETENTION_PERCENTAGE);
 					} else {
 						getModel().deactivateTime0();
 						getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
-						request.changeResultOn(Model_Gastric.RETENTION_GEOAVG);
+						request = new ResultRequest(Model_Gastric.RETENTION_GEOAVG);
 					}
-
 					request.setUnit(Unit.PERCENTAGE);
+					request.setFit(fitPanel.getFit());
 
 					ResultValue result = getModel().getRetentionResult(request, Double.parseDouble(
 							fieldCustomRetention.getText()));
@@ -708,5 +521,4 @@ public abstract class TabResultDefault extends TabResult implements ItemListener
 
 		return panRetention;
 	}
-
 }

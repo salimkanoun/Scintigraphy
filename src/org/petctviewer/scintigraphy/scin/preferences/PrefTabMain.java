@@ -25,7 +25,7 @@ public class PrefTabMain extends PrefTab {
 	private final JButton btn_choixLut, btnCaptureLut;
 	private final JButton btn_dir;
 	private final JButton btn_displut;
-	private final JComboBox comboDate;
+	private final JComboBox<String> comboDate;
 	private final JLabel lCaptureLut;
 	private final JFrame parent;
 	private JFileChooser fc;

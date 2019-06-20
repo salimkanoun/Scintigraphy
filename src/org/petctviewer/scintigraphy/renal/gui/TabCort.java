@@ -1,23 +1,19 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.GridLayout;
-import java.util.List;
-
-import javax.swing.JPanel;
-
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
+import javax.swing.*;
+import java.awt.*;
+import java.util.List;
+
 class TabCort extends TabResult {
 
-	public TabCort(Scintigraphy scin, FenResults parent) {
+	public TabCort(FenResults parent) {
 		super(parent, "Corticals/Pelvis");
 		
 		this.reloadDisplay();

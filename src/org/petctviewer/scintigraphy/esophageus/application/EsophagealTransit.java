@@ -114,10 +114,11 @@ public class EsophagealTransit extends Scintigraphy {
 		this.createDocumentation();
 
 		fen.resizeCanvas();
-		
-		ControllerWorkflowEsophagealTransit cet = new ControllerWorkflowEsophagealTransit(EsophagealTransit.this,
+
+		ControllerWorkflowEsophagealTransit cet = new ControllerWorkflowEsophagealTransit(
 				(FenApplicationWorkflow) EsophagealTransit.this.getFenApplication(), new Model_EsophagealTransit(
-						sauvegardeImagesSelectDicom, "Esophageal " + "Transit", EsophagealTransit.this));
+				sauvegardeImagesSelectDicom, "Esophageal " + "Transit", EsophagealTransit.this,
+				this.getImgPrjtAllAcqui()));
 		this.getFenApplication().setController(cet);
 	}
 

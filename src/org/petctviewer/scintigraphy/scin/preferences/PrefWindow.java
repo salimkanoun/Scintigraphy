@@ -172,6 +172,8 @@ public class PrefWindow extends JFrame implements PlugIn, WindowListener {
 
 	private class QuitAction extends AbstractAction {
 
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Save preferences

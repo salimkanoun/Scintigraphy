@@ -1,7 +1,7 @@
 package org.petctviewer.scintigraphy.scin.instructions.drawing;
 
-import java.awt.Color;
-
+import ij.gui.Roi;
+import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
@@ -10,7 +10,7 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoi
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
 import org.petctviewer.scintigraphy.scin.json.InstructionFromGson;
 
-import ij.gui.Roi;
+import java.awt.*;
 
 public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 
@@ -24,8 +24,18 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 	
 	private boolean expectingUserInput;
 
+	/**
+	 * This Instruction use the parity to draw ROIS.<br/> It draws symmetrically from his parent, if it's a odd, and
+	 * just draw a ROI if it's even.<br/> It draws symmetrically from the width/2 of the image.<br/> This Instruction
+	 * was designed for the {@link CardiacScintigraphy}.
+	 *
+	 * @param workflow Workflow where this instruction is inserted
+	 * @param parent   Parent DrawSymmetricalLoopInstruction to copy
+	 * @param state    State of the image
+	 * @param organ    Organ to delimit
+	 * @param RoiName  Name to give to the drawed ROI
+	 */
 	public DrawSymmetricalLoopInstruction(Workflow workflow, GeneratorInstruction parent, ImageState state, Organ organ, String RoiName) {
-
 		super(workflow, parent, state);
 
 		this.organ = organ;

@@ -1,8 +1,22 @@
 package org.petctviewer.scintigraphy.scin.controller;
 
-import ij.IJ;
-import ij.ImagePlus;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.event.ActionEvent;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.CaptureButton;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -16,12 +30,8 @@ import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
+import ij.IJ;
+import ij.ImagePlus;
 
 /**
  * This controller is used when working with a flow of instructions.<br> In order to use this type of controller, you
@@ -84,12 +94,11 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	private boolean skipInstruction;
 
 	/**
-	 * @param main  Reference to the main class
 	 * @param vue   View of the MVC pattern
 	 * @param model Model of the MVC pattern
 	 */
-	public ControllerWorkflow(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
-		super(main, vue, model);
+	public ControllerWorkflow(FenApplicationWorkflow vue, ModelScin model) {
+		super(vue, model);
 
 		this.getModel().addController(this);
 		this.skipInstruction = false;
@@ -278,7 +287,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 *
 	 * @param imageState State the ImagePlus must complies
 	 */
-	private void prepareImage(ImageState imageState) {
+	protected void prepareImage(ImageState imageState) {
 		this.prepareImage(imageState, this.indexCurrentWorkflow);
 	}
 
@@ -288,16 +297,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 * @param currentInstruction Current instruction from which the search will be made
 	 */
 	private void lockPreviousButton(Instruction currentInstruction) {
-		boolean blockPrevious = true;
-		int i0 = this.workflows[0].getInstructions().indexOf(currentInstruction) - 1;
-		for (int i = i0;
-			 i >= 0; i--) {
-			if (this.workflows[0].getInstructionAt(i).isExpectingUserInput()) {
-				blockPrevious = false;
-				break;
-			}
-		}
-		if (blockPrevious && i0 >= 0) this.getVue().getBtn_precedent().setEnabled(false);
+		if(this.allInputInstructions().indexOf(currentInstruction) == 0)
+			this.getVue().getBtn_precedent().setEnabled(false);
 	}
 
 	/**
@@ -405,10 +406,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	@Override
 	public void clickNext() {
 		Instruction previousInstruction = this.workflows[this.indexCurrentWorkflow].getCurrentInstruction();
-
 		// Only execute 'Next' if the instruction is not cancelled
 		if (!previousInstruction.isCancelled()) {
-
 			// Prepare next instruction
 			int indexPreviousImage = this.indexCurrentWorkflow;
 
@@ -519,7 +518,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 	@Override
 	public void adjustmentValueChanged(AdjustmentEvent e) {
-		System.out.println("Value changed for " + e.getValue());
 		this.updateScrollbar(e.getValue());
 	}
 
@@ -543,8 +541,8 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 		TabResult tab = captureButton.getTabResult();
 		JLabel lbl_credits = captureButton.getLabelCredits();
-		Component[] hide = tab.getComponentToHide();
-		Component[] show = tab.getComponentToShow();
+		ArrayList<Component> hide = tab.getComponentToHide();
+		ArrayList<Component> show = tab.getComponentToShow();
 		String additionalInfo = tab.getAdditionalInfo();
 
 		// generation du tag info
