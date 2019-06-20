@@ -18,6 +18,8 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MainTab extends TabResult implements ChangeListener {
 	private final String xLabel = "Time (" + Unit.MINUTES.abbrev() + ")";
@@ -39,8 +41,8 @@ public class MainTab extends TabResult implements ChangeListener {
 
 		this.createGraph();
 
-		this.setComponentToHide(this.fitPanel.getComponentsToHide());
-		this.setComponentToShow(this.fitPanel.getComponentsToShow());
+		this.setComponentToHide(new ArrayList<>(Arrays.asList(this.fitPanel.getComponentsToHide())));
+		this.setComponentToShow(new ArrayList<>( Arrays.asList(this.fitPanel.getComponentsToShow())));
 		this.reloadDisplay();
 	}
 

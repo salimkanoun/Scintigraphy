@@ -123,6 +123,8 @@ public class TabPostMict extends TabContrastModifier implements ActionListener {
 		this.btn_quantify = new JButton("Quantify");
 		this.btn_quantify.addActionListener(this);
 		side.add(btn_quantify);
+		
+		this.setComponentToHide((new ArrayList<> (Arrays.asList(new Component[] {btn_quantify}))));
 
 		// Simulate a \n
 		side.add(new JLabel(""));

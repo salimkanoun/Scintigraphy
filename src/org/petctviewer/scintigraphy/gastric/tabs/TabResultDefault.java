@@ -32,6 +32,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 public abstract class TabResultDefault extends TabResult implements ChangeListener {
@@ -65,8 +67,8 @@ public abstract class TabResultDefault extends TabResult implements ChangeListen
 
 		this.createGraph();
 
-		this.setComponentToHide(this.fitPanel.getComponentsToHide());
-		this.setComponentToShow(this.fitPanel.getComponentsToShow());
+		this.setComponentToHide(new ArrayList<>(Arrays.asList(this.fitPanel.getComponentsToHide())));
+		this.setComponentToShow(new ArrayList<>(Arrays.asList(this.fitPanel.getComponentsToShow())));
 		this.createCaptureButton();
 
 		this.reloadDisplay();

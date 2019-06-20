@@ -13,6 +13,8 @@ import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MainTab extends TabResult {
 
@@ -31,7 +33,7 @@ public class MainTab extends TabResult {
 														capture), this.result);
 		this.contrastSliderLabel = new JLabel("Contrast");
 		
-		this.setComponentToHide(new Component[] {slider, contrastSliderLabel});
+		this.setComponentToHide(new ArrayList<>(Arrays.asList(new Component[] {slider, contrastSliderLabel})));
 
 		this.reloadDisplay();
 	}

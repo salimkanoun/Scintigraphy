@@ -1,7 +1,21 @@
 package org.petctviewer.scintigraphy.hepatic;
 
-import ij.IJ;
-import ij.ImagePlus;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Label;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+
 import org.petctviewer.scintigraphy.hepatic.tab.TabCurves;
 import org.petctviewer.scintigraphy.hepatic.tab.TabMainHepaticDyn;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
@@ -13,13 +27,8 @@ import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
+import ij.IJ;
+import ij.ImagePlus;
 
 public class ControllerHepaticDynamic extends ControllerScin implements MouseListener, ActionListener {
 
@@ -117,8 +126,8 @@ public class ControllerHepaticDynamic extends ControllerScin implements MouseLis
 
 		TabResult tab = captureButton.getTabResult();
 		JLabel lbl_credits = captureButton.getLabelCredits();
-		Component[] hide = tab.getComponentToHide();
-		Component[] show = tab.getComponentToShow();
+		ArrayList<Component> hide = tab.getComponentToHide();
+		ArrayList<Component> show = tab.getComponentToShow();
 		String additionalInfo = tab.getAdditionalInfo();
 
 		// generation du tag info
