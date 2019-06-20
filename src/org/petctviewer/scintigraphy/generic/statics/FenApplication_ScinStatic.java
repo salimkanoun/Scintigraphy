@@ -22,6 +22,8 @@ public class FenApplication_ScinStatic extends FenApplicationWorkflow {
 		this.setVisualizationEnable(false);
 
 		this.getTextfield_instructions().setEditable(true);
+		this.getTextfield_instructions().setBackground(new Color(225, 225, 225));
+		this.getTextfield_instructions().selectAll();
 		this.btn_finish = new Button("Finish");
 		this.btn_finish.setActionCommand(ControllerWorkflow.COMMAND_END);
 
@@ -61,7 +63,8 @@ public class FenApplication_ScinStatic extends FenApplicationWorkflow {
 			}
 		});
 
-		this.setDefaultSize();
+//		this.setDefaultSize();
+		this.pack();
 	}
 
 	@Override

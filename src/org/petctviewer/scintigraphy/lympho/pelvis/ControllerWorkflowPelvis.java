@@ -1,8 +1,9 @@
 package org.petctviewer.scintigraphy.lympho.pelvis;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.gui.Roi;
+import ij.plugin.MontageMaker;
 import org.petctviewer.scintigraphy.lympho.ModelLympho;
 import org.petctviewer.scintigraphy.lympho.gui.TabPelvis;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -18,10 +19,8 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.gui.Roi;
-import ij.plugin.MontageMaker;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ControllerWorkflowPelvis extends ControllerWorkflow {
 
@@ -31,7 +30,7 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 
 	public ControllerWorkflowPelvis(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
 			TabResult resultTab) {
-		super(main, vue, model);
+		super(vue, model);
 
 		this.resultTab = resultTab;
 

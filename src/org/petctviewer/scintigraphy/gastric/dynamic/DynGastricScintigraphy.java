@@ -36,7 +36,7 @@ public class DynGastricScintigraphy extends Scintigraphy {
 	public void start(List<ImageSelection> preparedImages) {
 		this.setFenApplication(new FenApplication_DynGastric(preparedImages.get(0), "Dynamic Gastric Scintigraphy"));
 		this.getFenApplication().setController(
-				new ControllerWorkflow_DynGastric(this, (FenApplicationWorkflow) this.getFenApplication(), this.model,
+				new ControllerWorkflow_DynGastric((FenApplicationWorkflow) this.getFenApplication(), this.model,
 												  preparedImages.toArray(new ImageSelection[0]), tabResult));
 		this.getFenApplication().addWindowListener(new WindowAdapter() {
 			@Override

@@ -2,7 +2,6 @@ package org.petctviewer.scintigraphy.scin.controller;
 
 import ij.IJ;
 import ij.ImagePlus;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.CaptureButton;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -84,12 +83,11 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	private boolean skipInstruction;
 
 	/**
-	 * @param main  Reference to the main class
 	 * @param vue   View of the MVC pattern
 	 * @param model Model of the MVC pattern
 	 */
-	public ControllerWorkflow(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
-		super(main, vue, model);
+	public ControllerWorkflow(FenApplicationWorkflow vue, ModelScin model) {
+		super(vue, model);
 
 		this.getModel().addController(this);
 		this.skipInstruction = false;

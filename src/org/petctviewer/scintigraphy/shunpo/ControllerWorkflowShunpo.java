@@ -6,7 +6,6 @@ import ij.Prefs;
 import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -37,8 +36,8 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow implements Item
 	private List<ImagePlus> captures;
 	private DisplayState display;
 
-	public ControllerWorkflowShunpo(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
-		super(main, vue, new ModelShunpo(selectedImages, main.getStudyName()));
+	public ControllerWorkflowShunpo(FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
+		super(vue, new ModelShunpo(selectedImages, vue.getStudyName()));
 
 		// Initialize variables
 		this.WITH_KIDNEYS = Prefs.get(PrefTabShunpo.PREF_WITH_KIDNEYS, true);

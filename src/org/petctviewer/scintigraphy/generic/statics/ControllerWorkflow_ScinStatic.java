@@ -7,7 +7,6 @@ import ij.gui.Roi;
 import ij.plugin.MontageMaker;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -27,9 +26,9 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 	private FenResults fenResult;
 
-	public ControllerWorkflow_ScinStatic(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages,
-			String studyName) {
-		super(main, vue, new ModelScinStatic(selectedImages, studyName));
+	public ControllerWorkflow_ScinStatic(FenApplicationWorkflow vue, ImageSelection[] selectedImages,
+										 String studyName) {
+		super(vue, new ModelScinStatic(selectedImages, studyName));
 
 		this.generateInstructions();
 		this.start();
@@ -145,8 +144,8 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 	public ImagePlus takeCapture() {
 		int width = 512;
 
-		double ratioCapture = this.main.getFenApplication().getImagePlus().getWidth() * 1.0
-				/ this.main.getFenApplication().getImagePlus().getHeight() * 1.0;
+		double ratioCapture =
+				this.getVue().getImagePlus().getWidth() * 1.0 / this.getVue().getImagePlus().getHeight() * 1.0;
 
 		ImagePlus[] captures;
 

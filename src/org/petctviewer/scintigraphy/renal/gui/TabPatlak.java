@@ -1,22 +1,15 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.GridLayout;
-
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-
 import org.petctviewer.scintigraphy.renal.Model_Renal;
-import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
+import javax.swing.*;
+import java.awt.*;
+
 class TabPatlak extends TabResult {
 
-	public TabPatlak(RenalScintigraphy scin, FenResults parent) {
+	public TabPatlak(FenResults parent) {
 		super(parent, "Patlak", true);
 
 		this.reloadDisplay();

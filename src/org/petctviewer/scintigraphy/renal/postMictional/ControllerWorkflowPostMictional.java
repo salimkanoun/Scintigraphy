@@ -1,15 +1,12 @@
 package org.petctviewer.scintigraphy.renal.postMictional;
 
 
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
+import ij.ImagePlus;
+import ij.Prefs;
+import ij.gui.Overlay;
+import org.petctviewer.scintigraphy.renal.Model_Renal;
+import org.petctviewer.scintigraphy.renal.gui.TabPostMict;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
@@ -24,23 +21,28 @@ import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
-import ij.ImagePlus;
-import ij.Prefs;
-import ij.gui.Overlay;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 
 	private final boolean[] kidneys;
 	public String[] organeListe;
 	private List<ImagePlus> captures;
+	private TabPostMict resultFrame;
 
-	public ControllerWorkflowPostMictional(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
-										   boolean[] kidneys) {
-		super(main, vue, model);
+	public ControllerWorkflowPostMictional(FenApplicationWorkflow vue, ModelScin model, TabPostMict resultFrame) {
+		super(vue, model);
 
-		this.kidneys = kidneys;
+		this.resultFrame = resultFrame;
+		this.kidneys = ((Model_Renal) this.resultFrame.getParent().getModel()).getKidneys();
 
 		this.captures = new ArrayList<>();
+
 
 		this.generateInstructions();
 		this.start();
@@ -58,14 +60,14 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 		}
 		((Model_PostMictional) this.model).setData(hm);
 
-		((PostMictional) this.main).getResultFrame().setExamDone(true);
-		((PostMictional) this.main).getResultFrame().setModelPostMictional((Model_PostMictional) this.model);
+		this.resultFrame.setExamDone(true);
+		this.resultFrame.setModelPostMictional((Model_PostMictional) this.model);
 		// ((PostMictional) this.main).getResultFrame().reloadDisplay();
-		((PostMictional) this.main).getResultFrame().setImage(this.vue.getImagePlus());
+		this.resultFrame.setImage(this.vue.getImagePlus());
 		// ((PostMictional)
 		// this.main).getResultFrame().getImagePlus().duplicate().show();
 		// captures.get(0).show();
-		this.main.getFenApplication().dispose();
+		this.getVue().dispose();
 	}
 
 	@Override

@@ -1,23 +1,9 @@
 package org.petctviewer.scintigraphy.hepatic;
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Label;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
-
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-
+import ij.IJ;
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.hepatic.tab.TabCurves;
 import org.petctviewer.scintigraphy.hepatic.tab.TabMainHepaticDyn;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.CaptureButton;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
@@ -27,15 +13,20 @@ import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import ij.IJ;
-import ij.ImagePlus;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 
 public class ControllerHepaticDynamic extends ControllerScin implements MouseListener, ActionListener {
 
 	public static final String COMMAND_END = "command.end";
 
-	public ControllerHepaticDynamic(Scintigraphy main, FenApplication vue, ModelScin model) {
-		super(main, main.getFenApplication(), model);
+	public ControllerHepaticDynamic(FenApplication vue, ModelScin model) {
+		super(vue, model);
 	}
 
 	@Override

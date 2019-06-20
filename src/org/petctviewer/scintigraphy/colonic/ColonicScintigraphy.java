@@ -36,7 +36,7 @@ public class ColonicScintigraphy extends Scintigraphy {
 
 		this.setFenApplication(new FenApplicationColonicTransit(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(
-				new ControllerWorkflowColonicTransit(this, (FenApplicationColonicTransit) this.getFenApplication(),
+				new ControllerWorkflowColonicTransit((FenApplicationColonicTransit) this.getFenApplication(),
 													 preparedImages.toArray(new ImageSelection[0])));
 		this.createDocumentation();
 	}
@@ -63,8 +63,10 @@ public class ColonicScintigraphy extends Scintigraphy {
 																 new Orientation[]{Orientation.ANT_POST,
 																				   Orientation.POST_ANT});
 			}
-			openedImage.getImagePlus().close();
 		}
+
+		for (ImageSelection opened : openedImages)
+			opened.close();
 
 		// Order images by time
 		impSelect.sort(new ChronologicalAcquisitionComparator());

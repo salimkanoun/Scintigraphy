@@ -50,7 +50,7 @@ public class RenalScintigraphy extends Scintigraphy {
 
 		this.setFenApplication(new FenApplication_Renal(preparedImages.get(0), this.getStudyName(), this));
 		this.getFenApplication().setController(
-				new ControllerWorkflowRenal(this, (FenApplicationWorkflow) this.getFenApplication(),
+				new ControllerWorkflowRenal((FenApplicationWorkflow) this.getFenApplication(),
 											new Model_Renal(this.frameDurations,
 															preparedImages.toArray(new ImageSelection[0]),
 															STUDY_NAME)));

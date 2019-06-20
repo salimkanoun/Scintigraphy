@@ -71,7 +71,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 		// Start program
 		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(
-				new ControllerWorkflowShunpo(this, (FenApplicationWorkflow) getFenApplication(),
+				new ControllerWorkflowShunpo((FenApplicationWorkflow) getFenApplication(),
 											 preparedImages.toArray(new ImageSelection[0])));
 
 		this.createDocumentation();

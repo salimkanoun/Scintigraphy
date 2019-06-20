@@ -4,7 +4,6 @@ import ij.Prefs;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Model_Renal;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
@@ -16,7 +15,7 @@ import java.util.List;
 
 class TabOther extends TabResult {
 
-	public TabOther(Scintigraphy scin, FenResults parent) {
+	public TabOther(FenResults parent) {
 		super(parent, "Other", true);
 
 		this.reloadDisplay();

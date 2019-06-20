@@ -8,7 +8,6 @@ import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -40,9 +39,9 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 	private List<ImagePlus> captures;
 
-	public ControllerWorkflow_Gastric(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages,
+	public ControllerWorkflow_Gastric(FenApplicationWorkflow vue, ImageSelection[] selectedImages,
 									  String studyName) {
-		super(main, vue, new Model_Gastric(selectedImages, studyName));
+		super(vue, new Model_Gastric(selectedImages, studyName));
 
 		getModel().setFirstImage(selectedImages[0]);
 

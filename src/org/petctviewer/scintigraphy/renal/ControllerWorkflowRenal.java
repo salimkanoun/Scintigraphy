@@ -7,7 +7,6 @@ import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.gui.FenNeph;
 import org.petctviewer.scintigraphy.renal.gui.FenResultats_Renal;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -32,8 +31,8 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 	public String[] organeListe;
 
-	public ControllerWorkflowRenal(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
-		super(main, vue, model);
+	public ControllerWorkflowRenal(FenApplicationWorkflow vue, ModelScin model) {
+		super(vue, model);
 
 		// Those method (generateInstructions() and start()) are called in setKidneys,
 		// to avoid problems, because you need to
@@ -45,7 +44,6 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		super.end();
 
 		// on recupere la vue, le modele et l'imp
-		RenalScintigraphy scinRenal = (RenalScintigraphy) this.main;
 		Model_Renal modele = (Model_Renal) this.model;
 
 		// Remet les data du modele a zero (en cas de relance)
@@ -80,7 +78,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 		String[][] asso = new String[][]{{"Final KL", "Final KR"}};
 		ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
 
-		FenNeph fan = new FenNeph(cp[0], this.main.getFenApplication(), modele);
+		FenNeph fan = new FenNeph(cp[0], this.getVue(), modele);
 		fan.setModal(true);
 		fan.setVisible(true);
 
@@ -95,7 +93,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 
 		// on affiche la fenetre de resultats principale
 		((Model_Renal) model).setNephrogramChart(fan.getValueSetter());
-		FenResults fenResults = new FenResultats_Renal(scinRenal, capture, this);
+		FenResults fenResults = new FenResultats_Renal(capture, this);
 		fenResults.toFront();
 		fenResults.setVisible(true);
 

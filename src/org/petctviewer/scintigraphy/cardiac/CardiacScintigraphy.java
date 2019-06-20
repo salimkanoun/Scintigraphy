@@ -61,11 +61,12 @@ public class CardiacScintigraphy extends Scintigraphy {
 		preparedImages.get(0).getImagePlus().setOverlay(overlay);
 
 		// Cree controller
-		this.getFenApplication()
-				.setController(new ControllerWorkflowCardiac(
-						this, (FenApplicationWorkflow) this.getFenApplication(), new Model_Cardiac(this,
-								preparedImages.toArray(new ImageSelection[0]), "Cardiac", infoOfAllImages),
-						this.fullBodyImages.size(), this.onlyThoraxImage.size()));
+		this.getFenApplication().setController(
+				new ControllerWorkflowCardiac((FenApplicationWorkflow) this.getFenApplication(),
+											  new Model_Cardiac(this, preparedImages.toArray(new ImageSelection[0]),
+																"Cardiac", infoOfAllImages),
+											  this.fullBodyImages.size(),
+											  this.onlyThoraxImage.size()));
 
 		this.createDocumentation();
 

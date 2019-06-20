@@ -22,7 +22,7 @@ public class ControllerWorkflowHepaticDyn extends ControllerWorkflow {
 	private final TabResult resultTab;
 
 	public ControllerWorkflowHepaticDyn(FenApplicationWorkflow vue, ModelScin model, TabResult resultTab) {
-		super(null, vue, model);
+		super(vue, model);
 
 		this.resultTab = resultTab;
 

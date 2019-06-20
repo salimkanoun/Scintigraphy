@@ -5,7 +5,6 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Model_Renal;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
@@ -19,7 +18,7 @@ import java.util.List;
 
 class TabROE extends TabResult implements ActionListener {
 
-	public TabROE(Scintigraphy scin, FenResults parent) {
+	public TabROE(FenResults parent) {
 		super(parent, "ROE", true);
 
 		this.reloadDisplay();

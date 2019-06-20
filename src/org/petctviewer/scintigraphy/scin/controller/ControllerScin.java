@@ -7,7 +7,6 @@ import ij.Prefs;
 import ij.gui.Roi;
 import ij.plugin.MontageMaker;
 import ij.plugin.frame.RoiManager;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.NoDataException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
@@ -31,7 +30,6 @@ public abstract class ControllerScin implements ActionListener {
 	 * View of the MVC pattern
 	 */
 	protected final FenApplication vue;
-	protected final Scintigraphy main;
 	protected final ModelScin model;
 	/**
 	 * Position in the flow of the controller.<br> Increments when 'Next' button is pressed.<br> Decrements when
@@ -39,10 +37,9 @@ public abstract class ControllerScin implements ActionListener {
 	 */
 	protected int position;
 
-	public ControllerScin(Scintigraphy main, FenApplication vue, ModelScin model) {
+	public ControllerScin(FenApplication vue, ModelScin model) {
 		this.vue = vue;
 		this.position = 0;
-		this.main = main;
 		this.model = model;
 
 		Roi.setColor(Color.RED);
@@ -136,7 +133,7 @@ public abstract class ControllerScin implements ActionListener {
 				"The number of captures (" + captures.getSize() + ") must be 4");
 
 		MontageMaker mm = new MontageMaker();
-		ImagePlus imp = new ImagePlus("Results -" + this.main.getStudyName(), captures);
+		ImagePlus imp = new ImagePlus("Results -" + this.model.getStudyName(), captures);
 		imp = mm.makeMontage2(imp, 2, 2, 0.50, 1, 4, 1, 10, false);
 		return imp;
 	}

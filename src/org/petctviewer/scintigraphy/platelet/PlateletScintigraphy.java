@@ -27,8 +27,8 @@ public class PlateletScintigraphy extends Scintigraphy {
 	public void start(List<ImageSelection> preparedImages) {
 		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), getStudyName()));
 		this.getFenApplication().setController(
-				new ControllerWorkflow_Platelet(this, (FenApplicationWorkflow) this.getFenApplication(),
-												preparedImages.toArray(new ImageSelection[0])));
+				new ControllerWorkflow_Platelet((FenApplicationWorkflow) this.getFenApplication(),
+												preparedImages.toArray(new ImageSelection[0]), isAntPost));
 		this.getFenApplication().setVisible(true);
 	}
 

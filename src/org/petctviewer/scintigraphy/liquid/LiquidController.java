@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.liquid;
 import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -16,11 +15,10 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 public class LiquidController extends ControllerWorkflow {
 
 	/**
-	 * @param main Reference to the main class
 	 * @param vue  View of the MVC pattern
 	 */
-	public LiquidController(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
-		super(main, vue, new LiquidModel(selectedImages, main.getStudyName()));
+	public LiquidController(FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
+		super(vue, new LiquidModel(selectedImages, vue.getStudyName()));
 
 		this.generateInstructions();
 		this.start();

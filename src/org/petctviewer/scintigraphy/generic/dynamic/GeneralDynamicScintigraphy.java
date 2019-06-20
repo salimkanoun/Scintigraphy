@@ -31,7 +31,7 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 	public void start(List<ImageSelection> preparedImages) {
 		this.setFenApplication(new FenApplication_GeneralDyn(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(
-				new ControllerWorkflowScinDynamic(this, (FenApplicationWorkflow) this.getFenApplication(),
+				new ControllerWorkflowScinDynamic((FenApplicationWorkflow) this.getFenApplication(),
 												  new Model_GeneralDyn(preparedImages.toArray(new ImageSelection[0]),
 																	   STUDY_NAME, this.getFrameDurations())));
 	}
