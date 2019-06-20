@@ -54,6 +54,8 @@ public class Model_Gastric extends ModelWorkflow {
 
 	private Region bkgNoise_antre, bkgNoise_intestine, bkgNoise_stomach, bkgNoise_fundus;
 
+	private Fit fitMethod1, fitMethod2;
+
 	public Model_Gastric(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
 		Prefs.useNamesAsLabels = true;
@@ -568,6 +570,89 @@ public class Model_Gastric extends ModelWorkflow {
 		return this.generateYValuesFromDataset(generateDecayFunctionDataset(unit));
 	}
 
+	private String resultToCsvLine(Result res, int method) {
+		ResultRequest request = new ResultRequest(res);
+		if (method == 1) request.setFit(fitMethod1);
+		else request.setFit(fitMethod2);
+
+		ResultValue result = getResult(request);
+		String value, unit;
+		if (result != null) {
+			value = Double.toString(result.getValue());
+			unit = result.getUnit().abbrev();
+		} else {
+			value = "n/a";
+			unit = "?";
+		}
+		return res + "," + value + "," + unit + "\n";
+	}
+
+	private String retentionResultToCsvLine(ResultRequest request, double time) {
+		ResultValue result = getRetentionResult(request, time);
+		String value, unit;
+		if (result != null) {
+			value = Double.toString(result.getValue());
+			unit = result.getUnit().abbrev();
+		} else {
+			value = "n/a";
+			unit = "?";
+		}
+		return request.getResultOn().getName() + "_" + (int) time + "," + value + "," + unit + "\n";
+	}
+
+	private String retentionResultToCsv(int method) {
+		ResultRequest request = new ResultRequest(RETENTION_PERCENTAGE);
+		if (method == 1) request.setFit(fitMethod1);
+		else request.setFit(fitMethod2);
+
+		return retentionResultToCsvLine(request, 30.) + retentionResultToCsvLine(request, 60.) +
+				retentionResultToCsvLine(request, 120.) + retentionResultToCsvLine(request, 180.) +
+				retentionResultToCsvLine(request, 240.);
+	}
+
+	private String csvTable(int method) {
+		StringBuilder builder = new StringBuilder();
+		builder.append(RES_TIME);
+		builder.append(",");
+		builder.append(RES_STOMACH);
+		builder.append(",");
+		builder.append(RES_FUNDUS);
+		builder.append(",");
+		builder.append(RES_ANTRUM);
+		builder.append("\n");
+
+		for (Data data : this.generatesDataOrdered()) {
+			builder.append(data.getMinutes());
+			builder.append(",");
+			if (method == 1) {
+				builder.append(data.getAntValue(REGION_STOMACH, Data.DATA_PERCENTAGE));
+			} else {
+				builder.append(data.getAntValue(REGION_STOMACH, Data.DATA_GEO_AVG));
+			}
+			builder.append(",");
+			builder.append(data.getAntValue(REGION_FUNDUS, Data.DATA_PERCENTAGE));
+			builder.append(",");
+			builder.append(data.getAntValue(REGION_ANTRE, Data.DATA_PERCENTAGE));
+			builder.append("\n");
+		}
+
+		return builder.toString();
+	}
+
+	private String csvResult() {
+		int method;
+		if (Prefs.get(PrefTabGastric.PREF_SIMPLE_METHOD, false)) method = 2;
+		else method = 1;
+
+		return this.studyName + "\n\n" + this.csvTable(method) + "\n" + resultToCsvLine(LAG_PHASE_PERCENTAGE, method) +
+				resultToCsvLine(T_HALF_PERCENTAGE, method) + retentionResultToCsv(method);
+	}
+
+	public void setFitMethod(int method, Fit fit) {
+		if (method == 1) this.fitMethod1 = fit;
+		else if (method == 2) this.fitMethod2 = fit;
+	}
+
 	/**
 	 * Calculates the counts of the specified region.<br> The region must be previously inflated with the correct
 	 * state.<br> This method takes care of all necessary operations to do on the ImagePlus or the RoiManager.<br> This
@@ -904,7 +989,8 @@ public class Model_Gastric extends ModelWorkflow {
 	 */
 	public ChartPanel createGraph_3() {
 		double[][] ySeries = new double[][]{this.getResultAsArray(REGION_STOMACH, Data.DATA_PERCENTAGE,
-																  Unit.PERCENTAGE), this.getResultAsArray(REGION_FUNDUS,
+																  Unit.PERCENTAGE),
+											this.getResultAsArray(REGION_FUNDUS,
 																										  Data.DATA_PERCENTAGE,
 																										  Unit.PERCENTAGE),
 											this.getResultAsArray(REGION_ANTRE, Data.DATA_PERCENTAGE,
@@ -969,6 +1055,8 @@ public class Model_Gastric extends ModelWorkflow {
 		if (result != RETENTION_GEOAVG && result != RETENTION_PERCENTAGE) throw new IllegalArgumentException(
 				"The result " + result + " not supported here!");
 
+		if (request.getFit() == null) return null;
+
 		double[] yValues;
 		if (result == RETENTION_PERCENTAGE) {
 			yValues = generateStomachValues(request.getFit().getYUnit());
@@ -1015,6 +1103,8 @@ public class Model_Gastric extends ModelWorkflow {
 		else if (result == START_INTESTINE) return new ResultValue(request, this.getDebut(REGION_INTESTINE),
 																   Unit.TIME);
 		else if (result == LAG_PHASE_PERCENTAGE || result == LAG_PHASE_GEOAVG) {
+			if (fit == null) return null;
+
 			double[] yValues;
 			if (result == LAG_PHASE_PERCENTAGE) yValues = generateStomachValues(fit.getYUnit());
 			else yValues = generateDecayFunctionValues(fit.getYUnit());
@@ -1030,10 +1120,16 @@ public class Model_Gastric extends ModelWorkflow {
 			}
 
 			// Convert to requested unit
-			valX = Unit.TIME.convertTo(valX, request.getUnit());
+			Unit resultUnit = Unit.MINUTES;
+			if (request.getUnit() != null) {
+				valX = resultUnit.convertTo(valX, request.getUnit());
+				resultUnit = request.getUnit();
+			}
 
-			return new ResultValue(request, valX, request.getUnit(), isExtrapolated);
+			return new ResultValue(request, valX, resultUnit, isExtrapolated);
 		} else if (result == T_HALF_PERCENTAGE || result == T_HALF_GEOAVG) {
+			if (fit == null) return null;
+
 			double[] yValues;
 			if (result == T_HALF_PERCENTAGE) yValues = generateStomachValues(fit.getYUnit());
 			else yValues = generateDecayFunctionValues(fit.getYUnit());
@@ -1049,9 +1145,13 @@ public class Model_Gastric extends ModelWorkflow {
 			}
 
 			// Convert to requested unit
-			valX = Unit.TIME.convertTo(valX, request.getUnit());
+			Unit resultUnit = Unit.MINUTES;
+			if (request.getUnit() != null) {
+				valX = resultUnit.convertTo(valX, request.getUnit());
+				resultUnit = request.getUnit();
+			}
 
-			return new ResultValue(request, valX, request.getUnit(), isExtrapolated);
+			return new ResultValue(request, valX, resultUnit, isExtrapolated);
 		} else {
 			try {
 				if (result == RES_TIME) return new ResultValue(request, BigDecimal.valueOf(data.getMinutes()).setScale(
@@ -1086,6 +1186,11 @@ public class Model_Gastric extends ModelWorkflow {
 	@Override
 	public void calculateResults() {
 		this.generateTime();
+	}
+
+	@Override
+	public String toString() {
+		return this.csvResult();
 	}
 
 	/**

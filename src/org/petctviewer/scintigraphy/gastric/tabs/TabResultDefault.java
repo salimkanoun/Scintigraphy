@@ -196,8 +196,11 @@ public abstract class TabResultDefault extends TabResult implements ChangeListen
 		infoRes.add(lRes);
 	}
 
-	private Model_Gastric getModel() {
-		return (Model_Gastric) this.parent.getModel();
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		if (e instanceof FitChangeEvent) {
+			this.reloadSidePanelContent();
+		}
 	}
 
 	/**
@@ -338,9 +341,8 @@ public abstract class TabResultDefault extends TabResult implements ChangeListen
 		return tab;
 	}
 
-	@Override
-	public void stateChanged(ChangeEvent e) {
-		if (e instanceof FitChangeEvent) this.reloadSidePanelContent();
+	protected Model_Gastric getModel() {
+		return (Model_Gastric) this.parent.getModel();
 	}
 
 	/**
