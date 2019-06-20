@@ -53,9 +53,11 @@ public class LiquidScintigraphy extends Scintigraphy {
 
 		// Get Ant image
 		if (ims.getImageOrientation() == Orientation.DYNAMIC_ANT_POST ||
-				ims.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) selection.add(
-				Library_Dicom.splitAntPost(ims)[0]);
-		else selection.add(ims.clone());
+				ims.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
+			ImageSelection[] images = Library_Dicom.splitAntPost(ims);
+			selection.add(images[0]);
+			selection.add(images[1]);
+		} else selection.add(ims.clone());
 
 		// Close previous images
 		openedImages.forEach(ImageSelection::close);
