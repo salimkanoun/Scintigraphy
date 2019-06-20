@@ -1,14 +1,17 @@
 package org.petctviewer.scintigraphy.gastric;
 
-import ij.ImagePlus;
-import ij.Prefs;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.petctviewer.scintigraphy.gastric.dynamic.DynGastricScintigraphy;
 import org.petctviewer.scintigraphy.gastric.gui.PromptIngestionTime;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod2;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -23,11 +26,8 @@ import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabGastric;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import ij.ImagePlus;
+import ij.Prefs;
 
 public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
@@ -40,9 +40,9 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 	private List<ImagePlus> captures;
 
-	public ControllerWorkflow_Gastric(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages,
+	public ControllerWorkflow_Gastric(FenApplicationWorkflow vue, ImageSelection[] selectedImages,
 									  String studyName) {
-		super(main, vue, new Model_Gastric(selectedImages, studyName));
+		super(vue, new Model_Gastric(selectedImages, studyName));
 
 		getModel().setFirstImage(selectedImages[0]);
 

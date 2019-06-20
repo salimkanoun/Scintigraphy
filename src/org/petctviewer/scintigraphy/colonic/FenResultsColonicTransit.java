@@ -1,14 +1,19 @@
 package org.petctviewer.scintigraphy.colonic;
 
-import ij.ImagePlus;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.GridLayout;
+import java.util.List;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.List;
+import ij.ImagePlus;
 
 public class FenResultsColonicTransit extends FenResults {
 

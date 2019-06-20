@@ -1,8 +1,9 @@
 package org.petctviewer.scintigraphy.renal;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.plugin.ZProjector;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -17,9 +18,9 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.plugin.ZProjector;
 
 public class RenalScintigraphy extends Scintigraphy {
 
@@ -50,7 +51,7 @@ public class RenalScintigraphy extends Scintigraphy {
 
 		this.setFenApplication(new FenApplication_Renal(preparedImages.get(0), this.getStudyName(), this));
 		this.getFenApplication().setController(
-				new ControllerWorkflowRenal(this, (FenApplicationWorkflow) this.getFenApplication(),
+				new ControllerWorkflowRenal((FenApplicationWorkflow) this.getFenApplication(),
 											new Model_Renal(this.frameDurations,
 															preparedImages.toArray(new ImageSelection[0]),
 															STUDY_NAME)));

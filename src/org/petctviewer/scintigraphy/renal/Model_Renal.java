@@ -1,21 +1,22 @@
  package org.petctviewer.scintigraphy.renal;
 
- import ij.ImagePlus;
- import ij.Prefs;
- import ij.gui.Roi;
- import ij.util.DicomTools;
- import org.jfree.data.statistics.Regression;
- import org.jfree.data.xy.XYSeries;
- import org.jfree.data.xy.XYSeriesCollection;
- import org.petctviewer.scintigraphy.scin.ImageSelection;
- import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
- import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
- import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
- import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
-
  import java.util.ArrayList;
- import java.util.HashMap;
- import java.util.List;
+import java.util.HashMap;
+import java.util.List;
+
+import org.jfree.data.statistics.Regression;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
+
+import ij.ImagePlus;
+import ij.Prefs;
+import ij.gui.Roi;
+import ij.util.DicomTools;
 
 public class Model_Renal extends ModelScinDyn {
 
@@ -45,6 +46,8 @@ public class Model_Renal extends ModelScinDyn {
 		this.impPost = selectedImages[1];
 		if(selectedImages.length > 2)
 			this.impAnt = selectedImages[2];
+		
+		this.frameDurations = frameDuration;
 		
 		this.pixelCounts = new HashMap<>();
 	}

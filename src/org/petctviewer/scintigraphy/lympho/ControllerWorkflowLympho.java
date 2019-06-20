@@ -1,10 +1,10 @@
 package org.petctviewer.scintigraphy.lympho;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.petctviewer.scintigraphy.lympho.gui.FenResultatsLympho;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -15,15 +15,15 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import java.util.ArrayList;
-import java.util.List;
+import ij.ImagePlus;
+import ij.gui.Roi;
 
 public class ControllerWorkflowLympho extends ControllerWorkflow {
 
 	private List<ImagePlus> captures;
 
-	public ControllerWorkflowLympho(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
-		super(main, vue, model);
+	public ControllerWorkflowLympho(FenApplicationWorkflow vue, ModelScin model) {
+		super(vue, model);
 		
 		this.generateInstructions();
 		this.start();

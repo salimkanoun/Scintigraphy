@@ -4,7 +4,6 @@ import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
@@ -21,9 +20,9 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
 	private final TabMethod1 tabResult;
 
-	public ControllerWorkflow_DynGastric(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
+	public ControllerWorkflow_DynGastric(FenApplicationWorkflow vue, ModelScin model,
 										 ImageSelection[] selectedImages, TabMethod1 tabResult) {
-		super(main, vue, model);
+		super(vue, model);
 		this.getRoiManager().reset();
 
 		// Create projection for each image

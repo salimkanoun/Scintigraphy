@@ -1,7 +1,9 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
-import ij.gui.Overlay;
-import ij.plugin.StackReverser;
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -13,9 +15,8 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+import ij.gui.Overlay;
+import ij.plugin.StackReverser;
 
 public class DmsaScintigraphy extends Scintigraphy {
 
@@ -34,7 +35,7 @@ public class DmsaScintigraphy extends Scintigraphy {
 		this.setFenApplication(fen);
 		preparedImages.get(0).getImagePlus().setOverlay(overlay);
 
-		fen.setController(new ControllerWorkflowDMSA(this, (FenApplicationWorkflow) this.getFenApplication(),
+		fen.setController(new ControllerWorkflowDMSA((FenApplicationWorkflow) this.getFenApplication(),
 													 preparedImages.toArray(new ImageSelection[0])));
 	}
 

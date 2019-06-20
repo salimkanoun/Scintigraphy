@@ -8,14 +8,13 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Model_Renal;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 
 class TabUreter extends TabResult {
 
-	public TabUreter(Scintigraphy scin, FenResults parent) {
+	public TabUreter(FenResults parent) {
 		super(parent, "Ureters", true);
 
 		this.reloadDisplay();

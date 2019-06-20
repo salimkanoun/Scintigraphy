@@ -1,6 +1,11 @@
 package org.petctviewer.scintigraphy.gastric;
 
-import ij.Prefs;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -13,10 +18,7 @@ import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionCompara
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabGastric;
 
-import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import ij.Prefs;
 
 public class GastricScintigraphy extends Scintigraphy {
 
@@ -31,7 +33,7 @@ public class GastricScintigraphy extends Scintigraphy {
 		// Create application window
 		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), getStudyName()));
 		this.getFenApplication().setController(
-				new ControllerWorkflow_Gastric(this, (FenApplicationWorkflow) this.getFenApplication(),
+				new ControllerWorkflow_Gastric((FenApplicationWorkflow) this.getFenApplication(),
 											   preparedImages.toArray(new ImageSelection[0]), STUDY_NAME));
 		this.getFenApplication().setPreferences(new PrefTabGastric(null));
 		this.getFenApplication().setVisible(true);

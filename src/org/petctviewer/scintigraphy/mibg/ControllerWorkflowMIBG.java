@@ -1,9 +1,9 @@
 package org.petctviewer.scintigraphy.mibg;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.plugin.MontageMaker;
-import ij.process.ImageProcessor;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.petctviewer.scintigraphy.mibg.tabResults.TabMainMIBG;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -18,16 +18,17 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.plugin.MontageMaker;
+import ij.process.ImageProcessor;
 
 public class ControllerWorkflowMIBG extends ControllerWorkflow {
 
 	private final List<ImagePlus> captures;
 
 	public ControllerWorkflowMIBG(String studyName, FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
-		super(null, vue, new ModelMIBG(selectedImages, studyName));
+		super(vue, new ModelMIBG(selectedImages, studyName));
 
 		this.captures = new ArrayList<>();
 

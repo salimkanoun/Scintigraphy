@@ -39,7 +39,7 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 		this.setFenApplication(
 				new FenApplicationHepaticDynamic(preparedImages.get(0).getImagePlus(), this.getStudyName()));
 		preparedImages.get(0).getImagePlus().setOverlay(overlay);
-		this.getFenApplication().setController(new ControllerHepaticDynamic(this, this.getFenApplication(),
+		this.getFenApplication().setController(new ControllerHepaticDynamic(this.getFenApplication(),
 																			new ModelHepaticDynamic(
 																					preparedImages.toArray(
 																							new ImageSelection[0]),

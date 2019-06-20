@@ -9,7 +9,6 @@ import javax.swing.JPanel;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
@@ -17,7 +16,7 @@ import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
 class TabCort extends TabResult {
 
-	public TabCort(Scintigraphy scin, FenResults parent) {
+	public TabCort(FenResults parent) {
 		super(parent, "Corticals/Pelvis");
 		
 		this.reloadDisplay();

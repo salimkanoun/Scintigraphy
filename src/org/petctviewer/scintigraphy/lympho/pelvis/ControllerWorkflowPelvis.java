@@ -31,7 +31,7 @@ public class ControllerWorkflowPelvis extends ControllerWorkflow {
 
 	public ControllerWorkflowPelvis(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model,
 			TabResult resultTab) {
-		super(main, vue, model);
+		super(vue, model);
 
 		this.resultTab = resultTab;
 

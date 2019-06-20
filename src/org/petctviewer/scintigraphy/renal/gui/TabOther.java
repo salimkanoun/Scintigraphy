@@ -1,22 +1,25 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import ij.Prefs;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridLayout;
+import java.util.List;
+
+import javax.swing.JPanel;
+
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Model_Renal;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.List;
+import ij.Prefs;
 
 class TabOther extends TabResult {
 
-	public TabOther(Scintigraphy scin, FenResults parent) {
+	public TabOther(FenResults parent) {
 		super(parent, "Other", true);
 
 		this.reloadDisplay();

@@ -1,7 +1,17 @@
 package org.petctviewer.scintigraphy.esophageus.application;
 
-import ij.ImagePlus;
-import ij.gui.Overlay;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -17,11 +27,8 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import ij.ImagePlus;
+import ij.gui.Overlay;
 
 public class EsophagealTransit extends Scintigraphy {
 	/*
@@ -115,9 +122,9 @@ public class EsophagealTransit extends Scintigraphy {
 
 		fen.resizeCanvas();
 		
-		ControllerWorkflowEsophagealTransit cet = new ControllerWorkflowEsophagealTransit(EsophagealTransit.this,
+		ControllerWorkflowEsophagealTransit cet = new ControllerWorkflowEsophagealTransit(
 				(FenApplicationWorkflow) EsophagealTransit.this.getFenApplication(), new Model_EsophagealTransit(
-						sauvegardeImagesSelectDicom, "Esophageal " + "Transit", EsophagealTransit.this));
+						sauvegardeImagesSelectDicom, "Esophageal " + "Transit", EsophagealTransit.this, this.getImgPrjtAllAcqui()));
 		this.getFenApplication().setController(cet);
 	}
 

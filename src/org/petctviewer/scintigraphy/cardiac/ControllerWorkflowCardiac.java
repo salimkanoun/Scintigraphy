@@ -1,9 +1,13 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import ij.ImagePlus;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
@@ -19,10 +23,7 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
+import ij.ImagePlus;
 
 public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
@@ -45,9 +46,9 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 	public static String simpleName = "ControllerWorkflowCardiac";
 
-	public ControllerWorkflowCardiac(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model, int fullBodyImages,
+	public ControllerWorkflowCardiac(FenApplicationWorkflow vue, ModelScin model, int fullBodyImages,
 			int onlyThoraxImage) {
-		super(main, vue, model);
+		super(vue, model);
 
 		this.fullBodyImages = fullBodyImages;
 		this.onlyThoraxImage = onlyThoraxImage;
@@ -81,7 +82,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			this.finContSlice1 = true;
 
 		} else { // on a trait� toutes les contaminations
-			((FenApplication_Cardiac) this.main.getFenApplication()).stopContaminationMode();
+			((FenApplication_Cardiac) this.getVue()).stopContaminationMode();
 			String[] conts = new String[this.position];
 			for (int i = 0; i < conts.length; i++) {
 				conts[i] = "Cont";
@@ -117,11 +118,11 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		if (this.getVue().getImagePlus().getRoi() != null && !this.finContSlice2 && this.fullBodyImages > 0) {
 			if (((DrawSymmetricalLoopInstruction) this.workflows[indexCurrentWorkflow].getCurrentInstruction())
 					.getIndex() % 2 != 0) {
-				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.main.getFenApplication();
+				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getVue();
 				fac.getBtn_continue().setEnabled(false);
 				fac.getBtn_suivant().setLabel("Next");
 			} else {
-				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.main.getFenApplication();
+				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getVue();
 				fac.getBtn_continue().setEnabled(true);
 				fac.getBtn_suivant().setLabel("Save");
 			}

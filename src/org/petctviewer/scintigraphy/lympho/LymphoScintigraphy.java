@@ -1,19 +1,24 @@
 package org.petctviewer.scintigraphy.lympho;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.ImageStack;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.exceptions.*;
+import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
-import java.util.ArrayList;
-import java.util.List;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
 
 public class LymphoScintigraphy extends Scintigraphy {
 
@@ -28,7 +33,7 @@ public class LymphoScintigraphy extends Scintigraphy {
 
 		this.setFenApplication(new FenApplicationLympho(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(
-				new ControllerWorkflowLympho(this, (FenApplicationWorkflow) this.getFenApplication(),
+				new ControllerWorkflowLympho((FenApplicationWorkflow) this.getFenApplication(),
 											 new ModelLympho(preparedImages.toArray(new ImageSelection[0]),
 															 STUDY_NAME)));
 		this.getFenApplication().setVisible(true);

@@ -2,7 +2,6 @@ package org.petctviewer.scintigraphy.esophageus.application;
 
 import org.petctviewer.scintigraphy.esophageus.resultats.FenResultats_EsophagealTransit;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
@@ -13,8 +12,8 @@ import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 public class ControllerWorkflowEsophagealTransit extends ControllerWorkflow {
 
-	public ControllerWorkflowEsophagealTransit(Scintigraphy main, FenApplicationWorkflow vue, ModelScin model) {
-		super(main, vue, model);
+	public ControllerWorkflowEsophagealTransit(FenApplicationWorkflow vue, ModelScin model) {
+		super(vue, model);
 
 		this.generateInstructions();
 		this.start();
@@ -34,7 +33,7 @@ public class ControllerWorkflowEsophagealTransit extends ControllerWorkflow {
 	protected void generateInstructions() {
 
 		this.workflows = new Workflow[1];
-		this.workflows[0] = new Workflow(this, ((EsophagealTransit) this.main).getImgPrjtAllAcqui());
+		this.workflows[0] = new Workflow(this, ((Model_EsophagealTransit) this.getModel()).getImgPrjtAllAcqui());
 
 		for (int indexInstruction = 0; indexInstruction < this.getModel().getImageSelection().length;
 			 indexInstruction++) {

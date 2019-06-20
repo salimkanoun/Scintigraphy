@@ -1,12 +1,20 @@
 package org.petctviewer.scintigraphy.shunpo;
 
-import ij.ImagePlus;
-import ij.ImageStack;
-import ij.Prefs;
-import ij.gui.Roi;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.GridLayout;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -23,13 +31,10 @@ import org.petctviewer.scintigraphy.scin.model.ResultRequest;
 import org.petctviewer.scintigraphy.scin.model.ResultValue;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabShunpo;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import ij.ImagePlus;
+import ij.ImageStack;
+import ij.Prefs;
+import ij.gui.Roi;
 
 public class ControllerWorkflowShunpo extends ControllerWorkflow implements ItemListener {
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
@@ -37,8 +42,8 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow implements Item
 	private List<ImagePlus> captures;
 	private DisplayState display;
 
-	public ControllerWorkflowShunpo(Scintigraphy main, FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
-		super(main, vue, new ModelShunpo(selectedImages, main.getStudyName()));
+	public ControllerWorkflowShunpo(FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
+		super(vue, new ModelShunpo(selectedImages, vue.getStudyName()));
 
 		// Initialize variables
 		this.WITH_KIDNEYS = Prefs.get(PrefTabShunpo.PREF_WITH_KIDNEYS, true);

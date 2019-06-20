@@ -1,6 +1,8 @@
 package org.petctviewer.scintigraphy.platelet;
 
-import ij.ImagePlus;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.petctviewer.scintigraphy.platelet.tabs.CountsTab;
 import org.petctviewer.scintigraphy.platelet.tabs.MeansTab;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -16,28 +18,30 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 
-import java.util.ArrayList;
-import java.util.List;
+import ij.ImagePlus;
 
 public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 
 	private List<ImagePlus> captures;
+	private boolean isAntPost;
 
 	/**
 	 * @param main           Reference to the main class
 	 * @param vue            View of the MVC pattern
 	 * @param selectedImages Images used for this study
 	 */
-	public ControllerWorkflow_Platelet(PlateletScintigraphy main, FenApplicationWorkflow vue,
-									   ImageSelection[] selectedImages) {
-		super(main, vue, new ModelPlatelet(selectedImages, main.getStudyName()));
+	public ControllerWorkflow_Platelet(FenApplicationWorkflow vue,
+									   ImageSelection[] selectedImages, boolean isAntPost) {
+		super(vue, new ModelPlatelet(selectedImages, vue.getStudyName()));
+		
+		this.isAntPost = isAntPost;
 
 		this.generateInstructions();
 		this.start();
 	}
 
 	private void computeModel() {
-		final int ROI_PER_IMAGE = (((PlateletScintigraphy) this.main).isAntPost() ? 6 : 3);
+		final int ROI_PER_IMAGE = (this.isAntPost ? 6 : 3);
 
 		for (int i = 0; i < getRoiManager().getRoisAsArray().length; i += ROI_PER_IMAGE) {
 			// Post
@@ -55,7 +59,7 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 												 getRoiManager().getRoisAsArray()[i + 2]);
 
 			// Ant
-			if (((PlateletScintigraphy) this.main).isAntPost()) {
+			if (this.isAntPost) {
 				// - Spleen
 				state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, i / ROI_PER_IMAGE);
 				((ModelPlatelet) getModel()).addData(ModelPlatelet.REGION_SPLEEN, state,
@@ -94,7 +98,7 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 		this.computeModel();
 
 		// Choose from geo avg or counts
-		boolean geoAvg = ((PlateletScintigraphy) ControllerWorkflow_Platelet.this.main).isAntPost();
+		boolean geoAvg = this.isAntPost;
 
 		// Display results
 		FenResults fenResults = new FenResults(this);
@@ -127,7 +131,7 @@ public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 			this.workflows[i].addInstruction(dri_heart);
 			this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 0, 0, 0));
 
-			if (((PlateletScintigraphy) this.main).isAntPost()) {
+			if (this.isAntPost) {
 				ImageState stateAnt = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_WORKFLOW);
 
 				if (dri_spleen_ant == null) dri_spleen_ant = dri_spleen;

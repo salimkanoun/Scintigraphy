@@ -1,8 +1,8 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.ImageStack;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -14,8 +14,9 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
-import java.util.ArrayList;
-import java.util.List;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
 
 public class GeneralDynamicScintigraphy extends Scintigraphy {
 
@@ -31,7 +32,7 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 	public void start(List<ImageSelection> preparedImages) {
 		this.setFenApplication(new FenApplication_GeneralDyn(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(
-				new ControllerWorkflowScinDynamic(this, (FenApplicationWorkflow) this.getFenApplication(),
+				new ControllerWorkflowScinDynamic((FenApplicationWorkflow) this.getFenApplication(),
 												  new Model_GeneralDyn(preparedImages.toArray(new ImageSelection[0]),
 																	   STUDY_NAME, this.getFrameDurations())));
 	}

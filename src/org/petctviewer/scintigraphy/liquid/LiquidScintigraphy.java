@@ -1,5 +1,9 @@
 package org.petctviewer.scintigraphy.liquid;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -10,10 +14,6 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class LiquidScintigraphy extends Scintigraphy {
 
@@ -27,7 +27,7 @@ public class LiquidScintigraphy extends Scintigraphy {
 	public void start(List<ImageSelection> preparedImages) {
 		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(
-				new LiquidController(this, (FenApplicationWorkflow) this.getFenApplication(),
+				new LiquidController((FenApplicationWorkflow) this.getFenApplication(),
 									 preparedImages.toArray(new ImageSelection[0])));
 	}
 

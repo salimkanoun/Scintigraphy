@@ -1,5 +1,15 @@
 package org.petctviewer.scintigraphy.shunpo;
 
+import java.awt.CheckboxMenuItem;
+import java.awt.Menu;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -11,12 +21,6 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.shunpo.ControllerWorkflowShunpo.DisplayState;
-
-import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.util.List;
-import java.util.*;
 
 public class ShunpoScintigraphy extends Scintigraphy {
 
@@ -71,7 +75,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 		// Start program
 		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(
-				new ControllerWorkflowShunpo(this, (FenApplicationWorkflow) getFenApplication(),
+				new ControllerWorkflowShunpo((FenApplicationWorkflow) getFenApplication(),
 											 preparedImages.toArray(new ImageSelection[0])));
 
 		this.createDocumentation();

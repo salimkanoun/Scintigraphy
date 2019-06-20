@@ -1,5 +1,11 @@
 package org.petctviewer.scintigraphy.gastric.dynamic;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -13,12 +19,6 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.ReversedChronologicalAcquisitionComparator;
-
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class DynGastricScintigraphy extends Scintigraphy {
 
@@ -36,7 +36,7 @@ public class DynGastricScintigraphy extends Scintigraphy {
 	public void start(List<ImageSelection> preparedImages) {
 		this.setFenApplication(new FenApplication_DynGastric(preparedImages.get(0), "Dynamic Gastric Scintigraphy"));
 		this.getFenApplication().setController(
-				new ControllerWorkflow_DynGastric(this, (FenApplicationWorkflow) this.getFenApplication(), this.model,
+				new ControllerWorkflow_DynGastric((FenApplicationWorkflow) this.getFenApplication(), this.model,
 												  preparedImages.toArray(new ImageSelection[0]), tabResult));
 		this.getFenApplication().addWindowListener(new WindowAdapter() {
 			@Override

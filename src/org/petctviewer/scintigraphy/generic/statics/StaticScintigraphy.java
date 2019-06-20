@@ -1,6 +1,9 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
-import ij.gui.Overlay;
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -12,9 +15,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+import ij.gui.Overlay;
 
 public class StaticScintigraphy extends Scintigraphy {
 	public static final String STUDY_NAME = "General static scintigraphy";
@@ -37,7 +38,7 @@ public class StaticScintigraphy extends Scintigraphy {
 		preparedImages.get(0).getImagePlus().setOverlay(overlay);
 
 		this.getFenApplication().setController(
-				new ControllerWorkflow_ScinStatic(this, (FenApplicationWorkflow) getFenApplication(),
+				new ControllerWorkflow_ScinStatic((FenApplicationWorkflow) getFenApplication(),
 												  preparedImages.toArray(new ImageSelection[0]), getStudyName()));
 
 		((ModelScinStatic) this.getFenApplication().getController().getModel()).setIsSingleSlide(this.isSingleSlice);

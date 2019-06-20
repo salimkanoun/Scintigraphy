@@ -17,7 +17,6 @@ import javax.swing.SwingUtilities;
 
 import org.petctviewer.scintigraphy.hepatic.tab.TabCurves;
 import org.petctviewer.scintigraphy.hepatic.tab.TabMainHepaticDyn;
-import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.CaptureButton;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
@@ -34,8 +33,8 @@ public class ControllerHepaticDynamic extends ControllerScin implements MouseLis
 
 	public static final String COMMAND_END = "command.end";
 
-	public ControllerHepaticDynamic(Scintigraphy main, FenApplication vue, ModelScin model) {
-		super(main, main.getFenApplication(), model);
+	public ControllerHepaticDynamic(FenApplication vue, ModelScin model) {
+		super(vue, model);
 	}
 
 	@Override
