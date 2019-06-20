@@ -71,7 +71,7 @@ public class TabContrastModifier extends TabResult {
 
 		this.dynamicImp = new DynamicImage(image.getBufferedImage());
 
-		slider = new ContrastSlider(image, this.dynamicImp);
+		slider = new ContrastSlider(image, this.dynamicImp, this.parent);
 
 		boxSlider = Box.createVerticalBox();
 		boxSlider.add(sliderLabel);
@@ -97,7 +97,7 @@ public class TabContrastModifier extends TabResult {
 
 		this.dynamicImp = new DynamicImage(state.getImage().getImagePlus().getBufferedImage());
 
-		slider = new ContrastSlider(state, this.dynamicImp);
+		slider = new ContrastSlider(state, this.dynamicImp, this.parent);
 
 		boxSlider = Box.createVerticalBox();
 		boxSlider.add(sliderLabel);

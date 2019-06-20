@@ -1,20 +1,19 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.Color;
-import java.awt.Font;
-
-import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
+import ij.ImagePlus;
+import ij.gui.Roi;
+import ij.plugin.RoiScaler;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
-import ij.plugin.RoiScaler;
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * This component is a slider used to modify the contrast of an ImagePlus.
@@ -27,10 +26,10 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 	private ImagePlus reference;
 	private DynamicImage result;
 
-	public ContrastSlider(ImagePlus image, DynamicImage result) {
+	public ContrastSlider(ImagePlus image, DynamicImage result, FenResults fenResults) {
 		super(JSlider.HORIZONTAL);
-		if (image == null)
-			throw new IllegalArgumentException("Image cannot be null");
+		if (image == null) throw new IllegalArgumentException("Image cannot be null");
+		if (fenResults == null) throw new IllegalArgumentException("Fen Result cannot be null");
 
 		this.reference = image;
 		this.result = result;
@@ -43,14 +42,21 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 
 		image.show();
 		image.getWindow().setVisible(false);
+		// Add listener to close image when FenResult is closed
+		fenResults.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				image.close();
+			}
+		});
 
 		this.stateChanged(null);
 	}
 
-	public ContrastSlider(ImageState state, DynamicImage result) {
-		this(state.getImage().getImagePlus(), result);
-		if (state.getIdImage() != ImageState.ID_CUSTOM_IMAGE)
-			throw new IllegalArgumentException("The image of the state must be set");
+	public ContrastSlider(ImageState state, DynamicImage result, FenResults fenResults) {
+		this(state.getImage().getImagePlus(), result, fenResults);
+		if (state.getIdImage() != ImageState.ID_CUSTOM_IMAGE) throw new IllegalArgumentException(
+				"The image of the state must be set");
 
 		if (this.reference.getOverlay() != null) {
 			int oldWidth = this.reference.getProcessor().getWidth();
@@ -68,7 +74,8 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 			// depth=2 constrain average " + "interpolation=Bilinear");
 
 			final int IMG_WIDTH = 512;
-			ImagePlus temp = Library_Dicom.resize(this.reference, IMG_WIDTH, IMG_WIDTH * this.reference.getHeight() / this.reference.getWidth());
+			ImagePlus temp = Library_Dicom.resize(this.reference, IMG_WIDTH,
+												  IMG_WIDTH * this.reference.getHeight() / this.reference.getWidth());
 
 			this.reference.close();
 			this.reference = temp;
@@ -77,19 +84,15 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 			this.reference.getWindow().setVisible(false);
 
 			// In case they change the behavior
-			if (this.reference.getOverlay() != null)
-				this.reference.getOverlay().clear();
-			else
-				Library_Gui.initOverlay(this.reference);
+			if (this.reference.getOverlay() != null) this.reference.getOverlay().clear();
+			else Library_Gui.initOverlay(this.reference);
 
 			Font font = new Font("Arial", Font.PLAIN, Math.round(15));
 			this.reference.getOverlay().setLabelFont(font, true);
 
 			Library_Gui.setOverlayTitle(state.title(), this.reference, Color.YELLOW, 1);
-			if (state.isLateralisationRL())
-				Library_Gui.setOverlayDG(this.reference, Color.YELLOW);
-			else
-				Library_Gui.setOverlayGD(this.reference, Color.YELLOW);
+			if (state.isLateralisationRL()) Library_Gui.setOverlayDG(this.reference, Color.YELLOW);
+			else Library_Gui.setOverlayGD(this.reference, Color.YELLOW);
 
 			// Applying the saved Overlay
 			for (Roi roi : rois) {

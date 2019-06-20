@@ -27,7 +27,7 @@ public class MainTab extends TabResult {
 		capture.getImagePlus().setOverlay(overlay);
 		this.slider = new ContrastSlider(new ImageState(Orientation.POST, 2,
 														((ControllerWorkflow) this.parent.getController()).getCurrentImageState().getLateralisation(),
-														capture), this.result);
+														capture), this.result, this.parent);
 
 		this.reloadDisplay();
 	}
