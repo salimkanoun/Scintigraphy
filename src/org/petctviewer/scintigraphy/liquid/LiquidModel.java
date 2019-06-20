@@ -18,10 +18,31 @@ public class LiquidModel extends ModelWorkflow {
 
 	private XYSeries countsAnt, countsPost;
 
+	private Fit currentFit;
+
 	public LiquidModel(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
 
 		this.clearResults();
+	}
+
+	private String csvTable() {
+		StringBuilder builder = new StringBuilder();
+
+		builder.append("Time");
+		builder.append(',');
+		builder.append("Retention");
+		builder.append('\n');
+		double[] xValues = this.generateXValues();
+		double[] yValues = this.generateYValues();
+		for (int i = 0; i < xValues.length; i++) {
+			builder.append(xValues[i]);
+			builder.append(',');
+			builder.append(yValues[i]);
+			builder.append('\n');
+		}
+
+		return builder.toString();
 	}
 
 	private boolean isBothOrientations() {
@@ -84,6 +105,34 @@ public class LiquidModel extends ModelWorkflow {
 		return countsAnt;
 	}
 
+	private String csvResults() {
+		StringBuilder builder = new StringBuilder();
+
+		builder.append(this.studyName);
+		builder.append("\n\n");
+		builder.append(this.csvTable());
+		builder.append('\n');
+		builder.append("T1/2");
+		builder.append(',');
+		// T 1/2
+		ResultRequest request = new ResultRequest(RES_T_HALF);
+		request.setFit(this.currentFit);
+		ResultValue result = this.getResult(request);
+		builder.append(result.getValue());
+		builder.append(',');
+		builder.append(result.getUnit());
+
+		return builder.toString();
+	}
+
+	@Override
+	public void calculateResults() {
+	}
+
+	public void setCurrentFit(Fit fit) {
+		this.currentFit = fit;
+	}
+
 	@Override
 	public ResultValue getResult(ResultRequest request) {
 		if (request.getResultOn() == RES_T_HALF) {
@@ -112,12 +161,13 @@ public class LiquidModel extends ModelWorkflow {
 //				System.out.println("Extrapolated = " + result);
 				isExtrapolated = true;
 			}
-			return new ResultValue(request, result, Unit.TIME, isExtrapolated);
+			return new ResultValue(request, result, Unit.MINUTES, isExtrapolated);
 		}
 		return null;
 	}
 
 	@Override
-	public void calculateResults() {
+	public String toString() {
+		return this.csvResults();
 	}
 }
