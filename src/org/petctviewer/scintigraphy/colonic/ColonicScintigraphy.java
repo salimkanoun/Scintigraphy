@@ -70,7 +70,6 @@ public class ColonicScintigraphy extends Scintigraphy {
 
 		// Order images by time
 		impSelect.sort(new ChronologicalAcquisitionComparator());
-		impSelect.get(0).getImagePlus().duplicate().show();
 		return impSelect;
 	}
 
