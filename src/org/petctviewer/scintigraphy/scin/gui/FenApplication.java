@@ -55,6 +55,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 	private Menu options;
 	private MenuItem menuItem_preferences;
 	private MenuItem loadRois;
+	private Menu help;
 
 	/**
 	 * Cree et ouvre la fenetre principale de l'application
@@ -158,7 +159,7 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 		});
 		this.loadRois.setEnabled(false);
 
-		Menu help = new Menu("Help");
+		this.help = new Menu("Help");
 		MenuItem doc = new MenuItem("Documentation");
 		doc.addActionListener((event) -> {
 			if (documentation != null) documentation.setVisible(true);
@@ -343,6 +344,10 @@ public class FenApplication extends StackWindow implements ComponentListener, Mo
 
 	public MenuItem getLoadRoisMenuItem() {
 		return this.loadRois;
+	}
+	
+	public Menu getHelpMenu() {
+		return this.help;
 	}
 
 	protected Panel getPanel_bttns_droit() {
