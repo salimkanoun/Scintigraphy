@@ -109,7 +109,7 @@ public class ModelColonicTransit extends ModelScin {
 		
 		DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance();
 		sym.setDecimalSeparator('.');
-		DecimalFormat us = new DecimalFormat("##.##");
+		DecimalFormat us = new DecimalFormat("##.#");
 		us.setDecimalFormatSymbols(sym);
 
 		for (int j = 0; j < 6; j++) {

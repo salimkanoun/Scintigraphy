@@ -7,6 +7,7 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.*;
+import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
@@ -23,6 +24,18 @@ public class LymphoScintigraphy extends Scintigraphy {
 		super(STUDY_NAME);
 	}
 
+	private void createDocumentation() {
+		DocumentationDialog documentation = new DocumentationDialog(this.getFenApplication());
+		documentation.addReference(DocumentationDialog.Field.createLinkField("", "Cheng Ann Surg. 2018",
+																			 "https://www.ncbi.nlm.nih" +
+																					 ".gov/pubmed/30004927"));
+		documentation.addReference(DocumentationDialog.Field.createLinkField("", "Bourgeois", "https://www.bordet" +
+				".be/fichiers_web/lymphologie" + "/lymphoscintigraphie_pedieuse" + ".pdf"));
+		documentation.setYoutube("");
+		documentation.setOnlineDoc("");
+		this.getFenApplication().setDocumentation(documentation);
+	}
+
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
 
@@ -31,8 +44,9 @@ public class LymphoScintigraphy extends Scintigraphy {
 				new ControllerWorkflowLympho((FenApplicationWorkflow) this.getFenApplication(),
 											 new ModelLympho(preparedImages.toArray(new ImageSelection[0]),
 															 STUDY_NAME)));
-		this.getFenApplication().setVisible(true);
+		this.createDocumentation();
 
+		this.getFenApplication().setVisible(true);
 	}
 
 	/**
@@ -167,6 +181,9 @@ public class LymphoScintigraphy extends Scintigraphy {
 
 			selectedImages = impsSortedAntPost;
 		}
+		
+		for(ImageSelection selected : selectedImages)
+			selected.getImagePlus().changes = false;
 
 		return selectedImages;
 	}

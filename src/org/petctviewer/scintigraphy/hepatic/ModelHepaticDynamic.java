@@ -108,7 +108,7 @@ public class ModelHepaticDynamic extends ModelScinDyn {
 	public String[] getResult() {
 		String[] retour = new String[9];
 
-		retour[0] = "Delay before : ";
+		retour[0] = "Appearance time : ";
 		retour[1] = "\t Hilium (frame :" + this.frames[0] + ") : " + Math.round(((double)this.times[0] / 1000.0d / 60.0d)) + " min";
 		retour[2] = "\t Duodenum (frame :" + this.frames[1] + ") : " + Math.round(((double)this.times[1] / 1000.0d / 60.0d)) + " min";
 		retour[3] = "\t Intestine (frame :" + this.frames[2] + ") : " + Math.round(((double)this.times[2] / 1000.0d / 60.0d)) + " min";
@@ -151,7 +151,7 @@ public class ModelHepaticDynamic extends ModelScinDyn {
 
 
 		s += "Hilium,Duodenum,Intestine\n";
-		s += "Delay before," + this.results.get(1) + "," + results.get(3) + "," + results.get(5) + "\n\n";
+		s += "Appearance time," + this.results.get(1) + "," + results.get(3) + "," + results.get(5) + "\n\n";
 		s += "Frame," + this.results.get(0) + "," + results.get(2) + "," + results.get(4) + "\n\n";
 
 		s += ",Hilium to Duodenum,Duodenum to Intestine,Hilium to Intestine\n";

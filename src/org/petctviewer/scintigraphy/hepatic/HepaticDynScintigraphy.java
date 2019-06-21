@@ -9,6 +9,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -28,6 +29,16 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 		super(STUDY_NAME);
 	}
 
+	private void createDocumentation() {
+		DocumentationDialog documentation = new DocumentationDialog(this.getFenApplication());
+		documentation.addReference(
+				DocumentationDialog.Field.createLinkField("", "Madacsy Eur J Gastroenterol Hepatol. 2000",
+														  "https://www.ncbi.nlm.nih.gov/pubmed/10929906"));
+		documentation.setYoutube("");
+		documentation.setOnlineDoc("");
+		this.getFenApplication().setDocumentation(documentation);
+	}
+
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
 
@@ -44,6 +55,8 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 																							new ImageSelection[0]),
 																					this.getStudyName(),
 																					this.frameDurations)));
+		
+		this.createDocumentation();
 	}
 
 	@Override

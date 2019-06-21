@@ -1,5 +1,24 @@
 package org.petctviewer.scintigraphy.lympho.gui;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.GridLayout;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.SwingConstants;
+
 import org.petctviewer.scintigraphy.scin.ImagePreparator;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
@@ -9,13 +28,6 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
 
 public class TabVisualGradation extends TabResult implements ActionListener {
 
@@ -199,48 +211,56 @@ public class TabVisualGradation extends TabResult implements ActionListener {
 		l0 = new JPanel(new BorderLayout());
 		l0.add(new JLabel("L0", SwingConstants.CENTER), BorderLayout.NORTH);
 
-		Image image;
-		image = Toolkit.getDefaultToolkit().getImage(
-				this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/L0.jpg"));
-		l0.add(new DynamicImage(image));
+//		Image image;
+		JLabel labelfake;
+//		image = Toolkit.getDefaultToolkit().getImage(
+//				this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/L0.jpg"));
+		labelfake = new JLabel("",SwingConstants.CENTER);
+		labelfake.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+				this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/L0.jpg"))));
+		l0.add(labelfake);
 
 		p1 = new JPanel(new BorderLayout());
 		p1.add(new JLabel("P1", SwingConstants.CENTER), BorderLayout.NORTH);
-		image = Toolkit.getDefaultToolkit().getImage(
-				this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/P1.jpg"));
-		DynamicImage dyna1 = new DynamicImage(image);
-		p1.add(dyna1);
+		labelfake = new JLabel("",SwingConstants.CENTER);
+		labelfake.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+				this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/P1.jpg"))));
+		p1.add(labelfake);
 
 		p2 = new JPanel(new BorderLayout());
 		p2.add(new JLabel("P2", SwingConstants.CENTER), BorderLayout.NORTH);
-		image = Toolkit.getDefaultToolkit().getImage(
-				this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/P2.jpg"));
-		DynamicImage dyna2 = new DynamicImage(image);
-		p2.add(dyna2);
+		labelfake = new JLabel("",SwingConstants.CENTER);
+		labelfake.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+				this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/P2.jpg"))));
+		p2.add(labelfake);
 
 		p3 = new JPanel(new BorderLayout());
 		p3.add(new JLabel("P3", SwingConstants.CENTER), BorderLayout.NORTH);
-		image = Toolkit.getDefaultToolkit().getImage(
-				this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/P3.jpg"));
-		p3.add(new DynamicImage(image));
+		labelfake = new JLabel("",SwingConstants.CENTER);
+		labelfake.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+				this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/P3.jpg"))));
+		p3.add(labelfake);
 
 		t4 = new JPanel(new BorderLayout());
 		t4.add(new JLabel("T4", SwingConstants.CENTER), BorderLayout.NORTH);
-		image = Toolkit.getDefaultToolkit().getImage(
-				this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/T4.jpg"));
-		t4.add(new DynamicImage(image));
+		labelfake = new JLabel("",SwingConstants.CENTER);
+		labelfake.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+				this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/T4.jpg"))));
+		t4.add(labelfake);
 
 		t5 = new JPanel(new BorderLayout());
 		t5.add(new JLabel("T5", SwingConstants.CENTER), BorderLayout.NORTH);
-		image = Toolkit.getDefaultToolkit().getImage(
-				this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/T5.jpg"));
-		t5.add(new DynamicImage(image));
+		labelfake = new JLabel("",SwingConstants.CENTER);
+		labelfake.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+				this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/T5.jpg"))));
+		t5.add(labelfake);
 
 		t6 = new JPanel(new BorderLayout());
 		t6.add(new JLabel("T6", SwingConstants.CENTER), BorderLayout.NORTH);
-		image = Toolkit.getDefaultToolkit().getImage(
-				this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/T6.jpg"));
-		t6.add(new DynamicImage(image));
+		labelfake = new JLabel("",SwingConstants.CENTER);
+		labelfake.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
+				this.getClass().getClassLoader().getResource("images/lympho/visualgradation/" + limb + "/T6.jpg"))));
+		t6.add(labelfake);
 
 		globalPane.add(new DynamicImage(this.img.getImagePlus().getBufferedImage()), BorderLayout.CENTER);
 
