@@ -167,6 +167,9 @@ public class LymphoScintigraphy extends Scintigraphy {
 
 			selectedImages = impsSortedAntPost;
 		}
+		
+		for(ImageSelection selected : selectedImages)
+			selected.getImagePlus().changes = false;
 
 		return selectedImages;
 	}

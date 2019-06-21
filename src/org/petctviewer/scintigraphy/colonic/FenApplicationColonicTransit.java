@@ -1,13 +1,18 @@
 package org.petctviewer.scintigraphy.colonic;
 
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 import java.net.URL;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -47,9 +52,19 @@ public class FenApplicationColonicTransit extends FenApplicationWorkflow {
 
 		public popupColonicROIs() {
 			URL res = this.getClass().getClassLoader().getResource("images/colonic/colon_fin.jpg");
-			if (res != null)
-				this.add(new DynamicImage(Toolkit.getDefaultToolkit().getImage(res)));
+			if (res != null) {
+				JPanel panel = new JPanel();
+				JLabel labelfake = new JLabel();
+				labelfake.setIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(res)));
+				panel.add(labelfake);
+				this.add(panel);
+//				this.add(new DynamicImage(FenApplicationColonicTransit.toBufferedImage(Toolkit.getDefaultToolkit().getImage(res))));
+				this.setTitle("Expected ROIs for colonic scintigraphy");
+				this.repaint();
+				this.pack();
+			}
 		}
 	}
+
 
 }
