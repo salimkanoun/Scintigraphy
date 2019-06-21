@@ -1,10 +1,7 @@
 package org.petctviewer.scintigraphy.colonic;
 
-import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
 import java.net.URL;
 
 import javax.swing.ImageIcon;

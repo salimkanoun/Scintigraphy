@@ -55,6 +55,8 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 																							new ImageSelection[0]),
 																					this.getStudyName(),
 																					this.frameDurations)));
+		
+		this.createDocumentation();
 	}
 
 	@Override
