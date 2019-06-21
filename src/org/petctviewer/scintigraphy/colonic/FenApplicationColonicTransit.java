@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.colonic;
 
 import java.awt.MenuItem;
 import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
@@ -32,8 +33,8 @@ public class FenApplicationColonicTransit extends FenApplicationWorkflow {
 				this.popup = new popupColonicROIs();
 				this.popup.setLocationRelativeTo(this);
 				this.popup.setVisible(true);
-				this.popup.setResizable(false);
 				this.popup.addWindowListener(this);
+				this.popup.setResizable(false);
 				this.popup.pack();
 			} else
 				this.popup.requestFocus();
@@ -41,6 +42,10 @@ public class FenApplicationColonicTransit extends FenApplicationWorkflow {
 		});
 
 		this.pack();
+	}
+	
+	void setPopupToNull() {
+		this.popup = null;
 	}
 
 	private class popupColonicROIs extends JFrame {
@@ -57,10 +62,22 @@ public class FenApplicationColonicTransit extends FenApplicationWorkflow {
 				this.add(panel);
 //				this.add(new DynamicImage(FenApplicationColonicTransit.toBufferedImage(Toolkit.getDefaultToolkit().getImage(res))));
 				this.setTitle("Expected ROIs for colonic scintigraphy");
+			
 				this.repaint();
 				this.pack();
 			}
 		}
+	}
+	
+	@Override
+	public void windowClosing(WindowEvent arg0) {
+		/* TODO Auto-generated method stub */
+		if (arg0.getSource() == this.popup) {
+			this.popup = null;
+			System.out.println("ok");
+		}
+		else
+			super.windowClosing(arg0);
 	}
 
 
