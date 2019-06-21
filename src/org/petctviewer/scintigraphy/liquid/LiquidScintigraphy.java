@@ -7,6 +7,7 @@ import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -23,11 +24,22 @@ public class LiquidScintigraphy extends Scintigraphy {
 		super(STUDY_NAME);
 	}
 
+	private void createDocumentation() {
+		DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
+		doc.addReference(DocumentationDialog.Field.createLinkField("", "Ziessman J Nucl Med. 2009",
+																   "https://www.ncbi.nlm.nih.gov/pubmed/19372480"));
+		doc.setYoutube("");
+		doc.setOnlineDoc("");
+		this.getFenApplication().setDocumentation(doc);
+	}
+
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
 		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(new LiquidController((FenApplicationWorkflow) this.getFenApplication(),
 																	preparedImages.toArray(new ImageSelection[0])));
+
+		this.createDocumentation();
 	}
 
 	@Override

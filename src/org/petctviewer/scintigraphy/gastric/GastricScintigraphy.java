@@ -7,6 +7,8 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
+import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog.Field;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
@@ -26,6 +28,17 @@ public class GastricScintigraphy extends Scintigraphy {
 		super(STUDY_NAME);
 	}
 
+	private void createDocumentation() {
+		DocumentationDialog documentation = new DocumentationDialog(this.getFenApplication());
+		documentation.addReference(Field.createLinkField("", "Abell J Nucl Med Technol. 2008",
+														 "https://www.ncbi.nlm.nih.gov/pubmed/18287197"));
+		documentation.addReference(
+				Field.createLinkField("", "Maurer J Nucl Med. 2015", "https://www.ncbi.nlm.nih.gov/pubmed/26025963"));
+		documentation.setYoutube("");
+		documentation.setOnlineDoc("");
+		this.getFenApplication().setDocumentation(documentation);
+	}
+
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
 		// Create application window
@@ -34,6 +47,9 @@ public class GastricScintigraphy extends Scintigraphy {
 				new ControllerWorkflow_Gastric((FenApplicationWorkflow) this.getFenApplication(),
 											   preparedImages.toArray(new ImageSelection[0]), STUDY_NAME));
 		this.getFenApplication().setPreferences(new PrefTabGastric(null));
+
+		this.createDocumentation();
+
 		this.getFenApplication().setVisible(true);
 	}
 
