@@ -104,9 +104,11 @@ public class LymphoScintigraphy extends Scintigraphy {
 			ImageSelection imp = selectedImages.get(i);
 			if (selectedImages.get(i).getImageOrientation() == Orientation.ANT_POST || selectedImages.get(
 					i).getImageOrientation() == Orientation.POST_ANT) {
+				System.out.println("ap position "+i);
 				impSorted = Library_Dicom.ensureAntPostFlipped(imp);
 			} else if (selectedImages.get(i).getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
 				impSorted = imp.clone();
+				System.out.println("dynamic position "+i);
 				DynamicPosition = i;
 			} else {
 				throw new WrongColumnException.OrientationColumn(selectedImages.get(i).getRow(),
@@ -119,10 +121,11 @@ public class LymphoScintigraphy extends Scintigraphy {
 			impsSortedAntPost.add(impSorted);
 		}
 
+		//System.out.println();
 		for (ImageSelection selected : selectedImages)
 			selected.close();
 
-		List<ImageSelection> impsCorrectedByTime = new ArrayList<>();
+		//List<ImageSelection> impsCorrectedByTime = new ArrayList<>();
 		if (DynamicPosition != -1) {
 			ImageSelection staticImage = impsSortedAntPost.get(Math.abs((DynamicPosition - 1)));
 			ImageSelection dynamicImage = impsSortedAntPost.get(DynamicPosition);
@@ -155,7 +158,7 @@ public class LymphoScintigraphy extends Scintigraphy {
 			staticImage.getImagePlus().getProcessor().setMinAndMax(0, staticImage.getImagePlus().getStatistics().max *
 					ratio);
 
-			impsCorrectedByTime.set(Math.abs((DynamicPosition - 1)), staticImage);
+			//impsCorrectedByTime.set(Math.abs((DynamicPosition - 1)), staticImage);
 			selectedImages.set(DynamicPosition, dynamicImage);
 
 		} else {
