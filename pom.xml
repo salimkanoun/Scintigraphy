@@ -14,27 +14,35 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>25.0.0</version>
+		<version>28.0.0</version>
+		<relativePath/>
 	</parent>
 	
-	<groupId>Conventional_Scintigraphy</groupId>
+	
+	<groupId>com.github.salimkanoun</groupId>
 	<artifactId>Conventional_Scintigraphy</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Conventional Scintigraphy</name>
+	<name>Conventional_Scintigraphy</name>
+	<description>Conventional scintigraphy packages</description>
+	<url>N/A</url>
+	
+	<organization>
+		<name>N/A</name>
+		<url>http://petctviewer.org</url>
+	</organization>
+	
+	<licenses>
+		<license>
+			<name>GNU General Public License v3.0</name>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	
 	  
 	<repositories>
 		<repository>
-			<id>java.net</id>
-			<url>http://dev.loci.wisc.edu/maven2/releases/</url>
-		</repository>
-		<repository>
 			<id>imagej.public</id>
 			<url>http://maven.imagej.net/content/groups/public</url>
-		</repository>
-		<repository>
-			<id>ome</id>
-			<name>OME Artifactory</name>
-			<url>https://artifacts.openmicroscopy.org/artifactory/maven/</url>
 		</repository>
 		<repository>
 			<id>www.dcm4che.org</id>
@@ -70,7 +78,6 @@
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
-			<version>1.52n</version>
 		</dependency>
 		
 		<dependency>
