@@ -3,48 +3,50 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
 		http://maven.apache.org/xsd/maven-4.0.0.xsd">
-<properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-</properties>
-
-<modelVersion>4.0.0</modelVersion>
-<parent>
-	<groupId>org.scijava</groupId>
-	<artifactId>pom-scijava</artifactId>
-	<version>25.0.0</version>
-</parent>
-  <repositories>
-    <repository>
-      <id>java.net</id>
-      <url>http://dev.loci.wisc.edu/maven2/releases/</url>
-    </repository>
-    <repository>
-		<id>imagej.public</id>
-		<url>http://maven.imagej.net/content/groups/public</url>
-	</repository>
-	 <repository>
-      <id>ome</id>
-      <name>OME Artifactory</name>
-      <url>https://artifacts.openmicroscopy.org/artifactory/maven/</url>
-    </repository>
-     <repository>
-      <id>www.dcm4che.org</id>
-      <name>dcm4che Repository</name>
-      <url>http://maven.dcm4che.org</url>
-    </repository>
- </repositories>
-
-
-  
-  <groupId>Conventional_Scintigraphy</groupId>
-  <artifactId>Conventional_Scintigraphy</artifactId>
-  <version>0.91.1-SNAPSHOT</version>
-  <name>Conventional_Scintigraphy</name>
-  <build>
-    <sourceDirectory>src</sourceDirectory>
-  </build>
+	<properties>
+	    <maven.compiler.source>1.8</maven.compiler.source>
+	    <maven.compiler.target>1.8</maven.compiler.target>
+	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>25.0.0</version>
+	</parent>
+	
+	<groupId>Conventional_Scintigraphy</groupId>
+	<artifactId>Conventional_Scintigraphy</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>Conventional Scintigraphy</name>
+	  
+	<repositories>
+		<repository>
+			<id>java.net</id>
+			<url>http://dev.loci.wisc.edu/maven2/releases/</url>
+		</repository>
+		<repository>
+			<id>imagej.public</id>
+			<url>http://maven.imagej.net/content/groups/public</url>
+		</repository>
+		<repository>
+			<id>ome</id>
+			<name>OME Artifactory</name>
+			<url>https://artifacts.openmicroscopy.org/artifactory/maven/</url>
+		</repository>
+		<repository>
+			<id>www.dcm4che.org</id>
+			<name>dcm4che Repository</name>
+			<url>http://maven.dcm4che.org</url>
+		</repository>
+	</repositories>
+	
+	<build>
+	  <sourceDirectory>src</sourceDirectory>
+	</build>
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.jfree</groupId>
@@ -65,8 +67,6 @@
 			<artifactId>commons-csv</artifactId>
 			<version>1.5</version>
 		</dependency>
-
-		
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
@@ -94,7 +94,7 @@
 		    <artifactId>dcm4che-core</artifactId>
 		    <version>5.16.0</version>
 		</dependency>
-
+	
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
@@ -105,9 +105,7 @@
 			<artifactId>enforcer-api</artifactId>
 			<version>1.4.1</version>
 		</dependency>
-		
+			
 	</dependencies>
-	
 
-	
 </project>
