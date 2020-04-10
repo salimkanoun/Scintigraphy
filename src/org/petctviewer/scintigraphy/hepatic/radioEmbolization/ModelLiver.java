@@ -24,12 +24,11 @@ import ij.gui.Roi;
 
 public class ModelLiver extends ModelWorkflow{
 
-	public static final String REGION_RIGHT_LUNG = "Right Lung", REGION_LEFT_LUNG = "Left Lung", REGION_BACKGROUND = 
-			"Background", REGION_LIVER = "Liver";
+	public static final String REGION_RIGHT_LUNG = "Right Lung", REGION_LEFT_LUNG = "Left Lung", REGION_LIVER = "Liver";
 	
 	public static final Result RES_RATIO_RIGHT_LUNG = new Result("Right Lung Ratio"), RES_RATIO_LEFT_LUNG = new Result(
 			"Left Lung Ratio"), RES_PULMONARY_SHUNT = new Result(
-					"Pulmonary Shunt");
+					"Pulmonary Shunt"), RES_RATIO_LIVER = new Result("Liver ratio");
 			
 	public static final int IMAGE_LIVER_LUNG = 0;
 	
@@ -71,31 +70,30 @@ public class ModelLiver extends ModelWorkflow{
 	 * @return array of regions name of the liver-lung image
 	 */
 	private String[] regionsLiverLung() {
-		return new String[] {REGION_RIGHT_LUNG, REGION_LEFT_LUNG, REGION_LIVER, REGION_BACKGROUND};
+		return new String[] {REGION_RIGHT_LUNG, REGION_LEFT_LUNG, REGION_LIVER};
 	}
 	
-	/**
-	 * Corrects the value of the specified region with the background region. To use this method, the background noise
-	 * region <b>must</b> be set.
-	 *
-	 * @param regionName Name of the region to correct
-	 * @param post       If set to TRUE, the Post orientation of the region will be used. If set to FALSE, the Ant
-	 *                   orientation of the region will be used.
-	 * @return corrected value of the region
-	 */
-	
-	private double correctValueWithBkgNoise(String regionName, boolean post) {
-		double counts, meanBkg, pixels;
-		if(post) {
-			counts = datas.get(IMAGE_LIVER_LUNG).getPostValue(regionName, Data.DATA_COUNTS);
-			meanBkg = datas.get(IMAGE_LIVER_LUNG).getPostValue(REGION_BACKGROUND, Data.DATA_MEAN_COUNTS);
-			pixels = datas.get(IMAGE_LIVER_LUNG).getPostValue(regionName, Data.DATA_PIXEL_COUNTS);
-		}else {
-			counts = datas.get(IMAGE_LIVER_LUNG).getAntValue(regionName, Data.DATA_COUNTS);
-			meanBkg = datas.get(IMAGE_LIVER_LUNG).getAntValue(REGION_BACKGROUND, Data.DATA_MEAN_COUNTS);
-			pixels = datas.get(IMAGE_LIVER_LUNG).getAntValue(regionName, Data.DATA_PIXEL_COUNTS);
+
+	private void calculateResultsPercentages() {
+		// Compute geometrical averages
+		// == LIVER-LUNG ==
+		Data data = datas.get(IMAGE_LIVER_LUNG);
+		for (String regionName : this.regionsLiverLung() {
+			double geoAvg = Library_Quantif.moyGeom(data.getAntValue(regionName, Data.DATA_COUNTS),
+													data.getPostValue(regionName, Data.DATA_COUNTS));
+			data.setAntValue(regionName, Data.DATA_GEO_AVG, geoAvg);
 		}
-		return counts - meanBkg * pixels;
+
+		// Percentage
+		double totalLung = data.getAntValue(REGION_RIGHT_LUNG, Data.DATA_GEO_AVG) + data.getAntValue(REGION_LEFT_LUNG,
+																									 Data.DATA_GEO_AVG);
+		this.results.put(RES_RATIO_RIGHT_LUNG.hashCode(),
+						 data.getAntValue(REGION_RIGHT_LUNG, Data.DATA_GEO_AVG) / totalLung * 100.);
+		this.results.put(RES_RATIO_LEFT_LUNG.hashCode(),
+						 data.getAntValue(REGION_LEFT_LUNG, Data.DATA_GEO_AVG) / totalLung * 100.);
+
+		// Calculate sum lungs
+		double sumLungs = this.calculateSumLungs();
 	}
 
 	/**
@@ -144,20 +142,6 @@ public class ModelLiver extends ModelWorkflow{
 	}
 
 	private void calculateResult() {
-		//Pulmonary shunt - method 2
-		double lungAnt = datas.get(IMAGE_LIVER_LUNG).getAntValue(REGION_RIGHT_LUNG, Data.DATA_COUNTS) + datas.get(IMAGE_LIVER_LUNG)
-.getAntValue(REGION_LEFT_LUNG, Data.DATA_COUNTS);
-		
-		double lungPost = datas.get(IMAGE_LIVER_LUNG).getPostValue(REGION_RIGHT_LUNG, Data.DATA_COUNTS) + datas.get(IMAGE_LIVER_LUNG)
-.getPostValue(REGION_LEFT_LUNG, Data.DATA_COUNTS);
-		
-		double lungGeo = Library_Quantif.moyGeom(lungAnt, lungPost);
-		
-		double liverAnt = datas.get(IMAGE_LIVER_LUNG).getAntValue(REGION_LIVER,Data.DATA_COUNTS);
-		double liverPost = datas.get(IMAGE_LIVER_LUNG).getPostValue(REGION_LIVER, Data.DATA_COUNTS);
-		double liverGeo = Library_Quantif.moyGeom(liverAnt, liverPost);
-		
-		
 		//Calculate sum liver
 		double sumLiver = this.calculateSumLiver();
 		//Calculate sum lungs
@@ -183,7 +167,7 @@ public class ModelLiver extends ModelWorkflow{
 	}
 	
 	private String csvResult() {
-		return this.studyName + "\n\n" + this.resultToCsvLine(RES_RATIO_RIGHT_LUNG) + this.resultToCsvLine(RES_RATIO_LEFT_LUNG) + this.resultToCsvLine(RES_PULMONARY_SHUNT);
+		return this.studyName + "\n\n" + this.resultToCsvLine(RES_RATIO_RIGHT_LUNG) + this.resultToCsvLine(RES_RATIO_LEFT_LUNG) + this.resultToCsvLine(RES_PULMONARY_SHUNT) + this.resultToCsvLine(RES_RATIO_LIVER);
 		}
 	
 	/**

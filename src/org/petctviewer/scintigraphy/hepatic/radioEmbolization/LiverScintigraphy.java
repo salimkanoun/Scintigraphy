@@ -98,7 +98,7 @@ public class LiverScintigraphy extends Scintigraphy {
 	@Override
 	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws WrongInputException {
 		//Check that number of images is correct
-		if(selectedImages.size() != 2) throw new WrongNumberImagesException(selectedImages.size(), 2);
+		if(selectedImages.size() != 1) throw new WrongNumberImagesException(selectedImages.size(), 2);
 		
 		if(selectedImages.get(0).getValue(this.orgranColumn.getName()) == selectedImages.get(1).getValue(
 				this.orgranColumn.getName())) throw new WrongColumnException(orgranColumn,
@@ -121,7 +121,7 @@ public class LiverScintigraphy extends Scintigraphy {
 	
 	@Override
 	public String instructions() {
-		return "2 images in Ant-Post or Post-Ant orientation";
+		return "1 image in Ant-Post Post-Ant orientation";
 	}
 	
 	private class RadioGroup implements ItemListener {
