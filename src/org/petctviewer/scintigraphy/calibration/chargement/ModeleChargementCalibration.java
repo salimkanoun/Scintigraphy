@@ -138,7 +138,7 @@ public class ModeleChargementCalibration {
 				StackStatistics ss = new StackStatistics(im);
 				
 				// pour seuil
-				Double suvMax = ss.max;
+				double suvMax = ss.max;
 				paramResultUnExamElements.put("SUVmax", ss.max);
 				
 				if(i==7) {
