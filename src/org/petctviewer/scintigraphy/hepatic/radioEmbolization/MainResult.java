@@ -51,11 +51,8 @@ public class MainResult extends TabResult {
 		this.displayResult(getModel().getResult(request), res);
 		request.changeResultOn(ModelLiver.RES_RATIO_LEFT_LUNG);
 		this.displayResult(getModel().getResult(request), res);
-		// Shunt systemic
+		// Liver ratio
 		request.changeResultOn(ModelLiver.RES_RATIO_LIVER);
-		this.displayResult(getModel().getResult(request), res);
-		// Pulmonary shunt
-		request.changeResultOn(ModelLiver.RES_PULMONARY_SHUNT);
 		this.displayResult(getModel().getResult(request), res);
 
 		return res;
