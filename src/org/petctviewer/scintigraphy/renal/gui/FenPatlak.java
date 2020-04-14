@@ -137,9 +137,9 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		XYSeries lkPatlak = new XYSeries("Left Kidney");
 		XYSeries rkPatlak = new XYSeries("Right Kidney");
 
-		Double minutesMax = 4.0;
+		double minutesMax = 4.0;
 
-		for (Double t = 0.0; t < minutesMax; t += 2 / 60.0) {
+		for (double t = 0.0; t < minutesMax; t += 2 / 60.0) {
 			Double x = Library_JFreeChart.getY(bpi, t) / Library_JFreeChart.getY(bp, t);
 			Double y1 = Library_JFreeChart.getY(lk, t) / Library_JFreeChart.getY(bpl, t);
 			lkPatlak.add(x, y1);

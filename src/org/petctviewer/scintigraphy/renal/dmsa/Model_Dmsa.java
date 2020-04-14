@@ -57,8 +57,8 @@ public class Model_Dmsa extends ModelScin {
 			data.put("R. Kidney Ant adjusted", rkA);
 			
 			//calcul des moyennes geometriques
-			Double lkGM = Library_Quantif.moyGeom(lkP, lkA);
-			Double rkGM = Library_Quantif.moyGeom(rkP, rkA);
+			double lkGM = Library_Quantif.moyGeom(lkP, lkA);
+			double rkGM = Library_Quantif.moyGeom(rkP, rkA);
 			
 			//ajout des donnes dans la hashmap des aires
 			data.put("L. Kidney GM", lkGM);

@@ -506,8 +506,8 @@ public class Model_Renal extends ModelScinDyn {
 		// l'intervalle est defini par l'utilisateur
 		Double x1 = this.adjustedValues.get("start");
 		Double x2 = this.adjustedValues.get("end");
-		Double startX = Math.min(x1, x2);
-		Double endX = Math.max(x1, x2);
+		double startX = Math.min(x1, x2);
+		double endX = Math.max(x1, x2);
 
 		// on recupere les points compris dans l'intervalle
 		XYSeries croppedKidney = Library_JFreeChart.cropSeries(seriesKid, startX, endX);
@@ -522,7 +522,7 @@ public class Model_Renal extends ModelScinDyn {
 		double[] courbeKidney = Regression.getOLSRegression(dataset, 1);
 
 		// calcul du rapport de pente sur l'intervalle defini par l'utilisateur
-		Double rapportPente = courbeKidney[1] / courbeVasc[1];
+		double rapportPente = courbeKidney[1] / courbeVasc[1];
 
 		// List<Double> fittedVasc = new ArrayList<>();
 		// for (Double d : vasc) {
@@ -531,13 +531,13 @@ public class Model_Renal extends ModelScinDyn {
 
 		List<Double> fittedVasc = new ArrayList<>();
 		for (int i = 0; i < seriesVasc.getItemCount(); i++) {
-			Double d = seriesVasc.getY(i).doubleValue();
+			double d = seriesVasc.getY(i).doubleValue();
 			fittedVasc.add(d * rapportPente);
 		}
 
 		// decalage pour que les courbes soient au meme niveau
 		Double milieu = (endX + startX) / 2;
-		Double offset = this.getY(kidney, milieu) - this.getY(fittedVasc, milieu);
+		double offset = this.getY(kidney, milieu) - this.getY(fittedVasc, milieu);
 
 		// on ajoute le decalage sur tous les points
 		for (int i = 0; i < fittedVasc.size(); i++) {
@@ -564,8 +564,8 @@ public class Model_Renal extends ModelScinDyn {
 				Double countRein = lk.get(i);
 				Double countBkg = lbkg.get(i);
 
-				Double moyRein = countRein / aireRein;
-				Double moyBkg = countBkg / aireBkg;
+				double moyRein = countRein / aireRein;
+				double moyBkg = countBkg / aireBkg;
 				Double adjustedValueG = (moyRein - moyBkg) * aireRein;
 				RGCorrige.add(adjustedValueG);
 			}
@@ -579,7 +579,7 @@ public class Model_Renal extends ModelScinDyn {
 	// normalise la vasculaire pour le rein gauche et droit pour le patlak
 	private void normalizeBP() {
 		List<Double> bp = getData("Blood Pool");
-		Integer aireBP = this.organRois.get("Blood Pool").getStatistics().pixelCount;
+		int aireBP = this.organRois.get("Blood Pool").getStatistics().pixelCount;
 
 		// pour chaque rein on ajoute la valeur normalisee de la vasculaire
 		for (String lr : this.kidneysLR) {

@@ -139,7 +139,7 @@ public class Model_Cardiac extends ModelScin {
 			Double correctedHeartPost = this.data.get("Heart P")[0] - (meanBdfPostHeart * this.data.get("Heart P")[2]);
 
 			// Calculation of corrected Left Renal uptake
-			Double correctedKLAnt = this.data.get("Kidney L A")[0]
+			double correctedKLAnt = this.data.get("Kidney L A")[0]
 					- (meanBdfAntKidneyL * this.data.get("Kidney L A")[2]);
 			Double correctedKLPost = this.data.get("Kidney L P")[0]
 					- (meanBdfPostKidneyL * this.data.get("Kidney L P")[2]);
@@ -149,7 +149,7 @@ public class Model_Cardiac extends ModelScin {
 			System.out.println("correctedKLAnt => " + correctedKLAnt + " = " + this.data.get("Kidney L A")[0] + " - "
 					+ (meanBdfAntKidneyL * this.data.get("Kidney L A")[2]));
 
-			Double test = (this.data.get("Kidney L A")[1] - meanBdfAntKidneyL) * this.data.get("Kidney L A")[2];
+			double test = (this.data.get("Kidney L A")[1] - meanBdfAntKidneyL) * this.data.get("Kidney L A")[2];
 			System.out.println("test => " + test + " = (" + this.data.get("Kidney L A")[1] + " - "
 					+ (meanBdfAntKidneyL + " )" + " * " + this.data.get("Kidney L A")[2]));
 
