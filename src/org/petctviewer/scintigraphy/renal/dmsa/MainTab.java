@@ -50,7 +50,7 @@ public class MainTab extends TabResult {
 	@Override
 	public Component getSidePanelContent() {
 		Model_Dmsa modele = (Model_Dmsa) this.parent.getController().getModel();
-		Double pctL = modele.getPct()[0] * 100;
+		double pctL = modele.getPct()[0] * 100;
 		Double pctR = modele.getPct()[1] * 100;
 
 		JLabel lbl_dmsaL = new JLabel("" + Library_Quantif.round(pctL, 1) + "%");

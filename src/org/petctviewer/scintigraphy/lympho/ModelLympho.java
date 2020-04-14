@@ -48,7 +48,7 @@ public class ModelLympho extends ModelScin {
 	
 	private final List<Double> resultsPelvis;
 
-	private final Map<Integer, Double> coupsPelvis;
+	//private final Map<Integer, Double> coupsPelvis;
 	
 	private final Map<Integer, Integer> geometricalAveragePelvis;
 	
@@ -65,7 +65,7 @@ public class ModelLympho extends ModelScin {
 		this.results = new ArrayList<>();
 		
 		this.resultsPelvis = new ArrayList<>();
-		this.coupsPelvis = new HashMap<>();
+	//	this.coupsPelvis = new HashMap<>();
 		this.geometricalAveragePelvis = new HashMap<>();
 	}
 
@@ -295,7 +295,7 @@ public class ModelLympho extends ModelScin {
 			correctedRadioactiveDecrease = Library_Quantif.getCountCorrectedBackground(imp,
 					this.roiManager.getRoi(organ + this.nbRoiLympho), this.roiManager.getRoi(((organ / 3) * 3) + 2 + this.nbRoiLympho));
 		}
-		this.coupsPelvis.put(organ, correctedRadioactiveDecrease);
+	//	this.coupsPelvis.put(organ, correctedRadioactiveDecrease);
 //		System.out.println("Calculations for " + organ + " [" + this.convertOrganPelvis(organ) + "] -> "
 //				+ correctedRadioactiveDecrease + "\n\n");
 	}

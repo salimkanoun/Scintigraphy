@@ -159,8 +159,8 @@ public class FenNeph extends JDialog implements ActionListener {
 		XYDataset dataCropped = Library_JFreeChart.cropDataset(data, debut, fin);
 
 		for (int i = 1; i < dataCropped.getItemCount(0); i++) {
-			Double N1 = (dataCropped.getYValue(0, i) / dataCropped.getYValue(1, i));
-			Double N = (dataCropped.getYValue(0, i - 1) / dataCropped.getYValue(1, i - 1));
+			double N1 = (dataCropped.getYValue(0, i) / dataCropped.getYValue(1, i));
+			double N = (dataCropped.getYValue(0, i - 1) / dataCropped.getYValue(1, i - 1));
 			double ecart = Math.abs(1 - N1 / N);
 			if (ecart > 0.05) {
 				return false;
