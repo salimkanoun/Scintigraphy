@@ -15,7 +15,7 @@ public class Model_Cardiac extends ModelScin {
 
 	private final HashMap<String, Double[]> data;
 
-	private final HashMap<String, Double[]> dataVisualGradation;
+	//private final HashMap<String, Double[]> dataVisualGradation;
 
 	private final HashMap<String, String> resultatsVisualGradation;
 	// valeurs des contamination
@@ -65,7 +65,7 @@ public class Model_Cardiac extends ModelScin {
 		this.resultats = new HashMap<>();
 		this.resultatsVisualGradation = new HashMap<>();
 		this.data = new HashMap<>();
-		this.dataVisualGradation = new HashMap<>();
+	//	this.dataVisualGradation = new HashMap<>();
 
 		// Because info are deleted in the setLut of the FenApplication, probably
 		// because of the concatenate
@@ -401,7 +401,7 @@ public class Model_Cardiac extends ModelScin {
 			counts[1] = Library_Quantif.getAvgCounts(selectedImage);
 			counts[2] = (double) Library_Quantif.getPixelNumber(selectedImage);
 
-			this.dataVisualGradation.put(roi.getName(), counts);
+			//this.dataVisualGradation.put(roi.getName(), counts);
 			// System.out.println("this.dataVisualGradation.put(" + roi.getName() + "[ " +
 			// counts[0] + ", " + counts[1]
 			// + ", " + counts[2] + "])");
