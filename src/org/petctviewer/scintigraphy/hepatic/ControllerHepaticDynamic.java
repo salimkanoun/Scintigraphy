@@ -30,7 +30,7 @@ import org.petctviewer.scintigraphy.scin.model.ModelScin;
 import ij.IJ;
 import ij.ImagePlus;
 
-public class ControllerHepaticDynamic extends ControllerScin implements MouseListener, ActionListener {
+public class ControllerHepaticDynamic extends ControllerScin implements MouseListener{
 
 	public static final String COMMAND_END = "command.end";
 

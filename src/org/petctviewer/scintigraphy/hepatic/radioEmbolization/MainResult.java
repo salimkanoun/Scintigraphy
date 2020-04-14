@@ -11,10 +11,8 @@ import javax.swing.JPanel;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
-import org.petctviewer.scintigraphy.scin.model.Result;
 import org.petctviewer.scintigraphy.scin.model.ResultRequest;
 import org.petctviewer.scintigraphy.scin.model.ResultValue;
-import org.petctviewer.scintigraphy.shunpo.ModelShunpo;
 
 import ij.ImagePlus;
 
