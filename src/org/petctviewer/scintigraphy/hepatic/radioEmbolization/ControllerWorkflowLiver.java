@@ -159,60 +159,6 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
             this.getVue().getImagePlus().updateAndDraw();
         }
 	}
-<<<<<<< HEAD
-
-	@Override
-	protected void end(){
-		super.end();
-
-		this.computeModel();
-		this.model.calculateResults();
-
-		//Save captures
-		ImagePlus[] impCapture = new ImagePlus[4];
-		impCapture[0] = this.captures.get(1);
-		impCapture[1] = this.captures.get(3);
-		impCapture[2] = this.captures.get(4);
-		impCapture[3] = this.captures.get(5);
-		ImageStack stackCapture = Library_Capture_CSV.captureToStack(impCapture);
-		ImagePlus montage1 = this.montage(stackCapture);
-
-		// Display result
-		FenResults fenResults = new FenResults(this);
-		fenResults.setMainTab(new MainResult(fenResults, montage1));
-
-		fenResults.pack();
-		fenResults.setVisible(true);
-	}
-
-	@Override
-	public void setOverlay(ImageState state) throws IllegalArgumentException {
-		if (state == null) throw new IllegalArgumentException("The state cannot be null");
-		if (state.getFacingOrientation() == null) throw new IllegalArgumentException(
-				"The state misses the required data: -facingOrientation=" + state.getFacingOrientation() + "; " +
-						state.getSlice());
-		if (state.getSlice() <= ImageState.SLICE_PREVIOUS) throw new IllegalArgumentException("The slice is invalid");
-
-		if (state.isLateralisationRL()) {
-			if (state.getFacingOrientation() == Orientation.ANT) {
-				Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
-				Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus(), Color.YELLOW,
-											state.getSlice());
-			} else {
-				Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
-				Library_Gui.setOverlayTitle("Post", this.vue.getImagePlus(), Color.YELLOW,
-											state.getSlice());
-			}
-		}
-	}
-
-	public void itemStateChanged(ItemEvent e){
-		if (e.getStateChange() == ItemEvent.SELECTED){
-			this.getVue().getImagePlus().getOverlay().clear();
-			this.setOverlay(this.currentState);
-			this.getVue().getImagePlus().updateAndDraw();
-		}
-	}
 
 
 
@@ -232,6 +178,4 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 		}*/
 
 
-=======
->>>>>>> 51ab4d140f7d578af5d3b048cd04f7905b52214f
 }
