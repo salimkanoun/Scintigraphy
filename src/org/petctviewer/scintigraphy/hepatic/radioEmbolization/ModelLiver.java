@@ -78,7 +78,7 @@ public class ModelLiver extends ModelWorkflow{
 		// Compute geometrical averages
 		// == LIVER-LUNG ==
 		Data data = datas.get(IMAGE_LIVER_LUNG);
-		for (String regionName : this.regionsLiverLung() {
+		for (String regionName : this.regionsLiverLung()) {
 			double geoAvg = Library_Quantif.moyGeom(data.getAntValue(regionName, Data.DATA_COUNTS),
 													data.getPostValue(regionName, Data.DATA_COUNTS));
 			data.setAntValue(regionName, Data.DATA_GEO_AVG, geoAvg);
