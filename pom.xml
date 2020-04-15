@@ -2,7 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+
 	<modelVersion>4.0.0</modelVersion>
+
+		
+	<parent>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>28.0.0</version>
+		<relativePath/>
+	</parent>
 	
 	<repositories>
 		<repository>
@@ -26,13 +35,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	
-	
-	<parent>
-		<groupId>org.scijava</groupId>
-		<artifactId>pom-scijava</artifactId>
-		<version>28.0.0</version>
-		<relativePath/>
-	</parent>
+
 	
 	<groupId>com.github.salimkanoun</groupId>
 	<artifactId>Conventional_Scintigraphy</artifactId>
@@ -61,6 +64,12 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	</build>
 	
 	<dependencies>
+
+		<dependency>
+			<groupId>org.dcm4che</groupId>
+			<artifactId>dcm4che-core</artifactId>
+			<version>5.16.0</version>
+		</dependency>
 	
 		<dependency>
 		    <groupId>org.petctviewer</groupId>
