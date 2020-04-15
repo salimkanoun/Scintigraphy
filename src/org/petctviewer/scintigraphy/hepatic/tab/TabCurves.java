@@ -52,7 +52,6 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 
 	public TabCurves(FenResults parent, String title) {
 		super(parent, title, true);
-		// TODO Auto-generated constructor stub
 		this.setSidePanelTitle("Curves");
 
 		this.tabPane = new JTabbedPane();

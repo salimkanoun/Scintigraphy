@@ -16,7 +16,6 @@ public class FenResultsColonicTransit extends FenResults {
 
 	public FenResultsColonicTransit(ControllerScin controller, List<ImagePlus> captures, int[] times) {
 		super(controller);
-		// TODO Auto-generated constructor stub
 
 		this.setMainTab(new TabMain(this, ""+times[0]+"h", controller, 0, captures.get(0)));
 		if (this.getController().getModel().getImageSelection().length > 2)
@@ -34,7 +33,6 @@ public class FenResultsColonicTransit extends FenResults {
 
 		public TabMain(FenResults parent, String title, ControllerScin controller, int time, ImagePlus capture) {
 			super(parent, title, true);
-			// TODO Auto-generated constructor stub
 
 			this.controller = controller;
 			
@@ -47,7 +45,6 @@ public class FenResultsColonicTransit extends FenResults {
 
 		@Override
 		public Component getSidePanelContent() {
-			// TODO Auto-generated method stub
 
 			JPanel grid = new JPanel(new GridLayout(0, 2));
 
@@ -61,7 +58,6 @@ public class FenResultsColonicTransit extends FenResults {
 
 		@Override
 		public Container getResultContent() {
-			// TODO Auto-generated method stub
 			return new DynamicImage(this.capture.getBufferedImage());
 		}
 

@@ -201,7 +201,6 @@ public class Model_EsophagealTransit extends ModelScinDyn {
 	}
 
 	public void setModelResults(Model_Resultats_EsophagealTransit model) {
-		// TODO Auto-generated method stub
 		this.modelResults = model;
 	}
 	

@@ -15,7 +15,7 @@ public class Model_Cardiac extends ModelScin {
 
 	private final HashMap<String, Double[]> data;
 
-	private final HashMap<String, Double[]> dataVisualGradation;
+	//private final HashMap<String, Double[]> dataVisualGradation;
 
 	private final HashMap<String, String> resultatsVisualGradation;
 	// valeurs des contamination
@@ -65,7 +65,7 @@ public class Model_Cardiac extends ModelScin {
 		this.resultats = new HashMap<>();
 		this.resultatsVisualGradation = new HashMap<>();
 		this.data = new HashMap<>();
-		this.dataVisualGradation = new HashMap<>();
+	//	this.dataVisualGradation = new HashMap<>();
 
 		// Because info are deleted in the setLut of the FenApplication, probably
 		// because of the concatenate
@@ -139,7 +139,7 @@ public class Model_Cardiac extends ModelScin {
 			Double correctedHeartPost = this.data.get("Heart P")[0] - (meanBdfPostHeart * this.data.get("Heart P")[2]);
 
 			// Calculation of corrected Left Renal uptake
-			Double correctedKLAnt = this.data.get("Kidney L A")[0]
+			double correctedKLAnt = this.data.get("Kidney L A")[0]
 					- (meanBdfAntKidneyL * this.data.get("Kidney L A")[2]);
 			Double correctedKLPost = this.data.get("Kidney L P")[0]
 					- (meanBdfPostKidneyL * this.data.get("Kidney L P")[2]);
@@ -149,7 +149,7 @@ public class Model_Cardiac extends ModelScin {
 			System.out.println("correctedKLAnt => " + correctedKLAnt + " = " + this.data.get("Kidney L A")[0] + " - "
 					+ (meanBdfAntKidneyL * this.data.get("Kidney L A")[2]));
 
-			Double test = (this.data.get("Kidney L A")[1] - meanBdfAntKidneyL) * this.data.get("Kidney L A")[2];
+			double test = (this.data.get("Kidney L A")[1] - meanBdfAntKidneyL) * this.data.get("Kidney L A")[2];
 			System.out.println("test => " + test + " = (" + this.data.get("Kidney L A")[1] + " - "
 					+ (meanBdfAntKidneyL + " )" + " * " + this.data.get("Kidney L A")[2]));
 
@@ -377,12 +377,10 @@ public class Model_Cardiac extends ModelScin {
 	}
 
 	public ImageSelection getImageVisualGradation() {
-		// TODO Auto-generated method stub
 		return this.imageVisualGradation;
 	}
 
 	public void setImageVisualGradation(ImageSelection imageVisualGradation) {
-		// TODO Auto-generated method stub
 		this.imageVisualGradation = imageVisualGradation;
 	}
 
@@ -401,7 +399,7 @@ public class Model_Cardiac extends ModelScin {
 			counts[1] = Library_Quantif.getAvgCounts(selectedImage);
 			counts[2] = (double) Library_Quantif.getPixelNumber(selectedImage);
 
-			this.dataVisualGradation.put(roi.getName(), counts);
+			//this.dataVisualGradation.put(roi.getName(), counts);
 			// System.out.println("this.dataVisualGradation.put(" + roi.getName() + "[ " +
 			// counts[0] + ", " + counts[1]
 			// + ", " + counts[2] + "])");
@@ -426,22 +424,18 @@ public class Model_Cardiac extends ModelScin {
 	}
 
 	public void setFullBodyImages(int fullBodyImages) {
-		// TODO Auto-generated method stub
 		this.fullBodyImages = fullBodyImages;
 	}
 
 	public void setOnlyThoraxImage(int onlyThoraxImage) {
-		// TODO Auto-generated method stub
 		this.onlyThoaxImage = onlyThoraxImage;
 	}
 
 	public void setOnlyThoraxGradation(Integer selectedItem) {
-		// TODO Auto-generated method stub
 		this.onlyThoraxGradation = selectedItem;
 	}
 	
 	public void setFullBodyGradation(Integer selectedItem) {
-		// TODO Auto-generated method stub
 		this.fullBodyGradation = selectedItem;
 	}
 

@@ -6,7 +6,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -30,7 +29,7 @@ import org.petctviewer.scintigraphy.scin.model.ModelScin;
 import ij.IJ;
 import ij.ImagePlus;
 
-public class ControllerHepaticDynamic extends ControllerScin implements MouseListener, ActionListener {
+public class ControllerHepaticDynamic extends ControllerScin implements MouseListener{
 
 	public static final String COMMAND_END = "command.end";
 
