@@ -85,7 +85,6 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	}
 
 	private void checkPanelInstruction_BtnRight() {
-		// TODO Auto-generated method stub
 		// if (this.workflows[indexCurrentWorkflow].getCurrentInstruction() ==
 		// this.workflows[indexCurrentWorkflow]
 		// .getInstructions().get(0))

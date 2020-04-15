@@ -40,7 +40,6 @@ public class TabDeconvolve extends TabResult implements ChangeListener {
 
 	public TabDeconvolve(FenResults parent, String title) {
 		super(parent, title);
-		// TODO Auto-generated constructor stub
 
 		this.deconvolve = 7;
 		this.convolve = 6;
