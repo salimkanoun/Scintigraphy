@@ -135,20 +135,36 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         if (state.getSlice() <= ImageState.SLICE_PREVIOUS) throw new IllegalArgumentException("The slice is invalid");
 
         if (state.isLateralisationRL()) {
-            if (state.getFacingOrientation() == Orientation.ANT) {
-                Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
-                Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus(), Color.YELLOW,
-                                            state.getSlice());
-            } else {
-                Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
-                Library_Gui.setOverlayTitle("Post", this.vue.getImagePlus(), Color.YELLOW,
-                                            state.getSlice());
-            }
-        }
+			if (state.getFacingOrientation() == Orientation.ANT) {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
+											state.getSlice());
+				Library_Gui.setOverlayTitle(display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
+											state.getSlice());
+			} else {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
+											state.getSlice());
+				Library_Gui.setOverlayTitle("Inverted " + display.getTitlePost(), this.vue.getImagePlus(),
+											Color.YELLOW,
+											state.getSlice());
+			}
+		} else {
+			if (state.getFacingOrientation() == Orientation.ANT) {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,
+											state.getSlice());
+				Library_Gui.setOverlayTitle("Inverted " + display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
+											state.getSlice());
+			} else {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,
+											state.getSlice());
+				Library_Gui.setOverlayTitle(display.getTitlePost(), this.vue.getImagePlus(), Color.YELLOW,
+											state.getSlice());
+			}
+		}
     }
 
     public void itemStateChanged(ItemEvent e){
         if (e.getStateChange() == ItemEvent.SELECTED){
+            this.display = DisplayState.stateFromLabel((String) e.getItem());
             this.getVue().getImagePlus().getOverlay().clear();
             this.setOverlay(this.currentState);
             this.getVue().getImagePlus().updateAndDraw();

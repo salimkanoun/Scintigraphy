@@ -105,10 +105,10 @@ public class ModelLiver extends ModelWorkflow{
 	
 	private double calculateSumLiver() {
 		System.out.println("Sum Liver: MG(Liver_ant ; Liver_post)");
-		double liverAnt = datas.get(IMAGE_LIVER_LUNG).getAntValue(REGION_LIVER, Data.DATA_COUNTS_CORRECTED);
+		double liverAnt = datas.get(IMAGE_LIVER_LUNG).getAntValue(REGION_LIVER, Data.DATA_COUNTS);
 		System.out.println("Sum Liver: MG(" + liverAnt + " ; ");
 		
-		double liverPost = datas.get(IMAGE_LIVER_LUNG).getPostValue(REGION_LIVER, Data.DATA_COUNTS_CORRECTED);
+		double liverPost = datas.get(IMAGE_LIVER_LUNG).getPostValue(REGION_LIVER, Data.DATA_COUNTS);
 		System.out.println(liverPost + ")");
 		System.out.println("Sum Liver: MG(" + liverAnt + " ; " + liverPost + ")");
 		
