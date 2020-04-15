@@ -14,6 +14,7 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -28,11 +29,13 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 	private List<ImagePlus> captures;
-	//private DisplayState display;
+	private DisplayState display;
 
 	public ControllerWorkflowLiver (FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
 		super(vue, new ModelLiver(selectedImages, vue.getStudyName()));
-		
+        
+        this.display = DisplayState.ANT_POST;
+
 		this.generateInstructions();
 		this.start();	
 	}
@@ -80,15 +83,16 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         this.workflows[0].addInstruction(dri_1);
         this.workflows[0].addInstruction(dri_2);
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
-		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
+		//this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
         this.workflows[0].addInstruction(dri_3);
-        this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 2));
+        this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
         this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_RIGHT_LUNG, stateAnt,dri_1));
         this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_LEFT_LUNG, stateAnt,dri_2));
-		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 3));
-		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 4));
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 2));
+		//this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 4));
         this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_LIVER, stateAnt, dri_3));
-        this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 5));
+        this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 3));
+        this.workflows[0].addInstruction(new EndInstruction());
 	}
 	
 	public ModelLiver getModel() {
@@ -103,13 +107,13 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         this.model.calculateResults();
 
         //Save captures
-        ImagePlus[] impCapture = new ImagePlus[3];
-        impCapture[0] = this.captures.get(1);
-        impCapture[1] = this.captures.get(3);
-		impCapture[2] = this.captures.get(4);
-		impCapture[3] = this.captures.get(5);
-		impCapture[4] = this.captures.get(0);
-		impCapture[5] = this.captures.get(2);
+        ImagePlus[] impCapture = new ImagePlus[4];
+        impCapture[0] = this.captures.get(0);
+        impCapture[1] = this.captures.get(1);
+		impCapture[2] = this.captures.get(2);
+		impCapture[3] = this.captures.get(3);
+		//impCapture[4] = this.captures.get(4);
+		//impCapture[5] = this.captures.get(5);
         ImageStack stackCapture = Library_Capture_CSV.captureToStack(impCapture);
 		ImagePlus montage = this.montage(stackCapture);
 		
