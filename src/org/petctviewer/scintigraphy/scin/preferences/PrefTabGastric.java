@@ -7,11 +7,10 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-public class PrefTabGastric extends PrefTab implements ActionListener, ItemListener {
+public class PrefTabGastric extends PrefTab implements ItemListener {
 	public static final String PREF_HEADER = PrefWindow.PREF_HEADER + ".gastric";
 	public static final String PREF_SIMPLE_METHOD = PREF_HEADER + ".simple_method", PREF_UNIT_USED =
 			PREF_HEADER + "unit_used", PREF_FRAME_DURATION_TOLERANCE = PREF_HEADER + ".frame_duration_tolerance",

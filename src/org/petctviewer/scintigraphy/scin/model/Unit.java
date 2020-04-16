@@ -51,6 +51,8 @@ public enum Unit {
 						return value / 1000.;
 					case KCOUNTS_PER_SECOND:
 						return value / 1000. / 60.;
+					default:
+						break;
 				}
 				break;
 			case COUNTS_PER_SECOND:
@@ -61,6 +63,8 @@ public enum Unit {
 						return value / 1000. * 60.;
 					case KCOUNTS_PER_SECOND:
 						return value / 1000.;
+					default:
+						break;
 				}
 				break;
 			case KCOUNTS_PER_MINUTE:
@@ -71,6 +75,8 @@ public enum Unit {
 						return value * 1000. * 60.;
 					case KCOUNTS_PER_SECOND:
 						return value * 60.;
+					default:
+						break;					
 				}
 				break;
 			case KCOUNTS_PER_SECOND:
@@ -81,6 +87,8 @@ public enum Unit {
 						return value * 1000.;
 					case KCOUNTS_PER_MINUTE:
 						return value / 60.;
+					default:
+						break;
 				}
 				break;
 			case COUNTS_PER_PIXEL:
@@ -97,6 +105,8 @@ public enum Unit {
 				if (unit == TIME) return value;
 			case TIME:
 				if (unit == MINUTES) return value;
+			default:
+				break;
 		}
 		throw new UnsupportedOperationException("This unit (" + this + ") cannot be converted to " + unit);
 	}

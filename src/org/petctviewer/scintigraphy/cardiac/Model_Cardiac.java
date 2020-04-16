@@ -377,12 +377,10 @@ public class Model_Cardiac extends ModelScin {
 	}
 
 	public ImageSelection getImageVisualGradation() {
-		// TODO Auto-generated method stub
 		return this.imageVisualGradation;
 	}
 
 	public void setImageVisualGradation(ImageSelection imageVisualGradation) {
-		// TODO Auto-generated method stub
 		this.imageVisualGradation = imageVisualGradation;
 	}
 
@@ -426,22 +424,18 @@ public class Model_Cardiac extends ModelScin {
 	}
 
 	public void setFullBodyImages(int fullBodyImages) {
-		// TODO Auto-generated method stub
 		this.fullBodyImages = fullBodyImages;
 	}
 
 	public void setOnlyThoraxImage(int onlyThoraxImage) {
-		// TODO Auto-generated method stub
 		this.onlyThoaxImage = onlyThoraxImage;
 	}
 
 	public void setOnlyThoraxGradation(Integer selectedItem) {
-		// TODO Auto-generated method stub
 		this.onlyThoraxGradation = selectedItem;
 	}
 	
 	public void setFullBodyGradation(Integer selectedItem) {
-		// TODO Auto-generated method stub
 		this.fullBodyGradation = selectedItem;
 	}
 

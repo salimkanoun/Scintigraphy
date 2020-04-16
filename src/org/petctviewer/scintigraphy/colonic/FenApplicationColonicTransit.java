@@ -71,7 +71,6 @@ public class FenApplicationColonicTransit extends FenApplicationWorkflow {
 	
 	@Override
 	public void windowClosing(WindowEvent arg0) {
-		/* TODO Auto-generated method stub */
 		if (arg0.getSource() == this.popup) {
 			this.popup = null;
 			System.out.println("ok");

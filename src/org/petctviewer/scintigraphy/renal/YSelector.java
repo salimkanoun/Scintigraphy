@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.renal;
 
 import org.jfree.chart.ChartMouseEvent;
-import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.Crosshair;
 import org.jfree.chart.plot.XYPlot;
@@ -18,7 +17,7 @@ import java.util.List;
  * Extends {@link Selector}
  *
  */
-public class YSelector extends Selector implements ChartMouseListener {
+public class YSelector extends Selector{
 	private static final long serialVersionUID = 6794595703667698248L;
 	private final Crosshair crossY;
 	private final List<Crosshair> crossXs;
