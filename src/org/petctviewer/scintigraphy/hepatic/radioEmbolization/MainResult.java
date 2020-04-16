@@ -26,10 +26,19 @@ public class MainResult extends TabResult {
 		this.reloadDisplay();
 	}
 
+	
+	/** 
+	 * @return ModelLiver
+	 */
 	private ModelLiver getModel() {
 		return (ModelLiver) this.parent.getModel();
 	}
 
+	
+	/** 
+	 * @param result
+	 * @param container
+	 */
 	private void displayResult (ResultValue result, Container container) {
 		JLabel label = new JLabel(result.toString());
 
@@ -42,6 +51,10 @@ public class MainResult extends TabResult {
 		container.add(label);
 	}
 
+	
+	/** 
+	 * @return Component
+	 */
 	@Override
 	public Component getSidePanelContent() {
 		JPanel res = new JPanel(new GridLayout(0, 1));
@@ -58,6 +71,10 @@ public class MainResult extends TabResult {
 	}
 
 
+	
+	/** 
+	 * @return JPanel
+	 */
 	@Override
 	public JPanel getResultContent() {
 		return new DynamicImage(montage.getImage());
