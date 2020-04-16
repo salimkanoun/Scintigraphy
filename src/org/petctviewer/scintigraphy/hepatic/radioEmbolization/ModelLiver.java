@@ -158,14 +158,28 @@ public class ModelLiver extends ModelWorkflow{
 		this.calculateResultsPercentages();
 	}
 
+	
+	/** 
+	 * @param result
+	 * @return String
+	 */
 	private String unitForResult(Result result) {
 		return Unit.PERCENTAGE.abbrev();
 	}
 	
+	
+	/** 
+	 * @param res
+	 * @return String
+	 */
 	private String resultToCsvLine(Result res) {
 		return res + "," + this.results.get(res.hashCode()) + "," + this.unitForResult(res) + "\n";
 	}
 	
+	
+	/** 
+	 * @return String
+	 */
 	private String csvResult() {
 		return this.studyName + "\n\n" + this.resultToCsvLine(RES_RATIO_RIGHT_LUNG) + this.resultToCsvLine(RES_RATIO_LEFT_LUNG) + this.resultToCsvLine(RES_PULMONARY_SHUNT) + this.resultToCsvLine(RES_RATIO_LIVER);
 		}
@@ -207,6 +221,11 @@ public class ModelLiver extends ModelWorkflow{
 	}
 
 
+	
+	/** 
+	 * @param request
+	 * @return ResultValue
+	 */
 	@Override
 	public ResultValue getResult(ResultRequest request) {
 		System.out.println("requête : " + request);

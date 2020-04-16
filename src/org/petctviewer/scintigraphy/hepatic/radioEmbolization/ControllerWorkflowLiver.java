@@ -60,13 +60,19 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
                     getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i+2]);
         }
 	}
-	
+
+	/**
+	 * This method manage the creation of the ROIs: how many they'll be, the state of them (ANT/POST),
+	 * generate them from the previous ones, and add them to the list.
+	 * Finally, the EndInstruction() launches the following step, the end() method.
+	 */
+
 	protected void generateInstructions() {
 
         this.workflows = new Workflow[this.model.getImageSelection().length];
 
         DrawRoiInstruction dri_1, dri_2, dri_3;
-		this.captures = new ArrayList<>(4); //?????
+		this.captures = new ArrayList<>(4); 
 		
         this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
@@ -83,21 +89,30 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         this.workflows[0].addInstruction(dri_1);
         this.workflows[0].addInstruction(dri_2);
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
-		//this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
         this.workflows[0].addInstruction(dri_3);
-        this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
+		//creation of the ANT based on the POST
         this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_RIGHT_LUNG, stateAnt,dri_1));
         this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_LEFT_LUNG, stateAnt,dri_2));
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 2));
-		//this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 4));
         this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_LIVER, stateAnt, dri_3));
         this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 3));
         this.workflows[0].addInstruction(new EndInstruction());
 	}
 	
+	
+	/** 
+	 * @return ModelLiver
+	 */
 	public ModelLiver getModel() {
         return (ModelLiver) super.getModel();
-    }
+	}
+	
+	/**
+	 * This method is called just after finishing the drawing of the ROIs.
+	 * It calculates the results, and generates a "montage", where the ROIs are placed.
+	 * Finally, it launches the window where we can se the results and the ROIs.
+	 */
 
     @Override
     protected void end(){
@@ -112,8 +127,6 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         impCapture[1] = this.captures.get(1);
 		impCapture[2] = this.captures.get(2);
 		impCapture[3] = this.captures.get(3);
-		//impCapture[4] = this.captures.get(4);
-		//impCapture[5] = this.captures.get(5);
         ImageStack stackCapture = Library_Capture_CSV.captureToStack(impCapture);
 		ImagePlus montage = this.montage(stackCapture);
 		
@@ -126,6 +139,11 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         fenResults.setVisible(true);
 	}
 	
+	
+	/** 
+	 * @param state
+	 * @throws IllegalArgumentException
+	 */
 	@Override
     public void setOverlay(ImageState state) throws IllegalArgumentException {
         if (state == null) throw new IllegalArgumentException("The state cannot be null");
@@ -162,7 +180,11 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 		}
     }
 
-    public void itemStateChanged(ItemEvent e){
+    
+	/** 
+	 * @param e
+	 */
+	public void itemStateChanged(ItemEvent e){
         if (e.getStateChange() == ItemEvent.SELECTED){
             this.display = DisplayState.stateFromLabel((String) e.getItem());
             this.getVue().getImagePlus().getOverlay().clear();
@@ -172,6 +194,7 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 	}
 
 
+	//TODO This enum must change from a local state to a more general one and then be called
 
 	public enum DisplayState {
 		RIGHT_LEFT("Label ANT as RIGHT", "P", "A", "Right-Left"),
