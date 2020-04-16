@@ -45,7 +45,6 @@ public class MainResult extends TabResult {
 	@Override
 	public Component getSidePanelContent() {
 		JPanel res = new JPanel(new GridLayout(0, 1));
-
 		// Lung ratio
 		ResultRequest request = new ResultRequest(ModelLiver.RES_RATIO_RIGHT_LUNG);
 		this.displayResult(getModel().getResult(request), res);
