@@ -37,7 +37,6 @@ public class TabVisualGradationCardiac extends TabResult implements ActionListen
 	public TabVisualGradationCardiac(FenResults parent, String title, HashMap<String, String> resultsThorax,
 									 BufferedImage capture, int onlyThoraxImage) {
 		super(parent, title, true);
-		// TODO Auto-generated constructor stub
 
 //		radio = new ButtonGroup();
 
@@ -60,7 +59,6 @@ public class TabVisualGradationCardiac extends TabResult implements ActionListen
 
 	@Override
 	public Component getSidePanelContent() {
-		// TODO Auto-generated method stub
 
 		JPanel globalPane = new JPanel();
 		globalPane.setLayout(new BoxLayout(globalPane, BoxLayout.Y_AXIS));
@@ -82,7 +80,6 @@ public class TabVisualGradationCardiac extends TabResult implements ActionListen
 
 	@Override
 	public Container getResultContent() {
-		// TODO Auto-generated method stub
 		JPanel listPane = new JPanel();
 
 		JPanel globalPane = new JPanel(new BorderLayout());

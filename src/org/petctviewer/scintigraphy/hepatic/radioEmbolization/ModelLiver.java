@@ -91,9 +91,6 @@ public class ModelLiver extends ModelWorkflow{
 						 data.getAntValue(REGION_RIGHT_LUNG, Data.DATA_GEO_AVG) / totalLung * 100.);
 		this.results.put(RES_RATIO_LEFT_LUNG.hashCode(),
 						 data.getAntValue(REGION_LEFT_LUNG, Data.DATA_GEO_AVG) / totalLung * 100.);
-
-		// Calculate sum lungs
-		double sumLungs = this.calculateSumLungs();
 	}
 
 	/**
@@ -105,10 +102,10 @@ public class ModelLiver extends ModelWorkflow{
 	
 	private double calculateSumLiver() {
 		System.out.println("Sum Liver: MG(Liver_ant ; Liver_post)");
-		double liverAnt = datas.get(IMAGE_LIVER_LUNG).getAntValue(REGION_LIVER, Data.DATA_COUNTS);
+		double liverAnt = this.datas.get(IMAGE_LIVER_LUNG).getAntValue(REGION_LIVER, Data.DATA_COUNTS);
 		System.out.println("Sum Liver: MG(" + liverAnt + " ; ");
 		
-		double liverPost = datas.get(IMAGE_LIVER_LUNG).getPostValue(REGION_LIVER, Data.DATA_COUNTS);
+		double liverPost = this.datas.get(IMAGE_LIVER_LUNG).getPostValue(REGION_LIVER, Data.DATA_COUNTS);
 		System.out.println(liverPost + ")");
 		System.out.println("Sum Liver: MG(" + liverAnt + " ; " + liverPost + ")");
 		
@@ -152,10 +149,13 @@ public class ModelLiver extends ModelWorkflow{
 		
 		//percentage uptake liver
 		double uptakeLiver = 100 - shunt;
+
+		this.results.put(RES_RATIO_LIVER.hashCode(), uptakeLiver);
 		
 		//double shunt = (lungGeo / lungGeo +  liverGeo) * 100;
 
 		this.results.put(RES_PULMONARY_SHUNT.hashCode(), uptakeLiver);
+		this.calculateResultsPercentages();
 	}
 
 	private String unitForResult(Result result) {
@@ -209,7 +209,14 @@ public class ModelLiver extends ModelWorkflow{
 
 	@Override
 	public ResultValue getResult(ResultRequest request) {
+		System.out.println("requête : " + request);
+/*		for (Map.Entry<Integer, Double> e : this.results.entrySet()){
+			System.out.println(e.getKey());
+			System.out.println(e.getValue());
+		}*/
 		Double value = this.results.get(request.getResultOn().hashCode());
+		System.out.println("valeur : "+value);
+
 		if(value ==  null) return null;
 		//Convert result to requested unit
 		Unit conversion = (request.getUnit() == null ? Unit.PERCENTAGE : request.getUnit());

@@ -18,7 +18,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowEvent;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ import java.util.List;
  *
  * @author diego
  */
-public class FenApplication extends StackWindow implements ComponentListener, MouseWheelListener {
+public class FenApplication extends StackWindow implements ComponentListener{
 	public static final String BTN_TXT_NEXT = "Next";
 	private static final long serialVersionUID = -6280620624574294247L;
 	protected final JTextField textfield_instructions;
