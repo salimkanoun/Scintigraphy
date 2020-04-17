@@ -163,12 +163,11 @@ public class TabTransitTime extends TabResult {
 		valueSetterTransit.addChartMouseListener(new ChartMouseListener() {
 
 			/*
-			 * actualise la valuer a chaque mouvement de la souris sur le graphe meme si on
-			 * a pas selectionné un selecteur(non-Javadoc) consomme trop de ressource
+			 * actualise la valeur a chaque mouvement de la souris sur le graphe meme si on
+			 * n'a pas selectionné un selecteur(non-Javadoc) consomme trop de ressource
 			 */
 			@Override
 			public void chartMouseMoved(ChartMouseEvent event) {
-				// TODO Auto-generated method stub
 
 			}
 

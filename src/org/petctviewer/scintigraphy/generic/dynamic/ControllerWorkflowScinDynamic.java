@@ -181,7 +181,6 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		this.setOverlayTitleLaterisationAndRoi();
 
 		this.updateButtonLabel(this.indexRoi);
-		// TODO: still useful?
 		// Update view
 		int indexScroll = this.getVue().getInstructionDisplayed();
 		getVue().currentInstruction(indexScroll);

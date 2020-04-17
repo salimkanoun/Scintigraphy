@@ -7,7 +7,6 @@ public class ModelPelvis extends ModelScin {
 
 	public ModelPelvis(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
-		// TODO Auto-generated constructor stub
 	}
 /*
 	public static final int RIGHT_PELVIS_ANT = 0, LEFT_PELVIS_ANT = 1, BACKGROUND_ANT = 2, RIGHT_PELVIS_POST = 3,
@@ -171,8 +170,6 @@ public class ModelPelvis extends ModelScin {
 */
 
 	@Override
-	public void calculateResults() {
-		// TODO Auto-generated method stub
-		
+	public void calculateResults() {		
 	}
 }

@@ -385,7 +385,6 @@ public class Model_Cardiac extends ModelScin {
 	}
 
 	public void getResultsVisualGradation() {
-		// TODO Auto-generated method stub
 
 		ImagePlus selectedImage = this.getImageVisualGradation().getImagePlus();
 
@@ -408,10 +407,7 @@ public class Model_Cardiac extends ModelScin {
 
 	}
 
-	public void calculateResultsVisualGradation() {
-		// TODO Auto-generated method stub
-
-	}
+	//public void calculateResultsVisualGradation() {}
 
 	public HashMap<String, String> getResultsVisualGradationHashMap() {
 

@@ -62,39 +62,6 @@ public class ModelLiver extends ModelWorkflow{
 		}
 		return data;
 	}
-	
-	
-	/**
-	 * Returns the regions for the liver-lung image.
-	 *
-	 * @return array of regions name of the liver-lung image
-	 */
-	private String[] regionsLiverLung() {
-		return new String[] {REGION_RIGHT_LUNG, REGION_LEFT_LUNG, REGION_LIVER};
-	}
-	
-
-	private void calculateResultsPercentages() {
-		// Compute geometrical averages
-		// == LIVER-LUNG ==
-		Data data = datas.get(IMAGE_LIVER_LUNG);
-		for (String regionName : this.regionsLiverLung()) {
-			double geoAvg = Library_Quantif.moyGeom(data.getAntValue(regionName, Data.DATA_COUNTS),
-													data.getPostValue(regionName, Data.DATA_COUNTS));
-			data.setAntValue(regionName, Data.DATA_GEO_AVG, geoAvg);
-		}
-
-		// Percentage
-		double totalLung = data.getAntValue(REGION_RIGHT_LUNG, Data.DATA_GEO_AVG) + data.getAntValue(REGION_LEFT_LUNG,
-																									 Data.DATA_GEO_AVG);
-		/*this.results.put(RES_RATIO_RIGHT_LUNG.hashCode(),
-						 data.getAntValue(REGION_RIGHT_LUNG, Data.DATA_GEO_AVG) / totalLung * 100.);
-		this.results.put(RES_RATIO_LEFT_LUNG.hashCode(),
-						 data.getAntValue(REGION_LEFT_LUNG, Data.DATA_GEO_AVG) / totalLung * 100.);*/
-
-		double shuntLung = data.getAntValue(REGION_RIGHT_LUNG, Data.DATA_GEO_AVG) + data.getAntValue(REGION_LEFT_LUNG, Data.DATA_GEO_AVG);
-
-	}
 
 	/**
 	 * The sum of the shunts is calculated with the counts of the liver for
@@ -141,26 +108,25 @@ public class ModelLiver extends ModelWorkflow{
 		return result;
 	}
 
+	/**
+	 * Recover the sum of the lungs and the liver calculated by "calculateSumLiver" and "calculateSumLungs".
+	 * The lungs shunt and liver shunt are calculated thanks to the previous variables and are then put into the map "results"
+	 */
 	private void calculateResult() {
 		//Calculate sum liver
 		double sumLiver = this.calculateSumLiver();
 		//Calculate sum lungs
 		double sumLungs = this.calculateSumLungs();
 		
-		//Shunt
+		//Lungs shunt
 		double shuntLungs = (sumLungs / (sumLungs + sumLiver)) * 100;
-		
+
+		//Liver shunt
 		double shuntLiver = (sumLiver / (sumLiver + sumLungs)) * 100;
-		//percentage uptake liver
-	//	double uptakeLiver = 100 - shunt;
 
+		//Put the results into the map
 		this.results.put(RES_LUNG_SHUNT.hashCode(), shuntLungs);
-
 		this.results.put(RES_LIVER_SHUNT.hashCode(), shuntLiver);
-		
-		//double shunt = (lungGeo / lungGeo +  liverGeo) * 100;
-
-		this.calculateResultsPercentages();
 	}
 
 	
@@ -254,13 +220,12 @@ public class ModelLiver extends ModelWorkflow{
 		this.calculateResult();
 	}
 	
+	
+	/** 
+	 * @return String
+	 */
 	@Override
 	public String toString() {
 		return this.csvResult();
-	}
-	
-	
-
-
-	
+	}	
 }

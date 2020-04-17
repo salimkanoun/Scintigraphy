@@ -20,7 +20,6 @@ public class TabPelvis extends TabResult implements ActionListener {
 
 	public TabPelvis(FenResults parent, String title, boolean captureBtn) {
 		super(parent, title, captureBtn);
-		// TODO Auto-generated constructor stub
 		this.setSidePanelTitle("Pelvis Scintigraphy");
 		((ModelLympho) this.parent.getModel()).setResultTab(this);
 		

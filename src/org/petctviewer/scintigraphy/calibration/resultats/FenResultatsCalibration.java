@@ -136,7 +136,6 @@ public class FenResultatsCalibration extends JFrame{
 				    try {
 					    Thread.sleep(100);
 				    } catch (InterruptedException e12) {
-					    // TODO Auto-generated catch block
 					    e12.printStackTrace();
 				    }
 				    Rectangle rec = new Rectangle(loc.x, loc.y, bounds.width, bounds.height);

@@ -408,8 +408,6 @@ public class Model_Resultats_EsophagealTransit extends ModelScin {
 
 	@Override
 	public void calculateResults() {
-		// TODO Auto-generated method stub
-
 	}
 
 }
