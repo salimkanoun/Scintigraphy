@@ -34,7 +34,7 @@ public class MainResult extends TabResult {
 		JLabel label = new JLabel(result.toString());
 
 		//Color
-		if (result.getResultType()== ModelLiver.RES_PULMONARY_SHUNT) {
+		if (result.getResultType()== ModelLiver.RES_LIVER_SHUNT){
 			if (result.getValue() < 2.) label.setForeground(Color.GREEN);
 			else if (result.getValue() < 5.) label.setForeground(Color.ORANGE);
 			else label.setForeground(Color.RED);
@@ -45,13 +45,12 @@ public class MainResult extends TabResult {
 	@Override
 	public Component getSidePanelContent() {
 		JPanel res = new JPanel(new GridLayout(0, 1));
-		// Lung ratio
-		ResultRequest request = new ResultRequest(ModelLiver.RES_RATIO_RIGHT_LUNG);
+		// Lung shunt
+		ResultRequest request = new ResultRequest(ModelLiver.RES_LUNG_SHUNT);
 		this.displayResult(getModel().getResult(request), res);
-		request.changeResultOn(ModelLiver.RES_RATIO_LEFT_LUNG);
-		this.displayResult(getModel().getResult(request), res);
-		// Liver ratio
-		request.changeResultOn(ModelLiver.RES_RATIO_LIVER);
+
+		// Liver shunts
+		request.changeResultOn(ModelLiver.RES_LIVER_SHUNT);
 		this.displayResult(getModel().getResult(request), res);
 
 		return res;
