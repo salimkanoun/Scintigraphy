@@ -26,9 +26,9 @@ public class ModelLiver extends ModelWorkflow{
 
 	public static final String REGION_RIGHT_LUNG = "Right Lung", REGION_LEFT_LUNG = "Left Lung", REGION_LIVER = "Liver";
 	
-	public static final Result RES_RATIO_RIGHT_LUNG = new Result("Right Lung Ratio"), RES_RATIO_LEFT_LUNG = new Result(
-			"Left Lung Ratio"), RES_PULMONARY_SHUNT = new Result(
-					"Pulmonary Shunt"), RES_RATIO_LIVER = new Result("Liver ratio");
+	public static final Result /*RES_RATIO_RIGHT_LUNG = new Result("Right Lung Ratio"), RES_RATIO_LEFT_LUNG = new Result(
+			"Left Lung Ratio"), */RES_LIVER_SHUNT = new Result(
+					"Liver shunt"), RES_LUNG_SHUNT = new Result("Lung shunt");
 			
 	public static final int IMAGE_LIVER_LUNG = 0;
 	
@@ -87,10 +87,13 @@ public class ModelLiver extends ModelWorkflow{
 		// Percentage
 		double totalLung = data.getAntValue(REGION_RIGHT_LUNG, Data.DATA_GEO_AVG) + data.getAntValue(REGION_LEFT_LUNG,
 																									 Data.DATA_GEO_AVG);
-		this.results.put(RES_RATIO_RIGHT_LUNG.hashCode(),
+		/*this.results.put(RES_RATIO_RIGHT_LUNG.hashCode(),
 						 data.getAntValue(REGION_RIGHT_LUNG, Data.DATA_GEO_AVG) / totalLung * 100.);
 		this.results.put(RES_RATIO_LEFT_LUNG.hashCode(),
-						 data.getAntValue(REGION_LEFT_LUNG, Data.DATA_GEO_AVG) / totalLung * 100.);
+						 data.getAntValue(REGION_LEFT_LUNG, Data.DATA_GEO_AVG) / totalLung * 100.);*/
+
+		double shuntLung = data.getAntValue(REGION_RIGHT_LUNG, Data.DATA_GEO_AVG) + data.getAntValue(REGION_LEFT_LUNG, Data.DATA_GEO_AVG);
+
 	}
 
 	/**
@@ -145,16 +148,18 @@ public class ModelLiver extends ModelWorkflow{
 		double sumLungs = this.calculateSumLungs();
 		
 		//Shunt
-		double shunt = (sumLungs / sumLungs + sumLiver) * 100;
+		double shuntLungs = (sumLungs / (sumLungs + sumLiver)) * 100;
 		
+		double shuntLiver = (sumLiver / (sumLiver + sumLungs)) * 100;
 		//percentage uptake liver
-		double uptakeLiver = 100 - shunt;
+	//	double uptakeLiver = 100 - shunt;
 
-		this.results.put(RES_RATIO_LIVER.hashCode(), uptakeLiver);
+		this.results.put(RES_LUNG_SHUNT.hashCode(), shuntLungs);
+
+		this.results.put(RES_LIVER_SHUNT.hashCode(), shuntLiver);
 		
 		//double shunt = (lungGeo / lungGeo +  liverGeo) * 100;
 
-		this.results.put(RES_PULMONARY_SHUNT.hashCode(), uptakeLiver);
 		this.calculateResultsPercentages();
 	}
 
@@ -181,7 +186,7 @@ public class ModelLiver extends ModelWorkflow{
 	 * @return String
 	 */
 	private String csvResult() {
-		return this.studyName + "\n\n" + this.resultToCsvLine(RES_RATIO_RIGHT_LUNG) + this.resultToCsvLine(RES_RATIO_LEFT_LUNG) + this.resultToCsvLine(RES_PULMONARY_SHUNT) + this.resultToCsvLine(RES_RATIO_LIVER);
+		return this.studyName + "\n\n" + this.resultToCsvLine(RES_LUNG_SHUNT) + this.resultToCsvLine(RES_LIVER_SHUNT);
 		}
 	
 	/**
