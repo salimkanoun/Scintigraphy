@@ -150,21 +150,23 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         if (state.getFacingOrientation() == null) throw new IllegalArgumentException(
                 "The state misses the required data: -facingOrientation=" + state.getFacingOrientation() + "; " +
                         state.getSlice());
-        if (state.getSlice() <= ImageState.SLICE_PREVIOUS) throw new IllegalArgumentException("The slice is invalid");
+		if (state.getSlice() <= ImageState.SLICE_PREVIOUS) throw new IllegalArgumentException("The slice is invalid");
 
         if (state.isLateralisationRL()) {
+			System.out.println(state.getFacingOrientation().toString());
 			if (state.getFacingOrientation() == Orientation.ANT) {
-				System.out.println("le ant du 1er if "+display.getTitleAnt()+"Le post du 1ER if "+display.getTitlePost());
 				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
 											state.getSlice());
-				Library_Gui.setOverlayTitle(display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
+				Library_Gui.setOverlayTitle(/*display.getTitleAnt()*/"G géchan le titre ANT", this.vue.getImagePlus(), Color.YELLOW,
 											state.getSlice());
 			} else {
-				System.out.println("le ant du 2er if "+display.getTitleAnt()+"Le post du 2ER if "+display.getTitlePost());
-				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
+				if (state.getFacingOrientation() == Orientation.POST){
+					Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, /*display.textL*/"Juste pour voir", display.textR,
 											state.getSlice());
-				Library_Gui.setOverlayTitle("Inverted " + display.getTitlePost(), this.vue.getImagePlus(),
+					Library_Gui.setOverlayTitle("Inverted " +/* display.getTitlePost()*/"G géchan le titre du post", this.vue.getImagePlus(),
 											Color.YELLOW, state.getSlice());
+				}
+	
 			}
 		} else {
 			if (state.getFacingOrientation() == Orientation.ANT) {
@@ -189,7 +191,6 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         if (e.getStateChange() == ItemEvent.SELECTED){
             this.display = DisplayState.stateFromLabel((String) e.getItem());
 			this.getVue().getImagePlus().getOverlay().clear();
-			System.out.println("Current State dans le setOverlay"+this.currentState.toString());
             this.setOverlay(this.currentState);
             this.getVue().getImagePlus().updateAndDraw();
         }
