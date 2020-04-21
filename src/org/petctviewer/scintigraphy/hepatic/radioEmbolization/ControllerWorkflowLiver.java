@@ -153,18 +153,22 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 		if (state.getSlice() <= ImageState.SLICE_PREVIOUS) throw new IllegalArgumentException("The slice is invalid");
 
         if (state.isLateralisationRL()) {
-			System.out.println(state.getFacingOrientation().toString());
+			System.out.println("Orentation "+state.getFacingOrientation().toString());
 			if (state.getFacingOrientation() == Orientation.ANT) {
 				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
 											state.getSlice());
-				Library_Gui.setOverlayTitle(/*display.getTitleAnt()*/"G géchan le titre ANT", this.vue.getImagePlus(), Color.YELLOW,
+				Library_Gui.setOverlayTitle(display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
 											state.getSlice());
 			} else {
+				System.out.println("On est dans le else");
 				if (state.getFacingOrientation() == Orientation.POST){
+					System.out.println("On est dans le if du post");
 					Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, /*display.textL*/"Juste pour voir", display.textR,
 											state.getSlice());
+					System.out.println("On a passé la prem instruction");
 					Library_Gui.setOverlayTitle("Inverted " +/* display.getTitlePost()*/"G géchan le titre du post", this.vue.getImagePlus(),
 											Color.YELLOW, state.getSlice());
+					System.out.println("On a passé la deuz instruction");
 				}
 	
 			}
