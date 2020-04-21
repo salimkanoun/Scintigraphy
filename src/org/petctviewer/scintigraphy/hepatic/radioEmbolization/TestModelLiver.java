@@ -1,6 +1,6 @@
 package org.petctviewer.scintigraphy.hepatic.radioEmbolization;
 
-/*import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.Assertions;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,7 +18,7 @@ class TestModeleLiver {
 
 	@Test
 	void test() {
-		fail("Not yet implemented");
+		Assertions.fail();
 	}
 
-}*/
+}
