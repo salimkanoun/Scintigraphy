@@ -15,6 +15,7 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 
 public class ModelLiverTests {
 
+//Run test ??
 	public static void main(String[] args){
 		System.out.println("Debut des tests");
 	}
