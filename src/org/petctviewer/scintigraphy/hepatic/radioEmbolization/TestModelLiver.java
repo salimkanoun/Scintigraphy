@@ -2,23 +2,28 @@ package org.petctviewer.scintigraphy.hepatic.radioEmbolization;
 
 import org.junit.jupiter.api.Assertions;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 
 class TestModeleLiver {
 
-	@BeforeAll
-	static void setUpBeforeClass() throws Exception {
+	@BeforeEach
+	static void setUp() throws Exception {
+		ModelLiver model = new ModelLiver(ImageSelection[], "studyTest");
+		System.out.println("Ok creation modele");
+
+		if ()
 	}
 
-	@AfterAll
-	static void tearDownAfterClass() throws Exception {
+	@AfterEach
+	static void tearDown() throws Exception {
 	}
 
 	@Test
-	void test() {
-		Assertions.fail();
+	private void testModelLiver() {
+		
 	}
 
 }
