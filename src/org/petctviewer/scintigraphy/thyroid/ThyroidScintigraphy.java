@@ -68,7 +68,7 @@ public class ThyroidScintigraphy extends Scintigraphy {
     public void start(final List<ImageSelection> preparedImages) {
         this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
         this.getFenApplication().setController(new ControllerWorkflowThyroid(
-            (FenApplicationWorkflow) getFenApplication(), preparedImages.toArray(new ImageSelection[0]))));
+            (FenApplicationWorkflow) getFenApplication(), preparedImages.toArray(new ImageSelection[0])));
         this.createDocumentation();
         this.inflateMenuBar((ControllerWorkflowThyroid) this.getFenApplication().getController());
 

@@ -60,7 +60,7 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
             getModel().addData(ModelThyroid.REGION_LEFT_LOBE, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i+1]);
 
             // - Background
-            getModel().addData(ModelThryoid.REGION_BACKGROUND, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i + 2]);
+            getModel().addData(ModelThyroid.REGION_BACKGROUND, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i + 2]);
         }
     }
 
@@ -104,10 +104,10 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
      }
 
     /** 
-	 * @return ModelLiver
+	 * @return ModelThyroid
 	 */
-	public ModelLiver getModel() {
-        return (ModelLiver) super.getModel();
+	public ModelThyroid getModel() {
+        return (ModelThyroid) super.getModel();
 	}
 
 
@@ -226,7 +226,7 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
         }
 
         public String getTitlePost(){
-            return this.title.split("-")[1]:
+            return this.title.split("-")[1];
         }
     }
 

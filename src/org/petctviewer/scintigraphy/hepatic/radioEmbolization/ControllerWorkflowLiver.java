@@ -150,20 +150,27 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         if (state.getFacingOrientation() == null) throw new IllegalArgumentException(
                 "The state misses the required data: -facingOrientation=" + state.getFacingOrientation() + "; " +
                         state.getSlice());
-        if (state.getSlice() <= ImageState.SLICE_PREVIOUS) throw new IllegalArgumentException("The slice is invalid");
+		if (state.getSlice() <= ImageState.SLICE_PREVIOUS) throw new IllegalArgumentException("The slice is invalid");
 
         if (state.isLateralisationRL()) {
+			System.out.println("Orentation "+state.getFacingOrientation().toString());
 			if (state.getFacingOrientation() == Orientation.ANT) {
 				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
 											state.getSlice());
 				Library_Gui.setOverlayTitle(display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
 											state.getSlice());
 			} else {
-				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
+				System.out.println("On est dans le else");
+				if (state.getFacingOrientation() == Orientation.POST){
+					System.out.println("On est dans le if du post");
+					Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, /*display.textL*/"Juste pour voir", display.textR,
 											state.getSlice());
-				Library_Gui.setOverlayTitle("Inverted " + display.getTitlePost(), this.vue.getImagePlus(),
-											Color.YELLOW,
-											state.getSlice());
+					System.out.println("On a passé la prem instruction");
+					Library_Gui.setOverlayTitle("Inverted " +/* display.getTitlePost()*/"G géchan le titre du post", this.vue.getImagePlus(),
+											Color.YELLOW, state.getSlice());
+					System.out.println("On a passé la deuz instruction");
+				}
+	
 			}
 		} else {
 			if (state.getFacingOrientation() == Orientation.ANT) {
@@ -187,7 +194,7 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 	public void itemStateChanged(ItemEvent e){
         if (e.getStateChange() == ItemEvent.SELECTED){
             this.display = DisplayState.stateFromLabel((String) e.getItem());
-            this.getVue().getImagePlus().getOverlay().clear();
+			this.getVue().getImagePlus().getOverlay().clear();
             this.setOverlay(this.currentState);
             this.getVue().getImagePlus().updateAndDraw();
         }
