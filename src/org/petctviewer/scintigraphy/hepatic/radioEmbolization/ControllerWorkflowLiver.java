@@ -111,7 +111,7 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 	/**
 	 * This method is called just after finishing the drawing of the ROIs.
 	 * It calculates the results, and generates a "montage", where the ROIs are placed.
-	 * Finally, it launches the window where we can se the results and the ROIs.
+	 * Finally, it launches the window where we can see the results and the ROIs.
 	 */
 
     @Override
@@ -213,9 +213,7 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 
 		/**
 		 * Finds the state associated with the specified label. If not state matches this label, then the ANT_POST
-		 * state
-		 * is returned.
-		 *
+		 * state is returned.
 		 * @param label Label of the state to retrieve
 		 * @return state corresponding to the specified label or ANT_POST if no state matches
 		 */
