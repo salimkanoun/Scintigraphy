@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - ModelLiverTests",
+            "request": "launch",
+            "mainClass": "org.petctviewer.scintigraphy.hepatic.radioEmbolization.ModelLiverTests",
+            "projectName": "Conventional_Scintigraphy"
+        },
+        {
+            "type": "java",
             "name": "Debug (Launch) - Current File",
             "request": "launch",
             "mainClass": "${file}"
