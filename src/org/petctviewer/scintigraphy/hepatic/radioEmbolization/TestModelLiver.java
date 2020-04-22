@@ -11,10 +11,10 @@ class TestModeleLiver {
 
 	@BeforeEach
 	static void setUp() throws Exception {
-		ModelLiver model = new ModelLiver(ImageSelection[], "studyTest");
+		//ModelLiver model = new ModelLiver(ImageSelection[], "studyTest");
 		System.out.println("Ok creation modele");
 
-		if ()
+		//if ()
 	}
 
 	@AfterEach
