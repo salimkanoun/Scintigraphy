@@ -94,7 +94,7 @@ public class ThyroidScintigraphy extends Scintigraphy {
     public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages)
             throws WrongInputException {
         // Check that number of images is correct
-        if(selectedImages.size() != 3) throw new WrongNumberImagesException(selectedImages.size(), 1);
+        if(selectedImages.size() != 3) throw new WrongNumberImagesException(selectedImages.size(), 3);
         
         //Check orientation
         final List<ImageSelection> result = new ArrayList<>();
@@ -107,7 +107,7 @@ public class ThyroidScintigraphy extends Scintigraphy {
 
     @Override
     public String instructions() {
-        return "3 images in Ant-Post Post-Ant orientation";
+        return "3 images in Ant orientation";
     }
 
     private class RadioGroup implements ItemListener{
