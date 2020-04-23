@@ -1,11 +1,14 @@
 package org.petctviewer.scintigraphy.parathyroid;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.Data;
 import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 import org.petctviewer.scintigraphy.scin.model.Result;
@@ -34,6 +37,32 @@ public class ModelParathyroid extends ModelWorkflow {
         this.datas = new LinkedList<>();
         this.results = new HashMap<>();
     }
+
+    /**
+	 * Retrieves the data associated with the specified state of image. If no data exists, then it will be created.
+	 *
+	 * @param state State of the image associated with the data (not null)
+	 * @return data previously saved or new data
+	 */
+	private Data createOrRetrieveData(ImageState state) {
+		Data data = this.datas.stream().filter(d -> d.getAssociatedImage() == state.getImage()).findFirst().orElse(
+				null);
+		if (data == null) {
+			Date time0 = (this.datas.size() > 0 ? this.datas.get(0).getAssociatedImage().getDateAcquisition() :
+					state.getImage().getDateAcquisition());
+			data = new Data(state, Library_Quantif.calculateDeltaTime(time0, state.getImage().getDateAcquisition()));
+		}
+		return data;
+    }
+    
+    /**
+	 * Returns the regions for the Thyroid and Thyroid+Para images.
+	 *
+	 * @return array of regions name of the Thyroid and Thyroid+Para images
+	 */
+	private String[] regionsKidneyLung() {
+		return new String[]{REGION_THYRO, REGION_THYRO_PARA};
+	}
 
     @Override
     public ResultValue getResult(ResultRequest request) {
