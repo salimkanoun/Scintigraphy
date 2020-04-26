@@ -10,15 +10,24 @@ import java.util.Arrays;
 
 public class ControllerWorkflowParathyroid extends ControllerWorkflow implements ItemListener {
 
+	private DisplayState display;
+
     public ControllerWorkflowParathyroid(FenApplicationWorkflow vue, ModelScin model) {
-        super(vue, model);
-        // TODO Auto-generated constructor stub
-    }
+		super(vue, model);
+		this.display = DisplayState.ANT_POST;
+
+		this.generateInstructions();
+		this.start();
+	    }
 
     @Override
     public void itemStateChanged(ItemEvent e) {
-        // TODO Auto-generated method stub
-
+		if (e.getStateChange() == ItemEvent.SELECTED) {
+			this.display = DisplayState.stateFromLabel((String) e.getItem());
+			this.getVue().getImagePlus().getOverlay().clear();
+			this.setOverlay(this.currentState);
+			this.getVue().getImagePlus().updateAndDraw();
+		}
     }
 
     @Override

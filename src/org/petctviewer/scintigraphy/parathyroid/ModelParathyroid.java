@@ -72,9 +72,10 @@ public class ModelParathyroid extends ModelWorkflow {
 		Unit conversion = (request.getUnit() == null ? Unit.PERCENTAGE : request.getUnit());
 		value = Unit.PERCENTAGE.convertTo(value, conversion);
 		return new ResultValue(request, value, conversion);
-    }
+	}
+	
+	//private void 
 
-    
     private void calculateResult() {
         
     }
