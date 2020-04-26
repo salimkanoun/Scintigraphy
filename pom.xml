@@ -4,10 +4,79 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 
 	<modelVersion>4.0.0</modelVersion>
 
+	<name>Conventional_Scintigraphy</name>
+
+  	<description>Nuclear medicine conventional scintigraphy package</description>
+
+  	<url>http://petctviewer.org</url>
+
+  	<inceptionYear>2015</inceptionYear>
+
+	<licenses>
+		<license>
+			<name>CC0 1.0 Universal License</name>
+			<url>https://creativecommons.org/publicdomain/zero/1.0/</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+  	<developers>
+	  <developer>
+			<id>skanoun</id>
+			<name>Salim Kanoun</name>
+			<url>http://petctviewer.org</url>
+			<roles>
+				<role>founder</role>
+				<role>lead</role>
+				<role>developer</role>
+				<role>debugger</role>
+				<role>reviewer</role>
+				<role>support</role>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/scijava/pom-scijava</connection>
+		<developerConnection>scm:git:git@github.com:scijava/pom-scijava</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/scijava/pom-scijava</url>
+	</scm>
+
+	<issueManagement>
+		<system>None</system>
+		<url>None</url>
+	</issueManagement>
+	<ciManagement>
+		<system>None</system>
+		<url>None</url>
+	</ciManagement>
+
+	<contributors>
+		<contributor>
+			<name>Angele Mateos</name>
+		</contributor>
+		<contributor>
+			<name>Diego Rodriguez</name>
+		</contributor>
+	</contributors>
+
+	<organization>
+		<name>None</name>
+	</organization>
+
+	<mailingLists>
+		<mailingList>
+			<name>None</name>
+		</mailingList>
+	</mailingLists>
+
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<license.licenseName>N/A</license.licenseName>
+		<license.copyrightOwners>N/A</license.copyrightOwners>
 	</properties>
 		
 	<parent>
@@ -77,6 +146,16 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		    <artifactId>bioformats_package</artifactId>
 		    <version>5.9.0</version>
 		    <type>pom</type>
+				<exclusions>
+					<exclusion>
+						<groupId>ch.qos.logback</groupId>
+						<artifactId>logback-classic</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>xml-apis</groupId>
+						<artifactId>xml-apis</artifactId>
+					</exclusion>
+				</exclusions>
 		</dependency>	
 		
 		<dependency>
