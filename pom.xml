@@ -73,6 +73,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	</mailingLists>
 
 	<properties>
+		<package-name>org.petctviewer.scintigraphy</package-name>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<license.licenseName>N/A</license.licenseName>
@@ -104,6 +105,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	
 	<groupId>com.github.salimkanoun</groupId>
 	<artifactId>Conventional_Scintigraphy</artifactId>
+	<version>1.0</version>
 	
 	<build>
 	  <sourceDirectory>src</sourceDirectory>
