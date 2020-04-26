@@ -1,20 +1,21 @@
 package org.petctviewer.scintigraphy.calibration.chargement;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+
+import org.petctviewer.scintigraphy.calibration.resultats.Doublet;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.ImageCalculator;
 import ij.plugin.frame.RoiManager;
 import ij.process.StackStatistics;
-import loci.formats.FormatException;
+import io.scif.FormatException;
 import loci.plugins.BF;
 import loci.plugins.in.ImporterOptions;
-import org.petctviewer.scintigraphy.calibration.resultats.Doublet;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 
 public class ModeleChargementCalibration {
 
