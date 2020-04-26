@@ -1,12 +1,11 @@
-package org.petctviewer.scintigraphy.hepatic.radioEmbolization;
+package tests;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import org.petctviewer.scintigraphy.hepatic.radioEmbolization.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-
+import org.junit.jupiter.api.Assertions;
 /**
  * Test class for {@link ModelLiver}
  * 
@@ -33,7 +32,7 @@ public class ModelLiverTests {
 
     @Test
     public void calculateResultsTest(){
-        assertEquals(1,1);
+        Assertions.assertEquals(1,0);
 	}
 }
 
