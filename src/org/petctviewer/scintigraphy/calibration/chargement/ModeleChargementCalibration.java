@@ -13,7 +13,6 @@ import ij.gui.Roi;
 import ij.plugin.ImageCalculator;
 import ij.plugin.frame.RoiManager;
 import ij.process.StackStatistics;
-import io.scif.FormatException;
 import loci.plugins.BF;
 import loci.plugins.in.ImporterOptions;
 
@@ -236,9 +235,11 @@ public class ModeleChargementCalibration {
 			//afficher le fichier
 			//BF.openImagePlus(m)[0].show();	
 			imp = BF.openImagePlus(m)[0];
-		} catch (IOException|FormatException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
-		} 
+		} catch (loci.formats.FormatException e) {
+			e.printStackTrace();
+		}
 		return imp;
 	}
 
