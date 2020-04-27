@@ -5,8 +5,6 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.petctviewer.scintigraphy.hepatic.radioEmbolization.ModelLiver;
-import org.petctviewer.scintigraphy.hepatic.radioEmbolization.ControllerWorkflowLiver.DisplayState;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -31,7 +29,7 @@ import java.util.Arrays;
 
 public class ControllerWorkflowThyroid extends ControllerWorkflow implements ItemListener{
 
-    private static final int SLICE_ANT = 1, SLICE_POST = 2;
+    private static final int SLICE_ANT = 1;
     private List<ImagePlus> captures;
     private DisplayState display;
 
@@ -44,25 +42,29 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
     }
 
     private void computeModel(){
-        ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, ModelThyroid.IMAGE_THYROID),
-        statePost = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_RL, ModelThyroid.IMAGE_THYROID);
-        final int NB_ROI_PER_IMAGE = 3;
-        //Post then Ant
-        for(int i = 0; i<2; i++){
-            ImageState state;
-            if( i==0 )state = statePost;
-            else state = stateAnt;
+        ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, ModelThyroid.IMAGE_THYROID);
+        final int NB_ROI_PER_IMAGE = 1;
 
-            // - Right lobe
-            getModel().addData(ModelThyroid.REGION_RIGHT_LOBE, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i];
+        stateAnt.setIdImage(ModelThyroid.IMAGE_FULL_SYRINGUE);
+        this.getModel().addData(ModelThyroid.REGION_FULL_SYRINGUE, stateAnt,
+        getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE]);
 
-            // - Left lobe
-            getModel().addData(ModelThyroid.REGION_LEFT_LOBE, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i+1]);
+        stateAnt.setIdImage(ModelThyroid.IMAGE_EMPTY_SYRINGUE);
+        this.getModel().addData(ModelThyroid.REGION_EMPTY_SYRINGUE, stateAnt,
+        getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE]);
+        ImageState state = stateAnt;
+        // - Right lobe
+        getModel().addData(ModelThyroid.REGION_RIGHT_LOBE, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE]);
 
-            // - Background
-            getModel().addData(ModelThyroid.REGION_BACKGROUND, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i + 2]);
-        }
-    }
+        // - Left lobe
+         getModel().addData(ModelThyroid.REGION_LEFT_LOBE, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE +1]);
+
+        // - Background left
+         getModel().addData(ModelThyroid.REGION_BACKGROUND_LEFT, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE + 2]);
+       
+         // - Background right
+         getModel().addData(ModelThyroid.REGION_BACKGROUND_RIGHT, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE + 3]);
+     }
 
     /**
 	 * This method manage the creation of the ROIs: how many they'll be, the state of them (ANT/POST),
@@ -74,33 +76,38 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
          this.workflows = new Workflow[this.model.getImageSelection().length];
 
          DrawRoiInstruction dri_1, dri_2, dri_3, dri_4;
-         this.captures = new ArrayList<>(4);
-
-         this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
-
+         this.captures = new ArrayList<>(5);
          ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
-         ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
 
-         //POST
-         dri_1 = new DrawRoiInstruction(ModelThyroid.REGION_RIGHT_LOBE, statePost);
-         dri_2 = new DrawRoiInstruction(ModelThyroid.REGION_LEFT_LOBE, statePost);
+         //Syringues
+         dri_1 = new DrawRoiInstruction(ModelThyroid.REGION_FULL_SYRINGUE, stateAnt);
+         dri_2 = new DrawRoiInstruction(ModelThyroid.REGION_EMPTY_SYRINGUE, stateAnt);
 
-         //ANT
-         dri_3 = new DrawRoiInstruction(ModelThyroid.REGION_RIGHT_LOBE, stateAnt, dri_1);
-         dri_4 = new DrawRoiInstruction(ModelThyroid.REGION_LEFT_LOBE, stateAnt, dri_2);
+         //Thyroid
+         dri_3 = new DrawRoiInstruction(ModelThyroid.REGION_RIGHT_LOBE, stateAnt);
+         dri_4 = new DrawRoiInstruction(ModelThyroid.REGION_LEFT_LOBE, stateAnt);
 
-         //Image Thyroid
+         //Image Full Syringue
+         this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
          this.workflows[0].addInstruction(dri_1);
-         this.workflows[0].addInstruction(dri_2);
-         this.workflows[0].addInstruction(new DrawRoiInMiddle(ModelThyroid.REGION_BACKGROUND, statePost, dri_1, dri_2));
          this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
-         
-         //Creation of the ANT based on the POST
-         this.workflows[0].addInstruction(dri_3);
-         this.workflows[0].addInstruction(dri_4);
-         this.workflows[0].addInstruction(new DrawRoiInMiddle(ModelThyroid.REGION_BACKGROUND, stateAnt, dri_3, dri_4));
-         this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
-         this.workflows[0].addInstruction(new EndInstruction());
+
+         //Image Empty Syringue
+         this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
+         this.workflows[1].addInstruction(dri_2);
+         this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
+
+         //Image Thyroid Ant
+         this.workflows[2] = new Workflow(this, this.model.getImageSelection()[2]);
+         this.workflows[2].addInstruction(dri_3);
+         this.workflows[2].addInstruction(dri_4);
+         this.workflows[2].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 2));
+         this.workflows[2].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 3));
+         this.workflows[2].addInstruction(new DrawRoiInMiddle(ModelThyroid.REGION_BACKGROUND_LEFT, stateAnt, dri_3, dri_4));
+         this.workflows[2].addInstruction(new DrawRoiInMiddle(ModelThyroid.REGION_BACKGROUND_RIGHT, stateAnt, dri_3, dri_4));
+         this.workflows[2].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 4));
+
+         this.workflows[2].addInstruction(new EndInstruction());
      }
 
     /** 
