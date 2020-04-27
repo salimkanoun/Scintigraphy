@@ -1,19 +1,28 @@
 package org.petctviewer.scintigraphy.parathyroid;
 
+import ij.ImagePlus;
+
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
+import org.petctviewer.scintigraphy.scin.instructions.Workflow;
+import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class ControllerWorkflowParathyroid extends ControllerWorkflow implements ItemListener {
 
 	private static final int SLICE_ANT = 1;
 	private DisplayState display;
+	private List<ImagePlus> captures;
+
 
     public ControllerWorkflowParathyroid(FenApplicationWorkflow vue, ModelScin model) {
 		super(vue, model);
@@ -42,15 +51,6 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 			getModel().addData(ModelParathyroid.REGION_THYRO_PARA, state,
 							   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i + 1]);
 		}
-
-		// - Brain Post
-		statePost.setIdImage(ModelShunpo.IMAGE_BRAIN);
-		getModel().addData(ModelShunpo.REGION_BRAIN, statePost,
-						   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * 2]);
-		// - Brain Ant
-		stateAnt.setIdImage(ModelShunpo.IMAGE_BRAIN);
-		getModel().addData(ModelShunpo.REGION_BRAIN, stateAnt,
-						   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * 2 + 1]);
 	}
 
     @Override
@@ -65,7 +65,22 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 
     @Override
     protected void generateInstructions() {
-        // TODO Auto-generated method stub
+		this.workflows = new Workflow[this.model.getImageSelection().length];
+
+		DrawRoiInstruction dri_1, dri_2;
+		this.captures = new ArrayList<>(2);
+
+		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
+
+		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
+
+		dri_1 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO, stateAnt);
+		dri_2 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO_PARA, stateAnt, dri_1);
+
+		// Images Thyroid and Thyroid+Parathyroid
+		this.workflows[0].addInstruction(dri_1);
+		this.workflows[0].addInstruction(dri_2);
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
 
     }
 
