@@ -1,14 +1,17 @@
 package org.petctviewer.scintigraphy.parathyroid;
 
 import ij.ImagePlus;
+import ij.ImageStack;
 
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import java.awt.event.ItemEvent;
@@ -70,19 +73,47 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		DrawRoiInstruction dri_1, dri_2;
 		this.captures = new ArrayList<>(2);
 
+		// Image Thyroid
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
 		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
 
 		dri_1 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO, stateAnt);
-		dri_2 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO_PARA, stateAnt, dri_1);
-
-		// Images Thyroid and Thyroid+Parathyroid
-		this.workflows[0].addInstruction(dri_1);
-		this.workflows[0].addInstruction(dri_2);
+		this.workflows[0].addInstruction(dri_1);		
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
 
-    }
+		//Image Parathyroid
+		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
+
+		ImageState stateAnt1 = new ImageState(Orientation.ANT, 2, true, ImageState.ID_NONE);
+
+		dri_2 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO_PARA, stateAnt1, dri_1);
+		this.workflows[1].addInstruction(dri_2);
+		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
+
+	}
+	
+	@Override
+	protected void end() {
+		super.end();
+
+		this.computeModel();
+		this.model.calculateResults();
+
+		// Save captures
+		ImagePlus[] impCapture = new ImagePlus[2];
+		impCapture[0] = this.captures.get(0);
+		impCapture[1] = this.captures.get(1);
+		ImageStack stackCapture = Library_Capture_CSV.captureToStack(impCapture);
+		ImagePlus montage = this.montage(stackCapture);
+
+		// Display result
+		FenResults fenResults = new FenResults(this);
+		//fenResults.setMainTab(new MainResult(fenResults, montage1));
+		fenResults.pack();
+		fenResults.setVisible(true);
+
+	}
 
     //TODO This enum must change from a local state to a more general one and then be called
 

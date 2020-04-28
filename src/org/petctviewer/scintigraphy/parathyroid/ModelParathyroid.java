@@ -64,7 +64,7 @@ public class ModelParathyroid extends ModelWorkflow {
 	 *
 	 * @return array of regions name of the Thyroid and Thyroid+Para images
 	 */
-	private String[] regionsKidneyLung() {
+	private String[] regionsThyroParathyro() {
 		return new String[]{REGION_THYRO, REGION_THYRO_PARA};
 	}
 
