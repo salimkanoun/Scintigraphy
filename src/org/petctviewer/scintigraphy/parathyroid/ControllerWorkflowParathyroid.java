@@ -13,10 +13,11 @@ import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -110,10 +111,46 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 
 		// Display result
 		FenResults fenResults = new FenResults(this);
-		//fenResults.setMainTab(new MainResult(fenResults, montage1));
+		fenResults.setMainTab(new MainResult(fenResults, montage));
 		fenResults.pack();
 		fenResults.setVisible(true);
 
+	}
+
+	@Override
+	public void setOverlay(ImageState state) throws IllegalArgumentException {
+		if (state == null) throw new IllegalArgumentException("The state cannot be null");
+		if (state.getFacingOrientation() == null) throw new IllegalArgumentException(
+				"The state misses the required data: -facingOrientation=" + state.getFacingOrientation() + "; " +
+						state.getSlice());
+		if (state.getSlice() <= ImageState.SLICE_PREVIOUS) throw new IllegalArgumentException("The slice is invalid");
+
+		if (state.isLateralisationRL()) {
+			if (state.getFacingOrientation() == Orientation.ANT) {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
+											state.getSlice());
+				Library_Gui.setOverlayTitle(display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
+											state.getSlice());
+			} else {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
+											state.getSlice());
+				Library_Gui.setOverlayTitle("Inverted " + display.getTitlePost(), this.vue.getImagePlus(),
+											Color.YELLOW,
+											state.getSlice());
+			}
+		} else {
+			if (state.getFacingOrientation() == Orientation.ANT) {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,
+											state.getSlice());
+				Library_Gui.setOverlayTitle("Inverted " + display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
+											state.getSlice());
+			} else {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,
+											state.getSlice());
+				Library_Gui.setOverlayTitle(display.getTitlePost(), this.vue.getImagePlus(), Color.YELLOW,
+											state.getSlice());
+			}
+		}
 	}
 
     //TODO This enum must change from a local state to a more general one and then be called
