@@ -17,10 +17,12 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.gui.Roi;
+import ij.plugin.ContrastEnhancer;
 
 import java.awt.event.ItemEvent;
 import java.util.Arrays;
@@ -42,15 +44,15 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
     }
 
     private void computeModel(){
-        ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, ModelThyroid.IMAGE_THYROID);
+        ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, ModelThyroid.IMAGE_FULL_SYRINGE);
         final int NB_ROI_PER_IMAGE = 1;
 
-        stateAnt.setIdImage(ModelThyroid.IMAGE_FULL_SYRINGUE);
-        this.getModel().addData(ModelThyroid.REGION_FULL_SYRINGUE, stateAnt,
+        stateAnt.setIdImage(ModelThyroid.IMAGE_FULL_SYRINGE);
+        this.getModel().addData(ModelThyroid.REGION_FULL_SYRINGE, stateAnt,
         getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE]);
 
-        stateAnt.setIdImage(ModelThyroid.IMAGE_EMPTY_SYRINGUE);
-        this.getModel().addData(ModelThyroid.REGION_EMPTY_SYRINGUE, stateAnt,
+        stateAnt.setIdImage(ModelThyroid.IMAGE_EMPTY_SYRINGE);
+        this.getModel().addData(ModelThyroid.REGION_EMPTY_SYRINGE, stateAnt,
         getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE]);
         ImageState state = stateAnt;
         // - Right lobe
@@ -77,35 +79,38 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
 
          DrawRoiInstruction dri_1, dri_2, dri_3, dri_4;
          this.captures = new ArrayList<>(5);
+         
          ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
 
-         //Syringues
-         dri_1 = new DrawRoiInstruction(ModelThyroid.REGION_FULL_SYRINGUE, stateAnt);
-         dri_2 = new DrawRoiInstruction(ModelThyroid.REGION_EMPTY_SYRINGUE, stateAnt);
+         //Syringes
+       dri_1 = new DrawRoiInstructionContrast(ModelThyroid.REGION_FULL_SYRINGE, stateAnt, 0.35f);
+    dri_2 = new DrawRoiInstructionContrast(ModelThyroid.REGION_EMPTY_SYRINGE, stateAnt, 0.35f);
 
          //Thyroid
-         dri_3 = new DrawRoiInstruction(ModelThyroid.REGION_RIGHT_LOBE, stateAnt);
-         dri_4 = new DrawRoiInstruction(ModelThyroid.REGION_LEFT_LOBE, stateAnt);
+        dri_3 = new DrawRoiInstructionContrast(ModelThyroid.REGION_RIGHT_LOBE, stateAnt, 0.35f);
 
-         //Image Full Syringue
+       dri_4 = new DrawRoiInstructionContrast(ModelThyroid.REGION_LEFT_LOBE, stateAnt, 0.35f);
+
+
+         //Image Full Syringe
          this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
          this.workflows[0].addInstruction(dri_1);
          this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
 
-         //Image Empty Syringue
+         //Image Empty Syringe
          this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
          this.workflows[1].addInstruction(dri_2);
          this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
+
 
          //Image Thyroid Ant
          this.workflows[2] = new Workflow(this, this.model.getImageSelection()[2]);
          this.workflows[2].addInstruction(dri_3);
          this.workflows[2].addInstruction(dri_4);
          this.workflows[2].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 2));
+         this.workflows[2].addInstruction(new DrawRoiOnSideRight(ModelThyroid.REGION_BACKGROUND_RIGHT, stateAnt, dri_3));
+         this.workflows[2].addInstruction(new DrawRoiOnSideLeft(ModelThyroid.REGION_BACKGROUND_LEFT, stateAnt, dri_4));
          this.workflows[2].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 3));
-         this.workflows[2].addInstruction(new DrawRoiInMiddle(ModelThyroid.REGION_BACKGROUND_LEFT, stateAnt, dri_3, dri_4));
-         this.workflows[2].addInstruction(new DrawRoiInMiddle(ModelThyroid.REGION_BACKGROUND_RIGHT, stateAnt, dri_3, dri_4));
-         this.workflows[2].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 4));
 
          this.workflows[2].addInstruction(new EndInstruction());
      }
@@ -116,8 +121,6 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
 	public ModelThyroid getModel() {
         return (ModelThyroid) super.getModel();
 	}
-
-
 
     /**
      * This method is called just after finishing the drawing of the ROIs.
@@ -161,31 +164,21 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
               + state.getSlice());
           if(state.getSlice() <= ImageState.SLICE_PREVIOUS) throw new IllegalArgumentException("The slice is invalid");
           
-          if(state.isLateralisationLR()){
+          if(!state.isLateralisationLR()){
               if(state.getFacingOrientation() == Orientation.ANT){
                   Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
                   state.getSlice());
 
                   Library_Gui.setOverlayTitle(display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
                   state.getSlice());
-              } else {
-                  Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
-                  state.getSlice());
-                  Library_Gui.setOverlayTitle("Inverted " + display.getTitlePost(), this.vue.getImagePlus(), Color.YELLOW,
-                  state.getSlice());
-              }
+              } 
           } else {
 			if (state.getFacingOrientation() == Orientation.ANT) {
 				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,
 											state.getSlice());
 				Library_Gui.setOverlayTitle("Inverted " + display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
 											state.getSlice());
-			} else {
-				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,
-											state.getSlice());
-                Library_Gui.setOverlayTitle(display.getTitlePost(), this.vue.getImagePlus(), Color.YELLOW,
-                                            state.getSlice());
-            }
+			}
           }
       }
 
@@ -231,31 +224,66 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
         public String getTitleAnt(){
             return this.title.split("-")[0];
         }
-
-        public String getTitlePost(){
-            return this.title.split("-")[1];
-        }
     }
 
-    private class DrawRoiInMiddle extends DrawRoiInstruction{
+    private class DrawRoiOnSideRight extends DrawRoiInstruction{
         private static final long serialVersionUID = 1L;
 
-        private final transient DrawRoiInstruction dri_1;
-        private final transient DrawRoiInstruction dri_2;
+        private final transient DrawRoiInstruction dri;
 
-        public DrawRoiInMiddle(String organToDelimit, ImageState state, DrawRoiInstruction roi1, DrawRoiInstruction roi2){
+        public DrawRoiOnSideRight(String organToDelimit, ImageState state, DrawRoiInstruction roi){
             super(organToDelimit, state);
-            this.dri_1 = roi1;
-            this.dri_2 = roi2;
+            this.dri = roi;
         }
 
         @Override
         public void afterNext(ControllerWorkflow controller){
             super.afterNext(controller);
-            Roi r1 = getRoiManager().getRoi(this.dri_1.getRoiIndex());
-            Roi r2 = getRoiManager().getRoi(this.dri_2.getRoiIndex());
-            controller.getModel().getImageSelection()[controller.getCurrentImageState().getIdImage()].getImagePlus().setRoi(
-                roiBetween(r1, r2));
+            Roi r1 = getRoiManager().getRoi(this.dri.getRoiIndex());
+            ImagePlus ip = getModel().getImageSelection()[controller.getCurrentImageState().getIdImage()].getImagePlus();
+            Roi roiBackground = Library_Roi.createBkgRoi(r1, ip, Library_Roi.INFLATGAUCHE);
+            ip.setRoi(roiBackground);
         }
     }
+
+    private class DrawRoiOnSideLeft extends DrawRoiInstruction{
+        private static final long serialVersionUID = 1L;
+
+        private final transient DrawRoiInstruction dri;
+
+        public DrawRoiOnSideLeft(String organToDelimit, ImageState state, DrawRoiInstruction roi){
+            super(organToDelimit, state);
+            this.dri = roi;
+        }
+
+        @Override
+        public void afterNext(ControllerWorkflow controller){
+            super.afterNext(controller);
+            Roi r1 = getRoiManager().getRoi(this.dri.getRoiIndex());
+            ImagePlus ip = getModel().getImageSelection()[controller.getCurrentImageState().getIdImage()].getImagePlus();
+            Roi roiBackground = Library_Roi.createBkgRoi(r1, ip, Library_Roi.INFLATDROIT);
+            ip.setRoi(roiBackground);
+        }
+    }
+    
+    /**
+     * This class set the default contrast at 0.35 at each new Instruction
+     */
+    private class DrawRoiInstructionContrast extends DrawRoiInstruction{
+
+        private static final long serialVersionUID = 1L;
+
+        public DrawRoiInstructionContrast(String organToDelimit, ImageState state, float contraste){
+            super(organToDelimit, state);
+        }
+
+        @Override
+        public void afterNext(ControllerWorkflow controller){
+            super.afterNext(controller);
+            ContrastEnhancer ce = new ContrastEnhancer();
+            ImagePlus ip = getModel().getImageSelection()[controller.getCurrentImageState().getIdImage()].getImagePlus();
+            ce.stretchHistogram(ip, 0.35f);
+        }
+    }
+
 }

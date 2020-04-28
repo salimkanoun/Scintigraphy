@@ -13,12 +13,11 @@ import java.util.*;
 public class ModelThyroid extends ModelWorkflow{
     
     public static final String REGION_LEFT_LOBE = "Left lobe", REGION_RIGHT_LOBE = "Right Lobe",
-    REGION_BACKGROUND_LEFT = "BackgroundL", REGION_BACKGROUND_RIGHT = "BackgroundR", REGION_FULL_SYRINGUE = "Full syringue", REGION_EMPTY_SYRINGUE = "Empty syringue";
+    REGION_BACKGROUND_LEFT = "BackgroundL", REGION_BACKGROUND_RIGHT = "BackgroundR", REGION_FULL_SYRINGE = "Full syringe", REGION_EMPTY_SYRINGE = "Empty syringe";
 
-    public static final Result RES_SYRINGUE_DIFFERENCE = new Result("Syringue difference"),
-    RES_THYROID_SHUNT = new Result("Thyroid shunt");
+    public static final Result RES_THYROID_SHUNT = new Result("Thyroid counts"), RES_THYROID_SURFACE = new Result("Thyroid surface");
 
-    public static final int IMAGE_FULL_SYRINGUE = 0, IMAGE_EMPTY_SYRINGUE = 1, IMAGE_THYROID = 2;
+    public static final int IMAGE_FULL_SYRINGE = 0, IMAGE_EMPTY_SYRINGE = 1, IMAGE_THYROID = 2;
 
     private List<Data> datas;
     private Map<Integer,Double> results;
@@ -74,7 +73,7 @@ public class ModelThyroid extends ModelWorkflow{
      * @return fullSyringe Number of counts
      */
     private double calculateSumFullSyringe(){
-        double fullSyringe = this.datas.get(IMAGE_FULL_SYRINGUE).getAntValue(REGION_FULL_SYRINGUE, Data.DATA_COUNTS);
+        double fullSyringe = this.datas.get(IMAGE_FULL_SYRINGE).getAntValue(REGION_FULL_SYRINGE, Data.DATA_COUNTS);
         System.out.print("Sum Full Syringe = " + fullSyringe);
 
         return fullSyringe;
@@ -86,7 +85,7 @@ public class ModelThyroid extends ModelWorkflow{
      * @return emptySyringe Number of counts
      */
     private double calculateSumEmptySyringe(){
-        double emptySyringe = this.datas.get(IMAGE_EMPTY_SYRINGUE).getAntValue(REGION_EMPTY_SYRINGUE, Data.DATA_COUNTS);
+        double emptySyringe = this.datas.get(IMAGE_EMPTY_SYRINGE).getAntValue(REGION_EMPTY_SYRINGE, Data.DATA_COUNTS);
         System.out.print("Sum Full Syringe = " + emptySyringe);
 
         return emptySyringe;
@@ -121,7 +120,7 @@ public class ModelThyroid extends ModelWorkflow{
 	 * Recover the sum of the thyroid lobes calculated by "calculateSumThyroid"
      * Recover also the sum of the full and the empty syringes and substract them to obtain a fixate ratio
      * of the thyroide compared to the activity injected. It's expressed in %.
-	 * The lungs shunt and liver shunt are calculated thanks to the previous variables and are then put into the map "results"
+	 * The counts are calculated thanks to the previous variables and are then put into the map "results"
 	 */
 
      private void calculateResult(){ 
@@ -134,11 +133,19 @@ public class ModelThyroid extends ModelWorkflow{
 
         //Difference between full and empty syringe
         double difference = sumFullSyringe - sumEmptySyringe;
+        
+        if (difference < sumFullSyringe){
+            //Thyroid fixation ratio compared to the injected activity which is expressed in %
+            double finalResult = sumThyroid / difference;
+            //Put the results into the map
+            this.results.put(RES_THYROID_SHUNT.hashCode(), finalResult);
 
-        //Put the results into the map
-        this.results.put(RES_SYRINGUE_DIFFERENCE.hashCode(), difference);
-        this.results.put(RES_THYROID_SHUNT.hashCode(), sumThyroid);
+            //Surface thyroid
+            //Afficher surface thryoide (surface du pixel * nombre de pixel de chaque ROI)
+          //  double surfaceThyroid;
 
+        //   this.results.put(RES_THYROID_SURFACE.hashCode(), surfaceThyroid);
+        }
      }
 
     /** 
@@ -161,7 +168,7 @@ public class ModelThyroid extends ModelWorkflow{
 	 * @return String
 	 */
 	private String csvResult() {
-		return this.studyName + "\n\n" + this.resultToCsvLine(RES_SYRINGUE_DIFFERENCE) + this.resultToCsvLine(RES_THYROID_SHUNT);
+		return this.studyName + "\n\n" + this.resultToCsvLine(RES_THYROID_SHUNT);
     }
     
 
@@ -217,7 +224,7 @@ public class ModelThyroid extends ModelWorkflow{
     }
     
     @Override
-    public void calculateResults(){
+    public void calculateResults() {
         this.calculateResult();
     }
 
