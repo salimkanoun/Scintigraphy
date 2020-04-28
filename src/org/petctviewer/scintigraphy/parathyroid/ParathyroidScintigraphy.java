@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.parathyroid;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,6 +14,7 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
+import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
@@ -24,7 +26,7 @@ import java.awt.Menu;
 public class ParathyroidScintigraphy extends Scintigraphy {
 
     public static final String STUDY_NAME = "Parathyroid";
-    private static final String ORGAN_PARATHYROID = "PARATHYROID";
+    private static final String ORGAN_PARATHYROID = "PARATHYROID", ORGAN_THYROID = "THYROID";
 
     private Column organColumn;
 
@@ -62,8 +64,17 @@ public class ParathyroidScintigraphy extends Scintigraphy {
     public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages)
             throws WrongInputException, ReadTagException {
         // Check that number of images is correct
-        if(selectedImages.size() != 2) throw new WrongNumberImagesException(selectedImages.size(), 1);
-        
+        if(selectedImages.size() != 2) throw new WrongNumberImagesException(selectedImages.size(), 2);
+        if (selectedImages.get(0).getValue(this.organColumn.getName()) == selectedImages.get(1).getValue(
+				this.organColumn.getName())) throw new WrongColumnException(organColumn,
+																			 selectedImages.get(0).getRow(),
+																			 "expecting " + ORGAN_THYROID +
+																					 " and " + ORGAN_PARATHYROID);
+
+        // Order selectedImages: 1st THYROID; 2nd PARATHYROID
+		if (!selectedImages.get(0).getValue(this.organColumn.getName()).equals(ORGAN_THYROID)) {
+			Collections.swap(selectedImages, 0, 1);
+		}
         //Check orientation
         final List<ImageSelection> result = new ArrayList<>();
         for(final ImageSelection ims : selectedImages){
@@ -81,8 +92,9 @@ public class ParathyroidScintigraphy extends Scintigraphy {
     @Override
     public void start(List<ImageSelection> preparedImages) {
         this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
-		//this.getFenApplication().setController(new ControllerWorkflowParathyroid(
-		//		(FenApplicationWorkflow) getFenApplication(), preparedImages.toArray(new ImageSelection[0])));
+		this.getFenApplication().setController(
+            new ControllerWorkflowParathyroid(
+				(FenApplicationWorkflow) getFenApplication(), preparedImages.toArray(new ImageSelection[0])));
 		this.createDocumentation();
 		this.inflateMenuBar((ControllerWorkflowParathyroid) this.getFenApplication().getController());
 		

@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.parathyroid;
 import ij.ImagePlus;
 import ij.ImageStack;
 
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -27,8 +28,8 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 	private List<ImagePlus> captures;
 
 
-    public ControllerWorkflowParathyroid(FenApplicationWorkflow vue, ModelScin model) {
-		super(vue, model);
+    public ControllerWorkflowParathyroid(FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
+		super(vue, new ModelParathyroid(selectedImages, vue.getStudyName()));
 		this.display = DisplayState.ANT_POST;
 
 		this.generateInstructions();
