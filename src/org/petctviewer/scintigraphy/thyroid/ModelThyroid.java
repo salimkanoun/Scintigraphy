@@ -140,11 +140,19 @@ public class ModelThyroid extends ModelWorkflow{
             //Put the results into the map
             this.results.put(RES_THYROID_SHUNT.hashCode(), finalResult);
 
-            //Surface thyroid
+            //Thyroid surface
             //Afficher surface thryoide (surface du pixel * nombre de pixel de chaque ROI)
-          //  double surfaceThyroid;
+            double thyroidSurfaceMm, thyroidSurfaceCm, pixelsLeft, pixelsRight;
 
-        //   this.results.put(RES_THYROID_SURFACE.hashCode(), surfaceThyroid);
+            pixelsLeft = datas.get(IMAGE_THYROID).getAntValue(REGION_LEFT_LOBE, Data.DATA_PIXEL_COUNTS);
+            pixelsRight = datas.get(IMAGE_THYROID).getAntValue(REGION_RIGHT_LOBE, Data.DATA_PIXEL_COUNTS);
+
+            thyroidSurfaceMm = (pixelsLeft + pixelsRight) / 1.2;
+            thyroidSurfaceCm = thyroidSurfaceMm / 1000;
+            this.results.put(RES_THYROID_SURFACE.hashCode(), thyroidSurfaceCm);
+        }else{
+            this.results.put(RES_THYROID_SHUNT.hashCode(), -1d);
+            this.results.put(RES_THYROID_SURFACE.hashCode(), -1d);
         }
      }
 
@@ -219,7 +227,11 @@ public class ModelThyroid extends ModelWorkflow{
 		if(value ==  null) return null;
 		//Convert result to requested unit
 		Unit conversion = (request.getUnit() == null ? Unit.PERCENTAGE : request.getUnit());
-		value = Unit.PERCENTAGE.convertTo(value, conversion);
+        if (request.getUnit() == null){
+            value = Unit.PERCENTAGE.convertTo(value, conversion);
+        }else{
+            value = Unit.SURFACE.convertTo(value, conversion);
+        }
 		return new ResultValue(request, value, conversion);
     }
     

@@ -13,12 +13,14 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.model.ResultRequest;
 import org.petctviewer.scintigraphy.scin.model.ResultValue;
+import org.petctviewer.scintigraphy.scin.model.Unit;
 
 import ij.ImagePlus;
 
 public class MainResult extends TabResult{
 
     private final ImagePlus montage;
+    public static final Color GREEN = new Color(76, 187, 23);
 
     public MainResult(FenResults parent, ImagePlus montage){
         super(parent, "Results", true);
@@ -43,7 +45,7 @@ public class MainResult extends TabResult{
 
         //Color
         if(result.getResultType() == ModelThyroid.RES_THYROID_SHUNT){
-            if(result.getValue() < 2.) label.setForeground(new Color(76, 187, 23));
+            if(result.getValue() < 2.) label.setForeground(GREEN);
             else if (result.getValue() < 5.) label.setForeground(Color.ORANGE);
             else label.setForeground(Color.RED);
         }
@@ -59,6 +61,11 @@ public class MainResult extends TabResult{
 
         //Thyroid shunt
         ResultRequest request = new ResultRequest(ModelThyroid.RES_THYROID_SHUNT);
+        this.displayResult(this.getModel().getResult(request), res);
+
+        //Thyroid surface
+        request.changeResultOn(ModelThyroid.RES_THYROID_SURFACE);
+        request.setUnit(Unit.SURFACE);
         this.displayResult(this.getModel().getResult(request), res);
 
         return res;
