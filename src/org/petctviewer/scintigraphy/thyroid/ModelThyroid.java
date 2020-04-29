@@ -15,7 +15,7 @@ public class ModelThyroid extends ModelWorkflow{
     public static final String REGION_LEFT_LOBE = "Left lobe", REGION_RIGHT_LOBE = "Right Lobe",
     REGION_BACKGROUND_LEFT = "BackgroundL", REGION_BACKGROUND_RIGHT = "BackgroundR", REGION_FULL_SYRINGE = "Full syringe", REGION_EMPTY_SYRINGE = "Empty syringe";
 
-    public static final Result RES_THYROID_SHUNT = new Result("Thyroid counts"), RES_THYROID_SURFACE = new Result("Thyroid surface");
+    public static final Result RES_THYROID_SHUNT = new Result("Thyroid counts"), RES_THYROID_SURFACE_LEFT = new Result("Left lobe"), RES_THYROID_SURFACE_RIGHT = new Result("Right lobe");
 
     public static final int IMAGE_FULL_SYRINGE = 0, IMAGE_EMPTY_SYRINGE = 1, IMAGE_THYROID = 2;
 
@@ -39,7 +39,7 @@ public class ModelThyroid extends ModelWorkflow{
 	 * @return data previously saved or new data
 	 */
 	private Data createOrRetrieveData(ImageState state) {
-		Data data = this.datas.stream().filter(d -> d.getAssociatedImage() == state.getImage()).findFirst().orElse(null);
+        Data data = this.datas.stream().filter(d -> d.getAssociatedImage() == state.getImage()).findFirst().orElse(null);
 		if (data == null) {
 			Date time0 = (this.datas.size() > 0 ? this.datas.get(0).getAssociatedImage().getDateAcquisition() :
 				state.getImage().getDateAcquisition());
@@ -86,7 +86,7 @@ public class ModelThyroid extends ModelWorkflow{
      */
     private double calculateSumEmptySyringe(){
         double emptySyringe = this.datas.get(IMAGE_EMPTY_SYRINGE).getAntValue(REGION_EMPTY_SYRINGE, Data.DATA_COUNTS);
-        System.out.print("Sum Full Syringe = " + emptySyringe);
+        System.out.print("Sum Empty Syringe = " + emptySyringe);
 
         return emptySyringe;
     }
@@ -142,17 +142,23 @@ public class ModelThyroid extends ModelWorkflow{
 
             //Thyroid surface
             //Afficher surface thryoide (surface du pixel * nombre de pixel de chaque ROI)
-            double thyroidSurfaceMm, thyroidSurfaceCm, pixelsLeft, pixelsRight;
+            double thyroidSurfaceLeftMm, thyroidSurfaceLeftCm, thyroidSurfaceRightMm, thyroidSurfaceRightCm, pixelsLeft, pixelsRight;
 
-            pixelsLeft = datas.get(IMAGE_THYROID).getAntValue(REGION_LEFT_LOBE, Data.DATA_PIXEL_COUNTS);
             pixelsRight = datas.get(IMAGE_THYROID).getAntValue(REGION_RIGHT_LOBE, Data.DATA_PIXEL_COUNTS);
+            pixelsLeft = datas.get(IMAGE_THYROID).getAntValue(REGION_LEFT_LOBE, Data.DATA_PIXEL_COUNTS);
 
-            thyroidSurfaceMm = (pixelsLeft + pixelsRight) / 1.2;
-            thyroidSurfaceCm = thyroidSurfaceMm / 1000;
-            this.results.put(RES_THYROID_SURFACE.hashCode(), thyroidSurfaceCm);
+            thyroidSurfaceLeftMm = pixelsLeft * 1.2;
+            thyroidSurfaceLeftCm = thyroidSurfaceLeftMm / 1000;
+
+            thyroidSurfaceRightMm = pixelsRight * 1.2;
+            thyroidSurfaceRightCm = thyroidSurfaceRightMm / 1000;
+            
+            this.results.put(RES_THYROID_SURFACE_RIGHT.hashCode(), thyroidSurfaceRightCm);
+            this.results.put(RES_THYROID_SURFACE_LEFT.hashCode(), thyroidSurfaceLeftCm);
         }else{
             this.results.put(RES_THYROID_SHUNT.hashCode(), -1d);
-            this.results.put(RES_THYROID_SURFACE.hashCode(), -1d);
+            this.results.put(RES_THYROID_SURFACE_RIGHT.hashCode(), -1d);
+            this.results.put(RES_THYROID_SURFACE_LEFT.hashCode(), -1d);
         }
      }
 
@@ -176,9 +182,8 @@ public class ModelThyroid extends ModelWorkflow{
 	 * @return String
 	 */
 	private String csvResult() {
-		return this.studyName + "\n\n" + this.resultToCsvLine(RES_THYROID_SHUNT);
+		return this.studyName + "\n\n" + this.resultToCsvLine(RES_THYROID_SHUNT) + resultToCsvLine(RES_THYROID_SURFACE_LEFT) + resultToCsvLine(RES_THYROID_SURFACE_RIGHT);
     }
-    
 
 
     /**

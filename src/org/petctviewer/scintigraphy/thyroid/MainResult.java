@@ -63,8 +63,13 @@ public class MainResult extends TabResult{
         ResultRequest request = new ResultRequest(ModelThyroid.RES_THYROID_SHUNT);
         this.displayResult(this.getModel().getResult(request), res);
 
-        //Thyroid surface
-        request.changeResultOn(ModelThyroid.RES_THYROID_SURFACE);
+        //Thyroid surface (right lobe)
+        request.changeResultOn(ModelThyroid.RES_THYROID_SURFACE_RIGHT);
+        request.setUnit(Unit.SURFACE);
+        this.displayResult(this.getModel().getResult(request), res);
+
+        //Thyroid surface (left lobe)
+        request.changeResultOn(ModelThyroid.RES_THYROID_SURFACE_LEFT);
         request.setUnit(Unit.SURFACE);
         this.displayResult(this.getModel().getResult(request), res);
 
