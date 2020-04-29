@@ -22,7 +22,8 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 
 	public static final String STUDY_NAME = "Parathyroid";
 	private static final String ORGAN_THYROID = "THYROID", ORGAN_PARATHYROID = "THYROID&PARA";
-	private Column orgranColumn;
+    private Column organColumn;
+    private Column traceurColumn;
 
 	public ParathyroidScintigraphy() {
 		super(STUDY_NAME);
@@ -88,11 +89,15 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 
 		// Organ column
 		String[] organValues = {ORGAN_THYROID, ORGAN_PARATHYROID};
-		this.orgranColumn = new Column("Organ", organValues);
+        this.organColumn = new Column("Organ", organValues);
+        
+        //Traceur column
+        String[] isotopeValues = {};
+        this.traceurColumn = new Column("Isotope", isotopeValues);
 
 		// Choose columns to display
 		return new Column[]{Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
-							Column.STACK_SIZE, orientation, this.orgranColumn};
+							Column.STACK_SIZE, orientation, this.organColumn};
 	}
 
 	@Override
@@ -100,21 +105,21 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 		// Check that number of images is correct
 		if (selectedImages.size() != 2) throw new WrongNumberImagesException(selectedImages.size(), 2);
 
-		if (selectedImages.get(0).getValue(this.orgranColumn.getName()) == selectedImages.get(1).getValue(
-				this.orgranColumn.getName())) throw new WrongColumnException(orgranColumn,
+		if (selectedImages.get(0).getValue(this.organColumn.getName()) == selectedImages.get(1).getValue(
+				this.organColumn.getName())) throw new WrongColumnException(organColumn,
 																			 selectedImages.get(0).getRow(),
 																			 "expecting " + ORGAN_THYROID +
 																					 " and " + ORGAN_PARATHYROID);
 
 		// Order selectedImages: 1st KIDNEY-PULMON; 2nd BRAIN
-		if (!selectedImages.get(0).getValue(this.orgranColumn.getName()).equals(ORGAN_THYROID)) {
+		if (!selectedImages.get(0).getValue(this.organColumn.getName()).equals(ORGAN_THYROID)) {
 			Collections.swap(selectedImages, 0, 1);
 		}
 
 		// Check orientation
 		List<ImageSelection> result = new ArrayList<>();
 		for (ImageSelection ims : selectedImages) {
-			result.add(Library_Dicom.ensureAntPostFlipped(ims));
+			result.add(ims);
 			ims.close();
 		}
 
@@ -125,7 +130,7 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 	public String instructions() {
 		return "2 images in Ant orientation";
 	}
-
+ 
 	private class RadioGroup implements ItemListener {
 
 		private Set<CheckboxMenuItem> items;

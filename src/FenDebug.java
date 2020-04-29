@@ -12,6 +12,7 @@ import org.petctviewer.scintigraphy.liquid.LiquidScintigraphy;
 import org.petctviewer.scintigraphy.lympho.LymphoScintigraphy;
 import org.petctviewer.scintigraphy.mibg.MIBGScintigraphy;
 import org.petctviewer.scintigraphy.os.OsScintigraphy;
+import org.petctviewer.scintigraphy.parathyroid.ParathyroidScintigraphy;
 import org.petctviewer.scintigraphy.platelet.PlateletScintigraphy;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.renal.dmsa.DmsaScintigraphy;
@@ -20,6 +21,7 @@ import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.preferences.PrefWindow;
 import org.petctviewer.scintigraphy.shunpo.ShunpoScintigraphy;
 import org.petctviewer.scintigraphy.thyroid.ThyroidScintigraphy;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -57,6 +59,7 @@ public class FenDebug extends JFrame {
 		this.registerNewProgram(PlateletScintigraphy.class);
 		this.registerNewProgram(LiverScintigraphy.class);
 		this.registerNewProgram(ThyroidScintigraphy.class);
+		this.registerNewProgram(ParathyroidScintigraphy.class);
 
 		this.add(this.panel, BorderLayout.CENTER);
 		this.add(pnl_pref, BorderLayout.NORTH);
