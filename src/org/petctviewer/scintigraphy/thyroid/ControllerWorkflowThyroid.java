@@ -47,7 +47,6 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
         ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, ModelThyroid.IMAGE_FULL_SYRINGE);
         final int NB_ROI_PER_IMAGE = 1;
 
-        stateAnt.setIdImage(ModelThyroid.IMAGE_FULL_SYRINGE);
         this.getModel().addData(ModelThyroid.REGION_FULL_SYRINGE, stateAnt,
         getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE]);
 
@@ -56,16 +55,16 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
         getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE]);
         ImageState state = stateAnt;
         // - Right lobe
-        getModel().addData(ModelThyroid.REGION_RIGHT_LOBE, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE]);
+        getModel().addData(ModelThyroid.REGION_RIGHT_LOBE, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE +1 ]);
 
         // - Left lobe
-         getModel().addData(ModelThyroid.REGION_LEFT_LOBE, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE +1]);
+         getModel().addData(ModelThyroid.REGION_LEFT_LOBE, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE +2 ]);
 
         // - Background left
-         getModel().addData(ModelThyroid.REGION_BACKGROUND_LEFT, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE + 2]);
+         getModel().addData(ModelThyroid.REGION_BACKGROUND_LEFT, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE +3 ]);
        
          // - Background right
-         getModel().addData(ModelThyroid.REGION_BACKGROUND_RIGHT, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE + 3]);
+         getModel().addData(ModelThyroid.REGION_BACKGROUND_RIGHT, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE +4 ]);
      }
 
     /**
