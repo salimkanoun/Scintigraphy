@@ -82,13 +82,13 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
          ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
 
          //Syringes
-       dri_1 = new DrawRoiInstructionContrast(ModelThyroid.REGION_FULL_SYRINGE, stateAnt, 0.35f);
-    dri_2 = new DrawRoiInstructionContrast(ModelThyroid.REGION_EMPTY_SYRINGE, stateAnt, 0.35f);
+       dri_1 = new DrawRoiInstructionContrast(ModelThyroid.REGION_FULL_SYRINGE, stateAnt, 0.5f);
+    dri_2 = new DrawRoiInstructionContrast(ModelThyroid.REGION_EMPTY_SYRINGE, stateAnt, 0.5f);
 
          //Thyroid
-        dri_3 = new DrawRoiInstructionContrast(ModelThyroid.REGION_RIGHT_LOBE, stateAnt, 0.35f);
+        dri_3 = new DrawRoiInstructionContrast(ModelThyroid.REGION_RIGHT_LOBE, stateAnt, 0.5f);
 
-       dri_4 = new DrawRoiInstructionContrast(ModelThyroid.REGION_LEFT_LOBE, stateAnt, 0.35f);
+       dri_4 = new DrawRoiInstructionContrast(ModelThyroid.REGION_LEFT_LOBE, stateAnt, 0.5f);
 
 
          //Image Full Syringe
@@ -266,7 +266,7 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
     }
     
     /**
-     * This class set the default contrast at 0.35 at each new Instruction
+     * This class set the default contrast at 0.5 at each new Instruction
      */
     private class DrawRoiInstructionContrast extends DrawRoiInstruction{
 
@@ -281,7 +281,7 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
             super.afterNext(controller);
             ContrastEnhancer ce = new ContrastEnhancer();
             ImagePlus ip = getModel().getImageSelection()[controller.getCurrentImageState().getIdImage()].getImagePlus();
-            ce.stretchHistogram(ip, 0.35f);
+            ce.stretchHistogram(ip, 0.5f);
         }
     }
 

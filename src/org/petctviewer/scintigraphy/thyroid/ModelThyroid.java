@@ -108,7 +108,7 @@ public class ModelThyroid extends ModelWorkflow{
 
          System.out.println("Sum thyroid : (right lobe and + left lobe ant)\n");
          double lobeRight = datas.get(IMAGE_THYROID).getAntValue(REGION_RIGHT_LOBE, Data.DATA_COUNTS);
-         double lobeLeft = datas.get(IMAGE_THYROID).getAntValue(REGION_LEFT_LOBE, Data.DATA_COUNTS);
+         double lobeLeft = 500;//datas.get(IMAGE_THYROID).getAntValue(REGION_LEFT_LOBE, Data.DATA_COUNTS);
 
          double sumLobe = lobeRight + lobeLeft;
          System.out.println("Right lobe = " + lobeRight +"\n");
@@ -135,8 +135,10 @@ public class ModelThyroid extends ModelWorkflow{
 
         //Difference between full and empty syringe
         double difference = (sumFullSyringe - sumEmptySyringe);
+        System.out.println("Difference = " + difference +"\n");
+
         
-        if (difference < sumFullSyringe){
+        if (difference < sumFullSyringe && difference > 0){
             //Thyroid fixation ratio compared to the injected activity which is expressed in %
             double finalResult = sumThyroid / difference;
             //Put the results into the map
@@ -150,10 +152,10 @@ public class ModelThyroid extends ModelWorkflow{
             pixelsLeft = datas.get(IMAGE_THYROID).getAntValue(REGION_LEFT_LOBE, Data.DATA_PIXEL_COUNTS);
 
             thyroidSurfaceLeftMm = pixelsLeft * 1.2;
-            thyroidSurfaceLeftCm = thyroidSurfaceLeftMm / 1000;
+            thyroidSurfaceLeftCm = thyroidSurfaceLeftMm / 100;
 
             thyroidSurfaceRightMm = pixelsRight * 1.2;
-            thyroidSurfaceRightCm = thyroidSurfaceRightMm / 1000;
+            thyroidSurfaceRightCm = thyroidSurfaceRightMm / 100;
             
             this.results.put(RES_THYROID_SURFACE_RIGHT.hashCode(), thyroidSurfaceRightCm);
             this.results.put(RES_THYROID_SURFACE_LEFT.hashCode(), thyroidSurfaceLeftCm);
