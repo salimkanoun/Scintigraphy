@@ -335,11 +335,16 @@ public class Library_Quantif {
 	 * <td>CHROME_51</td>
 	 * <td>2393500000</td>
 	 * </tr>
+	 * <tr align=center>
+	 * <td>IODE_123</td>
+	 * <td>47592000</td>
+	 * </tr>
 	 * </table>
 	 * </p>
 	 */
 	public enum Isotope {
-		INDIUM_111(242330000L, "C-145A4"), TECHNETIUM_99(21620880L, "C-163A8"), CHROME_51(2393500000L, "C-129A2");
+		INDIUM_111(242330000L, "C-145A4"), TECHNETIUM_99(21620880L, "C-163A8"), CHROME_51(2393500000L, "C-129A2"), 
+		IODE_123(47592000L,"C-114A4");
 
 		private final long halfLifeMS;
 		private final String code;
@@ -373,6 +378,8 @@ public class Library_Quantif {
 					return "Technetium (99)";
 				case CHROME_51:
 					return "Chrome (51)";
+				case IODE_123:
+					return "Iode (123)";
 			}
 			return super.toString();
 		}

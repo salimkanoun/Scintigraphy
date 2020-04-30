@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.Data;
@@ -15,6 +16,9 @@ import org.petctviewer.scintigraphy.scin.model.Result;
 import org.petctviewer.scintigraphy.scin.model.ResultRequest;
 import org.petctviewer.scintigraphy.scin.model.ResultValue;
 import org.petctviewer.scintigraphy.scin.model.Unit;
+
+import ij.ImagePlus;
+import ij.gui.Roi;
 
 public class ModelParathyroid extends ModelWorkflow {
 
@@ -60,7 +64,7 @@ public class ModelParathyroid extends ModelWorkflow {
 	 *
 	 * @return array of regions name of the Thyroid and Thyroid+Para images
 	 */
-	private String[] regionsKidneyLung() {
+	private String[] regionsThyroParathyro() {
 		return new String[]{REGION_THYRO, REGION_THYRO_PARA};
 	}
 
@@ -83,7 +87,42 @@ public class ModelParathyroid extends ModelWorkflow {
     @Override
     public void calculateResults() {
         this.calculateResult();
-    }   
+	}
+	
+	/**
+	 * This method takes care of all necessary operations to do on the ImagePlus or the RoiManager. This requires the
+	 * state to contain all of the required data.
+	 *
+	 * @param regionName Region to calculate
+	 * @param state      State the image must be to do the calculations
+	 * @param roi        Region where the calculates must be made
+	 */
+	public void addData(String regionName, ImageState state, Roi roi) {
+		// Save the image in the state
+		state.specifieImage(this.imageFromState(state));
+		state.setIdImage(ImageState.ID_CUSTOM_IMAGE);
+
+		ImagePlus imp = state.getImage().getImagePlus();
+
+		// Prepare image
+		imp.setSlice(state.getSlice());
+		imp.setRoi(roi);
+
+		// Calculate counts
+		double counts = Library_Quantif.getCounts(imp);
+
+		Data data = this.createOrRetrieveData(state);
+		if (state.getFacingOrientation() == Orientation.ANT) {
+			data.setAntValue(regionName, Data.DATA_COUNTS, counts, state, roi);
+			data.setAntValue(regionName, Data.DATA_MEAN_COUNTS, Library_Quantif.getAvgCounts(imp));
+			data.setAntValue(regionName, Data.DATA_PIXEL_COUNTS, Library_Quantif.getPixelNumber(imp));
+		} else {
+			data.setPostValue(regionName, Data.DATA_COUNTS, counts, state, roi);
+			data.setPostValue(regionName, Data.DATA_MEAN_COUNTS, Library_Quantif.getAvgCounts(imp));
+			data.setPostValue(regionName, Data.DATA_PIXEL_COUNTS, Library_Quantif.getPixelNumber(imp));
+		}
+		this.datas.add(data);
+	}
     
 
 }

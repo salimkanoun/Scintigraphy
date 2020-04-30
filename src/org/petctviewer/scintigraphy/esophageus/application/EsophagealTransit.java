@@ -187,17 +187,17 @@ public class EsophagealTransit extends Scintigraphy {
 
 		}
 
-		// on appelle la fonction de trie
+		// on appelle la fonction de tri
 		ChronologicalAcquisitionComparator chronologicalOrder = new ChronologicalAcquisitionComparator();
 		// on met les imageplus (ANT) dans cette fonction pour les trier, ensuite on
-		// stock le tout dans le tableau en [0]
+		// stocke le tout dans le tableau en [0]
 		imagePourTrieAnt.sort(chronologicalOrder);
 		sauvegardeImagesSelectDicom[0] = imagePourTrieAnt.toArray(new ImageSelection[0]);
 		// Pareil pour la post
 		imagePourTriePost.sort(chronologicalOrder);
 		sauvegardeImagesSelectDicom[1] = imagePourTriePost.toArray(new ImageSelection[0]);
 
-		// test de verification de la taille des stack
+		// test de verification de la taille des stacks
 		if (sauvegardeImagesSelectDicom[0].length != sauvegardeImagesSelectDicom[1].length) {
 			System.err.println(
 					"(EsophagealTransit) The number of ANT slices is different from the number of POST slices -> "
@@ -207,8 +207,8 @@ public class EsophagealTransit extends Scintigraphy {
 
 		nbAcquisition = sauvegardeImagesSelectDicom[0].length;
 
-		// preparetion de l'image plus la 2eme phase
-		// image plus du projet de chaque acquisiton avec sur chaque slice une
+		// preparation de l'image plus la 2eme phase
+		// image plus du projet de chaque acquisition avec sur chaque slice une
 		// acquistion
 		impProjeteAllAcqui = null;
 		if (imagePourTrieAnt.size() > 0) {
