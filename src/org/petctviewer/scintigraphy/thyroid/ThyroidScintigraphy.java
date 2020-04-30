@@ -25,7 +25,7 @@ public class ThyroidScintigraphy extends Scintigraphy {
     public static final String STUDY_NAME = "Thyroid";
     private static final String ORGAN_THYROID = "THYROID";
 
-    private Column orgranColumn;
+    private Column organColumn;
 
     public ThyroidScintigraphy(){
         super(STUDY_NAME);
@@ -83,11 +83,11 @@ public class ThyroidScintigraphy extends Scintigraphy {
         
         //Organ column
 		final String[] organValues = {ORGAN_THYROID};
-		this.orgranColumn = new Column("Organ", organValues);
+		this.organColumn = new Column("Organ", organValues);
 		
 		//Choose columns to display
 		return new Column[] {Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
-			Column.STACK_SIZE, orientation, this.orgranColumn};
+			Column.STACK_SIZE, orientation, this.organColumn};
 	}
 
     @Override
