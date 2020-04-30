@@ -163,10 +163,10 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 				System.out.println("On est dans le else");
 				if (state.getFacingOrientation() == Orientation.POST){
 					System.out.println("On est dans le if du post");
-					Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL/*"Juste pour voir"*/, display.textR,
+					Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
 											state.getSlice());
 					System.out.println("On a passé la prem instruction");
-					Library_Gui.setOverlayTitle("Inverted " + display.getTitlePost()/*"G géchan le titre du post"*/, this.vue.getImagePlus(),
+					Library_Gui.setOverlayTitle("Inverted " + display.getTitlePost(), this.vue.getImagePlus(),
 											Color.YELLOW, state.getSlice());
 					System.out.println("On a passé la deuz instruction");
 				}
