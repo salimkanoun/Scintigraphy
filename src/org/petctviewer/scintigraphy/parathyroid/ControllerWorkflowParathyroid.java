@@ -61,27 +61,26 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 	private void generateInstructionsWithKidneys() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 
-		DrawRoiInstruction dri_1, dri_2, dri_3;
-		this.captures = new ArrayList<>(6);
+		DrawRoiInstruction dri_1, dri_2;
+		this.captures = new ArrayList<>(2);
 
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
 		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
-		ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
+		ImageState stateAnt1 = new ImageState(Orientation.ANT, 2, true, ImageState.ID_NONE);
 
 		dri_1 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO, stateAnt);
-		dri_2 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO_PARA, statePost, dri_1);
-		dri_3 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO_PARA, stateAnt, dri_1);
+		dri_2 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO_PARA, stateAnt1, dri_1);
 
-		// Image Lung-Kidney
+		// Image Thyro
 		this.workflows[0].addInstruction(dri_1);
-		this.workflows[0].addInstruction(dri_2);
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
+		this.workflows[0].addInstruction(new EndInstruction());
 
 
-		// Image Brain
+		// Image ThyroPara
 		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
-		this.workflows[1].addInstruction(dri_3);
+		this.workflows[1].addInstruction(dri_2);
 		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
 		this.workflows[1].addInstruction(new EndInstruction());
 	}
