@@ -15,6 +15,7 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,8 +30,8 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 	private List<ImagePlus> captures;
 	private DisplayState display;
 
-	public ControllerWorkflowParathyroid(FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
-		super(vue, new ModelParathyroid(selectedImages, vue.getStudyName()));
+	public ControllerWorkflowParathyroid(FenApplicationWorkflow vue, ModelParathyroid model) {
+		super(vue, model);
 
 		// Initialize variables
 		this.display = DisplayState.ANT_POST;
@@ -42,17 +43,17 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 	// TODO: remove this method and do this in the instructions
 	private void computeModel() {
 		ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL,ModelParathyroid.IMAGE_THYROID),
-					statePost = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_RL, ModelParathyroid.IMAGE_THYROIDPARA);
+					stateAnt1 = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, ModelParathyroid.IMAGE_THYROIDPARA);
 		final int NB_ROI_PER_IMAGE = 1;
 		// Post then Ant
 		for (int i = 0; i < 2; i++) {
 			ImageState state;
-			if (i == 0) state = statePost;
+			if (i == 0) state = stateAnt1;
 			else state = stateAnt;
-			// - Right lung
+			// Thyroid Only
 			getModel().addData(ModelParathyroid.REGION_THYRO, state,
 							   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i]);
-			// - Left lung
+			// Thyroid and Parathyroid
 			getModel().addData(ModelParathyroid.REGION_THYRO_PARA, state,
 							   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i + 1]);
 		}
@@ -75,7 +76,6 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		// Image Thyro
 		this.workflows[0].addInstruction(dri_1);
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
-		this.workflows[0].addInstruction(new EndInstruction());
 
 
 		// Image ThyroPara

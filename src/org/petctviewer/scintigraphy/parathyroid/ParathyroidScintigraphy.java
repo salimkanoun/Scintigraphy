@@ -32,7 +32,7 @@ public class ParathyroidScintigraphy extends Scintigraphy {
     private Column traceurColumn;
 
     // [0: ant | 1: post][numAcquisition]
-	private ImageSelection[][] sauvegardeImagesSelectDicom;
+	private ImageSelection[] sauvegardeImagesSelectDicom;
 
 	// imp du projet de chaque Acqui
     private ImagePlus impProjeteAllAcqui;
@@ -78,14 +78,20 @@ public class ParathyroidScintigraphy extends Scintigraphy {
         itemChangeLabelAP.addItemListener(listener);
 
         this.getFenApplication().getMenuBar().add(menu);
-    }
+	}
+	
+	public ImageSelection getImgPrjtAllAcqui() {
+		ImageSelection returned = this.sauvegardeImagesSelectDicom[0];
+		returned.setImagePlus(impProjeteAllAcqui);
+		return returned;
+	}
 
     @Override
     public void start(List<ImageSelection> preparedImages) {
         // Start program
         this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
         this.getFenApplication().setController(new ControllerWorkflowParathyroid(
-                (FenApplicationWorkflow) getFenApplication(), preparedImages.toArray(new ImageSelection[0])));
+				(FenApplicationWorkflow) getFenApplication(), new ModelParathyroid(this.sauvegardeImagesSelectDicom, STUDY_NAME)));
 
         this.createDocumentation();
         this.inflateMenuBar((ControllerWorkflowParathyroid) this.getFenApplication().getController());
@@ -122,7 +128,7 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 		// dicom
 
 		// sauvegarde des images pour le modele
-		this.sauvegardeImagesSelectDicom = new ImageSelection[1][selectedImages.size()];
+		this.sauvegardeImagesSelectDicom = new ImageSelection[selectedImages.size()];
 
 		// oblige de faire duplicate sinon probleme
 
@@ -150,10 +156,10 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 		// on met les imageplus (ANT) dans cette fonction pour les trier, ensuite on
 		// stocke le tout dans le tableau en [0]
 		imagePourTrieAnt.sort(chronologicalOrder);
-		sauvegardeImagesSelectDicom[0] = imagePourTrieAnt.toArray(new ImageSelection[0]);
+		sauvegardeImagesSelectDicom = imagePourTrieAnt.toArray(new ImageSelection[0]);
 		
 
-		this.nbAcquisition = sauvegardeImagesSelectDicom[0].length;
+		this.nbAcquisition = sauvegardeImagesSelectDicom.length;
 
 		// preparation de l'image plus la 2eme phase
 		// image plus du projet de chaque acquisition avec sur chaque slice une
@@ -178,13 +184,13 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 				impsAnt[i] = imagesAnt[i].getImagePlus();
 			impProjeteAllAcqui = new ImagePlus("EsoStack", Library_Capture_CSV.captureToStack(impsAnt));
 			// SK VOIR METHODE POUR GARDER LES METADATA ORIGINALE DANS LE STACK GENEREs
-			impProjeteAllAcqui.setProperty("Info", sauvegardeImagesSelectDicom[0][0].getImagePlus().getInfoProperty());
+			impProjeteAllAcqui.setProperty("Info", sauvegardeImagesSelectDicom[0].getImagePlus().getInfoProperty());
 		}
 
 		// phase 1
 		// on retourne la stack de la 1ere acquisition
 		List<ImageSelection> selection = new ArrayList<>();
-		selection.add(sauvegardeImagesSelectDicom[0][0]);
+		selection.add(sauvegardeImagesSelectDicom[0]);
 		return selection;
 	}
 

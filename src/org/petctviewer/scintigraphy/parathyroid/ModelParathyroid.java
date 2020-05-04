@@ -22,7 +22,7 @@ import ij.gui.Roi;
 
 public class ModelParathyroid extends ModelWorkflow {
 
-    public static final String REGION_THYRO_PARA = "Thyroid and Parathyroid", REGION_THYRO = "Thyroid only";
+    public static final String REGION_THYRO_PARA = "Thyroid and Parathyroid", REGION_THYRO = "Thyroid";
 
     public static final Result RES_RATIO_THYRO_PARA = new Result("Thyroid+Para Ratio"), RES_RATIO_THYRO= new Result("Thyroid ratio"); 
 
