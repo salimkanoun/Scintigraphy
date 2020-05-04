@@ -25,7 +25,8 @@ import java.util.List;
 
 public class EsophagealTransit extends Scintigraphy {
 	/*
-	 * pour cette application on aura 2 phases: phase 1 : affichage de chaque stack
+	 * pour cette application on aura 2 phases: 
+	 * phase 1 : affichage de chaque stack
 	 * pour chaque acquisition, avec la possiblité de changer d'acqui. On aura un
 	 * selecteur d'acquisiton pour pouvoir changer le stack (acqui) affiché A
 	 * l'appuie sur "start exam", on lance la phase 2
@@ -148,7 +149,7 @@ public class EsophagealTransit extends Scintigraphy {
 		// dicom
 
 		// sauvegarde des images pour le modele
-		sauvegardeImagesSelectDicom = new ImageSelection[2][selectedImages.size()];
+		this.sauvegardeImagesSelectDicom = new ImageSelection[2][selectedImages.size()];
 
 		// oblige de faire duplicate sinon probleme
 
@@ -205,7 +206,7 @@ public class EsophagealTransit extends Scintigraphy {
 			sauvegardeImagesSelectDicom[1] = new ImageSelection[0];
 		}
 
-		nbAcquisition = sauvegardeImagesSelectDicom[0].length;
+		this.nbAcquisition = sauvegardeImagesSelectDicom[0].length;
 
 		// preparation de l'image plus la 2eme phase
 		// image plus du projet de chaque acquisition avec sur chaque slice une
