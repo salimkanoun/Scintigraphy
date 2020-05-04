@@ -2,7 +2,7 @@ package org.petctviewer.scintigraphy.parathyroid;
 
 import ij.ImagePlus;
 import ij.ImageStack;
-
+import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -12,89 +12,84 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class ControllerWorkflowParathyroid extends ControllerWorkflow implements ItemListener {
-
-	private static final int SLICE_ANT = 1;
-	private DisplayState display;
+	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 	private List<ImagePlus> captures;
+	private DisplayState display;
 
-
-    public ControllerWorkflowParathyroid(FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
+	public ControllerWorkflowParathyroid(FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
 		super(vue, new ModelParathyroid(selectedImages, vue.getStudyName()));
+
+		// Initialize variables
 		this.display = DisplayState.ANT_POST;
 
 		this.generateInstructions();
 		this.start();
 	}
 
-	public ModelParathyroid getModel() {
-		return (ModelParathyroid) super.getModel();
-	}
-
 	// TODO: remove this method and do this in the instructions
 	private void computeModel() {
-		ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, ModelParathyroid.IMAGE_THYROID);
+		ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL,ModelParathyroid.IMAGE_THYROID),
+					statePost = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_RL, ModelParathyroid.IMAGE_THYROIDPARA);
 		final int NB_ROI_PER_IMAGE = 1;
-		// Just Ant
+		// Post then Ant
 		for (int i = 0; i < 2; i++) {
 			ImageState state;
-			state = stateAnt;
-			// - Thyroid Only
+			if (i == 0) state = statePost;
+			else state = stateAnt;
+			// - Right lung
 			getModel().addData(ModelParathyroid.REGION_THYRO, state,
 							   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i]);
-			// - Thyroid and parathyroid
+			// - Left lung
 			getModel().addData(ModelParathyroid.REGION_THYRO_PARA, state,
 							   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i + 1]);
 		}
 	}
 
-    @Override
-    public void itemStateChanged(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			this.display = DisplayState.stateFromLabel((String) e.getItem());
-			this.getVue().getImagePlus().getOverlay().clear();
-			this.setOverlay(this.currentState);
-			this.getVue().getImagePlus().updateAndDraw();
-		}
-    }
-
-    @Override
-    protected void generateInstructions() {
+	private void generateInstructionsWithKidneys() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 
-		DrawRoiInstruction dri_1, dri_2;
-		this.captures = new ArrayList<>(2);
+		DrawRoiInstruction dri_1, dri_2, dri_3;
+		this.captures = new ArrayList<>(6);
 
-		// Image Thyroid
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
 		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
+		ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
 
 		dri_1 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO, stateAnt);
-		this.workflows[0].addInstruction(dri_1);		
+		dri_2 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO_PARA, statePost, dri_1);
+		dri_3 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO_PARA, stateAnt, dri_1);
+
+		// Image Lung-Kidney
+		this.workflows[0].addInstruction(dri_1);
+		this.workflows[0].addInstruction(dri_2);
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
 
-		//Image Parathyroid
+
+		// Image Brain
 		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
-
-		ImageState stateAnt1 = new ImageState(Orientation.ANT, 2, true, ImageState.ID_NONE);
-
-		dri_2 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO_PARA, stateAnt1, dri_1);
-		this.workflows[1].addInstruction(dri_2);
+		this.workflows[1].addInstruction(dri_3);
 		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
-
+		this.workflows[1].addInstruction(new EndInstruction());
 	}
-	
+
+	public ModelParathyroid getModel() {
+		return (ModelParathyroid) super.getModel();
+	}
+
 	@Override
 	protected void end() {
 		super.end();
@@ -107,11 +102,12 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		impCapture[0] = this.captures.get(0);
 		impCapture[1] = this.captures.get(1);
 		ImageStack stackCapture = Library_Capture_CSV.captureToStack(impCapture);
-		ImagePlus montage = this.montage(stackCapture);
+		ImagePlus montage1 = this.montage(stackCapture);
 
 		// Display result
 		FenResults fenResults = new FenResults(this);
-		fenResults.setMainTab(new MainResult(fenResults, montage));
+		fenResults.setMainTab(new MainResult(fenResults, montage1));
+		
 		fenResults.pack();
 		fenResults.setVisible(true);
 
@@ -153,7 +149,20 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		}
 	}
 
-    //TODO This enum must change from a local state to a more general one and then be called
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getStateChange() == ItemEvent.SELECTED) {
+			this.display = DisplayState.stateFromLabel((String) e.getItem());
+			this.getVue().getImagePlus().getOverlay().clear();
+			this.setOverlay(this.currentState);
+			this.getVue().getImagePlus().updateAndDraw();
+		}
+	}
+
+	@Override
+	protected void generateInstructions() {
+			this.generateInstructionsWithKidneys();
+	}
 
 	public enum DisplayState {
 		RIGHT_LEFT("Label ANT as RIGHT", "P", "A", "Right-Left"),
@@ -172,7 +181,9 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 
 		/**
 		 * Finds the state associated with the specified label. If not state matches this label, then the ANT_POST
-		 * state is returned.
+		 * state
+		 * is returned.
+		 *
 		 * @param label Label of the state to retrieve
 		 * @return state corresponding to the specified label or ANT_POST if no state matches
 		 */
@@ -188,5 +199,7 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 			return this.title.split("-")[1];
 		}
 	}
+
+	
 
 }
