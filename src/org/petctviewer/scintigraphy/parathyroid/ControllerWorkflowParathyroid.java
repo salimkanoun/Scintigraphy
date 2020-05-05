@@ -15,9 +15,7 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -26,7 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ControllerWorkflowParathyroid extends ControllerWorkflow implements ItemListener {
-	private static final int SLICE_ANT = 1, SLICE_POST = 2;
+	private static final int SLICE_ANT = 1, SLICE_ANT1 = 2;
 	private List<ImagePlus> captures;
 	private DisplayState display;
 
@@ -43,10 +41,10 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 	// TODO: remove this method and do this in the instructions
 	private void computeModel() {
 		ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL,ModelParathyroid.IMAGE_THYROID),
-					stateAnt1 = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, ModelParathyroid.IMAGE_THYROIDPARA);
+					stateAnt1 = new ImageState(Orientation.ANT, SLICE_ANT1, ImageState.LAT_RL, ModelParathyroid.IMAGE_THYROIDPARA);
 		final int NB_ROI_PER_IMAGE = 1;
 		// Post then Ant
-		for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 1; i++) {
 			ImageState state;
 			if (i == 0) state = stateAnt1;
 			else state = stateAnt;
@@ -59,7 +57,8 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		}
 	}
 
-	private void generateInstructionsWithKidneys() {
+	@Override
+	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 
 		DrawRoiInstruction dri_1, dri_2;
@@ -101,11 +100,11 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		impCapture[0] = this.captures.get(0);
 		impCapture[1] = this.captures.get(1);
 		ImageStack stackCapture = Library_Capture_CSV.captureToStack(impCapture);
-		ImagePlus montage1 = this.montage(stackCapture);
+		ImagePlus montage = this.montage(stackCapture);
 
 		// Display result
 		FenResults fenResults = new FenResults(this);
-		fenResults.setMainTab(new MainResult(fenResults, montage1));
+		fenResults.setMainTab(new MainResult(fenResults, montage));
 		
 		fenResults.pack();
 		fenResults.setVisible(true);
@@ -158,10 +157,6 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		}
 	}
 
-	@Override
-	protected void generateInstructions() {
-			this.generateInstructionsWithKidneys();
-	}
 
 	public enum DisplayState {
 		RIGHT_LEFT("Label ANT as RIGHT", "P", "A", "Right-Left"),
