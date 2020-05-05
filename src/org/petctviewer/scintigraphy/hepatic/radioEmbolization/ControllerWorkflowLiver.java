@@ -14,6 +14,7 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -28,11 +29,13 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 	private List<ImagePlus> captures;
-	//private DisplayState display;
+	private DisplayState display;
 
 	public ControllerWorkflowLiver (FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
 		super(vue, new ModelLiver(selectedImages, vue.getStudyName()));
-		
+        
+        this.display = DisplayState.ANT_POST;
+
 		this.generateInstructions();
 		this.start();	
 	}
@@ -57,13 +60,19 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
                     getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i+2]);
         }
 	}
-	
+
+	/**
+	 * This method manage the creation of the ROIs: how many they'll be, the state of them (ANT/POST),
+	 * generate them from the previous ones, and add them to the list.
+	 * Finally, the EndInstruction() launches the following step, the end() method.
+	 */
+
 	protected void generateInstructions() {
 
         this.workflows = new Workflow[this.model.getImageSelection().length];
 
         DrawRoiInstruction dri_1, dri_2, dri_3;
-		this.captures = new ArrayList<>(4); //?????
+		this.captures = new ArrayList<>(4); 
 		
         this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
@@ -80,20 +89,30 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         this.workflows[0].addInstruction(dri_1);
         this.workflows[0].addInstruction(dri_2);
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
-		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
         this.workflows[0].addInstruction(dri_3);
-        this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 2));
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
+		//creation of the ANT based on the POST
         this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_RIGHT_LUNG, stateAnt,dri_1));
         this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_LEFT_LUNG, stateAnt,dri_2));
-		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 3));
-		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 4));
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 2));
         this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_LIVER, stateAnt, dri_3));
-        this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 5));
+        this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 3));
+        this.workflows[0].addInstruction(new EndInstruction());
 	}
 	
+	
+	/** 
+	 * @return ModelLiver
+	 */
 	public ModelLiver getModel() {
         return (ModelLiver) super.getModel();
-    }
+	}
+	
+	/**
+	 * This method is called just after finishing the drawing of the ROIs.
+	 * It calculates the results, and generates a "montage", where the ROIs are placed.
+	 * Finally, it launches the window where we can see the results and the ROIs.
+	 */
 
     @Override
     protected void end(){
@@ -103,13 +122,11 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         this.model.calculateResults();
 
         //Save captures
-        ImagePlus[] impCapture = new ImagePlus[3];
-        impCapture[0] = this.captures.get(1);
-        impCapture[1] = this.captures.get(3);
-		impCapture[2] = this.captures.get(4);
-		impCapture[3] = this.captures.get(5);
-		impCapture[4] = this.captures.get(0);
-		impCapture[5] = this.captures.get(2);
+        ImagePlus[] impCapture = new ImagePlus[4];
+        impCapture[0] = this.captures.get(0);
+        impCapture[1] = this.captures.get(1);
+		impCapture[2] = this.captures.get(2);
+		impCapture[3] = this.captures.get(3);
         ImageStack stackCapture = Library_Capture_CSV.captureToStack(impCapture);
 		ImagePlus montage = this.montage(stackCapture);
 		
@@ -122,36 +139,69 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         fenResults.setVisible(true);
 	}
 	
+	
+	/** 
+	 * @param state
+	 * @throws IllegalArgumentException
+	 */
 	@Override
     public void setOverlay(ImageState state) throws IllegalArgumentException {
         if (state == null) throw new IllegalArgumentException("The state cannot be null");
         if (state.getFacingOrientation() == null) throw new IllegalArgumentException(
                 "The state misses the required data: -facingOrientation=" + state.getFacingOrientation() + "; " +
                         state.getSlice());
-        if (state.getSlice() <= ImageState.SLICE_PREVIOUS) throw new IllegalArgumentException("The slice is invalid");
+		if (state.getSlice() <= ImageState.SLICE_PREVIOUS) throw new IllegalArgumentException("The slice is invalid");
 
         if (state.isLateralisationRL()) {
-            if (state.getFacingOrientation() == Orientation.ANT) {
-                Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
-                Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus(), Color.YELLOW,
-                                            state.getSlice());
-            } else {
-                Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
-                Library_Gui.setOverlayTitle("Post", this.vue.getImagePlus(), Color.YELLOW,
-                                            state.getSlice());
-            }
-        }
+			System.out.println("Orentation "+state.getFacingOrientation().toString());
+			if (state.getFacingOrientation() == Orientation.ANT) {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
+											state.getSlice());
+				Library_Gui.setOverlayTitle(display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
+											state.getSlice());
+			} else {
+				System.out.println("On est dans le else");
+				if (state.getFacingOrientation() == Orientation.POST){
+					System.out.println("On est dans le if du post");
+					Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
+											state.getSlice());
+					System.out.println("On a passé la prem instruction");
+					Library_Gui.setOverlayTitle("Inverted " + display.getTitlePost(), this.vue.getImagePlus(),
+											Color.YELLOW, state.getSlice());
+					System.out.println("On a passé la deuz instruction");
+				}
+	
+			}
+		} else {
+			if (state.getFacingOrientation() == Orientation.ANT) {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,
+											state.getSlice());
+				Library_Gui.setOverlayTitle("Inverted " + display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
+											state.getSlice());
+			} else {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,
+											state.getSlice());
+				Library_Gui.setOverlayTitle(display.getTitlePost(), this.vue.getImagePlus(), Color.YELLOW,
+											state.getSlice());
+			}
+		}
     }
 
-    public void itemStateChanged(ItemEvent e){
+    
+	/** 
+	 * @param e
+	 */
+	public void itemStateChanged(ItemEvent e){
         if (e.getStateChange() == ItemEvent.SELECTED){
-            this.getVue().getImagePlus().getOverlay().clear();
+            this.display = DisplayState.stateFromLabel((String) e.getItem());
+			this.getVue().getImagePlus().getOverlay().clear();
             this.setOverlay(this.currentState);
             this.getVue().getImagePlus().updateAndDraw();
         }
 	}
 
 
+	//TODO This enum must change from a local state to a more general one and then be called
 
 	public enum DisplayState {
 		RIGHT_LEFT("Label ANT as RIGHT", "P", "A", "Right-Left"),
@@ -170,9 +220,7 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 
 		/**
 		 * Finds the state associated with the specified label. If not state matches this label, then the ANT_POST
-		 * state
-		 * is returned.
-		 *
+		 * state is returned.
 		 * @param label Label of the state to retrieve
 		 * @return state corresponding to the specified label or ANT_POST if no state matches
 		 */

@@ -12,7 +12,6 @@ public class testconvolv {
 		testconvolv  test= new testconvolv();
 		//test.salim();
 	}
-		// TODO Auto-generated method stub
 
 	public testconvolv() {
 		List<Double> h= new ArrayList<>();

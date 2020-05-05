@@ -49,9 +49,8 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow implements Item
 
 	// TODO: remove this method and do this in the instructions
 	private void computeModel() {
-		ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL,
-											 ModelShunpo.IMAGE_KIDNEY_LUNG), statePost = new ImageState(
-				Orientation.POST, SLICE_POST, ImageState.LAT_RL, ModelShunpo.IMAGE_KIDNEY_LUNG);
+		ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL,ModelShunpo.IMAGE_KIDNEY_LUNG),
+					statePost = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_RL, ModelShunpo.IMAGE_KIDNEY_LUNG);
 		final int NB_ROI_PER_IMAGE = WITH_KIDNEYS ? 5 : 2;
 		// Post then Ant
 		for (int i = 0; i < 2; i++) {

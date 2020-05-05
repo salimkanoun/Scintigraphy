@@ -26,9 +26,9 @@ public class ModelLiver extends ModelWorkflow{
 
 	public static final String REGION_RIGHT_LUNG = "Right Lung", REGION_LEFT_LUNG = "Left Lung", REGION_LIVER = "Liver";
 	
-	public static final Result RES_RATIO_RIGHT_LUNG = new Result("Right Lung Ratio"), RES_RATIO_LEFT_LUNG = new Result(
-			"Left Lung Ratio"), RES_PULMONARY_SHUNT = new Result(
-					"Pulmonary Shunt"), RES_RATIO_LIVER = new Result("Liver ratio");
+	public static final Result /*RES_RATIO_RIGHT_LUNG = new Result("Right Lung Ratio"), RES_RATIO_LEFT_LUNG = new Result(
+			"Left Lung Ratio"), */RES_LIVER_SHUNT = new Result(
+					"Liver shunt"), RES_LUNG_SHUNT = new Result("Lung shunt");
 			
 	public static final int IMAGE_LIVER_LUNG = 0;
 	
@@ -62,39 +62,6 @@ public class ModelLiver extends ModelWorkflow{
 		}
 		return data;
 	}
-	
-	
-	/**
-	 * Returns the regions for the liver-lung image.
-	 *
-	 * @return array of regions name of the liver-lung image
-	 */
-	private String[] regionsLiverLung() {
-		return new String[] {REGION_RIGHT_LUNG, REGION_LEFT_LUNG, REGION_LIVER};
-	}
-	
-
-	private void calculateResultsPercentages() {
-		// Compute geometrical averages
-		// == LIVER-LUNG ==
-		Data data = datas.get(IMAGE_LIVER_LUNG);
-		for (String regionName : this.regionsLiverLung()) {
-			double geoAvg = Library_Quantif.moyGeom(data.getAntValue(regionName, Data.DATA_COUNTS),
-													data.getPostValue(regionName, Data.DATA_COUNTS));
-			data.setAntValue(regionName, Data.DATA_GEO_AVG, geoAvg);
-		}
-
-		// Percentage
-		double totalLung = data.getAntValue(REGION_RIGHT_LUNG, Data.DATA_GEO_AVG) + data.getAntValue(REGION_LEFT_LUNG,
-																									 Data.DATA_GEO_AVG);
-		this.results.put(RES_RATIO_RIGHT_LUNG.hashCode(),
-						 data.getAntValue(REGION_RIGHT_LUNG, Data.DATA_GEO_AVG) / totalLung * 100.);
-		this.results.put(RES_RATIO_LEFT_LUNG.hashCode(),
-						 data.getAntValue(REGION_LEFT_LUNG, Data.DATA_GEO_AVG) / totalLung * 100.);
-
-		// Calculate sum lungs
-		double sumLungs = this.calculateSumLungs();
-	}
 
 	/**
 	 * The sum of the shunts is calculated with the counts of the liver for
@@ -105,10 +72,10 @@ public class ModelLiver extends ModelWorkflow{
 	
 	private double calculateSumLiver() {
 		System.out.println("Sum Liver: MG(Liver_ant ; Liver_post)");
-		double liverAnt = datas.get(IMAGE_LIVER_LUNG).getAntValue(REGION_LIVER, Data.DATA_COUNTS_CORRECTED);
+		double liverAnt = this.datas.get(IMAGE_LIVER_LUNG).getAntValue(REGION_LIVER, Data.DATA_COUNTS);
 		System.out.println("Sum Liver: MG(" + liverAnt + " ; ");
 		
-		double liverPost = datas.get(IMAGE_LIVER_LUNG).getPostValue(REGION_LIVER, Data.DATA_COUNTS_CORRECTED);
+		double liverPost = this.datas.get(IMAGE_LIVER_LUNG).getPostValue(REGION_LIVER, Data.DATA_COUNTS);
 		System.out.println(liverPost + ")");
 		System.out.println("Sum Liver: MG(" + liverAnt + " ; " + liverPost + ")");
 		
@@ -141,33 +108,51 @@ public class ModelLiver extends ModelWorkflow{
 		return result;
 	}
 
+	/**
+	 * Recover the sum of the lungs and the liver calculated by "calculateSumLiver" and "calculateSumLungs".
+	 * The lungs shunt and liver shunt are calculated thanks to the previous variables and are then put into the map "results"
+	 */
 	private void calculateResult() {
 		//Calculate sum liver
 		double sumLiver = this.calculateSumLiver();
 		//Calculate sum lungs
 		double sumLungs = this.calculateSumLungs();
 		
-		//Shunt
-		double shunt = (sumLungs / sumLungs + sumLiver) * 100;
-		
-		//percentage uptake liver
-		double uptakeLiver = 100 - shunt;
-		
-		//double shunt = (lungGeo / lungGeo +  liverGeo) * 100;
+		//Lungs shunt
+		double shuntLungs = (sumLungs / (sumLungs + sumLiver)) * 100;
 
-		this.results.put(RES_PULMONARY_SHUNT.hashCode(), uptakeLiver);
+		//Liver shunt
+		double shuntLiver = (sumLiver / (sumLiver + sumLungs)) * 100;
+
+		//Put the results into the map
+		this.results.put(RES_LUNG_SHUNT.hashCode(), shuntLungs);
+		this.results.put(RES_LIVER_SHUNT.hashCode(), shuntLiver);
 	}
 
+	
+	/** 
+	 * @param result
+	 * @return String
+	 */
 	private String unitForResult(Result result) {
 		return Unit.PERCENTAGE.abbrev();
 	}
 	
+	
+	/** 
+	 * @param res
+	 * @return String
+	 */
 	private String resultToCsvLine(Result res) {
 		return res + "," + this.results.get(res.hashCode()) + "," + this.unitForResult(res) + "\n";
 	}
 	
+	
+	/** 
+	 * @return String
+	 */
 	private String csvResult() {
-		return this.studyName + "\n\n" + this.resultToCsvLine(RES_RATIO_RIGHT_LUNG) + this.resultToCsvLine(RES_RATIO_LEFT_LUNG) + this.resultToCsvLine(RES_PULMONARY_SHUNT) + this.resultToCsvLine(RES_RATIO_LIVER);
+		return this.studyName + "\n\n" + this.resultToCsvLine(RES_LUNG_SHUNT) + this.resultToCsvLine(RES_LIVER_SHUNT);
 		}
 	
 	/**
@@ -207,9 +192,21 @@ public class ModelLiver extends ModelWorkflow{
 	}
 
 
+	
+	/** 
+	 * @param request
+	 * @return ResultValue
+	 */
 	@Override
 	public ResultValue getResult(ResultRequest request) {
+		System.out.println("requête : " + request);
+/*		for (Map.Entry<Integer, Double> e : this.results.entrySet()){
+			System.out.println(e.getKey());
+			System.out.println(e.getValue());
+		}*/
 		Double value = this.results.get(request.getResultOn().hashCode());
+		System.out.println("valeur : "+value);
+
 		if(value ==  null) return null;
 		//Convert result to requested unit
 		Unit conversion = (request.getUnit() == null ? Unit.PERCENTAGE : request.getUnit());
@@ -223,13 +220,12 @@ public class ModelLiver extends ModelWorkflow{
 		this.calculateResult();
 	}
 	
+	
+	/** 
+	 * @return String
+	 */
 	@Override
 	public String toString() {
 		return this.csvResult();
-	}
-	
-	
-
-
-	
+	}	
 }

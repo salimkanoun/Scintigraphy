@@ -5,7 +5,7 @@ import java.util.Map;
 
 /**
  * This class represents a request for a result in a model. A request for a value will contain at least the Result on
- * which the request is made for.<br> All other field embedded in the request are optional and therefor, you should not
+ * which the request is made for.<br> All other field embedded in the request are optional and therefore, you should not
  * assume that they will be not null.<br> As a structure strategy, if any non-mandatory field is missing, a result
  * <b>must</b> still be returned . The returned result will have to guess the missing fields if necessary, and will
  * inform the applicant by inflating the ResultValue.

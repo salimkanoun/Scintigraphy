@@ -71,7 +71,6 @@ public class TabPrincipalLympho extends TabResult {
 	}
 
 	public void updateVisualGradation(String gradation) {
-		// TODO Auto-generated method stub
 		this.visualGradation.setText(gradation);
 	}
 

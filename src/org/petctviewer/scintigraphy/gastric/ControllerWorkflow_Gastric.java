@@ -32,7 +32,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 
 	private final boolean DO_ONLY_GASTRIC;
-	// TODO: clean this, it's awful
 	public Date specifiedTimeIngestion;
 	private boolean isDynamicStarted;
 	private TabMethod1 tabMain;
@@ -109,15 +108,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			previousState = state;
 		}
 		this.model.calculateResults();
-	}
-
-	// TODO: remove this method and compute the model during the process
-	private void computeModel() {
-		if (DO_ONLY_GASTRIC) {
-			this.computeOnlyGastric();
-		} else {
-			this.computeBothMethods();
-		}
 	}
 
 	private void generateInstructionsOnlyGastric() {
@@ -245,7 +235,11 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 		super.end();
 
 		// Compute model
-		this.computeModel();
+		if (DO_ONLY_GASTRIC) {
+			this.computeOnlyGastric();
+		} else {
+			this.computeBothMethods();
+		}
 
 		// Display results
 		FenResults fenResults = new FenResults(this);

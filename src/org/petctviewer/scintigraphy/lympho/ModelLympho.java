@@ -296,8 +296,8 @@ public class ModelLympho extends ModelScin {
 					this.roiManager.getRoi(organ + this.nbRoiLympho), this.roiManager.getRoi(((organ / 3) * 3) + 2 + this.nbRoiLympho));
 		}
 	//	this.coupsPelvis.put(organ, correctedRadioactiveDecrease);
-//		System.out.println("Calculations for " + organ + " [" + this.convertOrganPelvis(organ) + "] -> "
-//				+ correctedRadioactiveDecrease + "\n\n");
+		System.out.println("Calculations for " + organ + " [" + this.convertOrganPelvis(organ) + "] -> "
+				+ correctedRadioactiveDecrease + "\n\n");
 	}
 
 	public String convertOrganPelvis(int organ) {

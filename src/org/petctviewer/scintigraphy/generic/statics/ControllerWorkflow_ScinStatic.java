@@ -182,7 +182,6 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 	private ImagePlus montage(ImageStack captures, int nbCapture) {
 		MontageMaker mm = new MontageMaker();
-		// TODO: patient ID
 		String patientID = "NO_ID_FOUND";
 		ImagePlus imp = new ImagePlus("Results Pelvis -" + this.model.getStudyName() + " -" + patientID, captures);
 		imp = mm.makeMontage2(imp, 1, nbCapture, 0.50, 1, nbCapture, 1, 10, false);
@@ -211,8 +210,6 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 		this.setOverlayTitleLaterisationAndRoi();
 
-
-		// TODO: still useful?
 		// Update view
 		int indexScroll = this.getVue().getInstructionDisplayed();
 		getVue().currentInstruction(indexScroll);

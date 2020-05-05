@@ -1,79 +1,55 @@
-package org.petctviewer.scintigraphy.hepatic.radioEmbolization;
+package org.petctviewer.scintigraphy.parathyroid;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.GridLayout;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
+import ij.ImagePlus;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.model.ResultRequest;
 import org.petctviewer.scintigraphy.scin.model.ResultValue;
 
-import ij.ImagePlus;
+import javax.swing.*;
+import java.awt.*;
 
 public class MainResult extends TabResult {
 
 	private final ImagePlus montage;
 
 	public MainResult(FenResults parent, ImagePlus montage) {
-		super(parent, "Results", true);
+		super(parent, "Result Parathyroid", true);
 		this.montage = montage;
 		this.reloadDisplay();
 	}
 
-	
-	/** 
-	 * @return ModelLiver
-	 */
-	private ModelLiver getModel() {
-		return (ModelLiver) this.parent.getModel();
+	private ModelParathyroid getModel() {
+		return (ModelParathyroid) this.parent.getModel();
 	}
 
-	
-	/** 
-	 * @param result
-	 * @param container
-	 */
-	private void displayResult (ResultValue result, Container container) {
+	private void displayResult(ResultValue result, Container container) {
 		JLabel label = new JLabel(result.toString());
 
-		//Color
-		if (result.getResultType()== ModelLiver.RES_LIVER_SHUNT){
+		// Color for pulmonary shunt
+		if (result.getResultType() == ModelParathyroid.RES_RATIO_THYRO_PARA) {
 			if (result.getValue() < 2.) label.setForeground(Color.GREEN);
 			else if (result.getValue() < 5.) label.setForeground(Color.ORANGE);
 			else label.setForeground(Color.RED);
 		}
+
 		container.add(label);
 	}
 
-	
-	/** 
-	 * @return Component
-	 */
 	@Override
 	public Component getSidePanelContent() {
 		JPanel res = new JPanel(new GridLayout(0, 1));
-		// Lung shunt
-		ResultRequest request = new ResultRequest(ModelLiver.RES_LUNG_SHUNT);
-		this.displayResult(getModel().getResult(request), res);
 
-		// Liver shunts
-		request.changeResultOn(ModelLiver.RES_LIVER_SHUNT);
+		// Lung ratio
+		ResultRequest request = new ResultRequest(ModelParathyroid.RES_RATIO_THYRO);
+		this.displayResult(getModel().getResult(request), res);
+		request.changeResultOn(ModelParathyroid.RES_RATIO_THYRO_PARA);
 		this.displayResult(getModel().getResult(request), res);
 
 		return res;
 	}
 
-
-	
-	/** 
-	 * @return JPanel
-	 */
 	@Override
 	public JPanel getResultContent() {
 		return new DynamicImage(montage.getImage());

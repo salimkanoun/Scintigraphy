@@ -22,7 +22,6 @@ public class FenResultatsLympho extends FenResults {
 	}
 
 	public void updateVisualGradation(String gradation) {
-		// TODO Auto-generated method stub
 		this.mainTab.updateVisualGradation(gradation);
 	}
 

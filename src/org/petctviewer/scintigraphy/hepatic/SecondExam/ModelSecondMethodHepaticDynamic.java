@@ -31,7 +31,6 @@ public class ModelSecondMethodHepaticDynamic extends ModelScinDyn {
 
 	public ModelSecondMethodHepaticDynamic(ImageSelection[] selectedImages, String studyName, int[] frameDuration) {
 		super(selectedImages, studyName, frameDuration);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
