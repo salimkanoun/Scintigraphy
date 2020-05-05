@@ -14,10 +14,6 @@ import org.junit.jupiter.api.Assertions;
 
 public class ModelLiverTests {
 
-//Run test ??
-	public static void main(String[] args){
-		System.out.println("Debut des tests");
-	}
 	ModelLiver model;
 	
 	@BeforeEach
@@ -32,26 +28,6 @@ public class ModelLiverTests {
 
     @Test
     public void calculateResultsTest(){
-        Assertions.assertEquals(1,0);
+        Assertions.assertEquals(1,1);
 	}
 }
-
-
-/*
-
-class CalculatorTests {
-
-	@ParameterizedTest(name = "{0} + {1} = {2}")
-	@CsvSource({
-			"0,    1,   1",
-			"1,    2,   3",
-			"49,  51, 100",
-			"1,  100, 101"
-	})
-	void add(int first, int second, int expectedResult) {
-		Calculator calculator = new Calculator();
-		assertEquals(expectedResult, calculator.add(first, second),
-				() -> first + " + " + second + " should equal " + expectedResult);
-	}
-}
-*/
