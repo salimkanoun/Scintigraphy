@@ -2,8 +2,6 @@ package org.petctviewer.scintigraphy.parathyroid;
 
 import ij.ImagePlus;
 import ij.ImageStack;
-import ij.gui.Roi;
-import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;

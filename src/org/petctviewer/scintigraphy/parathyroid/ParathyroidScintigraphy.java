@@ -36,7 +36,6 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 
 	// imp du projet de chaque Acqui
     private ImagePlus impProjeteAllAcqui;
-    private int nbAcquisition;
 
 
     public ParathyroidScintigraphy() {
@@ -159,7 +158,7 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 		sauvegardeImagesSelectDicom = imagePourTrieAnt.toArray(new ImageSelection[0]);
 		
 
-		this.nbAcquisition = sauvegardeImagesSelectDicom.length;
+		//this.nbAcquisition = sauvegardeImagesSelectDicom.length;
 
 		// preparation de l'image plus la 2eme phase
 		// image plus du projet de chaque acquisition avec sur chaque slice une
