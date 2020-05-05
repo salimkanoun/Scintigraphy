@@ -74,7 +74,7 @@ public class ModelThyroid extends ModelWorkflow{
      */
     private double calculateSumFullSyringe(){
         double fullSyringe = this.datas.get(IMAGE_FULL_SYRINGE).getAntValue(REGION_FULL_SYRINGE, Data.DATA_COUNTS);
-        System.out.print("Sum Full Syringe = " + fullSyringe);
+        System.out.print("Sum Full Syringe = " + fullSyringe +"\n");
 
         return fullSyringe;
     }
@@ -86,7 +86,7 @@ public class ModelThyroid extends ModelWorkflow{
      */
     private double calculateSumEmptySyringe(){
         double emptySyringe = this.datas.get(IMAGE_EMPTY_SYRINGE).getAntValue(REGION_EMPTY_SYRINGE, Data.DATA_COUNTS);
-        System.out.print("Sum Empty Syringe = " + emptySyringe);
+        System.out.print("Sum Empty Syringe = " + emptySyringe + "\n");
 
         return emptySyringe;
     }
@@ -106,12 +106,14 @@ public class ModelThyroid extends ModelWorkflow{
         correctValueWithBkgNoise(REGION_LEFT_LOBE, false));
 
 
-         System.out.println("Sum thyroid : (right lobe and + left lobe ant)");
+         System.out.println("Sum thyroid : (right lobe and + left lobe ant)\n");
          double lobeRight = datas.get(IMAGE_THYROID).getAntValue(REGION_RIGHT_LOBE, Data.DATA_COUNTS);
-         double lobeLeft = datas.get(IMAGE_THYROID).getAntValue(REGION_LEFT_LOBE, Data.DATA_COUNTS);
+         double lobeLeft = 500;//datas.get(IMAGE_THYROID).getAntValue(REGION_LEFT_LOBE, Data.DATA_COUNTS);
 
          double sumLobe = lobeRight + lobeLeft;
-         System.out.println("Sum thyroid = " + sumLobe);
+         System.out.println("Right lobe = " + lobeRight +"\n");
+         System.out.println("Left lobe = " + lobeLeft +"\n");
+         System.out.println("Sum thyroid = " + sumLobe +"\n");
 
          return sumLobe;
      }
@@ -132,13 +134,15 @@ public class ModelThyroid extends ModelWorkflow{
         double sumThyroid = this.calculateSumThyroid();
 
         //Difference between full and empty syringe
-        double difference = sumFullSyringe - sumEmptySyringe;
+        double difference = (sumFullSyringe - sumEmptySyringe);
+        System.out.println("Difference = " + difference +"\n");
+
         
-        if (difference < sumFullSyringe){
+        if (difference < sumFullSyringe && difference > 0){
             //Thyroid fixation ratio compared to the injected activity which is expressed in %
             double finalResult = sumThyroid / difference;
             //Put the results into the map
-            this.results.put(RES_THYROID_SHUNT.hashCode(), finalResult);
+            this.results.put(RES_THYROID_SHUNT.hashCode(), finalResult*100);
 
             //Thyroid surface
             //Afficher surface thryoide (surface du pixel * nombre de pixel de chaque ROI)
@@ -148,10 +152,10 @@ public class ModelThyroid extends ModelWorkflow{
             pixelsLeft = datas.get(IMAGE_THYROID).getAntValue(REGION_LEFT_LOBE, Data.DATA_PIXEL_COUNTS);
 
             thyroidSurfaceLeftMm = pixelsLeft * 1.2;
-            thyroidSurfaceLeftCm = thyroidSurfaceLeftMm / 1000;
+            thyroidSurfaceLeftCm = thyroidSurfaceLeftMm / 100;
 
             thyroidSurfaceRightMm = pixelsRight * 1.2;
-            thyroidSurfaceRightCm = thyroidSurfaceRightMm / 1000;
+            thyroidSurfaceRightCm = thyroidSurfaceRightMm / 100;
             
             this.results.put(RES_THYROID_SURFACE_RIGHT.hashCode(), thyroidSurfaceRightCm);
             this.results.put(RES_THYROID_SURFACE_LEFT.hashCode(), thyroidSurfaceLeftCm);
@@ -224,10 +228,8 @@ public class ModelThyroid extends ModelWorkflow{
 	 */
 	@Override
 	public ResultValue getResult(ResultRequest request) {
-		System.out.println("requête : " + request);
 
 		Double value = this.results.get(request.getResultOn().hashCode());
-		System.out.println("valeur : "+value);
 
 		if(value ==  null) return null;
 		//Convert result to requested unit
