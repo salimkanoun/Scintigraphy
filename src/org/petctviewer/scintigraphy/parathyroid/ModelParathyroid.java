@@ -78,7 +78,7 @@ public class ModelParathyroid extends ModelWorkflow {
 		return new ResultValue(request, value, conversion);
 	}
 	
-	//private void 
+	//private double calculateMaxThyro(){}
 
     private void calculateResult() {
         
