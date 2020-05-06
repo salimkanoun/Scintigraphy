@@ -78,10 +78,27 @@ public class ModelParathyroid extends ModelWorkflow {
 		return new ResultValue(request, value, conversion);
 	}
 	
-	//private double calculateMaxThyro(){}
+	private double calculateRatio(){
+		System.out.println("Sum Liver: MG(Liver_ant ; Liver_post)");
+		double liverAnt = this.datas.get(IMAGE_THYROID).getAntValue(REGION_THYRO, Data.DATA_COUNTS);
+		System.out.println("Sum Liver: MG(" + liverAnt + " ; ");
+		
+		double liverPost = this.datas.get(IMAGE_THYROIDPARA).getAntValue(REGION_THYRO_PARA, Data.DATA_COUNTS);
+		System.out.println(liverPost + ")");
+		System.out.println("Sum Liver: MG(" + liverAnt + " ; " + liverPost + ")");
+		
+		double result = Library_Quantif.moyGeom(liverAnt, liverPost);
+		System.out.println("Sum Liver = " + result);
+		return result;
+	}
 
     private void calculateResult() {
-        
+        //Calculate sum liver
+		double ratio = this.calculateRatio();
+		
+		//Put the results into the map
+		this.results.put(RES_RATIO_THYRO.hashCode(), ratio);
+		this.results.put(RES_RATIO_THYRO_PARA.hashCode(), ratio);
     }
 
     @Override

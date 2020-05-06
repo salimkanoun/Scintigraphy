@@ -139,6 +139,41 @@ public abstract class ControllerScin implements ActionListener {
 	}
 
 	/**
+	 * Creates an ImagePlus with 2 captures.
+	 *
+	 * @param captures ImageStack with 2 captures
+	 * @return ImagePlus with the 2 captures on 1 slice
+	 * @throws IllegalArgumentException if the number of captures is different than 2
+	 */
+	protected ImagePlus montageForTwo(ImageStack captures) throws IllegalArgumentException {
+		if (captures.getSize() != 2) throw new IllegalArgumentException(
+				"The number of captures (" + captures.getSize() + ") must be 2");
+
+		MontageMaker mm = new MontageMaker();
+		ImagePlus imp = new ImagePlus("Results -" + this.model.getStudyName(), captures);
+		imp = mm.makeMontage2(imp, 2, 1, 0.75, 1, 2, 1, 10, false);
+		return imp;
+	}
+
+	
+	/**
+	 * Creates an ImagePlus with 3 captures.
+	 *
+	 * @param captures ImageStack with 3 captures
+	 * @return ImagePlus with the 3 captures on 1 slice
+	 * @throws IllegalArgumentException if the number of captures is different than 3
+	 */
+	protected ImagePlus montageForThree(ImageStack captures) throws IllegalArgumentException {
+		if (captures.getSize() != 3) throw new IllegalArgumentException(
+				"The number of captures (" + captures.getSize() + ") must be 2");
+
+		MontageMaker mm = new MontageMaker();
+		ImagePlus imp = new ImagePlus("Results -" + this.model.getStudyName(), captures);
+		imp = mm.makeMontage2(imp, 3, 1, 0.50, 1, 3, 1, 10, false);
+		return imp;
+	}
+
+	/**
 	 * Saves the current ROI of the current ImagePlus in the RoiManager at the specified index. If a ROI with the same
 	 * name has already been saved, it will be replaced.
 	 *

@@ -93,19 +93,23 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		this.computeModel();
 		this.model.calculateResults();
 
-		// Save captures
+		// Save captures ROI
 		ImagePlus[] impCapture = new ImagePlus[2];
 		impCapture[0] = this.captures.get(0);
 		impCapture[1] = this.captures.get(1);
 		ImageStack stackCapture = Library_Capture_CSV.captureToStack(impCapture);
-		ImagePlus montage = this.montage(stackCapture);
+		ImagePlus montage1 = this.montageForTwo(stackCapture);
+
+		// Save captures bounds and result
+		ImagePlus[] impCapture1 = new ImagePlus[3];
+		impCapture1[0] = this.captures.get(1);
+		impCapture1[1] = this.captures.get(0);
+		impCapture1[2] = this.captures.get(0);
+		stackCapture = Library_Capture_CSV.captureToStack(impCapture1);
+		ImagePlus montage2 = this.montageForThree(stackCapture);
 
 		// Display result
-		FenResults fenResults = new FenResults(this);
-		fenResults.setMainTab(new MainResult(fenResults, montage));
-		
-		fenResults.pack();
-		fenResults.setVisible(true);
+		new FenResultatsParathyroid(this, montage1, montage2);
 
 	}
 

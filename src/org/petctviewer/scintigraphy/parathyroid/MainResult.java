@@ -14,8 +14,8 @@ public class MainResult extends TabResult {
 
 	private final ImagePlus montage;
 
-	public MainResult(FenResults parent, ImagePlus montage) {
-		super(parent, "Result Parathyroid", true);
+	public MainResult(FenResults parent, ImagePlus montage, String tabName) {
+		super(parent, tabName, true);
 		this.montage = montage;
 		this.reloadDisplay();
 	}
@@ -39,15 +39,7 @@ public class MainResult extends TabResult {
 
 	@Override
 	public Component getSidePanelContent() {
-		JPanel res = new JPanel(new GridLayout(0, 1));
-
-		// Lung ratio
-		ResultRequest request = new ResultRequest(ModelParathyroid.RES_RATIO_THYRO);
-		this.displayResult(getModel().getResult(request), res);
-		request.changeResultOn(ModelParathyroid.RES_RATIO_THYRO_PARA);
-		this.displayResult(getModel().getResult(request), res);
-
-		return res;
+		return null;
 	}
 
 	@Override
