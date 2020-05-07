@@ -5,7 +5,6 @@ import ij.ImageStack;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
-import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
@@ -73,6 +72,7 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		// Image Thyro
 		this.workflows[0].addInstruction(dri_1);
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
+		dri_1.getRoiIndex();
 
 
 		// Image ThyroPara
