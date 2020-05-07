@@ -6,6 +6,7 @@ import ij.plugin.DICOM;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -24,11 +25,13 @@ public class libraryQuantifTests {
     private DICOM dcm;
     private String str = "Images/testImage.dcm";
     private InputStream is;
+    private BufferedInputStream bis;
 
     @BeforeEach
     public void setUp() {
         this.is = this.getClass().getResourceAsStream(this.str);
-        this.dcm = new DICOM(this.is);
+        this.bis = new BufferedInputStream(this.is);
+        this.dcm = new DICOM(this.bis);
         this.dcm.show();
     }
 
@@ -61,10 +64,9 @@ public class libraryQuantifTests {
     @Test
     public void testGetAvgCounts() throws IOException {
         //double res = Library_Quantif.getAvgCounts(this.dcm);
-      //  double res = this.dcm.getHeight();
-      //  assertEquals(100, res);
-      System.out.println(this.is.available());
-      assertEquals(10, this.dcm.getAllStatistics());
+        double res = this.dcm.getHeight();
+        assertEquals(100, res);
+
 
     }
 
