@@ -2,15 +2,12 @@ package tests;
 
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
-import ij.IJ;
-import ij.ImagePlus;
-import ij.io.Opener;
+import ij.plugin.DICOM;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.awt.image.BufferedImage;
-
-import javax.imageio.ImageIO;
+import java.io.IOException;
+import java.io.InputStream;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,39 +21,36 @@ import org.junit.jupiter.api.Test;
 
 public class libraryQuantifTests {
 
-    private Opener open = new Opener();
-    private ImagePlus imp;
+    private DICOM dcm;
+    private String str = "Images/testImage.dcm";
+    private InputStream is;
 
     @BeforeEach
-    public void setUp(){
-      //  String myPicture = ImageIO.read(getClass().getResource("testImage.dcm"));
-       // this.imp = myPicture;
-
-        this.imp = IJ.openImage("testImage.dcm");
-       // this.imp = this.open.openCachedImage(myPicture);
-    
+    public void setUp() {
+        this.is = this.getClass().getResourceAsStream(this.str);
+        this.dcm = new DICOM(this.is);
+        this.dcm.show();
     }
 
     @AfterEach
-    public void tearDown(){
-        this.imp = null;
+    public void tearDown() {
+        this.dcm = null;
     }
 
-
     @Test
-    public void testRound(){
+    public void testRound() {
         double res1 = Library_Quantif.round(112.4d, 0);
         assertEquals(112, res1);
 
-        double res2 = Library_Quantif.round(112.5d,0);
+        double res2 = Library_Quantif.round(112.5d, 0);
         assertEquals(113, res2);
 
-        double res3 = Library_Quantif.round(112.6d,0);
+        double res3 = Library_Quantif.round(112.6d, 0);
         assertEquals(113, res3);
     }
 
     @Test
-    public void testMoyGeom(){
+    public void testMoyGeom() {
         double res1 = Library_Quantif.moyGeom(2d, 2d);
         assertEquals(2, res1);
 
@@ -65,8 +59,12 @@ public class libraryQuantifTests {
     }
 
     @Test
-    public void testGetAvgCounts(){
-        double res = Library_Quantif.getAvgCounts(this.imp);
+    public void testGetAvgCounts() throws IOException {
+        //double res = Library_Quantif.getAvgCounts(this.dcm);
+      //  double res = this.dcm.getHeight();
+      //  assertEquals(100, res);
+      System.out.println(this.is.available());
+      assertEquals(10, this.dcm.getAllStatistics());
 
     }
 
