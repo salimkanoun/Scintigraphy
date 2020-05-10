@@ -27,11 +27,20 @@ public class libraryQuantifTests {
     private InputStream is;
     private BufferedInputStream bis;
 
+    public static void main(String[] args){
+        System.out.println("ici");
+        libraryQuantifTests lib = new libraryQuantifTests();
+        lib.setUp();
+    }
+
     @BeforeEach
     public void setUp() {
         this.is = this.getClass().getResourceAsStream(this.str);
         this.bis = new BufferedInputStream(this.is);
         this.dcm = new DICOM(this.bis);
+        this.dcm.run("open");
+        System.out.println(this.dcm.getInfoProperty());
+        System.out.println(this.dcm.getHeight());
         this.dcm.show();
     }
 
