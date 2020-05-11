@@ -1,6 +1,7 @@
 package tests;
 
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 
 import ij.plugin.DICOM;
 
@@ -9,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +34,7 @@ public class libraryQuantifTests {
         this.is = this.getClass().getResourceAsStream(this.str);
         this.bis = new BufferedInputStream(this.is);
         this.dcm = new DICOM(this.bis);
-        this.dcm.show();
+        this.dcm.run("open");
     }
 
     @AfterEach
@@ -82,6 +84,24 @@ public class libraryQuantifTests {
 
     @Test
     public void testCalculer_countCorrected(){
+        Isotope is = Isotope.INDIUM_111;
+        double res = Library_Quantif.calculer_countCorrected(10, 10000, is);
+        assertEquals(10000.000286034412, res);
+    }
 
+    @Test
+    public void testApplyDecayFraction(){
+        Isotope is = Isotope.INDIUM_111;
+        double res = Library_Quantif.applyDecayFraction(10, 10000, is);
+        assertEquals(9999.999713965595,res);
+    }
+
+    @Test
+    public void testCalculateDeltaTime(){
+        Date d1 = new Date(1588864900000l);
+        Date d2 = new Date(1588864960000l);
+        
+        double res = Library_Quantif.calculateDeltaTime(d1, d2);
+        assertEquals(1, res);
     }
 }
