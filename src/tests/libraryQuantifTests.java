@@ -1,5 +1,6 @@
 package tests;
 
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 
@@ -25,12 +26,16 @@ import org.junit.jupiter.api.Test;
 public class libraryQuantifTests {
 
     private DICOM dcm;
+    private DICOM dcm2;
     private String str = "Images/testImage.dcm";
+    private String str2 = "Images/blabla.dcm";
     private InputStream is;
+    private InputStream is2;
     private BufferedInputStream bis;
+    private BufferedInputStream bis2;
+
 
     public static void main(String[] args){
-        System.out.println("ici");
         libraryQuantifTests lib = new libraryQuantifTests();
         lib.setUp();
     }
@@ -40,15 +45,20 @@ public class libraryQuantifTests {
         this.is = this.getClass().getResourceAsStream(this.str);
         this.bis = new BufferedInputStream(this.is);
         this.dcm = new DICOM(this.bis);
-        this.dcm.run("open");
-        System.out.println(this.dcm.getInfoProperty());
-        System.out.println(this.dcm.getHeight());
+        this.dcm.run("Test image");
         this.dcm.show();
+
+        this.is2 = this.getClass().getResourceAsStream(this.str2);
+        this.bis2 = new BufferedInputStream(this.is2);
+        this.dcm2 = new DICOM(this.bis2);
+        this.dcm2.run("Test image2");
+        this.dcm2.show();
     }
 
     @AfterEach
     public void tearDown() {
         this.dcm = null;
+        this.dcm2 = null;
     }
 
     @Test
@@ -72,23 +82,36 @@ public class libraryQuantifTests {
         assertEquals(0, res2);
     }
 
+    //This test is obvious but usefull to test if the image is well inserted
+    @Test
+    public void testGetHeight(){
+        double res = this.dcm2.getHeight();
+        assertEquals(256, res);
+    }
+
+    @Test
+    public void testGetCounts(){
+        double res = Library_Quantif.getCounts(this.dcm);
+        assertEquals(199862, res);
+    }
     @Test
     public void testGetAvgCounts() throws IOException {
-        //double res = Library_Quantif.getAvgCounts(this.dcm);
-        double res = this.dcm.getHeight();
-        assertEquals(100, res);
-
-
+        double res = Library_Quantif.getAvgCounts(this.dcm);
+        res = (double) Math.round(res * 100) / 100;
+        assertEquals(3.050, res);
     }
 
     @Test
     public void testGetPixelNumber(){
-
+        double res = Library_Quantif.getPixelNumber(this.dcm);
+        double nbPixels = this.dcm.getHeight() * this.dcm.getHeight();
+        assertEquals(nbPixels, res);
     }
 
+    //TODO : mock
     @Test
     public void testGetCountCorrectedBackground(){
-
+      //  double res = Library_Quantif.getCountCorrectedBackground(this.dcm, roi, background)
     }
 
     @Test
@@ -96,6 +119,13 @@ public class libraryQuantifTests {
         Isotope is = Isotope.INDIUM_111;
         double res = Library_Quantif.calculer_countCorrected(10, 10000, is);
         assertEquals(10000.000286034412, res);
+    }
+
+    @Test
+    public void testCalculer_countCorrectedImages(){
+        Isotope is = Isotope.INDIUM_111;
+        double res = Library_Quantif.calculer_countCorrected(this.dcm, this.dcm, is);
+        assertEquals(100, res);
     }
 
     @Test
