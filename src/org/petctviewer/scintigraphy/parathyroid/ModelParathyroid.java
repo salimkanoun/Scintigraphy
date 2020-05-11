@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.awt.Rectangle;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -76,6 +77,12 @@ public class ModelParathyroid extends ModelWorkflow {
 		Unit conversion = (request.getUnit() == null ? Unit.PERCENTAGE : request.getUnit());
 		value = Unit.PERCENTAGE.convertTo(value, conversion);
 		return new ResultValue(request, value, conversion);
+	}
+
+	public Roi getRoi(int index){
+		Roi premiereRoi = this.roiManager.getRoi(index);
+		System.out.println(premiereRoi);
+		return premiereRoi;
 	}
 	
 	private double calculateRatio(){

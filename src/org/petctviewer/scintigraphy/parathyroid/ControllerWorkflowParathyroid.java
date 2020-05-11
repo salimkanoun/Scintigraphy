@@ -41,7 +41,7 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 					stateAnt1 = new ImageState(Orientation.ANT, SLICE_ANT1, ImageState.LAT_RL, ModelParathyroid.IMAGE_THYROIDPARA);
 		final int NB_ROI_PER_IMAGE = 1;
 		// Post then Ant
-	for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < 1; i++) {
 			ImageState state;
 			if (i == 0) state = stateAnt1;
 			else state = stateAnt;
@@ -72,8 +72,6 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		// Image Thyro
 		this.workflows[0].addInstruction(dri_1);
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
-		dri_1.getRoiIndex();
-
 
 		// Image ThyroPara
 		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
@@ -94,6 +92,8 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		this.model.calculateResults();
 
 		// Save captures ROI
+		getModel().getRoi(0);
+		getModel().getRoi(1);
 		ImagePlus[] impCapture = new ImagePlus[2];
 		impCapture[0] = this.captures.get(0);
 		impCapture[1] = this.captures.get(1);
@@ -107,9 +107,9 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		impCapture1[2] = this.captures.get(0);
 		stackCapture = Library_Capture_CSV.captureToStack(impCapture1);
 		ImagePlus montage2 = this.montageForThree(stackCapture);
-
+		ImagePlus imgEssai = this.captures.get(0).crop();
 		// Display result
-		new FenResultatsParathyroid(this, montage1, montage2);
+		new FenResultatsParathyroid(this, montage1, montage2, imgEssai);
 
 	}
 
