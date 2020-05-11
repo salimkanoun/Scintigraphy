@@ -41,12 +41,9 @@ public class libraryQuantifTests {
         this.bis = new BufferedInputStream(this.is);
         this.dcm = new DICOM(this.bis);
         this.dcm.run("open");
-<<<<<<< HEAD
-=======
         System.out.println(this.dcm.getInfoProperty());
         System.out.println(this.dcm.getHeight());
         this.dcm.show();
->>>>>>> dfee0b844fc018d1981a12cfdf5c63a21fb2d1cd
     }
 
     @AfterEach
