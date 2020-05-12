@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.awt.Color;
+import java.awt.Image;
 import java.awt.Rectangle;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -20,6 +22,8 @@ import org.petctviewer.scintigraphy.scin.model.Unit;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
+import ij.process.FloatProcessor;
+import ij.process.ImageProcessor;
 
 public class ModelParathyroid extends ModelWorkflow {
 
@@ -80,28 +84,46 @@ public class ModelParathyroid extends ModelWorkflow {
 	}
 
 	public Roi getRoi(int index){
-		Roi premiereRoi = this.roiManager.getRoi(index);
-		System.out.println(premiereRoi);
-		return premiereRoi;
+		Roi maRoi = this.roiManager.getRoi(index);
+		System.out.println(maRoi);
+		return maRoi;
 	}
 	
-	private double calculateRatio(){
-		System.out.println("Sum Liver: MG(Liver_ant ; Liver_post)");
-		double liverAnt = this.datas.get(IMAGE_THYROID).getAntValue(REGION_THYRO, Data.DATA_COUNTS);
-		System.out.println("Sum Liver: MG(" + liverAnt + " ; ");
+	private ImagePlus calculateImageRatio(){
+		System.out.println("Nbre de coups");
+		double thyroid = this.datas.get(IMAGE_THYROID).getAntValue(REGION_THYRO, Data.DATA_COUNTS);
+		System.out.println("Thyroide: " + thyroid + " ; ");
 		
-		double liverPost = this.datas.get(IMAGE_THYROIDPARA).getAntValue(REGION_THYRO_PARA, Data.DATA_COUNTS);
-		System.out.println(liverPost + ")");
-		System.out.println("Sum Liver: MG(" + liverAnt + " ; " + liverPost + ")");
+		double thyroPara = this.datas.get(IMAGE_THYROIDPARA).getAntValue(REGION_THYRO_PARA, Data.DATA_COUNTS);
+		System.out.println("Thyroide+Parathyroide: " + thyroPara +";");
 		
-		double result = Library_Quantif.moyGeom(liverAnt, liverPost);
-		System.out.println("Sum Liver = " + result);
-		return result;
+		ImageSelection[] selection = this.getImageSelection();
+		double result = 0;
+		ImagePlus mult = null;
+		ImageProcessor processor = null;
+		if (thyroid < thyroPara){
+			result = thyroPara/thyroid;
+			processor = selection[0].getImagePlus().getProcessor();
+			processor.multiply(result);
+
+			mult = selection[0].getImagePlus();
+			mult.setProcessor(processor);
+		}
+		else {
+			result = thyroid/thyroPara;
+			processor = selection[1].getImagePlus().getProcessor();
+			processor.multiply(result);
+
+			mult = selection[1].getImagePlus();
+			mult.setProcessor(processor);
+		}
+		System.out.println("Ratio = " + result);
+		return mult;
 	}
 
     private void calculateResult() {
-        //Calculate sum liver
-		double ratio = this.calculateRatio();
+        //Calculate ratio
+		ImagePlus ratio = this.calculateImageRatio();
 		
 		//Put the results into the map
 		this.results.put(RES_RATIO_THYRO.hashCode(), ratio);
