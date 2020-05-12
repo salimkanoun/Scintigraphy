@@ -1,6 +1,5 @@
 package tests;
 
-import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 
@@ -28,7 +27,7 @@ public class libraryQuantifTests {
     private DICOM dcm;
     private DICOM dcm2;
     private String str = "Images/testImage.dcm";
-    private String str2 = "Images/blabla.dcm";
+    private String str2 = "Images/testImage2.dcm";
     private InputStream is;
     private InputStream is2;
     private BufferedInputStream bis;
@@ -85,7 +84,7 @@ public class libraryQuantifTests {
     //This test is obvious but usefull to test if the image is well inserted
     @Test
     public void testGetHeight(){
-        double res = this.dcm2.getHeight();
+        double res = this.dcm.getHeight();
         assertEquals(256, res);
     }
 
@@ -121,11 +120,12 @@ public class libraryQuantifTests {
         assertEquals(10000.000286034412, res);
     }
 
+    //TODO : same image
     @Test
     public void testCalculer_countCorrectedImages(){
         Isotope is = Isotope.INDIUM_111;
-        double res = Library_Quantif.calculer_countCorrected(this.dcm, this.dcm, is);
-        assertEquals(100, res);
+        double res = Library_Quantif.calculer_countCorrected(this.dcm, this.dcm2, is);
+        assertEquals(199862, res);
     }
 
     @Test
@@ -133,6 +133,14 @@ public class libraryQuantifTests {
         Isotope is = Isotope.INDIUM_111;
         double res = Library_Quantif.applyDecayFraction(10, 10000, is);
         assertEquals(9999.999713965595,res);
+    }
+
+    //TODO : same image
+    @Test
+    public void testApplyDecayFractionImage(){
+        Isotope is = Isotope.INDIUM_111;
+        double res = Library_Quantif.applyDecayFraction(this.dcm, this.dcm2, is);
+        assertEquals(199862, res);
     }
 
     @Test
