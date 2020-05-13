@@ -138,6 +138,7 @@ public abstract class ControllerScin implements ActionListener {
 		return imp;
 	}
 
+
 	/**
 	 * Creates an ImagePlus with 2 captures.
 	 *

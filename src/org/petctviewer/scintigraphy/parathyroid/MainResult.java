@@ -53,10 +53,9 @@ public class MainResult extends TabResult {
 	@Override
 	public JPanel getResultContent() {
 		if (this.result!=null){
-			JPanel grid = new JPanel(new GridLayout(1, 2));
-			grid.add(new DynamicImage(montage.getImage()));
-			grid.add(new DynamicImage(result.getImage()));
-
+			JPanel grid = new JPanel(new GridLayout(2, 1));
+			grid.add(new DynamicImage(this.montage.getImage()));
+			grid.add(new DynamicImage(this.result.getImage()));
 			return grid;
 		}
 		

@@ -124,10 +124,10 @@ public class ModelParathyroid extends ModelWorkflow {
 
 		if (thyroid < thyroPara) {
 			result = ic.run("subtract create stack", selection[1].getImagePlus(), ratio);
-			System.out.println("ET LA TU MARCHES1 :"+result+" ");
 		}
 		else {
 			result = ic.run("subtract create stack", selection[0].getImagePlus(), ratio);
+			result.getProcessor().min(0);
 			System.out.println("ET LA TU MARCHES2 :"+result+" ");
 		}
 		return result;
