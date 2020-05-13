@@ -22,6 +22,7 @@ import org.petctviewer.scintigraphy.scin.model.Unit;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
+import ij.plugin.ImageCalculator;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 
@@ -118,16 +119,32 @@ public class ModelParathyroid extends ModelWorkflow {
 			mult.setProcessor(processor);
 		}
 		System.out.println("Ratio = " + result);
+		System.out.println("ImageMult = "+ mult);
 		return mult;
 	}
 
-    private void calculateResult() {
+    public ImagePlus calculateResult() {
         //Calculate ratio
 		ImagePlus ratio = this.calculateImageRatio();
-		
-		//Put the results into the map
-		this.results.put(RES_RATIO_THYRO.hashCode(), ratio);
-		this.results.put(RES_RATIO_THYRO_PARA.hashCode(), ratio);
+
+		double thyroid = this.datas.get(IMAGE_THYROID).getAntValue(REGION_THYRO, Data.DATA_COUNTS);
+		double thyroPara = this.datas.get(IMAGE_THYROIDPARA).getAntValue(REGION_THYRO_PARA, Data.DATA_COUNTS);
+
+		ImageSelection[] selection = this.getImageSelection();
+		ImagePlus result = null;
+		ImageCalculator ic = new ImageCalculator();
+
+		System.out.println("ET LA TU MARCHES");
+
+		if (thyroid < thyroPara) {
+			result = ic.run("Subtract", selection[1].getImagePlus(), ratio);
+			System.out.println("ET LA TU MARCHES1");
+		}
+		else {
+			result = ic.run("Subtract", selection[0].getImagePlus(), ratio);
+			System.out.println("ET LA TU MARCHES2");
+		}
+		return result;
     }
 
     @Override
