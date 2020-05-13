@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.awt.Color;
-import java.awt.Image;
-import java.awt.Rectangle;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -23,7 +20,6 @@ import org.petctviewer.scintigraphy.scin.model.Unit;
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.ImageCalculator;
-import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 
 public class ModelParathyroid extends ModelWorkflow {
@@ -65,14 +61,6 @@ public class ModelParathyroid extends ModelWorkflow {
 		return data;
     }
     
-    /**
-	 * Returns the regions for the Thyroid and Thyroid+Para images.
-	 *
-	 * @return array of regions name of the Thyroid and Thyroid+Para images
-	 */
-	private String[] regionsThyroParathyro() {
-		return new String[]{REGION_THYRO, REGION_THYRO_PARA};
-	}
 
     @Override
     public ResultValue getResult(ResultRequest request) {
@@ -134,15 +122,13 @@ public class ModelParathyroid extends ModelWorkflow {
 		ImagePlus result = null;
 		ImageCalculator ic = new ImageCalculator();
 
-		System.out.println("ET LA TU MARCHES");
-
 		if (thyroid < thyroPara) {
-			result = ic.run("Subtract", selection[1].getImagePlus(), ratio);
-			System.out.println("ET LA TU MARCHES1");
+			result = ic.run("subtract create stack", selection[1].getImagePlus(), ratio);
+			System.out.println("ET LA TU MARCHES1 :"+result+" ");
 		}
 		else {
-			result = ic.run("Subtract", selection[0].getImagePlus(), ratio);
-			System.out.println("ET LA TU MARCHES2");
+			result = ic.run("subtract create stack", selection[0].getImagePlus(), ratio);
+			System.out.println("ET LA TU MARCHES2 :"+result+" ");
 		}
 		return result;
     }

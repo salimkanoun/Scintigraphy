@@ -12,19 +12,19 @@ import java.awt.*;
 public class MainResult extends TabResult {
 
 	private final ImagePlus montage;
-	private final ImagePlus essai;
+	private final ImagePlus result;
 
 	public MainResult(FenResults parent, ImagePlus montage, String tabName) {
 		super(parent, tabName, true);
 		this.montage = montage;
-		this.essai = null;
+		this.result = null;
 		this.reloadDisplay();
 	}
 
-	public MainResult(FenResults parent, ImagePlus montage, String tabName, ImagePlus essai) {
+	public MainResult(FenResults parent, ImagePlus montage, String tabName, ImagePlus result) {
 		super(parent, tabName, true);
 		this.montage = montage;
-		this.essai = essai;
+		this.result = result;
 		this.reloadDisplay();
 	}
 
@@ -52,10 +52,10 @@ public class MainResult extends TabResult {
 
 	@Override
 	public JPanel getResultContent() {
-		if (this.essai!=null){
-			JPanel grid = new JPanel(new GridLayout(2, 1));
+		if (this.result!=null){
+			JPanel grid = new JPanel(new GridLayout(1, 2));
 			grid.add(new DynamicImage(montage.getImage()));
-			grid.add(new DynamicImage(essai.getImage()));
+			grid.add(new DynamicImage(result.getImage()));
 
 			return grid;
 		}
