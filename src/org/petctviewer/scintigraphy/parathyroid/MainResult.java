@@ -6,23 +6,28 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
+
 
 public class MainResult extends TabResult {
 
 	private final ImagePlus montage;
 	private final ImagePlus result;
+	List<ImagePlus> captures;
 
 	public MainResult(FenResults parent, ImagePlus montage, String tabName) {
 		super(parent, tabName, true);
 		this.montage = montage;
 		this.result = null;
+		this.captures = null;
 		this.reloadDisplay();
 	}
 
-	public MainResult(FenResults parent, ImagePlus montage, String tabName, ImagePlus result) {
+	public MainResult(FenResults parent, List<ImagePlus> captures, String tabName, ImagePlus result) {
 		super(parent, tabName, true);
-		this.montage = montage;
+		this.montage = null;
 		this.result = result;
+		this.captures = captures;
 		this.reloadDisplay();
 	}
 
@@ -50,14 +55,19 @@ public class MainResult extends TabResult {
 
 	@Override
 	public JPanel getResultContent() {
-		if (this.result!=null){
+		if (this.result!=null && this.captures!=null){
 			JPanel grid = new JPanel(new GridLayout(2, 1));
-			grid.add(new DynamicImage(this.montage.getImage()));
+
+			JPanel gridCaptures = new JPanel(new GridLayout(1,2));
+			grid.add(gridCaptures);
+			gridCaptures.add(new DynamicImage(this.captures.get(2).getImage()));
+			gridCaptures.add(new DynamicImage(this.captures.get(3).getImage()));
+
 			grid.add(new DynamicImage(this.result.getImage()));
 			return grid;
+		}else {
+			return new DynamicImage(montage.getImage());
 		}
-		
-		return new DynamicImage(montage.getImage());
 	}
 
 }
