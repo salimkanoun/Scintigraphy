@@ -90,9 +90,22 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 
 		this.computeModel();
 
+		//Capture des ROIs
+		ImagePlus captureR1 = this.model.getImageSelection()[0].getImagePlus();
+		captureR1.setRoi(getModel().getRoi(0).getBounds());
+		captureR1 = captureR1.crop();
+		this.captures.add(captureR1);
+
+		ImagePlus captureR2 = this.model.getImageSelection()[1].getImagePlus();
+		captureR2.setRoi(getModel().getRoi(1).getBounds());
+		captureR2 = captureR2.crop();
+		captureR2.setDimensions(captureR1.getDimensions()[2], 
+								captureR1.getDimensions()[3], 
+								captureR1.getDimensions()[4]);
+		this.captures.add(captureR2);
+
+
 		// Save captures ROI
-		getModel().getRoi(0);
-		getModel().getRoi(1);
 		ImagePlus[] impCapture = new ImagePlus[2];
 		impCapture[0] = this.captures.get(0);
 		impCapture[1] = this.captures.get(1);
@@ -102,8 +115,8 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		// Save captures bounds and result
 		ImagePlus result = this.getModel().calculateResult();
 		ImagePlus[] impCapture1 = new ImagePlus[2];
-		impCapture1[0] = this.captures.get(1);
-		impCapture1[1] = this.captures.get(0);
+		impCapture1[0] = this.captures.get(2);
+		impCapture1[1] = this.captures.get(3);
 		stackCapture = Library_Capture_CSV.captureToStack(impCapture1);
 		ImagePlus montageResults = this.montageForTwo(stackCapture);
 		

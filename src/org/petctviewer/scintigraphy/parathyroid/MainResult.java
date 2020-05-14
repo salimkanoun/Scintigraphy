@@ -4,8 +4,6 @@ import ij.ImagePlus;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
-import org.petctviewer.scintigraphy.scin.model.ResultValue;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -28,7 +26,7 @@ public class MainResult extends TabResult {
 		this.reloadDisplay();
 	}
 
-	private ModelParathyroid getModel() {
+	/*private ModelParathyroid getModel() {
 		return (ModelParathyroid) this.parent.getModel();
 	}
 
@@ -43,7 +41,7 @@ public class MainResult extends TabResult {
 		}
 
 		container.add(label);
-	}
+	}*/
 
 	@Override
 	public Component getSidePanelContent() {

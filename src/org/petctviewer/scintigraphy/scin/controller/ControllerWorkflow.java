@@ -266,7 +266,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 		if (resetOverlay) {
 			this.vue.getImagePlus().getOverlay().clear();
-			System.out.println("Premier setOverlay"+this.currentState.toString());
 			this.setOverlay(this.currentState);
 		}
 	}
@@ -376,7 +375,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		if (currentInstruction.isExpectingUserInput()) {
 			this.displayInstruction(currentInstruction.getMessage());
 			this.vue.getImagePlus().getOverlay().clear();
-			System.out.println("deuz SetOverlay"+this.currentState.toString());
 			this.setOverlay(this.currentState);
 			this.prepareImage(currentInstruction.getImageState());
 
@@ -660,7 +658,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 			this.prepareImage(instruction.getImageState(), indexWorkflow);
 			int[] roisToDisplay = this.roisToDisplay(indexWorkflow, instruction.getImageState(), instruction);
 			this.vue.getImagePlus().getOverlay().clear();
-			System.out.println("Troize setOverlay"+this.currentState.toString());
 			this.setOverlay(instruction.getImageState());
 			this.displayRois(roisToDisplay);
 			// Refresh display
@@ -687,7 +684,6 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 			this.currentState = new ImageState(
 					this.workflows[0].getImageAssociated().getImageOrientation().getFacingOrientation(), 1,
 					ImageState.LAT_RL, ImageState.ID_NONE);
-			System.out.println("Quatrez setOverlay"+this.currentState.toString());
 			this.setOverlay(this.currentState);
 
 			this.displayInstruction(i.getMessage());

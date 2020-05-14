@@ -128,7 +128,6 @@ public class ModelParathyroid extends ModelWorkflow {
 		else {
 			result = ic.run("subtract create stack", selection[0].getImagePlus(), ratio);
 			result.getProcessor().min(0);
-			System.out.println("ET LA TU MARCHES2 :"+result+" ");
 		}
 		return result;
     }
