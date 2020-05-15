@@ -23,11 +23,11 @@ public class MainResult extends TabResult {
 		this.reloadDisplay();
 	}
 
-	public MainResult(FenResults parent, List<ImagePlus> captures, String tabName, ImagePlus result) {
+	public MainResult(FenResults parent, ImagePlus montage, String tabName, ImagePlus result) {
 		super(parent, tabName, true);
-		this.montage = null;
+		this.montage = montage;
 		this.result = result;
-		this.captures = captures;
+		this.captures = null;
 		this.reloadDisplay();
 	}
 
@@ -56,16 +56,13 @@ public class MainResult extends TabResult {
 	@Override
 	public JPanel getResultContent() {
 		if (this.result!=null && this.captures!=null){
-			//JPanel grid = new JPanel(new GridLayout(1, 1));
 
 			JPanel gridCaptures = new JPanel(new GridLayout(1,3));
-			//grid.add(gridCaptures);
-			DynamicImage imgBefore = new DynamicImage(this.captures.get(2).getImage());
+			/*DynamicImage imgBefore = new DynamicImage(this.captures.get(2).getImage());
 			gridCaptures.add(imgBefore);
 			gridCaptures.add(new DynamicImage(this.captures.get(3).getImage()));
-			gridCaptures.add(new DynamicImage(this.captures.get(4).getImage()));
+			gridCaptures.add(new DynamicImage(this.captures.get(4).getImage()));*/
 
-			//grid.add(new DynamicImage(this.result.getImage()));
 			return gridCaptures;
 		}else {
 			return new DynamicImage(montage.getImage());

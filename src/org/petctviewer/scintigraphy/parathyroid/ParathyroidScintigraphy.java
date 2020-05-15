@@ -15,6 +15,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 import org.petctviewer.scintigraphy.shunpo.ControllerWorkflowShunpo.DisplayState;
 
 import ij.ImagePlus;
+import ij.plugin.ZProjector;
 
 import java.awt.*;
 import java.awt.event.ItemEvent;
@@ -131,15 +132,10 @@ public class ParathyroidScintigraphy extends Scintigraphy {
     public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages)
             throws WrongInputException, ReadTagException {
 		// Check that number of images is correct
-		if (selectedImages.size() != 2) throw new WrongNumberImagesException(selectedImages.size(), 2);
-
-		// entrée : tableau de toutes les images passées envoyé par la selecteur de
-		// dicom
+		if (selectedImages.size()<2 || selectedImages.size()>3) throw new WrongNumberImagesException(selectedImages.size(), 2, 3);
 
 		// sauvegarde des images pour le modele
 		this.sauvegardeImagesSelectDicom = new ImageSelection[selectedImages.size()];
-
-		// oblige de faire duplicate sinon probleme
 
 		// trier les images par date et que avec les ant
 		// on creer une liste avec toutes les images plus
@@ -148,14 +144,19 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 
 		// pour chaque acquisition
 		for (ImageSelection selectedImage : selectedImages) {
-			if (selectedImage.getImageOrientation() == Orientation.ANT || selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT){
-				if (selectedImage.getImageIsotope() == Isotope.IODE_123 || selectedImage.getImageIsotope() == Isotope.TECHNETIUM_99){
+			if (selectedImage.getImageOrientation() == Orientation.ANT || selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT) {
+				/*if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT) {
+					ImagePlus img = selectedImage.getImagePlus();
+					img = ZProjector.run(img, "sum");
+					selectedImage.setImagePlus(img);
+				}*/
+
+				if (selectedImage.getImageIsotope() == Isotope.IODE_123 || selectedImage.getImageIsotope() == Isotope.TECHNETIUM_99) {
 					imagePourTrieAnt.add(selectedImage.clone());
 				}
 				else {
 					throw new WrongIsotopeException.IsotopeColumn(selectedImage.getRow(),
-							selectedImage.getImageIsotope(), new Isotope[] { Isotope.IODE_123,
-									   Isotope.TECHNETIUM_99 });
+							selectedImage.getImageIsotope(), new Isotope[] { Isotope.IODE_123, Isotope.TECHNETIUM_99 });
 				}
             }
 			else {
