@@ -17,7 +17,7 @@ public class FenResultatsParathyroid extends FenResults {
         super(controller);
 
         this.addTab(new MainResult(this, montage1, "Résultats"));
-        this.addTab(new MainResult(this, captures, "Captures", imgResult));
+        this.addTab(new MainResult(this, montage2, "Captures"));
         
 		this.pack();
 		this.setVisible(true);

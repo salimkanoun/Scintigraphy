@@ -2,6 +2,8 @@ package org.petctviewer.scintigraphy.parathyroid;
 
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.process.ImageProcessor;
+
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -84,12 +86,7 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		return (ModelParathyroid) super.getModel();
 	}
 
-	@Override
-	protected void end() {
-		super.end();
-
-		this.computeModel();
-
+	public void captureZoom() {
 		//Capture des ROIs
 		ImagePlus captureR1 = this.model.getImageSelection()[0].getImagePlus();
 		captureR1.setRoi(getModel().getRoi(0).getBounds());
@@ -102,8 +99,31 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		captureR2.setDimensions(captureR1.getDimensions()[2], 
 								captureR1.getDimensions()[3], 
 								captureR1.getDimensions()[4]);
+		ImageProcessor process = captureR2.getProcessor();
+		process = process.resize(captureR1.getDimensions()[0], captureR1.getDimensions()[1], false);
+		captureR2.setProcessor(process);
 		this.captures.add(captureR2);
 
+		ImagePlus result = this.getModel().calculateResult();
+		ImagePlus captureSubtr = result;
+		captureSubtr.setRoi(getModel().getRoi(0).getBounds());
+		captureSubtr = captureSubtr.crop();
+		captureSubtr.setDimensions(captureR1.getDimensions()[2], 
+								captureR1.getDimensions()[3], 
+								captureR1.getDimensions()[4]);
+		process = captureSubtr.getProcessor();
+		process = process.resize(captureR1.getDimensions()[0], captureR1.getDimensions()[1], false);
+		captureSubtr.setProcessor(process);
+		this.captures.add(captureSubtr);
+	}
+
+	@Override
+	protected void end() {
+		super.end();
+
+		this.computeModel();
+
+		this.captureZoom();
 
 		// Save captures ROI
 		ImagePlus[] impCapture = new ImagePlus[2];
@@ -113,14 +133,15 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		ImagePlus montageCaptures = this.montageForTwo(stackCapture);
 
 		// Save captures bounds and result
-		ImagePlus result = this.getModel().calculateResult();
-		ImagePlus[] impCapture1 = new ImagePlus[2];
+		ImagePlus[] impCapture1 = new ImagePlus[3];
 		impCapture1[0] = this.captures.get(2);
-		impCapture1[1] = this.captures.get(2);
+		impCapture1[1] = this.captures.get(3);
+		impCapture1[2] = this.captures.get(4);
 		stackCapture = Library_Capture_CSV.captureToStack(impCapture1);
-		ImagePlus montageResults = this.montageForTwo(stackCapture);
+		ImagePlus montageResults = this.montageForThree(stackCapture);
 		
 		// Display result
+		ImagePlus result = this.getModel().calculateResult();
 		new FenResultatsParathyroid(this, montageCaptures, montageResults,this.captures, result);
 
 	}

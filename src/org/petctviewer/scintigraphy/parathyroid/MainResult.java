@@ -56,15 +56,17 @@ public class MainResult extends TabResult {
 	@Override
 	public JPanel getResultContent() {
 		if (this.result!=null && this.captures!=null){
-			JPanel grid = new JPanel(new GridLayout(2, 1));
+			//JPanel grid = new JPanel(new GridLayout(1, 1));
 
-			JPanel gridCaptures = new JPanel(new GridLayout(1,2));
-			grid.add(gridCaptures);
-			gridCaptures.add(new DynamicImage(this.captures.get(2).getImage()));
+			JPanel gridCaptures = new JPanel(new GridLayout(1,3));
+			//grid.add(gridCaptures);
+			DynamicImage imgBefore = new DynamicImage(this.captures.get(2).getImage());
+			gridCaptures.add(imgBefore);
 			gridCaptures.add(new DynamicImage(this.captures.get(3).getImage()));
+			gridCaptures.add(new DynamicImage(this.captures.get(4).getImage()));
 
-			grid.add(new DynamicImage(this.result.getImage()));
-			return grid;
+			//grid.add(new DynamicImage(this.result.getImage()));
+			return gridCaptures;
 		}else {
 			return new DynamicImage(montage.getImage());
 		}
