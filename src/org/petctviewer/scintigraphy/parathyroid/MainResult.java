@@ -50,23 +50,21 @@ public class MainResult extends TabResult {
 
 	@Override
 	public Component getSidePanelContent() {
+		if (this.result!=null){
+			JPanel res = new JPanel(new GridLayout(0, 1));
+			res.add(new JLabel("1.Early  "+ "\n" +
+								"2.Late  \n"+
+								"3.Subtract"));
+			return res;
+		}
 		return null;
 	}
 
 	@Override
 	public JPanel getResultContent() {
-		if (this.result!=null && this.captures!=null){
 
-			JPanel gridCaptures = new JPanel(new GridLayout(1,3));
-			/*DynamicImage imgBefore = new DynamicImage(this.captures.get(2).getImage());
-			gridCaptures.add(imgBefore);
-			gridCaptures.add(new DynamicImage(this.captures.get(3).getImage()));
-			gridCaptures.add(new DynamicImage(this.captures.get(4).getImage()));*/
+		return new DynamicImage(montage.getImage());
 
-			return gridCaptures;
-		}else {
-			return new DynamicImage(montage.getImage());
-		}
 	}
 
 }

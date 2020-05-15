@@ -91,6 +91,8 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		ImagePlus captureR1 = this.model.getImageSelection()[0].getImagePlus();
 		captureR1.setRoi(getModel().getRoi(0).getBounds());
 		captureR1 = captureR1.crop();
+		ImageProcessor process = captureR1.getProcessor();
+		process.drawString("1", process.getWidth()/2, process.getHeight()-1);
 		this.captures.add(captureR1);
 
 		ImagePlus captureR2 = this.model.getImageSelection()[1].getImagePlus();
@@ -99,8 +101,9 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		captureR2.setDimensions(captureR1.getDimensions()[2], 
 								captureR1.getDimensions()[3], 
 								captureR1.getDimensions()[4]);
-		ImageProcessor process = captureR2.getProcessor();
+		process = captureR2.getProcessor();
 		process = process.resize(captureR1.getDimensions()[0], captureR1.getDimensions()[1], false);
+		process.drawString("2", process.getWidth()/2, process.getHeight()-1);
 		captureR2.setProcessor(process);
 		this.captures.add(captureR2);
 
@@ -112,6 +115,7 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 								   captureR1.getDimensions()[4]);
 		process = captureSubtr.getProcessor();
 		process = process.resize(captureR1.getDimensions()[0], captureR1.getDimensions()[1], false);
+		process.drawString("3", process.getWidth()/2, process.getHeight()-1);
 		captureSubtr.setProcessor(process);
 		this.captures.add(captureSubtr);
 	}

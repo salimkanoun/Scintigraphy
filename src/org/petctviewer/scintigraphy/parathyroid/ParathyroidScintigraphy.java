@@ -11,6 +11,7 @@ import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 import org.petctviewer.scintigraphy.shunpo.ControllerWorkflowShunpo.DisplayState;
 
@@ -145,11 +146,11 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 		// pour chaque acquisition
 		for (ImageSelection selectedImage : selectedImages) {
 			if (selectedImage.getImageOrientation() == Orientation.ANT || selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT) {
-				/*if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT) {
+				if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT) {
 					ImagePlus img = selectedImage.getImagePlus();
-					img = ZProjector.run(img, "sum");
+					img = Library_Dicom.projeter(img, 0, img.getNSlices(), "sum");
 					selectedImage.setImagePlus(img);
-				}*/
+				}
 
 				if (selectedImage.getImageIsotope() == Isotope.IODE_123 || selectedImage.getImageIsotope() == Isotope.TECHNETIUM_99) {
 					imagePourTrieAnt.add(selectedImage.clone());
