@@ -85,6 +85,7 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 	public ModelParathyroid getModel() {
 		return (ModelParathyroid) super.getModel();
 	}
+	
 
 	public void captureZoom() {
 		//Capture des ROIs
@@ -131,11 +132,11 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		// Save captures ROI
 		ImagePlus montageCaptures = null;
 		ImageStack stackCapture = null;
-		if (this.model.getImageSelection().length > 2){
+		if (this.getModel().getImgToDisplay() != null){
 			ImagePlus[] impCapture = new ImagePlus[3];
 			impCapture[0] = this.captures.get(0);
 			impCapture[1] = this.captures.get(1);
-			impCapture[2] = this.model.getImageSelection()[2].getImagePlus();
+			impCapture[2] = this.getModel().getImgToDisplay();
 			stackCapture = Library_Capture_CSV.captureToStack(impCapture);
 			montageCaptures = this.montageForThree(stackCapture);
 		} else {

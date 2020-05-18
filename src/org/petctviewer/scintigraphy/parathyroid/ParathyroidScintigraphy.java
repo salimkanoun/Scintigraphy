@@ -36,6 +36,8 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 
 	// imp du projet de chaque Acqui
 	private ImagePlus impProjeteAllAcqui;
+
+	private ImagePlus imgOptioToDisplay;
 	
 	Isotope isotope_thy;
 	Isotope isotope_parathy;
@@ -51,6 +53,10 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 
 	public void setIsotopeParathy(Isotope isotope){
 		this.isotope_parathy = isotope;
+	}
+
+	public ImagePlus getImgToDisplay() {
+		return this.imgOptioToDisplay;
 	}
 
     private void createDocumentation() {
@@ -101,7 +107,7 @@ public class ParathyroidScintigraphy extends Scintigraphy {
         // Start program
         this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
         this.getFenApplication().setController(new ControllerWorkflowParathyroid(
-				(FenApplicationWorkflow) getFenApplication(), new ModelParathyroid(this.sauvegardeImagesSelectDicom, STUDY_NAME)));
+				(FenApplicationWorkflow) getFenApplication(), new ModelParathyroid(this.sauvegardeImagesSelectDicom, STUDY_NAME, this.imgOptioToDisplay)));
 
         this.createDocumentation();
         this.inflateMenuBar((ControllerWorkflowParathyroid) this.getFenApplication().getController());
@@ -145,7 +151,8 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 
 		// pour chaque acquisition
 		for (ImageSelection selectedImage : selectedImages) {
-			if (selectedImage.getImageOrientation() != Orientation.UNKNOWN ){
+			if (selectedImage.getImageOrientation() != Orientation.UNKNOWN){
+				this.imgOptioToDisplay = null;
 				if (selectedImage.getImageOrientation() == Orientation.ANT || selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT) {
 					if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT) {
 						ImageSelection img = selectedImage;
@@ -167,6 +174,9 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 									Orientation.ANT });
 				}
 				selectedImage.getImagePlus().close();
+			
+			} else {
+				this.imgOptioToDisplay = selectedImage.getImagePlus();
 			}
 		}
 
@@ -184,7 +194,7 @@ public class ParathyroidScintigraphy extends Scintigraphy {
         }
 		
 
-		sauvegardeImagesSelectDicom = imagePourTrieAnt.toArray(new ImageSelection[0]);
+		this.sauvegardeImagesSelectDicom = imagePourTrieAnt.toArray(new ImageSelection[0]);
 		
 
 		List<ImageSelection> selection = new ArrayList<>();
