@@ -45,26 +45,27 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
 
     private void computeModel(){
         ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, ModelThyroid.IMAGE_FULL_SYRINGE);
-        final int NB_ROI_PER_IMAGE = 1;
+        final int NB_ROI_PER_IMAGE = 0;
 
         this.getModel().addData(ModelThyroid.REGION_FULL_SYRINGE, stateAnt,
         getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE]);
 
         stateAnt.setIdImage(ModelThyroid.IMAGE_EMPTY_SYRINGE);
         this.getModel().addData(ModelThyroid.REGION_EMPTY_SYRINGE, stateAnt,
-        getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE]);
+        getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE +1 ]);
         ImageState state = stateAnt;
+        state.setIdImage(ModelThyroid.IMAGE_THYROID);
         // - Right lobe
-        getModel().addData(ModelThyroid.REGION_RIGHT_LOBE, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE +1 ]);
+        getModel().addData(ModelThyroid.REGION_RIGHT_LOBE, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE +2 ]);
 
         // - Left lobe
-         getModel().addData(ModelThyroid.REGION_LEFT_LOBE, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE +2 ]);
+         getModel().addData(ModelThyroid.REGION_LEFT_LOBE, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE +3 ]);
 
         // - Background left
-         getModel().addData(ModelThyroid.REGION_BACKGROUND_LEFT, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE +3 ]);
+         getModel().addData(ModelThyroid.REGION_BACKGROUND_LEFT, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE +4 ]);
        
          // - Background right
-         getModel().addData(ModelThyroid.REGION_BACKGROUND_RIGHT, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE +4 ]);
+         getModel().addData(ModelThyroid.REGION_BACKGROUND_RIGHT, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE+5]);
      }
 
     /**
@@ -83,10 +84,10 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
 
          //Syringes
        dri_1 = new DrawRoiInstructionContrast(ModelThyroid.REGION_FULL_SYRINGE, stateAnt, 0.5f);
-    dri_2 = new DrawRoiInstructionContrast(ModelThyroid.REGION_EMPTY_SYRINGE, stateAnt, 0.5f);
+       dri_2 = new DrawRoiInstructionContrast(ModelThyroid.REGION_EMPTY_SYRINGE, stateAnt, 0.5f);
 
          //Thyroid
-        dri_3 = new DrawRoiInstructionContrast(ModelThyroid.REGION_RIGHT_LOBE, stateAnt, 0.5f);
+       dri_3 = new DrawRoiInstructionContrast(ModelThyroid.REGION_RIGHT_LOBE, stateAnt, 0.5f);
 
        dri_4 = new DrawRoiInstructionContrast(ModelThyroid.REGION_LEFT_LOBE, stateAnt, 0.5f);
 

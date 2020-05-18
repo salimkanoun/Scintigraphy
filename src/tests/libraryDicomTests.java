@@ -89,6 +89,6 @@ public class libraryDicomTests {
 
     @Test
     public void splitDynamicAntPostTest(){
-        ImageSelection[] ims = Library_Dicom.splitDynamicAntPost(this.dcm);
+       // ImageSelection[] ims = Library_Dicom.splitDynamicAntPost(this.dcm);
     }
 }

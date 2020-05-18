@@ -17,7 +17,7 @@ public class ModelThyroid extends ModelWorkflow{
 
     public static final Result RES_THYROID_SHUNT = new Result("Thyroid counts"), RES_THYROID_SURFACE_LEFT = new Result("Left lobe"), RES_THYROID_SURFACE_RIGHT = new Result("Right lobe");
 
-    public static final int IMAGE_FULL_SYRINGE = 0, IMAGE_EMPTY_SYRINGE = 1, IMAGE_THYROID = 2;
+    public static final int IMAGE_FULL_SYRINGE = 0,  IMAGE_EMPTY_SYRINGE = 1, IMAGE_THYROID = 2;
 
     private List<Data> datas;
     private Map<Integer,Double> results;
@@ -56,14 +56,25 @@ public class ModelThyroid extends ModelWorkflow{
      * @return corrected value of the region
      */
     private double correctValueWithBkgNoise(String regionName, boolean post){
-        double counts, bkgL, bkgR, meanBkg, pixels;
+        double counts, meanBkgL, meanBkgR, pixels;
         if(!post){
-            counts = datas.get(IMAGE_THYROID).getAntValue(regionName, Data.DATA_COUNTS);
-            bkgL = datas.get(IMAGE_THYROID).getAntValue(REGION_BACKGROUND_LEFT, Data.DATA_MEAN_COUNTS);
-            bkgR = datas.get(IMAGE_THYROID).getAntValue(REGION_BACKGROUND_RIGHT, Data.DATA_MEAN_COUNTS);
-            meanBkg = bkgL + bkgR;
-            pixels = datas.get(IMAGE_THYROID).getAntValue(regionName, Data.DATA_PIXEL_COUNTS);
-            return counts - meanBkg * pixels;
+            if(regionName == REGION_RIGHT_LOBE) {
+                counts = datas.get(IMAGE_THYROID).getAntValue(regionName, Data.DATA_COUNTS);
+                System.out.println("Right counts : " + counts);
+                meanBkgR = datas.get(IMAGE_THYROID).getAntValue(REGION_BACKGROUND_RIGHT, Data.DATA_MEAN_COUNTS);
+                System.out.println("Right background : " + meanBkgR);
+                pixels = datas.get(IMAGE_THYROID).getAntValue(regionName, Data.DATA_PIXEL_COUNTS);
+                System.out.println("Right pixels : " + pixels);
+                return counts - meanBkgR * pixels;
+            }else{
+                counts = datas.get(IMAGE_THYROID).getAntValue(regionName, Data.DATA_COUNTS);
+                System.out.println("Left counts : " + counts);
+                meanBkgL = datas.get(IMAGE_THYROID).getAntValue(REGION_BACKGROUND_LEFT, Data.DATA_MEAN_COUNTS);
+                System.out.println("Left background : " + meanBkgL);
+                pixels = datas.get(IMAGE_THYROID).getAntValue(regionName, Data.DATA_PIXEL_COUNTS);
+                System.out.println("Left pixels : " + pixels);
+                return counts - meanBkgL * pixels;
+            }
         } else {
             return 0;
         }
@@ -74,7 +85,7 @@ public class ModelThyroid extends ModelWorkflow{
      */
     private double calculateSumFullSyringe(){
         double fullSyringe = this.datas.get(IMAGE_FULL_SYRINGE).getAntValue(REGION_FULL_SYRINGE, Data.DATA_COUNTS);
-        System.out.print("Sum Full Syringe = " + fullSyringe +"\n");
+        System.out.print("\nSum Full Syringe = " + fullSyringe +"\n\n");
 
         return fullSyringe;
     }
@@ -86,7 +97,7 @@ public class ModelThyroid extends ModelWorkflow{
      */
     private double calculateSumEmptySyringe(){
         double emptySyringe = this.datas.get(IMAGE_EMPTY_SYRINGE).getAntValue(REGION_EMPTY_SYRINGE, Data.DATA_COUNTS);
-        System.out.print("Sum Empty Syringe = " + emptySyringe + "\n");
+        System.out.print("Sum Empty Syringe = " + emptySyringe + "\n\n");
 
         return emptySyringe;
     }
@@ -106,13 +117,12 @@ public class ModelThyroid extends ModelWorkflow{
         correctValueWithBkgNoise(REGION_LEFT_LOBE, false));
 
 
-         System.out.println("Sum thyroid : (right lobe and + left lobe ant)\n");
-         double lobeRight = datas.get(IMAGE_THYROID).getAntValue(REGION_RIGHT_LOBE, Data.DATA_COUNTS);
-         double lobeLeft = 500;//datas.get(IMAGE_THYROID).getAntValue(REGION_LEFT_LOBE, Data.DATA_COUNTS);
+         double lobeRight = datas.get(IMAGE_THYROID).getAntValue(REGION_RIGHT_LOBE, Data.DATA_COUNTS_CORRECTED);
+         double lobeLeft = datas.get(IMAGE_THYROID).getAntValue(REGION_LEFT_LOBE, Data.DATA_COUNTS_CORRECTED);
 
          double sumLobe = lobeRight + lobeLeft;
-         System.out.println("Right lobe = " + lobeRight +"\n");
-         System.out.println("Left lobe = " + lobeLeft +"\n");
+         System.out.println("Right lobe corrected = " + lobeRight +"\n");
+         System.out.println("Left lobe corrected = " + lobeLeft +"\n");
          System.out.println("Sum thyroid = " + sumLobe +"\n");
 
          return sumLobe;
@@ -138,7 +148,7 @@ public class ModelThyroid extends ModelWorkflow{
         System.out.println("Difference = " + difference +"\n");
 
         
-        if (difference < sumFullSyringe && difference > 0){
+        if (difference > 0){
             //Thyroid fixation ratio compared to the injected activity which is expressed in %
             double finalResult = sumThyroid / difference;
             //Put the results into the map
@@ -204,7 +214,8 @@ public class ModelThyroid extends ModelWorkflow{
 		state.specifieImage(this.imageFromState(state));
 		state.setIdImage(ImageState.ID_CUSTOM_IMAGE);
 		
-		ImagePlus imp = state.getImage().getImagePlus();
+        ImagePlus imp = state.getImage().getImagePlus();
+        imp.show();
 		
 		//Prepare image
 		imp.setSlice(state.getSlice());
