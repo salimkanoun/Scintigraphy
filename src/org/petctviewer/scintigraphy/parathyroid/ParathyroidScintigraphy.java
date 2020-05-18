@@ -16,7 +16,6 @@ import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 import org.petctviewer.scintigraphy.shunpo.ControllerWorkflowShunpo.DisplayState;
 
 import ij.ImagePlus;
-import ij.plugin.ZProjector;
 
 import java.awt.*;
 import java.awt.event.ItemEvent;
@@ -27,7 +26,8 @@ import java.util.*;
 public class ParathyroidScintigraphy extends Scintigraphy {
 
     public static final String STUDY_NAME = "Parathyroid";
-    private static final String ORGAN_THYROID = "THYROID", ORGAN_PARATHYROID = "THYROID&PARA";
+	private static final String ORGAN_THYROID = "THYROID", ORGAN_PARATHYROID = "THYROID&PARA";
+	private static final String NONE = "NONE";
     private Column organColumn;
     private Column traceurColumn;
 
@@ -112,11 +112,11 @@ public class ParathyroidScintigraphy extends Scintigraphy {
     @Override
     public Column[] getColumns() {
         // Orientation column
-        String[] orientationValues = { Orientation.ANT.toString(), Orientation.DYNAMIC_ANT.toString()};
+        String[] orientationValues = { Orientation.ANT.toString(), Orientation.DYNAMIC_ANT.toString(), Orientation.UNKNOWN.toString()};
         Column orientation = new Column(Column.ORIENTATION.getName(), orientationValues);
 
         // Organ column
-        String[] organValues = { ORGAN_THYROID, ORGAN_PARATHYROID };
+        String[] organValues = { ORGAN_THYROID, ORGAN_PARATHYROID, NONE };
         this.organColumn = new Column("Organ", organValues);
 
 		// Traceur column
@@ -145,37 +145,39 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 
 		// pour chaque acquisition
 		for (ImageSelection selectedImage : selectedImages) {
-			if (selectedImage.getImageOrientation() == Orientation.ANT || selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT) {
-				if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT) {
-					ImagePlus img = selectedImage.getImagePlus();
-					img = Library_Dicom.projeter(img, 0, img.getNSlices(), "sum");
-					selectedImage.setImagePlus(img);
-				}
-
-				if (selectedImage.getImageIsotope() == Isotope.IODE_123 || selectedImage.getImageIsotope() == Isotope.TECHNETIUM_99) {
-					imagePourTrieAnt.add(selectedImage.clone());
+			if (selectedImage.getImageOrientation() != Orientation.UNKNOWN ){
+				if (selectedImage.getImageOrientation() == Orientation.ANT || selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT) {
+					if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT) {
+						ImageSelection img = selectedImage;
+						img = Library_Dicom.project(img, 0, img.getImagePlus().getNSlices(), "sum");
+						selectedImage = img;
+					}
+	
+					if (selectedImage.getImageIsotope() == Isotope.IODE_123 || selectedImage.getImageIsotope() == Isotope.TECHNETIUM_99) {
+						imagePourTrieAnt.add(selectedImage.clone());
+					}
+					else {
+						throw new WrongIsotopeException.IsotopeColumn(selectedImage.getRow(),
+								selectedImage.getImageIsotope(), new Isotope[] { Isotope.IODE_123, Isotope.TECHNETIUM_99 });
+					}
 				}
 				else {
-					throw new WrongIsotopeException.IsotopeColumn(selectedImage.getRow(),
-							selectedImage.getImageIsotope(), new Isotope[] { Isotope.IODE_123, Isotope.TECHNETIUM_99 });
+					throw new WrongColumnException.OrientationColumn(selectedImage.getRow(),
+							selectedImage.getImageOrientation(), new Orientation[] { Orientation.DYNAMIC_ANT,
+									Orientation.ANT });
 				}
-            }
-			else {
-				throw new WrongColumnException.OrientationColumn(selectedImage.getRow(),
-						selectedImage.getImageOrientation(), new Orientation[] { Orientation.DYNAMIC_ANT,
-                                Orientation.ANT });
-            }
-			selectedImage.getImagePlus().close();
-
+				selectedImage.getImagePlus().close();
+			}
 		}
 
 		// on met les imageplus (ANT) dans cette fonction pour les trier, ensuite on vérifie si elles peuvent être triées
 		// par traceur (isotope), puis on stocke le tout dans le tableau en [0]
 		
-        if (imagePourTrieAnt.get(1).getImageIsotope() == Isotope.IODE_123){
+        if (imagePourTrieAnt.get(1).getImageIsotope() == Isotope.IODE_123) {
 			Collections.reverse(imagePourTrieAnt);
 		}
-		if (imagePourTrieAnt.get(0).getImageIsotope() == Isotope.TECHNETIUM_99 && imagePourTrieAnt.get(1).getImageIsotope() == Isotope.TECHNETIUM_99){
+		if (imagePourTrieAnt.get(0).getImageIsotope() == Isotope.TECHNETIUM_99 && 
+			imagePourTrieAnt.get(1).getImageIsotope() == Isotope.TECHNETIUM_99) {
 			// on appelle la fonction de tri
 			ChronologicalAcquisitionComparator chronologicalOrder = new ChronologicalAcquisitionComparator();
 			imagePourTrieAnt.sort(chronologicalOrder);
