@@ -32,18 +32,16 @@ public class ModelParathyroid extends ModelWorkflow {
 
     private List<Data> datas;
 	private Map<Integer, Double> results;
-	private ImagePlus imgToDisplayOnly;
     
     /**
 	 * @param selectedImages Images needed for this study (generally those images are used in the workflows)
 	 * @param studyName      Name of the study (used for display)
 	 */
 
-    public ModelParathyroid(ImageSelection[] selectedImages, String studyName, ImagePlus imgToDisplayOnly) {
+    public ModelParathyroid(ImageSelection[] selectedImages, String studyName) {
         super(selectedImages, studyName);
         this.datas = new LinkedList<>();
 		this.results = new HashMap<>();
-		this.imgToDisplayOnly = imgToDisplayOnly;
     }
 
     /**
@@ -63,9 +61,6 @@ public class ModelParathyroid extends ModelWorkflow {
 		return data;
     }
 	
-	public ImagePlus getImgToDisplay(){
-		return this.imgToDisplayOnly;
-	}
 
     @Override
     public ResultValue getResult(ResultRequest request) {

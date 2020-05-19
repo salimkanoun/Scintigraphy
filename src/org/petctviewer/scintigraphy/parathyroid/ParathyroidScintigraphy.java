@@ -27,7 +27,6 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 
     public static final String STUDY_NAME = "Parathyroid";
 	private static final String ORGAN_THYROID = "THYROID", ORGAN_PARATHYROID = "THYROID&PARA";
-	private static final String NONE = "NONE";
     private Column organColumn;
     private Column traceurColumn;
 
@@ -37,7 +36,6 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 	// imp du projet de chaque Acqui
 	private ImagePlus impProjeteAllAcqui;
 
-	private ImagePlus imgOptioToDisplay;
 	
 	Isotope isotope_thy;
 	Isotope isotope_parathy;
@@ -45,7 +43,6 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 
     public ParathyroidScintigraphy() {
 		super(STUDY_NAME);
-		this.imgOptioToDisplay = null;
 	}
 	
 	public void setIsotopeThy(Isotope isotope){
@@ -56,9 +53,6 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 		this.isotope_parathy = isotope;
 	}
 
-	public ImagePlus getImgToDisplay() {
-		return this.imgOptioToDisplay;
-	}
 
     private void createDocumentation() {
         DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
@@ -108,7 +102,7 @@ public class ParathyroidScintigraphy extends Scintigraphy {
         // Start program
         this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
         this.getFenApplication().setController(new ControllerWorkflowParathyroid(
-				(FenApplicationWorkflow) getFenApplication(), new ModelParathyroid(this.sauvegardeImagesSelectDicom, STUDY_NAME, this.imgOptioToDisplay)));
+				(FenApplicationWorkflow) getFenApplication(), new ModelParathyroid(this.sauvegardeImagesSelectDicom, STUDY_NAME)));
 
         this.createDocumentation();
         this.inflateMenuBar((ControllerWorkflowParathyroid) this.getFenApplication().getController());
@@ -119,11 +113,11 @@ public class ParathyroidScintigraphy extends Scintigraphy {
     @Override
     public Column[] getColumns() {
         // Orientation column
-        String[] orientationValues = { Orientation.ANT.toString(), Orientation.DYNAMIC_ANT.toString(), Orientation.UNKNOWN.toString()};
+        String[] orientationValues = { Orientation.ANT.toString(), Orientation.DYNAMIC_ANT.toString()};
         Column orientation = new Column(Column.ORIENTATION.getName(), orientationValues);
 
         // Organ column
-        String[] organValues = { ORGAN_THYROID, ORGAN_PARATHYROID, NONE };
+        String[] organValues = { ORGAN_THYROID, ORGAN_PARATHYROID};
         this.organColumn = new Column("Organ", organValues);
 
 		// Traceur column
@@ -152,7 +146,6 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 
 		// pour chaque acquisition
 		for (ImageSelection selectedImage : selectedImages) {
-			if (selectedImage.getImageOrientation() != Orientation.UNKNOWN){
 				if (selectedImage.getImageOrientation() == Orientation.ANT || selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT) {
 					if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT) {
 						ImageSelection img = selectedImage;
@@ -175,10 +168,7 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 				}
 				selectedImage.getImagePlus().close();
 			
-			} else {
-				this.imgOptioToDisplay = selectedImage.getImagePlus();
 			}
-		}
 
 		// on met les imageplus (ANT) dans cette fonction pour les trier, ensuite on vérifie si elles peuvent être triées
 		// par traceur (isotope), puis on stocke le tout dans le tableau en [0]

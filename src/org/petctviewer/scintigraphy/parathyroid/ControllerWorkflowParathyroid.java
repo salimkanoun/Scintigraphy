@@ -142,20 +142,12 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		// Save captures ROI
 		ImagePlus montageCaptures = null;
 		ImageStack stackCapture = null;
-		if (this.getModel().getImgToDisplay() != null){
-			ImagePlus[] impCapture = new ImagePlus[3];
-			impCapture[0] = this.captures.get(0);
-			impCapture[1] = this.captures.get(1);
-			impCapture[2] = setCompleteDimensions(this.captures.get(0), this.getModel().getImgToDisplay());
-			stackCapture = Library_Capture_CSV.captureToStack(impCapture);
-			montageCaptures = this.montageForThree(stackCapture);
-		} else {
-			ImagePlus[] impCapture = new ImagePlus[2];
-			impCapture[0] = this.captures.get(0);
-			impCapture[1] = this.captures.get(1);
-			stackCapture = Library_Capture_CSV.captureToStack(impCapture);
-			montageCaptures = this.montageForTwo(stackCapture);
-		}
+		ImagePlus[] impCapture = new ImagePlus[2];
+		
+		impCapture[0] = this.captures.get(0);
+		impCapture[1] = this.captures.get(1);
+		stackCapture = Library_Capture_CSV.captureToStack(impCapture);
+		montageCaptures = this.montageForTwo(stackCapture);
 		
 
 		// Save captures bounds and result
