@@ -121,6 +121,16 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		this.captures.add(captureSubtr);
 	}
 
+	public ImagePlus setCompleteDimensions(ImagePlus model, ImagePlus toModify) {
+		toModify.setDimensions(model.getDimensions()[2], 
+							   model.getDimensions()[3], 
+							   model.getDimensions()[4]);
+		ImageProcessor process = toModify.getProcessor();
+		process = process.resize(model.getDimensions()[0], model.getDimensions()[1], false);
+		toModify.setProcessor(process);
+		return toModify;
+	}
+
 	@Override
 	protected void end() {
 		super.end();
@@ -136,7 +146,7 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 			ImagePlus[] impCapture = new ImagePlus[3];
 			impCapture[0] = this.captures.get(0);
 			impCapture[1] = this.captures.get(1);
-			impCapture[2] = this.getModel().getImgToDisplay();
+			impCapture[2] = setCompleteDimensions(this.captures.get(0), this.getModel().getImgToDisplay());
 			stackCapture = Library_Capture_CSV.captureToStack(impCapture);
 			montageCaptures = this.montageForThree(stackCapture);
 		} else {

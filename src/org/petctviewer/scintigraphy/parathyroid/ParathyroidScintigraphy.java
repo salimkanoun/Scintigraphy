@@ -44,7 +44,8 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 
 
     public ParathyroidScintigraphy() {
-        super(STUDY_NAME);
+		super(STUDY_NAME);
+		this.imgOptioToDisplay = null;
 	}
 	
 	public void setIsotopeThy(Isotope isotope){
@@ -152,7 +153,6 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 		// pour chaque acquisition
 		for (ImageSelection selectedImage : selectedImages) {
 			if (selectedImage.getImageOrientation() != Orientation.UNKNOWN){
-				this.imgOptioToDisplay = null;
 				if (selectedImage.getImageOrientation() == Orientation.ANT || selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT) {
 					if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT) {
 						ImageSelection img = selectedImage;
