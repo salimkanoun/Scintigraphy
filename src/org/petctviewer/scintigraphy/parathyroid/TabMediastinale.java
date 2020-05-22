@@ -6,7 +6,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -17,9 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.petctviewer.scintigraphy.renal.Model_Renal;
-import org.petctviewer.scintigraphy.renal.gui.TabPostMict;
 import org.petctviewer.scintigraphy.renal.postMictional.Model_PostMictional;
-import org.petctviewer.scintigraphy.renal.postMictional.PostMictional;
 import org.petctviewer.scintigraphy.scin.ImagePreparator;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -49,14 +46,11 @@ public class TabMediastinale extends TabContrastModifier implements ActionListen
 	private ImageSelection[] images;
 
 	private JPanel panel_excr, panel_bladder;
-	private boolean examDone;
-	private Model_PostMictional modelPostMictional;
 
 	public TabMediastinale(FenResults parent) {
 		super(parent, "Mediastinale");
 		this.bladder = Prefs.get(PrefTabRenal.PREF_BLADDER, true);
 		this.imgSelected = false;
-		this.examDone = false;
 
 		this.reloadDisplay();
 	}
@@ -161,15 +155,11 @@ public class TabMediastinale extends TabContrastModifier implements ActionListen
 					List<ImageSelection> selections = new ArrayList<>();
 
 					// Check orientation and prepare image
-					if (selectedImages.get(0).getImageOrientation() == Orientation.ANT_POST || selectedImages.get(
-							0).getImageOrientation() == Orientation.POST_ANT) {
-						selections.add(Library_Dicom.splitAntPost(selectedImages.get(0))[1]);
-					} else if (selectedImages.get(0).getImageOrientation() == Orientation.POST) {
+					if (selectedImages.get(0).getImageOrientation() == Orientation.ANT) {
 						selections.add(selectedImages.get(0).clone());
 					} else {
 						throw new WrongOrientationException(selectedImages.get(0).getImageOrientation(),
-															new Orientation[]{Orientation.ANT_POST,
-																			  Orientation.POST_ANT, Orientation.POST});
+															new Orientation[]{Orientation.ANT});
 					}
 
 					selectedImages.get(0).close();
@@ -246,12 +236,6 @@ public class TabMediastinale extends TabContrastModifier implements ActionListen
 		return flow;
 	}
 
-	public void setExamDone(boolean boobool) {
-		this.examDone = boobool;
-	}
 
-	public void setModelPostMictional(Model_PostMictional model) {
-		this.modelPostMictional = model;
-	}
 
 }
