@@ -134,7 +134,7 @@ public class ParathyroidScintigraphy extends Scintigraphy {
     public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages)
             throws WrongInputException, ReadTagException {
 		// Check that number of images is correct
-		if (selectedImages.size()<2 || selectedImages.size()>3) throw new WrongNumberImagesException(selectedImages.size(), 2, 3);
+		if (selectedImages.size() != 2) throw new WrongNumberImagesException(selectedImages.size(), 2);
 
 		// sauvegarde des images pour le modele
 		this.sauvegardeImagesSelectDicom = new ImageSelection[selectedImages.size()];
@@ -194,7 +194,7 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 
 	@Override
 	public String instructions() {
-		return "2 images in Ant orientation";
+		return "2 images in Ant or DynamicAnt orientation";
 	}
  
 	private class RadioGroup implements ItemListener {
