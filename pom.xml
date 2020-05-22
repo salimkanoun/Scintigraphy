@@ -181,6 +181,13 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 			<version>5.6.2</version>
 		</dependency>
 
+		<dependency>
+    		<groupId>org.easymock</groupId>
+    		<artifactId>easymock</artifactId>
+    		<version>4.2</version>
+		</dependency>
+
+
 	</dependencies>
 
 </project>
