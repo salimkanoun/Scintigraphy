@@ -13,6 +13,7 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import java.awt.*;
@@ -92,32 +93,19 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		ImagePlus captureR1 = this.model.getImageSelection()[0].getImagePlus();
 		captureR1.setRoi(getModel().getRoi(0).getBounds());
 		captureR1 = captureR1.crop();
-		ImageProcessor process = captureR1.getProcessor();
-		process.drawString("1", process.getWidth()/2, process.getHeight()-1);
 		this.captures.add(captureR1);
+		
 
 		ImagePlus captureR2 = this.model.getImageSelection()[1].getImagePlus();
 		captureR2.setRoi(getModel().getRoi(1).getBounds());
 		captureR2 = captureR2.crop();
-		captureR2.setDimensions(captureR1.getDimensions()[2], 
-								captureR1.getDimensions()[3], 
-								captureR1.getDimensions()[4]);
-		process = captureR2.getProcessor();
-		process = process.resize(captureR1.getDimensions()[0], captureR1.getDimensions()[1], false);
-		process.drawString("2", process.getWidth()/2, process.getHeight()-1);
-		captureR2.setProcessor(process);
+		captureR2 = setCompleteDimensions(captureR1, captureR2);
 		this.captures.add(captureR2);
 
 		ImagePlus captureSubtr = this.getModel().calculateResult();
 		captureSubtr.setRoi(getModel().getRoi(0).getBounds());
 		captureSubtr = captureSubtr.crop();
-		captureSubtr.setDimensions(captureR1.getDimensions()[2], 
-								   captureR1.getDimensions()[3], 
-								   captureR1.getDimensions()[4]);
-		process = captureSubtr.getProcessor();
-		process = process.resize(captureR1.getDimensions()[0], captureR1.getDimensions()[1], false);
-		process.drawString("3", process.getWidth()/2, process.getHeight()-1);
-		captureSubtr.setProcessor(process);
+		captureSubtr = setCompleteDimensions(captureR1, captureSubtr);
 		this.captures.add(captureSubtr);
 	}
 
@@ -129,6 +117,18 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		process = process.resize(model.getDimensions()[0], model.getDimensions()[1], false);
 		toModify.setProcessor(process);
 		return toModify;
+	}
+
+	public ImagePlus setOverlayZooms(ImagePlus toOverlay){
+		ImagePlus temp = Library_Dicom.resize(toOverlay, 512, 512);
+					toOverlay.close();
+					toOverlay.setImage(temp);
+					Library_Gui.setCustomLut(toOverlay);
+					
+					Library_Gui.initOverlay(toOverlay);
+					Library_Gui.setOverlayTitle("Ant", toOverlay, Color.YELLOW, 0);
+					Library_Gui.setOverlayGD(toOverlay, Color.YELLOW);
+		return toOverlay;
 	}
 
 	@Override
@@ -149,6 +149,13 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		stackCapture = Library_Capture_CSV.captureToStack(impCapture);
 		montageCaptures = this.montageForTwo(stackCapture);
 		
+		//set the overlays
+		ImagePlus temp = this.captures.get(2);
+		this.captures.get(2).setImage(setOverlayZooms(temp));
+		temp = this.captures.get(3);
+		this.captures.get(3).setImage(setOverlayZooms(temp));
+		temp = this.captures.get(4);
+		this.captures.get(4).setImage(setOverlayZooms(temp));
 
 		// Save captures bounds and result
 		ImagePlus[] impCapture1 = new ImagePlus[3];
