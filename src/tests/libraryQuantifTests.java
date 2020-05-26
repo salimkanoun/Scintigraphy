@@ -35,6 +35,7 @@ public class libraryQuantifTests {
 
 
     public static void main(String[] args){
+        System.out.println("ici");
         libraryQuantifTests lib = new libraryQuantifTests();
         lib.setUp();
     }
