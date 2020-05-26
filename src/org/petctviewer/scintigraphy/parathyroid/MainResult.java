@@ -31,23 +31,6 @@ public class MainResult extends TabResult {
 		this.reloadDisplay();
 	}
 
-	/*private ModelParathyroid getModel() {
-		return (ModelParathyroid) this.parent.getModel();
-	}
-
-	private void displayResult(ResultValue result, Container container) {
-		JLabel label = new JLabel(result.toString());
-
-		// Color for pulmonary shunt
-		if (result.getResultType() == ModelParathyroid.RES_RATIO_THYRO_PARA) {
-			if (result.getValue() < 2.) label.setForeground(Color.GREEN);
-			else if (result.getValue() < 5.) label.setForeground(Color.ORANGE);
-			else label.setForeground(Color.RED);
-		}
-
-		container.add(label);
-	}*/
-
 	@Override
 	public Component getSidePanelContent() {
 		if (this.result!=null){

@@ -153,7 +153,10 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 						selectedImage = img;
 					}
 	
-					if (selectedImage.getImageIsotope() == Isotope.IODE_123 || selectedImage.getImageIsotope() == Isotope.TECHNETIUM_99) {
+					if (selectedImage.getImageIsotope() == Isotope.IODE_123 && selectedImage.getImageIsotope() == Isotope.TECHNETIUM_99) {
+						imagePourTrieAnt.add(selectedImage.clone());
+					}
+					if (selectedImage.getImageIsotope() == Isotope.TECHNETIUM_99 && selectedImage.getImageIsotope() == Isotope.TECHNETIUM_99){
 						imagePourTrieAnt.add(selectedImage.clone());
 					}
 					else {
