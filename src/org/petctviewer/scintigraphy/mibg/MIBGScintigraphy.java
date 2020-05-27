@@ -76,7 +76,8 @@ public class MIBGScintigraphy extends Scintigraphy {
 		}
 
 		// Order images by time
-		impSelect.sort(new ChronologicalAcquisitionComparator());
+		ChronologicalAcquisitionComparator chronologicalOrder = new ChronologicalAcquisitionComparator();
+		impSelect.sort(chronologicalOrder);
 
 		// Close images
 		for (ImageSelection ims : openedImages)

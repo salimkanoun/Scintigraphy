@@ -445,7 +445,7 @@ public class FenSelectionDicom extends JDialog implements ActionListener, ImageL
 	public static class Column {
 		public static final Column PATIENT = new Column("Patient"), STUDY = new Column("Study"), DATE = new Column(
 				"Date"), SERIES = new Column("Series"), DIMENSIONS = new Column("Dimensions"), STACK_SIZE = new Column(
-				"Stack Size"), ORIENTATION, ROW = new Column("Index", null, false), ID = new Column("ID", null, false);
+				"Stack Size"), ORIENTATION, ISOTOPE = new Column("Isotope"), ROW = new Column("Index", null, false), ID = new Column("ID", null, false);
 
 		static {
 			String[] s = Orientation.allOrientations();

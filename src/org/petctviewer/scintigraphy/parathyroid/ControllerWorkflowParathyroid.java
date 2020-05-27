@@ -2,16 +2,18 @@ package org.petctviewer.scintigraphy.parathyroid;
 
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.process.ImageProcessor;
+
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
-import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import java.awt.*;
@@ -42,7 +44,7 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 					stateAnt1 = new ImageState(Orientation.ANT, SLICE_ANT1, ImageState.LAT_RL, ModelParathyroid.IMAGE_THYROIDPARA);
 		final int NB_ROI_PER_IMAGE = 1;
 		// Post then Ant
-	for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < 1; i++) {
 			ImageState state;
 			if (i == 0) state = stateAnt1;
 			else state = stateAnt;
@@ -74,7 +76,6 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		this.workflows[0].addInstruction(dri_1);
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
 
-
 		// Image ThyroPara
 		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
 		this.workflows[1].addInstruction(dri_2);
@@ -85,27 +86,88 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 	public ModelParathyroid getModel() {
 		return (ModelParathyroid) super.getModel();
 	}
+	
+
+	public void captureZoom() {
+		//Capture des ROIs
+		ImagePlus captureR1 = this.model.getImageSelection()[0].getImagePlus();
+		captureR1.setRoi(getModel().getRoi(0).getBounds());
+		captureR1 = captureR1.crop();
+		this.captures.add(captureR1);
+		
+
+		ImagePlus captureR2 = this.model.getImageSelection()[1].getImagePlus();
+		captureR2.setRoi(getModel().getRoi(1).getBounds());
+		captureR2 = captureR2.crop();
+		captureR2 = setCompleteDimensions(captureR1, captureR2);
+		this.captures.add(captureR2);
+
+		ImagePlus captureSubtr = this.getModel().calculateResult();
+		captureSubtr.setRoi(getModel().getRoi(0).getBounds());
+		captureSubtr = captureSubtr.crop();
+		captureSubtr = setCompleteDimensions(captureR1, captureSubtr);
+		this.captures.add(captureSubtr);
+	}
+
+	public ImagePlus setCompleteDimensions(ImagePlus model, ImagePlus toModify) {
+		toModify.setDimensions(model.getDimensions()[2], 
+							   model.getDimensions()[3], 
+							   model.getDimensions()[4]);
+		ImageProcessor process = toModify.getProcessor();
+		process = process.resize(model.getDimensions()[0], model.getDimensions()[1], false);
+		toModify.setProcessor(process);
+		return toModify;
+	}
+
+	public ImagePlus setOverlayZooms(ImagePlus toOverlay){
+		ImagePlus temp = Library_Dicom.resize(toOverlay, 512, 512);
+					toOverlay.close();
+					toOverlay.setImage(temp);
+					Library_Gui.setCustomLut(toOverlay);
+					
+					Library_Gui.initOverlay(toOverlay);
+					Library_Gui.setOverlayTitle("Ant", toOverlay, Color.YELLOW, 0);
+					Library_Gui.setOverlayGD(toOverlay, Color.YELLOW);
+		return toOverlay;
+	}
 
 	@Override
 	protected void end() {
 		super.end();
 
 		this.computeModel();
-		this.model.calculateResults();
 
-		// Save captures
+		this.captureZoom();
+
+		// Save captures ROI
+		ImagePlus montageCaptures = null;
+		ImageStack stackCapture = null;
 		ImagePlus[] impCapture = new ImagePlus[2];
+		
 		impCapture[0] = this.captures.get(0);
 		impCapture[1] = this.captures.get(1);
-		ImageStack stackCapture = Library_Capture_CSV.captureToStack(impCapture);
-		ImagePlus montage = this.montage(stackCapture);
-
-		// Display result
-		FenResults fenResults = new FenResults(this);
-		fenResults.setMainTab(new MainResult(fenResults, montage));
+		stackCapture = Library_Capture_CSV.captureToStack(impCapture);
+		montageCaptures = this.montageForTwo(stackCapture);
 		
-		fenResults.pack();
-		fenResults.setVisible(true);
+		//set the overlays
+		ImagePlus temp = this.captures.get(2);
+		this.captures.get(2).setImage(setOverlayZooms(temp));
+		temp = this.captures.get(3);
+		this.captures.get(3).setImage(setOverlayZooms(temp));
+		temp = this.captures.get(4);
+		this.captures.get(4).setImage(setOverlayZooms(temp));
+
+		// Save captures bounds and result
+		ImagePlus[] impCapture1 = new ImagePlus[3];
+		impCapture1[0] = this.captures.get(2);
+		impCapture1[1] = this.captures.get(3);
+		impCapture1[2] = this.captures.get(4);
+		stackCapture = Library_Capture_CSV.captureToStack(impCapture1);
+		ImagePlus montageResults = this.montageForThree(stackCapture);
+		
+		// Display result
+		ImagePlus result = this.getModel().calculateResult();
+		new FenResultatsParathyroid(this, montageCaptures, montageResults,this.captures, result);
 
 	}
 

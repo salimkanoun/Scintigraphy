@@ -19,6 +19,8 @@ import org.petctviewer.scintigraphy.scin.model.Unit;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
+import ij.plugin.ImageCalculator;
+import ij.process.ImageProcessor;
 
 public class ModelParathyroid extends ModelWorkflow {
 
@@ -29,7 +31,7 @@ public class ModelParathyroid extends ModelWorkflow {
     public static final int IMAGE_THYROIDPARA = 0, IMAGE_THYROID = 1;
 
     private List<Data> datas;
-    private Map<Integer, Double> results;
+	private Map<Integer, Double> results;
     
     /**
 	 * @param selectedImages Images needed for this study (generally those images are used in the workflows)
@@ -39,7 +41,7 @@ public class ModelParathyroid extends ModelWorkflow {
     public ModelParathyroid(ImageSelection[] selectedImages, String studyName) {
         super(selectedImages, studyName);
         this.datas = new LinkedList<>();
-        this.results = new HashMap<>();
+		this.results = new HashMap<>();
     }
 
     /**
@@ -58,15 +60,7 @@ public class ModelParathyroid extends ModelWorkflow {
 		}
 		return data;
     }
-    
-    /**
-	 * Returns the regions for the Thyroid and Thyroid+Para images.
-	 *
-	 * @return array of regions name of the Thyroid and Thyroid+Para images
-	 */
-	private String[] regionsThyroParathyro() {
-		return new String[]{REGION_THYRO, REGION_THYRO_PARA};
-	}
+	
 
     @Override
     public ResultValue getResult(ResultRequest request) {
@@ -77,11 +71,65 @@ public class ModelParathyroid extends ModelWorkflow {
 		value = Unit.PERCENTAGE.convertTo(value, conversion);
 		return new ResultValue(request, value, conversion);
 	}
-	
-	//private void 
 
-    private void calculateResult() {
-        
+	public Roi getRoi(int index){
+		Roi maRoi = this.roiManager.getRoi(index);
+		System.out.println(maRoi);
+		return maRoi;
+	}
+	
+	private ImagePlus calculateImageRatio(){
+		System.out.println("Nbre de coups");
+		double thyroid = this.datas.get(IMAGE_THYROID).getAntValue(REGION_THYRO, Data.DATA_COUNTS);
+		System.out.println("Thyroide: " + thyroid + " ; ");
+		
+		double thyroPara = this.datas.get(IMAGE_THYROIDPARA).getAntValue(REGION_THYRO_PARA, Data.DATA_COUNTS);
+		System.out.println("Thyroide+Parathyroide: " + thyroPara +";");
+		
+		ImageSelection[] selection = this.getImageSelection();
+		double result = 0;
+		ImagePlus mult = null;
+		ImageProcessor processor = null;
+		if (thyroid < thyroPara){
+			result = thyroPara/thyroid;
+			processor = selection[0].getImagePlus().getProcessor();
+			processor.multiply(result);
+
+			mult = selection[0].getImagePlus();
+			mult.setProcessor(processor);
+		}
+		else {
+			result = thyroid/thyroPara;
+			processor = selection[1].getImagePlus().getProcessor();
+			processor.multiply(result);
+
+			mult = selection[1].getImagePlus();
+			mult.setProcessor(processor);
+		}
+		System.out.println("Ratio = " + result);
+		System.out.println("ImageMult = "+ mult);
+		return mult;
+	}
+
+    public ImagePlus calculateResult() {
+        //Calculate ratio
+		ImagePlus ratio = this.calculateImageRatio();
+
+		double thyroid = this.datas.get(IMAGE_THYROID).getAntValue(REGION_THYRO, Data.DATA_COUNTS);
+		double thyroPara = this.datas.get(IMAGE_THYROIDPARA).getAntValue(REGION_THYRO_PARA, Data.DATA_COUNTS);
+
+		ImageSelection[] selection = this.getImageSelection();
+		ImagePlus result = null;
+		ImageCalculator ic = new ImageCalculator();
+
+		if (thyroid < thyroPara) {
+			result = ic.run("subtract create stack", selection[1].getImagePlus(), ratio);
+		}
+		else {
+			result = ic.run("subtract create stack", selection[0].getImagePlus(), ratio);
+			result.getProcessor().min(0);
+		}
+		return result;
     }
 
     @Override

@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.scin;
 import ij.ImagePlus;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -83,6 +84,16 @@ public class ImageSelection implements Cloneable {
 		Orientation o = Orientation.parse(this.columnsValues.get(Column.ORIENTATION.getName()));
 		return o == null ? Orientation.UNKNOWN : o;
 	}
+
+	
+	/**
+	 * @return image isotope or UNKNOWN if no isotope was set during image
+	 *         selection
+	 */
+	public Isotope getImageIsotope() {
+		Isotope i = Isotope.parse(this.columnsValues.get(Column.ISOTOPE.getName()));
+		return i == null ? Isotope.UNKNOWN : i;
+	}		
 
 	/**
 	 * @return row of the image in the FenSelectionDicom (from 1 to

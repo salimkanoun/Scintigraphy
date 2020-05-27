@@ -344,7 +344,7 @@ public class Library_Quantif {
 	 */
 	public enum Isotope {
 		INDIUM_111(242330000L, "C-145A4"), TECHNETIUM_99(21620880L, "C-163A8"), CHROME_51(2393500000L, "C-129A2"), 
-		IODE_123(47592000L,"C-114A4");
+		IODE_123(47592000L,"C-114A4"), UNKNOWN(0, "UNKNOWN");
 
 		private final long halfLifeMS;
 		private final String code;
@@ -380,8 +380,25 @@ public class Library_Quantif {
 					return "Chrome (51)";
 				case IODE_123:
 					return "Iode (123)";
+				case UNKNOWN:
+					return "UNKNOWN";
 			}
 			return super.toString();
+		}
+
+		
+		/**
+		 * Parses a string to retrieve isotope.<br>
+		 * The isotope is returned if toString().equals(display).
+		 *
+		 * @param display String to parse
+		 * @return isotope of the string or null if no isotope matches
+		 */
+		public static Isotope parse(String display) {
+			for (Isotope i : Isotope.values()) {
+				if (i.toString().equals(display)) return i;
+			}
+			return null;
 		}
 	}
 

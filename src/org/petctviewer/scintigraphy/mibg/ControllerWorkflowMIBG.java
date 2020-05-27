@@ -24,12 +24,12 @@ import java.util.List;
 
 public class ControllerWorkflowMIBG extends ControllerWorkflow {
 
-	private final List<ImagePlus> captures;
+	private List<ImagePlus> captures;
 
 	public ControllerWorkflowMIBG(String studyName, FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
 		super(vue, new ModelMIBG(selectedImages, studyName));
 
-		this.captures = new ArrayList<>();
+		this.captures = new ArrayList<>(4);
 
 		this.generateInstructions();
 		this.start();
@@ -60,23 +60,31 @@ public class ControllerWorkflowMIBG extends ControllerWorkflow {
 	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 
-		DrawRoiInstruction dri_heart = null, dri_mediastinum = null;
-
-		for (int i = 0; i < 2; i++) {
-			this.workflows[i] = new Workflow(this, this.getModel().getImageSelection()[i]);
+		DrawRoiInstruction dri_heart = null, dri_mediastinum = null, 
+							dri_heart1 = null, dri_mediastinum1 = null;
 
 
-			ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
-			state.specifieImage(this.getModel().getImageSelection()[i]);
+		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
-			dri_heart = new DrawRoiInstruction("Heart", state, dri_heart);
-			dri_mediastinum = new DrawRoiInstruction("Mediastinum", state, dri_mediastinum);
+		ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
+		state.specifieImage(this.model.getImageSelection()[0]);
 
-			this.workflows[i].addInstruction(dri_heart);
-			this.workflows[i].addInstruction(dri_mediastinum);
-			this.workflows[i].addInstruction(new ScreenShotInstruction(captures, this.getVue(), i));
-		}
-		this.workflows[this.workflows.length - 1].addInstruction(new EndInstruction());
+		dri_heart = new DrawRoiInstruction("Heart", state);
+		dri_mediastinum = new DrawRoiInstruction("Mediastinum", state);
+		
+		this.workflows[0].addInstruction(dri_heart);
+		this.workflows[0].addInstruction(dri_mediastinum);
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
+
+		dri_heart1 = new DrawRoiInstruction("Heart", state, dri_heart);
+		dri_mediastinum1 = new DrawRoiInstruction("Mediastinum", state, dri_mediastinum);
+		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
+		this.workflows[1].addInstruction(dri_heart1);
+		this.workflows[1].addInstruction(dri_mediastinum1);
+		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
+
+
+		this.workflows[1].addInstruction(new EndInstruction());
 
 	}
 
