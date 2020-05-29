@@ -44,11 +44,11 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, ModelLiver.IMAGE_LIVER_LUNG),
                 statePost = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_RL, ModelLiver.IMAGE_LIVER_LUNG);
         final int NB_ROI_PER_IMAGE = 3;
-        // Post then Ant
+        // Ant then Post
         for (int i=0; i<2; i++) {
             ImageState state;
-            if (i==0) state = statePost;
-            else state = stateAnt;
+            if (i==0) state = stateAnt;
+            else state = statePost;
             // - Right lung
             getModel().addData(ModelLiver.REGION_RIGHT_LUNG, state,
                     getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i]);
@@ -80,9 +80,9 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
 
         // le POST
-        dri_1 = new DrawRoiInstruction(ModelLiver.REGION_RIGHT_LUNG, statePost);
-        dri_2 = new DrawRoiInstruction(ModelLiver.REGION_LEFT_LUNG, statePost);
-        dri_3 = new DrawRoiInstruction(ModelLiver.REGION_LIVER, statePost);
+        dri_1 = new DrawRoiInstruction(ModelLiver.REGION_RIGHT_LUNG, stateAnt);
+        dri_2 = new DrawRoiInstruction(ModelLiver.REGION_LEFT_LUNG, stateAnt);
+        dri_3 = new DrawRoiInstruction(ModelLiver.REGION_LIVER, stateAnt);
         
 
         // Image Lung-Liver
@@ -92,10 +92,10 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         this.workflows[0].addInstruction(dri_3);
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
 		//creation of the ANT based on the POST
-        this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_RIGHT_LUNG, stateAnt,dri_1));
-        this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_LEFT_LUNG, stateAnt,dri_2));
+        this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_RIGHT_LUNG, statePost, dri_2));
+        this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_LEFT_LUNG, statePost, dri_1));
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 2));
-        this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_LIVER, stateAnt, dri_3));
+        this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_LIVER, statePost, dri_3));
         this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 3));
         this.workflows[0].addInstruction(new EndInstruction());
 	}
@@ -153,7 +153,7 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 		if (state.getSlice() <= ImageState.SLICE_PREVIOUS) throw new IllegalArgumentException("The slice is invalid");
 
         if (state.isLateralisationRL()) {
-			System.out.println("Orentation "+state.getFacingOrientation().toString());
+			System.out.println("Orientation "+state.getFacingOrientation().toString());
 			if (state.getFacingOrientation() == Orientation.ANT) {
 				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
 											state.getSlice());
@@ -166,7 +166,7 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 					Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
 											state.getSlice());
 					System.out.println("On a passé la prem instruction");
-					Library_Gui.setOverlayTitle("Inverted " + display.getTitlePost(), this.vue.getImagePlus(),
+					Library_Gui.setOverlayTitle(display.getTitlePost(), this.vue.getImagePlus(),
 											Color.YELLOW, state.getSlice());
 					System.out.println("On a passé la deuz instruction");
 				}

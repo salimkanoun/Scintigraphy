@@ -81,7 +81,7 @@ public class ModelParathyroid extends ModelWorkflow {
 	private ImagePlus calculateImageRatio(){
 		System.out.println("Nbre de coups");
 		double thyroid = this.datas.get(IMAGE_THYROID).getAntValue(REGION_THYRO, Data.DATA_COUNTS);
-		System.out.println("Thyroide: " + thyroid + " ; ");
+		System.out.println("Parathyroide: " + thyroid + " ; ");
 		
 		double thyroPara = this.datas.get(IMAGE_THYROIDPARA).getAntValue(REGION_THYRO_PARA, Data.DATA_COUNTS);
 		System.out.println("Thyroide+Parathyroide: " + thyroPara +";");

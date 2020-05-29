@@ -3,13 +3,14 @@ package org.petctviewer.scintigraphy.mibg;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
 import org.petctviewer.scintigraphy.scin.model.ModelWorkflow;
 import org.petctviewer.scintigraphy.scin.model.ResultRequest;
 import org.petctviewer.scintigraphy.scin.model.ResultValue;
+import org.petctviewer.scintigraphy.scin.model.Unit;
 
 import ij.gui.Roi;
 
@@ -18,11 +19,13 @@ public class ModelMIBG extends ModelWorkflow {
 	private static final String[] ORGANS = { "Early Heart", "Early Mediastinum", "Late Heart", "Late Mediastinum" };
 
 	private final HashMap<String, Double> dataImage;
+	private Map<Integer, Double> results;
 
 	public ModelMIBG(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);
 
 		this.dataImage = new HashMap<>();
+		this.results = new HashMap<>();
 	}
 
 	@Override
