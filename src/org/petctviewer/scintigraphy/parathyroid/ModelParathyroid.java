@@ -24,11 +24,11 @@ import ij.process.ImageProcessor;
 
 public class ModelParathyroid extends ModelWorkflow {
 
-    public static final String REGION_THYRO_PARA = "Thyroid and Parathyroid", REGION_THYRO = "Thyroid";
+    public static final String REGION_THYRO_PARA = "Thyroid and Parathyroid", REGION_PARATHYROID = "Parathyroid";
 
-    public static final Result RES_RATIO_THYRO_PARA = new Result("Thyroid+Para Ratio"), RES_RATIO_THYRO= new Result("Thyroid ratio"); 
+    public static final Result RES_RATIO_THYRO_PARA = new Result("Thyroid+Para Ratio"), RES_RATIO_PARATHYRO= new Result("Parathyroid ratio"); 
 
-    public static final int IMAGE_THYROIDPARA = 0, IMAGE_THYROID = 1;
+    public static final int IMAGE_THYROIDPARA = 0, IMAGE_PARATHYROID = 1;
 
     private List<Data> datas;
 	private Map<Integer, Double> results;
@@ -80,8 +80,8 @@ public class ModelParathyroid extends ModelWorkflow {
 	
 	private ImagePlus calculateImageRatio(){
 		System.out.println("Nbre de coups");
-		double thyroid = this.datas.get(IMAGE_THYROID).getAntValue(REGION_THYRO, Data.DATA_COUNTS);
-		System.out.println("Parathyroide: " + thyroid + " ; ");
+		double parathyroid = this.datas.get(IMAGE_PARATHYROID).getAntValue(REGION_PARATHYROID, Data.DATA_COUNTS);
+		System.out.println("Parathyroide: " + parathyroid + " ; ");
 		
 		double thyroPara = this.datas.get(IMAGE_THYROIDPARA).getAntValue(REGION_THYRO_PARA, Data.DATA_COUNTS);
 		System.out.println("Thyroide+Parathyroide: " + thyroPara +";");
@@ -90,17 +90,17 @@ public class ModelParathyroid extends ModelWorkflow {
 		double result = 0;
 		ImagePlus mult = null;
 		ImageProcessor processor = null;
-		if (thyroid < thyroPara){
-			result = thyroPara/thyroid;
-			processor = selection[0].getImagePlus().getProcessor();
+		if (parathyroid < thyroPara){
+			result = thyroPara/parathyroid;
+			processor = selection[IMAGE_THYROIDPARA].getImagePlus().getProcessor();
 			processor.multiply(result);
 
 			mult = selection[0].getImagePlus();
 			mult.setProcessor(processor);
 		}
 		else {
-			result = thyroid/thyroPara;
-			processor = selection[1].getImagePlus().getProcessor();
+			result = parathyroid/thyroPara;
+			processor = selection[IMAGE_PARATHYROID].getImagePlus().getProcessor();
 			processor.multiply(result);
 
 			mult = selection[1].getImagePlus();
@@ -115,18 +115,18 @@ public class ModelParathyroid extends ModelWorkflow {
         //Calculate ratio
 		ImagePlus ratio = this.calculateImageRatio();
 
-		double thyroid = this.datas.get(IMAGE_THYROID).getAntValue(REGION_THYRO, Data.DATA_COUNTS);
+		double parathyroid = this.datas.get(IMAGE_PARATHYROID).getAntValue(REGION_PARATHYROID, Data.DATA_COUNTS);
 		double thyroPara = this.datas.get(IMAGE_THYROIDPARA).getAntValue(REGION_THYRO_PARA, Data.DATA_COUNTS);
 
 		ImageSelection[] selection = this.getImageSelection();
 		ImagePlus result = null;
 		ImageCalculator ic = new ImageCalculator();
 
-		if (thyroid < thyroPara) {
-			result = ic.run("subtract create stack", selection[1].getImagePlus(), ratio);
+		if (parathyroid < thyroPara) {
+			result = ic.run("subtract create stack", selection[IMAGE_PARATHYROID].getImagePlus(), ratio);
 		}
 		else {
-			result = ic.run("subtract create stack", selection[0].getImagePlus(), ratio);
+			result = ic.run("subtract create stack", selection[IMAGE_THYROIDPARA].getImagePlus(), ratio);
 			result.getProcessor().min(0);
 		}
 		return result;

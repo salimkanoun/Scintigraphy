@@ -26,7 +26,7 @@ import java.util.*;
 public class ParathyroidScintigraphy extends Scintigraphy {
 
     public static final String STUDY_NAME = "Parathyroid";
-	private static final String ORGAN_THYROID = "THYROID", ORGAN_PARATHYROID = "THYROID&PARA";
+	private static final String ORGAN_THYROID = "THYROID&PARA", ORGAN_PARATHYROID = "PARATHYROID";
     private Column organColumn;
     private Column traceurColumn;
 
@@ -36,23 +36,10 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 	// imp du projet de chaque Acqui
 	private ImagePlus impProjeteAllAcqui;
 
-	
-	Isotope isotope_thy;
-	Isotope isotope_parathy;
-
 
     public ParathyroidScintigraphy() {
 		super(STUDY_NAME);
 	}
-	
-	public void setIsotopeThy(Isotope isotope){
-		this.isotope_thy = isotope;
-	}
-
-	public void setIsotopeParathy(Isotope isotope){
-		this.isotope_parathy = isotope;
-	}
-
 
     private void createDocumentation() {
         DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
