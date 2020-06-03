@@ -24,7 +24,7 @@ import ij.process.ImageProcessor;
 
 public class ModelParathyroid extends ModelWorkflow {
 
-    public static final String REGION_THYRO_PARA = "Thyroid and Parathyroid", REGION_PARATHYROID = "Parathyroid";
+    public static final String REGION_THYRO_PARA = "Thyroid Early", REGION_PARATHYROID = "Thyroid Late";
 
     public static final Result RES_RATIO_THYRO_PARA = new Result("Thyroid+Para Ratio"), RES_RATIO_PARATHYRO= new Result("Parathyroid ratio"); 
 

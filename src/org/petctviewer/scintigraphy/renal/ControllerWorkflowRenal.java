@@ -34,7 +34,7 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 	public ControllerWorkflowRenal(FenApplicationWorkflow vue, ModelScin model) {
 		super(vue, model);
 
-		// Those method (generateInstructions() and start()) are called in setKidneys,
+		// The methods (generateInstructions() and start()) are called in setKidneys,
 		// to avoid problems, because you need to
 		// select the kidneys number before starting the Controller.
 	}
