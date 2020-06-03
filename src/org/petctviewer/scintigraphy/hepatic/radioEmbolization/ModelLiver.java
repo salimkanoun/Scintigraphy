@@ -26,9 +26,8 @@ public class ModelLiver extends ModelWorkflow{
 
 	public static final String REGION_RIGHT_LUNG = "Right Lung", REGION_LEFT_LUNG = "Left Lung", REGION_LIVER = "Liver";
 	
-	public static final Result /*RES_RATIO_RIGHT_LUNG = new Result("Right Lung Ratio"), RES_RATIO_LEFT_LUNG = new Result(
-			"Left Lung Ratio"), */RES_LIVER_SHUNT = new Result(
-					"Liver shunt"), RES_LUNG_SHUNT = new Result("Lung shunt");
+	public static final Result RES_LIVER_SHUNT = new Result(
+					"Hepatic fixation (%)"), RES_LUNG_SHUNT = new Result("Pulmonary Fixation (%)");
 			
 	public static final int IMAGE_LIVER_LUNG = 0;
 	

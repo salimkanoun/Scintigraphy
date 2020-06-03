@@ -40,7 +40,7 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 
 	// TODO: remove this method and do this in the instructions
 	private void computeModel() {
-		ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL,ModelParathyroid.IMAGE_THYROID),
+		ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL,ModelParathyroid.IMAGE_PARATHYROID),
 					stateAnt1 = new ImageState(Orientation.ANT, SLICE_ANT1, ImageState.LAT_RL, ModelParathyroid.IMAGE_THYROIDPARA);
 		final int NB_ROI_PER_IMAGE = 1;
 		// Post then Ant
@@ -49,7 +49,7 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 			if (i == 0) state = stateAnt1;
 			else state = stateAnt;
 			// Thyroid Only
-			getModel().addData(ModelParathyroid.REGION_THYRO, state,
+			getModel().addData(ModelParathyroid.REGION_PARATHYROID, state,
 							   getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i]);
 			// Thyroid and Parathyroid
 			getModel().addData(ModelParathyroid.REGION_THYRO_PARA, state,
@@ -69,9 +69,8 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
 		ImageState stateAnt1 = new ImageState(Orientation.ANT, 2, true, ImageState.ID_NONE);
 
-		dri_1 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO, stateAnt);
-		dri_2 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO_PARA, stateAnt1, dri_1);
-
+		dri_1 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO_PARA, stateAnt1);
+		dri_2 = new DrawRoiInstruction(ModelParathyroid.REGION_PARATHYROID, stateAnt, dri_1);
 		// Image Thyro
 		this.workflows[0].addInstruction(dri_1);
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));

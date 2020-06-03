@@ -1,4 +1,4 @@
-package org.petctviewer.scintigraphy.parathyroid;
+package org.petctviewer.scintigraphy.scin.exceptions;
 
 import java.util.Arrays;
 

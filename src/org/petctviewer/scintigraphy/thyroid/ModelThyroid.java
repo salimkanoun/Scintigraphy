@@ -15,7 +15,7 @@ public class ModelThyroid extends ModelWorkflow{
     public static final String REGION_LEFT_LOBE = "Left lobe", REGION_RIGHT_LOBE = "Right Lobe",
     REGION_BACKGROUND_LEFT = "BackgroundL", REGION_BACKGROUND_RIGHT = "BackgroundR", REGION_FULL_SYRINGE = "Full syringe", REGION_EMPTY_SYRINGE = "Empty syringe";
 
-    public static final Result RES_THYROID_SHUNT = new Result("Thyroid counts"), RES_THYROID_SURFACE_LEFT = new Result("Left lobe"), RES_THYROID_SURFACE_RIGHT = new Result("Right lobe");
+    public static final Result RES_THYROID_SHUNT = new Result("Taux de fixation thyroïdien"), RES_THYROID_SURFACE_LEFT = new Result("Left lobe"), RES_THYROID_SURFACE_RIGHT = new Result("Right lobe");
 
     public static final int IMAGE_FULL_SYRINGE = 0,  IMAGE_EMPTY_SYRINGE = 1, IMAGE_THYROID = 2;
 
