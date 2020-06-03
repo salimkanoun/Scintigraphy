@@ -31,7 +31,6 @@ import java.awt.event.ItemListener;
 public class ControllerWorkflowMIBG extends ControllerWorkflow implements ItemListener {
 
 	private List<ImagePlus> captures;
-	private static final int SLICE_ANT = 1, SLICE_ANT1 = 2;
 	private DisplayState display;
 
 	public ControllerWorkflowMIBG(String studyName, FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
@@ -48,30 +47,26 @@ public class ControllerWorkflowMIBG extends ControllerWorkflow implements ItemLi
 	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 
-		DrawRoiInstruction dri_heart = null, dri_mediastinum = null, 
-							dri_heart1 = null, dri_mediastinum1 = null;
-
+		DrawRoiInstruction dri_heart, dri_mediastinum;
+		this.captures = new ArrayList<>(2);
 
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
-		ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
-		state.specifieImage(this.model.getImageSelection()[0]);
+		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
+		//ImageState stateAnt1 = new ImageState(Orientation.ANT, 2, true, ImageState.ID_NONE);
 
-		dri_heart = new DrawRoiInstruction("Heart", state);
-		dri_mediastinum = new DrawRoiInstruction("Mediastinum", state);
-		
+		dri_heart = new DrawRoiInstruction("Heart", stateAnt);
+		dri_mediastinum = new DrawRoiInstruction("Mediastinum", stateAnt);
+		// Image à 30MIN
 		this.workflows[0].addInstruction(dri_heart);
 		this.workflows[0].addInstruction(dri_mediastinum);
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
 
-		dri_heart1 = new DrawRoiInstruction("Heart", state, dri_heart);
-		dri_mediastinum1 = new DrawRoiInstruction("Mediastinum", state, dri_mediastinum);
+		// Image à 4H
 		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
-		this.workflows[1].addInstruction(dri_heart1);
-		this.workflows[1].addInstruction(dri_mediastinum1);
+		this.workflows[1].addInstruction(dri_heart);
+		this.workflows[1].addInstruction(dri_mediastinum);
 		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
-
-
 		this.workflows[1].addInstruction(new EndInstruction());
 
 	}
