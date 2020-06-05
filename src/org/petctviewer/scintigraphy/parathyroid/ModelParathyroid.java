@@ -80,6 +80,8 @@ public class ModelParathyroid extends ModelWorkflow {
 	
 	private ImagePlus calculateImageRatio(){
 		System.out.println("Nbre de coups");
+		// TODO : changer le nom des variables en r1 r2 et verif les calculs en fonction
+		// de la feuille donnée par Pierre
 		double parathyroid = this.datas.get(IMAGE_PARATHYROID).getAntValue(REGION_PARATHYROID, Data.DATA_COUNTS);
 		System.out.println("Parathyroide: " + parathyroid + " ; ");
 		
@@ -115,20 +117,12 @@ public class ModelParathyroid extends ModelWorkflow {
         //Calculate ratio
 		ImagePlus ratio = this.calculateImageRatio();
 
-		double parathyroid = this.datas.get(IMAGE_PARATHYROID).getAntValue(REGION_PARATHYROID, Data.DATA_COUNTS);
-		double thyroPara = this.datas.get(IMAGE_THYROIDPARA).getAntValue(REGION_THYRO_PARA, Data.DATA_COUNTS);
-
 		ImageSelection[] selection = this.getImageSelection();
 		ImagePlus result = null;
 		ImageCalculator ic = new ImageCalculator();
 
-		if (parathyroid < thyroPara) {
-			result = ic.run("subtract create stack", selection[IMAGE_PARATHYROID].getImagePlus(), ratio);
-		}
-		else {
-			result = ic.run("subtract create stack", selection[IMAGE_THYROIDPARA].getImagePlus(), ratio);
-			result.getProcessor().min(0);
-		}
+		result = ic.run("subtract create stack", selection[IMAGE_PARATHYROID].getImagePlus(), ratio);
+		
 		return result;
     }
 

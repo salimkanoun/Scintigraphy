@@ -88,15 +88,13 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         // Image Lung-Liver
         this.workflows[0].addInstruction(dri_1);
         this.workflows[0].addInstruction(dri_2);
-		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
         this.workflows[0].addInstruction(dri_3);
-		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
 		//creation of the ANT based on the POST
         this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_RIGHT_LUNG, statePost, dri_2));
         this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_LEFT_LUNG, statePost, dri_1));
-		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 2));
         this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_LIVER, statePost, dri_3));
-        this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 3));
+        this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
         this.workflows[0].addInstruction(new EndInstruction());
 	}
 	
@@ -122,13 +120,11 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         this.model.calculateResults();
 
         //Save captures
-        ImagePlus[] impCapture = new ImagePlus[4];
+        ImagePlus[] impCapture = new ImagePlus[2];
         impCapture[0] = this.captures.get(0);
         impCapture[1] = this.captures.get(1);
-		impCapture[2] = this.captures.get(2);
-		impCapture[3] = this.captures.get(3);
         ImageStack stackCapture = Library_Capture_CSV.captureToStack(impCapture);
-		ImagePlus montage = this.montage(stackCapture);
+		ImagePlus montage = this.montageForTwo(stackCapture);
 		
 
         // Display result
@@ -160,15 +156,12 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 				Library_Gui.setOverlayTitle(display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
 											state.getSlice());
 			} else {
-				System.out.println("On est dans le else");
 				if (state.getFacingOrientation() == Orientation.POST){
-					System.out.println("On est dans le if du post");
+					System.out.println("On est dans le post sens LR");
 					Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
 											state.getSlice());
-					System.out.println("On a passé la prem instruction");
 					Library_Gui.setOverlayTitle(display.getTitlePost(), this.vue.getImagePlus(),
 											Color.YELLOW, state.getSlice());
-					System.out.println("On a passé la deuz instruction");
 				}
 	
 			}
@@ -179,6 +172,7 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 				Library_Gui.setOverlayTitle("Inverted " + display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
 											state.getSlice());
 			} else {
+				System.out.println("On est dans le post RL sens");
 				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,
 											state.getSlice());
 				Library_Gui.setOverlayTitle(display.getTitlePost(), this.vue.getImagePlus(), Color.YELLOW,

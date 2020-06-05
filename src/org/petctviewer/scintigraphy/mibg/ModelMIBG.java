@@ -58,8 +58,8 @@ public class ModelMIBG extends ModelWorkflow {
 		us.setDecimalFormatSymbols(sym);
 
 		results[0] = "H/M ratio : ";
-		results[1] = "\tEarly : " + us.format((this.dataImage.get("Early H/M ratio")) * 100) + "%";
-		results[2] = "\tLate : " + us.format((this.dataImage.get("Late H/M ratio")) * 100) + "%";
+		results[1] = "\tEarly : " + us.format((this.dataImage.get("Early H/M ratio")));
+		results[2] = "\tLate : " + us.format((this.dataImage.get("Late H/M ratio")));
 		results[3] = "";
 		results[4] = "Washout Rate : " + us.format((this.dataImage.get("Washout Rate") * 100)) + "%";
 
