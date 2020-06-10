@@ -93,7 +93,16 @@ public class ImageSelection implements Cloneable {
 	public Isotope getImageIsotope() {
 		Isotope i = Isotope.parse(this.columnsValues.get(Column.ISOTOPE.getName()));
 		return i == null ? Isotope.UNKNOWN : i;
-	}		
+	}
+	
+	/**
+	 * @return image organ in a string or UNKNOWN if no organ was set during image
+	 *         selection
+	 */
+	public String getImageOrgan() {
+		String i = this.columnsValues.get(Column.ORGAN.getName());
+		return i == null ? "UNKNOWN" : i;
+	}
 
 	/**
 	 * @return row of the image in the FenSelectionDicom (from 1 to

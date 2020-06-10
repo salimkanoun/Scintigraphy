@@ -5,6 +5,7 @@ import ij.ImageStack;
 import ij.plugin.MontageMaker;
 import ij.process.ImageProcessor;
 import org.petctviewer.scintigraphy.mibg.tabResults.TabMainMIBG;
+import org.petctviewer.scintigraphy.parathyroid.ControllerWorkflowParathyroid.DisplayState;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -17,22 +18,57 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ControllerWorkflowMIBG extends ControllerWorkflow {
+import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
-	private final List<ImagePlus> captures;
+public class ControllerWorkflowMIBG extends ControllerWorkflow implements ItemListener {
+
+	private List<ImagePlus> captures;
+	private DisplayState display;
 
 	public ControllerWorkflowMIBG(String studyName, FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
 		super(vue, new ModelMIBG(selectedImages, studyName));
 
-		this.captures = new ArrayList<>();
+		// Initialize variables
+		this.display = DisplayState.ANT_POST;
 
 		this.generateInstructions();
 		this.start();
+	}
+
+	@Override
+	protected void generateInstructions() {
+		this.workflows = new Workflow[this.model.getImageSelection().length];
+
+		DrawRoiInstruction dri_heart, dri_mediastinum;
+		this.captures = new ArrayList<>(2);
+
+		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
+
+		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
+		//ImageState stateAnt1 = new ImageState(Orientation.ANT, 2, true, ImageState.ID_NONE);
+
+		dri_heart = new DrawRoiInstruction("Heart", stateAnt);
+		dri_mediastinum = new DrawRoiInstruction("Mediastinum", stateAnt);
+		// Image à 30MIN
+		this.workflows[0].addInstruction(dri_heart);
+		this.workflows[0].addInstruction(dri_mediastinum);
+		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
+
+		// Image à 4H
+		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
+		this.workflows[1].addInstruction(dri_heart);
+		this.workflows[1].addInstruction(dri_mediastinum);
+		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
+		this.workflows[1].addInstruction(new EndInstruction());
+
 	}
 
 	@Override
@@ -56,28 +92,52 @@ public class ControllerWorkflowMIBG extends ControllerWorkflow {
 		fenResults.setVisible(true);
 	}
 
+
+
 	@Override
-	protected void generateInstructions() {
-		this.workflows = new Workflow[this.model.getImageSelection().length];
+	public void setOverlay(ImageState state) throws IllegalArgumentException {
+		if (state == null) throw new IllegalArgumentException("The state cannot be null");
+		if (state.getFacingOrientation() == null) throw new IllegalArgumentException(
+				"The state misses the required data: -facingOrientation=" + state.getFacingOrientation() + "; " +
+						state.getSlice());
+		if (state.getSlice() <= ImageState.SLICE_PREVIOUS) throw new IllegalArgumentException("The slice is invalid");
 
-		DrawRoiInstruction dri_heart = null, dri_mediastinum = null;
-
-		for (int i = 0; i < 2; i++) {
-			this.workflows[i] = new Workflow(this, this.getModel().getImageSelection()[i]);
-
-
-			ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
-			state.specifieImage(this.getModel().getImageSelection()[i]);
-
-			dri_heart = new DrawRoiInstruction("Heart", state, dri_heart);
-			dri_mediastinum = new DrawRoiInstruction("Mediastinum", state, dri_mediastinum);
-
-			this.workflows[i].addInstruction(dri_heart);
-			this.workflows[i].addInstruction(dri_mediastinum);
-			this.workflows[i].addInstruction(new ScreenShotInstruction(captures, this.getVue(), i));
+		if (state.isLateralisationRL()) {
+			if (state.getFacingOrientation() == Orientation.ANT) {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
+											state.getSlice());
+				Library_Gui.setOverlayTitle(display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
+											state.getSlice());
+			} else {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
+											state.getSlice());
+				Library_Gui.setOverlayTitle("Inverted " + display.getTitlePost(), this.vue.getImagePlus(),
+											Color.YELLOW,
+											state.getSlice());
+			}
+		} else {
+			if (state.getFacingOrientation() == Orientation.ANT) {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,
+											state.getSlice());
+				Library_Gui.setOverlayTitle("Inverted " + display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
+											state.getSlice());
+			} else {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,
+											state.getSlice());
+				Library_Gui.setOverlayTitle(display.getTitlePost(), this.vue.getImagePlus(), Color.YELLOW,
+											state.getSlice());
+			}
 		}
-		this.workflows[this.workflows.length - 1].addInstruction(new EndInstruction());
+	}
 
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getStateChange() == ItemEvent.SELECTED) {
+			this.display = DisplayState.stateFromLabel((String) e.getItem());
+			this.getVue().getImagePlus().getOverlay().clear();
+			this.setOverlay(this.currentState);
+			this.getVue().getImagePlus().updateAndDraw();
+		}
 	}
 
 }

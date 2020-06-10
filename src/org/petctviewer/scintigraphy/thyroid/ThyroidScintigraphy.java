@@ -82,7 +82,7 @@ public class ThyroidScintigraphy extends Scintigraphy {
         final Column orientation = new Column (Column.ORIENTATION.getName(), orientationValues);
         
         //Organ column
-		final String[] organValues = {ORGAN_THYROID};
+		final String[] organValues = {ORGAN_THYROID, "FULL SYRINGE", "EMPTY SYRINGE"};
 		this.organColumn = new Column("Organ", organValues);
 		
 		//Choose columns to display
@@ -98,8 +98,19 @@ public class ThyroidScintigraphy extends Scintigraphy {
         
         //Check orientation
         final List<ImageSelection> result = new ArrayList<>();
+        result.add(null);
+        result.add(null);
+        result.add(null);
         for(final ImageSelection ims : selectedImages){
-            result.add(Library_Dicom.ensureAntPost(ims));
+            if (ims.getImageOrgan().equals("FULL SYRINGE")){
+                result.set(0, Library_Dicom.ensureAntPost(ims));
+            }else {
+                if (ims.getImageOrgan().equals("EMPTY SYRINGE")){
+                    result.set(1, Library_Dicom.ensureAntPost(ims));
+                }else {
+                    result.set(2, Library_Dicom.ensureAntPost(ims));
+                }
+            }
             ims.close();
         }
         return result;
