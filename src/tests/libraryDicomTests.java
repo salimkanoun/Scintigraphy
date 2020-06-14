@@ -1,10 +1,6 @@
 package tests;
 
-import ij.ImagePlus;
 import ij.plugin.DICOM;
-import ij.process.StackProcessor;
-import ij.util.DicomTools;
-import loci.plugins.util.LibraryChecker.Library;
 import org.easymock.EasyMock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,7 +20,6 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
-import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 /**

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.awt.*;
 
-import org.petctviewer.scintigraphy.gallbladder.resultats.Model_Resultats_Gallblader;
+import org.petctviewer.scintigraphy.gallbladder.resultats.Model_Resultats_Gallbladder;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
@@ -13,7 +13,7 @@ import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 import ij.gui.Roi;
 import ij.plugin.frame.RoiManager;
 
-public class Model_Gallblader extends ModelScinDyn {
+public class Model_Gallbladder extends ModelScinDyn {
 
     //sauvegarde des imp de départ avec tous leur stacks chacun : pour pouvoir faire les calculs de mean dans le temps//trié
     private final ImageSelection[][] sauvegardeImagesSelectDicom;
@@ -27,11 +27,11 @@ public class Model_Gallblader extends ModelScinDyn {
 
     public final Gallbladder gallPlugIn;
 
-    private Model_Resultats_Gallblader modelResults;
+    private Model_Resultats_Gallbladder modelResults;
 
     private ImageSelection impProjeteeAllAcqui;
 
-    public Model_Gallblader(ImageSelection[][] sauvegardeImagesSelectDicom, String studyName,
+    public Model_Gallbladder(ImageSelection[][] sauvegardeImagesSelectDicom, String studyName,
     Gallbladder gallPlugIn, ImageSelection impProjeteeAllAcqui) {
         super(sauvegardeImagesSelectDicom[0], studyName, gallPlugIn.getFrameDurations());
         this.sauvegardeImagesSelectDicom = sauvegardeImagesSelectDicom;
@@ -136,7 +136,7 @@ public class Model_Gallblader extends ModelScinDyn {
         return this.dicomRoi;
     }
 
-    public void setModelResults(Model_Resultats_Gallblader model){
+    public void setModelResults(Model_Resultats_Gallbladder model){
         this.modelResults = model;
     }
 
