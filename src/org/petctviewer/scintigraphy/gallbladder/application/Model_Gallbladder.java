@@ -17,7 +17,7 @@ public class Model_Gallbladder extends ModelScinDyn {
 
     //sauvegarde des imp de départ avec tous leur stacks chacun : pour pouvoir faire les calculs de mean dans le temps//trié
     private final ImageSelection[][] sauvegardeImagesSelectDicom;
-    // list : liste des examen
+    // list : liste des examens
 	// list->map : map des 4 roi ( entier, premier tier, deuxieme tier et troisieme tier)
 	// list->map->list : list des mean(double) pour tous le stack
     private ArrayList<HashMap<String, ArrayList<Double>>> examenMean;
