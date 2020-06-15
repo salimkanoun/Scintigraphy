@@ -8,7 +8,6 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
-import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 public class ControllerWorkflowGallbladder extends ControllerWorkflow{
     public ControllerWorkflowGallbladder(FenApplicationWorkflow vue, ModelScin model){
@@ -21,16 +20,15 @@ public class ControllerWorkflowGallbladder extends ControllerWorkflow{
     public void end(){
         super.end();
         model.calculateResults();
-        FenResultats_Gallbladder fen = new FenResultats_Gallbladder(
-            ((Model_Gallbladder) model).getExamenMean(), ((Model_Gallbladder) model).getDicomRoi(),
-        ((Model_Gallbladder) model), "Gallbladder", this);
+        FenResultats_Gallbladder fen = new FenResultats_Gallbladder((Model_Gallblader) model).getExamenMean(), ((Model_Gallblader) model).getDicomRoi(),
+        ((Model_Gallblader) model), "Gallbladder", this);
         fen.setVisible(true);
     }
 
     @Override
     protected void generateInstructions(){
         this.workflows = new Workflow[1];
-        this.workflows[0] = new Workflow(this, ((Model_Gallbladder) this.getModel()).getImgPrjtAllAcqui());
+        this.workflows[0] = new Workflow(this, ((Model_Gallblader) this.getModel().getImgPrjtAllAcqui());
 
         for(int indexInstruction = 0; indexInstruction < this.getModel().getImageSelection().length; indexInstruction++){
             ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
