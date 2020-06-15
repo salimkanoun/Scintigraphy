@@ -11,7 +11,7 @@ import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
-import org.petctviewer.scintigraphy.gallbladder.resultats.Model_Resultats_Gallblader;
+import org.petctviewer.scintigraphy.gallbladder.resultats.Model_Resultats_Gallbladder;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -30,11 +30,11 @@ public class TabGallbladder extends TabResult{
     private JLabel[] gallbladder10sLabel;
     private static int numAcquisitionGallbladder = 0;
 
-    private final Model_Resultats_Gallblader modeleApp;
+    private final Model_Resultats_Gallbladder modeleApp;
 
     private final Integer nbAcquisition;
 
-    public TabGallbladder(int nbAcquisition, FenResults parent, Model_Resultats_Gallblader model){
+    public TabGallbladder(int nbAcquisition, FenResults parent, Model_Resultats_Gallbladder model){
         super(parent, "Gallbladder", true);
         this.modeleApp = model;
         this.nbAcquisition = nbAcquisition;
@@ -75,9 +75,10 @@ public class TabGallbladder extends TabResult{
                         tab.setVisibilitySeriesGraph(tab.graphGallbladder, i1, false);
                     }
                 }
-        });
-        buttonGroupGallbladder.add(radioButtonGallbladder[i]);
-        radioButtonGallbladderPanel.add(radioButtonGallbladder[i]);
+            });
+            buttonGroupGallbladder.add(radioButtonGallbladder[i]);
+            radioButtonGallbladderPanel.add(radioButtonGallbladder[i]);
+        }
 
         JPanel radioButtonGallbladderPanelFlow = new JPanel();
         radioButtonGallbladderPanelFlow.setLayout(new FlowLayout());
@@ -93,7 +94,7 @@ public class TabGallbladder extends TabResult{
         gallbladderResultPanel.add(new JLabel("Decrease 10s after peak"));
         double[] gallbladder10s = modeleApp.retentionAllPoucentage();
         gallbladder10sLabel = new JLabel[nbAcquisition];
-        for(i = 0; i < gallbladder10s.length; i++){
+        for(int i = 0; i < gallbladder10s.length; i++){
             gallbladder10sLabel[i] = new JLabel("Acquisition " + (i+1) + " : " + (gallbladder10s[i]) + "%");
             gallbladderResultPanel.add(gallbladder10sLabel[i]);
         }
