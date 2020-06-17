@@ -83,13 +83,9 @@ public class LiverScintigraphy extends Scintigraphy {
 		final String[] orientationValues= {Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString()};
 		final Column orientation = new Column (Column.ORIENTATION.getName(), orientationValues);
 		
-		//Organ column
-		final String[] organValues = {ORGAN_LIVER_PULMON};
-		this.orgranColumn = new Column("Organ", organValues);
-		
 		//Choose columns to display
 		return new Column[] {Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
-			Column.STACK_SIZE, orientation, this.orgranColumn};
+			Column.STACK_SIZE, orientation};
 	}
 	
 	@Override

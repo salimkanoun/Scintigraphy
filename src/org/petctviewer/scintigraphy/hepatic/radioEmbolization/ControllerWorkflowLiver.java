@@ -91,9 +91,9 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         this.workflows[0].addInstruction(dri_3);
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
 		//creation of the ANT based on the POST
-        this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_RIGHT_LUNG, statePost, dri_2));
-        this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_LEFT_LUNG, statePost, dri_1));
-        this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_LIVER, statePost, dri_3));
+        this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_RIGHT_LUNG, statePost));
+        this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_LEFT_LUNG, statePost));
+        this.workflows[0].addInstruction(new DrawRoiInstruction(ModelLiver.REGION_LIVER, statePost));
         this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
         this.workflows[0].addInstruction(new EndInstruction());
 	}
@@ -157,9 +157,6 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 											state.getSlice());
 			} else {
 				if (state.getFacingOrientation() == Orientation.POST){
-					System.out.println("On est dans le post sens LR");
-					Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
-											state.getSlice());
 					Library_Gui.setOverlayTitle(display.getTitlePost(), this.vue.getImagePlus(),
 											Color.YELLOW, state.getSlice());
 				}
@@ -172,9 +169,6 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 				Library_Gui.setOverlayTitle("Inverted " + display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
 											state.getSlice());
 			} else {
-				System.out.println("On est dans le post RL sens");
-				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,
-											state.getSlice());
 				Library_Gui.setOverlayTitle(display.getTitlePost(), this.vue.getImagePlus(), Color.YELLOW,
 											state.getSlice());
 			}
