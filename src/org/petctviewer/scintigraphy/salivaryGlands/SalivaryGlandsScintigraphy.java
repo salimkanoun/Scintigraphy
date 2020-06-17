@@ -68,56 +68,56 @@ public class SalivaryGlandsScintigraphy extends Scintigraphy {
 		if (selectedImages.size() != 1 && selectedImages.size() != 2) throw new WrongNumberImagesException(
             selectedImages.size(), 1, 2);
 
-    // Check orientations
-    // With 1 image
-    if (selectedImages.size() == 1) {
-        if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_ANT) {
-            // Set images
-            ImageSelection imps = selectedImages.get(0).clone();
-            this.impAnt = imps;
-        } else throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
-                                                                selectedImages.get(0).getImageOrientation(),
-                                                                new Orientation[]{Orientation.DYNAMIC_ANT},
-                                                                "You can only use a Dynamic ANT");
-    }
+        // Check orientations
+        // With 1 image
+        if (selectedImages.size() == 1) {
+            if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_ANT) {
+                // Set images
+                ImageSelection imps = selectedImages.get(0).clone();
+                this.impAnt = imps;
+            } else throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
+                                                                    selectedImages.get(0).getImageOrientation(),
+                                                                    new Orientation[]{Orientation.DYNAMIC_ANT},
+                                                                    "You can only use a Dynamic ANT");
+        }
 
-    // Close images
-    selectedImages.forEach(ImageSelection::close);
+        // Close images
+        selectedImages.forEach(ImageSelection::close);
 
-    // Build frame duration
-    this.frameDurations = Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus());
-
-
-    // TODO: from this part, still no refactored @noa
-    // \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/
+        // Build frame duration
+        this.frameDurations = Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus());
 
 
-    ImageSelection impAntCountPerSec = this.impAnt.clone();
-    Library_Dicom.normalizeToCountPerSecond(impAntCountPerSec);
+        // TODO: from this part, still no refactored @noa
+        // \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/
 
-    ImageSelection impProjetee = Library_Dicom.project(impAntCountPerSec, 0,
-                                                       impAntCountPerSec.getImagePlus().getStackSize(), "avg");
-    ImageStack stack = impProjetee.getImagePlus().getStack();
 
-    // deux premieres minutes
-    int fin = ModelScinDyn.getSliceIndexByTime(2 * 60 * 1000, frameDurations);
-    ImageSelection impAntFirstMin = Library_Dicom.project(impAntCountPerSec, 0, fin, "avg");
-    stack.addSlice(impAntFirstMin.getImagePlus().getProcessor());
+        ImageSelection impAntCountPerSec = this.impAnt.clone();
+        Library_Dicom.normalizeToCountPerSecond(impAntCountPerSec);
 
-    // MIP
-    ImagePlus pj = ZProjector.run(impAntCountPerSec.getImagePlus(), "max", 0,
-                                  impAntCountPerSec.getImagePlus().getNSlices());
-    stack.addSlice(pj.getProcessor());
+        ImageSelection impProjetee = Library_Dicom.project(impAntCountPerSec, 0,
+                                                        impAntCountPerSec.getImagePlus().getStackSize(), "avg");
+        ImageStack stack = impProjetee.getImagePlus().getStack();
 
-    
-    // ajout du stack a l'imp
-    impProjetee.getImagePlus().setStack(stack);
+        // deux premieres minutes
+        // int fin = ModelScinDyn.getSliceIndexByTime(2 * 60 * 1000, frameDurations);
+        // ImageSelection impAntFirstMin = Library_Dicom.project(impAntCountPerSec, 0, fin, "avg");
+        // stack.addSlice(impAntFirstMin.getImagePlus().getProcessor());
 
-    List<ImageSelection> selection = new ArrayList<>();
-    selection.add(impProjetee);
-    selection.add(impAnt);
+        // MIP
+        // ImagePlus pj = ZProjector.run(impAntCountPerSec.getImagePlus(), "max", 0,
+        //                               impAntCountPerSec.getImagePlus().getNSlices());
+        // stack.addSlice(pj.getProcessor());
 
-    return selection;
+        
+        // ajout du stack a l'imp
+        impProjetee.getImagePlus().setStack(stack);
+
+        List<ImageSelection> selection = new ArrayList<>();
+        selection.add(impProjetee);
+        selection.add(impAnt);
+
+        return selection;
     }
 
     @Override

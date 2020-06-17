@@ -73,27 +73,27 @@ public class ModelParathyroid extends ModelWorkflow {
 	}
 
 	public Roi getRoi(int index){
-		Roi maRoi = this.roiManager.getRoi(index);
-		System.out.println(maRoi);
-		return maRoi;
+		Roi myRoi = this.roiManager.getRoi(index);
+		System.out.println(myRoi);
+		return myRoi;
 	}
 	
 	private ImagePlus calculateImageRatio(){
 		System.out.println("Nbre de coups");
 		// TODO : changer le nom des variables en r1 r2 et verif les calculs en fonction
 		// de la feuille donnée par Pierre
-		double parathyroid = this.datas.get(IMAGE_PARATHYROID).getAntValue(REGION_PARATHYROID, Data.DATA_COUNTS);
-		System.out.println("Parathyroide: " + parathyroid + " ; ");
+		double r2 = this.datas.get(IMAGE_PARATHYROID).getAntValue(REGION_PARATHYROID, Data.DATA_COUNTS);
+		System.out.println("Parathyroide: " + r2 + " ; ");
 		
-		double thyroPara = this.datas.get(IMAGE_THYROIDPARA).getAntValue(REGION_THYRO_PARA, Data.DATA_COUNTS);
-		System.out.println("Thyroide+Parathyroide: " + thyroPara +";");
+		double r1 = this.datas.get(IMAGE_THYROIDPARA).getAntValue(REGION_THYRO_PARA, Data.DATA_COUNTS);
+		System.out.println("Thyroide+Parathyroide: " + r1 +";");
 		
 		ImageSelection[] selection = this.getImageSelection();
 		double result = 0;
 		ImagePlus mult = null;
 		ImageProcessor processor = null;
-		if (parathyroid < thyroPara){
-			result = thyroPara/parathyroid;
+		if (r2 < r1){
+			result = r1/r2;
 			processor = selection[IMAGE_THYROIDPARA].getImagePlus().getProcessor();
 			processor.multiply(result);
 
@@ -101,7 +101,7 @@ public class ModelParathyroid extends ModelWorkflow {
 			mult.setProcessor(processor);
 		}
 		else {
-			result = parathyroid/thyroPara;
+			result = r2/r1;
 			processor = selection[IMAGE_PARATHYROID].getImagePlus().getProcessor();
 			processor.multiply(result);
 
@@ -120,10 +120,11 @@ public class ModelParathyroid extends ModelWorkflow {
 		ImageSelection[] selection = this.getImageSelection();
 		ImagePlus result = null;
 		ImageCalculator ic = new ImageCalculator();
+		ImageSelection ims = selection[IMAGE_PARATHYROID];
 
 		result = ic.run("subtract create stack", selection[IMAGE_PARATHYROID].getImagePlus(), ratio);
-		
-		return result;
+		ims.getImagePlus().getRoi().setImage(result);
+		return ims.getImagePlus();
     }
 
     @Override
