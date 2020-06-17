@@ -2,7 +2,6 @@ package org.petctviewer.scintigraphy.gallbladder.application;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.awt.*;
 
 import org.petctviewer.scintigraphy.gallbladder.resultats.Model_Resultats_Gallbladder;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -18,7 +17,6 @@ public class Model_Gallbladder extends ModelScinDyn {
     //sauvegarde des imp de départ avec tous leur stacks chacun : pour pouvoir faire les calculs de mean dans le temps//trié
     private final ImageSelection[][] sauvegardeImagesSelectDicom;
     // list : liste des examens
-	// list->map : map des 4 roi ( entier, premier tier, deuxieme tier et troisieme tier)
 	// list->map->list : list des mean(double) pour tous le stack
     private ArrayList<HashMap<String, ArrayList<Double>>> examenMean;
     
@@ -74,20 +72,8 @@ public class Model_Gallbladder extends ModelScinDyn {
             //on découpe la roi en 3
             Roi premiereRoi = this.roiManager.getRoi(i);
 
-            Point pointOrigine = premiereRoi.getContainedPoints()[0];
-            double largeurRef = premiereRoi.getBounds().getWidth();
-            double hauteurRef = premiereRoi.getBounds().getHeight();
-
-            int tierHauteurRoiRef = (int) Math.round(hauteurRef/3);
-
-            Roi unTier = new Roi(pointOrigine.getX(), pointOrigine.getY(),largeurRef, tierHauteurRoiRef);
-            Roi deuxTier = new Roi(pointOrigine.getX(), pointOrigine.getY() + tierHauteurRoiRef+1, largeurRef, tierHauteurRoiRef);
-            Roi troisTier = new Roi(pointOrigine.getX(), pointOrigine.getY()+tierHauteurRoiRef+tierHauteurRoiRef+2, largeurRef, tierHauteurRoiRef);
 
             ArrayList<Double> roiEntier = new ArrayList<>();
-            ArrayList<Double> unTierList = new ArrayList<>();
-            ArrayList<Double> deuxTierList = new ArrayList<>();
-            ArrayList<Double> troisTierList = new ArrayList<>();
 
             if(sauvegardeImagesSelectDicom[1].length == 0){
                 //à chaque slice de l'imp
@@ -97,25 +83,10 @@ public class Model_Gallbladder extends ModelScinDyn {
                     sauvegardeImagesSelectDicom[0][i].getImagePlus().deleteRoi();
                     sauvegardeImagesSelectDicom[0][i].getImagePlus().setRoi(premiereRoi);
                     roiEntier.add(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i].getImagePlus())/tempsSeconde[j-1]);
-
-                    sauvegardeImagesSelectDicom[0][i].getImagePlus().deleteRoi();
-					sauvegardeImagesSelectDicom[0][i].getImagePlus().setRoi(unTier);
-					unTierList.add(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i].getImagePlus())/tempsSeconde[j-1]);
-					
-					sauvegardeImagesSelectDicom[0][i].getImagePlus().deleteRoi();
-					sauvegardeImagesSelectDicom[0][i].getImagePlus().setRoi(deuxTier);
-					deuxTierList.add(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i].getImagePlus())/tempsSeconde[j-1]);
-					
-					sauvegardeImagesSelectDicom[0][i].getImagePlus().deleteRoi();
-					sauvegardeImagesSelectDicom[0][i].getImagePlus().setRoi(troisTier);
-					troisTierList.add(Library_Quantif.getCounts(sauvegardeImagesSelectDicom[0][i].getImagePlus())/tempsSeconde[j-1]);
                 }
             }
 
             map4rois.put("entier", roiEntier);
-            map4rois.put("unTier", unTierList);
-            map4rois.put("deuxTier", deuxTierList);
-            map4rois.put("troisTier", troisTierList);
 
             examenMean.add(map4rois);
 
