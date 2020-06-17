@@ -32,10 +32,10 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 
 		Overlay overlay = Library_Gui.initOverlay(this.getImagePlus(), 12);
 		this.getImagePlus().setOverlay(overlay);
-		Library_Gui.setOverlayGD(this.getImagePlus(), Color.YELLOW);
+		Library_Gui.setOverlayDG(this.getImagePlus(), Color.YELLOW);
 		Library_Gui.setOverlayTitle("Ant", this.getImagePlus(), Color.yellow, 1);
-		Library_Gui.setOverlayTitle("2 first min posterior", this.getImagePlus(), Color.YELLOW, 2);
-		Library_Gui.setOverlayTitle("MIP", this.getImagePlus(), Color.YELLOW, 3);
+		Library_Gui.setOverlayTitle("Ant", this.getImagePlus(), Color.yellow, 2);
+		Library_Gui.setOverlayTitle("Ant", this.getImagePlus(), Color.yellow, 3);
 		
 		
 		// Ajout du boutton dynamic au panel de gauche
@@ -76,40 +76,23 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 
 			ImagePlus imp;
 
-			if (!this.dyn) {
-
-				imp = main.getImpAnt().getImagePlus();
-				Library_Gui.setCustomLut(imp);
-				this.getImagePlus().getOverlay().clear();
-				Overlay overlay = Library_Gui.initOverlay(imp);
-				imp.setOverlay(overlay);
-				Library_Gui.setOverlayGD(imp);
-				revalidate();
-				setImage(imp);
-				resizeCanvas();
-				updateSliceSelector();
-				Library_Gui.setOverlayGD(imp, Color.YELLOW);
-				this.btn_dyn.setBackground(Color.LIGHT_GRAY);
-
-			} else {
-				imp = this.impProj;
-				Library_Gui.setCustomLut(imp);
-				this.btn_dyn.setBackground(null);
-				
-				Library_Gui.setOverlayGD(imp, Color.YELLOW);
-				Library_Gui.setOverlayTitle("Post", imp, Color.yellow, 1);
-				Library_Gui.setOverlayTitle("2 first min posterior", imp, Color.YELLOW, 2);
-				Library_Gui.setOverlayTitle("MIP", imp, Color.YELLOW, 3);
-				if (this.main.getImpAnt() != null) {
-					Library_Gui.setOverlayTitle("Ant", imp, Color.yellow, 4);
-				}
-
-				revalidate();
-				setImage(imp);
-				updateSliceSelector();
-				resizeCanvas();
-
+			
+			imp = this.impProj;
+			Library_Gui.setCustomLut(imp);
+			this.btn_dyn.setBackground(null);
+			
+			Library_Gui.setOverlayDG(imp, Color.YELLOW);
+			Library_Gui.setOverlayTitle("Ant", imp, Color.yellow, 1);
+			Library_Gui.setOverlayTitle("Ant", imp, Color.YELLOW, 2);
+			Library_Gui.setOverlayTitle("Ant", imp, Color.YELLOW, 3);
+			if (this.main.getImpAnt() != null) {
+				Library_Gui.setOverlayTitle("Ant", imp, Color.yellow, 4);
 			}
+			revalidate();
+			setImage(imp);
+			updateSliceSelector();
+			resizeCanvas();
+
 
 			/*
 			 * //si l'imp est null, on utilise l'image ant ou post if(imp == null) {

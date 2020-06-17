@@ -34,10 +34,9 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 
 	public ControllerWorkflowSalivaryGlands(FenApplicationWorkflow vue, ModelScin model) {
 		super(vue, model);
-
-		// The methods (generateInstructions() and start()) are called in setKidneys,
-		// to avoid problems, because you need to
-		// select the kidneys number before starting the Controller.
+		
+		this.generateInstructions();
+		this.start();
 	}
 
 	@Override
@@ -104,17 +103,7 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 
 	}
 
-	/**
-	 * This method is called to construct and start the controller, because we need to specifie the number of kidney
-	 * before.
-	 *
-	 * @param kidneys Boolean array to specify the kidneys
-	 */
-	public void setKidneys(boolean[] kidneys) {
-		((Model_Renal) this.model).setKidneys(kidneys);
-		this.generateInstructions();
-		this.start();
-	}
+	
 
 	@Override
 	protected void generateInstructions() {
@@ -122,77 +111,41 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 		List<String> organes = new LinkedList<>();
 
 		this.workflows = new Workflow[1];
-		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4, dri_5, dri_6, dri_7, dri_8;
-		DrawRoiBackground dri_Background_1, dri_Background_2;
+		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4;
+		DrawRoiBackground dri_Background_1;
 		ScreenShotInstruction dri_capture_1;
 		List<ImagePlus> captures = new ArrayList<>();
 
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
-		ImageState statePost = new ImageState(Orientation.POST, 1, ImageState.LAT_LR, ImageState.ID_NONE);
+		ImageState stateAnt = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_NONE);
 
+		dri_1 = new DrawRoiInstruction("R. Parotid", stateAnt);
+		this.workflows[0].addInstruction(dri_1);
+		organes.add("R. Parotid");
+
+		dri_2 = new DrawRoiInstruction("L. Parotid", stateAnt);
+		this.workflows[0].addInstruction(dri_2);
+		organes.add("L. Parotid");
+
+		dri_Background_1 = new DrawRoiBackground("Background", stateAnt, dri_1, this.workflows[0], "");
+		this.workflows[0].addInstruction(dri_Background_1);
+		organes.add("Bkg");
+
+
+		dri_3 = new DrawRoiInstruction("R. SubMandib", stateAnt);
+		this.workflows[0].addInstruction(dri_3);
+		organes.add("R. SubMandib");
+
+		
+		dri_4 = new DrawRoiInstruction("L. SubMandib", stateAnt);
+		this.workflows[0].addInstruction(dri_4);
+		organes.add("L. SubMandib");
+
+		
 		dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), 0);
 
-		if (((Model_Renal) this.model).getKidneys()[0]) {
-
-			dri_1 = new DrawRoiInstruction("L. Kidney", statePost);
-			this.workflows[0].addInstruction(dri_1);
-			organes.add("L. Kidney");
-
-			if (Prefs.get(PrefTabRenal.PREF_PELVIS, true)) {
-				dri_2 = new DrawRoiInstruction("L. Pelvis", statePost);
-				this.workflows[0].addInstruction(dri_2);
-				organes.add("L. Pelvis");
-			}
-
-			dri_Background_1 = new DrawRoiBackground("L. Background", statePost, dri_1, this.workflows[0], "");
-			this.workflows[0].addInstruction(dri_Background_1);
-			organes.add("L. bkg");
-
-		}
-
-		if (((Model_Renal) this.model).getKidneys()[1]) {
-			dri_3 = new DrawRoiInstruction("R. Kidney", statePost);
-			this.workflows[0].addInstruction(dri_3);
-			organes.add("R. Kidney");
-
-			if (Prefs.get(PrefTabRenal.PREF_PELVIS, true)) {
-				dri_4 = new DrawRoiInstruction("R. Pelvis", statePost);
-				this.workflows[0].addInstruction(dri_4);
-				organes.add("R. Pelvis");
-			}
-
-			dri_Background_2 = new DrawRoiBackground("R. Background", statePost, dri_3, this.workflows[0], "");
-			this.workflows[0].addInstruction(dri_Background_2);
-			organes.add("R. bkg");
-
-		}
-
-		dri_5 = new DrawRoiInstruction("Blood Pool", statePost);
-		this.workflows[0].addInstruction(dri_5);
-		organes.add("Blood Pool");
-
-		if (Prefs.get(PrefTabRenal.PREF_BLADDER, true)) {
-			dri_6 = new DrawRoiInstruction("Bladder", statePost);
-			this.workflows[0].addInstruction(dri_6);
-			organes.add("Bladder");
-		}
-
-		if (Prefs.get(PrefTabRenal.PREF_URETER, true)) {
-			if (((Model_Renal) this.model).getKidneys()[0]) {
-				dri_7 = new DrawRoiInstruction("L. Ureter", statePost);
-				this.workflows[0].addInstruction(dri_7);
-				organes.add("L. Ureter");
-			}
-
-			if (((Model_Renal) this.model).getKidneys()[1]) {
-				dri_8 = new DrawRoiInstruction("R. Ureter", statePost);
-				this.workflows[0].addInstruction(dri_8);
-				organes.add("R. Ureter");
-			}
-
-		}
-
+		
 		this.organeListe = organes.toArray(new String[0]);
 
 		this.workflows[0].addInstruction(dri_capture_1);
