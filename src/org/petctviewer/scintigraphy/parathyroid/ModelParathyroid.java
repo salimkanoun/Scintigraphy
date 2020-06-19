@@ -120,11 +120,13 @@ public class ModelParathyroid extends ModelWorkflow {
 		ImageSelection[] selection = this.getImageSelection();
 		ImagePlus result = null;
 		ImageCalculator ic = new ImageCalculator();
-		ImageSelection ims = selection[IMAGE_PARATHYROID];
 
-		result = ic.run("subtract create stack", selection[IMAGE_PARATHYROID].getImagePlus(), ratio);
-		ims.getImagePlus().getRoi().setImage(result);
-		return ims.getImagePlus();
+		result = ic.run("subtract create stack", selection[IMAGE_PARATHYROID].getImagePlus(), 
+												selection[IMAGE_THYROIDPARA].getImagePlus());
+		result.getProcessor().applyMacro("if(v=>0)v=1");
+		result.getProcessor().applyMacro("if(v<0)v=0");
+		result = ic.run("Multiply", selection[IMAGE_PARATHYROID].getImagePlus(), result);
+		return result;
     }
 
     @Override
