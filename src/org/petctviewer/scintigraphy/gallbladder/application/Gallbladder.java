@@ -53,7 +53,6 @@ public class Gallbladder extends Scintigraphy{
     
     public Gallbladder(){
         super("Gallbladder");
-        this.frameDurations = Library_Dicom.buildFrameDurations(this.impProjeteAllAcqui);
     }
 
 
@@ -183,6 +182,9 @@ public class Gallbladder extends Scintigraphy{
         //on retourne la stack de la 1ere acquisition
         List<ImageSelection> selection = new ArrayList<>();
         selection.add(sauvegardeImagesSelectDicom[0][0]);
+
+        //Build frame duration
+        this.frameDurations = Library_Dicom.buildFrameDurations(this.impProjeteAllAcqui);
         return selection;
      }
 
