@@ -26,7 +26,10 @@ import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import ij.gui.Overlay;
 import ij.ImagePlus;
 
-
+/*
+l'objectif est de tracer chaque point pour chaque slice en délimitant son nombre de coups (gallblader - liver)
+divisé par le temps d'acquisition de la slice
+*/
 
 public class Gallbladder extends Scintigraphy{
 
@@ -50,6 +53,7 @@ public class Gallbladder extends Scintigraphy{
     
     public Gallbladder(){
         super("Gallbladder");
+        this.frameDurations = Library_Dicom.buildFrameDurations(this.impProjeteAllAcqui);
     }
 
 
@@ -62,7 +66,6 @@ public class Gallbladder extends Scintigraphy{
 		this.getFenApplication().setDocumentation(doc);
     }
     
-    @SuppressWarnings("deprecation")
     @Override
 	public void start(List<ImageSelection> preparedImages) {
         
@@ -72,23 +75,6 @@ public class Gallbladder extends Scintigraphy{
 
         FenApplicationWorkflow fen = new FenApplicationWorkflow(preparedImages.get(0), "Gallblader");
         fen.setVisualizationEnable(false);
-       // fen.getPanel_btns_gauche().remove(fen.getBtn_drawROI());
-       // fen.getPanel_Instructions_btns_droite().removeAll();
-
-        //JPanel radioButtonPanel = new JPanel();
-       // radioButtonPanel.setLayout(new GridLayout(nbAcquisition, 1));
-        
-        //ButtonGroup buttonGroup = new ButtonGroup();
-       // JRadioButton[] radioButton = new JRadioButton[nbAcquisition];
-      //  for (int i = 0; i < nbAcquisition; i++) {
-		//	int num = i;
-		//	radioButton[i] = new JRadioButton("Acquisition " + (i + 1));
-		//	radioButton[i].addItemListener(e -> fen.setImage(sauvegardeImagesSelectDicom[0][num]));
-		//	buttonGroup.add(radioButton[i]);
-		//	radioButtonPanel.add(radioButton[i]);
-		//	radioButton[i].setSelected(false);
-       // }
-       // radioButton[0].setSelected(true);
 
         JPanel radioButtonPanelFlow = new JPanel();
         radioButtonPanelFlow.setLayout(new FlowLayout());
@@ -108,26 +94,13 @@ public class Gallbladder extends Scintigraphy{
                 this.getImgPrjtAllAcqui()));
         this.getFenApplication().setController(cg);
 
-        
-/*
-        this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
-        this.getFenApplication().setController(new ControllerWorkflowGallbladder(
-            (FenApplicationWorkflow) getFenApplication(), new Model_Gallbladder(
-                sauvegardeImagesSelectDicom, "Gallbladder", Gallbladder.this,
-                this.getImgPrjtAllAcqui())));
-        
-        FenApplicationWorkflow fen = new FenApplicationWorkflow(preparedImages.get(0), "Gallblader");
-        fen.setImage(impProjeteAllAcqui);
-        fen.getImagePlus().setSlice(1);
-        fen.updateSliceSelector();
-*/
         this.createDocumentation();
 
         this.getFenApplication().setVisible(true);
     }
     
     public int[] getFrameDurations() {
-		return frameDurations;
+		return this.frameDurations;
     }
     
     public ImageSelection getImgPrjtAllAcqui() {

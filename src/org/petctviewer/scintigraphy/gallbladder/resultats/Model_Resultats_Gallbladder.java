@@ -47,31 +47,15 @@ public class Model_Resultats_Gallbladder extends ModelScin{
         //x examen et 4 courbes
         datasetMain = new XYSeries[arrayList.size()][4];
 
-		//pour chaque acquisition
-		/*
-        for(int i = 0; i < arrayList.size(); i++){
-            datasetMain[i][0] = this.listToXYSeries(arrayList.get(i).get("entier"), arrayList.get(i).get("temps"),
-			"Full " + (i +1 ));
-
-            datasetMain[i][1] = this.listToXYSeries(arrayList.get(i).get("unTier"), arrayList.get(i).get("temps"),
-			"Upper " + (i + 1));
-
-            datasetMain[i][2] = this.listToXYSeries(arrayList.get(i).get("deuxTier"), arrayList.get(i).get("temps"),
-			"Middle " + (i + 1));
-
-    datasetMain[i][3] = this.listToXYSeries(arrayList.get(i).get("troisTier"), arrayList.get(i).get("temps"),
-            "Lower " + (i + 1));
-        }*/
-
         //x examen et 4 courbes
         datasetTransitTime = new XYSeries[arrayList.size()][1];
 
 		//pour chaque acquisition
-		/*
+
         for (int i = 0; i < arrayList.size(); i++) {
 			datasetTransitTime[i][0] = this.listToXYSeries(arrayList.get(i).get("entier"),
 					arrayList.get(i).get("temps"), "Full " + (i + 1));
-        }*/
+        }
         
         this.dicomRoi = dicomRoi;
 
@@ -295,6 +279,7 @@ public class Model_Resultats_Gallbladder extends ModelScin{
 	}
 
 	public int[] getTime(int numAcquisition) {
+		System.out.println(Library_Dicom.buildFrameDurations((ImagePlus) dicomRoi.get(numAcquisition)[0]));
 		return Library_Dicom.buildFrameDurations((ImagePlus) dicomRoi.get(numAcquisition)[0]);
 	}
 

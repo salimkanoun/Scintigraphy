@@ -11,12 +11,16 @@ import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
+import org.petctviewer.scintigraphy.gallbladder.application.Model_Gallbladder;
 import org.petctviewer.scintigraphy.gallbladder.resultats.Model_Resultats_Gallbladder;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.model.ResultRequest;
+import org.petctviewer.scintigraphy.scin.model.ResultValue;
+import org.petctviewer.scintigraphy.scin.model.Unit;
 
 public class TabGallbladder extends TabResult{
     
@@ -49,9 +53,41 @@ public class TabGallbladder extends TabResult{
         renderer.setSeriesPaint(numSerie, Color.red);
     }
 
+
+    /**
+     * @param result
+     * @param container
+     */
+    private void displayResult(ResultValue result, Container container){
+        JLabel label = new JLabel(result.toString());
+
+        //Color
+        if(result.getResultType() == Model_Gallbladder.RES_GALLBLADDER){
+            if(result.getValue() < 2.) label.setForeground(Color.GREEN);
+            else if (result.getValue() < 5.) label.setForeground(Color.magenta);
+            else label.setForeground(Color.RED);
+        }
+        container.add(label);
+    }
+
+    /**
+     * @return component
+     */
     @Override
     public Component getSidePanelContent(){
         this.getResultContent();
+
+        JPanel res = new JPanel(new GridLayout(0,1));
+
+        //Ejection fraction
+
+        ResultRequest request = new ResultRequest(Model_Gallbladder.RES_GALLBLADDER);
+
+        request.changeResultOn(Model_Gallbladder.RES_GALLBLADDER);
+        request.setUnit(Unit.PERCENTAGE);
+        this.displayResult(this.getModel().getResult(request), res);
+
+        //return res;
 
         if(nbAcquisition == null)
             return null;
@@ -108,6 +144,14 @@ public class TabGallbladder extends TabResult{
         radioButtonGallbladder[0].setSelected(true);
 
         return sidePanel;
+    }
+
+
+    /** 
+	 * @return ModelThyroid
+	 */
+	private Model_Gallbladder getModel() {
+		return (Model_Gallbladder) this.parent.getModel();
     }
 
     @Override
