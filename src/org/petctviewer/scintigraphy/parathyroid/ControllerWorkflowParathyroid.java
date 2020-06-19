@@ -61,23 +61,29 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 
-		DrawRoiInstruction dri_1, dri_2;
+		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4;
 		this.captures = new ArrayList<>(2);
 
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
 		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
-		ImageState stateAnt1 = new ImageState(Orientation.ANT, 2, true, ImageState.ID_NONE);
 
-		dri_1 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO_PARA, stateAnt1);
-		dri_2 = new DrawRoiInstruction(ModelParathyroid.REGION_PARATHYROID, stateAnt, dri_1);
+		//ROIs déterminant le seuil
+		//dri_1 = new DrawRoiInstruction("Threshold", stateAnt);
+		//dri_2 = new DrawRoiInstruction("Threshold", stateAnt);
+		//ROIs de la thyroïde
+		dri_3 = new DrawRoiInstruction(ModelParathyroid.REGION_THYRO_PARA, stateAnt);
+		dri_4 = new DrawRoiInstruction(ModelParathyroid.REGION_PARATHYROID, stateAnt, dri_3);
+
 		// Image Thyro
-		this.workflows[0].addInstruction(dri_1);
+		//this.workflows[0].addInstruction(dri_1);
+		this.workflows[0].addInstruction(dri_3);
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
 
 		// Image ThyroPara
 		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
-		this.workflows[1].addInstruction(dri_2);
+		//this.workflows[1].addInstruction(dri_2);
+		this.workflows[1].addInstruction(dri_4);
 		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
 		this.workflows[1].addInstruction(new EndInstruction());
 	}
@@ -102,7 +108,7 @@ public class ControllerWorkflowParathyroid extends ControllerWorkflow implements
 		this.captures.add(captureR2);
 
 		ImagePlus captureSubtr = this.getModel().calculateResult();
-		captureSubtr.setRoi(getModel().getRoi(0).getBounds());
+		captureSubtr.setRoi(getModel().getRoi(1).getBounds());
 		captureSubtr = captureSubtr.crop();
 		captureSubtr = setCompleteDimensions(captureR1, captureSubtr);
 		this.captures.add(captureSubtr);
