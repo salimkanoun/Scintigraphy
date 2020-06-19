@@ -31,8 +31,6 @@ public class Model_Resultats_Gallbladder extends ModelScin{
 
 	// pour le csv
 	private final ArrayList<HashMap<String, ArrayList<Double>>> arrayList;
-	private double[] longueurVesicule;
-	private final double[] tempsMesureTransitTime;
 	private final double[] retentionDecrease;
 
     public final Gallbladder gallPlugIn;
@@ -42,8 +40,6 @@ public class Model_Resultats_Gallbladder extends ModelScin{
         super(selectedImages, studyName);
 
         //CSV
-        longueurVesicule = new double[arrayList.size()];
-        tempsMesureTransitTime = new double[arrayList.size()];
         retentionDecrease = new double[arrayList.size()];
 
         this.arrayList = arrayList;
@@ -51,22 +47,11 @@ public class Model_Resultats_Gallbladder extends ModelScin{
         //x examen et 4 courbes
         datasetMain = new XYSeries[arrayList.size()][4];
 
-        //pour chaque acquisition
-        for(int i = 0; i < arrayList.size(); i++){
-            datasetMain[i][0] = this.listToXYSeries(arrayList.get(i).get("entier"), arrayList.get(i).get("temps"),
-            "Full " + (i +1 ));
-            datasetMain[i][1] = this.listToXYSeries(arrayList.get(i).get("unTier"), arrayList.get(i).get("temps"),
-            "Upper " + (i + 1));
-            datasetMain[i][2] = this.listToXYSeries(arrayList.get(i).get("deuxTier"), arrayList.get(i).get("temps"),
-            "Middle " + (i + 1));
-    datasetMain[i][3] = this.listToXYSeries(arrayList.get(i).get("troisTier"), arrayList.get(i).get("temps"),
-            "Lower " + (i + 1));
-        }
-
         //x examen et 4 courbes
         datasetTransitTime = new XYSeries[arrayList.size()][1];
 
-        //pour chaque acquisition
+		//pour chaque acquisition
+
         for (int i = 0; i < arrayList.size(); i++) {
 			datasetTransitTime[i][0] = this.listToXYSeries(arrayList.get(i).get("entier"),
 					arrayList.get(i).get("temps"), "Full " + (i + 1));
@@ -288,34 +273,14 @@ public class Model_Resultats_Gallbladder extends ModelScin{
 
 	}
 
-	/* Calcul longueur oesophage */
-	public double[] calculLongeurEsophage() {
-		double[] res = new double[datasetTransitTime.length];
-		// for each acqui
-		for (int i = 0; i < datasetTransitTime.length; i++) {
-			double hauteurRoi = ((Rectangle) dicomRoi.get(i)[1]).getHeight();
-			ij.measure.Calibration calibration = ((ImagePlus) dicomRoi.get(i)[0]).getLocalCalibration();
-			calibration.setUnit("mm");// on met l'unité en mm
-			double hauteurPixel = calibration.pixelHeight;
-			res[i] = (hauteurPixel * hauteurRoi) / 10;// pour l'avoir en centimetres
-		}
-		this.longueurVesicule = res;
-		return res;
-
-	}
-
 	// pour le bouton capture
 	public ImagePlus getFirstImp() {
 		return (ImagePlus) this.dicomRoi.get(0)[0];
 	}
 
 	public int[] getTime(int numAcquisition) {
+		System.out.println(Library_Dicom.buildFrameDurations((ImagePlus) dicomRoi.get(numAcquisition)[0]));
 		return Library_Dicom.buildFrameDurations((ImagePlus) dicomRoi.get(numAcquisition)[0]);
-	}
-
-	// pour le csv
-	public void setTimeMeasure(int numAcquisition, double temps) {
-		tempsMesureTransitTime[numAcquisition] = temps;
 	}
 
 	// pour le csv
@@ -344,19 +309,7 @@ public class Model_Resultats_Gallbladder extends ModelScin{
 			}
 			unTier.append("\n");
 
-			StringBuilder deuxTier = new StringBuilder("Middle,");
-			for (int j = 0; j < arrayList.get(i).get("deuxTier").size(); j++) {
-				deuxTier.append(arrayList.get(i).get("deuxTier").get(j)).append(",");
-			}
-			deuxTier.append("\n");
-
-			StringBuilder troisTier = new StringBuilder("Lower,");
-			for (int j = 0; j < arrayList.get(i).get("troisTier").size(); j++) {
-				troisTier.append(arrayList.get(i).get("troisTier").get(j)).append(",");
-			}
-			troisTier.append("\n");
-
-			res.append(time).append(unTier).append(deuxTier).append(troisTier);
+			res.append(time).append(unTier);
 
 			res.append("\n");
 		}
@@ -370,19 +323,6 @@ public class Model_Resultats_Gallbladder extends ModelScin{
 		}
 		res.append("\n");
 
-		// longueur esophage
-		res.append("Esophage Height,");
-		for (double item : longueurVesicule) {
-			res.append(item).append(",");
-		}
-		res.append("\n");
-
-		// mesure de temps
-		res.append("Transit Time,");
-		for (double value : tempsMesureTransitTime) {
-			res.append(value).append(",");
-		}
-		res.append("\n");
 
 		// rentention decrease
 		res.append("Retention 10s peak,");

@@ -23,9 +23,6 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 public class LiverScintigraphy extends Scintigraphy {
 
 	public static final String STUDY_NAME = "Liver";
-	private static final String ORGAN_LIVER_PULMON = "LIVER-PULMON";
-
-	private Column orgranColumn;
 
 	public LiverScintigraphy() {
 		super(STUDY_NAME);
