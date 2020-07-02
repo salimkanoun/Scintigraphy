@@ -20,6 +20,9 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.plugin.ZProjector;
 
+// TODO : Application non terminée, très inspirée de RenalScintigraphy, c'est pourquoi on peut retrouver certaines incohérences à ce niveau là
+//Les deux structures étant très similaires, peut être continuer sur cette voie pour le repreneur?
+
 public class SalivaryGlandsScintigraphy extends Scintigraphy {
 
     public static final String STUDY_NAME = "Salivary Glands scintigraphy";

@@ -50,6 +50,10 @@ public class MIBGScintigraphy extends Scintigraphy {
 		this.getFenApplication().setDocumentation(doc);
 	}
 
+	
+	/** 
+	 * @param listener
+	 */
 	private void inflateMenuBar(ItemListener listener) {
 		// Menu change labels
 		Menu menu = new Menu("Display");
@@ -75,12 +79,20 @@ public class MIBGScintigraphy extends Scintigraphy {
 		this.getFenApplication().getMenuBar().add(menu);
 	}
 
+	
+	/** 
+	 * @return ImageSelection
+	 */
 	public ImageSelection getImgPrjtAllAcqui() {
 		ImageSelection returned = this.sauvegardeImagesSelectDicom[0];
 		returned.setImagePlus(impProjeteAllAcqui);
 		return returned;
 	}
 
+	
+	/** 
+	 * @param preparedImages
+	 */
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
 		// Start program
@@ -94,6 +106,10 @@ public class MIBGScintigraphy extends Scintigraphy {
 		this.getFenApplication().setVisible(true);
 	}
 
+	
+	/** 
+	 * @return Column[]
+	 */
 	@Override
 	public Column[] getColumns() {
 		// Orientation column
@@ -106,6 +122,13 @@ public class MIBGScintigraphy extends Scintigraphy {
 				Column.STACK_SIZE, orientation };
 	}
 
+	
+	/** 
+	 * @param selectedImages
+	 * @return List<ImageSelection>
+	 * @throws WrongInputException
+	 * @throws ReadTagException
+	 */
 	@Override
 	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages)
 			throws WrongInputException, ReadTagException {
@@ -148,6 +171,10 @@ public class MIBGScintigraphy extends Scintigraphy {
 		return selection;
 	}
 
+	
+	/** 
+	 * @return String
+	 */
 	@Override
 	public String instructions() {
 		return "2 images in Ant or DynamicAnt orientation";

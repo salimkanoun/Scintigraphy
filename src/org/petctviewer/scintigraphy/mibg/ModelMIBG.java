@@ -49,6 +49,10 @@ public class ModelMIBG extends ModelWorkflow {
 
 	}
 
+	
+	/** 
+	 * @return String[]
+	 */
 	public String[] getResults() {
 		String[] results = new String[5];
 
@@ -66,6 +70,11 @@ public class ModelMIBG extends ModelWorkflow {
 		return results;
 	}
 
+	
+	/** 
+	 * @param request
+	 * @return ResultValue
+	 */
 	@Override
 	public ResultValue getResult(ResultRequest request) {
 		Double value = this.results.get(request.getResultOn().hashCode());

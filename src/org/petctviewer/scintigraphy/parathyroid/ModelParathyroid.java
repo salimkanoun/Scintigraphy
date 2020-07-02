@@ -62,7 +62,12 @@ public class ModelParathyroid extends ModelWorkflow {
     }
 	
 
-    @Override
+    
+	/** 
+	 * @param request
+	 * @return ResultValue
+	 */
+	@Override
     public ResultValue getResult(ResultRequest request) {
         Double value = this.results.get(request.getResultOn().hashCode());
         if (value == null) return null;
@@ -72,12 +77,21 @@ public class ModelParathyroid extends ModelWorkflow {
 		return new ResultValue(request, value, conversion);
 	}
 
+	
+	/** 
+	 * @param index
+	 * @return Roi
+	 */
 	public Roi getRoi(int index){
 		Roi myRoi = this.roiManager.getRoi(index);
 		System.out.println(myRoi);
 		return myRoi;
 	}
 	
+	
+	/** 
+	 * @return ImagePlus
+	 */
 	private ImagePlus calculateImageRatio(){
 		System.out.println("Nbre de coups");
 		double r2 = this.datas.get(IMAGE_PARATHYROID).getAntValue(REGION_PARATHYROID, Data.DATA_COUNTS);
@@ -111,7 +125,11 @@ public class ModelParathyroid extends ModelWorkflow {
 		return mult;
 	}
 
-    public ImagePlus calculateResult() {
+    
+	/** 
+	 * @return ImagePlus
+	 */
+	public ImagePlus calculateResult() {
         //Calculate ratio
 		ImagePlus ratio = this.calculateImageRatio();
 		double r1 = this.datas.get(IMAGE_THYROIDPARA).getAntValue(REGION_THYRO_PARA, Data.DATA_COUNTS);
