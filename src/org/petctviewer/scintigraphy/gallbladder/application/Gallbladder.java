@@ -26,7 +26,10 @@ import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import ij.gui.Overlay;
 import ij.ImagePlus;
 
-
+/*
+l'objectif est de tracer chaque point pour chaque slice en délimitant son nombre de coups (gallblader - liver)
+divisé par le temps d'acquisition de la slice
+*/
 
 public class Gallbladder extends Scintigraphy{
 
@@ -62,55 +65,21 @@ public class Gallbladder extends Scintigraphy{
 		this.getFenApplication().setDocumentation(doc);
     }
     
-    @SuppressWarnings("deprecation")
     @Override
 	public void start(List<ImageSelection> preparedImages) {
+        
 		//phase 1
         Overlay overlay = Library_Gui.initOverlay(preparedImages.get(0).getImagePlus(), 12);
         Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.yellow);
 
         FenApplicationWorkflow fen = new FenApplicationWorkflow(preparedImages.get(0), "Gallblader");
         fen.setVisualizationEnable(false);
-        fen.getPanel_btns_gauche().remove(fen.getBtn_drawROI());
-        fen.getPanel_Instructions_btns_droite().removeAll();
-
-        JPanel radioButtonPanel = new JPanel();
-        radioButtonPanel.setLayout(new GridLayout(nbAcquisition, 1));
-        
-        ButtonGroup buttonGroup = new ButtonGroup();
-        JRadioButton[] radioButton = new JRadioButton[nbAcquisition];
-        for (int i = 0; i < nbAcquisition; i++) {
-			int num = i;
-			radioButton[i] = new JRadioButton("Acquisition " + (i + 1));
-			radioButton[i].addItemListener(e -> fen.setImage(sauvegardeImagesSelectDicom[0][num]));
-			buttonGroup.add(radioButton[i]);
-			radioButtonPanel.add(radioButton[i]);
-			radioButton[i].setSelected(false);
-        }
-        radioButton[0].setSelected(true);
 
         JPanel radioButtonPanelFlow = new JPanel();
         radioButtonPanelFlow.setLayout(new FlowLayout());
-        radioButtonPanelFlow.add(radioButtonPanel);
-        
-        JButton startQuantificationButton = new JButton("Start Quantification");
-        startQuantificationButton.addActionListener(e -> {
-			fen.setVisualizationEnable(true);
-			// passage a la phase 2
-			fen.getPanel_btns_gauche().add(fen.getBtn_drawROI());
-			fen.getPanelPrincipal().remove(startQuantificationButton);
-			fen.getPanelPrincipal().remove(radioButtonPanelFlow);
-			fen.getPanel_Instructions_btns_droite().add(fen.getTextfield_instructions());
-			fen.getPanel_Instructions_btns_droite().add(fen.createPanelInstructionsBtns());
-			fen.revalidate();
-
-			fen.setImage(impProjeteAllAcqui);
-			fen.getImagePlus().setSlice(1);
-			fen.updateSliceSelector();
-        });
+        //radioButtonPanelFlow.add(radioButtonPanel);
         
         fen.getPanelPrincipal().add(radioButtonPanelFlow);
-        fen.getPanelPrincipal().add(startQuantificationButton);
         this.setFenApplication(fen);
         preparedImages.get(0).getImagePlus().setOverlay(overlay);
 
@@ -123,10 +92,14 @@ public class Gallbladder extends Scintigraphy{
                 sauvegardeImagesSelectDicom, "Gallbladder", Gallbladder.this,
                 this.getImgPrjtAllAcqui()));
         this.getFenApplication().setController(cg);
+
+        this.createDocumentation();
+
+        this.getFenApplication().setVisible(true);
     }
     
     public int[] getFrameDurations() {
-		return frameDurations;
+		return this.frameDurations;
     }
     
     public ImageSelection getImgPrjtAllAcqui() {
@@ -209,6 +182,9 @@ public class Gallbladder extends Scintigraphy{
         //on retourne la stack de la 1ere acquisition
         List<ImageSelection> selection = new ArrayList<>();
         selection.add(sauvegardeImagesSelectDicom[0][0]);
+
+        //Build frame duration
+        this.frameDurations = Library_Dicom.buildFrameDurations(this.impProjeteAllAcqui);
         return selection;
      }
 

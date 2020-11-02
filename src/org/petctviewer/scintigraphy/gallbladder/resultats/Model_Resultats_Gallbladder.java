@@ -8,15 +8,17 @@ import java.util.List;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gallbladder.application.Gallbladder;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
+import ij.IJ;
 import ij.ImagePlus;
 
-public class Model_Resultats_Gallblader extends ModelScin{
+public class Model_Resultats_Gallbladder extends ModelScin{
     
     private final XYSeries[][] datasetMain;
 	private final XYSeries[][] datasetTransitTime;
@@ -29,19 +31,17 @@ public class Model_Resultats_Gallblader extends ModelScin{
 
 	// pour le csv
 	private final ArrayList<HashMap<String, ArrayList<Double>>> arrayList;
-	private double[] longueurVessicule;
-	private final double[] tempsMesureTransitTime;
 	private final double[] retentionDecrease;
 
-    public final Gallbladder gallPlugIn;
+	public final Gallbladder gallPlugIn;
+	
+	public final int[] tabFrames;
     
-    public Model_Resultats_Gallblader(ArrayList<HashMap<String, ArrayList<Double>>> arrayList,
+    public Model_Resultats_Gallbladder(ArrayList<HashMap<String, ArrayList<Double>>> arrayList,
     ArrayList<Object[]> dicomRoi, String studyName, Gallbladder gallPlugIn, ImageSelection[] selectedImages){
         super(selectedImages, studyName);
 
         //CSV
-        longueurVessicule = new double[arrayList.size()];
-        tempsMesureTransitTime = new double[arrayList.size()];
         retentionDecrease = new double[arrayList.size()];
 
         this.arrayList = arrayList;
@@ -49,32 +49,23 @@ public class Model_Resultats_Gallblader extends ModelScin{
         //x examen et 4 courbes
         datasetMain = new XYSeries[arrayList.size()][4];
 
-        //pour chaque acquisition
-        for(int i = 0; i < arrayList.size(); i++){
-            datasetMain[i][0] = this.listToXYSeries(arrayList.get(i).get("entier"), arrayList.get(i).get("temps"),
-            "Full " + (i +1 ));
-            datasetMain[i][1] = this.listToXYSeries(arrayList.get(i).get("unTier"), arrayList.get(i).get("temps"),
-            "Upper " + (i + 1));
-            datasetMain[i][2] = this.listToXYSeries(arrayList.get(i).get("deuxTier"), arrayList.get(i).get("temps"),
-            "Middle " + (i + 1));
-    datasetMain[i][3] = this.listToXYSeries(arrayList.get(i).get("troisTier"), arrayList.get(i).get("temps"),
-            "Lower " + (i + 1));
-        }
-
         //x examen et 4 courbes
         datasetTransitTime = new XYSeries[arrayList.size()][1];
 
-        //pour chaque acquisition
+		this.gallPlugIn = gallPlugIn;
+
+		//pour chaque acquisition
+		this.tabFrames = this.gallPlugIn.getFrameDurations();
         for (int i = 0; i < arrayList.size(); i++) {
-			datasetTransitTime[i][0] = this.listToXYSeries(arrayList.get(i).get("entier"),
-					arrayList.get(i).get("temps"), "Full " + (i + 1));
+			//datasetTransitTime[i][0] = this.listToXYSeries(arrayList.get(i).get("entier"),
+					//arrayList.get(i).get("temps"), "Full " + (i + 1));
+
         }
         
         this.dicomRoi = dicomRoi;
 
         condense = new ImagePlus[arrayList.size()];
         imageplusAndRoi = new ImagePlus[arrayList.size()];
-        this.gallPlugIn = gallPlugIn;
     }
 
     public XYSeries[][] getDataSetMain(){
@@ -246,4 +237,109 @@ public class Model_Resultats_Gallblader extends ModelScin{
 		}
 
 	}
+
+	private ImagePlus buildCondense(ImagePlus imp, Rectangle roi) {
+
+		int coupes = imp.getStack().getSize();
+		Dimension dimCondense = new Dimension((int) roi.getWidth() * coupes, imp.getHeight());
+
+		ImagePlus imageCondensee = IJ.createImage("Image", "16-bit black", dimCondense.width, imp.getHeight(), coupes);
+		// imp.hide();
+		for (int i = 0; i < coupes; i++) {
+			imp.setSlice(i + 1);
+			Rectangle imageShift = new Rectangle();
+			imageShift.setBounds((int) Math.round(roi.getX()), 0, (int) Math.round(imp.getWidth() - roi.getX()),
+					imp.getHeight());
+
+			imp.setRoi(imageShift);
+			// On copie cette zone
+			imp.copy();
+			// on cree une nouvelle imagePlus de la taille finale
+			ImagePlus image = IJ.createImage("Image", "16-bit black", dimCondense.width, imp.getHeight(), 1);
+			// On met un nouveau rectangle qu'on shift de 9 pixel et on colle dans cette
+			// image
+			Rectangle recDestination = new Rectangle();
+			recDestination.setBounds(i * (int) roi.getWidth(), imageShift.y, imageShift.width, imp.getHeight());
+			// recDestination.setLocation(i*9, 0);
+			image.setRoi(recDestination);
+			// image.show();
+			image.paste();
+			image.killRoi();
+			// On l'ajoute a l'image condensee
+			imageCondensee.getStack().setProcessor(image.getProcessor(), i + 1);
+
+		}
+		// On fait la somme du stack pour avoir l'image finale
+		@SuppressWarnings("deprecation")
+		ImagePlus projete = Library_Dicom.projeter(imageCondensee, 1, coupes, "sum");
+		Library_Gui.setCustomLut(projete);
+		return projete;
+
+	}
+
+	// pour le bouton capture
+	public ImagePlus getFirstImp() {
+		return (ImagePlus) this.dicomRoi.get(0)[0];
+	}
+
+	public int[] getTime(int numAcquisition) {
+		System.out.println(Library_Dicom.buildFrameDurations((ImagePlus) dicomRoi.get(numAcquisition)[0]));
+		return Library_Dicom.buildFrameDurations((ImagePlus) dicomRoi.get(numAcquisition)[0]);
+	}
+
+	// pour le csv
+	public void setRetentionDecrease(int numAcquisition, double decrease) {
+		retentionDecrease[numAcquisition] = decrease;
+	}
+
+	public String toString() {
+		StringBuilder res = new StringBuilder("\n");
+
+		// for each acqui
+		for (int i = 0; i < arrayList.size(); i++) {
+			res.append("Acquisition n").append(i);
+			res.append("\n");
+
+			// le temps
+			StringBuilder time = new StringBuilder("Time,");
+			for (int j = 0; j < arrayList.get(i).get("temps").size(); j++) {
+				time.append(arrayList.get(i).get("temps").get(j)).append(",");
+			}
+			time.append("\n");
+
+			StringBuilder unTier = new StringBuilder("Upper,");
+			for (int j = 0; j < arrayList.get(i).get("unTier").size(); j++) {
+				unTier.append(arrayList.get(i).get("unTier").get(j)).append(",");
+			}
+			unTier.append("\n");
+
+			res.append(time).append(unTier);
+
+			res.append("\n");
+		}
+		res.append("\n");
+
+		// organisation en colonne
+		// tete de colonne (numero acquisition)
+		res.append("Acquisition,");
+		for (int i = 0; i < arrayList.size(); i++) {
+			res.append("Acqui ").append(i).append(",");
+		}
+		res.append("\n");
+
+
+		// rentention decrease
+		res.append("Retention 10s peak,");
+		for (double v : retentionDecrease) {
+			res.append(v).append(",");
+		}
+		res.append("\n");
+
+		return res.toString();
+	}
+
+	@Override
+	public void calculateResults() {
+	}
+
 }   

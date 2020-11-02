@@ -27,10 +27,13 @@ public class MainResult extends TabResult {
 		super(parent, tabName, true);
 		this.montage = montage;
 		this.result = result;
-		this.captures = null;
 		this.reloadDisplay();
 	}
 
+	
+	/** 
+	 * @return Component
+	 */
 	@Override
 	public Component getSidePanelContent() {
 		if (this.result!=null){
@@ -43,6 +46,10 @@ public class MainResult extends TabResult {
 		return null;
 	}
 
+	
+	/** 
+	 * @return JPanel
+	 */
 	@Override
 	public JPanel getResultContent() {
 
