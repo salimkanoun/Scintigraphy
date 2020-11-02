@@ -202,7 +202,7 @@ public class ModeleResultatsCalibration {
 	}
 
 	public static double mean(Double[] m) {
-	    Double sum = 0.0D;
+	    double sum = 0.0D;
 		for (Double aDouble : m) {
 			sum += aDouble;
 		}

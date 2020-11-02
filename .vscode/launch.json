@@ -1,0 +1,49 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - ModelLiverTests",
+            "request": "launch",
+            "mainClass": "org.petctviewer.scintigraphy.hepatic.radioEmbolization.ModelLiverTests",
+            "projectName": "Conventional_Scintigraphy"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch) - Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-SalimTryingInjectImage<Conventional_Scintigraphy>",
+            "request": "launch",
+            "mainClass": "SalimTryingInjectImage",
+            "projectName": "Conventional_Scintigraphy"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Start_Debug<Conventional_Scintigraphy>",
+            "request": "launch",
+            "mainClass": "Start_Debug",
+            "projectName": "Conventional_Scintigraphy"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-About<Conventional_Scintigraphy>",
+            "request": "launch",
+            "mainClass": "org.petctviewer.scintigraphy.About",
+            "projectName": "Conventional_Scintigraphy"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-testconvolv<Conventional_Scintigraphy>",
+            "request": "launch",
+            "mainClass": "testconvolv",
+            "projectName": "Conventional_Scintigraphy"
+        }
+    ]
+}

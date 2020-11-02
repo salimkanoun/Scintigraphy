@@ -43,9 +43,9 @@ public abstract class ModelScinDyn extends ModelScin {
 
 		XYSeries points = new XYSeries(nom, true);
 
-		Double dureePriseOld = 0.0;
+		double dureePriseOld = 0.0;
 		for (int i = 0; i < l.size(); i++) {
-			Double dureePrise = frameduration[i] / (60 * 1000.0); // axes x en minutes
+			double dureePrise = frameduration[i] / (60 * 1000.0); // axes x en minutes
 
 			Double x = (dureePriseOld + dureePrise) - (dureePrise / 2);
 			Double y = l.get(i);

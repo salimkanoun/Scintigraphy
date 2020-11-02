@@ -1,7 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
+
+	<name>Conventional_Scintigraphy</name>
+
+  	<description>Nuclear medicine conventional scintigraphy package</description>
+
+  	<url>http://petctviewer.org</url>
+
+  	<inceptionYear>2015</inceptionYear>
+
+	<licenses>
+		<license>
+			<name>CC0 1.0 Universal License</name>
+			<url>https://creativecommons.org/publicdomain/zero/1.0/</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+  	<developers>
+	  <developer>
+			<id>skanoun</id>
+			<name>Salim Kanoun</name>
+			<url>http://petctviewer.org</url>
+			<roles>
+				<role>founder</role>
+				<role>lead</role>
+				<role>developer</role>
+				<role>debugger</role>
+				<role>reviewer</role>
+				<role>support</role>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/scijava/pom-scijava</connection>
+		<developerConnection>scm:git:git@github.com:scijava/pom-scijava</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/scijava/pom-scijava</url>
+	</scm>
+
+	<issueManagement>
+		<system>None</system>
+		<url>None</url>
+	</issueManagement>
+	<ciManagement>
+		<system>None</system>
+		<url>None</url>
+	</ciManagement>
+
+	<contributors>
+		<contributor>
+			<name>Angele Mateos</name>
+		</contributor>
+		<contributor>
+			<name>Diego Rodriguez</name>
+		</contributor>
+	</contributors>
+
+	<organization>
+		<name>None</name>
+	</organization>
+
+	<mailingLists>
+		<mailingList>
+			<name>None</name>
+		</mailingList>
+	</mailingLists>
+
+	<properties>
+		<package-name>org.petctviewer.scintigraphy</package-name>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<license.licenseName>N/A</license.licenseName>
+		<license.copyrightOwners>N/A</license.copyrightOwners>
+	</properties>
+		
+	<parent>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>27.0.1</version>
+		<relativePath/>
+	</parent>
 	
 	<repositories>
 		<repository>
@@ -19,47 +103,21 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		</repository>
 	</repositories>
 	
-	<properties>
-	    <maven.compiler.source>1.8</maven.compiler.source>
-	    <maven.compiler.target>1.8</maven.compiler.target>
-	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
-	
-	
-	<parent>
-		<groupId>org.scijava</groupId>
-		<artifactId>pom-scijava</artifactId>
-		<version>28.0.0</version>
-		<relativePath/>
-	</parent>
-	
 	<groupId>com.github.salimkanoun</groupId>
 	<artifactId>Conventional_Scintigraphy</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>Conventional_Scintigraphy</name>
-	<description>Conventional scintigraphy packages</description>
-	<url>N/A</url>
-	
-	<organization>
-		<name>N/A</name>
-		<url>http://petctviewer.org</url>
-	</organization>
-	
-	<licenses>
-		<license>
-			<name>GNU General Public License v3.0</name>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-	
-	  
-
+	<version>1.0</version>
 	
 	<build>
 	  <sourceDirectory>src</sourceDirectory>
 	</build>
 	
 	<dependencies>
+
+		<dependency>
+			<groupId>org.dcm4che</groupId>
+			<artifactId>dcm4che-core</artifactId>
+			<version>5.16.0</version>
+		</dependency>
 	
 		<dependency>
 		    <groupId>org.petctviewer</groupId>
@@ -78,18 +136,29 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
-		
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-csv</artifactId>
-			<version>1.5</version>
-		</dependency>
+
 		
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
-			<scope>compile</scope>
 		</dependency>
+
+		<dependency>
+		    <groupId>ome</groupId>
+		    <artifactId>bioformats_package</artifactId>
+		    <version>5.9.0</version>
+		    <type>pom</type>
+				<exclusions>
+					<exclusion>
+						<groupId>ch.qos.logback</groupId>
+						<artifactId>logback-classic</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>xml-apis</groupId>
+						<artifactId>xml-apis</artifactId>
+					</exclusion>
+				</exclusions>
+		</dependency>	
 		
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
@@ -99,20 +168,26 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>IO_</artifactId>
-		</dependency>	
-		
-		<dependency>
-		    <groupId>ome</groupId>
-		    <artifactId>bioformats_package</artifactId>
-		    <version>5.9.0</version>
-		    <type>pom</type>
-		</dependency>	
+		</dependency>
 
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 		</dependency>
 			
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>5.6.2</version>
+		</dependency>
+
+		<dependency>
+    		<groupId>org.easymock</groupId>
+    		<artifactId>easymock</artifactId>
+    		<version>4.2</version>
+		</dependency>
+
+
 	</dependencies>
 
 </project>

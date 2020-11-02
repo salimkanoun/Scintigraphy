@@ -115,7 +115,7 @@ public class Library_JFreeChart {
 
 		for (int i = 1; i < series.getItemCount(); i++) {
 			if (series.getY(i - 1).doubleValue() >= yDemi && series.getY(i).doubleValue() <= yDemi) {
-				Double x = (series.getX(i - 1).doubleValue() + series.getX(i).doubleValue()) / 2;
+				double x = (series.getX(i - 1).doubleValue() + series.getX(i).doubleValue()) / 2;
 				if (x >= startX) return x;
 			}
 		}

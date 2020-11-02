@@ -6,7 +6,6 @@ bin/
 
 # Eclipse
 .settings/
-.classpath
 jars/
 .project
 
@@ -14,3 +13,4 @@ jars/
 .idea/
 Scintigraphy.eml
 Scintigraphy.iml
+.factorypath

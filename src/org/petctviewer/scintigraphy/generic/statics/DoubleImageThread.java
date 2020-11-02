@@ -21,7 +21,7 @@ public class DoubleImageThread extends Thread{
 	
 	public void run() {
 		int width = 512;
-		double ratioCapture = this.scin.getFenApplication().getImagePlus().getWidth()*1.0 / this.scin.getFenApplication().getImagePlus().getHeight()*1.0;
+		double ratioCapture = this.scin.getFenApplication().getImagePlus().getWidth()*1.0/this.scin.getFenApplication().getImagePlus().getHeight()*1.0;
 		ImagePlus impRes = new ImagePlus();
 		ImageStack capture = new ImageStack(width, (int) (width/ratioCapture));
 		

@@ -143,7 +143,6 @@ public class TabRentention extends TabResult {
 
 			@Override
 			public void chartMouseMoved(ChartMouseEvent event) {
-				// TODO Auto-generated method stub
 
 			}
 

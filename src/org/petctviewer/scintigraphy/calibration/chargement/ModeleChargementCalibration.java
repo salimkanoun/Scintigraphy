@@ -1,20 +1,20 @@
 package org.petctviewer.scintigraphy.calibration.chargement;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+
+import org.petctviewer.scintigraphy.calibration.resultats.Doublet;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.ImageCalculator;
 import ij.plugin.frame.RoiManager;
 import ij.process.StackStatistics;
-import loci.formats.FormatException;
 import loci.plugins.BF;
 import loci.plugins.in.ImporterOptions;
-import org.petctviewer.scintigraphy.calibration.resultats.Doublet;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 
 public class ModeleChargementCalibration {
 
@@ -138,7 +138,7 @@ public class ModeleChargementCalibration {
 				StackStatistics ss = new StackStatistics(im);
 				
 				// pour seuil
-				Double suvMax = ss.max;
+				double suvMax = ss.max;
 				paramResultUnExamElements.put("SUVmax", ss.max);
 				
 				if(i==7) {
@@ -155,7 +155,7 @@ public class ModeleChargementCalibration {
 				Double mean70 = ss.mean;
 				paramResultUnExamElements.put("MEAN70", mean70);
 				//Calcul du volume
-				Double volume = 
+				double volume = 
 						im.getLocalCalibration().pixelDepth*
 						im.getLocalCalibration().pixelHeight*
 						im.getLocalCalibration().pixelWidth*
@@ -166,7 +166,7 @@ public class ModeleChargementCalibration {
 				
 				//recherche plus petite difference entre la taille souhaitée et la taille relevée
 				HashMap<Double,Double> listeSeuil = new HashMap<>();
-				for(Double j=0.0D; j<suvMax; j+=0.1D) {
+				for(double j=0.0D; j<suvMax; j+=0.1D) {
 					IJ.run(im,"Macro...", "code=[if(v<"+j+") v=NaN] stack");
 					ss = new StackStatistics(im);
 					listeSeuil.put(Math.abs(ss.pixelCount*volume -(VOLUME_FANTOME_REF[i]/1000)),j);
@@ -235,9 +235,11 @@ public class ModeleChargementCalibration {
 			//afficher le fichier
 			//BF.openImagePlus(m)[0].show();	
 			imp = BF.openImagePlus(m)[0];
-		} catch (IOException|FormatException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
-		} 
+		} catch (loci.formats.FormatException e) {
+			e.printStackTrace();
+		}
 		return imp;
 	}
 

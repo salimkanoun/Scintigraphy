@@ -3,14 +3,17 @@ import org.petctviewer.scintigraphy.calibration.Calibration;
 import org.petctviewer.scintigraphy.cardiac.CardiacScintigraphy;
 import org.petctviewer.scintigraphy.colonic.ColonicScintigraphy;
 import org.petctviewer.scintigraphy.esophageus.application.EsophagealTransit;
+import org.petctviewer.scintigraphy.gallbladder.application.Gallbladder;
 import org.petctviewer.scintigraphy.gastric.GastricScintigraphy;
 import org.petctviewer.scintigraphy.generic.dynamic.GeneralDynamicScintigraphy;
 import org.petctviewer.scintigraphy.generic.statics.StaticScintigraphy;
 import org.petctviewer.scintigraphy.hepatic.HepaticDynScintigraphy;
+import org.petctviewer.scintigraphy.hepatic.radioEmbolization.LiverScintigraphy;
 import org.petctviewer.scintigraphy.liquid.LiquidScintigraphy;
 import org.petctviewer.scintigraphy.lympho.LymphoScintigraphy;
 import org.petctviewer.scintigraphy.mibg.MIBGScintigraphy;
 import org.petctviewer.scintigraphy.os.OsScintigraphy;
+import org.petctviewer.scintigraphy.parathyroid.ParathyroidScintigraphy;
 import org.petctviewer.scintigraphy.platelet.PlateletScintigraphy;
 import org.petctviewer.scintigraphy.renal.RenalScintigraphy;
 import org.petctviewer.scintigraphy.renal.dmsa.DmsaScintigraphy;
@@ -18,6 +21,8 @@ import org.petctviewer.scintigraphy.renal.followup.FollowUp;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.preferences.PrefWindow;
 import org.petctviewer.scintigraphy.shunpo.ShunpoScintigraphy;
+import org.petctviewer.scintigraphy.thyroid.ThyroidScintigraphy;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -53,6 +58,10 @@ public class FenDebug extends JFrame {
 		this.registerNewProgram(LiquidScintigraphy.class);
 		this.registerNewProgram(MIBGScintigraphy.class);
 		this.registerNewProgram(PlateletScintigraphy.class);
+		this.registerNewProgram(LiverScintigraphy.class);
+		this.registerNewProgram(ThyroidScintigraphy.class);
+		this.registerNewProgram(ParathyroidScintigraphy.class);
+		this.registerNewProgram(Gallbladder.class);
 
 		this.add(this.panel, BorderLayout.CENTER);
 		this.add(pnl_pref, BorderLayout.NORTH);

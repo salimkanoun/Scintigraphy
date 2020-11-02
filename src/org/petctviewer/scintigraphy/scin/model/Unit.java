@@ -3,7 +3,7 @@ package org.petctviewer.scintigraphy.scin.model;
 public enum Unit {
 	PERCENTAGE("%"), TIME("h:m:s"), MINUTES("min"), COUNTS("counts"), COUNTS_PER_SECOND("counts/sec"),
 	COUNTS_PER_MINUTE("counts/min"), KCOUNTS("kcounts"), KCOUNTS_PER_SECOND("kcounts/sec"), KCOUNTS_PER_MINUTE(
-			"kcounts/min"), COUNTS_PER_PIXEL("counts/pixel"), KCOUNTS_PER_PIXEL("kcounts/pixel");
+			"kcounts/min"), COUNTS_PER_PIXEL("counts/pixel"), KCOUNTS_PER_PIXEL("kcounts/pixel"), SURFACE("cm²");
 
 	private final String abbreviation;
 
@@ -51,6 +51,8 @@ public enum Unit {
 						return value / 1000.;
 					case KCOUNTS_PER_SECOND:
 						return value / 1000. / 60.;
+					default:
+						break;
 				}
 				break;
 			case COUNTS_PER_SECOND:
@@ -61,6 +63,8 @@ public enum Unit {
 						return value / 1000. * 60.;
 					case KCOUNTS_PER_SECOND:
 						return value / 1000.;
+					default:
+						break;
 				}
 				break;
 			case KCOUNTS_PER_MINUTE:
@@ -71,6 +75,8 @@ public enum Unit {
 						return value * 1000. * 60.;
 					case KCOUNTS_PER_SECOND:
 						return value * 60.;
+					default:
+						break;					
 				}
 				break;
 			case KCOUNTS_PER_SECOND:
@@ -81,6 +87,8 @@ public enum Unit {
 						return value * 1000.;
 					case KCOUNTS_PER_MINUTE:
 						return value / 60.;
+					default:
+						break;
 				}
 				break;
 			case COUNTS_PER_PIXEL:
@@ -97,6 +105,11 @@ public enum Unit {
 				if (unit == TIME) return value;
 			case TIME:
 				if (unit == MINUTES) return value;
+			case SURFACE:
+				if (unit == Unit.SURFACE) return value;
+				break;
+			default:
+				break;
 		}
 		throw new UnsupportedOperationException("This unit (" + this + ") cannot be converted to " + unit);
 	}

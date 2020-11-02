@@ -43,7 +43,6 @@ public class ModelColonicTransit extends ModelScin {
 		datas.add(dataImage2);
 		datas.add(dataImage3);
 
-		// TODO: this code is making a lot of assumptions... maybe refactor that
 		for (int i = 1; i < this.selectedImages.length; i++) {
 			ImageSelection imageForCalculation = this.selectedImages[i];
 			this.calculateResults(imageReference, imageForCalculation, datas.get(i-1));
