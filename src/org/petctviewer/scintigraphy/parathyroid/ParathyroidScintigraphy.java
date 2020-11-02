@@ -45,10 +45,6 @@ public class ParathyroidScintigraphy extends Scintigraphy {
     private void createDocumentation() {
         DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
         doc.setDeveloper("Angele Mateos");
-        doc.addReference(DocumentationDialog.Field.createTextField("With Kidney",
-                "VILLANEUEVA-MEYER Clinical " + "Nuclear Medecine 1986"));
-        doc.addReference(
-                DocumentationDialog.Field.createLinkField("Brain alone", "KROWKA Chest 2000", "http://google" + ".fr"));
         doc.setYoutube("");
         doc.setOnlineDoc("");
         this.getFenApplication().setDocumentation(doc);

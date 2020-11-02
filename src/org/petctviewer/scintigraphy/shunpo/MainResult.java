@@ -30,7 +30,7 @@ public class MainResult extends TabResult {
 		// Color for pulmonary shunt
 		if (result.getResultType() == ModelShunpo.RES_PULMONARY_SHUNT) {
 			if (result.getValue() < 2.) label.setForeground(Color.GREEN);
-			else if (result.getValue() < 5.) label.setForeground(Color.ORANGE);
+			else if (result.getValue() < 5.) label.setForeground(Color.BLUE);
 			else label.setForeground(Color.RED);
 		}
 
