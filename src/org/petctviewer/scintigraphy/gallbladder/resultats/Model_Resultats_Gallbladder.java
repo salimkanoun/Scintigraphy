@@ -33,7 +33,9 @@ public class Model_Resultats_Gallbladder extends ModelScin{
 	private final ArrayList<HashMap<String, ArrayList<Double>>> arrayList;
 	private final double[] retentionDecrease;
 
-    public final Gallbladder gallPlugIn;
+	public final Gallbladder gallPlugIn;
+	
+	public final int[] tabFrames;
     
     public Model_Resultats_Gallbladder(ArrayList<HashMap<String, ArrayList<Double>>> arrayList,
     ArrayList<Object[]> dicomRoi, String studyName, Gallbladder gallPlugIn, ImageSelection[] selectedImages){
@@ -50,18 +52,20 @@ public class Model_Resultats_Gallbladder extends ModelScin{
         //x examen et 4 courbes
         datasetTransitTime = new XYSeries[arrayList.size()][1];
 
-		//pour chaque acquisition
+		this.gallPlugIn = gallPlugIn;
 
+		//pour chaque acquisition
+		this.tabFrames = this.gallPlugIn.getFrameDurations();
         for (int i = 0; i < arrayList.size(); i++) {
-			datasetTransitTime[i][0] = this.listToXYSeries(arrayList.get(i).get("entier"),
-					arrayList.get(i).get("temps"), "Full " + (i + 1));
+			//datasetTransitTime[i][0] = this.listToXYSeries(arrayList.get(i).get("entier"),
+					//arrayList.get(i).get("temps"), "Full " + (i + 1));
+
         }
         
         this.dicomRoi = dicomRoi;
 
         condense = new ImagePlus[arrayList.size()];
         imageplusAndRoi = new ImagePlus[arrayList.size()];
-        this.gallPlugIn = gallPlugIn;
     }
 
     public XYSeries[][] getDataSetMain(){
