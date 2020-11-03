@@ -41,6 +41,10 @@ public class GastricScintigraphy extends Scintigraphy {
 
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
+		
+		//SK A EVALUER LES IMAGES NE SEMBLENT PLUS AVOIR D OVERLAY INITIALISE PAR DEFAUT, PEUT ETRE A ETENDRE DANS TOUS LES PROGRAMMES
+		initOverlayOnPreparedImages(preparedImages);
+		
 		// Create application window
 		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), getStudyName()));
 		this.getFenApplication().setController(
@@ -69,6 +73,7 @@ public class GastricScintigraphy extends Scintigraphy {
 			if (ims.getImageOrientation() != Orientation.ANT_POST && ims.getImageOrientation() != Orientation.POST_ANT)
 				throw new WrongColumnException.OrientationColumn(ims.getRow(), ims.getImageOrientation(),
 																 new Orientation[]{Orientation.ANT_POST});
+			
 			selection.add(Library_Dicom.ensureAntPostFlipped(ims));
 		}
 
