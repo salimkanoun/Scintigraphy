@@ -4,6 +4,7 @@ import ij.plugin.PlugIn;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Debug;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import java.util.List;
 
@@ -43,6 +44,12 @@ public abstract class Scintigraphy implements PlugIn, ImagePreparator {
 
 	public void setFenApplication(FenApplication fen_application) {
 		this.fen_application = fen_application;
+	}
+	
+	protected void initOverlayOnPreparedImages(List<ImageSelection> preparedImages) {
+		for(ImageSelection imageSelection : preparedImages) {
+			Library_Gui.initOverlay(imageSelection.getImagePlus());
+		}
 	}
 
 }

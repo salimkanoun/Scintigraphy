@@ -94,6 +94,11 @@ public class ControllerWorkflowMIBG extends ControllerWorkflow implements ItemLi
 
 
 
+	
+	/** 
+	 * @param state
+	 * @throws IllegalArgumentException
+	 */
 	@Override
 	public void setOverlay(ImageState state) throws IllegalArgumentException {
 		if (state == null) throw new IllegalArgumentException("The state cannot be null");
@@ -130,6 +135,10 @@ public class ControllerWorkflowMIBG extends ControllerWorkflow implements ItemLi
 		}
 	}
 
+	
+	/** 
+	 * @param e
+	 */
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getStateChange() == ItemEvent.SELECTED) {

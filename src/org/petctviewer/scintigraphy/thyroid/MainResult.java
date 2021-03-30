@@ -46,7 +46,7 @@ public class MainResult extends TabResult{
         //Color
         if(result.getResultType() == ModelThyroid.RES_THYROID_SHUNT){
             if(result.getValue() < 2.) label.setForeground(GREEN);
-            else if (result.getValue() < 5.) label.setForeground(Color.ORANGE);
+            else if (result.getValue() < 5.) label.setForeground(Color.magenta);
             else label.setForeground(Color.RED);
         }
         container.add(label);

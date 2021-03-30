@@ -62,7 +62,12 @@ public class ModelParathyroid extends ModelWorkflow {
     }
 	
 
-    @Override
+    
+	/** 
+	 * @param request
+	 * @return ResultValue
+	 */
+	@Override
     public ResultValue getResult(ResultRequest request) {
         Double value = this.results.get(request.getResultOn().hashCode());
         if (value == null) return null;
@@ -72,38 +77,47 @@ public class ModelParathyroid extends ModelWorkflow {
 		return new ResultValue(request, value, conversion);
 	}
 
+	
+	/** 
+	 * @param index
+	 * @return Roi
+	 */
 	public Roi getRoi(int index){
-		Roi maRoi = this.roiManager.getRoi(index);
-		System.out.println(maRoi);
-		return maRoi;
+		Roi myRoi = this.roiManager.getRoi(index);
+		System.out.println(myRoi);
+		return myRoi;
 	}
 	
+	
+	/** 
+	 * @return ImagePlus
+	 */
 	private ImagePlus calculateImageRatio(){
 		System.out.println("Nbre de coups");
-		double parathyroid = this.datas.get(IMAGE_PARATHYROID).getAntValue(REGION_PARATHYROID, Data.DATA_COUNTS);
-		System.out.println("Parathyroide: " + parathyroid + " ; ");
+		double r2 = this.datas.get(IMAGE_PARATHYROID).getAntValue(REGION_PARATHYROID, Data.DATA_COUNTS);
+		System.out.println("Parathyroide: " + r2 + " ; ");
 		
-		double thyroPara = this.datas.get(IMAGE_THYROIDPARA).getAntValue(REGION_THYRO_PARA, Data.DATA_COUNTS);
-		System.out.println("Thyroide+Parathyroide: " + thyroPara +";");
+		double r1 = this.datas.get(IMAGE_THYROIDPARA).getAntValue(REGION_THYRO_PARA, Data.DATA_COUNTS);
+		System.out.println("Thyroide+Parathyroide: " + r1 +";");
 		
 		ImageSelection[] selection = this.getImageSelection();
 		double result = 0;
 		ImagePlus mult = null;
 		ImageProcessor processor = null;
-		if (parathyroid < thyroPara){
-			result = thyroPara/parathyroid;
-			processor = selection[IMAGE_THYROIDPARA].getImagePlus().getProcessor();
-			processor.multiply(result);
-
-			mult = selection[0].getImagePlus();
-			mult.setProcessor(processor);
-		}
-		else {
-			result = parathyroid/thyroPara;
+		if (r1 > r2){
+			result = r1/r2;
 			processor = selection[IMAGE_PARATHYROID].getImagePlus().getProcessor();
 			processor.multiply(result);
 
-			mult = selection[1].getImagePlus();
+			mult = selection[IMAGE_PARATHYROID].getImagePlus();
+			mult.setProcessor(processor);
+		}
+		else {
+			result = r2/r1;
+			processor = selection[IMAGE_THYROIDPARA].getImagePlus().getProcessor();
+			processor.multiply(result);
+
+			mult = selection[IMAGE_THYROIDPARA].getImagePlus();
 			mult.setProcessor(processor);
 		}
 		System.out.println("Ratio = " + result);
@@ -111,24 +125,32 @@ public class ModelParathyroid extends ModelWorkflow {
 		return mult;
 	}
 
-    public ImagePlus calculateResult() {
+    
+	/** 
+	 * @return ImagePlus
+	 */
+	public ImagePlus calculateResult() {
         //Calculate ratio
 		ImagePlus ratio = this.calculateImageRatio();
+		double r1 = this.datas.get(IMAGE_THYROIDPARA).getAntValue(REGION_THYRO_PARA, Data.DATA_COUNTS);
+		System.out.println("Thyroide+Parathyroide: " + r1 +";");
 
-		double parathyroid = this.datas.get(IMAGE_PARATHYROID).getAntValue(REGION_PARATHYROID, Data.DATA_COUNTS);
-		double thyroPara = this.datas.get(IMAGE_THYROIDPARA).getAntValue(REGION_THYRO_PARA, Data.DATA_COUNTS);
+		double r2 = this.datas.get(IMAGE_PARATHYROID).getAntValue(REGION_PARATHYROID, Data.DATA_COUNTS);
+		System.out.println("Parathyroide: " + r2 + " ; ");
 
 		ImageSelection[] selection = this.getImageSelection();
 		ImagePlus result = null;
 		ImageCalculator ic = new ImageCalculator();
 
-		if (parathyroid < thyroPara) {
+		if (r1 > r2){
+			System.out.println("r1 > r2");
+			result = ic.run("subtract create stack", ratio, selection[IMAGE_THYROIDPARA].getImagePlus());
+		} else {
 			result = ic.run("subtract create stack", selection[IMAGE_PARATHYROID].getImagePlus(), ratio);
 		}
-		else {
-			result = ic.run("subtract create stack", selection[IMAGE_THYROIDPARA].getImagePlus(), ratio);
-			result.getProcessor().min(0);
-		}
+		result.getProcessor().applyMacro("if(v==0 || v>0)v=1");
+		result.getProcessor().applyMacro("if(v<0)v=0");
+		result = ic.run("multiply create stack", selection[IMAGE_PARATHYROID].getImagePlus(), result);
 		return result;
     }
 

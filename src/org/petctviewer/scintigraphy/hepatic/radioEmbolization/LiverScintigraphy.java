@@ -23,9 +23,6 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 public class LiverScintigraphy extends Scintigraphy {
 
 	public static final String STUDY_NAME = "Liver";
-	private static final String ORGAN_LIVER_PULMON = "LIVER-PULMON";
-
-	private Column orgranColumn;
 
 	public LiverScintigraphy() {
 		super(STUDY_NAME);
@@ -83,13 +80,9 @@ public class LiverScintigraphy extends Scintigraphy {
 		final String[] orientationValues= {Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString()};
 		final Column orientation = new Column (Column.ORIENTATION.getName(), orientationValues);
 		
-		//Organ column
-		final String[] organValues = {ORGAN_LIVER_PULMON};
-		this.orgranColumn = new Column("Organ", organValues);
-		
 		//Choose columns to display
 		return new Column[] {Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
-			Column.STACK_SIZE, orientation, this.orgranColumn};
+			Column.STACK_SIZE, orientation};
 	}
 	
 	@Override
