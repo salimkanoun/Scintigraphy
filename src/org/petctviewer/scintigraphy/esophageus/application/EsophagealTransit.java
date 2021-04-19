@@ -62,7 +62,7 @@ public class EsophagealTransit extends Scintigraphy {
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
 		// phase 1
-		this.initOverlayOnPreparedImages(preparedImages, 12);
+		this.initOverlayOnPreparedImages(preparedImages);
 		Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.yellow);
 
 		FenApplicationWorkflow fen = new FenApplicationWorkflow(preparedImages.get(0), "Oesophagus");
