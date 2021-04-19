@@ -48,7 +48,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
-		Overlay overlay = Library_Gui.initOverlay(preparedImages.get(0).getImagePlus(), 7);
+		initOverlayOnPreparedImages(preparedImages, 7);
 		Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.YELLOW);
 
 		String[] infoOfAllImages = new String[preparedImages.size()];
@@ -58,7 +58,6 @@ public class CardiacScintigraphy extends Scintigraphy {
 		// fenetre de l'application
 		this.setFenApplication(new FenApplication_Cardiac(preparedImages.get(0), this.getStudyName(),
 				this.fullBodyImages.size() > 0, this.onlyThoraxImage.size() > 0));
-		preparedImages.get(0).getImagePlus().setOverlay(overlay);
 
 		// Cree controller
 		this.getFenApplication().setController(

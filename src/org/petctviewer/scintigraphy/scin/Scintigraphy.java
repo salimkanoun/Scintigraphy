@@ -52,4 +52,10 @@ public abstract class Scintigraphy implements PlugIn, ImagePreparator {
 		}
 	}
 
+	protected void initOverlayOnPreparedImages(List<ImageSelection> preparedImages, int taillePolice) {
+		for(ImageSelection imageSelection : preparedImages) {
+			Library_Gui.initOverlay(imageSelection.getImagePlus(), taillePolice);
+		}
+	}
+
 }

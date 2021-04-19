@@ -171,8 +171,8 @@ public class Library_Gui {
 		}
 
 		// Set la police des text ROI
-		right.setCurrentFont(overlay.getLabelFont());
-		left.setCurrentFont(overlay.getLabelFont());
+		right.setFont(overlay.getLabelFont());
+		left.setFont(overlay.getLabelFont());
 
 		// Ajout de l'indication de la droite du patient
 		overlay.add(right);

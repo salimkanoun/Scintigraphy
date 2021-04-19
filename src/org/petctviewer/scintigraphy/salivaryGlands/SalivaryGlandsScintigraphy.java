@@ -43,7 +43,7 @@ public class SalivaryGlandsScintigraphy extends Scintigraphy {
 
     @Override
 	public void start(List<ImageSelection> preparedImages) {
-
+        this.initOverlayOnPreparedImages(preparedImages);
 		this.setFenApplication(new FenApplication_SalivaryGlands(preparedImages.get(0), this.getStudyName(), this));
 		this.getFenApplication().setController(
 				new ControllerWorkflowSalivaryGlands((FenApplicationWorkflow) this.getFenApplication(),

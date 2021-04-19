@@ -29,12 +29,10 @@ public class StaticScintigraphy extends Scintigraphy {
 
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
-
-		Overlay overlay = Library_Gui.initOverlay(preparedImages.get(0).getImagePlus(), 12);
+		this.initOverlayOnPreparedImages(preparedImages, 12);
 		Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.white);
 
 		this.setFenApplication(new FenApplication_ScinStatic(preparedImages.get(0), this.getStudyName()));
-		preparedImages.get(0).getImagePlus().setOverlay(overlay);
 
 		this.getFenApplication().setController(
 				new ControllerWorkflow_ScinStatic((FenApplicationWorkflow) getFenApplication(),

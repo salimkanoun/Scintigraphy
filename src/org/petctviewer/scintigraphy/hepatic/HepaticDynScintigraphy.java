@@ -43,12 +43,10 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 	public void start(List<ImageSelection> preparedImages) {
 
 		preparedImages.get(0).getImagePlus().changes = false;
-
-		Overlay overlay = Library_Gui.initOverlay(preparedImages.get(0).getImagePlus(), 12);
+		this.initOverlayOnPreparedImages(preparedImages, 12);
 		Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.YELLOW);
 		this.setFenApplication(
 				new FenApplicationHepaticDynamic(preparedImages.get(0).getImagePlus(), this.getStudyName()));
-		preparedImages.get(0).getImagePlus().setOverlay(overlay);
 		this.getFenApplication().setController(new ControllerHepaticDynamic(this.getFenApplication(),
 																			new ModelHepaticDynamic(
 																					preparedImages.toArray(

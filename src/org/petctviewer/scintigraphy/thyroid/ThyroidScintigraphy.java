@@ -35,7 +35,7 @@ public class ThyroidScintigraphy extends Scintigraphy {
         final DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
         doc.setDeveloper("Diego Rodriguez");
         doc.addReference(DocumentationDialog.Field.createTextField("Thyroid", "VILLANEUEVA-MEYER Clinical"
-        + "Nuclear Medecine 1986"));
+        + "Nuclear Medicine 1986"));
         doc.setYoutube("");
         doc.setOnlineDoc("");
         this.getFenApplication().setDocumentation(doc);
@@ -66,6 +66,7 @@ public class ThyroidScintigraphy extends Scintigraphy {
 
     @Override
     public void start(final List<ImageSelection> preparedImages) {
+        this.initOverlayOnPreparedImages(preparedImages);
         this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
         this.getFenApplication().setController(new ControllerWorkflowThyroid(
             (FenApplicationWorkflow) getFenApplication(), preparedImages.toArray(new ImageSelection[0])));

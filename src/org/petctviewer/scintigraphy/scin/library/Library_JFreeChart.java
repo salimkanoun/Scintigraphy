@@ -198,7 +198,7 @@ public class Library_JFreeChart {
 
 	// recupere les valeurs situees entre startX et endX
 	public static XYSeries cropSeries(XYSeries series, Double startX, Double endX) {
-		XYSeries cropped = new XYSeries(series.getKey() + " cropped");
+		XYSeries cropped = new XYSeries(series.getKey()); //+"compared"
 		for (int i = 0; i < series.getItemCount(); i++) {
 			if (series.getX(i).doubleValue() >= startX && series.getX(i).doubleValue() <= endX) {
 				cropped.add(series.getX(i), series.getY(i));

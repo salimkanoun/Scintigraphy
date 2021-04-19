@@ -68,8 +68,8 @@ public class ModelSecondMethodHepaticDynamic extends ModelScinDyn {
 		HashMap<String, String> hm = new HashMap<>();
 
 		// foie droit
-		hm.put("T1/2 Righ Liver", this.tDemiFoieDObs + "mn");
-		hm.put("T1/2 Righ Liver *", this.tDemiFoieDFit + "mn");
+		hm.put("T1/2 Right Liver", this.tDemiFoieDObs + "mn");
+		hm.put("T1/2 Right Liver *", this.tDemiFoieDFit + "mn");
 		hm.put("Maximum Right Liver", Library_Quantif.round(this.maxFoieD, 1) + "mn");
 		hm.put("end/max Ratio Right", (int) (this.finPicD * 100) + "%");
 

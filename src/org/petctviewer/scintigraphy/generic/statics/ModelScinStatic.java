@@ -154,7 +154,7 @@ public class ModelScinStatic extends ModelScin {
 			}
 		}
 
-		return res;// csv
+		return res; // csv format
 	}
 
 	public void setIsSingleSlide(boolean isSingleSlice) {

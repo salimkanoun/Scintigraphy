@@ -38,7 +38,7 @@ public class LymphoScintigraphy extends Scintigraphy {
 
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
-
+		this.initOverlayOnPreparedImages(preparedImages);
 		this.setFenApplication(new FenApplicationLympho(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(
 				new ControllerWorkflowLympho((FenApplicationWorkflow) this.getFenApplication(),
