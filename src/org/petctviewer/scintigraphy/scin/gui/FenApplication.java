@@ -114,7 +114,7 @@ public class FenApplication extends StackWindow implements ComponentListener{
 
 
 		panelContainer.add(this.panelPrincipal, BorderLayout.CENTER);
-		this.add(panelContainer);
+		this.add(panelContainer, BorderLayout.SOUTH);
 
 //		panelContainer.setPreferredSize(new Dimension(512, (int) panelContainer.getPreferredSize().getHeight()));
 		// Menu bar

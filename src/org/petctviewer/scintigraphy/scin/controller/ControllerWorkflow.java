@@ -587,14 +587,11 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 			try {
 				SaveAndLoad saveAndLoad = new SaveAndLoad();
-
 				saveAndLoad.exportAllWithWorkflow(resultats, tab.getParent().getModel().getStudyName(), imp,
-												  additionalInfo, this.getModel().getControllers());
-
-
+												  additionalInfo, this.getModel().getControllers(), tab);
 				imp.killRoi();
-			} catch (Exception e1) {
-				e1.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 
 			// Execution du plugin myDicom

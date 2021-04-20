@@ -42,10 +42,10 @@ public class ControllerWorkflowEsophagealTransit extends ControllerWorkflow {
 
 
 			ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
-			ImageSelection img = this.getModel().getImageSelection()[indexInstruction];
-			Library_Gui.initOverlay(img.getImagePlus());
-			state.specifieImage(img);
-			DrawRoiInstruction dri_1 = null;
+			ImageSelection ims = this.getModel().getImageSelection()[indexInstruction];
+			Library_Gui.initOverlay(ims.getImagePlus());
+			state.specifieImage(ims);
+			DrawRoiInstruction dri_1;
 			DrawRoiInstruction dri_previous =
 					indexInstruction != 0 ? (DrawRoiInstruction) this.workflows[0].getInstructions().get(
 							indexInstruction - 1) : null;
