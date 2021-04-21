@@ -50,31 +50,37 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			PopupMenu lymphatic = new PopupMenu("Lymphatic");
 			PopupMenu renal = new PopupMenu("Renal");
 			PopupMenu generic = new PopupMenu("Generic");
+			PopupMenu other = new PopupMenu("Other");
+			PopupMenu endocrinology = new PopupMenu("Endocrinology");
+			PopupMenu thyroid = new PopupMenu("Thyroid");
+			PopupMenu parathyroid = new PopupMenu("Parathyroid");
 			
 			if (Menus.getFontSize()!=0) general.setFont(Menus.getFont());
-			
+
+			//Gastric
 			MenuItem gastricEmptyingSolid = new MenuItem("Gastric Emptying Solid");
 			MenuItem gastricEmptyingLiquid = new MenuItem("Gastric Emptying Liquid");
 			MenuItem esophagealTransit = new MenuItem("Esophageal Transit");
-			
-			
-			//plumonary shunt
-			MenuItem plumonaryShunt = new MenuItem("Pulmonary Shunt");
+
+			//Pulmonary shunt
+			MenuItem pulmonaryShunt = new MenuItem("Pulmonary Shunt");
 			
 			//Cardiac
-			MenuItem dpdQuant = new MenuItem("DPD Quant");
+			MenuItem amylose = new MenuItem("Amylose");
+			MenuItem mibgQuant = new MenuItem("MIBG Quant");
 			
 			//Colon
 			MenuItem colonTransit = new MenuItem("Colon Transit");
 			
 			//Hepatic
 			MenuItem biliaryScintigraphyDynamic = new MenuItem("Biliary Scintigraphy");
+			MenuItem radioEmbolization = new MenuItem("RadioEmbolization");
 			
-			//Lymphoscintigraphy
+			//Lymphatic
 			MenuItem lymphoScintigraphy = new MenuItem("Lymphoscintigraphy");
 			
-			//Lymphoscintigraphy
-			MenuItem boneScintigraphy = new MenuItem("Bone Scintigrahy");
+			//Bone
+			MenuItem boneScintigraphy = new MenuItem("Bone Scintigraphy");
 			
 			//Renal
 			MenuItem renogram = new MenuItem("Renogram");
@@ -85,22 +91,29 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			MenuItem about = new MenuItem("About");
 			MenuItem preferences=new MenuItem("Preferences");
 			
-			//generic
+			//Generic
 			MenuItem dynquant = new MenuItem("Dynamic Quantification");
 			MenuItem statquant = new MenuItem("Static Quantification");
+
+			//Endocrinology
+			MenuItem tcUptake = new MenuItem("Tc Uptake");
+			MenuItem parathyroidMenu = new MenuItem("Parathyroid");
 			
-			
-			
-			
+			//Other
+			MenuItem schaeferCalibration = new MenuItem("Schaefer Calibration");
+
+
 			//Ajout des listeners
 			boneScintigraphy.addActionListener(this);
 			gastricEmptyingSolid.addActionListener(this);
 			gastricEmptyingLiquid.addActionListener(this);
 			esophagealTransit.addActionListener(this);
-			plumonaryShunt.addActionListener(this);
-			dpdQuant.addActionListener(this);
+			pulmonaryShunt.addActionListener(this);
+			amylose.addActionListener(this);
+			mibgQuant.addActionListener(this);
 			colonTransit.addActionListener(this);
 			biliaryScintigraphyDynamic.addActionListener(this);
+			radioEmbolization.addActionListener(this);
 			lymphoScintigraphy.addActionListener(this);
 			renogram.addActionListener(this);
 			dmsa.addActionListener(this);
@@ -109,19 +122,27 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			preferences.addActionListener(this);
 			dynquant.addActionListener(this);
 			statquant.addActionListener(this);
+			tcUptake.addActionListener(this);
+			parathyroidMenu.addActionListener(this);
+			schaeferCalibration.addActionListener(this);
 			
-			
+
+			//
 			bone.add(boneScintigraphy);
 			
 			gastric.add(gastricEmptyingSolid);
 			gastric.add(gastricEmptyingLiquid);
 			gastric.add(esophagealTransit);
 			
-			pulmonary.add(plumonaryShunt);
+			pulmonary.add(pulmonaryShunt);
 			
-			cardiac.add(dpdQuant);
+			cardiac.add(amylose);
+			cardiac.add(mibgQuant);
+
 			colon.add(colonTransit);
+
 			hepatic.add(biliaryScintigraphyDynamic);
+			hepatic.add(radioEmbolization);
 			
 			renal.add(renogram);
 			renal.add(dmsa);
@@ -131,17 +152,26 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			generic.add(statquant);
 			
 			lymphatic.add(lymphoScintigraphy);
+
+			parathyroid.add(parathyroidMenu);
+			thyroid.add(tcUptake);
+			endocrinology.add(parathyroid);
+			endocrinology.add(tcUptake);
+
+			other.add(schaeferCalibration);
 			
 			
 			general.add(generic);
 			general.add(bone);
 			general.add(cardiac);
 			general.add(colon);
+			general.add(endocrinology);
 			general.add(gastric);
 			general.add(hepatic);
 			general.add(lymphatic);
 			general.add(pulmonary);
 			general.add(renal);
+			general.add(other);
 			general.add(preferences);
 			general.add(about);
 			
@@ -152,54 +182,56 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String cmd = e.getActionCommand();
-			if (cmd.equals("DPD Quant")) {
-				IJ.run("DPD Quant");
-			}if (cmd.equals("Colon Transit")) {
-				IJ.run("Colon Transit");
+			switch (cmd) {
+				case "Amylose":
+					IJ.run("Amylose");
+					break;
+				case "Colon Transit":
+					IJ.run("Colon Transit");
+					break;
+				case "Bone Scintigraphy":
+					IJ.run("Bone Scintigraphy");
+					break;
+				case "Biliary Scintigraphy":
+					IJ.run("Biliary Scintigraphy");
+					break;
+				case "Gastric Emptying Solid":
+					IJ.run("Gastric Emptying Solid");
+					break;
+				case "Gastric Emptying Liquid":
+					IJ.run("Gastric Emptying Liquid");
+					break;
+				case "Esophageal Transit":
+					IJ.run("Esophageal Transit");
+					break;
+				case "Pulmonary Shunt":
+					IJ.run("Pulmonary Shunt");
+					break;
+				case "Dynamic Quantification":
+					IJ.run("Dynamic Quantification");
+					break;
+				case "Static Quantification":
+					IJ.run("Static Quantification");
+					break;
+				case "Renogram":
+					IJ.run("Renogram");
+					break;
+				case "DMSA":
+					IJ.run("DMSA");
+					break;
+				case "Lymphoscintigraphy":
+					IJ.run("Lymphoscintigraphy");
+					break;
+				case "Renogram Follow-Up":
+					IJ.run("Renogram Follow-Up");
+					break;
+				case "About":
+					IJ.run("About");
+					break;
+				case "Preferences":
+					IJ.run("Preferences");
+					break;
 			}
-			if(cmd.equals("Bone Scintigrahy")) {
-				IJ.run("Bone Scintigraphy");
-				
-			}
-			if (cmd.equals("Biliary Scintigraphy")) {
-				IJ.run("Biliary Scintigraphy");
-			}
-			if (cmd.equals("Gastric Emptying Solid")) {
-				IJ.run("Gastric Emptying Solid");
-			}
-			if (cmd.equals("Gastric Emptying Liquid")) {
-				IJ.run("Gastric Emptying Liquid");
-			}
-			if (cmd.equals("Esophageal Transit")) {
-				IJ.run("Esophageal Transit");
-			}
-			if (cmd.equals("Pulmonary Shunt")) {
-				IJ.run("Pulmonary Shunt");
-			}
-			if (cmd.equals("Dynamic Quantification")) {
-				IJ.run("Dynamic Quantification");
-			}
-			if (cmd.equals("Static Quantification")) {
-				IJ.run("Static Quantification");
-			}
-			if (cmd.equals("Renogram")) {
-				IJ.run("Renogram");
-			}
-			if (cmd.equals("DMSA")) {
-				IJ.run("DMSA");
-			}if(cmd.equals("Lymphoscintigraphy")) {
-				IJ.run("LymphoScintigraphy");
-			}
-			if (cmd.equals("Renogram Follow-Up")) {
-				IJ.run("Renogram Follow-Up");
-			}
-			if (cmd.equals("About")) {
-				IJ.run("About");
-			}
-			if (cmd.equals("Preferences")) {
-				IJ.run("Preferences");
-			}
-			
 		}
 		
 
@@ -212,7 +244,6 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 		public String getToolName() {
 			return "Scintigraphy Access, Right click to show menu";
 		}
-		
-		
+
 	}
 
