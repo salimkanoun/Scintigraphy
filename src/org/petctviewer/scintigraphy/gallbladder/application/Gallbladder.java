@@ -67,6 +67,9 @@ public class Gallbladder extends Scintigraphy{
     
     @Override
 	public void start(List<ImageSelection> preparedImages) {
+
+        //SK A EVALUER LES IMAGES NE SEMBLENT PLUS AVOIR D OVERLAY INITIALISE PAR DEFAUT, PEUT ETRE A ETENDRE DANS TOUS LES PROGRAMMES
+        initOverlayOnPreparedImages(preparedImages);
         
 		//phase 1
         Overlay overlay = Library_Gui.initOverlay(preparedImages.get(0).getImagePlus(), 12);

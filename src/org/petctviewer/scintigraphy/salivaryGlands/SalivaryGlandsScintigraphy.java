@@ -44,6 +44,9 @@ public class SalivaryGlandsScintigraphy extends Scintigraphy {
     @Override
 	public void start(List<ImageSelection> preparedImages) {
 
+        //SK A EVALUER LES IMAGES NE SEMBLENT PLUS AVOIR D OVERLAY INITIALISE PAR DEFAUT, PEUT ETRE A ETENDRE DANS TOUS LES PROGRAMMES
+        initOverlayOnPreparedImages(preparedImages);
+
 		this.setFenApplication(new FenApplication_SalivaryGlands(preparedImages.get(0), this.getStudyName(), this));
 		this.getFenApplication().setController(
 				new ControllerWorkflowSalivaryGlands((FenApplicationWorkflow) this.getFenApplication(),

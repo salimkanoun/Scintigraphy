@@ -377,11 +377,11 @@ public abstract class ControllerScin implements ActionListener {
 			}
 
 			// on deselectionne le bouton contraste
-			this.vue.getBtn_contrast().setBackground(null);
+			this.vue.getBtn_reverse().setBackground(null);
 
 			IJ.setTool(PrefTabMain.toolFromString(Prefs.get(PrefTabMain.PREF_TOOL_ROI, "Polygone")));
 
-		} else if (b == this.vue.getBtn_contrast()) {
+		} else if (b == this.vue.getBtn_reverse()) {
 			// on change la couleur du bouton
 			if (b.getBackground() != Color.LIGHT_GRAY) {
 				b.setBackground(Color.LIGHT_GRAY);
@@ -392,7 +392,7 @@ public abstract class ControllerScin implements ActionListener {
 			// on deselectionne le bouton draw roi
 			this.vue.getBtn_drawROI().setBackground(null);
 
-			IJ.run("Window Level Tool");
+			IJ.run("Invert", "stack");
 
 		} else if (b == this.vue.getBtn_quitter()) {
 			this.vue.close();

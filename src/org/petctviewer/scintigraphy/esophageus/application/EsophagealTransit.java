@@ -61,6 +61,11 @@ public class EsophagealTransit extends Scintigraphy {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
+
+		//SK A EVALUER LES IMAGES NE SEMBLENT PLUS AVOIR D OVERLAY INITIALISE PAR DEFAUT, PEUT ETRE A ETENDRE DANS TOUS LES PROGRAMMES
+		initOverlayOnPreparedImages(preparedImages);
+
+
 		// phase 1
 		Overlay overlay = Library_Gui.initOverlay(preparedImages.get(0).getImagePlus(), 12);
 		Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.yellow);

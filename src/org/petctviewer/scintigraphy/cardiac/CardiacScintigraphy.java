@@ -48,6 +48,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
+
 		Overlay overlay = Library_Gui.initOverlay(preparedImages.get(0).getImagePlus(), 7);
 		Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.YELLOW);
 
