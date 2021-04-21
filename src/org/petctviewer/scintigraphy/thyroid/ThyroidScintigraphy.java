@@ -110,7 +110,7 @@ public class ThyroidScintigraphy extends Scintigraphy {
                 result.set(IMAGE_FULL_SYRINGE, Library_Dicom.ensureAntPost(ims));
             } else if (ims.getImageOrgan().equals("EMPTY SYRINGE")){
                 result.set(IMAGE_EMPTY_SYRINGE, Library_Dicom.ensureAntPost(ims));
-            } else if (Library_Dicom.isAnterior(ims.getImagePlus())) {
+            } else if (Library_Dicom.isAnterior(ims.getImagePlus()) && ims.getImageOrgan().equals(ORGAN_THYROID)) {
                 result.set(IMAGE_THYROID, ims);
             } else {
                 throw new WrongInputException("Can only accept ANT/POST and ANT images");
