@@ -115,7 +115,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 		// Check orientation
 		List<ImageSelection> result = new ArrayList<>();
 		for (ImageSelection ims : selectedImages) {
-			result.add(Library_Dicom.ensureAntPostFlipped(ims));
+			result.add(Library_Dicom.ensureAntPost(ims));
 			ims.close();
 		}
 

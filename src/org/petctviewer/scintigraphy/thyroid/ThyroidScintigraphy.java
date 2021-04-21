@@ -13,12 +13,15 @@ import org.petctviewer.scintigraphy.hepatic.radioEmbolization.ControllerWorkflow
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
+import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+
+import static org.petctviewer.scintigraphy.thyroid.ModelThyroid.*;
 
 public class ThyroidScintigraphy extends Scintigraphy {
 
@@ -79,7 +82,7 @@ public class ThyroidScintigraphy extends Scintigraphy {
     @Override
     public Column[] getColumns() {
         //Orientation column
-        final String[] orientationValues = {Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString()};
+        final String[] orientationValues = {Orientation.ANT.toString(), Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString()};
         final Column orientation = new Column (Column.ORIENTATION.getName(), orientationValues);
         
         //Organ column
@@ -93,7 +96,7 @@ public class ThyroidScintigraphy extends Scintigraphy {
 
     @Override
     public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages)
-            throws WrongInputException {
+            throws WrongInputException, ReadTagException {
         // Check that number of images is correct
         if(selectedImages.size() != 3) throw new WrongNumberImagesException(selectedImages.size(), 3);
         
@@ -104,13 +107,13 @@ public class ThyroidScintigraphy extends Scintigraphy {
         result.add(null);
         for(final ImageSelection ims : selectedImages){
             if (ims.getImageOrgan().equals("FULL SYRINGE")){
-                result.set(0, Library_Dicom.ensureAntPost(ims));
-            }else {
-                if (ims.getImageOrgan().equals("EMPTY SYRINGE")){
-                    result.set(1, Library_Dicom.ensureAntPost(ims));
-                }else {
-                    result.set(2, Library_Dicom.ensureAntPost(ims));
-                }
+                result.set(IMAGE_FULL_SYRINGE, Library_Dicom.ensureAntPost(ims));
+            } else if (ims.getImageOrgan().equals("EMPTY SYRINGE")){
+                result.set(IMAGE_EMPTY_SYRINGE, Library_Dicom.ensureAntPost(ims));
+            } else if (Library_Dicom.isAnterior(ims.getImagePlus())) {
+                result.set(IMAGE_THYROID, ims);
+            } else {
+                throw new WrongInputException("Can only accept ANT/POST and ANT images");
             }
             ims.close();
         }
