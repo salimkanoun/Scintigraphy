@@ -128,7 +128,7 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 			
 			// TODO move elsewhere
 
-			this.getBtn_contrast().setEnabled(true);
+			this.getBtn_reverse().setEnabled(true);
 
 			this.getPanel_bttns_droit().removeAll();
 			this.getPanel_bttns_droit().add(this.createPanelInstructionsBtns());

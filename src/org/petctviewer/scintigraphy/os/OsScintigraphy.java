@@ -125,6 +125,10 @@ public class OsScintigraphy extends Scintigraphy {
 	 */
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
+
+
+		this.initOverlayOnPreparedImages(preparedImages);
+
 		if (process) {
 			// FenApplication_Os fen = new FenApplication_Os(this, buffer);
 			this.initOverlayOnPreparedImages(preparedImages);

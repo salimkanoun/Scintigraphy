@@ -45,7 +45,7 @@ public abstract class Scintigraphy implements PlugIn, ImagePreparator {
 	public void setFenApplication(FenApplication fen_application) {
 		this.fen_application = fen_application;
 	}
-	
+
 	protected void initOverlayOnPreparedImages(List<ImageSelection> preparedImages) {
 		for(ImageSelection imageSelection : preparedImages) {
 			Library_Gui.initOverlay(imageSelection.getImagePlus());

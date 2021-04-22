@@ -33,7 +33,10 @@ public class ColonicScintigraphy extends Scintigraphy {
 
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
+
+		//SK A EVALUER LES IMAGES NE SEMBLENT PLUS AVOIR D OVERLAY INITIALISE PAR DEFAUT, PEUT ETRE A ETENDRE DANS TOUS LES PROGRAMMES
 		this.initOverlayOnPreparedImages(preparedImages);
+
 		this.setFenApplication(new FenApplicationColonicTransit(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(
 				new ControllerWorkflowColonicTransit((FenApplicationColonicTransit) this.getFenApplication(),
