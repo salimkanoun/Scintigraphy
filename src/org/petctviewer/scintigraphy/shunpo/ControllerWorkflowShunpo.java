@@ -247,8 +247,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow implements Item
 				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
 											state.getSlice());
 				Library_Gui.setOverlayTitle(display.getTitlePost(), this.vue.getImagePlus(),
-											Color.YELLOW,
-											state.getSlice());
+											Color.YELLOW, state.getSlice());
 			}
 		} else {
 			if (state.getFacingOrientation() == Orientation.ANT) {

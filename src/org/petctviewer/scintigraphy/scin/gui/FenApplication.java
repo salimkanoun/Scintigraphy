@@ -75,7 +75,6 @@ public class FenApplication extends StackWindow implements ComponentListener{
 
 		this.studyName = studyName;
 
-
 		String tagSerie = DicomTools.getTag(this.imp, "0008,103E");
 		String tagNom = DicomTools.getTag(this.imp, "0010,0010");
 		String titre = this.studyName + " - " + tagNom + " - " + tagSerie;
@@ -84,7 +83,7 @@ public class FenApplication extends StackWindow implements ComponentListener{
 
 		panelContainer = new Panel(new BorderLayout());
 
-		this.panelPrincipal = new Panel(new GridLayout(2,2));
+		this.panelPrincipal = new Panel(new FlowLayout());
 
 		// construit tous les boutons
 		this.btn_reverse = new Button("Reverse");
@@ -101,11 +100,9 @@ public class FenApplication extends StackWindow implements ComponentListener{
 		panel_btns_gauche.add(this.btn_quitter);
 		panel_btns_gauche.add(this.btn_drawROI);
 		panel_btns_gauche.add(this.btn_reverse);
-
 		panelPrincipal.add(panel_btns_gauche);
 
 		// Creation du panel instructions
-
 		this.panel_Instructions_btns_droite = new Panel();
 		this.panel_Instructions_btns_droite.setLayout(new GridLayout(2, 1));
 		this.textfield_instructions = new JTextField("Click To Start Exam");
@@ -128,8 +125,6 @@ public class FenApplication extends StackWindow implements ComponentListener{
 		});
 
 		panelPrincipal.add(panel_slider);
-
-
 
 		panelContainer.add(this.panelPrincipal, BorderLayout.CENTER);
 		this.add(panelContainer, BorderLayout.SOUTH);

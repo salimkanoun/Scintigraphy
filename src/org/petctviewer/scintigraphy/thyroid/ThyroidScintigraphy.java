@@ -38,7 +38,7 @@ public class ThyroidScintigraphy extends Scintigraphy {
         final DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
         doc.setDeveloper("Diego Rodriguez");
         doc.addReference(DocumentationDialog.Field.createTextField("Thyroid", "VILLANEUEVA-MEYER Clinical"
-        + "Nuclear Medicine 1986"));
+                + "Nuclear Medicine 1986"));
         doc.setYoutube("");
         doc.setOnlineDoc("");
         this.getFenApplication().setDocumentation(doc);
@@ -50,20 +50,20 @@ public class ThyroidScintigraphy extends Scintigraphy {
 
         final CheckboxMenuItem itemChangeLabelRL = new CheckboxMenuItem(DisplayState.RIGHT_LEFT.label);
         group.addRadioItem(itemChangeLabelRL);
-		menu.add(itemChangeLabelRL);
+        menu.add(itemChangeLabelRL);
 
-		final CheckboxMenuItem itemChangeLabelLR = new CheckboxMenuItem(DisplayState.LEFT_RIGHT.label);
-		group.addRadioItem(itemChangeLabelLR);
-		menu.add(itemChangeLabelLR);
+        final CheckboxMenuItem itemChangeLabelLR = new CheckboxMenuItem(DisplayState.LEFT_RIGHT.label);
+        group.addRadioItem(itemChangeLabelLR);
+        menu.add(itemChangeLabelLR);
 
-		final CheckboxMenuItem itemChangeLabelAP = new CheckboxMenuItem(DisplayState.ANT_POST.label, true);
-		group.addRadioItem(itemChangeLabelAP);
-		menu.add(itemChangeLabelAP);
+        final CheckboxMenuItem itemChangeLabelAP = new CheckboxMenuItem(DisplayState.ANT_POST.label, true);
+        group.addRadioItem(itemChangeLabelAP);
+        menu.add(itemChangeLabelAP);
 
-		itemChangeLabelRL.addItemListener(listener);
-		itemChangeLabelLR.addItemListener(listener);
+        itemChangeLabelRL.addItemListener(listener);
+        itemChangeLabelLR.addItemListener(listener);
         itemChangeLabelAP.addItemListener(listener);
-        
+
         this.getFenApplication().getMenuBar().add(menu);
     }
 
@@ -72,7 +72,7 @@ public class ThyroidScintigraphy extends Scintigraphy {
         this.initOverlayOnPreparedImages(preparedImages);
         this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
         this.getFenApplication().setController(new ControllerWorkflowThyroid(
-            (FenApplicationWorkflow) getFenApplication(), preparedImages.toArray(new ImageSelection[0])));
+                (FenApplicationWorkflow) getFenApplication(), preparedImages.toArray(new ImageSelection[0])));
         this.createDocumentation();
         this.inflateMenuBar((ControllerWorkflowThyroid) this.getFenApplication().getController());
 
@@ -84,22 +84,22 @@ public class ThyroidScintigraphy extends Scintigraphy {
         //Orientation column
         final String[] orientationValues = {Orientation.ANT.toString(), Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString()};
         final Column orientation = new Column (Column.ORIENTATION.getName(), orientationValues);
-        
+
         //Organ column
-		final String[] organValues = {ORGAN_THYROID, "FULL SYRINGE", "EMPTY SYRINGE"};
-		this.organColumn = new Column("Organ", organValues);
-		
-		//Choose columns to display
-		return new Column[] {Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
-			Column.STACK_SIZE, orientation, this.organColumn};
-	}
+        final String[] organValues = {ORGAN_THYROID, "FULL SYRINGE", "EMPTY SYRINGE"};
+        this.organColumn = new Column("Organ", organValues);
+
+        //Choose columns to display
+        return new Column[] {Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
+                Column.STACK_SIZE, orientation, this.organColumn};
+    }
 
     @Override
     public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages)
             throws WrongInputException, ReadTagException {
         // Check that number of images is correct
         if(selectedImages.size() != 3) throw new WrongNumberImagesException(selectedImages.size(), 3);
-        
+
         //Check orientation
         final List<ImageSelection> result = new ArrayList<>();
         result.add(null);
@@ -111,7 +111,7 @@ public class ThyroidScintigraphy extends Scintigraphy {
             } else if (ims.getImageOrgan().equals("EMPTY SYRINGE")){
                 result.set(IMAGE_EMPTY_SYRINGE, Library_Dicom.ensureAntPost(ims));
             } else if (Library_Dicom.isAnterior(ims.getImagePlus()) && ims.getImageOrgan().equals(ORGAN_THYROID)) {
-                result.set(IMAGE_THYROID, ims);
+                result.set(IMAGE_THYROID, ims.clone());
             } else {
                 throw new WrongInputException("Can only accept ANT/POST and ANT images");
             }
@@ -146,5 +146,5 @@ public class ThyroidScintigraphy extends Scintigraphy {
             //Activate only source
             ((CheckboxMenuItem) e.getSource()).setState(true);
         }
-    }    
+    }
 }

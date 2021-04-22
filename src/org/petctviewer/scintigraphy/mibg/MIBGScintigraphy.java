@@ -95,10 +95,6 @@ public class MIBGScintigraphy extends Scintigraphy {
 	 */
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
-
-
-		this.initOverlayOnPreparedImages(preparedImages);
-
 		// Start program
 		this.initOverlayOnPreparedImages(preparedImages);
 		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
