@@ -83,7 +83,7 @@ public class FenApplication extends StackWindow implements ComponentListener{
 
 		panelContainer = new Panel(new BorderLayout());
 
-		this.panelPrincipal = new Panel(new FlowLayout());
+		this.panelPrincipal = new Panel(new GridLayout(2, 2));
 
 		// construit tous les boutons
 		this.btn_reverse = new Button("Reverse");
