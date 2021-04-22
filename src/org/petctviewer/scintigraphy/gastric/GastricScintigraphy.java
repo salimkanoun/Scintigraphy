@@ -43,7 +43,7 @@ public class GastricScintigraphy extends Scintigraphy {
 	public void start(List<ImageSelection> preparedImages) {
 		
 		//SK A EVALUER LES IMAGES NE SEMBLENT PLUS AVOIR D OVERLAY INITIALISE PAR DEFAUT, PEUT ETRE A ETENDRE DANS TOUS LES PROGRAMMES
-		initOverlayOnPreparedImages(preparedImages);
+		this.initOverlayOnPreparedImages(preparedImages);
 		
 		// Create application window
 		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), getStudyName()));

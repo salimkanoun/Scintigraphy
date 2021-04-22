@@ -69,10 +69,10 @@ public class Gallbladder extends Scintigraphy{
 	public void start(List<ImageSelection> preparedImages) {
 
         //SK A EVALUER LES IMAGES NE SEMBLENT PLUS AVOIR D OVERLAY INITIALISE PAR DEFAUT, PEUT ETRE A ETENDRE DANS TOUS LES PROGRAMMES
-        initOverlayOnPreparedImages(preparedImages);
+        this.initOverlayOnPreparedImages(preparedImages, 12);
         
 		//phase 1
-        Overlay overlay = Library_Gui.initOverlay(preparedImages.get(0).getImagePlus(), 12);
+
         Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.yellow);
 
         FenApplicationWorkflow fen = new FenApplicationWorkflow(preparedImages.get(0), "Gallblader");
@@ -84,7 +84,7 @@ public class Gallbladder extends Scintigraphy{
         
         fen.getPanelPrincipal().add(radioButtonPanelFlow);
         this.setFenApplication(fen);
-        preparedImages.get(0).getImagePlus().setOverlay(overlay);
+
 
         this.getFenApplication().setVisible(true);
         this.createDocumentation();

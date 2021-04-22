@@ -35,7 +35,7 @@ public class ThyroidScintigraphy extends Scintigraphy {
         final DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
         doc.setDeveloper("Diego Rodriguez");
         doc.addReference(DocumentationDialog.Field.createTextField("Thyroid", "VILLANEUEVA-MEYER Clinical"
-        + "Nuclear Medecine 1986"));
+        + "Nuclear Medicine 1986"));
         doc.setYoutube("");
         doc.setOnlineDoc("");
         this.getFenApplication().setDocumentation(doc);
@@ -79,7 +79,7 @@ public class ThyroidScintigraphy extends Scintigraphy {
     @Override
     public Column[] getColumns() {
         //Orientation column
-        final String[] orientationValues = {Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString()};
+        final String[] orientationValues = {Orientation.ANT.toString(),Orientation.ANT_POST.toString(), Orientation.POST_ANT.toString()};
         final Column orientation = new Column (Column.ORIENTATION.getName(), orientationValues);
         
         //Organ column
@@ -119,7 +119,7 @@ public class ThyroidScintigraphy extends Scintigraphy {
 
     @Override
     public String instructions() {
-        return "3 images in Ant orientation";
+        return "1 image in Ant and 2 images in Ant/Post orientation";
     }
 
     private class RadioGroup implements ItemListener{

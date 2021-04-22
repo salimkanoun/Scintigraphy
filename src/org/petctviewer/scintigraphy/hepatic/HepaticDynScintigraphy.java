@@ -42,16 +42,14 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
 
-		//SK A EVALUER LES IMAGES NE SEMBLENT PLUS AVOIR D OVERLAY INITIALISE PAR DEFAUT, PEUT ETRE A ETENDRE DANS TOUS LES PROGRAMMES
-		initOverlayOnPreparedImages(preparedImages);
 
 		preparedImages.get(0).getImagePlus().changes = false;
+		this.initOverlayOnPreparedImages(preparedImages,12);
 
-		Overlay overlay = Library_Gui.initOverlay(preparedImages.get(0).getImagePlus(), 12);
 		Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.YELLOW);
 		this.setFenApplication(
 				new FenApplicationHepaticDynamic(preparedImages.get(0).getImagePlus(), this.getStudyName()));
-		preparedImages.get(0).getImagePlus().setOverlay(overlay);
+
 		this.getFenApplication().setController(new ControllerHepaticDynamic(this.getFenApplication(),
 																			new ModelHepaticDynamic(
 																					preparedImages.toArray(
@@ -132,6 +130,6 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 
 	@Override
 	public String instructions() {
-		return "1 image in Ant, Ant-Post or Post-Ant orientation";
+		return "1 image in Dynamic Ant, Dynamic A/P or Dynamic P/A orientation";
 	}
 }

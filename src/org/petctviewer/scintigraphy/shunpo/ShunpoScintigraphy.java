@@ -69,7 +69,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
 		// Start program
-		initOverlayOnPreparedImages(preparedImages);
+		this.initOverlayOnPreparedImages(preparedImages);
 		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(
 				new ControllerWorkflowShunpo((FenApplicationWorkflow) getFenApplication(),

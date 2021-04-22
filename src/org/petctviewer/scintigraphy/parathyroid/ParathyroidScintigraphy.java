@@ -84,11 +84,9 @@ public class ParathyroidScintigraphy extends Scintigraphy {
     @Override
     public void start(List<ImageSelection> preparedImages) {
 
-		//SK A EVALUER LES IMAGES NE SEMBLENT PLUS AVOIR D OVERLAY INITIALISE PAR DEFAUT, PEUT ETRE A ETENDRE DANS TOUS LES PROGRAMMES
-		initOverlayOnPreparedImages(preparedImages);
-
         // Start program
-        this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
+		this.initOverlayOnPreparedImages(preparedImages);
+		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
         this.getFenApplication().setController(new ControllerWorkflowParathyroid(
 				(FenApplicationWorkflow) getFenApplication(), new ModelParathyroid(this.sauvegardeImagesSelectDicom, STUDY_NAME)));
 
@@ -176,7 +174,7 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 		
 
 		List<ImageSelection> selection = new ArrayList<>();
-		selection.add(sauvegardeImagesSelectDicom[0]);
+		Collections.addAll(selection, sauvegardeImagesSelectDicom);
 		return selection;
 	}
 
