@@ -37,164 +37,164 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			general.show(e.getComponent(), e.getX()+ OFFSET, e.getY()+ OFFSET);
 		}
 		
-		void addPopupMenu(Toolbar par) {
+		void addPopupMenu(Toolbar bar) {
 			//On cree le popup menu general
 			general = new PopupMenu();
-			//On cree les menus par organes
-			PopupMenu bone = new PopupMenu("Bone");
-			PopupMenu gastric = new PopupMenu("Gastric");
-			PopupMenu pulmonary = new PopupMenu("Pulmonary");
-			PopupMenu hepatic = new PopupMenu("Hepatic");
-			PopupMenu cardiac = new PopupMenu("Cardiac");
-			PopupMenu colon = new PopupMenu("Colon");
-			PopupMenu lymphatic = new PopupMenu("Lymphatic");
-			PopupMenu renal = new PopupMenu("Renal");
-			PopupMenu generic = new PopupMenu("Generic");
-			PopupMenu other = new PopupMenu("Other");
-			PopupMenu endocrinology = new PopupMenu("Endocrinology");
-			PopupMenu thyroid = new PopupMenu("Thyroid");
-			PopupMenu parathyroid = new PopupMenu("Parathyroid");
 			
 			if (Menus.getFontSize()!=0) general.setFont(Menus.getFont());
 
+			//Generic
+			PopupMenu generic = new PopupMenu("Generic");
+			MenuItem dynQuant = new MenuItem("Dynamic Quantification");
+			MenuItem statQuant = new MenuItem("Static Quantification");
+			dynQuant.addActionListener(this);
+			statQuant.addActionListener(this);
+			generic.add(dynQuant);
+			generic.add(statQuant);
+			general.add(generic);
+
+			//Bone
+			PopupMenu bone = new PopupMenu("Bone");
+			MenuItem boneScintigraphy = new MenuItem("Bone Scintigraphy");
+			boneScintigraphy.addActionListener(this);
+			bone.add(boneScintigraphy);
+			general.add(bone);
+
+			//Cardiac
+			PopupMenu cardiac = new PopupMenu("Cardiac");
+			MenuItem amylose = new MenuItem("Amylose");
+			MenuItem mibgQuant = new MenuItem("MIBG Quant");
+			amylose.addActionListener(this);
+			mibgQuant.addActionListener(this);
+			cardiac.add(amylose);
+			cardiac.add(mibgQuant);
+			general.add(cardiac);
+
+			//Colon
+			PopupMenu colon = new PopupMenu("Colon");
+			MenuItem colonTransit = new MenuItem("Colon Transit");
+			colonTransit.addActionListener(this);
+			colon.add(colonTransit);
+			general.add(colon);
+
+			//Endocrinology
+			PopupMenu endocrinology = new PopupMenu("Endocrinology");
+			PopupMenu thyroid = new PopupMenu("Thyroid");
+			PopupMenu parathyroid = new PopupMenu("Parathyroid");
+			MenuItem tcUptake = new MenuItem("Tc Uptake");
+			MenuItem parathyroidMenu = new MenuItem("Parathyroid");
+			tcUptake.addActionListener(this);
+			parathyroidMenu.addActionListener(this);
+			thyroid.add(tcUptake);
+			parathyroid.add(parathyroidMenu);
+			endocrinology.add(thyroid);
+			endocrinology.add(parathyroid);
+			general.add(endocrinology);
+
 			//Gastric
+			PopupMenu gastric = new PopupMenu("Gastric");
 			MenuItem gastricEmptyingSolid = new MenuItem("Gastric Emptying Solid");
 			MenuItem gastricEmptyingLiquid = new MenuItem("Gastric Emptying Liquid");
 			MenuItem esophagealTransit = new MenuItem("Esophageal Transit");
-
-			//Pulmonary shunt
-			MenuItem pulmonaryShunt = new MenuItem("Pulmonary Shunt");
-			
-			//Cardiac
-			MenuItem amylose = new MenuItem("Amylose");
-			MenuItem mibgQuant = new MenuItem("MIBG Quant");
-			
-			//Colon
-			MenuItem colonTransit = new MenuItem("Colon Transit");
-			
-			//Hepatic
-			MenuItem biliaryScintigraphyDynamic = new MenuItem("Biliary Scintigraphy");
-			MenuItem radioEmbolization = new MenuItem("RadioEmbolization");
-			
-			//Lymphatic
-			MenuItem lymphoScintigraphy = new MenuItem("Lymphoscintigraphy");
-			
-			//Bone
-			MenuItem boneScintigraphy = new MenuItem("Bone Scintigraphy");
-			
-			//Renal
-			MenuItem renogram = new MenuItem("Renogram");
-			MenuItem dmsa = new MenuItem("DMSA");
-			MenuItem renogramFollowUp = new MenuItem("Renogram Follow-Up");
-			
-			//About et preference
-			MenuItem about = new MenuItem("About");
-			MenuItem preferences=new MenuItem("Preferences");
-			
-			//Generic
-			MenuItem dynquant = new MenuItem("Dynamic Quantification");
-			MenuItem statquant = new MenuItem("Static Quantification");
-
-			//Endocrinology
-			MenuItem tcUptake = new MenuItem("Tc Uptake");
-			MenuItem parathyroidMenu = new MenuItem("Parathyroid");
-			
-			//Other
-			MenuItem schaeferCalibration = new MenuItem("Schaefer Calibration");
-
-
-			//Ajout des listeners
-			boneScintigraphy.addActionListener(this);
 			gastricEmptyingSolid.addActionListener(this);
 			gastricEmptyingLiquid.addActionListener(this);
 			esophagealTransit.addActionListener(this);
-			pulmonaryShunt.addActionListener(this);
-			amylose.addActionListener(this);
-			mibgQuant.addActionListener(this);
-			colonTransit.addActionListener(this);
-			biliaryScintigraphyDynamic.addActionListener(this);
-			radioEmbolization.addActionListener(this);
-			lymphoScintigraphy.addActionListener(this);
-			renogram.addActionListener(this);
-			dmsa.addActionListener(this);
-			renogramFollowUp.addActionListener(this);
-			about.addActionListener(this);
-			preferences.addActionListener(this);
-			dynquant.addActionListener(this);
-			statquant.addActionListener(this);
-			tcUptake.addActionListener(this);
-			parathyroidMenu.addActionListener(this);
-			schaeferCalibration.addActionListener(this);
-			
-
-			//
-			bone.add(boneScintigraphy);
-			
 			gastric.add(gastricEmptyingSolid);
 			gastric.add(gastricEmptyingLiquid);
 			gastric.add(esophagealTransit);
+			general.add(gastric);
 			
-			pulmonary.add(pulmonaryShunt);
-			
-			cardiac.add(amylose);
-			cardiac.add(mibgQuant);
-
-			colon.add(colonTransit);
-
+			//Hepatic
+			PopupMenu hepatic = new PopupMenu("Hepatic");
+			MenuItem biliaryScintigraphyDynamic = new MenuItem("Biliary Scintigraphy");
+			MenuItem radioEmbolization = new MenuItem("RadioEmbolization");
+			biliaryScintigraphyDynamic.addActionListener(this);
+			radioEmbolization.addActionListener(this);
 			hepatic.add(biliaryScintigraphyDynamic);
 			hepatic.add(radioEmbolization);
+			general.add(hepatic);
 			
+			//Lymphatic
+			PopupMenu lymphatic = new PopupMenu("Lymphatic");
+			MenuItem lymphoscintigraphy = new MenuItem("Lymphoscintigraphy");
+			lymphoscintigraphy.addActionListener(this);
+			lymphatic.add(lymphoscintigraphy);
+			general.add(lymphatic);
+
+			//Pulmonary
+			PopupMenu pulmonary = new PopupMenu("Pulmonary");
+			MenuItem pulmonaryShunt = new MenuItem("Pulmonary Shunt");
+			pulmonaryShunt.addActionListener(this);
+			pulmonary.add(pulmonaryShunt);
+			general.add(pulmonary);
+			
+			//Renal
+			PopupMenu renal = new PopupMenu("Renal");
+			MenuItem renogram = new MenuItem("Renogram");
+			MenuItem dmsa = new MenuItem("DMSA");
+			MenuItem renogramFollowUp = new MenuItem("Renogram Follow-Up");
+			renogram.addActionListener(this);
+			dmsa.addActionListener(this);
+			renogramFollowUp.addActionListener(this);
 			renal.add(renogram);
 			renal.add(dmsa);
 			renal.add(renogramFollowUp);
-			
-			generic.add(dynquant);
-			generic.add(statquant);
-			
-			lymphatic.add(lymphoScintigraphy);
-
-			parathyroid.add(parathyroidMenu);
-			thyroid.add(tcUptake);
-			endocrinology.add(parathyroid);
-			endocrinology.add(tcUptake);
-
-			other.add(schaeferCalibration);
-			
-			
-			general.add(generic);
-			general.add(bone);
-			general.add(cardiac);
-			general.add(colon);
-			general.add(endocrinology);
-			general.add(gastric);
-			general.add(hepatic);
-			general.add(lymphatic);
-			general.add(pulmonary);
 			general.add(renal);
+			
+			//Other
+			PopupMenu other = new PopupMenu("Other");
+			MenuItem schaeferCalibration = new MenuItem("Schaefer Calibration");
+			schaeferCalibration.addActionListener(this);
+			other.add(schaeferCalibration);
 			general.add(other);
+
+			general.addSeparator();
+
+			//About et preferences
+			MenuItem preferences=new MenuItem("Preferences");
+			MenuItem about = new MenuItem("About");
+			preferences.addActionListener(this);
+			about.addActionListener(this);
 			general.add(preferences);
 			general.add(about);
 			
-			
-			par.add(general);
+			bar.add(general);
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String cmd = e.getActionCommand();
 			switch (cmd) {
-				case "Amylose":
-					IJ.run("Amylose");
+				//Generic
+				case "Dynamic Quantification":
+					IJ.run("Dynamic Quantification");
 					break;
-				case "Colon Transit":
-					IJ.run("Colon Transit");
+				case "Static Quantification":
+					IJ.run("Static Quantification");
 					break;
+				//Bone
 				case "Bone Scintigraphy":
 					IJ.run("Bone Scintigraphy");
 					break;
-				case "Biliary Scintigraphy":
-					IJ.run("Biliary Scintigraphy");
+				//Cardiac
+				case "Amylose":
+					IJ.run("Amylose");
 					break;
+				case "MIBG Quant":
+					IJ.run("MIBG Quant");
+					break;
+				//Colon
+				case "Colon Transit":
+					IJ.run("Colon Transit");
+					break;
+				//Endocrinology
+				case "Tc Uptake":
+					IJ.run("Tc Uptake");
+					break;
+				case "Parathyroid":
+					IJ.run("Parathyroid");
+					break;
+				//Gastric
 				case "Gastric Emptying Solid":
 					IJ.run("Gastric Emptying Solid");
 					break;
@@ -204,32 +204,41 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 				case "Esophageal Transit":
 					IJ.run("Esophageal Transit");
 					break;
+				//Hepatic
+				case "Biliary Scintigraphy":
+					IJ.run("Biliary Scintigraphy");
+					break;
+				case "RadioEmbolization":
+					IJ.run("RadioEmbolization");
+					break;
+				//Lymphatic
+				case "Lymphoscintigraphy":
+					IJ.run("Lymphoscintigraphy");
+					break;
+				//Pulmonary
 				case "Pulmonary Shunt":
 					IJ.run("Pulmonary Shunt");
 					break;
-				case "Dynamic Quantification":
-					IJ.run("Dynamic Quantification");
-					break;
-				case "Static Quantification":
-					IJ.run("Static Quantification");
-					break;
+				//Renal
 				case "Renogram":
 					IJ.run("Renogram");
 					break;
 				case "DMSA":
 					IJ.run("DMSA");
 					break;
-				case "Lymphoscintigraphy":
-					IJ.run("Lymphoscintigraphy");
-					break;
 				case "Renogram Follow-Up":
 					IJ.run("Renogram Follow-Up");
 					break;
-				case "About":
-					IJ.run("About");
+				//Other
+				case "Schaefer Calibration":
+					IJ.run("Schaefer Calibration");
 					break;
+				//About & Preferences
 				case "Preferences":
 					IJ.run("Preferences");
+					break;
+				case "About":
+					IJ.run("About");
 					break;
 			}
 		}
