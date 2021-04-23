@@ -392,7 +392,7 @@ public abstract class ControllerScin implements ActionListener {
 			// on deselectionne le bouton draw roi
 			this.vue.getBtn_drawROI().setBackground(null);
 
-			IJ.run("Invert", "stack");
+			IJ.run("Invert LUT", "stack");
 
 		} else if (b == this.vue.getBtn_quitter()) {
 			this.vue.close();

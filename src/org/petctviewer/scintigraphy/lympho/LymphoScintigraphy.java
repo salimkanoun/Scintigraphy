@@ -97,7 +97,7 @@ public class LymphoScintigraphy extends Scintigraphy {
 
 		ImageSelection impSorted;
 		List<ImageSelection> impsSortedAntPost = new ArrayList<>();
-		int DynamicPosition = -1;
+		int dynamicPosition = -1;
 
 		for (int i = 0; i < selectedImages.size(); i++) {
 
@@ -109,7 +109,7 @@ public class LymphoScintigraphy extends Scintigraphy {
 			} else if (selectedImages.get(i).getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
 				impSorted = imp.clone();
 				System.out.println("dynamic position "+i);
-				DynamicPosition = i;
+				dynamicPosition = i;
 			} else {
 				throw new WrongColumnException.OrientationColumn(selectedImages.get(i).getRow(),
 																 selectedImages.get(i).getImageOrientation(),
@@ -126,9 +126,9 @@ public class LymphoScintigraphy extends Scintigraphy {
 			selected.close();
 
 		//List<ImageSelection> impsCorrectedByTime = new ArrayList<>();
-		if (DynamicPosition != -1) {
-			ImageSelection staticImage = impsSortedAntPost.get(Math.abs((DynamicPosition - 1)));
-			ImageSelection dynamicImage = impsSortedAntPost.get(DynamicPosition);
+		if (dynamicPosition != -1) {
+			ImageSelection staticImage = impsSortedAntPost.get(Math.abs((dynamicPosition - 1)));
+			ImageSelection dynamicImage = impsSortedAntPost.get(dynamicPosition);
 			int timeStatic = Library_Dicom.getFrameDuration(staticImage.getImagePlus());
 			int[] timesDynamic = Library_Dicom.buildFrameDurations(dynamicImage.getImagePlus());
 			int acquisitionTimeDynamic = 0;
@@ -140,55 +140,47 @@ public class LymphoScintigraphy extends Scintigraphy {
 			// image
 			dynamicImage = dynamicToStaticAntPost(dynamicImage);
 			// On calcule le ration de temps pour égaliser le nombre de coup/miliseconde
-			double ratio = (timeStatic * 1.0D / acquisitionTimeDynamic * 1.0D);
+			double ratio = (timeStatic * 1.0D / acquisitionTimeDynamic);
 
 			// On passe la static sur le même temps théorique que la dynamic
 			IJ.run(staticImage.getImagePlus(), "Multiply...", "value=" + (1f / ratio) + " stack");
 			// On ramène sur 1 minute
 			IJ.run(staticImage.getImagePlus(), "Multiply...", "value=" + (60000f / acquisitionTimeDynamic) + " stack");
 			// On ramène sur 1 minute
-			IJ.run(dynamicImage.getImagePlus(), "Multiply...",
-				   "value=" + (60000f / acquisitionTimeDynamic) + " " + "stack");
+			IJ.run(dynamicImage.getImagePlus(), "Multiply...", "value=" + (60000f / acquisitionTimeDynamic) + " stack");
 
 			// On augmente le contraste (uniquement visuel, n'impacte pas les données)
 			dynamicImage.getImagePlus().getProcessor().setMinAndMax(0,
-																	dynamicImage.getImagePlus().getStatistics().max *
-					ratio);
+					dynamicImage.getImagePlus().getStatistics().max * ratio);
 			// On augmente le contraste (uniquement visuel, n'impacte pas les données)
-			staticImage.getImagePlus().getProcessor().setMinAndMax(0, staticImage.getImagePlus().getStatistics().max *
-					ratio);
+			staticImage.getImagePlus().getProcessor().setMinAndMax(0,
+					staticImage.getImagePlus().getStatistics().max * ratio);
 
 			//impsCorrectedByTime.set(Math.abs((DynamicPosition - 1)), staticImage);
-			selectedImages.set(DynamicPosition, dynamicImage);
-
 		} else {
 			int timeStatic1 = Library_Dicom.getFrameDuration(impsSortedAntPost.get(0).getImagePlus());
 			int timeStatic2 = Library_Dicom.getFrameDuration(impsSortedAntPost.get(1).getImagePlus());
-			double ratio = (timeStatic1 * 1.0D / timeStatic2 * 1.0D);
+			double ratio = (timeStatic1 * 1.0D / timeStatic2);
 
 			// On passe les deux static sur le même temps théorique
 			IJ.run(impsSortedAntPost.get(0).getImagePlus(), "Multiply...", "value=" + (1f / ratio) + " stack");
 			// On ramène sur 1 minute
-			IJ.run(impsSortedAntPost.get(0).getImagePlus(), "Multiply...",
-				   "value=" + (60000f / timeStatic2) + " stack");
+			IJ.run(impsSortedAntPost.get(0).getImagePlus(), "Multiply...", "value=" + (60000f / timeStatic2) + " stack");
 			// On ramène sur 1 minute
-			IJ.run(impsSortedAntPost.get(1).getImagePlus(), "Multiply...",
-				   "value=" + (60000f / timeStatic2) + " stack");
+			IJ.run(impsSortedAntPost.get(1).getImagePlus(), "Multiply...", "value=" + (60000f / timeStatic2) + " stack");
 
 			// On augmente le contraste (uniquement visuel, n'impacte pas les données)
-			impsSortedAntPost.get(0).getImagePlus().getProcessor().setMinAndMax(0, impsSortedAntPost.get(
-					0).getImagePlus().getStatistics().max * ratio);
+			impsSortedAntPost.get(0).getImagePlus().getProcessor().setMinAndMax(0,
+					impsSortedAntPost.get(0).getImagePlus().getStatistics().max * ratio);
 			// On augmente le contraste (uniquement visuel, n'impacte pas les données)
-			impsSortedAntPost.get(1).getImagePlus().getProcessor().setMinAndMax(0, impsSortedAntPost.get(
-					1).getImagePlus().getStatistics().max * ratio);
-
-			selectedImages = impsSortedAntPost;
+			impsSortedAntPost.get(1).getImagePlus().getProcessor().setMinAndMax(0,
+					impsSortedAntPost.get(1).getImagePlus().getStatistics().max * ratio);
 		}
 		
-		for(ImageSelection selected : selectedImages)
+		for(ImageSelection selected : impsSortedAntPost)
 			selected.getImagePlus().changes = false;
 
-		return selectedImages;
+		return impsSortedAntPost;
 	}
 
 	@Override
