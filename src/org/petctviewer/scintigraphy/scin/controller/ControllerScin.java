@@ -366,6 +366,12 @@ public abstract class ControllerScin implements ActionListener {
 		} else if (b == this.vue.getBtn_precedent()) {
 			this.clickPrevious();
 
+		} else if (b == this.vue.getZoom_in()) {
+			IJ.run("In [+]", "");
+
+		} else if (b == this.vue.getZoom_out()) {
+			IJ.run("Out [-]", "");
+
 		} else if (b == this.vue.getBtn_drawROI()) {
 			Button btn = this.vue.getBtn_drawROI();
 

@@ -38,16 +38,23 @@ public class FenApplication extends StackWindow implements ComponentListener{
 	final Button btn_quitter;
 	final Button btn_drawROI;
 	final Button btn_reverse;
+	private JSlider slider;
+
+
+	final Button zoom_in;
+	final Button zoom_out;
+
 	final Button btn_precedent;
 	final Panel panelContainer;
 	// Panel avec boutons quit, draw roi, contrast
 	private final Panel panel_btns_gauche;
 	private final Panel panel_btns_droite;
 	private final Panel panel_slider;
+	private final Panel panel_zoom;
 	private final Panel panelPrincipal;
 	private DocumentationDialog documentation;
 	private MenuBar menuBar;
-	private JSlider slider;
+
 	// Panel d'instruction avec le textfield et boutons precedent et suivant
 	private Panel panel_Instructions_btns_droite;
 	private ControllerScin controleur;
@@ -88,6 +95,11 @@ public class FenApplication extends StackWindow implements ComponentListener{
 		// construit tous les boutons
 		this.btn_reverse = new Button("Reverse");
 		this.btn_drawROI = new Button("Draw ROI");
+		this.zoom_in = new Button("+");
+		this.zoom_out = new Button("-");
+
+
+
 		this.btn_precedent = new Button("Previous");
 		this.btn_precedent.setEnabled(false);
 		this.btn_suivant = new Button(BTN_TXT_NEXT);
@@ -122,9 +134,17 @@ public class FenApplication extends StackWindow implements ComponentListener{
 		this.slider.addChangeListener( e-> {
 			double val = slider.getMaximum() - slider.getValue();
 			IJ.setMinAndMax(0, val);
+
 		});
 
 		panelPrincipal.add(panel_slider);
+
+		//création du panel Zoom
+		this.panel_zoom = new Panel();
+		this.panel_zoom.add(new Label("Zoom", Label.CENTER));
+		panel_zoom.add(this.zoom_in);
+		panel_zoom.add(this.zoom_out);
+		panelPrincipal.add(panel_zoom);
 
 		panelContainer.add(this.panelPrincipal, BorderLayout.CENTER);
 		this.add(panelContainer, BorderLayout.SOUTH);
@@ -219,9 +239,17 @@ public class FenApplication extends StackWindow implements ComponentListener{
 		btns_instru.setLayout(new GridLayout(1, 2));
 		btns_instru.add(this.btn_precedent);
 		btns_instru.add(this.btn_suivant);
+
+
 		return btns_instru;
 	}
+	public Button getZoom_in() {
+		return zoom_in;
+	}
 
+	public Button getZoom_out() {
+		return zoom_out;
+	}
 	public Button getBtn_quitter() {
 		return this.btn_quitter;
 	}
@@ -261,6 +289,8 @@ public class FenApplication extends StackWindow implements ComponentListener{
 		this.btn_precedent.addActionListener(ctrl);
 		this.btn_quitter.addActionListener(ctrl);
 		this.btn_suivant.addActionListener(ctrl);
+		this.zoom_in.addActionListener(ctrl);
+		this.zoom_out.addActionListener(ctrl);
 	}
 
 	public Panel getPanel_Instructions_btns_droite() {
