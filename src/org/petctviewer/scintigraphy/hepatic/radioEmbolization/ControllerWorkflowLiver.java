@@ -42,7 +42,7 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 	
 	private void computeModel() {
         ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, ModelLiver.IMAGE_LIVER_LUNG),
-                statePost = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_RL, ModelLiver.IMAGE_LIVER_LUNG);
+                statePost = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_LR, ModelLiver.IMAGE_LIVER_LUNG);
         final int NB_ROI_PER_IMAGE = 3;
         // Ant then Post
         for (int i=0; i<2; i++) {
@@ -77,7 +77,7 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
         this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
         ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, ImageState.ID_NONE);
-        ImageState statePost = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_RL, ImageState.ID_NONE);
+        ImageState statePost = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_LR, ImageState.ID_NONE);
 
         // le POST
         dri_1 = new DrawRoiInstruction(ModelLiver.REGION_RIGHT_LUNG, stateAnt);

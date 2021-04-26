@@ -211,10 +211,10 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 			panelConvolve.add(spinnerConvolve);
 			spinnerConvolve.setPreferredSize(new Dimension(65,45));
 
-			resultPane.add(new JLabel("Number of convolution : "));
+			resultPane.add(new JLabel("Number of convolution: "));
 			resultPane.add(panelConvolve);
 			resultPane.add(new JLabel(""));
-			resultPane.add(new JLabel("Initial value of the deconvolution : "));
+			resultPane.add(new JLabel("Initial value of the deconvolution: "));
 			resultPane.add(panelDeconvolve);
 			this.sidePanelDeconvolve = resultPane;
 		}

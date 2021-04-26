@@ -18,7 +18,7 @@ import java.util.List;
 
 public class LymphoScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "Lympho Scintigraphy";
+	public static final String STUDY_NAME = "Lymphoscintigraphy";
 
 	public LymphoScintigraphy() {
 		super(STUDY_NAME);
@@ -42,8 +42,7 @@ public class LymphoScintigraphy extends Scintigraphy {
 		this.setFenApplication(new FenApplicationLympho(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(
 				new ControllerWorkflowLympho((FenApplicationWorkflow) this.getFenApplication(),
-											 new ModelLympho(preparedImages.toArray(new ImageSelection[0]),
-															 STUDY_NAME)));
+				new ModelLympho(preparedImages.toArray(new ImageSelection[0]), STUDY_NAME)));
 		this.createDocumentation();
 
 		this.getFenApplication().setVisible(true);
@@ -70,14 +69,13 @@ public class LymphoScintigraphy extends Scintigraphy {
 		ImageStack img = new ImageStack(Ant.getImagePlus().getWidth(), Ant.getImagePlus().getHeight());
 		img.addSlice(Ant.getImagePlus().getProcessor());
 		img.addSlice(Post.getImagePlus().getProcessor());
-		ImagePlus ImageRetour = new ImagePlus();
-		ImageRetour.setStack(img);
+		ImagePlus imageRetour = new ImagePlus();
+		imageRetour.setStack(img);
 
-		ImageRetour.getStack().getProcessor(1).flipHorizontal();
-		ImageRetour.setProperty("Info", imp.getImagePlus().getInfoProperty());
+		imageRetour.setProperty("Info", imp.getImagePlus().getInfoProperty());
 
 		ImageSelection imageSelectionRetour = imp.clone(Orientation.ANT_POST);
-		imageSelectionRetour.setImagePlus(ImageRetour);
+		imageSelectionRetour.setImagePlus(imageRetour);
 
 		return imageSelectionRetour;
 	}
@@ -105,7 +103,7 @@ public class LymphoScintigraphy extends Scintigraphy {
 			if (selectedImages.get(i).getImageOrientation() == Orientation.ANT_POST || selectedImages.get(
 					i).getImageOrientation() == Orientation.POST_ANT) {
 				System.out.println("ap position "+i);
-				impSorted = Library_Dicom.ensureAntPostFlipped(imp);
+				impSorted = Library_Dicom.ensureAntPost(imp);
 			} else if (selectedImages.get(i).getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
 				impSorted = imp.clone();
 				System.out.println("dynamic position "+i);
@@ -139,6 +137,7 @@ public class LymphoScintigraphy extends Scintigraphy {
 			// Create a projected image, from a dynamic Ant/Post image to static Ant/Post
 			// image
 			dynamicImage = dynamicToStaticAntPost(dynamicImage);
+			impsSortedAntPost.set(dynamicPosition, dynamicImage);
 			// On calcule le ration de temps pour égaliser le nombre de coup/miliseconde
 			double ratio = (timeStatic * 1.0D / acquisitionTimeDynamic);
 
