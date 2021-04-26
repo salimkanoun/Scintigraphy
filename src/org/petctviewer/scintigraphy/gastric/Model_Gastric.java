@@ -578,7 +578,7 @@ public class Model_Gastric extends ModelWorkflow {
 		ResultValue result = getResult(request);
 		String value, unit;
 		if (result != null) {
-			value = Double.toString(result.getValue());
+			value = Double.toString(Library_Quantif.round(result.getValue(), 2));
 			unit = result.getUnit().abbrev();
 		} else {
 			value = "n/a";
@@ -591,7 +591,7 @@ public class Model_Gastric extends ModelWorkflow {
 		ResultValue result = getRetentionResult(request, time);
 		String value, unit;
 		if (result != null) {
-			value = Double.toString(result.getValue());
+			value = Double.toString(Library_Quantif.round(result.getValue(), 2));
 			unit = result.getUnit().abbrev();
 		} else {
 			value = "n/a";
@@ -625,14 +625,14 @@ public class Model_Gastric extends ModelWorkflow {
 			builder.append(data.getMinutes());
 			builder.append(",");
 			if (method == 1) {
-				builder.append(data.getAntValue(REGION_STOMACH, Data.DATA_PERCENTAGE));
+				builder.append(Library_Quantif.round(data.getAntValue(REGION_STOMACH, Data.DATA_PERCENTAGE), 2));
 			} else {
-				builder.append(data.getAntValue(REGION_STOMACH, Data.DATA_GEO_AVG));
+				builder.append(Library_Quantif.round(data.getAntValue(REGION_STOMACH, Data.DATA_GEO_AVG), 2));
 			}
 			builder.append(",");
-			builder.append(data.getAntValue(REGION_FUNDUS, Data.DATA_PERCENTAGE));
+			builder.append(Library_Quantif.round(data.getAntValue(REGION_FUNDUS, Data.DATA_PERCENTAGE), 2));
 			builder.append(",");
-			builder.append(data.getAntValue(REGION_ANTRE, Data.DATA_PERCENTAGE));
+			builder.append(Library_Quantif.round(data.getAntValue(REGION_ANTRE, Data.DATA_PERCENTAGE), 2));
 			builder.append("\n");
 		}
 

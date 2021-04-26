@@ -29,17 +29,12 @@ public class LiquidModel extends ModelWorkflow {
 	private String csvTable() {
 		StringBuilder builder = new StringBuilder();
 
-		builder.append("Time");
-		builder.append(',');
-		builder.append("Retention");
-		builder.append('\n');
+		builder.append("Time").append(',').append("Retention").append('\n');
 		double[] xValues = this.generateXValues();
 		double[] yValues = this.generateYValues();
 		for (int i = 0; i < xValues.length; i++) {
-			builder.append(xValues[i]);
-			builder.append(',');
-			builder.append(yValues[i]);
-			builder.append('\n');
+			builder.append(Library_Quantif.round(xValues[i], 2)).append(',');
+			builder.append(Library_Quantif.round(yValues[i], 2)).append('\n');
 		}
 
 		return builder.toString();
@@ -108,18 +103,14 @@ public class LiquidModel extends ModelWorkflow {
 	private String csvResults() {
 		StringBuilder builder = new StringBuilder();
 
-		builder.append(this.studyName);
-		builder.append("\n\n");
-		builder.append(this.csvTable());
-		builder.append('\n');
-		builder.append("T1/2");
-		builder.append(',');
+		builder.append(this.studyName).append("\n\n");
+		builder.append(this.csvTable()).append('\n');
+		builder.append("T1/2").append(',');
 		// T 1/2
 		ResultRequest request = new ResultRequest(RES_T_HALF);
 		request.setFit(this.currentFit);
 		ResultValue result = this.getResult(request);
-		builder.append(result.getValue());
-		builder.append(',');
+		builder.append(Library_Quantif.round(result.getValue(), 2)).append(',');
 		builder.append(result.getUnit());
 
 		return builder.toString();

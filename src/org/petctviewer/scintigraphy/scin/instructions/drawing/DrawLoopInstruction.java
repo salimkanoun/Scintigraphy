@@ -51,7 +51,7 @@ public class DrawLoopInstruction extends DefaultGenerator {
 	public String getMessage() {
 		return this.workflow.getController().getModel().getRoiManager().getRoi(this.getRoiIndex()) != null
 				? this.RoiName
-				: "Draw your Roi";
+				: "Draw your ROI";
 
 	}
 

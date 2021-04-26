@@ -233,11 +233,12 @@ public class ModelLympho extends ModelScin {
 
 		String s = "";
 
-		s += "\n\nInjection Ratio Left/Right," + this.results.get(0) + "\n\n";
+		s += "\n\nInjection Ratio Left/Right," + Library_Quantif.round(this.results.get(0), 2) + "\n\n";
 
 		s += ",Right,Left\n";
-		s += "Geometric Average," + this.results.get(1) + "," + results.get(2) + "\n\n";
-		s += "Delta Drainage," + this.results.get(3) + "\n";
+		s += "Geometric Average," + Library_Quantif.round(this.results.get(1), 2)
+				+ "," + Library_Quantif.round(results.get(2), 2) + "\n\n";
+		s += "Delta Drainage," + Library_Quantif.round(this.results.get(3), 2) + "\n";
 //		s += "L < R of :," + this.results.get(4) + "\n\n\n";
 
 		if (this.resutlTab != null)
@@ -390,9 +391,10 @@ public class ModelLympho extends ModelScin {
 		String s = "";
 
 		s += ",Right,Left\n";
-		s += "Geometric Average Drainage," + this.resultsPelvis.get(0) + "," + resultsPelvis.get(1) + "\n\n";
-		s += "Gradient Right/Left," + this.resultsPelvis.get(2) + "\n";
-		s += "Gradient Left/Right," + this.resultsPelvis.get(3) + "\n\n";
+		s += "Geometric Average Drainage," + Library_Quantif.round(this.resultsPelvis.get(0), 2)
+				+ "," + Library_Quantif.round(resultsPelvis.get(1), 2) + "\n\n";
+		s += "Gradient Right/Left," + Library_Quantif.round(this.resultsPelvis.get(2), 2) + "\n";
+		s += "Gradient Left/Right," + Library_Quantif.round(this.resultsPelvis.get(3), 2) + "\n\n";
 
 		return s;
 	}

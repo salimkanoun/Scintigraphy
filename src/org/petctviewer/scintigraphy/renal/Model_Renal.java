@@ -310,7 +310,7 @@ public class Model_Renal extends ModelScinDyn {
 			List<Double> values = this.getData().get(key);
 			StringBuilder nameBuilder = new StringBuilder(name);
 			for(Double d : values) {
-				nameBuilder.append(",").append(d);
+				nameBuilder.append(",").append(Library_Quantif.round(d, 2));
 			}
 			name = nameBuilder.toString();
 		}
@@ -441,23 +441,29 @@ public class Model_Renal extends ModelScinDyn {
 		s.append("\n");
 		s.append(",time, left kidney, right kidney \n");
 		for (int i = 0; i < nora.length; i++) {
-			s.append("NORA ,").append(nora[0][i]).append(",").append(nora[1][i]).append(",").append(nora[2][i])
-					.append("\n");
+			s.append("NORA ,").append(Library_Quantif.round(nora[0][i], 2)).append(",")
+					.append(Library_Quantif.round(nora[1][i], 2)).append(",")
+					.append(Library_Quantif.round(nora[2][i], 2)).append("\n");
 		}
 
 		for (int i = 0; i < nora.length; i++) {
-			s.append("Excretion ratio,").append(excr[0][i]).append(",").append(excr[1][i]).append(",")
-					.append(excr[2][i]).append("\n");
+			s.append("Excretion ratio,").append(Library_Quantif.round(excr[0][i], 2)).append(",")
+					.append(Library_Quantif.round(excr[1][i], 2)).append(",")
+					.append(Library_Quantif.round(excr[2][i], 2)).append("\n");
 		}
 
-		s.append("Separated function integral , ,").append(sep[0]).append(",").append(sep[1]).append("\n");
+		s.append("Separated function integral , ,").append(Library_Quantif.round(sep[0], 2)).append(",")
+				.append(Library_Quantif.round(sep[1], 2)).append("\n");
 		
 		if(patlak != null) {
-			s.append("Separated function patlak , ,").append(patlak[0]).append(",").append(patlak[1]).append("\n");
+			s.append("Separated function patlak , ,").append(Library_Quantif.round(patlak[0], 2)).append(",")
+					.append(Library_Quantif.round(patlak[1], 2)).append("\n");
 		}
 		
-		s.append("Timing tmax , ,").append(timing[0][0]).append(",").append(timing[0][1]).append("\n");
-		s.append("Timing t1/2 , ,").append(timing[1][0]).append(",").append(timing[1][1]).append("\n");
+		s.append("Timing tmax , ,").append(Library_Quantif.round(timing[0][0], 2)).append(",")
+				.append(Library_Quantif.round(timing[0][1], 2)).append("\n");
+		s.append("Timing t1/2 , ,").append(Library_Quantif.round(timing[1][0], 2)).append(",")
+				.append(Library_Quantif.round(timing[1][1], 2)).append("\n");
 		
 		s.append("\n");
 		
@@ -469,9 +475,10 @@ public class Model_Renal extends ModelScinDyn {
 				Library_Quantif.round(xLasilix + 2, 1), 
 				Library_Quantif.round(this.getSerie("Blood Pool").getMaxX(), 1)};
 		s.append("Time ROE (min), ").append(time[0]).append(",").append(this.getROE(time[0], "L")).append(",")
-				.append(this.getROE(time[0], "R")).append("\n").append("Time ROE (min), ").append(time[1]).append(",")
-				.append(this.getROE(time[1], "L")).append(",").append(this.getROE(time[1], "R")).append("\n")
-				.append("Time ROE (min), ").append(time[2]).append(",").append(this.getROE(time[2], "L")).append(",")
+				.append(this.getROE(time[0], "R")).append("\n");
+		s.append("Time ROE (min), ").append(time[1]).append(",").append(this.getROE(time[1], "L")).append(",")
+				.append(this.getROE(time[1], "R")).append("\n");
+		s.append("Time ROE (min), ").append(time[2]).append(",").append(this.getROE(time[2], "L")).append(",")
 				.append(this.getROE(time[2], "R")).append("\n");
 		
 		s.append(s.append(super.toString()));

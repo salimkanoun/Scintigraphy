@@ -214,19 +214,19 @@ public class ModelSecondMethodHepaticDynamic extends ModelScinDyn {
 		}
 		s.append("\n");
 
-		s.append("T1/2 Right Liver Obs,").append(this.tDemiFoieDObs).append("mn").append("\n");
-		s.append("T1/2 Right Liver Fit,").append(this.tDemiFoieDFit).append("mn").append("\n");
-		s.append("Maximum Right Liver,").append(this.maxFoieD).append("mn").append("\n");
+		s.append("T1/2 Right Liver Obs,").append(Library_Quantif.round(this.tDemiFoieDObs, 2)).append("mn").append("\n");
+		s.append("T1/2 Right Liver Fit,").append(Library_Quantif.round(this.tDemiFoieDFit, 2)).append("mn").append("\n");
+		s.append("Maximum Right Liver,").append(Library_Quantif.round(this.maxFoieD, 2)).append("mn").append("\n");
 		s.append("END/MAX Ratio Right,").append((int) (this.finPicD * 100)).append("%").append("\n");
 
-		s.append("T1/2 Left Liver Obs,").append(this.tDemiFoieGObs).append("mn").append("\n");
-		s.append("T1/2 Left Liver Fit,").append(this.tDemiFoieGFit).append("mn").append("\n");
-		s.append("Maximum Left Liver,").append(this.maxFoieG).append("mn").append("\n");
+		s.append("T1/2 Left Liver Obs,").append(Library_Quantif.round(this.tDemiFoieGObs, 2)).append("mn").append("\n");
+		s.append("T1/2 Left Liver Fit,").append(Library_Quantif.round(this.tDemiFoieGFit, 2)).append("mn").append("\n");
+		s.append("Maximum Left Liver,").append(Library_Quantif.round(this.maxFoieG, 2)).append("mn").append("\n");
 		s.append("END/MAX Ratio Left,").append((int) (this.finPicG * 100)).append("%").append("\n");
 
 		s.append("Blood pool ratio 20mn/5mn,").append((int) (this.pctVasc * 100)).append("%").append("\n");
-		s.append("T1/2 Blood pool Obs,").append(this.tDemiVascObs).append("mn").append("\n");
-		s.append("T1/2 Blood pool Fit,").append(this.tDemiVascFit).append("mn").append("\n");
+		s.append("T1/2 Blood pool Obs,").append(Library_Quantif.round(this.tDemiVascObs, 2)).append("mn").append("\n");
+		s.append("T1/2 Blood pool Fit,").append(Library_Quantif.round(this.tDemiVascFit, 2)).append("mn").append("\n");
 
 		return s.toString();
 	}

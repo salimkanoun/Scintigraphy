@@ -24,6 +24,7 @@ public class Workflow implements Serializable {
 	private final transient ImageSelection imageAssociated;
 	private transient ListIterator<Instruction> iterator;
 	private transient Instruction current;
+	private transient int currentInstructionIndex;
 
 	// TODO: allow only 1 workflow per controller (this mean to decouple the image from the workflow and only use
 	//  ImageState)
@@ -117,6 +118,7 @@ public class Workflow implements Serializable {
 			Instruction next = this.iterator.next();
 			next.prepareAsNext();
 			this.current = next;
+			this.currentInstructionIndex++;
 			return next;
 		}
 		return null;
@@ -185,6 +187,14 @@ public class Workflow implements Serializable {
 	 */
 	public Instruction getInstructionAt(int index) {
 		return this.instructions.get(index);
+	}
+
+	/**
+	 * Returns the index of the current Instruction of ths workflow
+	 * @return index of the current Instruction
+	 */
+	public int getCurrentInstructionIndex() {
+		return this.instructions.indexOf(this.current);
 	}
 
 	/**

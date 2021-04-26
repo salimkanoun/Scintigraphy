@@ -352,19 +352,19 @@ public class Model_Resultats_EsophagealTransit extends ModelScin {
 
 			StringBuilder unTier = new StringBuilder("Upper,");
 			for (int j = 0; j < arrayList.get(i).get("unTier").size(); j++) {
-				unTier.append(arrayList.get(i).get("unTier").get(j)).append(",");
+				unTier.append(Library_Quantif.round(arrayList.get(i).get("unTier").get(j), 2)).append(",");
 			}
 			unTier.append("\n");
 
 			StringBuilder deuxTier = new StringBuilder("Middle,");
 			for (int j = 0; j < arrayList.get(i).get("deuxTier").size(); j++) {
-				deuxTier.append(arrayList.get(i).get("deuxTier").get(j)).append(",");
+				deuxTier.append(Library_Quantif.round(arrayList.get(i).get("deuxTier").get(j), 2)).append(",");
 			}
 			deuxTier.append("\n");
 
 			StringBuilder troisTier = new StringBuilder("Lower,");
 			for (int j = 0; j < arrayList.get(i).get("troisTier").size(); j++) {
-				troisTier.append(arrayList.get(i).get("troisTier").get(j)).append(",");
+				troisTier.append(Library_Quantif.round(arrayList.get(i).get("troisTier").get(j), 2)).append(",");
 			}
 			troisTier.append("\n");
 
@@ -382,8 +382,8 @@ public class Model_Resultats_EsophagealTransit extends ModelScin {
 		}
 		res.append("\n");
 
-		// longueur esophage
-		res.append("Esophage Height,");
+		// esophageal height
+		res.append("Esophageal Height,");
 		for (double item : longueurEsophage) {
 			res.append(item).append(",");
 		}
@@ -396,7 +396,7 @@ public class Model_Resultats_EsophagealTransit extends ModelScin {
 		}
 		res.append("\n");
 
-		// rentention decrease
+		// retention decrease
 		res.append("Retention 10s peak,");
 		for (double v : retentionDecrease) {
 			res.append(v).append(",");

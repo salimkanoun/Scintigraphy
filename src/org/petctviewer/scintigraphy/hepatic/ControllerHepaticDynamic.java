@@ -52,8 +52,8 @@ public class ControllerHepaticDynamic extends ControllerScin implements MouseLis
 					JOptionPane.DEFAULT_OPTION);
 			return;
 		}
-		((ModelHepaticDynamic) this.model).setTimes(Integer.valueOf(value1), Integer.valueOf(value2),
-				Integer.valueOf(value3));
+		((ModelHepaticDynamic) this.model).setTimes(Integer.parseInt(value1), Integer.parseInt(value2),
+				Integer.parseInt(value3));
 		FenResults fenResult = new FenResults(this);
 		fenResult.setMainTab(new TabMainHepaticDyn(fenResult, ((ModelHepaticDynamic) this.model)));
 		fenResult.addTab(new TabCurves(fenResult, "Curves second method"));
@@ -67,7 +67,7 @@ public class ControllerHepaticDynamic extends ControllerScin implements MouseLis
 	public void mouseClicked(MouseEvent e) {
 		if (e.getSource() instanceof Label) {
 			Label label = (Label) e.getSource();
-			this.vue.getImagePlus().setSlice(Integer.valueOf(!label.getText().isEmpty() ? label.getText() : "1"));
+			this.vue.getImagePlus().setSlice(Integer.parseInt(!label.getText().isEmpty() ? label.getText() : "1"));
 		}
 
 	}

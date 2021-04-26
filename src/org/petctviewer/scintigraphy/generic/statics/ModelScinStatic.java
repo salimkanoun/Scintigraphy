@@ -28,9 +28,9 @@ public class ModelScinStatic extends ModelScin {
 		// nomRoi = nomRoi.substring(0,nomRoi.lastIndexOf(" "));
 		// si la roi n'existe pas, on la crée
 
-		Object[] o = { Library_Quantif.round(Library_Quantif.getCounts(imp), 3),
-				Library_Quantif.round(imp.getRoi().getStatistics().mean, 3),
-				Library_Quantif.round(imp.getRoi().getStatistics().stdDev, 3) };
+		Object[] o = { Library_Quantif.round(Library_Quantif.getCounts(imp), 2),
+				Library_Quantif.round(imp.getRoi().getStatistics().mean, 2),
+				Library_Quantif.round(imp.getRoi().getStatistics().stdDev, 2) };
 		if (this.roisAnt.get(nomRoi) == null)
 			this.roisAnt.put(nomRoi, o);
 		else
@@ -87,9 +87,9 @@ public class ModelScinStatic extends ModelScin {
 		return res;
 	}
 
-	public Object[][] calculerTaleauMayGeom() {
+	public Object[][] calculerTaleauMoyGeom() {
 
-		Object[][] res = new Object[this.roisPost.size()][4];
+		Object[][] res = new Object[this.roisPost.size()][2];
 
 		// Multiple Slice (ANT/POST)
 		if (!this.isSingleSlice()) {
@@ -130,10 +130,14 @@ public class ModelScinStatic extends ModelScin {
 		if (!this.isSingleSlice()) {
 			res = "name, count ant, avg ant , std ant, count post, avg post, std post, geom mean \n";
 			for (String s : this.roisAnt.keySet()) {
-				res += s + ", " + roisAnt.get(s)[0] + "," + roisAnt.get(s)[1] + "," + roisAnt.get(s)[2] + ","
-						+ roisPost.get(s)[0] + "," + roisPost.get(s)[1] + "," + roisPost.get(s)[2] + ","
-						+ Library_Quantif.round(Library_Quantif.moyGeom((Double) this.roisAnt.get(s)[0],
-								(Double) this.roisPost.get(s)[0]), 3)
+				res += s + ", " + Library_Quantif.round((Double) roisAnt.get(s)[0], 2)
+						+ "," + Library_Quantif.round((Double) roisAnt.get(s)[1], 2)
+						+ "," + Library_Quantif.round((Double) roisAnt.get(s)[2], 2)
+						+ "," + Library_Quantif.round((Double) roisPost.get(s)[0], 2)
+						+ "," + Library_Quantif.round((Double) roisPost.get(s)[1], 2)
+						+ "," + Library_Quantif.round((Double) roisPost.get(s)[2], 2)
+						+ "," + Library_Quantif.round(Library_Quantif.moyGeom((Double) this.roisAnt.get(s)[0],
+								(Double) this.roisPost.get(s)[0]), 2)
 						+ "\n";
 			}
 			// round
@@ -143,14 +147,18 @@ public class ModelScinStatic extends ModelScin {
 		else if (this.isAnt()) {
 			res = "name, count ant, avg ant , std ant,\n";
 			for (String s : this.roisAnt.keySet()) {
-				res += s + ", " + roisAnt.get(s)[0] + "," + roisAnt.get(s)[1] + "," + roisAnt.get(s)[2] + "\n";
+				res += s + ", " + Library_Quantif.round((Double) roisAnt.get(s)[0], 2)
+						+ "," + Library_Quantif.round((Double) roisAnt.get(s)[1], 2)
+						+ "," + Library_Quantif.round((Double) roisAnt.get(s)[2], 2) + "\n";
 			}
 		}
 		// Only POST
 		else {
 			res = "name, count post, avg post, std post\n";
 			for (String s : this.roisAnt.keySet()) {
-				res += s + "," + roisPost.get(s)[0] + "," + roisPost.get(s)[1] + "," + roisPost.get(s)[2] + "\n";
+				res += s + ", " + Library_Quantif.round((Double) roisPost.get(s)[0], 2)
+						+ "," + Library_Quantif.round((Double) roisPost.get(s)[1], 2)
+						+ "," + Library_Quantif.round((Double) roisPost.get(s)[2], 2) + "\n";
 			}
 		}
 

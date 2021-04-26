@@ -303,13 +303,13 @@ public class Model_Resultats_Gallbladder extends ModelScin{
 			// le temps
 			StringBuilder time = new StringBuilder("Time,");
 			for (int j = 0; j < arrayList.get(i).get("temps").size(); j++) {
-				time.append(arrayList.get(i).get("temps").get(j)).append(",");
+				time.append(Library_Quantif.round(arrayList.get(i).get("temps").get(j), 2)).append(",");
 			}
 			time.append("\n");
 
 			StringBuilder unTier = new StringBuilder("Upper,");
 			for (int j = 0; j < arrayList.get(i).get("unTier").size(); j++) {
-				unTier.append(arrayList.get(i).get("unTier").get(j)).append(",");
+				unTier.append(Library_Quantif.round(arrayList.get(i).get("unTier").get(j), 2)).append(",");
 			}
 			unTier.append("\n");
 
