@@ -17,6 +17,7 @@ import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 
 /**
  * This class represents the Controller in the MVC pattern.<br> This abstract class is only a provider for functions
@@ -36,11 +37,13 @@ public abstract class ControllerScin implements ActionListener {
 	 * 'Previous' button is pressed.<br> The position must always be positive.
 	 */
 	protected int position;
+	private boolean inverted;
 
 	public ControllerScin(FenApplication vue, ModelScin model) {
 		this.vue = vue;
 		this.position = 0;
 		this.model = model;
+		this.inverted = false;
 
 		Roi.setColor(Color.RED);
 	}
@@ -190,7 +193,10 @@ public abstract class ControllerScin implements ActionListener {
 		if (roiToSave == null) throw new NoDataException("No ROI to save");
 
 		// TODO: maybe allow the user to choose the color for the ROI?
-		roiToSave.setStrokeColor(Color.YELLOW);
+		if (this.inverted)
+			roiToSave.setStrokeColor(Color.BLUE);
+		else
+			roiToSave.setStrokeColor(Color.YELLOW);
 		roiToSave.setPosition(0);
 
 		Roi existingRoi = this.getRoiManager().getRoi(indexRoiToSave);
@@ -231,6 +237,8 @@ public abstract class ControllerScin implements ActionListener {
 				this.vue.getImagePlus().getOverlay().add(roiToDisplay);
 			}
 		}
+
+		this.updateROIColor();
 	}
 
 	/**
@@ -382,6 +390,7 @@ public abstract class ControllerScin implements ActionListener {
 			IJ.setTool(PrefTabMain.toolFromString(Prefs.get(PrefTabMain.PREF_TOOL_ROI, "Polygone")));
 
 		} else if (b == this.vue.getBtn_reverse()) {
+			this.inverted = !this.inverted;
 			// on change la couleur du bouton
 			if (b.getBackground() != Color.LIGHT_GRAY) {
 				b.setBackground(Color.LIGHT_GRAY);
@@ -393,6 +402,8 @@ public abstract class ControllerScin implements ActionListener {
 			this.vue.getBtn_drawROI().setBackground(null);
 
 			IJ.run("Invert LUT", "stack");
+			this.updateROIColor();
+
 
 		} else if (b == this.vue.getBtn_quitter()) {
 			this.vue.close();
@@ -401,6 +412,22 @@ public abstract class ControllerScin implements ActionListener {
 
 	public RoiManager getRoiManager() {
 		return this.model.getRoiManager();
+	}
+
+	private void updateROIColor() {
+		String opts_lbl = "show use";
+		String opts_roi;
+
+		if (this.inverted) {
+			opts_lbl += " draw";
+			opts_roi = "black width=1";
+		} else {
+			opts_roi = "yellow width=0";
+		}
+
+		IJ.run("Labels...", opts_lbl);
+		IJ.run("Overlay Options...", "stroke="+ opts_roi +" set apply show");
+		//IJ.run("Select None");
 	}
 
 }

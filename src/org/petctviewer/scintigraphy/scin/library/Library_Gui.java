@@ -142,7 +142,7 @@ public class Library_Gui {
 		}
 
 		// Set la police des text ROI
-		top.setCurrentFont(overlay.getLabelFont());
+		top.setFont(overlay.getLabelFont());
 
 		overlay.add(top);
 	}
@@ -222,7 +222,7 @@ public class Library_Gui {
 		result.setPosition(slice);
 
 		if (color != null) result.setStrokeColor(color);
-		if (font != null) result.setCurrentFont(font);
+		if (font != null) result.setFont(font);
 
 		return result;
 	}
