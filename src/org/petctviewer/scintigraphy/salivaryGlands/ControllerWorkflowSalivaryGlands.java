@@ -82,8 +82,9 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 		fan.setModal(true);
 		fan.setVisible(true);
 
-		((Model_Renal) model).setNephrogramChart(fan.getValueSetter());
-		((Model_Renal) model).setPatlakChart(fan.getPatlakChart());
+		//Model_Salivary_Glands
+		((ModelSalivaryGlands) model).setNephrogramChart(fan.getValueSetter());
+		((ModelSalivaryGlands) model).setPatlakChart(fan.getPatlakChart());
 
 		// on passe les valeurs ajustees au modele
 		modele.setAdjustedValues(fan.getValueSetter().getValues());
@@ -92,7 +93,7 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 		modele.fitVasculaire();
 
 		// on affiche la fenetre de resultats principale
-		((Model_Renal) model).setNephrogramChart(fan.getValueSetter());
+		((ModelSalivaryGlands) model).setNephrogramChart(fan.getValueSetter());
 		FenResults fenResults = new FenResultats_Renal(capture, this);
 		fenResults.toFront();
 		fenResults.setVisible(true);

@@ -23,9 +23,11 @@ public class ModelSalivaryGlands extends ModelScinDyn {
    private final HashMap<String, Roi> organRois;
    @SuppressWarnings("rawtypes")
    private HashMap<Comparable, Double> adjustedValues;
-   private boolean[] kidneys;
-   private double[] patlakPente;
-   private ArrayList<String> kidneysLR;
+   private boolean[] parotides;
+    private boolean[] subMandibulaires;
+
+    private double[] patlakPente;
+   private ArrayList<String> parotidsLR;
    private JValueSetter nephrogramChart;
    private JValueSetter patlakChart;
    private ImageSelection impAnt;
@@ -51,8 +53,8 @@ public class ModelSalivaryGlands extends ModelScinDyn {
 
 
    /********* Public Setter *********/
-   public void setKidneys(boolean[] kidneys) {
-       this.kidneys = kidneys;
+   public void setParotides(boolean[] parotides) {
+       this.parotides = parotides;
    }
 
    @SuppressWarnings("rawtypes")
@@ -63,14 +65,21 @@ public class ModelSalivaryGlands extends ModelScinDyn {
    public void setPatlakPente(double[] patlakRatio) {
        this.patlakPente = patlakRatio;
    }
-   
-   
-   /******* Public Getter **********/
-   public boolean[] getKidneys() {
-       return this.kidneys;
+
+    public void setSubMandibulaires(boolean[] subMandibulaires) {
+        this.subMandibulaires = subMandibulaires;
+    }
+
+    /******* Public Getter **********/
+   public boolean[] getParotides() {
+       return this.parotides;
    }
 
-   /**
+    public boolean[] getSubMandibulaires() {
+        return subMandibulaires;
+    }
+
+    /**
     * renvoie le roe en pourcent
     * 
     * @param min
@@ -101,7 +110,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
    public Double[][] getTiming() {
        Double[][] res = new Double[2][2];
 
-       if (this.kidneys[0]) {
+       if (this.parotides[0]) {
            Double xMaxG = this.adjustedValues.get("tmax L");
            XYSeries lk = this.getSerie("Final KL");
            res[1][0] = Library_Quantif.round(Library_JFreeChart.getTDemiObs(lk, xMaxG), 1);
@@ -111,7 +120,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
            res[1][0] = Double.NaN;
        }
 
-       if (this.kidneys[1]) {
+       if (this.parotides[1]) {
            Double xMaxD = this.adjustedValues.get("tmax R");
            XYSeries rk = this.getSerie("Final KR");
            res[1][1] = Library_Quantif.round(Library_JFreeChart.getTDemiObs(rk, xMaxD), 1);
@@ -140,7 +149,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
        double xLasilixM1 = this.adjustedValues.get("lasilix") - 1;
 
        // si il y a un rein gauche
-       if (this.kidneys[0]) {
+       if (this.parotides[0]) {
            Double xMaxL = this.adjustedValues.get("tmax L");
            res[0][0] = Library_Quantif.round((100 * rg / Library_JFreeChart.getY(this.getSerie("Final KL"), xMaxL)), 2);
            res[0][1] = Library_Quantif.round((100 * rg / Library_JFreeChart.getY(this.getSerie("Final KL"), xLasilixM1)), 2);
@@ -148,7 +157,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
        }
 
        // si il y a un rein droit
-       if (this.kidneys[1]) {
+       if (this.parotides[1]) {
            Double xMaxR = this.adjustedValues.get("tmax R");
            res[1][0] = Library_Quantif.round((100 * rd / Library_JFreeChart.getY(this.getSerie("Final KR"), xMaxR)), 2);
            res[1][1] = Library_Quantif.round((100 * rd / Library_JFreeChart.getY(this.getSerie("Final KR"), xLasilixM1)), 2);
@@ -171,7 +180,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
        res[0][1] = Library_Quantif.round(xLasilix + 2, 1);
        res[0][2] = Library_Quantif.round(this.getSerie("Blood Pool").getMaxX(), 1);
 
-       for (String lr : this.kidneysLR) {
+       for (String lr : this.parotidsLR) {
            XYSeries kidney = this.getSerie("Final K" + lr);
            double max = kidney.getMaxY();
 
@@ -200,7 +209,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
        res[0][1] = Library_Quantif.round(xLasilix + 2, 1);
        res[0][2] = Library_Quantif.round(this.getSerie("Blood Pool").getMaxX(), 1);
 
-       for (String lr : this.kidneysLR) {
+       for (String lr : this.parotidsLR) {
            XYSeries kidney = this.getSerie("Final K" + lr);
 
            // change l'index sur lequel ecrire le resultat dans le tableau
@@ -230,7 +239,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
    public Double[] getSeparatedFunction() {
        Double[] res = new Double[2];
 
-       boolean[] kidneys = this.getKidneys();
+       boolean[] kidneys = this.getParotides();
        if (kidneys[0] && kidneys[1]) {
            
            // points de la courbe renale ajustee
@@ -271,16 +280,16 @@ public class ModelSalivaryGlands extends ModelScinDyn {
    }
 
    /**
-    * Renvoie la hauteur des reins en cm, index 0 : rein gauche, 1 : rein droit
+    * Renvoie la hauteur des parotides en cm, index 0 : parotide gauche, 1 : parotide droit
     */
    public Double[] getSize() {
        int heightLK=0;
-       if (this.organRois.containsKey("L. Kidney")) {
-            heightLK = this.organRois.get("L. Kidney").getBounds().height;
+       if (this.organRois.containsKey("L. Parotid")) {
+            heightLK = this.organRois.get("L. Parotid").getBounds().height;
        }
        int heightRK =0;
-       if (this.organRois.containsKey("R. Kidney")) {
-            heightRK = this.organRois.get("R. Kidney").getBounds().height;
+       if (this.organRois.containsKey("R. Parotid")) {
+            heightRK = this.organRois.get("R. Parotid").getBounds().height;
        }
        //r�cup�re la hauteur d'un pixel en mm
        //Calibration calibration=this.getImp().getLocalCalibration();
@@ -289,17 +298,17 @@ public class ModelSalivaryGlands extends ModelScinDyn {
        ///System.out.println(pixelHeight);
        String pixelHeightString = DicomTools.getTag(this.getImagePlus(), "0028,0030").trim().split("\\\\")[1];
        double pixelHeight = Double.parseDouble(pixelHeightString);
-       Double[] kidneyHeight = new Double[2];
+       Double[] parotidHeight = new Double[2];
 
        // convvertion des pixel en mm
-       kidneyHeight[0] = Library_Quantif.round(heightLK * pixelHeight / 10, 2);
-       kidneyHeight[1] = Library_Quantif.round(heightRK * pixelHeight / 10, 2);
+       parotidHeight[0] = Library_Quantif.round(heightLK * pixelHeight / 10, 2);
+       parotidHeight[1] = Library_Quantif.round(heightRK * pixelHeight / 10, 2);
 
-       return kidneyHeight;
+       return parotidHeight;
    }
 
    public ArrayList<String> getKidneysLR() {
-       return kidneysLR;
+       return parotidsLR;
    }
 
    @SuppressWarnings("rawtypes")
@@ -326,7 +335,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
        s.append("\n");
 
        // on recupere les series
-       for (String lr : this.kidneysLR) {
+       for (String lr : this.parotidsLR) {
            s.append(lr).append(". kidney");
            for (Double min : mins) {
                s.append(",").append(this.getROE(min, lr));
@@ -354,12 +363,12 @@ public class ModelSalivaryGlands extends ModelScinDyn {
    @Override
    public void calculateResults() {
 
-       // construction du tableau representant chaque rein
-       this.kidneysLR = new ArrayList<>();
-       if (kidneys[0])
-           kidneysLR.add("L");
-       if (kidneys[1])
-           kidneysLR.add("R");
+       // construction du tableau representant chaque parotide
+       this.parotidsLR = new ArrayList<>();
+       if (parotides[0])
+           parotidsLR.add("L");
+       if (parotides[1])
+           parotidsLR.add("R");
 
        normalizeBP();
 
@@ -393,7 +402,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
        // on recupere la liste des donnees vasculaires
        List<Double> bpi = this.getData("BPI");
 
-       for (String lr : this.kidneysLR) {
+       for (String lr : this.parotidsLR) {
            // recuperation des donnees des reins
            List<Double> corrige = this.getData().get("Final K" + lr);
            // calcul des courbes fitees
@@ -547,7 +556,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
 
    private void substractBkg() {
        // ***VALEURS AJUSTEES AVEC LE BRUIT DE FOND POUR CHAQUE REIN***
-       for (String lr : kidneysLR) { // pour chaque rein
+       for (String lr : parotidsLR) { // pour chaque rein
            List<Double> RGCorrige = new ArrayList<>();
            // on recupere l'aire des rois bruit de fond et rein
            int aireRein = this.organRois.get(lr + ". Kidney").getStatistics().pixelCount;
@@ -580,7 +589,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
        int aireBP = this.organRois.get("Blood Pool").getStatistics().pixelCount;
 
        // pour chaque rein on ajoute la valeur normalisee de la vasculaire
-       for (String lr : this.kidneysLR) {
+       for (String lr : this.parotidsLR) {
            List<Double> bpNorm = new ArrayList<>();
            int aire = this.organRois.get(lr + ". Kidney").getStatistics().pixelCount;
            for (Double d : bp) {
@@ -594,7 +603,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
     * calcule et renvoie les valeurs de courbes des bassinets
     */
    private void calculCortical() {
-       for (String lr : this.kidneysLR) { // on calcule la valeur de la corticale pour chaque rein
+       for (String lr : this.parotidsLR) { // on calcule la valeur de la corticale pour chaque rein
            List<Double> cortical = new ArrayList<>(); // coups de la corticale
            
            List<Double> rein = this.getData(lr + ". Kidney");
