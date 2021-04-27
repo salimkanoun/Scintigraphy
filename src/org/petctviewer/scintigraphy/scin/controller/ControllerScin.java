@@ -427,7 +427,6 @@ public abstract class ControllerScin implements ActionListener {
 
 		IJ.run("Labels...", opts_lbl);
 		IJ.run("Overlay Options...", "stroke="+ opts_roi +" set apply show");
-		//IJ.run("Select None");
 	}
 
 }

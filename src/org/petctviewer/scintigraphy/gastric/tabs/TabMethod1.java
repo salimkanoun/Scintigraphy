@@ -87,7 +87,7 @@ public class TabMethod1 extends TabResultDefault {
 
 		// Btn dynamic acquisition
 		btnDynAcquisition = new JButton("Start dynamic acquisition");
-		btnDynAcquisition.addActionListener((event) -> {
+		btnDynAcquisition.addActionListener(e -> {
 			btnDynAcquisition.setEnabled(false);
 			((ControllerWorkflow_Gastric) parent.getController()).startDynamic();
 		});

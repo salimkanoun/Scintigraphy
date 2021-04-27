@@ -94,12 +94,12 @@ public class CardiacScintigraphy extends Scintigraphy {
 
 		// Check number
 		for (ImageSelection selected : selectedImages) {
-			if (selected.getValue(this.imageTypeColumn.getName()) == FULL_BODY_IMAGE) {
+			if (selected.getValue(this.imageTypeColumn.getName()).equals(FULL_BODY_IMAGE)) {
 				if (fullBodyImages.size() == 2)
 					throw new WrongNumberImagesException(fullBodyImages.size(), 1, 2);
 				fullBodyImages.add(selected);
 			}
-			if (selected.getValue(this.imageTypeColumn.getName()) == ONLY_THORAX_IMAGE) {
+			if (selected.getValue(this.imageTypeColumn.getName()).equals(ONLY_THORAX_IMAGE)) {
 				if (onlyThoraxImage.size() == 1)
 					throw new WrongNumberImagesException(fullBodyImages.size(), 1);
 				onlyThoraxImage.add(selected);
@@ -136,9 +136,9 @@ public class CardiacScintigraphy extends Scintigraphy {
 		mountedImages.sort(new ChronologicalAcquisitionComparator());
 
 		// si il y a plus de 3 minutes de diff�rence entre les deux prises
-		if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {
-			IJ.log("Warning, frame duration differ by " + Math.abs(frameDuration[0] - frameDuration[1]) / (1000 * 60)
-					+ " minutes");
+		int diff = Math.abs(frameDuration[0] - frameDuration[1]);
+		if (diff > 3 * 60 * 1000) {
+			IJ.log("Warning, frame duration differ by " + diff / (1000 * 60) + " minutes");
 		}
 
 		if (this.onlyThoraxImage.size() != 0)

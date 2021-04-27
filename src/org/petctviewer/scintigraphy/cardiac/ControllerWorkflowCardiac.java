@@ -69,10 +69,8 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	private void clicNewCont() {
 
 		if (this.getVue().getImagePlus().getRoi() != null && !this.finContSlice2 && this.fullBodyImages > 0) {
-			System.out.println(
-					((DrawSymmetricalLoopInstruction) this.workflows[indexCurrentWorkflow].getCurrentInstruction()).getIndex());
-			if (((DrawSymmetricalLoopInstruction) this.workflows[indexCurrentWorkflow].getCurrentInstruction()).getIndex() %
-					2 != 0) {
+			System.out.println();
+			if (this.workflows[indexCurrentWorkflow].getCurrentInstructionIndex() % 2 != 0) {
 				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getVue();
 				fac.getBtn_continue().setEnabled(false);
 				fac.getBtn_suivant().setLabel("Next");
@@ -205,7 +203,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 		int index = 0, indexCapture = 0;
 
-		ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_WORKFLOW);
+		ImageState state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_WORKFLOW);
 
 		if (this.fullBodyImages > 0) {
 			this.workflows = new Workflow[this.getModel().getImageSelection().length + 1];
@@ -277,8 +275,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			this.workflows[index].addInstruction(dri_10);
 			this.workflows[index].addInstruction(dri_11);
 			this.workflows[index].addInstruction(dri_12);
-			this.workflows[index]
-					.addInstruction(new ScreenShotInstruction(this.captures, this.getVue(), indexCapture++));
+			this.workflows[index].addInstruction(new ScreenShotInstruction(this.captures, this.getVue(), indexCapture++));
 			index++;
 		}
 
