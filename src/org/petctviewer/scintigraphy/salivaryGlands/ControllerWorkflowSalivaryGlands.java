@@ -81,29 +81,21 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 		FenCitrus fan = new FenCitrus(cp[0], this.getVue(), modele);
 		fan.setModal(true);
 		fan.setVisible(true);
-
-		((Model_Renal) model).setNephrogramChart(fan.getValueSetter());
-		((Model_Renal) model).setPatlakChart(fan.getPatlakChart());
+		fan.toFront();
 
 		// on passe les valeurs ajustees au modele
 		modele.setAdjustedValues(fan.getValueSetter().getValues());
 
-		// on fait le fit vasculaire avec les donnees collectees
-		modele.fitVasculaire();
-
 		// on affiche la fenetre de resultats principale
-		((Model_Renal) model).setNephrogramChart(fan.getValueSetter());
-		FenResults fenResults = new FenResultats_Renal(capture, this);
-		fenResults.toFront();
-		fenResults.setVisible(true);
+		//FenResults fenResults = new FenResultats_Renal(capture, this);
+		//fenResults.toFront();
+		//fenResults.setVisible(true);
 
 
 		// SK On rebloque le modele pour la prochaine generation
 		modele.setLocked(true);
 
 	}
-
-	
 
 	@Override
 	protected void generateInstructions() {
@@ -112,7 +104,7 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 
 		this.workflows = new Workflow[1];
 		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4;
-		DrawRoiBackground dri_Background_1;
+		DrawRoiInstruction dri_Background_1;
 		ScreenShotInstruction dri_capture_1;
 		List<ImagePlus> captures = new ArrayList<>();
 
@@ -128,9 +120,9 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 		this.workflows[0].addInstruction(dri_2);
 		organes.add("L. Parotid");
 
-		dri_Background_1 = new DrawRoiBackground("Background", stateAnt, dri_1, this.workflows[0], "");
+		dri_Background_1 = new DrawRoiInstruction("Background", stateAnt);
 		this.workflows[0].addInstruction(dri_Background_1);
-		organes.add("Bkg");
+		organes.add("Background");
 
 
 		dri_3 = new DrawRoiInstruction("R. SubMandib", stateAnt);
