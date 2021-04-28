@@ -1,13 +1,19 @@
 package org.petctviewer.scintigraphy.salivaryGlands.gui;
 
-import org.petctviewer.scintigraphy.renal.Model_Renal;
+import ij.ImagePlus;
+import ij.plugin.ZProjector;
+import ij.process.ImageProcessor;
+import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.salivaryGlands.ModelSalivaryGlands;
+import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 
 public class TabMain extends TabResult {
 
@@ -31,8 +37,27 @@ public class TabMain extends TabResult {
 
         if (parotides[0] && parotides[1]){
             panRes.add(this.getPanelSep());
+
         }
-        return null;
+
+        panRes.add(Box.createVerticalStrut(10));
+        panRes.add(this.getPanelSizeParotid());
+        panRes.add(Box.createVerticalStrut(10));
+        panRes.add(this.getPanelSizeSubmandibular());
+        panRes.add(Box.createVerticalStrut(10));
+        panRes.add(this.getPanelUptakeParotid());
+        panRes.add(Box.createVerticalStrut(10));
+        panRes.add(this.getPanelUptakeSubmandilar());
+        panRes.add(Box.createVerticalStrut(10));
+        panRes.add(this.getPanelExcrParotid());
+        panRes.add(Box.createVerticalStrut(10));
+        panRes.add(this.getPanelExcrSubmandibular());
+        panRes.add(Box.createVerticalStrut(10));
+
+        flow_wrap.add(panRes);
+
+        return flow_wrap;
+
     }
 
     private Component getPanelSep() {
@@ -259,6 +284,37 @@ public class TabMain extends TabResult {
 
     @Override
     public JPanel getResultContent() {
-        return null;
+        @SuppressWarnings("rawtypes")
+        HashMap<Comparable, Double> adjusted = ((ModelSalivaryGlands) parent.getModel()).getAdjustedValues();
+        Double x1 = adjusted.get("start");
+        Double x2 = adjusted.get("end");
+        double debut = Math.min(x1, x2);
+        double fin = Math.max(x1, x2);
+
+        int slice1 = ModelScinDyn.getSliceIndexByTime(debut * 60 * 1000,
+                ((ModelSalivaryGlands) this.parent.getModel()).getFrameDuration());
+        int slice2 = ModelScinDyn.getSliceIndexByTime(fin * 60 * 1000,
+                ((ModelSalivaryGlands) this.parent.getModel()).getFrameDuration());
+        JValueSetter chartNephrogram = ((ModelSalivaryGlands) this.parent.getModel()).getNephrogramChart();
+        ImagePlus proj = ZProjector.run(parent.getModel().getImagePlus(), "sum", slice1, slice2);
+        proj.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
+        JPanel grid = new JPanel(new GridLayout(2, 1));
+
+        // creation du panel du haut
+        JPanel panel_top = new JPanel(new GridLayout(1, 2));
+
+        // ajout de la capture et du montage
+        panel_top.add(new DynamicImage(capture));
+        panel_top.add(new DynamicImage(proj.getImage()));
+
+        // on ajoute les panels a la grille principale
+        grid.add(panel_top);
+        grid.add(chartNephrogram);
+
+        chartNephrogram.removeChartMouseListener(chartNephrogram);
+
+        return grid;
+
     }
 }
+
