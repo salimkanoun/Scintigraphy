@@ -28,17 +28,12 @@ public class TabMain extends TabResult {
 
     @Override
     public Component getSidePanelContent() {
-        boolean[] parotides = ((ModelSalivaryGlands) this.parent.getModel()).getParotides();
-
         JPanel flow_wrap = new JPanel();
 
         //création du panel d'affichage des pourcentages
         Box panRes = Box.createVerticalBox();
 
-        if (parotides[0] && parotides[1]){
-            panRes.add(this.getPanelSep());
-
-        }
+        panRes.add(this.getPanelSep());
 
         panRes.add(Box.createVerticalStrut(10));
         panRes.add(this.getPanelSizeParotid());
@@ -295,7 +290,7 @@ public class TabMain extends TabResult {
                 ((ModelSalivaryGlands) this.parent.getModel()).getFrameDuration());
         int slice2 = ModelScinDyn.getSliceIndexByTime(fin * 60 * 1000,
                 ((ModelSalivaryGlands) this.parent.getModel()).getFrameDuration());
-        JValueSetter chartNephrogram = ((ModelSalivaryGlands) this.parent.getModel()).getNephrogramChart();
+        //JValueSetter chartNephrogram = ((ModelSalivaryGlands) this.parent.getModel()).getNephrogramChart();
         ImagePlus proj = ZProjector.run(parent.getModel().getImagePlus(), "sum", slice1, slice2);
         proj.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
         JPanel grid = new JPanel(new GridLayout(2, 1));
@@ -309,9 +304,9 @@ public class TabMain extends TabResult {
 
         // on ajoute les panels a la grille principale
         grid.add(panel_top);
-        grid.add(chartNephrogram);
+        //grid.add(chartNephrogram);
 
-        chartNephrogram.removeChartMouseListener(chartNephrogram);
+        //chartNephrogram.removeChartMouseListener(chartNephrogram);
 
         return grid;
 

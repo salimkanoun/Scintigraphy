@@ -225,6 +225,38 @@ public class ModelSalivaryGlands extends ModelScinDyn {
        this.getData().put("BPI", vascIntegree); // BPI == Blood Pool Integrated*/
    }
 
+    /**
+     * renvoie la fonction separee
+     *
+     * @return res[0] : rein gauche, res[1] : rein droit
+     */
+    public Double[] getSeparatedFunction() {
+        Double[] res = new Double[2];
+
+        // points de la courbe renale ajustee
+        XYSeries lk = this.getSerie("Final L. Parotid");
+        XYSeries rk = this.getSerie("Final R. Parotid");
+
+        // bornes de l'intervalle
+        Double x1 = this.adjustedValues.get("start");
+        Double x2 = this.adjustedValues.get("end");
+        Double debut = Math.min(x1, x2);
+        Double fin = Math.max(x1, x2);
+
+        List<Double> listRG = Library_JFreeChart.getIntegralSummed(lk, debut, fin);
+        List<Double> listRD = Library_JFreeChart.getIntegralSummed(rk, debut, fin);
+        Double intRG = listRG.get(listRG.size() - 1);
+        Double intRD = listRD.get(listRD.size() - 1);
+
+        // Left kidney
+        res[0] = Library_Quantif.round((intRG / (intRG + intRD)) * 100, 1);
+
+        // Right kidney
+        res[1] = Library_Quantif.round((intRD / (intRG + intRD)) * 100, 1);
+
+        return res;
+    }
+
    /** Contenu qui sera present lors de l'exprotation du CSV
     * (non-Javadoc)
     * @see org.petctviewer.scintigraphy.scin.model.ModelScin#toString()
