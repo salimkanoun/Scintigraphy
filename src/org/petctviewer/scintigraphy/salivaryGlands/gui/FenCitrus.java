@@ -67,12 +67,12 @@ public class FenCitrus extends JDialog implements ActionListener {
 
 		Selector start = new Selector(" ", 1, -1, RectangleAnchor.TOP_LEFT);
 		Selector end = new Selector(" ", 3, -1, RectangleAnchor.BOTTOM_RIGHT);
-		Selector lasilix = new Selector("Citrus", Prefs.get(PrefTabRenal.PREF_LASILIX_INJECT_TIME, 20.0), -1,
+		Selector citrus = new Selector("Citrus", Prefs.get(PrefTabRenal.PREF_LASILIX_INJECT_TIME, 10.0), -1,
 				RectangleAnchor.BOTTOM_LEFT);
 
 		jvs.addSelector(start, "start");
 		jvs.addSelector(end, "end");
-		jvs.addSelector(lasilix, "citrus");
+		jvs.addSelector(citrus, "citrus");
 		jvs.addArea("start", "end", "integral", null);
 
 		// renomme les series du chart pour que l'interface soit plus comprehensible
@@ -89,8 +89,7 @@ public class FenCitrus extends JDialog implements ActionListener {
 
 	private void clickOk() {
 		this.dispose();
-		return;
-		
+
 		// boolean checkOffset = checkOffset(this.jvaluesetter);
 		// if (!checkOffset) {
 		// 	String message = "Inconsistent differencial function during interval integration. \n Would you like to redefine the interval ?";
@@ -147,8 +146,7 @@ public class FenCitrus extends JDialog implements ActionListener {
 		return this.jvaluesetter;
 	}
 
-	public JValueSetter getPatlakChart() {
-		return this.patlakChart;
-	}
 
+    public JValueSetter getPatlakChart() { return this.patlakChart; 
+    }
 }
