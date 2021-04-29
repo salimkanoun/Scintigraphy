@@ -272,8 +272,8 @@ public class ModelSalivaryGlands extends ModelScinDyn {
        
        s.append(getDataString("Final L. Parotid", "Corrected Left Parotid"));
        s.append(getDataString("Final R. Parotid", "Corrected Right Parotid"));
-       s.append(getDataString("Final L. Parotid", "Corrected Left Submandible"));
-       s.append(getDataString("Final R. Parotid", "Corrected Right Submandible"));
+       s.append(getDataString("Final L. Submandible", "Corrected Left Submandible"));
+       s.append(getDataString("Final R. Submandible", "Corrected Right Submandible"));
 
        s.append("\n");
        s.append(",time, left kidney, right kidney \n");
