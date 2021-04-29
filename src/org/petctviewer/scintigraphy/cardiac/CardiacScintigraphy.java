@@ -23,7 +23,7 @@ import java.util.List;
 
 public class CardiacScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "Cardiac";
+	public static final String STUDY_NAME = "Amylose";
 
 	public static final String FULL_BODY_IMAGE = "FULL_BODY", ONLY_THORAX_IMAGE = "ONLY_THORAX",
 			COLUMN_TYPE_TITLE = "Image Type";

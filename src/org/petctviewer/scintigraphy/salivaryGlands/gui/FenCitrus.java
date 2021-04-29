@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.salivaryGlands.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
@@ -14,13 +13,14 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.salivaryGlands.ModelSalivaryGlands;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
-import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
 import ij.Prefs;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabSalivaryGlands;
 
 public class FenCitrus extends JDialog implements ActionListener {
 
@@ -31,7 +31,6 @@ public class FenCitrus extends JDialog implements ActionListener {
 	private final JButton btn_ok;
 	private final JValueSetter jvaluesetter;
 	private final ModelSalivaryGlands model;
-	private JValueSetter patlakChart;
 
 	public FenCitrus(ChartPanel cp, Component parentComponent, ModelSalivaryGlands model) {
 		super();
@@ -64,19 +63,26 @@ public class FenCitrus extends JDialog implements ActionListener {
 		chart.getChart().getPlot().setBackgroundPaint(null);
 		JValueSetter jvs = new JValueSetter(chart.getChart());
 
-
-		Selector start = new Selector(" ", 1, -1, RectangleAnchor.TOP_LEFT);
-		Selector end = new Selector(" ", 3, -1, RectangleAnchor.BOTTOM_RIGHT);
-		Selector citrus = new Selector("Citrus", Prefs.get(PrefTabRenal.PREF_LASILIX_INJECT_TIME, 10.0), -1,
+		Selector citrus = new Selector("Citrus", Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 1), -1,
 				RectangleAnchor.BOTTOM_LEFT);
+		Selector start = new Selector(" Start", 1, -1, RectangleAnchor.TOP_LEFT);
+		Selector end = new Selector("End ", 1, -1, RectangleAnchor.BOTTOM_RIGHT);
 
+
+		jvs.addSelector(citrus, "citrus");
 		jvs.addSelector(start, "start");
 		jvs.addSelector(end, "end");
-		jvs.addSelector(citrus, "citrus");
-		jvs.addArea("start", "end", "integral", null);
+
+		jvs.addArea("start", "end", "integral", Color.yellow);
 
 		// renomme les series du chart pour que l'interface soit plus comprehensible
-		// XYSeriesCollection dataset = ((XYSeriesCollection) chart.getChart().getXYPlot().getDataset());
+		XYSeriesCollection dataset = ((XYSeriesCollection) chart.getChart().getXYPlot().getDataset());
+		if (model.equals(model.getGlands())){
+			dataset.getSeries("Final L. Parotid").setKey("Left Parotid");
+			dataset.getSeries("Final R. Parotid").setKey("Right Parotid");
+			dataset.getSeries("Final L. Submandible").setKey("Left Sub mandibular");
+			dataset.getSeries("Final R. Submandible").setKey("Right Sub mandibular");
+		}
 		// if (model.getKidneys()[0])
 		// 	dataset.getSeries("Final KL").setKey("Left Kidney");
 
@@ -147,6 +153,5 @@ public class FenCitrus extends JDialog implements ActionListener {
 	}
 
 
-    public JValueSetter getPatlakChart() { return this.patlakChart; 
-    }
+
 }

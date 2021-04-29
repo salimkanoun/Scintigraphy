@@ -34,6 +34,7 @@ public class PrefWindow extends JFrame implements PlugIn, WindowListener {
 		this.addTab(new PrefTabBone(this));
 		this.addTab(new PrefTabGastric(this));
 		this.addTab(new PrefTabShunpo(this));
+		this.addTab(new PrefTabSalivaryGlands(this));
 
 		// Create and set up the window.
 		this.addWindowListener(this);
