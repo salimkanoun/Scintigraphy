@@ -16,7 +16,7 @@ import java.util.List;
 
 public class PlateletScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "Platelet Scintigraphy";
+	public static final String STUDY_NAME = "Platelet Retention Scintigraphy";
 	private boolean isAntPost;
 
 	public PlateletScintigraphy() {

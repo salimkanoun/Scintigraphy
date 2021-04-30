@@ -5,7 +5,7 @@ import ij.ImagePlus;
 import ij.measure.Calibration;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.esophageus.application.EsophagealTransit;
+import org.petctviewer.scintigraphy.esophageus.application.EsophagealTransitScintigraphy;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -35,10 +35,10 @@ public class Model_Resultats_EsophagealTransit extends ModelScin {
 	private final double[] tempsMesureTransitTime;
 	private final double[] retentionDecrease;
 
-	public final EsophagealTransit esoPlugIn;
+	public final EsophagealTransitScintigraphy esoPlugIn;
 
 	public Model_Resultats_EsophagealTransit(ArrayList<HashMap<String, ArrayList<Double>>> arrayList,
-											 ArrayList<Object[]> dicomRoi, String studyName, EsophagealTransit esoPlugIn,
+											 ArrayList<Object[]> dicomRoi, String studyName, EsophagealTransitScintigraphy esoPlugIn,
 											 ImageSelection[] selectedImages) {
 		super(selectedImages, studyName);
 

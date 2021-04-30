@@ -19,7 +19,7 @@ import java.util.List;
 
 public class GeneralDynamicScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "Dynamic scintigraphy";
+	public static final String STUDY_NAME = "General Dynamic scintigraphy";
 	private ImageSelection impAnt, impPost, impProjetee, impProjeteeAnt, impProjeteePost;
 	private int[] frameDurations;
 

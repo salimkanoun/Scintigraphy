@@ -80,16 +80,17 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 		fan.setVisible(true);
 		fan.toFront();
 
-		// on calcule les resultats
-		modele.calculateResults();
-
 		// on passe les valeurs ajustees au modele
 		modele.setAdjustedValues(fan.getValueSetter().getValues());
 
+		// on calcule les resultats
+		modele.calculateResults();
+
+
 		// on affiche la fenetre de resultats principale
-		//FenResults fenResults = new FenResultats_Renal(capture, this);
-		//fenResults.toFront();
-		//fenResults.setVisible(true);
+		FenResults fenResults = new FenResultats_SalivaryGlands(capture, this);
+		fenResults.toFront();
+		fenResults.setVisible(true);
 
 
 		// SK On rebloque le modele pour la prochaine generation

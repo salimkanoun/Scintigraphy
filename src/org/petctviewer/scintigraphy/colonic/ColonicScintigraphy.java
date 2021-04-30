@@ -16,7 +16,7 @@ import java.util.List;
 
 public class ColonicScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "Colonic Scintigraphy";
+	public static final String STUDY_NAME = "Colon Transit Scintigraphy";
 
 	public ColonicScintigraphy() {
 		super(STUDY_NAME);

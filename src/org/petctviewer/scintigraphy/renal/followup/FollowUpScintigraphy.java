@@ -2,7 +2,7 @@ package org.petctviewer.scintigraphy.renal.followup;
 
 import ij.plugin.PlugIn;
 
-public class FollowUp implements PlugIn{
+public class FollowUpScintigraphy implements PlugIn{
 
 	@Override
 	public void run(String arg0) {

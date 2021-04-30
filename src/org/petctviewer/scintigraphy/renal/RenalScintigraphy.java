@@ -23,7 +23,7 @@ import java.util.List;
 
 public class RenalScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "Renal scintigraphy";
+	public static final String STUDY_NAME = "Renogram scintigraphy";
 	private ImageSelection impAnt;
 	private ImageSelection impPost;
 	private int[] frameDurations;

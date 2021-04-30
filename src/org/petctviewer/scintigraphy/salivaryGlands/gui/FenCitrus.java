@@ -63,7 +63,7 @@ public class FenCitrus extends JDialog implements ActionListener {
 		chart.getChart().getPlot().setBackgroundPaint(null);
 		JValueSetter jvs = new JValueSetter(chart.getChart());
 
-		Selector citrus = new Selector("Citrus", Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 1), -1,
+		Selector citrus = new Selector("Citrus", Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 10), -1,
 				RectangleAnchor.BOTTOM_LEFT);
 		Selector start = new Selector(" Start", 1, -1, RectangleAnchor.TOP_LEFT);
 		Selector end = new Selector("End ", 1, -1, RectangleAnchor.BOTTOM_RIGHT);
@@ -73,7 +73,7 @@ public class FenCitrus extends JDialog implements ActionListener {
 		jvs.addSelector(start, "start");
 		jvs.addSelector(end, "end");
 
-		jvs.addArea("start", "end", "integral", Color.yellow);
+		jvs.addArea("start", "end", "integral", new Color(255, 255, 0, 100));
 
 		// renomme les series du chart pour que l'interface soit plus comprehensible
 		XYSeriesCollection dataset = ((XYSeriesCollection) chart.getChart().getXYPlot().getDataset());

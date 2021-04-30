@@ -152,9 +152,9 @@ public class TabMain extends TabResult {
         label_R.setHorizontalAlignment(SwingConstants.CENTER);
 
         // panel Excr
-        Double[][] Excr = ((ModelSalivaryGlands) this.parent.getModel()).getExcr();
+        //Double[][] Excr = ((ModelSalivaryGlands) this.parent.getModel()).getExcr();
         JPanel panel_ExcrParo = new JPanel(new GridLayout(4, 3, 0, 3));
-        panel_ExcrParo.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        /*panel_ExcrParo.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
         panel_ExcrParo.add(new JLabel(" Excretion ratio"));
         panel_ExcrParo.add(label_L);
@@ -175,7 +175,7 @@ public class TabMain extends TabResult {
                 }
             }
 
-        }
+        }*/
         return panel_ExcrParo;
     }
 
@@ -186,9 +186,9 @@ public class TabMain extends TabResult {
         label_R.setHorizontalAlignment(SwingConstants.CENTER);
 
         // panel Excr
-        Double[][] Excr = ((ModelSalivaryGlands) this.parent.getModel()).getExcr();
+        //Double[][] Excr = ((ModelSalivaryGlands) this.parent.getModel()).getExcr();
         JPanel panel_ExcrSubman = new JPanel(new GridLayout(4, 3, 0, 3));
-        panel_ExcrSubman.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        /*panel_ExcrSubman.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
         panel_ExcrSubman.add(new JLabel(" Excretion Fraction"));
         panel_ExcrSubman.add(label_L);
@@ -209,7 +209,7 @@ public class TabMain extends TabResult {
                 }
             }
 
-        }
+        }*/
         return panel_ExcrSubman;
     }
 
@@ -221,9 +221,9 @@ public class TabMain extends TabResult {
         label_R.setHorizontalAlignment(SwingConstants.CENTER);
 
         // panel Uptake
-        Double[][] Uptake = ((ModelSalivaryGlands) this.parent.getModel()).getExcr();
+        //Double[][] Uptake = ((ModelSalivaryGlands) this.parent.getModel()).getExcr();
         JPanel panel_UptakeParo = new JPanel(new GridLayout(4, 3, 0, 3));
-        panel_UptakeParo.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        /*panel_UptakeParo.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
         panel_UptakeParo.add(new JLabel(" Uptake Ratio"));
         panel_UptakeParo.add(label_L);
@@ -244,7 +244,7 @@ public class TabMain extends TabResult {
                 }
             }
 
-        }
+        }*/
         return panel_UptakeParo;
     }
 
@@ -255,9 +255,9 @@ public class TabMain extends TabResult {
         label_R.setHorizontalAlignment(SwingConstants.CENTER);
 
         // panel Uptake
-        Double[][] Uptake = ((ModelSalivaryGlands) this.parent.getModel()).getExcr();
+        //Double[][] Uptake = ((ModelSalivaryGlands) this.parent.getModel()).getExcr();
         JPanel panel_UptakeSubMan = new JPanel(new GridLayout(4, 3, 0, 3));
-        panel_UptakeSubMan.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        /*panel_UptakeSubMan.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
         panel_UptakeSubMan.add(new JLabel(" Uptake Ratio"));
         panel_UptakeSubMan.add(label_L);
@@ -278,7 +278,7 @@ public class TabMain extends TabResult {
                 }
             }
 
-        }
+        }*/
         return panel_UptakeSubMan;
     }
 

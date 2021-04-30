@@ -18,7 +18,7 @@ import java.util.List;
 
 public class LiquidScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "Liquid Scintigraphy";
+	public static final String STUDY_NAME = "Gastric Emptying Liquid Scintigraphy";
 
 	public LiquidScintigraphy() {
 		super(STUDY_NAME);

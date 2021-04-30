@@ -23,7 +23,6 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import ij.gui.Overlay;
 import ij.ImagePlus;
 
 /*
@@ -31,7 +30,7 @@ l'objectif est de tracer chaque point pour chaque slice en délimitant son nombr
 divisé par le temps d'acquisition de la slice
 */
 
-public class Gallbladder extends Scintigraphy{
+public class GallbladderScintigraphy extends Scintigraphy{
 
     /**
      * Phase 1 : affichage de chaque stack
@@ -41,7 +40,9 @@ public class Gallbladder extends Scintigraphy{
      * de la roi pour chaque acqui
      */
 
-     private int[] frameDurations;
+    public static final String STUDY_NAME = "GallBladder Ejection Fraction";
+
+    private int[] frameDurations;
 
     // [0: ant | 1: post][numAcquisition]
 	private ImageSelection[][] sauvegardeImagesSelectDicom;
@@ -51,14 +52,14 @@ public class Gallbladder extends Scintigraphy{
 
     private int nbAcquisition;
     
-    public Gallbladder(){
-        super("Gallbladder");
+    public GallbladderScintigraphy(){
+        super(STUDY_NAME);
     }
 
 
     private void createDocumentation() {
 		DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
-		doc.addReference(DocumentationDialog.Field.createLinkField("", "Gallblader explanation",
+		doc.addReference(DocumentationDialog.Field.createLinkField("", "Gallbladder explanation",
 				"https://www.google.com/url?sa=i&url=https%3A%2F%2Fcentre.chl.lu%2Ffr%2Fdossier%2Fablation-de-la-v%25C3%25A9sicule-biliaire-chol%25C3%25A9cystectomie-au-centre-hospitalier-de-luxembourg&psig=AOvVaw3VFTeHaZ9gZZuQjF_4J5ri&ust=1590496020646000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCOCp3sWBz-kCFQAAAAAdAAAAABAD"));
 		doc.setYoutube("");
 		doc.setOnlineDoc("");
@@ -72,7 +73,7 @@ public class Gallbladder extends Scintigraphy{
         this.initOverlayOnPreparedImages(preparedImages, 12);
         Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.yellow);
 
-        FenApplicationWorkflow fen = new FenApplicationWorkflow(preparedImages.get(0), "Gallblader");
+        FenApplicationWorkflow fen = new FenApplicationWorkflow(preparedImages.get(0), STUDY_NAME);
         fen.setVisualizationEnable(false);
 
         JPanel radioButtonPanelFlow = new JPanel();
@@ -87,8 +88,8 @@ public class Gallbladder extends Scintigraphy{
         fen.resizeCanvas();
 
         ControllerWorkflowGallbladder cg = new ControllerWorkflowGallbladder(
-            (FenApplicationWorkflow) Gallbladder.this.getFenApplication(), new Model_Gallbladder(
-                sauvegardeImagesSelectDicom, "Gallbladder", Gallbladder.this,
+            (FenApplicationWorkflow) GallbladderScintigraphy.this.getFenApplication(), new ModelGallbladder(
+                sauvegardeImagesSelectDicom, STUDY_NAME, GallbladderScintigraphy.this,
                 this.getImgPrjtAllAcqui()));
         this.getFenApplication().setController(cg);
 

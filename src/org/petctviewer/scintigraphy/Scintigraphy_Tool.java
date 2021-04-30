@@ -53,6 +53,13 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			generic.add(statQuant);
 			general.add(generic);
 
+			//Biology
+			PopupMenu biology = new PopupMenu("Biology");
+			MenuItem plateletRetention = new MenuItem("Platelet Retention");
+			plateletRetention.addActionListener(this);
+			biology.add(plateletRetention);
+			//general.add(biology);
+
 			//Bone
 			PopupMenu bone = new PopupMenu("Bone");
 			MenuItem boneScintigraphy = new MenuItem("Bone Scintigraphy");
@@ -82,11 +89,14 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			PopupMenu thyroid = new PopupMenu("Thyroid");
 			PopupMenu parathyroid = new PopupMenu("Parathyroid");
 			MenuItem tcUptake = new MenuItem("Tc Uptake");
-			MenuItem parathyroidMenu = new MenuItem("Parathyroid");
+			MenuItem parathyroidScintigraphy = new MenuItem("Parathyroid");
+			MenuItem parathyroidSubtraction = new MenuItem("Subtraction");
 			tcUptake.addActionListener(this);
-			parathyroidMenu.addActionListener(this);
+			parathyroidScintigraphy.addActionListener(this);
+			parathyroidSubtraction.addActionListener(this);
 			thyroid.add(tcUptake);
-			parathyroid.add(parathyroidMenu);
+			parathyroid.add(parathyroidScintigraphy);
+			//parathyroid.add(parathyroidSubtraction);
 			endocrinology.add(thyroid);
 			endocrinology.add(parathyroid);
 			general.add(endocrinology);
@@ -108,10 +118,16 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			PopupMenu hepatic = new PopupMenu("Hepatic");
 			MenuItem biliaryScintigraphyDynamic = new MenuItem("Biliary Scintigraphy");
 			MenuItem radioEmbolization = new MenuItem("RadioEmbolization");
+			MenuItem scintivol = new MenuItem("Scintivol");
+			MenuItem gallbladderEF = new MenuItem("GallBladder Ejection Fraction");
 			biliaryScintigraphyDynamic.addActionListener(this);
 			radioEmbolization.addActionListener(this);
+			scintivol.addActionListener(this);
+			gallbladderEF.addActionListener(this);
 			hepatic.add(biliaryScintigraphyDynamic);
 			hepatic.add(radioEmbolization);
+			//hepatic.add(scintivol);
+			hepatic.add(gallbladderEF);
 			general.add(hepatic);
 			
 			//Lymphatic
@@ -140,6 +156,13 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			renal.add(dmsa);
 			renal.add(renogramFollowUp);
 			general.add(renal);
+
+			//Salivary Glands
+			PopupMenu salivaryGlands = new PopupMenu("Salivary Glands");
+			MenuItem salivaryGlandsScintigraphy = new MenuItem("Salivary Glands");
+			salivaryGlandsScintigraphy.addActionListener(this);
+			salivaryGlands.add(salivaryGlandsScintigraphy);
+			general.add(salivaryGlands);
 			
 			//Other
 			PopupMenu other = new PopupMenu("Other");
@@ -172,6 +195,10 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 				case "Static Quantification":
 					IJ.run("Static Quantification");
 					break;
+				//Biology
+				case "Platelet Retention":
+					IJ.run("Platelet Retention");
+					break;
 				//Bone
 				case "Bone Scintigraphy":
 					IJ.run("Bone Scintigraphy");
@@ -194,6 +221,9 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 				case "Parathyroid":
 					IJ.run("Parathyroid");
 					break;
+				case "Subtraction":
+					IJ.run("Subtraction");
+					break;
 				//Gastric
 				case "Gastric Emptying Solid":
 					IJ.run("Gastric Emptying Solid");
@@ -210,6 +240,12 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 					break;
 				case "RadioEmbolization":
 					IJ.run("RadioEmbolization");
+					break;
+				case "Scintivol":
+					IJ.run("Scintivol");
+					break;
+				case "GallBladder Ejection Fraction":
+					IJ.run("GallBladder Ejection Fraction");
 					break;
 				//Lymphatic
 				case "Lymphoscintigraphy":
@@ -228,6 +264,10 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 					break;
 				case "Renogram Follow-Up":
 					IJ.run("Renogram Follow-Up");
+					break;
+				//Salivary Glands
+				case "Salivary Glands":
+					IJ.run("Salivary Glands");
 					break;
 				//Other
 				case "Schaefer Calibration":

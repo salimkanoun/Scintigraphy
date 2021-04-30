@@ -22,7 +22,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 public class LiverScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "Liver";
+	public static final String STUDY_NAME = "RadioEmbolization";
 
 	public LiverScintigraphy() {
 		super(STUDY_NAME);

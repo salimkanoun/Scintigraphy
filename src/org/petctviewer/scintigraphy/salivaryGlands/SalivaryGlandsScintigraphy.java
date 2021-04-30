@@ -36,6 +36,10 @@ public class SalivaryGlandsScintigraphy extends Scintigraphy {
     private void createDocumentation() {
         DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
         doc.setDeveloper("Angele Mateos");
+        doc.addReference(DocumentationDialog.Field.createLinkField("", "Kaldway - Nucl Med Commun 2019",
+                "https://pubmed.ncbi.nlm.nih.gov/30807534/"));
+        doc.addReference(DocumentationDialog.Field.createLinkField("", "Aksoy - Clin Rheumatol 2012",
+                "https://pubmed.ncbi.nlm.nih.gov/22733368/"));
         doc.setYoutube("");
         doc.setOnlineDoc("");
         this.getFenApplication().setDocumentation(doc);

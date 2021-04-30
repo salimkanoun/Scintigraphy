@@ -22,7 +22,7 @@ import java.util.List;
 
 public class GastricScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "Gastric Scintigraphy";
+	public static final String STUDY_NAME = "Gastric Emptying Solid Scintigraphy";
 
 	public GastricScintigraphy() {
 		super(STUDY_NAME);

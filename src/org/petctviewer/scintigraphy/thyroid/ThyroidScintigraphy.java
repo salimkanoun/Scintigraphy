@@ -25,7 +25,7 @@ import static org.petctviewer.scintigraphy.thyroid.ModelThyroid.*;
 
 public class ThyroidScintigraphy extends Scintigraphy {
 
-    public static final String STUDY_NAME = "Thyroid";
+    public static final String STUDY_NAME = "Thyroid Tc Uptake";
     private static final String ORGAN_THYROID = "THYROID";
 
     private Column organColumn;

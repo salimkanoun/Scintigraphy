@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.gallbladder.application.Gallbladder;
+import org.petctviewer.scintigraphy.gallbladder.application.GallbladderScintigraphy;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -33,12 +33,12 @@ public class Model_Resultats_Gallbladder extends ModelScin{
 	private final ArrayList<HashMap<String, ArrayList<Double>>> arrayList;
 	private final double[] retentionDecrease;
 
-	public final Gallbladder gallPlugIn;
+	public final GallbladderScintigraphy gallPlugIn;
 	
 	public final int[] tabFrames;
     
     public Model_Resultats_Gallbladder(ArrayList<HashMap<String, ArrayList<Double>>> arrayList,
-    ArrayList<Object[]> dicomRoi, String studyName, Gallbladder gallPlugIn, ImageSelection[] selectedImages){
+                                       ArrayList<Object[]> dicomRoi, String studyName, GallbladderScintigraphy gallPlugIn, ImageSelection[] selectedImages){
         super(selectedImages, studyName);
 
         //CSV
