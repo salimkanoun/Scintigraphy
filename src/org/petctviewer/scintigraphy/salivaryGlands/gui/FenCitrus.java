@@ -5,9 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.XYPlot;
@@ -59,21 +57,20 @@ public class FenCitrus extends JDialog implements ActionListener {
 
 	/// prepare la fenetre de selection des abscisses
 	private JValueSetter prepareValueSetter(ChartPanel chart) {
-		XYPlot plot = chart.getChart().getXYPlot();
 		chart.getChart().getPlot().setBackgroundPaint(null);
 		JValueSetter jvs = new JValueSetter(chart.getChart());
 
 		Selector citrus = new Selector("Citrus", Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 10), -1,
 				RectangleAnchor.BOTTOM_LEFT);
-		Selector start = new Selector(" Start", 1, -1, RectangleAnchor.TOP_LEFT);
-		Selector end = new Selector("End ", 1, -1, RectangleAnchor.BOTTOM_RIGHT);
+		Selector start = new Selector(" Start", 9, -1, RectangleAnchor.TOP_LEFT);
+		Selector end = new Selector("End ", 24, -1, RectangleAnchor.BOTTOM_RIGHT);
 
 
 		jvs.addSelector(citrus, "citrus");
 		jvs.addSelector(start, "start");
 		jvs.addSelector(end, "end");
 
-		jvs.addArea("start", "end", "integral", new Color(255, 255, 0, 100));
+		jvs.addArea("start", "end", "integral",null);
 
 		// renomme les series du chart pour que l'interface soit plus comprehensible
 		XYSeriesCollection dataset = ((XYSeriesCollection) chart.getChart().getXYPlot().getDataset());
@@ -83,11 +80,6 @@ public class FenCitrus extends JDialog implements ActionListener {
 			dataset.getSeries("Final L. Submandible").setKey("Left Sub mandibular");
 			dataset.getSeries("Final R. Submandible").setKey("Right Sub mandibular");
 		}
-		// if (model.getKidneys()[0])
-		// 	dataset.getSeries("Final KL").setKey("Left Kidney");
-
-		// if (model.getKidneys()[1])
-		// 	dataset.getSeries("Final KR").setKey("Right Kidney");
 
 		return jvs;
 	}
@@ -96,17 +88,17 @@ public class FenCitrus extends JDialog implements ActionListener {
 	private void clickOk() {
 		this.dispose();
 
-		// boolean checkOffset = checkOffset(this.jvaluesetter);
-		// if (!checkOffset) {
-		// 	String message = "Inconsistent differencial function during interval integration. \n Would you like to redefine the interval ?";
-		// 	int dialogResult = JOptionPane.showConfirmDialog(this, message, "WARNING", JOptionPane.YES_NO_OPTION,
-		// 			JOptionPane.WARNING_MESSAGE);
-		// 	if (dialogResult != JOptionPane.YES_OPTION) {
-		// 		this.dispose();
-		// 	}
-		// } else {
-		// 	this.dispose();
-		// }
+		 boolean checkOffset = checkOffset(this.jvaluesetter);
+		if (!checkOffset) {
+			String message = "Inconsistent differencial function during interval integration. \n Would you like to redefine the interval ?";
+			int dialogResult = JOptionPane.showConfirmDialog(this, message, "WARNING", JOptionPane.YES_NO_OPTION,
+					JOptionPane.WARNING_MESSAGE);
+		 	if (dialogResult != JOptionPane.YES_OPTION) {
+				this.dispose();
+		}
+		} else {
+		 	this.dispose();
+		 }
 	}
 
 	// returns true if passed
