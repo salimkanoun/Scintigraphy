@@ -5,6 +5,7 @@ import ij.Prefs;
 import ij.gui.Roi;
 import ij.util.DicomTools;
 import org.jfree.data.xy.XYSeries;
+import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
@@ -21,7 +22,9 @@ public class ModelSalivaryGlands extends ModelScinDyn {
    private final HashMap<String, Roi> organRois;
    private HashMap<Comparable, Double> adjustedValues;
    private ArrayList<String> glands;
-   private ImageSelection impAnt;
+   private JValueSetter citrusChart;
+
+    private ImageSelection impAnt;
    private int[] frameDurations;
    private final HashMap<String, Integer> pixelCounts;
     private HashMap<String, Double> uptakeRatio;
@@ -81,7 +84,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
     * calcule le Excr selon le temps d'injection du lasilix
     *
     * @return res[0] : temps, res[1] : rein gauche, res[2] : rein droit
-    */
+
    public Double[][] getExcr() {
        Double[][] res = new Double[3][3];
 
@@ -110,7 +113,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
 
        return res;
    }
-
+    */
    /**
     * Renvoie la hauteur des reins en cm, index 0 : rein gauche, 1 : rein droit
     */
@@ -140,10 +143,18 @@ public class ModelSalivaryGlands extends ModelScinDyn {
        }
    }
 
-   @Override
+    public HashMap<String, Double> getUptakeRatio() {
+        return uptakeRatio;
+    }
+
+    public HashMap<String, Double> getExcretionFraction() {
+        return excretionFraction;
+    }
+
+    @Override
    public void calculateResults() {
 
-       // construction du tableau representant chaque rein
+       // construction du tableau representant chaque glande
        this.glands = new ArrayList<>();
        this.glands.add("L. Parotid");
        this.glands.add("R. Parotid");
@@ -195,12 +206,16 @@ public class ModelSalivaryGlands extends ModelScinDyn {
                this.impAnt.getImagePlus().setPosition(i);
                min = Math.min(min, Library_Quantif.getCounts(this.impAnt.getImagePlus()));
            }
-           double ur = max/(avgBck * Library_Quantif.getPixelNumber(impMax));
-           double ef = 1 - min/max;
+           double ur = Library_Quantif.round(max/(avgBck * Library_Quantif.getPixelNumber(impMax)),1);
+
+           double ef = Library_Quantif.round((1 - min/max)*100, 1);
+
+
 
            this.uptakeRatio.put(s, ur);
            this.excretionFraction.put(s, ef);
        }
+
 
        System.out.println(this);
 
@@ -315,4 +330,12 @@ public class ModelSalivaryGlands extends ModelScinDyn {
        }
 
    }
+
+    public JValueSetter getCitrusChart() {
+        return citrusChart;
+    }
+
+    public void setCitrusChart(JValueSetter citrusChart) {
+        this.citrusChart = citrusChart;
+    }
 }

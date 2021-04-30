@@ -16,7 +16,7 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TabMain extends TabResult {
+class TabMain extends TabResult {
 
     private final BufferedImage capture;
 
@@ -29,17 +29,13 @@ public class TabMain extends TabResult {
 
     @Override
     public Component getSidePanelContent() {
-       // boolean[] parotides = ((ModelSalivaryGlands) this.parent.getModel()).getParotides();
-
+       //
         JPanel flow_wrap = new JPanel();
 
         //création du panel d'affichage des pourcentages
         Box panRes = Box.createVerticalBox();
 
-       // if (parotides[0] && parotides[1]){
-            //panRes.add(this.getPanelSep());
 
-       // }
 
         panRes.add(Box.createVerticalStrut(10));
         panRes.add(this.getPanelSizeParotid());
@@ -61,35 +57,7 @@ public class TabMain extends TabResult {
 
     }
 
-    private Component getPanelSep() {
-        JLabel label_L = new JLabel("L. Parotide");
-        label_L.setHorizontalAlignment(SwingConstants.CENTER);
-        JLabel label_R = new JLabel("R. Parotide");
-        label_R.setHorizontalAlignment(SwingConstants.CENTER);
 
-        // panel de fonction separee
-        Double[] sep = ((ModelSalivaryGlands) this.parent.getModel()).getSeparatedFunction();
-        JPanel pnl_sep = new JPanel(new GridLayout(2, 3));
-        pnl_sep.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-
-        pnl_sep.add(new JLabel("Relative function"));
-        pnl_sep.add(label_L);
-        pnl_sep.add(label_R);
-
-        pnl_sep.add(new JLabel("integral"));
-        JLabel lbl_d = new JLabel(sep[0] + " %");
-        lbl_d.setHorizontalAlignment(SwingConstants.CENTER);
-        pnl_sep.add(lbl_d);
-
-        JLabel lbl_g = new JLabel(sep[1] + " %");
-        lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
-        pnl_sep.add(lbl_g);
-
-
-
-        return pnl_sep;
-
-    }
 
     private Component getPanelSizeParotid(){
         JLabel label_L = new JLabel("L. Parotid");
@@ -152,64 +120,49 @@ public class TabMain extends TabResult {
         label_R.setHorizontalAlignment(SwingConstants.CENTER);
 
         // panel Excr
-        Double[][] Excr = ((ModelSalivaryGlands) this.parent.getModel()).getExcr();
-        JPanel panel_ExcrParo = new JPanel(new GridLayout(4, 3, 0, 3));
+        Map<String, Double> excrP= ((ModelSalivaryGlands) this.parent.getModel()).getExcretionFraction();
+        JPanel panel_ExcrParo = new JPanel(new GridLayout(2, 3, 0, 3));
         panel_ExcrParo.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-        panel_ExcrParo.add(new JLabel(" Excretion ratio"));
+        panel_ExcrParo.add(new JLabel(" Excretion Fraction"));
         panel_ExcrParo.add(label_L);
         panel_ExcrParo.add(label_R);
-        for (int i = 0; i < 3; i++) {
-            // aligne a droite
-            panel_ExcrParo.add(new JLabel(Excr[0][i] + "  min"));
 
-            for (int j = 1; j <= 2; j++) {
-                if (Excr[j][i] != null) {
-                    JLabel lbl_g = new JLabel(Excr[j][i] + " %");
-                    lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
-                    panel_ExcrParo.add(lbl_g);
-                } else {
-                    JLabel lbl_na = new JLabel("N/A");
-                    lbl_na.setHorizontalAlignment(SwingConstants.CENTER);
-                    panel_ExcrParo.add(lbl_na);
-                }
-            }
+        panel_ExcrParo.add(new JLabel(" "));
+        JLabel lbl_excrpL = new JLabel(excrP.get("L. Parotid") + " % ");
+        lbl_excrpL.setHorizontalAlignment(JLabel.CENTER);
+        panel_ExcrParo.add(lbl_excrpL);
 
-        }
+        JLabel lbl_excrpR = new JLabel(excrP.get("R. Parotid") + " % ");
+        lbl_excrpR.setHorizontalAlignment(JLabel.CENTER);
+        panel_ExcrParo.add(lbl_excrpR);
+
         return panel_ExcrParo;
     }
 
     private Component getPanelExcrSubmandibular() {
-        JLabel label_L = new JLabel("L. SubMandibular");
+        JLabel label_L = new JLabel("L. Submandib");
         label_L.setHorizontalAlignment(SwingConstants.CENTER);
-        JLabel label_R = new JLabel("R. SubMandibular");
+        JLabel label_R = new JLabel("R. Submandib");
         label_R.setHorizontalAlignment(SwingConstants.CENTER);
 
         // panel Excr
-        Double[][] Excr = ((ModelSalivaryGlands) this.parent.getModel()).getExcr();
-        JPanel panel_ExcrSubman = new JPanel(new GridLayout(4, 3, 0, 3));
+        Map<String, Double> excrS= ((ModelSalivaryGlands) this.parent.getModel()).getExcretionFraction();
+        JPanel panel_ExcrSubman = new JPanel(new GridLayout(2, 3, 0, 3));
         panel_ExcrSubman.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
         panel_ExcrSubman.add(new JLabel(" Excretion Fraction"));
         panel_ExcrSubman.add(label_L);
         panel_ExcrSubman.add(label_R);
-        for (int i = 0; i < 3; i++) {
-            // aligne a droite
-            panel_ExcrSubman.add(new JLabel(Excr[0][i] + "  min"));
 
-            for (int j = 1; j <= 2; j++) {
-                if (Excr[j][i] != null) {
-                    JLabel lbl_g = new JLabel(Excr[j][i] + " %");
-                    lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
-                    panel_ExcrSubman.add(lbl_g);
-                } else {
-                    JLabel lbl_na = new JLabel("N/A");
-                    lbl_na.setHorizontalAlignment(SwingConstants.CENTER);
-                    panel_ExcrSubman.add(lbl_na);
-                }
-            }
+        panel_ExcrSubman.add(new JLabel(""));
+        JLabel lbl_excrSL = new JLabel(excrS.get("L. SubMandib") + " % ");
+        lbl_excrSL.setHorizontalAlignment(JLabel.CENTER);
+        panel_ExcrSubman.add(lbl_excrSL);
 
-        }
+        JLabel lbl_excrSR = new JLabel(excrS.get("R. SubMandib") + " % ");
+        lbl_excrSR.setHorizontalAlignment(JLabel.CENTER);
+        panel_ExcrSubman.add(lbl_excrSR);
         return panel_ExcrSubman;
     }
 
@@ -221,30 +174,22 @@ public class TabMain extends TabResult {
         label_R.setHorizontalAlignment(SwingConstants.CENTER);
 
         // panel Uptake
-        Double[][] Uptake = ((ModelSalivaryGlands) this.parent.getModel()).getExcr();
-        JPanel panel_UptakeParo = new JPanel(new GridLayout(4, 3, 0, 3));
+        Map<String, Double> uptake = ((ModelSalivaryGlands) this.parent.getModel()).getUptakeRatio();
+        JPanel panel_UptakeParo = new JPanel(new GridLayout(2, 3, 0, 3));
         panel_UptakeParo.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
         panel_UptakeParo.add(new JLabel(" Uptake Ratio"));
         panel_UptakeParo.add(label_L);
         panel_UptakeParo.add(label_R);
-        for (int i = 0; i < 3; i++) {
-            // aligne a droite
-            panel_UptakeParo.add(new JLabel(Uptake[0][i] + "  min"));
+        panel_UptakeParo.add(new JLabel(""));
 
-            for (int j = 1; j <= 2; j++) {
-                if (Uptake[j][i] != null) {
-                    JLabel lbl_g = new JLabel(Uptake[j][i] + " %");
-                    lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
-                    panel_UptakeParo.add(lbl_g);
-                } else {
-                    JLabel lbl_na = new JLabel("N/A");
-                    lbl_na.setHorizontalAlignment(SwingConstants.CENTER);
-                    panel_UptakeParo.add(lbl_na);
-                }
-            }
+        JLabel lbl_uptakePL = new JLabel(uptake.get("L. Parotid") + "  ");
+        lbl_uptakePL.setHorizontalAlignment(JLabel.CENTER);
+        panel_UptakeParo.add(lbl_uptakePL);
 
-        }
+        JLabel lbl_uptakePR = new JLabel(uptake.get("R. Parotid") + "  ");
+        lbl_uptakePR.setHorizontalAlignment(JLabel.CENTER);
+        panel_UptakeParo.add(lbl_uptakePR);
         return panel_UptakeParo;
     }
 
@@ -255,30 +200,22 @@ public class TabMain extends TabResult {
         label_R.setHorizontalAlignment(SwingConstants.CENTER);
 
         // panel Uptake
-        Double[][] Uptake = ((ModelSalivaryGlands) this.parent.getModel()).getExcr();
-        JPanel panel_UptakeSubMan = new JPanel(new GridLayout(4, 3, 0, 3));
+       Map<String, Double> uptake = ((ModelSalivaryGlands) this.parent.getModel()).getUptakeRatio();
+        JPanel panel_UptakeSubMan = new JPanel(new GridLayout(2, 3, 0, 3));
         panel_UptakeSubMan.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
         panel_UptakeSubMan.add(new JLabel(" Uptake Ratio"));
         panel_UptakeSubMan.add(label_L);
         panel_UptakeSubMan.add(label_R);
-        for (int i = 0; i < 3; i++) {
-            // aligne a droite
-            panel_UptakeSubMan.add(new JLabel(Uptake[0][i] + "  min"));
+        panel_UptakeSubMan.add(new JLabel(""));
 
-            for (int j = 1; j <= 2; j++) {
-                if (Uptake[j][i] != null) {
-                    JLabel lbl_g = new JLabel(Uptake[j][i] + " %");
-                    lbl_g.setHorizontalAlignment(SwingConstants.CENTER);
-                    panel_UptakeSubMan.add(lbl_g);
-                } else {
-                    JLabel lbl_na = new JLabel("N/A");
-                    lbl_na.setHorizontalAlignment(SwingConstants.CENTER);
-                    panel_UptakeSubMan.add(lbl_na);
-                }
-            }
+        JLabel lbl_uptakeSL = new JLabel(uptake.get("L. SubMandib") + " ");
+        lbl_uptakeSL.setHorizontalAlignment(JLabel.CENTER);
+        panel_UptakeSubMan.add(lbl_uptakeSL);
 
-        }
+        JLabel lbl_uptakeSR = new JLabel(uptake.get("R. SubMandib") + " ");
+        lbl_uptakeSR.setHorizontalAlignment(JLabel.CENTER);
+        panel_UptakeSubMan.add(lbl_uptakeSR);
         return panel_UptakeSubMan;
     }
 
@@ -288,31 +225,32 @@ public class TabMain extends TabResult {
         @SuppressWarnings("rawtypes")
         HashMap<Comparable, Double> adjusted = ((ModelSalivaryGlands) parent.getModel()).getAdjustedValues();
         Double x1 = adjusted.get("start");
-        Double x2 = adjusted.get("end");
-        double debut = Math.min(x1, x2);
-        double fin = Math.max(x1, x2);
+       Double x2 = adjusted.get("end");
+       double debut = Math.min(x1, x2);
+       double fin = Math.max(x1, x2);
 
-        int slice1 = ModelScinDyn.getSliceIndexByTime(debut * 60 * 1000,
-                ((ModelSalivaryGlands) this.parent.getModel()).getFrameDuration());
+       int slice1 = ModelScinDyn.getSliceIndexByTime(debut * 60 * 1000,
+               ((ModelSalivaryGlands) this.parent.getModel()).getFrameDuration());
         int slice2 = ModelScinDyn.getSliceIndexByTime(fin * 60 * 1000,
-                ((ModelSalivaryGlands) this.parent.getModel()).getFrameDuration());
-        //JValueSetter chartNephrogram = ((ModelSalivaryGlands) this.parent.getModel()).getNephrogramChart();
-        ImagePlus proj = ZProjector.run(parent.getModel().getImagePlus(), "sum", slice1, slice2);
+               ((ModelSalivaryGlands) this.parent.getModel()).getFrameDuration());
+       JValueSetter citrusChart = ((ModelSalivaryGlands) this.parent.getModel()).getCitrusChart();
+       ImagePlus proj = ZProjector.run(parent.getModel().getImagePlus(), "sum", slice1, slice2);
         proj.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
         JPanel grid = new JPanel(new GridLayout(2, 1));
 
         // creation du panel du haut
         JPanel panel_top = new JPanel(new GridLayout(1, 2));
 
+
         // ajout de la capture et du montage
         panel_top.add(new DynamicImage(capture));
-        panel_top.add(new DynamicImage(proj.getImage()));
+       // panel_top.add(new DynamicImage(proj.getImage()));
 
         // on ajoute les panels a la grille principale
         grid.add(panel_top);
-      //  grid.add(chartNephrogram);
+        grid.add(citrusChart);
 
-     //   chartNephrogram.removeChartMouseListener(chartNephrogram);
+        citrusChart.removeChartMouseListener(citrusChart);
 
         return grid;
 

@@ -1,7 +1,8 @@
-package org.petctviewer.scintigraphy.salivaryGlands;
+package org.petctviewer.scintigraphy.salivaryGlands.gui;
 
 import ij.ImagePlus;
 import ij.process.ImageProcessor;
+import org.petctviewer.scintigraphy.salivaryGlands.ModelSalivaryGlands;
 import org.petctviewer.scintigraphy.salivaryGlands.gui.TabMain;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;

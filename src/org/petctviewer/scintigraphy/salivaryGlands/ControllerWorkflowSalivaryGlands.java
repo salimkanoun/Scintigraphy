@@ -1,19 +1,17 @@
 package org.petctviewer.scintigraphy.salivaryGlands;
 
 import ij.ImagePlus;
-import ij.Prefs;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 import org.petctviewer.scintigraphy.renal.Model_Renal;
-import org.petctviewer.scintigraphy.renal.gui.FenResultats_Renal;
 import org.petctviewer.scintigraphy.salivaryGlands.gui.FenCitrus;
+import org.petctviewer.scintigraphy.salivaryGlands.gui.FenResultats_SalivaryGlands;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
-import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackground;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
@@ -21,7 +19,6 @@ import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
-import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -79,6 +76,8 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 		fan.setModal(true);
 		fan.setVisible(true);
 		fan.toFront();
+		((ModelSalivaryGlands) model).setCitrusChart(fan.getValueSetter());
+
 
 		// on calcule les resultats
 		modele.calculateResults();
@@ -87,9 +86,10 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 		modele.setAdjustedValues(fan.getValueSetter().getValues());
 
 		// on affiche la fenetre de resultats principale
-		//FenResults fenResults = new FenResultats_Renal(capture, this);
-		//fenResults.toFront();
-		//fenResults.setVisible(true);
+		((ModelSalivaryGlands) model).setCitrusChart(fan.getValueSetter());
+		FenResults fenResults = new FenResultats_SalivaryGlands(capture, this);
+		fenResults.toFront();
+		fenResults.setVisible(true);
 
 
 		// SK On rebloque le modele pour la prochaine generation
