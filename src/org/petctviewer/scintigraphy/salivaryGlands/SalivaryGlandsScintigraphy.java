@@ -47,7 +47,7 @@ public class SalivaryGlandsScintigraphy extends Scintigraphy {
 		this.setFenApplication(new FenApplication_SalivaryGlands(preparedImages.get(0), this.getStudyName(), this));
 		this.getFenApplication().setController(
 				new ControllerWorkflowSalivaryGlands((FenApplicationWorkflow) this.getFenApplication(),
-                                            new ModelSalivaryGlands(this.frameDurations, preparedImages.toArray(new ImageSelection[0]), STUDY_NAME)));
+                                            new ModelSalivaryGlands(this.frameDurations, preparedImages.toArray(new ImageSelection[0]), STUDY_NAME, this.impAnt)));
 		this.createDocumentation();
     }
     

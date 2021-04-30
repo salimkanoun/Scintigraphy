@@ -33,10 +33,10 @@ public class ModelSalivaryGlands extends ModelScinDyn {
     * @param frameDuration
     *            duree de chaque frame en ms
     */
-   public ModelSalivaryGlands(int[] frameDuration, ImageSelection[] selectedImages, String studyName) {
+   public ModelSalivaryGlands(int[] frameDuration, ImageSelection[] selectedImages, String studyName, ImageSelection impAnt) {
        super(selectedImages, studyName, frameDuration);
        this.organRois = new HashMap<>();
-       this.impAnt = selectedImages[1];
+       this.impAnt = impAnt;
 
        this.frameDurations = frameDuration;
        
@@ -160,8 +160,8 @@ public class ModelSalivaryGlands extends ModelScinDyn {
        this.substractBkg();
 
        //time of lemon juice stimulation in minute
-       int lemonInjection = (int) Prefs.get("Lemon Injection",
-               (this.adjustedValues.containsKey("Lemon Injection")) ? this.adjustedValues.get("Lemon Injection") : 10);
+       int lemonInjection = 10;
+       //(int) Prefs.get("Lemon Injection", (this.adjustedValues.containsKey("Lemon Injection")) ? this.adjustedValues.get("Lemon Injection") : 10);
 
        int lemon = ModelScinDyn.getSliceIndexByTime(lemonInjection * 60 * 1000, this.frameDurations);
        int lemonMinus1 = ModelScinDyn.getSliceIndexByTime((lemonInjection - 1) * 60 * 1000, this.frameDurations);
@@ -252,7 +252,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
    public String toString() {
        StringBuilder s = new StringBuilder(super.toString());
        
-       s.append("\n");
+       s.append("\n\n");
        s.append(getDataString("Final L. Parotid", "Corrected Left Parotid"));
        s.append(getDataString("Final R. Parotid", "Corrected Right Parotid"));
        s.append(getDataString("Final L. SubMandib", "Corrected Left Submandible"));

@@ -70,18 +70,18 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 			}
 		}
 
-		// on calcule les resultats
-		modele.calculateResults();
-
 		// on recupere les chartPanels avec l'association
 		List<XYSeries> series = modele.getSeries();
-		String[][] asso = new String[][]{{"Final KL", "Final KR"}};
+		String[][] asso = new String[][]{{"L. Parotid", "R. Parotid"}};
 		ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
 
 		FenCitrus fan = new FenCitrus(cp[0], this.getVue(), modele);
 		fan.setModal(true);
 		fan.setVisible(true);
 		fan.toFront();
+
+		// on calcule les resultats
+		modele.calculateResults();
 
 		// on passe les valeurs ajustees au modele
 		modele.setAdjustedValues(fan.getValueSetter().getValues());

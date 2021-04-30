@@ -14,6 +14,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.util.Map;
 
 public class TabMain extends TabResult {
 
@@ -96,7 +97,7 @@ public class TabMain extends TabResult {
         JLabel label_R = new JLabel("R. Parotid");
         label_R.setHorizontalAlignment(SwingConstants.CENTER);
 
-        Double[] size = ((ModelSalivaryGlands) this.parent.getModel()).getSize();
+        Map<String, Double> size = ((ModelSalivaryGlands) this.parent.getModel()).getSize();
         JPanel panel_sizeParo = new JPanel(new GridLayout(2, 3, 0, 3));
         panel_sizeParo.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
@@ -106,11 +107,11 @@ public class TabMain extends TabResult {
         panel_sizeParo.add(label_R);
 
         panel_sizeParo.add(new JLabel(""));
-        JLabel lbl_heightL = new JLabel(size[0] + " cm");
+        JLabel lbl_heightL = new JLabel(size.get("L. Parotid") + " cm");
         lbl_heightL.setHorizontalAlignment(JLabel.CENTER);
         panel_sizeParo.add(lbl_heightL);
 
-        JLabel lbl_heightR = new JLabel(size[1] + " cm");
+        JLabel lbl_heightR = new JLabel(size.get("R. Parotid") + " cm");
         lbl_heightR.setHorizontalAlignment(JLabel.CENTER);
         panel_sizeParo.add(lbl_heightR);
 
@@ -123,7 +124,7 @@ public class TabMain extends TabResult {
         JLabel label_R = new JLabel("R. SubMandibular");
         label_R.setHorizontalAlignment(SwingConstants.CENTER);
 
-        Double[] size = ((ModelSalivaryGlands) this.parent.getModel()).getSize();
+        Map<String, Double> size = ((ModelSalivaryGlands) this.parent.getModel()).getSize();
         JPanel panel_sizeSub = new JPanel(new GridLayout(2, 3, 0, 3));
         panel_sizeSub.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
@@ -133,11 +134,11 @@ public class TabMain extends TabResult {
         panel_sizeSub.add(label_R);
 
         panel_sizeSub.add(new JLabel(""));
-        JLabel lbl_heightL = new JLabel(size[0] + " cm");
+        JLabel lbl_heightL = new JLabel(size.get("L. SubMandib") + " cm");
         lbl_heightL.setHorizontalAlignment(JLabel.CENTER);
         panel_sizeSub.add(lbl_heightL);
 
-        JLabel lbl_heightR = new JLabel(size[1] + " cm");
+        JLabel lbl_heightR = new JLabel(size.get("R. SubMandib") + " cm");
         lbl_heightR.setHorizontalAlignment(JLabel.CENTER);
         panel_sizeSub.add(lbl_heightR);
 
