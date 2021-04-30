@@ -70,6 +70,7 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 			}
 		}
 
+
 		// on calcule les resultats
 		modele.calculateResults();
 
