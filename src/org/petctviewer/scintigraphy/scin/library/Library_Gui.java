@@ -19,7 +19,7 @@ public class Library_Gui {
 	/********************* Public Static ****************************************/
 
 
-	public static final int DEFAULT_FONT_SIZE = 12;
+	public static final int DEFAULT_FONT_SIZE = 10;
 
 	/**
 	 * Change le studyName et la couleur de l'overlay

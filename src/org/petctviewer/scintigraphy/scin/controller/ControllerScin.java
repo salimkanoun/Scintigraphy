@@ -431,8 +431,8 @@ public abstract class ControllerScin implements ActionListener {
 			opts_roi = "yellow width=0";
 		}
 
-		IJ.run("Labels...", opts_lbl);
 		IJ.run("Overlay Options...", "stroke="+ opts_roi +" set apply show");
+		IJ.run("Labels...", "color=white font=16 "+ opts_lbl);
 	}
 
 }

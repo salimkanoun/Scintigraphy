@@ -84,48 +84,6 @@ public class FenCitrus extends JDialog implements ActionListener {
 		return jvs;
 	}
 
-
-	private void clickOk() {
-		this.dispose();
-
-		 boolean checkOffset = checkOffset(this.jvaluesetter);
-		if (!checkOffset) {
-			String message = "Inconsistent differencial function during interval integration. \n Would you like to redefine the interval ?";
-			int dialogResult = JOptionPane.showConfirmDialog(this, message, "WARNING", JOptionPane.YES_NO_OPTION,
-					JOptionPane.WARNING_MESSAGE);
-		 	if (dialogResult != JOptionPane.YES_OPTION) {
-				this.dispose();
-		}
-		} else {
-		 	this.dispose();
-		 }
-	}
-
-	// returns true if passed
-	private boolean checkOffset(JValueSetter sl) {
-		XYDataset data = sl.getChart().getXYPlot().getDataset();
-
-
-		@SuppressWarnings("rawtypes")
-		HashMap<Comparable, Double> values = sl.getValues();
-
-		Double debut = Math.min(values.get("start"), values.get("end"));
-		Double fin = Math.max(values.get("start"), values.get("end"));
-
-		XYDataset dataCropped = Library_JFreeChart.cropDataset(data, debut, fin);
-
-		for (int i = 1; i < dataCropped.getItemCount(0); i++) {
-			double N1 = (dataCropped.getYValue(0, i) / dataCropped.getYValue(1, i));
-			double N = (dataCropped.getYValue(0, i - 1) / dataCropped.getYValue(1, i - 1));
-			double ecart = Math.abs(1 - N1 / N);
-			if (ecart > 0.05) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
 	private JPanel wrapComponent(Component c) {
 		JPanel p = new JPanel();
 		p.add(c);
@@ -136,7 +94,7 @@ public class FenCitrus extends JDialog implements ActionListener {
 	public void actionPerformed(ActionEvent arg0) {
 		JButton b = (JButton) arg0.getSource();
 		if (b == this.btn_ok) {
-            this.clickOk();
+			this.dispose();
         }
 	}
 

@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.salivaryGlands;
 import java.util.ArrayList;
 import java.util.List;
 
+import ij.IJ;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -47,7 +48,7 @@ public class SalivaryGlandsScintigraphy extends Scintigraphy {
 
     @Override
 	public void start(List<ImageSelection> preparedImages) {
-        this.initOverlayOnPreparedImages(preparedImages);
+        this.initOverlayOnPreparedImages(preparedImages, 7);
 		this.setFenApplication(new FenApplication_SalivaryGlands(preparedImages.get(0), this.getStudyName(), this));
 		this.getFenApplication().setController(
 				new ControllerWorkflowSalivaryGlands((FenApplicationWorkflow) this.getFenApplication(),

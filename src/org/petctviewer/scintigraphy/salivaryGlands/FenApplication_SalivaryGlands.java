@@ -21,7 +21,6 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 	private final ImagePlus impProj;
 	private final ImageSelection imsProj;
 	private final Button btn_dyn;
-	private final Button btn_start;
 
 	public FenApplication_SalivaryGlands(ImageSelection ims, String nom, SalivaryGlandsScintigraphy main) {
 		super(ims, nom);
@@ -47,12 +46,6 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 //		this.getPanel_btns_gauche().setLayout(new GridLayout(1, 4));
 		this.getPanel_btns_gauche().add(btn_dyn);
 
-		btn_start = new Button("Start");
-		btn_start.addActionListener(this);
-
-		this.getPanel_bttns_droit().removeAll();
-		this.getPanel_bttns_droit().add(btn_start);
-
 		this.getBtn_drawROI().setEnabled(false);
 
 		this.setDefaultSize();
@@ -67,7 +60,6 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 	@Override
 	public void setController(ControllerScin ctrl) {
 		super.setController(ctrl);
-		this.setText_instructions("Click to start the exam");
 	}
 
 	@SuppressWarnings("deprecation")
@@ -123,19 +115,6 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 			this.dyn = !this.dyn;
 
 			// Mode debut du programme apres visualisation.
-		} else if (e.getSource() == btn_start) {	
-			btn_dyn.setEnabled(false);
-			
-			// TODO move elsewhere
-
-			this.getBtn_reverse().setEnabled(true);
-
-			this.getPanel_bttns_droit().removeAll();
-			this.getPanel_bttns_droit().add(this.createPanelInstructionsBtns());
-			this.getBtn_drawROI().setEnabled(true);
-			this.setImage(impProj);
-			this.updateSliceSelector();
-			resizeCanvas();
 		}
 
 	}
