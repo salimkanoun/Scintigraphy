@@ -131,9 +131,9 @@ public class FenApplication extends StackWindow implements ComponentListener{
 		this.panel_slider = new Panel(new GridLayout(2,1));
 		panel_slider.add(new Label("Contrast", Label.CENTER));
 		panel_slider.add(this.slider);
-		double max = IJ.getValue(this.imp, "Max");
-		double coef = this.slider.getMaximum() / max;
 		this.slider.addChangeListener( e-> {
+			double max = IJ.getValue(this.imp, "Max");
+			double coef = this.slider.getMaximum() / max;
 			double val = (slider.getMaximum() - slider.getValue())/ coef;
 			IJ.setMinAndMax(0, val);
 
