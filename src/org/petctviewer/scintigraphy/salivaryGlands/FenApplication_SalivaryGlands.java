@@ -20,7 +20,6 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 	private boolean dyn;
 	private final ImagePlus impProj;
 	private final ImageSelection imsProj;
-	private final Button btn_dyn;
 	private final Button btn_start;
 
 	public FenApplication_SalivaryGlands(ImageSelection ims, String nom, SalivaryGlandsScintigraphy main) {
@@ -40,12 +39,11 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 		// Library_Gui.setOverlayTitle("Ant", this.getImagePlus(), Color.yellow, 3);
 		
 		
-		// Ajout du boutton dynamic au panel de gauche
-		btn_dyn = new Button("Dynamic");
-		btn_dyn.addActionListener(this);
+
+
 
 //		this.getPanel_btns_gauche().setLayout(new GridLayout(1, 4));
-		this.getPanel_btns_gauche().add(btn_dyn);
+
 
 		btn_start = new Button("Start");
 		btn_start.addActionListener(this);
@@ -73,58 +71,10 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// clic sur le bouton dynamique
-		if (e.getSource() == btn_dyn) {
-
-			ImagePlus imp;
-
-			if (!this.dyn) {
-
-				imp = main.getImpAnt().getImagePlus();
-				Library_Gui.setCustomLut(imp);
-				this.getImagePlus().getOverlay().clear();
-				Overlay overlay = Library_Gui.initOverlay(imp);
-				imp.setOverlay(overlay);
-				Library_Gui.setOverlayDG(imp);
-				revalidate();
-				setImage(imp);
-				resizeCanvas();
-				updateSliceSelector();
-				Library_Gui.setOverlayDG(imp, Color.YELLOW);
-				this.btn_dyn.setBackground(Color.LIGHT_GRAY);
-
-			} else {
-				imp = this.impProj;
-				Library_Gui.setCustomLut(imp);
-				this.btn_dyn.setBackground(null);
-				
-				// Library_Gui.setOverlayGD(imp, Color.YELLOW);
-				// Library_Gui.setOverlayTitle("Ant", imp, Color.yellow, 1);
-				// Library_Gui.setOverlayTitle("2 first min posterior", imp, Color.YELLOW, 2);
-				// Library_Gui.setOverlayTitle("MIP", imp, Color.YELLOW, 3);
-				// if (this.main.getImpAnt() != null) {
-				// 	Library_Gui.setOverlayTitle("Ant", imp, Color.yellow, 4);
-				// }
-
-				revalidate();
-				setImage(this.imsProj);
-				updateSliceSelector();
-				resizeCanvas();
-
-			}
-
-			/*
-			 * //si l'imp est null, on utilise l'image ant ou post if(imp == null) {
-			 * if(vue.getImpPost() != null) { imp = vue.getImpPost(); }else
-			 * if(vue.getImpAnt() != null) { imp = vue.getImpAnt(); } }
-			 */
-
-			// on inverse le boolean pour l'utilisation suivante
-			this.dyn = !this.dyn;
 
 			// Mode debut du programme apres visualisation.
-		} else if (e.getSource() == btn_start) {	
-			btn_dyn.setEnabled(false);
+		if (e.getSource() == btn_start) {
+
 			
 			// TODO move elsewhere
 
