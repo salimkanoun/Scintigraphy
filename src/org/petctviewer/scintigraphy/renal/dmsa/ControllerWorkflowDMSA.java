@@ -21,6 +21,7 @@ import java.util.List;
 public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
 	private final boolean antPost;
+	private List<ImagePlus> captures;
 
 	public ControllerWorkflowDMSA(FenApplicationWorkflow vue, ImageSelection[] selectedImages) {
 		super(vue, new Model_Dmsa(selectedImages, vue.getStudyName()));
@@ -39,7 +40,8 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 		// Clear the result hashmap in case of a second validation
 		((Model_Dmsa) this.model).data.clear();
 
-		Overlay overlay = getModel().getImagePlus().getOverlay().duplicate();
+		ImagePlus[] impCapture = new ImagePlus[1];
+		impCapture[0] = this.captures.get(0);
 
 		int indexRoi = 0;
 		for (Roi roi : this.model.getRoiManager().getRoisAsArray()) {
@@ -58,9 +60,11 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 
 		this.model.calculateResults();
 
+		ImageSelection ims = new ImageSelection(impCapture[0], null, null);
+
 		// Display results
 		FenResults fenResults = new FenResults(this);
-		fenResults.addTab(new MainTab(fenResults, getModel().getImageSelection()[0].clone(), overlay));
+		fenResults.addTab(new MainTab(fenResults, ims));
 		fenResults.setVisible(true);
 	}
 
@@ -70,7 +74,7 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 		this.workflows = new Workflow[1];
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
-		List<ImagePlus> captures = new ArrayList<>();
+		this.captures = new ArrayList<>();
 		ImageState statePost = new ImageState(Orientation.POST, 1, ImageState.LAT_LR, ImageState.ID_WORKFLOW);
 
 		DrawRoiInstruction dri_1 = new DrawRoiInstruction("L. Kidney", statePost);
@@ -84,7 +88,7 @@ public class ControllerWorkflowDMSA extends ControllerWorkflow {
 		this.workflows[0].addInstruction(
 				new DrawRoiBackground("R. Background", statePost, dri_2, this.workflows[0], ""));
 
-		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
+		this.workflows[0].addInstruction(new ScreenShotInstruction(this.captures, this.getVue(), 0));
 
 		this.workflows[0].addInstruction(new EndInstruction());
 	}

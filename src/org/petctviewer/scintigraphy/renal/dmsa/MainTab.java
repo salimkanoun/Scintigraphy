@@ -31,12 +31,10 @@ public class MainTab extends TabResult {
 	private DynamicImage result;
 	private JLabel contrastSliderLabel;
 
-	public MainTab(FenResults parent, ImageSelection capture, Overlay overlay) {
+	public MainTab(FenResults parent, ImageSelection capture) {
 		super(parent, "DMSA", true);
 
 		this.result = new DynamicImage(capture.getImagePlus().getBufferedImage());
-
-		capture.getImagePlus().setOverlay(overlay);
 		this.slider = new ContrastSlider(new ImageState(Orientation.POST, 2,
 														((ControllerWorkflow) this.parent.getController()).getCurrentImageState().getLateralisation(),
 														capture), this.result, this.parent);
