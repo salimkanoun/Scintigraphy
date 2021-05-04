@@ -69,14 +69,14 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 
 		// on recupere les chartPanels avec l'association
 		List<XYSeries> series = modele.getSeries();
-		String[][] asso = new String[][]{{"L. Parotid", "R. Parotid"}};
+		String[][] asso = new String[][]{{"L. Parotid", "R. Parotid", "L. SubMandib", "R. SubMandib"}};
 		ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
 
 		FenCitrus fan = new FenCitrus(cp[0], this.getVue(), modele);
 		fan.setModal(true);
 		fan.setVisible(true);
 		fan.toFront();
-		((ModelSalivaryGlands) model).setCitrusChart(fan.getValueSetter());
+		modele.setCitrusChart(fan.getValueSetter());
 
 
 		// on calcule les resultats
@@ -86,7 +86,7 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 		modele.setAdjustedValues(fan.getValueSetter().getValues());
 
 		// on affiche la fenetre de resultats principale
-		((ModelSalivaryGlands) model).setCitrusChart(fan.getValueSetter());
+		modele.setCitrusChart(fan.getValueSetter());
 		FenResults fenResults = new FenResultats_SalivaryGlands(capture, this);
 		fenResults.toFront();
 		fenResults.setVisible(true);

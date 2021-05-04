@@ -43,7 +43,7 @@ public class FenCitrus extends JDialog implements ActionListener {
 		bottomPanel.add(wrapComponent(btn_ok), BorderLayout.CENTER);
 		this.setLayout(new BorderLayout());
 
-		this.setTitle("Please adjust the citrus value");
+		this.setTitle("Adjust Lemon juice stimulation");
 
 		// creation du jvaluesetter
 		this.jvaluesetter = prepareValueSetter(cp);
@@ -60,25 +60,25 @@ public class FenCitrus extends JDialog implements ActionListener {
 		chart.getChart().getPlot().setBackgroundPaint(null);
 		JValueSetter jvs = new JValueSetter(chart.getChart());
 
-		Selector citrus = new Selector("Citrus", Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 10), -1,
+		Selector citrus = new Selector("Lemon stimuli", Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 10), -1,
 				RectangleAnchor.BOTTOM_LEFT);
 		Selector start = new Selector(" Start", 9, -1, RectangleAnchor.TOP_LEFT);
 		Selector end = new Selector("End ", 24, -1, RectangleAnchor.BOTTOM_RIGHT);
 
 
-		jvs.addSelector(citrus, "citrus");
+		jvs.addSelector(citrus, "lemon");
 		jvs.addSelector(start, "start");
 		jvs.addSelector(end, "end");
 
 		jvs.addArea("start", "end", "integral",null);
 
 		// renomme les series du chart pour que l'interface soit plus comprehensible
-		XYSeriesCollection dataset = ((XYSeriesCollection) chart.getChart().getXYPlot().getDataset());
+		XYSeriesCollection dataset = (XYSeriesCollection) chart.getChart().getXYPlot().getDataset();
 		if (model.equals(model.getGlands())){
-			dataset.getSeries("Final L. Parotid").setKey("Left Parotid");
-			dataset.getSeries("Final R. Parotid").setKey("Right Parotid");
-			dataset.getSeries("Final L. Submandible").setKey("Left Sub mandibular");
-			dataset.getSeries("Final R. Submandible").setKey("Right Sub mandibular");
+			dataset.getSeries("L. Parotid").setKey("Left Parotid");
+			dataset.getSeries("R. Parotid").setKey("Right Parotid");
+			dataset.getSeries("L. SubMandib").setKey("Left SubMandible");
+			dataset.getSeries("R. SubMandib").setKey("Right SubMandible");
 		}
 
 		return jvs;
@@ -94,6 +94,7 @@ public class FenCitrus extends JDialog implements ActionListener {
 	public void actionPerformed(ActionEvent arg0) {
 		JButton b = (JButton) arg0.getSource();
 		if (b == this.btn_ok) {
+			this.model.setAdjustedValues(this.jvaluesetter.getValues());
 			this.dispose();
         }
 	}
