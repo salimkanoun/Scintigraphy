@@ -3,8 +3,6 @@ package org.petctviewer.scintigraphy.salivaryGlands;
 import ij.ImagePlus;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
-import org.petctviewer.scintigraphy.renal.Model_Renal;
-import org.petctviewer.scintigraphy.salivaryGlands.gui.FenCitrus;
 import org.petctviewer.scintigraphy.salivaryGlands.gui.FenResultats_SalivaryGlands;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -17,7 +15,6 @@ import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstru
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
-import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import java.awt.image.BufferedImage;
@@ -67,21 +64,10 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 		String[][] asso = new String[][]{{"L. Parotid", "R. Parotid", "L. SubMandib", "R. SubMandib"}};
 		ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
 
-		FenCitrus fan = new FenCitrus(cp[0], this.getVue(), modele);
-		fan.setModal(true);
-		fan.setVisible(true);
-		fan.toFront();
-		modele.setCitrusChart(fan.getValueSetter());
-
-
 		// on calcule les resultats
 		modele.calculateResults();
 
-		// on passe les valeurs ajustees au modele
-		modele.setAdjustedValues(fan.getValueSetter().getValues());
-
 		// on affiche la fenetre de resultats principale
-		modele.setCitrusChart(fan.getValueSetter());
 		FenResults fenResults = new FenResultats_SalivaryGlands(capture, this);
 		fenResults.toFront();
 		fenResults.setVisible(true);
