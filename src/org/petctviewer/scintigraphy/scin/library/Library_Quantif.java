@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.scin.library;
 
+import com.drew.lang.annotations.NotNull;
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.measure.Measurements;
@@ -7,6 +8,7 @@ import ij.measure.ResultsTable;
 import ij.plugin.filter.Analyzer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.util.MathArrays;
+import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -79,6 +81,38 @@ public class Library_Quantif {
 	 */
 	public static Double getAvgCounts(ImagePlus imp) {
 		return imp.getStatistics().mean;
+	}
+
+	/**
+	 * Returns the average number of counts in the current ROI between two defined times of the ImagePlus
+	 * @param imp
+	 * @param startTime
+	 * @param endTime
+	 * @param frameDuration
+	 * @return average number of counts over the defined time
+	 */
+	public static Double getAvgCounts(ImagePlus imp, double startTime, double endTime, @NotNull int[] frameDuration) {
+		int startSlice = ModelScinDyn.getSliceIndexByTime(startTime, frameDuration);
+		int endSlice = ModelScinDyn.getSliceIndexByTime(endTime, frameDuration);
+
+		return getAvgCounts(imp, startSlice, endSlice);
+	}
+
+	/**
+	 * Returns the average number of counts in the current ROI between two defined slice of the ImagePlus
+	 * @param imp
+	 * @param startSlice
+	 * @param endSlice
+	 * @return average number of counts over the defined slices
+	 */
+	public static Double getAvgCounts(ImagePlus imp, int startSlice, int endSlice) {
+		double res = 0;
+		for (int i=startSlice; i<= endSlice; i++) {
+			imp.setSlice(i);
+			res += getCounts(imp);
+		}
+		res /= (endSlice - startSlice);
+		return res;
 	}
 
 	public static int getPixelNumber(ImagePlus imp) {

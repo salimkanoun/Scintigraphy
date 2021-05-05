@@ -20,11 +20,9 @@ public class ModelSalivaryGlands extends ModelScinDyn {
 
     private ImageSelection impAnt;
     private int[] frameDurations;
+    private double lemonInjection;
     private final HashMap<String, Integer> pixelCounts;
-    private HashMap<String, Double> uptakeRatio;
-    private HashMap<String, Double> excretionFraction;
-    private Map<String, Double> minCountsAfterLemon;
-    private Map<String, Double> maxCounts;
+    private Map<String, Map<String, Double>> results;
 
     /**
      * recupere les valeurs et calcule les resultats de l'examen renal
@@ -44,6 +42,18 @@ public class ModelSalivaryGlands extends ModelScinDyn {
     @SuppressWarnings("rawtypes")
     public HashMap<Comparable, Double> getAdjustedValues() {
         return this.adjustedValues;
+    }
+
+    public void setLemonInjection(double lemonInjection) {
+        this.lemonInjection = lemonInjection;
+    }
+
+    public double getLemonInjection() {
+        return lemonInjection;
+    }
+
+    public Map<String, Map<String, Double>> getResults() {
+        return results;
     }
 
     @SuppressWarnings("rawtypes")
@@ -67,8 +77,13 @@ public class ModelSalivaryGlands extends ModelScinDyn {
         return this.pixelCounts.get(roiName);
     }
 
-    public void enregistrerPixelRoi(String roiName, int pixelNumber) {
-        this.pixelCounts.put(roiName, pixelNumber);
+    public void enregistrerPixelRoi(ImagePlus imp) {
+        for (Roi r : this.getRoiManager().getRoisAsArray()) {
+            String roiName = r.getName();
+            imp.setRoi(r);
+            int pixelNumber = Library_Quantif.getPixelNumber(imp);
+            this.pixelCounts.put(roiName, pixelNumber);
+        }
     }
 
     public HashMap<String, Integer> getPixelRoi() {
@@ -96,23 +111,25 @@ public class ModelSalivaryGlands extends ModelScinDyn {
         return glandsHeight;
     }
 
-    /********** Public *********/
-    public void enregistrerMesure(String nomRoi, ImagePlus imp) {
+    public void saveOrganRois() {
+        for (Roi r : this.getRoiManager().getRoisAsArray())
+            this.organRois.put(r.getName(), r);
+    }
+
+    public void enregistrerMesure(ImagePlus imp, int slice) {
         if (this.isUnlocked()) {
-            this.organRois.put(nomRoi, imp.getRoi());
+            imp.setSlice(slice);
+            Roi backgroundRoi = this.organRois.get("Background");
+            for (Roi r : this.getRoiManager().getRoisAsArray()) {
+                String roiName = r.getName();
 
-            this.getData().computeIfAbsent(nomRoi, k -> new ArrayList<>());
-            // on y ajoute le nombre de coups
-            this.getData().get(nomRoi).add(Math.max(Library_Quantif.getCounts(imp), 1));
+                this.getData().computeIfAbsent(roiName, k -> new ArrayList<>());
+                // on y ajoute le nombre de coups
+                double counts = Library_Quantif.getCountCorrectedBackground(imp, r, backgroundRoi);
+                double finalCounts = counts / (this.frameDurations[slice - 1] / 1000.0);
+                this.getData().get(roiName).add(Math.max(finalCounts, 1));
+            }
         }
-    }
-
-    public HashMap<String, Double> getUptakeRatio() {
-        return uptakeRatio;
-    }
-
-    public HashMap<String, Double> getExcretionFraction() {
-        return excretionFraction;
     }
 
     @Override
@@ -125,82 +142,79 @@ public class ModelSalivaryGlands extends ModelScinDyn {
         this.glands.add("L. SubMandib");
         this.glands.add("R. SubMandib");
 
-        // on ajuste toutes les valeurs pour les mettre en coup / sec
-        for (String k : this.getData().keySet()) {
-            List<Double> data = this.getData().get(k);
-            this.getData().put(k, this.adjustValues(data));
-        }
-
         // on soustrait le bruit de fond
         this.substractBkg();
 
         //time of lemon juice stimulation in minute
-        double lemonInjection = this.adjustedValues.get("lemon");
+        double lemonInjection = this.getLemonInjection();
 
         int firstMinute = ModelScinDyn.getSliceIndexByTime(60 * 1000, this.frameDurations);
-        int lemonMinus5 = ModelScinDyn.getSliceIndexByTime((lemonInjection - 5) * 60 * 1000, this.frameDurations);
+        int lemon15 = ModelScinDyn.getSliceIndexByTime(15 * 60 * 1000, this.frameDurations);
+
         int lemonMinus1 = ModelScinDyn.getSliceIndexByTime((lemonInjection - 1) * 60 * 1000, this.frameDurations);
         int lemon = ModelScinDyn.getSliceIndexByTime(lemonInjection * 60 * 1000, this.frameDurations);
         int lemonPlus2 = ModelScinDyn.getSliceIndexByTime((lemonInjection + 2) * 60 * 1000, this.frameDurations);
         int lemonPlus4 = ModelScinDyn.getSliceIndexByTime((lemonInjection + 4) * 60 * 1000, this.frameDurations);
-        int lemonPlus10 = ModelScinDyn.getSliceIndexByTime((lemonInjection + 10) * 60 * 1000, this.frameDurations);
 
-        this.uptakeRatio = new HashMap<>();
-        this.excretionFraction = new HashMap<>();
-        this.maxCounts = new HashMap<>();
-        this.minCountsAfterLemon = new HashMap<>();
-        this.impAnt.getImagePlus().setRoi(this.organRois.get("Background"));
+        this.results = new HashMap<>();
+
+        ImagePlus imp = this.impAnt.getImagePlus();
+        Roi backgroundRoi = this.organRois.get("Background");
+        imp.setRoi(backgroundRoi);
         //the average counts in the ipsilateral background reference between 10 and 20 min
-        ImagePlus bkg10_20 = Library_Dicom.project(this.impAnt, lemon, lemonPlus10, "avg").getImagePlus();
-        double avgBck = Library_Quantif.getCounts(bkg10_20) / Library_Quantif.getPixelNumber(bkg10_20);
+        double avgBck = Library_Quantif.getAvgCounts(imp) / Library_Quantif.getPixelNumber(imp);
 
         for (String s : this.getGlands()) {
             List<Double> a = this.getData(s);
-            this.impAnt.getImagePlus().setRoi(this.organRois.get(s));
+            Roi roi = this.organRois.get(s);
+            imp.setRoi(roi);
+            Map<String, Double> glandResults = new HashMap<>();
+            this.results.put(s, glandResults);
+
+            // \TODO \/\/\/\/\/\/ REFACTORING \/\/\/\/\/\/
 
             //the highest count rate in the ninth or 10th minute
-            double max = 0, prec = 0;
-            ImagePlus impMax = null;
-            for (int i = lemonPlus2; i <= lemonPlus4; i++) {
-                this.impAnt.getImagePlus().setSlice(i);
-                max = Math.max(max, Library_Quantif.getCounts(this.impAnt.getImagePlus()));
-                if (prec != max) {
-                    impMax = this.impAnt.getImagePlus();
-                    prec = max;
-                }
+            double max = 0;
+            for (int i = lemonMinus1; i <= lemon; i++) {
+                imp.setSlice(i);
+                max = Math.max(max, Library_Quantif.getCounts(imp) / (this.frameDurations[i - 1] / 1000.0));
             }
 
             //the lowest count rate 2–4 min after lemon juice stimulation
             double min = Double.MAX_VALUE;
-            for (int i = lemonMinus1; i <= lemon; i++) {
-                this.impAnt.getImagePlus().setSlice(i);
-                min = Math.min(min, Library_Quantif.getCounts(this.impAnt.getImagePlus()));
+            for (int i = lemonPlus2; i <= lemonPlus4; i++) {
+                imp.setSlice(i);
+                min = Math.min(min, Library_Quantif.getCounts(imp) / (this.frameDurations[i - 1] / 1000.0));
             }
-            double ur = Library_Quantif.round(max / (avgBck * Library_Quantif.getPixelNumber(impMax)), 1);
 
+            double ur = Library_Quantif.round(max / (avgBck * Library_Quantif.getPixelNumber(imp)), 1);
             double ef = Library_Quantif.round((1 - min / max) * 100, 1);
 
+            double fm = Library_Quantif.getAvgCounts(imp, 1, firstMinute) / (this.frameDurations[0] / 1000.0);
+            double lm = Library_Quantif.getAvgCounts(imp,imp.getNSlices() - 60000 / this.frameDurations[0], imp.getNSlices()) / (this.frameDurations[0] / 1000.0);
 
-            this.uptakeRatio.put(s, ur);
-            this.excretionFraction.put(s, ef);
+            imp.setSlice(lemon15);
+            double m15 = Library_Quantif.getCounts(imp) / (this.frameDurations[0] / 1000.0);
+            imp.setSlice(lemon);
+            double lemonStimuliCounts = Library_Quantif.getCounts(imp) / (this.frameDurations[0] / 1000.0);
 
-            this.impAnt.getImagePlus().setSlice(firstMinute);
-            double firstMinuteCounts = Library_Quantif.getCounts(this.impAnt.getImagePlus());
-            this.impAnt.getImagePlus().setSlice(lemonMinus5);
-            double lemonMinus5Counts = Library_Quantif.getCounts(this.impAnt.getImagePlus());
-            this.impAnt.getImagePlus().setSlice(lemon);
-            double lemonStimuliCounts = Library_Quantif.getCounts(this.impAnt.getImagePlus());
-
-            //search min & max after lemon injection
+            //search max & min after lemon injection
             double maxAL = 0, minAL = Double.MAX_VALUE;
-            for (int i = 0; i < this.impAnt.getImagePlus().getNSlices(); i++) {
-                this.impAnt.getImagePlus().setSlice(i);
-                maxAL = Math.max(maxAL, Library_Quantif.getCounts(this.impAnt.getImagePlus()));
+            for (int i = 1; i <= imp.getNSlices(); i++) {
+                imp.setSlice(i);
+                maxAL = Math.max(maxAL, Library_Quantif.getCounts(imp) / (this.frameDurations[i - 1] / 1000.0));
                 if (i >= lemon)
-                    minAL = Math.min(minAL, Library_Quantif.getCounts(this.impAnt.getImagePlus()));
+                    minAL = Math.min(minAL, Library_Quantif.getCounts(imp) / (this.frameDurations[i - 1] / 1000.0));
             }
-            this.maxCounts.put(s, Library_Quantif.round(maxAL, 1));
-            this.minCountsAfterLemon.put(s, Library_Quantif.round(minAL, 1));
+
+            glandResults.put("Uptake Ratio", ur);
+            glandResults.put("Excretion Fraction", ef);
+            glandResults.put("First Minute", fm);
+            glandResults.put("Last Minute", lm);
+            glandResults.put("15 Minutes", m15);
+            glandResults.put("Lemon", lemonStimuliCounts);
+            glandResults.put("Maximum", Library_Quantif.round(maxAL, 1));
+            glandResults.put("Minimum", Library_Quantif.round(minAL, 1));
         }
 
 
@@ -219,31 +233,38 @@ public class ModelSalivaryGlands extends ModelScinDyn {
         StringBuilder s = new StringBuilder(super.toString());
 
         s.append("\n\n");
-        s.append(getDataString("Final L. Parotid", "Corrected Left Parotid"));
-        s.append(getDataString("Final R. Parotid", "Corrected Right Parotid"));
-        s.append(getDataString("Final L. SubMandib", "Corrected Left Submandible"));
-        s.append(getDataString("Final R. SubMandib", "Corrected Right Submandible"));
+        s.append(getDataString("L. Parotid", "Left Parotid"));
+        s.append(getDataString("R. Parotid", "Right Parotid"));
+        s.append(getDataString("L. SubMandib", "Left Submandible"));
+        s.append(getDataString("R. SubMandib", "Right Submandible"));
         s.append("\n");
 
-        s.append("Lemon juice stimulation at: ").append(Library_Quantif.round(this.adjustedValues.get("lemon"), 1)).append(" min\n\n");
+        s.append("Lemon juice stimulation at: ").append(Library_Quantif.round(this.getLemonInjection(), 1)).append(" min\n\n");
 
         StringBuilder name = new StringBuilder();
         StringBuilder ur = new StringBuilder("Uptake ratio");
         StringBuilder ef = new StringBuilder("Excretion fraction");
-        StringBuilder max = new StringBuilder("Maximum");
-        StringBuilder min = new StringBuilder("Min after lemon stimuli");
+        StringBuilder fm_max = new StringBuilder("FM/Max");
+        StringBuilder max_min = new StringBuilder("Max/Min");
+        StringBuilder max_lemon = new StringBuilder("Max/Lemon");
+        StringBuilder m15_lemon = new StringBuilder("15min/Lemon");
         for (String gland : this.getGlands()) {
+            Map<String, Double> res = this.results.get(gland);
             name.append(",").append(gland);
-            ur.append(",").append(this.uptakeRatio.get(gland));
-            ef.append(",").append(this.excretionFraction.get(gland));
-            max.append(",").append(this.maxCounts.get(gland));
-            min.append(",").append(this.minCountsAfterLemon.get(gland));
+            ur.append(",").append(res.get("Uptake Ratio"));
+            ef.append(",").append(res.get("Excretion Fraction")).append("%");
+            fm_max.append(",").append(Library_Quantif.round(res.get("First Minute") / res.get("Maximum"), 1)).append("%");
+            max_min.append(",").append(Library_Quantif.round(res.get("Maximum") / res.get("Minimum"), 1)).append("%");
+            max_lemon.append(",").append(Library_Quantif.round(res.get("Maximum") / res.get("Lemon"), 1)).append("%");
+            max_lemon.append(",").append(Library_Quantif.round(res.get("15 Minutes") / res.get("Lemon"), 1)).append("%");
         }
         s.append(name)
                 .append("\n").append(ur)
                 .append("\n").append(ef)
-                .append("\n").append(max)
-                .append("\n").append(min);
+                .append("\n").append(fm_max)
+                .append("\n").append(max_min)
+                .append("\n").append(max_lemon)
+                .append("\n").append(m15_lemon);
 
         return s.toString();
     }
@@ -254,7 +275,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
 
         if (this.getData().containsKey(key)) {
             for (Double d : this.getData().get(key)) {
-                nameBuilder.append(",").append(Library_Quantif.round(d,2));
+                nameBuilder.append(",").append(Library_Quantif.round(d, 2));
             }
             nameBuilder.append("\n");
         }

@@ -8,6 +8,7 @@ import org.petctviewer.scintigraphy.salivaryGlands.ModelSalivaryGlands;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
 import javax.swing.*;
@@ -38,6 +39,8 @@ class TabMain extends TabResult {
         panRes.add(Box.createVerticalStrut(10));
         panRes.add(this.getPanelRatios());
         panRes.add(Box.createVerticalStrut(10));
+        panRes.add(this.getPanelIndexes());
+        panRes.add(Box.createVerticalStrut(10));
         panRes.add(this.getPanelSizeParotid());
         panRes.add(Box.createVerticalStrut(10));
         panRes.add(this.getPanelSizeSubmandibular());
@@ -47,8 +50,6 @@ class TabMain extends TabResult {
         return flow_wrap;
 
     }
-
-
 
     private Component getPanelSizeParotid(){
         JLabel label_L = new JLabel("L. Parotid");
@@ -107,28 +108,55 @@ class TabMain extends TabResult {
 
     private Component getPanelRatios() {
         ModelSalivaryGlands model = (ModelSalivaryGlands) this.parent.getModel();
-        JPanel panelEF = new JPanel();
+        JPanel panelRes = new JPanel();
         JTable table;
         JPanel p = new JPanel();
         p.setLayout(new BorderLayout());
 
         String[] title = { "Name", "Uptake Ratio", "Excretion Fraction"};
-        HashMap<String, Double> ur = model.getUptakeRatio();
-        HashMap<String, Double> ef = model.getExcretionFraction();
+        Map<String, Map<String, Double>> results = model.getResults();
         Object[][] data = new Object[4][3];
         for (int i = 0; i < data.length; i++) {
-            data[i][0] = model.getGlands().get(i);
-            data[i][1] = ur.get(model.getGlands().get(i));
-            data[i][2] = ef.get(model.getGlands().get(i)) + " %";
+            String gland = model.getGlands().get(i);
+            data[i][0] = gland;
+            data[i][1] = results.get(gland).get("Uptake Ratio");
+            data[i][2] = results.get(gland).get("Excretion Fraction") + " %";
         }
-        table = new JTable(data, title);
 
+        table = new JTable(data, title);
         p.add(table.getTableHeader(), BorderLayout.NORTH);
         p.add(table, BorderLayout.CENTER);
+        panelRes.add(p);
 
-        panelEF.add(p);
+        return panelRes;
+    }
 
-        return panelEF;
+    private Component getPanelIndexes() {
+        ModelSalivaryGlands model = (ModelSalivaryGlands) this.parent.getModel();
+        JPanel panelRes = new JPanel();
+        JTable table;
+        JPanel p = new JPanel();
+        p.setLayout(new BorderLayout());
+
+        String[] title = { "Name", "FM/Max", "Max/min", "Max/Lemon", "15min/Lemon"};
+        Map<String, Map<String, Double>> results = model.getResults();
+        Object[][] data = new Object[4][5];
+        for (int i = 0; i < data.length; i++) {
+            String gland = model.getGlands().get(i);
+            Map<String, Double> res = results.get(gland);
+            data[i][0] = gland;
+            data[i][1] = Library_Quantif.round(res.get("First Minute") / res.get("Maximum"), 2) + " %";
+            data[i][2] = Library_Quantif.round(res.get("Maximum") / res.get("Minimum"), 2) + " %";
+            data[i][3] = Library_Quantif.round(res.get("Maximum") / res.get("Lemon"), 2) + " %";
+            data[i][4] = Library_Quantif.round(res.get("15 Minutes") / res.get("Lemon"), 2) + " %";
+        }
+
+        table = new JTable(data, title);
+        p.add(table.getTableHeader(), BorderLayout.NORTH);
+        p.add(table, BorderLayout.CENTER);
+        panelRes.add(p);
+
+        return panelRes;
     }
 
 

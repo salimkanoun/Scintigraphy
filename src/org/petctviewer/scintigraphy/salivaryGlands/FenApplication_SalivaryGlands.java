@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.salivaryGlands;
 
 import ij.ImagePlus;
 import ij.gui.Overlay;
+import org.petctviewer.scintigraphy.salivaryGlands.gui.FenSelectLemonInjection;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -68,7 +69,8 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 		if (e.getSource() == this.btn_start) {
 			FenSelectLemonInjection dialogFen = new FenSelectLemonInjection();
 			dialogFen.setLocationRelativeTo(this);
-			dialogFen.setModal(true);
+			dialogFen.setAlwaysOnTop(true);
+			dialogFen.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
 			((ControllerWorkflowSalivaryGlands) this.getController()).setLemonJuiceInjection(dialogFen.getLemonJuiceInjection());
 
 			this.getBtn_reverse().setEnabled(true);
@@ -81,40 +83,5 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 		}
 
 		super.actionPerformed(e);
-	}
-
-	private class FenSelectLemonInjection extends JDialog {
-		private JSpinner timeLemonInjection;
-		private JButton saveBtn;
-
-		public FenSelectLemonInjection() {
-			this.setTitle("Lemon Juice Injection");
-			this.setAlwaysOnTop(true);
-
-			JPanel container = new JPanel(new GridLayout(3, 1, 0, 10));
-			container.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
-
-			container.add(new JLabel("Indicate when lemon juice was injected"));
-
-			JPanel input = new JPanel(new GridLayout(1, 2, 15, 0));
-			SpinnerModel model = new SpinnerNumberModel(10, 1, 30, 0.1);
-			this.timeLemonInjection = new JSpinner(model);
-			input.add(this.timeLemonInjection);
-			input.add(new JLabel("min"));
-			container.add(input);
-
-			this.saveBtn = new JButton("Save");
-			this.saveBtn.addActionListener(e -> this.dispose());
-			container.add(this.saveBtn);
-
-			this.add(container);
-
-			this.pack();
-			this.setVisible(true);
-		}
-
-		public double getLemonJuiceInjection() {
-			return (Double) this.timeLemonInjection.getValue();
-		}
 	}
 }

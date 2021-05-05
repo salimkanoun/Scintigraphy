@@ -32,9 +32,6 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 
 	public ControllerWorkflowSalivaryGlands(FenApplicationWorkflow vue, ModelScin model) {
 		super(vue, model);
-		
-		this.generateInstructions();
-		this.start();
 	}
 
 	@Override
@@ -57,15 +54,12 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 		BufferedImage capture = Library_Capture_CSV.captureImage(this.model.getImagePlus(), 512, 0).getBufferedImage();
 
 		// on enregistre la mesure pour chaque slice
+		modele.saveOrganRois();
 		for (int indexSlice = 1; indexSlice <= imp.getStackSize(); indexSlice++) {
 			imp.setSlice(indexSlice);
-			for (int indexRoi = 0; indexRoi < this.organeListe.length; indexRoi++) {
-				imp.setRoi(this.model.getRoiManager().getRoi(indexRoi));
-				String nom = this.organeListe[indexRoi];
-				modele.enregistrerMesure(nom, imp);
+				modele.enregistrerMesure(imp, indexSlice);
 
-				if (indexSlice == 1) modele.enregistrerPixelRoi(nom, Library_Quantif.getPixelNumber(imp));
-			}
+				if (indexSlice == 1) modele.enregistrerPixelRoi(imp);
 		}
 
 		// on recupere les chartPanels avec l'association
@@ -151,6 +145,8 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 	}
 
 	public void setLemonJuiceInjection(double lemonJuiceInjection) {
-		this.lemonJuiceInjection = lemonJuiceInjection;
+		((ModelSalivaryGlands) this.model).setLemonInjection(lemonJuiceInjection);
+		this.generateInstructions();
+		this.start();
 	}
 }
