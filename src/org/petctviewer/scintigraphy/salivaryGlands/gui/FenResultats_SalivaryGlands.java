@@ -6,6 +6,7 @@ import org.petctviewer.scintigraphy.salivaryGlands.ModelSalivaryGlands;
 import org.petctviewer.scintigraphy.salivaryGlands.gui.TabMain;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
+import org.petctviewer.scintigraphy.scin.gui.TabContrastModifier;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import java.awt.*;
@@ -21,6 +22,7 @@ public class FenResultats_SalivaryGlands extends FenResults {
         ModelSalivaryGlands model = (ModelSalivaryGlands) controller.getModel();
         ImagePlus montage = Library_Capture_CSV.creerMontage(model.getFrameDurations(), model.getImpAnt().getImagePlus(), 200, 4, 5);
         montage.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
+        this.addTab(new TabContrastModifier(this, "Timed Image", montage));
 
 
 
