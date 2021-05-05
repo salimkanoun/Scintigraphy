@@ -3,17 +3,23 @@ package org.petctviewer.scintigraphy.salivaryGlands.gui;
 import ij.ImagePlus;
 import ij.plugin.ZProjector;
 import ij.process.ImageProcessor;
+import org.jfree.chart.ChartPanel;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
+import org.petctviewer.scintigraphy.renal.Model_Renal;
 import org.petctviewer.scintigraphy.salivaryGlands.ModelSalivaryGlands;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 class TabMain extends TabResult {
@@ -134,24 +140,22 @@ class TabMain extends TabResult {
 
     @Override
     public JPanel getResultContent() {
-        @SuppressWarnings("rawtypes")
-        HashMap<Comparable, Double> adjusted = ((ModelSalivaryGlands) parent.getModel()).getAdjustedValues();
-        Double x1 = adjusted.get("start");
-       Double x2 = adjusted.get("end");
-       double debut = Math.min(x1, x2);
-       double fin = Math.max(x1, x2);
 
-       int slice1 = ModelScinDyn.getSliceIndexByTime(debut * 60 * 1000,
-               ((ModelSalivaryGlands) this.parent.getModel()).getFrameDuration());
-        int slice2 = ModelScinDyn.getSliceIndexByTime(fin * 60 * 1000,
-               ((ModelSalivaryGlands) this.parent.getModel()).getFrameDuration());
-       JValueSetter citrusChart = ((ModelSalivaryGlands) this.parent.getModel()).getCitrusChart();
-       ImagePlus proj = ZProjector.run(parent.getModel().getImagePlus(), "sum", slice1, slice2);
-        proj.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
+   //    JValueSetter citrusChart = ((ModelSalivaryGlands) this.parent.getModel()).getCitrusChart();
+
         JPanel grid = new JPanel(new GridLayout(2, 1));
 
         // creation du panel du haut
         JPanel panel_top = new JPanel(new GridLayout(1, 2));
+
+        //création du panel du bas
+
+        String[][] asso = new String[][]{ {"LeftParotid", "RightParotid", "LeftSubmandible", "RightSubmandible"} };
+        List<XYSeries> series = ((ModelSalivaryGlands) parent.getModel()).getSeries();
+        ChartPanel[] cPanels = Library_JFreeChart.associateSeries(asso, series);
+        JPanel bas = new JPanel(new GridLayout(1,1));
+        cPanels[0].getChart();
+        bas.add(cPanels[0]);
 
 
         // ajout de la capture et du montage
@@ -160,9 +164,9 @@ class TabMain extends TabResult {
 
         // on ajoute les panels a la grille principale
         grid.add(panel_top);
-        grid.add(citrusChart);
+        grid.add(bas);
 
-        citrusChart.removeChartMouseListener(citrusChart);
+       // citrusChart.removeChartMouseListener(citrusChart);
 
         return grid;
     }
