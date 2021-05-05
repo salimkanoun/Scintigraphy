@@ -28,6 +28,7 @@ import java.util.List;
 public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 
 	public String[] organeListe;
+	private double lemonJuiceInjection;
 
 	public ControllerWorkflowSalivaryGlands(FenApplicationWorkflow vue, ModelScin model) {
 		super(vue, model);
@@ -145,4 +146,11 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 		this.workflows[0].addInstruction(new EndInstruction());
 	}
 
+	public double getLemonJuiceInjection() {
+		return lemonJuiceInjection;
+	}
+
+	public void setLemonJuiceInjection(double lemonJuiceInjection) {
+		this.lemonJuiceInjection = lemonJuiceInjection;
+	}
 }

@@ -59,8 +59,10 @@ public class GallbladderScintigraphy extends Scintigraphy{
 
     private void createDocumentation() {
 		DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
-		doc.addReference(DocumentationDialog.Field.createLinkField("", "Gallbladder explanation",
-				"https://www.google.com/url?sa=i&url=https%3A%2F%2Fcentre.chl.lu%2Ffr%2Fdossier%2Fablation-de-la-v%25C3%25A9sicule-biliaire-chol%25C3%25A9cystectomie-au-centre-hospitalier-de-luxembourg&psig=AOvVaw3VFTeHaZ9gZZuQjF_4J5ri&ust=1590496020646000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCOCp3sWBz-kCFQAAAAAdAAAAABAD"));
+		doc.addReference(DocumentationDialog.Field.createLinkField("", "Gallbladder explanation (FR)",
+				"https://centre.chl.lu/fr/dossier/ablation-de-la-v%C3%A9sicule-biliaire-chol%C3%A9cystectomie-au-centre-hospitalier-de-luxembourg"));
+		doc.addReference(DocumentationDialog.Field.createLinkField("",
+                "Tulchinsky - J Nucl Med Technol. 2010", "https://pubmed.ncbi.nlm.nih.gov/21078782/"));
 		doc.setYoutube("");
 		doc.setOnlineDoc("");
 		this.getFenApplication().setDocumentation(doc);
