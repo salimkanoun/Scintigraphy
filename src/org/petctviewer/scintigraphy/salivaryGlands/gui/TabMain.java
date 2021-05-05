@@ -39,7 +39,7 @@ class TabMain extends TabResult {
 
     @Override
     public Component getSidePanelContent() {
-       //
+        //
         JPanel flow_wrap = new JPanel();
 
         //création du panel d'affichage des pourcentages
@@ -173,23 +173,17 @@ class TabMain extends TabResult {
     public JPanel getResultContent() {
         JPanel grid = new JPanel(new GridLayout(2, 1));
 
-        // creation du panel du haut
+        // ajout de la capture et du montage
         JPanel panel_top = new JPanel(new GridLayout(1, 2));
+        panel_top.add(new DynamicImage(capture));
+        grid.add(panel_top);
 
-
+        // ajout du graphique
         List<XYSeries> series = ((ModelScinDyn) this.getParent().getModel()).getSeries();
         String[][] asso = new String[][]{{"L. Parotid", "R. Parotid", "L. SubMandib", "R. SubMandib"}};
         ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
-
         JValueSetter citrusChart = prepareValueSetter(cp[0]);
-
-        // ajout de la capture et du montage
-        panel_top.add(new DynamicImage(capture));
-
-        // on ajoute les panels a la grille principale
-        grid.add(panel_top);
         grid.add(citrusChart);
-
         citrusChart.removeChartMouseListener(citrusChart);
 
         return grid;
