@@ -5,23 +5,18 @@ import ij.gui.Roi;
 import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
 import java.util.*;
 
 public class ModelSalivaryGlands extends ModelScinDyn {
-
-    private final HashMap<String, Roi> organRois;
-    private HashMap<Comparable, Double> adjustedValues;
-    private ArrayList<String> glands;
-    private JValueSetter citrusChart;
-
-    private ImageSelection impAnt;
-    private int[] frameDurations;
+    private final Map<String, Roi> organRois;
+    private final Map<String, Integer> pixelNumberROIs;
+    private final ArrayList<String> glands;
+    private final ImageSelection impAnt;
+    private final int[] frameDurations;
     private double lemonInjection;
-    private final HashMap<String, Integer> pixelCounts;
     private Map<String, Map<String, Double>> results;
 
     /**
@@ -31,17 +26,17 @@ public class ModelSalivaryGlands extends ModelScinDyn {
      */
     public ModelSalivaryGlands(int[] frameDuration, ImageSelection[] selectedImages, String studyName, ImageSelection impAnt) {
         super(selectedImages, studyName, frameDuration);
-        this.organRois = new HashMap<>();
         this.impAnt = impAnt;
-
         this.frameDurations = frameDuration;
 
-        this.pixelCounts = new HashMap<>();
-    }
+        this.organRois = new HashMap<>();
+        this.pixelNumberROIs = new HashMap<>();
 
-    @SuppressWarnings("rawtypes")
-    public HashMap<Comparable, Double> getAdjustedValues() {
-        return this.adjustedValues;
+        this.glands = new ArrayList<>();
+        this.glands.add("L. Parotid");
+        this.glands.add("R. Parotid");
+        this.glands.add("L. SubMandib");
+        this.glands.add("R. SubMandib");
     }
 
     public void setLemonInjection(double lemonInjection) {
@@ -56,11 +51,6 @@ public class ModelSalivaryGlands extends ModelScinDyn {
         return results;
     }
 
-    @SuppressWarnings("rawtypes")
-    public void setAdjustedValues(HashMap<Comparable, Double> hashMap) {
-        this.adjustedValues = hashMap;
-    }
-
     public ArrayList<String> getGlands() {
         return glands;
     }
@@ -73,21 +63,21 @@ public class ModelSalivaryGlands extends ModelScinDyn {
         return impAnt;
     }
 
-    public int getPixelCount(String roiName) {
-        return this.pixelCounts.get(roiName);
-    }
-
-    public void enregistrerPixelRoi(ImagePlus imp) {
+    public void savePixelNumberROIs(ImagePlus imp) {
         for (Roi r : this.getRoiManager().getRoisAsArray()) {
             String roiName = r.getName();
             imp.setRoi(r);
             int pixelNumber = Library_Quantif.getPixelNumber(imp);
-            this.pixelCounts.put(roiName, pixelNumber);
+            this.pixelNumberROIs.put(roiName, pixelNumber);
         }
     }
 
-    public HashMap<String, Integer> getPixelRoi() {
-        return this.pixelCounts;
+    public Map<String, Integer> getPixelNumberROIs() {
+        return this.pixelNumberROIs;
+    }
+
+    public int getPixelNumberROI(String roiName) {
+        return this.pixelNumberROIs.get(roiName);
     }
 
     /**
@@ -134,14 +124,6 @@ public class ModelSalivaryGlands extends ModelScinDyn {
 
     @Override
     public void calculateResults() {
-
-        // construction du tableau representant chaque glande
-        this.glands = new ArrayList<>();
-        this.glands.add("L. Parotid");
-        this.glands.add("R. Parotid");
-        this.glands.add("L. SubMandib");
-        this.glands.add("R. SubMandib");
-
         // on soustrait le bruit de fond
         this.substractBkg();
 
@@ -171,20 +153,27 @@ public class ModelSalivaryGlands extends ModelScinDyn {
             Map<String, Double> glandResults = new HashMap<>();
             this.results.put(s, glandResults);
 
-            // \TODO \/\/\/\/\/\/ REFACTORING \/\/\/\/\/\/
-
-            //the highest count rate in the ninth or 10th minute
+            //the highest count rate in the ninth or 10th minute (when lemon stimuli is at 10min)
             double max = 0;
-            for (int i = lemonMinus1; i <= lemon; i++) {
-                imp.setSlice(i);
-                max = Math.max(max, Library_Quantif.getCounts(imp) / (this.frameDurations[i - 1] / 1000.0));
-            }
-
             //the lowest count rate 2–4 min after lemon juice stimulation
             double min = Double.MAX_VALUE;
-            for (int i = lemonPlus2; i <= lemonPlus4; i++) {
+            //maximum counts/sec during the whole activity
+            double maxGlobal = 0;
+            //minimum counts/sec after lemon injection
+            double minAfterLemon = Double.MAX_VALUE;
+            for (int i = 1; i <= imp.getNSlices(); i++) {
                 imp.setSlice(i);
-                min = Math.min(min, Library_Quantif.getCounts(imp) / (this.frameDurations[i - 1] / 1000.0));
+
+                maxGlobal = Math.max(maxGlobal, Library_Quantif.getCounts(imp) / (this.frameDurations[i - 1] / 1000.0));
+
+                if (i >= lemonMinus1 && i <= lemon)
+                    max = Math.max(max, Library_Quantif.getCounts(imp) / (this.frameDurations[i - 1] / 1000.0));
+
+                if (i >= lemonPlus2 && i <= lemonPlus4)
+                    min = Math.min(min, Library_Quantif.getCounts(imp) / (this.frameDurations[i - 1] / 1000.0));
+
+                if (i >= lemon)
+                    minAfterLemon = Math.min(minAfterLemon, Library_Quantif.getCounts(imp) / (this.frameDurations[i - 1] / 1000.0));
             }
 
             double ur = Library_Quantif.round(max / (avgBck * Library_Quantif.getPixelNumber(imp)), 1);
@@ -196,30 +185,17 @@ public class ModelSalivaryGlands extends ModelScinDyn {
             imp.setSlice(lemon15);
             double m15 = Library_Quantif.getCounts(imp) / (this.frameDurations[0] / 1000.0);
             imp.setSlice(lemon);
-            double lemonStimuliCounts = Library_Quantif.getCounts(imp) / (this.frameDurations[0] / 1000.0);
-
-            //search max & min after lemon injection
-            double maxAL = 0, minAL = Double.MAX_VALUE;
-            for (int i = 1; i <= imp.getNSlices(); i++) {
-                imp.setSlice(i);
-                maxAL = Math.max(maxAL, Library_Quantif.getCounts(imp) / (this.frameDurations[i - 1] / 1000.0));
-                if (i >= lemon)
-                    minAL = Math.min(minAL, Library_Quantif.getCounts(imp) / (this.frameDurations[i - 1] / 1000.0));
-            }
+            double lemonCounts = Library_Quantif.getCounts(imp) / (this.frameDurations[0] / 1000.0);
 
             glandResults.put("Uptake Ratio", ur);
             glandResults.put("Excretion Fraction", ef);
             glandResults.put("First Minute", fm);
             glandResults.put("Last Minute", lm);
             glandResults.put("15 Minutes", m15);
-            glandResults.put("Lemon", lemonStimuliCounts);
-            glandResults.put("Maximum", Library_Quantif.round(maxAL, 1));
-            glandResults.put("Minimum", Library_Quantif.round(minAL, 1));
+            glandResults.put("Lemon", lemonCounts);
+            glandResults.put("Maximum", Library_Quantif.round(maxGlobal, 1));
+            glandResults.put("Minimum", Library_Quantif.round(minAfterLemon, 1));
         }
-
-
-        //TODO To delete
-        System.out.println(this);
     }
 
     /**
@@ -248,16 +224,18 @@ public class ModelSalivaryGlands extends ModelScinDyn {
         StringBuilder max_min = new StringBuilder("Max/Min");
         StringBuilder max_lemon = new StringBuilder("Max/Lemon");
         StringBuilder m15_lemon = new StringBuilder("15min/Lemon");
+
         for (String gland : this.getGlands()) {
             Map<String, Double> res = this.results.get(gland);
             name.append(",").append(gland);
             ur.append(",").append(res.get("Uptake Ratio"));
             ef.append(",").append(res.get("Excretion Fraction")).append("%");
-            fm_max.append(",").append(Library_Quantif.round(res.get("First Minute") / res.get("Maximum"), 1)).append("%");
-            max_min.append(",").append(Library_Quantif.round(res.get("Maximum") / res.get("Minimum"), 1)).append("%");
-            max_lemon.append(",").append(Library_Quantif.round(res.get("Maximum") / res.get("Lemon"), 1)).append("%");
-            max_lemon.append(",").append(Library_Quantif.round(res.get("15 Minutes") / res.get("Lemon"), 1)).append("%");
+            fm_max.append(",").append(Library_Quantif.round(res.get("First Minute") / res.get("Maximum"), 2)).append("%");
+            max_min.append(",").append(Library_Quantif.round(res.get("Maximum") / res.get("Minimum"), 2)).append("%");
+            max_lemon.append(",").append(Library_Quantif.round(res.get("Maximum") / res.get("Lemon"), 2)).append("%");
+            m15_lemon.append(",").append(Library_Quantif.round(res.get("15 Minutes") / res.get("Lemon"), 2)).append("%");
         }
+
         s.append(name)
                 .append("\n").append(ur)
                 .append("\n").append(ef)
@@ -269,8 +247,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
         return s.toString();
     }
 
-    @SuppressWarnings("rawtypes")
-    private String getDataString(Comparable key, String name) {
+    private String getDataString(String key, String name) {
         StringBuilder nameBuilder = new StringBuilder(name);
 
         if (this.getData().containsKey(key)) {
@@ -309,13 +286,5 @@ public class ModelSalivaryGlands extends ModelScinDyn {
             this.getData().put("Final " + r, glandeCorrigee);
         }
 
-    }
-
-    public JValueSetter getCitrusChart() {
-        return citrusChart;
-    }
-
-    public void setCitrusChart(JValueSetter citrusChart) {
-        this.citrusChart = citrusChart;
     }
 }

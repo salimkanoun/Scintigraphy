@@ -25,7 +25,6 @@ import java.util.List;
 public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 
 	public String[] organeListe;
-	private double lemonJuiceInjection;
 
 	public ControllerWorkflowSalivaryGlands(FenApplicationWorkflow vue, ModelScin model) {
 		super(vue, model);
@@ -52,29 +51,21 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 
 		// on enregistre la mesure pour chaque slice
 		modele.saveOrganRois();
+		modele.savePixelNumberROIs(imp);
 		for (int indexSlice = 1; indexSlice <= imp.getStackSize(); indexSlice++) {
 			imp.setSlice(indexSlice);
-				modele.enregistrerMesure(imp, indexSlice);
-
-				if (indexSlice == 1) modele.enregistrerPixelRoi(imp);
+			modele.enregistrerMesure(imp, indexSlice);
 		}
-
-		// on recupere les chartPanels avec l'association
-		List<XYSeries> series = modele.getSeries();
-		String[][] asso = new String[][]{{"L. Parotid", "R. Parotid", "L. SubMandib", "R. SubMandib"}};
-		ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
 
 		// on calcule les resultats
 		modele.calculateResults();
 
-		// on affiche la fenetre de resultats principale
-		FenResults fenResults = new FenResultats_SalivaryGlands(capture, this);
-		fenResults.toFront();
-		fenResults.setVisible(true);
-
-
 		// SK On rebloque le modele pour la prochaine generation
 		modele.setLocked(true);
+
+		// on affiche la fenetre de resultats principale
+		FenResults fenResults = new FenResultats_SalivaryGlands(capture, this);
+		fenResults.setVisible(true);
 
 	}
 
@@ -126,13 +117,14 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 		this.workflows[0].addInstruction(new EndInstruction());
 	}
 
-	public double getLemonJuiceInjection() {
-		return lemonJuiceInjection;
-	}
-
 	public void setLemonJuiceInjection(double lemonJuiceInjection) {
 		((ModelSalivaryGlands) this.model).setLemonInjection(lemonJuiceInjection);
 		this.generateInstructions();
 		this.start();
+	}
+
+	@Override
+	public String toString() {
+		return this.model.toString();
 	}
 }

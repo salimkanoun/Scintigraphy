@@ -194,7 +194,7 @@ class TabMain extends TabResult {
         JValueSetter jvs = new JValueSetter(chart.getChart());
 
         double lemonInjectionTime = Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 10);
-        Selector lemon = new Selector("Lemon juice stimuli", lemonInjectionTime, -1, RectangleAnchor.CENTER);
+        Selector lemon = new Selector("Lemon juice stimuli", lemonInjectionTime, -1, RectangleAnchor.BOTTOM_LEFT);
 
         jvs.addSelector(lemon, "lemon");
 
