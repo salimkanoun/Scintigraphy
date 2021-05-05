@@ -95,8 +95,8 @@ public class FenApplication extends StackWindow implements ComponentListener{
 		// construit tous les boutons
 		this.btn_reverse = new Button("Reverse");
 		this.btn_drawROI = new Button("Draw ROI");
-		this.zoom_in = new Button("+");
 		this.zoom_out = new Button("-");
+		this.zoom_in = new Button("+");
 
 
 
@@ -144,8 +144,8 @@ public class FenApplication extends StackWindow implements ComponentListener{
 		//création du panel Zoom
 		this.panel_zoom = new Panel();
 		this.panel_zoom.add(new Label("Zoom", Label.CENTER));
-		panel_zoom.add(this.zoom_in);
 		panel_zoom.add(this.zoom_out);
+		panel_zoom.add(this.zoom_in);
 		panelPrincipal.add(panel_zoom);
 
 		panelContainer.add(this.panelPrincipal, BorderLayout.CENTER);
