@@ -4,6 +4,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.plugin.Concatenator;
+import ij.plugin.ImageCalculator;
 import ij.plugin.ZProjector;
 import ij.process.ImageProcessor;
 import ij.process.StackProcessor;
@@ -680,6 +681,30 @@ public class Library_Dicom {
 	 */
 	public static void normalizeToCountPerSecond(ImageSelection imp) {
 		normalizeToCountPerSecond(imp.getImagePlus());
+	}
+
+	/**
+	 * Returns a geometric mean series from ANT and POST
+	 */
+	public static ImageSelection geomMean(ImageSelection ims) throws WrongOrientationException, ReadTagException {
+		ImagePlus imp = new ImagePlus();
+		imp.setProperty("Info", ims.getImagePlus().getInfoProperty());
+		ImageStack imStack = new ImageStack();
+
+		ImageSelection[] imsTab = splitAntPost(ims);
+		for (int i = 1; i <= imsTab[0].getImagePlus().getNSlices(); i++) {
+			imsTab[0].getImagePlus().setSlice(i);
+			imsTab[1].getImagePlus().setSlice(i);
+			imsTab[1].getImagePlus().getProcessor().flipHorizontal();
+
+			ImagePlus slice = ImageCalculator.run(imsTab[0].getImagePlus(), imsTab[1].getImagePlus(), "multiply");
+			slice.getProcessor().sqrt();
+
+			imStack.addSlice(slice.getProcessor());
+		}
+		imp.setStack(imStack);
+
+		return new ImageSelection(imp, ims.getColumns().toArray(new String[0]), ims.getValues().toArray(new String[0]));
 	}
 	
 	

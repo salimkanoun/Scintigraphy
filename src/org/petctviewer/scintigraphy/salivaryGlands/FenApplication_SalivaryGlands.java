@@ -48,7 +48,7 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 
 		this.getBtn_drawROI().setEnabled(false);
 
-		this.getBtn_drawROI().setEnabled(false);
+		this.getBtn_reverse().setEnabled(false);
 
 		this.setDefaultSize();
 
