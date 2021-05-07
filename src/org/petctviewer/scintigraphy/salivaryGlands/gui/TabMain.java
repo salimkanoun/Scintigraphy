@@ -154,10 +154,10 @@ class TabMain extends TabResult {
             String gland = model.getGlands().get(i);
             Map<String, Double> res = results.get(gland);
             data[i][0] = gland;
-            data[i][1] = Library_Quantif.round(res.get("First Minute") / res.get("Maximum"), 2) + " %";
-            data[i][2] = Library_Quantif.round(res.get("Maximum") / res.get("Minimum"), 2) + " %";
-            data[i][3] = Library_Quantif.round(res.get("Maximum") / res.get("Lemon"), 2) + " %";
-            data[i][4] = Library_Quantif.round(res.get("15 Minutes") / res.get("Lemon"), 2) + " %";
+            data[i][1] = Library_Quantif.round(100 * res.get("First Minute") / res.get("Maximum"), 2) + " %";
+            data[i][2] = Library_Quantif.round(100 * res.get("Maximum") / res.get("Minimum"), 2) + " %";
+            data[i][3] = Library_Quantif.round(100 * res.get("Maximum") / res.get("Lemon"), 2) + " %";
+            data[i][4] = Library_Quantif.round(100 * res.get("15 Minutes") / res.get("Lemon"), 2) + " %";
         }
 
         table = new JTable(data, title);

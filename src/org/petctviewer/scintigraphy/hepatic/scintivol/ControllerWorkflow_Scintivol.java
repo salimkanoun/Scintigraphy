@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.hepatic.scintivol;
 import ij.ImagePlus;
 import org.petctviewer.scintigraphy.salivaryGlands.ModelSalivaryGlands;
 import org.petctviewer.scintigraphy.salivaryGlands.gui.FenResultats_SalivaryGlands;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -14,6 +15,7 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
@@ -41,7 +43,7 @@ public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
 
         modele.getData().clear();
 
-        ImagePlus imp = modele.getImpAnt().getImagePlus();
+        ImagePlus imp = modele.getImagePlus();
 
         modele.setLocked(false);
 
@@ -62,16 +64,6 @@ public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
         // on calcule les resultats
         modele.calculateResults();
 
-        // on passe les valeurs ajustees au modele
-      //  modele.setAdjustedValues(fan.getValueSetter().getValues());
-
-        // on affiche la fenetre de resultats principale
-     //   ((ModelSalivaryGlands) model).setCitrusChart(fan.getValueSetter());
-        //FenResults fenResults = new FenResultats_SalivaryGlands(capture, this);
-      //  fenResults.toFront();
-        //fenResults.setVisible(true);
-
-
         // SK On rebloque le modele pour la prochaine generation
         modele.setLocked(true);
 
@@ -83,13 +75,14 @@ public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
 
         List<String> organes = new LinkedList<>();
 
-        this.workflows = new Workflow[1];
+        this.workflows = new Workflow[this.model.getImageSelection().length];
         DrawRoiInstruction dri_1, dri_2;
-        DrawRoiInstruction dri_Background_1;
         ScreenShotInstruction dri_capture_1;
         List<ImagePlus> captures = new ArrayList<>();
 
-        this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
+        ImageSelection dyn1Avg = Library_Dicom.project(this.model.getImageSelection()[0],
+                1, this.model.getImageSelection()[0].getImagePlus().getNSlices(), "avg");
+        this.workflows[0] = new Workflow(this, dyn1Avg);
 
         ImageState stateAnt = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_NONE);
 
@@ -101,19 +94,21 @@ public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
         this.workflows[0].addInstruction(dri_2);
         organes.add("Heart");
 
-        dri_Background_1 = new DrawRoiInstruction("Background", stateAnt);
-        this.workflows[0].addInstruction(dri_Background_1);
-        organes.add("Background");
-
-
-
         dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), 0);
-
-
-        this.organeListe = organes.toArray(new String[0]);
-
         this.workflows[0].addInstruction(dri_capture_1);
 
-        this.workflows[0].addInstruction(new EndInstruction());
+        if (this.getModel().getImageSelection().length == 2) {
+            this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
+
+            DrawRoiInstruction dri_3 = new DrawRoiInstruction("Liver parenchyma", stateAnt);
+            this.workflows[1].addInstruction(dri_3);
+            organes.add("Liver parenchyma");
+
+            ScreenShotInstruction dri_capture_2 = new ScreenShotInstruction(captures, this.getVue(), 1);
+            this.workflows[1].addInstruction(dri_capture_2);
+        }
+
+        this.workflows[this.workflows.length-1].addInstruction(new EndInstruction());
+        this.organeListe = organes.toArray(new String[0]);
     }
 }

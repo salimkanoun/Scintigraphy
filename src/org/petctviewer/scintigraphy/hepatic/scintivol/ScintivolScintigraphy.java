@@ -14,6 +14,7 @@ import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionCompara
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ScintivolScintigraphy extends Scintigraphy {
@@ -66,17 +67,37 @@ public class ScintivolScintigraphy extends Scintigraphy {
 
         // Check orientations
         List<ImageSelection> selection = new ArrayList<>();
-        for (ImageSelection ims: selectedImages) {
-            if (ims.getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
+        if (selectedImages.size() == 1) {
+            if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
                 // Set images
-                ImageSelection imps = ims.clone();
+                ImageSelection imps = selectedImages.get(0).clone();
                 Library_Dicom.normalizeToCountPerSecond(imps);
                 imps = Library_Dicom.geomMean(imps);
                 selection.add(imps);
-            } else throw new WrongColumnException.OrientationColumn(ims.getRow(),
-                    ims.getImageOrientation(),
+            } else throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
+                    selectedImages.get(0).getImageOrientation(),
                     new Orientation[]{Orientation.DYNAMIC_ANT_POST},
                     "You can only use a Dynamic ANT/POST");
+        } else {
+            Orientation[] acceptedOrientations = new Orientation[]{Orientation.DYNAMIC_ANT_POST};
+            String hint = "You can also use only 1 dynamic (Ant_Post)";
+
+            // Image 0 must be Dyn Ant or Post
+            if (Arrays.stream(selectedImages.toArray(new ImageSelection[0])).noneMatch(o ->
+                    o.getImageOrientation() == Orientation.DYNAMIC_ANT_POST))
+                throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
+                        selectedImages.get(0).getImageOrientation(),
+                        acceptedOrientations, hint);
+
+            // Set images
+            ImageSelection imps = selectedImages.get(0).clone();
+            Library_Dicom.normalizeToCountPerSecond(imps);
+            imps = Library_Dicom.geomMean(imps);
+            selection.add(imps);
+
+            imps = Library_Dicom.splitAntPost(selectedImages.get(1))[0];
+            imps = Library_Dicom.project(imps, 1, imps.getImagePlus().getNSlices(), "max");
+            selection.add(imps);
         }
 
         // Close images
