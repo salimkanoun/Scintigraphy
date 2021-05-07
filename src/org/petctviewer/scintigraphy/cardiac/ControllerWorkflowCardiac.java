@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.cardiac;
 
+import ij.IJ;
 import ij.ImagePlus;
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -127,6 +128,12 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	}
 
 	@Override
+	public void clickNext() {
+		super.clickNext();
+		IJ.run("Labels...", "color=white font=16 use");
+	}
+
+	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		System.out.println("finContSlice1 : " + this.finContSlice1);
 		System.out.println("finContSlice2 : " + this.finContSlice2);
@@ -145,6 +152,9 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 		}
 		super.actionPerformed(arg0);
+		if (arg0.getSource() == this.getVue().getBtn_reverse()) {
+			IJ.run("Labels...", "color=white font=16 use");
+		}
 	}
 
 	@Override

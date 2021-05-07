@@ -285,6 +285,7 @@ public abstract class ControllerScin implements ActionListener {
 		else Library_Gui.setOverlayGD(this.vue.getImagePlus(), Color.YELLOW);
 
 		Library_Gui.setOverlayTitle(state.title(), this.vue.getImagePlus(), Color.YELLOW, state.getSlice());
+		this.updateROIColor();
 	}
 
 	/**
@@ -421,18 +422,19 @@ public abstract class ControllerScin implements ActionListener {
 	}
 
 	private void updateROIColor() {
-		String opts_lbl = "show use";
+		String opts_lbl;
 		String opts_roi;
 
 		if (this.inverted) {
-			opts_lbl += " draw";
-			opts_roi = "black width=1";
+			opts_lbl = "blue";
+			opts_roi = "blue width=1";
 		} else {
+			opts_lbl = "white";
 			opts_roi = "yellow width=0";
 		}
 
 		IJ.run("Overlay Options...", "stroke="+ opts_roi +" set apply show");
-		IJ.run("Labels...", "color=white font=16 "+ opts_lbl);
+		IJ.run("Labels...", "color="+ opts_lbl +" font=18 show use");
 	}
 
 }
