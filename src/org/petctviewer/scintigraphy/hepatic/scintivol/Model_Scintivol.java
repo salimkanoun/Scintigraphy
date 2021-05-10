@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.hepatic.scintivol;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
+import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
@@ -16,14 +17,12 @@ public class Model_Scintivol extends ModelScinDyn {
 
 
     private final HashMap<String, Roi> organRois;
-    private HashMap<Comparable, Double> adjustedValues;
-    private ArrayList<String> glands;
+
 
     private ImageSelection impAnt;
     private int[] frameDurations;
     private final HashMap<String, Integer> pixelCounts;
-    private HashMap<String, Double> uptakeRatio;
-    private HashMap<String, Double> excretionFraction;
+    private JValueSetter timeChart;
 
     public Model_Scintivol(int[] frameDuration, ImageSelection[] selectedImages, String studyName, ImageSelection impAnt) {
 
@@ -67,6 +66,13 @@ public class Model_Scintivol extends ModelScinDyn {
         return 0;
     }
 
+    public JValueSetter getTimeChart() {
+        return timeChart;
+    }
+
+    public void setTimeChart(JValueSetter timeChart){
+        this.timeChart = timeChart;
+    }
     @Override
     public void calculateResults() {
 

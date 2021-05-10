@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.salivaryGlands;
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.util.DicomTools;
-import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;

@@ -1,8 +1,7 @@
 package org.petctviewer.scintigraphy.salivaryGlands;
 
 import ij.ImagePlus;
-import org.jfree.chart.ChartPanel;
-import org.jfree.data.xy.XYSeries;
+
 import org.petctviewer.scintigraphy.salivaryGlands.gui.FenResultats_SalivaryGlands;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -14,7 +13,6 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import java.awt.image.BufferedImage;

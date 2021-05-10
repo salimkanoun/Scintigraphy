@@ -1,10 +1,13 @@
 package org.petctviewer.scintigraphy.hepatic.scintivol;
 
 import ij.ImagePlus;
+import org.jfree.chart.ChartPanel;
+import org.jfree.data.xy.XYSeries;
+import org.petctviewer.scintigraphy.hepatic.scintivol.gui.FenResultats_Scintivol;
+
+import org.petctviewer.scintigraphy.hepatic.scintivol.gui.Fen_Time;
 import org.petctviewer.scintigraphy.salivaryGlands.ModelSalivaryGlands;
-import org.petctviewer.scintigraphy.salivaryGlands.gui.FenResultats_SalivaryGlands;
 import org.petctviewer.scintigraphy.scin.Orientation;
-import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
@@ -14,6 +17,7 @@ import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
@@ -59,22 +63,28 @@ public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
             }
         }
 
+        // on recupere les chartPanels avec l'association
+        List<XYSeries> series = modele.getSeries();
+        String[][] asso = new String[][]{{"Liver", "Heart"}};
+        ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
+
+        Fen_Time fan = new Fen_Time(cp[0], this.getVue(), modele);
+        fan.setModal(true);
+        fan.setVisible(true);
+        fan.toFront();
+        ((Model_Scintivol) model).setTimeChart(fan.getValueSetter());
+
+
         // on calcule les resultats
         modele.calculateResults();
-
-        // on passe les valeurs ajustees au modele
-      //  modele.setAdjustedValues(fan.getValueSetter().getValues());
-
-        // on affiche la fenetre de resultats principale
-     //   ((ModelSalivaryGlands) model).setCitrusChart(fan.getValueSetter());
-        //FenResults fenResults = new FenResultats_SalivaryGlands(capture, this);
-      //  fenResults.toFront();
-        //fenResults.setVisible(true);
-
 
         // SK On rebloque le modele pour la prochaine generation
         modele.setLocked(true);
 
+        //affichage de la fenetre de résultats principale
+        ((Model_Scintivol) model).setTimeChart(fan.getValueSetter());
+        FenResults fenResults = new FenResultats_Scintivol(capture, this);
+        fenResults.setVisible(true);
     }
 
 
