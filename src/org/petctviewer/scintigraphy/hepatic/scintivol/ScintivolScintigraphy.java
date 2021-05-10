@@ -31,10 +31,11 @@ public class ScintivolScintigraphy extends Scintigraphy {
     private void createDocumentation() {
         DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
 
-        // doc.addReference(DocumentationDialog.Field.createLinkField("", " ",
+        //TODO Complete missing reference
+        //doc.addReference(DocumentationDialog.Field.createLinkField("Scintivol protocol", " ",
         //        " "));
-        //doc.addReference(DocumentationDialog.Field.createLinkField("", " ",
-        //      " "));
+        doc.addReference(DocumentationDialog.Field.createLinkField("Ekman formula", "Ekman - Nucl Med Commun. 1996",
+              "https://pubmed.ncbi.nlm.nih.gov/8692492/"));
         doc.setYoutube("");
         doc.setOnlineDoc("");
         this.getFenApplication().setDocumentation(doc);
@@ -42,12 +43,11 @@ public class ScintivolScintigraphy extends Scintigraphy {
 
     @Override
     public void start(List<ImageSelection> preparedImages) {
-
         this.initOverlayOnPreparedImages(preparedImages);
         this.setFenApplication(new FenApplication_Scintivol(preparedImages.get(0), this.getStudyName(), this));
         this.getFenApplication().setController(
                 new ControllerWorkflow_Scintivol((FenApplicationWorkflow) this.getFenApplication(),
-                        new Model_Scintivol(this.frameDurations, preparedImages.toArray(new ImageSelection[0]), STUDY_NAME, this.impAnt)));
+                        new Model_Scintivol(preparedImages.toArray(new ImageSelection[0]), STUDY_NAME, this.frameDurations)));
         this.createDocumentation();
     }
 
@@ -93,9 +93,14 @@ public class ScintivolScintigraphy extends Scintigraphy {
             ImageSelection imps = selectedImages.get(0).clone();
             Library_Dicom.normalizeToCountPerSecond(imps);
             imps = Library_Dicom.geomMean(imps);
+            this.frameDurations = Library_Dicom.buildFrameDurations(imps.getImagePlus());
             selection.add(imps);
 
-            imps = Library_Dicom.splitAntPost(selectedImages.get(1))[0];
+            ImageSelection[] imsTab = Library_Dicom.splitDynamicAntPost(selectedImages.get(1));
+            imsTab[1].getImagePlus().getProcessor().flipHorizontal();
+            imsTab[0].getImagePlus().getStack().addSlice(imsTab[1].getImagePlus().getProcessor());
+            imps = imsTab[0].clone();
+            Library_Dicom.normalizeToCountPerSecond(imps);
             imps = Library_Dicom.project(imps, 1, imps.getImagePlus().getNSlices(), "max");
             selection.add(imps);
         }

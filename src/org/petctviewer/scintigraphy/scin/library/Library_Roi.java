@@ -12,7 +12,31 @@ public class Library_Roi {
 
 	public static final int HEART = 0, INFLAT = 1, KIDNEY = 2, INFLATGAUCHE = 3, INFLATDROIT = 4;
 
-	// cree la roi de bruit de fond
+	/**
+	 * Return the first ROI with the given name (roiName) stored in the RoiManager
+	 * @param rm
+	 * @param roiName
+	 * @return
+	 */
+	public static Roi getRoiByName(RoiManager rm, String roiName) {
+		Roi res = null;
+		for (Roi r: rm.getRoisAsArray()) {
+			if (r.getName().equals(roiName)) {
+				res = r;
+				break;
+			}
+		}
+
+		return res;
+	}
+
+	/** cree la roi de bruit de fond
+	 *
+	 * @param roi
+	 * @param imp
+	 * @param organ
+	 * @return
+	 */
 	public static Roi createBkgRoi(Roi roi, ImagePlus imp, int organ) {
 		Roi bkg = null;
 		RoiManager rm = new RoiManager(true);
@@ -111,11 +135,5 @@ public class Library_Roi {
 
 		return bkg;
 	}
-
-	
-
-	
-
-	
 
 }

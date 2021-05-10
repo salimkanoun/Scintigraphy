@@ -4,41 +4,30 @@ import ij.ImagePlus;
 import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
+import java.util.Map;
 
 
 public class Model_Scintivol extends ModelScinDyn {
+    private final Map<String, Roi> organRois;
+    private Map<String, Map<String, Double>> results;
+    private double tracerDelayTime;
+    private final Map<String, Integer> pixelCounts;
+    private double size;
+    private double weight;
 
-
-
-    private final HashMap<String, Roi> organRois;
-    private HashMap<Comparable, Double> adjustedValues;
-    private ArrayList<String> glands;
-
-    private ImageSelection impAnt;
-    private int[] frameDurations;
-    private final HashMap<String, Integer> pixelCounts;
-    private HashMap<String, Double> uptakeRatio;
-    private HashMap<String, Double> excretionFraction;
-
-    public Model_Scintivol(int[] frameDuration, ImageSelection[] selectedImages, String studyName, ImageSelection impAnt) {
-
+    public Model_Scintivol(ImageSelection[] selectedImages, String studyName, int[] frameDuration) {
         super(selectedImages, studyName, frameDuration);
         this.organRois = new HashMap<>();
-        this.impAnt = impAnt;
-
-        this.frameDurations = frameDuration;
 
         this.pixelCounts = new HashMap<>();
+        this.results = new HashMap<>();
     }
 
-    public ImageSelection getImpAnt() {
-        return impAnt;
-    }
     public void enregistrerMesure(String nomRoi, ImagePlus imp) {
         if (this.isUnlocked()) {
             this.organRois.put(nomRoi, imp.getRoi());
@@ -54,21 +43,173 @@ public class Model_Scintivol extends ModelScinDyn {
     }
 
 
-    public double getClairanceFT(double a, double b){
-        //a = diff hépatique
-        //b = getA() * getCnorm
-        return a/b;
-    }
-    public double getCnorm(double c1, double c2){
-        return c1/c2;
+    private double getClairanceFT() {
+        double L_t1 = this.results.get("Liver").get("t1");
+        double L_t2 = this.results.get("Liver").get("t2");
+
+        double H_t1 = this.results.get("Heart").get("t1");
+        double A_t1 = this.results.get("Other").get("BP Activity");
+        double AUC_t1_t2 = this.results.get("Heart").get("AUC");
+
+        this.results.get("Other").put("AUC/Cnorm", AUC_t1_t2/H_t1);
+
+        double res = 100 * 6 * (L_t2 - L_t1) / (A_t1 * AUC_t1_t2/H_t1);
+        this.results.get("Other").put("Clairance FT", res);
+        return res;
     }
 
-    public double getA(){
-        return 0;
+    private double getNormalizedClairanceFT() {
+        double clairanceFT = this.results.get("Other").get("Clairance FT");
+        double sc = this.results.get("Other").get("SC");
+
+        double res = clairanceFT / sc;
+        this.results.get("Other").put("Norm Clairance FT", res);
+        return res;
+    }
+
+    /**
+     *
+     * @param sliceT1
+     * @param sliceT2
+     * @return
+     */
+    private double getAUC(int sliceT1, int sliceT2) {
+        ImagePlus imp = this.getImageSelection()[0].getImagePlus();
+        imp.setRoi(Library_Roi.getRoiByName(this.getRoiManager(), "Heart"));
+
+        double res = 0;
+        for (int slice = sliceT1; slice <= sliceT2; slice++) {
+            imp.setSlice(slice);
+            res += Library_Quantif.getCounts(imp);
+        }
+
+        return res;
+    }
+
+    private double getBPActivity() {
+        double T_t1 = this.results.get("FOV").get("t1");
+        double T_t2 = this.results.get("FOV").get("t2");
+
+        double L_t1 = this.results.get("Liver").get("t1");
+
+        double Cnorm_t2 = this.results.get("Heart").get("t2") / this.results.get("Heart").get("t1");
+        this.results.get("Other").put("Cnorm_t2", Cnorm_t2);
+
+        double res = (T_t2 - L_t1 - (T_t1 - L_t1) * Cnorm_t2) / (1 - Cnorm_t2);
+        this.results.get("Other").put("BP Activity", res);
+        return res;
+    }
+
+    private double getSC() {
+        double res = Math.sqrt((this.size * this.weight) / 3600);
+        this.results.get("Other").put("SC", res);
+
+        return res;
+    }
+
+    /**
+     * Futur foie restant
+     * @return
+     */
+    private double getFFR() {
+        double ft = this.results.get("Tomo").get("FT");     //Total liver
+        double ffr = this.results.get("Tomo").get("FFR");   // Future remaining liver
+
+        double res = ffr/ft;
+        this.results.get("Other").put("FFR/FT", res);
+        return res;
+    }
+
+    private double getClairanceFFR() {
+        double clairanceFT = this.results.get("Other").get("Clairance FT");
+        double ffr_ft = this.results.get("Other").get("FFR/FT");
+
+        double res = clairanceFT * ffr_ft;
+        this.results.get("Other").put("Clairance FFR", res);
+        return res;
+    }
+
+    private double getNormalizedClairanceFFR() {
+        double clairanceFTNorm = this.results.get("Other").get("Norm Clairance FT");
+        double ffr_ft = this.results.get("Other").get("FFR/FT");
+
+        double res = clairanceFTNorm * ffr_ft;
+        this.results.get("Other").put("Norm Clairance FFR", res);
+        return res;
+    }
+
+    public void setCounts(int sliceT1, int sliceT2) {
+        ImagePlus imp = this.getImageSelection()[0].getImagePlus();
+        this.results = new HashMap<>();
+
+        for (String roiName: new String[]{"Liver", "Heart", "FOV"}) {
+            if (roiName.equals("FOV"))
+                imp.deleteRoi();
+            else
+                imp.setRoi(Library_Roi.getRoiByName(this.getRoiManager(), roiName));
+
+            Map<String, Double> res = new HashMap<>();
+            imp.setSlice(sliceT1);
+            res.put("t1", Library_Quantif.getCounts(imp));
+            imp.setSlice(sliceT2);
+            res.put("t2", Library_Quantif.getCounts(imp));
+            this.results.put(roiName, res);
+        }
+        this.results.get("Heart").put("AUC", this.getAUC(sliceT1, sliceT2));
     }
 
     @Override
     public void calculateResults() {
+        double tracerDelayTime = this.getTracerDelayTime();
+        int sliceT1 = getSliceIndexByTime((tracerDelayTime + 150) * 1000, this.getFrameDuration());
+        int sliceT2 = getSliceIndexByTime((tracerDelayTime + 350) * 1000, this.getFrameDuration());
 
+        this.setCounts(sliceT1, sliceT2);
+
+        this.results.put("Other", new HashMap<>());
+        this.getSC();
+        this.getBPActivity();
+        this.getClairanceFT();
+        this.getNormalizedClairanceFT();
+        if (this.results.containsKey("Tomo")) {
+            this.getFFR();
+            this.getClairanceFFR();
+            this.getNormalizedClairanceFFR();
+        }
+
+        for (String roi: this.results.keySet()) {
+            System.out.println(roi +":");
+            for (String t: this.results.get(roi).keySet()) {
+                System.out.println("\t"+ t +": "+ this.results.get(roi).get(t));
+            }
+        }
+    }
+
+    public double getSize() {
+        return size;
+    }
+
+    public void setSize(double size) {
+        this.size = size;
+    }
+
+    public double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(double weight) {
+        this.weight = weight;
+    }
+
+    public Map<String, Map<String, Double>> getResults() {
+        return results;
+    }
+
+    public double getTracerDelayTime() {
+        return tracerDelayTime;
+    }
+
+    public void setTracerDelayTime(double tracerDelayTime) {
+        this.tracerDelayTime = tracerDelayTime;
     }
 }
