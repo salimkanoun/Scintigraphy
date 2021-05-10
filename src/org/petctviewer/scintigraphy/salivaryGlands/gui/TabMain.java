@@ -1,9 +1,6 @@
 package org.petctviewer.scintigraphy.salivaryGlands.gui;
 
-import ij.ImagePlus;
 import ij.Prefs;
-import ij.plugin.ZProjector;
-import ij.process.ImageProcessor;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
@@ -22,7 +19,6 @@ import org.petctviewer.scintigraphy.scin.preferences.PrefTabSalivaryGlands;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,10 +45,6 @@ class TabMain extends TabResult {
         panRes.add(this.getPanelRatios());
         panRes.add(Box.createVerticalStrut(10));
         panRes.add(this.getPanelIndexes());
-        panRes.add(Box.createVerticalStrut(10));
-        panRes.add(this.getPanelSizeParotid());
-        panRes.add(Box.createVerticalStrut(10));
-        panRes.add(this.getPanelSizeSubmandibular());
 
         flow_wrap.add(panRes);
 
@@ -60,60 +52,6 @@ class TabMain extends TabResult {
 
     }
 
-    private Component getPanelSizeParotid(){
-        JLabel label_L = new JLabel("L. Parotid");
-        label_L.setHorizontalAlignment(SwingConstants.CENTER);
-        JLabel label_R = new JLabel("R. Parotid");
-        label_R.setHorizontalAlignment(SwingConstants.CENTER);
-
-        Map<String, Double> size = ((ModelSalivaryGlands) this.parent.getModel()).getSize();
-        JPanel panel_sizeParo = new JPanel(new GridLayout(2, 3, 0, 3));
-        panel_sizeParo.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-
-
-        panel_sizeParo.add(new JLabel(" Parotid Size"));
-        panel_sizeParo.add(label_L);
-        panel_sizeParo.add(label_R);
-
-        panel_sizeParo.add(new JLabel(""));
-        JLabel lbl_heightL = new JLabel(size.get("L. Parotid") + " cm");
-        lbl_heightL.setHorizontalAlignment(JLabel.CENTER);
-        panel_sizeParo.add(lbl_heightL);
-
-        JLabel lbl_heightR = new JLabel(size.get("R. Parotid") + " cm");
-        lbl_heightR.setHorizontalAlignment(JLabel.CENTER);
-        panel_sizeParo.add(lbl_heightR);
-
-        return panel_sizeParo;
-
-    }
-    private Component getPanelSizeSubmandibular(){
-        JLabel label_L = new JLabel("L. SubMandibular");
-        label_L.setHorizontalAlignment(SwingConstants.CENTER);
-        JLabel label_R = new JLabel("R. SubMandibular");
-        label_R.setHorizontalAlignment(SwingConstants.CENTER);
-
-        Map<String, Double> size = ((ModelSalivaryGlands) this.parent.getModel()).getSize();
-        JPanel panel_sizeSub = new JPanel(new GridLayout(2, 3, 0, 3));
-        panel_sizeSub.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-
-
-        panel_sizeSub.add(new JLabel(" SubMandibular Size"));
-        panel_sizeSub.add(label_L);
-        panel_sizeSub.add(label_R);
-
-        panel_sizeSub.add(new JLabel(""));
-        JLabel lbl_heightL = new JLabel(size.get("L. SubMandib") + " cm");
-        lbl_heightL.setHorizontalAlignment(JLabel.CENTER);
-        panel_sizeSub.add(lbl_heightL);
-
-        JLabel lbl_heightR = new JLabel(size.get("R. SubMandib") + " cm");
-        lbl_heightR.setHorizontalAlignment(JLabel.CENTER);
-        panel_sizeSub.add(lbl_heightR);
-
-        return panel_sizeSub;
-
-    }
 
     private Component getPanelRatios() {
         ModelSalivaryGlands model = (ModelSalivaryGlands) this.parent.getModel();
