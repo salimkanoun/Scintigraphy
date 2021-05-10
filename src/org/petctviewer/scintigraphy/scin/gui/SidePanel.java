@@ -55,6 +55,8 @@ public class SidePanel extends JPanel {
 		}
 	}
 
+
+
 	private void fillbox(String titre, ImagePlus imp) {
 		this.box.setBorder(new EmptyBorder(0, 10, 0, 10));
 

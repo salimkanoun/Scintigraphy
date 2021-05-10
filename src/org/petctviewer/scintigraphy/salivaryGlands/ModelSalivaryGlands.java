@@ -3,8 +3,8 @@ package org.petctviewer.scintigraphy.salivaryGlands;
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.util.DicomTools;
-import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
@@ -18,6 +18,8 @@ public class ModelSalivaryGlands extends ModelScinDyn {
     private final int[] frameDurations;
     private double lemonInjection;
     private Map<String, Map<String, Double>> results;
+    private DynamicImage[][] dynamicImps;
+
 
     /**
      * recupere les valeurs et calcule les resultats de l'examen renal
@@ -287,4 +289,9 @@ public class ModelSalivaryGlands extends ModelScinDyn {
         }
 
     }
+
+    public DynamicImage getDynamicImage(int i, int j) {
+        return dynamicImps[i][j];
+    }
+
 }

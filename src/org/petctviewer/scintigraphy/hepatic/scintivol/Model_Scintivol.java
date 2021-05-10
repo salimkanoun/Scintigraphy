@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.hepatic.scintivol;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
+import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
@@ -15,6 +16,7 @@ import java.util.Map;
 public class Model_Scintivol extends ModelScinDyn {
     private final Map<String, Roi> organRois;
     private Map<String, Map<String, Double>> results;
+    private JValueSetter timeChart;
     private double tracerDelayTime;
     private final Map<String, Integer> pixelCounts;
     private double size;
@@ -183,6 +185,14 @@ public class Model_Scintivol extends ModelScinDyn {
                 System.out.println("\t"+ t +": "+ this.results.get(roi).get(t));
             }
         }
+    }
+
+    public JValueSetter getTimeChart() {
+        return timeChart;
+    }
+
+    public void setTimeChart(JValueSetter timeChart){
+        this.timeChart = timeChart;
     }
 
     public double getSize() {
