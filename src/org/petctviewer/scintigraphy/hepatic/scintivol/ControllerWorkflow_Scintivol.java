@@ -4,6 +4,9 @@ import ij.ImagePlus;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 
+import org.petctviewer.scintigraphy.hepatic.scintivol.gui.FenResultats_Scintivol;
+import org.petctviewer.scintigraphy.hepatic.scintivol.gui.Fen_Time;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
