@@ -23,16 +23,12 @@ public class FenResultats_SalivaryGlands extends FenResults {
         ImagePlus montage = Library_Capture_CSV.creerMontage(model.getFrameDurations(), model.getImpAnt().getImagePlus(), 200, 4, 4);
         montage.getProcessor().setInterpolationMethod(ImageProcessor.BICUBIC);
 
-
         this.addTab(new TabContrastModifier(this, "Timed Image", montage));
-
-
 
         this.setTitle("Results Salivary Glands Exam");
         int height = 800;
         int width = 1000;
         this.setPreferredSize(new Dimension(width, height));
         this.setLocationRelativeTo(controller.getVue());
-
     }
 }

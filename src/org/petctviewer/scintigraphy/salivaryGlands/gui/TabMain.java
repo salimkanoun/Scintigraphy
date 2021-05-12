@@ -48,7 +48,7 @@ class TabMain extends TabResult {
         panRes.add(this.getPanelRatios());
         panRes.add(Box.createVerticalStrut(10));
         panRes.add(this.getPanelIndexes());
-        panRes.add(Box.createVerticalStrut(10));
+        panRes.add(Box.createVerticalStrut(30));
         panRes.add(this.getCheckboxsChart());
 
         flow_wrap.add(panRes);
@@ -113,8 +113,9 @@ class TabMain extends TabResult {
 
     public JPanel getCheckboxsChart() {
         ModelSalivaryGlands model = (ModelSalivaryGlands) this.parent.getModel();
-        JPanel res = new JPanel(new GridLayout(2, 1));
+        JPanel res = new JPanel();
 
+        JPanel container = new JPanel(new GridLayout(2, 1));
         String[] titleRows = model.getGlands().toArray(new String[0]);
         this.tableCheckbox = new JCheckBoxRows(titleRows, e -> {
             JCheckBox selected = (JCheckBox) e.getSource();
@@ -122,8 +123,10 @@ class TabMain extends TabResult {
         });
         this.tableCheckbox.setAllChecked(true);
 
-        //res.add(new JLabel("Show curves"));
-        res.add(this.tableCheckbox);
+        container.add(new JLabel("Show curves"));
+        container.add(this.tableCheckbox);
+
+        res.add(container);
 
         return res;
     }

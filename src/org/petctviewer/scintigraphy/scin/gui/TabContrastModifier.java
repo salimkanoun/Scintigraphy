@@ -80,26 +80,32 @@ public class TabContrastModifier extends TabResult {
 	 */
 	public void setImage(ImagePlus image) {
 
+		JPanel sliderPanel = new JPanel();
+		JPanel reversePanel = new JPanel();
 		JLabel sliderLabel = new JLabel("Contrast", SwingConstants.CENTER);
 		sliderLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		this.dynamicImp = new DynamicImage(image.getBufferedImage());
 
 		slider = new ContrastSlider(image, this.dynamicImp, this.parent);
-		JButton reverse_btn = new JButton("Reverse");
+		JButton reverse_btn = new JButton("Invert LUT");
 		reverse_btn.addActionListener( e-> {
-			image.getProcessor().invertLut();
-			IJ.run("Invert LUT", "stack");
+			SwingUtilities.invokeLater(() -> {
+				image.getProcessor().invertLut();
+				image.updateAndDraw();
+				dynamicImp.setImage(image.getBufferedImage());
+			});
 		});
-		//reverse_btn.pack();
 
 
 
 		this.setComponentToHide(new ArrayList<>(Arrays.asList(new Component[] {slider, sliderLabel})));
 
 		boxSlider = Box.createVerticalBox();
-		boxSlider.add(sliderLabel);
-		boxSlider.add(slider);
-		//boxSlider.add(reverse_btn);
+		sliderPanel.add(sliderLabel);
+		sliderPanel.add(slider);
+		reversePanel.add(reverse_btn);
+		boxSlider.add(sliderPanel);
+		boxSlider.add(reversePanel);
 
 
 
