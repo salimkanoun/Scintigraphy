@@ -4,6 +4,7 @@ import ij.ImagePlus;
 import ij.gui.Roi;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
@@ -16,11 +17,13 @@ import java.util.Map;
 public class Model_Scintivol extends ModelScinDyn {
     private final Map<String, Roi> organRois;
     private Map<String, Map<String, Double>> results;
-    private JValueSetter timeChart;
+    private double timeChart;
     private double tracerDelayTime;
     private final Map<String, Integer> pixelCounts;
     private double size;
     private double weight;
+    private final ArrayList<String> organes;
+
 
     public Model_Scintivol(ImageSelection[] selectedImages, String studyName, int[] frameDuration) {
         super(selectedImages, studyName, frameDuration);
@@ -28,6 +31,16 @@ public class Model_Scintivol extends ModelScinDyn {
 
         this.pixelCounts = new HashMap<>();
         this.results = new HashMap<>();
+
+        this.organes = new ArrayList<>();
+        this.organes.add("Heart");
+        this.organes.add("Liver");
+        this.organes.add("FOV");
+        this.organes.add("Other");
+    }
+
+    public ArrayList<String> getOrganes() {
+        return organes;
     }
 
     public void enregistrerMesure(String nomRoi, ImagePlus imp) {
@@ -49,6 +62,7 @@ public class Model_Scintivol extends ModelScinDyn {
         double L_t1 = this.results.get("Liver").get("t1");
         double L_t2 = this.results.get("Liver").get("t2");
 
+
         double H_t1 = this.results.get("Heart").get("t1");
         double A_t1 = this.results.get("Other").get("BP Activity");
         double AUC_t1_t2 = this.results.get("Heart").get("AUC");
@@ -57,6 +71,7 @@ public class Model_Scintivol extends ModelScinDyn {
 
         double res = 100 * 6 * (L_t2 - L_t1) / (A_t1 * AUC_t1_t2/H_t1);
         this.results.get("Other").put("Clairance FT", res);
+
         return res;
     }
 
@@ -162,9 +177,10 @@ public class Model_Scintivol extends ModelScinDyn {
 
     @Override
     public void calculateResults() {
+        int[] frameDurations = Library_Dicom.buildFrameDurations(this.getImagePlus());
         double tracerDelayTime = this.getTracerDelayTime();
-        int sliceT1 = getSliceIndexByTime((tracerDelayTime + 150) * 1000, this.getFrameDuration());
-        int sliceT2 = getSliceIndexByTime((tracerDelayTime + 350) * 1000, this.getFrameDuration());
+        int sliceT1 = getSliceIndexByTime((tracerDelayTime + 150) * 1000, frameDurations);
+        int sliceT2 = getSliceIndexByTime((tracerDelayTime + 350) * 1000, frameDurations);
 
         this.setCounts(sliceT1, sliceT2);
 
@@ -187,11 +203,11 @@ public class Model_Scintivol extends ModelScinDyn {
         }
     }
 
-    public JValueSetter getTimeChart() {
+    public double getTimeChart() {
         return timeChart;
     }
 
-    public void setTimeChart(JValueSetter timeChart){
+    public void setTimeChart(double timeChart){
         this.timeChart = timeChart;
     }
 

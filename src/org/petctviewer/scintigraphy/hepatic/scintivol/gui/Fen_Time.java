@@ -13,66 +13,33 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class Fen_Time extends JDialog implements ActionListener {
-
-    private static final long serialVersionUID = 1L;
+public class Fen_Time extends JDialog  {
+    private JSpinner time;
     private final JButton btn_ok;
-    private final JValueSetter jvaluesetter;
-    private final Model_Scintivol model;
-    private JValueSetter debut;
-    private JValueSetter fin;
 
-    public Fen_Time(ChartPanel cp, Component parentComponent, Model_Scintivol model){
-        super();
-        this.model = model;
+    public Fen_Time(){
+    this.setTitle("Time");
+        JPanel container = new JPanel(new GridLayout(3, 1, 0, 10));
+        container.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+        container.add(new JLabel("Adjust the time"));
+
 
         //creation du panel du bas
+        JPanel input = new JPanel(new GridLayout(1, 2, 15, 0));
+        SpinnerModel model = new SpinnerNumberModel(10, 1, 30, 0.1);
+        this.time = new JSpinner(model);
+        input.add(this.time);
+        input.add(new JLabel("min"));
+        container.add(input);
+
         this.btn_ok = new JButton("Ok");
-        this.btn_ok.addActionListener(this);
+        this.btn_ok.addActionListener(e -> this.dispose());
+        container.add(this.btn_ok);
 
-        this.setLayout(new BorderLayout());
-        this.setLayout(new BorderLayout());
-        this.setTitle("Adjust the time");
+        this.add(container);
 
-        //cr&ation des Jvalues setters
-        this.jvaluesetter = prepareValueSetters(cp);
-        this.add(jvaluesetter, BorderLayout.CENTER);
         this.pack();
-        this.setLocationRelativeTo(parentComponent);
-
-    }
-
-    private JValueSetter prepareValueSetters(ChartPanel cp) {
-        XYPlot plot = cp.getChart().getXYPlot();
-        cp.getChart().getPlot().setBackgroundPaint(null);
-        JValueSetter jvs = new JValueSetter(cp.getChart());
-
-        Selector start = new Selector("", 1, -1, RectangleAnchor.TOP_LEFT);
-        Selector end = new Selector("",3,-1,RectangleAnchor.BOTTOM_RIGHT);
-
-        jvs.addSelector(start, "start");
-        jvs.addSelector(start, "end");
-
-        XYSeriesCollection dataset = ((XYSeriesCollection) cp.getChart().getXYPlot().getDataset());
-        dataset.getSeries("Final liver").setKey("Liver");
-        dataset.getSeries("Final heart").setKey("Heart");
-
-        return jvs;
-    }
-
-    private void clickOk(){
-        this.dispose();
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent arg0){
-            JButton b = (JButton) arg0.getSource();
-            if (b == this.btn_ok){
-                this.clickOk();
-            }
-    }
-    public JValueSetter getValueSetter() {
-        return this.jvaluesetter;
+        this.setVisible(true);
     }
 
 

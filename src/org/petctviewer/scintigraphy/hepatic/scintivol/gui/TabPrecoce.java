@@ -1,14 +1,20 @@
 package org.petctviewer.scintigraphy.hepatic.scintivol.gui;
 
+import ij.Prefs;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.hepatic.scintivol.Model_Scintivol;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
+import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabSalivaryGlands;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,10 +27,109 @@ class TabPrecoce extends TabResult {
     public TabPrecoce(BufferedImage capture, FenResults parent){
         super(parent, "Précoce", true);
         this.capture = capture;
+
+        this.reloadDisplay();
+
     }
 
     @Override
     public Component getSidePanelContent() {
+        JPanel flow_wrap = new JPanel();
+        Box panRes = Box.createVerticalBox();
+
+
+        panRes.add(Box.createVerticalStrut(10));
+        panRes.add(this.getPanelHeart());
+
+        panRes.add(Box.createVerticalStrut(10));
+        panRes.add(this.getPanelLiver());
+
+
+        flow_wrap.add(panRes);
+
+        return flow_wrap;
+    }
+
+
+    private Component getPanelHeart(){
+        Model_Scintivol model = (Model_Scintivol) this.parent.getModel();
+
+
+        // panel de timing
+        double heart_t1 = model.getResults().get("Heart").get("t1");
+        double heart_t2 = model.getResults().get("Heart").get("t2");
+        double heart_AUC = model.getResults().get("Heart").get("AUC");
+
+
+        JPanel pnl_heart = new JPanel(new GridLayout(4, 2, 0, 3));
+        pnl_heart.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        pnl_heart.add(new JLabel(" Heart "));
+        pnl_heart.add(new JLabel("  "));
+
+
+        JLabel t1 = new JLabel(" T1");
+        pnl_heart.add(t1);
+
+        JLabel val_t1 = new JLabel(String.valueOf(heart_t1));
+        val_t1.setHorizontalAlignment(SwingConstants.CENTER);
+        pnl_heart.add(val_t1);
+
+        JLabel t2 = new JLabel(" T2");
+        pnl_heart.add(t2);
+
+        JLabel val_t2 = new JLabel(String.valueOf(heart_t2));
+        val_t2.setHorizontalAlignment(SwingConstants.CENTER);
+        pnl_heart.add(val_t2);
+
+        JLabel auc = new JLabel(" AUC");
+        pnl_heart.add(auc);
+
+        JLabel val_auc = new JLabel(String.valueOf(heart_AUC));
+        val_auc.setHorizontalAlignment(SwingConstants.CENTER);
+        pnl_heart.add(val_auc);
+
+        return pnl_heart;
+    }
+
+
+    private Component getPanelLiver(){
+        Model_Scintivol model = (Model_Scintivol) this.parent.getModel();
+
+
+        // panel de timing
+        double liver_t1 = model.getResults().get("Liver").get("t1");
+        double liver_t2 = model.getResults().get("Liver").get("t2");
+
+
+        JPanel pnl_liver = new JPanel(new GridLayout(3, 3, 0, 3));
+        pnl_liver.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        pnl_liver.add(new JLabel(" Liver "));
+        pnl_liver.add(new JLabel("  "));
+
+
+        JLabel t1 = new JLabel(" T1");
+        pnl_liver.add(t1);
+
+        JLabel val_t1 = new JLabel(String.valueOf(liver_t1));
+        val_t1.setHorizontalAlignment(SwingConstants.CENTER);
+        pnl_liver.add(val_t1);
+
+        JLabel t2 = new JLabel(" T2");
+        pnl_liver.add(t2);
+
+        JLabel val_t2 = new JLabel(String.valueOf(liver_t2));
+        val_t2.setHorizontalAlignment(SwingConstants.CENTER);
+        pnl_liver.add(val_t2);
+
+
+
+        return pnl_liver;
+    }
+
+
+    @Override
+    public Container getResultContent() {
+
         JPanel grid = new JPanel(new GridLayout(2,1));
 
         //ajout image capture et montage
@@ -33,33 +138,37 @@ class TabPrecoce extends TabResult {
         grid.add(panel_top);
 
         //ajout du graphique image precoce
-        List<XYSeries> series = ((ModelScinDyn) this.getParent().getModel()).getSeries();
         String [][] asso = new String [][]{{"Liver", "Heart"}};
-        ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
-        JValueSetter precoceChart = prepareValueSetter(cp[0]);
-        grid.add(precoceChart);
-        precoceChart.removeChartMouseListener(precoceChart);
+        List<XYSeries> series = ((ModelScinDyn) this.getParent().getModel()).getSeries();
 
+        ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
+        JValueSetter timeChart = prepareValueSetter(cp[0]);
+      //  cp[0].getChart().setTitle("Heart and Liver");
+        grid.add(timeChart);
+        timeChart.removeChartMouseListener(timeChart);
         return grid;
 
 
+
     }
 
-    private JValueSetter prepareValueSetter(ChartPanel chartPanel) {
-        chartPanel.getChart().getPlot().setBackgroundPaint(null);
-        JValueSetter jvs = new JValueSetter(chartPanel.getChart());
+    private static JValueSetter prepareValueSetter(ChartPanel chart) {
+        chart.getChart().getPlot().setBackgroundPaint(null);
+        JValueSetter jvs = new JValueSetter(chart.getChart());
+
+        double startTime = Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 2.5);
+        double endTime = Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 5.83);
+        Selector start = new Selector("start produit", startTime, -1, RectangleAnchor.BOTTOM_LEFT);
+        Selector end = new Selector("end produit", endTime, -1, RectangleAnchor.BOTTOM_LEFT);
+        jvs.addSelector(start, "start");
+        jvs.addSelector(end, "end");
 
         // renomme les series du chart pour que l'interface soit plus comprehensible
-        XYSeriesCollection dataset = (XYSeriesCollection) chartPanel.getChart().getXYPlot().getDataset();
-        dataset.getSeries("Liver").setKey("Liver");
+        XYSeriesCollection dataset = (XYSeriesCollection) chart.getChart().getXYPlot().getDataset();
         dataset.getSeries("Heart").setKey("Heart");
+        dataset.getSeries("Liver").setKey("Liver");
+
 
         return jvs;
-
-    }
-
-    @Override
-    public Container getResultContent() {
-        return null;
     }
 }
