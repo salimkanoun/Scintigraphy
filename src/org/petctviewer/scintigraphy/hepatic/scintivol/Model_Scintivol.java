@@ -23,6 +23,7 @@ public class Model_Scintivol extends ModelScinDyn {
     private double size;
     private double weight;
     private final ArrayList<String> organes;
+    private int[] frameDurations;
 
 
     public Model_Scintivol(ImageSelection[] selectedImages, String studyName, int[] frameDuration) {
@@ -178,6 +179,8 @@ public class Model_Scintivol extends ModelScinDyn {
     @Override
     public void calculateResults() {
         int[] frameDurations = Library_Dicom.buildFrameDurations(this.getImagePlus());
+
+        this.setFrameduration(frameDurations);
         double tracerDelayTime = this.getTracerDelayTime();
         int sliceT1 = getSliceIndexByTime((tracerDelayTime + 150) * 1000, frameDurations);
         int sliceT2 = getSliceIndexByTime((tracerDelayTime + 350) * 1000, frameDurations);
