@@ -54,8 +54,8 @@ public class Fen_Time extends JDialog implements ActionListener {
         jvs.addSelector(start, "end");
 
         XYSeriesCollection dataset = ((XYSeriesCollection) cp.getChart().getXYPlot().getDataset());
-        dataset.getSeries("Final liver").setKey("Liver");
-        dataset.getSeries("Final heart").setKey("Heart");
+        //dataset.getSeries("Final liver").setKey("Liver");
+        //dataset.getSeries("Final heart").setKey("Heart");
 
         return jvs;
     }

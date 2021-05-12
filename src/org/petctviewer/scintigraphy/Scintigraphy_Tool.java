@@ -126,7 +126,7 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			gallbladderEF.addActionListener(this);
 			hepatic.add(biliaryScintigraphyDynamic);
 			hepatic.add(radioEmbolization);
-			//hepatic.add(scintivol);
+			hepatic.add(scintivol);
 			hepatic.add(gallbladderEF);
 			general.add(hepatic);
 			

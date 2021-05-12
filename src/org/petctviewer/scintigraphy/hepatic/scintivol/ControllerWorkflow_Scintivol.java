@@ -69,11 +69,11 @@ public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
         String[][] asso = new String[][]{{"Liver", "Heart"}};
         ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
 
-        Fen_Time fan = new Fen_Time(cp[0], this.getVue(), modele);
-        fan.setModal(true);
-        fan.setVisible(true);
-        fan.toFront();
-        ((Model_Scintivol) model).setTimeChart(fan.getValueSetter());
+        //Fen_Time fan = new Fen_Time(cp[0], this.getVue(), modele);
+        //fan.setModal(true);
+        //fan.setVisible(true);
+        //fan.toFront();
+        //((Model_Scintivol) model).setTimeChart(fan.getValueSetter());
 
 
         // on calcule les resultats
@@ -83,7 +83,7 @@ public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
         modele.setLocked(true);
 
         //affichage de la fenetre de résultats principale
-        ((Model_Scintivol) model).setTimeChart(fan.getValueSetter());
+        //((Model_Scintivol) model).setTimeChart(fan.getValueSetter());
         FenResults fenResults = new FenResultats_Scintivol(capture, this);
         fenResults.setVisible(true);
     }
