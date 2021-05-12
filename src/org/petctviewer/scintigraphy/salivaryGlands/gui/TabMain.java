@@ -2,15 +2,16 @@ package org.petctviewer.scintigraphy.salivaryGlands.gui;
 
 import ij.Prefs;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.petctviewer.scintigraphy.calibration.resultats.JTableCheckBox;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.salivaryGlands.ModelSalivaryGlands;
-import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
-import org.petctviewer.scintigraphy.scin.gui.FenResults;
-import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.gui.*;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
@@ -25,6 +26,8 @@ import java.util.Map;
 class TabMain extends TabResult {
 
     private final BufferedImage capture;
+    private JFreeChart chartMain;
+    private JCheckBoxRows tableCheckbox;
 
     public TabMain(BufferedImage capture, FenResults parent){
         super(parent, "Main", true);
@@ -45,6 +48,8 @@ class TabMain extends TabResult {
         panRes.add(this.getPanelRatios());
         panRes.add(Box.createVerticalStrut(10));
         panRes.add(this.getPanelIndexes());
+        panRes.add(Box.createVerticalStrut(10));
+        panRes.add(this.getCheckboxsChart());
 
         flow_wrap.add(panRes);
 
@@ -106,6 +111,23 @@ class TabMain extends TabResult {
         return panelRes;
     }
 
+    public JPanel getCheckboxsChart() {
+        ModelSalivaryGlands model = (ModelSalivaryGlands) this.parent.getModel();
+        JPanel res = new JPanel(new GridLayout(2, 1));
+
+        String[] titleRows = model.getGlands().toArray(new String[0]);
+        this.tableCheckbox = new JCheckBoxRows(titleRows, e -> {
+            JCheckBox selected = (JCheckBox) e.getSource();
+            TabMain.this.setVisibilitySeriesMain(Integer.parseInt(selected.getName()), 0, selected.isSelected());
+        });
+        this.tableCheckbox.setAllChecked(true);
+
+        //res.add(new JLabel("Show curves"));
+        res.add(this.tableCheckbox);
+
+        return res;
+    }
+
 
     @Override
     public JPanel getResultContent() {
@@ -120,6 +142,7 @@ class TabMain extends TabResult {
         List<XYSeries> series = ((ModelScinDyn) this.getParent().getModel()).getSeries();
         String[][] asso = new String[][]{{"L. Parotid", "R. Parotid", "L. SubMandib", "R. SubMandib"}};
         ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
+        this.chartMain = cp[0].getChart();
         JValueSetter citrusChart = prepareValueSetter(cp[0]);
         grid.add(citrusChart);
         citrusChart.removeChartMouseListener(citrusChart);
@@ -127,7 +150,7 @@ class TabMain extends TabResult {
         return grid;
     }
 
-    private static JValueSetter prepareValueSetter(ChartPanel chart) {
+    private JValueSetter prepareValueSetter(ChartPanel chart) {
         chart.getChart().getPlot().setBackgroundPaint(null);
         JValueSetter jvs = new JValueSetter(chart.getChart());
 
@@ -144,6 +167,12 @@ class TabMain extends TabResult {
         dataset.getSeries("R. SubMandib").setKey("Right SubMandible");
 
         return jvs;
+    }
+
+    public void setVisibilitySeriesMain(int x, int y, boolean visibility) {
+        XYItemRenderer renderer = this.chartMain.getXYPlot().getRenderer();
+        // x+4 4: car on a 4 colonnes
+        renderer.setSeriesVisible(x + y, visibility);
     }
 }
 
