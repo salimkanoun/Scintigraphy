@@ -119,10 +119,9 @@ public class CardiacScintigraphy extends Scintigraphy {
 					|| fullBodyImages.get(i).getImageOrientation() == Orientation.POST_ANT) {
 				ImageSelection imp = fullBodyImages.get(i);
 				String info = imp.getImagePlus().getInfoProperty();
-				ImageSelection impReversed = Library_Dicom.ensureAntPostFlipped(imp);
 				MontageMaker mm = new MontageMaker();
-				ImageSelection montageImage = impReversed.clone();
-				montageImage.setImagePlus(mm.makeMontage2(impReversed.getImagePlus(), 2, 1, 1.0, 1, 2, 1, 0, false));
+				ImageSelection montageImage = Library_Dicom.ensureAntPost(imp);
+				montageImage.setImagePlus(mm.makeMontage2(montageImage.getImagePlus(), 2, 1, 1.0, 1, 2, 1, 0, false));
 				montageImage.getImagePlus().setProperty("Info", info);
 				frameDuration[i] = Integer.parseInt(DicomTools.getTag(imp.getImagePlus(), "0018,1242").trim());
 				mountedImages.add(montageImage);

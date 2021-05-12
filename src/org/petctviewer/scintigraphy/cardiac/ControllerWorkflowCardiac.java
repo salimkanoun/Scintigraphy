@@ -233,36 +233,36 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			this.workflows[index] = new Workflow(this, this.model.getImageSelection()[this.fullBodyImages - 1]);
 			// Organs to delimit
 			DrawRoiInstruction dri_3 = new DrawSymmetricalRoiInstruction("Bladder", state, null, null,
-					this.workflows[index], Organ.DEMIE);
+					this.workflows[index], Organ.DEMIE, false);
 			DrawRoiInstruction driBackground_1 = new DrawRoiBackgroundSymmetrical("Bladder Background", state, dri_3,
 					this.workflows[index], "");
 			DrawRoiInstruction dri_4 = new DrawSymmetricalRoiInstruction("Bladder", state, dri_3, null,
-					this.workflows[index], Organ.DEMIE);
+					this.workflows[index], Organ.DEMIE, false);
 			DrawRoiInstruction driBackground_2 = new DrawRoiBackgroundSymmetrical("Bladder Background", state, dri_4,
 					this.workflows[index], "");
 
 			DrawRoiInstruction dri_5 = new DrawSymmetricalRoiInstruction("Kidney R", state, null, null,
-					this.workflows[index], Organ.DEMIE);
+					this.workflows[index], Organ.DEMIE, false);
 			DrawRoiInstruction driBackground_3 = new DrawRoiBackgroundSymmetrical("Kidney R Background", state, dri_5,
 					this.workflows[index], "");
 			DrawRoiInstruction dri_6 = new DrawSymmetricalRoiInstruction("Kidney R", state, dri_5, null,
-					this.workflows[index], Organ.DEMIE);
+					this.workflows[index], Organ.DEMIE, false);
 			DrawRoiInstruction driBackground_4 = new DrawRoiBackgroundSymmetrical("Kidney R Background", state, dri_6,
 					this.workflows[index], "");
 
 			DrawRoiInstruction dri_7 = new DrawSymmetricalRoiInstruction("Kidney L", state, null, null,
-					this.workflows[index], Organ.DEMIE);
+					this.workflows[index], Organ.DEMIE, false);
 			DrawRoiInstruction driBackground_5 = new DrawRoiBackgroundSymmetrical("Kidney L Background", state, dri_7,
 					this.workflows[index], "");
 			DrawRoiInstruction dri_8 = new DrawSymmetricalRoiInstruction("Kidney L", state, dri_7, null,
-					this.workflows[index], Organ.DEMIE);
+					this.workflows[index], Organ.DEMIE, false);
 			DrawRoiInstruction driBackground_6 = new DrawRoiBackgroundSymmetrical("Kidney L Background", state, dri_8,
 					this.workflows[index], "");
 
 			DrawRoiInstruction dri_9 = new DrawSymmetricalRoiInstruction("Heart", state, null, null,
 					this.workflows[index], Organ.DEMIE);
 			DrawRoiInstruction dri_10 = new DrawSymmetricalRoiInstruction("Heart", state, dri_9, null,
-					this.workflows[index], Organ.DEMIE);
+					this.workflows[index], Organ.DEMIE, false);
 
 			DrawRoiInstruction dri_11 = new DrawSymmetricalRoiInstruction("Bkg noise", state, dri_9, null,
 					this.workflows[index], Organ.QUART);
