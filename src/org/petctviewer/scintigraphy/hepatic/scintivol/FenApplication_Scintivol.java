@@ -57,9 +57,16 @@ public class FenApplication_Scintivol extends FenApplicationWorkflow {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == this.btn_start) {
             double size, weight;
-            double time = Double.parseDouble(JOptionPane.showInputDialog(this,
+            double timeStart = Double.parseDouble(JOptionPane.showInputDialog(this,
                     "Start in minutes", 2.5));
-            ((ControllerWorkflow_Scintivol) this.getController()).setTimeChart(time);
+
+            double timeEnd = Double.parseDouble(JOptionPane.showInputDialog(this,
+                    "End in minutes", 5.83));
+
+
+            ((Model_Scintivol) this.getController().getModel()).setTracerDelayTime(timeStart);
+            ((Model_Scintivol) this.getController().getModel()).setTracerDelayTime(timeEnd);
+
             if (!StringUtils.isEmpty(DicomTools.getTag(imp, "0010,1020")))
                 size = Double.parseDouble(DicomTools.getTag(imp, "0010,1020"));
             else
