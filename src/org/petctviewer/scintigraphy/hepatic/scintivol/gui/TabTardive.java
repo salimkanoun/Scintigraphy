@@ -24,7 +24,7 @@ public class TabTardive extends TabResult {
         private final BufferedImage capture;
 
         public TabTardive(BufferedImage capture, FenResults parent){
-            super(parent, "Tardive", true);
+            super(parent, "Late", true);
             this.capture = capture;
 
             this.reloadDisplay();

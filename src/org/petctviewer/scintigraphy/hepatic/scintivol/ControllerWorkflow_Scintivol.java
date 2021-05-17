@@ -70,7 +70,7 @@ public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
         // SK On rebloque le modele pour la prochaine generation
         modele.setLocked(true);
 
-        FenResults fenResults = new FenResultats_Scintivol(this.captures.get(0).getBufferedImage(),this);
+        FenResults fenResults = new FenResultats_Scintivol(this.captures,this);
         fenResults.setVisible(true);
     }
 
