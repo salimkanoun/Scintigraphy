@@ -12,7 +12,7 @@ import java.util.List;
 public abstract class ModelScinDyn extends ModelScin {
 
 	private HashMap<String, List<Double>> data;
-	private final int[] frameduration;
+	private int[] frameduration;
 	private boolean locked;
 	
 	/**
@@ -181,6 +181,10 @@ public abstract class ModelScinDyn extends ModelScin {
 	/************** Setter *************/	
 	public void setLocked(boolean locked) {
 		this.locked = locked;
+	}
+
+	public void setFrameduration(int[] frameduration) {
+		this.frameduration = frameduration;
 	}
 
 

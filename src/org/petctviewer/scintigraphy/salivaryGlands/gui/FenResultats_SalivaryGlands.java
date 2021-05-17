@@ -8,7 +8,6 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabContrastModifier;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
