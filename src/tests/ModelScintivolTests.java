@@ -26,7 +26,7 @@ public class ModelScintivolTests {
 	
 	@BeforeEach
 	public void setUp() throws Exception {
-		this.model = new Model_Scintivol(new ImageSelection[0], "ScintivolTest", new int[0]) {
+		this.model = new Model_Scintivol(new ImageSelection[0], "ScintivolTest", new int[0], null) {
 			@Override
 			public void setCounts(int sliceT1, int sliceT2) {
 				Map<String, Double> liver = new HashMap<>();

@@ -25,7 +25,7 @@ class TabPrecoce extends TabResult {
     private final BufferedImage capture;
 
     public TabPrecoce(BufferedImage capture, FenResults parent){
-        super(parent, "Précoce", true);
+        super(parent, "Main", true);
         this.capture = capture;
 
         this.reloadDisplay();

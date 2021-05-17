@@ -17,6 +17,7 @@ import java.util.Map;
 public class Model_Scintivol extends ModelScinDyn {
     private final Map<String, Roi> organRois;
     private Map<String, Map<String, Double>> results;
+    private ImageSelection imsRetention;
     private double timeChart;
     private double tracerDelayTime;
     private final Map<String, Integer> pixelCounts;
@@ -25,9 +26,10 @@ public class Model_Scintivol extends ModelScinDyn {
     private final ArrayList<String> organes;
 
 
-    public Model_Scintivol(ImageSelection[] selectedImages, String studyName, int[] frameDuration) {
+    public Model_Scintivol(ImageSelection[] selectedImages, String studyName, int[] frameDuration, ImageSelection imsRetention) {
         super(selectedImages, studyName, frameDuration);
         this.organRois = new HashMap<>();
+        this.imsRetention = imsRetention;
 
         this.pixelCounts = new HashMap<>();
         this.results = new HashMap<>();
@@ -155,9 +157,22 @@ public class Model_Scintivol extends ModelScinDyn {
         return res;
     }
 
+    private double getRetentionRate() {
+        double res;
+        ImagePlus imp = this.imsRetention.getImagePlus();
+
+        imp.setRoi(Library_Roi.getRoiByName(this.getRoiManager(), "Liver parenchyma"));
+        double max = Library_Quantif.getMaxCounts(imp);
+        double end = Library_Quantif.getCounts(imp);
+
+        res = end/max;
+        this.results.get("Other").put("Retention rate", res);
+
+        return res;
+    }
+
     public void setCounts(int sliceT1, int sliceT2) {
         ImagePlus imp = this.getImageSelection()[0].getImagePlus();
-        this.results = new HashMap<>();
 
         for (String roiName: new String[]{"Liver", "Heart", "FOV"}) {
             if (roiName.equals("FOV"))
@@ -189,6 +204,7 @@ public class Model_Scintivol extends ModelScinDyn {
         this.getBPActivity();
         this.getClairanceFT();
         this.getNormalizedClairanceFT();
+        this.getRetentionRate();
         if (this.results.containsKey("Tomo")) {
             this.getFFR();
             this.getClairanceFFR();
@@ -237,5 +253,9 @@ public class Model_Scintivol extends ModelScinDyn {
 
     public void setTracerDelayTime(double tracerDelayTime) {
         this.tracerDelayTime = tracerDelayTime;
+    }
+
+    public void setTomo(Map<String, Double> tomo) {
+        this.results.put("Tomo", tomo);
     }
 }

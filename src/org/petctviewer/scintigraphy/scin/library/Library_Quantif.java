@@ -115,6 +115,23 @@ public class Library_Quantif {
 		return res;
 	}
 
+	/**
+	 * Returns the maximum number of counts in the current ROI
+	 * @param imp
+	 * @return maximum number of counts over the defined slices
+	 */
+	public static Double getMaxCounts(ImagePlus imp) {
+		double res = 0;
+		for (int i = 1; i <= imp.getNSlices(); i++) {
+			imp.setSlice(i);
+			double counts = getCounts(imp);
+			if (counts > res)
+				res = counts;
+		}
+
+		return res;
+	}
+
 	public static int getPixelNumber(ImagePlus imp) {
 		return imp.getStatistics().pixelCount;
 	}

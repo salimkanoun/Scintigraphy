@@ -5,7 +5,6 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYSeries;
 
 import org.petctviewer.scintigraphy.hepatic.scintivol.gui.FenResultats_Scintivol;
-import org.petctviewer.scintigraphy.hepatic.scintivol.gui.Fen_Time;
 import org.petctviewer.scintigraphy.salivaryGlands.ModelSalivaryGlands;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -32,6 +31,7 @@ import java.util.List;
 public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
 
     public String[] organeListe;
+    private List<ImagePlus> captures;
     private double timeChart;
 
     public ControllerWorkflow_Scintivol(FenApplicationWorkflow vue, ModelScin model) {
@@ -53,9 +53,6 @@ public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
 
         modele.setLocked(false);
 
-        // capture de l'imageplus ainsi que de l'overlay
-        BufferedImage capture = Library_Capture_CSV.captureImage(this.model.getImagePlus(), 512, 0).getBufferedImage();
-
         for (int indexSlice = 1; indexSlice <= imp.getStackSize(); indexSlice++) {
             imp.setSlice(indexSlice);
             for (int indexRoi = 0; indexRoi < this.organeListe.length; indexRoi++) {
@@ -73,7 +70,7 @@ public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
         // SK On rebloque le modele pour la prochaine generation
         modele.setLocked(true);
 
-        FenResults fenResults = new FenResultats_Scintivol(capture,this);
+        FenResults fenResults = new FenResultats_Scintivol(this.captures.get(0).getBufferedImage(),this);
         fenResults.setVisible(true);
     }
 
@@ -86,7 +83,7 @@ public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
         this.workflows = new Workflow[this.model.getImageSelection().length];
         DrawRoiInstruction dri_1, dri_2;
         ScreenShotInstruction dri_capture_1;
-        List<ImagePlus> captures = new ArrayList<>();
+        this.captures = new ArrayList<>();
 
         ImageSelection dyn1Avg = Library_Dicom.project(this.model.getImageSelection()[0],
                 1, this.model.getImageSelection()[0].getImagePlus().getNSlices(), "avg");
@@ -102,7 +99,7 @@ public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
         this.workflows[0].addInstruction(dri_2);
         organes.add("Heart");
 
-        dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), 0);
+        dri_capture_1 = new ScreenShotInstruction(this.captures, this.getVue(), 0);
         this.workflows[0].addInstruction(dri_capture_1);
 
         if (this.getModel().getImageSelection().length == 2) {
@@ -112,7 +109,7 @@ public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
             this.workflows[1].addInstruction(dri_3);
             organes.add("Liver parenchyma");
 
-            ScreenShotInstruction dri_capture_2 = new ScreenShotInstruction(captures, this.getVue(), 1);
+            ScreenShotInstruction dri_capture_2 = new ScreenShotInstruction(this.captures, this.getVue(), 1);
             this.workflows[1].addInstruction(dri_capture_2);
         }
 

@@ -17,6 +17,7 @@ public class FenResultats_Scintivol extends FenResults {
     public FenResultats_Scintivol(BufferedImage capture, ControllerScin controller){
         super(controller);
         this.addTab(new TabPrecoce(capture, this));
+        this.addTab(new TabTomo(this, "TomoScintigraphy results"));
         Model_Scintivol model = (Model_Scintivol) controller.getModel();
 
 

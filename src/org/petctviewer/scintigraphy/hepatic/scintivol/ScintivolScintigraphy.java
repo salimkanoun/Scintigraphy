@@ -21,7 +21,7 @@ public class ScintivolScintigraphy extends Scintigraphy {
 
 
     public static final String STUDY_NAME = "Scintivol scintigraphy";
-    private ImageSelection impAnt;
+    private ImageSelection imsRetention;
     private int[] frameDurations;
 
     public ScintivolScintigraphy() {
@@ -47,7 +47,7 @@ public class ScintivolScintigraphy extends Scintigraphy {
         this.setFenApplication(new FenApplication_Scintivol(preparedImages.get(0), this.getStudyName(), this));
         this.getFenApplication().setController(
                 new ControllerWorkflow_Scintivol((FenApplicationWorkflow) this.getFenApplication(),
-                        new Model_Scintivol(preparedImages.toArray(new ImageSelection[0]), STUDY_NAME, this.frameDurations)));
+                        new Model_Scintivol(preparedImages.toArray(new ImageSelection[0]), STUDY_NAME, this.frameDurations, this.imsRetention)));
         this.createDocumentation();
     }
 
@@ -60,50 +60,40 @@ public class ScintivolScintigraphy extends Scintigraphy {
     public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages)
             throws WrongInputException, ReadTagException {
         // Check number of images
-        if (selectedImages.size() != 1 && selectedImages.size() != 2) throw new WrongNumberImagesException(
+        if (selectedImages.size() != 2) throw new WrongNumberImagesException(
                 selectedImages.size(), 1, 2);
 
         selectedImages.sort(new ChronologicalAcquisitionComparator());
 
         // Check orientations
         List<ImageSelection> selection = new ArrayList<>();
-        if (selectedImages.size() == 1) {
-            if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_ANT_POST) {
-                // Set images
-                ImageSelection imps = selectedImages.get(0).clone();
-                Library_Dicom.normalizeToCountPerSecond(imps);
-                imps = Library_Dicom.geomMean(imps);
-                selection.add(imps);
-            } else throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
+
+        Orientation[] acceptedOrientations = new Orientation[]{Orientation.DYNAMIC_ANT_POST};
+        String hint = "You can also use only 1 dynamic (Ant_Post)";
+
+        // Image 0 must be Dyn Ant or Post
+        if (Arrays.stream(selectedImages.toArray(new ImageSelection[0])).noneMatch(o ->
+                o.getImageOrientation() == Orientation.DYNAMIC_ANT_POST))
+            throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
                     selectedImages.get(0).getImageOrientation(),
-                    new Orientation[]{Orientation.DYNAMIC_ANT_POST},
-                    "You can only use a Dynamic ANT/POST");
-        } else {
-            Orientation[] acceptedOrientations = new Orientation[]{Orientation.DYNAMIC_ANT_POST};
-            String hint = "You can also use only 1 dynamic (Ant_Post)";
+                    acceptedOrientations, hint);
 
-            // Image 0 must be Dyn Ant or Post
-            if (Arrays.stream(selectedImages.toArray(new ImageSelection[0])).noneMatch(o ->
-                    o.getImageOrientation() == Orientation.DYNAMIC_ANT_POST))
-                throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
-                        selectedImages.get(0).getImageOrientation(),
-                        acceptedOrientations, hint);
+        // Set images
+        ImageSelection imps = selectedImages.get(0).clone();
+        Library_Dicom.normalizeToCountPerSecond(imps);
+        imps = Library_Dicom.geomMean(imps);
+        this.frameDurations = Library_Dicom.buildFrameDurations(imps.getImagePlus());
+        selection.add(imps);
 
-            // Set images
-            ImageSelection imps = selectedImages.get(0).clone();
-            Library_Dicom.normalizeToCountPerSecond(imps);
-            imps = Library_Dicom.geomMean(imps);
-            this.frameDurations = Library_Dicom.buildFrameDurations(imps.getImagePlus());
-            selection.add(imps);
+        ImageSelection[] imsTab = Library_Dicom.splitDynamicAntPost(selectedImages.get(1));
+        imsTab[1].getImagePlus().getProcessor().flipHorizontal();
+        imsTab[0].getImagePlus().getStack().addSlice(imsTab[1].getImagePlus().getProcessor());
+        imps = imsTab[0].clone();
+        Library_Dicom.normalizeToCountPerSecond(imps);
+        this.imsRetention = imps.clone();
+        imps = Library_Dicom.project(imps, 1, imps.getImagePlus().getNSlices(), "sum");
+        selection.add(imps);
 
-            ImageSelection[] imsTab = Library_Dicom.splitDynamicAntPost(selectedImages.get(1));
-            imsTab[1].getImagePlus().getProcessor().flipHorizontal();
-            imsTab[0].getImagePlus().getStack().addSlice(imsTab[1].getImagePlus().getProcessor());
-            imps = imsTab[0].clone();
-            Library_Dicom.normalizeToCountPerSecond(imps);
-            imps = Library_Dicom.project(imps, 1, imps.getImagePlus().getNSlices(), "max");
-            selection.add(imps);
-        }
 
         // Close images
         selectedImages.forEach(ImageSelection::close);

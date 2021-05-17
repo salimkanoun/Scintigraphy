@@ -56,10 +56,8 @@ public class FenApplication_Scintivol extends FenApplicationWorkflow {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == this.btn_start) {
-            double size, weight;
-            double time = Double.parseDouble(JOptionPane.showInputDialog(this,
-                    "Start in minutes", 2.5));
-            ((ControllerWorkflow_Scintivol) this.getController()).setTimeChart(time);
+            Model_Scintivol model = (Model_Scintivol) this.getController().getModel();
+            double size, weight, tracerDelay;
             if (!StringUtils.isEmpty(DicomTools.getTag(imp, "0010,1020")))
                 size = Double.parseDouble(DicomTools.getTag(imp, "0010,1020"));
             else
@@ -72,9 +70,11 @@ public class FenApplication_Scintivol extends FenApplicationWorkflow {
                 weight = Double.parseDouble(JOptionPane.showInputDialog(this,
                         "Input the patient weight in kg", 70));
 
+            tracerDelay = Double.parseDouble(JOptionPane.showInputDialog(this, "Adjust tracer injection delay in sec", 0));
 
-            ((Model_Scintivol) this.getController().getModel()).setSize(size);
-            ((Model_Scintivol) this.getController().getModel()).setWeight(weight);
+            model.setSize(size);
+            model.setWeight(weight);
+            model.setTracerDelayTime(tracerDelay);
 
             this.getBtn_reverse().setEnabled(true);
             this.getPanel_bttns_droit().removeAll();
