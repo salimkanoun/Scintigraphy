@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.hepatic.scintivol.gui;
 
+import ij.ImagePlus;
 import ij.Prefs;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ui.RectangleAnchor;
@@ -11,14 +12,19 @@ import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 import org.petctviewer.scintigraphy.scin.preferences.PrefTabSalivaryGlands;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TabTardive extends TabResult {
         private final BufferedImage capture;
@@ -56,9 +62,10 @@ public class TabTardive extends TabResult {
 
 
             // panel de timing
-            double liver_t1 = model.getResults().get("Liver Parenchyma").get("max");
-            double liver_t2 = model.getResults().get("Liver Parenchyma").get("end");
-            double retention = model.getResults().get("Other").get("Retention rate");
+            Map<String, Map<String, Double>> results = model.getResults();
+            double liver_t1 = Library_Quantif.round(results.get("Liver Parenchyma").get("max"), 2);
+            double liver_t2 = Library_Quantif.round(results.get("Liver Parenchyma").get("end"), 2);
+            double retention = Library_Quantif.round(results.get("Other").get("Retention rate"), 2);
 
 
             JPanel pnl_liver = new JPanel(new GridLayout(4, 3, 0, 3));
@@ -106,34 +113,48 @@ public class TabTardive extends TabResult {
 
             //ajout du graphique image precoce
             String [][] asso = new String [][]{{"Liver parenchyma"}};
-            List<XYSeries> series = ((ModelScinDyn) this.getParent().getModel()).getSeries();
+            List<XYSeries> series = this.getSeries();
 
             ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
             JValueSetter timeChart = prepareValueSetter(cp[0]);
-            //  cp[0].getChart().setTitle("Heart and Liver");
+            cp[0].getChart().setTitle("Liver retention rate");
             grid.add(timeChart);
             timeChart.removeChartMouseListener(timeChart);
+
             return grid;
+        }
 
+        private List<XYSeries> getSeries() {
+            Model_Scintivol model = (Model_Scintivol) this.parent.getModel();
+            ImagePlus imp = model.getImsRetention().getImagePlus();
+            int[] frameDuration = Library_Dicom.buildFrameDurations(imp);
+            List<XYSeries> res = new ArrayList<>();
 
+            List<Double> values = new ArrayList<>();
+            imp.setRoi(Library_Roi.getRoiByName(model.getRoiManager(), "Liver parenchyma"));
 
+            XYSeries points = new XYSeries("Liver parenchyma", true);
+            double dureePriseOld = 0.0;
+            for (int i = 1; i <= imp.getNSlices(); i++) {
+                imp.setSlice(i);
+                values.add(Math.max(Library_Quantif.getCounts(imp), 1.0d));
+
+                double dureePrise = frameDuration[i-1] / (60 * 1000.0); // axes x en minutes
+
+                Double x = (dureePriseOld + dureePrise) - (dureePrise / 2);
+                Double y = values.get(i-1);
+                points.add(x, y);
+
+                dureePriseOld += dureePrise;
+            }
+
+            res.add(points);
+            return res;
         }
 
         private JValueSetter prepareValueSetter(ChartPanel chart) {
             chart.getChart().getPlot().setBackgroundPaint(null);
             JValueSetter jvs = new JValueSetter(chart.getChart());
-            Model_Scintivol model = (Model_Scintivol) this.parent.getModel();
-            //model.getResults().get("Other").get("Retention rate");
-
-
-
-
-            double maxTime = Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 107.36);
-            double endTime = Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 103.58);
-            Selector max = new Selector("max", maxTime, -1, RectangleAnchor.BOTTOM_LEFT);
-            Selector end = new Selector("end produit", endTime, -1, RectangleAnchor.BOTTOM_LEFT);
-            jvs.addSelector(max, "start");
-            jvs.addSelector(end, "end");
 
             // renomme les series du chart pour que l'interface soit plus comprehensible
             XYSeriesCollection dataset = (XYSeriesCollection) chart.getChart().getXYPlot().getDataset();

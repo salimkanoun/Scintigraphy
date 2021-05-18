@@ -152,16 +152,17 @@ class TabPrecoce extends TabResult {
 
     }
 
-    private static JValueSetter prepareValueSetter(ChartPanel chart) {
+    private JValueSetter prepareValueSetter(ChartPanel chart) {
         chart.getChart().getPlot().setBackgroundPaint(null);
         JValueSetter jvs = new JValueSetter(chart.getChart());
 
-        double startTime = Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 2.5);
-        double endTime = Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 5.83);
-        Selector start = new Selector("start produit", startTime, -1, RectangleAnchor.BOTTOM_LEFT);
-        Selector end = new Selector("end produit", endTime, -1, RectangleAnchor.BOTTOM_LEFT);
-        jvs.addSelector(start, "start");
-        jvs.addSelector(end, "end");
+        double delay = ((Model_Scintivol) this.getParent().getModel()).getTracerDelayTime();
+        double startTime = (delay + 150) / 60;
+        double endTime = (delay + 350) / 60;
+        Selector t1 = new Selector("t1", startTime, -1, RectangleAnchor.BOTTOM_LEFT);
+        Selector t2 = new Selector("t2", endTime, -1, RectangleAnchor.BOTTOM_LEFT);
+        jvs.addSelector(t1, "t1");
+        jvs.addSelector(t2, "t2");
 
         // renomme les series du chart pour que l'interface soit plus comprehensible
         XYSeriesCollection dataset = (XYSeriesCollection) chart.getChart().getXYPlot().getDataset();

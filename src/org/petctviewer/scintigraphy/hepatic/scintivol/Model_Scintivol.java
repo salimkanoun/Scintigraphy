@@ -11,6 +11,7 @@ import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -174,28 +175,17 @@ public class Model_Scintivol extends ModelScinDyn {
 
         imp.setRoi(Library_Roi.getRoiByName(this.getRoiManager(), "Liver parenchyma"));
         double max = Library_Quantif.getMaxCounts(imp);
+        imp.setSlice(imp.getNSlices());
         double end = Library_Quantif.getCounts(imp);
+        Map<String, Double> val = new HashMap<>();
+        val.put("max", max);
+        val.put("end", end);
+        this.results.put("Liver Parenchyma", val);
 
         res = end/max;
         this.results.get("Other").put("Retention rate", Library_Quantif.round(res,2));
 
         return res;
-    }
-
-    public void setCountsParenchyma(int sliceT1, int sliceT2){
-        ImagePlus imp = this.imsRetention.getImagePlus();
-        for (String roiName : new String[]{"Liver Parenchyma"}){
-
-            imp.setRoi(Library_Roi.getRoiByName(this.getRoiManager(), roiName));
-            Map<String, Double> res = new HashMap<>();
-            imp.setSlice(sliceT1);
-            res.put("max",  Library_Quantif.round(Library_Quantif.getMaxCounts(imp),2));
-            imp.setSlice(sliceT2);
-            res.put("end", Library_Quantif.round(Library_Quantif.getCounts(imp),2));
-            this.results.put(roiName, res);
-
-        }
-
     }
 
     public void setCounts(int sliceT1, int sliceT2) {
@@ -228,8 +218,6 @@ public class Model_Scintivol extends ModelScinDyn {
         int sliceT2 = getSliceIndexByTime((tracerDelayTime + 350) * 1000, frameDurations);
 
         this.setCounts(sliceT1, sliceT2);
-        this.setCountsParenchyma(sliceT1, sliceT2);
-
 
         this.results.put("Other", new HashMap<>());
         this.getSC();

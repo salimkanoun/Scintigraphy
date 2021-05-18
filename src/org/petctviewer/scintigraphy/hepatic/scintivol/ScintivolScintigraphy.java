@@ -104,7 +104,7 @@ public class ScintivolScintigraphy extends Scintigraphy {
 
     @Override
     public String instructions() {
-        return "1 or 2 images in dynamic A/P";
+        return "2 images in dynamic A/P";
     }
 
 
