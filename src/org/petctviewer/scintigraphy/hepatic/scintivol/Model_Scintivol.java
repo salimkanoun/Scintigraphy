@@ -2,7 +2,6 @@ package org.petctviewer.scintigraphy.hepatic.scintivol;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
-import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
@@ -81,7 +80,7 @@ public class Model_Scintivol extends ModelScinDyn {
         Library_Quantif.round(AUC_t1_t2,2);
 
 
-        this.results.get("Other").put("AUC/Cnorm", AUC_t1_t2/H_t1);
+        this.results.get("Other").put("AUC/Cnorm", Library_Quantif.round(AUC_t1_t2/H_t1,2));
 
         double res = 100 * 6 * (L_t2 - L_t1) / (A_t1 * AUC_t1_t2/H_t1);
         this.results.get("Other").put("Clairance FT",  Library_Quantif.round(res,2));
@@ -133,9 +132,9 @@ public class Model_Scintivol extends ModelScinDyn {
 
     private double getSC() {
         double res = Math.sqrt((this.size * this.weight) / 3600);
-        this.results.get("Other").put("SC", res);
+        this.results.get("Other").put("SC", Library_Quantif.round(res,2));
 
-        return  Library_Quantif.round(res,1);
+        return  res;
     }
 
     /**
@@ -182,7 +181,7 @@ public class Model_Scintivol extends ModelScinDyn {
         val.put("end", end);
         this.results.put("Liver Parenchyma", val);
 
-        res = end/max;
+        res = (end/max)*100;
         this.results.get("Other").put("Retention rate", Library_Quantif.round(res,2));
 
         return res;

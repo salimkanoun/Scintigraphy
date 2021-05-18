@@ -44,6 +44,9 @@ class TabPrecoce extends TabResult {
         panRes.add(Box.createVerticalStrut(10));
         panRes.add(this.getPanelLiver());
 
+        panRes.add(Box.createVerticalStrut(10));
+        panRes.add(this.getPanelClairance());
+
 
         flow_wrap.add(panRes);
 
@@ -125,6 +128,41 @@ class TabPrecoce extends TabResult {
 
         return pnl_liver;
     }
+
+    private Component getPanelClairance(){
+        Model_Scintivol model = (Model_Scintivol) this.parent.getModel();
+
+
+        // panel de timing
+        double clairanceFTNonNorm = model.getResults().get("Other").get("Clairance FT");
+        double clairanceFTNorm = model.getResults().get("Other").get("Norm Clairance FT");
+
+
+        JPanel pnl_clairance = new JPanel(new GridLayout(3, 3, 0, 3));
+        pnl_clairance.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        pnl_clairance.add(new JLabel(" Clairance "));
+        pnl_clairance.add(new JLabel("  "));
+
+
+        JLabel nNorm = new JLabel(" FT non normalisée");
+        pnl_clairance.add(nNorm);
+
+        JLabel val_nNorm = new JLabel(String.valueOf(clairanceFTNonNorm + " %/min"));
+        val_nNorm.setHorizontalAlignment(SwingConstants.CENTER);
+        pnl_clairance.add(val_nNorm );
+
+        JLabel norm = new JLabel(" FT normalisée");
+        pnl_clairance.add(norm);
+
+        JLabel val_norm = new JLabel(String.valueOf(clairanceFTNorm+ " %/min.m²"));
+        val_norm.setHorizontalAlignment(SwingConstants.CENTER);
+        pnl_clairance.add(val_norm);
+
+
+
+        return pnl_clairance;
+    }
+
 
 
     @Override
