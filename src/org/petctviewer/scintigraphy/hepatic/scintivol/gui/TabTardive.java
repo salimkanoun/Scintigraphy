@@ -42,19 +42,13 @@ public class TabTardive extends TabResult {
             JPanel flow_wrap = new JPanel();
             Box panRes = Box.createVerticalBox();
 
-
-
-
             panRes.add(Box.createVerticalStrut(10));
             panRes.add(this.getPanelLiver());
-
 
             flow_wrap.add(panRes);
 
             return flow_wrap;
         }
-
-
 
 
         private Component getPanelLiver(){
@@ -65,7 +59,7 @@ public class TabTardive extends TabResult {
             Map<String, Map<String, Double>> results = model.getResults();
             double liver_t1 = Library_Quantif.round(results.get("Liver Parenchyma").get("max"), 2);
             double liver_t2 = Library_Quantif.round(results.get("Liver Parenchyma").get("end"), 2);
-            double retention = Library_Quantif.round(results.get("Other").get("Retention rate"), 2);
+            double retention = Library_Quantif.round(results.get("Other").get("Retention rate") * 100, 2);
 
 
             JPanel pnl_liver = new JPanel(new GridLayout(4, 3, 0, 3));
@@ -91,7 +85,7 @@ public class TabTardive extends TabResult {
             JLabel ret = new JLabel(" Retention rate");
             pnl_liver.add(ret);
 
-            JLabel val_ret = new JLabel(String.valueOf(retention) + " %");
+            JLabel val_ret = new JLabel(retention + " %");
             val_ret.setHorizontalAlignment(SwingConstants.CENTER);
             pnl_liver.add(val_ret);
 

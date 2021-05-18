@@ -75,9 +75,9 @@ public class TabTomo extends TabResult implements ActionListener {
         Map<String, Double> results = model.getResults().get("Other");
         JPanel container = new JPanel(new GridLayout(3, 1));
 
-        container.add(new JLabel("FRL/TL ratio: "+ Library_Quantif.round(results.get("FFR/FT"), 2) +"%"));
+        container.add(new JLabel("FRL/TL ratio: "+ Library_Quantif.round(results.get("FFR/FT") * 100, 2) +"%"));
         container.add(new JLabel("Clearance FRL: "+ Library_Quantif.round(results.get("Clairance FFR"), 2) +"%/min"));
-        container.add(new JLabel("Normalized Clearance FRL: "+ Library_Quantif.round(results.get("Norm Clairance FFR"), 2) +"%/min"));
+        container.add(new JLabel("Normalized Clearance FRL: "+ Library_Quantif.round(results.get("Norm Clairance FFR"), 2) +"%/min.m²"));
         res.add(container);
 
         return res;

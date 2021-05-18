@@ -65,25 +65,20 @@ public class Model_Scintivol extends ModelScinDyn {
 
     private double getClairanceFT() {
         double L_t1 = this.results.get("Liver").get("t1");
-        Library_Quantif.round(L_t1,2);
         double L_t2 = this.results.get("Liver").get("t2");
-        Library_Quantif.round(L_t2,2);
 
 
         double H_t1 = this.results.get("Heart").get("t1");
-        Library_Quantif.round(H_t1,2);
 
         double A_t1 = this.results.get("Other").get("BP Activity");
-        Library_Quantif.round(A_t1,2);
 
         double AUC_t1_t2 = this.results.get("Heart").get("AUC");
-        Library_Quantif.round(AUC_t1_t2,2);
 
 
-        this.results.get("Other").put("AUC/Cnorm", Library_Quantif.round(AUC_t1_t2/H_t1,2));
+        this.results.get("Other").put("AUC/Cnorm", AUC_t1_t2/H_t1);
 
         double res = 100 * 6 * (L_t2 - L_t1) / (A_t1 * AUC_t1_t2/H_t1);
-        this.results.get("Other").put("Clairance FT",  Library_Quantif.round(res,2));
+        this.results.get("Other").put("Clairance FT",  res);
 
         return  res;
     }
@@ -93,7 +88,7 @@ public class Model_Scintivol extends ModelScinDyn {
         double sc = this.results.get("Other").get("SC");
 
         double res = clairanceFT / sc;
-        this.results.get("Other").put("Norm Clairance FT",  Library_Quantif.round(res,2));
+        this.results.get("Other").put("Norm Clairance FT", res);
         return  res;
     }
 
@@ -113,7 +108,7 @@ public class Model_Scintivol extends ModelScinDyn {
             res += Library_Quantif.getCounts(imp);
         }
 
-        return  Library_Quantif.round(res,1);
+        return res;
     }
 
     private double getBPActivity() {
@@ -123,16 +118,16 @@ public class Model_Scintivol extends ModelScinDyn {
         double L_t1 = this.results.get("Liver").get("t1");
 
         double Cnorm_t2 = this.results.get("Heart").get("t2") / this.results.get("Heart").get("t1");
-        this.results.get("Other").put("Cnorm_t2",Library_Quantif.round(Cnorm_t2,2));
+        this.results.get("Other").put("Cnorm_t2", Cnorm_t2);
 
         double res = (T_t2 - L_t1 - (T_t1 - L_t1) * Cnorm_t2) / (1 - Cnorm_t2);
-        this.results.get("Other").put("BP Activity",  Library_Quantif.round(res,2));
-        return  res;
+        this.results.get("Other").put("BP Activity", res);
+        return res;
     }
 
     private double getSC() {
         double res = Math.sqrt((this.size * this.weight) / 3600);
-        this.results.get("Other").put("SC", Library_Quantif.round(res,2));
+        this.results.get("Other").put("SC", res);
 
         return  res;
     }
@@ -147,7 +142,7 @@ public class Model_Scintivol extends ModelScinDyn {
 
         double res = ffr/ft;
         this.results.get("Other").put("FFR/FT", res);
-        return  Library_Quantif.round(res,1);
+        return res;
     }
 
     private double getClairanceFFR() {
@@ -155,7 +150,7 @@ public class Model_Scintivol extends ModelScinDyn {
         double ffr_ft = this.results.get("Other").get("FFR/FT");
 
         double res = clairanceFT * ffr_ft;
-        this.results.get("Other").put("Clairance FFR", Library_Quantif.round(res,2));
+        this.results.get("Other").put("Clairance FFR", res);
         return res;
     }
 
@@ -164,7 +159,7 @@ public class Model_Scintivol extends ModelScinDyn {
         double ffr_ft = this.results.get("Other").get("FFR/FT");
 
         double res = clairanceFTNorm * ffr_ft;
-        this.results.get("Other").put("Norm Clairance FFR", Library_Quantif.round(res,2));
+        this.results.get("Other").put("Norm Clairance FFR", res);
         return res;
     }
 
@@ -181,8 +176,8 @@ public class Model_Scintivol extends ModelScinDyn {
         val.put("end", end);
         this.results.put("Liver Parenchyma", val);
 
-        res = (end/max)*100;
-        this.results.get("Other").put("Retention rate", Library_Quantif.round(res,2));
+        res = end/max;
+        this.results.get("Other").put("Retention rate", res);
 
         return res;
     }
@@ -198,12 +193,12 @@ public class Model_Scintivol extends ModelScinDyn {
 
             Map<String, Double> res = new HashMap<>();
             imp.setSlice(sliceT1);
-            res.put("t1", Library_Quantif.round(Library_Quantif.getCounts(imp),2));
+            res.put("t1", Library_Quantif.getCounts(imp));
             imp.setSlice(sliceT2);
-            res.put("t2", Library_Quantif.round(Library_Quantif.getCounts(imp),2));
+            res.put("t2", Library_Quantif.getCounts(imp));
             this.results.put(roiName, res);
         }
-        this.results.get("Heart").put("AUC", Library_Quantif.round(this.getAUC(sliceT1, sliceT2),2));
+        this.results.get("Heart").put("AUC", this.getAUC(sliceT1, sliceT2));
 
     }
 

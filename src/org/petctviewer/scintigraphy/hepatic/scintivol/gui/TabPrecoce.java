@@ -20,6 +20,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.Map;
 
 class TabPrecoce extends TabResult {
     private final BufferedImage capture;
@@ -56,12 +57,12 @@ class TabPrecoce extends TabResult {
 
     private Component getPanelHeart(){
         Model_Scintivol model = (Model_Scintivol) this.parent.getModel();
-
+        Map<String, Double> results = model.getResults().get("Heart");
 
         // panel de timing
-        double heart_t1 = model.getResults().get("Heart").get("t1");
-        double heart_t2 = model.getResults().get("Heart").get("t2");
-        double heart_AUC = model.getResults().get("Heart").get("AUC");
+        double heart_t1 = Library_Quantif.round(results.get("t1"), 2);
+        double heart_t2 = Library_Quantif.round(results.get("t2"), 2);
+        double heart_AUC = Library_Quantif.round(results.get("AUC"), 2);
 
 
         JPanel pnl_heart = new JPanel(new GridLayout(4, 2, 0, 3));
@@ -97,11 +98,12 @@ class TabPrecoce extends TabResult {
 
     private Component getPanelLiver(){
         Model_Scintivol model = (Model_Scintivol) this.parent.getModel();
+        Map<String, Double> results = model.getResults().get("Liver");
 
 
         // panel de timing
-        double liver_t1 = model.getResults().get("Liver").get("t1");
-        double liver_t2 = model.getResults().get("Liver").get("t2");
+        double liver_t1 = Library_Quantif.round(results.get("t1"), 2);
+        double liver_t2 = Library_Quantif.round(results.get("t2"), 2);
 
 
         JPanel pnl_liver = new JPanel(new GridLayout(3, 3, 0, 3));
@@ -131,11 +133,11 @@ class TabPrecoce extends TabResult {
 
     private Component getPanelClairance(){
         Model_Scintivol model = (Model_Scintivol) this.parent.getModel();
-
+        Map<String, Double> results = model.getResults().get("Other");
 
         // panel de timing
-        double clairanceFTNonNorm = model.getResults().get("Other").get("Clairance FT");
-        double clairanceFTNorm = model.getResults().get("Other").get("Norm Clairance FT");
+        double clairanceFTNonNorm = Library_Quantif.round(results.get("Clairance FT"), 2);
+        double clairanceFTNorm = Library_Quantif.round(results.get("Norm Clairance FT"), 2);
 
 
         JPanel pnl_clairance = new JPanel(new GridLayout(3, 3, 0, 3));
@@ -147,14 +149,14 @@ class TabPrecoce extends TabResult {
         JLabel nNorm = new JLabel(" FT non normalisée");
         pnl_clairance.add(nNorm);
 
-        JLabel val_nNorm = new JLabel(String.valueOf(clairanceFTNonNorm + " %/min"));
+        JLabel val_nNorm = new JLabel(clairanceFTNonNorm + " %/min");
         val_nNorm.setHorizontalAlignment(SwingConstants.CENTER);
         pnl_clairance.add(val_nNorm );
 
         JLabel norm = new JLabel(" FT normalisée");
         pnl_clairance.add(norm);
 
-        JLabel val_norm = new JLabel(String.valueOf(clairanceFTNorm+ " %/min.m²"));
+        JLabel val_norm = new JLabel(clairanceFTNorm+ " %/min.m²");
         val_norm.setHorizontalAlignment(SwingConstants.CENTER);
         pnl_clairance.add(val_norm);
 
