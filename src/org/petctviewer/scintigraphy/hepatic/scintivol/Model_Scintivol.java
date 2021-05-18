@@ -176,7 +176,7 @@ public class Model_Scintivol extends ModelScinDyn {
         double max = Library_Quantif.getMaxCounts(imp);
         double end = Library_Quantif.getCounts(imp);
 
-        res = end/max;
+        res = (end/max)*100;
         this.results.get("Other").put("Retention rate", Library_Quantif.round(res,2));
 
         return res;

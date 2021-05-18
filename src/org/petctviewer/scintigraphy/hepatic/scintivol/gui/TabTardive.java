@@ -84,7 +84,7 @@ public class TabTardive extends TabResult {
             JLabel ret = new JLabel(" Retention rate");
             pnl_liver.add(ret);
 
-            JLabel val_ret = new JLabel(String.valueOf(retention));
+            JLabel val_ret = new JLabel(String.valueOf(retention) + " %");
             val_ret.setHorizontalAlignment(SwingConstants.CENTER);
             pnl_liver.add(val_ret);
 
