@@ -80,7 +80,7 @@ public class Model_Scintivol extends ModelScinDyn {
         Library_Quantif.round(AUC_t1_t2,2);
 
 
-        this.results.get("Other").put("AUC/Cnorm", AUC_t1_t2/H_t1);
+        this.results.get("Other").put("AUC/Cnorm", Library_Quantif.round(AUC_t1_t2/H_t1,2));
 
         double res = 100 * 6 * (L_t2 - L_t1) / (A_t1 * AUC_t1_t2/H_t1);
         this.results.get("Other").put("Clairance FT",  Library_Quantif.round(res,2));
@@ -132,9 +132,9 @@ public class Model_Scintivol extends ModelScinDyn {
 
     private double getSC() {
         double res = Math.sqrt((this.size * this.weight) / 3600);
-        this.results.get("Other").put("SC", res);
+        this.results.get("Other").put("SC", Library_Quantif.round(res,2));
 
-        return  Library_Quantif.round(res,1);
+        return  res;
     }
 
     /**
