@@ -37,6 +37,8 @@ public class Model_Scintivol extends ModelScinDyn {
 
         this.organes = new ArrayList<>();
         this.organes.add("Heart");
+        this.organes.add("Retention");
+
         this.organes.add("Liver");
         this.organes.add("FOV");
         this.organes.add("Other");
@@ -63,19 +65,27 @@ public class Model_Scintivol extends ModelScinDyn {
 
     private double getClairanceFT() {
         double L_t1 = this.results.get("Liver").get("t1");
+        Library_Quantif.round(L_t1,2);
         double L_t2 = this.results.get("Liver").get("t2");
+        Library_Quantif.round(L_t2,2);
 
 
         double H_t1 = this.results.get("Heart").get("t1");
+        Library_Quantif.round(H_t1,2);
+
         double A_t1 = this.results.get("Other").get("BP Activity");
+        Library_Quantif.round(A_t1,2);
+
         double AUC_t1_t2 = this.results.get("Heart").get("AUC");
+        Library_Quantif.round(AUC_t1_t2,2);
+
 
         this.results.get("Other").put("AUC/Cnorm", AUC_t1_t2/H_t1);
 
         double res = 100 * 6 * (L_t2 - L_t1) / (A_t1 * AUC_t1_t2/H_t1);
-        this.results.get("Other").put("Clairance FT", res);
+        this.results.get("Other").put("Clairance FT",  Library_Quantif.round(res,2));
 
-        return res;
+        return  res;
     }
 
     private double getNormalizedClairanceFT() {
@@ -83,8 +93,8 @@ public class Model_Scintivol extends ModelScinDyn {
         double sc = this.results.get("Other").get("SC");
 
         double res = clairanceFT / sc;
-        this.results.get("Other").put("Norm Clairance FT", res);
-        return res;
+        this.results.get("Other").put("Norm Clairance FT",  Library_Quantif.round(res,2));
+        return  res;
     }
 
     /**
@@ -103,7 +113,7 @@ public class Model_Scintivol extends ModelScinDyn {
             res += Library_Quantif.getCounts(imp);
         }
 
-        return res;
+        return  Library_Quantif.round(res,1);
     }
 
     private double getBPActivity() {
@@ -113,18 +123,18 @@ public class Model_Scintivol extends ModelScinDyn {
         double L_t1 = this.results.get("Liver").get("t1");
 
         double Cnorm_t2 = this.results.get("Heart").get("t2") / this.results.get("Heart").get("t1");
-        this.results.get("Other").put("Cnorm_t2", Cnorm_t2);
+        this.results.get("Other").put("Cnorm_t2",Library_Quantif.round(Cnorm_t2,2));
 
         double res = (T_t2 - L_t1 - (T_t1 - L_t1) * Cnorm_t2) / (1 - Cnorm_t2);
-        this.results.get("Other").put("BP Activity", res);
-        return res;
+        this.results.get("Other").put("BP Activity",  Library_Quantif.round(res,2));
+        return  res;
     }
 
     private double getSC() {
         double res = Math.sqrt((this.size * this.weight) / 3600);
         this.results.get("Other").put("SC", res);
 
-        return res;
+        return  Library_Quantif.round(res,1);
     }
 
     /**
@@ -137,7 +147,7 @@ public class Model_Scintivol extends ModelScinDyn {
 
         double res = ffr/ft;
         this.results.get("Other").put("FFR/FT", res);
-        return res;
+        return  Library_Quantif.round(res,1);
     }
 
     private double getClairanceFFR() {
@@ -145,7 +155,7 @@ public class Model_Scintivol extends ModelScinDyn {
         double ffr_ft = this.results.get("Other").get("FFR/FT");
 
         double res = clairanceFT * ffr_ft;
-        this.results.get("Other").put("Clairance FFR", res);
+        this.results.get("Other").put("Clairance FFR", Library_Quantif.round(res,2));
         return res;
     }
 
@@ -154,7 +164,7 @@ public class Model_Scintivol extends ModelScinDyn {
         double ffr_ft = this.results.get("Other").get("FFR/FT");
 
         double res = clairanceFTNorm * ffr_ft;
-        this.results.get("Other").put("Norm Clairance FFR", res);
+        this.results.get("Other").put("Norm Clairance FFR", Library_Quantif.round(res,2));
         return res;
     }
 
@@ -167,9 +177,25 @@ public class Model_Scintivol extends ModelScinDyn {
         double end = Library_Quantif.getCounts(imp);
 
         res = end/max;
-        this.results.get("Other").put("Retention rate", res);
+        this.results.get("Other").put("Retention rate", Library_Quantif.round(res,2));
 
         return res;
+    }
+
+    public void setCountsParenchyma(int sliceT1, int sliceT2){
+        ImagePlus imp = this.imsRetention.getImagePlus();
+        for (String roiName : new String[]{"Liver Parenchyma"}){
+
+            imp.setRoi(Library_Roi.getRoiByName(this.getRoiManager(), roiName));
+            Map<String, Double> res = new HashMap<>();
+            imp.setSlice(sliceT1);
+            res.put("max",  Library_Quantif.round(Library_Quantif.getMaxCounts(imp),2));
+            imp.setSlice(sliceT2);
+            res.put("end", Library_Quantif.round(Library_Quantif.getCounts(imp),2));
+            this.results.put(roiName, res);
+
+        }
+
     }
 
     public void setCounts(int sliceT1, int sliceT2) {
@@ -183,12 +209,13 @@ public class Model_Scintivol extends ModelScinDyn {
 
             Map<String, Double> res = new HashMap<>();
             imp.setSlice(sliceT1);
-            res.put("t1", Library_Quantif.getCounts(imp));
+            res.put("t1", Library_Quantif.round(Library_Quantif.getCounts(imp),2));
             imp.setSlice(sliceT2);
-            res.put("t2", Library_Quantif.getCounts(imp));
+            res.put("t2", Library_Quantif.round(Library_Quantif.getCounts(imp),2));
             this.results.put(roiName, res);
         }
-        this.results.get("Heart").put("AUC", this.getAUC(sliceT1, sliceT2));
+        this.results.get("Heart").put("AUC", Library_Quantif.round(this.getAUC(sliceT1, sliceT2),2));
+
     }
 
     @Override
@@ -201,6 +228,8 @@ public class Model_Scintivol extends ModelScinDyn {
         int sliceT2 = getSliceIndexByTime((tracerDelayTime + 350) * 1000, frameDurations);
 
         this.setCounts(sliceT1, sliceT2);
+        this.setCountsParenchyma(sliceT1, sliceT2);
+
 
         this.results.put("Other", new HashMap<>());
         this.getSC();
@@ -224,6 +253,10 @@ public class Model_Scintivol extends ModelScinDyn {
 
     public double getTimeChart() {
         return timeChart;
+    }
+
+    public ImageSelection getImsRetention(){
+        return imsRetention;
     }
 
     public void setTimeChart(double timeChart){

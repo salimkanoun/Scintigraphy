@@ -56,29 +56,37 @@ public class TabTardive extends TabResult {
 
 
             // panel de timing
-            double liver_t1 = model.getResults().get("Liver").get("t1");
-            double liver_t2 = model.getResults().get("Liver").get("t2");
+            double liver_t1 = model.getResults().get("Liver Parenchyma").get("max");
+            double liver_t2 = model.getResults().get("Liver Parenchyma").get("end");
+            double retention = model.getResults().get("Other").get("Retention rate");
 
 
-            JPanel pnl_liver = new JPanel(new GridLayout(3, 3, 0, 3));
+            JPanel pnl_liver = new JPanel(new GridLayout(4, 3, 0, 3));
             pnl_liver.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-            pnl_liver.add(new JLabel(" Liver "));
+            pnl_liver.add(new JLabel(" Liver Parenchyma "));
             pnl_liver.add(new JLabel("  "));
 
 
-            JLabel t1 = new JLabel(" T1");
+            JLabel t1 = new JLabel(" MAX");
             pnl_liver.add(t1);
 
             JLabel val_t1 = new JLabel(String.valueOf(liver_t1));
             val_t1.setHorizontalAlignment(SwingConstants.CENTER);
             pnl_liver.add(val_t1);
 
-            JLabel t2 = new JLabel(" T2");
+            JLabel t2 = new JLabel(" END");
             pnl_liver.add(t2);
 
             JLabel val_t2 = new JLabel(String.valueOf(liver_t2));
             val_t2.setHorizontalAlignment(SwingConstants.CENTER);
             pnl_liver.add(val_t2);
+
+            JLabel ret = new JLabel(" Retention rate");
+            pnl_liver.add(ret);
+
+            JLabel val_ret = new JLabel(String.valueOf(retention));
+            val_ret.setHorizontalAlignment(SwingConstants.CENTER);
+            pnl_liver.add(val_ret);
 
 
 
@@ -97,7 +105,7 @@ public class TabTardive extends TabResult {
             grid.add(panel_top);
 
             //ajout du graphique image precoce
-            String [][] asso = new String [][]{{"Liver"}};
+            String [][] asso = new String [][]{{"Liver parenchyma"}};
             List<XYSeries> series = ((ModelScinDyn) this.getParent().getModel()).getSeries();
 
             ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
@@ -111,20 +119,25 @@ public class TabTardive extends TabResult {
 
         }
 
-        private static JValueSetter prepareValueSetter(ChartPanel chart) {
+        private JValueSetter prepareValueSetter(ChartPanel chart) {
             chart.getChart().getPlot().setBackgroundPaint(null);
             JValueSetter jvs = new JValueSetter(chart.getChart());
+            Model_Scintivol model = (Model_Scintivol) this.parent.getModel();
+            //model.getResults().get("Other").get("Retention rate");
 
-            double startTime = Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 2.5);
-            double endTime = Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 5.83);
-            Selector start = new Selector("start produit", startTime, -1, RectangleAnchor.BOTTOM_LEFT);
+
+
+
+            double maxTime = Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 107.36);
+            double endTime = Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 103.58);
+            Selector max = new Selector("max", maxTime, -1, RectangleAnchor.BOTTOM_LEFT);
             Selector end = new Selector("end produit", endTime, -1, RectangleAnchor.BOTTOM_LEFT);
-            jvs.addSelector(start, "start");
+            jvs.addSelector(max, "start");
             jvs.addSelector(end, "end");
 
             // renomme les series du chart pour que l'interface soit plus comprehensible
             XYSeriesCollection dataset = (XYSeriesCollection) chart.getChart().getXYPlot().getDataset();
-            dataset.getSeries("Liver").setKey("Liver");
+            dataset.getSeries("Liver parenchyma").setKey("Liver parenchyma");
 
 
             return jvs;
