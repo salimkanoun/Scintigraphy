@@ -2,7 +2,6 @@ package org.petctviewer.scintigraphy.hepatic.scintivol;
 
 import ij.ImagePlus;
 import ij.gui.Roi;
-import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
