@@ -30,6 +30,7 @@ public class TabTomo extends TabResult implements ActionListener {
     public Container getResultContent() {
         JPanel res = new JPanel(new GridLayout(2, 1));
 
+
         res.add(this.getInputContent());
         res.add(this.getResultPanelContent());
 

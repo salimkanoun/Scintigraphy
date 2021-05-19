@@ -1,11 +1,8 @@
 package org.petctviewer.scintigraphy.hepatic.scintivol;
 
 import ij.ImagePlus;
-import org.jfree.chart.ChartPanel;
-import org.jfree.data.xy.XYSeries;
 
 import org.petctviewer.scintigraphy.hepatic.scintivol.gui.FenResultats_Scintivol;
-import org.petctviewer.scintigraphy.salivaryGlands.ModelSalivaryGlands;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
@@ -16,15 +13,11 @@ import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,7 +25,6 @@ public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
 
     public String[] organeListe;
     private List<ImagePlus> captures;
-    private double timeChart;
 
     public ControllerWorkflow_Scintivol(FenApplicationWorkflow vue, ModelScin model) {
         super(vue, model);
@@ -117,9 +109,11 @@ public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
         this.organeListe = organes.toArray(new String[0]);
     }
 
-    public void setTimeChart(double timeChart) {
-        ((Model_Scintivol) this.model).setTimeChart(timeChart);
-        this.generateInstructions();
-        this.start();
+
+
+    @Override
+    public String toString() {
+        return this.model.toString();
     }
 }
+
