@@ -89,9 +89,9 @@ public class TabVisualGradationCardiac extends TabResult implements ActionListen
 		listPane.setBorder(BorderFactory.createTitledBorder("Visual Gradation"));
 
 		String grade0 = "No myocardial uptake";
-		String grade1 = "Myocardial uptake &lsaquo; bone uptake";
-		String grade2 = "Myocardial uptake equal to bone uptake";
-		String grade3 = "Myocardal uptake &rsaquo; bone uptake (with attenuatuon of bone uptake on whole body images";
+		String grade1 = "Myocardial uptake &lsaquo; gril costal";
+		String grade2 = "Myocardial uptake equal to gril costal";
+		String grade3 = "Myocardal uptake &rsaquo; gril costal (with attenuation of gril costal on whole body images";
 
 
 		listPane.add(new JLabel("<html> &nbsp; Grade 0 : " + grade0 + "</html>"));

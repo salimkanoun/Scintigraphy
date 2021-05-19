@@ -4,14 +4,16 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class FenApplication_ScinStatic extends FenApplicationWorkflow {
-	public static final String BTN_TEXT_NEW_ROI = "Validate/New Roi", BTN_TEXT_NEXT = "Next";
+	public static final String BTN_TEXT_NEW_ROI = "Validate & Add ROI", BTN_TEXT_NEXT = "Next";
 	private static final long serialVersionUID = 1L;
 	private final Button btn_finish;
 
@@ -21,23 +23,23 @@ public class FenApplication_ScinStatic extends FenApplicationWorkflow {
 		// Keep default visualisation
 		this.setVisualizationEnable(false);
 
-		this.getTextfield_instructions().setEditable(true);
-		this.getTextfield_instructions().setBackground(new Color(225, 225, 225));
-		this.getTextfield_instructions().selectAll();
-		this.btn_finish = new Button("Finish");
+		this.btn_finish = new Button("Validate & Finish");
 		this.btn_finish.setActionCommand(ControllerWorkflow.COMMAND_END);
 
 		this.getPanel_Instructions_btns_droite().removeAll();
 		Panel instru = new Panel(new GridLayout(1, 2));
-		instru.add(new Label("Roi name :"));
-		instru.add(this.getTextfield_instructions());
+		instru.add(new Label("Input new ROI name:"));
+		JTextField tf = this.getTextfield_instructions();
+		tf.setBackground(UIManager.getColor("JTextField.background"));
+		tf.setEditable(true);
+		instru.add(tf);
 		this.getPanel_Instructions_btns_droite().add(instru);
 
 		Panel btns_instru = new Panel(new GridBagLayout());
-		btns_instru.add(this.btn_finish);
 		btns_instru.add(this.getBtn_precedent());
 		this.getBtn_suivant().setLabel(BTN_TEXT_NEW_ROI);
 		btns_instru.add(this.getBtn_suivant());
+		btns_instru.add(this.btn_finish);
 		this.getPanel_Instructions_btns_droite().add(btns_instru);
 		this.btn_finish.setPreferredSize(this.getBtn_precedent().getSize());
 		this.getBtn_suivant().setPreferredSize(new Dimension(115, this.getBtn_precedent().getHeight()));

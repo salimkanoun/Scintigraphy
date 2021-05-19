@@ -19,7 +19,7 @@ import java.util.List;
 
 public class GeneralDynamicScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "Dynamic scintigraphy";
+	public static final String STUDY_NAME = "General Dynamic scintigraphy";
 	private ImageSelection impAnt, impPost, impProjetee, impProjeteeAnt, impProjeteePost;
 	private int[] frameDurations;
 
@@ -29,6 +29,8 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
+		this.initOverlayOnPreparedImages(preparedImages);
+		initOverlayOnPreparedImages(preparedImages);
 		this.setFenApplication(new FenApplication_GeneralDyn(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(
 				new ControllerWorkflowScinDynamic((FenApplicationWorkflow) this.getFenApplication(),

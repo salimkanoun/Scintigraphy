@@ -48,7 +48,7 @@ public class Model_GeneralDyn extends ModelScinDyn {
 		for (String k : this.getData().keySet()) {
 			s.append(k);
 			for (Double d : this.getData().get(k)) {
-				s.append(",").append(d);
+				s.append(",").append(Library_Quantif.round(d, 2));
 			}
 			s.append("\n");
 		}

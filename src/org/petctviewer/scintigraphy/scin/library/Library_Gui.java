@@ -19,7 +19,7 @@ public class Library_Gui {
 	/********************* Public Static ****************************************/
 
 
-	public static final int DEFAULT_FONT_SIZE = 12;
+	public static final int DEFAULT_FONT_SIZE = 10;
 
 	/**
 	 * Change le studyName et la couleur de l'overlay
@@ -142,7 +142,7 @@ public class Library_Gui {
 		}
 
 		// Set la police des text ROI
-		top.setCurrentFont(overlay.getLabelFont());
+		top.setFont(overlay.getLabelFont());
 
 		overlay.add(top);
 	}
@@ -171,8 +171,8 @@ public class Library_Gui {
 		}
 
 		// Set la police des text ROI
-		right.setCurrentFont(overlay.getLabelFont());
-		left.setCurrentFont(overlay.getLabelFont());
+		right.setFont(overlay.getLabelFont());
+		left.setFont(overlay.getLabelFont());
 
 		// Ajout de l'indication de la droite du patient
 		overlay.add(right);
@@ -222,7 +222,7 @@ public class Library_Gui {
 		result.setPosition(slice);
 
 		if (color != null) result.setStrokeColor(color);
-		if (font != null) result.setCurrentFont(font);
+		if (font != null) result.setFont(font);
 
 		return result;
 	}

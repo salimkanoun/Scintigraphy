@@ -32,8 +32,6 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		this.start();
 
 		this.fenResult = new FenResults(this);
-		
-		
 	}
 
 	@Override
@@ -139,9 +137,9 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		// Check ROI is present
 		Roi roi = getRoiManager().getRoi(indexRoi);
 		if (roi != null) {
-			getVue().getBtn_suivant().setLabel(FenApplication_ScinStatic.BTN_TEXT_NEXT);
+			getVue().getBtn_suivant().setLabel(FenApplication_GeneralDyn.BTN_TEXT_NEXT);
 		} else {
-			getVue().getBtn_suivant().setLabel(FenApplication_ScinStatic.BTN_TEXT_NEW_ROI);
+			getVue().getBtn_suivant().setLabel(FenApplication_GeneralDyn.BTN_TEXT_NEW_ROI);
 		}
 	}
 
@@ -177,10 +175,9 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		}
 
 		super.clickNext();
-
 		this.setOverlayTitleLaterisationAndRoi();
-
 		this.updateButtonLabel(this.indexRoi);
+
 		// Update view
 		int indexScroll = this.getVue().getInstructionDisplayed();
 		getVue().currentInstruction(indexScroll);

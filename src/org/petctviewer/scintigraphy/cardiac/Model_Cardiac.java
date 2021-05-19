@@ -119,29 +119,29 @@ public class Model_Cardiac extends ModelScin {
 		if (this.fullBodyImages != 0) {
 
 			// Avg background value of ant and post images for Heart
-			Double meanBdfAntHeart = this.data.get("Bkg noise A")[1];
-			Double meanBdfPostHeart = this.data.get("Bkg noise P")[1];
+			double meanBdfAntHeart = this.data.get("Bkg noise A")[1];
+			double meanBdfPostHeart = this.data.get("Bkg noise P")[1];
 
 			// Avg background value of ant and post images for Bladder
-			Double meanBdfAntBladder = this.data.get("Bladder Background A")[1];
-			Double meanBdfPostBladder = this.data.get("Bladder Background P")[1];
+			double meanBdfAntBladder = this.data.get("Bladder Background A")[1];
+			double meanBdfPostBladder = this.data.get("Bladder Background P")[1];
 
 			// Avg background value of ant and post images for Kidney R
-			Double meanBdfAntKidneyR = this.data.get("Kidney R Background A")[1];
-			Double meanBdfPostKidneyR = this.data.get("Kidney R Background P")[1];
+			double meanBdfAntKidneyR = this.data.get("Kidney R Background A")[1];
+			double meanBdfPostKidneyR = this.data.get("Kidney R Background P")[1];
 
 			// Avg background value of ant and post images for Kidney L
-			Double meanBdfAntKidneyL = this.data.get("Kidney L Background A")[1];
-			Double meanBdfPostKidneyL = this.data.get("Kidney L Background P")[1];
+			double meanBdfAntKidneyL = this.data.get("Kidney L Background A")[1];
+			double meanBdfPostKidneyL = this.data.get("Kidney L Background P")[1];
 
 			// calculation of corrected heart uptake
-			Double correctedHeartAnt = this.data.get("Heart A")[0] - (meanBdfAntHeart * this.data.get("Heart A")[2]);
-			Double correctedHeartPost = this.data.get("Heart P")[0] - (meanBdfPostHeart * this.data.get("Heart P")[2]);
+			double correctedHeartAnt = this.data.get("Heart A")[0] - (meanBdfAntHeart * this.data.get("Heart A")[2]);
+			double correctedHeartPost = this.data.get("Heart P")[0] - (meanBdfPostHeart * this.data.get("Heart P")[2]);
 
 			// Calculation of corrected Left Renal uptake
 			double correctedKLAnt = this.data.get("Kidney L A")[0]
 					- (meanBdfAntKidneyL * this.data.get("Kidney L A")[2]);
-			Double correctedKLPost = this.data.get("Kidney L P")[0]
+			double correctedKLPost = this.data.get("Kidney L P")[0]
 					- (meanBdfPostKidneyL * this.data.get("Kidney L P")[2]);
 			System.out.println("correctedKLAnt => " + correctedKLAnt + " = " + this.data.get("Kidney L A")[0] + " - "
 					+ "(" + meanBdfAntKidneyL + "*" + this.data.get("Kidney L A")[2] + ")");
@@ -154,15 +154,15 @@ public class Model_Cardiac extends ModelScin {
 					+ (meanBdfAntKidneyL + " )" + " * " + this.data.get("Kidney L A")[2]));
 
 			// Calculation of corrected Right Renal uptake
-			Double correctedKRAnt = this.data.get("Kidney R A")[0]
+			double correctedKRAnt = this.data.get("Kidney R A")[0]
 					- (meanBdfAntKidneyR * this.data.get("Kidney R A")[2]);
-			Double correctedKRPost = this.data.get("Kidney R P")[0]
+			double correctedKRPost = this.data.get("Kidney R P")[0]
 					- (meanBdfPostKidneyR * this.data.get("Kidney R P")[2]);
 
 			// Calculation of corrected Blader uptake
-			Double correctedBladAnt = this.data.get("Bladder A")[0]
+			double correctedBladAnt = this.data.get("Bladder A")[0]
 					- (meanBdfAntBladder * this.data.get("Bladder A")[2]);
-			Double correctedBladPost = this.data.get("Bladder P")[0]
+			double correctedBladPost = this.data.get("Bladder P")[0]
 					- (meanBdfPostBladder * this.data.get("Bladder P")[2]);
 
 			this.fixBkgNoiseA = meanBdfAntHeart;
@@ -270,9 +270,9 @@ public class Model_Cardiac extends ModelScin {
 		}
 		if (this.onlyThoaxImage != 0) {
 			// calculation of corrected heart uptake
-			Double heartThoraxAnt = this.data.get("Heart Thorax A")[1];
+			double heartThoraxAnt = this.data.get("Heart Thorax A")[1];
 
-			Double contralateralThoraxAnt = this.data.get("CL Thorax A")[1];
+			double contralateralThoraxAnt = this.data.get("CL Thorax A")[1];
 
 			// Calcul heart/ bg heart
 			this.heartThorax = heartThoraxAnt;

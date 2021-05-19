@@ -28,6 +28,7 @@ import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.generator.GeneratorInstruction;
 import org.petctviewer.scintigraphy.scin.json.SaveAndLoad;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 import ij.IJ;
@@ -374,7 +375,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 		if (currentInstruction.isExpectingUserInput()) {
 			this.displayInstruction(currentInstruction.getMessage());
-			this.vue.getImagePlus().getOverlay().clear();
+			Library_Gui.initOverlay(this.getVue().getImagePlus());
 			this.setOverlay(this.currentState);
 			this.prepareImage(currentInstruction.getImageState());
 
@@ -587,14 +588,11 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 
 			try {
 				SaveAndLoad saveAndLoad = new SaveAndLoad();
-
 				saveAndLoad.exportAllWithWorkflow(resultats, tab.getParent().getModel().getStudyName(), imp,
-												  additionalInfo, this.getModel().getControllers());
-
-
+												  additionalInfo, this.getModel().getControllers(), tab);
 				imp.killRoi();
-			} catch (Exception e1) {
-				e1.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 
 			// Execution du plugin myDicom

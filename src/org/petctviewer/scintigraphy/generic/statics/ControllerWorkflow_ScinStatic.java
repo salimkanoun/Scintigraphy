@@ -60,9 +60,9 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 		ImageState state;
 		if (((ModelScinStatic) this.getModel()).isAnt())
-			state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
+			state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_NONE);
 		else
-			state = new ImageState(Orientation.POST, 1, false, ImageState.ID_NONE);
+			state = new ImageState(Orientation.POST, 1, ImageState.LAT_LR, ImageState.ID_NONE);
 
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
@@ -145,7 +145,7 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		int width = 512;
 
 		double ratioCapture =
-				this.getVue().getImagePlus().getWidth() * 1.0 / this.getVue().getImagePlus().getHeight() * 1.0;
+				this.getVue().getImagePlus().getWidth() * 1.0 / this.getVue().getImagePlus().getHeight();
 
 		ImagePlus[] captures;
 
@@ -205,14 +205,12 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 		}
 
 		super.clickNext();
-
 		this.updateButtonLabel(this.indexRoi);
-
 		this.setOverlayTitleLaterisationAndRoi();
 
 		// Update view
 		int indexScroll = this.getVue().getInstructionDisplayed();
-		getVue().currentInstruction(indexScroll);
+		this.getVue().currentInstruction(indexScroll);
 	}
 	
 

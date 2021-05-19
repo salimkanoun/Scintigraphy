@@ -23,7 +23,7 @@ import java.util.List;
 
 public class RenalScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "Renal scintigraphy";
+	public static final String STUDY_NAME = "Renogram scintigraphy";
 	private ImageSelection impAnt;
 	private ImageSelection impPost;
 	private int[] frameDurations;
@@ -47,7 +47,7 @@ public class RenalScintigraphy extends Scintigraphy {
 
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
-
+		this.initOverlayOnPreparedImages(preparedImages);
 		this.setFenApplication(new FenApplication_Renal(preparedImages.get(0), this.getStudyName(), this));
 		this.getFenApplication().setController(
 				new ControllerWorkflowRenal((FenApplicationWorkflow) this.getFenApplication(),

@@ -18,7 +18,7 @@ import java.util.List;
 
 public class LiquidScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "Liquid Scintigraphy";
+	public static final String STUDY_NAME = "Gastric Emptying Liquid Scintigraphy";
 
 	public LiquidScintigraphy() {
 		super(STUDY_NAME);
@@ -35,6 +35,7 @@ public class LiquidScintigraphy extends Scintigraphy {
 
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
+		this.initOverlayOnPreparedImages(preparedImages);
 		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(new LiquidController((FenApplicationWorkflow) this.getFenApplication(),
 																	preparedImages.toArray(new ImageSelection[0])));

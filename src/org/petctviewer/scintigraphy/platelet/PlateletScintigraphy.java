@@ -16,7 +16,7 @@ import java.util.List;
 
 public class PlateletScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "Platelet Scintigraphy";
+	public static final String STUDY_NAME = "Platelet Retention Scintigraphy";
 	private boolean isAntPost;
 
 	public PlateletScintigraphy() {
@@ -25,6 +25,7 @@ public class PlateletScintigraphy extends Scintigraphy {
 
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
+		this.initOverlayOnPreparedImages(preparedImages);
 		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), getStudyName()));
 		this.getFenApplication().setController(
 				new ControllerWorkflow_Platelet((FenApplicationWorkflow) this.getFenApplication(),

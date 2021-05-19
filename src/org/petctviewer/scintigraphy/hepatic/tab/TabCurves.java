@@ -211,10 +211,10 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 			panelConvolve.add(spinnerConvolve);
 			spinnerConvolve.setPreferredSize(new Dimension(65,45));
 
-			resultPane.add(new JLabel("Number of convolution : "));
+			resultPane.add(new JLabel("Number of convolution: "));
 			resultPane.add(panelConvolve);
 			resultPane.add(new JLabel(""));
-			resultPane.add(new JLabel("Initial value of the deconvolution : "));
+			resultPane.add(new JLabel("Initial value of the deconvolution: "));
 			resultPane.add(panelDeconvolve);
 			this.sidePanelDeconvolve = resultPane;
 		}
@@ -251,23 +251,23 @@ public class TabCurves extends TabResult implements ActionListener, ChangeListen
 //				resultPane.add(new JLabel(s + " : " + results.get(s)));
 //		}
 		
-		resultPane.add(new JLabel("Righ Liver :"));
-		resultPane.add(new JLabel("T1/2 :" + " : " + results.get("T1/2 Righ Liver")));
-		resultPane.add(new JLabel("Maximum :" + " : " + results.get("Maximum Right Liver")));
-		resultPane.add(new JLabel("end/max Ratio :" + " : " + results.get("end/max Ratio Right")));
+		resultPane.add(new JLabel("Right Liver:"));
+		resultPane.add(new JLabel("T1/2: " + results.get("T1/2 Righ Liver")));
+		resultPane.add(new JLabel("Maximum: " + results.get("Maximum Right Liver")));
+		resultPane.add(new JLabel("end/max Ratio:" + results.get("end/max Ratio Right")));
 		
 		resultPane.add(new JLabel(""));
 		
-		resultPane.add(new JLabel("Left Liver :"));
-		resultPane.add(new JLabel("T1/2 :" + " : " + results.get("T1/2 Left Liver")));
-		resultPane.add(new JLabel("Maximum :" + " : " + results.get("Maximum Left Liver")));
-		resultPane.add(new JLabel("end/max Ratio :" + " : " + results.get("end/max Ratio Left")));
+		resultPane.add(new JLabel("Left Liver:"));
+		resultPane.add(new JLabel("T1/2: " + results.get("T1/2 Left Liver")));
+		resultPane.add(new JLabel("Maximum: " + results.get("Maximum Left Liver")));
+		resultPane.add(new JLabel("end/max Ratio: " + results.get("end/max Ratio Left")));
 		
 		resultPane.add(new JLabel(""));
 		
-		resultPane.add(new JLabel("Blood pool :"));
-		resultPane.add(new JLabel("T1/2 :" + " : " + results.get("T1/2 Blood pool")));
-		resultPane.add(new JLabel("ratio 20mn/5mn :" + " : " + results.get("Blood pool ratio 20mn/5mn")));
+		resultPane.add(new JLabel("Blood pool:"));
+		resultPane.add(new JLabel("T1/2: " + results.get("T1/2 Blood pool")));
+		resultPane.add(new JLabel("ratio 20mn/5mn: " + results.get("Blood pool ratio 20mn/5mn")));
 		
 		
 

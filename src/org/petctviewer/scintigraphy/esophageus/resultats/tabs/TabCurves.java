@@ -26,6 +26,7 @@ public class TabCurves extends TabResult {
 
 	private final XYSeries[][] datasetModele;
 	private final String[] titleRows;
+	private JTableCheckBox tableCheckbox;
 
 	public TabCurves(int nbAcquisition, FenResults parent, Model_Resultats_EsophagealTransit modeleApp) {
 		super(parent, "Curves", true);
@@ -59,7 +60,7 @@ public class TabCurves extends TabResult {
 		String[] titleCols = { "Full", "Upper", "Middle", "Lower" };
 
 		// table de checkbox
-		JTableCheckBox tableCheckbox = new JTableCheckBox(titleRows, titleCols, e -> {
+		this.tableCheckbox = new JTableCheckBox(titleRows, titleCols, e -> {
 
 			TabCurves tab = TabCurves.this;
 			JCheckBox selected = (JCheckBox) e.getSource();
@@ -69,7 +70,7 @@ public class TabCurves extends TabResult {
 		});
 
 		// active uniquement la premiere colonne
-		tableCheckbox.setFirstColumn();
+		this.tableCheckbox.setFirstColumn();
 
 		JPanel sidePanel = new JPanel();
 		sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
@@ -78,7 +79,7 @@ public class TabCurves extends TabResult {
 		SidePanel sidePanelScin = new SidePanel(null, modeleApp.esoPlugIn.getStudyName(), modeleApp.getImagesPlus()[0]);
 		sidePanel.add(sidePanelScin);
 
-		sidePanel.add(tableCheckbox);
+		sidePanel.add(this.tableCheckbox);
 
 		JPanel longeurEsophageResultPanel = new JPanel();
 		longeurEsophageResultPanel.setLayout(new GridLayout(nbAcquisition + 1, 1));
@@ -128,6 +129,13 @@ public class TabCurves extends TabResult {
 			}
 		}
 		this.graphMain.getXYPlot().setDataset(dataset);
+
+		for (int x=0; x<datasetModele.length; x++) {
+			for (int y=0; y<4; y++) {
+				boolean visibility = y == 0;
+				this.setVisibilitySeriesMain(x, y, visibility);
+			}
+		}
 
 		return new ChartPanel(graphMain);
 	}

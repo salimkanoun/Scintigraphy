@@ -49,8 +49,8 @@ public class FenPatlak extends JDialog implements ActionListener, ChartMouseList
 		plot.setBackgroundPaint(null);
 
 		// initialisation des labels
-		this.lbl_eqL = new JLabel();
-		this.lbl_eqR = new JLabel();
+		this.lbl_eqL = new JLabel("L. Kidney");
+		this.lbl_eqR = new JLabel("R. Kidney");
 
 		// on cree le selectorHandler
 		this.valueSetter = createValueSetter(patlakChart);

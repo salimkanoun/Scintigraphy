@@ -16,8 +16,8 @@ public class FenResultatsLympho extends FenResults {
 
 		this.mainTab = new TabPrincipalLympho(this, "Result", controller.getModel(), captures);
 		this.setMainTab(this.mainTab);
-		this.addTab(new TabPelvis(this, "Pelvis", true));
 		this.addTab(new TabVisualGradation(this, "Visual Gradation"));
+		this.addTab(new TabPelvis(this, "Pelvis", true));
 
 	}
 

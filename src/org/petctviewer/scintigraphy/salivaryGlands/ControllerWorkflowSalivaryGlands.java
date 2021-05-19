@@ -1,27 +1,19 @@
 package org.petctviewer.scintigraphy.salivaryGlands;
 
 import ij.ImagePlus;
-import ij.Prefs;
-import org.jfree.chart.ChartPanel;
-import org.jfree.data.xy.XYSeries;
-import org.petctviewer.scintigraphy.renal.Model_Renal;
-import org.petctviewer.scintigraphy.renal.gui.FenResultats_Renal;
-import org.petctviewer.scintigraphy.salivaryGlands.gui.FenCitrus;
+
+import org.petctviewer.scintigraphy.salivaryGlands.gui.FenResultats_SalivaryGlands;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
-import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackground;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
-import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
-import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
-import org.petctviewer.scintigraphy.scin.preferences.PrefTabRenal;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -34,9 +26,6 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 
 	public ControllerWorkflowSalivaryGlands(FenApplicationWorkflow vue, ModelScin model) {
 		super(vue, model);
-		
-		this.generateInstructions();
-		this.start();
 	}
 
 	@Override
@@ -59,51 +48,24 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 		BufferedImage capture = Library_Capture_CSV.captureImage(this.model.getImagePlus(), 512, 0).getBufferedImage();
 
 		// on enregistre la mesure pour chaque slice
+		modele.saveOrganRois();
+		modele.savePixelNumberROIs(imp);
 		for (int indexSlice = 1; indexSlice <= imp.getStackSize(); indexSlice++) {
 			imp.setSlice(indexSlice);
-			for (int indexRoi = 0; indexRoi < this.organeListe.length; indexRoi++) {
-				imp.setRoi(this.model.getRoiManager().getRoi(indexRoi));
-				String nom = this.organeListe[indexRoi];
-				modele.enregistrerMesure(nom, imp);
-
-				if (indexSlice == 1) modele.enregistrerPixelRoi(nom, Library_Quantif.getPixelNumber(imp));
-			}
+			modele.enregistrerMesure(imp, indexSlice);
 		}
 
 		// on calcule les resultats
 		modele.calculateResults();
 
-		// on recupere les chartPanels avec l'association
-		List<XYSeries> series = modele.getSeries();
-		String[][] asso = new String[][]{{"Final KL", "Final KR"}};
-		ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
-
-		FenCitrus fan = new FenCitrus(cp[0], this.getVue(), modele);
-		fan.setModal(true);
-		fan.setVisible(true);
-
-		((Model_Renal) model).setNephrogramChart(fan.getValueSetter());
-		((Model_Renal) model).setPatlakChart(fan.getPatlakChart());
-
-		// on passe les valeurs ajustees au modele
-		modele.setAdjustedValues(fan.getValueSetter().getValues());
-
-		// on fait le fit vasculaire avec les donnees collectees
-		modele.fitVasculaire();
-
-		// on affiche la fenetre de resultats principale
-		((Model_Renal) model).setNephrogramChart(fan.getValueSetter());
-		FenResults fenResults = new FenResultats_Renal(capture, this);
-		fenResults.toFront();
-		fenResults.setVisible(true);
-
-
 		// SK On rebloque le modele pour la prochaine generation
 		modele.setLocked(true);
 
-	}
+		// on affiche la fenetre de resultats principale
+		FenResults fenResults = new FenResultats_SalivaryGlands(capture, this);
+		fenResults.setVisible(true);
 
-	
+	}
 
 	@Override
 	protected void generateInstructions() {
@@ -112,7 +74,7 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 
 		this.workflows = new Workflow[1];
 		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4;
-		DrawRoiBackground dri_Background_1;
+		DrawRoiInstruction dri_Background_1;
 		ScreenShotInstruction dri_capture_1;
 		List<ImagePlus> captures = new ArrayList<>();
 
@@ -128,9 +90,9 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 		this.workflows[0].addInstruction(dri_2);
 		organes.add("L. Parotid");
 
-		dri_Background_1 = new DrawRoiBackground("Background", stateAnt, dri_1, this.workflows[0], "");
+		dri_Background_1 = new DrawRoiInstruction("Background", stateAnt);
 		this.workflows[0].addInstruction(dri_Background_1);
-		organes.add("Bkg");
+		organes.add("Background");
 
 
 		dri_3 = new DrawRoiInstruction("R. SubMandib", stateAnt);
@@ -153,4 +115,14 @@ public class ControllerWorkflowSalivaryGlands extends ControllerWorkflow {
 		this.workflows[0].addInstruction(new EndInstruction());
 	}
 
+	public void setLemonJuiceInjection(double lemonJuiceInjection) {
+		((ModelSalivaryGlands) this.model).setLemonInjection(lemonJuiceInjection);
+		this.generateInstructions();
+		this.start();
+	}
+
+	@Override
+	public String toString() {
+		return this.model.toString();
+	}
 }

@@ -15,6 +15,8 @@ import org.petctviewer.scintigraphy.cardiac.ControllerWorkflowCardiac;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
 import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
+import org.petctviewer.scintigraphy.scin.gui.FenApplication;
+import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawLoopInstruction;
@@ -63,14 +65,19 @@ public class SaveAndLoad {
 	 *            :String qui sera rajoutée à la fin du studyName du fichier
 	 */
 	public void exportAllWithWorkflow(String resultats, String nomProgramme, ImagePlus imp, String additionalInfo,
-			List<ControllerWorkflow> controller) {
+									  List<ControllerWorkflow> controller, TabResult tab) {
 
 		String[] infoPatient = Library_Capture_CSV.getInfoPatient(imp);
 		StringBuilder content = this.initCSVVertical(infoPatient);
 
 		content.append(resultats);
 
-		this.saveFiles(imp, content, nomProgramme, infoPatient, additionalInfo, controller);
+		int res = this.saveFiles(imp, content, nomProgramme, infoPatient, additionalInfo, controller);
+		if (res == 1) {
+			tab.getCaptureButton().setEnabled(false);
+			tab.getLblCapture().setText("Data exported");
+		}
+
 	}
 
 	/**
@@ -86,7 +93,7 @@ public class SaveAndLoad {
 	 * @param controller
 	 *            Controller to be transformed as Json
 	 */
-	public void saveFiles(ImagePlus imp, StringBuilder csv, String programName, String[] infoPatient,
+	public int saveFiles(ImagePlus imp, StringBuilder csv, String programName, String[] infoPatient,
 			String additionalInfo, List<ControllerWorkflow> controller) {
 
 		RoiManager roiManager = controller.get(0).getRoiManager();
@@ -95,63 +102,73 @@ public class SaveAndLoad {
 		String path = Prefs.get(PrefTabMain.PREF_SAVE_DIRECTORY, null);
 		boolean testEcriture = false;
 
+		if (path == null) {
+			JFileChooser fc = new JFileChooser();
+			fc.setDialogTitle("Choose export directory");
+			fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			fc.setAcceptAllFileFilterUsed(false);
+			int res = fc.showOpenDialog(null);
+			if (res == JFileChooser.APPROVE_OPTION)
+				path = fc.getSelectedFile().getAbsoluteFile().toString();
+		}
+
 		// On verifie que le path est writable si il existe
 		if (path != null) {
 			File testPath = new File(path);
 			testEcriture = testPath.canWrite();
 		}
 
-		if (path != null && !testEcriture) {
+		if (path == null || !testEcriture) {
 			// Si pas de repertoire defini on notifie l'utilisateur
 			IJ.showMessage("CSV Path not writable, CSV/ZIP export has failed");
+			return -1;
 		}
-		if (path != null && testEcriture) {
-			// On construit le sous repertoire avecle studyName du programme et l'ID du
-			// Patient
-			String pathFinal = path + File.separator + programName + File.separator + infoPatient[1] + File.separator
-					+ infoPatient[2];
-			String nomFichier = infoPatient[1] + "_" + infoPatient[2] + additionalInfo;
-			File subDirectory = new File(pathFinal);
-			if (subDirectory.isDirectory()) {
-				try {
-					FileUtils.cleanDirectory(subDirectory); // clean out directory (this is optional -- but good know)
-					FileUtils.forceDelete(subDirectory); // delete directory
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (subDirectory.mkdirs()) {
-
-				File f = new File(subDirectory + File.separator + nomFichier + ".csv");
-
-				// On ecrit les CSV
-				PrintWriter pw;
-				try {
-					pw = new PrintWriter(f);
-					pw.write(csv.toString());
-					pw.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-				// On ecrit le ZIP contenant la sauvegarde des ROIs
-				Roi[] rois2 = roiManager.getRoisAsArray();
-				int[] tab = new int[rois2.length];
-				for (int i = 0; i < rois2.length; i++)
-					tab[i] = i;
-				roiManager.setSelectedIndexes(tab);
-
-				for (ControllerWorkflow currentController : controller)
-					this.saveRois(currentController, pathFinal + File.separator + nomFichier + "_"
-							+ currentController.getClass().getSimpleName() + ".zip");
-
-				// On sauve l'image en jpeg
-				IJ.saveAs(imp, "Jpeg", pathFinal + File.separator + nomFichier + ".jpg");
-			} else {
-				System.err.println("An error occurred while trying to create the directories for the path: " + pathFinal
-						+ ". Aborting creation of CSV, ZIP and JPEG.");
+		// On construit le sous repertoire avecle studyName du programme et l'ID du
+		// Patient
+		String pathFinal = path + File.separator + programName + File.separator + infoPatient[1] + File.separator
+				+ infoPatient[2];
+		String nomFichier = infoPatient[1] + "_" + infoPatient[2] + additionalInfo;
+		File subDirectory = new File(pathFinal);
+		if (subDirectory.isDirectory()) {
+			try {
+				FileUtils.cleanDirectory(subDirectory); // clean out directory (this is optional -- but good know)
+				FileUtils.forceDelete(subDirectory); // delete directory
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
+		if (subDirectory.mkdirs()) {
+
+			File f = new File(subDirectory + File.separator + nomFichier + ".csv");
+
+			// On ecrit les CSV
+			PrintWriter pw;
+			try {
+				pw = new PrintWriter(f);
+				pw.write(csv.toString());
+				pw.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			// On ecrit le ZIP contenant la sauvegarde des ROIs
+			Roi[] rois2 = roiManager.getRoisAsArray();
+			int[] tab = new int[rois2.length];
+			for (int i = 0; i < rois2.length; i++)
+				tab[i] = i;
+			roiManager.setSelectedIndexes(tab);
+
+			for (ControllerWorkflow currentController : controller)
+				this.saveRois(currentController, pathFinal + File.separator + nomFichier + "_"
+						+ currentController.getClass().getSimpleName() + ".zip");
+
+			// On sauve l'image en jpeg
+			IJ.saveAs(imp, "Jpeg", pathFinal + File.separator + nomFichier + ".jpg");
+		} else {
+			System.err.println("An error occurred while trying to create the directories for the path: " + pathFinal
+					+ ". Aborting creation of CSV, ZIP and JPEG.");
+		}
+		return 1;
 	}
 
 	/**

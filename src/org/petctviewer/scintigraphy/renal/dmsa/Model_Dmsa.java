@@ -78,7 +78,7 @@ public class Model_Dmsa extends ModelScin {
 	
 		//ajoute tous les coups
 		for(String k : this.data.keySet()) {
-			s.append("count ").append(k).append(",").append(this.data.get(k)).append("\n");
+			s.append("count ").append(k).append(",").append(Library_Quantif.round(this.data.get(k), 2)).append("\n");
 		}
 		
 		s.append("\n");
@@ -90,8 +90,8 @@ public class Model_Dmsa extends ModelScin {
 		
 		s.append("\n");
 		
-		s.append("Excretion ratio Left Kidney,").append(this.pct[0]).append("\n");
-		s.append("Excretion ratio Right Kidney,").append(this.pct[1]).append("\n");
+		s.append("Excretion ratio Left Kidney,").append(Library_Quantif.round(this.pct[0], 2)).append("\n");
+		s.append("Excretion ratio Right Kidney,").append(Library_Quantif.round(this.pct[1], 2)).append("\n");
 		
 		return s.toString();
 	}

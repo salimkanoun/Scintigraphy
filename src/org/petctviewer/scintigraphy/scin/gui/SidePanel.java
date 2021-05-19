@@ -25,6 +25,7 @@ public class SidePanel extends JPanel {
 	private JLabel titreFen;
 	
 	private CaptureButton captureButton;
+	private JLabel lblCapture;
 
 	public SidePanel(Component sidePanelContent, String titre, ImagePlus imp) {
 		super(new BorderLayout());
@@ -53,6 +54,8 @@ public class SidePanel extends JPanel {
 			}
 		}
 	}
+
+
 
 	private void fillbox(String titre, ImagePlus imp) {
 		this.box.setBorder(new EmptyBorder(0, 10, 0, 10));
@@ -112,7 +115,9 @@ public class SidePanel extends JPanel {
 
 		captureButton.setHorizontalAlignment(JButton.CENTER);
 		captureButton.setEnabled(true);
+		this.lblCapture = new JLabel();
 		this.panSouth.add(captureButton);
+		this.panSouth.add(this.lblCapture);
 	}
 
 	public void setTitle(String title) {
@@ -123,5 +128,8 @@ public class SidePanel extends JPanel {
 		return this.captureButton;
 	}
 
+	public JLabel getLblCapture() {
+		return this.lblCapture;
+	}
 }
 

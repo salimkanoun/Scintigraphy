@@ -127,7 +127,7 @@ public class OsScintigraphy extends Scintigraphy {
 	public void start(List<ImageSelection> preparedImages) {
 		if (process) {
 			// FenApplication_Os fen = new FenApplication_Os(this, buffer);
-
+			this.initOverlayOnPreparedImages(preparedImages);
 			Controleur_Os controleur_os = new Controleur_Os(preparedImages.toArray(new ImageSelection[0]));
 			FenApplication_Os fen = controleur_os.getFenApplicatio_Os();
 			fen.setVisible(true);

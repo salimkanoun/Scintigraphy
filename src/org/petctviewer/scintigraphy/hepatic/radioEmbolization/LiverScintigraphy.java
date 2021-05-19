@@ -22,7 +22,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 public class LiverScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "Liver";
+	public static final String STUDY_NAME = "RadioEmbolization";
 
 	public LiverScintigraphy() {
 		super(STUDY_NAME);
@@ -64,6 +64,7 @@ public class LiverScintigraphy extends Scintigraphy {
 
 	@Override
 	public void start(final List<ImageSelection> preparedImages) {
+		this.initOverlayOnPreparedImages(preparedImages);
 		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(new ControllerWorkflowLiver(
 				(FenApplicationWorkflow) getFenApplication(), preparedImages.toArray(new ImageSelection[0])));

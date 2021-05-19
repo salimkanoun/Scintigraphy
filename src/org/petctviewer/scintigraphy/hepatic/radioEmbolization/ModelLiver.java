@@ -143,7 +143,7 @@ public class ModelLiver extends ModelWorkflow{
 	 * @return String
 	 */
 	private String resultToCsvLine(Result res) {
-		return res + "," + this.results.get(res.hashCode()) + "," + this.unitForResult(res) + "\n";
+		return res + "," + Library_Quantif.round(this.results.get(res.hashCode()), 2) + "," + this.unitForResult(res) + "\n";
 	}
 	
 	

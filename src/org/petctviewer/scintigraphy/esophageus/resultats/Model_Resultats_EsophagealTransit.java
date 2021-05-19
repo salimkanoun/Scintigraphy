@@ -5,7 +5,7 @@ import ij.ImagePlus;
 import ij.measure.Calibration;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.esophageus.application.EsophagealTransit;
+import org.petctviewer.scintigraphy.esophageus.application.EsophagealTransitScintigraphy;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -35,10 +35,10 @@ public class Model_Resultats_EsophagealTransit extends ModelScin {
 	private final double[] tempsMesureTransitTime;
 	private final double[] retentionDecrease;
 
-	public final EsophagealTransit esoPlugIn;
+	public final EsophagealTransitScintigraphy esoPlugIn;
 
 	public Model_Resultats_EsophagealTransit(ArrayList<HashMap<String, ArrayList<Double>>> arrayList,
-											 ArrayList<Object[]> dicomRoi, String studyName, EsophagealTransit esoPlugIn,
+											 ArrayList<Object[]> dicomRoi, String studyName, EsophagealTransitScintigraphy esoPlugIn,
 											 ImageSelection[] selectedImages) {
 		super(selectedImages, studyName);
 
@@ -352,19 +352,19 @@ public class Model_Resultats_EsophagealTransit extends ModelScin {
 
 			StringBuilder unTier = new StringBuilder("Upper,");
 			for (int j = 0; j < arrayList.get(i).get("unTier").size(); j++) {
-				unTier.append(arrayList.get(i).get("unTier").get(j)).append(",");
+				unTier.append(Library_Quantif.round(arrayList.get(i).get("unTier").get(j), 2)).append(",");
 			}
 			unTier.append("\n");
 
 			StringBuilder deuxTier = new StringBuilder("Middle,");
 			for (int j = 0; j < arrayList.get(i).get("deuxTier").size(); j++) {
-				deuxTier.append(arrayList.get(i).get("deuxTier").get(j)).append(",");
+				deuxTier.append(Library_Quantif.round(arrayList.get(i).get("deuxTier").get(j), 2)).append(",");
 			}
 			deuxTier.append("\n");
 
 			StringBuilder troisTier = new StringBuilder("Lower,");
 			for (int j = 0; j < arrayList.get(i).get("troisTier").size(); j++) {
-				troisTier.append(arrayList.get(i).get("troisTier").get(j)).append(",");
+				troisTier.append(Library_Quantif.round(arrayList.get(i).get("troisTier").get(j), 2)).append(",");
 			}
 			troisTier.append("\n");
 
@@ -382,8 +382,8 @@ public class Model_Resultats_EsophagealTransit extends ModelScin {
 		}
 		res.append("\n");
 
-		// longueur esophage
-		res.append("Esophage Height,");
+		// esophageal height
+		res.append("Esophageal Height,");
 		for (double item : longueurEsophage) {
 			res.append(item).append(",");
 		}
@@ -396,7 +396,7 @@ public class Model_Resultats_EsophagealTransit extends ModelScin {
 		}
 		res.append("\n");
 
-		// rentention decrease
+		// retention decrease
 		res.append("Retention 10s peak,");
 		for (double v : retentionDecrease) {
 			res.append(v).append(",");

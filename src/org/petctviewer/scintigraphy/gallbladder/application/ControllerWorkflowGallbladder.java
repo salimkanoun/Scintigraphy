@@ -22,15 +22,15 @@ public class ControllerWorkflowGallbladder extends ControllerWorkflow{
     public void end(){
         super.end();
         model.calculateResults();
-        FenResultats_Gallbladder fen = new FenResultats_Gallbladder(((Model_Gallbladder) model).getExamenMean(), ((Model_Gallbladder) model).getDicomRoi(),
-        ((Model_Gallbladder) model), "Gallbladder", this);
+        FenResultats_Gallbladder fen = new FenResultats_Gallbladder(((ModelGallbladder) model).getExamenMean(), ((ModelGallbladder) model).getDicomRoi(),
+        ((ModelGallbladder) model), "Gallbladder", this);
         fen.setVisible(true);
     }
 
     @Override
     protected void generateInstructions(){
         this.workflows = new Workflow[this.model.getImageSelection().length];
-        this.workflows[0] = new Workflow(this, ((Model_Gallbladder) this.getModel()).getImgPrjtAllAcqui());
+        this.workflows[0] = new Workflow(this, ((ModelGallbladder) this.getModel()).getImgPrjtAllAcqui());
 
         for(int indexInstruction = 0; indexInstruction < this.getModel().getImageSelection().length; indexInstruction++){
             ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);

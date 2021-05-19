@@ -5,9 +5,11 @@ import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * Represents an image selected by the user.<br>
@@ -50,6 +52,14 @@ public class ImageSelection implements Cloneable {
 	 */
 	public String getValue(String col) {
 		return this.columnsValues.get(col);
+	}
+
+	public Set<String> getColumns() {
+		return columnsValues.keySet();
+	}
+
+	public Collection<String> getValues() {
+		return columnsValues.values();
 	}
 
 	/**

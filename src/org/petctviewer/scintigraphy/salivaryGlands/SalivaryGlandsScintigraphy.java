@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.salivaryGlands;
 import java.util.ArrayList;
 import java.util.List;
 
+import ij.IJ;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -36,6 +37,10 @@ public class SalivaryGlandsScintigraphy extends Scintigraphy {
     private void createDocumentation() {
         DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
         doc.setDeveloper("Angele Mateos");
+        doc.addReference(DocumentationDialog.Field.createLinkField("", "Kaldway - Nucl Med Commun 2019",
+                "https://pubmed.ncbi.nlm.nih.gov/30807534/"));
+        doc.addReference(DocumentationDialog.Field.createLinkField("", "Aksoy - Clin Rheumatol 2012",
+                "https://pubmed.ncbi.nlm.nih.gov/22733368/"));
         doc.setYoutube("");
         doc.setOnlineDoc("");
         this.getFenApplication().setDocumentation(doc);
@@ -43,11 +48,11 @@ public class SalivaryGlandsScintigraphy extends Scintigraphy {
 
     @Override
 	public void start(List<ImageSelection> preparedImages) {
-
+        this.initOverlayOnPreparedImages(preparedImages, 7);
 		this.setFenApplication(new FenApplication_SalivaryGlands(preparedImages.get(0), this.getStudyName(), this));
 		this.getFenApplication().setController(
 				new ControllerWorkflowSalivaryGlands((FenApplicationWorkflow) this.getFenApplication(),
-                                            new ModelSalivaryGlands(this.frameDurations, preparedImages.toArray(new ImageSelection[0]), STUDY_NAME)));
+                                            new ModelSalivaryGlands(this.frameDurations, preparedImages.toArray(new ImageSelection[0]), STUDY_NAME, this.impAnt)));
 		this.createDocumentation();
     }
     

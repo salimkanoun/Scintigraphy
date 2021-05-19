@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.esophageus.application;
 
 import org.petctviewer.scintigraphy.esophageus.resultats.FenResultats_EsophagealTransit;
+import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -8,6 +9,7 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
+import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
 public class ControllerWorkflowEsophagealTransit extends ControllerWorkflow {
@@ -40,8 +42,10 @@ public class ControllerWorkflowEsophagealTransit extends ControllerWorkflow {
 
 
 			ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
-			state.specifieImage(this.getModel().getImageSelection()[indexInstruction]);
-			DrawRoiInstruction dri_1 = null;
+			ImageSelection ims = this.getModel().getImageSelection()[indexInstruction];
+			Library_Gui.initOverlay(ims.getImagePlus());
+			state.specifieImage(ims);
+			DrawRoiInstruction dri_1;
 			DrawRoiInstruction dri_previous =
 					indexInstruction != 0 ? (DrawRoiInstruction) this.workflows[0].getInstructions().get(
 							indexInstruction - 1) : null;

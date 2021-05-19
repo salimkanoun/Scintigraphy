@@ -16,7 +16,7 @@ import java.util.List;
 
 public class ColonicScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "Colonic Scintigraphy";
+	public static final String STUDY_NAME = "Colon Transit Scintigraphy";
 
 	public ColonicScintigraphy() {
 		super(STUDY_NAME);
@@ -33,7 +33,7 @@ public class ColonicScintigraphy extends Scintigraphy {
 
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
-
+		this.initOverlayOnPreparedImages(preparedImages);
 		this.setFenApplication(new FenApplicationColonicTransit(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(
 				new ControllerWorkflowColonicTransit((FenApplicationColonicTransit) this.getFenApplication(),

@@ -17,6 +17,7 @@ import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 
 /**
  * This class represents the Controller in the MVC pattern.<br> This abstract class is only a provider for functions
@@ -36,11 +37,13 @@ public abstract class ControllerScin implements ActionListener {
 	 * 'Previous' button is pressed.<br> The position must always be positive.
 	 */
 	protected int position;
+	private boolean inverted;
 
 	public ControllerScin(FenApplication vue, ModelScin model) {
 		this.vue = vue;
 		this.position = 0;
 		this.model = model;
+		this.inverted = false;
 
 		Roi.setColor(Color.RED);
 	}
@@ -190,7 +193,10 @@ public abstract class ControllerScin implements ActionListener {
 		if (roiToSave == null) throw new NoDataException("No ROI to save");
 
 		// TODO: maybe allow the user to choose the color for the ROI?
-		roiToSave.setStrokeColor(Color.YELLOW);
+		if (this.inverted)
+			roiToSave.setStrokeColor(Color.BLUE);
+		else
+			roiToSave.setStrokeColor(Color.YELLOW);
 		roiToSave.setPosition(0);
 
 		Roi existingRoi = this.getRoiManager().getRoi(indexRoiToSave);
@@ -231,6 +237,8 @@ public abstract class ControllerScin implements ActionListener {
 				this.vue.getImagePlus().getOverlay().add(roiToDisplay);
 			}
 		}
+
+		this.updateROIColor();
 	}
 
 	/**
@@ -277,6 +285,7 @@ public abstract class ControllerScin implements ActionListener {
 		else Library_Gui.setOverlayGD(this.vue.getImagePlus(), Color.YELLOW);
 
 		Library_Gui.setOverlayTitle(state.title(), this.vue.getImagePlus(), Color.YELLOW, state.getSlice());
+		this.updateROIColor();
 	}
 
 	/**
@@ -366,6 +375,12 @@ public abstract class ControllerScin implements ActionListener {
 		} else if (b == this.vue.getBtn_precedent()) {
 			this.clickPrevious();
 
+		} else if (b == this.vue.getZoom_in()) {
+			IJ.run("In [+]", "");
+
+		} else if (b == this.vue.getZoom_out()) {
+			IJ.run("Out [-]", "");
+
 		} else if (b == this.vue.getBtn_drawROI()) {
 			Button btn = this.vue.getBtn_drawROI();
 
@@ -377,11 +392,12 @@ public abstract class ControllerScin implements ActionListener {
 			}
 
 			// on deselectionne le bouton contraste
-			this.vue.getBtn_contrast().setBackground(null);
+			this.vue.getBtn_reverse().setBackground(null);
 
 			IJ.setTool(PrefTabMain.toolFromString(Prefs.get(PrefTabMain.PREF_TOOL_ROI, "Polygone")));
 
-		} else if (b == this.vue.getBtn_contrast()) {
+		} else if (b == this.vue.getBtn_reverse()) {
+			this.inverted = !this.inverted;
 			// on change la couleur du bouton
 			if (b.getBackground() != Color.LIGHT_GRAY) {
 				b.setBackground(Color.LIGHT_GRAY);
@@ -392,7 +408,9 @@ public abstract class ControllerScin implements ActionListener {
 			// on deselectionne le bouton draw roi
 			this.vue.getBtn_drawROI().setBackground(null);
 
-			IJ.run("Window Level Tool");
+			IJ.run("Invert LUT", "stack");
+			this.updateROIColor();
+
 
 		} else if (b == this.vue.getBtn_quitter()) {
 			this.vue.close();
@@ -401,6 +419,22 @@ public abstract class ControllerScin implements ActionListener {
 
 	public RoiManager getRoiManager() {
 		return this.model.getRoiManager();
+	}
+
+	private void updateROIColor() {
+		String opts_lbl;
+		String opts_roi;
+
+		if (this.inverted) {
+			opts_lbl = "blue";
+			opts_roi = "blue width=1";
+		} else {
+			opts_lbl = "white";
+			opts_roi = "yellow width=0";
+		}
+
+		IJ.run("Overlay Options...", "stroke="+ opts_roi +" set apply show");
+		IJ.run("Labels...", "color="+ opts_lbl +" font=18 show use");
 	}
 
 }

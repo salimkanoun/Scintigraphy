@@ -42,7 +42,7 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 	
 	private void computeModel() {
         ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, ModelLiver.IMAGE_LIVER_LUNG),
-                statePost = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_RL, ModelLiver.IMAGE_LIVER_LUNG);
+                statePost = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_LR, ModelLiver.IMAGE_LIVER_LUNG);
         final int NB_ROI_PER_IMAGE = 3;
         // Ant then Post
         for (int i=0; i<2; i++) {
@@ -76,8 +76,8 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 		
         this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
-        ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
-        ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
+        ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, ImageState.ID_NONE);
+        ImageState statePost = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_LR, ImageState.ID_NONE);
 
         // le POST
         dri_1 = new DrawRoiInstruction(ModelLiver.REGION_RIGHT_LUNG, stateAnt);
@@ -157,6 +157,8 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 											state.getSlice());
 			} else {
 				if (state.getFacingOrientation() == Orientation.POST){
+					Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
+							state.getSlice());
 					Library_Gui.setOverlayTitle(display.getTitlePost(), this.vue.getImagePlus(),
 											Color.YELLOW, state.getSlice());
 				}
@@ -166,9 +168,11 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
 			if (state.getFacingOrientation() == Orientation.ANT) {
 				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,
 											state.getSlice());
-				Library_Gui.setOverlayTitle("Inverted " + display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
+				Library_Gui.setOverlayTitle(display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
 											state.getSlice());
 			} else {
+				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,
+						state.getSlice());
 				Library_Gui.setOverlayTitle(display.getTitlePost(), this.vue.getImagePlus(), Color.YELLOW,
 											state.getSlice());
 			}

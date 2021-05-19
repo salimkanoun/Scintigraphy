@@ -25,14 +25,14 @@ public class Model_EsophagealTransit extends ModelScinDyn {
 	//pour le condensé dynamique
 	ArrayList<Object[]> dicomRoi;
 	
-	public final EsophagealTransit esoPlugIn;
+	public final EsophagealTransitScintigraphy esoPlugIn;
 
 	private Model_Resultats_EsophagealTransit modelResults;
 
 	private ImageSelection impProjeteeAllAcqui;
 
 	public Model_EsophagealTransit(ImageSelection[][] sauvegardeImagesSelectDicom, String studyName,
-								   EsophagealTransit esoPlugIn, ImageSelection impProjeteeAllAcqui) {
+                                   EsophagealTransitScintigraphy esoPlugIn, ImageSelection impProjeteeAllAcqui) {
 		super(sauvegardeImagesSelectDicom[0], studyName, esoPlugIn.getFrameDurations());
 		this.sauvegardeImagesSelectDicom = sauvegardeImagesSelectDicom;
 		

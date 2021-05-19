@@ -11,7 +11,7 @@ import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
-import org.petctviewer.scintigraphy.gallbladder.application.Model_Gallbladder;
+import org.petctviewer.scintigraphy.gallbladder.application.ModelGallbladder;
 import org.petctviewer.scintigraphy.gallbladder.resultats.Model_Resultats_Gallbladder;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
@@ -62,7 +62,7 @@ public class TabGallbladder extends TabResult{
         JLabel label = new JLabel(result.toString());
 
         //Color
-        if(result.getResultType() == Model_Gallbladder.RES_GALLBLADDER){
+        if(result.getResultType() == ModelGallbladder.RES_GALLBLADDER){
             if(result.getValue() < 2.) label.setForeground(Color.GREEN);
             else if (result.getValue() < 5.) label.setForeground(Color.magenta);
             else label.setForeground(Color.RED);
@@ -81,9 +81,9 @@ public class TabGallbladder extends TabResult{
 
         //Ejection fraction
 
-        ResultRequest request = new ResultRequest(Model_Gallbladder.RES_GALLBLADDER);
+        ResultRequest request = new ResultRequest(ModelGallbladder.RES_GALLBLADDER);
 
-        request.changeResultOn(Model_Gallbladder.RES_GALLBLADDER);
+        request.changeResultOn(ModelGallbladder.RES_GALLBLADDER);
         request.setUnit(Unit.PERCENTAGE);
         this.displayResult(this.getModel().getResult(request), res);
 
@@ -150,8 +150,8 @@ public class TabGallbladder extends TabResult{
     /** 
 	 * @return ModelThyroid
 	 */
-	private Model_Gallbladder getModel() {
-		return (Model_Gallbladder) this.parent.getModel();
+	private ModelGallbladder getModel() {
+		return (ModelGallbladder) this.parent.getModel();
     }
 
     @Override

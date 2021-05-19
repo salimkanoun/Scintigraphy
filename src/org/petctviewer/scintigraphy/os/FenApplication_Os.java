@@ -88,7 +88,7 @@ public class FenApplication_Os extends JPanel {
 		boxSlider.add(this.sliderLabel);
 		boxSlider.add(this.slider);
 
-		this.reverseButton = new JButton("Inverser"); // Boutton inversant le contraste.
+		this.reverseButton = new JButton("Invert"); // Boutton inversant le contraste.
 		this.reverseButton.addActionListener(controleur_Os);
 		this.reverseButton.setPreferredSize(new Dimension(200, 40));
 

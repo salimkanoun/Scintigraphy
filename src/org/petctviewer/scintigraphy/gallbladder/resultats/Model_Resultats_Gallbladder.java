@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.gallbladder.application.Gallbladder;
+import org.petctviewer.scintigraphy.gallbladder.application.GallbladderScintigraphy;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
@@ -33,12 +33,12 @@ public class Model_Resultats_Gallbladder extends ModelScin{
 	private final ArrayList<HashMap<String, ArrayList<Double>>> arrayList;
 	private final double[] retentionDecrease;
 
-	public final Gallbladder gallPlugIn;
+	public final GallbladderScintigraphy gallPlugIn;
 	
 	public final int[] tabFrames;
     
     public Model_Resultats_Gallbladder(ArrayList<HashMap<String, ArrayList<Double>>> arrayList,
-    ArrayList<Object[]> dicomRoi, String studyName, Gallbladder gallPlugIn, ImageSelection[] selectedImages){
+                                       ArrayList<Object[]> dicomRoi, String studyName, GallbladderScintigraphy gallPlugIn, ImageSelection[] selectedImages){
         super(selectedImages, studyName);
 
         //CSV
@@ -303,13 +303,13 @@ public class Model_Resultats_Gallbladder extends ModelScin{
 			// le temps
 			StringBuilder time = new StringBuilder("Time,");
 			for (int j = 0; j < arrayList.get(i).get("temps").size(); j++) {
-				time.append(arrayList.get(i).get("temps").get(j)).append(",");
+				time.append(Library_Quantif.round(arrayList.get(i).get("temps").get(j), 2)).append(",");
 			}
 			time.append("\n");
 
 			StringBuilder unTier = new StringBuilder("Upper,");
 			for (int j = 0; j < arrayList.get(i).get("unTier").size(); j++) {
-				unTier.append(arrayList.get(i).get("unTier").get(j)).append(",");
+				unTier.append(Library_Quantif.round(arrayList.get(i).get("unTier").get(j), 2)).append(",");
 			}
 			unTier.append("\n");
 

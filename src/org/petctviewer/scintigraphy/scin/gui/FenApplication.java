@@ -37,15 +37,24 @@ public class FenApplication extends StackWindow implements ComponentListener{
 	protected final String studyName;
 	final Button btn_quitter;
 	final Button btn_drawROI;
-	final Button btn_contrast;
+	final Button btn_reverse;
+	private JSlider slider;
+
+
+	final Button zoom_in;
+	final Button zoom_out;
+
 	final Button btn_precedent;
 	final Panel panelContainer;
 	// Panel avec boutons quit, draw roi, contrast
 	private final Panel panel_btns_gauche;
 	private final Panel panel_btns_droite;
+	private final Panel panel_slider;
+	private final Panel panel_zoom;
 	private final Panel panelPrincipal;
 	private DocumentationDialog documentation;
 	private MenuBar menuBar;
+
 	// Panel d'instruction avec le textfield et boutons precedent et suivant
 	private Panel panel_Instructions_btns_droite;
 	private ControllerScin controleur;
@@ -81,22 +90,28 @@ public class FenApplication extends StackWindow implements ComponentListener{
 
 		panelContainer = new Panel(new BorderLayout());
 
-		this.panelPrincipal = new Panel(new FlowLayout());
+		this.panelPrincipal = new Panel(new GridLayout(2, 2));
 
 		// construit tous les boutons
-		this.btn_contrast = new Button("Contrast");
+		this.btn_reverse = new Button("Reverse");
 		this.btn_drawROI = new Button("Draw ROI");
+		this.zoom_out = new Button("-");
+		this.zoom_in = new Button("+");
+
+
+
 		this.btn_precedent = new Button("Previous");
 		this.btn_precedent.setEnabled(false);
 		this.btn_suivant = new Button(BTN_TXT_NEXT);
 		this.btn_quitter = new Button("Quit");
+		this.slider = new JSlider(SwingConstants.HORIZONTAL, 1, 255, 1);
 
 		// panel contenant les boutons
 		panel_btns_gauche = new Panel();
 		panel_btns_gauche.setLayout(new GridLayout(1, 3));
 		panel_btns_gauche.add(this.btn_quitter);
 		panel_btns_gauche.add(this.btn_drawROI);
-		panel_btns_gauche.add(this.btn_contrast);
+		panel_btns_gauche.add(this.btn_reverse);
 		panelPrincipal.add(panel_btns_gauche);
 
 		// Creation du panel instructions
@@ -112,9 +127,29 @@ public class FenApplication extends StackWindow implements ComponentListener{
 
 		panelPrincipal.add(this.panel_Instructions_btns_droite);
 
+		//creation panel slider
+		this.panel_slider = new Panel(new GridLayout(2,1));
+		panel_slider.add(new Label("Contrast", Label.CENTER));
+		panel_slider.add(this.slider);
+		this.slider.addChangeListener( e-> {
+			double max = IJ.getValue(this.imp, "Max");
+			double coef = this.slider.getMaximum() / max;
+			double val = (slider.getMaximum() - slider.getValue())/ coef;
+			IJ.setMinAndMax(0, val);
+
+		});
+
+		panelPrincipal.add(panel_slider);
+
+		//création du panel Zoom
+		this.panel_zoom = new Panel();
+		this.panel_zoom.add(new Label("Zoom", Label.CENTER));
+		panel_zoom.add(this.zoom_out);
+		panel_zoom.add(this.zoom_in);
+		panelPrincipal.add(panel_zoom);
 
 		panelContainer.add(this.panelPrincipal, BorderLayout.CENTER);
-		this.add(panelContainer);
+		this.add(panelContainer, BorderLayout.SOUTH);
 
 //		panelContainer.setPreferredSize(new Dimension(512, (int) panelContainer.getPreferredSize().getHeight()));
 		// Menu bar
@@ -140,7 +175,7 @@ public class FenApplication extends StackWindow implements ComponentListener{
 			try {
 				SaveAndLoad saveAndLoad = new SaveAndLoad();
 				saveAndLoad.importRoiList(FenApplication.this, FenApplication.this.controleur.getModel(),
-										  (ControllerWorkflow) FenApplication.this.controleur);
+						(ControllerWorkflow) FenApplication.this.controleur);
 
 				((ControllerWorkflow) this.controleur).start();
 
@@ -150,7 +185,7 @@ public class FenApplication extends StackWindow implements ComponentListener{
 				FenApplication.this.getImagePlus().getRoi().setStrokeColor(Color.RED);
 			} catch (UnauthorizedRoiLoadException e1) {
 				JOptionPane.showMessageDialog(FenApplication.this, "Error while loading ROIs:\n" + e1.getMessage(),
-											  "Selection error", JOptionPane.ERROR_MESSAGE);
+						"Selection error", JOptionPane.ERROR_MESSAGE);
 			} catch (UnloadRoiException e1) {
 				IJ.log("ROIs not loaded");
 			}
@@ -206,9 +241,17 @@ public class FenApplication extends StackWindow implements ComponentListener{
 		btns_instru.setLayout(new GridLayout(1, 2));
 		btns_instru.add(this.btn_precedent);
 		btns_instru.add(this.btn_suivant);
+
+
 		return btns_instru;
 	}
+	public Button getZoom_in() {
+		return zoom_in;
+	}
 
+	public Button getZoom_out() {
+		return zoom_out;
+	}
 	public Button getBtn_quitter() {
 		return this.btn_quitter;
 	}
@@ -217,8 +260,8 @@ public class FenApplication extends StackWindow implements ComponentListener{
 		return this.btn_drawROI;
 	}
 
-	public Button getBtn_contrast() {
-		return this.btn_contrast;
+	public Button getBtn_reverse() {
+		return this.btn_reverse;
 	}
 
 	public Button getBtn_precedent() {
@@ -228,6 +271,8 @@ public class FenApplication extends StackWindow implements ComponentListener{
 	public Button getBtn_suivant() {
 		return this.btn_suivant;
 	}
+
+	public JSlider getSlider(){return this.slider;}
 
 	public Overlay getOverlay() {
 		return this.getImagePlus().getOverlay();
@@ -241,11 +286,13 @@ public class FenApplication extends StackWindow implements ComponentListener{
 		this.controleur = ctrl;
 
 		// on ajoute le controleur a tous les boutons
-		this.btn_contrast.addActionListener(ctrl);
+		this.btn_reverse.addActionListener(ctrl);
 		this.btn_drawROI.addActionListener(ctrl);
 		this.btn_precedent.addActionListener(ctrl);
 		this.btn_quitter.addActionListener(ctrl);
 		this.btn_suivant.addActionListener(ctrl);
+		this.zoom_in.addActionListener(ctrl);
+		this.zoom_out.addActionListener(ctrl);
 	}
 
 	public Panel getPanel_Instructions_btns_droite() {
@@ -341,10 +388,14 @@ public class FenApplication extends StackWindow implements ComponentListener{
 		}
 	}
 
+	public Panel getZoneAffichage() {
+		return this.panelPrincipal;
+	}
+
 	public MenuItem getLoadRoisMenuItem() {
 		return this.loadRois;
 	}
-	
+
 	public Menu getHelpMenu() {
 		return this.help;
 	}

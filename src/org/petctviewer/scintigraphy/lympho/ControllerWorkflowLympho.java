@@ -19,6 +19,7 @@ import java.util.List;
 
 public class ControllerWorkflowLympho extends ControllerWorkflow {
 
+	private static final int SLICE_ANT = 1, SLICE_POST = 2;
 	private List<ImagePlus> captures;
 
 	public ControllerWorkflowLympho(FenApplicationWorkflow vue, ModelScin model) {
@@ -32,20 +33,22 @@ public class ControllerWorkflowLympho extends ControllerWorkflow {
 	protected void generateInstructions() {
 		
 		this.workflows = new Workflow[this.model.getImageSelection().length];
+
+		ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, ImageState.ID_NONE);
+		ImageState statePost = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_LR, ImageState.ID_NONE);
+
 		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4;
 		ScreenShotInstruction dri_capture_1, dri_capture_2;
 		this.captures = new ArrayList<>();
+
 		for (int i = 0; i < this.model.getImageSelection().length; i++) {
 			this.workflows[i] = new Workflow(this, this.model.getImageSelection()[i]);
-			
-			ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
-			ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
 			
 			dri_1 = new DrawRoiInstruction("Right Foot", stateAnt);
 			dri_2 = new DrawRoiInstruction("Left Foot", stateAnt);
 			dri_capture_1 = new ScreenShotInstruction(captures, this.getVue(), i*2);
-			dri_3 = new DrawRoiInstruction("Right Foot", statePost, dri_1);
-			dri_4 = new DrawRoiInstruction("Left Foot", statePost, dri_2);
+			dri_3 = new DrawRoiInstruction("Right Foot", statePost);
+			dri_4 = new DrawRoiInstruction("Left Foot", statePost);
 			dri_capture_2 = new ScreenShotInstruction(captures, this.getVue(), (i*2)+1);
 
 			this.workflows[i].addInstruction(dri_1);

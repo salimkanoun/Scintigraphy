@@ -14,6 +14,7 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
@@ -50,7 +51,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow implements Item
 	// TODO: remove this method and do this in the instructions
 	private void computeModel() {
 		ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL,ModelShunpo.IMAGE_KIDNEY_LUNG),
-					statePost = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_RL, ModelShunpo.IMAGE_KIDNEY_LUNG);
+					statePost = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_LR, ModelShunpo.IMAGE_KIDNEY_LUNG);
 		final int NB_ROI_PER_IMAGE = WITH_KIDNEYS ? 5 : 2;
 		// Post then Ant
 		for (int i = 0; i < 2; i++) {
@@ -90,21 +91,23 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow implements Item
 	private void generateInstructionsWithKidneys() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 
-		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4, dri_8, dri_9, dri_11;
+		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4, dri_6, dri_7, dri_8, dri_9, dri_11;
 		this.captures = new ArrayList<>(6);
 
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
-		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
-		ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
+		ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, ImageState.ID_NONE);
+		ImageState statePost = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_LR, ImageState.ID_NONE);
 
-		dri_1 = new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_LUNG, statePost);
-		dri_2 = new DrawRoiInstruction(ModelShunpo.REGION_LEFT_LUNG, statePost);
-		dri_3 = new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_KIDNEY, statePost);
-		dri_4 = new DrawRoiInstruction(ModelShunpo.REGION_LEFT_KIDNEY, statePost);
-		dri_8 = new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_KIDNEY, stateAnt, dri_3);
-		dri_9 = new DrawRoiInstruction(ModelShunpo.REGION_LEFT_KIDNEY, stateAnt, dri_4);
-		dri_11 = new DrawRoiInstruction(ModelShunpo.REGION_BRAIN, statePost);
+		dri_1 = new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_LUNG, stateAnt);
+		dri_2 = new DrawRoiInstruction(ModelShunpo.REGION_LEFT_LUNG, stateAnt);
+		dri_3 = new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_KIDNEY, stateAnt);
+		dri_4 = new DrawRoiInstruction(ModelShunpo.REGION_LEFT_KIDNEY, stateAnt);
+		dri_6 = new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_LUNG, statePost);
+		dri_7 = new DrawRoiInstruction(ModelShunpo.REGION_LEFT_LUNG, statePost);
+		dri_8 = new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_KIDNEY, statePost);
+		dri_9 = new DrawRoiInstruction(ModelShunpo.REGION_LEFT_KIDNEY, statePost);
+		dri_11 = new DrawRoiInstruction(ModelShunpo.REGION_BRAIN, stateAnt);
 
 		// Image Lung-Kidney
 		this.workflows[0].addInstruction(dri_1);
@@ -112,14 +115,14 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow implements Item
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
 		this.workflows[0].addInstruction(dri_3);
 		this.workflows[0].addInstruction(dri_4);
-		this.workflows[0].addInstruction(new DrawRoiInMiddle(ModelShunpo.REGION_BACKGROUND, statePost, dri_3, dri_4));
+		this.workflows[0].addInstruction(new DrawRoiInMiddle(ModelShunpo.REGION_BACKGROUND, stateAnt, dri_3, dri_4));
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
-		this.workflows[0].addInstruction(new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_LUNG, stateAnt, dri_1));
-		this.workflows[0].addInstruction(new DrawRoiInstruction(ModelShunpo.REGION_LEFT_LUNG, stateAnt, dri_2));
+		this.workflows[0].addInstruction(dri_6);
+		this.workflows[0].addInstruction(dri_7);
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 2));
 		this.workflows[0].addInstruction(dri_8);
 		this.workflows[0].addInstruction(dri_9);
-		this.workflows[0].addInstruction(new DrawRoiInMiddle(ModelShunpo.REGION_BACKGROUND, stateAnt, dri_8, dri_9));
+		this.workflows[0].addInstruction(new DrawRoiInMiddle(ModelShunpo.REGION_BACKGROUND, statePost, dri_8, dri_9));
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 3));
 
 
@@ -127,7 +130,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow implements Item
 		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
 		this.workflows[1].addInstruction(dri_11);
 		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 4));
-		this.workflows[1].addInstruction(new DrawRoiInstruction(ModelShunpo.REGION_BRAIN, stateAnt, dri_11));
+		this.workflows[1].addInstruction(new DrawRoiInstruction(ModelShunpo.REGION_BRAIN, statePost, dri_11));
 		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 5));
 		this.workflows[1].addInstruction(new EndInstruction());
 	}
@@ -135,25 +138,27 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow implements Item
 	private void generateInstructionsWithoutKidneys() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 
-		DrawRoiInstruction dri_1, dri_2, dri_11;
+		DrawRoiInstruction dri_1, dri_2, dri_3, dri_4, dri_11;
 		this.captures = new ArrayList<>(6);
 
 		this.workflows[0] = new Workflow(this, this.model.getImageSelection()[0]);
 
-		ImageState stateAnt = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
-		ImageState statePost = new ImageState(Orientation.POST, 2, true, ImageState.ID_NONE);
+		ImageState stateAnt = new ImageState(Orientation.ANT, SLICE_ANT, ImageState.LAT_RL, ImageState.ID_NONE);
+		ImageState statePost = new ImageState(Orientation.POST, SLICE_POST, ImageState.LAT_LR, ImageState.ID_NONE);
 
-		dri_1 = new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_LUNG, statePost);
-		dri_2 = new DrawRoiInstruction(ModelShunpo.REGION_LEFT_LUNG, statePost);
-		dri_11 = new DrawRoiInstruction(ModelShunpo.REGION_BRAIN, statePost);
+		dri_1 = new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_LUNG, stateAnt);
+		dri_2 = new DrawRoiInstruction(ModelShunpo.REGION_LEFT_LUNG, stateAnt);
+		dri_3 = new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_LUNG, statePost);
+		dri_4 = new DrawRoiInstruction(ModelShunpo.REGION_LEFT_LUNG, statePost);
+		dri_11 = new DrawRoiInstruction(ModelShunpo.REGION_BRAIN, stateAnt);
 
 		// Image Lung-Kidney
 		this.workflows[0].addInstruction(dri_1);
 		this.workflows[0].addInstruction(dri_2);
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 0));
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 1));
-		this.workflows[0].addInstruction(new DrawRoiInstruction(ModelShunpo.REGION_RIGHT_LUNG, stateAnt, dri_1));
-		this.workflows[0].addInstruction(new DrawRoiInstruction(ModelShunpo.REGION_LEFT_LUNG, stateAnt, dri_2));
+		this.workflows[0].addInstruction(dri_3);
+		this.workflows[0].addInstruction(dri_4);
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 2));
 		this.workflows[0].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 3));
 
@@ -162,7 +167,7 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow implements Item
 		this.workflows[1] = new Workflow(this, this.model.getImageSelection()[1]);
 		this.workflows[1].addInstruction(dri_11);
 		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 4));
-		this.workflows[1].addInstruction(new DrawRoiInstruction(ModelShunpo.REGION_BRAIN, stateAnt, dri_11));
+		this.workflows[1].addInstruction(new DrawRoiInstruction(ModelShunpo.REGION_BRAIN, statePost, dri_11));
 		this.workflows[1].addInstruction(new ScreenShotInstruction(captures, this.getVue(), 5));
 		this.workflows[1].addInstruction(new EndInstruction());
 	}
@@ -241,15 +246,14 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow implements Item
 			} else {
 				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textL, display.textR,
 											state.getSlice());
-				Library_Gui.setOverlayTitle("Inverted " + display.getTitlePost(), this.vue.getImagePlus(),
-											Color.YELLOW,
-											state.getSlice());
+				Library_Gui.setOverlayTitle(display.getTitlePost(), this.vue.getImagePlus(),
+											Color.YELLOW, state.getSlice());
 			}
 		} else {
 			if (state.getFacingOrientation() == Orientation.ANT) {
 				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,
 											state.getSlice());
-				Library_Gui.setOverlayTitle("Inverted " + display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
+				Library_Gui.setOverlayTitle(display.getTitleAnt(), this.vue.getImagePlus(), Color.YELLOW,
 											state.getSlice());
 			} else {
 				Library_Gui.setOverlaySides(this.vue.getImagePlus(), Color.YELLOW, display.textR, display.textL,

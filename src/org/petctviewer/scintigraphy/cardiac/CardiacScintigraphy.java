@@ -23,7 +23,7 @@ import java.util.List;
 
 public class CardiacScintigraphy extends Scintigraphy {
 
-	public static final String STUDY_NAME = "Cardiac";
+	public static final String STUDY_NAME = "Amylose";
 
 	public static final String FULL_BODY_IMAGE = "FULL_BODY", ONLY_THORAX_IMAGE = "ONLY_THORAX",
 			COLUMN_TYPE_TITLE = "Image Type";
@@ -48,7 +48,7 @@ public class CardiacScintigraphy extends Scintigraphy {
 
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
-		Overlay overlay = Library_Gui.initOverlay(preparedImages.get(0).getImagePlus(), 7);
+		initOverlayOnPreparedImages(preparedImages, 7);
 		Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.YELLOW);
 
 		String[] infoOfAllImages = new String[preparedImages.size()];
@@ -58,7 +58,6 @@ public class CardiacScintigraphy extends Scintigraphy {
 		// fenetre de l'application
 		this.setFenApplication(new FenApplication_Cardiac(preparedImages.get(0), this.getStudyName(),
 				this.fullBodyImages.size() > 0, this.onlyThoraxImage.size() > 0));
-		preparedImages.get(0).getImagePlus().setOverlay(overlay);
 
 		// Cree controller
 		this.getFenApplication().setController(
@@ -95,12 +94,12 @@ public class CardiacScintigraphy extends Scintigraphy {
 
 		// Check number
 		for (ImageSelection selected : selectedImages) {
-			if (selected.getValue(this.imageTypeColumn.getName()) == FULL_BODY_IMAGE) {
+			if (selected.getValue(this.imageTypeColumn.getName()).equals(FULL_BODY_IMAGE)) {
 				if (fullBodyImages.size() == 2)
 					throw new WrongNumberImagesException(fullBodyImages.size(), 1, 2);
 				fullBodyImages.add(selected);
 			}
-			if (selected.getValue(this.imageTypeColumn.getName()) == ONLY_THORAX_IMAGE) {
+			if (selected.getValue(this.imageTypeColumn.getName()).equals(ONLY_THORAX_IMAGE)) {
 				if (onlyThoraxImage.size() == 1)
 					throw new WrongNumberImagesException(fullBodyImages.size(), 1);
 				onlyThoraxImage.add(selected);
@@ -120,10 +119,9 @@ public class CardiacScintigraphy extends Scintigraphy {
 					|| fullBodyImages.get(i).getImageOrientation() == Orientation.POST_ANT) {
 				ImageSelection imp = fullBodyImages.get(i);
 				String info = imp.getImagePlus().getInfoProperty();
-				ImageSelection impReversed = Library_Dicom.ensureAntPostFlipped(imp);
 				MontageMaker mm = new MontageMaker();
-				ImageSelection montageImage = impReversed.clone();
-				montageImage.setImagePlus(mm.makeMontage2(impReversed.getImagePlus(), 2, 1, 1.0, 1, 2, 1, 0, false));
+				ImageSelection montageImage = Library_Dicom.ensureAntPost(imp);
+				montageImage.setImagePlus(mm.makeMontage2(montageImage.getImagePlus(), 2, 1, 1.0, 1, 2, 1, 0, false));
 				montageImage.getImagePlus().setProperty("Info", info);
 				frameDuration[i] = Integer.parseInt(DicomTools.getTag(imp.getImagePlus(), "0018,1242").trim());
 				mountedImages.add(montageImage);
@@ -137,9 +135,9 @@ public class CardiacScintigraphy extends Scintigraphy {
 		mountedImages.sort(new ChronologicalAcquisitionComparator());
 
 		// si il y a plus de 3 minutes de diff�rence entre les deux prises
-		if (Math.abs(frameDuration[0] - frameDuration[1]) > 3 * 60 * 1000) {
-			IJ.log("Warning, frame duration differ by " + Math.abs(frameDuration[0] - frameDuration[1]) / (1000 * 60)
-					+ " minutes");
+		int diff = Math.abs(frameDuration[0] - frameDuration[1]);
+		if (diff > 3 * 60 * 1000) {
+			IJ.log("Warning, frame duration differ by " + diff / (1000 * 60) + " minutes");
 		}
 
 		if (this.onlyThoraxImage.size() != 0)

@@ -1,14 +1,13 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import java.awt.Component;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import javax.swing.Box;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 
+import ij.IJ;
+import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 
 import ij.ImagePlus;
@@ -23,6 +22,7 @@ public class TabContrastModifier extends TabResult {
 	private DynamicImage dynamicImp;
 	private ContrastSlider slider;
 
+
 	/**
 	 * Instantiates an empty tab. This is used if no image is ready to be displayed at the instantiation time. To set
 	 * the image later, you can use {@link #setImage}.
@@ -32,7 +32,7 @@ public class TabContrastModifier extends TabResult {
 	 */
 	public TabContrastModifier(FenResults parent, String title) {
 		super(parent, title, true);
-		
+
 		this.setComponentToHide(new ArrayList<>(Arrays.asList(new Component[] {slider})));
 
 		this.boxSlider = null;
@@ -52,6 +52,7 @@ public class TabContrastModifier extends TabResult {
 		super(parent, title, true);
 
 		this.setImage(image);
+
 	}
 
 	/**
@@ -68,6 +69,9 @@ public class TabContrastModifier extends TabResult {
 		this.setImage(stateImageToModify);
 	}
 
+
+
+
 	/**
 	 * Changes the image to be modified by this contrast tab. This method automatically calls the {@link
 	 * #reloadDisplay()} method.
@@ -75,18 +79,35 @@ public class TabContrastModifier extends TabResult {
 	 * @param image New image to use
 	 */
 	public void setImage(ImagePlus image) {
+
+		JPanel sliderPanel = new JPanel();
+		JPanel reversePanel = new JPanel();
 		JLabel sliderLabel = new JLabel("Contrast", SwingConstants.CENTER);
 		sliderLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
 		this.dynamicImp = new DynamicImage(image.getBufferedImage());
 
 		slider = new ContrastSlider(image, this.dynamicImp, this.parent);
-		
+		JButton reverse_btn = new JButton("Invert LUT");
+		reverse_btn.addActionListener( e-> {
+			SwingUtilities.invokeLater(() -> {
+				image.getProcessor().invertLut();
+				image.updateAndDraw();
+				dynamicImp.setImage(image.getBufferedImage());
+			});
+		});
+
+
+
 		this.setComponentToHide(new ArrayList<>(Arrays.asList(new Component[] {slider, sliderLabel})));
 
 		boxSlider = Box.createVerticalBox();
-		boxSlider.add(sliderLabel);
-		boxSlider.add(slider);
+		sliderPanel.add(sliderLabel);
+		sliderPanel.add(slider);
+		reversePanel.add(reverse_btn);
+		boxSlider.add(sliderPanel);
+		boxSlider.add(reversePanel);
+
+
 
 		this.reloadDisplay();
 	}
@@ -138,7 +159,7 @@ public class TabContrastModifier extends TabResult {
 	public JPanel getResultContent() {
 		return this.dynamicImp;
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	public void setSliderEnable(boolean boo) {
 		this.slider.enable(boo);

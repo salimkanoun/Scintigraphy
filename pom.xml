@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="https://maven.apache.org/POM/4.0.0" xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -53,15 +53,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		<url>None</url>
 	</ciManagement>
 
-	<contributors>
-		<contributor>
-			<name>Angele Mateos</name>
-		</contributor>
-		<contributor>
-			<name>Diego Rodriguez</name>
-		</contributor>
-	</contributors>
-
 	<organization>
 		<name>None</name>
 	</organization>
@@ -83,23 +74,27 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>29.2.1</version>
+		<version>30.0.0</version>
 		<relativePath/>
 	</parent>
 	
 	<repositories>
 		<repository>
 		      <id>java.net</id>
-		      <url>http://dev.loci.wisc.edu/maven2/</url>
+		      <url>https://dev.loci.wisc.edu/maven2/</url>
 		</repository>
 		<repository>
 			<id>imagej.public</id>
-			<url>http://maven.imagej.net/content/groups/public</url>
+			<url>https://maven.imagej.net/content/groups/public</url>
+		</repository>
+		<repository>
+		    <id>scijava.public</id>
+		    <url>https://maven.scijava.org/content/groups/public</url>
 		</repository>
 		<repository>
 			<id>www.dcm4che.org</id>
 			<name>dcm4che Repository</name>
-			<url>http://maven.dcm4che.org</url>
+			<url>https://maven.dcm4che.org</url>
 		</repository>
 	</repositories>
 	
@@ -174,11 +169,6 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 		</dependency>
-			
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-			</dependency>
 
 		<dependency>
     		<groupId>org.easymock</groupId>
@@ -186,7 +176,11 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
     		<version>4.2</version>
 		</dependency>
 
-
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 
 </project>

@@ -20,7 +20,7 @@ import org.petctviewer.scintigraphy.scin.model.Unit;
 import ij.gui.Roi;
 import ij.plugin.frame.RoiManager;
 
-public class Model_Gallbladder extends ModelScinDyn {
+public class ModelGallbladder extends ModelScinDyn {
 
     public static final String REGION_GALLBLADDER = "Gallbladder", REGION_LIVER = "Liver";
 
@@ -37,7 +37,7 @@ public class Model_Gallbladder extends ModelScinDyn {
     //pour le condensé dynamique
     ArrayList<Object[]> dicomRoi;
 
-    public final Gallbladder gallPlugIn;
+    public final GallbladderScintigraphy gallPlugIn;
 
     private Model_Resultats_Gallbladder modelResults;
 
@@ -46,8 +46,8 @@ public class Model_Gallbladder extends ModelScinDyn {
     private List<Data> datas;
     private Map<Integer, Double> results;
 
-    public Model_Gallbladder(ImageSelection[][] sauvegardeImagesSelectDicom, String studyName,
-    Gallbladder gallPlugIn, ImageSelection impProjeteeAllAcqui) {
+    public ModelGallbladder(ImageSelection[][] sauvegardeImagesSelectDicom, String studyName,
+                            GallbladderScintigraphy gallPlugIn, ImageSelection impProjeteeAllAcqui) {
         super(sauvegardeImagesSelectDicom[0], studyName, gallPlugIn.getFrameDurations());
         this.sauvegardeImagesSelectDicom = sauvegardeImagesSelectDicom;
 

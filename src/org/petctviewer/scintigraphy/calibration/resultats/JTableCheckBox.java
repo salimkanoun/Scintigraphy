@@ -153,7 +153,19 @@ public class JTableCheckBox extends JPanel {
 		}
 		this.add(tab);
 	}
-	
+
+	public JCheckBox getCheckbox(int x, int y) {
+		return checkboxInterior[x][y];
+	}
+
+	public int getNbRows() {
+		return this.checkboxInterior.length;
+	}
+
+	public int getNbCols() {
+		return this.checkboxInterior[0].length;
+	}
+
 	private void setStateCheckboxHeadRows(int ligne, boolean state) {
 		for(int i =0; i< checkboxInterior[ligne].length; i++) {
 			checkboxInterior[ligne][i].setSelected(state);

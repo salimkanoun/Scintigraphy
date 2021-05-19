@@ -137,7 +137,7 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 			fen.setLocationRelativeTo(this);
 			((ControllerWorkflowRenal) this.getController()).setKidneys(fen.getKidneys());
 
-			this.getBtn_contrast().setEnabled(true);
+			this.getBtn_reverse().setEnabled(true);
 
 			this.getPanel_bttns_droit().removeAll();
 			this.getPanel_bttns_droit().add(this.createPanelInstructionsBtns());

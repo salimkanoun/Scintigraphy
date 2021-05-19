@@ -154,7 +154,7 @@ public class ModelHepaticDynamic extends ModelScinDyn {
 		s += "Appearance time," + this.results.get(1) + "," + results.get(3) + "," + results.get(5) + "\n\n";
 		s += "Frame," + this.results.get(0) + "," + results.get(2) + "," + results.get(4) + "\n\n";
 
-		s += ",Hilium to Duodenum,Duodenum to Intestine,Hilium to Intestine\n";
+		s += "Hilium to Duodenum,Duodenum to Intestine,Hilium to Intestine\n";
 		s += "Delay difference," + this.results.get(6) + "," + results.get(7) + "," + results.get(8) + "\n\n";
 
 		if (examDone)
@@ -311,7 +311,7 @@ public class ModelHepaticDynamic extends ModelScinDyn {
 		XYSeries liverR = this.getSerie("Right Liver");
 		XYSeries bloodPool = this.getSerie("Blood pool");
 
-		StringBuilder s = new StringBuilder();
+		StringBuilder s = new StringBuilder("\n\n");
 		s.append("Time (mn),");
 		for (int i = 0; i < bloodPool.getItemCount(); i++) {
 			s.append(Library_Quantif.round(bloodPool.getX(i).doubleValue(), 2)).append(",");
@@ -336,19 +336,19 @@ public class ModelHepaticDynamic extends ModelScinDyn {
 		}
 		s.append("\n");
 
-		s.append("T1/2 Right Liver Obs,").append(this.tDemiFoieDObs).append("mn").append("\n");
-		s.append("T1/2 Right Liver Fit,").append(this.tDemiFoieDFit).append("mn").append("\n");
-		s.append("Maximum Right Liver,").append(this.maxFoieD).append("mn").append("\n");
+		s.append("T1/2 Right Liver Obs,").append(Library_Quantif.round(this.tDemiFoieDObs, 2)).append("mn").append("\n");
+		s.append("T1/2 Right Liver Fit,").append(Library_Quantif.round(this.tDemiFoieDFit, 2)).append("mn").append("\n");
+		s.append("Maximum Right Liver,").append(Library_Quantif.round(this.maxFoieD, 2)).append("mn").append("\n");
 		s.append("END/MAX Ratio Right,").append((int) (this.finPicD * 100)).append("%").append("\n");
 
-		s.append("T1/2 Left Liver Obs,").append(this.tDemiFoieGObs).append("mn").append("\n");
-		s.append("T1/2 Left Liver Fit,").append(this.tDemiFoieGFit).append("mn").append("\n");
-		s.append("Maximum Left Liver,").append(this.maxFoieG).append("mn").append("\n");
+		s.append("T1/2 Left Liver Obs,").append(Library_Quantif.round(this.tDemiFoieGObs, 2)).append("mn").append("\n");
+		s.append("T1/2 Left Liver Fit,").append(Library_Quantif.round(this.tDemiFoieGFit, 2)).append("mn").append("\n");
+		s.append("Maximum Left Liver,").append(Library_Quantif.round(this.maxFoieG, 2)).append("mn").append("\n");
 		s.append("END/MAX Ratio Left,").append((int) (this.finPicG * 100)).append("%").append("\n");
 
 		s.append("Blood pool ratio 20mn/5mn,").append((int) (this.pctVasc * 100)).append("%").append("\n");
-		s.append("T1/2 Blood pool Obs,").append(this.tDemiVascObs).append("mn").append("\n");
-		s.append("T1/2 Blood pool Fit,").append(this.tDemiVascFit).append("mn").append("\n");
+		s.append("T1/2 Blood pool Obs,").append(Library_Quantif.round(this.tDemiVascObs, 2)).append("mn").append("\n");
+		s.append("T1/2 Blood pool Fit,").append(Library_Quantif.round(this.tDemiVascFit, 2)).append("mn").append("\n");
 
 		return s.toString();
 	}

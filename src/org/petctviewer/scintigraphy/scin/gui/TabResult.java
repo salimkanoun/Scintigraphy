@@ -5,9 +5,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.util.ArrayList;
 
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
+import javax.swing.*;
 
 /**
  * This class represents a Tab containing the results for any study.<br> The tab follow this schema:<br>
@@ -238,6 +236,10 @@ public abstract class TabResult {
 	
 	public CaptureButton getCaptureButton() {
 		return this.sidePanel.getCaptureButton();
+	}
+
+	public JLabel getLblCapture() {
+		return this.sidePanel.getLblCapture();
 	}
 
 }

@@ -69,10 +69,11 @@ public class ShunpoScintigraphy extends Scintigraphy {
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
 		// Start program
+		this.initOverlayOnPreparedImages(preparedImages);
 		this.setFenApplication(new FenApplicationWorkflow(preparedImages.get(0), this.getStudyName()));
 		this.getFenApplication().setController(
 				new ControllerWorkflowShunpo((FenApplicationWorkflow) getFenApplication(),
-											 preparedImages.toArray(new ImageSelection[0])));
+						preparedImages.toArray(new ImageSelection[0])));
 
 		this.createDocumentation();
 		this.inflateMenuBar((ControllerWorkflowShunpo) this.getFenApplication().getController());
@@ -92,7 +93,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 
 		// Choose columns to display
 		return new Column[]{Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
-							Column.STACK_SIZE, orientation, this.orgranColumn};
+				Column.STACK_SIZE, orientation, this.orgranColumn};
 	}
 
 	@Override
@@ -100,11 +101,9 @@ public class ShunpoScintigraphy extends Scintigraphy {
 		// Check that number of images is correct
 		if (selectedImages.size() != 2) throw new WrongNumberImagesException(selectedImages.size(), 2);
 
-		if (selectedImages.get(0).getValue(this.orgranColumn.getName()) == selectedImages.get(1).getValue(
-				this.orgranColumn.getName())) throw new WrongColumnException(orgranColumn,
-																			 selectedImages.get(0).getRow(),
-																			 "expecting " + ORGAN_KIDNEY_PULMON +
-																					 " and " + ORGAN_BRAIN);
+		if (selectedImages.get(0).getValue(this.orgranColumn.getName()).equals(selectedImages.get(1).getValue(
+				this.orgranColumn.getName()))) throw new WrongColumnException(orgranColumn,
+				selectedImages.get(0).getRow(), "expecting " + ORGAN_KIDNEY_PULMON + " and " + ORGAN_BRAIN);
 
 		// Order selectedImages: 1st KIDNEY-PULMON; 2nd BRAIN
 		if (!selectedImages.get(0).getValue(this.orgranColumn.getName()).equals(ORGAN_KIDNEY_PULMON)) {
@@ -114,7 +113,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 		// Check orientation
 		List<ImageSelection> result = new ArrayList<>();
 		for (ImageSelection ims : selectedImages) {
-			result.add(Library_Dicom.ensureAntPostFlipped(ims));
+			result.add(Library_Dicom.ensureAntPost(ims));
 			ims.close();
 		}
 
