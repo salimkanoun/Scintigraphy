@@ -83,6 +83,7 @@ public class ScintivolScintigraphy extends Scintigraphy {
         Library_Dicom.normalizeToCountPerSecond(imps);
         imps = Library_Dicom.geomMean(imps);
         this.frameDurations = Library_Dicom.buildFrameDurations(imps.getImagePlus());
+        Library_Dicom.normalizeToCountPerSecond(imps);
         selection.add(imps);
 
         ImageSelection[] imsTab = Library_Dicom.splitDynamicAntPost(selectedImages.get(1));
@@ -91,6 +92,7 @@ public class ScintivolScintigraphy extends Scintigraphy {
         imps = imsTab[0].clone();
         Library_Dicom.normalizeToCountPerSecond(imps);
         this.imsRetention = imps.clone();
+        Library_Dicom.normalizeToCountPerSecond(this.imsRetention);
         imps = Library_Dicom.project(imps, 1, imps.getImagePlus().getNSlices(), "sum");
         selection.add(imps);
 

@@ -105,7 +105,7 @@ public class Model_Scintivol extends ModelScinDyn {
         double res = 0;
         for (int slice = sliceT1; slice <= sliceT2; slice++) {
             imp.setSlice(slice);
-            res += Library_Quantif.getCounts(imp);
+            res += Library_Quantif.getCounts(imp) * 60;
         }
 
         return res;
@@ -193,9 +193,9 @@ public class Model_Scintivol extends ModelScinDyn {
 
             Map<String, Double> res = new HashMap<>();
             imp.setSlice(sliceT1);
-            res.put("t1", Library_Quantif.getCounts(imp));
+            res.put("t1", Library_Quantif.getCounts(imp) * 60);
             imp.setSlice(sliceT2);
-            res.put("t2", Library_Quantif.getCounts(imp));
+            res.put("t2", Library_Quantif.getCounts(imp) * 60);
             this.results.put(roiName, res);
         }
         this.results.get("Heart").put("AUC", this.getAUC(sliceT1, sliceT2));
@@ -235,109 +235,63 @@ public class Model_Scintivol extends ModelScinDyn {
 
     @Override
     public String toString() {
-        StringBuilder s = new StringBuilder(super.toString());
-
-        StringBuilder name = new StringBuilder();
         double Ht1 = Library_Quantif.round(this.results.get("Heart").get("t1"),2);
-        double Ht2 =Library_Quantif.round(this.results.get("Heart").get("t2"),2);
+        double Ht2 = Library_Quantif.round(this.results.get("Heart").get("t2"),2);
         double Lv1 = Library_Quantif.round(this.results.get("Liver").get("t1"),2);
         double Lv2 = Library_Quantif.round(this.results.get("Liver").get("t2"),2);
         double Fov1 = Library_Quantif.round(this.results.get("FOV").get("t1"),2);
-        double Fov2 =Library_Quantif.round(this.results.get("FOV").get("t2"),2);
+        double Fov2 = Library_Quantif.round(this.results.get("FOV").get("t2"),2);
         double lvP1 = Library_Quantif.round(this.results.get("Liver Parenchyma").get("max"),2);
-        double lvP2 =Library_Quantif.round(this.results.get("Liver Parenchyma").get("end"),2);
-        double cnorm =Library_Quantif.round(this.results.get("Other").get("Cnorm_t2"),2);
-        double auc =Library_Quantif.round(this.results.get("Heart").get("AUC"),2);
+        double lvP2 = Library_Quantif.round(this.results.get("Liver Parenchyma").get("end"),2);
+        double cnorm = Library_Quantif.round(this.results.get("Other").get("Cnorm_t2"),2);
+        double auc = Library_Quantif.round(this.results.get("Heart").get("AUC"),2);
+        double ft = Library_Quantif.round(this.results.get("Other").get("Clairance FT"),2);
         double ftNorm = Library_Quantif.round(this.results.get("Other").get("Norm Clairance FT"),2);
-        double ftNonNorm =Library_Quantif.round(this.results.get("Other").get("Clairance FT"),2);
-       double retention =  Library_Quantif.round(this.results.get("Other").get("Norm Clairance FT")*10,2);
+        double retention = Library_Quantif.round(this.results.get("Other").get("Retention rate")*100,2);
 
+        StringBuilder res = new StringBuilder(super.toString());
 
+        res.append("\n\n\n");
+        res.append("t1,").append(this.tracerDelayTime + 150).append(",s\n");
+        res.append("t2,").append(this.tracerDelayTime + 350).append(",s\n\n");
 
-        name.append("\n");
-        name.append("\n");
-        name.append("\n");
+        res.append("Heart").append("\n");
+        res.append("t1,").append(Ht1).append(",counts/min\n");
+        res.append("t2,").append(Ht2).append(",counts/min\n\n");
 
+        res.append("Liver").append("\n");
+        res.append("t1,").append(Lv1).append(",counts/min\n");
+        res.append("t2,").append(Lv2).append(",counts/min\n\n");
 
+        res.append("FOV counts").append("\n");
+        res.append("t1,").append(Fov1).append(",counts/min\n");
+        res.append("t2,").append(Fov2).append(",counts/min\n\n");
 
-        name.append("Heart : ");
-        name.append("\n");
-        name.append("t1 : ");
-        name.append(Ht1);
-        name.append("\n");
-        name.append("t2 : ");
-        name.append(Ht2);
+        res.append("Liver Parenchyma counts").append("\n");
+        res.append("max,").append(lvP1).append(",counts/min\n");
+        res.append("end,").append(lvP2).append(",counts/min\n\n");
 
-        name.append("\n");
-        name.append("\n");
+        res.append("Intermediate values").append("\n");
+        res.append("Cnormt2,").append(cnorm).append("\n");
+        res.append("AUC,").append(auc).append(",counts between t1 and t2\n\n");
 
-        name.append("Liver : ");
-        name.append("\n");
-        name.append("t1 : ");
-        name.append(Lv1);
-        name.append("\n");
-        name.append("t2 : ");
-        name.append(Lv2);
+        res.append("Results").append("\n");
+        res.append("FL Clearance,").append(ft).append(",%/min\n");
+        res.append("Normalized FL Clearance,").append(ftNorm).append(",%/min.m²\n");
+        res.append("Retention rate,").append(retention).append(",%\n");
 
-        name.append("\n");
-        name.append("\n");
+        if (this.results.containsKey("Tomo")) {
+            double fl_frl = Library_Quantif.round(this.results.get("Other").get("FFR/FT") * 100,2);
+            double ffr = Library_Quantif.round(this.results.get("Other").get("Clairance FFR"),2);
+            double ffrNorm = Library_Quantif.round(this.results.get("Other").get("Norm Clairance FFR"),2);
 
-        name.append("FOV : ");
-        name.append("\n");
-        name.append("t1 : ");
-        name.append(Fov1);
-        name.append("\n");
-        name.append("t2 : ");
-        name.append(Fov2);
+            res.append("FL/FRL,").append(fl_frl).append(",%\n");
+            res.append("Clearance FRL,").append(ffr).append(",%/min\n");
+            res.append("Normalized clearance FRL,").append(ffrNorm).append(",%/min.m²\n");
+        }
 
-        name.append("\n");
-        name.append("\n");
-
-        name.append("Liver Parenchyma : ");
-        name.append("\n");
-        name.append("max : ");
-        name.append(lvP1);
-        name.append("\n");
-        name.append("end : ");
-        name.append(lvP2);
-
-        name.append("\n");
-        name.append("\n");
-
-        name.append("Intermediate values : ");
-        name.append("\n");
-        name.append("Cnormt2 : ");
-        name.append(cnorm);
-        name.append("\n");
-        name.append("AUC : ");
-        name.append(auc);
-
-        name.append("\n");
-        name.append("\n");
-
-        name.append("Results : ");
-        name.append("\n");
-        name.append("Non-standardized clearance  : ");
-        name.append(ftNonNorm+" %/min");
-        name.append("\n");
-        name.append("Standardized clearance : ");
-        name.append(ftNorm+" %/m.m²");
-        name.append("\n");
-        name.append("Retention rate : ");
-        name.append(retention+" %");
-
-
-
-
-        name.append("\n");
-
-
-        s.append(name);
-
-
-        return s.toString();
+        return res.toString();
     }
-
 
     public double getTimeChart() {
         return timeChart;
