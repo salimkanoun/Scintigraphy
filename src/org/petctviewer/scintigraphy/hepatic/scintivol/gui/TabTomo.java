@@ -49,7 +49,7 @@ public class TabTomo extends TabResult implements ActionListener {
         container.add(inputFT);
 
         JPanel inputFFR = new JPanel(new GridLayout(1, 2));
-        inputFFR.add(new JLabel("Future remaining liver counts (FRL)"));
+        inputFFR.add(new JLabel("Future remaining liver counts (FRL)  "));
         this.ffrTextField = new JTextField();
         this.ffrTextField.addActionListener(this);
         inputFFR.add(this.ffrTextField);
@@ -74,11 +74,22 @@ public class TabTomo extends TabResult implements ActionListener {
             return res;
 
         Map<String, Double> results = model.getResults().get("Other");
-        JPanel container = new JPanel(new GridLayout(3, 1));
+        JPanel container = new JPanel(new GridLayout(3, 3,0,3));
+        container.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY,1));
 
-        container.add(new JLabel("FRL/TL ratio: "+ Library_Quantif.round(results.get("FFR/FT") * 100, 2) +"%"));
-        container.add(new JLabel("Clearance FRL: "+ Library_Quantif.round(results.get("Clairance FFR"), 2) +"%/min"));
-        container.add(new JLabel("Normalized Clearance FRL: "+ Library_Quantif.round(results.get("Norm Clairance FFR"), 2) +"%/min.m²"));
+        container.add(new JLabel("FRL/TL ratio : "));
+        container.add(new JLabel(" "));
+        container.add(new JLabel( Library_Quantif.round(results.get("FFR/FT") * 100, 2) +" %"));
+
+        container.add(new JLabel("Clearance FRL : "));
+        container.add(new JLabel(" "));
+
+        container.add(new JLabel(Library_Quantif.round(results.get("Clairance FFR"), 2) +" %/min"));
+
+        container.add(new JLabel("Normalized Clearance FRL : "));
+        container.add(new JLabel(" "));
+
+        container.add(new JLabel(Library_Quantif.round(results.get("Norm Clairance FFR"), 2) +" %/min.m²"));
         res.add(container);
 
         return res;
