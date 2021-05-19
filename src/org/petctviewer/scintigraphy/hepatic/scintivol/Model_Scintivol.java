@@ -233,6 +233,112 @@ public class Model_Scintivol extends ModelScinDyn {
         }
     }
 
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder(super.toString());
+
+        StringBuilder name = new StringBuilder();
+        double Ht1 = Library_Quantif.round(this.results.get("Heart").get("t1"),2);
+        double Ht2 =Library_Quantif.round(this.results.get("Heart").get("t2"),2);
+        double Lv1 = Library_Quantif.round(this.results.get("Liver").get("t1"),2);
+        double Lv2 = Library_Quantif.round(this.results.get("Liver").get("t2"),2);
+        double Fov1 = Library_Quantif.round(this.results.get("FOV").get("t1"),2);
+        double Fov2 =Library_Quantif.round(this.results.get("FOV").get("t2"),2);
+        double lvP1 = Library_Quantif.round(this.results.get("Liver Parenchyma").get("max"),2);
+        double lvP2 =Library_Quantif.round(this.results.get("Liver Parenchyma").get("end"),2);
+        double cnorm =Library_Quantif.round(this.results.get("Other").get("Cnorm_t2"),2);
+        double auc =Library_Quantif.round(this.results.get("Heart").get("AUC"),2);
+        double ftNorm = Library_Quantif.round(this.results.get("Other").get("Norm Clairance FT"),2);
+        double ftNonNorm =Library_Quantif.round(this.results.get("Other").get("Clairance FT"),2);
+       double retention =  Library_Quantif.round(this.results.get("Other").get("Norm Clairance FT")*100,2);
+
+
+
+        name.append("\n");
+        name.append("\n");
+        name.append("\n");
+
+
+
+        name.append("Heart : ");
+        name.append("\n");
+        name.append("t1 : ");
+        name.append(Ht1);
+        name.append("\n");
+        name.append("t2 : ");
+        name.append(Ht2);
+
+        name.append("\n");
+        name.append("\n");
+
+        name.append("Liver : ");
+        name.append("\n");
+        name.append("t1 : ");
+        name.append(Lv1);
+        name.append("\n");
+        name.append("t2 : ");
+        name.append(Lv2);
+
+        name.append("\n");
+        name.append("\n");
+
+        name.append("FOV : ");
+        name.append("\n");
+        name.append("t1 : ");
+        name.append(Fov1);
+        name.append("\n");
+        name.append("t2 : ");
+        name.append(Fov2);
+
+        name.append("\n");
+        name.append("\n");
+
+        name.append("Liver Parenchyma : ");
+        name.append("\n");
+        name.append("max : ");
+        name.append(lvP1);
+        name.append("\n");
+        name.append("end : ");
+        name.append(lvP2);
+
+        name.append("\n");
+        name.append("\n");
+
+        name.append("Intermediate values : ");
+        name.append("\n");
+        name.append("Cnormt2 : ");
+        name.append(cnorm);
+        name.append("\n");
+        name.append("AUC : ");
+        name.append(auc);
+
+        name.append("\n");
+        name.append("\n");
+
+        name.append("Results : ");
+        name.append("\n");
+        name.append("Non-standardized clearance  : ");
+        name.append(ftNonNorm+" %/min");
+        name.append("\n");
+        name.append("Standardized clearance : ");
+        name.append(ftNorm+" %/m.m²");
+        name.append("\n");
+        name.append("Retention rate : ");
+        name.append(retention+" %");
+
+
+
+
+        name.append("\n");
+
+
+        s.append(name);
+
+
+        return s.toString();
+    }
+
+
     public double getTimeChart() {
         return timeChart;
     }
