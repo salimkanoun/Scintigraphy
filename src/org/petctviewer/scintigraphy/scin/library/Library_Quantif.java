@@ -118,7 +118,7 @@ public class Library_Quantif {
 	/**
 	 * Returns the maximum number of counts in the current ROI
 	 * @param imp
-	 * @return maximum number of counts over the defined slices
+	 * @return maximum number of counts over all slices
 	 */
 	public static Double getMaxCounts(ImagePlus imp) {
 		double res = 0;
@@ -126,6 +126,61 @@ public class Library_Quantif {
 			imp.setSlice(i);
 			double counts = getCounts(imp);
 			if (counts > res)
+				res = counts;
+		}
+
+		return res;
+	}
+
+	/**
+	 * Returns the maximum number of counts in the current ROI
+	 * @param imp
+	 * @param startSlice
+	 * @param endSlice
+	 * @return maximum number of counts over the defined slices
+	 */
+	public static Double getMaxCounts(ImagePlus imp, int startSlice, int endSlice) {
+		double res = 0;
+		for (int i = startSlice; i <= endSlice; i++) {
+			imp.setSlice(i);
+			double counts = getCounts(imp);
+			if (counts > res)
+				res = counts;
+		}
+
+		return res;
+	}
+
+	/**
+	 * Returns the minimum number of counts in the current ROI
+	 * @param imp
+	 * @return minimum number of counts over all slices
+	 */
+	public static Double getMinCounts(ImagePlus imp) {
+		double res = Double.MAX_VALUE;
+		for (int i = 1; i <= imp.getNSlices(); i++) {
+			imp.setSlice(i);
+			double counts = getCounts(imp);
+			if (counts < res)
+				res = counts;
+		}
+
+		return res;
+	}
+
+	/**
+	 * Returns the minimum number of counts in the current ROI
+	 * @param imp
+	 * @param startSlice
+	 * @param endSlice
+	 * @return minimum number of counts over the defined slices
+	 */
+	public static Double getMinCounts(ImagePlus imp, int startSlice, int endSlice) {
+		double res = Double.MAX_VALUE;
+		for (int i = startSlice; i <= endSlice; i++) {
+			imp.setSlice(i);
+			double counts = getCounts(imp);
+			if (counts < res)
 				res = counts;
 		}
 

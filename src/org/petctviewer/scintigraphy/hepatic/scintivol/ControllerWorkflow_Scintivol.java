@@ -50,9 +50,11 @@ public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
             for (int indexRoi = 0; indexRoi < this.organeListe.length; indexRoi++) {
                 imp.setRoi(this.model.getRoiManager().getRoi(indexRoi));
                 String nom = this.organeListe[indexRoi];
-                modele.enregistrerMesure(nom, imp);
+                if (!nom.equals("Liver parenchyma")) {
+                    modele.enregistrerMesure(nom, imp);
 
-                if (indexSlice == 1) modele.enregistrerPixelRoi(nom, Library_Quantif.getPixelNumber(imp));
+                    if (indexSlice == 1) modele.enregistrerPixelRoi(nom, Library_Quantif.getPixelNumber(imp));
+                }
             }
         }
 
