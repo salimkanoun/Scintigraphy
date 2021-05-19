@@ -250,7 +250,7 @@ public class Model_Scintivol extends ModelScinDyn {
         double auc =Library_Quantif.round(this.results.get("Heart").get("AUC"),2);
         double ftNorm = Library_Quantif.round(this.results.get("Other").get("Norm Clairance FT"),2);
         double ftNonNorm =Library_Quantif.round(this.results.get("Other").get("Clairance FT"),2);
-       double retention =  Library_Quantif.round(this.results.get("Other").get("Norm Clairance FT")*100,2);
+       double retention =  Library_Quantif.round(this.results.get("Other").get("Norm Clairance FT")*10,2);
 
 
 
