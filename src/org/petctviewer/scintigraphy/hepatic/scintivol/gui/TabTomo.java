@@ -40,19 +40,31 @@ public class TabTomo extends TabResult implements ActionListener {
     private Container getInputContent() {
         JPanel res = new JPanel();
         JPanel container = new JPanel(new GridLayout(3, 1));
+        container.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
         JPanel inputFT = new JPanel(new GridLayout(1, 2));
+        inputFT.add(new JLabel(" "));
+
         inputFT.add(new JLabel("Total liver's counts (TL)"));
+        inputFT.add(new JLabel(" "));
+
         this.ftTextField = new JTextField();
         this.ftTextField.addActionListener(this);
         inputFT.add(this.ftTextField);
+        inputFT.add(new JLabel(" "));
         container.add(inputFT);
 
         JPanel inputFFR = new JPanel(new GridLayout(1, 2));
+        inputFFR.add(new JLabel(" "));
+
         inputFFR.add(new JLabel("Future remaining liver counts (FRL)  "));
+        inputFFR.add(new JLabel(" "));
+
         this.ffrTextField = new JTextField();
         this.ffrTextField.addActionListener(this);
         inputFFR.add(this.ffrTextField);
+        inputFFR.add(new JLabel(" "));
+
         container.add(inputFFR);
 
         JPanel compute = new JPanel();
