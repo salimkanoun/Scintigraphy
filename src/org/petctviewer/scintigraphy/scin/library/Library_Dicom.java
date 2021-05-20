@@ -697,7 +697,7 @@ public class Library_Dicom {
 			imsTab[1].getImagePlus().setSlice(i);
 			imsTab[1].getImagePlus().getProcessor().flipHorizontal();
 
-			ImagePlus slice = ImageCalculator.run(imsTab[0].getImagePlus(), imsTab[1].getImagePlus(), "multiply");
+			ImagePlus slice = ImageCalculator.run(imsTab[0].getImagePlus(), imsTab[1].getImagePlus(), "Multiply create");
 			slice.getProcessor().sqrt();
 
 			imStack.addSlice(slice.getProcessor());
