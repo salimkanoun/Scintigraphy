@@ -6,6 +6,8 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabSalivaryGlands;
+import ij.Prefs;
 
 import javax.swing.*;
 import java.awt.*;
@@ -63,8 +65,9 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == this.btn_start) {
+			double lemonInjectionTime = Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 10);
 			double time = Double.parseDouble(JOptionPane.showInputDialog(this,
-					"Indicate when lemon juice was injected in minutes", 10));
+					"Indicate when lemon juice was injected in minutes", lemonInjectionTime));
 			((ControllerWorkflowSalivaryGlands) this.getController()).setLemonJuiceInjection(time);
 
 			this.getBtn_reverse().setEnabled(true);

@@ -18,8 +18,8 @@ public class ModelShunpo extends ModelWorkflow {
 			"Background", REGION_RIGHT_KIDNEY = "Right Kidney", REGION_LEFT_KIDNEY = "Left Kidney", REGION_BRAIN =
 			"Brain";
 
-	public static final Result RES_RATIO_RIGHT_LUNG = new Result("Right Lung Ratio"), RES_RATIO_LEFT_LUNG = new Result(
-			"Left Lung Ratio"), RES_SHUNT_SYST = new Result("Shunt Systemic"), RES_PULMONARY_SHUNT = new Result(
+	public static final Result RES_RATIO_RIGHT_LUNG = new Result("Right Lung "), RES_RATIO_LEFT_LUNG = new Result(
+			"Left Lung "), RES_SHUNT_SYST = new Result("Shunt Systemic"), RES_PULMONARY_SHUNT = new Result(
 			"Pulmonary Shunt"), RES_PULMONARY_SHUNT_2 = new Result("Pulmonary Shunt", 2);
 
 	public static final int IMAGE_KIDNEY_LUNG = 0, IMAGE_BRAIN = 1;

@@ -20,7 +20,7 @@ import java.util.List;
 public class ScintivolScintigraphy extends Scintigraphy {
 
 
-    public static final String STUDY_NAME = "Scintivol scintigraphy";
+    public static final String STUDY_NAME = "Liver Function";
     private ImageSelection imsRetention;
     private int[] frameDurations;
 

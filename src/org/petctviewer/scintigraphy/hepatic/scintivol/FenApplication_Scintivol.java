@@ -59,7 +59,7 @@ public class FenApplication_Scintivol extends FenApplicationWorkflow {
             Model_Scintivol model = (Model_Scintivol) this.getController().getModel();
             double size, weight, tracerDelay;
             if (!StringUtils.isEmpty(DicomTools.getTag(imp, "0010,1020")))
-                size = Double.parseDouble(DicomTools.getTag(imp, "0010,1020"));
+                size = Double.parseDouble(DicomTools.getTag(imp, "0010,1020"))*100;
             else
                 size = Double.parseDouble(JOptionPane.showInputDialog(this,
                         "Input the patient size in cm", 160));
