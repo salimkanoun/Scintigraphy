@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.gallbladder.resultats.tabs;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
@@ -34,14 +35,10 @@ public class TabGallbladder extends TabResult{
     private JLabel[] gallbladder10sLabel;
     private static int numAcquisitionGallbladder = 0;
 
-    private final Model_Resultats_Gallbladder modeleApp;
 
-    private final Integer nbAcquisition;
 
-    public TabGallbladder(int nbAcquisition, FenResults parent, Model_Resultats_Gallbladder model){
+    public TabGallbladder(BufferedImage capture, FenResults parent){
         super(parent, "Gallbladder", true);
-        this.modeleApp = model;
-        this.nbAcquisition = nbAcquisition;
 
         this.setAdditionalInfo("Gallbladder");
         this.reloadDisplay();
@@ -85,11 +82,11 @@ public class TabGallbladder extends TabResult{
 
         request.changeResultOn(ModelGallbladder.RES_GALLBLADDER);
         request.setUnit(Unit.PERCENTAGE);
-        this.displayResult(this.getModel().getResult(request), res);
+       // this.displayResult(this.getModel().getResult(request), res);
 
-        //return res;
+        return res;
 
-        if(nbAcquisition == null)
+       /** if(nbAcquisition == null)
             return null;
 
         JPanel radioButtonGallbladderPanel = new JPanel();
@@ -144,19 +141,20 @@ public class TabGallbladder extends TabResult{
         radioButtonGallbladder[0].setSelected(true);
 
         return sidePanel;
-    }
+        **/
 
+    }
 
     /** 
 	 * @return ModelThyroid
 	 */
-	private ModelGallbladder getModel() {
-		return (ModelGallbladder) this.parent.getModel();
-    }
+	//private ModelGallbladder getModel() {
+	//	return (ModelGallbladder) this.parent.getModel();
+  //  }
 
-    @Override
+   // @Override
     public JPanel getResultContent(){
-        //graph center
+      /**  //graph center
         graphGallbladder = ChartFactory.createXYLineChart("Gallbladder", "s", "Count/s", null);
 
         graphGallbladder.getXYPlot().setDataset(modeleApp.retentionForGraph());
@@ -202,5 +200,7 @@ public class TabGallbladder extends TabResult{
         }
 
         return valueSetterGallbladder;
+       **/
+      return null;
     }
 }

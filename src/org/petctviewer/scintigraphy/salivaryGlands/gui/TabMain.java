@@ -1,13 +1,11 @@
 package org.petctviewer.scintigraphy.salivaryGlands.gui;
 
-import ij.Prefs;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.calibration.resultats.JTableCheckBox;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.salivaryGlands.ModelSalivaryGlands;
@@ -15,7 +13,6 @@ import org.petctviewer.scintigraphy.scin.gui.*;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
-import org.petctviewer.scintigraphy.scin.preferences.PrefTabSalivaryGlands;
 
 import javax.swing.*;
 import java.awt.*;
