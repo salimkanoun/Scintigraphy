@@ -69,25 +69,25 @@ public class Model_Scintivol extends ModelScinDyn {
 
         double H_t1 = this.results.get("Heart").get("t1");
 
-        double A_t1 = this.results.get("Other").get("BP Activity");
+        double A_t1 = this.results.get("Intermediate values").get("BP Activity");
 
         double AUC_t1_t2 = this.results.get("Heart").get("AUC");
 
 
-        this.results.get("Other").put("AUC/Cnorm", AUC_t1_t2/H_t1);
+        this.results.get("Intermediate values").put("AUC/Cnorm", AUC_t1_t2/H_t1);
 
         double res = 100 * 6 * (L_t2 - L_t1) / (A_t1 * AUC_t1_t2/H_t1);
-        this.results.get("Other").put("Clairance FT",  res);
+        this.results.get("Intermediate values").put("Clairance FT",  res);
 
         return  res;
     }
 
     private double getNormalizedClairanceFT() {
-        double clairanceFT = this.results.get("Other").get("Clairance FT");
-        double sc = this.results.get("Other").get("SC");
+        double clairanceFT = this.results.get("Intermediate values").get("Clairance FT");
+        double sc = this.results.get("Intermediate values").get("SC");
 
         double res = clairanceFT / sc;
-        this.results.get("Other").put("Norm Clairance FT", res);
+        this.results.get("Intermediate values").put("Norm Clairance FT", res);
         return  res;
     }
 
@@ -117,16 +117,16 @@ public class Model_Scintivol extends ModelScinDyn {
         double L_t1 = this.results.get("Liver").get("t1");
 
         double Cnorm_t2 = this.results.get("Heart").get("t2") / this.results.get("Heart").get("t1");
-        this.results.get("Other").put("Cnorm_t2", Cnorm_t2);
+        this.results.get("Intermediate values").put("Cnorm_t2", Cnorm_t2);
 
         double res = (T_t2 - L_t1 - (T_t1 - L_t1) * Cnorm_t2) / (1 - Cnorm_t2);
-        this.results.get("Other").put("BP Activity", res);
+        this.results.get("Intermediate values").put("BP Activity", res);
         return res;
     }
 
     private double getSC() {
         double res = Math.sqrt((this.size * this.weight) / 3600);
-        this.results.get("Other").put("SC", res);
+        this.results.get("Intermediate values").put("SC", res);
 
         return  res;
     }
@@ -140,25 +140,25 @@ public class Model_Scintivol extends ModelScinDyn {
         double ffr = this.results.get("Tomo").get("FFR");   // Future remaining liver
 
         double res = ffr/ft;
-        this.results.get("Other").put("FFR/FT", res);
+        this.results.get("Intermediate values").put("FFR/FT", res);
         return res;
     }
 
     private double getClairanceFFR() {
-        double clairanceFT = this.results.get("Other").get("Clairance FT");
-        double ffr_ft = this.results.get("Other").get("FFR/FT");
+        double clairanceFT = this.results.get("Intermediate values").get("Clairance FT");
+        double ffr_ft = this.results.get("Intermediate values").get("FFR/FT");
 
         double res = clairanceFT * ffr_ft;
-        this.results.get("Other").put("Clairance FFR", res);
+        this.results.get("Intermediate values").put("Clairance FFR", res);
         return res;
     }
 
     private double getNormalizedClairanceFFR() {
-        double clairanceFTNorm = this.results.get("Other").get("Norm Clairance FT");
-        double ffr_ft = this.results.get("Other").get("FFR/FT");
+        double clairanceFTNorm = this.results.get("Intermediate values").get("Norm Clairance FT");
+        double ffr_ft = this.results.get("Intermediate values").get("FFR/FT");
 
         double res = clairanceFTNorm * ffr_ft;
-        this.results.get("Other").put("Norm Clairance FFR", res);
+        this.results.get("Intermediate values").put("Norm Clairance FFR", res);
         return res;
     }
 
@@ -176,7 +176,7 @@ public class Model_Scintivol extends ModelScinDyn {
         this.results.put("Liver Parenchyma", val);
 
         res = end/max;
-        this.results.get("Other").put("Retention rate", res);
+        this.results.get("Intermediate values").put("Retention rate", res);
 
         return res;
     }
@@ -212,7 +212,7 @@ public class Model_Scintivol extends ModelScinDyn {
 
         this.setCounts(sliceT1, sliceT2);
 
-        this.results.put("Other", new HashMap<>());
+        this.results.put("Intermediate values", new HashMap<>());
         this.getSC();
         this.getBPActivity();
         this.getClairanceFT();
@@ -242,11 +242,11 @@ public class Model_Scintivol extends ModelScinDyn {
         double Fov2 = Library_Quantif.round(this.results.get("FOV").get("t2"),2);
         double lvP1 = Library_Quantif.round(this.results.get("Liver Parenchyma").get("max"),2);
         double lvP2 = Library_Quantif.round(this.results.get("Liver Parenchyma").get("end"),2);
-        double cnorm = Library_Quantif.round(this.results.get("Other").get("Cnorm_t2"),2);
+        double cnorm = Library_Quantif.round(this.results.get("Intermediate values").get("Cnorm_t2"),2);
         double auc = Library_Quantif.round(this.results.get("Heart").get("AUC"),2);
-        double ft = Library_Quantif.round(this.results.get("Other").get("Clairance FT"),2);
-        double ftNorm = Library_Quantif.round(this.results.get("Other").get("Norm Clairance FT"),2);
-        double retention = Library_Quantif.round(this.results.get("Other").get("Retention rate")*100,2);
+        double ft = Library_Quantif.round(this.results.get("Intermediate values").get("Clairance FT"),2);
+        double ftNorm = Library_Quantif.round(this.results.get("Intermediate values").get("Norm Clairance FT"),2);
+        double retention = Library_Quantif.round(this.results.get("Intermediate values").get("Retention rate")*100,2);
 
         StringBuilder res = new StringBuilder(super.toString());
 
@@ -280,9 +280,9 @@ public class Model_Scintivol extends ModelScinDyn {
         res.append("Retention rate,").append(retention).append(",%\n");
 
         if (this.results.containsKey("Tomo")) {
-            double fl_frl = Library_Quantif.round(this.results.get("Other").get("FFR/FT") * 100,2);
-            double ffr = Library_Quantif.round(this.results.get("Other").get("Clairance FFR"),2);
-            double ffrNorm = Library_Quantif.round(this.results.get("Other").get("Norm Clairance FFR"),2);
+            double fl_frl = Library_Quantif.round(this.results.get("Intermediate values").get("FFR/FT") * 100,2);
+            double ffr = Library_Quantif.round(this.results.get("Intermediate values").get("Clairance FFR"),2);
+            double ffrNorm = Library_Quantif.round(this.results.get("Intermediate values").get("Norm Clairance FFR"),2);
 
             res.append("FL/FRL,").append(fl_frl).append(",%\n");
             res.append("Clearance FRL,").append(ffr).append(",%/min\n");

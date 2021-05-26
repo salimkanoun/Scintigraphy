@@ -54,7 +54,7 @@ public class TabTardive extends TabResult {
             Map<String, Map<String, Double>> results = model.getResults();
             double liver_t1 = Library_Quantif.round(results.get("Liver Parenchyma").get("max"), 2);
             double liver_t2 = Library_Quantif.round(results.get("Liver Parenchyma").get("end"), 2);
-            double retention = Library_Quantif.round(results.get("Other").get("Retention rate") * 100, 2);
+            double retention = Library_Quantif.round(results.get("Intermediate values").get("Retention rate") * 100, 2);
 
 
             JPanel pnl_liver = new JPanel(new GridLayout(4, 3, 0, 3));
