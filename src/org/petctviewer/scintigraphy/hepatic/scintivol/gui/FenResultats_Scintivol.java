@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.hepatic.scintivol.gui;
 
 import ij.ImagePlus;
-import org.petctviewer.scintigraphy.hepatic.scintivol.Model_Scintivol;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 
@@ -17,7 +16,6 @@ public class FenResultats_Scintivol extends FenResults {
         this.addTab(new TabPrecoce(captures.get(0).getBufferedImage(), this));
         this.addTab((new TabTardive(captures.get(1).getBufferedImage(), this)));
         this.addTab(new TabTomo(this, "TomoScintigraphy results"));
-        Model_Scintivol model = (Model_Scintivol) controller.getModel();
 
 
 

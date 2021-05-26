@@ -37,6 +37,10 @@ class TabPrecoce extends TabResult {
         Box panRes = Box.createVerticalBox();
 
 
+
+        panRes.add(Box.createVerticalStrut(10));
+        panRes.add(this.getPanelSizeAndWieght());
+
         panRes.add(Box.createVerticalStrut(10));
         panRes.add(this.getPanelHeart());
 
@@ -45,6 +49,8 @@ class TabPrecoce extends TabResult {
 
         panRes.add(Box.createVerticalStrut(10));
         panRes.add(this.getPanelClairance());
+
+
 
 
         flow_wrap.add(panRes);
@@ -128,6 +134,35 @@ class TabPrecoce extends TabResult {
 
         return pnl_liver;
     }
+
+    private Component getPanelSizeAndWieght(){
+        Model_Scintivol model = (Model_Scintivol) this.parent.getModel();
+
+
+        // panel de timing
+        double taille = model.getSize();
+        double poids = model.getWeight();
+
+
+        JPanel pnl_patient = new JPanel(new GridLayout(2, 2, 0, 3));
+        pnl_patient.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        pnl_patient.add(new JLabel(" Size "));
+        JLabel val_size = new JLabel(String.valueOf(taille)+ "cm");
+        pnl_patient.add(val_size );
+
+        pnl_patient.add(new JLabel(" Weight "));
+        JLabel val_weight = new JLabel(String.valueOf(poids)+ "Kg");
+        pnl_patient.add(val_weight);
+
+
+
+
+
+
+        return pnl_patient;
+    }
+
+
 
     private Component getPanelClairance(){
         Model_Scintivol model = (Model_Scintivol) this.parent.getModel();

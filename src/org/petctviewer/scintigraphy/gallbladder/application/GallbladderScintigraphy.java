@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.*;
-import java.awt.*;
-
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -18,10 +15,7 @@ import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
-import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
 import ij.ImagePlus;
 
@@ -41,11 +35,12 @@ public class GallbladderScintigraphy extends Scintigraphy{
      */
 
     public static final String STUDY_NAME = "GallBladder Ejection Fraction";
+    private ImageSelection ims;
 
     private int[] frameDurations;
 
     // [0: ant | 1: post][numAcquisition]
-	private ImageSelection[][] sauvegardeImagesSelectDicom;
+	private ImageSelection[] sauvegardeImagesSelectDicom;
 
 	// imp du projet de chaque Acqui
 	private ImagePlus impProjeteAllAcqui;
@@ -71,39 +66,19 @@ public class GallbladderScintigraphy extends Scintigraphy{
         
 		//phase 1
         this.initOverlayOnPreparedImages(preparedImages, 12);
-        Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.yellow);
-
-        FenApplicationWorkflow fen = new FenApplicationWorkflow(preparedImages.get(0), STUDY_NAME);
-        fen.setVisualizationEnable(false);
-
-        JPanel radioButtonPanelFlow = new JPanel();
-        radioButtonPanelFlow.setLayout(new FlowLayout());
-        //radioButtonPanelFlow.add(radioButtonPanel);
-        
-        fen.getPanelPrincipal().add(radioButtonPanelFlow);
-        this.setFenApplication(fen);
-
-        this.getFenApplication().setVisible(true);
+        this.setFenApplication(new FenApplicationGallbladder(preparedImages.get(0), this.getStudyName(), this));
+        this.getFenApplication().setController(
+                new ControllerWorkflowGallbladder((FenApplicationWorkflow) this.getFenApplication(),
+                        new ModelGallbladder(preparedImages.toArray(new ImageSelection[0]), STUDY_NAME, this.frameDurations,this.ims)));
         this.createDocumentation();
-        fen.resizeCanvas();
-
-        ControllerWorkflowGallbladder cg = new ControllerWorkflowGallbladder(
-            (FenApplicationWorkflow) GallbladderScintigraphy.this.getFenApplication(), new ModelGallbladder(
-                sauvegardeImagesSelectDicom, STUDY_NAME, GallbladderScintigraphy.this,
-                this.getImgPrjtAllAcqui()));
-        this.getFenApplication().setController(cg);
-
-        this.createDocumentation();
-
-        this.getFenApplication().setVisible(true);
     }
-    
+
     public int[] getFrameDurations() {
 		return this.frameDurations;
     }
     
     public ImageSelection getImgPrjtAllAcqui() {
-		ImageSelection returned = sauvegardeImagesSelectDicom[0][0].clone(Orientation.ANT);
+		ImageSelection returned = sauvegardeImagesSelectDicom[0].clone(Orientation.ANT);
 		returned.setImagePlus(impProjeteAllAcqui);
 		return returned;
 	}
@@ -122,12 +97,35 @@ public class GallbladderScintigraphy extends Scintigraphy{
         // en entrée : tableau de toutes les images passées envoyé par le selecteur de dicom
         
         //sauvegarde des images pour le modèle
-        this.sauvegardeImagesSelectDicom = new ImageSelection[2][selectedImages.size()];
+        this.sauvegardeImagesSelectDicom = new ImageSelection[selectedImages.size()];
 
 		// trier les images par date et que avec les ant
 		// on creer une liste avec toutes les images plus
         List<ImageSelection> imagePourTrieAnt = new ArrayList<>();
-        
+
+        //check de l'orientation
+        List<ImageSelection> selection = new ArrayList<>();
+        Orientation[] acceptedOrientations = new Orientation[]{Orientation.DYNAMIC_ANT_POST, Orientation.DYNAMIC_POST_ANT};
+        String hint = "You can use only 1 dynamic (Ant_Post or Post_Ant)";
+
+
+        if (Arrays.stream(selectedImages.toArray(new ImageSelection[0])).noneMatch(o ->
+                o.getImageOrientation() == Orientation.DYNAMIC_ANT_POST))
+            throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
+                    selectedImages.get(0).getImageOrientation(),
+                    acceptedOrientations, hint);
+
+        // Set images
+        ImageSelection imps = selectedImages.get(0).clone();
+        Library_Dicom.normalizeToCountPerSecond(imps);
+        imps = Library_Dicom.geomMean(imps);
+        this.frameDurations = Library_Dicom.buildFrameDurations(imps.getImagePlus());
+        Library_Dicom.normalizeToCountPerSecond(imps);
+        selection.add(imps);
+
+
+
+
         //pour chaque acquisition
         for(ImageSelection selectedImage : selectedImages){
             if(selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT_POST
@@ -147,6 +145,8 @@ public class GallbladderScintigraphy extends Scintigraphy{
                 Orientation.DYNAMIC_ANT_POST, Orientation.DYNAMIC_POST_ANT});
             selectedImage.getImagePlus().close();
         }
+
+        /*
         // on appelle la fonction de tri
 		ChronologicalAcquisitionComparator chronologicalOrder = new ChronologicalAcquisitionComparator();
 		// on met les imageplus (ANT) dans cette fonction pour les trier, ensuite on
@@ -176,15 +176,19 @@ public class GallbladderScintigraphy extends Scintigraphy{
                 impsAnt[i] = imagesAnt[i].getImagePlus();
             }
             impProjeteAllAcqui = new ImagePlus("GallbladderStack", Library_Capture_CSV.captureToStack(impsAnt));
-            impProjeteAllAcqui.setProperty("Info", sauvegardeImagesSelectDicom[0][0].getImagePlus().getInfoProperty());
+            impProjeteAllAcqui.setProperty("Info", sauvegardeImagesSelectDicom[0].getImagePlus().getInfoProperty());
         }
+
         //phase 1
         //on retourne la stack de la 1ere acquisition
-        List<ImageSelection> selection = new ArrayList<>();
-        selection.add(sauvegardeImagesSelectDicom[0][0]);
+        selection.add(sauvegardeImagesSelectDicom[0]);
 
         //Build frame duration
         this.frameDurations = Library_Dicom.buildFrameDurations(this.impProjeteAllAcqui);
+         */
+
+        // Close images
+        selectedImages.forEach(ImageSelection::close);
         return selection;
      }
 
