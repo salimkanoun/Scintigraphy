@@ -118,15 +118,15 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 			PopupMenu hepatic = new PopupMenu("Hepatic");
 			MenuItem biliaryScintigraphyDynamic = new MenuItem("Biliary Scintigraphy");
 			MenuItem radioEmbolization = new MenuItem("RadioEmbolization");
-			MenuItem scintivol = new MenuItem("Scintivol");
+			MenuItem liverFunction = new MenuItem("Liver Function");
 			MenuItem gallbladderEF = new MenuItem("GallBladder Ejection Fraction");
 			biliaryScintigraphyDynamic.addActionListener(this);
 			radioEmbolization.addActionListener(this);
-			scintivol.addActionListener(this);
+			liverFunction.addActionListener(this);
 			gallbladderEF.addActionListener(this);
 			hepatic.add(biliaryScintigraphyDynamic);
 			hepatic.add(radioEmbolization);
-			hepatic.add(scintivol);
+			hepatic.add(liverFunction);
 			hepatic.add(gallbladderEF);
 			general.add(hepatic);
 			
@@ -241,8 +241,8 @@ public class Scintigraphy_Tool extends PlugInTool implements ActionListener {
 				case "RadioEmbolization":
 					IJ.run("RadioEmbolization");
 					break;
-				case "Scintivol":
-					IJ.run("Scintivol");
+				case "Liver Function":
+					IJ.run("Liver Function");
 					break;
 				case "GallBladder Ejection Fraction":
 					IJ.run("GallBladder Ejection Fraction");
