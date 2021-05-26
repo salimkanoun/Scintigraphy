@@ -63,13 +63,14 @@ public class TabVisualGradationCardiac extends TabResult implements ActionListen
 		JPanel globalPane = new JPanel();
 		globalPane.setLayout(new BoxLayout(globalPane, BoxLayout.Y_AXIS));
 
-		JLabel heartToContralateral = new JLabel(
-				"Heart to contralateral : " + resultsThorax.get("Heart to contralateral"));
-		heartToContralateral.setFont(new Font("Arial", Font.BOLD, 20));
+		JPanel container = new JPanel();
+		JLabel heartToContralateral = new JLabel("Heart to contralateral: " + resultsThorax.get("Heart to contralateral"));
+		heartToContralateral.setFont(new Font("Arial", Font.BOLD, 15));
 		heartToContralateral.setHorizontalAlignment(JLabel.CENTER);
 		heartToContralateral.setForeground(new Color(128, 51, 0));
 
-		globalPane.add(heartToContralateral);
+		container.add(heartToContralateral);
+		globalPane.add(container);
 		globalPane.add(new JLabel(" "));
 		globalPane.add(new JLabel(" "));
 
@@ -83,7 +84,9 @@ public class TabVisualGradationCardiac extends TabResult implements ActionListen
 		JPanel listPane = new JPanel();
 
 		JPanel globalPane = new JPanel(new BorderLayout());
-		globalPane.add(new DynamicImage(this.capture), BorderLayout.CENTER);
+		DynamicImage dynImg = new DynamicImage(this.capture);
+		dynImg.setPreferredSize(new Dimension(30,30));
+		globalPane.add(dynImg, BorderLayout.NORTH);
 
 		listPane.setLayout(new GridLayout(2, 2));
 		listPane.setBorder(BorderFactory.createTitledBorder("Visual Gradation"));
@@ -91,7 +94,7 @@ public class TabVisualGradationCardiac extends TabResult implements ActionListen
 		String grade0 = "No myocardial uptake";
 		String grade1 = "Myocardial uptake &lsaquo; gril costal";
 		String grade2 = "Myocardial uptake equal to gril costal";
-		String grade3 = "Myocardal uptake &rsaquo; gril costal (with attenuation of gril costal on whole body images";
+		String grade3 = "Myocardial uptake &rsaquo; gril costal (with attenuation of gril costal on whole body images";
 
 
 		listPane.add(new JLabel("<html> &nbsp; Grade 0 : " + grade0 + "</html>"));

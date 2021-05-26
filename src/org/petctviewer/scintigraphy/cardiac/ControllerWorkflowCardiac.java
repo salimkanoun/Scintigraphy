@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.cardiac;
 
-import ij.IJ;
 import ij.ImagePlus;
 import org.apache.commons.lang.ArrayUtils;
 import org.petctviewer.scintigraphy.scin.Orientation;
@@ -22,6 +21,7 @@ import org.petctviewer.scintigraphy.scin.model.ModelScin;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ControllerWorkflowCardiac extends ControllerWorkflow {
@@ -38,9 +38,9 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	public List<ImagePlus> captures;
 	private boolean finContSlice1, finContSlice2;
 	private String[] organes = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
-	private int onlyThoraxImage;
+	private final int onlyThoraxImage;
 
-	private int fullBodyImages;
+	private final int fullBodyImages;
 
 	public static String simpleName = "ControllerWorkflowCardiac";
 
@@ -109,8 +109,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			// on a trait� toutes les contaminations
 			((FenApplication_Cardiac) this.getVue()).stopContaminationMode();
 			String[] conts = new String[this.position];
-			for (int i = 0; i < conts.length; i++)
-				conts[i] = "Cont";
+			Arrays.fill(conts, "Cont");
 
 			// on ajoute de nouvelles cases dans le tableau organes pour ne pas modifier
 			// l'indexRoi
@@ -125,12 +124,6 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		this.clickNext();
 
 		this.vue.pack();
-	}
-
-	@Override
-	public void clickNext() {
-		super.clickNext();
-		IJ.run("Labels...", "color=white font=16 use");
 	}
 
 	@Override
@@ -152,9 +145,6 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 		}
 		super.actionPerformed(arg0);
-		if (arg0.getSource() == this.getVue().getBtn_reverse()) {
-			IJ.run("Labels...", "color=white font=16 use");
-		}
 	}
 
 	@Override
@@ -171,18 +161,13 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	@Override
 	public void setOverlay(ImageState state) throws IllegalArgumentException {
 
-		if (this.indexCurrentWorkflow < this.fullBodyImages) {
-			if (state.isLateralisationRL())
-				Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
-			else
-				Library_Gui.setOverlayGD(this.vue.getImagePlus(), Color.YELLOW);
-
+		if (this.indexCurrentWorkflow <= this.fullBodyImages) {
 			((FenApplication_Cardiac) this.getVue()).setMultipleTitle(Color.yellow, state.getSlice());
 		} else {
 			Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
 			Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus(), Color.YELLOW, 1);
 		}
-
+		this.updateROIColor();
 	}
 
 	public String[] getOrganes() {
@@ -229,35 +214,37 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 				index++;
 			}
 
+			//TODO Do something to remove background tags and calculate results anyway
+
 			// Create +1 workflow for full body image
 			this.workflows[index] = new Workflow(this, this.model.getImageSelection()[this.fullBodyImages - 1]);
 			// Organs to delimit
 			DrawRoiInstruction dri_3 = new DrawSymmetricalRoiInstruction("Bladder", state, null, null,
 					this.workflows[index], Organ.DEMIE, false);
 			DrawRoiInstruction driBackground_1 = new DrawRoiBackgroundSymmetrical("Bladder Background", state, dri_3,
-					this.workflows[index], "");
+					this.workflows[index], null);
 			DrawRoiInstruction dri_4 = new DrawSymmetricalRoiInstruction("Bladder", state, dri_3, null,
 					this.workflows[index], Organ.DEMIE, false);
 			DrawRoiInstruction driBackground_2 = new DrawRoiBackgroundSymmetrical("Bladder Background", state, dri_4,
-					this.workflows[index], "");
+					this.workflows[index], null);
 
 			DrawRoiInstruction dri_5 = new DrawSymmetricalRoiInstruction("Kidney R", state, null, null,
 					this.workflows[index], Organ.DEMIE, false);
 			DrawRoiInstruction driBackground_3 = new DrawRoiBackgroundSymmetrical("Kidney R Background", state, dri_5,
-					this.workflows[index], "");
+					this.workflows[index], null);
 			DrawRoiInstruction dri_6 = new DrawSymmetricalRoiInstruction("Kidney R", state, dri_5, null,
 					this.workflows[index], Organ.DEMIE, false);
 			DrawRoiInstruction driBackground_4 = new DrawRoiBackgroundSymmetrical("Kidney R Background", state, dri_6,
-					this.workflows[index], "");
+					this.workflows[index], null);
 
 			DrawRoiInstruction dri_7 = new DrawSymmetricalRoiInstruction("Kidney L", state, null, null,
 					this.workflows[index], Organ.DEMIE, false);
 			DrawRoiInstruction driBackground_5 = new DrawRoiBackgroundSymmetrical("Kidney L Background", state, dri_7,
-					this.workflows[index], "");
+					this.workflows[index], null);
 			DrawRoiInstruction dri_8 = new DrawSymmetricalRoiInstruction("Kidney L", state, dri_7, null,
 					this.workflows[index], Organ.DEMIE, false);
 			DrawRoiInstruction driBackground_6 = new DrawRoiBackgroundSymmetrical("Kidney L Background", state, dri_8,
-					this.workflows[index], "");
+					this.workflows[index], null);
 
 			DrawRoiInstruction dri_9 = new DrawSymmetricalRoiInstruction("Heart", state, null, null,
 					this.workflows[index], Organ.DEMIE);
@@ -266,8 +253,8 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 			DrawRoiInstruction dri_11 = new DrawSymmetricalRoiInstruction("Bkg noise", state, dri_9, null,
 					this.workflows[index], Organ.QUART);
-			DrawRoiInstruction dri_12 = new DrawSymmetricalRoiInstruction("Bkg noise", state, dri_10, null,
-					this.workflows[index], Organ.QUART);
+			DrawRoiInstruction dri_12 = new DrawSymmetricalRoiInstruction("Bkg noise", state, dri_11, null,
+					this.workflows[index], Organ.DEMIE, false);
 
 			this.workflows[index].addInstruction(dri_3);
 			this.workflows[index].addInstruction(driBackground_1);

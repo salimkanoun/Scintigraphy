@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.cardiac;
 
 import ij.IJ;
-import ij.gui.Overlay;
 import ij.plugin.MontageMaker;
 import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
