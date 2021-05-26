@@ -7,14 +7,10 @@ import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
-import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
-import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
-import org.petctviewer.scintigraphy.scin.gui.FenResults;
-import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.gui.*;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
-import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
@@ -30,6 +26,8 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.petctviewer.scintigraphy.scin.library.Library_Roi.roiBetween;
 
 public class ControllerWorkflowShunpo extends ControllerWorkflow implements ItemListener {
 	private static final int SLICE_ANT = 1, SLICE_POST = 2;
@@ -280,42 +278,6 @@ public class ControllerWorkflowShunpo extends ControllerWorkflow implements Item
 			this.generateInstructionsWithKidneys();
 		} else {
 			this.generateInstructionsWithoutKidneys();
-		}
-	}
-
-	public enum DisplayState {
-		RIGHT_LEFT("Label ANT as RIGHT", "P", "A", "Right-Left"),
-		LEFT_RIGHT("Label ANT as LEFT", "A", "P", "Left-Right"),
-		ANT_POST("Label ANT as ANT", "R", "L", "Ant-Post");
-
-		public String label, textL, textR;
-		private String title;
-
-		DisplayState(String label, String textL, String textR, String titleAP) {
-			this.label = label;
-			this.textL = textL;
-			this.textR = textR;
-			this.title = titleAP;
-		}
-
-		/**
-		 * Finds the state associated with the specified label. If not state matches this label, then the ANT_POST
-		 * state
-		 * is returned.
-		 *
-		 * @param label Label of the state to retrieve
-		 * @return state corresponding to the specified label or ANT_POST if no state matches
-		 */
-		public static DisplayState stateFromLabel(String label) {
-			return Arrays.stream(values()).filter(state -> state.label.equals(label)).findFirst().orElse(ANT_POST);
-		}
-
-		public String getTitleAnt() {
-			return this.title.split("-")[0];
-		}
-
-		public String getTitlePost() {
-			return this.title.split("-")[1];
 		}
 	}
 

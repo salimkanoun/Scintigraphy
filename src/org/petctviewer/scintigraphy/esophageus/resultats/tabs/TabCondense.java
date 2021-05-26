@@ -10,6 +10,7 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.util.Arrays;
 
 public class TabCondense extends TabResult implements ChangeListener {
 
@@ -248,9 +249,7 @@ public class TabCondense extends TabResult implements ChangeListener {
 		this.rightRognageValue = new int[nbAcquisition];
 		this.leftRognageValue = new int[nbAcquisition];
 		this.contrastValue = new int[nbAcquisition];
-		for (int i = 0; i < contrastValue.length; i++) {
-			contrastValue[i] = 4;
-		}
+		Arrays.fill(contrastValue, 4);
 
 		modeleApp.calculAllCondense();
 

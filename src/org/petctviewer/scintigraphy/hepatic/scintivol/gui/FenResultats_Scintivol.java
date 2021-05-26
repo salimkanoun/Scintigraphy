@@ -1,15 +1,11 @@
 package org.petctviewer.scintigraphy.hepatic.scintivol.gui;
 
 import ij.ImagePlus;
-import ij.process.ImageProcessor;
 import org.petctviewer.scintigraphy.hepatic.scintivol.Model_Scintivol;
-import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
-import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.List;
 
 public class FenResultats_Scintivol extends FenResults {

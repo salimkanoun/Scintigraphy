@@ -85,11 +85,12 @@ public class ControllerWorkflowColonicTransit extends ControllerWorkflow {
 		this.model.calculateResults();
 
 		int[] times = new int[this.getModel().getImageSelection().length];
+		ImageSelection[] imgSelection = this.getModel().getImageSelection();
 		for (int index = 1; index < this.getModel().getImageSelection().length; index++) {
-			times[index] = Math.round((Library_Dicom
-					.getDateAcquisition(this.getModel().getImageSelection()[index].getImagePlus()).getTime()
-					- Library_Dicom.getDateAcquisition(this.getModel().getImageSelection()[0].getImagePlus()).getTime())
-					/ 1000 / 3600);
+			times[index] = Math.round(
+					(Library_Dicom.getDateAcquisition(imgSelection[index].getImagePlus()).getTime()
+					- Library_Dicom.getDateAcquisition(imgSelection[0].getImagePlus()).getTime())
+					/ 1000f / 3600f);
 		}
 
 		FenResults fenResults = new FenResultsColonicTransit(this, this.captures, times);

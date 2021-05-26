@@ -17,7 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test class for {@link Libreary_Quantif}
+ * Test class for {@link Library_Quantif}
  * 
  * @author Diego Rodriguez
  */
@@ -95,7 +95,7 @@ public class libraryQuantifTests {
         assertEquals(199862, res);
     }
     @Test
-    public void testGetAvgCounts() throws IOException {
+    public void testGetAvgCounts() {
         double res = Library_Quantif.getAvgCounts(this.dcm);
         res = (double) Math.round(res * 100) / 100;
         assertEquals(3.050, res);
@@ -146,8 +146,8 @@ public class libraryQuantifTests {
 
     @Test
     public void testCalculateDeltaTime(){
-        Date d1 = new Date(1588864900000l);
-        Date d2 = new Date(1588864960000l);
+        Date d1 = new Date(1588864900000L);
+        Date d2 = new Date(1588864960000L);
         
         double res = Library_Quantif.calculateDeltaTime(d1, d2);
         assertEquals(1, res);

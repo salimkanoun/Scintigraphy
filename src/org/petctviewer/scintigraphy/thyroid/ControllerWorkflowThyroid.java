@@ -8,6 +8,7 @@ import java.util.List;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.DisplayState;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
@@ -52,19 +53,18 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
         stateAnt.setIdImage(ModelThyroid.IMAGE_EMPTY_SYRINGE);
         this.getModel().addData(ModelThyroid.REGION_EMPTY_SYRINGE, stateAnt,
                 getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE + 1]);
-        ImageState state = stateAnt;
-        state.setIdImage(ModelThyroid.IMAGE_THYROID);
+        stateAnt.setIdImage(ModelThyroid.IMAGE_THYROID);
         // - Right lobe
-        getModel().addData(ModelThyroid.REGION_RIGHT_LOBE, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE + 2]);
+        getModel().addData(ModelThyroid.REGION_RIGHT_LOBE, stateAnt, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE + 2]);
 
         // - Left lobe
-        getModel().addData(ModelThyroid.REGION_LEFT_LOBE, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE + 3]);
+        getModel().addData(ModelThyroid.REGION_LEFT_LOBE, stateAnt, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE + 3]);
 
         // - Background left
-        getModel().addData(ModelThyroid.REGION_BACKGROUND_LEFT, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE + 4]);
+        getModel().addData(ModelThyroid.REGION_BACKGROUND_LEFT, stateAnt, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE + 4]);
 
         // - Background right
-        getModel().addData(ModelThyroid.REGION_BACKGROUND_RIGHT, state, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE + 5]);
+        getModel().addData(ModelThyroid.REGION_BACKGROUND_RIGHT, stateAnt, getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE + 5]);
     }
 
     /**
@@ -189,39 +189,6 @@ public class ControllerWorkflowThyroid extends ControllerWorkflow implements Ite
             this.getVue().getImagePlus().getOverlay().clear();
             this.setOverlay(this.currentState);
             this.getVue().getImagePlus().updateAndDraw();
-        }
-    }
-
-    //TODO This enum must change from a local state to a more general one and then be called
-
-    public enum DisplayState {
-        RIGHT_LEFT("Label ANT as RIGHT", "P", "A", "Right-Left"),
-        LEFT_RIGHT("Label ANT as LEFT", "A", "P", "Left-Right"),
-        ANT_POST("Label ANT as ANT", "R", "L", "Ant-Post");
-
-        public String label, textL, textR;
-        private String title;
-
-        DisplayState(String label, String textL, String textR, String titleAP) {
-            this.label = label;
-            this.textL = textL;
-            this.textR = textR;
-            this.title = titleAP;
-        }
-
-        /**
-         * Finds the state associated with the specified label. If not state matches this label, then the ANT_POST
-         * state is returned.
-         *
-         * @param label Label of the state to retrieve
-         * @return state corresponding to the specified label or ANT_POST if no state matches
-         */
-        public static DisplayState stateFromLabel(String label) {
-            return Arrays.stream(values()).filter(state -> state.label.equals(label)).findFirst().orElse(ANT_POST);
-        }
-
-        public String getTitleAnt() {
-            return this.title.split("-")[0];
         }
     }
 

@@ -6,6 +6,7 @@ import org.petctviewer.scintigraphy.cardiac.tab.TabVisualGradationCardiac;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,7 +31,12 @@ public class FenResultat_Cardiac extends FenResults {
 													  onlyThoraxImage));
 		}
 
-		this.setTitle("DPD Quant results");
+		this.setTitle("Amylose results");
+		int height = 800;
+		int width = 1400;
+		this.setPreferredSize(new Dimension(width, height));
+		this.pack();
+		this.setLocationRelativeTo(controller.getVue());
 	}
 
 }

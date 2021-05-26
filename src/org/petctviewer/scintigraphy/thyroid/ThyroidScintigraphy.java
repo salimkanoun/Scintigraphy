@@ -9,13 +9,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.petctviewer.scintigraphy.hepatic.radioEmbolization.ControllerWorkflowLiver.DisplayState;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.DisplayState;
 import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
@@ -27,8 +27,6 @@ public class ThyroidScintigraphy extends Scintigraphy {
 
     public static final String STUDY_NAME = "Thyroid Tc Uptake";
     private static final String ORGAN_THYROID = "THYROID";
-
-    private Column organColumn;
 
     public ThyroidScintigraphy(){
         super(STUDY_NAME);
@@ -87,11 +85,11 @@ public class ThyroidScintigraphy extends Scintigraphy {
 
         //Organ column
         final String[] organValues = {ORGAN_THYROID, "FULL SYRINGE", "EMPTY SYRINGE"};
-        this.organColumn = new Column("Organ", organValues);
+        Column organColumn = new Column("Organ", organValues);
 
         //Choose columns to display
         return new Column[] {Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
-                Column.STACK_SIZE, orientation, this.organColumn};
+                Column.STACK_SIZE, orientation, organColumn};
     }
 
     @Override

@@ -26,11 +26,13 @@ public class DrawRoiBackgroundSymmetrical extends DrawRoiBackground {
 
 	@Override
 	public String getRoiName() {
-		String name = this.organToDelimit;
+		String name = super.getRoiName();
 
 		Roi thisRoi = this.workflow.getController().getVue().getImagePlus().getRoi();
-		if (thisRoi == null) return this.organToDelimit;
 
+		//TODO Do something to remove background tags and calculate results anyway
+		if (name == null || thisRoi == null) return this.organToDelimit;
+		if (name.equals("")) return this.organToDelimit;//"";
 		boolean OrganPost = thisRoi.getXBase() > this.workflow.getController().getVue().getImagePlus().getWidth() / 2.;
 
 		if (OrganPost) name += " P";

@@ -1,12 +1,8 @@
 package org.petctviewer.scintigraphy.scin.gui;
 
-import org.petctviewer.scintigraphy.calibration.resultats.JTableCheckBox;
-
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 public class JCheckBoxRows extends JPanel {
     private final JCheckBox[] checkboxes;

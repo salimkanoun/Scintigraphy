@@ -21,12 +21,12 @@ public class modelDataTests {
     ImageState state = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, 0);
 
     @BeforeEach
-    public void setUp() throws Exception{
+    public void setUp() {
         this.data = new Data(state, 100);
     }
 
     @AfterEach
-    public void tearDown() throws Exception{
+    public void tearDown() {
         this.data = null;
     }
 

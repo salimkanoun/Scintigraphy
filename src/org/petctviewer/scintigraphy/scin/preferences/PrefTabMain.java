@@ -149,12 +149,10 @@ public class PrefTabMain extends PrefTab {
 	}
 
 	public static int toolFromString(String str) {
-		switch (str) {
-			case "Freeroi":
-				return Toolbar.FREEROI;
-			default:
-				return Toolbar.POLYGON;
+		if (str.equals("Freeroi")) {
+			return Toolbar.FREEROI;
 		}
+		return Toolbar.POLYGON;
 	}
 
 	private JLabel createLabel(Container container, String text) {

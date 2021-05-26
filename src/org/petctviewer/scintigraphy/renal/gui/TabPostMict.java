@@ -124,7 +124,7 @@ public class TabPostMict extends TabContrastModifier implements ActionListener {
 		this.btn_quantify.addActionListener(this);
 		side.add(btn_quantify);
 		
-		this.setComponentToHide((new ArrayList<> (Arrays.asList(new Component[] {btn_quantify}))));
+		this.setComponentToHide((new ArrayList<> (Arrays.asList(btn_quantify))));
 
 		// Simulate a \n
 		side.add(new JLabel(""));
@@ -254,12 +254,12 @@ public class TabPostMict extends TabContrastModifier implements ActionListener {
 		if (modele.getKidneys()[0]) {
 			rg = data.get("L. Kidney") - data.get("L. bkg");
 			// on calcule les valeurs en coups/sec
-			rg /= (duration / 1000); // TODO: rg is double but (duration / 1000) is int??????
+			rg /= (duration / 1000.);
 		}
 		if (modele.getKidneys()[1]) {
 			rd = data.get("R. Kidney") - data.get("R. bkg");
 			// on calcule les valeurs en coups/sec
-			rd /= (duration / 1000); // TODO: rg is double but (duration / 1000) is int??????
+			rd /= (duration / 1000.);
 		}
 
 		// creation du panel excr rein gauche et droit
@@ -268,7 +268,7 @@ public class TabPostMict extends TabContrastModifier implements ActionListener {
 		// ajout de la vessie dans la liste d'organes si elle est selectionnee
 		if (bladder) {
 			Double bld = data.get("Bladder");
-			bld /= (duration / 1000); // TODO: rg is double but (duration / 1000) is int??????
+			bld /= (duration / 1000.);
 			this.panel_bladder.add(
 					new JLabel("Bladder : " + Library_Quantif.round(modele.getExcrBladder(bld), 2) + " %"));
 		}

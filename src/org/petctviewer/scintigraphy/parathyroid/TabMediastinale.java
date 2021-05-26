@@ -35,8 +35,6 @@ public class TabMediastinale extends TabContrastModifier implements ActionListen
 	private boolean imgSelected;
 	private ImageSelection[] images;
 
-	private JPanel panel_excr, panel_bladder;
-
 	public TabMediastinale(FenResults parent) {
 		super(parent, "Mediastinale");
 		this.imgSelected = false;
@@ -51,25 +49,22 @@ public class TabMediastinale extends TabContrastModifier implements ActionListen
 		Box side = Box.createVerticalBox();
 		JPanel flow = new JPanel();
 
-		this.panel_excr = new JPanel();
-		flow.add(this.panel_excr);
+        JPanel panel_excr = new JPanel();
+		flow.add(panel_excr);
 		side.add(flow);
-		this.panel_bladder = new JPanel();
-		side.add(this.panel_bladder);
+		JPanel panel_bladder = new JPanel();
+		side.add(panel_bladder);
 
 		
 
 		// Simulate a \n
 		side.add(new JLabel(""));
 
-		if (!this.imgSelected) {
-			return side;
-		} else {
+		if (this.imgSelected) {
 			btn_addImp.setVisible(false);
 			side.add(super.getSidePanelContent());
-
-			return side;
 		}
+		return side;
 	}
 
 	@Override
@@ -106,7 +101,7 @@ public class TabMediastinale extends TabContrastModifier implements ActionListen
 
 				@Override
 				public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages) throws
-						WrongInputException, ReadTagException {
+						WrongInputException {
 					// Check number of images
 					if (selectedImages.size() != 1) {
 						throw new WrongNumberImagesException(selectedImages.size(), 1);

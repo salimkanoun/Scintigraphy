@@ -23,8 +23,6 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
-import ij.gui.Overlay;
-
 public class MainTab extends TabResult {
 
 	private ContrastSlider slider;
@@ -40,7 +38,7 @@ public class MainTab extends TabResult {
 														capture), this.result, this.parent);
 		this.contrastSliderLabel = new JLabel("Contrast");
 		
-		this.setComponentToHide(new ArrayList<>(Arrays.asList(new Component[] {slider, contrastSliderLabel})));
+		this.setComponentToHide(new ArrayList<>(Arrays.asList(slider, contrastSliderLabel)));
 
 		this.reloadDisplay();
 	}

@@ -16,16 +16,12 @@ public class FenApplication_Scintivol extends FenApplicationWorkflow {
 
 
     private static final long serialVersionUID = 1L;
-    private final ScintivolScintigraphy main;
     private final Button btn_start;
 
     public FenApplication_Scintivol(ImageSelection ims, String nom, ScintivolScintigraphy main) {
         super(ims, nom);
         // Keep default visualisation
         this.setVisualizationEnable(false);
-
-        this.main = main;
-
 
 
         Overlay overlay = Library_Gui.initOverlay(this.getImagePlus(), 12);
@@ -81,7 +77,7 @@ public class FenApplication_Scintivol extends FenApplicationWorkflow {
             this.getPanel_bttns_droit().add(this.createPanelInstructionsBtns());
             this.getBtn_drawROI().setEnabled(true);
             this.setAlwaysOnTop(false);
-            this.setImage(this.imp);
+            this.setImage(new ImageSelection(this.imp, null, null));
             this.updateSliceSelector();
             resizeCanvas();
         }

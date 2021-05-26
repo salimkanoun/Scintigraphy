@@ -17,20 +17,14 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private final SalivaryGlandsScintigraphy main;
-	private boolean dyn;
 	private final ImagePlus impProj;
-	private final ImageSelection imsProj;
 	private final Button btn_start;
 
 	public FenApplication_SalivaryGlands(ImageSelection ims, String nom, SalivaryGlandsScintigraphy main) {
 		super(ims, nom);
 		// Keep default visualisation
 		this.setVisualizationEnable(false);
-		
-		this.main = main;
-		this.imsProj = ims;
-		
+
 
 		Overlay overlay = Library_Gui.initOverlay(this.getImagePlus(), 12);
 		this.getImagePlus().setOverlay(overlay);
@@ -72,7 +66,7 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 			this.getPanel_bttns_droit().add(this.createPanelInstructionsBtns());
 			this.getBtn_drawROI().setEnabled(true);
 			this.setAlwaysOnTop(false);
-			this.setImage(impProj);
+			this.setImage(new ImageSelection(impProj, null, null));
 			this.updateSliceSelector();
 			resizeCanvas();
 		}

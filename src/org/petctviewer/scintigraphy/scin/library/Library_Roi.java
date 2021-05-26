@@ -30,6 +30,18 @@ public class Library_Roi {
 		return res;
 	}
 
+	/**
+	 * Creates a rectangle between the two ROIs specified.
+	 *
+	 * @return Rectangle at the center of the ROIs specified
+	 */
+	public static Rectangle roiBetween(Roi r1, Roi r2) {
+		int x = (int) ((r1.getBounds().getLocation().x + r2.getBounds().getLocation().x + r2.getBounds().getWidth()) /
+				2);
+		int y = (r1.getBounds().getLocation().y + r2.getBounds().getLocation().y) / 2;
+		return new Rectangle(x, y, 15, 30);
+	}
+
 	/** cree la roi de bruit de fond
 	 *
 	 * @param roi

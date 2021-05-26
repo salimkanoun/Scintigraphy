@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.salivaryGlands;
 import java.util.ArrayList;
 import java.util.List;
 
-import ij.IJ;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -15,14 +14,8 @@ import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 
-import ij.ImagePlus;
 import ij.ImageStack;
-import ij.plugin.ZProjector;
-
-// TODO : Application non terminée, très inspirée de RenalScintigraphy, c'est pourquoi on peut retrouver certaines incohérences à ce niveau là
-//Les deux structures étant très similaires, peut être continuer sur cette voie pour le repreneur?
 
 public class SalivaryGlandsScintigraphy extends Scintigraphy {
 
@@ -71,7 +64,7 @@ public class SalivaryGlandsScintigraphy extends Scintigraphy {
 
     @Override
     public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages)
-            throws WrongInputException, ReadTagException {
+            throws WrongInputException {
         // Check number of images
 		if (selectedImages.size() != 1 && selectedImages.size() != 2) throw new WrongNumberImagesException(
             selectedImages.size(), 1, 2);
@@ -81,8 +74,7 @@ public class SalivaryGlandsScintigraphy extends Scintigraphy {
         if (selectedImages.size() == 1) {
             if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_ANT) {
                 // Set images
-                ImageSelection imps = selectedImages.get(0).clone();
-                this.impAnt = imps;
+                this.impAnt = selectedImages.get(0).clone();
             } else throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
                                                                     selectedImages.get(0).getImageOrientation(),
                                                                     new Orientation[]{Orientation.DYNAMIC_ANT},
@@ -95,29 +87,13 @@ public class SalivaryGlandsScintigraphy extends Scintigraphy {
         // Build frame duration
         this.frameDurations = Library_Dicom.buildFrameDurations(this.impAnt.getImagePlus());
 
-
-        // TODO: from this part, still no refactored @noa
-        // \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/
-
-
         ImageSelection impAntCountPerSec = this.impAnt.clone();
         Library_Dicom.normalizeToCountPerSecond(impAntCountPerSec);
 
-        ImageSelection impProjetee = Library_Dicom.project(impAntCountPerSec, 0,
-                                                        impAntCountPerSec.getImagePlus().getStackSize(), "avg");
+        ImageSelection impProjetee = Library_Dicom.project(impAntCountPerSec,
+                0, impAntCountPerSec.getImagePlus().getStackSize(), "avg");
         ImageStack stack = impProjetee.getImagePlus().getStack();
 
-        // deux premieres minutes
-        // int fin = ModelScinDyn.getSliceIndexByTime(2 * 60 * 1000, frameDurations);
-        // ImageSelection impAntFirstMin = Library_Dicom.project(impAntCountPerSec, 0, fin, "avg");
-        // stack.addSlice(impAntFirstMin.getImagePlus().getProcessor());
-
-        // MIP
-        // ImagePlus pj = ZProjector.run(impAntCountPerSec.getImagePlus(), "max", 0,
-        //                               impAntCountPerSec.getImagePlus().getNSlices());
-        // stack.addSlice(pj.getProcessor());
-
-        
         // ajout du stack a l'imp
         impProjetee.getImagePlus().setStack(stack);
 

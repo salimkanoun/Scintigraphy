@@ -144,8 +144,8 @@ public class TabTransitTime extends TabResult {
 		XYSeries[][] datasetModele = modeleApp.getDataSetTransitTime();
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		for (XYSeries[] xySeries : datasetModele) {
-			for (int j = 0; j < xySeries.length; j++) {
-				dataset.addSeries(xySeries[j]);
+			for (XYSeries aXYSeries : xySeries) {
+				dataset.addSeries(aXYSeries);
 			}
 		}
 		// Changes background color

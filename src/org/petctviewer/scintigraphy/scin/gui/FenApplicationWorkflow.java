@@ -101,7 +101,7 @@ public class FenApplicationWorkflow extends FenApplication implements MouseMotio
 
 			// Remove listeners
 			if (this.getController() != null) {
-				ControllerWorkflow controller = (ControllerWorkflow) this.getController();
+				ControllerWorkflow controller = this.getController();
 				this.scroll.removeAdjustmentListener(controller);
 				this.removeMouseWheelListener(controller);
 			}

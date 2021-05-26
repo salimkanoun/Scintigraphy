@@ -3,18 +3,18 @@ package org.petctviewer.scintigraphy.parathyroid;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
-import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongColumnException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongIsotopeException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.DisplayState;
 import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif.Isotope;
-import org.petctviewer.scintigraphy.shunpo.ControllerWorkflowShunpo.DisplayState;
 
 import ij.ImagePlus;
 
@@ -28,10 +28,8 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 
     public static final String STUDY_NAME = "Parathyroid";
 	private static final String ORGAN_THYROID = "THYROID&PARA", ORGAN_PARATHYROID = "PARATHYROID";
-    private Column organColumn;
-    private Column traceurColumn;
 
-    // [0: ant | 1: post][numAcquisition]
+	// [0: ant | 1: post][numAcquisition]
 	private ImageSelection[] sauvegardeImagesSelectDicom;
 
 	// imp du projet de chaque Acqui
@@ -103,21 +101,21 @@ public class ParathyroidScintigraphy extends Scintigraphy {
 
         // Organ column
         String[] organValues = { ORGAN_THYROID, ORGAN_PARATHYROID};
-        this.organColumn = new Column("Organ", organValues);
+		Column organColumn = new Column("Organ", organValues);
 
 		// Traceur column
 		String[] isotopeValues = {Isotope.IODE_123.toString(), Isotope.TECHNETIUM_99.toString()};
-		this.traceurColumn = new Column(Column.ISOTOPE.getName(), isotopeValues);
+		Column traceurColumn = new Column(Column.ISOTOPE.getName(), isotopeValues);
 
         // Choose columns to display
         return new Column[] { Column.PATIENT, Column.STUDY, Column.DATE, Column.SERIES, Column.DIMENSIONS,
-        Column.STACK_SIZE, orientation, this.organColumn, this.traceurColumn};
+        Column.STACK_SIZE, orientation, organColumn, traceurColumn};
 	}
 	
 
     @Override
     public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages)
-            throws WrongInputException, ReadTagException {
+            throws WrongInputException {
 		// Check that number of images is correct
 		if (selectedImages.size() != 2) throw new WrongNumberImagesException(selectedImages.size(), 2);
 

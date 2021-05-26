@@ -40,6 +40,7 @@ public class Modele_Os {
 	private boolean reversed;
 
 	private Integer uid;
+	private static final String STUDY_NAME = "Bone Scintigraphy";
 
 	public Modele_Os(ImageSelection[] imps) {
 		nbScinty = imps.length;
@@ -394,7 +395,7 @@ public class Modele_Os {
 
 
 	public String getStudyName() {
-		return "Bone Scintigraphy";
+		return STUDY_NAME;
 	}
 
 	public ImagePlus getImagePlus() {

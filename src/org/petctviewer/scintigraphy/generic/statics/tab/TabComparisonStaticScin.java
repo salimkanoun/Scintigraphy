@@ -36,7 +36,7 @@ public class TabComparisonStaticScin extends TabResult {
             rois_name[i] = rois[i].getName();
         }
         ControllerComparison ctrl = new ControllerComparison();
-        combo1 = new JComboBox(rois_name);
+        combo1 = new JComboBox<>(rois_name);
         combo1.addActionListener(ctrl);
         combo2 = new JComboBox(rois_name);
         combo2.addActionListener(ctrl);
@@ -71,11 +71,11 @@ public class TabComparisonStaticScin extends TabResult {
         Object[][] res = new Object[1][data[0].length];
         Object[] c1 = null, c2 = null;
 
-        for (int i = 0; i < data.length; i++) {
-            if (data[i][0].equals(combo1.getSelectedItem()))
-                c1 = data[i];
-            if (data[i][0].equals(combo2.getSelectedItem()))
-                c2 = data[i];
+        for (Object[] d : data) {
+            if (d[0].equals(combo1.getSelectedItem()))
+                c1 = d;
+            if (d[0].equals(combo2.getSelectedItem()))
+                c2 = d;
         }
 
         res[0][0] = "Ratio " + c1[0] + "/" + c2[0];

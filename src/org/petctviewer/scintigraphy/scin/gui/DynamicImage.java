@@ -97,7 +97,7 @@ public class DynamicImage extends JPanel {
 	 * Specify the horizontal alignment of the image when using ACTUAL style
 	 */
 	public void setImageAlignmentX(float alignmentX) {
-		this.alignmentX = alignmentX > 1.0f ? 1.0f : alignmentX < 0.0f ? 0.0f : alignmentX;
+		this.alignmentX = alignmentX > 1.0f ? 1.0f : Math.max(alignmentX, 0.0f);
 		repaint();
 	}
 
@@ -105,7 +105,7 @@ public class DynamicImage extends JPanel {
 	 * Specify the horizontal alignment of the image when using ACTUAL style
 	 */
 	public void setImageAlignmentY(float alignmentY) {
-		this.alignmentY = alignmentY > 1.0f ? 1.0f : alignmentY < 0.0f ? 0.0f : alignmentY;
+		this.alignmentY = alignmentY > 1.0f ? 1.0f : Math.max(alignmentY, 0.0f);
 		repaint();
 	}
 

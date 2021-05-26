@@ -50,8 +50,6 @@ public class GallbladderScintigraphy extends Scintigraphy{
 	// imp du projet de chaque Acqui
 	private ImagePlus impProjeteAllAcqui;
 
-    private int nbAcquisition;
-    
     public GallbladderScintigraphy(){
         super(STUDY_NAME);
     }
@@ -155,8 +153,8 @@ public class GallbladderScintigraphy extends Scintigraphy{
 		// stocke le tout dans le tableau en [0]
 		imagePourTrieAnt.sort(chronologicalOrder);
         sauvegardeImagesSelectDicom[0] = imagePourTrieAnt.toArray(new ImageSelection[0]);
-        
-        this.nbAcquisition = sauvegardeImagesSelectDicom[0].length;
+
+        int nbAcquisition = sauvegardeImagesSelectDicom[0].length;
 
         //on prépare l'imagePlus de la 2ème phase
         //imagePlus du projet de chaque acquisition avec sur chaque slice une acquisition

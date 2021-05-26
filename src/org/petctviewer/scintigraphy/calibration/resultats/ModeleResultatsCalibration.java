@@ -90,9 +90,9 @@ public class ModeleResultatsCalibration {
 		 //passage dans un xyseries
   		XYSeries serikke = new XYSeries("ff ");
 		 for (Doublet[] doublets : m) {
-			 for (int j = 0; j < doublets.length; j++) {
-				 if (!doublets[j].getA().equals(Double.NaN) && !doublets[j].getB().equals(Double.NaN)) {
-					 serikke.add(doublets[j].getA(), doublets[j].getB());
+			 for (Doublet doublet : doublets) {
+				 if (!doublet.getA().equals(Double.NaN) && !doublet.getB().equals(Double.NaN)) {
+					 serikke.add(doublet.getA(), doublet.getB());
 				 }
 			 }
 		 }
@@ -137,23 +137,22 @@ public class ModeleResultatsCalibration {
 	
 	public void runCalculDetails() {
 		for (ArrayList<HashMap<String, Object>> hashMaps : this.donneesCharge) {
-			for (int j = 0; j < hashMaps.size(); j++) {
+			for (HashMap<String, Object> hashMap : hashMaps) {
 				//Double suvMax = (Double)this.donneesCharge.get(i).get(j).get("SUVmax");
-				Double suv70 = (Double) hashMaps.get(j).get("MEAN70");
-				Double bg = (Double) hashMaps.get(j).get("BG");
+				Double suv70 = (Double) hashMap.get("MEAN70");
+				Double bg = (Double) hashMap.get("BG");
 
 				double TS = this.a * suv70 + this.b * bg;
 
-				ImagePlus im = ((ImagePlus) hashMaps.get(j).get("image")).duplicate();
-				StackStatistics ss = new StackStatistics(im);
+				ImagePlus im = ((ImagePlus) hashMap.get("image")).duplicate();
 
 				IJ.run(im, "Macro...", "code=[if(v<" + TS + ") v=NaN] stack");
 //im.show();
-				ss = new StackStatistics(im);
+				StackStatistics ss = new StackStatistics(im);
 				//mesuré
-				Double volumeCalculated = ss.pixelCount * (Double) hashMaps.get(j).get("VolumeVoxel");
+				Double volumeCalculated = ss.pixelCount * (Double) hashMap.get("VolumeVoxel");
 
-				hashMaps.get(j).put("VolumeCalculated", volumeCalculated);
+				hashMap.put("VolumeCalculated", volumeCalculated);
 			}
 		}
 	}
@@ -192,8 +191,8 @@ public class ModeleResultatsCalibration {
 			//pour la moyenne des difference de pourcentage
 			ArrayList<Double> listDifferencePourcentage = new ArrayList<>();
 			//each variable
-			for (int j = 0; j < doubles.length; j++) {
-				listDifferencePourcentage.add(Math.abs(doubles[j][5]));
+			for (Double[] aDouble : doubles) {
+				listDifferencePourcentage.add(Math.abs(aDouble[5]));
 			}
 			listMoyenneDifferencePourcentage
 					.add(Library_Quantif.round(mean(listDifferencePourcentage.toArray(new Double[0])), 2));

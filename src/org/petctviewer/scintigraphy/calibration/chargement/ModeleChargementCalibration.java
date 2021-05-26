@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import loci.formats.FormatException;
 import org.petctviewer.scintigraphy.calibration.resultats.Doublet;
 
 import ij.IJ;
@@ -235,9 +236,7 @@ public class ModeleChargementCalibration {
 			//afficher le fichier
 			//BF.openImagePlus(m)[0].show();	
 			imp = BF.openImagePlus(m)[0];
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (loci.formats.FormatException e) {
+		} catch (IOException | FormatException e) {
 			e.printStackTrace();
 		}
 		return imp;

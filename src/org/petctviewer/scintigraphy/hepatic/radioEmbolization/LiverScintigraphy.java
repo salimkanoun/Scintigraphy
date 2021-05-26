@@ -9,12 +9,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.petctviewer.scintigraphy.hepatic.radioEmbolization.ControllerWorkflowLiver.DisplayState;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongInputException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
+import org.petctviewer.scintigraphy.scin.gui.DisplayState;
 import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;

@@ -2,7 +2,6 @@
 package org.petctviewer.scintigraphy.generic.dynamic;
 
 import ij.gui.Roi;
-import org.petctviewer.scintigraphy.generic.statics.FenApplication_ScinStatic;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -113,7 +112,7 @@ public class ControllerWorkflowScinDynamic extends ControllerWorkflow {
 		this.fenResult.setVisible(true);
 	}
 
-	private void setOverlayTitleLaterisationAndRoi() {
+	protected void setOverlayTitleLaterisationAndRoi() {
 		vue.getImagePlus().getOverlay().clear();
 
 		if (((Model_GeneralDyn) model).getImpAnt() != null && ((Model_GeneralDyn) model).getImpPost() != null) {

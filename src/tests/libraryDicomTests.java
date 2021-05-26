@@ -11,6 +11,7 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 import org.junit.jupiter.api.AfterEach;
@@ -20,10 +21,12 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.exceptions.ReadTagException;
 import org.petctviewer.scintigraphy.scin.exceptions.WrongOrientationException;
+import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 /**
- * Test class for {@link Libreary_Quantif}
+ * Test class for {@link Library_Quantif}
  * 
  * @author Diego Rodriguez
  */
@@ -93,15 +96,21 @@ public class libraryDicomTests {
         assertFalse(res);
     }
 
-    //TODO : pas testable ?
-   /* @Test
+    @Test
     public void splitDynamicAntPostTest() throws WrongOrientationException, IllegalArgumentException, ReadTagException {
-        ImageState state = new ImageState(Orientation.ANT, 0, true, 0);   
+        ImageState state = new ImageState(Orientation.ANT, 0, true, 0);
         ImageSelection ims = state.getImage();
         ims.setImagePlus(this.dcm);  
         ImageSelection[] imsT = Library_Dicom.splitDynamicAntPost(ims);
-        assertEquals(4, imsT);
-    }*/
+
+        assertEquals(2, imsT.length);
+
+        boolean ant = imsT[0].getImageOrientation().equals(Orientation.ANT);
+        boolean post = imsT[1].getImageOrientation().equals(Orientation.POST);
+
+       assertTrue(ant);
+       assertTrue(post);
+    }
 /*
     @Test
     public void sortImageAntPostTest() throws ReadTagException {

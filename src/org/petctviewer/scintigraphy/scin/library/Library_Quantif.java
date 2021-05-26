@@ -306,9 +306,9 @@ public class Library_Quantif {
 
 		double[] result = new double[values.length];
 
-		for (int i = 0; i < list.get(list.size() - 1).length - nbConvolv * (kernel.length - 1); i++) {
-			result[i] = list.get(list.size() - 1)[i + (nbConvolv * (kernel.length - 1) / 2)];
-		}
+		if (list.get(list.size() - 1).length - nbConvolv * (kernel.length - 1) >= 0)
+			System.arraycopy(list.get(list.size() - 1), nbConvolv * (kernel.length - 1) / 2, result,
+					0, list.get(list.size() - 1).length - nbConvolv * (kernel.length - 1));
 
 		return result;
 	}

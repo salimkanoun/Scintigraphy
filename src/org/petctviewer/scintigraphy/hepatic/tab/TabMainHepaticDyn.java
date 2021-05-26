@@ -13,6 +13,7 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashMap;
 
 public class TabMainHepaticDyn extends TabResult {
 
@@ -59,8 +60,10 @@ public class TabMainHepaticDyn extends TabResult {
 
 	protected ImagePlus montage(ImageStack captures) {
 		MontageMaker mm = new MontageMaker();
-		// TODO: patient ID
-		String patientID = "NO_ID_FOUND";
+		ImagePlus impInfo = this.getParent().getModel().getImageSelection()[0].getImagePlus();
+		HashMap<String, String> infoPatient = Library_Capture_CSV.getPatientInfo(impInfo);
+		String patientID = infoPatient.get(Library_Capture_CSV.PATIENT_INFO_ID);
+		if (patientID.isEmpty()) patientID = "NO_ID_FOUND";
 		ImagePlus imp = new ImagePlus("Results Pelvis -" + this.model.getStudyName() + " -" + patientID, captures);
 		imp = mm.makeMontage2(imp, 2, 2, 0.50, 1, 4, 1, 10, false);
 		return imp;

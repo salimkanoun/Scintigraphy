@@ -47,12 +47,8 @@ public class FenResultats_Renal extends FenResults {
 		this.setPreferredSize(new Dimension(width, height));
 		this.setLocationRelativeTo(controller.getVue());
 
-		// TODO: remove, it's awful
-		//myFrame is object of Window or JFrame
-		java.awt.EventQueue.invokeLater(() -> {
-			FenResultats_Renal.this.toFront();
-			FenResultats_Renal.this.repaint();
-		});
+		this.toFront();
+		this.repaint();
 	}
 
 	// renomme la serie

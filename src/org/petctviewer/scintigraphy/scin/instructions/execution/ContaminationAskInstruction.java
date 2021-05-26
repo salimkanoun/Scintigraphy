@@ -17,7 +17,7 @@ public class ContaminationAskInstruction extends ExecutionInstruction implements
 
 	private static final long serialVersionUID = 1L;
 
-	private transient Button btn_yes, btn_no;
+	private transient Button btn_yes;
 
 	private transient Workflow workflow;
 
@@ -47,9 +47,9 @@ public class ContaminationAskInstruction extends ExecutionInstruction implements
 		this.btn_yes = new Button("Yes");
 		panel.add(this.btn_yes);
 		this.btn_yes.addActionListener(this);
-		this.btn_no = new Button("No");
-		panel.add(this.btn_no);
-		this.btn_no.addActionListener(this);
+		Button btn_no = new Button("No");
+		panel.add(btn_no);
+		btn_no.addActionListener(this);
 		
 		this.workflow.getController().getVue().getPanel_Instructions_btns_droite().add(panel);
 		this.workflow.getController().getVue().getTextfield_instructions().setText("Do you want to perform Contamination ?");
@@ -67,9 +67,7 @@ public class ContaminationAskInstruction extends ExecutionInstruction implements
 			this.workflow.getController().getVue().getPanel_Instructions_btns_droite().remove(1);
 			this.workflow.getController().getVue().getPanel_Instructions_btns_droite().add(this.workflow.getController().getVue().createPanelInstructionsBtns());
 			this.workflow.getController().getVue().pack();
-//			if(this.workflow.getController() instanceof ControllerWorkflowCardiac) 
-//				((ControllerWorkflowCardiac)this.workflow.getController()).endContamination();
-			
+
 		}
 	}
 

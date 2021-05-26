@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.hepatic.scintivol.gui;
 
-import ij.Prefs;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
@@ -14,7 +13,6 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
-import org.petctviewer.scintigraphy.scin.preferences.PrefTabSalivaryGlands;
 
 import javax.swing.*;
 import java.awt.*;

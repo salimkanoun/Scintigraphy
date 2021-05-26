@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.hepatic;
 
 import ij.IJ;
-import ij.gui.Overlay;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -110,8 +109,7 @@ public class HepaticDynScintigraphy extends Scintigraphy {
 		Library_Dicom.normalizeToCountPerSecond(impAntNormalized);
 
 		impAntNormalized.getImagePlus().getProcessor().setMinAndMax(0,
-																	impAntNormalized.getImagePlus().getStatistics().max *
-																			1f / 1f);
+				impAntNormalized.getImagePlus().getStatistics().max * 1f);
 
 		// In this array, the only used image is the first one, for the forst exam. All
 		// th others are needed in the second exam, but we process it here to avoid a
