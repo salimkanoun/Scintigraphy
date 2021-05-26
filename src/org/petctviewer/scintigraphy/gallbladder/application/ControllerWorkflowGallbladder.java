@@ -43,21 +43,19 @@ public class ControllerWorkflowGallbladder extends ControllerWorkflow{
     protected void generateInstructions(){
         this.workflows = new Workflow[this.model.getImageSelection().length];
 
-        for(int indexInstruction = 0; indexInstruction < this.getModel().getImageSelection().length; indexInstruction++){
-            ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
-            state.specifieImage(this.getModel().getImageSelection()[indexInstruction]);
+        ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
 
-            ImageSelection dyn1Avg = Library_Dicom.project(this.model.getImageSelection()[0],
-                    1, this.model.getImageSelection()[0].getImagePlus().getNSlices(), "avg");
-            this.workflows[0] = new Workflow(this, dyn1Avg);
-            DrawRoiInstruction dri_1, dri_2;
+        ImageSelection dynAvg = Library_Dicom.project(this.model.getImageSelection()[0],
+                1, this.model.getImageSelection()[0].getImagePlus().getNSlices(), "avg");
+        state.specifieImage(dynAvg);
+        this.workflows[0] = new Workflow(this, dynAvg);
+        DrawRoiInstruction dri_1, dri_2;
 
-            DrawRoiInstruction dri_previous = indexInstruction != 0 ? (DrawRoiInstruction) this.workflows[0].getInstructions().get(indexInstruction - 1) : null;
-            dri_1 = new DrawRoiInstruction("Gallbladder", state, dri_previous);
-            dri_2 = new DrawRoiInstruction("Liver", state, dri_previous);
-            this.workflows[0].addInstruction(dri_1);
-            this.workflows[0].addInstruction(dri_2);
-        }
+        dri_1 = new DrawRoiInstruction("Gallbladder", state);
+        dri_2 = new DrawRoiInstruction("Liver", state);
+        this.workflows[0].addInstruction(dri_1);
+        this.workflows[0].addInstruction(dri_2);
+
         this.workflows[0].addInstruction(new EndInstruction());
     }
 }
