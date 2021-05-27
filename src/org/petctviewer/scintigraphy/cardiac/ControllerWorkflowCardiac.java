@@ -38,6 +38,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	public List<ImagePlus> captures;
 	private boolean finContSlice1, finContSlice2;
 	private String[] organes = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
+	private final List<String> roiList;
 	private final int onlyThoraxImage;
 
 	private final int fullBodyImages;
@@ -50,6 +51,8 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 		this.fullBodyImages = fullBodyImages;
 		this.onlyThoraxImage = onlyThoraxImage;
+
+		this.roiList = new ArrayList<>();
 
 		((Model_Cardiac) this.model).setFullBodyImages(fullBodyImages);
 		((Model_Cardiac) this.model).setOnlyThoraxImage(onlyThoraxImage);
@@ -136,9 +139,10 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			if (b == this.getVue().getBtn_suivant()) {
 				this.clicNewCont();
 				this.checkPanelInstruction_BtnRight();
-			} else if (b == ((FenApplication_Cardiac) this.getVue()).getBtn_continue())
+			} else if (b == ((FenApplication_Cardiac) this.getVue()).getBtn_continue()) {
 				this.clicEndCont();
-			else if (b == this.getVue().getBtn_precedent())
+				((FenApplication_Cardiac) this.getVue()).stopContaminationMode();
+			} else if (b == this.getVue().getBtn_precedent())
 				if (this.workflows[indexCurrentWorkflow].getCurrentInstruction() instanceof DrawSymmetricalLoopInstruction) {
 					this.checkPanelInstruction_BtnRight();
 				}
@@ -204,57 +208,73 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			this.workflows = new Workflow[this.getModel().getImageSelection().length + 1];
 			this.workflows[index] = new Workflow(this, this.model.getImageSelection()[index]);
 			this.workflows[index]
-					.addInstruction(new ContaminationAskInstruction(this.workflows[index], state, "ContE"));
+					.addInstruction(new ContaminationAskInstruction(this.workflows[index], state, "ContE", 0));
 			index++;
 
 			if (this.fullBodyImages > 1) {
 				this.workflows[index] = new Workflow(this, this.model.getImageSelection()[index]);
 				this.workflows[index]
-						.addInstruction(new ContaminationAskInstruction(this.workflows[index], state, "ContL"));
+						.addInstruction(new ContaminationAskInstruction(this.workflows[index], state, "ContL", 1));
 				index++;
 			}
-
-			//TODO Do something to remove background tags and calculate results anyway
 
 			// Create +1 workflow for full body image
 			this.workflows[index] = new Workflow(this, this.model.getImageSelection()[this.fullBodyImages - 1]);
 			// Organs to delimit
 			DrawRoiInstruction dri_3 = new DrawSymmetricalRoiInstruction("Bladder", state, null, null,
 					this.workflows[index], Organ.DEMIE, false);
+			this.roiList.add("Bladder A");
 			DrawRoiInstruction driBackground_1 = new DrawRoiBackgroundSymmetrical("Bladder Background", state, dri_3,
-					this.workflows[index], null);
+					this.workflows[index], "");
+			this.roiList.add("Bladder Background A");
 			DrawRoiInstruction dri_4 = new DrawSymmetricalRoiInstruction("Bladder", state, dri_3, null,
 					this.workflows[index], Organ.DEMIE, false);
+			this.roiList.add("Bladder P");
 			DrawRoiInstruction driBackground_2 = new DrawRoiBackgroundSymmetrical("Bladder Background", state, dri_4,
-					this.workflows[index], null);
+					this.workflows[index], "");
+			this.roiList.add("Bladder Background P");
+
 
 			DrawRoiInstruction dri_5 = new DrawSymmetricalRoiInstruction("Kidney R", state, null, null,
 					this.workflows[index], Organ.DEMIE, false);
+			this.roiList.add("Kidney R A");
 			DrawRoiInstruction driBackground_3 = new DrawRoiBackgroundSymmetrical("Kidney R Background", state, dri_5,
-					this.workflows[index], null);
+					this.workflows[index], "");
+			this.roiList.add("Kidney R Background A");
 			DrawRoiInstruction dri_6 = new DrawSymmetricalRoiInstruction("Kidney R", state, dri_5, null,
 					this.workflows[index], Organ.DEMIE, false);
+			this.roiList.add("Kidney R P");
 			DrawRoiInstruction driBackground_4 = new DrawRoiBackgroundSymmetrical("Kidney R Background", state, dri_6,
-					this.workflows[index], null);
+					this.workflows[index], "");
+			this.roiList.add("Kidney R Background P");
+
 
 			DrawRoiInstruction dri_7 = new DrawSymmetricalRoiInstruction("Kidney L", state, null, null,
 					this.workflows[index], Organ.DEMIE, false);
+			this.roiList.add("Kidney L A");
 			DrawRoiInstruction driBackground_5 = new DrawRoiBackgroundSymmetrical("Kidney L Background", state, dri_7,
-					this.workflows[index], null);
+					this.workflows[index], "");
+			this.roiList.add("Kidney L Background A");
 			DrawRoiInstruction dri_8 = new DrawSymmetricalRoiInstruction("Kidney L", state, dri_7, null,
 					this.workflows[index], Organ.DEMIE, false);
+			this.roiList.add("Kidney L P");
 			DrawRoiInstruction driBackground_6 = new DrawRoiBackgroundSymmetrical("Kidney L Background", state, dri_8,
-					this.workflows[index], null);
+					this.workflows[index], "");
+			this.roiList.add("Kidney L Background P");
+
 
 			DrawRoiInstruction dri_9 = new DrawSymmetricalRoiInstruction("Heart", state, null, null,
 					this.workflows[index], Organ.DEMIE);
-			DrawRoiInstruction dri_10 = new DrawSymmetricalRoiInstruction("Heart", state, dri_9, null,
-					this.workflows[index], Organ.DEMIE, false);
-
-			DrawRoiInstruction dri_11 = new DrawSymmetricalRoiInstruction("Bkg noise", state, dri_9, null,
+			this.roiList.add("Heart A");
+			DrawRoiInstruction dri_10 = new DrawSymmetricalRoiInstruction("Bkg noise", state, dri_9, "",
 					this.workflows[index], Organ.QUART);
-			DrawRoiInstruction dri_12 = new DrawSymmetricalRoiInstruction("Bkg noise", state, dri_11, null,
+			this.roiList.add("Bkg noise A");
+			DrawRoiInstruction dri_11 = new DrawSymmetricalRoiInstruction("Heart", state, dri_9, null,
 					this.workflows[index], Organ.DEMIE, false);
+			this.roiList.add("Heart P");
+			DrawRoiInstruction dri_12 = new DrawSymmetricalRoiInstruction("Bkg noise", state, dri_10, "",
+					this.workflows[index], Organ.DEMIE, false);
+			this.roiList.add("Bkg noise P");
 
 			this.workflows[index].addInstruction(dri_3);
 			this.workflows[index].addInstruction(driBackground_1);
@@ -285,8 +305,10 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 			// Organs to delimit
 			DrawRoiInstruction dri_onlyThorax1 = new DrawRoiInstruction("Heart Thorax A", state);
+			this.roiList.add("Heart Thorax A");
 			DrawRoiInstruction dri_onlyThorax2 = new DrawSymmetricalRoiInstruction("CL Thorax", state, dri_onlyThorax1,
 					null, this.workflows[index], Organ.QUART);
+			this.roiList.add("CL Thorax A");
 
 			this.workflows[index].addInstruction(dri_onlyThorax1);
 			this.workflows[index].addInstruction(dri_onlyThorax2);
@@ -299,10 +321,13 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	public void endContamination() {
 		if (this.finContSlice1) this.finContSlice2 = true;
 		this.finContSlice1 = true;
-
 	}
 
 	public int getFullBodyImagesCount() {
 		return this.fullBodyImages;
+	}
+
+	public List<String> getRoiList() {
+		return roiList;
 	}
 }

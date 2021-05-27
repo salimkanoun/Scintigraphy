@@ -18,6 +18,7 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 	private final transient Workflow workflow;
 	private final transient Organ organ;
 	private final transient boolean isPostInverted;
+	private final String roiName;
 
 	public enum Organ {
 		DEMIE, QUART
@@ -43,6 +44,7 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 		this.organ = organ;
 		this.dri_1 = instructionToCopy;
 		this.isPostInverted = isPostInverted;
+		this.roiName = roiName;
 
 		this.InstructionType = InstructionFromGson.DrawInstructionType.DRAW_SYMMETRICAL;
 	}
@@ -71,12 +73,13 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 
 	@Override
 	public String getRoiName() {
-		String name = super.getRoiName();
+		String name = this.roiName;
 
 		Roi thisRoi = this.workflow.getController().getVue().getImagePlus().getRoi();
-		//TODO Do something to remove background tags and calculate results anyway
-		if (name == null || thisRoi == null) return this.organToDelimit;
-		if (name.equals("")) return this.organToDelimit;//"";
+
+		if (name == null) return this.organToDelimit;
+		if (name.equals("")) return "";
+		if (thisRoi == null) return this.organToDelimit;
 		boolean OrganPost = thisRoi.getXBase() > this.workflow.getController().getVue().getImagePlus().getWidth() / 2.;
 
 		if (OrganPost)

@@ -1,6 +1,7 @@
 package org.petctviewer.scintigraphy.cardiac;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -74,26 +75,11 @@ public class Model_Cardiac extends ModelScin {
 	public void getResults() {
 		// controler=(Controller_Cardiac) scin.getFenApplication().getController();
 		ControllerWorkflowCardiac controler = (ControllerWorkflowCardiac) scin.getFenApplication().getController();
+		List<String> roiList = controler.getRoiList();
 
-		// for (int i : controler.getNomRois().keySet()) {
-		// this.selectedImages[0].getImagePlus().setSlice(controler.getSliceNumberByRoiIndex(i));
-		// this.selectedImages[0].getImagePlus().setRoi((Roi)
-		// controler.getRoiManager().getRoi(i).clone());
-		//
-		// //Array of Double, in 0 raw count, in 1 average count, in 2 number of pixels
-		// Double[] counts=new Double[3];
-		// counts[0] =Library_Quantif.getCounts(this.selectedImages[0].getImagePlus());
-		// counts[1]
-		// =Library_Quantif.getAvgCounts(this.selectedImages[0].getImagePlus());
-		// counts[2] =(double)
-		// Library_Quantif.getPixelNumber(this.selectedImages[0].getImagePlus());
-		//
-		// this.data.put(controler.getNomRois().get(i), counts);
-		//
-		// }
-
-		for (Roi roi : this.getRoiManager().getRoisAsArray()) {
+		for (int i = 0; i < this.getRoiManager().getCount(); i++) {
 			ImagePlus selectedImage = this.selectedImages[controler.getImageNumberByRoiIndex()].getImagePlus();
+			Roi roi = this.getRoiManager().getRoi(i);
 			selectedImage.setRoi((Roi) roi.clone());
 
 			// Array of Double, in 0 raw count, in 1 average count, in 2 number of pixels
@@ -102,11 +88,7 @@ public class Model_Cardiac extends ModelScin {
 			counts[1] = Library_Quantif.getAvgCounts(selectedImage);
 			counts[2] = (double) Library_Quantif.getPixelNumber(selectedImage);
 
-			this.data.put(roi.getName(), counts);
-			// System.out.println("this.dataVisualGradation.put(" + roi.getName() + "( " +
-			// counts[0] + ", " + counts[1]
-			// + ", " + counts[2] + "))");
-
+			this.data.put(roiList.get(i), counts);
 		}
 
 	}
