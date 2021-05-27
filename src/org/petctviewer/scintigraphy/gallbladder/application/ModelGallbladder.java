@@ -70,12 +70,11 @@ public class ModelGallbladder extends ModelScinDyn {
         //correct organs with the background
        //datas.get(IMAGE_GALLBLADER).setAntValue(REGION_GALLBLADDER, Data.DATA_COUNTS_CORRECTED, correctValueWithBkgNoise(REGION_GALLBLADDER,false));
         ImagePlus imp = this.getImageSelection()[0].getImagePlus();
-        imp.setRoi(Library_Roi.getRoiByName(this.getRoiManager(),"Gallbladder"));
-        imp.setRoi(Library_Roi.getRoiByName(this.getRoiManager(),"Liver"));
+        Roi vesicule = Library_Roi.getRoiByName(this.getRoiManager(),"Gallbladder");
+        Roi liverBckg = Library_Roi.getRoiByName(this.getRoiManager(),"Liver");
 
-
-        Roi vesicule = this.organRois.put("Gallbladder",imp.getRoi());
-        Roi liverBckg = this.organRois.put("Liver", imp.getRoi());
+        this.organRois.put("Gallbladder", vesicule);
+        this.organRois.put("Liver", liverBckg);
 
 
         double maxValue = Library_Quantif.getMaxCountsCorrectedBackground(imp,vesicule,liverBckg);
@@ -139,6 +138,10 @@ public class ModelGallbladder extends ModelScinDyn {
 
             //double uneRoi = this.datas.get(IMAGE_GALLBLADER).getAntValue(REGION_GALLBLADDER, Data.DATA_COUNTS_CORRECTED);
         this.getEjectionFraction();
+        System.out.println(this.results.get(RES_GALLBLADDER.hashCode()));
+
+
+
 
 
         /**
