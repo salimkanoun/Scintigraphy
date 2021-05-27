@@ -1,13 +1,11 @@
 package org.petctviewer.scintigraphy.salivaryGlands.gui;
 
-import ij.Prefs;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.petctviewer.scintigraphy.calibration.resultats.JTableCheckBox;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.salivaryGlands.ModelSalivaryGlands;
@@ -15,7 +13,6 @@ import org.petctviewer.scintigraphy.scin.gui.*;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
-import org.petctviewer.scintigraphy.scin.preferences.PrefTabSalivaryGlands;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,7 +24,6 @@ class TabMain extends TabResult {
 
     private final BufferedImage capture;
     private JFreeChart chartMain;
-    private JCheckBoxRows tableCheckbox;
 
     public TabMain(BufferedImage capture, FenResults parent){
         super(parent, "Main", true);
@@ -117,14 +113,14 @@ class TabMain extends TabResult {
 
         JPanel container = new JPanel(new GridLayout(2, 1));
         String[] titleRows = model.getGlands().toArray(new String[0]);
-        this.tableCheckbox = new JCheckBoxRows(titleRows, e -> {
+        JCheckBoxRows tableCheckbox = new JCheckBoxRows(titleRows, e -> {
             JCheckBox selected = (JCheckBox) e.getSource();
             TabMain.this.setVisibilitySeriesMain(Integer.parseInt(selected.getName()), 0, selected.isSelected());
         });
-        this.tableCheckbox.setAllChecked(true);
+        tableCheckbox.setAllChecked(true);
 
         container.add(new JLabel("Show curves"));
-        container.add(this.tableCheckbox);
+        container.add(tableCheckbox);
 
         res.add(container);
 
@@ -157,7 +153,7 @@ class TabMain extends TabResult {
         chart.getChart().getPlot().setBackgroundPaint(null);
         JValueSetter jvs = new JValueSetter(chart.getChart());
 
-        double lemonInjectionTime = Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 10);
+        double lemonInjectionTime = ((ModelSalivaryGlands) this.getParent().getModel()).getLemonInjection();
         Selector lemon = new Selector("Lemon juice stimuli", lemonInjectionTime, -1, RectangleAnchor.BOTTOM_LEFT);
 
         jvs.addSelector(lemon, "lemon");

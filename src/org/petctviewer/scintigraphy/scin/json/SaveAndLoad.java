@@ -15,7 +15,6 @@ import org.petctviewer.scintigraphy.cardiac.ControllerWorkflowCardiac;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
 import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
-import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
@@ -578,7 +577,7 @@ public class SaveAndLoad {
 				 * start, but you choose to create one. With this << if >>, I sumilate this
 				 * creation if necessary.
 				 */
-				if (patientFromGson.getControllerName().toString().equals(ControllerWorkflowCardiac.simpleName)
+				if (patientFromGson.getControllerName().equals(ControllerWorkflowCardiac.simpleName)
 						&& controller.getWorkflows()[index]
 								.getInstructionAt(0) instanceof ContaminationAskInstruction) {
 					if (controller.getWorkflows()[index].getInstructions().size() > 1)
@@ -719,7 +718,6 @@ public class SaveAndLoad {
 	public List<Roi> getRoiFromZip(String path, ControllerWorkflow controller)
 			throws UnauthorizedRoiLoadException, UnloadRoiException {
 
-		List<Roi> rois = new ArrayList<>();
 		ZipInputStream in = null;
 		ByteArrayOutputStream out = null;
 		int nRois = 0;
@@ -805,11 +803,9 @@ public class SaveAndLoad {
 				}
 		}
 
-		for (Roi roi : ROIsArray) {
-			rois.add(roi);
-			// System.out.println(roi);
-			// System.out.println(roi.getName() + "\n");
-		}
+		// System.out.println(roi);
+		// System.out.println(roi.getName() + "\n");
+		List<Roi> rois = new ArrayList<>(Arrays.asList(ROIsArray));
 
 		if (nRois == 0)
 			System.out.println("This ZIP archive does not appear to contain \".roi\" files");

@@ -18,6 +18,7 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 	private final transient Workflow workflow;
 	private final transient Organ organ;
 	private final transient boolean isPostInverted;
+	private final String roiName;
 
 	public enum Organ {
 		DEMIE, QUART
@@ -42,8 +43,8 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 		this.workflow = workflow;
 		this.organ = organ;
 		this.dri_1 = instructionToCopy;
-		this.organToDelimit = organToDelimit;
 		this.isPostInverted = isPostInverted;
+		this.roiName = roiName;
 
 		this.InstructionType = InstructionFromGson.DrawInstructionType.DRAW_SYMMETRICAL;
 	}
@@ -72,12 +73,13 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 
 	@Override
 	public String getRoiName() {
-		String name = this.organToDelimit;
+		String name = this.roiName;
 
 		Roi thisRoi = this.workflow.getController().getVue().getImagePlus().getRoi();
-		if(thisRoi == null)
-			return this.organToDelimit;
 
+		if (name == null) return this.organToDelimit;
+		if (name.equals("")) return "";
+		if (thisRoi == null) return this.organToDelimit;
 		boolean OrganPost = thisRoi.getXBase() > this.workflow.getController().getVue().getImagePlus().getWidth() / 2.;
 
 		if (OrganPost)
@@ -92,51 +94,41 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 	public void afterNext(ControllerWorkflow controller) {
 		super.afterNext(controller);
 		if (this.dri_1 != null) {
-			// symetrique du coeur
+			Roi roi = (Roi) controller.getRoiManager().getRoi(dri_1.getRoiIndex()).clone();
+
+			if (roi == null)
+				return;
+
+			if (super.getRoiName() != null)
+				roi.setName(this.getRoiName());
+
+			double newX = roi.getXBase();
 			if (this.organ == Organ.QUART) {
-				Roi roi = (Roi) this.workflow.getController().getRoiManager().getRoi(dri_1.getRoiIndex()).clone();
-
-				// on fait le symetrique de la roi
+				//flip the roi on the vertical axis
 				roi = RoiScaler.scale(roi, -1, 1, true);
+				double quart = controller.getVue().getImagePlus().getWidth() / 4.;
+				newX = roi.getXBase() - Math.abs(2 * (roi.getXBase() - quart) % quart) - roi.getFloatWidth();
+			} else if (this.organ == Organ.DEMIE) {
+				//get the width of the current ImagePlus
+				double imageWidth = controller.getVue().getImagePlus().getWidth();
 
-				int quart = (this.workflow.getController().getVue().getImagePlus().getWidth() / 4);
-				int newX = (int) (roi.getXBase() - Math.abs(2 * (roi.getXBase() - quart) % quart)
-						- roi.getFloatWidth());
-				roi.setLocation(newX, roi.getYBase());
-
-				roi.setStrokeColor(Color.RED);
-				controller.getCurrentImageState().getImage().getImagePlus().setRoi(roi);
-				return;
-			}
-
-			// recupere la roi de l'organe symetrique
-			Roi lastOrgan = this.workflow.getController().getRoiManager().getRoi(dri_1.getRoiIndex());
-			if (lastOrgan == null) { // si elle n'existe pas, on renvoie null
-				return;
-			}
-			lastOrgan = (Roi) lastOrgan.clone();
-
-			// si la derniere roi etait post ou ant
-			boolean OrganPost =
-					lastOrgan.getXBase() > this.workflow.getController().getVue().getImagePlus().getWidth() / 2.;
-
-			// si on doit faire le symetrique et que l'on a appuye sur next
-			double imageWidth = this.workflow.getController().getVue().getImagePlus().getWidth();
-
-			if (this.isPostInverted) {
-				if (OrganPost) { // si la prise est ant, on decale l'organe precedent vers la droite
-					lastOrgan.setLocation(lastOrgan.getXBase() - (imageWidth / 2.), lastOrgan.getYBase());
-				} else { // sinon vers la gauche
-					lastOrgan.setLocation(lastOrgan.getXBase() + (imageWidth / 2.), lastOrgan.getYBase());
+				if (this.isPostInverted) {
+					// si la derniere roi etait post ou ant
+					boolean impPost = roi.getXBase() > controller.getVue().getImagePlus().getWidth() / 2.;
+					if (impPost) { // si la prise est ant, on decale l'organe precedent vers la droite
+						newX = roi.getXBase() - (imageWidth / 2.);
+					} else { // sinon vers la gauche
+						newX = roi.getXBase() + (imageWidth / 2.);
+					}
+				} else {
+					roi = RoiScaler.scale(roi, -1, 1, true);
+					newX = imageWidth - (roi.getFloatWidth() + roi.getXBase());
 				}
-			} else {
-				lastOrgan = RoiScaler.scale(lastOrgan, -1, 1, true);
-				double roiWidth = lastOrgan.getFloatWidth();
-				lastOrgan.setLocation(imageWidth - (roiWidth + lastOrgan.getXBase()), lastOrgan.getYBase());
 			}
 
-			lastOrgan.setStrokeColor(Color.RED);
-			controller.getCurrentImageState().getImage().getImagePlus().setRoi(lastOrgan);
+			roi.setLocation(newX, roi.getYBase());
+			roi.setStrokeColor(Color.RED);
+			controller.getCurrentImageState().getImage().getImagePlus().setRoi(roi);
 		}
 	}
 }

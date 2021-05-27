@@ -1,7 +1,6 @@
 package tests;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.petctviewer.scintigraphy.hepatic.radioEmbolization.ModelLiver;
@@ -25,7 +24,7 @@ public class ModelScintivolTests {
 	Model_Scintivol model;
 	
 	@BeforeEach
-	public void setUp() throws Exception {
+	public void setUp() {
 		this.model = new Model_Scintivol(new ImageSelection[0], "ScintivolTest", new int[0], null) {
 			@Override
 			public void setCounts(int sliceT1, int sliceT2) {
@@ -58,7 +57,7 @@ public class ModelScintivolTests {
 	}
 
 	@AfterEach
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		this.model = null;
 	}
 

@@ -6,8 +6,6 @@ import java.util.Arrays;
 
 import javax.swing.*;
 
-import ij.IJ;
-import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 
 import ij.ImagePlus;
@@ -33,7 +31,7 @@ public class TabContrastModifier extends TabResult {
 	public TabContrastModifier(FenResults parent, String title) {
 		super(parent, title, true);
 
-		this.setComponentToHide(new ArrayList<>(Arrays.asList(new Component[] {slider})));
+		this.setComponentToHide(new ArrayList<>(Arrays.asList(slider)));
 
 		this.boxSlider = null;
 		this.dynamicImp = null;
@@ -88,17 +86,15 @@ public class TabContrastModifier extends TabResult {
 
 		slider = new ContrastSlider(image, this.dynamicImp, this.parent);
 		JButton reverse_btn = new JButton("Invert LUT");
-		reverse_btn.addActionListener( e-> {
-			SwingUtilities.invokeLater(() -> {
-				image.getProcessor().invertLut();
-				image.updateAndDraw();
-				dynamicImp.setImage(image.getBufferedImage());
-			});
-		});
+		reverse_btn.addActionListener( e-> SwingUtilities.invokeLater(() -> {
+			image.getProcessor().invertLut();
+			image.updateAndDraw();
+			dynamicImp.setImage(image.getBufferedImage());
+		}));
 
 
 
-		this.setComponentToHide(new ArrayList<>(Arrays.asList(new Component[] {slider, sliderLabel})));
+		this.setComponentToHide(new ArrayList<>(Arrays.asList(slider, sliderLabel)));
 
 		boxSlider = Box.createVerticalBox();
 		sliderPanel.add(sliderLabel);
@@ -131,7 +127,7 @@ public class TabContrastModifier extends TabResult {
 
 		slider = new ContrastSlider(state, this.dynamicImp, this.parent);
 		
-		this.setComponentToHide(new ArrayList<>(Arrays.asList(new Component[] {slider, sliderLabel})));
+		this.setComponentToHide(new ArrayList<>(Arrays.asList(slider, sliderLabel)));
 
 		boxSlider = Box.createVerticalBox();
 		boxSlider.add(sliderLabel);

@@ -191,53 +191,49 @@ public class Controleur_Os implements ActionListener, ChangeListener, MouseListe
 			
 			this.deselectAll();
 
-			SwingUtilities.invokeLater(new Runnable() {
+			SwingUtilities.invokeLater(() -> {
+				// Capture, nouvelle methode a utiliser sur le reste des programmes
+				BufferedImage capture = new BufferedImage(Controleur_Os.this.vue.getWidth(),
+						Controleur_Os.this.vue.getHeight(), BufferedImage.TYPE_INT_ARGB);
+				Controleur_Os.this.vue.paint(capture.getGraphics());
+				ImagePlus imp = new ImagePlus("capture", capture);
 
-				@Override
-				public void run() {
-					// Capture, nouvelle methode a utiliser sur le reste des programmes
-					BufferedImage capture = new BufferedImage(Controleur_Os.this.vue.getWidth(),
-							Controleur_Os.this.vue.getHeight(), BufferedImage.TYPE_INT_ARGB);
-					Controleur_Os.this.vue.paint(capture.getGraphics());
-					ImagePlus imp = new ImagePlus("capture", capture);
+				captureButton.setVisible(true);
+				for (Component comp : hide)
+					comp.setVisible(true);
 
-					captureButton.setVisible(true);
-					for (Component comp : hide)
-						comp.setVisible(true);
+				lbl_credits.setVisible(false);
+				for (Component comp : show)
+					comp.setVisible(false);
 
-					lbl_credits.setVisible(false);
-					for (Component comp : show)
-						comp.setVisible(false);
+				// on passe a la capture les infos de la dicom
+				imp.setProperty("Info", info);
+				// on affiche la capture
+				imp.show();
 
-					// on passe a la capture les infos de la dicom
-					imp.setProperty("Info", info);
-					// on affiche la capture
-					imp.show();
+				// on change l'outil
+				IJ.setTool("hand");
 
-					// on change l'outil
-					IJ.setTool("hand");
+				// generation du csv
+				String resultats = Controleur_Os.this.modele.toString();
 
-					// generation du csv
-					String resultats = Controleur_Os.this.modele.toString();
+				try {
+					SaveAndLoad saveAndLoad = new SaveAndLoad();
+					saveAndLoad.exportAllWithoutWorkflow(resultats, Controleur_Os.this.modele.getStudyName(), imp, "");
 
-					try {
-						SaveAndLoad saveAndLoad = new SaveAndLoad();
-						saveAndLoad.exportAllWithoutWorkflow(resultats, Controleur_Os.this.modele.getStudyName(), imp, "");
-
-						imp.killRoi();
-					} catch (Exception e1) {
-						e1.printStackTrace();
-					}
-
-					// Execution du plugin myDicom
-					try {
-						IJ.run("myDicom...");
-					} catch (Exception e1) {
-						e1.printStackTrace();
-					}
-
-					System.gc();
+					imp.killRoi();
+				} catch (Exception e1) {
+					e1.printStackTrace();
 				}
+
+				// Execution du plugin myDicom
+				try {
+					IJ.run("myDicom...");
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+
+				System.gc();
 			});
 
 		});

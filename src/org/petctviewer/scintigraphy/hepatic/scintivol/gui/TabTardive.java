@@ -1,14 +1,11 @@
 package org.petctviewer.scintigraphy.hepatic.scintivol.gui;
 
 import ij.ImagePlus;
-import ij.Prefs;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.hepatic.scintivol.Model_Scintivol;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
-import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -16,8 +13,6 @@ import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
-import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
-import org.petctviewer.scintigraphy.scin.preferences.PrefTabSalivaryGlands;
 
 import javax.swing.*;
 import java.awt.*;
@@ -59,7 +54,7 @@ public class TabTardive extends TabResult {
             Map<String, Map<String, Double>> results = model.getResults();
             double liver_t1 = Library_Quantif.round(results.get("Liver Parenchyma").get("max"), 2);
             double liver_t2 = Library_Quantif.round(results.get("Liver Parenchyma").get("end"), 2);
-            double retention = Library_Quantif.round(results.get("Other").get("Retention rate") * 100, 2);
+            double retention = Library_Quantif.round(results.get("Intermediate values").get("Retention rate") * 100, 2);
 
 
             JPanel pnl_liver = new JPanel(new GridLayout(4, 3, 0, 3));

@@ -38,7 +38,7 @@ public class FenApplication extends StackWindow implements ComponentListener{
 	final Button btn_quitter;
 	final Button btn_drawROI;
 	final Button btn_reverse;
-	private JSlider slider;
+	private final JSlider slider;
 
 
 	final Button zoom_in;
@@ -49,14 +49,12 @@ public class FenApplication extends StackWindow implements ComponentListener{
 	// Panel avec boutons quit, draw roi, contrast
 	private final Panel panel_btns_gauche;
 	private final Panel panel_btns_droite;
-	private final Panel panel_slider;
-	private final Panel panel_zoom;
 	private final Panel panelPrincipal;
 	private DocumentationDialog documentation;
 	private MenuBar menuBar;
 
 	// Panel d'instruction avec le textfield et boutons precedent et suivant
-	private Panel panel_Instructions_btns_droite;
+	private final Panel panel_Instructions_btns_droite;
 	private ControllerScin controleur;
 	private int canvasW, canvasH;
 	private JDialog preferences;
@@ -128,7 +126,7 @@ public class FenApplication extends StackWindow implements ComponentListener{
 		panelPrincipal.add(this.panel_Instructions_btns_droite);
 
 		//creation panel slider
-		this.panel_slider = new Panel(new GridLayout(2,1));
+		Panel panel_slider = new Panel(new GridLayout(2, 1));
 		panel_slider.add(new Label("Contrast", Label.CENTER));
 		panel_slider.add(this.slider);
 		this.slider.addChangeListener( e-> {
@@ -142,8 +140,8 @@ public class FenApplication extends StackWindow implements ComponentListener{
 		panelPrincipal.add(panel_slider);
 
 		//création du panel Zoom
-		this.panel_zoom = new Panel();
-		this.panel_zoom.add(new Label("Zoom", Label.CENTER));
+		Panel panel_zoom = new Panel();
+		panel_zoom.add(new Label("Zoom", Label.CENTER));
 		panel_zoom.add(this.zoom_out);
 		panel_zoom.add(this.zoom_in);
 		panelPrincipal.add(panel_zoom);
@@ -414,7 +412,7 @@ public class FenApplication extends StackWindow implements ComponentListener{
 	protected void setPreferredCanvasSize(int width) {
 		int w = this.getImagePlus().getWidth();
 		int h = this.getImagePlus().getHeight();
-		double ratioImagePlus = w * 1.0 / h * 1.0;
+		double ratioImagePlus = w * 1.0 / h;
 
 		if (ratioImagePlus < 1) {
 			canvasW = (int) (width * ratioImagePlus);

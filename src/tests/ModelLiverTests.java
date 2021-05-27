@@ -17,12 +17,12 @@ public class ModelLiverTests {
 	ModelLiver model;
 	
 	@BeforeEach
-	public void setUp() throws Exception {
+	public void setUp() {
 		this.model = new ModelLiver(new ImageSelection[0], "LiverTest");
 	}
 
 	@AfterEach
-	public void tearDown() throws Exception {
+	public void tearDown() {
 	this.model = null;
 	}
 

@@ -17,7 +17,6 @@ import org.petctviewer.scintigraphy.scin.preferences.PrefTabMain;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
 
 /**
  * This class represents the Controller in the MVC pattern.<br> This abstract class is only a provider for functions
@@ -100,9 +99,7 @@ public abstract class ControllerScin implements ActionListener {
 	public void clickPrevious() {
 		// TODO: this might be useless
 		this.position--;
-		if (this.position == 0) {
-			this.vue.getBtn_precedent().setEnabled(false);
-		}
+		if (this.position == 0) this.vue.getBtn_precedent().setEnabled(false);
 		this.vue.getBtn_suivant().setEnabled(true);
 	}
 
@@ -351,18 +348,6 @@ public abstract class ControllerScin implements ActionListener {
 		return null;
 	}
 
-	/**
-	 * Creates a rectangle between the two ROIs specified.<br> TODO: move this method in Library_Roi
-	 *
-	 * @return Rectangle at the center of the ROIs specified
-	 */
-	protected Rectangle roiBetween(Roi r1, Roi r2) {
-		int x = (int) ((r1.getBounds().getLocation().x + r2.getBounds().getLocation().x + r2.getBounds().getWidth()) /
-				2);
-		int y = (r1.getBounds().getLocation().y + r2.getBounds().getLocation().y) / 2;
-		return new Rectangle(x, y, 15, 30);
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (!(e.getSource() instanceof Button)) return;
@@ -421,7 +406,7 @@ public abstract class ControllerScin implements ActionListener {
 		return this.model.getRoiManager();
 	}
 
-	private void updateROIColor() {
+	public void updateROIColor() {
 		String opts_lbl;
 		String opts_roi;
 

@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.renal;
 
 import ij.ImagePlus;
 import ij.gui.Overlay;
+import org.petctviewer.scintigraphy.renal.gui.Fen_NbRein;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -129,8 +130,7 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 			btn_dyn.setEnabled(false);
 			
 			// TODO move elsewhere
-			Fen_NbRein fen = new Fen_NbRein();
-			fen.setLocationRelativeTo(this);
+			Fen_NbRein fen = new Fen_NbRein(this);
 			fen.setModal(true);
 			fen.setVisible(true);
 			fen.setAlwaysOnTop(true);
@@ -149,61 +149,4 @@ public class FenApplication_Renal extends FenApplicationWorkflow {
 
 	}
 
-	// TODO move that in it's own window
-	private class Fen_NbRein extends JDialog implements ActionListener {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private final boolean[] kidneys = new boolean[2];
-		private final JButton btn_l;
-		private final JButton btn_r;
-		private final JButton btn_lr;
-
-		public Fen_NbRein() {
-			this.setLayout(new GridLayout(2, 1));
-
-			this.setTitle("Number of kidneys");
-
-			JPanel flow = new JPanel();
-			flow.add(this.add(new JLabel("How many kidneys has the patient ?")));
-			this.add(flow);
-
-			JPanel radio = new JPanel();
-			this.btn_l = new JButton("Left kidney");
-			this.btn_l.addActionListener(this);
-			radio.add(btn_l);
-			this.btn_r = new JButton("Right kidney");
-			this.btn_r.addActionListener(this);
-			radio.add(btn_r);
-			this.btn_lr = new JButton("Both kidney");
-			this.btn_lr.addActionListener(this);
-			radio.add(btn_lr);
-			this.add(radio);
-
-			this.setLocationRelativeTo(FenApplication_Renal.this);
-
-			this.pack();
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			JButton b = (JButton) arg0.getSource();
-			if (b == this.btn_l) {
-				this.kidneys[0] = true;
-			} else if (b == this.btn_r) {
-				this.kidneys[1] = true;
-			} else if (b == this.btn_lr) {
-				this.kidneys[0] = true;
-				this.kidneys[1] = true;
-			}
-
-			this.dispose();
-		}
-
-		public boolean[] getKidneys() {
-
-			return this.kidneys;
-		}
-	}
 }

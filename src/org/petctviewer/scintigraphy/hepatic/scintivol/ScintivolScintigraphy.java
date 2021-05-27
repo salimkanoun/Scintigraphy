@@ -20,7 +20,7 @@ import java.util.List;
 public class ScintivolScintigraphy extends Scintigraphy {
 
 
-    public static final String STUDY_NAME = "Scintivol scintigraphy";
+    public static final String STUDY_NAME = "Liver Function";
     private ImageSelection imsRetention;
     private int[] frameDurations;
 
@@ -30,12 +30,8 @@ public class ScintivolScintigraphy extends Scintigraphy {
 
     private void createDocumentation() {
         DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
-
-        //TODO Complete missing reference
-        //doc.addReference(DocumentationDialog.Field.createLinkField("Scintivol protocol", " ",
-        //        " "));
-        doc.addReference(DocumentationDialog.Field.createLinkField("Ekman formula", "Ekman - Nucl Med Commun. 1996",
-              "https://pubmed.ncbi.nlm.nih.gov/8692492/"));
+        doc.addReference(DocumentationDialog.Field.createLinkField("Liver Function - Ekman formula",
+                "Ekman - Nucl Med Commun. 1996", "https://pubmed.ncbi.nlm.nih.gov/8692492/"));
         doc.setYoutube("");
         doc.setOnlineDoc("");
         this.getFenApplication().setDocumentation(doc);

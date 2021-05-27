@@ -8,6 +8,7 @@ public class DrawRoiBackgroundSymmetrical extends DrawRoiBackground {
 
 
 	private static final long serialVersionUID = 1L;
+	private final String roiName;
 
 
 	/**
@@ -22,15 +23,18 @@ public class DrawRoiBackgroundSymmetrical extends DrawRoiBackground {
 	public DrawRoiBackgroundSymmetrical(String organToDelimit, ImageState state, DrawRoiInstruction roi1,
 										Workflow workflow, String roiName) {
 		super(organToDelimit, state, roi1, workflow, roiName);
+		this.roiName = roiName;
 	}
 
 	@Override
 	public String getRoiName() {
-		String name = this.organToDelimit;
+		String name = this.roiName;
 
 		Roi thisRoi = this.workflow.getController().getVue().getImagePlus().getRoi();
-		if (thisRoi == null) return this.organToDelimit;
 
+		if (name == null) return this.organToDelimit;
+		if (name.equals("")) return "";
+		if (thisRoi == null) return this.organToDelimit;
 		boolean OrganPost = thisRoi.getXBase() > this.workflow.getController().getVue().getImagePlus().getWidth() / 2.;
 
 		if (OrganPost) name += " P";

@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.renal.dmsa;
 
 import ij.ImagePlus;
-import ij.gui.Overlay;
 import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;

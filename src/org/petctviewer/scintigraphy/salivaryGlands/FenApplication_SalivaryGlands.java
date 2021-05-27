@@ -6,6 +6,8 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
+import org.petctviewer.scintigraphy.scin.preferences.PrefTabSalivaryGlands;
+import ij.Prefs;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,20 +19,14 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private final SalivaryGlandsScintigraphy main;
-	private boolean dyn;
 	private final ImagePlus impProj;
-	private final ImageSelection imsProj;
 	private final Button btn_start;
 
 	public FenApplication_SalivaryGlands(ImageSelection ims, String nom, SalivaryGlandsScintigraphy main) {
 		super(ims, nom);
 		// Keep default visualisation
 		this.setVisualizationEnable(false);
-		
-		this.main = main;
-		this.imsProj = ims;
-		
+
 
 		Overlay overlay = Library_Gui.initOverlay(this.getImagePlus(), 12);
 		this.getImagePlus().setOverlay(overlay);
@@ -63,8 +59,9 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == this.btn_start) {
+			double lemonInjectionTime = Prefs.get(PrefTabSalivaryGlands.PREF_CITRUS_INJECT_TIME, 10);
 			double time = Double.parseDouble(JOptionPane.showInputDialog(this,
-					"Indicate when lemon juice was injected in minutes", 10));
+					"Indicate when lemon juice was injected in minutes", lemonInjectionTime));
 			((ControllerWorkflowSalivaryGlands) this.getController()).setLemonJuiceInjection(time);
 
 			this.getBtn_reverse().setEnabled(true);
@@ -72,7 +69,7 @@ public class FenApplication_SalivaryGlands extends FenApplicationWorkflow {
 			this.getPanel_bttns_droit().add(this.createPanelInstructionsBtns());
 			this.getBtn_drawROI().setEnabled(true);
 			this.setAlwaysOnTop(false);
-			this.setImage(impProj);
+			this.setImage(new ImageSelection(impProj, null, null));
 			this.updateSliceSelector();
 			resizeCanvas();
 		}

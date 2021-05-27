@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.generic.statics;
 
-import ij.gui.Overlay;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;

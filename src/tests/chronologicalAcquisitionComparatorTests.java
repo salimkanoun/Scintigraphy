@@ -13,7 +13,7 @@ import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionCompara
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator.ImagePlusComparator;
 
 import ij.plugin.DICOM;
-
+import org.petctviewer.scintigraphy.scin.model.Data;
 
 
 /**
@@ -26,8 +26,8 @@ public class chronologicalAcquisitionComparatorTests {
 
     private DICOM dcm;
     private DICOM dcm2;
-    private String str = "Images/testImage.dcm";
-    private String str2 = "Images/testImage2.dcm";
+    private final String str = "Images/testImage.dcm";
+    private final String str2 = "Images/testImage2.dcm";
     private InputStream is;
     private InputStream is2;
     private BufferedInputStream bis;

@@ -98,8 +98,8 @@ public class LiquidController extends ControllerWorkflow {
 		// Ant
 		ImageState stateAnt = new ImageState(Orientation.ANT, 0, ImageState.LAT_RL, ImageState.ID_CUSTOM_IMAGE);
 		ImageSelection image = getModel().getImageSelection()[0].clone();
-		image.setImagePlus(Library_Dicom.projeter(image.getImagePlus(), 0, image.getImagePlus().getStackSize(), "avg"
-		));
+		image.setImagePlus(Library_Dicom.project(image, 0, image.getImagePlus().getStackSize(), "avg"
+		).getImagePlus());
 		stateAnt.specifieImage(image);
 
 		this.workflows[0].addInstruction(new DrawRoiInstruction("Stomach", stateAnt));
@@ -110,8 +110,8 @@ public class LiquidController extends ControllerWorkflow {
 			ImageState statePost = new ImageState(Orientation.POST, 0, ImageState.LAT_LR, ImageState.ID_CUSTOM_IMAGE);
 			ImageSelection imagePost = getModel().getImageSelection()[1].clone();
 			imagePost.setImagePlus(
-					Library_Dicom.projeter(imagePost.getImagePlus(), 0, imagePost.getImagePlus().getStackSize(),
-										   "avg"));
+					Library_Dicom.project(imagePost, 0, imagePost.getImagePlus().getStackSize(), "avg")
+							.getImagePlus());
 			statePost.specifieImage(imagePost);
 
 			this.workflows[1].addInstruction(new DrawRoiInstruction("Stomach", statePost));

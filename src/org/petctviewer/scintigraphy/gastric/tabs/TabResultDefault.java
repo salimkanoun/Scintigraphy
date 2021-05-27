@@ -47,7 +47,6 @@ public abstract class TabResultDefault extends TabResult implements ChangeListen
 	private final int seriesToGenerate;
 	private final FitPanel fitPanel;
 	protected Date timeIngestion;
-	private XYSeriesCollection data;
 	private JValueSetter valueSetterLagPhase;
 	private JLabel lagPhaseValue;
 
@@ -301,9 +300,9 @@ public abstract class TabResultDefault extends TabResult implements ChangeListen
 		}
 
 		// Create chart
-		this.data = new XYSeriesCollection();
+		XYSeriesCollection data = new XYSeriesCollection();
 		XYSeries stomachSeries = getModel().generateSeries(this.seriesToGenerate, this.unitDefault);
-		this.data.addSeries(stomachSeries);
+		data.addSeries(stomachSeries);
 
 		JFreeChart chart = ChartFactory.createXYLineChart(TITLE, X_AXIS_LABEL + " (" + this.unitTime.abbrev() + ")",
 														  Y_AXIS_LABEL + " (" + this.unitDefault.abbrev() + ")", data,

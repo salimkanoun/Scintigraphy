@@ -40,8 +40,7 @@ public class JTableCheckBox extends JPanel {
 						boolean testLigne = true;
 						for(int i =0; i< JTableCheckBox.this.checkboxInterior[posX].length; i++)
 							if (!JTableCheckBox.this.checkboxInterior[posX][i].isSelected()) testLigne = false;
-						if(testLigne) JTableCheckBox.this.checkboxHeadRows[posX].setSelected(true);
-						else JTableCheckBox.this.checkboxHeadRows[posX].setSelected(false);
+						JTableCheckBox.this.checkboxHeadRows[posX].setSelected(testLigne);
 						
 						
 						
@@ -49,8 +48,7 @@ public class JTableCheckBox extends JPanel {
 						boolean testColonne = true;
 						for (JCheckBox[] jCheckBoxes : JTableCheckBox.this.checkboxInterior)
 							if (!jCheckBoxes[posY].isSelected()) testColonne = false;
-						if(testColonne) JTableCheckBox.this.checkboxHeadCols[posY].setSelected(true);
-						else JTableCheckBox.this.checkboxHeadCols[posY].setSelected(false);
+						JTableCheckBox.this.checkboxHeadCols[posY].setSelected(testColonne);
 						
 					}
 				});
@@ -68,11 +66,7 @@ public class JTableCheckBox extends JPanel {
 			ch.setName(i+"");
 			ch.addActionListener(e -> {
 				JCheckBox selected = (JCheckBox)e.getSource();
-				if(selected.isSelected()) {
-					setStateCheckboxHeadCols(Integer.parseInt(selected.getName()), true);
-				}else {
-					setStateCheckboxHeadCols(Integer.parseInt(selected.getName()), false);
-				}
+				setStateCheckboxHeadCols(Integer.parseInt(selected.getName()), selected.isSelected());
 			});
 			checkboxHeadCols[i] = ch;
 		}
@@ -143,11 +137,11 @@ public class JTableCheckBox extends JPanel {
 		tab.setBorder(BorderFactory.createLineBorder(Color.black,1));
 
 		for (Component[] components : tableauEntier) {
-			for (int j = 0; j < components.length; j++) {
-				if (components[j] == null) {
+			for (Component component : components) {
+				if (component == null) {
 					tab.add(new JLabel("null"));
 				} else {
-					tab.add(components[j]);
+					tab.add(component);
 				}
 			}
 		}
@@ -193,8 +187,7 @@ public class JTableCheckBox extends JPanel {
 	public void setFirstColumn() {
 		for (JCheckBox[] jCheckBoxes : checkboxInterior) {
 			for (int j = 0; j < jCheckBoxes.length; j++) {
-				if (j == 0) jCheckBoxes[j].setSelected(true);
-				else jCheckBoxes[j].setSelected(false);
+				jCheckBoxes[j].setSelected(j == 0);
 			}
 		}
 	}

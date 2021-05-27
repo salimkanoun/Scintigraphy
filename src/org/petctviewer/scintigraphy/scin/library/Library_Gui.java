@@ -134,7 +134,7 @@ public class Library_Gui {
 		//double textHeight = bounds.getHeight();
 		double textWidth = bounds.getWidth();
 
-		double x = (w / 2) - (textWidth / 2);
+		double x = (w / 2.) - (textWidth / 2);
 		TextRoi top = new TextRoi(x, 0, title);
 		top.setPosition(slice);
 		if (color != null) {
@@ -154,7 +154,7 @@ public class Library_Gui {
 		int tailleImage = imp.getHeight();
 
 		// Position au mileu dans l'axe Y
-		double y = ((tailleImage) / 2);
+		double y = tailleImage / 2.;
 
 		// Cote droit
 		TextRoi right = new TextRoi(0, y, textL);

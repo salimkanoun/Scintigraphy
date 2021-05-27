@@ -24,8 +24,6 @@ import java.awt.*;
 
 public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
-	private FenResults fenResult;
-
 	public ControllerWorkflow_ScinStatic(FenApplicationWorkflow vue, ImageSelection[] selectedImages,
 										 String studyName) {
 		super(vue, new ModelScinStatic(selectedImages, studyName));
@@ -35,8 +33,8 @@ public class ControllerWorkflow_ScinStatic extends ControllerWorkflow {
 
 		this.setOverlayTitleLaterisationAndRoi();
 
-		this.fenResult = new FenResults(this);
-		this.fenResult.setVisible(false);
+		FenResults fenResult = new FenResults(this);
+		fenResult.setVisible(false);
 	}
 
 	private void updateButtonLabel(int indexRoi) {

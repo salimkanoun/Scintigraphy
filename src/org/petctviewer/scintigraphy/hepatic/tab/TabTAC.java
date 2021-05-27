@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.hepatic.tab;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -108,9 +109,8 @@ public class TabTAC {
 			data.addSeries(modele.getSerie("Hilium"));
 
 			JFreeChart chart = ChartFactory.createXYLineChart("", "min", "counts/sec", data);
-			
-			ChartPanel chartpanel = new ChartPanel(chart);
-			return chartpanel;
+
+			return new ChartPanel(chart);
 		}
 	}
 
@@ -137,8 +137,10 @@ public class TabTAC {
 
 	protected ImagePlus montage(ImageStack captures) {
 		MontageMaker mm = new MontageMaker();
-		// TODO: patient ID
-		String patientID = "NO_ID_FOUND";
+		ImagePlus impInfo = this.parent.getModel().getImageSelection()[0].getImagePlus();
+		HashMap<String, String> infoPatient = Library_Capture_CSV.getPatientInfo(impInfo);
+		String patientID = infoPatient.get(Library_Capture_CSV.PATIENT_INFO_ID);
+		if (patientID.isEmpty()) patientID = "NO_ID_FOUND";
 		ImagePlus imp = new ImagePlus("Results TAC -" + this.studyName + " -" + patientID, captures);
 		imp = mm.makeMontage2(imp, 1, 1, 0.50, 1, 1, 1, 10, false);
 		return imp;

@@ -189,7 +189,6 @@ public class Library_Dicom {
 		int cameraNumber = Library_Dicom.getCameraNumberUniqueFrame(imp);
 		System.out.println("Orientation Not recognized, assuming vector 1 is anterior");
 		if (cameraNumber == 1) return true;
-		if (cameraNumber == 2) return false;
 
 		return false;
 
@@ -530,9 +529,7 @@ public class Library_Dicom {
 
 		if (nbPhase == 1) {
 			int duration = getFrameDuration(imp);
-			for (int i = 0; i < frameDurations.length; i++) {
-				frameDurations[i] = duration;
-			}
+			Arrays.fill(frameDurations, duration);
 		} else {
 			String durationsTag = DicomTools.getTag(imp, "0054,0030").trim();
 			//For orthanc replace \ by space for uniformity with IJ
@@ -697,7 +694,7 @@ public class Library_Dicom {
 			imsTab[1].getImagePlus().setSlice(i);
 			imsTab[1].getImagePlus().getProcessor().flipHorizontal();
 
-			ImagePlus slice = ImageCalculator.run(imsTab[0].getImagePlus(), imsTab[1].getImagePlus(), "multiply");
+			ImagePlus slice = ImageCalculator.run(imsTab[0].getImagePlus(), imsTab[1].getImagePlus(), "Multiply create");
 			slice.getProcessor().sqrt();
 
 			imStack.addSlice(slice.getProcessor());

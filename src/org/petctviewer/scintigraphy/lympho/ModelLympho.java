@@ -199,13 +199,13 @@ public class ModelLympho extends ModelScin {
 		if(drainedPercentageRight < 0 || drainedPercentageLeft < 0) {
 			retour[5] = "<html><span style=\"color:red\">NEGATIVE DRAINAGE, ANY RESULT WOULD BE ABSURD. </span></html>";
 		}
-		else if (drainedDelta < 0.25 * ((int) (drainedPercentageRight + drainedPercentageLeft) / 2)) {
+		else if (drainedDelta < 0.25 * ((int) (drainedPercentageRight + drainedPercentageLeft) / 2.)) {
 			retour[5] = "<html><span style=\"color:green\">Non significant dissymetry because delta &lsaquo; 0.25 MG  ";
-			double quartOfMG = 0.25 * ((int) (drainedPercentageRight + drainedPercentageLeft) / 2);
+			double quartOfMG = 0.25 * ((int) (drainedPercentageRight + drainedPercentageLeft) / 2.);
 			retour[5] += " (" + us.format(quartOfMG) + " ) </span></html>";
 		} else {
 			retour[5] = "<html><span style=\"color:red\">Significant dissymetry because delta &raquo; 0.25 MG  ";
-			double quartOfMG = 0.25 * ((int) (drainedPercentageRight + drainedPercentageLeft) / 2);
+			double quartOfMG = 0.25 * ((int) (drainedPercentageRight + drainedPercentageLeft) / 2.);
 			retour[5] += " (" + us.format(quartOfMG) + " ) </span></html>";
 		}
 

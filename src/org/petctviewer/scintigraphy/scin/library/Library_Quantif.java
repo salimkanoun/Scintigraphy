@@ -76,7 +76,7 @@ public class Library_Quantif {
 	/**
 	 * renvoie le nombre de coups moyens de la roi presente sur l'imp
 	 *
-	 * @param imp l'imp
+	 * @param imp			ImagePlus with ROI to count on it
 	 * @return nombre moyen de coups
 	 */
 	public static Double getAvgCounts(ImagePlus imp) {
@@ -85,10 +85,10 @@ public class Library_Quantif {
 
 	/**
 	 * Returns the average number of counts in the current ROI between two defined times of the ImagePlus
-	 * @param imp
-	 * @param startTime
-	 * @param endTime
-	 * @param frameDuration
+	 * @param imp			ImagePlus with ROI to count on it
+	 * @param startTime		start time taken into account for the average
+	 * @param endTime		end time taken into account for the average
+	 * @param frameDuration	frame duration used to identify time in imp
 	 * @return average number of counts over the defined time
 	 */
 	public static Double getAvgCounts(ImagePlus imp, double startTime, double endTime, @NotNull int[] frameDuration) {
@@ -100,9 +100,9 @@ public class Library_Quantif {
 
 	/**
 	 * Returns the average number of counts in the current ROI between two defined slice of the ImagePlus
-	 * @param imp
-	 * @param startSlice
-	 * @param endSlice
+	 * @param imp			ImagePlus with ROI to count on it
+	 * @param startSlice	first slice taken into account for the average
+	 * @param endSlice		last slice taken into account for the average
 	 * @return average number of counts over the defined slices
 	 */
 	public static Double getAvgCounts(ImagePlus imp, int startSlice, int endSlice) {
@@ -117,7 +117,7 @@ public class Library_Quantif {
 
 	/**
 	 * Returns the maximum number of counts in the current ROI
-	 * @param imp
+	 * @param imp			ImagePlus with ROI to count on it
 	 * @return maximum number of counts over all slices
 	 */
 	public static Double getMaxCounts(ImagePlus imp) {
@@ -134,9 +134,9 @@ public class Library_Quantif {
 
 	/**
 	 * Returns the maximum number of counts in the current ROI
-	 * @param imp
-	 * @param startSlice
-	 * @param endSlice
+	 * @param imp			ImagePlus with ROI to count on it
+	 * @param startSlice	first slice taken into account for the maximum
+	 * @param endSlice		last slice taken into account for the maximum
 	 * @return maximum number of counts over the defined slices
 	 */
 	public static Double getMaxCounts(ImagePlus imp, int startSlice, int endSlice) {
@@ -153,7 +153,7 @@ public class Library_Quantif {
 
 	/**
 	 * Returns the minimum number of counts in the current ROI
-	 * @param imp
+	 * @param imp			ImagePlus with ROI to count on it
 	 * @return minimum number of counts over all slices
 	 */
 	public static Double getMinCounts(ImagePlus imp) {
@@ -170,9 +170,9 @@ public class Library_Quantif {
 
 	/**
 	 * Returns the minimum number of counts in the current ROI
-	 * @param imp
-	 * @param startSlice
-	 * @param endSlice
+	 * @param imp			ImagePlus with ROI to count on it
+	 * @param startSlice	first slice taken into account for the minimum
+	 * @param endSlice		last slice taken into account for the minimum
 	 * @return minimum number of counts over the defined slices
 	 */
 	public static Double getMinCounts(ImagePlus imp, int startSlice, int endSlice) {
@@ -180,6 +180,86 @@ public class Library_Quantif {
 		for (int i = startSlice; i <= endSlice; i++) {
 			imp.setSlice(i);
 			double counts = getCounts(imp);
+			if (counts < res)
+				res = counts;
+		}
+
+		return res;
+	}
+
+	/**
+	 * Returns the maximum number of counts for the given ROI with corrected background
+	 * @param imp			ImagePlus to apply the Roi and Background
+	 * @param roi			ROI to correct
+	 * @param background	background ROI used to correct
+	 * @return maximum number of counts over all slices
+	 */
+	public static Double getMaxCountsCorrectedBackground(ImagePlus imp, Roi roi, Roi background) {
+		double res = 0;
+		for (int i = 1; i <= imp.getNSlices(); i++) {
+			imp.setSlice(i);
+			double counts = getCountCorrectedBackground(imp, roi, background);
+			if (counts > res)
+				res = counts;
+		}
+
+		return res;
+	}
+
+	/**
+	 * Returns the maximum number of counts for the given ROI with corrected background
+	 * @param imp			ImagePlus to apply the Roi and Background
+	 * @param roi			ROI to correct
+	 * @param background	background ROI used to correct
+	 * @param startSlice	first slice taken into account for the maximum
+	 * @param endSlice		last slice taken into account for the maximum
+	 * @return maximum number of counts over the defined slices
+	 */
+	public static Double getMaxCountsCorrectedBackground(ImagePlus imp, Roi roi, Roi background, int startSlice, int endSlice) {
+		double res = 0;
+		for (int i = startSlice; i <= endSlice; i++) {
+			imp.setSlice(i);
+			double counts = getCountCorrectedBackground(imp, roi, background);
+			if (counts > res)
+				res = counts;
+		}
+
+		return res;
+	}
+
+	/**
+	 * Returns the minimum number of counts for the given ROI with corrected background
+	 * @param imp			ImagePlus to apply the Roi and Background
+	 * @param roi			ROI to correct
+	 * @param background	background ROI used to correct
+	 * @return minimum number of counts over all slices
+	 */
+	public static Double getMinCountsCorrectedBackground(ImagePlus imp, Roi roi, Roi background) {
+		double res = Double.MAX_VALUE;
+		for (int i = 1; i <= imp.getNSlices(); i++) {
+			imp.setSlice(i);
+			double counts = getCountCorrectedBackground(imp, roi, background);
+			if (counts < res)
+				res = counts;
+		}
+
+		return res;
+	}
+
+	/**
+	 * Returns the minimum number of counts for the given ROI with corrected background
+	 * @param imp			ImagePlus to apply the Roi and Background
+	 * @param roi			ROI to correct
+	 * @param background	background ROI used to correct
+	 * @param startSlice	first slice taken into account for the minimum
+	 * @param endSlice		last slice taken into account for the minimum
+	 * @return minimum number of counts over the defined slices
+	 */
+	public static Double getMinCountsCorrectedBackground(ImagePlus imp, Roi roi, Roi background, int startSlice, int endSlice) {
+		double res = Double.MAX_VALUE;
+		for (int i = startSlice; i <= endSlice; i++) {
+			imp.setSlice(i);
+			double counts = getCountCorrectedBackground(imp, roi, background);
 			if (counts < res)
 				res = counts;
 		}
@@ -306,9 +386,9 @@ public class Library_Quantif {
 
 		double[] result = new double[values.length];
 
-		for (int i = 0; i < list.get(list.size() - 1).length - nbConvolv * (kernel.length - 1); i++) {
-			result[i] = list.get(list.size() - 1)[i + (nbConvolv * (kernel.length - 1) / 2)];
-		}
+		if (list.get(list.size() - 1).length - nbConvolv * (kernel.length - 1) >= 0)
+			System.arraycopy(list.get(list.size() - 1), nbConvolv * (kernel.length - 1) / 2, result,
+					0, list.get(list.size() - 1).length - nbConvolv * (kernel.length - 1));
 
 		return result;
 	}

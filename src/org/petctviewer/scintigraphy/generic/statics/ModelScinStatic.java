@@ -125,44 +125,46 @@ public class ModelScinStatic extends ModelScin {
 
 	@Override
 	public String toString() {
-		String res;
+		StringBuilder res;
 		// Multiple Slice (ANT/POST)
 		if (!this.isSingleSlice()) {
-			res = "name, count ant, avg ant , std ant, count post, avg post, std post, geom mean \n";
+			res = new StringBuilder("name, count ant, avg ant , std ant, count post, avg post, std post, geom mean \n");
 			for (String s : this.roisAnt.keySet()) {
-				res += s + ", " + Library_Quantif.round((Double) roisAnt.get(s)[0], 2)
-						+ "," + Library_Quantif.round((Double) roisAnt.get(s)[1], 2)
-						+ "," + Library_Quantif.round((Double) roisAnt.get(s)[2], 2)
-						+ "," + Library_Quantif.round((Double) roisPost.get(s)[0], 2)
-						+ "," + Library_Quantif.round((Double) roisPost.get(s)[1], 2)
-						+ "," + Library_Quantif.round((Double) roisPost.get(s)[2], 2)
-						+ "," + Library_Quantif.round(Library_Quantif.moyGeom((Double) this.roisAnt.get(s)[0],
-								(Double) this.roisPost.get(s)[0]), 2)
-						+ "\n";
+				res.append(s).append(", ").append(Library_Quantif.round((Double) roisAnt.get(s)[0], 2))
+						.append(",").append(Library_Quantif.round((Double) roisAnt.get(s)[1], 2))
+						.append(",").append(Library_Quantif.round((Double) roisAnt.get(s)[2], 2))
+						.append(",").append(Library_Quantif.round((Double) roisPost.get(s)[0], 2))
+						.append(",").append(Library_Quantif.round((Double) roisPost.get(s)[1], 2))
+						.append(",").append(Library_Quantif.round((Double) roisPost.get(s)[2], 2))
+						.append(",").append(Library_Quantif.round(
+								Library_Quantif.moyGeom((Double) this.roisAnt.get(s)[0], (Double) this.roisPost.get(s)[0]), 2))
+						.append("\n");
 			}
 			// round
 			// taille fenetre
 		}
 		// Only ANT
 		else if (this.isAnt()) {
-			res = "name, count ant, avg ant , std ant,\n";
+			res = new StringBuilder("name, count ant, avg ant , std ant,\n");
 			for (String s : this.roisAnt.keySet()) {
-				res += s + ", " + Library_Quantif.round((Double) roisAnt.get(s)[0], 2)
-						+ "," + Library_Quantif.round((Double) roisAnt.get(s)[1], 2)
-						+ "," + Library_Quantif.round((Double) roisAnt.get(s)[2], 2) + "\n";
+				res.append(s).append(",").append(Library_Quantif.round((Double) roisAnt.get(s)[0], 2))
+						.append(",").append(Library_Quantif.round((Double) roisAnt.get(s)[1], 2))
+						.append(",").append(Library_Quantif.round((Double) roisAnt.get(s)[2], 2))
+						.append("\n");
 			}
 		}
 		// Only POST
 		else {
-			res = "name, count post, avg post, std post\n";
+			res = new StringBuilder("name, count post, avg post, std post\n");
 			for (String s : this.roisAnt.keySet()) {
-				res += s + ", " + Library_Quantif.round((Double) roisPost.get(s)[0], 2)
-						+ "," + Library_Quantif.round((Double) roisPost.get(s)[1], 2)
-						+ "," + Library_Quantif.round((Double) roisPost.get(s)[2], 2) + "\n";
+				res.append(s).append(",").append(Library_Quantif.round((Double) roisPost.get(s)[0], 2))
+						.append(",").append(Library_Quantif.round((Double) roisPost.get(s)[1], 2))
+						.append(",").append(Library_Quantif.round((Double) roisPost.get(s)[2], 2))
+						.append("\n");
 			}
 		}
 
-		return res; // csv format
+		return res.toString(); // csv format
 	}
 
 	public void setIsSingleSlide(boolean isSingleSlice) {

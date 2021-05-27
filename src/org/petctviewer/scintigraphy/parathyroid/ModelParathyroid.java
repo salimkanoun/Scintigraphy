@@ -101,25 +101,23 @@ public class ModelParathyroid extends ModelWorkflow {
 		System.out.println("Thyroide+Parathyroide: " + r1 +";");
 		
 		ImageSelection[] selection = this.getImageSelection();
-		double result = 0;
-		ImagePlus mult = null;
-		ImageProcessor processor = null;
-		if (r1 > r2){
+		double result;
+		ImagePlus mult;
+		ImageProcessor processor;
+		if (r1 > r2) {
 			result = r1/r2;
 			processor = selection[IMAGE_PARATHYROID].getImagePlus().getProcessor();
 			processor.multiply(result);
 
 			mult = selection[IMAGE_PARATHYROID].getImagePlus();
-			mult.setProcessor(processor);
-		}
-		else {
+		} else {
 			result = r2/r1;
 			processor = selection[IMAGE_THYROIDPARA].getImagePlus().getProcessor();
 			processor.multiply(result);
 
 			mult = selection[IMAGE_THYROIDPARA].getImagePlus();
-			mult.setProcessor(processor);
 		}
+		mult.setProcessor(processor);
 		System.out.println("Ratio = " + result);
 		System.out.println("ImageMult = "+ mult);
 		return mult;

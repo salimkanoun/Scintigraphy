@@ -134,18 +134,6 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 
 		returnBox.add(visualGradation);
 
-		JPanel flowRef = new JPanel();
-		JPanel gridRef = new JPanel(new GridLayout(0, 1));
-		JLabel value = new JLabel("H/WB > 7.5% is associated with higher risk of cardiac event");
-		value.setHorizontalAlignment(JLabel.CENTER);
-		JLabel ref = new JLabel("Rapezzi et al. JACC 2011");
-		ref.setHorizontalAlignment(JLabel.CENTER);
-		gridRef.add(value);
-		gridRef.add(ref);
-		flowRef.add(gridRef);
-
-		returnBox.add(flowRef);
-
 		// ajout de la table avec les resultats des rois
 		DefaultTableModel modelRes = new DefaultTableModel();
 		JTable tabRes = new JTable(modelRes);
@@ -187,7 +175,10 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 
 	@Override
 	public JPanel getResultContent() {
-		return new DynamicImage(capture);
+		DynamicImage dynImg = new DynamicImage(capture);
+		double ratio = dynImg.getSize().getHeight() / dynImg.getSize().getHeight();
+		dynImg.setPreferredSize(new Dimension(50, (int) (50 * ratio)));
+		return dynImg;
 	}
 
 	@Override

@@ -83,7 +83,7 @@ public abstract class ModelScinDyn extends ModelScin {
 		s.append("time (s)");
 		double sum = 0.0;
 		for(int i = 0; i < this.getFrameDuration().length; i++) {
-			sum += this.getFrameDuration()[i] / 1000;
+			sum += this.getFrameDuration()[i] / 1000.;
 			s.append(",").append(sum);
 		}
 		

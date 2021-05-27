@@ -17,6 +17,7 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.plugin.DICOM;
 import ij.util.DicomTools;
+import org.petctviewer.scintigraphy.scin.model.Data;
 
 
 /**
@@ -29,8 +30,6 @@ public class libraryCaptureCSVTests {
 
     private DICOM dcm;
     private DICOM dcm2;
-    private String str = "Images/testImage.dcm";
-    private String str2 = "Images/testImage2.dcm";
     private InputStream is;
     private InputStream is2;
     private BufferedInputStream bis;
@@ -43,13 +42,15 @@ public class libraryCaptureCSVTests {
 
     @BeforeEach
     public void setUp(){
-        this.is = this.getClass().getResourceAsStream(this.str);
+        String str = "Images/testImage.dcm";
+        this.is = this.getClass().getResourceAsStream(str);
         this.bis = new BufferedInputStream(this.is);
         this.dcm = new DICOM(this.bis);
         this.dcm.run("Test image");
         this.dcm.show();
 
-        this.is2 = this.getClass().getResourceAsStream(this.str2);
+        String str2 = "Images/testImage2.dcm";
+        this.is2 = this.getClass().getResourceAsStream(str2);
         this.bis2 = new BufferedInputStream(this.is2);
         this.dcm2 = new DICOM(this.bis2);
         this.dcm2.run("Test image2");

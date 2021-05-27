@@ -290,6 +290,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 	 */
 	protected void prepareImage(ImageState imageState) {
 		this.prepareImage(imageState, this.indexCurrentWorkflow);
+		this.updateROIColor();
 	}
 
 	/**

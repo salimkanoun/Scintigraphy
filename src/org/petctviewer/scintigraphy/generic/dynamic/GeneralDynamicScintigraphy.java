@@ -108,8 +108,7 @@ public class GeneralDynamicScintigraphy extends Scintigraphy {
 			impProjetee.setImagePlus(ImageRetour);
 		}
 
-		impProjetee.getImagePlus().getProcessor().setMinAndMax(0, impProjetee.getImagePlus().getStatistics().max * 1f /
-				1f);
+		impProjetee.getImagePlus().getProcessor().setMinAndMax(0, impProjetee.getImagePlus().getStatistics().max * 1f);
 
 		List<ImageSelection> selection = new ArrayList<>();
 		selection.add(impProjetee);

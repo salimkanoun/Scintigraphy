@@ -8,6 +8,7 @@ import java.util.List;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Orientation;
 import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
+import org.petctviewer.scintigraphy.scin.gui.DisplayState;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
@@ -191,44 +192,4 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
             this.getVue().getImagePlus().updateAndDraw();
         }
 	}
-
-
-	//TODO This enum must change from a local state to a more general one and then be called
-
-	public enum DisplayState {
-		RIGHT_LEFT("Label ANT as RIGHT", "P", "A", "Right-Left"),
-		LEFT_RIGHT("Label ANT as LEFT", "A", "P", "Left-Right"),
-		ANT_POST("Label ANT as ANT", "R", "L", "Ant-Post");
-
-		public String label, textL, textR;
-		private String title;
-
-		DisplayState(String label, String textL, String textR, String titleAP) {
-			this.label = label;
-			this.textL = textL;
-			this.textR = textR;
-			this.title = titleAP;
-		}
-
-		/**
-		 * Finds the state associated with the specified label. If not state matches this label, then the ANT_POST
-		 * state is returned.
-		 * @param label Label of the state to retrieve
-		 * @return state corresponding to the specified label or ANT_POST if no state matches
-		 */
-		public static DisplayState stateFromLabel(String label) {
-			return Arrays.stream(values()).filter(state -> state.label.equals(label)).findFirst().orElse(ANT_POST);
-		}
-
-		public String getTitleAnt() {
-			return this.title.split("-")[0];
-		}
-
-		public String getTitlePost() {
-			return this.title.split("-")[1];
-		}
-	}
-
-
-
 }

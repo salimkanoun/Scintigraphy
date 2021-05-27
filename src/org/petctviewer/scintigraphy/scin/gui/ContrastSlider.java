@@ -97,7 +97,7 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 			// Applying the saved Overlay
 			for (Roi roi : rois) {
 				if (roi.getName() != null) {
-					Roi newRoi = RoiScaler.scale(roi, IMG_WIDTH / oldWidth, IMG_WIDTH / oldWidth, false);
+					Roi newRoi = RoiScaler.scale(roi, IMG_WIDTH*1. / oldWidth, IMG_WIDTH*1. / oldWidth, false);
 					newRoi.setPosition(0);
 					newRoi.setName(roi.getName());
 					newRoi.setStrokeColor(Color.YELLOW);

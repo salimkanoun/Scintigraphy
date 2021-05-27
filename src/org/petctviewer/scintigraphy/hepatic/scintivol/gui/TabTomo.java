@@ -109,7 +109,6 @@ public class TabTomo extends TabResult implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        //TODO
         Model_Scintivol model = (Model_Scintivol) this.parent.getModel();
         if (e.getSource() == this.computeBtn) {
             Map<String, Double> tomo = new HashMap<>();
