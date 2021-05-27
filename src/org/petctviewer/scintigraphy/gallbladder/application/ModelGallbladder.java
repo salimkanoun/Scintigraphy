@@ -62,6 +62,19 @@ public class ModelGallbladder extends ModelScinDyn {
     }
 
 
+    public void enregistrerMesure(String nomRoi, ImagePlus imp) {
+        if (this.isUnlocked()) {
+
+            this.organRois.put(nomRoi, imp.getRoi());
+
+            this.getData().computeIfAbsent(nomRoi, k -> new ArrayList<>());
+
+            // on y ajoute le nombre de coups
+            this.getData().get(nomRoi).add(Math.max(Library_Quantif.getCounts(imp),1.0d) );
+        }
+    }
+
+
     public void setRoiMangager(RoiManager roiManager){
         this.roiManager = roiManager;
     }
@@ -83,7 +96,6 @@ public class ModelGallbladder extends ModelScinDyn {
 
         double finalResult = result * 100;
         this.results.put(RES_GALLBLADDER.hashCode(), finalResult);
-       // this.results.get("Gallbladder").put("EjectionFraction", finalResult);
 
         return  finalResult;
     }
@@ -91,7 +103,7 @@ public class ModelGallbladder extends ModelScinDyn {
     @Override
     public void calculateResults() {
 
-    /**
+    /*
         examenMean = new ArrayList<>();
         for(int i = 0; i < sauvegardeImagesSelectDicom.length; i++){
             HashMap<String, ArrayList<Double>> map4rois = new HashMap<>();
@@ -129,7 +141,7 @@ public class ModelGallbladder extends ModelScinDyn {
 
             map4rois.put("entier", roiEntier);
 
-            examenMean.add(map4rois); **/
+            examenMean.add(map4rois); */
 
             //Calcul final
 
@@ -144,16 +156,17 @@ public class ModelGallbladder extends ModelScinDyn {
 
 
 
-        /**
+        /*
 
         dicomRoi = new ArrayList<>();
         for(int i =0; i < sauvegardeImagesSelectDicom.length; i++){
             Object[] content = {sauvegardeImagesSelectDicom[i].getImagePlus(), this.roiManager.getRoi(i).getBounds()};
             dicomRoi.add(content);
-        }**/
+        }*/
     }    
             
     /**
+     *
      * Corrects the value of the specified region with the background region. To use this method, the background noise
      * region <b>must be</b> set.
      * @param regionName Name of the region to correct

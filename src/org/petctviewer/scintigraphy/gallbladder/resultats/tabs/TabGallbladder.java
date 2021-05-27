@@ -3,17 +3,17 @@ package org.petctviewer.scintigraphy.gallbladder.resultats.tabs;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.Map;
 
 import ij.ImagePlus;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartMouseEvent;
-import org.jfree.chart.ChartMouseListener;
-import org.jfree.chart.JFreeChart;
+import org.jfree.chart.*;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gallbladder.application.ModelGallbladder;
 import org.petctviewer.scintigraphy.gallbladder.resultats.Model_Resultats_Gallbladder;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
@@ -22,6 +22,8 @@ import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 import org.petctviewer.scintigraphy.scin.model.ResultRequest;
 import org.petctviewer.scintigraphy.scin.model.ResultValue;
 import org.petctviewer.scintigraphy.scin.model.Unit;
@@ -95,7 +97,7 @@ public class TabGallbladder extends TabResult{
 
         return res;
 
-       /** if(nbAcquisition == null)
+       /* if(nbAcquisition == null)
             return null;
 
         JPanel radioButtonGallbladderPanel = new JPanel();
@@ -164,7 +166,7 @@ public class TabGallbladder extends TabResult{
 
    // @Override
     public JPanel getResultContent() {
-        /**  //graph center
+        /*  //graph center
          graphGallbladder = ChartFactory.createXYLineChart("Gallbladder", "s", "Count/s", null);
 
          graphGallbladder.getXYPlot().setDataset(modeleApp.retentionForGraph());
@@ -215,6 +217,16 @@ public class TabGallbladder extends TabResult{
         JPanel panel_top = new JPanel(new GridLayout(1, 2));
         panel_top.add(new DynamicImage(capture));
         grid.add(panel_top);
+
+        //ajout du graphique image au gallblader
+        List<XYSeries> series = ((ModelScinDyn) this.getParent().getModel()).getSeries();
+
+        ChartPanel chart = Library_JFreeChart.associateSeries(new String[] {"Gallbladder" }, series);
+        XYSeriesCollection dataset = (XYSeriesCollection) chart.getChart().getXYPlot().getDataset();
+        dataset.getSeries("Gallbladder").setKey("Gallbladder");
+
+        chart.getChart().getXYPlot().getRenderer().setSeriesPaint(0, Color.GREEN);
+        grid.add(chart);
 
         return grid;
 
