@@ -49,12 +49,11 @@ public class ControllerWorkflowGallbladder extends ControllerWorkflow{
     protected void generateInstructions(){
         this.workflows = new Workflow[this.model.getImageSelection().length];
 
-        ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_CUSTOM_IMAGE);
-
         ImageSelection dynAvg = Library_Dicom.project(this.model.getImageSelection()[0],
                 1, this.model.getImageSelection()[0].getImagePlus().getNSlices(), "avg");
-        state.specifieImage(dynAvg);
         this.workflows[0] = new Workflow(this, dynAvg);
+
+        ImageState state = new ImageState(Orientation.ANT, 1, true, ImageState.ID_NONE);
         DrawRoiInstruction dri_1, dri_2;
 
         dri_1 = new DrawRoiInstruction("Gallbladder", state);

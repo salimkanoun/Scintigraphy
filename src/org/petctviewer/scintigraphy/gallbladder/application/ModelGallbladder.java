@@ -9,7 +9,6 @@ import java.util.Map;
 import ij.ImagePlus;
 import org.petctviewer.scintigraphy.gallbladder.resultats.Model_Resultats_Gallbladder;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import org.petctviewer.scintigraphy.scin.model.Data;
@@ -30,8 +29,6 @@ public class ModelGallbladder extends ModelScinDyn {
 
     public static final int IMAGE_GALLBLADER = 0;
 
-    //sauvegarde des imp de départ avec tous leur stacks chacun : pour pouvoir faire les calculs de mean dans le temps//trié
-    private final ImageSelection[] sauvegardeImagesSelectDicom;
     // list : liste des examens
 	// list->map->list : list des mean(double) pour tous le stack
   //  private ArrayList<HashMap<String, ArrayList<Double>>> examenMean;
@@ -39,24 +36,17 @@ public class ModelGallbladder extends ModelScinDyn {
     //pour le condensé dynamique
     ArrayList<Object[]> dicomRoi;
     private final Map<String, Roi> organRois;
-
-
+    private ImageSelection ims;
     private Model_Resultats_Gallbladder modelResults;
-
-    private ImageSelection impProjeteeAllAcqui;
 
     private List<Data> datas;
     private Map<Integer, Double> results;
 
-    public ModelGallbladder(ImageSelection[] sauvegardeImagesSelectDicom, String studyName,
-                            int[] frameDuration, ImageSelection impProjeteeAllAcqui) {
+    public ModelGallbladder(ImageSelection[] sauvegardeImagesSelectDicom, String studyName, int[] frameDuration) {
         super(sauvegardeImagesSelectDicom, studyName, frameDuration);
-        this.sauvegardeImagesSelectDicom = sauvegardeImagesSelectDicom;
+        //sauvegarde des imp de départ avec tous leur stacks chacun : pour pouvoir faire les calculs de mean dans le temps//trié
         this.organRois = new HashMap<>();
-
-     //   examenMean = new ArrayList<>();
-        this.impProjeteeAllAcqui = impProjeteeAllAcqui;
-
+        this.ims = sauvegardeImagesSelectDicom[0];
         this.datas = new LinkedList<>();
         this.results = new HashMap<>();
     }
@@ -152,9 +142,14 @@ public class ModelGallbladder extends ModelScinDyn {
         this.getEjectionFraction();
         System.out.println(this.results.get(RES_GALLBLADDER.hashCode()));
 
-
-
-
+        ImagePlus imp = this.ims.getImagePlus();
+        this.getData().computeIfAbsent("Gallbladder", k -> new ArrayList<>());
+        List<Double> gb = this.getData().get("Gallbladder");
+        imp.setRoi(this.organRois.get("Gallbladder"));
+        for (int i = 1; i <= imp.getNSlices(); i++) {
+            imp.setSlice(i);
+            gb.add(Math.max(Library_Quantif.getCounts(imp), 1.0d));
+        }
 
         /*
 
@@ -198,20 +193,6 @@ public class ModelGallbladder extends ModelScinDyn {
 
     public String toString(){
         return this.modelResults.toString();
-    }
-    
-    /**
-	 * In order to get the Scinti out of all programms.
-	 */
-	public void setImpProjeteeAllAcqui(ImageSelection impProjeteeAllAcqui) {
-		this.impProjeteeAllAcqui = impProjeteeAllAcqui;
-	}
-
-	/**
-	 * In order to get the Scinti out of all programms.
-	 */
-	public ImageSelection getImgPrjtAllAcqui() {
-		return this.impProjeteeAllAcqui;
     }
 
     public Map<Integer, Double> getResults() {

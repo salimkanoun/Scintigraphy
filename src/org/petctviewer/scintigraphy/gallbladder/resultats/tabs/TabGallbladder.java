@@ -221,9 +221,7 @@ public class TabGallbladder extends TabResult{
         //ajout du graphique image au gallblader
         List<XYSeries> series = ((ModelScinDyn) this.getParent().getModel()).getSeries();
 
-        ChartPanel chart = Library_JFreeChart.associateSeries(new String[] {"Gallbladder" }, series);
-        XYSeriesCollection dataset = (XYSeriesCollection) chart.getChart().getXYPlot().getDataset();
-        dataset.getSeries("Gallbladder").setKey("Gallbladder");
+        ChartPanel chart = Library_JFreeChart.associateSeries(new String[] {"Gallbladder"}, series);
 
         chart.getChart().getXYPlot().getRenderer().setSeriesPaint(0, Color.GREEN);
         grid.add(chart);
