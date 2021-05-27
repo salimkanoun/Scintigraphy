@@ -35,7 +35,6 @@ public class GallbladderScintigraphy extends Scintigraphy{
      */
 
     public static final String STUDY_NAME = "GallBladder Ejection Fraction";
-    private ImageSelection ims;
 
     private int[] frameDurations;
 
@@ -69,7 +68,7 @@ public class GallbladderScintigraphy extends Scintigraphy{
         this.setFenApplication(new FenApplicationGallbladder(preparedImages.get(0), this.getStudyName(), this));
         this.getFenApplication().setController(
                 new ControllerWorkflowGallbladder((FenApplicationWorkflow) this.getFenApplication(),
-                        new ModelGallbladder(preparedImages.toArray(new ImageSelection[0]), STUDY_NAME, this.frameDurations,this.ims)));
+                        new ModelGallbladder(preparedImages.toArray(new ImageSelection[0]), STUDY_NAME, this.frameDurations)));
         this.createDocumentation();
     }
 
@@ -92,8 +91,8 @@ public class GallbladderScintigraphy extends Scintigraphy{
 	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages)
 			throws WrongInputException, ReadTagException {
         // Check number
-        if(selectedImages.size() == 0)
-                throw new WrongNumberImagesException(selectedImages.size(), 1, Integer.MAX_VALUE);
+        if(selectedImages.size() != 1)
+                throw new WrongNumberImagesException(selectedImages.size(), 1);
         // en entrée : tableau de toutes les images passées envoyé par le selecteur de dicom
         
         //sauvegarde des images pour le modèle
@@ -117,75 +116,25 @@ public class GallbladderScintigraphy extends Scintigraphy{
 
         // Set images
         ImageSelection imps = selectedImages.get(0).clone();
-        Library_Dicom.normalizeToCountPerSecond(imps);
-        imps = Library_Dicom.geomMean(imps);
-        this.frameDurations = Library_Dicom.buildFrameDurations(imps.getImagePlus());
-        Library_Dicom.normalizeToCountPerSecond(imps);
-        selection.add(imps);
-
-
-
 
         //pour chaque acquisition
-        for(ImageSelection selectedImage : selectedImages){
-            if(selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT_POST
-            || selectedImage.getImageOrientation() == Orientation.DYNAMIC_POST_ANT){
-                //on ne sauvegarde que la ant
-                //null = pas d'image ant et/ou une image post et != une image post en [0]
-                ImageSelection[] splited = Library_Dicom.splitDynamicAntPost(selectedImage);
-                if(splited[0] != null){
-                    imagePourTrieAnt.add(splited[0]);
-                }
-                //on ne gère pas le post donc pas de splited[1]
-            }else if (selectedImage.getImageOrientation() == Orientation.DYNAMIC_ANT)
-                imagePourTrieAnt.add(selectedImage.clone());
-            else
-                throw new WrongColumnException.OrientationColumn(selectedImage.getRow(),
-                selectedImage.getImageOrientation(), new Orientation[] {Orientation.DYNAMIC_ANT,
-                Orientation.DYNAMIC_ANT_POST, Orientation.DYNAMIC_POST_ANT});
-            selectedImage.getImagePlus().close();
-        }
-
-        /*
-        // on appelle la fonction de tri
-		ChronologicalAcquisitionComparator chronologicalOrder = new ChronologicalAcquisitionComparator();
-		// on met les imageplus (ANT) dans cette fonction pour les trier, ensuite on
-		// stocke le tout dans le tableau en [0]
-		imagePourTrieAnt.sort(chronologicalOrder);
-        sauvegardeImagesSelectDicom[0] = imagePourTrieAnt.toArray(new ImageSelection[0]);
-
-        int nbAcquisition = sauvegardeImagesSelectDicom[0].length;
-
-        //on prépare l'imagePlus de la 2ème phase
-        //imagePlus du projet de chaque acquisition avec sur chaque slice une acquisition
-        impProjeteAllAcqui = null;
-        if(imagePourTrieAnt.size() > 0){
-            ImageSelection[] imagesAnt = new ImageSelection[imagePourTrieAnt.size()];
-            for(int i = 0; i < imagePourTrieAnt.size(); i++){
-                imagesAnt[i] = Library_Dicom.project(imagePourTrieAnt.get(i), 0,
-                imagePourTrieAnt.get(i).getImagePlus().getStackSize(), "max");
+        if(imps.getImageOrientation() == Orientation.DYNAMIC_ANT_POST
+        || imps.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
+            //on ne sauvegarde que la ant
+            //null = pas d'image ant et/ou une image post et != une image post en [0]
+            ImageSelection[] splited = Library_Dicom.splitDynamicAntPost(imps);
+            if(splited[0] != null){
+                imps = splited[0];
             }
-            // renvoi un stack trié des projection des images
-			// orderby ... renvoi un tableau d'imp trie par ordre chrono, avec en paramètre
-			// la liste des imp Ant
-			// captureTo.. renvoi un stack avec sur chaque slice une imp du tableau passé en
-            // param ( un image trié, projeté et ant)
-            Arrays.parallelSort(imagesAnt, chronologicalOrder);
-            ImagePlus[] impsAnt = new ImagePlus[imagesAnt.length];
-            for(int i = 0; i < imagesAnt.length; i++){
-                impsAnt[i] = imagesAnt[i].getImagePlus();
-            }
-            impProjeteAllAcqui = new ImagePlus("GallbladderStack", Library_Capture_CSV.captureToStack(impsAnt));
-            impProjeteAllAcqui.setProperty("Info", sauvegardeImagesSelectDicom[0].getImagePlus().getInfoProperty());
-        }
+            //on ne gère pas le post donc pas de splited[1]
+        } else
+            throw new WrongColumnException.OrientationColumn(imps.getRow(),
+            imps.getImageOrientation(), new Orientation[] {Orientation.DYNAMIC_ANT,
+            Orientation.DYNAMIC_ANT_POST, Orientation.DYNAMIC_POST_ANT});
 
-        //phase 1
-        //on retourne la stack de la 1ere acquisition
-        selection.add(sauvegardeImagesSelectDicom[0]);
-
-        //Build frame duration
-        this.frameDurations = Library_Dicom.buildFrameDurations(this.impProjeteAllAcqui);
-         */
+        Library_Dicom.normalizeToCountPerSecond(imps);
+        this.frameDurations = Library_Dicom.buildFrameDurations(imps.getImagePlus());
+        selection.add(imps);
 
         // Close images
         selectedImages.forEach(ImageSelection::close);

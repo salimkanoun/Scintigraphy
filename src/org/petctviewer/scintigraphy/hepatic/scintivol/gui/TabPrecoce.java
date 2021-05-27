@@ -166,7 +166,7 @@ class TabPrecoce extends TabResult {
 
     private Component getPanelClairance(){
         Model_Scintivol model = (Model_Scintivol) this.parent.getModel();
-        Map<String, Double> results = model.getResults().get("Other");
+        Map<String, Double> results = model.getResults().get("Intermediate values");
 
         // panel de timing
         double clairanceFTNonNorm = Library_Quantif.round(results.get("Clairance FT"), 2);
