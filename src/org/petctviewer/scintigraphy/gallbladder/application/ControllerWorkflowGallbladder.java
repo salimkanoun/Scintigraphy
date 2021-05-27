@@ -11,9 +11,11 @@ import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
+import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
 
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 public class ControllerWorkflowGallbladder extends ControllerWorkflow{
@@ -31,11 +33,15 @@ public class ControllerWorkflowGallbladder extends ControllerWorkflow{
     public void end(){
         super.end();
         ModelGallbladder modele = (ModelGallbladder) this.model;
+        modele.setLocked(true);
+        // capture de l'imageplus ainsi que de l'overlay
+        BufferedImage capture = Library_Capture_CSV.captureImage(this.model.getImagePlus(), 512, 0).getBufferedImage();
 
         modele.calculateResults();
-        modele.setLocked(true);
 
-        FenResults fen = new FenResultats_Gallbladder(this.captures, this);
+
+
+        FenResults fen = new FenResultats_Gallbladder(capture, this);
         fen.setVisible(true);
     }
 

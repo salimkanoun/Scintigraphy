@@ -11,6 +11,7 @@ import org.petctviewer.scintigraphy.gallbladder.resultats.Model_Resultats_Gallbl
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
+import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import org.petctviewer.scintigraphy.scin.model.Data;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 import org.petctviewer.scintigraphy.scin.model.Result;
@@ -33,10 +34,11 @@ public class ModelGallbladder extends ModelScinDyn {
     private final ImageSelection[] sauvegardeImagesSelectDicom;
     // list : liste des examens
 	// list->map->list : list des mean(double) pour tous le stack
-    private ArrayList<HashMap<String, ArrayList<Double>>> examenMean;
+  //  private ArrayList<HashMap<String, ArrayList<Double>>> examenMean;
     
     //pour le condensé dynamique
     ArrayList<Object[]> dicomRoi;
+    private final Map<String, Roi> organRois;
 
 
     private Model_Resultats_Gallbladder modelResults;
@@ -50,8 +52,9 @@ public class ModelGallbladder extends ModelScinDyn {
                             int[] frameDuration, ImageSelection impProjeteeAllAcqui) {
         super(sauvegardeImagesSelectDicom, studyName, frameDuration);
         this.sauvegardeImagesSelectDicom = sauvegardeImagesSelectDicom;
+        this.organRois = new HashMap<>();
 
-        examenMean = new ArrayList<>();
+     //   examenMean = new ArrayList<>();
         this.impProjeteeAllAcqui = impProjeteeAllAcqui;
 
         this.datas = new LinkedList<>();
@@ -63,12 +66,33 @@ public class ModelGallbladder extends ModelScinDyn {
         this.roiManager = roiManager;
     }
 
+    private double getEjectionFraction(){
+        //correct organs with the background
+       //datas.get(IMAGE_GALLBLADER).setAntValue(REGION_GALLBLADDER, Data.DATA_COUNTS_CORRECTED, correctValueWithBkgNoise(REGION_GALLBLADDER,false));
+        ImagePlus imp = this.getImageSelection()[0].getImagePlus();
+        imp.setRoi(Library_Roi.getRoiByName(this.getRoiManager(),"Gallbladder"));
+        imp.setRoi(Library_Roi.getRoiByName(this.getRoiManager(),"Liver"));
+
+
+        Roi vesicule = this.organRois.put("Gallbladder",imp.getRoi());
+        Roi liverBckg = this.organRois.put("Liver", imp.getRoi());
+
+
+        double maxValue = Library_Quantif.getMaxCountsCorrectedBackground(imp,vesicule,liverBckg);
+        double minValue = Library_Quantif.getMinCountsCorrectedBackground(imp,vesicule,liverBckg);
+        double result = (maxValue - minValue) / maxValue;
+
+        double finalResult = result * 100;
+        this.results.put(RES_GALLBLADDER.hashCode(), finalResult);
+       // this.results.get("Gallbladder").put("EjectionFraction", finalResult);
+
+        return  finalResult;
+    }
+
     @Override
     public void calculateResults() {
-        if(sauvegardeImagesSelectDicom.length != this.roiManager.getCount()){
-            System.err.println("nombre d'imagePlus différent du nombre de Roi");
-        }
 
+    /**
         examenMean = new ArrayList<>();
         for(int i = 0; i < sauvegardeImagesSelectDicom.length; i++){
             HashMap<String, ArrayList<Double>> map4rois = new HashMap<>();
@@ -106,29 +130,24 @@ public class ModelGallbladder extends ModelScinDyn {
 
             map4rois.put("entier", roiEntier);
 
-            examenMean.add(map4rois);
+            examenMean.add(map4rois); **/
 
             //Calcul final
 
-            this.datas.get(IMAGE_GALLBLADER).setAntValue(REGION_GALLBLADDER, Data.DATA_COUNTS_CORRECTED,
-            this.correctValueWithBkgNoise(REGION_GALLBLADDER, false));
+          //  this.datas.get(IMAGE_GALLBLADER).setAntValue(REGION_GALLBLADDER, Data.DATA_COUNTS_CORRECTED,
+            //this.correctValueWithBkgNoise(REGION_GALLBLADDER, false));
 
             //double uneRoi = this.datas.get(IMAGE_GALLBLADER).getAntValue(REGION_GALLBLADDER, Data.DATA_COUNTS_CORRECTED);
-            ImagePlus imp = this.impProjeteeAllAcqui.getImagePlus();
-            double maxValue = Library_Quantif.getMaxCounts(imp);
-            double minValue = Library_Quantif.getMinCounts(imp);
-            double result = (maxValue - minValue) / maxValue;
+        this.getEjectionFraction();
 
-            double finalResult = result * 100;
-            this.results.put(RES_GALLBLADDER.hashCode(), finalResult);
 
-        }
+        /**
 
         dicomRoi = new ArrayList<>();
         for(int i =0; i < sauvegardeImagesSelectDicom.length; i++){
             Object[] content = {sauvegardeImagesSelectDicom[i].getImagePlus(), this.roiManager.getRoi(i).getBounds()};
             dicomRoi.add(content);
-        }
+        }**/
     }    
             
     /**
@@ -149,9 +168,9 @@ public class ModelGallbladder extends ModelScinDyn {
                 return counts - meanBkg * pixels;
     }
 
-    public ArrayList<HashMap<String, ArrayList<Double>>> getExamenMean(){
+    /**public ArrayList<HashMap<String, ArrayList<Double>>> getExamenMean(){
         return this.examenMean;
-    }
+    }**/
 
     public ArrayList<Object[]> getDicomRoi(){
         return this.dicomRoi;
@@ -177,6 +196,10 @@ public class ModelGallbladder extends ModelScinDyn {
 	 */
 	public ImageSelection getImgPrjtAllAcqui() {
 		return this.impProjeteeAllAcqui;
+    }
+
+    public Map<Integer, Double> getResults() {
+        return results;
     }
     
     /** 
