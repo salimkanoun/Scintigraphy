@@ -81,7 +81,7 @@ public class ModelGallbladder extends ModelScinDyn {
 
 
         double maxValue = Library_Quantif.getMaxCountsCorrectedBackground(imp,vesicule,liverBckg);
-        double minValue = Library_Quantif.getMinCountsCorrectedBackground(imp,vesicule,liverBckg);
+        double minValue = Library_Quantif.getMinCountsCorrectedBackground(imp,vesicule,liverBckg, 120,  imp.getNSlices());
         double result = (maxValue - minValue) / maxValue;
 
         double finalResult = result * 100;

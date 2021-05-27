@@ -16,6 +16,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.petctviewer.scintigraphy.gallbladder.application.ModelGallbladder;
 import org.petctviewer.scintigraphy.gallbladder.resultats.Model_Resultats_Gallbladder;
+import org.petctviewer.scintigraphy.hepatic.scintivol.Model_Scintivol;
 import org.petctviewer.scintigraphy.renal.JValueSetter;
 import org.petctviewer.scintigraphy.renal.Selector;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
@@ -23,10 +24,13 @@ import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.SidePanel;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
 import org.petctviewer.scintigraphy.scin.library.Library_JFreeChart;
+import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 import org.petctviewer.scintigraphy.scin.model.ResultRequest;
 import org.petctviewer.scintigraphy.scin.model.ResultValue;
 import org.petctviewer.scintigraphy.scin.model.Unit;
+
+import static org.petctviewer.scintigraphy.gallbladder.application.ModelGallbladder.RES_GALLBLADDER;
 
 public class TabGallbladder extends TabResult{
     
@@ -85,17 +89,22 @@ public class TabGallbladder extends TabResult{
     public Component getSidePanelContent(){
         this.getResultContent();
 
-        JPanel res = new JPanel(new GridLayout(0,1));
+        JPanel flow_wrap = new JPanel();
+        Box panRes = Box.createVerticalBox();
 
         //Ejection fraction
 
-        ResultRequest request = new ResultRequest(ModelGallbladder.RES_GALLBLADDER);
+        ResultRequest request = new ResultRequest(RES_GALLBLADDER);
 
-        request.changeResultOn(ModelGallbladder.RES_GALLBLADDER);
+        request.changeResultOn(RES_GALLBLADDER);
         request.setUnit(Unit.PERCENTAGE);
       // this.displayResult(this.getModel().getResult(request), res);
+        panRes.add(Box.createVerticalStrut(10));
+        panRes.add(this.getEjectionFraction());
 
-        return res;
+        flow_wrap.add(panRes);
+
+        return flow_wrap;
 
        /* if(nbAcquisition == null)
             return null;
@@ -162,6 +171,27 @@ public class TabGallbladder extends TabResult{
 	//private ModelGallbladder getModel() {
 	//	return (ModelGallbladder) this.parent.getModel();
   //  }
+
+    private Component getEjectionFraction(){
+        ModelGallbladder model = (ModelGallbladder) this.parent.getModel();
+        double results = model.getResults().get(RES_GALLBLADDER.hashCode());
+
+        double ejection = Library_Quantif.round(results,2);
+        JPanel pnl_ejfr = new JPanel(new GridLayout(1, 2, 0, 3));
+        pnl_ejfr.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+
+
+        pnl_ejfr.add(new JLabel(" Ejection Fraction :  "));
+
+        JLabel val_ejection = new JLabel(String.valueOf(ejection) + " %");
+        pnl_ejfr.add(val_ejection);
+
+
+
+        return pnl_ejfr;
+
+
+    }
 
 
    // @Override
