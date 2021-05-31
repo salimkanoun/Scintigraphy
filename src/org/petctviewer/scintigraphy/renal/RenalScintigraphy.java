@@ -47,7 +47,7 @@ public class RenalScintigraphy extends Scintigraphy {
 
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
-		this.initOverlayOnPreparedImages(preparedImages);
+		this.initOverlayOnPreparedImages(preparedImages, 7);
 		this.setFenApplication(new FenApplication_Renal(preparedImages.get(0), this.getStudyName(), this));
 		this.getFenApplication().setController(
 				new ControllerWorkflowRenal((FenApplicationWorkflow) this.getFenApplication(),
@@ -179,6 +179,7 @@ public class RenalScintigraphy extends Scintigraphy {
 
 		// ajout du stack a l'imp
 		impProjetee.getImagePlus().setStack(stack);
+		Orientation o = impProjetee.getImageOrientation();
 
 		List<ImageSelection> selection = new ArrayList<>();
 		selection.add(impProjetee);

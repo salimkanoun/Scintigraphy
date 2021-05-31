@@ -682,7 +682,7 @@ public abstract class ControllerWorkflow extends ControllerScin implements Adjus
 		if (i != null) {
 			this.currentState = new ImageState(
 					this.workflows[0].getImageAssociated().getImageOrientation().getFacingOrientation(), 1,
-					ImageState.LAT_RL, ImageState.ID_NONE);
+					i.getImageState().getLateralisation(), ImageState.ID_NONE);
 			this.setOverlay(this.currentState);
 
 			this.displayInstruction(i.getMessage());
