@@ -20,6 +20,8 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
 
+import static org.petctviewer.scintigraphy.salivaryGlands.ModelSalivaryGlands.*;
+
 class TabMain extends TabResult {
 
     private final BufferedImage capture;
@@ -62,13 +64,13 @@ class TabMain extends TabResult {
         p.setLayout(new BorderLayout());
 
         String[] title = { "Name", "Uptake Ratio", "Excretion Fraction"};
-        Map<String, Map<String, Double>> results = model.getResults();
+        Map<String, Map<Integer, Double>> results = model.getResults();
         Object[][] data = new Object[4][3];
         for (int i = 0; i < data.length; i++) {
             String gland = model.getGlands().get(i);
             data[i][0] = gland;
-            data[i][1] = results.get(gland).get("Uptake Ratio");
-            data[i][2] = results.get(gland).get("Excretion Fraction") + " %";
+            data[i][1] = results.get(gland).get(RES_UPTAKE_RATIO.hashCode());
+            data[i][2] = results.get(gland).get(RES_EXCRETION_FRACTION.hashCode()) + " %";
         }
 
         table = new JTable(data, title);
@@ -87,16 +89,16 @@ class TabMain extends TabResult {
         p.setLayout(new BorderLayout());
 
         String[] title = { "Name", "FM/Max", "Max/min", "Max/Lemon", "15min/Lemon"};
-        Map<String, Map<String, Double>> results = model.getResults();
+        Map<String, Map<Integer, Double>> results = model.getResults();
         Object[][] data = new Object[4][5];
         for (int i = 0; i < data.length; i++) {
             String gland = model.getGlands().get(i);
-            Map<String, Double> res = results.get(gland);
+            Map<Integer, Double> res = results.get(gland);
             data[i][0] = gland;
-            data[i][1] = Library_Quantif.round(100 * res.get("First Minute") / res.get("Maximum"), 2) + " %";
-            data[i][2] = Library_Quantif.round(100 * res.get("Maximum") / res.get("Minimum"), 2) + " %";
-            data[i][3] = Library_Quantif.round(100 * res.get("Maximum") / res.get("Lemon"), 2) + " %";
-            data[i][4] = Library_Quantif.round(100 * res.get("15 Minutes") / res.get("Lemon"), 2) + " %";
+            data[i][1] = Library_Quantif.round(100 * res.get(RES_FIRST_MIN.hashCode()) / res.get(RES_MAX.hashCode()), 2) + " %";
+            data[i][2] = Library_Quantif.round(100 * res.get(RES_MAX.hashCode()) / res.get(RES_MIN.hashCode()), 2) + " %";
+            data[i][3] = Library_Quantif.round(100 * res.get(RES_MAX.hashCode()) / res.get(RES_LEMON.hashCode()), 2) + " %";
+            data[i][4] = Library_Quantif.round(100 * res.get(RES_15_MIN.hashCode()) / res.get(RES_LEMON.hashCode()), 2) + " %";
         }
 
         table = new JTable(data, title);
@@ -139,10 +141,10 @@ class TabMain extends TabResult {
 
         // ajout du graphique
         List<XYSeries> series = ((ModelScinDyn) this.getParent().getModel()).getSeries();
-        String[][] asso = new String[][]{{"L. Parotid", "R. Parotid", "L. SubMandib", "R. SubMandib"}};
-        ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
-        this.chartMain = cp[0].getChart();
-        JValueSetter citrusChart = prepareValueSetter(cp[0]);
+        String[] asso = new String[]{REGION_LEFT_PAROTID, REGION_RIGHT_PAROTID, REGION_LEFT_SUBMANDIB, REGION_RIGHT_SUBMANDIB};
+        ChartPanel cp = Library_JFreeChart.associateSeries(asso, series);
+        this.chartMain = cp.getChart();
+        JValueSetter citrusChart = prepareValueSetter(cp);
         grid.add(citrusChart);
         citrusChart.removeChartMouseListener(citrusChart);
 
@@ -160,10 +162,10 @@ class TabMain extends TabResult {
 
         // renomme les series du chart pour que l'interface soit plus comprehensible
         XYSeriesCollection dataset = (XYSeriesCollection) chart.getChart().getXYPlot().getDataset();
-        dataset.getSeries("L. Parotid").setKey("Left Parotid");
-        dataset.getSeries("R. Parotid").setKey("Right Parotid");
-        dataset.getSeries("L. SubMandib").setKey("Left SubMandible");
-        dataset.getSeries("R. SubMandib").setKey("Right SubMandible");
+        dataset.getSeries(REGION_LEFT_PAROTID).setKey("Left Parotid");
+        dataset.getSeries(REGION_RIGHT_PAROTID).setKey("Right Parotid");
+        dataset.getSeries(REGION_LEFT_SUBMANDIB).setKey("Left SubMandible");
+        dataset.getSeries(REGION_RIGHT_SUBMANDIB).setKey("Right SubMandible");
 
         return jvs;
     }
