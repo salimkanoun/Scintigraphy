@@ -57,7 +57,7 @@ public class TabTomo extends TabResult implements ActionListener {
         JPanel inputFFR = new JPanel(new GridLayout(1, 2));
         inputFFR.add(new JLabel(" "));
 
-        inputFFR.add(new JLabel("Future remaining liver counts (FRL)  "));
+        inputFFR.add(new JLabel("Future remnant liver's counts (FRL)  "));
         inputFFR.add(new JLabel(" "));
 
         this.ffrTextField = new JTextField();

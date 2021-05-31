@@ -75,24 +75,24 @@ class TabPrecoce extends TabResult {
         pnl_heart.add(new JLabel("  "));
 
 
-        JLabel t1 = new JLabel(" T1");
+        JLabel t1 = new JLabel(" t1");
         pnl_heart.add(t1);
 
-        JLabel val_t1 = new JLabel(String.valueOf(heart_t1));
+        JLabel val_t1 = new JLabel(heart_t1 +" counts/min");
         val_t1.setHorizontalAlignment(SwingConstants.CENTER);
         pnl_heart.add(val_t1);
 
-        JLabel t2 = new JLabel(" T2");
+        JLabel t2 = new JLabel(" t2");
         pnl_heart.add(t2);
 
-        JLabel val_t2 = new JLabel(String.valueOf(heart_t2));
+        JLabel val_t2 = new JLabel(heart_t2 +" counts/min");
         val_t2.setHorizontalAlignment(SwingConstants.CENTER);
         pnl_heart.add(val_t2);
 
         JLabel auc = new JLabel(" AUC");
         pnl_heart.add(auc);
 
-        JLabel val_auc = new JLabel(String.valueOf(heart_AUC));
+        JLabel val_auc = new JLabel(heart_AUC +" counts");
         val_auc.setHorizontalAlignment(SwingConstants.CENTER);
         pnl_heart.add(val_auc);
 
@@ -116,17 +116,17 @@ class TabPrecoce extends TabResult {
         pnl_liver.add(new JLabel("  "));
 
 
-        JLabel t1 = new JLabel(" T1");
+        JLabel t1 = new JLabel(" t1");
         pnl_liver.add(t1);
 
-        JLabel val_t1 = new JLabel(String.valueOf(liver_t1));
+        JLabel val_t1 = new JLabel(liver_t1 +" counts/min");
         val_t1.setHorizontalAlignment(SwingConstants.CENTER);
         pnl_liver.add(val_t1);
 
-        JLabel t2 = new JLabel(" T2");
+        JLabel t2 = new JLabel(" t2");
         pnl_liver.add(t2);
 
-        JLabel val_t2 = new JLabel(String.valueOf(liver_t2));
+        JLabel val_t2 = new JLabel(liver_t2 +" counts/min");
         val_t2.setHorizontalAlignment(SwingConstants.CENTER);
         pnl_liver.add(val_t2);
 
@@ -147,11 +147,11 @@ class TabPrecoce extends TabResult {
         JPanel pnl_patient = new JPanel(new GridLayout(2, 2, 0, 3));
         pnl_patient.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
         pnl_patient.add(new JLabel(" Size "));
-        JLabel val_size = new JLabel(String.valueOf(taille)+ "cm");
+        JLabel val_size = new JLabel(String.valueOf(taille)+ " cm");
         pnl_patient.add(val_size );
 
         pnl_patient.add(new JLabel(" Weight "));
-        JLabel val_weight = new JLabel(String.valueOf(poids)+ "Kg");
+        JLabel val_weight = new JLabel(poids + " kg");
         pnl_patient.add(val_weight);
 
 
@@ -175,18 +175,18 @@ class TabPrecoce extends TabResult {
 
         JPanel pnl_clairance = new JPanel(new GridLayout(3, 3, 0, 3));
         pnl_clairance.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-        pnl_clairance.add(new JLabel(" Clairance "));
+        pnl_clairance.add(new JLabel(" Clearance "));
         pnl_clairance.add(new JLabel("  "));
 
 
-        JLabel nNorm = new JLabel(" FT non normalisée");
+        JLabel nNorm = new JLabel(" Total Liver");
         pnl_clairance.add(nNorm);
 
         JLabel val_nNorm = new JLabel(clairanceFTNonNorm + " %/min");
         val_nNorm.setHorizontalAlignment(SwingConstants.CENTER);
         pnl_clairance.add(val_nNorm );
 
-        JLabel norm = new JLabel(" FT normalisée");
+        JLabel norm = new JLabel(" Total Liver Normalized");
         pnl_clairance.add(norm);
 
         JLabel val_norm = new JLabel(clairanceFTNorm+ " %/min.m²");
@@ -211,12 +211,12 @@ class TabPrecoce extends TabResult {
         grid.add(panel_top);
 
         //ajout du graphique image precoce
-        String [][] asso = new String [][]{{"Liver", "Heart"}};
+        String [] asso = new String []{"Liver", "Heart"};
         List<XYSeries> series = ((ModelScinDyn) this.getParent().getModel()).getSeries();
 
-        ChartPanel[] cp = Library_JFreeChart.associateSeries(asso, series);
-        JValueSetter timeChart = prepareValueSetter(cp[0]);
-      //  cp[0].getChart().setTitle("Heart and Liver");
+        ChartPanel cp = Library_JFreeChart.associateSeries(asso, series);
+        JValueSetter timeChart = prepareValueSetter(cp);
+      //  cp.getChart().setTitle("Heart and Liver");
         grid.add(timeChart);
         timeChart.removeChartMouseListener(timeChart);
         return grid;
