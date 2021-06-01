@@ -116,7 +116,6 @@ public class ContaminationAskInstruction extends ExecutionInstruction implements
 			this.setInstructionValidated();
 			this.workflow.addInstructionOnTheFly(this.getInstructionToGenerate());
 			((FenApplication_Cardiac) controller.getVue()).startContaminationMode();
-			controller.getRoiList().add(this.position, this.nameInstructionDrawLoop);
 			this.workflow.getController().clickNext();
 		} else {
 			controller.clicEndCont();

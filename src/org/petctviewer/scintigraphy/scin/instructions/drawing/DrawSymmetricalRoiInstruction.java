@@ -51,8 +51,7 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 
 	/**
 	 * This Instruction draw a roi symmetrically from the width/2 or width/4 of the image.<br/> It take exemple from
-	 * the
-	 * ROI of the given Instruction.<br/> This Instruction was designed for the {@link CardiacScintigraphy}.
+	 * the ROI of the given Instruction.<br/> This Instruction was designed for the {@link CardiacScintigraphy}.
 	 *
 	 * @param organToDelimit    Name of organ. This will automatically add A for ANT and P for POST when the ROI is
 	 *                          validated
@@ -63,7 +62,7 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 	 * @param organ             If you want to draw symmetrically from width/2(DEMIE) or width/4(QUART)
 	 */
 	public DrawSymmetricalRoiInstruction(String organToDelimit, ImageState state, Instruction instructionToCopy, String roiName, Workflow workflow, Organ organ) {
-		this(organToDelimit, state, instructionToCopy, roiName, workflow, organ, true);
+		this(organToDelimit, state, instructionToCopy, roiName, workflow, organ, false);
 	}
 
 	@Override
@@ -77,7 +76,7 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 
 		Roi thisRoi = this.workflow.getController().getVue().getImagePlus().getRoi();
 
-		if (name == null) return this.organToDelimit;
+		if (name == null) name = this.organToDelimit;
 		if (name.equals("")) return "";
 		if (thisRoi == null) return this.organToDelimit;
 		boolean OrganPost = thisRoi.getXBase() > this.workflow.getController().getVue().getImagePlus().getWidth() / 2.;
@@ -105,9 +104,9 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 			double newX = roi.getXBase();
 			if (this.organ == Organ.QUART) {
 				//flip the roi on the vertical axis
-				roi = RoiScaler.scale(roi, -1, 1, true);
 				double quart = controller.getVue().getImagePlus().getWidth() / 4.;
 				newX = roi.getXBase() - Math.abs(2 * (roi.getXBase() - quart) % quart) - roi.getFloatWidth();
+				roi = RoiScaler.scale(roi, -1, 1, true);
 			} else if (this.organ == Organ.DEMIE) {
 				//get the width of the current ImagePlus
 				double imageWidth = controller.getVue().getImagePlus().getWidth();
@@ -121,8 +120,8 @@ public class DrawSymmetricalRoiInstruction extends DrawRoiInstruction {
 						newX = roi.getXBase() + (imageWidth / 2.);
 					}
 				} else {
-					roi = RoiScaler.scale(roi, -1, 1, true);
 					newX = imageWidth - (roi.getFloatWidth() + roi.getXBase());
+					roi = RoiScaler.scale(roi, -1, 1, true);
 				}
 			}
 

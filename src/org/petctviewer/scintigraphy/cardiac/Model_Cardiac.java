@@ -75,11 +75,9 @@ public class Model_Cardiac extends ModelScin {
 	public void getResults() {
 		// controler=(Controller_Cardiac) scin.getFenApplication().getController();
 		ControllerWorkflowCardiac controler = (ControllerWorkflowCardiac) scin.getFenApplication().getController();
-		List<String> roiList = controler.getRoiList();
 
-		for (int i = 0; i < this.getRoiManager().getCount(); i++) {
+		for (Roi roi: this.getRoiManager().getRoisAsArray()) {
 			ImagePlus selectedImage = this.selectedImages[controler.getImageNumberByRoiIndex()].getImagePlus();
-			Roi roi = this.getRoiManager().getRoi(i);
 			selectedImage.setRoi((Roi) roi.clone());
 
 			// Array of Double, in 0 raw count, in 1 average count, in 2 number of pixels
@@ -88,7 +86,7 @@ public class Model_Cardiac extends ModelScin {
 			counts[1] = Library_Quantif.getAvgCounts(selectedImage);
 			counts[2] = (double) Library_Quantif.getPixelNumber(selectedImage);
 
-			this.data.put(roiList.get(i), counts);
+			this.data.put(roi.getName(), counts);
 		}
 
 	}
