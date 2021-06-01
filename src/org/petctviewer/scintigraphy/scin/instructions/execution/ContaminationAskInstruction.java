@@ -12,6 +12,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.LinkedList;
 
 public class ContaminationAskInstruction extends ExecutionInstruction implements ActionListener {
 
@@ -19,22 +20,27 @@ public class ContaminationAskInstruction extends ExecutionInstruction implements
 
 	private transient Button btn_yes;
 
-	private transient Workflow workflow;
+	private final transient Workflow workflow;
 
-	private transient ImageState state;
+	private final transient ImageState state;
 
 	private String nameInstructionDrawLoop;
 
 	private boolean instructionFlying;
+	private boolean finishInstruction;
+
+	private int position;
 
 	public ContaminationAskInstruction(Workflow workflow, ImageState state,
-									   String nameInstructionDrawLoop) {
+									   String nameInstructionDrawLoop, int position) {
 
 		this.state = state;
 		this.nameInstructionDrawLoop = nameInstructionDrawLoop;
 
 		this.workflow = workflow;
 		this.instructionFlying = false;
+		this.finishInstruction = false;
+		this.position = position;
 	}
 
 	private void createPanel() {
@@ -63,7 +69,7 @@ public class ContaminationAskInstruction extends ExecutionInstruction implements
 	
 	@Override
 	public void afterNext(ControllerWorkflow controller) {
-		if(this.instructionFlying) {
+		if(this.instructionFlying || this.finishInstruction) {
 			this.workflow.getController().getVue().getPanel_Instructions_btns_droite().remove(1);
 			this.workflow.getController().getVue().getPanel_Instructions_btns_droite().add(this.workflow.getController().getVue().createPanelInstructionsBtns());
 			this.workflow.getController().getVue().pack();
@@ -93,6 +99,7 @@ public class ContaminationAskInstruction extends ExecutionInstruction implements
 	}
 	
 	public Instruction getInstructionToGenerate() {
+		System.out.println("");
 		return new DrawSymmetricalLoopInstruction(this.workflow, null, this.state, null,
 										   this.nameInstructionDrawLoop);
 	}
@@ -103,13 +110,19 @@ public class ContaminationAskInstruction extends ExecutionInstruction implements
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		if (arg0.getSource() == this.btn_yes) {
+		ControllerWorkflowCardiac controller = (ControllerWorkflowCardiac) this.workflow.getController();
+
+		if (this.btn_yes.equals(arg0.getSource())) {
 			this.setInstructionValidated();
 			this.workflow.addInstructionOnTheFly(this.getInstructionToGenerate());
-			((FenApplication_Cardiac)this.workflow.getController().getVue()).startContaminationMode();
+			((FenApplication_Cardiac) controller.getVue()).startContaminationMode();
+			controller.getRoiList().add(this.position, this.nameInstructionDrawLoop);
 			this.workflow.getController().clickNext();
-		} else
-			((ControllerWorkflowCardiac)this.workflow.getController()).clicEndCont();	
+		} else {
+			controller.clicEndCont();
+			this.finishInstruction = true;
+			this.afterNext(this.workflow.getController());
+		}
 	}
 	
 	@Override
