@@ -48,7 +48,6 @@ public class CardiacScintigraphy extends Scintigraphy {
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
 		initOverlayOnPreparedImages(preparedImages, 7);
-		Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.YELLOW);
 
 		String[] infoOfAllImages = new String[preparedImages.size()];
 		for (int indexImage = 0; indexImage < preparedImages.size(); indexImage++)

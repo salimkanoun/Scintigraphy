@@ -1,5 +1,6 @@
 package org.petctviewer.scintigraphy.cardiac;
 
+import ij.ImagePlus;
 import ij.gui.Overlay;
 import ij.gui.TextRoi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -22,6 +23,7 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 
 	public FenApplication_Cardiac(ImageSelection ims, String nom, boolean fullBodyImages, boolean onlyThoraxImage) {
 		super(ims, nom);
+		Library_Gui.initOverlay(ims.getImagePlus());
 	
 		this.btn_continue = new Button("End");
 		this.btn_newCont = new Button("Next");
@@ -76,29 +78,52 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 	public Button getBtn_continue() {
 		return this.btn_continue;
 	}
-	
+
 	public void setMultipleTitle(Color color, int slice) {
 		Overlay overlay = this.getImagePlus().getOverlay();
-		
+
 		int w = this.getImagePlus().getWidth();
-	
+
 		AffineTransform affinetransform = new AffineTransform();
 		FontRenderContext frc = new FontRenderContext(affinetransform, true, true);
-	
+
 		Rectangle2D bounds = overlay.getLabelFont().getStringBounds("Ant", frc);
 		//double textHeight = bounds.getHeight();
 		double textWidth = bounds.getWidth();
-		
+
 		TextRoi Ant = Library_Gui.createTextRoi("Ant", (w / 4.0) - (textWidth / 4), 0 , 1, Color.YELLOW, overlay.getLabelFont());
 		double xPosition = (3.0 * w / 4) - (3 * textWidth / 4);
 		TextRoi invertedPost = Library_Gui.createTextRoi("Post", xPosition, 0 , 1, Color.YELLOW, overlay.getLabelFont());
 		TextRoi AntSlice2 = Library_Gui.createTextRoi("Ant", (w / 4.0) - (textWidth / 4), 0 , 2, Color.YELLOW, overlay.getLabelFont());
 		TextRoi invertedPostSlice2 = Library_Gui.createTextRoi("Post", xPosition, 0 , 2, Color.YELLOW, overlay.getLabelFont());
-		
-		
+
+
 		overlay.add(Ant);
 		overlay.add(invertedPost);
 		overlay.add(AntSlice2);
 		overlay.add(invertedPostSlice2);
+	}
+
+	public void setMultipleLateralisation(Color color) {
+		ImagePlus imp = this.getImagePlus();
+		Overlay overlay = imp.getOverlay();
+
+		AffineTransform affinetransform = new AffineTransform();
+		FontRenderContext frc = new FontRenderContext(affinetransform, true, true);
+		Rectangle2D bounds = overlay.getLabelFont().getStringBounds("L  L", frc);
+		double textWidth = bounds.getWidth();
+
+		double x = (imp.getWidth()/2.) - (textWidth/2.);
+		double y = imp.getHeight()/2.;
+
+		TextRoi slice1 = Library_Gui.createTextRoi("L  L", x, y, 1, color, overlay.getLabelFont());
+		TextRoi slice2 = Library_Gui.createTextRoi("L  L", x, y, 2, color, overlay.getLabelFont());
+
+
+		overlay.add(slice1);
+		overlay.add(slice2);
+
+		Library_Gui.setOverlaySides(imp, color, "R", "R", 1);
+		Library_Gui.setOverlaySides(imp, color, "R", "R", 2);
 	}
 }

@@ -174,8 +174,6 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		((Model_Cardiac) this.model).getResults();
 		this.model.calculateResults();
 
-		this.captures.get(0).show();
-
 		FenResultat_Cardiac fen = new FenResultat_Cardiac(captures, this, this.fullBodyImages, this.onlyThoraxImage);
 		fen.setVisible(true);
 	}
@@ -184,7 +182,9 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	public void setOverlay(ImageState state) throws IllegalArgumentException {
 
 		if (this.indexCurrentWorkflow <= this.fullBodyImages) {
-			((FenApplication_Cardiac) this.getVue()).setMultipleTitle(Color.yellow, state.getSlice());
+			FenApplication_Cardiac fen = (FenApplication_Cardiac) this.getVue();
+			fen.setMultipleTitle(Color.YELLOW, state.getSlice());
+			fen.setMultipleLateralisation(Color.YELLOW);
 		} else {
 			Library_Gui.setOverlayDG(this.vue.getImagePlus(), Color.YELLOW);
 			Library_Gui.setOverlayTitle("Ant", this.vue.getImagePlus(), Color.YELLOW, 1);
