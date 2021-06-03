@@ -917,14 +917,12 @@ public class Model_Gastric extends ModelWorkflow {
 			}
 
 			if (bkgNoise != null) {
-				System.out.println(region.getName());
-				System.out.println(data.getAntValue(region.getName(), Data.DATA_COUNTS));
-				System.out.println(data.getAntValue(region.getName(), Data.DATA_COUNTS) -
-				 (bkgNoise * data.getAntValue(region.getName(), Data.DATA_PIXEL_COUNTS)));
 				
+				double correctedCount = data.getAntValue(region.getName(), Data.DATA_COUNTS) -
+				 (bkgNoise * data.getAntValue(region.getName(), Data.DATA_PIXEL_COUNTS));
+				correctedCount = Math.max(correctedCount, Double.MIN_VALUE);
 				data.setAntValue(region.getName(), Data.DATA_COUNTS,
-								 data.getAntValue(region.getName(), Data.DATA_COUNTS) -
-										 (bkgNoise * data.getAntValue(region.getName(), Data.DATA_PIXEL_COUNTS)));
+								 correctedCount);
 				if (bkgNoise == 0.) System.err.println("Warning: The background noise " + region + " is 0.");
 			}
 		}
@@ -1161,10 +1159,11 @@ public class Model_Gastric extends ModelWorkflow {
 			try {
 				if (result == RES_TIME) return new ResultValue(request, BigDecimal.valueOf(data.getMinutes()).setScale(
 						2, RoundingMode.HALF_UP).doubleValue(), Unit.TIME);
-				if (result == RES_STOMACH) return new ResultValue(request, BigDecimal.valueOf(
-						data.getAntValue(REGION_STOMACH, Data.DATA_PERCENTAGE)).setScale(2,
-																						 RoundingMode.HALF_UP).doubleValue(),
-																  Unit.PERCENTAGE);
+				if (result == RES_STOMACH) {
+					System.out.println(data.getAntValue(REGION_STOMACH, Data.DATA_PERCENTAGE));
+					BigDecimal bigCount = BigDecimal.valueOf( data.getAntValue(REGION_STOMACH, Data.DATA_PERCENTAGE) );
+					return new ResultValue(request, bigCount.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+				}
 				if (result == RES_FUNDUS) return new ResultValue(request, BigDecimal.valueOf(
 						data.getAntValue(REGION_FUNDUS, Data.DATA_PERCENTAGE)).setScale(2,
 																						RoundingMode.HALF_UP).doubleValue(),
