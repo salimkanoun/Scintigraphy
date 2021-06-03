@@ -111,8 +111,6 @@ public class ControllerWorkflowRenal extends ControllerWorkflow {
 	 */
 	public void setKidneys(boolean[] kidneys) {
 		((Model_Renal) this.model).setKidneys(kidneys);
-		this.generateInstructions();
-		this.start();
 	}
 
 	@Override

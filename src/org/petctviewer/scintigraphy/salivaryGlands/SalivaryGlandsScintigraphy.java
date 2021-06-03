@@ -66,20 +66,16 @@ public class SalivaryGlandsScintigraphy extends Scintigraphy {
     public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages)
             throws WrongInputException {
         // Check number of images
-		if (selectedImages.size() != 1 && selectedImages.size() != 2) throw new WrongNumberImagesException(
-            selectedImages.size(), 1, 2);
+		if (selectedImages.size() != 1) throw new WrongNumberImagesException(selectedImages.size(), 1);
 
         // Check orientations
         // With 1 image
-        if (selectedImages.size() == 1) {
-            if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_ANT) {
-                // Set images
-                this.impAnt = selectedImages.get(0).clone();
-            } else throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
-                                                                    selectedImages.get(0).getImageOrientation(),
-                                                                    new Orientation[]{Orientation.DYNAMIC_ANT},
-                                                                    "You can only use a Dynamic ANT");
-        }
+        if (selectedImages.get(0).getImageOrientation() == Orientation.DYNAMIC_ANT) {
+            // Set images
+            this.impAnt = selectedImages.get(0).clone();
+        } else throw new WrongColumnException.OrientationColumn(selectedImages.get(0).getRow(),
+                selectedImages.get(0).getImageOrientation(), new Orientation[]{Orientation.DYNAMIC_ANT},
+                "You can only use a Dynamic ANT");
 
         // Close images
         selectedImages.forEach(ImageSelection::close);

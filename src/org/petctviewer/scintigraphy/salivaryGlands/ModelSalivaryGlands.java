@@ -7,6 +7,7 @@ import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
+import org.petctviewer.scintigraphy.scin.model.Result;
 
 import java.util.*;
 
@@ -17,9 +18,15 @@ public class ModelSalivaryGlands extends ModelScinDyn {
     private final ImageSelection impAnt;
     private final int[] frameDurations;
     private double lemonInjection;
-    private Map<String, Map<String, Double>> results;
-    private DynamicImage[][] dynamicImps;
+    private Map<String, Map<Integer, Double>> results;
 
+    public static final String REGION_LEFT_PAROTID="L. Parotid", REGION_RIGHT_PAROTID="R. Parotid",
+            REGION_LEFT_SUBMANDIB="L. SubMandib", REGION_RIGHT_SUBMANDIB="R. SubMandib", REGION_BACKGROUND="Background";
+
+    public static final Result RES_LEMON=new Result("Lemon"), RES_UPTAKE_RATIO=new Result("Uptake Ratio"),
+            RES_EXCRETION_FRACTION=new Result("Excretion Fraction"), RES_FIRST_MIN=new Result("First Minute"),
+            RES_LAST_MIN=new Result("Last Minute"), RES_15_MIN=new Result("15 Minutes"),
+            RES_MAX=new Result("Maximum"), RES_MIN=new Result("Minimum");
 
     /**
      * recupere les valeurs et calcule les resultats de l'examen renal
@@ -35,10 +42,10 @@ public class ModelSalivaryGlands extends ModelScinDyn {
         this.pixelNumberROIs = new HashMap<>();
 
         this.glands = new ArrayList<>();
-        this.glands.add("L. Parotid");
-        this.glands.add("R. Parotid");
-        this.glands.add("L. SubMandib");
-        this.glands.add("R. SubMandib");
+        this.glands.add(REGION_LEFT_PAROTID);
+        this.glands.add(REGION_RIGHT_PAROTID);
+        this.glands.add(REGION_LEFT_SUBMANDIB);
+        this.glands.add(REGION_RIGHT_SUBMANDIB);
     }
 
     public void setLemonInjection(double lemonInjection) {
@@ -49,7 +56,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
         return lemonInjection;
     }
 
-    public Map<String, Map<String, Double>> getResults() {
+    public Map<String, Map<Integer, Double>> getResults() {
         return results;
     }
 
@@ -111,7 +118,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
     public void enregistrerMesure(ImagePlus imp, int slice) {
         if (this.isUnlocked()) {
             imp.setSlice(slice);
-            Roi backgroundRoi = this.organRois.get("Background");
+            Roi backgroundRoi = this.organRois.get(REGION_BACKGROUND);
             for (Roi r : this.getRoiManager().getRoisAsArray()) {
                 String roiName = r.getName();
 
@@ -143,7 +150,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
         this.results = new HashMap<>();
 
         ImagePlus imp = this.impAnt.getImagePlus();
-        Roi backgroundRoi = this.organRois.get("Background");
+        Roi backgroundRoi = this.organRois.get(REGION_BACKGROUND);
         imp.setRoi(backgroundRoi);
         //the average counts in the ipsilateral background reference between 10 and 20 min
         double avgBck = Library_Quantif.getAvgCounts(imp) / Library_Quantif.getPixelNumber(imp);
@@ -152,7 +159,7 @@ public class ModelSalivaryGlands extends ModelScinDyn {
             List<Double> a = this.getData(s);
             Roi roi = this.organRois.get(s);
             imp.setRoi(roi);
-            Map<String, Double> glandResults = new HashMap<>();
+            Map<Integer, Double> glandResults = new HashMap<>();
             this.results.put(s, glandResults);
 
             //the highest count rate in the ninth or 10th minute (when lemon stimuli is at 10min)
@@ -189,14 +196,14 @@ public class ModelSalivaryGlands extends ModelScinDyn {
             imp.setSlice(lemon);
             double lemonCounts = Library_Quantif.getCounts(imp) / (this.frameDurations[0] / 1000.0);
 
-            glandResults.put("Uptake Ratio", ur);
-            glandResults.put("Excretion Fraction", ef);
-            glandResults.put("First Minute", fm);
-            glandResults.put("Last Minute", lm);
-            glandResults.put("15 Minutes", m15);
-            glandResults.put("Lemon", lemonCounts);
-            glandResults.put("Maximum", Library_Quantif.round(maxGlobal, 1));
-            glandResults.put("Minimum", Library_Quantif.round(minAfterLemon, 1));
+            glandResults.put(RES_UPTAKE_RATIO.hashCode(), ur);
+            glandResults.put(RES_EXCRETION_FRACTION.hashCode(), ef);
+            glandResults.put(RES_FIRST_MIN.hashCode(), fm);
+            glandResults.put(RES_LAST_MIN.hashCode(), lm);
+            glandResults.put(RES_15_MIN.hashCode(), m15);
+            glandResults.put(RES_LEMON.hashCode(), lemonCounts);
+            glandResults.put(RES_MAX.hashCode(), Library_Quantif.round(maxGlobal, 1));
+            glandResults.put(RES_MIN.hashCode(), Library_Quantif.round(minAfterLemon, 1));
         }
     }
 
@@ -211,10 +218,10 @@ public class ModelSalivaryGlands extends ModelScinDyn {
         StringBuilder s = new StringBuilder(super.toString());
 
         s.append("\n\n");
-        s.append(getDataString("L. Parotid", "Left Parotid"));
-        s.append(getDataString("R. Parotid", "Right Parotid"));
-        s.append(getDataString("L. SubMandib", "Left Submandible"));
-        s.append(getDataString("R. SubMandib", "Right Submandible"));
+        s.append(getDataString(REGION_LEFT_PAROTID, "Left Parotid"));
+        s.append(getDataString(REGION_RIGHT_PAROTID, "Right Parotid"));
+        s.append(getDataString(REGION_LEFT_SUBMANDIB, "Left Submandible"));
+        s.append(getDataString(REGION_RIGHT_SUBMANDIB, "Right Submandible"));
         s.append("\n");
 
         s.append("Lemon juice stimulation at: ").append(Library_Quantif.round(this.getLemonInjection(), 1)).append(" min\n\n");
@@ -228,14 +235,14 @@ public class ModelSalivaryGlands extends ModelScinDyn {
         StringBuilder m15_lemon = new StringBuilder("15min/Lemon");
 
         for (String gland : this.getGlands()) {
-            Map<String, Double> res = this.results.get(gland);
+            Map<Integer, Double> res = this.results.get(gland);
             name.append(",").append(gland);
-            ur.append(",").append(res.get("Uptake Ratio"));
-            ef.append(",").append(res.get("Excretion Fraction")).append("%");
-            fm_max.append(",").append(Library_Quantif.round(res.get("First Minute") / res.get("Maximum"), 2)).append("%");
-            max_min.append(",").append(Library_Quantif.round(res.get("Maximum") / res.get("Minimum"), 2)).append("%");
-            max_lemon.append(",").append(Library_Quantif.round(res.get("Maximum") / res.get("Lemon"), 2)).append("%");
-            m15_lemon.append(",").append(Library_Quantif.round(res.get("15 Minutes") / res.get("Lemon"), 2)).append("%");
+            ur.append(",").append(res.get(RES_UPTAKE_RATIO.hashCode()));
+            ef.append(",").append(res.get(RES_EXCRETION_FRACTION.hashCode())).append("%");
+            fm_max.append(",").append(Library_Quantif.round(100 * res.get(RES_FIRST_MIN.hashCode()) / res.get(RES_MAX.hashCode()), 2)).append("%");
+            max_min.append(",").append(Library_Quantif.round(100 * res.get(RES_MAX.hashCode()) / res.get(RES_MIN.hashCode()), 2)).append("%");
+            max_lemon.append(",").append(Library_Quantif.round(100 * res.get(RES_MAX.hashCode()) / res.get(RES_LEMON.hashCode()), 2)).append("%");
+            m15_lemon.append(",").append(Library_Quantif.round(100 * res.get(RES_15_MIN.hashCode()) / res.get(RES_LEMON.hashCode()), 2)).append("%");
         }
 
         s.append(name)
@@ -262,8 +269,8 @@ public class ModelSalivaryGlands extends ModelScinDyn {
     }
 
     private void substractBkg() {
-        int aireBkg = this.organRois.get("Background").getStatistics().pixelCount;
-        List<Double> lbkg = this.getData("Background");
+        int aireBkg = this.organRois.get(REGION_BACKGROUND).getStatistics().pixelCount;
+        List<Double> lbkg = this.getData(REGION_BACKGROUND);
 
         // ***VALEURS AJUSTEES AVEC LE BRUIT DE FOND POUR CHAQUE GLANDE***
         for (String r : glands) { // pour chaque glande
@@ -288,10 +295,6 @@ public class ModelSalivaryGlands extends ModelScinDyn {
             this.getData().put("Final " + r, glandeCorrigee);
         }
 
-    }
-
-    public DynamicImage getDynamicImage(int i, int j) {
-        return dynamicImps[i][j];
     }
 
 }

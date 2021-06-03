@@ -382,21 +382,7 @@ public abstract class ControllerScin implements ActionListener {
 			IJ.setTool(PrefTabMain.toolFromString(Prefs.get(PrefTabMain.PREF_TOOL_ROI, "Polygone")));
 
 		} else if (b == this.vue.getBtn_reverse()) {
-			this.inverted = !this.inverted;
-			// on change la couleur du bouton
-			if (b.getBackground() != Color.LIGHT_GRAY) {
-				b.setBackground(Color.LIGHT_GRAY);
-			} else {
-				b.setBackground(null);
-			}
-
-			// on deselectionne le bouton draw roi
-			this.vue.getBtn_drawROI().setBackground(null);
-
-			IJ.run("Invert LUT", "stack");
-			this.updateROIColor();
-
-
+			this.invertLUT(b);
 		} else if (b == this.vue.getBtn_quitter()) {
 			this.vue.close();
 		}
@@ -404,6 +390,22 @@ public abstract class ControllerScin implements ActionListener {
 
 	public RoiManager getRoiManager() {
 		return this.model.getRoiManager();
+	}
+
+	protected void invertLUT(Button b) {
+		this.inverted = !this.inverted;
+		// on change la couleur du bouton
+		if (b.getBackground() != Color.LIGHT_GRAY) {
+			b.setBackground(Color.LIGHT_GRAY);
+		} else {
+			b.setBackground(null);
+		}
+
+		// on deselectionne le bouton draw roi
+		this.vue.getBtn_drawROI().setBackground(null);
+
+		IJ.run("Invert LUT", "stack");
+		this.updateROIColor();
 	}
 
 	public void updateROIColor() {

@@ -32,7 +32,7 @@ public class DrawRoiBackgroundSymmetrical extends DrawRoiBackground {
 
 		Roi thisRoi = this.workflow.getController().getVue().getImagePlus().getRoi();
 
-		if (name == null) return this.organToDelimit;
+		if (name == null) name = this.organToDelimit;
 		if (name.equals("")) return "";
 		if (thisRoi == null) return this.organToDelimit;
 		boolean OrganPost = thisRoi.getXBase() > this.workflow.getController().getVue().getImagePlus().getWidth() / 2.;

@@ -191,9 +191,6 @@ public class ModelGallbladder extends ModelScinDyn {
         this.modelResults = model;
     }
 
-    public String toString(){
-        return this.modelResults.toString();
-    }
 
     public Map<Integer, Double> getResults() {
         return results;
@@ -214,5 +211,20 @@ public class ModelGallbladder extends ModelScinDyn {
             value = Unit.PERCENTAGE.convertTo(value, conversion);
         }
 		return new ResultValue(request, value, conversion);
+    }
+
+    @Override
+    public String toString(){
+
+	    double result = Library_Quantif.round(this.results.get(RES_GALLBLADDER.hashCode()),2);
+        StringBuilder res = new StringBuilder(super.toString());
+
+        res.append("\n");
+        res.append("Ejection Fraction : ");
+        res.append(result).append(",%\n");
+
+        return res.toString();
+
+
     }
 }
