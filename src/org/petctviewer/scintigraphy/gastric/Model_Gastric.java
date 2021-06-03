@@ -917,6 +917,11 @@ public class Model_Gastric extends ModelWorkflow {
 			}
 
 			if (bkgNoise != null) {
+				System.out.println(region.getName());
+				System.out.println(data.getAntValue(region.getName(), Data.DATA_COUNTS));
+				System.out.println(data.getAntValue(region.getName(), Data.DATA_COUNTS) -
+				 (bkgNoise * data.getAntValue(region.getName(), Data.DATA_PIXEL_COUNTS)));
+				
 				data.setAntValue(region.getName(), Data.DATA_COUNTS,
 								 data.getAntValue(region.getName(), Data.DATA_COUNTS) -
 										 (bkgNoise * data.getAntValue(region.getName(), Data.DATA_PIXEL_COUNTS)));
