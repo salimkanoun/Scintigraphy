@@ -8,10 +8,7 @@ import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.instructions.ImageState;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
-import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiBackgroundSymmetrical;
-import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawRoiInstruction;
-import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalLoopInstruction;
-import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoiInstruction;
+import org.petctviewer.scintigraphy.scin.instructions.drawing.*;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawSymmetricalRoiInstruction.Organ;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ContaminationAskInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.execution.ScreenShotInstruction;
@@ -72,7 +69,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 		if (this.getVue().getImagePlus().getRoi() != null && !this.finContSlice2 && this.fullBodyImages > 0) {
 			System.out.println();
-			if (this.workflows[indexCurrentWorkflow].getCurrentInstructionIndex() % 2 != 0) {
+			if (this.workflows[indexCurrentWorkflow].getCurrentInstructionIndex() % 2 == 0) {
 				FenApplication_Cardiac fac = (FenApplication_Cardiac) this.getVue();
 				fac.getBtn_continue().setEnabled(false);
 				fac.getBtn_suivant().setLabel("Next");
@@ -131,12 +128,21 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 	public void clickPrevious() {
 		super.clickPrevious();
 		IJ.run("Labels...", "color=white font=0 use");
+
+		if (this.workflows[this.indexCurrentWorkflow].getCurrentInstruction() instanceof DrawLoopInstruction) {
+			((FenApplication_Cardiac) this.getVue()).startContaminationMode();
+			this.clicNewCont();
+		}
 	}
 
 	@Override
 	public void clickNext() {
 		super.clickNext();
 		IJ.run("Labels...", "color=white font=0 use");
+
+		// Update view
+		int indexScroll = this.getVue().getInstructionDisplayed();
+		getVue().currentInstruction(indexScroll);
 	}
 
 	@Override
@@ -152,13 +158,14 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 		if (arg0.getSource() instanceof Button) {
 			Button b = (Button) arg0.getSource();
-			if (b == this.getVue().getBtn_suivant()) {
+			FenApplication_Cardiac fen = (FenApplication_Cardiac) this.getVue();
+			if (b == fen.getBtn_suivant()) {
 				this.clicNewCont();
 				this.checkPanelInstruction_BtnRight();
-			} else if (b == ((FenApplication_Cardiac) this.getVue()).getBtn_continue()) {
+			} else if (b == fen.getBtn_continue()) {
 				this.clicEndCont();
-				((FenApplication_Cardiac) this.getVue()).stopContaminationMode();
-			} else if (b == this.getVue().getBtn_precedent())
+				fen.stopContaminationMode();
+			} else if (b == fen.getBtn_precedent())
 				if (this.workflows[indexCurrentWorkflow].getCurrentInstruction() instanceof DrawSymmetricalLoopInstruction) {
 					this.checkPanelInstruction_BtnRight();
 				}

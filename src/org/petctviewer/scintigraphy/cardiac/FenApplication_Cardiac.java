@@ -5,6 +5,7 @@ import ij.gui.Overlay;
 import ij.gui.TextRoi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
+import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
@@ -21,11 +22,12 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 	private final Button btn_newCont;
 	private final Button btn_continue;
 
-	public FenApplication_Cardiac(ImageSelection ims, String nom, boolean fullBodyImages, boolean onlyThoraxImage) {
+	public FenApplication_Cardiac(ImageSelection ims, String nom) {
 		super(ims, nom);
 		Library_Gui.initOverlay(ims.getImagePlus());
 	
 		this.btn_continue = new Button("End");
+		this.btn_continue.setActionCommand(ControllerWorkflow.COMMAND_END);
 		this.btn_newCont = new Button("Next");
 
 
