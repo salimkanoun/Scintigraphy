@@ -40,7 +40,7 @@ public class Model_Scintivol extends ModelScinDyn {
 
         this.organes.add("Liver");
         this.organes.add("FOV");
-        this.organes.add("Other");
+        this.organes.add("Intermediate values");
     }
 
     public ArrayList<String> getOrganes() {
