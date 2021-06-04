@@ -284,6 +284,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 					this.workflows[index], Organ.DEMIE);
 			DrawRoiInstruction dri_12 = new DrawSymmetricalRoiInstruction("Bkg noise", state, dri_10, null,
 					this.workflows[index], Organ.DEMIE);
+			ScreenShotInstruction captureWB = new ScreenShotInstruction(this.captures, this.getVue(), indexCapture++, true);
 
 			this.workflows[index].addInstruction(dri_3);
 			this.workflows[index].addInstruction(driBackground_1);
@@ -301,7 +302,7 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			this.workflows[index].addInstruction(dri_10);
 			this.workflows[index].addInstruction(dri_11);
 			this.workflows[index].addInstruction(dri_12);
-			this.workflows[index].addInstruction(new ScreenShotInstruction(this.captures, this.getVue(), indexCapture++));
+			this.workflows[index].addInstruction(captureWB);
 			index++;
 		}
 
@@ -309,13 +310,13 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 		if (this.onlyThoraxImage > 0) {
 			this.workflows[index] = new Workflow(this, this.model.getImageSelection()[this.fullBodyImages]);
 
-			ScreenShotInstruction captureThorax = new ScreenShotInstruction(this.captures, this.getVue(),
-					indexCapture++);
-
 			// Organs to delimit
 			DrawRoiInstruction dri_onlyThorax1 = new DrawRoiInstruction("Heart Thorax A", state);
 			DrawRoiInstruction dri_onlyThorax2 = new DrawSymmetricalRoiInstruction("CL Thorax", state, dri_onlyThorax1,
 					null, this.workflows[index], Organ.QUART);
+
+			ScreenShotInstruction captureThorax = new ScreenShotInstruction(this.captures, this.getVue(),
+					indexCapture++, true);
 
 			this.workflows[index].addInstruction(dri_onlyThorax1);
 			this.workflows[index].addInstruction(dri_onlyThorax2);
