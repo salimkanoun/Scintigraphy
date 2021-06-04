@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.hepatic.scintivol;
 import ij.ImagePlus;
 import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
@@ -23,7 +22,6 @@ public class Model_Scintivol extends ModelScinDyn {
     private double size;
     private double weight;
     private final ArrayList<String> organes;
-    private int[] frameDurations;
 
 
     public Model_Scintivol(ImageSelection[] selectedImages, String studyName, int[] frameDuration, ImageSelection imsRetention) {
@@ -199,25 +197,24 @@ public class Model_Scintivol extends ModelScinDyn {
         }
         this.results.get("Heart").put("AUC", this.getAUC(sliceT1, sliceT2));
 
+        this.getRetentionRate();
+
     }
 
     @Override
     public void calculateResults() {
-        int[] frameDurations = Library_Dicom.buildFrameDurations(this.getImagePlus());
-
-        this.setFrameduration(frameDurations);
         double tracerDelayTime = this.getTracerDelayTime();
-        int sliceT1 = getSliceIndexByTime((tracerDelayTime + 150) * 1000, frameDurations);
-        int sliceT2 = getSliceIndexByTime((tracerDelayTime + 350) * 1000, frameDurations);
-
-        this.setCounts(sliceT1, sliceT2);
+        int sliceT1 = getSliceIndexByTime((tracerDelayTime + 150) * 1000, this.getFrameDuration());
+        int sliceT2 = getSliceIndexByTime((tracerDelayTime + 350) * 1000, this.getFrameDuration());
 
         this.results.put("Intermediate values", new HashMap<>());
+        
+        this.setCounts(sliceT1, sliceT2);
+
         this.getSC();
         this.getBPActivity();
         this.getClairanceFT();
         this.getNormalizedClairanceFT();
-        this.getRetentionRate();
         if (this.results.containsKey("Tomo")) {
             this.getFFR();
             this.getClairanceFFR();
