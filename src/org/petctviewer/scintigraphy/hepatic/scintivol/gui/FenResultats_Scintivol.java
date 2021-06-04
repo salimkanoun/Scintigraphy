@@ -15,6 +15,7 @@ public class FenResultats_Scintivol extends FenResults {
         super(controller);
         this.addTab(new TabPrecoce(captures.get(0).getBufferedImage(), this));
         this.addTab((new TabTardive(captures.get(1).getBufferedImage(), this)));
+        this.addTab(new TabSynthese(this));
         this.addTab(new TabTomo(this, "TomoScintigraphy results"));
 
 
