@@ -29,44 +29,55 @@ public class TabSynthese extends TabResult {
     @Override
     public Container getResultContent() {
 
-
-        JPanel flow_wrap = new JPanel(new GridLayout(5,1,0,3));
+        //Panel principal
+        JPanel flow_wrap = new JPanel(new GridLayout(0,1));
+       //Panel données à collecter
         JPanel clearance = new JPanel(new GridLayout(5,1,0,3));
        // JPanel ffr = new JPanel(new GridLayout(2,1,0,3));
+
+        //panel des valeurs intermédiaires
         JPanel intermval = new JPanel(new GridLayout(4,1,0,3));
+
+        //panel des résultats
+        JPanel results = new JPanel(new GridLayout(6, 1, 0, 3));
         Box panRes = Box.createVerticalBox();
+        flow_wrap.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
         clearance.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
        // ffr.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY,1));
         intermval.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY,1));
+        results.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY,1));
 
 
-        // clearance.add(Box.createVerticalStrut(10));
-        clearance.add(this.getPanelTitle());
-
-        //clearance.add(Box.createVerticalStrut(10));
+        //données à collecter
+        clearance.add(this.getPanelTitleDatas());
         clearance.add(this.getPanelTitleHepaticClearance());
-
-        //clearance.add(Box.createVerticalStrut(10));
         clearance.add(this.getPanelFov());
-
-        //clearance.add(Box.createVerticalStrut(10));
         clearance.add(this.getPanelLiver());
-
-        //clearance.add(Box.createVerticalStrut(10));
         clearance.add(this.getPanelHeart());
 
+        //valeurs intermédiares
         intermval.add(this.getPanelTitleIntermediateValues());
         intermval.add(this.getIntermediateValuesCnormT2());
         intermval.add(this.getIntermediateValuesAUCCnorm());
         intermval.add(this.getIntermediateValuesBPActivity());
 
+        //résultats
+        results.add(this.getPanelTitleResults());
+        results.add(this.getClearancenonNorm());
+        results.add(this.getClearanceNorm());
+        results.add(this.getRetention());
+        results.add(this.getFFRnonNorm());
+        results.add(this.getFFRNorm());
 
-       // ffr.add(this.getTitlePanelFFR());
+
+
+
+        // ffr.add(this.getTitlePanelFFR());
       //  ffr.add(this.getPanelFFR());
 
-
-        panRes.add(intermval);
         panRes.add(clearance);
+        panRes.add(intermval);
+        panRes.add(results);
 
       //  panRes.add(ffr);
         flow_wrap.add(panRes);
@@ -75,7 +86,7 @@ public class TabSynthese extends TabResult {
 
     }
 
-    public Component getPanelTitle(){
+    public Component getPanelTitleDatas(){
         JPanel title = new JPanel(new GridLayout(1,1));
         JLabel lbl_title = new JLabel("Data to be collected");
         lbl_title.setFont(new Font("Arial", Font.BOLD, 20));
@@ -87,6 +98,21 @@ public class TabSynthese extends TabResult {
 
 
     }
+
+    public Component getPanelTitleResults(){
+        JPanel title = new JPanel(new GridLayout(1,1));
+        JLabel lbl_title = new JLabel("Results");
+        lbl_title.setFont(new Font("Arial", Font.BOLD, 20));
+        lbl_title.setHorizontalAlignment(JLabel.CENTER);
+
+        title.add(lbl_title);
+
+        return title;
+
+
+    }
+
+
 
     public Component getPanelTitleIntermediateValues(){
         JPanel title = new JPanel(new GridLayout(1,1));
@@ -355,6 +381,148 @@ public class TabSynthese extends TabResult {
     }
 
 
+    public Component getClearancenonNorm(){
+
+        Model_Scintivol model = (Model_Scintivol) this.parent.getModel();
+        Map<String, Double> results = model.getResults().get("Intermediate values");
+
+        double nonNormFT = Library_Quantif.round(results.get("Clairance FT"),2);
+
+        JPanel pnl_results = new JPanel(new GridLayout(1, 4,0,3));
 
 
+        JLabel lbl_bp = new JLabel("Non-standardized Clearance FT ");
+        lbl_bp.setFont(new Font("Arial", Font.BOLD,15));
+        pnl_results.add(lbl_bp);
+
+        JLabel val_bp = new JLabel(nonNormFT +" %/min");
+        val_bp.setHorizontalAlignment(SwingConstants.CENTER);
+        pnl_results.add(val_bp);
+
+        JLabel nothing = new JLabel(" ");
+        pnl_results.add(nothing);
+
+        JLabel nothing2 = new JLabel(" ");
+        pnl_results.add(nothing2);
+
+        return pnl_results;
+
+    }
+    public Component getClearanceNorm(){
+
+        Model_Scintivol model = (Model_Scintivol) this.parent.getModel();
+        Map<String, Double> results = model.getResults().get("Intermediate values");
+
+        double normFT = Library_Quantif.round(results.get("Norm Clairance FT"),2);
+
+        JPanel pnl_results = new JPanel(new GridLayout(1, 4,0,3));
+
+
+        JLabel lbl_bp = new JLabel("Normalized Clearance FT ");
+        lbl_bp.setFont(new Font("Arial", Font.BOLD,15));
+        pnl_results.add(lbl_bp);
+
+        JLabel val_bp = new JLabel(String.valueOf(normFT));
+        val_bp.setHorizontalAlignment(SwingConstants.CENTER);
+        pnl_results.add(val_bp);
+
+        JLabel nothing = new JLabel(" ");
+        pnl_results.add(nothing);
+
+        JLabel nothing2 = new JLabel(" ");
+        pnl_results.add(nothing2);
+
+        return pnl_results;
+
+    }
+
+    public Component getRetention(){
+
+        Model_Scintivol model = (Model_Scintivol) this.parent.getModel();
+        Map<String, Double> results = model.getResults().get("Intermediate values");
+
+        double normFT = Library_Quantif.round(results.get("Retention rate")*100,2);
+
+        JPanel pnl_results = new JPanel(new GridLayout(1, 4,0,3));
+
+
+        JLabel lbl_bp = new JLabel("Retention ");
+        lbl_bp.setFont(new Font("Arial", Font.BOLD,15));
+        pnl_results.add(lbl_bp);
+
+        JLabel val_bp = new JLabel(normFT+ " %");
+        val_bp.setHorizontalAlignment(SwingConstants.CENTER);
+        pnl_results.add(val_bp);
+
+        JLabel nothing = new JLabel(" ");
+        pnl_results.add(nothing);
+
+        JLabel nothing2 = new JLabel(" ");
+        pnl_results.add(nothing2);
+
+        return pnl_results;
+
+    }
+
+    public Component getFFRnonNorm(){
+
+        Model_Scintivol model = (Model_Scintivol) this.parent.getModel();
+        Map<String, Double> results = model.getResults().get("Intermediate values");
+        JPanel pnl_results = new JPanel(new GridLayout(1, 4,0,3));
+
+        if (!model.getResults().containsKey("Tomo"))
+            return pnl_results;
+
+        double nonnormFFR = Library_Quantif.round(results.get("Clairance FFR"),2);
+
+
+        JLabel lbl_frl = new JLabel("Clearance FRL ");
+        lbl_frl.setFont(new Font("Arial", Font.BOLD,15));
+        pnl_results.add(lbl_frl);
+
+        JLabel val_frl = new JLabel(nonnormFFR +" %/min");
+        val_frl.setHorizontalAlignment(SwingConstants.CENTER);
+        pnl_results.add(val_frl);
+
+        JLabel nothing = new JLabel(" ");
+        pnl_results.add(nothing);
+
+        JLabel nothing2 = new JLabel(" ");
+        pnl_results.add(nothing2);
+
+        return pnl_results;
+
+    }
+
+    public Component getFFRNorm(){
+
+        Model_Scintivol model = (Model_Scintivol) this.parent.getModel();
+        Map<String, Double> results = model.getResults().get("Intermediate values");
+        JPanel pnl_results = new JPanel(new GridLayout(1, 4,0,3));
+
+
+        if (!model.getResults().containsKey("Tomo"))
+            return pnl_results;
+
+        double normFFR = Library_Quantif.round(results.get("Norm Clairance FFR"),2);
+
+
+
+        JLabel lbl_frl = new JLabel("Normalized Clearance FRL ");
+        lbl_frl.setFont(new Font("Arial", Font.BOLD,15));
+        pnl_results.add(lbl_frl);
+
+        JLabel val_frl = new JLabel(String.valueOf(normFFR));
+        val_frl.setHorizontalAlignment(SwingConstants.CENTER);
+        pnl_results.add(val_frl);
+
+        JLabel nothing = new JLabel(" ");
+        pnl_results.add(nothing);
+
+        JLabel nothing2 = new JLabel(" ");
+        pnl_results.add(nothing2);
+
+        return pnl_results;
+
+    }
 }
