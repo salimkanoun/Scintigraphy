@@ -28,22 +28,23 @@ public class TabSynthese extends TabResult {
 
     @Override
     public Container getResultContent() {
+        boolean isTomo = ((Model_Scintivol) this.parent.getModel()).getResults().containsKey("Tomo");
 
         //Panel principal
         JPanel flow_wrap = new JPanel(new GridLayout(0,1));
-       //Panel données à collecter
+        //Panel données à collecter
         JPanel clearance = new JPanel(new GridLayout(5,1,0,3));
-       // JPanel ffr = new JPanel(new GridLayout(2,1,0,3));
+        JPanel ffr = new JPanel(new GridLayout(2,1,0,3));
 
         //panel des valeurs intermédiaires
         JPanel intermval = new JPanel(new GridLayout(4,1,0,3));
 
         //panel des résultats
-        JPanel results = new JPanel(new GridLayout(6, 1, 0, 3));
+        JPanel results = new JPanel(new GridLayout(0, 1, 0, 3));
         Box panRes = Box.createVerticalBox();
         flow_wrap.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
         clearance.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-       // ffr.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY,1));
+        ffr.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY,1));
         intermval.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY,1));
         results.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY,1));
 
@@ -66,20 +67,23 @@ public class TabSynthese extends TabResult {
         results.add(this.getClearancenonNorm());
         results.add(this.getClearanceNorm());
         results.add(this.getRetention());
-        results.add(this.getFFRnonNorm());
-        results.add(this.getFFRNorm());
+        if (isTomo) {
+            results.add(this.getFFRnonNorm());
+            results.add(this.getFFRNorm());
+        }
 
-
-
-
-        // ffr.add(this.getTitlePanelFFR());
-      //  ffr.add(this.getPanelFFR());
 
         panRes.add(clearance);
         panRes.add(intermval);
         panRes.add(results);
 
-      //  panRes.add(ffr);
+
+        if (isTomo) {
+            ffr.add(this.getTitlePanelFFR());
+            ffr.add(this.getPanelFFR());
+            panRes.add(ffr);
+        }
+
         flow_wrap.add(panRes);
 
         return flow_wrap;
@@ -250,7 +254,6 @@ public class TabSynthese extends TabResult {
     }
 
     public Component getTitlePanelFFR(){
-
         JPanel title = new JPanel(new GridLayout(1, 2, 0, 3));
         JLabel lb_title = new JLabel("Share of FRL\n");
         JLabel lb_ffr = new JLabel("FRL/FL (%)");
@@ -273,10 +276,6 @@ public class TabSynthese extends TabResult {
         JPanel pnl_ffr = new JPanel(new GridLayout(1, 2,0,3));
 
         double fl_frl = Library_Quantif.round(results.get("FFR/FT") * 100,2);
-
-        JPanel res = new JPanel();
-        if (!model.getResults().containsKey("Tomo"))
-            return res;
 
         JLabel lbl_ffr = new JLabel("Tomoscintigraphy");
         lbl_ffr.setFont(new Font("Arial", Font.BOLD,15));
@@ -470,9 +469,6 @@ public class TabSynthese extends TabResult {
         Map<String, Double> results = model.getResults().get("Intermediate values");
         JPanel pnl_results = new JPanel(new GridLayout(1, 4,0,3));
 
-        if (!model.getResults().containsKey("Tomo"))
-            return pnl_results;
-
         double nonnormFFR = Library_Quantif.round(results.get("Clairance FFR"),2);
 
 
@@ -500,9 +496,6 @@ public class TabSynthese extends TabResult {
         Map<String, Double> results = model.getResults().get("Intermediate values");
         JPanel pnl_results = new JPanel(new GridLayout(1, 4,0,3));
 
-
-        if (!model.getResults().containsKey("Tomo"))
-            return pnl_results;
 
         double normFFR = Library_Quantif.round(results.get("Norm Clairance FFR"),2);
 
