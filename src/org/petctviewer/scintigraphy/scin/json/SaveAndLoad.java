@@ -72,7 +72,7 @@ public class SaveAndLoad {
 
 		content.append(resultats);
 
-		int res = this.saveFiles(imp, content, nomProgramme, infoPatient, additionalInfo, controller);
+		int res = this.saveFiles(imp, content, nomProgramme, infoPatient, additionalInfo, controller, tab);
 		if (res == 1) {
 			tab.getCaptureButton().setEnabled(false);
 			tab.getLblCapture().setText("Data exported");
@@ -94,7 +94,7 @@ public class SaveAndLoad {
 	 *            Controller to be transformed as Json
 	 */
 	public int saveFiles(ImagePlus imp, StringBuilder csv, String programName, String[] infoPatient,
-			String additionalInfo, List<ControllerWorkflow> controller) {
+			String additionalInfo, List<ControllerWorkflow> controller, TabResult tabResult) {
 
 		RoiManager roiManager = controller.get(0).getRoiManager();
 
@@ -168,6 +168,7 @@ public class SaveAndLoad {
 
 			//TODO Move that to a thread to avoid display delay of capture & myDicom
 			ToastMessage toast = new ToastMessage("Results successfully exported to "+ pathFinal);
+			toast.setLocationRelativeTo(tabResult.getParent());
 			toast.display(3000);
 			return 1;
 		}

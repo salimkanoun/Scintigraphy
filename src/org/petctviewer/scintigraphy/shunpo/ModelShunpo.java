@@ -84,7 +84,7 @@ public class ModelShunpo extends ModelWorkflow {
 			meanBkg = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_BACKGROUND, Data.DATA_MEAN_COUNTS);
 			pixels = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(regionName, Data.DATA_PIXEL_COUNTS);
 		}
-		return counts - meanBkg * pixels;
+		return Math.max(counts - meanBkg * pixels, 1);
 	}
 
 	/**

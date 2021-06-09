@@ -119,7 +119,6 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 			((DrawSymmetricalLoopInstruction) this.workflows[this.indexCurrentWorkflow].getCurrentInstruction()).stop();
 
 		this.getVue().getBtn_suivant().setLabel("Next");
-		this.clickNext();
 
 		this.vue.pack();
 	}

@@ -255,8 +255,8 @@ public class TabSynthese extends TabResult {
 
     public Component getTitlePanelFFR(){
         JPanel title = new JPanel(new GridLayout(1, 2, 0, 3));
-        JLabel lb_title = new JLabel("Share of FRL\n");
-        JLabel lb_ffr = new JLabel("FRL/FL (%)");
+        JLabel lb_title = new JLabel("Portion of Future Remnant Liver\n");
+        JLabel lb_ffr = new JLabel("FRL/TL (%)");
 
 
         lb_title.setFont(new Font("Arial", Font.BOLD, 18));
@@ -390,7 +390,7 @@ public class TabSynthese extends TabResult {
         JPanel pnl_results = new JPanel(new GridLayout(1, 4,0,3));
 
 
-        JLabel lbl_bp = new JLabel("Non-standardized Clearance FT ");
+        JLabel lbl_bp = new JLabel("Non-standardized Clearance TL ");
         lbl_bp.setFont(new Font("Arial", Font.BOLD,15));
         pnl_results.add(lbl_bp);
 
@@ -417,7 +417,7 @@ public class TabSynthese extends TabResult {
         JPanel pnl_results = new JPanel(new GridLayout(1, 4,0,3));
 
 
-        JLabel lbl_bp = new JLabel("Normalized Clearance FT ");
+        JLabel lbl_bp = new JLabel("Normalized Clearance TL ");
         lbl_bp.setFont(new Font("Arial", Font.BOLD,15));
         pnl_results.add(lbl_bp);
 
@@ -445,7 +445,7 @@ public class TabSynthese extends TabResult {
         JPanel pnl_results = new JPanel(new GridLayout(1, 4,0,3));
 
 
-        JLabel lbl_bp = new JLabel("Retention ");
+        JLabel lbl_bp = new JLabel("Retention ratio ");
         lbl_bp.setFont(new Font("Arial", Font.BOLD,15));
         pnl_results.add(lbl_bp);
 

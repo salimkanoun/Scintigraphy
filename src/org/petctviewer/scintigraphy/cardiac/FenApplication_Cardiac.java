@@ -93,11 +93,11 @@ public class FenApplication_Cardiac extends FenApplicationWorkflow {
 		//double textHeight = bounds.getHeight();
 		double textWidth = bounds.getWidth();
 
-		TextRoi Ant = Library_Gui.createTextRoi("Ant", (w / 4.0) - (textWidth / 4), 0 , 1, Color.YELLOW, overlay.getLabelFont());
+		TextRoi Ant = Library_Gui.createTextRoi("Ant", (w / 4.0) - (textWidth / 4), 0 , 1, color, overlay.getLabelFont());
 		double xPosition = (3.0 * w / 4) - (3 * textWidth / 4);
-		TextRoi invertedPost = Library_Gui.createTextRoi("Post", xPosition, 0 , 1, Color.YELLOW, overlay.getLabelFont());
-		TextRoi AntSlice2 = Library_Gui.createTextRoi("Ant", (w / 4.0) - (textWidth / 4), 0 , 2, Color.YELLOW, overlay.getLabelFont());
-		TextRoi invertedPostSlice2 = Library_Gui.createTextRoi("Post", xPosition, 0 , 2, Color.YELLOW, overlay.getLabelFont());
+		TextRoi invertedPost = Library_Gui.createTextRoi("Post", xPosition, 0 , 1, color, overlay.getLabelFont());
+		TextRoi AntSlice2 = Library_Gui.createTextRoi("Ant", (w / 4.0) - (textWidth / 4), 0 , 2, color, overlay.getLabelFont());
+		TextRoi invertedPostSlice2 = Library_Gui.createTextRoi("Post", xPosition, 0 , 2, color, overlay.getLabelFont());
 
 
 		overlay.add(Ant);
