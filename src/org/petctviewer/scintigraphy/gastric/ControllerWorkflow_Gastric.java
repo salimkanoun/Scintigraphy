@@ -127,8 +127,8 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 			dri_2 = new DrawRoiInstruction("Stomach", statePost, dri_1);
 
 			this.workflows[i].addInstruction(dri_1);
-			this.workflows[i].addInstruction(dri_2);
 			if (i == 0) this.workflows[i].addInstruction(new ScreenShotInstruction(captures, vue, 0, 0, 0));
+			this.workflows[i].addInstruction(dri_2);
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}
@@ -171,15 +171,15 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 
 			if (i == 0) this.workflows[i].addInstruction(promptTimeAcquisition);
 			this.workflows[i].addInstruction(dri_1);
-			this.workflows[i].addInstruction(dri_2);
-			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_1, dri_2, "Antre"));
-			this.workflows[i].addInstruction(dri_3);
 			// Capture 1: only stomach, for method 2
 			if (i == 0) this.workflows[i].addInstruction(new ScreenShotInstruction(captures, vue, 0, 0, 0));
-			this.workflows[i].addInstruction(dri_4);
-			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_3, dri_4, "Antre"));
+			this.workflows[i].addInstruction(dri_2);
+			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_1, dri_2, "Antre"));
 			// Capture 2: stomach and intestine, for method 1
 			if (i == 0) this.workflows[i].addInstruction(new ScreenShotInstruction(this.captures, this.vue, 1, 0, 0));
+			this.workflows[i].addInstruction(dri_3);
+			this.workflows[i].addInstruction(dri_4);
+			this.workflows[i].addInstruction(new CheckIntersectionInstruction(this, dri_3, dri_4, "Antre"));
 		}
 		this.workflows[this.model.getImageSelection().length - 1].addInstruction(new EndInstruction());
 	}
