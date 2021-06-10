@@ -165,31 +165,21 @@ public class TabGallbladder extends TabResult{
 
     }
 
-    /** 
-	 * @return ModelThyroid
-	 */
-	//private ModelGallbladder getModel() {
-	//	return (ModelGallbladder) this.parent.getModel();
-  //  }
 
     private Component getEjectionFraction(){
         ModelGallbladder model = (ModelGallbladder) this.parent.getModel();
         double results = model.getResults().get(RES_GALLBLADDER.hashCode());
 
         double ejection = Library_Quantif.round(results,2);
-        JPanel pnl_ejfr = new JPanel(new GridLayout(1, 2, 0, 3));
-        pnl_ejfr.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        JPanel pnl_ejfr = new JPanel(new GridLayout(1, 1, 0, 3));
 
+        JLabel val_ejection = new JLabel("Ejection Fraction : " + ejection + " %");
+        val_ejection.setFont(new Font("Arial", Font.BOLD, 15));
+        val_ejection.setHorizontalAlignment(JLabel.CENTER);
 
-        pnl_ejfr.add(new JLabel(" Ejection Fraction :  "));
-
-        JLabel val_ejection = new JLabel(String.valueOf(ejection) + " %");
         pnl_ejfr.add(val_ejection);
 
-
-
         return pnl_ejfr;
-
 
     }
 
