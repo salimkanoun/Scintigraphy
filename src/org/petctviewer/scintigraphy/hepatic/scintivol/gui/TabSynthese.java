@@ -365,7 +365,7 @@ public class TabSynthese extends TabResult {
         lbl_bp.setFont(new Font("Arial", Font.BOLD,15));
         pnl_intermValues.add(lbl_bp);
 
-        JLabel val_bp = new JLabel(String.valueOf(bp));
+        JLabel val_bp = new JLabel(bp+ " counts/min");
         val_bp.setHorizontalAlignment(SwingConstants.CENTER);
         pnl_intermValues.add(val_bp);
 
@@ -421,7 +421,7 @@ public class TabSynthese extends TabResult {
         lbl_bp.setFont(new Font("Arial", Font.BOLD,15));
         pnl_results.add(lbl_bp);
 
-        JLabel val_bp = new JLabel(String.valueOf(normFT));
+        JLabel val_bp = new JLabel(normFT+ " %/min.m²");
         val_bp.setHorizontalAlignment(SwingConstants.CENTER);
         pnl_results.add(val_bp);
 
@@ -505,7 +505,7 @@ public class TabSynthese extends TabResult {
         lbl_frl.setFont(new Font("Arial", Font.BOLD,15));
         pnl_results.add(lbl_frl);
 
-        JLabel val_frl = new JLabel(String.valueOf(normFFR));
+        JLabel val_frl = new JLabel(normFFR+ " %/min.m²");
         val_frl.setHorizontalAlignment(SwingConstants.CENTER);
         pnl_results.add(val_frl);
 

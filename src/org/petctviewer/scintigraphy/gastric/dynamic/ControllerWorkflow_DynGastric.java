@@ -1,5 +1,7 @@
 package org.petctviewer.scintigraphy.gastric.dynamic;
 
+import org.apache.commons.lang3.time.DateUtils;
+import org.petctviewer.scintigraphy.gastric.ControllerWorkflow_Gastric;
 import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -15,6 +17,8 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
+
+import java.util.Date;
 
 public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
@@ -112,6 +116,9 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 	@Override
 	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
+
+		Date firstAcquisition = DateUtils.addMinutes(this.getModel().getFirstImage().getDateAcquisition(), -3);
+		((ControllerWorkflow_Gastric) this.tabResult.getParent().getController()).specifiedTimeIngestion = firstAcquisition;
 
 		DrawRoiInstruction dri_antre = null, dri_intestine = null;
 

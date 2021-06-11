@@ -73,7 +73,7 @@ public class DynGastricScintigraphy extends Scintigraphy {
 			if (ims.getImageOrientation() == Orientation.DYNAMIC_ANT_POST ||
 					ims.getImageOrientation() == Orientation.DYNAMIC_POST_ANT) {
 				ImageSelection[] dyn = Library_Dicom.splitDynamicAntPost(ims);
-				selection.add(Library_Dicom.project(dyn[0], 1, dyn[0].getImagePlus().getNSlices(), "sum"));
+				selection.add(Library_Dicom.project(dyn[0], 1, 10, "sum"));
 			} else {
 				selection.add(ims.clone());
 			}

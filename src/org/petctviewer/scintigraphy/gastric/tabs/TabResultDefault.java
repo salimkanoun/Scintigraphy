@@ -210,6 +210,7 @@ public abstract class TabResultDefault extends TabResult implements ChangeListen
 	private JPanel createPanelResults() {
 		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
 			getModel().activateTime0();
+			getModel().setTimeIngestion(((ControllerWorkflow_Gastric) parent.getController()).specifiedTimeIngestion);
 
 			JPanel panel = new JPanel(new GridLayout(2, 2));
 
@@ -292,6 +293,7 @@ public abstract class TabResultDefault extends TabResult implements ChangeListen
 		// Prepare model
 		if (seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
 			getModel().activateTime0();
+			getModel().setTimeIngestion(((ControllerWorkflow_Gastric) parent.getController()).specifiedTimeIngestion);
 		} else {
 			getModel().deactivateTime0();
 			getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
@@ -360,6 +362,7 @@ public abstract class TabResultDefault extends TabResult implements ChangeListen
 		// Prepare model
 		if (this.seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
 			getModel().activateTime0();
+			getModel().setTimeIngestion(((ControllerWorkflow_Gastric) parent.getController()).specifiedTimeIngestion);
 		} else {
 			getModel().deactivateTime0();
 			getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
@@ -483,6 +486,7 @@ public abstract class TabResultDefault extends TabResult implements ChangeListen
 					ResultRequest request;
 					if (seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
 						getModel().activateTime0();
+						getModel().setTimeIngestion(((ControllerWorkflow_Gastric) parent.getController()).specifiedTimeIngestion);
 						request = new ResultRequest(Model_Gastric.RETENTION_PERCENTAGE);
 					} else {
 						getModel().deactivateTime0();
