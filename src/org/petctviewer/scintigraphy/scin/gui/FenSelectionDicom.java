@@ -36,9 +36,9 @@ public class FenSelectionDicom extends JDialog implements ActionListener, ImageL
 	protected final JTable table;
 	private final JButton btn_selectAll;
 	private DefaultTableModel dataModel;
-	private List<Column> columns;
+	private final List<Column> columns;
 
-	private ImagePreparator preparator;
+	private final ImagePreparator preparator;
 	private List<ImageSelection> selectedImages;
 
 	/**
@@ -453,9 +453,9 @@ public class FenSelectionDicom extends JDialog implements ActionListener, ImageL
 			ORIENTATION = new Column("Orientation", s);
 		}
 
-		private String name;
-		private String[] authorizedValues;
-		private boolean visible;
+		private final String name;
+		private final String[] authorizedValues;
+		private final boolean visible;
 
 		/**
 		 * Creates a new column with the specified name. The authorized values are displayed as a list for the user to

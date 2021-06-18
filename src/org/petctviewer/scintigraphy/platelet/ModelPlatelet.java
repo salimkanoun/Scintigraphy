@@ -20,7 +20,7 @@ public class ModelPlatelet extends ModelWorkflow {
 
 	public static final String REGION_SPLEEN = "Spleen", REGION_LIVER = "Liver", REGION_HEART = "Heart";
 
-	private List<Data> datas;
+	private final List<Data> datas;
 
 	/**
 	 * @param selectedImages Images used for this study (generally those images are used in the workflows)

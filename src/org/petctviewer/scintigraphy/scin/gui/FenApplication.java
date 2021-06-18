@@ -140,13 +140,15 @@ public class FenApplication extends StackWindow implements ComponentListener{
 		panelPrincipal.add(panel_slider);
 
 		//création du panel Zoom
-		Panel panel_zoom = new Panel();
-		panel_zoom.add(new Label("Zoom", Label.CENTER));
-		panel_zoom.add(this.zoom_out);
-		panel_zoom.add(this.zoom_in);
+		Panel panel_zoom = new Panel(new GridBagLayout());
+		Panel panel_container_zoom = new Panel();
+		panel_container_zoom.add(new Label("Zoom", Label.CENTER));
+		panel_container_zoom.add(this.zoom_out);
+		panel_container_zoom.add(this.zoom_in);
+		panel_zoom.add(panel_container_zoom, new GridBagConstraints());
 		panelPrincipal.add(panel_zoom);
 
-		panelContainer.add(this.panelPrincipal, BorderLayout.CENTER);
+		panelContainer.add(this.panelPrincipal);
 		this.add(panelContainer, BorderLayout.SOUTH);
 
 //		panelContainer.setPreferredSize(new Dimension(512, (int) panelContainer.getPreferredSize().getHeight()));

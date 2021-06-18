@@ -25,7 +25,13 @@ public class ModelScintivolTests {
 	
 	@BeforeEach
 	public void setUp() {
+
 		this.model = new Model_Scintivol(new ImageSelection[0], "ScintivolTest", new int[0], null) {
+			@Override
+			public void calculateResults() {
+				super.calculateResults();
+			}
+
 			@Override
 			public void setCounts(int sliceT1, int sliceT2) {
 				Map<String, Double> liver = new HashMap<>();
@@ -64,14 +70,16 @@ public class ModelScintivolTests {
     @Test
     public void calculateResultsTest(){
 		this.model.calculateResults();
-		assertEquals(23328, Library_Quantif.round(this.model.getResults().get("Other").get("BP Activity"), 0));
-		assertEquals(1.83, Library_Quantif.round(this.model.getResults().get("Other").get("SC"), 2));
-		assertEquals(0.56, Library_Quantif.round(this.model.getResults().get("Other").get("Cnorm_t2"), 2));
-		assertEquals(11.55, Library_Quantif.round(this.model.getResults().get("Other").get("AUC/Cnorm"), 2));
-		assertEquals(20.31, Library_Quantif.round(this.model.getResults().get("Other").get("Clairance FT"), 2));
-		assertEquals(11.10, Library_Quantif.round(this.model.getResults().get("Other").get("Norm Clairance FT"), 2));
-		assertEquals(0.557, Library_Quantif.round(this.model.getResults().get("Other").get("FFR/FT"), 3));;
-		assertEquals(11.32, Library_Quantif.round(this.model.getResults().get("Other").get("Clairance FFR"), 2));
-		assertEquals(6.2, Library_Quantif.round(this.model.getResults().get("Other").get("Norm Clairance FFR"), 1));
+
+		Map<String, Double> res = this.model.getResults().get("Intermediate values");
+		assertEquals(23328, Library_Quantif.round(res.get("BP Activity"), 0));
+		assertEquals(1.83, Library_Quantif.round(res.get("SC"), 2));
+		assertEquals(0.56, Library_Quantif.round(res.get("Cnorm_t2"), 2));
+		assertEquals(11.55, Library_Quantif.round(res.get("AUC/Cnorm"), 2));
+		assertEquals(20.31, Library_Quantif.round(res.get("Clairance FT"), 2));
+		assertEquals(11.10, Library_Quantif.round(res.get("Norm Clairance FT"), 2));
+		assertEquals(0.557, Library_Quantif.round(res.get("FFR/FT"), 3));
+        assertEquals(11.32, Library_Quantif.round(res.get("Clairance FFR"), 2));
+		assertEquals(6.2, Library_Quantif.round(res.get("Norm Clairance FFR"), 1));
 	}
 }

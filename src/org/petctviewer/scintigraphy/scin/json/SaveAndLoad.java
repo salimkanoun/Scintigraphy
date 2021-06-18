@@ -16,6 +16,7 @@ import org.petctviewer.scintigraphy.scin.controller.ControllerWorkflow;
 import org.petctviewer.scintigraphy.scin.exceptions.UnauthorizedRoiLoadException;
 import org.petctviewer.scintigraphy.scin.exceptions.UnloadRoiException;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
+import org.petctviewer.scintigraphy.scin.gui.ToastMessage;
 import org.petctviewer.scintigraphy.scin.instructions.Instruction;
 import org.petctviewer.scintigraphy.scin.instructions.Workflow;
 import org.petctviewer.scintigraphy.scin.instructions.drawing.DrawLoopInstruction;
@@ -71,7 +72,7 @@ public class SaveAndLoad {
 
 		content.append(resultats);
 
-		int res = this.saveFiles(imp, content, nomProgramme, infoPatient, additionalInfo, controller);
+		int res = this.saveFiles(imp, content, nomProgramme, infoPatient, additionalInfo, controller, tab);
 		if (res == 1) {
 			tab.getCaptureButton().setEnabled(false);
 			tab.getLblCapture().setText("Data exported");
@@ -93,7 +94,7 @@ public class SaveAndLoad {
 	 *            Controller to be transformed as Json
 	 */
 	public int saveFiles(ImagePlus imp, StringBuilder csv, String programName, String[] infoPatient,
-			String additionalInfo, List<ControllerWorkflow> controller) {
+			String additionalInfo, List<ControllerWorkflow> controller, TabResult tabResult) {
 
 		RoiManager roiManager = controller.get(0).getRoiManager();
 
@@ -136,6 +137,7 @@ public class SaveAndLoad {
 				e.printStackTrace();
 			}
 		}
+
 		if (subDirectory.mkdirs()) {
 
 			File f = new File(subDirectory + File.separator + nomFichier + ".csv");
@@ -163,11 +165,16 @@ public class SaveAndLoad {
 
 			// On sauve l'image en jpeg
 			IJ.saveAs(imp, "Jpeg", pathFinal + File.separator + nomFichier + ".jpg");
-		} else {
-			System.err.println("An error occurred while trying to create the directories for the path: " + pathFinal
-					+ ". Aborting creation of CSV, ZIP and JPEG.");
+
+			//TODO Move that to a thread to avoid display delay of capture & myDicom
+			ToastMessage toast = new ToastMessage("Results successfully exported to "+ pathFinal);
+			toast.setLocationRelativeTo(tabResult.getParent());
+			toast.display(3000);
+			return 1;
 		}
-		return 1;
+		System.err.println("An error occurred while trying to create the directories for the path: " + pathFinal
+				+ ". Aborting creation of CSV, ZIP and JPEG.");
+		return -2;
 	}
 
 	/**
@@ -745,7 +752,7 @@ public class SaveAndLoad {
 			}
 			in.close();
 		} catch (IOException e) {
-			System.out.println(e.toString());
+			e.printStackTrace();
 		} finally {
 			if (in != null)
 				try {
@@ -789,7 +796,7 @@ public class SaveAndLoad {
 			in.close();
 
 		} catch (IOException e) {
-			System.out.println(e.toString());
+			e.printStackTrace();
 		} finally {
 			if (in != null)
 				try {

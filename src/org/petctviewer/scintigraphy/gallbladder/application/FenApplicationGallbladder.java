@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.gallbladder.application;
 
 import ij.gui.Overlay;
-import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.controller.ControllerScin;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
@@ -13,16 +12,12 @@ import java.awt.event.ActionEvent;
 public class FenApplicationGallbladder extends FenApplicationWorkflow {
 
     private static final long serialVersionUID = 1L;
-    private final GallbladderScintigraphy main;
     private final Button btn_start;
 
     public FenApplicationGallbladder(ImageSelection ims, String nom, GallbladderScintigraphy main) {
         super(ims, nom);
         // Keep default visualisation
         this.setVisualizationEnable(false);
-
-        this.main = main;
-
 
 
         Overlay overlay = Library_Gui.initOverlay(this.getImagePlus(), 12);

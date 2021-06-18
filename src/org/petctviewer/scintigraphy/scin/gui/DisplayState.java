@@ -7,8 +7,7 @@ public enum DisplayState {
     LEFT_RIGHT("Label ANT as LEFT", "A", "P", "Left-Right"),
     ANT_POST("Label ANT as ANT", "R", "L", "Ant-Post");
 
-    public String label, textL, textR;
-    private final String title;
+    public final String label, textL, textR, title;
 
     DisplayState(String label, String textL, String textR, String titleAP) {
         this.label = label;

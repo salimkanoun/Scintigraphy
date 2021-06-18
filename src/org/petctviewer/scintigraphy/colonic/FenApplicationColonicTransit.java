@@ -48,7 +48,7 @@ public class FenApplicationColonicTransit extends FenApplicationWorkflow {
 		this.popup = null;
 	}
 
-	private class popupColonicROIs extends JFrame {
+	private static class popupColonicROIs extends JFrame {
 
 		private static final long serialVersionUID = 1L;
 

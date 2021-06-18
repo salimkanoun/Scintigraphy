@@ -1,5 +1,7 @@
 package org.petctviewer.scintigraphy.gastric.dynamic;
 
+import org.apache.commons.lang3.time.DateUtils;
+import org.petctviewer.scintigraphy.gastric.ControllerWorkflow_Gastric;
 import org.petctviewer.scintigraphy.gastric.Model_Gastric;
 import org.petctviewer.scintigraphy.gastric.tabs.TabMethod1;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
@@ -15,6 +17,8 @@ import org.petctviewer.scintigraphy.scin.instructions.messages.EndInstruction;
 import org.petctviewer.scintigraphy.scin.instructions.prompts.PromptInstruction;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.model.ModelScin;
+
+import java.util.Date;
 
 public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 
@@ -44,22 +48,6 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		// Remove point 0
 		getModel().deactivateTime0();
 		getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
-
-		// Set background noise for stomach
-		/*
-		 * The background is calculated with the first dynamic image (in chronological
-		 * order).
-		 */
-		ImageState bkgState = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_CUSTOM_IMAGE);
-		bkgState.specifieImage(getModel().getFirstImage());
-		// Assumption: the order of the workflows is the same as the order of the images
-		// (which is reverse chronological)
-		Workflow workflowOfFirstImage = this.workflows[this.workflows.length - 1];
-		// Assumption: the first instruction is dri_stomach
-		Instruction instructionSelected = workflowOfFirstImage.getInstructionAt(0);
-
-		getModel().setBkgNoise(Model_Gastric.REGION_STOMACH, bkgState,
-				getRoiManager().getRoi(instructionSelected.getRoiIndex()));
 
 		final int NB_ROI_PER_IMAGE = 3;
 		ImageState previousState = null;
@@ -112,6 +100,9 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 	@Override
 	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
+
+		((ControllerWorkflow_Gastric) this.tabResult.getParent().getController()).specifiedTimeIngestion =
+				DateUtils.addMinutes(this.getModel().getFirstImage().getDateAcquisition(), -5);
 
 		DrawRoiInstruction dri_antre = null, dri_intestine = null;
 
@@ -169,6 +160,15 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 					((Model_Gastric) controller.getModel()).setBkgNoise(Model_Gastric.REGION_ANTRE,
 							controller.getCurrentImageState(),
 							controller.getRoiManager().getRoi(controller.getIndexLastRoiSaved()));
+
+					// Assumption: the order of the workflows is the same as the order of the images
+					// (which is reverse chronological)
+					Workflow workflowOfFirstImage = ControllerWorkflow_DynGastric.this.workflows[ControllerWorkflow_DynGastric.this.workflows.length - 1];
+					// Assumption: the first instruction is dri_stomach
+					Instruction instructionSelected = workflowOfFirstImage.getInstructionAt(0);
+
+					getModel().setBkgNoise(Model_Gastric.REGION_STOMACH, controller.getCurrentImageState(),
+							getRoiManager().getRoi(instructionSelected.getRoiIndex()));
 				}
 				if (dialog.intestineIsNowSelected()) {
 					((Model_Gastric) controller.getModel()).setBkgNoise(Model_Gastric.REGION_INTESTINE,

@@ -20,7 +20,6 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ControllerWorkflowParathyroid extends ControllerWorkflow implements ItemListener {

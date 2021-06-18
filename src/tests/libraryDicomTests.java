@@ -11,7 +11,6 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 
 import org.junit.jupiter.api.AfterEach;
@@ -35,8 +34,8 @@ public class libraryDicomTests {
 
     private DICOM dcm;
     private DICOM dcm2;
-    private String str = "Images/testImage.dcm";
-    private String str2 = "Images/poumonsReins.dcm";
+    private final String str = "Images/testImage.dcm";
+    private final String str2 = "Images/poumonsReins.dcm";
     private InputStream is;
     private InputStream is2;
     private BufferedInputStream bis;

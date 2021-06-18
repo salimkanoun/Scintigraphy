@@ -17,7 +17,7 @@ public class DynamicImage extends JPanel {
 
 	public static final int SCALED = 0, SCALED_KEEPRATIO = 3, TILED = 1, ACTUAL = 2; //affichage
 	
-	private Object interpolation = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
+	private final Object interpolation = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
 
 	private Paint painter;
 	private Image image;

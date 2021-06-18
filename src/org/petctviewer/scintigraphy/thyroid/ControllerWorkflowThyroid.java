@@ -26,7 +26,6 @@ import ij.gui.Roi;
 import ij.plugin.ContrastEnhancer;
 
 import java.awt.event.ItemEvent;
-import java.util.Arrays;
 
 
 public class ControllerWorkflowThyroid extends ControllerWorkflow implements ItemListener {

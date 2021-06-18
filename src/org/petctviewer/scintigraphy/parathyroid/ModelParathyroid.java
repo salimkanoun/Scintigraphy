@@ -30,8 +30,8 @@ public class ModelParathyroid extends ModelWorkflow {
 
     public static final int IMAGE_THYROIDPARA = 0, IMAGE_PARATHYROID = 1;
 
-    private List<Data> datas;
-	private Map<Integer, Double> results;
+    private final List<Data> datas;
+	private final Map<Integer, Double> results;
     
     /**
 	 * @param selectedImages Images needed for this study (generally those images are used in the workflows)

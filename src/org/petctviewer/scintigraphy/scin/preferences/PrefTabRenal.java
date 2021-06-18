@@ -14,7 +14,7 @@ public class PrefTabRenal extends PrefTab implements DocumentListener {
 
 	private static final long serialVersionUID = 1L;
 
-	private JTextField textField;
+	private final JTextField textField;
 
 	public PrefTabRenal(PrefWindow parent) {
 		super("Renal", parent);

@@ -3,7 +3,6 @@ package org.petctviewer.scintigraphy.hepatic.scintivol;
 import ij.ImagePlus;
 import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.library.Library_Roi;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
@@ -15,15 +14,14 @@ import java.util.Map;
 
 public class Model_Scintivol extends ModelScinDyn {
     private final Map<String, Roi> organRois;
-    private Map<String, Map<String, Double>> results;
-    private ImageSelection imsRetention;
+    private final Map<String, Map<String, Double>> results;
+    private final ImageSelection imsRetention;
     private double timeChart;
     private double tracerDelayTime;
     private final Map<String, Integer> pixelCounts;
     private double size;
     private double weight;
     private final ArrayList<String> organes;
-    private int[] frameDurations;
 
 
     public Model_Scintivol(ImageSelection[] selectedImages, String studyName, int[] frameDuration, ImageSelection imsRetention) {
@@ -40,7 +38,7 @@ public class Model_Scintivol extends ModelScinDyn {
 
         this.organes.add("Liver");
         this.organes.add("FOV");
-        this.organes.add("Other");
+        this.organes.add("Intermediate values");
     }
 
     public ArrayList<String> getOrganes() {
@@ -62,7 +60,7 @@ public class Model_Scintivol extends ModelScinDyn {
     }
 
 
-    private double getClairanceFT() {
+    private void getClairanceFT() {
         double L_t1 = this.results.get("Liver").get("t1");
         double L_t2 = this.results.get("Liver").get("t2");
 
@@ -79,16 +77,14 @@ public class Model_Scintivol extends ModelScinDyn {
         double res = 100 * 6 * (L_t2 - L_t1) / (A_t1 * AUC_t1_t2/H_t1);
         this.results.get("Intermediate values").put("Clairance FT",  res);
 
-        return  res;
     }
 
-    private double getNormalizedClairanceFT() {
+    private void getNormalizedClairanceFT() {
         double clairanceFT = this.results.get("Intermediate values").get("Clairance FT");
         double sc = this.results.get("Intermediate values").get("SC");
 
         double res = clairanceFT / sc;
         this.results.get("Intermediate values").put("Norm Clairance FT", res);
-        return  res;
     }
 
     /**
@@ -110,7 +106,7 @@ public class Model_Scintivol extends ModelScinDyn {
         return res;
     }
 
-    private double getBPActivity() {
+    private void getBPActivity() {
         double T_t1 = this.results.get("FOV").get("t1");
         double T_t2 = this.results.get("FOV").get("t2");
 
@@ -121,48 +117,42 @@ public class Model_Scintivol extends ModelScinDyn {
 
         double res = (T_t2 - L_t1 - (T_t1 - L_t1) * Cnorm_t2) / (1 - Cnorm_t2);
         this.results.get("Intermediate values").put("BP Activity", res);
-        return res;
     }
 
-    private double getSC() {
+    private void getSC() {
         double res = Math.sqrt((this.size * this.weight) / 3600);
         this.results.get("Intermediate values").put("SC", res);
 
-        return  res;
     }
 
     /**
      * Futur foie restant
-     * @return
      */
-    private double getFFR() {
+    private void getFFR() {
         double ft = this.results.get("Tomo").get("FT");     //Total liver
         double ffr = this.results.get("Tomo").get("FFR");   // Future remaining liver
 
         double res = ffr/ft;
         this.results.get("Intermediate values").put("FFR/FT", res);
-        return res;
     }
 
-    private double getClairanceFFR() {
+    private void getClairanceFFR() {
         double clairanceFT = this.results.get("Intermediate values").get("Clairance FT");
         double ffr_ft = this.results.get("Intermediate values").get("FFR/FT");
 
         double res = clairanceFT * ffr_ft;
         this.results.get("Intermediate values").put("Clairance FFR", res);
-        return res;
     }
 
-    private double getNormalizedClairanceFFR() {
+    private void getNormalizedClairanceFFR() {
         double clairanceFTNorm = this.results.get("Intermediate values").get("Norm Clairance FT");
         double ffr_ft = this.results.get("Intermediate values").get("FFR/FT");
 
         double res = clairanceFTNorm * ffr_ft;
         this.results.get("Intermediate values").put("Norm Clairance FFR", res);
-        return res;
     }
 
-    private double getRetentionRate() {
+    private void getRetentionRate() {
         double res;
         ImagePlus imp = this.imsRetention.getImagePlus();
 
@@ -178,7 +168,6 @@ public class Model_Scintivol extends ModelScinDyn {
         res = end/max;
         this.results.get("Intermediate values").put("Retention rate", res);
 
-        return res;
     }
 
     public void setCounts(int sliceT1, int sliceT2) {
@@ -199,25 +188,24 @@ public class Model_Scintivol extends ModelScinDyn {
         }
         this.results.get("Heart").put("AUC", this.getAUC(sliceT1, sliceT2));
 
+        this.getRetentionRate();
+
     }
 
     @Override
     public void calculateResults() {
-        int[] frameDurations = Library_Dicom.buildFrameDurations(this.getImagePlus());
-
-        this.setFrameduration(frameDurations);
         double tracerDelayTime = this.getTracerDelayTime();
-        int sliceT1 = getSliceIndexByTime((tracerDelayTime + 150) * 1000, frameDurations);
-        int sliceT2 = getSliceIndexByTime((tracerDelayTime + 350) * 1000, frameDurations);
-
-        this.setCounts(sliceT1, sliceT2);
+        int sliceT1 = getSliceIndexByTime((tracerDelayTime + 150) * 1000, this.getFrameDuration());
+        int sliceT2 = getSliceIndexByTime((tracerDelayTime + 350) * 1000, this.getFrameDuration());
 
         this.results.put("Intermediate values", new HashMap<>());
+        
+        this.setCounts(sliceT1, sliceT2);
+
         this.getSC();
         this.getBPActivity();
         this.getClairanceFT();
         this.getNormalizedClairanceFT();
-        this.getRetentionRate();
         if (this.results.containsKey("Tomo")) {
             this.getFFR();
             this.getClairanceFFR();

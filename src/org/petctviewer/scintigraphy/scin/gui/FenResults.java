@@ -127,6 +127,14 @@ public class FenResults extends JFrame {
 			tab.reloadDisplay();
 	}
 
+	/**
+	 * Returns the JTabbedPane of the result frame
+	 * @return JTabbedPane
+	 */
+	public JTabbedPane getTabPane() {
+		return this.tabPane;
+	}
+
 	public void setNewControllerForCaptureButton(ControllerScin controller) {
 		for (TabResult tab : this.tabsResult) {
 			for (ActionListener al : tab.getCaptureButton().getActionListeners())

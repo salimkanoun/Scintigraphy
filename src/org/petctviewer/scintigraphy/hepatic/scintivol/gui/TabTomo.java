@@ -57,7 +57,7 @@ public class TabTomo extends TabResult implements ActionListener {
         JPanel inputFFR = new JPanel(new GridLayout(1, 2));
         inputFFR.add(new JLabel(" "));
 
-        inputFFR.add(new JLabel("Future remaining liver counts (FRL)  "));
+        inputFFR.add(new JLabel("Future remnant liver's counts (FRL)  "));
         inputFFR.add(new JLabel(" "));
 
         this.ffrTextField = new JTextField();
@@ -85,7 +85,7 @@ public class TabTomo extends TabResult implements ActionListener {
         if (!model.getResults().containsKey("Tomo"))
             return res;
 
-        Map<String, Double> results = model.getResults().get("Other");
+        Map<String, Double> results = model.getResults().get("Intermediate values");
         JPanel container = new JPanel(new GridLayout(3, 3,0,3));
         container.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY,1));
 

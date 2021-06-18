@@ -3,6 +3,7 @@ package org.petctviewer.scintigraphy.scin.gui;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import javax.swing.*;
 
@@ -31,7 +32,7 @@ public class TabContrastModifier extends TabResult {
 	public TabContrastModifier(FenResults parent, String title) {
 		super(parent, title, true);
 
-		this.setComponentToHide(new ArrayList<>(Arrays.asList(slider)));
+		this.setComponentToHide(new ArrayList<>(Collections.singletonList(slider)));
 
 		this.boxSlider = null;
 		this.dynamicImp = null;

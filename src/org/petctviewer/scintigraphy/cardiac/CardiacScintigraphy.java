@@ -14,9 +14,7 @@ import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
-import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,15 +46,13 @@ public class CardiacScintigraphy extends Scintigraphy {
 	@Override
 	public void start(List<ImageSelection> preparedImages) {
 		initOverlayOnPreparedImages(preparedImages, 7);
-		Library_Gui.setOverlayDG(preparedImages.get(0).getImagePlus(), Color.YELLOW);
 
 		String[] infoOfAllImages = new String[preparedImages.size()];
 		for (int indexImage = 0; indexImage < preparedImages.size(); indexImage++)
 			infoOfAllImages[indexImage] = preparedImages.get(indexImage).getImagePlus().duplicate().getInfoProperty();
 
 		// fenetre de l'application
-		this.setFenApplication(new FenApplication_Cardiac(preparedImages.get(0), this.getStudyName(),
-				this.fullBodyImages.size() > 0, this.onlyThoraxImage.size() > 0));
+		this.setFenApplication(new FenApplication_Cardiac(preparedImages.get(0), this.getStudyName()));
 
 		// Cree controller
 		this.getFenApplication().setController(

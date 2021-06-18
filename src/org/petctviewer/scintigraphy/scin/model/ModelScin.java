@@ -28,7 +28,7 @@ public abstract class ModelScin {
 
     protected final String studyName;
     
-    private List<ControllerWorkflow> controllers;
+    private final List<ControllerWorkflow> controllers;
 
     /**
      * @param selectedImages Images needed for this study

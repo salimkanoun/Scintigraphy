@@ -1,9 +1,11 @@
 package org.petctviewer.scintigraphy.scin.instructions.execution;
 
 import ij.ImagePlus;
+import ij.gui.Overlay;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -23,6 +25,7 @@ public class ScreenShotInstruction extends ExecutionInstruction {
 
 	private final int captureHeight;
 	private final int captureWidth;
+	private boolean hideLabels;
 
 	/**
 	 * If the width or the height is set to 0, then the ratio is kept.<br> If both width and height are set to 0, then
@@ -42,6 +45,7 @@ public class ScreenShotInstruction extends ExecutionInstruction {
 		this.captureIndex = captureIndex;
 		this.captureHeight = captureHeight;
 		this.captureWidth = captureWidth;
+		this.hideLabels = false;
 	}
 
 	/**
@@ -56,10 +60,37 @@ public class ScreenShotInstruction extends ExecutionInstruction {
 		this(captures, fen, captureIndex, DEFAULT_CAPTURE_WIDTH, 0);
 	}
 
+	/**
+	 * The {@link #DEFAULT_CAPTURE_WIDTH} will be taken with this instantiation and the ratio will be kept.
+	 *
+	 * @param captures     	Array of images where the capture will be inserted
+	 * @param fen          	View where the capture will be taken from
+	 * @param captureIndex 	Index in the capture array where this instruction will store the new capture
+	 * @param hideLabels	Indicate if the capture should contains display of labels or not
+	 * @see Library_Capture_CSV#captureImage(ImagePlus, int, int)
+	 */
+	public ScreenShotInstruction(List<ImagePlus> captures, FenApplication fen, int captureIndex, boolean hideLabels) {
+		this(captures, fen, captureIndex, DEFAULT_CAPTURE_WIDTH, 0);
+		this.hideLabels = hideLabels;
+	}
+
 	@Override
 	public void prepareAsNext() {
-		ImagePlus capture = Library_Capture_CSV.captureImage(this.fen.getImagePlus(), this.captureWidth,
-															 this.captureHeight);
+		ImagePlus imp = this.fen.getImagePlus();
+		ImagePlus capture;
+
+		if (hideLabels) {
+			Overlay overlay = imp.getOverlay().duplicate();
+			Overlay tmp = overlay.duplicate();
+
+			Arrays.stream(tmp.toArray()).forEach(r -> r.setName(""));
+
+			imp.setOverlay(tmp);
+			capture = Library_Capture_CSV.captureImage(imp, this.captureWidth, this.captureHeight);
+			imp.setOverlay(overlay);
+
+		} else capture = Library_Capture_CSV.captureImage(imp, this.captureWidth, this.captureHeight);
+
 		if (this.captures.size() > this.captureIndex) {
 			// Replace the previous capture
 			this.captures.set(captureIndex, capture);

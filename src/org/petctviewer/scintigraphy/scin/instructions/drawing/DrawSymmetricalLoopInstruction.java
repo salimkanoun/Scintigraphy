@@ -20,7 +20,7 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 
 	private final transient Organ organ;
 
-	private boolean drawRoi;
+	private final boolean drawRoi;
 	
 	private boolean expectingUserInput;
 
@@ -85,11 +85,6 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 	}
 
 	@Override
-	public void stop() {
-		super.stop();
-	}
-
-	@Override
 	public boolean saveRoi() {
 		return this.drawRoi;
 	}
@@ -112,7 +107,7 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 			if (lastOrgan == null) { // si elle n'existe pas, on renvoie null
 				return;
 			}
-			lastOrgan = (Roi) lastOrgan.clone();
+			Roi newOrgan = (Roi) lastOrgan.clone();
 
 			// si la derniere roi etait post ou ant
 			boolean OrganPost =
@@ -121,17 +116,17 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 			// si on doit faire le symetrique et que l'on a appuye sur next
 
 			if (OrganPost) { // si la prise est ant, on decale l'organe precedent vers la droite
-				lastOrgan.setLocation(
+				newOrgan.setLocation(
 						lastOrgan.getXBase() - (this.workflow.getController().getVue().getImagePlus().getWidth() / 2.),
 						lastOrgan.getYBase());
 			} else { // sinon vers la gauche
-				lastOrgan.setLocation(
+				newOrgan.setLocation(
 						lastOrgan.getXBase() + (this.workflow.getController().getVue().getImagePlus().getWidth() / 2.),
 						lastOrgan.getYBase());
 			}
 			if (this.indexLoop % 2 != 0)
-				lastOrgan.setStrokeColor(Color.RED);
-			controller.getCurrentImageState().getImage().getImagePlus().setRoi(lastOrgan);
+				newOrgan.setStrokeColor(Color.RED);
+			controller.getCurrentImageState().getImage().getImagePlus().setRoi(newOrgan);
 		}
 	}
 

@@ -25,9 +25,9 @@ import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 public class MainTab extends TabResult {
 
-	private ContrastSlider slider;
-	private DynamicImage result;
-	private JLabel contrastSliderLabel;
+	private final ContrastSlider slider;
+	private final DynamicImage result;
+	private final JLabel contrastSliderLabel;
 
 	public MainTab(FenResults parent, ImageSelection capture) {
 		super(parent, "DMSA", true);

@@ -50,7 +50,7 @@ public class Library_Roi {
 	 * @return
 	 */
 	public static Roi createBkgRoi(Roi roi, ImagePlus imp, int organ) {
-		Roi bkg = null;
+		Roi bkg;
 		RoiManager rm = new RoiManager(true);
 
 		switch (organ) {
@@ -79,6 +79,7 @@ public class Library_Roi {
 
 		case Library_Roi.HEART:
 			// TODO
+			bkg = roi;
 			break;
 
 		case Library_Roi.INFLATGAUCHE:

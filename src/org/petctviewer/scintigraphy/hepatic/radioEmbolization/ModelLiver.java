@@ -31,8 +31,8 @@ public class ModelLiver extends ModelWorkflow{
 			
 	public static final int IMAGE_LIVER_LUNG = 0;
 	
-	private List<Data> datas;
-	private Map<Integer, Double> results;
+	private final List<Data> datas;
+	private final Map<Integer, Double> results;
 	
 	
 	/**

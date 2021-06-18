@@ -143,9 +143,12 @@ public class About extends JDialog implements PlugIn {
 						{"Esophageal Transit", "Pierre Pascal, Gerard Victor", "Diego Romero", "CHU Toulouse"},
 						{"Bone Scintigraphy", "Salim Kanoun", "Esteban Baicho", "IUCT Oncopole"},
 						{"Lymphoscintigraphy", "Pierre Pascal", "Esteban Baicho", "CHU Toulouse"},
+						{"Liver Function", "Pierre Pascal", "Lou-Anne Costes, Axel Metzinger", "CHU Toulouse"},
+						{"Gallbladder Scintigraphy", "Pierre Pascal", "Lou-Anne Costes, Axel Metzinger", "CHU Toulouse"},
+						{"Salivary Glands Scintigraphy", "Pierre Pascal", "Lou-Anne Costes, Axel Metzinger", "CHU Toulouse"},
 					},
 					new String[] {
-						"Software", "Creator", "Developper", "Institution"
+						"Software", "Creator", "Developer", "Institution"
 					}
 				));
 				table.getColumnModel().getColumn(0).setPreferredWidth(148);

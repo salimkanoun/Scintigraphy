@@ -37,7 +37,8 @@ public class DocumentationDialog extends JDialog {
 	private static final long serialVersionUID = 1L;
 	private final JPanel panPapers;
 	private final JPanel panInfo;
-	private Link linkYoutube, linkOnlineDoc;
+	private final Link linkYoutube;
+	private final Link linkOnlineDoc;
 	private Field designer, developper;
 
 	public DocumentationDialog(FenApplication parent) {
@@ -206,7 +207,7 @@ public class DocumentationDialog extends JDialog {
 	 * This class represents a field of the documentation dialog. A field can be composed of a label or a link.
 	 */
 	public static class Field {
-		private JLabel label;
+		private final JLabel label;
 		private JComponent value;
 		private String stringValue;
 

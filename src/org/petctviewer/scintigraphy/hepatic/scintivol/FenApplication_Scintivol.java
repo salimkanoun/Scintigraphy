@@ -47,6 +47,7 @@ public class FenApplication_Scintivol extends FenApplicationWorkflow {
     @Override
     public void setController(ControllerScin ctrl) {
         super.setController(ctrl);
+        this.setText_instructions("Click to start the exam");
     }
 
     @Override
@@ -80,6 +81,10 @@ public class FenApplication_Scintivol extends FenApplicationWorkflow {
             this.setImage(new ImageSelection(this.imp, null, null));
             this.updateSliceSelector();
             resizeCanvas();
+
+            ControllerWorkflow_Scintivol ctrl = (ControllerWorkflow_Scintivol) this.getController();
+            ctrl.generateInstructions();
+            ctrl.start();
         }
 
         super.actionPerformed(e);

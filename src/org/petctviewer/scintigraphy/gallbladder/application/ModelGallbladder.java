@@ -36,11 +36,11 @@ public class ModelGallbladder extends ModelScinDyn {
     //pour le condensé dynamique
     ArrayList<Object[]> dicomRoi;
     private final Map<String, Roi> organRois;
-    private ImageSelection ims;
+    private final ImageSelection ims;
     private Model_Resultats_Gallbladder modelResults;
 
-    private List<Data> datas;
-    private Map<Integer, Double> results;
+    private final List<Data> datas;
+    private final Map<Integer, Double> results;
 
     public ModelGallbladder(ImageSelection[] sauvegardeImagesSelectDicom, String studyName, int[] frameDuration) {
         super(sauvegardeImagesSelectDicom, studyName, frameDuration);
@@ -69,7 +69,7 @@ public class ModelGallbladder extends ModelScinDyn {
         this.roiManager = roiManager;
     }
 
-    private double getEjectionFraction(){
+    private void getEjectionFraction(){
         //correct organs with the background
        //datas.get(IMAGE_GALLBLADER).setAntValue(REGION_GALLBLADDER, Data.DATA_COUNTS_CORRECTED, correctValueWithBkgNoise(REGION_GALLBLADDER,false));
         ImagePlus imp = this.getImageSelection()[0].getImagePlus();
@@ -87,7 +87,6 @@ public class ModelGallbladder extends ModelScinDyn {
         double finalResult = result * 100;
         this.results.put(RES_GALLBLADDER.hashCode(), finalResult);
 
-        return  finalResult;
     }
 
     @Override
@@ -187,13 +186,14 @@ public class ModelGallbladder extends ModelScinDyn {
         return this.dicomRoi;
     }
 
+    public Model_Resultats_Gallbladder getModelResults() {
+        return modelResults;
+    }
+
     public void setModelResults(Model_Resultats_Gallbladder model){
         this.modelResults = model;
     }
 
-    public String toString(){
-        return this.modelResults.toString();
-    }
 
     public Map<Integer, Double> getResults() {
         return results;
@@ -214,5 +214,14 @@ public class ModelGallbladder extends ModelScinDyn {
             value = Unit.PERCENTAGE.convertTo(value, conversion);
         }
 		return new ResultValue(request, value, conversion);
+    }
+
+    @Override
+    public String toString(){
+
+	    double result = Library_Quantif.round(this.results.get(RES_GALLBLADDER.hashCode()),2);
+        return super.toString() + "\nEjection Fraction: "+ result + ",%\n";
+
+
     }
 }

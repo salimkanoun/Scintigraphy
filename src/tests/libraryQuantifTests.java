@@ -8,7 +8,6 @@ import ij.plugin.DICOM;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
@@ -26,8 +25,8 @@ public class libraryQuantifTests {
 
     private DICOM dcm;
     private DICOM dcm2;
-    private String str = "Images/testImage.dcm";
-    private String str2 = "Images/testImage2.dcm";
+    private final String str = "Images/testImage.dcm";
+    private final String str2 = "Images/testImage2.dcm";
     private InputStream is;
     private InputStream is2;
     private BufferedInputStream bis;

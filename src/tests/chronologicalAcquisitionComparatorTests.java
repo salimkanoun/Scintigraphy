@@ -33,8 +33,8 @@ public class chronologicalAcquisitionComparatorTests {
     private BufferedInputStream bis;
     private BufferedInputStream bis2;
 
-    ChronologicalAcquisitionComparator chr = new ChronologicalAcquisitionComparator();
-    ImagePlusComparator impc = new ImagePlusComparator();
+    final ChronologicalAcquisitionComparator chr = new ChronologicalAcquisitionComparator();
+    final ImagePlusComparator impc = new ImagePlusComparator();
 
     
     public static void main(String[] args){

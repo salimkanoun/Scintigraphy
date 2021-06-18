@@ -37,7 +37,7 @@ public class FitPanel extends JPanel implements ChartMouseListener, ItemListener
 	private XYSeriesCollection data;
 	private Fit fit;
 	private Unit unitY;
-	private List<ChangeListener> fitChangeListeners;
+	private final List<ChangeListener> fitChangeListeners;
 
 	public FitPanel() {
 		this.setLayout(new BorderLayout());

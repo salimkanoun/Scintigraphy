@@ -68,10 +68,19 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 		Box returnBox = Box.createVerticalBox();
 
 		JPanel resultRouge = new JPanel(new GridLayout(0, 1, 10, 10));
+
+
+
+		String	key = "Heart to contralateral";
+		JLabel labelHeartToControlateral = new JLabel(key + " : " + resultats.get(key));
+		labelHeartToControlateral.setFont(new Font("Arial", Font.BOLD, 20));
+		labelHeartToControlateral.setHorizontalAlignment(JLabel.CENTER);
+		labelHeartToControlateral.setForeground(new Color(128, 51, 0));
+		resultRouge.add(labelHeartToControlateral);
 		
-		String key = "Ratio H/WB %";
+		 key = "Ratio H/WB %";
 		JLabel lbl_hwb = new JLabel(key + " : " + resultats.get(key));
-		lbl_hwb.setFont(new Font("Arial", Font.BOLD, 20));
+		lbl_hwb.setFont(new Font("Arial", Font.BOLD, 15));
 		lbl_hwb.setHorizontalAlignment(JLabel.CENTER);
 
 		// System.out.println(resultats.get(key) == null);
@@ -88,15 +97,7 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 
 		// resultats.remove(key);
 		resultRouge.add(lbl_hwb);
-		
-		
-		key = "Heart to contralateral";
-		JLabel labelHeartToControlateral = new JLabel(key + " : " + resultats.get(key));
-		labelHeartToControlateral.setHorizontalAlignment(JLabel.CENTER);
-		labelHeartToControlateral.setForeground(new Color(128, 51, 0));
-		resultRouge.add(labelHeartToControlateral);
-		
-		
+
 		// on ajoute le pourcentage de retention cardiaque si il existe
 		key = "Cardiac retention %";
 		if (resultats.containsKey(key)) {
@@ -122,15 +123,17 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 
 		// Button and ComboBox for visualGradation
 		JPanel visualGradation = new JPanel(new GridLayout(0, 1));
-		JPanel labelCombo = new JPanel();
-		labelCombo.add(new JLabel("Visual Gradation : "));
-		labelCombo.add(this.getCombo());
-		visualGradation.add(labelCombo);
+
 		JPanel panelButton = new JPanel();
 		JButton btn_VisualGradation = new JButton("Visual Gradation info");
 		btn_VisualGradation.addActionListener(this);
 		panelButton.add(btn_VisualGradation);
 		visualGradation.add(panelButton);
+
+		JPanel labelCombo = new JPanel();
+		labelCombo.add(new JLabel("Visual Gradation : "));
+		labelCombo.add(this.getCombo());
+		visualGradation.add(labelCombo);
 
 		returnBox.add(visualGradation);
 
@@ -256,7 +259,7 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 	public void windowDeactivated(WindowEvent arg0) {
 	}
 
-	private class popupVisualCalibration extends JFrame {
+	private static class popupVisualCalibration extends JFrame {
 
 		private static final long serialVersionUID = 1L;
 

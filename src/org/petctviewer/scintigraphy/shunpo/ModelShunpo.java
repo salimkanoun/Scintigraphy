@@ -24,8 +24,8 @@ public class ModelShunpo extends ModelWorkflow {
 
 	public static final int IMAGE_KIDNEY_LUNG = 0, IMAGE_BRAIN = 1;
 
-	private List<Data> datas;
-	private Map<Integer, Double> results;
+	private final List<Data> datas;
+	private final Map<Integer, Double> results;
 
 	/**
 	 * @param selectedImages Images needed for this study (generally those images are used in the workflows)
@@ -84,7 +84,7 @@ public class ModelShunpo extends ModelWorkflow {
 			meanBkg = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(REGION_BACKGROUND, Data.DATA_MEAN_COUNTS);
 			pixels = datas.get(IMAGE_KIDNEY_LUNG).getAntValue(regionName, Data.DATA_PIXEL_COUNTS);
 		}
-		return counts - meanBkg * pixels;
+		return Math.max(counts - meanBkg * pixels, 1);
 	}
 
 	/**

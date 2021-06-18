@@ -20,9 +20,9 @@ import java.math.RoundingMode;
  * @author Titouan QUÉMA
  */
 public class ResultValue {
-	private ResultRequest request;
+	private final ResultRequest request;
 	private double value;
-	private boolean isExtrapolated;
+	private final boolean isExtrapolated;
 	private Unit unit;
 
 	/**
@@ -185,7 +185,7 @@ public class ResultValue {
 	 * @return rounded value for this result (2 decimals)
 	 */
 	public String roundedValue() {
-		return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).toString() + (isExtrapolated() ? "(*)" :
+		return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP) + (isExtrapolated() ? "(*)" :
 				"");
 	}
 

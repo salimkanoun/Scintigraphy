@@ -10,7 +10,6 @@ import org.petctviewer.scintigraphy.scin.exceptions.WrongNumberImagesException;
 import org.petctviewer.scintigraphy.scin.gui.DisplayState;
 import org.petctviewer.scintigraphy.scin.gui.DocumentationDialog;
 import org.petctviewer.scintigraphy.scin.gui.FenApplicationWorkflow;
-import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom;
 import org.petctviewer.scintigraphy.scin.gui.FenSelectionDicom.Column;
 import org.petctviewer.scintigraphy.scin.library.ChronologicalAcquisitionComparator;
 import org.petctviewer.scintigraphy.scin.library.Library_Dicom;
@@ -182,7 +181,7 @@ public class ParathyroidScintigraphy extends Scintigraphy {
  
 	private class RadioGroup implements ItemListener {
 
-		private Set<CheckboxMenuItem> items;
+		private final Set<CheckboxMenuItem> items;
 
 		public RadioGroup() {
 			this.items = new HashSet<>();

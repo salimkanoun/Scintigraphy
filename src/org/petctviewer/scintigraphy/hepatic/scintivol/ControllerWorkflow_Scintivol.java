@@ -28,9 +28,6 @@ public class ControllerWorkflow_Scintivol extends ControllerWorkflow {
 
     public ControllerWorkflow_Scintivol(FenApplicationWorkflow vue, ModelScin model) {
         super(vue, model);
-
-        this.generateInstructions();
-        this.start();
     }
 
     @Override

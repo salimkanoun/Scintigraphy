@@ -13,8 +13,8 @@ public class ModelScinStatic extends ModelScin {
 	private boolean isSingleSlice;
 	private boolean isAnt;
 
-	private HashMap<String, Object[]> roisAnt;
-	private HashMap<String, Object[]> roisPost;
+	private final HashMap<String, Object[]> roisAnt;
+	private final HashMap<String, Object[]> roisPost;
 
 	public ModelScinStatic(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);

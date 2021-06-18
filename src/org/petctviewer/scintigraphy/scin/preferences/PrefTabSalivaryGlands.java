@@ -11,7 +11,7 @@ public class PrefTabSalivaryGlands extends PrefTab implements DocumentListener {
             PREF_HEADER + ".citrus_inject_time";
 
     private static final long serialVersionUID = 1L;
-    private JTextField textField;
+    private final JTextField textField;
 
 
     public PrefTabSalivaryGlands(PrefWindow parent) {

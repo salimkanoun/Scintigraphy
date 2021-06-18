@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.renal.gui;
 
-import org.petctviewer.scintigraphy.renal.FenApplication_Renal;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 
 import javax.swing.*;

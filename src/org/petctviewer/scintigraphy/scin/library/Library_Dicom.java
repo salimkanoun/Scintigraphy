@@ -188,9 +188,7 @@ public class Library_Dicom {
 		//If no data presume detector 1 is anterior
 		int cameraNumber = Library_Dicom.getCameraNumberUniqueFrame(imp);
 		System.out.println("Orientation Not recognized, assuming vector 1 is anterior");
-		if (cameraNumber == 1) return true;
-
-		return false;
+		return cameraNumber == 1;
 
 	}
 

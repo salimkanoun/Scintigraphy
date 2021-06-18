@@ -31,8 +31,14 @@ import org.petctviewer.scintigraphy.scin.gui.TabResult;
 
 public class TabVisualGradation extends TabResult implements ActionListener {
 
-	private JRadioButton l0 = new JRadioButton("L0"), p1 = new JRadioButton("P1"), p2 = new JRadioButton("P2"), p3 =
-			new JRadioButton("P3"), t4 = new JRadioButton("T4"), t5 = new JRadioButton("T5"), t6 = new JRadioButton(
+	private final JRadioButton l0 = new JRadioButton("L0");
+	private final JRadioButton p1 = new JRadioButton("P1");
+	private final JRadioButton p2 = new JRadioButton("P2");
+	private final JRadioButton p3 =
+			new JRadioButton("P3");
+	private final JRadioButton t4 = new JRadioButton("T4");
+	private final JRadioButton t5 = new JRadioButton("T5");
+	private final JRadioButton t6 = new JRadioButton(
 			"T6");
 
 	private boolean imgSelected;

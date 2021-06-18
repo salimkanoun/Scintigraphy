@@ -543,7 +543,7 @@ public class Model_Gastric extends ModelWorkflow {
 		double ratioEggsInBody = (double) numActualImage / (double) nbTotalImages;
 		double percentEggsNotInBody = 100. - ratioEggsInBody * 100.;
 
-		if (region == REGION_FUNDUS) return percentEggsNotInBody + percentage * ratioEggsInBody;
+		if (region.equals(REGION_FUNDUS)) return percentEggsNotInBody + percentage * ratioEggsInBody;
 
 		return percentage * ratioEggsInBody;
 	}
@@ -756,8 +756,7 @@ public class Model_Gastric extends ModelWorkflow {
 				break;
 			case REGION_STOMACH:
 				this.bkgNoise_stomach = region;
-				double countsFundus = bkgNoise_stomach.getValue(Data.DATA_COUNTS) - bkgNoise_antre.getValue(
-						Data.DATA_COUNTS);
+				double countsFundus = bkgNoise_stomach.getValue(Data.DATA_COUNTS) - bkgNoise_antre.getValue(Data.DATA_COUNTS);
 				double pixelsFundus = bkgNoise_stomach.getValue(Data.DATA_PIXEL_COUNTS) - bkgNoise_antre.getValue(
 						Data.DATA_PIXEL_COUNTS);
 
@@ -917,9 +916,12 @@ public class Model_Gastric extends ModelWorkflow {
 			}
 
 			if (bkgNoise != null) {
+				
+				double correctedCount = data.getAntValue(region.getName(), Data.DATA_COUNTS) -
+				 (bkgNoise * data.getAntValue(region.getName(), Data.DATA_PIXEL_COUNTS));
+				correctedCount = Math.max(correctedCount, Double.MIN_VALUE);
 				data.setAntValue(region.getName(), Data.DATA_COUNTS,
-								 data.getAntValue(region.getName(), Data.DATA_COUNTS) -
-										 (bkgNoise * data.getAntValue(region.getName(), Data.DATA_PIXEL_COUNTS)));
+								 correctedCount);
 				if (bkgNoise == 0.) System.err.println("Warning: The background noise " + region + " is 0.");
 			}
 		}
@@ -927,6 +929,7 @@ public class Model_Gastric extends ModelWorkflow {
 		// Calculate total
 		data.setAntValue(REGION_ALL, Data.DATA_COUNTS, data.getAntValue(REGION_STOMACH, Data.DATA_COUNTS) +
 				data.getAntValue(REGION_INTESTINE, Data.DATA_COUNTS), null, null);
+
 
 		// Adjust percentages with eggs ratio
 		double percentage = this.adjustPercentageWithEggsRatio(REGION_FUNDUS, calculatePercentage(data, REGION_FUNDUS,
@@ -1156,10 +1159,11 @@ public class Model_Gastric extends ModelWorkflow {
 			try {
 				if (result == RES_TIME) return new ResultValue(request, BigDecimal.valueOf(data.getMinutes()).setScale(
 						2, RoundingMode.HALF_UP).doubleValue(), Unit.TIME);
-				if (result == RES_STOMACH) return new ResultValue(request, BigDecimal.valueOf(
-						data.getAntValue(REGION_STOMACH, Data.DATA_PERCENTAGE)).setScale(2,
-																						 RoundingMode.HALF_UP).doubleValue(),
-																  Unit.PERCENTAGE);
+				if (result == RES_STOMACH) {
+					System.out.println(data.getAntValue(REGION_STOMACH, Data.DATA_PERCENTAGE));
+					BigDecimal bigCount = BigDecimal.valueOf( data.getAntValue(REGION_STOMACH, Data.DATA_PERCENTAGE) );
+					return new ResultValue(request, bigCount.setScale(2, RoundingMode.HALF_UP).doubleValue(), Unit.PERCENTAGE);
+				}
 				if (result == RES_FUNDUS) return new ResultValue(request, BigDecimal.valueOf(
 						data.getAntValue(REGION_FUNDUS, Data.DATA_PERCENTAGE)).setScale(2,
 																						RoundingMode.HALF_UP).doubleValue(),

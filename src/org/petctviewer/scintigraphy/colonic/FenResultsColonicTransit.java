@@ -17,15 +17,15 @@ public class FenResultsColonicTransit extends FenResults {
 	public FenResultsColonicTransit(ControllerScin controller, List<ImagePlus> captures, int[] times) {
 		super(controller);
 
-		this.setMainTab(new TabMain(this, ""+times[0]+"h", controller, 0, captures.get(0)));
+		this.setMainTab(new TabMain(this, "" + times[0] + "h", controller, 0, captures.get(0)));
 		if (this.getController().getModel().getImageSelection().length > 2)
-			this.addTab(new TabMain(this, ""+times[1]+"h", controller, 1, captures.get(1)));
+			this.addTab(new TabMain(this, "" + times[1] + "h", controller, 1, captures.get(1)));
 		if (this.getController().getModel().getImageSelection().length > 3)
-			this.addTab(new TabMain(this, ""+times[2]+"h", controller, 2, captures.get(2)));
+			this.addTab(new TabMain(this, "" + times[2] + "h", controller, 2, captures.get(2)));
 
 	}
 
-	private class TabMain extends TabResult {
+	private static class TabMain extends TabResult {
 
 		private final ControllerScin controller;
 		private final int time;

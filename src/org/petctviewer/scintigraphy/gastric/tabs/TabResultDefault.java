@@ -486,8 +486,7 @@ public abstract class TabResultDefault extends TabResult implements ChangeListen
 					ResultRequest request;
 					if (seriesToGenerate == Model_Gastric.SERIES_STOMACH_PERCENTAGE) {
 						getModel().activateTime0();
-						getModel().setTimeIngestion(
-								((ControllerWorkflow_Gastric) parent.getController()).specifiedTimeIngestion);
+						getModel().setTimeIngestion(((ControllerWorkflow_Gastric) parent.getController()).specifiedTimeIngestion);
 						request = new ResultRequest(Model_Gastric.RETENTION_PERCENTAGE);
 					} else {
 						getModel().deactivateTime0();

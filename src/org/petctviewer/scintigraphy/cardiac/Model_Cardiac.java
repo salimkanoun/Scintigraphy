@@ -1,7 +1,6 @@
 package org.petctviewer.scintigraphy.cardiac;
 
 import java.util.HashMap;
-import java.util.List;
 
 import org.petctviewer.scintigraphy.scin.ImageSelection;
 import org.petctviewer.scintigraphy.scin.Scintigraphy;
@@ -75,11 +74,9 @@ public class Model_Cardiac extends ModelScin {
 	public void getResults() {
 		// controler=(Controller_Cardiac) scin.getFenApplication().getController();
 		ControllerWorkflowCardiac controler = (ControllerWorkflowCardiac) scin.getFenApplication().getController();
-		List<String> roiList = controler.getRoiList();
 
-		for (int i = 0; i < this.getRoiManager().getCount(); i++) {
+		for (Roi roi: this.getRoiManager().getRoisAsArray()) {
 			ImagePlus selectedImage = this.selectedImages[controler.getImageNumberByRoiIndex()].getImagePlus();
-			Roi roi = this.getRoiManager().getRoi(i);
 			selectedImage.setRoi((Roi) roi.clone());
 
 			// Array of Double, in 0 raw count, in 1 average count, in 2 number of pixels
@@ -88,7 +85,7 @@ public class Model_Cardiac extends ModelScin {
 			counts[1] = Library_Quantif.getAvgCounts(selectedImage);
 			counts[2] = (double) Library_Quantif.getPixelNumber(selectedImage);
 
-			this.data.put(roiList.get(i), counts);
+			this.data.put(roi.getName(), counts);
 		}
 
 	}
@@ -195,7 +192,7 @@ public class Model_Cardiac extends ModelScin {
 				// this.sumContE += Library_Quantif.moyGeom(contE.get(i)[0], contE.get(i)[1]);
 			}
 			// valeurs des contamination
-			Double sumContE = Library_Quantif.moyGeom(nonGeomSumCountE[0], nonGeomSumCountE[1]);
+			double sumContE = Library_Quantif.moyGeom(nonGeomSumCountE[0], nonGeomSumCountE[1]);
 
 			Double[] nonGeomSumCountL = new Double[] { 0.0d, 0.0d };
 			for (Integer i : contL.keySet()) {
@@ -203,7 +200,7 @@ public class Model_Cardiac extends ModelScin {
 				nonGeomSumCountL[1] += contL.get(i)[1];
 				// this.sumContL += Library_Quantif.moyGeom(contL.get(i)[0], contL.get(i)[1]);
 			}
-			Double sumContL = Library_Quantif.moyGeom(nonGeomSumCountL[0], nonGeomSumCountL[1]);
+			double sumContL = Library_Quantif.moyGeom(nonGeomSumCountL[0], nonGeomSumCountL[1]);
 
 			// calcul heart/whole body
 			this.hwb = (this.fixCoeurL)
@@ -237,11 +234,11 @@ public class Model_Cardiac extends ModelScin {
 
 				this.heartToWholeBody = fixCoeurL / wholeBodyCountLate;
 
-				Double retCardiaque = Library_Quantif.applyDecayFraction(delaySeconds, this.fixCoeurL,
+				double retCardiaque = Library_Quantif.applyDecayFraction(delaySeconds, this.fixCoeurL,
 						Library_Quantif.Isotope.TECHNETIUM_99) / wholeBodyCountEarly;
 
 				double sum = this.fixReinDL + this.fixVessieL + sumContL;
-				Double retCe = (this.totLate
+				double retCe = (this.totLate
 						- Library_Quantif.applyDecayFraction(delaySeconds, sum, Library_Quantif.Isotope.TECHNETIUM_99))
 						/ wholeBodyCountEarly;
 			}
