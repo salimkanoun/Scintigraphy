@@ -22,7 +22,7 @@ import java.util.List;
 public class ControllerWorkflow_Platelet extends ControllerWorkflow {
 
 	private List<ImagePlus> captures;
-	private boolean isAntPost;
+	private final boolean isAntPost;
 
 	/**
 	 * @param vue            View of the MVC pattern

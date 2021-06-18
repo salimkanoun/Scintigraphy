@@ -20,9 +20,9 @@ public class PrefWindow extends JFrame implements PlugIn, WindowListener {
 
 	public static final int DURATION_SHORT = 2000;
 
-	private List<PrefTab> tabs;
+	private final List<PrefTab> tabs;
 
-	private JLabel status;
+	private final JLabel status;
 	private Timer timer;
 
 	public PrefWindow() {

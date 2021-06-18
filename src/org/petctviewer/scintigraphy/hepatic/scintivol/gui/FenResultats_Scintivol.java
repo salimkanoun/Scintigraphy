@@ -18,9 +18,7 @@ public class FenResultats_Scintivol extends FenResults {
         this.addTab(new TabTomo(this, "TomoScintigraphy results"));
         this.addTab(new TabSynthese(this));
 
-        this.getTabPane().addChangeListener(l -> {
-            this.reloadAllTabs();
-        });
+        this.getTabPane().addChangeListener(l -> this.reloadAllTabs());
 
 
 

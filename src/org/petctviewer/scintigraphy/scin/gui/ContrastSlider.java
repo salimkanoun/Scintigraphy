@@ -24,7 +24,7 @@ public class ContrastSlider extends JSlider implements ChangeListener {
 	private static final long serialVersionUID = 1L;
 
 	private ImagePlus reference;
-	private DynamicImage result;
+	private final DynamicImage result;
 
 	public ContrastSlider(ImagePlus image, DynamicImage result, FenResults fenResults) {
 		super(JSlider.HORIZONTAL);

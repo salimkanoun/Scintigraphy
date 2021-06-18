@@ -41,10 +41,8 @@ public class MIBGScintigraphy extends Scintigraphy {
 	private void createDocumentation() {
 		DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
 		doc.setDeveloper("Angele Mateos");
-		doc.addReference(DocumentationDialog.Field.createTextField("With Kidney",
-				"VILLANEUEVA-MEYER Clinical " + "Nuclear Medecine 1986"));
-		doc.addReference(
-				DocumentationDialog.Field.createLinkField("Brain alone", "KROWKA Chest 2000", "http://google" + ".fr"));
+		doc.addReference(DocumentationDialog.Field.createLinkField("",
+				"CARRIÓ - JACC Cardiovasc Imaging. 2010", "https://pubmed.ncbi.nlm.nih.gov/20129538/"));
 		doc.setYoutube("");
 		doc.setOnlineDoc("");
 		this.getFenApplication().setDocumentation(doc);
@@ -128,11 +126,10 @@ public class MIBGScintigraphy extends Scintigraphy {
 	 * @param selectedImages
 	 * @return List<ImageSelection>
 	 * @throws WrongInputException
-	 * @throws ReadTagException
 	 */
 	@Override
 	public List<ImageSelection> prepareImages(List<ImageSelection> selectedImages)
-			throws WrongInputException, ReadTagException {
+			throws WrongInputException {
 		// Check that number of images is correct
 		if (selectedImages.size() != 2)
 			throw new WrongNumberImagesException(selectedImages.size(), 2);
@@ -183,7 +180,7 @@ public class MIBGScintigraphy extends Scintigraphy {
 
 	private class RadioGroup implements ItemListener {
 
-		private Set<CheckboxMenuItem> items;
+		private final Set<CheckboxMenuItem> items;
 
 		public RadioGroup() {
 			this.items = new HashSet<>();

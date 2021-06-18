@@ -18,7 +18,7 @@ public class PrefTabBone extends PrefTab {
 	private final JButton btn_choixLut;
 	private final JButton btn_displut;
 	private JFileChooser fc;
-	private JCheckBox checkBoxDefaultLut;
+	private final JCheckBox checkBoxDefaultLut;
 
 	public PrefTabBone(PrefWindow parent) {
 		super("Bone", parent);

@@ -21,7 +21,7 @@ public class DrawRoiInstruction implements Instruction, Serializable {
 	private final transient DrawRoiInstruction instructionToCopy;
 	protected InstructionFromGson.DrawInstructionType InstructionType =
 			InstructionFromGson.DrawInstructionType.DRAW_ROI;
-	protected String organToDelimit;
+	protected final String organToDelimit;
 	private boolean isAdjusting;
 	private int indexRoiToEdit;
 

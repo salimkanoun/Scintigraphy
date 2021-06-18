@@ -22,23 +22,21 @@ public class ToastMessage extends JFrame {
     }
 
     public void display(int time) {
-        Thread t = new Thread(() -> {
-            SwingUtilities.invokeLater(() -> {
-                try {
-                    ToastMessage.this.setOpacity(1);
-                    ToastMessage.this.setVisible(true);
-                    Thread.sleep(time);
+        Thread t = new Thread(() -> SwingUtilities.invokeLater(() -> {
+            try {
+                ToastMessage.this.setOpacity(1);
+                ToastMessage.this.setVisible(true);
+                Thread.sleep(time);
 
-                    for (float f=1; f > 0.2; f-=0.1) {
-                        Thread.sleep(100);
-                        ToastMessage.this.setOpacity(f);
-                    }
-                    ToastMessage.this.setVisible(false);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                for (float f=1; f > 0.2; f-=0.1) {
+                    Thread.sleep(100);
+                    ToastMessage.this.setOpacity(f);
                 }
-            });
-        });
+                ToastMessage.this.setVisible(false);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }));
 
         t.start();
     }

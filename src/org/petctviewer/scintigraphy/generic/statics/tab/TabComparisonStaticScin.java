@@ -78,6 +78,8 @@ public class TabComparisonStaticScin extends TabResult {
                 c2 = d;
         }
 
+        assert c1 != null;
+        assert c2 != null;
         res[0][0] = "Ratio " + c1[0] + "/" + c2[0];
         for (int i = 1; i < c1.length; i++) {
             res[0][i] = Library_Quantif.round((Double) c1[i] / (Double) c2[i], 2);

@@ -147,7 +147,7 @@ class TabPrecoce extends TabResult {
         JPanel pnl_patient = new JPanel(new GridLayout(2, 2, 0, 3));
         pnl_patient.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
         pnl_patient.add(new JLabel(" Size "));
-        JLabel val_size = new JLabel(String.valueOf(taille)+ " cm");
+        JLabel val_size = new JLabel(taille + " cm");
         pnl_patient.add(val_size );
 
         pnl_patient.add(new JLabel(" Weight "));

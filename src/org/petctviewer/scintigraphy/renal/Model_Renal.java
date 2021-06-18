@@ -29,7 +29,7 @@ public class Model_Renal extends ModelScinDyn {
 	private JValueSetter patlakChart;
 	private ImageSelection impAnt;
 	private final ImageSelection impPost/*, impProjetee*/;
-	private int[] frameDurations;
+	private final int[] frameDurations;
 	private final HashMap<String, Integer> pixelCounts;
 
 	/**

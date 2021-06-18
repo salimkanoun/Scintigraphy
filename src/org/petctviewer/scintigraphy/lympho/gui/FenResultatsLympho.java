@@ -9,7 +9,7 @@ public class FenResultatsLympho extends FenResults {
 
 	private static final long serialVersionUID = -4147119228896005654L;
 	
-	private TabPrincipalLympho mainTab;
+	private final TabPrincipalLympho mainTab;
 
 	public FenResultatsLympho(ControllerScin controller, ImagePlus[] captures) {
 		super(controller);

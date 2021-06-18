@@ -8,7 +8,7 @@ import javax.swing.event.ChangeEvent;
 public class FitChangeEvent extends ChangeEvent {
 
 	private static final long serialVersionUID = 1L;
-	private Fit fit;
+	private final Fit fit;
 
 	/**
 	 * Constructs a FitChangeEvent object.

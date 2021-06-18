@@ -752,7 +752,7 @@ public class SaveAndLoad {
 			}
 			in.close();
 		} catch (IOException e) {
-			System.out.println(e.toString());
+			e.printStackTrace();
 		} finally {
 			if (in != null)
 				try {
@@ -796,7 +796,7 @@ public class SaveAndLoad {
 			in.close();
 
 		} catch (IOException e) {
-			System.out.println(e.toString());
+			e.printStackTrace();
 		} finally {
 			if (in != null)
 				try {

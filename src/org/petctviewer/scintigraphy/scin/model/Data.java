@@ -41,7 +41,7 @@ public class Data {
 	private final Map<String, Region> regionsAnt;
 	private final Map<String, Region> regionsPost;
 
-	private ImageState state;
+	private final ImageState state;
 	private double time;
 
 	public Data(ImageState state, double time) {

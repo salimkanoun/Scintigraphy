@@ -2,6 +2,7 @@ package org.petctviewer.scintigraphy.gallbladder.resultats;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -283,7 +284,7 @@ public class Model_Resultats_Gallbladder extends ModelScin{
 	}
 
 	public int[] getTime(int numAcquisition) {
-		System.out.println(Library_Dicom.buildFrameDurations((ImagePlus) dicomRoi.get(numAcquisition)[0]));
+		System.out.println(Arrays.toString(Library_Dicom.buildFrameDurations((ImagePlus) dicomRoi.get(numAcquisition)[0])));
 		return Library_Dicom.buildFrameDurations((ImagePlus) dicomRoi.get(numAcquisition)[0]);
 	}
 

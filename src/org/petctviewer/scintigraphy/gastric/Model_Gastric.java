@@ -543,7 +543,7 @@ public class Model_Gastric extends ModelWorkflow {
 		double ratioEggsInBody = (double) numActualImage / (double) nbTotalImages;
 		double percentEggsNotInBody = 100. - ratioEggsInBody * 100.;
 
-		if (region == REGION_FUNDUS) return percentEggsNotInBody + percentage * ratioEggsInBody;
+		if (region.equals(REGION_FUNDUS)) return percentEggsNotInBody + percentage * ratioEggsInBody;
 
 		return percentage * ratioEggsInBody;
 	}
@@ -756,8 +756,7 @@ public class Model_Gastric extends ModelWorkflow {
 				break;
 			case REGION_STOMACH:
 				this.bkgNoise_stomach = region;
-				double countsFundus = bkgNoise_stomach.getValue(Data.DATA_COUNTS) - bkgNoise_antre.getValue(
-						Data.DATA_COUNTS);
+				double countsFundus = bkgNoise_stomach.getValue(Data.DATA_COUNTS) - bkgNoise_antre.getValue(Data.DATA_COUNTS);
 				double pixelsFundus = bkgNoise_stomach.getValue(Data.DATA_PIXEL_COUNTS) - bkgNoise_antre.getValue(
 						Data.DATA_PIXEL_COUNTS);
 
@@ -930,6 +929,7 @@ public class Model_Gastric extends ModelWorkflow {
 		// Calculate total
 		data.setAntValue(REGION_ALL, Data.DATA_COUNTS, data.getAntValue(REGION_STOMACH, Data.DATA_COUNTS) +
 				data.getAntValue(REGION_INTESTINE, Data.DATA_COUNTS), null, null);
+
 
 		// Adjust percentages with eggs ratio
 		double percentage = this.adjustPercentageWithEggsRatio(REGION_FUNDUS, calculatePercentage(data, REGION_FUNDUS,

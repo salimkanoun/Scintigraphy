@@ -32,8 +32,8 @@ public class ControllerWorkflowPostMictional extends ControllerWorkflow {
 
 	private final boolean[] kidneys;
 	public String[] organeListe;
-	private List<ImagePlus> captures;
-	private TabPostMict resultFrame;
+	private final List<ImagePlus> captures;
+	private final TabPostMict resultFrame;
 
 	public ControllerWorkflowPostMictional(FenApplicationWorkflow vue, ModelScin model, TabPostMict resultFrame) {
 		super(vue, model);

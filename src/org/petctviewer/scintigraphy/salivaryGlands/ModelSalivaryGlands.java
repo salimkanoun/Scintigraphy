@@ -4,7 +4,6 @@ import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.util.DicomTools;
 import org.petctviewer.scintigraphy.scin.ImageSelection;
-import org.petctviewer.scintigraphy.scin.gui.DynamicImage;
 import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 import org.petctviewer.scintigraphy.scin.model.ModelScinDyn;
 import org.petctviewer.scintigraphy.scin.model.Result;

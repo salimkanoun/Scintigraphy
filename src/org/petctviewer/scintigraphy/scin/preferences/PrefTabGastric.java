@@ -17,8 +17,8 @@ public class PrefTabGastric extends PrefTab implements ItemListener {
 			PREF_TIME_LAST_POINT = PREF_HEADER + ".timeLastPoint";
 	private static final long serialVersionUID = 1L;
 
-	private JTextField textField;
-	private JTextField tfLastPoint;
+	private final JTextField textField;
+	private final JTextField tfLastPoint;
 
 	public PrefTabGastric(JFrame parent) {
 		super("Gastric", parent);

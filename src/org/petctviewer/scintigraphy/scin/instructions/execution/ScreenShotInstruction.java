@@ -2,7 +2,6 @@ package org.petctviewer.scintigraphy.scin.instructions.execution;
 
 import ij.ImagePlus;
 import ij.gui.Overlay;
-import ij.gui.Roi;
 import org.petctviewer.scintigraphy.scin.gui.FenApplication;
 import org.petctviewer.scintigraphy.scin.library.Library_Capture_CSV;
 

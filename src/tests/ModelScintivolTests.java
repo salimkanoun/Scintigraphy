@@ -78,8 +78,8 @@ public class ModelScintivolTests {
 		assertEquals(11.55, Library_Quantif.round(res.get("AUC/Cnorm"), 2));
 		assertEquals(20.31, Library_Quantif.round(res.get("Clairance FT"), 2));
 		assertEquals(11.10, Library_Quantif.round(res.get("Norm Clairance FT"), 2));
-		assertEquals(0.557, Library_Quantif.round(res.get("FFR/FT"), 3));;
-		assertEquals(11.32, Library_Quantif.round(res.get("Clairance FFR"), 2));
+		assertEquals(0.557, Library_Quantif.round(res.get("FFR/FT"), 3));
+        assertEquals(11.32, Library_Quantif.round(res.get("Clairance FFR"), 2));
 		assertEquals(6.2, Library_Quantif.round(res.get("Norm Clairance FFR"), 1));
 	}
 }

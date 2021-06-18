@@ -19,8 +19,8 @@ public class ModelThyroid extends ModelWorkflow{
 
     public static final int IMAGE_FULL_SYRINGE = 0,  IMAGE_EMPTY_SYRINGE = 1, IMAGE_THYROID = 2;
 
-    private List<Data> datas;
-    private Map<Integer,Double> results;
+    private final List<Data> datas;
+    private final Map<Integer,Double> results;
 
     /**
      * @param selectedImages Images needed for this study(generally those images are used in the workflow)
@@ -58,7 +58,7 @@ public class ModelThyroid extends ModelWorkflow{
     private double correctValueWithBkgNoise(String regionName, boolean post){
         double counts, meanBkgL, meanBkgR, pixels;
         if(!post){
-            if(regionName == REGION_RIGHT_LOBE) {
+            if(regionName.equals(REGION_RIGHT_LOBE)) {
                 counts = datas.get(IMAGE_THYROID).getAntValue(regionName, Data.DATA_COUNTS);
                 System.out.println("Right counts : " + counts);
                 meanBkgR = datas.get(IMAGE_THYROID).getAntValue(REGION_BACKGROUND_RIGHT, Data.DATA_MEAN_COUNTS);

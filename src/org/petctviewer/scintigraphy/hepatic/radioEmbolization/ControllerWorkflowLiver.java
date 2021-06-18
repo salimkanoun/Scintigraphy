@@ -22,8 +22,6 @@ import org.petctviewer.scintigraphy.scin.library.Library_Gui;
 import ij.ImagePlus;
 import ij.ImageStack;
 import java.awt.event.ItemEvent;
-import java.util.Arrays;
-
 
 
 public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemListener{
@@ -52,13 +50,13 @@ public class ControllerWorkflowLiver extends ControllerWorkflow implements ItemL
             else state = statePost;
             // - Right lung
             getModel().addData(ModelLiver.REGION_RIGHT_LUNG, state,
-                    getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i]);
+                    getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE*i]);
             // - Left lung
             getModel().addData(ModelLiver.REGION_LEFT_LUNG, state,
-                    getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i+1]);
+                    getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE*i + 1]);
             // - Liver
             getModel().addData(ModelLiver.REGION_LIVER, state,
-                    getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE * i+2]);
+                    getRoiManager().getRoisAsArray()[NB_ROI_PER_IMAGE*i + 2]);
         }
 	}
 

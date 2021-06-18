@@ -29,11 +29,11 @@ public abstract class TabResult {
 
 	private final JSplitPane split;
 	private final SidePanel sidePanel;
-	protected FenResults parent;
+	protected final FenResults parent;
 	private String title;
 	private Container result;
-	private ArrayList<Component> componentToHide;
-	private ArrayList<Component> componentToShow;
+	private final ArrayList<Component> componentToHide;
+	private final ArrayList<Component> componentToShow;
 	private String additionalInfo;
 
 	/**

@@ -12,7 +12,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.LinkedList;
 
 public class ContaminationAskInstruction extends ExecutionInstruction implements ActionListener {
 
@@ -24,12 +23,12 @@ public class ContaminationAskInstruction extends ExecutionInstruction implements
 
 	private final transient ImageState state;
 
-	private String nameInstructionDrawLoop;
+	private final String nameInstructionDrawLoop;
 
 	private boolean instructionFlying;
 	private boolean finishInstruction;
 
-	private int position;
+	private final int position;
 
 	public ContaminationAskInstruction(Workflow workflow, ImageState state,
 									   String nameInstructionDrawLoop, int position) {
@@ -99,7 +98,7 @@ public class ContaminationAskInstruction extends ExecutionInstruction implements
 	}
 	
 	public Instruction getInstructionToGenerate() {
-		System.out.println("");
+		System.out.println();
 		return new DrawSymmetricalLoopInstruction(this.workflow, null, this.state, null,
 										   this.nameInstructionDrawLoop);
 	}

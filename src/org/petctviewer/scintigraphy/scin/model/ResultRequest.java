@@ -20,7 +20,7 @@ public class ResultRequest {
 	private Unit unit;
 
 	// Values from 0 -> 1000 are reserved for this class. Any other value can be used by programs
-	private Map<Integer, Object> payload;
+	private final Map<Integer, Object> payload;
 
 	public ResultRequest(Result resultOn) {
 		this.changeResultOn(resultOn);

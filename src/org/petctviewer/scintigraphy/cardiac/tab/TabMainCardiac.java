@@ -259,7 +259,7 @@ public class TabMainCardiac extends TabResult implements ActionListener, WindowL
 	public void windowDeactivated(WindowEvent arg0) {
 	}
 
-	private class popupVisualCalibration extends JFrame {
+	private static class popupVisualCalibration extends JFrame {
 
 		private static final long serialVersionUID = 1L;
 

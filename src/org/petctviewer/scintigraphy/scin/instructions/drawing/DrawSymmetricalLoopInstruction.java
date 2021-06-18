@@ -20,7 +20,7 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 
 	private final transient Organ organ;
 
-	private boolean drawRoi;
+	private final boolean drawRoi;
 	
 	private boolean expectingUserInput;
 
@@ -82,11 +82,6 @@ public class DrawSymmetricalLoopInstruction extends DrawLoopInstruction {
 		name += "" + (indexLoop / 2);
 
 		return name;
-	}
-
-	@Override
-	public void stop() {
-		super.stop();
 	}
 
 	@Override

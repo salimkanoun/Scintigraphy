@@ -155,12 +155,11 @@ public class PrefTabMain extends PrefTab {
 		return Toolbar.POLYGON;
 	}
 
-	private JLabel createLabel(Container container, String text) {
+	private void createLabel(Container container, String text) {
 		JLabel label = new JLabel(text);
 		label.setAlignmentX(JLabel.CENTER_ALIGNMENT);
 		label.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
 		container.add(label);
-		return label;
 	}
 
 	@Override

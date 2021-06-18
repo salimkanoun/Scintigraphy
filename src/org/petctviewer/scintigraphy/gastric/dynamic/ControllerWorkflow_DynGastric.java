@@ -49,22 +49,6 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 		getModel().deactivateTime0();
 		getModel().setTimeIngestion(getModel().getFirstImage().getDateAcquisition());
 
-		// Set background noise for stomach
-		/*
-		 * The background is calculated with the first dynamic image (in chronological
-		 * order).
-		 */
-		ImageState bkgState = new ImageState(Orientation.ANT, 1, ImageState.LAT_RL, ImageState.ID_CUSTOM_IMAGE);
-		bkgState.specifieImage(getModel().getFirstImage());
-		// Assumption: the order of the workflows is the same as the order of the images
-		// (which is reverse chronological)
-		Workflow workflowOfFirstImage = this.workflows[this.workflows.length - 1];
-		// Assumption: the first instruction is dri_stomach
-		Instruction instructionSelected = workflowOfFirstImage.getInstructionAt(0);
-
-		getModel().setBkgNoise(Model_Gastric.REGION_STOMACH, bkgState,
-				getRoiManager().getRoi(instructionSelected.getRoiIndex()));
-
 		final int NB_ROI_PER_IMAGE = 3;
 		ImageState previousState = null;
 		for (int image = 0; image < getModel().getImageSelection().length; image++) {
@@ -117,8 +101,8 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 	protected void generateInstructions() {
 		this.workflows = new Workflow[this.model.getImageSelection().length];
 
-		Date firstAcquisition = DateUtils.addMinutes(this.getModel().getFirstImage().getDateAcquisition(), -3);
-		((ControllerWorkflow_Gastric) this.tabResult.getParent().getController()).specifiedTimeIngestion = firstAcquisition;
+		((ControllerWorkflow_Gastric) this.tabResult.getParent().getController()).specifiedTimeIngestion =
+				DateUtils.addMinutes(this.getModel().getFirstImage().getDateAcquisition(), -5);
 
 		DrawRoiInstruction dri_antre = null, dri_intestine = null;
 
@@ -176,6 +160,15 @@ public class ControllerWorkflow_DynGastric extends ControllerWorkflow {
 					((Model_Gastric) controller.getModel()).setBkgNoise(Model_Gastric.REGION_ANTRE,
 							controller.getCurrentImageState(),
 							controller.getRoiManager().getRoi(controller.getIndexLastRoiSaved()));
+
+					// Assumption: the order of the workflows is the same as the order of the images
+					// (which is reverse chronological)
+					Workflow workflowOfFirstImage = ControllerWorkflow_DynGastric.this.workflows[ControllerWorkflow_DynGastric.this.workflows.length - 1];
+					// Assumption: the first instruction is dri_stomach
+					Instruction instructionSelected = workflowOfFirstImage.getInstructionAt(0);
+
+					getModel().setBkgNoise(Model_Gastric.REGION_STOMACH, controller.getCurrentImageState(),
+							getRoiManager().getRoi(instructionSelected.getRoiIndex()));
 				}
 				if (dialog.intestineIsNowSelected()) {
 					((Model_Gastric) controller.getModel()).setBkgNoise(Model_Gastric.REGION_INTESTINE,

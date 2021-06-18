@@ -34,8 +34,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 		doc.addReference(DocumentationDialog.Field.createTextField("With Kidney", "VILLANEUEVA-MEYER Clinical " +
 				"Nuclear Medecine 1986"));
 		doc.addReference(
-				DocumentationDialog.Field.createLinkField("Brain alone", "KROWKA Chest 2000", "http://google" + ".fr"
-				));
+				DocumentationDialog.Field.createTextField("Brain alone", "KROWKA Chest 2000"));
 		doc.setYoutube("");
 		doc.setOnlineDoc("");
 		this.getFenApplication().setDocumentation(doc);
@@ -127,7 +126,7 @@ public class ShunpoScintigraphy extends Scintigraphy {
 
 	private class RadioGroup implements ItemListener {
 
-		private Set<CheckboxMenuItem> items;
+		private final Set<CheckboxMenuItem> items;
 
 		public RadioGroup() {
 			this.items = new HashSet<>();

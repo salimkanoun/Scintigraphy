@@ -33,14 +33,14 @@ public class ControllerWorkflowCardiac extends ControllerWorkflow {
 
 	// private int nbConta1;
 	// private int nbConta2;
-	public List<ImagePlus> captures;
+	public final List<ImagePlus> captures;
 	private boolean finContSlice1, finContSlice2;
 	private String[] organes = { "Bladder", "Kidney R", "Kidney L", "Heart", "Bkg noise" };
 	private final int onlyThoraxImage;
 
 	private final int fullBodyImages;
 
-	public static String simpleName = "ControllerWorkflowCardiac";
+	public static final String simpleName = "ControllerWorkflowCardiac";
 
 	public ControllerWorkflowCardiac(FenApplicationWorkflow vue, ModelScin model, int fullBodyImages,
 									 int onlyThoraxImage) {

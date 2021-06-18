@@ -19,7 +19,7 @@ public class ModelMIBG extends ModelWorkflow {
 	private static final String[] ORGANS = { "Early Heart", "Early Mediastinum", "Late Heart", "Late Mediastinum" };
 
 	private final HashMap<String, Double> dataImage;
-	private Map<Integer, Double> results;
+	private final Map<Integer, Double> results;
 
 	public ModelMIBG(ImageSelection[] selectedImages, String studyName) {
 		super(selectedImages, studyName);

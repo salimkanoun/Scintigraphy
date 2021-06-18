@@ -35,7 +35,7 @@ public class ThyroidScintigraphy extends Scintigraphy {
     private void createDocumentation(){
         final DocumentationDialog doc = new DocumentationDialog(this.getFenApplication());
         doc.setDeveloper("Diego Rodriguez");
-        doc.addReference(DocumentationDialog.Field.createTextField("Thyroid", "VILLANEUEVA-MEYER Clinical"
+        doc.addReference(DocumentationDialog.Field.createTextField("Thyroid", "VILLANEUEVA-MEYER Clinical "
                 + "Nuclear Medicine 1986"));
         doc.setYoutube("");
         doc.setOnlineDoc("");

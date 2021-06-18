@@ -17,8 +17,8 @@ public abstract class PrefTab extends JPanel implements ActionListener {
 	 * Preference window where this tab is linked to.<br> Can be null!
 	 */
 	protected JFrame parent;
-	private String prefTabName;
-	private JLabel title;
+	private final String prefTabName;
+	private final JLabel title;
 
 	/**
 	 * Instantiates a new preference tab not linked to any preference window.

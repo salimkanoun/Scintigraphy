@@ -36,11 +36,11 @@ public class ModelGallbladder extends ModelScinDyn {
     //pour le condensé dynamique
     ArrayList<Object[]> dicomRoi;
     private final Map<String, Roi> organRois;
-    private ImageSelection ims;
+    private final ImageSelection ims;
     private Model_Resultats_Gallbladder modelResults;
 
-    private List<Data> datas;
-    private Map<Integer, Double> results;
+    private final List<Data> datas;
+    private final Map<Integer, Double> results;
 
     public ModelGallbladder(ImageSelection[] sauvegardeImagesSelectDicom, String studyName, int[] frameDuration) {
         super(sauvegardeImagesSelectDicom, studyName, frameDuration);
@@ -69,7 +69,7 @@ public class ModelGallbladder extends ModelScinDyn {
         this.roiManager = roiManager;
     }
 
-    private double getEjectionFraction(){
+    private void getEjectionFraction(){
         //correct organs with the background
        //datas.get(IMAGE_GALLBLADER).setAntValue(REGION_GALLBLADDER, Data.DATA_COUNTS_CORRECTED, correctValueWithBkgNoise(REGION_GALLBLADDER,false));
         ImagePlus imp = this.getImageSelection()[0].getImagePlus();
@@ -87,7 +87,6 @@ public class ModelGallbladder extends ModelScinDyn {
         double finalResult = result * 100;
         this.results.put(RES_GALLBLADDER.hashCode(), finalResult);
 
-        return  finalResult;
     }
 
     @Override
@@ -187,6 +186,10 @@ public class ModelGallbladder extends ModelScinDyn {
         return this.dicomRoi;
     }
 
+    public Model_Resultats_Gallbladder getModelResults() {
+        return modelResults;
+    }
+
     public void setModelResults(Model_Resultats_Gallbladder model){
         this.modelResults = model;
     }
@@ -217,13 +220,7 @@ public class ModelGallbladder extends ModelScinDyn {
     public String toString(){
 
 	    double result = Library_Quantif.round(this.results.get(RES_GALLBLADDER.hashCode()),2);
-        StringBuilder res = new StringBuilder(super.toString());
-
-        res.append("\n");
-        res.append("Ejection Fraction : ");
-        res.append(result).append(",%\n");
-
-        return res.toString();
+        return super.toString() + "\nEjection Fraction: "+ result + ",%\n";
 
 
     }

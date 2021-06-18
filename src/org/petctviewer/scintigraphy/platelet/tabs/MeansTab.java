@@ -15,8 +15,8 @@ import java.util.List;
 
 public class MeansTab extends TabResult {
 
-	private List<ImagePlus> capture;
-	private boolean geoAvg;
+	private final List<ImagePlus> capture;
+	private final boolean geoAvg;
 
 	public MeansTab(FenResults parent, List<ImagePlus> capture, boolean geoAvg) {
 		super(parent, "Results Means");

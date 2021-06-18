@@ -30,9 +30,9 @@ public class TabVisualGradationCardiac extends TabResult implements ActionListen
 
 //	private ButtonGroup radio;
 
-	private BufferedImage capture;
+	private final BufferedImage capture;
 
-	private HashMap<String, String> resultsThorax;
+	private final HashMap<String, String> resultsThorax;
 
 	public TabVisualGradationCardiac(FenResults parent, String title, HashMap<String, String> resultsThorax,
 									 BufferedImage capture, int onlyThoraxImage) {

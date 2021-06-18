@@ -78,17 +78,13 @@ public class JTableCheckBox extends JPanel {
 			ch.setName(i+"");
 			ch.addActionListener(e -> {
 				JCheckBox selected = (JCheckBox)e.getSource();
-				if(selected.isSelected()){
-					setStateCheckboxHeadRows(Integer.parseInt(selected.getName()), true);
-					/*
+				/*
 					for(int j =0; j< checkboxHeadRows.length;j++) {
 						if(checkboxHeadRows[j].equals(e.getSource())) {
 							setStateCheckboxHeadRows(j,true);
 						}
 					}*/
-				}else{
-					setStateCheckboxHeadRows(Integer.parseInt(selected.getName()), false);
-				}
+				setStateCheckboxHeadRows(Integer.parseInt(selected.getName()), selected.isSelected());
 			});
 			checkboxHeadRows[i] =ch;
 		}
@@ -175,11 +171,7 @@ public class JTableCheckBox extends JPanel {
 	public void setTable(boolean[][] table) {
 		for(int i =0; i<checkboxInterior.length; i++) {
 			for(int j =0; j<checkboxInterior[i].length; j++) {
-				if(table[i][j]) {
-					checkboxInterior[i][j].setSelected(true);
-				}else {
-					checkboxInterior[i][j].setSelected(false);
-				}
+				checkboxInterior[i][j].setSelected(table[i][j]);
 			}
 		}
 	}

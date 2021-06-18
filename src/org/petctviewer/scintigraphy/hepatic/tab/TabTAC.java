@@ -132,7 +132,6 @@ public class TabTAC {
 		this.result = this.getResultContent() == null ? new JPanel() : this.getResultContent();
 		this.panel.add(this.result, BorderLayout.CENTER);
 		this.parent.repaint();
-;
 	}
 
 	protected ImagePlus montage(ImageStack captures) {

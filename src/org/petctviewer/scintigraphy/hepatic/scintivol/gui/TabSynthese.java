@@ -1,6 +1,5 @@
 package org.petctviewer.scintigraphy.hepatic.scintivol.gui;
 
-import ij.plugin.Grid;
 import org.petctviewer.scintigraphy.hepatic.scintivol.Model_Scintivol;
 import org.petctviewer.scintigraphy.scin.gui.FenResults;
 import org.petctviewer.scintigraphy.scin.gui.TabResult;
@@ -8,7 +7,6 @@ import org.petctviewer.scintigraphy.scin.library.Library_Quantif;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.Map;
 
 public class TabSynthese extends TabResult {

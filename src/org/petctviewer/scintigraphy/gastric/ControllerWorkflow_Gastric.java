@@ -221,11 +221,6 @@ public class ControllerWorkflow_Gastric extends ControllerWorkflow {
 	}
 
 	@Override
-	public void clickPrevious() {
-		super.clickPrevious();
-	}
-
-	@Override
 	public Model_Gastric getModel() {
 		return (Model_Gastric) this.model;
 	}

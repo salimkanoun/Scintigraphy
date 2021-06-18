@@ -15,8 +15,8 @@ import java.util.List;
 
 public class CountsTab extends TabResult {
 
-	private List<ImagePlus> capture;
-	private boolean geoAvg;
+	private final List<ImagePlus> capture;
+	private final boolean geoAvg;
 
 	public CountsTab(FenResults parent, List<ImagePlus> capture, boolean geoAvg) {
 		super(parent, "Results Counts");
