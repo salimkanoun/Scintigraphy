@@ -137,7 +137,7 @@ public class SaveAndLoad {
 				e.printStackTrace();
 			}
 		}
-
+		
 		if (subDirectory.mkdirs()) {
 
 			File f = new File(subDirectory + File.separator + nomFichier + ".csv");
@@ -218,6 +218,16 @@ public class SaveAndLoad {
 			// Patient
 			String pathFinal = path + File.separator + nomProgramme + File.separator + infoPatient[1] + File.separator + infoPatient[2];
 			File subDirectory = new File(pathFinal);
+			
+			if (subDirectory.isDirectory()) {
+				try {
+					FileUtils.cleanDirectory(subDirectory); // clean out directory (this is optional -- but good know)
+					FileUtils.forceDelete(subDirectory); // delete directory
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			
 			if (subDirectory.mkdirs()) {
 
 				String nomFichier = infoPatient[1] + "_" + infoPatient[2] + additionalInfo;
@@ -671,15 +681,6 @@ public class SaveAndLoad {
 
 			controller.getVue().setNbInstructions(controller.allInputInstructions().size());
 
-			String jsonInString = gson.toJson(workflowsFromGson);
-			System.out.println(jsonInString);
-			//
-			//
-			String workflowInString = gson.toJson(controller.getWorkflows());
-			System.out.println(workflowInString);
-
-			// System.out.println("\n\n\n");
-
 		}
 
 		return workflowsFromGson;
@@ -810,8 +811,6 @@ public class SaveAndLoad {
 				}
 		}
 
-		// System.out.println(roi);
-		// System.out.println(roi.getName() + "\n");
 		List<Roi> rois = new ArrayList<>(Arrays.asList(ROIsArray));
 
 		if (nRois == 0)
