@@ -338,7 +338,7 @@ public class Model_Cardiac extends ModelScin {
 			this.resultats.put("Cardiac retention %", "" + Library_Quantif.round(this.heartRetention * 100, 2));
 			this.resultats.put("Ratio H/WB %", "" + Library_Quantif.round(this.heartToWholeBody * 100, 2));
 		} else {
-			this.resultats.put("Ratio H/WB %", "" + Library_Quantif.round(this.hwb * 100, 2));
+			this.resultats.put("Ratio H/WB (per thousand)", "" + Library_Quantif.round(this.hwb * 1000, 0));
 		}
 
 //		this.resultats.put("WB late (3h)", "" + Library_Quantif.round(this.totLate, 2));

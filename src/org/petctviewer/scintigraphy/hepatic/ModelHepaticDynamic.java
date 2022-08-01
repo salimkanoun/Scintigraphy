@@ -200,21 +200,21 @@ public class ModelHepaticDynamic extends ModelScinDyn {
 		HashMap<String, String> hm = new HashMap<>();
 
 		// foie droit
-		hm.put("T1/2 Righ Liver", this.tDemiFoieDObs + "mn");
-		hm.put("T1/2 Righ Liver *", this.tDemiFoieDFit + "mn");
+		hm.put("T1/2 Righ Liver", Library_Quantif.round(this.tDemiFoieDObs, 1) + "mn");
+		hm.put("T1/2 Righ Liver *", Library_Quantif.round(this.tDemiFoieDFit, 1) + "mn");
 		hm.put("Maximum Right Liver", Library_Quantif.round(this.maxFoieD, 1) + "mn");
 		hm.put("end/max Ratio Right", (int) (this.finPicD * 100) + "%");
 
 		// foie gauche
-		hm.put("T1/2 Left Liver", this.tDemiFoieGObs + "mn");
-		hm.put("T1/2 Left Liver *", this.tDemiFoieGFit + "mn");
+		hm.put("T1/2 Left Liver", Library_Quantif.round(this.tDemiFoieGObs, 1) + "mn");
+		hm.put("T1/2 Left Liver *", Library_Quantif.round(this.tDemiFoieGFit, 1) + "mn");
 		hm.put("Maximum Left Liver", Library_Quantif.round(this.maxFoieG, 1) + "mn");
 		hm.put("end/max Ratio Left", (int) (this.finPicG * 100) + "%");
 
 		// vasculaire
 		hm.put("Blood pool ratio 20mn/5mn", (int) (this.pctVasc * 100) + "%");
-		hm.put("T1/2 Blood pool", this.tDemiVascObs + "mn");
-		hm.put("T1/2 Blood pool *", this.tDemiVascFit + "mn");
+		hm.put("T1/2 Blood pool", Library_Quantif.round(this.tDemiVascObs, 1) + "mn");
+		hm.put("T1/2 Blood pool *", Library_Quantif.round(this.tDemiVascFit, 1) + "mn");
 
 		return hm;
 	}
